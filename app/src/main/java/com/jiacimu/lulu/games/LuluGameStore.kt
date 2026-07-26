@@ -7,7 +7,18 @@ import kotlinx.coroutines.flow.update
 import java.time.Instant
 import java.util.UUID
 
-enum class LuluGameType { SignalHunt, MemoryMatch, MoodGuess }
+enum class LuluGameType {
+    SignalHunt,
+    PerfectMan,
+    RoleplayAdventure,
+    TurtleSoup,
+    RapportQuiz,
+    RockPaperScissors,
+    YachtDice,
+    Gomoku,
+    MemoryMatch,
+    MoodGuess,
+}
 
 data class LuluGameRecord(
     val id: String = UUID.randomUUID().toString(),
@@ -70,13 +81,7 @@ class LuluGameStore {
         val attempts = current.attempts + position
         if (position == current.target) {
             val score = (120 - (attempts.size - 1) * 15).coerceAtLeast(30)
-            finishGame(
-                type = LuluGameType.SignalHunt,
-                title = "信号追踪",
-                score = score,
-                reward = 12,
-                summary = "在第 ${attempts.size} 次定位到信号 ${current.target}",
-            )
+            recordGame(LuluGameType.SignalHunt, "信号追踪", score, 12, "在第 ${attempts.size} 次定位到信号 ${current.target}")
             mutableState.update { it.copy(signalHunt = current.copy(attempts = attempts, finished = true)) }
         } else {
             mutableState.update { it.copy(signalHunt = current.copy(attempts = attempts)) }
@@ -98,11 +103,16 @@ class LuluGameStore {
         val pair = opened.toList()
         val matched = if (current.cards[pair[0]] == current.cards[pair[1]]) current.matched + opened else current.matched
         val finished = matched.size == current.cards.size
-        val next = current.copy(opened = if (pair.toSet().all { it in matched }) emptySet() else opened, matched = matched, moves = current.moves + 1, finished = finished)
+        val next = current.copy(
+            opened = if (pair.toSet().all { it in matched }) emptySet() else opened,
+            matched = matched,
+            moves = current.moves + 1,
+            finished = finished,
+        )
         mutableState.update { it.copy(memoryMatch = next) }
         if (finished) {
             val score = (160 - next.moves * 10).coerceAtLeast(40)
-            finishGame(LuluGameType.MemoryMatch, "记忆配对", score, 15, "用 ${next.moves} 步完成全部配对")
+            recordGame(LuluGameType.MemoryMatch, "记忆配对", score, 15, "用 ${next.moves} 步完成全部配对")
         }
     }
 
@@ -122,7 +132,7 @@ class LuluGameStore {
         val round = mutableState.value.moodRound
         val correct = option == round.answer
         mutableState.update { it.copy(moodAnswered = option) }
-        finishGame(
+        recordGame(
             LuluGameType.MoodGuess,
             "心情猜猜看",
             if (correct) 100 else 30,
@@ -140,7 +150,11 @@ class LuluGameStore {
         mutableState.update { it.copy(moodRound = rounds.random(), moodAnswered = null) }
     }
 
-    private fun finishGame(type: LuluGameType, title: String, score: Int, reward: Int, summary: String) {
+    fun recordExternalGame(type: LuluGameType, title: String, score: Int, reward: Int, summary: String) {
+        recordGame(type, title, score.coerceAtLeast(0), reward.coerceAtLeast(0), summary)
+    }
+
+    private fun recordGame(type: LuluGameType, title: String, score: Int, reward: Int, summary: String) {
         mutableState.update { state ->
             val record = LuluGameRecord(
                 type = type,
