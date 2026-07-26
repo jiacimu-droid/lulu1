@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T12:22:00.863472+00:00",
-  "commit": "397fbc8df5727d30619c66997a94a58080430678",
+  "generatedAt": "2026-07-26T12:23:49.160775+00:00",
+  "commit": "fab760ba4494a6118c86b270d2ac7002180eee8b",
   "branch": "main",
-  "sourceFingerprint": "dac40c7b42c121208a4176e375d30c7c7481ea7a009074da56b1be84b2ecb897",
+  "sourceFingerprint": "91e7b54c6c2a23029f698ea614bd90cd2ce4a2dad1f28a0d0bfec61578d44f93",
   "summary": {
     "files": 30,
-    "lines": 5839,
+    "lines": 5831,
     "symbols": 189
   },
   "symbolIndex": {
@@ -909,7 +909,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 118
+        "line": 121
       }
     ],
     "ExamAppState": [
@@ -1101,31 +1101,31 @@
     "StudyState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 125
+        "line": 128
       }
     ],
     "StudyLevels": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 146
+        "line": 149
       }
     ],
     "levelForExperience": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 151
+        "line": 152
       }
     ],
     "currentLevelStart": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 154
+        "line": 153
       }
     ],
     "nextLevelTarget": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 156
+        "line": 154
       }
     ]
   },
@@ -1944,8 +1944,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-      "lines": 203,
-      "sha256": "f47c1c94f151f96ab066df579b922e21abd2a3002f5bc719e891776cfd2cc036",
+      "lines": 195,
+      "sha256": "ff99c2207124ef1dfdd8e3ccac0f26b0e72eaf44d2853cd0a56684219ab01e9e",
       "symbols": [
         {
           "name": "StudyTaskSource",
@@ -2013,27 +2013,27 @@
         },
         {
           "name": "PomodoroState",
-          "line": 118
+          "line": 121
         },
         {
           "name": "StudyState",
-          "line": 125
+          "line": 128
         },
         {
           "name": "StudyLevels",
-          "line": 146
+          "line": 149
         },
         {
           "name": "levelForExperience",
-          "line": 151
+          "line": 152
         },
         {
           "name": "currentLevelStart",
-          "line": 154
+          "line": 153
         },
         {
           "name": "nextLevelTarget",
-          "line": 156
+          "line": 154
         }
       ]
     },
