@@ -193,9 +193,9 @@ private fun ChatApp(onBack: () -> Unit, onOpenConversation: () -> Unit) {
         Box(Modifier.fillMaxSize().padding(padding)) {
             when (tab) {
                 ChatTab.Messages -> ConversationList(onOpenConversation)
-                ChatTab.Characters -> SimpleList("角色", listOf("露露 · 当前角色", "新建角色", "角色设置与世界书"))
-                ChatTab.Moments -> EmptyState("朋友圈", "入口已经保留，功能等待主人之后确定。")
-                ChatTab.Me -> SimpleList("我的", listOf("个人资料", "账号与数据", "成就与收藏"))
+                ChatTab.Characters -> CharacterHubScreen()
+                ChatTab.Moments -> MomentsPlaceholderScreen()
+                ChatTab.Me -> MyProfileScreen()
             }
         }
     }
@@ -404,18 +404,6 @@ private fun LuluTopBar(title: String, onBack: () -> Unit) {
         navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Paper),
     )
-}
-
-@Composable
-private fun SimpleList(title: String, lines: List<String>) {
-    LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        item { Text(title, fontSize = 22.sp, fontWeight = FontWeight.Bold) }
-        items(lines) { line ->
-            Card(colors = CardDefaults.cardColors(containerColor = CardColor), border = BorderStroke(1.dp, Border)) {
-                Text(line, Modifier.fillMaxWidth().padding(16.dp), color = Ink)
-            }
-        }
-    }
 }
 
 @Composable
