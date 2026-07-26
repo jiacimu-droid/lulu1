@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T11:39:53.354510+00:00",
-  "commit": "9d3b83c4063c266d7da4deeb615434bbad26caa8",
+  "generatedAt": "2026-07-26T11:48:56.581856+00:00",
+  "commit": "5b47a43254636bb89cecf7c03fd65281a701c703",
   "branch": "main",
-  "sourceFingerprint": "b78d0bd788853e4c9b4d0b75ed01c06fa90a721e4274dec221f4feaa74c83979",
+  "sourceFingerprint": "1d6a647b789e3781943fed1f0c92c62ebf3965303c48b4dc21c8c6f719bebe13",
   "summary": {
-    "files": 26,
-    "lines": 3952,
-    "symbols": 121
+    "files": 27,
+    "lines": 4284,
+    "symbols": 131
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -86,6 +86,66 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PublicCharacterWorldBookScreen.kt",
         "line": 30
+      }
+    ],
+    "ModelProviderKind": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
+        "line": 24
+      }
+    ],
+    "ModelConnection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
+        "line": 25
+      }
+    ],
+    "ModelReply": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
+        "line": 33
+      }
+    ],
+    "ModelConnectionStore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
+        "line": 40
+      }
+    ],
+    "save": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
+        "line": 45
+      }
+    ],
+    "defaultBaseUrl": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
+        "line": 83
+      }
+    ],
+    "create": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
+        "line": 89
+      }
+    ],
+    "CompanionModelGateway": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
+        "line": 93
+      }
+    ],
+    "LuluAiServices": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
+        "line": 311
+      }
+    ],
+    "initialize": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
+        "line": 325
       }
     ],
     "CharacterSummary": [
@@ -846,6 +906,53 @@
         {
           "name": "CharacterWorldBookScreen",
           "line": 30
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
+      "lines": 332,
+      "sha256": "0bbfcbbcc578be110c64f78a6a3e527ada5c36da7c4ff03025eb4cfe97ba4d2c",
+      "symbols": [
+        {
+          "name": "ModelProviderKind",
+          "line": 24
+        },
+        {
+          "name": "ModelConnection",
+          "line": 25
+        },
+        {
+          "name": "ModelReply",
+          "line": 33
+        },
+        {
+          "name": "ModelConnectionStore",
+          "line": 40
+        },
+        {
+          "name": "save",
+          "line": 45
+        },
+        {
+          "name": "defaultBaseUrl",
+          "line": 83
+        },
+        {
+          "name": "create",
+          "line": 89
+        },
+        {
+          "name": "CompanionModelGateway",
+          "line": 93
+        },
+        {
+          "name": "LuluAiServices",
+          "line": 311
+        },
+        {
+          "name": "initialize",
+          "line": 325
         }
       ]
     },
