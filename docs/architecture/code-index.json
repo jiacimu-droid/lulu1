@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T12:56:09.211233+00:00",
-  "commit": "219acb6d6a2501ce16a0e543f55b30317e3e519b",
+  "generatedAt": "2026-07-26T13:08:06.932685+00:00",
+  "commit": "860f2e7631daebf6a3867825b0eb347aca1d9595",
   "branch": "main",
-  "sourceFingerprint": "d213ed0caa6e7f02d94e0c406ee0b6f653f0fee0a82bf197ae43d0c6bda3695a",
+  "sourceFingerprint": "7a464f06e23562d5ead1f60b8124cce64b7409ad8272f3ac1708430d61c98972",
   "summary": {
-    "files": 35,
-    "lines": 7492,
-    "symbols": 209
+    "files": 36,
+    "lines": 7551,
+    "symbols": 217
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -138,6 +138,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
         "line": 80
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 46
       }
     ],
     "CompanionModelGateway": [
@@ -164,6 +168,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
         "line": 822
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 54
       }
     ],
     "CharacterSummary": [
@@ -1224,6 +1232,42 @@
         "line": 146
       }
     ],
+    "StudyFocusTheme": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 7
+      }
+    ],
+    "StudyFocusPreferences": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 11
+      }
+    ],
+    "StudyFocusSessionStore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 16
+      }
+    ],
+    "updateTask": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 21
+      }
+    ],
+    "updateTheme": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 28
+      }
+    ],
+    "StudyFocusSessions": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 49
+      }
+    ],
     "encode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
@@ -2238,6 +2282,45 @@
         {
           "name": "nextLevelTarget",
           "line": 146
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+      "lines": 59,
+      "sha256": "7cb6141e50570b2812ea492c9c8bca8faef38c849f908506c3eb29d577d4522f",
+      "symbols": [
+        {
+          "name": "StudyFocusTheme",
+          "line": 7
+        },
+        {
+          "name": "StudyFocusPreferences",
+          "line": 11
+        },
+        {
+          "name": "StudyFocusSessionStore",
+          "line": 16
+        },
+        {
+          "name": "updateTask",
+          "line": 21
+        },
+        {
+          "name": "updateTheme",
+          "line": 28
+        },
+        {
+          "name": "create",
+          "line": 46
+        },
+        {
+          "name": "StudyFocusSessions",
+          "line": 49
+        },
+        {
+          "name": "initialize",
+          "line": 54
         }
       ]
     },
