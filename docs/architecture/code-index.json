@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T12:53:30.875147+00:00",
-  "commit": "cc5cd7654917edae5cd4b5b1f9423f8a1772a3d5",
+  "generatedAt": "2026-07-26T12:54:05.543622+00:00",
+  "commit": "531d534b9a31c255b4b3d93baf41e277f6629f6b",
   "branch": "main",
-  "sourceFingerprint": "04b8b075b1eb158d5d66df636ba1668bb06e60d76831e50f6aece4a8593078f8",
+  "sourceFingerprint": "9120bb23c4d742ce9763608b3934e870cef4db4618fdc3f1cb9462f2d19a1f2a",
   "summary": {
-    "files": 35,
-    "lines": 7421,
+    "files": 34,
+    "lines": 7416,
     "symbols": 209
   },
   "symbolIndex": {
@@ -1962,12 +1962,6 @@
           "line": 226
         }
       ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/NumericCompat.kt",
-      "lines": 5,
-      "sha256": "8b1ffd9f3abd581da89deaaea44597b3f800748ca05d2bbb7a588b77483d505d",
-      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
