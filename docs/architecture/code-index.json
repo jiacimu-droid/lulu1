@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T09:23:43.046644+00:00",
-  "commit": "56af52db453e52cc28c6b0613840cadd0c18dec7",
+  "generatedAt": "2026-07-26T09:25:01.443944+00:00",
+  "commit": "16fafa6cced02002bf601c47792e40b762cb02fc",
   "branch": "main",
-  "sourceFingerprint": "82c9b5823ba2330f1a63741e9126deafa7ec2dc837d257b2089f3477f95beb1d",
+  "sourceFingerprint": "f3c8d8034dec8b2db45b50541befc0c9677cc5bf8024fa5f074aacd26117b533",
   "summary": {
-    "files": 11,
-    "lines": 737,
-    "symbols": 29
+    "files": 12,
+    "lines": 919,
+    "symbols": 36
   },
   "symbolIndex": {
     "MainActivity": [
@@ -183,6 +183,48 @@
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
         "line": 122
       }
+    ],
+    "InMemoryMemoryRepository": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 26
+      }
+    ],
+    "InMemoryLexiconRepository": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 62
+      }
+    ],
+    "InMemoryWorldBookRepository": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 88
+      }
+    ],
+    "observeForCharacter": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 106
+      }
+    ],
+    "InMemoryPerformanceRepository": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 113
+      }
+    ],
+    "observeOverview": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 123
+      }
+    ],
+    "PerformanceOverview": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 175
+      }
     ]
   },
   "files": [
@@ -325,6 +367,41 @@
         {
           "name": "observeDurations",
           "line": 122
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+      "lines": 182,
+      "sha256": "9f78a6873bdfc88078da9e4f60791f1e1b238c157cf17037f759b4a6d4db9639",
+      "symbols": [
+        {
+          "name": "InMemoryMemoryRepository",
+          "line": 26
+        },
+        {
+          "name": "InMemoryLexiconRepository",
+          "line": 62
+        },
+        {
+          "name": "InMemoryWorldBookRepository",
+          "line": 88
+        },
+        {
+          "name": "observeForCharacter",
+          "line": 106
+        },
+        {
+          "name": "InMemoryPerformanceRepository",
+          "line": 113
+        },
+        {
+          "name": "observeOverview",
+          "line": 123
+        },
+        {
+          "name": "PerformanceOverview",
+          "line": 175
         }
       ]
     },

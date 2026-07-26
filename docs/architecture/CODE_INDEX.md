@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`56af52db453e52cc28c6b0613840cadd0c18dec7`
+- 基准提交：`16fafa6cced02002bf601c47792e40b762cb02fc`
 - 分支：`main`
-- 已索引文件：11
-- 已索引代码/文本行：737
-- 已发现符号：29
+- 已索引文件：12
+- 已索引代码/文本行：919
+- 已发现符号：36
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -12,6 +12,7 @@
 | `app/src/main/AndroidManifest.xml` | 20 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MainActivity.kt` | 324 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 126 | 28 |
+| `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 182 | 7 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
 | `app/src/main/res/values/strings.xml` | 5 | 0 |
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
