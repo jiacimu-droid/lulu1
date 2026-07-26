@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T09:32:23.715228+00:00",
-  "commit": "d87004be8fdc965a1d04364b3249612ab6834c51",
+  "generatedAt": "2026-07-26T09:33:17.336096+00:00",
+  "commit": "59b3f61c08b6e7e9fdc54691f74c6bcbdb3eac53",
   "branch": "main",
-  "sourceFingerprint": "f9b4575a13f9965c92246eeab30699cd5af88c8eedf4857ba556dd6641f45efc",
+  "sourceFingerprint": "a375157d3cd682a711b0153c8b3772324f6925ffa73d5dc7cd3ed15b93ed9ce0",
   "summary": {
     "files": 13,
-    "lines": 1269,
+    "lines": 1266,
     "symbols": 41
   },
   "symbolIndex": {
     "MainActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MainActivity.kt",
-        "line": 31
+        "line": 77
       }
     ],
     "LuluRepositories": [
@@ -272,12 +272,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MainActivity.kt",
-      "lines": 324,
-      "sha256": "bd7f39f1c55581e1fb498bf4916f3c6820d675a167a2b80c80c46e7e43e8e109",
+      "lines": 321,
+      "sha256": "c5e4663df5ae75b18ae981551cb5c2bab506f38661fcfb2a8a3c495bcc9d90f2",
       "symbols": [
         {
           "name": "MainActivity",
-          "line": 31
+          "line": 77
         }
       ]
     },

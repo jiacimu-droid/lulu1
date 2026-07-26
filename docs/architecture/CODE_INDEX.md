@@ -1,16 +1,16 @@
 # Lulu1 代码索引
 
-- 基准提交：`d87004be8fdc965a1d04364b3249612ab6834c51`
+- 基准提交：`59b3f61c08b6e7e9fdc54691f74c6bcbdb3eac53`
 - 分支：`main`
 - 已索引文件：13
-- 已索引代码/文本行：1269
+- 已索引代码/文本行：1266
 - 已发现符号：41
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 51 | 0 |
 | `app/src/main/AndroidManifest.xml` | 20 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MainActivity.kt` | 324 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MainActivity.kt` | 321 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 350 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 126 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 182 | 7 |
