@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T11:15:56.734667+00:00",
-  "commit": "547f191a4c9717623fd13ce343b08cb572aecc1b",
+  "generatedAt": "2026-07-26T11:16:55.915887+00:00",
+  "commit": "554e5c06a41002e6bb9d2049e06d7fbb5ebb557e",
   "branch": "main",
-  "sourceFingerprint": "745e3f96df97472a987bb0c5064008bfebcef0e5ee559314505f0bb49c8c35ae",
+  "sourceFingerprint": "2d1416d20bb864ea0e1126c4413dc904d5db091b4970f25d5a47ac99b4942780",
   "summary": {
-    "files": 23,
-    "lines": 3340,
-    "symbols": 111
+    "files": 24,
+    "lines": 3559,
+    "symbols": 112
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -32,6 +32,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
         "line": 147
+      }
+    ],
+    "LuluFinalRootApp": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluFinalRootApp.kt",
+        "line": 39
       }
     ],
     "LuluRootApp": [
@@ -715,6 +721,17 @@
         {
           "name": "MyProfileScreen",
           "line": 147
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluFinalRootApp.kt",
+      "lines": 219,
+      "sha256": "e5c2cd8e21824aefd50b7f88712ea2fab40661581b7f958c72a610b9eaa54a02",
+      "symbols": [
+        {
+          "name": "LuluFinalRootApp",
+          "line": 39
         }
       ]
     },
