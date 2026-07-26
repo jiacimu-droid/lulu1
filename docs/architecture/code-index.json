@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T13:53:46.758257+00:00",
-  "commit": "2dfd45be919619135d5603fb806e120906002b24",
+  "generatedAt": "2026-07-26T13:53:58.572436+00:00",
+  "commit": "807d5731c0c6581b402147b56bdf891008b19c94",
   "branch": "main",
-  "sourceFingerprint": "874373f08ec6ce4816cf7d4c25ad84e5df87505073e1aac745bd9e15f795f452",
+  "sourceFingerprint": "f34589059595cb581af1d4dc712cda16681102f1caade8f0c98c67f846aafaec",
   "summary": {
-    "files": 39,
-    "lines": 8602,
-    "symbols": 231
+    "files": 38,
+    "lines": 8555,
+    "symbols": 225
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -60,10 +60,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
         "line": 37
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCollectionContent.kt",
-        "line": 14
       }
     ],
     "MainActivity": [
@@ -144,10 +140,6 @@
         "line": 80
       },
       {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCollectionContent.kt",
-        "line": 38
-      },
-      {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
         "line": 46
       }
@@ -176,10 +168,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
         "line": 822
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCollectionContent.kt",
-        "line": 45
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
@@ -1090,24 +1078,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
         "line": 817
-      }
-    ],
-    "StudyCollectionContentStore": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCollectionContent.kt",
-        "line": 9
-      }
-    ],
-    "delete": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCollectionContent.kt",
-        "line": 20
-      }
-    ],
-    "StudyCollectionContents": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCollectionContent.kt",
-        "line": 41
       }
     ],
     "requestRoleCompletion": [
@@ -2234,37 +2204,6 @@
         {
           "name": "initialize",
           "line": 822
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCollectionContent.kt",
-      "lines": 47,
-      "sha256": "e0021a46d6a0dde20384376815c9e3ba43ac47450c18667d15d016bf819930d6",
-      "symbols": [
-        {
-          "name": "StudyCollectionContentStore",
-          "line": 9
-        },
-        {
-          "name": "save",
-          "line": 14
-        },
-        {
-          "name": "delete",
-          "line": 20
-        },
-        {
-          "name": "create",
-          "line": 38
-        },
-        {
-          "name": "StudyCollectionContents",
-          "line": 41
-        },
-        {
-          "name": "initialize",
-          "line": 45
         }
       ]
     },
