@@ -2,16 +2,15 @@ package com.jiacimu.lulu.games
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.outlined.VolumeUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
@@ -43,9 +42,7 @@ internal fun PerfectManScreen(store: LuluGameStore) {
 
     speaker.enabled = voiceEnabled
     val voiceDescription = rememberGameSpeechInput { userDescription = it }
-    val voiceGuess = rememberGameSpeechInput { transcript ->
-        guessText = transcript.filter(Char::isDigit).take(2)
-    }
+    val voiceGuess = rememberGameSpeechInput { transcript -> guessText = transcript.filter(Char::isDigit).take(2) }
 
     fun nextRound() {
         speaker.stop()
@@ -85,7 +82,7 @@ internal fun PerfectManScreen(store: LuluGameStore) {
 
     fun submitUserGuess() {
         val guess = guessText.toIntOrNull()?.coerceIn(0, 10) ?: return
-        if (generatedDescription.isBlank() || busy) return
+        if (generatedDescription.isBlank() || busy || resultText.isNotBlank()) return
         val diff = abs(guess - hiddenScore)
         val success = diff <= 1
         resultText = "真实分 $hiddenScore · 你的猜分 $guess · 差值 $diff"
@@ -121,7 +118,7 @@ internal fun PerfectManScreen(store: LuluGameStore) {
 
     fun submitDescriptionForCharacterGuess() {
         val description = userDescription.trim()
-        if (description.isBlank() || busy) return
+        if (description.isBlank() || busy || resultText.isNotBlank()) return
         busy = true
         roleResponse = GameRoleResponse(loading = true)
         scope.launch {
@@ -179,16 +176,20 @@ internal fun PerfectManScreen(store: LuluGameStore) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Column {
                         Text("第 $round 轮", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                        Text(
-                            if (phase == PerfectManPhase.UserGuesses) "角色描述，你来猜分" else "你来描述，角色猜分",
-                            color = GameDesign.muted,
-                        )
+                        Text(if (phase == PerfectManPhase.UserGuesses) "角色描述，你来猜分" else "你来描述，角色猜分", color = GameDesign.muted)
                     }
                     IconButton(onClick = ::nextRound) { Icon(Icons.Outlined.Refresh, "下一轮") }
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("角色语音", color = GameDesign.muted)
-                    Switch(checked = voiceEnabled, onCheckedChange = { voiceEnabled = it; speaker.enabled = it; if (!it) speaker.stop() })
+                    Switch(
+                        checked = voiceEnabled,
+                        onCheckedChange = {
+                            voiceEnabled = it
+                            speaker.enabled = it
+                            if (!it) speaker.stop()
+                        },
+                    )
                 }
             }
         }
@@ -230,10 +231,7 @@ internal fun PerfectManScreen(store: LuluGameStore) {
                             Spacer(Modifier.width(6.dp))
                             Text("语音输入")
                         }
-                        OutlinedButton(
-                            onClick = { userDescription = perfectManExamples.random() },
-                            modifier = Modifier.weight(1f),
-                        ) { Text("随机缺点") }
+                        OutlinedButton(onClick = { userDescription = perfectManExamples.random() }, modifier = Modifier.weight(1f)) { Text("随机缺点") }
                     }
                     Button(onClick = ::submitDescriptionForCharacterGuess, enabled = !busy && resultText.isBlank(), modifier = Modifier.fillMaxWidth()) {
                         Text(if (busy) "正在猜分…" else "发送给角色")
@@ -257,12 +255,7 @@ private val perfectManExamples = listOf(
     "声音特别好听，但睡前故事只讲刑法案例。",
 )
 
-private data class RoleplayTurn(
-    val action: String,
-    val roll: Int,
-    val result: String,
-    val roleText: String,
-)
+private data class RoleplayTurn(val action: String, val roll: Int, val result: String, val roleText: String)
 
 @Composable
 internal fun RoleplayAdventureScreen(store: LuluGameStore) {
@@ -271,7 +264,7 @@ internal fun RoleplayAdventureScreen(store: LuluGameStore) {
     val scope = rememberCoroutineScope()
     var action by remember { mutableStateOf("") }
     var turns by remember { mutableStateOf(emptyList<RoleplayTurn>()) }
-    var roleResponse by remember { mutableStateOf(GameRoleResponse(text = "倒走的钟已经开始。你可以自由描述任何行动。")) }
+    var roleResponse by remember { mutableStateOf(GameRoleResponse()) }
     var busy by remember { mutableStateOf(false) }
     var finished by remember { mutableStateOf(false) }
 
@@ -304,13 +297,14 @@ internal fun RoleplayAdventureScreen(store: LuluGameStore) {
                 maxTokens = 620,
             ).onSuccess { reply ->
                 val turn = RoleplayTurn(clean, roll, result, reply.text)
-                turns = turns + turn
+                val nextTurns = turns + turn
+                turns = nextTurns
                 val recordId = store.recordExternalGame(
                     LuluGameType.RoleplayAdventure,
-                    "轻量跑团 · 第${turns.size}幕",
+                    "轻量跑团 · 第${nextTurns.size}幕",
                     roll * 5,
                     if (roll >= 12) 6 else 3,
-                    "在$chapter执行‘$clean’，d20=$roll，$result。",
+                    "在${chapter}执行‘$clean’，d20=$roll，$result。",
                     JSONObject()
                         .put("scenario", "倒走的钟")
                         .put("chapter", chapter)
@@ -335,7 +329,7 @@ internal fun RoleplayAdventureScreen(store: LuluGameStore) {
         if (turns.isEmpty() || finished) return
         finished = true
         val successes = turns.count { it.roll >= 12 }
-        val summary = "完成《倒走的钟》共${turns.size}幕，成功$successes次，最后停在${turns.last().action}。"
+        val summary = "完成《倒走的钟》共${turns.size}幕，成功${successes}次，最后行动是${turns.last().action}。"
         val recordId = store.recordExternalGame(
             LuluGameType.RoleplayAdventure,
             "轻量跑团 · 完结",
@@ -346,9 +340,14 @@ internal fun RoleplayAdventureScreen(store: LuluGameStore) {
         )
         saveGameAsSharedMemory(scope, store, recordId)
         requestGameRoleResponse(
-            scope, store, recordId, summary,
-            "以角色自己的立场为这次共同冒险收尾，1-4句；不得虚构没有发生的行动。",
-            "轻量跑团完结", { roleResponse = it }, maxTokens = 460,
+            scope = scope,
+            store = store,
+            recordId = recordId,
+            facts = summary,
+            instruction = "以角色自己的立场为这次共同冒险收尾，1-4句；不得虚构没有发生的行动。",
+            title = "轻量跑团完结",
+            onState = { roleResponse = it },
+            maxTokens = 460,
         )
     }
 
@@ -357,6 +356,7 @@ internal fun RoleplayAdventureScreen(store: LuluGameStore) {
             GameCard {
                 Text("倒走的钟", fontSize = 22.sp, fontWeight = FontWeight.Bold)
                 Text("自由行动 · d20判定 · ${character.displayName}作为同伴和主持人参与", color = GameDesign.muted)
+                if (turns.isEmpty()) Text("场景：你和角色刚进入所有钟表都在倒走的旅馆。", color = GameDesign.muted)
             }
         }
         item { GameRolePanel(character.displayName, roleResponse) }
@@ -381,17 +381,23 @@ internal fun RoleplayAdventureScreen(store: LuluGameStore) {
                     Text(if (busy) "正在判定并生成…" else "掷d20并行动")
                 }
                 OutlinedButton(onClick = ::finishAdventure, enabled = turns.isNotEmpty() && !finished, modifier = Modifier.fillMaxWidth()) { Text("结束并保存本次冒险") }
-                if (finished) Button(onClick = { turns = emptyList(); action = ""; finished = false; roleResponse = GameRoleResponse(text = "新的《倒走的钟》已经开始。") }, modifier = Modifier.fillMaxWidth()) { Text("重新开团") }
+                if (finished) {
+                    Button(
+                        onClick = {
+                            turns = emptyList()
+                            action = ""
+                            finished = false
+                            roleResponse = GameRoleResponse()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text("重新开团") }
+                }
             }
         }
     }
 }
 
-private data class TurtleCase(
-    val title: String,
-    val surface: String,
-    val truth: String,
-)
+private data class TurtleCase(val title: String, val surface: String, val truth: String)
 
 private val turtleCases = listOf(
     TurtleCase(
@@ -490,6 +496,7 @@ internal fun TurtleSoupScreen(store: LuluGameStore) {
 }
 
 private data class RapportQuestion(val text: String, val options: List<String>)
+
 private val rapportQuestions = listOf(
     RapportQuestion("你压力很大时，更希望对方怎么做？", listOf("先安静陪着", "直接安慰", "帮忙拆计划", "暂时离开")),
     RapportQuestion("完成一次艰难学习后，你更想得到什么？", listOf("具体夸奖", "小礼物", "一起玩", "安静休息")),
@@ -525,8 +532,11 @@ internal fun RapportQuizScreen(store: LuluGameStore) {
                 maxTokens = 80,
             ).onSuccess { reply ->
                 secret = question.options.firstOrNull { reply.text.contains(it) }
-                if (secret == null) roleResponse = GameRoleResponse(error = "角色没有返回有效选项，请重新生成。")
-                else roleResponse = GameRoleResponse(text = "角色已经秘密作答，请选择你的答案。")
+                roleResponse = if (secret == null) {
+                    GameRoleResponse(error = "角色没有返回有效选项，请重新生成。")
+                } else {
+                    GameRoleResponse()
+                }
             }.onFailure { error ->
                 roleResponse = GameRoleResponse(error = error.message ?: "角色秘密作答失败，请检查模型设置。")
             }
@@ -547,7 +557,7 @@ internal fun RapportQuizScreen(store: LuluGameStore) {
         if (selected == null) return
         if (index == rapportQuestions.lastIndex) {
             completed = true
-            val summary = "默契问答完成${rapportQuestions.size}题，匹配$score题。"
+            val summary = "默契问答完成${rapportQuestions.size}题，匹配${score}题。"
             val recordId = store.recordExternalGame(
                 LuluGameType.RapportQuiz,
                 "默契问答",
@@ -573,17 +583,38 @@ internal fun RapportQuizScreen(store: LuluGameStore) {
                 GameCard {
                     Text("第${index + 1}/${rapportQuestions.size}题", color = GameDesign.muted)
                     Text(rapportQuestions[index].text, fontSize = 19.sp, fontWeight = FontWeight.Bold)
-                    if (secret == null) Button(onClick = ::prepare, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text(if (busy) "正在秘密作答…" else "让角色先秘密作答") }
+                    if (secret == null) {
+                        Button(onClick = ::prepare, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text(if (busy) "正在秘密作答…" else "让角色先秘密作答") }
+                    } else {
+                        Text("秘密答案已锁定。", color = GameDesign.muted)
+                    }
                 }
             }
             if (secret != null) {
                 items(rapportQuestions[index].options) { option ->
                     OutlinedButton(onClick = { answer(option) }, enabled = selected == null, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) { Text(option) }
                 }
-                if (selected != null) item { Button(onClick = ::next, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) { Text(if (index == rapportQuestions.lastIndex) "查看结果" else "下一题") } }
+                if (selected != null) {
+                    item { Button(onClick = ::next, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) { Text(if (index == rapportQuestions.lastIndex) "查看结果" else "下一题") } }
+                }
             }
         } else {
-            item { GameCard { Text("默契得分：$score / ${rapportQuestions.size}", fontSize = 24.sp, fontWeight = FontWeight.Bold); Button(onClick = { index = 0; score = 0; secret = null; selected = null; completed = false; roleResponse = GameRoleResponse() }, modifier = Modifier.fillMaxWidth()) { Text("重新作答") } } }
+            item {
+                GameCard {
+                    Text("默契得分：$score / ${rapportQuestions.size}", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Button(
+                        onClick = {
+                            index = 0
+                            score = 0
+                            secret = null
+                            selected = null
+                            completed = false
+                            roleResponse = GameRoleResponse()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text("重新作答") }
+                }
+            }
         }
     }
 }
@@ -611,9 +642,14 @@ internal fun RockPaperScissorsScreen(store: LuluGameStore) {
         )
         saveGameAsSharedMemory(scope, store, recordId)
         requestGameRoleResponse(
-            scope, store, recordId, result,
-            "只根据真实猜拳结果，以角色自己的语气回应1-3句，不得修改出拳和胜负。",
-            "一起猜拳", { roleResponse = it }, maxTokens = 220,
+            scope = scope,
+            store = store,
+            recordId = recordId,
+            facts = result,
+            instruction = "只根据真实猜拳结果，以角色自己的语气回应1-3句，不得修改出拳和胜负。",
+            title = "一起猜拳",
+            onState = { roleResponse = it },
+            maxTokens = 220,
         )
     }
 
@@ -623,7 +659,7 @@ internal fun RockPaperScissorsScreen(store: LuluGameStore) {
         item {
             GameCard {
                 choices.forEach { choice -> Button(onClick = { play(choice) }, modifier = Modifier.fillMaxWidth()) { Text(choice) } }
-                if (result.isNotBlank()) GameResultBanner(result, success = result.endsWith("用户胜"))
+                if (result.isNotBlank()) GameResultBanner(result, success = result.endsWith("用户胜") || result.endsWith("平局"))
             }
         }
     }
