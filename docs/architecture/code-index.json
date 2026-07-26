@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T14:01:34.795044+00:00",
-  "commit": "91298757b8f276e73754936d5109f9262ab9bbd4",
+  "generatedAt": "2026-07-26T14:02:04.904771+00:00",
+  "commit": "986df2077beabc2c9b657fd72567d4416a456d81",
   "branch": "main",
-  "sourceFingerprint": "4bf74f10f5369b58c89cb4514040aba93b9de331155259426f5d468e30862897",
+  "sourceFingerprint": "95d8b69c1dd7c551f109dec8f3c4866d98f5db6be655fd238f53de6c92f32a88",
   "summary": {
     "files": 37,
-    "lines": 8023,
+    "lines": 8028,
     "symbols": 221
   },
   "symbolIndex": {
@@ -141,7 +141,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 46
+        "line": 51
       }
     ],
     "CompanionModelGateway": [
@@ -171,7 +171,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 54
+        "line": 59
       }
     ],
     "CharacterSummary": [
@@ -1263,19 +1263,19 @@
     "StudyFocusPreferences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 11
+        "line": 12
       }
     ],
     "StudyFocusSessionStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 16
+        "line": 17
       }
     ],
     "updateTask": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 21
+        "line": 22
       }
     ],
     "updateTheme": [
@@ -1287,7 +1287,7 @@
     "StudyFocusSessions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 49
+        "line": 54
       }
     ],
     "encode": [
@@ -2332,8 +2332,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-      "lines": 59,
-      "sha256": "7cb6141e50570b2812ea492c9c8bca8faef38c849f908506c3eb29d577d4522f",
+      "lines": 64,
+      "sha256": "7d018c5b7ade61e194a5a83ffccb9adfaa81363b7bb2445bffd9e9aa41dfa49b",
       "symbols": [
         {
           "name": "StudyFocusTheme",
@@ -2341,15 +2341,15 @@
         },
         {
           "name": "StudyFocusPreferences",
-          "line": 11
+          "line": 12
         },
         {
           "name": "StudyFocusSessionStore",
-          "line": 16
+          "line": 17
         },
         {
           "name": "updateTask",
-          "line": 21
+          "line": 22
         },
         {
           "name": "updateTheme",
@@ -2357,15 +2357,15 @@
         },
         {
           "name": "create",
-          "line": 46
+          "line": 51
         },
         {
           "name": "StudyFocusSessions",
-          "line": 49
+          "line": 54
         },
         {
           "name": "initialize",
-          "line": 54
+          "line": 59
         }
       ]
     },
