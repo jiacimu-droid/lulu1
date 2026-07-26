@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`db97fc8e1ec9285bf8c0861d68d99fa0bd954e55`
+- 基准提交：`fd6d211726b614c980d44cc85b0ce251a8dc1e99`
 - 分支：`main`
-- 已索引文件：40
-- 已索引代码/文本行：8561
-- 已发现符号：256
+- 已索引文件：41
+- 已索引代码/文本行：9018
+- 已发现符号：257
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -32,6 +32,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 827 | 34 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyCollectionContent.kt` | 47 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyCompanionToday.kt` | 510 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyCompleteRewardsScreens.kt` | 457 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDailyContext.kt` | 73 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt` | 181 | 25 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt` | 545 | 7 |
