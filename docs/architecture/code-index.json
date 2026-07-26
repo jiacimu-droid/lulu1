@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T11:34:27.234832+00:00",
-  "commit": "bff0df5a5f1fdc7b0019b8e5928f3ffe7b41e036",
+  "generatedAt": "2026-07-26T11:34:55.750611+00:00",
+  "commit": "08f3ba34f8beabb606db77b255345bac49658f0c",
   "branch": "main",
-  "sourceFingerprint": "d513e998c0645a302f48847e27e6c5de72fb25262d67fbcd0e47eb08ee97a697",
+  "sourceFingerprint": "13f368d8de569145f078850ae7e44a82113e73c6e319a6ba74f51774c9164b2f",
   "summary": {
-    "files": 25,
-    "lines": 3774,
-    "symbols": 117
+    "files": 26,
+    "lines": 3855,
+    "symbols": 121
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -420,6 +420,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 195
+      }
+    ],
+    "Home": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CompleteGamesApp.kt",
+        "line": 23
+      }
+    ],
+    "NewGames": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CompleteGamesApp.kt",
+        "line": 24
+      }
+    ],
+    "Legacy": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CompleteGamesApp.kt",
+        "line": 25
+      }
+    ],
+    "CompleteGamesApp": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CompleteGamesApp.kt",
+        "line": 30
       }
     ],
     "LegacyGamePage": [
@@ -1067,6 +1091,29 @@
         {
           "name": "MigratedDomainStores",
           "line": 195
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/CompleteGamesApp.kt",
+      "lines": 81,
+      "sha256": "80ba43ae8c3a204c16416904b597f5724257c354e3463cd5e233835ab1751fd6",
+      "symbols": [
+        {
+          "name": "Home",
+          "line": 23
+        },
+        {
+          "name": "NewGames",
+          "line": 24
+        },
+        {
+          "name": "Legacy",
+          "line": 25
+        },
+        {
+          "name": "CompleteGamesApp",
+          "line": 30
         }
       ]
     },
