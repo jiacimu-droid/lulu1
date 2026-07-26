@@ -1,15 +1,15 @@
 # Lulu1 代码索引
 
-- 基准提交：`4444a9cefde5e396f6ee24343fd582aad5f8bc1a`
+- 基准提交：`e7c2b5210dd194bd31d6bc7f3622941236de99c2`
 - 分支：`main`
 - 已索引文件：28
-- 已索引代码/文本行：4612
+- 已索引代码/文本行：4613
 - 已发现符号：143
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 54 | 0 |
-| `app/src/main/AndroidManifest.xml` | 22 | 0 |
+| `app/src/main/AndroidManifest.xml` | 23 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreen.kt` | 181 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluFinalRootApp.kt` | 219 | 1 |
