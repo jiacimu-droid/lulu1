@@ -3,13 +3,35 @@ package com.jiacimu.lulu.study
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.random.Random
 
 enum class StudyTaskSource { User, Preset, WeeklyPlan, MonthlyPlan, AiSchedule }
 enum class StudyPlanRange { Weekly, Monthly }
-enum class StudyDrawKind { BlueFragment, PurpleFragment, VideoFragment, TheaterFragment }
-enum class StudyEntertainmentKind(val label: String) { Douyin("抖音视频"), SideStory("番外小剧场") }
-enum class StudyShopReward { SingleTicket, TenTicket, SafePurpleTicket, MysteryBox, UniversalBlueFragment, PraisePoints }
-enum class StudySuperChoice(val label: String) { DoublePraise("双倍夸夸值"), MysteryBoxes("神秘盒子×2"), DrawTickets("单抽券×3") }
+
+enum class StudyRarity(val label: String) {
+    Normal("蓝色"), Rare("紫色"), Epic("金色"), Rainbow("彩色"),
+}
+
+enum class StudyDrawKind(val label: String, val rarity: StudyRarity) {
+    OutfitFragment("画卷专属碎片", StudyRarity.Normal),
+    DouyinTicket("抖音时长券 · 20分钟", StudyRarity.Rare),
+    TheaterFragment("剧场碎片", StudyRarity.Rare),
+    GameTicket("游戏畅玩券 · 120分钟", StudyRarity.Epic),
+    VideoCard("视频解锁卡", StudyRarity.Epic),
+    AnimeTicket("番剧兑换券 · 3小时", StudyRarity.Rainbow),
+}
+
+enum class StudyEntertainmentKind(val label: String) {
+    Douyin("抖音时长券"),
+    Theater("小剧场"),
+    Game("游戏畅玩券"),
+    Video("视频解锁卡"),
+    Anime("番剧兑换券"),
+}
+
+enum class StudyShopReward {
+    SingleTicket, DouyinTicket, TheaterFragment, GameTicket, VideoCard, AnimeTicket,
+}
 
 data class StudyTask(
     val id: String = UUID.randomUUID().toString(),
@@ -45,9 +67,10 @@ data class StudyDrawResult(
     val id: String = UUID.randomUUID().toString(),
     val kind: StudyDrawKind,
     val title: String,
-    val rarityLabel: String,
     val inventoryChanged: Boolean,
-)
+) {
+    val rarity: StudyRarity get() = kind.rarity
+}
 
 data class StudyAchievement(
     val id: String,
@@ -66,20 +89,19 @@ data class StudyShopItem(
     val subtitle: String,
     val cost: Int,
     val reward: StudyShopReward,
-    val amount: Int,
-    val stock: Int,
-    val purchased: Int = 0,
-) { val remaining: Int get() = (stock - purchased).coerceAtLeast(0) }
+    val amount: Int = 1,
+    val purchased: Boolean = false,
+)
 
 data class StudyInventory(
     val singleTickets: Int = 3,
     val tenTickets: Int = 1,
-    val safePurpleTickets: Int = 1,
-    val mysteryBoxes: Int = 0,
-    val universalBlueFragments: Int = 0,
     val blueFragments: Map<String, Int> = emptyMap(),
-    val purpleFragments: Int = 0,
-    val entertainmentFragments: Map<StudyEntertainmentKind, Int> = emptyMap(),
+    val douyinTickets: Int = 0,
+    val theaterFragments: Int = 0,
+    val gameTickets: Int = 0,
+    val videoCards: Int = 0,
+    val animeTickets: Int = 0,
     val unlockedScrolls: List<String> = emptyList(),
     val unlockedVideos: List<String> = emptyList(),
     val unlockedTheaters: List<String> = emptyList(),
@@ -112,7 +134,7 @@ data class PomodoroState(
 )
 
 data class StudyState(
-    val schemaVersion: Int = 3,
+    val schemaVersion: Int = 4,
     val activeDate: String = LocalDate.now().toString(),
     val profile: StudyProfile = StudyProfile(),
     val inventory: StudyInventory = StudyInventory(),
@@ -124,9 +146,9 @@ data class StudyState(
     val achievements: List<StudyAchievement> = emptyList(),
     val shopItems: List<StudyShopItem> = defaultShop(LocalDate.now()),
     val shopDate: String = LocalDate.now().toString(),
-    val shopRefreshCount: Int = 0,
+    val manualShopRefreshDate: String = "",
     val drawsSinceNonNormal: Int = 0,
-    val safeDrawUsedDate: String = "",
+    val pendingRewardMinutes: Int = 0,
     val superMomentAvailable: Boolean = false,
     val superMomentClaimedDate: String = "",
     val pomodoro: PomodoroState = PomodoroState(),
@@ -140,18 +162,32 @@ data class StudyState(
 }
 
 object StudyLevels {
-    val thresholds = listOf(0, 30, 80, 150, 240, 360, 510, 690, 900, 1140, 1410, 1710, 2040, 2400, 2790)
+    val thresholds = listOf(0, 80, 200, 400, 800, 1_500, 2_500, 4_000, 6_500, 10_000, 15_000, 22_000, 32_000, 45_000, 60_000)
     fun levelForExperience(experience: Int): Int = thresholds.indexOfLast { experience >= it }.coerceAtLeast(0) + 1
     fun currentLevelStart(level: Int): Int = thresholds.getOrElse((level - 1).coerceAtLeast(0)) { thresholds.last() }
-    fun nextLevelTarget(level: Int): Int = thresholds.getOrElse(level) { thresholds.last() + 500 }
+    fun nextLevelTarget(level: Int): Int = thresholds.getOrElse(level) { thresholds.last() + 20_000 }
 }
 
+internal const val BLUE_FRAGMENTS_PER_SCROLL = 10
+internal const val SINGLE_DRAW_COST = 100
+internal const val TEN_DRAW_COST = 800
+internal const val NON_NORMAL_PITY = 30
+internal const val STUDY_REWARD_INTERVAL_MINUTES = 5
+internal const val STUDY_REWARD_PRAISE = 100
+
 internal val blueFragmentCatalog = listOf(
-    "清晨书桌", "夜灯笔记", "单词卡片", "真题铅笔", "刑法目录", "民法法条", "宪法图谱", "法制史卷轴",
-    "番茄时钟", "安静耳机", "热茶", "小烟花", "计划贴纸", "错题本", "倒计时牌", "录取通知",
+    "星穹图书馆", "樱吹雪剑道场", "深海回廊", "永夜花庭", "云上列车",
+    "琉璃沙漠", "机械蝴蝶", "月光浴场", "废墟花园", "倒悬都市",
+    "雨后天台", "星砂邮局", "薄荷钟楼", "雾港旧船", "玻璃温室",
+    "极光书房", "柠檬海岸", "雪夜便利店", "琥珀剧院", "云雀庭院",
 )
 internal val videoCatalog = listOf("完成第一小时", "雨天自习室", "角色的监督留言", "深夜收尾", "周计划达成")
-internal val theaterCatalog = listOf("考前一天", "收到录取通知后", "图书馆闭馆广播", "角色替你保管手机", "最后一次模拟考试")
+internal val theaterCatalog = listOf(
+    "少卿今天不早朝", "星舰AI说他爱上我了", "废土便利店的草莓糖", "把魔尊契约当话本",
+    "被献祭给龙之后", "捡到S级机甲", "我把修真界改成5A景区", "午夜出租车",
+    "会整理书桌的幽灵", "欢迎来到心动游戏", "女王陛下的打脸法庭", "末世便利店女王",
+    "女尊朝的首席狼臣", "前男友重生但我是反派", "原始部落的露字祭司", "性转恋综大逃杀",
+)
 
 internal fun defaultTasks(date: LocalDate): List<StudyTask> = listOf(
     StudyTask(title = "考研英语真题训练", date = date.toString(), pomodoroTarget = 2, source = StudyTaskSource.Preset),
@@ -168,13 +204,37 @@ internal fun defaultTips(date: LocalDate): List<StudyTip> = listOf(
     StudyTip(text = "先开始一个最小番茄钟，再决定是否延长。", date = date.toString()),
     StudyTip(text = "真题训练优先记录错因，不用为了速度跳过复盘。", date = date.toString()),
 )
+
 internal fun defaultShop(date: LocalDate): List<StudyShopItem> {
-    val seed = date.toEpochDay().toInt()
-    return listOf(
-        StudyShopItem("single-$seed", "单抽券", "用于一次普通抽取", 30, StudyShopReward.SingleTicket, 1, 3),
-        StudyShopItem("box-$seed", "神秘盒子", "随机开出夸夸值或碎片", 45, StudyShopReward.MysteryBox, 1, 2),
-        StudyShopItem("universal-$seed", "万能蓝碎片", "补任意未满的普通收藏", 55, StudyShopReward.UniversalBlueFragment, 1, 2),
-        StudyShopItem("safe-$seed", "今日安全抽券", "必定获得紫色碎片", 80, StudyShopReward.SafePurpleTicket, 1, 1),
-        StudyShopItem("ten-$seed", "十连券", "用于一次十连抽", 240, StudyShopReward.TenTicket, 1, 1),
-    ).shuffled(kotlin.random.Random(seed)).take(4)
+    val random = Random(date.toString().hashCode())
+    val pool = listOf(
+        StudyShopReward.DouyinTicket to 7,
+        StudyShopReward.TheaterFragment to 7,
+        StudyShopReward.GameTicket to 3,
+        StudyShopReward.VideoCard to 3,
+        StudyShopReward.AnimeTicket to 1,
+        StudyShopReward.SingleTicket to 74,
+    )
+    return (1..3).map { slot ->
+        val reward = weightedShopReward(pool, random)
+        reward.toShopItem("${date}-$slot-${reward.name}")
+    }
+}
+
+private fun weightedShopReward(pool: List<Pair<StudyShopReward, Int>>, random: Random): StudyShopReward {
+    var roll = random.nextInt(pool.sumOf { it.second })
+    pool.forEach { (item, weight) ->
+        if (roll < weight) return item
+        roll -= weight
+    }
+    return pool.last().first
+}
+
+private fun StudyShopReward.toShopItem(id: String): StudyShopItem = when (this) {
+    StudyShopReward.SingleTicket -> StudyShopItem(id, "单抽券", "用于一次抽卡", 100, this)
+    StudyShopReward.DouyinTicket -> StudyShopItem(id, "抖音时长券", "可使用20分钟", 500, this)
+    StudyShopReward.TheaterFragment -> StudyShopItem(id, "剧场碎片", "可生成或续写小剧场1章", 600, this)
+    StudyShopReward.GameTicket -> StudyShopItem(id, "游戏畅玩券", "可使用120分钟", 1_000, this)
+    StudyShopReward.VideoCard -> StudyShopItem(id, "视频解锁卡", "解锁一项视频收藏", 1_000, this)
+    StudyShopReward.AnimeTicket -> StudyShopItem(id, "番剧兑换券", "可观看3小时", 2_000, this)
 }
