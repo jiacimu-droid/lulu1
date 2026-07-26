@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T12:14:00.505426+00:00",
-  "commit": "88a439e061a25959953bf55afe279c9a09291456",
+  "generatedAt": "2026-07-26T12:17:49.031250+00:00",
+  "commit": "217e61b006d784692d2a46e26b63b849ce5f411d",
   "branch": "main",
-  "sourceFingerprint": "79e2228ce57df69e3a27f888b344b2d5228c4743ad8752084c1422a97d4679ce",
+  "sourceFingerprint": "20abcd5383486ac7c80b8c9d81f347f4fb89cdc2182f39b83242462dd76dcdc7",
   "summary": {
     "files": 29,
-    "lines": 5600,
+    "lines": 5636,
     "symbols": 167
   },
   "symbolIndex": {
@@ -537,73 +537,73 @@
     "nextRound": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 49
+        "line": 46
       }
     ],
     "generateCharacterDescription": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 62
+        "line": 59
       }
     ],
     "submitUserGuess": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 85
+        "line": 82
       }
     ],
     "submitDescriptionForCharacterGuess": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 121
+        "line": 118
       }
     ],
     "act": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 277
+        "line": 270
       }
     ],
     "finishAdventure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 333
+        "line": 327
       }
     ],
     "ask": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 426
+        "line": 432
       }
     ],
     "reveal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 452
+        "line": 458
       }
     ],
     "prepare": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 512
+        "line": 519
       }
     ],
     "answer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 536
+        "line": 546
       }
     ],
     "next": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 545
+        "line": 555
       }
     ],
     "play": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 599
+        "line": 630
       }
     ],
     "attach": [
@@ -1454,56 +1454,56 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-      "lines": 639,
-      "sha256": "3bd9b597d29dd4388539ffddc46a47a32bd9e459e0ddf47856c993e4e31a1754",
+      "lines": 675,
+      "sha256": "9b10e2866f2594b41f5af0e18151ba093c8cf69e83b725a9367823f332dba909",
       "symbols": [
         {
           "name": "nextRound",
-          "line": 49
+          "line": 46
         },
         {
           "name": "generateCharacterDescription",
-          "line": 62
+          "line": 59
         },
         {
           "name": "submitUserGuess",
-          "line": 85
+          "line": 82
         },
         {
           "name": "submitDescriptionForCharacterGuess",
-          "line": 121
+          "line": 118
         },
         {
           "name": "act",
-          "line": 277
+          "line": 270
         },
         {
           "name": "finishAdventure",
-          "line": 333
+          "line": 327
         },
         {
           "name": "ask",
-          "line": 426
+          "line": 432
         },
         {
           "name": "reveal",
-          "line": 452
+          "line": 458
         },
         {
           "name": "prepare",
-          "line": 512
+          "line": 519
         },
         {
           "name": "answer",
-          "line": 536
+          "line": 546
         },
         {
           "name": "next",
-          "line": 545
+          "line": 555
         },
         {
           "name": "play",
-          "line": 599
+          "line": 630
         }
       ]
     },
