@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`4cd8057886ece44b480cd28625b795572e32d017`
+- 基准提交：`1d0cd5bf15e75db7f8a2194827f6f238725c9d7f`
 - 分支：`main`
 - 已索引文件：31
 - 已索引代码/文本行：6598
-- 已发现符号：200
+- 已发现符号：201
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -19,7 +19,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PublicCharacterWorldBookScreen.kt` | 144 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 337 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 126 | 28 |
-| `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 190 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 190 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 201 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 397 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 675 | 12 |

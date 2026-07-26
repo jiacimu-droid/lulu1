@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T12:33:23.870301+00:00",
-  "commit": "4cd8057886ece44b480cd28625b795572e32d017",
+  "generatedAt": "2026-07-26T12:34:57.315758+00:00",
+  "commit": "1d0cd5bf15e75db7f8a2194827f6f238725c9d7f",
   "branch": "main",
-  "sourceFingerprint": "a011bca4bc8c573750c211c692c601a257f2eb292e7abce0b6bed0c09e710585",
+  "sourceFingerprint": "f353419641150b7ba53df8566a1dfaaf4b91be3a212cf1be79d667d96e7d0e42",
   "summary": {
     "files": 31,
     "lines": 6598,
-    "symbols": 200
+    "symbols": 201
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -376,6 +376,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
         "line": 121
+      }
+    ],
+    "updateDurations": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 166
       }
     ],
     "PerformanceOverview": [
@@ -1480,7 +1486,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
       "lines": 190,
-      "sha256": "13280b19595df4392334a82c11c75833065b323bca5f0c31c2b6434f8bc2d260",
+      "sha256": "a4db5e8758c1971499b9d3f77045b16a66eda37653953472279b6351891949ad",
       "symbols": [
         {
           "name": "InMemoryMemoryRepository",
@@ -1517,6 +1523,10 @@
         {
           "name": "observeOverview",
           "line": 121
+        },
+        {
+          "name": "updateDurations",
+          "line": 166
         },
         {
           "name": "PerformanceOverview",
