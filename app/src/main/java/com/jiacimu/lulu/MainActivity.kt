@@ -7,12 +7,14 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.games.LuluGames
 import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.StudyFocusSessions
+import com.jiacimu.lulu.study.StudyRemovedFeatureMigration
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         LuluAiServices.initialize(applicationContext)
         LuluGames.initialize(applicationContext)
+        StudyRemovedFeatureMigration.migrate(applicationContext)
         PostgraduateExamStores.initialize(applicationContext)
         StudyFocusSessions.initialize(applicationContext)
         PostgraduateExamStores.main.syncPomodoroClock()
