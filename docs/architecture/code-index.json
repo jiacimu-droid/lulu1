@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T12:34:57.315758+00:00",
-  "commit": "1d0cd5bf15e75db7f8a2194827f6f238725c9d7f",
+  "generatedAt": "2026-07-26T12:35:29.471197+00:00",
+  "commit": "74f2d5575fa0ad5e12bc3b01ecf4709a3d4a56ed",
   "branch": "main",
-  "sourceFingerprint": "f353419641150b7ba53df8566a1dfaaf4b91be3a212cf1be79d667d96e7d0e42",
+  "sourceFingerprint": "a2deb53f33b105439c857db506b0f12f3fb54b5d63bf3c6e85bb7531d09dd457",
   "summary": {
-    "files": 31,
-    "lines": 6598,
-    "symbols": 201
+    "files": 32,
+    "lines": 6723,
+    "symbols": 203
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -1201,6 +1201,18 @@
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
         "line": 29
       }
+    ],
+    "Section": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt",
+        "line": 37
+      }
+    ],
+    "Focus": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt",
+        "line": 38
+      }
     ]
   },
   "files": [
@@ -2169,6 +2181,21 @@
         {
           "name": "decode",
           "line": 29
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt",
+      "lines": 125,
+      "sha256": "da8e3836622322d3bd8843728d91b4f4db2e04902c1ccd538d7446c15c538415",
+      "symbols": [
+        {
+          "name": "Section",
+          "line": 37
+        },
+        {
+          "name": "Focus",
+          "line": 38
         }
       ]
     },

@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`1d0cd5bf15e75db7f8a2194827f6f238725c9d7f`
+- 基准提交：`74f2d5575fa0ad5e12bc3b01ecf4709a3d4a56ed`
 - 分支：`main`
-- 已索引文件：31
-- 已索引代码/文本行：6598
-- 已发现符号：201
+- 已索引文件：32
+- 已索引代码/文本行：6723
+- 已发现符号：203
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -32,6 +32,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt` | 174 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyNavigationCompat.kt` | 37 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt` | 222 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 125 | 2 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
 | `app/src/main/res/values/strings.xml` | 5 | 0 |
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
