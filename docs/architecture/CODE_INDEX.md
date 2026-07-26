@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`1242b8905c8cae0a11fbe2eba656f0786f1f31d6`
+- 基准提交：`17c2a1ba7f6753721bad2b3cec5e9157fa57af43`
 - 分支：`main`
-- 已索引文件：14
-- 已索引代码/文本行：1591
-- 已发现符号：44
+- 已索引文件：15
+- 已索引代码/文本行：1792
+- 已发现符号：65
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -15,6 +15,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 320 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 126 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 182 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 201 | 21 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
 | `app/src/main/res/values/strings.xml` | 5 | 0 |
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
