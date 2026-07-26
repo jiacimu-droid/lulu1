@@ -85,7 +85,7 @@ internal fun StudyGachaScreen(state: StudyState, store: PostgraduateExamStore) {
                 Text("紫色 6%：抖音时长券 5% · 剧场碎片 1%", color = StudyDesign.muted)
                 Text("金色 1.5%：游戏畅玩券 1.2% · 视频解锁卡 0.3%", color = StudyDesign.muted)
                 Text("彩色番剧兑换券 0.35%", color = StudyDesign.muted)
-                Text("连续30抽没有紫／金／彩时，第30抽直接出现紫色，不另设安全抽入口。", color = StudyDesign.muted, fontSize = 12.sp)
+                Text("连续30抽没有紫／金／彩时，第30抽直接出现紫色。", color = StudyDesign.muted, fontSize = 12.sp)
                 Row(
                     Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -177,7 +177,7 @@ internal fun StudyCollectionScreen(state: StudyState, store: PostgraduateExamSto
         item {
             StudyCard {
                 Text("收藏", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                Text("画卷只使用各自的专属碎片；不提供万能普通、万能稀有或万能史诗碎片。", color = StudyDesign.muted)
+                Text("每套画卷只使用自己的专属碎片。", color = StudyDesign.muted)
                 Row(
                     Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -358,16 +358,16 @@ internal fun StudyGuideScreen() {
         item {
             StudyCard {
                 Text("考研 App 说明", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                Text("以下规则对应当前版本，不包含已经删除的旧奖励系统。", color = StudyDesign.muted)
+                Text("当前奖励、抽卡、收藏和番茄钟规则。", color = StudyDesign.muted)
             }
         }
-        item { GuideCard("夸夸值", "签到、完成待办和学习时长都只进入夸夸值体系；没有第二种学习币。累计学习每满5分钟获得100夸夸值，不足部分跨番茄保留。") }
+        item { GuideCard("夸夸值", "签到、完成待办和学习时长都会获得夸夸值。累计学习每满5分钟获得100夸夸值，不足部分跨番茄保留。") }
         item { GuideCard("抽卡概率", "蓝色画卷92.15%；紫色6%（抖音5%、剧场1%）；金色1.5%（游戏券1.2%、视频卡0.3%）；彩色番剧券0.35%。") }
-        item { GuideCard("保底", "连续30抽没有紫／金／彩时，第30抽直接出现紫色结果。没有安全抽按钮，也没有安全抽券。") }
-        item { GuideCard("画卷碎片", "每套画卷需要10枚自己的专属碎片。已满后仍显示本次抽中物，但不重复计入。当前版本不提供任何万能碎片。") }
-        item { GuideCard("收藏", "紫色、金色和彩色奖励抽到即进入对应收藏：抖音券、小剧场碎片、游戏券、视频卡和番剧券。") }
-        item { GuideCard("商店", "商店只使用夸夸值，每日展示3件商品，手动刷新每天最多一次；不售卖盲盒、安全抽券或万能碎片。") }
-        item { GuideCard("番茄钟", "番茄钟保留云雾原版和深夜墨蓝两套配色，支持自定义时长、提前结束按实际分钟结算、角色语音和专注中聊天。") }
+        item { GuideCard("保底", "连续30抽没有紫／金／彩时，第30抽直接出现紫色结果。") }
+        item { GuideCard("画卷碎片", "每套画卷需要10枚自己的专属碎片。已满后仍显示本次抽中物，但不重复计入。") }
+        item { GuideCard("收藏", "紫色、金色和彩色奖励抽到后进入对应收藏：抖音券、小剧场碎片、游戏券、视频卡和番剧券。") }
+        item { GuideCard("商店", "商店使用夸夸值，每日展示3件商品，手动刷新每天最多一次。") }
+        item { GuideCard("番茄钟", "番茄钟提供云雾原版和深夜墨蓝两套配色，支持自定义时长、提前结束按实际分钟结算、角色语音和专注中聊天。") }
     }
 }
 
