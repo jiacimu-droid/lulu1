@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#fbf8f0" />
+  <title>露露机 · 暖纸极简预览</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="phone-shell" aria-label="露露机界面预览">
+    <section id="desktop" class="screen active" aria-label="桌面">
+      <header class="hero">
+        <div>
+          <p id="today" class="date">7月26日 星期日</p>
+          <h1>下午好，主人<span class="sun">☀</span></h1>
+          <p class="subtitle">今天也和露露一起，好好照顾自己呀 <span>♥</span></p>
+        </div>
+        <button class="avatar-button" data-open="chat-detail" aria-label="进入露露聊天">
+          <span class="avatar avatar-small">露</span><i></i>
+        </button>
+      </header>
+
+      <button class="recent-card" data-open="chat-detail">
+        <span class="avatar avatar-large">露</span>
+        <span class="recent-copy">
+          <span class="name-row"><strong>露露</strong><em>最近聊天</em><time>刚刚</time></span>
+          <span class="message">主人，我们继续把新的露露机一点点做好吧～</span>
+          <span class="continue"><b>•••</b> 继续聊天 <i>›</i></span>
+        </span>
+      </button>
+
+      <section class="app-grid" aria-label="应用列表">
+        <button data-open="chat"><span>◌</span><b>聊天</b></button>
+        <button data-open="memory"><span>◉</span><b>记忆</b></button>
+        <button data-open="lexicon"><span>▱</span><b>辞海</b></button>
+        <button data-open="worldbook"><span>◎</span><b>世界书</b></button>
+        <button data-open="monitor"><span>⌁</span><b>性能监测</b></button>
+        <button data-open="reading"><span>▤</span><b>阅读</b></button>
+        <button data-open="wishes"><span>☆</span><b>心愿馆</b></button>
+        <button data-open="study"><span>△</span><b>考研</b></button>
+        <button data-open="games"><span>⌘</span><b>游戏</b></button>
+        <button data-open="settings"><span>⚙</span><b>设置</b></button>
+      </section>
+      <footer class="desktop-mark"><span></span> Lulu · 暖纸极简 <span></span></footer>
+    </section>
+
+    <section id="chat" class="screen">
+      <header class="page-bar"><button data-back>‹</button><h2>聊天</h2><button class="ghost">＋</button></header>
+      <div class="conversation-list">
+        <button data-open="chat-detail"><span class="avatar">露</span><span><strong>露露</strong><small>我们继续把新的露露机做好吧～</small></span><time>刚刚</time></button>
+        <button><span class="avatar muted">角</span><span><strong>其他角色</strong><small>未来迁移角色数据后显示在这里</small></span><time>昨天</time></button>
+      </div>
+      <nav class="bottom-tabs">
+        <button class="selected" data-tab="messages">消息</button><button data-tab="roles">角色</button><button data-tab="moments">朋友圈</button><button data-tab="me">我的</button>
+      </nav>
+    </section>
+
+    <section id="chat-detail" class="screen">
+      <header class="page-bar chat-bar"><button data-back>‹</button><div><h2>露露</h2><small>陪伴中</small></div><button class="ghost">⋯</button></header>
+      <div class="messages">
+        <p class="time-line">今天 16:20</p>
+        <div class="bubble other">主人，我们已经选好暖纸极简啦。接下来就按照这套风格一点点搬迁～</div>
+        <div class="bubble mine">好，那就继续往下做吧。</div>
+        <div class="bubble other">好呀，我会先保证每一步都能预览、能验证，也不会把不属于我们的旧页面直接照搬。</div>
+      </div>
+      <div class="composer"><button>⌁</button><input aria-label="消息" placeholder="输入消息…" /><button class="send">发送</button></div>
+    </section>
+
+    <section id="monitor" class="screen">
+      <header class="page-bar"><button data-back>‹</button><h2>性能监测</h2><button class="ghost">⋯</button></header>
+      <div class="segmented" data-segmented>
+        <button class="selected" data-panel="errors">报错日志</button><button data-panel="cache">缓存</button><button data-panel="console">控制台</button><button data-panel="duration">时长</button>
+      </div>
+      <div class="panel active" id="errors"><article><strong>暂无严重错误</strong><p>错误、警告与崩溃信息将统一汇总在这里。</p></article></div>
+      <div class="panel" id="cache"><article><strong>缓存概览</strong><p>图片缓存、模型缓存和临时文件会在正式迁移后接入。</p></article></div>
+      <div class="panel" id="console"><article><strong>Token 控制台</strong><p>输入、输出、模型、请求耗时与费用统计将保留。</p></article></div>
+      <div class="panel" id="duration"><article><strong>今日使用时长</strong><p>聊天、番茄钟与各功能使用时间统一展示，并可供角色读取。</p></article></div>
+    </section>
+
+    <section id="lexicon" class="screen">
+      <header class="page-bar"><button data-back>‹</button><h2>辞海</h2><button class="ghost">＋</button></header>
+      <button class="character-picker"><span class="avatar">露</span><strong>露露</strong><i>⌄</i></button>
+      <div class="segmented lexicon-tabs"><button class="selected">生活</button><button>挂心</button><button>约定</button><button>日记</button></div>
+      <div class="empty-card"><strong>生活记录</strong><p>这里只保留真正需要展示的内容，不再添加重复说明卡。</p></div>
+    </section>
+
+    <section id="reading" class="screen"><header class="page-bar"><button data-back>‹</button><h2>阅读</h2><button class="ghost"> </button></header><div class="center-empty"><span>▤</span><h3>阅读空间正在整理中</h3><p>入口先保留，原来的内容不迁入。</p></div></section>
+    <section id="memory" class="screen"><header class="page-bar"><button data-back>‹</button><h2>记忆</h2><button class="ghost">⚙</button></header><div class="placeholder"><h3>记忆页面将独立重设计</h3><p>最近记忆、长期事实、情绪印象、时间线和待整理内容会使用新的信息结构。</p></div></section>
+    <section id="worldbook" class="screen"><header class="page-bar"><button data-back>‹</button><h2>世界书</h2><button class="ghost">＋</button></header><div class="placeholder"><h3>世界设定</h3><p>支持标题、正文、全局应用，以及角色级单独启用。</p></div></section>
+    <section id="wishes" class="screen"><header class="page-bar"><button data-back>‹</button><h2>心愿馆</h2><button class="ghost">＋</button></header><div class="placeholder"><h3>心愿馆</h3><p>后续完整迁移现有功能和数据。</p></div></section>
+    <section id="study" class="screen"><header class="page-bar"><button data-back>‹</button><h2>考研</h2><button class="ghost">⋯</button></header><div class="placeholder"><h3>考研工具</h3><p>后续迁移番茄、抽卡、成就和学习统计。</p></div></section>
+    <section id="games" class="screen"><header class="page-bar"><button data-back>‹</button><h2>游戏</h2><button class="ghost">＋</button></header><div class="placeholder"><h3>一起玩</h3><p>小游戏、角色参与和回放能力将在这里恢复。</p></div></section>
+    <section id="settings" class="screen"><header class="page-bar"><button data-back>‹</button><h2>设置</h2><button class="ghost"> </button></header><div class="settings-list"><button>外观<i>›</i></button><button>聊天<i>›</i></button><button>模型与 API<i>›</i></button><button>记忆<i>›</i></button><button>通知与主动联系<i>›</i></button><button>数据<i>›</i></button><button>应用与权限<i>›</i></button></div></section>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>
