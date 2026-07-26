@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T11:36:02.732242+00:00",
-  "commit": "d79614446d7b06d1a9cd7ddded63011acaff4d35",
+  "generatedAt": "2026-07-26T11:38:37.667625+00:00",
+  "commit": "59a1f2439b57bb23c634624585491a1dc694a36e",
   "branch": "main",
-  "sourceFingerprint": "d5858f1613ca883053015a949f3b11b9d4e81eabef5d6be2ea3bde1781479834",
+  "sourceFingerprint": "9da8bf4a03c7e71c020cc9f8ec0cfcb760891d9ad58f5f34d289a7f5a293b07b",
   "summary": {
-    "files": 26,
-    "lines": 3855,
-    "symbols": 121
+    "files": 25,
+    "lines": 3654,
+    "symbols": 117
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -444,30 +444,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CompleteGamesApp.kt",
         "line": 30
-      }
-    ],
-    "LegacyGamePage": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGamesScreen.kt",
-        "line": 27
-      }
-    ],
-    "LegacyGameScreen": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGamesScreen.kt",
-        "line": 32
-      }
-    ],
-    "hasFive": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGamesScreen.kt",
-        "line": 166
-      }
-    ],
-    "place": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGamesScreen.kt",
-        "line": 175
       }
     ],
     "LuluGameType": [
@@ -1114,29 +1090,6 @@
         {
           "name": "CompleteGamesApp",
           "line": 30
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGamesScreen.kt",
-      "lines": 201,
-      "sha256": "1200ec651498fd78592e41ae9a892bb7f6a01baec9c5a75ea6b90968a32f46b3",
-      "symbols": [
-        {
-          "name": "LegacyGamePage",
-          "line": 27
-        },
-        {
-          "name": "LegacyGameScreen",
-          "line": 32
-        },
-        {
-          "name": "hasFive",
-          "line": 166
-        },
-        {
-          "name": "place",
-          "line": 175
         }
       ]
     },
