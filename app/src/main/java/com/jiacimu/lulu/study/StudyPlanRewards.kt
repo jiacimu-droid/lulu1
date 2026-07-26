@@ -102,14 +102,14 @@ internal fun StudyGachaScreen(state: StudyState, store: PostgraduateExamStore) {
                 Button(
                     onClick = {
                         results = store.drawSingle()
-                        message = if (results.isEmpty()) "需要1张单抽券或$SINGLE_DRAW_COST夸夸值" else "完成单抽"
+                        message = if (results.isEmpty()) "需要1张单抽券或${SINGLE_DRAW_COST}夸夸值" else "完成单抽"
                     },
                     modifier = Modifier.weight(1f),
                 ) { Text("单抽") }
                 Button(
                     onClick = {
                         results = store.drawTen()
-                        message = if (results.isEmpty()) "需要1张十连券或$TEN_DRAW_COST夸夸值" else "完成十连"
+                        message = if (results.isEmpty()) "需要1张十连券或${TEN_DRAW_COST}夸夸值" else "完成十连"
                     },
                     modifier = Modifier.weight(1f),
                 ) { Text("十连") }
@@ -191,7 +191,7 @@ internal fun StudyCollectionScreen(state: StudyState, store: PostgraduateExamSto
         when (view) {
             CollectionView.Scrolls -> {
                 if (state.inventory.unlockedScrolls.isEmpty()) {
-                    item { StudyCard { Text("还没有解锁画卷。每套需要$BLUE_FRAGMENTS_PER_SCROLL枚专属碎片。", color = StudyDesign.muted) } }
+                    item { StudyCard { Text("还没有解锁画卷。每套需要${BLUE_FRAGMENTS_PER_SCROLL}枚专属碎片。", color = StudyDesign.muted) } }
                 }
                 items(state.inventory.unlockedScrolls) { title ->
                     StudyCard {
