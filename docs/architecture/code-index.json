@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T13:11:23.290201+00:00",
-  "commit": "dec51b86f41950036e0eb98c0dc3e30414bfd049",
+  "generatedAt": "2026-07-26T13:17:18.309750+00:00",
+  "commit": "324ced8218d7286532ed860b8c154e6d75bf15e1",
   "branch": "main",
-  "sourceFingerprint": "2d339a13509d0d6ac1d80aeff7e02b558539db8c1b3fcdc346722525fb80736f",
+  "sourceFingerprint": "58d9b2f979d73b2f5c44262cb4036c6468c7f8faa58a6bb29791ee3729008a70",
   "summary": {
-    "files": 37,
-    "lines": 8098,
-    "symbols": 224
+    "files": 38,
+    "lines": 8475,
+    "symbols": 245
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -172,6 +172,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
         "line": 54
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 375
       }
     ],
     "CharacterSummary": [
@@ -898,6 +902,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
         "line": 36
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 73
       }
     ],
     "signIn": [
@@ -1066,6 +1074,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
         "line": 560
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 252
       }
     ],
     "buyShopItem": [
@@ -1306,6 +1318,114 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
         "line": 49
+      }
+    ],
+    "StudyLegacyShopReward": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 13
+      }
+    ],
+    "StudyBlindBox": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 17
+      }
+    ],
+    "StudyLegacyShopItem": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 23
+      }
+    ],
+    "StudyLegacyRewardState": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 36
+      }
+    ],
+    "StudyLegacyRewardsStore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 68
+      }
+    ],
+    "rewardFocus": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 81
+      }
+    ],
+    "openBlindBox": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 104
+      }
+    ],
+    "convertNormalToOutfit": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 118
+      }
+    ],
+    "useUniversalRare": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 140
+      }
+    ],
+    "useUniversalEpic": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 142
+      }
+    ],
+    "redeemGameTicket": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 168
+      }
+    ],
+    "redeemVideoCard": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 178
+      }
+    ],
+    "redeemAnimeTicket": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 193
+      }
+    ],
+    "unlockTheaterFromRainbow": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 208
+      }
+    ],
+    "buy": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 223
+      }
+    ],
+    "attachMedia": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 268
+      }
+    ],
+    "clearMedia": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 273
+      }
+    ],
+    "StudyLegacyRewards": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+        "line": 371
       }
     ],
     "encode": [
@@ -2396,6 +2516,97 @@
         {
           "name": "initialize",
           "line": 54
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewards.kt",
+      "lines": 377,
+      "sha256": "1d9b68914eddf257e934bfd9471d6b670da90fe83e0c8a1b7306b9f77625506c",
+      "symbols": [
+        {
+          "name": "StudyLegacyShopReward",
+          "line": 13
+        },
+        {
+          "name": "StudyBlindBox",
+          "line": 17
+        },
+        {
+          "name": "StudyLegacyShopItem",
+          "line": 23
+        },
+        {
+          "name": "StudyLegacyRewardState",
+          "line": 36
+        },
+        {
+          "name": "StudyLegacyRewardsStore",
+          "line": 68
+        },
+        {
+          "name": "syncDate",
+          "line": 73
+        },
+        {
+          "name": "rewardFocus",
+          "line": 81
+        },
+        {
+          "name": "openBlindBox",
+          "line": 104
+        },
+        {
+          "name": "convertNormalToOutfit",
+          "line": 118
+        },
+        {
+          "name": "useUniversalRare",
+          "line": 140
+        },
+        {
+          "name": "useUniversalEpic",
+          "line": 142
+        },
+        {
+          "name": "redeemGameTicket",
+          "line": 168
+        },
+        {
+          "name": "redeemVideoCard",
+          "line": 178
+        },
+        {
+          "name": "redeemAnimeTicket",
+          "line": 193
+        },
+        {
+          "name": "unlockTheaterFromRainbow",
+          "line": 208
+        },
+        {
+          "name": "buy",
+          "line": 223
+        },
+        {
+          "name": "refreshShop",
+          "line": 252
+        },
+        {
+          "name": "attachMedia",
+          "line": 268
+        },
+        {
+          "name": "clearMedia",
+          "line": 273
+        },
+        {
+          "name": "StudyLegacyRewards",
+          "line": 371
+        },
+        {
+          "name": "initialize",
+          "line": 375
         }
       ]
     },
