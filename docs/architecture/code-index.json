@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T12:40:55.661838+00:00",
-  "commit": "c4c119f059665f7d5b58ab65e393db0e917b4141",
+  "generatedAt": "2026-07-26T12:42:01.550674+00:00",
+  "commit": "81131d630e56d67b2e09ee2b1fb610554582de95",
   "branch": "main",
-  "sourceFingerprint": "e8dd506d79ee9bd1f43f2f014476a210be24926b829a8a06c733b38b46cfc2b5",
+  "sourceFingerprint": "58e960f032229e5c41c0b99d0066ef12e1b23e7383ee0d807fbfdde9548978a5",
   "summary": {
-    "files": 33,
-    "lines": 7214,
-    "symbols": 204
+    "files": 34,
+    "lines": 7444,
+    "symbols": 206
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -44,6 +44,22 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluRootApp.kt",
         "line": 43
+      }
+    ],
+    "LuluSettingsScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
+        "line": 36
+      }
+    ],
+    "save": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
+        "line": 47
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
+        "line": 37
       }
     ],
     "MainActivity": [
@@ -110,12 +126,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
         "line": 32
-      }
-    ],
-    "save": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 37
       }
     ],
     "defaultBaseUrl": [
@@ -1283,6 +1293,21 @@
         {
           "name": "LuluRootApp",
           "line": 43
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
+      "lines": 230,
+      "sha256": "a27b5af5bd6563899a45ac8121412d1c0e33d461206787db39c524f157b7c525",
+      "symbols": [
+        {
+          "name": "LuluSettingsScreen",
+          "line": 36
+        },
+        {
+          "name": "save",
+          "line": 47
         }
       ]
     },
