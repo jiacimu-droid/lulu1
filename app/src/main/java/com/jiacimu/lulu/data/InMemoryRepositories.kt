@@ -148,6 +148,16 @@ class InMemoryPerformanceRepository : PerformanceRepository {
         errors.update { current -> (listOf(message) + current).take(MAX_ERRORS) }
     }
 
+    suspend fun addTokenUsage(input: Int, output: Int, cached: Int = 0) {
+        tokenUsage.update { current ->
+            current.copy(
+                input = current.input + input.coerceAtLeast(0),
+                output = current.output + output.coerceAtLeast(0),
+                cached = current.cached + cached.coerceAtLeast(0),
+            )
+        }
+    }
+
     suspend fun updateTokenUsage(usage: TokenUsage) {
         tokenUsage.value = usage.copy(
             input = usage.input.coerceAtLeast(0),
