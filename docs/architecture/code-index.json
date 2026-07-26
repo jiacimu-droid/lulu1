@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T12:06:00.934411+00:00",
-  "commit": "a8518e15e189c74eb1d77f38c84f205be88a25ae",
+  "generatedAt": "2026-07-26T12:06:31.727840+00:00",
+  "commit": "88938f94d3f813ab2c9fa6112c94d605e5694cae",
   "branch": "main",
-  "sourceFingerprint": "998c262cd8022b32f230589b7112be5acd99da53aea621ebe5c5544c8b1de463",
+  "sourceFingerprint": "aa10970465014ad83d72a101d02dafa962b629234f6a22118275b4e14fd6ccf7",
   "summary": {
-    "files": 31,
-    "lines": 5979,
-    "symbols": 175
+    "files": 30,
+    "lines": 5898,
+    "symbols": 171
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -610,34 +610,6 @@
         "line": 599
       }
     ],
-    "Home": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/CompleteGamesApp.kt",
-        "line": 23
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 33
-      }
-    ],
-    "NewGames": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/CompleteGamesApp.kt",
-        "line": 24
-      }
-    ],
-    "Legacy": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/CompleteGamesApp.kt",
-        "line": 25
-      }
-    ],
-    "CompleteGamesApp": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/CompleteGamesApp.kt",
-        "line": 30
-      }
-    ],
     "attach": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
@@ -804,6 +776,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
         "line": 317
+      }
+    ],
+    "Home": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
+        "line": 33
       }
     ],
     "SignalHunt": [
@@ -1548,29 +1526,6 @@
         {
           "name": "play",
           "line": 599
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/games/CompleteGamesApp.kt",
-      "lines": 81,
-      "sha256": "80ba43ae8c3a204c16416904b597f5724257c354e3463cd5e233835ab1751fd6",
-      "symbols": [
-        {
-          "name": "Home",
-          "line": 23
-        },
-        {
-          "name": "NewGames",
-          "line": 24
-        },
-        {
-          "name": "Legacy",
-          "line": 25
-        },
-        {
-          "name": "CompleteGamesApp",
-          "line": 30
         }
       ]
     },

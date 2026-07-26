@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a8518e15e189c74eb1d77f38c84f205be88a25ae`
+- 基准提交：`88938f94d3f813ab2c9fa6112c94d605e5694cae`
 - 分支：`main`
-- 已索引文件：31
-- 已索引代码/文本行：5979
-- 已发现符号：175
+- 已索引文件：30
+- 已索引代码/文本行：5898
+- 已发现符号：171
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -23,7 +23,6 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 201 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 395 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 639 | 12 |
-| `app/src/main/java/com/jiacimu/lulu/games/CompleteGamesApp.kt` | 81 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 155 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 87 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGamesScreen.kt` | 298 | 4 |
