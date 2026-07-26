@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T10:01:31.461104+00:00",
-  "commit": "33beb2dd97302437a02510115b13051b253e096a",
+  "generatedAt": "2026-07-26T10:17:34.204800+00:00",
+  "commit": "49843712460d1d4a1aab458bea0f8811ffac71d6",
   "branch": "main",
-  "sourceFingerprint": "467a5b20794d24b65c49d9d4a7542011bdb9f5587278f88e45f030232dff3eed",
+  "sourceFingerprint": "2842aff73197a94d63c5a628dada27d418ea907a8c29eb2ae639f651a2827832",
   "summary": {
-    "files": 16,
-    "lines": 1973,
-    "symbols": 66
+    "files": 17,
+    "lines": 2559,
+    "symbols": 67
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -32,6 +32,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
         "line": 147
+      }
+    ],
+    "LuluMilestoneApp": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluMilestoneApp.kt",
+        "line": 47
       }
     ],
     "MainActivity": [
@@ -445,6 +451,17 @@
         {
           "name": "MyProfileScreen",
           "line": 147
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluMilestoneApp.kt",
+      "lines": 586,
+      "sha256": "aa067569bfa817d53741259120f864b49f9c07e8224cbdac4a8bb55cf72f62d4",
+      "symbols": [
+        {
+          "name": "LuluMilestoneApp",
+          "line": 47
         }
       ]
     },
