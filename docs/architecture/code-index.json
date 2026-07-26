@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T13:55:50.398690+00:00",
-  "commit": "419eb752f4ecfa629e7588a1067b73be4f1f3c2f",
+  "generatedAt": "2026-07-26T13:57:03.633041+00:00",
+  "commit": "af1fc5cf1b02bc2491e12b27985659c32bda4b5c",
   "branch": "main",
-  "sourceFingerprint": "e1a6223e17a2f6aad824476ff6c61533fb7423aff275d793e8b3b62101ba8437",
+  "sourceFingerprint": "b8a1561e467cad29720251a2e001c606693add9ae109f9614b24dd6ae7db5303",
   "summary": {
     "files": 37,
-    "lines": 8158,
+    "lines": 8153,
     "symbols": 224
   },
   "symbolIndex": {
@@ -2407,8 +2407,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
-      "lines": 214,
-      "sha256": "b937fe9470762f6be91cdd72f3366ce6ad9b9a5fb858b0cab85926cc20451469",
+      "lines": 209,
+      "sha256": "bf8cb6b3cc8fbc4153325f58e8eae10eece913dce4ff77f7f05d7023d28fd67c",
       "symbols": [
         {
           "name": "encode",

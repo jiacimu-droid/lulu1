@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`419eb752f4ecfa629e7588a1067b73be4f1f3c2f`
+- 基准提交：`af1fc5cf1b02bc2491e12b27985659c32bda4b5c`
 - 分支：`main`
 - 已索引文件：37
-- 已索引代码/文本行：8158
+- 已索引代码/文本行：8153
 - 已发现符号：224
 
 | 文件 | 行数 | 符号数 |
@@ -36,7 +36,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt` | 545 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt` | 59 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt` | 374 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt` | 214 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt` | 209 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 125 | 2 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
 | `app/src/main/res/values/strings.xml` | 5 | 0 |
