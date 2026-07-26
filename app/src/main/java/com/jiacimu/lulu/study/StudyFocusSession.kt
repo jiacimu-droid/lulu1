@@ -6,12 +6,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 enum class StudyFocusTheme(val label: String) {
-    Charcoal("深灰"), MidnightBlue("深蓝"), WarmBrown("暖棕"),
+    CLOUD("云雾原版"),
+    MIDNIGHT("深夜墨蓝"),
 }
 
 data class StudyFocusPreferences(
     val task: String = "完成当前最重要的一项学习任务",
-    val theme: StudyFocusTheme = StudyFocusTheme.Charcoal,
+    val theme: StudyFocusTheme = StudyFocusTheme.CLOUD,
 )
 
 class StudyFocusSessionStore private constructor(context: Context) {
@@ -21,23 +22,27 @@ class StudyFocusSessionStore private constructor(context: Context) {
 
     fun updateTask(task: String) {
         val clean = task.trim().take(200)
-        val next = mutable.value.copy(task = clean)
-        mutable.value = next
+        mutable.value = mutable.value.copy(task = clean)
         prefs.edit().putString(KEY_TASK, clean).apply()
     }
 
     fun updateTheme(theme: StudyFocusTheme) {
-        val next = mutable.value.copy(theme = theme)
-        mutable.value = next
+        mutable.value = mutable.value.copy(theme = theme)
         prefs.edit().putString(KEY_THEME, theme.name).apply()
     }
 
-    private fun load(): StudyFocusPreferences = StudyFocusPreferences(
-        task = prefs.getString(KEY_TASK, null).orEmpty().ifBlank { "完成当前最重要的一项学习任务" },
-        theme = runCatching {
-            StudyFocusTheme.valueOf(prefs.getString(KEY_THEME, null).orEmpty())
-        }.getOrDefault(StudyFocusTheme.Charcoal),
-    )
+    private fun load(): StudyFocusPreferences {
+        val rawTheme = prefs.getString(KEY_THEME, null).orEmpty()
+        val theme = when (rawTheme) {
+            "Charcoal", "MidnightBlue", StudyFocusTheme.MIDNIGHT.name -> StudyFocusTheme.MIDNIGHT
+            "WarmBrown", StudyFocusTheme.CLOUD.name -> StudyFocusTheme.CLOUD
+            else -> StudyFocusTheme.CLOUD
+        }
+        return StudyFocusPreferences(
+            task = prefs.getString(KEY_TASK, null).orEmpty().ifBlank { "完成当前最重要的一项学习任务" },
+            theme = theme,
+        )
+    }
 
     companion object {
         private const val PREFS_NAME = "lulu_study_focus"
@@ -53,6 +58,6 @@ object StudyFocusSessions {
         get() = checkNotNull(internal) { "StudyFocusSessions 尚未初始化" }
 
     fun initialize(context: Context) {
-        if (internal == null) internal = StudyFocusSessionStore.create(context)
+        if (internal == null) internal = StudyFocusSessionStore.create(context.applicationContext)
     }
 }
