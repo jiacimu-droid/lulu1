@@ -53,6 +53,9 @@ fun PostgraduateExamApp(onBack: () -> Unit) {
                     Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
                         StudySectionChips(current.section) { route = StudyRoute.Section(it) }
                     }
+                    if (current.section == StudySection.Today) {
+                        StudyDailySummaryStrip(state)
+                    }
                     Box(Modifier.fillMaxSize()) {
                         when (current.section) {
                             StudySection.Companion -> StudyCompanionScreen(state, store)
