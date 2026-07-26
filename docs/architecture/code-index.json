@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T11:14:37.680236+00:00",
-  "commit": "1ef61b67cbeb97ac44c4d886cc3971c5be052ab3",
+  "generatedAt": "2026-07-26T11:15:56.734667+00:00",
+  "commit": "547f191a4c9717623fd13ce343b08cb572aecc1b",
   "branch": "main",
-  "sourceFingerprint": "b6c171ec4fe847516691837993b3ea96e7c27638e28f5e789a3c185f119aa4be",
+  "sourceFingerprint": "745e3f96df97472a987bb0c5064008bfebcef0e5ee559314505f0bb49c8c35ae",
   "summary": {
-    "files": 22,
-    "lines": 3034,
-    "symbols": 110
+    "files": 23,
+    "lines": 3340,
+    "symbols": 111
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -510,6 +510,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
         "line": 157
+      }
+    ],
+    "LuluGamesApp": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
+        "line": 35
       }
     ],
     "PostgraduateExamApp": [
@@ -1085,6 +1091,17 @@
         {
           "name": "LuluGames",
           "line": 157
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
+      "lines": 306,
+      "sha256": "edf771b415e74e12cf976dccba0db877dbd46a02c17ea02e016a69537492abb2",
+      "symbols": [
+        {
+          "name": "LuluGamesApp",
+          "line": 35
         }
       ]
     },
