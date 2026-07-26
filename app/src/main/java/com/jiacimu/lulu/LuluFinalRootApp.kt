@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.MigratedDomainStores
-import com.jiacimu.lulu.games.LuluGamesApp
+import com.jiacimu.lulu.games.CompleteGamesApp
 import com.jiacimu.lulu.study.PostgraduateExamApp
 
 private val FinalPaper = Color(0xFFFFFDF7)
@@ -60,7 +60,7 @@ fun LuluFinalRootApp() {
                 FinalRoute.WorldBook -> CharacterWorldBookScreen { route = FinalRoute.Home }
                 FinalRoute.Performance -> PerformanceFeatureScreen { route = FinalRoute.Home }
                 FinalRoute.Study -> PostgraduateExamApp { route = FinalRoute.Home }
-                FinalRoute.Games -> LuluGamesApp { route = FinalRoute.Home }
+                FinalRoute.Games -> CompleteGamesApp { route = FinalRoute.Home }
                 FinalRoute.Settings -> FinalSettings { route = FinalRoute.Home }
                 FinalRoute.Reading -> FinalEmpty("阅读", "阅读空间已保留，下一整块迁移时接入书架、阅读器与笔记。") { route = FinalRoute.Home }
                 FinalRoute.Wishes -> FinalEmpty("心愿馆", "心愿馆已保留，下一整块迁移时接入愿望、进度与角色回应。") { route = FinalRoute.Home }
