@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T10:57:57.952807+00:00",
-  "commit": "424e3cec5a04a5d1f373dcc7bd9453c32baa1dff",
+  "generatedAt": "2026-07-26T10:59:37.182245+00:00",
+  "commit": "94ef9392be762ed960836a38a65eb0706b50fcf1",
   "branch": "main",
-  "sourceFingerprint": "12dcaf0b954ded6bc9f45a83659ab4ed72b259de1a01814d41ce4600e2aa4b52",
+  "sourceFingerprint": "f7345fc4ec2601f49b362e5612aa1fcdab9c8d31f22f9a0e20879b7a20af2720",
   "summary": {
-    "files": 21,
-    "lines": 3315,
-    "symbols": 94
+    "files": 22,
+    "lines": 3459,
+    "symbols": 95
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -80,6 +80,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
         "line": 247
+      }
+    ],
+    "CharacterWorldBookScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PublicCharacterWorldBookScreen.kt",
+        "line": 30
       }
     ],
     "CharacterSummary": [
@@ -673,6 +679,17 @@
         {
           "name": "PerformanceFeatureScreen",
           "line": 247
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/PublicCharacterWorldBookScreen.kt",
+      "lines": 144,
+      "sha256": "28281c5116c43b64294168fcd657e9a62b64dc9ef0c6b166b3e6f012f3c08bd9",
+      "symbols": [
+        {
+          "name": "CharacterWorldBookScreen",
+          "line": 30
         }
       ]
     },

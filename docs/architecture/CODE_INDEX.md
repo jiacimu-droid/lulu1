@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`424e3cec5a04a5d1f373dcc7bd9453c32baa1dff`
+- 基准提交：`94ef9392be762ed960836a38a65eb0706b50fcf1`
 - 分支：`main`
-- 已索引文件：21
-- 已索引代码/文本行：3315
-- 已发现符号：94
+- 已索引文件：22
+- 已索引代码/文本行：3459
+- 已发现符号：95
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -16,6 +16,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluRootApp.kt` | 455 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MainActivity.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 320 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/PublicCharacterWorldBookScreen.kt` | 144 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 126 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 182 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 201 | 21 |
