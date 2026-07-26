@@ -38,18 +38,8 @@ data class StudyPlanItem(
     val completed: Boolean = false,
 )
 
-data class StudyTip(
-    val id: String = UUID.randomUUID().toString(),
-    val text: String,
-    val date: String,
-)
-
-data class StudyEvent(
-    val id: String = UUID.randomUUID().toString(),
-    val title: String,
-    val detail: String,
-    val createdAt: Instant = Instant.now(),
-)
+data class StudyTip(val id: String = UUID.randomUUID().toString(), val text: String, val date: String)
+data class StudyEvent(val id: String = UUID.randomUUID().toString(), val title: String, val detail: String, val createdAt: Instant = Instant.now())
 
 data class StudyDrawResult(
     val id: String = UUID.randomUUID().toString(),
@@ -68,9 +58,7 @@ data class StudyAchievement(
     val rewardSingleTickets: Int = 1,
     val rewardPraisePoints: Int = 20,
     val claimed: Boolean = false,
-) {
-    val unlocked: Boolean get() = progress >= target
-}
+) { val unlocked: Boolean get() = progress >= target }
 
 data class StudyShopItem(
     val id: String,
@@ -81,9 +69,7 @@ data class StudyShopItem(
     val amount: Int,
     val stock: Int,
     val purchased: Int = 0,
-) {
-    val remaining: Int get() = (stock - purchased).coerceAtLeast(0)
-}
+) { val remaining: Int get() = (stock - purchased).coerceAtLeast(0) }
 
 data class StudyInventory(
     val singleTickets: Int = 3,
@@ -115,15 +101,14 @@ data class StudyProfile(
     val claimedLevels: Set<Int> = emptySet(),
     val sleepRewardDate: String = "",
     val inactivityPenaltyDate: String = "",
-) {
-    val level: Int get() = StudyLevels.levelForExperience(experience)
-}
+) { val level: Int get() = StudyLevels.levelForExperience(experience) }
 
 data class PomodoroState(
     val selectedMinutes: Int = 25,
     val remainingSeconds: Int = 25 * 60,
     val running: Boolean = false,
     val voiceEnabled: Boolean = false,
+    val endAtEpochMillis: Long = 0L,
 )
 
 data class StudyState(
@@ -155,10 +140,8 @@ object StudyLevels {
 }
 
 internal val blueFragmentCatalog = listOf(
-    "清晨书桌", "夜灯笔记", "单词卡片", "真题铅笔",
-    "刑法目录", "民法法条", "宪法图谱", "法制史卷轴",
-    "番茄时钟", "安静耳机", "热茶", "小烟花",
-    "计划贴纸", "错题本", "倒计时牌", "录取通知",
+    "清晨书桌", "夜灯笔记", "单词卡片", "真题铅笔", "刑法目录", "民法法条", "宪法图谱", "法制史卷轴",
+    "番茄时钟", "安静耳机", "热茶", "小烟花", "计划贴纸", "错题本", "倒计时牌", "录取通知",
 )
 internal val videoCatalog = listOf("完成第一小时", "雨天自习室", "角色的监督留言", "深夜收尾", "周计划达成")
 internal val theaterCatalog = listOf("考前一天", "收到录取通知后", "图书馆闭馆广播", "角色替你保管手机", "最后一次模拟考试")
@@ -168,27 +151,23 @@ internal fun defaultTasks(date: LocalDate): List<StudyTask> = listOf(
     StudyTask(title = "词汇复习", date = date.toString(), pomodoroTarget = 1, source = StudyTaskSource.Preset),
     StudyTask(title = "专业课重点整理", date = date.toString(), pomodoroTarget = 2, source = StudyTaskSource.Preset),
 )
-
 internal fun defaultPlanItems(): List<StudyPlanItem> = listOf(
     StudyPlanItem(range = StudyPlanRange.Weekly, title = "完成本周英语真题与错题复盘"),
     StudyPlanItem(range = StudyPlanRange.Weekly, title = "专业课推进到本周节点"),
     StudyPlanItem(range = StudyPlanRange.Monthly, title = "完成当月专业课阶段目标"),
     StudyPlanItem(range = StudyPlanRange.Monthly, title = "整理当月英语错误类型"),
 )
-
 internal fun defaultTips(date: LocalDate): List<StudyTip> = listOf(
     StudyTip(text = "先开始一个最小番茄钟，再决定是否延长。", date = date.toString()),
     StudyTip(text = "真题训练优先记录错因，不用为了速度跳过复盘。", date = date.toString()),
 )
-
 internal fun defaultShop(date: LocalDate): List<StudyShopItem> {
     val seed = date.toEpochDay().toInt()
-    val rotating = listOf(
+    return listOf(
         StudyShopItem("single-$seed", "单抽券", "用于一次普通抽取", 30, StudyShopReward.SingleTicket, 1, 3),
         StudyShopItem("box-$seed", "神秘盒子", "随机开出夸夸值或碎片", 45, StudyShopReward.MysteryBox, 1, 2),
         StudyShopItem("universal-$seed", "万能蓝碎片", "补任意未满的普通收藏", 55, StudyShopReward.UniversalBlueFragment, 1, 2),
         StudyShopItem("safe-$seed", "今日安全抽券", "必定获得紫色碎片", 80, StudyShopReward.SafePurpleTicket, 1, 1),
         StudyShopItem("ten-$seed", "十连券", "用于一次十连抽", 240, StudyShopReward.TenTicket, 1, 1),
-    )
-    return rotating.shuffled(kotlin.random.Random(seed)).take(4)
+    ).shuffled(kotlin.random.Random(seed)).take(4)
 }
