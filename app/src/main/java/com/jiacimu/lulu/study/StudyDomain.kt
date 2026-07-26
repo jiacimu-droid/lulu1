@@ -112,7 +112,7 @@ data class PomodoroState(
 )
 
 data class StudyState(
-    val schemaVersion: Int = 2,
+    val schemaVersion: Int = 3,
     val activeDate: String = LocalDate.now().toString(),
     val profile: StudyProfile = StudyProfile(),
     val inventory: StudyInventory = StudyInventory(),
@@ -130,7 +130,14 @@ data class StudyState(
     val superMomentAvailable: Boolean = false,
     val superMomentClaimedDate: String = "",
     val pomodoro: PomodoroState = PomodoroState(),
-)
+    val dailyStudyMinutes: Map<String, Int> = emptyMap(),
+    val dailyPomodoros: Map<String, Int> = emptyMap(),
+    val dailyVocabularyReviewed: Map<String, Int> = emptyMap(),
+) {
+    fun studyMinutes(date: LocalDate = LocalDate.now()): Int = dailyStudyMinutes[date.toString()] ?: 0
+    fun pomodoros(date: LocalDate = LocalDate.now()): Int = dailyPomodoros[date.toString()] ?: 0
+    fun vocabulary(date: LocalDate = LocalDate.now()): Int = dailyVocabularyReviewed[date.toString()] ?: 0
+}
 
 object StudyLevels {
     val thresholds = listOf(0, 30, 80, 150, 240, 360, 510, 690, 900, 1140, 1410, 1710, 2040, 2400, 2790)
