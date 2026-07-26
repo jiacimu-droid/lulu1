@@ -15,11 +15,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.MigratedDomainStores
-import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.math.abs
-import kotlin.math.max
 import kotlin.random.Random
 
 private enum class YachtCategory(val label: String) {
@@ -64,7 +62,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
             userScore < roleScore -> "本轮角色胜"
             else -> "本轮平局"
         }
-        lastResult = "你将${category.label}记为$userScore分；${character.displayName}将${roleCategory.label}记为$roleScore分。$outcome。"
+        lastResult = "你将${category.label}记为${userScore}分；${character.displayName}将${roleCategory.label}记为${roleScore}分。$outcome。"
         val recordId = store.recordExternalGame(
             LuluGameType.YachtDice,
             "快艇骰子 · 第${nextUser.size}轮",
@@ -96,7 +94,11 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         if (nextUser.size == YachtCategory.entries.size) {
             val userTotal = nextUser.values.sum()
             val roleTotal = nextRole.values.sum()
-            val final = "整局结束：用户$userTotal分，角色$roleTotal分，${when { userTotal > roleTotal -> "用户获胜"; userTotal < roleTotal -> "角色获胜"; else -> "平局" }}。"
+            val final = "整局结束：用户${userTotal}分，角色${roleTotal}分，${when {
+                userTotal > roleTotal -> "用户获胜"
+                userTotal < roleTotal -> "角色获胜"
+                else -> "平局"
+            }}。"
             val finalRecord = store.recordExternalGame(
                 LuluGameType.YachtDice,
                 "快艇骰子 · 完整计分表",
@@ -133,7 +135,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         item { GameRolePanel(character.displayName, roleResponse) }
         item {
             GameCard {
-                Text("第${userScores.size + 1}轮 · 第$rolls次掷骰", color = GameDesign.muted)
+                Text("第${userScores.size + 1}轮 · 第${rolls}次掷骰", color = GameDesign.muted)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     dice.forEachIndexed { index, value ->
                         Surface(
@@ -174,7 +176,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                     val userTotal = userScores.values.sum()
                     val roleTotal = roleScores.values.sum()
                     Text("完整计分表已结束", fontSize = 21.sp, fontWeight = FontWeight.Bold)
-                    Text("你$userTotal分 · ${character.displayName}$roleTotal分")
+                    Text("你${userTotal}分 · ${character.displayName}${roleTotal}分")
                     Button(onClick = ::reset, modifier = Modifier.fillMaxWidth()) { Text("新一局") }
                 }
             }
@@ -240,7 +242,7 @@ internal fun GomokuScreen(store: LuluGameStore) {
             "五子棋",
             when (outcome) { "用户获胜" -> 100; "平局" -> 60; else -> 35 },
             if (outcome == "用户获胜") 20 else 5,
-            "用户执黑、${character.displayName}执白，共走$moves手，结果：$outcome。",
+            "用户执黑、${character.displayName}执白，共走${moves}手，结果：$outcome。",
             JSONObject()
                 .put("outcome", outcome)
                 .put("moves", moves)
@@ -249,7 +251,7 @@ internal fun GomokuScreen(store: LuluGameStore) {
         )
         saveGameAsSharedMemory(scope, store, recordId)
         requestGameRoleResponse(
-            scope, store, recordId, "五子棋结果：$outcome，共走$moves手。",
+            scope, store, recordId, "五子棋结果：$outcome，共走${moves}手。",
             "根据真实棋局结果，以角色自己的语气回应1-3句，不得修改胜负。",
             "五子棋结算", { roleResponse = it }, maxTokens = 240,
         )
