@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T10:52:50.210134+00:00",
-  "commit": "8d026e6b36854590c769ab8579f34d40276c250c",
+  "generatedAt": "2026-07-26T10:54:38.544461+00:00",
+  "commit": "8f4195e7b9ded5d972afd039f7caaba461751b91",
   "branch": "main",
-  "sourceFingerprint": "755903ef8639b82e74bde324a6668bc640b10191c57472c3a943ba4c93e3c89a",
+  "sourceFingerprint": "21857a2ecd7d68ae660a95eb122b5f45afefed57c2b94e8154f98276c49e95cf",
   "summary": {
-    "files": 18,
-    "lines": 2392,
-    "symbols": 92
+    "files": 19,
+    "lines": 2823,
+    "symbols": 93
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -408,6 +408,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 195
+      }
+    ],
+    "PostgraduateExamApp": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
+        "line": 38
       }
     ],
     "StudyTask": [
@@ -895,6 +901,17 @@
         {
           "name": "MigratedDomainStores",
           "line": 195
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
+      "lines": 431,
+      "sha256": "cd38eee8c9c83d11a4b4fca3c29511790f51d6f9189d9147c102c3bf47d0f36e",
+      "symbols": [
+        {
+          "name": "PostgraduateExamApp",
+          "line": 38
         }
       ]
     },
