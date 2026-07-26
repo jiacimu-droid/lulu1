@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T11:59:34.110496+00:00",
-  "commit": "f87aa4801a2cd6487c47a3ad3db3b9fa716326d8",
+  "generatedAt": "2026-07-26T12:01:37.046627+00:00",
+  "commit": "83a02beecfee235a3b0665333a28d42e72b75eab",
   "branch": "main",
-  "sourceFingerprint": "8a399c14d8ace714ebb8244ff2346ced2993fb38833175c02353e04315c626ba",
+  "sourceFingerprint": "a523b003c03fe6ce9df0bd4fbe01d87f9ca5565befeaaa94bfe6c6f13ead1074",
   "summary": {
-    "files": 30,
-    "lines": 5339,
-    "symbols": 155
+    "files": 31,
+    "lines": 5734,
+    "symbols": 161
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -500,6 +500,44 @@
         "line": 195
       }
     ],
+    "reroll": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
+        "line": 45
+      }
+    ],
+    "score": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
+        "line": 51
+      }
+    ],
+    "reset": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
+        "line": 111
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
+        "line": 281
+      }
+    ],
+    "finish": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
+        "line": 234
+      }
+    ],
+    "place": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
+        "line": 257
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGamesScreen.kt",
+        "line": 234
+      }
+    ],
     "nextRound": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
@@ -630,12 +668,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGamesScreen.kt",
         "line": 218
-      }
-    ],
-    "place": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGamesScreen.kt",
-        "line": 234
       }
     ],
     "LuluGameType": [
@@ -1348,6 +1380,37 @@
         {
           "name": "MigratedDomainStores",
           "line": 195
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
+      "lines": 395,
+      "sha256": "6e2114dd4dd03d504de022d482551f506aeca63ecd4bbe02436962320d3c2140",
+      "symbols": [
+        {
+          "name": "reroll",
+          "line": 45
+        },
+        {
+          "name": "score",
+          "line": 51
+        },
+        {
+          "name": "reset",
+          "line": 111
+        },
+        {
+          "name": "finish",
+          "line": 234
+        },
+        {
+          "name": "place",
+          "line": 257
+        },
+        {
+          "name": "reset",
+          "line": 281
         }
       ]
     },
