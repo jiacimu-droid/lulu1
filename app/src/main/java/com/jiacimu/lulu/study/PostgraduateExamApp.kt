@@ -24,7 +24,7 @@ fun PostgraduateExamApp(onBack: () -> Unit) {
     }
 
     when (val current = route) {
-        StudyRoute.Focus -> StudyFocusScreen(state, store) {
+        StudyRoute.Focus -> StudyFocusCompleteScreen(state, store) {
             route = StudyRoute.Section(StudySection.Today)
         }
         is StudyRoute.Section -> {
