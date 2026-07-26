@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T14:02:04.904771+00:00",
-  "commit": "986df2077beabc2c9b657fd72567d4416a456d81",
+  "generatedAt": "2026-07-26T14:04:02.668505+00:00",
+  "commit": "0483fbea63a34bfc49b43ffa7bac6a465f5f3990",
   "branch": "main",
-  "sourceFingerprint": "95d8b69c1dd7c551f109dec8f3c4866d98f5db6be655fd238f53de6c92f32a88",
+  "sourceFingerprint": "98b917ece3d84b8aa0dbf5bbbb4ce52048689c5559a6767ca370f26d4e22ed92",
   "summary": {
     "files": 37,
-    "lines": 8028,
-    "symbols": 221
+    "lines": 8062,
+    "symbols": 220
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -647,7 +647,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 98
+        "line": 111
       }
     ],
     "stop": [
@@ -1221,37 +1221,31 @@
     "requestOpeningLine": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 104
+        "line": 117
       }
     ],
     "beginSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 134
+        "line": 147
       }
     ],
     "settle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 157
+        "line": 170
       }
     ],
     "finishEarly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 193
-      }
-    ],
-    "finishNormally": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 201
+        "line": 206
       }
     ],
     "sendFocusChat": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 205
+        "line": 222
       }
     ],
     "StudyFocusTheme": [
@@ -2297,36 +2291,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-      "lines": 545,
-      "sha256": "6b0d9afbd1e7e8ea505fe8f9cda452db911a4bafbcf0db42a2eaa0ecce319aa7",
+      "lines": 579,
+      "sha256": "b71fe4b47cdf68d4c239ad56d1e642337934355fc14a0869a16f36c4ef4d4440",
       "symbols": [
         {
           "name": "speak",
-          "line": 98
+          "line": 111
         },
         {
           "name": "requestOpeningLine",
-          "line": 104
+          "line": 117
         },
         {
           "name": "beginSession",
-          "line": 134
+          "line": 147
         },
         {
           "name": "settle",
-          "line": 157
+          "line": 170
         },
         {
           "name": "finishEarly",
-          "line": 193
-        },
-        {
-          "name": "finishNormally",
-          "line": 201
+          "line": 206
         },
         {
           "name": "sendFocusChat",
-          "line": 205
+          "line": 222
         }
       ]
     },
