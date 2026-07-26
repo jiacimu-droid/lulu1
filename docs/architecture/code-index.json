@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T12:25:20.339696+00:00",
-  "commit": "50a003ee189621d061365cbda2e14ae3de86bd0d",
+  "generatedAt": "2026-07-26T12:26:46.736446+00:00",
+  "commit": "75f0cddc571017afff1b657b0ffc46779e379316",
   "branch": "main",
-  "sourceFingerprint": "778d6e8d4e1731b8b7a63ae5b6554ccd6d9f256291b3fdfb7189301d39130fbc",
+  "sourceFingerprint": "6d87c10693be2135d78ca32388f8995b3cef7ad8f450c07ffa0b89cef6319ea4",
   "summary": {
-    "files": 30,
-    "lines": 5810,
-    "symbols": 189
+    "files": 31,
+    "lines": 6032,
+    "symbols": 191
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -1127,6 +1127,18 @@
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
         "line": 139
       }
+    ],
+    "encode": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
+        "line": 9
+      }
+    ],
+    "decode": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
+        "line": 29
+      }
     ]
   },
   "files": [
@@ -2042,6 +2054,21 @@
       "lines": 37,
       "sha256": "ffcd673ddc4c55ad6003577525029c9a3dad0b94921f3a811d93abd1b9e835a7",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
+      "lines": 222,
+      "sha256": "4d1ec957af6ffaffedbb2bd224a892c6b586a78bf61b0f2906199cfdca269be8",
+      "symbols": [
+        {
+          "name": "encode",
+          "line": 9
+        },
+        {
+          "name": "decode",
+          "line": 29
+        }
+      ]
     },
     {
       "path": "app/src/main/res/drawable/ic_lulu.xml",
