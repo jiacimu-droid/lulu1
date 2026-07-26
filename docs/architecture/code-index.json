@@ -1,15 +1,33 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T09:43:59.981564+00:00",
-  "commit": "bb384da808b30e4444d391033a2bd0cf7a912085",
+  "generatedAt": "2026-07-26T09:46:05.344466+00:00",
+  "commit": "7581b8eabf5e1261726d7eabe382481de97ae5e1",
   "branch": "main",
-  "sourceFingerprint": "bd0ccb6e6c6e6ddf26b3f01c52472754158598fb95738949d0c4ddc5e736711b",
+  "sourceFingerprint": "3c89abf006e4f13ed01df584da759880ccc817c45f8c5141691920506bb28d15",
   "summary": {
-    "files": 13,
-    "lines": 1361,
-    "symbols": 41
+    "files": 14,
+    "lines": 1593,
+    "symbols": 44
   },
   "symbolIndex": {
+    "CharacterHubScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
+        "line": 36
+      }
+    ],
+    "MomentsPlaceholderScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
+        "line": 120
+      }
+    ],
+    "MyProfileScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
+        "line": 147
+      }
+    ],
     "MainActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MainActivity.kt",
@@ -269,6 +287,25 @@
       "lines": 20,
       "sha256": "0745dd375dd0e4a5da2618d5cdffd8cdedc8f5150701e2291977c33da7e7b7c9",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
+      "lines": 232,
+      "sha256": "110b8d63c8f8648023be251eb0706d0939126c2597add3c73977776d097fe483",
+      "symbols": [
+        {
+          "name": "CharacterHubScreen",
+          "line": 36
+        },
+        {
+          "name": "MomentsPlaceholderScreen",
+          "line": 120
+        },
+        {
+          "name": "MyProfileScreen",
+          "line": 147
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MainActivity.kt",
