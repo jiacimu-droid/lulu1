@@ -7,20 +7,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 
-/**
- * Shared model gateway used by independently redesigned Lulu1 features.
- *
- * The old project supported several providers. This implementation keeps the same
- * product capability without copying its provider/UI classes: OpenAI-compatible,
- * Anthropic Messages, and Gemini generateContent are normalized behind one API.
- */
 enum class ModelProviderKind { OpenAICompatible, Anthropic, Gemini }
 
 data class ModelConnection(
@@ -65,8 +57,7 @@ class ModelConnectionStore private constructor(context: Context) {
         }.getOrDefault(ModelProviderKind.OpenAICompatible)
         return ModelConnection(
             provider = provider,
-            baseUrl = prefs.getString(KEY_BASE_URL, null)
-                ?: defaultBaseUrl(provider),
+            baseUrl = prefs.getString(KEY_BASE_URL, null) ?: defaultBaseUrl(provider),
             apiKey = prefs.getString(KEY_API_KEY, "").orEmpty(),
             model = prefs.getString(KEY_MODEL, "").orEmpty(),
             enabled = prefs.getBoolean(KEY_ENABLED, false),
@@ -110,6 +101,15 @@ class CompanionModelGateway(
             check(connection.model.isNotBlank()) { "请先在设置中填写模型名称" }
 
             val character = MigratedDomainStores.characters.get(characterId)
+            val memories = LuluRepositories.memory.snapshot(characterId).take(24)
+            val lexicon = LuluRepositories.lexicon.snapshot(characterId).take(24)
+            val worldBooks = LuluRepositories.worldBook.snapshot().filter { entry ->
+                MigratedDomainStores.worldBookRules.isEnabled(
+                    worldBookId = entry.id,
+                    characterId = characterId,
+                    globalEnabled = entry.globalEnabled,
+                )
+            }
             val systemPrompt = buildString {
                 appendLine("你正在以‘${character.displayName.ifBlank { "角色" }}’的身份参与露露机中的真实活动。")
                 appendLine("角色的人设、关系边界、世界观和语言习惯拥有最高优先级。")
@@ -118,6 +118,18 @@ class CompanionModelGateway(
                 if (character.persona.isNotBlank()) {
                     appendLine("角色人设：")
                     appendLine(character.persona)
+                }
+                if (worldBooks.isNotEmpty()) {
+                    appendLine("适用世界书：")
+                    worldBooks.forEach { appendLine("- ${it.title}：${it.content}") }
+                }
+                if (memories.isNotEmpty()) {
+                    appendLine("可用连续记忆（只能按内容本身使用，不得扩写成未发生事实）：")
+                    memories.forEach { appendLine("- ${it.content}") }
+                }
+                if (lexicon.isNotEmpty()) {
+                    appendLine("辞海资料：")
+                    lexicon.forEach { appendLine("- ${it.section.name}/${it.title}：${it.content}") }
                 }
                 appendLine("本次任务：$instruction")
             }.trim()
@@ -190,12 +202,7 @@ class CompanionModelGateway(
             .put("system", system)
             .put("temperature", temperature)
             .put("max_tokens", maxTokens)
-            .put(
-                "messages",
-                JSONArray().put(
-                    JSONObject().put("role", "user").put("content", user),
-                ),
-            )
+            .put("messages", JSONArray().put(JSONObject().put("role", "user").put("content", user)))
         val json = requestJson(
             url = "${connection.baseUrl.ifBlank { ModelConnectionStore.defaultBaseUrl(connection.provider) }}/messages",
             headers = mapOf(
@@ -263,7 +270,9 @@ class CompanionModelGateway(
             ?.optJSONArray("parts")
         val text = parts?.let { array ->
             buildString {
-                for (index in 0 until array.length()) append(array.optJSONObject(index)?.optString("text").orEmpty())
+                for (index in 0 until array.length()) {
+                    append(array.optJSONObject(index)?.optString("text").orEmpty())
+                }
             }
         }.orEmpty().trim()
         check(text.isNotBlank()) { "模型没有返回可读取的内容" }
@@ -288,7 +297,7 @@ class CompanionModelGateway(
             connection.readTimeout = 90_000
             connection.doOutput = true
             connection.setRequestProperty("Content-Type", "application/json; charset=utf-8")
-            headers.forEach(connection::setRequestProperty)
+            headers.forEach { (key, value) -> connection.setRequestProperty(key, value) }
             connection.outputStream.bufferedWriter(Charsets.UTF_8).use { it.write(body.toString()) }
             val status = connection.responseCode
             val raw = (if (status in 200..299) connection.inputStream else connection.errorStream)
@@ -310,22 +319,18 @@ class CompanionModelGateway(
 }
 
 object LuluAiServices {
-    private lateinit var connectionStoreInternal: ModelConnectionStore
-    private lateinit var gatewayInternal: CompanionModelGateway
+    private var connectionStoreInternal: ModelConnectionStore? = null
+    private var gatewayInternal: CompanionModelGateway? = null
 
     val connectionStore: ModelConnectionStore
-        get() = checkNotNull(connectionStoreInternal.takeIf { ::connectionStoreInternal.isInitialized }) {
-            "LuluAiServices 尚未初始化"
-        }
+        get() = checkNotNull(connectionStoreInternal) { "LuluAiServices 尚未初始化" }
 
     val gateway: CompanionModelGateway
-        get() = checkNotNull(gatewayInternal.takeIf { ::gatewayInternal.isInitialized }) {
-            "LuluAiServices 尚未初始化"
-        }
+        get() = checkNotNull(gatewayInternal) { "LuluAiServices 尚未初始化" }
 
     fun initialize(context: Context) {
-        if (::connectionStoreInternal.isInitialized) return
+        if (connectionStoreInternal != null) return
         connectionStoreInternal = ModelConnectionStore.create(context)
-        gatewayInternal = CompanionModelGateway(connectionStoreInternal)
+        gatewayInternal = CompanionModelGateway(connectionStore)
     }
 }
