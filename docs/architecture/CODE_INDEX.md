@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`411588e98d9a3d39f9bdebec382434278ddf4396`
+- 基准提交：`f87aa4801a2cd6487c47a3ad3db3b9fa716326d8`
 - 分支：`main`
-- 已索引文件：29
-- 已索引代码/文本行：4700
-- 已发现符号：143
+- 已索引文件：30
+- 已索引代码/文本行：5339
+- 已发现符号：155
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -21,6 +21,7 @@
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 126 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 190 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 201 | 21 |
+| `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 639 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CompleteGamesApp.kt` | 81 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 155 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 87 | 0 |
