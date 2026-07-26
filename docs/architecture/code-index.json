@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T10:56:23.076254+00:00",
-  "commit": "39532765583ed8415e404f0580702cba7dd18aba",
+  "generatedAt": "2026-07-26T10:57:57.952807+00:00",
+  "commit": "424e3cec5a04a5d1f373dcc7bd9453c32baa1dff",
   "branch": "main",
-  "sourceFingerprint": "904c2c692fdf3b659c41f347dbecfe89bfdada3887902e270146ccd08eae95c3",
+  "sourceFingerprint": "12dcaf0b954ded6bc9f45a83659ab4ed72b259de1a01814d41ce4600e2aa4b52",
   "summary": {
-    "files": 20,
-    "lines": 3278,
+    "files": 21,
+    "lines": 3315,
     "symbols": 94
   },
   "symbolIndex": {
@@ -1038,6 +1038,12 @@
           "line": 257
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyNavigationCompat.kt",
+      "lines": 37,
+      "sha256": "ffcd673ddc4c55ad6003577525029c9a3dad0b94921f3a811d93abd1b9e835a7",
+      "symbols": []
     },
     {
       "path": "app/src/main/res/drawable/ic_lulu.xml",
