@@ -13,6 +13,7 @@ class MainActivity : ComponentActivity() {
         LuluAiServices.initialize(applicationContext)
         LuluGames.initialize(applicationContext)
         PostgraduateExamStores.initialize(applicationContext)
+        PostgraduateExamStores.main.syncPomodoroClock()
         setContent { LuluFinalRootApp() }
     }
 }
