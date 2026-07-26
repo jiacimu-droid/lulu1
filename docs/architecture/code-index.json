@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T14:09:22.450099+00:00",
-  "commit": "99362bcf0275f00bf683eae9de85a0f2a1cd2dab",
+  "generatedAt": "2026-07-26T14:14:46.684015+00:00",
+  "commit": "3e4dbd08d8d8071f7dd96796d7af56027c3495e0",
   "branch": "main",
-  "sourceFingerprint": "d1913cae5797c9817534ab85f1aecd45f3cec93656124fc89772f9898d132897",
+  "sourceFingerprint": "b3aa50cf5905d4a1b79fc4867200ad49fbe0589a63fef038e89623fe867ff061",
   "summary": {
     "files": 38,
     "lines": 8115,
@@ -2374,7 +2374,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt",
       "lines": 381,
-      "sha256": "90bb5d753e4b05eb4772bab78ff894848b0ee087d352cfad095e6631350e88a3",
+      "sha256": "41b6a8d25fcc57b544f3df660cbacb0efad77f250527d935ce273679b0a9212f",
       "symbols": []
     },
     {
