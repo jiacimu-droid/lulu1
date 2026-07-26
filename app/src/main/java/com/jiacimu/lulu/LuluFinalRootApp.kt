@@ -61,7 +61,7 @@ fun LuluFinalRootApp() {
                 FinalRoute.Performance -> PerformanceFeatureScreen { route = FinalRoute.Home }
                 FinalRoute.Study -> PostgraduateExamApp { route = FinalRoute.Home }
                 FinalRoute.Games -> LuluGamesApp { route = FinalRoute.Home }
-                FinalRoute.Settings -> FinalSettings { route = FinalRoute.Home }
+                FinalRoute.Settings -> LuluSettingsScreen { route = FinalRoute.Home }
                 FinalRoute.Reading -> FinalEmpty("阅读", "阅读空间已保留，下一整块迁移时接入书架、阅读器与笔记。") { route = FinalRoute.Home }
                 FinalRoute.Wishes -> FinalEmpty("心愿馆", "心愿馆已保留，下一整块迁移时接入愿望、进度与角色回应。") { route = FinalRoute.Home }
             }
@@ -150,33 +150,6 @@ private fun FinalChatHub(onBack: () -> Unit, onCharacterSettings: () -> Unit) {
                 FinalCardBox {
                     Text(conversation.title, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     Text(conversation.lastMessage, color = FinalMuted)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun FinalSettings(onBack: () -> Unit) {
-    val rows = listOf(
-        "外观" to "暖纸极简主题与显示",
-        "聊天" to "流式显示与消息行为",
-        "模型与 API" to "服务商、模型、密钥与 Token",
-        "记忆" to "总结阈值与最近消息排除",
-        "通知与主动联系" to "主动消息、来电和勿扰",
-        "数据" to "导入、导出、缓存与备份",
-        "应用与权限" to "通知、麦克风与后台运行",
-    )
-    Scaffold(containerColor = FinalPaper, topBar = { FinalTopBar("设置", onBack) }) { padding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            items(rows) { (title, subtitle) ->
-                FinalCardBox {
-                    Text(title, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text(subtitle, color = FinalMuted)
                 }
             }
         }
