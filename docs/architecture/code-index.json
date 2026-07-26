@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T14:04:02.668505+00:00",
-  "commit": "0483fbea63a34bfc49b43ffa7bac6a465f5f3990",
+  "generatedAt": "2026-07-26T14:06:08.255316+00:00",
+  "commit": "e431595f9f0b9dcb69e906d06aa08fa5aad134e9",
   "branch": "main",
-  "sourceFingerprint": "98b917ece3d84b8aa0dbf5bbbb4ce52048689c5559a6767ca370f26d4e22ed92",
+  "sourceFingerprint": "b17e251d668cae38b24f286fdf1367ef208b333ca83a92bc46e5e0eb11e797cb",
   "summary": {
-    "files": 37,
-    "lines": 8062,
-    "symbols": 220
+    "files": 38,
+    "lines": 8113,
+    "symbols": 222
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -1284,6 +1284,18 @@
         "line": 54
       }
     ],
+    "StudyRemovedFeatureMigration": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt",
+        "line": 8
+      }
+    ],
+    "migrate": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt",
+        "line": 10
+      }
+    ],
     "encode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
@@ -2364,6 +2376,21 @@
       "lines": 381,
       "sha256": "20f3a15ef8fae0ea1cf5579c913f9555a1eca21657ee1debc0f74f96f7e46a86",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt",
+      "lines": 51,
+      "sha256": "1ca378d43627fbb095477c12d47ea8bebb9f8dbf1d2ddb59fa76fa43da2fc173",
+      "symbols": [
+        {
+          "name": "StudyRemovedFeatureMigration",
+          "line": 8
+        },
+        {
+          "name": "migrate",
+          "line": 10
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
