@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T12:43:00.469931+00:00",
-  "commit": "78765a4f5619af814fe77a84734a5eb3f63f6010",
+  "generatedAt": "2026-07-26T12:44:38.264640+00:00",
+  "commit": "c089094588143bda3d4a8936d6beab7e2871a965",
   "branch": "main",
-  "sourceFingerprint": "8123820f8709adf61425a0d697f26e86a1004f9533a81021b3e7fb6cd316b715",
+  "sourceFingerprint": "c6b68b507feff0b85828be1a1dfcf8dcdaab6f5da1c5ce2a3b37d77ea075a976",
   "summary": {
     "files": 34,
-    "lines": 7417,
-    "symbols": 206
+    "lines": 7424,
+    "symbols": 209
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -1182,28 +1182,46 @@
         "line": 113
       }
     ],
-    "StudyLevels": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 134
-      }
-    ],
-    "levelForExperience": [
+    "studyMinutes": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
         "line": 137
       }
     ],
-    "currentLevelStart": [
+    "pomodoros": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
         "line": 138
       }
     ],
-    "nextLevelTarget": [
+    "vocabulary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
         "line": 139
+      }
+    ],
+    "StudyLevels": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
+        "line": 141
+      }
+    ],
+    "levelForExperience": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
+        "line": 144
+      }
+    ],
+    "currentLevelStart": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
+        "line": 145
+      }
+    ],
+    "nextLevelTarget": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
+        "line": 146
       }
     ],
     "encode": [
@@ -2112,8 +2130,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-      "lines": 174,
-      "sha256": "756c4f755d11f8b78466a42a04e58af5735182be4770a8a8d6ae1200151997f8",
+      "lines": 181,
+      "sha256": "2810a7a827eec73345df03403337bfca072178a65ff51263af3aa7677352ad59",
       "symbols": [
         {
           "name": "StudyTaskSource",
@@ -2188,20 +2206,32 @@
           "line": 113
         },
         {
-          "name": "StudyLevels",
-          "line": 134
-        },
-        {
-          "name": "levelForExperience",
+          "name": "studyMinutes",
           "line": 137
         },
         {
-          "name": "currentLevelStart",
+          "name": "pomodoros",
           "line": 138
         },
         {
-          "name": "nextLevelTarget",
+          "name": "vocabulary",
           "line": 139
+        },
+        {
+          "name": "StudyLevels",
+          "line": 141
+        },
+        {
+          "name": "levelForExperience",
+          "line": 144
+        },
+        {
+          "name": "currentLevelStart",
+          "line": 145
+        },
+        {
+          "name": "nextLevelTarget",
+          "line": 146
         }
       ]
     },
