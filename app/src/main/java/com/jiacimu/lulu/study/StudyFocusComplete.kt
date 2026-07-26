@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -17,11 +16,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
@@ -33,25 +32,39 @@ import java.util.Locale
 import kotlin.math.ceil
 
 private data class FocusPalette(
-    val background: Color,
+    val background: List<Color>,
+    val topGlow: Color,
+    val bottomGlow: Color,
     val panel: Color,
+    val input: Color,
     val accent: Color,
     val text: Color,
     val muted: Color,
+    val track: Color,
 )
 
 private fun StudyFocusTheme.palette(): FocusPalette = when (this) {
-    StudyFocusTheme.Charcoal -> FocusPalette(
-        background = Color(0xFF25282D), panel = Color(0xFF343840), accent = Color(0xFFE6C96F),
-        text = Color(0xFFF7F5EF), muted = Color(0xFFBFC3CA),
+    StudyFocusTheme.CLOUD -> FocusPalette(
+        background = listOf(Color(0xFFF4F6F6), Color(0xFFEEF3F4), Color(0xFFF2F3F1)),
+        topGlow = Color.White.copy(alpha = 0.18f),
+        bottomGlow = Color(0xFF5C6B7D).copy(alpha = 0.06f),
+        panel = Color.White.copy(alpha = 0.24f),
+        input = Color(0xFFFFF8FB).copy(alpha = 0.92f),
+        accent = Color(0xFF7895A6),
+        text = Color(0xFF35434D),
+        muted = Color(0xFF667782),
+        track = Color.White.copy(alpha = 0.34f),
     )
-    StudyFocusTheme.MidnightBlue -> FocusPalette(
-        background = Color(0xFF1E2935), panel = Color(0xFF2B3948), accent = Color(0xFFB9CAD9),
-        text = Color(0xFFF4F7F9), muted = Color(0xFFB5C1CB),
-    )
-    StudyFocusTheme.WarmBrown -> FocusPalette(
-        background = Color(0xFF302923), panel = Color(0xFF433A32), accent = Color(0xFFE3BF78),
-        text = Color(0xFFFFF8ED), muted = Color(0xFFCBBEAE),
+    StudyFocusTheme.MIDNIGHT -> FocusPalette(
+        background = listOf(Color(0xFF111827), Color(0xFF172033), Color(0xFF0F172A)),
+        topGlow = Color(0xFF88A9C0).copy(alpha = 0.12f),
+        bottomGlow = Color.Black.copy(alpha = 0.18f),
+        panel = Color(0xFF253247).copy(alpha = 0.72f),
+        input = Color(0xFF1C2738).copy(alpha = 0.94f),
+        accent = Color(0xFF88A9C0),
+        text = Color(0xFFE8EEF5),
+        muted = Color(0xFFB2C1CF),
+        track = Color.White.copy(alpha = 0.12f),
     )
 }
 
@@ -133,10 +146,10 @@ internal fun StudyFocusCompleteScreen(
     }
 
     fun beginSession() {
-        val minutes = customMinutes.toIntOrNull()?.coerceIn(5, 180)
+        val minutes = customMinutes.toIntOrNull()?.coerceIn(1, 180)
         val cleanTask = taskInput.trim()
         if (minutes == null) {
-            systemMessage = "请输入5—180之间的分钟数"
+            systemMessage = "请输入1—180之间的分钟数"
             systemError = true
             return
         }
@@ -159,7 +172,7 @@ internal fun StudyFocusCompleteScreen(
         val originalMinutes = store.state.value.pomodoro.selectedMinutes
         if (store.state.value.pomodoro.running) store.togglePomodoro()
         store.setPomodoroDuration(actualMinutes.coerceIn(1, 180))
-        val reward = store.completePomodoro()
+        val reward = store.completePomodoro(actualMinutes.coerceAtLeast(1))
         store.setPomodoroDuration(originalMinutes)
         completedThisSession = true
         val facts = buildString {
@@ -194,13 +207,17 @@ internal fun StudyFocusCompleteScreen(
     fun finishEarly() {
         val timer = store.state.value.pomodoro
         val totalSeconds = timer.selectedMinutes * 60
-        val elapsedSeconds = (totalSeconds - timer.remainingSeconds).coerceAtLeast(1)
-        val actualMinutes = ceil(elapsedSeconds / 60.0).toInt().coerceAtLeast(1)
-        settle(actualMinutes, "用户提前结束")
-    }
-
-    fun finishNormally() {
-        settle(store.state.value.pomodoro.selectedMinutes, "番茄钟自然结束")
+        val elapsedSeconds = (totalSeconds - timer.remainingSeconds).coerceAtLeast(0)
+        val actualMinutes = ceil(elapsedSeconds / 60.0).toInt()
+        if (actualMinutes <= 0) {
+            if (timer.running) store.togglePomodoro()
+            store.resetPomodoro()
+            completedThisSession = true
+            systemMessage = "还没有满1分钟，本次不记录奖励"
+            systemError = false
+        } else {
+            settle(actualMinutes, "用户提前结束")
+        }
     }
 
     fun sendFocusChat() {
@@ -291,148 +308,155 @@ internal fun StudyFocusCompleteScreen(
         return
     }
 
-    Surface(Modifier.fillMaxSize(), color = palette.background) {
-        Column(
-            modifier = Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Brush.verticalGradient(palette.background)),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Brush.verticalGradient(listOf(palette.topGlow, Color.Transparent, palette.bottomGlow))),
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回", tint = palette.text) }
-                Column(Modifier.weight(1f)) {
-                    Text(preferences.task, color = palette.text, fontWeight = FontWeight.Bold, fontSize = 18.sp, maxLines = 2)
-                    Text("${character.displayName} · ${preferences.theme.label}", color = palette.muted, fontSize = 12.sp)
-                }
-                IconButton(onClick = { store.togglePomodoroVoice() }) {
-                    Icon(if (state.pomodoro.voiceEnabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff, "角色语音", tint = palette.muted)
-                }
-            }
-
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                contentPadding = PaddingValues(bottom = 8.dp),
+            Column(
+                modifier = Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                item {
-                    Surface(color = palette.panel, shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
-                        Column(
-                            Modifier.padding(20.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
-                        ) {
-                            val total = state.pomodoro.selectedMinutes * 60
-                            val progress = 1f - state.pomodoro.remainingSeconds.toFloat() / total.coerceAtLeast(1)
-                            Box(contentAlignment = Alignment.Center) {
-                                CircularProgressIndicator(
-                                    progress = { progress.coerceIn(0f, 1f) },
-                                    modifier = Modifier.size(230.dp),
-                                    color = palette.accent,
-                                    trackColor = palette.background,
-                                    strokeWidth = 11.dp,
-                                )
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(
-                                        "%02d:%02d".format(state.pomodoro.remainingSeconds / 60, state.pomodoro.remainingSeconds % 60),
-                                        color = palette.text,
-                                        fontSize = 50.sp,
-                                        fontWeight = FontWeight.Bold,
-                                    )
-                                    Text(
-                                        when {
-                                            completedThisSession -> "本次已结算"
-                                            state.pomodoro.running -> "专注中"
-                                            else -> "已暂停"
-                                        },
-                                        color = palette.muted,
-                                    )
-                                }
-                            }
-                            if (!completedThisSession) {
-                                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                    Button(
-                                        onClick = { store.togglePomodoro() },
-                                        modifier = Modifier.weight(1f),
-                                        colors = ButtonDefaults.buttonColors(containerColor = palette.accent, contentColor = palette.background),
-                                    ) {
-                                        Icon(if (state.pomodoro.running) Icons.Outlined.Pause else Icons.Outlined.PlayArrow, null)
-                                        Spacer(Modifier.width(6.dp))
-                                        Text(if (state.pomodoro.running) "暂停" else "继续")
-                                    }
-                                    OutlinedButton(
-                                        onClick = ::finishEarly,
-                                        modifier = Modifier.weight(1f),
-                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = palette.text),
-                                        border = BorderStroke(1.dp, palette.muted),
-                                    ) { Text("提前结束") }
-                                }
-                            } else {
-                                Button(
-                                    onClick = {
-                                        store.resetPomodoro()
-                                        inSession = false
-                                        completedThisSession = false
-                                        openingRequested = false
-                                        systemMessage = ""
-                                    },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = ButtonDefaults.buttonColors(containerColor = palette.accent, contentColor = palette.background),
-                                ) { Text("返回设置下一次专注") }
-                            }
-                        }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回", tint = palette.text) }
+                    Column(Modifier.weight(1f)) {
+                        Text(preferences.task, color = palette.text, fontWeight = FontWeight.Bold, fontSize = 18.sp, maxLines = 2)
+                        Text("${character.displayName} · ${preferences.theme.label}", color = palette.muted, fontSize = 12.sp)
+                    }
+                    IconButton(onClick = { store.togglePomodoroVoice() }) {
+                        Icon(if (state.pomodoro.voiceEnabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff, "角色语音", tint = palette.muted)
                     }
                 }
-                if (systemMessage.isNotBlank()) {
-                    item {
-                        Surface(
-                            color = if (systemError) Color(0xFF5A3534) else palette.panel,
-                            shape = RoundedCornerShape(16.dp),
-                        ) {
-                            Text(systemMessage, Modifier.fillMaxWidth().padding(13.dp), color = palette.text)
-                        }
-                    }
-                }
-                item {
-                    Text("专注中聊天", color = palette.text, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                }
-                items(messages.takeLast(20), key = { it.id }) { message ->
-                    val user = message.sender == LuluChatMessage.Sender.User
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = if (user) Arrangement.End else Arrangement.Start,
-                    ) {
-                        Surface(
-                            color = if (user) palette.accent else palette.panel,
-                            contentColor = if (user) palette.background else palette.text,
-                            shape = RoundedCornerShape(17.dp),
-                            modifier = Modifier.widthIn(max = 300.dp),
-                        ) {
-                            Text(message.content, Modifier.padding(horizontal = 13.dp, vertical = 9.dp))
-                        }
-                    }
-                }
-                if (generating) item { Text("${character.displayName}正在回应…", color = palette.muted) }
-            }
 
-            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = chatInput,
-                    onValueChange = { chatInput = it },
-                    placeholder = { Text("专注中和角色说话") },
+                LazyColumn(
                     modifier = Modifier.weight(1f),
-                    maxLines = 3,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = palette.text,
-                        unfocusedTextColor = palette.text,
-                        focusedBorderColor = palette.accent,
-                        unfocusedBorderColor = palette.muted,
-                        focusedPlaceholderColor = palette.muted,
-                        unfocusedPlaceholderColor = palette.muted,
-                    ),
-                )
-                FilledIconButton(
-                    onClick = ::sendFocusChat,
-                    enabled = chatInput.isNotBlank() && !generating,
-                    colors = IconButtonDefaults.filledIconButtonColors(containerColor = palette.accent, contentColor = palette.background),
-                ) { Icon(Icons.Outlined.Send, "发送") }
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(bottom = 8.dp),
+                ) {
+                    item {
+                        Surface(color = palette.panel, shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(
+                                Modifier.padding(20.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                            ) {
+                                val total = state.pomodoro.selectedMinutes * 60
+                                val progress = 1f - state.pomodoro.remainingSeconds.toFloat() / total.coerceAtLeast(1)
+                                Box(contentAlignment = Alignment.Center) {
+                                    CircularProgressIndicator(
+                                        progress = { progress.coerceIn(0f, 1f) },
+                                        modifier = Modifier.size(230.dp),
+                                        color = palette.accent,
+                                        trackColor = palette.track,
+                                        strokeWidth = 11.dp,
+                                    )
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Text(
+                                            "%02d:%02d".format(state.pomodoro.remainingSeconds / 60, state.pomodoro.remainingSeconds % 60),
+                                            color = palette.text,
+                                            fontSize = 50.sp,
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                        Text(
+                                            when {
+                                                completedThisSession -> "本次已结算"
+                                                state.pomodoro.running -> "专注中"
+                                                else -> "已暂停"
+                                            },
+                                            color = palette.muted,
+                                        )
+                                    }
+                                }
+                                if (!completedThisSession) {
+                                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                        Button(
+                                            onClick = { store.togglePomodoro() },
+                                            modifier = Modifier.weight(1f),
+                                            colors = ButtonDefaults.buttonColors(containerColor = palette.accent, contentColor = palette.background.last()),
+                                        ) {
+                                            Icon(if (state.pomodoro.running) Icons.Outlined.Pause else Icons.Outlined.PlayArrow, null)
+                                            Spacer(Modifier.width(6.dp))
+                                            Text(if (state.pomodoro.running) "暂停" else "继续")
+                                        }
+                                        OutlinedButton(
+                                            onClick = ::finishEarly,
+                                            modifier = Modifier.weight(1f),
+                                            colors = ButtonDefaults.outlinedButtonColors(contentColor = palette.text),
+                                            border = BorderStroke(1.dp, palette.muted),
+                                        ) { Text("提前结束") }
+                                    }
+                                } else {
+                                    Button(
+                                        onClick = {
+                                            store.resetPomodoro()
+                                            inSession = false
+                                            completedThisSession = false
+                                            openingRequested = false
+                                            systemMessage = ""
+                                        },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = ButtonDefaults.buttonColors(containerColor = palette.accent, contentColor = palette.background.last()),
+                                    ) { Text("返回设置下一次专注") }
+                                }
+                            }
+                        }
+                    }
+                    if (systemMessage.isNotBlank()) {
+                        item {
+                            Surface(
+                                color = if (systemError) Color(0xFF5A3534) else palette.panel,
+                                shape = RoundedCornerShape(16.dp),
+                            ) {
+                                Text(systemMessage, Modifier.fillMaxWidth().padding(13.dp), color = palette.text)
+                            }
+                        }
+                    }
+                    item { Text("专注中聊天", color = palette.text, fontSize = 18.sp, fontWeight = FontWeight.Bold) }
+                    items(messages.takeLast(20), key = { it.id }) { message ->
+                        val user = message.sender == LuluChatMessage.Sender.User
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = if (user) Arrangement.End else Arrangement.Start) {
+                            Surface(
+                                color = if (user) palette.accent else palette.panel,
+                                contentColor = if (user) palette.background.last() else palette.text,
+                                shape = RoundedCornerShape(17.dp),
+                                modifier = Modifier.widthIn(max = 300.dp),
+                            ) {
+                                Text(message.content, Modifier.padding(horizontal = 13.dp, vertical = 9.dp))
+                            }
+                        }
+                    }
+                    if (generating) item { Text("${character.displayName}正在回应…", color = palette.muted) }
+                }
+
+                Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = chatInput,
+                        onValueChange = { chatInput = it },
+                        placeholder = { Text("专注中和角色说话") },
+                        modifier = Modifier.weight(1f),
+                        maxLines = 3,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = palette.text,
+                            unfocusedTextColor = palette.text,
+                            focusedContainerColor = palette.input,
+                            unfocusedContainerColor = palette.input,
+                            focusedBorderColor = palette.accent,
+                            unfocusedBorderColor = palette.muted,
+                            focusedPlaceholderColor = palette.muted,
+                            unfocusedPlaceholderColor = palette.muted,
+                        ),
+                    )
+                    FilledIconButton(
+                        onClick = ::sendFocusChat,
+                        enabled = chatInput.isNotBlank() && !generating,
+                        colors = IconButtonDefaults.filledIconButtonColors(containerColor = palette.accent, contentColor = palette.background.last()),
+                    ) { Icon(Icons.Outlined.Send, "发送") }
+                }
             }
         }
     }
@@ -500,7 +524,7 @@ private fun FocusSetupScreen(
                     OutlinedTextField(
                         value = minutes,
                         onValueChange = onMinutes,
-                        label = { Text("自定义 5—180 分钟") },
+                        label = { Text("自定义 1—180 分钟") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
@@ -509,17 +533,27 @@ private fun FocusSetupScreen(
             }
             item {
                 StudyCard {
-                    Text("低干扰配色", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    Row(
-                        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        StudyFocusTheme.entries.forEach { theme ->
-                            FilterChip(
-                                selected = theme == selectedTheme,
-                                onClick = { onTheme(theme) },
-                                label = { Text(theme.label) },
-                            )
+                    Text("专注氛围", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    StudyFocusTheme.entries.forEach { theme ->
+                        val preview = theme.palette()
+                        Surface(
+                            onClick = { onTheme(theme) },
+                            modifier = Modifier.fillMaxWidth(),
+                            color = preview.background[1],
+                            shape = RoundedCornerShape(18.dp),
+                            border = BorderStroke(if (selectedTheme == theme) 2.dp else 1.dp, if (selectedTheme == theme) preview.accent else preview.track),
+                        ) {
+                            Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Surface(
+                                    modifier = Modifier.size(34.dp),
+                                    shape = RoundedCornerShape(50),
+                                    color = preview.panel,
+                                    border = BorderStroke(3.dp, preview.accent),
+                                ) {}
+                                Spacer(Modifier.width(12.dp))
+                                Text(theme.label, color = preview.text, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                                if (selectedTheme == theme) Text("已选择", color = preview.muted)
+                            }
                         }
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -536,7 +570,7 @@ private fun FocusSetupScreen(
                 Button(onClick = onStart, modifier = Modifier.fillMaxWidth().height(54.dp)) {
                     Icon(Icons.Outlined.PlayArrow, null)
                     Spacer(Modifier.width(7.dp))
-                    Text("开始专注")
+                    Text("开始陪学")
                 }
             }
         }
