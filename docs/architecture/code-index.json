@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T13:53:58.572436+00:00",
-  "commit": "807d5731c0c6581b402147b56bdf891008b19c94",
+  "generatedAt": "2026-07-26T13:54:10.030748+00:00",
+  "commit": "f3550e8481f26edbc9e8ce52560fe5f87159ef4c",
   "branch": "main",
-  "sourceFingerprint": "f34589059595cb581af1d4dc712cda16681102f1caade8f0c98c67f846aafaec",
+  "sourceFingerprint": "2d339a13509d0d6ac1d80aeff7e02b558539db8c1b3fcdc346722525fb80736f",
   "summary": {
-    "files": 38,
-    "lines": 8555,
-    "symbols": 225
+    "files": 37,
+    "lines": 8098,
+    "symbols": 224
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -1084,12 +1084,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCompanionToday.kt",
         "line": 403
-      }
-    ],
-    "persistUri": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCompleteRewardsScreens.kt",
-        "line": 146
       }
     ],
     "StudyTaskSource": [
@@ -2215,17 +2209,6 @@
         {
           "name": "requestRoleCompletion",
           "line": 403
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCompleteRewardsScreens.kt",
-      "lines": 457,
-      "sha256": "a17f8d46e762e3940a3371038a6a6cb48f38d31480ab66d96b20c60745ef5281",
-      "symbols": [
-        {
-          "name": "persistUri",
-          "line": 146
         }
       ]
     },
