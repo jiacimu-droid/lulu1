@@ -1,0 +1,11 @@
+{
+  "name": "lulu1",
+  "private": true,
+  "scripts": {
+    "preview": "node preview/server.mjs"
+  },
+  "dependencies": {
+    "@types/ink": "^2.0.3",
+    "sharp": "^0.34.5"
+  }
+}
