@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T11:56:14.587062+00:00",
-  "commit": "e7c2b5210dd194bd31d6bc7f3622941236de99c2",
+  "generatedAt": "2026-07-26T11:56:39.569239+00:00",
+  "commit": "411588e98d9a3d39f9bdebec382434278ddf4396",
   "branch": "main",
-  "sourceFingerprint": "d599d57a258eb3dd7abcbe66a690202abc3d9c8cc7ac4a7e88b7a81caab87555",
+  "sourceFingerprint": "00d0216b8131b5331712cb597e6fc4a917db9f5bbeee184c9bc9292f37163f61",
   "summary": {
-    "files": 28,
-    "lines": 4613,
+    "files": 29,
+    "lines": 4700,
     "symbols": 143
   },
   "symbolIndex": {
@@ -1320,6 +1320,12 @@
           "line": 125
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/GameUi.kt",
+      "lines": 87,
+      "sha256": "4651b961bd9669780ed3e7263ac94daa17d2800330cec5d9b0fec184e58064f8",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGamesScreen.kt",
