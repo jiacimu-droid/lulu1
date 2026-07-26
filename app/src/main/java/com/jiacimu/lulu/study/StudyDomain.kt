@@ -108,6 +108,9 @@ data class StudyProfile(
     val lastSignInDate: String = "",
     val totalStudyMinutes: Int = 0,
     val totalPomodoros: Int = 0,
+    val totalTasksCompleted: Int = 0,
+    val totalDraws: Int = 0,
+    val totalSignIns: Int = 0,
     val vocabularyReviewed: Int = 0,
     val claimedLevels: Set<Int> = emptySet(),
     val sleepRewardDate: String = "",
@@ -145,13 +148,8 @@ data class StudyState(
 )
 
 object StudyLevels {
-    val thresholds = listOf(
-        0, 30, 80, 150, 240, 360, 510, 690, 900, 1140, 1410, 1710, 2040, 2400, 2790,
-    )
-
-    fun levelForExperience(experience: Int): Int =
-        thresholds.indexOfLast { experience >= it }.coerceAtLeast(0) + 1
-
+    val thresholds = listOf(0, 30, 80, 150, 240, 360, 510, 690, 900, 1140, 1410, 1710, 2040, 2400, 2790)
+    fun levelForExperience(experience: Int): Int = thresholds.indexOfLast { experience >= it }.coerceAtLeast(0) + 1
     fun currentLevelStart(level: Int): Int = thresholds.getOrElse((level - 1).coerceAtLeast(0)) { thresholds.last() }
     fun nextLevelTarget(level: Int): Int = thresholds.getOrElse(level) { thresholds.last() + 500 }
 }
@@ -162,14 +160,8 @@ internal val blueFragmentCatalog = listOf(
     "番茄时钟", "安静耳机", "热茶", "小烟花",
     "计划贴纸", "错题本", "倒计时牌", "录取通知",
 )
-
-internal val videoCatalog = listOf(
-    "完成第一小时", "雨天自习室", "角色的监督留言", "深夜收尾", "周计划达成",
-)
-
-internal val theaterCatalog = listOf(
-    "考前一天", "收到录取通知后", "图书馆闭馆广播", "角色替你保管手机", "最后一次模拟考试",
-)
+internal val videoCatalog = listOf("完成第一小时", "雨天自习室", "角色的监督留言", "深夜收尾", "周计划达成")
+internal val theaterCatalog = listOf("考前一天", "收到录取通知后", "图书馆闭馆广播", "角色替你保管手机", "最后一次模拟考试")
 
 internal fun defaultTasks(date: LocalDate): List<StudyTask> = listOf(
     StudyTask(title = "考研英语真题训练", date = date.toString(), pomodoroTarget = 2, source = StudyTaskSource.Preset),
