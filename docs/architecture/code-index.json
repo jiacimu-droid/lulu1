@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T10:17:52.497874+00:00",
-  "commit": "e33b4483e488235e4495185b1d762c99053b4eee",
+  "generatedAt": "2026-07-26T10:52:50.210134+00:00",
+  "commit": "8d026e6b36854590c769ab8579f34d40276c250c",
   "branch": "main",
-  "sourceFingerprint": "ff0b8e65638d21b070121218264957f9d6bbefb4db72cf5b4551a3cd7518cead",
+  "sourceFingerprint": "755903ef8639b82e74bde324a6668bc640b10191c57472c3a943ba4c93e3c89a",
   "summary": {
-    "files": 17,
-    "lines": 2131,
-    "symbols": 67
+    "files": 18,
+    "lines": 2392,
+    "symbols": 92
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -409,6 +409,156 @@
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 195
       }
+    ],
+    "StudyTask": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 10
+      }
+    ],
+    "StudyDay": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 18
+      }
+    ],
+    "TicketWallet": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 25
+      }
+    ],
+    "DrawRewardType": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 32
+      }
+    ],
+    "DrawReward": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 34
+      }
+    ],
+    "Achievement": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 41
+      }
+    ],
+    "StudyProfile": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 52
+      }
+    ],
+    "PomodoroState": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 60
+      }
+    ],
+    "ExamAppState": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 67
+      }
+    ],
+    "PostgraduateExamStore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 76
+      }
+    ],
+    "addTask": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 79
+      }
+    ],
+    "toggleTask": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 80
+      }
+    ],
+    "reviewVocabulary": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 81
+      }
+    ],
+    "setPomodoroDuration": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 82
+      }
+    ],
+    "togglePomodoro": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 83
+      }
+    ],
+    "togglePomodoroVoice": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 84
+      }
+    ],
+    "tick": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 85
+      }
+    ],
+    "completePomodoro": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 86
+      }
+    ],
+    "drawSingle": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 87
+      }
+    ],
+    "drawTen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 88
+      }
+    ],
+    "claimAchievement": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 89
+      }
+    ],
+    "InMemoryPostgraduateExamStore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 91
+      }
+    ],
+    "defaultStudyTasks": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 238
+      }
+    ],
+    "defaultAchievements": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 244
+      }
+    ],
+    "PostgraduateExamStores": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 257
+      }
     ]
   },
   "files": [
@@ -745,6 +895,113 @@
         {
           "name": "MigratedDomainStores",
           "line": 195
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+      "lines": 261,
+      "sha256": "b942804b5d38f7d687fd5573139bbfb65e595fe0a96449f8b6bdc5f33954d935",
+      "symbols": [
+        {
+          "name": "StudyTask",
+          "line": 10
+        },
+        {
+          "name": "StudyDay",
+          "line": 18
+        },
+        {
+          "name": "TicketWallet",
+          "line": 25
+        },
+        {
+          "name": "DrawRewardType",
+          "line": 32
+        },
+        {
+          "name": "DrawReward",
+          "line": 34
+        },
+        {
+          "name": "Achievement",
+          "line": 41
+        },
+        {
+          "name": "StudyProfile",
+          "line": 52
+        },
+        {
+          "name": "PomodoroState",
+          "line": 60
+        },
+        {
+          "name": "ExamAppState",
+          "line": 67
+        },
+        {
+          "name": "PostgraduateExamStore",
+          "line": 76
+        },
+        {
+          "name": "addTask",
+          "line": 79
+        },
+        {
+          "name": "toggleTask",
+          "line": 80
+        },
+        {
+          "name": "reviewVocabulary",
+          "line": 81
+        },
+        {
+          "name": "setPomodoroDuration",
+          "line": 82
+        },
+        {
+          "name": "togglePomodoro",
+          "line": 83
+        },
+        {
+          "name": "togglePomodoroVoice",
+          "line": 84
+        },
+        {
+          "name": "tick",
+          "line": 85
+        },
+        {
+          "name": "completePomodoro",
+          "line": 86
+        },
+        {
+          "name": "drawSingle",
+          "line": 87
+        },
+        {
+          "name": "drawTen",
+          "line": 88
+        },
+        {
+          "name": "claimAchievement",
+          "line": 89
+        },
+        {
+          "name": "InMemoryPostgraduateExamStore",
+          "line": 91
+        },
+        {
+          "name": "defaultStudyTasks",
+          "line": 238
+        },
+        {
+          "name": "defaultAchievements",
+          "line": 244
+        },
+        {
+          "name": "PostgraduateExamStores",
+          "line": 257
         }
       ]
     },
