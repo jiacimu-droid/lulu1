@@ -7,12 +7,11 @@ import java.time.Instant
  * Lulu1 的页面只依赖这些独立契约。
  * 从旧仓库迁移业务逻辑时，实现接口即可，不复制旧页面或旧导航。
  */
-
 data class CharacterSummary(
     val id: String,
     val name: String,
     val avatarUri: String? = null,
-    val status: String? = null
+    val status: String? = null,
 )
 
 data class ConversationSummary(
@@ -20,7 +19,7 @@ data class ConversationSummary(
     val character: CharacterSummary,
     val latestMessage: String,
     val latestAt: Instant,
-    val unreadCount: Int = 0
+    val unreadCount: Int = 0,
 )
 
 data class ChatMessage(
@@ -29,7 +28,7 @@ data class ChatMessage(
     val sender: Sender,
     val content: String,
     val createdAt: Instant,
-    val state: MessageState = MessageState.Complete
+    val state: MessageState = MessageState.Complete,
 ) {
     enum class Sender { User, Character, System }
     enum class MessageState { Sending, Streaming, Complete, Failed }
@@ -53,13 +52,13 @@ data class MemoryEntry(
     val createdAt: Instant,
     val strength: Int,
     val pinned: Boolean,
-    val canRecallProactively: Boolean
+    val canRecallProactively: Boolean,
 )
 
 data class MemoryPolicy(
     val excludedRecentMessages: Int = 10,
     val readableThreshold: Int = 20,
-    val autoSummarize: Boolean = true
+    val autoSummarize: Boolean = true,
 )
 
 interface MemoryRepository {
@@ -80,7 +79,7 @@ data class LexiconEntry(
     val content: String,
     val promiseKind: PromiseKind? = null,
     val createdAt: Instant,
-    val updatedAt: Instant
+    val updatedAt: Instant,
 )
 
 interface LexiconRepository {
@@ -94,7 +93,7 @@ data class WorldBookEntry(
     val title: String,
     val content: String,
     val globalEnabled: Boolean,
-    val characterOverrides: Map<String, Boolean>
+    val characterOverrides: Map<String, Boolean>,
 )
 
 interface WorldBookRepository {
@@ -107,13 +106,13 @@ data class TokenUsage(
     val input: Long,
     val output: Long,
     val cached: Long = 0,
-    val model: String? = null
+    val model: String? = null,
 )
 
 data class DurationSummary(
-    val studyMinutes: Long,
-    val chatMinutes: Long,
-    val callMinutes: Long
+    val studyMinutes: Int,
+    val chatMinutes: Int,
+    val callMinutes: Int,
 )
 
 interface PerformanceRepository {
