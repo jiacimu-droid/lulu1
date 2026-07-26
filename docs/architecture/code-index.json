@@ -1,19 +1,49 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T09:25:01.443944+00:00",
-  "commit": "16fafa6cced02002bf601c47792e40b762cb02fc",
+  "generatedAt": "2026-07-26T09:30:42.627536+00:00",
+  "commit": "27dcbaaa90226c8b10976c6c048bb2387ea19600",
   "branch": "main",
-  "sourceFingerprint": "f3c8d8034dec8b2db45b50541befc0c9677cc5bf8024fa5f074aacd26117b533",
+  "sourceFingerprint": "6d913c97a68b9050fcddc9709c62f94998f93982a796a98957494c3d8e170f46",
   "summary": {
-    "files": 12,
-    "lines": 919,
-    "symbols": 36
+    "files": 13,
+    "lines": 1280,
+    "symbols": 41
   },
   "symbolIndex": {
     "MainActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MainActivity.kt",
         "line": 31
+      }
+    ],
+    "LuluRepositories": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
+        "line": 68
+      }
+    ],
+    "MemoryFeatureScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
+        "line": 77
+      }
+    ],
+    "LexiconFeatureScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
+        "line": 140
+      }
+    ],
+    "WorldBookFeatureScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
+        "line": 224
+      }
+    ],
+    "PerformanceFeatureScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
+        "line": 289
       }
     ],
     "CharacterSummary": [
@@ -248,6 +278,33 @@
         {
           "name": "MainActivity",
           "line": 31
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
+      "lines": 361,
+      "sha256": "ee6eb3cc1596379a8ac47b65fef46bf1d4b160b1943230d050da90e69721069b",
+      "symbols": [
+        {
+          "name": "LuluRepositories",
+          "line": 68
+        },
+        {
+          "name": "MemoryFeatureScreen",
+          "line": 77
+        },
+        {
+          "name": "LexiconFeatureScreen",
+          "line": 140
+        },
+        {
+          "name": "WorldBookFeatureScreen",
+          "line": 224
+        },
+        {
+          "name": "PerformanceFeatureScreen",
+          "line": 289
         }
       ]
     },
