@@ -164,7 +164,7 @@ class InMemoryPerformanceRepository : PerformanceRepository {
         )
     }
 
-    suspend fun updateDurations(summary: DurationSummary) {
+    fun updateDurations(summary: DurationSummary) {
         durations.value = summary.copy(
             studyMinutes = summary.studyMinutes.coerceAtLeast(0),
             chatMinutes = summary.chatMinutes.coerceAtLeast(0),
