@@ -25,13 +25,16 @@ internal object StudyStateCodec {
         .put("superMomentAvailable", state.superMomentAvailable)
         .put("superMomentClaimedDate", state.superMomentClaimedDate)
         .put("pomodoro", encodePomodoro(state.pomodoro))
+        .put("dailyStudyMinutes", encodeStringIntMap(state.dailyStudyMinutes))
+        .put("dailyPomodoros", encodeStringIntMap(state.dailyPomodoros))
+        .put("dailyVocabularyReviewed", encodeStringIntMap(state.dailyVocabularyReviewed))
         .toString()
 
     fun decode(raw: String): StudyState {
         val json = JSONObject(raw)
         val today = LocalDate.now()
         return StudyState(
-            schemaVersion = json.optInt("schemaVersion", 2),
+            schemaVersion = json.optInt("schemaVersion", 3),
             activeDate = json.optString("activeDate", today.toString()),
             profile = decodeProfile(json.optJSONObject("profile")),
             inventory = decodeInventory(json.optJSONObject("inventory")),
@@ -49,6 +52,9 @@ internal object StudyStateCodec {
             superMomentAvailable = json.optBoolean("superMomentAvailable"),
             superMomentClaimedDate = json.optString("superMomentClaimedDate"),
             pomodoro = decodePomodoro(json.optJSONObject("pomodoro")),
+            dailyStudyMinutes = decodeStringIntMap(json.optJSONObject("dailyStudyMinutes")),
+            dailyPomodoros = decodeStringIntMap(json.optJSONObject("dailyPomodoros")),
+            dailyVocabularyReviewed = decodeStringIntMap(json.optJSONObject("dailyVocabularyReviewed")),
         )
     }
 
@@ -93,7 +99,7 @@ internal object StudyStateCodec {
         .put("safePurpleTickets", value.safePurpleTickets)
         .put("mysteryBoxes", value.mysteryBoxes)
         .put("universalBlueFragments", value.universalBlueFragments)
-        .put("blueFragments", JSONObject(value.blueFragments))
+        .put("blueFragments", encodeStringIntMap(value.blueFragments))
         .put("purpleFragments", value.purpleFragments)
         .put("entertainmentFragments", JSONObject().apply { value.entertainmentFragments.forEach { (key, amount) -> put(key.name, amount) } })
         .put("unlockedScrolls", JSONArray(value.unlockedScrolls))
@@ -101,10 +107,6 @@ internal object StudyStateCodec {
         .put("unlockedTheaters", JSONArray(value.unlockedTheaters))
 
     private fun decodeInventory(json: JSONObject?): StudyInventory {
-        val blue = mutableMapOf<String, Int>()
-        json?.optJSONObject("blueFragments")?.let { objectJson ->
-            objectJson.keys().forEach { key -> blue[key] = objectJson.optInt(key) }
-        }
         val entertainment = mutableMapOf<StudyEntertainmentKind, Int>()
         json?.optJSONObject("entertainmentFragments")?.let { objectJson ->
             objectJson.keys().forEach { key ->
@@ -117,7 +119,7 @@ internal object StudyStateCodec {
             safePurpleTickets = json?.optInt("safePurpleTickets", 1) ?: 1,
             mysteryBoxes = json?.optInt("mysteryBoxes") ?: 0,
             universalBlueFragments = json?.optInt("universalBlueFragments") ?: 0,
-            blueFragments = blue,
+            blueFragments = decodeStringIntMap(json?.optJSONObject("blueFragments")),
             purpleFragments = json?.optInt("purpleFragments") ?: 0,
             entertainmentFragments = entertainment,
             unlockedScrolls = json?.optJSONArray("unlockedScrolls").toStringList(),
@@ -130,27 +132,22 @@ internal object StudyStateCodec {
         .put("id", value.id).put("title", value.title).put("date", value.date)
         .put("completed", value.completed).put("pomodoroTarget", value.pomodoroTarget)
         .put("pomodoroCompleted", value.pomodoroCompleted).put("source", value.source.name)
-
     private fun decodeTask(json: JSONObject) = StudyTask(
         id = json.optString("id"), title = json.optString("title"), date = json.optString("date"),
         completed = json.optBoolean("completed"), pomodoroTarget = json.optInt("pomodoroTarget", 1),
-        pomodoroCompleted = json.optInt("pomodoroCompleted"),
-        source = enumOrDefault(json.optString("source"), StudyTaskSource.User),
+        pomodoroCompleted = json.optInt("pomodoroCompleted"), source = enumOrDefault(json.optString("source"), StudyTaskSource.User),
     )
 
     private fun encodeSchedule(value: StudyScheduleBlock) = JSONObject()
         .put("id", value.id).put("date", value.date).put("start", value.start).put("end", value.end)
         .put("title", value.title).put("completed", value.completed)
-
     private fun decodeSchedule(json: JSONObject) = StudyScheduleBlock(
         id = json.optString("id"), date = json.optString("date"), start = json.optString("start"),
         end = json.optString("end"), title = json.optString("title"), completed = json.optBoolean("completed"),
     )
 
     private fun encodePlan(value: StudyPlanItem) = JSONObject()
-        .put("id", value.id).put("range", value.range.name).put("title", value.title)
-        .put("note", value.note).put("completed", value.completed)
-
+        .put("id", value.id).put("range", value.range.name).put("title", value.title).put("note", value.note).put("completed", value.completed)
     private fun decodePlan(json: JSONObject) = StudyPlanItem(
         id = json.optString("id"), range = enumOrDefault(json.optString("range"), StudyPlanRange.Weekly),
         title = json.optString("title"), note = json.optString("note"), completed = json.optBoolean("completed"),
@@ -158,7 +155,6 @@ internal object StudyStateCodec {
 
     private fun encodeTip(value: StudyTip) = JSONObject().put("id", value.id).put("text", value.text).put("date", value.date)
     private fun decodeTip(json: JSONObject) = StudyTip(json.optString("id"), json.optString("text"), json.optString("date"))
-
     private fun encodeEvent(value: StudyEvent) = JSONObject()
         .put("id", value.id).put("title", value.title).put("detail", value.detail).put("createdAt", value.createdAt.toEpochMilli())
     private fun decodeEvent(json: JSONObject) = StudyEvent(
@@ -169,8 +165,7 @@ internal object StudyStateCodec {
     private fun encodeAchievement(value: StudyAchievement) = JSONObject()
         .put("id", value.id).put("title", value.title).put("description", value.description)
         .put("progress", value.progress).put("target", value.target)
-        .put("rewardSingleTickets", value.rewardSingleTickets).put("rewardPraisePoints", value.rewardPraisePoints)
-        .put("claimed", value.claimed)
+        .put("rewardSingleTickets", value.rewardSingleTickets).put("rewardPraisePoints", value.rewardPraisePoints).put("claimed", value.claimed)
     private fun decodeAchievement(json: JSONObject) = StudyAchievement(
         id = json.optString("id"), title = json.optString("title"), description = json.optString("description"),
         progress = json.optInt("progress"), target = json.optInt("target", 1),
@@ -198,22 +193,19 @@ internal object StudyStateCodec {
         endAtEpochMillis = json?.optLong("endAtEpochMillis") ?: 0L,
     )
 
-    private inline fun <reified T : Enum<T>> enumOrDefault(raw: String, default: T): T =
-        runCatching { enumValueOf<T>(raw) }.getOrDefault(default)
-
+    private fun encodeStringIntMap(value: Map<String, Int>) = JSONObject().apply { value.forEach { (key, amount) -> put(key, amount) } }
+    private fun decodeStringIntMap(json: JSONObject?): Map<String, Int> = buildMap {
+        json?.keys()?.forEach { key -> put(key, json.optInt(key)) }
+    }
+    private inline fun <reified T : Enum<T>> enumOrDefault(raw: String, default: T): T = runCatching { enumValueOf<T>(raw) }.getOrDefault(default)
     private fun <T> decodeArray(array: JSONArray?, mapper: (JSONObject) -> T): List<T> = buildList {
         if (array == null) return@buildList
-        for (index in 0 until array.length()) {
-            val value = array.optJSONObject(index) ?: continue
-            runCatching { mapper(value) }.getOrNull()?.let(::add)
-        }
+        for (index in 0 until array.length()) array.optJSONObject(index)?.let { runCatching { mapper(it) }.getOrNull()?.let(::add) }
     }
-
     private fun JSONArray?.toStringList(): List<String> = buildList {
         val array = this@toStringList ?: return@buildList
         for (index in 0 until array.length()) array.optString(index).takeIf { it.isNotBlank() }?.let(::add)
     }
-
     private fun JSONArray?.toIntSet(): Set<Int> = buildSet {
         val array = this@toIntSet ?: return@buildSet
         for (index in 0 until array.length()) add(array.optInt(index))
