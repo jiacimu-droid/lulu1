@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T12:11:55.827715+00:00",
-  "commit": "efcf115eddf44c7083e1ca50cc2d31f195e9a23f",
+  "generatedAt": "2026-07-26T12:14:00.505426+00:00",
+  "commit": "88a439e061a25959953bf55afe279c9a09291456",
   "branch": "main",
-  "sourceFingerprint": "f327181215c77a629188ce15de1b4b09ff48b63b4e2ede8d97c38d789820a0e6",
+  "sourceFingerprint": "79e2228ce57df69e3a27f888b344b2d5228c4743ad8752084c1422a97d4679ce",
   "summary": {
     "files": 29,
-    "lines": 5598,
+    "lines": 5600,
     "symbols": 167
   },
   "symbolIndex": {
@@ -503,35 +503,35 @@
     "reroll": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 45
+        "line": 43
       }
     ],
     "score": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 51
+        "line": 49
       }
     ],
     "reset": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 111
+        "line": 113
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 281
+        "line": 283
       }
     ],
     "finish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 234
+        "line": 236
       }
     ],
     "place": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 257
+        "line": 259
       }
     ],
     "nextRound": [
@@ -1423,32 +1423,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-      "lines": 395,
-      "sha256": "6e2114dd4dd03d504de022d482551f506aeca63ecd4bbe02436962320d3c2140",
+      "lines": 397,
+      "sha256": "6da15986c5d6eeaf8bffc9777744eafaacd68fb8d9f84f6bee5b739031fdb09a",
       "symbols": [
         {
           "name": "reroll",
-          "line": 45
+          "line": 43
         },
         {
           "name": "score",
-          "line": 51
+          "line": 49
         },
         {
           "name": "reset",
-          "line": 111
+          "line": 113
         },
         {
           "name": "finish",
-          "line": 234
+          "line": 236
         },
         {
           "name": "place",
-          "line": 257
+          "line": 259
         },
         {
           "name": "reset",
-          "line": 281
+          "line": 283
         }
       ]
     },
