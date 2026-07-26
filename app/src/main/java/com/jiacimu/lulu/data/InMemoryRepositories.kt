@@ -17,22 +17,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
-/**
- * Lulu1 的首批独立数据实现。
- *
- * 这些仓库用于连接重新设计后的 Compose 页面，并为后续接入数据库迁移层提供稳定接口。
- * 它们不依赖旧项目的 Activity、Composable、路由或页面状态。
- */
 class InMemoryMemoryRepository : MemoryRepository {
     private val memories = MutableStateFlow<List<MemoryEntry>>(emptyList())
     private val policies = MutableStateFlow<Map<String, MemoryPolicy>>(emptyMap())
 
     override fun observeMemories(characterId: String): Flow<List<MemoryEntry>> =
-        memories.map { entries ->
-            entries
-                .filter { it.characterId == characterId }
-                .sortedWith(compareByDescending<MemoryEntry> { it.pinned }.thenByDescending { it.createdAt })
-        }
+        memories.map { entries -> entries.forCharacter(characterId) }
 
     override fun observePolicy(characterId: String): Flow<MemoryPolicy> =
         policies.map { it[characterId] ?: MemoryPolicy() }
@@ -43,9 +33,9 @@ class InMemoryMemoryRepository : MemoryRepository {
         policies.update { it + (characterId to policy) }
     }
 
-    override suspend fun summarizeNow(characterId: String) {
-        // 真正的模型总结将在迁入记忆服务后接入。这里保留稳定调用入口。
-    }
+    override suspend fun summarizeNow(characterId: String) = Unit
+
+    fun snapshot(characterId: String): List<MemoryEntry> = memories.value.forCharacter(characterId)
 
     suspend fun replaceAll(entries: List<MemoryEntry>) {
         memories.value = entries
@@ -58,6 +48,10 @@ class InMemoryMemoryRepository : MemoryRepository {
     suspend fun delete(id: String) {
         memories.update { current -> current.filterNot { it.id == id } }
     }
+
+    private fun List<MemoryEntry>.forCharacter(characterId: String): List<MemoryEntry> =
+        filter { it.characterId == characterId }
+            .sortedWith(compareByDescending<MemoryEntry> { it.pinned }.thenByDescending { it.createdAt })
 }
 
 class InMemoryLexiconRepository : LexiconRepository {
@@ -81,6 +75,10 @@ class InMemoryLexiconRepository : LexiconRepository {
         entries.update { current -> current.filterNot { it.id == id } }
     }
 
+    fun snapshot(characterId: String): List<LexiconEntry> = entries.value
+        .filter { it.characterId == characterId }
+        .sortedByDescending { it.updatedAt }
+
     suspend fun replaceAll(newEntries: List<LexiconEntry>) {
         entries.value = newEntries
     }
@@ -100,14 +98,14 @@ class InMemoryWorldBookRepository : WorldBookRepository {
         entries.update { current -> current.filterNot { it.id == id } }
     }
 
+    fun snapshot(): List<WorldBookEntry> = entries.value
+
     suspend fun replaceAll(newEntries: List<WorldBookEntry>) {
         entries.value = newEntries
     }
 
     fun observeForCharacter(characterId: String): Flow<List<WorldBookEntry>> = entries.map { current ->
-        current.filter { entry ->
-            entry.characterOverrides[characterId] ?: entry.globalEnabled
-        }
+        current.filter { entry -> entry.characterOverrides[characterId] ?: entry.globalEnabled }
     }
 }
 
