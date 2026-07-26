@@ -43,6 +43,7 @@ private enum class Screen {
     Home, Chat, ChatDetail, Memory, Lexicon, WorldBook, Monitor,
     Reading, Wishes, Study, Games, Settings,
 }
+
 private enum class ChatTab { Messages, Characters, Moments, Me }
 private data class AppEntry(val title: String, val icon: ImageVector, val screen: Screen)
 private data class PreviewMessage(val text: String, val fromUser: Boolean, val time: String)
@@ -66,7 +67,7 @@ private fun LuluApp() {
                     onBack = { screen = Screen.Home },
                     onOpenConversation = { screen = Screen.ChatDetail },
                 )
-                Screen.ChatDetail -> ChatDetailScreen(onBack = { screen = Screen.Chat })
+                Screen.ChatDetail -> ChatDetailScreen { screen = Screen.Chat }
                 Screen.Memory -> MemoryFeatureScreen { screen = Screen.Home }
                 Screen.Lexicon -> LexiconFeatureScreen { screen = Screen.Home }
                 Screen.WorldBook -> WorldBookFeatureScreen { screen = Screen.Home }
@@ -92,6 +93,7 @@ private fun HomeScreen(onOpen: (Screen) -> Unit) {
         AppEntry("游戏", Icons.Outlined.SportsEsports, Screen.Games),
         AppEntry("设置", Icons.Outlined.Settings, Screen.Settings),
     )
+
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
         contentPadding = PaddingValues(top = 28.dp, bottom = 28.dp),
@@ -100,7 +102,7 @@ private fun HomeScreen(onOpen: (Screen) -> Unit) {
         item {
             Row(verticalAlignment = Alignment.Top) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("5月20日  星期二", color = BlueGray, fontSize = 15.sp)
+                    Text("今天", color = BlueGray, fontSize = 15.sp)
                     Spacer(Modifier.height(8.dp))
                     Text("早上好，主人 ☀", color = Ink, fontSize = 30.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(6.dp))
@@ -225,6 +227,7 @@ private fun ConversationList(onOpenConversation: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ChatDetailScreen(onBack: () -> Unit) {
     var input by remember { mutableStateOf("") }
@@ -237,6 +240,7 @@ private fun ChatDetailScreen(onBack: () -> Unit) {
             ),
         )
     }
+
     Scaffold(
         containerColor = Paper,
         topBar = {
@@ -391,7 +395,10 @@ private fun PlaceholderScreen(screen: Screen, onBack: () -> Unit) {
     }
     Scaffold(containerColor = Paper, topBar = { LuluTopBar(title, onBack) }) { padding ->
         Box(Modifier.padding(padding).fillMaxSize(), contentAlignment = Alignment.Center) {
-            EmptyState(title, if (screen == Screen.Reading) "阅读空间正在整理中。" else "页面结构已经独立建立，下一阶段接入真实功能。")
+            EmptyState(
+                title,
+                if (screen == Screen.Reading) "阅读空间正在整理中。" else "页面结构已经独立建立，下一阶段接入真实功能。",
+            )
         }
     }
 }
