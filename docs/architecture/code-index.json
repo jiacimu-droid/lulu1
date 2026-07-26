@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T11:54:42.921867+00:00",
-  "commit": "b88973aa6d56beda0c61d9fbe50b1a65d7e812e9",
+  "generatedAt": "2026-07-26T11:55:56.645858+00:00",
+  "commit": "4444a9cefde5e396f6ee24343fd582aad5f8bc1a",
   "branch": "main",
-  "sourceFingerprint": "2e4fb3ffc53e07d5f8b5051f6452be76e789f641f2ff56c074ce1df32e9e7de9",
+  "sourceFingerprint": "22b1123f52f3482bf59b8c69724451fec2ee9599e7fb7a910b4b4b95dc9e9082",
   "summary": {
-    "files": 27,
-    "lines": 4457,
-    "symbols": 140
+    "files": 28,
+    "lines": 4612,
+    "symbols": 143
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -522,6 +522,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CompleteGamesApp.kt",
         "line": 30
+      }
+    ],
+    "attach": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
+        "line": 116
+      }
+    ],
+    "speak": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
+        "line": 120
+      }
+    ],
+    "stop": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
+        "line": 125
       }
     ],
     "LegacyGamePage": [
@@ -1281,6 +1299,25 @@
         {
           "name": "CompleteGamesApp",
           "line": 30
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
+      "lines": 155,
+      "sha256": "bcb6715666b31ce01d8097207be5eb93274724252f0aaf4fb76341100bf09102",
+      "symbols": [
+        {
+          "name": "attach",
+          "line": 116
+        },
+        {
+          "name": "speak",
+          "line": 120
+        },
+        {
+          "name": "stop",
+          "line": 125
         }
       ]
     },
