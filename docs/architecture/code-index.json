@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T12:51:02.092534+00:00",
-  "commit": "c7903b25efe2635cb0b648faba99ef13b9c9307f",
+  "generatedAt": "2026-07-26T12:53:30.875147+00:00",
+  "commit": "cc5cd7654917edae5cd4b5b1f9423f8a1772a3d5",
   "branch": "main",
-  "sourceFingerprint": "02e898238862eb71c76e42bac074484135b3998932cb1d68689999786e2b3094",
+  "sourceFingerprint": "04b8b075b1eb158d5d66df636ba1668bb06e60d76831e50f6aece4a8593078f8",
   "summary": {
     "files": 35,
-    "lines": 7422,
+    "lines": 7421,
     "symbols": 209
   },
   "symbolIndex": {
@@ -175,19 +175,19 @@
     "ConversationSummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 17
+        "line": 16
       }
     ],
     "ChatMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 25
+        "line": 24
       }
     ],
     "Sender": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 34
+        "line": 33
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -197,145 +197,145 @@
     "MessageState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 35
+        "line": 34
       }
     ],
     "ConversationRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 37
+        "line": 36
       }
     ],
     "observeConversations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 39
+        "line": 38
       }
     ],
     "observeMessages": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 40
+        "line": 39
       }
     ],
     "MemoryKind": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 43
+        "line": 42
       }
     ],
     "MemoryEntry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 45
+        "line": 44
       }
     ],
     "MemoryPolicy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 58
+        "line": 57
       }
     ],
     "MemoryRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 64
+        "line": 63
       }
     ],
     "observeMemories": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 66
+        "line": 65
       }
     ],
     "observePolicy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 67
+        "line": 66
       }
     ],
     "LexiconSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 71
+        "line": 70
       }
     ],
     "PromiseKind": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 73
+        "line": 72
       }
     ],
     "LexiconEntry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 74
+        "line": 73
       }
     ],
     "LexiconRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 85
+        "line": 84
       }
     ],
     "observeEntries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 87
+        "line": 86
       }
     ],
     "WorldBookEntry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 91
+        "line": 90
       }
     ],
     "WorldBookRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 99
+        "line": 98
       }
     ],
     "observeWorldBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 101
+        "line": 100
       }
     ],
     "TokenUsage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 105
+        "line": 104
       }
     ],
     "DurationSummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 112
+        "line": 111
       }
     ],
     "PerformanceRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 118
+        "line": 117
       }
     ],
     "observeErrors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 120
+        "line": 119
       }
     ],
     "observeTokenUsage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 121
+        "line": 120
       }
     ],
     "observeDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 122
+        "line": 121
       }
     ],
     "InMemoryMemoryRepository": [
@@ -1427,8 +1427,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-      "lines": 126,
-      "sha256": "d700f5593ce724723ce0a6a3ceb931fd4268057a4b39720a65b307ac454e2262",
+      "lines": 125,
+      "sha256": "29ce2b7cf1729c52ec46cef128a277a4d8ab185bb25712d322de80ef516515c6",
       "symbols": [
         {
           "name": "CharacterSummary",
@@ -1436,111 +1436,111 @@
         },
         {
           "name": "ConversationSummary",
-          "line": 17
+          "line": 16
         },
         {
           "name": "ChatMessage",
-          "line": 25
+          "line": 24
         },
         {
           "name": "Sender",
-          "line": 34
+          "line": 33
         },
         {
           "name": "MessageState",
-          "line": 35
+          "line": 34
         },
         {
           "name": "ConversationRepository",
-          "line": 37
+          "line": 36
         },
         {
           "name": "observeConversations",
-          "line": 39
+          "line": 38
         },
         {
           "name": "observeMessages",
-          "line": 40
+          "line": 39
         },
         {
           "name": "MemoryKind",
-          "line": 43
+          "line": 42
         },
         {
           "name": "MemoryEntry",
-          "line": 45
+          "line": 44
         },
         {
           "name": "MemoryPolicy",
-          "line": 58
+          "line": 57
         },
         {
           "name": "MemoryRepository",
-          "line": 64
+          "line": 63
         },
         {
           "name": "observeMemories",
-          "line": 66
+          "line": 65
         },
         {
           "name": "observePolicy",
-          "line": 67
+          "line": 66
         },
         {
           "name": "LexiconSection",
-          "line": 71
+          "line": 70
         },
         {
           "name": "PromiseKind",
-          "line": 73
+          "line": 72
         },
         {
           "name": "LexiconEntry",
-          "line": 74
+          "line": 73
         },
         {
           "name": "LexiconRepository",
-          "line": 85
+          "line": 84
         },
         {
           "name": "observeEntries",
-          "line": 87
+          "line": 86
         },
         {
           "name": "WorldBookEntry",
-          "line": 91
+          "line": 90
         },
         {
           "name": "WorldBookRepository",
-          "line": 99
+          "line": 98
         },
         {
           "name": "observeWorldBooks",
-          "line": 101
+          "line": 100
         },
         {
           "name": "TokenUsage",
-          "line": 105
+          "line": 104
         },
         {
           "name": "DurationSummary",
-          "line": 112
+          "line": 111
         },
         {
           "name": "PerformanceRepository",
-          "line": 118
+          "line": 117
         },
         {
           "name": "observeErrors",
-          "line": 120
+          "line": 119
         },
         {
           "name": "observeTokenUsage",
-          "line": 121
+          "line": 120
         },
         {
           "name": "observeDurations",
-          "line": 122
+          "line": 121
         }
       ]
     },
