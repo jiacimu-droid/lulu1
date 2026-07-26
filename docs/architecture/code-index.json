@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T13:53:34.815165+00:00",
-  "commit": "4f98284f43768edcc936f5aec24def8ebd82e201",
+  "generatedAt": "2026-07-26T13:53:46.758257+00:00",
+  "commit": "2dfd45be919619135d5603fb806e120906002b24",
   "branch": "main",
-  "sourceFingerprint": "0286f36ea4247eb0319829e1fc25fe53ea65b0e0d79bc705729e1a4c0a35a9f4",
+  "sourceFingerprint": "874373f08ec6ce4816cf7d4c25ad84e5df87505073e1aac745bd9e15f795f452",
   "summary": {
-    "files": 40,
-    "lines": 8641,
-    "symbols": 236
+    "files": 39,
+    "lines": 8602,
+    "symbols": 231
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -150,10 +150,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
         "line": 46
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewardBridge.kt",
-        "line": 23
       }
     ],
     "CompanionModelGateway": [
@@ -188,10 +184,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
         "line": 54
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewardBridge.kt",
-        "line": 30
       }
     ],
     "CharacterSummary": [
@@ -1352,24 +1344,6 @@
         "line": 49
       }
     ],
-    "StudyLegacyRewardBridge": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewardBridge.kt",
-        "line": 6
-      }
-    ],
-    "sync": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewardBridge.kt",
-        "line": 9
-      }
-    ],
-    "StudyLegacyRewardBridges": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewardBridge.kt",
-        "line": 26
-      }
-    ],
     "encode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
@@ -2500,33 +2474,6 @@
         {
           "name": "initialize",
           "line": 54
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyLegacyRewardBridge.kt",
-      "lines": 39,
-      "sha256": "622026eabacdffac68906680f93ce565196e28aa6563cc055f47f90427a40e7a",
-      "symbols": [
-        {
-          "name": "StudyLegacyRewardBridge",
-          "line": 6
-        },
-        {
-          "name": "sync",
-          "line": 9
-        },
-        {
-          "name": "create",
-          "line": 23
-        },
-        {
-          "name": "StudyLegacyRewardBridges",
-          "line": 26
-        },
-        {
-          "name": "initialize",
-          "line": 30
         }
       ]
     },
