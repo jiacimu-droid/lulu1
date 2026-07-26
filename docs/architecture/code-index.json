@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T11:53:30.618390+00:00",
-  "commit": "965c7a5e663e8b97cbfbbd62246735121befb3ee",
+  "generatedAt": "2026-07-26T11:54:42.921867+00:00",
+  "commit": "b88973aa6d56beda0c61d9fbe50b1a65d7e812e9",
   "branch": "main",
-  "sourceFingerprint": "115605bef28d420854d3deb0c2d6b8b7c948ae6291c2300fc5996e1f00f62a65",
+  "sourceFingerprint": "2e4fb3ffc53e07d5f8b5051f6452be76e789f641f2ff56c074ce1df32e9e7de9",
   "summary": {
     "files": 27,
-    "lines": 4452,
+    "lines": 4457,
     "symbols": 140
   },
   "symbolIndex": {
@@ -91,61 +91,61 @@
     "ModelProviderKind": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 24
+        "line": 15
       }
     ],
     "ModelConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 25
+        "line": 17
       }
     ],
     "ModelReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 33
+        "line": 25
       }
     ],
     "ModelConnectionStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 40
+        "line": 32
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 45
+        "line": 37
       }
     ],
     "defaultBaseUrl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 83
+        "line": 74
       }
     ],
     "create": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 89
+        "line": 80
       }
     ],
     "CompanionModelGateway": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 93
+        "line": 84
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 311
+        "line": 320
       }
     ],
     "initialize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 325
+        "line": 330
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
@@ -959,48 +959,48 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 332,
-      "sha256": "0bbfcbbcc578be110c64f78a6a3e527ada5c36da7c4ff03025eb4cfe97ba4d2c",
+      "lines": 337,
+      "sha256": "03d5e61fa1ef2a4ed93fb1c6fd9f81e9c8ad6c4cc91cf275896108be3c43a2b2",
       "symbols": [
         {
           "name": "ModelProviderKind",
-          "line": 24
+          "line": 15
         },
         {
           "name": "ModelConnection",
-          "line": 25
+          "line": 17
         },
         {
           "name": "ModelReply",
-          "line": 33
+          "line": 25
         },
         {
           "name": "ModelConnectionStore",
-          "line": 40
+          "line": 32
         },
         {
           "name": "save",
-          "line": 45
+          "line": 37
         },
         {
           "name": "defaultBaseUrl",
-          "line": 83
+          "line": 74
         },
         {
           "name": "create",
-          "line": 89
+          "line": 80
         },
         {
           "name": "CompanionModelGateway",
-          "line": 93
+          "line": 84
         },
         {
           "name": "LuluAiServices",
-          "line": 311
+          "line": 320
         },
         {
           "name": "initialize",
-          "line": 325
+          "line": 330
         }
       ]
     },
