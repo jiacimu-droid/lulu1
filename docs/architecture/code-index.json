@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T09:46:05.344466+00:00",
-  "commit": "7581b8eabf5e1261726d7eabe382481de97ae5e1",
+  "generatedAt": "2026-07-26T09:47:42.031833+00:00",
+  "commit": "1bfdd02726f86d637d9685e41330c5bf8739811a",
   "branch": "main",
-  "sourceFingerprint": "3c89abf006e4f13ed01df584da759880ccc817c45f8c5141691920506bb28d15",
+  "sourceFingerprint": "3449fcff0af1b7c519d14bb52ec76c2be6f3110f6546b37ce4f5fa2de68bef6b",
   "summary": {
     "files": 14,
-    "lines": 1593,
+    "lines": 1581,
     "symbols": 44
   },
   "symbolIndex": {
@@ -309,8 +309,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MainActivity.kt",
-      "lines": 446,
-      "sha256": "f7b3096b59011fa1cd6e23ad3e542b88d42d607e2e996b2ed185c5d17151841b",
+      "lines": 434,
+      "sha256": "6f70dc6404aaa7274b882413ea6f3c22f7e8cbe5a46a014daea07ae062a9fcf3",
       "symbols": [
         {
           "name": "MainActivity",
