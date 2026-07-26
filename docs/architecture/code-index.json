@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T12:35:29.471197+00:00",
-  "commit": "74f2d5575fa0ad5e12bc3b01ecf4709a3d4a56ed",
+  "generatedAt": "2026-07-26T12:37:29.976723+00:00",
+  "commit": "55ff33bd11184a338d9ef820a007a14ba66c19fe",
   "branch": "main",
-  "sourceFingerprint": "a2deb53f33b105439c857db506b0f12f3fb54b5d63bf3c6e85bb7531d09dd457",
+  "sourceFingerprint": "684a3edcf42b65479610a4c0e8cf693f0669e072e36bb08cb4e6ec6a22f8c0d9",
   "summary": {
-    "files": 32,
-    "lines": 6723,
-    "symbols": 203
+    "files": 33,
+    "lines": 7233,
+    "symbols": 204
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -1058,6 +1058,12 @@
         "line": 817
       }
     ],
+    "requestRoleCompletion": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCompanionToday.kt",
+        "line": 403
+      }
+    ],
     "StudyTaskSource": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
@@ -2065,6 +2071,17 @@
         {
           "name": "initialize",
           "line": 822
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCompanionToday.kt",
+      "lines": 510,
+      "sha256": "ca1e805f073055eefa9646f59c25fdd0678b0ebff56064f7c850084fd37a6bbb",
+      "symbols": [
+        {
+          "name": "requestRoleCompletion",
+          "line": 403
         }
       ]
     },
