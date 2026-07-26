@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T12:23:49.160775+00:00",
-  "commit": "fab760ba4494a6118c86b270d2ac7002180eee8b",
+  "generatedAt": "2026-07-26T12:25:20.339696+00:00",
+  "commit": "50a003ee189621d061365cbda2e14ae3de86bd0d",
   "branch": "main",
-  "sourceFingerprint": "91e7b54c6c2a23029f698ea614bd90cd2ce4a2dad1f28a0d0bfec61578d44f93",
+  "sourceFingerprint": "778d6e8d4e1731b8b7a63ae5b6554ccd6d9f256291b3fdfb7189301d39130fbc",
   "summary": {
     "files": 30,
-    "lines": 5831,
+    "lines": 5810,
     "symbols": 189
   },
   "symbolIndex": {
@@ -899,7 +899,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 101
+        "line": 87
       }
     ],
     "PomodoroState": [
@@ -909,7 +909,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 121
+        "line": 105
       }
     ],
     "ExamAppState": [
@@ -1071,61 +1071,61 @@
     "StudyEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 46
+        "line": 42
       }
     ],
     "StudyDrawResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 53
+        "line": 43
       }
     ],
     "StudyAchievement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 61
+        "line": 51
       }
     ],
     "StudyShopItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 74
+        "line": 62
       }
     ],
     "StudyInventory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 87
+        "line": 73
       }
     ],
     "StudyState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 128
+        "line": 113
       }
     ],
     "StudyLevels": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 149
+        "line": 134
       }
     ],
     "levelForExperience": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 152
+        "line": 137
       }
     ],
     "currentLevelStart": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 153
+        "line": 138
       }
     ],
     "nextLevelTarget": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 154
+        "line": 139
       }
     ]
   },
@@ -1944,8 +1944,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-      "lines": 195,
-      "sha256": "ff99c2207124ef1dfdd8e3ccac0f26b0e72eaf44d2853cd0a56684219ab01e9e",
+      "lines": 174,
+      "sha256": "756c4f755d11f8b78466a42a04e58af5735182be4770a8a8d6ae1200151997f8",
       "symbols": [
         {
           "name": "StudyTaskSource",
@@ -1989,51 +1989,51 @@
         },
         {
           "name": "StudyEvent",
-          "line": 46
+          "line": 42
         },
         {
           "name": "StudyDrawResult",
-          "line": 53
+          "line": 43
         },
         {
           "name": "StudyAchievement",
-          "line": 61
+          "line": 51
         },
         {
           "name": "StudyShopItem",
-          "line": 74
+          "line": 62
         },
         {
           "name": "StudyInventory",
-          "line": 87
+          "line": 73
         },
         {
           "name": "StudyProfile",
-          "line": 101
+          "line": 87
         },
         {
           "name": "PomodoroState",
-          "line": 121
+          "line": 105
         },
         {
           "name": "StudyState",
-          "line": 128
+          "line": 113
         },
         {
           "name": "StudyLevels",
-          "line": 149
+          "line": 134
         },
         {
           "name": "levelForExperience",
-          "line": 152
+          "line": 137
         },
         {
           "name": "currentLevelStart",
-          "line": 153
+          "line": 138
         },
         {
           "name": "nextLevelTarget",
-          "line": 154
+          "line": 139
         }
       ]
     },
