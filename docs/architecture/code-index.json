@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T10:54:38.544461+00:00",
-  "commit": "8f4195e7b9ded5d972afd039f7caaba461751b91",
+  "generatedAt": "2026-07-26T10:55:58.606076+00:00",
+  "commit": "b040a74cca78703d14a25a6bb1b0415ecf5ec72a",
   "branch": "main",
-  "sourceFingerprint": "21857a2ecd7d68ae660a95eb122b5f45afefed57c2b94e8154f98276c49e95cf",
+  "sourceFingerprint": "36fd4489927eb1a153dfd988a8ce9d1f1c4c675dc8d3d309e1d5f310b9951597",
   "summary": {
-    "files": 19,
-    "lines": 2823,
-    "symbols": 93
+    "files": 20,
+    "lines": 3278,
+    "symbols": 94
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -38,6 +38,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMilestoneApp.kt",
         "line": 47
+      }
+    ],
+    "LuluRootApp": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluRootApp.kt",
+        "line": 43
       }
     ],
     "MainActivity": [
@@ -618,6 +624,17 @@
         {
           "name": "LuluMilestoneApp",
           "line": 47
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluRootApp.kt",
+      "lines": 455,
+      "sha256": "c9d1915312982b6780039e95e14f9664a1668d1b39d422a2831e87becb90261a",
+      "symbols": [
+        {
+          "name": "LuluRootApp",
+          "line": 43
         }
       ]
     },
