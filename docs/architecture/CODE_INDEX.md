@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`af1fc5cf1b02bc2491e12b27985659c32bda4b5c`
+- 基准提交：`eb5d397084e8a2a1397d981f1977654f4b9dc83b`
 - 分支：`main`
 - 已索引文件：37
-- 已索引代码/文本行：8153
-- 已发现符号：224
+- 已索引代码/文本行：8016
+- 已发现符号：221
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -29,7 +29,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 327 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 551 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 76 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 827 | 34 |
+| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 690 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyCompanionToday.kt` | 510 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDailyContext.kt` | 73 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt` | 241 | 25 |
