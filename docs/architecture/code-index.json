@@ -1,0 +1,374 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-26T09:23:43.046644+00:00",
+  "commit": "56af52db453e52cc28c6b0613840cadd0c18dec7",
+  "branch": "main",
+  "sourceFingerprint": "82c9b5823ba2330f1a63741e9126deafa7ec2dc837d257b2089f3477f95beb1d",
+  "summary": {
+    "files": 11,
+    "lines": 737,
+    "symbols": 29
+  },
+  "symbolIndex": {
+    "MainActivity": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MainActivity.kt",
+        "line": 31
+      }
+    ],
+    "CharacterSummary": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 10
+      }
+    ],
+    "ConversationSummary": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 17
+      }
+    ],
+    "ChatMessage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 25
+      }
+    ],
+    "Sender": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 34
+      }
+    ],
+    "MessageState": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 35
+      }
+    ],
+    "ConversationRepository": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 37
+      }
+    ],
+    "observeConversations": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 39
+      }
+    ],
+    "observeMessages": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 40
+      }
+    ],
+    "MemoryKind": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 43
+      }
+    ],
+    "MemoryEntry": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 45
+      }
+    ],
+    "MemoryPolicy": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 58
+      }
+    ],
+    "MemoryRepository": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 64
+      }
+    ],
+    "observeMemories": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 66
+      }
+    ],
+    "observePolicy": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 67
+      }
+    ],
+    "LexiconSection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 71
+      }
+    ],
+    "PromiseKind": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 73
+      }
+    ],
+    "LexiconEntry": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 74
+      }
+    ],
+    "LexiconRepository": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 85
+      }
+    ],
+    "observeEntries": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 87
+      }
+    ],
+    "WorldBookEntry": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 91
+      }
+    ],
+    "WorldBookRepository": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 99
+      }
+    ],
+    "observeWorldBooks": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 101
+      }
+    ],
+    "TokenUsage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 105
+      }
+    ],
+    "DurationSummary": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 112
+      }
+    ],
+    "PerformanceRepository": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 118
+      }
+    ],
+    "observeErrors": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 120
+      }
+    ],
+    "observeTokenUsage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 121
+      }
+    ],
+    "observeDurations": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+        "line": 122
+      }
+    ]
+  },
+  "files": [
+    {
+      "path": "app/build.gradle.kts",
+      "lines": 51,
+      "sha256": "591afcf6752de06fe70698ae8573381c8668215626273ae173b7f1d667d6c8e0",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/AndroidManifest.xml",
+      "lines": 20,
+      "sha256": "0745dd375dd0e4a5da2618d5cdffd8cdedc8f5150701e2291977c33da7e7b7c9",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/MainActivity.kt",
+      "lines": 324,
+      "sha256": "bd7f39f1c55581e1fb498bf4916f3c6820d675a167a2b80c80c46e7e43e8e109",
+      "symbols": [
+        {
+          "name": "MainActivity",
+          "line": 31
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
+      "lines": 126,
+      "sha256": "d700f5593ce724723ce0a6a3ceb931fd4268057a4b39720a65b307ac454e2262",
+      "symbols": [
+        {
+          "name": "CharacterSummary",
+          "line": 10
+        },
+        {
+          "name": "ConversationSummary",
+          "line": 17
+        },
+        {
+          "name": "ChatMessage",
+          "line": 25
+        },
+        {
+          "name": "Sender",
+          "line": 34
+        },
+        {
+          "name": "MessageState",
+          "line": 35
+        },
+        {
+          "name": "ConversationRepository",
+          "line": 37
+        },
+        {
+          "name": "observeConversations",
+          "line": 39
+        },
+        {
+          "name": "observeMessages",
+          "line": 40
+        },
+        {
+          "name": "MemoryKind",
+          "line": 43
+        },
+        {
+          "name": "MemoryEntry",
+          "line": 45
+        },
+        {
+          "name": "MemoryPolicy",
+          "line": 58
+        },
+        {
+          "name": "MemoryRepository",
+          "line": 64
+        },
+        {
+          "name": "observeMemories",
+          "line": 66
+        },
+        {
+          "name": "observePolicy",
+          "line": 67
+        },
+        {
+          "name": "LexiconSection",
+          "line": 71
+        },
+        {
+          "name": "PromiseKind",
+          "line": 73
+        },
+        {
+          "name": "LexiconEntry",
+          "line": 74
+        },
+        {
+          "name": "LexiconRepository",
+          "line": 85
+        },
+        {
+          "name": "observeEntries",
+          "line": 87
+        },
+        {
+          "name": "WorldBookEntry",
+          "line": 91
+        },
+        {
+          "name": "WorldBookRepository",
+          "line": 99
+        },
+        {
+          "name": "observeWorldBooks",
+          "line": 101
+        },
+        {
+          "name": "TokenUsage",
+          "line": 105
+        },
+        {
+          "name": "DurationSummary",
+          "line": 112
+        },
+        {
+          "name": "PerformanceRepository",
+          "line": 118
+        },
+        {
+          "name": "observeErrors",
+          "line": 120
+        },
+        {
+          "name": "observeTokenUsage",
+          "line": 121
+        },
+        {
+          "name": "observeDurations",
+          "line": 122
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/res/drawable/ic_lulu.xml",
+      "lines": 12,
+      "sha256": "b9c135a37cb0f00500e8fcd5625fae8455f37a89ebeb2441993a8bcb5506815c",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/res/values/strings.xml",
+      "lines": 5,
+      "sha256": "f110e61488514ea453181a55a6689340973bc2e4ecbb88e70cf2d60e2f23262b",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/res/values/styles.xml",
+      "lines": 11,
+      "sha256": "b9998a762e4c0842fc6b71ae71ccacdce853dfceaf370964016fdf405c1b77a0",
+      "symbols": []
+    },
+    {
+      "path": "scripts/generate_code_index.py",
+      "lines": 33,
+      "sha256": "db454feedfdf3568224a509dc2333719045f645726f1c02b7beb067b90a10062",
+      "symbols": []
+    },
+    {
+      "path": "preview/app.js",
+      "lines": 54,
+      "sha256": "f1970a23411084fb2da03eef1f0f47a4bd105349f13f7444c66bd2f5c34e830d",
+      "symbols": []
+    },
+    {
+      "path": "preview/index.html",
+      "lines": 99,
+      "sha256": "28111929b2f93fedd5b6dff14ccb9c9e147ba8c8d811d5eea115d2c0cff55b88",
+      "symbols": []
+    },
+    {
+      "path": "preview/styles.css",
+      "lines": 2,
+      "sha256": "a99241980f29c223ceea1fedef6d6a262fb90b72c274202e02ac4d5434ab8148",
+      "symbols": []
+    }
+  ]
+}
