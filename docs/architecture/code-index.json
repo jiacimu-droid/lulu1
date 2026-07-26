@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-26T12:06:31.727840+00:00",
-  "commit": "88938f94d3f813ab2c9fa6112c94d605e5694cae",
+  "generatedAt": "2026-07-26T12:06:42.031848+00:00",
+  "commit": "f49022ba6d0039fc4493fd702be65d3be75c9c1b",
   "branch": "main",
-  "sourceFingerprint": "aa10970465014ad83d72a101d02dafa962b629234f6a22118275b4e14fd6ccf7",
+  "sourceFingerprint": "e988692d0c1469126fabe68b545dc90228297d4b25a0af8da6ff82177c901760",
   "summary": {
-    "files": 30,
-    "lines": 5898,
-    "symbols": 171
+    "files": 29,
+    "lines": 5600,
+    "symbols": 167
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -532,10 +532,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
         "line": 257
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGamesScreen.kt",
-        "line": 234
       }
     ],
     "nextRound": [
@@ -626,24 +622,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
         "line": 125
-      }
-    ],
-    "LegacyGamePage": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGamesScreen.kt",
-        "line": 27
-      }
-    ],
-    "LegacyGameScreen": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGamesScreen.kt",
-        "line": 32
-      }
-    ],
-    "hasFive": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGamesScreen.kt",
-        "line": 218
       }
     ],
     "LuluGameType": [
@@ -1553,29 +1531,6 @@
       "lines": 87,
       "sha256": "4651b961bd9669780ed3e7263ac94daa17d2800330cec5d9b0fec184e58064f8",
       "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGamesScreen.kt",
-      "lines": 298,
-      "sha256": "fac9b76dd76034cb25f3825efd930f10b4633071cfab0287f441fb15edef7466",
-      "symbols": [
-        {
-          "name": "LegacyGamePage",
-          "line": 27
-        },
-        {
-          "name": "LegacyGameScreen",
-          "line": 32
-        },
-        {
-          "name": "hasFive",
-          "line": 218
-        },
-        {
-          "name": "place",
-          "line": 234
-        }
-      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
