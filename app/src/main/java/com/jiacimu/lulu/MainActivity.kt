@@ -12,6 +12,7 @@ import com.jiacimu.lulu.study.StudyRemovedFeatureMigration
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        LuluRepositories.initialize(applicationContext)
         LuluAiServices.initialize(applicationContext)
         LuluGames.initialize(applicationContext)
         StudyRemovedFeatureMigration.migrate(applicationContext)
