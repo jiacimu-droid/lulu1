@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T18:06:25.749912+00:00",
-  "commit": "3e20eb05c24ef721e129abe5e38dff682795584a",
+  "generatedAt": "2026-07-28T18:07:07.649305+00:00",
+  "commit": "11669de0bc31feac0d000e7e3eb7bcd2d2517261",
   "branch": "main",
-  "sourceFingerprint": "36c352dfa42ee39817e020fd9eb482d32356eb86374078d84f4351781709ee55",
+  "sourceFingerprint": "90aa4c90b7d3bd223953fef22f066fe1ae836e1d82b05beaf29f3bcf7cc2785c",
   "summary": {
-    "files": 53,
-    "lines": 13796,
-    "symbols": 293
+    "files": 54,
+    "lines": 13875,
+    "symbols": 294
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -1442,6 +1442,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishInventoryBridge.kt",
         "line": 23
+      }
+    ],
+    "StarWishMigratedScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt",
+        "line": 17
       }
     ],
     "requestRoleCompletion": [
@@ -2914,6 +2920,17 @@
         {
           "name": "consumeVideoCard",
           "line": 23
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt",
+      "lines": 79,
+      "sha256": "f63488e39d3abd571c05de3c897ecf6321bac830f4a190a4a7d301876abb2c50",
+      "symbols": [
+        {
+          "name": "StarWishMigratedScreen",
+          "line": 17
         }
       ]
     },
