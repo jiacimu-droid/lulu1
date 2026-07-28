@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.data
 
+import android.content.Context
 import com.jiacimu.lulu.core.DurationSummary
 import com.jiacimu.lulu.core.LexiconEntry
 import com.jiacimu.lulu.core.LexiconRepository
@@ -16,6 +17,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import org.json.JSONArray
+import org.json.JSONObject
 
 class InMemoryMemoryRepository : MemoryRepository {
     private val memories = MutableStateFlow<List<MemoryEntry>>(emptyList())
@@ -84,28 +87,145 @@ class InMemoryLexiconRepository : LexiconRepository {
     }
 }
 
+/**
+ * The name is retained to avoid breaking callers, but this repository is now persistent.
+ * Array order is the canonical world-book injection order, matching the source project.
+ */
 class InMemoryWorldBookRepository : WorldBookRepository {
     private val entries = MutableStateFlow<List<WorldBookEntry>>(emptyList())
+    private var prefs: android.content.SharedPreferences? = null
+    private val lock = Any()
+
+    fun initialize(context: Context) {
+        synchronized(lock) {
+            if (prefs != null) return
+            prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            entries.value = decode(prefs?.getString(KEY_ENTRIES, null))
+        }
+    }
 
     override fun observeWorldBooks(): Flow<List<WorldBookEntry>> = entries
 
     override suspend fun save(entry: WorldBookEntry) {
         require(entry.title.isNotBlank()) { "世界书标题不能为空" }
-        entries.update { current -> current.filterNot { it.id == entry.id } + entry }
+        require(entry.content.isNotBlank()) { "世界设定不能为空" }
+        mutate { current ->
+            val index = current.indexOfFirst { it.id == entry.id }
+            if (index < 0) current + entry else current.toMutableList().apply { set(index, entry) }
+        }
     }
 
     override suspend fun delete(id: String) {
-        entries.update { current -> current.filterNot { it.id == id } }
+        mutate { current -> current.filterNot { it.id == id } }
+    }
+
+    suspend fun setGlobalEnabled(id: String, enabled: Boolean) {
+        mutate { current ->
+            current.map { entry -> if (entry.id == id) entry.copy(globalEnabled = enabled) else entry }
+        }
+    }
+
+    suspend fun setCharacterOverride(id: String, characterId: String, enabled: Boolean?) {
+        require(characterId.isNotBlank()) { "角色不能为空" }
+        mutate { current ->
+            current.map { entry ->
+                if (entry.id != id) return@map entry
+                val overrides = entry.characterOverrides.toMutableMap()
+                if (enabled == null) overrides.remove(characterId) else overrides[characterId] = enabled
+                entry.copy(characterOverrides = overrides)
+            }
+        }
+    }
+
+    suspend fun move(id: String, direction: Int) {
+        if (direction == 0) return
+        mutate { current ->
+            val from = current.indexOfFirst { it.id == id }
+            if (from < 0) return@mutate current
+            val to = (from + direction).coerceIn(current.indices)
+            if (to == from) return@mutate current
+            current.toMutableList().apply {
+                val item = removeAt(from)
+                add(to, item)
+            }
+        }
     }
 
     fun snapshot(): List<WorldBookEntry> = entries.value
 
     suspend fun replaceAll(newEntries: List<WorldBookEntry>) {
-        entries.value = newEntries
+        mutate { newEntries }
     }
 
+    fun isEnabledForCharacter(entry: WorldBookEntry, characterId: String): Boolean =
+        entry.characterOverrides[characterId] ?: entry.globalEnabled
+
     fun observeForCharacter(characterId: String): Flow<List<WorldBookEntry>> = entries.map { current ->
-        current.filter { entry -> entry.characterOverrides[characterId] ?: entry.globalEnabled }
+        current.filter { entry -> isEnabledForCharacter(entry, characterId) }
+    }
+
+    private fun mutate(transform: (List<WorldBookEntry>) -> List<WorldBookEntry>) {
+        synchronized(lock) {
+            val next = transform(entries.value)
+            entries.value = next
+            prefs?.edit()?.putString(KEY_ENTRIES, encode(next).toString())?.apply()
+        }
+    }
+
+    private fun encode(values: List<WorldBookEntry>): JSONArray = JSONArray().apply {
+        values.forEach { entry ->
+            put(
+                JSONObject()
+                    .put("id", entry.id)
+                    .put("title", entry.title)
+                    .put("content", entry.content)
+                    .put("globalEnabled", entry.globalEnabled)
+                    .put(
+                        "characterOverrides",
+                        JSONObject().apply {
+                            entry.characterOverrides.forEach { (characterId, enabled) -> put(characterId, enabled) }
+                        },
+                    ),
+            )
+        }
+    }
+
+    private fun decode(raw: String?): List<WorldBookEntry> {
+        if (raw.isNullOrBlank()) return emptyList()
+        return runCatching {
+            val array = JSONArray(raw)
+            buildList {
+                for (index in 0 until array.length()) {
+                    val item = array.optJSONObject(index) ?: continue
+                    val id = item.optString("id")
+                    val title = item.optString("title").trim()
+                    val content = item.optString("content").trim()
+                    if (id.isBlank() || title.isBlank() || content.isBlank()) continue
+                    val overridesJson = item.optJSONObject("characterOverrides") ?: JSONObject()
+                    val overrides = buildMap {
+                        val keys = overridesJson.keys()
+                        while (keys.hasNext()) {
+                            val key = keys.next()
+                            put(key, overridesJson.optBoolean(key))
+                        }
+                    }
+                    add(
+                        WorldBookEntry(
+                            id = id,
+                            title = title,
+                            content = content,
+                            globalEnabled = item.optBoolean("globalEnabled", false),
+                            characterOverrides = overrides,
+                        ),
+                    )
+                }
+            }
+        }.getOrDefault(emptyList())
+    }
+
+    private companion object {
+        const val PREFS_NAME = "lulu_world_books"
+        const val KEY_ENTRIES = "entries_v1"
     }
 }
 
