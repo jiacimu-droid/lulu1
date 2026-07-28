@@ -91,17 +91,17 @@ data class PerformanceErrorRecord(
 )
 
 fun List<ApiUsageRecord>.summarizeApiUsage(): List<ApiUsageSummary> =
-    groupBy(ApiUsageRecord::source)
+    groupBy { record -> record.source }
         .map { (source, records) ->
             ApiUsageSummary(
                 source = source,
-                promptTokens = records.sumOf(ApiUsageRecord::promptTokens),
-                completionTokens = records.sumOf(ApiUsageRecord::completionTokens),
-                cachedTokens = records.sumOf(ApiUsageRecord::cachedTokens),
+                promptTokens = records.sumOf { record -> record.promptTokens },
+                completionTokens = records.sumOf { record -> record.completionTokens },
+                cachedTokens = records.sumOf { record -> record.cachedTokens },
                 callCount = records.size,
             )
         }
-        .sortedBy { it.source.ordinal }
+        .sortedBy { summary -> summary.source.ordinal }
 
 class LocalPerformanceRepository(context: Context) : PerformanceRepository {
     private val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -109,16 +109,16 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
     private val state = MutableStateFlow(load())
 
     val errorRecords: Flow<List<PerformanceErrorRecord>> = state
-        .map(PerformanceState::errors)
+        .map { snapshot -> snapshot.errors }
         .distinctUntilChanged()
     val usageRecords: Flow<List<ApiUsageRecord>> = state
-        .map(PerformanceState::usageRecords)
+        .map { snapshot -> snapshot.usageRecords }
         .distinctUntilChanged()
     val consoleRecords: Flow<List<TokenConsoleRecord>> = state
-        .map(PerformanceState::consoleRecords)
+        .map { snapshot -> snapshot.consoleRecords }
         .distinctUntilChanged()
     val timingRecords: Flow<List<PerformanceTimingRecord>> = state
-        .map(PerformanceState::timings)
+        .map { snapshot -> snapshot.timings }
         .distinctUntilChanged()
 
     override fun observeErrors(): Flow<List<String>> = errorRecords.map { records ->
@@ -133,39 +133,35 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
 
     override fun observeTokenUsage(): Flow<TokenUsage> = state.map { snapshot ->
         TokenUsage(
-            input = snapshot.usageRecords.sumOf(ApiUsageRecord::promptTokens),
-            output = snapshot.usageRecords.sumOf(ApiUsageRecord::completionTokens),
-            cached = snapshot.usageRecords.sumOf(ApiUsageRecord::cachedTokens),
+            input = snapshot.usageRecords.sumOf { record -> record.promptTokens },
+            output = snapshot.usageRecords.sumOf { record -> record.completionTokens },
+            cached = snapshot.usageRecords.sumOf { record -> record.cachedTokens },
             model = snapshot.usageRecords.firstOrNull()?.model,
         )
     }.distinctUntilChanged()
 
     override fun observeDurations(): Flow<DurationSummary> = state
-        .map(PerformanceState::durations)
+        .map { snapshot -> snapshot.durations }
         .distinctUntilChanged()
 
     override suspend fun clearErrors() {
-        update { it.copy(errors = emptyList()) }
+        update { current -> current.copy(errors = emptyList()) }
     }
 
     override suspend fun clearCache() {
-        update { it.copy(usageRecords = emptyList()) }
+        update { current -> current.copy(usageRecords = emptyList()) }
     }
 
     suspend fun clearConsole() {
-        update { it.copy(consoleRecords = emptyList()) }
+        update { current -> current.copy(consoleRecords = emptyList()) }
     }
 
     suspend fun clearTimings() {
-        update { it.copy(timings = emptyList()) }
+        update { current -> current.copy(timings = emptyList()) }
     }
 
     suspend fun recordError(message: String) {
-        recordError(
-            source = "系统",
-            title = "",
-            message = message,
-        )
+        recordError(source = "系统", title = "", message = message)
     }
 
     suspend fun recordError(
@@ -203,10 +199,11 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         modelMillis: Long,
         totalMillis: Long,
     ) {
-        val effectiveInput = reportedInputTokens.takeIf { it > 0 } ?: estimatedInputTokens.coerceAtLeast(0)
-        val effectiveOutput = reportedOutputTokens.takeIf { it > 0 } ?: estimatedOutputTokens.coerceAtLeast(0)
+        val effectiveInput = reportedInputTokens.takeIf { value -> value > 0 }
+            ?: estimatedInputTokens.coerceAtLeast(0)
+        val effectiveOutput = reportedOutputTokens.takeIf { value -> value > 0 }
+            ?: estimatedOutputTokens.coerceAtLeast(0)
         val usageSource = ApiUsageSource.fromLabel(source)
-        val estimated = reportedInputTokens <= 0 || reportedOutputTokens <= 0
         val now = System.currentTimeMillis()
         val usage = ApiUsageRecord(
             source = usageSource,
@@ -217,7 +214,7 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
             promptTokens = effectiveInput.toLong(),
             completionTokens = effectiveOutput.toLong(),
             cachedTokens = cachedTokens.coerceAtLeast(0).toLong(),
-            estimated = estimated,
+            estimated = reportedInputTokens <= 0 || reportedOutputTokens <= 0,
         )
         val console = TokenConsoleRecord(
             source = usageSource,
@@ -232,9 +229,21 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
             breakdown = breakdown,
         )
         val timings = listOf(
-            PerformanceTimingRecord(stage = "Prompt", durationMillis = promptMillis.coerceAtLeast(0L), detail = title),
-            PerformanceTimingRecord(stage = "模型请求", durationMillis = modelMillis.coerceAtLeast(0L), detail = model),
-            PerformanceTimingRecord(stage = "总耗时", durationMillis = totalMillis.coerceAtLeast(0L), detail = "$source · $title"),
+            PerformanceTimingRecord(
+                stage = "Prompt",
+                durationMillis = promptMillis.coerceAtLeast(0L),
+                detail = title,
+            ),
+            PerformanceTimingRecord(
+                stage = "模型请求",
+                durationMillis = modelMillis.coerceAtLeast(0L),
+                detail = model,
+            ),
+            PerformanceTimingRecord(
+                stage = "总耗时",
+                durationMillis = totalMillis.coerceAtLeast(0L),
+                detail = "$source · $title",
+            ),
         )
         update { current ->
             current.copy(
@@ -264,8 +273,8 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
     }
 
     fun updateDurations(summary: DurationSummary) {
-        update {
-            it.copy(
+        update { current ->
+            current.copy(
                 durations = summary.copy(
                     studyMinutes = summary.studyMinutes.coerceAtLeast(0),
                     chatMinutes = summary.chatMinutes.coerceAtLeast(0),
@@ -285,16 +294,18 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
 
     private fun load(): PerformanceState {
         val raw = prefs.getString(KEY_STATE, null)
-        return if (raw.isNullOrBlank()) PerformanceState() else runCatching {
-            decode(JSONObject(raw))
-        }.getOrDefault(PerformanceState())
+        return if (raw.isNullOrBlank()) {
+            PerformanceState()
+        } else {
+            runCatching { decode(JSONObject(raw)) }.getOrDefault(PerformanceState())
+        }
     }
 
     private fun encode(value: PerformanceState): JSONObject = JSONObject()
-        .put("errors", JSONArray().apply { value.errors.forEach { put(encodeError(it)) } })
-        .put("usageRecords", JSONArray().apply { value.usageRecords.forEach { put(encodeUsage(it)) } })
-        .put("consoleRecords", JSONArray().apply { value.consoleRecords.forEach { put(encodeConsole(it)) } })
-        .put("timings", JSONArray().apply { value.timings.forEach { put(encodeTiming(it)) } })
+        .put("errors", JSONArray().apply { value.errors.forEach { item -> put(encodeError(item)) } })
+        .put("usageRecords", JSONArray().apply { value.usageRecords.forEach { item -> put(encodeUsage(item)) } })
+        .put("consoleRecords", JSONArray().apply { value.consoleRecords.forEach { item -> put(encodeConsole(item)) } })
+        .put("timings", JSONArray().apply { value.timings.forEach { item -> put(encodeTiming(item)) } })
         .put(
             "durations",
             JSONObject()
@@ -304,10 +315,14 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         )
 
     private fun decode(root: JSONObject): PerformanceState = PerformanceState(
-        errors = root.optJSONArray("errors").decodeObjects(::decodeError).take(ERROR_RECORD_LIMIT),
-        usageRecords = root.optJSONArray("usageRecords").decodeObjects(::decodeUsage).take(API_USAGE_RECORD_LIMIT),
-        consoleRecords = root.optJSONArray("consoleRecords").decodeObjects(::decodeConsole).take(CONSOLE_RECORD_LIMIT),
-        timings = root.optJSONArray("timings").decodeObjects(::decodeTiming).take(TIMING_RECORD_LIMIT),
+        errors = root.optJSONArray("errors").decodeObjects { item -> decodeError(item) }
+            .take(ERROR_RECORD_LIMIT),
+        usageRecords = root.optJSONArray("usageRecords").decodeObjects { item -> decodeUsage(item) }
+            .take(API_USAGE_RECORD_LIMIT),
+        consoleRecords = root.optJSONArray("consoleRecords").decodeObjects { item -> decodeConsole(item) }
+            .take(CONSOLE_RECORD_LIMIT),
+        timings = root.optJSONArray("timings").decodeObjects { item -> decodeTiming(item) }
+            .take(TIMING_RECORD_LIMIT),
         durations = root.optJSONObject("durations")?.let { item ->
             DurationSummary(
                 studyMinutes = item.optInt("studyMinutes").coerceAtLeast(0),
@@ -350,7 +365,8 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
 
     private fun decodeUsage(item: JSONObject): ApiUsageRecord = ApiUsageRecord(
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
-        source = runCatching { ApiUsageSource.valueOf(item.optString("source")) }.getOrDefault(ApiUsageSource.OTHER),
+        source = runCatching { ApiUsageSource.valueOf(item.optString("source")) }
+            .getOrDefault(ApiUsageSource.OTHER),
         title = item.optString("title"),
         model = item.optString("model"),
         provider = item.optString("provider"),
@@ -388,7 +404,8 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
 
     private fun decodeConsole(item: JSONObject): TokenConsoleRecord = TokenConsoleRecord(
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
-        source = runCatching { ApiUsageSource.valueOf(item.optString("source")) }.getOrDefault(ApiUsageSource.OTHER),
+        source = runCatching { ApiUsageSource.valueOf(item.optString("source")) }
+            .getOrDefault(ApiUsageSource.OTHER),
         title = item.optString("title"),
         model = item.optString("model"),
         createdAtMillis = item.optLong("createdAtMillis", System.currentTimeMillis()),
@@ -444,13 +461,15 @@ private fun <T> JSONArray?.decodeObjects(transform: (JSONObject) -> T): List<T> 
     return buildList {
         for (index in 0 until length()) {
             val item = optJSONObject(index) ?: continue
-            runCatching { transform(item) }.getOrNull()?.let(::add)
+            runCatching { transform(item) }.getOrNull()?.let { decoded -> add(decoded) }
         }
     }
 }
 
 private fun JSONObject.nullableString(key: String): String? =
-    takeUnless { isNull(key) }?.optString(key)?.takeIf(String::isNotBlank)
+    takeUnless { json -> json.isNull(key) }
+        ?.optString(key)
+        ?.takeIf { value -> value.isNotBlank() }
 
 private fun JSONObject.nullableLong(key: String): Long? =
-    takeUnless { isNull(key) }?.optLong(key)
+    takeUnless { json -> json.isNull(key) }?.optLong(key)
