@@ -23,6 +23,6 @@ class MainActivity : ComponentActivity() {
         PostgraduateExamStores.initialize(applicationContext)
         StudyFocusSessions.initialize(applicationContext)
         PostgraduateExamStores.main.syncPomodoroClock()
-        setContent { LuluFinalRootApp() }
+        setContent { LuluMigrationRootApp() }
     }
 }
