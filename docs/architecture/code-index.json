@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T17:02:36.468728+00:00",
-  "commit": "780345dbebffa301405dcdeb094b2503da134991",
+  "generatedAt": "2026-07-28T17:03:31.761111+00:00",
+  "commit": "cca06a32d390a0a1a6ad53ad0e91ba71b325e0d9",
   "branch": "main",
-  "sourceFingerprint": "f3b21ea5c5784c8f1029589eae8125f36cf0fd4c42ce498b10832669a585b6ae",
+  "sourceFingerprint": "3d42f32781ec16ef0ee221acbf14f6f32adcc19c48770a29d78b55a9ea2a8aa5",
   "summary": {
     "files": 41,
-    "lines": 10284,
+    "lines": 10423,
     "symbols": 248
   },
   "symbolIndex": {
@@ -1616,8 +1616,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PublicCharacterWorldBookScreen.kt",
-      "lines": 144,
-      "sha256": "28281c5116c43b64294168fcd657e9a62b64dc9ef0c6b166b3e6f012f3c08bd9",
+      "lines": 283,
+      "sha256": "9ba93bf4ba0320e17cab3761c2f0040874c6d3922a1e2ecda5783c0ab726ebcc",
       "symbols": [
         {
           "name": "CharacterWorldBookScreen",
