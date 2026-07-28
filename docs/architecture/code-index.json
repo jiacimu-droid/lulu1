@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T17:19:02.259164+00:00",
-  "commit": "8cbe018a1a8293252412838b555b226685292fea",
+  "generatedAt": "2026-07-28T17:25:20.526847+00:00",
+  "commit": "47b6b50b94cda646919b936cfe0872ac3af0abf1",
   "branch": "main",
-  "sourceFingerprint": "6a1daf310ae3ca456636c8718e5374ef9af64be03cf1c72afe17c9aae466f1cf",
+  "sourceFingerprint": "50024c20d1030c58b1a2f7bcfc34606ac15f2a46681addc0cac53bd5246defd9",
   "summary": {
-    "files": 42,
-    "lines": 11062,
-    "symbols": 256
+    "files": 43,
+    "lines": 11837,
+    "symbols": 262
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -44,6 +44,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluFinalRootApp.kt",
         "line": 656
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
+        "line": 341
       }
     ],
     "LuluRootApp": [
@@ -80,6 +84,36 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MainActivity.kt",
         "line": 12
+      }
+    ],
+    "MigratedChatHubScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
+        "line": 45
+      }
+    ],
+    "MigratedChatDetailScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
+        "line": 267
+      }
+    ],
+    "startGeneration": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
+        "line": 295
+      }
+    ],
+    "retryMessage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
+        "line": 353
+      }
+    ],
+    "stopGeneration": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
+        "line": 358
       }
     ],
     "LuluRepositories": [
@@ -1619,6 +1653,37 @@
         {
           "name": "MainActivity",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
+      "lines": 775,
+      "sha256": "cbf699379bd8284a261b5137111c8c9d1b4a34455515a9989c98146c3ae451f9",
+      "symbols": [
+        {
+          "name": "MigratedChatHubScreen",
+          "line": 45
+        },
+        {
+          "name": "MigratedChatDetailScreen",
+          "line": 267
+        },
+        {
+          "name": "startGeneration",
+          "line": 295
+        },
+        {
+          "name": "sendMessage",
+          "line": 341
+        },
+        {
+          "name": "retryMessage",
+          "line": 353
+        },
+        {
+          "name": "stopGeneration",
+          "line": 358
         }
       ]
     },
