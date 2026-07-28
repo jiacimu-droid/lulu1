@@ -3,6 +3,7 @@ package com.jiacimu.lulu.ai
 import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.TokenBreakdownItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -281,13 +282,15 @@ class CompanionModelGateway(
     private val connectionStore: ModelConnectionStore,
 ) {
     suspend fun fetchModels(baseUrl: String, apiKey: String): Result<List<String>> = withContext(Dispatchers.IO) {
+        val cleanUrl = ModelConnectionStore.normalizeBaseUrl(baseUrl)
+        val cleanKey = apiKey.trim()
+        val requestUrl = "$cleanUrl/models"
+        val startedAt = System.nanoTime()
         runCatching {
-            val cleanUrl = ModelConnectionStore.normalizeBaseUrl(baseUrl)
-            val cleanKey = apiKey.trim()
             check(cleanUrl.isNotBlank()) { "请填写 API 地址" }
             check(cleanKey.isNotBlank()) { "请填写 API 密钥" }
             val json = requestGetJson(
-                url = "$cleanUrl/models",
+                url = requestUrl,
                 headers = mapOf("Authorization" to "Bearer $cleanKey"),
             )
             val arrays = listOfNotNull(json.optJSONArray("data"), json.optJSONArray("models"))
@@ -306,6 +309,14 @@ class CompanionModelGateway(
             }.distinct().sorted()
             check(models.isNotEmpty()) { "接口连接成功，但没有读取到模型列表" }
             models
+        }.onFailure { error ->
+            LuluRepositories.performance.recordError(
+                source = "设置",
+                title = "获取模型",
+                message = error.message ?: error::class.java.simpleName,
+                requestUrl = requestUrl,
+                durationMillis = elapsedMillis(startedAt),
+            )
         }
     }
 
@@ -318,8 +329,12 @@ class CompanionModelGateway(
         temperature: Double = 0.8,
         maxTokens: Int = 500,
     ): Result<ModelReply> = withContext(Dispatchers.IO) {
+        val totalStartedAt = System.nanoTime()
+        var requestUrl: String? = null
         runCatching {
+            val promptStartedAt = System.nanoTime()
             val connection = connectionStore.resolveConnection()
+            requestUrl = "${connection.baseUrl}/chat/completions"
             val character = MigratedDomainStores.characters.get(characterId)
             val memories = LuluRepositories.memory.snapshot(characterId).take(24)
             val lexicon = LuluRepositories.lexicon.snapshot(characterId).take(24)
@@ -330,39 +345,69 @@ class CompanionModelGateway(
                     globalEnabled = entry.globalEnabled,
                 )
             }
-            val systemPrompt = buildString {
+
+            val baseRules = buildString {
                 appendLine("你正在以‘${character.displayName.ifBlank { "角色" }}’的身份参与露露机中的真实活动。")
                 appendLine("角色的人设、关系边界、世界观和语言习惯拥有最高优先级。")
                 appendLine("程序给出的题目、抽卡、计时、骰子、棋局、得分和历史记录都是不可修改的事实。")
                 appendLine("不得默认温柔、亲密、活泼、顺从、吐槽或夸奖；只输出该角色按其人设真正会说的话。")
-                if (character.persona.isNotBlank()) {
-                    appendLine("角色人设：")
-                    appendLine(character.persona)
-                }
-                if (worldBooks.isNotEmpty()) {
-                    appendLine("适用世界书：")
-                    worldBooks.forEach { appendLine("- ${it.title}：${it.content}") }
-                }
-                if (memories.isNotEmpty()) {
-                    appendLine("可用连续记忆（只能按内容本身使用，不得扩写成未发生事实）：")
-                    memories.forEach { appendLine("- ${it.content}") }
-                }
-                if (lexicon.isNotEmpty()) {
-                    appendLine("辞海资料：")
-                    lexicon.forEach { appendLine("- ${it.section.name}/${it.title}：${it.content}") }
-                }
                 appendLine("本次任务：$instruction")
             }.trim()
+            val personaSection = character.persona.takeIf(String::isNotBlank)?.let { "角色人设：\n$it" }.orEmpty()
+            val worldBookSection = if (worldBooks.isEmpty()) "" else buildString {
+                appendLine("适用世界书：")
+                worldBooks.forEach { appendLine("- ${it.title}：${it.content}") }
+            }.trim()
+            val memorySection = if (memories.isEmpty()) "" else buildString {
+                appendLine("可用连续记忆（只能按内容本身使用，不得扩写成未发生事实）：")
+                memories.forEach { appendLine("- ${it.content}") }
+            }.trim()
+            val lexiconSection = if (lexicon.isEmpty()) "" else buildString {
+                appendLine("辞海资料：")
+                lexicon.forEach { appendLine("- ${it.section.name}/${it.title}：${it.content}") }
+            }.trim()
+            val systemPrompt = listOf(baseRules, personaSection, worldBookSection, memorySection, lexiconSection)
+                .filter(String::isNotBlank)
+                .joinToString("\n")
             val userPrompt = "真实事实：\n${facts.trim()}"
+            val breakdown = listOf(
+                tokenBreakdown("系统/角色人设", baseRules.length + personaSection.length),
+                tokenBreakdown("记忆/状态/感知", worldBookSection.length + memorySection.length + lexiconSection.length),
+                tokenBreakdown("工具/MCP说明", 0),
+                tokenBreakdown("用户上下文", userPrompt.length),
+                tokenBreakdown("助手上下文", 0),
+                tokenBreakdown("其他", 0),
+            )
+            val estimatedInputTokens = breakdown.sumOf(TokenBreakdownItem::estimatedTokens)
+            val promptMillis = elapsedMillis(promptStartedAt)
+            val modelStartedAt = System.nanoTime()
             val reply = openAiCompatible(connection, systemPrompt, userPrompt, temperature, maxTokens)
-            LuluRepositories.performance.addTokenUsage(
-                input = reply.inputTokens,
-                output = reply.outputTokens,
-                cached = reply.cachedTokens,
+            val modelMillis = elapsedMillis(modelStartedAt)
+            val totalMillis = elapsedMillis(totalStartedAt)
+            LuluRepositories.performance.recordGeneration(
+                source = source,
+                title = title,
+                model = connection.model,
+                provider = runCatching { URL(connection.baseUrl).host }.getOrDefault(connection.baseUrl),
+                reportedInputTokens = reply.inputTokens,
+                reportedOutputTokens = reply.outputTokens,
+                cachedTokens = reply.cachedTokens,
+                estimatedInputTokens = estimatedInputTokens,
+                estimatedOutputTokens = estimateTokens(reply.text.length),
+                breakdown = breakdown,
+                promptMillis = promptMillis,
+                modelMillis = modelMillis,
+                totalMillis = totalMillis,
             )
             reply
         }.onFailure { error ->
-            LuluRepositories.performance.recordError("$source · $title：${error.message ?: error::class.java.simpleName}")
+            LuluRepositories.performance.recordError(
+                source = source,
+                title = title,
+                message = error.message ?: error::class.java.simpleName,
+                requestUrl = requestUrl,
+                durationMillis = elapsedMillis(totalStartedAt),
+            )
         }
     }
 
@@ -460,6 +505,17 @@ class CompanionModelGateway(
         }
     }
 }
+
+private fun tokenBreakdown(label: String, chars: Int): TokenBreakdownItem = TokenBreakdownItem(
+    label = label,
+    chars = chars.coerceAtLeast(0),
+    estimatedTokens = estimateTokens(chars.coerceAtLeast(0)),
+)
+
+private fun estimateTokens(chars: Int): Int = ((chars / 1.8f) + 0.5f).toInt().coerceAtLeast(0)
+
+private fun elapsedMillis(startedAtNanos: Long): Long =
+    ((System.nanoTime() - startedAtNanos) / 1_000_000L).coerceAtLeast(0L)
 
 object LuluAiServices {
     private var connectionStoreInternal: ModelConnectionStore? = null
