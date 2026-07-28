@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T17:06:30.011661+00:00",
-  "commit": "68c32adeda6a7d16c6aa43d64ac52f4f4db648a7",
+  "generatedAt": "2026-07-28T17:09:10.640951+00:00",
+  "commit": "578154e45f2b6d069bf6a3870a4968ec7779d2be",
   "branch": "main",
-  "sourceFingerprint": "3af3f9dd719b6df3ed5dc23fd8586d53c4d9b965bdd37b00d3218c7bd2978c9b",
+  "sourceFingerprint": "c112c48eb061990ff622435345228c5540a9730932dc2f074696d1bdd7c922f3",
   "summary": {
     "files": 41,
-    "lines": 10492,
-    "symbols": 248
+    "lines": 10501,
+    "symbols": 245
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -99,7 +99,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 98
+        "line": 64
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 183
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
@@ -425,73 +429,45 @@
     "InMemoryMemoryRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 22
+        "line": 21
       }
     ],
     "snapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 40
+        "line": 39
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 80
+        "line": 99
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 153
+        "line": 238
       }
     ],
     "InMemoryLexiconRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 59
+        "line": 60
       }
     ],
     "InMemoryWorldBookRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 94
+        "line": 179
       }
     ],
     "isEnabledForCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 159
+        "line": 244
       }
     ],
     "observeForCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 162
-      }
-    ],
-    "InMemoryPerformanceRepository": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 231
-      }
-    ],
-    "observeOverview": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 241
-      }
-    ],
-    "updateDurations": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 286
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 274
-      }
-    ],
-    "PerformanceOverview": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 303
+        "line": 247
       }
     ],
     "ApiUsageSource": [
@@ -552,6 +528,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
         "line": 105
+      }
+    ],
+    "updateDurations": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
+        "line": 274
       }
     ],
     "LuluChatMessage": [
@@ -1825,60 +1807,48 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-      "lines": 310,
-      "sha256": "d679a7effd1038093229450257978b2f1efd787120c4d894c6a5684e3f6c6b0a",
+      "lines": 319,
+      "sha256": "cb77190df86fc42bc6f159b6ca075e7579afbb6a25bbe28b24a7758d68a2d1d0",
       "symbols": [
         {
           "name": "InMemoryMemoryRepository",
-          "line": 22
+          "line": 21
         },
         {
           "name": "snapshot",
-          "line": 40
+          "line": 39
         },
         {
           "name": "InMemoryLexiconRepository",
-          "line": 59
-        },
-        {
-          "name": "snapshot",
-          "line": 80
-        },
-        {
-          "name": "InMemoryWorldBookRepository",
-          "line": 94
+          "line": 60
         },
         {
           "name": "initialize",
-          "line": 98
+          "line": 64
         },
         {
           "name": "snapshot",
-          "line": 153
+          "line": 99
+        },
+        {
+          "name": "InMemoryWorldBookRepository",
+          "line": 179
+        },
+        {
+          "name": "initialize",
+          "line": 183
+        },
+        {
+          "name": "snapshot",
+          "line": 238
         },
         {
           "name": "isEnabledForCharacter",
-          "line": 159
+          "line": 244
         },
         {
           "name": "observeForCharacter",
-          "line": 162
-        },
-        {
-          "name": "InMemoryPerformanceRepository",
-          "line": 231
-        },
-        {
-          "name": "observeOverview",
-          "line": 241
-        },
-        {
-          "name": "updateDurations",
-          "line": 286
-        },
-        {
-          "name": "PerformanceOverview",
-          "line": 303
+          "line": 247
         }
       ]
     },
