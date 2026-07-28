@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T17:30:16.920745+00:00",
-  "commit": "2b897110ee02f71b849ba66a4c22959e1ac0dcfd",
+  "generatedAt": "2026-07-28T17:34:31.266109+00:00",
+  "commit": "f0cd3ee31ab0bde6e97a9a676c199d87017a50e9",
   "branch": "main",
-  "sourceFingerprint": "3cfeee0b50cc1ce5a98671b63c022294e3f631035c2f378df2c33a66e1b3f565",
+  "sourceFingerprint": "539464794d4c6861e35380186a832da6ead8543e481b3d3cbf4728563fc0ebcf",
   "summary": {
-    "files": 43,
-    "lines": 11461,
-    "symbols": 261
+    "files": 44,
+    "lines": 11887,
+    "symbols": 266
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -134,6 +134,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
         "line": 183
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
+        "line": 33
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -484,6 +488,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
         "line": 238
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
+        "line": 163
       }
     ],
     "InMemoryLexiconRepository": [
@@ -508,6 +516,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
         "line": 247
+      }
+    ],
+    "LocalMemoryRepository": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
+        "line": 24
+      }
+    ],
+    "pendingMessageCount": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
+        "line": 215
+      }
+    ],
+    "MemoryDebugState": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
+        "line": 392
       }
     ],
     "ApiUsageSource": [
@@ -1966,6 +1992,33 @@
         {
           "name": "observeForCharacter",
           "line": 247
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
+      "lines": 426,
+      "sha256": "561cbbc3d19fd1ca1c44beb6dfd69920e3fcf819bb564700437afdfff226741d",
+      "symbols": [
+        {
+          "name": "LocalMemoryRepository",
+          "line": 24
+        },
+        {
+          "name": "initialize",
+          "line": 33
+        },
+        {
+          "name": "snapshot",
+          "line": 163
+        },
+        {
+          "name": "pendingMessageCount",
+          "line": 215
+        },
+        {
+          "name": "MemoryDebugState",
+          "line": 392
         }
       ]
     },
