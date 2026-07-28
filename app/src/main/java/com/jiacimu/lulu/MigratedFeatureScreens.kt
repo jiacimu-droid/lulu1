@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,17 +16,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jiacimu.lulu.core.DurationSummary
 import com.jiacimu.lulu.core.LexiconEntry
 import com.jiacimu.lulu.core.LexiconSection
 import com.jiacimu.lulu.core.MemoryPolicy
 import com.jiacimu.lulu.core.PromiseKind
-import com.jiacimu.lulu.core.TokenUsage
 import com.jiacimu.lulu.core.WorldBookEntry
 import com.jiacimu.lulu.data.InMemoryLexiconRepository
 import com.jiacimu.lulu.data.InMemoryMemoryRepository
-import com.jiacimu.lulu.data.InMemoryPerformanceRepository
 import com.jiacimu.lulu.data.InMemoryWorldBookRepository
+import com.jiacimu.lulu.data.LocalPerformanceRepository
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.util.UUID
@@ -39,7 +38,15 @@ object LuluRepositories {
     val memory = InMemoryMemoryRepository()
     val lexicon = InMemoryLexiconRepository()
     val worldBook = InMemoryWorldBookRepository()
-    val performance = InMemoryPerformanceRepository()
+
+    private var performanceInternal: LocalPerformanceRepository? = null
+    val performance: LocalPerformanceRepository
+        get() = checkNotNull(performanceInternal) { "LuluRepositories 尚未初始化" }
+
+    fun initialize(context: Context) {
+        if (performanceInternal != null) return
+        performanceInternal = LocalPerformanceRepository(context.applicationContext)
+    }
 }
 
 @Composable
@@ -243,51 +250,9 @@ fun WorldBookFeatureScreen(onBack: () -> Unit) {
     }
 }
 
-@Composable
-fun PerformanceFeatureScreen(onBack: () -> Unit) {
-    val scope = rememberCoroutineScope()
-    val errors by LuluRepositories.performance.observeErrors().collectAsState(initial = emptyList())
-    val usage by LuluRepositories.performance.observeTokenUsage().collectAsState(initial = TokenUsage(0, 0))
-    val durations by LuluRepositories.performance.observeDurations().collectAsState(initial = DurationSummary(0, 0, 0))
-    var selected by remember { mutableIntStateOf(0) }
-    val tabs = listOf("报错日志", "缓存", "控制台", "时长监测")
-
-    Scaffold(containerColor = FeaturePaper, topBar = { FeatureTopBar("性能监测", onBack) }) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding)) {
-            TabRow(selectedTabIndex = selected, containerColor = FeatureCard) {
-                tabs.forEachIndexed { index, label -> Tab(selected == index, { selected = index }, text = { Text(label) }) }
-            }
-            when (selected) {
-                0 -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    item {
-                        TextButton(onClick = { scope.launch { LuluRepositories.performance.clearErrors() } }) {
-                            Text("清空报错日志")
-                        }
-                    }
-                    if (errors.isEmpty()) item { FeatureEmpty("报错日志", "暂无新的报错记录。") }
-                    else items(errors) { error -> FeatureCardBox { Text(error) } }
-                }
-                1 -> FeatureEmpty("缓存", "缓存清理入口已经连接数据层，后续接入真实图片、模型和临时文件缓存。")
-                2 -> FeatureCardBox(Modifier.padding(16.dp)) {
-                    Text("输入 Token：${usage.input}")
-                    Text("输出 Token：${usage.output}")
-                    Text("缓存 Token：${usage.cached}")
-                    Text("模型：${usage.model ?: "暂无调用"}", color = FeatureBlueGray)
-                }
-                else -> FeatureCardBox(Modifier.padding(16.dp)) {
-                    Text("今日学习：${durations.studyMinutes} 分钟")
-                    Text("今日聊天：${durations.chatMinutes} 分钟")
-                    Text("今日通话：${durations.callMinutes} 分钟")
-                    Text("这些时长会继续提供给角色读取。", color = FeatureBlueGray)
-                }
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun FeatureTopBar(title: String, onBack: () -> Unit) {
+internal fun FeatureTopBar(title: String, onBack: () -> Unit) {
     TopAppBar(
         title = { Text(title, fontWeight = FontWeight.SemiBold) },
         navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
@@ -296,7 +261,7 @@ private fun FeatureTopBar(title: String, onBack: () -> Unit) {
 }
 
 @Composable
-private fun FeatureCardBox(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+internal fun FeatureCardBox(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = FeatureCard),
@@ -311,7 +276,7 @@ private fun FeatureCardBox(modifier: Modifier = Modifier, content: @Composable (
 }
 
 @Composable
-private fun FeatureEmpty(title: String, text: String) {
+internal fun FeatureEmpty(title: String, text: String) {
     FeatureCardBox {
         Text(title, fontWeight = FontWeight.Bold, fontSize = 19.sp)
         Text(text, color = FeatureBlueGray)
