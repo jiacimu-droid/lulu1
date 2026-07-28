@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T17:09:28.613209+00:00",
-  "commit": "493f9c891bb5ead93df39c46047d6b9d626d4fb1",
+  "generatedAt": "2026-07-28T17:10:58.134481+00:00",
+  "commit": "bc94220ffa7bbf8bb02b166a9d2ef2d0b06c160c",
   "branch": "main",
-  "sourceFingerprint": "1e9c548a5516f12b32f398f24ef4d6dfaf4a82541464f180447999da468657c5",
+  "sourceFingerprint": "9cecca13cc020ed90b42d789700d2c785c0dd4f0f85eeb42cb0747c4ce0cde69",
   "summary": {
     "files": 41,
-    "lines": 10502,
-    "symbols": 245
+    "lines": 10591,
+    "symbols": 244
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -85,13 +85,13 @@
     "LuluRepositories": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 36
+        "line": 37
       }
     ],
     "initialize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 45
+        "line": 46
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
@@ -121,19 +121,13 @@
     "MemoryFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 53
+        "line": 54
       }
     ],
     "LexiconFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 113
-      }
-    ],
-    "WorldBookFeatureScreen": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 190
+        "line": 129
       }
     ],
     "PerformanceFeatureScreen": [
@@ -1560,28 +1554,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-      "lines": 285,
-      "sha256": "da0c7418d887f554ed380fa02c33001d75ad8992e541eb514a1470e724e142e2",
+      "lines": 374,
+      "sha256": "8db77f64ed6761d1a428ea4db97abf59ba3699789b7e8c616ab828a8c7f0eb2a",
       "symbols": [
         {
           "name": "LuluRepositories",
-          "line": 36
+          "line": 37
         },
         {
           "name": "initialize",
-          "line": 45
+          "line": 46
         },
         {
           "name": "MemoryFeatureScreen",
-          "line": 53
+          "line": 54
         },
         {
           "name": "LexiconFeatureScreen",
-          "line": 113
-        },
-        {
-          "name": "WorldBookFeatureScreen",
-          "line": 190
+          "line": 129
         }
       ]
     },
