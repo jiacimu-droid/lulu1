@@ -338,12 +338,12 @@ class CompanionModelGateway(
             val character = MigratedDomainStores.characters.get(characterId)
             val memories = LuluRepositories.memory.snapshot(characterId).take(24)
             val lexicon = LuluRepositories.lexicon.snapshot(characterId).take(24)
-            val worldBooks = LuluRepositories.worldBook.snapshot().filter { entry ->
-                MigratedDomainStores.worldBookRules.isEnabled(
-                    worldBookId = entry.id,
-                    characterId = characterId,
-                    globalEnabled = entry.globalEnabled,
-                )
+            val allWorldBooks = LuluRepositories.worldBook.snapshot()
+            val globalWorldBooks = allWorldBooks.filter { entry ->
+                entry.globalEnabled && entry.characterOverrides[characterId] != false
+            }
+            val roleWorldBooks = allWorldBooks.filter { entry ->
+                !entry.globalEnabled && entry.characterOverrides[characterId] == true
             }
 
             val baseRules = buildString {
@@ -354,9 +354,13 @@ class CompanionModelGateway(
                 appendLine("本次任务：$instruction")
             }.trim()
             val personaSection = character.persona.takeIf(String::isNotBlank)?.let { "角色人设：\n$it" }.orEmpty()
-            val worldBookSection = if (worldBooks.isEmpty()) "" else buildString {
-                appendLine("适用世界书：")
-                worldBooks.forEach { appendLine("- ${it.title}：${it.content}") }
+            val globalWorldBookSection = if (globalWorldBooks.isEmpty()) "" else buildString {
+                appendLine("全局世界书：")
+                globalWorldBooks.forEach { entry -> appendLine("- ${entry.title}：${entry.content}") }
+            }.trim()
+            val roleWorldBookSection = if (roleWorldBooks.isEmpty()) "" else buildString {
+                appendLine("角色世界书：")
+                roleWorldBooks.forEach { entry -> appendLine("- ${entry.title}：${entry.content}") }
             }.trim()
             val memorySection = if (memories.isEmpty()) "" else buildString {
                 appendLine("可用连续记忆（只能按内容本身使用，不得扩写成未发生事实）：")
@@ -366,19 +370,31 @@ class CompanionModelGateway(
                 appendLine("辞海资料：")
                 lexicon.forEach { appendLine("- ${it.section.name}/${it.title}：${it.content}") }
             }.trim()
-            val systemPrompt = listOf(baseRules, personaSection, worldBookSection, memorySection, lexiconSection)
-                .filter(String::isNotBlank)
-                .joinToString("\n")
+            val systemPrompt = listOf(
+                baseRules,
+                personaSection,
+                globalWorldBookSection,
+                roleWorldBookSection,
+                memorySection,
+                lexiconSection,
+            ).filter(String::isNotBlank).joinToString("\n\n")
+            val fixedEstimatedTokens = estimateTokens(systemPrompt.length)
+            check(fixedEstimatedTokens <= CHAT_FIXED_CONTEXT_TOKEN_LIMIT) {
+                "当前角色的固定人设和世界书约需 $fixedEstimatedTokens tokens，超过聊天安全预算 $CHAT_FIXED_CONTEXT_TOKEN_LIMIT；不会静默裁剪，请缩短固定设定或减少启用的世界书。"
+            }
             val userPrompt = "真实事实：\n${facts.trim()}"
             val breakdown = listOf(
                 tokenBreakdown("系统/角色人设", baseRules.length + personaSection.length),
-                tokenBreakdown("记忆/状态/感知", worldBookSection.length + memorySection.length + lexiconSection.length),
+                tokenBreakdown(
+                    "记忆/状态/感知",
+                    globalWorldBookSection.length + roleWorldBookSection.length + memorySection.length + lexiconSection.length,
+                ),
                 tokenBreakdown("工具/MCP说明", 0),
                 tokenBreakdown("用户上下文", userPrompt.length),
                 tokenBreakdown("助手上下文", 0),
                 tokenBreakdown("其他", 0),
             )
-            val estimatedInputTokens = breakdown.sumOf(TokenBreakdownItem::estimatedTokens)
+            val estimatedInputTokens = breakdown.sumOf { item -> item.estimatedTokens }
             val promptMillis = elapsedMillis(promptStartedAt)
             val modelStartedAt = System.nanoTime()
             val reply = openAiCompatible(connection, systemPrompt, userPrompt, temperature, maxTokens)
@@ -516,6 +532,8 @@ private fun estimateTokens(chars: Int): Int = ((chars / 1.8f) + 0.5f).toInt().co
 
 private fun elapsedMillis(startedAtNanos: Long): Long =
     ((System.nanoTime() - startedAtNanos) / 1_000_000L).coerceAtLeast(0L)
+
+private const val CHAT_FIXED_CONTEXT_TOKEN_LIMIT = 18_000
 
 object LuluAiServices {
     private var connectionStoreInternal: ModelConnectionStore? = null
