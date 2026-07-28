@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T17:25:20.526847+00:00",
-  "commit": "47b6b50b94cda646919b936cfe0872ac3af0abf1",
+  "generatedAt": "2026-07-28T17:27:10.528574+00:00",
+  "commit": "29d42598cd45f16d8040ec8603b0e0faddeafc2d",
   "branch": "main",
-  "sourceFingerprint": "50024c20d1030c58b1a2f7bcfc34606ac15f2a46681addc0cac53bd5246defd9",
+  "sourceFingerprint": "4cdbc7c64d3d7008948df19622edcf9964a9a2e4cdc045d11749e55bbcc9cddd",
   "summary": {
-    "files": 43,
-    "lines": 11837,
-    "symbols": 262
+    "files": 44,
+    "lines": 12371,
+    "symbols": 263
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -48,6 +48,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
         "line": 341
+      }
+    ],
+    "LuluMigrationRootApp": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootApp.kt",
+        "line": 89
       }
     ],
     "LuluRootApp": [
@@ -1608,6 +1614,17 @@
         {
           "name": "sendMessage",
           "line": 656
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootApp.kt",
+      "lines": 534,
+      "sha256": "883a31bc3a8a315a8fa72411361f80ae056e6e1971fde16448af85a8fcd5c200",
+      "symbols": [
+        {
+          "name": "LuluMigrationRootApp",
+          "line": 89
         }
       ]
     },
