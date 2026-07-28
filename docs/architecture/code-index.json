@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T18:12:46.789070+00:00",
-  "commit": "a27c1ba5a78130bdefe83a90620475eb444bed40",
+  "generatedAt": "2026-07-28T18:13:58.565603+00:00",
+  "commit": "dc7d946a2e2a82b08951b96162acca3acc654445",
   "branch": "main",
-  "sourceFingerprint": "1f9b273f18d3855fb58da517bd8e245dcf887fe150a0d6a2b9bd46871922a601",
+  "sourceFingerprint": "6c124c7b4e407bc0b1e63adb105fd51b4536e19d77111f8071edf6c516543210",
   "summary": {
-    "files": 57,
-    "lines": 14013,
-    "symbols": 297
+    "files": 58,
+    "lines": 14080,
+    "symbols": 299
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -132,6 +132,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
         "line": 547
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
+        "line": 26
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
@@ -496,6 +500,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
         "line": 121
+      }
+    ],
+    "ChatMemoryAutomation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
+        "line": 19
       }
     ],
     "InMemoryMemoryRepository": [
@@ -2137,6 +2147,21 @@
         {
           "name": "observeDurations",
           "line": 121
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
+      "lines": 67,
+      "sha256": "377efabc496a7a5ee844726e14d9e869cdbf43388c1d52106d6a60277878b03a",
+      "symbols": [
+        {
+          "name": "ChatMemoryAutomation",
+          "line": 19
+        },
+        {
+          "name": "initialize",
+          "line": 26
         }
       ]
     },
