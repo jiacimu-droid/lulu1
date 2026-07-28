@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T18:03:49.438521+00:00",
-  "commit": "64a4915d63caa6370fb11708ea54ec4a59bd2e0a",
+  "generatedAt": "2026-07-28T18:04:19.319689+00:00",
+  "commit": "08c35fbc5cb04c9a133f2dfc02cbee95b932e09e",
   "branch": "main",
-  "sourceFingerprint": "86295298753cf4b5f09635f5f48c4ee92946d178d761fab685947c7b5a3d4d0b",
+  "sourceFingerprint": "def700a7e94c2adb4c83848dfcf878d8cb670d2b311c56f353c79c37c5a36747",
   "summary": {
-    "files": 50,
-    "lines": 13293,
+    "files": 51,
+    "lines": 13447,
     "symbols": 293
   },
   "symbolIndex": {
@@ -2916,6 +2916,12 @@
           "line": 23
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishScrollPanel.kt",
+      "lines": 154,
+      "sha256": "f44cbc0a67c22b9ecca5e63cb26d16482d6edbd887d992f0ac91725a840dd48b",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCompanionToday.kt",
