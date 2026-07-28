@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T18:13:58.565603+00:00",
-  "commit": "dc7d946a2e2a82b08951b96162acca3acc654445",
+  "generatedAt": "2026-07-28T18:14:21.366483+00:00",
+  "commit": "9fa2ed6488192150750274ff0bf910718b0a3cfc",
   "branch": "main",
-  "sourceFingerprint": "6c124c7b4e407bc0b1e63adb105fd51b4536e19d77111f8071edf6c516543210",
+  "sourceFingerprint": "be4a37259b45696ff8392adbbaf3882ace88bd89eaf12840d68ab36437c0d181",
   "summary": {
-    "files": 58,
-    "lines": 14080,
-    "symbols": 299
+    "files": 60,
+    "lines": 14135,
+    "symbols": 300
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -198,6 +198,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
         "line": 13
+      }
+    ],
+    "MigrationInitProvider": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigrationInitProvider.kt",
+        "line": 12
       }
     ],
     "PerformanceFeatureScreen": [
@@ -1745,6 +1751,12 @@
       "symbols": []
     },
     {
+      "path": "app/src/debug/AndroidManifest.xml",
+      "lines": 10,
+      "sha256": "785c79eb05a20d8ba805f32b1077f1088ac2c2e000fcd4b11f1e879a253cdcaa",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/AndroidManifest.xml",
       "lines": 23,
       "sha256": "49efb02ca9c6272d45cafa4a4727f824d441dc3a1b492b58475b8c877c453dde",
@@ -1929,6 +1941,17 @@
       "lines": 469,
       "sha256": "edab306d7680a24bacf401b41ab8ac521c52317ce9a3b9d5c69bf6e441b4d0c9",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/MigrationInitProvider.kt",
+      "lines": 45,
+      "sha256": "3fb65e36ff0f09a32f9069b85586f92daa230eb78c7b24435dd2ec025c2ea1e3",
+      "symbols": [
+        {
+          "name": "MigrationInitProvider",
+          "line": 12
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt",

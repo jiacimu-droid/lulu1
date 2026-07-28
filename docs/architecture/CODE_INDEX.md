@@ -1,14 +1,15 @@
 # Lulu1 代码索引
 
-- 基准提交：`dc7d946a2e2a82b08951b96162acca3acc654445`
+- 基准提交：`9fa2ed6488192150750274ff0bf910718b0a3cfc`
 - 分支：`main`
-- 已索引文件：58
-- 已索引代码/文本行：14080
-- 已发现符号：299
+- 已索引文件：60
+- 已索引代码/文本行：14135
+- 已发现符号：300
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 55 | 0 |
+| `app/src/debug/AndroidManifest.xml` | 10 | 0 |
 | `app/src/main/AndroidManifest.xml` | 23 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreen.kt` | 232 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
@@ -23,6 +24,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 698 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 31 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreen.kt` | 469 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationInitProvider.kt` | 45 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PublicCharacterWorldBookScreen.kt` | 283 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 554 | 18 |
