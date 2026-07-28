@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T13:33:20.037120+00:00",
-  "commit": "7367f8c9304259fd759e9d932ac1c1c4c08f3430",
+  "generatedAt": "2026-07-28T16:46:40.641500+00:00",
+  "commit": "f8397d83756ed2d1bdb9f0ad751f0b05d4241c38",
   "branch": "main",
-  "sourceFingerprint": "24a0c4f406c781a7e089aab55caf6002bdbee008094dca5464849462e3f3d64f",
+  "sourceFingerprint": "61fa63662c125fa91c6732cda2e27839fbcc736c00d3fee60c7c084315433d65",
   "summary": {
-    "files": 39,
-    "lines": 9121,
-    "symbols": 234
+    "files": 40,
+    "lines": 9578,
+    "symbols": 245
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -468,12 +468,76 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
         "line": 166
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
+        "line": 265
       }
     ],
     "PerformanceOverview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
         "line": 183
+      }
+    ],
+    "ApiUsageSource": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
+        "line": 14
+      }
+    ],
+    "fromLabel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
+        "line": 22
+      }
+    ],
+    "ApiUsageRecord": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
+        "line": 30
+      }
+    ],
+    "ApiUsageSummary": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
+        "line": 43
+      }
+    ],
+    "TokenBreakdownItem": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
+        "line": 54
+      }
+    ],
+    "TokenConsoleRecord": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
+        "line": 60
+      }
+    ],
+    "PerformanceTimingRecord": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
+        "line": 74
+      }
+    ],
+    "PerformanceErrorRecord": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
+        "line": 82
+      }
+    ],
+    "List": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
+        "line": 92
+      }
+    ],
+    "LocalPerformanceRepository": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
+        "line": 105
       }
     ],
     "LuluChatMessage": [
@@ -1782,6 +1846,57 @@
         {
           "name": "PerformanceOverview",
           "line": 183
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
+      "lines": 457,
+      "sha256": "e05fd6226fdab382e30faa9ca97fa8e5e86085288db7ac794e53943c4a334a94",
+      "symbols": [
+        {
+          "name": "ApiUsageSource",
+          "line": 14
+        },
+        {
+          "name": "fromLabel",
+          "line": 22
+        },
+        {
+          "name": "ApiUsageRecord",
+          "line": 30
+        },
+        {
+          "name": "ApiUsageSummary",
+          "line": 43
+        },
+        {
+          "name": "TokenBreakdownItem",
+          "line": 54
+        },
+        {
+          "name": "TokenConsoleRecord",
+          "line": 60
+        },
+        {
+          "name": "PerformanceTimingRecord",
+          "line": 74
+        },
+        {
+          "name": "PerformanceErrorRecord",
+          "line": 82
+        },
+        {
+          "name": "List",
+          "line": 92
+        },
+        {
+          "name": "LocalPerformanceRepository",
+          "line": 105
+        },
+        {
+          "name": "updateDurations",
+          "line": 265
         }
       ]
     },
