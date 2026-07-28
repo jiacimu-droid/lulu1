@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f61c5ac21686105d69e05a46c6c8a9bbfef621df`
+- 基准提交：`780345dbebffa301405dcdeb094b2503da134991`
 - 分支：`main`
 - 已索引文件：41
-- 已索引代码/文本行：10283
+- 已索引代码/文本行：10284
 - 已发现符号：248
 
 | 文件 | 行数 | 符号数 |
@@ -15,7 +15,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluFinalRootApp.kt` | 786 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluRootApp.kt` | 455 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 449 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/MainActivity.kt` | 25 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MainActivity.kt` | 26 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 285 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PublicCharacterWorldBookScreen.kt` | 144 | 1 |
