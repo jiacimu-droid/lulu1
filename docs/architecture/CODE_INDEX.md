@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`50e8c201772fea8832ede9c85359a4af65b4ae34`
+- 基准提交：`3e20eb05c24ef721e129abe5e38dff682795584a`
 - 分支：`main`
-- 已索引文件：52
-- 已索引代码/文本行：13647
+- 已索引文件：53
+- 已索引代码/文本行：13796
 - 已发现符号：293
 
 | 文件 | 行数 | 符号数 |
@@ -43,6 +43,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishInventoryBridge.kt` | 49 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishScrollPanel.kt` | 154 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPanel.kt` | 200 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/StarWishVideoPanel.kt` | 149 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyCompanionToday.kt` | 510 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDailyContext.kt` | 73 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt` | 241 | 25 |

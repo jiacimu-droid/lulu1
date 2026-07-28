@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T18:06:02.769989+00:00",
-  "commit": "50e8c201772fea8832ede9c85359a4af65b4ae34",
+  "generatedAt": "2026-07-28T18:06:25.749912+00:00",
+  "commit": "3e20eb05c24ef721e129abe5e38dff682795584a",
   "branch": "main",
-  "sourceFingerprint": "710ba91f59bc31c6f8de81454d05ddeb576e660c67496e4d05dea684886994c7",
+  "sourceFingerprint": "36c352dfa42ee39817e020fd9eb482d32356eb86374078d84f4351781709ee55",
   "summary": {
-    "files": 52,
-    "lines": 13647,
+    "files": 53,
+    "lines": 13796,
     "symbols": 293
   },
   "symbolIndex": {
@@ -2927,6 +2927,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPanel.kt",
       "lines": 200,
       "sha256": "15ba193a2eb0153fe5567bfe00e2b58dce502aa334a7c67258b2edb2ed799624",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishVideoPanel.kt",
+      "lines": 149,
+      "sha256": "ba6aaacb56bc1161c2e67683e169f7825af22e5314bc78acaafcbfbb87d25c63",
       "symbols": []
     },
     {
