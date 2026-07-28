@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T16:46:40.641500+00:00",
-  "commit": "f8397d83756ed2d1bdb9f0ad751f0b05d4241c38",
+  "generatedAt": "2026-07-28T16:47:44.334474+00:00",
+  "commit": "f58a87abab88074791414aa229caba26dbb96382",
   "branch": "main",
-  "sourceFingerprint": "61fa63662c125fa91c6732cda2e27839fbcc736c00d3fee60c7c084315433d65",
+  "sourceFingerprint": "e0d22ba89146c796e7f5fd2fabdec832b6f05d012da32393acd4d8eabf5f201c",
   "summary": {
     "files": 40,
-    "lines": 9578,
+    "lines": 9543,
     "symbols": 245
   },
   "symbolIndex": {
@@ -85,31 +85,47 @@
     "LuluRepositories": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 37
+        "line": 36
+      }
+    ],
+    "initialize": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
+        "line": 45
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
+        "line": 473
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
+        "line": 322
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 685
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 59
       }
     ],
     "MemoryFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 46
+        "line": 53
       }
     ],
     "LexiconFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 106
+        "line": 113
       }
     ],
     "WorldBookFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 183
-      }
-    ],
-    "PerformanceFeatureScreen": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 247
+        "line": 190
       }
     ],
     "CharacterWorldBookScreen": [
@@ -222,24 +238,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
         "line": 463
-      }
-    ],
-    "initialize": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 473
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 322
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 685
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 59
       }
     ],
     "CharacterSummary": [
@@ -1564,28 +1562,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-      "lines": 320,
-      "sha256": "a661a9a904ec32b23c5cfc3bd41eb5db73a485b83def094d58f02d2edf61047e",
+      "lines": 285,
+      "sha256": "da0c7418d887f554ed380fa02c33001d75ad8992e541eb514a1470e724e142e2",
       "symbols": [
         {
           "name": "LuluRepositories",
-          "line": 37
+          "line": 36
+        },
+        {
+          "name": "initialize",
+          "line": 45
         },
         {
           "name": "MemoryFeatureScreen",
-          "line": 46
+          "line": 53
         },
         {
           "name": "LexiconFeatureScreen",
-          "line": 106
+          "line": 113
         },
         {
           "name": "WorldBookFeatureScreen",
-          "line": 183
-        },
-        {
-          "name": "PerformanceFeatureScreen",
-          "line": 247
+          "line": 190
         }
       ]
     },
