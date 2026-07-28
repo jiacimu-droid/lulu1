@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -104,18 +105,27 @@ fun LuluFinalRootApp() {
                     onBack = { route = FinalRoute.Home },
                     onOpenConversation = { route = FinalRoute.ChatDetail },
                     onCharacterSettings = { route = FinalRoute.CharacterSettings },
+                    onWorldBook = { route = FinalRoute.WorldBook },
                 )
                 FinalRoute.ChatDetail -> FinalChatDetail { route = FinalRoute.Chat }
                 FinalRoute.CharacterSettings -> CharacterSettingsScreen { route = FinalRoute.Chat }
                 FinalRoute.Memory -> MemoryFeatureScreen { route = FinalRoute.Home }
                 FinalRoute.Lexicon -> LexiconFeatureScreen { route = FinalRoute.Home }
-                FinalRoute.WorldBook -> CharacterWorldBookScreen { route = FinalRoute.Home }
+                FinalRoute.WorldBook -> CharacterWorldBookScreen {
+                    route = if (route == FinalRoute.WorldBook) FinalRoute.Home else FinalRoute.Chat
+                }
                 FinalRoute.Performance -> PerformanceFeatureScreen { route = FinalRoute.Home }
                 FinalRoute.Study -> PostgraduateExamApp { route = FinalRoute.Home }
                 FinalRoute.Games -> LuluGamesApp { route = FinalRoute.Home }
                 FinalRoute.Settings -> LuluSettingsScreen { route = FinalRoute.Home }
-                FinalRoute.Reading -> FinalEmpty("阅读", "阅读空间已保留，下一整块迁移时接入书架、阅读器与笔记。") { route = FinalRoute.Home }
-                FinalRoute.Wishes -> FinalEmpty("心愿馆", "心愿馆已保留，下一整块迁移时接入愿望、进度与角色回应。") { route = FinalRoute.Home }
+                FinalRoute.Reading -> FinalEmpty(
+                    "阅读",
+                    "阅读入口按迁移计划保留为空，不迁入旧阅读内容。",
+                ) { route = FinalRoute.Home }
+                FinalRoute.Wishes -> FinalEmpty(
+                    "心愿馆",
+                    "心愿馆仍在计划内，功能和数据依赖尚未完成迁移。",
+                ) { route = FinalRoute.Home }
             }
         }
     }
@@ -472,44 +482,153 @@ private fun FinalChatHub(
     onBack: () -> Unit,
     onOpenConversation: () -> Unit,
     onCharacterSettings: () -> Unit,
+    onWorldBook: () -> Unit,
 ) {
-    val conversations by MigratedDomainStores.chat.conversations.collectAsState()
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+    val labels = listOf("消息", "角色", "朋友圈", "我的")
+    val icons = listOf(
+        Icons.Outlined.ChatBubbleOutline,
+        Icons.Outlined.PeopleOutline,
+        Icons.Outlined.DynamicFeed,
+        Icons.Outlined.PersonOutline,
+    )
+
     Scaffold(
         containerColor = FinalPaper,
         topBar = { FinalTopBar("聊天", onBack) },
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            item {
-                FinalCardBox(Modifier.clickable(onClick = onCharacterSettings)) {
-                    Text("角色设置", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text("主动联系、来电、勿扰、世界书与角色设定。", color = FinalMuted)
+        bottomBar = {
+            NavigationBar(containerColor = Color(0xFFFFFBF3)) {
+                labels.forEachIndexed { index, label ->
+                    NavigationBarItem(
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                        icon = { Icon(icons[index], label) },
+                        label = { Text(label) },
+                    )
                 }
             }
-            items(conversations, key = { it.id }) { conversation ->
-                FinalCardBox(
-                    Modifier.clickable {
+        },
+    ) { padding ->
+        Box(Modifier.fillMaxSize().padding(padding)) {
+            when (selectedTab) {
+                0 -> FinalConversationList(onOpenConversation)
+                1 -> FinalCharacterTab(onCharacterSettings, onWorldBook)
+                2 -> MomentsPlaceholderScreen()
+                else -> MyProfileScreen()
+            }
+        }
+    }
+}
+
+@Composable
+private fun FinalConversationList(onOpenConversation: () -> Unit) {
+    val conversations by MigratedDomainStores.chat.conversations.collectAsState()
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        items(conversations, key = { conversation -> conversation.id }) { conversation ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
                         MigratedDomainStores.chat.markConversationRead(conversation.id)
                         onOpenConversation()
                     },
+                colors = CardDefaults.cardColors(containerColor = FinalCard),
+                border = BorderStroke(1.dp, FinalBorder),
+                shape = RoundedCornerShape(22.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Surface(shape = CircleShape, color = Color(0xFFFFE2D7), modifier = Modifier.size(48.dp)) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text("露", fontWeight = FontWeight.Bold, color = FinalInk)
-                            }
+                    Surface(shape = CircleShape, color = Color(0xFFFFE2D7), modifier = Modifier.size(52.dp)) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(conversation.title.take(1).ifBlank { "露" }, fontWeight = FontWeight.Bold)
                         }
-                        Spacer(Modifier.width(12.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(conversation.title, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                            Text(conversation.lastMessage, color = FinalMuted, maxLines = 1)
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(conversation.title, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                            Text(
+                                conversation.updatedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm")),
+                                color = FinalMuted,
+                                fontSize = 11.sp,
+                            )
                         }
-                        Icon(Icons.Outlined.ChevronRight, null, tint = FinalMuted)
+                        Spacer(Modifier.height(3.dp))
+                        Text(
+                            conversation.lastMessage,
+                            color = FinalMuted,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    if (conversation.unreadCount > 0) {
+                        Spacer(Modifier.width(8.dp))
+                        Badge { Text(conversation.unreadCount.toString()) }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FinalCharacterTab(
+    onCharacterSettings: () -> Unit,
+    onWorldBook: () -> Unit,
+) {
+    val characters by MigratedDomainStores.characters.settings.collectAsState()
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        items(characters.values.toList(), key = { character -> character.characterId }) { character ->
+            FinalCardBox {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(shape = CircleShape, color = FinalWheat, modifier = Modifier.size(58.dp)) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(character.displayName.take(1).ifBlank { "角" }, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                    Spacer(Modifier.width(13.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(character.displayName, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                        Text("当前角色", color = FinalMuted, fontSize = 12.sp)
+                    }
+                }
+                HorizontalDivider(color = FinalBorder)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    OutlinedButton(onClick = onCharacterSettings, modifier = Modifier.weight(1f)) {
+                        Icon(Icons.Outlined.Tune, null)
+                        Spacer(Modifier.width(5.dp))
+                        Text("角色设置")
+                    }
+                    OutlinedButton(onClick = onWorldBook, modifier = Modifier.weight(1f)) {
+                        Icon(Icons.Outlined.Public, null)
+                        Spacer(Modifier.width(5.dp))
+                        Text("世界书")
+                    }
+                }
+            }
+        }
+        item {
+            OutlinedButton(
+                onClick = {},
+                enabled = false,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(Icons.Outlined.Add, null)
+                Spacer(Modifier.width(7.dp))
+                Text("新建角色将在角色数据迁移完成后开放")
             }
         }
     }
@@ -528,7 +647,7 @@ private fun FinalChatDetail(onBack: () -> Unit) {
     var sending by remember { mutableStateOf(false) }
     var archiveMenuExpanded by remember { mutableStateOf(false) }
 
-    val activeArchive = library.archives.firstOrNull { it.id == library.activeArchiveId }
+    val activeArchive = library.archives.firstOrNull { archive -> archive.id == library.activeArchiveId }
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未选择模型"
 
     LaunchedEffect(messages.size) {
@@ -588,11 +707,10 @@ private fun FinalChatDetail(onBack: () -> Unit) {
                     IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
                 },
                 actions = {
+                    IconButton(onClick = {}) { Icon(Icons.Outlined.Call, "通话") }
                     Box {
-                        TextButton(onClick = { archiveMenuExpanded = true }) {
-                            Icon(Icons.Outlined.SwapHoriz, null)
-                            Spacer(Modifier.width(3.dp))
-                            Text("切换")
+                        IconButton(onClick = { archiveMenuExpanded = true }) {
+                            Icon(Icons.Outlined.SwapHoriz, "切换模型")
                         }
                         DropdownMenu(
                             expanded = archiveMenuExpanded,
@@ -649,8 +767,9 @@ private fun FinalChatDetail(onBack: () -> Unit) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
+                        IconButton(onClick = {}) { Icon(Icons.Outlined.Mic, "语音") }
                         OutlinedTextField(
                             value = input,
                             onValueChange = { input = it },
@@ -681,7 +800,7 @@ private fun FinalChatDetail(onBack: () -> Unit) {
             contentPadding = PaddingValues(14.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            items(messages, key = { it.id }) { message -> FinalMessageBubble(message) }
+            items(messages, key = { message -> message.id }) { message -> FinalMessageBubble(message) }
             if (sending) {
                 item {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -704,7 +823,10 @@ private fun ModelArchiveMenuItem(
     DropdownMenuItem(
         text = {
             Column {
-                Text(LuluAiServices.connectionStore.archiveLabel(archive), fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal)
+                Text(
+                    LuluAiServices.connectionStore.archiveLabel(archive),
+                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                )
                 if (selected) Text("当前使用", color = FinalMuted, fontSize = 11.sp)
             }
         },
@@ -769,7 +891,10 @@ private fun FinalEmpty(title: String, subtitle: String, onBack: () -> Unit) {
 }
 
 @Composable
-private fun FinalCardBox(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+private fun FinalCardBox(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = FinalCard),
