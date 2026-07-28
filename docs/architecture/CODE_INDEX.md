@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9fa2ed6488192150750274ff0bf910718b0a3cfc`
+- 基准提交：`3b171c8dc1da920d9e14afbe49e0774b199b6deb`
 - 分支：`main`
-- 已索引文件：60
-- 已索引代码/文本行：14135
+- 已索引文件：61
+- 已索引代码/文本行：14148
 - 已发现符号：300
 
 | 文件 | 行数 | 符号数 |
@@ -59,6 +59,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt` | 381 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt` | 51 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudySaveableCompat.kt` | 8 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudySaveableInputsCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt` | 209 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 125 | 2 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
