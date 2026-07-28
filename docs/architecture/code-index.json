@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T12:14:36.097068+00:00",
-  "commit": "af93506e4f241b3195d118e85d491d2e181a70a6",
+  "generatedAt": "2026-07-28T12:16:52.941030+00:00",
+  "commit": "9eae006a2e17032ea542c1a1ac7df336590dd6d4",
   "branch": "main",
-  "sourceFingerprint": "c1d458c27c475e9ce3fa51af44de96c24d62c529e1b23f0267990c9652ca170f",
+  "sourceFingerprint": "7441d575abd43af57f49271660728ce5573385bd375ae8477091b1f67dc4fd52",
   "summary": {
     "files": 39,
-    "lines": 9120,
+    "lines": 9121,
     "symbols": 234
   },
   "symbolIndex": {
@@ -1989,8 +1989,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt",
-      "lines": 49,
-      "sha256": "7a245070b1b86e4a0fa57663ee5e297df0f55921986c8bc598ed716d6c2bd231",
+      "lines": 50,
+      "sha256": "0bd488d0662147e9cf107e262272bbd0977260ad5641790e4b58b1e90e83610e",
       "symbols": [
         {
           "name": "GameModelConnectionStatus",
