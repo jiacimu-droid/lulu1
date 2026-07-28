@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T17:04:01.343597+00:00",
-  "commit": "57bb2b70cc93991b66e20de03dc645ed2c0ff807",
+  "generatedAt": "2026-07-28T17:06:30.011661+00:00",
+  "commit": "68c32adeda6a7d16c6aa43d64ac52f4f4db648a7",
   "branch": "main",
-  "sourceFingerprint": "6db333c894f6746d9878ab8528f1aa820d9bb16a25cf342646943699bf927fc2",
+  "sourceFingerprint": "3af3f9dd719b6df3ed5dc23fd8586d53c4d9b965bdd37b00d3218c7bd2978c9b",
   "summary": {
     "files": 41,
-    "lines": 10474,
+    "lines": 10492,
     "symbols": 248
   },
   "symbolIndex": {
@@ -95,7 +95,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 529
+        "line": 547
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
@@ -247,7 +247,7 @@
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 519
+        "line": 537
       }
     ],
     "CharacterSummary": [
@@ -1627,8 +1627,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 536,
-      "sha256": "c03c536b24b6ea0cca1473e28a4e75c3d8675fd4fadbcc2918d835f6127a4706",
+      "lines": 554,
+      "sha256": "ad8fa0b997c6f8e5ce907f94240996b1f17449c1060034ad6e73e00d93be892b",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -1696,11 +1696,11 @@
         },
         {
           "name": "LuluAiServices",
-          "line": 519
+          "line": 537
         },
         {
           "name": "initialize",
-          "line": 529
+          "line": 547
         }
       ]
     },
