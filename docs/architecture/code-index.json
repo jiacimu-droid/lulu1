@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T17:39:00.624968+00:00",
-  "commit": "f83e21b3588fc62ff8d34b4309a7917b104b8ebd",
+  "generatedAt": "2026-07-28T17:54:51.247481+00:00",
+  "commit": "e57bd777ce1edf6115d5350c64296e6e118e6f52",
   "branch": "main",
-  "sourceFingerprint": "fb0e656c151be67c386b4f9d8c5ed1d64f28cf72a2447c29428735a4ec2ad6cc",
+  "sourceFingerprint": "ccd33443b2c6d7de29f41fa589755489652935d8e68ae9c905986a8e69680cb1",
   "summary": {
-    "files": 45,
-    "lines": 12220,
-    "symbols": 266
+    "files": 46,
+    "lines": 12920,
+    "symbols": 279
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -160,6 +160,10 @@
         "line": 685
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishFeature.kt",
+        "line": 294
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
         "line": 59
       }
@@ -280,6 +284,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 383
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishFeature.kt",
+        "line": 287
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
@@ -1308,6 +1316,72 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
         "line": 680
+      }
+    ],
+    "defaultPrompts": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishFeature.kt",
+        "line": 125
+      }
+    ],
+    "savePrompts": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishFeature.kt",
+        "line": 141
+      }
+    ],
+    "addImage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishFeature.kt",
+        "line": 145
+      }
+    ],
+    "deleteImage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishFeature.kt",
+        "line": 149
+      }
+    ],
+    "setGuide": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishFeature.kt",
+        "line": 155
+      }
+    ],
+    "addChapter": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishFeature.kt",
+        "line": 159
+      }
+    ],
+    "deleteTheater": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishFeature.kt",
+        "line": 164
+      }
+    ],
+    "addVideo": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishFeature.kt",
+        "line": 171
+      }
+    ],
+    "unlockVideo": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishFeature.kt",
+        "line": 175
+      }
+    ],
+    "deleteVideo": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishFeature.kt",
+        "line": 179
+      }
+    ],
+    "StarWishFeatureScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishFeature.kt",
+        "line": 365
       }
     ],
     "requestRoleCompletion": [
@@ -2645,6 +2719,65 @@
         {
           "name": "initialize",
           "line": 685
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishFeature.kt",
+      "lines": 700,
+      "sha256": "123051b61ad0fad0b658269402f16bf2a5883b8693c567b863e5201503e43a4c",
+      "symbols": [
+        {
+          "name": "defaultPrompts",
+          "line": 125
+        },
+        {
+          "name": "savePrompts",
+          "line": 141
+        },
+        {
+          "name": "addImage",
+          "line": 145
+        },
+        {
+          "name": "deleteImage",
+          "line": 149
+        },
+        {
+          "name": "setGuide",
+          "line": 155
+        },
+        {
+          "name": "addChapter",
+          "line": 159
+        },
+        {
+          "name": "deleteTheater",
+          "line": 164
+        },
+        {
+          "name": "addVideo",
+          "line": 171
+        },
+        {
+          "name": "unlockVideo",
+          "line": 175
+        },
+        {
+          "name": "deleteVideo",
+          "line": 179
+        },
+        {
+          "name": "create",
+          "line": 287
+        },
+        {
+          "name": "initialize",
+          "line": 294
+        },
+        {
+          "name": "StarWishFeatureScreen",
+          "line": 365
         }
       ]
     },
