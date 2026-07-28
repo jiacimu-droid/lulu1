@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T11:15:46.401281+00:00",
-  "commit": "7cd01ad48a91fcaf3a4614b85ca62b5a3129ccb3",
+  "generatedAt": "2026-07-28T11:26:16.544449+00:00",
+  "commit": "181102ed9bf1703cd636230296e5d39a97b49838",
   "branch": "main",
-  "sourceFingerprint": "0348986432da7576f98cbc9e38934cc1d0924948eec6d538bac10402b7359161",
+  "sourceFingerprint": "33347243034abc65871e035a7eb6c9dd14f961e2c92c13f9dc91ae8c4e932c29",
   "summary": {
     "files": 38,
-    "lines": 8115,
+    "lines": 8540,
     "symbols": 222
   },
   "symbolIndex": {
@@ -37,7 +37,7 @@
     "LuluFinalRootApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluFinalRootApp.kt",
-        "line": 39
+        "line": 82
       }
     ],
     "LuluRootApp": [
@@ -1366,12 +1366,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluFinalRootApp.kt",
-      "lines": 192,
-      "sha256": "682673bd71900b577fb3884e560f440e86ae6686326ce5fbbeed4b971df3c8b9",
+      "lines": 617,
+      "sha256": "59ff0c1cdf151a1649a1511f534e6ac2a0311f9cd843e5189b029f4ce0b137ac",
       "symbols": [
         {
           "name": "LuluFinalRootApp",
-          "line": 39
+          "line": 82
         }
       ]
     },
