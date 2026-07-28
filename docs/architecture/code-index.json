@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T17:28:44.552237+00:00",
-  "commit": "d08d63b706cde87e62996f90df390dfe60d4c9cc",
+  "generatedAt": "2026-07-28T17:30:16.920745+00:00",
+  "commit": "2b897110ee02f71b849ba66a4c22959e1ac0dcfd",
   "branch": "main",
-  "sourceFingerprint": "25b44c63882356ccdd2d6dea53945f26e2b0fe8a9869d32fbec1e569a74b0dc3",
+  "sourceFingerprint": "3cfeee0b50cc1ce5a98671b63c022294e3f631035c2f378df2c33a66e1b3f565",
   "summary": {
-    "files": 44,
-    "lines": 12372,
-    "symbols": 263
+    "files": 43,
+    "lines": 11461,
+    "symbols": 261
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -32,22 +32,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
         "line": 147
-      }
-    ],
-    "LuluFinalRootApp": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/LuluFinalRootApp.kt",
-        "line": 90
-      }
-    ],
-    "sendMessage": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/LuluFinalRootApp.kt",
-        "line": 656
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
-        "line": 341
       }
     ],
     "LuluMigrationRootApp": [
@@ -108,6 +92,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
         "line": 295
+      }
+    ],
+    "sendMessage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
+        "line": 341
       }
     ],
     "retryMessage": [
@@ -1601,21 +1591,6 @@
       "lines": 9,
       "sha256": "ba7a956a462a117f48d03758d234c1a925637b37c60f5b689dc268f7fdd92e05",
       "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/LuluFinalRootApp.kt",
-      "lines": 911,
-      "sha256": "f60f36e8bfcfecaca7b5ccd4184df8ba34996bdb6882c8ad58ba44e3f45a328d",
-      "symbols": [
-        {
-          "name": "LuluFinalRootApp",
-          "line": 90
-        },
-        {
-          "name": "sendMessage",
-          "line": 656
-        }
-      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootApp.kt",
