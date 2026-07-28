@@ -25,6 +25,7 @@ private class GameModelConnectionStateFlow(
 
     override suspend fun collect(collector: FlowCollector<GameModelConnectionStatus>): Nothing {
         source.map { it.toGameStatus() }.collect(collector)
+        error("StateFlow collection completed unexpectedly")
     }
 }
 
