@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a8d12b79a3815606d83d50f61fb1384ecc6ac7bc`
+- 基准提交：`2c558aaf5cc8d2c2cdb7e695d6684bc74b22f3cd`
 - 分支：`main`
 - 已索引文件：41
-- 已索引代码/文本行：10088
+- 已索引代码/文本行：10144
 - 已发现符号：246
 
 | 文件 | 行数 | 符号数 |
@@ -19,7 +19,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 285 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PublicCharacterWorldBookScreen.kt` | 144 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 480 | 18 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 536 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 125 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 190 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 457 | 11 |
