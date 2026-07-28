@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T16:55:34.571881+00:00",
-  "commit": "f8365b9bc0e0c59210aa5f805c3ae119e37f7571",
+  "generatedAt": "2026-07-28T17:02:13.626249+00:00",
+  "commit": "f61c5ac21686105d69e05a46c6c8a9bbfef621df",
   "branch": "main",
-  "sourceFingerprint": "7f519bd7ed92f2939232bacda4eba137897fb1d889eb7121685f08e78e37faa6",
+  "sourceFingerprint": "0e6aef3b7392b8e11953c923416a77ce0cb3658b793dbefbefc8d489256ec4df",
   "summary": {
     "files": 41,
-    "lines": 10163,
-    "symbols": 246
+    "lines": 10283,
+    "symbols": 248
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -96,6 +96,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
         "line": 529
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 98
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
@@ -421,57 +425,63 @@
     "InMemoryMemoryRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 19
+        "line": 22
       }
     ],
     "snapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 37
+        "line": 40
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 77
+        "line": 80
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 100
+        "line": 153
       }
     ],
     "InMemoryLexiconRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 56
+        "line": 59
       }
     ],
     "InMemoryWorldBookRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 86
+        "line": 94
+      }
+    ],
+    "isEnabledForCharacter": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 159
       }
     ],
     "observeForCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 106
+        "line": 162
       }
     ],
     "InMemoryPerformanceRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 111
+        "line": 231
       }
     ],
     "observeOverview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 121
+        "line": 241
       }
     ],
     "updateDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 166
+        "line": 286
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
@@ -481,7 +491,7 @@
     "PerformanceOverview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 183
+        "line": 303
       }
     ],
     "ApiUsageSource": [
@@ -1815,52 +1825,60 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-      "lines": 190,
-      "sha256": "a4db5e8758c1971499b9d3f77045b16a66eda37653953472279b6351891949ad",
+      "lines": 310,
+      "sha256": "d679a7effd1038093229450257978b2f1efd787120c4d894c6a5684e3f6c6b0a",
       "symbols": [
         {
           "name": "InMemoryMemoryRepository",
-          "line": 19
+          "line": 22
         },
         {
           "name": "snapshot",
-          "line": 37
+          "line": 40
         },
         {
           "name": "InMemoryLexiconRepository",
-          "line": 56
+          "line": 59
         },
         {
           "name": "snapshot",
-          "line": 77
+          "line": 80
         },
         {
           "name": "InMemoryWorldBookRepository",
-          "line": 86
+          "line": 94
+        },
+        {
+          "name": "initialize",
+          "line": 98
         },
         {
           "name": "snapshot",
-          "line": 100
+          "line": 153
+        },
+        {
+          "name": "isEnabledForCharacter",
+          "line": 159
         },
         {
           "name": "observeForCharacter",
-          "line": 106
+          "line": 162
         },
         {
           "name": "InMemoryPerformanceRepository",
-          "line": 111
+          "line": 231
         },
         {
           "name": "observeOverview",
-          "line": 121
+          "line": 241
         },
         {
           "name": "updateDurations",
-          "line": 166
+          "line": 286
         },
         {
           "name": "PerformanceOverview",
-          "line": 183
+          "line": 303
         }
       ]
     },
