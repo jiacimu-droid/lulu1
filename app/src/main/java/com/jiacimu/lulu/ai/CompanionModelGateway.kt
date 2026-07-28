@@ -12,15 +12,33 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.UUID
 
-enum class ModelProviderKind { OpenAICompatible, Anthropic, Gemini }
+/** A named API site. One site may provide many models. */
+data class ApiConfiguration(
+    val id: String = UUID.randomUUID().toString(),
+    val name: String,
+    val baseUrl: String,
+    val apiKey: String,
+)
+
+/** A chat-ready pairing of one saved API site and one model. */
+data class ModelArchive(
+    val id: String = UUID.randomUUID().toString(),
+    val configurationId: String,
+    val model: String,
+)
+
+data class ModelLibraryState(
+    val configurations: List<ApiConfiguration> = emptyList(),
+    val archives: List<ModelArchive> = emptyList(),
+    val activeArchiveId: String? = null,
+)
 
 data class ModelConnection(
-    val provider: ModelProviderKind = ModelProviderKind.OpenAICompatible,
-    val baseUrl: String = "https://api.openai.com/v1",
-    val apiKey: String = "",
-    val model: String = "",
-    val enabled: Boolean = false,
+    val baseUrl: String,
+    val apiKey: String,
+    val model: String,
 )
 
 data class ModelReply(
@@ -33,50 +51,227 @@ data class ModelReply(
 class ModelConnectionStore private constructor(context: Context) {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val mutable = MutableStateFlow(load())
-    val state: StateFlow<ModelConnection> = mutable.asStateFlow()
+    val library: StateFlow<ModelLibraryState> = mutable.asStateFlow()
 
-    fun save(connection: ModelConnection) {
-        val clean = connection.copy(
-            baseUrl = connection.baseUrl.trim().trimEnd('/'),
-            apiKey = connection.apiKey.trim(),
-            model = connection.model.trim(),
+    fun saveConfiguration(
+        id: String?,
+        name: String,
+        baseUrl: String,
+        apiKey: String,
+    ): ApiConfiguration {
+        val cleanName = name.trim()
+        val cleanUrl = normalizeBaseUrl(baseUrl)
+        val cleanKey = apiKey.trim()
+        require(cleanName.isNotBlank()) { "请填写配置名称" }
+        require(cleanUrl.isNotBlank()) { "请填写 API 地址" }
+        require(cleanKey.isNotBlank()) { "请填写 API 密钥" }
+
+        val current = mutable.value
+        val resolvedId = id
+            ?.takeIf { candidate -> current.configurations.any { it.id == candidate } }
+            ?: current.configurations.firstOrNull { it.name == cleanName }?.id
+            ?: UUID.randomUUID().toString()
+        val saved = ApiConfiguration(
+            id = resolvedId,
+            name = cleanName,
+            baseUrl = cleanUrl,
+            apiKey = cleanKey,
         )
-        prefs.edit()
-            .putString(KEY_PROVIDER, clean.provider.name)
-            .putString(KEY_BASE_URL, clean.baseUrl)
-            .putString(KEY_API_KEY, clean.apiKey)
-            .putString(KEY_MODEL, clean.model)
-            .putBoolean(KEY_ENABLED, clean.enabled)
-            .apply()
-        mutable.value = clean
+        val configurations = current.configurations
+            .filterNot { it.id == resolvedId }
+            .plus(saved)
+        persist(current.copy(configurations = configurations))
+        return saved
     }
 
-    private fun load(): ModelConnection {
-        val provider = runCatching {
-            ModelProviderKind.valueOf(prefs.getString(KEY_PROVIDER, null).orEmpty())
-        }.getOrDefault(ModelProviderKind.OpenAICompatible)
+    fun deleteConfiguration(id: String) {
+        val current = mutable.value
+        val removedArchiveIds = current.archives
+            .filter { it.configurationId == id }
+            .mapTo(mutableSetOf()) { it.id }
+        val archives = current.archives.filterNot { it.id in removedArchiveIds }
+        val active = current.activeArchiveId?.takeUnless { it in removedArchiveIds }
+        persist(
+            current.copy(
+                configurations = current.configurations.filterNot { it.id == id },
+                archives = archives,
+                activeArchiveId = active ?: archives.firstOrNull()?.id,
+            ),
+        )
+    }
+
+    fun addArchive(configurationId: String, model: String): ModelArchive {
+        val cleanModel = model.trim()
+        require(cleanModel.isNotBlank()) { "请先选择模型" }
+        require(mutable.value.configurations.any { it.id == configurationId }) { "请先保存 API 配置" }
+
+        val current = mutable.value
+        val existing = current.archives.firstOrNull {
+            it.configurationId == configurationId && it.model == cleanModel
+        }
+        if (existing != null) {
+            selectArchive(existing.id)
+            return existing
+        }
+        val archive = ModelArchive(configurationId = configurationId, model = cleanModel)
+        persist(
+            current.copy(
+                archives = current.archives + archive,
+                activeArchiveId = archive.id,
+            ),
+        )
+        return archive
+    }
+
+    fun removeArchive(id: String) {
+        val current = mutable.value
+        val archives = current.archives.filterNot { it.id == id }
+        persist(
+            current.copy(
+                archives = archives,
+                activeArchiveId = if (current.activeArchiveId == id) archives.firstOrNull()?.id else current.activeArchiveId,
+            ),
+        )
+    }
+
+    fun selectArchive(id: String) {
+        require(mutable.value.archives.any { it.id == id }) { "模型存档不存在" }
+        persist(mutable.value.copy(activeArchiveId = id))
+    }
+
+    fun resolveConnection(archiveId: String? = mutable.value.activeArchiveId): ModelConnection {
+        val state = mutable.value
+        val archive = state.archives.firstOrNull { it.id == archiveId }
+            ?: error("请先在设置中获取模型并加入存档")
+        val configuration = state.configurations.firstOrNull { it.id == archive.configurationId }
+            ?: error("这个模型存档对应的 API 配置已经不存在")
         return ModelConnection(
-            provider = provider,
-            baseUrl = prefs.getString(KEY_BASE_URL, null) ?: defaultBaseUrl(provider),
-            apiKey = prefs.getString(KEY_API_KEY, "").orEmpty(),
-            model = prefs.getString(KEY_MODEL, "").orEmpty(),
-            enabled = prefs.getBoolean(KEY_ENABLED, false),
+            baseUrl = configuration.baseUrl,
+            apiKey = configuration.apiKey,
+            model = archive.model,
+        )
+    }
+
+    fun archiveLabel(archive: ModelArchive): String {
+        val configurationName = mutable.value.configurations
+            .firstOrNull { it.id == archive.configurationId }
+            ?.name
+            .orEmpty()
+            .ifBlank { "未命名配置" }
+        return "$configurationName — ${archive.model}"
+    }
+
+    private fun load(): ModelLibraryState {
+        val raw = prefs.getString(KEY_LIBRARY, null)
+        if (!raw.isNullOrBlank()) {
+            return runCatching { decode(JSONObject(raw)) }.getOrDefault(ModelLibraryState())
+        }
+
+        val legacyUrl = prefs.getString("base_url", "").orEmpty().trim()
+        val legacyKey = prefs.getString("api_key", "").orEmpty().trim()
+        val legacyModel = prefs.getString("model", "").orEmpty().trim()
+        if (legacyUrl.isBlank() || legacyKey.isBlank()) return ModelLibraryState()
+        val configuration = ApiConfiguration(
+            name = "旧配置",
+            baseUrl = normalizeBaseUrl(legacyUrl),
+            apiKey = legacyKey,
+        )
+        val archive = legacyModel.takeIf { it.isNotBlank() }?.let {
+            ModelArchive(configurationId = configuration.id, model = it)
+        }
+        return ModelLibraryState(
+            configurations = listOf(configuration),
+            archives = listOfNotNull(archive),
+            activeArchiveId = archive?.id,
+        ).also(::persistRaw)
+    }
+
+    private fun persist(state: ModelLibraryState) {
+        persistRaw(state)
+        mutable.value = state
+    }
+
+    private fun persistRaw(state: ModelLibraryState) {
+        prefs.edit().putString(KEY_LIBRARY, encode(state).toString()).apply()
+    }
+
+    private fun encode(state: ModelLibraryState): JSONObject = JSONObject()
+        .put(
+            "configurations",
+            JSONArray().apply {
+                state.configurations.forEach { configuration ->
+                    put(
+                        JSONObject()
+                            .put("id", configuration.id)
+                            .put("name", configuration.name)
+                            .put("baseUrl", configuration.baseUrl)
+                            .put("apiKey", configuration.apiKey),
+                    )
+                }
+            },
+        )
+        .put(
+            "archives",
+            JSONArray().apply {
+                state.archives.forEach { archive ->
+                    put(
+                        JSONObject()
+                            .put("id", archive.id)
+                            .put("configurationId", archive.configurationId)
+                            .put("model", archive.model),
+                    )
+                }
+            },
+        )
+        .put("activeArchiveId", state.activeArchiveId ?: JSONObject.NULL)
+
+    private fun decode(root: JSONObject): ModelLibraryState {
+        val configurations = buildList {
+            val array = root.optJSONArray("configurations") ?: JSONArray()
+            for (index in 0 until array.length()) {
+                val item = array.optJSONObject(index) ?: continue
+                val id = item.optString("id").ifBlank { UUID.randomUUID().toString() }
+                val name = item.optString("name").trim()
+                val baseUrl = normalizeBaseUrl(item.optString("baseUrl"))
+                val apiKey = item.optString("apiKey").trim()
+                if (name.isNotBlank() && baseUrl.isNotBlank() && apiKey.isNotBlank()) {
+                    add(ApiConfiguration(id, name, baseUrl, apiKey))
+                }
+            }
+        }
+        val configurationIds = configurations.mapTo(mutableSetOf()) { it.id }
+        val archives = buildList {
+            val array = root.optJSONArray("archives") ?: JSONArray()
+            for (index in 0 until array.length()) {
+                val item = array.optJSONObject(index) ?: continue
+                val configurationId = item.optString("configurationId")
+                val model = item.optString("model").trim()
+                if (configurationId in configurationIds && model.isNotBlank()) {
+                    add(
+                        ModelArchive(
+                            id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
+                            configurationId = configurationId,
+                            model = model,
+                        ),
+                    )
+                }
+            }
+        }
+        val savedActive = root.optString("activeArchiveId").takeIf { candidate ->
+            archives.any { it.id == candidate }
+        }
+        return ModelLibraryState(
+            configurations = configurations,
+            archives = archives,
+            activeArchiveId = savedActive ?: archives.firstOrNull()?.id,
         )
     }
 
     companion object {
         private const val PREFS_NAME = "lulu_model_connection"
-        private const val KEY_PROVIDER = "provider"
-        private const val KEY_BASE_URL = "base_url"
-        private const val KEY_API_KEY = "api_key"
-        private const val KEY_MODEL = "model"
-        private const val KEY_ENABLED = "enabled"
+        private const val KEY_LIBRARY = "model_library_v2"
 
-        fun defaultBaseUrl(provider: ModelProviderKind): String = when (provider) {
-            ModelProviderKind.OpenAICompatible -> "https://api.openai.com/v1"
-            ModelProviderKind.Anthropic -> "https://api.anthropic.com/v1"
-            ModelProviderKind.Gemini -> "https://generativelanguage.googleapis.com/v1beta"
-        }
+        fun normalizeBaseUrl(value: String): String = value.trim().trimEnd('/')
 
         fun create(context: Context): ModelConnectionStore = ModelConnectionStore(context.applicationContext)
     }
@@ -85,6 +280,35 @@ class ModelConnectionStore private constructor(context: Context) {
 class CompanionModelGateway(
     private val connectionStore: ModelConnectionStore,
 ) {
+    suspend fun fetchModels(baseUrl: String, apiKey: String): Result<List<String>> = withContext(Dispatchers.IO) {
+        runCatching {
+            val cleanUrl = ModelConnectionStore.normalizeBaseUrl(baseUrl)
+            val cleanKey = apiKey.trim()
+            check(cleanUrl.isNotBlank()) { "请填写 API 地址" }
+            check(cleanKey.isNotBlank()) { "请填写 API 密钥" }
+            val json = requestGetJson(
+                url = "$cleanUrl/models",
+                headers = mapOf("Authorization" to "Bearer $cleanKey"),
+            )
+            val arrays = listOfNotNull(json.optJSONArray("data"), json.optJSONArray("models"))
+            val models = buildList {
+                arrays.forEach { array ->
+                    for (index in 0 until array.length()) {
+                        when (val item = array.opt(index)) {
+                            is JSONObject -> {
+                                val id = item.optString("id").ifBlank { item.optString("name") }.removePrefix("models/")
+                                if (id.isNotBlank()) add(id)
+                            }
+                            is String -> if (item.isNotBlank()) add(item.removePrefix("models/"))
+                        }
+                    }
+                }
+            }.distinct().sorted()
+            check(models.isNotEmpty()) { "接口连接成功，但没有读取到模型列表" }
+            models
+        }
+    }
+
     suspend fun generate(
         characterId: String,
         facts: String,
@@ -95,11 +319,7 @@ class CompanionModelGateway(
         maxTokens: Int = 500,
     ): Result<ModelReply> = withContext(Dispatchers.IO) {
         runCatching {
-            val connection = connectionStore.state.value
-            check(connection.enabled) { "模型调用未启用" }
-            check(connection.apiKey.isNotBlank()) { "请先在设置中填写 API 密钥" }
-            check(connection.model.isNotBlank()) { "请先在设置中填写模型名称" }
-
+            val connection = connectionStore.resolveConnection()
             val character = MigratedDomainStores.characters.get(characterId)
             val memories = LuluRepositories.memory.snapshot(characterId).take(24)
             val lexicon = LuluRepositories.lexicon.snapshot(characterId).take(24)
@@ -134,12 +354,7 @@ class CompanionModelGateway(
                 appendLine("本次任务：$instruction")
             }.trim()
             val userPrompt = "真实事实：\n${facts.trim()}"
-
-            val reply = when (connection.provider) {
-                ModelProviderKind.OpenAICompatible -> openAiCompatible(connection, systemPrompt, userPrompt, temperature, maxTokens)
-                ModelProviderKind.Anthropic -> anthropic(connection, systemPrompt, userPrompt, temperature, maxTokens)
-                ModelProviderKind.Gemini -> gemini(connection, systemPrompt, userPrompt, temperature, maxTokens)
-            }
+            val reply = openAiCompatible(connection, systemPrompt, userPrompt, temperature, maxTokens)
             LuluRepositories.performance.addTokenUsage(
                 input = reply.inputTokens,
                 output = reply.outputTokens,
@@ -168,8 +383,8 @@ class CompanionModelGateway(
                     .put(JSONObject().put("role", "system").put("content", system))
                     .put(JSONObject().put("role", "user").put("content", user)),
             )
-        val json = requestJson(
-            url = "${connection.baseUrl.ifBlank { ModelConnectionStore.defaultBaseUrl(connection.provider) }}/chat/completions",
+        val json = requestPostJson(
+            url = "${connection.baseUrl}/chat/completions",
             headers = mapOf("Authorization" to "Bearer ${connection.apiKey}"),
             body = body,
         )
@@ -190,102 +405,21 @@ class CompanionModelGateway(
         )
     }
 
-    private fun anthropic(
-        connection: ModelConnection,
-        system: String,
-        user: String,
-        temperature: Double,
-        maxTokens: Int,
-    ): ModelReply {
-        val body = JSONObject()
-            .put("model", connection.model)
-            .put("system", system)
-            .put("temperature", temperature)
-            .put("max_tokens", maxTokens)
-            .put("messages", JSONArray().put(JSONObject().put("role", "user").put("content", user)))
-        val json = requestJson(
-            url = "${connection.baseUrl.ifBlank { ModelConnectionStore.defaultBaseUrl(connection.provider) }}/messages",
-            headers = mapOf(
-                "x-api-key" to connection.apiKey,
-                "anthropic-version" to "2023-06-01",
-            ),
-            body = body,
-        )
-        val text = json.optJSONArray("content")
-            ?.let { array ->
-                buildString {
-                    for (index in 0 until array.length()) {
-                        val item = array.optJSONObject(index)
-                        if (item?.optString("type") == "text") append(item.optString("text"))
-                    }
-                }
-            }
-            .orEmpty()
-            .trim()
-        check(text.isNotBlank()) { "模型没有返回可读取的内容" }
-        val usage = json.optJSONObject("usage")
-        return ModelReply(
-            text = text,
-            inputTokens = usage?.optInt("input_tokens") ?: 0,
-            outputTokens = usage?.optInt("output_tokens") ?: 0,
-            cachedTokens = (usage?.optInt("cache_read_input_tokens") ?: 0) +
-                (usage?.optInt("cache_creation_input_tokens") ?: 0),
-        )
+    private fun requestGetJson(url: String, headers: Map<String, String>): JSONObject {
+        val connection = URL(url).openConnection() as HttpURLConnection
+        return try {
+            connection.requestMethod = "GET"
+            connection.connectTimeout = 30_000
+            connection.readTimeout = 60_000
+            connection.setRequestProperty("Accept", "application/json")
+            headers.forEach { (key, value) -> connection.setRequestProperty(key, value) }
+            readJsonResponse(connection)
+        } finally {
+            connection.disconnect()
+        }
     }
 
-    private fun gemini(
-        connection: ModelConnection,
-        system: String,
-        user: String,
-        temperature: Double,
-        maxTokens: Int,
-    ): ModelReply {
-        val modelName = connection.model.removePrefix("models/")
-        val base = connection.baseUrl.ifBlank { ModelConnectionStore.defaultBaseUrl(connection.provider) }
-        val body = JSONObject()
-            .put(
-                "systemInstruction",
-                JSONObject().put("parts", JSONArray().put(JSONObject().put("text", system))),
-            )
-            .put(
-                "contents",
-                JSONArray().put(
-                    JSONObject()
-                        .put("role", "user")
-                        .put("parts", JSONArray().put(JSONObject().put("text", user))),
-                ),
-            )
-            .put(
-                "generationConfig",
-                JSONObject().put("temperature", temperature).put("maxOutputTokens", maxTokens),
-            )
-        val json = requestJson(
-            url = "$base/models/$modelName:generateContent?key=${connection.apiKey}",
-            headers = emptyMap(),
-            body = body,
-        )
-        val parts = json.optJSONArray("candidates")
-            ?.optJSONObject(0)
-            ?.optJSONObject("content")
-            ?.optJSONArray("parts")
-        val text = parts?.let { array ->
-            buildString {
-                for (index in 0 until array.length()) {
-                    append(array.optJSONObject(index)?.optString("text").orEmpty())
-                }
-            }
-        }.orEmpty().trim()
-        check(text.isNotBlank()) { "模型没有返回可读取的内容" }
-        val usage = json.optJSONObject("usageMetadata")
-        return ModelReply(
-            text = text,
-            inputTokens = usage?.optInt("promptTokenCount") ?: 0,
-            outputTokens = usage?.optInt("candidatesTokenCount") ?: 0,
-            cachedTokens = usage?.optInt("cachedContentTokenCount") ?: 0,
-        )
-    }
-
-    private fun requestJson(
+    private fun requestPostJson(
         url: String,
         headers: Map<String, String>,
         body: JSONObject,
@@ -299,21 +433,30 @@ class CompanionModelGateway(
             connection.setRequestProperty("Content-Type", "application/json; charset=utf-8")
             headers.forEach { (key, value) -> connection.setRequestProperty(key, value) }
             connection.outputStream.bufferedWriter(Charsets.UTF_8).use { it.write(body.toString()) }
-            val status = connection.responseCode
-            val raw = (if (status in 200..299) connection.inputStream else connection.errorStream)
-                ?.bufferedReader(Charsets.UTF_8)
-                ?.use { it.readText() }
-                .orEmpty()
-            if (status !in 200..299) {
-                val message = runCatching { JSONObject(raw).optJSONObject("error")?.optString("message") }
-                    .getOrNull()
-                    .orEmpty()
-                    .ifBlank { raw.take(500) }
-                error("模型请求失败（$status）：$message")
-            }
-            JSONObject(raw)
+            readJsonResponse(connection)
         } finally {
             connection.disconnect()
+        }
+    }
+
+    private fun readJsonResponse(connection: HttpURLConnection): JSONObject {
+        val status = connection.responseCode
+        val raw = (if (status in 200..299) connection.inputStream else connection.errorStream)
+            ?.bufferedReader(Charsets.UTF_8)
+            ?.use { it.readText() }
+            .orEmpty()
+        if (status !in 200..299) {
+            val message = runCatching { JSONObject(raw).optJSONObject("error")?.optString("message") }
+                .getOrNull()
+                .orEmpty()
+                .ifBlank { raw.take(500) }
+            error("模型请求失败（$status）：$message")
+        }
+        check(raw.isNotBlank()) { "接口返回了空内容" }
+        return if (raw.trimStart().startsWith("[")) {
+            JSONObject().put("data", JSONArray(raw))
+        } else {
+            JSONObject(raw)
         }
     }
 }

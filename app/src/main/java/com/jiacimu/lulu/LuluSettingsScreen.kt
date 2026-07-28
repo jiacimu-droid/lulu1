@@ -1,70 +1,109 @@
 package com.jiacimu.lulu
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.CheckCircleOutline
-import androidx.compose.material.icons.outlined.Key
-import androidx.compose.material.icons.outlined.Security
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.ai.ApiConfiguration
 import com.jiacimu.lulu.ai.LuluAiServices
-import com.jiacimu.lulu.ai.ModelConnection
-import com.jiacimu.lulu.ai.ModelConnectionStore
-import com.jiacimu.lulu.ai.ModelProviderKind
-import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.ai.ModelArchive
 import kotlinx.coroutines.launch
 
-private val SettingsPaper = Color(0xFFFFFDF7)
-private val SettingsCard = Color(0xFFFFFBF1)
-private val SettingsBorder = Color(0xFFEAE0CC)
-private val SettingsMuted = Color(0xFF6D7888)
+private val SettingsPaper = Color(0xFFFFFCF6)
+private val SettingsCard = Color(0xFFFFFBF3)
+private val SettingsBorder = Color(0xFFE7DDC8)
+private val SettingsMuted = Color(0xFF737887)
+private val SettingsInk = Color(0xFF302C2B)
+private val SettingsAccent = Color(0xFFF2CF70)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LuluSettingsScreen(onBack: () -> Unit) {
-    val saved by LuluAiServices.connectionStore.state.collectAsState()
+    val store = LuluAiServices.connectionStore
+    val library by store.library.collectAsState()
     val scope = rememberCoroutineScope()
-    var provider by remember(saved.provider) { mutableStateOf(saved.provider) }
-    var baseUrl by remember(saved.baseUrl) { mutableStateOf(saved.baseUrl) }
-    var model by remember(saved.model) { mutableStateOf(saved.model) }
-    var apiKey by remember(saved.apiKey) { mutableStateOf(saved.apiKey) }
-    var enabled by remember(saved.enabled) { mutableStateOf(saved.enabled) }
-    var message by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf(false) }
-    var testing by remember { mutableStateOf(false) }
 
-    fun save() {
-        LuluAiServices.connectionStore.save(
-            ModelConnection(
-                provider = provider,
-                baseUrl = baseUrl,
-                apiKey = apiKey,
-                model = model,
-                enabled = enabled,
-            ),
-        )
-        message = "模型配置已保存在本机"
-        error = false
+    val initialConfiguration = remember(library.configurations, library.activeArchiveId) {
+        val activeConfigurationId = library.archives
+            .firstOrNull { it.id == library.activeArchiveId }
+            ?.configurationId
+        library.configurations.firstOrNull { it.id == activeConfigurationId }
+            ?: library.configurations.firstOrNull()
     }
+
+    var editingId by remember { mutableStateOf(initialConfiguration?.id) }
+    var configurationName by remember { mutableStateOf(initialConfiguration?.name.orEmpty()) }
+    var baseUrl by remember { mutableStateOf(initialConfiguration?.baseUrl.orEmpty()) }
+    var apiKey by remember { mutableStateOf(initialConfiguration?.apiKey.orEmpty()) }
+    var models by remember { mutableStateOf<List<String>>(emptyList()) }
+    var selectedModel by remember { mutableStateOf<String?>(null) }
+    var loadingModels by remember { mutableStateOf(false) }
+    var notice by remember { mutableStateOf("") }
+    var noticeIsError by remember { mutableStateOf(false) }
+
+    fun loadConfiguration(configuration: ApiConfiguration) {
+        editingId = configuration.id
+        configurationName = configuration.name
+        baseUrl = configuration.baseUrl
+        apiKey = configuration.apiKey
+        models = emptyList()
+        selectedModel = null
+        notice = "已载入“${configuration.name}”，修改后可直接覆盖保存"
+        noticeIsError = false
+    }
+
+    fun clearEditor() {
+        editingId = null
+        configurationName = ""
+        baseUrl = ""
+        apiKey = ""
+        models = emptyList()
+        selectedModel = null
+        notice = "已新建空白配置"
+        noticeIsError = false
+    }
+
+    fun saveCurrent(): ApiConfiguration? = runCatching {
+        store.saveConfiguration(
+            id = editingId,
+            name = configurationName,
+            baseUrl = baseUrl,
+            apiKey = apiKey,
+        )
+    }.onSuccess { configuration ->
+        editingId = configuration.id
+        configurationName = configuration.name
+        baseUrl = configuration.baseUrl
+        apiKey = configuration.apiKey
+        notice = "配置“${configuration.name}”已保存在本机"
+        noticeIsError = false
+    }.onFailure { error ->
+        notice = error.message ?: "保存配置失败"
+        noticeIsError = true
+    }.getOrNull()
 
     Scaffold(
         containerColor = SettingsPaper,
         topBar = {
             TopAppBar(
                 title = { Text("设置", fontWeight = FontWeight.SemiBold) },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Outlined.ArrowBack, "返回")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = SettingsPaper),
             )
         },
@@ -72,45 +111,52 @@ fun LuluSettingsScreen(onBack: () -> Unit) {
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(13.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             item {
+                SettingsSectionBar(
+                    icon = Icons.Outlined.Api,
+                    title = "API 设置",
+                    subtitle = "保存站点，再从站点获取模型",
+                )
+            }
+
+            item {
                 SettingsCardBox {
-                    Row(Modifier.fillMaxWidth()) {
-                        Column(Modifier.weight(1f)) {
-                            Text("模型与 API", fontSize = 21.sp, fontWeight = FontWeight.Bold)
-                            Text("供聊天、角色游戏、学习计划和角色判断共用。", color = SettingsMuted)
-                        }
-                        Switch(checked = enabled, onCheckedChange = { enabled = it })
-                    }
                     Row(
-                        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        ModelProviderKind.entries.forEach { item ->
-                            FilterChip(
-                                selected = provider == item,
-                                onClick = {
-                                    provider = item
-                                    baseUrl = ModelConnectionStore.defaultBaseUrl(item)
-                                },
-                                label = { Text(item.label()) },
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                if (editingId == null) "新配置" else "编辑配置",
+                                fontSize = 19.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = SettingsInk,
                             )
+                            Text("配置名称、地址和密钥会作为一个整体保存", color = SettingsMuted, fontSize = 12.sp)
+                        }
+                        TextButton(onClick = ::clearEditor) {
+                            Icon(Icons.Outlined.Add, null)
+                            Spacer(Modifier.width(4.dp))
+                            Text("新建")
                         }
                     }
+
                     OutlinedTextField(
-                        value = baseUrl,
-                        onValueChange = { baseUrl = it },
-                        label = { Text("API 地址") },
-                        supportingText = { Text("兼容中转站和自定义服务地址") },
+                        value = configurationName,
+                        onValueChange = { configurationName = it },
+                        label = { Text("配置名称") },
+                        placeholder = { Text("例如：1、科研站、备用站") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
                     OutlinedTextField(
-                        value = model,
-                        onValueChange = { model = it },
-                        label = { Text("模型名称") },
-                        placeholder = { Text("例如 gpt-5.6-terra") },
+                        value = baseUrl,
+                        onValueChange = { baseUrl = it },
+                        label = { Text("API 地址") },
+                        placeholder = { Text("例如：https://example.com/v1") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
@@ -119,97 +165,270 @@ fun LuluSettingsScreen(onBack: () -> Unit) {
                         onValueChange = { apiKey = it },
                         label = { Text("API 密钥") },
                         leadingIcon = { Icon(Icons.Outlined.Key, null) },
-                        visualTransformation = PasswordVisualTransformation(),
+                        supportingText = { Text("密钥保持明文显示，方便核对输入") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
-                    Button(onClick = ::save, modifier = Modifier.fillMaxWidth()) {
-                        Icon(Icons.Outlined.CheckCircleOutline, null)
+
+                    Button(
+                        onClick = { saveCurrent() },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = SettingsAccent,
+                            contentColor = SettingsInk,
+                        ),
+                    ) {
+                        Icon(Icons.Outlined.Save, null)
                         Spacer(Modifier.width(7.dp))
-                        Text("保存配置")
+                        Text("保存配置", fontWeight = FontWeight.Bold)
                     }
+
                     OutlinedButton(
                         onClick = {
-                            save()
-                            testing = true
-                            message = ""
+                            loadingModels = true
+                            notice = ""
                             scope.launch {
-                                val characterId = MigratedDomainStores.characters.settings.value.keys.firstOrNull() ?: "lulu"
-                                LuluAiServices.gateway.generate(
-                                    characterId = characterId,
-                                    facts = "这是一次连接测试，不代表任何真实事件。",
-                                    instruction = "只回复‘连接成功’，不要添加别的内容。",
-                                    source = "设置",
-                                    title = "模型连接测试",
-                                    temperature = 0.0,
-                                    maxTokens = 30,
-                                ).onSuccess {
-                                    message = "连接成功：${it.text}"
-                                    error = false
-                                }.onFailure {
-                                    message = it.message ?: "连接测试失败"
-                                    error = true
-                                }
-                                testing = false
+                                LuluAiServices.gateway.fetchModels(baseUrl, apiKey)
+                                    .onSuccess { fetched ->
+                                        models = fetched
+                                        selectedModel = fetched.firstOrNull()
+                                        notice = "已获取 ${fetched.size} 个模型"
+                                        noticeIsError = false
+                                    }
+                                    .onFailure { error ->
+                                        models = emptyList()
+                                        selectedModel = null
+                                        notice = error.message ?: "获取模型失败"
+                                        noticeIsError = true
+                                    }
+                                loadingModels = false
                             }
                         },
-                        enabled = !testing && enabled && apiKey.isNotBlank() && model.isNotBlank(),
+                        enabled = !loadingModels && baseUrl.isNotBlank() && apiKey.isNotBlank(),
                         modifier = Modifier.fillMaxWidth(),
-                    ) { Text(if (testing) "正在测试…" else "测试连接") }
-                    if (message.isNotBlank()) {
+                    ) {
+                        if (loadingModels) {
+                            CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                        } else {
+                            Icon(Icons.Outlined.CloudDownload, null)
+                        }
+                        Spacer(Modifier.width(7.dp))
+                        Text(if (loadingModels) "正在获取模型…" else "获取模型")
+                    }
+
+                    if (models.isNotEmpty()) {
+                        Text("选择模型", fontWeight = FontWeight.Bold, color = SettingsInk)
                         Surface(
-                            color = if (error) Color(0xFFF7E6E2) else Color(0xFFE7F0E6),
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(18.dp),
+                            color = Color.White.copy(alpha = 0.66f),
+                            border = BorderStroke(1.dp, SettingsBorder),
+                        ) {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxWidth().heightIn(max = 280.dp),
+                                contentPadding = PaddingValues(vertical = 5.dp),
+                            ) {
+                                items(models, key = { it }) { model ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { selectedModel = model }
+                                            .padding(horizontal = 12.dp, vertical = 9.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        RadioButton(
+                                            selected = selectedModel == model,
+                                            onClick = { selectedModel = model },
+                                        )
+                                        Spacer(Modifier.width(8.dp))
+                                        Text(model, modifier = Modifier.weight(1f))
+                                    }
+                                }
+                            }
+                        }
+
+                        Button(
+                            onClick = {
+                                val configuration = saveCurrent() ?: return@Button
+                                runCatching {
+                                    store.addArchive(
+                                        configurationId = configuration.id,
+                                        model = selectedModel.orEmpty(),
+                                    )
+                                }.onSuccess { archive ->
+                                    notice = "已加入存档：${store.archiveLabel(archive)}"
+                                    noticeIsError = false
+                                }.onFailure { error ->
+                                    notice = error.message ?: "加入存档失败"
+                                    noticeIsError = true
+                                }
+                            },
+                            enabled = selectedModel != null,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFE8DDF3),
+                                contentColor = SettingsInk,
+                            ),
+                        ) {
+                            Icon(Icons.Outlined.Inventory2, null)
+                            Spacer(Modifier.width(7.dp))
+                            Text("加入存档", fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    if (notice.isNotBlank()) {
+                        Surface(
+                            color = if (noticeIsError) Color(0xFFF8E3DF) else Color(0xFFE8F1E6),
                             shape = RoundedCornerShape(14.dp),
                         ) {
-                            Text(message, Modifier.fillMaxWidth().padding(12.dp))
+                            Text(
+                                notice,
+                                modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                color = SettingsInk,
+                            )
                         }
                     }
                 }
             }
+
+            if (library.configurations.isNotEmpty()) {
+                item {
+                    SettingsSectionBar(
+                        icon = Icons.Outlined.Dns,
+                        title = "已保存配置",
+                        subtitle = "点按横条载入，也可以修改名称后覆盖保存",
+                    )
+                }
+                items(library.configurations, key = { it.id }) { configuration ->
+                    SavedConfigurationRow(
+                        configuration = configuration,
+                        selected = configuration.id == editingId,
+                        onClick = { loadConfiguration(configuration) },
+                        onDelete = {
+                            store.deleteConfiguration(configuration.id)
+                            if (editingId == configuration.id) clearEditor()
+                        },
+                    )
+                }
+            }
+
             item {
-                SettingsCardBox {
-                    Row {
-                        Icon(Icons.Outlined.Security, null, tint = SettingsMuted)
-                        Spacer(Modifier.width(10.dp))
-                        Column {
-                            Text("密钥与隐私", fontWeight = FontWeight.Bold)
-                            Text("API 密钥仅保存在本机 SharedPreferences，不写入仓库、日志、游戏回放或记忆内容。", color = SettingsMuted)
-                        }
+                SettingsSectionBar(
+                    icon = Icons.Outlined.Inventory2,
+                    title = "模型存档",
+                    subtitle = "聊天页可以直接切换这些模型",
+                )
+            }
+
+            if (library.archives.isEmpty()) {
+                item {
+                    SettingsCardBox {
+                        Text("还没有模型存档", fontWeight = FontWeight.Bold)
+                        Text("先保存配置、获取模型，再把需要的模型加入存档。", color = SettingsMuted)
                     }
                 }
-            }
-            item {
-                SettingsCardBox {
-                    Text("聊天", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text("自动生成对话建议：关闭。相关入口和生成线路不会在新项目中恢复。", color = SettingsMuted)
-                }
-            }
-            item {
-                SettingsCardBox {
-                    Text("记忆", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text("总结阈值与最近消息排除数量在记忆 App 中设置；角色游戏和考研陪伴会读取已启用的记忆、辞海和世界书。", color = SettingsMuted)
-                }
-            }
-            item {
-                SettingsCardBox {
-                    Text("通知与主动联系", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text("主动联系、夜间勿扰、主动来电和来电时间段在角色设置中管理，不设每天最多三次的系统硬上限。", color = SettingsMuted)
-                }
-            }
-            item {
-                SettingsCardBox {
-                    Text("数据与性能", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text("模型 Token、报错、学习时长、聊天时长和通话时长统一进入性能监测。学习与游戏状态使用独立本地存档。", color = SettingsMuted)
+            } else {
+                items(library.archives, key = { it.id }) { archive ->
+                    ModelArchiveRow(
+                        archive = archive,
+                        label = store.archiveLabel(archive),
+                        selected = archive.id == library.activeArchiveId,
+                        onSelect = { store.selectArchive(archive.id) },
+                        onDelete = { store.removeArchive(archive.id) },
+                    )
                 }
             }
         }
     }
 }
 
-private fun ModelProviderKind.label(): String = when (this) {
-    ModelProviderKind.OpenAICompatible -> "OpenAI 兼容"
-    ModelProviderKind.Anthropic -> "Anthropic"
-    ModelProviderKind.Gemini -> "Gemini"
+@Composable
+private fun SettingsSectionBar(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    subtitle: String,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        color = Color(0xFFF4EBDD),
+        border = BorderStroke(1.dp, SettingsBorder),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 13.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Surface(shape = RoundedCornerShape(12.dp), color = Color.White.copy(alpha = 0.68f)) {
+                Icon(icon, null, modifier = Modifier.padding(9.dp).size(22.dp), tint = SettingsMuted)
+            }
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(title, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = SettingsInk)
+                Text(subtitle, color = SettingsMuted, fontSize = 12.sp)
+            }
+        }
+    }
+}
+
+@Composable
+private fun SavedConfigurationRow(
+    configuration: ApiConfiguration,
+    selected: Boolean,
+    onClick: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        shape = RoundedCornerShape(18.dp),
+        color = if (selected) Color(0xFFFFF0C7) else SettingsCard,
+        border = BorderStroke(1.dp, if (selected) SettingsAccent else SettingsBorder),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(start = 15.dp, top = 13.dp, bottom = 13.dp, end = 5.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Outlined.Api, null, tint = SettingsMuted)
+            Spacer(Modifier.width(11.dp))
+            Column(Modifier.weight(1f)) {
+                Text(configuration.name, fontWeight = FontWeight.Bold, color = SettingsInk)
+                Text(configuration.baseUrl, color = SettingsMuted, fontSize = 12.sp, maxLines = 1)
+            }
+            IconButton(onClick = onDelete) {
+                Icon(Icons.Outlined.DeleteOutline, "删除配置", tint = SettingsMuted)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ModelArchiveRow(
+    archive: ModelArchive,
+    label: String,
+    selected: Boolean,
+    onSelect: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onSelect),
+        shape = RoundedCornerShape(18.dp),
+        color = if (selected) Color(0xFFEAE2F4) else SettingsCard,
+        border = BorderStroke(1.dp, if (selected) Color(0xFFB5A3CD) else SettingsBorder),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(start = 12.dp, top = 10.dp, bottom = 10.dp, end = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            RadioButton(selected = selected, onClick = onSelect)
+            Spacer(Modifier.width(5.dp))
+            Column(Modifier.weight(1f)) {
+                Text(label, fontWeight = FontWeight.Bold, color = SettingsInk)
+                Text(if (selected) "当前聊天模型" else "点按设为当前模型", color = SettingsMuted, fontSize = 12.sp)
+            }
+            IconButton(onClick = onDelete) {
+                Icon(Icons.Outlined.Close, "移出存档", tint = SettingsMuted)
+            }
+        }
+    }
 }
 
 @Composable
@@ -218,11 +437,11 @@ private fun SettingsCardBox(content: @Composable ColumnScope.() -> Unit) {
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = SettingsCard),
         border = BorderStroke(1.dp, SettingsBorder),
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(23.dp),
     ) {
         Column(
-            Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(9.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
             content = content,
         )
     }
