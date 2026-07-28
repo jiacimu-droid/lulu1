@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T17:55:19.044599+00:00",
-  "commit": "ba80604f123576df910e1fdc663e783c637c4973",
+  "generatedAt": "2026-07-28T17:56:56.593583+00:00",
+  "commit": "967e81be310632ed4189d4590cf3abc942037bd9",
   "branch": "main",
-  "sourceFingerprint": "dc427430725e738a9f1b0738174f1e965465f0892619a871a15c0174ba3f456d",
+  "sourceFingerprint": "e311465beb061a1fd0acbc2e579421cc4a8bb13dc0406929142c6eb8b3685a91",
   "summary": {
-    "files": 46,
-    "lines": 12922,
+    "files": 47,
+    "lines": 13391,
     "symbols": 279
   },
   "symbolIndex": {
@@ -1807,6 +1807,12 @@
           "line": 523
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreen.kt",
+      "lines": 469,
+      "sha256": "edab306d7680a24bacf401b41ab8ac521c52317ce9a3b9d5c69bf6e441b4d0c9",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt",

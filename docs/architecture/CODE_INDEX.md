@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ba80604f123576df910e1fdc663e783c637c4973`
+- 基准提交：`967e81be310632ed4189d4590cf3abc942037bd9`
 - 分支：`main`
-- 已索引文件：46
-- 已索引代码/文本行：12922
+- 已索引文件：47
+- 已索引代码/文本行：13391
 - 已发现符号：279
 
 | 文件 | 行数 | 符号数 |
@@ -20,6 +20,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MainActivity.kt` | 31 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt` | 775 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 698 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreen.kt` | 469 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PublicCharacterWorldBookScreen.kt` | 283 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 554 | 18 |
