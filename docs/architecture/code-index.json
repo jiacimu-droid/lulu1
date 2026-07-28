@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T16:51:26.124184+00:00",
-  "commit": "2c558aaf5cc8d2c2cdb7e695d6684bc74b22f3cd",
+  "generatedAt": "2026-07-28T16:55:34.571881+00:00",
+  "commit": "f8365b9bc0e0c59210aa5f805c3ae119e37f7571",
   "branch": "main",
-  "sourceFingerprint": "98ec4ac375014c5220eefea2fb76d2c5cbad12ed08602bffad8e29d32e855a7e",
+  "sourceFingerprint": "7f519bd7ed92f2939232bacda4eba137897fb1d889eb7121685f08e78e37faa6",
   "summary": {
     "files": 41,
-    "lines": 10144,
+    "lines": 10163,
     "symbols": 246
   },
   "symbolIndex": {
@@ -475,7 +475,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 265
+        "line": 274
       }
     ],
     "PerformanceOverview": [
@@ -1866,8 +1866,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-      "lines": 457,
-      "sha256": "e05fd6226fdab382e30faa9ca97fa8e5e86085288db7ac794e53943c4a334a94",
+      "lines": 476,
+      "sha256": "a9eff5fb0e8c145e8f0b39d89e60c703b68a5ea86451495780b41ca9658319c7",
       "symbols": [
         {
           "name": "ApiUsageSource",
@@ -1911,7 +1911,7 @@
         },
         {
           "name": "updateDurations",
-          "line": 265
+          "line": 274
         }
       ]
     },
