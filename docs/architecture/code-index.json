@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T17:15:39.971412+00:00",
-  "commit": "f2ce75f36c3b9b01ed30e8afde081f2f8b43c750",
+  "generatedAt": "2026-07-28T17:16:10.060329+00:00",
+  "commit": "e16848237b443892c4c320365346c5e8e587d46e",
   "branch": "main",
-  "sourceFingerprint": "783f02fbc2997e8b9df3010bffe3cbb39d4fd06cb42e79a8fb5536d4c2514f5b",
+  "sourceFingerprint": "7fe130a21c15d7318ba50b512f861f3bbbd5ab3da8c8d28fdd5ea9c8d1444959",
   "summary": {
-    "files": 41,
-    "lines": 10716,
+    "files": 42,
+    "lines": 10725,
     "symbols": 244
   },
   "symbolIndex": {
@@ -1491,6 +1491,12 @@
           "line": 147
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt",
+      "lines": 9,
+      "sha256": "ba7a956a462a117f48d03758d234c1a925637b37c60f5b689dc268f7fdd92e05",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluFinalRootApp.kt",
