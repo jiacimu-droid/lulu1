@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-28T18:07:07.649305+00:00",
-  "commit": "11669de0bc31feac0d000e7e3eb7bcd2d2517261",
+  "generatedAt": "2026-07-28T18:12:46.789070+00:00",
+  "commit": "a27c1ba5a78130bdefe83a90620475eb444bed40",
   "branch": "main",
-  "sourceFingerprint": "90aa4c90b7d3bd223953fef22f066fe1ae836e1d82b05beaf29f3bcf7cc2785c",
+  "sourceFingerprint": "1f9b273f18d3855fb58da517bd8e245dcf887fe150a0d6a2b9bd46871922a601",
   "summary": {
-    "files": 54,
-    "lines": 13875,
-    "symbols": 294
+    "files": 57,
+    "lines": 14013,
+    "symbols": 297
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -37,6 +37,12 @@
     "LuluMigrationRootApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootApp.kt",
+        "line": 14
+      }
+    ],
+    "LuluMigrationRootAppV2": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
         "line": 14
       }
     ],
@@ -182,6 +188,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
         "line": 523
+      }
+    ],
+    "MigrationActivity": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
+        "line": 13
       }
     ],
     "PerformanceFeatureScreen": [
@@ -1450,6 +1462,12 @@
         "line": 17
       }
     ],
+    "StarWishFinalScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishRootAlias.kt",
+        "line": 6
+      }
+    ],
     "requestRoleCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCompanionToday.kt",
@@ -1719,7 +1737,7 @@
     {
       "path": "app/src/main/AndroidManifest.xml",
       "lines": 23,
-      "sha256": "9ad1e4efdf48c93d586e6052a64906c811d25a9926ccb8fb51231b4c2cc20e2c",
+      "sha256": "49efb02ca9c6272d45cafa4a4727f824d441dc3a1b492b58475b8c877c453dde",
       "symbols": []
     },
     {
@@ -1771,6 +1789,17 @@
       "symbols": [
         {
           "name": "LuluMigrationRootApp",
+          "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
+      "lines": 98,
+      "sha256": "a178648571e74977ab57eb0eb89a46a85fd2759d402bfb555905a4e95743eb20",
+      "symbols": [
+        {
+          "name": "LuluMigrationRootAppV2",
           "line": 14
         }
       ]
@@ -1871,6 +1900,17 @@
         {
           "name": "LexiconFeatureScreen",
           "line": 523
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
+      "lines": 31,
+      "sha256": "4a4584ae8830d32fd871ef5e2035d4294aeeda658b6cab0c409ba18c6c3f2930",
+      "symbols": [
+        {
+          "name": "MigrationActivity",
+          "line": 13
         }
       ]
     },
@@ -2931,6 +2971,17 @@
         {
           "name": "StarWishMigratedScreen",
           "line": 17
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishRootAlias.kt",
+      "lines": 9,
+      "sha256": "7ccf361102b21765697612531f508bddce4485f2b0dbda97582bed506296a8a5",
+      "symbols": [
+        {
+          "name": "StarWishFinalScreen",
+          "line": 6
         }
       ]
     },

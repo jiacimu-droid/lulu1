@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`11669de0bc31feac0d000e7e3eb7bcd2d2517261`
+- 基准提交：`a27c1ba5a78130bdefe83a90620475eb444bed40`
 - 分支：`main`
-- 已索引文件：54
-- 已索引代码/文本行：13875
-- 已发现符号：294
+- 已索引文件：57
+- 已索引代码/文本行：14013
+- 已发现符号：297
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -15,11 +15,13 @@
 | `app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt` | 9 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt` | 9 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootApp.kt` | 78 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluRootApp.kt` | 455 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 449 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/MainActivity.kt` | 31 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt` | 775 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 698 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 31 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreen.kt` | 469 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PublicCharacterWorldBookScreen.kt` | 283 | 1 |
@@ -42,6 +44,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishFeature.kt` | 700 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishInventoryBridge.kt` | 49 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt` | 79 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/study/StarWishRootAlias.kt` | 9 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishScrollPanel.kt` | 154 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPanel.kt` | 200 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishVideoPanel.kt` | 149 | 0 |
