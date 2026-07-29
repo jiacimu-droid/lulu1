@@ -14,7 +14,7 @@ import com.jiacimu.lulu.design.LuluColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun MigratedChatTopBar(title: String, onBack: () -> Unit) {
+internal fun MigratedChatTopBarV2(title: String, onBack: () -> Unit) {
     TopAppBar(
         title = { Text(title, fontWeight = FontWeight.SemiBold) },
         navigationIcon = {
