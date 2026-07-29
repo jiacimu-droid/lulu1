@@ -4,16 +4,43 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+val fixedDebugKeystore = layout.buildDirectory.file("signing/lulu-debug.keystore").get().asFile
+val encodedDebugKeystore = rootProject.file("ci/lulu-debug.keystore.b64")
+if (encodedDebugKeystore.exists() && !fixedDebugKeystore.exists()) {
+    fixedDebugKeystore.parentFile.mkdirs()
+    fixedDebugKeystore.writeBytes(
+        java.util.Base64.getDecoder().decode(encodedDebugKeystore.readText().trim()),
+    )
+}
+
 android {
     namespace = "com.jiacimu.lulu"
     compileSdk = 35
 
     defaultConfig {
+        // Keep this stable so every Lulu1 APK can cover-install the previous Lulu1 build.
         applicationId = "app.lulu"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
+    }
+
+    signingConfigs {
+        getByName("debug") {
+            if (fixedDebugKeystore.exists()) {
+                storeFile = fixedDebugKeystore
+                storePassword = "lulu-ci-debug"
+                keyAlias = "lulu"
+                keyPassword = "lulu-ci-debug"
+            }
+        }
+    }
+
+    buildTypes {
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("debug")
+        }
     }
 
     buildFeatures {
