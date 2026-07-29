@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>露露机 · 暖纸极简桌面预览</title>
+  <style>
+    :root {
+      --paper:#fffcf5; --card:#fffbf3; --card-strong:#fff4dd; --wheat:#f2cf70;
+      --ink:#302c2b; --muted:#747887; --border:#e7ddc8; --blue:#6f8090;
+      font-family: ui-rounded, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:#eee8dc; color:var(--ink); display:grid; place-items:center; padding:24px; }
+    .phone { width:min(390px,100%); min-height:760px; background:var(--paper); border-radius:34px; border:1px solid #d8cdb9; box-shadow:0 20px 65px #4b403229; padding:24px 18px 28px; }
+    header { display:flex; justify-content:space-between; align-items:center; }
+    .date { color:var(--muted); font-size:13px; }
+    h1 { margin:4px 0 0; font-size:28px; }
+    .avatar { width:48px; height:48px; border-radius:18px; background:#ffe5dc; display:grid; place-items:center; font-weight:800; }
+    .recent { margin:22px 0 20px; background:var(--card-strong); border:1px solid var(--border); border-radius:24px; padding:16px; display:flex; gap:12px; align-items:center; cursor:pointer; }
+    .recent:hover { transform:translateY(-1px); }
+    .recent small { color:var(--muted); }
+    .recent strong { display:block; margin:3px 0; }
+    .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px 12px; }
+    .app { border:0; background:transparent; color:var(--ink); cursor:pointer; padding:0; }
+    .icon { width:58px; height:58px; margin:auto; border-radius:20px; background:var(--card); border:1px solid var(--border); display:grid; place-items:center; font-size:23px; transition:.15s ease; }
+    .app:hover .icon { background:var(--wheat); transform:translateY(-2px); }
+    .app span { display:block; font-size:12px; margin-top:7px; }
+    .toast { position:fixed; bottom:26px; background:var(--ink); color:white; border-radius:999px; padding:10px 15px; opacity:0; transform:translateY(12px); transition:.2s; pointer-events:none; }
+    .toast.show { opacity:1; transform:none; }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <header>
+      <div><div class="date" id="date"></div><h1>晚上好，主人</h1></div>
+      <div class="avatar">露</div>
+    </header>
+    <section class="recent" data-name="最近聊天 · 露露">
+      <div class="avatar">露</div>
+      <div><small>最近聊天</small><strong>露露</strong><small>今天也会一直陪着主人呀～</small></div>
+    </section>
+    <section class="grid" id="apps"></section>
+  </main>
+  <div class="toast" id="toast"></div>
+<script>
+  const apps = [
+    ['💬','聊天'],['🧠','记忆'],['📖','辞海'],['🌍','世界书'],['📊','性能监测'],
+    ['📚','阅读'],['✨','心愿馆'],['🎓','考研'],['🎮','游戏'],['⚙️','设置']
+  ];
+  document.querySelector('#date').textContent = new Intl.DateTimeFormat('zh-CN',{month:'long',day:'numeric',weekday:'long'}).format(new Date());
+  const grid = document.querySelector('#apps');
+  grid.innerHTML = apps.map(([icon,name]) => `<button class="app" data-name="${name}"><div class="icon">${icon}</div><span>${name}</span></button>`).join('');
+  document.body.addEventListener('click', e => {
+    const target = e.target.closest('[data-name]'); if(!target) return;
+    const toast = document.querySelector('#toast'); toast.textContent = `打开：${target.dataset.name}`;
+    toast.classList.add('show'); clearTimeout(window.hideToast); window.hideToast=setTimeout(()=>toast.classList.remove('show'),1100);
+  });
+</script>
+</body>
+</html>
