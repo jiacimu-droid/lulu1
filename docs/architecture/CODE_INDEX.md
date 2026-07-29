@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`219de396f2fd4ede655366acba3710253b7e41b1`
+- 基准提交：`50cc1886021a0bf05e7f4fd83517894b7af338c2`
 - 分支：`main`
-- 已索引文件：59
-- 已索引代码/文本行：13441
-- 已发现符号：287
+- 已索引文件：57
+- 已索引代码/文本行：13365
+- 已发现符号：285
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -18,12 +18,10 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluRootApp.kt` | 455 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 449 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/MainActivity.kt` | 31 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt` | 775 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 698 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 34 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreen.kt` | 469 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationInitProvider.kt` | 45 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PublicCharacterWorldBookScreen.kt` | 283 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 554 | 18 |
