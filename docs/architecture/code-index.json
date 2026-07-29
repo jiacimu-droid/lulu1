@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T17:18:51.670853+00:00",
-  "commit": "7f66d0e62e33453c45771329aef8d628b73e84af",
+  "generatedAt": "2026-07-29T17:22:00.392660+00:00",
+  "commit": "a025715108b764e76bf7b481fd530970932ad523",
   "branch": "main",
-  "sourceFingerprint": "a07c266ce1d286c8ca0f22a629bc81bb9cc6cf319ea2eeacf94f7c30d526eae3",
+  "sourceFingerprint": "f4985fa3b44ee083f28730690ed4ada7e82ce3a002042bbc91170c1f843190dd",
   "summary": {
-    "files": 59,
-    "lines": 14298,
-    "symbols": 301
+    "files": 60,
+    "lines": 14921,
+    "symbols": 306
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -76,6 +76,52 @@
         "line": 77
       }
     ],
+    "MigratedChatDetailScreenV2": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
+        "line": 53
+      }
+    ],
+    "startGeneration": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
+        "line": 115
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
+        "line": 295
+      }
+    ],
+    "sendMessage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
+        "line": 161
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
+        "line": 341
+      }
+    ],
+    "retryMessage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
+        "line": 175
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
+        "line": 353
+      }
+    ],
+    "stopGeneration": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
+        "line": 180
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
+        "line": 358
+      }
+    ],
     "MigratedChatHubScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
@@ -86,30 +132,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
         "line": 267
-      }
-    ],
-    "startGeneration": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
-        "line": 295
-      }
-    ],
-    "sendMessage": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
-        "line": 341
-      }
-    ],
-    "retryMessage": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
-        "line": 353
-      }
-    ],
-    "stopGeneration": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt",
-        "line": 358
       }
     ],
     "LuluRepositories": [
@@ -1868,6 +1890,33 @@
         {
           "name": "saveCurrent",
           "line": 77
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
+      "lines": 623,
+      "sha256": "57a5c49893a5f25a1ba8681e66914afe137f20de8a011b590ffa69ff6b8f88d7",
+      "symbols": [
+        {
+          "name": "MigratedChatDetailScreenV2",
+          "line": 53
+        },
+        {
+          "name": "startGeneration",
+          "line": 115
+        },
+        {
+          "name": "sendMessage",
+          "line": 161
+        },
+        {
+          "name": "retryMessage",
+          "line": 175
+        },
+        {
+          "name": "stopGeneration",
+          "line": 180
         }
       ]
     },
