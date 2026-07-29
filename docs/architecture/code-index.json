@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T16:49:24.888566+00:00",
-  "commit": "732649870f3ceb9c4b04d52ee25729a537977fba",
+  "generatedAt": "2026-07-29T17:01:00.939426+00:00",
+  "commit": "3d0e42f71f51657cd53a6043debcf0538e7866f0",
   "branch": "main",
-  "sourceFingerprint": "73c90058fcece95c585c7f0c8c8ea115bf30552e65c02789fa91b31696c0bd5f",
+  "sourceFingerprint": "f727546cac8ea435ceb8ae4a29c5c7668a238e31d1e32e08fee480d0358dff80",
   "summary": {
-    "files": 57,
-    "lines": 13691,
-    "symbols": 293
+    "files": 58,
+    "lines": 13783,
+    "symbols": 298
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -850,6 +850,36 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 510
+      }
+    ],
+    "LuluColors": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
+        "line": 15
+      }
+    ],
+    "LuluSpacing": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
+        "line": 30
+      }
+    ],
+    "LuluRadii": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
+        "line": 39
+      }
+    ],
+    "LuluSizes": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
+        "line": 46
+      }
+    ],
+    "LuluMotionTokens": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
+        "line": 56
       }
     ],
     "reroll": [
@@ -2440,6 +2470,33 @@
         {
           "name": "initialize",
           "line": 515
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
+      "lines": 92,
+      "sha256": "fbd48bc9a029207590f6cf8ab51cae8c2ed9f4b9d2dd9df1208e1b60a642f4e8",
+      "symbols": [
+        {
+          "name": "LuluColors",
+          "line": 15
+        },
+        {
+          "name": "LuluSpacing",
+          "line": 30
+        },
+        {
+          "name": "LuluRadii",
+          "line": 39
+        },
+        {
+          "name": "LuluSizes",
+          "line": 46
+        },
+        {
+          "name": "LuluMotionTokens",
+          "line": 56
         }
       ]
     },
