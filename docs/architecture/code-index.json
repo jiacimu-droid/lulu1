@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T17:42:44.952873+00:00",
-  "commit": "b85704c5e2a90a46f729474ac9f09b7b27a84e08",
+  "generatedAt": "2026-07-29T17:44:39.937000+00:00",
+  "commit": "5537e8a3eff77c1e90b310c2a91c881fa56589a9",
   "branch": "main",
-  "sourceFingerprint": "b7a25667ca2e0e47a160ad6e8f4ee66885cfa8e050687cb28f7ef261805badb2",
+  "sourceFingerprint": "d9f7956697a010dab85f5d41a8d4cbb616cb351783ac70d2314602d525a264ff",
   "summary": {
-    "files": 67,
-    "lines": 16484,
-    "symbols": 317
+    "files": 68,
+    "lines": 16537,
+    "symbols": 319
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -1518,6 +1518,22 @@
         "line": 680
       }
     ],
+    "SelfDirectedStudyPlanSeed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
+        "line": 6
+      }
+    ],
+    "migrate": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
+        "line": 9
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt",
+        "line": 10
+      }
+    ],
     "defaultPrompts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
@@ -1822,12 +1838,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt",
         "line": 8
-      }
-    ],
-    "migrate": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt",
-        "line": 10
       }
     ],
     "encode": [
@@ -3170,6 +3180,21 @@
         {
           "name": "initialize",
           "line": 685
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
+      "lines": 53,
+      "sha256": "a8a0761541acb3a3b9ca9943833125abbc62b37bd930201153848bd7481ae3b1",
+      "symbols": [
+        {
+          "name": "SelfDirectedStudyPlanSeed",
+          "line": 6
+        },
+        {
+          "name": "migrate",
+          "line": 9
         }
       ]
     },
