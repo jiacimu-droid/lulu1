@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T16:36:56.743646+00:00",
-  "commit": "668ccde22e5e8ca870fd7dbcbaec991733beac31",
+  "generatedAt": "2026-07-29T16:41:07.062358+00:00",
+  "commit": "59ee4ae0a8dfdf30c668d92e44f15ccabb62de95",
   "branch": "main",
-  "sourceFingerprint": "1efb5d3ce305d6e7f82ced50588ddc4a5d67bf296ef053b7b1d9765c9f40da06",
+  "sourceFingerprint": "2c70098179465ee10f5e2139a133163566ebded439056d548d17795050b40601",
   "summary": {
-    "files": 54,
-    "lines": 12923,
-    "symbols": 282
+    "files": 55,
+    "lines": 13026,
+    "symbols": 287
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -130,6 +130,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
         "line": 33
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
+        "line": 28
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -614,6 +618,42 @@
         "line": 274
       }
     ],
+    "LuluAppPreferences": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
+        "line": 9
+      }
+    ],
+    "LuluAppPreferencesStore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
+        "line": 21
+      }
+    ],
+    "update": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
+        "line": 36
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
+        "line": 375
+      }
+    ],
+    "reset": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
+        "line": 44
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
+        "line": 113
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
+        "line": 283
+      }
+    ],
     "LuluChatMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -728,12 +768,6 @@
         "line": 361
       }
     ],
-    "update": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 375
-      }
-    ],
     "delete": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -792,16 +826,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
         "line": 49
-      }
-    ],
-    "reset": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 113
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 283
       }
     ],
     "finish": [
@@ -2176,6 +2200,33 @@
         {
           "name": "updateDurations",
           "line": 274
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
+      "lines": 103,
+      "sha256": "199c23b5fc266e88fb63d4f9f2d8b5576d20e6baa33ad7e244c3d0878ce86f52",
+      "symbols": [
+        {
+          "name": "LuluAppPreferences",
+          "line": 9
+        },
+        {
+          "name": "LuluAppPreferencesStore",
+          "line": 21
+        },
+        {
+          "name": "initialize",
+          "line": 28
+        },
+        {
+          "name": "update",
+          "line": 36
+        },
+        {
+          "name": "reset",
+          "line": 44
         }
       ]
     },
