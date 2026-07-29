@@ -9,6 +9,7 @@ import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.games.LuluGames
 import com.jiacimu.lulu.study.PostgraduateExamStores
+import com.jiacimu.lulu.study.SelfDirectedStudyPlanSeed
 import com.jiacimu.lulu.study.StarWishStores
 import com.jiacimu.lulu.study.StudyFocusSessions
 import com.jiacimu.lulu.study.StudyRemovedFeatureMigration
@@ -26,6 +27,7 @@ class MigrationActivity : ComponentActivity() {
         LuluGames.initialize(appContext)
         StudyRemovedFeatureMigration.migrate(appContext)
         PostgraduateExamStores.initialize(appContext)
+        SelfDirectedStudyPlanSeed.migrate(appContext, PostgraduateExamStores.main)
         StarWishStores.initialize(appContext)
         StudyFocusSessions.initialize(appContext)
         PostgraduateExamStores.main.syncPomodoroClock()
