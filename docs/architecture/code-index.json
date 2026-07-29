@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T18:00:50.284983+00:00",
-  "commit": "fd03e2d8249e91240c11c4a06f803ce13f2ce6f6",
+  "generatedAt": "2026-07-29T18:04:01.465477+00:00",
+  "commit": "be08f2251d3cf663dc49722fdfb3fb143c72bd7e",
   "branch": "main",
-  "sourceFingerprint": "3e0b267c46b1ca24d4f7425154007ba47c4ef764da8c4d8a7479ca572f049d10",
+  "sourceFingerprint": "4975a421b38df61778558f68d1a38132c6caa05f068c2c38d44c8a90a4cdb693",
   "summary": {
     "files": 68,
-    "lines": 15525,
+    "lines": 15545,
     "symbols": 315
   },
   "symbolIndex": {
@@ -38,6 +38,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
         "line": 147
+      }
+    ],
+    "LexiconFeatureScreenV2": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
+        "line": 48
       }
     ],
     "LuluMigrationRootAppV2": [
@@ -222,12 +228,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt",
         "line": 42
-      }
-    ],
-    "CharacterWorldBookScreen": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/PublicCharacterWorldBookScreen.kt",
-        "line": 30
       }
     ],
     "ApiConfiguration": [
@@ -1922,6 +1922,17 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
+      "lines": 303,
+      "sha256": "01c05d3ca2d45357acacaf3f0b7a512da8ac4591454a07f87ea3b6490cf058e7",
+      "symbols": [
+        {
+          "name": "LexiconFeatureScreenV2",
+          "line": 48
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
       "lines": 142,
       "sha256": "9397b3ab22254b0baf2e0b6beb35a2ac4d872dd4ff28042347511026e63f7ff9",
@@ -2081,17 +2092,6 @@
         {
           "name": "PerformanceFeatureScreen",
           "line": 42
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/PublicCharacterWorldBookScreen.kt",
-      "lines": 283,
-      "sha256": "9ba93bf4ba0320e17cab3761c2f0040874c6d3922a1e2ecda5783c0ab726ebcc",
-      "symbols": [
-        {
-          "name": "CharacterWorldBookScreen",
-          "line": 30
         }
       ]
     },
