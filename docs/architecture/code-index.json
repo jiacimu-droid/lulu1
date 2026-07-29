@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T17:47:50.184198+00:00",
-  "commit": "4fbc8b01cf6ee905a712ffa8a53b8b6fb25a6c30",
+  "generatedAt": "2026-07-29T17:48:47.878874+00:00",
+  "commit": "9387bb4e32e801143b4a874ff2755ea486e5e0fe",
   "branch": "main",
-  "sourceFingerprint": "c7cee9cbeb43cd41a197dbf08b34e8299e6809c6bfe267d95fd0f696f3f27d53",
+  "sourceFingerprint": "e7c391ffcb5b0b6d9b9a708ec6e7ee5ad05a132b36689dec105ff468874d9104",
   "summary": {
     "files": 69,
-    "lines": 16784,
+    "lines": 16786,
     "symbols": 319
   },
   "symbolIndex": {
@@ -237,7 +237,7 @@
     "MigrationActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-        "line": 15
+        "line": 16
       }
     ],
     "PerformanceFeatureScreen": [
@@ -2095,12 +2095,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 36,
-      "sha256": "9443218865a718fabf3b270d59a391c9750048ea3f9ce4bbcdfa99c61f3e7057",
+      "lines": 38,
+      "sha256": "b51e7692c518bbd72fe91bc3ac1b9ec818b73dab6c7d37c97a10ed78b70faf7d",
       "symbols": [
         {
           "name": "MigrationActivity",
-          "line": 15
+          "line": 16
         }
       ]
     },
