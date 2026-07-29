@@ -59,8 +59,8 @@ fun PostgraduateExamApp(onBack: () -> Unit) {
                     Box(Modifier.fillMaxSize()) {
                         when (current.section) {
                             StudySection.Companion -> StudyCompanionScreen(state, store)
-                            StudySection.Today -> StudyTodayScreen(state, store) { route = StudyRoute.Focus }
-                            StudySection.Plan -> StudyPlanScreen(state, store)
+                            StudySection.Today -> StudyTodayScreenV2(state, store) { route = StudyRoute.Focus }
+                            StudySection.Plan -> StudyPlanScreenV2(state, store)
                             StudySection.Gacha -> StudyGachaScreen(state, store)
                             StudySection.Collection -> StudyCollectionScreen(state, store)
                             StudySection.Achievements -> StudyAchievementsScreen(state, store)
