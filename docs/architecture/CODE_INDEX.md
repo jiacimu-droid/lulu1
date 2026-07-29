@@ -1,16 +1,15 @@
 # Lulu1 代码索引
 
-- 基准提交：`76d8e7c841a7bc9e6e971d03ffc9f3f03d4932eb`
+- 基准提交：`fd03e2d8249e91240c11c4a06f803ce13f2ce6f6`
 - 分支：`main`
-- 已索引文件：70
-- 已索引代码/文本行：16532
-- 已发现符号：322
+- 已索引文件：68
+- 已索引代码/文本行：15525
+- 已发现符号：315
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 84 | 0 |
 | `app/src/main/AndroidManifest.xml` | 24 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreen.kt` | 232 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 229 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 238 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
@@ -22,7 +21,6 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 449 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt` | 623 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 388 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MigratedChatScreens.kt` | 775 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 33 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 698 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 38 | 1 |
