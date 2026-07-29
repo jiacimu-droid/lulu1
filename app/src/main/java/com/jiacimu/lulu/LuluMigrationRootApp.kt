@@ -1,14 +1,14 @@
 package com.jiacimu.lulu
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.fillMaxSize
 import com.jiacimu.lulu.games.LuluGamesApp
 import com.jiacimu.lulu.study.PostgraduateExamApp
-import com.jiacimu.lulu.study.StarWishFeatureScreen
+import com.jiacimu.lulu.study.StarWishMigratedScreen
 
 @Composable
 fun LuluMigrationRootApp() {
@@ -67,7 +67,7 @@ fun LuluMigrationRootApp() {
                     subtitle = "阅读入口按迁移计划保留为空，不迁入旧阅读内容。",
                     onBack = { route = MigrationRoute.Home },
                 )
-                MigrationRoute.Wishes -> StarWishFeatureScreen { route = MigrationRoute.Home }
+                MigrationRoute.Wishes -> StarWishMigratedScreen { route = MigrationRoute.Home }
                 MigrationRoute.Study -> PostgraduateExamApp { route = MigrationRoute.Home }
                 MigrationRoute.Games -> LuluGamesApp { route = MigrationRoute.Home }
                 MigrationRoute.Settings -> LuluSettingsScreen { route = MigrationRoute.Home }
