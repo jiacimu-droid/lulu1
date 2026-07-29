@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T17:57:57.565146+00:00",
-  "commit": "285bea1f93aa2a79ef5978971dee6a8f640809c0",
+  "generatedAt": "2026-07-29T17:59:23.332876+00:00",
+  "commit": "fe7438405e52f14e07e8bf1664d612004ef04192",
   "branch": "main",
-  "sourceFingerprint": "0a5bdc4312fc51f3363f3a782e8f222828793c9fed3b347d90c5022bc1d36f81",
+  "sourceFingerprint": "e1514930568fd71779bbc89523a0ba92ac2c193d72d3dc6a8b4a9bf3b558ff81",
   "summary": {
-    "files": 70,
-    "lines": 16915,
-    "symbols": 320
+    "files": 71,
+    "lines": 17001,
+    "symbols": 322
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -238,6 +238,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
         "line": 16
+      }
+    ],
+    "MigrationRoute": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
+        "line": 16
+      }
+    ],
+    "MigrationEmptyScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
+        "line": 35
       }
     ],
     "PerformanceFeatureScreen": [
@@ -2127,6 +2139,21 @@
       "lines": 203,
       "sha256": "b95e4a5ed7c1d4e85cdf5928c086779a2162ae8a1117b30e7c4bbf3c2597dcc6",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
+      "lines": 86,
+      "sha256": "916e5fb98863230060432c24eae988264cda85d03e9312674c6a313e11047f1b",
+      "symbols": [
+        {
+          "name": "MigrationRoute",
+          "line": 16
+        },
+        {
+          "name": "MigrationEmptyScreen",
+          "line": 35
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt",
