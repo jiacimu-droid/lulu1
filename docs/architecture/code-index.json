@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T04:06:04.820586+00:00",
-  "commit": "50cc1886021a0bf05e7f4fd83517894b7af338c2",
+  "generatedAt": "2026-07-29T04:06:25.838385+00:00",
+  "commit": "d28dcaf10504e2fd447044a9e622c993c5e92d5b",
   "branch": "main",
-  "sourceFingerprint": "63d4a73b35a4acceec7aa1fa4a2642da3b25b324afe0e76df107d23cf50f3d07",
+  "sourceFingerprint": "dc5c6966c22cd5455c32ce07aea010540032df55ba7b9b4d8d213a4aecf733e4",
   "summary": {
-    "files": 57,
-    "lines": 13365,
-    "symbols": 285
+    "files": 55,
+    "lines": 13278,
+    "symbols": 283
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -32,12 +32,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
         "line": 147
-      }
-    ],
-    "LuluMigrationRootApp": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootApp.kt",
-        "line": 14
       }
     ],
     "LuluMigrationRootAppV2": [
@@ -1412,12 +1406,6 @@
         "line": 17
       }
     ],
-    "StarWishFinalScreen": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishRootAlias.kt",
-        "line": 6
-      }
-    ],
     "requestRoleCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCompanionToday.kt",
@@ -1731,17 +1719,6 @@
       "lines": 9,
       "sha256": "ba7a956a462a117f48d03758d234c1a925637b37c60f5b689dc268f7fdd92e05",
       "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootApp.kt",
-      "lines": 78,
-      "sha256": "4804c876b64775ed9f5008cfacfa19b5d6ce74e0756b48c6ca32101c3b1ac0de",
-      "symbols": [
-        {
-          "name": "LuluMigrationRootApp",
-          "line": 14
-        }
-      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
@@ -2866,17 +2843,6 @@
         {
           "name": "StarWishMigratedScreen",
           "line": 17
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishRootAlias.kt",
-      "lines": 9,
-      "sha256": "7ccf361102b21765697612531f508bddce4485f2b0dbda97582bed506296a8a5",
-      "symbols": [
-        {
-          "name": "StarWishFinalScreen",
-          "line": 6
         }
       ]
     },

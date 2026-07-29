@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`50cc1886021a0bf05e7f4fd83517894b7af338c2`
+- 基准提交：`d28dcaf10504e2fd447044a9e622c993c5e92d5b`
 - 分支：`main`
-- 已索引文件：57
-- 已索引代码/文本行：13365
-- 已发现符号：285
+- 已索引文件：55
+- 已索引代码/文本行：13278
+- 已发现符号：283
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -14,7 +14,6 @@
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt` | 9 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt` | 9 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootApp.kt` | 78 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluRootApp.kt` | 455 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 449 | 4 |
@@ -43,7 +42,6 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt` | 301 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishInventoryBridge.kt` | 49 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt` | 79 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/study/StarWishRootAlias.kt` | 9 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishScrollPanel.kt` | 154 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPanel.kt` | 200 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishVideoPanel.kt` | 149 | 0 |
