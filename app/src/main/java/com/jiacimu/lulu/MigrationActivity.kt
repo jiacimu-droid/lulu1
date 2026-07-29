@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.ChatMemoryAutomation
+import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.games.LuluGames
 import com.jiacimu.lulu.study.PostgraduateExamStores
@@ -16,6 +17,7 @@ class MigrationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val appContext = applicationContext
+        LuluAppPreferencesStore.initialize(appContext)
         LuluRepositories.initialize(appContext)
         LuluRepositories.lexicon.initialize(appContext)
         LuluRepositories.worldBook.initialize(appContext)
