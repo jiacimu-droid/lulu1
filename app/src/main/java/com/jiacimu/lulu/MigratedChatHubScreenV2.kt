@@ -33,7 +33,12 @@ fun MigratedChatHubScreenV2(
 ) {
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     val labels = listOf("消息", "角色", "朋友圈", "我的")
-    val icons = listOf(Icons.Outlined.ChatBubbleOutline, Icons.Outlined.PeopleOutline, Icons.Outlined.DynamicFeed, Icons.Outlined.PersonOutline)
+    val icons = listOf(
+        Icons.Outlined.ChatBubbleOutline,
+        Icons.Outlined.PeopleOutline,
+        Icons.Outlined.DynamicFeed,
+        Icons.Outlined.PersonOutline,
+    )
 
     Scaffold(
         containerColor = LuluColors.Paper,
@@ -99,11 +104,26 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text(conversation.title.ifBlank { character.displayName }, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                                Text(conversation.updatedAt.atZone(ZoneId.systemDefault()).format(ChatHubV2Time), color = LuluColors.Muted, fontSize = 11.sp)
+                                Text(
+                                    conversation.title.ifBlank { character.displayName },
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 17.sp,
+                                )
+                                Text(
+                                    conversation.updatedAt.atZone(ZoneId.systemDefault()).format(ChatHubV2Time),
+                                    color = LuluColors.Muted,
+                                    fontSize = 11.sp,
+                                )
                             }
-                            Text(conversation.lastMessage, color = LuluColors.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            if (conversation.parentConversationId != null) Text("聊天分支", color = LuluColors.Muted, fontSize = 10.sp)
+                            Text(
+                                conversation.lastMessage.ifBlank { "还没有消息，点开后开始聊天。" },
+                                color = LuluColors.Muted,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            if (conversation.parentConversationId != null) {
+                                Text("聊天分支", color = LuluColors.Muted, fontSize = 10.sp)
+                            }
                         }
                         if (conversation.unreadCount > 0) {
                             Spacer(Modifier.width(7.dp))
@@ -139,14 +159,17 @@ private fun ChatHubV2Characters(
                 }
                 FilledIconButton(
                     onClick = { showCreateDialog = true },
-                    colors = IconButtonDefaults.filledIconButtonColors(containerColor = LuluColors.Wheat, contentColor = LuluColors.Ink),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = LuluColors.Wheat,
+                        contentColor = LuluColors.Ink,
+                    ),
                 ) { Icon(Icons.Outlined.Add, "新建角色") }
             }
         }
         items(characters.values.sortedBy { it.displayName }, key = { it.characterId }) { character ->
             val recent = conversations
                 .filter { it.characterId == character.characterId }
-                .maxByOrNull { it.updatedAt }
+                .maxByOrNull(LuluConversation::updatedAt)
             ChatHubV2Card {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 56)
@@ -168,28 +191,40 @@ private fun ChatHubV2Characters(
                     Text(character.persona, color = LuluColors.Muted, maxLines = 3, overflow = TextOverflow.Ellipsis)
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                    OutlinedButton(onClick = { onCharacterSettings(character.characterId) }, modifier = Modifier.weight(1f)) {
+                    OutlinedButton(
+                        onClick = { onCharacterSettings(character.characterId) },
+                        modifier = Modifier.weight(1f),
+                    ) {
                         Icon(Icons.Outlined.Tune, null, Modifier.size(17.dp))
                         Spacer(Modifier.width(4.dp))
                         Text("角色设置")
                     }
-                    OutlinedButton(onClick = { onWorldBook(character.characterId) }, modifier = Modifier.weight(1f)) {
+                    OutlinedButton(
+                        onClick = { onWorldBook(character.characterId) },
+                        modifier = Modifier.weight(1f),
+                    ) {
                         Icon(Icons.Outlined.Public, null, Modifier.size(17.dp))
                         Spacer(Modifier.width(4.dp))
                         Text("世界书")
                     }
                 }
-                if (recent != null) {
-                    Button(
-                        onClick = { onOpenConversation(recent.id) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = LuluColors.Wheat, contentColor = LuluColors.Ink),
-                    ) { Text("继续和${character.displayName}聊天", fontWeight = FontWeight.Bold) }
-                } else {
+                Button(
+                    onClick = {
+                        val conversation = recent ?: MigratedDomainStores.chat.ensureConversation(
+                            characterId = character.characterId,
+                            title = character.displayName,
+                        )
+                        onOpenConversation(conversation.id)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = LuluColors.Wheat,
+                        contentColor = LuluColors.Ink,
+                    ),
+                ) {
                     Text(
-                        "当前聊天仓库只为已有会话保留角色归属；创建新会话前不会伪造一段系统消息。",
-                        color = LuluColors.Muted,
-                        fontSize = 11.sp,
+                        if (recent == null) "开始和${character.displayName}聊天" else "继续和${character.displayName}聊天",
+                        fontWeight = FontWeight.Bold,
                     )
                 }
             }
@@ -201,6 +236,7 @@ private fun ChatHubV2Characters(
             onDismiss = { showCreateDialog = false },
             onCreate = { name, persona ->
                 val created = MigratedDomainStores.characters.create(name, persona)
+                MigratedDomainStores.chat.ensureConversation(created.characterId, created.displayName)
                 showCreateDialog = false
                 onCharacterSettings(created.characterId)
             },
@@ -246,11 +282,17 @@ private fun ChatHubV2Profile(onOpenSettings: () -> Unit) {
         item {
             ChatHubV2Card {
                 Text("我的内容", fontWeight = FontWeight.Bold)
-                Text("角色关系、收藏消息、成就和个人资料属于“我的”；模型密钥、通知、备份、恢复和权限属于“设置”。", color = LuluColors.Muted)
+                Text(
+                    "角色关系、收藏消息、成就和个人资料属于“我的”；模型密钥、通知、备份、恢复和权限属于“设置”。",
+                    color = LuluColors.Muted,
+                )
                 Button(
                     onClick = onOpenSettings,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = LuluColors.Wheat, contentColor = LuluColors.Ink),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = LuluColors.Wheat,
+                        contentColor = LuluColors.Ink,
+                    ),
                 ) {
                     Icon(Icons.Outlined.Settings, null)
                     Spacer(Modifier.width(6.dp))
@@ -273,11 +315,28 @@ private fun ChatHubV2CreateCharacterDialog(
         title = { Text("新建角色") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("角色名称") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = persona, onValueChange = { persona = it }, label = { Text("角色核心设定") }, minLines = 4, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("角色名称") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = persona,
+                    onValueChange = { persona = it },
+                    label = { Text("角色核心设定") },
+                    minLines = 4,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
         },
-        confirmButton = { TextButton(enabled = name.isNotBlank(), onClick = { onCreate(name.trim(), persona.trim()) }) { Text("创建并设置") } },
+        confirmButton = {
+            TextButton(
+                enabled = name.isNotBlank(),
+                onClick = { onCreate(name.trim(), persona.trim()) },
+            ) { Text("创建并设置") }
+        },
         dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } },
     )
 }
@@ -290,7 +349,10 @@ private fun ChatHubV2Stat(value: String, label: String, modifier: Modifier) {
         border = BorderStroke(1.dp, LuluColors.Border),
         shape = RoundedCornerShape(18.dp),
     ) {
-        Column(Modifier.fillMaxWidth().padding(vertical = 13.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            Modifier.fillMaxWidth().padding(vertical = 13.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             Text(value, fontWeight = FontWeight.Bold, fontSize = 20.sp)
             Text(label, color = LuluColors.Muted, fontSize = 12.sp)
         }
@@ -305,7 +367,11 @@ private fun ChatHubV2Card(content: @Composable ColumnScope.() -> Unit) {
         border = BorderStroke(1.dp, LuluColors.Border),
         shape = RoundedCornerShape(22.dp),
     ) {
-        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
+        Column(
+            Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            content = content,
+        )
     }
 }
 
