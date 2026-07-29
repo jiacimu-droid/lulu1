@@ -11,7 +11,7 @@ import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.design.LuluColors
 import com.jiacimu.lulu.design.LuluLightColorScheme
 import com.jiacimu.lulu.design.LuluTypography
-import com.jiacimu.lulu.games.LuluGamesApp
+import com.jiacimu.lulu.games.LuluGamesAppV2
 import com.jiacimu.lulu.study.PostgraduateExamApp
 import com.jiacimu.lulu.study.StarWishMigratedScreen
 
@@ -36,7 +36,7 @@ fun LuluMigrationRootAppV2() {
         ) {
             Surface(Modifier.fillMaxSize(), color = LuluColors.Paper) {
                 when (route) {
-                    MigrationRoute.Home -> MigrationHome(
+                    MigrationRoute.Home -> MigrationHomeV2(
                         onOpen = { target ->
                             if (target == MigrationRoute.WorldBook) {
                                 worldBookReturnRoute = MigrationRoute.Home
@@ -99,7 +99,7 @@ fun LuluMigrationRootAppV2() {
                     MigrationRoute.Study -> PostgraduateExamApp {
                         route = MigrationRoute.Home
                     }
-                    MigrationRoute.Games -> LuluGamesApp {
+                    MigrationRoute.Games -> LuluGamesAppV2 {
                         route = MigrationRoute.Home
                     }
                     MigrationRoute.Settings -> LuluSettingsHomeScreen {
