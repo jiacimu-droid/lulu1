@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T17:44:39.937000+00:00",
-  "commit": "5537e8a3eff77c1e90b310c2a91c881fa56589a9",
+  "generatedAt": "2026-07-29T17:45:42.262684+00:00",
+  "commit": "b3b7308c9efe4c494efed6b13f956f841c8b2983",
   "branch": "main",
-  "sourceFingerprint": "d9f7956697a010dab85f5d41a8d4cbb616cb351783ac70d2314602d525a264ff",
+  "sourceFingerprint": "0053936c6c9893381d7f39491b30a28268771012700508dd7cb162ab4b1e8a32",
   "summary": {
-    "files": 68,
-    "lines": 16537,
+    "files": 69,
+    "lines": 16784,
     "symbols": 319
   },
   "symbolIndex": {
@@ -3197,6 +3197,12 @@
           "line": 9
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt",
+      "lines": 247,
+      "sha256": "5ad12a9580cd31e4fb48edf8c6200f568d52ccabc03b0d51ab8c96b889a1f64e",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
