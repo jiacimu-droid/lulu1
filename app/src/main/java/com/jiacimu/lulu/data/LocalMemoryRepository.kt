@@ -11,7 +11,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
@@ -23,13 +24,12 @@ import java.util.UUID
  */
 class LocalMemoryRepository : MemoryRepository {
     private val state = MutableStateFlow(MemoryStoreState())
+    private val debugFlow = MutableStateFlow(MemoryDebugState())
+    private val extractionLocks = mutableMapOf<String, Mutex>()
     private var prefs: android.content.SharedPreferences? = null
     private val lock = Any()
 
-    val debugState: StateFlow<MemoryDebugState> = MutableStateFlow(MemoryDebugState())
-        .also { debugFlow = it }
-        .asStateFlow()
-    private lateinit var debugFlow: MutableStateFlow<MemoryDebugState>
+    val debugState: StateFlow<MemoryDebugState> = debugFlow.asStateFlow()
 
     fun initialize(context: Context) {
         synchronized(lock) {
@@ -58,106 +58,146 @@ class LocalMemoryRepository : MemoryRepository {
         require(policy.excludedRecentMessages >= 0) { "最近消息排除数量不能为负数" }
         require(policy.readableThreshold > 0) { "总结阈值必须大于 0" }
         mutate { current -> current.copy(policies = current.policies + (characterId to policy)) }
-        refreshDebug("已保存记忆规则")
+        refreshDebug("已保存记忆规则", characterId)
     }
 
     override suspend fun summarizeNow(characterId: String) {
-        val policy = state.value.policies[characterId] ?: MemoryPolicy()
-        val conversations = MigratedDomainStores.chat.conversations.value
-            .filter { conversation -> conversation.characterId == characterId }
-        val readable = conversations
-            .flatMap { conversation -> MigratedDomainStores.chat.messages(conversation.id).value }
-            .filter { message -> message.sender != LuluChatMessage.Sender.System }
-            .sortedBy { message -> message.createdAt }
-            .dropLast(policy.excludedRecentMessages.coerceAtLeast(0))
-        val processed = state.value.processedMessageIds[characterId].orEmpty()
-        val pending = readable.filterNot { message -> message.id in processed }
-        val threshold = policy.readableThreshold.coerceAtLeast(1)
-        val batch = pending.take(threshold)
-
-        refreshDebug(
-            message = if (batch.size < threshold) {
-                "可整理消息 ${batch.size}/$threshold，尚未达到阈值"
-            } else {
-                "正在整理第 ${processed.size + 1}-${processed.size + batch.size} 条可读消息"
-            },
-            characterId = characterId,
-            readableCount = readable.size,
-            pendingCount = pending.size,
-            batchCount = batch.size,
-            extracting = batch.size >= threshold,
-        )
-        if (batch.size < threshold) return
-
-        val facts = batch.joinToString("\n") { message ->
-            val sender = if (message.sender == LuluChatMessage.Sender.User) "用户" else "角色"
-            "[${message.createdAt}] $sender：${message.content}"
+        require(characterId.isNotBlank()) { "角色不能为空" }
+        val extractionLock = synchronized(extractionLocks) {
+            extractionLocks.getOrPut(characterId) { Mutex() }
         }
-        val result = LuluAiServices.gateway.generate(
-            characterId = characterId,
-            facts = facts,
-            instruction = """
-                从给定真实对话中提取值得长期保留的记忆。只返回 JSON 数组，不要代码块。
-                每项格式：
-                {"kind":"Fact|Emotion|Timeline","content":"简洁但信息完整的中文记忆","source":"聊天","occurredAt":"ISO-8601时间或空字符串","strength":1到10}
-                规则：
-                1. 不编造未发生事实。
-                2. Fact 保存稳定事实与偏好；Emotion 保存明确情绪及触发原因；Timeline 保存有时间意义的事件。
-                3. 日常寒暄、同义重复、已经存在的总结不要重复写入。
-                4. 没有值得保存的内容时返回 []。
-            """.trimIndent(),
-            source = "记忆",
-            title = "连续记忆提取",
-            temperature = 0.2,
-            maxTokens = 1800,
-        )
+        extractionLock.withLock {
+            summarizeContinuously(characterId)
+        }
+    }
 
-        result.onFailure { error ->
-            // Deliberately do not advance the checkpoint: this batch remains retryable.
-            refreshDebug(
-                message = "记忆提取失败，当前批次未跳过：${error.message ?: "未知错误"}",
-                characterId = characterId,
-                readableCount = readable.size,
-                pendingCount = pending.size,
-                batchCount = batch.size,
-                extracting = false,
-                lastError = error.message,
-            )
-        }.onSuccess { reply ->
-            val parsed = runCatching { parseMemoryArray(reply.text, characterId) }
-            parsed.onFailure { error ->
-                // Invalid model output is not checkpointed and will be retried later.
+    private suspend fun summarizeContinuously(characterId: String) {
+        val policy = state.value.policies[characterId] ?: MemoryPolicy()
+        val threshold = policy.readableThreshold.coerceAtLeast(1)
+        val readable = readableMessages(characterId, policy)
+        var processedThisRun = 0
+        var extractedThisRun = 0
+
+        while (true) {
+            val processed = state.value.processedMessageIds[characterId].orEmpty()
+            val pending = readable.filterNot { message -> message.id in processed }
+            val batch = pending.take(threshold)
+
+            if (batch.size < threshold) {
                 refreshDebug(
-                    message = "模型记忆格式无效，当前批次未跳过：${error.message ?: "无法解析"}",
+                    message = if (processedThisRun == 0) {
+                        "可整理消息 ${batch.size}/$threshold，尚未达到阈值"
+                    } else {
+                        "连续整理完成：本次处理 $processedThisRun 条消息，新增 $extractedThisRun 条记忆；剩余 ${batch.size}/$threshold 条等待下一批"
+                    },
                     characterId = characterId,
                     readableCount = readable.size,
                     pendingCount = pending.size,
                     batchCount = batch.size,
                     extracting = false,
-                    lastError = error.message,
+                    lastExtractedCount = extractedThisRun,
                 )
-            }.onSuccess { extracted ->
-                val existingKeys = state.value.entries
-                    .filter { entry -> entry.characterId == characterId }
-                    .mapTo(mutableSetOf()) { entry -> entry.dedupeKey() }
-                val unique = extracted.filter { entry -> existingKeys.add(entry.dedupeKey()) }
-                mutate { current ->
-                    current.copy(
-                        entries = current.entries + unique,
-                        processedMessageIds = current.processedMessageIds +
-                            (characterId to (processed + batch.map { message -> message.id })),
-                    )
-                }
+                return
+            }
+
+            val batchStart = processed.size + 1
+            val batchEnd = processed.size + batch.size
+            refreshDebug(
+                message = "正在整理第 $batchStart-$batchEnd 条可读消息",
+                characterId = characterId,
+                readableCount = readable.size,
+                pendingCount = pending.size,
+                batchCount = batch.size,
+                extracting = true,
+                lastExtractedCount = extractedThisRun,
+            )
+
+            val facts = batch.joinToString("\n") { message ->
+                val sender = if (message.sender == LuluChatMessage.Sender.User) "用户" else "角色"
+                "[${message.createdAt}] $sender：${message.content}"
+            }
+            val result = LuluAiServices.gateway.generate(
+                characterId = characterId,
+                facts = facts,
+                instruction = """
+                    从给定真实对话中提取值得长期保留的记忆。只返回 JSON 数组，不要代码块。
+                    每项格式：
+                    {"kind":"Fact|Emotion|Timeline","content":"简洁但信息完整的中文记忆","source":"聊天","occurredAt":"ISO-8601时间或空字符串","strength":1到10}
+                    规则：
+                    1. 不编造未发生事实。
+                    2. Fact 保存稳定事实与偏好；Emotion 保存明确情绪及触发原因；Timeline 保存有时间意义的事件。
+                    3. 日常寒暄、同义重复、已经存在的总结不要重复写入。
+                    4. 没有值得保存的内容时返回 []。
+                """.trimIndent(),
+                source = "记忆",
+                title = "连续记忆提取",
+                temperature = 0.2,
+                maxTokens = 1800,
+            )
+
+            if (result.isFailure) {
+                val error = result.exceptionOrNull()
                 refreshDebug(
-                    message = "本批读取 ${batch.size} 条消息，新增 ${unique.size} 条记忆",
+                    message = "记忆提取失败，当前批次未跳过：${error?.message ?: "未知错误"}",
                     characterId = characterId,
                     readableCount = readable.size,
-                    pendingCount = (pending.size - batch.size).coerceAtLeast(0),
+                    pendingCount = pending.size,
                     batchCount = batch.size,
                     extracting = false,
-                    lastExtractedCount = unique.size,
+                    lastError = error?.message,
+                    lastExtractedCount = extractedThisRun,
+                )
+                return
+            }
+
+            val reply = result.getOrThrow()
+            val parsed = runCatching { parseMemoryArray(reply.text, characterId) }
+            if (parsed.isFailure) {
+                val error = parsed.exceptionOrNull()
+                refreshDebug(
+                    message = "模型记忆格式无效，当前批次未跳过：${error?.message ?: "无法解析"}",
+                    characterId = characterId,
+                    readableCount = readable.size,
+                    pendingCount = pending.size,
+                    batchCount = batch.size,
+                    extracting = false,
+                    lastError = error?.message,
+                    lastExtractedCount = extractedThisRun,
+                )
+                return
+            }
+
+            val existingKeys = state.value.entries
+                .filter { entry -> entry.characterId == characterId }
+                .mapTo(mutableSetOf()) { entry -> entry.dedupeKey() }
+            val unique = parsed.getOrThrow().filter { entry -> existingKeys.add(entry.dedupeKey()) }
+            val batchIds = batch.mapTo(mutableSetOf()) { message -> message.id }
+
+            mutate { current ->
+                val currentProcessed = current.processedMessageIds[characterId].orEmpty()
+                current.copy(
+                    entries = current.entries + unique,
+                    processedMessageIds = current.processedMessageIds +
+                        (characterId to (currentProcessed + batchIds)),
                 )
             }
+
+            processedThisRun += batch.size
+            extractedThisRun += unique.size
+            val remaining = (pending.size - batch.size).coerceAtLeast(0)
+            refreshDebug(
+                message = if (remaining >= threshold) {
+                    "第 $batchStart-$batchEnd 条整理完成，新增 ${unique.size} 条记忆；继续下一批"
+                } else {
+                    "本批读取 ${batch.size} 条消息，新增 ${unique.size} 条记忆"
+                },
+                characterId = characterId,
+                readableCount = readable.size,
+                pendingCount = remaining,
+                batchCount = batch.size,
+                extracting = remaining >= threshold,
+                lastExtractedCount = extractedThisRun,
+            )
         }
     }
 
@@ -179,9 +219,11 @@ class LocalMemoryRepository : MemoryRepository {
         )
         mutate { current ->
             val index = current.entries.indexOfFirst { item -> item.id == clean.id }
-            if (index < 0) current.copy(entries = current.entries + clean) else current.copy(
-                entries = current.entries.toMutableList().apply { set(index, clean) },
-            )
+            if (index < 0) {
+                current.copy(entries = current.entries + clean)
+            } else {
+                current.copy(entries = current.entries.toMutableList().apply { set(index, clean) })
+            }
         }
         refreshDebug("记忆已保存", entry.characterId)
     }
@@ -195,17 +237,25 @@ class LocalMemoryRepository : MemoryRepository {
 
     suspend fun togglePinned(id: String) {
         mutate { current ->
-            current.copy(entries = current.entries.map { entry ->
-                if (entry.id == id) entry.copy(pinned = !entry.pinned) else entry
-            })
+            current.copy(
+                entries = current.entries.map { entry ->
+                    if (entry.id == id) entry.copy(pinned = !entry.pinned) else entry
+                },
+            )
         }
     }
 
     suspend fun toggleRecall(id: String) {
         mutate { current ->
-            current.copy(entries = current.entries.map { entry ->
-                if (entry.id == id) entry.copy(canRecallProactively = !entry.canRecallProactively) else entry
-            })
+            current.copy(
+                entries = current.entries.map { entry ->
+                    if (entry.id == id) {
+                        entry.copy(canRecallProactively = !entry.canRecallProactively)
+                    } else {
+                        entry
+                    }
+                },
+            )
         }
     }
 
@@ -215,15 +265,20 @@ class LocalMemoryRepository : MemoryRepository {
 
     fun pendingMessageCount(characterId: String): Int {
         val policy = state.value.policies[characterId] ?: MemoryPolicy()
-        val readable = MigratedDomainStores.chat.conversations.value
-            .filter { conversation -> conversation.characterId == characterId }
-            .flatMap { conversation -> MigratedDomainStores.chat.messages(conversation.id).value }
-            .filter { message -> message.sender != LuluChatMessage.Sender.System }
-            .sortedBy { message -> message.createdAt }
-            .dropLast(policy.excludedRecentMessages.coerceAtLeast(0))
+        val readable = readableMessages(characterId, policy)
         val processed = state.value.processedMessageIds[characterId].orEmpty()
         return readable.count { message -> message.id !in processed }
     }
+
+    private fun readableMessages(
+        characterId: String,
+        policy: MemoryPolicy,
+    ): List<LuluChatMessage> = MigratedDomainStores.chat.conversations.value
+        .filter { conversation -> conversation.characterId == characterId }
+        .flatMap { conversation -> MigratedDomainStores.chat.messages(conversation.id).value }
+        .filter { message -> message.sender != LuluChatMessage.Sender.System }
+        .sortedBy { message -> message.createdAt }
+        .dropLast(policy.excludedRecentMessages.coerceAtLeast(0))
 
     private fun parseMemoryArray(raw: String, characterId: String): List<MemoryEntry> {
         val clean = raw.trim()
@@ -317,7 +372,9 @@ class LocalMemoryRepository : MemoryRepository {
         .put(
             "processedMessageIds",
             JSONObject().apply {
-                value.processedMessageIds.forEach { (characterId, ids) -> put(characterId, JSONArray(ids.toList())) }
+                value.processedMessageIds.forEach { (characterId, ids) ->
+                    put(characterId, JSONArray(ids.toList()))
+                }
             },
         )
 
@@ -335,8 +392,10 @@ class LocalMemoryRepository : MemoryRepository {
                     put(
                         characterId,
                         MemoryPolicy(
-                            excludedRecentMessages = item.optInt("excludedRecentMessages", 10).coerceAtLeast(0),
-                            readableThreshold = item.optInt("readableThreshold", 20).coerceAtLeast(1),
+                            excludedRecentMessages = item.optInt("excludedRecentMessages", 10)
+                                .coerceAtLeast(0),
+                            readableThreshold = item.optInt("readableThreshold", 20)
+                                .coerceAtLeast(1),
                             autoSummarize = item.optBoolean("autoSummarize", true),
                         ),
                     )
@@ -348,14 +407,23 @@ class LocalMemoryRepository : MemoryRepository {
                 while (keys.hasNext()) {
                     val characterId = keys.next()
                     val ids = processedObject.optJSONArray(characterId) ?: JSONArray()
-                    put(characterId, buildSet {
-                        for (index in 0 until ids.length()) {
-                            ids.optString(index).takeIf { id -> id.isNotBlank() }?.let(::add)
-                        }
-                    })
+                    put(
+                        characterId,
+                        buildSet {
+                            for (index in 0 until ids.length()) {
+                                ids.optString(index)
+                                    .takeIf { id -> id.isNotBlank() }
+                                    ?.let(::add)
+                            }
+                        },
+                    )
                 }
             }
-            MemoryStoreState(entries = entries, policies = policies, processedMessageIds = processed)
+            MemoryStoreState(
+                entries = entries,
+                policies = policies,
+                processedMessageIds = processed,
+            )
         }.getOrDefault(MemoryStoreState())
     }
 
@@ -375,10 +443,13 @@ class LocalMemoryRepository : MemoryRepository {
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
         characterId = item.optString("characterId").ifBlank { "lulu" },
         content = item.optString("content"),
-        kind = runCatching { MemoryKind.valueOf(item.optString("kind")) }.getOrDefault(MemoryKind.Fact),
+        kind = runCatching { MemoryKind.valueOf(item.optString("kind")) }
+            .getOrDefault(MemoryKind.Fact),
         source = item.optString("source").ifBlank { "未知" },
-        occurredAt = item.nullableString("occurredAt")?.let { value -> runCatching { Instant.parse(value) }.getOrNull() },
-        createdAt = item.optString("createdAt").let { value -> runCatching { Instant.parse(value) }.getOrDefault(Instant.now()) },
+        occurredAt = item.nullableString("occurredAt")
+            ?.let { value -> runCatching { Instant.parse(value) }.getOrNull() },
+        createdAt = item.optString("createdAt")
+            .let { value -> runCatching { Instant.parse(value) }.getOrDefault(Instant.now()) },
         strength = item.optInt("strength", 5).coerceIn(1, 10),
         pinned = item.optBoolean("pinned"),
         canRecallProactively = item.optBoolean("canRecallProactively", true),
@@ -422,4 +493,6 @@ private fun <T> JSONArray?.decodeObjects(transform: (JSONObject) -> T): List<T> 
 }
 
 private fun JSONObject.nullableString(key: String): String? =
-    takeUnless { json -> json.isNull(key) }?.optString(key)?.takeIf { value -> value.isNotBlank() }
+    takeUnless { json -> json.isNull(key) }
+        ?.optString(key)
+        ?.takeIf { value -> value.isNotBlank() }
