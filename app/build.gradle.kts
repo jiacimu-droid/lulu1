@@ -1,3 +1,5 @@
+import java.util.Base64
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -9,7 +11,7 @@ val encodedDebugKeystore = rootProject.file("ci/lulu-debug.keystore.b64")
 if (encodedDebugKeystore.exists() && !fixedDebugKeystore.exists()) {
     fixedDebugKeystore.parentFile.mkdirs()
     fixedDebugKeystore.writeBytes(
-        java.util.Base64.getDecoder().decode(encodedDebugKeystore.readText().trim()),
+        Base64.getDecoder().decode(encodedDebugKeystore.readText().trim()),
     )
 }
 
