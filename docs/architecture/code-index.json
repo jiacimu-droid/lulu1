@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T16:41:07.062358+00:00",
-  "commit": "59ee4ae0a8dfdf30c668d92e44f15ccabb62de95",
+  "generatedAt": "2026-07-29T16:41:38.345759+00:00",
+  "commit": "5b1065659afbfb7abd4edc7a5948a6dbe6a93a38",
   "branch": "main",
-  "sourceFingerprint": "2c70098179465ee10f5e2139a133163566ebded439056d548d17795050b40601",
+  "sourceFingerprint": "7c0b9334cbbe712b6479e8a21dedbb9630a2c45f7773b50e7555ac5f3179b5aa",
   "summary": {
-    "files": 55,
-    "lines": 13026,
-    "symbols": 287
+    "files": 56,
+    "lines": 13132,
+    "symbols": 291
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -652,6 +652,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
         "line": 283
+      }
+    ],
+    "LuluBackupManager": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt",
+        "line": 16
+      }
+    ],
+    "exportJson": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt",
+        "line": 18
+      }
+    ],
+    "importJson": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt",
+        "line": 46
+      }
+    ],
+    "BackupImportResult": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt",
+        "line": 101
       }
     ],
     "LuluChatMessage": [
@@ -2227,6 +2251,29 @@
         {
           "name": "reset",
           "line": 44
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt",
+      "lines": 106,
+      "sha256": "40e614905f2ef2339549951d930624fd439770ed13f6e9557402892a0454c18d",
+      "symbols": [
+        {
+          "name": "LuluBackupManager",
+          "line": 16
+        },
+        {
+          "name": "exportJson",
+          "line": 18
+        },
+        {
+          "name": "importJson",
+          "line": 46
+        },
+        {
+          "name": "BackupImportResult",
+          "line": 101
         }
       ]
     },
