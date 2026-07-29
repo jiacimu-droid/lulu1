@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f01bea40d646e7bfeab45b1234aec984c2ceaa20`
+- 基准提交：`b85704c5e2a90a46f729474ac9f09b7b27a84e08`
 - 分支：`main`
 - 已索引文件：67
-- 已索引代码/文本行：16455
-- 已发现符号：316
+- 已索引代码/文本行：16484
+- 已发现符号：317
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -17,7 +17,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ChatV2InterpolationCompat.kt` | 5 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt` | 9 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt` | 9 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 113 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 142 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 601 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 449 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt` | 623 | 5 |
