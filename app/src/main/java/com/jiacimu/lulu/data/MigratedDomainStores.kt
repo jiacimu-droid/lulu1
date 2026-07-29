@@ -38,6 +38,7 @@ data class LuluConversation(
 interface LuluChatStore {
     val conversations: StateFlow<List<LuluConversation>>
     fun messages(conversationId: String): StateFlow<List<LuluChatMessage>>
+    fun ensureConversation(characterId: String, title: String): LuluConversation
     fun sendUserMessage(conversationId: String, content: String): LuluChatMessage
     fun appendCharacterMessage(conversationId: String, content: String): LuluChatMessage
     fun markFailed(messageId: String)
@@ -70,12 +71,36 @@ class InMemoryLuluChatStore : LuluChatStore {
         }
     }
 
-    override fun messages(conversationId: String): StateFlow<List<LuluChatMessage>> =
+    override fun messages(conversationId: String): StateFlow<List<LuluChatMessage>> = synchronized(lock) {
+        messageStates.getOrPut(conversationId) {
+            MutableStateFlow(defaultMessages(conversationId))
+        }.asStateFlow()
+    }
+
+    override fun ensureConversation(characterId: String, title: String): LuluConversation {
+        val cleanCharacterId = characterId.trim()
+        require(cleanCharacterId.isNotBlank()) { "角色 ID 不能为空" }
+        val cleanTitle = title.trim().ifBlank { "未命名角色" }
         synchronized(lock) {
-            messageStates.getOrPut(conversationId) {
-                MutableStateFlow(defaultMessages(conversationId))
-            }.asStateFlow()
+            conversationState.value
+                .filter { it.characterId == cleanCharacterId && it.parentConversationId == null }
+                .maxByOrNull(LuluConversation::updatedAt)
+                ?.let { return it }
+
+            val conversation = LuluConversation(
+                id = UUID.randomUUID().toString(),
+                characterId = cleanCharacterId,
+                title = cleanTitle,
+                lastMessage = "",
+                updatedAt = Instant.now(),
+            )
+            messageStates[conversation.id] = MutableStateFlow(emptyList())
+            conversationState.value = (listOf(conversation) + conversationState.value)
+                .sortedByDescending(LuluConversation::updatedAt)
+            persistLocked()
+            return conversation
         }
+    }
 
     override fun sendUserMessage(conversationId: String, content: String): LuluChatMessage {
         val clean = content.trim()
@@ -162,7 +187,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             )
             messageStates[branchId] = MutableStateFlow(copiedMessages)
             conversationState.value = (listOf(branch) + conversationState.value)
-                .sortedByDescending { conversation -> conversation.updatedAt }
+                .sortedByDescending(LuluConversation::updatedAt)
             persistLocked()
             return branch
         }
@@ -170,16 +195,17 @@ class InMemoryLuluChatStore : LuluChatStore {
 
     private fun append(conversationId: String, message: LuluChatMessage, incrementUnread: Boolean) {
         synchronized(lock) {
+            val current = conversationState.value.firstOrNull { conversation -> conversation.id == conversationId }
+                ?: error("会话不存在：$conversationId。请先通过 ensureConversation 建立角色会话。")
             val state = messageStates.getOrPut(conversationId) { MutableStateFlow(emptyList()) }
             state.value = state.value + message
-            val current = conversationState.value.firstOrNull { conversation -> conversation.id == conversationId }
-            val updated = (current ?: LuluConversation(conversationId, "lulu", "露露")).copy(
+            val updated = current.copy(
                 lastMessage = message.content,
                 updatedAt = message.createdAt,
-                unreadCount = if (incrementUnread) (current?.unreadCount ?: 0) + 1 else current?.unreadCount ?: 0,
+                unreadCount = if (incrementUnread) current.unreadCount + 1 else current.unreadCount,
             )
             conversationState.value = (listOf(updated) + conversationState.value.filterNot { it.id == conversationId })
-                .sortedByDescending { it.updatedAt }
+                .sortedByDescending(LuluConversation::updatedAt)
             persistLocked()
         }
     }
@@ -210,7 +236,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             } else {
                 conversation
             }
-        }.sortedByDescending { conversation -> conversation.updatedAt }
+        }.sortedByDescending(LuluConversation::updatedAt)
     }
 
     private fun persistLocked() {
@@ -246,7 +272,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         if (raw.isNullOrBlank()) return emptyList<LuluConversation>() to emptyMap()
         return runCatching {
             val root = JSONObject(raw)
-            val conversations = root.optJSONArray("conversations").decodeObjects { item -> decodeConversation(item) }
+            val conversations = root.optJSONArray("conversations").decodeObjects(::decodeConversation)
             val messagesObject = root.optJSONObject("messages") ?: JSONObject()
             val messages = buildMap {
                 val keys = messagesObject.keys()
@@ -254,11 +280,11 @@ class InMemoryLuluChatStore : LuluChatStore {
                     val conversationId = keys.next()
                     put(
                         conversationId,
-                        messagesObject.optJSONArray(conversationId).decodeObjects { item -> decodeMessage(item) },
+                        messagesObject.optJSONArray(conversationId).decodeObjects(::decodeMessage),
                     )
                 }
             }
-            conversations.sortedByDescending { it.updatedAt } to messages
+            conversations.sortedByDescending(LuluConversation::updatedAt) to messages
         }.getOrDefault(emptyList<LuluConversation>() to emptyMap())
     }
 
@@ -442,7 +468,7 @@ class CharacterSettingsStore {
                     val worldBooks = buildSet {
                         val ids = item.optJSONArray("defaultWorldBookIds") ?: JSONArray()
                         for (idIndex in 0 until ids.length()) {
-                            ids.optString(idIndex).takeIf { id -> id.isNotBlank() }?.let(::add)
+                            ids.optString(idIndex).takeIf(String::isNotBlank)?.let(::add)
                         }
                     }
                     put(
@@ -524,12 +550,12 @@ private fun <T> JSONArray?.decodeObjects(transform: (JSONObject) -> T): List<T> 
     return buildList {
         for (index in 0 until length()) {
             val item = optJSONObject(index) ?: continue
-            runCatching { transform(item) }.getOrNull()?.let { decoded -> add(decoded) }
+            runCatching { transform(item) }.getOrNull()?.let(::add)
         }
     }
 }
 
 private fun JSONObject.nullableString(key: String): String? =
-    takeUnless { json -> json.isNull(key) }?.optString(key)?.takeIf { value -> value.isNotBlank() }
+    takeUnless { json -> json.isNull(key) }?.optString(key)?.takeIf(String::isNotBlank)
 
 private fun String.toInstantOrNow(): Instant = runCatching { Instant.parse(this) }.getOrDefault(Instant.now())
