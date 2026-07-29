@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T17:35:41.698152+00:00",
-  "commit": "b44c284c01e6dcceaf51b7c89a97ed28c33207e8",
+  "generatedAt": "2026-07-29T17:36:22.442277+00:00",
+  "commit": "64d2a6b146c216353878c5f911edd412e266fefd",
   "branch": "main",
-  "sourceFingerprint": "267379b42ec74192264617237259479ee0c185e694c83b80bbad1506c59105fd",
+  "sourceFingerprint": "73df4ffcb962fab674224c46cc36b1299217ae34c429f6a7425802408662d29a",
   "summary": {
     "files": 64,
     "lines": 15666,
@@ -1895,7 +1895,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
       "lines": 113,
-      "sha256": "a1e857dd74ca57bb64817d82f59f4799b1cb4402163c2e53e1ffa47606061c09",
+      "sha256": "6fa8cc64d07b351717bde474280a9cebd359ad827b91db6efd62533eab2699a3",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
