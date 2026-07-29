@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`e17ee2e3a6b5747e7f563559f4b79a4328eaa819`
+- 基准提交：`71e180dbd0dea1cf3253fc404d030ab8e37caf30`
 - 分支：`main`
-- 已索引文件：65
-- 已索引代码/文本行：15895
-- 已发现符号：314
+- 已索引文件：66
+- 已索引代码/文本行：16133
+- 已发现符号：315
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -12,6 +12,7 @@
 | `app/src/main/AndroidManifest.xml` | 24 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreen.kt` | 232 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 229 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 238 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ChatV2InterpolationCompat.kt` | 5 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt` | 9 | 0 |
