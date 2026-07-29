@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T17:16:28.747499+00:00",
-  "commit": "ac273a9cd311c4ca3d6f0aff96544c4b0dd39c1c",
+  "generatedAt": "2026-07-29T17:18:51.670853+00:00",
+  "commit": "7f66d0e62e33453c45771329aef8d628b73e84af",
   "branch": "main",
-  "sourceFingerprint": "518a2c28c5d8463d3ad870c841470c94232509ea3b1eed99f0c6a632a016350b",
+  "sourceFingerprint": "a07c266ce1d286c8ca0f22a629bc81bb9cc6cf319ea2eeacf94f7c30d526eae3",
   "summary": {
     "files": 59,
-    "lines": 14238,
+    "lines": 14298,
     "symbols": 301
   },
   "symbolIndex": {
@@ -43,13 +43,13 @@
     "LuluSettingsHomeScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt",
-        "line": 56
+        "line": 61
       }
     ],
     "updatePreferences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt",
-        "line": 246
+        "line": 255
       }
     ],
     "LuluSettingsScreen": [
@@ -1835,16 +1835,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt",
-      "lines": 541,
-      "sha256": "df0d24c436b2812e1eac57a4bdd882f40c422e29b4db3b4bc1d275f9fb4ac331",
+      "lines": 601,
+      "sha256": "9135a3ae429cbb217e54023f566f74005331ace7c6858f533bffdf8d04670899",
       "symbols": [
         {
           "name": "LuluSettingsHomeScreen",
-          "line": 56
+          "line": 61
         },
         {
           "name": "updatePreferences",
-          "line": 246
+          "line": 255
         }
       ]
     },
