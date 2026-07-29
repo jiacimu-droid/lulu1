@@ -3,12 +3,14 @@ package com.jiacimu.lulu
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
+import com.jiacimu.lulu.design.LuluColors
+import com.jiacimu.lulu.design.LuluLightColorScheme
+import com.jiacimu.lulu.design.LuluTypography
 import com.jiacimu.lulu.games.LuluGamesApp
 import com.jiacimu.lulu.study.PostgraduateExamApp
 import com.jiacimu.lulu.study.StarWishMigratedScreen
@@ -29,15 +31,10 @@ fun LuluMigrationRootAppV2() {
 
     CompositionLocalProvider(LocalDensity provides preferredDensity) {
         MaterialTheme(
-            colorScheme = lightColorScheme(
-                primary = MigrationWheat,
-                onPrimary = MigrationInk,
-                background = MigrationPaper,
-                surface = MigrationCard,
-                onSurface = MigrationInk,
-            ),
+            colorScheme = LuluLightColorScheme,
+            typography = LuluTypography,
         ) {
-            Surface(Modifier.fillMaxSize(), color = MigrationPaper) {
+            Surface(Modifier.fillMaxSize(), color = LuluColors.Paper) {
                 when (route) {
                     MigrationRoute.Home -> MigrationHome(
                         onOpen = { target ->
