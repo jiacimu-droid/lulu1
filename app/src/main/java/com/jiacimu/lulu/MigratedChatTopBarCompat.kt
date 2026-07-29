@@ -12,14 +12,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontWeight
 import com.jiacimu.lulu.design.LuluColors
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-internal fun MigratedChatTopBarV2(title: String, onBack: () -> Unit) {
-    TopAppBar(
-        title = { Text(title, fontWeight = FontWeight.SemiBold) },
-        navigationIcon = {
-            IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
-    )
+/**
+ * The legacy chat file owns a private function with this name. A callable object
+ * gives V2 files the same concise call syntax without creating a conflicting
+ * package-level function overload.
+ */
+internal object MigratedChatTopBar {
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    operator fun invoke(title: String, onBack: () -> Unit) {
+        TopAppBar(
+            title = { Text(title, fontWeight = FontWeight.SemiBold) },
+            navigationIcon = {
+                IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
+        )
+    }
 }
