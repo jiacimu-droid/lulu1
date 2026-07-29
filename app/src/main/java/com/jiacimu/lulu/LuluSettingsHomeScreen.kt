@@ -12,7 +12,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -25,14 +27,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.data.LegacyLuluBackupImporter
 import com.jiacimu.lulu.data.LuluAppPreferences
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.LuluBackupManager
 import com.jiacimu.lulu.data.MigratedDomainStores
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private val SettingsHomePaper = Color(0xFFFFFCF5)
-private val SettingsHomeCard = Color(0xFFFFFBF3)
+private val SettingsHomeCardColor = Color(0xFFFFFBF3)
 private val SettingsHomeBorder = Color(0xFFE7DDC8)
 private val SettingsHomeMuted = Color(0xFF737887)
 private val SettingsHomeInk = Color(0xFF302C2B)
@@ -48,7 +53,7 @@ private enum class SettingsDestination(
     Models("模型与 API", "站点、密钥、模型列表和存档", Icons.Outlined.Api),
     Memory("记忆", "最近消息排除、阈值与自动整理", Icons.Outlined.Psychology),
     Notifications("通知与主动联系", "主动消息、来电和勿扰时段", Icons.Outlined.NotificationsNone),
-    Data("数据", "完整备份、恢复、缓存与重置", Icons.Outlined.Storage),
+    Data("数据", "旧露露迁移、完整备份、缓存与重置", Icons.Outlined.Storage),
     Application("应用与权限", "版本、录音、通知和系统设置", Icons.Outlined.AdminPanelSettings),
 }
 
@@ -136,7 +141,11 @@ private fun SettingsSectionScaffold(
         },
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             content = content,
         )
@@ -302,6 +311,7 @@ private fun DataSettingsContent() {
     val scope = rememberCoroutineScope()
     var notice by remember { mutableStateOf("") }
     var noticeIsError by remember { mutableStateOf(false) }
+    var migrationRunning by remember { mutableStateOf(false) }
 
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json"),
@@ -337,8 +347,58 @@ private fun DataSettingsContent() {
         }
     }
 
+    val legacyImportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        migrationRunning = true
+        scope.launch {
+            runCatching {
+                withContext(Dispatchers.IO) {
+                    val input = context.contentResolver.openInputStream(uri) ?: error("无法读取旧露露备份")
+                    LegacyLuluBackupImporter.importBackup(context, input)
+                }
+            }.onSuccess { result ->
+                notice = "旧露露迁移完成：${result.conversationsImported} 个会话、${result.messagesImported} 条消息、${result.memoriesImported} 条记忆、${result.apiConfigurationsImported} 个 API 配置；请彻底退出并重新打开应用"
+                noticeIsError = false
+            }.onFailure { error ->
+                notice = error.message ?: "旧露露迁移失败"
+                noticeIsError = true
+            }
+            migrationRunning = false
+        }
+    }
+
     SettingsHomeCard {
-        Text("完整本地备份", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text("从旧露露迁移", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text("在旧露露的备份页导出包含数据库的 ZIP，再在这里选择。会迁入文本聊天、长期记忆和可识别的 API 配置。", color = SettingsHomeMuted)
+        Text("原始 ZIP 和 settings.json 会保存在 Lulu1 私有目录中；无法可靠映射的旧字段只存档，不会伪造到新结构。", color = SettingsHomeMuted, fontSize = 12.sp)
+        Surface(color = Color(0xFFFFE7D8), shape = RoundedCornerShape(14.dp)) {
+            Text(
+                "旧备份可能包含 API 密钥。迁移完成后仍要把文件当作敏感资料保管。",
+                modifier = Modifier.fillMaxWidth().padding(11.dp),
+                color = SettingsHomeInk,
+                fontSize = 12.sp,
+            )
+        }
+        Button(
+            onClick = { legacyImportLauncher.launch(arrayOf("application/zip", "application/octet-stream")) },
+            enabled = !migrationRunning,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = SettingsHomeAccent, contentColor = SettingsHomeInk),
+        ) {
+            if (migrationRunning) {
+                CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = SettingsHomeInk)
+            } else {
+                Icon(Icons.Outlined.MoveToInbox, null)
+            }
+            Spacer(Modifier.width(7.dp))
+            Text(if (migrationRunning) "正在迁移" else "选择旧露露 ZIP", fontWeight = FontWeight.Bold)
+        }
+    }
+
+    SettingsHomeCard {
+        Text("Lulu1 完整本地备份", fontWeight = FontWeight.Bold, fontSize = 18.sp)
         Text("包含聊天、角色、记忆、辞海、世界书、考研、心愿馆、游戏、桌面布局和模型 API 配置。", color = SettingsHomeMuted)
         Surface(color = Color(0xFFFFE7D8), shape = RoundedCornerShape(14.dp)) {
             Text(
@@ -349,7 +409,7 @@ private fun DataSettingsContent() {
             )
         }
         Button(
-            onClick = { exportLauncher.launch("lulu-backup.json") },
+            onClick = { exportLauncher.launch("lulu1-backup.json") },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = SettingsHomeAccent, contentColor = SettingsHomeInk),
         ) {
@@ -363,7 +423,7 @@ private fun DataSettingsContent() {
         ) {
             Icon(Icons.Outlined.FileDownload, null)
             Spacer(Modifier.width(7.dp))
-            Text("从备份恢复")
+            Text("从 Lulu1 备份恢复")
         }
     }
 
@@ -527,7 +587,7 @@ private fun SettingsHomeCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = SettingsHomeCard),
+        colors = CardDefaults.cardColors(containerColor = SettingsHomeCardColor),
         border = BorderStroke(1.dp, SettingsHomeBorder),
         shape = RoundedCornerShape(22.dp),
     ) {
