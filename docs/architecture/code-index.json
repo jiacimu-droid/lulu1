@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T17:34:30.105672+00:00",
-  "commit": "051b65e7bc940d4145a6f84ea19c8dba83d77044",
+  "generatedAt": "2026-07-29T17:35:41.698152+00:00",
+  "commit": "b44c284c01e6dcceaf51b7c89a97ed28c33207e8",
   "branch": "main",
-  "sourceFingerprint": "acacb9a1ffa7292a820cf8657eb0753ac02bc6de85776efc404eb666a547d1c2",
+  "sourceFingerprint": "267379b42ec74192264617237259479ee0c185e694c83b80bbad1506c59105fd",
   "summary": {
-    "files": 63,
-    "lines": 15290,
-    "symbols": 312
+    "files": 64,
+    "lines": 15666,
+    "symbols": 313
   },
   "symbolIndex": {
     "CharacterSettingsScreen": [
@@ -1306,6 +1306,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 226
+      }
+    ],
+    "LuluGamesAppV2": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
+        "line": 30
       }
     ],
     "PostgraduateExamApp": [
@@ -2950,6 +2956,17 @@
         {
           "name": "tap",
           "line": 226
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
+      "lines": 376,
+      "sha256": "bc5588ab1270f1c6cee810a1670d4bc0f4a0f58e1cd9f4c10f907daded052f3a",
+      "symbols": [
+        {
+          "name": "LuluGamesAppV2",
+          "line": 30
         }
       ]
     },
