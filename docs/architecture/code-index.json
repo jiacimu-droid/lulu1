@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T17:54:25.480377+00:00",
-  "commit": "c8dc1af7f10615b6a587cf849aa57879969f7e84",
+  "generatedAt": "2026-07-29T17:57:16.916617+00:00",
+  "commit": "85bf2960eaa87f0ac721366395cbed7ad5d57193",
   "branch": "main",
-  "sourceFingerprint": "6fbe0bc6c59a34f4cb46c764594441438a60e254cf4c9d334a1bf6607554afea",
+  "sourceFingerprint": "a614c9fe895730b82fb0d17662d8a27dfcc0b47d72d10d555ee8a5690ae22efb",
   "summary": {
-    "files": 69,
-    "lines": 16882,
+    "files": 70,
+    "lines": 16908,
     "symbols": 320
   },
   "symbolIndex": {
@@ -2075,6 +2075,12 @@
           "line": 358
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt",
+      "lines": 26,
+      "sha256": "ac46e02d6b985fb386d6991d6420fe77b390e36db0874b68513e2dea363ba35c",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
