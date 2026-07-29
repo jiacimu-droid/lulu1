@@ -107,7 +107,7 @@ fun LuluMigrationRootAppV2() {
                     MigrationRoute.Memory -> MemoryFeatureScreen {
                         route = MigrationRoute.Home
                     }
-                    MigrationRoute.Lexicon -> LexiconFeatureScreen {
+                    MigrationRoute.Lexicon -> LexiconFeatureScreenV2 {
                         route = MigrationRoute.Home
                     }
                     MigrationRoute.WorldBook -> CharacterWorldBookScreenV2(
