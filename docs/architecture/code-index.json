@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T17:51:58.430461+00:00",
-  "commit": "62cb1cb411a740c642d0842403e4d634c14f0aab",
+  "generatedAt": "2026-07-29T17:53:08.172106+00:00",
+  "commit": "9a1709894c037a2725b5acc6515a328ec1ce6dcf",
   "branch": "main",
-  "sourceFingerprint": "2eccd31fd356e4c8bb7671cca3578cc21810228df5ae4f6f13ef28040ab93e71",
+  "sourceFingerprint": "83cd5085f10ec121b1c9e3b9e3c3b14fc18b683e9c1f4bdaa5553a9b8812a27a",
   "summary": {
     "files": 69,
-    "lines": 16812,
+    "lines": 16878,
     "symbols": 320
   },
   "symbolIndex": {
@@ -2036,8 +2036,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt",
-      "lines": 322,
-      "sha256": "6dff92322389b4a0bb0b232a11aad9d206abf25e17ebe75b4c684e98f80d3f7e",
+      "lines": 388,
+      "sha256": "b7266e23508e095bbcb44c99a94a8530d2409dd4d81954d8ede053be1c94bee5",
       "symbols": [
         {
           "name": "MigratedChatHubScreenV2",
