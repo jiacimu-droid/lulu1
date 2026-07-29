@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`3b171c8dc1da920d9e14afbe49e0774b199b6deb`
+- 基准提交：`42922c2663da357305a102cb8ebfea2a840be1d9`
 - 分支：`main`
-- 已索引文件：61
-- 已索引代码/文本行：14148
-- 已发现符号：300
+- 已索引文件：60
+- 已索引代码/文本行：13448
+- 已发现符号：287
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -44,7 +44,6 @@
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 76 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 690 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt` | 301 | 12 |
-| `app/src/main/java/com/jiacimu/lulu/study/StarWishFeature.kt` | 700 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishInventoryBridge.kt` | 49 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt` | 79 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishRootAlias.kt` | 9 | 1 |
