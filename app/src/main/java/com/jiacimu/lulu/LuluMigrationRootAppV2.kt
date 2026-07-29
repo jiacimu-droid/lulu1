@@ -60,12 +60,17 @@ fun LuluMigrationRootAppV2() {
                             route = MigrationRoute.WorldBook
                         },
                     )
-                    MigrationRoute.ChatDetail -> MigratedChatDetailScreen(
+                    MigrationRoute.ChatDetail -> MigratedChatDetailScreenV2(
                         conversationId = selectedConversationId,
                         onBack = { route = MigrationRoute.Chat },
                         onOpenBranch = { branchId ->
                             selectedConversationId = branchId
                             route = MigrationRoute.ChatDetail
+                        },
+                        onCharacterSettings = { route = MigrationRoute.CharacterSettings },
+                        onWorldBook = {
+                            worldBookReturnRoute = MigrationRoute.ChatDetail
+                            route = MigrationRoute.WorldBook
                         },
                     )
                     MigrationRoute.CharacterSettings -> CharacterSettingsScreen {
