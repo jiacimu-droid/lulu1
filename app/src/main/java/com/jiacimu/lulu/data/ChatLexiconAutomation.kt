@@ -28,7 +28,6 @@ import java.util.UUID
 object ChatLexiconAutomation {
     private const val PREFS_NAME = "lulu_chat_lexicon_automation"
     private const val KEY_PROCESSED_USER_MESSAGE_IDS = "processed_user_message_ids_v1"
-    private const val PROCESSED_ID_LIMIT = 5_000
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val conversationJobs = mutableMapOf<String, Job>()
@@ -133,8 +132,9 @@ object ChatLexiconAutomation {
 
     private fun markProcessed(messageId: String) {
         val current = prefs?.getStringSet(KEY_PROCESSED_USER_MESSAGE_IDS, emptySet()).orEmpty()
-        val next = (current + messageId).toList().takeLast(PROCESSED_ID_LIMIT).toSet()
-        prefs?.edit()?.putStringSet(KEY_PROCESSED_USER_MESSAGE_IDS, next)?.apply()
+        prefs?.edit()
+            ?.putStringSet(KEY_PROCESSED_USER_MESSAGE_IDS, current + messageId)
+            ?.commit()
     }
 }
 
@@ -152,7 +152,7 @@ internal fun parseCommitmentEntries(raw: String, characterId: String): List<Lexi
         .trim()
     val array = JSONArray(clean)
     val now = Instant.now()
-    return buildList {
+    val parsed = buildList {
         for (index in 0 until array.length()) {
             val item = array.optJSONObject(index) ?: continue
             val kind = item.optString("kind").toPromiseKindOrNull() ?: continue
@@ -173,6 +173,10 @@ internal fun parseCommitmentEntries(raw: String, characterId: String): List<Lexi
             )
         }
     }
+    check(array.length() == 0 || parsed.isNotEmpty()) {
+        "模型返回了非空约定数组，但没有任何可保存条目"
+    }
+    return parsed
 }
 
 private fun String.toPromiseKindOrNull(): PromiseKind? = when (trim().lowercase()) {
@@ -192,7 +196,7 @@ private fun PromiseKind.defaultTitle(): String = when (this) {
 }
 
 private fun LexiconEntry.commitmentDedupeKey(): String =
-    "${promiseKind?.name.orEmpty()}|${title.normalizedCommitmentText()}|${content.normalizedCommitmentText()}"
+    "${promiseKind?.name.orEmpty()}|${content.normalizedCommitmentText()}"
 
 private fun String.normalizedCommitmentText(): String = lowercase()
     .replace(Regex("[\\p{P}\\p{S}\\s]+"), "")
