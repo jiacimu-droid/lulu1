@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.data.ChatLexiconAutomation
 import com.jiacimu.lulu.data.ChatMemoryAutomation
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -34,6 +35,7 @@ class MigrationActivity : ComponentActivity() {
         PostgraduateExamStores.main.syncPomodoroClock()
         RoleReadablePerformanceBridge.initialize()
         ChatMemoryAutomation.initialize()
+        ChatLexiconAutomation.initialize(appContext)
         setContent { LuluMigrationRootAppV2() }
     }
 }
