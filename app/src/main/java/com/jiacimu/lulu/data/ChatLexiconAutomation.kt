@@ -133,7 +133,7 @@ object ChatLexiconAutomation {
 
     private fun markProcessed(messageId: String) {
         val current = prefs?.getStringSet(KEY_PROCESSED_USER_MESSAGE_IDS, emptySet()).orEmpty()
-        val next = (current + messageId).takeLast(PROCESSED_ID_LIMIT).toSet()
+        val next = (current + messageId).toList().takeLast(PROCESSED_ID_LIMIT).toSet()
         prefs?.edit()?.putStringSet(KEY_PROCESSED_USER_MESSAGE_IDS, next)?.apply()
     }
 }
