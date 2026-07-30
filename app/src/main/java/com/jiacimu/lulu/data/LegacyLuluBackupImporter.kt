@@ -15,9 +15,11 @@ import java.util.UUID
 import java.util.zip.ZipInputStream
 
 /**
- * Imports the old Lulu/RikkaHub ZIP backup without trying to open the old app sandbox.
- * Supported migration domains: text conversations, long-term memories and recognisable
- * OpenAI-compatible API configurations. The original ZIP and settings.json are archived.
+ * Imports an old Lulu/RikkaHub ZIP backup without opening the old app sandbox.
+ *
+ * Old private builds used several slightly different SQLite schemas. Every optional column is
+ * therefore detected before it is used. Missing columns reduce the amount of metadata imported,
+ * but never invalidate the whole backup.
  */
 object LegacyLuluBackupImporter {
     private const val ARCHIVE_FOLDER = "legacy-lulu-migration"
@@ -25,39 +27,47 @@ object LegacyLuluBackupImporter {
     fun importBackup(context: Context, input: InputStream): LegacyLuluImportResult {
         val appContext = context.applicationContext
         val workDir = File(appContext.cacheDir, "legacy-lulu-import-${System.currentTimeMillis()}")
-        workDir.mkdirs()
         val archiveDir = File(appContext.filesDir, ARCHIVE_FOLDER).apply { mkdirs() }
         val originalArchive = File(archiveDir, "old-lulu-${System.currentTimeMillis()}.zip")
+        workDir.mkdirs()
 
-        val rawBytes = input.use { it.readBytes() }
+        val rawBytes = input.use(InputStream::readBytes)
         originalArchive.writeBytes(rawBytes)
-        extractZip(rawBytes.inputStream(), workDir)
 
-        val settingsFile = File(workDir, "settings.json")
-        if (settingsFile.exists()) {
-            settingsFile.copyTo(File(archiveDir, "settings-${System.currentTimeMillis()}.json"), overwrite = true)
+        return try {
+            extractZip(rawBytes.inputStream(), workDir)
+            val settingsFile = File(workDir, "settings.json")
+            if (settingsFile.exists()) {
+                settingsFile.copyTo(
+                    File(archiveDir, "settings-${System.currentTimeMillis()}.json"),
+                    overwrite = true,
+                )
+            }
+
+            val databaseFile = File(workDir, "rikka_hub.db")
+            require(databaseFile.exists()) {
+                "旧备份中没有 rikka_hub.db，请在旧露露的备份页勾选数据库后重新导出"
+            }
+
+            val chatResult = importConversations(appContext, databaseFile)
+            val memoryResult = importMemories(appContext, databaseFile)
+            val modelResult = if (settingsFile.exists()) {
+                importModelConnections(appContext, settingsFile.readText(Charsets.UTF_8))
+            } else {
+                ModelImportResult()
+            }
+
+            LegacyLuluImportResult(
+                conversationsImported = chatResult.conversations,
+                messagesImported = chatResult.messages,
+                memoriesImported = memoryResult,
+                apiConfigurationsImported = modelResult.configurations,
+                modelArchivesImported = modelResult.archives,
+                archivedBackupPath = originalArchive.absolutePath,
+            )
+        } finally {
+            workDir.deleteRecursively()
         }
-
-        val databaseFile = File(workDir, "rikka_hub.db")
-        require(databaseFile.exists()) { "旧备份中没有 rikka_hub.db，请在旧露露的备份页勾选数据库后重新导出" }
-
-        val chatResult = importConversations(appContext, databaseFile)
-        val memoryResult = importMemories(appContext, databaseFile)
-        val modelResult = if (settingsFile.exists()) {
-            importModelConnections(appContext, settingsFile.readText(Charsets.UTF_8))
-        } else {
-            ModelImportResult()
-        }
-
-        workDir.deleteRecursively()
-        return LegacyLuluImportResult(
-            conversationsImported = chatResult.conversations,
-            messagesImported = chatResult.messages,
-            memoriesImported = memoryResult,
-            apiConfigurationsImported = modelResult.configurations,
-            modelArchivesImported = modelResult.archives,
-            archivedBackupPath = originalArchive.absolutePath,
-        )
     }
 
     private fun extractZip(input: InputStream, destination: File) {
@@ -80,8 +90,7 @@ object LegacyLuluBackupImporter {
     }
 
     private fun importConversations(context: Context, dbFile: File): ChatImportResult {
-        val database = openLegacyDatabase(dbFile)
-        database.use { db ->
+        openLegacyDatabase(dbFile).use { db ->
             val table = findTable(db, "ConversationEntity", "conversation", "conversations")
                 ?: return ChatImportResult()
             val rows = mutableListOf<LegacyConversationRow>()
@@ -89,11 +98,13 @@ object LegacyLuluBackupImporter {
                 while (cursor.moveToNext()) {
                     val id = cursor.string("id").ifBlank { UUID.randomUUID().toString() }
                     val title = cursor.string("title").ifBlank { "旧露露聊天" }
-                    val nodes = cursor.string("nodes")
-                    val createdAt = cursor.long("create_at")
-                    val updatedAt = cursor.long("update_at")
-                    val messages = parseLegacyNodes(nodes, id, updatedAt)
-                    rows += LegacyConversationRow(id, title, createdAt, updatedAt, messages)
+                    val updatedAt = firstPositive(cursor.long("update_at"), cursor.long("updated_at"))
+                    rows += LegacyConversationRow(
+                        id = id,
+                        title = title,
+                        updatedAt = updatedAt,
+                        messages = parseLegacyNodes(cursor.string("nodes"), id, updatedAt),
+                    )
                 }
             }
             if (rows.isEmpty()) return ChatImportResult()
@@ -103,16 +114,21 @@ object LegacyLuluBackupImporter {
                 .getOrElse { JSONObject() }
             val conversations = current.optJSONArray("conversations") ?: JSONArray()
             val messagesRoot = current.optJSONObject("messages") ?: JSONObject()
-            val existingIds = buildSet {
+            val usedIds = buildSet {
                 for (index in 0 until conversations.length()) {
-                    conversations.optJSONObject(index)?.optString("id")?.takeIf(String::isNotBlank)?.let(::add)
+                    conversations.optJSONObject(index)
+                        ?.optString("id")
+                        ?.takeIf(String::isNotBlank)
+                        ?.let(::add)
                 }
-            }
+                addAll(collectKeys(messagesRoot))
+            }.toMutableSet()
 
             var importedConversations = 0
             var importedMessages = 0
             rows.forEach { row ->
-                val targetId = uniqueLegacyId(row.id, existingIds + collectKeys(messagesRoot))
+                val targetId = uniqueLegacyId(row.id, usedIds)
+                usedIds += targetId
                 val last = row.messages.lastOrNull()
                 conversations.put(
                     JSONObject()
@@ -125,67 +141,98 @@ object LegacyLuluBackupImporter {
                         .put("parentConversationId", JSONObject.NULL)
                         .put("branchOriginMessageId", JSONObject.NULL),
                 )
-                val array = JSONArray()
-                row.messages.forEach { message ->
-                    array.put(
-                        JSONObject()
-                            .put("id", message.id)
-                            .put("conversationId", targetId)
-                            .put("sender", message.sender)
-                            .put("content", message.content)
-                            .put("createdAt", message.createdAt.toString())
-                            .put("status", "Sent")
-                            .put("favorite", message.favorite)
-                            .put("branchOriginMessageId", JSONObject.NULL),
-                    )
-                }
-                messagesRoot.put(targetId, array)
+                messagesRoot.put(
+                    targetId,
+                    JSONArray().apply {
+                        row.messages.forEach { message ->
+                            put(
+                                JSONObject()
+                                    .put("id", message.id)
+                                    .put("conversationId", targetId)
+                                    .put("sender", message.sender)
+                                    .put("content", message.content)
+                                    .put("createdAt", message.createdAt.toString())
+                                    .put("status", "Sent")
+                                    .put("favorite", message.favorite)
+                                    .put("branchOriginMessageId", JSONObject.NULL),
+                            )
+                        }
+                    },
+                )
                 importedConversations += 1
                 importedMessages += row.messages.size
             }
 
-            prefs.edit().putString(
-                "state_v1",
-                JSONObject().put("conversations", conversations).put("messages", messagesRoot).toString(),
-            ).commit()
+            check(
+                prefs.edit().putString(
+                    "state_v1",
+                    JSONObject()
+                        .put("conversations", conversations)
+                        .put("messages", messagesRoot)
+                        .toString(),
+                ).commit(),
+            ) { "写入旧聊天失败" }
             return ChatImportResult(importedConversations, importedMessages)
         }
     }
 
     private fun importMemories(context: Context, dbFile: File): Int {
-        val database = openLegacyDatabase(dbFile)
-        database.use { db ->
-            val table = findTable(db, "memory_bank", "MemoryBankEntity") ?: return 0
+        openLegacyDatabase(dbFile).use { db ->
+            val table = findTable(db, "memory_bank", "MemoryBankEntity", "memorybank", "memories")
+                ?: return 0
+            val columns = tableColumns(db, table)
+            val selection = if ("deprecated" in columns) {
+                "deprecated = 0 OR deprecated IS NULL"
+            } else {
+                null
+            }
+            val orderBy = when {
+                "created_at" in columns -> "created_at ASC"
+                "memory_created_at" in columns -> "memory_created_at ASC"
+                "extracted_at" in columns -> "extracted_at ASC"
+                else -> null
+            }
             val imported = JSONArray()
-            db.query(table, null, "deprecated = 0 OR deprecated IS NULL", null, null, null, "created_at ASC")
-                .use { cursor ->
-                    while (cursor.moveToNext()) {
-                        val content = cursor.string("content").trim()
-                        if (content.isBlank()) continue
-                        val memoryKind = cursor.string("memory_kind")
-                        val legacyType = cursor.string("type")
-                        val kind = mapMemoryKind(memoryKind, legacyType, content)
-                        val createdAt = firstPositive(
-                            cursor.long("memory_created_at"),
-                            cursor.long("created_at"),
-                            cursor.long("extracted_at"),
-                        )
-                        val occurredAt = firstPositive(cursor.long("occurred_at"), cursor.long("source_message_at"))
-                        imported.put(
-                            JSONObject()
-                                .put("id", "legacy-${cursor.string("id").ifBlank { UUID.randomUUID().toString() }}")
-                                .put("characterId", "lulu")
-                                .put("content", content)
-                                .put("kind", kind)
-                                .put("source", "旧露露迁移")
-                                .put("occurredAt", occurredAt.takeIf { it > 0 }?.let(::epochMillisToInstant)?.toString() ?: JSONObject.NULL)
-                                .put("createdAt", epochMillisToInstant(createdAt).toString())
-                                .put("strength", cursor.int("importance").coerceIn(1, 10).takeIf { it > 0 } ?: 5)
-                                .put("pinned", cursor.boolean("pinned"))
-                                .put("canRecallProactively", true),
-                        )
-                    }
+            db.query(table, null, selection, null, null, null, orderBy).use { cursor ->
+                while (cursor.moveToNext()) {
+                    val content = cursor.string("content").trim()
+                    if (content.isBlank()) continue
+                    val kind = mapMemoryKind(
+                        memoryKind = cursor.string("memory_kind"),
+                        legacyType = cursor.string("type"),
+                        content = content,
+                    )
+                    val createdAt = firstPositive(
+                        cursor.long("memory_created_at"),
+                        cursor.long("created_at"),
+                        cursor.long("extracted_at"),
+                    )
+                    val occurredAt = firstPositiveOrZero(
+                        cursor.long("occurred_at"),
+                        cursor.long("source_message_at"),
+                    )
+                    val rawImportance = cursor.int("importance")
+                    imported.put(
+                        JSONObject()
+                            .put("id", "legacy-${cursor.string("id").ifBlank { UUID.randomUUID().toString() }}")
+                            .put("characterId", "lulu")
+                            .put("content", content)
+                            .put("kind", kind)
+                            .put("source", "旧露露迁移")
+                            .put(
+                                "occurredAt",
+                                occurredAt.takeIf { value -> value > 0L }
+                                    ?.let(::epochMillisToInstant)
+                                    ?.toString()
+                                    ?: JSONObject.NULL,
+                            )
+                            .put("createdAt", epochMillisToInstant(createdAt).toString())
+                            .put("strength", rawImportance.takeIf { it > 0 }?.coerceIn(1, 10) ?: 5)
+                            .put("pinned", cursor.boolean("pinned"))
+                            .put("canRecallProactively", true),
+                    )
                 }
+            }
             if (imported.length() == 0) return 0
 
             val prefs = context.getSharedPreferences("lulu_memory_store", Context.MODE_PRIVATE)
@@ -209,7 +256,7 @@ object LegacyLuluBackupImporter {
             root.put("entries", entries)
             if (!root.has("policies")) root.put("policies", JSONObject())
             if (!root.has("processedMessageIds")) root.put("processedMessageIds", JSONObject())
-            prefs.edit().putString("state_v1", root.toString()).commit()
+            check(prefs.edit().putString("state_v1", root.toString()).commit()) { "写入旧记忆失败" }
             return count
         }
     }
@@ -219,8 +266,8 @@ object LegacyLuluBackupImporter {
         val candidates = mutableListOf<ApiCandidate>()
         collectApiCandidates(source, candidates)
         val unique = candidates
-            .filter { it.baseUrl.startsWith("http") && it.apiKey.isNotBlank() }
-            .distinctBy { "${it.baseUrl.trimEnd('/')}\u0000${it.apiKey}" }
+            .filter { candidate -> candidate.baseUrl.startsWith("http") && candidate.apiKey.isNotBlank() }
+            .distinctBy { candidate -> "${candidate.baseUrl.trimEnd('/')}\u0000${candidate.apiKey}" }
         if (unique.isEmpty()) return ModelImportResult()
 
         val prefs = context.getSharedPreferences("lulu_model_connection", Context.MODE_PRIVATE)
@@ -265,7 +312,9 @@ object LegacyLuluBackupImporter {
         if (current.optString("activeArchiveId").isBlank() && firstArchiveId != null) {
             current.put("activeArchiveId", firstArchiveId)
         }
-        prefs.edit().putString("model_library_v2", current.toString()).commit()
+        check(prefs.edit().putString("model_library_v2", current.toString()).commit()) {
+            "写入旧模型配置失败"
+        }
         return ModelImportResult(configCount, archiveCount)
     }
 
@@ -285,7 +334,9 @@ object LegacyLuluBackupImporter {
                 val keys = value.keys()
                 while (keys.hasNext()) collectApiCandidates(value.opt(keys.next()), output)
             }
-            is JSONArray -> for (index in 0 until value.length()) collectApiCandidates(value.opt(index), output)
+            is JSONArray -> for (index in 0 until value.length()) {
+                collectApiCandidates(value.opt(index), output)
+            }
         }
     }
 
@@ -300,14 +351,19 @@ object LegacyLuluBackupImporter {
                 when (val item = array.opt(index)) {
                     is String -> item.trim().takeIf(String::isNotBlank)?.let(models::add)
                     is JSONObject -> firstString(item, "id", "modelId", "model", "name")
-                        .takeIf(String::isNotBlank)?.let(models::add)
+                        .takeIf(String::isNotBlank)
+                        ?.let(models::add)
                 }
             }
         }
         return models
     }
 
-    private fun parseLegacyNodes(raw: String, conversationId: String, fallbackMillis: Long): List<LegacyMessage> {
+    private fun parseLegacyNodes(
+        raw: String,
+        conversationId: String,
+        fallbackMillis: Long,
+    ): List<LegacyMessage> {
         if (raw.isBlank()) return emptyList()
         return runCatching {
             val nodes = JSONArray(raw)
@@ -315,7 +371,8 @@ object LegacyLuluBackupImporter {
                 for (nodeIndex in 0 until nodes.length()) {
                     val node = nodes.optJSONObject(nodeIndex) ?: continue
                     val choices = node.optJSONArray("messages") ?: continue
-                    val selected = node.optInt("selectIndex", 0).coerceIn(0, (choices.length() - 1).coerceAtLeast(0))
+                    if (choices.length() == 0) continue
+                    val selected = node.optInt("selectIndex", 0).coerceIn(0, choices.length() - 1)
                     val message = choices.optJSONObject(selected) ?: continue
                     val role = when (message.optString("role").uppercase()) {
                         "USER" -> "User"
@@ -344,13 +401,11 @@ object LegacyLuluBackupImporter {
                 extractText(value.opt(index)).takeIf(String::isNotBlank)?.let(::add)
             }
         }.joinToString("\n")
-        is JSONObject -> {
-            when {
-                value.has("text") -> value.optString("text")
-                value.has("content") -> extractText(value.opt("content"))
-                value.has("output") -> extractText(value.opt("output"))
-                else -> ""
-            }
+        is JSONObject -> when {
+            value.has("text") -> value.optString("text")
+            value.has("content") -> extractText(value.opt("content"))
+            value.has("output") -> extractText(value.opt("output"))
+            else -> ""
         }
         is String -> value
         else -> ""
@@ -364,7 +419,9 @@ object LegacyLuluBackupImporter {
         }.trim()
         if (text.isNotBlank()) {
             runCatching { Instant.parse(text) }.getOrNull()?.let { return it }
-            runCatching { LocalDateTime.parse(text).atZone(ZoneId.systemDefault()).toInstant() }.getOrNull()?.let { return it }
+            runCatching {
+                LocalDateTime.parse(text).atZone(ZoneId.systemDefault()).toInstant()
+            }.getOrNull()?.let { return it }
         }
         return epochMillisToInstant(fallbackMillis)
     }
@@ -381,26 +438,51 @@ object LegacyLuluBackupImporter {
                 while (cursor.moveToNext()) add(cursor.getString(0))
             }
             candidates.forEach { candidate ->
-                names.firstOrNull { it.equals(candidate, ignoreCase = true) }?.let { return it }
+                names.firstOrNull { name -> name.equals(candidate, ignoreCase = true) }
+                    ?.let { return it }
             }
         }
         return null
     }
 
+    private fun tableColumns(database: SQLiteDatabase, table: String): Set<String> {
+        val escaped = table.replace("'", "''")
+        return database.rawQuery("PRAGMA table_info('$escaped')", null).use { cursor ->
+            buildSet {
+                val nameIndex = cursor.getColumnIndex("name")
+                while (cursor.moveToNext()) {
+                    if (nameIndex >= 0 && !cursor.isNull(nameIndex)) {
+                        add(cursor.getString(nameIndex).lowercase())
+                    }
+                }
+            }
+        }
+    }
+
     private fun Cursor.index(name: String): Int = getColumnIndex(name)
-    private fun Cursor.string(name: String): String = index(name).takeIf { it >= 0 && !isNull(it) }?.let(::getString).orEmpty()
-    private fun Cursor.long(name: String): Long = index(name).takeIf { it >= 0 && !isNull(it) }?.let(::getLong) ?: 0L
-    private fun Cursor.int(name: String): Int = index(name).takeIf { it >= 0 && !isNull(it) }?.let(::getInt) ?: 0
+    private fun Cursor.string(name: String): String =
+        index(name).takeIf { it >= 0 && !isNull(it) }?.let(::getString).orEmpty()
+    private fun Cursor.long(name: String): Long =
+        index(name).takeIf { it >= 0 && !isNull(it) }?.let(::getLong) ?: 0L
+    private fun Cursor.int(name: String): Int =
+        index(name).takeIf { it >= 0 && !isNull(it) }?.let(::getInt) ?: 0
     private fun Cursor.boolean(name: String): Boolean = int(name) != 0
 
     private fun firstString(root: JSONObject, vararg keys: String): String {
-        keys.forEach { key -> root.optString(key).trim().takeIf(String::isNotBlank)?.let { return it } }
+        keys.forEach { key ->
+            root.optString(key).trim().takeIf(String::isNotBlank)?.let { return it }
+        }
         return ""
     }
 
-    private fun firstPositive(vararg values: Long): Long = values.firstOrNull { it > 0 } ?: System.currentTimeMillis()
-    private fun epochMillisToInstant(value: Long): Instant = Instant.ofEpochMilli(value.takeIf { it > 0 } ?: System.currentTimeMillis())
-    private fun memoryKey(kind: String, content: String): String = "$kind:${content.lowercase().replace(Regex("\\s+"), "").take(240)}"
+    private fun firstPositive(vararg values: Long): Long =
+        values.firstOrNull { value -> value > 0L } ?: System.currentTimeMillis()
+    private fun firstPositiveOrZero(vararg values: Long): Long =
+        values.firstOrNull { value -> value > 0L } ?: 0L
+    private fun epochMillisToInstant(value: Long): Instant =
+        Instant.ofEpochMilli(value.takeIf { it > 0L } ?: System.currentTimeMillis())
+    private fun memoryKey(kind: String, content: String): String =
+        "$kind:${content.lowercase().replace(Regex("\\s+"), "").take(240)}"
     private fun collectKeys(root: JSONObject): Set<String> = buildSet {
         val keys = root.keys()
         while (keys.hasNext()) add(keys.next())
@@ -414,8 +496,10 @@ object LegacyLuluBackupImporter {
     private fun mapMemoryKind(memoryKind: String, legacyType: String, content: String): String {
         val value = "$memoryKind $legacyType $content".lowercase()
         return when {
-            listOf("emotion", "feeling", "情绪", "感受", "焦虑", "开心", "难过").any(value::contains) -> "Emotion"
-            listOf("timeline", "event", "daily", "phase", "时间", "事件", "开始", "完成").any(value::contains) -> "Timeline"
+            listOf("emotion", "feeling", "情绪", "感受", "焦虑", "开心", "难过")
+                .any(value::contains) -> "Emotion"
+            listOf("timeline", "event", "daily", "phase", "时间", "事件", "开始", "完成")
+                .any(value::contains) -> "Timeline"
             else -> "Fact"
         }
     }
@@ -423,7 +507,6 @@ object LegacyLuluBackupImporter {
     private data class LegacyConversationRow(
         val id: String,
         val title: String,
-        val createdAt: Long,
         val updatedAt: Long,
         val messages: List<LegacyMessage>,
     )
@@ -443,8 +526,15 @@ object LegacyLuluBackupImporter {
         val models: List<String>,
     )
 
-    private data class ChatImportResult(val conversations: Int = 0, val messages: Int = 0)
-    private data class ModelImportResult(val configurations: Int = 0, val archives: Int = 0)
+    private data class ChatImportResult(
+        val conversations: Int = 0,
+        val messages: Int = 0,
+    )
+
+    private data class ModelImportResult(
+        val configurations: Int = 0,
+        val archives: Int = 0,
+    )
 }
 
 data class LegacyLuluImportResult(
