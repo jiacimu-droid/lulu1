@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`660632e85f9d85696d772996970b47bba076b128`
+- 基准提交：`4dd706706eb4da7e5ec6e8d7c541da5d3fee8972`
 - 分支：`main`
 - 已索引文件：68
-- 已索引代码/文本行：15545
-- 已发现符号：315
+- 已索引代码/文本行：15560
+- 已发现符号：316
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -50,7 +50,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 376 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 76 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 690 | 31 |
-| `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt` | 53 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt` | 68 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt` | 247 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt` | 301 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishInventoryBridge.kt` | 49 | 2 |
