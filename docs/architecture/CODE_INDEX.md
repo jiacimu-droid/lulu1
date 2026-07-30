@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`7c5b608513ae4ca268075f1d7bb79d852c4a6986`
+- 基准提交：`e313a0bf4debc4a78feaa7bd4f54720a5c1d9bef`
 - 分支：`main`
 - 已索引文件：70
-- 已索引代码/文本行：15672
+- 已索引代码/文本行：15676
 - 已发现符号：320
 
 | 文件 | 行数 | 符号数 |
@@ -30,7 +30,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 554 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 125 | 28 |
-| `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 205 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 209 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 67 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 319 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
