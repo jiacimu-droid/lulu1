@@ -1,30 +1,45 @@
 package com.jiacimu.lulu.study
 
 import android.content.Context
+import java.time.LocalDate
 
-/** Installs the current user-approved month/week plan once without generating a fixed daily timetable. */
+/** Installs the current user-approved month/week plan without generating a fixed daily timetable. */
 object SelfDirectedStudyPlanSeed {
     private const val PREFS = "lulu_study_plan_migrations"
     private const val KEY = "self_directed_plan_v1"
 
     fun migrate(context: Context, store: PostgraduateExamStore) {
         val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        if (prefs.getBoolean(KEY, false)) return
-        val existing = store.state.value.planItems.mapTo(mutableSetOf()) { it.title }
+        if (!prefs.getBoolean(KEY, false)) {
+            val existing = store.state.value.planItems.mapTo(mutableSetOf()) { it.title }
 
-        monthlyPlans.forEach { (title, note) ->
-            if (title !in existing) store.addPlanItem(StudyPlanRange.Monthly, title, note)
+            monthlyPlans.forEach { (title, note) ->
+                if (title !in existing) store.addPlanItem(StudyPlanRange.Monthly, title, note)
+            }
+            weeklyPlans.forEach { (title, note) ->
+                if (title !in existing) store.addPlanItem(StudyPlanRange.Weekly, title, note)
+            }
+            // Old generated clock-by-clock schedules conflict with the new responsibility boundary.
+            store.clearSchedule()
+            prefs.edit().putBoolean(KEY, true).apply()
         }
-        weeklyPlans.forEach { (title, note) ->
-            if (title !in existing) store.addPlanItem(StudyPlanRange.Weekly, title, note)
-        }
-        val currentTips = store.state.value.tips.mapTo(mutableSetOf()) { it.text }
+        ensureDailyReminders(store)
+    }
+
+    /**
+     * Short reminders are daily guidance, not a one-time migration payload.
+     * Re-entering the study app on a new date fills only that date and never duplicates existing tips.
+     */
+    fun ensureDailyReminders(
+        store: PostgraduateExamStore,
+        date: LocalDate = LocalDate.now(),
+    ) {
+        val currentTips = store.state.value.tips
+            .filter { tip -> tip.date == date.toString() }
+            .mapTo(mutableSetOf()) { tip -> tip.text }
         dailyReminders.forEach { reminder ->
-            if (reminder !in currentTips) store.addTip(reminder)
+            if (reminder !in currentTips) store.addTip(reminder, date)
         }
-        // Old generated clock-by-clock schedules conflict with the new responsibility boundary.
-        store.clearSchedule()
-        prefs.edit().putBoolean(KEY, true).apply()
     }
 
     private val monthlyPlans = listOf(
