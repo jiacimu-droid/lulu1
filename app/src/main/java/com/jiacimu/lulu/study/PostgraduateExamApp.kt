@@ -21,6 +21,7 @@ fun PostgraduateExamApp(onBack: () -> Unit) {
 
     LaunchedEffect(Unit) {
         store.syncDate()
+        SelfDirectedStudyPlanSeed.ensureDailyReminders(store)
     }
 
     when (val current = route) {
