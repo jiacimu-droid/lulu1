@@ -7,6 +7,7 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.ChatMemoryAutomation
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.RoleReadablePerformanceBridge
 import com.jiacimu.lulu.games.LuluGames
 import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.SelfDirectedStudyPlanSeed
@@ -31,6 +32,7 @@ class MigrationActivity : ComponentActivity() {
         StarWishStores.initialize(appContext)
         StudyFocusSessions.initialize(appContext)
         PostgraduateExamStores.main.syncPomodoroClock()
+        RoleReadablePerformanceBridge.initialize()
         ChatMemoryAutomation.initialize()
         setContent { LuluMigrationRootAppV2() }
     }
