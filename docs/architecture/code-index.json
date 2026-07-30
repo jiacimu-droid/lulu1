@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-30T07:39:14.182602+00:00",
-  "commit": "7b07055f218832455e5e4c6af759307cfe91f8d3",
+  "generatedAt": "2026-07-30T07:52:22.607352+00:00",
+  "commit": "4060a35d9131bc80baf303f7fd3b4ee2e6bc6ddd",
   "branch": "main",
-  "sourceFingerprint": "5bada4c0615d0ff66b483e8ca59a288525361abf7a8bf7fc891ef2c28ee5afaf",
+  "sourceFingerprint": "d4594c36ac33871207cf654c0792f1a55197e9921d1ab2cc56237ca2bc84125a",
   "summary": {
     "files": 70,
-    "lines": 15839,
+    "lines": 15929,
     "symbols": 321
   },
   "symbolIndex": {
@@ -587,19 +587,19 @@
     "LegacyLuluBackupImporter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt",
-        "line": 22
+        "line": 24
       }
     ],
     "importBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt",
-        "line": 24
+        "line": 26
       }
     ],
     "LegacyLuluImportResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt",
-        "line": 449
+        "line": 539
       }
     ],
     "LocalMemoryRepository": [
@@ -2404,20 +2404,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt",
-      "lines": 458,
-      "sha256": "5fcb831ed6a4857d06b36749521647ae25c7bbcdbe19d1ab9be0963fac8059a6",
+      "lines": 548,
+      "sha256": "368c9c12682e7aa0bcf70499744982f81e28d6157c66e92900fdbbefc4b6c1f3",
       "symbols": [
         {
           "name": "LegacyLuluBackupImporter",
-          "line": 22
-        },
-        {
-          "name": "importBackup",
           "line": 24
         },
         {
+          "name": "importBackup",
+          "line": 26
+        },
+        {
           "name": "LegacyLuluImportResult",
-          "line": 449
+          "line": 539
         }
       ]
     },
