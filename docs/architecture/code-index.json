@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-30T07:52:22.607352+00:00",
-  "commit": "4060a35d9131bc80baf303f7fd3b4ee2e6bc6ddd",
+  "generatedAt": "2026-07-30T08:01:51.422095+00:00",
+  "commit": "ed57bfec8307bdbd506eb7da64094777eac32735",
   "branch": "main",
-  "sourceFingerprint": "d4594c36ac33871207cf654c0792f1a55197e9921d1ab2cc56237ca2bc84125a",
+  "sourceFingerprint": "92253ed75396744f38f2ef04ceb259184217df698eb0150577b7719102a7210e",
   "summary": {
-    "files": 70,
-    "lines": 15929,
+    "files": 71,
+    "lines": 16182,
     "symbols": 321
   },
   "symbolIndex": {
@@ -3332,6 +3332,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishVideoPanel.kt",
       "lines": 149,
       "sha256": "ba6aaacb56bc1161c2e67683e169f7825af22e5314bc78acaafcbfbb87d25c63",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCompanionScreen.kt",
+      "lines": 253,
+      "sha256": "ea61c595ae184a50af243d55bdf8aae9dfea90dc7b31cb32a7c32eb033f5d16b",
       "symbols": []
     },
     {
