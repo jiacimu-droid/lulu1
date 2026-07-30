@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-30T04:36:20.408988+00:00",
-  "commit": "227cc595c01381443fea67b2409f8bea731b3985",
+  "generatedAt": "2026-07-30T04:38:18.971445+00:00",
+  "commit": "b5609934f68b3eb1615ba5f43dcd5b0ffd2f25e3",
   "branch": "main",
-  "sourceFingerprint": "ef76e28134f6d8143c554e77f3a79d59e0970de901078ad52968d4eb2000ad8a",
+  "sourceFingerprint": "4bc1aec220fd505d43547923bb040d372a106ffe04add93253cb4cc0ddc634fc",
   "summary": {
-    "files": 68,
-    "lines": 15561,
-    "symbols": 316
+    "files": 69,
+    "lines": 15630,
+    "symbols": 319
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -176,6 +176,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 541
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
+        "line": 23
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
@@ -898,6 +902,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 536
+      }
+    ],
+    "RoleReadablePerformanceBridge": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
+        "line": 21
+      }
+    ],
+    "shutdown": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
+        "line": 55
       }
     ],
     "LuluPageScaffold": [
@@ -2648,6 +2664,25 @@
         {
           "name": "initialize",
           "line": 541
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
+      "lines": 69,
+      "sha256": "41ff4ce9000b113e21a6f2b2fcbfad67a10c40b1f78b3d60021168fdfaf46682",
+      "symbols": [
+        {
+          "name": "RoleReadablePerformanceBridge",
+          "line": 21
+        },
+        {
+          "name": "initialize",
+          "line": 23
+        },
+        {
+          "name": "shutdown",
+          "line": 55
         }
       ]
     },
