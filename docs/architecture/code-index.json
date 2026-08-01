@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-30T08:07:00.232954+00:00",
-  "commit": "e313a0bf4debc4a78feaa7bd4f54720a5c1d9bef",
+  "generatedAt": "2026-08-01T16:37:20.294308+00:00",
+  "commit": "82568bb82f2475927aabda0531dfccffd4d6f500",
   "branch": "main",
-  "sourceFingerprint": "7e003cf3c14faf81473b4231b3f44d4e0573d7fed788abafbeed58f9a47c9caf",
+  "sourceFingerprint": "061b0024a044c95e91f91f681f19a5cd8a76fe7e2b3772bf4e3f84577f93e8b8",
   "summary": {
     "files": 70,
-    "lines": 15676,
+    "lines": 15691,
     "symbols": 320
   },
   "symbolIndex": {
@@ -151,7 +151,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
-        "line": 26
+        "line": 30
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
@@ -533,7 +533,7 @@
     "ChatMemoryAutomation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
-        "line": 19
+        "line": 22
       }
     ],
     "InMemoryMemoryRepository": [
@@ -2336,16 +2336,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
-      "lines": 67,
-      "sha256": "377efabc496a7a5ee844726e14d9e869cdbf43388c1d52106d6a60277878b03a",
+      "lines": 82,
+      "sha256": "86e7b0e74f39678493196287eb53ed36c31d70660617641fc3c33741d4fd0c39",
       "symbols": [
         {
           "name": "ChatMemoryAutomation",
-          "line": 19
+          "line": 22
         },
         {
           "name": "initialize",
-          "line": 26
+          "line": 30
         }
       ]
     },
