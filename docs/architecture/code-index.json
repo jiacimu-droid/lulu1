@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T16:34:14.487101+00:00",
-  "commit": "0c7e99ce7b9b35a5c550dbb1f352c1eb308a54c5",
+  "generatedAt": "2026-08-02T16:39:15.185276+00:00",
+  "commit": "ca8274d8e7fc3337edd648e5d925e8c51b901437",
   "branch": "main",
-  "sourceFingerprint": "51d7de3789f2d0af7251aba502d54d168a26546541ccd2cd053b6906cff88bc7",
+  "sourceFingerprint": "aa804bb12d2fc18e1f769e551e9920b77f0eac0155c12b064097992c95cee75d",
   "summary": {
     "files": 84,
-    "lines": 17769,
+    "lines": 17764,
     "symbols": 342
   },
   "symbolIndex": {
@@ -97,25 +97,25 @@
     "startGeneration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
-        "line": 115
+        "line": 112
       }
     ],
     "sendMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
-        "line": 161
+        "line": 158
       }
     ],
     "retryMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
-        "line": 175
+        "line": 172
       }
     ],
     "stopGeneration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
-        "line": 180
+        "line": 176
       }
     ],
     "MigratedChatHubScreenV2": [
@@ -2131,8 +2131,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
-      "lines": 623,
-      "sha256": "57a5c49893a5f25a1ba8681e66914afe137f20de8a011b590ffa69ff6b8f88d7",
+      "lines": 618,
+      "sha256": "185df293a4d104dd1fc4671a5d02e42867afdbad20b2d5609b8a6d40198fc486",
       "symbols": [
         {
           "name": "MigratedChatDetailScreenV2",
@@ -2140,19 +2140,19 @@
         },
         {
           "name": "startGeneration",
-          "line": 115
+          "line": 112
         },
         {
           "name": "sendMessage",
-          "line": 161
+          "line": 158
         },
         {
           "name": "retryMessage",
-          "line": 175
+          "line": 172
         },
         {
           "name": "stopGeneration",
-          "line": 180
+          "line": 176
         }
       ]
     },
