@@ -13,6 +13,7 @@ import com.jiacimu.lulu.design.LuluColors
 import com.jiacimu.lulu.design.LuluLightColorScheme
 import com.jiacimu.lulu.design.LuluTypography
 import com.jiacimu.lulu.games.LuluGamesAppV2
+import com.jiacimu.lulu.study.LuluReadingScreen
 import com.jiacimu.lulu.study.PostgraduateExamApp
 import com.jiacimu.lulu.study.StarWishMigratedScreen
 
@@ -129,11 +130,9 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                     MigrationRoute.Performance -> PerformanceFeatureScreen {
                         route = MigrationRoute.Home
                     }
-                    MigrationRoute.Reading -> MigrationEmptyScreen(
-                        title = "阅读",
-                        subtitle = "阅读入口按迁移计划保留为空，不迁入旧阅读内容。",
-                        onBack = { route = MigrationRoute.Home },
-                    )
+                    MigrationRoute.Reading -> LuluReadingScreen {
+                        route = MigrationRoute.Home
+                    }
                     MigrationRoute.Wishes -> StarWishMigratedScreen {
                         route = MigrationRoute.Home
                     }
