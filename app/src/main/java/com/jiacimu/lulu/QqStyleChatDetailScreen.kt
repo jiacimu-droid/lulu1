@@ -7,69 +7,28 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.Call
-import androidx.compose.material.icons.outlined.KeyboardVoice
-import androidx.compose.material.icons.outlined.MoreHoriz
-import androidx.compose.material.icons.outlined.Send
-import androidx.compose.material.icons.outlined.StopCircle
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
-import com.jiacimu.lulu.data.RelevantMemoryRecall
+import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
@@ -78,12 +37,13 @@ import java.time.Duration
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-private val QqPage = Color(0xFFF4F5F7)
-private val QqHeader = Color(0xFFFAFAFB)
-private val QqMine = Color(0xFF95EC69)
+private val QqPage = Color(0xFFF7F9F8)
+private val QqHeader = Color(0xFFFCFDFC)
+private val QqMine = Color(0xFFDDEAE6)
 private val QqOther = Color.White
-private val QqMuted = Color(0xFF8B8F97)
-private val QqInk = Color(0xFF202124)
+private val QqMuted = Color(0xFF7D8C88)
+private val QqInk = Color(0xFF34413F)
+private val QqBorder = Color(0xFFDDE7E3)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -117,7 +77,7 @@ fun QqStyleChatDetailScreen(
     val voiceLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val spoken = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull().orEmpty()
-            if (spoken.isNotBlank()) input = listOf(input.trim(), spoken.trim()).filter { it.isNotBlank() }.joinToString(" ")
+            if (spoken.isNotBlank()) input = listOf(input.trim(), spoken.trim()).filter(String::isNotBlank).joinToString(" ")
         }
     }
 
@@ -136,31 +96,19 @@ fun QqStyleChatDetailScreen(
         pendingMessageId = userMessageId
         generationJob = scope.launch {
             try {
-                val relatedMemories = RelevantMemoryRecall.recall(
+                val result = LuluDeviceToolBridge.respond(
                     characterId = characterId,
-                    query = listOf(history.takeLast(2_000), text).joinToString("\n"),
-                    limit = 12,
-                )
-                val memoryContext = RelevantMemoryRecall.formatForPrompt(relatedMemories)
-                val result = LuluAiServices.gateway.generate(
-                    characterId = characterId,
-                    facts = buildString {
-                        if (history.isNotBlank()) appendLine("最近对话：\n$history")
-                        if (memoryContext.isNotBlank()) appendLine("\n$memoryContext")
-                        appendLine("\n主人刚刚说：$text")
-                    },
-                    instruction = "延续对话，以角色本人的口吻自然回复主人。优先使用与本轮有关的真实记忆；不相关的记忆不要生硬提起。不要复述系统提示。",
-                    source = "聊天",
+                    history = history,
+                    userText = text,
                     title = activeLabel,
-                    temperature = 0.85,
-                    maxTokens = 1200,
                 )
                 if (!currentCoroutineContext().isActive) return@launch
-                result.onSuccess { reply -> MigratedDomainStores.chat.appendCharacterMessage(conversationId, reply.text) }
-                    .onFailure { error ->
-                        MigratedDomainStores.chat.markFailed(userMessageId)
-                        snackbar.showSnackbar(error.message ?: "回复失败")
-                    }
+                result.onSuccess { reply ->
+                    if (reply.text.isNotBlank()) MigratedDomainStores.chat.appendCharacterMessage(conversationId, reply.text)
+                }.onFailure { error ->
+                    MigratedDomainStores.chat.markFailed(userMessageId)
+                    snackbar.showSnackbar(error.message ?: "回复失败")
+                }
             } finally {
                 if (pendingMessageId == userMessageId) {
                     sending = false
@@ -191,9 +139,13 @@ fun QqStyleChatDetailScreen(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = QqHeader),
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 title = {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(character.displayName, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = QqInk)
-                        Text(activeLabel, fontSize = 10.sp, color = QqMuted, maxLines = 1)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        QqAvatar(character.displayName.take(1).ifBlank { "露" }, 42)
+                        Spacer(Modifier.width(9.dp))
+                        Column {
+                            Text(character.displayName, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = QqInk)
+                            Text(activeLabel, fontSize = 10.sp, color = QqMuted, maxLines = 1)
+                        }
                     }
                 },
                 actions = {
@@ -227,7 +179,7 @@ fun QqStyleChatDetailScreen(
                         minLines = 1,
                         maxLines = 5,
                         placeholder = { Text("发消息", color = QqMuted) },
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(18.dp),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.White,
                             unfocusedContainerColor = Color.White,
@@ -254,68 +206,40 @@ fun QqStyleChatDetailScreen(
     ) { padding ->
         LazyColumn(
             state = listState,
-            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 12.dp),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             itemsIndexed(messages, key = { _, item -> item.id }) { index, message ->
                 val previous = messages.getOrNull(index - 1)
-                val showTime = preferences.showMessageTimestamps && (
-                    previous == null || Duration.between(previous.createdAt, message.createdAt).toMinutes() >= 5
-                )
-                if (showTime) {
-                    Text(
-                        message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("M月d日 HH:mm")),
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                        color = QqMuted,
-                        fontSize = 11.sp,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    )
-                }
-                val mine = message.sender == LuluChatMessage.Sender.User
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = if (mine) Arrangement.End else Arrangement.Start,
-                    verticalAlignment = Alignment.Top,
-                ) {
-                    if (!mine) {
-                        QqAvatar(character.displayName.take(1).ifBlank { "露" })
-                        Spacer(Modifier.width(8.dp))
-                    }
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(0.78f).combinedClickable(
-                            onClick = {
-                                if (message.status == LuluChatMessage.Status.Failed && mine && !sending) generateReply(message.content, message.id)
-                            },
-                            onLongClick = { selectedMessage = message },
-                        ),
-                        color = if (mine) QqMine else QqOther,
-                        shape = RoundedCornerShape(8.dp),
-                        shadowElevation = if (mine) 0.dp else 1.dp,
-                    ) {
-                        Column(Modifier.padding(horizontal = 12.dp, vertical = 9.dp)) {
-                            Text(message.content, color = QqInk, fontSize = 15.sp, lineHeight = 21.sp)
-                            if (message.status == LuluChatMessage.Status.Failed) Text("发送失败 · 点击重试", color = MaterialTheme.colorScheme.error, fontSize = 10.sp)
-                            if (message.favorite) Text("已收藏", color = QqMuted, fontSize = 10.sp)
+                val next = messages.getOrNull(index + 1)
+                val groupStart = previous == null || previous.sender != message.sender ||
+                    Duration.between(previous.createdAt, message.createdAt).toMinutes() >= 2
+                val groupEnd = next == null || next.sender != message.sender ||
+                    Duration.between(message.createdAt, next.createdAt).toMinutes() >= 2
+                QqMessageRow(
+                    message = message,
+                    characterName = character.displayName,
+                    showAvatar = groupStart,
+                    showTime = preferences.showMessageTimestamps && groupEnd,
+                    onClick = {
+                        if (message.status == LuluChatMessage.Status.Failed && message.sender == LuluChatMessage.Sender.User && !sending) {
+                            generateReply(message.content, message.id)
                         }
-                    }
-                    if (mine) {
-                        Spacer(Modifier.width(8.dp))
-                        QqAvatar("我")
-                    }
-                }
-                Spacer(Modifier.height(3.dp))
+                    },
+                    onLongClick = { selectedMessage = message },
+                )
             }
             if (sending) {
                 item {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        QqAvatar(character.displayName.take(1).ifBlank { "露" })
-                        Spacer(Modifier.width(8.dp))
-                        Surface(color = QqOther, shape = RoundedCornerShape(8.dp)) {
-                            Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.Top) {
+                        QqAvatar(character.displayName.take(1).ifBlank { "露" }, 44)
+                        Spacer(Modifier.width(9.dp))
+                        Surface(color = QqOther, shape = RoundedCornerShape(16.dp), border = androidx.compose.foundation.BorderStroke(1.dp, QqBorder)) {
+                            Row(Modifier.padding(horizontal = 14.dp, vertical = 11.dp), verticalAlignment = Alignment.CenterVertically) {
                                 CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp)
                                 Spacer(Modifier.width(8.dp))
-                                Text("正在输入…", color = QqMuted, fontSize = 13.sp)
+                                Text("正在思考或执行手机操作…", color = QqMuted, fontSize = 13.sp)
                             }
                         }
                     }
@@ -331,7 +255,9 @@ fun QqStyleChatDetailScreen(
             text = { Text(message.content, maxLines = 4) },
             confirmButton = {
                 Row {
-                    TextButton(onClick = { MigratedDomainStores.chat.toggleFavorite(message.id); selectedMessage = null }) { Text(if (message.favorite) "取消收藏" else "收藏") }
+                    TextButton(onClick = { MigratedDomainStores.chat.toggleFavorite(message.id); selectedMessage = null }) {
+                        Text(if (message.favorite) "取消收藏" else "收藏")
+                    }
                     TextButton(onClick = {
                         MigratedDomainStores.chat.createBranch(conversationId, message.id)?.let { onOpenBranch(it.id) }
                         selectedMessage = null
@@ -347,9 +273,70 @@ fun QqStyleChatDetailScreen(
         AlertDialog(
             onDismissRequest = { callVisible = false },
             title = { Text("与${character.displayName}通话") },
-            text = { Text("通话入口已保留。实时双向流式语音仍按迁移账本作为后续增强。") },
+            text = { Text("通话入口已接入角色页面；实时双向流式语音仍需要继续完成音频传输层。") },
             confirmButton = { Button(onClick = { callVisible = false }) { Text("知道了") } },
         )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun QqMessageRow(
+    message: LuluChatMessage,
+    characterName: String,
+    showAvatar: Boolean,
+    showTime: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+) {
+    val mine = message.sender == LuluChatMessage.Sender.User
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = if (mine) Arrangement.End else Arrangement.Start,
+        verticalAlignment = Alignment.Top,
+    ) {
+        if (!mine) {
+            if (showAvatar) QqAvatar(characterName.take(1).ifBlank { "露" }, 44) else Spacer(Modifier.width(44.dp))
+            Spacer(Modifier.width(9.dp))
+        }
+        Column(
+            modifier = Modifier.widthIn(max = 300.dp),
+            horizontalAlignment = if (mine) Alignment.End else Alignment.Start,
+        ) {
+            Surface(
+                modifier = Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick),
+                color = if (mine) QqMine else QqOther,
+                shape = RoundedCornerShape(16.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, QqBorder),
+                shadowElevation = if (mine) 0.dp else 1.dp,
+            ) {
+                Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+                    Text(message.content, color = QqInk, fontSize = 15.sp, lineHeight = 22.sp)
+                    if (message.status == LuluChatMessage.Status.Failed) {
+                        Spacer(Modifier.height(4.dp))
+                        Text("发送失败 · 点击重试", color = MaterialTheme.colorScheme.error, fontSize = 10.sp)
+                    }
+                    if (message.favorite) {
+                        Spacer(Modifier.height(4.dp))
+                        Text("★ 已收藏", color = QqMuted, fontSize = 10.sp)
+                    }
+                }
+            }
+            if (showTime) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm")),
+                    color = QqMuted,
+                    fontSize = 10.sp,
+                    textAlign = if (mine) TextAlign.End else TextAlign.Start,
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                )
+            }
+        }
+        if (mine) {
+            Spacer(Modifier.width(9.dp))
+            if (showAvatar) QqAvatar("我", 44) else Spacer(Modifier.width(44.dp))
+        }
     }
 }
 
@@ -363,9 +350,7 @@ private fun buildBoundedHistory(
         .filter { it.sender != LuluChatMessage.Sender.System }
         .fold(mutableListOf<LuluChatMessage>()) { result, message ->
             val previous = result.lastOrNull()
-            val duplicate = previous != null &&
-                previous.sender == message.sender &&
-                previous.content.trim() == message.content.trim()
+            val duplicate = previous != null && previous.sender == message.sender && previous.content.trim() == message.content.trim()
             if (!duplicate) result += message
             result
         }
@@ -385,10 +370,15 @@ private fun buildBoundedHistory(
 }
 
 @Composable
-private fun QqAvatar(label: String) {
-    Surface(modifier = Modifier.size(38.dp), shape = CircleShape, color = Color(0xFFE6D9B7)) {
+private fun QqAvatar(label: String, size: Int) {
+    Surface(
+        modifier = Modifier.size(size.dp),
+        shape = CircleShape,
+        color = Color(0xFFE9F0EE),
+        border = androidx.compose.foundation.BorderStroke(1.dp, QqBorder),
+    ) {
         Box(contentAlignment = Alignment.Center) {
-            Text(label, fontWeight = FontWeight.Bold, color = QqInk, fontSize = 14.sp)
+            Text(label, fontWeight = FontWeight.Bold, color = QqInk, fontSize = (size / 3).sp)
         }
     }
 }
