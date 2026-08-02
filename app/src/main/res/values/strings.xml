@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">露露机</string>
+    <string name="accessibility_service_description">允许露露识别当前应用和屏幕内容，并在你授权后执行返回、主页、最近任务、通知栏和界面点击等手机管家操作。</string>
 </resources>
