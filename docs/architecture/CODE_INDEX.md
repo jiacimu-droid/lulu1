@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`07ae9341cc0f102af92860a583e3da5c4ff76e0c`
+- 基准提交：`41e689c4c290a5cc6dd1bf07338b788027d96fbb`
 - 分支：`main`
-- 已索引文件：80
-- 已索引代码/文本行：18119
+- 已索引文件：83
+- 已索引代码/文本行：18156
 - 已发现符号：343
 
 | 文件 | 行数 | 符号数 |
@@ -82,6 +82,9 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 125 | 2 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
 | `app/src/main/res/drawable/lulu_app_icon.xml` | 87 | 0 |
+| `app/src/main/res/drawable/lulu_app_icon_foreground.xml` | 21 | 0 |
+| `app/src/main/res/mipmap-anydpi/ic_lulu_app.xml` | 11 | 0 |
+| `app/src/main/res/values/lulu_icon_colors.xml` | 5 | 0 |
 | `app/src/main/res/values/strings.xml` | 5 | 0 |
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
 | `scripts/generate_code_index.py` | 33 | 0 |

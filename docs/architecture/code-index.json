@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T16:26:36.170393+00:00",
-  "commit": "07ae9341cc0f102af92860a583e3da5c4ff76e0c",
+  "generatedAt": "2026-08-02T16:28:53.202240+00:00",
+  "commit": "41e689c4c290a5cc6dd1bf07338b788027d96fbb",
   "branch": "main",
-  "sourceFingerprint": "c1385ec81acaf1660f730a91c1e8202d007fd023ff7cc3f4de8a4718833a10fa",
+  "sourceFingerprint": "1f05a6e65607cda44bbed0d8b7ec50246c019a5c9580ed1998f781624cc528b8",
   "summary": {
-    "files": 80,
-    "lines": 18119,
+    "files": 83,
+    "lines": 18156,
     "symbols": 343
   },
   "symbolIndex": {
@@ -3872,6 +3872,24 @@
       "path": "app/src/main/res/drawable/lulu_app_icon.xml",
       "lines": 87,
       "sha256": "32b3b8d7561e41ab9a48413cc97228621bd2bf56fdf47d7a21402943f64e0fdd",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/res/drawable/lulu_app_icon_foreground.xml",
+      "lines": 21,
+      "sha256": "82ba325ca83818537c96a6d000d721e6e102130a9f502b5026af047771a49a71",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/res/mipmap-anydpi/ic_lulu_app.xml",
+      "lines": 11,
+      "sha256": "209acd94de542bad72d5bb0b86881e515fa8342229539f12b02cfecf5fd8247f",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/res/values/lulu_icon_colors.xml",
+      "lines": 5,
+      "sha256": "466f6e08d9adb5eb318d5e1eb822afa163fef5e5cbf452b2b0a6385b6fe555ed",
       "symbols": []
     },
     {
