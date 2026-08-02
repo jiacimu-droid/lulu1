@@ -7,6 +7,7 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.ChatLexiconAutomation
 import com.jiacimu.lulu.data.ChatMemoryAutomation
 import com.jiacimu.lulu.data.ChatTurnConsistencyAutomation
+import com.jiacimu.lulu.data.DeterministicMemoryAutomation
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.ProactiveMessageAutomation
@@ -37,6 +38,7 @@ class MigrationActivity : ComponentActivity() {
         PostgraduateExamStores.main.syncPomodoroClock()
         RoleReadablePerformanceBridge.initialize()
         ChatTurnConsistencyAutomation.initialize()
+        DeterministicMemoryAutomation.initialize(appContext)
         ChatMemoryAutomation.initialize()
         ChatLexiconAutomation.initialize(appContext)
         ProactiveMessageAutomation.initialize(appContext)
