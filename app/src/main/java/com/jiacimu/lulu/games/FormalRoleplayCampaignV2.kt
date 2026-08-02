@@ -125,7 +125,8 @@ private class CampaignStore(context: Context) {
 
 @Composable
 internal fun FormalRoleplayCampaignScreen(store: LuluGameStore, onBack: () -> Unit) {
-    val campaignStore = remember { CampaignStore(LocalContext.current) }
+    val context = LocalContext.current
+    val campaignStore = remember(context) { CampaignStore(context) }
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     var saves by remember { mutableStateOf(campaignStore.load()) }
     var activeId by rememberSaveable { mutableStateOf<String?>(null) }
