@@ -26,43 +26,74 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Generate repository index
-        env:
-          INDEX_COMMIT: ${{ github.sha }}
-          INDEX_BRANCH: ${{ github.ref_name }}
-        run: python3 scripts/generate_code_index.py
-
-      - name: Validate generated index
+      - name: Refresh and push repository index
+        shell: bash
         run: |
-          test -s docs/architecture/CODE_INDEX.md
-          test -s docs/architecture/code-index.json
-          python3 -m json.tool docs/architecture/code-index.json >/dev/null
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-          data=json.loads(Path('docs/architecture/code-index.json').read_text(encoding='utf-8'))
-          required={'schemaVersion','generatedAt','commit','branch','sourceFingerprint','summary','symbolIndex','files'}
-          missing=sorted(required-data.keys())
-          if missing: raise SystemExit(f"missing keys: {', '.join(missing)}")
-          if not data['files']: raise SystemExit('code index contains no files')
-          if len(data['sourceFingerprint']) != 64: raise SystemExit('invalid fingerprint')
-          PY
+          set -euo pipefail
 
-      - name: Commit refreshed index
-        run: |
-          if [ -z "$(git status --porcelain -- docs/architecture/CODE_INDEX.md docs/architecture/code-index.json)" ]; then
-            echo 'Code index is already current.'
-            exit 0
-          fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add --force docs/architecture/CODE_INDEX.md docs/architecture/code-index.json
-          git commit -m 'docs: refresh code index [skip ci] [skip index]'
-          git pull --rebase origin main
-          git push origin HEAD:main
+
+          # A newer main commit may arrive while an older index job is being cancelled.
+          # Always generate from the latest remote head and retry a rejected push instead
+          # of rebasing an index generated for an older source tree.
+          for attempt in 1 2 3; do
+            echo "Index refresh attempt ${attempt}/3"
+            git fetch origin main
+            git reset --hard origin/main
+
+            export INDEX_COMMIT="$(git rev-parse HEAD)"
+            export INDEX_BRANCH="main"
+            python3 scripts/generate_code_index.py
+
+            test -s docs/architecture/CODE_INDEX.md
+            test -s docs/architecture/code-index.json
+            python3 -m json.tool docs/architecture/code-index.json >/dev/null
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          data = json.loads(Path('docs/architecture/code-index.json').read_text(encoding='utf-8'))
+          required = {
+              'schemaVersion', 'generatedAt', 'commit', 'branch',
+              'sourceFingerprint', 'summary', 'symbolIndex', 'files',
+          }
+          missing = sorted(required - data.keys())
+          if missing:
+              raise SystemExit(f"missing keys: {', '.join(missing)}")
+          if not data['files']:
+              raise SystemExit('code index contains no files')
+          if len(data['sourceFingerprint']) != 64:
+              raise SystemExit('invalid fingerprint')
+          if data['commit'] != data_expected_commit:
+              raise SystemExit(
+                  f"index commit mismatch: {data['commit']} != {data_expected_commit}"
+              )
+          PY
+
+            if [ -z "$(git status --porcelain -- docs/architecture/CODE_INDEX.md docs/architecture/code-index.json)" ]; then
+              echo 'Code index is already current.'
+              exit 0
+            fi
+
+            git add --force docs/architecture/CODE_INDEX.md docs/architecture/code-index.json
+            git commit -m 'docs: refresh code index [skip ci] [skip index]'
+
+            if git push origin HEAD:main; then
+              echo 'Code index pushed successfully.'
+              exit 0
+            fi
+
+            echo 'main advanced during indexing; retrying from the latest remote head.'
+          done
+
+          echo 'Unable to publish a current code index after 3 attempts.' >&2
+          exit 1
+        env:
+          data_expected_commit: ${{ github.sha }}
