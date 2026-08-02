@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T15:42:43.202534+00:00",
-  "commit": "3ba4aba085a4656eae71bcd3d07707628e3f0a90",
+  "generatedAt": "2026-08-02T15:47:29.050030+00:00",
+  "commit": "c22b7245cfd126cf3b081b1d3678e10c8f04841e",
   "branch": "main",
-  "sourceFingerprint": "c4c1fe16c92cca9c16c9c37d3091a5a3c6adee952a6f953fe2ffbacacad398cf",
+  "sourceFingerprint": "64cc36318e7830bac7b7c1b994ef6360f3eafb358cc7fa7502782a68ea41c083",
   "summary": {
-    "files": 76,
-    "lines": 16862,
-    "symbols": 333
+    "files": 77,
+    "lines": 17058,
+    "symbols": 340
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -912,12 +912,20 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 419
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
+        "line": 74
       }
     ],
     "get": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 429
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
+        "line": 86
       }
     ],
     "defaultSettings": [
@@ -1698,6 +1706,36 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt",
         "line": 16
+      }
+    ],
+    "detailedGuide": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
+        "line": 23
+      }
+    ],
+    "all": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
+        "line": 55
+      }
+    ],
+    "add": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
+        "line": 66
+      }
+    ],
+    "text": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
+        "line": 150
+      }
+    ],
+    "value": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
+        "line": 183
       }
     ],
     "StudyTaskSource": [
@@ -3473,6 +3511,41 @@
         {
           "name": "StarWishMigratedScreen",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
+      "lines": 196,
+      "sha256": "a6e61dc032514b6d4da8eb209e524b3c6ba6778c97385df016b595555b3d2c83",
+      "symbols": [
+        {
+          "name": "detailedGuide",
+          "line": 23
+        },
+        {
+          "name": "all",
+          "line": 55
+        },
+        {
+          "name": "add",
+          "line": 66
+        },
+        {
+          "name": "delete",
+          "line": 74
+        },
+        {
+          "name": "get",
+          "line": 86
+        },
+        {
+          "name": "text",
+          "line": 150
+        },
+        {
+          "name": "value",
+          "line": 183
         }
       ]
     },
