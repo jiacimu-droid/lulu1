@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T17:03:38.406269+00:00",
-  "commit": "f8ce8985fb7d6a8d600b929b10bea4799230c4aa",
+  "generatedAt": "2026-08-02T17:06:59.517744+00:00",
+  "commit": "fd48b4409c8d520a0d29ee9228a7698cd7116382",
   "branch": "main",
-  "sourceFingerprint": "45d87533256e1b7ab2f8fbb28bc3c6e52eca8e2f18fba5125cd454572ba67cb9",
+  "sourceFingerprint": "73f7a74ef73818cb01dd6c64865d910225ff313039200aa788c63d0d5420c491",
   "summary": {
     "files": 90,
     "lines": 19002,
@@ -3998,7 +3998,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
       "lines": 93,
-      "sha256": "218be9325d15caf12bc61bb10e3e488e6289589e7c88e2566be67703564fd12c",
+      "sha256": "d7f2dccb574bf37a31ddf96c111a77cb767f6cd2f043e2f57f391ba44e175f0d",
       "symbols": [
         {
           "name": "LuluAccessibilityService",
