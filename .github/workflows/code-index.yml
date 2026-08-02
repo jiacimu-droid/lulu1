@@ -57,6 +57,7 @@ jobs:
             python3 -m json.tool docs/architecture/code-index.json >/dev/null
             python3 - <<'PY'
           import json
+          import os
           from pathlib import Path
 
           data = json.loads(Path('docs/architecture/code-index.json').read_text(encoding='utf-8'))
@@ -71,9 +72,10 @@ jobs:
               raise SystemExit('code index contains no files')
           if len(data['sourceFingerprint']) != 64:
               raise SystemExit('invalid fingerprint')
-          if data['commit'] != data_expected_commit:
+          expected_commit = os.environ['INDEX_COMMIT']
+          if data['commit'] != expected_commit:
               raise SystemExit(
-                  f"index commit mismatch: {data['commit']} != {data_expected_commit}"
+                  f"index commit mismatch: {data['commit']} != {expected_commit}"
               )
           PY
 
@@ -95,5 +97,3 @@ jobs:
 
           echo 'Unable to publish a current code index after 3 attempts.' >&2
           exit 1
-        env:
-          data_expected_commit: ${{ github.sha }}
