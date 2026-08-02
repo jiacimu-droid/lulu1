@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T17:00:40.103727+00:00",
-  "commit": "715cd0a3c8f5dd7b08d090972cb20e5cad5aec59",
+  "generatedAt": "2026-08-02T17:01:36.924307+00:00",
+  "commit": "12c7ba0be939f7190e83781284d7a9566a3cc5b2",
   "branch": "main",
-  "sourceFingerprint": "6745048c16db841712380e0135165fd8c3f02ec9143204f54f358a40e6b62646",
+  "sourceFingerprint": "691044de8a01be50e2047697bda0bcae4b261ed85669f20e03fdaf09a8296622",
   "summary": {
-    "files": 89,
-    "lines": 18702,
-    "symbols": 362
+    "files": 90,
+    "lines": 18993,
+    "symbols": 364
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -228,6 +228,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
         "line": 34
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
+        "line": 24
       }
     ],
     "MemoryFeatureScreen": [
@@ -2096,6 +2100,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
         "line": 223
+      }
+    ],
+    "LuluDeviceToolBridge": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
+        "line": 21
       }
     ],
     "LuluNotificationListenerService": [
@@ -4056,6 +4066,21 @@
         {
           "name": "LuluBootReceiver",
           "line": 223
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
+      "lines": 291,
+      "sha256": "89b4f1d0ce7e6c5e9e1ee993458ff8e3c2c5009d75d7db7085d71e085d0fb92c",
+      "symbols": [
+        {
+          "name": "LuluDeviceToolBridge",
+          "line": 21
+        },
+        {
+          "name": "initialize",
+          "line": 24
         }
       ]
     },
