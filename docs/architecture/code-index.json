@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T15:48:49.113578+00:00",
-  "commit": "9995eb9c9dd600a83229dd0404b6a21bec371c08",
+  "generatedAt": "2026-08-02T15:49:02.243244+00:00",
+  "commit": "4358f7e46f6a59f2d79899df1a2753e09bc69749",
   "branch": "main",
-  "sourceFingerprint": "2cb999b7ecc0af1f0608deef9f856564b964bbe4e956347c9764fa2348485af0",
+  "sourceFingerprint": "6b4c7243d3b31ef7df670baeef7e61265ec767425621b6d76165c9171520dc4d",
   "summary": {
     "files": 78,
-    "lines": 17559,
+    "lines": 17536,
     "symbols": 340
   },
   "symbolIndex": {
@@ -1425,7 +1425,7 @@
     "LuluReadingScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
-        "line": 34
+        "line": 28
       }
     ],
     "PostgraduateExamApp": [
@@ -3257,12 +3257,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
-      "lines": 79,
-      "sha256": "0cd6694fd44b0a4ea544ea8b4ff46e0587c32cf6d7ade453d6c9f71cbfa7b239",
+      "lines": 56,
+      "sha256": "fefb15e458c34f50c10e82fc0d4431c6a78510df55726e7d87eb4e8b326ecc28",
       "symbols": [
         {
           "name": "LuluReadingScreen",
-          "line": 34
+          "line": 28
         }
       ]
     },
