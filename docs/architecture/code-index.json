@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T16:31:48.329590+00:00",
-  "commit": "04d69c651f295b31e92858f6a451dc461db9c55b",
+  "generatedAt": "2026-08-02T16:32:52.787356+00:00",
+  "commit": "48c071f7f5b5102adcee241c27294cee1aeeeb68",
   "branch": "main",
-  "sourceFingerprint": "8206d5caff919d33216ce43d9d1ec2f74124683dccf3adac7deb94b48aac6895",
+  "sourceFingerprint": "26377d2c8b4ff6e94482db0e2754bfcd3e7a8f1fcb6d1edbe31c6b3d01eb9f1c",
   "summary": {
     "files": 84,
-    "lines": 18179,
+    "lines": 18257,
     "symbols": 343
   },
   "symbolIndex": {
@@ -73,25 +73,25 @@
     "LuluSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-        "line": 33
+        "line": 37
       }
     ],
     "loadConfiguration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-        "line": 55
+        "line": 117
       }
     ],
     "clearEditor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-        "line": 66
+        "line": 129
       }
     ],
     "saveCurrent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-        "line": 77
+        "line": 141
       }
     ],
     "MigratedChatDetailScreenV2": [
@@ -2118,24 +2118,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-      "lines": 449,
-      "sha256": "2c94f39f678730694fd442dc9fb24020f1ac6ad25589c5f7fcc6263f13daf221",
+      "lines": 527,
+      "sha256": "3eeb2b9f429d946b29cfc1e32604ae32417b88c36c920baafa7618cfffadd343",
       "symbols": [
         {
           "name": "LuluSettingsScreen",
-          "line": 33
+          "line": 37
         },
         {
           "name": "loadConfiguration",
-          "line": 55
+          "line": 117
         },
         {
           "name": "clearEditor",
-          "line": 66
+          "line": 129
         },
         {
           "name": "saveCurrent",
-          "line": 77
+          "line": 141
         }
       ]
     },
