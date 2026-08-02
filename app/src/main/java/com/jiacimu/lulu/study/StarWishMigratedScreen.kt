@@ -22,22 +22,10 @@ fun StarWishMigratedScreen(onBack: () -> Unit) {
     var tab by rememberSaveable { mutableStateOf(StarWishTab.Scroll) }
 
     Scaffold(containerColor = StudyDesign.paper) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-        ) {
-            Surface(
-                color = StudyDesign.paper,
-                tonalElevation = 1.dp,
-                shadowElevation = 1.dp,
-            ) {
+        Column(Modifier.fillMaxSize().padding(padding)) {
+            Surface(color = StudyDesign.paper, tonalElevation = 1.dp, shadowElevation = 1.dp) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .statusBarsPadding()
-                        .height(58.dp)
-                        .padding(horizontal = 8.dp),
+                    modifier = Modifier.fillMaxWidth().statusBarsPadding().height(58.dp).padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(onClick = onBack) {
@@ -59,10 +47,7 @@ fun StarWishMigratedScreen(onBack: () -> Unit) {
                     }
                     Spacer(Modifier.weight(1f))
                     if (tab == StarWishTab.Theater) {
-                        Surface(
-                            shape = RoundedCornerShape(16.dp),
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                        ) {
+                        Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
                             Text(
                                 "碎片 ${studyState.inventory.theaterFragments}",
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -76,25 +61,9 @@ fun StarWishMigratedScreen(onBack: () -> Unit) {
             }
 
             when (tab) {
-                StarWishTab.Scroll -> StarWishScrollContent(
-                    state = state,
-                    studyState = studyState,
-                    store = store,
-                    context = context,
-                )
-                StarWishTab.Theater -> StarWishTheaterContent(
-                    state = state,
-                    studyState = studyState,
-                    store = store,
-                    studyStore = studyStore,
-                )
-                StarWishTab.Video -> StarWishVideoContent(
-                    state = state,
-                    studyState = studyState,
-                    store = store,
-                    studyStore = studyStore,
-                    context = context,
-                )
+                StarWishTab.Scroll -> StarWishScrollContent(state, studyState, store, context)
+                StarWishTab.Theater -> StarWishTheaterContentV2(state, studyState, store, studyStore)
+                StarWishTab.Video -> StarWishVideoContent(state, studyState, store, studyStore, context)
             }
         }
     }
