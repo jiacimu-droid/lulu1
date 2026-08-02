@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T16:28:53.202240+00:00",
-  "commit": "41e689c4c290a5cc6dd1bf07338b788027d96fbb",
+  "generatedAt": "2026-08-02T16:29:10.899494+00:00",
+  "commit": "083fed80c6b756d8301947d4de62ed7cfce8f74c",
   "branch": "main",
-  "sourceFingerprint": "1f05a6e65607cda44bbed0d8b7ec50246c019a5c9580ed1998f781624cc528b8",
+  "sourceFingerprint": "95f4bb968baa8454c55e477da50296534b9c89770c17e4b607da82d87a163a54",
   "summary": {
-    "files": 83,
-    "lines": 18156,
+    "files": 84,
+    "lines": 18162,
     "symbols": 343
   },
   "symbolIndex": {
@@ -3884,6 +3884,12 @@
       "path": "app/src/main/res/mipmap-anydpi/ic_lulu_app.xml",
       "lines": 11,
       "sha256": "209acd94de542bad72d5bb0b86881e515fa8342229539f12b02cfecf5fd8247f",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/res/mipmap-anydpi-v26/ic_lulu_app.xml",
+      "lines": 6,
+      "sha256": "3d1601cbc4c4c712130c899c56491192da831aed20a65a0c134b36a342f53d4e",
       "symbols": []
     },
     {
