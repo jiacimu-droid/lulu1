@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ab2bf0e5bba0a584d0d967d68ca3a171e6e0da49`
+- 基准提交：`3d70390d37db5261fa7cda57d00a614265cd5c1c`
 - 分支：`main`
 - 已索引文件：79
-- 已索引代码/文本行：18025
+- 已索引代码/文本行：18031
 - 已发现符号：343
 
 | 文件 | 行数 | 符号数 |
@@ -49,7 +49,7 @@
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 92 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 397 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 675 | 12 |
-| `app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt` | 512 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt` | 518 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 155 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 87 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 50 | 1 |

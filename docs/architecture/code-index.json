@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T15:56:19.953210+00:00",
-  "commit": "ab2bf0e5bba0a584d0d967d68ca3a171e6e0da49",
+  "generatedAt": "2026-08-02T15:58:46.724305+00:00",
+  "commit": "3d70390d37db5261fa7cda57d00a614265cd5c1c",
   "branch": "main",
-  "sourceFingerprint": "2e97f0d5838ea877f74c35586c1fa5f1b6a2329c8a9e6263e1a987f2e16768df",
+  "sourceFingerprint": "0be082e96d0f54c8a6f951c4ff84ff816fb8599ecc6c259f9047cd49dc05158f",
   "summary": {
     "files": 79,
-    "lines": 18025,
+    "lines": 18031,
     "symbols": 343
   },
   "symbolIndex": {
@@ -1165,13 +1165,13 @@
     "load": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 90
+        "line": 91
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 110
+        "line": 111
       }
     ],
     "perform": [
@@ -3062,16 +3062,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-      "lines": 512,
-      "sha256": "a136a4dacd849e5ab3da8cc22ecd6dcee3eed6245ef04ded550ac5d707f7e0b2",
+      "lines": 518,
+      "sha256": "bbcaf7447bbf4c3f88c097de22e3e8f6767f615abffd0a43d1b941c385ded08b",
       "symbols": [
         {
           "name": "load",
-          "line": 90
+          "line": 91
         },
         {
           "name": "save",
-          "line": 110
+          "line": 111
         },
         {
           "name": "perform",
