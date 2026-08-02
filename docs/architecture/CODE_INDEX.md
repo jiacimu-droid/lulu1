@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`88f96cf9a490fe6ca4ce602ccc0d783a6a00c78a`
+- 基准提交：`3eefb0908d4ad14fbc9d70b74cda9c5fed9beb9c`
 - 分支：`main`
-- 已索引文件：72
-- 已索引代码/文本行：16225
-- 已发现符号：325
+- 已索引文件：73
+- 已索引代码/文本行：16291
+- 已发现符号：327
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -33,6 +33,7 @@
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 125 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 209 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 82 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 66 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 319 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 499 | 5 |
