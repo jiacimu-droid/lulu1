@@ -78,7 +78,7 @@ fun LuluMigrationRootAppV2() {
                         },
                         onOpenSettings = { route = MigrationRoute.Settings },
                     )
-                    MigrationRoute.ChatDetail -> MigratedChatDetailScreenV2(
+                    MigrationRoute.ChatDetail -> QqStyleChatDetailScreen(
                         conversationId = selectedConversationId,
                         onBack = { route = MigrationRoute.Chat },
                         onOpenBranch = { branchId ->
