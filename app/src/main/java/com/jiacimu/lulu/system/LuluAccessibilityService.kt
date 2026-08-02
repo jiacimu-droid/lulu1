@@ -25,7 +25,7 @@ class LuluAccessibilityService : AccessibilityService() {
         mutableState.value = AccessibilitySnapshot(
             connected = true,
             packageName = packageName,
-            windowTitle = event.contentDescription?.toString().orEmpty(),
+            windowTitle = event?.contentDescription?.toString().orEmpty(),
             visibleText = root.collectVisibleText().take(6_000),
             capturedAt = Instant.now(),
         )
