@@ -59,6 +59,14 @@ fun LuluGamesApp(onBack: () -> Unit) {
     val state by store.state.collectAsState()
     var route by remember { mutableStateOf<GameRoute>(GameRoute.Home) }
 
+    if (route == GameRoute.Roleplay) {
+        FormalRoleplayCampaignScreen(
+            store = store,
+            onBack = { route = GameRoute.Home },
+        )
+        return
+    }
+
     Scaffold(
         containerColor = GameDesign.paper,
         topBar = {
@@ -80,7 +88,7 @@ fun LuluGamesApp(onBack: () -> Unit) {
                 GameRoute.Home -> GameHome(state, store, onOpen = { route = it })
                 GameRoute.SignalHunt -> SignalHuntScreen(store)
                 GameRoute.PerfectMan -> PerfectManScreen(store)
-                GameRoute.Roleplay -> RoleplayAdventureScreen(store)
+                GameRoute.Roleplay -> Unit
                 GameRoute.TurtleSoup -> TurtleSoupScreen(store)
                 GameRoute.RapportQuiz -> RapportQuizScreen(store)
                 GameRoute.RockPaperScissors -> RockPaperScissorsScreen(store)
@@ -102,7 +110,7 @@ private fun GameRoute.title(): String = when (this) {
     GameRoute.Home -> "游戏"
     GameRoute.SignalHunt -> "信号追踪"
     GameRoute.PerfectMan -> "满分男"
-    GameRoute.Roleplay -> "轻量跑团"
+    GameRoute.Roleplay -> "跑团"
     GameRoute.TurtleSoup -> "海龟汤"
     GameRoute.RapportQuiz -> "默契问答"
     GameRoute.RockPaperScissors -> "一起猜拳"
@@ -128,7 +136,7 @@ private fun GameHome(
     val legacyGames = listOf(
         GameLauncher("信号追踪", "3×3 网格、三枚信号、五次探测与逐步路线回放。", Icons.Outlined.Radar, GameRoute.SignalHunt),
         GameLauncher("满分男", "双方轮流描述和猜分，角色按人设、记忆与世界书参与。", Icons.Outlined.PersonSearch, GameRoute.PerfectMan),
-        GameLauncher("轻量跑团", "自由文本行动、真实 d20 判定和角色共同主持。", Icons.Outlined.AutoStories, GameRoute.Roleplay),
+        GameLauncher("跑团", "多战役存档、十二种世界、同行小队、真实 d20 与沉浸式长篇叙事。", Icons.Outlined.AutoStories, GameRoute.Roleplay),
         GameLauncher("海龟汤", "固定汤底、自由提问，角色严格回答是／否／无关。", Icons.Outlined.HelpOutline, GameRoute.TurtleSoup),
         GameLauncher("默契问答", "角色先根据记忆秘密作答，再比较彼此答案。", Icons.Outlined.QuestionAnswer, GameRoute.RapportQuiz),
         GameLauncher("一起猜拳", "引擎锁定出拳和胜负，角色只对真实结果回应。", Icons.Outlined.BackHand, GameRoute.RockPaperScissors),
