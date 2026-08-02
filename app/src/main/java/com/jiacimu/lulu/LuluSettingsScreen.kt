@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,16 +22,71 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelArchive
 import kotlinx.coroutines.launch
 
-private val SettingsPaper = Color(0xFFFFFCF6)
-private val SettingsCard = Color(0xFFFFFBF3)
-private val SettingsBorder = Color(0xFFE7DDC8)
-private val SettingsMuted = Color(0xFF737887)
-private val SettingsInk = Color(0xFF302C2B)
-private val SettingsAccent = Color(0xFFF2CF70)
+private val SettingsPaper = Color(0xFFF8FAF8)
+private val SettingsCard = Color(0xFFFCFDFC)
+private val SettingsBorder = Color(0xFFDDE7E3)
+private val SettingsMuted = Color(0xFF7D8C88)
+private val SettingsInk = Color(0xFF34413F)
+private val SettingsAccent = Color(0xFFDCEAE6)
+private val SettingsAccentStrong = Color(0xFF607A75)
+
+private enum class ApiSettingsPage { Home, Editor, Archives }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LuluSettingsScreen(onBack: () -> Unit) {
+    var page by rememberSaveable { mutableStateOf(ApiSettingsPage.Home) }
+    when (page) {
+        ApiSettingsPage.Home -> ApiSettingsHome(onBack = onBack, onOpen = { page = it })
+        ApiSettingsPage.Editor -> ApiConfigurationEditor(onBack = { page = ApiSettingsPage.Home })
+        ApiSettingsPage.Archives -> ModelArchiveScreen(onBack = { page = ApiSettingsPage.Home })
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ApiSettingsHome(
+    onBack: () -> Unit,
+    onOpen: (ApiSettingsPage) -> Unit,
+) {
+    Scaffold(
+        containerColor = SettingsPaper,
+        topBar = {
+            TopAppBar(
+                title = { Text("API 设置", fontWeight = FontWeight.SemiBold) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = SettingsPaper),
+            )
+        },
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            item {
+                ApiNavigationRow(
+                    icon = Icons.Outlined.Edit,
+                    title = "编辑设置",
+                    subtitle = "配置站点、API 地址、密钥并拉取模型",
+                    onClick = { onOpen(ApiSettingsPage.Editor) },
+                )
+            }
+            item {
+                ApiNavigationRow(
+                    icon = Icons.Outlined.Inventory2,
+                    title = "模型存档",
+                    subtitle = "查看、切换和移除已经保存的模型",
+                    onClick = { onOpen(ApiSettingsPage.Archives) },
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ApiConfigurationEditor(onBack: () -> Unit) {
     val store = LuluAiServices.connectionStore
     val library by store.library.collectAsState()
     val scope = rememberCoroutineScope()
@@ -48,10 +104,16 @@ fun LuluSettingsScreen(onBack: () -> Unit) {
     var baseUrl by remember { mutableStateOf(initialConfiguration?.baseUrl.orEmpty()) }
     var apiKey by remember { mutableStateOf(initialConfiguration?.apiKey.orEmpty()) }
     var models by remember { mutableStateOf<List<String>>(emptyList()) }
-    var selectedModel by remember { mutableStateOf<String?>(null) }
+    var selectedModels by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var modelQuery by remember { mutableStateOf("") }
     var loadingModels by remember { mutableStateOf(false) }
     var notice by remember { mutableStateOf("") }
     var noticeIsError by remember { mutableStateOf(false) }
+
+    val visibleModels = remember(models, modelQuery) {
+        val query = modelQuery.trim()
+        if (query.isBlank()) models else models.filter { it.contains(query, ignoreCase = true) }
+    }
 
     fun loadConfiguration(configuration: ApiConfiguration) {
         editingId = configuration.id
@@ -59,8 +121,9 @@ fun LuluSettingsScreen(onBack: () -> Unit) {
         baseUrl = configuration.baseUrl
         apiKey = configuration.apiKey
         models = emptyList()
-        selectedModel = null
-        notice = "已载入“${configuration.name}”，修改后可直接覆盖保存"
+        selectedModels = emptySet()
+        modelQuery = ""
+        notice = "已载入“${configuration.name}”"
         noticeIsError = false
     }
 
@@ -70,7 +133,8 @@ fun LuluSettingsScreen(onBack: () -> Unit) {
         baseUrl = ""
         apiKey = ""
         models = emptyList()
-        selectedModel = null
+        selectedModels = emptySet()
+        modelQuery = ""
         notice = "已新建空白配置"
         noticeIsError = false
     }
@@ -87,7 +151,7 @@ fun LuluSettingsScreen(onBack: () -> Unit) {
         configurationName = configuration.name
         baseUrl = configuration.baseUrl
         apiKey = configuration.apiKey
-        notice = "配置“${configuration.name}”已保存在本机"
+        notice = "配置“${configuration.name}”已保存"
         noticeIsError = false
     }.onFailure { error ->
         notice = error.message ?: "保存配置失败"
@@ -98,12 +162,8 @@ fun LuluSettingsScreen(onBack: () -> Unit) {
         containerColor = SettingsPaper,
         topBar = {
             TopAppBar(
-                title = { Text("设置", fontWeight = FontWeight.SemiBold) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Outlined.ArrowBack, "返回")
-                    }
-                },
+                title = { Text("编辑设置", fontWeight = FontWeight.SemiBold) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = SettingsPaper),
             )
         },
@@ -111,31 +171,14 @@ fun LuluSettingsScreen(onBack: () -> Unit) {
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item {
-                SettingsSectionBar(
-                    icon = Icons.Outlined.Api,
-                    title = "API 设置",
-                    subtitle = "保存站点，再从站点获取模型",
-                )
-            }
-
-            item {
                 SettingsCardBox {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text(
-                                if (editingId == null) "新配置" else "编辑配置",
-                                fontSize = 19.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = SettingsInk,
-                            )
-                            Text("配置名称、地址和密钥会作为一个整体保存", color = SettingsMuted, fontSize = 12.sp)
+                            Text(if (editingId == null) "新配置" else "编辑配置", fontSize = 19.sp, fontWeight = FontWeight.Bold, color = SettingsInk)
+                            Text("配置名称、地址和密钥会作为一组保存", color = SettingsMuted, fontSize = 12.sp)
                         }
                         TextButton(onClick = ::clearEditor) {
                             Icon(Icons.Outlined.Add, null)
@@ -143,12 +186,10 @@ fun LuluSettingsScreen(onBack: () -> Unit) {
                             Text("新建")
                         }
                     }
-
                     OutlinedTextField(
                         value = configurationName,
                         onValueChange = { configurationName = it },
                         label = { Text("配置名称") },
-                        placeholder = { Text("例如：1、科研站、备用站") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
@@ -156,7 +197,6 @@ fun LuluSettingsScreen(onBack: () -> Unit) {
                         value = baseUrl,
                         onValueChange = { baseUrl = it },
                         label = { Text("API 地址") },
-                        placeholder = { Text("例如：https://example.com/v1") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
@@ -165,24 +205,18 @@ fun LuluSettingsScreen(onBack: () -> Unit) {
                         onValueChange = { apiKey = it },
                         label = { Text("API 密钥") },
                         leadingIcon = { Icon(Icons.Outlined.Key, null) },
-                        supportingText = { Text("密钥保持明文显示，方便核对输入") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
-
                     Button(
                         onClick = { saveCurrent() },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = SettingsAccent,
-                            contentColor = SettingsInk,
-                        ),
+                        colors = ButtonDefaults.buttonColors(containerColor = SettingsAccent, contentColor = SettingsInk),
                     ) {
                         Icon(Icons.Outlined.Save, null)
                         Spacer(Modifier.width(7.dp))
                         Text("保存配置", fontWeight = FontWeight.Bold)
                     }
-
                     OutlinedButton(
                         onClick = {
                             loadingModels = true
@@ -190,14 +224,15 @@ fun LuluSettingsScreen(onBack: () -> Unit) {
                             scope.launch {
                                 LuluAiServices.gateway.fetchModels(baseUrl, apiKey)
                                     .onSuccess { fetched ->
-                                        models = fetched
-                                        selectedModel = fetched.firstOrNull()
+                                        models = fetched.distinct()
+                                        selectedModels = emptySet()
+                                        modelQuery = ""
                                         notice = "已获取 ${fetched.size} 个模型"
                                         noticeIsError = false
                                     }
                                     .onFailure { error ->
                                         models = emptyList()
-                                        selectedModel = null
+                                        selectedModels = emptySet()
                                         notice = error.message ?: "获取模型失败"
                                         noticeIsError = true
                                     }
@@ -207,98 +242,120 @@ fun LuluSettingsScreen(onBack: () -> Unit) {
                         enabled = !loadingModels && baseUrl.isNotBlank() && apiKey.isNotBlank(),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        if (loadingModels) {
-                            CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
-                        } else {
-                            Icon(Icons.Outlined.CloudDownload, null)
-                        }
+                        if (loadingModels) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                        else Icon(Icons.Outlined.CloudDownload, null)
                         Spacer(Modifier.width(7.dp))
                         Text(if (loadingModels) "正在获取模型…" else "获取模型")
                     }
+                }
+            }
 
-                    if (models.isNotEmpty()) {
-                        Text("选择模型", fontWeight = FontWeight.Bold, color = SettingsInk)
+            if (models.isNotEmpty()) {
+                item {
+                    SettingsCardBox {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text("选择模型", fontWeight = FontWeight.Bold, color = SettingsInk)
+                                Text("已选择 ${selectedModels.size} 个", color = SettingsMuted, fontSize = 12.sp)
+                            }
+                            TextButton(onClick = {
+                                selectedModels = if (selectedModels.size == visibleModels.size && visibleModels.isNotEmpty()) {
+                                    selectedModels - visibleModels.toSet()
+                                } else {
+                                    selectedModels + visibleModels.toSet()
+                                }
+                            }) {
+                                Text(if (visibleModels.isNotEmpty() && visibleModels.all { it in selectedModels }) "取消当前结果" else "全选当前结果")
+                            }
+                        }
+                        OutlinedTextField(
+                            value = modelQuery,
+                            onValueChange = { modelQuery = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            leadingIcon = { Icon(Icons.Outlined.Search, null) },
+                            trailingIcon = {
+                                if (modelQuery.isNotBlank()) {
+                                    IconButton(onClick = { modelQuery = "" }) { Icon(Icons.Outlined.Close, "清空搜索") }
+                                }
+                            },
+                            label = { Text("搜索模型") },
+                            placeholder = { Text("输入模型名称的一部分") },
+                        )
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(18.dp),
-                            color = Color.White.copy(alpha = 0.66f),
+                            color = Color.White.copy(alpha = 0.7f),
                             border = BorderStroke(1.dp, SettingsBorder),
                         ) {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxWidth().heightIn(max = 280.dp),
-                                contentPadding = PaddingValues(vertical = 5.dp),
-                            ) {
-                                items(models, key = { it }) { model ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable { selectedModel = model }
-                                            .padding(horizontal = 12.dp, vertical = 9.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                    ) {
-                                        RadioButton(
-                                            selected = selectedModel == model,
-                                            onClick = { selectedModel = model },
-                                        )
-                                        Spacer(Modifier.width(8.dp))
-                                        Text(model, modifier = Modifier.weight(1f))
+                            if (visibleModels.isEmpty()) {
+                                Text("没有匹配的模型", modifier = Modifier.padding(16.dp), color = SettingsMuted)
+                            } else {
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxWidth().heightIn(max = 320.dp),
+                                    contentPadding = PaddingValues(vertical = 5.dp),
+                                ) {
+                                    items(visibleModels, key = { it }) { model ->
+                                        val checked = model in selectedModels
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    selectedModels = if (checked) selectedModels - model else selectedModels + model
+                                                }
+                                                .padding(horizontal = 12.dp, vertical = 7.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            Checkbox(
+                                                checked = checked,
+                                                onCheckedChange = {
+                                                    selectedModels = if (checked) selectedModels - model else selectedModels + model
+                                                },
+                                            )
+                                            Spacer(Modifier.width(8.dp))
+                                            Text(model, modifier = Modifier.weight(1f))
+                                        }
                                     }
                                 }
                             }
                         }
-
                         Button(
                             onClick = {
                                 val configuration = saveCurrent() ?: return@Button
+                                val existing = library.archives
+                                    .filter { it.configurationId == configuration.id }
+                                    .mapTo(mutableSetOf()) { it.model }
+                                val toAdd = selectedModels.filterNot { it in existing }
                                 runCatching {
-                                    store.addArchive(
-                                        configurationId = configuration.id,
-                                        model = selectedModel.orEmpty(),
-                                    )
-                                }.onSuccess { archive ->
-                                    notice = "已加入存档：${store.archiveLabel(archive)}"
+                                    toAdd.forEach { model ->
+                                        store.addArchive(configurationId = configuration.id, model = model)
+                                    }
+                                }.onSuccess {
+                                    val skipped = selectedModels.size - toAdd.size
+                                    notice = buildString {
+                                        append("已加入 ${toAdd.size} 个模型存档")
+                                        if (skipped > 0) append("，跳过 $skipped 个重复项")
+                                    }
                                     noticeIsError = false
                                 }.onFailure { error ->
-                                    notice = error.message ?: "加入存档失败"
+                                    notice = error.message ?: "批量加入存档失败"
                                     noticeIsError = true
                                 }
                             },
-                            enabled = selectedModel != null,
+                            enabled = selectedModels.isNotEmpty(),
                             modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFE8DDF3),
-                                contentColor = SettingsInk,
-                            ),
+                            colors = ButtonDefaults.buttonColors(containerColor = SettingsAccentStrong, contentColor = Color.White),
                         ) {
                             Icon(Icons.Outlined.Inventory2, null)
                             Spacer(Modifier.width(7.dp))
-                            Text("加入存档", fontWeight = FontWeight.Bold)
-                        }
-                    }
-
-                    if (notice.isNotBlank()) {
-                        Surface(
-                            color = if (noticeIsError) Color(0xFFF8E3DF) else Color(0xFFE8F1E6),
-                            shape = RoundedCornerShape(14.dp),
-                        ) {
-                            Text(
-                                notice,
-                                modifier = Modifier.fillMaxWidth().padding(12.dp),
-                                color = SettingsInk,
-                            )
+                            Text("加入存档（${selectedModels.size}）", fontWeight = FontWeight.Bold)
                         }
                     }
                 }
             }
 
             if (library.configurations.isNotEmpty()) {
-                item {
-                    SettingsSectionBar(
-                        icon = Icons.Outlined.Dns,
-                        title = "已保存配置",
-                        subtitle = "点按横条载入，也可以修改名称后覆盖保存",
-                    )
-                }
+                item { Text("已保存配置", color = SettingsInk, fontWeight = FontWeight.Bold, fontSize = 17.sp) }
                 items(library.configurations, key = { it.id }) { configuration ->
                     SavedConfigurationRow(
                         configuration = configuration,
@@ -312,19 +369,45 @@ fun LuluSettingsScreen(onBack: () -> Unit) {
                 }
             }
 
-            item {
-                SettingsSectionBar(
-                    icon = Icons.Outlined.Inventory2,
-                    title = "模型存档",
-                    subtitle = "聊天页可以直接切换这些模型",
-                )
+            if (notice.isNotBlank()) {
+                item {
+                    Surface(
+                        color = if (noticeIsError) Color(0xFFF6E7E4) else Color(0xFFE7F0ED),
+                        shape = RoundedCornerShape(14.dp),
+                    ) {
+                        Text(notice, modifier = Modifier.fillMaxWidth().padding(12.dp), color = SettingsInk)
+                    }
+                }
             }
+        }
+    }
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ModelArchiveScreen(onBack: () -> Unit) {
+    val store = LuluAiServices.connectionStore
+    val library by store.library.collectAsState()
+    Scaffold(
+        containerColor = SettingsPaper,
+        topBar = {
+            TopAppBar(
+                title = { Text("模型存档", fontWeight = FontWeight.SemiBold) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = SettingsPaper),
+            )
+        },
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
             if (library.archives.isEmpty()) {
                 item {
                     SettingsCardBox {
                         Text("还没有模型存档", fontWeight = FontWeight.Bold)
-                        Text("先保存配置、获取模型，再把需要的模型加入存档。", color = SettingsMuted)
+                        Text("先到“编辑设置”拉取模型，再批量加入存档。", color = SettingsMuted)
                     }
                 }
             } else {
@@ -343,29 +426,28 @@ fun LuluSettingsScreen(onBack: () -> Unit) {
 }
 
 @Composable
-private fun SettingsSectionBar(
+private fun ApiNavigationRow(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     title: String,
     subtitle: String,
+    onClick: () -> Unit,
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
-        color = Color(0xFFF4EBDD),
+        color = SettingsCard,
         border = BorderStroke(1.dp, SettingsBorder),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 13.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Surface(shape = RoundedCornerShape(12.dp), color = Color.White.copy(alpha = 0.68f)) {
-                Icon(icon, null, modifier = Modifier.padding(9.dp).size(22.dp), tint = SettingsMuted)
+        Row(Modifier.fillMaxWidth().padding(15.dp), verticalAlignment = Alignment.CenterVertically) {
+            Surface(shape = RoundedCornerShape(12.dp), color = SettingsAccent) {
+                Icon(icon, null, modifier = Modifier.padding(9.dp).size(22.dp), tint = SettingsAccentStrong)
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(title, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = SettingsInk)
+                Text(title, fontWeight = FontWeight.Bold, color = SettingsInk)
                 Text(subtitle, color = SettingsMuted, fontSize = 12.sp)
             }
+            Icon(Icons.Outlined.ChevronRight, null, tint = SettingsMuted)
         }
     }
 }
@@ -380,22 +462,20 @@ private fun SavedConfigurationRow(
     Surface(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
-        color = if (selected) Color(0xFFFFF0C7) else SettingsCard,
-        border = BorderStroke(1.dp, if (selected) SettingsAccent else SettingsBorder),
+        color = if (selected) SettingsAccent else SettingsCard,
+        border = BorderStroke(1.dp, if (selected) SettingsAccentStrong.copy(alpha = 0.45f) else SettingsBorder),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(start = 15.dp, top = 13.dp, bottom = 13.dp, end = 5.dp),
+            modifier = Modifier.fillMaxWidth().padding(start = 15.dp, top = 12.dp, bottom = 12.dp, end = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(Icons.Outlined.Api, null, tint = SettingsMuted)
+            Icon(Icons.Outlined.Api, null, tint = SettingsAccentStrong)
             Spacer(Modifier.width(11.dp))
             Column(Modifier.weight(1f)) {
                 Text(configuration.name, fontWeight = FontWeight.Bold, color = SettingsInk)
                 Text(configuration.baseUrl, color = SettingsMuted, fontSize = 12.sp, maxLines = 1)
             }
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Outlined.DeleteOutline, "删除配置", tint = SettingsMuted)
-            }
+            IconButton(onClick = onDelete) { Icon(Icons.Outlined.DeleteOutline, "删除配置", tint = SettingsMuted) }
         }
     }
 }
@@ -411,8 +491,8 @@ private fun ModelArchiveRow(
     Surface(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onSelect),
         shape = RoundedCornerShape(18.dp),
-        color = if (selected) Color(0xFFEAE2F4) else SettingsCard,
-        border = BorderStroke(1.dp, if (selected) Color(0xFFB5A3CD) else SettingsBorder),
+        color = if (selected) SettingsAccent else SettingsCard,
+        border = BorderStroke(1.dp, if (selected) SettingsAccentStrong.copy(alpha = 0.55f) else SettingsBorder),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(start = 12.dp, top = 10.dp, bottom = 10.dp, end = 4.dp),
@@ -424,9 +504,7 @@ private fun ModelArchiveRow(
                 Text(label, fontWeight = FontWeight.Bold, color = SettingsInk)
                 Text(if (selected) "当前聊天模型" else "点按设为当前模型", color = SettingsMuted, fontSize = 12.sp)
             }
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Outlined.Close, "移出存档", tint = SettingsMuted)
-            }
+            IconButton(onClick = onDelete) { Icon(Icons.Outlined.Close, "移出存档", tint = SettingsMuted) }
         }
     }
 }
@@ -437,7 +515,7 @@ private fun SettingsCardBox(content: @Composable ColumnScope.() -> Unit) {
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = SettingsCard),
         border = BorderStroke(1.dp, SettingsBorder),
-        shape = RoundedCornerShape(23.dp),
+        shape = RoundedCornerShape(22.dp),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
