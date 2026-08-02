@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T15:49:21.045618+00:00",
-  "commit": "a6d58d1e1adcad2fe967a057849182b5d8e03255",
+  "generatedAt": "2026-08-02T15:54:36.766316+00:00",
+  "commit": "28184c6717e4a3b5c7bc9a9c0007883baa18c647",
   "branch": "main",
-  "sourceFingerprint": "7869f5fd60ab329530a42a977b83fb96b2dd83532f19b1ba7d26a723f7930b1b",
+  "sourceFingerprint": "1fa7b73f3e1f8bde6d7637d8c91f42e658ed97f48a6ec9fea3a1821e35582845",
   "summary": {
-    "files": 78,
-    "lines": 17505,
-    "symbols": 340
+    "files": 79,
+    "lines": 18017,
+    "symbols": 343
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -1160,6 +1160,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
         "line": 630
+      }
+    ],
+    "load": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
+        "line": 90
+      }
+    ],
+    "save": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
+        "line": 110
+      }
+    ],
+    "perform": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
+        "line": 329
       }
     ],
     "attach": [
@@ -3039,6 +3057,25 @@
         {
           "name": "play",
           "line": 630
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
+      "lines": 512,
+      "sha256": "a136a4dacd849e5ab3da8cc22ecd6dcee3eed6245ef04ded550ac5d707f7e0b2",
+      "symbols": [
+        {
+          "name": "load",
+          "line": 90
+        },
+        {
+          "name": "save",
+          "line": 110
+        },
+        {
+          "name": "perform",
+          "line": 329
         }
       ]
     },
