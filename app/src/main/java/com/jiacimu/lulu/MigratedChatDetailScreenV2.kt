@@ -106,11 +106,8 @@ fun MigratedChatDetailScreenV2(
 
     LaunchedEffect(messages.size, preferences.autoScrollChat, preferences.reduceMotion) {
         if (messages.isEmpty() || !preferences.autoScrollChat) return@LaunchedEffect
-        if (preferences.reduceMotion) {
-            listState.scrollToItem(messages.lastIndex)
-        } else {
-            listState.animateScrollToItem(messages.lastIndex)
-        }
+        if (preferences.reduceMotion) listState.scrollToItem(messages.lastIndex)
+        else listState.animateScrollToItem(messages.lastIndex)
     }
 
     fun startGeneration(text: String, userMessageId: String) {
@@ -174,12 +171,11 @@ fun MigratedChatDetailScreenV2(
     }
 
     fun retryMessage(message: LuluChatMessage) {
-        if (sending) return
-        startGeneration(message.content, message.id)
+        if (!sending) startGeneration(message.content, message.id)
     }
 
     fun stopGeneration() {
-        pendingMessageId?.let { messageId -> MigratedDomainStores.chat.markFailed(messageId) }
+        pendingMessageId?.let(MigratedDomainStores.chat::markFailed)
         generationJob?.cancel()
         generationJob = null
         pendingMessageId = null
@@ -193,8 +189,8 @@ fun MigratedChatDetailScreenV2(
             CenterAlignedTopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        ChatV2Avatar(character.displayName.take(1).ifBlank { "露" }, 36)
-                        Spacer(Modifier.width(9.dp))
+                        ChatV2Avatar(character.displayName.take(1).ifBlank { "露" }, 42)
+                        Spacer(Modifier.width(10.dp))
                         Column {
                             Text(character.displayName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                             Text("在线 · $activeLabel", color = ChatV2Muted, fontSize = 10.sp, maxLines = 1)
@@ -247,10 +243,7 @@ fun MigratedChatDetailScreenV2(
                             Text(activeLabel, modifier = Modifier.weight(1f), fontSize = 11.sp, color = ChatV2Muted)
                             Box {
                                 TextButton(onClick = { archiveMenuExpanded = true }) { Text("切换") }
-                                DropdownMenu(
-                                    expanded = archiveMenuExpanded,
-                                    onDismissRequest = { archiveMenuExpanded = false },
-                                ) {
+                                DropdownMenu(expanded = archiveMenuExpanded, onDismissRequest = { archiveMenuExpanded = false }) {
                                     if (library.archives.isEmpty()) {
                                         DropdownMenuItem(text = { Text("暂无模型存档") }, onClick = {}, enabled = false)
                                     } else {
@@ -321,11 +314,8 @@ fun MigratedChatDetailScreenV2(
                             onClick = ::sendMessage,
                             colors = IconButtonDefaults.filledIconButtonColors(containerColor = ChatV2Wheat),
                         ) {
-                            if (sending) {
-                                CircularProgressIndicator(Modifier.size(19.dp), strokeWidth = 2.dp, color = ChatV2Ink)
-                            } else {
-                                Icon(Icons.Outlined.Send, "发送", tint = ChatV2Ink)
-                            }
+                            if (sending) CircularProgressIndicator(Modifier.size(19.dp), strokeWidth = 2.dp, color = ChatV2Ink)
+                            else Icon(Icons.Outlined.Send, "发送", tint = ChatV2Ink)
                         }
                     }
                 }
@@ -336,7 +326,7 @@ fun MigratedChatDetailScreenV2(
             state = listState,
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(3.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp),
         ) {
             itemsIndexed(messages, key = { _, message -> message.id }) { index, message ->
                 val previous = messages.getOrNull(index - 1)
@@ -361,11 +351,13 @@ fun MigratedChatDetailScreenV2(
             if (sending) {
                 item {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        modifier = Modifier.fillMaxWidth().padding(start = 4.dp, top = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
+                        ChatV2Avatar(character.displayName.take(1).ifBlank { "露" }, 40)
+                        Spacer(Modifier.width(9.dp))
                         CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
-                        Spacer(Modifier.width(8.dp))
+                        Spacer(Modifier.width(7.dp))
                         Text("${character.displayName}正在回复…", color = ChatV2Muted, fontSize = 12.sp)
                     }
                 }
@@ -397,12 +389,7 @@ fun MigratedChatDetailScreenV2(
             onSave = { content -> MigratedDomainStores.chat.editMessage(message.id, content); editingMessage = null },
         )
     }
-    if (callVisible) {
-        ChatV2CallDialog(
-            characterName = character.displayName,
-            onDismiss = { callVisible = false },
-        )
-    }
+    if (callVisible) ChatV2CallDialog(characterName = character.displayName, onDismiss = { callVisible = false })
 }
 
 @Composable
@@ -437,9 +424,7 @@ private fun ChatV2CallDialog(characterName: String, onDismiss: () -> Unit) {
         },
         confirmButton = {
             Button(
-                onClick = {
-                    if (connected) onDismiss() else connected = true
-                },
+                onClick = { if (connected) onDismiss() else connected = true },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (connected) MaterialTheme.colorScheme.error else ChatV2Wheat,
                     contentColor = if (connected) Color.White else ChatV2Ink,
@@ -479,11 +464,12 @@ private fun ChatV2MessageBubble(
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (fromUser) Arrangement.End else Arrangement.Start,
-        verticalAlignment = Alignment.Bottom,
+        verticalAlignment = Alignment.Top,
     ) {
         if (!fromUser) {
-            if (showAvatar) ChatV2Avatar(characterName.take(1).ifBlank { "露" }, 32) else Spacer(Modifier.width(32.dp))
-            Spacer(Modifier.width(7.dp))
+            if (showAvatar) ChatV2Avatar(characterName.take(1).ifBlank { "露" }, 40)
+            else Spacer(Modifier.width(40.dp))
+            Spacer(Modifier.width(9.dp))
         }
         Column(
             horizontalAlignment = if (fromUser) Alignment.End else Alignment.Start,
@@ -495,13 +481,13 @@ private fun ChatV2MessageBubble(
                 shape = RoundedCornerShape(
                     topStart = 18.dp,
                     topEnd = 18.dp,
-                    bottomStart = if (!fromUser && groupEnd) 5.dp else 18.dp,
-                    bottomEnd = if (fromUser && groupEnd) 5.dp else 18.dp,
+                    bottomStart = if (!fromUser && groupEnd) 6.dp else 18.dp,
+                    bottomEnd = if (fromUser && groupEnd) 6.dp else 18.dp,
                 ),
                 border = BorderStroke(1.dp, ChatV2Border),
             ) {
-                Column(Modifier.padding(horizontal = 13.dp, vertical = 9.dp)) {
-                    Text(message.content)
+                Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+                    Text(message.content, color = ChatV2Ink, lineHeight = 21.sp)
                     if (message.favorite) {
                         Spacer(Modifier.height(4.dp))
                         Icon(Icons.Outlined.Star, "已收藏", tint = ChatV2Muted, modifier = Modifier.size(14.dp).align(Alignment.End))
@@ -509,11 +495,15 @@ private fun ChatV2MessageBubble(
                 }
             }
             if (groupEnd && (showTimestamp || message.status == LuluChatMessage.Status.Failed)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Spacer(Modifier.height(4.dp))
+                Row(
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     if (showTimestamp) {
                         Text(
                             message.createdAt.atZone(ZoneId.systemDefault()).format(ChatV2TimeFormatter),
-                            color = ChatV2Muted,
+                            color = ChatV2Muted.copy(alpha = 0.86f),
                             fontSize = 10.sp,
                         )
                     }
@@ -612,7 +602,12 @@ private fun ChatV2EditMessageDialog(
 
 @Composable
 private fun ChatV2Avatar(text: String, size: Int) {
-    Surface(shape = CircleShape, color = Color(0xFFFFE2D7), modifier = Modifier.size(size.dp)) {
+    Surface(
+        shape = CircleShape,
+        color = Color(0xFFFFE2D7),
+        border = BorderStroke(1.dp, ChatV2Border),
+        modifier = Modifier.size(size.dp),
+    ) {
         Box(contentAlignment = Alignment.Center) {
             Text(text, fontWeight = FontWeight.Bold, color = ChatV2Ink, fontSize = (size / 2.8).sp)
         }
