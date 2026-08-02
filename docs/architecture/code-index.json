@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T16:26:20.227241+00:00",
-  "commit": "25abcb7804dcb2af7d77d985c5e71af841bf0b39",
+  "generatedAt": "2026-08-02T16:26:36.170393+00:00",
+  "commit": "07ae9341cc0f102af92860a583e3da5c4ff76e0c",
   "branch": "main",
-  "sourceFingerprint": "c8d2e0fa0c05d44c2f229c7d05d1dfffae2d5727811a9a6a2da108f9f5795603",
+  "sourceFingerprint": "c1385ec81acaf1660f730a91c1e8202d007fd023ff7cc3f4de8a4718833a10fa",
   "summary": {
     "files": 80,
     "lines": 18119,
@@ -2013,7 +2013,7 @@
     {
       "path": "app/src/main/AndroidManifest.xml",
       "lines": 24,
-      "sha256": "59b200bf745fa71c49fe16c5521d5a2bae8d3584dfc21042f030505f02185911",
+      "sha256": "a42f4560a4eabe9925139e882e41ece67c14fc4ec9e4e4b73f6a4e0bbaf9fc41",
       "symbols": []
     },
     {
