@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T03:06:21.538939+00:00",
-  "commit": "b02b93822976f08cec8406b554ee9886ac7b3783",
+  "generatedAt": "2026-08-02T03:07:11.313785+00:00",
+  "commit": "6739bd0f253500bf28ccb24af25b3bcd06c1b96c",
   "branch": "main",
-  "sourceFingerprint": "935a86e1c757d13ea9384ce69a298d31e1e1c4918e9f1f036f007311361b84fe",
+  "sourceFingerprint": "12265737fa821d44bbfc04e2ebd8bcbdc218e2c7bb78d4302a47c40a8db20485",
   "summary": {
-    "files": 74,
-    "lines": 16419,
-    "symbols": 330
+    "files": 75,
+    "lines": 16547,
+    "symbols": 332
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -158,6 +158,10 @@
         "line": 23
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt",
+        "line": 28
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
         "line": 64
       },
@@ -225,7 +229,7 @@
     "MigrationActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-        "line": 20
+        "line": 21
       }
     ],
     "MigrationRoute": [
@@ -566,6 +570,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt",
         "line": 17
+      }
+    ],
+    "DeterministicMemoryAutomation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt",
+        "line": 21
       }
     ],
     "InMemoryMemoryRepository": [
@@ -2136,12 +2146,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 47,
-      "sha256": "c0ef8653771324f2d6084368409bb6b74486adcfc6781b39af67802dad551e8a",
+      "lines": 49,
+      "sha256": "3b7bee37c2fc5d56e40d9620ec52462f15af33e83cef891e046914fd0091df49",
       "symbols": [
         {
           "name": "MigrationActivity",
-          "line": 20
+          "line": 21
         }
       ]
     },
@@ -2436,6 +2446,21 @@
         {
           "name": "initialize",
           "line": 23
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt",
+      "lines": 126,
+      "sha256": "48110984f56fb0526ad7722fc2f3dc1b83dbe7d4713f0f2399e44e45daaf7f19",
+      "symbols": [
+        {
+          "name": "DeterministicMemoryAutomation",
+          "line": 21
+        },
+        {
+          "name": "initialize",
+          "line": 28
         }
       ]
     },
