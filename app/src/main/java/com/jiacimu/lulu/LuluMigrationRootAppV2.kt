@@ -17,9 +17,13 @@ import com.jiacimu.lulu.study.PostgraduateExamApp
 import com.jiacimu.lulu.study.StarWishMigratedScreen
 
 @Composable
-fun LuluMigrationRootAppV2() {
-    var route by rememberSaveable { mutableStateOf(MigrationRoute.Home) }
-    var selectedConversationId by rememberSaveable { mutableStateOf("lulu-main") }
+fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
+    var route by rememberSaveable(initialConversationId) {
+        mutableStateOf(if (initialConversationId.isNullOrBlank()) MigrationRoute.Home else MigrationRoute.ChatDetail)
+    }
+    var selectedConversationId by rememberSaveable(initialConversationId) {
+        mutableStateOf(initialConversationId?.takeIf(String::isNotBlank) ?: "lulu-main")
+    }
     var selectedCharacterId by rememberSaveable { mutableStateOf("lulu") }
     var worldBookReturnRoute by rememberSaveable { mutableStateOf(MigrationRoute.Home) }
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
@@ -37,6 +41,14 @@ fun LuluMigrationRootAppV2() {
             .firstOrNull { it.id == selectedConversationId }
             ?.characterId
             ?: "lulu"
+    }
+
+    LaunchedEffect(initialConversationId, conversations) {
+        if (!initialConversationId.isNullOrBlank() && conversations.any { it.id == initialConversationId }) {
+            selectedConversationId = initialConversationId
+            selectConversationCharacter()
+            route = MigrationRoute.ChatDetail
+        }
     }
 
     CompositionLocalProvider(LocalDensity provides preferredDensity) {
