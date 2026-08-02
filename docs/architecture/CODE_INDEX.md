@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`cf6d222ac0e4440f3350b32c8bf0bc80f67b73d0`
+- 基准提交：`d55e77a4ef969285e84df902fc6c53e78dd3721a`
 - 分支：`main`
-- 已索引文件：85
-- 已索引代码/文本行：17966
-- 已发现符号：342
+- 已索引文件：87
+- 已索引代码/文本行：18109
+- 已发现符号：350
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -80,6 +80,8 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudySaveableInputsCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt` | 209 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 125 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 93 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 50 | 2 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
 | `app/src/main/res/drawable/lulu_app_icon.xml` | 87 | 0 |
 | `app/src/main/res/drawable/lulu_app_icon_foreground.xml` | 21 | 0 |

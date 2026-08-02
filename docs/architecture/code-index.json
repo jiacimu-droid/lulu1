@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T16:55:14.135446+00:00",
-  "commit": "cf6d222ac0e4440f3350b32c8bf0bc80f67b73d0",
+  "generatedAt": "2026-08-02T16:55:41.638041+00:00",
+  "commit": "d55e77a4ef969285e84df902fc6c53e78dd3721a",
   "branch": "main",
-  "sourceFingerprint": "fd859d8359581d3bd8ad8f603ed34683ec3c68f732fefbff656f7d3fd3f7acc6",
+  "sourceFingerprint": "75261a1122d01206c36a0ea82cf544eef199c1ac9896680b96a917a1df761a0b",
   "summary": {
-    "files": 85,
-    "lines": 17966,
-    "symbols": 342
+    "files": 87,
+    "lines": 18109,
+    "symbols": 350
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -1172,6 +1172,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
         "line": 330
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 46
       }
     ],
     "attach": [
@@ -1994,6 +1998,48 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt",
         "line": 38
+      }
+    ],
+    "LuluAccessibilityService": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 15
+      }
+    ],
+    "clickFirstText": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 58
+      }
+    ],
+    "AccessibilitySnapshot": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 68
+      }
+    ],
+    "LuluScreenAction": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 76
+      }
+    ],
+    "walk": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 82
+      }
+    ],
+    "LuluNotificationListenerService": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt",
+        "line": 10
+      }
+    ],
+    "LuluNotificationSnapshot": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt",
+        "line": 43
       }
     ]
   },
@@ -3849,6 +3895,52 @@
         {
           "name": "Focus",
           "line": 38
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+      "lines": 93,
+      "sha256": "218be9325d15caf12bc61bb10e3e488e6289589e7c88e2566be67703564fd12c",
+      "symbols": [
+        {
+          "name": "LuluAccessibilityService",
+          "line": 15
+        },
+        {
+          "name": "perform",
+          "line": 46
+        },
+        {
+          "name": "clickFirstText",
+          "line": 58
+        },
+        {
+          "name": "AccessibilitySnapshot",
+          "line": 68
+        },
+        {
+          "name": "LuluScreenAction",
+          "line": 76
+        },
+        {
+          "name": "walk",
+          "line": 82
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt",
+      "lines": 50,
+      "sha256": "b603434b436e364ba45561217692c1451ebe02702e00d16b3e2bc100abeb075c",
+      "symbols": [
+        {
+          "name": "LuluNotificationListenerService",
+          "line": 10
+        },
+        {
+          "name": "LuluNotificationSnapshot",
+          "line": 43
         }
       ]
     },
