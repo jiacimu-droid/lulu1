@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.ChatLexiconAutomation
 import com.jiacimu.lulu.data.ChatMemoryAutomation
+import com.jiacimu.lulu.data.ChatTurnConsistencyAutomation
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.ProactiveMessageAutomation
@@ -35,6 +36,7 @@ class MigrationActivity : ComponentActivity() {
         StudyFocusSessions.initialize(appContext)
         PostgraduateExamStores.main.syncPomodoroClock()
         RoleReadablePerformanceBridge.initialize()
+        ChatTurnConsistencyAutomation.initialize()
         ChatMemoryAutomation.initialize()
         ChatLexiconAutomation.initialize(appContext)
         ProactiveMessageAutomation.initialize(appContext)
