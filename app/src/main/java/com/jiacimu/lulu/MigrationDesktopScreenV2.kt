@@ -76,7 +76,7 @@ internal fun MigrationHomeV2(
     Surface(modifier = Modifier.fillMaxSize(), color = DesktopPaper) {
         androidx.compose.foundation.lazy.LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 18.dp, top = 38.dp, bottom = 22.dp),
+            contentPadding = PaddingValues(start = 18.dp, top = 38.dp, end = 18.dp, bottom = 22.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
             item {
