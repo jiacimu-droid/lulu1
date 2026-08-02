@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T03:07:11.313785+00:00",
-  "commit": "6739bd0f253500bf28ccb24af25b3bcd06c1b96c",
+  "generatedAt": "2026-08-02T09:46:30.324562+00:00",
+  "commit": "eb2f0f2ce80f07680336d9c54d5d5121b89db374",
   "branch": "main",
-  "sourceFingerprint": "12265737fa821d44bbfc04e2ebd8bcbdc218e2c7bb78d4302a47c40a8db20485",
+  "sourceFingerprint": "83c45826469335593198b7d2a4fa855359b4c31c161f60942ccdf61e0b3e774a",
   "summary": {
     "files": 75,
-    "lines": 16547,
+    "lines": 16570,
     "symbols": 332
   },
   "symbolIndex": {
@@ -1691,7 +1691,7 @@
     "StarWishMigratedScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt",
-        "line": 17
+        "line": 16
       }
     ],
     "StudyTaskSource": [
@@ -3450,12 +3450,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt",
-      "lines": 79,
-      "sha256": "f63488e39d3abd571c05de3c897ecf6321bac830f4a190a4a7d301876abb2c50",
+      "lines": 102,
+      "sha256": "ecc260daaef490a5bfffc5a2f8891372c912bf8268da7b8bace92e1fed55a8e5",
       "symbols": [
         {
           "name": "StarWishMigratedScreen",
-          "line": 17
+          "line": 16
         }
       ]
     },
