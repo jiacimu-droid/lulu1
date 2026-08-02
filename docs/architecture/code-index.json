@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T16:55:51.034120+00:00",
-  "commit": "68e7f26307895509415c0533aae08d3baf502d99",
+  "generatedAt": "2026-08-02T16:56:49.094525+00:00",
+  "commit": "5cefda61f5edc40cd23d6cd26d2bcb090671f31a",
   "branch": "main",
-  "sourceFingerprint": "75261a1122d01206c36a0ea82cf544eef199c1ac9896680b96a917a1df761a0b",
+  "sourceFingerprint": "dd0c26806f71dfb6c9cfd9457ad95b845aab9013d6c3d07b27f24729ab027d18",
   "summary": {
-    "files": 87,
-    "lines": 18109,
-    "symbols": 350
+    "files": 88,
+    "lines": 18456,
+    "symbols": 353
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -44,6 +44,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
         "line": 48
+      }
+    ],
+    "LuluCapabilitiesScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
+        "line": 52
+      }
+    ],
+    "open": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
+        "line": 64
+      }
+    ],
+    "read": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
+        "line": 251
       }
     ],
     "LuluMigrationRootAppV2": [
@@ -2123,6 +2141,25 @@
         {
           "name": "LexiconFeatureScreenV2",
           "line": 48
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
+      "lines": 347,
+      "sha256": "dc1f7536069338f364e4da086bc9b50f1badb0c7b7dc9174e75ebefe98bd0019",
+      "symbols": [
+        {
+          "name": "LuluCapabilitiesScreen",
+          "line": 52
+        },
+        {
+          "name": "open",
+          "line": 64
+        },
+        {
+          "name": "read",
+          "line": 251
         }
       ]
     },
