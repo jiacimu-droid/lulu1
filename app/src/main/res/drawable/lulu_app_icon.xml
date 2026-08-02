@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- warm white background -->
+    <path
+        android:fillColor="#FFFDF7"
+        android:pathData="M0,0H108V108H0Z" />
+
+    <!-- pale blue lower/right reflection -->
+    <path
+        android:fillColor="#BEEFFF"
+        android:pathData="M27,69H31V76H75V72H81V34H87V76H83V83H76V87H31V83H27Z" />
+
+    <!-- main soft square body -->
+    <path
+        android:fillColor="#FFFDF7"
+        android:strokeColor="#153B5C"
+        android:strokeWidth="4.2"
+        android:strokeLineJoin="miter"
+        android:pathData="M27,25H81V29H85V34H87V73H83V80H77V84H31V81H25V74H23V35H25V29H27Z" />
+
+    <!-- little top handle -->
+    <path
+        android:fillColor="#FFFDF7"
+        android:strokeColor="#153B5C"
+        android:strokeWidth="4.2"
+        android:strokeLineJoin="miter"
+        android:strokeLineCap="square"
+        android:pathData="M45,24V18H49V13H63V17H67V24H60V19H54V23H51V27" />
+
+    <!-- left arm -->
+    <path
+        android:fillColor="#FFFDF7"
+        android:strokeColor="#153B5C"
+        android:strokeWidth="4.2"
+        android:strokeLineJoin="miter"
+        android:pathData="M24,57H20V61H17V67H15V73H17V76H22V73H25" />
+
+    <!-- right arm -->
+    <path
+        android:fillColor="#FFFDF7"
+        android:strokeColor="#153B5C"
+        android:strokeWidth="4.2"
+        android:strokeLineJoin="miter"
+        android:pathData="M84,57H88V61H91V67H93V73H91V76H86V73H83" />
+
+    <!-- feet -->
+    <path
+        android:fillColor="#C8F0FF"
+        android:strokeColor="#153B5C"
+        android:strokeWidth="4.2"
+        android:strokeLineJoin="miter"
+        android:pathData="M34,84H48V92H34Z" />
+    <path
+        android:fillColor="#C8F0FF"
+        android:strokeColor="#153B5C"
+        android:strokeWidth="4.2"
+        android:strokeLineJoin="miter"
+        android:pathData="M60,84H74V92H60Z" />
+
+    <!-- square eye -->
+    <path
+        android:fillColor="#153B5C"
+        android:pathData="M39,48H45V55H39Z" />
+
+    <!-- winking eye -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#153B5C"
+        android:strokeWidth="4.2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M67,49L61,52L67,55" />
+
+    <!-- smile -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#153B5C"
+        android:strokeWidth="4.2"
+        android:strokeLineCap="round"
+        android:pathData="M50,55C51.5,61 58.5,61 60,55" />
+</vector>
