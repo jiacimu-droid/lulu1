@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T16:44:12.803310+00:00",
-  "commit": "5099f248b1cc153fed2ac6e9496b8ffe662a42cd",
+  "generatedAt": "2026-08-02T16:54:49.147032+00:00",
+  "commit": "e666ee6340e5936107c5952659bbdad07969e24d",
   "branch": "main",
-  "sourceFingerprint": "73661fbb010ee82bc7facece75a3c610d953f271d92b0a6547a44b46b61efdef",
+  "sourceFingerprint": "45835c312b05c89cf1d332a0418c80c4ea087979eaa2f5768fb961c92c57ab25",
   "summary": {
-    "files": 84,
-    "lines": 17909,
+    "files": 85,
+    "lines": 17965,
     "symbols": 342
   },
   "symbolIndex": {
@@ -2006,8 +2006,8 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "lines": 24,
-      "sha256": "7c39ae4811948d0b2be2b9848ebeb44a1358e6833f21eb08a51c8681ed8b9a2f",
+      "lines": 69,
+      "sha256": "a27539dfe3c13b7de8095457a869d67b1d704f8c879deafc466113a9ffd1d656",
       "symbols": []
     },
     {
@@ -3898,6 +3898,12 @@
       "path": "app/src/main/res/values/styles.xml",
       "lines": 11,
       "sha256": "b9998a762e4c0842fc6b71ae71ccacdce853dfceaf370964016fdf405c1b77a0",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/res/xml/lulu_accessibility_service.xml",
+      "lines": 11,
+      "sha256": "7a8604d40b3980d83deddf98189840299af8ec3e624d8a241ae8e2b4b3d2358a",
       "symbols": []
     },
     {

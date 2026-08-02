@@ -1,15 +1,15 @@
 # Lulu1 代码索引
 
-- 基准提交：`5099f248b1cc153fed2ac6e9496b8ffe662a42cd`
+- 基准提交：`e666ee6340e5936107c5952659bbdad07969e24d`
 - 分支：`main`
-- 已索引文件：84
-- 已索引代码/文本行：17909
+- 已索引文件：85
+- 已索引代码/文本行：17965
 - 已发现符号：342
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 84 | 0 |
-| `app/src/main/AndroidManifest.xml` | 24 | 0 |
+| `app/src/main/AndroidManifest.xml` | 69 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 229 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 238 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
@@ -88,6 +88,7 @@
 | `app/src/main/res/values/lulu_icon_colors.xml` | 5 | 0 |
 | `app/src/main/res/values/strings.xml` | 5 | 0 |
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
+| `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
 | `scripts/generate_code_index.py` | 33 | 0 |
 | `preview/app.js` | 54 | 0 |
 | `preview/index.html` | 99 | 0 |
