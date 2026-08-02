@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-01T16:37:20.294308+00:00",
-  "commit": "82568bb82f2475927aabda0531dfccffd4d6f500",
+  "generatedAt": "2026-08-02T02:14:28.762284+00:00",
+  "commit": "4f33a3bd0019276e499f8368386ca6cd8de8c915",
   "branch": "main",
-  "sourceFingerprint": "061b0024a044c95e91f91f681f19a5cd8a76fe7e2b3772bf4e3f84577f93e8b8",
+  "sourceFingerprint": "19590ee686a907d4b773f7a755e112f5139e7917bce275b4d8c953a8bb98663a",
   "summary": {
-    "files": 70,
-    "lines": 15691,
-    "symbols": 320
+    "files": 71,
+    "lines": 15855,
+    "symbols": 322
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -182,6 +182,10 @@
         "line": 541
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
+        "line": 42
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
         "line": 23
       },
@@ -217,7 +221,7 @@
     "MigrationActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-        "line": 18
+        "line": 19
       }
     ],
     "MigrationRoute": [
@@ -912,6 +916,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 536
+      }
+    ],
+    "ProactiveMessageAutomation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
+        "line": 28
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -2080,12 +2090,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 42,
-      "sha256": "bfdbf9c9540500dbb78f90b50482f3bdb7838276a21352972830d9e2656c7dda",
+      "lines": 44,
+      "sha256": "1ac61b03660166cdaef898e2e6392b4ebc9ef175141e8ac89f3275e631285306",
       "symbols": [
         {
           "name": "MigrationActivity",
-          "line": 18
+          "line": 19
         }
       ]
     },
@@ -2683,6 +2693,21 @@
         {
           "name": "initialize",
           "line": 541
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
+      "lines": 162,
+      "sha256": "af9e57578a5d645b3a7aa02cd64f614a6e8bfebd57a25ecdbc95ea2bc39e25d8",
+      "symbols": [
+        {
+          "name": "ProactiveMessageAutomation",
+          "line": 28
+        },
+        {
+          "name": "initialize",
+          "line": 42
         }
       ]
     },
