@@ -18,6 +18,7 @@ import com.jiacimu.lulu.study.SelfDirectedStudyPlanSeed
 import com.jiacimu.lulu.study.StarWishStores
 import com.jiacimu.lulu.study.StudyFocusSessions
 import com.jiacimu.lulu.study.StudyRemovedFeatureMigration
+import com.jiacimu.lulu.system.LuluDeviceToolBridge
 
 class MigrationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,6 +30,7 @@ class MigrationActivity : ComponentActivity() {
         LuluRepositories.worldBook.initialize(appContext)
         MigratedDomainStores.initialize(appContext)
         LuluAiServices.initialize(appContext)
+        LuluDeviceToolBridge.initialize(appContext)
         LuluGames.initialize(appContext)
         StudyRemovedFeatureMigration.migrate(appContext)
         PostgraduateExamStores.initialize(appContext)
