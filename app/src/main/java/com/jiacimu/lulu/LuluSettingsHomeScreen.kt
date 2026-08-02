@@ -9,12 +9,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Api
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,23 +31,26 @@ private val SettingsHomeAccentStrong = Color(0xFF607A75)
 
 @Composable
 fun LuluSettingsHomeScreen(onBack: () -> Unit) {
-    var showApiSettings by rememberSaveable { mutableStateOf(false) }
-    if (showApiSettings) {
-        LuluSettingsScreen(onBack = { showApiSettings = false })
-        return
+    var page by rememberSaveable { mutableStateOf(SettingsHomePage.Home) }
+    when (page) {
+        SettingsHomePage.Api -> LuluSettingsScreen(onBack = { page = SettingsHomePage.Home })
+        SettingsHomePage.Capabilities -> LuluCapabilitiesScreen(onBack = { page = SettingsHomePage.Home })
+        SettingsHomePage.Home -> SettingsEntryScreen(
+            onBack = onBack,
+            onOpenApi = { page = SettingsHomePage.Api },
+            onOpenCapabilities = { page = SettingsHomePage.Capabilities },
+        )
     }
-
-    SettingsEntryScreen(
-        onBack = onBack,
-        onOpenApi = { showApiSettings = true },
-    )
 }
+
+private enum class SettingsHomePage { Home, Api, Capabilities }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SettingsEntryScreen(
     onBack: () -> Unit,
     onOpenApi: () -> Unit,
+    onOpenCapabilities: () -> Unit,
 ) {
     Scaffold(
         containerColor = SettingsHomePaper,
@@ -68,9 +73,18 @@ private fun SettingsEntryScreen(
         ) {
             item {
                 SettingsEntryRow(
+                    icon = Icons.Outlined.Api,
                     title = "API 设置",
                     subtitle = "配置站点、拉取模型并管理模型存档",
                     onClick = onOpenApi,
+                )
+            }
+            item {
+                SettingsEntryRow(
+                    icon = Icons.Outlined.Security,
+                    title = "权限与能力",
+                    subtitle = "位置、闹钟、应用感知、通知、屏幕控制与后台运行",
+                    onClick = onOpenCapabilities,
                 )
             }
         }
@@ -79,6 +93,7 @@ private fun SettingsEntryScreen(
 
 @Composable
 private fun SettingsEntryRow(
+    icon: ImageVector,
     title: String,
     subtitle: String,
     onClick: () -> Unit,
@@ -95,7 +110,7 @@ private fun SettingsEntryRow(
         ) {
             Surface(shape = RoundedCornerShape(12.dp), color = SettingsHomeAccent) {
                 Icon(
-                    Icons.Outlined.Api,
+                    icon,
                     null,
                     modifier = Modifier.padding(9.dp).size(22.dp),
                     tint = SettingsHomeAccentStrong,
