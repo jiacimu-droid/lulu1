@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`1afd684e21d6a03c72438e62f45b3d8ff1ec0f82`
+- 基准提交：`cf6d222ac0e4440f3350b32c8bf0bc80f67b73d0`
 - 分支：`main`
 - 已索引文件：85
-- 已索引代码/文本行：17965
+- 已索引代码/文本行：17966
 - 已发现符号：342
 
 | 文件 | 行数 | 符号数 |
@@ -86,7 +86,7 @@
 | `app/src/main/res/mipmap-anydpi/ic_lulu_app.xml` | 11 | 0 |
 | `app/src/main/res/mipmap-anydpi-v26/ic_lulu_app.xml` | 6 | 0 |
 | `app/src/main/res/values/lulu_icon_colors.xml` | 5 | 0 |
-| `app/src/main/res/values/strings.xml` | 5 | 0 |
+| `app/src/main/res/values/strings.xml` | 6 | 0 |
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
 | `scripts/generate_code_index.py` | 33 | 0 |
