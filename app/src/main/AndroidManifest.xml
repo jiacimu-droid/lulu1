@@ -6,9 +6,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/lulu_app_icon"
+        android:icon="@mipmap/ic_lulu_app"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/lulu_app_icon"
+        android:roundIcon="@mipmap/ic_lulu_app"
         android:supportsRtl="true"
         android:theme="@style/Theme.Lulu">
         <activity
