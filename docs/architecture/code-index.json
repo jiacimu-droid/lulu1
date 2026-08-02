@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T16:57:12.665318+00:00",
-  "commit": "677c9c64a80d00b0d17276be000dc1f8f067327d",
+  "generatedAt": "2026-08-02T17:00:40.103727+00:00",
+  "commit": "715cd0a3c8f5dd7b08d090972cb20e5cad5aec59",
   "branch": "main",
-  "sourceFingerprint": "bcd62dd24387eef897b10c12e4c68e41a409082fc9570892cf27f234b2b5289a",
+  "sourceFingerprint": "6745048c16db841712380e0135165fd8c3f02ec9143204f54f358a40e6b62646",
   "summary": {
-    "files": 88,
-    "lines": 18471,
-    "symbols": 353
+    "files": 89,
+    "lines": 18702,
+    "symbols": 362
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -224,6 +224,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
         "line": 59
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
+        "line": 34
       }
     ],
     "MemoryFeatureScreen": [
@@ -380,6 +384,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
         "line": 51
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
+        "line": 46
       }
     ],
     "CompanionModelGateway": [
@@ -2046,6 +2054,48 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
         "line": 82
+      }
+    ],
+    "LuluAlarm": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
+        "line": 19
+      }
+    ],
+    "LuluAlarmSystem": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
+        "line": 28
+      }
+    ],
+    "canScheduleExact": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
+        "line": 40
+      }
+    ],
+    "list": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
+        "line": 67
+      }
+    ],
+    "cancel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
+        "line": 69
+      }
+    ],
+    "LuluAlarmReceiver": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
+        "line": 212
+      }
+    ],
+    "LuluBootReceiver": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
+        "line": 223
       }
     ],
     "LuluNotificationListenerService": [
@@ -3963,6 +4013,49 @@
         {
           "name": "walk",
           "line": 82
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
+      "lines": 231,
+      "sha256": "1dbbadb4b352c96a94770b9d020be574de108ff3d6a723bfd5b0192faabbb848",
+      "symbols": [
+        {
+          "name": "LuluAlarm",
+          "line": 19
+        },
+        {
+          "name": "LuluAlarmSystem",
+          "line": 28
+        },
+        {
+          "name": "initialize",
+          "line": 34
+        },
+        {
+          "name": "canScheduleExact",
+          "line": 40
+        },
+        {
+          "name": "create",
+          "line": 46
+        },
+        {
+          "name": "list",
+          "line": 67
+        },
+        {
+          "name": "cancel",
+          "line": 69
+        },
+        {
+          "name": "LuluAlarmReceiver",
+          "line": 212
+        },
+        {
+          "name": "LuluBootReceiver",
+          "line": 223
         }
       ]
     },
