@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T03:03:59.095897+00:00",
-  "commit": "3eefb0908d4ad14fbc9d70b74cda9c5fed9beb9c",
+  "generatedAt": "2026-08-02T03:05:41.415304+00:00",
+  "commit": "49a07e6ec625d08ea037dd87b9ac5fd32b0bf4af",
   "branch": "main",
-  "sourceFingerprint": "376a407b6cf08b85025ca00b0e5f48162794f8bb4bf8fc407728458e3f8c2f87",
+  "sourceFingerprint": "1931566cde57d1c5180e356ebf9cecc916b60db08db3ab138a59e02cd7b38531",
   "summary": {
-    "files": 73,
-    "lines": 16291,
-    "symbols": 327
+    "files": 74,
+    "lines": 16381,
+    "symbols": 330
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -225,7 +225,7 @@
     "MigrationActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-        "line": 19
+        "line": 20
       }
     ],
     "MigrationRoute": [
@@ -950,6 +950,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
         "line": 28
+      }
+    ],
+    "RelevantMemoryRecall": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
+        "line": 16
+      }
+    ],
+    "recall": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
+        "line": 17
+      }
+    ],
+    "formatForPrompt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
+        "line": 38
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -2118,12 +2136,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 45,
-      "sha256": "ee97c1c6b401bc481ed8f5d6b55a6ed25b8940d375f838657c3312d9135ed780",
+      "lines": 47,
+      "sha256": "c0ef8653771324f2d6084368409bb6b74486adcfc6781b39af67802dad551e8a",
       "symbols": [
         {
           "name": "MigrationActivity",
-          "line": 19
+          "line": 20
         }
       ]
     },
@@ -2770,6 +2788,25 @@
         {
           "name": "initialize",
           "line": 42
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
+      "lines": 88,
+      "sha256": "965c26abcb144a4110aa1af29ea5bbaaefb54c2236b1209f61c423081694f1e0",
+      "symbols": [
+        {
+          "name": "RelevantMemoryRecall",
+          "line": 16
+        },
+        {
+          "name": "recall",
+          "line": 17
+        },
+        {
+          "name": "formatForPrompt",
+          "line": 38
         }
       ]
     },
