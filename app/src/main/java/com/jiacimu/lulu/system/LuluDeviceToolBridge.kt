@@ -129,7 +129,7 @@ object LuluDeviceToolBridge {
                     characterId = characterId,
                     characterName = characterName,
                     triggerAt = trigger,
-                    label = args.optString("label").ifBlank { "$characterName提醒你" },
+                    label = args.optString("label").ifBlank { "${characterName}提醒你" },
                 ).getOrThrow()
                 JSONObject()
                     .put("success", true)
