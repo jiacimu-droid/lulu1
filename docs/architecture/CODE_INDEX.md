@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ca8274d8e7fc3337edd648e5d925e8c51b901437`
+- 基准提交：`5099f248b1cc153fed2ac6e9496b8ffe662a42cd`
 - 分支：`main`
 - 已索引文件：84
-- 已索引代码/文本行：17764
+- 已索引代码/文本行：17909
 - 已发现符号：342
 
 | 文件 | 行数 | 符号数 |
@@ -42,7 +42,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 106 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 562 | 34 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 162 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 307 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 88 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
