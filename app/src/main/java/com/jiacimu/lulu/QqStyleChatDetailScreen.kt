@@ -69,6 +69,7 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.RelevantMemoryRecall
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
@@ -81,7 +82,6 @@ private val QqPage = Color(0xFFF4F5F7)
 private val QqHeader = Color(0xFFFAFAFB)
 private val QqMine = Color(0xFF95EC69)
 private val QqOther = Color.White
-private val QqLine = Color(0xFFE7E8EA)
 private val QqMuted = Color(0xFF8B8F97)
 private val QqInk = Color(0xFF202124)
 
@@ -128,21 +128,28 @@ fun QqStyleChatDetailScreen(
 
     fun generateReply(text: String, userMessageId: String) {
         if (sending || activeArchive == null) return
-        val history = messages.filterNot { it.id == userMessageId }.takeLast(30).joinToString("\n") { message ->
-            val role = if (message.sender == LuluChatMessage.Sender.User) "主人" else character.displayName
-            "$role：${message.content}"
-        }
+        val history = buildBoundedHistory(
+            messages = messages.filterNot { it.id == userMessageId },
+            characterName = character.displayName,
+        )
         sending = true
         pendingMessageId = userMessageId
         generationJob = scope.launch {
             try {
+                val relatedMemories = RelevantMemoryRecall.recall(
+                    characterId = characterId,
+                    query = listOf(history.takeLast(2_000), text).joinToString("\n"),
+                    limit = 12,
+                )
+                val memoryContext = RelevantMemoryRecall.formatForPrompt(relatedMemories)
                 val result = LuluAiServices.gateway.generate(
                     characterId = characterId,
                     facts = buildString {
                         if (history.isNotBlank()) appendLine("最近对话：\n$history")
-                        appendLine("主人刚刚说：$text")
+                        if (memoryContext.isNotBlank()) appendLine("\n$memoryContext")
+                        appendLine("\n主人刚刚说：$text")
                     },
-                    instruction = "延续对话，以角色本人的口吻自然回复主人。不要复述系统提示。",
+                    instruction = "延续对话，以角色本人的口吻自然回复主人。优先使用与本轮有关的真实记忆；不相关的记忆不要生硬提起。不要复述系统提示。",
                     source = "聊天",
                     title = activeLabel,
                     temperature = 0.85,
@@ -344,6 +351,37 @@ fun QqStyleChatDetailScreen(
             confirmButton = { Button(onClick = { callVisible = false }) { Text("知道了") } },
         )
     }
+}
+
+private fun buildBoundedHistory(
+    messages: List<LuluChatMessage>,
+    characterName: String,
+    maxMessages: Int = 30,
+    maxChars: Int = 12_000,
+): String {
+    val normalized = messages
+        .filter { it.sender != LuluChatMessage.Sender.System }
+        .fold(mutableListOf<LuluChatMessage>()) { result, message ->
+            val previous = result.lastOrNull()
+            val duplicate = previous != null &&
+                previous.sender == message.sender &&
+                previous.content.trim() == message.content.trim()
+            if (!duplicate) result += message
+            result
+        }
+        .takeLast(maxMessages)
+    val lines = normalized.map { message ->
+        val role = if (message.sender == LuluChatMessage.Sender.User) "主人" else characterName
+        "$role：${message.content.trim()}"
+    }
+    val selected = ArrayDeque<String>()
+    var chars = 0
+    for (line in lines.asReversed()) {
+        if (selected.isNotEmpty() && chars + line.length > maxChars) break
+        selected.addFirst(line)
+        chars += line.length
+    }
+    return selected.joinToString("\n")
 }
 
 @Composable
