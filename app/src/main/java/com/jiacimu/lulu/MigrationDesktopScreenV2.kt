@@ -18,9 +18,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.MigratedDomainStores
-import com.jiacimu.lulu.design.LuluColors
-import com.jiacimu.lulu.design.LuluRadii
-import com.jiacimu.lulu.design.LuluSpacing
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -30,22 +27,28 @@ private data class DesktopV2Launcher(
     val title: String,
     val icon: ImageVector,
     val route: MigrationRoute,
-    val tint: Color,
-    val background: Color,
 )
 
 private val DesktopV2Launchers = listOf(
-    DesktopV2Launcher("聊天", Icons.Outlined.ChatBubbleOutline, MigrationRoute.Chat, Color(0xFF79574E), Color(0xFFFFE9E0)),
-    DesktopV2Launcher("记忆", Icons.Outlined.Psychology, MigrationRoute.Memory, Color(0xFF62597B), Color(0xFFEDE8F7)),
-    DesktopV2Launcher("辞海", Icons.Outlined.MenuBook, MigrationRoute.Lexicon, Color(0xFF516B57), Color(0xFFE8F1E5)),
-    DesktopV2Launcher("世界书", Icons.Outlined.Public, MigrationRoute.WorldBook, Color(0xFF526B78), Color(0xFFE6F0F3)),
-    DesktopV2Launcher("性能监测", Icons.Outlined.MonitorHeart, MigrationRoute.Performance, Color(0xFF80544E), Color(0xFFFFE9E4)),
-    DesktopV2Launcher("阅读", Icons.Outlined.AutoStories, MigrationRoute.Reading, Color(0xFF755F3C), Color(0xFFFFEFD7)),
-    DesktopV2Launcher("心愿馆", Icons.Outlined.StarOutline, MigrationRoute.Wishes, Color(0xFF745D72), Color(0xFFF3E8F2)),
-    DesktopV2Launcher("考研", Icons.Outlined.School, MigrationRoute.Study, Color(0xFF4F6A6D), Color(0xFFE4EFF0)),
-    DesktopV2Launcher("游戏", Icons.Outlined.SportsEsports, MigrationRoute.Games, Color(0xFF615A78), Color(0xFFECE8F5)),
-    DesktopV2Launcher("设置", Icons.Outlined.Settings, MigrationRoute.Settings, Color(0xFF625F59), Color(0xFFEDEBE6)),
+    DesktopV2Launcher("聊天", Icons.Outlined.ChatBubbleOutline, MigrationRoute.Chat),
+    DesktopV2Launcher("记忆", Icons.Outlined.Psychology, MigrationRoute.Memory),
+    DesktopV2Launcher("辞海", Icons.Outlined.MenuBook, MigrationRoute.Lexicon),
+    DesktopV2Launcher("世界书", Icons.Outlined.Public, MigrationRoute.WorldBook),
+    DesktopV2Launcher("性能监测", Icons.Outlined.MonitorHeart, MigrationRoute.Performance),
+    DesktopV2Launcher("阅读", Icons.Outlined.AutoStories, MigrationRoute.Reading),
+    DesktopV2Launcher("心愿馆", Icons.Outlined.StarOutline, MigrationRoute.Wishes),
+    DesktopV2Launcher("考研", Icons.Outlined.School, MigrationRoute.Study),
+    DesktopV2Launcher("游戏", Icons.Outlined.SportsEsports, MigrationRoute.Games),
+    DesktopV2Launcher("设置", Icons.Outlined.Settings, MigrationRoute.Settings),
 )
+
+private val DesktopPaper = Color(0xFFF8FAF8)
+private val DesktopCard = Color(0xFFFCFDFC)
+private val DesktopIconSurface = Color(0xFFE9F0EE)
+private val DesktopIcon = Color(0xFF607A75)
+private val DesktopBorder = Color(0xFFDDE7E3)
+private val DesktopInk = Color(0xFF34413F)
+private val DesktopMuted = Color(0xFF82908D)
 
 @Composable
 internal fun MigrationHomeV2(
@@ -70,11 +73,11 @@ internal fun MigrationHomeV2(
         else -> "晚上好"
     }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = LuluColors.Paper) {
+    Surface(modifier = Modifier.fillMaxSize(), color = DesktopPaper) {
         androidx.compose.foundation.lazy.LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(LuluSpacing.Large),
+            contentPadding = PaddingValues(horizontal = 18.dp, top = 38.dp, bottom = 22.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
             item {
                 Row(
@@ -82,15 +85,18 @@ internal fun MigrationHomeV2(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(Modifier.weight(1f)) {
-                        Text(dateText, color = LuluColors.Muted, style = MaterialTheme.typography.labelLarge)
-                        Spacer(Modifier.height(3.dp))
-                        Text("$greeting，主人", style = MaterialTheme.typography.headlineLarge)
-                        Text("今天也慢慢来，露露会把每一件小事陪好。", color = LuluColors.Muted)
+                        Text(dateText, color = DesktopMuted, fontSize = 12.sp)
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            "$greeting，主人",
+                            color = DesktopInk,
+                            fontSize = 25.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
                     }
                     DesktopV2Avatar(
                         text = currentCharacter.displayName.take(1).ifBlank { "露" },
-                        size = 58,
-                        background = Color(0xFFFFE5DC),
+                        size = 52,
                     )
                 }
             }
@@ -100,68 +106,61 @@ internal fun MigrationHomeV2(
                     modifier = Modifier.fillMaxWidth().clickable {
                         recent?.let { onOpenConversation(it.id) } ?: onOpen(MigrationRoute.Chat)
                     },
-                    colors = CardDefaults.cardColors(containerColor = LuluColors.CardStrong),
-                    border = BorderStroke(1.dp, LuluColors.Border),
-                    shape = RoundedCornerShape(LuluRadii.Hero),
+                    colors = CardDefaults.cardColors(containerColor = DesktopCard),
+                    border = BorderStroke(1.dp, DesktopBorder),
+                    shape = RoundedCornerShape(24.dp),
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(17.dp),
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         DesktopV2Avatar(
                             text = currentCharacter.displayName.take(1).ifBlank { "露" },
-                            size = 48,
-                            background = Color.White.copy(alpha = 0.78f),
+                            size = 46,
                         )
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
-                            Text(if (recent == null) "开始第一段聊天" else "最近聊天", color = LuluColors.Muted, fontSize = 12.sp)
+                            Text(if (recent == null) "开始聊天" else "最近聊天", color = DesktopMuted, fontSize = 11.sp)
                             Text(
                                 recent?.title?.ifBlank { currentCharacter.displayName } ?: currentCharacter.displayName,
-                                style = MaterialTheme.typography.titleMedium,
+                                color = DesktopInk,
+                                fontWeight = FontWeight.SemiBold,
                             )
                             Text(
-                                recent?.lastMessage?.ifBlank { "还没有消息，点这里去找${currentCharacter.displayName}。" }
-                                    ?: "还没有最近聊天，点这里进入消息列表。",
-                                color = LuluColors.Muted,
-                                maxLines = 2,
+                                recent?.lastMessage?.ifBlank { "点这里去找${currentCharacter.displayName}。" }
+                                    ?: "点这里进入消息列表。",
+                                color = DesktopMuted,
+                                maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
+                                fontSize = 12.sp,
                             )
                         }
-                        Icon(Icons.Outlined.ArrowForward, "进入聊天", tint = LuluColors.BlueGray)
+                        Icon(Icons.Outlined.ArrowForward, "进入聊天", tint = DesktopIcon)
                     }
                 }
             }
 
-            item {
-                Text("我的桌面", style = MaterialTheme.typography.titleLarge)
-            }
-
-            DesktopV2Launchers.chunked(4).forEach { row ->
+            (0 until 16).chunked(4).forEach { positions ->
                 item {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.Top,
                     ) {
-                        row.forEach { launcher ->
-                            DesktopV2LauncherItem(
-                                launcher = launcher,
-                                modifier = Modifier.weight(1f),
-                                onClick = { onOpen(launcher.route) },
-                            )
+                        positions.forEach { index ->
+                            val launcher = DesktopV2Launchers.getOrNull(index)
+                            if (launcher == null) {
+                                DesktopV2EmptySlot(Modifier.weight(1f))
+                            } else {
+                                DesktopV2LauncherItem(
+                                    launcher = launcher,
+                                    modifier = Modifier.weight(1f),
+                                    onClick = { onOpen(launcher.route) },
+                                )
+                            }
                         }
-                        repeat(4 - row.size) { Spacer(Modifier.weight(1f)) }
                     }
                 }
-            }
-
-            item {
-                Text(
-                    "阅读暂时保留为空入口；日志已经合并进性能监测，角色与“我的”已经合并进聊天。",
-                    color = LuluColors.Muted,
-                    style = MaterialTheme.typography.bodySmall,
-                )
             }
         }
     }
@@ -179,24 +178,42 @@ private fun DesktopV2LauncherItem(
     ) {
         Surface(
             shape = RoundedCornerShape(20.dp),
-            color = launcher.background,
-            border = BorderStroke(1.dp, LuluColors.Border.copy(alpha = 0.78f)),
+            color = DesktopIconSurface,
+            border = BorderStroke(1.dp, DesktopBorder),
             modifier = Modifier.size(58.dp),
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(launcher.icon, launcher.title, tint = launcher.tint, modifier = Modifier.size(27.dp))
+                Icon(launcher.icon, launcher.title, tint = DesktopIcon, modifier = Modifier.size(27.dp))
             }
         }
         Spacer(Modifier.height(7.dp))
-        Text(launcher.title, fontSize = 12.sp, fontWeight = FontWeight.Medium, maxLines = 1)
+        Text(launcher.title, color = DesktopInk, fontSize = 12.sp, fontWeight = FontWeight.Medium, maxLines = 1)
     }
 }
 
 @Composable
-private fun DesktopV2Avatar(text: String, size: Int, background: Color) {
-    Surface(shape = CircleShape, color = background, modifier = Modifier.size(size.dp)) {
+private fun DesktopV2EmptySlot(modifier: Modifier) {
+    Column(modifier = modifier.padding(vertical = 3.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = Color.Transparent,
+            border = BorderStroke(1.dp, DesktopBorder.copy(alpha = 0.55f)),
+            modifier = Modifier.size(58.dp),
+        ) {}
+        Spacer(Modifier.height(22.dp))
+    }
+}
+
+@Composable
+private fun DesktopV2Avatar(text: String, size: Int) {
+    Surface(
+        shape = CircleShape,
+        color = DesktopIconSurface,
+        border = BorderStroke(1.dp, DesktopBorder),
+        modifier = Modifier.size(size.dp),
+    ) {
         Box(contentAlignment = Alignment.Center) {
-            Text(text, fontSize = (size / 2.65).sp, fontWeight = FontWeight.Bold, color = LuluColors.Ink)
+            Text(text, fontSize = (size / 2.75).sp, fontWeight = FontWeight.Bold, color = DesktopIcon)
         }
     }
 }
