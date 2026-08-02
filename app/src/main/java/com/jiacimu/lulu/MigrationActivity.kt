@@ -8,6 +8,7 @@ import com.jiacimu.lulu.data.ChatLexiconAutomation
 import com.jiacimu.lulu.data.ChatMemoryAutomation
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.ProactiveMessageAutomation
 import com.jiacimu.lulu.data.RoleReadablePerformanceBridge
 import com.jiacimu.lulu.games.LuluGames
 import com.jiacimu.lulu.study.PostgraduateExamStores
@@ -36,6 +37,7 @@ class MigrationActivity : ComponentActivity() {
         RoleReadablePerformanceBridge.initialize()
         ChatMemoryAutomation.initialize()
         ChatLexiconAutomation.initialize(appContext)
+        ProactiveMessageAutomation.initialize(appContext)
         setContent { LuluMigrationRootAppV2() }
     }
 }
