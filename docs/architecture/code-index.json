@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T16:03:34.878384+00:00",
-  "commit": "8b8c0bd6f088cb72684daced1b03fa2d115f6024",
+  "generatedAt": "2026-08-02T16:26:20.227241+00:00",
+  "commit": "25abcb7804dcb2af7d77d985c5e71af841bf0b39",
   "branch": "main",
-  "sourceFingerprint": "f145fbde7822833afd8b432f0d65fc18bf89d933914d6a8a191a16d87c790292",
+  "sourceFingerprint": "c8d2e0fa0c05d44c2f229c7d05d1dfffae2d5727811a9a6a2da108f9f5795603",
   "summary": {
-    "files": 79,
-    "lines": 18032,
+    "files": 80,
+    "lines": 18119,
     "symbols": 343
   },
   "symbolIndex": {
@@ -3866,6 +3866,12 @@
       "path": "app/src/main/res/drawable/ic_lulu.xml",
       "lines": 12,
       "sha256": "b9c135a37cb0f00500e8fcd5625fae8455f37a89ebeb2441993a8bcb5506815c",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/res/drawable/lulu_app_icon.xml",
+      "lines": 87,
+      "sha256": "32b3b8d7561e41ab9a48413cc97228621bd2bf56fdf47d7a21402943f64e0fdd",
       "symbols": []
     },
     {
