@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-02T09:47:16.819402+00:00",
-  "commit": "10ff22a1f12090a0633ce7557a1bf0ce391ea895",
+  "generatedAt": "2026-08-02T15:42:20.709982+00:00",
+  "commit": "7ebdfa833dd4d5714e1146d2a3909800153214d9",
   "branch": "main",
-  "sourceFingerprint": "996ae5259c87277463f8fe96f67afcb7f94863208423bba0d60c771c8e0cc9b5",
+  "sourceFingerprint": "1429bfa2897ccb86c0eca4e381bda5ed41e2ac14674048914d1d7b539bc9f5e5",
   "summary": {
-    "files": 75,
-    "lines": 16784,
-    "symbols": 332
+    "files": 76,
+    "lines": 16863,
+    "symbols": 333
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -1412,6 +1412,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
         "line": 30
+      }
+    ],
+    "LuluReadingScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
+        "line": 34
       }
     ],
     "PostgraduateExamApp": [
@@ -3208,6 +3214,17 @@
         {
           "name": "LuluGamesAppV2",
           "line": 30
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
+      "lines": 79,
+      "sha256": "0cd6694fd44b0a4ea544ea8b4ff46e0587c32cf6d7ade453d6c9f71cbfa7b239",
+      "symbols": [
+        {
+          "name": "LuluReadingScreen",
+          "line": 34
         }
       ]
     },
