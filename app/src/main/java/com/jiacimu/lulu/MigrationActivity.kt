@@ -38,6 +38,7 @@ class MigrationActivity : ComponentActivity() {
         ChatMemoryAutomation.initialize()
         ChatLexiconAutomation.initialize(appContext)
         ProactiveMessageAutomation.initialize(appContext)
-        setContent { LuluMigrationRootAppV2() }
+        val initialConversationId = intent?.getStringExtra("open_conversation_id")
+        setContent { LuluMigrationRootAppV2(initialConversationId = initialConversationId) }
     }
 }
