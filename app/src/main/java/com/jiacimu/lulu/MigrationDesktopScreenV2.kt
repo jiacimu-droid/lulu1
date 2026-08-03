@@ -202,7 +202,7 @@ private fun DesktopLauncherGrid(
                 modifier = Modifier
                     .width(cellWidth)
                     .height(cellHeight)
-                    .offset { IntOffset((column * cellWidth).roundToPx(), (row * cellHeight).roundToPx()) }
+                    .offset { IntOffset((cellWidth * column).roundToPx(), (cellHeight * row).roundToPx()) }
                     .graphicsLayer {
                         translationX = dragX
                         translationY = dragY
