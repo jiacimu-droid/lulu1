@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3ba317a35a7116823166c0d7e8acc52b9da19dae`
+- 基准提交：`9cc718d1b4ce9646799be710e41e143496919a67`
 - 分支：`main`
-- 已索引文件：93
-- 已索引代码/文本行：20146
+- 已索引文件：94
+- 已索引代码/文本行：20200
 - 已发现符号：375
 
 | 文件 | 行数 | 符号数 |
@@ -77,6 +77,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDailyContext.kt` | 73 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt` | 241 | 25 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt` | 579 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyFocusConversationGuard.kt` | 54 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt` | 64 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt` | 381 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt` | 51 | 2 |

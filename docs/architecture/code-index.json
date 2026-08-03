@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T05:45:35.714669+00:00",
-  "commit": "3ba317a35a7116823166c0d7e8acc52b9da19dae",
+  "generatedAt": "2026-08-03T05:50:14.721041+00:00",
+  "commit": "9cc718d1b4ce9646799be710e41e143496919a67",
   "branch": "main",
-  "sourceFingerprint": "bbf02065d94637ef50c111ac677de8e0a72b2314b4bf30d16365eaa2e03ba9fb",
+  "sourceFingerprint": "99807192e631228c9bfcb7d32b6f53dfd87f4988b030626922719238c74907b8",
   "summary": {
-    "files": 93,
-    "lines": 20146,
+    "files": 94,
+    "lines": 20200,
     "symbols": 375
   },
   "symbolIndex": {
@@ -4023,6 +4023,12 @@
           "line": 222
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusConversationGuard.kt",
+      "lines": 54,
+      "sha256": "9391d5fbf6ebd11d200038d51d871b942766aea08800810c63711a6869c77f9d",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
