@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`8734089f1b4c5895f92a29eed1a47b4f47830256`
+- 基准提交：`9774c8f4e8a282a557b80f248c1ddf6956b0c0fa`
 - 分支：`main`
-- 已索引文件：95
-- 已索引代码/文本行：20384
-- 已发现符号：376
+- 已索引文件：94
+- 已索引代码/文本行：20243
+- 已发现符号：375
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -14,7 +14,6 @@
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 238 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ChatV2InterpolationCompat.kt` | 5 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ComposeAliases.kt` | 9 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt` | 9 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 319 | 1 |
@@ -22,7 +21,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 156 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 128 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 418 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 576 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 444 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt` | 618 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 397 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 33 | 0 |

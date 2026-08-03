@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T07:26:56.971256+00:00",
-  "commit": "8734089f1b4c5895f92a29eed1a47b4f47830256",
+  "generatedAt": "2026-08-03T07:35:59.878364+00:00",
+  "commit": "9774c8f4e8a282a557b80f248c1ddf6956b0c0fa",
   "branch": "main",
-  "sourceFingerprint": "0f7c9faf83d066b13d4b9648df37afb16d2878dc7c5250552521396e6ee097fa",
+  "sourceFingerprint": "5ee4108dedc8cb7bf74fabdd808a25fcf0d60985858dc77a93324baa31312d4d",
   "summary": {
-    "files": 95,
-    "lines": 20384,
-    "symbols": 376
+    "files": 94,
+    "lines": 20243,
+    "symbols": 375
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -38,12 +38,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
         "line": 147
-      }
-    ],
-    "BorderStroke": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/ComposeAliases.kt",
-        "line": 7
       }
     ],
     "LexiconFeatureScreenV2": [
@@ -139,7 +133,7 @@
     "LuluVoiceCallScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
-        "line": 63
+        "line": 48
       }
     ],
     "MigratedChatDetailScreenV2": [
@@ -2254,17 +2248,6 @@
       "symbols": []
     },
     {
-      "path": "app/src/main/java/com/jiacimu/lulu/ComposeAliases.kt",
-      "lines": 9,
-      "sha256": "e837af2470782aab321726c6d4032ac761a261b004a6447915f6edb11cdc5949",
-      "symbols": [
-        {
-          "name": "BorderStroke",
-          "line": 7
-        }
-      ]
-    },
-    {
       "path": "app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt",
       "lines": 9,
       "sha256": "46fc32384c6d1133bd417e7e928b961bc605b7d1ac600555f20b8a175e959d15",
@@ -2373,12 +2356,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
-      "lines": 576,
-      "sha256": "d06ecddb900262b0dc42269e22c4635a2657a9e6ec4b0fb8707530e5f1ccfc50",
+      "lines": 444,
+      "sha256": "78bd702f643281315466308deccfa9506c1ff94820f2703453e794d94f631ef9",
       "symbols": [
         {
           "name": "LuluVoiceCallScreen",
-          "line": 63
+          "line": 48
         }
       ]
     },
