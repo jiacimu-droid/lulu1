@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -20,14 +21,19 @@ import com.jiacimu.lulu.study.StarWishMigratedScreen
 
 @Composable
 fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
-    var route by rememberSaveable(initialConversationId) {
-        mutableStateOf(if (initialConversationId.isNullOrBlank()) MigrationRoute.Home else MigrationRoute.ChatDetail)
+    val initialStack = remember(initialConversationId) {
+        if (initialConversationId.isNullOrBlank()) {
+            listOf(MigrationRoute.Home.name)
+        } else {
+            listOf(MigrationRoute.Home.name, MigrationRoute.Chat.name, MigrationRoute.ChatDetail.name)
+        }
     }
+    var routeStack by rememberSaveable(initialConversationId) { mutableStateOf(initialStack) }
+    val route = MigrationRoute.valueOf(routeStack.last())
     var selectedConversationId by rememberSaveable(initialConversationId) {
         mutableStateOf(initialConversationId?.takeIf(String::isNotBlank) ?: "lulu-main")
     }
     var selectedCharacterId by rememberSaveable { mutableStateOf("lulu") }
-    var worldBookReturnRoute by rememberSaveable { mutableStateOf(MigrationRoute.Home) }
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val preferences by LuluAppPreferencesStore.state.collectAsState()
     val density = LocalDensity.current
@@ -45,34 +51,27 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
             ?: "lulu"
     }
 
-    fun navigateBackInsideApp() {
-        route = when (route) {
-            MigrationRoute.ChatDetail -> MigrationRoute.Chat
-            MigrationRoute.CharacterSettings -> MigrationRoute.Chat
-            MigrationRoute.WorldBook -> worldBookReturnRoute
-            MigrationRoute.Chat,
-            MigrationRoute.Memory,
-            MigrationRoute.Lexicon,
-            MigrationRoute.Performance,
-            MigrationRoute.Reading,
-            MigrationRoute.Wishes,
-            MigrationRoute.Study,
-            MigrationRoute.Games,
-            MigrationRoute.Settings,
-            -> MigrationRoute.Home
-            MigrationRoute.Home -> MigrationRoute.Home
-        }
+    fun pushRoute(target: MigrationRoute) {
+        routeStack = routeStack + target.name
     }
 
-    BackHandler(enabled = route != MigrationRoute.Home) {
-        navigateBackInsideApp()
+    fun popRoute() {
+        if (routeStack.size > 1) routeStack = routeStack.dropLast(1)
+    }
+
+    fun replaceTop(target: MigrationRoute) {
+        routeStack = routeStack.dropLast(1) + target.name
+    }
+
+    BackHandler(enabled = routeStack.size > 1) {
+        popRoute()
     }
 
     LaunchedEffect(initialConversationId, conversations) {
         if (!initialConversationId.isNullOrBlank() && conversations.any { it.id == initialConversationId }) {
             selectedConversationId = initialConversationId
             selectConversationCharacter()
-            route = MigrationRoute.ChatDetail
+            routeStack = listOf(MigrationRoute.Home.name, MigrationRoute.Chat.name, MigrationRoute.ChatDetail.name)
         }
     }
 
@@ -85,90 +84,68 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                 when (route) {
                     MigrationRoute.Home -> MigrationHomeV2(
                         onOpen = { target ->
-                            if (target == MigrationRoute.WorldBook) {
-                                selectedCharacterId = "lulu"
-                                worldBookReturnRoute = MigrationRoute.Home
-                            }
-                            route = target
+                            if (target == MigrationRoute.WorldBook) selectedCharacterId = "lulu"
+                            pushRoute(target)
                         },
                         onOpenConversation = { conversationId ->
                             selectedConversationId = conversationId
                             selectConversationCharacter()
-                            route = MigrationRoute.ChatDetail
+                            pushRoute(MigrationRoute.ChatDetail)
                         },
                     )
                     MigrationRoute.Chat -> MigratedChatHubScreenV2(
-                        onBack = { route = MigrationRoute.Home },
+                        onBack = ::popRoute,
                         onOpenConversation = { conversationId ->
                             selectedConversationId = conversationId
                             selectedCharacterId = conversations.firstOrNull { it.id == conversationId }?.characterId ?: "lulu"
-                            route = MigrationRoute.ChatDetail
+                            pushRoute(MigrationRoute.ChatDetail)
                         },
                         onCharacterSettings = { characterId ->
                             selectedCharacterId = characterId
-                            route = MigrationRoute.CharacterSettings
+                            pushRoute(MigrationRoute.CharacterSettings)
                         },
                         onWorldBook = { characterId ->
                             selectedCharacterId = characterId
-                            worldBookReturnRoute = MigrationRoute.Chat
-                            route = MigrationRoute.WorldBook
+                            pushRoute(MigrationRoute.WorldBook)
                         },
-                        onOpenSettings = { route = MigrationRoute.Settings },
+                        onOpenSettings = { pushRoute(MigrationRoute.Settings) },
                     )
                     MigrationRoute.ChatDetail -> QqStyleChatDetailScreen(
                         conversationId = selectedConversationId,
-                        onBack = { route = MigrationRoute.Chat },
+                        onBack = ::popRoute,
                         onOpenBranch = { branchId ->
                             selectedConversationId = branchId
                             selectedCharacterId = conversations.firstOrNull { it.id == branchId }?.characterId ?: selectedCharacterId
-                            route = MigrationRoute.ChatDetail
                         },
                         onCharacterSettings = {
                             selectConversationCharacter()
-                            route = MigrationRoute.CharacterSettings
+                            pushRoute(MigrationRoute.CharacterSettings)
                         },
                         onWorldBook = {
                             selectConversationCharacter()
-                            worldBookReturnRoute = MigrationRoute.ChatDetail
-                            route = MigrationRoute.WorldBook
+                            pushRoute(MigrationRoute.WorldBook)
                         },
                     )
                     MigrationRoute.CharacterSettings -> CharacterSettingsScreenV2(
                         characterId = selectedCharacterId,
-                        onBack = { route = MigrationRoute.Chat },
+                        onBack = ::popRoute,
                         onDeleted = {
                             selectedCharacterId = "lulu"
-                            route = MigrationRoute.Chat
+                            replaceTop(MigrationRoute.Chat)
                         },
                     )
-                    MigrationRoute.Memory -> MemoryFeatureScreen {
-                        route = MigrationRoute.Home
-                    }
-                    MigrationRoute.Lexicon -> LexiconFeatureScreenV2 {
-                        route = MigrationRoute.Home
-                    }
+                    MigrationRoute.Memory -> MemoryFeatureScreen(::popRoute)
+                    MigrationRoute.Lexicon -> LexiconFeatureScreenV2(::popRoute)
                     MigrationRoute.WorldBook -> CharacterWorldBookScreenV2(
                         initialCharacterId = selectedCharacterId,
-                        onBack = { route = worldBookReturnRoute },
+                        onBack = ::popRoute,
                     )
-                    MigrationRoute.Performance -> PerformanceFeatureScreen {
-                        route = MigrationRoute.Home
-                    }
-                    MigrationRoute.Reading -> LuluReadingScreen {
-                        route = MigrationRoute.Home
-                    }
-                    MigrationRoute.Wishes -> StarWishMigratedScreen {
-                        route = MigrationRoute.Home
-                    }
-                    MigrationRoute.Study -> PostgraduateExamApp {
-                        route = MigrationRoute.Home
-                    }
-                    MigrationRoute.Games -> LuluGamesAppV2 {
-                        route = MigrationRoute.Home
-                    }
-                    MigrationRoute.Settings -> LuluSettingsHomeScreen {
-                        route = MigrationRoute.Home
-                    }
+                    MigrationRoute.Performance -> PerformanceFeatureScreen(::popRoute)
+                    MigrationRoute.Reading -> LuluReadingScreen(::popRoute)
+                    MigrationRoute.Wishes -> StarWishMigratedScreen(::popRoute)
+                    MigrationRoute.Study -> PostgraduateExamApp(::popRoute)
+                    MigrationRoute.Games -> LuluGamesAppV2(::popRoute)
+                    MigrationRoute.Settings -> LuluSettingsHomeScreen(::popRoute)
                 }
             }
         }
