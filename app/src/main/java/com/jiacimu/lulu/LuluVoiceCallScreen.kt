@@ -1,7 +1,6 @@
 package com.jiacimu.lulu
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.SystemClock
 import android.speech.RecognizerIntent
@@ -36,12 +35,12 @@ import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-private val CallBackground = Color(0xFFF7F7F8)
-private val CallSurface = Color(0xFFFFFFFF)
+private val CallBackground = Color(0xFFFFFFFF)
+private val CallSurface = Color(0xFFFCFCFC)
 private val CallInk = Color(0xFF1D1D1F)
 private val CallMuted = Color(0xFF7A7A7E)
-private val CallLine = Color(0xFFE4E4E7)
-private val CallDark = Color(0xFF242426)
+private val CallLine = Color(0xFFE7E7E7)
+private val CallDark = Color(0xFF292929)
 private val CallDanger = Color(0xFFE74B4B)
 
 @Composable
@@ -66,13 +65,10 @@ fun LuluVoiceCallScreen(
     var modelExpanded by remember { mutableStateOf(false) }
     var startedAt by remember { mutableLongStateOf(0L) }
     var elapsedSeconds by remember { mutableLongStateOf(0L) }
-    var liveTranscript by remember { mutableStateOf("") }
 
     val tts = remember {
         TextToSpeech(context) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                // Prefer the device's Chinese voice. Users can change the actual voice in Android TTS settings.
-            }
+            if (status == TextToSpeech.SUCCESS) Unit
         }
     }
     DisposableEffect(Unit) {
@@ -102,13 +98,12 @@ fun LuluVoiceCallScreen(
             ?.trim()
             .orEmpty()
         if (spoken.isBlank()) return@rememberLauncherForActivityResult
-        liveTranscript = spoken
         MigratedDomainStores.chat.sendUserMessage(conversationId, spoken)
         if (activeArchive == null) return@rememberLauncherForActivityResult
 
         thinking = true
         scope.launch {
-            val recentHistory = buildCallHistory(messages, characterName)
+            val recentHistory = buildCallHistory(MigratedDomainStores.chat.messages(conversationId).value, characterName)
             LuluDeviceToolBridge.respond(
                 characterId = characterId,
                 history = recentHistory,
@@ -118,7 +113,6 @@ fun LuluVoiceCallScreen(
                 val text = reply.text.trim()
                 if (text.isNotBlank()) {
                     MigratedDomainStores.chat.appendCharacterMessage(conversationId, text)
-                    liveTranscript = text
                     if (speakerEnabled) {
                         tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "lulu-call-${System.nanoTime()}")
                     }
@@ -147,7 +141,7 @@ fun LuluVoiceCallScreen(
                     .fillMaxSize()
                     .statusBarsPadding()
                     .navigationBarsPadding()
-                    .padding(horizontal = 20.dp, vertical = 14.dp),
+                    .padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Row(
@@ -163,9 +157,9 @@ fun LuluVoiceCallScreen(
                     Spacer(Modifier.weight(1f))
                     Box {
                         TextButton(onClick = { modelExpanded = true }) {
-                            Icon(Icons.Outlined.Tune, null, modifier = Modifier.size(17.dp))
+                            Icon(Icons.Outlined.Tune, null, modifier = Modifier.size(17.dp), tint = CallInk)
                             Spacer(Modifier.width(5.dp))
-                            Text(activeLabel, maxLines = 1, fontSize = 12.sp)
+                            Text(activeLabel, maxLines = 1, fontSize = 12.sp, color = CallInk)
                         }
                         DropdownMenu(expanded = modelExpanded, onDismissRequest = { modelExpanded = false }) {
                             library.archives.forEach { archive ->
@@ -188,25 +182,25 @@ fun LuluVoiceCallScreen(
                     }
                 }
 
-                Spacer(Modifier.height(18.dp))
+                Spacer(Modifier.height(6.dp))
                 Surface(
-                    modifier = Modifier.size(112.dp),
+                    modifier = Modifier.size(92.dp),
                     shape = CircleShape,
                     color = CallSurface,
                     border = BorderStroke(1.dp, CallLine),
-                    shadowElevation = 4.dp,
+                    shadowElevation = 2.dp,
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             characterName.take(1).ifBlank { "露" },
                             color = CallInk,
-                            fontSize = 42.sp,
+                            fontSize = 34.sp,
                             fontWeight = FontWeight.Bold,
                         )
                     }
                 }
-                Spacer(Modifier.height(14.dp))
-                Text(characterName, color = CallInk, fontSize = 25.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(10.dp))
+                Text(characterName, color = CallInk, fontSize = 23.sp, fontWeight = FontWeight.SemiBold)
                 Text(
                     when {
                         !connected -> "等待接通"
@@ -218,23 +212,23 @@ fun LuluVoiceCallScreen(
                     fontSize = 13.sp,
                 )
 
-                Spacer(Modifier.height(22.dp))
+                Spacer(Modifier.height(12.dp))
                 Surface(
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     color = CallSurface,
-                    shape = RoundedCornerShape(28.dp),
+                    shape = RoundedCornerShape(24.dp),
                     border = BorderStroke(1.dp, CallLine),
                 ) {
                     if (!connected) {
                         Column(
-                            modifier = Modifier.fillMaxSize().padding(24.dp),
+                            modifier = Modifier.fillMaxSize().padding(20.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
                         ) {
-                            Text("给 $characterName 打电话", color = CallInk, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-                            Spacer(Modifier.height(8.dp))
+                            Text("给 $characterName 打电话", color = CallInk, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
+                            Spacer(Modifier.height(7.dp))
                             Text(
-                                "接通后点麦克风说话。每句话都会进入同一段聊天记录，文字和电话不会失忆。",
+                                "接通后点麦克风说话。电话内容会继续写入同一段聊天记录。",
                                 color = CallMuted,
                                 fontSize = 13.sp,
                                 lineHeight = 20.sp,
@@ -245,8 +239,8 @@ fun LuluVoiceCallScreen(
                         LazyColumn(
                             state = listState,
                             modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(18.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(9.dp),
                         ) {
                             items(callMessages, key = { it.id }) { message ->
                                 val mine = message.sender == LuluChatMessage.Sender.User
@@ -254,20 +248,16 @@ fun LuluVoiceCallScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalAlignment = if (mine) Alignment.End else Alignment.Start,
                                 ) {
-                                    Text(
-                                        if (mine) "你" else characterName,
-                                        color = CallMuted,
-                                        fontSize = 10.sp,
-                                    )
+                                    Text(if (mine) "你" else characterName, color = CallMuted, fontSize = 10.sp)
                                     Surface(
-                                        color = if (mine) Color(0xFFEEEEF0) else CallSurface,
+                                        color = if (mine) CallDark else Color(0xFFF4F4F4),
                                         shape = RoundedCornerShape(16.dp),
-                                        border = BorderStroke(1.dp, CallLine),
+                                        border = BorderStroke(1.dp, if (mine) CallDark else CallLine),
                                     ) {
                                         Text(
                                             message.content,
                                             modifier = Modifier.padding(horizontal = 13.dp, vertical = 9.dp),
-                                            color = CallInk,
+                                            color = if (mine) Color.White else CallInk,
                                             fontSize = 14.sp,
                                             lineHeight = 20.sp,
                                         )
@@ -275,28 +265,21 @@ fun LuluVoiceCallScreen(
                                 }
                             }
                             if (thinking) {
-                                item {
-                                    Text("$characterName 正在说话…", color = CallMuted, fontSize = 12.sp)
-                                }
+                                item { Text("$characterName 正在说话…", color = CallMuted, fontSize = 12.sp) }
                             }
                         }
                     }
                 }
 
-                Spacer(Modifier.height(18.dp))
+                Spacer(Modifier.height(12.dp))
                 if (!connected) {
                     FilledIconButton(
-                        onClick = {
-                            if (activeArchive != null) {
-                                connected = true
-                                liveTranscript = ""
-                            }
-                        },
+                        onClick = { if (activeArchive != null) connected = true },
                         enabled = activeArchive != null,
-                        modifier = Modifier.size(70.dp),
+                        modifier = Modifier.size(62.dp),
                         colors = IconButtonDefaults.filledIconButtonColors(containerColor = CallDark),
                     ) {
-                        Icon(Icons.Outlined.Call, "接通", tint = Color.White, modifier = Modifier.size(30.dp))
+                        Icon(Icons.Outlined.Call, "接通", tint = Color.White, modifier = Modifier.size(27.dp))
                     }
                 } else {
                     Row(
@@ -324,14 +307,14 @@ fun LuluVoiceCallScreen(
                                 })
                             },
                             enabled = !thinking,
-                            modifier = Modifier.size(72.dp),
+                            modifier = Modifier.size(64.dp),
                             colors = IconButtonDefaults.filledIconButtonColors(containerColor = CallDark),
                         ) {
                             Icon(
                                 if (listening) Icons.Outlined.Hearing else Icons.Outlined.Mic,
                                 if (listening) "正在听" else "说话",
                                 tint = Color.White,
-                                modifier = Modifier.size(31.dp),
+                                modifier = Modifier.size(28.dp),
                             )
                         }
                         CallControl(
@@ -347,7 +330,7 @@ fun LuluVoiceCallScreen(
                         )
                     }
                 }
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(10.dp))
             }
         }
     }
@@ -364,15 +347,15 @@ private fun CallControl(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         FilledTonalIconButton(
             onClick = onClick,
-            modifier = Modifier.size(54.dp),
+            modifier = Modifier.size(50.dp),
             colors = IconButtonDefaults.filledTonalIconButtonColors(
                 containerColor = if (danger) CallDanger else if (active) Color(0xFFE5E5E7) else Color(0xFFF1F1F3),
                 contentColor = if (danger) Color.White else CallInk,
             ),
         ) {
-            Icon(icon, label, modifier = Modifier.size(24.dp))
+            Icon(icon, label, modifier = Modifier.size(22.dp))
         }
-        Spacer(Modifier.height(5.dp))
+        Spacer(Modifier.height(4.dp))
         Text(label, color = CallMuted, fontSize = 10.sp)
     }
 }
