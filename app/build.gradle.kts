@@ -15,6 +15,18 @@ if (encodedDebugKeystore.exists() && !fixedDebugKeystore.exists()) {
     )
 }
 
+// Keep the uploaded launcher artwork as data in git, then decode it into a real PNG
+// before Android resource processing. This avoids vector redraws changing the image.
+val encodedLauncherIcon = project.file("src/main/icon/lulu_exact_icon.png.b64")
+val generatedLauncherRes = layout.buildDirectory.dir("generated/luluLauncherRes").get().asFile
+val generatedLauncherIcon = generatedLauncherRes.resolve("drawable/lulu_exact_icon.png")
+if (encodedLauncherIcon.exists()) {
+    generatedLauncherIcon.parentFile.mkdirs()
+    generatedLauncherIcon.writeBytes(
+        Base64.getDecoder().decode(encodedLauncherIcon.readText().trim()),
+    )
+}
+
 android {
     namespace = "com.jiacimu.lulu"
     compileSdk = 35
@@ -26,6 +38,10 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
+    }
+
+    sourceSets {
+        getByName("main").res.srcDir(generatedLauncherRes)
     }
 
     signingConfigs {
