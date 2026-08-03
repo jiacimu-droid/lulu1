@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`fce77de70f7d6b8f9e001fdaebea88721a712bd9`
+- 基准提交：`e2fa4683ccc3cce65a12e05061bfc5c1099e634c`
 - 分支：`main`
-- 已索引文件：92
-- 已索引代码/文本行：19823
-- 已发现符号：374
+- 已索引文件：93
+- 已索引代码/文本行：20121
+- 已发现符号：375
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -30,6 +30,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 447 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 86 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 298 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 423 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 554 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 125 | 28 |

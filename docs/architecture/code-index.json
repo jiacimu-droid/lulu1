@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T05:37:32.920323+00:00",
-  "commit": "fce77de70f7d6b8f9e001fdaebea88721a712bd9",
+  "generatedAt": "2026-08-03T05:39:57.035284+00:00",
+  "commit": "e2fa4683ccc3cce65a12e05061bfc5c1099e634c",
   "branch": "main",
-  "sourceFingerprint": "77502e37691af8b465ddd0a7aa664a47e220c9029c35b68a1d936f2c799401e5",
+  "sourceFingerprint": "5bd266e90838594619f18c50ba486e1afb7b49828a5f844f6a7e841c62751098",
   "summary": {
-    "files": 92,
-    "lines": 19823,
-    "symbols": 374
+    "files": 93,
+    "lines": 20121,
+    "symbols": 375
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -298,6 +298,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt",
         "line": 42
+      }
+    ],
+    "OptimizedPerformanceFeatureScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
+        "line": 38
       }
     ],
     "QqStyleChatDetailScreen": [
@@ -2466,6 +2472,17 @@
         {
           "name": "PerformanceFeatureScreen",
           "line": 42
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
+      "lines": 298,
+      "sha256": "dfbede4bbf0e4510bd6e335df6f0e565de66142472a8ca18df0e192b00839fc2",
+      "symbols": [
+        {
+          "name": "OptimizedPerformanceFeatureScreen",
+          "line": 38
         }
       ]
     },
