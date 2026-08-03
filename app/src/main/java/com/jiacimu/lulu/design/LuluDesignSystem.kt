@@ -11,21 +11,21 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/** Shared visual vocabulary for the warm-paper rebuild. */
+/** Shared monochrome visual vocabulary used by the desktop and app pages. */
 object LuluColors {
-    val Paper = Color(0xFFFFFCF5)
-    val Card = Color(0xFFFFFBF3)
-    val CardStrong = Color(0xFFFFF4DD)
-    val Wheat = Color(0xFFF2CF70)
-    val WheatSoft = Color(0xFFFFE8A8)
-    val Ink = Color(0xFF302C2B)
-    val Muted = Color(0xFF747887)
-    val Border = Color(0xFFE7DDC8)
-    val BlueGray = Color(0xFF6F8090)
-    val SoftBlue = Color(0xFFE7EFF2)
-    val SoftRose = Color(0xFFFFE8E2)
-    val Success = Color(0xFF5F7659)
-    val Danger = Color(0xFF9B4A45)
+    val Paper = Color(0xFFFFFFFF)
+    val Card = Color(0xFFFCFCFC)
+    val CardStrong = Color(0xFFF4F4F4)
+    val Wheat = Color(0xFF292929)
+    val WheatSoft = Color(0xFFF4F4F4)
+    val Ink = Color(0xFF1D1D1F)
+    val Muted = Color(0xFF7A7A7E)
+    val Border = Color(0xFFE7E7E7)
+    val BlueGray = Color(0xFF5E5E63)
+    val SoftBlue = Color(0xFFF2F2F3)
+    val SoftRose = Color(0xFFF5F5F5)
+    val Success = Color(0xFF4C4C50)
+    val Danger = Color(0xFFB43D3D)
 }
 
 object LuluSpacing {
@@ -73,7 +73,7 @@ val LuluTypography = Typography(
 
 val LuluLightColorScheme: ColorScheme = lightColorScheme(
     primary = LuluColors.Wheat,
-    onPrimary = LuluColors.Ink,
+    onPrimary = Color.White,
     primaryContainer = LuluColors.WheatSoft,
     onPrimaryContainer = LuluColors.Ink,
     secondary = LuluColors.BlueGray,
