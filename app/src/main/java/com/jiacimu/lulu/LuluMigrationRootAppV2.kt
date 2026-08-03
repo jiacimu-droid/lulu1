@@ -34,7 +34,6 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
         mutableStateOf(initialConversationId?.takeIf(String::isNotBlank) ?: "lulu-main")
     }
     var selectedCharacterId by rememberSaveable { mutableStateOf("lulu") }
-    val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val preferences by LuluAppPreferencesStore.state.collectAsState()
     val density = LocalDensity.current
     val preferredDensity = remember(density, preferences.largerText) {
@@ -44,11 +43,14 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
         )
     }
 
-    fun selectConversationCharacter() {
-        selectedCharacterId = conversations
-            .firstOrNull { it.id == selectedConversationId }
+    fun characterIdForConversation(conversationId: String): String =
+        MigratedDomainStores.chat.conversations.value
+            .firstOrNull { conversation -> conversation.id == conversationId }
             ?.characterId
             ?: "lulu"
+
+    fun selectConversationCharacter() {
+        selectedCharacterId = characterIdForConversation(selectedConversationId)
     }
 
     fun pushRoute(target: MigrationRoute) {
@@ -67,8 +69,8 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
         popRoute()
     }
 
-    LaunchedEffect(initialConversationId, conversations) {
-        if (!initialConversationId.isNullOrBlank() && conversations.any { it.id == initialConversationId }) {
+    LaunchedEffect(initialConversationId) {
+        if (!initialConversationId.isNullOrBlank()) {
             selectedConversationId = initialConversationId
             selectConversationCharacter()
             routeStack = listOf(MigrationRoute.Home.name, MigrationRoute.Chat.name, MigrationRoute.ChatDetail.name)
@@ -89,7 +91,7 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                         },
                         onOpenConversation = { conversationId ->
                             selectedConversationId = conversationId
-                            selectConversationCharacter()
+                            selectedCharacterId = characterIdForConversation(conversationId)
                             pushRoute(MigrationRoute.ChatDetail)
                         },
                     )
@@ -97,7 +99,7 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                         onBack = ::popRoute,
                         onOpenConversation = { conversationId ->
                             selectedConversationId = conversationId
-                            selectedCharacterId = conversations.firstOrNull { it.id == conversationId }?.characterId ?: "lulu"
+                            selectedCharacterId = characterIdForConversation(conversationId)
                             pushRoute(MigrationRoute.ChatDetail)
                         },
                         onCharacterSettings = { characterId ->
@@ -115,7 +117,7 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                         onBack = ::popRoute,
                         onOpenBranch = { branchId ->
                             selectedConversationId = branchId
-                            selectedCharacterId = conversations.firstOrNull { it.id == branchId }?.characterId ?: selectedCharacterId
+                            selectedCharacterId = characterIdForConversation(branchId)
                         },
                         onCharacterSettings = {
                             selectConversationCharacter()
