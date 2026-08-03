@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.data.MigratedDomainStores
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -25,8 +26,15 @@ fun PostgraduateExamApp(onBack: () -> Unit) {
     }
 
     when (val current = route) {
-        StudyRoute.Focus -> StudyFocusCompleteScreen(state, store) {
-            route = StudyRoute.Section(StudySection.Today)
+        StudyRoute.Focus -> {
+            val character = MigratedDomainStores.characters.get(state.profile.selectedCharacterId)
+            ensureStudyFocusConversation(
+                characterId = state.profile.selectedCharacterId,
+                displayName = character.displayName,
+            )
+            StudyFocusCompleteScreen(state, store) {
+                route = StudyRoute.Section(StudySection.Today)
+            }
         }
         is StudyRoute.Section -> {
             Scaffold(
