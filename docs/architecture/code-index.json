@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T07:41:17.466383+00:00",
-  "commit": "64030ac496b0c5c32ad245f008790ec33fbfb7f6",
+  "generatedAt": "2026-08-03T07:53:30.076257+00:00",
+  "commit": "46ea9d2048d57129e6bad5248a723e23fa8bd33f",
   "branch": "main",
-  "sourceFingerprint": "725f26a9dcca7aabb7037ed22adc00bd35f54da3d30d3ff86610235764d4e0c1",
+  "sourceFingerprint": "e378434025d8f3de06bf55d45af4eca497970ecb292a92e1ca57a0acbeec8441",
   "summary": {
-    "files": 94,
-    "lines": 20244,
-    "symbols": 375
+    "files": 95,
+    "lines": 20633,
+    "symbols": 379
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -44,6 +44,34 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
         "line": 51
+      }
+    ],
+    "LuluVoiceSettingsScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
+        "line": 32
+      }
+    ],
+    "LuluMemorySettingsScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
+        "line": 102
+      }
+    ],
+    "save": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
+        "line": 115
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
+        "line": 159
+      }
+    ],
+    "LuluImageSettingsScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
+        "line": 201
       }
     ],
     "LuluCapabilitiesScreen": [
@@ -103,7 +131,7 @@
     "LuluSettingsHomeScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt",
-        "line": 33
+        "line": 30
       }
     ],
     "LuluSettingsScreen": [
@@ -1258,12 +1286,6 @@
         "line": 133
       }
     ],
-    "save": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 159
-      }
-    ],
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -2271,6 +2293,29 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
+      "lines": 358,
+      "sha256": "2a285f2e0a668dccd4665f3142dc86465f582f1e9370ef5f8696f4a81694e852",
+      "symbols": [
+        {
+          "name": "LuluVoiceSettingsScreen",
+          "line": 32
+        },
+        {
+          "name": "LuluMemorySettingsScreen",
+          "line": 102
+        },
+        {
+          "name": "save",
+          "line": 115
+        },
+        {
+          "name": "LuluImageSettingsScreen",
+          "line": 201
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
       "lines": 347,
       "sha256": "dc1f7536069338f364e4da086bc9b50f1badb0c7b7dc9174e75ebefe98bd0019",
@@ -2322,12 +2367,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt",
-      "lines": 128,
-      "sha256": "bd466136aa59097ab6be8f7651902d69f5c625f7b80ec24d83bfa8d3081de942",
+      "lines": 159,
+      "sha256": "99c207aed7b63c9d76ec5204dbaa1923b790f07b4a93ea76bf04347f703f8090",
       "symbols": [
         {
           "name": "LuluSettingsHomeScreen",
-          "line": 33
+          "line": 30
         }
       ]
     },
