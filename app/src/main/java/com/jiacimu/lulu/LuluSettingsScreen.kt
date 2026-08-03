@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -36,6 +37,9 @@ private enum class ApiSettingsPage { Home, Editor, Archives }
 @Composable
 fun LuluSettingsScreen(onBack: () -> Unit) {
     var page by rememberSaveable { mutableStateOf(ApiSettingsPage.Home) }
+    BackHandler(enabled = page != ApiSettingsPage.Home) {
+        page = ApiSettingsPage.Home
+    }
     when (page) {
         ApiSettingsPage.Home -> ApiSettingsHome(onBack = onBack, onOpen = { page = it })
         ApiSettingsPage.Editor -> ApiConfigurationEditor(onBack = { page = ApiSettingsPage.Home })
@@ -67,7 +71,7 @@ private fun ApiSettingsHome(
             item {
                 ApiNavigationRow(
                     icon = Icons.Outlined.Edit,
-                    title = "编辑设置",
+                    title = "模型配置",
                     subtitle = "配置站点、API 地址、密钥并拉取模型",
                     onClick = { onOpen(ApiSettingsPage.Editor) },
                 )
@@ -162,7 +166,7 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
         containerColor = SettingsPaper,
         topBar = {
             TopAppBar(
-                title = { Text("编辑设置", fontWeight = FontWeight.SemiBold) },
+                title = { Text("模型配置", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = SettingsPaper),
             )
@@ -186,33 +190,10 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                             Text("新建")
                         }
                     }
-                    OutlinedTextField(
-                        value = configurationName,
-                        onValueChange = { configurationName = it },
-                        label = { Text("配置名称") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                    )
-                    OutlinedTextField(
-                        value = baseUrl,
-                        onValueChange = { baseUrl = it },
-                        label = { Text("API 地址") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                    )
-                    OutlinedTextField(
-                        value = apiKey,
-                        onValueChange = { apiKey = it },
-                        label = { Text("API 密钥") },
-                        leadingIcon = { Icon(Icons.Outlined.Key, null) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                    )
-                    Button(
-                        onClick = { saveCurrent() },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = SettingsAccent, contentColor = SettingsInk),
-                    ) {
+                    OutlinedTextField(value = configurationName, onValueChange = { configurationName = it }, label = { Text("配置名称") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                    OutlinedTextField(value = baseUrl, onValueChange = { baseUrl = it }, label = { Text("API 地址") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                    OutlinedTextField(value = apiKey, onValueChange = { apiKey = it }, label = { Text("API 密钥") }, leadingIcon = { Icon(Icons.Outlined.Key, null) }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                    Button(onClick = { saveCurrent() }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = SettingsAccent, contentColor = SettingsInk)) {
                         Icon(Icons.Outlined.Save, null)
                         Spacer(Modifier.width(7.dp))
                         Text("保存配置", fontWeight = FontWeight.Bold)
@@ -242,14 +223,12 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                         enabled = !loadingModels && baseUrl.isNotBlank() && apiKey.isNotBlank(),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        if (loadingModels) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
-                        else Icon(Icons.Outlined.CloudDownload, null)
+                        if (loadingModels) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) else Icon(Icons.Outlined.CloudDownload, null)
                         Spacer(Modifier.width(7.dp))
                         Text(if (loadingModels) "正在获取模型…" else "获取模型")
                     }
                 }
             }
-
             if (models.isNotEmpty()) {
                 item {
                     SettingsCardBox {
@@ -259,14 +238,8 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                                 Text("已选择 ${selectedModels.size} 个", color = SettingsMuted, fontSize = 12.sp)
                             }
                             TextButton(onClick = {
-                                selectedModels = if (selectedModels.size == visibleModels.size && visibleModels.isNotEmpty()) {
-                                    selectedModels - visibleModels.toSet()
-                                } else {
-                                    selectedModels + visibleModels.toSet()
-                                }
-                            }) {
-                                Text(if (visibleModels.isNotEmpty() && visibleModels.all { it in selectedModels }) "取消当前结果" else "全选当前结果")
-                            }
+                                selectedModels = if (selectedModels.size == visibleModels.size && visibleModels.isNotEmpty()) selectedModels - visibleModels.toSet() else selectedModels + visibleModels.toSet()
+                            }) { Text(if (visibleModels.isNotEmpty() && visibleModels.all { it in selectedModels }) "取消当前结果" else "全选当前结果") }
                         }
                         OutlinedTextField(
                             value = modelQuery,
@@ -274,44 +247,22 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             leadingIcon = { Icon(Icons.Outlined.Search, null) },
-                            trailingIcon = {
-                                if (modelQuery.isNotBlank()) {
-                                    IconButton(onClick = { modelQuery = "" }) { Icon(Icons.Outlined.Close, "清空搜索") }
-                                }
-                            },
+                            trailingIcon = { if (modelQuery.isNotBlank()) IconButton(onClick = { modelQuery = "" }) { Icon(Icons.Outlined.Close, "清空搜索") } },
                             label = { Text("搜索模型") },
                             placeholder = { Text("输入模型名称的一部分") },
                         )
-                        Surface(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(18.dp),
-                            color = Color.White.copy(alpha = 0.7f),
-                            border = BorderStroke(1.dp, SettingsBorder),
-                        ) {
+                        Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(18.dp), color = Color.White.copy(alpha = 0.7f), border = BorderStroke(1.dp, SettingsBorder)) {
                             if (visibleModels.isEmpty()) {
                                 Text("没有匹配的模型", modifier = Modifier.padding(16.dp), color = SettingsMuted)
                             } else {
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxWidth().heightIn(max = 320.dp),
-                                    contentPadding = PaddingValues(vertical = 5.dp),
-                                ) {
+                                LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 320.dp), contentPadding = PaddingValues(vertical = 5.dp)) {
                                     items(visibleModels, key = { it }) { model ->
                                         val checked = model in selectedModels
                                         Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clickable {
-                                                    selectedModels = if (checked) selectedModels - model else selectedModels + model
-                                                }
-                                                .padding(horizontal = 12.dp, vertical = 7.dp),
+                                            modifier = Modifier.fillMaxWidth().clickable { selectedModels = if (checked) selectedModels - model else selectedModels + model }.padding(horizontal = 12.dp, vertical = 7.dp),
                                             verticalAlignment = Alignment.CenterVertically,
                                         ) {
-                                            Checkbox(
-                                                checked = checked,
-                                                onCheckedChange = {
-                                                    selectedModels = if (checked) selectedModels - model else selectedModels + model
-                                                },
-                                            )
+                                            Checkbox(checked = checked, onCheckedChange = { selectedModels = if (checked) selectedModels - model else selectedModels + model })
                                             Spacer(Modifier.width(8.dp))
                                             Text(model, modifier = Modifier.weight(1f))
                                         }
@@ -322,25 +273,15 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                         Button(
                             onClick = {
                                 val configuration = saveCurrent() ?: return@Button
-                                val existing = library.archives
-                                    .filter { it.configurationId == configuration.id }
-                                    .mapTo(mutableSetOf()) { it.model }
+                                val existing = library.archives.filter { it.configurationId == configuration.id }.mapTo(mutableSetOf()) { it.model }
                                 val toAdd = selectedModels.filterNot { it in existing }
-                                runCatching {
-                                    toAdd.forEach { model ->
-                                        store.addArchive(configurationId = configuration.id, model = model)
+                                runCatching { toAdd.forEach { model -> store.addArchive(configurationId = configuration.id, model = model) } }
+                                    .onSuccess {
+                                        val skipped = selectedModels.size - toAdd.size
+                                        notice = buildString { append("已加入 ${toAdd.size} 个模型存档"); if (skipped > 0) append("，跳过 $skipped 个重复项") }
+                                        noticeIsError = false
                                     }
-                                }.onSuccess {
-                                    val skipped = selectedModels.size - toAdd.size
-                                    notice = buildString {
-                                        append("已加入 ${toAdd.size} 个模型存档")
-                                        if (skipped > 0) append("，跳过 $skipped 个重复项")
-                                    }
-                                    noticeIsError = false
-                                }.onFailure { error ->
-                                    notice = error.message ?: "批量加入存档失败"
-                                    noticeIsError = true
-                                }
+                                    .onFailure { error -> notice = error.message ?: "批量加入存档失败"; noticeIsError = true }
                             },
                             enabled = selectedModels.isNotEmpty(),
                             modifier = Modifier.fillMaxWidth(),
@@ -353,7 +294,6 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                     }
                 }
             }
-
             if (library.configurations.isNotEmpty()) {
                 item { Text("已保存配置", color = SettingsInk, fontWeight = FontWeight.Bold, fontSize = 17.sp) }
                 items(library.configurations, key = { it.id }) { configuration ->
@@ -361,20 +301,13 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                         configuration = configuration,
                         selected = configuration.id == editingId,
                         onClick = { loadConfiguration(configuration) },
-                        onDelete = {
-                            store.deleteConfiguration(configuration.id)
-                            if (editingId == configuration.id) clearEditor()
-                        },
+                        onDelete = { store.deleteConfiguration(configuration.id); if (editingId == configuration.id) clearEditor() },
                     )
                 }
             }
-
             if (notice.isNotBlank()) {
                 item {
-                    Surface(
-                        color = if (noticeIsError) Color(0xFFF6E7E4) else Color(0xFFE7F0ED),
-                        shape = RoundedCornerShape(14.dp),
-                    ) {
+                    Surface(color = if (noticeIsError) Color(0xFFF6E7E4) else Color(0xFFE7F0ED), shape = RoundedCornerShape(14.dp)) {
                         Text(notice, modifier = Modifier.fillMaxWidth().padding(12.dp), color = SettingsInk)
                     }
                 }
@@ -398,16 +331,12 @@ private fun ModelArchiveScreen(onBack: () -> Unit) {
             )
         },
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             if (library.archives.isEmpty()) {
                 item {
                     SettingsCardBox {
                         Text("还没有模型存档", fontWeight = FontWeight.Bold)
-                        Text("先到“编辑设置”拉取模型，再批量加入存档。", color = SettingsMuted)
+                        Text("先到“模型配置”拉取模型，再批量加入存档。", color = SettingsMuted)
                     }
                 }
             } else {
@@ -426,22 +355,10 @@ private fun ModelArchiveScreen(onBack: () -> Unit) {
 }
 
 @Composable
-private fun ApiNavigationRow(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit,
-) {
-    Surface(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        shape = RoundedCornerShape(18.dp),
-        color = SettingsCard,
-        border = BorderStroke(1.dp, SettingsBorder),
-    ) {
+private fun ApiNavigationRow(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
+    Surface(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick), shape = RoundedCornerShape(18.dp), color = SettingsCard, border = BorderStroke(1.dp, SettingsBorder)) {
         Row(Modifier.fillMaxWidth().padding(15.dp), verticalAlignment = Alignment.CenterVertically) {
-            Surface(shape = RoundedCornerShape(12.dp), color = SettingsAccent) {
-                Icon(icon, null, modifier = Modifier.padding(9.dp).size(22.dp), tint = SettingsAccentStrong)
-            }
+            Surface(shape = RoundedCornerShape(12.dp), color = SettingsAccent) { Icon(icon, null, modifier = Modifier.padding(9.dp).size(22.dp), tint = SettingsAccentStrong) }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(title, fontWeight = FontWeight.Bold, color = SettingsInk)
@@ -453,22 +370,14 @@ private fun ApiNavigationRow(
 }
 
 @Composable
-private fun SavedConfigurationRow(
-    configuration: ApiConfiguration,
-    selected: Boolean,
-    onClick: () -> Unit,
-    onDelete: () -> Unit,
-) {
+private fun SavedConfigurationRow(configuration: ApiConfiguration, selected: Boolean, onClick: () -> Unit, onDelete: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
         color = if (selected) SettingsAccent else SettingsCard,
         border = BorderStroke(1.dp, if (selected) SettingsAccentStrong.copy(alpha = 0.45f) else SettingsBorder),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(start = 15.dp, top = 12.dp, bottom = 12.dp, end = 5.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        Row(modifier = Modifier.fillMaxWidth().padding(start = 15.dp, top = 12.dp, bottom = 12.dp, end = 5.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Outlined.Api, null, tint = SettingsAccentStrong)
             Spacer(Modifier.width(11.dp))
             Column(Modifier.weight(1f)) {
@@ -481,23 +390,14 @@ private fun SavedConfigurationRow(
 }
 
 @Composable
-private fun ModelArchiveRow(
-    archive: ModelArchive,
-    label: String,
-    selected: Boolean,
-    onSelect: () -> Unit,
-    onDelete: () -> Unit,
-) {
+private fun ModelArchiveRow(archive: ModelArchive, label: String, selected: Boolean, onSelect: () -> Unit, onDelete: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onSelect),
         shape = RoundedCornerShape(18.dp),
         color = if (selected) SettingsAccent else SettingsCard,
         border = BorderStroke(1.dp, if (selected) SettingsAccentStrong.copy(alpha = 0.55f) else SettingsBorder),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(start = 12.dp, top = 10.dp, bottom = 10.dp, end = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        Row(modifier = Modifier.fillMaxWidth().padding(start = 12.dp, top = 10.dp, bottom = 10.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             RadioButton(selected = selected, onClick = onSelect)
             Spacer(Modifier.width(5.dp))
             Column(Modifier.weight(1f)) {
@@ -511,16 +411,7 @@ private fun ModelArchiveRow(
 
 @Composable
 private fun SettingsCardBox(content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = SettingsCard),
-        border = BorderStroke(1.dp, SettingsBorder),
-        shape = RoundedCornerShape(22.dp),
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            content = content,
-        )
+    Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = SettingsCard), border = BorderStroke(1.dp, SettingsBorder), shape = RoundedCornerShape(22.dp)) {
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
     }
 }
