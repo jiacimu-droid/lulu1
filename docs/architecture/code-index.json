@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T06:23:51.462713+00:00",
-  "commit": "ba584ac45f80d5b604d56db6545cf00eaf045aa7",
+  "generatedAt": "2026-08-03T06:24:53.626885+00:00",
+  "commit": "fc489fcce3c100cb26794c4ce7357fdc41c9734c",
   "branch": "main",
-  "sourceFingerprint": "3a55a9137fb653bd48a5dd4c75601228803d2b32e91411997e75d8b9670f19c5",
+  "sourceFingerprint": "af43de086abeafe819a6094cd86a91c095a5200dc183813d21eb204963a39665",
   "summary": {
     "files": 94,
     "lines": 20175,
@@ -3214,7 +3214,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
       "lines": 92,
-      "sha256": "fbd48bc9a029207590f6cf8ab51cae8c2ed9f4b9d2dd9df1208e1b60a642f4e8",
+      "sha256": "6797aafec8d394569bb66cac3750eadc49e820f4e549ab95b2353f6dbf0e5df3",
       "symbols": [
         {
           "name": "LuluColors",
