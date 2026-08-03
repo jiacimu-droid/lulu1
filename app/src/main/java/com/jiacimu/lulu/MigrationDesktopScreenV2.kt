@@ -177,10 +177,32 @@ internal fun MigrationHomeV2(
                 }
             }
 
+            Spacer(Modifier.height(14.dp))
+
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 22.dp),
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                DesktopInfoCard(
+                    modifier = Modifier.weight(1f),
+                    eyebrow = "TODAY",
+                    title = today.format(DateTimeFormatter.ofPattern("MM / dd")),
+                    subtitle = "今天也慢慢来",
+                    icon = Icons.Outlined.CalendarToday,
+                )
+                DesktopInfoCard(
+                    modifier = Modifier.weight(1f),
+                    eyebrow = "COMPANION",
+                    title = currentCharacter.displayName,
+                    subtitle = "正在这里陪着你",
+                    icon = Icons.Outlined.FavoriteBorder,
+                )
+            }
+
+            Spacer(Modifier.weight(1f))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Surface(
@@ -195,7 +217,7 @@ internal fun MigrationHomeV2(
                 ) {}
                 Spacer(Modifier.width(9.dp))
                 Text(
-                    text = "LULU",
+                    text = "APPS",
                     color = DesktopMuted,
                     fontSize = 9.sp,
                     fontWeight = FontWeight.Medium,
@@ -203,12 +225,11 @@ internal fun MigrationHomeV2(
                 )
             }
 
-            // Compared with the previous layout, the application grid begins one full row lower.
-            Spacer(Modifier.height(94.dp))
+            Spacer(Modifier.height(14.dp))
 
             DesktopLauncherGrid(
                 slots = slots,
-                modifier = Modifier.fillMaxWidth().height(388.dp),
+                modifier = Modifier.fillMaxWidth().height(356.dp),
                 onMove = { from, to ->
                     if (from != to) {
                         val updated = slots.toMutableList()
@@ -221,8 +242,62 @@ internal fun MigrationHomeV2(
                 },
                 onOpen = onOpen,
             )
+        }
+    }
+}
 
-            Spacer(Modifier.weight(1f))
+@Composable
+private fun DesktopInfoCard(
+    modifier: Modifier,
+    eyebrow: String,
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+) {
+    Surface(
+        modifier = modifier.height(72.dp),
+        color = DesktopCard,
+        shape = RoundedCornerShape(18.dp),
+        border = BorderStroke(1.dp, DesktopLine),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 13.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Surface(
+                modifier = Modifier.size(34.dp),
+                shape = RoundedCornerShape(11.dp),
+                color = DesktopSoft,
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(icon, null, tint = DesktopIcon, modifier = Modifier.size(18.dp))
+                }
+            }
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = eyebrow,
+                    color = DesktopMuted,
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 1.1.sp,
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = title,
+                    color = DesktopInk,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                )
+                Text(
+                    text = subtitle,
+                    color = DesktopMuted,
+                    fontSize = 9.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }
@@ -236,7 +311,7 @@ private fun DesktopLauncherGrid(
 ) {
     BoxWithConstraints(modifier) {
         val cellWidth = maxWidth / 4
-        val cellHeight = 97.dp
+        val cellHeight = 89.dp
         slots.forEachIndexed { index, launcherId ->
             val launcher = DesktopV2Launchers.firstOrNull { it.id == launcherId } ?: return@forEachIndexed
             val column = index % 4
@@ -298,11 +373,11 @@ private fun DesktopV2LauncherItem(
         verticalArrangement = Arrangement.Top,
     ) {
         Surface(
-            shape = RoundedCornerShape(23.dp),
+            shape = RoundedCornerShape(20.dp),
             color = DesktopIconSurface,
             border = BorderStroke(1.dp, DesktopLine),
             shadowElevation = 1.dp,
-            modifier = Modifier.size(68.dp),
+            modifier = Modifier.size(61.dp),
             onClick = onClick,
         ) {
             Box(contentAlignment = Alignment.Center) {
@@ -310,15 +385,15 @@ private fun DesktopV2LauncherItem(
                     imageVector = launcher.icon,
                     contentDescription = launcher.title,
                     tint = DesktopIcon,
-                    modifier = Modifier.size(30.dp),
+                    modifier = Modifier.size(27.dp),
                 )
             }
         }
-        Spacer(Modifier.height(7.dp))
+        Spacer(Modifier.height(6.dp))
         Text(
             text = launcher.title,
             color = DesktopInk,
-            fontSize = 11.5.sp,
+            fontSize = 11.sp,
             fontWeight = FontWeight.Medium,
             maxLines = 1,
         )
