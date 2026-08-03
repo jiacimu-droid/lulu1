@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T07:53:30.076257+00:00",
-  "commit": "46ea9d2048d57129e6bad5248a723e23fa8bd33f",
+  "generatedAt": "2026-08-03T08:27:51.138191+00:00",
+  "commit": "9b95956b77c2aca64be57018a52dca4fd2d577dc",
   "branch": "main",
-  "sourceFingerprint": "e378434025d8f3de06bf55d45af4eca497970ecb292a92e1ca57a0acbeec8441",
+  "sourceFingerprint": "b3e803ed2c4db3181d5cad8a4937b5a5ac1020de4629ed070d064f308bccff7c",
   "summary": {
     "files": 95,
-    "lines": 20633,
+    "lines": 20676,
     "symbols": 379
   },
   "symbolIndex": {
@@ -2490,8 +2490,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 387,
-      "sha256": "2aa5f6cdb2d33e5239f1dd25978063a8c911c59d26a81f727f805effea22b889",
+      "lines": 430,
+      "sha256": "0366b473e4558a0161dbd29cebce6102d47863f6ff138373a8e7d48855eeb03a",
       "symbols": []
     },
     {
