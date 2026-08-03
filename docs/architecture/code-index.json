@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T06:24:53.626885+00:00",
-  "commit": "fc489fcce3c100cb26794c4ce7357fdc41c9734c",
+  "generatedAt": "2026-08-03T06:30:03.945905+00:00",
+  "commit": "289e2c9d898f6055b3f055dc2b603478a1b91612",
   "branch": "main",
-  "sourceFingerprint": "af43de086abeafe819a6094cd86a91c095a5200dc183813d21eb204963a39665",
+  "sourceFingerprint": "9a003f86a4b8493381e0ed3053d0f5cddaf6a4559bd01462a3556cdde328dee3",
   "summary": {
-    "files": 94,
-    "lines": 20175,
+    "files": 95,
+    "lines": 20179,
     "symbols": 375
   },
   "symbolIndex": {
@@ -2245,6 +2245,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/ChatV2InterpolationCompat.kt",
       "lines": 5,
       "sha256": "69b79b686b2bfee14ba83ac9945c8717dab10858d782f2bdac68f8f51e1b7f49",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ComposeAliases.kt",
+      "lines": 4,
+      "sha256": "14715d2ce88cd71be7c655409125b8f25d0f895e049b74c116b9f8fdbc91f9f3",
       "symbols": []
     },
     {
