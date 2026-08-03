@@ -50,14 +50,14 @@ private val DesktopV2Launchers = listOf(
 )
 
 private val DesktopPaper = Color(0xFFFFFFFF)
-private val DesktopWarmHint = Color(0xFFFFFEF9)
-private val DesktopWarmIcon = Color(0xFFFFFDF5)
-private val DesktopCard = Color(0xFFFFFFFF)
-private val DesktopLine = Color(0xFFF2EFE8)
-private val DesktopAccent = Color(0xFFF4E8B8)
-private val DesktopInk = Color(0xFF202020)
-private val DesktopMuted = Color(0xFF85827C)
-private val DesktopIcon = Color(0xFF303030)
+private val DesktopSoft = Color(0xFFF7F7F7)
+private val DesktopIconSurface = Color(0xFFF4F4F4)
+private val DesktopCard = Color(0xFFFCFCFC)
+private val DesktopLine = Color(0xFFE7E7E7)
+private val DesktopAccent = Color(0xFF292929)
+private val DesktopInk = Color(0xFF1D1D1F)
+private val DesktopMuted = Color(0xFF7A7A7E)
+private val DesktopIcon = Color(0xFF303033)
 
 @Composable
 internal fun MigrationHomeV2(
@@ -103,7 +103,7 @@ internal fun MigrationHomeV2(
                         text = dateText,
                         color = DesktopMuted,
                         fontSize = 12.sp,
-                        letterSpacing = 0.2.sp,
+                        letterSpacing = 0.4.sp,
                     )
                     Spacer(Modifier.height(5.dp))
                     Text(
@@ -126,7 +126,7 @@ internal fun MigrationHomeV2(
                 color = DesktopCard,
                 shape = RoundedCornerShape(22.dp),
                 border = BorderStroke(1.dp, DesktopLine),
-                shadowElevation = 2.dp,
+                shadowElevation = 1.dp,
                 onClick = {
                     recent?.let { onOpenConversation(it.id) } ?: onOpen(MigrationRoute.Chat)
                 },
@@ -138,7 +138,7 @@ internal fun MigrationHomeV2(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Surface(
-                        modifier = Modifier.width(4.dp).height(42.dp),
+                        modifier = Modifier.width(3.dp).height(42.dp),
                         color = DesktopAccent,
                         shape = RoundedCornerShape(99.dp),
                     ) {}
@@ -154,6 +154,7 @@ internal fun MigrationHomeV2(
                             color = DesktopMuted,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Medium,
+                            letterSpacing = 0.5.sp,
                         )
                         Spacer(Modifier.height(2.dp))
                         Text(
@@ -176,7 +177,34 @@ internal fun MigrationHomeV2(
                 }
             }
 
-            Spacer(Modifier.height(26.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 22.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Surface(
+                    modifier = Modifier.size(5.dp),
+                    shape = CircleShape,
+                    color = DesktopAccent,
+                ) {}
+                Spacer(Modifier.width(9.dp))
+                Surface(
+                    modifier = Modifier.weight(1f).height(1.dp),
+                    color = DesktopLine,
+                ) {}
+                Spacer(Modifier.width(9.dp))
+                Text(
+                    text = "LULU",
+                    color = DesktopMuted,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 1.6.sp,
+                )
+            }
+
+            // Compared with the previous layout, the application grid begins one full row lower.
+            Spacer(Modifier.height(94.dp))
 
             DesktopLauncherGrid(
                 slots = slots,
@@ -271,7 +299,7 @@ private fun DesktopV2LauncherItem(
     ) {
         Surface(
             shape = RoundedCornerShape(23.dp),
-            color = DesktopWarmIcon,
+            color = DesktopIconSurface,
             border = BorderStroke(1.dp, DesktopLine),
             shadowElevation = 1.dp,
             modifier = Modifier.size(68.dp),
@@ -301,7 +329,7 @@ private fun DesktopV2LauncherItem(
 private fun DesktopV2Avatar(text: String, size: Int) {
     Surface(
         shape = CircleShape,
-        color = DesktopWarmHint,
+        color = DesktopSoft,
         border = BorderStroke(1.dp, DesktopLine),
         shadowElevation = 1.dp,
         modifier = Modifier.size(size.dp),
