@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T05:40:33.046450+00:00",
-  "commit": "ca37428be92824b82d4323a8b1e2ccde2e55ff28",
+  "generatedAt": "2026-08-03T05:44:25.874268+00:00",
+  "commit": "63166f257a71c48ce991341a2eb0010184a62ba1",
   "branch": "main",
-  "sourceFingerprint": "2a0ccd9a7952a283dfe1a2d275567c776df3bf03c9b9097b2b6e4b16c2e2118b",
+  "sourceFingerprint": "e4767674033e7402739bd5c0966f3725593912760291872e500a246f51a462fa",
   "summary": {
     "files": 93,
-    "lines": 20121,
+    "lines": 20137,
     "symbols": 375
   },
   "symbolIndex": {
@@ -43,7 +43,7 @@
     "LexiconFeatureScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-        "line": 48
+        "line": 51
       }
     ],
     "LuluCapabilitiesScreen": [
@@ -2261,12 +2261,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-      "lines": 303,
-      "sha256": "01c05d3ca2d45357acacaf3f0b7a512da8ac4591454a07f87ea3b6490cf058e7",
+      "lines": 319,
+      "sha256": "dfcf7c5141d8f36abe8b0ccbc3cb611709e3f0438c319ce21a108ae64060145d",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",
-          "line": 48
+          "line": 51
         }
       ]
     },
