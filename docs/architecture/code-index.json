@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T05:50:40.902318+00:00",
-  "commit": "bb10fac5fe7f8984e3313b66dbc9c1d31cab05cb",
+  "generatedAt": "2026-08-03T06:06:36.922775+00:00",
+  "commit": "19ac93ad7093feda96d5502962d825fa350fa965",
   "branch": "main",
-  "sourceFingerprint": "9529d8af3dde53eb100f813f753fe8ee401f96eceb33d1ba9dc8c45b2d5250dd",
+  "sourceFingerprint": "5988cef165b47576e26622bc6ac776728461cf2af4e6acd89d5c2ef59a188d81",
   "summary": {
     "files": 94,
-    "lines": 20208,
+    "lines": 20248,
     "symbols": 375
   },
   "symbolIndex": {
@@ -309,25 +309,25 @@
     "QqStyleChatDetailScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 50
+        "line": 52
       }
     ],
     "sendOnly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 95
+        "line": 97
       }
     ],
     "stopReceiving": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 102
+        "line": 104
       }
     ],
     "receiveReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 108
+        "line": 110
       }
     ],
     "ApiConfiguration": [
@@ -2488,24 +2488,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 423,
-      "sha256": "cfdeedf4838dfd2ca19ce11589be8172c16a5f6964a2d51ce4b6ab90c25a6e4b",
+      "lines": 463,
+      "sha256": "e92cdd50d288fca5972df12708740232607b33518af7a3c01606c12adfdf9211",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
-          "line": 50
+          "line": 52
         },
         {
           "name": "sendOnly",
-          "line": 95
+          "line": 97
         },
         {
           "name": "stopReceiving",
-          "line": 102
+          "line": 104
         },
         {
           "name": "receiveReply",
-          "line": 108
+          "line": 110
         }
       ]
     },
