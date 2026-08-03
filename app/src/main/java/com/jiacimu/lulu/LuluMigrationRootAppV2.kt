@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -42,6 +43,29 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
             .firstOrNull { it.id == selectedConversationId }
             ?.characterId
             ?: "lulu"
+    }
+
+    fun navigateBackInsideApp() {
+        route = when (route) {
+            MigrationRoute.ChatDetail -> MigrationRoute.Chat
+            MigrationRoute.CharacterSettings -> MigrationRoute.Chat
+            MigrationRoute.WorldBook -> worldBookReturnRoute
+            MigrationRoute.Chat,
+            MigrationRoute.Memory,
+            MigrationRoute.Lexicon,
+            MigrationRoute.Performance,
+            MigrationRoute.Reading,
+            MigrationRoute.Wishes,
+            MigrationRoute.Study,
+            MigrationRoute.Games,
+            MigrationRoute.Settings,
+            -> MigrationRoute.Home
+            MigrationRoute.Home -> MigrationRoute.Home
+        }
+    }
+
+    BackHandler(enabled = route != MigrationRoute.Home) {
+        navigateBackInsideApp()
     }
 
     LaunchedEffect(initialConversationId, conversations) {
