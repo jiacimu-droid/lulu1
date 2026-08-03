@@ -108,18 +108,30 @@ fun QqStyleChatDetailScreen(
         receiving = false
     }
 
-    fun receiveReply() {
+    fun sendAndReceive() {
         if (receiving) return
         if (activeArchive == null) {
             scope.launch { snackbar.showSnackbar("请先在右上角选择模型") }
             return
         }
-        if (pendingUserMessages.isEmpty()) return
 
-        val pendingIds = pendingUserMessages.mapTo(mutableSetOf()) { it.id }
-        val pendingText = pendingUserMessages.joinToString("\n") { it.content.trim() }
+        val currentInput = input.trim()
+        if (currentInput.isNotBlank()) {
+            MigratedDomainStores.chat.sendUserMessage(conversationId, currentInput)
+            input = ""
+        }
+
+        val latestMessages = MigratedDomainStores.chat.messages(conversationId).value
+        val lastCharacterIndex = latestMessages.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
+        val latestPending = latestMessages
+            .drop(lastCharacterIndex + 1)
+            .filter { it.sender == LuluChatMessage.Sender.User }
+        if (latestPending.isEmpty()) return
+
+        val pendingIds = latestPending.mapTo(mutableSetOf()) { it.id }
+        val pendingText = latestPending.joinToString("\n") { it.content.trim() }
         val history = buildBoundedHistory(
-            messages = messages.filterNot { it.id in pendingIds },
+            messages = latestMessages.filterNot { it.id in pendingIds },
             characterName = character.displayName,
         )
         receiving = true
@@ -155,9 +167,7 @@ fun QqStyleChatDetailScreen(
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = QqHeader),
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Outlined.ArrowBack, "返回", tint = QqInk)
-                    }
+                    IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回", tint = QqInk) }
                 },
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -198,13 +208,9 @@ fun QqStyleChatDetailScreen(
                             }
                         }
                     }
-                    IconButton(onClick = { callVisible = true }) {
-                        Icon(Icons.Outlined.Call, "电话", tint = QqInk)
-                    }
+                    IconButton(onClick = { callVisible = true }) { Icon(Icons.Outlined.Call, "电话", tint = QqInk) }
                     Box {
-                        IconButton(onClick = { moreExpanded = true }) {
-                            Icon(Icons.Outlined.MoreHoriz, "更多", tint = QqInk)
-                        }
+                        IconButton(onClick = { moreExpanded = true }) { Icon(Icons.Outlined.MoreHoriz, "更多", tint = QqInk) }
                         DropdownMenu(expanded = moreExpanded, onDismissRequest = { moreExpanded = false }) {
                             DropdownMenuItem(text = { Text("角色设置") }, onClick = { moreExpanded = false; onCharacterSettings() })
                             DropdownMenuItem(text = { Text("角色世界书") }, onClick = { moreExpanded = false; onWorldBook() })
@@ -252,12 +258,10 @@ fun QqStyleChatDetailScreen(
                             disabledContainerColor = QqBorder,
                             disabledContentColor = QqMuted,
                         ),
-                    ) {
-                        Icon(Icons.Outlined.Send, "发送")
-                    }
+                    ) { Icon(Icons.Outlined.Send, "只发送") }
                     FilledTonalIconButton(
-                        onClick = { if (receiving) stopReceiving() else receiveReply() },
-                        enabled = receiving || pendingUserMessages.isNotEmpty(),
+                        onClick = { if (receiving) stopReceiving() else sendAndReceive() },
+                        enabled = receiving || input.isNotBlank() || pendingUserMessages.isNotEmpty(),
                         colors = IconButtonDefaults.filledTonalIconButtonColors(
                             containerColor = QqIconSurface,
                             contentColor = QqInk,
@@ -267,7 +271,7 @@ fun QqStyleChatDetailScreen(
                     ) {
                         Icon(
                             if (receiving) Icons.Outlined.StopCircle else Icons.Outlined.MarkChatRead,
-                            if (receiving) "停止" else "让对方回复",
+                            if (receiving) "停止" else "发送并让对方回复",
                         )
                     }
                 }
@@ -303,7 +307,7 @@ fun QqStyleChatDetailScreen(
                         Surface(
                             color = QqOther,
                             shape = RoundedCornerShape(16.dp),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, QqBorder),
+                            border = BorderStroke(1.dp, QqBorder),
                         ) {
                             Row(Modifier.padding(horizontal = 14.dp, vertical = 11.dp), verticalAlignment = Alignment.CenterVertically) {
                                 CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp, color = QqInk)
@@ -380,7 +384,7 @@ private fun QqMessageRow(
                 modifier = Modifier.combinedClickable(onClick = {}, onLongClick = onLongClick),
                 color = if (mine) QqMine else QqOther,
                 shape = RoundedCornerShape(16.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, if (mine) QqMine else QqBorder),
+                border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
                 shadowElevation = 0.dp,
             ) {
                 Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
@@ -453,7 +457,7 @@ private fun QqAvatar(label: String, size: Int) {
         modifier = Modifier.size(size.dp),
         shape = CircleShape,
         color = QqIconSurface,
-        border = androidx.compose.foundation.BorderStroke(1.dp, QqBorder),
+        border = BorderStroke(1.dp, QqBorder),
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(label, fontWeight = FontWeight.Bold, color = QqInk, fontSize = (size / 3).sp)
