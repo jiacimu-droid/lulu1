@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T03:15:46.267258+00:00",
-  "commit": "949f818f905cd785f7c2747580ac56fdbd80c319",
+  "generatedAt": "2026-08-03T03:16:55.276578+00:00",
+  "commit": "8e2628b325687fa178d2820e4f34b0297a050001",
   "branch": "main",
-  "sourceFingerprint": "3b5340bdc11e8846f6c8b2c13df37d1629591c1be688a718c44e9503397bb39b",
+  "sourceFingerprint": "f3b592c28aceec71c6e091473bef581e40891cd8c3c5d43256e5a401dad23d10",
   "summary": {
     "files": 91,
-    "lines": 19191,
+    "lines": 19184,
     "symbols": 369
   },
   "symbolIndex": {
@@ -237,7 +237,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 24
+        "line": 26
       }
     ],
     "MemoryFeatureScreen": [
@@ -2135,7 +2135,7 @@
     "LuluDeviceToolBridge": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 21
+        "line": 23
       }
     ],
     "LuluNotificationListenerService": [
@@ -4128,16 +4128,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 291,
-      "sha256": "6b2ad50617ba8d6c15f4d7e22204931986a986559e8a73b80f421f561656556e",
+      "lines": 284,
+      "sha256": "3fd99b549c9a63f53a727e8a46f43430caee8ba50875038412a6a10b59bd8c75",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
-          "line": 21
+          "line": 23
         },
         {
           "name": "initialize",
-          "line": 24
+          "line": 26
         }
       ]
     },
