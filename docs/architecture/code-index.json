@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T03:04:54.238970+00:00",
-  "commit": "bb34dec2b6f2f863cc71c8a0242da54c01f6940a",
+  "generatedAt": "2026-08-03T03:15:46.267258+00:00",
+  "commit": "949f818f905cd785f7c2747580ac56fdbd80c319",
   "branch": "main",
-  "sourceFingerprint": "39cd3575a74bd3a2defc16d8d266c9d1c280aca49231c68542c4d6f1d080428d",
+  "sourceFingerprint": "3b5340bdc11e8846f6c8b2c13df37d1629591c1be688a718c44e9503397bb39b",
   "summary": {
     "files": 91,
-    "lines": 19300,
+    "lines": 19191,
     "symbols": 369
   },
   "symbolIndex": {
@@ -91,25 +91,25 @@
     "LuluSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-        "line": 37
+        "line": 38
       }
     ],
     "loadConfiguration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-        "line": 117
+        "line": 121
       }
     ],
     "clearEditor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-        "line": 129
+        "line": 133
       }
     ],
     "saveCurrent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-        "line": 141
+        "line": 145
       }
     ],
     "MigratedChatDetailScreenV2": [
@@ -2285,24 +2285,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-      "lines": 527,
-      "sha256": "3eeb2b9f429d946b29cfc1e32604ae32417b88c36c920baafa7618cfffadd343",
+      "lines": 418,
+      "sha256": "4449f3f885a49e5ed59cbbc8a954432147133d662744ce6ed12f196439d58da4",
       "symbols": [
         {
           "name": "LuluSettingsScreen",
-          "line": 37
+          "line": 38
         },
         {
           "name": "loadConfiguration",
-          "line": 117
+          "line": 121
         },
         {
           "name": "clearEditor",
-          "line": 129
+          "line": 133
         },
         {
           "name": "saveCurrent",
-          "line": 141
+          "line": 145
         }
       ]
     },
