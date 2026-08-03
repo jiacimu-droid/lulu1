@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T06:30:03.945905+00:00",
-  "commit": "289e2c9d898f6055b3f055dc2b603478a1b91612",
+  "generatedAt": "2026-08-03T06:37:45.953363+00:00",
+  "commit": "5a284a104b0c8e27494303abe4f4170f54270f60",
   "branch": "main",
-  "sourceFingerprint": "9a003f86a4b8493381e0ed3053d0f5cddaf6a4559bd01462a3556cdde328dee3",
+  "sourceFingerprint": "dddded09a33574d7442b151334a16804fd4cec13e2e6ae6b920e41185454f944",
   "summary": {
     "files": 95,
-    "lines": 20179,
-    "symbols": 375
+    "lines": 20184,
+    "symbols": 376
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -38,6 +38,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
         "line": 147
+      }
+    ],
+    "BorderStroke": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ComposeAliases.kt",
+        "line": 7
       }
     ],
     "LexiconFeatureScreenV2": [
@@ -2249,9 +2255,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ComposeAliases.kt",
-      "lines": 4,
-      "sha256": "14715d2ce88cd71be7c655409125b8f25d0f895e049b74c116b9f8fdbc91f9f3",
-      "symbols": []
+      "lines": 9,
+      "sha256": "e837af2470782aab321726c6d4032ac761a261b004a6447915f6edb11cdc5949",
+      "symbols": [
+        {
+          "name": "BorderStroke",
+          "line": 7
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt",
