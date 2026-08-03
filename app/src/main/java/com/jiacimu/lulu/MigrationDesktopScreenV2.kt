@@ -50,13 +50,14 @@ private val DesktopV2Launchers = listOf(
 )
 
 private val DesktopPaper = Color(0xFFFFFFFF)
-private val DesktopWarmWash = Color(0xFFFFFDF4)
-private val DesktopWarmCard = Color(0xFFFFFFFF)
-private val DesktopIconSurface = Color(0xFFFFF9E8)
-private val DesktopIcon = Color(0xFF2F2F2F)
-private val DesktopBorder = Color(0xFFEAE7DE)
-private val DesktopInk = Color(0xFF222222)
-private val DesktopMuted = Color(0xFF77736A)
+private val DesktopWarmHint = Color(0xFFFFFEF9)
+private val DesktopWarmIcon = Color(0xFFFFFDF5)
+private val DesktopCard = Color(0xFFFFFFFF)
+private val DesktopLine = Color(0xFFF2EFE8)
+private val DesktopAccent = Color(0xFFF4E8B8)
+private val DesktopInk = Color(0xFF202020)
+private val DesktopMuted = Color(0xFF85827C)
+private val DesktopIcon = Color(0xFF303030)
 
 @Composable
 internal fun MigrationHomeV2(
@@ -89,78 +90,97 @@ internal fun MigrationHomeV2(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(horizontal = 18.dp, vertical = 12.dp),
+                .padding(horizontal = 20.dp),
         ) {
+            Spacer(Modifier.height(18.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        text = dateText,
+                        color = DesktopMuted,
+                        fontSize = 12.sp,
+                        letterSpacing = 0.2.sp,
+                    )
+                    Spacer(Modifier.height(5.dp))
+                    Text(
+                        text = "$greeting，主人",
+                        color = DesktopInk,
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+                DesktopV2Avatar(
+                    text = currentCharacter.displayName.take(1).ifBlank { "露" },
+                    size = 48,
+                )
+            }
+
+            Spacer(Modifier.height(18.dp))
+
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = DesktopWarmWash,
-                shape = RoundedCornerShape(26.dp),
-                border = BorderStroke(1.dp, DesktopBorder.copy(alpha = 0.7f)),
+                color = DesktopCard,
+                shape = RoundedCornerShape(22.dp),
+                border = BorderStroke(1.dp, DesktopLine),
+                shadowElevation = 2.dp,
+                onClick = {
+                    recent?.let { onOpenConversation(it.id) } ?: onOpen(MigrationRoute.Chat)
+                },
             ) {
-                Column(Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text(dateText, color = DesktopMuted, fontSize = 12.sp)
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                "$greeting，主人",
-                                color = DesktopInk,
-                                fontSize = 23.sp,
-                                fontWeight = FontWeight.SemiBold,
-                            )
-                        }
-                        DesktopV2Avatar(
-                            text = currentCharacter.displayName.take(1).ifBlank { "露" },
-                            size = 46,
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 15.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Surface(
+                        modifier = Modifier.width(4.dp).height(42.dp),
+                        color = DesktopAccent,
+                        shape = RoundedCornerShape(99.dp),
+                    ) {}
+                    Spacer(Modifier.width(12.dp))
+                    DesktopV2Avatar(
+                        text = currentCharacter.displayName.take(1).ifBlank { "露" },
+                        size = 42,
+                    )
+                    Spacer(Modifier.width(11.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            text = "最近消息",
+                            color = DesktopMuted,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Medium,
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            text = recent?.lastMessage
+                                ?.ifBlank { "点这里去找${currentCharacter.displayName}。" }
+                                ?: "点这里进入聊天。",
+                            color = DesktopInk,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
                         )
                     }
-
-                    Spacer(Modifier.height(12.dp))
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = DesktopWarmCard,
-                        shape = RoundedCornerShape(18.dp),
-                        border = BorderStroke(1.dp, DesktopBorder),
-                        onClick = {
-                            recent?.let { onOpenConversation(it.id) } ?: onOpen(MigrationRoute.Chat)
-                        },
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            DesktopV2Avatar(
-                                text = currentCharacter.displayName.take(1).ifBlank { "露" },
-                                size = 40,
-                            )
-                            Spacer(Modifier.width(11.dp))
-                            Column(Modifier.weight(1f)) {
-                                Text(
-                                    recent?.title?.ifBlank { currentCharacter.displayName }
-                                        ?: currentCharacter.displayName,
-                                    color = DesktopInk,
-                                    fontWeight = FontWeight.SemiBold,
-                                )
-                                Text(
-                                    recent?.lastMessage?.ifBlank { "点这里去找${currentCharacter.displayName}。" }
-                                        ?: "点这里进入聊天。",
-                                    color = DesktopMuted,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    fontSize = 12.sp,
-                                )
-                            }
-                            Icon(Icons.Outlined.ArrowForward, "进入聊天", tint = DesktopInk)
-                        }
-                    }
+                    Icon(
+                        imageVector = Icons.Outlined.ChevronRight,
+                        contentDescription = "进入聊天",
+                        tint = DesktopMuted,
+                        modifier = Modifier.size(22.dp),
+                    )
                 }
             }
 
-            Spacer(Modifier.height(22.dp))
+            Spacer(Modifier.height(26.dp))
 
             DesktopLauncherGrid(
                 slots = slots,
-                modifier = Modifier.fillMaxWidth().height(374.dp),
+                modifier = Modifier.fillMaxWidth().height(388.dp),
                 onMove = { from, to ->
                     if (from != to) {
                         val updated = slots.toMutableList()
@@ -188,7 +208,7 @@ private fun DesktopLauncherGrid(
 ) {
     BoxWithConstraints(modifier) {
         val cellWidth = maxWidth / 4
-        val cellHeight = 93.5.dp
+        val cellHeight = 97.dp
         slots.forEachIndexed { index, launcherId ->
             val launcher = DesktopV2Launchers.firstOrNull { it.id == launcherId } ?: return@forEachIndexed
             val column = index % 4
@@ -206,9 +226,9 @@ private fun DesktopLauncherGrid(
                     .graphicsLayer {
                         translationX = dragX
                         translationY = dragY
-                        scaleX = if (dragging) 1.07f else 1f
-                        scaleY = if (dragging) 1.07f else 1f
-                        shadowElevation = if (dragging) 12f else 0f
+                        scaleX = if (dragging) 1.06f else 1f
+                        scaleY = if (dragging) 1.06f else 1f
+                        shadowElevation = if (dragging) 10f else 0f
                     }
                     .pointerInput(index, cellWidth, cellHeight) {
                         detectDragGesturesAfterLongPress(
@@ -250,19 +270,25 @@ private fun DesktopV2LauncherItem(
         verticalArrangement = Arrangement.Top,
     ) {
         Surface(
-            shape = RoundedCornerShape(21.dp),
-            color = DesktopIconSurface,
-            border = BorderStroke(1.dp, DesktopBorder),
-            modifier = Modifier.size(64.dp),
+            shape = RoundedCornerShape(23.dp),
+            color = DesktopWarmIcon,
+            border = BorderStroke(1.dp, DesktopLine),
+            shadowElevation = 1.dp,
+            modifier = Modifier.size(68.dp),
             onClick = onClick,
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(launcher.icon, launcher.title, tint = DesktopIcon, modifier = Modifier.size(29.dp))
+                Icon(
+                    imageVector = launcher.icon,
+                    contentDescription = launcher.title,
+                    tint = DesktopIcon,
+                    modifier = Modifier.size(30.dp),
+                )
             }
         }
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(7.dp))
         Text(
-            launcher.title,
+            text = launcher.title,
             color = DesktopInk,
             fontSize = 11.5.sp,
             fontWeight = FontWeight.Medium,
@@ -275,12 +301,18 @@ private fun DesktopV2LauncherItem(
 private fun DesktopV2Avatar(text: String, size: Int) {
     Surface(
         shape = CircleShape,
-        color = Color.White,
-        border = BorderStroke(1.dp, DesktopBorder),
+        color = DesktopWarmHint,
+        border = BorderStroke(1.dp, DesktopLine),
+        shadowElevation = 1.dp,
         modifier = Modifier.size(size.dp),
     ) {
         Box(contentAlignment = Alignment.Center) {
-            Text(text, fontSize = (size / 2.75).sp, fontWeight = FontWeight.Bold, color = DesktopInk)
+            Text(
+                text = text,
+                fontSize = (size / 2.75).sp,
+                fontWeight = FontWeight.Bold,
+                color = DesktopInk,
+            )
         }
     }
 }
