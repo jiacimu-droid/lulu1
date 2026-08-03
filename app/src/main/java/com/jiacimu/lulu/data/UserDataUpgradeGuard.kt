@@ -74,9 +74,9 @@ object UserDataUpgradeGuard {
             directory.listFiles()
                 .orEmpty()
                 .filter { it.name.startsWith("model_library_") && it.name != LATEST_BACKUP }
-                .sortedByDescending(File::lastModified)
+                .sortedByDescending { file -> file.lastModified() }
                 .drop(MAX_ROLLING_BACKUPS)
-                .forEach(File::delete)
+                .forEach { file -> file.delete() }
         }
     }
 
@@ -84,10 +84,10 @@ object UserDataUpgradeGuard {
         val directory = backupDirectory(context)
         val candidates = buildList {
             add(File(directory, LATEST_BACKUP))
-            addAll(directory.listFiles().orEmpty().sortedByDescending(File::lastModified))
-        }.distinctBy(File::absolutePath)
+            addAll(directory.listFiles().orEmpty().sortedByDescending { file -> file.lastModified() })
+        }.distinctBy { file -> file.absolutePath }
         return candidates.firstNotNullOfOrNull { file ->
-            runCatching { file.takeIf(File::isFile)?.readText() }
+            runCatching { file.takeIf { candidate -> candidate.isFile }?.readText() }
                 .getOrNull()
                 ?.takeIf(::isValidLibrary)
         }
