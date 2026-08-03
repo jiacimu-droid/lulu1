@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T02:45:11.791694+00:00",
-  "commit": "75bfba1b2f8085c9002d9f9cbe7fb2f8ee4c1f16",
+  "generatedAt": "2026-08-03T02:52:54.889480+00:00",
+  "commit": "b7b7ed4863702b36227504d361fbfccfc69b06b6",
   "branch": "main",
-  "sourceFingerprint": "b8dec89059dacc1bc631a2bcf503c4ebcb6fe97264b8760b5c208808fd8365a3",
+  "sourceFingerprint": "fcb84026077b8bda9ae88d7e9eb6693da9688c21dd46979998c1244952eeb865",
   "summary": {
-    "files": 90,
-    "lines": 19061,
-    "symbols": 365
+    "files": 91,
+    "lines": 19224,
+    "symbols": 369
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -1028,6 +1028,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
         "line": 55
+      }
+    ],
+    "UserDataUpgradeGuard": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt",
+        "line": 18
+      }
+    ],
+    "protectBeforeStoresInitialize": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt",
+        "line": 24
+      }
+    ],
+    "refreshBackup": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt",
+        "line": 44
+      }
+    ],
+    "firstString": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt",
+        "line": 117
       }
     ],
     "LuluPageScaffold": [
@@ -3056,6 +3080,29 @@
         {
           "name": "shutdown",
           "line": 55
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt",
+      "lines": 163,
+      "sha256": "f792a1b6737f2840ce39dac8aae6173d2a9e77ef69eea72929339251871eb872",
+      "symbols": [
+        {
+          "name": "UserDataUpgradeGuard",
+          "line": 18
+        },
+        {
+          "name": "protectBeforeStoresInitialize",
+          "line": 24
+        },
+        {
+          "name": "refreshBackup",
+          "line": 44
+        },
+        {
+          "name": "firstString",
+          "line": 117
         }
       ]
     },

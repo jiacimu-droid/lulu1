@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`75bfba1b2f8085c9002d9f9cbe7fb2f8ee4c1f16`
+- 基准提交：`b7b7ed4863702b36227504d361fbfccfc69b06b6`
 - 分支：`main`
-- 已索引文件：90
-- 已索引代码/文本行：19061
-- 已发现符号：365
+- 已索引文件：91
+- 已索引代码/文本行：19224
+- 已发现符号：369
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -46,6 +46,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 307 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 88 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 69 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 92 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 397 | 6 |
