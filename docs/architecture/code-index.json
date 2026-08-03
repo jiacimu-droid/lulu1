@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T03:21:30.643900+00:00",
-  "commit": "72d191ce3ced646b8a5baaeeeb7fb93f1ae800e3",
+  "generatedAt": "2026-08-03T03:22:14.438229+00:00",
+  "commit": "7ceb2938cc54324dd5decca6cdd99c2388a771e8",
   "branch": "main",
-  "sourceFingerprint": "559a9cb059ffc6a488f73835c3ee5aeb93ad08d1e260282346a8a5ce36fd5b56",
+  "sourceFingerprint": "0fc73314bb68e68bcb57fec783adbef4de1114073baf5468d41ca8c50594df0c",
   "summary": {
     "files": 91,
-    "lines": 19184,
-    "symbols": 369
+    "lines": 19161,
+    "symbols": 371
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -67,19 +67,31 @@
     "LuluMigrationRootAppV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 22
+        "line": 23
       }
     ],
     "selectConversationCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 40
+        "line": 46
       }
     ],
-    "navigateBackInsideApp": [
+    "pushRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 47
+        "line": 53
+      }
+    ],
+    "popRoute": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
+        "line": 57
+      }
+    ],
+    "replaceTop": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
+        "line": 61
       }
     ],
     "LuluSettingsHomeScreen": [
@@ -2255,20 +2267,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 177,
-      "sha256": "24d69ae1c54d43b746d1e2e98d8b1aa872ea81b9671351d178b55ecb38deb638",
+      "lines": 154,
+      "sha256": "04840501a844a368fd390cc2ba647fa761e216d4c9d9506948123a770364dc03",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
-          "line": 22
+          "line": 23
         },
         {
           "name": "selectConversationCharacter",
-          "line": 40
+          "line": 46
         },
         {
-          "name": "navigateBackInsideApp",
-          "line": 47
+          "name": "pushRoute",
+          "line": 53
+        },
+        {
+          "name": "popRoute",
+          "line": 57
+        },
+        {
+          "name": "replaceTop",
+          "line": 61
         }
       ]
     },
