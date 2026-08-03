@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T04:27:43.151501+00:00",
-  "commit": "e1751b16402083d0fb691a95359a491f5d3eca3a",
+  "generatedAt": "2026-08-03T04:39:23.455263+00:00",
+  "commit": "e64dacd7e1fcd2ed3e6801df1890a46ce6d0a292",
   "branch": "main",
-  "sourceFingerprint": "9fb203dba880885b66c08196d6afab041c9197a1050e2f9c3cc9e7c1f5322111",
+  "sourceFingerprint": "64ba78d8fc9dba7438b9b7dff594a9f6212ee846bd17f705a84d41030f71c474",
   "summary": {
     "files": 92,
-    "lines": 19652,
+    "lines": 19746,
     "symbols": 373
   },
   "symbolIndex": {
@@ -1243,19 +1243,19 @@
     "load": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 91
+        "line": 133
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 111
+        "line": 159
       }
     ],
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 330
+        "line": 379
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -3299,20 +3299,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-      "lines": 519,
-      "sha256": "58b1e66392e9e15d70e477af656769f9fdbb36eb23741f0cc5078c2cef0f489f",
+      "lines": 613,
+      "sha256": "b06e3c56a631121bc6b79631abefa4bd8cd13de3186ea6ab91bfcedbeb4bf81c",
       "symbols": [
         {
           "name": "load",
-          "line": 91
+          "line": 133
         },
         {
           "name": "save",
-          "line": 111
+          "line": 159
         },
         {
           "name": "perform",
-          "line": 330
+          "line": 379
         }
       ]
     },
