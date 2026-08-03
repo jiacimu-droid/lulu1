@@ -37,13 +37,15 @@ import java.time.Duration
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-private val QqPage = Color(0xFFF7F9F8)
-private val QqHeader = Color(0xFFFCFDFC)
-private val QqMine = Color(0xFFDDEAE6)
-private val QqOther = Color.White
-private val QqMuted = Color(0xFF7D8C88)
-private val QqInk = Color(0xFF34413F)
-private val QqBorder = Color(0xFFDDE7E3)
+private val QqPage = Color(0xFFFFFFFF)
+private val QqHeader = Color(0xFFFCFCFC)
+private val QqMine = Color(0xFF292929)
+private val QqMineInk = Color(0xFFFFFFFF)
+private val QqOther = Color(0xFFF4F4F4)
+private val QqMuted = Color(0xFF7A7A7E)
+private val QqInk = Color(0xFF1D1D1F)
+private val QqBorder = Color(0xFFE7E7E7)
+private val QqIconSurface = Color(0xFFF4F4F4)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -152,7 +154,11 @@ fun QqStyleChatDetailScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = QqHeader),
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Outlined.ArrowBack, "返回", tint = QqInk)
+                    }
+                },
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         QqAvatar(character.displayName.take(1).ifBlank { "露" }, 42)
@@ -165,7 +171,9 @@ fun QqStyleChatDetailScreen(
                 },
                 actions = {
                     Box {
-                        IconButton(onClick = { modelExpanded = true }) { Icon(Icons.Outlined.SwapHoriz, "切换模型") }
+                        IconButton(onClick = { modelExpanded = true }) {
+                            Icon(Icons.Outlined.SwapHoriz, "切换模型", tint = QqInk)
+                        }
                         DropdownMenu(expanded = modelExpanded, onDismissRequest = { modelExpanded = false }) {
                             if (library.archives.isEmpty()) {
                                 DropdownMenuItem(text = { Text("还没有模型存档") }, enabled = false, onClick = {})
@@ -177,6 +185,7 @@ fun QqStyleChatDetailScreen(
                                             Icon(
                                                 if (selected) Icons.Outlined.RadioButtonChecked else Icons.Outlined.RadioButtonUnchecked,
                                                 null,
+                                                tint = QqInk,
                                             )
                                         },
                                         text = { Text(LuluAiServices.connectionStore.archiveLabel(archive)) },
@@ -189,9 +198,13 @@ fun QqStyleChatDetailScreen(
                             }
                         }
                     }
-                    IconButton(onClick = { callVisible = true }) { Icon(Icons.Outlined.Call, "电话") }
+                    IconButton(onClick = { callVisible = true }) {
+                        Icon(Icons.Outlined.Call, "电话", tint = QqInk)
+                    }
                     Box {
-                        IconButton(onClick = { moreExpanded = true }) { Icon(Icons.Outlined.MoreHoriz, "更多") }
+                        IconButton(onClick = { moreExpanded = true }) {
+                            Icon(Icons.Outlined.MoreHoriz, "更多", tint = QqInk)
+                        }
                         DropdownMenu(expanded = moreExpanded, onDismissRequest = { moreExpanded = false }) {
                             DropdownMenuItem(text = { Text("角色设置") }, onClick = { moreExpanded = false; onCharacterSettings() })
                             DropdownMenuItem(text = { Text("角色世界书") }, onClick = { moreExpanded = false; onWorldBook() })
@@ -201,7 +214,7 @@ fun QqStyleChatDetailScreen(
             )
         },
         bottomBar = {
-            Surface(color = QqHeader, tonalElevation = 2.dp) {
+            Surface(color = QqHeader, shadowElevation = 4.dp) {
                 Row(
                     modifier = Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 8.dp, vertical = 7.dp),
                     verticalAlignment = Alignment.Bottom,
@@ -211,7 +224,7 @@ fun QqStyleChatDetailScreen(
                         voiceLauncher.launch(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                         })
-                    }) { Icon(Icons.Outlined.KeyboardVoice, "语音输入") }
+                    }) { Icon(Icons.Outlined.KeyboardVoice, "语音输入", tint = QqInk) }
                     TextField(
                         value = input,
                         onValueChange = { input = it },
@@ -221,18 +234,36 @@ fun QqStyleChatDetailScreen(
                         placeholder = { Text("发消息", color = QqMuted) },
                         shape = RoundedCornerShape(18.dp),
                         colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
+                            focusedTextColor = QqInk,
+                            unfocusedTextColor = QqInk,
+                            focusedContainerColor = QqIconSurface,
+                            unfocusedContainerColor = QqIconSurface,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
+                            cursorColor = QqInk,
                         ),
                     )
-                    FilledIconButton(onClick = ::sendOnly, enabled = input.isNotBlank()) {
+                    FilledIconButton(
+                        onClick = ::sendOnly,
+                        enabled = input.isNotBlank(),
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = QqInk,
+                            contentColor = Color.White,
+                            disabledContainerColor = QqBorder,
+                            disabledContentColor = QqMuted,
+                        ),
+                    ) {
                         Icon(Icons.Outlined.Send, "发送")
                     }
                     FilledTonalIconButton(
                         onClick = { if (receiving) stopReceiving() else receiveReply() },
                         enabled = receiving || pendingUserMessages.isNotEmpty(),
+                        colors = IconButtonDefaults.filledTonalIconButtonColors(
+                            containerColor = QqIconSurface,
+                            contentColor = QqInk,
+                            disabledContainerColor = QqIconSurface,
+                            disabledContentColor = QqMuted.copy(alpha = 0.45f),
+                        ),
                     ) {
                         Icon(
                             if (receiving) Icons.Outlined.StopCircle else Icons.Outlined.MarkChatRead,
@@ -275,7 +306,7 @@ fun QqStyleChatDetailScreen(
                             border = androidx.compose.foundation.BorderStroke(1.dp, QqBorder),
                         ) {
                             Row(Modifier.padding(horizontal = 14.dp, vertical = 11.dp), verticalAlignment = Alignment.CenterVertically) {
-                                CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp)
+                                CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp, color = QqInk)
                                 Spacer(Modifier.width(8.dp))
                                 Text("对方正在输入…", color = QqMuted, fontSize = 13.sp)
                             }
@@ -296,11 +327,11 @@ fun QqStyleChatDetailScreen(
                     TextButton(onClick = {
                         MigratedDomainStores.chat.toggleFavorite(message.id)
                         selectedMessage = null
-                    }) { Text(if (message.favorite) "取消收藏" else "收藏") }
+                    }) { Text(if (message.favorite) "取消收藏" else "收藏", color = QqInk) }
                     TextButton(onClick = {
                         MigratedDomainStores.chat.createBranch(conversationId, message.id)?.let { onOpenBranch(it.id) }
                         selectedMessage = null
-                    }) { Text("分支") }
+                    }) { Text("分支", color = QqInk) }
                 }
             },
             dismissButton = {
@@ -349,14 +380,23 @@ private fun QqMessageRow(
                 modifier = Modifier.combinedClickable(onClick = {}, onLongClick = onLongClick),
                 color = if (mine) QqMine else QqOther,
                 shape = RoundedCornerShape(16.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, QqBorder),
-                shadowElevation = if (mine) 0.dp else 1.dp,
+                border = androidx.compose.foundation.BorderStroke(1.dp, if (mine) QqMine else QqBorder),
+                shadowElevation = 0.dp,
             ) {
                 Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
-                    Text(message.content, color = QqInk, fontSize = 15.sp, lineHeight = 22.sp)
+                    Text(
+                        message.content,
+                        color = if (mine) QqMineInk else QqInk,
+                        fontSize = 15.sp,
+                        lineHeight = 22.sp,
+                    )
                     if (message.favorite) {
                         Spacer(Modifier.height(4.dp))
-                        Text("★ 已收藏", color = QqMuted, fontSize = 10.sp)
+                        Text(
+                            "★ 已收藏",
+                            color = if (mine) Color.White.copy(alpha = 0.68f) else QqMuted,
+                            fontSize = 10.sp,
+                        )
                     }
                 }
             }
@@ -412,7 +452,7 @@ private fun QqAvatar(label: String, size: Int) {
     Surface(
         modifier = Modifier.size(size.dp),
         shape = CircleShape,
-        color = Color(0xFFE9F0EE),
+        color = QqIconSurface,
         border = androidx.compose.foundation.BorderStroke(1.dp, QqBorder),
     ) {
         Box(contentAlignment = Alignment.Center) {
