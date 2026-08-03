@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T04:45:14.720844+00:00",
-  "commit": "509bfd4d77b0af35c3d86d1931a5d0d4e51e5a26",
+  "generatedAt": "2026-08-03T05:37:32.920323+00:00",
+  "commit": "fce77de70f7d6b8f9e001fdaebea88721a712bd9",
   "branch": "main",
-  "sourceFingerprint": "ac5d7148723cf033930ffc45e8c632359678d75a8753d7d134fa750facd04437",
+  "sourceFingerprint": "77502e37691af8b465ddd0a7aa664a47e220c9029c35b68a1d936f2c799401e5",
   "summary": {
     "files": 92,
-    "lines": 19821,
-    "symbols": 373
+    "lines": 19823,
+    "symbols": 374
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -70,28 +70,34 @@
         "line": 23
       }
     ],
+    "characterIdForConversation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
+        "line": 45
+      }
+    ],
     "selectConversationCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 46
+        "line": 51
       }
     ],
     "pushRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 53
+        "line": 55
       }
     ],
     "popRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 57
+        "line": 59
       }
     ],
     "replaceTop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 61
+        "line": 63
       }
     ],
     "LuluSettingsHomeScreen": [
@@ -2279,28 +2285,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 154,
-      "sha256": "04840501a844a368fd390cc2ba647fa761e216d4c9d9506948123a770364dc03",
+      "lines": 156,
+      "sha256": "08493426a1439987c4289dd344ac605813b8934fee029521ba94cabe46e3eb4a",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
           "line": 23
         },
         {
+          "name": "characterIdForConversation",
+          "line": 45
+        },
+        {
           "name": "selectConversationCharacter",
-          "line": 46
+          "line": 51
         },
         {
           "name": "pushRoute",
-          "line": 53
+          "line": 55
         },
         {
           "name": "popRoute",
-          "line": 57
+          "line": 59
         },
         {
           "name": "replaceTop",
-          "line": 61
+          "line": 63
         }
       ]
     },
