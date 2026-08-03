@@ -15,6 +15,7 @@ import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -28,6 +29,8 @@ import com.jiacimu.lulu.design.LuluColors
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.util.UUID
+
+private const val LEXICON_PAGE_SIZE = 40
 
 private val LexiconV2Sections = listOf(
     LexiconSection.Life to "生活",
@@ -47,6 +50,7 @@ private val LexiconV2PromiseKinds = listOf(
 @Composable
 fun LexiconFeatureScreenV2(onBack: () -> Unit) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
+    val sortedCharacters = remember(characters) { characters.values.sortedBy { it.displayName } }
     var selectedCharacterId by rememberSaveable {
         mutableStateOf(characters.keys.firstOrNull() ?: "lulu")
     }
@@ -60,6 +64,8 @@ fun LexiconFeatureScreenV2(onBack: () -> Unit) {
     val entries by LuluRepositories.lexicon
         .observeEntries(selectedCharacterId, section)
         .collectAsState(initial = emptyList())
+    var visibleCount by rememberSaveable(selectedCharacterId, section) { mutableIntStateOf(LEXICON_PAGE_SIZE) }
+    val visibleEntries = remember(entries, visibleCount) { entries.take(visibleCount) }
     val scope = rememberCoroutineScope()
     var editing by remember { mutableStateOf<LexiconEntry?>(null) }
     var creating by remember { mutableStateOf(false) }
@@ -87,7 +93,7 @@ fun LexiconFeatureScreenV2(onBack: () -> Unit) {
                     .padding(horizontal = 16.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                characters.values.sortedBy { it.displayName }.forEach { character ->
+                sortedCharacters.forEach { character ->
                     FilterChip(
                         selected = selectedCharacterId == character.characterId,
                         onClick = { selectedCharacterId = character.characterId },
@@ -133,7 +139,7 @@ fun LexiconFeatureScreenV2(onBack: () -> Unit) {
                         }
                     }
                 } else {
-                    items(entries, key = LexiconEntry::id) { entry ->
+                    items(visibleEntries, key = LexiconEntry::id) { entry ->
                         LexiconV2Card {
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
                                 Column(Modifier.weight(1f)) {
@@ -162,6 +168,16 @@ fun LexiconFeatureScreenV2(onBack: () -> Unit) {
                                         tint = MaterialTheme.colorScheme.error,
                                     )
                                 }
+                            }
+                        }
+                    }
+                    if (visibleEntries.size < entries.size) {
+                        item(key = "load-more") {
+                            OutlinedButton(
+                                onClick = { visibleCount = (visibleCount + LEXICON_PAGE_SIZE).coerceAtMost(entries.size) },
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Text("继续加载（${entries.size - visibleEntries.size}）")
                             }
                         }
                     }
