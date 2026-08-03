@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T04:08:15.301361+00:00",
-  "commit": "88f77802209cda53c164d9acd574dcd12816c913",
+  "generatedAt": "2026-08-03T04:20:52.774827+00:00",
+  "commit": "c83ce6007efd3587fcccffe65bdbe25d581e6e5b",
   "branch": "main",
-  "sourceFingerprint": "c061fa6cdb54b38fc2d107affd689a36646980024043ae68f5483442b6b6a966",
+  "sourceFingerprint": "ea44b6f61b24bd63acdcd1c3b3d68968ae76f5a9eefc64e22f7e9e43db6cf356",
   "summary": {
     "files": 91,
-    "lines": 19221,
-    "symbols": 371
+    "lines": 19284,
+    "symbols": 372
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -294,16 +294,22 @@
         "line": 50
       }
     ],
-    "generateReply": [
+    "receiveReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 88
+        "line": 92
       }
     ],
-    "send": [
+    "sendOnly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 121
+        "line": 134
+      }
+    ],
+    "stopReceiving": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
+        "line": 141
       }
     ],
     "ApiConfiguration": [
@@ -2438,20 +2444,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 385,
-      "sha256": "9e838bb1801f85f41a94d2d5f6930844f47d85ace5ccce61225a860201cb7eb4",
+      "lines": 448,
+      "sha256": "5773cc5fbd41a405bab47f353968688e0511faf14595ff158e938dc0a417593e",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
           "line": 50
         },
         {
-          "name": "generateReply",
-          "line": 88
+          "name": "receiveReply",
+          "line": 92
         },
         {
-          "name": "send",
-          "line": 121
+          "name": "sendOnly",
+          "line": 134
+        },
+        {
+          "name": "stopReceiving",
+          "line": 141
         }
       ]
     },
