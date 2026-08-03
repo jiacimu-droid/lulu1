@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
@@ -96,91 +97,50 @@ internal fun MigrationHomeV2(
                 .navigationBarsPadding()
                 .padding(horizontal = 20.dp),
         ) {
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(12.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.Top,
             ) {
                 Column(Modifier.weight(1f)) {
-                    Text(dateText, color = DesktopMuted, fontSize = 12.sp, letterSpacing = 0.4.sp)
-                    Spacer(Modifier.height(5.dp))
                     Text(
                         "$greeting，主人",
                         color = DesktopInk,
-                        fontSize = 25.sp,
+                        fontSize = 31.sp,
                         fontWeight = FontWeight.SemiBold,
+                        letterSpacing = (-0.5).sp,
                     )
+                    Spacer(Modifier.height(3.dp))
+                    Text(dateText, color = DesktopMuted, fontSize = 11.sp, letterSpacing = 0.8.sp)
                 }
-                DesktopV2Avatar(currentCharacter.displayName.take(1).ifBlank { "露" }, 48)
-            }
-
-            Spacer(Modifier.height(16.dp))
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = DesktopCard,
-                shape = RoundedCornerShape(22.dp),
-                border = BorderStroke(1.dp, DesktopLine),
-                shadowElevation = 1.dp,
-                onClick = { recent?.let { onOpenConversation(it.id) } ?: onOpen(MigrationRoute.Chat) },
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Surface(
-                        modifier = Modifier.width(3.dp).height(42.dp),
-                        color = DesktopAccent,
-                        shape = RoundedCornerShape(99.dp),
-                    ) {}
-                    Spacer(Modifier.width(12.dp))
-                    DesktopV2Avatar(currentCharacter.displayName.take(1).ifBlank { "露" }, 42)
-                    Spacer(Modifier.width(11.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            "最近消息",
-                            color = DesktopMuted,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Medium,
-                            letterSpacing = 0.5.sp,
-                        )
-                        Spacer(Modifier.height(2.dp))
-                        Text(
-                            recent?.lastMessage
-                                ?.ifBlank { "点这里去找${currentCharacter.displayName}。" }
-                                ?: "点这里进入聊天。",
-                            color = DesktopInk,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                        )
+                Column(horizontalAlignment = Alignment.End) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Surface(Modifier.size(5.dp), CircleShape, DesktopAccent) {}
+                        Spacer(Modifier.width(7.dp))
+                        Text("DAY MODE", color = DesktopMuted, fontSize = 9.sp, letterSpacing = 1.5.sp)
                     }
-                    Icon(Icons.Outlined.ChevronRight, "进入聊天", tint = DesktopMuted, modifier = Modifier.size(22.dp))
+                    Spacer(Modifier.height(8.dp))
+                    DesktopV2Avatar(currentCharacter.displayName.take(1).ifBlank { "露" }, 44)
                 }
             }
 
             Spacer(Modifier.height(12.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                DesktopInfoCard(
-                    Modifier.weight(1f),
-                    "TODAY",
-                    today.format(DateTimeFormatter.ofPattern("MM / dd")),
-                    "今天也慢慢来",
-                    Icons.Outlined.CalendarToday,
-                )
-                DesktopInfoCard(
-                    Modifier.weight(1f),
-                    "COMPANION",
-                    currentCharacter.displayName,
-                    "正在这里陪着你",
-                    Icons.Outlined.FavoriteBorder,
-                )
-            }
+            DesktopCompanionCard(
+                characterName = currentCharacter.displayName,
+                recentMessage = recent?.lastMessage
+                    ?.ifBlank { "点这里去找${currentCharacter.displayName}。" }
+                    ?: "今天也来找我说说话吧。",
+                onClick = { recent?.let { onOpenConversation(it.id) } ?: onOpen(MigrationRoute.Chat) },
+            )
 
-            Spacer(Modifier.height(34.dp))
+            Spacer(Modifier.height(10.dp))
+            DesktopMomentCard(
+                characterName = currentCharacter.displayName,
+                dateLabel = today.format(DateTimeFormatter.ofPattern("MM / dd")),
+                onClick = { onOpen(MigrationRoute.Wishes) },
+            )
+
+            Spacer(Modifier.height(14.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -198,7 +158,7 @@ internal fun MigrationHomeV2(
                 )
             }
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(9.dp))
             DesktopLauncherGrid(
                 slots = slots,
                 modifier = Modifier.fillMaxWidth().weight(1f),
@@ -219,36 +179,119 @@ internal fun MigrationHomeV2(
 }
 
 @Composable
-private fun DesktopInfoCard(
-    modifier: Modifier,
-    eyebrow: String,
-    title: String,
-    subtitle: String,
-    icon: ImageVector,
+private fun DesktopCompanionCard(
+    characterName: String,
+    recentMessage: String,
+    onClick: () -> Unit,
 ) {
     Surface(
-        modifier = modifier.height(72.dp),
+        modifier = Modifier.fillMaxWidth(),
         color = DesktopCard,
+        shape = RoundedCornerShape(24.dp),
+        border = BorderStroke(1.dp, DesktopLine),
+        shadowElevation = 2.dp,
+        onClick = onClick,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 17.dp, vertical = 15.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            DesktopV2Avatar(characterName.take(1).ifBlank { "露" }, 52)
+            Spacer(Modifier.width(13.dp))
+            Column(Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(characterName, color = DesktopInk, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.width(8.dp))
+                    Text("ONLINE", color = DesktopMuted, fontSize = 8.sp, letterSpacing = 1.1.sp)
+                }
+                Spacer(Modifier.height(3.dp))
+                Text(
+                    "“${recentMessage.trim()}”",
+                    color = DesktopMuted,
+                    fontSize = 12.sp,
+                    fontStyle = FontStyle.Italic,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(6.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    DesktopTinyTag("陪伴中")
+                    DesktopTinyTag("点我聊天")
+                }
+            }
+            Icon(Icons.Outlined.ChevronRight, "进入聊天", tint = DesktopMuted, modifier = Modifier.size(20.dp))
+        }
+    }
+}
+
+@Composable
+private fun DesktopMomentCard(
+    characterName: String,
+    dateLabel: String,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().height(108.dp),
+        color = DesktopCard,
+        shape = RoundedCornerShape(24.dp),
+        border = BorderStroke(1.dp, DesktopLine),
+        shadowElevation = 1.dp,
+        onClick = onClick,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(13.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("TODAY MOMENT", color = DesktopMuted, fontSize = 8.sp, letterSpacing = 1.4.sp)
+                Spacer(Modifier.height(7.dp))
+                Text("给今天留一个位置", color = DesktopInk, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "$characterName 想和你一起保存一点心情。",
+                    color = DesktopMuted,
+                    fontSize = 11.sp,
+                    lineHeight = 16.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(7.dp))
+                Text(dateLabel, color = DesktopInk, fontSize = 10.sp, letterSpacing = 1.2.sp)
+            }
+            Spacer(Modifier.width(12.dp))
+            DesktopPhotoPlaceholder()
+        }
+    }
+}
+
+@Composable
+private fun DesktopPhotoPlaceholder() {
+    Surface(
+        modifier = Modifier.width(96.dp).fillMaxHeight(),
+        color = DesktopSoft,
         shape = RoundedCornerShape(18.dp),
         border = BorderStroke(1.dp, DesktopLine),
     ) {
-        Row(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 13.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Surface(Modifier.size(34.dp), RoundedCornerShape(11.dp), DesktopSoft) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(icon, null, tint = DesktopIcon, modifier = Modifier.size(18.dp))
-                }
-            }
-            Spacer(Modifier.width(10.dp))
-            Column(Modifier.weight(1f)) {
-                Text(eyebrow, color = DesktopMuted, fontSize = 8.sp, fontWeight = FontWeight.Medium, letterSpacing = 1.1.sp)
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(Icons.Outlined.Image, null, tint = DesktopMuted, modifier = Modifier.size(22.dp))
+                Spacer(Modifier.height(6.dp))
+                Text("PHOTO", color = DesktopInk, fontSize = 9.sp, letterSpacing = 1.2.sp)
                 Spacer(Modifier.height(2.dp))
-                Text(title, color = DesktopInk, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
-                Text(subtitle, color = DesktopMuted, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text("待插入", color = DesktopMuted, fontSize = 9.sp)
             }
         }
+    }
+}
+
+@Composable
+private fun DesktopTinyTag(text: String) {
+    Surface(
+        color = Color.Transparent,
+        shape = RoundedCornerShape(99.dp),
+        border = BorderStroke(1.dp, DesktopLine),
+    ) {
+        Text(text, color = DesktopMuted, fontSize = 9.sp, modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp))
     }
 }
 
