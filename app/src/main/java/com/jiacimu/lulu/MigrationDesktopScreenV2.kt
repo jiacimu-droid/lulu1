@@ -49,6 +49,10 @@ private val DesktopV2Launchers = listOf(
     DesktopV2Launcher("settings", "设置", Icons.Outlined.Settings, MigrationRoute.Settings),
 )
 
+private const val DESKTOP_COLUMNS = 4
+private const val DESKTOP_ROWS = 5
+private const val DESKTOP_SLOT_COUNT = DESKTOP_COLUMNS * DESKTOP_ROWS
+
 private val DesktopPaper = Color(0xFFFFFFFF)
 private val DesktopSoft = Color(0xFFF7F7F7)
 private val DesktopIconSurface = Color(0xFFF4F4F4)
@@ -92,49 +96,35 @@ internal fun MigrationHomeV2(
                 .navigationBarsPadding()
                 .padding(horizontal = 20.dp),
         ) {
-            Spacer(Modifier.height(18.dp))
-
+            Spacer(Modifier.height(16.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(Modifier.weight(1f)) {
-                    Text(
-                        text = dateText,
-                        color = DesktopMuted,
-                        fontSize = 12.sp,
-                        letterSpacing = 0.4.sp,
-                    )
+                    Text(dateText, color = DesktopMuted, fontSize = 12.sp, letterSpacing = 0.4.sp)
                     Spacer(Modifier.height(5.dp))
                     Text(
-                        text = "$greeting，主人",
+                        "$greeting，主人",
                         color = DesktopInk,
                         fontSize = 25.sp,
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
-                DesktopV2Avatar(
-                    text = currentCharacter.displayName.take(1).ifBlank { "露" },
-                    size = 48,
-                )
+                DesktopV2Avatar(currentCharacter.displayName.take(1).ifBlank { "露" }, 48)
             }
 
-            Spacer(Modifier.height(18.dp))
-
+            Spacer(Modifier.height(16.dp))
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 color = DesktopCard,
                 shape = RoundedCornerShape(22.dp),
                 border = BorderStroke(1.dp, DesktopLine),
                 shadowElevation = 1.dp,
-                onClick = {
-                    recent?.let { onOpenConversation(it.id) } ?: onOpen(MigrationRoute.Chat)
-                },
+                onClick = { recent?.let { onOpenConversation(it.id) } ?: onOpen(MigrationRoute.Chat) },
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 15.dp, vertical = 14.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Surface(
@@ -143,14 +133,11 @@ internal fun MigrationHomeV2(
                         shape = RoundedCornerShape(99.dp),
                     ) {}
                     Spacer(Modifier.width(12.dp))
-                    DesktopV2Avatar(
-                        text = currentCharacter.displayName.take(1).ifBlank { "露" },
-                        size = 42,
-                    )
+                    DesktopV2Avatar(currentCharacter.displayName.take(1).ifBlank { "露" }, 42)
                     Spacer(Modifier.width(11.dp))
                     Column(Modifier.weight(1f)) {
                         Text(
-                            text = "最近消息",
+                            "最近消息",
                             color = DesktopMuted,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Medium,
@@ -158,7 +145,7 @@ internal fun MigrationHomeV2(
                         )
                         Spacer(Modifier.height(2.dp))
                         Text(
-                            text = recent?.lastMessage
+                            recent?.lastMessage
                                 ?.ifBlank { "点这里去找${currentCharacter.displayName}。" }
                                 ?: "点这里进入聊天。",
                             color = DesktopInk,
@@ -168,56 +155,42 @@ internal fun MigrationHomeV2(
                             fontWeight = FontWeight.Medium,
                         )
                     }
-                    Icon(
-                        imageVector = Icons.Outlined.ChevronRight,
-                        contentDescription = "进入聊天",
-                        tint = DesktopMuted,
-                        modifier = Modifier.size(22.dp),
-                    )
+                    Icon(Icons.Outlined.ChevronRight, "进入聊天", tint = DesktopMuted, modifier = Modifier.size(22.dp))
                 }
             }
 
-            Spacer(Modifier.height(14.dp))
-
+            Spacer(Modifier.height(12.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 DesktopInfoCard(
-                    modifier = Modifier.weight(1f),
-                    eyebrow = "TODAY",
-                    title = today.format(DateTimeFormatter.ofPattern("MM / dd")),
-                    subtitle = "今天也慢慢来",
-                    icon = Icons.Outlined.CalendarToday,
+                    Modifier.weight(1f),
+                    "TODAY",
+                    today.format(DateTimeFormatter.ofPattern("MM / dd")),
+                    "今天也慢慢来",
+                    Icons.Outlined.CalendarToday,
                 )
                 DesktopInfoCard(
-                    modifier = Modifier.weight(1f),
-                    eyebrow = "COMPANION",
-                    title = currentCharacter.displayName,
-                    subtitle = "正在这里陪着你",
-                    icon = Icons.Outlined.FavoriteBorder,
+                    Modifier.weight(1f),
+                    "COMPANION",
+                    currentCharacter.displayName,
+                    "正在这里陪着你",
+                    Icons.Outlined.FavoriteBorder,
                 )
             }
 
-            Spacer(Modifier.weight(1f))
-
+            Spacer(Modifier.height(34.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Surface(
-                    modifier = Modifier.size(5.dp),
-                    shape = CircleShape,
-                    color = DesktopAccent,
-                ) {}
+                Surface(Modifier.size(5.dp), CircleShape, DesktopAccent) {}
                 Spacer(Modifier.width(9.dp))
-                Surface(
-                    modifier = Modifier.weight(1f).height(1.dp),
-                    color = DesktopLine,
-                ) {}
+                Surface(Modifier.weight(1f).height(1.dp), color = DesktopLine) {}
                 Spacer(Modifier.width(9.dp))
                 Text(
-                    text = "APPS",
+                    "APPS",
                     color = DesktopMuted,
                     fontSize = 9.sp,
                     fontWeight = FontWeight.Medium,
@@ -225,11 +198,10 @@ internal fun MigrationHomeV2(
                 )
             }
 
-            Spacer(Modifier.height(14.dp))
-
+            Spacer(Modifier.height(10.dp))
             DesktopLauncherGrid(
                 slots = slots,
-                modifier = Modifier.fillMaxWidth().height(356.dp),
+                modifier = Modifier.fillMaxWidth().weight(1f),
                 onMove = { from, to ->
                     if (from != to) {
                         val updated = slots.toMutableList()
@@ -264,39 +236,17 @@ private fun DesktopInfoCard(
             modifier = Modifier.fillMaxSize().padding(horizontal = 13.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Surface(
-                modifier = Modifier.size(34.dp),
-                shape = RoundedCornerShape(11.dp),
-                color = DesktopSoft,
-            ) {
+            Surface(Modifier.size(34.dp), RoundedCornerShape(11.dp), DesktopSoft) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(icon, null, tint = DesktopIcon, modifier = Modifier.size(18.dp))
                 }
             }
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text(
-                    text = eyebrow,
-                    color = DesktopMuted,
-                    fontSize = 8.sp,
-                    fontWeight = FontWeight.Medium,
-                    letterSpacing = 1.1.sp,
-                )
+                Text(eyebrow, color = DesktopMuted, fontSize = 8.sp, fontWeight = FontWeight.Medium, letterSpacing = 1.1.sp)
                 Spacer(Modifier.height(2.dp))
-                Text(
-                    text = title,
-                    color = DesktopInk,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                )
-                Text(
-                    text = subtitle,
-                    color = DesktopMuted,
-                    fontSize = 9.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Text(title, color = DesktopInk, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                Text(subtitle, color = DesktopMuted, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
     }
@@ -310,12 +260,12 @@ private fun DesktopLauncherGrid(
     onOpen: (MigrationRoute) -> Unit,
 ) {
     BoxWithConstraints(modifier) {
-        val cellWidth = maxWidth / 4
-        val cellHeight = 89.dp
+        val cellWidth = maxWidth / DESKTOP_COLUMNS
+        val cellHeight = maxHeight / DESKTOP_ROWS
         slots.forEachIndexed { index, launcherId ->
             val launcher = DesktopV2Launchers.firstOrNull { it.id == launcherId } ?: return@forEachIndexed
-            val column = index % 4
-            val row = index / 4
+            val column = index % DESKTOP_COLUMNS
+            val row = index / DESKTOP_COLUMNS
             var dragX by remember(launcherId) { mutableFloatStateOf(0f) }
             var dragY by remember(launcherId) { mutableFloatStateOf(0f) }
             var dragging by remember(launcherId) { mutableStateOf(false) }
@@ -329,8 +279,8 @@ private fun DesktopLauncherGrid(
                     .graphicsLayer {
                         translationX = dragX
                         translationY = dragY
-                        scaleX = if (dragging) 1.06f else 1f
-                        scaleY = if (dragging) 1.06f else 1f
+                        scaleX = if (dragging) 1.05f else 1f
+                        scaleY = if (dragging) 1.05f else 1f
                         shadowElevation = if (dragging) 10f else 0f
                     }
                     .pointerInput(index, cellWidth, cellHeight) {
@@ -342,9 +292,9 @@ private fun DesktopLauncherGrid(
                                 dragY = 0f
                             },
                             onDragEnd = {
-                                val targetColumn = (column + dragX / cellWidth.toPx()).roundToInt().coerceIn(0, 3)
-                                val targetRow = (row + dragY / cellHeight.toPx()).roundToInt().coerceIn(0, 3)
-                                onMove(index, targetRow * 4 + targetColumn)
+                                val targetColumn = (column + dragX / cellWidth.toPx()).roundToInt().coerceIn(0, DESKTOP_COLUMNS - 1)
+                                val targetRow = (row + dragY / cellHeight.toPx()).roundToInt().coerceIn(0, DESKTOP_ROWS - 1)
+                                onMove(index, targetRow * DESKTOP_COLUMNS + targetColumn)
                                 dragging = false
                                 dragX = 0f
                                 dragY = 0f
@@ -377,21 +327,16 @@ private fun DesktopV2LauncherItem(
             color = DesktopIconSurface,
             border = BorderStroke(1.dp, DesktopLine),
             shadowElevation = 1.dp,
-            modifier = Modifier.size(61.dp),
+            modifier = Modifier.width(61.dp).height(66.dp),
             onClick = onClick,
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = launcher.icon,
-                    contentDescription = launcher.title,
-                    tint = DesktopIcon,
-                    modifier = Modifier.size(27.dp),
-                )
+                Icon(launcher.icon, launcher.title, tint = DesktopIcon, modifier = Modifier.size(27.dp))
             }
         }
         Spacer(Modifier.height(6.dp))
         Text(
-            text = launcher.title,
+            launcher.title,
             color = DesktopInk,
             fontSize = 11.sp,
             fontWeight = FontWeight.Medium,
@@ -410,26 +355,21 @@ private fun DesktopV2Avatar(text: String, size: Int) {
         modifier = Modifier.size(size.dp),
     ) {
         Box(contentAlignment = Alignment.Center) {
-            Text(
-                text = text,
-                fontSize = (size / 2.75).sp,
-                fontWeight = FontWeight.Bold,
-                color = DesktopInk,
-            )
+            Text(text, fontSize = (size / 2.75).sp, fontWeight = FontWeight.Bold, color = DesktopInk)
         }
     }
 }
 
 private fun loadDesktopSlots(context: Context): List<String?> {
-    val defaults = MutableList<String?>(16) { null }
+    val defaults = MutableList<String?>(DESKTOP_SLOT_COUNT) { null }
     DesktopV2Launchers.forEachIndexed { index, launcher -> defaults[index] = launcher.id }
     val raw = context.getSharedPreferences("lulu_desktop_layout", Context.MODE_PRIVATE)
         .getString("slots_v1", null)
         ?: return defaults
     val parsed = raw.split('|').map { value -> value.takeIf(String::isNotBlank) }.toMutableList()
-    while (parsed.size < 16) parsed.add(null)
+    while (parsed.size < DESKTOP_SLOT_COUNT) parsed.add(null)
     val known = DesktopV2Launchers.mapTo(mutableSetOf()) { it.id }
-    val sanitized = parsed.take(16).map { id -> id?.takeIf { it in known } }.toMutableList()
+    val sanitized = parsed.take(DESKTOP_SLOT_COUNT).map { id -> id?.takeIf { it in known } }.toMutableList()
     val existing = sanitized.filterNotNull().toMutableSet()
     DesktopV2Launchers.filterNot { it.id in existing }.forEach { launcher ->
         val empty = sanitized.indexOfFirst { it == null }
@@ -441,6 +381,6 @@ private fun loadDesktopSlots(context: Context): List<String?> {
 private fun saveDesktopSlots(context: Context, slots: List<String?>) {
     context.getSharedPreferences("lulu_desktop_layout", Context.MODE_PRIVATE)
         .edit()
-        .putString("slots_v1", slots.joinToString("|") { it.orEmpty() })
+        .putString("slots_v1", slots.take(DESKTOP_SLOT_COUNT).joinToString("|") { it.orEmpty() })
         .apply()
 }
