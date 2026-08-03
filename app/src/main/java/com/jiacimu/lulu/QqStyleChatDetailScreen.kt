@@ -96,10 +96,7 @@ fun QqStyleChatDetailScreen(
             scope.launch { snackbar.showSnackbar("请先在聊天页右上角选择模型存档") }
             return
         }
-        if (pendingUserMessages.isEmpty()) {
-            scope.launch { snackbar.showSnackbar("还没有等待角色回复的新消息") }
-            return
-        }
+        if (pendingUserMessages.isEmpty()) return
         val pendingIds = pendingUserMessages.mapTo(mutableSetOf()) { it.id }
         val pendingText = pendingUserMessages.joinToString("\n") { it.content.trim() }
         val history = buildBoundedHistory(
@@ -120,10 +117,10 @@ fun QqStyleChatDetailScreen(
                     if (reply.text.isNotBlank()) {
                         MigratedDomainStores.chat.appendCharacterMessage(conversationId, reply.text)
                     } else {
-                        snackbar.showSnackbar("模型返回了空内容，请再点一次接收")
+                        snackbar.showSnackbar("这次没有收到回复，再点一下试试")
                     }
                 }.onFailure { error ->
-                    snackbar.showSnackbar(error.message ?: "接收回复失败")
+                    snackbar.showSnackbar(error.message ?: "回复失败")
                 }
             } finally {
                 receiving = false
@@ -169,11 +166,7 @@ fun QqStyleChatDetailScreen(
                         }
                         DropdownMenu(expanded = modelExpanded, onDismissRequest = { modelExpanded = false }) {
                             if (library.archives.isEmpty()) {
-                                DropdownMenuItem(
-                                    text = { Text("还没有模型存档") },
-                                    enabled = false,
-                                    onClick = {},
-                                )
+                                DropdownMenuItem(text = { Text("还没有模型存档") }, enabled = false, onClick = {})
                             } else {
                                 library.archives.forEach { archive ->
                                     val selected = archive.id == library.activeArchiveId
@@ -207,65 +200,42 @@ fun QqStyleChatDetailScreen(
         },
         bottomBar = {
             Surface(color = QqHeader, tonalElevation = 2.dp) {
-                Column(
+                Row(
                     Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 8.dp, vertical = 7.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        IconButton(onClick = {
-                            voiceLauncher.launch(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                            })
-                        }) { Icon(Icons.Outlined.KeyboardVoice, "语音") }
-                        TextField(
-                            value = input,
-                            onValueChange = { input = it },
-                            modifier = Modifier.weight(1f),
-                            minLines = 1,
-                            maxLines = 5,
-                            placeholder = { Text("先发送，可以连续发多条", color = QqMuted) },
-                            shape = RoundedCornerShape(18.dp),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                            ),
-                        )
-                        FilledIconButton(
-                            onClick = ::sendOnly,
-                            enabled = input.isNotBlank(),
-                        ) {
-                            Icon(Icons.Outlined.Send, "发送")
-                        }
+                    IconButton(onClick = {
+                        voiceLauncher.launch(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                        })
+                    }) { Icon(Icons.Outlined.KeyboardVoice, "语音") }
+                    TextField(
+                        value = input,
+                        onValueChange = { input = it },
+                        modifier = Modifier.weight(1f),
+                        minLines = 1,
+                        maxLines = 5,
+                        placeholder = { Text("发消息", color = QqMuted) },
+                        shape = RoundedCornerShape(18.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                        ),
+                    )
+                    FilledIconButton(onClick = ::sendOnly, enabled = input.isNotBlank()) {
+                        Icon(Icons.Outlined.Send, "发送")
                     }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
+                    FilledTonalIconButton(
+                        onClick = { if (receiving) stopReceiving() else receiveReply() },
+                        enabled = receiving || pendingUserMessages.isNotEmpty(),
                     ) {
-                        Text(
-                            text = if (pendingUserMessages.isEmpty()) "没有待回复消息" else "待回复 ${pendingUserMessages.size} 条",
-                            color = QqMuted,
-                            fontSize = 11.sp,
+                        Icon(
+                            if (receiving) Icons.Outlined.StopCircle else Icons.Outlined.MarkChatUnread,
+                            if (receiving) "停止回复" else "让对方回复",
                         )
-                        Spacer(Modifier.width(9.dp))
-                        FilledTonalButton(
-                            onClick = { if (receiving) stopReceiving() else receiveReply() },
-                            enabled = receiving || pendingUserMessages.isNotEmpty(),
-                            contentPadding = PaddingValues(horizontal = 15.dp, vertical = 7.dp),
-                        ) {
-                            Icon(
-                                if (receiving) Icons.Outlined.StopCircle else Icons.Outlined.MarkChatRead,
-                                null,
-                                modifier = Modifier.size(18.dp),
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text(if (receiving) "停止" else "接收")
-                        }
                     }
                 }
             }
@@ -298,11 +268,18 @@ fun QqStyleChatDetailScreen(
                     Row(verticalAlignment = Alignment.Top) {
                         QqAvatar(character.displayName.take(1).ifBlank { "露" }, 44)
                         Spacer(Modifier.width(9.dp))
-                        Surface(color = QqOther, shape = RoundedCornerShape(16.dp), border = androidx.compose.foundation.BorderStroke(1.dp, QqBorder)) {
-                            Row(Modifier.padding(horizontal = 14.dp, vertical = 11.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Surface(
+                            color = QqOther,
+                            shape = RoundedCornerShape(16.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, QqBorder),
+                        ) {
+                            Row(
+                                Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
                                 CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp)
                                 Spacer(Modifier.width(8.dp))
-                                Text("正在读取这些消息并组织回复…", color = QqMuted, fontSize = 13.sp)
+                                Text("对方正在输入…", color = QqMuted, fontSize = 13.sp)
                             }
                         }
                     }
