@@ -86,6 +86,48 @@ private object CampaignColors {
     val mint = Color(0xFF61E6B3)
 }
 
+private const val LEGACY_OPENING = "你们抵达了故事的入口。空气里已有某种东西先一步注意到了你们。"
+
+private fun campaignOpening(world: CampaignWorld, partyNames: List<String>): String {
+    val party = partyNames.joinToString("、").ifBlank { "同行者" }
+    val scene = when (world.id) {
+        "occult_city" -> "凌晨十一点四十七分，雾港旧车站的末班钟响了三次。售票厅早已停用，湿漉漉的地砖上却摆着一只刚送来的牛皮纸信封。信封里有一张写着你名字的旧车票，终点站一栏被刮掉，只剩明天的日期。站外，一名失踪者的家属正在雨棚下等你们；而封闭多年的三号站台，刚刚亮起了灯。"
+        "fantasy_ruin" -> "失落王庭在黎明前从裂谷中升起，整座城市仍滴着三百年前地底河的黑水。你们站在断桥这一端，城门上十二尊无首雕像同时转向了你。守门石碑要求每位来客报出真名，可${party}中的一个人忽然发现，自己已经想不起母亲给他的名字。"
+        "space_derelict" -> "接驳舱与静默星舰完成锁定时，外部摄像头拍到舷窗后有人挥手。可生命扫描仍显示全舰零存活。气闸开启后，走廊灯依次亮起，主脑用温柔得近乎僵硬的声音欢迎你们回家，并要求立刻前往休眠区参加二十年前尚未结束的点名。"
+        "academy_secret" -> "晚自习结束后暴雨封住了校门。你们返回教学楼取东西，却发现四楼走廊比白天多出一截。尽头那扇没有编号的门里亮着灯，黑板上写着你和${party}的名字，课表第一节是“缺席者说明会”。身后的楼梯间传来班主任的脚步声，但班主任今天明明请了假。"
+        "romance_target_me" -> "实验开始于一栋看似普通的合租公寓。你醒来时，客厅屏幕宣布：七天内，只有被你主动选择的人能离开。${party}都声称自己刚刚才知道规则，可茶几上分别放着只属于他们的秘密任务卡。第一顿早餐尚未开始，门锁便提示：今天必须完成一次双人约会。"
+        "romance_i_target" -> "周六午后，你和${party}在旧城区的独立书店集合。你口袋里的《心动对象观察日志》第一次自行翻页，只写下一句：‘心动不会告诉你答案，只会改变细节。’窗外忽然下雨，店员说最后一把伞只能借给两个人。与此同时，其中一人的手机亮起，屏幕上是与你有关、却被迅速按灭的消息。"
+        "system_mission" -> "早上八点整，只有你们能看见的系统在餐桌上方弹出今日任务：‘在不暴露任务的前提下，与指定对象扮演情侣四小时。失败惩罚：互换手机通讯录备注。’指定对象的名字被故意打了码，而${party}每个人收到的提示似乎都不一样。门铃恰在这时响起，来客自称是你们共同的前任。"
+        "palace_scheme" -> "新帝登基后的第一场雪封住宫门。你们被秘密召到午门外，一具没有影子的尸体伏在雪中，袖口藏着先帝禁用的朱砂印。禁军要求天亮前给出解释，否则所有在场者都会以谋逆论处。远处宫墙后传来一声钟响，而今夜本不该鸣钟。"
+        "cyber_memory" -> "霓虹雨沿着记忆交易所的玻璃幕墙往下流。你与${party}刚完成一次非法记忆鉴定，结果显示你们脑中都存在同一段童年：红色秋千、停电的医院和一句‘别让他们找到原件’。鉴定师在说出结果后被远程清除了身份，而追踪警报已经锁定这间诊室。"
+        "apocalypse_store" -> "风暴季来临前，你们守着荒原最后一家仍亮灯的便利店。傍晚，一个穿旧校服的孩子用灾难前的崭新车票买走最后一盒草莓糖，随后走向早已断裂的公路。收银机却自动打印出一张地图，标记着二十公里外本不该存在的列车站。夜幕中，远处传来了火车鸣笛。"
+        "cultivation_comedy" -> "上古契约在你们面前烧成金字：因抄写者把名字写错，你、${party}与被封印的魔尊共享痛觉，距离超过十丈就会同时打喷嚏。解除契约的第一项试炼写着‘取得天下第一正道门派的掌门信物’，而掌门此刻正在山门外搜查偷走契约的人。"
+        "time_loop_date" -> "上午九点，你再次在同一家咖啡馆见到${party}。窗外同一辆公交车溅起同一片水，服务员打碎同一只杯子。你们都记得昨晚23:59世界归零，也记得重启前有人在天台说：‘只要这次约会以同样方式结束，明天就不会再有人醒来。’今天必须找出循环中唯一改变的细节。"
+        else -> "你与${party}抵达了${world.title}的起点。${world.premise}眼前已经出现第一个异常，它既是危险，也是进入真相的入口。"
+    }
+    return """
+        $scene
+
+        你们当前的首要目标，是在局势彻底失控前弄清眼前异常与核心事件的联系。现场至少有三条可追查方向，同行者也会依据各自性格提出意见、保护你或与你争执。你可以自由描述任何行动，不必局限于建议；行动越具体，判定和后果越明确。
+    """.trimIndent()
+}
+
+private fun suggestedActions(worldId: String): List<String> = when (worldId) {
+    "occult_city" -> listOf("检查旧车票和信封", "询问失踪者家属", "前往亮灯的三号站台", "观察周围是否有人跟踪")
+    "fantasy_ruin" -> listOf("研究守门石碑", "帮助同行者回忆名字", "寻找绕过断桥的路", "观察城门雕像")
+    "space_derelict" -> listOf("扫描走廊生命迹象", "质问主脑点名内容", "检查舷窗后的身影", "先封锁接驳舱退路")
+    "academy_secret" -> listOf("查看黑板上的课表", "推开第十三间教室", "躲起来观察脚步声", "联系真正的班主任")
+    "romance_target_me" -> listOf("检查秘密任务卡", "观察谁在说谎", "选择一人完成约会", "尝试破解公寓门锁")
+    "romance_i_target" -> listOf("邀请一人共撑雨伞", "追问被按灭的消息", "翻看日志的新变化", "提议大家一起去附近咖啡馆")
+    "system_mission" -> listOf("试探每个人收到的任务", "主动认领情侣身份", "询问门外来客", "寻找系统规则漏洞")
+    "palace_scheme" -> listOf("检查尸体与朱砂印", "询问值守禁军", "追查异常钟声", "保护现场避免被栽赃")
+    "cyber_memory" -> listOf("导出共同记忆片段", "切断诊室网络", "追查记忆原件", "从追踪警报中找出口")
+    "apocalypse_store" -> listOf("追上买糖的孩子", "研究收银机地图", "加固便利店准备风暴", "询问同行者是否听到火车")
+    "cultivation_comedy" -> listOf("研究契约漏洞", "伪装通过山门搜查", "与魔尊谈条件", "寻找掌门信物线索")
+    "time_loop_date" -> listOf("记录今天所有异常", "询问每个人重启前经历", "重走昨天的约会路线", "提前前往天台")
+    else -> listOf("调查眼前异常", "与同行者商量", "寻找安全退路", "追踪最明显的线索")
+}
+
 private class CampaignStore(context: Context) {
     private val prefs = context.applicationContext.getSharedPreferences("formal_roleplay_campaigns_v2", Context.MODE_PRIVATE)
 
@@ -94,15 +136,21 @@ private class CampaignStore(context: Context) {
         buildList {
             for (index in 0 until array.length()) {
                 val item = array.optJSONObject(index) ?: continue
+                val worldId = item.optString("worldId").ifBlank { CAMPAIGN_WORLDS.first().id }
+                val partyNames = item.optJSONArray("partyNames").stringList()
+                val world = CAMPAIGN_WORLDS.firstOrNull { it.id == worldId } ?: CAMPAIGN_WORLDS.first()
+                val storedNarration = item.optString("narration")
                 add(CampaignSave(
                     id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
                     title = item.optString("title").ifBlank { "未命名战役" },
-                    worldId = item.optString("worldId").ifBlank { CAMPAIGN_WORLDS.first().id },
+                    worldId = worldId,
                     partyIds = item.optJSONArray("partyIds").stringList(),
-                    partyNames = item.optJSONArray("partyNames").stringList(),
+                    partyNames = partyNames,
                     scene = item.optInt("scene", 1), hp = item.optInt("hp", 10),
                     sanity = item.optInt("sanity", 10), luck = item.optInt("luck", 3), clues = item.optInt("clues", 0),
-                    narration = item.optString("narration"), log = item.optJSONArray("log").stringList(),
+                    narration = storedNarration.takeUnless { it.isBlank() || it == LEGACY_OPENING }
+                        ?: campaignOpening(world, partyNames),
+                    log = item.optJSONArray("log").stringList(),
                     updatedAt = item.optLong("updatedAt", System.currentTimeMillis()),
                 ))
             }
@@ -164,13 +212,14 @@ internal fun FormalRoleplayCampaignScreen(store: LuluGameStore, onBack: () -> Un
             characters = characters.values.toList(),
             onDismiss = { creating = false },
             onCreate = { title, world, party ->
+                val partyNames = party.map(CharacterSettings::displayName)
                 val save = CampaignSave(
                     id = UUID.randomUUID().toString(),
                     title = title.ifBlank { world.title },
                     worldId = world.id,
                     partyIds = party.map(CharacterSettings::characterId),
-                    partyNames = party.map(CharacterSettings::displayName),
-                    narration = "你们抵达了故事的入口。空气里已有某种东西先一步注意到了你们。",
+                    partyNames = partyNames,
+                    narration = campaignOpening(world, partyNames),
                 )
                 saves = listOf(save) + saves
                 campaignStore.save(saves)
@@ -357,38 +406,59 @@ private fun CampaignPlay(
             val partyPrompt = party.joinToString("\n") { member ->
                 "- ${member.displayName}：${member.persona.ifBlank { "按其既有角色设定行动" }}"
             }
-            val generation = LuluAiServices.gateway.generate(
+            val facts = """
+                正式跑团：《${save.title}》
+                世界：${world.title}
+                前提：${world.premise}
+                文风：${world.style}
+                当前场景：${save.scene}
+                状态：生命${save.hp}/10，理智${save.sanity}/10，幸运${save.luck}，线索${save.clues}
+                用户行动：$cleanAction
+                程序判定：d20=$roll，难度=$difficulty，结果=$result${if (useLuck) "（已消耗幸运，取两次较高值）" else ""}
+                同行角色：
+                $partyPrompt
+                最近记录：
+                ${save.log.takeLast(8).joinToString("\n")}
+                上一段叙事：
+                ${save.narration.takeLast(2600)}
+            """.trimIndent()
+            val instruction = """
+                你是成熟的跑团主持人与小说叙事者。必须服从程序骰点，不得改骰或把失败偷换成成功。
+                “你”只代表用户本人；同行角色必须直接写名字，禁止用含混的“我”混淆视角。
+                输出约700—1200个汉字的完整沉浸正文。先写行动如何发生，再写骰点结果造成的具体后果；使用环境、五感、空间距离、微动作、心理压力和潜台词。
+                同行角色是主角小队，每轮至少发生两次有效互动，每个人必须符合persona，不能变成只会附和的背景板。
+                失败必须产生真实代价，但也必须推进剧情，给出新信息、危险或可追踪线索，绝不让故事卡死。
+                结尾必须自然留下2—4个明确可行动方向，但不要写数值面板、系统解释、“选项A/B”或“主持人说”。
+                只输出游戏正文，不要返回空内容，不要输出JSON。
+            """.trimIndent()
+
+            var generation = LuluAiServices.gateway.generate(
                 characterId = party.firstOrNull()?.characterId ?: "lulu",
-                facts = """
-                    正式跑团：《${save.title}》
-                    世界：${world.title}
-                    前提：${world.premise}
-                    文风：${world.style}
-                    当前场景：${save.scene}
-                    状态：生命${save.hp}/10，理智${save.sanity}/10，幸运${save.luck}，线索${save.clues}
-                    用户行动：$cleanAction
-                    程序判定：d20=$roll，难度=$difficulty，结果=$result${if (useLuck) "（已消耗幸运，取两次较高值）" else ""}
-                    同行角色：
-                    $partyPrompt
-                    最近记录：
-                    ${save.log.takeLast(8).joinToString("\n")}
-                    上一段叙事：
-                    ${save.narration.takeLast(1800)}
-                """.trimIndent(),
-                instruction = """
-                    你是成熟的跑团主持人与小说叙事者。必须服从程序骰点，不得改骰或把失败偷换成成功。
-                    “你”只代表用户本人；同行角色必须直接写名字，禁止用含混的“我”混淆视角。
-                    输出约800—1400个汉字的沉浸正文，用环境、五感、空间距离、微动作、心理压力、潜台词和真实后果写出过程。
-                    同行角色是主角小队，每轮至少发生两次有效互动：发现、提醒、保护、争执、分工、试探、情绪反应或关系变化；每个人必须符合persona。
-                    严格执行当前世界文风。恐怖强化未知、寂静、错位和心理压迫；恋爱强化距离、试探、偏爱与未说出口的话；轻喜剧不能让角色降智；权谋强调身份和言外之意。
-                    失败必须产生真实后果，但仍给出新信息、危险或可行动方向。结尾自然留下2—4个方向，不要写系统解释、数值面板或“主持人说”。
-                """.trimIndent(),
+                facts = facts,
+                instruction = instruction,
                 source = "游戏",
                 title = "跑团 · ${world.title}",
-                temperature = 0.86,
-                maxTokens = 1900,
+                temperature = 0.82,
+                maxTokens = 1800,
             )
+            if (generation.getOrNull()?.text.isNullOrBlank()) {
+                generation = LuluAiServices.gateway.generate(
+                    characterId = party.firstOrNull()?.characterId ?: "lulu",
+                    facts = facts,
+                    instruction = instruction + "\n上一次返回为空。本次请立刻从用户行动发生的瞬间开始写正文，至少600个汉字。",
+                    source = "游戏重试",
+                    title = "跑团 · ${world.title}",
+                    temperature = 0.72,
+                    maxTokens = 1600,
+                )
+            }
+
             generation.onSuccess { reply ->
+                if (reply.text.isBlank()) {
+                    lastResult = "$result · 叙事暂时中断，原行动已保留，可再次掷骰"
+                    busy = false
+                    return@onSuccess
+                }
                 val hpDelta = when { roll == 1 -> -2; result == "失败" && Random.nextBoolean() -> -1; else -> 0 }
                 val sanityDelta = when { world.sanityRisk && roll == 1 -> -2; world.sanityRisk && result == "失败" -> -1; else -> 0 }
                 val clueDelta = when { roll == 20 -> 2; result == "成功" -> 1; else -> 0 }
@@ -399,7 +469,7 @@ private fun CampaignPlay(
                     luck = (save.luck - if (useLuck) 1 else 0).coerceAtLeast(0),
                     clues = save.clues + clueDelta,
                     narration = reply.text,
-                    log = (save.log + "SCENE ${save.scene}｜$cleanAction｜d20=$roll $result" + reply.text.take(500)).takeLast(80),
+                    log = (save.log + "SCENE ${save.scene}｜$cleanAction｜d20=$roll $result\n${reply.text.take(500)}").takeLast(80),
                     updatedAt = System.currentTimeMillis(),
                 )
                 val recordId = gameStore.recordExternalGame(
@@ -416,8 +486,8 @@ private fun CampaignPlay(
                 onUpdate(updated)
                 action = ""
             }
-            generation.onFailure { failure ->
-                lastResult = failure.message ?: "本轮生成失败，请重试"
+            generation.onFailure {
+                lastResult = "$result · 叙事暂时中断，原行动已保留，可再次尝试"
             }
             busy = false
         }
@@ -449,7 +519,28 @@ private fun CampaignPlay(
                     Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp), color = CampaignColors.panel,
                     border = BorderStroke(1.dp, world.accent.copy(alpha = 0.52f)),
                 ) {
-                    Text(save.narration, Modifier.padding(18.dp), color = CampaignColors.text, fontSize = 16.sp, lineHeight = 27.sp)
+                    Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
+                        Text(save.narration, color = CampaignColors.text, fontSize = 16.sp, lineHeight = 27.sp)
+                        HorizontalDivider(color = CampaignColors.border.copy(alpha = 0.7f))
+                        Text("你可以这样开始", color = world.accent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        suggestedActions(world.id).chunked(2).forEach { rowActions ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                rowActions.forEach { suggestion ->
+                                    AssistChip(
+                                        onClick = { action = suggestion },
+                                        label = { Text(suggestion, maxLines = 2) },
+                                        modifier = Modifier.weight(1f),
+                                        colors = AssistChipDefaults.assistChipColors(
+                                            containerColor = world.accent.copy(alpha = 0.10f),
+                                            labelColor = CampaignColors.text,
+                                        ),
+                                        border = BorderStroke(1.dp, world.accent.copy(alpha = 0.35f)),
+                                    )
+                                }
+                                if (rowActions.size == 1) Spacer(Modifier.weight(1f))
+                            }
+                        }
+                    }
                 }
             }
             if (rolling || lastRoll > 0) {
@@ -476,7 +567,8 @@ private fun CampaignPlay(
                     value = action,
                     onValueChange = { value -> action = value },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("你要做什么？") },
+                    label = { Text("描述你的行动") },
+                    placeholder = { Text("例如：我先检查那条异常信息，再问同行者有没有注意到别的细节") },
                     minLines = 2,
                     maxLines = 5,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -487,6 +579,8 @@ private fun CampaignPlay(
                         unfocusedBorderColor = CampaignColors.border,
                         focusedLabelColor = world.accent,
                         unfocusedLabelColor = CampaignColors.muted,
+                        focusedPlaceholderColor = CampaignColors.muted,
+                        unfocusedPlaceholderColor = CampaignColors.muted,
                     ),
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
