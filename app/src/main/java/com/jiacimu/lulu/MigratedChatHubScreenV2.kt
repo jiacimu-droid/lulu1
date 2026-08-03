@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -20,8 +21,18 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.LuluConversation
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.design.LuluColors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+
+private val ChatHubLabels = listOf("消息", "角色", "朋友圈", "我的")
+private val ChatHubIcons = listOf(
+    Icons.Outlined.ChatBubbleOutline,
+    Icons.Outlined.PeopleOutline,
+    Icons.Outlined.DynamicFeed,
+    Icons.Outlined.PersonOutline,
+)
 
 @Composable
 fun MigratedChatHubScreenV2(
@@ -32,24 +43,17 @@ fun MigratedChatHubScreenV2(
     onOpenSettings: () -> Unit,
 ) {
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
-    val labels = listOf("消息", "角色", "朋友圈", "我的")
-    val icons = listOf(
-        Icons.Outlined.ChatBubbleOutline,
-        Icons.Outlined.PeopleOutline,
-        Icons.Outlined.DynamicFeed,
-        Icons.Outlined.PersonOutline,
-    )
 
     Scaffold(
         containerColor = LuluColors.Paper,
         topBar = { MigratedChatTopBar("聊天", onBack) },
         bottomBar = {
             NavigationBar(containerColor = LuluColors.Card) {
-                labels.forEachIndexed { index, label ->
+                ChatHubLabels.forEachIndexed { index, label ->
                     NavigationBarItem(
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
-                        icon = { Icon(icons[index], label) },
+                        icon = { Icon(ChatHubIcons[index], label) },
                         label = { Text(label) },
                     )
                 }
@@ -70,26 +74,28 @@ fun MigratedChatHubScreenV2(
 @Composable
 private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
+    val characters by MigratedDomainStores.characters.settings.collectAsState()
     val sorted = remember(conversations) { conversations.sortedByDescending(LuluConversation::updatedAt) }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        item {
+        item(key = "header") {
             Text("消息", style = MaterialTheme.typography.headlineMedium)
             Text("按最近聊天时间排序；分支会保留原会话关系。", color = LuluColors.Muted)
         }
         if (sorted.isEmpty()) {
-            item {
+            item(key = "empty") {
                 ChatHubV2Card {
                     Text("还没有聊天", fontWeight = FontWeight.Bold)
                     Text("先到角色页创建角色，或从桌面最近聊天卡进入露露。", color = LuluColors.Muted)
                 }
             }
         } else {
-            items(sorted, key = LuluConversation::id) { conversation ->
-                val character = MigratedDomainStores.characters.get(conversation.characterId)
+            items(sorted, key = LuluConversation::id, contentType = { "conversation" }) { conversation ->
+                val character = characters[conversation.characterId]
+                    ?: MigratedDomainStores.characters.get(conversation.characterId)
                 Card(
                     modifier = Modifier.fillMaxWidth().clickable {
                         MigratedDomainStores.chat.markConversationRead(conversation.id)
@@ -144,6 +150,11 @@ private fun ChatHubV2Characters(
 ) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
+    val sortedCharacters = remember(characters) { characters.values.sortedBy { it.displayName } }
+    val recentByCharacter = remember(conversations) {
+        conversations.groupBy(LuluConversation::characterId)
+            .mapValues { (_, values) -> values.maxByOrNull(LuluConversation::updatedAt) }
+    }
     var showCreateDialog by remember { mutableStateOf(false) }
 
     LazyColumn(
@@ -151,7 +162,7 @@ private fun ChatHubV2Characters(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item {
+        item(key = "header") {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text("角色", style = MaterialTheme.typography.headlineMedium)
@@ -166,10 +177,8 @@ private fun ChatHubV2Characters(
                 ) { Icon(Icons.Outlined.Add, "新建角色") }
             }
         }
-        items(characters.values.sortedBy { it.displayName }, key = { it.characterId }) { character ->
-            val recent = conversations
-                .filter { it.characterId == character.characterId }
-                .maxByOrNull(LuluConversation::updatedAt)
+        items(sortedCharacters, key = { it.characterId }, contentType = { "character" }) { character ->
+            val recent = recentByCharacter[character.characterId]
             ChatHubV2Card {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 56)
@@ -248,8 +257,8 @@ private fun ChatHubV2Characters(
 private fun ChatHubV2Profile(onOpenSettings: () -> Unit) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
-    val favoriteCount by remember(conversations) {
-        derivedStateOf {
+    val favoriteCount by produceState(initialValue = 0, conversations) {
+        value = withContext(Dispatchers.Default) {
             conversations.sumOf { conversation ->
                 MigratedDomainStores.chat.messages(conversation.id).value.count { it.favorite }
             }
@@ -260,7 +269,7 @@ private fun ChatHubV2Profile(onOpenSettings: () -> Unit) {
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(13.dp),
     ) {
-        item {
+        item(key = "profile") {
             ChatHubV2Card {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ChatHubV2Avatar("主", 62)
@@ -272,14 +281,14 @@ private fun ChatHubV2Profile(onOpenSettings: () -> Unit) {
                 }
             }
         }
-        item {
+        item(key = "stats") {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ChatHubV2Stat(characters.size.toString(), "角色", Modifier.weight(1f))
                 ChatHubV2Stat(conversations.size.toString(), "会话", Modifier.weight(1f))
                 ChatHubV2Stat(favoriteCount.toString(), "收藏", Modifier.weight(1f))
             }
         }
-        item {
+        item(key = "settings") {
             ChatHubV2Card {
                 Text("我的内容", fontWeight = FontWeight.Bold)
                 Text(
