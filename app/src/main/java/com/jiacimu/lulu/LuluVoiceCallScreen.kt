@@ -22,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -39,8 +40,9 @@ import java.util.Locale
 
 private val CallPaper = Color(0xFFFFFFFF)
 private val CallSoft = Color(0xFFF7F7F7)
-private val CallCard = Color(0xFFFCFCFC)
-private val CallLine = Color(0xFFE7E7E7)
+private val CallGlass = Color(0xD9FFFFFF)
+private val CallGlassStrong = Color(0xEEFFFFFF)
+private val CallLine = Color(0x99E7E7E7)
 private val CallAccent = Color(0xFF292929)
 private val CallInk = Color(0xFF1D1D1F)
 private val CallMuted = Color(0xFF7A7A7E)
@@ -143,10 +145,33 @@ fun LuluVoiceCallScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(CallPaper)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color(0xFFFFFFFF),
+                            Color(0xFFF5F5F5),
+                            Color(0xFFEDEDED),
+                        ),
+                    ),
+                )
                 .statusBarsPadding()
                 .navigationBarsPadding(),
         ) {
+            Box(
+                modifier = Modifier
+                    .size(250.dp)
+                    .align(Alignment.TopEnd)
+                    .offset(x = 105.dp, y = (-85).dp)
+                    .background(Color(0x66FFFFFF), CircleShape),
+            )
+            Box(
+                modifier = Modifier
+                    .size(210.dp)
+                    .align(Alignment.CenterStart)
+                    .offset(x = (-125).dp, y = 30.dp)
+                    .background(Color(0x55DCDCDC), CircleShape),
+            )
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -162,10 +187,10 @@ fun LuluVoiceCallScreen(
                             tts.stop()
                             onDismiss()
                         },
-                        modifier = Modifier.size(42.dp),
+                        modifier = Modifier.size(42.dp).shadow(8.dp, CircleShape),
                         shape = CircleShape,
-                        color = CallCard,
-                        border = BorderStroke(1.dp, CallLine),
+                        color = CallGlass,
+                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.85f)),
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(Icons.Outlined.KeyboardArrowDown, "收起通话", tint = CallInk)
@@ -175,9 +200,10 @@ fun LuluVoiceCallScreen(
                     Box {
                         Surface(
                             onClick = { modelExpanded = true },
+                            modifier = Modifier.shadow(8.dp, RoundedCornerShape(50)),
                             shape = RoundedCornerShape(50),
-                            color = CallCard,
-                            border = BorderStroke(1.dp, CallLine),
+                            color = CallGlass,
+                            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.85f)),
                         ) {
                             Row(
                                 modifier = Modifier.padding(horizontal = 13.dp, vertical = 9.dp),
@@ -214,16 +240,16 @@ fun LuluVoiceCallScreen(
                 Box(contentAlignment = Alignment.Center) {
                     Box(
                         modifier = Modifier
-                            .size(if (connected) 128.dp else 150.dp)
-                            .background(CallSoft, CircleShape),
+                            .size(if (connected) 132.dp else 154.dp)
+                            .background(Color.White.copy(alpha = 0.38f), CircleShape),
                     )
                     Surface(
                         modifier = Modifier
                             .size(if (connected) 104.dp else 122.dp)
-                            .shadow(4.dp, CircleShape),
+                            .shadow(18.dp, CircleShape),
                         shape = CircleShape,
-                        color = CallCard,
-                        border = BorderStroke(1.dp, CallLine),
+                        color = CallGlassStrong,
+                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.92f)),
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Text(
@@ -261,11 +287,10 @@ fun LuluVoiceCallScreen(
                 if (!connected) {
                     Spacer(Modifier.weight(1f))
                     Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(22.dp),
-                        color = CallCard,
-                        border = BorderStroke(1.dp, CallLine),
-                        shadowElevation = 1.dp,
+                        modifier = Modifier.fillMaxWidth().shadow(16.dp, RoundedCornerShape(28.dp)),
+                        shape = RoundedCornerShape(28.dp),
+                        color = CallGlass,
+                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.90f)),
                     ) {
                         Column(
                             modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),
@@ -289,7 +314,7 @@ fun LuluVoiceCallScreen(
                             FilledIconButton(
                                 onClick = { if (activeArchive != null) connected = true },
                                 enabled = activeArchive != null,
-                                modifier = Modifier.size(72.dp),
+                                modifier = Modifier.size(72.dp).shadow(10.dp, CircleShape),
                                 colors = IconButtonDefaults.filledIconButtonColors(
                                     containerColor = CallAccent,
                                     disabledContainerColor = Color(0xFFD8D8D8),
@@ -306,11 +331,11 @@ fun LuluVoiceCallScreen(
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f),
-                        shape = RoundedCornerShape(22.dp),
-                        color = CallCard,
-                        border = BorderStroke(1.dp, CallLine),
-                        shadowElevation = 1.dp,
+                            .weight(1f)
+                            .shadow(14.dp, RoundedCornerShape(28.dp)),
+                        shape = RoundedCornerShape(28.dp),
+                        color = CallGlass,
+                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.90f)),
                     ) {
                         if (callMessages.isEmpty()) {
                             Box(
@@ -344,14 +369,14 @@ fun LuluVoiceCallScreen(
                                             modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
                                         )
                                         Surface(
-                                            color = if (mine) CallAccent else Color(0xFFF4F4F4),
+                                            color = if (mine) CallAccent else Color.White.copy(alpha = 0.62f),
                                             shape = RoundedCornerShape(
                                                 topStart = 18.dp,
                                                 topEnd = 18.dp,
                                                 bottomStart = if (mine) 18.dp else 5.dp,
                                                 bottomEnd = if (mine) 5.dp else 18.dp,
                                             ),
-                                            border = if (mine) null else BorderStroke(1.dp, CallLine),
+                                            border = if (mine) null else BorderStroke(1.dp, Color.White.copy(alpha = 0.75f)),
                                         ) {
                                             Text(
                                                 message.content,
@@ -374,10 +399,10 @@ fun LuluVoiceCallScreen(
 
                     Spacer(Modifier.height(16.dp))
                     Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(22.dp),
-                        color = CallCard,
-                        border = BorderStroke(1.dp, CallLine),
+                        modifier = Modifier.fillMaxWidth().shadow(14.dp, RoundedCornerShape(28.dp)),
+                        shape = RoundedCornerShape(28.dp),
+                        color = CallGlass,
+                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.90f)),
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 13.dp),
@@ -404,7 +429,7 @@ fun LuluVoiceCallScreen(
                                     })
                                 },
                                 enabled = !thinking,
-                                modifier = Modifier.size(68.dp),
+                                modifier = Modifier.size(68.dp).shadow(10.dp, CircleShape),
                                 colors = IconButtonDefaults.filledIconButtonColors(containerColor = CallAccent),
                             ) {
                                 Icon(
@@ -445,12 +470,12 @@ private fun CallControl(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         FilledTonalIconButton(
             onClick = onClick,
-            modifier = Modifier.size(52.dp),
+            modifier = Modifier.size(52.dp).shadow(6.dp, CircleShape),
             colors = IconButtonDefaults.filledTonalIconButtonColors(
                 containerColor = when {
                     danger -> CallDanger
-                    active -> CallSoft
-                    else -> Color(0xFFF1F1F3)
+                    active -> Color.White.copy(alpha = 0.68f)
+                    else -> Color.White.copy(alpha = 0.48f)
                 },
                 contentColor = if (danger) Color.White else CallAccent,
             ),
