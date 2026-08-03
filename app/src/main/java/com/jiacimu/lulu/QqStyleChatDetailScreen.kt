@@ -67,6 +67,7 @@ fun QqStyleChatDetailScreen(
         val lastCharacterIndex = messages.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
         messages.drop(lastCharacterIndex + 1).filter { it.sender == LuluChatMessage.Sender.User }
     }
+
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
@@ -81,7 +82,9 @@ fun QqStyleChatDetailScreen(
     val voiceLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val spoken = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull().orEmpty()
-            if (spoken.isNotBlank()) input = listOf(input.trim(), spoken.trim()).filter(String::isNotBlank).joinToString(" ")
+            if (spoken.isNotBlank()) {
+                input = listOf(input.trim(), spoken.trim()).filter(String::isNotBlank).joinToString(" ")
+            }
         }
     }
 
@@ -90,13 +93,27 @@ fun QqStyleChatDetailScreen(
         if (messages.isNotEmpty() && preferences.autoScrollChat) listState.scrollToItem(messages.lastIndex)
     }
 
+    fun sendOnly() {
+        val text = input.trim()
+        if (text.isBlank()) return
+        MigratedDomainStores.chat.sendUserMessage(conversationId, text)
+        input = ""
+    }
+
+    fun stopReceiving() {
+        generationJob?.cancel()
+        generationJob = null
+        receiving = false
+    }
+
     fun receiveReply() {
         if (receiving) return
         if (activeArchive == null) {
-            scope.launch { snackbar.showSnackbar("请先在聊天页右上角选择模型存档") }
+            scope.launch { snackbar.showSnackbar("请先在右上角选择模型") }
             return
         }
         if (pendingUserMessages.isEmpty()) return
+
         val pendingIds = pendingUserMessages.mapTo(mutableSetOf()) { it.id }
         val pendingText = pendingUserMessages.joinToString("\n") { it.content.trim() }
         val history = buildBoundedHistory(
@@ -117,7 +134,7 @@ fun QqStyleChatDetailScreen(
                     if (reply.text.isNotBlank()) {
                         MigratedDomainStores.chat.appendCharacterMessage(conversationId, reply.text)
                     } else {
-                        snackbar.showSnackbar("这次没有收到回复，再点一下试试")
+                        snackbar.showSnackbar("对方刚才没有说清，再点一次试试")
                     }
                 }.onFailure { error ->
                     snackbar.showSnackbar(error.message ?: "回复失败")
@@ -127,19 +144,6 @@ fun QqStyleChatDetailScreen(
                 generationJob = null
             }
         }
-    }
-
-    fun sendOnly() {
-        val text = input.trim()
-        if (text.isBlank()) return
-        MigratedDomainStores.chat.sendUserMessage(conversationId, text)
-        input = ""
-    }
-
-    fun stopReceiving() {
-        generationJob?.cancel()
-        generationJob = null
-        receiving = false
     }
 
     Scaffold(
@@ -161,9 +165,7 @@ fun QqStyleChatDetailScreen(
                 },
                 actions = {
                     Box {
-                        IconButton(onClick = { modelExpanded = true }) {
-                            Icon(Icons.Outlined.SwapHoriz, "切换模型")
-                        }
+                        IconButton(onClick = { modelExpanded = true }) { Icon(Icons.Outlined.SwapHoriz, "切换模型") }
                         DropdownMenu(expanded = modelExpanded, onDismissRequest = { modelExpanded = false }) {
                             if (library.archives.isEmpty()) {
                                 DropdownMenuItem(text = { Text("还没有模型存档") }, enabled = false, onClick = {})
@@ -187,7 +189,7 @@ fun QqStyleChatDetailScreen(
                             }
                         }
                     }
-                    IconButton(onClick = { callVisible = true }) { Icon(Icons.Outlined.Call, "通话") }
+                    IconButton(onClick = { callVisible = true }) { Icon(Icons.Outlined.Call, "电话") }
                     Box {
                         IconButton(onClick = { moreExpanded = true }) { Icon(Icons.Outlined.MoreHoriz, "更多") }
                         DropdownMenu(expanded = moreExpanded, onDismissRequest = { moreExpanded = false }) {
@@ -201,7 +203,7 @@ fun QqStyleChatDetailScreen(
         bottomBar = {
             Surface(color = QqHeader, tonalElevation = 2.dp) {
                 Row(
-                    Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 8.dp, vertical = 7.dp),
+                    modifier = Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 8.dp, vertical = 7.dp),
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
@@ -209,7 +211,7 @@ fun QqStyleChatDetailScreen(
                         voiceLauncher.launch(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                         })
-                    }) { Icon(Icons.Outlined.KeyboardVoice, "语音") }
+                    }) { Icon(Icons.Outlined.KeyboardVoice, "语音输入") }
                     TextField(
                         value = input,
                         onValueChange = { input = it },
@@ -233,8 +235,8 @@ fun QqStyleChatDetailScreen(
                         enabled = receiving || pendingUserMessages.isNotEmpty(),
                     ) {
                         Icon(
-                            if (receiving) Icons.Outlined.StopCircle else Icons.Outlined.MarkChatUnread,
-                            if (receiving) "停止回复" else "让对方回复",
+                            if (receiving) Icons.Outlined.StopCircle else Icons.Outlined.MarkChatRead,
+                            if (receiving) "停止" else "让对方回复",
                         )
                     }
                 }
@@ -259,7 +261,6 @@ fun QqStyleChatDetailScreen(
                     characterName = character.displayName,
                     showAvatar = groupStart,
                     showTime = preferences.showMessageTimestamps && groupEnd,
-                    onClick = {},
                     onLongClick = { selectedMessage = message },
                 )
             }
@@ -273,10 +274,7 @@ fun QqStyleChatDetailScreen(
                             shape = RoundedCornerShape(16.dp),
                             border = androidx.compose.foundation.BorderStroke(1.dp, QqBorder),
                         ) {
-                            Row(
-                                Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
+                            Row(Modifier.padding(horizontal = 14.dp, vertical = 11.dp), verticalAlignment = Alignment.CenterVertically) {
                                 CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp)
                                 Spacer(Modifier.width(8.dp))
                                 Text("对方正在输入…", color = QqMuted, fontSize = 13.sp)
@@ -295,9 +293,10 @@ fun QqStyleChatDetailScreen(
             text = { Text(message.content, maxLines = 4) },
             confirmButton = {
                 Row {
-                    TextButton(onClick = { MigratedDomainStores.chat.toggleFavorite(message.id); selectedMessage = null }) {
-                        Text(if (message.favorite) "取消收藏" else "收藏")
-                    }
+                    TextButton(onClick = {
+                        MigratedDomainStores.chat.toggleFavorite(message.id)
+                        selectedMessage = null
+                    }) { Text(if (message.favorite) "取消收藏" else "收藏") }
                     TextButton(onClick = {
                         MigratedDomainStores.chat.createBranch(conversationId, message.id)?.let { onOpenBranch(it.id) }
                         selectedMessage = null
@@ -305,16 +304,20 @@ fun QqStyleChatDetailScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { MigratedDomainStores.chat.deleteMessage(message.id); selectedMessage = null }) { Text("删除") }
+                TextButton(onClick = {
+                    MigratedDomainStores.chat.deleteMessage(message.id)
+                    selectedMessage = null
+                }) { Text("删除") }
             },
         )
     }
+
     if (callVisible) {
-        AlertDialog(
-            onDismissRequest = { callVisible = false },
-            title = { Text("与${character.displayName}通话") },
-            text = { Text("通话入口已接入角色页面；实时双向流式语音仍需要继续完成音频传输层。") },
-            confirmButton = { Button(onClick = { callVisible = false }) { Text("知道了") } },
+        LuluVoiceCallScreen(
+            conversationId = conversationId,
+            characterId = characterId,
+            characterName = character.displayName,
+            onDismiss = { callVisible = false },
         )
     }
 }
@@ -326,7 +329,6 @@ private fun QqMessageRow(
     characterName: String,
     showAvatar: Boolean,
     showTime: Boolean,
-    onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
     val mine = message.sender == LuluChatMessage.Sender.User
@@ -344,7 +346,7 @@ private fun QqMessageRow(
             horizontalAlignment = if (mine) Alignment.End else Alignment.Start,
         ) {
             Surface(
-                modifier = Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick),
+                modifier = Modifier.combinedClickable(onClick = {}, onLongClick = onLongClick),
                 color = if (mine) QqMine else QqOther,
                 shape = RoundedCornerShape(16.dp),
                 border = androidx.compose.foundation.BorderStroke(1.dp, QqBorder),
@@ -352,10 +354,6 @@ private fun QqMessageRow(
             ) {
                 Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
                     Text(message.content, color = QqInk, fontSize = 15.sp, lineHeight = 22.sp)
-                    if (message.status == LuluChatMessage.Status.Failed) {
-                        Spacer(Modifier.height(4.dp))
-                        Text("消息状态异常", color = MaterialTheme.colorScheme.error, fontSize = 10.sp)
-                    }
                     if (message.favorite) {
                         Spacer(Modifier.height(4.dp))
                         Text("★ 已收藏", color = QqMuted, fontSize = 10.sp)
