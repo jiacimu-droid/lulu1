@@ -142,7 +142,7 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                         initialCharacterId = selectedCharacterId,
                         onBack = ::popRoute,
                     )
-                    MigrationRoute.Performance -> PerformanceFeatureScreen(::popRoute)
+                    MigrationRoute.Performance -> OptimizedPerformanceFeatureScreen(::popRoute)
                     MigrationRoute.Reading -> LuluReadingScreen(::popRoute)
                     MigrationRoute.Wishes -> StarWishMigratedScreen(::popRoute)
                     MigrationRoute.Study -> PostgraduateExamApp(::popRoute)
