@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T04:26:42.312445+00:00",
-  "commit": "1a3051204b0047ec10d1c50c09262d73112d3fa3",
+  "generatedAt": "2026-08-03T04:27:43.151501+00:00",
+  "commit": "e1751b16402083d0fb691a95359a491f5d3eca3a",
   "branch": "main",
-  "sourceFingerprint": "92498596219c4ccd9ab7715322b8b0ae200c13492ea3361f3484861a55476ce8",
+  "sourceFingerprint": "9fb203dba880885b66c08196d6afab041c9197a1050e2f9c3cc9e7c1f5322111",
   "summary": {
     "files": 92,
-    "lines": 19654,
+    "lines": 19652,
     "symbols": 373
   },
   "symbolIndex": {
@@ -300,22 +300,22 @@
         "line": 50
       }
     ],
-    "receiveReply": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 92
-      }
-    ],
     "sendOnly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 131
+        "line": 95
       }
     ],
     "stopReceiving": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 138
+        "line": 102
+      }
+    ],
+    "receiveReply": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
+        "line": 108
       }
     ],
     "ApiConfiguration": [
@@ -2461,24 +2461,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 425,
-      "sha256": "f26dbac3f0180508a4232b83e8664cee07999c4bbfc06e89a2befaec2865e47f",
+      "lines": 423,
+      "sha256": "cfdeedf4838dfd2ca19ce11589be8172c16a5f6964a2d51ce4b6ab90c25a6e4b",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
           "line": 50
         },
         {
-          "name": "receiveReply",
-          "line": 92
-        },
-        {
           "name": "sendOnly",
-          "line": 131
+          "line": 95
         },
         {
           "name": "stopReceiving",
-          "line": 138
+          "line": 102
+        },
+        {
+          "name": "receiveReply",
+          "line": 108
         }
       ]
     },
