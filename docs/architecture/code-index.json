@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T07:35:59.878364+00:00",
-  "commit": "9774c8f4e8a282a557b80f248c1ddf6956b0c0fa",
+  "generatedAt": "2026-08-03T07:41:17.466383+00:00",
+  "commit": "64030ac496b0c5c32ad245f008790ec33fbfb7f6",
   "branch": "main",
-  "sourceFingerprint": "5ee4108dedc8cb7bf74fabdd808a25fcf0d60985858dc77a93324baa31312d4d",
+  "sourceFingerprint": "725f26a9dcca7aabb7037ed22adc00bd35f54da3d30d3ff86610235764d4e0c1",
   "summary": {
     "files": 94,
-    "lines": 20243,
+    "lines": 20244,
     "symbols": 375
   },
   "symbolIndex": {
@@ -309,25 +309,25 @@
     "QqStyleChatDetailScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 52
+        "line": 53
       }
     ],
     "sendOnly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 97
+        "line": 98
       }
     ],
     "stopReceiving": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 104
+        "line": 105
       }
     ],
     "sendAndReceive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 110
+        "line": 111
       }
     ],
     "ApiConfiguration": [
@@ -2488,24 +2488,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 467,
-      "sha256": "a42ab1871ad6059791848b8bf3fc9304ae98587868364b6fb52aff99a3b70532",
+      "lines": 468,
+      "sha256": "9795d18121e4ce2a630390b28c2423c97095ca89760ac53d25ff20ef7b54b26e",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
-          "line": 52
+          "line": 53
         },
         {
           "name": "sendOnly",
-          "line": 97
+          "line": 98
         },
         {
           "name": "stopReceiving",
-          "line": 104
+          "line": 105
         },
         {
           "name": "sendAndReceive",
-          "line": 110
+          "line": 111
         }
       ]
     },
