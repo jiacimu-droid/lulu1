@@ -42,13 +42,14 @@ private val DesktopV2Launchers = listOf(
     DesktopV2Launcher("设置", Icons.Outlined.Settings, MigrationRoute.Settings),
 )
 
-private val DesktopPaper = Color(0xFFF8FAF8)
-private val DesktopCard = Color(0xFFFCFDFC)
-private val DesktopIconSurface = Color(0xFFE9F0EE)
-private val DesktopIcon = Color(0xFF607A75)
-private val DesktopBorder = Color(0xFFDDE7E3)
-private val DesktopInk = Color(0xFF34413F)
-private val DesktopMuted = Color(0xFF82908D)
+private val DesktopPaper = Color(0xFFFFFEFA)
+private val DesktopWarmWash = Color(0xFFFFF7DE)
+private val DesktopWarmCard = Color(0xFFFFFBEE)
+private val DesktopIconSurface = Color(0xFFFFF1C4)
+private val DesktopIcon = Color(0xFF8A7240)
+private val DesktopBorder = Color(0xFFF0E1B5)
+private val DesktopInk = Color(0xFF4B4437)
+private val DesktopMuted = Color(0xFF988E7C)
 
 @Composable
 internal fun MigrationHomeV2(
@@ -74,77 +75,89 @@ internal fun MigrationHomeV2(
     }
 
     Surface(modifier = Modifier.fillMaxSize(), color = DesktopPaper) {
-        androidx.compose.foundation.lazy.LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(start = 18.dp, top = 38.dp, end = 18.dp, bottom = 22.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp),
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .padding(horizontal = 18.dp, vertical = 14.dp),
         ) {
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(Modifier.weight(1f)) {
-                        Text(dateText, color = DesktopMuted, fontSize = 12.sp)
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            "$greeting，主人",
-                            color = DesktopInk,
-                            fontSize = 25.sp,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                    }
-                    DesktopV2Avatar(
-                        text = currentCharacter.displayName.take(1).ifBlank { "露" },
-                        size = 52,
-                    )
-                }
-            }
-
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth().clickable {
-                        recent?.let { onOpenConversation(it.id) } ?: onOpen(MigrationRoute.Chat)
-                    },
-                    colors = CardDefaults.cardColors(containerColor = DesktopCard),
-                    border = BorderStroke(1.dp, DesktopBorder),
-                    shape = RoundedCornerShape(24.dp),
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        DesktopV2Avatar(
-                            text = currentCharacter.displayName.take(1).ifBlank { "露" },
-                            size = 46,
-                        )
-                        Spacer(Modifier.width(12.dp))
+            // 上半部分只保留轻量欢迎和最近聊天，不再让应用图标挤到顶部。
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = DesktopWarmWash,
+                shape = RoundedCornerShape(28.dp),
+                border = BorderStroke(1.dp, DesktopBorder.copy(alpha = 0.72f)),
+            ) {
+                Column(Modifier.padding(horizontal = 20.dp, vertical = 18.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text(if (recent == null) "开始聊天" else "最近聊天", color = DesktopMuted, fontSize = 11.sp)
+                            Text(dateText, color = DesktopMuted, fontSize = 12.sp)
+                            Spacer(Modifier.height(5.dp))
                             Text(
-                                recent?.title?.ifBlank { currentCharacter.displayName } ?: currentCharacter.displayName,
+                                "$greeting，主人",
                                 color = DesktopInk,
+                                fontSize = 22.sp,
                                 fontWeight = FontWeight.SemiBold,
                             )
-                            Text(
-                                recent?.lastMessage?.ifBlank { "点这里去找${currentCharacter.displayName}。" }
-                                    ?: "点这里进入消息列表。",
-                                color = DesktopMuted,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                fontSize = 12.sp,
-                            )
                         }
-                        Icon(Icons.Outlined.ArrowForward, "进入聊天", tint = DesktopIcon)
+                        DesktopV2Avatar(
+                            text = currentCharacter.displayName.take(1).ifBlank { "露" },
+                            size = 48,
+                        )
+                    }
+
+                    Spacer(Modifier.height(15.dp))
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().clickable {
+                            recent?.let { onOpenConversation(it.id) } ?: onOpen(MigrationRoute.Chat)
+                        },
+                        color = DesktopWarmCard,
+                        shape = RoundedCornerShape(20.dp),
+                        border = BorderStroke(1.dp, DesktopBorder),
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            DesktopV2Avatar(
+                                text = currentCharacter.displayName.take(1).ifBlank { "露" },
+                                size = 42,
+                            )
+                            Spacer(Modifier.width(11.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(
+                                    recent?.title?.ifBlank { currentCharacter.displayName }
+                                        ?: currentCharacter.displayName,
+                                    color = DesktopInk,
+                                    fontWeight = FontWeight.SemiBold,
+                                )
+                                Text(
+                                    recent?.lastMessage?.ifBlank { "点这里去找${currentCharacter.displayName}。" }
+                                        ?: "点这里进入聊天。",
+                                    color = DesktopMuted,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    fontSize = 12.sp,
+                                )
+                            }
+                            Icon(Icons.Outlined.ArrowForward, "进入聊天", tint = DesktopIcon)
+                        }
                     }
                 }
             }
 
-            (0 until 16).chunked(4).forEach { positions ->
-                item {
+            // 用弹性留白将 4×4 应用区稳定放在屏幕中下部。
+            Spacer(Modifier.weight(1f))
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                (0 until 16).chunked(4).forEach { positions ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(9.dp),
                         verticalAlignment = Alignment.Top,
                     ) {
                         positions.forEach { index ->
@@ -173,34 +186,40 @@ private fun DesktopV2LauncherItem(
     onClick: () -> Unit,
 ) {
     Column(
-        modifier = modifier.clickable(onClick = onClick).padding(vertical = 3.dp),
+        modifier = modifier.clickable(onClick = onClick).padding(vertical = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Surface(
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(19.dp),
             color = DesktopIconSurface,
             border = BorderStroke(1.dp, DesktopBorder),
-            modifier = Modifier.size(58.dp),
+            modifier = Modifier.size(56.dp),
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(launcher.icon, launcher.title, tint = DesktopIcon, modifier = Modifier.size(27.dp))
+                Icon(launcher.icon, launcher.title, tint = DesktopIcon, modifier = Modifier.size(26.dp))
             }
         }
-        Spacer(Modifier.height(7.dp))
-        Text(launcher.title, color = DesktopInk, fontSize = 12.sp, fontWeight = FontWeight.Medium, maxLines = 1)
+        Spacer(Modifier.height(5.dp))
+        Text(
+            launcher.title,
+            color = DesktopInk,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1,
+        )
     }
 }
 
 @Composable
 private fun DesktopV2EmptySlot(modifier: Modifier) {
-    Column(modifier = modifier.padding(vertical = 3.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier = modifier.padding(vertical = 2.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Surface(
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(19.dp),
             color = Color.Transparent,
-            border = BorderStroke(1.dp, DesktopBorder.copy(alpha = 0.55f)),
-            modifier = Modifier.size(58.dp),
+            border = BorderStroke(1.dp, DesktopBorder.copy(alpha = 0.48f)),
+            modifier = Modifier.size(56.dp),
         ) {}
-        Spacer(Modifier.height(22.dp))
+        Spacer(Modifier.height(18.dp))
     }
 }
 
