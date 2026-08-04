@@ -1,10 +1,15 @@
 package com.jiacimu.lulu
 
-import android.app.Activity
+import android.Manifest
+import android.content.pm.PackageManager
 import android.content.Intent
+import android.os.Bundle
+import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -21,6 +26,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -48,7 +54,7 @@ private val QqInk = Color(0xFF1D1D1F)
 private val QqBorder = Color(0xFFE7E7E7)
 private val QqIconSurface = Color(0xFFF4F4F4)
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun QqStyleChatDetailScreen(
     conversationId: String,
@@ -57,6 +63,9 @@ fun QqStyleChatDetailScreen(
     onCharacterSettings: () -> Unit,
     onWorldBook: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val userProfilePrefs = remember { context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE) }
+    val userAvatar = remember { userProfilePrefs.getString("avatar_text", "主").orEmpty().ifBlank { "主" }.take(2) }
     val messages by MigratedDomainStores.chat.messages(conversationId).collectAsState()
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val preferences by LuluAppPreferencesStore.state.collectAsState()
@@ -81,13 +90,70 @@ fun QqStyleChatDetailScreen(
     var moreExpanded by remember { mutableStateOf(false) }
     var modelExpanded by remember { mutableStateOf(false) }
     var callVisible by remember { mutableStateOf(false) }
+    var voiceListening by remember { mutableStateOf(false) }
+    var voicePartial by remember { mutableStateOf("") }
+    var voiceError by remember { mutableStateOf("") }
+    val speechRecognizer = remember {
+        if (SpeechRecognizer.isRecognitionAvailable(context)) SpeechRecognizer.createSpeechRecognizer(context) else null
+    }
+    val voiceIntent = remember {
+        Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN")
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
+        }
+    }
+    fun beginVoiceCapture() {
+        voicePartial = ""
+        voiceError = ""
+        if (speechRecognizer == null) {
+            voiceError = "当前手机没有可用的语音识别服务"
+            voiceListening = true
+        } else {
+            voiceListening = true
+            speechRecognizer.startListening(voiceIntent)
+        }
+    }
+    val microphonePermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) beginVoiceCapture() else {
+            voiceError = "需要麦克风权限才能使用语音输入"
+            voiceListening = true
+        }
+    }
 
-    val voiceLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val spoken = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull().orEmpty()
-            if (spoken.isNotBlank()) {
-                input = listOf(input.trim(), spoken.trim()).filter(String::isNotBlank).joinToString(" ")
+    DisposableEffect(speechRecognizer) {
+        speechRecognizer?.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) { voiceListening = true }
+            override fun onBeginningOfSpeech() = Unit
+            override fun onRmsChanged(rmsdB: Float) = Unit
+            override fun onBufferReceived(buffer: ByteArray?) = Unit
+            override fun onEndOfSpeech() = Unit
+            override fun onError(error: Int) {
+                voiceError = when (error) {
+                    SpeechRecognizer.ERROR_NO_MATCH -> "没有听清楚，再说一次吧"
+                    SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "没有听到声音"
+                    SpeechRecognizer.ERROR_NETWORK, SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "语音识别网络连接失败"
+                    else -> "语音识别暂时失败"
+                }
             }
+            override fun onResults(results: Bundle?) {
+                val spoken = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull().orEmpty().trim()
+                if (spoken.isNotBlank()) {
+                    input = listOf(input.trim(), spoken).filter(String::isNotBlank).joinToString(" ")
+                    voiceListening = false
+                } else {
+                    voiceError = "没有听清楚，再说一次吧"
+                }
+            }
+            override fun onPartialResults(partialResults: Bundle?) {
+                voicePartial = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull().orEmpty()
+            }
+            override fun onEvent(eventType: Int, params: Bundle?) = Unit
+        })
+        onDispose {
+            speechRecognizer?.cancel()
+            speechRecognizer?.destroy()
         }
     }
 
@@ -223,15 +289,32 @@ fun QqStyleChatDetailScreen(
         bottomBar = {
             Surface(color = QqHeader, shadowElevation = 4.dp) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 8.dp, vertical = 7.dp),
-                    verticalAlignment = Alignment.Bottom,
+                    modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 8.dp, vertical = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    IconButton(onClick = {
-                        voiceLauncher.launch(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                        })
-                    }) { Icon(Icons.Outlined.KeyboardVoice, "语音输入", tint = QqInk) }
+                    FilledTonalIconButton(
+                        onClick = {
+                            if (voiceListening) {
+                                speechRecognizer?.stopListening()
+                            } else if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                                beginVoiceCapture()
+                            } else {
+                                microphonePermission.launch(Manifest.permission.RECORD_AUDIO)
+                            }
+                        },
+                        modifier = Modifier.size(50.dp),
+                        colors = IconButtonDefaults.filledTonalIconButtonColors(
+                            containerColor = QqIconSurface,
+                            contentColor = QqInk,
+                        ),
+                    ) {
+                        Icon(
+                            if (voiceListening) Icons.Outlined.GraphicEq else Icons.Outlined.KeyboardVoice,
+                            "语音输入",
+                            modifier = Modifier.size(27.dp),
+                        )
+                    }
                     TextField(
                         value = input,
                         onValueChange = { input = it },
@@ -297,6 +380,7 @@ fun QqStyleChatDetailScreen(
                     characterName = character.displayName,
                     showAvatar = groupStart,
                     showTime = preferences.showMessageTimestamps && groupEnd,
+                    userAvatar = userAvatar,
                     onLongClick = { selectedMessage = message },
                 )
             }
@@ -356,6 +440,60 @@ fun QqStyleChatDetailScreen(
             onDismiss = { callVisible = false },
         )
     }
+
+    if (voiceListening) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                speechRecognizer?.cancel()
+                voiceListening = false
+            },
+            containerColor = QqPage,
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 28.dp, vertical = 18.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                Surface(
+                    modifier = Modifier.size(86.dp),
+                    shape = CircleShape,
+                    color = QqMine,
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(Icons.Outlined.GraphicEq, null, tint = Color.White, modifier = Modifier.size(38.dp))
+                    }
+                }
+                Text(
+                    when {
+                        voiceError.isNotBlank() -> voiceError
+                        voicePartial.isNotBlank() -> voicePartial
+                        else -> "正在听你说话…"
+                    },
+                    color = if (voiceError.isBlank()) QqInk else MaterialTheme.colorScheme.error,
+                    fontSize = 18.sp,
+                    textAlign = TextAlign.Center,
+                )
+                Text("说完后点完成，识别文字会放进输入框", color = QqMuted, fontSize = 12.sp)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    OutlinedButton(
+                        onClick = {
+                            speechRecognizer?.cancel()
+                            voiceListening = false
+                        },
+                        modifier = Modifier.weight(1f),
+                    ) { Text("取消") }
+                    Button(
+                        onClick = {
+                            if (voiceError.isNotBlank()) beginVoiceCapture() else speechRecognizer?.stopListening()
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = QqMine, contentColor = Color.White),
+                    ) { Text(if (voiceError.isBlank()) "完成" else "重新听") }
+                }
+                Spacer(Modifier.navigationBarsPadding())
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -365,9 +503,13 @@ private fun QqMessageRow(
     characterName: String,
     showAvatar: Boolean,
     showTime: Boolean,
+    userAvatar: String,
     onLongClick: () -> Unit,
 ) {
     val mine = message.sender == LuluChatMessage.Sender.User
+    val bubbles = remember(message.content, mine) {
+        if (mine) listOf(message.content) else splitCharacterBubbles(message.content)
+    }
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (mine) Arrangement.End else Arrangement.Start,
@@ -381,29 +523,32 @@ private fun QqMessageRow(
             modifier = Modifier.widthIn(max = 300.dp),
             horizontalAlignment = if (mine) Alignment.End else Alignment.Start,
         ) {
-            Surface(
-                modifier = Modifier.combinedClickable(onClick = {}, onLongClick = onLongClick),
-                color = if (mine) QqMine else QqOther,
-                shape = RoundedCornerShape(16.dp),
-                border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
-                shadowElevation = 0.dp,
-            ) {
-                Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
-                    Text(
-                        message.content,
-                        color = if (mine) QqMineInk else QqInk,
-                        fontSize = 15.sp,
-                        lineHeight = 22.sp,
-                    )
-                    if (message.favorite) {
-                        Spacer(Modifier.height(4.dp))
+            bubbles.forEachIndexed { index, bubble ->
+                Surface(
+                    modifier = Modifier.combinedClickable(onClick = {}, onLongClick = onLongClick),
+                    color = if (mine) QqMine else QqOther,
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
+                    shadowElevation = 0.dp,
+                ) {
+                    Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
                         Text(
-                            "★ 已收藏",
-                            color = if (mine) Color.White.copy(alpha = 0.68f) else QqMuted,
-                            fontSize = 10.sp,
+                            bubble,
+                            color = if (mine) QqMineInk else QqInk,
+                            fontSize = 15.sp,
+                            lineHeight = 22.sp,
                         )
+                        if (message.favorite && index == bubbles.lastIndex) {
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                "★ 已收藏",
+                                color = if (mine) Color.White.copy(alpha = 0.68f) else QqMuted,
+                                fontSize = 10.sp,
+                            )
+                        }
                     }
                 }
+                if (index != bubbles.lastIndex) Spacer(Modifier.height(5.dp))
             }
             if (showTime) {
                 Spacer(Modifier.height(4.dp))
@@ -418,9 +563,41 @@ private fun QqMessageRow(
         }
         if (mine) {
             Spacer(Modifier.width(9.dp))
-            if (showAvatar) QqAvatar("我", 44) else Spacer(Modifier.width(44.dp))
+            if (showAvatar) QqAvatar(userAvatar, 44) else Spacer(Modifier.width(44.dp))
         }
     }
+}
+
+private fun splitCharacterBubbles(text: String): List<String> {
+    val paragraphs = text.trim()
+        .split(Regex("\\n\\s*\\n|\\n"))
+        .map(String::trim)
+        .filter(String::isNotBlank)
+    val pieces = paragraphs.flatMap { paragraph ->
+        if (paragraph.length <= 92) {
+            listOf(paragraph)
+        } else {
+            paragraph.split(Regex("(?<=[。！？!?；;…])\\s*"))
+                .map(String::trim)
+                .filter(String::isNotBlank)
+                .flatMap { sentence -> if (sentence.length <= 110) listOf(sentence) else sentence.chunked(100) }
+        }
+    }
+    if (pieces.isEmpty()) return listOf(text.trim())
+    val bubbles = mutableListOf<String>()
+    var current = ""
+    pieces.forEach { piece ->
+        if (current.isBlank()) {
+            current = piece
+        } else if (current.length + piece.length <= 92) {
+            current += piece
+        } else {
+            bubbles += current
+            current = piece
+        }
+    }
+    if (current.isNotBlank()) bubbles += current
+    return bubbles
 }
 
 private fun buildBoundedHistory(

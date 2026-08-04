@@ -76,7 +76,7 @@ fun CharacterWorldBookScreenV2(
                             onClick = { selectedCharacterId = character.characterId },
                             label = { Text(character.displayName) },
                             leadingIcon = {
-                                Surface(shape = CircleShape, color = LuluColors.Wheat, modifier = Modifier.size(22.dp)) {
+                                Surface(shape = CircleShape, color = LuluColors.Wheat, contentColor = LuluColors.OnWheat, modifier = Modifier.size(22.dp)) {
                                     Box(contentAlignment = Alignment.Center) { Text(character.displayName.take(1), fontSize = 10.sp) }
                                 }
                             },

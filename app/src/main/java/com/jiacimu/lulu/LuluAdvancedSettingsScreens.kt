@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 
 private val AdvancedPage = Color.White
 private val AdvancedCard = Color(0xFFFCFCFC)
@@ -47,7 +48,10 @@ private val MiniMaxLanguages = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
-    val prefs = androidx.compose.ui.platform.LocalContext.current.getSharedPreferences(ADVANCED_PREFS, Context.MODE_PRIVATE)
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val prefs = context.getSharedPreferences(ADVANCED_PREFS, Context.MODE_PRIVATE)
+    val scope = rememberCoroutineScope()
+    val speechEngine = remember { LuluSpeechEngine(context) }
     var enabled by remember { mutableStateOf(prefs.getBoolean("tts_enabled", true)) }
     var autoSpeak by remember { mutableStateOf(prefs.getBoolean("tts_auto_speak", true)) }
     var provider by remember { mutableStateOf(prefs.getString("tts_provider", "system") ?: "system") }
@@ -62,6 +66,12 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     var minimaxSpeed by remember { mutableFloatStateOf(prefs.getFloat("minimax_speed", 1f)) }
     var minimaxVolume by remember { mutableFloatStateOf(prefs.getFloat("minimax_volume", 1f)) }
     var minimaxPitch by remember { mutableFloatStateOf(prefs.getInt("minimax_pitch", 0).toFloat()) }
+    var testingVoice by remember { mutableStateOf(false) }
+    var voiceNotice by remember { mutableStateOf("") }
+
+    DisposableEffect(speechEngine) {
+        onDispose { speechEngine.shutdown() }
+    }
 
     fun saveVoiceSettings() {
         prefs.edit()
@@ -176,6 +186,31 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                 Slider(value = minimaxVolume, onValueChange = { minimaxVolume = it }, valueRange = 0.1f..10f, enabled = enabled)
                 Text("音调  ${minimaxPitch.toInt()}", color = AdvancedInk, fontWeight = FontWeight.Medium)
                 Slider(value = minimaxPitch, onValueChange = { minimaxPitch = it }, valueRange = -12f..12f, steps = 23, enabled = enabled)
+                Spacer(Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = {
+                        saveVoiceSettings()
+                        testingVoice = true
+                        voiceNotice = "正在连接 MiniMax 并生成试听…"
+                        scope.launch {
+                            speechEngine.previewMiniMax("主人你好，我是露露。这个声音听起来还合适吗？")
+                                .onSuccess { voiceNotice = "试听成功，当前 MiniMax 配置已经接通。" }
+                                .onFailure { error -> voiceNotice = error.message ?: "试听失败，请检查接口配置。" }
+                            testingVoice = false
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = enabled && !testingVoice && minimaxApiKey.isNotBlank() && minimaxVoiceId.isNotBlank(),
+                ) {
+                    if (testingVoice) {
+                        CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    Text(if (testingVoice) "正在生成试听" else "试听当前声音")
+                }
+                if (voiceNotice.isNotBlank()) {
+                    Text(voiceNotice, color = AdvancedMuted, fontSize = 12.sp)
+                }
             }
         }
         item {
@@ -183,7 +218,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                 onClick = ::saveVoiceSettings,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = enabled,
-                colors = ButtonDefaults.buttonColors(containerColor = AdvancedAccent),
+                colors = ButtonDefaults.buttonColors(containerColor = AdvancedAccent, contentColor = Color.White),
             ) { Text("保存语音设置") }
         }
     }
@@ -286,7 +321,7 @@ fun LuluMemorySettingsScreen(onBack: () -> Unit) {
             Button(
                 onClick = ::save,
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = AdvancedAccent),
+                colors = ButtonDefaults.buttonColors(containerColor = AdvancedAccent, contentColor = Color.White),
             ) { Text("保存记忆设置") }
         }
         if (saveNotice.isNotBlank()) item {
@@ -347,7 +382,7 @@ fun LuluImageSettingsScreen(onBack: () -> Unit) {
                     saveNotice = if (model.isBlank()) "已保存；尚未选择生图模型" else "已保存并选择：$model"
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = AdvancedAccent),
+                colors = ButtonDefaults.buttonColors(containerColor = AdvancedAccent, contentColor = Color.White),
             ) { Text("保存生图设置") }
         }
         if (saveNotice.isNotBlank()) item {

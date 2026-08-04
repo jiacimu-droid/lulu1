@@ -39,7 +39,7 @@ fun LuluGamesAppV2(onBack: () -> Unit) {
             onClick = { replayCenterVisible = true },
             modifier = Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(end = 18.dp, bottom = 78.dp),
             containerColor = LuluColors.Wheat,
-            contentColor = LuluColors.Ink,
+            contentColor = LuluColors.OnWheat,
         ) {
             Icon(Icons.Outlined.Replay, "游戏回放")
         }
@@ -208,7 +208,7 @@ private fun UniversalGameReplay(record: LuluGameRecord, onBack: () -> Unit) {
                     }
                 },
                 modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(containerColor = LuluColors.Wheat, contentColor = LuluColors.Ink),
+                colors = ButtonDefaults.buttonColors(containerColor = LuluColors.Wheat, contentColor = LuluColors.OnWheat),
             ) {
                 Icon(if (playing) Icons.Outlined.Pause else Icons.Outlined.PlayArrow, null)
                 Text(

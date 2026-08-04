@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -21,8 +22,6 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.LuluConversation
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.design.LuluColors
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -81,10 +80,6 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        item(key = "header") {
-            Text("消息", style = MaterialTheme.typography.headlineMedium)
-            Text("按最近聊天时间排序；分支会保留原会话关系。", color = LuluColors.Muted)
-        }
         if (sorted.isEmpty()) {
             item(key = "empty") {
                 ChatHubV2Card {
@@ -163,16 +158,12 @@ private fun ChatHubV2Characters(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "header") {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("角色", style = MaterialTheme.typography.headlineMedium)
-                    Text("新建、编辑、主动联系和世界书都从这里管理。", color = LuluColors.Muted)
-                }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 FilledIconButton(
                     onClick = { showCreateDialog = true },
                     colors = IconButtonDefaults.filledIconButtonColors(
                         containerColor = LuluColors.Wheat,
-                        contentColor = LuluColors.Ink,
+                        contentColor = LuluColors.OnWheat,
                     ),
                 ) { Icon(Icons.Outlined.Add, "新建角色") }
             }
@@ -195,9 +186,6 @@ private fun ChatHubV2Characters(
                             fontSize = 12.sp,
                         )
                     }
-                }
-                if (character.persona.isNotBlank()) {
-                    Text(character.persona, color = LuluColors.Muted, maxLines = 3, overflow = TextOverflow.Ellipsis)
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                     OutlinedButton(
@@ -228,7 +216,7 @@ private fun ChatHubV2Characters(
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = LuluColors.Wheat,
-                        contentColor = LuluColors.Ink,
+                        contentColor = LuluColors.OnWheat,
                     ),
                 ) {
                     Text(
@@ -255,15 +243,11 @@ private fun ChatHubV2Characters(
 
 @Composable
 private fun ChatHubV2Profile(onOpenSettings: () -> Unit) {
-    val characters by MigratedDomainStores.characters.settings.collectAsState()
-    val conversations by MigratedDomainStores.chat.conversations.collectAsState()
-    val favoriteCount by produceState(initialValue = 0, conversations) {
-        value = withContext(Dispatchers.Default) {
-            conversations.sumOf { conversation ->
-                MigratedDomainStores.chat.messages(conversation.id).value.count { it.favorite }
-            }
-        }
-    }
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE) }
+    var avatar by remember { mutableStateOf(prefs.getString("avatar_text", "主").orEmpty().ifBlank { "主" }) }
+    var name by remember { mutableStateOf(prefs.getString("display_name", "主人").orEmpty().ifBlank { "主人" }) }
+    var notice by remember { mutableStateOf("") }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -272,41 +256,45 @@ private fun ChatHubV2Profile(onOpenSettings: () -> Unit) {
         item(key = "profile") {
             ChatHubV2Card {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    ChatHubV2Avatar("主", 62)
+                    ChatHubV2Avatar(avatar.take(2).ifBlank { "主" }, 62)
                     Spacer(Modifier.width(14.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text("主人", style = MaterialTheme.typography.titleLarge)
-                        Text("这里展示个人内容；应用行为和数据工具放在独立设置 App。", color = LuluColors.Muted)
-                    }
+                    Text(name.ifBlank { "主人" }, style = MaterialTheme.typography.titleLarge)
                 }
-            }
-        }
-        item(key = "stats") {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ChatHubV2Stat(characters.size.toString(), "角色", Modifier.weight(1f))
-                ChatHubV2Stat(conversations.size.toString(), "会话", Modifier.weight(1f))
-                ChatHubV2Stat(favoriteCount.toString(), "收藏", Modifier.weight(1f))
-            }
-        }
-        item(key = "settings") {
-            ChatHubV2Card {
-                Text("我的内容", fontWeight = FontWeight.Bold)
-                Text(
-                    "角色关系、收藏消息、成就和个人资料属于“我的”；模型密钥、通知、备份、恢复和权限属于“设置”。",
-                    color = LuluColors.Muted,
+                OutlinedTextField(
+                    value = avatar,
+                    onValueChange = { avatar = it.take(2) },
+                    label = { Text("头像") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
                 )
-                Button(
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it.take(20) },
+                    label = { Text("名字") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedButton(
                     onClick = onOpenSettings,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = LuluColors.Wheat,
-                        contentColor = LuluColors.Ink,
-                    ),
                 ) {
-                    Icon(Icons.Outlined.Settings, null)
+                    Icon(Icons.Outlined.PersonOutline, null)
                     Spacer(Modifier.width(6.dp))
-                    Text("打开应用设置", fontWeight = FontWeight.Bold)
+                    Text("个人设置")
                 }
+                Button(
+                    onClick = {
+                        avatar = avatar.trim().ifBlank { "主" }
+                        name = name.trim().ifBlank { "主人" }
+                        prefs.edit().putString("avatar_text", avatar).putString("display_name", name).apply()
+                        notice = "个人资料已保存"
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = LuluColors.Wheat, contentColor = LuluColors.OnWheat),
+                ) {
+                    Text("保存", fontWeight = FontWeight.Bold)
+                }
+                if (notice.isNotBlank()) Text(notice, color = LuluColors.Muted, fontSize = 12.sp)
             }
         }
     }

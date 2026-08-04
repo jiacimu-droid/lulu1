@@ -162,7 +162,7 @@ fun CharacterSettingsScreenV2(
                     },
                     enabled = displayName.isNotBlank(),
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = LuluColors.Wheat, contentColor = LuluColors.Ink),
+                    colors = ButtonDefaults.buttonColors(containerColor = LuluColors.Wheat, contentColor = LuluColors.OnWheat),
                     shape = RoundedCornerShape(18.dp),
                 ) { Text("保存角色设置", fontWeight = FontWeight.Bold) }
                 if (notice.isNotBlank()) Text(notice, color = LuluColors.Muted, fontSize = 12.sp)

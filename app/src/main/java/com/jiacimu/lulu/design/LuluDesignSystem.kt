@@ -17,6 +17,7 @@ object LuluColors {
     val Card = Color(0xFFFCFCFC)
     val CardStrong = Color(0xFFF4F4F4)
     val Wheat = Color(0xFF292929)
+    val OnWheat = Color(0xFFFFFFFF)
     val WheatSoft = Color(0xFFF4F4F4)
     val Ink = Color(0xFF1D1D1F)
     val Muted = Color(0xFF7A7A7E)

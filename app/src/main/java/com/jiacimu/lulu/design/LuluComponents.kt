@@ -78,7 +78,7 @@ fun LuluPrimaryButton(
         shape = RoundedCornerShape(LuluRadii.Medium),
         colors = ButtonDefaults.buttonColors(
             containerColor = LuluColors.Wheat,
-            contentColor = LuluColors.Ink,
+            contentColor = LuluColors.OnWheat,
         ),
     ) {
         if (icon != null) {
