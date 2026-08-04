@@ -244,7 +244,12 @@ private fun CollectionTicketCard(ticket: CollectionTicket, modifier: Modifier = 
 
 @Composable
 private fun FragmentProgressCard(title: String, amount: Int, modifier: Modifier = Modifier) {
-    Surface(modifier = modifier, shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 1.dp) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(18.dp),
+        color = StudyDesign.card,
+        border = BorderStroke(1.dp, StudyDesign.border),
+    ) {
         Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(title, fontWeight = FontWeight.SemiBold, maxLines = 2, minLines = 2)
             Text("$amount/$BLUE_FRAGMENTS_PER_SCROLL", color = StudyDesign.muted, fontSize = 12.sp)

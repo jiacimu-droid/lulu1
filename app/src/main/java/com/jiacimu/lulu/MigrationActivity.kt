@@ -16,6 +16,7 @@ import com.jiacimu.lulu.data.ProactiveMessageAutomation
 import com.jiacimu.lulu.data.RoleReadablePerformanceBridge
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.UserDataUpgradeGuard
+import com.jiacimu.lulu.data.UserProfileContext
 import com.jiacimu.lulu.games.LuluGames
 import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.SelfDirectedStudyPlanSeed
@@ -30,6 +31,7 @@ class MigrationActivity : ComponentActivity() {
         val appContext = applicationContext
         UserDataUpgradeGuard.protectBeforeStoresInitialize(appContext)
         LuluAppPreferencesStore.initialize(appContext)
+        UserProfileContext.initialize(appContext)
         LuluRepositories.initialize(appContext)
         LuluRepositories.lexicon.initialize(appContext)
         LuluRepositories.worldBook.initialize(appContext)

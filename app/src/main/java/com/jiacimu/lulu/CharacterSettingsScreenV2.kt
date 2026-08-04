@@ -32,6 +32,7 @@ fun CharacterSettingsScreenV2(
     val worldBooks by LuluRepositories.worldBook.observeWorldBooks().collectAsState(initial = emptyList())
     val scope = rememberCoroutineScope()
     var displayName by remember(original) { mutableStateOf(original.displayName) }
+    var avatarUri by remember(original) { mutableStateOf(original.avatarUri) }
     var persona by remember(original) { mutableStateOf(original.persona) }
     var contactEnabled by remember(original) { mutableStateOf(original.contactPolicy.enabled) }
     var adaptiveFrequency by remember(original) { mutableStateOf(original.contactPolicy.adaptiveFrequency) }
@@ -69,6 +70,21 @@ fun CharacterSettingsScreenV2(
             item {
                 CharacterV2Card {
                     Text("角色资料", fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    ) {
+                        LuluAvatarPicker(
+                            imageUri = avatarUri,
+                            fallback = displayName.take(1).ifBlank { "角" },
+                            onSelected = { avatarUri = it },
+                        )
+                        Column(Modifier.weight(1f)) {
+                            Text("角色头像", fontWeight = FontWeight.SemiBold)
+                            Text("点击头像，从手机相册选择图片", color = LuluColors.Muted, fontSize = 12.sp)
+                        }
+                    }
                     OutlinedTextField(
                         value = displayName,
                         onValueChange = { displayName = it },
@@ -145,6 +161,7 @@ fun CharacterSettingsScreenV2(
                         MigratedDomainStores.characters.update(
                             original.copy(
                                 displayName = displayName.trim().ifBlank { original.displayName.ifBlank { "未命名角色" } },
+                                avatarUri = avatarUri,
                                 persona = persona.trim(),
                                 contactPolicy = CharacterContactPolicy(
                                     enabled = contactEnabled,

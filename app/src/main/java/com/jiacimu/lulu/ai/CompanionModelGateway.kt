@@ -7,6 +7,7 @@ import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.RelevantMemoryRecall
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.TokenBreakdownItem
+import com.jiacimu.lulu.data.UserProfileContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -389,6 +390,7 @@ class CompanionModelGateway(
             val presence = CompanionPresenceStore.current(characterId)
             val memories = RelevantMemoryRecall.recall(characterId, "$facts\n$instruction", limit = 12)
             val recentSharedTimeline = SharedExperienceTimeline.recentContext(characterId)
+            val userProfileSection = UserProfileContext.promptSection()
             val lexicon = LuluRepositories.lexicon.snapshot(characterId).take(24)
             val allWorldBooks = LuluRepositories.worldBook.snapshot()
             val globalWorldBooks = allWorldBooks.filter { entry ->
@@ -437,6 +439,7 @@ class CompanionModelGateway(
             val systemPrompt = listOf(
                 baseRules,
                 personaSection,
+                userProfileSection,
                 globalWorldBookSection,
                 roleWorldBookSection,
                 presenceSection,
@@ -453,7 +456,7 @@ class CompanionModelGateway(
                 tokenBreakdown("系统/角色人设", baseRules.length + personaSection.length),
                 tokenBreakdown(
                     "记忆/状态/感知",
-                    globalWorldBookSection.length + roleWorldBookSection.length + presenceSection.length + timelineSection.length + memorySection.length + lexiconSection.length,
+                    globalWorldBookSection.length + roleWorldBookSection.length + userProfileSection.length + presenceSection.length + timelineSection.length + memorySection.length + lexiconSection.length,
                 ),
                 tokenBreakdown("工具/MCP说明", 0),
                 tokenBreakdown("用户上下文", userPrompt.length),

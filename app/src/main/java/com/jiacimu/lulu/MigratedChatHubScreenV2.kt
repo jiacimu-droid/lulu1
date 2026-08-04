@@ -65,7 +65,7 @@ fun MigratedChatHubScreenV2(
                 0 -> ChatHubV2Messages(onOpenConversation)
                 1 -> ChatHubV2Characters(onCharacterSettings, onWorldBook, onOpenConversation)
                 2 -> MomentsPlaceholderScreen()
-                else -> ChatHubV2Profile(onOpenSettings)
+                else -> ChatHubV2Profile()
             }
         }
     }
@@ -102,7 +102,7 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                     shape = RoundedCornerShape(22.dp),
                 ) {
                     Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 50)
+                        ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 50, character.avatarUri)
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -175,7 +175,7 @@ private fun ChatHubV2Characters(
             val presence = presenceStates[character.characterId]
             ChatHubV2Card {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 56)
+                    ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 56, character.avatarUri)
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(character.displayName, fontWeight = FontWeight.Bold, fontSize = 19.sp)
@@ -257,11 +257,15 @@ private fun ChatHubV2Characters(
 }
 
 @Composable
-private fun ChatHubV2Profile(onOpenSettings: () -> Unit) {
+private fun ChatHubV2Profile() {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE) }
-    var avatar by remember { mutableStateOf(prefs.getString("avatar_text", "主").orEmpty().ifBlank { "主" }) }
+    var avatarUri by remember { mutableStateOf(prefs.getString("avatar_uri", null)) }
     var name by remember { mutableStateOf(prefs.getString("display_name", "主人").orEmpty().ifBlank { "主人" }) }
+    var preferredName by remember { mutableStateOf(prefs.getString("preferred_name", "").orEmpty()) }
+    var birthday by remember { mutableStateOf(prefs.getString("birthday", "").orEmpty()) }
+    var location by remember { mutableStateOf(prefs.getString("location", "").orEmpty()) }
+    var bio by remember { mutableStateOf(prefs.getString("bio", "").orEmpty()) }
     var notice by remember { mutableStateOf("") }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -271,17 +275,18 @@ private fun ChatHubV2Profile(onOpenSettings: () -> Unit) {
         item(key = "profile") {
             ChatHubV2Card {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    ChatHubV2Avatar(avatar.take(2).ifBlank { "主" }, 62)
+                    LuluAvatarPicker(
+                        imageUri = avatarUri,
+                        fallback = name.take(1).ifBlank { "主" },
+                        size = 78,
+                        onSelected = { avatarUri = it },
+                    )
                     Spacer(Modifier.width(14.dp))
-                    Text(name.ifBlank { "主人" }, style = MaterialTheme.typography.titleLarge)
+                    Column {
+                        Text(name.ifBlank { "主人" }, style = MaterialTheme.typography.titleLarge)
+                        Text("点击头像选择手机图片", color = LuluColors.Muted, fontSize = 12.sp)
+                    }
                 }
-                OutlinedTextField(
-                    value = avatar,
-                    onValueChange = { avatar = it.take(2) },
-                    label = { Text("头像") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it.take(20) },
@@ -289,19 +294,28 @@ private fun ChatHubV2Profile(onOpenSettings: () -> Unit) {
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                OutlinedButton(
-                    onClick = onOpenSettings,
+                Text("个人资料", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                OutlinedTextField(
+                    value = preferredName,
+                    onValueChange = { preferredName = it.take(30) },
+                    label = { Text("希望角色怎么称呼你") },
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Icon(Icons.Outlined.PersonOutline, null)
-                    Spacer(Modifier.width(6.dp))
-                    Text("个人设置")
-                }
+                )
+                OutlinedTextField(value = birthday, onValueChange = { birthday = it.take(30) }, label = { Text("生日") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = location, onValueChange = { location = it.take(40) }, label = { Text("所在地") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = bio, onValueChange = { bio = it.take(500) }, label = { Text("个人信息与自我介绍") }, minLines = 3, maxLines = 7, modifier = Modifier.fillMaxWidth())
                 Button(
                     onClick = {
-                        avatar = avatar.trim().ifBlank { "主" }
                         name = name.trim().ifBlank { "主人" }
-                        prefs.edit().putString("avatar_text", avatar).putString("display_name", name).apply()
+                        prefs.edit()
+                            .putString("avatar_uri", avatarUri)
+                            .putString("display_name", name)
+                            .putString("preferred_name", preferredName.trim())
+                            .putString("birthday", birthday.trim())
+                            .putString("location", location.trim())
+                            .putString("bio", bio.trim())
+                            .apply()
                         notice = "个人资料已保存"
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -388,12 +402,7 @@ private fun ChatHubV2Card(content: @Composable ColumnScope.() -> Unit) {
 }
 
 @Composable
-private fun ChatHubV2Avatar(text: String, size: Int) {
-    Surface(shape = CircleShape, color = LuluColors.WheatSoft, modifier = Modifier.size(size.dp)) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(text, fontWeight = FontWeight.Bold, fontSize = (size / 2.65).sp, color = LuluColors.Ink)
-        }
-    }
-}
+private fun ChatHubV2Avatar(text: String, size: Int, imageUri: String? = null) =
+    LuluProfileAvatar(imageUri = imageUri, fallback = text, size = size)
 
 private val ChatHubV2Time = DateTimeFormatter.ofPattern("MM-dd HH:mm")

@@ -381,6 +381,7 @@ data class CharacterContactPolicy(
 data class CharacterSettings(
     val characterId: String,
     val displayName: String,
+    val avatarUri: String? = null,
     val persona: String = "",
     val contactPolicy: CharacterContactPolicy = CharacterContactPolicy(),
     val defaultWorldBookIds: Set<String> = emptySet(),
@@ -441,6 +442,7 @@ class CharacterSettingsStore {
     private fun encodeCharacter(value: CharacterSettings): JSONObject = JSONObject()
         .put("characterId", value.characterId)
         .put("displayName", value.displayName)
+        .put("avatarUri", value.avatarUri.orEmpty())
         .put("persona", value.persona)
         .put(
             "contactPolicy",
@@ -477,6 +479,7 @@ class CharacterSettingsStore {
                         CharacterSettings(
                             characterId = characterId,
                             displayName = item.optString("displayName").ifBlank { characterId },
+                            avatarUri = item.optString("avatarUri").takeIf(String::isNotBlank),
                             persona = item.optString("persona"),
                             contactPolicy = CharacterContactPolicy(
                                 enabled = policy.optBoolean("enabled", true),

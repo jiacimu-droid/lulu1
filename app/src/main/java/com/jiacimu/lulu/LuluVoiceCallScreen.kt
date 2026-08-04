@@ -55,6 +55,7 @@ fun LuluVoiceCallScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val library by LuluAiServices.connectionStore.library.collectAsState()
+    val character = MigratedDomainStores.characters.get(characterId)
     val messages by MigratedDomainStores.chat.messages(conversationId).collectAsState()
     val activeArchive = library.archives.firstOrNull { it.id == library.activeArchiveId }
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接模型"
@@ -193,21 +194,11 @@ fun LuluVoiceCallScreen(
 
                 Spacer(Modifier.height(if (connected) 18.dp else 34.dp))
 
-                Surface(
-                    modifier = Modifier.size(if (connected) 84.dp else 96.dp),
-                    shape = CircleShape,
-                    color = CallSurface,
-                    border = BorderStroke(1.dp, CallLine),
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            characterName.take(1).ifBlank { "露" },
-                            color = CallInk,
-                            fontSize = if (connected) 34.sp else 38.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
-                }
+                LuluProfileAvatar(
+                    imageUri = character.avatarUri,
+                    fallback = characterName.take(1).ifBlank { "露" },
+                    size = if (connected) 84 else 96,
+                )
 
                 Spacer(Modifier.height(16.dp))
                 Text(

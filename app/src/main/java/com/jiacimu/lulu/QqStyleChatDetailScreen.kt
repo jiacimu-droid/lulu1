@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -35,6 +36,7 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
@@ -66,13 +68,16 @@ fun QqStyleChatDetailScreen(
     val context = LocalContext.current
     val userProfilePrefs = remember { context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE) }
     val userAvatar = remember { userProfilePrefs.getString("avatar_text", "主").orEmpty().ifBlank { "主" }.take(2) }
+    val userAvatarUri = remember { userProfilePrefs.getString("avatar_uri", null) }
     val messages by MigratedDomainStores.chat.messages(conversationId).collectAsState()
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val preferences by LuluAppPreferencesStore.state.collectAsState()
+    val presenceStates by CompanionPresenceStore.states.collectAsState()
     val library by LuluAiServices.connectionStore.library.collectAsState()
     val conversation = conversations.firstOrNull { it.id == conversationId }
     val characterId = conversation?.characterId ?: "lulu"
     val character = MigratedDomainStores.characters.get(characterId)
+    val presence = presenceStates[characterId]
     val activeArchive = library.archives.firstOrNull { it.id == library.activeArchiveId }
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接模型"
     val pendingUserMessages = remember(messages) {
@@ -90,6 +95,7 @@ fun QqStyleChatDetailScreen(
     var moreExpanded by remember { mutableStateOf(false) }
     var modelExpanded by remember { mutableStateOf(false) }
     var callVisible by remember { mutableStateOf(false) }
+    var presenceVisible by remember { mutableStateOf(false) }
     var voiceListening by remember { mutableStateOf(false) }
     var voicePartial by remember { mutableStateOf("") }
     var voiceError by remember { mutableStateOf("") }
@@ -238,7 +244,11 @@ fun QqStyleChatDetailScreen(
                 },
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        QqAvatar(character.displayName.take(1).ifBlank { "露" }, 42)
+                        QqAvatar(
+                            character.displayName.take(1).ifBlank { "露" },
+                            42,
+                            character.avatarUri,
+                        )
                         Spacer(Modifier.width(9.dp))
                         Column {
                             Text(character.displayName, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = QqInk)
@@ -375,19 +385,22 @@ fun QqStyleChatDetailScreen(
                     Duration.between(previous.createdAt, message.createdAt).toMinutes() >= 2
                 val groupEnd = next == null || next.sender != message.sender ||
                     Duration.between(message.createdAt, next.createdAt).toMinutes() >= 2
-                QqMessageRow(
-                    message = message,
-                    characterName = character.displayName,
-                    showAvatar = groupStart,
-                    showTime = preferences.showMessageTimestamps && groupEnd,
-                    userAvatar = userAvatar,
-                    onLongClick = { selectedMessage = message },
+                        QqMessageRow(
+                            message = message,
+                            characterName = character.displayName,
+                            characterAvatarUri = character.avatarUri,
+                            showAvatar = groupStart,
+                            showTime = preferences.showMessageTimestamps && groupEnd,
+                            userAvatar = userAvatar,
+                            userAvatarUri = userAvatarUri,
+                            onCharacterAvatarClick = { presenceVisible = true },
+                            onLongClick = { selectedMessage = message },
                 )
             }
             if (receiving) {
                 item {
                     Row(verticalAlignment = Alignment.Top) {
-                        QqAvatar(character.displayName.take(1).ifBlank { "露" }, 44)
+                        QqAvatar(character.displayName.take(1).ifBlank { "露" }, 44, character.avatarUri)
                         Spacer(Modifier.width(9.dp))
                         Surface(
                             color = QqOther,
@@ -439,6 +452,10 @@ fun QqStyleChatDetailScreen(
             characterName = character.displayName,
             onDismiss = { callVisible = false },
         )
+    }
+
+    if (presenceVisible) {
+        CompanionPresenceDialog(character.displayName, presence) { presenceVisible = false }
     }
 
     if (voiceListening) {
@@ -501,9 +518,12 @@ fun QqStyleChatDetailScreen(
 private fun QqMessageRow(
     message: LuluChatMessage,
     characterName: String,
+    characterAvatarUri: String?,
     showAvatar: Boolean,
     showTime: Boolean,
     userAvatar: String,
+    userAvatarUri: String?,
+    onCharacterAvatarClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
     val mine = message.sender == LuluChatMessage.Sender.User
@@ -516,7 +536,14 @@ private fun QqMessageRow(
         verticalAlignment = Alignment.Top,
     ) {
         if (!mine) {
-            if (showAvatar) QqAvatar(characterName.take(1).ifBlank { "露" }, 44) else Spacer(Modifier.width(44.dp))
+            if (showAvatar) {
+                QqAvatar(
+                    characterName.take(1).ifBlank { "露" },
+                    44,
+                    characterAvatarUri,
+                    Modifier.clickable(onClick = onCharacterAvatarClick),
+                )
+            } else Spacer(Modifier.width(44.dp))
             Spacer(Modifier.width(9.dp))
         }
         Column(
@@ -563,7 +590,7 @@ private fun QqMessageRow(
         }
         if (mine) {
             Spacer(Modifier.width(9.dp))
-            if (showAvatar) QqAvatar(userAvatar, 44) else Spacer(Modifier.width(44.dp))
+            if (showAvatar) QqAvatar(userAvatar, 44, userAvatarUri) else Spacer(Modifier.width(44.dp))
         }
     }
 }
@@ -630,15 +657,6 @@ private fun buildBoundedHistory(
 }
 
 @Composable
-private fun QqAvatar(label: String, size: Int) {
-    Surface(
-        modifier = Modifier.size(size.dp),
-        shape = CircleShape,
-        color = QqIconSurface,
-        border = BorderStroke(1.dp, QqBorder),
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(label, fontWeight = FontWeight.Bold, color = QqInk, fontSize = (size / 3).sp)
-        }
-    }
+private fun QqAvatar(label: String, size: Int, imageUri: String? = null, modifier: Modifier = Modifier) {
+    LuluProfileAvatar(imageUri = imageUri, fallback = label, size = size, modifier = modifier)
 }
