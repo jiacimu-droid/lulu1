@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-04T11:58:45.485923+00:00",
-  "commit": "82c03152fb99b8fb7aab05c064fc85e2d0f59630",
+  "generatedAt": "2026-08-04T12:24:21.359980+00:00",
+  "commit": "804ec56871a0a5ca2b9e85a6b0096a87fbfaf04c",
   "branch": "main",
-  "sourceFingerprint": "754299cb179c1943832a20886a329b3e85c7dfb9ef65bffb6cca68c720eea724",
+  "sourceFingerprint": "967eb48cadc5eb7b97fef07a8ef06345e95922aa5071820c94a388da14b332af",
   "summary": {
     "files": 105,
-    "lines": 22445,
+    "lines": 22791,
     "symbols": 418
   },
   "symbolIndex": {
@@ -281,7 +281,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 30
+        "line": 33
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt",
@@ -411,25 +411,25 @@
     "beginVoiceCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 113
+        "line": 115
       }
     ],
     "sendOnly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 170
+        "line": 172
       }
     ],
     "stopReceiving": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 177
+        "line": 179
       }
     ],
     "sendAndReceive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 183
+        "line": 185
       }
     ],
     "ApiConfiguration": [
@@ -755,13 +755,13 @@
     "current": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 35
+        "line": 39
       }
     ],
     "update": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 39
+        "line": 43
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
@@ -1735,7 +1735,7 @@
     "LuluReadingScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
-        "line": 28
+        "line": 36
       }
     ],
     "PostgraduateExamApp": [
@@ -2483,8 +2483,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 78,
-      "sha256": "17226937509a9d7b5dc6d9043114898106b0617f8f8a1e172a1e30eb64afb017",
+      "lines": 119,
+      "sha256": "2dc588a9dac73444dbec949f66d67db45660495ef078a8d161e6df7bda716900",
       "symbols": []
     },
     {
@@ -2593,8 +2593,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt",
-      "lines": 94,
-      "sha256": "5243175daddb16aa72a65182c7fb1fe03afb5d46e439faa19047b6bcdb907b0b",
+      "lines": 124,
+      "sha256": "c65276d76e637e2b8d5cbf6bc91cf7209737537a133821e9511a08421668d1d8",
       "symbols": []
     },
     {
@@ -2653,7 +2653,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
       "lines": 455,
-      "sha256": "1b4f00d2709744d7d0a89cbfca9dba805872830e95a2ac405e3bbf3028e42511",
+      "sha256": "21f84db5bd364f9a62a2ac036322dd780ccd0cddcbe1d354ef3d3528af9fb79c",
       "symbols": [
         {
           "name": "LuluVoiceCallScreen",
@@ -2746,7 +2746,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
       "lines": 422,
-      "sha256": "195eeb233c74f7876b95466b882a0555d3271e45d4594b83262cc5014267a984",
+      "sha256": "14ecbc4ef2201f138e5ec352c0f23e389f61d38f15568ec418ed3a50a14ca874",
       "symbols": []
     },
     {
@@ -2788,8 +2788,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 680,
-      "sha256": "bf60d32f0086db14c2ce640fb37fadaf7f6d4664a82e94fbd7e31f7761f80b8b",
+      "lines": 682,
+      "sha256": "7ee51e53815954a5e9b7ac53e8a554c8898be560f95b77af6bfadec88d1f0f2d",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -2797,19 +2797,19 @@
         },
         {
           "name": "beginVoiceCapture",
-          "line": 113
+          "line": 115
         },
         {
           "name": "sendOnly",
-          "line": 170
+          "line": 172
         },
         {
           "name": "stopReceiving",
-          "line": 177
+          "line": 179
         },
         {
           "name": "sendAndReceive",
-          "line": 183
+          "line": 185
         }
       ]
     },
@@ -3064,8 +3064,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-      "lines": 110,
-      "sha256": "26d0c0f8b2a3cf1d30f14d59fd12de21b9b164e6074cf9bf3570ffd4e7a95944",
+      "lines": 162,
+      "sha256": "3f9a292070144970f6f388ee938c7ad1d1067b2ccfd5d7042d7c7a6be696ec12",
       "symbols": [
         {
           "name": "CompanionPresenceState",
@@ -3077,15 +3077,15 @@
         },
         {
           "name": "initialize",
-          "line": 30
+          "line": 33
         },
         {
           "name": "current",
-          "line": 35
+          "line": 39
         },
         {
           "name": "update",
-          "line": 39
+          "line": 43
         }
       ]
     },
@@ -3988,12 +3988,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
-      "lines": 56,
-      "sha256": "fefb15e458c34f50c10e82fc0d4431c6a78510df55726e7d87eb4e8b326ecc28",
+      "lines": 272,
+      "sha256": "eef487c3bc81df632cf2ac02812303f30d79a581d5a35e0dd6d1864a57ff7453",
       "symbols": [
         {
           "name": "LuluReadingScreen",
-          "line": 28
+          "line": 36
         }
       ]
     },
@@ -4532,8 +4532,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt",
-      "lines": 359,
-      "sha256": "519578e5e9c50d5a64013ac8d7e7ea55ccc8922320f1eeffae9484ff0a1df9ab",
+      "lines": 364,
+      "sha256": "307d0f05d27153fab8b7ac9315e1c53c9324eecb2b91dda00c9703b039af8935",
       "symbols": []
     },
     {
