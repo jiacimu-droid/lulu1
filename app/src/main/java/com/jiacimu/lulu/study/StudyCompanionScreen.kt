@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,8 +19,6 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 @Composable
 internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStore) {
@@ -219,17 +216,17 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
         if (visibleEvents.isEmpty()) {
             item { StudyCard { Text("还没有事件", color = StudyDesign.muted) } }
         } else {
-            items(visibleEvents, key = { it.id }) { event ->
+            item {
                 StudyCard {
-                    Text(event.title, fontWeight = FontWeight.Bold)
-                    Text(event.detail)
-                    Text(
-                        event.createdAt
-                            .atZone(ZoneId.systemDefault())
-                            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
-                        color = StudyDesign.muted,
-                        fontSize = 12.sp,
-                    )
+                    visibleEvents.forEachIndexed { index, event ->
+                        Text(event.detail.ifBlank { event.title })
+                        if (index != visibleEvents.lastIndex) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 10.dp),
+                                color = StudyDesign.border,
+                            )
+                        }
+                    }
                 }
             }
         }
