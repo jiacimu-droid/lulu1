@@ -76,6 +76,16 @@ private data class CampaignSave(
     val updatedAt: Long = System.currentTimeMillis(),
 )
 
+private data class CampaignAdjudication(
+    val needsRoll: Boolean,
+    val roller: String,
+    val rollerCharacterId: String,
+    val checkName: String,
+    val difficulty: Int,
+    val attitude: String,
+    val ruling: String,
+)
+
 private object CampaignColors {
     val top = Color(0xFF070A16)
     val bottom = Color(0xFF17102D)
@@ -390,40 +400,21 @@ private fun CampaignPlay(
         val cleanAction = action.trim()
         if (cleanAction.isBlank() || busy || rolling || (useLuck && save.luck <= 0)) return
         scope.launch {
-            rolling = true
-            repeat(15) { index ->
-                rollingFace = Random.nextInt(1, 21)
-                delay(45L + index * 7L)
-            }
-            val firstRoll = Random.nextInt(1, 21)
-            val secondRoll = if (useLuck) Random.nextInt(1, 21) else firstRoll
-            val roll = maxOf(firstRoll, secondRoll)
-            rollingFace = roll
-            lastRoll = roll
-            delay(260)
-            rolling = false
-
-            val difficulty = (10 + save.scene / 2).coerceIn(10, 17)
-            val result = when {
-                roll == 20 -> "大成功"
-                roll == 1 -> "大失败"
-                roll >= difficulty -> "成功"
-                else -> "失败"
-            }
-            lastResult = result
             busy = true
+            lastRoll = 0
+            lastResult = "主持人正在判断是否需要检定…"
+
             val partyPrompt = party.joinToString("\n") { member ->
-                "- ${member.displayName}：${member.persona.ifBlank { "按其既有角色设定行动" }}"
+                "- id=${member.characterId}；姓名=${member.displayName}；persona=${member.persona.ifBlank { "按其既有角色设定行动" }}"
             }
-            val facts = """
+            val adjudicationFacts = """
                 正式跑团：《${save.title}》
                 世界：${world.title}
                 前提：${world.premise}
                 文风：${world.style}
                 当前场景：${save.scene}
                 状态：生命${save.hp}/10，理智${save.sanity}/10，幸运${save.luck}，线索${save.clues}，可用金钱¥${save.money}
-                用户行动：$cleanAction
-                程序判定：d20=$roll，难度=$difficulty，结果=$result${if (useLuck) "（已消耗幸运，取两次较高值）" else ""}
+                用户声明的行动：$cleanAction
                 同行角色：
                 $partyPrompt
                 最近记录：
@@ -431,12 +422,120 @@ private fun CampaignPlay(
                 上一段叙事：
                 ${save.narration.takeLast(2600)}
             """.trimIndent()
+            val adjudicationInstruction = """
+                你是严格但尊重人物设定的跑团主持人。先裁定用户声明的行动是否真的需要检定，不要因为玩家输入了行动、选择了选项，或使用了“劝说、请求、帮我”等词就机械掷骰。
+
+                只返回一个 JSON 对象，不要代码块：
+                {"needsRoll":true,"roller":"user|character","rollerCharacterId":"同行角色ID或空字符串","checkName":"检定名称","difficulty":12,"attitude":"willing|hesitant|unwilling|not_applicable","ruling":"一句简短中文裁定"}
+
+                裁定规则：
+                1. 只有结果存在真实不确定性，而且失败会产生有意义的不同后果时，needsRoll 才为 true。普通交谈、自然移动、接受显而易见的信息、没有压力的简单动作通常无需检定。
+                2. 涉及同行角色时，必须先读取该角色 persona，判断他对这个具体请求是 willing、hesitant 还是 unwilling。骰子不能决定角色爱不爱用户、忠不忠诚、是否突然改变性格。
+                3. 若角色按 persona 本来就愿意做这件事，不能进行说服检定。若后续执行存在风险，则 needsRoll=true，roller=character，并填写该角色ID；检定的是潜行、观察、撬锁、战斗等执行结果，不是他是否答应。
+                4. 只有角色确实犹豫，且用户正试图改变其具体决定时，才可进行说服、欺骗或威吓检定，roller=user，attitude=hesitant。
+                5. 若请求触碰角色明确核心底线，attitude=unwilling 且 needsRoll=false。高点数不能精神控制角色；他可以拒绝、解释、妥协或提出替代方案。
+                6. 若行动由用户亲自完成，roller=user；由同行角色实际执行，roller=character。不要把同伴的技能检定错误地算成用户的说服检定。
+                7. 只依据明确 persona 推断角色倾向与明显擅长项，不得凭空编造职业、技能或数值。没有明确信息时按普通人处理。
+                8. difficulty 使用 6—20：容易但有压力约8，普通约10—12，中等约13—15，困难约16—18，极端约19—20。
+                9. ruling 要明确说明“为何无需检定”或“由谁进行什么检定”，控制在60个汉字内。
+            """.trimIndent()
+
+            var adjudicationGeneration = LuluAiServices.gateway.generate(
+                characterId = party.firstOrNull()?.characterId ?: "lulu",
+                facts = adjudicationFacts,
+                instruction = adjudicationInstruction,
+                source = "游戏裁定",
+                title = "跑团主持裁定 · ${world.title}",
+                temperature = 0.22,
+                maxTokens = 500,
+                usage = ModelUsage.Game,
+                contextMode = CompanionContextMode.PersonaAndScenario,
+            )
+            var adjudication = adjudicationGeneration.getOrNull()?.text
+                ?.let { raw -> parseCampaignAdjudication(raw, party) }
+            if (adjudication == null) {
+                adjudicationGeneration = LuluAiServices.gateway.generate(
+                    characterId = party.firstOrNull()?.characterId ?: "lulu",
+                    facts = adjudicationFacts,
+                    instruction = adjudicationInstruction + "\n上一次格式无效。本次必须只返回可解析的单个JSON对象，不要添加任何解释。",
+                    source = "游戏裁定重试",
+                    title = "跑团主持裁定 · ${world.title}",
+                    temperature = 0.10,
+                    maxTokens = 400,
+                    usage = ModelUsage.Game,
+                    contextMode = CompanionContextMode.PersonaAndScenario,
+                )
+                adjudication = adjudicationGeneration.getOrNull()?.text
+                    ?.let { raw -> parseCampaignAdjudication(raw, party) }
+            }
+            val ruling = adjudication ?: CampaignAdjudication(
+                needsRoll = true,
+                roller = "user",
+                rollerCharacterId = "",
+                checkName = "行动检定",
+                difficulty = (10 + save.scene / 2).coerceIn(10, 17),
+                attitude = "not_applicable",
+                ruling = "主持裁定暂时无法解析，按普通行动检定处理",
+            )
+
+            val rollerCharacter = party.firstOrNull { member -> member.characterId == ruling.rollerCharacterId }
+            val rollerLabel = if (ruling.roller == "character" && rollerCharacter != null) {
+                rollerCharacter.displayName
+            } else {
+                "你"
+            }
+
+            var roll = 0
+            var result = "无需检定"
+            val luckSpent: Int
+            if (ruling.needsRoll) {
+                rolling = true
+                repeat(15) { index ->
+                    rollingFace = Random.nextInt(1, 21)
+                    delay(45L + index * 7L)
+                }
+                val firstRoll = Random.nextInt(1, 21)
+                val secondRoll = if (useLuck) Random.nextInt(1, 21) else firstRoll
+                roll = maxOf(firstRoll, secondRoll)
+                rollingFace = roll
+                lastRoll = roll
+                delay(260)
+                rolling = false
+                result = when {
+                    roll == 20 -> "大成功"
+                    roll == 1 -> "大失败"
+                    roll >= ruling.difficulty -> "成功"
+                    else -> "失败"
+                }
+                luckSpent = if (useLuck) 1 else 0
+                lastResult = "$rollerLabel · ${ruling.checkName} · $result"
+            } else {
+                rolling = false
+                luckSpent = 0
+                lastResult = "无需检定 · ${ruling.ruling}"
+            }
+
+            val resolutionText = if (ruling.needsRoll) {
+                "程序判定：执行者=$rollerLabel；检定=${ruling.checkName}；d20=$roll；难度=${ruling.difficulty}；结果=$result${if (luckSpent > 0) "（已消耗幸运，取两次较高值）" else ""}"
+            } else {
+                "主持裁定：无需检定；角色态度=${ruling.attitude}；原因=${ruling.ruling}。不得擅自补掷骰或制造随机失败。"
+            }
+            val facts = """
+                $adjudicationFacts
+                主持裁定：needsRoll=${ruling.needsRoll}；roller=${ruling.roller}；rollerCharacterId=${ruling.rollerCharacterId}；check=${ruling.checkName}；attitude=${ruling.attitude}；ruling=${ruling.ruling}
+                $resolutionText
+            """.trimIndent()
             val instruction = """
-                你是成熟的跑团主持人与小说叙事者。必须服从程序骰点，不得改骰或把失败偷换成成功。
+                你是成熟的跑团主持人与小说叙事者。必须服从上面的主持裁定；需要检定时必须服从程序骰点，不得改骰，也不得把失败偷换成成功。无需检定时不得擅自补骰或为了制造刺激强行写失败。
                 “你”只代表用户本人；同行角色必须直接写名字，禁止用含混的“我”混淆视角。
-                输出约700—1200个汉字的完整沉浸正文。先写行动如何发生，再写骰点结果造成的具体后果；使用环境、五感、空间距离、微动作、心理压力和潜台词。
-                同行角色是主角小队，每轮至少发生两次有效互动，每个人必须符合persona，不能变成只会附和的背景板。
-                这是独立的长篇末世剧情，不得引用角色与用户在普通聊天、电话、群聊、辞海或日常记忆中发生的事。只延续本战役的开场、存档、日志与角色persona。
+                输出约700—1200个汉字的完整沉浸正文。先写行动如何发生，再写裁定或骰点造成的具体后果；使用环境、五感、空间距离、微动作、心理压力和潜台词。
+                同行角色是主角小队，每轮至少发生两次有效互动，每个人必须符合 persona，不能变成只会附和的背景板。
+                人设、关系倾向与底线优先于骰子。骰子只能决定具体方案是否奏效、行动执行得如何，以及外部世界怎样回应，不能决定角色是否突然不爱用户、背叛既定关系或性格崩坏。
+                若同行角色本来 willing，他应自然答应。若其执行检定失败，失败应落在执行偏差、环境阻碍、误解、代价、暴露、时机不对或新的麻烦上，不能偷换成“他突然不愿意”。
+                若 attitude=hesitant 且进行了社交检定，成功表示角色接受这个具体方案，失败表示该方案没有说服他；失败时仍须按 persona 表现关心、顾虑、妥协或提出替代方案。
+                若 attitude=unwilling 且无需检定，必须保留角色核心底线；角色可以拒绝、解释、保护用户或提出别的办法，不能被高魅力式叙事强行控制。
+                若 roller=character，骰点结果属于该同行角色的实际行动；由该角色依据 persona 作出反应。不得把他的行动失败写成用户说服失败。
+                这是独立的长篇剧情，不得引用角色与用户在普通聊天、电话、群聊、辞海或日常记忆中发生的事。只延续本战役的开场、存档、日志与角色 persona。
                 若世界是《末日前七日：异能纪元》，必须维持灾前倒计时、组织势力、异能体系、资源与金钱的长期连续性；正文像轻喜剧末世小说，不写机械跑团播报。
                 失败必须产生真实代价，但也必须推进剧情，给出新信息、危险或可追踪线索，绝不让故事卡死。
                 结尾必须自然留下2—4个明确可行动方向，但不要写数值面板、系统解释、“选项A/B”或“主持人说”。
@@ -470,47 +569,93 @@ private fun CampaignPlay(
 
             generation.onSuccess { reply ->
                 if (reply.text.isBlank()) {
-                    lastResult = "$result · 叙事暂时中断，原行动已保留，可再次掷骰"
+                    lastResult = if (ruling.needsRoll) {
+                        "$result · 叙事暂时中断，原行动已保留，可再次提交"
+                    } else {
+                        "无需检定 · 叙事暂时中断，原行动已保留，可再次提交"
+                    }
                     busy = false
                     return@onSuccess
                 }
-                val hpDelta = when { roll == 1 -> -2; result == "失败" && Random.nextBoolean() -> -1; else -> 0 }
-                val sanityDelta = when { world.sanityRisk && roll == 1 -> -2; world.sanityRisk && result == "失败" -> -1; else -> 0 }
-                val clueDelta = when { roll == 20 -> 2; result == "成功" -> 1; else -> 0 }
+                val hpDelta = when {
+                    !ruling.needsRoll -> 0
+                    roll == 1 -> -2
+                    result == "失败" && Random.nextBoolean() -> -1
+                    else -> 0
+                }
+                val sanityDelta = when {
+                    !ruling.needsRoll -> 0
+                    world.sanityRisk && roll == 1 -> -2
+                    world.sanityRisk && result == "失败" -> -1
+                    else -> 0
+                }
+                val clueDelta = when {
+                    !ruling.needsRoll -> 0
+                    roll == 20 -> 2
+                    result == "成功" -> 1
+                    else -> 0
+                }
                 val moneyDelta = when {
-                    world.id != "apocalypse_store" -> 0
+                    world.id != "apocalypse_store" || !ruling.needsRoll -> 0
                     roll == 20 -> 120
                     result == "成功" -> 40
                     roll == 1 -> -120
                     else -> -30
                 }
+                val resolutionLog = if (ruling.needsRoll) {
+                    "$rollerLabel｜${ruling.checkName}｜d20=$roll $result"
+                } else {
+                    "无需检定｜${ruling.ruling}"
+                }
                 val updated = save.copy(
                     scene = save.scene + 1,
                     hp = (save.hp + hpDelta).coerceIn(0, 10),
                     sanity = (save.sanity + sanityDelta).coerceIn(0, 10),
-                    luck = (save.luck - if (useLuck) 1 else 0).coerceAtLeast(0),
+                    luck = (save.luck - luckSpent).coerceAtLeast(0),
                     clues = save.clues + clueDelta,
                     money = (save.money + moneyDelta).coerceAtLeast(0),
                     narration = reply.text,
-                    log = (save.log + "SCENE ${save.scene}｜$cleanAction｜d20=$roll $result\n${reply.text.take(500)}").takeLast(80),
+                    log = (save.log + "SCENE ${save.scene}｜$cleanAction｜$resolutionLog\n${reply.text.take(500)}").takeLast(80),
                     updatedAt = System.currentTimeMillis(),
                 )
+                val summary = if (ruling.needsRoll) {
+                    "在${world.title}执行“$cleanAction”，由$rollerLabel进行${ruling.checkName}，d20=$roll，$result。"
+                } else {
+                    "在${world.title}执行“$cleanAction”，主持判定无需检定：${ruling.ruling}。"
+                }
                 val recordId = gameStore.recordExternalGame(
                     LuluGameType.RoleplayAdventure,
                     "跑团 · ${world.title} · 第${save.scene}幕",
-                    roll * 5,
-                    if (result == "成功" || result == "大成功") 8 else 3,
-                    "在${world.title}执行“$cleanAction”，d20=$roll，$result。",
-                    JSONObject().put("world", world.title).put("scene", save.scene).put("action", cleanAction)
-                        .put("roll", roll).put("difficulty", difficulty).put("result", result)
-                        .put("party", JSONArray(save.partyNames)).put("narration", reply.text).toString(),
+                    if (ruling.needsRoll) roll * 5 else 60,
+                    if (!ruling.needsRoll) 5 else if (result == "成功" || result == "大成功") 8 else 3,
+                    summary,
+                    JSONObject()
+                        .put("world", world.title)
+                        .put("scene", save.scene)
+                        .put("action", cleanAction)
+                        .put("needsRoll", ruling.needsRoll)
+                        .put("roller", ruling.roller)
+                        .put("rollerCharacterId", ruling.rollerCharacterId)
+                        .put("checkName", ruling.checkName)
+                        .put("difficulty", ruling.difficulty)
+                        .put("attitude", ruling.attitude)
+                        .put("ruling", ruling.ruling)
+                        .put("roll", if (ruling.needsRoll) roll else JSONObject.NULL)
+                        .put("result", result)
+                        .put("party", JSONArray(save.partyNames))
+                        .put("narration", reply.text)
+                        .toString(),
                 )
                 gameStore.attachCharacterReply(recordId, reply.text)
                 onUpdate(updated)
                 action = ""
             }
             generation.onFailure {
-                lastResult = "$result · 叙事暂时中断，原行动已保留，可再次尝试"
+                lastResult = if (ruling.needsRoll) {
+                    "$result · 叙事暂时中断，原行动已保留，可再次尝试"
+                } else {
+                    "无需检定 · 叙事暂时中断，原行动已保留，可再次尝试"
+                }
             }
             busy = false
         }
@@ -568,7 +713,7 @@ private fun CampaignPlay(
                     }
                 }
             }
-            if (rolling || lastRoll > 0) {
+            if (rolling || lastResult.isNotBlank()) {
                 item {
                     Surface(
                         Modifier.fillMaxWidth(), shape = RoundedCornerShape(18.dp),
@@ -576,8 +721,20 @@ private fun CampaignPlay(
                         border = BorderStroke(1.dp, CampaignColors.violet.copy(alpha = 0.55f)),
                     ) {
                         Column(Modifier.padding(14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(if (rolling) "D20 正在滚动" else "D20 · $lastResult", color = CampaignColors.muted)
-                            Text((if (rolling) rollingFace else lastRoll).toString(), color = CampaignColors.text, fontSize = 42.sp, fontWeight = FontWeight.Black)
+                            when {
+                                rolling -> {
+                                    Text("D20 正在滚动", color = CampaignColors.muted)
+                                    Text(rollingFace.toString(), color = CampaignColors.text, fontSize = 42.sp, fontWeight = FontWeight.Black)
+                                }
+                                lastRoll > 0 -> {
+                                    Text("D20 · $lastResult", color = CampaignColors.muted)
+                                    Text(lastRoll.toString(), color = CampaignColors.text, fontSize = 42.sp, fontWeight = FontWeight.Black)
+                                }
+                                else -> {
+                                    Text("主持裁定", color = CampaignColors.muted)
+                                    Text(lastResult, color = CampaignColors.text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                                }
+                            }
                         }
                     }
                 }
@@ -593,7 +750,7 @@ private fun CampaignPlay(
                     onValueChange = { value -> action = value },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("描述你的行动") },
-                    placeholder = { Text("例如：我先检查那条异常信息，再问同行者有没有注意到别的细节") },
+                    placeholder = { Text("例如：我先检查异常信息，再请同行者帮我留意门外动静") },
                     minLines = 2,
                     maxLines = 5,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -608,24 +765,74 @@ private fun CampaignPlay(
                         unfocusedPlaceholderColor = CampaignColors.muted,
                     ),
                 )
+                Text(
+                    "主持人会先判断是否需要检定；无需检定时不会掷骰，也不会消耗幸运。",
+                    color = CampaignColors.muted,
+                    fontSize = 11.sp,
+                )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(
                         onClick = { perform(true) },
                         enabled = !busy && !rolling && action.isNotBlank() && save.luck > 0,
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-                    ) { Text("消耗幸运（${save.luck}）", color = Color.White) }
+                    ) { Text("带幸运提交（${save.luck}）", color = Color.White) }
                     Button(
                         onClick = { perform(false) },
                         enabled = !busy && !rolling && action.isNotBlank(),
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = world.accent, contentColor = Color.White),
-                    ) { Text(if (busy) "主持中…" else if (rolling) "掷骰中…" else "掷 d20 并行动", color = Color.White) }
+                    ) {
+                        Text(
+                            when {
+                                rolling -> "掷骰中…"
+                                busy -> "主持判断中…"
+                                else -> "提交行动"
+                            },
+                            color = Color.White,
+                        )
+                    }
                 }
             }
         }
     }
 }
+
+private fun parseCampaignAdjudication(
+    raw: String,
+    party: List<CharacterSettings>,
+): CampaignAdjudication? = runCatching {
+    val cleaned = raw.trim()
+        .removePrefix("```json")
+        .removePrefix("```")
+        .removeSuffix("```")
+        .trim()
+        .let { value ->
+            val start = value.indexOf('{')
+            val end = value.lastIndexOf('}')
+            if (start >= 0 && end > start) value.substring(start, end + 1) else value
+        }
+    val json = JSONObject(cleaned)
+    val needsRoll = json.optBoolean("needsRoll", false)
+    val requestedRoller = json.optString("roller").trim().lowercase()
+    val requestedCharacterId = json.optString("rollerCharacterId").trim()
+    val validCharacter = party.firstOrNull { member -> member.characterId == requestedCharacterId }
+    val roller = if (needsRoll && requestedRoller == "character" && validCharacter != null) "character" else "user"
+    val attitude = json.optString("attitude").trim().lowercase().let { value ->
+        if (value in setOf("willing", "hesitant", "unwilling", "not_applicable")) value else "not_applicable"
+    }
+    CampaignAdjudication(
+        needsRoll = needsRoll,
+        roller = roller,
+        rollerCharacterId = if (roller == "character") validCharacter?.characterId.orEmpty() else "",
+        checkName = json.optString("checkName").trim().ifBlank { if (needsRoll) "行动检定" else "无需检定" }.take(30),
+        difficulty = json.optInt("difficulty", 12).coerceIn(6, 20),
+        attitude = attitude,
+        ruling = json.optString("ruling").trim().ifBlank {
+            if (needsRoll) "行动存在有意义的不确定性" else "行动可按当前情境自然完成"
+        }.take(100),
+    )
+}.getOrNull()
 
 private fun JSONArray?.stringList(): List<String> {
     if (this == null) return emptyList()
