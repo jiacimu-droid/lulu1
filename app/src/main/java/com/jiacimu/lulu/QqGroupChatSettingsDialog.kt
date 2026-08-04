@@ -22,6 +22,7 @@ import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluGroupChat
 import com.jiacimu.lulu.data.LuluGroupMember
 import com.jiacimu.lulu.data.LuluGroupRole
+import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.design.LuluColors
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
