@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-04T08:19:28.231223+00:00",
-  "commit": "01dc8c9833afba7c2a2ecb0dea0e4391cd4bff01",
+  "generatedAt": "2026-08-04T08:23:04.176606+00:00",
+  "commit": "a92f7f1802e7b363eb7f37aea6fc6866b33ebcfa",
   "branch": "main",
-  "sourceFingerprint": "265658b6ec7bba9544acd0494e6973337104283cbb576c8f0187ef1126dc019c",
+  "sourceFingerprint": "abfc0d57bc299e06e80a6fdc6ad14c67fec92eab9815c747e398cd3e601c1658",
   "summary": {
     "files": 98,
-    "lines": 20987,
+    "lines": 20992,
     "symbols": 386
   },
   "symbolIndex": {
@@ -2249,7 +2249,7 @@
     {
       "path": "app/build.gradle.kts",
       "lines": 101,
-      "sha256": "51a845ada08d10e898b327e9965672a6a26ede9fabed6ad7bf2efd74e1c70bd5",
+      "sha256": "133e8a17cf831119357cf54422f4aabdd0614974cc9796d091c3bfb14a7699e3",
       "symbols": []
     },
     {
@@ -4180,8 +4180,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt",
-      "lines": 339,
-      "sha256": "aa4801eb2db46b715a9f4226b708bba7ed01060b3d7550a2c095eb8e3614467b",
+      "lines": 344,
+      "sha256": "1afc316087b767c863e52002959df3efa444626180ed709f69fb3a05968d63c2",
       "symbols": []
     },
     {
