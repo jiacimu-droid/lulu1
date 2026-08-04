@@ -85,7 +85,7 @@ internal fun LuluGroupVoiceCallScreen(
                 characterId = member.characterId,
                 channel = "群聊电话·${group.name}",
                 speaker = "共同通话",
-                content = "和主人及群成员进行了一次约 ${elapsedSeconds.coerceAtLeast(1)} 秒的群聊电话。",
+                content = "和用户及群成员进行了一次约 ${elapsedSeconds.coerceAtLeast(1)} 秒的群聊电话。",
                 occurredAt = occurredAt,
             )
         }
@@ -146,7 +146,7 @@ internal fun LuluGroupVoiceCallScreen(
                 archiveId = voiceArchiveId,
                 characterNames = names,
                 onError = {},
-                sceneContext = "你正在群聊《${group.name}》的实时多人电话中。主人和其他群成员都在通话里；你听得见刚才的发言，也知道自己的声音和字幕会被所有人听见、看见。回复要口语化，不要像文字长文。",
+                sceneContext = "你正在群聊《${group.name}》的实时多人电话中。用户和其他群成员都在通话里；你听得见刚才的发言，也知道自己的声音和字幕会被所有人听见、看见。具体关系和称呼服从你的人设，回复要口语化。",
                 onSpeakerChange = { activeSpeakerId = it },
                 afterReply = { characterId, text ->
                     activeSpeakerId = characterId

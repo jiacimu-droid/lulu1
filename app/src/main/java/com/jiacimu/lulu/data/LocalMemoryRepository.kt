@@ -173,11 +173,14 @@ class LocalMemoryRepository : MemoryRepository {
                 return
             }
 
+            val batchIds = batch.mapTo(mutableSetOf()) { message -> message.id }
+            val provenance = "timeline-batch:${batchIds.joinToString("|")}"
             val existingKeys = state.value.entries
                 .filter { entry -> entry.characterId == characterId }
                 .mapTo(mutableSetOf()) { entry -> entry.dedupeKey() }
-            val unique = parsed.getOrThrow().filter { entry -> existingKeys.add(entry.dedupeKey()) }
-            val batchIds = batch.mapTo(mutableSetOf()) { message -> message.id }
+            val unique = parsed.getOrThrow()
+                .filter { entry -> existingKeys.add(entry.dedupeKey()) }
+                .map { entry -> entry.copy(source = provenance) }
 
             mutate { current ->
                 val currentProcessed = current.processedMessageIds[characterId].orEmpty()
@@ -249,6 +252,20 @@ class LocalMemoryRepository : MemoryRepository {
         refreshDebug("记忆已删除")
     }
 
+    suspend fun deleteDerivedFromEvent(eventId: String) {
+        if (eventId.isBlank()) return
+        mutate { current ->
+            current.copy(
+                entries = current.entries.filterNot { entry ->
+                    entry.source.startsWith("timeline-batch:") &&
+                        eventId in entry.source.removePrefix("timeline-batch:").split('|')
+                },
+                processedMessageIds = current.processedMessageIds.mapValues { (_, ids) -> ids - eventId },
+            )
+        }
+        refreshDebug("已撤销由删除内容产生的派生记忆")
+    }
+
     suspend fun togglePinned(id: String) {
         mutate { current ->
             current.copy(
@@ -298,7 +315,7 @@ class LocalMemoryRepository : MemoryRepository {
             LuluChatMessage(
                 id = event.id,
                 conversationId = "shared-timeline",
-                sender = if (event.speaker == "主人") LuluChatMessage.Sender.User else LuluChatMessage.Sender.Character,
+                sender = if (event.speaker in setOf("主人", "用户", UserProfileContext.displayLabel())) LuluChatMessage.Sender.User else LuluChatMessage.Sender.Character,
                 content = "[${event.channel}] ${event.speaker}：${event.content}",
                 createdAt = event.occurredAt,
             )

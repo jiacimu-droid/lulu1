@@ -36,7 +36,7 @@ object LuluDeviceToolBridge {
         userText: String,
         title: String,
         archiveId: String? = null,
-        sceneContext: String = "正在和主人进行文字聊天。",
+        sceneContext: String = "正在和用户进行文字聊天。",
     ): Result<ModelReply> {
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
         val connection = runCatching { LuluAiServices.connectionStore.resolveConnection(archiveId) }
@@ -57,7 +57,7 @@ object LuluDeviceToolBridge {
                 previousPresence?.let { presence ->
                     appendLine("角色上一刻状态：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
                 }
-                appendLine("主人刚刚说：$userText")
+                appendLine("用户刚刚说：$userText")
             },
             instruction = """
                 你既可以直接回复，也可以调用露露机真实手机工具。只返回一个 JSON 对象，不要代码块。
@@ -77,14 +77,14 @@ object LuluDeviceToolBridge {
                 10. read_screen，args={}：读取当前前台包名和可见文字。
 
                 规则：
-                - 主人询问设备真实状态、要求设置或取消闹钟、要求操作手机时必须用工具，不能凭空回答成功。
+                - 用户询问设备真实状态、要求设置或取消闹钟、要求操作手机时必须用工具，不能凭空回答成功。
                 - 位置工具返回的 readableAddress 才能作为可读地点使用；如果地址为空、stale=true 或 accuracyMeters 很大，必须说明只是大概位置，绝不能根据经纬度猜店铺、学校或建筑。
                 - 时间表达必须根据当前时间换算成未来的完整 ISO 时间；不确定时间时直接自然追问，不要猜。
-                - 屏幕操作只执行主人明确要求的动作。不要连续规划多步操作；一次只调用一个工具。
+                - 屏幕操作只执行用户明确要求的动作。不要连续规划多步操作；一次只调用一个工具。
                 - 与工具无关的普通聊天直接回复。
                 - 必须意识到“当前真实互动场景”，并以身处该场景的角色身份自然反应；电话里可以意识到正在通话，群聊里可以意识到其他成员也在场。
                 - innerThought 是角色没说出口的一瞬，不是分析报告、推理步骤或对话总结；没有真实内在反应可以留空，也不必把它写进 text。
-                - gesture 只写此刻能被主人看到的微动作、姿态或神态，不要复述刚刚聊了什么，不要编造角色并不处于其中的现实场景。
+                - gesture 只写角色此刻的微动作、姿态或神态，不要复述刚刚聊了什么，不要编造角色并不处于其中的现实场景。
                 - statusText、gesture、innerThought、mood 必须服从角色人设，不能把所有角色统一写成温柔、害羞或黏人。
             """.trimIndent(),
             source = "聊天工具规划",
@@ -107,12 +107,12 @@ object LuluDeviceToolBridge {
             characterId = characterId,
             facts = buildString {
                 appendLine("当前真实互动场景：$sceneContext")
-                appendLine("主人刚刚说：$userText")
+                appendLine("用户刚刚说：$userText")
                 appendLine("你请求调用工具：${plan.tool}")
                 appendLine("工具真实执行结果：$toolResult")
             },
             instruction = """
-                根据工具的真实执行结果，以角色本人符合人设的方式回复主人。
+                根据工具的真实执行结果，以角色本人符合人设的方式回复用户。
                 必须继续保持当前真实互动场景，电话里用自然口语，群聊里知道其他成员在场。
                 成功时可以自然确认；失败时必须如实说明失败原因，不能假装已经完成。
                 对位置结果只能使用 readableAddress；地址为空、定位过旧或精度差时，必须明确说是大概位置，不得根据经纬度猜具体店铺、学校或建筑。

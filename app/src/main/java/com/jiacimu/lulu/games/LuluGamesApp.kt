@@ -46,20 +46,24 @@ private sealed interface GameRoute {
 }
 
 private data class GameLauncher(
+    val id: String,
     val title: String,
     val subtitle: String,
     val icon: ImageVector,
     val route: GameRoute,
+    val minCharacters: Int = 1,
+    val maxCharacters: Int = 1,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LuluGamesApp(onBack: () -> Unit) {
+fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null) {
     val store = remember { LuluGames.store }
     val state by store.state.collectAsState()
     val library by LuluAiServices.connectionStore.library.collectAsState()
     val gameArchiveId = library.archiveIdFor(ModelUsage.Game)
-    var route by remember { mutableStateOf<GameRoute>(GameRoute.Home) }
+    var route by remember(initialGameId) { mutableStateOf(initialGameId.toGameRouteOrHome()) }
+    var pendingRoute by remember { mutableStateOf<GameRoute?>(null) }
     var modelExpanded by remember { mutableStateOf(false) }
 
     fun stepBack() {
@@ -67,6 +71,20 @@ fun LuluGamesApp(onBack: () -> Unit) {
     }
 
     BackHandler { stepBack() }
+
+    pendingRoute?.let { target ->
+        GameParticipantPickerScreen(
+            route = target,
+            initiallySelected = state.selectedCharacterIds,
+            onBack = { pendingRoute = null },
+            onConfirm = { selected ->
+                store.selectCharacters(selected)
+                pendingRoute = null
+                route = target
+            },
+        )
+        return
+    }
 
     if (route == GameRoute.Roleplay) {
         FormalRoleplayCampaignScreen(
@@ -126,7 +144,7 @@ fun LuluGamesApp(onBack: () -> Unit) {
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             when (val current = route) {
-                GameRoute.Home -> GameHome(state, store, onOpen = { route = it })
+                GameRoute.Home -> GameHome(onOpen = { pendingRoute = it })
                 GameRoute.PerfectMan -> PerfectManScreen(store)
                 GameRoute.Roleplay -> Unit
                 GameRoute.TurtleSoup -> TurtleSoupScreen(store)
@@ -157,26 +175,29 @@ private fun GameRoute.title(): String = when (this) {
     is GameRoute.Replay -> "游戏回放"
 }
 
+private fun String?.toGameRouteOrHome(): GameRoute = when (this?.trim()?.lowercase()) {
+    "perfect_man" -> GameRoute.PerfectMan
+    "roleplay" -> GameRoute.Roleplay
+    "turtle_soup" -> GameRoute.TurtleSoup
+    "rapport_quiz" -> GameRoute.RapportQuiz
+    "yacht_dice" -> GameRoute.YachtDice
+    "gomoku" -> GameRoute.Gomoku
+    "memory_match" -> GameRoute.MemoryMatch
+    else -> GameRoute.Home
+}
+
 @Composable
 private fun GameHome(
-    state: LuluGameState,
-    store: LuluGameStore,
     onOpen: (GameRoute) -> Unit,
 ) {
-    val characters by MigratedDomainStores.characters.settings.collectAsState()
-    val selectedCharacter = characters[state.selectedCharacterId]
-        ?: characters.values.firstOrNull()
-        ?: MigratedDomainStores.characters.get("lulu")
-    val legacyGames = listOf(
-        GameLauncher("满分男", "双方轮流描述和猜分，角色按人设、记忆与世界书参与。", Icons.Outlined.PersonSearch, GameRoute.PerfectMan),
-        GameLauncher("跑团", "多战役存档、十二种世界、同行小队、真实 d20 与沉浸式长篇叙事。", Icons.Outlined.AutoStories, GameRoute.Roleplay),
-        GameLauncher("海龟汤", "固定汤底、自由提问，角色严格回答是／否／无关。", Icons.Outlined.HelpOutline, GameRoute.TurtleSoup),
-        GameLauncher("默契问答", "角色先根据记忆秘密作答，再比较彼此答案。", Icons.Outlined.QuestionAnswer, GameRoute.RapportQuiz),
-        GameLauncher("快艇骰子", "五骰三掷、保留骰子和完整十三类计分表。", Icons.Outlined.Casino, GameRoute.YachtDice),
-        GameLauncher("五子棋", "15×15 棋盘，角色会取胜、拦截并评估进攻。", Icons.Outlined.GridOn, GameRoute.Gomoku),
-    )
-    val additions = listOf(
-        GameLauncher("记忆配对", "和角色轮流翻牌，在十二张卡里争夺六组配对。", Icons.Outlined.GridView, GameRoute.MemoryMatch),
+    val games = listOf(
+        GameLauncher("perfect_man", "满分男", "轮流描述与猜分，由角色真实判断。", Icons.Outlined.PersonSearch, GameRoute.PerfectMan),
+        GameLauncher("roleplay", "跑团", "长期剧情存档、同行小队与沉浸式小说叙事。", Icons.Outlined.AutoStories, GameRoute.Roleplay, 1, 4),
+        GameLauncher("turtle_soup", "海龟汤", "固定汤底、自由提问与共同推理。", Icons.Outlined.HelpOutline, GameRoute.TurtleSoup, 1, 3),
+        GameLauncher("rapport_quiz", "默契问答", "角色秘密作答，再比较彼此答案。", Icons.Outlined.QuestionAnswer, GameRoute.RapportQuiz, 1, 3),
+        GameLauncher("yacht_dice", "快艇骰子", "五骰三掷，支持最多四人同局。", Icons.Outlined.Casino, GameRoute.YachtDice, 1, 3),
+        GameLauncher("gomoku", "五子棋", "双人对弈，角色会进攻、拦截与复盘。", Icons.Outlined.GridOn, GameRoute.Gomoku),
+        GameLauncher("memory_match", "记忆配对", "轮流翻牌，在十二张卡里争夺配对。", Icons.Outlined.GridView, GameRoute.MemoryMatch),
     )
 
     LazyColumn(
@@ -184,43 +205,97 @@ private fun GameHome(
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         item {
-            GameCard {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        Modifier.size(54.dp).background(GameDesign.wheat, RoundedCornerShape(12.dp)),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(selectedCharacter.displayName.take(1).ifBlank { "角" }, fontWeight = FontWeight.Bold, fontSize = 22.sp)
-                    }
-                    Spacer(Modifier.width(14.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text("与角色共同游戏", fontSize = 21.sp, fontWeight = FontWeight.Bold)
-                        Text("玩法结果由引擎锁定；角色按真实人设、记忆和世界书回应。", color = GameDesign.muted)
-                    }
-                    Switch(checked = state.playWithCharacter, onCheckedChange = store::setPlayWithCharacter)
+            Text("选择一个游戏", fontSize = 25.sp, fontWeight = FontWeight.Bold)
+            Text("进入前再决定谁陪你玩；不同游戏会限制可选人数。", color = GameDesign.muted)
+        }
+        items(games, key = { it.id }) { launcher -> GameEntry(launcher, onOpen) }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GameParticipantPickerScreen(
+    route: GameRoute,
+    initiallySelected: List<String>,
+    onBack: () -> Unit,
+    onConfirm: (List<String>) -> Unit,
+) {
+    val characters by MigratedDomainStores.characters.settings.collectAsState()
+    val limits = route.playerLimits()
+    var selected by remember(route) {
+        mutableStateOf(initiallySelected.filter { it in characters }.take(limits.second).toSet())
+    }
+    LaunchedEffect(characters.keys, route) {
+        if (selected.isEmpty() && characters.isNotEmpty()) selected = setOf(characters.keys.first())
+    }
+    Scaffold(
+        containerColor = GameDesign.paper,
+        topBar = {
+            TopAppBar(
+                title = { Text("选择同行角色", fontWeight = FontWeight.SemiBold) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = GameDesign.paper),
+            )
+        },
+        bottomBar = {
+            Surface(color = GameDesign.card, shadowElevation = 8.dp) {
+                Button(
+                    onClick = { onConfirm(selected.toList()) },
+                    enabled = selected.size in limits.first..limits.second,
+                    modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp).height(52.dp),
+                ) { Text("确认并进入${route.title()}") }
+            }
+        },
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item {
+                GameCard {
+                    Text(route.title(), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        if (limits.first == limits.second) "请选择 ${limits.first} 位角色"
+                        else "请选择 ${limits.first}—${limits.second} 位角色；加上你共可 ${limits.first + 1}—${limits.second + 1} 人游玩",
+                        color = GameDesign.muted,
+                    )
                 }
-                if (characters.isNotEmpty()) {
-                    Text("选择本局角色", fontWeight = FontWeight.SemiBold)
-                    Row(
-                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        characters.values.forEach { character ->
-                            FilterChip(
-                                selected = state.selectedCharacterId == character.characterId,
-                                onClick = { store.selectCharacter(character.characterId) },
-                                label = { Text(character.displayName.ifBlank { "未命名角色" }) },
-                            )
+            }
+            items(characters.values.sortedBy { it.displayName }, key = { it.characterId }) { character ->
+                val checked = character.characterId in selected
+                Card(
+                    onClick = {
+                        selected = when {
+                            checked -> selected - character.characterId
+                            selected.size < limits.second -> selected + character.characterId
+                            else -> selected
                         }
+                    },
+                    colors = CardDefaults.cardColors(containerColor = if (checked) GameDesign.wheatSoft else GameDesign.card),
+                    border = BorderStroke(if (checked) 2.dp else 1.dp, if (checked) GameDesign.ink else GameDesign.border),
+                    shape = RoundedCornerShape(22.dp),
+                ) {
+                    Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        com.jiacimu.lulu.LuluProfileAvatar(character.avatarUri, character.displayName.take(1).ifBlank { "角" }, 52)
+                        Spacer(Modifier.width(12.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(character.displayName, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                            Text(character.persona.take(70).ifBlank { "按照角色人设参与游戏" }, color = GameDesign.muted, maxLines = 2)
+                        }
+                        Icon(if (checked) Icons.Outlined.CheckCircle else Icons.Outlined.RadioButtonUnchecked, null)
                     }
                 }
             }
         }
-        item { SectionTitle("一起玩") }
-        items(legacyGames, key = { it.title }) { launcher -> GameEntry(launcher, onOpen) }
-        item { SectionTitle("轻松小游戏") }
-        items(additions, key = { it.title }) { launcher -> GameEntry(launcher, onOpen) }
     }
+}
+
+private fun GameRoute.playerLimits(): Pair<Int, Int> = when (this) {
+    GameRoute.Roleplay -> 1 to 4
+    GameRoute.TurtleSoup, GameRoute.RapportQuiz, GameRoute.YachtDice -> 1 to 3
+    GameRoute.PerfectMan, GameRoute.Gomoku, GameRoute.MemoryMatch -> 1 to 1
+    else -> 1 to 1
 }
 
 @Composable
@@ -572,9 +647,4 @@ private fun GameEntry(launcher: GameLauncher, onOpen: (GameRoute) -> Unit) {
             Icon(Icons.Outlined.ChevronRight, null, tint = GameDesign.muted)
         }
     }
-}
-
-@Composable
-private fun SectionTitle(title: String) {
-    Text(title, fontSize = 20.sp, fontWeight = FontWeight.Bold)
 }

@@ -36,6 +36,7 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
     }
     var selectedCharacterId by rememberSaveable { mutableStateOf("lulu") }
     var starWishInitialTab by rememberSaveable { mutableStateOf(StarWishTab.Scroll.name) }
+    var initialGameId by rememberSaveable { mutableStateOf<String?>(null) }
     val preferences by LuluAppPreferencesStore.state.collectAsState()
     val density = LocalDensity.current
     val preferredDensity = remember(density, preferences.largerText) {
@@ -130,6 +131,10 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                             selectConversationCharacter()
                             pushRoute(MigrationRoute.WorldBook)
                         },
+                        onOpenGame = { gameId ->
+                            initialGameId = gameId
+                            pushRoute(MigrationRoute.Games)
+                        },
                     )
                     MigrationRoute.CharacterSettings -> CharacterSettingsScreenV2(
                         characterId = selectedCharacterId,
@@ -158,7 +163,13 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                             pushRoute(MigrationRoute.Wishes)
                         },
                     )
-                    MigrationRoute.Games -> LuluGamesAppV2(::popRoute)
+                    MigrationRoute.Games -> LuluGamesAppV2(
+                        onBack = {
+                            initialGameId = null
+                            popRoute()
+                        },
+                        initialGameId = initialGameId,
+                    )
                     MigrationRoute.Settings -> LuluSettingsHomeScreen(::popRoute)
                 }
             }

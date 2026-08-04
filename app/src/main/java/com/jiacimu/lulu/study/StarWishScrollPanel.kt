@@ -69,7 +69,7 @@ internal fun StarWishScrollContent(
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(selected = !interaction, onClick = { interaction = false }, label = { Text("角色单人") }, modifier = Modifier.weight(1f))
-                        FilterChip(selected = interaction, onClick = { interaction = true }, label = { Text("与主人互动") }, modifier = Modifier.weight(1f))
+                        FilterChip(selected = interaction, onClick = { interaction = true }, label = { Text("与用户互动") }, modifier = Modifier.weight(1f))
                     }
                     OutlinedTextField(
                         value = if (interaction) interactionPrompt else soloPrompt,

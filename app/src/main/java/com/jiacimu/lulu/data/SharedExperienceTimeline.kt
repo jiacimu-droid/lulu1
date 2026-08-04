@@ -99,7 +99,7 @@ object SharedExperienceTimeline {
             else -> "聊天"
         }
         val speaker = speakerOverride ?: when (message.sender) {
-            LuluChatMessage.Sender.User -> "主人"
+            LuluChatMessage.Sender.User -> UserProfileContext.displayLabel()
             LuluChatMessage.Sender.Character -> "角色"
             LuluChatMessage.Sender.System -> "系统"
         }
@@ -118,6 +118,17 @@ object SharedExperienceTimeline {
         val clean = content.trim()
         val database = helper?.writableDatabase ?: return
         if (eventId.isBlank() || characterId.isBlank() || clean.isBlank()) return
+        val deleted = database.query(
+            "deleted_timeline_events",
+            arrayOf("event_id"),
+            "event_id = ?",
+            arrayOf(eventId),
+            null,
+            null,
+            null,
+            "1",
+        ).use { it.moveToFirst() }
+        if (deleted) return
         val values = ContentValues().apply {
             put("id", eventId)
             put("character_id", characterId)
@@ -136,6 +147,60 @@ object SharedExperienceTimeline {
     }
 
     fun all(characterId: String): List<SharedTimelineEvent> = query(characterId, null).sortedBy(SharedTimelineEvent::occurredAt)
+
+    /** Permanently removes raw context and leaves a tombstone so history backfill cannot restore it. */
+    fun deleteEvent(eventId: String) {
+        if (eventId.isBlank()) return
+        val database = helper?.writableDatabase ?: return
+        database.beginTransaction()
+        try {
+            database.delete("timeline_events", "id = ?", arrayOf(eventId))
+            database.insertWithOnConflict(
+                "deleted_timeline_events",
+                null,
+                ContentValues().apply {
+                    put("event_id", eventId)
+                    put("deleted_at", System.currentTimeMillis())
+                },
+                SQLiteDatabase.CONFLICT_IGNORE,
+            )
+            database.setTransactionSuccessful()
+        } finally {
+            database.endTransaction()
+        }
+        scope.launch { LuluRepositories.memory.deleteDerivedFromEvent(eventId) }
+    }
+
+    fun deleteConversationMessage(conversation: LuluConversation, messageId: String) {
+        val group = conversation.groupChat
+        if (group == null) {
+            deleteEvent(messageId)
+        } else {
+            group.members.map(LuluGroupMember::characterId).distinct().forEach { memberId ->
+                deleteEvent("$messageId:group:$memberId")
+            }
+        }
+    }
+
+    fun deleteConversationData(conversation: LuluConversation, messages: List<LuluChatMessage>) {
+        messages.forEach { message -> deleteConversationMessage(conversation, message.id) }
+        val group = conversation.groupChat ?: return
+        val database = helper?.writableDatabase ?: return
+        val channels = arrayOf("群聊·${group.name}", "群聊电话·${group.name}")
+        group.members.map(LuluGroupMember::characterId).distinct().forEach { characterId ->
+            val ids = database.query(
+                "timeline_events",
+                arrayOf("id"),
+                "character_id = ? AND channel IN (?, ?)",
+                arrayOf(characterId, channels[0], channels[1]),
+                null,
+                null,
+                null,
+            ).use { cursor -> buildList { while (cursor.moveToNext()) add(cursor.getString(0)) } }
+            ids.forEach(::deleteEvent)
+            deleteEvent("group-joined-${conversation.id}-$characterId")
+        }
+    }
 
     fun recentContext(characterId: String, limit: Int = 24, characterBudget: Int = 7_000): String {
         val events = query(characterId, limit).sortedBy(SharedTimelineEvent::occurredAt)
@@ -213,7 +278,7 @@ object SharedExperienceTimeline {
         }
     }
 
-    private class TimelineDatabase(context: Context) : SQLiteOpenHelper(context, "shared_experience_timeline.db", null, 1) {
+    private class TimelineDatabase(context: Context) : SQLiteOpenHelper(context, "shared_experience_timeline.db", null, 2) {
         override fun onCreate(db: SQLiteDatabase) {
             db.execSQL(
                 """CREATE TABLE timeline_events (
@@ -226,8 +291,20 @@ object SharedExperienceTimeline {
                 )""".trimIndent(),
             )
             db.execSQL("CREATE INDEX timeline_character_time ON timeline_events(character_id, occurred_at)")
+            createDeletionTable(db)
         }
 
-        override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) = Unit
+        override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+            if (oldVersion < 2) createDeletionTable(db)
+        }
+
+        private fun createDeletionTable(db: SQLiteDatabase) {
+            db.execSQL(
+                """CREATE TABLE IF NOT EXISTS deleted_timeline_events (
+                    event_id TEXT PRIMARY KEY NOT NULL,
+                    deleted_at INTEGER NOT NULL
+                )""".trimIndent(),
+            )
+        }
     }
 }

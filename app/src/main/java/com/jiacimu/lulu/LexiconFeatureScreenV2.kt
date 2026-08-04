@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,6 +29,8 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.design.LuluColors
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 private const val LEXICON_PAGE_SIZE = 40
@@ -132,7 +135,7 @@ fun LexiconFeatureScreenV2(onBack: () -> Unit) {
                     LexiconSection.Life -> "近期生活安排、作息、学习任务与会影响陪伴的现实处境。"
                     LexiconSection.Concern -> "尚未解决、以后值得角色主动关心或回访的事情。"
                     LexiconSection.Promise -> "双方说好的事，以及角色承担的责任、提醒和长期监督。"
-                    LexiconSection.Diary -> "角色自己的日记与主动联系记录，不代替主人的长期记忆。"
+                    LexiconSection.Diary -> "角色以第一人称留下的私人日记；它属于角色自己的表达，不代替用户的长期记忆。"
                 },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 9.dp),
                 color = LuluColors.Muted,
@@ -152,7 +155,14 @@ fun LexiconFeatureScreenV2(onBack: () -> Unit) {
                     }
                 } else {
                     items(visibleEntries, key = LexiconEntry::id) { entry ->
-                        LexiconV2Card {
+                        if (entry.section == LexiconSection.Diary) {
+                            DiaryEntryCard(
+                                entry = entry,
+                                characterName = characters[entry.characterId]?.displayName ?: "角色",
+                                onEdit = { editing = entry },
+                                onDelete = { scope.launch { LuluRepositories.lexicon.delete(entry.id) } },
+                            )
+                        } else LexiconV2Card {
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
                                 Column(Modifier.weight(1f)) {
                                     Text(entry.title, fontWeight = FontWeight.Bold, fontSize = 17.sp)
@@ -230,6 +240,53 @@ fun LexiconFeatureScreenV2(onBack: () -> Unit) {
         )
     }
 }
+
+@Composable
+private fun DiaryEntryCard(
+    entry: LexiconEntry,
+    characterName: String,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFEFA)),
+        border = BorderStroke(1.dp, Color(0xFFE8E0D2)),
+        shape = RoundedCornerShape(24.dp),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Surface(shape = RoundedCornerShape(12.dp), color = LuluColors.Ink, modifier = Modifier.size(40.dp)) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(entry.updatedAt.atZone(ZoneId.systemDefault()).dayOfMonth.toString(), color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
+                Spacer(Modifier.width(11.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(entry.title, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text(
+                        "${entry.updatedAt.atZone(ZoneId.systemDefault()).format(DiaryTimeFormatter)} · $characterName",
+                        color = LuluColors.Muted,
+                        fontSize = 11.sp,
+                    )
+                }
+                IconButton(onClick = onEdit) { Icon(Icons.Outlined.Edit, "编辑日记") }
+                IconButton(onClick = onDelete) { Icon(Icons.Outlined.DeleteOutline, "删除日记", tint = MaterialTheme.colorScheme.error) }
+            }
+            HorizontalDivider(color = Color(0xFFE8E0D2))
+            Row(Modifier.padding(horizontal = 18.dp, vertical = 18.dp), verticalAlignment = Alignment.Top) {
+                Text("“", color = Color(0xFFC8BCA8), fontSize = 34.sp, lineHeight = 30.sp)
+                Spacer(Modifier.width(6.dp))
+                Text(entry.content, color = LuluColors.Ink, fontSize = 15.sp, lineHeight = 24.sp)
+            }
+        }
+    }
+}
+
+private val DiaryTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm")
 
 @Composable
 private fun LexiconEditorDialogV2(

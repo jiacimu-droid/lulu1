@@ -125,7 +125,7 @@ internal fun StudyFocusCompleteScreen(
         val transcript = MigratedDomainStores.chat.messages(conversationId).value
             .drop(sessionMessageStart)
             .joinToString("\n") { message ->
-                val speaker = if (message.sender == LuluChatMessage.Sender.User) "主人" else character.displayName
+                val speaker = if (message.sender == LuluChatMessage.Sender.User) "用户" else character.displayName
                 "$speaker：${message.content.trim()}"
             }
         SharedExperienceTimeline.remember(

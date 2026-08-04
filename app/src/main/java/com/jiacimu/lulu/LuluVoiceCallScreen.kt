@@ -91,7 +91,7 @@ fun LuluVoiceCallScreen(
             val transcript = MigratedDomainStores.chat.messages(conversationId).value
                 .drop(callStartMessageCount)
                 .joinToString("\n") { message ->
-                    val speaker = if (message.sender == LuluChatMessage.Sender.User) "主人" else characterName
+                    val speaker = if (message.sender == LuluChatMessage.Sender.User) "你" else characterName
                     "$speaker：${message.content.trim()}"
                 }
             SharedExperienceTimeline.remember(
@@ -168,7 +168,7 @@ fun LuluVoiceCallScreen(
                 userText = spoken,
                 title = activeLabel,
                 archiveId = voiceArchiveId,
-                sceneContext = "你正在和主人进行一对一实时电话。你能意识到电话已经接通，听见的是主人刚刚在电话里说的话；回复要适合口语和通话节奏。",
+                sceneContext = "你正在和用户进行一对一实时电话。你能意识到电话已经接通，听见的是用户刚刚在电话里说的话；具体关系与称呼必须服从你的人设，回复要适合口语和通话节奏。",
             ).onSuccess { reply ->
                 val text = reply.text.trim()
                 if (text.isNotBlank()) {
@@ -476,7 +476,7 @@ private fun buildCallHistory(messages: List<LuluChatMessage>, characterName: Str
     .filter { it.sender != LuluChatMessage.Sender.System }
     .takeLast(24)
     .joinToString("\n") { message ->
-        val role = if (message.sender == LuluChatMessage.Sender.User) "主人" else characterName
+        val role = if (message.sender == LuluChatMessage.Sender.User) "用户" else characterName
         "$role：${message.content.trim()}"
     }
 

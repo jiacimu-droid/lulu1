@@ -1,12 +1,17 @@
 package com.jiacimu.lulu.games
 
 import android.content.Context
+import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
@@ -37,6 +42,7 @@ data class LuluGameRecord(
     val summary: String,
     val detailsJson: String = "{}",
     val characterReply: String = "",
+    val activityMessageId: String? = null,
     val createdAt: Instant = Instant.now(),
 )
 
@@ -76,6 +82,7 @@ data class MoodGuessRound(
 data class LuluGameState(
     val coins: Int = 0,
     val selectedCharacterId: String = "lulu",
+    val selectedCharacterIds: List<String> = listOf("lulu"),
     val playWithCharacter: Boolean = true,
     val signalHunt: SignalHuntState = SignalHuntState(),
     val memoryMatch: MemoryMatchState = MemoryMatchState(),
@@ -85,6 +92,7 @@ data class LuluGameState(
 )
 
 class LuluGameStore internal constructor(context: Context) {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val mutableState = MutableStateFlow(loadState())
     val state: StateFlow<LuluGameState> = mutableState.asStateFlow()
@@ -93,7 +101,13 @@ class LuluGameStore internal constructor(context: Context) {
 
     fun selectCharacter(characterId: String) {
         if (characterId.isBlank()) return
-        mutate { it.copy(selectedCharacterId = characterId) }
+        mutate { it.copy(selectedCharacterId = characterId, selectedCharacterIds = listOf(characterId)) }
+    }
+
+    fun selectCharacters(characterIds: List<String>) {
+        val clean = characterIds.map(String::trim).filter(String::isNotBlank).distinct()
+        if (clean.isEmpty()) return
+        mutate { it.copy(selectedCharacterId = clean.first(), selectedCharacterIds = clean, playWithCharacter = true) }
     }
 
     fun startSignalHunt() = mutate {
@@ -276,7 +290,12 @@ class LuluGameStore internal constructor(context: Context) {
                 .filter { it.characterId == record.characterId && it.parentConversationId == null && !it.id.endsWith("-study-focus") }
                 .maxByOrNull { it.updatedAt }
                 ?: MigratedDomainStores.chat.ensureConversation(record.characterId, "共同聊天")
-            MigratedDomainStores.chat.appendSystemMessage(conversation.id, "[共同活动] 刚刚一起玩了《${record.title}》")
+            val activityMessage = MigratedDomainStores.chat.appendSystemMessage(conversation.id, "[共同活动] 刚刚一起玩了《${record.title}》")
+            mutate { state ->
+                state.copy(records = state.records.map { item ->
+                    if (item.id == record.id) item.copy(activityMessageId = activityMessage.id) else item
+                })
+            }
         }
         return record.id
     }
@@ -299,7 +318,16 @@ class LuluGameStore internal constructor(context: Context) {
         )
     }
 
-    fun clearRecords() = mutate { it.copy(records = emptyList()) }
+    fun clearRecords() {
+        val records = mutableState.value.records
+        records.forEach { record ->
+            SharedExperienceTimeline.deleteEvent("game-raw-${record.id}")
+            SharedExperienceTimeline.deleteEvent("game-reply-${record.id}")
+            record.activityMessageId?.let(MigratedDomainStores.chat::deleteMessage)
+            scope.launch { LuluRepositories.memory.delete("game-${record.id}") }
+        }
+        mutate { it.copy(records = emptyList()) }
+    }
 
     private fun mutate(transform: (LuluGameState) -> LuluGameState) {
         mutableState.update(transform)
@@ -310,6 +338,7 @@ class LuluGameStore internal constructor(context: Context) {
         val json = JSONObject()
             .put("coins", state.coins)
             .put("selectedCharacterId", state.selectedCharacterId)
+            .put("selectedCharacterIds", JSONArray(state.selectedCharacterIds))
             .put("playWithCharacter", state.playWithCharacter)
             .put(
                 "records",
@@ -327,6 +356,7 @@ class LuluGameStore internal constructor(context: Context) {
                                 .put("summary", record.summary)
                                 .put("detailsJson", record.detailsJson)
                                 .put("characterReply", record.characterReply)
+                                .put("activityMessageId", record.activityMessageId)
                                 .put("createdAt", record.createdAt.toEpochMilli()),
                         )
                     }
@@ -355,6 +385,7 @@ class LuluGameStore internal constructor(context: Context) {
                         summary = item.optString("summary"),
                         detailsJson = item.optString("detailsJson", "{}"),
                         characterReply = item.optString("characterReply"),
+                        activityMessageId = item.optString("activityMessageId").takeIf(String::isNotBlank),
                         createdAt = Instant.ofEpochMilli(item.optLong("createdAt", System.currentTimeMillis())),
                     ),
                 )
@@ -363,6 +394,9 @@ class LuluGameStore internal constructor(context: Context) {
         LuluGameState(
             coins = json.optInt("coins"),
             selectedCharacterId = json.optString("selectedCharacterId", "lulu"),
+            selectedCharacterIds = json.optJSONArray("selectedCharacterIds")?.let { array ->
+                buildList { for (index in 0 until array.length()) add(array.optString(index)) }.filter(String::isNotBlank)
+            }.orEmpty().ifEmpty { listOf(json.optString("selectedCharacterId", "lulu")) },
             playWithCharacter = json.optBoolean("playWithCharacter", true),
             records = records,
         )

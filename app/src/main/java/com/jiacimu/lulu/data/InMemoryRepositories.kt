@@ -94,7 +94,11 @@ class InMemoryLexiconRepository : LexiconRepository {
     }
 
     override suspend fun delete(id: String) {
+        val deleted = entries.value.firstOrNull { entry -> entry.id == id }
         mutate { current -> current.filterNot { entry -> entry.id == id } }
+        if (deleted?.section == LexiconSection.Diary) {
+            SharedExperienceTimeline.deleteEvent("lexicon-diary-$id")
+        }
     }
 
     fun snapshot(characterId: String): List<LexiconEntry> = entries.value

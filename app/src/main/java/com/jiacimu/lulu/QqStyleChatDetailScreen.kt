@@ -11,6 +11,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
@@ -44,6 +45,7 @@ import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluGroupChat
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.CompanionPresenceStore
+import com.jiacimu.lulu.data.UserProfileContext
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
@@ -71,12 +73,13 @@ fun QqStyleChatDetailScreen(
     onOpenBranch: (String) -> Unit,
     onCharacterSettings: () -> Unit,
     onWorldBook: () -> Unit,
+    onOpenGame: (String?) -> Unit,
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val userProfilePrefs = remember { context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE) }
-    val userAvatar = remember { userProfilePrefs.getString("avatar_text", "主").orEmpty().ifBlank { "主" }.take(2) }
+    val userAvatar = remember { userProfilePrefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2) }
     val userAvatarUri = remember { userProfilePrefs.getString("avatar_uri", null) }
     val messages by MigratedDomainStores.chat.messages(conversationId).collectAsState()
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
@@ -117,6 +120,7 @@ fun QqStyleChatDetailScreen(
 
     if (groupSettingsVisible && groupChat != null) {
         QqGroupChatSettingsScreen(
+            conversationId = conversationId,
             group = groupChat,
             characters = characters.values.sortedBy { it.displayName },
             messages = messages,
@@ -514,6 +518,10 @@ fun QqStyleChatDetailScreen(
                             userAvatarUri = userAvatarUri,
                             onCharacterAvatarClick = { presenceCharacterId = author.characterId },
                             onLongClick = { selectedMessage = message },
+                            onAcceptGame = { gameId ->
+                                message.authorCharacterId?.let { com.jiacimu.lulu.games.LuluGames.store.selectCharacter(it) }
+                                onOpenGame(gameId)
+                            },
                 )
             }
             if (receiving) {
@@ -729,6 +737,7 @@ private fun QqMessageRow(
     userAvatarUri: String?,
     onCharacterAvatarClick: () -> Unit,
     onLongClick: () -> Unit,
+    onAcceptGame: (String) -> Unit,
 ) {
     if (message.sender == LuluChatMessage.Sender.System) {
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -748,8 +757,14 @@ private fun QqMessageRow(
         return
     }
     val mine = message.sender == LuluChatMessage.Sender.User
-    val bubbles = remember(message.content, mine) {
-        if (mine) listOf(message.content) else splitCharacterBubbles(message.content)
+    val gameInvite = remember(message.content, mine) { if (mine) null else parseGameInvite(message.content) }
+    val visibleContent = gameInvite?.message ?: message.content
+    val bubbles = remember(visibleContent, mine, gameInvite) {
+        when {
+            gameInvite != null -> emptyList()
+            mine -> listOf(visibleContent)
+            else -> splitCharacterBubbles(visibleContent)
+        }
     }
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -778,7 +793,11 @@ private fun QqMessageRow(
                     modifier = Modifier.padding(start = 4.dp, bottom = 3.dp),
                 )
             }
-            bubbles.forEachIndexed { index, bubble ->
+            if (gameInvite != null) {
+                GameInviteMessageCard(gameInvite, onAccept = { onAcceptGame(gameInvite.gameId) })
+                Spacer(Modifier.height(5.dp))
+            }
+            bubbles.filter { it.isNotBlank() }.forEachIndexed { index, bubble ->
                 val bubbleWidth = if (bubble.length >= 52) Modifier.fillMaxWidth() else Modifier.widthIn(max = 300.dp)
                 Surface(
                     modifier = bubbleWidth.combinedClickable(onClick = {}, onLongClick = onLongClick),
@@ -839,6 +858,59 @@ private fun QqMessageRow(
     }
 }
 
+private data class GameInviteMessage(val gameId: String, val title: String, val message: String)
+
+private fun parseGameInvite(content: String): GameInviteMessage? {
+    val match = Regex("^\\[游戏邀约\\|([^|\\]]+)\\|([^\\]]+)]\\s*(.*)$", RegexOption.DOT_MATCHES_ALL).find(content.trim())
+        ?: return null
+    return GameInviteMessage(
+        gameId = match.groupValues[1].trim(),
+        title = match.groupValues[2].trim().ifBlank { "一起玩游戏" },
+        message = match.groupValues[3].trim(),
+    )
+}
+
+@Composable
+private fun GameInviteMessageCard(invite: GameInviteMessage, onAccept: () -> Unit) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, QqBorder),
+        shape = RoundedCornerShape(20.dp),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.fillMaxWidth()) {
+            Box(
+                modifier = Modifier.fillMaxWidth().height(86.dp).background(Color(0xFF292929)),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                Row(Modifier.padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Surface(shape = RoundedCornerShape(14.dp), color = Color.White.copy(alpha = 0.14f), modifier = Modifier.size(50.dp)) {
+                        Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.SportsEsports, null, tint = Color.White) }
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column {
+                        Text("游戏邀约", color = Color.White.copy(alpha = 0.72f), fontSize = 11.sp)
+                        Text(invite.title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    }
+                }
+            }
+            Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (invite.message.isNotBlank()) Text(invite.message, color = QqInk, lineHeight = 20.sp)
+                Button(
+                    onClick = onAccept,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = QqMine, contentColor = Color.White),
+                    shape = RoundedCornerShape(14.dp),
+                ) {
+                    Icon(Icons.Outlined.PlayArrow, null, Modifier.size(19.dp))
+                    Spacer(Modifier.width(5.dp))
+                    Text("接受邀约")
+                }
+            }
+        }
+    }
+}
+
 private fun splitCharacterBubbles(text: String): List<String> {
     val paragraphs = text.trim()
         .split(Regex("\\n\\s*\\n"))
@@ -847,7 +919,7 @@ private fun splitCharacterBubbles(text: String): List<String> {
     if (paragraphs.isEmpty()) return listOf(text.trim())
     return paragraphs.flatMap { paragraph ->
         val normalized = paragraph.lines().map(String::trim).filter(String::isNotBlank).joinToString("\n")
-        if (normalized.length <= 112) {
+        if (normalized.length <= 78) {
             listOf(normalized)
         } else {
             val sentences = normalized.split(Regex("(?<=[。！？!?；;…])\\s*"))
@@ -857,7 +929,7 @@ private fun splitCharacterBubbles(text: String): List<String> {
             var current = ""
             sentences.forEach { sentence ->
                 val joinedLength = current.length + sentence.length
-                if (current.isBlank() || joinedLength <= 88 || current.length < 38) {
+                if (current.isBlank() || joinedLength <= 58 || current.length < 24) {
                     current += sentence
                 } else {
                     bubbles += current
@@ -904,13 +976,15 @@ internal suspend fun runGroupReplies(
     val ordered = mentioned + remaining
     val explicitAll = pendingText.contains("@全体成员")
     val targetReplies = when {
-        explicitAll -> group.maxAutoReplies.coerceAtMost(validMembers.size)
+        explicitAll -> group.maxAutoReplies
+        mentioned.isNotEmpty() && group.allowCharacterConversation -> group.maxAutoReplies.coerceAtLeast(mentioned.size)
         mentioned.isNotEmpty() -> mentioned.size.coerceAtMost(group.maxAutoReplies)
-        group.allowCharacterConversation -> group.maxAutoReplies.coerceAtMost(validMembers.size)
+        group.allowCharacterConversation -> group.maxAutoReplies
         else -> 1
     }
+    val speakingTurns = List(targetReplies.coerceIn(1, 8)) { turn -> ordered[turn % ordered.size] }
 
-    ordered.take(targetReplies).forEachIndexed { index, member ->
+    speakingTurns.forEachIndexed { index, member ->
         if (!currentCoroutineContext().isActive) return
         onSpeakerChange(member.characterId)
         val character = MigratedDomainStores.characters.get(member.characterId)
@@ -925,10 +999,13 @@ internal suspend fun runGroupReplies(
             candidate.groupNickname.ifBlank { characterNames[candidate.characterId] ?: candidate.characterId }
         }
         val groupInput = buildString {
-            appendLine("[这是群聊，不是私聊。群名：${group.name}；群成员：主人、$memberList。]")
-            appendLine("[当前由你（$memberLabel）发言。只代表你自己，遵循你的人设；可以回应主人或其他角色，但不要替别人说话，不要输出姓名标签。]")
-            if (index > 0) appendLine("[前面已有其他成员回应，请推进话题，不要复述。]")
-            append("主人在群里说：$pendingText")
+            appendLine("[这是群聊，不是私聊。群名：${group.name}；群成员：${group.userGroupNickname}、$memberList。]")
+            appendLine("[当前由你（$memberLabel）发言。只代表你自己，严格遵循你的人设和关系边界；不要替别人说话，不要输出姓名标签。]")
+            if (index > 0) {
+                appendLine("[前面已经有人回应。你可以直接回应、赞同、质疑、追问、开玩笑或转向另一位成员；要对上一轮真实内容产生反应，推动成员之间互相聊天，不要只围着用户轮流答题。]")
+            }
+            if (index >= validMembers.size) appendLine("[这是群内继续接话，同一角色可以再次回应刚才的新内容，但不能复述自己的上一句话。]")
+            append("用户最初在群里说：$pendingText")
         }
         val result = LuluDeviceToolBridge.respond(
             characterId = member.characterId,
@@ -975,7 +1052,7 @@ internal fun buildBoundedHistory(
         .takeLast(maxMessages)
     val lines = normalized.map { message ->
         val role = if (message.sender == LuluChatMessage.Sender.User) {
-            "主人"
+            UserProfileContext.displayLabel()
         } else {
             message.authorCharacterId?.let { characterNames[it] } ?: characterName
         }

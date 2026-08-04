@@ -88,7 +88,7 @@ fun MigratedChatHubScreenV2(
             when (selectedTab) {
                 0 -> ChatHubV2Messages(onOpenConversation)
                 1 -> ChatHubV2Characters(onCharacterSettings, onWorldBook, onOpenConversation)
-                2 -> MomentsPlaceholderScreen()
+                2 -> MomentsScreen()
                 else -> ChatHubV2Profile()
             }
         }
@@ -352,7 +352,7 @@ private fun ChatHubV2Profile() {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE) }
     var avatarUri by remember { mutableStateOf(prefs.getString("avatar_uri", null)) }
-    var name by remember { mutableStateOf(prefs.getString("display_name", "主人").orEmpty().ifBlank { "主人" }) }
+    var name by remember { mutableStateOf(prefs.getString("display_name", "我").orEmpty().ifBlank { "我" }) }
     var preferredName by remember { mutableStateOf(prefs.getString("preferred_name", "").orEmpty()) }
     var birthday by remember { mutableStateOf(prefs.getString("birthday", "").orEmpty()) }
     var location by remember { mutableStateOf(prefs.getString("location", "").orEmpty()) }
@@ -374,7 +374,7 @@ private fun ChatHubV2Profile() {
                     )
                     Spacer(Modifier.width(14.dp))
                     Column {
-                        Text(name.ifBlank { "主人" }, style = MaterialTheme.typography.titleLarge)
+                        Text(name.ifBlank { "我" }, style = MaterialTheme.typography.titleLarge)
                         Text("点击头像选择手机图片", color = LuluColors.Muted, fontSize = 12.sp)
                     }
                 }
@@ -398,7 +398,7 @@ private fun ChatHubV2Profile() {
                 OutlinedTextField(value = bio, onValueChange = { bio = it.take(500) }, label = { Text("个人信息与自我介绍") }, minLines = 3, maxLines = 7, modifier = Modifier.fillMaxWidth())
                 Button(
                     onClick = {
-                        name = name.trim().ifBlank { "主人" }
+                        name = name.trim().ifBlank { "我" }
                         prefs.edit()
                             .putString("avatar_uri", avatarUri)
                             .putString("display_name", name)

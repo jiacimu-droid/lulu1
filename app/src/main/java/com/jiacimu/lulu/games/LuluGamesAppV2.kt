@@ -28,13 +28,13 @@ import java.time.format.DateTimeFormatter
 
 /** Keeps all migrated games unchanged and adds a replay center that works for every record type. */
 @Composable
-fun LuluGamesAppV2(onBack: () -> Unit) {
+fun LuluGamesAppV2(onBack: () -> Unit, initialGameId: String? = null) {
     val store = LuluGames.store
     val state by store.state.collectAsState()
     var replayCenterVisible by remember { mutableStateOf(false) }
 
     Box(Modifier.fillMaxSize()) {
-        LuluGamesApp(onBack = onBack)
+        LuluGamesApp(onBack = onBack, initialGameId = initialGameId)
         SmallFloatingActionButton(
             onClick = { replayCenterVisible = true },
             modifier = Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(end = 18.dp, bottom = 78.dp),

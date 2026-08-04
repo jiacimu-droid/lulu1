@@ -131,8 +131,8 @@ fun CharacterSettingsScreenV2(
                 CharacterV2Card {
                     Text("主动联系", fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     CharacterV2Switch("允许主动联系", "角色可以根据关系和情境主动发消息。", contactEnabled) { contactEnabled = it }
-                    CharacterV2Switch("由角色自适应频率", "不写死每日次数；根据主人状态降低或增加。", adaptiveFrequency) { adaptiveFrequency = it }
-                    CharacterV2Switch("夜间勿扰", "只限制角色主动联系，不影响主人主动打开聊天。", quietHours) { quietHours = it }
+                    CharacterV2Switch("由角色自适应频率", "不写死每日次数；根据用户状态降低或增加。", adaptiveFrequency) { adaptiveFrequency = it }
+                    CharacterV2Switch("夜间勿扰", "只限制角色主动联系，不影响用户主动打开聊天。", quietHours) { quietHours = it }
                     if (quietHours) {
                         CharacterV2HourRow("勿扰开始", quietStart) { quietStart = it }
                         CharacterV2HourRow("勿扰结束", quietEnd) { quietEnd = it }

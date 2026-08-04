@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.data.CharacterSettings
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -53,7 +54,7 @@ private val CAMPAIGN_WORLDS = listOf(
     CampaignWorld("system_mission", "系统说今天必须心动", "系统任务 · 轻喜剧", "不太靠谱的系统天天发布交换身份、假装情侣、敌前演戏和真心话等离谱任务。", "快节奏系统轻喜剧。笑点来自性格碰撞、尴尬任务和互相拆台，但不能让人物降智；关键场景保留真情绪。", Color(0xFFFFD84D)),
     CampaignWorld("palace_scheme", "今夜谁在宫门外", "古风宫廷 · 权谋关系", "新帝登基后的雪夜，宫门外出现没有影子的尸体，你们卷入储位、旧案和禁军的角力。", "古风权谋与克制情感。重视礼法、身份、称谓、沉默和言外之意；阴谋可推理，感情通过危险中的选择推进。", Color(0xFFD8A45B)),
     CampaignWorld("cyber_memory", "霓虹雨中的假记忆", "赛博都市 · 身份悬疑", "在可以买卖记忆的城市里，你们发现彼此都拥有同一段童年，但它只可能属于一个人。", "赛博朋克身份悬疑。强化霓虹雨、广告噪声、义体触觉和数据残影；核心是谁的记忆被改写、队友还能否互信。", Color(0xFF37E3B5), true),
-    CampaignWorld("apocalypse_store", "废土便利店最后营业日", "末日生存 · 公路治愈", "末日第九年，你们经营荒原最后一家便利店，客人用灾难前的崭新车票买走最后一盒草莓糖。", "末日生存与温柔治愈并存。写风沙、废墟、旧商品、经营日常、互相照顾和微小希望；危险真实但不持续压抑。", Color(0xFFFF8A5B)),
+    CampaignWorld("apocalypse_store", "末日前七日：异能纪元", "末世群像 · 异能生存 · 长篇", "你提前知道七天后‘赤潮天灾’会让文明崩塌、异能觉醒。没有人知道情报从何而来；你必须在秩序尚存时说服伙伴、囤积资源、选择据点，并在末世后与基地、财团、教团和异能组织共同改写时代。", "宏大、可长期推进的末世异能小说，轻喜剧底色。世界包含灾前倒计时、城市沦陷、基地兴衰、组织战争和文明重建；异能分自然、精神、空间、生命、强化、规则六系，阶位从萤火、星芒、月环、日冕到天灾。资源、金钱、关系、选择和伏笔持续兑现，人物机灵但不降智。", Color(0xFFFF8A5B), true),
     CampaignWorld("cultivation_comedy", "小师弟把魔尊契约当话本", "仙侠轻喜剧 · 契约冒险", "写错名字的上古契约把你们与魔尊绑在一起，解除契约要完成九项离谱试炼。", "仙侠冒险与欢喜冤家。保持东方奇幻、门派规矩和秘境奇观；笑点来自契约限制、嘴硬和身份反差。", Color(0xFF8BE0C5)),
     CampaignWorld("time_loop_date", "约会结束前世界会重启", "时间循环 · 恋爱悬疑", "每天23:59世界都会回到第一次见面的早晨，只有同行小队保留记忆。", "时间循环与恋爱悬疑。重复场景通过细节偏差、记忆累积和关系变化保持新鲜；浪漫来自共同记得。", Color(0xFFA98CFF), true),
 )
@@ -69,6 +70,7 @@ private data class CampaignSave(
     val sanity: Int = 10,
     val luck: Int = 3,
     val clues: Int = 0,
+    val money: Int = 3_000,
     val narration: String,
     val log: List<String> = emptyList(),
     val updatedAt: Long = System.currentTimeMillis(),
@@ -102,7 +104,7 @@ private fun campaignOpening(world: CampaignWorld, partyNames: List<String>): Str
         "system_mission" -> "早上八点整，只有你们能看见的系统在餐桌上方弹出今日任务：‘在不暴露任务的前提下，与指定对象扮演情侣四小时。失败惩罚：互换手机通讯录备注。’指定对象的名字被故意打了码，而${party}每个人收到的提示似乎都不一样。门铃恰在这时响起，来客自称是你们共同的前任。"
         "palace_scheme" -> "新帝登基后的第一场雪封住宫门。你们被秘密召到午门外，一具没有影子的尸体伏在雪中，袖口藏着先帝禁用的朱砂印。禁军要求天亮前给出解释，否则所有在场者都会以谋逆论处。远处宫墙后传来一声钟响，而今夜本不该鸣钟。"
         "cyber_memory" -> "霓虹雨沿着记忆交易所的玻璃幕墙往下流。你与${party}刚完成一次非法记忆鉴定，结果显示你们脑中都存在同一段童年：红色秋千、停电的医院和一句‘别让他们找到原件’。鉴定师在说出结果后被远程清除了身份，而追踪警报已经锁定这间诊室。"
-        "apocalypse_store" -> "风暴季来临前，你们守着荒原最后一家仍亮灯的便利店。傍晚，一个穿旧校服的孩子用灾难前的崭新车票买走最后一盒草莓糖，随后走向早已断裂的公路。收银机却自动打印出一张地图，标记着二十公里外本不该存在的列车站。夜幕中，远处传来了火车鸣笛。"
+        "apocalypse_store" -> "距离赤潮天灾还有七天。下午四点十七分，城市仍在为晚高峰堵车，商场广播还在推销第二件半价。只有你知道：七天后第一轮红雨会让电网瘫痪，幸存者觉醒异能，三个月内东区会变成吞噬生命的雾巢。你把${party}约进一家火锅店的包间，桌上摊着三千元现金、仓库租赁广告和一张被你标满的城市地图。你必须先让他们相信这不是整蛊，再决定有限的钱该买药、食物、武器，还是一辆怎么看都快报废的面包车。窗外，一个未来会建立‘白塔’组织的人刚好撑伞走过。"
         "cultivation_comedy" -> "上古契约在你们面前烧成金字：因抄写者把名字写错，你、${party}与被封印的魔尊共享痛觉，距离超过十丈就会同时打喷嚏。解除契约的第一项试炼写着‘取得天下第一正道门派的掌门信物’，而掌门此刻正在山门外搜查偷走契约的人。"
         "time_loop_date" -> "上午九点，你再次在同一家咖啡馆见到${party}。窗外同一辆公交车溅起同一片水，服务员打碎同一只杯子。你们都记得昨晚23:59世界归零，也记得重启前有人在天台说：‘只要这次约会以同样方式结束，明天就不会再有人醒来。’今天必须找出循环中唯一改变的细节。"
         else -> "你与${party}抵达了${world.title}的起点。${world.premise}眼前已经出现第一个异常，它既是危险，也是进入真相的入口。"
@@ -124,7 +126,7 @@ private fun suggestedActions(worldId: String): List<String> = when (worldId) {
     "system_mission" -> listOf("试探每个人收到的任务", "主动认领情侣身份", "询问门外来客", "寻找系统规则漏洞")
     "palace_scheme" -> listOf("检查尸体与朱砂印", "询问值守禁军", "追查异常钟声", "保护现场避免被栽赃")
     "cyber_memory" -> listOf("导出共同记忆片段", "切断诊室网络", "追查记忆原件", "从追踪警报中找出口")
-    "apocalypse_store" -> listOf("追上买糖的孩子", "研究收银机地图", "加固便利店准备风暴", "询问同行者是否听到火车")
+    "apocalypse_store" -> listOf("告诉伙伴末世情报", "核对灾前采购清单", "寻找第一处安全据点", "接触未来的白塔领袖")
     "cultivation_comedy" -> listOf("研究契约漏洞", "伪装通过山门搜查", "与魔尊谈条件", "寻找掌门信物线索")
     "time_loop_date" -> listOf("记录今天所有异常", "询问每个人重启前经历", "重走昨天的约会路线", "提前前往天台")
     else -> listOf("调查眼前异常", "与同行者商量", "寻找安全退路", "追踪最明显的线索")
@@ -150,6 +152,7 @@ private class CampaignStore(context: Context) {
                     partyNames = partyNames,
                     scene = item.optInt("scene", 1), hp = item.optInt("hp", 10),
                     sanity = item.optInt("sanity", 10), luck = item.optInt("luck", 3), clues = item.optInt("clues", 0),
+                    money = item.optInt("money", 3_000),
                     narration = storedNarration.takeUnless { it.isBlank() || it == LEGACY_OPENING }
                         ?: campaignOpening(world, partyNames),
                     log = item.optJSONArray("log").stringList(),
@@ -166,7 +169,7 @@ private class CampaignStore(context: Context) {
                 .put("id", value.id).put("title", value.title).put("worldId", value.worldId)
                 .put("partyIds", JSONArray(value.partyIds)).put("partyNames", JSONArray(value.partyNames))
                 .put("scene", value.scene).put("hp", value.hp).put("sanity", value.sanity)
-                .put("luck", value.luck).put("clues", value.clues).put("narration", value.narration)
+                .put("luck", value.luck).put("clues", value.clues).put("money", value.money).put("narration", value.narration)
                 .put("log", JSONArray(value.log)).put("updatedAt", value.updatedAt))
         }
         prefs.edit().putString("saves", array.toString()).apply()
@@ -178,6 +181,7 @@ internal fun FormalRoleplayCampaignScreen(store: LuluGameStore, onBack: () -> Un
     val context = LocalContext.current
     val campaignStore = remember(context) { CampaignStore(context) }
     val characters by MigratedDomainStores.characters.settings.collectAsState()
+    val gameState by store.state.collectAsState()
     var saves by remember { mutableStateOf(campaignStore.load()) }
     var activeId by rememberSaveable { mutableStateOf<String?>(null) }
     var creating by remember { mutableStateOf(false) }
@@ -216,6 +220,7 @@ internal fun FormalRoleplayCampaignScreen(store: LuluGameStore, onBack: () -> Un
     if (creating) {
         CreateCampaignDialog(
             characters = characters.values.toList(),
+            initialPartyIds = gameState.selectedCharacterIds,
             onDismiss = { creating = false },
             onCreate = { title, world, party ->
                 val partyNames = party.map(CharacterSettings::displayName)
@@ -287,6 +292,7 @@ private fun CampaignArchive(
                                 CampaignStat("理智", save.sanity.toString(), CampaignColors.violet)
                                 CampaignStat("幸运", save.luck.toString(), CampaignColors.amber)
                                 CampaignStat("线索", save.clues.toString(), CampaignColors.mint)
+                                CampaignStat("金钱", "¥${save.money}", CampaignColors.cyan)
                             }
                         }
                     }
@@ -309,12 +315,15 @@ private fun RowScope.CampaignStat(label: String, value: String, accent: Color) {
 @Composable
 private fun CreateCampaignDialog(
     characters: List<CharacterSettings>,
+    initialPartyIds: List<String>,
     onDismiss: () -> Unit,
     onCreate: (String, CampaignWorld, List<CharacterSettings>) -> Unit,
 ) {
     var title by remember { mutableStateOf("") }
     var worldId by remember { mutableStateOf(CAMPAIGN_WORLDS.first().id) }
-    var partyIds by remember { mutableStateOf(setOf<String>()) }
+    val partyIds = remember(initialPartyIds, characters) {
+        initialPartyIds.filter { id -> characters.any { it.characterId == id } }.take(4).toSet()
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("建立战役档案") },
@@ -336,18 +345,11 @@ private fun CreateCampaignDialog(
                         }
                     }
                 }
-                item { Text("选择同行角色（1—3人）", fontWeight = FontWeight.Bold) }
-                items(characters, key = CharacterSettings::characterId) { character ->
-                    FilterChip(
-                        selected = character.characterId in partyIds,
-                        onClick = {
-                            partyIds = when {
-                                character.characterId in partyIds -> partyIds - character.characterId
-                                partyIds.size < 3 -> partyIds + character.characterId
-                                else -> partyIds
-                            }
-                        },
-                        label = { Text(character.displayName) },
+                item {
+                    Text("本战役同行角色", fontWeight = FontWeight.Bold)
+                    Text(
+                        characters.filter { it.characterId in partyIds }.joinToString("、") { it.displayName }.ifBlank { "请返回游戏入口选择角色" },
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -418,7 +420,7 @@ private fun CampaignPlay(
                 前提：${world.premise}
                 文风：${world.style}
                 当前场景：${save.scene}
-                状态：生命${save.hp}/10，理智${save.sanity}/10，幸运${save.luck}，线索${save.clues}
+                状态：生命${save.hp}/10，理智${save.sanity}/10，幸运${save.luck}，线索${save.clues}，可用金钱¥${save.money}
                 用户行动：$cleanAction
                 程序判定：d20=$roll，难度=$difficulty，结果=$result${if (useLuck) "（已消耗幸运，取两次较高值）" else ""}
                 同行角色：
@@ -433,6 +435,8 @@ private fun CampaignPlay(
                 “你”只代表用户本人；同行角色必须直接写名字，禁止用含混的“我”混淆视角。
                 输出约700—1200个汉字的完整沉浸正文。先写行动如何发生，再写骰点结果造成的具体后果；使用环境、五感、空间距离、微动作、心理压力和潜台词。
                 同行角色是主角小队，每轮至少发生两次有效互动，每个人必须符合persona，不能变成只会附和的背景板。
+                这是独立的长篇末世剧情，不得引用角色与用户在普通聊天、电话、群聊、辞海或日常记忆中发生的事。只延续本战役的开场、存档、日志与角色persona。
+                若世界是《末日前七日：异能纪元》，必须维持灾前倒计时、组织势力、异能体系、资源与金钱的长期连续性；正文像轻喜剧末世小说，不写机械跑团播报。
                 失败必须产生真实代价，但也必须推进剧情，给出新信息、危险或可追踪线索，绝不让故事卡死。
                 结尾必须自然留下2—4个明确可行动方向，但不要写数值面板、系统解释、“选项A/B”或“主持人说”。
                 只输出游戏正文，不要返回空内容，不要输出JSON。
@@ -447,6 +451,7 @@ private fun CampaignPlay(
                 temperature = 0.82,
                 maxTokens = 1800,
                 usage = ModelUsage.Game,
+                contextMode = CompanionContextMode.PersonaAndScenario,
             )
             if (generation.getOrNull()?.text.isNullOrBlank()) {
                 generation = LuluAiServices.gateway.generate(
@@ -458,6 +463,7 @@ private fun CampaignPlay(
                     temperature = 0.72,
                     maxTokens = 1600,
                     usage = ModelUsage.Game,
+                    contextMode = CompanionContextMode.PersonaAndScenario,
                 )
             }
 
@@ -470,12 +476,20 @@ private fun CampaignPlay(
                 val hpDelta = when { roll == 1 -> -2; result == "失败" && Random.nextBoolean() -> -1; else -> 0 }
                 val sanityDelta = when { world.sanityRisk && roll == 1 -> -2; world.sanityRisk && result == "失败" -> -1; else -> 0 }
                 val clueDelta = when { roll == 20 -> 2; result == "成功" -> 1; else -> 0 }
+                val moneyDelta = when {
+                    world.id != "apocalypse_store" -> 0
+                    roll == 20 -> 120
+                    result == "成功" -> 40
+                    roll == 1 -> -120
+                    else -> -30
+                }
                 val updated = save.copy(
                     scene = save.scene + 1,
                     hp = (save.hp + hpDelta).coerceIn(0, 10),
                     sanity = (save.sanity + sanityDelta).coerceIn(0, 10),
                     luck = (save.luck - if (useLuck) 1 else 0).coerceAtLeast(0),
                     clues = save.clues + clueDelta,
+                    money = (save.money + moneyDelta).coerceAtLeast(0),
                     narration = reply.text,
                     log = (save.log + "SCENE ${save.scene}｜$cleanAction｜d20=$roll $result\n${reply.text.take(500)}").takeLast(80),
                     updatedAt = System.currentTimeMillis(),
@@ -520,6 +534,7 @@ private fun CampaignPlay(
                     CampaignStat("理智", save.sanity.toString(), CampaignColors.violet)
                     CampaignStat("幸运", save.luck.toString(), CampaignColors.amber)
                     CampaignStat("线索", save.clues.toString(), CampaignColors.mint)
+                    CampaignStat("金钱", "¥${save.money}", CampaignColors.cyan)
                 }
             }
             item {

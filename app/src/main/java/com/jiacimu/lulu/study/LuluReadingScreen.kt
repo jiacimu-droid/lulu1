@@ -67,7 +67,7 @@ fun LuluReadingScreen(onBack: () -> Unit) {
                 val content = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
                     ?.trim()?.take(300_000).orEmpty()
                 require(content.isNotBlank()) { "没有读取到文字内容" }
-                val book = ReadingBook(UUID.randomUUID().toString(), title, content, "主人上传")
+                val book = ReadingBook(UUID.randomUUID().toString(), title, content, "用户上传")
                 uploads = listOf(book) + uploads
                 saveReadingBooks(context, uploads)
                 selected = book
@@ -218,10 +218,10 @@ private fun ReadingRoom(modifier: Modifier, book: ReadingBook, characterId: Stri
                                         appendLine("阅读正文：")
                                         appendLine(book.content.take(12_000))
                                         appendLine("最近讨论：")
-                                        lines.takeLast(8).forEach { appendLine("${if (it.mine) "主人" else character.displayName}：${it.text}") }
-                                        appendLine("主人刚说：$clean")
+                                        lines.takeLast(8).forEach { appendLine("${if (it.mine) "用户" else character.displayName}：${it.text}") }
+                                        appendLine("用户刚说：$clean")
                                     },
-                                    instruction = "和主人共同阅读并讨论当前故事。回应她的问题、感受或推测，不续写剧情，不冒充原作者，不假装看过未提供的内容。1-4段。",
+                                    instruction = "和用户共同阅读并讨论当前故事。回应用户的问题、感受或推测，不续写剧情，不冒充原作者，不假装看过未提供的内容。1-4段。",
                                     source = "阅读",
                                     title = "共读讨论",
                                     maxTokens = 700,
@@ -231,8 +231,8 @@ private fun ReadingRoom(modifier: Modifier, book: ReadingBook, characterId: Stri
                                         eventId = "reading-talk-${UUID.randomUUID()}",
                                         characterId = characterId,
                                         channel = "共同阅读《${book.title}》",
-                                        speaker = "主人与${character.displayName}",
-                                        content = "主人：$clean\n${character.displayName}：${reply.text}",
+                                        speaker = "用户与${character.displayName}",
+                                        content = "用户：$clean\n${character.displayName}：${reply.text}",
                                         occurredAt = Instant.now(),
                                     )
                                 }.onFailure { lines = lines + ReadingLine(mine = false, text = it.message ?: "这次讨论没有成功") }
@@ -254,7 +254,7 @@ private fun loadReadingBooks(context: Context): List<ReadingBook> = runCatching 
     buildList {
         for (index in 0 until array.length()) {
             val item = array.optJSONObject(index) ?: continue
-            add(ReadingBook(item.optString("id"), item.optString("title"), item.optString("content"), "主人上传"))
+            add(ReadingBook(item.optString("id"), item.optString("title"), item.optString("content"), "用户上传"))
         }
     }
 }.getOrDefault(emptyList())

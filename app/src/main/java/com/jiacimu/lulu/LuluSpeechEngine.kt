@@ -38,7 +38,7 @@ internal class LuluSpeechEngine(context: Context) {
     suspend fun previewMiniMax(text: String): Result<Unit> = runCatching {
         stop()
         val requestGeneration = ++playbackGeneration
-        val audio = requestMiniMaxAudio(text.trim().ifBlank { "主人你好，我是露露。这个声音听起来还合适吗？" })
+        val audio = requestMiniMaxAudio(text.trim().ifBlank { "你好，我是露露。这个声音听起来还合适吗？" })
         check(requestGeneration == playbackGeneration) { "试听已取消" }
         playMiniMaxAudio(audio)
     }

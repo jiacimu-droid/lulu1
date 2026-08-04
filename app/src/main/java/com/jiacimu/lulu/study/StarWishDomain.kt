@@ -98,7 +98,7 @@ internal object StarWishRules {
             以${characterName}为唯一主体，绘制《$outfit》主题收藏画卷。保持角色既有人设、发型、脸部特征和气质，服装与背景围绕主题完整设计。构图要有明确前景、中景和远景，脸与手清晰，材质细节可见，光影自然，收藏级二次元厚涂 CG，8K，sharp focus, detailed fingers, luminous eyes, soft bokeh。
         """.trimIndent(),
         interaction = """
-            绘制《$outfit》主题的双人互动收藏画卷，${characterName}是主视觉，另一位是主人。保持两人的关系边界和既有人设，不擅自改变外貌；动作自然亲密但不遮挡脸和手。主题服装、饰品、背景和光影具有完整叙事，收藏级二次元厚涂 CG，8K，sharp focus on faces and hands, detailed fingers, soft bokeh。
+            绘制《$outfit》主题的双人互动收藏画卷，${characterName}是主视觉，另一位是用户。保持两人的关系边界和既有人设，不擅自改变外貌；动作自然且符合既定关系，但不遮挡脸和手。主题服装、饰品、背景和光影具有完整叙事，收藏级二次元厚涂 CG，8K，sharp focus on faces and hands, detailed fingers, soft bokeh。
         """.trimIndent(),
     )
 }
@@ -142,7 +142,7 @@ internal class StarWishStore private constructor(context: Context) {
             characterId = characterId,
             label = "共同阅读《${chapter.theater}》第${chapter.chapter}章",
             detail = buildString {
-                if (chapter.userInfluence.isNotBlank()) append("主人影响了剧情：${chapter.userInfluence}。")
+                if (chapter.userInfluence.isNotBlank()) append("用户影响了剧情：${chapter.userInfluence}。")
                 append("本章发生了：${chapter.content.takeLast(1_200)}")
             },
             occurredAt = Instant.ofEpochMilli(chapter.createdAtMillis),

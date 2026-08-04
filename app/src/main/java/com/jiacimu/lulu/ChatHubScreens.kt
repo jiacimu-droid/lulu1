@@ -35,7 +35,7 @@ private data class CharacterPreview(
 @Composable
 fun CharacterHubScreen() {
     val characters = listOf(
-        CharacterPreview("露露", "当前角色 · 正在陪伴主人", "露", true),
+        CharacterPreview("露露", "当前角色 · 正在陪伴用户", "露", true),
     )
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -131,7 +131,7 @@ fun MomentsPlaceholderScreen() {
             ) {
                 Icon(Icons.Outlined.DynamicFeed, null, tint = HubBlueGray, modifier = Modifier.size(40.dp))
                 Text("朋友圈", fontSize = 21.sp, fontWeight = FontWeight.Bold)
-                Text("入口已经保留。等主人确定发布、互动和角色动态规则后再正式实现。", color = HubBlueGray)
+                Text("入口已经保留。等待发布、互动和角色动态规则确定后再正式实现。", color = HubBlueGray)
             }
         }
     }
@@ -166,7 +166,7 @@ fun MyProfileScreen() {
                     HubAvatar("主", 66)
                     Spacer(Modifier.width(16.dp))
                     Column(Modifier.weight(1f)) {
-                        Text("主人", fontSize = 23.sp, fontWeight = FontWeight.Bold)
+                        Text("我", fontSize = 23.sp, fontWeight = FontWeight.Bold)
                         Text("露露机的拥有者", color = HubBlueGray)
                     }
                     Icon(Icons.Outlined.Edit, "编辑资料", tint = HubBlueGray)

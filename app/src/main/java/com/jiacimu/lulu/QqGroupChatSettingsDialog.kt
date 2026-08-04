@@ -29,6 +29,7 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun QqGroupChatSettingsScreen(
+    conversationId: String,
     group: LuluGroupChat,
     characters: List<CharacterSettings>,
     messages: List<LuluChatMessage>,
@@ -38,6 +39,7 @@ internal fun QqGroupChatSettingsScreen(
 ) {
     var editing by remember(group) { mutableStateOf(group) }
     var confirmDelete by remember { mutableStateOf(false) }
+    var confirmClear by remember { mutableStateOf(false) }
     var searchVisible by remember { mutableStateOf(false) }
     val memberIds = editing.members.mapTo(mutableSetOf(), LuluGroupMember::characterId)
 
@@ -45,6 +47,7 @@ internal fun QqGroupChatSettingsScreen(
         GroupChatRecordSearchScreen(
             messages = messages,
             characterNames = characters.associate { it.characterId to it.displayName },
+            userLabel = group.userGroupNickname,
             onBack = { searchVisible = false },
         )
         return
@@ -121,6 +124,13 @@ internal fun QqGroupChatSettingsScreen(
                         title = "查找聊天记录",
                         subtitle = "按关键词查找这个群里的全部消息",
                         onClick = { searchVisible = true },
+                    )
+                    HorizontalDivider(color = LuluColors.Border)
+                    GroupSettingsAction(
+                        icon = Icons.Outlined.DeleteSweep,
+                        title = "删除群聊的聊天信息",
+                        subtitle = "清空消息和原始时间线上下文，但保留这个群",
+                        onClick = { confirmClear = true },
                     )
                 }
             }
@@ -229,6 +239,20 @@ internal fun QqGroupChatSettingsScreen(
             dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("取消") } },
         )
     }
+    if (confirmClear) {
+        AlertDialog(
+            onDismissRequest = { confirmClear = false },
+            title = { Text("清空群聊聊天信息？") },
+            text = { Text("聊天消息、每位成员的原始时间线副本以及由这些消息提取的记忆都会实质删除。群名称和成员设置会保留。") },
+            confirmButton = {
+                TextButton(onClick = {
+                    MigratedDomainStores.chat.clearConversationMessages(conversationId)
+                    confirmClear = false
+                }) { Text("确认清空", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = { TextButton(onClick = { confirmClear = false }) { Text("取消") } },
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -236,6 +260,7 @@ internal fun QqGroupChatSettingsScreen(
 private fun GroupChatRecordSearchScreen(
     messages: List<LuluChatMessage>,
     characterNames: Map<String, String>,
+    userLabel: String,
     onBack: () -> Unit,
 ) {
     var query by remember { mutableStateOf("") }
@@ -272,7 +297,7 @@ private fun GroupChatRecordSearchScreen(
             }
             items(results, key = LuluChatMessage::id) { message ->
                 val speaker = when (message.sender) {
-                    LuluChatMessage.Sender.User -> "主人"
+                    LuluChatMessage.Sender.User -> userLabel
                     LuluChatMessage.Sender.System -> "系统"
                     LuluChatMessage.Sender.Character -> message.authorCharacterId?.let { characterNames[it] } ?: "角色"
                 }

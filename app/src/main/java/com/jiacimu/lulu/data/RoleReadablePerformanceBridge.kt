@@ -62,7 +62,7 @@ object RoleReadablePerformanceBridge {
         studyMinutes <= 0 && chatMinutes <= 0 && callMinutes <= 0
 
     private fun DurationSummary.toCompanionFact(): String =
-        "性能监测当前记录：主人累计有效学习 ${studyMinutes.coerceAtLeast(0)} 分钟，" +
+        "性能监测当前记录：用户累计有效学习 ${studyMinutes.coerceAtLeast(0)} 分钟，" +
             "聊天 ${chatMinutes.coerceAtLeast(0)} 分钟，通话 ${callMinutes.coerceAtLeast(0)} 分钟。" +
             "这是应用内累计数据，角色回答相关问题时应直接使用，不要猜测。"
 }

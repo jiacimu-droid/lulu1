@@ -21,16 +21,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 internal object GameDesign {
-    val paper = Color(0xFFFFFDF7)
-    val card = Color(0xFFFFFBF1)
-    val wheat = Color(0xFFF4D57D)
-    val wheatSoft = Color(0xFFFFF2C8)
-    val border = Color(0xFFEAE0CC)
-    val muted = Color(0xFF6D7888)
-    val ink = Color(0xFF343434)
-    val success = Color(0xFF587B63)
-    val error = Color(0xFFAA5C55)
-    val board = Color(0xFFE8C77A)
+    val paper = Color(0xFFF6F7F9)
+    val card = Color(0xFFFFFFFF)
+    val wheat = Color(0xFF24262B)
+    val wheatSoft = Color(0xFFEDEFF3)
+    val border = Color(0xFFE1E4E9)
+    val muted = Color(0xFF717784)
+    val ink = Color(0xFF202226)
+    val success = Color(0xFF3E7656)
+    val error = Color(0xFFB24F53)
+    val board = Color(0xFFD6AD62)
 }
 
 @Composable
@@ -43,6 +43,7 @@ internal fun GameCard(
         colors = CardDefaults.cardColors(containerColor = GameDesign.card),
         border = BorderStroke(1.dp, GameDesign.border),
         shape = RoundedCornerShape(22.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -78,7 +79,7 @@ internal fun GameRolePanel(characterName: String, response: GameRoleResponse) {
 internal fun GameResultBanner(text: String, success: Boolean = true) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = if (success) GameDesign.wheatSoft else Color(0xFFF7E7E4),
+        color = if (success) Color(0xFFE7F2EA) else Color(0xFFF7E7E4),
         shape = RoundedCornerShape(16.dp),
     ) {
         Text(text, Modifier.padding(14.dp), fontWeight = FontWeight.SemiBold)

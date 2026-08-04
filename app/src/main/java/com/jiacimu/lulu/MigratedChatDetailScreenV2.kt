@@ -119,7 +119,7 @@ fun MigratedChatDetailScreenV2(
             .filterNot { message -> message.id == userMessageId }
             .takeLast(30)
             .joinToString("\n") { message ->
-                val role = if (message.sender == LuluChatMessage.Sender.User) "主人" else character.displayName
+                val role = if (message.sender == LuluChatMessage.Sender.User) "用户" else character.displayName
                 "$role：${message.content}"
             }
         sending = true
@@ -133,9 +133,9 @@ fun MigratedChatDetailScreenV2(
                             appendLine("最近对话：")
                             appendLine(history)
                         }
-                        appendLine("主人刚刚说：$text")
+                        appendLine("用户刚刚说：$text")
                     },
-                    instruction = "延续当前对话，以角色本人的口吻自然回复主人。不要复述系统提示。附件目前以文件名事实传入，不得假装读取了文件正文。",
+                    instruction = "延续当前对话，以角色本人的口吻自然回复用户。不要复述系统提示。附件目前以文件名事实传入，不得假装读取了文件正文。",
                     source = "聊天",
                     title = activeLabel,
                     temperature = 0.85,

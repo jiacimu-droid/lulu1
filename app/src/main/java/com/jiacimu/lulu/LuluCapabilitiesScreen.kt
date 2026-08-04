@@ -116,7 +116,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
             item {
                 CapabilityInfoCard(
                     title = "后台感知链路",
-                    body = "当前调用：$backgroundModelLabel\nApp 进程存活时每60分钟重新感知一次，更新角色心声、动作、心情和状态；角色也可以保持沉默、写私人日记，或在自己加入的群聊中主动发言。只有离开聊天至少75分钟、非免打扰时段且未超过频率限制时，才允许主动发消息或来电。",
+                    body = "当前调用：$backgroundModelLabel\nApp 进程存活时每60分钟重新感知一次，更新角色心声、动作、心情和状态；角色可以保持沉默、主动发消息、发起电话、发送可点击的游戏邀约、写私人日记、在已加入的群聊发言，或发布朋友圈。所有行动都受人设、真实上下文、免打扰与频率限制约束。",
                 )
             }
             item {

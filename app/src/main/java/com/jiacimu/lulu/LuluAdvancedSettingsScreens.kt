@@ -204,7 +204,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                         testingVoice = true
                         voiceNotice = "正在连接 MiniMax 并生成试听…"
                         scope.launch {
-                            speechEngine.previewMiniMax("主人你好，我是露露。这个声音听起来还合适吗？")
+                            speechEngine.previewMiniMax("你好，我是露露。这个声音听起来还合适吗？")
                                 .onSuccess { voiceNotice = "试听成功，当前 MiniMax 配置已经接通。" }
                                 .onFailure { error -> voiceNotice = error.message ?: "试听失败，请检查接口配置。" }
                             testingVoice = false

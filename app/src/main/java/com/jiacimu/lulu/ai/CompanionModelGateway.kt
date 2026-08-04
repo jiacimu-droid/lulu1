@@ -40,6 +40,11 @@ enum class ModelUsage {
     Game,
 }
 
+enum class CompanionContextMode {
+    Full,
+    PersonaAndScenario,
+}
+
 data class ModelLibraryState(
     val configurations: List<ApiConfiguration> = emptyList(),
     val archives: List<ModelArchive> = emptyList(),
@@ -422,6 +427,7 @@ class CompanionModelGateway(
         maxTokens: Int = 500,
         connectionOverride: ModelConnection? = null,
         usage: ModelUsage? = null,
+        contextMode: CompanionContextMode = CompanionContextMode.Full,
     ): Result<ModelReply> = withContext(Dispatchers.IO) {
         val totalStartedAt = System.nanoTime()
         var requestUrl: String? = null
@@ -434,12 +440,13 @@ class CompanionModelGateway(
             attemptedModel = connection.model
             requestUrl = "${connection.baseUrl}/chat/completions"
             val character = MigratedDomainStores.characters.get(characterId)
-            val presence = CompanionPresenceStore.current(characterId)
-            val memories = RelevantMemoryRecall.recall(characterId, "$facts\n$instruction", limit = 12)
-            val recentSharedTimeline = SharedExperienceTimeline.recentContext(characterId)
-            val userProfileSection = UserProfileContext.promptSection()
-            val lexicon = LuluRepositories.lexicon.snapshot(characterId).take(24)
-            val allWorldBooks = LuluRepositories.worldBook.snapshot()
+            val fullContext = contextMode == CompanionContextMode.Full
+            val presence = CompanionPresenceStore.current(characterId).takeIf { fullContext }
+            val memories = if (fullContext) RelevantMemoryRecall.recall(characterId, "$facts\n$instruction", limit = 12) else emptyList()
+            val recentSharedTimeline = if (fullContext) SharedExperienceTimeline.recentContext(characterId) else ""
+            val userProfileSection = if (fullContext) UserProfileContext.promptSection() else ""
+            val lexicon = if (fullContext) LuluRepositories.lexicon.snapshot(characterId).take(24) else emptyList()
+            val allWorldBooks = if (fullContext) LuluRepositories.worldBook.snapshot() else emptyList()
             val globalWorldBooks = allWorldBooks.filter { entry ->
                 entry.globalEnabled && entry.characterOverrides[characterId] != false
             }
@@ -450,6 +457,7 @@ class CompanionModelGateway(
             val baseRules = buildString {
                 appendLine("你正在以‘${character.displayName.ifBlank { "角色" }}’的身份参与露露机中的真实活动。")
                 appendLine("角色的人设、关系边界、世界观和语言习惯拥有最高优先级。")
+                appendLine("角色与用户是什么关系、如何称呼用户，只能来自角色人设、用户资料中的希望称呼或已经发生的对话；不得默认用户是‘主人’，也不得默认恋人、朋友或上下级关系。")
                 appendLine("程序给出的题目、抽卡、计时、骰子、棋局、得分和历史记录都是不可修改的事实。")
                 appendLine("不得默认温柔、亲密、活泼、顺从、吐槽或夸奖；只输出该角色按其人设真正会说的话。")
                 appendLine("本次任务：$instruction")

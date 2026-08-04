@@ -40,7 +40,9 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
     val state by store.state.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val scope = rememberCoroutineScope()
-    var opponentIds by remember { mutableStateOf(listOf(state.selectedCharacterId)) }
+    val opponentIds = remember(state.selectedCharacterIds, state.selectedCharacterId) {
+        state.selectedCharacterIds.take(3).ifEmpty { listOf(state.selectedCharacterId) }
+    }
     val players = remember(opponentIds, characters) {
         listOf(YachtPlayer("user", "你")) + opponentIds.distinct().take(3).map { id ->
             val character = characters[id] ?: MigratedDomainStores.characters.get(id)
@@ -59,7 +61,6 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
     var responseSpeaker by remember { mutableStateOf("") }
     val currentPlayer = players[currentPlayerIndex.coerceIn(players.indices)]
     val currentScores = scores[currentPlayer.id].orEmpty()
-    val gameStarted = scores.isNotEmpty() || rolls > 0 || currentPlayerIndex > 0
     val gameOver = players.all { scores[it.id].orEmpty().size == YachtCategory.entries.size }
 
     fun reset() {
@@ -177,24 +178,6 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
     GamePageList {
         item {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("参与角色（共 ${players.size} 人）", fontWeight = FontWeight.SemiBold)
-                Row(Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    characters.values.forEach { character ->
-                        val selected = character.characterId in opponentIds
-                        FilterChip(
-                            selected = selected,
-                            enabled = !gameStarted,
-                            onClick = {
-                                opponentIds = if (selected) {
-                                    if (opponentIds.size > 1) opponentIds - character.characterId else opponentIds
-                                } else if (opponentIds.size < 3) {
-                                    opponentIds + character.characterId
-                                } else opponentIds
-                            },
-                            label = { Text(character.displayName) },
-                        )
-                    }
-                }
                 Row(Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     players.forEachIndexed { index, player ->
                         AssistChip(
@@ -338,7 +321,7 @@ internal fun GomokuScreen(store: LuluGameStore) {
     val character = MigratedDomainStores.characters.get(state.selectedCharacterId)
     val scope = rememberCoroutineScope()
     var board by remember { mutableStateOf(List(225) { 0 }) }
-    var status by remember { mutableStateOf("你执黑先手") }
+    var status by remember { mutableStateOf("轮到你了") }
     var finished by remember { mutableStateOf(false) }
     var moves by remember { mutableIntStateOf(0) }
     var roleResponse by remember { mutableStateOf(GameRoleResponse()) }
@@ -392,7 +375,7 @@ internal fun GomokuScreen(store: LuluGameStore) {
 
     fun reset() {
         board = List(225) { 0 }
-        status = "你执黑先手"
+        status = "轮到你了"
         finished = false
         moves = 0
         roleResponse = GameRoleResponse()

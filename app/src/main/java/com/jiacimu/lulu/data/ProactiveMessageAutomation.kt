@@ -49,12 +49,13 @@ object ProactiveMessageAutomation {
     private const val DAILY_CONTACT_LIMIT = 5
     private const val DAILY_CALL_LIMIT = 1
     private const val JOURNAL_COOLDOWN_MINUTES = 720L
+    private const val MOMENT_COOLDOWN_MINUTES = 360L
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var context: Context? = null
     private var started = false
 
-    private enum class Action { MESSAGE, GROUP_MESSAGE, CALL, JOURNAL, SILENT }
+    private enum class Action { MESSAGE, GROUP_MESSAGE, GAME_INVITE, MOMENT, CALL, JOURNAL, SILENT }
 
     private data class Decision(
         val action: Action,
@@ -67,6 +68,7 @@ object ProactiveMessageAutomation {
         val journalTitle: String,
         val journalContent: String,
         val groupId: String,
+        val gameId: String,
     )
 
     @Synchronized
@@ -126,9 +128,12 @@ object ProactiveMessageAutomation {
         val journalAllowed = prefs.getLong("last_journal_$characterId", 0L).let { value ->
             value == 0L || Duration.between(Instant.ofEpochMilli(value), now).toMinutes() >= JOURNAL_COOLDOWN_MINUTES
         }
+        val momentAllowed = prefs.getLong("last_moment_$characterId", 0L).let { value ->
+            value == 0L || Duration.between(Instant.ofEpochMilli(value), now).toMinutes() >= MOMENT_COOLDOWN_MINUTES
+        }
 
         val recent = messages.takeLast(18).joinToString("\n") { message ->
-            val speaker = if (message.sender == LuluChatMessage.Sender.User) "主人" else character.displayName
+            val speaker = if (message.sender == LuluChatMessage.Sender.User) "用户" else character.displayName
             "$speaker：${message.content}"
         }
         val lexicon = LuluRepositories.lexicon.snapshot(characterId)
@@ -172,6 +177,7 @@ object ProactiveMessageAutomation {
                 appendLine("当前允许主动联系：${if (contactAllowed) "是" else "否"}")
                 appendLine("当前允许主动来电：${if (callAllowed) "是" else "否"}")
                 appendLine("当前允许写私人日记：${if (journalAllowed) "是" else "否"}")
+                appendLine("当前允许主动发朋友圈：${if (momentAllowed) "是" else "否"}")
                 if (availableGroups.isNotEmpty()) {
                     appendLine("角色当前所在群聊：")
                     availableGroups.forEach { groupConversation ->
@@ -180,7 +186,7 @@ object ProactiveMessageAutomation {
                     }
                 }
                 if (screenState.connected && screenState.packageName.isNotBlank()) {
-                    appendLine("主人手机当前可感知的前台应用：${screenState.packageName}；窗口：${screenState.windowTitle}")
+                    appendLine("用户手机当前可感知的前台应用：${screenState.packageName}；窗口：${screenState.windowTitle}")
                 }
                 previousPresence?.let { presence ->
                     appendLine("角色上一刻：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
@@ -191,25 +197,27 @@ object ProactiveMessageAutomation {
                 if (recent.isNotBlank()) appendLine("\n【最近聊天】\n$recent")
             },
             instruction = """
-                你正在替当前角色判断此刻是否要主动联系主人。核心目标是像真实的人，而不是完成系统打卡。
+                你正在替当前角色判断此刻是否要自然行动。核心目标是像真实的人，而不是完成系统打卡。角色与用户的关系、称呼只能来自人设和真实经历，绝不能默认用户是“主人”。
 
                 只返回一个 JSON 对象，不要代码块：
-                {"action":"message|group_message|call|journal|silent","text":"真正发送的内容，可为空","groupId":"仅群聊发言时填写给定ID","reason":"内部简短原因","statusText":"角色此刻简短状态","gesture":"此刻可见动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情","journalTitle":"仅写日记时填写","journalContent":"仅写日记时填写第一人称正文"}
+                {"action":"message|group_message|game_invite|moment|call|journal|silent","text":"真正发送或发布的内容，可为空","groupId":"仅群聊发言时填写给定ID","gameId":"仅游戏邀约填写","reason":"内部简短原因","statusText":"角色此刻简短状态","gesture":"此刻可见动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情","journalTitle":"仅写日记时填写","journalContent":"仅写日记时填写第一人称正文"}
 
                 决策规则：
                 1. 必须严格贴合角色人设。活泼角色可以更直接，克制角色可以含蓄，冷淡角色不必突然撒娇；任何角色都不能被统一写成温柔助手。
                 2. 挂心、承诺和长期监督是可用动机，但不能每次都机械提醒。只有此刻自然相关时才提起。
-                3. 不得编造主人当前正在做什么、身体状态或现实环境。
+                3. 不得编造用户当前正在做什么、身体状态或现实环境。
                 4. 若没有真实想联系的理由，选择 silent。沉默可以是符合人设的行动，不是失败。
-                5. “当前允许主动联系”为否时 action 只能是 silent 或 journal，不能发消息、群聊消息或来电；仍要自然更新角色自己的状态、动作、心情和可留空的心声。
+                5. “当前允许主动联系”为否时 action 只能是 silent、journal 或 moment，不能发消息、群聊消息、游戏邀约或来电；仍要自然更新角色自己的状态、动作、心情和可留空的心声。
                 6. message 的 text 应像角色主动发来的聊天，通常 20~160 个汉字，不写标题，不解释自动化。
                 7. call 只在“当前允许主动来电：是”时可选，而且必须有比普通消息更强的动机。text 是来电前一句很短的理由。
                 8. 不要重复最近已经说过的问候、监督或相同句式。
                 9. innerThought 只是一瞬间没说出口的角色心声，不是分析过程、决策报告或系统推理；没有真实反应可以为空。
-                10. gesture 必须是角色此刻自身的微动作、姿态或神态；不要用它复述聊天，也不要假装角色真实出现在主人身边。
+                10. gesture 必须是角色此刻自身的微动作、姿态或神态；不要用它复述聊天，也不要假装角色真实出现在用户身边。
                 11. 只有“当前允许写私人日记”为是、确实出现新的感受或没说出口的想法时才可选 journal。日记必须是角色第一人称，不得机械复述聊天；没有新内容就 silent。
                 12. 用户要求与角色人设冲突时，尊重用户边界，但保留角色自己的表达方式。
                 13. group_message 只能选择上面真实列出的 groupId。只有角色自然地想对群内所有人说话、接续群话题或主动参与群互动时才选；text 不要带姓名前缀，也不要假装其他角色发言。
+                14. game_invite 仅在角色真的想邀请用户一起玩时选择，gameId 必须从 perfect_man、roleplay、turtle_soup、rapport_quiz、yacht_dice、gomoku、memory_match 中选择；text 是符合人设的邀请话，不要写链接或按钮说明。
+                15. moment 表示角色主动发朋友圈。只有角色此刻真的有想公开分享的生活片段、观点或心情时选择；text 是朋友圈正文，不要写“我发了一条朋友圈”，也不要为了刷存在感频繁发布。
             """.trimIndent(),
             source = "后台感知",
             title = "${character.displayName}的主动行动决策",
@@ -226,7 +234,7 @@ object ProactiveMessageAutomation {
             source = "后台感知",
             now = now,
         )
-        if (!contactAllowed && decision.action in setOf(Action.MESSAGE, Action.GROUP_MESSAGE, Action.CALL)) return false
+        if (!contactAllowed && decision.action in setOf(Action.MESSAGE, Action.GROUP_MESSAGE, Action.GAME_INVITE, Action.CALL)) return false
         when (decision.action) {
             Action.SILENT -> {
                 prefs.edit().putLong("last_silent_$characterId", now.toEpochMilli()).apply()
@@ -243,6 +251,28 @@ object ProactiveMessageAutomation {
                 MigratedDomainStores.chat.appendCharacterMessage(target.id, decision.text, characterId)
                 showMessageNotification(appContext, target.id, "${character.displayName} · ${target.groupChat?.name.orEmpty()}", decision.text)
             }
+            Action.GAME_INVITE -> {
+                if (decision.text.isBlank()) return false
+                val games = mapOf(
+                    "perfect_man" to "满分男", "roleplay" to "跑团", "turtle_soup" to "海龟汤",
+                    "rapport_quiz" to "默契问答", "yacht_dice" to "快艇骰子", "gomoku" to "五子棋",
+                    "memory_match" to "记忆配对",
+                )
+                val title = games[decision.gameId] ?: return false
+                val privateConversation = MigratedDomainStores.chat.conversations.value
+                    .filter { it.groupChat == null && it.characterId == characterId && it.parentConversationId == null }
+                    .maxByOrNull { it.updatedAt }
+                    ?: MigratedDomainStores.chat.ensureConversation(characterId, character.displayName)
+                val content = "[游戏邀约|${decision.gameId}|$title] ${decision.text.take(240)}"
+                MigratedDomainStores.chat.appendCharacterMessage(privateConversation.id, content, characterId)
+                showMessageNotification(appContext, privateConversation.id, character.displayName, "邀请你一起玩《$title》")
+            }
+            Action.MOMENT -> {
+                if (!momentAllowed || decision.text.isBlank()) return false
+                MomentsStore.publishCharacter(characterId, decision.text.take(2_000)) ?: return false
+                prefs.edit().putLong("last_moment_$characterId", now.toEpochMilli()).apply()
+                return false
+            }
             Action.CALL -> {
                 if (!callAllowed || decision.text.isBlank()) return false
                 val callText = decision.text.take(80)
@@ -255,9 +285,10 @@ object ProactiveMessageAutomation {
             }
             Action.JOURNAL -> {
                 if (!journalAllowed || decision.journalContent.isBlank()) return false
+                val diaryId = UUID.randomUUID().toString()
                 LuluRepositories.lexicon.save(
                     LexiconEntry(
-                        id = UUID.randomUUID().toString(),
+                        id = diaryId,
                         characterId = characterId,
                         section = LexiconSection.Diary,
                         title = decision.journalTitle.ifBlank { "此刻的心事" }.take(30),
@@ -267,7 +298,7 @@ object ProactiveMessageAutomation {
                     ),
                 )
                 SharedExperienceTimeline.record(
-                    eventId = "journal-${UUID.randomUUID()}",
+                    eventId = "lexicon-diary-$diaryId",
                     characterId = characterId,
                     channel = "私人日记",
                     speaker = character.displayName,
@@ -303,6 +334,8 @@ object ProactiveMessageAutomation {
         val action = when (json.optString("action").trim().lowercase()) {
             "message", "消息" -> Action.MESSAGE
             "group_message", "groupmessage", "群聊消息", "群聊发言" -> Action.GROUP_MESSAGE
+            "game_invite", "gameinvite", "游戏邀约", "邀请游戏" -> Action.GAME_INVITE
+            "moment", "moments", "朋友圈", "动态" -> Action.MOMENT
             "call", "phone", "电话", "来电" -> Action.CALL
             "journal", "diary", "日记" -> Action.JOURNAL
             else -> Action.SILENT
@@ -318,6 +351,7 @@ object ProactiveMessageAutomation {
             journalTitle = json.optString("journalTitle").ifBlank { json.optString("journal_title") }.trim(),
             journalContent = json.optString("journalContent").ifBlank { json.optString("journal_content") }.trim(),
             groupId = json.optString("groupId").ifBlank { json.optString("group_id") }.trim(),
+            gameId = json.optString("gameId").ifBlank { json.optString("game_id") }.trim(),
         )
     }.getOrNull()
 

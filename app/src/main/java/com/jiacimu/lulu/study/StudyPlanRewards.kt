@@ -3,6 +3,8 @@ package com.jiacimu.lulu.study
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,10 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 
 @Composable
 internal fun StudyPlanScreen(state: StudyState, store: PostgraduateExamStore) {
@@ -73,58 +77,143 @@ internal fun StudyPlanScreen(state: StudyState, store: PostgraduateExamStore) {
 internal fun StudyGachaScreen(state: StudyState, store: PostgraduateExamStore) {
     var results by remember { mutableStateOf(emptyList<StudyDrawResult>()) }
     var message by remember { mutableStateOf("") }
+    var revealing by remember { mutableStateOf(false) }
+    var showingResults by remember { mutableStateOf(false) }
 
-    LazyColumn(
+    fun draw(action: () -> List<StudyDrawResult>, insufficient: String) {
+        val drawn = action()
+        if (drawn.isEmpty()) {
+            message = insufficient
+        } else {
+            results = drawn
+            message = ""
+            revealing = true
+        }
+    }
+
+    Box(
         modifier = Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(StudyDesign.paper, StudyDesign.wheatSoft.copy(alpha = .55f)))),
-        contentPadding = PaddingValues(0.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        item {
+        if (!showingResults) {
             CandyGachaCard(
-                modifier = Modifier.fillParentMaxHeight(),
+                modifier = Modifier.fillMaxSize(),
                 state = state,
                 onSingle = {
-                    results = store.drawSingle()
-                    message = if (results.isEmpty()) "需要1张单抽券或${SINGLE_DRAW_COST}夸夸值" else "完成单抽"
+                    draw(store::drawSingle, "需要1张单抽券或${SINGLE_DRAW_COST}夸夸值")
                 },
                 onTen = {
-                    results = store.drawTen()
-                    message = if (results.isEmpty()) "需要1张十连券或${TEN_DRAW_COST}夸夸值" else "完成十连"
+                    draw(store::drawTen, "需要1张十连券或${TEN_DRAW_COST}夸夸值")
                 },
             )
+            if (state.superMomentAvailable) {
+                Button(
+                    onClick = { message = store.claimSuperMoment() },
+                    modifier = Modifier.align(Alignment.TopEnd).padding(14.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.wheat, contentColor = StudyDesign.ink),
+                ) { Text("领取十连券") }
+            }
+            if (message.isNotBlank()) {
+                Surface(
+                    modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(18.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.errorContainer,
+                ) { Text(message, Modifier.padding(horizontal = 18.dp, vertical = 12.dp), color = MaterialTheme.colorScheme.onErrorContainer) }
+            }
+        } else {
+            GachaResultScreen(results = results, onBack = { showingResults = false; results = emptyList() })
         }
-        if (results.isNotEmpty()) {
-            item { Text("本次结果", fontSize = 20.sp, fontWeight = FontWeight.Bold) }
+
+        if (revealing) {
+            GachaAnimationOverlay(
+                count = results.size,
+                bestRarity = results.maxByOrNull { it.rarity.ordinal }?.rarity ?: StudyRarity.Normal,
+                onFinished = { revealing = false; showingResults = true },
+            )
+        }
+    }
+}
+
+@Composable
+private fun GachaAnimationOverlay(count: Int, bestRarity: StudyRarity, onFinished: () -> Unit) {
+    var burst by remember { mutableStateOf(false) }
+    val rotation by animateFloatAsState(if (burst) 720f else -12f, tween(1_650), label = "扭蛋旋转")
+    val scale by animateFloatAsState(if (burst) 1.38f else .72f, tween(1_650), label = "扭蛋放大")
+    LaunchedEffect(Unit) {
+        burst = true
+        delay(1_850)
+        onFinished()
+    }
+    val glow = rarityColor(bestRarity)
+    Box(
+        Modifier.fillMaxSize().background(Color(0xEE111526)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(Modifier.fillMaxSize()) {
+            drawCircle(glow.copy(alpha = .18f), radius = size.minDimension * .48f)
+            repeat(18) { index ->
+                val angle = index * (Math.PI * 2 / 18)
+                val radius = size.minDimension * .34f
+                drawCircle(
+                    color = glow.copy(alpha = .45f),
+                    radius = (3 + index % 4).dp.toPx(),
+                    center = Offset(size.width / 2 + kotlin.math.cos(angle).toFloat() * radius, size.height / 2 + kotlin.math.sin(angle).toFloat() * radius),
+                )
+            }
+        }
+        Surface(
+            modifier = Modifier.size(166.dp).graphicsLayer { rotationZ = rotation; scaleX = scale; scaleY = scale },
+            shape = RoundedCornerShape(83.dp),
+            color = Color.White,
+            border = BorderStroke(7.dp, glow),
+            shadowElevation = 26.dp,
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(Icons.Outlined.AutoAwesome, null, tint = StudyDesign.wheat, modifier = Modifier.size(54.dp))
+                    Text(if (count == 10) "十连显现" else "愿望显现", fontWeight = FontWeight.Black, color = StudyDesign.ink)
+                }
+            }
+        }
+        Text("正在开启…", color = Color.White, modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 72.dp), fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+private fun GachaResultScreen(results: List<StudyDrawResult>, onBack: () -> Unit) {
+    Column(Modifier.fillMaxSize()) {
+        Row(Modifier.fillMaxWidth().padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回抽卡") }
+            Column(Modifier.weight(1f)) {
+                Text("本次抽卡结果", fontSize = 22.sp, fontWeight = FontWeight.Black)
+                Text("${results.size}份奖励已收入收藏", color = StudyDesign.muted, fontSize = 12.sp)
+            }
+        }
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
             items(results, key = { it.id }) { result ->
-                StudyCard {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Surface(
+                    shape = RoundedCornerShape(22.dp), color = Color.White,
+                    border = BorderStroke(1.dp, rarityColor(result.rarity)),
+                    shadowElevation = 3.dp,
+                ) {
+                    Row(Modifier.fillMaxWidth().padding(15.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Surface(shape = RoundedCornerShape(15.dp), color = rarityColor(result.rarity), modifier = Modifier.size(52.dp)) {
+                            Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.AutoAwesome, null, tint = StudyDesign.ink) }
+                        }
+                        Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
-                            Text(result.title, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                            Text(result.kind.label, color = StudyDesign.muted)
+                            Text(result.title, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text("${result.kind.label} · ${result.rarity.label}", color = StudyDesign.muted, fontSize = 12.sp)
+                            if (!result.inventoryChanged) Text("已集满，本次不重复增加", color = StudyDesign.muted, fontSize = 11.sp)
                         }
-                        Surface(color = rarityColor(result.rarity), shape = RoundedCornerShape(14.dp)) {
-                            Text(result.rarity.label, Modifier.padding(horizontal = 11.dp, vertical = 7.dp), fontSize = 12.sp)
-                        }
-                    }
-                    if (!result.inventoryChanged) {
-                        Text("这套画卷已经集满；本次抽中物仍显示，但不会重复增加。", color = StudyDesign.muted)
                     }
                 }
             }
+            item { Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) { Text("收下结果") } }
         }
-        if (state.superMomentAvailable) {
-            item {
-                StudyCard {
-                    Text("今日待办全清", fontSize = 19.sp, fontWeight = FontWeight.Bold)
-                    Text("可领取十连抽券 x1。", color = StudyDesign.muted)
-                    Button(
-                        onClick = { message = store.claimSuperMoment() },
-                        modifier = Modifier.fillMaxWidth(),
-                    ) { Text("领取") }
-                }
-            }
-        }
-        item { StudyMessage(message, message.contains("需要") || message.contains("不足")) }
     }
 }
 

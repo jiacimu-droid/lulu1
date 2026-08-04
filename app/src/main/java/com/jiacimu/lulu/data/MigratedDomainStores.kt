@@ -38,7 +38,7 @@ data class LuluGroupChat(
     val name: String,
     val avatarUri: String? = null,
     val announcement: String = "",
-    val userGroupNickname: String = "主人",
+    val userGroupNickname: String = "我",
     val members: List<LuluGroupMember>,
     val pinned: Boolean = false,
     val muted: Boolean = false,
@@ -49,7 +49,7 @@ data class LuluGroupChat(
     fun normalized(): LuluGroupChat = copy(
         name = name.trim().ifBlank { "新群聊" },
         announcement = announcement.trim(),
-        userGroupNickname = userGroupNickname.trim().ifBlank { "主人" },
+        userGroupNickname = userGroupNickname.trim().ifBlank { "我" },
         members = members.distinctBy(LuluGroupMember::characterId).map { member ->
             member.copy(groupNickname = member.groupNickname.trim())
         },
@@ -76,6 +76,7 @@ interface LuluChatStore {
     fun createGroupConversation(name: String, memberIds: List<String>): LuluConversation
     fun updateGroupConversation(conversationId: String, groupChat: LuluGroupChat): Boolean
     fun deleteConversation(conversationId: String): Boolean
+    fun clearConversationMessages(conversationId: String): Boolean
     fun sendUserMessage(conversationId: String, content: String, replyToMessageId: String? = null): LuluChatMessage
     fun appendCharacterMessage(conversationId: String, content: String, authorCharacterId: String? = null): LuluChatMessage
     fun appendSystemMessage(conversationId: String, content: String): LuluChatMessage
@@ -219,20 +220,40 @@ class InMemoryLuluChatStore : LuluChatStore {
                     characterId = member.characterId,
                     channel = "群聊·${group.name}",
                     speaker = "系统事件",
-                    content = "主人把你拉进了群聊《${group.name}》。群成员：$memberSummary。你知道自己现在是这个群的成员，可以阅读并参与群内对话。",
+                    content = "用户把你拉进了群聊《${group.name}》。群成员：$memberSummary。你知道自己现在是这个群的成员，可以阅读并参与群内对话。",
                     occurredAt = conversation.updatedAt,
                 )
             }
     }
 
     override fun deleteConversation(conversationId: String): Boolean {
-        synchronized(lock) {
+        val deleted = synchronized(lock) {
+            val conversation = conversationState.value.firstOrNull { it.id == conversationId } ?: return false
+            val messages = messageStates[conversationId]?.value.orEmpty()
             if (conversationState.value.none { it.id == conversationId }) return false
             conversationState.value = conversationState.value.filterNot { it.id == conversationId }
             messageStates.remove(conversationId)
             persistLocked()
-            return true
+            conversation to messages
         }
+        SharedExperienceTimeline.deleteConversationData(deleted.first, deleted.second)
+        return true
+    }
+
+    override fun clearConversationMessages(conversationId: String): Boolean {
+        val cleared = synchronized(lock) {
+            val conversation = conversationState.value.firstOrNull { it.id == conversationId } ?: return false
+            val state = messageStates[conversationId] ?: return false
+            val messages = state.value
+            state.value = emptyList()
+            conversationState.value = conversationState.value.map { current ->
+                if (current.id == conversationId) current.copy(lastMessage = "", unreadCount = 0, updatedAt = Instant.now()) else current
+            }.sortedWith(conversationOrdering())
+            persistLocked()
+            conversation to messages
+        }
+        SharedExperienceTimeline.deleteConversationData(cleared.first, cleared.second)
+        return true
     }
 
     override fun sendUserMessage(
@@ -297,15 +318,32 @@ class InMemoryLuluChatStore : LuluChatStore {
     override fun editMessage(messageId: String, content: String): Boolean {
         val clean = content.trim()
         if (clean.isBlank()) return false
-        return mutateMessagesContaining(messageId) { messages ->
+        val changed = mutateMessagesContaining(messageId) { messages ->
             messages.map { message ->
                 if (message.id == messageId) message.copy(content = clean, status = LuluChatMessage.Status.Sent) else message
             }
         }
+        if (changed) {
+            conversationState.value.firstOrNull { conversation ->
+                messageStates[conversation.id]?.value?.any { it.id == messageId } == true
+            }?.let { conversation ->
+                messageStates[conversation.id]?.value?.firstOrNull { it.id == messageId }?.let { message ->
+                    SharedExperienceTimeline.recordConversationMessage(conversation, message)
+                }
+            }
+        }
+        return changed
     }
 
-    override fun deleteMessage(messageId: String): Boolean = mutateMessagesContaining(messageId) { messages ->
-        messages.filterNot { message -> message.id == messageId }
+    override fun deleteMessage(messageId: String): Boolean {
+        val conversation = conversationState.value.firstOrNull { current ->
+            messageStates[current.id]?.value?.any { it.id == messageId } == true
+        }
+        val changed = mutateMessagesContaining(messageId) { messages ->
+            messages.filterNot { message -> message.id == messageId }
+        }
+        if (changed && conversation != null) SharedExperienceTimeline.deleteConversationMessage(conversation, messageId)
+        return changed
     }
 
     override fun toggleFavorite(messageId: String): Boolean = mutateMessagesContaining(messageId) { messages ->
@@ -504,7 +542,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             name = item.optString("name").ifBlank { "群聊" },
             avatarUri = item.optString("avatarUri").takeIf(String::isNotBlank),
             announcement = item.optString("announcement"),
-            userGroupNickname = item.optString("userGroupNickname").ifBlank { "主人" },
+            userGroupNickname = item.optString("userGroupNickname").ifBlank { "我" },
             members = members,
             pinned = item.optBoolean("pinned"),
             muted = item.optBoolean("muted"),
@@ -554,7 +592,7 @@ class InMemoryLuluChatStore : LuluChatStore {
                 id = "lulu-main",
                 characterId = "lulu",
                 title = "露露",
-                lastMessage = "今天也会一直陪着主人呀～",
+                lastMessage = "今天也会继续陪着你。",
             ),
         )
 
@@ -563,7 +601,7 @@ class InMemoryLuluChatStore : LuluChatStore {
                 LuluChatMessage(
                     conversationId = conversationId,
                     sender = LuluChatMessage.Sender.Character,
-                    content = "主人，今天学习辛苦啦。",
+                    content = "今天学习辛苦啦。",
                 ),
             )
         } else {
@@ -719,7 +757,7 @@ class CharacterSettingsStore {
             "lulu" to CharacterSettings(
                 characterId = "lulu",
                 displayName = "露露",
-                persona = "长期陪伴主人、保持连续感与角色一致性。",
+                persona = "长期陪伴用户，保持连续感与角色一致性；具体关系和称呼以用户填写的人设为准。",
             ),
         )
     }

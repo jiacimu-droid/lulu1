@@ -80,9 +80,9 @@ object DeterministicMemoryAutomation {
             else -> return
         }
         val content = when (category) {
-            ExplicitCategory.Boundary -> "主人明确表达过边界：$quote"
-            ExplicitCategory.Correction -> "主人纠正过一件事：$quote"
-            ExplicitCategory.Preference -> "主人明确表达过偏好：$quote"
+            ExplicitCategory.Boundary -> "用户明确表达过边界：$quote"
+            ExplicitCategory.Correction -> "用户纠正过一件事：$quote"
+            ExplicitCategory.Preference -> "用户明确表达过偏好：$quote"
         }
         val identity = normalize(content)
         if (LuluRepositories.memory.snapshot(characterId).any { normalize(it.content) == identity }) return
