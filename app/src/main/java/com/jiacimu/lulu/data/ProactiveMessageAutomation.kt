@@ -145,6 +145,10 @@ object ProactiveMessageAutomation {
             .filter { it.section == LexiconSection.Promise }
             .take(10)
             .joinToString("\n") { "- ${it.promiseKind?.name ?: "Promise"}｜${it.title}：${it.content}" }
+        val recentDiaries = lexicon
+            .filter { it.section == LexiconSection.Diary }
+            .take(3)
+            .joinToString("\n\n") { "《${it.title}》\n${it.content.take(700)}" }
         val memories = RelevantMemoryRecall.recall(
             characterId = characterId,
             query = listOf(recent.takeLast(2_500), concerns, commitments).joinToString("\n"),
@@ -195,12 +199,15 @@ object ProactiveMessageAutomation {
                 if (commitments.isNotBlank()) appendLine("\n【承诺、责任与监督】\n$commitments")
                 if (memoryContext.isNotBlank()) appendLine("\n$memoryContext")
                 if (recent.isNotBlank()) appendLine("\n【最近聊天】\n$recent")
+                if (recentDiaries.isNotBlank()) {
+                    appendLine("\n【这个角色最近的私人日记，仅用于保持其个人语感，不得照抄句子】\n$recentDiaries")
+                }
             },
             instruction = """
                 你正在替当前角色判断此刻是否要自然行动。核心目标是像真实的人，而不是完成系统打卡。角色与用户的关系、称呼只能来自人设和真实经历，绝不能默认用户是“主人”。
 
                 只返回一个 JSON 对象，不要代码块：
-                {"action":"message|group_message|game_invite|moment|call|journal|silent","text":"真正发送或发布的内容，可为空","groupId":"仅群聊发言时填写给定ID","gameId":"仅游戏邀约填写","reason":"内部简短原因","statusText":"角色此刻简短状态","gesture":"此刻可见动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情","journalTitle":"仅写日记时填写","journalContent":"仅写日记时填写第一人称正文"}
+                {"action":"message|group_message|game_invite|moment|call|journal|silent","text":"真正发送或发布的内容，可为空","groupId":"仅群聊发言时填写给定ID","gameId":"仅游戏邀约填写","reason":"内部简短原因","statusText":"角色此刻简短状态","gesture":"此刻可见动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情","journalTitle":"仅写日记时填写，像角色自己会写下的具体标题","journalContent":"仅写日记时填写，角色第一人称的私人内心独白正文"}
 
                 决策规则：
                 1. 必须严格贴合角色人设。活泼角色可以更直接，克制角色可以含蓄，冷淡角色不必突然撒娇；任何角色都不能被统一写成温柔助手。
@@ -213,16 +220,21 @@ object ProactiveMessageAutomation {
                 8. 不要重复最近已经说过的问候、监督或相同句式。
                 9. innerThought 只是一瞬间没说出口的角色心声，不是分析过程、决策报告或系统推理；没有真实反应可以为空。
                 10. gesture 必须是角色此刻自身的微动作、姿态或神态；不要用它复述聊天，也不要假装角色真实出现在用户身边。
-                11. 只有“当前允许写私人日记”为是、确实出现新的感受或没说出口的想法时才可选 journal。日记必须是角色第一人称，不得机械复述聊天；没有新内容就 silent。
-                12. 用户要求与角色人设冲突时，尊重用户边界，但保留角色自己的表达方式。
-                13. group_message 只能选择上面真实列出的 groupId。只有角色自然地想对群内所有人说话、接续群话题或主动参与群互动时才选；text 不要带姓名前缀，也不要假装其他角色发言。
-                14. game_invite 仅在角色真的想邀请用户一起玩时选择，gameId 必须从 perfect_man、roleplay、turtle_soup、rapport_quiz、yacht_dice、gomoku、memory_match 中选择；text 是符合人设的邀请话，不要写链接或按钮说明。
-                15. moment 表示角色主动发朋友圈。只有角色此刻真的有想公开分享的生活片段、观点或心情时选择；text 是朋友圈正文，不要写“我发了一条朋友圈”，也不要为了刷存在感频繁发布。
+                11. 只有“当前允许写私人日记”为是，而且角色确实有新的情绪余波、矛盾、欲言又止或值得私下记住的瞬间时，才选择 journal；没有新的内在变化就选择 silent。
+                12. journalContent 必须彻底进入角色本人的第一人称意识，像小说中未经整理的内心独白，而不是旁白、人物小传、聊天总结、系统报告或“今天发生了……我觉得……”式作文。不要写“角色以第一人称”“作为某某角色”等解释。
+                13. 日记的句长、用词、停顿、坦率程度、幽默感、锋利或克制都必须从当前角色人设自然长出来。活泼的人可以跳跃、碎碎念；理性的人可以冷静精确；嘴硬的人可以回避直说；冷淡的人可以短促留白。禁止把所有角色写成同一种温柔、细腻、抒情腔。
+                14. 选取一两个真正刺到角色的瞬间深入写，不要逐条复盘整段聊天。可以偶尔写角色当时的小动作、呼吸、指尖停顿、身体反应、视线或情绪在事后留下的余波，让感受落在具体细节上；这些细节必须符合人设与已知情境，不能编造用户的现实状态。
+                15. 环境描写只作为很轻的氛围触点，必须来自人设、世界观、已知状态或不构成具体事实的当下感受；无法确认时宁可省略。不要堆砌月光、风、咖啡、窗外雨声等万能意象，也不要为了“文艺”强行比喻。
+                16. 日记可以不完整、可以自我否认、改口、停顿或留下没说完的话，但应保持可读；通常写 180~800 个汉字。标题要具体、有角色气味，避免每次都叫“此刻的心事”“今天的心情”。不得照抄最近日记的句子。
+                17. 用户要求与角色人设冲突时，尊重用户边界，但保留角色自己的表达方式。
+                18. group_message 只能选择上面真实列出的 groupId。只有角色自然地想对群内所有人说话、接续群话题或主动参与群互动时才选；text 不要带姓名前缀，也不要假装其他角色发言。
+                19. game_invite 仅在角色真的想邀请用户一起玩时选择，gameId 必须从 perfect_man、roleplay、turtle_soup、rapport_quiz、yacht_dice、gomoku、memory_match 中选择；text 是符合人设的邀请话，不要写链接或按钮说明。
+                20. moment 表示角色主动发朋友圈。只有角色此刻真的有想公开分享的生活片段、观点或心情时选择；text 是朋友圈正文，不要写“我发了一条朋友圈”，也不要为了刷存在感频繁发布。
             """.trimIndent(),
             source = "后台感知",
             title = "${character.displayName}的主动行动决策",
-            temperature = 0.72,
-            maxTokens = 900,
+            temperature = 0.78,
+            maxTokens = 1_400,
         )
         val decision = result.getOrNull()?.text?.let(::parseDecision) ?: return false
         CompanionPresenceStore.update(
@@ -291,7 +303,7 @@ object ProactiveMessageAutomation {
                         id = diaryId,
                         characterId = characterId,
                         section = LexiconSection.Diary,
-                        title = decision.journalTitle.ifBlank { "此刻的心事" }.take(30),
+                        title = decision.journalTitle.ifBlank { "没写完的一页" }.take(30),
                         content = decision.journalContent.take(2_000),
                         createdAt = now,
                         updatedAt = now,
@@ -302,7 +314,7 @@ object ProactiveMessageAutomation {
                     characterId = characterId,
                     channel = "私人日记",
                     speaker = character.displayName,
-                    content = "${decision.journalTitle.ifBlank { "此刻的心事" }}\n${decision.journalContent.take(2_000)}",
+                    content = "${decision.journalTitle.ifBlank { "没写完的一页" }}\n${decision.journalContent.take(2_000)}",
                     occurredAt = now,
                 )
                 MigratedDomainStores.chat.appendSystemMessage(conversation.id, "[共同活动] 刚刚写了一篇日记")
