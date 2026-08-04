@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`6b904b14641c0c13479f32b3b3d5ba055a38ee78`
+- 基准提交：`82c03152fb99b8fb7aab05c064fc85e2d0f59630`
 - 分支：`main`
 - 已索引文件：105
-- 已索引代码/文本行：22378
-- 已发现符号：417
+- 已索引代码/文本行：22445
+- 已发现符号：418
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -18,14 +18,14 @@
 | `app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt` | 9 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 319 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 542 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 548 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 378 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 168 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 163 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 336 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 146 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 463 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 160 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 455 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt` | 618 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 409 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 33 | 0 |
@@ -35,7 +35,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 86 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 298 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 663 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 680 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 218 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 623 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 125 | 28 |
@@ -51,8 +51,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 106 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 26 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 566 | 34 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 374 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 577 | 35 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 383 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 128 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 190 | 9 |
@@ -66,7 +66,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 155 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 87 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 50 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 359 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 365 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 564 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 378 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 56 | 1 |
@@ -74,8 +74,8 @@
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 703 | 33 |
 | `app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt` | 96 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt` | 65 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt` | 126 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt` | 325 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt` | 132 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt` | 331 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishInventoryBridge.kt` | 49 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt` | 76 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt` | 196 | 7 |
