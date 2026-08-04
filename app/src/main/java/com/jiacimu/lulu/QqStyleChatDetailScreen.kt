@@ -912,33 +912,34 @@ private fun GameInviteMessageCard(invite: GameInviteMessage, onAccept: () -> Uni
 }
 
 private fun splitCharacterBubbles(text: String): List<String> {
-    val paragraphs = text.trim()
-        .split(Regex("\\n\\s*\\n"))
+    val blocks = text.replace("\r\n", "\n").trim()
+        .split(Regex("\\n+"))
         .map(String::trim)
         .filter(String::isNotBlank)
-    if (paragraphs.isEmpty()) return listOf(text.trim())
-    return paragraphs.flatMap { paragraph ->
-        val normalized = paragraph.lines().map(String::trim).filter(String::isNotBlank).joinToString("\n")
-        if (normalized.length <= 78) {
-            listOf(normalized)
-        } else {
-            val sentences = normalized.split(Regex("(?<=[。！？!?；;…])\\s*"))
-                .map(String::trim)
-                .filter(String::isNotBlank)
-            val bubbles = mutableListOf<String>()
-            var current = ""
-            sentences.forEach { sentence ->
-                val joinedLength = current.length + sentence.length
-                if (current.isBlank() || joinedLength <= 58 || current.length < 24) {
-                    current += sentence
-                } else {
-                    bubbles += current
-                    current = sentence
-                }
+    if (blocks.isEmpty()) return emptyList()
+    return blocks.flatMap { block ->
+        val clauses = Regex("[^。！？!?；;，,：:…]+[。！？!?；;，,：:…]?")
+            .findAll(block)
+            .map { it.value.trim() }
+            .filter(String::isNotBlank)
+            .flatMap { clause ->
+                if (clause.length <= 42) sequenceOf(clause) else clause.chunked(34).asSequence()
             }
-            if (current.isNotBlank()) bubbles += current
-            bubbles.ifEmpty { listOf(normalized) }
+            .toList()
+        val bubbles = mutableListOf<String>()
+        var current = ""
+        clauses.forEach { clause ->
+            if (current.isBlank()) {
+                current = clause
+            } else if (current.length + clause.length <= 35) {
+                current += clause
+            } else {
+                bubbles += current
+                current = clause
+            }
         }
+        if (current.isNotBlank()) bubbles += current
+        bubbles.ifEmpty { block.chunked(34) }
     }
 }
 
@@ -977,9 +978,9 @@ internal suspend fun runGroupReplies(
     val explicitAll = pendingText.contains("@全体成员")
     val targetReplies = when {
         explicitAll -> group.maxAutoReplies
-        mentioned.isNotEmpty() && group.allowCharacterConversation -> group.maxAutoReplies.coerceAtLeast(mentioned.size)
+        mentioned.isNotEmpty() && group.allowCharacterConversation -> group.maxAutoReplies.coerceAtLeast(maxOf(4, mentioned.size + 2))
         mentioned.isNotEmpty() -> mentioned.size.coerceAtMost(group.maxAutoReplies)
-        group.allowCharacterConversation -> group.maxAutoReplies
+        group.allowCharacterConversation -> group.maxAutoReplies.coerceAtLeast(maxOf(4, validMembers.size + 1))
         else -> 1
     }
     val speakingTurns = List(targetReplies.coerceIn(1, 8)) { turn -> ordered[turn % ordered.size] }
@@ -1002,12 +1003,21 @@ internal suspend fun runGroupReplies(
             appendLine("[这是群聊，不是私聊。群名：${group.name}；群成员：${group.userGroupNickname}、$memberList。]")
             appendLine("[当前由你（$memberLabel）发言。只代表你自己，严格遵循你的人设和关系边界；不要替别人说话，不要输出姓名标签。]")
             if (index > 0) {
-                appendLine("[前面已经有人回应。你可以直接回应、赞同、质疑、追问、开玩笑或转向另一位成员；要对上一轮真实内容产生反应，推动成员之间互相聊天，不要只围着用户轮流答题。]")
+                val previousMessage = latestMessages.lastOrNull { it.sender == LuluChatMessage.Sender.Character }
+                val previousName = previousMessage?.authorCharacterId?.let { id ->
+                    group.members.firstOrNull { it.characterId == id }?.groupNickname
+                        ?.ifBlank { characterNames[id].orEmpty() }
+                        ?.ifBlank { "上一位角色" }
+                } ?: "上一位角色"
+                appendLine("[$previousName 刚刚说：${previousMessage?.content?.takeLast(900).orEmpty()}]")
+                appendLine("[你这次的主要回应对象是 $previousName，不是重新回答用户。可以赞同、质疑、追问、开玩笑或补充新信息，必须让角色之间的对话继续发展。]")
             }
             if (index >= validMembers.size) appendLine("[这是群内继续接话，同一角色可以再次回应刚才的新内容，但不能复述自己的上一句话。]")
-            append("用户最初在群里说：$pendingText")
+            appendLine("[一次发言写1—3个短气泡，每个气泡尽量10—35字，用单独换行分隔；不要把多句话塞成一个长段落。]")
+            if (index == 0) append("用户刚在群里说：$pendingText")
+            else append("用户最初开启的话题：$pendingText")
         }
-        val result = LuluDeviceToolBridge.respond(
+        var result = LuluDeviceToolBridge.respond(
             characterId = member.characterId,
             history = history,
             userText = groupInput,
@@ -1015,6 +1025,16 @@ internal suspend fun runGroupReplies(
             archiveId = archiveId,
             sceneContext = sceneContext,
         )
+        if (result.getOrNull()?.text.isNullOrBlank() && currentCoroutineContext().isActive) {
+            result = LuluDeviceToolBridge.respond(
+                characterId = member.characterId,
+                history = history,
+                userText = "$groupInput\n[上一次没有生成有效发言。现在必须直接接住上一位成员的话，输出至少一个自然的短气泡。]",
+                title = activeLabel,
+                archiveId = archiveId,
+                sceneContext = sceneContext,
+            )
+        }
         if (!currentCoroutineContext().isActive) return
         val reply = result.getOrNull()
         if (reply != null) {

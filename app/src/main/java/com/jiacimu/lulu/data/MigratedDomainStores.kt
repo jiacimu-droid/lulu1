@@ -44,7 +44,7 @@ data class LuluGroupChat(
     val muted: Boolean = false,
     val showMemberNames: Boolean = true,
     val allowCharacterConversation: Boolean = true,
-    val maxAutoReplies: Int = 4,
+    val maxAutoReplies: Int = 6,
 ) {
     fun normalized(): LuluGroupChat = copy(
         name = name.trim().ifBlank { "新群聊" },
@@ -53,7 +53,7 @@ data class LuluGroupChat(
         members = members.distinctBy(LuluGroupMember::characterId).map { member ->
             member.copy(groupNickname = member.groupNickname.trim())
         },
-        maxAutoReplies = maxAutoReplies.coerceIn(1, 8),
+        maxAutoReplies = maxAutoReplies.coerceIn(if (allowCharacterConversation) 4 else 1, 8),
     )
 }
 
@@ -548,7 +548,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             muted = item.optBoolean("muted"),
             showMemberNames = item.optBoolean("showMemberNames", true),
             allowCharacterConversation = item.optBoolean("allowCharacterConversation", true),
-            maxAutoReplies = item.optInt("maxAutoReplies", 4).coerceIn(1, 8),
+            maxAutoReplies = item.optInt("maxAutoReplies", 6).coerceIn(1, 8),
         ).normalized()
     }.getOrNull()
 
