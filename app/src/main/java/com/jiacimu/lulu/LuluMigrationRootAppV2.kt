@@ -60,15 +60,15 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
         selectedCharacterId = characterIdForConversation(selectedConversationId)
     }
 
+    fun pushRoute(target: MigrationRoute) {
+        routeStack = routeStack + target.name
+    }
+
     fun openConversation(conversationId: String) {
         selectedConversationId = conversationId
         selectedCharacterId = characterIdForConversation(conversationId)
         chatSessionStarted = true
         pushRoute(MigrationRoute.ChatDetail)
-    }
-
-    fun pushRoute(target: MigrationRoute) {
-        routeStack = routeStack + target.name
     }
 
     fun popRoute() {
