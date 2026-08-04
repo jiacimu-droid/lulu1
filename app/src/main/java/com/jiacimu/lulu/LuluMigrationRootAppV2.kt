@@ -18,6 +18,7 @@ import com.jiacimu.lulu.games.LuluGamesAppV2
 import com.jiacimu.lulu.study.LuluReadingScreen
 import com.jiacimu.lulu.study.PostgraduateExamApp
 import com.jiacimu.lulu.study.StarWishMigratedScreen
+import com.jiacimu.lulu.study.StarWishTab
 
 @Composable
 fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
@@ -34,6 +35,7 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
         mutableStateOf(initialConversationId?.takeIf(String::isNotBlank) ?: "lulu-main")
     }
     var selectedCharacterId by rememberSaveable { mutableStateOf("lulu") }
+    var starWishInitialTab by rememberSaveable { mutableStateOf(StarWishTab.Scroll.name) }
     val preferences by LuluAppPreferencesStore.state.collectAsState()
     val density = LocalDensity.current
     val preferredDensity = remember(density, preferences.largerText) {
@@ -87,6 +89,7 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                     MigrationRoute.Home -> MigrationHomeV2(
                         onOpen = { target ->
                             if (target == MigrationRoute.WorldBook) selectedCharacterId = "lulu"
+                            if (target == MigrationRoute.Wishes) starWishInitialTab = StarWishTab.Scroll.name
                             pushRoute(target)
                         },
                         onOpenConversation = { conversationId ->
@@ -144,8 +147,17 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                     )
                     MigrationRoute.Performance -> OptimizedPerformanceFeatureScreen(::popRoute)
                     MigrationRoute.Reading -> LuluReadingScreen(::popRoute)
-                    MigrationRoute.Wishes -> StarWishMigratedScreen(::popRoute)
-                    MigrationRoute.Study -> PostgraduateExamApp(::popRoute)
+                    MigrationRoute.Wishes -> StarWishMigratedScreen(
+                        onBack = ::popRoute,
+                        initialTab = StarWishTab.valueOf(starWishInitialTab),
+                    )
+                    MigrationRoute.Study -> PostgraduateExamApp(
+                        onBack = ::popRoute,
+                        onOpenTheater = {
+                            starWishInitialTab = StarWishTab.Theater.name
+                            pushRoute(MigrationRoute.Wishes)
+                        },
+                    )
                     MigrationRoute.Games -> LuluGamesAppV2(::popRoute)
                     MigrationRoute.Settings -> LuluSettingsHomeScreen(::popRoute)
                 }

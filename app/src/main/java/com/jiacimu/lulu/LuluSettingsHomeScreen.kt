@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -29,6 +30,9 @@ private val SettingsHomeAccentStrong = Color(0xFF292929)
 @Composable
 fun LuluSettingsHomeScreen(onBack: () -> Unit) {
     var page by rememberSaveable { mutableStateOf(SettingsHomePage.Home) }
+    BackHandler(enabled = page != SettingsHomePage.Home) {
+        page = SettingsHomePage.Home
+    }
     when (page) {
         SettingsHomePage.Api -> LuluSettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Capabilities -> LuluCapabilitiesScreen(onBack = { page = SettingsHomePage.Home })

@@ -215,10 +215,11 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
         }
         item { StudyMessage(message, error) }
         item { Text("最近学习事件", fontSize = 20.sp, fontWeight = FontWeight.Bold) }
-        if (state.events.isEmpty()) {
+        val visibleEvents = state.events.filterNot { it.title.contains("抽") }.take(6)
+        if (visibleEvents.isEmpty()) {
             item { StudyCard { Text("还没有事件", color = StudyDesign.muted) } }
         } else {
-            items(state.events.take(20), key = { it.id }) { event ->
+            items(visibleEvents, key = { it.id }) { event ->
                 StudyCard {
                     Text(event.title, fontWeight = FontWeight.Bold)
                     Text(event.detail)

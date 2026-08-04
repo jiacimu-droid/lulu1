@@ -129,7 +129,7 @@ private fun TheaterBookshelfV2(
         }
         item {
             Text(
-                "剧场碎片 $fragmentCount",
+                "小剧场券 $fragmentCount",
                 color = StudyDesign.muted,
                 style = MaterialTheme.typography.labelMedium,
             )
@@ -319,7 +319,7 @@ private fun TheaterReaderV2(
                                     influence = ""
                                     message = "第 $chapterNumber 章已生成"
                                     listState.scrollToItem(0)
-                                } else message = "剧场碎片不足"
+                                } else message = "小剧场券不足"
                             }.onFailure { message = it.message ?: "章节生成失败" }
                             generating = false
                         }

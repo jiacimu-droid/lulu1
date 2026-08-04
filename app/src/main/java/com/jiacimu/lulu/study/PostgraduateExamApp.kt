@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostgraduateExamApp(onBack: () -> Unit) {
+fun PostgraduateExamApp(onBack: () -> Unit, onOpenTheater: () -> Unit) {
     val store = remember { PostgraduateExamStores.main }
     val state by store.state.collectAsState()
     var route by remember { mutableStateOf<StudyRoute>(StudyRoute.Section(StudySection.Today)) }
@@ -71,7 +71,7 @@ fun PostgraduateExamApp(onBack: () -> Unit) {
                             StudySection.Today -> StudyTodayScreenV2(state, store) { route = StudyRoute.Focus }
                             StudySection.Plan -> StudyPlanScreenV2(state, store)
                             StudySection.Gacha -> StudyGachaScreen(state, store)
-                            StudySection.Collection -> StudyCollectionScreen(state, store)
+                            StudySection.Collection -> StudyCollectionScreen(state, store, onOpenTheater)
                             StudySection.Achievements -> StudyAchievementsScreen(state, store)
                             StudySection.Shop -> StudyShopScreen(state, store)
                             StudySection.Guide -> StudyGuideScreen()

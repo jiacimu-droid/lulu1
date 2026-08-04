@@ -27,6 +27,23 @@ private val AdvancedAccent = Color(0xFF292929)
 
 private const val ADVANCED_PREFS = "lulu_advanced_settings"
 
+private val MiniMaxEndpoints = listOf(
+    "标准线路" to "https://api.minimax.io/v1/t2a_v2",
+    "低延迟线路" to "https://api-uw.minimax.io/v1/t2a_v2",
+)
+private val MiniMaxSpeechModels = listOf(
+    "speech-2.8-hd", "speech-2.8-turbo", "speech-2.6-hd", "speech-2.6-turbo",
+    "speech-02-hd", "speech-02-turbo", "speech-01-hd", "speech-01-turbo",
+)
+private val MiniMaxLanguages = listOf(
+    "auto", "Chinese", "Chinese,Yue", "English", "Japanese", "Korean", "French", "German",
+    "Spanish", "Portuguese", "Russian", "Arabic", "Italian", "Turkish", "Dutch", "Ukrainian",
+    "Vietnamese", "Indonesian", "Thai", "Polish", "Romanian", "Greek", "Czech", "Finnish",
+    "Hindi", "Bulgarian", "Danish", "Hebrew", "Malay", "Persian", "Slovak", "Swedish",
+    "Croatian", "Filipino", "Hungarian", "Norwegian", "Slovenian", "Catalan", "Nynorsk",
+    "Tamil", "Afrikaans",
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
@@ -130,15 +147,30 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
             SettingsSectionCard("MiniMax 接口") {
                 Text("使用 MiniMax Speech 2.8 生成角色语音；请求失败时自动回退到系统语音。", color = AdvancedMuted, fontSize = 12.sp, lineHeight = 18.sp)
                 Spacer(Modifier.height(6.dp))
-                AdvancedTextField("接口地址", minimaxEndpoint, { minimaxEndpoint = it }, "https://api.minimax.io/v1/t2a_v2")
+                AdvancedChoiceField(
+                    label = "接口线路",
+                    value = minimaxEndpoint,
+                    options = MiniMaxEndpoints,
+                    onSelected = { minimaxEndpoint = it },
+                )
                 Spacer(Modifier.height(10.dp))
                 AdvancedTextField("API Key", minimaxApiKey, { minimaxApiKey = it }, "填写 MiniMax API Key", password = true)
                 Spacer(Modifier.height(10.dp))
-                AdvancedTextField("模型", minimaxModel, { minimaxModel = it }, "speech-2.8-turbo")
+                AdvancedChoiceField(
+                    label = "语音模型",
+                    value = minimaxModel,
+                    options = MiniMaxSpeechModels.map { it to it },
+                    onSelected = { minimaxModel = it },
+                )
                 Spacer(Modifier.height(10.dp))
                 AdvancedTextField("Voice ID", minimaxVoiceId, { minimaxVoiceId = it }, "填写系统音色或克隆音色 ID")
                 Spacer(Modifier.height(10.dp))
-                AdvancedTextField("语言增强", minimaxLanguage, { minimaxLanguage = it }, "auto 或 Chinese")
+                AdvancedChoiceField(
+                    label = "语言增强",
+                    value = minimaxLanguage,
+                    options = MiniMaxLanguages.map { it to it },
+                    onSelected = { minimaxLanguage = it },
+                )
                 Spacer(Modifier.height(18.dp))
                 Text("语速  ${"%.2f".format(minimaxSpeed)}", color = AdvancedInk, fontWeight = FontWeight.Medium)
                 Slider(value = minimaxSpeed, onValueChange = { minimaxSpeed = it }, valueRange = 0.5f..2f, enabled = enabled)
@@ -193,21 +225,14 @@ fun LuluMemorySettingsScreen(onBack: () -> Unit) {
 
     AdvancedSettingsScaffold(title = "记忆设置", onBack = onBack) {
         item {
-            Text(
-                "这里配置记忆线路使用的专用模型，不建立模型存档，也不会改变聊天页当前模型。",
-                color = AdvancedMuted,
-                fontSize = 13.sp,
-                lineHeight = 20.sp,
-                modifier = Modifier.padding(horizontal = 4.dp),
-            )
-        }
-        item {
             SettingsSectionCard("记忆抽取模型") {
-                AdvancedTextField("API 地址", extractionUrl, { extractionUrl = it }, "https://.../v1")
-                Spacer(Modifier.height(10.dp))
-                AdvancedTextField("API 密钥", extractionKey, { extractionKey = it }, "sk-...", password = true)
-                Spacer(Modifier.height(10.dp))
-                AdvancedTextField("模型名称", extractionModel, { extractionModel = it }, "用于提取事实、情绪与时间线")
+                SavedConfigurationModelPicker(
+                    pickerKey = "memory-extraction",
+                    currentBaseUrl = extractionUrl,
+                    currentModel = extractionModel,
+                    onConfigurationSelected = { extractionUrl = it.baseUrl; extractionKey = it.apiKey },
+                    onModelSelected = { extractionModel = it },
+                )
             }
         }
         item {
@@ -221,11 +246,13 @@ fun LuluMemorySettingsScreen(onBack: () -> Unit) {
         if (vectorEnabled) {
             item {
                 SettingsSectionCard("Embedding 模型") {
-                    AdvancedTextField("API 地址", embeddingUrl, { embeddingUrl = it }, "https://.../v1")
-                    Spacer(Modifier.height(10.dp))
-                    AdvancedTextField("API 密钥", embeddingKey, { embeddingKey = it }, "sk-...", password = true)
-                    Spacer(Modifier.height(10.dp))
-                    AdvancedTextField("模型名称", embeddingModel, { embeddingModel = it }, "例如 text-embedding-3-small")
+                    SavedConfigurationModelPicker(
+                        pickerKey = "memory-embedding",
+                        currentBaseUrl = embeddingUrl,
+                        currentModel = embeddingModel,
+                        onConfigurationSelected = { embeddingUrl = it.baseUrl; embeddingKey = it.apiKey },
+                        onModelSelected = { embeddingModel = it },
+                    )
                 }
             }
         }
@@ -240,11 +267,13 @@ fun LuluMemorySettingsScreen(onBack: () -> Unit) {
         if (rerankEnabled) {
             item {
                 SettingsSectionCard("Rerank 模型") {
-                    AdvancedTextField("API 地址", rerankUrl, { rerankUrl = it }, "https://...")
-                    Spacer(Modifier.height(10.dp))
-                    AdvancedTextField("API 密钥", rerankKey, { rerankKey = it }, "sk-...", password = true)
-                    Spacer(Modifier.height(10.dp))
-                    AdvancedTextField("模型名称", rerankModel, { rerankModel = it }, "例如 bge-reranker-v2")
+                    SavedConfigurationModelPicker(
+                        pickerKey = "memory-rerank",
+                        currentBaseUrl = rerankUrl,
+                        currentModel = rerankModel,
+                        onConfigurationSelected = { rerankUrl = it.baseUrl; rerankKey = it.apiKey },
+                        onModelSelected = { rerankModel = it },
+                    )
                 }
             }
         }
@@ -280,11 +309,13 @@ fun LuluImageSettingsScreen(onBack: () -> Unit) {
         }
         item {
             SettingsSectionCard("生图接口") {
-                AdvancedTextField("API 地址", baseUrl, { baseUrl = it }, "https://.../v1")
-                Spacer(Modifier.height(10.dp))
-                AdvancedTextField("API 密钥", apiKey, { apiKey = it }, "sk-...", password = true)
-                Spacer(Modifier.height(10.dp))
-                AdvancedTextField("模型名称", model, { model = it }, "例如 flux、dall-e 或自定义模型")
+                SavedConfigurationModelPicker(
+                    pickerKey = "image-generation",
+                    currentBaseUrl = baseUrl,
+                    currentModel = model,
+                    onConfigurationSelected = { baseUrl = it.baseUrl; apiKey = it.apiKey },
+                    onModelSelected = { model = it },
+                )
                 Spacer(Modifier.height(10.dp))
                 AdvancedTextField("默认尺寸", size, { size = it }, "例如 1024x1024")
                 Spacer(Modifier.height(10.dp))
@@ -416,4 +447,43 @@ private fun AdvancedTextField(
         ),
         shape = RoundedCornerShape(14.dp),
     )
+}
+
+@Composable
+private fun AdvancedChoiceField(
+    label: String,
+    value: String,
+    options: List<Pair<String, String>>,
+    onSelected: (String) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val selectedLabel = options.firstOrNull { it.second == value }?.first ?: value
+    Column {
+        Text(label, color = AdvancedMuted, fontSize = 12.sp)
+        Spacer(Modifier.height(5.dp))
+        Box(Modifier.fillMaxWidth()) {
+            OutlinedButton(
+                onClick = { expanded = true },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 13.dp),
+            ) {
+                Text(selectedLabel, Modifier.weight(1f), color = AdvancedInk)
+                Text("▾", color = AdvancedMuted)
+            }
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                options.forEach { (title, savedValue) ->
+                    DropdownMenuItem(
+                        text = {
+                            Column {
+                                Text(title, fontWeight = if (savedValue == value) FontWeight.Bold else FontWeight.Normal)
+                                if (title != savedValue) Text(savedValue, color = AdvancedMuted, fontSize = 11.sp)
+                            }
+                        },
+                        onClick = { onSelected(savedValue); expanded = false },
+                    )
+                }
+            }
+        }
+    }
 }

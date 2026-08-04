@@ -73,15 +73,11 @@ internal fun StudyTodayScreenV2(
 internal fun StudyPlanScreenV2(state: StudyState, store: PostgraduateExamStore) {
     var range by remember { mutableStateOf(StudyPlanRange.Weekly) }
     var title by remember { mutableStateOf("") }
-    var note by remember { mutableStateOf("") }
     val items = state.planItems.filter { it.range == range }
 
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
         item {
             StudyCard {
-                Text("月计划与周任务池", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                Text("助手负责阶段目标和周验收；主人负责具体日期、顺序、时段和休息日。", color = StudyDesign.muted)
-                Text("未完成日任务回到周任务池重新分配，不把整套日程机械顺延，也不惩罚式补课。", color = StudyDesign.muted, fontSize = 12.sp)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     StudyPlanRange.entries.forEach { item ->
                         FilterChip(
@@ -96,10 +92,9 @@ internal fun StudyPlanScreenV2(state: StudyState, store: PostgraduateExamStore) 
         item {
             StudyCard {
                 Text("添加${if (range == StudyPlanRange.Weekly) "周" else "月"}计划", fontWeight = FontWeight.Bold)
-                OutlinedTextField(title, { title = it }, label = { Text("目标或任务池") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(note, { note = it }, label = { Text("范围、预计分钟或验收标准") }, modifier = Modifier.fillMaxWidth(), minLines = 2)
+                OutlinedTextField(title, { title = it }, label = { Text("计划内容") }, modifier = Modifier.fillMaxWidth())
                 Button(
-                    onClick = { store.addPlanItem(range, title, note); title = ""; note = "" },
+                    onClick = { store.addPlanItem(range, title, ""); title = "" },
                     enabled = title.isNotBlank(),
                     modifier = Modifier.fillMaxWidth(),
                 ) { Text("保存计划") }
@@ -109,11 +104,7 @@ internal fun StudyPlanScreenV2(state: StudyState, store: PostgraduateExamStore) 
         items(items, key = StudyPlanItem::id) { item ->
             StudyCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = item.completed, onCheckedChange = { store.togglePlanItem(item.id) })
-                    Column(Modifier.weight(1f)) {
-                        Text(item.title, fontWeight = FontWeight.Bold)
-                        if (item.note.isNotBlank()) Text(item.note, color = StudyDesign.muted)
-                    }
+                    Text(item.title, Modifier.weight(1f), fontWeight = FontWeight.Bold)
                     IconButton(onClick = { store.deletePlanItem(item.id) }) { Icon(Icons.Outlined.DeleteOutline, "删除") }
                 }
             }
@@ -126,11 +117,7 @@ private fun SelfDirectedTaskRow(task: StudyTask, store: PostgraduateExamStore) {
     StudyCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(checked = task.completed, onCheckedChange = { store.toggleTask(task.id) })
-            Column(Modifier.weight(1f)) {
-                Text(task.title, fontWeight = FontWeight.SemiBold)
-                Text("${task.pomodoroCompleted}/${task.pomodoroTarget} 个番茄钟 · 由你自己安排", color = StudyDesign.muted, fontSize = 12.sp)
-                StudyProgress(task.pomodoroCompleted.toFloat() / task.pomodoroTarget.coerceAtLeast(1))
-            }
+            Text(task.title, Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
             IconButton(onClick = { store.deleteTask(task.id) }) { Icon(Icons.Outlined.DeleteOutline, "删除") }
         }
     }

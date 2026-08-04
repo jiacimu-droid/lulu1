@@ -1,10 +1,11 @@
 package com.jiacimu.lulu.study
 
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
@@ -13,6 +14,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,14 +24,11 @@ import androidx.compose.ui.unit.sp
 internal fun StudyPlanScreen(state: StudyState, store: PostgraduateExamStore) {
     var range by remember { mutableStateOf(StudyPlanRange.Weekly) }
     var title by remember { mutableStateOf("") }
-    var note by remember { mutableStateOf("") }
     val items = state.planItems.filter { it.range == range }
 
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
         item {
             StudyCard {
-                Text("长期计划", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                Text("周计划与月计划会作为 AI 今日时间表的约束和参考。", color = StudyDesign.muted)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     StudyPlanRange.entries.forEach { item ->
                         FilterChip(
@@ -44,12 +44,10 @@ internal fun StudyPlanScreen(state: StudyState, store: PostgraduateExamStore) {
             StudyCard {
                 Text("添加${if (range == StudyPlanRange.Weekly) "周" else "月"}计划", fontWeight = FontWeight.Bold)
                 OutlinedTextField(title, { title = it }, label = { Text("目标") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(note, { note = it }, label = { Text("备注或节点") }, modifier = Modifier.fillMaxWidth())
                 Button(
                     onClick = {
-                        store.addPlanItem(range, title, note)
+                        store.addPlanItem(range, title, "")
                         title = ""
-                        note = ""
                     },
                     enabled = title.isNotBlank(),
                     modifier = Modifier.fillMaxWidth(),
@@ -60,10 +58,8 @@ internal fun StudyPlanScreen(state: StudyState, store: PostgraduateExamStore) {
         items(items, key = { it.id }) { item ->
             StudyCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = item.completed, onCheckedChange = { store.togglePlanItem(item.id) })
                     Column(Modifier.weight(1f)) {
                         Text(item.title, fontWeight = FontWeight.Bold)
-                        if (item.note.isNotBlank()) Text(item.note, color = StudyDesign.muted)
                     }
                     IconButton(onClick = { store.deletePlanItem(item.id) }) { Icon(Icons.Outlined.DeleteOutline, "删除") }
                 }
@@ -79,41 +75,17 @@ internal fun StudyGachaScreen(state: StudyState, store: PostgraduateExamStore) {
 
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         item {
-            StudyCard {
-                Text("抽卡", fontSize = 23.sp, fontWeight = FontWeight.Bold)
-                Text("蓝色画卷 92.15%", color = StudyDesign.muted)
-                Text("紫色 6%：抖音时长券 5% · 剧场碎片 1%", color = StudyDesign.muted)
-                Text("金色 1.5%：游戏畅玩券 1.2% · 视频解锁卡 0.3%", color = StudyDesign.muted)
-                Text("彩色番剧兑换券 0.35%", color = StudyDesign.muted)
-                Text("连续30抽没有紫／金／彩时，第30抽直接出现紫色。", color = StudyDesign.muted, fontSize = 12.sp)
-                Row(
-                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    WalletChip("单抽券", state.inventory.singleTickets)
-                    WalletChip("十连券", state.inventory.tenTickets)
-                    WalletChip("夸夸值", state.profile.praisePoints)
-                }
-                Text("距保底：${(NON_NORMAL_PITY - state.drawsSinceNonNormal).coerceIn(1, NON_NORMAL_PITY)} 抽", fontWeight = FontWeight.SemiBold)
-            }
-        }
-        item {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Button(
-                    onClick = {
-                        results = store.drawSingle()
-                        message = if (results.isEmpty()) "需要1张单抽券或${SINGLE_DRAW_COST}夸夸值" else "完成单抽"
-                    },
-                    modifier = Modifier.weight(1f),
-                ) { Text("单抽") }
-                Button(
-                    onClick = {
-                        results = store.drawTen()
-                        message = if (results.isEmpty()) "需要1张十连券或${TEN_DRAW_COST}夸夸值" else "完成十连"
-                    },
-                    modifier = Modifier.weight(1f),
-                ) { Text("十连") }
-            }
+            CandyGachaCard(
+                state = state,
+                onSingle = {
+                    results = store.drawSingle()
+                    message = if (results.isEmpty()) "需要1张单抽券或${SINGLE_DRAW_COST}夸夸值" else "完成单抽"
+                },
+                onTen = {
+                    results = store.drawTen()
+                    message = if (results.isEmpty()) "需要1张十连券或${TEN_DRAW_COST}夸夸值" else "完成十连"
+                },
+            )
         }
         if (results.isNotEmpty()) {
             item { Text("本次结果", fontSize = 20.sp, fontWeight = FontWeight.Bold) }
@@ -151,9 +123,55 @@ internal fun StudyGachaScreen(state: StudyState, store: PostgraduateExamStore) {
 }
 
 @Composable
-private fun WalletChip(label: String, value: Int) {
-    Surface(color = StudyDesign.wheatSoft, shape = RoundedCornerShape(14.dp)) {
-        Text("$label $value", Modifier.padding(horizontal = 10.dp, vertical = 7.dp), fontSize = 12.sp)
+private fun CandyGachaCard(state: StudyState, onSingle: () -> Unit, onTen: () -> Unit) {
+    val pink = Color(0xFFFF88A7)
+    val navy = Color(0xFF42384A)
+    Surface(
+        shape = RoundedCornerShape(30.dp),
+        color = Color(0xFFFFF6F8),
+        border = BorderStroke(1.dp, Color(0xFFFFD3DE)),
+        shadowElevation = 4.dp,
+    ) {
+        Column(
+            Modifier.fillMaxWidth().background(Brush.verticalGradient(listOf(Color(0xFFFFF7FA), Color(0xFFFFEAF0)))).padding(18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Text("星糖扭蛋机", fontSize = 25.sp, fontWeight = FontWeight.Black, color = navy)
+            Text("把今天的努力，换成一颗闪闪发光的糖", color = Color(0xFF856E79), fontSize = 13.sp)
+            Box(Modifier.fillMaxWidth().height(210.dp), contentAlignment = Alignment.Center) {
+                Canvas(Modifier.fillMaxSize()) {
+                    drawCircle(Color(0xFFFFDDE7), size.minDimension * .42f, Offset(size.width / 2, size.height * .42f))
+                    drawCircle(Color(0xFFF7C8D6), 18.dp.toPx(), Offset(size.width * .38f, size.height * .35f))
+                    drawCircle(Color(0xFFFFF1A8), 15.dp.toPx(), Offset(size.width * .53f, size.height * .29f))
+                    drawCircle(Color(0xFFC9E9F7), 17.dp.toPx(), Offset(size.width * .61f, size.height * .42f))
+                    drawRoundRect(Color(0xFFFFAFC4), Offset(size.width * .27f, size.height * .62f), androidx.compose.ui.geometry.Size(size.width * .46f, size.height * .30f), 22.dp.toPx(), 22.dp.toPx())
+                }
+                Icon(Icons.Outlined.AutoAwesome, null, Modifier.size(56.dp), tint = Color.White)
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                GachaBalance("单抽券", state.inventory.singleTickets)
+                GachaBalance("十连券", state.inventory.tenTickets)
+                GachaBalance("夸夸值", state.profile.praisePoints)
+            }
+            Text("距保底 ${(NON_NORMAL_PITY - state.drawsSinceNonNormal).coerceIn(1, NON_NORMAL_PITY)} 抽", color = Color(0xFF856E79), fontSize = 12.sp)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedButton(onClick = onSingle, modifier = Modifier.weight(1f), border = BorderStroke(1.dp, pink)) {
+                    Text("单抽", color = pink, fontWeight = FontWeight.Bold)
+                }
+                Button(onClick = onTen, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = pink)) {
+                    Text("十连抽", fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GachaBalance(label: String, value: Int) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(value.toString(), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF42384A))
+        Text(label, fontSize = 11.sp, color = Color(0xFF856E79))
     }
 }
 
@@ -164,103 +182,34 @@ private fun rarityColor(rarity: StudyRarity): Color = when (rarity) {
     StudyRarity.Rainbow -> Color(0xFFD8F3EF)
 }
 
-private enum class CollectionView(val label: String) {
-    Scrolls("已解锁画卷"), Theaters("小剧场"), Entertainment("娱乐券"), Fragments("画卷碎片"),
-}
+private data class CollectionTicket(val title: String, val amount: Int, val use: () -> Unit)
 
 @Composable
-internal fun StudyCollectionScreen(state: StudyState, store: PostgraduateExamStore) {
-    var view by remember { mutableStateOf(CollectionView.Scrolls) }
+internal fun StudyCollectionScreen(state: StudyState, store: PostgraduateExamStore, onOpenTheater: () -> Unit) {
     var message by remember { mutableStateOf("") }
+    val tickets = listOf(
+        CollectionTicket("时长券 · 20分钟", state.inventory.douyinTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Douyin) },
+        CollectionTicket("畅玩券 · 120分钟", state.inventory.gameTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Game) },
+        CollectionTicket("视频解锁卡", state.inventory.videoCards) { message = store.redeemEntertainment(StudyEntertainmentKind.Video) },
+        CollectionTicket("番剧兑换券 · 3小时", state.inventory.animeTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Anime) },
+        CollectionTicket("小剧场券", state.inventory.theaterFragments) {
+            message = store.redeemEntertainment(StudyEntertainmentKind.Theater)
+            if (!message.contains("不足") && !message.contains("全部")) onOpenTheater()
+        },
+    )
 
-    LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
-        item {
-            StudyCard {
-                Text("收藏", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                Text("每套画卷只使用自己的专属碎片。", color = StudyDesign.muted)
-                Row(
-                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    CollectionView.entries.forEach { item ->
-                        FilterChip(selected = item == view, onClick = { view = item }, label = { Text(item.label) })
-                    }
-                }
+    LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        items(tickets.chunked(2)) { rowTickets ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                rowTickets.forEach { CollectionTicketCard(it, Modifier.weight(1f)) }
+                if (rowTickets.size == 1) Spacer(Modifier.weight(1f))
             }
         }
-        when (view) {
-            CollectionView.Scrolls -> {
-                if (state.inventory.unlockedScrolls.isEmpty()) {
-                    item { StudyCard { Text("还没有解锁画卷。每套需要${BLUE_FRAGMENTS_PER_SCROLL}枚专属碎片。", color = StudyDesign.muted) } }
-                }
-                items(state.inventory.unlockedScrolls) { title ->
-                    StudyCard {
-                        Icon(Icons.Outlined.Image, null, tint = StudyDesign.muted)
-                        Text(title, fontWeight = FontWeight.Bold)
-                        Text("完整画卷已解锁", color = StudyDesign.muted)
-                    }
-                }
-            }
-            CollectionView.Theaters -> {
-                item {
-                    StudyCard {
-                        Text("剧场碎片：${state.inventory.theaterFragments}", fontWeight = FontWeight.Bold)
-                        Text("每枚可解锁一章小剧场。", color = StudyDesign.muted)
-                        Button(
-                            onClick = { message = store.redeemEntertainment(StudyEntertainmentKind.Theater) },
-                            enabled = state.inventory.theaterFragments > 0,
-                            modifier = Modifier.fillMaxWidth(),
-                        ) { Text("解锁下一章") }
-                    }
-                }
-                if (state.inventory.unlockedTheaters.isEmpty()) item { StudyCard { Text("还没有解锁小剧场", color = StudyDesign.muted) } }
-                items(state.inventory.unlockedTheaters) { title -> StudyCard { Text(title, fontWeight = FontWeight.Bold) } }
-            }
-            CollectionView.Entertainment -> {
-                item {
-                    EntertainmentRow(
-                        title = "抖音时长券 · 20分钟",
-                        amount = state.inventory.douyinTickets,
-                        onUse = { message = store.redeemEntertainment(StudyEntertainmentKind.Douyin) },
-                    )
-                }
-                item {
-                    EntertainmentRow(
-                        title = "游戏畅玩券 · 120分钟",
-                        amount = state.inventory.gameTickets,
-                        onUse = { message = store.redeemEntertainment(StudyEntertainmentKind.Game) },
-                    )
-                }
-                item {
-                    EntertainmentRow(
-                        title = "视频解锁卡",
-                        amount = state.inventory.videoCards,
-                        onUse = { message = store.redeemEntertainment(StudyEntertainmentKind.Video) },
-                    )
-                }
-                item {
-                    EntertainmentRow(
-                        title = "番剧兑换券 · 3小时",
-                        amount = state.inventory.animeTickets,
-                        onUse = { message = store.redeemEntertainment(StudyEntertainmentKind.Anime) },
-                    )
-                }
-                if (state.inventory.unlockedVideos.isNotEmpty()) {
-                    item { Text("已解锁视频", fontSize = 19.sp, fontWeight = FontWeight.Bold) }
-                    items(state.inventory.unlockedVideos) { title -> StudyCard { Text(title, fontWeight = FontWeight.Bold) } }
-                }
-            }
-            CollectionView.Fragments -> {
-                items(blueFragmentCatalog) { title ->
-                    val amount = state.inventory.blueFragments[title] ?: 0
-                    StudyCard {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(title, fontWeight = FontWeight.SemiBold)
-                            Text("$amount/$BLUE_FRAGMENTS_PER_SCROLL", color = StudyDesign.muted)
-                        }
-                        StudyProgress(amount.toFloat() / BLUE_FRAGMENTS_PER_SCROLL)
-                    }
-                }
+        item { Text("画卷碎片", fontSize = 19.sp, fontWeight = FontWeight.Bold) }
+        items(blueFragmentCatalog.chunked(2)) { titles ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                titles.forEach { title -> FragmentProgressCard(title, state.inventory.blueFragments[title] ?: 0, Modifier.weight(1f)) }
+                if (titles.size == 1) Spacer(Modifier.weight(1f))
             }
         }
         item { StudyMessage(message, message.contains("不足")) }
@@ -268,14 +217,23 @@ internal fun StudyCollectionScreen(state: StudyState, store: PostgraduateExamSto
 }
 
 @Composable
-private fun EntertainmentRow(title: String, amount: Int, onUse: () -> Unit) {
-    StudyCard {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text(title, fontWeight = FontWeight.Bold)
-                Text("拥有 $amount", color = StudyDesign.muted)
-            }
-            Button(onClick = onUse, enabled = amount > 0) { Text("使用") }
+private fun CollectionTicketCard(ticket: CollectionTicket, modifier: Modifier = Modifier) {
+    Surface(modifier = modifier, shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 1.dp) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+            Text(ticket.title, fontWeight = FontWeight.Bold, minLines = 2)
+            Text("拥有 ${ticket.amount}", color = StudyDesign.muted)
+            Button(onClick = ticket.use, enabled = ticket.amount > 0, modifier = Modifier.fillMaxWidth()) { Text("使用") }
+        }
+    }
+}
+
+@Composable
+private fun FragmentProgressCard(title: String, amount: Int, modifier: Modifier = Modifier) {
+    Surface(modifier = modifier, shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 1.dp) {
+        Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(title, fontWeight = FontWeight.SemiBold, maxLines = 2, minLines = 2)
+            Text("$amount/$BLUE_FRAGMENTS_PER_SCROLL", color = StudyDesign.muted, fontSize = 12.sp)
+            StudyProgress(amount.toFloat() / BLUE_FRAGMENTS_PER_SCROLL)
         }
     }
 }
@@ -365,7 +323,7 @@ internal fun StudyGuideScreen() {
         item { GuideCard("抽卡概率", "蓝色画卷92.15%；紫色6%（抖音5%、剧场1%）；金色1.5%（游戏券1.2%、视频卡0.3%）；彩色番剧券0.35%。") }
         item { GuideCard("保底", "连续30抽没有紫／金／彩时，第30抽直接出现紫色结果。") }
         item { GuideCard("画卷碎片", "每套画卷需要10枚自己的专属碎片。已满后仍显示本次抽中物，但不重复计入。") }
-        item { GuideCard("收藏", "紫色、金色和彩色奖励抽到后进入对应收藏：抖音券、小剧场碎片、游戏券、视频卡和番剧券。") }
+        item { GuideCard("收藏", "紫色、金色和彩色奖励抽到后进入对应收藏：时长券、小剧场券、畅玩券、视频卡和番剧券。") }
         item { GuideCard("商店", "商店使用夸夸值，每日展示3件商品，手动刷新每天最多一次。") }
         item { GuideCard("番茄钟", "番茄钟提供云雾原版和深夜墨蓝两套配色，支持自定义时长、提前结束按实际分钟结算、角色语音和专注中聊天。") }
     }

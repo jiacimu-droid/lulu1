@@ -13,13 +13,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun StarWishMigratedScreen(onBack: () -> Unit) {
+internal fun StarWishMigratedScreen(onBack: () -> Unit, initialTab: StarWishTab = StarWishTab.Scroll) {
     val context = LocalContext.current
     val store = remember { StarWishStores.main }
     val studyStore = remember { PostgraduateExamStores.main }
     val state by store.state.collectAsState()
     val studyState by studyStore.state.collectAsState()
-    var tab by rememberSaveable { mutableStateOf(StarWishTab.Scroll) }
+    var tab by rememberSaveable(initialTab) { mutableStateOf(initialTab) }
 
     Scaffold(containerColor = StudyDesign.paper) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {

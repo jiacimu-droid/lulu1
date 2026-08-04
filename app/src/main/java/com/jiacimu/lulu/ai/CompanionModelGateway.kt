@@ -331,9 +331,11 @@ class CompanionModelGateway(
     ): Result<ModelReply> = withContext(Dispatchers.IO) {
         val totalStartedAt = System.nanoTime()
         var requestUrl: String? = null
+        var attemptedModel: String? = null
         runCatching {
             val promptStartedAt = System.nanoTime()
             val connection = connectionStore.resolveConnection()
+            attemptedModel = connection.model
             requestUrl = "${connection.baseUrl}/chat/completions"
             val character = MigratedDomainStores.characters.get(characterId)
             val memories = LuluRepositories.memory.snapshot(characterId).take(24)
@@ -402,7 +404,7 @@ class CompanionModelGateway(
             val totalMillis = elapsedMillis(totalStartedAt)
             LuluRepositories.performance.recordGeneration(
                 source = source,
-                title = title,
+                title = attemptedModel?.let { "$title · $it" } ?: title,
                 model = connection.model,
                 provider = runCatching { URL(connection.baseUrl).host }.getOrDefault(connection.baseUrl),
                 reportedInputTokens = reply.inputTokens,
@@ -419,7 +421,7 @@ class CompanionModelGateway(
         }.onFailure { error ->
             LuluRepositories.performance.recordError(
                 source = source,
-                title = title,
+                title = attemptedModel?.let { "$title · $it" } ?: title,
                 message = error.message ?: error::class.java.simpleName,
                 requestUrl = requestUrl,
                 durationMillis = elapsedMillis(totalStartedAt),

@@ -75,7 +75,6 @@ internal fun StudyDailySummaryStrip(state: StudyState) {
     ) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             StudyMetric("今日学习", daily.studyMinutes.minutesLabel(), Modifier.weight(1f))
-            StudyMetric("今日番茄", daily.pomodoros.toString(), Modifier.weight(1f))
             StudyMetric("本周学习", weeklyMinutes.minutesLabel(), Modifier.weight(1f))
         }
     }

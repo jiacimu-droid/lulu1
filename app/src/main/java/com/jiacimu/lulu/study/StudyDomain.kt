@@ -15,7 +15,7 @@ enum class StudyRarity(val label: String) {
 enum class StudyDrawKind(val label: String, val rarity: StudyRarity) {
     OutfitFragment("画卷专属碎片", StudyRarity.Normal),
     DouyinTicket("抖音时长券 · 20分钟", StudyRarity.Rare),
-    TheaterFragment("剧场碎片", StudyRarity.Rare),
+    TheaterFragment("小剧场券", StudyRarity.Rare),
     GameTicket("游戏畅玩券 · 120分钟", StudyRarity.Epic),
     VideoCard("视频解锁卡", StudyRarity.Epic),
     AnimeTicket("番剧兑换券 · 3小时", StudyRarity.Rainbow),
@@ -233,7 +233,7 @@ private fun weightedShopReward(pool: List<Pair<StudyShopReward, Int>>, random: R
 private fun StudyShopReward.toShopItem(id: String): StudyShopItem = when (this) {
     StudyShopReward.SingleTicket -> StudyShopItem(id, "单抽券", "用于一次抽卡", 100, this)
     StudyShopReward.DouyinTicket -> StudyShopItem(id, "抖音时长券", "可使用20分钟", 500, this)
-    StudyShopReward.TheaterFragment -> StudyShopItem(id, "剧场碎片", "可生成或续写小剧场1章", 600, this)
+    StudyShopReward.TheaterFragment -> StudyShopItem(id, "小剧场券", "可生成或续写小剧场1章", 600, this)
     StudyShopReward.GameTicket -> StudyShopItem(id, "游戏畅玩券", "可使用120分钟", 1_000, this)
     StudyShopReward.VideoCard -> StudyShopItem(id, "视频解锁卡", "解锁一项视频收藏", 1_000, this)
     StudyShopReward.AnimeTicket -> StudyShopItem(id, "番剧兑换券", "可观看3小时", 2_000, this)

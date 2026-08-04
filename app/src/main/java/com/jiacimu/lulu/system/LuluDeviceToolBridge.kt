@@ -9,7 +9,6 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
-import android.location.LocationManager
 import android.os.BatteryManager
 import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.ai.LuluAiServices
@@ -110,7 +109,7 @@ object LuluDeviceToolBridge {
         }
     }
 
-    private fun execute(context: Context, characterId: String, characterName: String, tool: String, args: JSONObject): String = runCatching {
+    private suspend fun execute(context: Context, characterId: String, characterName: String, tool: String, args: JSONObject): String = runCatching {
         when (tool.trim().lowercase()) {
             "get_battery" -> battery(context)
             "get_location" -> location(context)
@@ -174,17 +173,12 @@ object LuluDeviceToolBridge {
         return JSONObject().put("success", percent >= 0).put("percent", percent).put("charging", charging).toString()
     }
 
-    private fun location(context: Context): String {
+    private suspend fun location(context: Context): String {
         check(ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             "尚未授予精确位置权限"
         }
-        val manager = context.getSystemService(LocationManager::class.java)
-        val candidates = manager.getProviders(true)
-            .mapNotNull { provider -> runCatching { manager.getLastKnownLocation(provider) }.getOrNull() }
-        val best = candidates.maxWithOrNull(
-            compareBy<Location> { it.time }
-                .thenByDescending { -it.accuracy },
-        ) ?: error("暂时没有可用定位，请先打开系统定位并等待一次定位")
+        val best = LuluLocationProvider.freshLocation(context)
+            ?: error("暂时没有可用定位，请确认系统定位已开启后再试")
 
         val ageMillis = (System.currentTimeMillis() - best.time).coerceAtLeast(0L)
         val stale = ageMillis > 10 * 60_000L

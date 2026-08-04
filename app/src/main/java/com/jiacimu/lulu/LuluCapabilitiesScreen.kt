@@ -16,6 +16,7 @@ import android.os.BatteryManager
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
+import android.provider.AlarmClock
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -38,20 +39,25 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.system.LuluAccessibilityService
 import com.jiacimu.lulu.system.LuluNotificationListenerService
+import com.jiacimu.lulu.system.LuluLocationProvider
+import kotlinx.coroutines.launch
 import java.time.Instant
 
-private val CapabilityPaper = Color(0xFFF8FAF8)
-private val CapabilityCard = Color(0xFFFCFDFC)
-private val CapabilityBorder = Color(0xFFDDE7E3)
-private val CapabilityInk = Color(0xFF34413F)
-private val CapabilityMuted = Color(0xFF7D8C88)
-private val CapabilityOn = Color(0xFFDCEAE6)
+private val CapabilityPaper = Color.White
+private val CapabilityCard = Color(0xFFFCFCFC)
+private val CapabilityBorder = Color(0xFFE7E7E7)
+private val CapabilityInk = Color(0xFF1D1D1F)
+private val CapabilityMuted = Color(0xFF7A7A7E)
+private val CapabilityOn = Color(0xFFF4F4F4)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LuluCapabilitiesScreen(onBack: () -> Unit) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var refreshKey by remember { mutableIntStateOf(0) }
+    var freshLocationLabel by remember { mutableStateOf<String?>(null) }
+    var locating by remember { mutableStateOf(false) }
     val accessibility by LuluAccessibilityService.state.collectAsState()
     val notificationConnected by LuluNotificationListenerService.isConnected.collectAsState()
 
@@ -69,6 +75,23 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
 
     val snapshot = remember(refreshKey, accessibility.connected, notificationConnected) {
         CapabilitySnapshot.read(context, accessibility.connected, notificationConnected)
+    }
+    val library by com.jiacimu.lulu.ai.LuluAiServices.connectionStore.library.collectAsState()
+    val activeArchive = library.archives.firstOrNull { it.id == library.activeArchiveId }
+    val backgroundModelLabel = activeArchive?.let(com.jiacimu.lulu.ai.LuluAiServices.connectionStore::archiveLabel) ?: "尚未选择模型"
+
+    fun refreshLocation() {
+        if (!snapshot.preciseLocation || locating) return
+        locating = true
+        scope.launch {
+            freshLocationLabel = LuluLocationProvider.freshLocation(context)?.let(LuluLocationProvider::label)
+                ?: "暂时没有获取到新位置，请确认系统定位已开启"
+            locating = false
+        }
+    }
+
+    LaunchedEffect(refreshKey, snapshot.preciseLocation) {
+        if (snapshot.preciseLocation) refreshLocation()
     }
 
     Scaffold(
@@ -88,13 +111,13 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item {
-                CapabilitySummaryCard(snapshot)
+                CapabilitySummaryCard(snapshot, backgroundModelLabel)
             }
             item {
                 CapabilityRow(
                     Icons.Outlined.LocationOn,
                     "精确位置",
-                    snapshot.locationLabel,
+                    if (locating) "正在主动获取高精度位置…" else freshLocationLabel ?: snapshot.locationLabel,
                     snapshot.preciseLocation,
                 ) {
                     runtimeLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION))
@@ -111,10 +134,8 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                 }
             }
             item {
-                CapabilityRow(Icons.Outlined.Alarm, "精确闹钟", "用于准时叫醒、提醒和监督", snapshot.exactAlarm) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        open(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:${context.packageName}")))
-                    }
+                CapabilityRow(Icons.Outlined.Alarm, "系统闹钟", "角色设置的闹钟会写入手机时钟应用并由系统响铃", true) {
+                    open(Intent(AlarmClock.ACTION_SHOW_ALARMS))
                 }
             }
             item {
@@ -168,21 +189,12 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                     open(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:${context.packageName}")))
                 }
             }
-            item {
-                Text(
-                    "打开无障碍权限后，露露已具备读取当前前台应用、提取可见文字以及执行返回、主页、最近任务、通知栏和界面点击的本机能力。后续角色工具层会直接调用这些真实桥接，不再假装执行。",
-                    color = CapabilityMuted,
-                    fontSize = 12.sp,
-                    lineHeight = 18.sp,
-                    modifier = Modifier.padding(6.dp),
-                )
-            }
         }
     }
 }
 
 @Composable
-private fun CapabilitySummaryCard(snapshot: CapabilitySnapshot) {
+private fun CapabilitySummaryCard(snapshot: CapabilitySnapshot, backgroundModelLabel: String) {
     Surface(
         shape = RoundedCornerShape(22.dp),
         color = CapabilityCard,
@@ -193,6 +205,7 @@ private fun CapabilitySummaryCard(snapshot: CapabilitySnapshot) {
             Text("电量 ${snapshot.batteryPercent}%${if (snapshot.charging) " · 正在充电" else ""}", color = CapabilityInk)
             if (snapshot.preciseLocation) Text(snapshot.locationLabel, color = CapabilityMuted, fontSize = 12.sp)
             if (snapshot.usageAccess) Text(snapshot.foregroundAppLabel, color = CapabilityMuted, fontSize = 12.sp)
+            Text("后台感知模型：$backgroundModelLabel", color = CapabilityMuted, fontSize = 12.sp)
         }
     }
 }
@@ -212,7 +225,7 @@ private fun CapabilityRow(
         border = BorderStroke(1.dp, CapabilityBorder),
     ) {
         Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Surface(shape = RoundedCornerShape(12.dp), color = if (enabled) CapabilityOn else Color(0xFFF0F2F1)) {
+            Surface(shape = RoundedCornerShape(12.dp), color = CapabilityOn) {
                 Icon(icon, null, tint = CapabilityInk, modifier = Modifier.padding(9.dp).size(22.dp))
             }
             Spacer(Modifier.width(12.dp))
@@ -220,7 +233,7 @@ private fun CapabilityRow(
                 Text(title, color = CapabilityInk, fontWeight = FontWeight.Bold)
                 Text(subtitle, color = CapabilityMuted, fontSize = 12.sp, lineHeight = 16.sp)
             }
-            Text(if (enabled) "已开启" else "去开启", color = if (enabled) Color(0xFF55766E) else CapabilityMuted, fontSize = 12.sp)
+            Text(if (enabled) "已开启" else "去开启", color = if (enabled) CapabilityInk else CapabilityMuted, fontSize = 12.sp)
             Spacer(Modifier.width(4.dp))
             Icon(Icons.Outlined.ChevronRight, null, tint = CapabilityMuted)
         }
@@ -319,10 +332,7 @@ private fun Context.hasAccessibilityAccess(): Boolean {
 
 private fun Context.lastLocationLabel(): String {
     if (!granted(Manifest.permission.ACCESS_FINE_LOCATION)) return "未授权"
-    val manager = getSystemService(LocationManager::class.java)
-    val location = manager.getProviders(true)
-        .mapNotNull { provider -> runCatching { manager.getLastKnownLocation(provider) }.getOrNull() }
-        .maxByOrNull { it.time }
+    val location = LuluLocationProvider.bestSystemLocation(this)
     return location?.let {
         "位置：%.6f, %.6f · 精度约 %.0f 米".format(it.latitude, it.longitude, it.accuracy)
     } ?: "已授权，等待设备产生新的定位"

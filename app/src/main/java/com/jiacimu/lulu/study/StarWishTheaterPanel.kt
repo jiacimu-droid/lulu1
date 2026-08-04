@@ -304,7 +304,7 @@ private fun TheaterReader(
                                     influence = ""
                                     message = "第 $chapterNumber 章已生成"
                                 } else {
-                                    message = "剧场碎片不足"
+                                    message = "小剧场券不足"
                                 }
                             }.onFailure { error ->
                                 message = error.message ?: "章节生成失败"
