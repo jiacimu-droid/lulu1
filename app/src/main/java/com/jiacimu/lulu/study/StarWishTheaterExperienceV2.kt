@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.study
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -40,6 +41,14 @@ internal fun StarWishTheaterContentV2(
         (customTheaters + StarWishRules.theaters).distinctBy { it.title }
     }
     val openedSeed = allTheaters.firstOrNull { it.title == openedTitle }
+
+    BackHandler(enabled = mode != TheaterV2Mode.BOOKSHELF) {
+        mode = when (mode) {
+            TheaterV2Mode.PLANNER, TheaterV2Mode.GENERATOR -> if (openedSeed == null) TheaterV2Mode.BOOKSHELF else TheaterV2Mode.READER
+            TheaterV2Mode.READER -> TheaterV2Mode.BOOKSHELF
+            TheaterV2Mode.BOOKSHELF -> TheaterV2Mode.BOOKSHELF
+        }
+    }
 
     when (mode) {
         TheaterV2Mode.BOOKSHELF -> TheaterBookshelfV2(

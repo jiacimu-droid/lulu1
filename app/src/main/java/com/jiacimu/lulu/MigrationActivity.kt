@@ -10,6 +10,7 @@ import com.jiacimu.lulu.data.ChatTurnConsistencyAutomation
 import com.jiacimu.lulu.data.DeterministicMemoryAutomation
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.MemoryModelRuntime
 import com.jiacimu.lulu.data.ProactiveMessageAutomation
 import com.jiacimu.lulu.data.RoleReadablePerformanceBridge
 import com.jiacimu.lulu.data.UserDataUpgradeGuard
@@ -32,6 +33,7 @@ class MigrationActivity : ComponentActivity() {
         LuluRepositories.worldBook.initialize(appContext)
         MigratedDomainStores.initialize(appContext)
         LuluAiServices.initialize(appContext)
+        MemoryModelRuntime.initialize(appContext)
         UserDataUpgradeGuard.refreshBackup(appContext)
         LuluDeviceToolBridge.initialize(appContext)
         LuluGames.initialize(appContext)

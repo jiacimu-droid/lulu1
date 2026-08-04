@@ -3,6 +3,7 @@ package com.jiacimu.lulu.ai
 import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.RelevantMemoryRecall
 import com.jiacimu.lulu.data.TokenBreakdownItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -281,6 +282,50 @@ class ModelConnectionStore private constructor(context: Context) {
 class CompanionModelGateway(
     private val connectionStore: ModelConnectionStore,
 ) {
+    suspend fun embed(connection: ModelConnection, inputs: List<String>): Result<List<FloatArray>> = withContext(Dispatchers.IO) {
+        runCatching {
+            check(inputs.isNotEmpty()) { "Embedding 输入不能为空" }
+            val json = requestPostJson(
+                url = "${connection.baseUrl.trimEnd('/')}/embeddings",
+                headers = mapOf("Authorization" to "Bearer ${connection.apiKey}"),
+                body = JSONObject().put("model", connection.model).put("input", JSONArray(inputs)),
+            )
+            val data = json.optJSONArray("data") ?: error("Embedding 接口没有返回 data")
+            val indexed = buildList {
+                for (index in 0 until data.length()) {
+                    val item = data.optJSONObject(index) ?: continue
+                    val values = item.optJSONArray("embedding") ?: continue
+                    add((item.optInt("index", index)) to FloatArray(values.length()) { position -> values.optDouble(position).toFloat() })
+                }
+            }.sortedBy { it.first }.map { it.second }
+            check(indexed.size == inputs.size) { "Embedding 返回数量与输入不一致" }
+            indexed
+        }
+    }
+
+    suspend fun rerank(connection: ModelConnection, query: String, documents: List<String>): Result<List<Int>> = withContext(Dispatchers.IO) {
+        runCatching {
+            check(documents.isNotEmpty()) { "Rerank 文档不能为空" }
+            val json = requestPostJson(
+                url = "${connection.baseUrl.trimEnd('/')}/rerank",
+                headers = mapOf("Authorization" to "Bearer ${connection.apiKey}"),
+                body = JSONObject()
+                    .put("model", connection.model)
+                    .put("query", query)
+                    .put("documents", JSONArray(documents))
+                    .put("top_n", documents.size)
+                    .put("return_documents", false),
+            )
+            val results = json.optJSONArray("results") ?: json.optJSONArray("data") ?: error("Rerank 接口没有返回 results")
+            buildList {
+                for (index in 0 until results.length()) {
+                    val item = results.optJSONObject(index) ?: continue
+                    add(item.optInt("index", -1))
+                }
+            }.filter { it in documents.indices }.distinct()
+        }
+    }
+
     suspend fun fetchModels(baseUrl: String, apiKey: String): Result<List<String>> = withContext(Dispatchers.IO) {
         val cleanUrl = ModelConnectionStore.normalizeBaseUrl(baseUrl)
         val cleanKey = apiKey.trim()
@@ -328,17 +373,18 @@ class CompanionModelGateway(
         title: String,
         temperature: Double = 0.8,
         maxTokens: Int = 500,
+        connectionOverride: ModelConnection? = null,
     ): Result<ModelReply> = withContext(Dispatchers.IO) {
         val totalStartedAt = System.nanoTime()
         var requestUrl: String? = null
         var attemptedModel: String? = null
         runCatching {
             val promptStartedAt = System.nanoTime()
-            val connection = connectionStore.resolveConnection()
+            val connection = connectionOverride ?: connectionStore.resolveConnection()
             attemptedModel = connection.model
             requestUrl = "${connection.baseUrl}/chat/completions"
             val character = MigratedDomainStores.characters.get(characterId)
-            val memories = LuluRepositories.memory.snapshot(characterId).take(24)
+            val memories = RelevantMemoryRecall.recall(characterId, "$facts\n$instruction", limit = 12)
             val lexicon = LuluRepositories.lexicon.snapshot(characterId).take(24)
             val allWorldBooks = LuluRepositories.worldBook.snapshot()
             val globalWorldBooks = allWorldBooks.filter { entry ->

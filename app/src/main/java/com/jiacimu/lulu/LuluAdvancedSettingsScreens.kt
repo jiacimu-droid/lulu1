@@ -145,8 +145,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         }
         if (provider == "minimax") item {
             SettingsSectionCard("MiniMax 接口") {
-                Text("使用 MiniMax Speech 2.8 生成角色语音；请求失败时自动回退到系统语音。", color = AdvancedMuted, fontSize = 12.sp, lineHeight = 18.sp)
-                Spacer(Modifier.height(6.dp))
                 AdvancedChoiceField(
                     label = "接口线路",
                     value = minimaxEndpoint,
@@ -154,7 +152,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                     onSelected = { minimaxEndpoint = it },
                 )
                 Spacer(Modifier.height(10.dp))
-                AdvancedTextField("API Key", minimaxApiKey, { minimaxApiKey = it }, "填写 MiniMax API Key", password = true)
+                AdvancedTextField("API Key", minimaxApiKey, { minimaxApiKey = it }, "填写 MiniMax API Key")
                 Spacer(Modifier.height(10.dp))
                 AdvancedChoiceField(
                     label = "语音模型",
@@ -206,6 +204,7 @@ fun LuluMemorySettingsScreen(onBack: () -> Unit) {
     var rerankUrl by remember { mutableStateOf(prefs.getString("memory_rerank_url", "") ?: "") }
     var rerankKey by remember { mutableStateOf(prefs.getString("memory_rerank_key", "") ?: "") }
     var rerankModel by remember { mutableStateOf(prefs.getString("memory_rerank_model", "") ?: "") }
+    var saveNotice by remember { mutableStateOf("") }
 
     fun save() {
         prefs.edit()
@@ -221,6 +220,12 @@ fun LuluMemorySettingsScreen(onBack: () -> Unit) {
             .putString("memory_rerank_key", rerankKey.trim())
             .putString("memory_rerank_model", rerankModel.trim())
             .apply()
+        saveNotice = buildString {
+            append("已保存")
+            append("\n记忆抽取：${extractionModel.ifBlank { "沿用当前聊天模型" }}")
+            append("\nEmbedding：${if (!vectorEnabled) "未启用" else embeddingModel.ifBlank { "未选择模型，将使用本地召回" }}")
+            append("\nRerank：${if (!rerankEnabled) "未启用" else rerankModel.ifBlank { "未选择模型，将跳过重排" }}")
+        }
     }
 
     AdvancedSettingsScaffold(title = "记忆设置", onBack = onBack) {
@@ -284,6 +289,11 @@ fun LuluMemorySettingsScreen(onBack: () -> Unit) {
                 colors = ButtonDefaults.buttonColors(containerColor = AdvancedAccent),
             ) { Text("保存记忆设置") }
         }
+        if (saveNotice.isNotBlank()) item {
+            Surface(color = Color(0xFFF1F1F1), shape = RoundedCornerShape(14.dp)) {
+                Text(saveNotice, Modifier.fillMaxWidth().padding(13.dp), color = AdvancedInk)
+            }
+        }
     }
 }
 
@@ -297,6 +307,7 @@ fun LuluImageSettingsScreen(onBack: () -> Unit) {
     var model by remember { mutableStateOf(prefs.getString("image_model", "") ?: "") }
     var size by remember { mutableStateOf(prefs.getString("image_size", "1024x1024") ?: "1024x1024") }
     var negativePrompt by remember { mutableStateOf(prefs.getString("image_negative_prompt", "") ?: "") }
+    var saveNotice by remember { mutableStateOf("") }
 
     AdvancedSettingsScaffold(title = "生图设置", onBack = onBack) {
         item {
@@ -333,10 +344,16 @@ fun LuluImageSettingsScreen(onBack: () -> Unit) {
                         .putString("image_size", size.trim())
                         .putString("image_negative_prompt", negativePrompt.trim())
                         .apply()
+                    saveNotice = if (model.isBlank()) "已保存；尚未选择生图模型" else "已保存并选择：$model"
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = AdvancedAccent),
             ) { Text("保存生图设置") }
+        }
+        if (saveNotice.isNotBlank()) item {
+            Surface(color = Color(0xFFF1F1F1), shape = RoundedCornerShape(14.dp)) {
+                Text(saveNotice, Modifier.fillMaxWidth().padding(13.dp), color = AdvancedInk)
+            }
         }
     }
 }

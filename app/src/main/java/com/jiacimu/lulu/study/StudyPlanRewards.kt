@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -73,9 +74,14 @@ internal fun StudyGachaScreen(state: StudyState, store: PostgraduateExamStore) {
     var results by remember { mutableStateOf(emptyList<StudyDrawResult>()) }
     var message by remember { mutableStateOf("") }
 
-    LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(StudyDesign.paper, StudyDesign.wheatSoft.copy(alpha = .55f)))),
+        contentPadding = PaddingValues(0.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
         item {
             CandyGachaCard(
+                modifier = Modifier.fillParentMaxHeight(),
                 state = state,
                 onSingle = {
                     results = store.drawSingle()
@@ -123,48 +129,51 @@ internal fun StudyGachaScreen(state: StudyState, store: PostgraduateExamStore) {
 }
 
 @Composable
-private fun CandyGachaCard(state: StudyState, onSingle: () -> Unit, onTen: () -> Unit) {
-    val pink = Color(0xFFFF88A7)
-    val navy = Color(0xFF42384A)
-    Surface(
-        shape = RoundedCornerShape(30.dp),
-        color = Color(0xFFFFF6F8),
-        border = BorderStroke(1.dp, Color(0xFFFFD3DE)),
-        shadowElevation = 4.dp,
-    ) {
+private fun CandyGachaCard(modifier: Modifier = Modifier, state: StudyState, onSingle: () -> Unit, onTen: () -> Unit) {
+    Box(modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         Column(
-            Modifier.fillMaxWidth().background(Brush.verticalGradient(listOf(Color(0xFFFFF7FA), Color(0xFFFFEAF0)))).padding(18.dp),
+            Modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 18.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.Center,
         ) {
-            Text("星糖扭蛋机", fontSize = 25.sp, fontWeight = FontWeight.Black, color = navy)
-            Text("把今天的努力，换成一颗闪闪发光的糖", color = Color(0xFF856E79), fontSize = 13.sp)
-            Box(Modifier.fillMaxWidth().height(210.dp), contentAlignment = Alignment.Center) {
+            Text("学习扭蛋机", fontSize = 27.sp, fontWeight = FontWeight.Black, color = StudyDesign.ink)
+            Spacer(Modifier.height(5.dp))
+            Text("每一次专注，都可能掉落新的收藏", color = StudyDesign.muted, fontSize = 13.sp)
+            Spacer(Modifier.height(16.dp))
+            Box(Modifier.fillMaxWidth().height(286.dp), contentAlignment = Alignment.Center) {
                 Canvas(Modifier.fillMaxSize()) {
-                    drawCircle(Color(0xFFFFDDE7), size.minDimension * .42f, Offset(size.width / 2, size.height * .42f))
-                    drawCircle(Color(0xFFF7C8D6), 18.dp.toPx(), Offset(size.width * .38f, size.height * .35f))
-                    drawCircle(Color(0xFFFFF1A8), 15.dp.toPx(), Offset(size.width * .53f, size.height * .29f))
-                    drawCircle(Color(0xFFC9E9F7), 17.dp.toPx(), Offset(size.width * .61f, size.height * .42f))
+                    val center = Offset(size.width / 2, size.height * .38f)
+                    val domeRadius = size.minDimension * .31f
+                    drawCircle(Color.White.copy(alpha = .72f), domeRadius, center)
+                    drawCircle(StudyDesign.border, domeRadius, center, style = Stroke(3.dp.toPx()))
+                    drawCircle(Color(0xFFDCEAF4), 21.dp.toPx(), Offset(center.x - 50.dp.toPx(), center.y + 24.dp.toPx()))
+                    drawCircle(Color(0xFFE8DDF2), 19.dp.toPx(), Offset(center.x - 9.dp.toPx(), center.y + 38.dp.toPx()))
+                    drawCircle(Color(0xFFFFEDB8), 22.dp.toPx(), Offset(center.x + 37.dp.toPx(), center.y + 22.dp.toPx()))
+                    drawCircle(Color(0xFFD8F3EF), 17.dp.toPx(), Offset(center.x + 7.dp.toPx(), center.y - 5.dp.toPx()))
                     drawRoundRect(
-                        color = Color(0xFFFFAFC4),
-                        topLeft = Offset(size.width * .27f, size.height * .62f),
-                        size = androidx.compose.ui.geometry.Size(size.width * .46f, size.height * .30f),
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(22.dp.toPx()),
+                        color = StudyDesign.wheat,
+                        topLeft = Offset(size.width * .24f, size.height * .63f),
+                        size = androidx.compose.ui.geometry.Size(size.width * .52f, size.height * .25f),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(25.dp.toPx()),
                     )
+                    drawCircle(StudyDesign.ink, 21.dp.toPx(), Offset(size.width / 2, size.height * .72f))
+                    drawCircle(StudyDesign.card, 9.dp.toPx(), Offset(size.width / 2, size.height * .72f))
                 }
-                Icon(Icons.Outlined.AutoAwesome, null, Modifier.size(56.dp), tint = Color.White)
             }
+            Spacer(Modifier.height(6.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 GachaBalance("单抽券", state.inventory.singleTickets)
                 GachaBalance("十连券", state.inventory.tenTickets)
                 GachaBalance("夸夸值", state.profile.praisePoints)
             }
-            Text("距保底 ${(NON_NORMAL_PITY - state.drawsSinceNonNormal).coerceIn(1, NON_NORMAL_PITY)} 抽", color = Color(0xFF856E79), fontSize = 12.sp)
+            Spacer(Modifier.height(9.dp))
+            Text("距保底 ${(NON_NORMAL_PITY - state.drawsSinceNonNormal).coerceIn(1, NON_NORMAL_PITY)} 抽", color = StudyDesign.muted, fontSize = 12.sp)
+            Spacer(Modifier.height(12.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedButton(onClick = onSingle, modifier = Modifier.weight(1f), border = BorderStroke(1.dp, pink)) {
-                    Text("单抽", color = pink, fontWeight = FontWeight.Bold)
+                OutlinedButton(onClick = onSingle, modifier = Modifier.weight(1f), border = BorderStroke(1.dp, StudyDesign.wheat)) {
+                    Text("单抽", color = StudyDesign.ink, fontWeight = FontWeight.Bold)
                 }
-                Button(onClick = onTen, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = pink)) {
+                Button(onClick = onTen, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.wheat, contentColor = StudyDesign.ink)) {
                     Text("十连抽", fontWeight = FontWeight.Bold)
                 }
             }
@@ -175,8 +184,8 @@ private fun CandyGachaCard(state: StudyState, onSingle: () -> Unit, onTen: () ->
 @Composable
 private fun GachaBalance(label: String, value: Int) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value.toString(), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF42384A))
-        Text(label, fontSize = 11.sp, color = Color(0xFF856E79))
+        Text(value.toString(), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = StudyDesign.ink)
+        Text(label, fontSize = 11.sp, color = StudyDesign.muted)
     }
 }
 
@@ -193,8 +202,8 @@ private data class CollectionTicket(val title: String, val amount: Int, val use:
 internal fun StudyCollectionScreen(state: StudyState, store: PostgraduateExamStore, onOpenTheater: () -> Unit) {
     var message by remember { mutableStateOf("") }
     val tickets = listOf(
-        CollectionTicket("时长券 · 20分钟", state.inventory.douyinTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Douyin) },
-        CollectionTicket("畅玩券 · 120分钟", state.inventory.gameTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Game) },
+        CollectionTicket("抖音时长券 · 20分钟", state.inventory.douyinTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Douyin) },
+        CollectionTicket("游戏畅玩券 · 120分钟", state.inventory.gameTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Game) },
         CollectionTicket("视频解锁卡", state.inventory.videoCards) { message = store.redeemEntertainment(StudyEntertainmentKind.Video) },
         CollectionTicket("番剧兑换券 · 3小时", state.inventory.animeTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Anime) },
         CollectionTicket("小剧场券", state.inventory.theaterFragments) {
@@ -204,12 +213,7 @@ internal fun StudyCollectionScreen(state: StudyState, store: PostgraduateExamSto
     )
 
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        items(tickets.chunked(2)) { rowTickets ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                rowTickets.forEach { CollectionTicketCard(it, Modifier.weight(1f)) }
-                if (rowTickets.size == 1) Spacer(Modifier.weight(1f))
-            }
-        }
+        items(tickets) { CollectionTicketCard(it) }
         item { Text("画卷碎片", fontSize = 19.sp, fontWeight = FontWeight.Bold) }
         items(blueFragmentCatalog.chunked(2)) { titles ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -223,11 +227,17 @@ internal fun StudyCollectionScreen(state: StudyState, store: PostgraduateExamSto
 
 @Composable
 private fun CollectionTicketCard(ticket: CollectionTicket, modifier: Modifier = Modifier) {
-    Surface(modifier = modifier, shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 1.dp) {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-            Text(ticket.title, fontWeight = FontWeight.Bold, minLines = 2)
-            Text("拥有 ${ticket.amount}", color = StudyDesign.muted)
-            Button(onClick = ticket.use, enabled = ticket.amount > 0, modifier = Modifier.fillMaxWidth()) { Text("使用") }
+    Surface(modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp), color = StudyDesign.card, border = BorderStroke(1.dp, StudyDesign.border)) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(ticket.title, fontWeight = FontWeight.Bold)
+                Text("拥有 ${ticket.amount}", color = StudyDesign.muted, fontSize = 12.sp)
+            }
+            Button(
+                onClick = ticket.use,
+                enabled = ticket.amount > 0,
+                colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.wheat, contentColor = StudyDesign.ink),
+            ) { Text("使用") }
         }
     }
 }

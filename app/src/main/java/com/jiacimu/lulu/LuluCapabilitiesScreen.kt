@@ -114,6 +114,12 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                 CapabilitySummaryCard(snapshot, backgroundModelLabel)
             }
             item {
+                CapabilityInfoCard(
+                    title = "后台感知链路",
+                    body = "当前调用：$backgroundModelLabel\nApp 进程存活时每15分钟检查一次；仅在离开聊天至少75分钟、非免打扰时段且未超过频率限制后，读取最近对话、挂心、承诺和相关记忆，让角色决定发消息、来电或保持沉默。",
+                )
+            }
+            item {
                 CapabilityRow(
                     Icons.Outlined.LocationOn,
                     "精确位置",
@@ -189,6 +195,21 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                     open(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:${context.packageName}")))
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun CapabilityInfoCard(title: String, body: String) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        color = CapabilityCard,
+        border = BorderStroke(1.dp, CapabilityBorder),
+    ) {
+        Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Text(title, color = CapabilityInk, fontWeight = FontWeight.Bold)
+            Text(body, color = CapabilityMuted, fontSize = 12.sp, lineHeight = 17.sp)
         }
     }
 }

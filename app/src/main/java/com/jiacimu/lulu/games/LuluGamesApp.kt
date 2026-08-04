@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.games
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -59,6 +60,12 @@ fun LuluGamesApp(onBack: () -> Unit) {
     val state by store.state.collectAsState()
     var route by remember { mutableStateOf<GameRoute>(GameRoute.Home) }
 
+    fun stepBack() {
+        if (route == GameRoute.Home) onBack() else route = GameRoute.Home
+    }
+
+    BackHandler { stepBack() }
+
     if (route == GameRoute.Roleplay) {
         FormalRoleplayCampaignScreen(
             store = store,
@@ -73,9 +80,7 @@ fun LuluGamesApp(onBack: () -> Unit) {
             TopAppBar(
                 title = { Text(route.title(), fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        if (route == GameRoute.Home) onBack() else route = GameRoute.Home
-                    }) {
+                    IconButton(onClick = ::stepBack) {
                         Icon(Icons.Outlined.ArrowBack, "返回")
                     }
                 },

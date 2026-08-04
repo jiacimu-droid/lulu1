@@ -8,6 +8,8 @@ import android.location.LocationManager
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.gms.location.CurrentLocationRequest
+import com.google.android.gms.location.Granularity
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
@@ -23,8 +25,14 @@ object LuluLocationProvider {
                 suspendCancellableCoroutine<Location?> { continuation ->
                     val cancellation = CancellationTokenSource()
                     continuation.invokeOnCancellation { cancellation.cancel() }
+                    val request = CurrentLocationRequest.Builder()
+                        .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                        .setGranularity(Granularity.GRANULARITY_FINE)
+                        .setMaxUpdateAgeMillis(0L)
+                        .setDurationMillis(15_000L)
+                        .build()
                     LocationServices.getFusedLocationProviderClient(context)
-                        .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cancellation.token)
+                        .getCurrentLocation(request, cancellation.token)
                         .addOnSuccessListener { location ->
                             if (continuation.isActive) continuation.resume(location)
                         }

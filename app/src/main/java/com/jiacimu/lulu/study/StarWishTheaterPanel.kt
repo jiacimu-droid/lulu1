@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.study
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,6 +27,7 @@ internal fun StarWishTheaterContent(
     studyStore: PostgraduateExamStore,
 ) {
     var openedTheater by rememberSaveable { mutableStateOf<String?>(null) }
+    BackHandler(enabled = openedTheater != null) { openedTheater = null }
 
     if (openedTheater == null) {
         TheaterBookshelf(

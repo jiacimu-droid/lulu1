@@ -1,11 +1,13 @@
 package com.jiacimu.lulu.study
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -17,11 +19,26 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun PostgraduateExamApp(onBack: () -> Unit, onOpenTheater: () -> Unit) {
     val store = remember { PostgraduateExamStores.main }
+    val context = LocalContext.current
     val state by store.state.collectAsState()
     var route by remember { mutableStateOf<StudyRoute>(StudyRoute.Section(StudySection.Today)) }
 
+    fun stepBack() {
+        when (val current = route) {
+            StudyRoute.Focus -> route = StudyRoute.Section(StudySection.Today)
+            is StudyRoute.Section -> if (current.section == StudySection.Today) {
+                onBack()
+            } else {
+                route = StudyRoute.Section(StudySection.Today)
+            }
+        }
+    }
+
+    BackHandler { stepBack() }
+
     LaunchedEffect(Unit) {
         store.syncDate()
+        SelfDirectedStudyPlanSeed.syncRollingPlan(context, store)
         SelfDirectedStudyPlanSeed.ensureDailyReminders(store)
     }
 
@@ -52,7 +69,7 @@ fun PostgraduateExamApp(onBack: () -> Unit, onOpenTheater: () -> Unit) {
                             }
                         },
                         navigationIcon = {
-                            IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
+                            IconButton(onClick = ::stepBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(containerColor = StudyDesign.paper),
                     )

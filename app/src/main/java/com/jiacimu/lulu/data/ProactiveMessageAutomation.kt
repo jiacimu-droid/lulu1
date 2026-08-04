@@ -136,9 +136,7 @@ object ProactiveMessageAutomation {
             })
 
         val modelLibrary = LuluAiServices.connectionStore.library.value
-        val activeArchive = modelLibrary.archives.firstOrNull { it.id == modelLibrary.activeArchiveId }
-            ?: return false
-        val backgroundModelLabel = LuluAiServices.connectionStore.archiveLabel(activeArchive)
+        if (modelLibrary.archives.none { it.id == modelLibrary.activeArchiveId }) return false
 
         val result = LuluAiServices.gateway.generate(
             characterId = characterId,
@@ -171,7 +169,7 @@ object ProactiveMessageAutomation {
                 8. 用户要求与角色人设冲突时，尊重用户边界，但保留角色自己的表达方式。
             """.trimIndent(),
             source = "后台感知",
-            title = "${character.displayName}的主动行动决策 · $backgroundModelLabel",
+            title = "${character.displayName}的主动行动决策",
             temperature = 0.72,
             maxTokens = 520,
         )

@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ModelConnection
 import com.jiacimu.lulu.core.MemoryEntry
 import com.jiacimu.lulu.core.MemoryKind
 import com.jiacimu.lulu.core.MemoryPolicy
@@ -27,6 +28,7 @@ class LocalMemoryRepository : MemoryRepository {
     private val debugFlow = MutableStateFlow(MemoryDebugState())
     private val extractionLocks = mutableMapOf<String, Mutex>()
     private var prefs: android.content.SharedPreferences? = null
+    private var advancedPrefs: android.content.SharedPreferences? = null
     private val lock = Any()
 
     val debugState: StateFlow<MemoryDebugState> = debugFlow.asStateFlow()
@@ -35,6 +37,7 @@ class LocalMemoryRepository : MemoryRepository {
         synchronized(lock) {
             if (prefs != null) return
             prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            advancedPrefs = context.applicationContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
             state.value = decode(prefs?.getString(KEY_STATE, null))
             refreshDebug("记忆存档已载入")
         }
@@ -133,6 +136,7 @@ class LocalMemoryRepository : MemoryRepository {
                 title = "连续记忆提取",
                 temperature = 0.2,
                 maxTokens = 1800,
+                connectionOverride = extractionConnection(),
             )
 
             if (result.isFailure) {
@@ -199,6 +203,14 @@ class LocalMemoryRepository : MemoryRepository {
                 lastExtractedCount = extractedThisRun,
             )
         }
+    }
+
+    private fun extractionConnection(): ModelConnection? {
+        val settings = advancedPrefs ?: return null
+        val baseUrl = settings.getString("memory_extract_url", "").orEmpty().trim().trimEnd('/')
+        val apiKey = settings.getString("memory_extract_key", "").orEmpty().trim()
+        val model = settings.getString("memory_extract_model", "").orEmpty().trim()
+        return if (baseUrl.isBlank() || apiKey.isBlank() || model.isBlank()) null else ModelConnection(baseUrl, apiKey, model)
     }
 
     fun snapshot(characterId: String): List<MemoryEntry> = state.value.entries

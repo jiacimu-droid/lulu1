@@ -55,6 +55,21 @@ internal fun SavedConfigurationModelPicker(
         val clean = query.trim()
         (if (clean.isBlank()) models else models.filter { it.contains(clean, ignoreCase = true) }).take(120)
     }
+    val recommendations = remember(pickerKey) {
+        when {
+            pickerKey.contains("embedding") -> listOf(
+                "BAAI/bge-m3" to "首选 · 中文记忆够用",
+                "Qwen/Qwen3-Embedding-0.6B" to "轻量省钱",
+                "Qwen/Qwen3-Embedding-4B" to "效果更强",
+            )
+            pickerKey.contains("rerank") -> listOf(
+                "BAAI/bge-reranker-v2-m3" to "首选 · 稳定省心",
+                "Qwen/Qwen3-Reranker-0.6B" to "轻量省钱",
+                "Qwen/Qwen3-Reranker-4B" to "效果更强",
+            )
+            else -> emptyList()
+        }
+    }
 
     LaunchedEffect(initialId, library.archives) {
         if (configurationId == null || library.configurations.none { it.id == configurationId }) {
@@ -132,6 +147,25 @@ internal fun SavedConfigurationModelPicker(
         Spacer(Modifier.width(7.dp))
         Text(if (loading) "正在获取模型…" else "获取模型列表")
     }
+    if (recommendations.isNotEmpty()) {
+        Spacer(Modifier.height(10.dp))
+        Text("露露推荐", color = PickerMuted, fontSize = 12.sp)
+        recommendations.forEach { (model, description) ->
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable {
+                    query = model
+                    onModelSelected(model)
+                }.padding(vertical = 5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(selected = currentModel == model, onClick = { query = model; onModelSelected(model) })
+                Column(Modifier.weight(1f)) {
+                    Text(model, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Text(description, color = PickerMuted, fontSize = 11.sp)
+                }
+            }
+        }
+    }
     if (models.isNotEmpty()) {
         Spacer(Modifier.height(10.dp))
         OutlinedTextField(
@@ -173,5 +207,11 @@ internal fun SavedConfigurationModelPicker(
     if (notice.isNotBlank()) {
         Spacer(Modifier.height(7.dp))
         Text(notice, color = if (notice.contains("失败")) MaterialTheme.colorScheme.error else PickerMuted, fontSize = 12.sp)
+    }
+    if (currentModel.isNotBlank()) {
+        Spacer(Modifier.height(7.dp))
+        Surface(color = Color.White, shape = RoundedCornerShape(12.dp), border = BorderStroke(1.dp, PickerBorder)) {
+            Text("已选择：$currentModel", Modifier.fillMaxWidth().padding(11.dp), color = PickerInk, fontSize = 12.sp)
+        }
     }
 }

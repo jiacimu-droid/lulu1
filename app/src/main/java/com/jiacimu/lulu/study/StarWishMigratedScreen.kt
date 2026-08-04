@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.study
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -20,6 +21,10 @@ internal fun StarWishMigratedScreen(onBack: () -> Unit, initialTab: StarWishTab 
     val state by store.state.collectAsState()
     val studyState by studyStore.state.collectAsState()
     var tab by rememberSaveable(initialTab) { mutableStateOf(initialTab) }
+    fun stepBack() {
+        if (tab == StarWishTab.Scroll) onBack() else tab = StarWishTab.Scroll
+    }
+    BackHandler { stepBack() }
 
     Scaffold(containerColor = StudyDesign.paper) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
@@ -28,7 +33,7 @@ internal fun StarWishMigratedScreen(onBack: () -> Unit, initialTab: StarWishTab 
                     modifier = Modifier.fillMaxWidth().statusBarsPadding().height(58.dp).padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = ::stepBack) {
                         Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
                     }
                     StarWishTab.entries.forEach { item ->

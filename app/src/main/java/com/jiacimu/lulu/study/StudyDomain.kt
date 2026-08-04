@@ -190,16 +190,14 @@ internal val theaterCatalog = listOf(
 )
 
 internal fun defaultTasks(date: LocalDate): List<StudyTask> = listOf(
-    StudyTask(title = "考研英语真题训练", date = date.toString(), pomodoroTarget = 2, source = StudyTaskSource.Preset),
-    StudyTask(title = "词汇复习", date = date.toString(), pomodoroTarget = 1, source = StudyTaskSource.Preset),
-    StudyTask(title = "专业课重点整理", date = date.toString(), pomodoroTarget = 2, source = StudyTaskSource.Preset),
+    StudyTask(title = "英语词汇", date = date.toString(), source = StudyTaskSource.Preset),
+    StudyTask(title = "英语真题", date = date.toString(), source = StudyTaskSource.Preset),
+    StudyTask(title = "专业课听课", date = date.toString(), source = StudyTaskSource.Preset),
+    StudyTask(title = "背诵", date = date.toString(), source = StudyTaskSource.Preset),
+    StudyTask(title = "框架", date = date.toString(), source = StudyTaskSource.Preset),
+    StudyTask(title = "题目", date = date.toString(), source = StudyTaskSource.Preset),
 )
-internal fun defaultPlanItems(): List<StudyPlanItem> = listOf(
-    StudyPlanItem(range = StudyPlanRange.Weekly, title = "完成本周英语真题与错题复盘"),
-    StudyPlanItem(range = StudyPlanRange.Weekly, title = "专业课推进到本周节点"),
-    StudyPlanItem(range = StudyPlanRange.Monthly, title = "完成当月专业课阶段目标"),
-    StudyPlanItem(range = StudyPlanRange.Monthly, title = "整理当月英语错误类型"),
-)
+internal fun defaultPlanItems(): List<StudyPlanItem> = emptyList()
 internal fun defaultTips(date: LocalDate): List<StudyTip> = listOf(
     StudyTip(text = "先开始一个最小番茄钟，再决定是否延长。", date = date.toString()),
     StudyTip(text = "真题训练优先记录错因，不用为了速度跳过复盘。", date = date.toString()),

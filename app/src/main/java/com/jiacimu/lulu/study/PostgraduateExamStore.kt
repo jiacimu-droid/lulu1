@@ -192,6 +192,14 @@ class PostgraduateExamStore internal constructor(context: Context) {
     fun togglePlanItem(id: String) = mutate { state -> state.copy(planItems = state.planItems.map { if (it.id == id) it.copy(completed = !it.completed) else it }) }
     fun deletePlanItem(id: String) = mutate { state -> state.copy(planItems = state.planItems.filterNot { it.id == id }) }
 
+    fun removePlanItemsByTitle(titles: Set<String>) = mutate { state ->
+        state.copy(planItems = state.planItems.filterNot { it.title in titles })
+    }
+
+    fun replaceRollingPlanItems(items: List<StudyPlanItem>) = mutate { state ->
+        state.copy(planItems = state.planItems.filterNot { it.id.startsWith("rolling:") } + items)
+    }
+
     fun addTip(text: String, date: LocalDate = LocalDate.now()) {
         val clean = text.trim()
         if (clean.isBlank()) return
@@ -621,20 +629,25 @@ class PostgraduateExamStore internal constructor(context: Context) {
     }
 
     private fun rollover(state: StudyState, today: LocalDate): StudyState {
-        if (state.activeDate == today.toString() && state.shopDate == today.toString()) return updateAchievements(state)
         val tasks = state.tasks.filter { task ->
             runCatching { !LocalDate.parse(task.date).isBefore(today.minusDays(90)) }.getOrDefault(true)
         }
-        val withDefaults = if (tasks.none { it.date == today.toString() }) tasks + defaultTasks(today) else tasks
+        val todayKey = today.toString()
+        val existingToday = tasks.filter { it.date == todayKey }
+        val preserved = tasks.filterNot { it.date == todayKey && it.source == StudyTaskSource.Preset }
+        val withDefaults = preserved + defaultTasks(today).map { preset ->
+            existingToday.firstOrNull { it.title == preset.title }?.copy(source = StudyTaskSource.Preset) ?: preset
+        }
+        if (state.activeDate == todayKey && state.shopDate == todayKey && withDefaults == state.tasks) return updateAchievements(state)
         return updateAchievements(
             state.copy(
-                activeDate = today.toString(),
+                activeDate = todayKey,
                 tasks = withDefaults,
                 tips = if (state.tips.none { it.date == today.toString() }) defaultTips(today) + state.tips else state.tips,
-                shopItems = defaultShop(today),
-                shopDate = today.toString(),
-                manualShopRefreshDate = "",
-                superMomentAvailable = false,
+                shopItems = if (state.shopDate == todayKey) state.shopItems else defaultShop(today),
+                shopDate = todayKey,
+                manualShopRefreshDate = if (state.shopDate == todayKey) state.manualShopRefreshDate else "",
+                superMomentAvailable = if (state.activeDate == todayKey) state.superMomentAvailable else false,
                 pomodoro = if (state.pomodoro.running && state.pomodoro.endAtEpochMillis <= System.currentTimeMillis()) {
                     state.pomodoro.copy(running = false, remainingSeconds = state.pomodoro.selectedMinutes * 60, endAtEpochMillis = 0L)
                 } else state.pomodoro,

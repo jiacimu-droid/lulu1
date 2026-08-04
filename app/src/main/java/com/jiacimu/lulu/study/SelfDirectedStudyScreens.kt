@@ -107,6 +107,7 @@ internal fun StudyPlanScreenV2(state: StudyState, store: PostgraduateExamStore) 
                     Text(item.title, Modifier.weight(1f), fontWeight = FontWeight.Bold)
                     IconButton(onClick = { store.deletePlanItem(item.id) }) { Icon(Icons.Outlined.DeleteOutline, "删除") }
                 }
+                if (item.note.isNotBlank()) Text(item.note, color = StudyDesign.muted, fontSize = 13.sp, lineHeight = 19.sp)
             }
         }
     }

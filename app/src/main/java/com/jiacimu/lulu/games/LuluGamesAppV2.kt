@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.games
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -61,6 +62,7 @@ private fun UniversalReplayCenter(
     onDismiss: () -> Unit,
 ) {
     var selected by remember { mutableStateOf<LuluGameRecord?>(null) }
+    BackHandler(enabled = selected != null) { selected = null }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         containerColor = LuluColors.Paper,

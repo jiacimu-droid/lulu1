@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.games
 
+import androidx.activity.compose.BackHandler
 import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -180,6 +181,10 @@ internal fun FormalRoleplayCampaignScreen(store: LuluGameStore, onBack: () -> Un
     var activeId by rememberSaveable { mutableStateOf<String?>(null) }
     var creating by remember { mutableStateOf(false) }
     val active = saves.firstOrNull { save -> save.id == activeId }
+
+    BackHandler(enabled = activeId != null || creating) {
+        if (creating) creating = false else activeId = null
+    }
 
     Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(CampaignColors.top, CampaignColors.bottom)))) {
         if (active == null) {
