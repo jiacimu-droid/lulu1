@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-04T18:07:14.966164+00:00",
-  "commit": "e688f706a75d240b399aca91376efa8a090ba429",
+  "generatedAt": "2026-08-04T18:11:52.669103+00:00",
+  "commit": "2d73a7f62342393ea71ca458eda3d9c7a6ee8ee6",
   "branch": "main",
-  "sourceFingerprint": "a3a3fd6f71f8b7589bfe8c08eb932b89cc79a7d7d6cfbb90a8e9fd921d46d190",
+  "sourceFingerprint": "72cae0d1e2a82a5381a98886b1c3f5fa0da9f05b08aa3f646d80d55f0f46fc45",
   "summary": {
     "files": 109,
     "lines": 26152,
@@ -4116,7 +4116,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
       "lines": 845,
-      "sha256": "12f1100ee7c0af64335a29dbb44b32738e68ba06c5c4d99c269dd2779c3d3961",
+      "sha256": "3dc2c6debdfad5e407a40301bc67714586070f5f83f218025cada3ecfda0ed32",
       "symbols": [
         {
           "name": "load",
