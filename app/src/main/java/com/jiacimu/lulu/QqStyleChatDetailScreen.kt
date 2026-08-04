@@ -16,6 +16,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.LuluChatMessage
+import com.jiacimu.lulu.data.LuluGroupChat
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
@@ -71,15 +73,15 @@ fun QqStyleChatDetailScreen(
     val userAvatarUri = remember { userProfilePrefs.getString("avatar_uri", null) }
     val messages by MigratedDomainStores.chat.messages(conversationId).collectAsState()
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
+    val characters by MigratedDomainStores.characters.settings.collectAsState()
     val preferences by LuluAppPreferencesStore.state.collectAsState()
     val presenceStates by CompanionPresenceStore.states.collectAsState()
     val presenceHistories by CompanionPresenceStore.histories.collectAsState()
     val library by LuluAiServices.connectionStore.library.collectAsState()
     val conversation = conversations.firstOrNull { it.id == conversationId }
+    val groupChat = conversation?.groupChat
     val characterId = conversation?.characterId ?: "lulu"
     val character = MigratedDomainStores.characters.get(characterId)
-    val presence = presenceStates[characterId]
-    val presenceHistory = presenceHistories[characterId].orEmpty()
     val activeArchive = library.archives.firstOrNull { it.id == library.activeArchiveId }
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接模型"
     val pendingUserMessages = remember(messages) {
@@ -94,10 +96,14 @@ fun QqStyleChatDetailScreen(
     var receiving by remember { mutableStateOf(false) }
     var generationJob by remember { mutableStateOf<Job?>(null) }
     var selectedMessage by remember { mutableStateOf<LuluChatMessage?>(null) }
+    var replyingTo by remember { mutableStateOf<LuluChatMessage?>(null) }
     var moreExpanded by remember { mutableStateOf(false) }
     var modelExpanded by remember { mutableStateOf(false) }
     var callVisible by remember { mutableStateOf(false) }
-    var presenceVisible by remember { mutableStateOf(false) }
+    var presenceCharacterId by remember { mutableStateOf<String?>(null) }
+    var groupSettingsVisible by remember { mutableStateOf(false) }
+    var searchVisible by remember { mutableStateOf(false) }
+    var mentionExpanded by remember { mutableStateOf(false) }
     var voiceListening by remember { mutableStateOf(false) }
     var voicePartial by remember { mutableStateOf("") }
     var voiceError by remember { mutableStateOf("") }
@@ -167,14 +173,18 @@ fun QqStyleChatDetailScreen(
 
     LaunchedEffect(conversationId) { MigratedDomainStores.chat.markConversationRead(conversationId) }
     LaunchedEffect(messages.size, preferences.autoScrollChat) {
-        if (messages.isNotEmpty() && preferences.autoScrollChat) listState.scrollToItem(messages.lastIndex)
+        if (messages.isNotEmpty() && preferences.autoScrollChat) {
+            val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
+            listState.scrollToItem(messages.lastIndex + announcementOffset)
+        }
     }
 
     fun sendOnly() {
         val text = input.trim()
         if (text.isBlank()) return
-        MigratedDomainStores.chat.sendUserMessage(conversationId, text)
+        MigratedDomainStores.chat.sendUserMessage(conversationId, text, replyingTo?.id)
         input = ""
+        replyingTo = null
     }
 
     fun stopReceiving() {
@@ -192,8 +202,9 @@ fun QqStyleChatDetailScreen(
 
         val currentInput = input.trim()
         if (currentInput.isNotBlank()) {
-            MigratedDomainStores.chat.sendUserMessage(conversationId, currentInput)
+            MigratedDomainStores.chat.sendUserMessage(conversationId, currentInput, replyingTo?.id)
             input = ""
+            replyingTo = null
         }
 
         val latestMessages = MigratedDomainStores.chat.messages(conversationId).value
@@ -208,25 +219,36 @@ fun QqStyleChatDetailScreen(
         val history = buildBoundedHistory(
             messages = latestMessages.filterNot { it.id in pendingIds },
             characterName = character.displayName,
+            characterNames = characters.mapValues { it.value.displayName },
         )
         receiving = true
         generationJob = scope.launch {
             try {
-                val result = LuluDeviceToolBridge.respond(
-                    characterId = characterId,
-                    history = history,
-                    userText = pendingText,
-                    title = activeLabel,
-                )
-                if (!currentCoroutineContext().isActive) return@launch
-                result.onSuccess { reply ->
-                    if (reply.text.isNotBlank()) {
-                        MigratedDomainStores.chat.appendCharacterMessage(conversationId, reply.text)
-                    } else {
-                        snackbar.showSnackbar("对方刚才没有说清，再点一次试试")
-                    }
-                }.onFailure { error ->
-                    snackbar.showSnackbar(error.message ?: "回复失败")
+                if (groupChat == null) {
+                    val result = LuluDeviceToolBridge.respond(
+                        characterId = characterId,
+                        history = history,
+                        userText = pendingText,
+                        title = activeLabel,
+                    )
+                    if (!currentCoroutineContext().isActive) return@launch
+                    result.onSuccess { reply ->
+                        if (reply.text.isNotBlank()) {
+                            MigratedDomainStores.chat.appendCharacterMessage(conversationId, reply.text)
+                        } else {
+                            snackbar.showSnackbar("对方刚才没有说清，再点一次试试")
+                        }
+                    }.onFailure { error -> snackbar.showSnackbar(error.message ?: "回复失败") }
+                } else {
+                    runGroupReplies(
+                        conversationId = conversationId,
+                        group = groupChat,
+                        pendingText = pendingText,
+                        initialHistory = history,
+                        activeLabel = activeLabel,
+                        characterNames = characters.mapValues { it.value.displayName },
+                        onError = { snackbar.showSnackbar(it) },
+                    )
                 }
             } finally {
                 receiving = false
@@ -246,15 +268,20 @@ fun QqStyleChatDetailScreen(
                 },
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        QqAvatar(
-                            character.displayName.take(1).ifBlank { "露" },
-                            42,
-                            character.avatarUri,
-                        )
+                        if (groupChat == null) {
+                            QqAvatar(character.displayName.take(1).ifBlank { "露" }, 42, character.avatarUri)
+                        } else {
+                            QqGroupAvatar(groupChat, 42)
+                        }
                         Spacer(Modifier.width(9.dp))
                         Column {
-                            Text(character.displayName, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = QqInk)
-                            Text(activeLabel, fontSize = 10.sp, color = QqMuted, maxLines = 1)
+                            Text(groupChat?.name ?: character.displayName, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = QqInk)
+                            Text(
+                                groupChat?.let { "${it.members.size + 1}人群聊" } ?: activeLabel,
+                                fontSize = 10.sp,
+                                color = QqMuted,
+                                maxLines = 1,
+                            )
                         }
                     }
                 },
@@ -287,12 +314,27 @@ fun QqStyleChatDetailScreen(
                             }
                         }
                     }
-                    IconButton(onClick = { callVisible = true }) { Icon(Icons.Outlined.Call, "电话", tint = QqInk) }
+                    if (groupChat == null) {
+                        IconButton(onClick = { callVisible = true }) { Icon(Icons.Outlined.Call, "电话", tint = QqInk) }
+                    }
                     Box {
                         IconButton(onClick = { moreExpanded = true }) { Icon(Icons.Outlined.MoreHoriz, "更多", tint = QqInk) }
                         DropdownMenu(expanded = moreExpanded, onDismissRequest = { moreExpanded = false }) {
-                            DropdownMenuItem(text = { Text("角色设置") }, onClick = { moreExpanded = false; onCharacterSettings() })
-                            DropdownMenuItem(text = { Text("角色世界书") }, onClick = { moreExpanded = false; onWorldBook() })
+                            if (groupChat == null) {
+                                DropdownMenuItem(text = { Text("角色设置") }, onClick = { moreExpanded = false; onCharacterSettings() })
+                                DropdownMenuItem(text = { Text("角色世界书") }, onClick = { moreExpanded = false; onWorldBook() })
+                            } else {
+                                DropdownMenuItem(
+                                    text = { Text("查找聊天记录") },
+                                    leadingIcon = { Icon(Icons.Outlined.Search, null) },
+                                    onClick = { moreExpanded = false; searchVisible = true },
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("群聊设置") },
+                                    leadingIcon = { Icon(Icons.Outlined.Group, null) },
+                                    onClick = { moreExpanded = false; groupSettingsVisible = true },
+                                )
+                            }
                         }
                     }
                 },
@@ -305,9 +347,12 @@ fun QqStyleChatDetailScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
+                    Box {
                     FilledTonalIconButton(
                         onClick = {
-                            if (voiceListening) {
+                            if (groupChat != null) {
+                                mentionExpanded = true
+                            } else if (voiceListening) {
                                 speechRecognizer?.stopListening()
                             } else if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
                                 beginVoiceCapture()
@@ -322,10 +367,35 @@ fun QqStyleChatDetailScreen(
                         ),
                     ) {
                         Icon(
-                            if (voiceListening) Icons.Outlined.GraphicEq else Icons.Outlined.KeyboardVoice,
-                            "语音输入",
+                            when {
+                                groupChat != null -> Icons.Outlined.AlternateEmail
+                                voiceListening -> Icons.Outlined.GraphicEq
+                                else -> Icons.Outlined.KeyboardVoice
+                            },
+                            if (groupChat != null) "@群成员" else "语音输入",
                             modifier = Modifier.size(27.dp),
                         )
+                    }
+                        if (groupChat != null) {
+                            DropdownMenu(expanded = mentionExpanded, onDismissRequest = { mentionExpanded = false }) {
+                                DropdownMenuItem(
+                                    text = { Text("@全体成员") },
+                                    onClick = { input += "@全体成员 "; mentionExpanded = false },
+                                )
+                                groupChat.members.forEach { member ->
+                                    val memberCharacter = characters[member.characterId]
+                                        ?: MigratedDomainStores.characters.get(member.characterId)
+                                    val displayName = member.groupNickname.ifBlank { memberCharacter.displayName }
+                                    DropdownMenuItem(
+                                        leadingIcon = {
+                                            QqAvatar(memberCharacter.displayName.take(1).ifBlank { "角" }, 30, memberCharacter.avatarUri)
+                                        },
+                                        text = { Text("@$displayName") },
+                                        onClick = { input += "@$displayName "; mentionExpanded = false },
+                                    )
+                                }
+                            }
+                        }
                     }
                     TextField(
                         value = input,
@@ -333,7 +403,20 @@ fun QqStyleChatDetailScreen(
                         modifier = Modifier.weight(1f),
                         minLines = 1,
                         maxLines = 5,
-                        placeholder = { Text("发消息", color = QqMuted) },
+                        placeholder = {
+                            Text(
+                                replyingTo?.let { "回复：${it.content.take(18)}" } ?: "发消息",
+                                color = QqMuted,
+                                maxLines = 1,
+                            )
+                        },
+                        trailingIcon = {
+                            if (replyingTo != null) {
+                                IconButton(onClick = { replyingTo = null }) {
+                                    Icon(Icons.Outlined.Close, "取消回复", Modifier.size(17.dp))
+                                }
+                            }
+                        },
                         shape = RoundedCornerShape(18.dp),
                         colors = TextFieldDefaults.colors(
                             focusedTextColor = QqInk,
@@ -380,29 +463,64 @@ fun QqStyleChatDetailScreen(
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
+            if (groupChat != null && groupChat.announcement.isNotBlank()) {
+                item(key = "group-announcement") {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = QqIconSurface,
+                        shape = RoundedCornerShape(13.dp),
+                        border = BorderStroke(1.dp, QqBorder),
+                    ) {
+                        Row(Modifier.padding(horizontal = 12.dp, vertical = 9.dp), verticalAlignment = Alignment.Top) {
+                            Icon(Icons.Outlined.Campaign, null, tint = QqMuted, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(7.dp))
+                            Column {
+                                Text("群公告", color = QqInk, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
+                                Text(groupChat.announcement, color = QqMuted, fontSize = 12.sp, maxLines = 3)
+                            }
+                        }
+                    }
+                }
+            }
             itemsIndexed(messages, key = { _, item -> item.id }) { index, message ->
                 val previous = messages.getOrNull(index - 1)
                 val next = messages.getOrNull(index + 1)
                 val groupStart = previous == null || previous.sender != message.sender ||
+                    previous.authorCharacterId != message.authorCharacterId ||
                     Duration.between(previous.createdAt, message.createdAt).toMinutes() >= 2
                 val groupEnd = next == null || next.sender != message.sender ||
+                    next.authorCharacterId != message.authorCharacterId ||
                     Duration.between(message.createdAt, next.createdAt).toMinutes() >= 2
+                val author = message.authorCharacterId?.let { characters[it] ?: MigratedDomainStores.characters.get(it) }
+                    ?: character
                         QqMessageRow(
                             message = message,
-                            characterName = character.displayName,
-                            characterAvatarUri = character.avatarUri,
+                            characterName = author.displayName,
+                            characterAvatarUri = author.avatarUri,
+                            characterLabel = groupChat?.members
+                                ?.firstOrNull { it.characterId == author.characterId }
+                                ?.groupNickname
+                                ?.ifBlank { author.displayName }
+                                ?: author.displayName,
+                            showCharacterName = groupChat?.showMemberNames == true,
+                            repliedMessageContent = message.replyToMessageId
+                                ?.let { replyId -> messages.firstOrNull { it.id == replyId }?.content },
                             showAvatar = groupStart,
                             showTime = preferences.showMessageTimestamps && groupEnd,
                             userAvatar = userAvatar,
                             userAvatarUri = userAvatarUri,
-                            onCharacterAvatarClick = { presenceVisible = true },
+                            onCharacterAvatarClick = { presenceCharacterId = author.characterId },
                             onLongClick = { selectedMessage = message },
                 )
             }
             if (receiving) {
                 item {
                     Row(verticalAlignment = Alignment.Top) {
-                        QqAvatar(character.displayName.take(1).ifBlank { "露" }, 44, character.avatarUri)
+                        if (groupChat == null) {
+                            QqAvatar(character.displayName.take(1).ifBlank { "露" }, 44, character.avatarUri)
+                        } else {
+                            QqGroupAvatar(groupChat, 44)
+                        }
                         Spacer(Modifier.width(9.dp))
                         Surface(
                             color = QqOther,
@@ -428,6 +546,10 @@ fun QqStyleChatDetailScreen(
             text = { Text(message.content, maxLines = 4) },
             confirmButton = {
                 Row {
+                    TextButton(onClick = {
+                        replyingTo = message
+                        selectedMessage = null
+                    }) { Text("回复", color = QqInk) }
                     TextButton(onClick = {
                         MigratedDomainStores.chat.toggleFavorite(message.id)
                         selectedMessage = null
@@ -456,8 +578,39 @@ fun QqStyleChatDetailScreen(
         )
     }
 
-    if (presenceVisible) {
-        CompanionPresenceDialog(character.displayName, presence, presenceHistory) { presenceVisible = false }
+    presenceCharacterId?.let { selectedCharacterId ->
+        val selectedCharacter = characters[selectedCharacterId]
+            ?: MigratedDomainStores.characters.get(selectedCharacterId)
+        CompanionPresenceDialog(
+            selectedCharacter.displayName,
+            presenceStates[selectedCharacterId],
+            presenceHistories[selectedCharacterId].orEmpty(),
+        ) { presenceCharacterId = null }
+    }
+
+    if (groupSettingsVisible && groupChat != null) {
+        QqGroupChatSettingsDialog(
+            group = groupChat,
+            characters = characters.values.sortedBy { it.displayName },
+            onDismiss = { groupSettingsVisible = false },
+            onSave = { updated ->
+                MigratedDomainStores.chat.updateGroupConversation(conversationId, updated)
+                groupSettingsVisible = false
+            },
+            onDelete = {
+                MigratedDomainStores.chat.deleteConversation(conversationId)
+                groupSettingsVisible = false
+                onBack()
+            },
+        )
+    }
+
+    if (searchVisible) {
+        QqChatSearchDialog(
+            messages = messages,
+            characterNames = characters.mapValues { it.value.displayName },
+            onDismiss = { searchVisible = false },
+        )
     }
 
     if (voiceListening) {
@@ -521,6 +674,9 @@ private fun QqMessageRow(
     message: LuluChatMessage,
     characterName: String,
     characterAvatarUri: String?,
+    characterLabel: String,
+    showCharacterName: Boolean,
+    repliedMessageContent: String?,
     showAvatar: Boolean,
     showTime: Boolean,
     userAvatar: String,
@@ -568,8 +724,16 @@ private fun QqMessageRow(
             modifier = Modifier.weight(1f),
             horizontalAlignment = if (mine) Alignment.End else Alignment.Start,
         ) {
+            if (!mine && showCharacterName && showAvatar) {
+                Text(
+                    characterLabel,
+                    color = QqMuted,
+                    fontSize = 11.sp,
+                    modifier = Modifier.padding(start = 4.dp, bottom = 3.dp),
+                )
+            }
             bubbles.forEachIndexed { index, bubble ->
-                val bubbleWidth = if (bubble.length >= 42) Modifier.fillMaxWidth() else Modifier.widthIn(max = 300.dp)
+                val bubbleWidth = if (bubble.length >= 52) Modifier.fillMaxWidth() else Modifier.widthIn(max = 300.dp)
                 Surface(
                     modifier = bubbleWidth.combinedClickable(onClick = {}, onLongClick = onLongClick),
                     color = if (mine) QqMine else QqOther,
@@ -578,6 +742,21 @@ private fun QqMessageRow(
                     shadowElevation = 0.dp,
                 ) {
                     Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+                        repliedMessageContent?.let { quoted ->
+                            Surface(
+                                color = if (mine) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.78f),
+                                shape = RoundedCornerShape(8.dp),
+                            ) {
+                                Text(
+                                    quoted,
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp),
+                                    color = if (mine) QqMineInk.copy(alpha = 0.72f) else QqMuted,
+                                    fontSize = 11.sp,
+                                    maxLines = 2,
+                                )
+                            }
+                            Spacer(Modifier.height(6.dp))
+                        }
                         Text(
                             bubble,
                             color = if (mine) QqMineInk else QqInk,
@@ -616,39 +795,115 @@ private fun QqMessageRow(
 
 private fun splitCharacterBubbles(text: String): List<String> {
     val paragraphs = text.trim()
-        .split(Regex("\\n\\s*\\n|\\n"))
+        .split(Regex("\\n\\s*\\n"))
         .map(String::trim)
         .filter(String::isNotBlank)
-    val pieces = paragraphs.flatMap { paragraph ->
-        if (paragraph.length <= 42) {
-            listOf(paragraph)
+    if (paragraphs.isEmpty()) return listOf(text.trim())
+    return paragraphs.flatMap { paragraph ->
+        val normalized = paragraph.lines().map(String::trim).filter(String::isNotBlank).joinToString("\n")
+        if (normalized.length <= 112) {
+            listOf(normalized)
         } else {
-            paragraph.split(Regex("(?<=[。！？!?；;…])\\s*"))
+            val sentences = normalized.split(Regex("(?<=[。！？!?；;…])\\s*"))
                 .map(String::trim)
                 .filter(String::isNotBlank)
-                .flatMap { sentence -> if (sentence.length <= 48) listOf(sentence) else sentence.chunked(42) }
+            val bubbles = mutableListOf<String>()
+            var current = ""
+            sentences.forEach { sentence ->
+                val joinedLength = current.length + sentence.length
+                if (current.isBlank() || joinedLength <= 88 || current.length < 38) {
+                    current += sentence
+                } else {
+                    bubbles += current
+                    current = sentence
+                }
+            }
+            if (current.isNotBlank()) bubbles += current
+            bubbles.ifEmpty { listOf(normalized) }
         }
     }
-    if (pieces.isEmpty()) return listOf(text.trim())
-    val bubbles = mutableListOf<String>()
-    var current = ""
-    pieces.forEach { piece ->
-        if (current.isBlank()) {
-            current = piece
-        } else if (current.length + piece.length <= 42) {
-            current += piece
-        } else {
-            bubbles += current
-            current = piece
+}
+
+private suspend fun runGroupReplies(
+    conversationId: String,
+    group: LuluGroupChat,
+    pendingText: String,
+    initialHistory: String,
+    activeLabel: String,
+    characterNames: Map<String, String>,
+    onError: suspend (String) -> Unit,
+) {
+    val validMembers = group.members.filter { it.characterId in characterNames }
+    if (validMembers.size < 2) {
+        onError("群聊至少需要两个仍然存在的角色")
+        return
+    }
+    val mentioned = validMembers.filter { member ->
+        val name = member.groupNickname.ifBlank { characterNames[member.characterId].orEmpty() }
+        name.isNotBlank() && pendingText.contains("@$name", ignoreCase = true)
+    }
+    val lastSpeaker = MigratedDomainStores.chat.messages(conversationId).value
+        .lastOrNull { it.sender == LuluChatMessage.Sender.Character }
+        ?.authorCharacterId
+    val remaining = validMembers
+        .filterNot { candidate -> mentioned.any { it.characterId == candidate.characterId } }
+        .let { members ->
+            if (members.size > 1 && members.firstOrNull()?.characterId == lastSpeaker) members.drop(1) + members.first()
+            else members
+        }
+    val ordered = mentioned + remaining
+    val explicitAll = pendingText.contains("@全体成员")
+    val targetReplies = when {
+        explicitAll -> group.maxAutoReplies.coerceAtMost(validMembers.size)
+        mentioned.isNotEmpty() -> mentioned.size.coerceAtMost(group.maxAutoReplies)
+        group.allowCharacterConversation -> group.maxAutoReplies.coerceAtMost(validMembers.size)
+        else -> 1
+    }
+
+    ordered.take(targetReplies).forEachIndexed { index, member ->
+        if (!currentCoroutineContext().isActive) return
+        val character = MigratedDomainStores.characters.get(member.characterId)
+        val memberLabel = member.groupNickname.ifBlank { character.displayName }
+        val latestMessages = MigratedDomainStores.chat.messages(conversationId).value
+        val history = if (index == 0) initialHistory else buildBoundedHistory(
+            messages = latestMessages,
+            characterName = memberLabel,
+            characterNames = characterNames,
+        )
+        val memberList = group.members.joinToString("、") { candidate ->
+            candidate.groupNickname.ifBlank { characterNames[candidate.characterId] ?: candidate.characterId }
+        }
+        val groupInput = buildString {
+            appendLine("[这是群聊，不是私聊。群名：${group.name}；群成员：主人、$memberList。]")
+            appendLine("[当前由你（$memberLabel）发言。只代表你自己，遵循你的人设；可以回应主人或其他角色，但不要替别人说话，不要输出姓名标签。]")
+            if (index > 0) appendLine("[前面已有其他成员回应，请推进话题，不要复述。]")
+            append("主人在群里说：$pendingText")
+        }
+        val result = LuluDeviceToolBridge.respond(
+            characterId = member.characterId,
+            history = history,
+            userText = groupInput,
+            title = activeLabel,
+        )
+        if (!currentCoroutineContext().isActive) return
+        result.onSuccess { reply ->
+            if (reply.text.isNotBlank()) {
+                MigratedDomainStores.chat.appendCharacterMessage(
+                    conversationId = conversationId,
+                    content = reply.text,
+                    authorCharacterId = member.characterId,
+                )
+            }
+        }.onFailure { error ->
+            onError("${character.displayName}回复失败：${error.message ?: "未知错误"}")
         }
     }
-    if (current.isNotBlank()) bubbles += current
-    return bubbles
 }
 
 private fun buildBoundedHistory(
     messages: List<LuluChatMessage>,
     characterName: String,
+    characterNames: Map<String, String> = emptyMap(),
     maxMessages: Int = 30,
     maxChars: Int = 12_000,
 ): String {
@@ -662,7 +917,11 @@ private fun buildBoundedHistory(
         }
         .takeLast(maxMessages)
     val lines = normalized.map { message ->
-        val role = if (message.sender == LuluChatMessage.Sender.User) "主人" else characterName
+        val role = if (message.sender == LuluChatMessage.Sender.User) {
+            "主人"
+        } else {
+            message.authorCharacterId?.let { characterNames[it] } ?: characterName
+        }
         "$role：${message.content.trim()}"
     }
     val selected = ArrayDeque<String>()
@@ -673,6 +932,69 @@ private fun buildBoundedHistory(
         chars += line.length
     }
     return selected.joinToString("\n")
+}
+
+@Composable
+private fun QqGroupAvatar(group: LuluGroupChat, size: Int) {
+    if (!group.avatarUri.isNullOrBlank()) {
+        QqAvatar(group.name.take(1).ifBlank { "群" }, size, group.avatarUri)
+    } else {
+        Surface(
+            modifier = Modifier.size(size.dp),
+            color = QqOther,
+            shape = RoundedCornerShape((size * 0.28f).dp),
+            border = BorderStroke(1.dp, QqBorder),
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(Icons.Outlined.Groups, null, tint = QqInk, modifier = Modifier.size((size * 0.55f).dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun QqChatSearchDialog(
+    messages: List<LuluChatMessage>,
+    characterNames: Map<String, String>,
+    onDismiss: () -> Unit,
+) {
+    var query by remember { mutableStateOf("") }
+    val results = remember(messages, query) {
+        if (query.isBlank()) emptyList() else messages.filter { it.content.contains(query.trim(), ignoreCase = true) }
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("查找聊天记录") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    label = { Text("关键词") },
+                    leadingIcon = { Icon(Icons.Outlined.Search, null) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Text(if (query.isBlank()) "输入关键词开始查找" else "找到 ${results.size} 条", color = QqMuted, fontSize = 12.sp)
+                LazyColumn(Modifier.heightIn(max = 360.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(results, key = LuluChatMessage::id) { message ->
+                        val speaker = when (message.sender) {
+                            LuluChatMessage.Sender.User -> "主人"
+                            LuluChatMessage.Sender.System -> "系统"
+                            LuluChatMessage.Sender.Character -> message.authorCharacterId?.let { characterNames[it] } ?: "角色"
+                        }
+                        Surface(color = QqIconSurface, shape = RoundedCornerShape(12.dp)) {
+                            Column(Modifier.fillMaxWidth().padding(10.dp)) {
+                                Text(speaker, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
+                                Text(message.content, maxLines = 3, color = QqInk, fontSize = 13.sp)
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("完成") } },
+    )
 }
 
 @Composable

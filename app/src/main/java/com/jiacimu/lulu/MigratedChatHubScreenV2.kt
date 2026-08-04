@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.LuluConversation
+import com.jiacimu.lulu.data.CharacterSettings
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.design.LuluColors
@@ -43,10 +44,33 @@ fun MigratedChatHubScreenV2(
     onOpenSettings: () -> Unit,
 ) {
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+    val characters by MigratedDomainStores.characters.settings.collectAsState()
+    var showCreateGroup by remember { mutableStateOf(false) }
+    var showCreateCharacter by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = LuluColors.Paper,
-        topBar = { MigratedChatTopBar("聊天", onBack) },
+        topBar = {
+            MigratedChatTopBar(
+                title = "聊天",
+                onBack = onBack,
+                actions = {
+                    if (selectedTab == 0 || selectedTab == 1) {
+                        IconButton(
+                            onClick = {
+                                if (selectedTab == 0) showCreateGroup = true else showCreateCharacter = true
+                            },
+                            enabled = selectedTab != 0 || characters.size >= 2,
+                        ) {
+                            Icon(
+                                if (selectedTab == 0) Icons.Outlined.GroupAdd else Icons.Outlined.PersonAdd,
+                                if (selectedTab == 0) "新建群聊" else "新建角色",
+                            )
+                        }
+                    }
+                },
+            )
+        },
         bottomBar = {
             NavigationBar(containerColor = LuluColors.Card) {
                 ChatHubLabels.forEachIndexed { index, label ->
@@ -69,13 +93,42 @@ fun MigratedChatHubScreenV2(
             }
         }
     }
+
+    if (showCreateGroup) {
+        ChatHubV2CreateGroupDialog(
+            characters = characters.values.sortedBy(CharacterSettings::displayName),
+            onDismiss = { showCreateGroup = false },
+            onCreate = { name, memberIds ->
+                val group = MigratedDomainStores.chat.createGroupConversation(name, memberIds)
+                showCreateGroup = false
+                onOpenConversation(group.id)
+            },
+        )
+    }
+
+    if (showCreateCharacter) {
+        ChatHubV2CreateCharacterDialog(
+            onDismiss = { showCreateCharacter = false },
+            onCreate = { name, persona ->
+                val created = MigratedDomainStores.characters.create(name, persona)
+                MigratedDomainStores.chat.ensureConversation(created.characterId, created.displayName)
+                showCreateCharacter = false
+                onCharacterSettings(created.characterId)
+            },
+        )
+    }
 }
 
 @Composable
 private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
-    val sorted = remember(conversations) { conversations.sortedByDescending(LuluConversation::updatedAt) }
+    val sorted = remember(conversations) {
+        conversations.sortedWith(
+            compareByDescending<LuluConversation> { it.groupChat?.pinned == true }
+                .thenByDescending(LuluConversation::updatedAt),
+        )
+    }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -92,6 +145,7 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
             items(sorted, key = LuluConversation::id, contentType = { "conversation" }) { conversation ->
                 val character = characters[conversation.characterId]
                     ?: MigratedDomainStores.characters.get(conversation.characterId)
+                val group = conversation.groupChat
                 Card(
                     modifier = Modifier.fillMaxWidth().clickable {
                         MigratedDomainStores.chat.markConversationRead(conversation.id)
@@ -102,12 +156,16 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                     shape = RoundedCornerShape(22.dp),
                 ) {
                     Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 50, character.avatarUri)
+                        if (group == null) {
+                            ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 50, character.avatarUri)
+                        } else {
+                            ChatHubV2GroupAvatar(group.name, group.members.size + 1, group.avatarUri)
+                        }
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text(
-                                    conversation.title.ifBlank { character.displayName },
+                                    group?.name ?: conversation.title.ifBlank { character.displayName },
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 17.sp,
                                 )
@@ -125,6 +183,23 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                             )
                             if (conversation.parentConversationId != null) {
                                 Text("聊天分支", color = LuluColors.Muted, fontSize = 10.sp)
+                            } else if (group != null) {
+                                val names = group.members.map { member ->
+                                    member.groupNickname.ifBlank {
+                                        characters[member.characterId]?.displayName ?: member.characterId
+                                    }
+                                }
+                                Text(
+                                    buildString {
+                                        if (group.pinned) append("置顶 · ")
+                                        append("${group.members.size + 1}人 · ${names.joinToString("、")}")
+                                        if (group.muted) append(" · 已免打扰")
+                                    },
+                                    color = LuluColors.Muted,
+                                    fontSize = 10.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
                             }
                         }
                         if (conversation.unreadCount > 0) {
@@ -136,6 +211,7 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
             }
         }
     }
+
 }
 
 @Composable
@@ -149,27 +225,15 @@ private fun ChatHubV2Characters(
     val presenceStates by CompanionPresenceStore.states.collectAsState()
     val sortedCharacters = remember(characters) { characters.values.sortedBy { it.displayName } }
     val recentByCharacter = remember(conversations) {
-        conversations.groupBy(LuluConversation::characterId)
+        conversations.filter { it.groupChat == null }.groupBy(LuluConversation::characterId)
             .mapValues { (_, values) -> values.maxByOrNull(LuluConversation::updatedAt) }
     }
-    var showCreateDialog by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item(key = "header") {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                FilledIconButton(
-                    onClick = { showCreateDialog = true },
-                    colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = LuluColors.Wheat,
-                        contentColor = LuluColors.OnWheat,
-                    ),
-                ) { Icon(Icons.Outlined.Add, "新建角色") }
-            }
-        }
         items(sortedCharacters, key = { it.characterId }, contentType = { "character" }) { character ->
             val recent = recentByCharacter[character.characterId]
             val presence = presenceStates[character.characterId]
@@ -243,17 +307,61 @@ private fun ChatHubV2Characters(
         }
     }
 
-    if (showCreateDialog) {
-        ChatHubV2CreateCharacterDialog(
-            onDismiss = { showCreateDialog = false },
-            onCreate = { name, persona ->
-                val created = MigratedDomainStores.characters.create(name, persona)
-                MigratedDomainStores.chat.ensureConversation(created.characterId, created.displayName)
-                showCreateDialog = false
-                onCharacterSettings(created.characterId)
-            },
-        )
-    }
+}
+
+@Composable
+private fun ChatHubV2CreateGroupDialog(
+    characters: List<CharacterSettings>,
+    onDismiss: () -> Unit,
+    onCreate: (String, List<String>) -> Unit,
+) {
+    var name by remember { mutableStateOf("") }
+    var selected by remember { mutableStateOf<Set<String>>(emptySet()) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("新建群聊") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it.take(30) },
+                    label = { Text("群名称") },
+                    placeholder = { Text("例如：露露的小客厅") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Text("选择至少两个角色，你会自动作为群主加入。", color = LuluColors.Muted, fontSize = 12.sp)
+                LazyColumn(Modifier.heightIn(max = 330.dp)) {
+                    items(characters, key = CharacterSettings::characterId) { character ->
+                        val checked = character.characterId in selected
+                        Row(
+                            modifier = Modifier.fillMaxWidth().clickable {
+                                selected = if (checked) selected - character.characterId else selected + character.characterId
+                            }.padding(vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Checkbox(
+                                checked = checked,
+                                onCheckedChange = {
+                                    selected = if (checked) selected - character.characterId else selected + character.characterId
+                                },
+                            )
+                            ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 38, character.avatarUri)
+                            Spacer(Modifier.width(9.dp))
+                            Text(character.displayName)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = name.isNotBlank() && selected.size >= 2,
+                onClick = { onCreate(name.trim(), selected.toList()) },
+            ) { Text("创建") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } },
+    )
 }
 
 @Composable
@@ -404,5 +512,26 @@ private fun ChatHubV2Card(content: @Composable ColumnScope.() -> Unit) {
 @Composable
 private fun ChatHubV2Avatar(text: String, size: Int, imageUri: String? = null) =
     LuluProfileAvatar(imageUri = imageUri, fallback = text, size = size)
+
+@Composable
+private fun ChatHubV2GroupAvatar(name: String, count: Int, imageUri: String?) {
+    if (!imageUri.isNullOrBlank()) {
+        LuluProfileAvatar(imageUri = imageUri, fallback = name.take(1).ifBlank { "群" }, size = 50)
+    } else {
+        Surface(
+            modifier = Modifier.size(50.dp),
+            shape = RoundedCornerShape(14.dp),
+            color = LuluColors.Wheat.copy(alpha = 0.42f),
+            border = BorderStroke(1.dp, LuluColors.Border),
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(Icons.Outlined.Groups, null, Modifier.size(22.dp))
+                    Text("${count}人", fontSize = 8.sp)
+                }
+            }
+        }
+    }
+}
 
 private val ChatHubV2Time = DateTimeFormatter.ofPattern("MM-dd HH:mm")

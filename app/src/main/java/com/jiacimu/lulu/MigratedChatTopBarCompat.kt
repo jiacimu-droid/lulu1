@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.ui.text.font.FontWeight
 import com.jiacimu.lulu.design.LuluColors
 
@@ -20,12 +21,17 @@ import com.jiacimu.lulu.design.LuluColors
 internal object MigratedChatTopBar {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    operator fun invoke(title: String, onBack: () -> Unit) {
+    operator fun invoke(
+        title: String,
+        onBack: () -> Unit,
+        actions: @Composable RowScope.() -> Unit = {},
+    ) {
         TopAppBar(
             title = { Text(title, fontWeight = FontWeight.SemiBold) },
             navigationIcon = {
                 IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
             },
+            actions = actions,
             colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
         )
     }

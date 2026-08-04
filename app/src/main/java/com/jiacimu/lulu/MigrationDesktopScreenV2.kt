@@ -211,8 +211,8 @@ private fun DesktopCompanionCard(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 17.dp, vertical = 15.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            DesktopV2Avatar(characterName.take(1).ifBlank { "露" }, 52, avatarUri)
-            Spacer(Modifier.width(13.dp))
+            DesktopV2Avatar(characterName.take(1).ifBlank { "露" }, 72, avatarUri)
+            Spacer(Modifier.width(15.dp))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(characterName, color = DesktopInk, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)

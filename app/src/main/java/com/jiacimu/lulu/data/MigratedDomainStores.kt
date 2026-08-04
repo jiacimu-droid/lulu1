@@ -19,9 +19,42 @@ data class LuluChatMessage(
     val status: Status = Status.Sent,
     val favorite: Boolean = false,
     val branchOriginMessageId: String? = null,
+    val authorCharacterId: String? = null,
+    val replyToMessageId: String? = null,
 ) {
     enum class Sender { User, Character, System }
     enum class Status { Sending, Sent, Failed }
+}
+
+enum class LuluGroupRole { Owner, Admin, Member }
+
+data class LuluGroupMember(
+    val characterId: String,
+    val groupNickname: String = "",
+    val role: LuluGroupRole = LuluGroupRole.Member,
+)
+
+data class LuluGroupChat(
+    val name: String,
+    val avatarUri: String? = null,
+    val announcement: String = "",
+    val userGroupNickname: String = "主人",
+    val members: List<LuluGroupMember>,
+    val pinned: Boolean = false,
+    val muted: Boolean = false,
+    val showMemberNames: Boolean = true,
+    val allowCharacterConversation: Boolean = true,
+    val maxAutoReplies: Int = 4,
+) {
+    fun normalized(): LuluGroupChat = copy(
+        name = name.trim().ifBlank { "新群聊" },
+        announcement = announcement.trim(),
+        userGroupNickname = userGroupNickname.trim().ifBlank { "主人" },
+        members = members.distinctBy(LuluGroupMember::characterId).map { member ->
+            member.copy(groupNickname = member.groupNickname.trim())
+        },
+        maxAutoReplies = maxAutoReplies.coerceIn(1, 8),
+    )
 }
 
 data class LuluConversation(
@@ -33,14 +66,18 @@ data class LuluConversation(
     val unreadCount: Int = 0,
     val parentConversationId: String? = null,
     val branchOriginMessageId: String? = null,
+    val groupChat: LuluGroupChat? = null,
 )
 
 interface LuluChatStore {
     val conversations: StateFlow<List<LuluConversation>>
     fun messages(conversationId: String): StateFlow<List<LuluChatMessage>>
     fun ensureConversation(characterId: String, title: String): LuluConversation
-    fun sendUserMessage(conversationId: String, content: String): LuluChatMessage
-    fun appendCharacterMessage(conversationId: String, content: String): LuluChatMessage
+    fun createGroupConversation(name: String, memberIds: List<String>): LuluConversation
+    fun updateGroupConversation(conversationId: String, groupChat: LuluGroupChat): Boolean
+    fun deleteConversation(conversationId: String): Boolean
+    fun sendUserMessage(conversationId: String, content: String, replyToMessageId: String? = null): LuluChatMessage
+    fun appendCharacterMessage(conversationId: String, content: String, authorCharacterId: String? = null): LuluChatMessage
     fun appendSystemMessage(conversationId: String, content: String): LuluChatMessage
     fun markFailed(messageId: String)
     fun markConversationRead(conversationId: String)
@@ -64,7 +101,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             if (prefs != null) return
             prefs = context.applicationContext.getSharedPreferences(CHAT_PREFS, Context.MODE_PRIVATE)
             val loaded = decode(prefs?.getString(CHAT_STATE, null))
-            conversationState.value = loaded.first.ifEmpty { defaultConversations() }
+            conversationState.value = loaded.first.ifEmpty { defaultConversations() }.sortedWith(conversationOrdering())
             messageStates.clear()
             loaded.second.forEach { (conversationId, messages) ->
                 messageStates[conversationId] = MutableStateFlow(messages)
@@ -84,7 +121,11 @@ class InMemoryLuluChatStore : LuluChatStore {
         val cleanTitle = title.trim().ifBlank { "未命名角色" }
         synchronized(lock) {
             conversationState.value
-                .filter { it.characterId == cleanCharacterId && it.parentConversationId == null }
+                .filter {
+                    it.characterId == cleanCharacterId &&
+                        it.parentConversationId == null &&
+                        it.groupChat == null
+                }
                 .maxByOrNull(LuluConversation::updatedAt)
                 ?.let { return it }
 
@@ -103,23 +144,88 @@ class InMemoryLuluChatStore : LuluChatStore {
         }
     }
 
-    override fun sendUserMessage(conversationId: String, content: String): LuluChatMessage {
+    override fun createGroupConversation(name: String, memberIds: List<String>): LuluConversation {
+        val members = memberIds.map(String::trim).filter(String::isNotBlank).distinct()
+        require(members.size >= 2) { "群聊至少需要两个角色" }
+        synchronized(lock) {
+            val conversation = LuluConversation(
+                id = UUID.randomUUID().toString(),
+                characterId = members.first(),
+                title = name.trim().ifBlank { "新群聊" },
+                updatedAt = Instant.now(),
+                groupChat = LuluGroupChat(
+                    name = name,
+                    members = members.map { characterId -> LuluGroupMember(characterId = characterId) },
+                ).normalized(),
+            )
+            messageStates[conversation.id] = MutableStateFlow(emptyList())
+            conversationState.value = (listOf(conversation) + conversationState.value)
+                .sortedWith(conversationOrdering())
+            persistLocked()
+            return conversation
+        }
+    }
+
+    override fun updateGroupConversation(conversationId: String, groupChat: LuluGroupChat): Boolean {
+        val normalized = groupChat.normalized()
+        if (normalized.members.size < 2) return false
+        synchronized(lock) {
+            var changed = false
+            conversationState.value = conversationState.value.map { conversation ->
+                if (conversation.id == conversationId && conversation.groupChat != null) {
+                    changed = true
+                    conversation.copy(
+                        characterId = normalized.members.first().characterId,
+                        title = normalized.name,
+                        groupChat = normalized,
+                        updatedAt = Instant.now(),
+                    )
+                } else {
+                    conversation
+                }
+            }.sortedWith(conversationOrdering())
+            if (changed) persistLocked()
+            return changed
+        }
+    }
+
+    override fun deleteConversation(conversationId: String): Boolean {
+        synchronized(lock) {
+            if (conversationState.value.none { it.id == conversationId }) return false
+            conversationState.value = conversationState.value.filterNot { it.id == conversationId }
+            messageStates.remove(conversationId)
+            persistLocked()
+            return true
+        }
+    }
+
+    override fun sendUserMessage(
+        conversationId: String,
+        content: String,
+        replyToMessageId: String?,
+    ): LuluChatMessage {
         val clean = content.trim()
         require(clean.isNotEmpty()) { "Message content cannot be blank" }
         return LuluChatMessage(
             conversationId = conversationId,
             sender = LuluChatMessage.Sender.User,
             content = clean,
+            replyToMessageId = replyToMessageId,
         ).also { message -> append(conversationId, message, incrementUnread = false) }
     }
 
-    override fun appendCharacterMessage(conversationId: String, content: String): LuluChatMessage {
+    override fun appendCharacterMessage(
+        conversationId: String,
+        content: String,
+        authorCharacterId: String?,
+    ): LuluChatMessage {
         val clean = content.trim()
         require(clean.isNotEmpty()) { "Message content cannot be blank" }
         return LuluChatMessage(
             conversationId = conversationId,
             sender = LuluChatMessage.Sender.Character,
             content = clean,
+            authorCharacterId = authorCharacterId,
         ).also { message -> append(conversationId, message, incrementUnread = false) }
     }
 
@@ -195,6 +301,7 @@ class InMemoryLuluChatStore : LuluChatStore {
                 updatedAt = Instant.now(),
                 parentConversationId = conversationId,
                 branchOriginMessageId = fromMessageId,
+                groupChat = sourceConversation.groupChat,
             )
             messageStates[branchId] = MutableStateFlow(copiedMessages)
             conversationState.value = (listOf(branch) + conversationState.value)
@@ -216,9 +323,13 @@ class InMemoryLuluChatStore : LuluChatStore {
                 unreadCount = if (incrementUnread) current.unreadCount + 1 else current.unreadCount,
             )
             conversationState.value = (listOf(updated) + conversationState.value.filterNot { it.id == conversationId })
-                .sortedByDescending(LuluConversation::updatedAt)
+                .sortedWith(conversationOrdering())
             persistLocked()
-            SharedExperienceTimeline.recordChatMessage(current.characterId, conversationId, message)
+            SharedExperienceTimeline.recordChatMessage(
+                message.authorCharacterId ?: current.characterId,
+                conversationId,
+                message,
+            )
         }
     }
 
@@ -248,7 +359,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             } else {
                 conversation
             }
-        }.sortedByDescending(LuluConversation::updatedAt)
+        }.sortedWith(conversationOrdering())
     }
 
     private fun persistLocked() {
@@ -309,6 +420,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         .put("unreadCount", value.unreadCount)
         .put("parentConversationId", value.parentConversationId ?: JSONObject.NULL)
         .put("branchOriginMessageId", value.branchOriginMessageId ?: JSONObject.NULL)
+        .put("groupChat", value.groupChat?.let(::encodeGroupChat) ?: JSONObject.NULL)
 
     private fun decodeConversation(item: JSONObject): LuluConversation = LuluConversation(
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
@@ -319,7 +431,56 @@ class InMemoryLuluChatStore : LuluChatStore {
         unreadCount = item.optInt("unreadCount").coerceAtLeast(0),
         parentConversationId = item.nullableString("parentConversationId"),
         branchOriginMessageId = item.nullableString("branchOriginMessageId"),
+        groupChat = item.optJSONObject("groupChat")?.let(::decodeGroupChat),
     )
+
+    private fun encodeGroupChat(value: LuluGroupChat): JSONObject = JSONObject()
+        .put("name", value.name)
+        .put("avatarUri", value.avatarUri.orEmpty())
+        .put("announcement", value.announcement)
+        .put("userGroupNickname", value.userGroupNickname)
+        .put("pinned", value.pinned)
+        .put("muted", value.muted)
+        .put("showMemberNames", value.showMemberNames)
+        .put("allowCharacterConversation", value.allowCharacterConversation)
+        .put("maxAutoReplies", value.maxAutoReplies)
+        .put(
+            "members",
+            JSONArray().apply {
+                value.members.forEach { member ->
+                    put(
+                        JSONObject()
+                            .put("characterId", member.characterId)
+                            .put("groupNickname", member.groupNickname)
+                            .put("role", member.role.name),
+                    )
+                }
+            },
+        )
+
+    private fun decodeGroupChat(item: JSONObject): LuluGroupChat? = runCatching {
+        val members = item.optJSONArray("members").decodeObjects { member ->
+            LuluGroupMember(
+                characterId = member.optString("characterId"),
+                groupNickname = member.optString("groupNickname"),
+                role = runCatching { LuluGroupRole.valueOf(member.optString("role")) }
+                    .getOrDefault(LuluGroupRole.Member),
+            )
+        }.filter { it.characterId.isNotBlank() }
+        if (members.size < 2) return@runCatching null
+        LuluGroupChat(
+            name = item.optString("name").ifBlank { "群聊" },
+            avatarUri = item.optString("avatarUri").takeIf(String::isNotBlank),
+            announcement = item.optString("announcement"),
+            userGroupNickname = item.optString("userGroupNickname").ifBlank { "主人" },
+            members = members,
+            pinned = item.optBoolean("pinned"),
+            muted = item.optBoolean("muted"),
+            showMemberNames = item.optBoolean("showMemberNames", true),
+            allowCharacterConversation = item.optBoolean("allowCharacterConversation", true),
+            maxAutoReplies = item.optInt("maxAutoReplies", 4).coerceIn(1, 8),
+        ).normalized()
+    }.getOrNull()
 
     private fun encodeMessage(value: LuluChatMessage): JSONObject = JSONObject()
         .put("id", value.id)
@@ -330,6 +491,8 @@ class InMemoryLuluChatStore : LuluChatStore {
         .put("status", value.status.name)
         .put("favorite", value.favorite)
         .put("branchOriginMessageId", value.branchOriginMessageId ?: JSONObject.NULL)
+        .put("authorCharacterId", value.authorCharacterId ?: JSONObject.NULL)
+        .put("replyToMessageId", value.replyToMessageId ?: JSONObject.NULL)
 
     private fun decodeMessage(item: JSONObject): LuluChatMessage = LuluChatMessage(
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
@@ -342,7 +505,13 @@ class InMemoryLuluChatStore : LuluChatStore {
             .getOrDefault(LuluChatMessage.Status.Sent),
         favorite = item.optBoolean("favorite"),
         branchOriginMessageId = item.nullableString("branchOriginMessageId"),
+        authorCharacterId = item.nullableString("authorCharacterId"),
+        replyToMessageId = item.nullableString("replyToMessageId"),
     )
+
+    private fun conversationOrdering(): Comparator<LuluConversation> =
+        compareByDescending<LuluConversation> { it.groupChat?.pinned == true }
+            .thenByDescending(LuluConversation::updatedAt)
 
     private companion object {
         const val CHAT_PREFS = "lulu_chat_store"
