@@ -619,7 +619,7 @@ private fun CampaignPlay(
                     updatedAt = System.currentTimeMillis(),
                 )
                 val summary = if (ruling.needsRoll) {
-                    "在${world.title}执行“$cleanAction”，由$rollerLabel进行${ruling.checkName}，d20=$roll，$result。"
+                    "在${world.title}执行“$cleanAction”，由${rollerLabel}进行${ruling.checkName}，d20=$roll，$result。"
                 } else {
                     "在${world.title}执行“$cleanAction”，主持判定无需检定：${ruling.ruling}。"
                 }
