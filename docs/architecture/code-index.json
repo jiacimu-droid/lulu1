@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-04T09:54:02.346139+00:00",
-  "commit": "10b6170bc016b349d374055f50362280f793c132",
+  "generatedAt": "2026-08-04T10:10:43.236300+00:00",
+  "commit": "3473383531995205588ca30290062e2829b353e0",
   "branch": "main",
-  "sourceFingerprint": "ad7fac79c5ed5826c38e6dd71ed6a83b5470e74f3d306c76cfe3943a48adf4e5",
+  "sourceFingerprint": "d6c1c6d579147c39d4cf888b87ca7e2ce32767631c45bff882cb41e65f496434",
   "summary": {
     "files": 100,
-    "lines": 21359,
-    "symbols": 397
+    "lines": 21568,
+    "symbols": 398
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -49,25 +49,25 @@
     "LuluVoiceSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 49
+        "line": 50
       }
     ],
     "saveVoiceSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 65
+        "line": 75
       }
     ],
     "LuluMemorySettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 194
+        "line": 229
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 208
+        "line": 243
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -77,7 +77,7 @@
     "LuluImageSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 302
+        "line": 337
       }
     ],
     "LuluCapabilitiesScreen": [
@@ -187,7 +187,7 @@
     "stop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 36
+        "line": 44
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
@@ -197,7 +197,7 @@
     "shutdown": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 43
+        "line": 51
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
@@ -243,7 +243,7 @@
     "MigratedChatHubScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt",
-        "line": 38
+        "line": 37
       }
     ],
     "LuluRepositories": [
@@ -387,25 +387,31 @@
     "QqStyleChatDetailScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 53
+        "line": 59
+      }
+    ],
+    "beginVoiceCapture": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
+        "line": 107
       }
     ],
     "sendOnly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 98
+        "line": 164
       }
     ],
     "stopReceiving": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 105
+        "line": 171
       }
     ],
     "sendAndReceive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 111
+        "line": 177
       }
     ],
     "ApiConfiguration": [
@@ -1225,25 +1231,25 @@
     "LuluSpacing": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
-        "line": 30
+        "line": 31
       }
     ],
     "LuluRadii": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
-        "line": 39
+        "line": 40
       }
     ],
     "LuluSizes": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
-        "line": 46
+        "line": 47
       }
     ],
     "LuluMotionTokens": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
-        "line": 56
+        "line": 57
       }
     ],
     "reroll": [
@@ -2321,7 +2327,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
       "lines": 229,
-      "sha256": "9b05ffe0b82be10e17a4fb258a6f2bbb6672f364ddc99d8b550164857746d567",
+      "sha256": "aa68f75d3dd8954eee205532da443aecbc16cd62b73cf9efe98154b3ab2b88f4",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
@@ -2332,7 +2338,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
       "lines": 238,
-      "sha256": "e3c48caf2e8a4b3544c9f7764fe55180ef92f267d60c27a4fe38812e74998600",
+      "sha256": "ad17b400ff4764649b7c73c18ee54c26a31236756f248fc3c6be8a83e037338a",
       "symbols": [
         {
           "name": "CharacterWorldBookScreenV2",
@@ -2390,28 +2396,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-      "lines": 507,
-      "sha256": "dbeb0e634ccced95503f67d7209075045ba38b5bfa00e692128c6f6584a08707",
+      "lines": 542,
+      "sha256": "647b7f78f4668c229f11ec0acba2c75ae218b0c752c8d8ebfc77bbc56410f2ab",
       "symbols": [
         {
           "name": "LuluVoiceSettingsScreen",
-          "line": 49
+          "line": 50
         },
         {
           "name": "saveVoiceSettings",
-          "line": 65
+          "line": 75
         },
         {
           "name": "LuluMemorySettingsScreen",
-          "line": 194
+          "line": 229
         },
         {
           "name": "save",
-          "line": 208
+          "line": 243
         },
         {
           "name": "LuluImageSettingsScreen",
-          "line": 302
+          "line": 337
         }
       ]
     },
@@ -2505,8 +2511,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-      "lines": 138,
-      "sha256": "90634732c0f6a425e713e28bc383a937ecae9c6538e78796ba76421f66cf3ac1",
+      "lines": 146,
+      "sha256": "4112cdb455c9a633b1f4cd20b0bf72485ca8f3c4b983f22126985501284600bd",
       "symbols": [
         {
           "name": "speak",
@@ -2514,11 +2520,11 @@
         },
         {
           "name": "stop",
-          "line": 36
+          "line": 44
         },
         {
           "name": "shutdown",
-          "line": 43
+          "line": 51
         }
       ]
     },
@@ -2562,12 +2568,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt",
-      "lines": 397,
-      "sha256": "a263bd8dccda20227023c159afe566ac1ce66c4fdd8355b2264032ab4ae53fed",
+      "lines": 385,
+      "sha256": "423e05cc43014e006cbcfc41dc706e55bb678dfd42046ef8996315ea5e50a7d1",
       "symbols": [
         {
           "name": "MigratedChatHubScreenV2",
-          "line": 38
+          "line": 37
         }
       ]
     },
@@ -2656,24 +2662,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 468,
-      "sha256": "9795d18121e4ce2a630390b28c2423c97095ca89760ac53d25ff20ef7b54b26e",
+      "lines": 645,
+      "sha256": "a62b0d815a6e14560769f746ec17c0726d4b54be91052107e5a5fd55bdd8989e",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
-          "line": 53
+          "line": 59
+        },
+        {
+          "name": "beginVoiceCapture",
+          "line": 107
         },
         {
           "name": "sendOnly",
-          "line": 98
+          "line": 164
         },
         {
           "name": "stopReceiving",
-          "line": 105
+          "line": 171
         },
         {
           "name": "sendAndReceive",
-          "line": 111
+          "line": 177
         }
       ]
     },
@@ -3380,7 +3390,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt",
       "lines": 156,
-      "sha256": "44d0d244038d410318641d29ebf55bdcfbd3c921204dd75f5e52e5c2ec1ec508",
+      "sha256": "50d3670c738b15fcefc7cf37eb736284d397ce20f8d63ad637244d11936a74ca",
       "symbols": [
         {
           "name": "LuluPageScaffold",
@@ -3410,8 +3420,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
-      "lines": 92,
-      "sha256": "6797aafec8d394569bb66cac3750eadc49e820f4e549ab95b2353f6dbf0e5df3",
+      "lines": 93,
+      "sha256": "150fe0f1719971acae8393a3adcc727b314d11b12b3873fd14571cc5cd7c3ff8",
       "symbols": [
         {
           "name": "LuluColors",
@@ -3419,19 +3429,19 @@
         },
         {
           "name": "LuluSpacing",
-          "line": 30
+          "line": 31
         },
         {
           "name": "LuluRadii",
-          "line": 39
+          "line": 40
         },
         {
           "name": "LuluSizes",
-          "line": 46
+          "line": 47
         },
         {
           "name": "LuluMotionTokens",
-          "line": 56
+          "line": 57
         }
       ]
     },
@@ -3749,7 +3759,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
       "lines": 378,
-      "sha256": "237dc205de781bf6d7679a2fe50456fb3ce9efa99662e5aef47184748787b3fd",
+      "sha256": "1bce84fc1ad7e7b42a7dde09940641f33820cf8652a2289196afd0b104d89ddb",
       "symbols": [
         {
           "name": "LuluGamesAppV2",
