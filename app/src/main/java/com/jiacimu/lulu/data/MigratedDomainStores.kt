@@ -172,11 +172,13 @@ class InMemoryLuluChatStore : LuluChatStore {
     override fun updateGroupConversation(conversationId: String, groupChat: LuluGroupChat): Boolean {
         val normalized = groupChat.normalized()
         if (normalized.members.size < 2) return false
-        val addedMemberIds = synchronized(lock) {
+        val membershipChanges = synchronized(lock) {
             val previous = conversationState.value.firstOrNull { it.id == conversationId }?.groupChat
                 ?: return false
-            val added = normalized.members.map(LuluGroupMember::characterId).toSet() -
-                previous.members.map(LuluGroupMember::characterId).toSet()
+            val previousIds = previous.members.map(LuluGroupMember::characterId).toSet()
+            val normalizedIds = normalized.members.map(LuluGroupMember::characterId).toSet()
+            val added = normalizedIds - previousIds
+            val removed = previousIds - normalizedIds
             var changed = false
             conversationState.value = conversationState.value.map { conversation ->
                 if (conversation.id == conversationId && conversation.groupChat != null) {
@@ -192,11 +194,33 @@ class InMemoryLuluChatStore : LuluChatStore {
                 }
             }.sortedWith(conversationOrdering())
             if (changed) persistLocked()
-            if (changed) added else emptySet()
+            if (changed) added to removed else emptySet<String>() to emptySet()
         }
-        if (addedMemberIds.isNotEmpty()) {
+        val (addedMemberIds, removedMemberIds) = membershipChanges
+        if (addedMemberIds.isNotEmpty() || removedMemberIds.isNotEmpty()) {
             conversationState.value.firstOrNull { it.id == conversationId }?.let { conversation ->
+                val eventParts = buildList {
+                    if (addedMemberIds.isNotEmpty()) {
+                        val names = addedMemberIds.joinToString("、") { MigratedDomainStores.characters.get(it).displayName }
+                        add("用户邀请 $names 加入了群聊")
+                    }
+                    if (removedMemberIds.isNotEmpty()) {
+                        val names = removedMemberIds.joinToString("、") { MigratedDomainStores.characters.get(it).displayName }
+                        add("用户将 $names 移出了群聊")
+                    }
+                }
+                appendSystemMessage(conversationId, "[群成员变更] ${eventParts.joinToString("；")}。当前群成员：${normalized.members.size + 1} 人。")
                 recordGroupMembershipAwareness(conversation, addedMemberIds)
+                removedMemberIds.forEach { characterId ->
+                    SharedExperienceTimeline.record(
+                        eventId = "group-removed-${conversation.id}-$characterId-${Instant.now().toEpochMilli()}",
+                        characterId = characterId,
+                        channel = "群聊·${normalized.name}",
+                        speaker = "系统事件",
+                        content = "用户将你移出了群聊《${normalized.name}》。你保留此前真实经历，但不再是群成员，也不会读取或参与此后的群聊消息。",
+                        occurredAt = Instant.now(),
+                    )
+                }
             }
         }
         return true
@@ -216,7 +240,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             .filter { onlyCharacterIds == null || it.characterId in onlyCharacterIds }
             .forEach { member ->
                 SharedExperienceTimeline.record(
-                    eventId = "group-joined-${conversation.id}-${member.characterId}",
+                    eventId = "group-joined-${conversation.id}-${member.characterId}-${conversation.updatedAt.toEpochMilli()}",
                     characterId = member.characterId,
                     channel = "群聊·${group.name}",
                     speaker = "系统事件",

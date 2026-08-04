@@ -5,6 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -42,6 +43,8 @@ internal fun QqGroupChatSettingsScreen(
     var confirmDelete by remember { mutableStateOf(false) }
     var confirmClear by remember { mutableStateOf(false) }
     var searchVisible by remember { mutableStateOf(false) }
+    var memberPickerVisible by remember { mutableStateOf(false) }
+    var memberManagementVisible by remember { mutableStateOf(false) }
     val memberIds = editing.members.mapTo(mutableSetOf(), LuluGroupMember::characterId)
 
     if (searchVisible) {
@@ -50,6 +53,39 @@ internal fun QqGroupChatSettingsScreen(
             characterNames = characters.associate { it.characterId to it.displayName },
             userLabel = group.userGroupNickname,
             onBack = { searchVisible = false },
+        )
+        return
+    }
+    if (memberPickerVisible) {
+        GroupMemberPickerScreen(
+            characters = characters,
+            existingMemberIds = memberIds,
+            onBack = { memberPickerVisible = false },
+            onConfirm = { addedIds ->
+                val updated = editing.copy(
+                    members = editing.members + addedIds.map(::LuluGroupMember),
+                ).normalized()
+                editing = updated
+                onSave(updated)
+                memberPickerVisible = false
+            },
+        )
+        return
+    }
+    if (memberManagementVisible) {
+        GroupMemberManagementScreen(
+            members = editing.members,
+            characters = characters,
+            onMembersChange = { members ->
+                val updated = editing.copy(members = members).normalized()
+                editing = updated
+                onSave(updated)
+            },
+            onAddMember = {
+                memberManagementVisible = false
+                memberPickerVisible = true
+            },
+            onBack = { memberManagementVisible = false },
         )
         return
     }
@@ -64,7 +100,10 @@ internal fun QqGroupChatSettingsScreen(
                 actions = {
                     TextButton(
                         enabled = editing.name.isNotBlank() && memberIds.size >= 2,
-                        onClick = { onSave(editing.normalized()) },
+                        onClick = {
+                            onSave(editing.normalized())
+                            onBack()
+                        },
                     ) { Text("保存", fontWeight = FontWeight.Bold) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
@@ -120,6 +159,48 @@ internal fun QqGroupChatSettingsScreen(
 
             item {
                 GroupSettingsCard {
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Text("群成员", fontWeight = FontWeight.Bold, fontSize = 17.sp, modifier = Modifier.weight(1f))
+                        Text("${editing.members.size + 1}人", color = LuluColors.Muted, fontSize = 12.sp)
+                    }
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(vertical = 2.dp),
+                    ) {
+                        item(key = "group-user") {
+                            GroupMemberAvatarItem(name = editing.userGroupNickname.ifBlank { "我" }, avatarUri = null)
+                        }
+                        items(editing.members, key = LuluGroupMember::characterId) { member ->
+                            val character = characters.firstOrNull { it.characterId == member.characterId }
+                            if (character != null) {
+                                GroupMemberAvatarItem(
+                                    name = member.groupNickname.ifBlank { character.displayName },
+                                    avatarUri = character.avatarUri,
+                                )
+                            }
+                        }
+                        item(key = "add-group-member") {
+                            GroupMemberAddItem(onClick = { memberPickerVisible = true })
+                        }
+                    }
+                    GroupSettingsAction(
+                        icon = Icons.Outlined.PersonAdd,
+                        title = "添加群成员",
+                        subtitle = "从角色列表中选择新的群成员",
+                        onClick = { memberPickerVisible = true },
+                    )
+                    HorizontalDivider(color = LuluColors.Border)
+                    GroupSettingsAction(
+                        icon = Icons.Outlined.ManageAccounts,
+                        title = "管理群成员",
+                        subtitle = "修改群昵称、管理员或移出群聊",
+                        onClick = { memberManagementVisible = true },
+                    )
+                }
+            }
+
+            item {
+                GroupSettingsCard {
                     GroupSettingsAction(
                         icon = Icons.Outlined.Search,
                         title = "查找聊天记录",
@@ -133,70 +214,6 @@ internal fun QqGroupChatSettingsScreen(
                         subtitle = "清空消息和原始时间线上下文，但保留这个群",
                         onClick = { confirmClear = true },
                     )
-                }
-            }
-
-            item { Text("群成员管理", fontWeight = FontWeight.Bold, fontSize = 18.sp) }
-            items(characters, key = CharacterSettings::characterId) { character ->
-                val member = editing.members.firstOrNull { it.characterId == character.characterId }
-                GroupSettingsCard {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().clickable {
-                            editing = toggleGroupMember(editing, character.characterId)
-                        },
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Checkbox(
-                            checked = member != null,
-                            onCheckedChange = { editing = toggleGroupMember(editing, character.characterId) },
-                        )
-                        LuluProfileAvatar(character.avatarUri, character.displayName.take(1).ifBlank { "角" }, 46)
-                        Spacer(Modifier.width(10.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(character.displayName, fontWeight = FontWeight.SemiBold)
-                            if (member != null) {
-                                Text(
-                                    when (member.role) {
-                                        LuluGroupRole.Owner -> "群主"
-                                        LuluGroupRole.Admin -> "管理员"
-                                        LuluGroupRole.Member -> "成员"
-                                    },
-                                    color = LuluColors.Muted,
-                                    fontSize = 11.sp,
-                                )
-                            }
-                        }
-                    }
-                    if (member != null) {
-                        OutlinedTextField(
-                            value = member.groupNickname,
-                            onValueChange = { nickname ->
-                                editing = editing.copy(
-                                    members = editing.members.map {
-                                        if (it.characterId == character.characterId) it.copy(groupNickname = nickname.take(20)) else it
-                                    },
-                                )
-                            },
-                            label = { Text("${character.displayName}的群昵称") },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                        if (member.role != LuluGroupRole.Owner) {
-                            FilterChip(
-                                selected = member.role == LuluGroupRole.Admin,
-                                onClick = {
-                                    editing = editing.copy(
-                                        members = editing.members.map {
-                                            if (it.characterId == character.characterId) {
-                                                it.copy(role = if (it.role == LuluGroupRole.Admin) LuluGroupRole.Member else LuluGroupRole.Admin)
-                                            } else it
-                                        },
-                                    )
-                                },
-                                label = { Text("设为管理员") },
-                            )
-                        }
-                    }
                 }
             }
 
@@ -264,6 +281,263 @@ internal fun QqGroupChatSettingsScreen(
                 }) { Text("确认清空", color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = { TextButton(onClick = { confirmClear = false }) { Text("取消") } },
+        )
+    }
+}
+
+@Composable
+private fun GroupMemberAvatarItem(name: String, avatarUri: String?) {
+    Column(
+        modifier = Modifier.width(62.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(5.dp),
+    ) {
+        LuluProfileAvatar(avatarUri, name.take(1).ifBlank { "群" }, 50)
+        Text(
+            name,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            fontSize = 11.sp,
+            color = LuluColors.Muted,
+        )
+    }
+}
+
+@Composable
+private fun GroupMemberAddItem(onClick: () -> Unit) {
+    Column(
+        modifier = Modifier.width(62.dp).clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(5.dp),
+    ) {
+        Surface(
+            modifier = Modifier.size(50.dp),
+            shape = RoundedCornerShape(16.dp),
+            color = LuluColors.Paper,
+            border = BorderStroke(1.dp, LuluColors.Border),
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(Icons.Outlined.Add, "添加群成员", tint = LuluColors.Ink, modifier = Modifier.size(24.dp))
+            }
+        }
+        Text("添加", fontSize = 11.sp, color = LuluColors.Muted)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GroupMemberPickerScreen(
+    characters: List<CharacterSettings>,
+    existingMemberIds: Set<String>,
+    onBack: () -> Unit,
+    onConfirm: (List<String>) -> Unit,
+) {
+    var query by remember { mutableStateOf("") }
+    var selectedIds by remember(existingMemberIds) { mutableStateOf(emptySet<String>()) }
+    val available = remember(characters, existingMemberIds, query) {
+        characters.filter { character ->
+            character.characterId !in existingMemberIds &&
+                (query.isBlank() || character.displayName.contains(query.trim(), ignoreCase = true))
+        }
+    }
+
+    BackHandler(onBack = onBack)
+    Scaffold(
+        containerColor = LuluColors.Paper,
+        topBar = {
+            TopAppBar(
+                title = { Text("添加群成员", fontWeight = FontWeight.SemiBold) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
+                actions = {
+                    TextButton(
+                        enabled = selectedIds.isNotEmpty(),
+                        onClick = { onConfirm(selectedIds.toList()) },
+                    ) {
+                        Text(
+                            if (selectedIds.isEmpty()) "完成" else "完成(${selectedIds.size})",
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
+            )
+        },
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            item {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    placeholder = { Text("搜索角色") },
+                    leadingIcon = { Icon(Icons.Outlined.Search, null) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(18.dp),
+                )
+            }
+            if (available.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 56.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            if (query.isBlank()) "现有角色都已经在群里啦" else "没有找到这个角色",
+                            color = LuluColors.Muted,
+                        )
+                    }
+                }
+            } else {
+                items(available, key = CharacterSettings::characterId) { character ->
+                    val checked = character.characterId in selectedIds
+                    Card(
+                        modifier = Modifier.fillMaxWidth().clickable {
+                            selectedIds = if (checked) selectedIds - character.characterId else selectedIds + character.characterId
+                        },
+                        colors = CardDefaults.cardColors(containerColor = LuluColors.Card),
+                        border = BorderStroke(1.dp, LuluColors.Border),
+                        shape = RoundedCornerShape(18.dp),
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Checkbox(
+                                checked = checked,
+                                onCheckedChange = {
+                                    selectedIds = if (checked) selectedIds - character.characterId else selectedIds + character.characterId
+                                },
+                            )
+                            LuluProfileAvatar(character.avatarUri, character.displayName.take(1).ifBlank { "角" }, 48)
+                            Spacer(Modifier.width(12.dp))
+                            Text(character.displayName, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GroupMemberManagementScreen(
+    members: List<LuluGroupMember>,
+    characters: List<CharacterSettings>,
+    onMembersChange: (List<LuluGroupMember>) -> Unit,
+    onAddMember: () -> Unit,
+    onBack: () -> Unit,
+) {
+    var pendingRemoval by remember { mutableStateOf<LuluGroupMember?>(null) }
+    val rows = members.mapNotNull { member ->
+        characters.firstOrNull { it.characterId == member.characterId }?.let { character -> member to character }
+    }
+    BackHandler(onBack = onBack)
+    Scaffold(
+        containerColor = LuluColors.Paper,
+        topBar = {
+            TopAppBar(
+                title = { Text("群成员管理", fontWeight = FontWeight.SemiBold) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
+                actions = {
+                    IconButton(onClick = onAddMember) { Icon(Icons.Outlined.PersonAdd, "添加群成员") }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
+            )
+        },
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item {
+                Text("${members.size + 1} 位成员（包括你）", color = LuluColors.Muted, fontSize = 12.sp)
+            }
+            items(rows, key = { it.first.characterId }) { (member, character) ->
+                GroupSettingsCard {
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        LuluProfileAvatar(character.avatarUri, character.displayName.take(1).ifBlank { "角" }, 48)
+                        Spacer(Modifier.width(12.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(character.displayName, fontWeight = FontWeight.SemiBold)
+                            Text(
+                                when (member.role) {
+                                    LuluGroupRole.Owner -> "群主"
+                                    LuluGroupRole.Admin -> "管理员"
+                                    LuluGroupRole.Member -> "群成员"
+                                },
+                                color = LuluColors.Muted,
+                                fontSize = 11.sp,
+                            )
+                        }
+                    }
+                    OutlinedTextField(
+                        value = member.groupNickname,
+                        onValueChange = { nickname ->
+                            onMembersChange(members.map {
+                                if (it.characterId == member.characterId) it.copy(groupNickname = nickname.take(20)) else it
+                            })
+                        },
+                        label = { Text("群昵称") },
+                        placeholder = { Text(character.displayName) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        if (member.role != LuluGroupRole.Owner) {
+                            FilterChip(
+                                selected = member.role == LuluGroupRole.Admin,
+                                onClick = {
+                                    onMembersChange(members.map {
+                                        if (it.characterId == member.characterId) {
+                                            it.copy(role = if (it.role == LuluGroupRole.Admin) LuluGroupRole.Member else LuluGroupRole.Admin)
+                                        } else it
+                                    })
+                                },
+                                label = { Text(if (member.role == LuluGroupRole.Admin) "管理员" else "设为管理员") },
+                            )
+                        }
+                        Spacer(Modifier.weight(1f))
+                        OutlinedButton(
+                            enabled = members.size > 2 && member.role != LuluGroupRole.Owner,
+                            onClick = { pendingRemoval = member },
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                        ) {
+                            Icon(Icons.Outlined.PersonRemove, null, Modifier.size(18.dp))
+                            Spacer(Modifier.width(5.dp))
+                            Text("移出群聊")
+                        }
+                    }
+                    if (members.size <= 2) {
+                        Text("群聊至少保留两位角色，当前成员不可再移出", color = LuluColors.Muted, fontSize = 11.sp)
+                    }
+                }
+            }
+        }
+    }
+
+    pendingRemoval?.let { member ->
+        val name = characters.firstOrNull { it.characterId == member.characterId }?.displayName ?: "该成员"
+        AlertDialog(
+            onDismissRequest = { pendingRemoval = null },
+            title = { Text("将 $name 移出群聊？") },
+            text = { Text("对方会知道自己已被移出，并且不会再读取这个群之后的新消息。") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onMembersChange(members.filterNot { it.characterId == member.characterId })
+                    pendingRemoval = null
+                }) { Text("移出", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = { TextButton(onClick = { pendingRemoval = null }) { Text("取消") } },
         )
     }
 }
@@ -360,17 +634,6 @@ private fun GroupSettingsAction(
             Text(subtitle, color = LuluColors.Muted, fontSize = 12.sp)
         }
         Icon(Icons.Outlined.ChevronRight, null, tint = LuluColors.Muted)
-    }
-}
-
-private fun toggleGroupMember(group: LuluGroupChat, characterId: String): LuluGroupChat {
-    val existing = group.members.firstOrNull { it.characterId == characterId }
-    return if (existing == null) {
-        group.copy(members = group.members + LuluGroupMember(characterId))
-    } else if (group.members.size > 2 && existing.role != LuluGroupRole.Owner) {
-        group.copy(members = group.members.filterNot { it.characterId == characterId })
-    } else {
-        group
     }
 }
 

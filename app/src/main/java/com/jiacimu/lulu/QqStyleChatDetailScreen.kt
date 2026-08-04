@@ -127,7 +127,6 @@ fun QqStyleChatDetailScreen(
             onBack = { groupSettingsVisible = false },
             onSave = { updated ->
                 MigratedDomainStores.chat.updateGroupConversation(conversationId, updated)
-                groupSettingsVisible = false
             },
             onDelete = {
                 MigratedDomainStores.chat.deleteConversation(conversationId)
@@ -753,7 +752,7 @@ private fun QqMessageRow(
                 border = BorderStroke(1.dp, QqBorder),
             ) {
                 Text(
-                    message.content.removePrefix("[共同活动]").trim(),
+                    message.content.removePrefix("[共同活动]").removePrefix("[群成员变更]").trim(),
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
                     color = QqMuted,
                     fontSize = 11.sp,
@@ -1098,7 +1097,9 @@ internal fun buildBoundedHistory(
     maxChars: Int = 12_000,
 ): String {
     val normalized = messages
-        .filter { it.sender != LuluChatMessage.Sender.System }
+        .filter { message ->
+            message.sender != LuluChatMessage.Sender.System || message.content.startsWith("[群成员变更]")
+        }
         .fold(mutableListOf<LuluChatMessage>()) { result, message ->
             val previous = result.lastOrNull()
             val duplicate = previous != null && previous.sender == message.sender && previous.content.trim() == message.content.trim()
@@ -1107,10 +1108,10 @@ internal fun buildBoundedHistory(
         }
         .takeLast(maxMessages)
     val lines = normalized.map { message ->
-        val role = if (message.sender == LuluChatMessage.Sender.User) {
-            UserProfileContext.displayLabel()
-        } else {
-            message.authorCharacterId?.let { characterNames[it] } ?: characterName
+        val role = when (message.sender) {
+            LuluChatMessage.Sender.User -> UserProfileContext.displayLabel()
+            LuluChatMessage.Sender.System -> "群聊系统"
+            LuluChatMessage.Sender.Character -> message.authorCharacterId?.let { characterNames[it] } ?: characterName
         }
         "$role：${message.content.trim()}"
     }
