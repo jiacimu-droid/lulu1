@@ -208,13 +208,13 @@ internal fun QqGroupChatSettingsScreen(
                     GroupSettingSwitch("允许角色互相接话", editing.allowCharacterConversation) {
                         editing = editing.copy(
                             allowCharacterConversation = it,
-                            maxAutoReplies = if (it) editing.maxAutoReplies.coerceAtLeast(4) else editing.maxAutoReplies,
+                            maxAutoReplies = editing.maxAutoReplies,
                         )
                     }
                     HorizontalDivider(color = LuluColors.Border)
                     Text(
                         if (editing.allowCharacterConversation) {
-                            "每轮群内互动 ${editing.maxAutoReplies} 次（至少形成 A→B→A→B）"
+                            "每轮最多 ${editing.maxAutoReplies} 次自然接话"
                         } else {
                             "每次最多自动回复 ${editing.maxAutoReplies} 条"
                         },
@@ -223,11 +223,10 @@ internal fun QqGroupChatSettingsScreen(
                     Slider(
                         value = editing.maxAutoReplies.toFloat(),
                         onValueChange = {
-                            val minimum = if (editing.allowCharacterConversation) 4 else 1
-                            editing = editing.copy(maxAutoReplies = it.toInt().coerceIn(minimum, 8))
+                            editing = editing.copy(maxAutoReplies = it.toInt().coerceIn(1, 8))
                         },
-                        valueRange = if (editing.allowCharacterConversation) 4f..8f else 1f..8f,
-                        steps = if (editing.allowCharacterConversation) 3 else 6,
+                        valueRange = 1f..8f,
+                        steps = 6,
                     )
                 }
             }

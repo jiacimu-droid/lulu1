@@ -53,7 +53,7 @@ data class LuluGroupChat(
         members = members.distinctBy(LuluGroupMember::characterId).map { member ->
             member.copy(groupNickname = member.groupNickname.trim())
         },
-        maxAutoReplies = maxAutoReplies.coerceIn(if (allowCharacterConversation) 4 else 1, 8),
+        maxAutoReplies = maxAutoReplies.coerceIn(1, 8),
     )
 }
 

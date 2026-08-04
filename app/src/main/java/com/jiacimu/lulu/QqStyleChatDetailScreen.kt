@@ -936,6 +936,25 @@ private fun normalizeSemanticBubbles(text: String): String {
     return semanticBubbles.joinToString("\n")
 }
 
+private data class GroupReplyFlow(
+    val content: String,
+    val nextSpeakerName: String?,
+    val shouldEnd: Boolean,
+)
+
+private fun parseGroupReplyFlow(text: String): GroupReplyFlow {
+    val nextMatch = Regex("⟪NEXT\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE).find(text)
+    val visible = text
+        .replace(Regex("⟪NEXT\\s*:\\s*[^⟫]+⟫", RegexOption.IGNORE_CASE), "")
+        .replace(Regex("⟪END⟫", RegexOption.IGNORE_CASE), "")
+        .trim()
+    return GroupReplyFlow(
+        content = normalizeSemanticBubbles(visible),
+        nextSpeakerName = nextMatch?.groupValues?.getOrNull(1)?.trim()?.takeIf(String::isNotBlank),
+        shouldEnd = text.contains("⟪END⟫", ignoreCase = true),
+    )
+}
+
 internal suspend fun runGroupReplies(
     conversationId: String,
     group: LuluGroupChat,
@@ -969,16 +988,21 @@ internal suspend fun runGroupReplies(
         }
     val ordered = mentioned + remaining
     val explicitAll = pendingText.contains("@全体成员")
-    val targetReplies = when {
-        explicitAll -> group.maxAutoReplies
-        mentioned.isNotEmpty() && group.allowCharacterConversation -> group.maxAutoReplies.coerceAtLeast(maxOf(4, mentioned.size + 2))
+    val replyLimit = when {
+        group.allowCharacterConversation -> group.maxAutoReplies
+        explicitAll -> validMembers.size.coerceAtMost(group.maxAutoReplies)
         mentioned.isNotEmpty() -> mentioned.size.coerceAtMost(group.maxAutoReplies)
-        group.allowCharacterConversation -> group.maxAutoReplies.coerceAtLeast(maxOf(4, validMembers.size + 1))
         else -> 1
+    }.coerceIn(1, 8)
+    val pendingSpeakers = when {
+        explicitAll -> ordered.toMutableList()
+        mentioned.isNotEmpty() -> mentioned.toMutableList()
+        else -> mutableListOf(ordered.first())
     }
-    val speakingTurns = List(targetReplies.coerceIn(1, 8)) { turn -> ordered[turn % ordered.size] }
+    var index = 0
 
-    speakingTurns.forEachIndexed { index, member ->
+    while (index < replyLimit && pendingSpeakers.isNotEmpty()) {
+        val member = pendingSpeakers.removeAt(0)
         if (!currentCoroutineContext().isActive) return
         onSpeakerChange(member.characterId)
         val character = MigratedDomainStores.characters.get(member.characterId)
@@ -1003,11 +1027,13 @@ internal suspend fun runGroupReplies(
                         ?.ifBlank { "上一位角色" }
                 } ?: "上一位角色"
                 appendLine("[$previousName 刚刚说：${previousMessage?.content?.takeLast(900).orEmpty()}]")
-                appendLine("[你这次的主要回应对象是 $previousName，不是重新回答用户。可以赞同、质疑、追问、开玩笑或补充新信息，必须让角色之间的对话继续发展。]")
+                appendLine("[你这次主要回应 $previousName，而不是重新回答用户。可以赞同、质疑、追问、开玩笑或补充；如果已经自然说完，也可以让话题停在这里。]")
             }
-            if (index >= validMembers.size) appendLine("[这是群内继续接话，同一角色可以再次回应刚才的新内容，但不能复述自己的上一句话。]")
             appendLine("[请按真实聊天的表达节奏决定发几个气泡，不按字数或标点机械切分。一个完整的动作、情绪、观点或紧密相连的句子应留在同一气泡；只有话题转折、独立的反应/追问、或有意停顿时才另开气泡。]")
             appendLine("[需要分气泡时，只在两个气泡之间输出 $SemanticBubbleSeparator；一个气泡时不要输出标记。不要为了凑数量拆句，也不要输出姓名标签或其他格式说明。]")
+            if (group.allowCharacterConversation) {
+                appendLine("[根据此刻的内容判断群聊是否还会自然继续：若某位成员会接话，在末尾输出 ⟪NEXT:成员名⟫；若已经自然结束，输出 ⟪END⟫。不要按固定顺序轮流，也不要为了让每个人都说话而硬续。该标记不会显示给用户。]")
+            }
             if (index == 0) append("用户刚在群里说：$pendingText")
             else append("用户最初开启的话题：$pendingText")
         }
@@ -1032,7 +1058,8 @@ internal suspend fun runGroupReplies(
         if (!currentCoroutineContext().isActive) return
         val reply = result.getOrNull()
         if (reply != null) {
-            val semanticReply = normalizeSemanticBubbles(reply.text)
+            val flow = parseGroupReplyFlow(reply.text)
+            val semanticReply = flow.content
             if (semanticReply.isNotBlank()) {
                 MigratedDomainStores.chat.appendCharacterMessage(
                     conversationId = conversationId,
@@ -1041,10 +1068,24 @@ internal suspend fun runGroupReplies(
                 )
                 afterReply(member.characterId, semanticReply)
             }
+            if (group.allowCharacterConversation && !flow.shouldEnd && index + 1 < replyLimit) {
+                val requestedNext = flow.nextSpeakerName?.let { requested ->
+                    validMembers.firstOrNull { candidate ->
+                        val nickname = candidate.groupNickname.ifBlank { characterNames[candidate.characterId].orEmpty() }
+                        val displayName = characterNames[candidate.characterId].orEmpty()
+                        requested.equals(nickname, ignoreCase = true) || requested.equals(displayName, ignoreCase = true)
+                    }
+                }
+                if (requestedNext != null) {
+                    pendingSpeakers.removeAll { it.characterId == requestedNext.characterId }
+                    pendingSpeakers.add(0, requestedNext)
+                }
+            }
         } else {
             val error = result.exceptionOrNull()
             onError("${character.displayName}回复失败：${error?.message ?: "未知错误"}")
         }
+        index += 1
     }
     onSpeakerChange(null)
 }
