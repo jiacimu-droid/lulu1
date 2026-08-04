@@ -26,27 +26,16 @@ internal fun StudyTodayScreenV2(
     val completed = todayTasks.count(StudyTask::completed)
 
     LazyColumn(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(13.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         item {
             StudyCard {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("今日待办", Modifier.weight(1f), fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    Surface(color = StudyDesign.wheatSoft, shape = MaterialTheme.shapes.large) {
-                        Text("$completed/${todayTasks.size}", Modifier.padding(horizontal = 13.dp, vertical = 10.dp), fontWeight = FontWeight.Bold)
-                    }
-                }
-                StudyProgress(if (todayTasks.isEmpty()) 0f else completed.toFloat() / todayTasks.size)
                 Button(onClick = onOpenFocus, modifier = Modifier.fillMaxWidth()) {
                     Icon(Icons.Outlined.Timer, null)
                     Spacer(Modifier.width(7.dp))
                     Text("开始番茄钟")
                 }
-            }
-        }
-        item {
-            StudyCard {
                 OutlinedTextField(
                     value = newTask,
                     onValueChange = { newTask = it },
@@ -65,6 +54,15 @@ internal fun StudyTodayScreenV2(
             item { StudyCard { Text("今天还没有待办。", color = StudyDesign.muted) } }
         } else {
             items(todayTasks, key = StudyTask::id) { task -> SelfDirectedTaskRow(task, store) }
+        }
+        item {
+            StudyCard {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("$completed/${todayTasks.size}", fontWeight = FontWeight.Bold)
+                }
+                StudyProgress(if (todayTasks.isEmpty()) 0f else completed.toFloat() / todayTasks.size)
+                Text("今日待办", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
         }
     }
 }
@@ -115,8 +113,16 @@ internal fun StudyPlanScreenV2(state: StudyState, store: PostgraduateExamStore) 
 
 @Composable
 private fun SelfDirectedTaskRow(task: StudyTask, store: PostgraduateExamStore) {
-    StudyCard {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = StudyDesign.card,
+        shape = MaterialTheme.shapes.large,
+        border = androidx.compose.foundation.BorderStroke(1.dp, StudyDesign.border),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Checkbox(checked = task.completed, onCheckedChange = { store.toggleTask(task.id) })
             Text(task.title, Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
             IconButton(onClick = { store.deleteTask(task.id) }) { Icon(Icons.Outlined.DeleteOutline, "删除") }

@@ -41,6 +41,7 @@ interface LuluChatStore {
     fun ensureConversation(characterId: String, title: String): LuluConversation
     fun sendUserMessage(conversationId: String, content: String): LuluChatMessage
     fun appendCharacterMessage(conversationId: String, content: String): LuluChatMessage
+    fun appendSystemMessage(conversationId: String, content: String): LuluChatMessage
     fun markFailed(messageId: String)
     fun markConversationRead(conversationId: String)
     fun editMessage(messageId: String, content: String): Boolean
@@ -118,6 +119,16 @@ class InMemoryLuluChatStore : LuluChatStore {
         return LuluChatMessage(
             conversationId = conversationId,
             sender = LuluChatMessage.Sender.Character,
+            content = clean,
+        ).also { message -> append(conversationId, message, incrementUnread = false) }
+    }
+
+    override fun appendSystemMessage(conversationId: String, content: String): LuluChatMessage {
+        val clean = content.trim()
+        require(clean.isNotEmpty()) { "Message content cannot be blank" }
+        return LuluChatMessage(
+            conversationId = conversationId,
+            sender = LuluChatMessage.Sender.System,
             content = clean,
         ).also { message -> append(conversationId, message, incrementUnread = false) }
     }

@@ -248,6 +248,15 @@ object ProactiveMessageAutomation {
                         updatedAt = now,
                     ),
                 )
+                SharedExperienceTimeline.record(
+                    eventId = "journal-${UUID.randomUUID()}",
+                    characterId = characterId,
+                    channel = "私人日记",
+                    speaker = character.displayName,
+                    content = "${decision.journalTitle.ifBlank { "此刻的心事" }}\n${decision.journalContent.take(2_000)}",
+                    occurredAt = now,
+                )
+                MigratedDomainStores.chat.appendSystemMessage(conversation.id, "[共同活动] 刚刚写了一篇日记")
                 prefs.edit().putLong("last_journal_$characterId", now.toEpochMilli()).apply()
                 return false
             }

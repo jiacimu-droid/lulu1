@@ -2,6 +2,7 @@ package com.jiacimu.lulu.games
 
 import android.content.Context
 import com.jiacimu.lulu.data.SharedExperienceTimeline
+import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -231,6 +232,11 @@ class LuluGameStore internal constructor(context: Context) {
                 strength = 5,
                 source = "game:${record.type.name}",
             )
+            val conversation = MigratedDomainStores.chat.conversations.value
+                .filter { it.characterId == record.characterId && it.parentConversationId == null && !it.id.endsWith("-study-focus") }
+                .maxByOrNull { it.updatedAt }
+                ?: MigratedDomainStores.chat.ensureConversation(record.characterId, "共同聊天")
+            MigratedDomainStores.chat.appendSystemMessage(conversation.id, "[共同活动] 刚刚一起玩了《${record.title}》")
         }
         return record.id
     }

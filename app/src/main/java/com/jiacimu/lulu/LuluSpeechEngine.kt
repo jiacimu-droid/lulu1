@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
 import java.util.Locale
 
 internal class LuluSpeechEngine(context: Context) {
@@ -69,7 +70,14 @@ internal class LuluSpeechEngine(context: Context) {
         require(voiceId.isNotBlank()) { "MiniMax Voice ID 未配置" }
         val endpoint = prefs.getString("minimax_endpoint", DEFAULT_MINIMAX_ENDPOINT)
             .orEmpty().trim().ifBlank { DEFAULT_MINIMAX_ENDPOINT }
-        val connection = (URL(endpoint).openConnection() as HttpURLConnection).apply {
+        val groupId = prefs.getString("minimax_group_id", "").orEmpty().trim()
+        val requestUrl = if (groupId.isBlank()) {
+            endpoint
+        } else {
+            val separator = if (endpoint.contains('?')) '&' else '?'
+            "$endpoint${separator}GroupId=${URLEncoder.encode(groupId, Charsets.UTF_8.name())}"
+        }
+        val connection = (URL(requestUrl).openConnection() as HttpURLConnection).apply {
             requestMethod = "POST"
             connectTimeout = 15_000
             readTimeout = 60_000
@@ -103,7 +111,13 @@ internal class LuluSpeechEngine(context: Context) {
             val json = JSONObject(body)
             val statusCode = json.optJSONObject("base_resp")?.optInt("status_code", -1) ?: -1
             if (connection.responseCode !in 200..299 || statusCode != 0) {
-                error(json.optJSONObject("base_resp")?.optString("status_msg").orEmpty().ifBlank { "MiniMax 语音请求失败" })
+                val status = json.optJSONObject("base_resp")?.optString("status_msg").orEmpty()
+                val hint = when {
+                    endpoint.contains("minimax.io") -> "当前是国际线路；国内账号请改选国内线路并填写 Group ID。"
+                    endpoint.contains("minimax.chat") && groupId.isBlank() -> "国内兼容线路需要填写 Group ID。"
+                    else -> "请核对 API Key、Group ID、Voice ID 与账号所属区域。"
+                }
+                error("${status.ifBlank { "MiniMax 语音请求失败" }}（HTTP ${connection.responseCode} / $statusCode）\n$hint")
             }
             json.getJSONObject("data").getString("audio").hexToBytes()
         } finally {
@@ -139,7 +153,7 @@ internal class LuluSpeechEngine(context: Context) {
         }
     }
 
-    private companion object {
-        const val DEFAULT_MINIMAX_ENDPOINT = "https://api.minimax.io/v1/t2a_v2"
+    companion object {
+        const val DEFAULT_MINIMAX_ENDPOINT = "https://api.minimaxi.com/v1/t2a_v2"
     }
 }

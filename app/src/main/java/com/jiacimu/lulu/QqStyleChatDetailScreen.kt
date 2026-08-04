@@ -526,6 +526,23 @@ private fun QqMessageRow(
     onCharacterAvatarClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
+    if (message.sender == LuluChatMessage.Sender.System) {
+        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Surface(
+                color = Color(0xFFF1F1F1),
+                shape = RoundedCornerShape(99.dp),
+                border = BorderStroke(1.dp, QqBorder),
+            ) {
+                Text(
+                    message.content.removePrefix("[共同活动]").trim(),
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
+                    color = QqMuted,
+                    fontSize = 11.sp,
+                )
+            }
+        }
+        return
+    }
     val mine = message.sender == LuluChatMessage.Sender.User
     val bubbles = remember(message.content, mine) {
         if (mine) listOf(message.content) else splitCharacterBubbles(message.content)

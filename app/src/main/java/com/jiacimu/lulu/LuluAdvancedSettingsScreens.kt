@@ -29,8 +29,10 @@ private val AdvancedAccent = Color(0xFF292929)
 private const val ADVANCED_PREFS = "lulu_advanced_settings"
 
 private val MiniMaxEndpoints = listOf(
-    "标准线路" to "https://api.minimax.io/v1/t2a_v2",
-    "低延迟线路" to "https://api-uw.minimax.io/v1/t2a_v2",
+    "国内新版线路（推荐）" to "https://api.minimaxi.com/v1/t2a_v2",
+    "国内兼容线路" to "https://api.minimax.chat/v1/t2a_v2",
+    "国际线路" to "https://api.minimax.io/v1/t2a_v2",
+    "国际低延迟线路" to "https://api-uw.minimax.io/v1/t2a_v2",
 )
 private val MiniMaxSpeechModels = listOf(
     "speech-2.8-hd", "speech-2.8-turbo", "speech-2.6-hd", "speech-2.6-turbo",
@@ -58,8 +60,9 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     var language by remember { mutableStateOf(prefs.getString("tts_language", "zh-CN") ?: "zh-CN") }
     var rate by remember { mutableFloatStateOf(prefs.getFloat("tts_rate", 1.0f)) }
     var pitch by remember { mutableFloatStateOf(prefs.getFloat("tts_pitch", 1.0f)) }
-    var minimaxEndpoint by remember { mutableStateOf(prefs.getString("minimax_endpoint", "https://api.minimax.io/v1/t2a_v2") ?: "") }
+    var minimaxEndpoint by remember { mutableStateOf(prefs.getString("minimax_endpoint", LuluSpeechEngine.DEFAULT_MINIMAX_ENDPOINT) ?: "") }
     var minimaxApiKey by remember { mutableStateOf(prefs.getString("minimax_api_key", "") ?: "") }
+    var minimaxGroupId by remember { mutableStateOf(prefs.getString("minimax_group_id", "") ?: "") }
     var minimaxModel by remember { mutableStateOf(prefs.getString("minimax_model", "speech-2.8-turbo") ?: "speech-2.8-turbo") }
     var minimaxVoiceId by remember { mutableStateOf(prefs.getString("minimax_voice_id", "") ?: "") }
     var minimaxLanguage by remember { mutableStateOf(prefs.getString("minimax_language_boost", "auto") ?: "auto") }
@@ -81,6 +84,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
             .putFloat("tts_pitch", pitch)
             .putString("minimax_endpoint", minimaxEndpoint.trim())
             .putString("minimax_api_key", minimaxApiKey.trim())
+            .putString("minimax_group_id", minimaxGroupId.trim())
             .putString("minimax_model", minimaxModel.trim())
             .putString("minimax_voice_id", minimaxVoiceId.trim())
             .putString("minimax_language_boost", minimaxLanguage.trim().ifBlank { "auto" })
@@ -163,6 +167,8 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                 )
                 Spacer(Modifier.height(10.dp))
                 AdvancedTextField("API Key", minimaxApiKey, { minimaxApiKey = it }, "填写 MiniMax API Key")
+                Spacer(Modifier.height(10.dp))
+                AdvancedTextField("Group ID", minimaxGroupId, { minimaxGroupId = it }, "国内账号请填写 Group ID")
                 Spacer(Modifier.height(10.dp))
                 AdvancedChoiceField(
                     label = "语音模型",

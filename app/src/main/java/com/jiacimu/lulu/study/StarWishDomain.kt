@@ -2,6 +2,7 @@ package com.jiacimu.lulu.study
 
 import android.content.Context
 import com.jiacimu.lulu.data.SharedExperienceTimeline
+import com.jiacimu.lulu.data.MigratedDomainStores
 import android.util.Base64
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ai.LuluAiServices
@@ -148,6 +149,11 @@ internal class StarWishStore private constructor(context: Context) {
             strength = 4,
             source = "theater",
         )
+        val conversation = MigratedDomainStores.chat.conversations.value
+            .filter { it.characterId == characterId && it.parentConversationId == null && !it.id.endsWith("-study-focus") }
+            .maxByOrNull { it.updatedAt }
+            ?: MigratedDomainStores.chat.ensureConversation(characterId, "共同聊天")
+        MigratedDomainStores.chat.appendSystemMessage(conversation.id, "[共同活动] 刚刚一起读了《${chapter.theater}》第${chapter.chapter}章")
     }
 
     fun deleteTheater(theater: String) = update { current ->

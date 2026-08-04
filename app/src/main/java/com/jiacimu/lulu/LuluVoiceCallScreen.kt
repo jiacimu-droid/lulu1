@@ -100,6 +100,7 @@ fun LuluVoiceCallScreen(
                 strength = 7,
                 source = "voice-call",
             )
+            MigratedDomainStores.chat.appendSystemMessage(conversationId, "[共同活动] 刚刚打了个电话")
         }
         speechEngine.stop()
         onDismiss()
@@ -221,16 +222,7 @@ fun LuluVoiceCallScreen(
                 )
 
                 if (!connected) {
-                    Spacer(Modifier.weight(1f))
-                    Text(
-                        "接通后点麦克风说话，通话内容会同步保存在聊天记录里。",
-                        modifier = Modifier.padding(horizontal = 24.dp),
-                        color = CallMuted,
-                        fontSize = 13.sp,
-                        lineHeight = 20.sp,
-                        textAlign = TextAlign.Center,
-                    )
-                    Spacer(Modifier.height(30.dp))
+                    Spacer(Modifier.height(58.dp))
                     FilledIconButton(
                         onClick = {
                             if (activeArchive != null) {
