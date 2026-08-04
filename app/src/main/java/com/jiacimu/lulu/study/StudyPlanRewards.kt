@@ -145,7 +145,12 @@ private fun CandyGachaCard(state: StudyState, onSingle: () -> Unit, onTen: () ->
                     drawCircle(Color(0xFFF7C8D6), 18.dp.toPx(), Offset(size.width * .38f, size.height * .35f))
                     drawCircle(Color(0xFFFFF1A8), 15.dp.toPx(), Offset(size.width * .53f, size.height * .29f))
                     drawCircle(Color(0xFFC9E9F7), 17.dp.toPx(), Offset(size.width * .61f, size.height * .42f))
-                    drawRoundRect(Color(0xFFFFAFC4), Offset(size.width * .27f, size.height * .62f), androidx.compose.ui.geometry.Size(size.width * .46f, size.height * .30f), 22.dp.toPx(), 22.dp.toPx())
+                    drawRoundRect(
+                        color = Color(0xFFFFAFC4),
+                        topLeft = Offset(size.width * .27f, size.height * .62f),
+                        size = androidx.compose.ui.geometry.Size(size.width * .46f, size.height * .30f),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(22.dp.toPx()),
+                    )
                 }
                 Icon(Icons.Outlined.AutoAwesome, null, Modifier.size(56.dp), tint = Color.White)
             }
