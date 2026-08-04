@@ -371,7 +371,12 @@ internal fun StudyFocusCompleteScreen(
                     contentPadding = PaddingValues(bottom = 8.dp),
                 ) {
                     item {
-                        Surface(color = palette.panel, shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
+                        Surface(
+                            color = palette.panel,
+                            contentColor = palette.text,
+                            shape = RoundedCornerShape(24.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
                             Column(
                                 Modifier.padding(20.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -442,6 +447,7 @@ internal fun StudyFocusCompleteScreen(
                         item {
                             Surface(
                                 color = if (systemError) Color(0xFF5A3534) else palette.panel,
+                                contentColor = palette.text,
                                 shape = RoundedCornerShape(16.dp),
                             ) {
                                 Text(systemMessage, Modifier.fillMaxWidth().padding(13.dp), color = palette.text)

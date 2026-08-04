@@ -367,7 +367,12 @@ fun LuluVoiceCallScreen(
                             },
                             enabled = !thinking,
                             modifier = Modifier.size(66.dp),
-                            colors = IconButtonDefaults.filledIconButtonColors(containerColor = CallDark),
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = CallDark,
+                                contentColor = Color.White,
+                                disabledContainerColor = Color(0xFF55565A),
+                                disabledContentColor = Color.White.copy(alpha = 0.72f),
+                            ),
                         ) {
                             Icon(
                                 if (listening) Icons.Outlined.Hearing else Icons.Outlined.Mic,

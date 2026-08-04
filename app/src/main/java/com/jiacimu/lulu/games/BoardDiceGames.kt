@@ -203,10 +203,16 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                             modifier = Modifier.weight(1f).aspectRatio(1f),
                             shape = RoundedCornerShape(14.dp),
                             color = if (index in held) GameDesign.wheat else GameDesign.card,
+                            contentColor = if (index in held) GameDesign.onDark else GameDesign.ink,
                             border = androidx.compose.foundation.BorderStroke(1.dp, GameDesign.border),
                         ) {
                             Box(Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
-                                Text(value?.toString() ?: "·", fontSize = 25.sp, fontWeight = FontWeight.Bold)
+                                Text(
+                                    value?.toString() ?: "·",
+                                    color = if (index in held) GameDesign.onDark else GameDesign.ink,
+                                    fontSize = 25.sp,
+                                    fontWeight = FontWeight.Bold,
+                                )
                             }
                         }
                     }

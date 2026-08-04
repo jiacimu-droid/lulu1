@@ -28,6 +28,7 @@ internal object GameDesign {
     val border = Color(0xFFE1E4E9)
     val muted = Color(0xFF717784)
     val ink = Color(0xFF202226)
+    val onDark = Color(0xFFFFFFFF)
     val success = Color(0xFF3E7656)
     val error = Color(0xFFB24F53)
     val board = Color(0xFFD6AD62)

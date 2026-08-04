@@ -439,12 +439,20 @@ private fun MemoryMatchScreen(store: LuluGameStore) {
                                 modifier = Modifier.weight(1f).aspectRatio(0.82f).clickable(
                                     enabled = !visible && !game.finished && game.turn == MemoryTurn.User && game.opened.size < 2,
                                 ) { store.openMemoryCard(index) },
-                                colors = CardDefaults.cardColors(containerColor = if (visible) GameDesign.wheat else GameDesign.card),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (visible) GameDesign.wheat else GameDesign.card,
+                                    contentColor = if (visible) GameDesign.onDark else GameDesign.ink,
+                                ),
                                 border = BorderStroke(1.dp, GameDesign.border),
                                 shape = RoundedCornerShape(17.dp),
                             ) {
                                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    Text(if (visible) game.cards[index] else "✦", fontSize = 27.sp, fontWeight = FontWeight.Bold)
+                                    Text(
+                                        if (visible) game.cards[index] else "✦",
+                                        color = if (visible) GameDesign.onDark else GameDesign.ink,
+                                        fontSize = 27.sp,
+                                        fontWeight = FontWeight.Bold,
+                                    )
                                 }
                             }
                         }

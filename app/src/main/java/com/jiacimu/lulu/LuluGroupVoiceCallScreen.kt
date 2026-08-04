@@ -307,7 +307,12 @@ internal fun LuluGroupVoiceCallScreen(
                                 },
                                 enabled = !thinking,
                                 modifier = Modifier.size(66.dp),
-                                colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color(0xFF292929)),
+                                colors = IconButtonDefaults.filledIconButtonColors(
+                                    containerColor = Color(0xFF292929),
+                                    contentColor = Color.White,
+                                    disabledContainerColor = Color(0xFF55565A),
+                                    disabledContentColor = Color.White.copy(alpha = 0.72f),
+                                ),
                             ) { Icon(if (listening) Icons.Outlined.Hearing else Icons.Outlined.Mic, "说话", tint = Color.White) }
                             FilledIconButton(
                                 onClick = ::closeCall,

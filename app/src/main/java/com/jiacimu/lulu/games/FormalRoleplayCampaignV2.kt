@@ -273,6 +273,7 @@ private fun CampaignArchive(
                     Surface(
                         modifier = Modifier.fillMaxWidth().clickable { onOpen(save.id) },
                         shape = RoundedCornerShape(22.dp), color = CampaignColors.panel,
+                        contentColor = CampaignColors.text,
                         border = BorderStroke(1.dp, world.accent.copy(alpha = 0.72f)),
                     ) {
                         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -540,6 +541,7 @@ private fun CampaignPlay(
             item {
                 Surface(
                     Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp), color = CampaignColors.panel,
+                    contentColor = CampaignColors.text,
                     border = BorderStroke(1.dp, world.accent.copy(alpha = 0.52f)),
                 ) {
                     Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
@@ -581,7 +583,7 @@ private fun CampaignPlay(
                 }
             }
         }
-        Surface(color = CampaignColors.panel, shadowElevation = 8.dp) {
+        Surface(color = CampaignColors.panel, contentColor = CampaignColors.text, shadowElevation = 8.dp) {
             Column(
                 Modifier.fillMaxWidth().navigationBarsPadding().padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),

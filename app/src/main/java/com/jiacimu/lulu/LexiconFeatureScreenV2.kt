@@ -259,7 +259,12 @@ private fun DiaryEntryCard(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Surface(shape = RoundedCornerShape(12.dp), color = LuluColors.Ink, modifier = Modifier.size(40.dp)) {
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = LuluColors.Ink,
+                    contentColor = Color.White,
+                    modifier = Modifier.size(40.dp),
+                ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(entry.updatedAt.atZone(ZoneId.systemDefault()).dayOfMonth.toString(), color = Color.White, fontWeight = FontWeight.Bold)
                     }

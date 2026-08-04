@@ -89,7 +89,12 @@ internal fun LuluAvatarPicker(
                 launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             },
         )
-        Surface(shape = CircleShape, color = Color(0xFF292929), modifier = Modifier.size(28.dp)) {
+        Surface(
+            shape = CircleShape,
+            color = Color(0xFF292929),
+            contentColor = Color.White,
+            modifier = Modifier.size(28.dp),
+        ) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Icon(Icons.Outlined.AddAPhoto, "选择头像图片", tint = Color.White, modifier = Modifier.size(15.dp))
             }
