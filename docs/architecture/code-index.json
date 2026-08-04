@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-04T16:46:04.595871+00:00",
-  "commit": "1d8794169ca57dcdcfc989e7da5559da214d8e7a",
+  "generatedAt": "2026-08-04T16:53:02.579778+00:00",
+  "commit": "ad61ab63df01a83be8cfcccce54540399652a04b",
   "branch": "main",
-  "sourceFingerprint": "b37172a549b43b431d7362688232070df9d77c1b5c5b1a7027de26701ca31dda",
+  "sourceFingerprint": "1e572c3e7103e25c62c34fabe2001634880b4356761d395cdaedf46ec812f3c1",
   "summary": {
     "files": 109,
-    "lines": 25599,
+    "lines": 25639,
     "symbols": 452
   },
   "symbolIndex": {
@@ -3012,14 +3012,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt",
-      "lines": 387,
-      "sha256": "47fe58fb36895a845b74a13a53255eaae0f2755f384de84017d59e1059bc4109",
+      "lines": 386,
+      "sha256": "1da772797d3228bc7a4270068d426fe6c6ca46f5739d7f945b79e15b675b5e51",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 1108,
-      "sha256": "8c51a9b1249e5e574251c4d0436dad5e0c48dff829adb41a1b0df084caf44fc7",
+      "lines": 1149,
+      "sha256": "bb0eaaf3cc624e497a0c384ce4b16bf07cfe8c5ebacd6e71686ff3ed90413467",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -3586,7 +3586,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
       "lines": 816,
-      "sha256": "6fba79589faf7670316a828219e12917273415b06dd4611dabfd6c5b85dee11a",
+      "sha256": "8e3a978baa57dd3f92ea8f9af88bcaf899e6853cc63c0f9181a965bf7bd49349",
       "symbols": [
         {
           "name": "LuluChatMessage",
