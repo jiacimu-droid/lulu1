@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-04T08:23:04.176606+00:00",
-  "commit": "a92f7f1802e7b363eb7f37aea6fc6866b33ebcfa",
+  "generatedAt": "2026-08-04T09:09:08.566064+00:00",
+  "commit": "61521965204dde6a1f7407fcbce1759424dc14f6",
   "branch": "main",
-  "sourceFingerprint": "abfc0d57bc299e06e80a6fdc6ad14c67fec92eab9815c747e398cd3e601c1658",
+  "sourceFingerprint": "83a4aec3a9f25e83f4ae509044303e8b245ed6ff50cff93580eabfce7b41f60a",
   "summary": {
-    "files": 98,
-    "lines": 20992,
-    "symbols": 386
+    "files": 100,
+    "lines": 21362,
+    "symbols": 397
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -61,23 +61,23 @@
     "LuluMemorySettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 196
+        "line": 194
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 209
+        "line": 208
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 159
+        "line": 160
       }
     ],
     "LuluImageSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 292
+        "line": 302
       }
     ],
     "LuluCapabilitiesScreen": [
@@ -101,7 +101,7 @@
     "read": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 264
+        "line": 285
       }
     ],
     "LuluMigrationRootAppV2": [
@@ -259,7 +259,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 549
+        "line": 595
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt",
@@ -287,11 +287,15 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 33
+        "line": 35
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
         "line": 28
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
+        "line": 8
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -319,7 +323,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 685
+        "line": 698
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
@@ -353,7 +357,7 @@
     "MigrationActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-        "line": 23
+        "line": 24
       }
     ],
     "MigrationRoute": [
@@ -407,91 +411,91 @@
     "ApiConfiguration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 19
+        "line": 20
       }
     ],
     "ModelArchive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 27
+        "line": 28
       }
     ],
     "ModelLibraryState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 32
+        "line": 33
       }
     ],
     "ModelConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 38
+        "line": 39
       }
     ],
     "ModelReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 44
+        "line": 45
       }
     ],
     "ModelConnectionStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 51
+        "line": 52
       }
     ],
     "saveConfiguration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 56
+        "line": 57
       }
     ],
     "deleteConfiguration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 87
+        "line": 88
       }
     ],
     "addArchive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 103
+        "line": 104
       }
     ],
     "removeArchive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 126
+        "line": 127
       }
     ],
     "selectArchive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 137
+        "line": 138
       }
     ],
     "resolveConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 142
+        "line": 143
       }
     ],
     "archiveLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 155
+        "line": 156
       }
     ],
     "normalizeBaseUrl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 274
+        "line": 275
       }
     ],
     "create": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 276
+        "line": 277
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -513,13 +517,13 @@
     "CompanionModelGateway": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 280
+        "line": 281
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 539
+        "line": 585
       }
     ],
     "CharacterSummary": [
@@ -739,7 +743,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 203
+        "line": 215
       }
     ],
     "InMemoryLexiconRepository": [
@@ -787,19 +791,19 @@
     "LocalMemoryRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 25
+        "line": 26
       }
     ],
     "pendingMessageCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 265
+        "line": 277
       }
     ],
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 463
+        "line": 475
       }
     ],
     "ApiUsageSource": [
@@ -926,6 +930,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt",
         "line": 101
+      }
+    ],
+    "vectorEnabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
+        "line": 12
+      }
+    ],
+    "rerankEnabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
+        "line": 14
+      }
+    ],
+    "embeddingConnection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
+        "line": 15
+      }
+    ],
+    "rerankConnection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
+        "line": 16
       }
     ],
     "LuluChatMessage": [
@@ -1113,19 +1141,13 @@
     "RelevantMemoryRecall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 16
-      }
-    ],
-    "recall": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 17
+        "line": 13
       }
     ],
     "formatForPrompt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 38
+        "line": 65
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -1323,13 +1345,13 @@
     "load": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 133
+        "line": 134
       }
     ],
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 379
+        "line": 384
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -1487,97 +1509,111 @@
     "Home": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 33
+        "line": 34
       }
     ],
     "SignalHunt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 34
+        "line": 35
       }
     ],
     "PerfectMan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 35
+        "line": 36
       }
     ],
     "Roleplay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 36
+        "line": 37
       }
     ],
     "TurtleSoup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 37
+        "line": 38
       }
     ],
     "RapportQuiz": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 38
+        "line": 39
       }
     ],
     "RockPaperScissors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 39
+        "line": 40
       }
     ],
     "YachtDice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 40
+        "line": 41
       }
     ],
     "Gomoku": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 41
+        "line": 42
       }
     ],
     "MemoryMatch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 42
+        "line": 43
       }
     ],
     "MoodGuess": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 43
+        "line": 44
       }
     ],
     "Records": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 44
+        "line": 45
       }
     ],
     "Replay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 45
+        "line": 46
       }
     ],
     "LuluGamesApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 57
+        "line": 58
+      }
+    ],
+    "stepBack": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
+        "line": 62
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
+        "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt",
+        "line": 24
       }
     ],
     "tap": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 234
+        "line": 239
       }
     ],
     "LuluGamesAppV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
-        "line": 30
+        "line": 31
       }
     ],
     "LuluReadingScreen": [
@@ -1589,7 +1625,7 @@
     "PostgraduateExamApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
-        "line": 18
+        "line": 20
       }
     ],
     "PostgraduateExamStore": [
@@ -1658,112 +1694,130 @@
         "line": 193
       }
     ],
-    "addTip": [
+    "removePlanItemsByTitle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
         "line": 194
       }
     ],
+    "replaceRollingPlanItems": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 198
+      }
+    ],
+    "addTip": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 202
+      }
+    ],
     "toggleSchedule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 246
+        "line": 254
       }
     ],
     "clearSchedule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 248
+        "line": 256
       }
     ],
     "setPomodoroDuration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 249
+        "line": 257
       }
     ],
     "togglePomodoroVoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 258
+        "line": 266
       }
     ],
     "togglePomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 260
+        "line": 268
       }
     ],
     "syncPomodoroClock": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 271
+        "line": 279
       }
     ],
     "resetPomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 284
+        "line": 292
       }
     ],
     "completePomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 288
+        "line": 296
       }
     ],
     "drawSingle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 341
+        "line": 349
       }
     ],
     "drawTen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 343
+        "line": 351
       }
     ],
     "claimSuperMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 435
+        "line": 443
       }
     ],
     "redeemEntertainment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 451
+        "line": 459
       }
     ],
     "claimAchievement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 502
+        "line": 510
       }
     ],
     "claimLevel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 521
+        "line": 529
       }
     ],
     "refreshShop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 553
+        "line": 561
       }
     ],
     "buyShopItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 568
+        "line": 576
       }
     ],
     "PostgraduateExamStores": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 680
+        "line": 693
+      }
+    ],
+    "itemsFor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt",
+        "line": 14
       }
     ],
     "SelfDirectedStudyPlanSeed": [
@@ -1775,17 +1829,23 @@
     "migrate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
-        "line": 10
+        "line": 11
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt",
         "line": 10
       }
     ],
+    "syncRollingPlan": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
+        "line": 24
+      }
+    ],
     "ensureDailyReminders": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
-        "line": 33
+        "line": 37
       }
     ],
     "defaultPrompts": [
@@ -2217,19 +2277,19 @@
     "LuluLocationProvider": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
-        "line": 15
+        "line": 17
       }
     ],
     "bestSystemLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
-        "line": 42
+        "line": 50
       }
     ],
     "label": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
-        "line": 52
+        "line": 60
       }
     ],
     "LuluNotificationListenerService": [
@@ -2330,8 +2390,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-      "lines": 490,
-      "sha256": "867fc166668edefa5f57b933cd200a729fd6c008b16a00245e793599be5c38f3",
+      "lines": 507,
+      "sha256": "dbeb0e634ccced95503f67d7209075045ba38b5bfa00e692128c6f6584a08707",
       "symbols": [
         {
           "name": "LuluVoiceSettingsScreen",
@@ -2343,22 +2403,22 @@
         },
         {
           "name": "LuluMemorySettingsScreen",
-          "line": 196
+          "line": 194
         },
         {
           "name": "save",
-          "line": 209
+          "line": 208
         },
         {
           "name": "LuluImageSettingsScreen",
-          "line": 292
+          "line": 302
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-      "lines": 357,
-      "sha256": "21fe43265425020e15b8c552986450ea33c942ba687135dee3e388a061ddc55d",
+      "lines": 378,
+      "sha256": "73e5f1daf95484a0cefbdbdf9b2f5ce52502d70284c417ba5930c4e21160bd41",
       "symbols": [
         {
           "name": "LuluCapabilitiesScreen",
@@ -2374,7 +2434,7 @@
         },
         {
           "name": "read",
-          "line": 264
+          "line": 285
         }
       ]
     },
@@ -2542,12 +2602,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 54,
-      "sha256": "798defd2838dfc17253bfe7e081e58bb5487e7b99ae34d7db51a43c82e9dc676",
+      "lines": 56,
+      "sha256": "05e5ec76543edadb292f1e0a03e55902b2745ed67f82c5697f68dd68b45b4cf1",
       "symbols": [
         {
           "name": "MigrationActivity",
-          "line": 23
+          "line": 24
         }
       ]
     },
@@ -2619,86 +2679,86 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt",
-      "lines": 178,
-      "sha256": "acfe282a07b2b62b9171de7ecef70ee656924f95e594403024cd71d15480c3b0",
+      "lines": 218,
+      "sha256": "59b54f0a9936052ef8be1d1a09a13074e0eb94f05570beec91cc6414103510f0",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 556,
-      "sha256": "c75e33af4ace5af78eafe762dd6ee323966f5a6949122a50d653698d2b3bb327",
+      "lines": 602,
+      "sha256": "8b404b24e903715db1f9dd97f1421e0db83ae24a552ac0de6a1f5e1822e466eb",
       "symbols": [
         {
           "name": "ApiConfiguration",
-          "line": 19
+          "line": 20
         },
         {
           "name": "ModelArchive",
-          "line": 27
+          "line": 28
         },
         {
           "name": "ModelLibraryState",
-          "line": 32
+          "line": 33
         },
         {
           "name": "ModelConnection",
-          "line": 38
+          "line": 39
         },
         {
           "name": "ModelReply",
-          "line": 44
+          "line": 45
         },
         {
           "name": "ModelConnectionStore",
-          "line": 51
+          "line": 52
         },
         {
           "name": "saveConfiguration",
-          "line": 56
+          "line": 57
         },
         {
           "name": "deleteConfiguration",
-          "line": 87
+          "line": 88
         },
         {
           "name": "addArchive",
-          "line": 103
+          "line": 104
         },
         {
           "name": "removeArchive",
-          "line": 126
+          "line": 127
         },
         {
           "name": "selectArchive",
-          "line": 137
+          "line": 138
         },
         {
           "name": "resolveConnection",
-          "line": 142
+          "line": 143
         },
         {
           "name": "archiveLabel",
-          "line": 155
+          "line": 156
         },
         {
           "name": "normalizeBaseUrl",
-          "line": 274
+          "line": 275
         },
         {
           "name": "create",
-          "line": 276
+          "line": 277
         },
         {
           "name": "CompanionModelGateway",
-          "line": 280
+          "line": 281
         },
         {
           "name": "LuluAiServices",
-          "line": 539
+          "line": 585
         },
         {
           "name": "initialize",
-          "line": 549
+          "line": 595
         }
       ]
     },
@@ -2949,28 +3009,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 499,
-      "sha256": "88f30295d3408e9ddde36a71757ade3488e4c7ee8819083a019188716c4f0a7c",
+      "lines": 511,
+      "sha256": "bee6a81ef14b4a837101490cf0e45a7a919907418b2e37ace0cb30b942cc1c6d",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
-          "line": 25
+          "line": 26
         },
         {
           "name": "initialize",
-          "line": 33
+          "line": 35
         },
         {
           "name": "snapshot",
-          "line": 203
+          "line": 215
         },
         {
           "name": "pendingMessageCount",
-          "line": 265
+          "line": 277
         },
         {
           "name": "MemoryDebugState",
-          "line": 463
+          "line": 475
         }
       ]
     },
@@ -3072,6 +3132,33 @@
         {
           "name": "BackupImportResult",
           "line": 101
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
+      "lines": 26,
+      "sha256": "b5b51e6390a898299c4c680290f61c7125173e60089801f8dd8130aedad70ccf",
+      "symbols": [
+        {
+          "name": "initialize",
+          "line": 8
+        },
+        {
+          "name": "vectorEnabled",
+          "line": 12
+        },
+        {
+          "name": "rerankEnabled",
+          "line": 14
+        },
+        {
+          "name": "embeddingConnection",
+          "line": 15
+        },
+        {
+          "name": "rerankConnection",
+          "line": 16
         }
       ]
     },
@@ -3220,8 +3307,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
-      "lines": 312,
-      "sha256": "da2e8a28fc31825db080bea609a1099801965be0615d38e813d890f513823754",
+      "lines": 310,
+      "sha256": "7147f46ec7d5c0788de7e965fc286ee8d0c31c35d7e28bd16491b28977f248d8",
       "symbols": [
         {
           "name": "ProactiveMessageAutomation",
@@ -3235,20 +3322,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-      "lines": 88,
-      "sha256": "965c26abcb144a4110aa1af29ea5bbaaefb54c2236b1209f61c423081694f1e0",
+      "lines": 128,
+      "sha256": "ff50e088f6569b241b12e0b9c9ead93548d8e9c07b0aad5070d98056f8a65254",
       "symbols": [
         {
           "name": "RelevantMemoryRecall",
-          "line": 16
-        },
-        {
-          "name": "recall",
-          "line": 17
+          "line": 13
         },
         {
           "name": "formatForPrompt",
-          "line": 38
+          "line": 65
         }
       ]
     },
@@ -3440,20 +3523,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-      "lines": 613,
-      "sha256": "b06e3c56a631121bc6b79631abefa4bd8cd13de3186ea6ab91bfcedbeb4bf81c",
+      "lines": 618,
+      "sha256": "75409512ac765fd2688713c02294257925b76478fd2f8e3bb05eb5e17f4dc15b",
       "symbols": [
         {
           "name": "load",
-          "line": 133
+          "line": 134
         },
         {
           "name": "save",
-          "line": 159
+          "line": 160
         },
         {
           "name": "perform",
-          "line": 379
+          "line": 384
         }
       ]
     },
@@ -3594,79 +3677,83 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 559,
-      "sha256": "a951d55b38c19764050bcdb2caa8fe10372adf4c61057c06db7a876f5caa2680",
+      "lines": 564,
+      "sha256": "31e7458d27383c3815db026bb92a23dadebb96677eec987badf272bff05b027c",
       "symbols": [
         {
           "name": "Home",
-          "line": 33
-        },
-        {
-          "name": "SignalHunt",
           "line": 34
         },
         {
-          "name": "PerfectMan",
+          "name": "SignalHunt",
           "line": 35
         },
         {
-          "name": "Roleplay",
+          "name": "PerfectMan",
           "line": 36
         },
         {
-          "name": "TurtleSoup",
+          "name": "Roleplay",
           "line": 37
         },
         {
-          "name": "RapportQuiz",
+          "name": "TurtleSoup",
           "line": 38
         },
         {
-          "name": "RockPaperScissors",
+          "name": "RapportQuiz",
           "line": 39
         },
         {
-          "name": "YachtDice",
+          "name": "RockPaperScissors",
           "line": 40
         },
         {
-          "name": "Gomoku",
+          "name": "YachtDice",
           "line": 41
         },
         {
-          "name": "MemoryMatch",
+          "name": "Gomoku",
           "line": 42
         },
         {
-          "name": "MoodGuess",
+          "name": "MemoryMatch",
           "line": 43
         },
         {
-          "name": "Records",
+          "name": "MoodGuess",
           "line": 44
         },
         {
-          "name": "Replay",
+          "name": "Records",
           "line": 45
         },
         {
+          "name": "Replay",
+          "line": 46
+        },
+        {
           "name": "LuluGamesApp",
-          "line": 57
+          "line": 58
+        },
+        {
+          "name": "stepBack",
+          "line": 62
         },
         {
           "name": "tap",
-          "line": 234
+          "line": 239
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
-      "lines": 376,
-      "sha256": "bc5588ab1270f1c6cee810a1670d4bc0f4a0f58e1cd9f4c10f907daded052f3a",
+      "lines": 378,
+      "sha256": "237dc205de781bf6d7679a2fe50456fb3ce9efa99662e5aef47184748787b3fd",
       "symbols": [
         {
           "name": "LuluGamesAppV2",
-          "line": 30
+          "line": 31
         }
       ]
     },
@@ -3683,19 +3770,23 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
-      "lines": 85,
-      "sha256": "e138c73bec34d93df8ca164a8295abb5bb33652dcc2842bb6c83a63bf1c854a1",
+      "lines": 102,
+      "sha256": "7843801608b7905867b872c6dea4c4cc04694178c5bb1328f7bb7e3a8c1d56aa",
       "symbols": [
         {
           "name": "PostgraduateExamApp",
-          "line": 18
+          "line": 20
+        },
+        {
+          "name": "stepBack",
+          "line": 25
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-      "lines": 690,
-      "sha256": "b6abc39ab2c115c2cd34339533dd3928bef09a0bf69438b452bd0375fc34475f",
+      "lines": 703,
+      "sha256": "edc6b2097e98b4459829d8bba71b4aac4bdcb818a9acf6cb8c5bc8dbf5e2b953",
       "symbols": [
         {
           "name": "PostgraduateExamStore",
@@ -3746,87 +3837,106 @@
           "line": 193
         },
         {
-          "name": "addTip",
+          "name": "removePlanItemsByTitle",
           "line": 194
         },
         {
+          "name": "replaceRollingPlanItems",
+          "line": 198
+        },
+        {
+          "name": "addTip",
+          "line": 202
+        },
+        {
           "name": "toggleSchedule",
-          "line": 246
+          "line": 254
         },
         {
           "name": "clearSchedule",
-          "line": 248
+          "line": 256
         },
         {
           "name": "setPomodoroDuration",
-          "line": 249
+          "line": 257
         },
         {
           "name": "togglePomodoroVoice",
-          "line": 258
+          "line": 266
         },
         {
           "name": "togglePomodoro",
-          "line": 260
+          "line": 268
         },
         {
           "name": "syncPomodoroClock",
-          "line": 271
+          "line": 279
         },
         {
           "name": "resetPomodoro",
-          "line": 284
+          "line": 292
         },
         {
           "name": "completePomodoro",
-          "line": 288
+          "line": 296
         },
         {
           "name": "drawSingle",
-          "line": 341
+          "line": 349
         },
         {
           "name": "drawTen",
-          "line": 343
+          "line": 351
         },
         {
           "name": "claimSuperMoment",
-          "line": 435
+          "line": 443
         },
         {
           "name": "redeemEntertainment",
-          "line": 451
+          "line": 459
         },
         {
           "name": "claimAchievement",
-          "line": 502
+          "line": 510
         },
         {
           "name": "claimLevel",
-          "line": 521
+          "line": 529
         },
         {
           "name": "refreshShop",
-          "line": 553
+          "line": 561
         },
         {
           "name": "buyShopItem",
-          "line": 568
+          "line": 576
         },
         {
           "name": "PostgraduateExamStores",
-          "line": 680
+          "line": 693
         },
         {
           "name": "initialize",
-          "line": 685
+          "line": 698
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt",
+      "lines": 96,
+      "sha256": "49a8c1b10373a2f2a3308626582919de4ee11f7d1d5af961428b13fcf85b72a1",
+      "symbols": [
+        {
+          "name": "itemsFor",
+          "line": 14
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
-      "lines": 68,
-      "sha256": "35b295d4e1afa73146d62c182227b24327efa6b0791d36ddfabba27e37b34399",
+      "lines": 65,
+      "sha256": "efd4ef05f8e639214c28123f682b8e491ef8bd5c377da1eca9dd5d5fe0672186",
       "symbols": [
         {
           "name": "SelfDirectedStudyPlanSeed",
@@ -3834,18 +3944,22 @@
         },
         {
           "name": "migrate",
-          "line": 10
+          "line": 11
+        },
+        {
+          "name": "syncRollingPlan",
+          "line": 24
         },
         {
           "name": "ensureDailyReminders",
-          "line": 33
+          "line": 37
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt",
-      "lines": 125,
-      "sha256": "4fd7006471552425476919c04c3cf95639bdc54517e82a2ea9d64dc838f9f112",
+      "lines": 126,
+      "sha256": "156e729ece9bbc7f1ce277fc5e57a3de5958fd891d28ba6c9449a7e16f147694",
       "symbols": []
     },
     {
@@ -3920,9 +4034,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt",
-      "lines": 71,
-      "sha256": "fc92f491871af6685ff0ac1dee966daa491fbe0d943938fd2145883c8965c947",
-      "symbols": []
+      "lines": 76,
+      "sha256": "e62f9a29cd8196ce53dc28ffe5c782fbecd5eec54d3eedc1373c0be463610c7c",
+      "symbols": [
+        {
+          "name": "stepBack",
+          "line": 24
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -3967,14 +4086,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-      "lines": 501,
-      "sha256": "2d125cb522451acc574f00f9717e3343037fa3251e42f8f2c28588a68462cfb2",
+      "lines": 510,
+      "sha256": "27b80f91b2628436cb7d77608cae4b75b1e06741e048689d4076742872e06027",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPanel.kt",
-      "lines": 414,
-      "sha256": "7b5b72de4f06d45455586af1952e3f01a0bcfff4f06cb128daf360d0201c5a7d",
+      "lines": 416,
+      "sha256": "567df126e7995cde5bfca6d27d58cbf71150fb7c94da8a902111c9699567b2fa",
       "symbols": []
     },
     {
@@ -3997,8 +4116,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-      "lines": 241,
-      "sha256": "661f1d47ac2cb459d4a4f687c05eeb88a2a002e531ec7ab6b92c811750852e86",
+      "lines": 239,
+      "sha256": "996a785dbfcc9c598e97cdab0087551ce3891551951a55c7d1982722ca0a94ca",
       "symbols": [
         {
           "name": "StudyTaskSource",
@@ -4180,8 +4299,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt",
-      "lines": 344,
-      "sha256": "1afc316087b767c863e52002959df3efa444626180ed709f69fb3a05968d63c2",
+      "lines": 354,
+      "sha256": "e4fb749c1b5eb01bac9492a2dff834e77bf2898c609eee22dc9a30339bdc8c9c",
       "symbols": []
     },
     {
@@ -4332,20 +4451,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
-      "lines": 61,
-      "sha256": "f91115482f292512a673acd25c199120167620cfd06411348a1e5216ca6ac2e6",
+      "lines": 69,
+      "sha256": "d6532b42ec48c9fa6ebea55ad8adc76a7221d4f8a27cc9f13263cea9eec44137",
       "symbols": [
         {
           "name": "LuluLocationProvider",
-          "line": 15
+          "line": 17
         },
         {
           "name": "bestSystemLocation",
-          "line": 42
+          "line": 50
         },
         {
           "name": "label",
-          "line": 52
+          "line": 60
         }
       ]
     },
