@@ -54,7 +54,7 @@ object ProactiveMessageAutomation {
     private var context: Context? = null
     private var started = false
 
-    private enum class Action { MESSAGE, CALL, JOURNAL, SILENT }
+    private enum class Action { MESSAGE, GROUP_MESSAGE, CALL, JOURNAL, SILENT }
 
     private data class Decision(
         val action: Action,
@@ -66,6 +66,7 @@ object ProactiveMessageAutomation {
         val mood: String,
         val journalTitle: String,
         val journalContent: String,
+        val groupId: String,
     )
 
     @Synchronized
@@ -99,6 +100,9 @@ object ProactiveMessageAutomation {
 
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val character = MigratedDomainStores.characters.get(characterId)
+        val availableGroups = MigratedDomainStores.chat.conversations.value.filter { candidate ->
+            candidate.groupChat?.members?.any { it.characterId == characterId } == true
+        }
         val characterQuiet = character.contactPolicy.quietHoursEnabled &&
             isCharacterQuietHour(character.contactPolicy, currentTime)
 
@@ -168,6 +172,13 @@ object ProactiveMessageAutomation {
                 appendLine("当前允许主动联系：${if (contactAllowed) "是" else "否"}")
                 appendLine("当前允许主动来电：${if (callAllowed) "是" else "否"}")
                 appendLine("当前允许写私人日记：${if (journalAllowed) "是" else "否"}")
+                if (availableGroups.isNotEmpty()) {
+                    appendLine("角色当前所在群聊：")
+                    availableGroups.forEach { groupConversation ->
+                        val group = groupConversation.groupChat ?: return@forEach
+                        appendLine("- groupId=${groupConversation.id}；群名=${group.name}；最近消息=${groupConversation.lastMessage.take(120)}")
+                    }
+                }
                 if (screenState.connected && screenState.packageName.isNotBlank()) {
                     appendLine("主人手机当前可感知的前台应用：${screenState.packageName}；窗口：${screenState.windowTitle}")
                 }
@@ -183,14 +194,14 @@ object ProactiveMessageAutomation {
                 你正在替当前角色判断此刻是否要主动联系主人。核心目标是像真实的人，而不是完成系统打卡。
 
                 只返回一个 JSON 对象，不要代码块：
-                {"action":"message|call|journal|silent","text":"真正发送给主人的内容，可为空","reason":"内部简短原因","statusText":"角色此刻简短状态","gesture":"此刻可见动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情","journalTitle":"仅写日记时填写","journalContent":"仅写日记时填写第一人称正文"}
+                {"action":"message|group_message|call|journal|silent","text":"真正发送的内容，可为空","groupId":"仅群聊发言时填写给定ID","reason":"内部简短原因","statusText":"角色此刻简短状态","gesture":"此刻可见动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情","journalTitle":"仅写日记时填写","journalContent":"仅写日记时填写第一人称正文"}
 
                 决策规则：
                 1. 必须严格贴合角色人设。活泼角色可以更直接，克制角色可以含蓄，冷淡角色不必突然撒娇；任何角色都不能被统一写成温柔助手。
                 2. 挂心、承诺和长期监督是可用动机，但不能每次都机械提醒。只有此刻自然相关时才提起。
                 3. 不得编造主人当前正在做什么、身体状态或现实环境。
                 4. 若没有真实想联系的理由，选择 silent。沉默可以是符合人设的行动，不是失败。
-                5. “当前允许主动联系”为否时 action 只能是 silent 或 journal，不能发消息或来电；仍要自然更新角色自己的状态、动作、心情和可留空的心声。
+                5. “当前允许主动联系”为否时 action 只能是 silent 或 journal，不能发消息、群聊消息或来电；仍要自然更新角色自己的状态、动作、心情和可留空的心声。
                 6. message 的 text 应像角色主动发来的聊天，通常 20~160 个汉字，不写标题，不解释自动化。
                 7. call 只在“当前允许主动来电：是”时可选，而且必须有比普通消息更强的动机。text 是来电前一句很短的理由。
                 8. 不要重复最近已经说过的问候、监督或相同句式。
@@ -198,6 +209,7 @@ object ProactiveMessageAutomation {
                 10. gesture 必须是角色此刻自身的微动作、姿态或神态；不要用它复述聊天，也不要假装角色真实出现在主人身边。
                 11. 只有“当前允许写私人日记”为是、确实出现新的感受或没说出口的想法时才可选 journal。日记必须是角色第一人称，不得机械复述聊天；没有新内容就 silent。
                 12. 用户要求与角色人设冲突时，尊重用户边界，但保留角色自己的表达方式。
+                13. group_message 只能选择上面真实列出的 groupId。只有角色自然地想对群内所有人说话、接续群话题或主动参与群互动时才选；text 不要带姓名前缀，也不要假装其他角色发言。
             """.trimIndent(),
             source = "后台感知",
             title = "${character.displayName}的主动行动决策",
@@ -214,7 +226,7 @@ object ProactiveMessageAutomation {
             source = "后台感知",
             now = now,
         )
-        if (!contactAllowed && decision.action in setOf(Action.MESSAGE, Action.CALL)) return false
+        if (!contactAllowed && decision.action in setOf(Action.MESSAGE, Action.GROUP_MESSAGE, Action.CALL)) return false
         when (decision.action) {
             Action.SILENT -> {
                 prefs.edit().putLong("last_silent_$characterId", now.toEpochMilli()).apply()
@@ -224,6 +236,12 @@ object ProactiveMessageAutomation {
                 if (decision.text.isBlank()) return false
                 MigratedDomainStores.chat.appendCharacterMessage(conversation.id, decision.text)
                 showMessageNotification(appContext, conversation.id, character.displayName, decision.text)
+            }
+            Action.GROUP_MESSAGE -> {
+                if (decision.text.isBlank()) return false
+                val target = availableGroups.firstOrNull { it.id == decision.groupId } ?: return false
+                MigratedDomainStores.chat.appendCharacterMessage(target.id, decision.text, characterId)
+                showMessageNotification(appContext, target.id, "${character.displayName} · ${target.groupChat?.name.orEmpty()}", decision.text)
             }
             Action.CALL -> {
                 if (!callAllowed || decision.text.isBlank()) return false
@@ -284,6 +302,7 @@ object ProactiveMessageAutomation {
         val json = JSONObject(cleaned)
         val action = when (json.optString("action").trim().lowercase()) {
             "message", "消息" -> Action.MESSAGE
+            "group_message", "groupmessage", "群聊消息", "群聊发言" -> Action.GROUP_MESSAGE
             "call", "phone", "电话", "来电" -> Action.CALL
             "journal", "diary", "日记" -> Action.JOURNAL
             else -> Action.SILENT
@@ -298,6 +317,7 @@ object ProactiveMessageAutomation {
             mood = json.optString("mood").trim(),
             journalTitle = json.optString("journalTitle").ifBlank { json.optString("journal_title") }.trim(),
             journalContent = json.optString("journalContent").ifBlank { json.optString("journal_content") }.trim(),
+            groupId = json.optString("groupId").ifBlank { json.optString("group_id") }.trim(),
         )
     }.getOrNull()
 

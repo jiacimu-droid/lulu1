@@ -168,6 +168,7 @@ fun LuluVoiceCallScreen(
                 userText = spoken,
                 title = activeLabel,
                 archiveId = voiceArchiveId,
+                sceneContext = "你正在和主人进行一对一实时电话。你能意识到电话已经接通，听见的是主人刚刚在电话里说的话；回复要适合口语和通话节奏。",
             ).onSuccess { reply ->
                 val text = reply.text.trim()
                 if (text.isNotBlank()) {

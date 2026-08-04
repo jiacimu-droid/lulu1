@@ -94,27 +94,12 @@ private fun FastErrorTab(onClear: () -> Unit) {
 @Composable
 private fun FastUsageTab(onClear: () -> Unit) {
     val records by LuluRepositories.performance.usageRecords.collectAsState(initial = emptyList())
-    val totals = remember(records) {
-        Triple(
-            records.sumOf(ApiUsageRecord::promptTokens),
-            records.sumOf(ApiUsageRecord::completionTokens),
-            records.sumOf(ApiUsageRecord::cachedTokens),
-        )
-    }
     PaginatedPerformanceList(
         title = "缓存统计",
-        subtitle = "统计全部记录，明细分批显示。",
+        subtitle = "逐条显示每次调用的输入、输出与缓存 Token。",
         records = records,
         keyOf = ApiUsageRecord::id,
         onClear = onClear,
-        summary = {
-            FastPerformanceCard {
-                FastMetric("输入 Token", totals.first.fastTokens())
-                FastMetric("输出 Token", totals.second.fastTokens())
-                FastMetric("缓存 Token", totals.third.fastTokens())
-                FastMetric("调用记录", records.size.toString())
-            }
-        },
     ) { record ->
         FastPerformanceCard {
             Text(record.title.ifBlank { record.source.label }, fontWeight = FontWeight.Bold, maxLines = 1)

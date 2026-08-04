@@ -15,6 +15,7 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelReply
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.SharedExperienceTimeline
 import org.json.JSONObject
 import java.time.Instant
 import java.time.ZoneId
@@ -35,12 +36,14 @@ object LuluDeviceToolBridge {
         userText: String,
         title: String,
         archiveId: String? = null,
+        sceneContext: String = "正在和主人进行文字聊天。",
     ): Result<ModelReply> {
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
         val connection = runCatching { LuluAiServices.connectionStore.resolveConnection(archiveId) }
             .getOrElse { return Result.failure(it) }
         val character = MigratedDomainStores.characters.get(characterId)
         val previousPresence = CompanionPresenceStore.current(characterId)
+        val livedContext = SharedExperienceTimeline.recentContext(characterId, limit = 16, characterBudget = 4_800)
         val now = Instant.now()
         val zone = ZoneId.systemDefault()
         val planner = LuluAiServices.gateway.generate(
@@ -48,6 +51,8 @@ object LuluDeviceToolBridge {
             facts = buildString {
                 appendLine("当前时间：${DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(now.atZone(zone))}")
                 appendLine("当前时区：${zone.id}")
+                appendLine("当前真实互动场景：$sceneContext")
+                if (livedContext.isNotBlank()) appendLine("角色最近亲历的原始时间线：\n$livedContext")
                 if (history.isNotBlank()) appendLine("最近对话：\n$history")
                 previousPresence?.let { presence ->
                     appendLine("角色上一刻状态：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
@@ -77,6 +82,7 @@ object LuluDeviceToolBridge {
                 - 时间表达必须根据当前时间换算成未来的完整 ISO 时间；不确定时间时直接自然追问，不要猜。
                 - 屏幕操作只执行主人明确要求的动作。不要连续规划多步操作；一次只调用一个工具。
                 - 与工具无关的普通聊天直接回复。
+                - 必须意识到“当前真实互动场景”，并以身处该场景的角色身份自然反应；电话里可以意识到正在通话，群聊里可以意识到其他成员也在场。
                 - innerThought 是角色没说出口的一瞬，不是分析报告、推理步骤或对话总结；没有真实内在反应可以留空，也不必把它写进 text。
                 - gesture 只写此刻能被主人看到的微动作、姿态或神态，不要复述刚刚聊了什么，不要编造角色并不处于其中的现实场景。
                 - statusText、gesture、innerThought、mood 必须服从角色人设，不能把所有角色统一写成温柔、害羞或黏人。
@@ -100,12 +106,14 @@ object LuluDeviceToolBridge {
         val finalReply = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
+                appendLine("当前真实互动场景：$sceneContext")
                 appendLine("主人刚刚说：$userText")
                 appendLine("你请求调用工具：${plan.tool}")
                 appendLine("工具真实执行结果：$toolResult")
             },
             instruction = """
                 根据工具的真实执行结果，以角色本人符合人设的方式回复主人。
+                必须继续保持当前真实互动场景，电话里用自然口语，群聊里知道其他成员在场。
                 成功时可以自然确认；失败时必须如实说明失败原因，不能假装已经完成。
                 对位置结果只能使用 readableAddress；地址为空、定位过旧或精度差时，必须明确说是大概位置，不得根据经纬度猜具体店铺、学校或建筑。
                 只返回一个 JSON 对象，不要代码块：

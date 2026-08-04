@@ -147,7 +147,7 @@ class InMemoryLuluChatStore : LuluChatStore {
     override fun createGroupConversation(name: String, memberIds: List<String>): LuluConversation {
         val members = memberIds.map(String::trim).filter(String::isNotBlank).distinct()
         require(members.size >= 2) { "群聊至少需要两个角色" }
-        synchronized(lock) {
+        val conversation = synchronized(lock) {
             val conversation = LuluConversation(
                 id = UUID.randomUUID().toString(),
                 characterId = members.first(),
@@ -162,14 +162,20 @@ class InMemoryLuluChatStore : LuluChatStore {
             conversationState.value = (listOf(conversation) + conversationState.value)
                 .sortedWith(conversationOrdering())
             persistLocked()
-            return conversation
+            conversation
         }
+        recordGroupMembershipAwareness(conversation)
+        return conversation
     }
 
     override fun updateGroupConversation(conversationId: String, groupChat: LuluGroupChat): Boolean {
         val normalized = groupChat.normalized()
         if (normalized.members.size < 2) return false
-        synchronized(lock) {
+        val addedMemberIds = synchronized(lock) {
+            val previous = conversationState.value.firstOrNull { it.id == conversationId }?.groupChat
+                ?: return false
+            val added = normalized.members.map(LuluGroupMember::characterId).toSet() -
+                previous.members.map(LuluGroupMember::characterId).toSet()
             var changed = false
             conversationState.value = conversationState.value.map { conversation ->
                 if (conversation.id == conversationId && conversation.groupChat != null) {
@@ -185,8 +191,38 @@ class InMemoryLuluChatStore : LuluChatStore {
                 }
             }.sortedWith(conversationOrdering())
             if (changed) persistLocked()
-            return changed
+            if (changed) added else emptySet()
         }
+        if (addedMemberIds.isNotEmpty()) {
+            conversationState.value.firstOrNull { it.id == conversationId }?.let { conversation ->
+                recordGroupMembershipAwareness(conversation, addedMemberIds)
+            }
+        }
+        return true
+    }
+
+    private fun recordGroupMembershipAwareness(
+        conversation: LuluConversation,
+        onlyCharacterIds: Set<String>? = null,
+    ) {
+        val group = conversation.groupChat ?: return
+        val characterNames = group.members.map { member ->
+            val character = MigratedDomainStores.characters.get(member.characterId)
+            member.groupNickname.ifBlank { character.displayName }
+        }
+        val memberSummary = (listOf(group.userGroupNickname) + characterNames).joinToString("、")
+        group.members
+            .filter { onlyCharacterIds == null || it.characterId in onlyCharacterIds }
+            .forEach { member ->
+                SharedExperienceTimeline.record(
+                    eventId = "group-joined-${conversation.id}-${member.characterId}",
+                    characterId = member.characterId,
+                    channel = "群聊·${group.name}",
+                    speaker = "系统事件",
+                    content = "主人把你拉进了群聊《${group.name}》。群成员：$memberSummary。你知道自己现在是这个群的成员，可以阅读并参与群内对话。",
+                    occurredAt = conversation.updatedAt,
+                )
+            }
     }
 
     override fun deleteConversation(conversationId: String): Boolean {

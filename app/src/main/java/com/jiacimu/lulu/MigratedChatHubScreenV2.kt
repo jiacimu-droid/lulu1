@@ -159,7 +159,7 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                         if (group == null) {
                             ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 50, character.avatarUri)
                         } else {
-                            ChatHubV2GroupAvatar(group.name, group.members.size + 1, group.avatarUri)
+                            ChatHubV2GroupAvatar(group.name, group.avatarUri)
                         }
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
@@ -183,23 +183,6 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                             )
                             if (conversation.parentConversationId != null) {
                                 Text("聊天分支", color = LuluColors.Muted, fontSize = 10.sp)
-                            } else if (group != null) {
-                                val names = group.members.map { member ->
-                                    member.groupNickname.ifBlank {
-                                        characters[member.characterId]?.displayName ?: member.characterId
-                                    }
-                                }
-                                Text(
-                                    buildString {
-                                        if (group.pinned) append("置顶 · ")
-                                        append("${group.members.size + 1}人 · ${names.joinToString("、")}")
-                                        if (group.muted) append(" · 已免打扰")
-                                    },
-                                    color = LuluColors.Muted,
-                                    fontSize = 10.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
                             }
                         }
                         if (conversation.unreadCount > 0) {
@@ -514,7 +497,7 @@ private fun ChatHubV2Avatar(text: String, size: Int, imageUri: String? = null) =
     LuluProfileAvatar(imageUri = imageUri, fallback = text, size = size)
 
 @Composable
-private fun ChatHubV2GroupAvatar(name: String, count: Int, imageUri: String?) {
+private fun ChatHubV2GroupAvatar(name: String, imageUri: String?) {
     if (!imageUri.isNullOrBlank()) {
         LuluProfileAvatar(imageUri = imageUri, fallback = name.take(1).ifBlank { "群" }, size = 50)
     } else {
@@ -526,8 +509,7 @@ private fun ChatHubV2GroupAvatar(name: String, count: Int, imageUri: String?) {
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Outlined.Groups, null, Modifier.size(22.dp))
-                    Text("${count}人", fontSize = 8.sp)
+                    Icon(Icons.Outlined.Groups, null, Modifier.size(30.dp))
                 }
             }
         }

@@ -110,11 +110,29 @@ fun QqStyleChatDetailScreen(
     var callVisible by remember { mutableStateOf(false) }
     var presenceCharacterId by remember { mutableStateOf<String?>(null) }
     var groupSettingsVisible by remember { mutableStateOf(false) }
-    var searchVisible by remember { mutableStateOf(false) }
     var mentionExpanded by remember { mutableStateOf(false) }
     var voiceListening by remember { mutableStateOf(false) }
     var voicePartial by remember { mutableStateOf("") }
     var voiceError by remember { mutableStateOf("") }
+
+    if (groupSettingsVisible && groupChat != null) {
+        QqGroupChatSettingsScreen(
+            group = groupChat,
+            characters = characters.values.sortedBy { it.displayName },
+            messages = messages,
+            onBack = { groupSettingsVisible = false },
+            onSave = { updated ->
+                MigratedDomainStores.chat.updateGroupConversation(conversationId, updated)
+                groupSettingsVisible = false
+            },
+            onDelete = {
+                MigratedDomainStores.chat.deleteConversation(conversationId)
+                groupSettingsVisible = false
+                onBack()
+            },
+        )
+        return
+    }
     val speechRecognizer = remember {
         if (SpeechRecognizer.isRecognitionAvailable(context)) SpeechRecognizer.createSpeechRecognizer(context) else null
     }
@@ -285,13 +303,13 @@ fun QqStyleChatDetailScreen(
                         }
                         Spacer(Modifier.width(9.dp))
                         Column {
-                            Text(groupChat?.name ?: character.displayName, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = QqInk)
                             Text(
-                                groupChat?.let { "${it.members.size + 1}人群聊" } ?: activeLabel,
-                                fontSize = 10.sp,
-                                color = QqMuted,
-                                maxLines = 1,
+                                groupChat?.let { "${it.name}（${it.members.size + 1}）" } ?: character.displayName,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 17.sp,
+                                color = QqInk,
                             )
+                            if (groupChat == null) Text(activeLabel, fontSize = 10.sp, color = QqMuted, maxLines = 1)
                         }
                     }
                 },
@@ -324,31 +342,22 @@ fun QqStyleChatDetailScreen(
                             }
                         }
                     }
+                    IconButton(onClick = {
+                        focusManager.clearFocus(force = true)
+                        keyboardController?.hide()
+                        callVisible = true
+                    }) { Icon(Icons.Outlined.Call, if (groupChat == null) "电话" else "群聊电话", tint = QqInk) }
                     if (groupChat == null) {
-                        IconButton(onClick = {
-                            focusManager.clearFocus(force = true)
-                            keyboardController?.hide()
-                            callVisible = true
-                        }) { Icon(Icons.Outlined.Call, "电话", tint = QqInk) }
-                    }
-                    Box {
-                        IconButton(onClick = { moreExpanded = true }) { Icon(Icons.Outlined.MoreHoriz, "更多", tint = QqInk) }
-                        DropdownMenu(expanded = moreExpanded, onDismissRequest = { moreExpanded = false }) {
-                            if (groupChat == null) {
+                        Box {
+                            IconButton(onClick = { moreExpanded = true }) { Icon(Icons.Outlined.MoreHoriz, "更多", tint = QqInk) }
+                            DropdownMenu(expanded = moreExpanded, onDismissRequest = { moreExpanded = false }) {
                                 DropdownMenuItem(text = { Text("角色设置") }, onClick = { moreExpanded = false; onCharacterSettings() })
                                 DropdownMenuItem(text = { Text("角色世界书") }, onClick = { moreExpanded = false; onWorldBook() })
-                            } else {
-                                DropdownMenuItem(
-                                    text = { Text("查找聊天记录") },
-                                    leadingIcon = { Icon(Icons.Outlined.Search, null) },
-                                    onClick = { moreExpanded = false; searchVisible = true },
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("群聊设置") },
-                                    leadingIcon = { Icon(Icons.Outlined.Group, null) },
-                                    onClick = { moreExpanded = false; groupSettingsVisible = true },
-                                )
                             }
+                        }
+                    } else {
+                        IconButton(onClick = { groupSettingsVisible = true }) {
+                            Icon(Icons.Outlined.MoreHoriz, "群聊设置", tint = QqInk)
                         }
                     }
                 },
@@ -390,26 +399,6 @@ fun QqStyleChatDetailScreen(
                             modifier = Modifier.size(27.dp),
                         )
                     }
-                        if (groupChat != null) {
-                            DropdownMenu(expanded = mentionExpanded, onDismissRequest = { mentionExpanded = false }) {
-                                DropdownMenuItem(
-                                    text = { Text("@全体成员") },
-                                    onClick = { input += "@全体成员 "; mentionExpanded = false },
-                                )
-                                groupChat.members.forEach { member ->
-                                    val memberCharacter = characters[member.characterId]
-                                        ?: MigratedDomainStores.characters.get(member.characterId)
-                                    val displayName = member.groupNickname.ifBlank { memberCharacter.displayName }
-                                    DropdownMenuItem(
-                                        leadingIcon = {
-                                            QqAvatar(memberCharacter.displayName.take(1).ifBlank { "角" }, 30, memberCharacter.avatarUri)
-                                        },
-                                        text = { Text("@$displayName") },
-                                        onClick = { input += "@$displayName "; mentionExpanded = false },
-                                    )
-                                }
-                            }
-                        }
                     }
                     TextField(
                         value = input,
@@ -584,16 +573,28 @@ fun QqStyleChatDetailScreen(
     }
 
     if (callVisible) {
-        LuluVoiceCallScreen(
-            conversationId = conversationId,
-            characterId = characterId,
-            characterName = character.displayName,
-            onDismiss = {
-                callVisible = false
-                focusManager.clearFocus(force = true)
-                keyboardController?.hide()
-            },
-        )
+        if (groupChat == null) {
+            LuluVoiceCallScreen(
+                conversationId = conversationId,
+                characterId = characterId,
+                characterName = character.displayName,
+                onDismiss = {
+                    callVisible = false
+                    focusManager.clearFocus(force = true)
+                    keyboardController?.hide()
+                },
+            )
+        } else {
+            LuluGroupVoiceCallScreen(
+                conversationId = conversationId,
+                group = groupChat,
+                onDismiss = {
+                    callVisible = false
+                    focusManager.clearFocus(force = true)
+                    keyboardController?.hide()
+                },
+            )
+        }
     }
 
     presenceCharacterId?.let { selectedCharacterId ->
@@ -606,29 +607,56 @@ fun QqStyleChatDetailScreen(
         ) { presenceCharacterId = null }
     }
 
-    if (groupSettingsVisible && groupChat != null) {
-        QqGroupChatSettingsDialog(
-            group = groupChat,
-            characters = characters.values.sortedBy { it.displayName },
-            onDismiss = { groupSettingsVisible = false },
-            onSave = { updated ->
-                MigratedDomainStores.chat.updateGroupConversation(conversationId, updated)
-                groupSettingsVisible = false
-            },
-            onDelete = {
-                MigratedDomainStores.chat.deleteConversation(conversationId)
-                groupSettingsVisible = false
-                onBack()
-            },
-        )
-    }
-
-    if (searchVisible) {
-        QqChatSearchDialog(
-            messages = messages,
-            characterNames = characters.mapValues { it.value.displayName },
-            onDismiss = { searchVisible = false },
-        )
+    if (mentionExpanded && groupChat != null) {
+        ModalBottomSheet(
+            onDismissRequest = { mentionExpanded = false },
+            containerColor = QqPage,
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text("@群成员", color = QqInk, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text("选择要提醒的人", color = QqMuted, fontSize = 12.sp)
+                Surface(
+                    modifier = Modifier.fillMaxWidth().clickable {
+                        input += "@全体成员 "
+                        mentionExpanded = false
+                    },
+                    color = QqIconSurface,
+                    shape = RoundedCornerShape(16.dp),
+                ) {
+                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Surface(Modifier.size(42.dp), shape = RoundedCornerShape(12.dp), color = QqMine) {
+                            Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Groups, null, tint = Color.White) }
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        Text("@全体成员", color = QqInk, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+                groupChat.members.forEach { member ->
+                    val memberCharacter = characters[member.characterId]
+                        ?: MigratedDomainStores.characters.get(member.characterId)
+                    val displayName = member.groupNickname.ifBlank { memberCharacter.displayName }
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().clickable {
+                            input += "@$displayName "
+                            mentionExpanded = false
+                        },
+                        color = QqPage,
+                        shape = RoundedCornerShape(16.dp),
+                        border = BorderStroke(1.dp, QqBorder),
+                    ) {
+                        Row(Modifier.padding(11.dp), verticalAlignment = Alignment.CenterVertically) {
+                            QqAvatar(memberCharacter.displayName.take(1).ifBlank { "角" }, 42, memberCharacter.avatarUri)
+                            Spacer(Modifier.width(12.dp))
+                            Text("@$displayName", color = QqInk, fontWeight = FontWeight.Medium)
+                        }
+                    }
+                }
+                Spacer(Modifier.navigationBarsPadding())
+            }
+        }
     }
 
     if (voiceListening) {
@@ -842,7 +870,7 @@ private fun splitCharacterBubbles(text: String): List<String> {
     }
 }
 
-private suspend fun runGroupReplies(
+internal suspend fun runGroupReplies(
     conversationId: String,
     group: LuluGroupChat,
     pendingText: String,
@@ -851,6 +879,9 @@ private suspend fun runGroupReplies(
     archiveId: String?,
     characterNames: Map<String, String>,
     onError: suspend (String) -> Unit,
+    sceneContext: String = "你正在群聊《${group.name}》中。群里的所有消息对在场成员可见。",
+    onSpeakerChange: (String?) -> Unit = {},
+    afterReply: suspend (String, String) -> Unit = { _, _ -> },
 ) {
     val validMembers = group.members.filter { it.characterId in characterNames }
     if (validMembers.size < 2) {
@@ -881,6 +912,7 @@ private suspend fun runGroupReplies(
 
     ordered.take(targetReplies).forEachIndexed { index, member ->
         if (!currentCoroutineContext().isActive) return
+        onSpeakerChange(member.characterId)
         val character = MigratedDomainStores.characters.get(member.characterId)
         val memberLabel = member.groupNickname.ifBlank { character.displayName }
         val latestMessages = MigratedDomainStores.chat.messages(conversationId).value
@@ -904,23 +936,28 @@ private suspend fun runGroupReplies(
             userText = groupInput,
             title = activeLabel,
             archiveId = archiveId,
+            sceneContext = sceneContext,
         )
         if (!currentCoroutineContext().isActive) return
-        result.onSuccess { reply ->
+        val reply = result.getOrNull()
+        if (reply != null) {
             if (reply.text.isNotBlank()) {
                 MigratedDomainStores.chat.appendCharacterMessage(
                     conversationId = conversationId,
                     content = reply.text,
                     authorCharacterId = member.characterId,
                 )
+                afterReply(member.characterId, reply.text)
             }
-        }.onFailure { error ->
-            onError("${character.displayName}回复失败：${error.message ?: "未知错误"}")
+        } else {
+            val error = result.exceptionOrNull()
+            onError("${character.displayName}回复失败：${error?.message ?: "未知错误"}")
         }
     }
+    onSpeakerChange(null)
 }
 
-private fun buildBoundedHistory(
+internal fun buildBoundedHistory(
     messages: List<LuluChatMessage>,
     characterName: String,
     characterNames: Map<String, String> = emptyMap(),
@@ -970,51 +1007,6 @@ private fun QqGroupAvatar(group: LuluGroupChat, size: Int) {
             }
         }
     }
-}
-
-@Composable
-private fun QqChatSearchDialog(
-    messages: List<LuluChatMessage>,
-    characterNames: Map<String, String>,
-    onDismiss: () -> Unit,
-) {
-    var query by remember { mutableStateOf("") }
-    val results = remember(messages, query) {
-        if (query.isBlank()) emptyList() else messages.filter { it.content.contains(query.trim(), ignoreCase = true) }
-    }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("查找聊天记录") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    label = { Text("关键词") },
-                    leadingIcon = { Icon(Icons.Outlined.Search, null) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                Text(if (query.isBlank()) "输入关键词开始查找" else "找到 ${results.size} 条", color = QqMuted, fontSize = 12.sp)
-                LazyColumn(Modifier.heightIn(max = 360.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(results, key = LuluChatMessage::id) { message ->
-                        val speaker = when (message.sender) {
-                            LuluChatMessage.Sender.User -> "主人"
-                            LuluChatMessage.Sender.System -> "系统"
-                            LuluChatMessage.Sender.Character -> message.authorCharacterId?.let { characterNames[it] } ?: "角色"
-                        }
-                        Surface(color = QqIconSurface, shape = RoundedCornerShape(12.dp)) {
-                            Column(Modifier.fillMaxWidth().padding(10.dp)) {
-                                Text(speaker, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
-                                Text(message.content, maxLines = 3, color = QqInk, fontSize = 13.sp)
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("完成") } },
-    )
 }
 
 @Composable
