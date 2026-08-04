@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`67b63eaabb5f18d5c4a89142e1f10dc3982a2d7f`
+- 基准提交：`160cc681f91465521c6c3009c5939202bf0b6508`
 - 分支：`main`
 - 已索引文件：109
-- 已索引代码/文本行：25571
+- 已索引代码/文本行：25604
 - 已发现符号：452
 
 | 文件 | 行数 | 符号数 |
@@ -37,8 +37,8 @@
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 212 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 283 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 374 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1093 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 387 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1113 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 219 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 698 | 24 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 125 | 28 |
