@@ -330,7 +330,7 @@ fun LuluVoiceCallScreen(
                             danger = true,
                             onClick = {
                                 connected = false
-                                tts.stop()
+                                speechEngine.stop()
                                 onDismiss()
                             },
                         )
