@@ -26,9 +26,12 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.SharedExperienceTimeline
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
+import java.time.Instant
+import java.util.UUID
 import kotlin.math.ceil
 
 private data class FocusPalette(
@@ -96,6 +99,9 @@ internal fun StudyFocusCompleteScreen(
     var systemError by remember { mutableStateOf(false) }
     var ttsReady by remember { mutableStateOf(false) }
     var tts by remember { mutableStateOf<TextToSpeech?>(null) }
+    var sessionMessageStart by remember { mutableIntStateOf(messages.size) }
+    var sessionExperienceId by remember { mutableStateOf(UUID.randomUUID().toString()) }
+    var sessionStartedAt by remember { mutableStateOf(Instant.now()) }
     val palette = preferences.theme.palette()
 
     DisposableEffect(context) {
@@ -113,6 +119,27 @@ internal fun StudyFocusCompleteScreen(
         if (state.pomodoro.voiceEnabled && ttsReady && text.isNotBlank()) {
             tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "study-focus-${System.currentTimeMillis()}")
         }
+    }
+
+    fun rememberFocusExperience(actualMinutes: Int, reason: String) {
+        val transcript = MigratedDomainStores.chat.messages(conversationId).value
+            .drop(sessionMessageStart)
+            .joinToString("\n") { message ->
+                val speaker = if (message.sender == LuluChatMessage.Sender.User) "主人" else character.displayName
+                "$speaker：${message.content.trim()}"
+            }
+        SharedExperienceTimeline.remember(
+            memoryId = "focus-$sessionExperienceId",
+            characterId = state.profile.selectedCharacterId,
+            label = "共同专注",
+            detail = buildString {
+                append("任务“${preferences.task}”，实际专注 ${actualMinutes.coerceAtLeast(1)} 分钟，$reason。")
+                if (transcript.isNotBlank()) append("专注期间的对话：\n$transcript")
+            },
+            occurredAt = sessionStartedAt,
+            strength = 6,
+            source = "study-focus",
+        )
     }
 
     fun requestOpeningLine() {
@@ -161,6 +188,9 @@ internal fun StudyFocusCompleteScreen(
         StudyFocusSessions.store.updateTask(cleanTask)
         store.setPomodoroDuration(minutes)
         if (!store.state.value.pomodoro.running) store.togglePomodoro()
+        sessionMessageStart = MigratedDomainStores.chat.messages(conversationId).value.size
+        sessionExperienceId = UUID.randomUUID().toString()
+        sessionStartedAt = Instant.now()
         inSession = true
         completedThisSession = false
         openingRequested = false
@@ -175,6 +205,7 @@ internal fun StudyFocusCompleteScreen(
         val reward = store.completePomodoro(actualMinutes.coerceAtLeast(1))
         store.setPomodoroDuration(originalMinutes)
         completedThisSession = true
+        rememberFocusExperience(actualMinutes, reason)
         val facts = buildString {
             appendLine(state.roleStudyContext())
             appendLine("本次任务：${preferences.task}")
@@ -262,6 +293,7 @@ internal fun StudyFocusCompleteScreen(
             delay(500)
             if (store.syncPomodoroClock()) {
                 completedThisSession = true
+                rememberFocusExperience(state.pomodoro.selectedMinutes, "番茄钟自然结束")
                 val facts = buildString {
                     appendLine(store.state.value.roleStudyContext())
                     appendLine("本次任务：${preferences.task}")

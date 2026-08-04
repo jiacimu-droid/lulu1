@@ -30,8 +30,11 @@ import androidx.compose.ui.window.DialogProperties
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.util.UUID
 
 private val CallPage = Color(0xFFFFFFFF)
 private val CallSurface = Color(0xFFF7F7F7)
@@ -64,10 +67,41 @@ fun LuluVoiceCallScreen(
     var modelExpanded by remember { mutableStateOf(false) }
     var startedAt by remember { mutableLongStateOf(0L) }
     var elapsedSeconds by remember { mutableLongStateOf(0L) }
+    var everConnected by remember { mutableStateOf(false) }
+    var experienceSaved by remember { mutableStateOf(false) }
+    val callStartedAt = remember { Instant.now() }
+    val callStartMessageCount = remember(conversationId) { MigratedDomainStores.chat.messages(conversationId).value.size }
+    val callExperienceId = remember { UUID.randomUUID().toString() }
 
     val speechEngine = remember { LuluSpeechEngine(context) }
     DisposableEffect(Unit) {
         onDispose { speechEngine.shutdown() }
+    }
+
+    fun closeCall() {
+        if (everConnected && !experienceSaved) {
+            experienceSaved = true
+            val transcript = MigratedDomainStores.chat.messages(conversationId).value
+                .drop(callStartMessageCount)
+                .joinToString("\n") { message ->
+                    val speaker = if (message.sender == LuluChatMessage.Sender.User) "主人" else characterName
+                    "$speaker：${message.content.trim()}"
+                }
+            SharedExperienceTimeline.remember(
+                memoryId = "call-$callExperienceId",
+                characterId = characterId,
+                label = "共同通话",
+                detail = buildString {
+                    append("进行了一次持续约 ${elapsedSeconds.coerceAtLeast(1)} 秒的电话。")
+                    if (transcript.isNotBlank()) append("通话内容：\n$transcript")
+                },
+                occurredAt = callStartedAt,
+                strength = 7,
+                source = "voice-call",
+            )
+        }
+        speechEngine.stop()
+        onDismiss()
     }
 
     LaunchedEffect(connected) {
@@ -151,8 +185,7 @@ fun LuluVoiceCallScreen(
                         modelExpanded = false
                     },
                     onClose = {
-                        speechEngine.stop()
-                        onDismiss()
+                        closeCall()
                     },
                 )
 
@@ -206,7 +239,12 @@ fun LuluVoiceCallScreen(
                     )
                     Spacer(Modifier.height(30.dp))
                     FilledIconButton(
-                        onClick = { if (activeArchive != null) connected = true },
+                        onClick = {
+                            if (activeArchive != null) {
+                                connected = true
+                                everConnected = true
+                            }
+                        },
                         enabled = activeArchive != null,
                         modifier = Modifier.size(68.dp),
                         colors = IconButtonDefaults.filledIconButtonColors(
@@ -330,8 +368,7 @@ fun LuluVoiceCallScreen(
                             danger = true,
                             onClick = {
                                 connected = false
-                                speechEngine.stop()
-                                onDismiss()
+                                closeCall()
                             },
                         )
                     }

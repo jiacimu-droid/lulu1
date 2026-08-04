@@ -35,7 +35,6 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
-import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
@@ -70,12 +69,10 @@ fun QqStyleChatDetailScreen(
     val messages by MigratedDomainStores.chat.messages(conversationId).collectAsState()
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val preferences by LuluAppPreferencesStore.state.collectAsState()
-    val presenceStates by CompanionPresenceStore.states.collectAsState()
     val library by LuluAiServices.connectionStore.library.collectAsState()
     val conversation = conversations.firstOrNull { it.id == conversationId }
     val characterId = conversation?.characterId ?: "lulu"
     val character = MigratedDomainStores.characters.get(characterId)
-    val presence = presenceStates[characterId]
     val activeArchive = library.archives.firstOrNull { it.id == library.activeArchiveId }
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接模型"
     val pendingUserMessages = remember(messages) {
@@ -93,7 +90,6 @@ fun QqStyleChatDetailScreen(
     var moreExpanded by remember { mutableStateOf(false) }
     var modelExpanded by remember { mutableStateOf(false) }
     var callVisible by remember { mutableStateOf(false) }
-    var presenceVisible by remember { mutableStateOf(false) }
     var voiceListening by remember { mutableStateOf(false) }
     var voicePartial by remember { mutableStateOf("") }
     var voiceError by remember { mutableStateOf("") }
@@ -251,9 +247,6 @@ fun QqStyleChatDetailScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { presenceVisible = true }) {
-                        Icon(Icons.Outlined.Psychology, "心声与此刻动作", tint = QqInk)
-                    }
                     Box {
                         IconButton(onClick = { modelExpanded = true }) {
                             Icon(Icons.Outlined.SwapHoriz, "切换模型", tint = QqInk)
@@ -448,39 +441,6 @@ fun QqStyleChatDetailScreen(
         )
     }
 
-    if (presenceVisible) {
-        AlertDialog(
-            onDismissRequest = { presenceVisible = false },
-            title = { Text("${character.displayName} · 此刻") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    if (presence == null) {
-                        Text("还没有形成可查看的此刻状态。", color = QqMuted)
-                    } else {
-                        PresenceSection("此刻动作", presence.gesture.ifBlank { "此刻没有留下明确的动作或神态。" })
-                        if (presence.innerThought.isNotBlank()) {
-                            PresenceSection("心声", presence.innerThought)
-                        }
-                        if (presence.mood.isNotBlank() || presence.statusText.isNotBlank()) {
-                            PresenceSection(
-                                "状态",
-                                listOf(presence.mood, presence.statusText).filter(String::isNotBlank).distinct().joinToString(" · "),
-                            )
-                        }
-                        Text(
-                            presence.updatedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
-                            color = QqMuted,
-                            fontSize = 11.sp,
-                        )
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { presenceVisible = false }) { Text("关闭", color = QqInk) }
-            },
-        )
-    }
-
     if (voiceListening) {
         ModalBottomSheet(
             onDismissRequest = {
@@ -532,21 +492,6 @@ fun QqStyleChatDetailScreen(
                 }
                 Spacer(Modifier.navigationBarsPadding())
             }
-        }
-    }
-}
-
-@Composable
-private fun PresenceSection(title: String, content: String) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = QqOther,
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, QqBorder),
-    ) {
-        Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            Text(title, color = QqMuted, fontSize = 11.sp)
-            Text(content, color = QqInk, fontSize = 15.sp, lineHeight = 21.sp)
         }
     }
 }

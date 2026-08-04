@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.study
 
 import android.content.Context
+import com.jiacimu.lulu.data.SharedExperienceTimeline
 import android.util.Base64
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ai.LuluAiServices
@@ -14,6 +15,7 @@ import org.json.JSONObject
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
+import java.time.Instant
 import java.util.UUID
 
 internal enum class StarWishTab(val label: String) {
@@ -122,8 +124,22 @@ internal class StarWishStore private constructor(context: Context) {
         current.copy(theaterGuides = current.theaterGuides + (theater to guide.trim()))
     }
 
-    fun addChapter(chapter: StarWishTheaterChapter) = update { current ->
-        current.copy(theaterChapters = current.theaterChapters + (chapter.theater to (current.theaterChapters[chapter.theater].orEmpty() + chapter)))
+    fun addChapter(chapter: StarWishTheaterChapter, characterId: String) {
+        update { current ->
+            current.copy(theaterChapters = current.theaterChapters + (chapter.theater to (current.theaterChapters[chapter.theater].orEmpty() + chapter)))
+        }
+        SharedExperienceTimeline.remember(
+            memoryId = "theater-${chapter.id}",
+            characterId = characterId,
+            label = "共同阅读《${chapter.theater}》第${chapter.chapter}章",
+            detail = buildString {
+                if (chapter.userInfluence.isNotBlank()) append("主人影响了剧情：${chapter.userInfluence}。")
+                append("本章发生了：${chapter.content.takeLast(1_200)}")
+            },
+            occurredAt = Instant.ofEpochMilli(chapter.createdAtMillis),
+            strength = 4,
+            source = "theater",
+        )
     }
 
     fun deleteTheater(theater: String) = update { current ->

@@ -323,7 +323,10 @@ private fun TheaterReaderV2(
                                 maxTokens = 4400,
                             ).onSuccess { reply ->
                                 if (StarWishInventoryBridge.consumeTheaterFragment(studyStore)) {
-                                    store.addChapter(StarWishTheaterChapter(theater = seed.title, chapter = chapterNumber, title = "第 $chapterNumber 章", content = reply.text, userInfluence = influence.trim()))
+                                    store.addChapter(
+                                        StarWishTheaterChapter(theater = seed.title, chapter = chapterNumber, title = "第 $chapterNumber 章", content = reply.text, userInfluence = influence.trim()),
+                                        studyState.profile.selectedCharacterId,
+                                    )
                                     selectedIndex = chapterNumber - 1
                                     influence = ""
                                     message = "第 $chapterNumber 章已生成"

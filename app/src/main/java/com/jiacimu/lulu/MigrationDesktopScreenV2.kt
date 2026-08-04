@@ -2,6 +2,7 @@ package com.jiacimu.lulu
 
 import android.content.Context
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.CompanionPresenceStore
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -72,6 +74,7 @@ internal fun MigrationHomeV2(
     val context = LocalContext.current
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
+    val presenceStates by CompanionPresenceStore.states.collectAsState()
     val recent = conversations.maxByOrNull { it.updatedAt }
     val currentCharacter = recent?.characterId
         ?.let { characters[it] ?: MigratedDomainStores.characters.get(it) }
@@ -88,6 +91,8 @@ internal fun MigrationHomeV2(
         else -> "晚上好"
     }
     var slots by remember { mutableStateOf(loadDesktopSlots(context)) }
+    var presenceVisible by remember { mutableStateOf(false) }
+    val presence = presenceStates[currentCharacter.characterId]
 
     Surface(modifier = Modifier.fillMaxSize(), color = DesktopPaper) {
         Column(
@@ -131,6 +136,7 @@ internal fun MigrationHomeV2(
                     ?.ifBlank { "点这里去找${currentCharacter.displayName}。" }
                     ?: "今天也来找我说说话吧。",
                 onClick = { recent?.let { onOpenConversation(it.id) } ?: onOpen(MigrationRoute.Chat) },
+                onAvatarClick = { presenceVisible = true },
             )
 
             Spacer(Modifier.height(10.dp))
@@ -176,6 +182,10 @@ internal fun MigrationHomeV2(
             )
         }
     }
+
+    if (presenceVisible) {
+        CompanionPresenceDialog(currentCharacter.displayName, presence) { presenceVisible = false }
+    }
 }
 
 @Composable
@@ -183,6 +193,7 @@ private fun DesktopCompanionCard(
     characterName: String,
     recentMessage: String,
     onClick: () -> Unit,
+    onAvatarClick: () -> Unit,
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -196,7 +207,11 @@ private fun DesktopCompanionCard(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 17.dp, vertical = 15.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            DesktopV2Avatar(characterName.take(1).ifBlank { "露" }, 52)
+            DesktopV2Avatar(
+                characterName.take(1).ifBlank { "露" },
+                52,
+                Modifier.clickable(onClick = onAvatarClick),
+            )
             Spacer(Modifier.width(13.dp))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -389,13 +404,13 @@ private fun DesktopV2LauncherItem(
 }
 
 @Composable
-private fun DesktopV2Avatar(text: String, size: Int) {
+private fun DesktopV2Avatar(text: String, size: Int, modifier: Modifier = Modifier) {
     Surface(
         shape = CircleShape,
         color = DesktopSoft,
         border = BorderStroke(1.dp, DesktopLine),
         shadowElevation = 1.dp,
-        modifier = Modifier.size(size.dp),
+        modifier = modifier.size(size.dp),
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(text, fontSize = (size / 2.75).sp, fontWeight = FontWeight.Bold, color = DesktopInk)

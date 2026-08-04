@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.games
 
 import android.content.Context
+import com.jiacimu.lulu.data.SharedExperienceTimeline
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -207,6 +208,17 @@ class LuluGameStore internal constructor(context: Context) {
             state.copy(
                 coins = state.coins + record.rewardCoins,
                 records = (listOf(record) + state.records).take(MAX_RECORDS),
+            )
+        }
+        if (record.playedWithCharacter) {
+            SharedExperienceTimeline.remember(
+                memoryId = "game-${record.id}",
+                characterId = record.characterId,
+                label = "共同游戏《${record.title}》",
+                detail = "${record.summary}；得分 ${record.score}，获得 ${record.rewardCoins} 枚奖励币。",
+                occurredAt = record.createdAt,
+                strength = 5,
+                source = "game:${record.type.name}",
             )
         }
         return record.id

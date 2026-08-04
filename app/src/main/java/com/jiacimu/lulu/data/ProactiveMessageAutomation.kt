@@ -41,7 +41,7 @@ object ProactiveMessageAutomation {
     private const val PREFS_NAME = "lulu_proactive_runtime"
     private const val MESSAGE_CHANNEL_ID = "lulu_proactive_messages"
     private const val CALL_CHANNEL_ID = "lulu_proactive_calls"
-    private const val CHECK_INTERVAL_MS = 15 * 60 * 1000L
+    private const val CHECK_INTERVAL_MS = 60 * 60 * 1000L
     private const val INITIAL_DELAY_MS = 45 * 1000L
     private const val MIN_IDLE_MINUTES = 75L
     private const val MESSAGE_COOLDOWN_MINUTES = 180L

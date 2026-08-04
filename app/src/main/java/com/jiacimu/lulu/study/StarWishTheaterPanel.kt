@@ -301,6 +301,7 @@ private fun TheaterReader(
                                             content = reply.text,
                                             userInfluence = influence.trim(),
                                         ),
+                                        studyState.profile.selectedCharacterId,
                                     )
                                     selectedChapterIndex = chapterNumber - 1
                                     influence = ""
