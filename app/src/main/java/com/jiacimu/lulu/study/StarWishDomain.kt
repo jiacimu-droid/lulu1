@@ -128,6 +128,14 @@ internal class StarWishStore private constructor(context: Context) {
         update { current ->
             current.copy(theaterChapters = current.theaterChapters + (chapter.theater to (current.theaterChapters[chapter.theater].orEmpty() + chapter)))
         }
+        SharedExperienceTimeline.record(
+            eventId = "theater-raw-${chapter.id}",
+            characterId = characterId,
+            channel = "共同阅读《${chapter.theater}》",
+            speaker = "故事正文",
+            content = "第${chapter.chapter}章 ${chapter.title}\n${chapter.content}",
+            occurredAt = Instant.ofEpochMilli(chapter.createdAtMillis),
+        )
         SharedExperienceTimeline.remember(
             memoryId = "theater-${chapter.id}",
             characterId = characterId,

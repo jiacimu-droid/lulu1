@@ -211,6 +211,17 @@ class LuluGameStore internal constructor(context: Context) {
             )
         }
         if (record.playedWithCharacter) {
+            SharedExperienceTimeline.record(
+                eventId = "game-raw-${record.id}",
+                characterId = record.characterId,
+                channel = "共同游戏《${record.title}》",
+                speaker = "游戏记录",
+                content = buildString {
+                    append("${record.summary}\n得分：${record.score}；奖励币：${record.rewardCoins}")
+                    if (record.detailsJson != "{}") append("\n真实过程数据：${record.detailsJson}")
+                },
+                occurredAt = record.createdAt,
+            )
             SharedExperienceTimeline.remember(
                 memoryId = "game-${record.id}",
                 characterId = record.characterId,
@@ -226,11 +237,20 @@ class LuluGameStore internal constructor(context: Context) {
 
     fun attachCharacterReply(recordId: String, reply: String) {
         if (reply.isBlank()) return
+        val record = mutableState.value.records.firstOrNull { it.id == recordId } ?: return
         mutate { state ->
             state.copy(records = state.records.map { record ->
                 if (record.id == recordId) record.copy(characterReply = reply.trim()) else record
             })
         }
+        SharedExperienceTimeline.record(
+            eventId = "game-reply-$recordId",
+            characterId = record.characterId,
+            channel = "共同游戏《${record.title}》",
+            speaker = "角色",
+            content = reply,
+            occurredAt = Instant.now(),
+        )
     }
 
     fun clearRecords() = mutate { it.copy(records = emptyList()) }

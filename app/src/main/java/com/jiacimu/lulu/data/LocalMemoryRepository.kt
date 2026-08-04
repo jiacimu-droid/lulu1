@@ -285,11 +285,16 @@ class LocalMemoryRepository : MemoryRepository {
     private fun readableMessages(
         characterId: String,
         policy: MemoryPolicy,
-    ): List<LuluChatMessage> = MigratedDomainStores.chat.conversations.value
-        .filter { conversation -> conversation.characterId == characterId }
-        .flatMap { conversation -> MigratedDomainStores.chat.messages(conversation.id).value }
-        .filter { message -> message.sender != LuluChatMessage.Sender.System }
-        .sortedBy { message -> message.createdAt }
+    ): List<LuluChatMessage> = SharedExperienceTimeline.all(characterId)
+        .map { event ->
+            LuluChatMessage(
+                id = event.id,
+                conversationId = "shared-timeline",
+                sender = if (event.speaker == "主人") LuluChatMessage.Sender.User else LuluChatMessage.Sender.Character,
+                content = "[${event.channel}] ${event.speaker}：${event.content}",
+                createdAt = event.occurredAt,
+            )
+        }
         .dropLast(policy.excludedRecentMessages.coerceAtLeast(0))
 
     private fun parseMemoryArray(raw: String, characterId: String): List<MemoryEntry> {

@@ -1,5 +1,9 @@
 package com.jiacimu.lulu.data
 
+import android.content.ContentValues
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.core.MemoryEntry
 import com.jiacimu.lulu.core.MemoryKind
@@ -7,16 +11,105 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import java.time.Instant
 
-/**
- * A single persistent timeline shared by chat, calls, study, games and reading.
- * Feature screens write durable events here; normal memory recall makes them
- * available to later conversations without injecting the whole history.
- */
+data class SharedTimelineEvent(
+    val id: String,
+    val characterId: String,
+    val channel: String,
+    val speaker: String,
+    val content: String,
+    val occurredAt: Instant,
+)
+
+/** Durable, raw, chronological record shared by every companion feature. */
 object SharedExperienceTimeline {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var helper: TimelineDatabase? = null
 
+    @Synchronized
+    fun initialize(context: Context) {
+        if (helper != null) return
+        helper = TimelineDatabase(context.applicationContext)
+        helper?.writableDatabase
+    }
+
+    fun backfillChatHistory() {
+        MigratedDomainStores.chat.conversations.value.forEach { conversation ->
+            MigratedDomainStores.chat.messages(conversation.id).value.forEach { message ->
+                recordChatMessage(conversation.characterId, conversation.id, message, triggerExtraction = false)
+            }
+        }
+    }
+
+    fun recordChatMessage(
+        characterId: String,
+        conversationId: String,
+        message: LuluChatMessage,
+        channelOverride: String? = null,
+        triggerExtraction: Boolean = true,
+    ) {
+        val channel = channelOverride ?: when {
+            conversationId.endsWith("-study-focus") -> "番茄钟"
+            else -> "聊天"
+        }
+        val speaker = when (message.sender) {
+            LuluChatMessage.Sender.User -> "主人"
+            LuluChatMessage.Sender.Character -> "角色"
+            LuluChatMessage.Sender.System -> "系统"
+        }
+        record(message.id, characterId, channel, speaker, message.content, message.createdAt, triggerExtraction)
+    }
+
+    fun record(
+        eventId: String,
+        characterId: String,
+        channel: String,
+        speaker: String,
+        content: String,
+        occurredAt: Instant = Instant.now(),
+        triggerExtraction: Boolean = true,
+    ) {
+        val clean = content.trim()
+        val database = helper?.writableDatabase ?: return
+        if (eventId.isBlank() || characterId.isBlank() || clean.isBlank()) return
+        val values = ContentValues().apply {
+            put("id", eventId)
+            put("character_id", characterId)
+            put("channel", channel.trim().ifBlank { "共同经历" })
+            put("speaker", speaker.trim().ifBlank { "事件" })
+            put("content", clean)
+            put("occurred_at", occurredAt.toEpochMilli())
+        }
+        database.insertWithOnConflict("timeline_events", null, values, SQLiteDatabase.CONFLICT_REPLACE)
+        if (triggerExtraction) {
+            scope.launch {
+                val policy = LuluRepositories.memory.observePolicy(characterId).first()
+                if (policy.autoSummarize) LuluRepositories.memory.summarizeNow(characterId)
+            }
+        }
+    }
+
+    fun all(characterId: String): List<SharedTimelineEvent> = query(characterId, null).sortedBy(SharedTimelineEvent::occurredAt)
+
+    fun recentContext(characterId: String, limit: Int = 24, characterBudget: Int = 7_000): String {
+        val events = query(characterId, limit).sortedBy(SharedTimelineEvent::occurredAt)
+        if (events.isEmpty()) return ""
+        val lines = events.map { event ->
+            "[${event.occurredAt}] [${event.channel}] ${event.speaker}：${event.content.take(1_200)}"
+        }
+        val kept = mutableListOf<String>()
+        var used = 0
+        for (line in lines.asReversed()) {
+            if (used + line.length > characterBudget && kept.isNotEmpty()) break
+            kept += line
+            used += line.length
+        }
+        return kept.asReversed().joinToString("\n")
+    }
+
+    /** Save a derived memory. Raw events are recorded separately and never replaced by this summary. */
     fun remember(
         memoryId: String,
         characterId: String,
@@ -44,5 +137,53 @@ object SharedExperienceTimeline {
                 ),
             )
         }
+    }
+
+    private fun query(characterId: String, limit: Int?): List<SharedTimelineEvent> {
+        val database = helper?.readableDatabase ?: return emptyList()
+        val order = if (limit == null) "occurred_at ASC" else "occurred_at DESC"
+        return database.query(
+            "timeline_events",
+            arrayOf("id", "character_id", "channel", "speaker", "content", "occurred_at"),
+            "character_id = ?",
+            arrayOf(characterId),
+            null,
+            null,
+            order,
+            limit?.toString(),
+        ).use { cursor ->
+            buildList {
+                while (cursor.moveToNext()) {
+                    add(
+                        SharedTimelineEvent(
+                            id = cursor.getString(0),
+                            characterId = cursor.getString(1),
+                            channel = cursor.getString(2),
+                            speaker = cursor.getString(3),
+                            content = cursor.getString(4),
+                            occurredAt = Instant.ofEpochMilli(cursor.getLong(5)),
+                        ),
+                    )
+                }
+            }
+        }
+    }
+
+    private class TimelineDatabase(context: Context) : SQLiteOpenHelper(context, "shared_experience_timeline.db", null, 1) {
+        override fun onCreate(db: SQLiteDatabase) {
+            db.execSQL(
+                """CREATE TABLE timeline_events (
+                    id TEXT PRIMARY KEY NOT NULL,
+                    character_id TEXT NOT NULL,
+                    channel TEXT NOT NULL,
+                    speaker TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    occurred_at INTEGER NOT NULL
+                )""".trimIndent(),
+            )
+            db.execSQL("CREATE INDEX timeline_character_time ON timeline_events(character_id, occurred_at)")
+        }
+
+        override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) = Unit
     }
 }

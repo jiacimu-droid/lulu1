@@ -123,7 +123,8 @@ fun LuluVoiceCallScreen(
             .orEmpty()
         if (spoken.isBlank()) return@rememberLauncherForActivityResult
 
-        MigratedDomainStores.chat.sendUserMessage(conversationId, spoken)
+        val userMessage = MigratedDomainStores.chat.sendUserMessage(conversationId, spoken)
+        SharedExperienceTimeline.recordChatMessage(characterId, conversationId, userMessage, channelOverride = "电话")
         if (activeArchive == null) return@rememberLauncherForActivityResult
 
         thinking = true
@@ -140,7 +141,8 @@ fun LuluVoiceCallScreen(
             ).onSuccess { reply ->
                 val text = reply.text.trim()
                 if (text.isNotBlank()) {
-                    MigratedDomainStores.chat.appendCharacterMessage(conversationId, text)
+                    val characterMessage = MigratedDomainStores.chat.appendCharacterMessage(conversationId, text)
+                    SharedExperienceTimeline.recordChatMessage(characterId, conversationId, characterMessage, channelOverride = "电话")
                     if (speakerEnabled) {
                         speechEngine.speak(text, scope)
                     }
