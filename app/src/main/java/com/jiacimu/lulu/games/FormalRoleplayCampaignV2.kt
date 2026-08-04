@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.data.CharacterSettings
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.delay
@@ -445,6 +446,7 @@ private fun CampaignPlay(
                 title = "跑团 · ${world.title}",
                 temperature = 0.82,
                 maxTokens = 1800,
+                usage = ModelUsage.Game,
             )
             if (generation.getOrNull()?.text.isNullOrBlank()) {
                 generation = LuluAiServices.gateway.generate(
@@ -455,6 +457,7 @@ private fun CampaignPlay(
                     title = "跑团 · ${world.title}",
                     temperature = 0.72,
                     maxTokens = 1600,
+                    usage = ModelUsage.Game,
                 )
             }
 

@@ -14,6 +14,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.launch
 import org.json.JSONArray
@@ -69,6 +70,7 @@ internal fun PerfectManScreen(store: LuluGameStore) {
                 source = "游戏",
                 title = "满分男出题",
                 maxTokens = 420,
+                usage = ModelUsage.Game,
             ).onSuccess { reply ->
                 generatedDescription = reply.text
                 roleResponse = GameRoleResponse(text = reply.text)
@@ -129,6 +131,7 @@ internal fun PerfectManScreen(store: LuluGameStore) {
                 source = "游戏",
                 title = "满分男猜分",
                 maxTokens = 420,
+                usage = ModelUsage.Game,
             ).onSuccess { reply ->
                 val guess = Regex("""(?:我猜[：:]?\s*)?(\d{1,2})\s*分""")
                     .findAll(reply.text)
@@ -295,6 +298,7 @@ internal fun RoleplayAdventureScreen(store: LuluGameStore) {
                 source = "游戏",
                 title = "轻量跑团",
                 maxTokens = 620,
+                usage = ModelUsage.Game,
             ).onSuccess { reply ->
                 val turn = RoleplayTurn(clean, roll, result, reply.text)
                 val nextTurns = turns + turn
@@ -444,6 +448,7 @@ internal fun TurtleSoupScreen(store: LuluGameStore) {
                 source = "游戏",
                 title = "海龟汤主持",
                 maxTokens = 220,
+                usage = ModelUsage.Game,
             ).onSuccess { reply ->
                 val normalized = reply.text.trim()
                 history = history + (clean to normalized)
@@ -530,6 +535,7 @@ internal fun RapportQuizScreen(store: LuluGameStore) {
                 source = "游戏",
                 title = "默契问答秘密作答",
                 maxTokens = 80,
+                usage = ModelUsage.Game,
             ).onSuccess { reply ->
                 secret = question.options.firstOrNull { reply.text.contains(it) }
                 roleResponse = if (secret == null) {

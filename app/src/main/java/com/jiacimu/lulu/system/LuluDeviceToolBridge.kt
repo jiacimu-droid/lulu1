@@ -34,8 +34,11 @@ object LuluDeviceToolBridge {
         history: String,
         userText: String,
         title: String,
+        archiveId: String? = null,
     ): Result<ModelReply> {
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
+        val connection = runCatching { LuluAiServices.connectionStore.resolveConnection(archiveId) }
+            .getOrElse { return Result.failure(it) }
         val character = MigratedDomainStores.characters.get(characterId)
         val previousPresence = CompanionPresenceStore.current(characterId)
         val now = Instant.now()
@@ -82,6 +85,7 @@ object LuluDeviceToolBridge {
             title = title,
             temperature = 0.15,
             maxTokens = 700,
+            connectionOverride = connection,
         )
         if (planner.isFailure) return planner
         val plannedReply = planner.getOrThrow()
@@ -112,6 +116,7 @@ object LuluDeviceToolBridge {
             title = title,
             temperature = 0.75,
             maxTokens = 600,
+            connectionOverride = connection,
         )
         return finalReply.map { result ->
             val finalPlan = parsePlan(result.text)

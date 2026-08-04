@@ -141,7 +141,6 @@ private fun ReplayRecordCard(record: LuluGameRecord, onClick: () -> Unit) {
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text("${record.score}分", fontWeight = FontWeight.Bold)
-                Text("+${record.rewardCoins}币", color = LuluColors.Muted, fontSize = 11.sp)
             }
         }
     }
@@ -310,7 +309,7 @@ private fun LuluGameRecord.toReplaySteps(): List<ReplayStep> {
     raw += "本局摘要" to summary
     val details = runCatching { JSONObject(detailsJson) }.getOrNull()
     if (details != null) flattenReplayJson(details, "结算", raw)
-    raw += "得分与奖励" to "$score 分 · 奖励 $rewardCoins 游戏币"
+    raw += "本局得分" to "$score 分"
     if (playedWithCharacter) {
         val name = MigratedDomainStores.characters.get(characterId).displayName
         raw += "共同参与" to "$name 参与了这局游戏"

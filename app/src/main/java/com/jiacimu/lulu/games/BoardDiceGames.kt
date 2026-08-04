@@ -1,7 +1,9 @@
 package com.jiacimu.lulu.games
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,157 +28,229 @@ private enum class YachtCategory(val label: String) {
     LargeStraight("大顺"), Yacht("快艇"), Chance("机会"),
 }
 
+private data class YachtPlayer(
+    val id: String,
+    val name: String,
+    val characterId: String? = null,
+)
+
 @Composable
 internal fun YachtDiceScreen(store: LuluGameStore) {
     val state by store.state.collectAsState()
-    val character = MigratedDomainStores.characters.get(state.selectedCharacterId)
+    val characters by MigratedDomainStores.characters.settings.collectAsState()
     val scope = rememberCoroutineScope()
-    var userScores by remember { mutableStateOf(emptyMap<YachtCategory, Int>()) }
-    var roleScores by remember { mutableStateOf(emptyMap<YachtCategory, Int>()) }
-    var dice by remember { mutableStateOf(rollFive()) }
+    var opponentIds by remember { mutableStateOf(listOf(state.selectedCharacterId)) }
+    val players = remember(opponentIds, characters) {
+        listOf(YachtPlayer("user", "你")) + opponentIds.distinct().take(3).map { id ->
+            val character = characters[id] ?: MigratedDomainStores.characters.get(id)
+            YachtPlayer("role:$id", character.displayName, id)
+        }
+    }
+    var scores by remember { mutableStateOf<Map<String, Map<YachtCategory, Int>>>(emptyMap()) }
+    var currentPlayerIndex by remember { mutableIntStateOf(0) }
+    var dice by remember { mutableStateOf(emptyList<Int>()) }
     var held by remember { mutableStateOf(emptySet<Int>()) }
-    var rolls by remember { mutableIntStateOf(1) }
+    var rolls by remember { mutableIntStateOf(0) }
+    var rolling by remember { mutableStateOf(false) }
     var lastResult by remember { mutableStateOf("") }
+    var turnLog by remember { mutableStateOf(emptyList<String>()) }
     var roleResponse by remember { mutableStateOf(GameRoleResponse()) }
-    val unused = YachtCategory.entries.filterNot { it in userScores }
-    val gameOver = unused.isEmpty()
-
-    fun reroll() {
-        if (rolls >= 3 || gameOver) return
-        dice = dice.mapIndexed { index, value -> if (index in held) value else Random.nextInt(1, 7) }
-        rolls += 1
-    }
-
-    fun score(category: YachtCategory) {
-        if (category in userScores || gameOver) return
-        val userScore = scoreYacht(category, dice)
-        val roleTurn = playRoleYachtTurn(YachtCategory.entries.filterNot { it in roleScores })
-        val roleCategory = roleTurn.category
-        val roleScore = roleTurn.score
-        val nextUser = userScores + (category to userScore)
-        val nextRole = roleScores + (roleCategory to roleScore)
-        userScores = nextUser
-        roleScores = nextRole
-        val outcome = when {
-            userScore > roleScore -> "本轮用户胜"
-            userScore < roleScore -> "本轮角色胜"
-            else -> "本轮平局"
-        }
-        lastResult = "你将${category.label}记为${userScore}分；${character.displayName}将${roleCategory.label}记为${roleScore}分。$outcome。"
-        val recordId = store.recordExternalGame(
-            LuluGameType.YachtDice,
-            "快艇骰子 · 第${nextUser.size}轮",
-            userScore * 3,
-            if (userScore >= roleScore) 6 else 3,
-            "$lastResult 当前总分：你${nextUser.values.sum()}，${character.displayName}${nextRole.values.sum()}。",
-            JSONObject()
-                .put("round", nextUser.size)
-                .put("user_category", category.name)
-                .put("user_score", userScore)
-                .put("user_dice", JSONArray(dice))
-                .put("role_category", roleCategory.name)
-                .put("role_score", roleScore)
-                .put("role_dice", JSONArray(roleTurn.dice))
-                .put("user_total", nextUser.values.sum())
-                .put("role_total", nextRole.values.sum())
-                .toString(),
-        )
-        saveGameAsSharedMemory(scope, store, recordId)
-        requestGameRoleResponse(
-            scope, store, recordId, lastResult,
-            "根据真实骰面、计分类别和胜负，以角色自己的语气回应1-3句；不得修改分数。",
-            "快艇骰子第${nextUser.size}轮", { roleResponse = it }, maxTokens = 240,
-        )
-        dice = rollFive()
-        held = emptySet()
-        rolls = 1
-
-        if (nextUser.size == YachtCategory.entries.size) {
-            val userTotal = nextUser.values.sum()
-            val roleTotal = nextRole.values.sum()
-            val final = "整局结束：用户${userTotal}分，角色${roleTotal}分，${when {
-                userTotal > roleTotal -> "用户获胜"
-                userTotal < roleTotal -> "角色获胜"
-                else -> "平局"
-            }}。"
-            val finalRecord = store.recordExternalGame(
-                LuluGameType.YachtDice,
-                "快艇骰子 · 完整计分表",
-                userTotal,
-                if (userTotal >= roleTotal) 20 else 10,
-                final,
-                JSONObject().put("user_total", userTotal).put("role_total", roleTotal).put("completed", true).toString(),
-            )
-            saveGameAsSharedMemory(scope, store, finalRecord)
-        }
-    }
+    var responseSpeaker by remember { mutableStateOf("") }
+    val currentPlayer = players[currentPlayerIndex.coerceIn(players.indices)]
+    val currentScores = scores[currentPlayer.id].orEmpty()
+    val gameStarted = scores.isNotEmpty() || rolls > 0 || currentPlayerIndex > 0
+    val gameOver = players.all { scores[it.id].orEmpty().size == YachtCategory.entries.size }
 
     fun reset() {
-        userScores = emptyMap()
-        roleScores = emptyMap()
-        dice = rollFive()
+        scores = emptyMap()
+        currentPlayerIndex = 0
+        dice = emptyList()
         held = emptySet()
-        rolls = 1
+        rolls = 0
+        rolling = false
         lastResult = ""
+        turnLog = emptyList()
         roleResponse = GameRoleResponse()
+        responseSpeaker = ""
+    }
+
+    fun saveTurn(player: YachtPlayer, category: YachtCategory, scoredDice: List<Int>, points: Int) {
+        val nextPlayerScores = scores[player.id].orEmpty() + (category to points)
+        val nextScores = scores + (player.id to nextPlayerScores)
+        scores = nextScores
+        lastResult = "${player.name}把 ${scoredDice.joinToString("、")} 填入${category.label}，得到${points}分。"
+        val recordId = store.recordExternalGame(
+            LuluGameType.YachtDice,
+            "快艇骰子 · ${player.name}第${nextPlayerScores.size}轮",
+            points,
+            0,
+            lastResult,
+            JSONObject()
+                .put("player", player.name)
+                .put("category", category.name)
+                .put("score", points)
+                .put("dice", JSONArray(scoredDice))
+                .put("rolls", rolls)
+                .toString(),
+            characterIdOverride = player.characterId,
+        )
+        saveGameAsSharedMemory(scope, store, recordId)
+        if (player.characterId != null) {
+            responseSpeaker = player.name
+            requestGameRoleResponse(
+                scope, store, recordId, lastResult,
+                "你刚刚亲自完成了这一回合。根据真实骰面和计分类别，以角色自己的语气回应1-2句，不得修改分数。",
+                "快艇骰子 · ${player.name}", { roleResponse = it }, maxTokens = 180,
+                characterIdOverride = player.characterId,
+            )
+        }
+        val finished = players.all { candidate ->
+            val count = if (candidate.id == player.id) nextPlayerScores.size else nextScores[candidate.id].orEmpty().size
+            count == YachtCategory.entries.size
+        }
+        if (finished) {
+            val ranking = players.sortedByDescending { nextScores[it.id].orEmpty().values.sum() }
+            val summary = ranking.joinToString("；") { "${it.name}${nextScores[it.id].orEmpty().values.sum()}分" }
+            store.recordExternalGame(
+                LuluGameType.YachtDice,
+                "快艇骰子 · 完整对局",
+                nextScores["user"].orEmpty().values.sum(),
+                0,
+                "整局结束：$summary。",
+                JSONObject().put("completed", true).put("ranking", summary).toString(),
+            )
+        }
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.size
+        dice = emptyList()
+        held = emptySet()
+        rolls = 0
+    }
+
+    fun rollForUser() {
+        if (rolling || currentPlayer.id != "user" || rolls >= 3 || gameOver) return
+        scope.launch {
+            rolling = true
+            repeat(9) {
+                dice = List(5) { index -> if (index in held && dice.size == 5) dice[index] else Random.nextInt(1, 7) }
+                kotlinx.coroutines.delay(55)
+            }
+            dice = List(5) { index -> if (index in held && dice.size == 5) dice[index] else Random.nextInt(1, 7) }
+            rolls += 1
+            turnLog = turnLog + "第${rolls}掷：${dice.joinToString("、")}${if (held.isEmpty()) "" else "（保留${held.size}颗）"}"
+            rolling = false
+        }
+    }
+
+    LaunchedEffect(currentPlayerIndex, scores, gameOver) {
+        if (gameOver || currentPlayer.characterId == null || currentScores.size == YachtCategory.entries.size) return@LaunchedEffect
+        turnLog = emptyList()
+        held = emptySet()
+        dice = emptyList()
+        rolls = 0
+        repeat(3) { rollIndex ->
+            rolling = true
+            repeat(9) {
+                dice = List(5) { index -> if (index in held && dice.size == 5) dice[index] else Random.nextInt(1, 7) }
+                kotlinx.coroutines.delay(60)
+            }
+            dice = List(5) { index -> if (index in held && dice.size == 5) dice[index] else Random.nextInt(1, 7) }
+            rolls = rollIndex + 1
+            val beforeHold = dice
+            if (rollIndex < 2) held = chooseYachtHolds(dice)
+            turnLog = turnLog + buildString {
+                append("第${rollIndex + 1}掷：${beforeHold.joinToString("、")}")
+                if (rollIndex < 2) append(" · 保留 ${held.sorted().joinToString("、") { beforeHold[it].toString() }}")
+            }
+            rolling = false
+            kotlinx.coroutines.delay(700)
+        }
+        val category = YachtCategory.entries
+            .filterNot { it in currentScores }
+            .maxByOrNull { scoreYacht(it, dice) }
+            ?: YachtCategory.Chance
+        turnLog = turnLog + "选择${category.label}，本轮${scoreYacht(category, dice)}分"
+        kotlinx.coroutines.delay(850)
+        saveTurn(currentPlayer, category, dice, scoreYacht(category, dice))
     }
 
     GamePageList {
         item {
-            GameCard {
-                Text("快艇骰子", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                Text("五颗骰子、每轮最多三掷、完整13类计分表。角色也独立掷骰并选择计分项。", color = GameDesign.muted)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("你的总分：${userScores.values.sum()}", fontWeight = FontWeight.Bold)
-                    Text("${character.displayName}：${roleScores.values.sum()}", fontWeight = FontWeight.Bold)
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("参与角色（共 ${players.size} 人）", fontWeight = FontWeight.SemiBold)
+                Row(Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    characters.values.forEach { character ->
+                        val selected = character.characterId in opponentIds
+                        FilterChip(
+                            selected = selected,
+                            enabled = !gameStarted,
+                            onClick = {
+                                opponentIds = if (selected) {
+                                    if (opponentIds.size > 1) opponentIds - character.characterId else opponentIds
+                                } else if (opponentIds.size < 3) {
+                                    opponentIds + character.characterId
+                                } else opponentIds
+                            },
+                            label = { Text(character.displayName) },
+                        )
+                    }
+                }
+                Row(Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    players.forEachIndexed { index, player ->
+                        AssistChip(
+                            onClick = {},
+                            label = { Text("${if (index == currentPlayerIndex && !gameOver) "▶ " else ""}${player.name} ${scores[player.id].orEmpty().values.sum()}分") },
+                        )
+                    }
                 }
             }
         }
-        item { GameRolePanel(character.displayName, roleResponse) }
+        if (currentPlayer.characterId != null || roleResponse.text.isNotBlank() || roleResponse.loading) {
+            item { GameRolePanel(responseSpeaker.ifBlank { currentPlayer.name }, roleResponse) }
+        }
         item {
             GameCard {
-                Text("第${userScores.size + 1}轮 · 第${rolls}次掷骰", color = GameDesign.muted)
+                Text("${currentPlayer.name}的回合 · 已掷 $rolls/3 次", fontWeight = FontWeight.SemiBold)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    dice.forEachIndexed { index, value ->
+                    (0 until 5).forEach { index ->
+                        val value = dice.getOrNull(index)
                         Surface(
                             onClick = { held = if (index in held) held - index else held + index },
-                            enabled = !gameOver,
+                            enabled = currentPlayer.id == "user" && value != null && !rolling && rolls in 1..2,
                             modifier = Modifier.weight(1f).aspectRatio(1f),
                             shape = RoundedCornerShape(14.dp),
                             color = if (index in held) GameDesign.wheat else GameDesign.card,
                             border = androidx.compose.foundation.BorderStroke(1.dp, GameDesign.border),
                         ) {
                             Box(Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
-                                Text(value.toString(), fontSize = 25.sp, fontWeight = FontWeight.Bold)
+                                Text(value?.toString() ?: "·", fontSize = 25.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
                 }
-                Button(onClick = ::reroll, enabled = rolls < 3 && !gameOver, modifier = Modifier.fillMaxWidth()) { Text("重掷未保留骰子") }
-                if (lastResult.isNotBlank()) GameResultBanner(lastResult, success = lastResult.contains("用户胜") || lastResult.contains("平局"))
+                if (currentPlayer.id == "user") {
+                    Button(onClick = ::rollForUser, enabled = !rolling && rolls < 3 && !gameOver, modifier = Modifier.fillMaxWidth()) {
+                        Text(if (rolls == 0) "投骰子" else "重掷未保留骰子")
+                    }
+                }
+                turnLog.takeLast(4).forEach { Text(it, color = GameDesign.muted, fontSize = 13.sp) }
+                if (lastResult.isNotBlank()) GameResultBanner(lastResult, success = true)
             }
         }
-        item { Text("选择本轮计分类别", Modifier.padding(horizontal = 16.dp), fontSize = 19.sp, fontWeight = FontWeight.Bold) }
-        items(YachtCategory.entries) { category ->
-            val used = category in userScores
-            OutlinedButton(
-                onClick = { score(category) },
-                enabled = !used && !gameOver,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            ) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(category.label)
-                    Text(if (used) "已记 ${userScores[category]}" else "本轮可得 ${scoreYacht(category, dice)}")
-                }
-            }
+        item {
+            YachtScoreTable(
+                player = currentPlayer,
+                scores = currentScores,
+                dice = dice,
+                canScore = currentPlayer.id == "user" && dice.size == 5 && !rolling,
+                onScore = { category -> saveTurn(currentPlayer, category, dice, scoreYacht(category, dice)) },
+            )
         }
         if (gameOver) {
             item {
                 GameCard {
-                    val userTotal = userScores.values.sum()
-                    val roleTotal = roleScores.values.sum()
-                    Text("完整计分表已结束", fontSize = 21.sp, fontWeight = FontWeight.Bold)
-                    Text("你${userTotal}分 · ${character.displayName}${roleTotal}分")
+                    val ranking = players.sortedByDescending { scores[it.id].orEmpty().values.sum() }
+                    Text("本局排名", fontSize = 21.sp, fontWeight = FontWeight.Bold)
+                    ranking.forEachIndexed { index, player -> Text("${index + 1}. ${player.name}　${scores[player.id].orEmpty().values.sum()}分") }
                     Button(onClick = ::reset, modifier = Modifier.fillMaxWidth()) { Text("新一局") }
                 }
             }
@@ -184,19 +258,53 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
     }
 }
 
-private data class RoleYachtTurn(val dice: List<Int>, val category: YachtCategory, val score: Int)
-
-private fun rollFive(): List<Int> = List(5) { Random.nextInt(1, 7) }
-
-private fun playRoleYachtTurn(unused: List<YachtCategory>): RoleYachtTurn {
-    var dice = rollFive()
-    repeat(2) {
-        val counts = dice.groupingBy { it }.eachCount()
-        val keepValue = counts.maxByOrNull { it.value }?.key ?: dice.first()
-        dice = dice.map { value -> if (value == keepValue) value else Random.nextInt(1, 7) }
+@Composable
+private fun YachtScoreTable(
+    player: YachtPlayer,
+    scores: Map<YachtCategory, Int>,
+    dice: List<Int>,
+    canScore: Boolean,
+    onScore: (YachtCategory) -> Unit,
+) {
+    Surface(shape = RoundedCornerShape(18.dp), color = GameDesign.card, border = androidx.compose.foundation.BorderStroke(1.dp, GameDesign.border)) {
+        Column {
+            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("${player.name}的计分表", fontWeight = FontWeight.Bold)
+                Text("总分 ${scores.values.sum()}", fontWeight = FontWeight.Bold)
+            }
+            HorizontalDivider(color = GameDesign.border)
+            YachtCategory.entries.forEach { category ->
+                val usedScore = scores[category]
+                val preview = if (dice.size == 5) scoreYacht(category, dice) else 0
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable(enabled = canScore && usedScore == null) { onScore(category) }
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(category.label)
+                    Text(
+                        when {
+                            usedScore != null -> "$usedScore"
+                            canScore -> "$preview  ›"
+                            else -> "—"
+                        },
+                        fontWeight = if (usedScore != null) FontWeight.Bold else FontWeight.Normal,
+                        color = if (usedScore != null) MaterialTheme.colorScheme.primary else GameDesign.muted,
+                    )
+                }
+                if (category != YachtCategory.entries.last()) HorizontalDivider(color = GameDesign.border.copy(alpha = 0.55f))
+            }
+        }
     }
-    val category = unused.maxByOrNull { scoreYacht(it, dice) } ?: YachtCategory.Chance
-    return RoleYachtTurn(dice, category, scoreYacht(category, dice))
+}
+
+private fun chooseYachtHolds(dice: List<Int>): Set<Int> {
+    val counts = dice.groupingBy { it }.eachCount()
+    val bestValue = counts.maxWithOrNull(compareBy<Map.Entry<Int, Int>> { it.value }.thenBy { it.key })?.key
+        ?: return emptySet()
+    return dice.indices.filterTo(mutableSetOf()) { dice[it] == bestValue }
 }
 
 private fun scoreYacht(category: YachtCategory, dice: List<Int>): Int {
@@ -290,14 +398,8 @@ internal fun GomokuScreen(store: LuluGameStore) {
     }
 
     GamePageList {
-        item {
-            GameCard {
-                Text("15×15 五子棋", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                Text("你执黑，${character.displayName}执白；角色会优先取胜、拦截你的四连，再评估进攻位置。", color = GameDesign.muted)
-                Text(status, fontWeight = FontWeight.SemiBold)
-            }
-        }
         item { GameRolePanel(character.displayName, roleResponse) }
+        item { Text(status, Modifier.padding(horizontal = 4.dp), fontWeight = FontWeight.SemiBold) }
         item {
             Canvas(
                 modifier = Modifier

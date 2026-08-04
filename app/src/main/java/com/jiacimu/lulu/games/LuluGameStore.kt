@@ -54,12 +54,18 @@ data class SignalHuntState(
 )
 
 data class MemoryMatchState(
-    val cards: List<String> = listOf("露", "书", "月", "茶", "露", "书", "月", "茶").shuffled(),
+    val cards: List<String> = listOf("🌙", "🍰", "🎧", "🌸", "🧸", "☕", "🌙", "🍰", "🎧", "🌸", "🧸", "☕").shuffled(),
     val opened: Set<Int> = emptySet(),
     val matched: Set<Int> = emptySet(),
     val moves: Int = 0,
+    val userPairs: Int = 0,
+    val characterPairs: Int = 0,
+    val turn: MemoryTurn = MemoryTurn.User,
+    val lastEvent: String = "轮到你翻牌",
     val finished: Boolean = false,
 )
+
+enum class MemoryTurn { User, Character }
 
 data class MoodGuessRound(
     val clue: String,
@@ -138,6 +144,16 @@ class LuluGameStore internal constructor(context: Context) {
     fun resetSignalHunt() = mutate { it.copy(signalHunt = SignalHuntState()) }
 
     fun openMemoryCard(index: Int) {
+        if (mutableState.value.memoryMatch.turn != MemoryTurn.User) return
+        openMemoryCard(index, MemoryTurn.User)
+    }
+
+    fun openCharacterMemoryCard(index: Int) {
+        if (mutableState.value.memoryMatch.turn != MemoryTurn.Character) return
+        openMemoryCard(index, MemoryTurn.Character)
+    }
+
+    private fun openMemoryCard(index: Int, player: MemoryTurn) {
         val current = mutableState.value.memoryMatch
         if (current.finished || index !in current.cards.indices || index in current.matched || index in current.opened) return
         val opened = current.opened + index
@@ -146,25 +162,48 @@ class LuluGameStore internal constructor(context: Context) {
             return
         }
         val pair = opened.toList()
-        val matched = if (current.cards[pair[0]] == current.cards[pair[1]]) current.matched + opened else current.matched
+        val foundPair = current.cards[pair[0]] == current.cards[pair[1]]
+        val matched = if (foundPair) current.matched + opened else current.matched
         val finished = matched.size == current.cards.size
         val next = current.copy(
-            opened = if (opened.all { it in matched }) emptySet() else opened,
+            opened = if (foundPair) emptySet() else opened,
             matched = matched,
             moves = current.moves + 1,
+            userPairs = current.userPairs + if (foundPair && player == MemoryTurn.User) 1 else 0,
+            characterPairs = current.characterPairs + if (foundPair && player == MemoryTurn.Character) 1 else 0,
+            lastEvent = if (foundPair) {
+                if (player == MemoryTurn.User) "你配对成功，可以继续翻" else "角色配对成功，继续翻牌"
+            } else {
+                "没有配对，记住它们的位置"
+            },
             finished = finished,
         )
         mutate { it.copy(memoryMatch = next) }
         if (finished) {
-            val score = (160 - next.moves * 10).coerceAtLeast(40)
-            recordExternalGame(LuluGameType.MemoryMatch, "记忆配对", score, 15, "用 ${next.moves} 步完成全部配对")
+            val score = next.userPairs * 100
+            recordExternalGame(
+                LuluGameType.MemoryMatch,
+                "记忆配对",
+                score,
+                0,
+                "共翻了 ${next.moves} 轮；你找到 ${next.userPairs} 对，角色找到 ${next.characterPairs} 对。",
+            )
         }
     }
 
     fun closeUnmatchedCards() {
         val current = mutableState.value.memoryMatch
         if (current.opened.any { it !in current.matched }) {
-            mutate { it.copy(memoryMatch = current.copy(opened = emptySet())) }
+            val nextTurn = if (current.turn == MemoryTurn.User) MemoryTurn.Character else MemoryTurn.User
+            mutate {
+                it.copy(
+                    memoryMatch = current.copy(
+                        opened = emptySet(),
+                        turn = nextTurn,
+                        lastEvent = if (nextTurn == MemoryTurn.User) "轮到你翻牌" else "轮到角色翻牌",
+                    ),
+                )
+            }
         }
     }
 
@@ -193,6 +232,7 @@ class LuluGameStore internal constructor(context: Context) {
         reward: Int,
         summary: String,
         detailsJson: String = "{}",
+        characterIdOverride: String? = null,
     ): String {
         val snapshot = mutableState.value
         val record = LuluGameRecord(
@@ -200,7 +240,7 @@ class LuluGameStore internal constructor(context: Context) {
             title = title,
             score = score.coerceAtLeast(0),
             rewardCoins = reward.coerceAtLeast(0),
-            characterId = snapshot.selectedCharacterId,
+            characterId = characterIdOverride ?: snapshot.selectedCharacterId,
             playedWithCharacter = snapshot.playWithCharacter,
             summary = summary,
             detailsJson = detailsJson,
@@ -218,7 +258,7 @@ class LuluGameStore internal constructor(context: Context) {
                 channel = "共同游戏《${record.title}》",
                 speaker = "游戏记录",
                 content = buildString {
-                    append("${record.summary}\n得分：${record.score}；奖励币：${record.rewardCoins}")
+                    append("${record.summary}\n得分：${record.score}")
                     if (record.detailsJson != "{}") append("\n真实过程数据：${record.detailsJson}")
                 },
                 occurredAt = record.createdAt,
@@ -227,7 +267,7 @@ class LuluGameStore internal constructor(context: Context) {
                 memoryId = "game-${record.id}",
                 characterId = record.characterId,
                 label = "共同游戏《${record.title}》",
-                detail = "${record.summary}；得分 ${record.score}，获得 ${record.rewardCoins} 枚奖励币。",
+                detail = "${record.summary}；得分 ${record.score}。",
                 occurredAt = record.createdAt,
                 strength = 5,
                 source = "game:${record.type.name}",

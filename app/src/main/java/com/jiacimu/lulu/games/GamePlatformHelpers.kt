@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.core.MemoryEntry
 import com.jiacimu.lulu.core.MemoryKind
 import kotlinx.coroutines.CoroutineScope
@@ -39,18 +40,28 @@ internal fun requestGameRoleResponse(
     title: String,
     onState: (GameRoleResponse) -> Unit,
     maxTokens: Int = 500,
+    characterIdOverride: String? = null,
 ) {
     val snapshot = store.state.value
     if (!snapshot.playWithCharacter) return
     onState(GameRoleResponse(loading = true))
     scope.launch {
+        val connection = runCatching {
+            LuluAiServices.connectionStore.resolveConnection(
+                LuluAiServices.connectionStore.selectedArchiveId(ModelUsage.Game),
+            )
+        }.getOrElse { error ->
+            onState(GameRoleResponse(error = error.message ?: "请先选择游戏模型"))
+            return@launch
+        }
         val result = LuluAiServices.gateway.generate(
-            characterId = snapshot.selectedCharacterId,
+            characterId = characterIdOverride ?: snapshot.selectedCharacterId,
             facts = facts,
             instruction = instruction,
             source = "游戏",
             title = title,
             maxTokens = maxTokens,
+            connectionOverride = connection,
         )
         result.onSuccess { reply ->
             store.attachCharacterReply(recordId, reply.text)

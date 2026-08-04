@@ -24,6 +24,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.delay
 import org.json.JSONObject
@@ -32,16 +34,13 @@ import java.time.format.DateTimeFormatter
 
 private sealed interface GameRoute {
     data object Home : GameRoute
-    data object SignalHunt : GameRoute
     data object PerfectMan : GameRoute
     data object Roleplay : GameRoute
     data object TurtleSoup : GameRoute
     data object RapportQuiz : GameRoute
-    data object RockPaperScissors : GameRoute
     data object YachtDice : GameRoute
     data object Gomoku : GameRoute
     data object MemoryMatch : GameRoute
-    data object MoodGuess : GameRoute
     data object Records : GameRoute
     data class Replay(val recordId: String) : GameRoute
 }
@@ -58,7 +57,10 @@ private data class GameLauncher(
 fun LuluGamesApp(onBack: () -> Unit) {
     val store = remember { LuluGames.store }
     val state by store.state.collectAsState()
+    val library by LuluAiServices.connectionStore.library.collectAsState()
+    val gameArchiveId = library.archiveIdFor(ModelUsage.Game)
     var route by remember { mutableStateOf<GameRoute>(GameRoute.Home) }
+    var modelExpanded by remember { mutableStateOf(false) }
 
     fun stepBack() {
         if (route == GameRoute.Home) onBack() else route = GameRoute.Home
@@ -84,6 +86,40 @@ fun LuluGamesApp(onBack: () -> Unit) {
                         Icon(Icons.Outlined.ArrowBack, "返回")
                     }
                 },
+                actions = {
+                    if (route == GameRoute.Home) {
+                        IconButton(onClick = { route = GameRoute.Records }) {
+                            Icon(Icons.Outlined.History, "游戏记录与回放")
+                        }
+                    }
+                    Box {
+                        IconButton(onClick = { modelExpanded = true }) {
+                            Icon(Icons.Outlined.Memory, "选择游戏模型")
+                        }
+                        DropdownMenu(expanded = modelExpanded, onDismissRequest = { modelExpanded = false }) {
+                            if (library.archives.isEmpty()) {
+                                DropdownMenuItem(text = { Text("还没有模型存档") }, enabled = false, onClick = {})
+                            } else {
+                                library.archives.forEach { archive ->
+                                    val selected = archive.id == gameArchiveId
+                                    DropdownMenuItem(
+                                        leadingIcon = {
+                                            Icon(
+                                                if (selected) Icons.Outlined.RadioButtonChecked else Icons.Outlined.RadioButtonUnchecked,
+                                                null,
+                                            )
+                                        },
+                                        text = { Text(LuluAiServices.connectionStore.archiveLabel(archive)) },
+                                        onClick = {
+                                            LuluAiServices.connectionStore.selectArchive(archive.id, ModelUsage.Game)
+                                            modelExpanded = false
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = GameDesign.paper),
             )
         },
@@ -91,16 +127,13 @@ fun LuluGamesApp(onBack: () -> Unit) {
         Box(Modifier.fillMaxSize().padding(padding)) {
             when (val current = route) {
                 GameRoute.Home -> GameHome(state, store, onOpen = { route = it })
-                GameRoute.SignalHunt -> SignalHuntScreen(store)
                 GameRoute.PerfectMan -> PerfectManScreen(store)
                 GameRoute.Roleplay -> Unit
                 GameRoute.TurtleSoup -> TurtleSoupScreen(store)
                 GameRoute.RapportQuiz -> RapportQuizScreen(store)
-                GameRoute.RockPaperScissors -> RockPaperScissorsScreen(store)
                 GameRoute.YachtDice -> YachtDiceScreen(store)
                 GameRoute.Gomoku -> GomokuScreen(store)
                 GameRoute.MemoryMatch -> MemoryMatchScreen(store)
-                GameRoute.MoodGuess -> MoodGuessScreen(store)
                 GameRoute.Records -> GameRecordsScreen(state, store, onReplay = { route = GameRoute.Replay(it) })
                 is GameRoute.Replay -> GameReplayScreen(
                     record = state.records.firstOrNull { it.id == current.recordId },
@@ -113,16 +146,13 @@ fun LuluGamesApp(onBack: () -> Unit) {
 
 private fun GameRoute.title(): String = when (this) {
     GameRoute.Home -> "游戏"
-    GameRoute.SignalHunt -> "信号追踪"
     GameRoute.PerfectMan -> "满分男"
     GameRoute.Roleplay -> "跑团"
     GameRoute.TurtleSoup -> "海龟汤"
     GameRoute.RapportQuiz -> "默契问答"
-    GameRoute.RockPaperScissors -> "一起猜拳"
     GameRoute.YachtDice -> "快艇骰子"
     GameRoute.Gomoku -> "五子棋"
     GameRoute.MemoryMatch -> "记忆配对"
-    GameRoute.MoodGuess -> "心情猜猜看"
     GameRoute.Records -> "游戏记录"
     is GameRoute.Replay -> "游戏回放"
 }
@@ -134,23 +164,19 @@ private fun GameHome(
     onOpen: (GameRoute) -> Unit,
 ) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
-    val modelConnection by LuluAiServices.connectionStore.state.collectAsState()
     val selectedCharacter = characters[state.selectedCharacterId]
         ?: characters.values.firstOrNull()
         ?: MigratedDomainStores.characters.get("lulu")
     val legacyGames = listOf(
-        GameLauncher("信号追踪", "3×3 网格、三枚信号、五次探测与逐步路线回放。", Icons.Outlined.Radar, GameRoute.SignalHunt),
         GameLauncher("满分男", "双方轮流描述和猜分，角色按人设、记忆与世界书参与。", Icons.Outlined.PersonSearch, GameRoute.PerfectMan),
         GameLauncher("跑团", "多战役存档、十二种世界、同行小队、真实 d20 与沉浸式长篇叙事。", Icons.Outlined.AutoStories, GameRoute.Roleplay),
         GameLauncher("海龟汤", "固定汤底、自由提问，角色严格回答是／否／无关。", Icons.Outlined.HelpOutline, GameRoute.TurtleSoup),
         GameLauncher("默契问答", "角色先根据记忆秘密作答，再比较彼此答案。", Icons.Outlined.QuestionAnswer, GameRoute.RapportQuiz),
-        GameLauncher("一起猜拳", "引擎锁定出拳和胜负，角色只对真实结果回应。", Icons.Outlined.BackHand, GameRoute.RockPaperScissors),
         GameLauncher("快艇骰子", "五骰三掷、保留骰子和完整十三类计分表。", Icons.Outlined.Casino, GameRoute.YachtDice),
         GameLauncher("五子棋", "15×15 棋盘，角色会取胜、拦截并评估进攻。", Icons.Outlined.GridOn, GameRoute.Gomoku),
     )
     val additions = listOf(
-        GameLauncher("记忆配对", "翻开卡片并完成四组配对。", Icons.Outlined.GridView, GameRoute.MemoryMatch),
-        GameLauncher("心情猜猜看", "根据给定情境判断更接近的情绪。", Icons.Outlined.FavoriteBorder, GameRoute.MoodGuess),
+        GameLauncher("记忆配对", "和角色轮流翻牌，在十二张卡里争夺六组配对。", Icons.Outlined.GridView, GameRoute.MemoryMatch),
     )
 
     LazyColumn(
@@ -188,43 +214,12 @@ private fun GameHome(
                         }
                     }
                 }
-                Surface(
-                    color = if (modelConnection.enabled && modelConnection.apiKey.isNotBlank() && modelConnection.model.isNotBlank()) {
-                        Color(0xFFE8F1E8)
-                    } else {
-                        Color(0xFFF7E9E4)
-                    },
-                    shape = RoundedCornerShape(14.dp),
-                ) {
-                    Text(
-                        if (modelConnection.enabled && modelConnection.apiKey.isNotBlank() && modelConnection.model.isNotBlank()) {
-                            "角色模型已连接：${modelConnection.model}"
-                        } else {
-                            "角色模型尚未配置。规则游戏仍可玩，但角色生成类游戏会提示前往设置。"
-                        },
-                        Modifier.fillMaxWidth().padding(12.dp),
-                        color = GameDesign.muted,
-                    )
-                }
             }
         }
-        item {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                GameMetric("游戏币", state.coins.toString(), Modifier.weight(1f))
-                GameMetric("记录", state.records.size.toString(), Modifier.weight(1f))
-                GameMetric("最高分", (state.records.maxOfOrNull { it.score } ?: 0).toString(), Modifier.weight(1f))
-            }
-        }
-        item { SectionTitle("原有游戏 · 8 个") }
+        item { SectionTitle("一起玩") }
         items(legacyGames, key = { it.title }) { launcher -> GameEntry(launcher, onOpen) }
-        item { SectionTitle("新增游戏 · 不替代原功能") }
+        item { SectionTitle("轻松小游戏") }
         items(additions, key = { it.title }) { launcher -> GameEntry(launcher, onOpen) }
-        item {
-            GameEntry(
-                GameLauncher("游戏记录与回放", "查看得分、规则细节、角色回应和信号追踪逐步路线。", Icons.Outlined.History, GameRoute.Records),
-                onOpen,
-            )
-        }
     }
 }
 
@@ -328,14 +323,37 @@ private fun SignalHuntScreen(store: LuluGameStore) {
 private fun MemoryMatchScreen(store: LuluGameStore) {
     val state by store.state.collectAsState()
     val game = state.memoryMatch
+    val character = MigratedDomainStores.characters.get(state.selectedCharacterId)
     LaunchedEffect(game.opened) {
         if (game.opened.size == 2 && game.opened.any { it !in game.matched }) {
-            delay(650)
+            delay(900)
             store.closeUnmatchedCards()
         }
     }
+    LaunchedEffect(game.turn, game.opened, game.matched, game.finished) {
+        if (game.turn != MemoryTurn.Character || game.finished || game.opened.size >= 2) return@LaunchedEffect
+        delay(550)
+        val available = game.cards.indices.filter { it !in game.matched && it !in game.opened }
+        if (available.isEmpty()) return@LaunchedEffect
+        if (game.opened.isEmpty()) {
+            store.openCharacterMemoryCard(available.random())
+        } else {
+            val first = game.opened.first()
+            val pair = available.firstOrNull { game.cards[it] == game.cards[first] }
+            val choice = if (pair != null && kotlin.random.Random.nextInt(100) < 68) pair else available.random()
+            store.openCharacterMemoryCard(choice)
+        }
+    }
     GamePageList {
-        item { GameCard { Text("找到四组配对", fontSize = 21.sp, fontWeight = FontWeight.Bold); Text("步数 ${game.moves} · 已配对 ${game.matched.size / 2}/4", color = GameDesign.muted) } }
+        item {
+            GameCard {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("你 ${game.userPairs} 对", fontWeight = FontWeight.Bold)
+                    Text("${character.displayName} ${game.characterPairs} 对", fontWeight = FontWeight.Bold)
+                }
+                Text(game.lastEvent, color = GameDesign.muted)
+            }
+        }
         item {
             Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
                 game.cards.indices.chunked(4).forEach { row ->
@@ -343,13 +361,15 @@ private fun MemoryMatchScreen(store: LuluGameStore) {
                         row.forEach { index ->
                             val visible = index in game.opened || index in game.matched
                             Card(
-                                modifier = Modifier.weight(1f).aspectRatio(0.8f).clickable(enabled = !visible && !game.finished) { store.openMemoryCard(index) },
+                                modifier = Modifier.weight(1f).aspectRatio(0.82f).clickable(
+                                    enabled = !visible && !game.finished && game.turn == MemoryTurn.User && game.opened.size < 2,
+                                ) { store.openMemoryCard(index) },
                                 colors = CardDefaults.cardColors(containerColor = if (visible) GameDesign.wheat else GameDesign.card),
                                 border = BorderStroke(1.dp, GameDesign.border),
                                 shape = RoundedCornerShape(17.dp),
                             ) {
                                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    Text(if (visible) game.cards[index] else "?", fontSize = 27.sp, fontWeight = FontWeight.Bold)
+                                    Text(if (visible) game.cards[index] else "✦", fontSize = 27.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
@@ -357,7 +377,21 @@ private fun MemoryMatchScreen(store: LuluGameStore) {
                 }
             }
         }
-        if (game.finished) item { GameCard { Text("全部配对完成", fontSize = 21.sp, fontWeight = FontWeight.Bold); Text("共用 ${game.moves} 步。", color = GameDesign.muted); Button(onClick = store::resetMemoryMatch, modifier = Modifier.fillMaxWidth()) { Text("重新洗牌") } } }
+        if (game.finished) item {
+            GameCard {
+                Text(
+                    when {
+                        game.userPairs > game.characterPairs -> "你赢啦"
+                        game.userPairs < game.characterPairs -> "这局是 ${character.displayName} 赢"
+                        else -> "这局平手"
+                    },
+                    fontSize = 21.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text("${game.moves} 轮翻完全部牌", color = GameDesign.muted)
+                Button(onClick = store::resetMemoryMatch, modifier = Modifier.fillMaxWidth()) { Text("重新洗牌") }
+            }
+        }
     }
 }
 
@@ -411,7 +445,6 @@ private fun GameRecordsScreen(
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text("${record.score} 分", fontWeight = FontWeight.Bold)
-                            Text("+${record.rewardCoins} 币", color = GameDesign.muted)
                         }
                     }
                     Text(record.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")), color = GameDesign.muted, fontSize = 12.sp)
@@ -448,7 +481,6 @@ private fun GameReplayScreen(record: LuluGameRecord?, onDeleteAll: () -> Unit) {
                 Text(record.summary)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("得分 ${record.score}")
-                    Text("奖励 ${record.rewardCoins} 游戏币")
                 }
                 Text(record.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), color = GameDesign.muted, fontSize = 12.sp)
             }
@@ -545,19 +577,4 @@ private fun GameEntry(launcher: GameLauncher, onOpen: (GameRoute) -> Unit) {
 @Composable
 private fun SectionTitle(title: String) {
     Text(title, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-}
-
-@Composable
-private fun GameMetric(title: String, value: String, modifier: Modifier) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = GameDesign.card),
-        border = BorderStroke(1.dp, GameDesign.border),
-        shape = RoundedCornerShape(17.dp),
-    ) {
-        Column(Modifier.fillMaxWidth().padding(11.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(value, fontSize = 21.sp, fontWeight = FontWeight.Bold)
-            Text(title, color = GameDesign.muted, fontSize = 12.sp)
-        }
-    }
 }

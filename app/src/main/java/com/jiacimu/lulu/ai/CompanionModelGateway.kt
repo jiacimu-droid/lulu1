@@ -34,11 +34,28 @@ data class ModelArchive(
     val model: String,
 )
 
+enum class ModelUsage {
+    Chat,
+    VoiceCall,
+    Game,
+}
+
 data class ModelLibraryState(
     val configurations: List<ApiConfiguration> = emptyList(),
     val archives: List<ModelArchive> = emptyList(),
     val activeArchiveId: String? = null,
+    val chatArchiveId: String? = null,
+    val voiceCallArchiveId: String? = null,
+    val gameArchiveId: String? = null,
 )
+
+fun ModelLibraryState.archiveIdFor(usage: ModelUsage): String? = when (usage) {
+    ModelUsage.Chat -> chatArchiveId
+    ModelUsage.VoiceCall -> voiceCallArchiveId
+    ModelUsage.Game -> gameArchiveId
+}?.takeIf { candidate -> archives.any { it.id == candidate } }
+    ?: activeArchiveId?.takeIf { candidate -> archives.any { it.id == candidate } }
+    ?: archives.firstOrNull()?.id
 
 data class ModelConnection(
     val baseUrl: String,
@@ -101,6 +118,9 @@ class ModelConnectionStore private constructor(context: Context) {
                 configurations = current.configurations.filterNot { it.id == id },
                 archives = archives,
                 activeArchiveId = active ?: archives.firstOrNull()?.id,
+                chatArchiveId = current.chatArchiveId?.takeUnless { it in removedArchiveIds },
+                voiceCallArchiveId = current.voiceCallArchiveId?.takeUnless { it in removedArchiveIds },
+                gameArchiveId = current.gameArchiveId?.takeUnless { it in removedArchiveIds },
             ),
         )
     }
@@ -135,6 +155,9 @@ class ModelConnectionStore private constructor(context: Context) {
             current.copy(
                 archives = archives,
                 activeArchiveId = if (current.activeArchiveId == id) archives.firstOrNull()?.id else current.activeArchiveId,
+                chatArchiveId = current.chatArchiveId?.takeUnless { it == id },
+                voiceCallArchiveId = current.voiceCallArchiveId?.takeUnless { it == id },
+                gameArchiveId = current.gameArchiveId?.takeUnless { it == id },
             ),
         )
     }
@@ -144,9 +167,24 @@ class ModelConnectionStore private constructor(context: Context) {
         persist(mutable.value.copy(activeArchiveId = id))
     }
 
+    fun selectArchive(id: String, usage: ModelUsage) {
+        require(mutable.value.archives.any { it.id == id }) { "模型存档不存在" }
+        val current = mutable.value
+        persist(
+            when (usage) {
+                ModelUsage.Chat -> current.copy(chatArchiveId = id)
+                ModelUsage.VoiceCall -> current.copy(voiceCallArchiveId = id)
+                ModelUsage.Game -> current.copy(gameArchiveId = id)
+            },
+        )
+    }
+
+    fun selectedArchiveId(usage: ModelUsage): String? = mutable.value.archiveIdFor(usage)
+
     fun resolveConnection(archiveId: String? = mutable.value.activeArchiveId): ModelConnection {
         val state = mutable.value
-        val archive = state.archives.firstOrNull { it.id == archiveId }
+        val resolvedArchiveId = archiveId ?: state.activeArchiveId ?: state.archives.firstOrNull()?.id
+        val archive = state.archives.firstOrNull { it.id == resolvedArchiveId }
             ?: error("请先在设置中获取模型并加入存档")
         val configuration = state.configurations.firstOrNull { it.id == archive.configurationId }
             ?: error("这个模型存档对应的 API 配置已经不存在")
@@ -229,6 +267,9 @@ class ModelConnectionStore private constructor(context: Context) {
             },
         )
         .put("activeArchiveId", state.activeArchiveId ?: JSONObject.NULL)
+        .put("chatArchiveId", state.chatArchiveId ?: JSONObject.NULL)
+        .put("voiceCallArchiveId", state.voiceCallArchiveId ?: JSONObject.NULL)
+        .put("gameArchiveId", state.gameArchiveId ?: JSONObject.NULL)
 
     private fun decode(root: JSONObject): ModelLibraryState {
         val configurations = buildList {
@@ -269,6 +310,9 @@ class ModelConnectionStore private constructor(context: Context) {
             configurations = configurations,
             archives = archives,
             activeArchiveId = savedActive ?: archives.firstOrNull()?.id,
+            chatArchiveId = root.optString("chatArchiveId").takeIf { candidate -> archives.any { it.id == candidate } },
+            voiceCallArchiveId = root.optString("voiceCallArchiveId").takeIf { candidate -> archives.any { it.id == candidate } },
+            gameArchiveId = root.optString("gameArchiveId").takeIf { candidate -> archives.any { it.id == candidate } },
         )
     }
 
@@ -377,13 +421,16 @@ class CompanionModelGateway(
         temperature: Double = 0.8,
         maxTokens: Int = 500,
         connectionOverride: ModelConnection? = null,
+        usage: ModelUsage? = null,
     ): Result<ModelReply> = withContext(Dispatchers.IO) {
         val totalStartedAt = System.nanoTime()
         var requestUrl: String? = null
         var attemptedModel: String? = null
         runCatching {
             val promptStartedAt = System.nanoTime()
-            val connection = connectionOverride ?: connectionStore.resolveConnection()
+            val connection = connectionOverride ?: connectionStore.resolveConnection(
+                usage?.let(connectionStore::selectedArchiveId),
+            )
             attemptedModel = connection.model
             requestUrl = "${connection.baseUrl}/chat/completions"
             val character = MigratedDomainStores.characters.get(characterId)

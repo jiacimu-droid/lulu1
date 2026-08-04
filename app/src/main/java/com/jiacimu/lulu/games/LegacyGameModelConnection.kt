@@ -2,6 +2,8 @@ package com.jiacimu.lulu.games
 
 import com.jiacimu.lulu.ai.ModelConnectionStore
 import com.jiacimu.lulu.ai.ModelLibraryState
+import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.ai.archiveIdFor
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -30,7 +32,7 @@ private class GameModelConnectionStateFlow(
 }
 
 private fun ModelLibraryState.toGameStatus(): GameModelConnectionStatus {
-    val archive = archives.firstOrNull { it.id == activeArchiveId }
+    val archive = archives.firstOrNull { it.id == archiveIdFor(ModelUsage.Game) }
     val configuration = archive?.let { selected ->
         configurations.firstOrNull { it.id == selected.configurationId }
     }

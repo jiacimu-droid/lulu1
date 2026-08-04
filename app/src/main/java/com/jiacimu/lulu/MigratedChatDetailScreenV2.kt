@@ -27,6 +27,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.ai.ModelArchive
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.LuluChatMessage
@@ -79,7 +81,8 @@ fun MigratedChatDetailScreenV2(
     var editingMessage by remember { mutableStateOf<LuluChatMessage?>(null) }
     var callVisible by remember { mutableStateOf(false) }
 
-    val activeArchive = library.archives.firstOrNull { archive -> archive.id == library.activeArchiveId }
+    val chatArchiveId = library.archiveIdFor(ModelUsage.Chat)
+    val activeArchive = library.archives.firstOrNull { archive -> archive.id == chatArchiveId }
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未选择模型"
 
     val voiceLauncher = rememberLauncherForActivityResult(
@@ -137,6 +140,7 @@ fun MigratedChatDetailScreenV2(
                     title = activeLabel,
                     temperature = 0.85,
                     maxTokens = 1200,
+                    connectionOverride = LuluAiServices.connectionStore.resolveConnection(chatArchiveId),
                 )
                 if (!currentCoroutineContext().isActive) return@launch
                 result.onSuccess { reply ->
@@ -250,9 +254,9 @@ fun MigratedChatDetailScreenV2(
                                         library.archives.forEach { archive ->
                                             ChatV2ModelMenuItem(
                                                 archive = archive,
-                                                selected = archive.id == library.activeArchiveId,
+                                                selected = archive.id == chatArchiveId,
                                                 onClick = {
-                                                    LuluAiServices.connectionStore.selectArchive(archive.id)
+                                                    LuluAiServices.connectionStore.selectArchive(archive.id, ModelUsage.Chat)
                                                     archiveMenuExpanded = false
                                                 },
                                             )

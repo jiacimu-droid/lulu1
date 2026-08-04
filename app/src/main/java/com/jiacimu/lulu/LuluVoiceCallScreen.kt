@@ -28,6 +28,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.SharedExperienceTimeline
@@ -57,7 +59,8 @@ fun LuluVoiceCallScreen(
     val library by LuluAiServices.connectionStore.library.collectAsState()
     val character = MigratedDomainStores.characters.get(characterId)
     val messages by MigratedDomainStores.chat.messages(conversationId).collectAsState()
-    val activeArchive = library.archives.firstOrNull { it.id == library.activeArchiveId }
+    val voiceArchiveId = library.archiveIdFor(ModelUsage.VoiceCall)
+    val activeArchive = library.archives.firstOrNull { it.id == voiceArchiveId }
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接模型"
     val listState = rememberLazyListState()
 
@@ -140,6 +143,7 @@ fun LuluVoiceCallScreen(
                 history = recentHistory,
                 userText = spoken,
                 title = activeLabel,
+                archiveId = voiceArchiveId,
             ).onSuccess { reply ->
                 val text = reply.text.trim()
                 if (text.isNotBlank()) {
@@ -183,9 +187,9 @@ fun LuluVoiceCallScreen(
                     expanded = modelExpanded,
                     onExpandedChange = { modelExpanded = it },
                     archives = library.archives,
-                    activeArchiveId = library.activeArchiveId,
+                    activeArchiveId = voiceArchiveId,
                     onSelectArchive = {
-                        LuluAiServices.connectionStore.selectArchive(it)
+                        LuluAiServices.connectionStore.selectArchive(it, ModelUsage.VoiceCall)
                         modelExpanded = false
                     },
                     onClose = {

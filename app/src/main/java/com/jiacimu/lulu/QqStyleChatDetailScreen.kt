@@ -34,6 +34,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluGroupChat
@@ -82,7 +84,8 @@ fun QqStyleChatDetailScreen(
     val groupChat = conversation?.groupChat
     val characterId = conversation?.characterId ?: "lulu"
     val character = MigratedDomainStores.characters.get(characterId)
-    val activeArchive = library.archives.firstOrNull { it.id == library.activeArchiveId }
+    val chatArchiveId = library.archiveIdFor(ModelUsage.Chat)
+    val activeArchive = library.archives.firstOrNull { it.id == chatArchiveId }
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接模型"
     val pendingUserMessages = remember(messages) {
         val lastCharacterIndex = messages.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
@@ -230,6 +233,7 @@ fun QqStyleChatDetailScreen(
                         history = history,
                         userText = pendingText,
                         title = activeLabel,
+                        archiveId = chatArchiveId,
                     )
                     if (!currentCoroutineContext().isActive) return@launch
                     result.onSuccess { reply ->
@@ -246,6 +250,7 @@ fun QqStyleChatDetailScreen(
                         pendingText = pendingText,
                         initialHistory = history,
                         activeLabel = activeLabel,
+                        archiveId = chatArchiveId,
                         characterNames = characters.mapValues { it.value.displayName },
                         onError = { snackbar.showSnackbar(it) },
                     )
@@ -295,7 +300,7 @@ fun QqStyleChatDetailScreen(
                                 DropdownMenuItem(text = { Text("还没有模型存档") }, enabled = false, onClick = {})
                             } else {
                                 library.archives.forEach { archive ->
-                                    val selected = archive.id == library.activeArchiveId
+                                    val selected = archive.id == chatArchiveId
                                     DropdownMenuItem(
                                         leadingIcon = {
                                             Icon(
@@ -306,7 +311,7 @@ fun QqStyleChatDetailScreen(
                                         },
                                         text = { Text(LuluAiServices.connectionStore.archiveLabel(archive)) },
                                         onClick = {
-                                            LuluAiServices.connectionStore.selectArchive(archive.id)
+                                            LuluAiServices.connectionStore.selectArchive(archive.id, ModelUsage.Chat)
                                             modelExpanded = false
                                         },
                                     )
@@ -830,6 +835,7 @@ private suspend fun runGroupReplies(
     pendingText: String,
     initialHistory: String,
     activeLabel: String,
+    archiveId: String?,
     characterNames: Map<String, String>,
     onError: suspend (String) -> Unit,
 ) {
@@ -884,6 +890,7 @@ private suspend fun runGroupReplies(
             history = history,
             userText = groupInput,
             title = activeLabel,
+            archiveId = archiveId,
         )
         if (!currentCoroutineContext().isActive) return
         result.onSuccess { reply ->
