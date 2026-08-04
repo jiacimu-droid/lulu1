@@ -1,6 +1,7 @@
 package com.jiacimu.lulu
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -34,6 +35,9 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
     var selectedConversationId by rememberSaveable(initialConversationId) {
         mutableStateOf(initialConversationId?.takeIf(String::isNotBlank) ?: "lulu-main")
     }
+    var chatSessionStarted by rememberSaveable(initialConversationId) {
+        mutableStateOf(!initialConversationId.isNullOrBlank())
+    }
     var selectedCharacterId by rememberSaveable { mutableStateOf("lulu") }
     var starWishInitialTab by rememberSaveable { mutableStateOf(StarWishTab.Scroll.name) }
     var initialGameId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -56,6 +60,13 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
         selectedCharacterId = characterIdForConversation(selectedConversationId)
     }
 
+    fun openConversation(conversationId: String) {
+        selectedConversationId = conversationId
+        selectedCharacterId = characterIdForConversation(conversationId)
+        chatSessionStarted = true
+        pushRoute(MigrationRoute.ChatDetail)
+    }
+
     fun pushRoute(target: MigrationRoute) {
         routeStack = routeStack + target.name
     }
@@ -76,6 +87,7 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
         if (!initialConversationId.isNullOrBlank()) {
             selectedConversationId = initialConversationId
             selectConversationCharacter()
+            chatSessionStarted = true
             routeStack = listOf(MigrationRoute.Home.name, MigrationRoute.Chat.name, MigrationRoute.ChatDetail.name)
         }
     }
@@ -86,91 +98,97 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
             typography = LuluTypography,
         ) {
             Surface(Modifier.fillMaxSize(), color = LuluColors.Paper) {
-                when (route) {
-                    MigrationRoute.Home -> MigrationHomeV2(
-                        onOpen = { target ->
-                            if (target == MigrationRoute.WorldBook) selectedCharacterId = "lulu"
-                            if (target == MigrationRoute.Wishes) starWishInitialTab = StarWishTab.Scroll.name
-                            pushRoute(target)
-                        },
-                        onOpenConversation = { conversationId ->
-                            selectedConversationId = conversationId
-                            selectedCharacterId = characterIdForConversation(conversationId)
-                            pushRoute(MigrationRoute.ChatDetail)
-                        },
-                    )
-                    MigrationRoute.Chat -> MigratedChatHubScreenV2(
-                        onBack = ::popRoute,
-                        onOpenConversation = { conversationId ->
-                            selectedConversationId = conversationId
-                            selectedCharacterId = characterIdForConversation(conversationId)
-                            pushRoute(MigrationRoute.ChatDetail)
-                        },
-                        onCharacterSettings = { characterId ->
-                            selectedCharacterId = characterId
-                            pushRoute(MigrationRoute.CharacterSettings)
-                        },
-                        onWorldBook = { characterId ->
-                            selectedCharacterId = characterId
-                            pushRoute(MigrationRoute.WorldBook)
-                        },
-                        onOpenSettings = { pushRoute(MigrationRoute.Settings) },
-                    )
-                    MigrationRoute.ChatDetail -> QqStyleChatDetailScreen(
-                        conversationId = selectedConversationId,
-                        onBack = ::popRoute,
-                        onOpenBranch = { branchId ->
-                            selectedConversationId = branchId
-                            selectedCharacterId = characterIdForConversation(branchId)
-                        },
-                        onCharacterSettings = {
-                            selectConversationCharacter()
-                            pushRoute(MigrationRoute.CharacterSettings)
-                        },
-                        onWorldBook = {
-                            selectConversationCharacter()
-                            pushRoute(MigrationRoute.WorldBook)
-                        },
-                        onOpenGame = { gameId ->
-                            initialGameId = gameId
-                            pushRoute(MigrationRoute.Games)
-                        },
-                    )
-                    MigrationRoute.CharacterSettings -> CharacterSettingsScreenV2(
-                        characterId = selectedCharacterId,
-                        onBack = ::popRoute,
-                        onDeleted = {
-                            selectedCharacterId = "lulu"
-                            replaceTop(MigrationRoute.Chat)
-                        },
-                    )
-                    MigrationRoute.Memory -> MemoryFeatureScreen(::popRoute)
-                    MigrationRoute.Lexicon -> LexiconFeatureScreenV2(::popRoute)
-                    MigrationRoute.WorldBook -> CharacterWorldBookScreenV2(
-                        initialCharacterId = selectedCharacterId,
-                        onBack = ::popRoute,
-                    )
-                    MigrationRoute.Performance -> OptimizedPerformanceFeatureScreen(::popRoute)
-                    MigrationRoute.Reading -> LuluReadingScreen(::popRoute)
-                    MigrationRoute.Wishes -> StarWishMigratedScreen(
-                        onBack = ::popRoute,
-                        initialTab = StarWishTab.valueOf(starWishInitialTab),
-                    )
-                    MigrationRoute.Study -> PostgraduateExamApp(
-                        onBack = ::popRoute,
-                        onOpenTheater = {
-                            starWishInitialTab = StarWishTab.Theater.name
-                            pushRoute(MigrationRoute.Wishes)
-                        },
-                    )
-                    MigrationRoute.Games -> LuluGamesAppV2(
-                        onBack = {
-                            initialGameId = null
-                            popRoute()
-                        },
-                        initialGameId = initialGameId,
-                    )
-                    MigrationRoute.Settings -> LuluSettingsHomeScreen(::popRoute)
+                Box(Modifier.fillMaxSize()) {
+                    // Keep the active chat composition attached to the app root. Its coroutine scope,
+                    // receiving state and pending result therefore survive navigation to other pages.
+                    if (chatSessionStarted) {
+                        key(selectedConversationId) {
+                            QqStyleChatDetailScreen(
+                                conversationId = selectedConversationId,
+                                onBack = ::popRoute,
+                                onOpenBranch = { branchId ->
+                                    selectedConversationId = branchId
+                                    selectedCharacterId = characterIdForConversation(branchId)
+                                },
+                                onCharacterSettings = {
+                                    selectConversationCharacter()
+                                    pushRoute(MigrationRoute.CharacterSettings)
+                                },
+                                onWorldBook = {
+                                    selectConversationCharacter()
+                                    pushRoute(MigrationRoute.WorldBook)
+                                },
+                                onOpenGame = { gameId ->
+                                    initialGameId = gameId
+                                    pushRoute(MigrationRoute.Games)
+                                },
+                            )
+                        }
+                    }
+
+                    if (route != MigrationRoute.ChatDetail) {
+                        Surface(Modifier.fillMaxSize(), color = LuluColors.Paper) {
+                            when (route) {
+                                MigrationRoute.Home -> MigrationHomeV2(
+                                    onOpen = { target ->
+                                        if (target == MigrationRoute.WorldBook) selectedCharacterId = "lulu"
+                                        if (target == MigrationRoute.Wishes) starWishInitialTab = StarWishTab.Scroll.name
+                                        pushRoute(target)
+                                    },
+                                    onOpenConversation = ::openConversation,
+                                )
+                                MigrationRoute.Chat -> MigratedChatHubScreenV2(
+                                    onBack = ::popRoute,
+                                    onOpenConversation = ::openConversation,
+                                    onCharacterSettings = { characterId ->
+                                        selectedCharacterId = characterId
+                                        pushRoute(MigrationRoute.CharacterSettings)
+                                    },
+                                    onWorldBook = { characterId ->
+                                        selectedCharacterId = characterId
+                                        pushRoute(MigrationRoute.WorldBook)
+                                    },
+                                    onOpenSettings = { pushRoute(MigrationRoute.Settings) },
+                                )
+                                MigrationRoute.CharacterSettings -> CharacterSettingsScreenV2(
+                                    characterId = selectedCharacterId,
+                                    onBack = ::popRoute,
+                                    onDeleted = {
+                                        selectedCharacterId = "lulu"
+                                        replaceTop(MigrationRoute.Chat)
+                                    },
+                                )
+                                MigrationRoute.Memory -> MemoryFeatureScreen(::popRoute)
+                                MigrationRoute.Lexicon -> LexiconFeatureScreenV2(::popRoute)
+                                MigrationRoute.WorldBook -> CharacterWorldBookScreenV2(
+                                    initialCharacterId = selectedCharacterId,
+                                    onBack = ::popRoute,
+                                )
+                                MigrationRoute.Performance -> OptimizedPerformanceFeatureScreen(::popRoute)
+                                MigrationRoute.Reading -> LuluReadingScreen(::popRoute)
+                                MigrationRoute.Wishes -> StarWishMigratedScreen(
+                                    onBack = ::popRoute,
+                                    initialTab = StarWishTab.valueOf(starWishInitialTab),
+                                )
+                                MigrationRoute.Study -> PostgraduateExamApp(
+                                    onBack = ::popRoute,
+                                    onOpenTheater = {
+                                        starWishInitialTab = StarWishTab.Theater.name
+                                        pushRoute(MigrationRoute.Wishes)
+                                    },
+                                )
+                                MigrationRoute.Games -> LuluGamesAppV2(
+                                    onBack = {
+                                        initialGameId = null
+                                        popRoute()
+                                    },
+                                    initialGameId = initialGameId,
+                                )
+                                MigrationRoute.Settings -> LuluSettingsHomeScreen(::popRoute)
+                                MigrationRoute.ChatDetail -> Unit
+                            }
+                        }
+                    }
                 }
             }
         }
