@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.SystemClock
 import android.speech.RecognizerIntent
-import android.speech.tts.TextToSpeech
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -33,7 +32,6 @@ import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 private val CallPage = Color(0xFFFFFFFF)
 private val CallSurface = Color(0xFFF7F7F7)
@@ -67,18 +65,9 @@ fun LuluVoiceCallScreen(
     var startedAt by remember { mutableLongStateOf(0L) }
     var elapsedSeconds by remember { mutableLongStateOf(0L) }
 
-    val tts = remember {
-        TextToSpeech(context) { status ->
-            if (status == TextToSpeech.SUCCESS) Unit
-        }
-    }
+    val speechEngine = remember { LuluSpeechEngine(context) }
     DisposableEffect(Unit) {
-        tts.language = Locale.SIMPLIFIED_CHINESE
-        tts.setSpeechRate(1.02f)
-        onDispose {
-            tts.stop()
-            tts.shutdown()
-        }
+        onDispose { speechEngine.shutdown() }
     }
 
     LaunchedEffect(connected) {
@@ -119,7 +108,7 @@ fun LuluVoiceCallScreen(
                 if (text.isNotBlank()) {
                     MigratedDomainStores.chat.appendCharacterMessage(conversationId, text)
                     if (speakerEnabled) {
-                        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "lulu-call-${System.nanoTime()}")
+                        speechEngine.speak(text, scope)
                     }
                 }
             }
@@ -162,7 +151,7 @@ fun LuluVoiceCallScreen(
                         modelExpanded = false
                     },
                     onClose = {
-                        tts.stop()
+                        speechEngine.stop()
                         onDismiss()
                     },
                 )
@@ -310,7 +299,7 @@ fun LuluVoiceCallScreen(
                             active = speakerEnabled,
                             onClick = {
                                 speakerEnabled = !speakerEnabled
-                                if (!speakerEnabled) tts.stop()
+                                if (!speakerEnabled) speechEngine.stop()
                             },
                         )
                         FilledIconButton(

@@ -213,22 +213,6 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
                 }
             }
         }
-        item {
-            StudyCard {
-                Text("学习连续性", fontSize = 19.sp, fontWeight = FontWeight.Bold)
-                Text(
-                    "最后学习：${state.profile.lastStudyDate.ifBlank { "尚无记录" }}",
-                    color = StudyDesign.muted,
-                )
-                OutlinedButton(
-                    onClick = {
-                        message = store.applyInactivityPenalty()
-                        error = false
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                ) { Text("检查未学习惩罚") }
-            }
-        }
         item { StudyMessage(message, error) }
         item { Text("最近学习事件", fontSize = 20.sp, fontWeight = FontWeight.Bold) }
         if (state.events.isEmpty()) {

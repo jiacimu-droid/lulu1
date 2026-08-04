@@ -51,7 +51,7 @@ private val DesktopV2Launchers = listOf(
 )
 
 private const val DESKTOP_COLUMNS = 4
-private const val DESKTOP_ROWS = 5
+private const val DESKTOP_ROWS = 4
 private const val DESKTOP_SLOT_COUNT = DESKTOP_COLUMNS * DESKTOP_ROWS
 
 private val DesktopPaper = Color(0xFFFFFFFF)
@@ -370,14 +370,14 @@ private fun DesktopV2LauncherItem(
             color = DesktopIconSurface,
             border = BorderStroke(1.dp, DesktopLine),
             shadowElevation = 1.dp,
-            modifier = Modifier.width(61.dp).height(66.dp),
+            modifier = Modifier.width(57.dp).height(61.dp),
             onClick = onClick,
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(launcher.icon, launcher.title, tint = DesktopIcon, modifier = Modifier.size(27.dp))
+                Icon(launcher.icon, launcher.title, tint = DesktopIcon, modifier = Modifier.size(30.dp))
             }
         }
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(3.dp))
         Text(
             launcher.title,
             color = DesktopInk,

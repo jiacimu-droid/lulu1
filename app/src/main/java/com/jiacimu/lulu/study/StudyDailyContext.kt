@@ -10,7 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import java.time.LocalDate
+import java.time.DayOfWeek
 import java.time.ZoneId
+import java.time.temporal.TemporalAdjusters
 
 internal data class StudyDailyMetrics(
     val studyMinutes: Int,
@@ -56,9 +58,17 @@ internal fun StudyState.roleStudyContext(date: LocalDate = LocalDate.now()): Str
     }.trim()
 }
 
+internal fun StudyState.weekStudyMinutes(date: LocalDate = LocalDate.now()): Int {
+    val monday = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    return generateSequence(monday) { day -> day.plusDays(1) }
+        .takeWhile { day -> !day.isAfter(date) }
+        .sumOf { day -> dailyMetrics(day).studyMinutes }
+}
+
 @Composable
 internal fun StudyDailySummaryStrip(state: StudyState) {
     val daily = state.dailyMetrics()
+    val weeklyMinutes = state.weekStudyMinutes()
     Surface(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
         color = Color.Transparent,
@@ -66,7 +76,7 @@ internal fun StudyDailySummaryStrip(state: StudyState) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             StudyMetric("今日学习", daily.studyMinutes.minutesLabel(), Modifier.weight(1f))
             StudyMetric("今日番茄", daily.pomodoros.toString(), Modifier.weight(1f))
-            StudyMetric("今日词汇", daily.vocabulary.toString(), Modifier.weight(1f))
+            StudyMetric("本周学习", weeklyMinutes.minutesLabel(), Modifier.weight(1f))
         }
     }
 }

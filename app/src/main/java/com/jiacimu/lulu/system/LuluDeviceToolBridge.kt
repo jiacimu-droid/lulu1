@@ -57,7 +57,7 @@ object LuluDeviceToolBridge {
                 2. get_location，args={}：读取最近真实位置、地址反查、精度、来源和时间。
                 3. get_current_app，args={}：读取当前或最近前台 App。
                 4. read_recent_notifications，args={"limit":10}：读取最近通知。
-                5. create_alarm，args={"triggerAt":"带时区的ISO时间","label":"闹钟内容"}：设置真实精确闹钟。
+                5. create_alarm，args={"triggerAt":"带时区的ISO时间","label":"闹钟内容"}：在手机系统时钟应用中创建真实闹钟。
                 6. list_alarms，args={}：列出未触发闹钟。
                 7. cancel_alarm，args={"id":"闹钟ID"}：取消闹钟。
                 8. screen_action，args={"name":"back|home|recents|notifications|quick_settings"}：执行系统动作。
@@ -124,7 +124,7 @@ object LuluDeviceToolBridge {
                     triggerAt = trigger,
                     label = args.optString("label").ifBlank { "${characterName}提醒你" },
                 ).getOrThrow()
-                JSONObject().put("success", true).put("id", alarm.id).put("triggerAt", alarm.triggerAt.toString()).put("label", alarm.label).toString()
+                JSONObject().put("success", true).put("systemClock", true).put("id", alarm.id).put("triggerAt", alarm.triggerAt.toString()).put("label", alarm.label).toString()
             }
             "list_alarms" -> {
                 val alarms = LuluAlarmSystem.list()

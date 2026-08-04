@@ -1,10 +1,8 @@
 package com.jiacimu.lulu.study
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -16,25 +14,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.time.LocalDate
 
-private enum class SelfDirectedTodayView(val label: String) {
-    Tasks("我的今日待办"), Weekly("本周任务池"), Tomorrow("明日待办"), Tips("短提醒"),
-}
-
 @Composable
 internal fun StudyTodayScreenV2(
     state: StudyState,
     store: PostgraduateExamStore,
     onOpenFocus: () -> Unit,
 ) {
-    var view by remember { mutableStateOf(SelfDirectedTodayView.Tasks) }
     var newTask by remember { mutableStateOf("") }
-    var pomodoros by remember { mutableIntStateOf(1) }
-    var message by remember { mutableStateOf("") }
     val today = LocalDate.now()
     val todayTasks = state.tasks.filter { it.date == today.toString() }
-    val tomorrowTasks = state.tasks.filter { it.date == today.plusDays(1).toString() }
-    val weekly = state.planItems.filter { it.range == StudyPlanRange.Weekly && !it.completed }
-    val todayTips = state.tips.filter { it.date == today.toString() }
     val completed = todayTasks.count(StudyTask::completed)
 
     LazyColumn(
@@ -44,15 +32,12 @@ internal fun StudyTodayScreenV2(
         item {
             StudyCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text("今天由你自己安排", fontSize = 23.sp, fontWeight = FontWeight.Bold)
-                        Text("系统只维护月计划、周任务池和短提醒，不替你决定哪一天休息。", color = StudyDesign.muted)
-                    }
+                    Text("今日待办", Modifier.weight(1f), fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Surface(color = StudyDesign.wheatSoft, shape = MaterialTheme.shapes.large) {
                         Text("$completed/${todayTasks.size}", Modifier.padding(horizontal = 13.dp, vertical = 10.dp), fontWeight = FontWeight.Bold)
                     }
                 }
-                if (todayTasks.isNotEmpty()) StudyProgress(completed.toFloat() / todayTasks.size)
+                StudyProgress(if (todayTasks.isEmpty()) 0f else completed.toFloat() / todayTasks.size)
                 Button(onClick = onOpenFocus, modifier = Modifier.fillMaxWidth()) {
                     Icon(Icons.Outlined.Timer, null)
                     Spacer(Modifier.width(7.dp))
@@ -61,120 +46,26 @@ internal fun StudyTodayScreenV2(
             }
         }
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-                StudyMetric("有效分钟", state.profile.totalStudyMinutes.toString(), Modifier.weight(1f))
-                StudyMetric("番茄钟", state.profile.totalPomodoros.toString(), Modifier.weight(1f))
-                StudyMetric("词汇", state.profile.vocabularyReviewed.toString(), Modifier.weight(1f))
+            StudyCard {
+                OutlinedTextField(
+                    value = newTask,
+                    onValueChange = { newTask = it },
+                    label = { Text("添加今日待办") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                )
+                Button(
+                    enabled = newTask.isNotBlank(),
+                    onClick = { store.addTask(newTask, 1); newTask = "" },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text("添加") }
             }
         }
-        item {
-            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                SelfDirectedTodayView.entries.forEach { item ->
-                    FilterChip(selected = item == view, onClick = { view = item }, label = { Text(item.label) })
-                }
-            }
+        if (todayTasks.isEmpty()) {
+            item { StudyCard { Text("今天还没有待办。", color = StudyDesign.muted) } }
+        } else {
+            items(todayTasks, key = StudyTask::id) { task -> SelfDirectedTaskRow(task, store) }
         }
-        when (view) {
-            SelfDirectedTodayView.Tasks -> {
-                item {
-                    StudyCard {
-                        Text("从周任务池里挑今天要做的", fontWeight = FontWeight.Bold)
-                        Text("休息日可以一条都不加。普通学习日只挑你今天现实能完成的内容。", color = StudyDesign.muted)
-                        OutlinedTextField(
-                            value = newTask,
-                            onValueChange = { newTask = it },
-                            label = { Text("今天自己选择的任务") },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                        )
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("预计番茄钟", color = StudyDesign.muted)
-                            IconButton(onClick = { pomodoros = (pomodoros - 1).coerceAtLeast(1) }) { Icon(Icons.Outlined.Remove, null) }
-                            Text(pomodoros.toString(), fontWeight = FontWeight.Bold)
-                            IconButton(onClick = { pomodoros = (pomodoros + 1).coerceAtMost(12) }) { Icon(Icons.Outlined.Add, null) }
-                            Spacer(Modifier.weight(1f))
-                            Button(
-                                enabled = newTask.isNotBlank(),
-                                onClick = { store.addTask(newTask, pomodoros); newTask = ""; pomodoros = 1 },
-                            ) { Text("添加") }
-                        }
-                    }
-                }
-                if (todayTasks.isEmpty()) {
-                    item { StudyCard { Text("今天还没有自行选择待办。完整休息日可以保持为空。", color = StudyDesign.muted) } }
-                } else {
-                    items(todayTasks, key = StudyTask::id) { task -> SelfDirectedTaskRow(task, store) }
-                }
-                item {
-                    StudyCard {
-                        Text("词汇滚动复习", fontWeight = FontWeight.Bold)
-                        Text("只记录真实完成量；单词不能替代英语真题主训练。", color = StudyDesign.muted)
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf(20, 50, 100).forEach { amount ->
-                                AssistChip(
-                                    onClick = { store.reviewVocabulary(amount); message = "词汇复习 +$amount" },
-                                    label = { Text("+$amount") },
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            SelfDirectedTodayView.Weekly -> {
-                item {
-                    StudyCard {
-                        Text("本周任务池", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                        Text("这些是周验收目标，不代表每个自然日都必须完成。具体日期和休息日由你自己分配。", color = StudyDesign.muted)
-                    }
-                }
-                if (weekly.isEmpty()) {
-                    item { StudyCard { Text("当前没有未完成周计划，可到“计划”页补充。", color = StudyDesign.muted) } }
-                } else {
-                    items(weekly, key = StudyPlanItem::id) { item ->
-                        StudyCard {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Checkbox(checked = item.completed, onCheckedChange = { store.togglePlanItem(item.id) })
-                                Column(Modifier.weight(1f)) {
-                                    Text(item.title, fontWeight = FontWeight.Bold)
-                                    if (item.note.isNotBlank()) Text(item.note, color = StudyDesign.muted)
-                                }
-                            }
-                            OutlinedButton(
-                                onClick = { newTask = item.title; view = SelfDirectedTodayView.Tasks },
-                                modifier = Modifier.fillMaxWidth(),
-                            ) { Text("把它作为今天的候选") }
-                        }
-                    }
-                }
-            }
-            SelfDirectedTodayView.Tomorrow -> {
-                item {
-                    StudyCard {
-                        Text("明日待办由你决定", fontWeight = FontWeight.Bold)
-                        Text("只在你已经明确明天要做什么时添加；不提前制造整天压力。", color = StudyDesign.muted)
-                        OutlinedTextField(newTask, { newTask = it }, label = { Text("明日任务") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-                        Button(
-                            enabled = newTask.isNotBlank(),
-                            onClick = { store.addTask(newTask, pomodoros, today.plusDays(1)); newTask = "" },
-                            modifier = Modifier.fillMaxWidth(),
-                        ) { Text("添加明日待办") }
-                    }
-                }
-                if (tomorrowTasks.isEmpty()) item { StudyCard { Text("明天还没有待办。", color = StudyDesign.muted) } }
-                items(tomorrowTasks, key = StudyTask::id) { task -> SelfDirectedTaskRow(task, store) }
-            }
-            SelfDirectedTodayView.Tips -> {
-                item {
-                    StudyCard {
-                        Text("每日短提醒", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                        Text("只提醒健康启动和执行原则，不生成钟点表或固定休息日。", color = StudyDesign.muted)
-                    }
-                }
-                if (todayTips.isEmpty()) item { StudyCard { Text("今天没有短提醒。", color = StudyDesign.muted) } }
-                items(todayTips, key = StudyTip::id) { tip -> StudyCard { Text(tip.text) } }
-            }
-        }
-        if (message.isNotBlank()) item { StudyMessage(message, false) }
     }
 }
 

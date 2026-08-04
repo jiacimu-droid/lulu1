@@ -33,9 +33,35 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     val prefs = androidx.compose.ui.platform.LocalContext.current.getSharedPreferences(ADVANCED_PREFS, Context.MODE_PRIVATE)
     var enabled by remember { mutableStateOf(prefs.getBoolean("tts_enabled", true)) }
     var autoSpeak by remember { mutableStateOf(prefs.getBoolean("tts_auto_speak", true)) }
+    var provider by remember { mutableStateOf(prefs.getString("tts_provider", "system") ?: "system") }
     var language by remember { mutableStateOf(prefs.getString("tts_language", "zh-CN") ?: "zh-CN") }
     var rate by remember { mutableFloatStateOf(prefs.getFloat("tts_rate", 1.0f)) }
     var pitch by remember { mutableFloatStateOf(prefs.getFloat("tts_pitch", 1.0f)) }
+    var minimaxEndpoint by remember { mutableStateOf(prefs.getString("minimax_endpoint", "https://api.minimax.io/v1/t2a_v2") ?: "") }
+    var minimaxApiKey by remember { mutableStateOf(prefs.getString("minimax_api_key", "") ?: "") }
+    var minimaxModel by remember { mutableStateOf(prefs.getString("minimax_model", "speech-2.8-turbo") ?: "speech-2.8-turbo") }
+    var minimaxVoiceId by remember { mutableStateOf(prefs.getString("minimax_voice_id", "") ?: "") }
+    var minimaxLanguage by remember { mutableStateOf(prefs.getString("minimax_language_boost", "auto") ?: "auto") }
+    var minimaxSpeed by remember { mutableFloatStateOf(prefs.getFloat("minimax_speed", 1f)) }
+    var minimaxVolume by remember { mutableFloatStateOf(prefs.getFloat("minimax_volume", 1f)) }
+    var minimaxPitch by remember { mutableFloatStateOf(prefs.getInt("minimax_pitch", 0).toFloat()) }
+
+    fun saveVoiceSettings() {
+        prefs.edit()
+            .putString("tts_provider", provider)
+            .putString("tts_language", language.trim())
+            .putFloat("tts_rate", rate)
+            .putFloat("tts_pitch", pitch)
+            .putString("minimax_endpoint", minimaxEndpoint.trim())
+            .putString("minimax_api_key", minimaxApiKey.trim())
+            .putString("minimax_model", minimaxModel.trim())
+            .putString("minimax_voice_id", minimaxVoiceId.trim())
+            .putString("minimax_language_boost", minimaxLanguage.trim().ifBlank { "auto" })
+            .putFloat("minimax_speed", minimaxSpeed)
+            .putFloat("minimax_volume", minimaxVolume)
+            .putInt("minimax_pitch", minimaxPitch.toInt())
+            .apply()
+    }
 
     AdvancedSettingsScaffold(title = "语音设置", onBack = onBack) {
         item {
@@ -62,7 +88,24 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
             )
         }
         item {
-            SettingsSectionCard("声音参数") {
+            SettingsSectionCard("语音服务") {
+                Text("选择朗读角色回复的声音来源", color = AdvancedMuted, fontSize = 13.sp)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(
+                        selected = provider == "system",
+                        onClick = { provider = "system"; prefs.edit().putString("tts_provider", provider).apply() },
+                        label = { Text("系统语音") },
+                    )
+                    FilterChip(
+                        selected = provider == "minimax",
+                        onClick = { provider = "minimax"; prefs.edit().putString("tts_provider", provider).apply() },
+                        label = { Text("MiniMax") },
+                    )
+                }
+            }
+        }
+        if (provider == "system") item {
+            SettingsSectionCard("系统声音参数") {
                 AdvancedTextField("语言代码", language, { language = it }, "例如 zh-CN")
                 Spacer(Modifier.height(18.dp))
                 Text("语速  ${"%.2f".format(rate)}", color = AdvancedInk, fontWeight = FontWeight.Medium)
@@ -81,18 +124,37 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                     valueRange = 0.5f..1.5f,
                     enabled = enabled,
                 )
-                Button(
-                    onClick = {
-                        prefs.edit()
-                            .putString("tts_language", language.trim())
-                            .putFloat("tts_rate", rate)
-                            .putFloat("tts_pitch", pitch)
-                            .apply()
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = AdvancedAccent),
-                ) { Text("保存语音设置") }
             }
+        }
+        if (provider == "minimax") item {
+            SettingsSectionCard("MiniMax 接口") {
+                Text("使用 MiniMax Speech 2.8 生成角色语音；请求失败时自动回退到系统语音。", color = AdvancedMuted, fontSize = 12.sp, lineHeight = 18.sp)
+                Spacer(Modifier.height(6.dp))
+                AdvancedTextField("接口地址", minimaxEndpoint, { minimaxEndpoint = it }, "https://api.minimax.io/v1/t2a_v2")
+                Spacer(Modifier.height(10.dp))
+                AdvancedTextField("API Key", minimaxApiKey, { minimaxApiKey = it }, "填写 MiniMax API Key", password = true)
+                Spacer(Modifier.height(10.dp))
+                AdvancedTextField("模型", minimaxModel, { minimaxModel = it }, "speech-2.8-turbo")
+                Spacer(Modifier.height(10.dp))
+                AdvancedTextField("Voice ID", minimaxVoiceId, { minimaxVoiceId = it }, "填写系统音色或克隆音色 ID")
+                Spacer(Modifier.height(10.dp))
+                AdvancedTextField("语言增强", minimaxLanguage, { minimaxLanguage = it }, "auto 或 Chinese")
+                Spacer(Modifier.height(18.dp))
+                Text("语速  ${"%.2f".format(minimaxSpeed)}", color = AdvancedInk, fontWeight = FontWeight.Medium)
+                Slider(value = minimaxSpeed, onValueChange = { minimaxSpeed = it }, valueRange = 0.5f..2f, enabled = enabled)
+                Text("音量  ${"%.2f".format(minimaxVolume)}", color = AdvancedInk, fontWeight = FontWeight.Medium)
+                Slider(value = minimaxVolume, onValueChange = { minimaxVolume = it }, valueRange = 0.1f..10f, enabled = enabled)
+                Text("音调  ${minimaxPitch.toInt()}", color = AdvancedInk, fontWeight = FontWeight.Medium)
+                Slider(value = minimaxPitch, onValueChange = { minimaxPitch = it }, valueRange = -12f..12f, steps = 23, enabled = enabled)
+            }
+        }
+        item {
+            Button(
+                onClick = ::saveVoiceSettings,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = enabled,
+                colors = ButtonDefaults.buttonColors(containerColor = AdvancedAccent),
+            ) { Text("保存语音设置") }
         }
     }
 }

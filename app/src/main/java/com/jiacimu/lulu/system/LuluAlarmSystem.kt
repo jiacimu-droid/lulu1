@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.provider.AlarmClock
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -15,6 +16,7 @@ import com.jiacimu.lulu.MigrationActivity
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 data class LuluAlarm(
@@ -52,27 +54,29 @@ object LuluAlarmSystem {
     ): Result<LuluAlarm> = runCatching {
         val appContext = context ?: error("闹钟系统尚未初始化")
         require(triggerAt.isAfter(Instant.now().plusSeconds(5))) { "闹钟时间必须晚于当前时间" }
-        check(canScheduleExact()) { "尚未获得精确闹钟权限" }
         val alarm = LuluAlarm(
             characterId = characterId.ifBlank { "lulu" },
             characterName = characterName.ifBlank { "露露" },
             triggerAt = triggerAt,
             label = label.trim().ifBlank { "该起床啦" },
         )
-        val alarms = list(appContext).filterNot { it.id == alarm.id } + alarm
-        save(appContext, alarms)
-        schedule(appContext, alarm)
+        setSystemClockAlarm(appContext, alarm)
+        save(appContext, list(appContext).filterNot { it.id == alarm.id } + alarm)
         alarm
     }
 
-    fun list(): List<LuluAlarm> = context?.let(::list).orEmpty().sortedBy { it.triggerAt }
+    fun list(): List<LuluAlarm> {
+        val appContext = context ?: return emptyList()
+        val future = list(appContext).filter { it.triggerAt.isAfter(Instant.now()) }.sortedBy { it.triggerAt }
+        save(appContext, future)
+        return future
+    }
 
     fun cancel(id: String): Boolean {
         val appContext = context ?: return false
         val alarms = list(appContext)
         val target = alarms.firstOrNull { it.id == id } ?: return false
-        val manager = appContext.getSystemService(AlarmManager::class.java)
-        manager.cancel(pendingIntent(appContext, target))
+        dismissSystemClockAlarm(appContext, target)
         save(appContext, alarms.filterNot { it.id == id })
         return true
     }
@@ -84,13 +88,45 @@ object LuluAlarmSystem {
     internal fun restoreFutureAlarms(context: Context) {
         val now = Instant.now()
         val alarms = list(context)
-        alarms.filter { it.triggerAt.isAfter(now) }.forEach { alarm ->
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || context.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()) {
-                schedule(context, alarm)
-            }
-        }
+        // 系统时钟应用会自行持久化闹钟；这里只清理露露保存的过期索引，避免重复创建。
         save(context, alarms.filter { it.triggerAt.isAfter(now) })
     }
+
+    private fun setSystemClockAlarm(context: Context, alarm: LuluAlarm) {
+        val localTime = alarm.triggerAt.atZone(java.time.ZoneId.systemDefault())
+        val now = java.time.ZonedDateTime.now()
+        var nextAtSameTime = now.withHour(localTime.hour).withMinute(localTime.minute).withSecond(0).withNano(0)
+        if (!nextAtSameTime.isAfter(now)) nextAtSameTime = nextAtSameTime.plusDays(1)
+        val requested = localTime.withSecond(0).withNano(0)
+        require(kotlin.math.abs(ChronoUnit.MINUTES.between(nextAtSameTime, requested)) <= 1) {
+            "手机系统时钟只能直接创建未来 24 小时内下一次出现的时刻"
+        }
+        val intent = Intent(AlarmClock.ACTION_SET_ALARM).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            putExtra(AlarmClock.EXTRA_HOUR, localTime.hour)
+            putExtra(AlarmClock.EXTRA_MINUTES, localTime.minute)
+            putExtra(AlarmClock.EXTRA_MESSAGE, systemLabel(alarm))
+            putExtra(AlarmClock.EXTRA_VIBRATE, true)
+            putExtra(AlarmClock.EXTRA_SKIP_UI, true)
+        }
+        try {
+            context.startActivity(intent)
+        } catch (_: android.content.ActivityNotFoundException) {
+            error("手机里没有支持创建系统闹钟的时钟应用")
+        }
+    }
+
+    private fun dismissSystemClockAlarm(context: Context, alarm: LuluAlarm) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
+        val intent = Intent(AlarmClock.ACTION_DISMISS_ALARM).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            putExtra(AlarmClock.EXTRA_ALARM_SEARCH_MODE, AlarmClock.ALARM_SEARCH_MODE_LABEL)
+            putExtra(AlarmClock.EXTRA_MESSAGE, systemLabel(alarm))
+        }
+        runCatching { context.startActivity(intent) }
+    }
+
+    private fun systemLabel(alarm: LuluAlarm): String = "${alarm.characterName} · ${alarm.label}"
 
     private fun schedule(context: Context, alarm: LuluAlarm) {
         val manager = context.getSystemService(AlarmManager::class.java)

@@ -1,6 +1,5 @@
 package com.jiacimu.lulu
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,7 +10,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,69 +21,18 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelArchive
 import kotlinx.coroutines.launch
 
-private val SettingsPaper = Color(0xFFF8FAF8)
-private val SettingsCard = Color(0xFFFCFDFC)
-private val SettingsBorder = Color(0xFFDDE7E3)
-private val SettingsMuted = Color(0xFF7D8C88)
-private val SettingsInk = Color(0xFF34413F)
-private val SettingsAccent = Color(0xFFDCEAE6)
-private val SettingsAccentStrong = Color(0xFF607A75)
-
-private enum class ApiSettingsPage { Home, Editor, Archives }
+private val SettingsPaper = Color(0xFFFFFFFF)
+private val SettingsCard = Color(0xFFFCFCFC)
+private val SettingsBorder = Color(0xFFE7E7E7)
+private val SettingsMuted = Color(0xFF7A7A7E)
+private val SettingsInk = Color(0xFF1D1D1F)
+private val SettingsAccent = Color(0xFFF4F4F4)
+private val SettingsAccentStrong = Color(0xFF292929)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LuluSettingsScreen(onBack: () -> Unit) {
-    var page by rememberSaveable { mutableStateOf(ApiSettingsPage.Home) }
-    BackHandler(enabled = page != ApiSettingsPage.Home) {
-        page = ApiSettingsPage.Home
-    }
-    when (page) {
-        ApiSettingsPage.Home -> ApiSettingsHome(onBack = onBack, onOpen = { page = it })
-        ApiSettingsPage.Editor -> ApiConfigurationEditor(onBack = { page = ApiSettingsPage.Home })
-        ApiSettingsPage.Archives -> ModelArchiveScreen(onBack = { page = ApiSettingsPage.Home })
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ApiSettingsHome(
-    onBack: () -> Unit,
-    onOpen: (ApiSettingsPage) -> Unit,
-) {
-    Scaffold(
-        containerColor = SettingsPaper,
-        topBar = {
-            TopAppBar(
-                title = { Text("API 设置", fontWeight = FontWeight.SemiBold) },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = SettingsPaper),
-            )
-        },
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            item {
-                ApiNavigationRow(
-                    icon = Icons.Outlined.Edit,
-                    title = "模型配置",
-                    subtitle = "配置站点、API 地址、密钥并拉取模型",
-                    onClick = { onOpen(ApiSettingsPage.Editor) },
-                )
-            }
-            item {
-                ApiNavigationRow(
-                    icon = Icons.Outlined.Inventory2,
-                    title = "模型存档",
-                    subtitle = "查看、切换和移除已经保存的模型",
-                    onClick = { onOpen(ApiSettingsPage.Archives) },
-                )
-            }
-        }
-    }
+    ApiConfigurationEditor(onBack = onBack)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -166,7 +113,7 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
         containerColor = SettingsPaper,
         topBar = {
             TopAppBar(
-                title = { Text("模型配置", fontWeight = FontWeight.SemiBold) },
+                title = { Text("API 设置", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = SettingsPaper),
             )
@@ -295,13 +242,37 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                 }
             }
             if (library.configurations.isNotEmpty()) {
-                item { Text("已保存配置", color = SettingsInk, fontWeight = FontWeight.Bold, fontSize = 17.sp) }
+                item { Text("已配置模型", color = SettingsInk, fontWeight = FontWeight.Bold, fontSize = 17.sp) }
                 items(library.configurations, key = { it.id }) { configuration ->
                     SavedConfigurationRow(
                         configuration = configuration,
                         selected = configuration.id == editingId,
                         onClick = { loadConfiguration(configuration) },
                         onDelete = { store.deleteConfiguration(configuration.id); if (editingId == configuration.id) clearEditor() },
+                    )
+                }
+            }
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text("模型存档", color = SettingsInk, fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    Text("点按存档即可切换当前聊天模型", color = SettingsMuted, fontSize = 12.sp)
+                }
+            }
+            if (library.archives.isEmpty()) {
+                item {
+                    SettingsCardBox {
+                        Text("还没有模型存档", fontWeight = FontWeight.Bold)
+                        Text("在上方获取模型并加入存档后，会显示在这里。", color = SettingsMuted)
+                    }
+                }
+            } else {
+                items(library.archives, key = { "archive-${it.id}" }) { archive ->
+                    ModelArchiveRow(
+                        archive = archive,
+                        label = store.archiveLabel(archive),
+                        selected = archive.id == library.activeArchiveId,
+                        onSelect = { store.selectArchive(archive.id) },
+                        onDelete = { store.removeArchive(archive.id) },
                     )
                 }
             }
@@ -312,59 +283,6 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                     }
                 }
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ModelArchiveScreen(onBack: () -> Unit) {
-    val store = LuluAiServices.connectionStore
-    val library by store.library.collectAsState()
-    Scaffold(
-        containerColor = SettingsPaper,
-        topBar = {
-            TopAppBar(
-                title = { Text("模型存档", fontWeight = FontWeight.SemiBold) },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = SettingsPaper),
-            )
-        },
-    ) { padding ->
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            if (library.archives.isEmpty()) {
-                item {
-                    SettingsCardBox {
-                        Text("还没有模型存档", fontWeight = FontWeight.Bold)
-                        Text("先到“模型配置”拉取模型，再批量加入存档。", color = SettingsMuted)
-                    }
-                }
-            } else {
-                items(library.archives, key = { it.id }) { archive ->
-                    ModelArchiveRow(
-                        archive = archive,
-                        label = store.archiveLabel(archive),
-                        selected = archive.id == library.activeArchiveId,
-                        onSelect = { store.selectArchive(archive.id) },
-                        onDelete = { store.removeArchive(archive.id) },
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ApiNavigationRow(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
-    Surface(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick), shape = RoundedCornerShape(18.dp), color = SettingsCard, border = BorderStroke(1.dp, SettingsBorder)) {
-        Row(Modifier.fillMaxWidth().padding(15.dp), verticalAlignment = Alignment.CenterVertically) {
-            Surface(shape = RoundedCornerShape(12.dp), color = SettingsAccent) { Icon(icon, null, modifier = Modifier.padding(9.dp).size(22.dp), tint = SettingsAccentStrong) }
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Text(title, fontWeight = FontWeight.Bold, color = SettingsInk)
-                Text(subtitle, color = SettingsMuted, fontSize = 12.sp)
-            }
-            Icon(Icons.Outlined.ChevronRight, null, tint = SettingsMuted)
         }
     }
 }
