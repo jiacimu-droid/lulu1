@@ -255,17 +255,23 @@ fun QqStyleChatDetailScreen(
         generationJob = scope.launch {
             try {
                 if (groupChat == null) {
+                    val privateInput = buildString {
+                        appendLine("[请按真实聊天的表达节奏决定发几个气泡，不按字数或标点机械切分。一个完整的动作、情绪、观点或紧密相连的句子应留在同一气泡；只有话题转折、独立的反应/追问、或有意停顿时才另开气泡。]")
+                        appendLine("[需要分气泡时，只在两个气泡之间输出 $SemanticBubbleSeparator；一个气泡时不要输出标记。不要为了凑数量拆句，也不要输出格式说明。]")
+                        append("用户消息：$pendingText")
+                    }
                     val result = LuluDeviceToolBridge.respond(
                         characterId = characterId,
                         history = history,
-                        userText = pendingText,
+                        userText = privateInput,
                         title = activeLabel,
                         archiveId = chatArchiveId,
                     )
                     if (!currentCoroutineContext().isActive) return@launch
                     result.onSuccess { reply ->
-                        if (reply.text.isNotBlank()) {
-                            MigratedDomainStores.chat.appendCharacterMessage(conversationId, reply.text)
+                        val semanticReply = normalizeSemanticBubbles(reply.text)
+                        if (semanticReply.isNotBlank()) {
+                            MigratedDomainStores.chat.appendCharacterMessage(conversationId, semanticReply)
                         } else {
                             snackbar.showSnackbar("对方刚才没有说清，再点一次试试")
                         }
@@ -918,13 +924,13 @@ private fun splitCharacterBubbles(text: String): List<String> {
         .filter(String::isNotBlank)
 }
 
-private const val GroupBubbleSeparator = "⟪BUBBLE⟫"
+private const val SemanticBubbleSeparator = "⟪BUBBLE⟫"
 
-private fun normalizeSemanticGroupBubbles(text: String): String {
+private fun normalizeSemanticBubbles(text: String): String {
     val normalized = text.replace("\r\n", "\n").trim()
     if (normalized.isBlank()) return ""
     val semanticBubbles = normalized
-        .split(GroupBubbleSeparator)
+        .split(SemanticBubbleSeparator)
         .map { bubble -> bubble.trim().trim('"') }
         .filter(String::isNotBlank)
     return semanticBubbles.joinToString("\n")
@@ -1001,7 +1007,7 @@ internal suspend fun runGroupReplies(
             }
             if (index >= validMembers.size) appendLine("[这是群内继续接话，同一角色可以再次回应刚才的新内容，但不能复述自己的上一句话。]")
             appendLine("[请按真实聊天的表达节奏决定发几个气泡，不按字数或标点机械切分。一个完整的动作、情绪、观点或紧密相连的句子应留在同一气泡；只有话题转折、独立的反应/追问、或有意停顿时才另开气泡。]")
-            appendLine("[需要分气泡时，只在两个气泡之间输出 $GroupBubbleSeparator；一个气泡时不要输出标记。不要为了凑数量拆句，也不要输出姓名标签或其他格式说明。]")
+            appendLine("[需要分气泡时，只在两个气泡之间输出 $SemanticBubbleSeparator；一个气泡时不要输出标记。不要为了凑数量拆句，也不要输出姓名标签或其他格式说明。]")
             if (index == 0) append("用户刚在群里说：$pendingText")
             else append("用户最初开启的话题：$pendingText")
         }
@@ -1026,7 +1032,7 @@ internal suspend fun runGroupReplies(
         if (!currentCoroutineContext().isActive) return
         val reply = result.getOrNull()
         if (reply != null) {
-            val semanticReply = normalizeSemanticGroupBubbles(reply.text)
+            val semanticReply = normalizeSemanticBubbles(reply.text)
             if (semanticReply.isNotBlank()) {
                 MigratedDomainStores.chat.appendCharacterMessage(
                     conversationId = conversationId,
