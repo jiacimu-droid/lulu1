@@ -39,6 +39,7 @@ internal fun LuluProfileAvatar(
     size: Int,
     modifier: Modifier = Modifier,
 ) {
+    val avatarShape = RoundedCornerShape((size * 0.22f).dp)
     val context = LocalContext.current
     val bitmap = remember(imageUri) {
         imageUri?.takeIf(String::isNotBlank)?.let { value ->
@@ -49,12 +50,12 @@ internal fun LuluProfileAvatar(
     }
     Surface(
         modifier = modifier.size(size.dp),
-        shape = CircleShape,
+        shape = avatarShape,
         color = Color(0xFFF4F4F4),
         border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
     ) {
         if (bitmap != null) {
-            Image(bitmap, null, Modifier.fillMaxSize().clip(CircleShape), contentScale = ContentScale.Crop)
+            Image(bitmap, null, Modifier.fillMaxSize().clip(avatarShape), contentScale = ContentScale.Crop)
         } else {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(fallback.take(2).ifBlank { "主" }, fontWeight = FontWeight.Bold, fontSize = (size / 2.8).sp, color = Color(0xFF1D1D1F))

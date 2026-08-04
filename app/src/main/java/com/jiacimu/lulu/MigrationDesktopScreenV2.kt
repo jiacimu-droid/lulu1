@@ -132,8 +132,6 @@ internal fun MigrationHomeV2(
                         Spacer(Modifier.width(7.dp))
                         Text("DAY MODE", color = DesktopMuted, fontSize = 9.sp, letterSpacing = 1.5.sp)
                     }
-                    Spacer(Modifier.height(8.dp))
-                    DesktopV2Avatar(currentCharacter.displayName.take(1).ifBlank { "露" }, 44, currentCharacter.avatarUri)
                 }
             }
 

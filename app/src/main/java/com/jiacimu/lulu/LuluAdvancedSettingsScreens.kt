@@ -94,6 +94,11 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
             .apply()
     }
 
+    LaunchedEffect(
+        provider, language, rate, pitch, minimaxEndpoint, minimaxApiKey, minimaxGroupId,
+        minimaxModel, minimaxVoiceId, minimaxLanguage, minimaxSpeed, minimaxVolume, minimaxPitch,
+    ) { saveVoiceSettings() }
+
     AdvancedSettingsScaffold(title = "语音设置", onBack = onBack) {
         item {
             SettingsSwitchCard(
@@ -219,14 +224,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                 }
             }
         }
-        item {
-            Button(
-                onClick = ::saveVoiceSettings,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = enabled,
-                colors = ButtonDefaults.buttonColors(containerColor = AdvancedAccent, contentColor = Color.White),
-            ) { Text("保存语音设置") }
-        }
     }
 }
 
@@ -245,8 +242,6 @@ fun LuluMemorySettingsScreen(onBack: () -> Unit) {
     var rerankUrl by remember { mutableStateOf(prefs.getString("memory_rerank_url", "") ?: "") }
     var rerankKey by remember { mutableStateOf(prefs.getString("memory_rerank_key", "") ?: "") }
     var rerankModel by remember { mutableStateOf(prefs.getString("memory_rerank_model", "") ?: "") }
-    var saveNotice by remember { mutableStateOf("") }
-
     fun save() {
         prefs.edit()
             .putBoolean("memory_vector_enabled", vectorEnabled)
@@ -261,13 +256,12 @@ fun LuluMemorySettingsScreen(onBack: () -> Unit) {
             .putString("memory_rerank_key", rerankKey.trim())
             .putString("memory_rerank_model", rerankModel.trim())
             .apply()
-        saveNotice = buildString {
-            append("已保存")
-            append("\n记忆抽取：${extractionModel.ifBlank { "沿用当前聊天模型" }}")
-            append("\nEmbedding：${if (!vectorEnabled) "未启用" else embeddingModel.ifBlank { "未选择模型，将使用本地召回" }}")
-            append("\nRerank：${if (!rerankEnabled) "未启用" else rerankModel.ifBlank { "未选择模型，将跳过重排" }}")
-        }
     }
+
+    LaunchedEffect(
+        vectorEnabled, rerankEnabled, extractionUrl, extractionKey, extractionModel,
+        embeddingUrl, embeddingKey, embeddingModel, rerankUrl, rerankKey, rerankModel,
+    ) { save() }
 
     AdvancedSettingsScaffold(title = "记忆设置", onBack = onBack) {
         item {
@@ -323,18 +317,6 @@ fun LuluMemorySettingsScreen(onBack: () -> Unit) {
                 }
             }
         }
-        item {
-            Button(
-                onClick = ::save,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = AdvancedAccent, contentColor = Color.White),
-            ) { Text("保存记忆设置") }
-        }
-        if (saveNotice.isNotBlank()) item {
-            Surface(color = Color(0xFFF1F1F1), shape = RoundedCornerShape(14.dp)) {
-                Text(saveNotice, Modifier.fillMaxWidth().padding(13.dp), color = AdvancedInk)
-            }
-        }
     }
 }
 
@@ -348,7 +330,16 @@ fun LuluImageSettingsScreen(onBack: () -> Unit) {
     var model by remember { mutableStateOf(prefs.getString("image_model", "") ?: "") }
     var size by remember { mutableStateOf(prefs.getString("image_size", "1024x1024") ?: "1024x1024") }
     var negativePrompt by remember { mutableStateOf(prefs.getString("image_negative_prompt", "") ?: "") }
-    var saveNotice by remember { mutableStateOf("") }
+    LaunchedEffect(enabled, baseUrl, apiKey, model, size, negativePrompt) {
+        prefs.edit()
+            .putBoolean("image_enabled", enabled)
+            .putString("image_url", baseUrl.trim())
+            .putString("image_key", apiKey.trim())
+            .putString("image_model", model.trim())
+            .putString("image_size", size.trim())
+            .putString("image_negative_prompt", negativePrompt.trim())
+            .apply()
+    }
 
     AdvancedSettingsScaffold(title = "生图设置", onBack = onBack) {
         item {
@@ -372,28 +363,6 @@ fun LuluImageSettingsScreen(onBack: () -> Unit) {
                 AdvancedTextField("默认尺寸", size, { size = it }, "例如 1024x1024")
                 Spacer(Modifier.height(10.dp))
                 AdvancedTextField("默认负面提示词", negativePrompt, { negativePrompt = it }, "可留空", minLines = 3)
-            }
-        }
-        item {
-            Button(
-                onClick = {
-                    prefs.edit()
-                        .putBoolean("image_enabled", enabled)
-                        .putString("image_url", baseUrl.trim())
-                        .putString("image_key", apiKey.trim())
-                        .putString("image_model", model.trim())
-                        .putString("image_size", size.trim())
-                        .putString("image_negative_prompt", negativePrompt.trim())
-                        .apply()
-                    saveNotice = if (model.isBlank()) "已保存；尚未选择生图模型" else "已保存并选择：$model"
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = AdvancedAccent, contentColor = Color.White),
-            ) { Text("保存生图设置") }
-        }
-        if (saveNotice.isNotBlank()) item {
-            Surface(color = Color(0xFFF1F1F1), shape = RoundedCornerShape(14.dp)) {
-                Text(saveNotice, Modifier.fillMaxWidth().padding(13.dp), color = AdvancedInk)
             }
         }
     }

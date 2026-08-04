@@ -518,12 +518,7 @@ class CompanionModelGateway(
             headers = mapOf("Authorization" to "Bearer ${connection.apiKey}"),
             body = body,
         )
-        val text = json.optJSONArray("choices")
-            ?.optJSONObject(0)
-            ?.optJSONObject("message")
-            ?.optString("content")
-            .orEmpty()
-            .trim()
+        val text = extractModelText(json)
         check(text.isNotBlank()) { "模型没有返回可读取的内容" }
         val usage = json.optJSONObject("usage")
         val promptDetails = usage?.optJSONObject("prompt_tokens_details")
@@ -533,6 +528,31 @@ class CompanionModelGateway(
             outputTokens = usage?.optInt("completion_tokens") ?: 0,
             cachedTokens = promptDetails?.optInt("cached_tokens") ?: 0,
         )
+    }
+
+    private fun extractModelText(json: JSONObject): String {
+        fun textFrom(value: Any?): String = when (value) {
+            is String -> value
+            is JSONObject -> sequenceOf("text", "content", "output_text")
+                .map { key -> textFrom(value.opt(key)) }
+                .firstOrNull(String::isNotBlank)
+                .orEmpty()
+            is JSONArray -> (0 until value.length())
+                .joinToString("") { index -> textFrom(value.opt(index)) }
+            else -> ""
+        }.trim()
+
+        val choice = json.optJSONArray("choices")?.optJSONObject(0)
+        val message = choice?.optJSONObject("message")
+        return sequenceOf(
+            textFrom(message?.opt("content")),
+            textFrom(choice?.opt("text")),
+            textFrom(json.opt("output_text")),
+            textFrom(json.opt("output")),
+            // Some reasoning-compatible gateways return the requested JSON here
+            // while leaving the normal content field empty.
+            textFrom(message?.opt("reasoning_content")),
+        ).firstOrNull(String::isNotBlank).orEmpty()
     }
 
     private fun requestGetJson(url: String, headers: Map<String, String>): JSONObject {

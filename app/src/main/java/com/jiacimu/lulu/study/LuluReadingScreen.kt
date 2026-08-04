@@ -101,9 +101,7 @@ fun LuluReadingScreen(onBack: () -> Unit) {
                         shape = RoundedCornerShape(24.dp),
                         border = BorderStroke(1.dp, StudyDesign.border),
                     ) {
-                        Column(Modifier.padding(17.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            Text("把故事带进来，和角色一起读", fontSize = 21.sp, fontWeight = FontWeight.Black)
-                            Text("可以上传 TXT、Markdown 文本，也可以直接打开已经生成的小剧场作品。阅读只负责看与讨论，不会继续生成剧情。", color = StudyDesign.muted, lineHeight = 20.sp)
+                        Column(Modifier.padding(14.dp)) {
                             Button(
                                 onClick = { importer.launch(arrayOf("text/plain", "text/markdown", "application/json")) },
                                 modifier = Modifier.fillMaxWidth(),
@@ -117,7 +115,7 @@ fun LuluReadingScreen(onBack: () -> Unit) {
                     }
                 }
                 if (allBooks.isEmpty()) {
-                    item { Text("书架还是空的。上传一个故事，或者先去小剧场生成作品。", color = StudyDesign.muted) }
+                    item { Text("书架还是空的。", color = StudyDesign.muted) }
                 }
                 items(allBooks, key = ReadingBook::id) { book ->
                     Surface(

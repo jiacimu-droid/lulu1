@@ -550,7 +550,7 @@ fun LexiconFeatureScreen(onBack: () -> Unit) {
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Surface(shape = CircleShape, color = FeatureWheat, modifier = Modifier.size(42.dp)) {
+                Surface(shape = RoundedCornerShape(10.dp), color = FeatureWheat, modifier = Modifier.size(42.dp)) {
                     Box(contentAlignment = Alignment.Center) { Text("露", fontWeight = FontWeight.Bold) }
                 }
                 Spacer(Modifier.width(11.dp))

@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.CharacterContactPolicy
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.design.LuluColors
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,19 +32,43 @@ fun CharacterSettingsScreenV2(
     val original = settings[characterId] ?: MigratedDomainStores.characters.get(characterId)
     val worldBooks by LuluRepositories.worldBook.observeWorldBooks().collectAsState(initial = emptyList())
     val scope = rememberCoroutineScope()
-    var displayName by remember(original) { mutableStateOf(original.displayName) }
-    var avatarUri by remember(original) { mutableStateOf(original.avatarUri) }
-    var persona by remember(original) { mutableStateOf(original.persona) }
-    var contactEnabled by remember(original) { mutableStateOf(original.contactPolicy.enabled) }
-    var adaptiveFrequency by remember(original) { mutableStateOf(original.contactPolicy.adaptiveFrequency) }
-    var quietHours by remember(original) { mutableStateOf(original.contactPolicy.quietHoursEnabled) }
-    var quietStart by remember(original) { mutableStateOf(original.contactPolicy.quietStartHour.toString()) }
-    var quietEnd by remember(original) { mutableStateOf(original.contactPolicy.quietEndHour.toString()) }
-    var proactiveCalls by remember(original) { mutableStateOf(original.contactPolicy.proactiveCallsEnabled) }
-    var callStart by remember(original) { mutableStateOf(original.contactPolicy.callWindowStartHour.toString()) }
-    var callEnd by remember(original) { mutableStateOf(original.contactPolicy.callWindowEndHour.toString()) }
-    var notice by remember { mutableStateOf("") }
+    var displayName by remember(characterId) { mutableStateOf(original.displayName) }
+    var avatarUri by remember(characterId) { mutableStateOf(original.avatarUri) }
+    var persona by remember(characterId) { mutableStateOf(original.persona) }
+    var contactEnabled by remember(characterId) { mutableStateOf(original.contactPolicy.enabled) }
+    var adaptiveFrequency by remember(characterId) { mutableStateOf(original.contactPolicy.adaptiveFrequency) }
+    var quietHours by remember(characterId) { mutableStateOf(original.contactPolicy.quietHoursEnabled) }
+    var quietStart by remember(characterId) { mutableStateOf(original.contactPolicy.quietStartHour.toString()) }
+    var quietEnd by remember(characterId) { mutableStateOf(original.contactPolicy.quietEndHour.toString()) }
+    var proactiveCalls by remember(characterId) { mutableStateOf(original.contactPolicy.proactiveCallsEnabled) }
+    var callStart by remember(characterId) { mutableStateOf(original.contactPolicy.callWindowStartHour.toString()) }
+    var callEnd by remember(characterId) { mutableStateOf(original.contactPolicy.callWindowEndHour.toString()) }
     var confirmDelete by remember { mutableStateOf(false) }
+
+    LaunchedEffect(
+        displayName, avatarUri, persona, contactEnabled, adaptiveFrequency, quietHours,
+        quietStart, quietEnd, proactiveCalls, callStart, callEnd,
+    ) {
+        if (displayName.isBlank()) return@LaunchedEffect
+        delay(350)
+        MigratedDomainStores.characters.update(
+            original.copy(
+                displayName = displayName.trim(),
+                avatarUri = avatarUri,
+                persona = persona.trim(),
+                contactPolicy = CharacterContactPolicy(
+                    enabled = contactEnabled,
+                    adaptiveFrequency = adaptiveFrequency,
+                    quietHoursEnabled = quietHours,
+                    quietStartHour = quietStart.toIntOrNull()?.coerceIn(0, 23) ?: 23,
+                    quietEndHour = quietEnd.toIntOrNull()?.coerceIn(0, 23) ?: 7,
+                    proactiveCallsEnabled = proactiveCalls,
+                    callWindowStartHour = callStart.toIntOrNull()?.coerceIn(0, 23) ?: 9,
+                    callWindowEndHour = callEnd.toIntOrNull()?.coerceIn(0, 23) ?: 22,
+                ),
+            ),
+        )
+    }
 
     Scaffold(
         containerColor = LuluColors.Paper,
@@ -154,35 +179,6 @@ fun CharacterSettingsScreenV2(
                         }
                     }
                 }
-            }
-            item {
-                Button(
-                    onClick = {
-                        MigratedDomainStores.characters.update(
-                            original.copy(
-                                displayName = displayName.trim().ifBlank { original.displayName.ifBlank { "未命名角色" } },
-                                avatarUri = avatarUri,
-                                persona = persona.trim(),
-                                contactPolicy = CharacterContactPolicy(
-                                    enabled = contactEnabled,
-                                    adaptiveFrequency = adaptiveFrequency,
-                                    quietHoursEnabled = quietHours,
-                                    quietStartHour = quietStart.toIntOrNull()?.coerceIn(0, 23) ?: 23,
-                                    quietEndHour = quietEnd.toIntOrNull()?.coerceIn(0, 23) ?: 7,
-                                    proactiveCallsEnabled = proactiveCalls,
-                                    callWindowStartHour = callStart.toIntOrNull()?.coerceIn(0, 23) ?: 9,
-                                    callWindowEndHour = callEnd.toIntOrNull()?.coerceIn(0, 23) ?: 22,
-                                ),
-                            ),
-                        )
-                        notice = "角色设置已保存"
-                    },
-                    enabled = displayName.isNotBlank(),
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = LuluColors.Wheat, contentColor = LuluColors.OnWheat),
-                    shape = RoundedCornerShape(18.dp),
-                ) { Text("保存角色设置", fontWeight = FontWeight.Bold) }
-                if (notice.isNotBlank()) Text(notice, color = LuluColors.Muted, fontSize = 12.sp)
             }
         }
     }

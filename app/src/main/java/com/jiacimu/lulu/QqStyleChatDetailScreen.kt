@@ -551,29 +551,29 @@ private fun QqMessageRow(
     }
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (mine) Arrangement.End else Arrangement.Start,
         verticalAlignment = Alignment.Top,
     ) {
-        if (!mine) {
-            if (showAvatar) {
+        Box(Modifier.width(44.dp), contentAlignment = Alignment.TopCenter) {
+            if (!mine && showAvatar) {
                 QqAvatar(
                     characterName.take(1).ifBlank { "露" },
                     44,
                     characterAvatarUri,
                     Modifier.clickable(onClick = onCharacterAvatarClick),
                 )
-            } else Spacer(Modifier.width(44.dp))
-            Spacer(Modifier.width(9.dp))
+            }
         }
+        Spacer(Modifier.width(9.dp))
         Column(
-            modifier = Modifier.widthIn(max = 300.dp),
+            modifier = Modifier.weight(1f),
             horizontalAlignment = if (mine) Alignment.End else Alignment.Start,
         ) {
             bubbles.forEachIndexed { index, bubble ->
+                val bubbleWidth = if (bubble.length >= 42) Modifier.fillMaxWidth() else Modifier.widthIn(max = 300.dp)
                 Surface(
-                    modifier = Modifier.combinedClickable(onClick = {}, onLongClick = onLongClick),
+                    modifier = bubbleWidth.combinedClickable(onClick = {}, onLongClick = onLongClick),
                     color = if (mine) QqMine else QqOther,
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(15.dp),
                     border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
                     shadowElevation = 0.dp,
                 ) {
@@ -607,9 +607,9 @@ private fun QqMessageRow(
                 )
             }
         }
-        if (mine) {
-            Spacer(Modifier.width(9.dp))
-            if (showAvatar) QqAvatar(userAvatar, 44, userAvatarUri) else Spacer(Modifier.width(44.dp))
+        Spacer(Modifier.width(9.dp))
+        Box(Modifier.width(44.dp), contentAlignment = Alignment.TopCenter) {
+            if (mine && showAvatar) QqAvatar(userAvatar, 44, userAvatarUri)
         }
     }
 }
@@ -620,13 +620,13 @@ private fun splitCharacterBubbles(text: String): List<String> {
         .map(String::trim)
         .filter(String::isNotBlank)
     val pieces = paragraphs.flatMap { paragraph ->
-        if (paragraph.length <= 92) {
+        if (paragraph.length <= 42) {
             listOf(paragraph)
         } else {
             paragraph.split(Regex("(?<=[。！？!?；;…])\\s*"))
                 .map(String::trim)
                 .filter(String::isNotBlank)
-                .flatMap { sentence -> if (sentence.length <= 110) listOf(sentence) else sentence.chunked(100) }
+                .flatMap { sentence -> if (sentence.length <= 48) listOf(sentence) else sentence.chunked(42) }
         }
     }
     if (pieces.isEmpty()) return listOf(text.trim())
@@ -635,7 +635,7 @@ private fun splitCharacterBubbles(text: String): List<String> {
     pieces.forEach { piece ->
         if (current.isBlank()) {
             current = piece
-        } else if (current.length + piece.length <= 92) {
+        } else if (current.length + piece.length <= 42) {
             current += piece
         } else {
             bubbles += current

@@ -603,7 +603,7 @@ private fun ChatV2EditMessageDialog(
 @Composable
 private fun ChatV2Avatar(text: String, size: Int) {
     Surface(
-        shape = CircleShape,
+        shape = RoundedCornerShape((size * 0.22f).dp),
         color = Color(0xFFFFE2D7),
         border = BorderStroke(1.dp, ChatV2Border),
         modifier = Modifier.size(size.dp),

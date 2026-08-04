@@ -223,7 +223,7 @@ private fun ProfileStat(value: String, label: String, modifier: Modifier = Modif
 
 @Composable
 private fun HubAvatar(text: String, size: Int) {
-    Surface(modifier = Modifier.size(size.dp), color = HubWheat, shape = CircleShape) {
+    Surface(modifier = Modifier.size(size.dp), color = HubWheat, shape = RoundedCornerShape((size * 0.22f).dp)) {
         Box(contentAlignment = Alignment.Center) {
             Text(text, fontWeight = FontWeight.Bold, color = HubInk, fontSize = (size / 2.5).sp)
         }

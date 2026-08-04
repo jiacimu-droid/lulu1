@@ -161,7 +161,7 @@ private fun GameHome(
             GameCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
-                        Modifier.size(54.dp).background(GameDesign.wheat, CircleShape),
+                        Modifier.size(54.dp).background(GameDesign.wheat, RoundedCornerShape(12.dp)),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(selectedCharacter.displayName.take(1).ifBlank { "角" }, fontWeight = FontWeight.Bold, fontSize = 22.sp)

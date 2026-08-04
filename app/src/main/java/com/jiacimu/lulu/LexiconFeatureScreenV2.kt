@@ -100,7 +100,7 @@ fun LexiconFeatureScreenV2(onBack: () -> Unit) {
                         label = { Text(character.displayName) },
                         leadingIcon = {
                             Surface(
-                                shape = CircleShape,
+                                shape = RoundedCornerShape(6.dp),
                                 color = LuluColors.WheatSoft,
                                 modifier = Modifier.size(24.dp),
                             ) {

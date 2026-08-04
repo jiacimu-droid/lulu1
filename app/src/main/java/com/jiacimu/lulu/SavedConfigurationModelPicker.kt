@@ -48,6 +48,7 @@ internal fun SavedConfigurationModelPicker(
     var models by remember(pickerKey) { mutableStateOf(emptyList<String>()) }
     var query by rememberSaveable("$pickerKey-query") { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
+    var listExpanded by rememberSaveable("$pickerKey-expanded") { mutableStateOf(false) }
     var notice by remember { mutableStateOf("") }
 
     val configuration = library.configurations.firstOrNull { it.id == configurationId }
@@ -113,6 +114,7 @@ internal fun SavedConfigurationModelPicker(
                         configurationId = item.id
                         configurationMenu = false
                         query = ""
+                        listExpanded = false
                         notice = ""
                         onConfigurationSelected(item)
                         val archived = library.archives.filter { it.configurationId == item.id }.map { it.model }
@@ -128,6 +130,7 @@ internal fun SavedConfigurationModelPicker(
         onClick = {
             val selected = configuration ?: return@OutlinedButton
             loading = true
+            listExpanded = true
             notice = ""
             scope.launch {
                 LuluAiServices.gateway.fetchModels(selected.baseUrl, selected.apiKey)
@@ -147,7 +150,7 @@ internal fun SavedConfigurationModelPicker(
         Spacer(Modifier.width(7.dp))
         Text(if (loading) "正在获取模型…" else "获取模型列表")
     }
-    if (recommendations.isNotEmpty()) {
+    if (listExpanded && recommendations.isNotEmpty()) {
         Spacer(Modifier.height(10.dp))
         Text("露露推荐", color = PickerMuted, fontSize = 12.sp)
         recommendations.forEach { (model, description) ->
@@ -155,10 +158,11 @@ internal fun SavedConfigurationModelPicker(
                 modifier = Modifier.fillMaxWidth().clickable {
                     query = model
                     onModelSelected(model)
+                    listExpanded = false
                 }.padding(vertical = 5.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                RadioButton(selected = currentModel == model, onClick = { query = model; onModelSelected(model) })
+                RadioButton(selected = currentModel == model, onClick = { query = model; onModelSelected(model); listExpanded = false })
                 Column(Modifier.weight(1f)) {
                     Text(model, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                     Text(description, color = PickerMuted, fontSize = 11.sp)
@@ -166,7 +170,7 @@ internal fun SavedConfigurationModelPicker(
             }
         }
     }
-    if (models.isNotEmpty()) {
+    if (listExpanded && models.isNotEmpty()) {
         Spacer(Modifier.height(10.dp))
         OutlinedTextField(
             value = query,
@@ -190,19 +194,16 @@ internal fun SavedConfigurationModelPicker(
                 Column(Modifier.verticalScroll(rememberScrollState()).padding(vertical = 4.dp)) {
                     visibleModels.forEach { model ->
                         Row(
-                            modifier = Modifier.fillMaxWidth().clickable { onModelSelected(model) }.padding(horizontal = 9.dp, vertical = 3.dp),
+                            modifier = Modifier.fillMaxWidth().clickable { onModelSelected(model); listExpanded = false }.padding(horizontal = 9.dp, vertical = 3.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            RadioButton(selected = model == currentModel, onClick = { onModelSelected(model) })
+                            RadioButton(selected = model == currentModel, onClick = { onModelSelected(model); listExpanded = false })
                             Text(model, Modifier.weight(1f), fontSize = 13.sp)
                         }
                     }
                 }
             }
         }
-    } else {
-        Spacer(Modifier.height(8.dp))
-        Text("这个配置还没有模型列表，点上方按钮获取。", color = PickerMuted, fontSize = 12.sp)
     }
     if (notice.isNotBlank()) {
         Spacer(Modifier.height(7.dp))
