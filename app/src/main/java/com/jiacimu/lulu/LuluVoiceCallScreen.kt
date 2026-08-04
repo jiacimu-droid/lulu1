@@ -222,7 +222,7 @@ fun LuluVoiceCallScreen(
                 )
 
                 if (!connected) {
-                    Spacer(Modifier.height(58.dp))
+                    Spacer(Modifier.height(112.dp))
                     FilledIconButton(
                         onClick = {
                             if (activeArchive != null) {

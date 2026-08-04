@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddAPhoto
 import androidx.compose.material3.Icon
@@ -69,7 +71,7 @@ internal fun LuluAvatarPicker(
     onSelected: (String) -> Unit,
 ) {
     val context = LocalContext.current
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
             runCatching {
                 context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -82,11 +84,39 @@ internal fun LuluAvatarPicker(
             imageUri = imageUri,
             fallback = fallback,
             size = size,
-            modifier = Modifier.clickable { launcher.launch(arrayOf("image/*")) },
+            modifier = Modifier.clickable {
+                launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
         )
         Surface(shape = CircleShape, color = Color(0xFF292929), modifier = Modifier.size(28.dp)) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Icon(Icons.Outlined.AddAPhoto, "选择头像图片", tint = Color.White, modifier = Modifier.size(15.dp))
+            }
+        }
+    }
+}
+
+@Composable
+internal fun LuluSelectedPhoto(imageUri: String?, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val bitmap = remember(imageUri) {
+        imageUri?.takeIf(String::isNotBlank)?.let { value ->
+            runCatching {
+                context.contentResolver.openInputStream(Uri.parse(value))?.use(BitmapFactory::decodeStream)?.asImageBitmap()
+            }.getOrNull()
+        }
+    }
+    Surface(
+        modifier = modifier,
+        color = Color(0xFFF4F4F4),
+        shape = RoundedCornerShape(18.dp),
+        border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
+    ) {
+        if (bitmap != null) {
+            Image(bitmap, null, Modifier.fillMaxSize().clip(RoundedCornerShape(18.dp)), contentScale = ContentScale.Crop)
+        } else {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Icon(Icons.Outlined.AddAPhoto, "插入照片", tint = Color(0xFF7A7A7E))
             }
         }
     }

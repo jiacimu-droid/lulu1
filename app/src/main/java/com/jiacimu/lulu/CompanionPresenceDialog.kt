@@ -2,9 +2,11 @@ package com.jiacimu.lulu
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,8 +23,10 @@ import java.time.format.DateTimeFormatter
 internal fun CompanionPresenceDialog(
     characterName: String,
     state: CompanionPresenceState?,
+    history: List<CompanionPresenceState>,
     onDismiss: () -> Unit,
 ) {
+    var historySelected by remember { mutableStateOf(false) }
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 22.dp),
@@ -37,18 +41,42 @@ internal fun CompanionPresenceDialog(
             ) {
                 Text("INNER MOMENT", color = Color(0xFF7A7A7E), fontSize = 9.sp, letterSpacing = 1.5.sp)
                 Text("$characterName · 此刻", color = Color(0xFF1D1D1F), fontWeight = FontWeight.Bold, fontSize = 23.sp)
-                if (state == null) {
-                    Text("还没有形成可查看的此刻状态。", color = Color(0xFF7A7A7E))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = !historySelected, onClick = { historySelected = false }, label = { Text("当前") })
+                    FilterChip(selected = historySelected, onClick = { historySelected = true }, label = { Text("历史") })
+                }
+                if (!historySelected) {
+                    if (state == null) {
+                        Text("还没有形成可查看的此刻状态。", color = Color(0xFF7A7A7E))
+                    } else {
+                        PresenceStateContent(state)
+                    }
                 } else {
-                    PresenceDialogSection("此刻动作", state.gesture.ifBlank { "此刻没有留下明确的动作或神态。" })
-                    if (state.innerThought.isNotBlank()) PresenceDialogSection("心声", state.innerThought)
-                    val status = listOf(state.mood, state.statusText).filter(String::isNotBlank).distinct().joinToString(" · ")
-                    if (status.isNotBlank()) PresenceDialogSection("状态", status)
-                    Text(
-                        state.updatedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
-                        color = Color(0xFF7A7A7E),
-                        fontSize = 11.sp,
-                    )
+                    val past = history.drop(if (history.firstOrNull()?.updatedAt == state?.updatedAt) 1 else 0)
+                    if (past.isEmpty()) {
+                        Text("还没有更早的心声与动作。", color = Color(0xFF7A7A7E))
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxWidth().heightIn(max = 390.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            items(past, key = { it.updatedAt.toEpochMilli() }) { item ->
+                                Surface(
+                                    color = Color(0xFFF7F7F7),
+                                    shape = RoundedCornerShape(18.dp),
+                                    border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
+                                ) {
+                                    Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        Text(item.updatedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")), color = Color(0xFF7A7A7E), fontSize = 11.sp)
+                                        if (item.innerThought.isNotBlank()) Text("心声 · ${item.innerThought}", color = Color(0xFF1D1D1F), fontSize = 14.sp)
+                                        if (item.gesture.isNotBlank()) Text("动作 · ${item.gesture}", color = Color(0xFF5F5F63), fontSize = 13.sp)
+                                        val status = listOf(item.mood, item.statusText).filter(String::isNotBlank).distinct().joinToString(" · ")
+                                        if (status.isNotBlank()) Text(status, color = Color(0xFF7A7A7E), fontSize = 12.sp)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 Button(
                     onClick = onDismiss,
@@ -59,6 +87,19 @@ internal fun CompanionPresenceDialog(
             }
         }
     }
+}
+
+@Composable
+private fun PresenceStateContent(state: CompanionPresenceState) {
+    PresenceDialogSection("此刻动作", state.gesture.ifBlank { "此刻没有留下明确的动作或神态。" })
+    if (state.innerThought.isNotBlank()) PresenceDialogSection("心声", state.innerThought)
+    val status = listOf(state.mood, state.statusText).filter(String::isNotBlank).distinct().joinToString(" · ")
+    if (status.isNotBlank()) PresenceDialogSection("状态", status)
+    Text(
+        state.updatedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
+        color = Color(0xFF7A7A7E),
+        fontSize = 11.sp,
+    )
 }
 
 @Composable

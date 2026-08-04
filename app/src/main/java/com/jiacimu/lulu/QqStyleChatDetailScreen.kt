@@ -73,11 +73,13 @@ fun QqStyleChatDetailScreen(
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val preferences by LuluAppPreferencesStore.state.collectAsState()
     val presenceStates by CompanionPresenceStore.states.collectAsState()
+    val presenceHistories by CompanionPresenceStore.histories.collectAsState()
     val library by LuluAiServices.connectionStore.library.collectAsState()
     val conversation = conversations.firstOrNull { it.id == conversationId }
     val characterId = conversation?.characterId ?: "lulu"
     val character = MigratedDomainStores.characters.get(characterId)
     val presence = presenceStates[characterId]
+    val presenceHistory = presenceHistories[characterId].orEmpty()
     val activeArchive = library.archives.firstOrNull { it.id == library.activeArchiveId }
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接模型"
     val pendingUserMessages = remember(messages) {
@@ -455,7 +457,7 @@ fun QqStyleChatDetailScreen(
     }
 
     if (presenceVisible) {
-        CompanionPresenceDialog(character.displayName, presence) { presenceVisible = false }
+        CompanionPresenceDialog(character.displayName, presence, presenceHistory) { presenceVisible = false }
     }
 
     if (voiceListening) {

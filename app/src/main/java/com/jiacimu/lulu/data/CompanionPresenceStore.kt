@@ -22,8 +22,11 @@ data class CompanionPresenceState(
 object CompanionPresenceStore {
     private const val PREFS_NAME = "lulu_companion_presence"
     private const val KEY_STATES = "states_v1"
+    private const val KEY_HISTORY = "history_v1"
     private val mutableStates = MutableStateFlow<Map<String, CompanionPresenceState>>(emptyMap())
     val states: StateFlow<Map<String, CompanionPresenceState>> = mutableStates.asStateFlow()
+    private val mutableHistories = MutableStateFlow<Map<String, List<CompanionPresenceState>>>(emptyMap())
+    val histories: StateFlow<Map<String, List<CompanionPresenceState>>> = mutableHistories.asStateFlow()
     private var prefs: android.content.SharedPreferences? = null
 
     @Synchronized
@@ -31,6 +34,7 @@ object CompanionPresenceStore {
         if (prefs != null) return
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         mutableStates.value = decode(prefs?.getString(KEY_STATES, null))
+        mutableHistories.value = decodeHistory(prefs?.getString(KEY_HISTORY, null))
     }
 
     fun current(characterId: String): CompanionPresenceState? = states.value[characterId]
@@ -59,6 +63,11 @@ object CompanionPresenceStore {
         )
         if (next.statusText.isBlank() && next.gesture.isBlank() && next.innerThought.isBlank() && next.mood.isBlank()) return
         mutableStates.value = mutableStates.value + (characterId to next)
+        val changed = previous == null || previous.copy(updatedAt = next.updatedAt, source = next.source) != next
+        if (changed) {
+            mutableHistories.value = mutableHistories.value +
+                (characterId to (listOf(next) + mutableHistories.value[characterId].orEmpty()).distinctBy { it.updatedAt }.take(100))
+        }
         persist()
     }
 
@@ -76,6 +85,11 @@ object CompanionPresenceStore {
             })
         }
         prefs?.edit()?.putString(KEY_STATES, array.toString())?.apply()
+        val historyRoot = JSONObject()
+        mutableHistories.value.forEach { (characterId, history) ->
+            historyRoot.put(characterId, JSONArray().apply { history.forEach { put(it.toJson()) } })
+        }
+        prefs?.edit()?.putString(KEY_HISTORY, historyRoot.toString())?.apply()
     }
 
     private fun decode(raw: String?): Map<String, CompanionPresenceState> = runCatching {
@@ -100,6 +114,44 @@ object CompanionPresenceStore {
             }
         }
     }.getOrDefault(emptyMap())
+
+    private fun decodeHistory(raw: String?): Map<String, List<CompanionPresenceState>> = runCatching {
+        val root = JSONObject(raw ?: "{}")
+        buildMap {
+            root.keys().forEach { characterId ->
+                val array = root.optJSONArray(characterId) ?: return@forEach
+                put(characterId, buildList {
+                    for (index in 0 until array.length()) {
+                        array.optJSONObject(index)?.toPresenceState(characterId)?.let(::add)
+                    }
+                })
+            }
+        }
+    }.getOrDefault(emptyMap())
+}
+
+private fun CompanionPresenceState.toJson(): JSONObject = JSONObject().apply {
+    put("characterId", characterId)
+    put("statusText", statusText)
+    put("gesture", gesture)
+    put("innerThought", innerThought)
+    put("mood", mood)
+    put("updatedAt", updatedAt.toString())
+    put("source", source)
+}
+
+private fun JSONObject.toPresenceState(fallbackCharacterId: String): CompanionPresenceState? {
+    val id = optString("characterId").ifBlank { fallbackCharacterId }
+    if (id.isBlank()) return null
+    return CompanionPresenceState(
+        characterId = id,
+        statusText = optString("statusText"),
+        gesture = optString("gesture"),
+        innerThought = optString("innerThought"),
+        mood = optString("mood"),
+        updatedAt = runCatching { Instant.parse(optString("updatedAt")) }.getOrDefault(Instant.EPOCH),
+        source = optString("source"),
+    )
 }
 
 private fun String?.cleanPresence(limit: Int): String? = this

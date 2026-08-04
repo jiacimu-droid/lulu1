@@ -137,10 +137,23 @@ private fun CandyGachaCard(modifier: Modifier = Modifier, state: StudyState, onS
             verticalArrangement = Arrangement.Center,
         ) {
             Text("学习扭蛋机", fontSize = 27.sp, fontWeight = FontWeight.Black, color = StudyDesign.ink)
-            Spacer(Modifier.height(5.dp))
-            Text("每一次专注，都可能掉落新的收藏", color = StudyDesign.muted, fontSize = 13.sp)
-            Spacer(Modifier.height(16.dp))
-            Box(Modifier.fillMaxWidth().height(286.dp), contentAlignment = Alignment.Center) {
+            Spacer(Modifier.height(13.dp))
+            Surface(
+                color = StudyDesign.card,
+                shape = RoundedCornerShape(18.dp),
+                border = BorderStroke(1.dp, StudyDesign.border),
+            ) {
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 11.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                ) {
+                    GachaBalance("单抽券", state.inventory.singleTickets)
+                    GachaBalance("十连券", state.inventory.tenTickets)
+                    GachaBalance("夸夸值", state.profile.praisePoints)
+                }
+            }
+            Spacer(Modifier.height(10.dp))
+            Box(Modifier.fillMaxWidth().height(270.dp), contentAlignment = Alignment.Center) {
                 Canvas(Modifier.fillMaxSize()) {
                     val center = Offset(size.width / 2, size.height * .38f)
                     val domeRadius = size.minDimension * .31f
@@ -160,15 +173,7 @@ private fun CandyGachaCard(modifier: Modifier = Modifier, state: StudyState, onS
                     drawCircle(StudyDesign.card, 9.dp.toPx(), Offset(size.width / 2, size.height * .72f))
                 }
             }
-            Spacer(Modifier.height(6.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                GachaBalance("单抽券", state.inventory.singleTickets)
-                GachaBalance("十连券", state.inventory.tenTickets)
-                GachaBalance("夸夸值", state.profile.praisePoints)
-            }
-            Spacer(Modifier.height(9.dp))
-            Text("距保底 ${(NON_NORMAL_PITY - state.drawsSinceNonNormal).coerceIn(1, NON_NORMAL_PITY)} 抽", color = StudyDesign.muted, fontSize = 12.sp)
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(10.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedButton(onClick = onSingle, modifier = Modifier.weight(1f), border = BorderStroke(1.dp, StudyDesign.wheat)) {
                     Text("单抽", color = StudyDesign.ink, fontWeight = FontWeight.Bold)
@@ -184,8 +189,8 @@ private fun CandyGachaCard(modifier: Modifier = Modifier, state: StudyState, onS
 @Composable
 private fun GachaBalance(label: String, value: Int) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value.toString(), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = StudyDesign.ink)
-        Text(label, fontSize = 11.sp, color = StudyDesign.muted)
+        Text(value.toString(), fontSize = 22.sp, fontWeight = FontWeight.Black, color = StudyDesign.ink)
+        Text(label, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = StudyDesign.muted)
     }
 }
 

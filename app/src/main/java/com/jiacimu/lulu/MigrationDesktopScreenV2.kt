@@ -1,6 +1,10 @@
 package com.jiacimu.lulu
 
 import android.content.Context
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.*
@@ -88,6 +92,15 @@ internal fun MigrationHomeV2(
         else -> "晚上好"
     }
     var slots by remember { mutableStateOf(loadDesktopSlots(context)) }
+    val desktopPrefs = remember { context.getSharedPreferences("lulu_desktop_moment", Context.MODE_PRIVATE) }
+    var momentPhotoUri by remember { mutableStateOf(desktopPrefs.getString("photo_uri", null)) }
+    val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            runCatching { context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
+            momentPhotoUri = uri.toString()
+            desktopPrefs.edit().putString("photo_uri", momentPhotoUri).apply()
+        }
+    }
 
     Surface(modifier = Modifier.fillMaxSize(), color = DesktopPaper) {
         Column(
@@ -138,7 +151,8 @@ internal fun MigrationHomeV2(
             DesktopMomentCard(
                 characterName = currentCharacter.displayName,
                 dateLabel = today.format(DateTimeFormatter.ofPattern("MM / dd")),
-                onClick = { onOpen(MigrationRoute.Wishes) },
+                photoUri = momentPhotoUri,
+                onClick = { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
             )
 
             Spacer(Modifier.height(14.dp))
@@ -231,6 +245,7 @@ private fun DesktopCompanionCard(
 private fun DesktopMomentCard(
     characterName: String,
     dateLabel: String,
+    photoUri: String?,
     onClick: () -> Unit,
 ) {
     Surface(
@@ -262,29 +277,14 @@ private fun DesktopMomentCard(
                 Text(dateLabel, color = DesktopInk, fontSize = 10.sp, letterSpacing = 1.2.sp)
             }
             Spacer(Modifier.width(12.dp))
-            DesktopPhotoPlaceholder()
+            DesktopPhotoPlaceholder(photoUri)
         }
     }
 }
 
 @Composable
-private fun DesktopPhotoPlaceholder() {
-    Surface(
-        modifier = Modifier.width(96.dp).fillMaxHeight(),
-        color = DesktopSoft,
-        shape = RoundedCornerShape(18.dp),
-        border = BorderStroke(1.dp, DesktopLine),
-    ) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Outlined.Image, null, tint = DesktopMuted, modifier = Modifier.size(22.dp))
-                Spacer(Modifier.height(6.dp))
-                Text("PHOTO", color = DesktopInk, fontSize = 9.sp, letterSpacing = 1.2.sp)
-                Spacer(Modifier.height(2.dp))
-                Text("待插入", color = DesktopMuted, fontSize = 9.sp)
-            }
-        }
-    }
+private fun DesktopPhotoPlaceholder(photoUri: String?) {
+    LuluSelectedPhoto(imageUri = photoUri, modifier = Modifier.width(96.dp).fillMaxHeight())
 }
 
 @Composable
