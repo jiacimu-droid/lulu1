@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-04T15:35:36.715810+00:00",
-  "commit": "5f1e508af6d663dcad3a8246cba38ac5b119976c",
+  "generatedAt": "2026-08-04T16:18:36.827021+00:00",
+  "commit": "67b63eaabb5f18d5c4a89142e1f10dc3982a2d7f",
   "branch": "main",
-  "sourceFingerprint": "421d9071aeda5333210f2b741b226af3355462c329e5a1a48d54f7e2b46cee1a",
+  "sourceFingerprint": "2a51d35bfac0f0efff1d9657290fa7d52eac9a3b056e67d2bae60d381883693b",
   "summary": {
     "files": 109,
-    "lines": 25528,
+    "lines": 25571,
     "symbols": 452
   },
   "symbolIndex": {
@@ -1015,7 +1015,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 375
+        "line": 381
       }
     ],
     "LuluBackupManager": [
@@ -1565,13 +1565,13 @@
     "finish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 328
+        "line": 334
       }
     ],
     "place": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 351
+        "line": 357
       }
     ],
     "nextRound": [
@@ -1655,7 +1655,7 @@
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 387
+        "line": 388
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -2695,8 +2695,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-      "lines": 388,
-      "sha256": "a3ef81efe7c7ba7cb1b858293ff971abdfe5f65bfe9d69997c2b05b55ace1572",
+      "lines": 393,
+      "sha256": "1b2d95f025420f9060d3f2d0e4a63e55ce35d4466165a5bdb4b187624394811b",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",
@@ -2756,8 +2756,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt",
-      "lines": 330,
-      "sha256": "346096c37fa2fc059acb7a7f1b8c0b32806fbf4389908985528a396d3d71ab26",
+      "lines": 335,
+      "sha256": "f9a811cee3686d63ffbc20722629339a387c20f5aa8096d2cbcfe1bc30329afb",
       "symbols": [
         {
           "name": "saveGroupCall",
@@ -2802,8 +2802,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt",
-      "lines": 125,
-      "sha256": "e25cd641ad0e0a519cb396d9c966984d3d9cb14c9e5d5732133abfd0804fb2f4",
+      "lines": 130,
+      "sha256": "b73c165094aa677ff24f9d3922a7a4b1e6c2b123e0c0489065a921e14b97cfd4",
       "symbols": []
     },
     {
@@ -2861,8 +2861,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
-      "lines": 488,
-      "sha256": "f9e73e3a359ef4f9a012f6cc3afee513332c6fde585af2ca72d99408583a0727",
+      "lines": 493,
+      "sha256": "05a2fc3f42991ad0ba632e894d93abe2cece02743c171569b88e43b42b3b722e",
       "symbols": [
         {
           "name": "LuluVoiceCallScreen",
@@ -4019,8 +4019,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-      "lines": 483,
-      "sha256": "3a6b88a52587b9f7247bc733bc25bb297935ca4ffc8b4f394bb07c199dd2f6ed",
+      "lines": 489,
+      "sha256": "bd1c5cc607973d5d2dcd6753c7121af672ed7ac1f28715fee1c7d094befebc7c",
       "symbols": [
         {
           "name": "reset",
@@ -4036,15 +4036,15 @@
         },
         {
           "name": "finish",
-          "line": 328
+          "line": 334
         },
         {
           "name": "place",
-          "line": 351
+          "line": 357
         },
         {
           "name": "reset",
-          "line": 375
+          "line": 381
         }
       ]
     },
@@ -4105,8 +4105,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-      "lines": 636,
-      "sha256": "16d76bce716cb1120ab9d91c235359c51c041c59475cded89e2affa23a020425",
+      "lines": 638,
+      "sha256": "503fe14db83952d01a6529302331c0b92b8c5671c44c319e6ae205f4c1ca4576",
       "symbols": [
         {
           "name": "load",
@@ -4118,7 +4118,7 @@
         },
         {
           "name": "perform",
-          "line": 387
+          "line": 388
         }
       ]
     },
@@ -4143,8 +4143,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameUi.kt",
-      "lines": 88,
-      "sha256": "9cdf0e2d53e3b1bf324a97687cd1c8e73a50d630a0f722af00fe08b46c66d370",
+      "lines": 89,
+      "sha256": "718c46781bac9cee24141d2c916933ceecbf4b70d4cce5cfc4ff55c47e32fd21",
       "symbols": []
     },
     {
@@ -4271,8 +4271,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 651,
-      "sha256": "0663382e166e2ead83c0806cf7792d5c90dd2751435410f7dd7d4af4fe2d06b7",
+      "lines": 659,
+      "sha256": "4686061ca09a145a62543db7139b06e2bffec4eeb46a3258ba4794184937df32",
       "symbols": [
         {
           "name": "Home",
@@ -4805,8 +4805,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-      "lines": 611,
-      "sha256": "503b1c0ddcf7e2ef1c477140257133550b3d00935d5c2054a3804eba56da6246",
+      "lines": 617,
+      "sha256": "ce9c38b594211287e9210c7b7275db49a53710636e2ad0bd3fbf66f2151aebd1",
       "symbols": [
         {
           "name": "speak",
