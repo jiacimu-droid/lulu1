@@ -3,6 +3,7 @@ package com.jiacimu.lulu.ai
 import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.RelevantMemoryRecall
 import com.jiacimu.lulu.data.TokenBreakdownItem
 import kotlinx.coroutines.Dispatchers
@@ -384,6 +385,7 @@ class CompanionModelGateway(
             attemptedModel = connection.model
             requestUrl = "${connection.baseUrl}/chat/completions"
             val character = MigratedDomainStores.characters.get(characterId)
+            val presence = CompanionPresenceStore.current(characterId)
             val memories = RelevantMemoryRecall.recall(characterId, "$facts\n$instruction", limit = 12)
             val lexicon = LuluRepositories.lexicon.snapshot(characterId).take(24)
             val allWorldBooks = LuluRepositories.worldBook.snapshot()
@@ -414,6 +416,15 @@ class CompanionModelGateway(
                 appendLine("可用连续记忆（只能按内容本身使用，不得扩写成未发生事实）：")
                 memories.forEach { appendLine("- ${it.content}") }
             }.trim()
+            val presenceSection = presence?.let { state ->
+                buildString {
+                    appendLine("角色当前私密状态（只能内化后自然延续，不得原样复述标签或把心声全部说出口）：")
+                    if (state.statusText.isNotBlank()) appendLine("- 状态：${state.statusText}")
+                    if (state.gesture.isNotBlank()) appendLine("- 此刻动作：${state.gesture}")
+                    if (state.mood.isNotBlank()) appendLine("- 心情：${state.mood}")
+                    if (state.innerThought.isNotBlank()) appendLine("- 没说出口：${state.innerThought}")
+                }.trim()
+            }.orEmpty()
             val lexiconSection = if (lexicon.isEmpty()) "" else buildString {
                 appendLine("辞海资料：")
                 lexicon.forEach { appendLine("- ${it.section.name}/${it.title}：${it.content}") }
@@ -423,6 +434,7 @@ class CompanionModelGateway(
                 personaSection,
                 globalWorldBookSection,
                 roleWorldBookSection,
+                presenceSection,
                 memorySection,
                 lexiconSection,
             ).filter(String::isNotBlank).joinToString("\n\n")
@@ -435,7 +447,7 @@ class CompanionModelGateway(
                 tokenBreakdown("系统/角色人设", baseRules.length + personaSection.length),
                 tokenBreakdown(
                     "记忆/状态/感知",
-                    globalWorldBookSection.length + roleWorldBookSection.length + memorySection.length + lexiconSection.length,
+                    globalWorldBookSection.length + roleWorldBookSection.length + presenceSection.length + memorySection.length + lexiconSection.length,
                 ),
                 tokenBreakdown("工具/MCP说明", 0),
                 tokenBreakdown("用户上下文", userPrompt.length),

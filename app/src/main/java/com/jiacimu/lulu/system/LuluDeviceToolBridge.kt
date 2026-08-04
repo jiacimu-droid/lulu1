@@ -13,6 +13,7 @@ import android.os.BatteryManager
 import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelReply
+import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import org.json.JSONObject
 import java.time.Instant
@@ -36,6 +37,7 @@ object LuluDeviceToolBridge {
     ): Result<ModelReply> {
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
         val character = MigratedDomainStores.characters.get(characterId)
+        val previousPresence = CompanionPresenceStore.current(characterId)
         val now = Instant.now()
         val zone = ZoneId.systemDefault()
         val planner = LuluAiServices.gateway.generate(
@@ -44,12 +46,15 @@ object LuluDeviceToolBridge {
                 appendLine("当前时间：${DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(now.atZone(zone))}")
                 appendLine("当前时区：${zone.id}")
                 if (history.isNotBlank()) appendLine("最近对话：\n$history")
+                previousPresence?.let { presence ->
+                    appendLine("角色上一刻状态：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
+                }
                 appendLine("主人刚刚说：$userText")
             },
             instruction = """
                 你既可以直接回复，也可以调用露露机真实手机工具。只返回一个 JSON 对象，不要代码块。
-                直接回复：{"action":"reply","text":"角色自然回复"}
-                调用工具：{"action":"tool","tool":"工具名","args":{...}}
+                直接回复：{"action":"reply","text":"角色自然回复","statusText":"简短状态","gesture":"此刻可见动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情"}
+                调用工具：{"action":"tool","tool":"工具名","args":{...},"statusText":"简短状态","gesture":"准备执行时的动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情"}
 
                 可用工具：
                 1. get_battery，args={}：读取电量和充电状态。
@@ -69,6 +74,9 @@ object LuluDeviceToolBridge {
                 - 时间表达必须根据当前时间换算成未来的完整 ISO 时间；不确定时间时直接自然追问，不要猜。
                 - 屏幕操作只执行主人明确要求的动作。不要连续规划多步操作；一次只调用一个工具。
                 - 与工具无关的普通聊天直接回复。
+                - innerThought 是角色没说出口的一瞬，不是分析报告、推理步骤或对话总结；没有真实内在反应可以留空，也不必把它写进 text。
+                - gesture 只写此刻能被主人看到的微动作、姿态或神态，不要复述刚刚聊了什么，不要编造角色并不处于其中的现实场景。
+                - statusText、gesture、innerThought、mood 必须服从角色人设，不能把所有角色统一写成温柔、害羞或黏人。
             """.trimIndent(),
             source = "聊天工具规划",
             title = title,
@@ -78,7 +86,10 @@ object LuluDeviceToolBridge {
         if (planner.isFailure) return planner
         val plannedReply = planner.getOrThrow()
         val plan = parsePlan(plannedReply.text) ?: return Result.success(plannedReply)
-        if (plan.action == "reply") return Result.success(plannedReply.copy(text = plan.text.ifBlank { plannedReply.text }))
+        if (plan.action == "reply") {
+            savePresence(characterId, plan, "聊天")
+            return Result.success(plannedReply.copy(text = plan.text.ifBlank { plannedReply.text }))
+        }
         if (plan.action != "tool" || plan.tool.isBlank()) return Result.success(plannedReply)
 
         val toolResult = execute(appContext, characterId, character.displayName, plan.tool, plan.args)
@@ -93,7 +104,9 @@ object LuluDeviceToolBridge {
                 根据工具的真实执行结果，以角色本人符合人设的方式回复主人。
                 成功时可以自然确认；失败时必须如实说明失败原因，不能假装已经完成。
                 对位置结果只能使用 readableAddress；地址为空、定位过旧或精度差时，必须明确说是大概位置，不得根据经纬度猜具体店铺、学校或建筑。
-                不要展示 JSON，不要解释内部工具协议。回复应简洁自然。
+                只返回一个 JSON 对象，不要代码块：
+                {"action":"reply","text":"角色根据真实结果说出的话","statusText":"简短状态","gesture":"执行后的动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情"}
+                不要解释内部工具协议。text 应简洁自然。innerThought 不是推理步骤，gesture 不得编造未发生的工具结果或现实场景。
             """.trimIndent(),
             source = "聊天工具结果",
             title = title,
@@ -101,7 +114,10 @@ object LuluDeviceToolBridge {
             maxTokens = 600,
         )
         return finalReply.map { result ->
+            val finalPlan = parsePlan(result.text)
+            if (finalPlan != null) savePresence(characterId, finalPlan, "聊天·工具")
             result.copy(
+                text = finalPlan?.text?.ifBlank { result.text } ?: result.text,
                 inputTokens = result.inputTokens + plannedReply.inputTokens,
                 outputTokens = result.outputTokens + plannedReply.outputTokens,
                 cachedTokens = result.cachedTokens + plannedReply.cachedTokens,
@@ -264,8 +280,23 @@ object LuluDeviceToolBridge {
                 text = json.optString("text"),
                 tool = json.optString("tool"),
                 args = json.optJSONObject("args") ?: JSONObject(),
+                statusText = json.optString("statusText").ifBlank { json.optString("status") },
+                gesture = json.optString("gesture").ifBlank { json.optString("actionDescription") },
+                innerThought = json.optString("innerThought").ifBlank { json.optString("inner_voice") },
+                mood = json.optString("mood"),
             )
         }.getOrNull()
+    }
+
+    private fun savePresence(characterId: String, plan: ToolPlan, source: String) {
+        CompanionPresenceStore.update(
+            characterId = characterId,
+            statusText = plan.statusText,
+            gesture = plan.gesture,
+            innerThought = plan.innerThought,
+            mood = plan.mood,
+            source = source,
+        )
     }
 }
 
@@ -274,4 +305,8 @@ private data class ToolPlan(
     val text: String,
     val tool: String,
     val args: JSONObject,
+    val statusText: String,
+    val gesture: String,
+    val innerThought: String,
+    val mood: String,
 )

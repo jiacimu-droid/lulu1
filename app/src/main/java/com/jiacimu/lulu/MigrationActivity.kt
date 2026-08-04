@@ -7,6 +7,7 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.ChatLexiconAutomation
 import com.jiacimu.lulu.data.ChatMemoryAutomation
 import com.jiacimu.lulu.data.ChatTurnConsistencyAutomation
+import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.DeterministicMemoryAutomation
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -32,6 +33,7 @@ class MigrationActivity : ComponentActivity() {
         LuluRepositories.lexicon.initialize(appContext)
         LuluRepositories.worldBook.initialize(appContext)
         MigratedDomainStores.initialize(appContext)
+        CompanionPresenceStore.initialize(appContext)
         LuluAiServices.initialize(appContext)
         MemoryModelRuntime.initialize(appContext)
         UserDataUpgradeGuard.refreshBackup(appContext)

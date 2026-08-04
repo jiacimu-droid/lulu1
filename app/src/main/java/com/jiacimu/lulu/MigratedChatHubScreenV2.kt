@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.LuluConversation
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.design.LuluColors
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -145,6 +146,7 @@ private fun ChatHubV2Characters(
 ) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
+    val presenceStates by CompanionPresenceStore.states.collectAsState()
     val sortedCharacters = remember(characters) { characters.values.sortedBy { it.displayName } }
     val recentByCharacter = remember(conversations) {
         conversations.groupBy(LuluConversation::characterId)
@@ -170,6 +172,7 @@ private fun ChatHubV2Characters(
         }
         items(sortedCharacters, key = { it.characterId }, contentType = { "character" }) { character ->
             val recent = recentByCharacter[character.characterId]
+            val presence = presenceStates[character.characterId]
             ChatHubV2Card {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 56)
@@ -184,6 +187,18 @@ private fun ChatHubV2Characters(
                             },
                             color = LuluColors.Muted,
                             fontSize = 12.sp,
+                        )
+                    }
+                }
+                presence?.let { state ->
+                    val visiblePresence = state.gesture.ifBlank { state.statusText }
+                    if (visiblePresence.isNotBlank()) {
+                        Text(
+                            visiblePresence,
+                            color = LuluColors.Muted,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            fontSize = 13.sp,
                         )
                     }
                 }

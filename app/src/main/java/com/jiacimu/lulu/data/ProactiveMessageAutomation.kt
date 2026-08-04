@@ -11,6 +11,8 @@ import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.MigrationActivity
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.core.LexiconSection
+import com.jiacimu.lulu.core.LexiconEntry
+import com.jiacimu.lulu.system.LuluAccessibilityService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,6 +24,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
+import java.util.UUID
 
 /**
  * Persona-grounded proactive contact runtime.
@@ -45,17 +48,24 @@ object ProactiveMessageAutomation {
     private const val CALL_COOLDOWN_MINUTES = 720L
     private const val DAILY_CONTACT_LIMIT = 5
     private const val DAILY_CALL_LIMIT = 1
+    private const val JOURNAL_COOLDOWN_MINUTES = 720L
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var context: Context? = null
     private var started = false
 
-    private enum class Action { MESSAGE, CALL, SILENT }
+    private enum class Action { MESSAGE, CALL, JOURNAL, SILENT }
 
     private data class Decision(
         val action: Action,
         val text: String,
         val reason: String,
+        val statusText: String,
+        val gesture: String,
+        val innerThought: String,
+        val mood: String,
+        val journalTitle: String,
+        val journalContent: String,
     )
 
     @Synchronized
@@ -76,8 +86,8 @@ object ProactiveMessageAutomation {
     internal suspend fun checkOnce(now: Instant = Instant.now()): Boolean {
         val appContext = context ?: return false
         val preferences = LuluAppPreferencesStore.state.value
-        if (!preferences.notificationsEnabled || !preferences.proactiveContactEnabled) return false
-        if (preferences.quietHoursEnabled && isQuietHour(preferences, LocalTime.now())) return false
+        val currentTime = LocalTime.now()
+        val globalQuiet = preferences.quietHoursEnabled && isQuietHour(preferences, currentTime)
 
         val conversation = MigratedDomainStores.chat.conversations.value
             .filter { it.parentConversationId == null }
@@ -86,25 +96,31 @@ object ProactiveMessageAutomation {
         val messages = MigratedDomainStores.chat.messages(conversation.id).value
         val lastActivity = messages.lastOrNull()?.createdAt ?: conversation.updatedAt
         val idleMinutes = Duration.between(lastActivity, now).toMinutes()
-        if (idleMinutes < MIN_IDLE_MINUTES) return false
 
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val character = MigratedDomainStores.characters.get(characterId)
-        if (!character.contactPolicy.enabled) return false
-        if (character.contactPolicy.quietHoursEnabled && isCharacterQuietHour(character.contactPolicy, LocalTime.now())) {
-            return false
-        }
+        val characterQuiet = character.contactPolicy.quietHoursEnabled &&
+            isCharacterQuietHour(character.contactPolicy, currentTime)
 
         val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val today = LocalDate.now().toString()
         val storedDay = prefs.getString("count_day_$characterId", null)
         val contactCount = if (storedDay == today) prefs.getInt("count_$characterId", 0) else 0
         val callCount = if (storedDay == today) prefs.getInt("call_count_$characterId", 0) else 0
-        if (contactCount >= DAILY_CONTACT_LIMIT) return false
 
         val lastContactAt = prefs.getLong("last_contact_$characterId", 0L)
-        if (lastContactAt > 0L && Duration.between(Instant.ofEpochMilli(lastContactAt), now).toMinutes() < MESSAGE_COOLDOWN_MINUTES) {
-            return false
+        val contactCoolingDown = lastContactAt > 0L &&
+            Duration.between(Instant.ofEpochMilli(lastContactAt), now).toMinutes() < MESSAGE_COOLDOWN_MINUTES
+        val contactAllowed = preferences.notificationsEnabled &&
+            preferences.proactiveContactEnabled &&
+            !globalQuiet &&
+            !characterQuiet &&
+            idleMinutes >= MIN_IDLE_MINUTES &&
+            character.contactPolicy.enabled &&
+            contactCount < DAILY_CONTACT_LIMIT &&
+            !contactCoolingDown
+        val journalAllowed = prefs.getLong("last_journal_$characterId", 0L).let { value ->
+            value == 0L || Duration.between(Instant.ofEpochMilli(value), now).toMinutes() >= JOURNAL_COOLDOWN_MINUTES
         }
 
         val recent = messages.takeLast(18).joinToString("\n") { message ->
@@ -127,9 +143,9 @@ object ProactiveMessageAutomation {
         )
         val memoryContext = RelevantMemoryRecall.formatForPrompt(memories)
 
-        val callAllowed = preferences.proactiveCallsEnabled &&
+        val callAllowed = contactAllowed && preferences.proactiveCallsEnabled &&
             character.contactPolicy.proactiveCallsEnabled &&
-            isInsideCallWindow(character.contactPolicy, LocalTime.now()) &&
+            isInsideCallWindow(character.contactPolicy, currentTime) &&
             callCount < DAILY_CALL_LIMIT &&
             (prefs.getLong("last_call_$characterId", 0L).let { value ->
                 value == 0L || Duration.between(Instant.ofEpochMilli(value), now).toMinutes() >= CALL_COOLDOWN_MINUTES
@@ -137,6 +153,8 @@ object ProactiveMessageAutomation {
 
         val modelLibrary = LuluAiServices.connectionStore.library.value
         if (modelLibrary.archives.none { it.id == modelLibrary.activeArchiveId }) return false
+        val previousPresence = CompanionPresenceStore.current(characterId)
+        val screenState = LuluAccessibilityService.state.value
 
         val result = LuluAiServices.gateway.generate(
             characterId = characterId,
@@ -144,9 +162,18 @@ object ProactiveMessageAutomation {
                 appendLine("【角色人设】")
                 appendLine(character.persona.ifBlank { "按角色当前设定自然行动。" })
                 appendLine("\n【真实时间状态】")
+                appendLine("当前时间：$now")
                 appendLine("距离上次聊天约 ${idleMinutes.coerceAtLeast(1)} 分钟。")
                 appendLine("今天已经主动联系 $contactCount 次；主动来电 $callCount 次。")
+                appendLine("当前允许主动联系：${if (contactAllowed) "是" else "否"}")
                 appendLine("当前允许主动来电：${if (callAllowed) "是" else "否"}")
+                appendLine("当前允许写私人日记：${if (journalAllowed) "是" else "否"}")
+                if (screenState.connected && screenState.packageName.isNotBlank()) {
+                    appendLine("主人手机当前可感知的前台应用：${screenState.packageName}；窗口：${screenState.windowTitle}")
+                }
+                previousPresence?.let { presence ->
+                    appendLine("角色上一刻：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
+                }
                 if (concerns.isNotBlank()) appendLine("\n【挂心】\n$concerns")
                 if (commitments.isNotBlank()) appendLine("\n【承诺、责任与监督】\n$commitments")
                 if (memoryContext.isNotBlank()) appendLine("\n$memoryContext")
@@ -156,24 +183,38 @@ object ProactiveMessageAutomation {
                 你正在替当前角色判断此刻是否要主动联系主人。核心目标是像真实的人，而不是完成系统打卡。
 
                 只返回一个 JSON 对象，不要代码块：
-                {"action":"message|call|silent","text":"真正发送给主人的内容","reason":"内部简短原因"}
+                {"action":"message|call|journal|silent","text":"真正发送给主人的内容，可为空","reason":"内部简短原因","statusText":"角色此刻简短状态","gesture":"此刻可见动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情","journalTitle":"仅写日记时填写","journalContent":"仅写日记时填写第一人称正文"}
 
                 决策规则：
                 1. 必须严格贴合角色人设。活泼角色可以更直接，克制角色可以含蓄，冷淡角色不必突然撒娇；任何角色都不能被统一写成温柔助手。
                 2. 挂心、承诺和长期监督是可用动机，但不能每次都机械提醒。只有此刻自然相关时才提起。
                 3. 不得编造主人当前正在做什么、身体状态或现实环境。
                 4. 若没有真实想联系的理由，选择 silent。沉默可以是符合人设的行动，不是失败。
-                5. message 的 text 应像角色主动发来的聊天，通常 20~160 个汉字，不写标题，不解释自动化。
-                6. call 只在“当前允许主动来电：是”时可选，而且必须有比普通消息更强的动机。text 是来电前一句很短的理由。
-                7. 不要重复最近已经说过的问候、监督或相同句式。
-                8. 用户要求与角色人设冲突时，尊重用户边界，但保留角色自己的表达方式。
+                5. “当前允许主动联系”为否时 action 只能是 silent 或 journal，不能发消息或来电；仍要自然更新角色自己的状态、动作、心情和可留空的心声。
+                6. message 的 text 应像角色主动发来的聊天，通常 20~160 个汉字，不写标题，不解释自动化。
+                7. call 只在“当前允许主动来电：是”时可选，而且必须有比普通消息更强的动机。text 是来电前一句很短的理由。
+                8. 不要重复最近已经说过的问候、监督或相同句式。
+                9. innerThought 只是一瞬间没说出口的角色心声，不是分析过程、决策报告或系统推理；没有真实反应可以为空。
+                10. gesture 必须是角色此刻自身的微动作、姿态或神态；不要用它复述聊天，也不要假装角色真实出现在主人身边。
+                11. 只有“当前允许写私人日记”为是、确实出现新的感受或没说出口的想法时才可选 journal。日记必须是角色第一人称，不得机械复述聊天；没有新内容就 silent。
+                12. 用户要求与角色人设冲突时，尊重用户边界，但保留角色自己的表达方式。
             """.trimIndent(),
             source = "后台感知",
             title = "${character.displayName}的主动行动决策",
             temperature = 0.72,
-            maxTokens = 520,
+            maxTokens = 900,
         )
         val decision = result.getOrNull()?.text?.let(::parseDecision) ?: return false
+        CompanionPresenceStore.update(
+            characterId = characterId,
+            statusText = decision.statusText,
+            gesture = decision.gesture,
+            innerThought = decision.innerThought,
+            mood = decision.mood,
+            source = "后台感知",
+            now = now,
+        )
+        if (!contactAllowed && decision.action in setOf(Action.MESSAGE, Action.CALL)) return false
         when (decision.action) {
             Action.SILENT -> {
                 prefs.edit().putLong("last_silent_$characterId", now.toEpochMilli()).apply()
@@ -193,6 +234,22 @@ object ProactiveMessageAutomation {
                     .putLong("last_call_$characterId", now.toEpochMilli())
                     .putInt("call_count_$characterId", callCount + 1)
                     .apply()
+            }
+            Action.JOURNAL -> {
+                if (!journalAllowed || decision.journalContent.isBlank()) return false
+                LuluRepositories.lexicon.save(
+                    LexiconEntry(
+                        id = UUID.randomUUID().toString(),
+                        characterId = characterId,
+                        section = LexiconSection.Diary,
+                        title = decision.journalTitle.ifBlank { "此刻的心事" }.take(30),
+                        content = decision.journalContent.take(2_000),
+                        createdAt = now,
+                        updatedAt = now,
+                    ),
+                )
+                prefs.edit().putLong("last_journal_$characterId", now.toEpochMilli()).apply()
+                return false
             }
         }
 
@@ -219,12 +276,19 @@ object ProactiveMessageAutomation {
         val action = when (json.optString("action").trim().lowercase()) {
             "message", "消息" -> Action.MESSAGE
             "call", "phone", "电话", "来电" -> Action.CALL
+            "journal", "diary", "日记" -> Action.JOURNAL
             else -> Action.SILENT
         }
         Decision(
             action = action,
             text = json.optString("text").trim(),
             reason = json.optString("reason").trim(),
+            statusText = json.optString("statusText").ifBlank { json.optString("status") }.trim(),
+            gesture = json.optString("gesture").ifBlank { json.optString("actionDescription") }.trim(),
+            innerThought = json.optString("innerThought").ifBlank { json.optString("inner_voice") }.trim(),
+            mood = json.optString("mood").trim(),
+            journalTitle = json.optString("journalTitle").ifBlank { json.optString("journal_title") }.trim(),
+            journalContent = json.optString("journalContent").ifBlank { json.optString("journal_content") }.trim(),
         )
     }.getOrNull()
 
