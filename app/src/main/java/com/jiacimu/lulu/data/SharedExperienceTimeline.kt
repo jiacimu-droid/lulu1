@@ -38,8 +38,51 @@ object SharedExperienceTimeline {
     fun backfillChatHistory() {
         MigratedDomainStores.chat.conversations.value.forEach { conversation ->
             MigratedDomainStores.chat.messages(conversation.id).value.forEach { message ->
-                recordChatMessage(conversation.characterId, conversation.id, message, triggerExtraction = false)
+                recordConversationMessage(conversation, message, triggerExtraction = false)
             }
+        }
+    }
+
+    /**
+     * A private chat belongs to its companion. A group message belongs to every member who was
+     * present, with a per-character event id so one member can never overwrite another's copy.
+     */
+    fun recordConversationMessage(
+        conversation: LuluConversation,
+        message: LuluChatMessage,
+        triggerExtraction: Boolean = true,
+    ) {
+        val group = conversation.groupChat
+        if (group == null) {
+            recordChatMessage(
+                characterId = message.authorCharacterId ?: conversation.characterId,
+                conversationId = conversation.id,
+                message = message,
+                triggerExtraction = triggerExtraction,
+            )
+            return
+        }
+
+        val speaker = when (message.sender) {
+            LuluChatMessage.Sender.User -> group.userGroupNickname
+            LuluChatMessage.Sender.Character -> {
+                val authorId = message.authorCharacterId ?: conversation.characterId
+                group.members.firstOrNull { it.characterId == authorId }
+                    ?.groupNickname
+                    ?.takeIf(String::isNotBlank)
+                    ?: MigratedDomainStores.characters.get(authorId).displayName
+            }
+            LuluChatMessage.Sender.System -> "系统"
+        }
+        group.members.map(LuluGroupMember::characterId).distinct().forEach { memberId ->
+            recordChatMessage(
+                characterId = memberId,
+                conversationId = conversation.id,
+                message = message.copy(id = "${message.id}:group:$memberId"),
+                channelOverride = "群聊·${group.name}",
+                speakerOverride = speaker,
+                triggerExtraction = triggerExtraction,
+            )
         }
     }
 
@@ -48,13 +91,14 @@ object SharedExperienceTimeline {
         conversationId: String,
         message: LuluChatMessage,
         channelOverride: String? = null,
+        speakerOverride: String? = null,
         triggerExtraction: Boolean = true,
     ) {
         val channel = channelOverride ?: when {
             conversationId.endsWith("-study-focus") -> "番茄钟"
             else -> "聊天"
         }
-        val speaker = when (message.sender) {
+        val speaker = speakerOverride ?: when (message.sender) {
             LuluChatMessage.Sender.User -> "主人"
             LuluChatMessage.Sender.Character -> "角色"
             LuluChatMessage.Sender.System -> "系统"

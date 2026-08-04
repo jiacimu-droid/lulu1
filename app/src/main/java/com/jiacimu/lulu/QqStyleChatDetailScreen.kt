@@ -26,9 +26,12 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -60,7 +63,7 @@ private val QqInk = Color(0xFF1D1D1F)
 private val QqBorder = Color(0xFFE7E7E7)
 private val QqIconSurface = Color(0xFFF4F4F4)
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun QqStyleChatDetailScreen(
     conversationId: String,
@@ -70,6 +73,8 @@ fun QqStyleChatDetailScreen(
     onWorldBook: () -> Unit,
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val userProfilePrefs = remember { context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE) }
     val userAvatar = remember { userProfilePrefs.getString("avatar_text", "主").orEmpty().ifBlank { "主" }.take(2) }
     val userAvatarUri = remember { userProfilePrefs.getString("avatar_uri", null) }
@@ -320,7 +325,11 @@ fun QqStyleChatDetailScreen(
                         }
                     }
                     if (groupChat == null) {
-                        IconButton(onClick = { callVisible = true }) { Icon(Icons.Outlined.Call, "电话", tint = QqInk) }
+                        IconButton(onClick = {
+                            focusManager.clearFocus(force = true)
+                            keyboardController?.hide()
+                            callVisible = true
+                        }) { Icon(Icons.Outlined.Call, "电话", tint = QqInk) }
                     }
                     Box {
                         IconButton(onClick = { moreExpanded = true }) { Icon(Icons.Outlined.MoreHoriz, "更多", tint = QqInk) }
@@ -579,7 +588,11 @@ fun QqStyleChatDetailScreen(
             conversationId = conversationId,
             characterId = characterId,
             characterName = character.displayName,
-            onDismiss = { callVisible = false },
+            onDismiss = {
+                callVisible = false
+                focusManager.clearFocus(force = true)
+                keyboardController?.hide()
+            },
         )
     }
 

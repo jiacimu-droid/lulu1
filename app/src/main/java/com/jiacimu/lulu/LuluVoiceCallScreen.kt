@@ -35,6 +35,7 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import java.time.Instant
 import java.util.UUID
 
@@ -45,7 +46,8 @@ private val CallInk = Color(0xFF1D1D1F)
 private val CallMuted = Color(0xFF77777B)
 private val CallDark = Color(0xFF242426)
 private val CallDanger = Color(0xFFE34848)
-private val CallMine = Color(0xFF292929)
+
+private enum class CallPhase { Ready, Dialing, Connected, Ended }
 
 @Composable
 fun LuluVoiceCallScreen(
@@ -64,7 +66,8 @@ fun LuluVoiceCallScreen(
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接模型"
     val listState = rememberLazyListState()
 
-    var connected by remember { mutableStateOf(false) }
+    var phase by remember { mutableStateOf(CallPhase.Ready) }
+    val connected = phase == CallPhase.Connected
     var listening by remember { mutableStateOf(false) }
     var thinking by remember { mutableStateOf(false) }
     var speakerEnabled by remember { mutableStateOf(true) }
@@ -73,7 +76,7 @@ fun LuluVoiceCallScreen(
     var elapsedSeconds by remember { mutableLongStateOf(0L) }
     var everConnected by remember { mutableStateOf(false) }
     var experienceSaved by remember { mutableStateOf(false) }
-    val callStartedAt = remember { Instant.now() }
+    var callStartedAt by remember { mutableStateOf<Instant?>(null) }
     val callStartMessageCount = remember(conversationId) { MigratedDomainStores.chat.messages(conversationId).value.size }
     val callExperienceId = remember { UUID.randomUUID().toString() }
 
@@ -82,7 +85,7 @@ fun LuluVoiceCallScreen(
         onDispose { speechEngine.shutdown() }
     }
 
-    fun closeCall() {
+    fun saveCallExperience() {
         if (everConnected && !experienceSaved) {
             experienceSaved = true
             val transcript = MigratedDomainStores.chat.messages(conversationId).value
@@ -99,20 +102,41 @@ fun LuluVoiceCallScreen(
                     append("进行了一次持续约 ${elapsedSeconds.coerceAtLeast(1)} 秒的电话。")
                     if (transcript.isNotBlank()) append("通话内容：\n$transcript")
                 },
-                occurredAt = callStartedAt,
+                occurredAt = callStartedAt ?: Instant.now(),
                 strength = 7,
                 source = "voice-call",
             )
             MigratedDomainStores.chat.appendSystemMessage(conversationId, "[共同活动] 刚刚打了个电话")
         }
-        speechEngine.stop()
-        onDismiss()
     }
 
-    LaunchedEffect(connected) {
-        if (!connected) return@LaunchedEffect
+    fun closeCall() {
+        saveCallExperience()
+        speechEngine.stop()
+        if (connected) {
+            phase = CallPhase.Ended
+            scope.launch {
+                delay(650)
+                onDismiss()
+            }
+        } else {
+            onDismiss()
+        }
+    }
+
+    LaunchedEffect(phase) {
+        if (phase == CallPhase.Dialing) {
+            delay(1_800)
+            if (phase == CallPhase.Dialing) {
+                phase = CallPhase.Connected
+                everConnected = true
+                callStartedAt = Instant.now()
+            }
+            return@LaunchedEffect
+        }
+        if (phase != CallPhase.Connected) return@LaunchedEffect
         startedAt = SystemClock.elapsedRealtime()
-        while (connected) {
+        while (phase == CallPhase.Connected) {
             elapsedSeconds = (SystemClock.elapsedRealtime() - startedAt) / 1_000L
             kotlinx.coroutines.delay(1_000L)
         }
@@ -158,7 +182,9 @@ fun LuluVoiceCallScreen(
         }
     }
 
-    val callMessages = remember(messages) { messages.takeLast(12) }
+    val callMessages = remember(messages, callStartMessageCount) {
+        messages.drop(callStartMessageCount).filter { it.sender != LuluChatMessage.Sender.System }
+    }
     LaunchedEffect(callMessages.size) {
         if (connected && callMessages.isNotEmpty()) {
             listState.animateScrollToItem(callMessages.lastIndex)
@@ -197,7 +223,7 @@ fun LuluVoiceCallScreen(
                     },
                 )
 
-                Spacer(Modifier.height(if (connected) 18.dp else 34.dp))
+                Spacer(Modifier.height(if (connected) 12.dp else 28.dp))
 
                 LuluProfileAvatar(
                     imageUri = character.avatarUri,
@@ -215,8 +241,10 @@ fun LuluVoiceCallScreen(
                 Spacer(Modifier.height(4.dp))
                 Text(
                     when {
-                        !connected && activeArchive == null -> "请先选择模型"
-                        !connected -> "等待接通"
+                        activeArchive == null -> "请先选择电话模型"
+                        phase == CallPhase.Ready -> "尚未拨打"
+                        phase == CallPhase.Dialing -> "正在呼叫…"
+                        phase == CallPhase.Ended -> "通话已结束"
                         listening -> "正在听你说话"
                         thinking -> "$characterName 正在回应"
                         else -> formatCallDuration(elapsedSeconds)
@@ -225,13 +253,12 @@ fun LuluVoiceCallScreen(
                     fontSize = 13.sp,
                 )
 
-                if (!connected) {
-                    Spacer(Modifier.height(112.dp))
+                if (phase == CallPhase.Ready) {
+                    Spacer(Modifier.weight(1f))
                     FilledIconButton(
                         onClick = {
                             if (activeArchive != null) {
-                                connected = true
-                                everConnected = true
+                                phase = CallPhase.Dialing
                             }
                         },
                         enabled = activeArchive != null,
@@ -246,8 +273,20 @@ fun LuluVoiceCallScreen(
                     }
                     Spacer(Modifier.height(8.dp))
                     Text("拨打电话", color = CallMuted, fontSize = 12.sp)
-                    Spacer(Modifier.height(22.dp))
-                } else {
+                    Spacer(Modifier.height(46.dp))
+                } else if (phase == CallPhase.Dialing) {
+                    Spacer(Modifier.weight(1f))
+                    FilledIconButton(
+                        onClick = { phase = CallPhase.Ready },
+                        modifier = Modifier.size(68.dp),
+                        colors = IconButtonDefaults.filledIconButtonColors(containerColor = CallDanger),
+                    ) {
+                        Icon(Icons.Outlined.CallEnd, "取消呼叫", tint = Color.White, modifier = Modifier.size(28.dp))
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text("取消", color = CallMuted, fontSize = 12.sp)
+                    Spacer(Modifier.height(46.dp))
+                } else if (phase == CallPhase.Connected) {
                     Spacer(Modifier.height(18.dp))
                     Surface(
                         modifier = Modifier
@@ -263,7 +302,7 @@ fun LuluVoiceCallScreen(
                                 contentAlignment = Alignment.Center,
                             ) {
                                 Text(
-                                    "点一下麦克风，和 $characterName 说句话",
+                                    "通话字幕会显示在这里\n点一下麦克风，和 $characterName 说句话",
                                     color = CallMuted,
                                     fontSize = 14.sp,
                                     textAlign = TextAlign.Center,
@@ -278,29 +317,15 @@ fun LuluVoiceCallScreen(
                             ) {
                                 items(callMessages, key = { it.id }) { message ->
                                     val mine = message.sender == LuluChatMessage.Sender.User
-                                    Column(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalAlignment = if (mine) Alignment.End else Alignment.Start,
-                                    ) {
+                                    Column(modifier = Modifier.fillMaxWidth()) {
+                                        Text(if (mine) "你" else characterName, color = CallMuted, fontSize = 11.sp)
                                         Text(
-                                            if (mine) "你" else characterName,
-                                            color = CallMuted,
-                                            fontSize = 10.sp,
-                                            modifier = Modifier.padding(horizontal = 3.dp, vertical = 2.dp),
+                                            message.content,
+                                            modifier = Modifier.padding(top = 3.dp),
+                                            color = CallInk,
+                                            fontSize = 15.sp,
+                                            lineHeight = 22.sp,
                                         )
-                                        Surface(
-                                            color = if (mine) CallMine else Color.White,
-                                            shape = RoundedCornerShape(16.dp),
-                                            border = BorderStroke(1.dp, if (mine) CallMine else CallLine),
-                                        ) {
-                                            Text(
-                                                message.content,
-                                                modifier = Modifier.padding(horizontal = 13.dp, vertical = 9.dp),
-                                                color = if (mine) Color.White else CallInk,
-                                                fontSize = 14.sp,
-                                                lineHeight = 20.sp,
-                                            )
-                                        }
                                     }
                                 }
                                 if (thinking) {
@@ -356,12 +381,15 @@ fun LuluVoiceCallScreen(
                             active = true,
                             danger = true,
                             onClick = {
-                                connected = false
                                 closeCall()
                             },
                         )
                     }
                     Spacer(Modifier.height(14.dp))
+                } else {
+                    Spacer(Modifier.weight(1f))
+                    CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp, color = CallMuted)
+                    Spacer(Modifier.height(60.dp))
                 }
             }
         }

@@ -325,11 +325,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             conversationState.value = (listOf(updated) + conversationState.value.filterNot { it.id == conversationId })
                 .sortedWith(conversationOrdering())
             persistLocked()
-            SharedExperienceTimeline.recordChatMessage(
-                message.authorCharacterId ?: current.characterId,
-                conversationId,
-                message,
-            )
+            SharedExperienceTimeline.recordConversationMessage(current, message)
         }
     }
 

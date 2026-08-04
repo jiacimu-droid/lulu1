@@ -128,9 +128,11 @@ class LocalMemoryRepository : MemoryRepository {
                     {"kind":"Fact|Emotion|Timeline","content":"简洁但信息完整的中文记忆","source":"聊天","occurredAt":"ISO-8601时间或空字符串","strength":1到10}
                     规则：
                     1. 不编造未发生事实。
-                    2. Fact 保存稳定事实与偏好；Emotion 保存明确情绪及触发原因；Timeline 保存有时间意义的事件。
-                    3. 日常寒暄、同义重复、已经存在的总结不要重复写入。
-                    4. 没有值得保存的内容时返回 []。
+                    2. Fact 只保存长期稳定的身份事实、持续计划、明确偏好与边界。
+                    3. Emotion 只保存明确情绪、触发原因和发生时间；不要把普通语气猜成情绪。
+                    4. Timeline 只保存有明确时间或里程碑意义的重要经历，例如开始备考、完成一次共同活动；普通聊天不要放入。
+                    5. 角色要履行的约定、提醒、责任和监督属于辞海约定，不要重复放进记忆。
+                    6. 日常寒暄、同义重复、已经存在的总结不要重复写入；没有值得保存的内容时返回 []。
                 """.trimIndent(),
                 source = "记忆",
                 title = "连续记忆提取",
@@ -276,10 +278,16 @@ class LocalMemoryRepository : MemoryRepository {
     }
 
     fun pendingMessageCount(characterId: String): Int {
+        return pendingTimelineEvents(characterId).size
+    }
+
+    fun pendingTimelineEvents(characterId: String): List<SharedTimelineEvent> {
         val policy = state.value.policies[characterId] ?: MemoryPolicy()
-        val readable = readableMessages(characterId, policy)
         val processed = state.value.processedMessageIds[characterId].orEmpty()
-        return readable.count { message -> message.id !in processed }
+        return SharedExperienceTimeline.all(characterId)
+            .dropLast(policy.excludedRecentMessages.coerceAtLeast(0))
+            .filterNot { event -> event.id in processed }
+            .sortedBy(SharedTimelineEvent::occurredAt)
     }
 
     private fun readableMessages(
@@ -497,7 +505,7 @@ private data class MemoryStoreState(
 )
 
 private fun MemoryEntry.dedupeKey(): String =
-    "${kind.name}:${content.lowercase().replace(Regex("\\s+"), "").take(240)}"
+    content.lowercase().replace(Regex("[\\p{P}\\p{S}\\s]+"), "").take(240)
 
 private fun <T> JSONArray?.decodeObjects(transform: (JSONObject) -> T): List<T> {
     if (this == null) return emptyList()

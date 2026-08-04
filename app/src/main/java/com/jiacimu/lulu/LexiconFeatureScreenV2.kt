@@ -127,6 +127,18 @@ fun LexiconFeatureScreenV2(onBack: () -> Unit) {
                 }
             }
 
+            Text(
+                when (section) {
+                    LexiconSection.Life -> "近期生活安排、作息、学习任务与会影响陪伴的现实处境。"
+                    LexiconSection.Concern -> "尚未解决、以后值得角色主动关心或回访的事情。"
+                    LexiconSection.Promise -> "双方说好的事，以及角色承担的责任、提醒和长期监督。"
+                    LexiconSection.Diary -> "角色自己的日记与主动联系记录，不代替主人的长期记忆。"
+                },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 9.dp),
+                color = LuluColors.Muted,
+                fontSize = 12.sp,
+            )
+
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(16.dp),

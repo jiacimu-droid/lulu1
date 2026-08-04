@@ -211,14 +211,28 @@ object LuluDeviceToolBridge {
         }.getOrNull()
         val readableAddress = address?.let { value ->
             listOfNotNull(
-                value.featureName,
                 value.subLocality,
                 value.locality,
                 value.adminArea,
                 value.countryName,
             ).map(String::trim).filter(String::isNotBlank).distinct().joinToString("，")
-                .ifBlank { value.getAddressLine(0).orEmpty() }
         }.orEmpty()
+        val confidence = when {
+            stale -> "stale"
+            best.accuracy <= 30f -> "high"
+            best.accuracy <= 100f -> "medium"
+            else -> "low"
+        }
+        val reliabilityNote = buildString {
+            when (confidence) {
+                "high" -> append("GPS 精度较高")
+                "medium" -> append("只能判断大致街区范围")
+                "low" -> append("定位精度较低，只能判断城区范围")
+                else -> append("位置数据已经过旧，不应当作当前位置")
+            }
+            if (readableAddress.isBlank()) append("；系统未返回可靠行政区地址")
+            else append("；地址仅保留行政区层级，已忽略容易误报的具体建筑名称")
+        }
 
         return JSONObject()
             .put("success", true)
@@ -230,13 +244,9 @@ object LuluDeviceToolBridge {
             .put("capturedAt", Instant.ofEpochMilli(best.time).toString())
             .put("ageSeconds", ageMillis / 1000L)
             .put("stale", stale)
-            .put("confidence", when {
-                stale -> "stale"
-                best.accuracy <= 30f -> "high"
-                best.accuracy <= 100f -> "medium"
-                else -> "low"
-            })
-            .put("note", if (readableAddress.isBlank()) "系统未返回可读地址，禁止根据经纬度猜具体地点" else "地址来自系统反向地理编码，具体店铺或建筑仍可能不准确")
+            .put("confidence", confidence)
+            .put("addressGranularity", "administrative_area")
+            .put("note", reliabilityNote)
             .toString()
     }
 

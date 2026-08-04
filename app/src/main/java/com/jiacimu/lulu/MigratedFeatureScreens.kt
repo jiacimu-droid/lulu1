@@ -60,10 +60,10 @@ object LuluRepositories {
 }
 
 private enum class MemoryPageSection(val label: String) {
-    Recent("最近记忆"),
+    Recent("全部记忆"),
     Fact("长期事实"),
     Emotion("情绪印象"),
-    Timeline("时间线"),
+    Timeline("重要经历"),
     Pending("待整理"),
 }
 
@@ -90,6 +90,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
     var editingMemory by remember { mutableStateOf<MemoryEntry?>(null) }
     var creatingMemory by remember { mutableStateOf(false) }
     var organizing by remember { mutableStateOf(false) }
+    val pendingEvents = repository.pendingTimelineEvents(selectedCharacterId)
 
     val filtered = remember(memories, section, search) {
         memories.filter { memory ->
@@ -221,6 +222,21 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                 }
             }
 
+            if (section != MemoryPageSection.Pending) {
+                Text(
+                    when (section) {
+                        MemoryPageSection.Recent -> "这里是三类已整理记忆的合并视图，不会另外生成一份重复内容。"
+                        MemoryPageSection.Fact -> "长期稳定的身份、偏好、边界和持续计划。"
+                        MemoryPageSection.Emotion -> "明确发生过的情绪、原因与时间，不把普通语气猜成情绪。"
+                        MemoryPageSection.Timeline -> "有时间或里程碑意义的重要经历；普通聊天和约定不放这里。"
+                        MemoryPageSection.Pending -> ""
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    color = FeatureBlueGray,
+                    fontSize = 12.sp,
+                )
+            }
+
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(16.dp),
@@ -235,6 +251,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                                 color = FeatureBlueGray,
                             )
                             Text("阈值：${policy.readableThreshold} 条；最近排除：${policy.excludedRecentMessages} 条", color = FeatureBlueGray, fontSize = 12.sp)
+                            Text("最近排除只是暂缓，之后有新消息时会按原时间顺序进入队列，不会丢弃。私聊和该角色参与的群聊都在这里。", color = FeatureBlueGray, fontSize = 12.sp)
                             Button(
                                 onClick = {
                                     organizing = true
@@ -270,6 +287,18 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                                 color = FeatureBlueGray,
                                 fontSize = 11.sp,
                             )
+                        }
+                    }
+                    if (pendingEvents.isNotEmpty()) {
+                        item { Text("等待队列 · 由旧到新", fontWeight = FontWeight.Bold, fontSize = 17.sp) }
+                        items(pendingEvents, key = { event -> event.id }) { event ->
+                            FeatureCardBox {
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text(event.channel, color = FeatureBlueGray, fontSize = 11.sp)
+                                    Text(event.occurredAt.atZone(ZoneId.systemDefault()).format(MemoryDateTimeFormatter), color = FeatureBlueGray, fontSize = 11.sp)
+                                }
+                                Text("${event.speaker}：${event.content}", fontSize = 14.sp, lineHeight = 20.sp)
+                            }
                         }
                     }
                 } else if (filtered.isEmpty()) {
@@ -496,9 +525,9 @@ private fun MemoryMetricLine(label: String, value: String) {
 }
 
 private fun MemoryKind.memoryKindLabel(): String = when (this) {
-    MemoryKind.Fact -> "事实"
-    MemoryKind.Emotion -> "情绪"
-    MemoryKind.Timeline -> "时间线"
+    MemoryKind.Fact -> "长期事实"
+    MemoryKind.Emotion -> "情绪印象"
+    MemoryKind.Timeline -> "重要经历"
 }
 
 private val MemoryDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")

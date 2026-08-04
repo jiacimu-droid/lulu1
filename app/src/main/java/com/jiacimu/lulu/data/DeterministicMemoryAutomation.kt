@@ -43,10 +43,19 @@ object DeterministicMemoryAutomation {
                             .collect { messages ->
                                 messages.asSequence()
                                     .filter { it.sender == LuluChatMessage.Sender.User }
-                                    .filterNot { wasProcessed(it.id) }
                                     .forEach { message ->
-                                        inspectAndSave(conversation.characterId, message)
-                                        markProcessed(message.id)
+                                        val characterIds = conversation.groupChat
+                                            ?.members
+                                            ?.map(LuluGroupMember::characterId)
+                                            ?.distinct()
+                                            .orEmpty()
+                                            .ifEmpty { listOf(conversation.characterId) }
+                                        characterIds.forEach { characterId ->
+                                            if (!wasProcessed(message.id, characterId)) {
+                                                inspectAndSave(characterId, message)
+                                                markProcessed(message.id, characterId)
+                                            }
+                                        }
                                     }
                             }
                     }
@@ -96,11 +105,11 @@ object DeterministicMemoryAutomation {
         )
     }
 
-    private fun wasProcessed(messageId: String): Boolean =
-        prefs?.getBoolean("processed:$messageId", false) == true
+    private fun wasProcessed(messageId: String, characterId: String): Boolean =
+        prefs?.getBoolean("processed:$characterId:$messageId", false) == true
 
-    private fun markProcessed(messageId: String) {
-        prefs?.edit()?.putBoolean("processed:$messageId", true)?.apply()
+    private fun markProcessed(messageId: String, characterId: String) {
+        prefs?.edit()?.putBoolean("processed:$characterId:$messageId", true)?.apply()
     }
 
     private fun normalize(value: String): String = value.lowercase()
