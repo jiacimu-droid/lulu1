@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5aae345b46591379348f85fcea006f146d792c28`
+- 基准提交：`3330d1e54fb437f973998e6f5f5c80b448f5d076`
 - 分支：`main`
 - 已索引文件：106
-- 已索引代码/文本行：23863
-- 已发现符号：429
+- 已索引代码/文本行：24057
+- 已发现符号：432
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -17,7 +17,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt` | 119 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt` | 9 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt` | 13 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 319 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 331 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 517 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 378 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 168 | 6 |
@@ -25,38 +25,38 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 163 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 336 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 160 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 459 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 487 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt` | 622 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 538 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 698 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 727 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 63 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 420 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 86 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 298 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 214 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1011 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1024 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 219 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 690 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 125 | 28 |
-| `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 209 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 254 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 82 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 66 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 162 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt` | 126 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt` | 135 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 319 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 516 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 524 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 476 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 106 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 26 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 746 | 42 |
+| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 742 | 42 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 383 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 128 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 69 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 190 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 234 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 24 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
@@ -98,7 +98,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 125 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 93 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 267 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 318 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 328 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 50 | 2 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
