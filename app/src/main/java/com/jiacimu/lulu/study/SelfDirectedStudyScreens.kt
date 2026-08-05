@@ -45,7 +45,7 @@ internal fun StudyTodayScreenV2(
                 )
                 Button(
                     enabled = newTask.isNotBlank(),
-                    onClick = { store.addTask(newTask, 1); newTask = "" },
+                    onClick = { store.addTask(newTask); newTask = "" },
                     modifier = Modifier.fillMaxWidth(),
                 ) { Text("添加") }
             }
