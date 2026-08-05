@@ -3,6 +3,7 @@ package com.jiacimu.lulu
 import android.content.Context
 import android.media.MediaPlayer
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,20 +19,51 @@ internal class LuluSpeechEngine(context: Context) {
     private val prefs = appContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
     private var player: MediaPlayer? = null
     @Volatile private var playbackGeneration = 0L
+    @Volatile private var activeUtteranceId: String? = null
+    @Volatile private var completionCallback: (() -> Unit)? = null
     private val systemTts = TextToSpeech(appContext) {}
 
-    fun speak(text: String, scope: CoroutineScope) {
-        if (!prefs.getBoolean("tts_enabled", true) || text.isBlank()) return
+    init {
+        systemTts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) = Unit
+
+            override fun onDone(utteranceId: String?) {
+                if (utteranceId != null && utteranceId == activeUtteranceId) finishPlayback()
+            }
+
+            @Deprecated("Deprecated in Java")
+            override fun onError(utteranceId: String?) {
+                if (utteranceId != null && utteranceId == activeUtteranceId) finishPlayback()
+            }
+
+            override fun onError(utteranceId: String?, errorCode: Int) {
+                if (utteranceId != null && utteranceId == activeUtteranceId) finishPlayback()
+            }
+        })
+    }
+
+    fun speak(text: String, scope: CoroutineScope, onFinished: (() -> Unit)? = null) {
+        if (!prefs.getBoolean("tts_enabled", true) || text.isBlank()) {
+            onFinished?.invoke()
+            return
+        }
         stop()
+        completionCallback = onFinished
         val requestGeneration = ++playbackGeneration
         if (prefs.getString("tts_provider", "system") == "minimax") {
             scope.launch {
                 runCatching { requestMiniMaxAudio(text) }
-                    .onSuccess { if (requestGeneration == playbackGeneration) playMiniMaxAudio(it) }
-                    .onFailure { if (requestGeneration == playbackGeneration) speakWithSystem(text) }
+                    .onSuccess {
+                        if (requestGeneration == playbackGeneration) {
+                            playMiniMaxAudio(it, requestGeneration)
+                        }
+                    }
+                    .onFailure {
+                        if (requestGeneration == playbackGeneration) speakWithSystem(text, requestGeneration)
+                    }
             }
         } else {
-            speakWithSystem(text)
+            speakWithSystem(text, requestGeneration)
         }
     }
 
@@ -40,11 +72,13 @@ internal class LuluSpeechEngine(context: Context) {
         val requestGeneration = ++playbackGeneration
         val audio = requestMiniMaxAudio(text.trim().ifBlank { "你好，我是露露。这个声音听起来还合适吗？" })
         check(requestGeneration == playbackGeneration) { "试听已取消" }
-        playMiniMaxAudio(audio)
+        playMiniMaxAudio(audio, requestGeneration)
     }
 
     fun stop() {
         playbackGeneration++
+        activeUtteranceId = null
+        completionCallback = null
         systemTts.stop()
         player?.release()
         player = null
@@ -55,12 +89,15 @@ internal class LuluSpeechEngine(context: Context) {
         systemTts.shutdown()
     }
 
-    private fun speakWithSystem(text: String) {
+    private fun speakWithSystem(text: String, generation: Long) {
         val locale = Locale.forLanguageTag(prefs.getString("tts_language", "zh-CN") ?: "zh-CN")
         systemTts.language = locale
         systemTts.setSpeechRate(prefs.getFloat("tts_rate", 1f))
         systemTts.setPitch(prefs.getFloat("tts_pitch", 1f))
-        systemTts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "lulu-${System.nanoTime()}")
+        val utteranceId = "lulu-$generation-${System.nanoTime()}"
+        activeUtteranceId = utteranceId
+        val result = systemTts.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
+        if (result == TextToSpeech.ERROR) finishPlayback()
     }
 
     private suspend fun requestMiniMaxAudio(text: String): ByteArray = withContext(Dispatchers.IO) {
@@ -125,7 +162,7 @@ internal class LuluSpeechEngine(context: Context) {
         }
     }
 
-    private fun playMiniMaxAudio(bytes: ByteArray) {
+    private fun playMiniMaxAudio(bytes: ByteArray, generation: Long) {
         val audioFile = java.io.File.createTempFile("minimax-", ".mp3", appContext.cacheDir)
         audioFile.writeBytes(bytes)
         player = MediaPlayer().apply {
@@ -134,16 +171,25 @@ internal class LuluSpeechEngine(context: Context) {
                 it.release()
                 if (player === it) player = null
                 audioFile.delete()
+                if (generation == playbackGeneration) finishPlayback()
             }
             setOnErrorListener { mediaPlayer, _, _ ->
                 mediaPlayer.release()
                 if (player === mediaPlayer) player = null
                 audioFile.delete()
+                if (generation == playbackGeneration) finishPlayback()
                 true
             }
             prepare()
             start()
         }
+    }
+
+    private fun finishPlayback() {
+        activeUtteranceId = null
+        val callback = completionCallback
+        completionCallback = null
+        callback?.invoke()
     }
 
     private fun String.hexToBytes(): ByteArray {
