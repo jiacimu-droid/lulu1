@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T06:20:02.454173+00:00",
-  "commit": "43c5043725abcfd731dd7aec4e052740d15d418a",
+  "generatedAt": "2026-08-05T06:22:30.754904+00:00",
+  "commit": "b69f91def478d520831234d74df02211b33337c2",
   "branch": "main",
-  "sourceFingerprint": "65fc3aec68b349f4ed8977726ca7da00d70b736e6ed52e38cd96d0afabd55bd4",
+  "sourceFingerprint": "03595daa15a3fa72da715b48354237df1f02385195a1ba4d51bb2e785a75700f",
   "summary": {
     "files": 109,
-    "lines": 27497,
-    "symbols": 470
+    "lines": 27568,
+    "symbols": 468
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -199,7 +199,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 117
+        "line": 197
       }
     ],
     "stop": [
@@ -2440,26 +2440,10 @@
         "line": 172
       }
     ],
-    "rememberFocusExperience": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 123
-      }
-    ],
-    "requestOpeningLine": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 144
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 178
-      }
-    ],
     "beginSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 174
+        "line": 201
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
@@ -2473,19 +2457,19 @@
     "settle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 200
+        "line": 231
       }
     ],
     "finishEarly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 237
+        "line": 248
       }
     ],
     "sendFocusChat": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 253
+        "line": 270
       }
     ],
     "StudyFocusTheme": [
@@ -2556,6 +2540,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
         "line": 173
+      }
+    ],
+    "requestOpeningLine": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 178
       }
     ],
     "handleNaturalCompletion": [
@@ -4933,36 +4923,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-      "lines": 617,
-      "sha256": "ce9c38b594211287e9210c7b7275db49a53710636e2ad0bd3fbf66f2151aebd1",
+      "lines": 688,
+      "sha256": "ce036152712ebc2c79e774744fedb8923b262a463d4d988c8cc45142eff24514",
       "symbols": [
         {
           "name": "speak",
-          "line": 117
-        },
-        {
-          "name": "rememberFocusExperience",
-          "line": 123
-        },
-        {
-          "name": "requestOpeningLine",
-          "line": 144
+          "line": 197
         },
         {
           "name": "beginSession",
-          "line": 174
+          "line": 201
         },
         {
           "name": "settle",
-          "line": 200
+          "line": 231
         },
         {
           "name": "finishEarly",
-          "line": 237
+          "line": 248
         },
         {
           "name": "sendFocusChat",
-          "line": 253
+          "line": 270
         }
       ]
     },
