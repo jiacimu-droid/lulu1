@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T08:57:55.948224+00:00",
-  "commit": "8d97546507bef67fe87176a7943f866ec712d5f7",
+  "generatedAt": "2026-08-05T13:18:15.607856+00:00",
+  "commit": "34b84e27d1f4792b43a47e15b0cc9f07bf620e7b",
   "branch": "main",
-  "sourceFingerprint": "a22728209347aa422fa4daea9e422c28c4088c2e4c3753a8b08bea8c62bbb7aa",
+  "sourceFingerprint": "ac9a804646d2fc9b9b2e743c3abbeeb9dc2aa42df50abc5f65ee69a9eb66dfb1",
   "summary": {
     "files": 109,
-    "lines": 27741,
-    "symbols": 468
+    "lines": 27739,
+    "symbols": 464
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -2335,109 +2335,85 @@
     "StudyScheduleBlock": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 47
+        "line": 48
       }
     ],
     "StudyPlanItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 56
+        "line": 57
       }
     ],
     "StudyTip": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 64
+        "line": 65
       }
     ],
     "StudyEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 66
+        "line": 67
       }
     ],
     "StudyDrawResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 67
+        "line": 68
       }
     ],
     "StudyAchievement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 76
+        "line": 77
       }
     ],
     "StudyShopItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 87
+        "line": 88
       }
     ],
     "StudyInventory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 97
+        "line": 98
       }
     ],
     "StudyProfile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 113
+        "line": 114
       }
     ],
     "PomodoroState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 131
+        "line": 136
       }
     ],
     "StudyState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 139
+        "line": 144
       }
     ],
     "studyMinutes": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 163
+        "line": 168
       }
     ],
     "pomodoros": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 164
+        "line": 169
       }
     ],
     "vocabulary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 165
-      }
-    ],
-    "StudyLevels": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 167
-      }
-    ],
-    "levelForExperience": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
         "line": 170
-      }
-    ],
-    "currentLevelStart": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 171
-      }
-    ],
-    "nextLevelTarget": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 172
       }
     ],
     "beginSession": [
@@ -4816,8 +4792,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-      "lines": 245,
-      "sha256": "11eb4850b96260577c6317845e53877bab831ad2ab716d6ffa21c49d889be92f",
+      "lines": 243,
+      "sha256": "2c3f035ab18d5dd05e0e40335a75f514282ffdea73729f03fb617745dc2f875b",
       "symbols": [
         {
           "name": "StudyTaskSource",
@@ -4849,75 +4825,59 @@
         },
         {
           "name": "StudyScheduleBlock",
-          "line": 47
+          "line": 48
         },
         {
           "name": "StudyPlanItem",
-          "line": 56
+          "line": 57
         },
         {
           "name": "StudyTip",
-          "line": 64
+          "line": 65
         },
         {
           "name": "StudyEvent",
-          "line": 66
-        },
-        {
-          "name": "StudyDrawResult",
           "line": 67
         },
         {
+          "name": "StudyDrawResult",
+          "line": 68
+        },
+        {
           "name": "StudyAchievement",
-          "line": 76
+          "line": 77
         },
         {
           "name": "StudyShopItem",
-          "line": 87
+          "line": 88
         },
         {
           "name": "StudyInventory",
-          "line": 97
+          "line": 98
         },
         {
           "name": "StudyProfile",
-          "line": 113
+          "line": 114
         },
         {
           "name": "PomodoroState",
-          "line": 131
+          "line": 136
         },
         {
           "name": "StudyState",
-          "line": 139
+          "line": 144
         },
         {
           "name": "studyMinutes",
-          "line": 163
+          "line": 168
         },
         {
           "name": "pomodoros",
-          "line": 164
+          "line": 169
         },
         {
           "name": "vocabulary",
-          "line": 165
-        },
-        {
-          "name": "StudyLevels",
-          "line": 167
-        },
-        {
-          "name": "levelForExperience",
           "line": 170
-        },
-        {
-          "name": "currentLevelStart",
-          "line": 171
-        },
-        {
-          "name": "nextLevelTarget",
-          "line": 172
         }
       ]
     },
