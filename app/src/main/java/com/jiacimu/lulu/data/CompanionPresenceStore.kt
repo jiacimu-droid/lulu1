@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.Duration
 import java.time.Instant
 
 data class CompanionPresenceState(
@@ -16,6 +17,8 @@ data class CompanionPresenceState(
     val mood: String = "",
     val updatedAt: Instant = Instant.EPOCH,
     val source: String = "",
+    val lastPerceptionAt: Instant? = null,
+    val lastPerceptionNote: String = "",
 )
 
 /** Current private/visible role presence shared by chat and background perception. */
@@ -39,6 +42,19 @@ object CompanionPresenceStore {
 
     fun current(characterId: String): CompanionPresenceState? = states.value[characterId]
 
+    /** Records that the perception pipeline actually ran, including skips and failures. */
+    @Synchronized
+    fun recordPerceptionAttempt(characterId: String, note: String, now: Instant = Instant.now()) {
+        if (characterId.isBlank()) return
+        val previous = mutableStates.value[characterId]
+        val next = (previous ?: CompanionPresenceState(characterId = characterId)).copy(
+            lastPerceptionAt = now,
+            lastPerceptionNote = note.trim().take(180),
+        )
+        mutableStates.value = mutableStates.value + (characterId to next)
+        persist()
+    }
+
     @Synchronized
     fun update(
         characterId: String,
@@ -55,35 +71,37 @@ object CompanionPresenceStore {
             characterId = characterId,
             statusText = statusText.cleanPresence(120) ?: previous?.statusText.orEmpty(),
             gesture = gesture.cleanPresence(500) ?: previous?.gesture.orEmpty(),
-            // An explicitly returned empty thought means there is nothing worth exposing now.
             innerThought = if (innerThought == null) previous?.innerThought.orEmpty() else innerThought.cleanPresence(500).orEmpty(),
             mood = mood.cleanPresence(80) ?: previous?.mood.orEmpty(),
             updatedAt = now,
             source = source.take(40),
+            lastPerceptionAt = if (source.contains("感知")) now else previous?.lastPerceptionAt,
+            lastPerceptionNote = if (source.contains("感知")) "感知成功，已形成新的此刻状态" else previous?.lastPerceptionNote.orEmpty(),
         )
-        if (next.statusText.isBlank() && next.gesture.isBlank() && next.innerThought.isBlank() && next.mood.isBlank()) return
+        if (next.statusText.isBlank() && next.gesture.isBlank() && next.innerThought.isBlank() && next.mood.isBlank()) {
+            recordPerceptionAttempt(characterId, "模型返回了空状态", now)
+            return
+        }
         mutableStates.value = mutableStates.value + (characterId to next)
-        val changed = previous == null || previous.copy(updatedAt = next.updatedAt, source = next.source) != next
-        if (changed) {
+        val contentChanged = previous == null || previous.copy(
+            updatedAt = next.updatedAt,
+            source = next.source,
+            lastPerceptionAt = next.lastPerceptionAt,
+            lastPerceptionNote = next.lastPerceptionNote,
+        ) != next
+        val heartbeatDue = previous == null || Duration.between(previous.updatedAt, now).toMinutes() >= 30
+        if (contentChanged || heartbeatDue) {
             mutableHistories.value = mutableHistories.value +
-                (characterId to (listOf(next) + mutableHistories.value[characterId].orEmpty()).distinctBy { it.updatedAt }.take(100))
+                (characterId to (listOf(next) + mutableHistories.value[characterId].orEmpty())
+                    .distinctBy { it.updatedAt }
+                    .take(100))
         }
         persist()
     }
 
     private fun persist() {
         val array = JSONArray()
-        mutableStates.value.values.forEach { state ->
-            array.put(JSONObject().apply {
-                put("characterId", state.characterId)
-                put("statusText", state.statusText)
-                put("gesture", state.gesture)
-                put("innerThought", state.innerThought)
-                put("mood", state.mood)
-                put("updatedAt", state.updatedAt.toString())
-                put("source", state.source)
-            })
-        }
+        mutableStates.value.values.forEach { array.put(it.toJson()) }
         prefs?.edit()?.putString(KEY_STATES, array.toString())?.apply()
         val historyRoot = JSONObject()
         mutableHistories.value.forEach { (characterId, history) ->
@@ -99,18 +117,7 @@ object CompanionPresenceStore {
                 val item = array.optJSONObject(index) ?: continue
                 val characterId = item.optString("characterId").trim()
                 if (characterId.isBlank()) continue
-                put(
-                    characterId,
-                    CompanionPresenceState(
-                        characterId = characterId,
-                        statusText = item.optString("statusText"),
-                        gesture = item.optString("gesture"),
-                        innerThought = item.optString("innerThought"),
-                        mood = item.optString("mood"),
-                        updatedAt = runCatching { Instant.parse(item.optString("updatedAt")) }.getOrDefault(Instant.EPOCH),
-                        source = item.optString("source"),
-                    ),
-                )
+                item.toPresenceState(characterId)?.let { put(characterId, it) }
             }
         }
     }.getOrDefault(emptyMap())
@@ -121,9 +128,7 @@ object CompanionPresenceStore {
             root.keys().forEach { characterId ->
                 val array = root.optJSONArray(characterId) ?: return@forEach
                 put(characterId, buildList {
-                    for (index in 0 until array.length()) {
-                        array.optJSONObject(index)?.toPresenceState(characterId)?.let(::add)
-                    }
+                    for (index in 0 until array.length()) array.optJSONObject(index)?.toPresenceState(characterId)?.let(::add)
                 })
             }
         }
@@ -138,6 +143,8 @@ private fun CompanionPresenceState.toJson(): JSONObject = JSONObject().apply {
     put("mood", mood)
     put("updatedAt", updatedAt.toString())
     put("source", source)
+    put("lastPerceptionAt", lastPerceptionAt?.toString().orEmpty())
+    put("lastPerceptionNote", lastPerceptionNote)
 }
 
 private fun JSONObject.toPresenceState(fallbackCharacterId: String): CompanionPresenceState? {
@@ -151,6 +158,8 @@ private fun JSONObject.toPresenceState(fallbackCharacterId: String): CompanionPr
         mood = optString("mood"),
         updatedAt = runCatching { Instant.parse(optString("updatedAt")) }.getOrDefault(Instant.EPOCH),
         source = optString("source"),
+        lastPerceptionAt = optString("lastPerceptionAt").takeIf(String::isNotBlank)?.let { runCatching { Instant.parse(it) }.getOrNull() },
+        lastPerceptionNote = optString("lastPerceptionNote"),
     )
 }
 
