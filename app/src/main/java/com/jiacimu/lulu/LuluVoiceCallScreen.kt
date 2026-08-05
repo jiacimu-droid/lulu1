@@ -621,7 +621,10 @@ fun LuluVoiceCallScreen(
         if (visibleCallMessages.isNotEmpty()) listState.animateScrollToItem(visibleCallMessages.lastIndex)
     }
     LaunchedEffect(state.phase) {
-        if (state.phase == CallPhase.Ended || state.phase == CallPhase.Idle) onDismiss()
+        if (state.phase == CallPhase.Ended) {
+            delay(420)
+            onDismiss()
+        }
     }
 
     Dialog(
