@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -91,15 +90,24 @@ internal fun CompanionPresenceDialog(
 
 @Composable
 private fun PresenceStateContent(state: CompanionPresenceState) {
-    PresenceDialogSection("此刻动作", state.gesture.ifBlank { "此刻没有留下明确的动作或神态。" })
-    if (state.innerThought.isNotBlank()) PresenceDialogSection("心声", state.innerThought)
-    val status = listOf(state.mood, state.statusText).filter(String::isNotBlank).distinct().joinToString(" · ")
-    if (status.isNotBlank()) PresenceDialogSection("状态", status)
-    Text(
-        state.updatedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
-        color = Color(0xFF7A7A7E),
-        fontSize = 11.sp,
-    )
+    if (state.statusText.isNotBlank() || state.gesture.isNotBlank() || state.innerThought.isNotBlank() || state.mood.isNotBlank()) {
+        PresenceDialogSection("此刻动作", state.gesture.ifBlank { "此刻没有留下明确的动作或神态。" })
+        if (state.innerThought.isNotBlank()) PresenceDialogSection("心声", state.innerThought)
+        val status = listOf(state.mood, state.statusText).filter(String::isNotBlank).distinct().joinToString(" · ")
+        if (status.isNotBlank()) PresenceDialogSection("状态", status)
+        Text(
+            state.updatedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
+            color = Color(0xFF7A7A7E),
+            fontSize = 11.sp,
+        )
+    }
+    state.lastPerceptionAt?.let { perceivedAt ->
+        val line = buildString {
+            append(perceivedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")))
+            state.lastPerceptionNote.takeIf(String::isNotBlank)?.let { append(" · ").append(it) }
+        }
+        PresenceDialogSection("感知线路", line)
+    }
 }
 
 @Composable
