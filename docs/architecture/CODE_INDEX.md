@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`20ac0f25078c77c7ba0406e23c1be80593eb46b7`
+- 基准提交：`b81cb0ca5a68244c76c5b5a209c3d7d881eec104`
 - 分支：`main`
 - 已索引文件：109
-- 已索引代码/文本行：27877
+- 已索引代码/文本行：27912
 - 已发现符号：464
 
 | 文件 | 行数 | 符号数 |
@@ -76,7 +76,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 270 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 142 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 808 | 32 |
-| `app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt` | 173 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt` | 208 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt` | 65 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt` | 131 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt` | 331 | 12 |
