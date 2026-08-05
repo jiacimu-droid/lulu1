@@ -70,6 +70,15 @@ class ProactivePerceptionReceiver : BroadcastReceiver() {
     }
 }
 
+/** Restores the perception heartbeat after reboot and after an APK cover-install. */
+class ProactivePerceptionBootReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
+            ProactivePerceptionScheduler.schedule(context.applicationContext, delayMinutes = 2L, trigger = "开机恢复")
+        }
+    }
+}
+
 @Synchronized
 private fun initializeBackgroundRuntime(context: Context) {
     UserDataUpgradeGuard.protectBeforeStoresInitialize(context)
