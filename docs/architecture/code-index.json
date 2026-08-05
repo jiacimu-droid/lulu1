@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T03:23:31.629863+00:00",
-  "commit": "12da9d93a91767762698e8f5a1e9456e1d143997",
+  "generatedAt": "2026-08-05T03:25:42.943135+00:00",
+  "commit": "faf28de3302996aa8dd7f8f6e584f40f2415324b",
   "branch": "main",
-  "sourceFingerprint": "8533888d4f399b9f428df54c63d9b75c63fa5402a8ca76ac8eb4df432b80b05e",
+  "sourceFingerprint": "13a96c231a678eef3788a2e5d354ca0a0549618aea069edc9da93bd2db740ef9",
   "summary": {
     "files": 109,
-    "lines": 26166,
+    "lines": 26211,
     "symbols": 453
   },
   "symbolIndex": {
@@ -367,7 +367,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 698
+        "line": 743
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
@@ -2085,43 +2085,43 @@
     "claimSuperMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 443
+        "line": 482
       }
     ],
     "redeemEntertainment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 459
+        "line": 498
       }
     ],
     "claimAchievement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 510
+        "line": 554
       }
     ],
     "claimLevel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 529
+        "line": 573
       }
     ],
     "refreshShop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 561
+        "line": 605
       }
     ],
     "buyShopItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 576
+        "line": 620
       }
     ],
     "PostgraduateExamStores": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 693
+        "line": 738
       }
     ],
     "itemsFor": [
@@ -4377,8 +4377,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-      "lines": 703,
-      "sha256": "edc6b2097e98b4459829d8bba71b4aac4bdcb818a9acf6cb8c5bc8dbf5e2b953",
+      "lines": 748,
+      "sha256": "7d917a15c85b160f77aa08ea508acb57ce946338843f8035ee66e0f7fe0c637a",
       "symbols": [
         {
           "name": "PostgraduateExamStore",
@@ -4482,35 +4482,35 @@
         },
         {
           "name": "claimSuperMoment",
-          "line": 443
+          "line": 482
         },
         {
           "name": "redeemEntertainment",
-          "line": 459
+          "line": 498
         },
         {
           "name": "claimAchievement",
-          "line": 510
+          "line": 554
         },
         {
           "name": "claimLevel",
-          "line": 529
+          "line": 573
         },
         {
           "name": "refreshShop",
-          "line": 561
+          "line": 605
         },
         {
           "name": "buyShopItem",
-          "line": 576
+          "line": 620
         },
         {
           "name": "PostgraduateExamStores",
-          "line": 693
+          "line": 738
         },
         {
           "name": "initialize",
-          "line": 698
+          "line": 743
         }
       ]
     },
