@@ -34,6 +34,38 @@ data class StudyFocusPreferences(
     val completionHandled: Boolean = false,
 )
 
+private fun recentFocusCharacterLines(conversationId: String, limit: Int = 8): List<String> =
+    MigratedDomainStores.chat.messages(conversationId).value
+        .asReversed()
+        .asSequence()
+        .filter { it.sender == LuluChatMessage.Sender.Character }
+        .map { message -> message.content.trim().replace(Regex("\\s+"), " ") }
+        .filter(String::isNotBlank)
+        .take(limit)
+        .toList()
+
+private fun compactFocusUtterance(raw: String, maxChars: Int): String {
+    val firstLine = raw
+        .lineSequence()
+        .map(String::trim)
+        .firstOrNull(String::isNotBlank)
+        .orEmpty()
+        .removePrefix("-")
+        .removePrefix("•")
+        .trim()
+        .trim('“', '”', '"')
+    if (firstLine.isBlank()) return ""
+
+    val sentenceEnd = firstLine.indexOfFirst { it in "。！？!?" }
+    val oneSentence = if (sentenceEnd >= 0) firstLine.take(sentenceEnd + 1) else firstLine
+    if (oneSentence.length <= maxChars) return oneSentence
+
+    return oneSentence
+        .take(maxChars)
+        .trimEnd('，', '、', '；', ':', '：', ' ')
+        .plus("。")
+}
+
 class StudyFocusSessionStore private constructor(context: Context) {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val mutable = MutableStateFlow(load())
@@ -187,6 +219,7 @@ object StudyFocusSessions {
         val conversationId = "$characterId-study-focus"
         val character = MigratedDomainStores.characters.get(characterId)
         ensureStudyFocusConversation(characterId, character.displayName)
+        val recentLines = recentFocusCharacterLines(conversationId)
 
         scope.launch {
             LuluAiServices.gateway.generate(
@@ -196,13 +229,18 @@ object StudyFocusSessions {
                     appendLine("本次专注任务：$task")
                     appendLine("计划时长：${studyState.pomodoro.selectedMinutes}分钟")
                     appendLine("番茄钟已经由程序真实启动。")
+                    if (recentLines.isNotEmpty()) {
+                        appendLine("近期专注中角色说过的话（禁止复用相同开头、句式或核心措辞）：")
+                        recentLines.forEach { appendLine("- $it") }
+                    }
                 },
-                instruction = "以角色自己的身份给出本次专注开始时会说的话，1-3句。不得默认温柔、夸奖或亲密；不得虚构用户已经完成任务。",
+                instruction = "只输出角色真正会随口说的一句开场白，4—22个汉字，最多一个句号。不要解释任务、总结安排、复述时长或输出书面鼓励；禁止使用‘让我们’‘一起加油’‘接下来’‘保持专注’‘相信自己’‘完成目标’等模板套话。不要复用近期台词的开头、句式或核心措辞。语气可以冷淡、命令式、吐槽或简短停顿，完全服从人设和关系边界。不得虚构用户已经完成任务。只输出台词，不加引号、动作、旁白或说明。",
                 source = "考研",
                 title = "番茄钟开场",
-                maxTokens = 260,
+                temperature = 1.08,
+                maxTokens = 80,
             ).onSuccess { reply ->
-                val text = reply.text.trim()
+                val text = compactFocusUtterance(reply.text, maxChars = 28)
                 if (text.isNotBlank()) {
                     MigratedDomainStores.chat.appendCharacterMessage(conversationId, text)
                     speakIfEnabled(text, studyState.pomodoro.voiceEnabled)
@@ -267,6 +305,7 @@ object StudyFocusSessions {
         }
 
         if (!focus.automaticDialogueEnabled) return
+        val recentLines = recentFocusCharacterLines(conversationId)
         scope.launch {
             LuluAiServices.gateway.generate(
                 characterId = characterId,
@@ -276,13 +315,18 @@ object StudyFocusSessions {
                     appendLine("实际记录时长：${actualMinutes.coerceAtLeast(0)}分钟")
                     appendLine("结束方式：$reason")
                     if (rewardMessage.isNotBlank()) appendLine("程序结算：$rewardMessage")
+                    if (recentLines.isNotEmpty()) {
+                        appendLine("近期专注中角色说过的话（禁止复用相同开头、句式或核心措辞）：")
+                        recentLines.forEach { appendLine("- $it") }
+                    }
                 },
-                instruction = "根据真实完成时长、任务和结束方式，以角色自己的身份回应1-3句。是否夸奖以及如何夸奖由角色判断；若提前结束或未满1分钟，不得说成完整完成。",
+                instruction = "只输出角色在这轮结束时会随口说的一句话，4—26个汉字。不要汇报数据、复述任务、总结过程或写成学习点评；不要使用‘辛苦了’‘做得很好’‘继续保持’等固定套话，除非这确实符合人设且近期没有说过。必须根据真实完成情况回应，提前结束或未满1分钟不得说成完整完成。只输出台词，不加引号、动作、旁白或说明。",
                 source = "考研",
                 title = "番茄钟结束",
-                maxTokens = 300,
+                temperature = 1.05,
+                maxTokens = 90,
             ).onSuccess { reply ->
-                val text = reply.text.trim()
+                val text = compactFocusUtterance(reply.text, maxChars = 32)
                 if (text.isNotBlank()) {
                     MigratedDomainStores.chat.appendCharacterMessage(conversationId, text)
                     speakIfEnabled(text, studyState.pomodoro.voiceEnabled)
