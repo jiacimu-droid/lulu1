@@ -147,13 +147,14 @@ class PostgraduateExamStore internal constructor(context: Context) {
             val task = state.tasks.firstOrNull { it.id == taskId } ?: return@mutate state
             val complete = !task.completed
             val firstReward = complete
+            val today = LocalDate.now().toString()
             val tasks = state.tasks.map {
                 if (it.id == taskId) it.copy(
                     completed = complete,
                     pomodoroCompleted = if (complete) max(it.pomodoroCompleted, it.pomodoroTarget) else it.pomodoroCompleted,
                 ) else it
             }
-            val allTodayComplete = tasks.filter { it.date == LocalDate.now().toString() }.let { it.isNotEmpty() && it.all(StudyTask::completed) }
+            val allTodayComplete = allTasksCompleteForDate(tasks, today)
             updateAchievements(
                 state.copy(
                     tasks = tasks,
@@ -161,9 +162,10 @@ class PostgraduateExamStore internal constructor(context: Context) {
                         praisePoints = state.profile.praisePoints + if (firstReward) 50 else 0,
                         experience = state.profile.experience + if (firstReward) 50 else 0,
                         totalTasksCompleted = state.profile.totalTasksCompleted + if (firstReward) 1 else 0,
-                        lastStudyDate = if (firstReward) LocalDate.now().toString() else state.profile.lastStudyDate,
+                        lastStudyDate = if (firstReward) today else state.profile.lastStudyDate,
                     ),
-                    superMomentAvailable = state.superMomentAvailable || allTodayComplete,
+                    superMomentAvailable = state.superMomentAvailable ||
+                        (allTodayComplete && state.superMomentClaimedDate != today),
                     events = addEvent(state.events, if (complete) "待办完成" else "待办取消", task.title),
                 ),
             )
@@ -321,6 +323,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
                     task.copy(pomodoroCompleted = progress, completed = task.completed || progress >= task.pomodoroTarget)
                 } else task
             }
+            val allTodayComplete = allTasksCompleteForDate(tasks, date)
             val totalPomodoros = state.profile.totalPomodoros + 1
             updateAchievements(
                 state.copy(
@@ -336,6 +339,8 @@ class PostgraduateExamStore internal constructor(context: Context) {
                     ),
                     dailyStudyMinutes = state.dailyStudyMinutes + (date to ((state.dailyStudyMinutes[date] ?: 0) + minutes)),
                     dailyPomodoros = state.dailyPomodoros + (date to ((state.dailyPomodoros[date] ?: 0) + 1)),
+                    superMomentAvailable = state.superMomentAvailable ||
+                        (allTodayComplete && state.superMomentClaimedDate != date),
                     pomodoro = state.pomodoro.copy(running = false, remainingSeconds = state.pomodoro.selectedMinutes * 60, endAtEpochMillis = 0L),
                     events = addEvent(state.events, "番茄钟完成", message),
                 ),
@@ -485,9 +490,9 @@ class PostgraduateExamStore internal constructor(context: Context) {
         mutate { state ->
             val today = LocalDate.now().toString()
             if (!state.superMomentAvailable || state.superMomentClaimedDate == today) return@mutate state
-            message = "今日待办全清：十连抽券 +1"
+            message = "今日待办全清：十连抽券 +2（20连）"
             state.copy(
-                inventory = state.inventory.copy(tenTickets = state.inventory.tenTickets + 1),
+                inventory = state.inventory.copy(tenTickets = state.inventory.tenTickets + 2),
                 superMomentAvailable = false,
                 superMomentClaimedDate = today,
                 events = addEvent(state.events, "超神时刻", message),
@@ -678,12 +683,17 @@ class PostgraduateExamStore internal constructor(context: Context) {
             runCatching { !LocalDate.parse(task.date).isBefore(today.minusDays(90)) }.getOrDefault(true)
         }
         val todayKey = today.toString()
+        val dateChanged = state.activeDate != todayKey
         val existingToday = tasks.filter { it.date == todayKey }
         val preserved = tasks.filterNot { it.date == todayKey && it.source == StudyTaskSource.Preset }
         val withDefaults = preserved + defaultTasks(today).map { preset ->
-            existingToday.firstOrNull { it.title == preset.title }?.copy(source = StudyTaskSource.Preset) ?: preset
+            if (dateChanged) {
+                preset
+            } else {
+                existingToday.firstOrNull { it.title == preset.title }?.copy(source = StudyTaskSource.Preset) ?: preset
+            }
         }
-        if (state.activeDate == todayKey && state.shopDate == todayKey && withDefaults == state.tasks) return updateAchievements(state)
+        if (!dateChanged && state.shopDate == todayKey && withDefaults == state.tasks) return updateAchievements(state)
         return updateAchievements(
             state.copy(
                 activeDate = todayKey,
@@ -692,12 +702,17 @@ class PostgraduateExamStore internal constructor(context: Context) {
                 shopItems = if (state.shopDate == todayKey) state.shopItems else defaultShop(today),
                 shopDate = todayKey,
                 manualShopRefreshDate = if (state.shopDate == todayKey) state.manualShopRefreshDate else "",
-                superMomentAvailable = if (state.activeDate == todayKey) state.superMomentAvailable else false,
+                superMomentAvailable = if (dateChanged) false else state.superMomentAvailable,
                 pomodoro = if (state.pomodoro.running && state.pomodoro.endAtEpochMillis <= System.currentTimeMillis()) {
                     state.pomodoro.copy(running = false, remainingSeconds = state.pomodoro.selectedMinutes * 60, endAtEpochMillis = 0L)
                 } else state.pomodoro,
             ),
         )
+    }
+
+    private fun allTasksCompleteForDate(tasks: List<StudyTask>, date: String): Boolean {
+        val dailyTasks = tasks.filter { it.date == date }
+        return dailyTasks.isNotEmpty() && dailyTasks.all(StudyTask::completed)
     }
 
     private fun addEvent(events: List<StudyEvent>, title: String, detail: String): List<StudyEvent> =
