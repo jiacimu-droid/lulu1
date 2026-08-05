@@ -43,6 +43,7 @@ data class StudyTask(
     val pomodoroTarget: Int = 1,
     val pomodoroCompleted: Int = 0,
     val source: StudyTaskSource = StudyTaskSource.User,
+    val rewarded: Boolean = false,
 )
 
 data class StudyScheduleBlock(
@@ -114,6 +115,7 @@ data class StudyInventory(
 data class StudyProfile(
     val selectedCharacterId: String = "lulu",
     val praisePoints: Int = 0,
+    // 旧存档字段名保留为 experience；现在表示累计获得的夸夸值，不再用于等级。
     val experience: Int = 0,
     val streakDays: Int = 0,
     val lastStudyDate: String = "",
@@ -124,10 +126,13 @@ data class StudyProfile(
     val totalDraws: Int = 0,
     val totalSignIns: Int = 0,
     val vocabularyReviewed: Int = 0,
+    // 仅用于兼容旧存档，等级功能已经移除。
     val claimedLevels: Set<Int> = emptySet(),
     val sleepRewardDate: String = "",
     val inactivityPenaltyDate: String = "",
-) { val level: Int get() = StudyLevels.levelForExperience(experience) }
+) {
+    val totalPraiseEarned: Int get() = experience
+}
 
 data class PomodoroState(
     val selectedMinutes: Int = 25,
@@ -138,7 +143,7 @@ data class PomodoroState(
 )
 
 data class StudyState(
-    val schemaVersion: Int = 5,
+    val schemaVersion: Int = 6,
     val activeDate: String = LocalDate.now().toString(),
     val profile: StudyProfile = StudyProfile(),
     val inventory: StudyInventory = StudyInventory(),
@@ -165,19 +170,13 @@ data class StudyState(
     fun vocabulary(date: LocalDate = LocalDate.now()): Int = dailyVocabularyReviewed[date.toString()] ?: 0
 }
 
-object StudyLevels {
-    val thresholds = listOf(0, 80, 200, 400, 800, 1_500, 2_500, 4_000, 6_500, 10_000, 15_000, 22_000, 32_000, 45_000, 60_000)
-    fun levelForExperience(experience: Int): Int = thresholds.indexOfLast { experience >= it }.coerceAtLeast(0) + 1
-    fun currentLevelStart(level: Int): Int = thresholds.getOrElse((level - 1).coerceAtLeast(0)) { thresholds.last() }
-    fun nextLevelTarget(level: Int): Int = thresholds.getOrElse(level) { thresholds.last() + 20_000 }
-}
-
 internal const val BLUE_FRAGMENTS_PER_SCROLL = 10
 internal const val SINGLE_DRAW_COST = 100
 internal const val TEN_DRAW_COST = 800
 internal const val NON_NORMAL_PITY = 30
 internal const val STUDY_REWARD_INTERVAL_MINUTES = 5
 internal const val STUDY_REWARD_PRAISE = 100
+internal const val TASK_COMPLETION_PRAISE = 100
 
 internal val blueFragmentCatalog = listOf(
     "星穹图书馆", "樱吹雪剑道场", "深海回廊", "永夜花庭", "云上列车",
