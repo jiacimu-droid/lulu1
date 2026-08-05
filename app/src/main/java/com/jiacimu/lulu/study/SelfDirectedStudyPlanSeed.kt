@@ -6,7 +6,7 @@ import java.time.LocalDate
 /** Installs the current user-approved month/week plan without generating a fixed daily timetable. */
 object SelfDirectedStudyPlanSeed {
     private const val PREFS = "lulu_study_plan_migrations"
-    private const val KEY = "rolling_plan_v2"
+    private const val KEY = "rolling_plan_v3"
     private const val KEY_SYNC_DATE = "rolling_plan_last_sync_date"
 
     fun migrate(context: Context, store: PostgraduateExamStore) {
@@ -48,7 +48,7 @@ object SelfDirectedStudyPlanSeed {
 
     private val dailyReminders = listOf(
         "建议做10—20分钟轻运动或广播体操；饭后困时先走动、拉伸或整理桌面。",
-        "从本周专业课任务池中自行选择一个主线块：看课、做题闭环或背诵输出。",
+        "从本周专业课任务池中自行选择一个主线块：看课、做题闭环或按明确章节背诵输出。",
         "完成单词滚动复习，并从本周英语任务池中自行选择一个主训练块。",
         "结束前记录有效学习分钟和一个主要卡点；未完成内容回到周任务池，不惩罚式补课。",
     )
