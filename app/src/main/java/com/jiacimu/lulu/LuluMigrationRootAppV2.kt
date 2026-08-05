@@ -1,15 +1,16 @@
 package com.jiacimu.lulu
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.design.LuluColors
@@ -18,8 +19,12 @@ import com.jiacimu.lulu.design.LuluTypography
 import com.jiacimu.lulu.games.LuluGamesAppV2
 import com.jiacimu.lulu.study.LuluReadingScreen
 import com.jiacimu.lulu.study.PostgraduateExamApp
+import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.StarWishMigratedScreen
 import com.jiacimu.lulu.study.StarWishTab
+import com.jiacimu.lulu.study.StudyFocusMiniWindow
+import com.jiacimu.lulu.study.StudyFocusSessions
+import kotlinx.coroutines.delay
 
 @Composable
 fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
@@ -41,7 +46,11 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
     var selectedCharacterId by rememberSaveable { mutableStateOf("lulu") }
     var starWishInitialTab by rememberSaveable { mutableStateOf(StarWishTab.Scroll.name) }
     var initialGameId by rememberSaveable { mutableStateOf<String?>(null) }
+    var studyFocusRequest by rememberSaveable { mutableIntStateOf(0) }
+
     val preferences by LuluAppPreferencesStore.state.collectAsState()
+    val studyState by PostgraduateExamStores.main.state.collectAsState()
+    val focusPreferences by StudyFocusSessions.store.state.collectAsState()
     val density = LocalDensity.current
     val preferredDensity = remember(density, preferences.largerText) {
         Density(
@@ -92,6 +101,26 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
         }
     }
 
+    LaunchedEffect(studyState.pomodoro.running, studyState.pomodoro.endAtEpochMillis) {
+        val studyStore = PostgraduateExamStores.main
+        while (studyStore.state.value.pomodoro.running) {
+            delay(500)
+            val beforeSync = studyStore.state.value.pomodoro
+            if (studyStore.syncPomodoroClock()) {
+                StudyFocusSessions.handleNaturalCompletion(
+                    studyStore = studyStore,
+                    actualMinutes = beforeSync.selectedMinutes,
+                )
+                break
+            }
+        }
+    }
+
+    val timerHasProgress = focusPreferences.activeSessionId.isNotBlank() &&
+        !focusPreferences.completionHandled &&
+        (studyState.pomodoro.running ||
+            studyState.pomodoro.remainingSeconds < studyState.pomodoro.selectedMinutes * 60)
+
     CompositionLocalProvider(LocalDensity provides preferredDensity) {
         MaterialTheme(
             colorScheme = LuluLightColorScheme,
@@ -137,6 +166,7 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                                     },
                                     onOpenConversation = ::openConversation,
                                 )
+
                                 MigrationRoute.Chat -> MigratedChatHubScreenV2(
                                     onBack = ::popRoute,
                                     onOpenConversation = ::openConversation,
@@ -150,6 +180,7 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                                     },
                                     onOpenSettings = { pushRoute(MigrationRoute.Settings) },
                                 )
+
                                 MigrationRoute.CharacterSettings -> CharacterSettingsScreenV2(
                                     characterId = selectedCharacterId,
                                     onBack = ::popRoute,
@@ -158,6 +189,7 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                                         replaceTop(MigrationRoute.Chat)
                                     },
                                 )
+
                                 MigrationRoute.Memory -> MemoryFeatureScreen(::popRoute)
                                 MigrationRoute.Lexicon -> LexiconFeatureScreenV2(::popRoute)
                                 MigrationRoute.WorldBook -> CharacterWorldBookScreenV2(
@@ -176,6 +208,8 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                                         starWishInitialTab = StarWishTab.Theater.name
                                         pushRoute(MigrationRoute.Wishes)
                                     },
+                                    focusRequest = studyFocusRequest,
+                                    onFocusRequestConsumed = { studyFocusRequest = 0 },
                                 )
                                 MigrationRoute.Games -> LuluGamesAppV2(
                                     onBack = {
@@ -188,6 +222,21 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                                 MigrationRoute.ChatDetail -> Unit
                             }
                         }
+                    }
+
+                    if (route != MigrationRoute.Study && timerHasProgress) {
+                        StudyFocusMiniWindow(
+                            state = studyState,
+                            task = focusPreferences.activeTask,
+                            onOpen = {
+                                studyFocusRequest += 1
+                                pushRoute(MigrationRoute.Study)
+                            },
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .navigationBarsPadding()
+                                .padding(16.dp),
+                        )
                     }
                 }
             }
