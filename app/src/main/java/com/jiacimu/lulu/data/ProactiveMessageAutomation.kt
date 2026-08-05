@@ -92,8 +92,15 @@ object ProactiveMessageAutomation {
         val currentTime = LocalTime.now()
         val globalQuiet = preferences.quietHoursEnabled && isQuietHour(preferences, currentTime)
 
+        // Proactive private contact must always land in the character's normal one-to-one chat.
+        // Focus-session child threads and group chats are separate contexts and must never become
+        // the destination for a plain proactive message, call notice or journal activity marker.
         val conversation = MigratedDomainStores.chat.conversations.value
-            .filter { it.parentConversationId == null }
+            .filter { candidate ->
+                candidate.parentConversationId == null &&
+                    candidate.groupChat == null &&
+                    !candidate.id.endsWith("-study-focus")
+            }
             .maxByOrNull { it.updatedAt }
             ?: return false
         val messages = MigratedDomainStores.chat.messages(conversation.id).value
@@ -272,7 +279,12 @@ object ProactiveMessageAutomation {
                 )
                 val title = games[decision.gameId] ?: return false
                 val privateConversation = MigratedDomainStores.chat.conversations.value
-                    .filter { it.groupChat == null && it.characterId == characterId && it.parentConversationId == null }
+                    .filter { candidate ->
+                        candidate.groupChat == null &&
+                            candidate.characterId == characterId &&
+                            candidate.parentConversationId == null &&
+                            !candidate.id.endsWith("-study-focus")
+                    }
                     .maxByOrNull { it.updatedAt }
                     ?: MigratedDomainStores.chat.ensureConversation(characterId, character.displayName)
                 val content = "[游戏邀约|${decision.gameId}|$title] ${decision.text.take(240)}"
