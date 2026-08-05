@@ -297,13 +297,14 @@ internal fun StudyCollectionScreen(state: StudyState, store: PostgraduateExamSto
     var message by remember { mutableStateOf("") }
     val tickets = listOf(
         CollectionTicket("抖音时长券 · 20分钟", state.inventory.douyinTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Douyin) },
-        CollectionTicket("游戏畅玩券 · 120分钟", state.inventory.gameTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Game) },
-        CollectionTicket("视频解锁卡", state.inventory.videoCards) { message = store.redeemEntertainment(StudyEntertainmentKind.Video) },
-        CollectionTicket("番剧兑换券 · 3小时", state.inventory.animeTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Anime) },
+        CollectionTicket("游戏局数券 · 4局", state.inventory.gameRoundTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.GameRound) },
         CollectionTicket("小剧场券", state.inventory.theaterFragments) {
             message = store.redeemEntertainment(StudyEntertainmentKind.Theater)
             if (!message.contains("不足") && !message.contains("全部")) onOpenTheater()
         },
+        CollectionTicket("电影券 · 1部", state.inventory.gameTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Game) },
+        CollectionTicket("视频解锁卡", state.inventory.videoCards) { message = store.redeemEntertainment(StudyEntertainmentKind.Video) },
+        CollectionTicket("影视剧一季兑换券", state.inventory.animeTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Anime) },
     )
 
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -434,10 +435,10 @@ internal fun StudyGuideScreen() {
             }
         }
         item { GuideCard("夸夸值", "签到、完成待办和学习时长都会获得夸夸值。累计学习每满5分钟获得100夸夸值，不足部分跨番茄保留。") }
-        item { GuideCard("抽卡概率", "蓝色画卷92.15%；紫色6%（抖音5%、剧场1%）；金色1.5%（游戏券1.2%、视频卡0.3%）；彩色番剧券0.35%。") }
-        item { GuideCard("保底", "连续30抽没有紫／金／彩时，第30抽直接出现紫色结果。") }
+        item { GuideCard("抽卡概率", "蓝色画卷93.95%；紫色4.5%（抖音券2.5%、游戏局数券1%、小剧场券1%）；金色1.2%（电影券0.8%、视频解锁卡0.4%）；彩色影视剧一季兑换券0.35%。") }
+        item { GuideCard("保底", "连续30抽没有紫／金／彩时，第30抽直接出现紫色结果；紫色保底内部按抖音券、游戏局数券和小剧场券的原始比例抽取。") }
         item { GuideCard("画卷碎片", "每套画卷需要10枚自己的专属碎片。已满后仍显示本次抽中物，但不重复计入。") }
-        item { GuideCard("收藏", "紫色、金色和彩色奖励抽到后进入对应收藏：时长券、小剧场券、畅玩券、视频卡和番剧券。") }
+        item { GuideCard("收藏", "抽到的奖励都会进入收藏：抖音20分钟券、游戏4局券、小剧场券、电影券、视频解锁卡和影视剧一季兑换券。") }
         item { GuideCard("商店", "商店使用夸夸值，每日展示3件商品，手动刷新每天最多一次。") }
         item { GuideCard("番茄钟", "番茄钟提供云雾原版和深夜墨蓝两套配色，支持自定义时长、提前结束按实际分钟结算、角色语音和专注中聊天。") }
     }
