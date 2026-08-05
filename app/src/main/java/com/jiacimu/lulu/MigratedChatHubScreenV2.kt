@@ -124,10 +124,12 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val sorted = remember(conversations) {
-        conversations.sortedWith(
-            compareByDescending<LuluConversation> { it.groupChat?.pinned == true }
-                .thenByDescending(LuluConversation::updatedAt),
-        )
+        conversations
+            .filter { it.parentConversationId == null }
+            .sortedWith(
+                compareByDescending<LuluConversation> { it.groupChat?.pinned == true }
+                    .thenByDescending(LuluConversation::updatedAt),
+            )
     }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -208,7 +210,9 @@ private fun ChatHubV2Characters(
     val presenceStates by CompanionPresenceStore.states.collectAsState()
     val sortedCharacters = remember(characters) { characters.values.sortedBy { it.displayName } }
     val recentByCharacter = remember(conversations) {
-        conversations.filter { it.groupChat == null }.groupBy(LuluConversation::characterId)
+        conversations
+            .filter { it.groupChat == null && it.parentConversationId == null }
+            .groupBy(LuluConversation::characterId)
             .mapValues { (_, values) -> values.maxByOrNull(LuluConversation::updatedAt) }
     }
 
