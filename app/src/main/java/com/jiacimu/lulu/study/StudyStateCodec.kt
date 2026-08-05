@@ -34,7 +34,7 @@ internal object StudyStateCodec {
         val json = JSONObject(raw)
         val today = LocalDate.now()
         return StudyState(
-            schemaVersion = 4,
+            schemaVersion = 5,
             activeDate = json.optString("activeDate", today.toString()),
             profile = decodeProfile(json.optJSONObject("profile")),
             inventory = decodeInventory(json.optJSONObject("inventory")),
@@ -98,6 +98,7 @@ internal object StudyStateCodec {
         .put("tenTickets", value.tenTickets)
         .put("blueFragments", encodeStringIntMap(value.blueFragments))
         .put("douyinTickets", value.douyinTickets)
+        .put("gameRoundTickets", value.gameRoundTickets)
         .put("theaterFragments", value.theaterFragments)
         .put("gameTickets", value.gameTickets)
         .put("videoCards", value.videoCards)
@@ -113,6 +114,7 @@ internal object StudyStateCodec {
             tenTickets = json?.optInt("tenTickets", 1) ?: 1,
             blueFragments = decodeStringIntMap(json?.optJSONObject("blueFragments")),
             douyinTickets = json?.optInt("douyinTickets", legacyEntertainment?.optInt("Douyin") ?: 0) ?: 0,
+            gameRoundTickets = json?.optInt("gameRoundTickets", legacyEntertainment?.optInt("Game") ?: 0) ?: 0,
             theaterFragments = json?.optInt("theaterFragments", legacyEntertainment?.optInt("SideStory") ?: 0) ?: 0,
             gameTickets = json?.optInt("gameTickets") ?: 0,
             videoCards = json?.optInt("videoCards") ?: 0,
@@ -173,10 +175,16 @@ internal object StudyStateCodec {
         .put("reward", value.reward.name).put("amount", value.amount).put("purchased", value.purchased)
     private fun decodeShop(json: JSONObject): StudyShopItem {
         val reward = enumOrDefault(json.optString("reward"), StudyShopReward.SingleTicket)
-        return StudyShopItem(
+        val decoded = StudyShopItem(
             id = json.optString("id"), title = json.optString("title"), subtitle = json.optString("subtitle"),
             cost = json.optInt("cost"), reward = reward, amount = json.optInt("amount", 1), purchased = json.optBoolean("purchased"),
         )
+        return when (reward) {
+            StudyShopReward.GameRoundTicket -> decoded.copy(title = "游戏局数券", subtitle = "可畅玩4局")
+            StudyShopReward.GameTicket -> decoded.copy(title = "电影券", subtitle = "可观看1部电影")
+            StudyShopReward.AnimeTicket -> decoded.copy(title = "影视剧一季兑换券", subtitle = "可兑换一季影视剧")
+            else -> decoded
+        }
     }
 
     private fun encodePomodoro(value: PomodoroState) = JSONObject()
