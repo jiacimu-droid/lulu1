@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`81b51fe9f50c34c10f2f597a0fa6a8cbf6fa041d`
+- 基准提交：`40bd238855e0a18c2e139420b67e2a1531012290`
 - 分支：`main`
 - 已索引文件：109
-- 已索引代码/文本行：27810
+- 已索引代码/文本行：27868
 - 已发现符号：463
 
 | 文件 | 行数 | 符号数 |
@@ -75,7 +75,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 377 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 270 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 135 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 748 | 32 |
+| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 806 | 32 |
 | `app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt` | 173 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt` | 65 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt` | 131 | 0 |
