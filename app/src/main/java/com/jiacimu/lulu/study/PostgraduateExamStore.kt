@@ -64,7 +64,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
         today: LocalDate = LocalDate.now(),
     ): Result<String> {
         val snapshot = rollover(mutableState.value, today)
-        if (snapshot.profile.sleepRewardDate == today.toString()) return Result.success("今天的睡眠奖励已经判断过了")
+        if (snapshot.profile.sleepRewardDate == today.toString()) return Result.success("今天的作息奖励已经判断过了")
         val facts = buildString {
             appendLine("日期：$today")
             appendLine("入睡时间：${sleepTime.format(DateTimeFormatter.ofPattern("HH:mm"))}")
@@ -75,28 +75,48 @@ class PostgraduateExamStore internal constructor(context: Context) {
         return LuluAiServices.gateway.generate(
             characterId = snapshot.profile.selectedCharacterId,
             facts = facts,
-            instruction = "结合角色人设、关系边界和用户实际情况决定是否认可本次作息。第一行严格写 ALLOW 或 DENY，后面用角色自己的口吻说明。参考时间不能替代角色判断。",
+            instruction = """
+                分别判断这次记录是否值得获得早睡奖励和早起奖励，两项必须独立判断，不能因为其中一项不理想就否定另一项。
+                第一行严格只写 SLEEP_ALLOW 或 SLEEP_DENY。
+                第二行严格只写 WAKE_ALLOW 或 WAKE_DENY。
+                第三行起用角色自己的口吻自然回应，可以结合睡眠时长和用户实际情况。
+            """.trimIndent(),
             source = "考研",
             title = "作息奖励判断",
-            maxTokens = 360,
+            maxTokens = 420,
         ).map { reply ->
-            val allow = reply.text.lineSequence().firstOrNull()?.trim()?.uppercase() == "ALLOW"
-            val roleText = reply.text.lineSequence().drop(1).joinToString("\n").trim().ifBlank { reply.text.trim() }
-            var result = roleText
+            val lines = reply.text.lineSequence().map(String::trim).filter(String::isNotBlank).toList()
+            val sleepAllowed = lines.any { it.equals("SLEEP_ALLOW", ignoreCase = true) }
+            val wakeAllowed = lines.any { it.equals("WAKE_ALLOW", ignoreCase = true) }
+            val roleText = lines
+                .filterNot {
+                    it.equals("SLEEP_ALLOW", ignoreCase = true) ||
+                        it.equals("SLEEP_DENY", ignoreCase = true) ||
+                        it.equals("WAKE_ALLOW", ignoreCase = true) ||
+                        it.equals("WAKE_DENY", ignoreCase = true)
+                }
+                .joinToString("\n")
+                .trim()
+                .ifBlank { "今天的作息记录我收到了。" }
+            val tickets = (if (sleepAllowed) 1 else 0) + (if (wakeAllowed) 1 else 0)
+            val rewardText = buildList {
+                if (sleepAllowed) add("早睡奖励：十连抽券 +1")
+                if (wakeAllowed) add("早起奖励：十连抽券 +1")
+            }.joinToString("\n").ifBlank { "本次未发放作息奖励" }
+            var result = "$roleText\n$rewardText"
             mutate { current ->
                 val state = rollover(current, today)
-                val praise = if (allow) 500 else 0
-                val tickets = if (allow) 1 else 0
-                result = if (allow) "$roleText\n夸夸值 +500，十连抽券 +1" else roleText
+                if (state.profile.sleepRewardDate == today.toString()) return@mutate state
+                result = "$roleText\n$rewardText"
                 updateAchievements(
                     state.copy(
-                        profile = state.profile.copy(
-                            praisePoints = state.profile.praisePoints + praise,
-                            experience = state.profile.experience + praise,
-                            sleepRewardDate = today.toString(),
-                        ),
+                        profile = state.profile.copy(sleepRewardDate = today.toString()),
                         inventory = state.inventory.copy(tenTickets = state.inventory.tenTickets + tickets),
-                        events = addEvent(state.events, if (allow) "作息奖励通过" else "作息奖励未通过", result),
+                        events = addEvent(
+                            state.events,
+                            if (tickets > 0) "作息奖励" else "作息记录",
+                            result,
+                        ),
                     ),
                 )
             }
@@ -146,27 +166,29 @@ class PostgraduateExamStore internal constructor(context: Context) {
         mutate { state ->
             val task = state.tasks.firstOrNull { it.id == taskId } ?: return@mutate state
             val complete = !task.completed
-            val firstReward = complete
             val today = LocalDate.now().toString()
+            val firstReward = complete && !task.rewarded && task.date == today
             val tasks = state.tasks.map {
                 if (it.id == taskId) it.copy(
                     completed = complete,
                     pomodoroCompleted = if (complete) max(it.pomodoroCompleted, it.pomodoroTarget) else it.pomodoroCompleted,
+                    rewarded = it.rewarded || firstReward,
                 ) else it
             }
             val allTodayComplete = allTasksCompleteForDate(tasks, today)
+            val detail = if (firstReward) "$task.title · 夸夸值 +$TASK_COMPLETION_PRAISE" else task.title
             updateAchievements(
                 state.copy(
                     tasks = tasks,
                     profile = state.profile.copy(
-                        praisePoints = state.profile.praisePoints + if (firstReward) 50 else 0,
-                        experience = state.profile.experience + if (firstReward) 50 else 0,
+                        praisePoints = state.profile.praisePoints + if (firstReward) TASK_COMPLETION_PRAISE else 0,
+                        experience = state.profile.experience + if (firstReward) TASK_COMPLETION_PRAISE else 0,
                         totalTasksCompleted = state.profile.totalTasksCompleted + if (firstReward) 1 else 0,
                         lastStudyDate = if (firstReward) today else state.profile.lastStudyDate,
                     ),
                     superMomentAvailable = state.superMomentAvailable ||
                         (allTodayComplete && state.superMomentClaimedDate != today),
-                    events = addEvent(state.events, if (complete) "待办完成" else "待办取消", task.title),
+                    events = addEvent(state.events, if (complete) "待办完成" else "待办取消", detail),
                 ),
             )
         }
@@ -308,20 +330,30 @@ class PostgraduateExamStore internal constructor(context: Context) {
             val rewardMinutes = state.pendingRewardMinutes + minutes
             val rewardCount = rewardMinutes / STUDY_REWARD_INTERVAL_MINUTES
             val remainder = rewardMinutes % STUDY_REWARD_INTERVAL_MINUTES
-            val praise = rewardCount * STUDY_REWARD_PRAISE
-            message = if (rewardCount > 0) {
-                "学习 $minutes 分钟，夸夸值 +$praise"
-            } else {
-                "学习 $minutes 分钟，抽卡进度 $remainder/$STUDY_REWARD_INTERVAL_MINUTES 分钟"
-            }
+            val studyPraise = rewardCount * STUDY_REWARD_PRAISE
             val firstPendingIndex = state.tasks.indexOfFirst { it.date == date && !it.completed }
             var taskCompleted = false
             val tasks = state.tasks.mapIndexed { index, task ->
                 if (index == firstPendingIndex) {
                     val progress = (task.pomodoroCompleted + 1).coerceAtMost(task.pomodoroTarget)
-                    taskCompleted = progress >= task.pomodoroTarget && !task.completed
-                    task.copy(pomodoroCompleted = progress, completed = task.completed || progress >= task.pomodoroTarget)
+                    val reachesTarget = progress >= task.pomodoroTarget
+                    taskCompleted = reachesTarget && !task.rewarded
+                    task.copy(
+                        pomodoroCompleted = progress,
+                        completed = task.completed || reachesTarget,
+                        rewarded = task.rewarded || taskCompleted,
+                    )
                 } else task
+            }
+            val taskPraise = if (taskCompleted) TASK_COMPLETION_PRAISE else 0
+            val totalPraise = studyPraise + taskPraise
+            message = buildString {
+                if (rewardCount > 0) {
+                    append("学习 $minutes 分钟，夸夸值 +$studyPraise")
+                } else {
+                    append("学习 $minutes 分钟，抽卡进度 $remainder/$STUDY_REWARD_INTERVAL_MINUTES 分钟")
+                }
+                if (taskCompleted) append("；待办完成，夸夸值 +$TASK_COMPLETION_PRAISE")
             }
             val allTodayComplete = allTasksCompleteForDate(tasks, date)
             val totalPomodoros = state.profile.totalPomodoros + 1
@@ -330,8 +362,8 @@ class PostgraduateExamStore internal constructor(context: Context) {
                     tasks = tasks,
                     pendingRewardMinutes = remainder,
                     profile = state.profile.copy(
-                        praisePoints = state.profile.praisePoints + praise,
-                        experience = state.profile.experience + praise,
+                        praisePoints = state.profile.praisePoints + totalPraise,
+                        experience = state.profile.experience + totalPraise,
                         totalStudyMinutes = state.profile.totalStudyMinutes + minutes,
                         totalPomodoros = totalPomodoros,
                         totalTasksCompleted = state.profile.totalTasksCompleted + if (taskCompleted) 1 else 0,
@@ -576,38 +608,6 @@ class PostgraduateExamStore internal constructor(context: Context) {
         return message
     }
 
-    fun claimLevel(level: Int): String {
-        var message = "等级奖励尚未达到或已经领取"
-        mutate { state ->
-            if (level > state.profile.level || level in state.profile.claimedLevels || level !in 1..StudyLevels.thresholds.size) return@mutate state
-            val tickets = when {
-                level >= 15 -> 5
-                level >= 12 -> 2
-                level % 3 == 0 -> 1
-                else -> 0
-            }
-            val praise = when {
-                level >= 15 -> 3_000
-                level >= 10 -> 1_000
-                else -> level * 100
-            }
-            message = buildString {
-                append("领取 Lv.$level：夸夸值 +$praise")
-                if (tickets > 0) append("，十连抽券 +$tickets")
-            }
-            state.copy(
-                profile = state.profile.copy(
-                    claimedLevels = state.profile.claimedLevels + level,
-                    praisePoints = state.profile.praisePoints + praise,
-                    experience = state.profile.experience + praise,
-                ),
-                inventory = state.inventory.copy(tenTickets = state.inventory.tenTickets + tickets),
-                events = addEvent(state.events, "等级奖励", message),
-            )
-        }
-        return message
-    }
-
     fun refreshShop(today: LocalDate = LocalDate.now()): String {
         var message = "今天已经手动刷新过了"
         mutate { state ->
@@ -658,22 +658,28 @@ class PostgraduateExamStore internal constructor(context: Context) {
 
     private fun updateAchievements(state: StudyState): StudyState {
         val claims = state.achievements.associate { it.id to it.claimed }
+        val maxDailyStudyMinutes = state.dailyStudyMinutes.values.maxOrNull() ?: 0
         val values = listOf(
-            StudyAchievement("pomodoro_3", "热身完成", "累计完成3个番茄钟", state.profile.totalPomodoros, 3),
-            StudyAchievement("pomodoro_10", "初识陪伴", "累计完成10个番茄钟", state.profile.totalPomodoros, 10),
-            StudyAchievement("pomodoro_20", "渐入佳境", "累计完成20个番茄钟", state.profile.totalPomodoros, 20),
-            StudyAchievement("pomodoro_50", "专注成林", "累计完成50个番茄钟", state.profile.totalPomodoros, 50, 2, 200),
-            StudyAchievement("pomodoro_100", "百次同行", "累计完成100个番茄钟", state.profile.totalPomodoros, 100, 3, 1_000),
-            StudyAchievement("task_10", "清单起势", "累计完成10项待办", state.profile.totalTasksCompleted, 10),
-            StudyAchievement("task_30", "清单杀手", "累计完成30项待办", state.profile.totalTasksCompleted, 30),
-            StudyAchievement("task_50", "步步兑现", "累计完成50项待办", state.profile.totalTasksCompleted, 50, 2, 500),
-            StudyAchievement("study_10h", "坐稳书桌", "累计学习10小时", state.profile.totalStudyMinutes, 600),
-            StudyAchievement("study_50h", "时光旅人", "累计学习50小时", state.profile.totalStudyMinutes, 3_000, 2, 300),
-            StudyAchievement("study_100h", "百小时灯火", "累计学习100小时", state.profile.totalStudyMinutes, 6_000, 2, 1_000),
-            StudyAchievement("outfit_1", "第一画卷", "解锁第一套画卷", state.inventory.unlockedScrolls.size, 1),
-            StudyAchievement("outfit_3", "画卷收藏家", "解锁3套画卷", state.inventory.unlockedScrolls.size, 3, 2, 500),
-            StudyAchievement("draw_20", "好运初现", "累计抽卡20次", state.profile.totalDraws, 20),
-            StudyAchievement("video_1", "第一支视频", "首次解锁视频", state.inventory.unlockedVideos.size, 1),
+            StudyAchievement("pomodoro_100", "百次落座", "累计完成100个番茄钟", state.profile.totalPomodoros, 100, 5, 500),
+            StudyAchievement("pomodoro_300", "三百次不退场", "累计完成300个番茄钟", state.profile.totalPomodoros, 300, 10, 1_000),
+            StudyAchievement("pomodoro_500", "五百次专注", "累计完成500个番茄钟", state.profile.totalPomodoros, 500, 15, 2_000),
+            StudyAchievement("pomodoro_1000", "千次钟声", "累计完成1000个番茄钟", state.profile.totalPomodoros, 1_000, 30, 5_000),
+            StudyAchievement("task_100", "百项兑现", "累计完成100项待办", state.profile.totalTasksCompleted, 100, 5, 800),
+            StudyAchievement("task_300", "清单成山", "累计完成300项待办", state.profile.totalTasksCompleted, 300, 10, 1_500),
+            StudyAchievement("task_500", "五百次完成", "累计完成500项待办", state.profile.totalTasksCompleted, 500, 15, 3_000),
+            StudyAchievement("task_1000", "千项落地", "累计完成1000项待办", state.profile.totalTasksCompleted, 1_000, 30, 6_000),
+            StudyAchievement("study_50h", "五十小时灯火", "累计学习50小时", state.profile.totalStudyMinutes, 3_000, 5, 500),
+            StudyAchievement("study_100h", "百小时长路", "累计学习100小时", state.profile.totalStudyMinutes, 6_000, 10, 1_000),
+            StudyAchievement("study_300h", "三百小时沉潜", "累计学习300小时", state.profile.totalStudyMinutes, 18_000, 20, 3_000),
+            StudyAchievement("study_500h", "五百小时成林", "累计学习500小时", state.profile.totalStudyMinutes, 30_000, 30, 5_000),
+            StudyAchievement("study_1000h", "千小时远征", "累计学习1000小时", state.profile.totalStudyMinutes, 60_000, 50, 10_000),
+            StudyAchievement("daily_5h", "长日初成", "单日学习达到5小时", maxDailyStudyMinutes, 300, 5, 500),
+            StudyAchievement("daily_6h", "六小时定力", "单日学习达到6小时", maxDailyStudyMinutes, 360, 8, 800),
+            StudyAchievement("daily_7h", "七小时深潜", "单日学习达到7小时", maxDailyStudyMinutes, 420, 12, 1_200),
+            StudyAchievement("daily_8h", "八小时全神", "单日学习达到8小时", maxDailyStudyMinutes, 480, 20, 2_000),
+            StudyAchievement("vocab_5000", "五千词痕", "累计复习5000个词", state.profile.vocabularyReviewed, 5_000, 5, 500),
+            StudyAchievement("vocab_10000", "万词成路", "累计复习10000个词", state.profile.vocabularyReviewed, 10_000, 10, 1_000),
+            StudyAchievement("vocab_30000", "三万次重逢", "累计复习30000个词", state.profile.vocabularyReviewed, 30_000, 20, 3_000),
         )
         return state.copy(achievements = values.map { it.copy(claimed = claims[it.id] == true) })
     }
