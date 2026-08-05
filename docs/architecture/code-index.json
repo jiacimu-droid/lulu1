@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T18:24:33.174274+00:00",
-  "commit": "8bd495eb8ffb28b889b435647cc40b97a2c6ef57",
+  "generatedAt": "2026-08-05T18:25:12.028339+00:00",
+  "commit": "2ac9788ccdecf96891c2465400cb6ed9f4f838e7",
   "branch": "main",
-  "sourceFingerprint": "d4e7db0bdb05a69352df2aaa45a0691c129a2d1b7b8c6395b2deb5f3a9c8ceb3",
+  "sourceFingerprint": "901480952087c61d7e4790d88aac95f7da34ba40082342e3d2b6ca3f49fc5c38",
   "summary": {
     "files": 109,
     "lines": 27982,
@@ -4917,7 +4917,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
       "lines": 348,
-      "sha256": "253fec55c285677b1a3f4f4abd575f976a8feb11f85874c97774284b5a86a2ae",
+      "sha256": "9d8f3464dcc4f21820215582421ca32c1851415bc82afbe4b2bb355e6bcf25e7",
       "symbols": [
         {
           "name": "StudyFocusTheme",
