@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T18:54:28.380094+00:00",
-  "commit": "2da514ea33778ef21bd55a5c135ab56afcd23230",
+  "generatedAt": "2026-08-05T19:03:36.167438+00:00",
+  "commit": "0b41489513b56a05287097602123da509556fb74",
   "branch": "main",
-  "sourceFingerprint": "e3477f796cfc0086e32592aafb3a43f539e7c28bededbcde1d90ee545e502122",
+  "sourceFingerprint": "37826e1093ab4d1888755a5a3812f7efb81193f95137763295e613bfdd0a872b",
   "summary": {
     "files": 110,
-    "lines": 28511,
-    "symbols": 464
+    "lines": 28520,
+    "symbols": 465
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -345,7 +345,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 33
+        "line": 36
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt",
@@ -849,25 +849,31 @@
     "CompanionPresenceState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 10
+        "line": 11
       }
     ],
     "CompanionPresenceStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 22
+        "line": 25
       }
     ],
     "current": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 39
+        "line": 42
+      }
+    ],
+    "recordPerceptionAttempt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
+        "line": 47
       }
     ],
     "update": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 43
+        "line": 59
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
@@ -3412,28 +3418,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-      "lines": 162,
-      "sha256": "3f9a292070144970f6f388ee938c7ad1d1067b2ccfd5d7042d7c7a6be696ec12",
+      "lines": 171,
+      "sha256": "bcfe19e6b2dfc57e36e062939c42017885a35718b7de31d02a181040a250d2b4",
       "symbols": [
         {
           "name": "CompanionPresenceState",
-          "line": 10
+          "line": 11
         },
         {
           "name": "CompanionPresenceStore",
-          "line": 22
+          "line": 25
         },
         {
           "name": "initialize",
-          "line": 33
+          "line": 36
         },
         {
           "name": "current",
-          "line": 39
+          "line": 42
+        },
+        {
+          "name": "recordPerceptionAttempt",
+          "line": 47
         },
         {
           "name": "update",
-          "line": 43
+          "line": 59
         }
       ]
     },
