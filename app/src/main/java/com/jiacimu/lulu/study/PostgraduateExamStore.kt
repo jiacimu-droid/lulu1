@@ -200,10 +200,12 @@ class PostgraduateExamStore internal constructor(context: Context) {
         if (safe == 0) return
         val date = LocalDate.now().toString()
         mutate { state ->
-            state.copy(
-                profile = state.profile.copy(vocabularyReviewed = state.profile.vocabularyReviewed + safe),
-                dailyVocabularyReviewed = state.dailyVocabularyReviewed + (date to ((state.dailyVocabularyReviewed[date] ?: 0) + safe)),
-                events = addEvent(state.events, "词汇复习", "记录复习 $safe 个词"),
+            updateAchievements(
+                state.copy(
+                    profile = state.profile.copy(vocabularyReviewed = state.profile.vocabularyReviewed + safe),
+                    dailyVocabularyReviewed = state.dailyVocabularyReviewed + (date to ((state.dailyVocabularyReviewed[date] ?: 0) + safe)),
+                    events = addEvent(state.events, "词汇复习", "记录复习 $safe 个词"),
+                ),
             )
         }
     }
@@ -639,29 +641,84 @@ class PostgraduateExamStore internal constructor(context: Context) {
     private fun updateAchievements(state: StudyState): StudyState {
         val claims = state.achievements.associate { it.id to it.claimed }
         val maxDailyStudyMinutes = state.dailyStudyMinutes.values.maxOrNull() ?: 0
+        val maxSevenDayStudyMinutes = maxStudyMinutesInWindow(state.dailyStudyMinutes, 7)
+        val longestThreeHourStreak = longestStudyStreak(state.dailyStudyMinutes, 180)
         val values = listOf(
+            StudyAchievement("daily_5h", "长日初成", "单日学习达到5小时", maxDailyStudyMinutes, 300, 5, 500),
+            StudyAchievement("daily_6h", "六小时定力", "单日学习达到6小时", maxDailyStudyMinutes, 360, 8, 800),
+            StudyAchievement("daily_7h", "七小时深潜", "单日学习达到7小时", maxDailyStudyMinutes, 420, 12, 1_200),
+            StudyAchievement("daily_8h", "八小时全神", "单日学习达到8小时", maxDailyStudyMinutes, 480, 20, 2_000),
+            StudyAchievement("week_25h", "七日二十五小时", "任意连续7天累计学习25小时", maxSevenDayStudyMinutes, 1_500, 10, 1_000),
+            StudyAchievement("week_30h", "七日三十小时", "任意连续7天累计学习30小时", maxSevenDayStudyMinutes, 1_800, 15, 1_500),
+            StudyAchievement("week_35h", "七日三十五小时", "任意连续7天累计学习35小时", maxSevenDayStudyMinutes, 2_100, 20, 2_000),
+            StudyAchievement("week_40h", "七日四十小时", "任意连续7天累计学习40小时", maxSevenDayStudyMinutes, 2_400, 30, 3_000),
+            StudyAchievement("streak_3h_14", "十四日不断线", "连续14天每天学习至少3小时", longestThreeHourStreak, 14, 10, 1_000),
+            StudyAchievement("streak_3h_30", "三十日成习", "连续30天每天学习至少3小时", longestThreeHourStreak, 30, 20, 2_500),
+            StudyAchievement("streak_3h_60", "六十日长燃", "连续60天每天学习至少3小时", longestThreeHourStreak, 60, 35, 5_000),
+            StudyAchievement("streak_3h_100", "百日不熄", "连续100天每天学习至少3小时", longestThreeHourStreak, 100, 60, 10_000),
             StudyAchievement("pomodoro_100", "百次落座", "累计完成100个番茄钟", state.profile.totalPomodoros, 100, 5, 500),
             StudyAchievement("pomodoro_300", "三百次不退场", "累计完成300个番茄钟", state.profile.totalPomodoros, 300, 10, 1_000),
             StudyAchievement("pomodoro_500", "五百次专注", "累计完成500个番茄钟", state.profile.totalPomodoros, 500, 15, 2_000),
             StudyAchievement("pomodoro_1000", "千次钟声", "累计完成1000个番茄钟", state.profile.totalPomodoros, 1_000, 30, 5_000),
+            StudyAchievement("pomodoro_2000", "两千次归位", "累计完成2000个番茄钟", state.profile.totalPomodoros, 2_000, 60, 12_000),
             StudyAchievement("task_100", "百项兑现", "累计完成100项待办", state.profile.totalTasksCompleted, 100, 5, 800),
             StudyAchievement("task_300", "清单成山", "累计完成300项待办", state.profile.totalTasksCompleted, 300, 10, 1_500),
             StudyAchievement("task_500", "五百次完成", "累计完成500项待办", state.profile.totalTasksCompleted, 500, 15, 3_000),
             StudyAchievement("task_1000", "千项落地", "累计完成1000项待办", state.profile.totalTasksCompleted, 1_000, 30, 6_000),
+            StudyAchievement("task_2000", "两千项兑现", "累计完成2000项待办", state.profile.totalTasksCompleted, 2_000, 60, 12_000),
             StudyAchievement("study_50h", "五十小时灯火", "累计学习50小时", state.profile.totalStudyMinutes, 3_000, 5, 500),
             StudyAchievement("study_100h", "百小时长路", "累计学习100小时", state.profile.totalStudyMinutes, 6_000, 10, 1_000),
             StudyAchievement("study_300h", "三百小时沉潜", "累计学习300小时", state.profile.totalStudyMinutes, 18_000, 20, 3_000),
             StudyAchievement("study_500h", "五百小时成林", "累计学习500小时", state.profile.totalStudyMinutes, 30_000, 30, 5_000),
             StudyAchievement("study_1000h", "千小时远征", "累计学习1000小时", state.profile.totalStudyMinutes, 60_000, 50, 10_000),
-            StudyAchievement("daily_5h", "长日初成", "单日学习达到5小时", maxDailyStudyMinutes, 300, 5, 500),
-            StudyAchievement("daily_6h", "六小时定力", "单日学习达到6小时", maxDailyStudyMinutes, 360, 8, 800),
-            StudyAchievement("daily_7h", "七小时深潜", "单日学习达到7小时", maxDailyStudyMinutes, 420, 12, 1_200),
-            StudyAchievement("daily_8h", "八小时全神", "单日学习达到8小时", maxDailyStudyMinutes, 480, 20, 2_000),
+            StudyAchievement("study_1500h", "一千五百小时", "累计学习1500小时", state.profile.totalStudyMinutes, 90_000, 80, 16_000),
+            StudyAchievement("study_2000h", "两千小时长征", "累计学习2000小时", state.profile.totalStudyMinutes, 120_000, 100, 20_000),
             StudyAchievement("vocab_5000", "五千词痕", "累计复习5000个词", state.profile.vocabularyReviewed, 5_000, 5, 500),
             StudyAchievement("vocab_10000", "万词成路", "累计复习10000个词", state.profile.vocabularyReviewed, 10_000, 10, 1_000),
             StudyAchievement("vocab_30000", "三万次重逢", "累计复习30000个词", state.profile.vocabularyReviewed, 30_000, 20, 3_000),
+            StudyAchievement("vocab_50000", "五万词海", "累计复习50000个词", state.profile.vocabularyReviewed, 50_000, 35, 5_000),
         )
         return state.copy(achievements = values.map { it.copy(claimed = claims[it.id] == true) })
+    }
+
+    private fun maxStudyMinutesInWindow(
+        dailyStudyMinutes: Map<String, Int>,
+        windowDays: Int,
+    ): Int {
+        val dates = dailyStudyMinutes.keys.mapNotNull { runCatching(LocalDate::parse).getOrNull() }.sorted()
+        if (dates.isEmpty() || windowDays <= 0) return 0
+        var start = dates.first()
+        val last = dates.last()
+        var best = 0
+        while (!start.isAfter(last)) {
+            var total = 0
+            repeat(windowDays) { offset ->
+                total += dailyStudyMinutes[start.plusDays(offset.toLong()).toString()] ?: 0
+            }
+            best = maxOf(best, total)
+            start = start.plusDays(1)
+        }
+        return best
+    }
+
+    private fun longestStudyStreak(
+        dailyStudyMinutes: Map<String, Int>,
+        minimumDailyMinutes: Int,
+    ): Int {
+        val dates = dailyStudyMinutes
+            .filterValues { it >= minimumDailyMinutes }
+            .keys
+            .mapNotNull { runCatching(LocalDate::parse).getOrNull() }
+            .distinct()
+            .sorted()
+        if (dates.isEmpty()) return 0
+        var longest = 1
+        var current = 1
+        for (index in 1 until dates.size) {
+            current = if (dates[index] == dates[index - 1].plusDays(1)) current + 1 else 1
+            longest = maxOf(longest, current)
+        }
+        return longest
     }
 
     private fun rollover(state: StudyState, today: LocalDate): StudyState {
