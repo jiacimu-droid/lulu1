@@ -642,10 +642,7 @@ private fun FocusSetupScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Column(Modifier.weight(1f)) {
-                            Text("角色语音", fontWeight = FontWeight.SemiBold)
-                            Text("角色回复时是否朗读出来", color = StudyDesign.muted, fontSize = 12.sp)
-                        }
+                        Text("角色语音", modifier = Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
                         Switch(checked = voiceEnabled, onCheckedChange = { onVoice() })
                     }
                     HorizontalDivider(color = StudyDesign.border)
@@ -654,24 +651,16 @@ private fun FocusSetupScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Column(Modifier.weight(1f)) {
-                            Text("开场与结束主动对话", fontWeight = FontWeight.SemiBold)
-                            Text(
-                                "开启后每轮开始和结束时角色会主动说一句；关闭后只回应你主动发言",
-                                color = StudyDesign.muted,
-                                fontSize = 12.sp,
-                            )
-                        }
+                        Text(
+                            "开场与结束主动对话",
+                            modifier = Modifier.weight(1f),
+                            fontWeight = FontWeight.SemiBold,
+                        )
                         Switch(
                             checked = automaticDialogueEnabled,
                             onCheckedChange = onAutomaticDialogue,
                         )
                     }
-                    Text(
-                        "专注氛围可在番茄钟进行中随时切换。",
-                        color = StudyDesign.muted,
-                        fontSize = 12.sp,
-                    )
                 }
             }
             if (message.isNotBlank()) item { StudyMessage(message, error) }
