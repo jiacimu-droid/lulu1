@@ -1,9 +1,20 @@
 package com.jiacimu.lulu.study
 
 import android.content.Context
+import com.jiacimu.lulu.LuluSpeechEngine
+import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.data.LuluChatMessage
+import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.SharedExperienceTimeline
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import java.time.Instant
+import java.util.UUID
 
 enum class StudyFocusTheme(val label: String) {
     CLOUD("云雾原版"),
@@ -13,6 +24,14 @@ enum class StudyFocusTheme(val label: String) {
 data class StudyFocusPreferences(
     val task: String = "完成当前最重要的一项学习任务",
     val theme: StudyFocusTheme = StudyFocusTheme.CLOUD,
+    val automaticDialogueEnabled: Boolean = true,
+    val activeSessionId: String = "",
+    val activeCharacterId: String = "",
+    val activeTask: String = "",
+    val sessionMessageStart: Int = 0,
+    val sessionStartedAtEpochMillis: Long = 0L,
+    val openingHandled: Boolean = false,
+    val completionHandled: Boolean = false,
 )
 
 class StudyFocusSessionStore private constructor(context: Context) {
@@ -21,14 +40,75 @@ class StudyFocusSessionStore private constructor(context: Context) {
     val state: StateFlow<StudyFocusPreferences> = mutable.asStateFlow()
 
     fun updateTask(task: String) {
-        val clean = task.trim().take(200)
-        mutable.value = mutable.value.copy(task = clean)
-        prefs.edit().putString(KEY_TASK, clean).apply()
+        update { it.copy(task = task.trim().take(200)) }
     }
 
     fun updateTheme(theme: StudyFocusTheme) {
-        mutable.value = mutable.value.copy(theme = theme)
-        prefs.edit().putString(KEY_THEME, theme.name).apply()
+        update { it.copy(theme = theme) }
+    }
+
+    fun updateAutomaticDialogue(enabled: Boolean) {
+        update { it.copy(automaticDialogueEnabled = enabled) }
+    }
+
+    fun beginSession(
+        characterId: String,
+        task: String,
+        messageStart: Int,
+        startedAtEpochMillis: Long = System.currentTimeMillis(),
+    ) {
+        val cleanTask = task.trim().take(200)
+        update {
+            it.copy(
+                task = cleanTask,
+                activeSessionId = UUID.randomUUID().toString(),
+                activeCharacterId = characterId.trim().ifBlank { "lulu" },
+                activeTask = cleanTask,
+                sessionMessageStart = messageStart.coerceAtLeast(0),
+                sessionStartedAtEpochMillis = startedAtEpochMillis,
+                openingHandled = false,
+                completionHandled = false,
+            )
+        }
+    }
+
+    fun markOpeningHandled() {
+        update { it.copy(openingHandled = true) }
+    }
+
+    fun markCompletionHandled() {
+        update { it.copy(completionHandled = true) }
+    }
+
+    fun clearSession() {
+        update {
+            it.copy(
+                activeSessionId = "",
+                activeCharacterId = "",
+                activeTask = "",
+                sessionMessageStart = 0,
+                sessionStartedAtEpochMillis = 0L,
+                openingHandled = false,
+                completionHandled = false,
+            )
+        }
+    }
+
+    private fun update(transform: (StudyFocusPreferences) -> StudyFocusPreferences) {
+        val next = transform(mutable.value)
+        mutable.value = next
+        prefs.edit()
+            .putString(KEY_TASK, next.task)
+            .putString(KEY_THEME, next.theme.name)
+            .putBoolean(KEY_AUTOMATIC_DIALOGUE, next.automaticDialogueEnabled)
+            .putString(KEY_ACTIVE_SESSION_ID, next.activeSessionId)
+            .putString(KEY_ACTIVE_CHARACTER_ID, next.activeCharacterId)
+            .putString(KEY_ACTIVE_TASK, next.activeTask)
+            .putInt(KEY_SESSION_MESSAGE_START, next.sessionMessageStart)
+            .putLong(KEY_SESSION_STARTED_AT, next.sessionStartedAtEpochMillis)
+            .putBoolean(KEY_OPENING_HANDLED, next.openingHandled)
+            .putBoolean(KEY_COMPLETION_HANDLED, next.completionHandled)
+            .apply()
     }
 
     private fun load(): StudyFocusPreferences {
@@ -38,9 +118,18 @@ class StudyFocusSessionStore private constructor(context: Context) {
             "WarmBrown", StudyFocusTheme.CLOUD.name -> StudyFocusTheme.CLOUD
             else -> StudyFocusTheme.CLOUD
         }
+        val task = prefs.getString(KEY_TASK, null).orEmpty().ifBlank { "完成当前最重要的一项学习任务" }
         return StudyFocusPreferences(
-            task = prefs.getString(KEY_TASK, null).orEmpty().ifBlank { "完成当前最重要的一项学习任务" },
+            task = task,
             theme = theme,
+            automaticDialogueEnabled = prefs.getBoolean(KEY_AUTOMATIC_DIALOGUE, true),
+            activeSessionId = prefs.getString(KEY_ACTIVE_SESSION_ID, "").orEmpty(),
+            activeCharacterId = prefs.getString(KEY_ACTIVE_CHARACTER_ID, "").orEmpty(),
+            activeTask = prefs.getString(KEY_ACTIVE_TASK, "").orEmpty(),
+            sessionMessageStart = prefs.getInt(KEY_SESSION_MESSAGE_START, 0).coerceAtLeast(0),
+            sessionStartedAtEpochMillis = prefs.getLong(KEY_SESSION_STARTED_AT, 0L).coerceAtLeast(0L),
+            openingHandled = prefs.getBoolean(KEY_OPENING_HANDLED, false),
+            completionHandled = prefs.getBoolean(KEY_COMPLETION_HANDLED, false),
         )
     }
 
@@ -48,16 +137,157 @@ class StudyFocusSessionStore private constructor(context: Context) {
         private const val PREFS_NAME = "lulu_study_focus"
         private const val KEY_TASK = "task"
         private const val KEY_THEME = "theme"
+        private const val KEY_AUTOMATIC_DIALOGUE = "automatic_dialogue"
+        private const val KEY_ACTIVE_SESSION_ID = "active_session_id"
+        private const val KEY_ACTIVE_CHARACTER_ID = "active_character_id"
+        private const val KEY_ACTIVE_TASK = "active_task"
+        private const val KEY_SESSION_MESSAGE_START = "session_message_start"
+        private const val KEY_SESSION_STARTED_AT = "session_started_at"
+        private const val KEY_OPENING_HANDLED = "opening_handled"
+        private const val KEY_COMPLETION_HANDLED = "completion_handled"
+
         fun create(context: Context): StudyFocusSessionStore = StudyFocusSessionStore(context.applicationContext)
     }
 }
 
 object StudyFocusSessions {
     private var internal: StudyFocusSessionStore? = null
+    private var speechEngine: LuluSpeechEngine? = null
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
     val store: StudyFocusSessionStore
         get() = checkNotNull(internal) { "StudyFocusSessions 尚未初始化" }
 
     fun initialize(context: Context) {
         if (internal == null) internal = StudyFocusSessionStore.create(context.applicationContext)
+        if (speechEngine == null) speechEngine = LuluSpeechEngine(context.applicationContext)
+    }
+
+    fun beginSession(characterId: String, task: String, messageStart: Int) {
+        store.beginSession(characterId, task, messageStart)
+    }
+
+    fun clearSession() {
+        store.clearSession()
+    }
+
+    fun speakIfEnabled(text: String, enabled: Boolean) {
+        if (!enabled || text.isBlank()) return
+        speechEngine?.speak(text, scope)
+    }
+
+    fun requestOpeningLine(studyState: StudyState) {
+        val focus = store.state.value
+        if (focus.activeSessionId.isBlank() || focus.openingHandled) return
+        store.markOpeningHandled()
+        if (!focus.automaticDialogueEnabled) return
+
+        val characterId = focus.activeCharacterId.ifBlank { studyState.profile.selectedCharacterId }
+        val task = focus.activeTask.ifBlank { focus.task }
+        val conversationId = "$characterId-study-focus"
+        val character = MigratedDomainStores.characters.get(characterId)
+        ensureStudyFocusConversation(characterId, character.displayName)
+
+        scope.launch {
+            LuluAiServices.gateway.generate(
+                characterId = characterId,
+                facts = buildString {
+                    appendLine(studyState.roleStudyContext())
+                    appendLine("本次专注任务：$task")
+                    appendLine("计划时长：${studyState.pomodoro.selectedMinutes}分钟")
+                    appendLine("番茄钟已经由程序真实启动。")
+                },
+                instruction = "以角色自己的身份给出本次专注开始时会说的话，1-3句。不得默认温柔、夸奖或亲密；不得虚构用户已经完成任务。",
+                source = "考研",
+                title = "番茄钟开场",
+                maxTokens = 260,
+            ).onSuccess { reply ->
+                val text = reply.text.trim()
+                if (text.isNotBlank()) {
+                    MigratedDomainStores.chat.appendCharacterMessage(conversationId, text)
+                    speakIfEnabled(text, studyState.pomodoro.voiceEnabled)
+                }
+            }
+        }
+    }
+
+    fun handleNaturalCompletion(studyStore: PostgraduateExamStore, actualMinutes: Int) {
+        completeSession(
+            studyStore = studyStore,
+            actualMinutes = actualMinutes,
+            reason = "番茄钟自然结束",
+            rewardMessage = "完整完成本轮专注",
+            recordExperience = true,
+        )
+    }
+
+    fun completeSession(
+        studyStore: PostgraduateExamStore,
+        actualMinutes: Int,
+        reason: String,
+        rewardMessage: String = "",
+        recordExperience: Boolean = true,
+    ) {
+        val focus = store.state.value
+        if (focus.activeSessionId.isBlank() || focus.completionHandled) return
+        store.markCompletionHandled()
+
+        val studyState = studyStore.state.value
+        val characterId = focus.activeCharacterId.ifBlank { studyState.profile.selectedCharacterId }
+        val task = focus.activeTask.ifBlank { focus.task }
+        val conversationId = "$characterId-study-focus"
+        val character = MigratedDomainStores.characters.get(characterId)
+        ensureStudyFocusConversation(characterId, character.displayName)
+
+        if (recordExperience && actualMinutes > 0) {
+            val allMessages = MigratedDomainStores.chat.messages(conversationId).value
+            val start = focus.sessionMessageStart.coerceIn(0, allMessages.size)
+            val transcript = allMessages
+                .drop(start)
+                .filter { it.sender != LuluChatMessage.Sender.System }
+                .joinToString("\n") { message ->
+                    val speaker = if (message.sender == LuluChatMessage.Sender.User) "用户" else character.displayName
+                    "$speaker：${message.content.trim()}"
+                }
+            SharedExperienceTimeline.remember(
+                memoryId = "focus-${focus.activeSessionId}",
+                characterId = characterId,
+                label = "共同专注",
+                detail = buildString {
+                    append("任务“$task”，实际专注 ${actualMinutes.coerceAtLeast(1)} 分钟，$reason。")
+                    if (transcript.isNotBlank()) append("专注期间的对话：\n$transcript")
+                },
+                occurredAt = focus.sessionStartedAtEpochMillis
+                    .takeIf { it > 0L }
+                    ?.let(Instant::ofEpochMilli)
+                    ?: Instant.now(),
+                strength = 6,
+                source = "study-focus",
+            )
+        }
+
+        if (!focus.automaticDialogueEnabled) return
+        scope.launch {
+            LuluAiServices.gateway.generate(
+                characterId = characterId,
+                facts = buildString {
+                    appendLine(studyState.roleStudyContext())
+                    appendLine("本次任务：$task")
+                    appendLine("实际记录时长：${actualMinutes.coerceAtLeast(0)}分钟")
+                    appendLine("结束方式：$reason")
+                    if (rewardMessage.isNotBlank()) appendLine("程序结算：$rewardMessage")
+                },
+                instruction = "根据真实完成时长、任务和结束方式，以角色自己的身份回应1-3句。是否夸奖以及如何夸奖由角色判断；若提前结束或未满1分钟，不得说成完整完成。",
+                source = "考研",
+                title = "番茄钟结束",
+                maxTokens = 300,
+            ).onSuccess { reply ->
+                val text = reply.text.trim()
+                if (text.isNotBlank()) {
+                    MigratedDomainStores.chat.appendCharacterMessage(conversationId, text)
+                    speakIfEnabled(text, studyState.pomodoro.voiceEnabled)
+                }
+            }
+        }
     }
 }
