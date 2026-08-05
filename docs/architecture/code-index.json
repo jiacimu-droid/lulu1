@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T18:25:12.028339+00:00",
-  "commit": "2ac9788ccdecf96891c2465400cb6ed9f4f838e7",
+  "generatedAt": "2026-08-05T18:26:29.253771+00:00",
+  "commit": "ca736e2ecc5fd90e011ec91662c832dbe809b487",
   "branch": "main",
-  "sourceFingerprint": "901480952087c61d7e4790d88aac95f7da34ba40082342e3d2b6ca3f49fc5c38",
+  "sourceFingerprint": "393ce7a70023b4fb062e829fefb2a57c1a367e3b597f6d8d65ed6216fb596805",
   "summary": {
     "files": 109,
-    "lines": 27982,
+    "lines": 27991,
     "symbols": 464
   },
   "symbolIndex": {
@@ -199,7 +199,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 197
+        "line": 199
       }
     ],
     "stop": [
@@ -2419,7 +2419,7 @@
     "beginSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 201
+        "line": 203
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
@@ -2433,19 +2433,19 @@
     "settle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 231
+        "line": 235
       }
     ],
     "finishEarly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 248
+        "line": 252
       }
     ],
     "sendFocusChat": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 270
+        "line": 274
       }
     ],
     "StudyFocusTheme": [
@@ -4883,28 +4883,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-      "lines": 704,
-      "sha256": "67a785163959fa1e57c603988d4750cd7b902e19b37d212fd6aa80c0ef55ee88",
+      "lines": 713,
+      "sha256": "51b08980abcc5a7bb1eb809c160401fd14dcd3ae596f1ba75858f84d598afdf0",
       "symbols": [
         {
           "name": "speak",
-          "line": 197
+          "line": 199
         },
         {
           "name": "beginSession",
-          "line": 201
+          "line": 203
         },
         {
           "name": "settle",
-          "line": 231
+          "line": 235
         },
         {
           "name": "finishEarly",
-          "line": 248
+          "line": 252
         },
         {
           "name": "sendFocusChat",
-          "line": 270
+          "line": 274
         }
       ]
     },
