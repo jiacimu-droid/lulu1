@@ -66,6 +66,16 @@
             android:enabled="true"
             android:exported="false" />
 
+        <receiver
+            android:name=".data.ProactivePerceptionBootReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".LuluVoiceCallService"
             android:enabled="true"
