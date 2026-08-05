@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2d73a7f62342393ea71ca458eda3d9c7a6ee8ee6`
+- 基准提交：`7bfd5d0b35dc36a2eb8a214cc1d67c52812bfa86`
 - 分支：`main`
 - 已索引文件：109
-- 已索引代码/文本行：26152
+- 已索引代码/文本行：26158
 - 已发现符号：453
 
 | 文件 | 行数 | 符号数 |
@@ -89,7 +89,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishVideoPanel.kt` | 149 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyCompanionScreen.kt` | 236 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDailyContext.kt` | 82 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt` | 239 | 25 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt` | 245 | 25 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt` | 617 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyFocusConversationGuard.kt` | 54 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt` | 64 | 8 |
