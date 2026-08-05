@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T06:40:31.199182+00:00",
-  "commit": "9316a4a103fd97a908ef5b711448d1d57d77ba04",
+  "generatedAt": "2026-08-05T06:44:57.722402+00:00",
+  "commit": "f70eb6892a8904f2e421526daa356293355e1d2a",
   "branch": "main",
-  "sourceFingerprint": "32a1e62e821855c1cbb0225c9c5d641dcaef114981e0ca2824e19158c2be57c4",
+  "sourceFingerprint": "625ff6e8f7dd94912f1ce2306837a08bcf4f121adff491fcb48f930a7a45c5d9",
   "summary": {
     "files": 109,
-    "lines": 27700,
+    "lines": 27710,
     "symbols": 468
   },
   "symbolIndex": {
@@ -417,7 +417,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 192
+        "line": 202
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -631,7 +631,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 180
+        "line": 190
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -2447,11 +2447,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 85
+        "line": 95
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 197
+        "line": 207
       }
     ],
     "settle": [
@@ -2487,77 +2487,77 @@
     "StudyFocusSessionStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 68
+        "line": 78
       }
     ],
     "updateTask": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 73
+        "line": 83
       }
     ],
     "updateTheme": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 77
+        "line": 87
       }
     ],
     "updateAutomaticDialogue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 81
+        "line": 91
       }
     ],
     "markOpeningHandled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 106
+        "line": 116
       }
     ],
     "markCompletionHandled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 110
+        "line": 120
       }
     ],
     "clearSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 114
+        "line": 124
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 201
+        "line": 211
       }
     ],
     "StudyFocusSessions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 184
+        "line": 194
       }
     ],
     "speakIfEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 205
+        "line": 215
       }
     ],
     "requestOpeningLine": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 210
+        "line": 220
       }
     ],
     "handleNaturalCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 251
+        "line": 261
       }
     ],
     "completeSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 261
+        "line": 271
       }
     ],
     "draw": [
@@ -4956,8 +4956,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-      "lines": 338,
-      "sha256": "3913fa2e5d6a3dd4f4ba7c5d771b9dbddf66d0a789864493105223fc0fe4aaf2",
+      "lines": 348,
+      "sha256": "253fec55c285677b1a3f4f4abd575f976a8feb11f85874c97774284b5a86a2ae",
       "symbols": [
         {
           "name": "StudyFocusTheme",
@@ -4969,71 +4969,71 @@
         },
         {
           "name": "StudyFocusSessionStore",
-          "line": 68
+          "line": 78
         },
         {
           "name": "updateTask",
-          "line": 73
+          "line": 83
         },
         {
           "name": "updateTheme",
-          "line": 77
+          "line": 87
         },
         {
           "name": "updateAutomaticDialogue",
-          "line": 81
+          "line": 91
         },
         {
           "name": "beginSession",
-          "line": 85
+          "line": 95
         },
         {
           "name": "markOpeningHandled",
-          "line": 106
+          "line": 116
         },
         {
           "name": "markCompletionHandled",
-          "line": 110
+          "line": 120
         },
         {
           "name": "clearSession",
-          "line": 114
+          "line": 124
         },
         {
           "name": "create",
-          "line": 180
+          "line": 190
         },
         {
           "name": "StudyFocusSessions",
-          "line": 184
+          "line": 194
         },
         {
           "name": "initialize",
-          "line": 192
+          "line": 202
         },
         {
           "name": "beginSession",
-          "line": 197
+          "line": 207
         },
         {
           "name": "clearSession",
-          "line": 201
+          "line": 211
         },
         {
           "name": "speakIfEnabled",
-          "line": 205
+          "line": 215
         },
         {
           "name": "requestOpeningLine",
-          "line": 210
+          "line": 220
         },
         {
           "name": "handleNaturalCompletion",
-          "line": 251
+          "line": 261
         },
         {
           "name": "completeSession",
-          "line": 261
+          "line": 271
         }
       ]
     },
