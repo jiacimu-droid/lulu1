@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T03:49:56.754916+00:00",
-  "commit": "2ce595953af2da6498a660eacc5fedf724e80214",
+  "generatedAt": "2026-08-05T05:49:47.181010+00:00",
+  "commit": "fc071d0633deabcd6279817cf9946c83236fa785",
   "branch": "main",
-  "sourceFingerprint": "4337ad31cb9197859c19bdccd6188e60d3528cb8a34eddd026bcf80f2275dcd5",
+  "sourceFingerprint": "b94ff485c708b077b4ec1ee33a65b165a1bf1761de5fdb056ea23380779413de",
   "summary": {
     "files": 109,
-    "lines": 26653,
+    "lines": 26699,
     "symbols": 453
   },
   "symbolIndex": {
@@ -195,7 +195,7 @@
     "speak": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 22
+        "line": 44
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
@@ -209,7 +209,7 @@
     "stop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 45
+        "line": 77
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
@@ -219,7 +219,7 @@
     "shutdown": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 52
+        "line": 86
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
@@ -2852,20 +2852,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-      "lines": 160,
-      "sha256": "ced80c3e2c4954d197da77921959f4a58618af2be670bff124e3f8949fe10af9",
+      "lines": 206,
+      "sha256": "adac0be571d0a29cde812232764c690d7735ebef8155cb2d22494b2f26bce871",
       "symbols": [
         {
           "name": "speak",
-          "line": 22
+          "line": 44
         },
         {
           "name": "stop",
-          "line": 45
+          "line": 77
         },
         {
           "name": "shutdown",
-          "line": 52
+          "line": 86
         }
       ]
     },
