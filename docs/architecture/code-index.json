@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T19:15:40.538498+00:00",
-  "commit": "bf33ea6fef65123ca4809f2d6a573c37db1f9d27",
+  "generatedAt": "2026-08-05T19:19:27.142902+00:00",
+  "commit": "7b84d2eae43e7b6e73664ef9795e8b062a13787c",
   "branch": "main",
-  "sourceFingerprint": "c6dc33188548ed8ee8e5179c8503b5ca1251b2ae6ab2640f0ee776f89cd5ed90",
+  "sourceFingerprint": "3b72c86a7d2758856aab7d57aa851c2a468584319f742a1d0b4ca5cbe6b6b8d1",
   "summary": {
     "files": 111,
-    "lines": 28768,
+    "lines": 28785,
     "symbols": 472
   },
   "symbolIndex": {
@@ -83,25 +83,25 @@
     "LuluCapabilitiesScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 55
+        "line": 59
       }
     ],
     "open": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 70
+        "line": 75
       }
     ],
     "refreshLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 82
+        "line": 99
       }
     ],
     "read": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 285
+        "line": 302
       }
     ],
     "saveGroupCall": [
@@ -2847,24 +2847,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-      "lines": 378,
-      "sha256": "f93021bd8b60b14444c6bcc79b314e76348b74309991ee2a44512ffc75fb831a",
+      "lines": 395,
+      "sha256": "e02e48256cfc2eacc0bce1b10ec6761fe13448bfe56abeea143da5f9d99a1aed",
       "symbols": [
         {
           "name": "LuluCapabilitiesScreen",
-          "line": 55
+          "line": 59
         },
         {
           "name": "open",
-          "line": 70
+          "line": 75
         },
         {
           "name": "refreshLocation",
-          "line": 82
+          "line": 99
         },
         {
           "name": "read",
-          "line": 285
+          "line": 302
         }
       ]
     },
