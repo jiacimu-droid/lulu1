@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -497,39 +498,94 @@ private fun rarityResultSummary(results: List<StudyDrawResult>): String {
 
 @Composable
 private fun GachaResultScreen(results: List<StudyDrawResult>, onBack: () -> Unit) {
-    Column(Modifier.fillMaxSize()) {
-        Row(Modifier.fillMaxWidth().padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回抽卡") }
-            Column(Modifier.weight(1f)) {
-                Text("本次抽卡结果", fontSize = 22.sp, fontWeight = FontWeight.Black)
-                Text("${results.size}份奖励已收入收藏", color = StudyDesign.muted, fontSize = 12.sp)
-            }
-        }
+    Column(Modifier.fillMaxSize().statusBarsPadding()) {
         LazyColumn(
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            items(results, key = { it.id }) { result ->
-                Surface(
-                    shape = RoundedCornerShape(22.dp), color = Color.White,
-                    border = BorderStroke(1.dp, rarityColor(result.rarity)),
-                    shadowElevation = 3.dp,
-                ) {
-                    Row(Modifier.fillMaxWidth().padding(15.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Surface(shape = RoundedCornerShape(15.dp), color = rarityColor(result.rarity), modifier = Modifier.size(52.dp)) {
-                            Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.AutoAwesome, null, tint = StudyDesign.ink) }
-                        }
-                        Spacer(Modifier.width(12.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(result.title, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            Text("${result.kind.label} · ${result.rarity.label}", color = StudyDesign.muted, fontSize = 12.sp)
-                            if (!result.inventoryChanged) Text("已集满，本次不重复增加", color = StudyDesign.muted, fontSize = 11.sp)
+            items(
+                items = results.chunked(2),
+                key = { row -> row.joinToString("|") { it.id } },
+            ) { row ->
+                if (row.size == 1) {
+                    GachaResultCard(result = row.first(), modifier = Modifier.fillMaxWidth())
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        row.forEach { result ->
+                            GachaResultCard(result = result, modifier = Modifier.weight(1f))
                         }
                     }
                 }
             }
-            item { Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) { Text("收下结果") } }
+        }
+        Surface(
+            color = StudyDesign.paper,
+            tonalElevation = 5.dp,
+            shadowElevation = 10.dp,
+        ) {
+            Button(
+                onClick = onBack,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = StudyDesign.wheat,
+                    contentColor = StudyDesign.ink,
+                ),
+            ) {
+                Text("收下结果", fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+@Composable
+private fun GachaResultCard(result: StudyDrawResult, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(22.dp),
+        color = Color.White,
+        border = BorderStroke(1.dp, rarityColor(result.rarity)),
+        shadowElevation = 3.dp,
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 15.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = rarityColor(result.rarity),
+                modifier = Modifier.size(52.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(Icons.Outlined.AutoAwesome, null, tint = StudyDesign.ink)
+                }
+            }
+            Text(
+                text = result.title,
+                fontWeight = FontWeight.Bold,
+                fontSize = 15.sp,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                text = result.rarity.label,
+                color = StudyDesign.muted,
+                fontSize = 12.sp,
+            )
+            if (!result.inventoryChanged) {
+                Text(
+                    text = "已集满，本次不重复增加",
+                    color = StudyDesign.muted,
+                    fontSize = 11.sp,
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
 }
