@@ -127,13 +127,14 @@ internal object StudyStateCodec {
 
     private fun encodeTask(value: StudyTask) = JSONObject()
         .put("id", value.id).put("title", value.title).put("date", value.date)
-        .put("completed", value.completed).put("pomodoroTarget", value.pomodoroTarget)
-        .put("pomodoroCompleted", value.pomodoroCompleted).put("source", value.source.name)
+        .put("completed", value.completed).put("source", value.source.name)
         .put("rewarded", value.rewarded)
     private fun decodeTask(json: JSONObject) = StudyTask(
-        id = json.optString("id"), title = json.optString("title"), date = json.optString("date"),
-        completed = json.optBoolean("completed"), pomodoroTarget = json.optInt("pomodoroTarget", 1),
-        pomodoroCompleted = json.optInt("pomodoroCompleted"), source = enumOrDefault(json.optString("source"), StudyTaskSource.User),
+        id = json.optString("id"),
+        title = json.optString("title"),
+        date = json.optString("date"),
+        completed = json.optBoolean("completed"),
+        source = enumOrDefault(json.optString("source"), StudyTaskSource.User),
         rewarded = json.optBoolean("rewarded", json.optBoolean("completed")),
     )
 
