@@ -45,25 +45,35 @@ private fun recentFocusCharacterLines(conversationId: String, limit: Int = 8): L
         .toList()
 
 private fun compactFocusUtterance(raw: String, maxChars: Int): String {
-    val firstLine = raw
+    val normalized = raw
         .lineSequence()
         .map(String::trim)
-        .firstOrNull(String::isNotBlank)
-        .orEmpty()
+        .filter(String::isNotBlank)
+        .joinToString("")
         .removePrefix("-")
         .removePrefix("•")
         .trim()
         .trim('“', '”', '"')
-    if (firstLine.isBlank()) return ""
+    if (normalized.isBlank()) return ""
 
-    val sentenceEnd = firstLine.indexOfFirst { it in "。！？!?" }
-    val oneSentence = if (sentenceEnd >= 0) firstLine.take(sentenceEnd + 1) else firstLine
-    if (oneSentence.length <= maxChars) return oneSentence
+    var sentenceCount = 0
+    var secondSentenceEnd = -1
+    for (index in normalized.indices) {
+        if (normalized[index] in "。！？!?") {
+            sentenceCount += 1
+            if (sentenceCount == 2) {
+                secondSentenceEnd = index
+                break
+            }
+        }
+    }
+    val upToTwoSentences = if (secondSentenceEnd >= 0) normalized.take(secondSentenceEnd + 1) else normalized
+    if (upToTwoSentences.length <= maxChars) return upToTwoSentences
 
-    return oneSentence
-        .take(maxChars)
-        .trimEnd('，', '、', '；', ':', '：', ' ')
-        .plus("。")
+    val rawCut = upToTwoSentences.take(maxChars)
+    val naturalBoundary = rawCut.indexOfLast { it in "，、；： " }
+    val cut = if (naturalBoundary >= maxChars / 2) rawCut.take(naturalBoundary) else rawCut
+    return cut.trimEnd('，', '、', '；', ':', '：', ' ').plus("。")
 }
 
 class StudyFocusSessionStore private constructor(context: Context) {
@@ -230,17 +240,17 @@ object StudyFocusSessions {
                     appendLine("计划时长：${studyState.pomodoro.selectedMinutes}分钟")
                     appendLine("番茄钟已经由程序真实启动。")
                     if (recentLines.isNotEmpty()) {
-                        appendLine("近期专注中角色说过的话（禁止复用相同开头、句式或核心措辞）：")
+                        appendLine("近期专注中角色说过的话（可自然延续，但不要原句复读，也不要连续使用过于相似的开头和句式）：")
                         recentLines.forEach { appendLine("- $it") }
                     }
                 },
-                instruction = "只输出角色真正会随口说的一句开场白，4—22个汉字，最多一个句号。不要解释任务、总结安排、复述时长或输出书面鼓励；禁止使用‘让我们’‘一起加油’‘接下来’‘保持专注’‘相信自己’‘完成目标’等模板套话。不要复用近期台词的开头、句式或核心措辞。语气可以冷淡、命令式、吐槽或简短停顿，完全服从人设和关系边界。不得虚构用户已经完成任务。只输出台词，不加引号、动作、旁白或说明。",
+                instruction = "以角色自己的身份，自然说一句或两句本轮专注开始时会说的话。可以解释任务、提及时长，也可以使用角色平时会用的常见表达，不必刻意回避；只要符合人设、关系和此刻语境即可。整体尽量简短自然，不要展开成长段落；避免照搬近期台词，尤其不要连续使用相同开头或近似句式。不得虚构用户已经完成任务。只输出角色台词，不加分析或格式说明。",
                 source = "考研",
                 title = "番茄钟开场",
-                temperature = 1.08,
-                maxTokens = 80,
+                temperature = 0.98,
+                maxTokens = 120,
             ).onSuccess { reply ->
-                val text = compactFocusUtterance(reply.text, maxChars = 28)
+                val text = compactFocusUtterance(reply.text, maxChars = 52)
                 if (text.isNotBlank()) {
                     MigratedDomainStores.chat.appendCharacterMessage(conversationId, text)
                     speakIfEnabled(text, studyState.pomodoro.voiceEnabled)
@@ -316,17 +326,17 @@ object StudyFocusSessions {
                     appendLine("结束方式：$reason")
                     if (rewardMessage.isNotBlank()) appendLine("程序结算：$rewardMessage")
                     if (recentLines.isNotEmpty()) {
-                        appendLine("近期专注中角色说过的话（禁止复用相同开头、句式或核心措辞）：")
+                        appendLine("近期专注中角色说过的话（可自然延续，但不要原句复读，也不要连续使用过于相似的开头和句式）：")
                         recentLines.forEach { appendLine("- $it") }
                     }
                 },
-                instruction = "只输出角色在这轮结束时会随口说的一句话，4—26个汉字。不要汇报数据、复述任务、总结过程或写成学习点评；不要使用‘辛苦了’‘做得很好’‘继续保持’等固定套话，除非这确实符合人设且近期没有说过。必须根据真实完成情况回应，提前结束或未满1分钟不得说成完整完成。只输出台词，不加引号、动作、旁白或说明。",
+                instruction = "以角色自己的身份，自然说一句或两句这轮结束时会说的话。可以提到任务、时长或完成情况，也可以使用角色平时会说的常见表达；不必刻意避开任何词，只需符合人设和真实结果。整体尽量简短，不要写成长篇总结；避免照搬近期台词或连续使用近似句式。提前结束或未满1分钟时，不得说成完整完成。只输出角色台词，不加分析或格式说明。",
                 source = "考研",
                 title = "番茄钟结束",
-                temperature = 1.05,
-                maxTokens = 90,
+                temperature = 0.95,
+                maxTokens = 130,
             ).onSuccess { reply ->
-                val text = compactFocusUtterance(reply.text, maxChars = 32)
+                val text = compactFocusUtterance(reply.text, maxChars = 58)
                 if (text.isNotBlank()) {
                     MigratedDomainStores.chat.appendCharacterMessage(conversationId, text)
                     speakIfEnabled(text, studyState.pomodoro.voiceEnabled)
