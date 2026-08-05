@@ -350,7 +350,7 @@ object ProactiveMessageAutomation {
         }
     }
 
-    private fun performAction(
+    private suspend fun performAction(
         appContext: Context,
         conversation: LuluConversation,
         character: CharacterSettings,
