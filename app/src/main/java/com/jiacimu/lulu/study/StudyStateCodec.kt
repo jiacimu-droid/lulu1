@@ -34,7 +34,7 @@ internal object StudyStateCodec {
         val json = JSONObject(raw)
         val today = LocalDate.now()
         return StudyState(
-            schemaVersion = 5,
+            schemaVersion = 6,
             activeDate = json.optString("activeDate", today.toString()),
             profile = decodeProfile(json.optJSONObject("profile")),
             inventory = decodeInventory(json.optJSONObject("inventory")),
@@ -129,10 +129,12 @@ internal object StudyStateCodec {
         .put("id", value.id).put("title", value.title).put("date", value.date)
         .put("completed", value.completed).put("pomodoroTarget", value.pomodoroTarget)
         .put("pomodoroCompleted", value.pomodoroCompleted).put("source", value.source.name)
+        .put("rewarded", value.rewarded)
     private fun decodeTask(json: JSONObject) = StudyTask(
         id = json.optString("id"), title = json.optString("title"), date = json.optString("date"),
         completed = json.optBoolean("completed"), pomodoroTarget = json.optInt("pomodoroTarget", 1),
         pomodoroCompleted = json.optInt("pomodoroCompleted"), source = enumOrDefault(json.optString("source"), StudyTaskSource.User),
+        rewarded = json.optBoolean("rewarded", json.optBoolean("completed")),
     )
 
     private fun encodeSchedule(value: StudyScheduleBlock) = JSONObject()
