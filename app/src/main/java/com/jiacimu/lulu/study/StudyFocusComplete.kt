@@ -151,7 +151,9 @@ internal fun StudyFocusCompleteScreen(
     val preferences by StudyFocusSessions.store.state.collectAsState()
     val activeCharacterId = preferences.activeCharacterId.ifBlank { state.profile.selectedCharacterId }
     val character = MigratedDomainStores.characters.get(activeCharacterId)
-    val conversationId = "$activeCharacterId-study-focus"
+    val conversationId = remember(activeCharacterId, character.displayName) {
+        ensureStudyFocusConversation(activeCharacterId, character.displayName)
+    }
     val messageFlow = remember(conversationId) { MigratedDomainStores.chat.messages(conversationId) }
     val messages by messageFlow.collectAsState()
     val scope = rememberCoroutineScope()
@@ -214,8 +216,10 @@ internal fun StudyFocusCompleteScreen(
         }
 
         val selectedCharacter = MigratedDomainStores.characters.get(state.profile.selectedCharacterId)
-        ensureStudyFocusConversation(state.profile.selectedCharacterId, selectedCharacter.displayName)
-        val selectedConversationId = "${state.profile.selectedCharacterId}-study-focus"
+        val selectedConversationId = ensureStudyFocusConversation(
+            state.profile.selectedCharacterId,
+            selectedCharacter.displayName,
+        )
         val messageStart = MigratedDomainStores.chat.messages(selectedConversationId).value.size
 
         StudyFocusSessions.store.updateTask(cleanTask)
@@ -224,7 +228,7 @@ internal fun StudyFocusCompleteScreen(
         if (!store.state.value.pomodoro.running) store.togglePomodoro()
 
         inSession = true
-        systemMessage = "计时已经开始"
+        systemMessage = "计时已经开始；本轮消息会直接同步到原聊天页"
         systemError = false
         StudyFocusSessions.requestOpeningLine(store.state.value)
     }
@@ -290,7 +294,7 @@ internal fun StudyFocusCompleteScreen(
                         "剩余时间：${store.state.value.pomodoro.remainingSeconds / 60}分" +
                             "${store.state.value.pomodoro.remainingSeconds % 60}秒",
                     )
-                    appendLine("以前各轮专注对话仍在上下文中；界面只显示本轮。")
+                    appendLine("本轮专注消息直接写入角色原本的一对一聊天；此处仅镜像显示本轮消息。")
                     appendLine("最近对话：")
                     appendLine(recent)
                 },
@@ -560,6 +564,11 @@ internal fun StudyFocusCompleteScreen(
                     if (generating) item { Text("${character.displayName}正在回应…", color = palette.muted) }
                 }
 
+                Text(
+                    "本轮消息同时保存在你和${character.displayName}原来的聊天页面",
+                    color = palette.muted,
+                    fontSize = 11.sp,
+                )
                 Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
                         value = chatInput,
