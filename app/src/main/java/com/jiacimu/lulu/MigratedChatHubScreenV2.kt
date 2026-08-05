@@ -125,7 +125,7 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val sorted = remember(conversations) {
         conversations
-            .filter { it.parentConversationId == null }
+            .filter { it.parentConversationId == null && !it.id.endsWith("-study-focus") }
             .sortedWith(
                 compareByDescending<LuluConversation> { it.groupChat?.pinned == true }
                     .thenByDescending(LuluConversation::updatedAt),
@@ -211,7 +211,11 @@ private fun ChatHubV2Characters(
     val sortedCharacters = remember(characters) { characters.values.sortedBy { it.displayName } }
     val recentByCharacter = remember(conversations) {
         conversations
-            .filter { it.groupChat == null && it.parentConversationId == null }
+            .filter {
+                it.groupChat == null &&
+                    it.parentConversationId == null &&
+                    !it.id.endsWith("-study-focus")
+            }
             .groupBy(LuluConversation::characterId)
             .mapValues { (_, values) -> values.maxByOrNull(LuluConversation::updatedAt) }
     }
