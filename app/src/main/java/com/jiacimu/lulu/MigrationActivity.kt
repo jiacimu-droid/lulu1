@@ -51,7 +51,15 @@ class MigrationActivity : ComponentActivity() {
         SelfDirectedStudyPlanSeed.migrate(appContext, PostgraduateExamStores.main)
         StarWishStores.initialize(appContext)
         StudyFocusSessions.initialize(appContext)
-        PostgraduateExamStores.main.syncPomodoroClock()
+
+        val restoredFocusMinutes = PostgraduateExamStores.main.state.value.pomodoro.selectedMinutes
+        if (PostgraduateExamStores.main.syncPomodoroClock()) {
+            StudyFocusSessions.handleNaturalCompletion(
+                studyStore = PostgraduateExamStores.main,
+                actualMinutes = restoredFocusMinutes,
+            )
+        }
+
         RoleReadablePerformanceBridge.initialize()
         ChatTurnConsistencyAutomation.initialize()
         DeterministicMemoryAutomation.initialize(appContext)
