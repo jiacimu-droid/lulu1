@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T14:02:42.693984+00:00",
-  "commit": "616c6488c1bb04af65666286f1fbd18e9874b262",
+  "generatedAt": "2026-08-05T14:05:10.325810+00:00",
+  "commit": "f0e8b1f715822c332214e09f5d89628f04f5a4f4",
   "branch": "main",
-  "sourceFingerprint": "3c85bd86664d442e386edaf8a33fdfc75d0de50075e3047db73c2cac1958d547",
+  "sourceFingerprint": "c45212d6e9b1071bb57c560be749ccb10f67dfcb5ef3c1949ecb3e8c74456019",
   "summary": {
     "files": 109,
-    "lines": 27868,
+    "lines": 27870,
     "symbols": 463
   },
   "symbolIndex": {
@@ -409,7 +409,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 801
+        "line": 803
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
@@ -2151,7 +2151,7 @@
     "PostgraduateExamStores": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 796
+        "line": 798
       }
     ],
     "itemsFor": [
@@ -4455,8 +4455,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-      "lines": 806,
-      "sha256": "29153e7ffa83ce8ada679a7a04d1b003b87318496135c571e45ee5b7c89063a1",
+      "lines": 808,
+      "sha256": "dc30a60813c89ac0bc2440ae44013eabcc05ffb761152fc6e343447a667f478f",
       "symbols": [
         {
           "name": "PostgraduateExamStore",
@@ -4580,11 +4580,11 @@
         },
         {
           "name": "PostgraduateExamStores",
-          "line": 796
+          "line": 798
         },
         {
           "name": "initialize",
-          "line": 801
+          "line": 803
         }
       ]
     },
