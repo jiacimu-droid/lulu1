@@ -57,8 +57,7 @@ fun PostgraduateExamApp(
     }
 
     val timerHasProgress = focusPreferences.activeSessionId.isNotBlank() &&
-        !focusPreferences.completionHandled &&
-        (state.pomodoro.running || state.pomodoro.remainingSeconds < state.pomodoro.selectedMinutes * 60)
+        !focusPreferences.completionHandled
 
     Box(Modifier.fillMaxSize()) {
         when (val current = route) {
