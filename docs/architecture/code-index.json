@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T13:55:20.902310+00:00",
-  "commit": "d9383bb9865fcd52b07be13f5792189cc848c714",
+  "generatedAt": "2026-08-05T13:55:43.745214+00:00",
+  "commit": "52e767ca0974c2bbcbad714abd03b8bc5f55ca6a",
   "branch": "main",
-  "sourceFingerprint": "fa9374bc8edbbc8e9451e7f78bfcedbbba018f9d794a94f8336155a8a63e3f81",
+  "sourceFingerprint": "f2d670bfab4a8a37e12d8da4889253766c285c71055a99f58f23d73c090e710b",
   "summary": {
     "files": 109,
     "lines": 27754,
@@ -4602,7 +4602,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
       "lines": 65,
-      "sha256": "efd4ef05f8e639214c28123f682b8e491ef8bd5c377da1eca9dd5d5fe0672186",
+      "sha256": "48d377c39308337b54fa7c3449a67d7296c65cf3ecc58193a318fa4fb71fe4f8",
       "symbols": [
         {
           "name": "SelfDirectedStudyPlanSeed",
