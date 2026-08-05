@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T03:25:42.943135+00:00",
-  "commit": "faf28de3302996aa8dd7f8f6e584f40f2415324b",
+  "generatedAt": "2026-08-05T03:27:04.612709+00:00",
+  "commit": "6b52e3dca3f53ce7da2c0d9f6b86c3dbaa74e084",
   "branch": "main",
-  "sourceFingerprint": "13a96c231a678eef3788a2e5d354ca0a0549618aea069edc9da93bd2db740ef9",
+  "sourceFingerprint": "a6b1201e37c7f05f125c1b97204c6780344f8caee6d6d6e08c84335406516c5e",
   "summary": {
     "files": 109,
-    "lines": 26211,
+    "lines": 26212,
     "symbols": 453
   },
   "symbolIndex": {
@@ -4895,8 +4895,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt",
-      "lines": 453,
-      "sha256": "707c46204161b4ee4e1d4709c7a6e1ff6e1b5e3beb65d6994333f2729b595254",
+      "lines": 454,
+      "sha256": "0f44f1c2e0a1c2d9d5eeb624a3eed63252c63929dacd2f6283437eba6802c0c1",
       "symbols": [
         {
           "name": "draw",
