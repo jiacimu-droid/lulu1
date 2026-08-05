@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T13:32:48.353854+00:00",
-  "commit": "2cf7dc537b65712028811b02009216e65ac94b1a",
+  "generatedAt": "2026-08-05T13:55:20.902310+00:00",
+  "commit": "d9383bb9865fcd52b07be13f5792189cc848c714",
   "branch": "main",
-  "sourceFingerprint": "ffb0365464dbdd703edf3bd0af2ee5bf990e106b299f2be9e6c157fdfdb2bf7e",
+  "sourceFingerprint": "fa9374bc8edbbc8e9451e7f78bfcedbbba018f9d794a94f8336155a8a63e3f81",
   "summary": {
     "files": 109,
-    "lines": 27677,
+    "lines": 27754,
     "symbols": 463
   },
   "symbolIndex": {
@@ -4590,8 +4590,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt",
-      "lines": 96,
-      "sha256": "49a8c1b10373a2f2a3308626582919de4ee11f7d1d5af961428b13fcf85b72a1",
+      "lines": 173,
+      "sha256": "3b513cc02c0becad95b4fd3f156f9adb526037a2e9c6cd3c8f999c80dcf92052",
       "symbols": [
         {
           "name": "itemsFor",
