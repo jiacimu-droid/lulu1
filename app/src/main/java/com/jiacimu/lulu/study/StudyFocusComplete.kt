@@ -1,6 +1,5 @@
 package com.jiacimu.lulu.study
 
-import android.speech.tts.TextToSpeech
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -18,20 +17,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
-import com.jiacimu.lulu.data.SharedExperienceTimeline
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Locale
-import java.time.Instant
-import java.util.UUID
 import kotlin.math.ceil
 
 private data class FocusPalette(
@@ -51,24 +45,101 @@ private fun StudyFocusTheme.palette(): FocusPalette = when (this) {
         background = listOf(Color(0xFFF4F6F6), Color(0xFFEEF3F4), Color(0xFFF2F3F1)),
         topGlow = Color.White.copy(alpha = 0.18f),
         bottomGlow = Color(0xFF5C6B7D).copy(alpha = 0.06f),
-        panel = Color.White.copy(alpha = 0.24f),
-        input = Color(0xFFFFF8FB).copy(alpha = 0.92f),
+        panel = Color.White.copy(alpha = 0.34f),
+        input = Color(0xFFFFF8FB).copy(alpha = 0.94f),
         accent = Color(0xFF7895A6),
         text = Color(0xFF35434D),
         muted = Color(0xFF667782),
-        track = Color.White.copy(alpha = 0.34f),
+        track = Color.White.copy(alpha = 0.42f),
     )
+
     StudyFocusTheme.MIDNIGHT -> FocusPalette(
         background = listOf(Color(0xFF111827), Color(0xFF172033), Color(0xFF0F172A)),
         topGlow = Color(0xFF88A9C0).copy(alpha = 0.12f),
         bottomGlow = Color.Black.copy(alpha = 0.18f),
-        panel = Color(0xFF253247).copy(alpha = 0.72f),
-        input = Color(0xFF1C2738).copy(alpha = 0.94f),
+        panel = Color(0xFF253247).copy(alpha = 0.76f),
+        input = Color(0xFF1C2738).copy(alpha = 0.96f),
         accent = Color(0xFF88A9C0),
         text = Color(0xFFE8EEF5),
         muted = Color(0xFFB2C1CF),
         track = Color.White.copy(alpha = 0.12f),
     )
+}
+
+@Composable
+internal fun StudyFocusMiniWindow(
+    state: StudyState,
+    task: String,
+    onOpen: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val preferences by StudyFocusSessions.store.state.collectAsState()
+    val palette = preferences.theme.palette()
+    val total = (state.pomodoro.selectedMinutes * 60).coerceAtLeast(1)
+    val progress = 1f - state.pomodoro.remainingSeconds.toFloat() / total
+
+    Surface(
+        onClick = onOpen,
+        modifier = modifier.widthIn(min = 208.dp, max = 280.dp),
+        shape = RoundedCornerShape(22.dp),
+        color = palette.input,
+        contentColor = palette.text,
+        border = BorderStroke(1.dp, palette.accent.copy(alpha = 0.42f)),
+        shadowElevation = 12.dp,
+    ) {
+        Column(
+            Modifier.padding(horizontal = 15.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Surface(
+                    modifier = Modifier.size(36.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = palette.accent.copy(alpha = 0.18f),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            if (state.pomodoro.running) Icons.Outlined.Timer else Icons.Outlined.Pause,
+                            contentDescription = null,
+                            tint = palette.accent,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                }
+                Spacer(Modifier.width(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        "%02d:%02d".format(
+                            state.pomodoro.remainingSeconds / 60,
+                            state.pomodoro.remainingSeconds % 60,
+                        ),
+                        fontSize = 21.sp,
+                        fontWeight = FontWeight.Black,
+                        color = palette.text,
+                    )
+                    Text(
+                        if (state.pomodoro.running) "番茄钟进行中" else "番茄钟已暂停",
+                        color = palette.muted,
+                        fontSize = 11.sp,
+                    )
+                }
+                Icon(Icons.Outlined.OpenInFull, "返回番茄钟", tint = palette.muted, modifier = Modifier.size(18.dp))
+            }
+            Text(
+                task.ifBlank { preferences.activeTask.ifBlank { preferences.task } },
+                color = palette.text,
+                fontSize = 12.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            LinearProgressIndicator(
+                progress = { progress.coerceIn(0f, 1f) },
+                modifier = Modifier.fillMaxWidth().height(5.dp),
+                color = palette.accent,
+                trackColor = palette.track,
+            )
+        }
+    }
 }
 
 @Composable
@@ -78,98 +149,54 @@ internal fun StudyFocusCompleteScreen(
     onBack: () -> Unit,
 ) {
     val preferences by StudyFocusSessions.store.state.collectAsState()
-    val character = MigratedDomainStores.characters.get(state.profile.selectedCharacterId)
-    val conversationId = "${state.profile.selectedCharacterId}-study-focus"
-    val messages by MigratedDomainStores.chat.messages(conversationId).collectAsState()
-    val context = LocalContext.current
+    val activeCharacterId = preferences.activeCharacterId.ifBlank { state.profile.selectedCharacterId }
+    val character = MigratedDomainStores.characters.get(activeCharacterId)
+    val conversationId = "$activeCharacterId-study-focus"
+    val messageFlow = remember(conversationId) { MigratedDomainStores.chat.messages(conversationId) }
+    val messages by messageFlow.collectAsState()
     val scope = rememberCoroutineScope()
+
     var taskInput by remember(preferences.task) { mutableStateOf(preferences.task) }
-    var customMinutes by remember(state.pomodoro.selectedMinutes) { mutableStateOf(state.pomodoro.selectedMinutes.toString()) }
+    var customMinutes by remember(state.pomodoro.selectedMinutes) {
+        mutableStateOf(state.pomodoro.selectedMinutes.toString())
+    }
     var inSession by remember {
         mutableStateOf(
-            state.pomodoro.running ||
+            preferences.activeSessionId.isNotBlank() ||
+                state.pomodoro.running ||
                 state.pomodoro.remainingSeconds < state.pomodoro.selectedMinutes * 60,
         )
     }
-    var completedThisSession by remember { mutableStateOf(false) }
-    var openingRequested by remember { mutableStateOf(false) }
     var chatInput by remember { mutableStateOf("") }
     var generating by remember { mutableStateOf(false) }
     var systemMessage by remember { mutableStateOf("") }
     var systemError by remember { mutableStateOf(false) }
-    var ttsReady by remember { mutableStateOf(false) }
-    var tts by remember { mutableStateOf<TextToSpeech?>(null) }
-    var sessionMessageStart by remember { mutableIntStateOf(messages.size) }
-    var sessionExperienceId by remember { mutableStateOf(UUID.randomUUID().toString()) }
-    var sessionStartedAt by remember { mutableStateOf(Instant.now()) }
-    val palette = preferences.theme.palette()
 
-    DisposableEffect(context) {
-        val engine = TextToSpeech(context) { status -> ttsReady = status == TextToSpeech.SUCCESS }
-        engine.language = Locale.SIMPLIFIED_CHINESE
-        tts = engine
-        onDispose {
-            engine.stop()
-            engine.shutdown()
-            tts = null
+    val palette = preferences.theme.palette()
+    val completedThisSession = preferences.activeSessionId.isNotBlank() && preferences.completionHandled
+    val activeTask = preferences.activeTask.ifBlank { preferences.task }
+    val sessionStart = preferences.sessionMessageStart.coerceIn(0, messages.size)
+    val sessionMessages = remember(messages, sessionStart) {
+        messages.drop(sessionStart).filter { it.sender != LuluChatMessage.Sender.System }
+    }
+
+    LaunchedEffect(
+        preferences.activeSessionId,
+        state.pomodoro.running,
+        state.pomodoro.remainingSeconds,
+        state.pomodoro.selectedMinutes,
+    ) {
+        if (
+            preferences.activeSessionId.isNotBlank() ||
+            state.pomodoro.running ||
+            state.pomodoro.remainingSeconds < state.pomodoro.selectedMinutes * 60
+        ) {
+            inSession = true
         }
     }
 
     fun speak(text: String) {
-        if (state.pomodoro.voiceEnabled && ttsReady && text.isNotBlank()) {
-            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "study-focus-${System.currentTimeMillis()}")
-        }
-    }
-
-    fun rememberFocusExperience(actualMinutes: Int, reason: String) {
-        val transcript = MigratedDomainStores.chat.messages(conversationId).value
-            .drop(sessionMessageStart)
-            .joinToString("\n") { message ->
-                val speaker = if (message.sender == LuluChatMessage.Sender.User) "用户" else character.displayName
-                "$speaker：${message.content.trim()}"
-            }
-        SharedExperienceTimeline.remember(
-            memoryId = "focus-$sessionExperienceId",
-            characterId = state.profile.selectedCharacterId,
-            label = "共同专注",
-            detail = buildString {
-                append("任务“${preferences.task}”，实际专注 ${actualMinutes.coerceAtLeast(1)} 分钟，$reason。")
-                if (transcript.isNotBlank()) append("专注期间的对话：\n$transcript")
-            },
-            occurredAt = sessionStartedAt,
-            strength = 6,
-            source = "study-focus",
-        )
-    }
-
-    fun requestOpeningLine() {
-        if (openingRequested || !state.pomodoro.running) return
-        openingRequested = true
-        generating = true
-        scope.launch {
-            LuluAiServices.gateway.generate(
-                characterId = state.profile.selectedCharacterId,
-                facts = buildString {
-                    appendLine(state.roleStudyContext())
-                    appendLine("本次专注任务：${preferences.task}")
-                    appendLine("计划时长：${state.pomodoro.selectedMinutes}分钟")
-                    appendLine("番茄钟已经由程序真实启动。")
-                },
-                instruction = "以角色自己的身份给出本次专注开始时会说的话，1-3句。不得默认温柔、夸奖或亲密；不得虚构用户已经完成任务。",
-                source = "考研",
-                title = "番茄钟开场",
-                maxTokens = 260,
-            ).onSuccess { reply ->
-                MigratedDomainStores.chat.appendCharacterMessage(conversationId, reply.text)
-                speak(reply.text)
-                systemMessage = "角色开场语已生成"
-                systemError = false
-            }.onFailure { error ->
-                systemMessage = error.message ?: "角色开场语生成失败，计时仍在继续"
-                systemError = true
-            }
-            generating = false
-        }
+        StudyFocusSessions.speakIfEnabled(text, state.pomodoro.voiceEnabled)
     }
 
     fun beginSession() {
@@ -185,17 +212,21 @@ internal fun StudyFocusCompleteScreen(
             systemError = true
             return
         }
+
+        val selectedCharacter = MigratedDomainStores.characters.get(state.profile.selectedCharacterId)
+        ensureStudyFocusConversation(state.profile.selectedCharacterId, selectedCharacter.displayName)
+        val selectedConversationId = "${state.profile.selectedCharacterId}-study-focus"
+        val messageStart = MigratedDomainStores.chat.messages(selectedConversationId).value.size
+
         StudyFocusSessions.store.updateTask(cleanTask)
+        StudyFocusSessions.beginSession(state.profile.selectedCharacterId, cleanTask, messageStart)
         store.setPomodoroDuration(minutes)
         if (!store.state.value.pomodoro.running) store.togglePomodoro()
-        sessionMessageStart = MigratedDomainStores.chat.messages(conversationId).value.size
-        sessionExperienceId = UUID.randomUUID().toString()
-        sessionStartedAt = Instant.now()
+
         inSession = true
-        completedThisSession = false
-        openingRequested = false
         systemMessage = "计时已经开始"
         systemError = false
+        StudyFocusSessions.requestOpeningLine(store.state.value)
     }
 
     fun settle(actualMinutes: Int, reason: String) {
@@ -204,35 +235,15 @@ internal fun StudyFocusCompleteScreen(
         store.setPomodoroDuration(actualMinutes.coerceIn(1, 180))
         val reward = store.completePomodoro(actualMinutes.coerceAtLeast(1))
         store.setPomodoroDuration(originalMinutes)
-        completedThisSession = true
-        rememberFocusExperience(actualMinutes, reason)
-        val facts = buildString {
-            appendLine(state.roleStudyContext())
-            appendLine("本次任务：${preferences.task}")
-            appendLine("实际记录时长：${actualMinutes.coerceAtLeast(1)}分钟")
-            appendLine("结束方式：$reason")
-            appendLine("程序奖励结果：$reward")
-        }
+        StudyFocusSessions.completeSession(
+            studyStore = store,
+            actualMinutes = actualMinutes,
+            reason = reason,
+            rewardMessage = reward,
+            recordExperience = true,
+        )
         systemMessage = "已按实际 ${actualMinutes.coerceAtLeast(1)} 分钟结算"
         systemError = false
-        generating = true
-        scope.launch {
-            LuluAiServices.gateway.generate(
-                characterId = state.profile.selectedCharacterId,
-                facts = facts,
-                instruction = "根据真实完成时长、任务和结束方式，以角色自己的身份回应1-3句。是否夸奖以及如何夸奖由角色判断；不得把提前结束说成完整完成。",
-                source = "考研",
-                title = "番茄钟结算",
-                maxTokens = 300,
-            ).onSuccess { reply ->
-                MigratedDomainStores.chat.appendCharacterMessage(conversationId, reply.text)
-                speak(reply.text)
-            }.onFailure { error ->
-                systemMessage = "学习记录已保存；${error.message ?: "角色反馈生成失败"}"
-                systemError = true
-            }
-            generating = false
-        }
     }
 
     fun finishEarly() {
@@ -243,7 +254,13 @@ internal fun StudyFocusCompleteScreen(
         if (actualMinutes <= 0) {
             if (timer.running) store.togglePomodoro()
             store.resetPomodoro()
-            completedThisSession = true
+            StudyFocusSessions.completeSession(
+                studyStore = store,
+                actualMinutes = 0,
+                reason = "用户在未满1分钟时提前结束",
+                rewardMessage = "本次不记录奖励",
+                recordExperience = false,
+            )
             systemMessage = "还没有满1分钟，本次不记录奖励"
             systemError = false
         } else {
@@ -259,16 +276,21 @@ internal fun StudyFocusCompleteScreen(
         generating = true
         scope.launch {
             val recent = MigratedDomainStores.chat.messages(conversationId).value.takeLast(12)
+                .filter { it.sender != LuluChatMessage.Sender.System }
                 .joinToString("\n") { message ->
                     val speakerName = if (message.sender == LuluChatMessage.Sender.User) "用户" else character.displayName
                     "$speakerName：${message.content}"
                 }
             LuluAiServices.gateway.generate(
-                characterId = state.profile.selectedCharacterId,
+                characterId = activeCharacterId,
                 facts = buildString {
-                    appendLine(state.roleStudyContext())
-                    appendLine("当前专注任务：${preferences.task}")
-                    appendLine("剩余时间：${store.state.value.pomodoro.remainingSeconds / 60}分${store.state.value.pomodoro.remainingSeconds % 60}秒")
+                    appendLine(store.state.value.roleStudyContext())
+                    appendLine("当前专注任务：$activeTask")
+                    appendLine(
+                        "剩余时间：${store.state.value.pomodoro.remainingSeconds / 60}分" +
+                            "${store.state.value.pomodoro.remainingSeconds % 60}秒",
+                    )
+                    appendLine("以前各轮专注对话仍在上下文中；界面只显示本轮。")
                     appendLine("最近对话：")
                     appendLine(recent)
                 },
@@ -277,48 +299,16 @@ internal fun StudyFocusCompleteScreen(
                 title = "专注中聊天",
                 maxTokens = 420,
             ).onSuccess { reply ->
-                MigratedDomainStores.chat.appendCharacterMessage(conversationId, reply.text)
-                speak(reply.text)
+                val text = reply.text.trim()
+                if (text.isNotBlank()) {
+                    MigratedDomainStores.chat.appendCharacterMessage(conversationId, text)
+                    speak(text)
+                }
             }.onFailure { error ->
                 systemMessage = error.message ?: "专注聊天生成失败"
                 systemError = true
             }
             generating = false
-        }
-    }
-
-    LaunchedEffect(state.pomodoro.running, state.pomodoro.endAtEpochMillis, inSession) {
-        if (inSession && state.pomodoro.running) requestOpeningLine()
-        while (inSession && store.state.value.pomodoro.running) {
-            delay(500)
-            if (store.syncPomodoroClock()) {
-                completedThisSession = true
-                rememberFocusExperience(state.pomodoro.selectedMinutes, "番茄钟自然结束")
-                val facts = buildString {
-                    appendLine(store.state.value.roleStudyContext())
-                    appendLine("本次任务：${preferences.task}")
-                    appendLine("番茄钟自然结束，完整记录${state.pomodoro.selectedMinutes}分钟。")
-                }
-                generating = true
-                scope.launch {
-                    LuluAiServices.gateway.generate(
-                        characterId = state.profile.selectedCharacterId,
-                        facts = facts,
-                        instruction = "番茄钟刚自然结束。根据真实结果以角色自己的身份回应1-3句；是否夸奖由角色判断。",
-                        source = "考研",
-                        title = "番茄钟自然结束",
-                        maxTokens = 300,
-                    ).onSuccess { reply ->
-                        MigratedDomainStores.chat.appendCharacterMessage(conversationId, reply.text)
-                        speak(reply.text)
-                    }.onFailure { error ->
-                        systemMessage = "专注已结算；${error.message ?: "角色回应生成失败"}"
-                        systemError = true
-                    }
-                    generating = false
-                }
-                break
-            }
         }
     }
 
@@ -328,10 +318,10 @@ internal fun StudyFocusCompleteScreen(
             onTask = { taskInput = it },
             minutes = customMinutes,
             onMinutes = { customMinutes = it.filter(Char::isDigit).take(3) },
-            selectedTheme = preferences.theme,
-            onTheme = StudyFocusSessions.store::updateTheme,
             voiceEnabled = state.pomodoro.voiceEnabled,
             onVoice = { store.togglePomodoroVoice() },
+            automaticDialogueEnabled = preferences.automaticDialogueEnabled,
+            onAutomaticDialogue = StudyFocusSessions.store::updateAutomaticDialogue,
             onStart = ::beginSession,
             onBack = onBack,
             message = systemMessage,
@@ -348,20 +338,68 @@ internal fun StudyFocusCompleteScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Brush.verticalGradient(listOf(palette.topGlow, Color.Transparent, palette.bottomGlow))),
+                .background(
+                    Brush.verticalGradient(
+                        listOf(palette.topGlow, Color.Transparent, palette.bottomGlow),
+                    ),
+                ),
         ) {
             Column(
-                modifier = Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().padding(16.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回", tint = palette.text) }
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Outlined.ArrowBack, "返回并缩小番茄钟", tint = palette.text)
+                    }
                     Column(Modifier.weight(1f)) {
-                        Text(preferences.task, color = palette.text, fontWeight = FontWeight.Bold, fontSize = 18.sp, maxLines = 2)
-                        Text("${character.displayName} · ${preferences.theme.label}", color = palette.muted, fontSize = 12.sp)
+                        Text(
+                            activeTask,
+                            color = palette.text,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            maxLines = 2,
+                        )
+                        Text(
+                            "${character.displayName} · ${preferences.theme.label}",
+                            color = palette.muted,
+                            fontSize = 12.sp,
+                        )
                     }
                     IconButton(onClick = { store.togglePomodoroVoice() }) {
-                        Icon(if (state.pomodoro.voiceEnabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff, "角色语音", tint = palette.muted)
+                        Icon(
+                            if (state.pomodoro.voiceEnabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
+                            "角色语音",
+                            tint = palette.muted,
+                        )
+                    }
+                }
+
+                Row(
+                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text("专注氛围", color = palette.muted, fontSize = 12.sp)
+                    StudyFocusTheme.entries.forEach { theme ->
+                        Surface(
+                            onClick = { StudyFocusSessions.store.updateTheme(theme) },
+                            shape = RoundedCornerShape(99.dp),
+                            color = if (theme == preferences.theme) palette.accent else palette.panel,
+                            border = BorderStroke(1.dp, if (theme == preferences.theme) palette.accent else palette.track),
+                        ) {
+                            Text(
+                                theme.label,
+                                modifier = Modifier.padding(horizontal = 13.dp, vertical = 7.dp),
+                                color = if (theme == preferences.theme) palette.background.last() else palette.text,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
                     }
                 }
 
@@ -394,7 +432,10 @@ internal fun StudyFocusCompleteScreen(
                                     )
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Text(
-                                            "%02d:%02d".format(state.pomodoro.remainingSeconds / 60, state.pomodoro.remainingSeconds % 60),
+                                            "%02d:%02d".format(
+                                                state.pomodoro.remainingSeconds / 60,
+                                                state.pomodoro.remainingSeconds % 60,
+                                            ),
                                             color = palette.text,
                                             fontSize = 50.sp,
                                             fontWeight = FontWeight.Bold,
@@ -409,14 +450,21 @@ internal fun StudyFocusCompleteScreen(
                                         )
                                     }
                                 }
+
                                 if (!completedThisSession) {
                                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                         Button(
                                             onClick = { store.togglePomodoro() },
                                             modifier = Modifier.weight(1f),
-                                            colors = ButtonDefaults.buttonColors(containerColor = palette.accent, contentColor = palette.background.last()),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = palette.accent,
+                                                contentColor = palette.background.last(),
+                                            ),
                                         ) {
-                                            Icon(if (state.pomodoro.running) Icons.Outlined.Pause else Icons.Outlined.PlayArrow, null)
+                                            Icon(
+                                                if (state.pomodoro.running) Icons.Outlined.Pause else Icons.Outlined.PlayArrow,
+                                                null,
+                                            )
                                             Spacer(Modifier.width(6.dp))
                                             Text(if (state.pomodoro.running) "暂停" else "继续")
                                         }
@@ -431,18 +479,22 @@ internal fun StudyFocusCompleteScreen(
                                     Button(
                                         onClick = {
                                             store.resetPomodoro()
+                                            StudyFocusSessions.clearSession()
                                             inSession = false
-                                            completedThisSession = false
-                                            openingRequested = false
                                             systemMessage = ""
+                                            systemError = false
                                         },
                                         modifier = Modifier.fillMaxWidth(),
-                                        colors = ButtonDefaults.buttonColors(containerColor = palette.accent, contentColor = palette.background.last()),
-                                    ) { Text("返回设置下一次专注") }
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = palette.accent,
+                                            contentColor = palette.background.last(),
+                                        ),
+                                    ) { Text("设置下一次专注") }
                                 }
                             }
                         }
                     }
+
                     if (systemMessage.isNotBlank()) {
                         item {
                             Surface(
@@ -454,10 +506,20 @@ internal fun StudyFocusCompleteScreen(
                             }
                         }
                     }
-                    item { Text("专注中聊天", color = palette.text, fontSize = 18.sp, fontWeight = FontWeight.Bold) }
-                    items(messages.takeLast(20), key = { it.id }) { message ->
+
+                    item {
+                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Text("本轮专注聊天", color = palette.text, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            Text("以前的番茄对话仍保留在角色上下文与共同时间线中", color = palette.muted, fontSize = 11.sp)
+                        }
+                    }
+
+                    items(sessionMessages.takeLast(20), key = { it.id }) { message ->
                         val user = message.sender == LuluChatMessage.Sender.User
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = if (user) Arrangement.End else Arrangement.Start) {
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = if (user) Arrangement.End else Arrangement.Start,
+                        ) {
                             Surface(
                                 color = if (user) palette.accent else palette.panel,
                                 contentColor = if (user) palette.background.last() else palette.text,
@@ -492,7 +554,10 @@ internal fun StudyFocusCompleteScreen(
                     FilledIconButton(
                         onClick = ::sendFocusChat,
                         enabled = chatInput.isNotBlank() && !generating,
-                        colors = IconButtonDefaults.filledIconButtonColors(containerColor = palette.accent, contentColor = palette.background.last()),
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = palette.accent,
+                            contentColor = palette.background.last(),
+                        ),
                     ) { Icon(Icons.Outlined.Send, "发送") }
                 }
             }
@@ -506,10 +571,10 @@ private fun FocusSetupScreen(
     onTask: (String) -> Unit,
     minutes: String,
     onMinutes: (String) -> Unit,
-    selectedTheme: StudyFocusTheme,
-    onTheme: (StudyFocusTheme) -> Unit,
     voiceEnabled: Boolean,
     onVoice: () -> Unit,
+    automaticDialogueEnabled: Boolean,
+    onAutomaticDialogue: (Boolean) -> Unit,
     onStart: () -> Unit,
     onBack: () -> Unit,
     message: String,
@@ -571,36 +636,42 @@ private fun FocusSetupScreen(
             }
             item {
                 StudyCard {
-                    Text("专注氛围", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    StudyFocusTheme.entries.forEach { theme ->
-                        val preview = theme.palette()
-                        Surface(
-                            onClick = { onTheme(theme) },
-                            modifier = Modifier.fillMaxWidth(),
-                            color = preview.background[1],
-                            shape = RoundedCornerShape(18.dp),
-                            border = BorderStroke(if (selectedTheme == theme) 2.dp else 1.dp, if (selectedTheme == theme) preview.accent else preview.track),
-                        ) {
-                            Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Surface(
-                                    modifier = Modifier.size(34.dp),
-                                    shape = RoundedCornerShape(50),
-                                    color = preview.panel,
-                                    border = BorderStroke(3.dp, preview.accent),
-                                ) {}
-                                Spacer(Modifier.width(12.dp))
-                                Text(theme.label, color = preview.text, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                                if (selectedTheme == theme) Text("已选择", color = preview.muted)
-                            }
-                        }
-                    }
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Text("陪学互动", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         Column(Modifier.weight(1f)) {
                             Text("角色语音", fontWeight = FontWeight.SemiBold)
-                            Text("完成反馈和专注聊天可由系统 TTS 朗读", color = StudyDesign.muted, fontSize = 12.sp)
+                            Text("角色回复时是否朗读出来", color = StudyDesign.muted, fontSize = 12.sp)
                         }
                         Switch(checked = voiceEnabled, onCheckedChange = { onVoice() })
                     }
+                    HorizontalDivider(color = StudyDesign.border)
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text("开场与结束主动对话", fontWeight = FontWeight.SemiBold)
+                            Text(
+                                "开启后每轮开始和结束时角色会主动说一句；关闭后只回应你主动发言",
+                                color = StudyDesign.muted,
+                                fontSize = 12.sp,
+                            )
+                        }
+                        Switch(
+                            checked = automaticDialogueEnabled,
+                            onCheckedChange = onAutomaticDialogue,
+                        )
+                    }
+                    Text(
+                        "专注氛围可在番茄钟进行中随时切换。",
+                        color = StudyDesign.muted,
+                        fontSize = 12.sp,
+                    )
                 }
             }
             if (message.isNotBlank()) item { StudyMessage(message, error) }
