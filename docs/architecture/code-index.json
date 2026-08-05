@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T19:04:01.708436+00:00",
-  "commit": "0d38d0408ddde08bd04603630c7a93aef101b596",
+  "generatedAt": "2026-08-05T19:05:12.368093+00:00",
+  "commit": "77401da5637e763bc81816f76f161d6023a5c03f",
   "branch": "main",
-  "sourceFingerprint": "e29688bab7938cc39e7a9ad60d33877d72b8c324e5af87da8a591af3e7cae5d7",
+  "sourceFingerprint": "ff838dbdd17507c65af5b635f6dce40a7ea50c3009b6f5b557673c45576778c2",
   "summary": {
-    "files": 110,
-    "lines": 28528,
-    "symbols": 465
+    "files": 111,
+    "lines": 28616,
+    "symbols": 469
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -1400,6 +1400,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
         "line": 40
+      }
+    ],
+    "ProactivePerceptionScheduler": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
+        "line": 22
+      }
+    ],
+    "schedule": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
+        "line": 26
+      }
+    ],
+    "scheduleSoon": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
+        "line": 30
+      }
+    ],
+    "ProactivePerceptionReceiver": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
+        "line": 55
       }
     ],
     "RelevantMemoryRecall": [
@@ -3921,6 +3945,29 @@
         {
           "name": "initialize",
           "line": 75
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
+      "lines": 88,
+      "sha256": "20129c89120ff339ed0aeb857e913bc863b6a48ceff0065f90afc43ec66dd63d",
+      "symbols": [
+        {
+          "name": "ProactivePerceptionScheduler",
+          "line": 22
+        },
+        {
+          "name": "schedule",
+          "line": 26
+        },
+        {
+          "name": "scheduleSoon",
+          "line": 30
+        },
+        {
+          "name": "ProactivePerceptionReceiver",
+          "line": 55
         }
       ]
     },
