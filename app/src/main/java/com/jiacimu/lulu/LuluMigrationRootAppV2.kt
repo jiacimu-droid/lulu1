@@ -117,9 +117,7 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
     }
 
     val timerHasProgress = focusPreferences.activeSessionId.isNotBlank() &&
-        !focusPreferences.completionHandled &&
-        (studyState.pomodoro.running ||
-            studyState.pomodoro.remainingSeconds < studyState.pomodoro.selectedMinutes * 60)
+        !focusPreferences.completionHandled
 
     CompositionLocalProvider(LocalDensity provides preferredDensity) {
         MaterialTheme(
