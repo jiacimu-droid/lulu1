@@ -10,13 +10,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.location.LocationManager
 import android.net.Uri
 import android.os.BatteryManager
 import android.os.Build
 import android.os.PowerManager
-import android.provider.Settings
 import android.provider.AlarmClock
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -37,11 +36,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.ai.archiveIdFor
+import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.system.LuluAccessibilityService
-import com.jiacimu.lulu.system.LuluNotificationListenerService
 import com.jiacimu.lulu.system.LuluLocationProvider
+import com.jiacimu.lulu.system.LuluNotificationListenerService
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 private val CapabilityPaper = Color.White
 private val CapabilityCard = Color(0xFFFCFCFC)
@@ -60,6 +64,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
     var locating by remember { mutableStateOf(false) }
     val accessibility by LuluAccessibilityService.state.collectAsState()
     val notificationConnected by LuluNotificationListenerService.isConnected.collectAsState()
+    val presenceStates by CompanionPresenceStore.states.collectAsState()
 
     val runtimeLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
@@ -77,8 +82,20 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
         CapabilitySnapshot.read(context, accessibility.connected, notificationConnected)
     }
     val library by com.jiacimu.lulu.ai.LuluAiServices.connectionStore.library.collectAsState()
-    val activeArchive = library.archives.firstOrNull { it.id == library.activeArchiveId }
-    val backgroundModelLabel = activeArchive?.let(com.jiacimu.lulu.ai.LuluAiServices.connectionStore::archiveLabel) ?: "尚未选择模型"
+    val chatArchiveId = library.archiveIdFor(ModelUsage.Chat)
+    val activeArchive = library.archives.firstOrNull { it.id == chatArchiveId }
+    val backgroundModelLabel = activeArchive?.let(com.jiacimu.lulu.ai.LuluAiServices.connectionStore::archiveLabel)
+        ?: "尚未选择聊天模型"
+    val latestPerception = presenceStates.values
+        .filter { it.lastPerceptionAt != null }
+        .maxByOrNull { it.lastPerceptionAt ?: Instant.EPOCH }
+    val latestPerceptionLabel = latestPerception?.let { state ->
+        val time = state.lastPerceptionAt
+            ?.atZone(ZoneId.systemDefault())
+            ?.format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+            .orEmpty()
+        "$time · ${state.lastPerceptionNote.ifBlank { "已运行" }}"
+    } ?: "安装新版后尚未留下感知运行记录"
 
     fun refreshLocation() {
         if (!snapshot.preciseLocation || locating) return
@@ -116,7 +133,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
             item {
                 CapabilityInfoCard(
                     title = "后台感知链路",
-                    body = "当前调用：$backgroundModelLabel\nApp 进程存活时每60分钟重新感知一次，更新角色心声、动作、心情和状态；角色可以保持沉默、主动发消息、发起电话、发送可点击的游戏邀约、写私人日记、在已加入的群聊发言，或发布朋友圈。所有行动都受人设、真实上下文、免打扰与频率限制约束。",
+                    body = "当前调用：$backgroundModelLabel\n最近运行：$latestPerceptionLabel\n应用内约每20分钟检查，进程退出后由系统后台任务继续；屏幕出现有意义的变化或收到新通知时也会触发检查。每次感知至少更新角色的状态、动作和心情，再按人设与勿扰设置决定是否发消息、来电、写日记、发朋友圈、游戏邀约或群聊发言。",
                 )
             }
             item {
@@ -150,7 +167,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                 }
             }
             item {
-                CapabilityRow(Icons.Outlined.NotificationsActive, "通知读取", "感知其他 App 的新通知", snapshot.notificationAccess) {
+                CapabilityRow(Icons.Outlined.NotificationsActive, "通知读取", "感知其他 App 的新通知并唤醒角色感知", snapshot.notificationAccess) {
                     open(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
                 }
             }
@@ -315,14 +332,14 @@ private data class CapabilitySnapshot(
                 foregroundAppLabel = foreground?.let { "最近前台应用：$it" } ?: "允许后可判断当前和最近使用的 App",
                 notificationAccess = notification,
                 accessibility = accessibility,
-                accessibilityLabel = if (accessibility) "已连接，可读取屏幕并执行手机控制" else "读取当前界面并执行点击、返回、主页等操作",
+                accessibilityLabel = if (accessibility) "已连接；界面变化会触发角色重新感知" else "读取当前界面并执行点击、返回、主页等操作",
                 overlay = overlay,
                 calendar = calendar,
                 activityRecognition = activity,
                 nearbyDevices = nearby,
                 notifications = notifications,
                 ignoreBatteryOptimizations = ignored,
-                batteryOptimizationLabel = if (ignored) "已允许后台稳定运行" else "避免主动联系和闹钟被系统省电中断",
+                batteryOptimizationLabel = if (ignored) "已允许后台稳定运行" else "建议开启，避免主动感知被系统省电延后",
                 batteryPercent = percent,
                 charging = charging,
             )
