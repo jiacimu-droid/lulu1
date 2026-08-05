@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T19:15:17.437934+00:00",
-  "commit": "413160b8bce65b1790bd3a6eb8d127c397d30b48",
+  "generatedAt": "2026-08-05T19:15:40.538498+00:00",
+  "commit": "bf33ea6fef65123ca4809f2d6a573c37db1f9d27",
   "branch": "main",
-  "sourceFingerprint": "8b43662ac285bb6b0a378d11ea297f895f919de64aa2f7e8027daa75cd421187",
+  "sourceFingerprint": "c6dc33188548ed8ee8e5179c8503b5ca1251b2ae6ab2640f0ee776f89cd5ed90",
   "summary": {
     "files": 111,
-    "lines": 28747,
-    "symbols": 471
+    "lines": 28768,
+    "symbols": 472
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -1411,31 +1411,37 @@
     "ProactivePerceptionScheduler": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 22
+        "line": 27
       }
     ],
     "schedule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 26
+        "line": 31
       }
     ],
     "scheduleSoon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 30
+        "line": 50
+      }
+    ],
+    "ProactivePerceptionWorker": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
+        "line": 70
       }
     ],
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 55
+        "line": 87
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 74
+        "line": 95
       }
     ],
     "RelevantMemoryRecall": [
@@ -3966,28 +3972,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 97,
-      "sha256": "a14e6141894e0380fce1184c585c8014df96997e4ef7fe3ea5c53d7a407f1bd0",
+      "lines": 118,
+      "sha256": "d353a6621fc46740a6dce58d562ca5aab88b6d7765ad9e1f051b94bd1f4ea85f",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
-          "line": 22
+          "line": 27
         },
         {
           "name": "schedule",
-          "line": 26
+          "line": 31
         },
         {
           "name": "scheduleSoon",
-          "line": 30
+          "line": 50
+        },
+        {
+          "name": "ProactivePerceptionWorker",
+          "line": 70
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 55
+          "line": 87
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 74
+          "line": 95
         }
       ]
     },
