@@ -15,22 +15,24 @@ enum class StudyRarity(val label: String) {
 enum class StudyDrawKind(val label: String, val rarity: StudyRarity) {
     OutfitFragment("画卷专属碎片", StudyRarity.Normal),
     DouyinTicket("抖音时长券 · 20分钟", StudyRarity.Rare),
+    GameRoundTicket("游戏局数券 · 4局", StudyRarity.Rare),
     TheaterFragment("小剧场券", StudyRarity.Rare),
-    GameTicket("游戏畅玩券 · 120分钟", StudyRarity.Epic),
+    GameTicket("电影券", StudyRarity.Epic),
     VideoCard("视频解锁卡", StudyRarity.Epic),
-    AnimeTicket("番剧兑换券 · 3小时", StudyRarity.Rainbow),
+    AnimeTicket("影视剧一季兑换券", StudyRarity.Rainbow),
 }
 
 enum class StudyEntertainmentKind(val label: String) {
     Douyin("抖音时长券"),
+    GameRound("游戏局数券"),
     Theater("小剧场"),
-    Game("游戏畅玩券"),
+    Game("电影券"),
     Video("视频解锁卡"),
-    Anime("番剧兑换券"),
+    Anime("影视剧一季兑换券"),
 }
 
 enum class StudyShopReward {
-    SingleTicket, DouyinTicket, TheaterFragment, GameTicket, VideoCard, AnimeTicket,
+    SingleTicket, DouyinTicket, GameRoundTicket, TheaterFragment, GameTicket, VideoCard, AnimeTicket,
 }
 
 data class StudyTask(
@@ -98,7 +100,9 @@ data class StudyInventory(
     val tenTickets: Int = 1,
     val blueFragments: Map<String, Int> = emptyMap(),
     val douyinTickets: Int = 0,
+    val gameRoundTickets: Int = 0,
     val theaterFragments: Int = 0,
+    // 为兼容已有存档保留旧字段名；这里现在存放电影券数量。
     val gameTickets: Int = 0,
     val videoCards: Int = 0,
     val animeTickets: Int = 0,
@@ -134,7 +138,7 @@ data class PomodoroState(
 )
 
 data class StudyState(
-    val schemaVersion: Int = 4,
+    val schemaVersion: Int = 5,
     val activeDate: String = LocalDate.now().toString(),
     val profile: StudyProfile = StudyProfile(),
     val inventory: StudyInventory = StudyInventory(),
@@ -206,12 +210,13 @@ internal fun defaultTips(date: LocalDate): List<StudyTip> = listOf(
 internal fun defaultShop(date: LocalDate): List<StudyShopItem> {
     val random = Random(date.toString().hashCode())
     val pool = listOf(
-        StudyShopReward.DouyinTicket to 7,
-        StudyShopReward.TheaterFragment to 7,
-        StudyShopReward.GameTicket to 3,
-        StudyShopReward.VideoCard to 3,
+        StudyShopReward.DouyinTicket to 6,
+        StudyShopReward.GameRoundTicket to 3,
+        StudyShopReward.TheaterFragment to 3,
+        StudyShopReward.GameTicket to 2,
+        StudyShopReward.VideoCard to 2,
         StudyShopReward.AnimeTicket to 1,
-        StudyShopReward.SingleTicket to 74,
+        StudyShopReward.SingleTicket to 83,
     )
     return (1..3).map { slot ->
         val reward = weightedShopReward(pool, random)
@@ -231,8 +236,9 @@ private fun weightedShopReward(pool: List<Pair<StudyShopReward, Int>>, random: R
 private fun StudyShopReward.toShopItem(id: String): StudyShopItem = when (this) {
     StudyShopReward.SingleTicket -> StudyShopItem(id, "单抽券", "用于一次抽卡", 100, this)
     StudyShopReward.DouyinTicket -> StudyShopItem(id, "抖音时长券", "可使用20分钟", 500, this)
+    StudyShopReward.GameRoundTicket -> StudyShopItem(id, "游戏局数券", "可畅玩4局", 600, this)
     StudyShopReward.TheaterFragment -> StudyShopItem(id, "小剧场券", "可生成或续写小剧场1章", 600, this)
-    StudyShopReward.GameTicket -> StudyShopItem(id, "游戏畅玩券", "可使用120分钟", 1_000, this)
+    StudyShopReward.GameTicket -> StudyShopItem(id, "电影券", "可观看1部电影", 1_000, this)
     StudyShopReward.VideoCard -> StudyShopItem(id, "视频解锁卡", "解锁一项视频收藏", 1_000, this)
-    StudyShopReward.AnimeTicket -> StudyShopItem(id, "番剧兑换券", "可观看3小时", 2_000, this)
+    StudyShopReward.AnimeTicket -> StudyShopItem(id, "影视剧一季兑换券", "可兑换一季影视剧", 2_000, this)
 }
