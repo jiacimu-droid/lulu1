@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T05:56:51.844205+00:00",
-  "commit": "b18a22626fd28fc99ec107f32c37c0290bbdffdb",
+  "generatedAt": "2026-08-05T06:20:02.454173+00:00",
+  "commit": "43c5043725abcfd731dd7aec4e052740d15d418a",
   "branch": "main",
-  "sourceFingerprint": "291e44ff4e13e9b4d8eea6f80439f2b9cf3f7ea9e54055c6f29a691e24215174",
+  "sourceFingerprint": "65fc3aec68b349f4ed8977726ca7da00d70b736e6ed52e38cd96d0afabd55bd4",
   "summary": {
     "files": 109,
-    "lines": 27267,
-    "symbols": 459
+    "lines": 27497,
+    "symbols": 470
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -417,7 +417,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 59
+        "line": 160
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -631,7 +631,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 51
+        "line": 148
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -2450,12 +2450,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
         "line": 144
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 178
       }
     ],
     "beginSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
         "line": 174
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 53
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 165
       }
     ],
     "settle": [
@@ -2479,37 +2491,83 @@
     "StudyFocusTheme": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 7
+        "line": 18
       }
     ],
     "StudyFocusPreferences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 12
+        "line": 23
       }
     ],
     "StudyFocusSessionStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 17
+        "line": 36
       }
     ],
     "updateTask": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 22
+        "line": 41
       }
     ],
     "updateTheme": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 28
+        "line": 45
+      }
+    ],
+    "updateAutomaticDialogue": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 49
+      }
+    ],
+    "markOpeningHandled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 74
+      }
+    ],
+    "markCompletionHandled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 78
+      }
+    ],
+    "clearSession": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 82
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 169
       }
     ],
     "StudyFocusSessions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 54
+        "line": 152
+      }
+    ],
+    "speakIfEnabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 173
+      }
+    ],
+    "handleNaturalCompletion": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 213
+      }
+    ],
+    "completeSession": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
+        "line": 223
       }
     ],
     "draw": [
@@ -4916,40 +4974,84 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-      "lines": 64,
-      "sha256": "7d018c5b7ade61e194a5a83ffccb9adfaa81363b7bb2445bffd9e9aa41dfa49b",
+      "lines": 294,
+      "sha256": "a54edb573d253b5c1d881aee5cfaa399eb7f99b2a815d5c8665eda22ecd80684",
       "symbols": [
         {
           "name": "StudyFocusTheme",
-          "line": 7
+          "line": 18
         },
         {
           "name": "StudyFocusPreferences",
-          "line": 12
+          "line": 23
         },
         {
           "name": "StudyFocusSessionStore",
-          "line": 17
+          "line": 36
         },
         {
           "name": "updateTask",
-          "line": 22
+          "line": 41
         },
         {
           "name": "updateTheme",
-          "line": 28
+          "line": 45
+        },
+        {
+          "name": "updateAutomaticDialogue",
+          "line": 49
+        },
+        {
+          "name": "beginSession",
+          "line": 53
+        },
+        {
+          "name": "markOpeningHandled",
+          "line": 74
+        },
+        {
+          "name": "markCompletionHandled",
+          "line": 78
+        },
+        {
+          "name": "clearSession",
+          "line": 82
         },
         {
           "name": "create",
-          "line": 51
+          "line": 148
         },
         {
           "name": "StudyFocusSessions",
-          "line": 54
+          "line": 152
         },
         {
           "name": "initialize",
-          "line": 59
+          "line": 160
+        },
+        {
+          "name": "beginSession",
+          "line": 165
+        },
+        {
+          "name": "clearSession",
+          "line": 169
+        },
+        {
+          "name": "speakIfEnabled",
+          "line": 173
+        },
+        {
+          "name": "requestOpeningLine",
+          "line": 178
+        },
+        {
+          "name": "handleNaturalCompletion",
+          "line": 213
+        },
+        {
+          "name": "completeSession",
+          "line": 223
         }
       ]
     },
