@@ -685,7 +685,9 @@ class PostgraduateExamStore internal constructor(context: Context) {
         dailyStudyMinutes: Map<String, Int>,
         windowDays: Int,
     ): Int {
-        val dates = dailyStudyMinutes.keys.mapNotNull { runCatching(LocalDate::parse).getOrNull() }.sorted()
+        val dates = dailyStudyMinutes.keys.mapNotNull { key ->
+            runCatching { LocalDate.parse(key) }.getOrNull()
+        }.sorted()
         if (dates.isEmpty() || windowDays <= 0) return 0
         var start = dates.first()
         val last = dates.last()
@@ -708,7 +710,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
         val dates = dailyStudyMinutes
             .filterValues { it >= minimumDailyMinutes }
             .keys
-            .mapNotNull { runCatching(LocalDate::parse).getOrNull() }
+            .mapNotNull { key -> runCatching { LocalDate.parse(key) }.getOrNull() }
             .distinct()
             .sorted()
         if (dates.isEmpty()) return 0
