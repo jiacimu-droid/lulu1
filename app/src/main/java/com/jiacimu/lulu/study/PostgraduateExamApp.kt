@@ -30,6 +30,14 @@ fun PostgraduateExamApp(
     val focusPreferences by StudyFocusSessions.store.state.collectAsState()
     var route by remember { mutableStateOf<StudyRoute>(StudyRoute.Section(StudySection.Today)) }
 
+    fun openFocus() {
+        if (focusPreferences.activeSessionId.isNotBlank() && focusPreferences.completionHandled) {
+            store.resetPomodoro()
+            StudyFocusSessions.clearSession()
+        }
+        route = StudyRoute.Focus
+    }
+
     fun stepBack() {
         when (val current = route) {
             StudyRoute.Focus -> route = StudyRoute.Section(StudySection.Today)
@@ -51,7 +59,7 @@ fun PostgraduateExamApp(
 
     LaunchedEffect(focusRequest) {
         if (focusRequest > 0) {
-            route = StudyRoute.Focus
+            openFocus()
             onFocusRequestConsumed()
         }
     }
@@ -105,7 +113,7 @@ fun PostgraduateExamApp(
                         Box(Modifier.fillMaxSize()) {
                             when (current.section) {
                                 StudySection.Companion -> StudyCompanionScreen(state, store)
-                                StudySection.Today -> StudyTodayScreenV2(state, store) { route = StudyRoute.Focus }
+                                StudySection.Today -> StudyTodayScreenV2(state, store) { openFocus() }
                                 StudySection.Plan -> StudyPlanScreenV2(state, store)
                                 StudySection.Gacha -> StudyGachaScreen(state, store)
                                 StudySection.Collection -> StudyCollectionScreen(state, store, onOpenTheater)
@@ -123,7 +131,7 @@ fun PostgraduateExamApp(
             StudyFocusMiniWindow(
                 state = state,
                 task = focusPreferences.activeTask,
-                onOpen = { route = StudyRoute.Focus },
+                onOpen = { openFocus() },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .navigationBarsPadding()
