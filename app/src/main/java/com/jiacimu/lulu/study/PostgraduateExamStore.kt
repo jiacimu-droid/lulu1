@@ -391,24 +391,62 @@ class PostgraduateExamStore internal constructor(context: Context) {
     private fun drawOne(): StudyDrawResult {
         val roll = Random.nextDouble()
         return when {
-            roll < 0.9215 -> {
+            roll < 0.9395 -> {
                 val scroll = blueFragmentCatalog.random()
                 StudyDrawResult(kind = StudyDrawKind.OutfitFragment, title = "$scroll · 专属碎片", inventoryChanged = true)
             }
-            roll < 0.9815 -> drawRare()
-            roll < 0.9965 -> if (Random.nextDouble() < 0.8) {
-                StudyDrawResult(kind = StudyDrawKind.GameTicket, title = StudyDrawKind.GameTicket.label, inventoryChanged = true)
-            } else {
-                StudyDrawResult(kind = StudyDrawKind.VideoCard, title = StudyDrawKind.VideoCard.label, inventoryChanged = true)
-            }
-            else -> StudyDrawResult(kind = StudyDrawKind.AnimeTicket, title = StudyDrawKind.AnimeTicket.label, inventoryChanged = true)
+            roll < 0.9645 -> StudyDrawResult(
+                kind = StudyDrawKind.DouyinTicket,
+                title = StudyDrawKind.DouyinTicket.label,
+                inventoryChanged = true,
+            )
+            roll < 0.9745 -> StudyDrawResult(
+                kind = StudyDrawKind.GameRoundTicket,
+                title = StudyDrawKind.GameRoundTicket.label,
+                inventoryChanged = true,
+            )
+            roll < 0.9845 -> StudyDrawResult(
+                kind = StudyDrawKind.TheaterFragment,
+                title = StudyDrawKind.TheaterFragment.label,
+                inventoryChanged = true,
+            )
+            roll < 0.9925 -> StudyDrawResult(
+                kind = StudyDrawKind.GameTicket,
+                title = StudyDrawKind.GameTicket.label,
+                inventoryChanged = true,
+            )
+            roll < 0.9965 -> StudyDrawResult(
+                kind = StudyDrawKind.VideoCard,
+                title = StudyDrawKind.VideoCard.label,
+                inventoryChanged = true,
+            )
+            else -> StudyDrawResult(
+                kind = StudyDrawKind.AnimeTicket,
+                title = StudyDrawKind.AnimeTicket.label,
+                inventoryChanged = true,
+            )
         }
     }
 
-    private fun drawRare(): StudyDrawResult = if (Random.nextDouble() < 5.0 / 6.0) {
-        StudyDrawResult(kind = StudyDrawKind.DouyinTicket, title = StudyDrawKind.DouyinTicket.label, inventoryChanged = true)
-    } else {
-        StudyDrawResult(kind = StudyDrawKind.TheaterFragment, title = StudyDrawKind.TheaterFragment.label, inventoryChanged = true)
+    private fun drawRare(): StudyDrawResult {
+        val roll = Random.nextDouble()
+        return when {
+            roll < 5.0 / 9.0 -> StudyDrawResult(
+                kind = StudyDrawKind.DouyinTicket,
+                title = StudyDrawKind.DouyinTicket.label,
+                inventoryChanged = true,
+            )
+            roll < 7.0 / 9.0 -> StudyDrawResult(
+                kind = StudyDrawKind.GameRoundTicket,
+                title = StudyDrawKind.GameRoundTicket.label,
+                inventoryChanged = true,
+            )
+            else -> StudyDrawResult(
+                kind = StudyDrawKind.TheaterFragment,
+                title = StudyDrawKind.TheaterFragment.label,
+                inventoryChanged = true,
+            )
+        }
     }
 
     private fun applyDraw(state: StudyState, initial: StudyDrawResult): Pair<StudyState, StudyDrawResult> {
@@ -432,6 +470,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
                 }
             }
             StudyDrawKind.DouyinTicket -> inventory = inventory.copy(douyinTickets = inventory.douyinTickets + 1)
+            StudyDrawKind.GameRoundTicket -> inventory = inventory.copy(gameRoundTickets = inventory.gameRoundTickets + 1)
             StudyDrawKind.TheaterFragment -> inventory = inventory.copy(theaterFragments = inventory.theaterFragments + 1)
             StudyDrawKind.GameTicket -> inventory = inventory.copy(gameTickets = inventory.gameTickets + 1)
             StudyDrawKind.VideoCard -> inventory = inventory.copy(videoCards = inventory.videoCards + 1)
@@ -467,6 +506,11 @@ class PostgraduateExamStore internal constructor(context: Context) {
                     message = "抖音时长券已使用 · 20分钟"
                     state.copy(inventory = inventory.copy(douyinTickets = inventory.douyinTickets - 1), events = addEvent(state.events, "娱乐券", message))
                 }
+                StudyEntertainmentKind.GameRound -> {
+                    if (inventory.gameRoundTickets <= 0) return@mutate state
+                    message = "游戏局数券已使用 · 可畅玩4局"
+                    state.copy(inventory = inventory.copy(gameRoundTickets = inventory.gameRoundTickets - 1), events = addEvent(state.events, "娱乐券", message))
+                }
                 StudyEntertainmentKind.Theater -> {
                     if (inventory.theaterFragments <= 0) return@mutate state
                     val next = theaterCatalog.firstOrNull { it !in inventory.unlockedTheaters }
@@ -482,7 +526,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
                 }
                 StudyEntertainmentKind.Game -> {
                     if (inventory.gameTickets <= 0) return@mutate state
-                    message = "游戏畅玩券已使用 · 120分钟"
+                    message = "电影券已使用 · 可观看1部电影"
                     state.copy(inventory = inventory.copy(gameTickets = inventory.gameTickets - 1), events = addEvent(state.events, "娱乐券", message))
                 }
                 StudyEntertainmentKind.Video -> {
@@ -500,7 +544,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
                 }
                 StudyEntertainmentKind.Anime -> {
                     if (inventory.animeTickets <= 0) return@mutate state
-                    message = "番剧兑换券已使用 · 3小时"
+                    message = "影视剧一季兑换券已使用 · 可兑换一整季"
                     state.copy(inventory = inventory.copy(animeTickets = inventory.animeTickets - 1), events = addEvent(state.events, "娱乐券", message))
                 }
             }
@@ -590,6 +634,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
             inventory = when (item.reward) {
                 StudyShopReward.SingleTicket -> inventory.copy(singleTickets = inventory.singleTickets + item.amount)
                 StudyShopReward.DouyinTicket -> inventory.copy(douyinTickets = inventory.douyinTickets + item.amount)
+                StudyShopReward.GameRoundTicket -> inventory.copy(gameRoundTickets = inventory.gameRoundTickets + item.amount)
                 StudyShopReward.TheaterFragment -> inventory.copy(theaterFragments = inventory.theaterFragments + item.amount)
                 StudyShopReward.GameTicket -> inventory.copy(gameTickets = inventory.gameTickets + item.amount)
                 StudyShopReward.VideoCard -> inventory.copy(videoCards = inventory.videoCards + item.amount)
