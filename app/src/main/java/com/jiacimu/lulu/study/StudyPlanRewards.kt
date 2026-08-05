@@ -1,10 +1,10 @@
 package com.jiacimu.lulu.study
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,15 +15,25 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.delay
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 @Composable
 internal fun StudyPlanScreen(state: StudyState, store: PostgraduateExamStore) {
@@ -125,8 +135,7 @@ internal fun StudyGachaScreen(state: StudyState, store: PostgraduateExamStore) {
 
         if (revealing) {
             GachaAnimationOverlay(
-                count = results.size,
-                bestRarity = results.maxByOrNull { it.rarity.ordinal }?.rarity ?: StudyRarity.Normal,
+                results = results,
                 onFinished = { revealing = false; showingResults = true },
             )
         }
@@ -134,48 +143,356 @@ internal fun StudyGachaScreen(state: StudyState, store: PostgraduateExamStore) {
 }
 
 @Composable
-private fun GachaAnimationOverlay(count: Int, bestRarity: StudyRarity, onFinished: () -> Unit) {
-    var burst by remember { mutableStateOf(false) }
-    val rotation by animateFloatAsState(if (burst) 720f else -12f, tween(1_650), label = "扭蛋旋转")
-    val scale by animateFloatAsState(if (burst) 1.38f else .72f, tween(1_650), label = "扭蛋放大")
-    LaunchedEffect(Unit) {
-        burst = true
-        delay(1_850)
+private fun GachaAnimationOverlay(results: List<StudyDrawResult>, onFinished: () -> Unit) {
+    val bestRarity = results.maxByOrNull { it.rarity.ordinal }?.rarity ?: StudyRarity.Normal
+    val starRarities = remember(results) { results.map { it.rarity }.sortedByDescending { it.ordinal } }
+    val revealDuration = when (bestRarity) {
+        StudyRarity.Normal -> 1_250
+        StudyRarity.Rare -> 1_550
+        StudyRarity.Epic -> 1_850
+        StudyRarity.Rainbow -> 2_250
+    }
+    var spinStarted by remember { mutableStateOf(false) }
+    var revealStarted by remember { mutableStateOf(false) }
+    val rotation by animateFloatAsState(
+        targetValue = if (spinStarted) 1_080f else -16f,
+        animationSpec = tween(2_050),
+        label = "抽卡公共旋转",
+    )
+    val coreScale by animateFloatAsState(
+        targetValue = when {
+            revealStarted -> .52f
+            spinStarted -> 1.08f
+            else -> .72f
+        },
+        animationSpec = tween(if (revealStarted) 360 else 2_050),
+        label = "抽卡核心缩放",
+    )
+    val burstProgress by animateFloatAsState(
+        targetValue = if (revealStarted) 1f else 0f,
+        animationSpec = tween(revealDuration),
+        label = "稀有度爆发",
+    )
+
+    LaunchedEffect(results) {
+        spinStarted = true
+        delay(2_100)
+        revealStarted = true
+        delay(revealDuration.toLong() + 650L)
         onFinished()
     }
-    val glow = rarityColor(bestRarity)
-    Box(
-        Modifier.fillMaxSize().background(Color(0xEE111526)),
-        contentAlignment = Alignment.Center,
+
+    Dialog(
+        onDismissRequest = {},
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false,
+        ),
     ) {
-        Canvas(Modifier.fillMaxSize()) {
-            drawCircle(glow.copy(alpha = .18f), radius = size.minDimension * .48f)
-            repeat(18) { index ->
-                val angle = index * (Math.PI * 2 / 18)
-                val radius = size.minDimension * .34f
-                drawCircle(
-                    color = glow.copy(alpha = .45f),
-                    radius = (3 + index % 4).dp.toPx(),
-                    center = Offset(size.width / 2 + kotlin.math.cos(angle).toFloat() * radius, size.height / 2 + kotlin.math.sin(angle).toFloat() * radius),
-                )
-            }
-        }
-        Surface(
-            modifier = Modifier.size(166.dp).graphicsLayer { rotationZ = rotation; scaleX = scale; scaleY = scale },
-            shape = RoundedCornerShape(83.dp),
-            color = Color.White,
-            border = BorderStroke(7.dp, glow),
-            shadowElevation = 26.dp,
+        val backdrop = if (!revealStarted) commonGachaBackground() else rarityBackground(bestRarity)
+        Box(
+            modifier = Modifier.fillMaxSize().background(backdrop),
+            contentAlignment = Alignment.Center,
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Outlined.AutoAwesome, null, tint = StudyDesign.wheat, modifier = Modifier.size(54.dp))
-                    Text(if (count == 10) "十连显现" else "愿望显现", fontWeight = FontWeight.Black, color = StudyDesign.ink)
+            Canvas(Modifier.fillMaxSize()) {
+                val center = Offset(size.width / 2f, size.height / 2f)
+                val commonAlpha = 1f - burstProgress
+                if (commonAlpha > .01f) {
+                    drawCircle(
+                        color = GachaBlue.copy(alpha = .12f * commonAlpha),
+                        radius = size.minDimension * .47f,
+                        center = center,
+                    )
+                    drawCircle(
+                        color = Color.White.copy(alpha = .08f * commonAlpha),
+                        radius = size.minDimension * .33f,
+                        center = center,
+                        style = Stroke(1.5.dp.toPx()),
+                    )
+                    repeat(20) { index ->
+                        val angle = index * (PI * 2 / 20) + rotation / 180f * PI
+                        val radius = size.minDimension * if (index % 2 == 0) .31f else .37f
+                        drawCircle(
+                            color = GachaBlue.copy(alpha = (.38f + (index % 3) * .1f) * commonAlpha),
+                            radius = (2.5f + index % 4).dp.toPx(),
+                            center = Offset(
+                                center.x + cos(angle).toFloat() * radius,
+                                center.y + sin(angle).toFloat() * radius,
+                            ),
+                        )
+                    }
+                }
+
+                if (burstProgress > .01f) {
+                    drawRarityBurst(
+                        center = center,
+                        rarity = bestRarity,
+                        progress = burstProgress,
+                    )
+                    starRarities.forEachIndexed { index, rarity ->
+                        val starCenter = revealStarPosition(
+                            center = center,
+                            index = index,
+                            total = starRarities.size,
+                            radius = size.minDimension * .23f * burstProgress,
+                        )
+                        val baseRadius = when (rarity) {
+                            StudyRarity.Normal -> 13.dp.toPx()
+                            StudyRarity.Rare -> 18.dp.toPx()
+                            StudyRarity.Epic -> 24.dp.toPx()
+                            StudyRarity.Rainbow -> 30.dp.toPx()
+                        }
+                        drawGachaStar(
+                            center = starCenter,
+                            radius = baseRadius * burstProgress,
+                            rarity = rarity,
+                            rotationDegrees = rotation + index * 17f,
+                        )
+                    }
                 }
             }
+
+            Surface(
+                modifier = Modifier
+                    .size(176.dp)
+                    .graphicsLayer {
+                        rotationZ = rotation
+                        scaleX = coreScale
+                        scaleY = coreScale
+                        alpha = 1f - burstProgress
+                    },
+                shape = RoundedCornerShape(88.dp),
+                color = Color(0xFFFDFEFF),
+                border = BorderStroke(8.dp, Color(0xFFD7E9F7)),
+                shadowElevation = 30.dp,
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            Icons.Outlined.AutoAwesome,
+                            contentDescription = null,
+                            tint = GachaBlue,
+                            modifier = Modifier.size(62.dp),
+                        )
+                        Text(
+                            if (results.size == 10) "十连愿望" else "愿望显现",
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF273449),
+                        )
+                    }
+                }
+            }
+
+            if (revealStarted) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center).offset(y = 190.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text(
+                        rarityRevealTitle(bestRarity),
+                        color = Color.White,
+                        fontSize = when (bestRarity) {
+                            StudyRarity.Normal -> 24.sp
+                            StudyRarity.Rare -> 28.sp
+                            StudyRarity.Epic -> 32.sp
+                            StudyRarity.Rainbow -> 36.sp
+                        },
+                        fontWeight = FontWeight.Black,
+                    )
+                    Text(
+                        rarityResultSummary(results),
+                        color = Color.White.copy(alpha = .82f),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            }
+
+            Text(
+                text = if (revealStarted) "愿望正在凝聚……" else "正在开启……",
+                color = Color.White,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
+                    .padding(bottom = 56.dp),
+                fontWeight = FontWeight.Bold,
+                fontSize = 17.sp,
+            )
         }
-        Text("正在开启…", color = Color.White, modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 72.dp), fontWeight = FontWeight.Bold)
     }
+}
+
+private val GachaBlue = Color(0xFF76AEDA)
+private val GachaPurple = Color(0xFFB486E6)
+private val GachaGold = Color(0xFFFFC94F)
+private val GachaRainbow = listOf(
+    Color(0xFFFF76B7),
+    Color(0xFFFFD45C),
+    Color(0xFF7FE4CF),
+    Color(0xFF72B8FF),
+    Color(0xFFC78BFF),
+)
+
+private fun commonGachaBackground(): Brush = Brush.radialGradient(
+    colors = listOf(Color(0xFF25344D), Color(0xFF111827), Color(0xFF070B13)),
+)
+
+private fun rarityBackground(rarity: StudyRarity): Brush = when (rarity) {
+    StudyRarity.Normal -> Brush.radialGradient(listOf(Color(0xFF24476B), Color(0xFF0B1625), Color(0xFF050A12)))
+    StudyRarity.Rare -> Brush.radialGradient(listOf(Color(0xFF5B3282), Color(0xFF241534), Color(0xFF090711)))
+    StudyRarity.Epic -> Brush.radialGradient(listOf(Color(0xFF8A5A16), Color(0xFF35220A), Color(0xFF0E0A04)))
+    StudyRarity.Rainbow -> Brush.radialGradient(listOf(Color(0xFF434277), Color(0xFF17142C), Color(0xFF080711)))
+}
+
+private fun DrawScope.drawRarityBurst(center: Offset, rarity: StudyRarity, progress: Float) {
+    val palette = when (rarity) {
+        StudyRarity.Normal -> listOf(GachaBlue, Color(0xFFBDE2FF))
+        StudyRarity.Rare -> listOf(GachaPurple, Color(0xFFE2C6FF), Color(0xFF8E5AD1))
+        StudyRarity.Epic -> listOf(GachaGold, Color(0xFFFFF0A6), Color(0xFFFF9E35))
+        StudyRarity.Rainbow -> GachaRainbow
+    }
+    val rayCount = when (rarity) {
+        StudyRarity.Normal -> 14
+        StudyRarity.Rare -> 22
+        StudyRarity.Epic -> 32
+        StudyRarity.Rainbow -> 48
+    }
+    val ringCount = when (rarity) {
+        StudyRarity.Normal -> 1
+        StudyRarity.Rare -> 2
+        StudyRarity.Epic -> 3
+        StudyRarity.Rainbow -> 5
+    }
+    val maxRadius = size.minDimension * when (rarity) {
+        StudyRarity.Normal -> .36f
+        StudyRarity.Rare -> .43f
+        StudyRarity.Epic -> .49f
+        StudyRarity.Rainbow -> .58f
+    }
+
+    repeat(rayCount) { index ->
+        val angle = index * (PI * 2 / rayCount)
+        val startRadius = size.minDimension * .07f
+        val endRadius = maxRadius * progress * (.76f + (index % 4) * .08f)
+        val color = palette[index % palette.size]
+        drawLine(
+            color = color.copy(alpha = (.30f + (index % 3) * .12f) * progress),
+            start = Offset(
+                center.x + cos(angle).toFloat() * startRadius,
+                center.y + sin(angle).toFloat() * startRadius,
+            ),
+            end = Offset(
+                center.x + cos(angle).toFloat() * endRadius,
+                center.y + sin(angle).toFloat() * endRadius,
+            ),
+            strokeWidth = when (rarity) {
+                StudyRarity.Normal -> 1.5.dp.toPx()
+                StudyRarity.Rare -> 2.dp.toPx()
+                StudyRarity.Epic -> 3.dp.toPx()
+                StudyRarity.Rainbow -> 3.5.dp.toPx()
+            },
+            cap = StrokeCap.Round,
+        )
+    }
+
+    repeat(ringCount) { index ->
+        val radius = maxRadius * progress * (.36f + index * .15f)
+        drawCircle(
+            color = palette[index % palette.size].copy(alpha = (.52f - index * .07f).coerceAtLeast(.16f) * progress),
+            radius = radius,
+            center = center,
+            style = Stroke((1.5f + index * .8f).dp.toPx()),
+        )
+    }
+
+    if (rarity == StudyRarity.Rainbow) {
+        repeat(34) { index ->
+            val angle = index * (PI * 2 / 34) + progress * PI
+            val radius = maxRadius * (.32f + (index % 6) * .1f) * progress
+            drawCircle(
+                color = GachaRainbow[index % GachaRainbow.size].copy(alpha = .78f * progress),
+                radius = (2f + index % 4).dp.toPx() * progress,
+                center = Offset(
+                    center.x + cos(angle).toFloat() * radius,
+                    center.y + sin(angle).toFloat() * radius,
+                ),
+            )
+        }
+    }
+}
+
+private fun revealStarPosition(center: Offset, index: Int, total: Int, radius: Float): Offset {
+    if (index == 0 || total <= 1) return center
+    val orbitCount = (total - 1).coerceAtLeast(1)
+    val angle = -PI / 2 + (index - 1) * (PI * 2 / orbitCount)
+    return Offset(
+        center.x + cos(angle).toFloat() * radius,
+        center.y + sin(angle).toFloat() * radius,
+    )
+}
+
+private fun DrawScope.drawGachaStar(
+    center: Offset,
+    radius: Float,
+    rarity: StudyRarity,
+    rotationDegrees: Float,
+) {
+    if (radius <= 0f) return
+    val path = Path()
+    repeat(10) { point ->
+        val pointRadius = if (point % 2 == 0) radius else radius * .43f
+        val angle = -PI / 2 + point * PI / 5 + rotationDegrees / 180f * PI
+        val x = center.x + cos(angle).toFloat() * pointRadius
+        val y = center.y + sin(angle).toFloat() * pointRadius
+        if (point == 0) path.moveTo(x, y) else path.lineTo(x, y)
+    }
+    path.close()
+
+    if (rarity == StudyRarity.Rainbow) {
+        drawPath(path = path, brush = Brush.sweepGradient(GachaRainbow, center))
+    } else {
+        drawPath(path = path, color = rarityAccentColor(rarity))
+    }
+    drawPath(
+        path = path,
+        color = Color.White.copy(alpha = .88f),
+        style = Stroke((radius * .08f).coerceAtLeast(1.2.dp.toPx())),
+    )
+    drawCircle(
+        color = Color.White.copy(alpha = .72f),
+        radius = radius * .13f,
+        center = Offset(center.x - radius * .18f, center.y - radius * .2f),
+    )
+}
+
+private fun rarityAccentColor(rarity: StudyRarity): Color = when (rarity) {
+    StudyRarity.Normal -> GachaBlue
+    StudyRarity.Rare -> GachaPurple
+    StudyRarity.Epic -> GachaGold
+    StudyRarity.Rainbow -> Color.White
+}
+
+private fun rarityRevealTitle(rarity: StudyRarity): String = when (rarity) {
+    StudyRarity.Normal -> "蓝色愿望"
+    StudyRarity.Rare -> "紫色显现"
+    StudyRarity.Epic -> "金色降临"
+    StudyRarity.Rainbow -> "彩色奇迹降临"
+}
+
+private fun rarityResultSummary(results: List<StudyDrawResult>): String {
+    val rainbow = results.count { it.rarity == StudyRarity.Rainbow }
+    val epic = results.count { it.rarity == StudyRarity.Epic }
+    val rare = results.count { it.rarity == StudyRarity.Rare }
+    val normal = results.count { it.rarity == StudyRarity.Normal }
+    return buildList {
+        if (rainbow > 0) add("$rainbow 彩")
+        if (epic > 0) add("$epic 金")
+        if (rare > 0) add("$rare 紫")
+        if (normal > 0) add("$normal 蓝")
+    }.joinToString(" · ")
 }
 
 @Composable
@@ -241,28 +558,152 @@ private fun CandyGachaCard(modifier: Modifier = Modifier, state: StudyState, onS
                     GachaBalance("夸夸值", state.profile.praisePoints)
                 }
             }
-            Spacer(Modifier.height(10.dp))
-            Box(Modifier.fillMaxWidth().height(270.dp), contentAlignment = Alignment.Center) {
+            Spacer(Modifier.height(8.dp))
+            Box(Modifier.fillMaxWidth().height(310.dp), contentAlignment = Alignment.Center) {
                 Canvas(Modifier.fillMaxSize()) {
-                    val center = Offset(size.width / 2, size.height * .38f)
-                    val domeRadius = size.minDimension * .31f
-                    drawCircle(Color.White.copy(alpha = .72f), domeRadius, center)
-                    drawCircle(StudyDesign.border, domeRadius, center, style = Stroke(3.dp.toPx()))
-                    drawCircle(Color(0xFFDCEAF4), 21.dp.toPx(), Offset(center.x - 50.dp.toPx(), center.y + 24.dp.toPx()))
-                    drawCircle(Color(0xFFE8DDF2), 19.dp.toPx(), Offset(center.x - 9.dp.toPx(), center.y + 38.dp.toPx()))
-                    drawCircle(Color(0xFFFFEDB8), 22.dp.toPx(), Offset(center.x + 37.dp.toPx(), center.y + 22.dp.toPx()))
-                    drawCircle(Color(0xFFD8F3EF), 17.dp.toPx(), Offset(center.x + 7.dp.toPx(), center.y - 5.dp.toPx()))
+                    val centerX = size.width / 2f
+                    val domeCenter = Offset(centerX, size.height * .34f)
+                    val domeRadius = size.minDimension * .29f
+                    val bodyLeft = size.width * .19f
+                    val bodyTop = size.height * .52f
+                    val bodyWidth = size.width * .62f
+                    val bodyHeight = size.height * .38f
+
                     drawRoundRect(
-                        color = StudyDesign.wheat,
-                        topLeft = Offset(size.width * .24f, size.height * .63f),
-                        size = androidx.compose.ui.geometry.Size(size.width * .52f, size.height * .25f),
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(25.dp.toPx()),
+                        color = Color(0x22000000),
+                        topLeft = Offset(bodyLeft + 8.dp.toPx(), bodyTop + 12.dp.toPx()),
+                        size = Size(bodyWidth, bodyHeight),
+                        cornerRadius = CornerRadius(30.dp.toPx()),
                     )
-                    drawCircle(StudyDesign.ink, 21.dp.toPx(), Offset(size.width / 2, size.height * .72f))
-                    drawCircle(StudyDesign.card, 9.dp.toPx(), Offset(size.width / 2, size.height * .72f))
+                    drawRoundRect(
+                        brush = Brush.verticalGradient(listOf(Color(0xFFF5D77A), Color(0xFFE7B84C))),
+                        topLeft = Offset(bodyLeft, bodyTop),
+                        size = Size(bodyWidth, bodyHeight),
+                        cornerRadius = CornerRadius(30.dp.toPx()),
+                    )
+                    drawRoundRect(
+                        color = Color(0xFFFFF5CF),
+                        topLeft = Offset(bodyLeft + 13.dp.toPx(), bodyTop + 13.dp.toPx()),
+                        size = Size(bodyWidth - 26.dp.toPx(), bodyHeight - 26.dp.toPx()),
+                        cornerRadius = CornerRadius(22.dp.toPx()),
+                    )
+
+                    drawCircle(
+                        brush = Brush.radialGradient(
+                            colors = listOf(Color(0xFFFFFFFF), Color(0xFFDCECF7), Color(0xFFB8D0E2)),
+                            center = Offset(domeCenter.x - domeRadius * .3f, domeCenter.y - domeRadius * .38f),
+                            radius = domeRadius * 1.35f,
+                        ),
+                        radius = domeRadius,
+                        center = domeCenter,
+                    )
+                    drawCircle(
+                        color = Color(0xFF829CB0),
+                        radius = domeRadius,
+                        center = domeCenter,
+                        style = Stroke(4.dp.toPx()),
+                    )
+                    drawArc(
+                        color = Color.White.copy(alpha = .82f),
+                        startAngle = 205f,
+                        sweepAngle = 96f,
+                        useCenter = false,
+                        topLeft = Offset(domeCenter.x - domeRadius * .75f, domeCenter.y - domeRadius * .75f),
+                        size = Size(domeRadius * 1.5f, domeRadius * 1.5f),
+                        style = Stroke(5.dp.toPx(), cap = StrokeCap.Round),
+                    )
+
+                    val capsules = listOf(
+                        Triple(-.48f, .28f, Color(0xFF9FC7E4)),
+                        Triple(-.16f, .42f, Color(0xFFCBA8EA)),
+                        Triple(.22f, .34f, Color(0xFFF7D476)),
+                        Triple(.46f, .05f, Color(0xFF92DCCF)),
+                        Triple(-.33f, -.02f, Color(0xFFF0A9C5)),
+                        Triple(.03f, .02f, Color(0xFF9FC7E4)),
+                    )
+                    capsules.forEachIndexed { index, (xFactor, yFactor, color) ->
+                        val capsuleCenter = Offset(
+                            domeCenter.x + domeRadius * xFactor,
+                            domeCenter.y + domeRadius * yFactor,
+                        )
+                        val capsuleRadius = (16 + index % 3 * 2).dp.toPx()
+                        drawCircle(color = color, radius = capsuleRadius, center = capsuleCenter)
+                        drawLine(
+                            color = Color.White.copy(alpha = .78f),
+                            start = Offset(capsuleCenter.x - capsuleRadius * .8f, capsuleCenter.y),
+                            end = Offset(capsuleCenter.x + capsuleRadius * .8f, capsuleCenter.y),
+                            strokeWidth = 2.dp.toPx(),
+                        )
+                        drawCircle(
+                            color = Color.White.copy(alpha = .72f),
+                            radius = capsuleRadius * .2f,
+                            center = Offset(capsuleCenter.x - capsuleRadius * .3f, capsuleCenter.y - capsuleRadius * .34f),
+                        )
+                    }
+
+                    drawRoundRect(
+                        color = Color(0xFF243246),
+                        topLeft = Offset(size.width * .34f, size.height * .69f),
+                        size = Size(size.width * .32f, size.height * .105f),
+                        cornerRadius = CornerRadius(13.dp.toPx()),
+                    )
+                    drawRoundRect(
+                        color = Color(0xFF60788C),
+                        topLeft = Offset(size.width * .37f, size.height * .705f),
+                        size = Size(size.width * .26f, size.height * .055f),
+                        cornerRadius = CornerRadius(8.dp.toPx()),
+                    )
+                    drawCircle(
+                        color = Color(0xFF27364A),
+                        radius = 23.dp.toPx(),
+                        center = Offset(size.width * .72f, size.height * .62f),
+                    )
+                    drawCircle(
+                        color = Color(0xFFF9F1D5),
+                        radius = 11.dp.toPx(),
+                        center = Offset(size.width * .72f, size.height * .62f),
+                    )
+                    drawLine(
+                        color = Color(0xFF27364A),
+                        start = Offset(size.width * .72f, size.height * .62f),
+                        end = Offset(size.width * .79f, size.height * .67f),
+                        strokeWidth = 8.dp.toPx(),
+                        cap = StrokeCap.Round,
+                    )
+                    drawRoundRect(
+                        color = Color(0xFF27364A),
+                        topLeft = Offset(size.width * .25f, size.height * .58f),
+                        size = Size(size.width * .16f, 10.dp.toPx()),
+                        cornerRadius = CornerRadius(5.dp.toPx()),
+                    )
+                    drawRoundRect(
+                        color = Color(0xFFB6882F),
+                        topLeft = Offset(size.width * .25f, size.height * .87f),
+                        size = Size(size.width * .12f, 12.dp.toPx()),
+                        cornerRadius = CornerRadius(6.dp.toPx()),
+                    )
+                    drawRoundRect(
+                        color = Color(0xFFB6882F),
+                        topLeft = Offset(size.width * .63f, size.height * .87f),
+                        size = Size(size.width * .12f, 12.dp.toPx()),
+                        cornerRadius = CornerRadius(6.dp.toPx()),
+                    )
+                }
+                Surface(
+                    modifier = Modifier.align(Alignment.Center).offset(y = 72.dp),
+                    color = Color(0xFF2A394E),
+                    shape = RoundedCornerShape(12.dp),
+                ) {
+                    Text(
+                        "愿望补给站",
+                        modifier = Modifier.padding(horizontal = 13.dp, vertical = 6.dp),
+                        color = Color.White,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 13.sp,
+                    )
                 }
             }
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(6.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedButton(onClick = onSingle, modifier = Modifier.weight(1f), border = BorderStroke(1.dp, StudyDesign.wheat)) {
                     Text("单抽", color = StudyDesign.ink, fontWeight = FontWeight.Bold)
