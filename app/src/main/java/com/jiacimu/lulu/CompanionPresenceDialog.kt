@@ -9,12 +9,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.jiacimu.lulu.data.CompanionPresenceState
+import com.jiacimu.lulu.data.ProactiveMessageAutomation
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -25,7 +27,9 @@ internal fun CompanionPresenceDialog(
     history: List<CompanionPresenceState>,
     onDismiss: () -> Unit,
 ) {
+    val context = LocalContext.current
     var historySelected by remember { mutableStateOf(false) }
+    var manualCheckRequested by remember { mutableStateOf(false) }
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 22.dp),
@@ -76,6 +80,17 @@ internal fun CompanionPresenceDialog(
                             }
                         }
                     }
+                }
+                OutlinedButton(
+                    onClick = {
+                        ProactiveMessageAutomation.signalPerceptionChange(context, "用户手动检查 · $characterName")
+                        manualCheckRequested = true
+                    },
+                    enabled = !manualCheckRequested,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                ) {
+                    Text(if (manualCheckRequested) "已请求，稍后刷新此刻" else "立即检查感知线路")
                 }
                 Button(
                     onClick = onDismiss,
