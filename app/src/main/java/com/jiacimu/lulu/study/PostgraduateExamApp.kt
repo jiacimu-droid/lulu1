@@ -22,6 +22,7 @@ fun PostgraduateExamApp(
     onBack: () -> Unit,
     onOpenTheater: () -> Unit,
     focusRequest: Int = 0,
+    onFocusRequestConsumed: () -> Unit = {},
 ) {
     val store = remember { PostgraduateExamStores.main }
     val context = LocalContext.current
@@ -49,7 +50,10 @@ fun PostgraduateExamApp(
     }
 
     LaunchedEffect(focusRequest) {
-        if (focusRequest > 0) route = StudyRoute.Focus
+        if (focusRequest > 0) {
+            route = StudyRoute.Focus
+            onFocusRequestConsumed()
+        }
     }
 
     val timerHasProgress = focusPreferences.activeSessionId.isNotBlank() &&
