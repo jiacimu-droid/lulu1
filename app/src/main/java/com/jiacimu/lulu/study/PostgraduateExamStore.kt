@@ -13,7 +13,6 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import kotlin.math.max
 import kotlin.random.Random
 
 class PostgraduateExamStore internal constructor(context: Context) {
@@ -144,7 +143,11 @@ class PostgraduateExamStore internal constructor(context: Context) {
         return message
     }
 
-    fun addTask(title: String, pomodoroTarget: Int = 1, date: LocalDate = LocalDate.now(), source: StudyTaskSource = StudyTaskSource.User) {
+    fun addTask(
+        title: String,
+        date: LocalDate = LocalDate.now(),
+        source: StudyTaskSource = StudyTaskSource.User,
+    ) {
         val clean = title.trim()
         if (clean.isBlank()) return
         mutate { state ->
@@ -152,7 +155,6 @@ class PostgraduateExamStore internal constructor(context: Context) {
                 tasks = state.tasks + StudyTask(
                     title = clean,
                     date = date.toString(),
-                    pomodoroTarget = pomodoroTarget.coerceIn(1, 12),
                     source = source,
                 ),
                 events = addEvent(state.events, "添加待办", clean),
@@ -171,7 +173,6 @@ class PostgraduateExamStore internal constructor(context: Context) {
             val tasks = state.tasks.map {
                 if (it.id == taskId) it.copy(
                     completed = complete,
-                    pomodoroCompleted = if (complete) max(it.pomodoroCompleted, it.pomodoroTarget) else it.pomodoroCompleted,
                     rewarded = it.rewarded || firstReward,
                 ) else it
             }
@@ -238,7 +239,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
             appendLine("当前日期：$today")
             appendLine("当前时间：${now.format(DateTimeFormatter.ofPattern("HH:mm"))}")
             appendLine("今日未完成任务：")
-            tasks.forEach { appendLine("- ${it.title}，预计${it.pomodoroTarget}个番茄钟") }
+            tasks.forEach { appendLine("- ${it.title}") }
             appendLine("周月计划参考：")
             plans.take(12).forEach { appendLine("- ${it.range.name}：${it.title} ${it.note}") }
             appendLine("必须保留缓冲，不能把时间排满。")
@@ -330,50 +331,29 @@ class PostgraduateExamStore internal constructor(context: Context) {
             val rewardMinutes = state.pendingRewardMinutes + minutes
             val rewardCount = rewardMinutes / STUDY_REWARD_INTERVAL_MINUTES
             val remainder = rewardMinutes % STUDY_REWARD_INTERVAL_MINUTES
-            val studyPraise = rewardCount * STUDY_REWARD_PRAISE
-            val firstPendingIndex = state.tasks.indexOfFirst { it.date == date && !it.completed }
-            var taskCompleted = false
-            val tasks = state.tasks.mapIndexed { index, task ->
-                if (index == firstPendingIndex) {
-                    val progress = (task.pomodoroCompleted + 1).coerceAtMost(task.pomodoroTarget)
-                    val reachesTarget = progress >= task.pomodoroTarget
-                    taskCompleted = reachesTarget && !task.rewarded
-                    task.copy(
-                        pomodoroCompleted = progress,
-                        completed = task.completed || reachesTarget,
-                        rewarded = task.rewarded || taskCompleted,
-                    )
-                } else task
+            val praise = rewardCount * STUDY_REWARD_PRAISE
+            message = if (rewardCount > 0) {
+                "学习 $minutes 分钟，夸夸值 +$praise"
+            } else {
+                "学习 $minutes 分钟，奖励进度 $remainder/$STUDY_REWARD_INTERVAL_MINUTES 分钟"
             }
-            val taskPraise = if (taskCompleted) TASK_COMPLETION_PRAISE else 0
-            val totalPraise = studyPraise + taskPraise
-            message = buildString {
-                if (rewardCount > 0) {
-                    append("学习 $minutes 分钟，夸夸值 +$studyPraise")
-                } else {
-                    append("学习 $minutes 分钟，抽卡进度 $remainder/$STUDY_REWARD_INTERVAL_MINUTES 分钟")
-                }
-                if (taskCompleted) append("；待办完成，夸夸值 +$TASK_COMPLETION_PRAISE")
-            }
-            val allTodayComplete = allTasksCompleteForDate(tasks, date)
-            val totalPomodoros = state.profile.totalPomodoros + 1
             updateAchievements(
                 state.copy(
-                    tasks = tasks,
                     pendingRewardMinutes = remainder,
                     profile = state.profile.copy(
-                        praisePoints = state.profile.praisePoints + totalPraise,
-                        experience = state.profile.experience + totalPraise,
+                        praisePoints = state.profile.praisePoints + praise,
+                        experience = state.profile.experience + praise,
                         totalStudyMinutes = state.profile.totalStudyMinutes + minutes,
-                        totalPomodoros = totalPomodoros,
-                        totalTasksCompleted = state.profile.totalTasksCompleted + if (taskCompleted) 1 else 0,
+                        totalPomodoros = state.profile.totalPomodoros + 1,
                         lastStudyDate = date,
                     ),
                     dailyStudyMinutes = state.dailyStudyMinutes + (date to ((state.dailyStudyMinutes[date] ?: 0) + minutes)),
                     dailyPomodoros = state.dailyPomodoros + (date to ((state.dailyPomodoros[date] ?: 0) + 1)),
-                    superMomentAvailable = state.superMomentAvailable ||
-                        (allTodayComplete && state.superMomentClaimedDate != date),
-                    pomodoro = state.pomodoro.copy(running = false, remainingSeconds = state.pomodoro.selectedMinutes * 60, endAtEpochMillis = 0L),
+                    pomodoro = state.pomodoro.copy(
+                        running = false,
+                        remainingSeconds = state.pomodoro.selectedMinutes * 60,
+                        endAtEpochMillis = 0L,
+                    ),
                     events = addEvent(state.events, "番茄钟完成", message),
                 ),
             )
