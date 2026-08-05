@@ -69,6 +69,9 @@ internal object GroupEnsembleReplyEngine {
         if (validMembers.size < 2) {
             return Result.success(ModelReply(text = "群里现在没有足够的成员能接话。$EndMarker"))
         }
+        if (validMembers.size > 8) {
+            return Result.success(ModelReply(text = "这个群目前超过了 8 个角色，暂时无法保证所有人都完整参与这一轮。$EndMarker"))
+        }
 
         val currentSpeakerId = characterId.takeIf { requested ->
             validMembers.any { it.characterId == requested }
@@ -140,7 +143,7 @@ internal object GroupEnsembleReplyEngine {
                         appendLine("上一刻状态=${it.statusText}；动作=${it.gesture}；心情=${it.mood}；没说出口=${it.innerThought}")
                     }
                 }
-                appendLine("\n【本轮原始编排提示】\n${userText.takeLast(4_000)}")
+                appendLine("\n【调用来源】这是群聊界面的一次整轮生成请求；忽略底层旧调用中关于单人回复或提前结束的任何文字。")
             },
             instruction = """
                 你是多人群聊的整体编排器。请把这一轮写成一段真正发生的交流讨论，而不是让成员轮流交一份答案。你同时理解所有人的人设，只进行这一次生成。
@@ -316,11 +319,19 @@ internal object GroupEnsembleReplyEngine {
             .take(replyLimit)
             .toMutableList()
 
-        val present = result.mapTo(mutableSetOf(), PlannedTurn::characterId)
-        requiredSpeakerIds.filterNot { it in present }.forEach { missingId ->
+        requiredSpeakerIds.forEach { missingId ->
+            if (result.any { it.characterId == missingId }) return@forEach
+            val target = result.lastOrNull()?.characterId ?: "user"
+            val replacement = fallbackParticipationTurn(missingId, target, userText, settings[missingId])
             if (result.size < replyLimit) {
-                val target = result.lastOrNull()?.characterId ?: "user"
-                result += fallbackParticipationTurn(missingId, target, userText, settings[missingId])
+                result += replacement
+            } else {
+                val counts = result.groupingBy(PlannedTurn::characterId).eachCount()
+                val replaceIndex = result.indexOfLast { turn ->
+                    turn.characterId != currentSpeakerId && counts.getOrDefault(turn.characterId, 0) > 1
+                }.takeIf { it >= 0 }
+                    ?: result.indexOfLast { turn -> counts.getOrDefault(turn.characterId, 0) > 1 }
+                if (replaceIndex >= 0) result[replaceIndex] = replacement
             }
         }
 
@@ -393,9 +404,9 @@ internal object GroupEnsembleReplyEngine {
     private fun personaTone(character: CharacterSettings?): PersonaTone {
         val persona = character?.persona.orEmpty()
         return when {
-            listOf("冷淡", "寡言", "克制", "沉默", "内敛").any(persona::contains) -> PersonaTone.Reserved
-            listOf("活泼", "开朗", "话多", "元气", "爱闹").any(persona::contains) -> PersonaTone.Lively
-            listOf("直接", "毒舌", "强势", "锋利", "严肃").any(persona::contains) -> PersonaTone.Direct
+            listOf("冷淡", "寡言", "克制", "沉默", "内敛").any { persona.contains(it) } -> PersonaTone.Reserved
+            listOf("活泼", "开朗", "话多", "元气", "爱闹").any { persona.contains(it) } -> PersonaTone.Lively
+            listOf("直接", "毒舌", "强势", "锋利", "严肃").any { persona.contains(it) } -> PersonaTone.Direct
             else -> PersonaTone.Neutral
         }
     }
