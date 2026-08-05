@@ -40,8 +40,6 @@ data class StudyTask(
     val title: String,
     val date: String,
     val completed: Boolean = false,
-    val pomodoroTarget: Int = 1,
-    val pomodoroCompleted: Int = 0,
     val source: StudyTaskSource = StudyTaskSource.User,
     val rewarded: Boolean = false,
 )
