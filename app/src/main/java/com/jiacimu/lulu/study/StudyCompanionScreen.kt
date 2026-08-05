@@ -5,7 +5,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -34,11 +33,6 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
     var wakeText by remember { mutableStateOf("07:30") }
     var durationText by remember { mutableStateOf("7.5") }
     var judgingSleep by remember { mutableStateOf(false) }
-    val level = state.profile.level
-    val levelStart = StudyLevels.currentLevelStart(level)
-    val nextTarget = StudyLevels.nextLevelTarget(level)
-    val levelProgress =
-        (state.profile.experience - levelStart).toFloat() / (nextTarget - levelStart).coerceAtLeast(1)
 
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
@@ -58,17 +52,12 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
                         )
                     }
                     Spacer(Modifier.width(14.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            selected.displayName.ifBlank { "未命名角色" },
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Text(
-                            "学习陪伴角色会读取真实任务、时长、番茄钟和奖励结果。",
-                            color = StudyDesign.muted,
-                        )
-                    }
+                    Text(
+                        selected.displayName.ifBlank { "未命名角色" },
+                        modifier = Modifier.weight(1f),
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
                 }
                 if (characters.isNotEmpty()) {
                     Row(
@@ -104,48 +93,15 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
         }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                StudyMetric("等级", "Lv.$level", Modifier.weight(1f))
-                StudyMetric("连续", "${state.profile.streakDays}天", Modifier.weight(1f))
-                StudyMetric("夸夸值", state.profile.praisePoints.toString(), Modifier.weight(1f))
+                StudyMetric("累计夸夸值", state.profile.totalPraiseEarned.toString(), Modifier.weight(1f))
+                StudyMetric("可用夸夸值", state.profile.praisePoints.toString(), Modifier.weight(1f))
+                StudyMetric("连续签到", "${state.profile.streakDays}天", Modifier.weight(1f))
             }
         }
         item {
             StudyCard {
-                Text("等级进度", fontSize = 19.sp, fontWeight = FontWeight.Bold)
-                Text("经验 ${state.profile.experience} · 下一级 $nextTarget", color = StudyDesign.muted)
-                StudyProgress(levelProgress)
-                Row(
-                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    (1..level).forEach { claimLevel ->
-                        AssistChip(
-                            onClick = {
-                                message = store.claimLevel(claimLevel)
-                                error = false
-                            },
-                            enabled = claimLevel !in state.profile.claimedLevels,
-                            label = {
-                                Text(
-                                    if (claimLevel in state.profile.claimedLevels) {
-                                        "Lv.$claimLevel 已领"
-                                    } else {
-                                        "领 Lv.$claimLevel"
-                                    },
-                                )
-                            },
-                        )
-                    }
-                }
-            }
-        }
-        item {
-            StudyCard {
-                Text("睡眠习惯奖励", fontSize = 19.sp, fontWeight = FontWeight.Bold)
-                Text(
-                    "时间只提供参考；是否奖励以及如何回应，由当前角色结合实际情况最终判断。",
-                    color = StudyDesign.muted,
-                )
+                Text("早睡与早起奖励", fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                Text("早睡、早起分别通过，各得1张十连券。", color = StudyDesign.muted)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
                         value = sleepText,
@@ -202,10 +158,9 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
                 ) {
                     Text(
                         when {
-                            state.profile.sleepRewardDate == LocalDate.now().toString() ->
-                                "今天已经判断过"
+                            state.profile.sleepRewardDate == LocalDate.now().toString() -> "今日已领取"
                             judgingSleep -> "角色正在判断…"
-                            else -> "交给角色判断"
+                            else -> "提交今日作息"
                         },
                     )
                 }
