@@ -60,6 +60,7 @@ internal fun ensureStudyFocusConversation(characterId: String, displayName: Stri
                 )
                 messageStates.putIfAbsent(primaryId, MutableStateFlow(emptyList()))
             }
+            val primaryConversation = primary ?: return@synchronized
 
             val focusConversation = (existingFocus ?: LuluConversation(
                 id = focusConversationId,
@@ -70,14 +71,16 @@ internal fun ensureStudyFocusConversation(characterId: String, displayName: Stri
             )).copy(
                 characterId = cleanCharacterId,
                 title = "$cleanDisplayName · 专注陪学",
-                parentConversationId = primary.id,
+                parentConversationId = primaryConversation.id,
                 groupChat = null,
             )
 
             messageStates.putIfAbsent(focusConversationId, MutableStateFlow(emptyList()))
             conversations.value = (
-                listOf(primary, focusConversation) +
-                    conversations.value.filterNot { it.id == primary.id || it.id == focusConversationId }
+                listOf(primaryConversation, focusConversation) +
+                    conversations.value.filterNot {
+                        it.id == primaryConversation.id || it.id == focusConversationId
+                    }
                 ).sortedByDescending(LuluConversation::updatedAt)
             persistMethod.invoke(store)
         }
