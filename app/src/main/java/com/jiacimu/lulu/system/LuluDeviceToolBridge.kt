@@ -39,6 +39,15 @@ object LuluDeviceToolBridge {
         sceneContext: String = "正在和用户进行文字聊天。",
     ): Result<ModelReply> {
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
+        GroupEnsembleReplyEngine.respondIfApplicable(
+            characterId = characterId,
+            history = history,
+            userText = userText,
+            title = title,
+            archiveId = archiveId,
+            sceneContext = sceneContext,
+        )?.let { return it }
+
         val connection = runCatching { LuluAiServices.connectionStore.resolveConnection(archiveId) }
             .getOrElse { return Result.failure(it) }
         val character = MigratedDomainStores.characters.get(characterId)
