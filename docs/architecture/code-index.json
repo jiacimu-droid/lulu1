@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T03:27:04.612709+00:00",
-  "commit": "6b52e3dca3f53ce7da2c0d9f6b86c3dbaa74e084",
+  "generatedAt": "2026-08-05T03:49:56.754916+00:00",
+  "commit": "2ce595953af2da6498a660eacc5fedf724e80214",
   "branch": "main",
-  "sourceFingerprint": "a6b1201e37c7f05f125c1b97204c6780344f8caee6d6d6e08c84335406516c5e",
+  "sourceFingerprint": "4337ad31cb9197859c19bdccd6188e60d3528cb8a34eddd026bcf80f2275dcd5",
   "summary": {
     "files": 109,
-    "lines": 26212,
+    "lines": 26653,
     "symbols": 453
   },
   "symbolIndex": {
@@ -2479,7 +2479,7 @@
     "draw": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt",
-        "line": 82
+        "line": 92
       }
     ],
     "StudyRemovedFeatureMigration": [
@@ -4895,12 +4895,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt",
-      "lines": 454,
-      "sha256": "0f44f1c2e0a1c2d9d5eeb624a3eed63252c63929dacd2f6283437eba6802c0c1",
+      "lines": 895,
+      "sha256": "5c3de877b44e702ad87ed58d3e75349baba815be53cc3eaab93dafa1518018fe",
       "symbols": [
         {
           "name": "draw",
-          "line": 82
+          "line": 92
         }
       ]
     },
