@@ -226,9 +226,8 @@ object StudyFocusSessions {
 
         val characterId = focus.activeCharacterId.ifBlank { studyState.profile.selectedCharacterId }
         val task = focus.activeTask.ifBlank { focus.task }
-        val conversationId = "$characterId-study-focus"
         val character = MigratedDomainStores.characters.get(characterId)
-        ensureStudyFocusConversation(characterId, character.displayName)
+        val conversationId = ensureStudyFocusConversation(characterId, character.displayName)
         val recentLines = recentFocusCharacterLines(conversationId)
 
         scope.launch {
@@ -239,8 +238,9 @@ object StudyFocusSessions {
                     appendLine("本次专注任务：$task")
                     appendLine("计划时长：${studyState.pomodoro.selectedMinutes}分钟")
                     appendLine("番茄钟已经由程序真实启动。")
+                    appendLine("这句话会直接进入你和用户原本的一对一聊天，不存在额外的陪学会话。")
                     if (recentLines.isNotEmpty()) {
-                        appendLine("近期专注中角色说过的话（可自然延续，但不要原句复读，也不要连续使用过于相似的开头和句式）：")
+                        appendLine("近期角色说过的话（可自然延续，但不要原句复读，也不要连续使用过于相似的开头和句式）：")
                         recentLines.forEach { appendLine("- $it") }
                     }
                 },
@@ -283,9 +283,8 @@ object StudyFocusSessions {
         val studyState = studyStore.state.value
         val characterId = focus.activeCharacterId.ifBlank { studyState.profile.selectedCharacterId }
         val task = focus.activeTask.ifBlank { focus.task }
-        val conversationId = "$characterId-study-focus"
         val character = MigratedDomainStores.characters.get(characterId)
-        ensureStudyFocusConversation(characterId, character.displayName)
+        val conversationId = ensureStudyFocusConversation(characterId, character.displayName)
 
         if (recordExperience && actualMinutes > 0) {
             val allMessages = MigratedDomainStores.chat.messages(conversationId).value
@@ -325,8 +324,9 @@ object StudyFocusSessions {
                     appendLine("实际记录时长：${actualMinutes.coerceAtLeast(0)}分钟")
                     appendLine("结束方式：$reason")
                     if (rewardMessage.isNotBlank()) appendLine("程序结算：$rewardMessage")
+                    appendLine("这句话会直接进入你和用户原本的一对一聊天。")
                     if (recentLines.isNotEmpty()) {
-                        appendLine("近期专注中角色说过的话（可自然延续，但不要原句复读，也不要连续使用过于相似的开头和句式）：")
+                        appendLine("近期角色说过的话（可自然延续，但不要原句复读，也不要连续使用过于相似的开头和句式）：")
                         recentLines.forEach { appendLine("- $it") }
                     }
                 },
