@@ -9,21 +9,21 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * Keeps the focus-session transcript available to the focus screen without exposing it as a
- * second top-level chat for the same character. Older builds created "<characterId>-study-focus"
- * as an ordinary conversation, which produced two visible chat pages and could also attract
- * proactive messages. The focus transcript is now stored as a hidden child of the character's
- * normal private conversation.
+ * Focus-session dialogue belongs to the character's ordinary private chat.
+ *
+ * Older builds stored it in a synthetic "<characterId>-study-focus" conversation. This helper
+ * resolves the real private conversation, merges any legacy focus messages into it once, removes
+ * the synthetic record, and returns the ordinary conversation id used by every new focus message.
  */
-internal fun ensureStudyFocusConversation(characterId: String, displayName: String) {
+internal fun ensureStudyFocusConversation(characterId: String, displayName: String): String {
     val cleanCharacterId = characterId.trim().ifBlank { "lulu" }
     val cleanDisplayName = displayName.trim().ifBlank { "露露" }
-    val focusConversationId = "$cleanCharacterId-study-focus"
+    val legacyFocusId = "$cleanCharacterId-study-focus"
     val chat = MigratedDomainStores.chat
+    val store = chat as? InMemoryLuluChatStore
+        ?: return chat.ensureConversation(cleanCharacterId, cleanDisplayName).id
 
-    // InMemoryLuluChatStore does not expose caller-supplied IDs or parent reassignment. Keep the
-    // compatibility migration isolated here so the public chat API stays unchanged.
-    val store = chat as? InMemoryLuluChatStore ?: return
+    var resolvedConversationId = ""
     runCatching {
         val type = InMemoryLuluChatStore::class.java
         val lockField = type.getDeclaredField("lock").apply { isAccessible = true }
@@ -38,51 +38,66 @@ internal fun ensureStudyFocusConversation(characterId: String, displayName: Stri
             @Suppress("UNCHECKED_CAST")
             val messageStates = messagesField.get(store) as MutableMap<String, MutableStateFlow<List<LuluChatMessage>>>
 
-            val existingFocus = conversations.value.firstOrNull { it.id == focusConversationId }
-            var primary = conversations.value
+            val current = conversations.value
+            var primary = current
                 .asSequence()
                 .filter { conversation ->
                     conversation.characterId == cleanCharacterId &&
-                        conversation.id != focusConversationId &&
+                        conversation.id != legacyFocusId &&
                         conversation.parentConversationId == null &&
                         conversation.groupChat == null
                 }
                 .maxByOrNull(LuluConversation::updatedAt)
 
             if (primary == null) {
-                val primaryId = if (cleanCharacterId == "lulu") "lulu-main" else UUID.randomUUID().toString()
+                val preferredId = if (
+                    cleanCharacterId == "lulu" && current.none { it.id == "lulu-main" }
+                ) "lulu-main" else UUID.randomUUID().toString()
                 primary = LuluConversation(
-                    id = primaryId,
+                    id = preferredId,
                     characterId = cleanCharacterId,
                     title = cleanDisplayName,
                     lastMessage = "",
                     updatedAt = Instant.now(),
                 )
-                messageStates.putIfAbsent(primaryId, MutableStateFlow(emptyList()))
+                messageStates.putIfAbsent(primary.id, MutableStateFlow(emptyList()))
             }
             val primaryConversation = primary ?: return@synchronized
+            val primaryState = messageStates.getOrPut(primaryConversation.id) { MutableStateFlow(emptyList()) }
+            val legacyMessages = messageStates[legacyFocusId]?.value.orEmpty()
+                .map { message -> message.copy(conversationId = primaryConversation.id) }
 
-            val focusConversation = (existingFocus ?: LuluConversation(
-                id = focusConversationId,
-                characterId = cleanCharacterId,
-                title = "$cleanDisplayName · 专注陪学",
-                lastMessage = "",
-                updatedAt = Instant.now(),
-            )).copy(
-                characterId = cleanCharacterId,
-                title = "$cleanDisplayName · 专注陪学",
-                parentConversationId = primaryConversation.id,
-                groupChat = null,
+            val mergedMessages = (primaryState.value + legacyMessages)
+                .distinctBy(LuluChatMessage::id)
+                .sortedBy(LuluChatMessage::createdAt)
+            primaryState.value = mergedMessages
+            messageStates.remove(legacyFocusId)
+
+            val updatedPrimary = primaryConversation.copy(
+                title = primaryConversation.title.ifBlank { cleanDisplayName },
+                lastMessage = mergedMessages.lastOrNull()?.content.orEmpty(),
+                updatedAt = mergedMessages.lastOrNull()?.createdAt ?: primaryConversation.updatedAt,
             )
-
-            messageStates.putIfAbsent(focusConversationId, MutableStateFlow(emptyList()))
             conversations.value = (
-                listOf(primaryConversation, focusConversation) +
-                    conversations.value.filterNot {
-                        it.id == primaryConversation.id || it.id == focusConversationId
-                    }
-                ).sortedByDescending(LuluConversation::updatedAt)
+                listOf(updatedPrimary) + current.filterNot { conversation ->
+                    conversation.id == primaryConversation.id || conversation.id == legacyFocusId
+                }
+            ).sortedByDescending(LuluConversation::updatedAt)
             persistMethod.invoke(store)
+            resolvedConversationId = updatedPrimary.id
         }
+    }
+
+    return resolvedConversationId.ifBlank {
+        chat.conversations.value
+            .filter { conversation ->
+                conversation.characterId == cleanCharacterId &&
+                    conversation.id != legacyFocusId &&
+                    conversation.parentConversationId == null &&
+                    conversation.groupChat == null
+            }
+            .maxByOrNull(LuluConversation::updatedAt)
+            ?.id
+            ?: chat.ensureConversation(cleanCharacterId, cleanDisplayName).id
     }
 }
