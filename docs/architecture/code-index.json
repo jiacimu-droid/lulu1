@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T07:13:29.081947+00:00",
-  "commit": "92888c6e7ae155687d30a26fe52cb819b3f3c65e",
+  "generatedAt": "2026-08-05T08:57:55.948224+00:00",
+  "commit": "8d97546507bef67fe87176a7943f866ec712d5f7",
   "branch": "main",
-  "sourceFingerprint": "38ac92c2c92b9834d2343019d9aa011123f63c3f7452b65c5b5571b06f93b9cf",
+  "sourceFingerprint": "a22728209347aa422fa4daea9e422c28c4088c2e4c3753a8b08bea8c62bbb7aa",
   "summary": {
     "files": 109,
-    "lines": 27714,
+    "lines": 27741,
     "symbols": 468
   },
   "symbolIndex": {
@@ -4923,8 +4923,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-      "lines": 677,
-      "sha256": "656e01e3d59a144a0b653e239ecd46a0fb3d2e60b023b56d25d3ab5589e47d15",
+      "lines": 704,
+      "sha256": "67a785163959fa1e57c603988d4750cd7b902e19b37d212fd6aa80c0ef55ee88",
       "symbols": [
         {
           "name": "speak",
