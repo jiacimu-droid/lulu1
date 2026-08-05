@@ -6,7 +6,7 @@ import java.time.LocalDate
 /** Installs the current user-approved month/week plan without generating a fixed daily timetable. */
 object SelfDirectedStudyPlanSeed {
     private const val PREFS = "lulu_study_plan_migrations"
-    private const val KEY = "rolling_plan_v3"
+    private const val KEY = "rolling_plan_v4"
     private const val KEY_SYNC_DATE = "rolling_plan_last_sync_date"
 
     fun migrate(context: Context, store: PostgraduateExamStore) {
