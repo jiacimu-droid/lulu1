@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
@@ -19,10 +18,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jiacimu.lulu.data.LuluConversation
 import com.jiacimu.lulu.data.CharacterSettings
-import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.CompanionPresenceStore
+import com.jiacimu.lulu.data.LuluConversation
+import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.design.LuluColors
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -124,13 +123,12 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val sorted = remember(conversations) {
-        conversations
-            .filter { it.parentConversationId == null && !it.id.endsWith("-study-focus") }
-            .sortedWith(
-                compareByDescending<LuluConversation> { it.groupChat?.pinned == true }
-                    .thenByDescending(LuluConversation::updatedAt),
-            )
+        conversations.sortedWith(
+            compareByDescending<LuluConversation> { it.groupChat?.pinned == true }
+                .thenByDescending(LuluConversation::updatedAt),
+        )
     }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -183,9 +181,6 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
-                            if (conversation.parentConversationId != null) {
-                                Text("聊天分支", color = LuluColors.Muted, fontSize = 10.sp)
-                            }
                         }
                         if (conversation.unreadCount > 0) {
                             Spacer(Modifier.width(7.dp))
@@ -196,7 +191,6 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
             }
         }
     }
-
 }
 
 @Composable
@@ -208,14 +202,10 @@ private fun ChatHubV2Characters(
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val presenceStates by CompanionPresenceStore.states.collectAsState()
-    val sortedCharacters = remember(characters) { characters.values.sortedBy { it.displayName } }
-    val recentByCharacter = remember(conversations) {
+    val sortedCharacters = remember(characters) { characters.values.sortedBy(CharacterSettings::displayName) }
+    val privateByCharacter = remember(conversations) {
         conversations
-            .filter {
-                it.groupChat == null &&
-                    it.parentConversationId == null &&
-                    !it.id.endsWith("-study-focus")
-            }
+            .filter { it.groupChat == null }
             .groupBy(LuluConversation::characterId)
             .mapValues { (_, values) -> values.maxByOrNull(LuluConversation::updatedAt) }
     }
@@ -225,8 +215,8 @@ private fun ChatHubV2Characters(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        items(sortedCharacters, key = { it.characterId }, contentType = { "character" }) { character ->
-            val recent = recentByCharacter[character.characterId]
+        items(sortedCharacters, key = CharacterSettings::characterId, contentType = { "character" }) { character ->
+            val privateChat = privateByCharacter[character.characterId]
             val presence = presenceStates[character.characterId]
             ChatHubV2Card {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -237,8 +227,8 @@ private fun ChatHubV2Characters(
                         Text(
                             when {
                                 character.characterId == "lulu" -> "默认陪伴角色"
-                                recent != null -> "已有聊天 · ${recent.updatedAt.atZone(ZoneId.systemDefault()).format(ChatHubV2Time)}"
-                                else -> "已创建，尚无聊天记录"
+                                privateChat != null -> "已有私聊 · ${privateChat.updatedAt.atZone(ZoneId.systemDefault()).format(ChatHubV2Time)}"
+                                else -> "已创建，尚无私聊记录"
                             },
                             color = LuluColors.Muted,
                             fontSize = 12.sp,
@@ -277,7 +267,7 @@ private fun ChatHubV2Characters(
                 }
                 Button(
                     onClick = {
-                        val conversation = recent ?: MigratedDomainStores.chat.ensureConversation(
+                        val conversation = privateChat ?: MigratedDomainStores.chat.ensureConversation(
                             characterId = character.characterId,
                             title = character.displayName,
                         )
@@ -290,14 +280,13 @@ private fun ChatHubV2Characters(
                     ),
                 ) {
                     Text(
-                        if (recent == null) "开始和${character.displayName}聊天" else "继续和${character.displayName}聊天",
+                        if (privateChat == null) "开始和${character.displayName}私聊" else "继续和${character.displayName}私聊",
                         fontWeight = FontWeight.Bold,
                     )
                 }
             }
         }
     }
-
 }
 
 @Composable
@@ -366,6 +355,7 @@ private fun ChatHubV2Profile() {
     var location by remember { mutableStateOf(prefs.getString("location", "").orEmpty()) }
     var bio by remember { mutableStateOf(prefs.getString("bio", "").orEmpty()) }
     var notice by remember { mutableStateOf("") }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -386,24 +376,12 @@ private fun ChatHubV2Profile() {
                         Text("点击头像选择手机图片", color = LuluColors.Muted, fontSize = 12.sp)
                     }
                 }
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it.take(20) },
-                    label = { Text("名字") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                OutlinedTextField(name, { name = it.take(20) }, label = { Text("名字") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Text("个人资料", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                OutlinedTextField(
-                    value = preferredName,
-                    onValueChange = { preferredName = it.take(30) },
-                    label = { Text("希望角色怎么称呼你") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                OutlinedTextField(value = birthday, onValueChange = { birthday = it.take(30) }, label = { Text("生日") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = location, onValueChange = { location = it.take(40) }, label = { Text("所在地") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = bio, onValueChange = { bio = it.take(500) }, label = { Text("个人信息与自我介绍") }, minLines = 3, maxLines = 7, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(preferredName, { preferredName = it.take(30) }, label = { Text("希望角色怎么称呼你") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(birthday, { birthday = it.take(30) }, label = { Text("生日") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(location, { location = it.take(40) }, label = { Text("所在地") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(bio, { bio = it.take(500) }, label = { Text("个人信息与自我介绍") }, minLines = 3, maxLines = 7, modifier = Modifier.fillMaxWidth())
                 Button(
                     onClick = {
                         name = name.trim().ifBlank { "我" }
@@ -419,9 +397,7 @@ private fun ChatHubV2Profile() {
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = LuluColors.Wheat, contentColor = LuluColors.OnWheat),
-                ) {
-                    Text("保存", fontWeight = FontWeight.Bold)
-                }
+                ) { Text("保存", fontWeight = FontWeight.Bold) }
                 if (notice.isNotBlank()) Text(notice, color = LuluColors.Muted, fontSize = 12.sp)
             }
         }
@@ -440,48 +416,17 @@ private fun ChatHubV2CreateCharacterDialog(
         title = { Text("新建角色") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("角色名称") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                OutlinedTextField(
-                    value = persona,
-                    onValueChange = { persona = it },
-                    label = { Text("角色核心设定") },
-                    minLines = 4,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                OutlinedTextField(name, { name = it }, label = { Text("角色名称") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(persona, { persona = it }, label = { Text("角色核心设定") }, minLines = 4, modifier = Modifier.fillMaxWidth())
             }
         },
         confirmButton = {
-            TextButton(
-                enabled = name.isNotBlank(),
-                onClick = { onCreate(name.trim(), persona.trim()) },
-            ) { Text("创建并设置") }
+            TextButton(enabled = name.isNotBlank(), onClick = { onCreate(name.trim(), persona.trim()) }) {
+                Text("创建并设置")
+            }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } },
     )
-}
-
-@Composable
-private fun ChatHubV2Stat(value: String, label: String, modifier: Modifier) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = LuluColors.Card),
-        border = BorderStroke(1.dp, LuluColors.Border),
-        shape = RoundedCornerShape(18.dp),
-    ) {
-        Column(
-            Modifier.fillMaxWidth().padding(vertical = 13.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(value, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            Text(label, color = LuluColors.Muted, fontSize = 12.sp)
-        }
-    }
 }
 
 @Composable
@@ -516,9 +461,7 @@ private fun ChatHubV2GroupAvatar(name: String, imageUri: String?) {
             border = BorderStroke(1.dp, LuluColors.Border),
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Outlined.Groups, null, Modifier.size(30.dp))
-                }
+                Icon(Icons.Outlined.Groups, null, Modifier.size(30.dp))
             }
         }
     }
