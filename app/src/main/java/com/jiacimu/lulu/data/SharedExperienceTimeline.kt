@@ -94,10 +94,7 @@ object SharedExperienceTimeline {
         speakerOverride: String? = null,
         triggerExtraction: Boolean = true,
     ) {
-        val channel = channelOverride ?: when {
-            conversationId.endsWith("-study-focus") -> "番茄钟"
-            else -> "聊天"
-        }
+        val channel = channelOverride ?: "私聊"
         val speaker = speakerOverride ?: when (message.sender) {
             LuluChatMessage.Sender.User -> UserProfileContext.displayLabel()
             LuluChatMessage.Sender.Character -> "角色"
