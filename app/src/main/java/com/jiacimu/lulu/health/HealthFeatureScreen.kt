@@ -7,6 +7,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -30,18 +31,16 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.Locale
 
 private val HealthPaper = Color(0xFFFFFAFB)
 private val HealthCard = Color.White
-private val HealthSoft = Color(0xFFFFF0F3)
+private val HealthSoft = Color(0xFFFFF1F4)
 private val HealthSelected = Color(0xFFFFDDE6)
-private val HealthPredicted = Color(0xFFF4E5EB)
-private val HealthAccent = Color(0xFFBF4D6D)
-private val HealthAccentDark = Color(0xFF91344F)
-private val HealthAccentDeep = Color(0xFF74253F)
+private val HealthPredicted = Color(0xFFF5E7EC)
+private val HealthAccent = Color(0xFFBC657E)
+private val HealthAccentDark = Color(0xFFA9536D)
+private val HealthAccentDeep = Color(0xFF94475F)
 private val HealthInk = Color(0xFF292225)
 private val HealthMuted = Color(0xFF81767A)
 private val HealthLine = Color(0xFFECE0E4)
@@ -158,6 +157,8 @@ private fun CycleScreen() {
     val month = remember(monthText) { YearMonth.parse(monthText) }
     var startText by rememberSaveable { mutableStateOf<String?>(null) }
     var endText by rememberSaveable { mutableStateOf<String?>(null) }
+    var showYearPicker by rememberSaveable { mutableStateOf(false) }
+    var showMonthPicker by rememberSaveable { mutableStateOf(false) }
     val selectedStart = startText?.let(LocalDate::parse)
     val selectedEnd = endText?.let(LocalDate::parse)
 
@@ -189,6 +190,8 @@ private fun CycleScreen() {
                 prediction = prediction,
                 selectedStart = selectedStart,
                 selectedEnd = selectedEnd,
+                onYearClick = { showYearPicker = true },
+                onMonthClick = { showMonthPicker = true },
                 onPrevious = { monthText = month.minusMonths(1).toString() },
                 onNext = { monthText = month.plusMonths(1).toString() },
                 onToday = { monthText = YearMonth.now().toString() },
@@ -212,7 +215,7 @@ private fun CycleScreen() {
                         endText = null
                     },
                     onSave = {
-                        HealthCycleStore.savePeriod(selectedStart, selectedEnd ?: selectedStart)
+                        HealthCycleStore.savePeriod(selectedStart, selectedEnd)
                         startText = null
                         endText = null
                     },
@@ -224,33 +227,30 @@ private fun CycleScreen() {
                 state = state,
                 prediction = prediction,
                 onEnabled = ::changeReminder,
-                onDays = HealthCycleStore::setReminderDaysBefore,
             )
         }
-        item {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text("历史记录", color = HealthInk, fontSize = 19.sp, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.weight(1f))
-                Text("${state.records.size}", color = HealthMuted, fontSize = 12.sp)
-            }
-        }
-        if (state.records.isEmpty()) {
-            item {
-                HealthPanel {
-                    Text(
-                        "暂无记录，点击日历选择开始与结束日期。",
-                        color = HealthMuted,
-                        fontSize = 13.sp,
-                        modifier = Modifier.padding(vertical = 18.dp),
-                    )
-                }
-            }
-        } else {
-            items(state.records, key = { it.id }) { record ->
-                HistoryRow(record) { HealthCycleStore.deletePeriod(record.id) }
-            }
-        }
         item { Spacer(Modifier.height(18.dp)) }
+    }
+
+    if (showYearPicker) {
+        YearPickerDialog(
+            selectedYear = month.year,
+            onDismiss = { showYearPicker = false },
+            onSelect = { year ->
+                monthText = month.withYear(year).toString()
+                showYearPicker = false
+            },
+        )
+    }
+    if (showMonthPicker) {
+        MonthPickerDialog(
+            selectedMonth = month.monthValue,
+            onDismiss = { showMonthPicker = false },
+            onSelect = { monthValue ->
+                monthText = YearMonth.of(month.year, monthValue).toString()
+                showMonthPicker = false
+            },
+        )
     }
 }
 
@@ -261,6 +261,8 @@ private fun CalendarCard(
     prediction: PeriodPrediction?,
     selectedStart: LocalDate?,
     selectedEnd: LocalDate?,
+    onYearClick: () -> Unit,
+    onMonthClick: () -> Unit,
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     onToday: () -> Unit,
@@ -277,14 +279,41 @@ private fun CalendarCard(
 
     HealthPanel(shape = 30) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Column {
-                Text(month.year.toString(), color = HealthMuted, fontSize = 10.sp)
-                Text("${month.monthValue}月", color = HealthInk, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Surface(
+                    modifier = Modifier.clickable(onClick = onYearClick),
+                    color = HealthSoft,
+                    shape = RoundedCornerShape(14.dp),
+                ) {
+                    Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text(month.year.toString(), color = HealthInk, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.width(3.dp))
+                        Icon(Icons.Outlined.ExpandMore, null, tint = HealthMuted, modifier = Modifier.size(17.dp))
+                    }
+                }
+                Spacer(Modifier.width(7.dp))
+                Surface(
+                    modifier = Modifier.clickable(onClick = onMonthClick),
+                    color = HealthSelected.copy(alpha = 0.58f),
+                    shape = RoundedCornerShape(14.dp),
+                ) {
+                    Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text("${month.monthValue}月", color = HealthAccentDark, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.width(3.dp))
+                        Icon(Icons.Outlined.ExpandMore, null, tint = HealthAccentDark, modifier = Modifier.size(17.dp))
+                    }
+                }
             }
             Spacer(Modifier.weight(1f))
-            TextButton(onClick = onToday) { Text("今天", color = HealthAccentDark) }
-            IconButton(onClick = onPrevious) { Icon(Icons.Outlined.ChevronLeft, "上个月") }
-            IconButton(onClick = onNext) { Icon(Icons.Outlined.ChevronRight, "下个月") }
+            TextButton(onClick = onToday, contentPadding = PaddingValues(horizontal = 7.dp)) {
+                Text("今天", color = HealthAccentDark)
+            }
+            IconButton(onClick = onPrevious, modifier = Modifier.size(36.dp)) {
+                Icon(Icons.Outlined.ChevronLeft, "上个月")
+            }
+            IconButton(onClick = onNext, modifier = Modifier.size(36.dp)) {
+                Icon(Icons.Outlined.ChevronRight, "下个月")
+            }
         }
         HorizontalDivider(color = HealthLine)
         Row(Modifier.fillMaxWidth()) {
@@ -314,7 +343,7 @@ private fun CalendarCard(
             }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            Legend(HealthAccent, "已记录")
+            Legend(HealthAccent, "已标记")
             Spacer(Modifier.width(18.dp))
             Legend(HealthPredicted, "预测")
             Spacer(Modifier.width(18.dp))
@@ -374,7 +403,7 @@ private fun SelectionCard(start: LocalDate, end: LocalDate?, onClear: () -> Unit
         border = BorderStroke(1.dp, HealthSelected),
     ) {
         Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(11.dp)) {
-            Text("本次记录", color = HealthInk, fontWeight = FontWeight.Bold)
+            Text("本次标记", color = HealthInk, fontWeight = FontWeight.Bold)
             Text(
                 end?.let { formatRange(minOf(start, it), maxOf(start, it)) } ?: formatHealthDate(start),
                 color = HealthAccentDark,
@@ -386,7 +415,7 @@ private fun SelectionCard(start: LocalDate, end: LocalDate?, onClear: () -> Unit
                     onClick = onSave,
                     modifier = Modifier.weight(1.35f),
                     colors = ButtonDefaults.buttonColors(containerColor = HealthAccentDark),
-                ) { Text("保存") }
+                ) { Text("保存标记") }
             }
         }
     }
@@ -397,25 +426,24 @@ private fun PredictionCard(
     state: HealthCycleState,
     prediction: PeriodPrediction?,
     onEnabled: (Boolean) -> Unit,
-    onDays: (Int) -> Unit,
 ) {
     val distance = prediction?.let { ChronoUnit.DAYS.between(LocalDate.now(), it.startDate) }
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = HealthAccentDark,
         shape = RoundedCornerShape(30.dp),
-        shadowElevation = 3.dp,
+        shadowElevation = 2.dp,
     ) {
         Column(
             modifier = Modifier
-                .background(Brush.linearGradient(listOf(HealthAccentDark, HealthAccentDeep)))
+                .background(Brush.linearGradient(listOf(HealthAccent, HealthAccentDeep)))
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("预测与提醒", color = Color.White.copy(alpha = 0.72f), fontSize = 11.sp, letterSpacing = 1.5.sp)
+            Text("预测与提醒", color = Color.White.copy(alpha = 0.78f), fontSize = 11.sp, letterSpacing = 1.5.sp)
             Text(
                 when {
-                    prediction == null -> "等待首次记录"
+                    prediction == null -> "等待首次标记"
                     distance == null -> "下一次预测"
                     distance > 0 -> "预计还有 $distance 天"
                     distance == 0L -> "预计今天开始"
@@ -426,16 +454,16 @@ private fun PredictionCard(
                 fontWeight = FontWeight.Bold,
             )
             prediction?.let {
-                Text(formatRange(it.startDate, it.endDate), color = Color.White.copy(alpha = 0.86f), fontSize = 14.sp)
-                Text("平均周期 ${it.cycleDays} 天 · 经期 ${it.periodDays} 天", color = Color.White.copy(alpha = 0.65f), fontSize = 11.sp)
+                Text(formatRange(it.startDate, it.endDate), color = Color.White.copy(alpha = 0.9f), fontSize = 14.sp)
+                Text("平均周期 ${it.cycleDays} 天 · 经期 ${it.periodDays} 天", color = Color.White.copy(alpha = 0.72f), fontSize = 11.sp)
             }
-            HorizontalDivider(color = Color.White.copy(alpha = 0.16f))
+            HorizontalDivider(color = Color.White.copy(alpha = 0.20f))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text("经期提醒", color = Color.White, fontWeight = FontWeight.SemiBold)
                     Text(
-                        if (!state.reminderEnabled) "已关闭" else if (state.reminderDaysBefore == 0) "预计当天" else "提前 ${state.reminderDaysBefore} 天",
-                        color = Color.White.copy(alpha = 0.68f),
+                        if (state.reminderEnabled) "固定提前 1 天提醒" else "已关闭",
+                        color = Color.White.copy(alpha = 0.74f),
                         fontSize = 11.sp,
                     )
                 }
@@ -445,56 +473,82 @@ private fun PredictionCard(
                     colors = SwitchDefaults.colors(checkedThumbColor = HealthAccentDark, checkedTrackColor = Color.White),
                 )
             }
-            if (state.reminderEnabled) {
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    listOf(0, 1, 3, 5, 7).forEach { days ->
-                        FilterChip(
-                            selected = state.reminderDaysBefore == days,
-                            onClick = { onDays(days) },
-                            label = { Text(if (days == 0) "当天" else "$days 天") },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color.White,
-                                selectedLabelColor = HealthAccentDark,
-                                containerColor = Color.White.copy(alpha = 0.10f),
-                                labelColor = Color.White,
-                            ),
-                            border = FilterChipDefaults.filterChipBorder(
-                                enabled = true,
-                                selected = state.reminderDaysBefore == days,
-                                borderColor = Color.White.copy(alpha = 0.24f),
-                                selectedBorderColor = Color.Transparent,
-                            ),
-                        )
-                    }
-                }
-            }
         }
     }
 }
 
 @Composable
-private fun HistoryRow(record: PeriodRecord, onDelete: () -> Unit) {
-    HealthPanel {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Surface(shape = RoundedCornerShape(16.dp), color = HealthSoft) {
-                Column(
-                    Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(record.startDate.monthValue.toString().padStart(2, '0'), color = HealthAccentDark, fontSize = 10.sp)
-                    Text(record.startDate.dayOfMonth.toString(), color = HealthInk, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+private fun YearPickerDialog(
+    selectedYear: Int,
+    onDismiss: () -> Unit,
+    onSelect: (Int) -> Unit,
+) {
+    val years = remember { (1980..2100).toList() }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("选择年份") },
+        text = {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().heightIn(max = 430.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                items(years, key = { it }) { year ->
+                    Surface(
+                        onClick = { onSelect(year) },
+                        modifier = Modifier.fillMaxWidth(),
+                        color = if (year == selectedYear) HealthSelected else Color.Transparent,
+                        shape = RoundedCornerShape(14.dp),
+                    ) {
+                        Text(
+                            year.toString(),
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                            color = if (year == selectedYear) HealthAccentDark else HealthInk,
+                            fontSize = 17.sp,
+                            fontWeight = if (year == selectedYear) FontWeight.Bold else FontWeight.Normal,
+                        )
+                    }
                 }
             }
-            Spacer(Modifier.width(13.dp))
-            Column(Modifier.weight(1f)) {
-                Text(formatRange(record.startDate, record.endDate), color = HealthInk, fontWeight = FontWeight.SemiBold)
-                Text("${ChronoUnit.DAYS.between(record.startDate, record.endDate) + 1} 天", color = HealthMuted, fontSize = 11.sp)
+        },
+        confirmButton = {},
+        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } },
+    )
+}
+
+@Composable
+private fun MonthPickerDialog(
+    selectedMonth: Int,
+    onDismiss: () -> Unit,
+    onSelect: (Int) -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("选择月份") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                (1..12).chunked(3).forEach { rowMonths ->
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        rowMonths.forEach { month ->
+                            if (month == selectedMonth) {
+                                Button(
+                                    onClick = { onSelect(month) },
+                                    modifier = Modifier.weight(1f),
+                                    colors = ButtonDefaults.buttonColors(containerColor = HealthAccentDark),
+                                ) { Text("${month}月") }
+                            } else {
+                                OutlinedButton(
+                                    onClick = { onSelect(month) },
+                                    modifier = Modifier.weight(1f),
+                                ) { Text("${month}月") }
+                            }
+                        }
+                    }
+                }
             }
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Outlined.DeleteOutline, "删除记录", tint = HealthMuted)
-            }
-        }
-    }
+        },
+        confirmButton = {},
+        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } },
+    )
 }
 
 @Composable
