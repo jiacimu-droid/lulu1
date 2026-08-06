@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T11:25:55.231828+00:00",
-  "commit": "ca39c9012d934e90c5af87e137790ccc3e6ea7d1",
+  "generatedAt": "2026-08-06T11:26:10.260846+00:00",
+  "commit": "81846047d1d042a46dae44a5e0c4654b8bd4566b",
   "branch": "main",
-  "sourceFingerprint": "558cd8966a50eaa9f3afb79fc1ad1e92761bbd2f3d5f91436b53d9e36b165823",
+  "sourceFingerprint": "fe0c3c812b10c2305792970f963f64dc8196a1af2206d7aa7b43733ebf8731d1",
   "summary": {
-    "files": 111,
-    "lines": 29162,
-    "symbols": 480
+    "files": 110,
+    "lines": 28540,
+    "symbols": 475
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -274,36 +274,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
         "line": 588
-      }
-    ],
-    "MigratedChatDetailScreenV2": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
-        "line": 55
-      }
-    ],
-    "startGeneration": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
-        "line": 115
-      }
-    ],
-    "sendMessage": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
-        "line": 162
-      }
-    ],
-    "retryMessage": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
-        "line": 176
-      }
-    ],
-    "stopGeneration": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
-        "line": 180
       }
     ],
     "MigratedChatHubScreenV2": [
@@ -3067,33 +3037,6 @@
         {
           "name": "LuluVoiceCallScreen",
           "line": 588
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatDetailScreenV2.kt",
-      "lines": 622,
-      "sha256": "7fa83e6ea2a7d2bb70fc15bb464efb4eb008b64c5913828fdf64705628ab5f8f",
-      "symbols": [
-        {
-          "name": "MigratedChatDetailScreenV2",
-          "line": 55
-        },
-        {
-          "name": "startGeneration",
-          "line": 115
-        },
-        {
-          "name": "sendMessage",
-          "line": 162
-        },
-        {
-          "name": "retryMessage",
-          "line": 176
-        },
-        {
-          "name": "stopGeneration",
-          "line": 180
         }
       ]
     },
