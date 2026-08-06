@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T11:20:47.736946+00:00",
-  "commit": "74366af8954b06aa71dd74434892eea5f0c927dd",
+  "generatedAt": "2026-08-06T11:21:24.651245+00:00",
+  "commit": "2c0f48a28feeb5790efbb403752deb44f5f6289d",
   "branch": "main",
-  "sourceFingerprint": "b666c41c6c686a28b0d44eae835033d73d9bdde9747ddef26d309a5ee6747eac",
+  "sourceFingerprint": "ab69bd6da64aaf464532de9b81e3c5b4311d21c473ca6413aed5da600267041e",
   "summary": {
     "files": 114,
-    "lines": 30195,
-    "symbols": 504
+    "lines": 30419,
+    "symbols": 507
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -2476,6 +2476,28 @@
         "line": 37
       }
     ],
+    "privateConversationId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt",
+        "line": 94
+      }
+    ],
+    "startPomodoro": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt",
+        "line": 100
+      }
+    ],
+    "finishEarly": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt",
+        "line": 132
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
+        "line": 252
+      }
+    ],
     "defaultPrompts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
@@ -2702,12 +2724,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
         "line": 235
-      }
-    ],
-    "finishEarly": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 252
       }
     ],
     "sendFocusChat": [
@@ -5032,9 +5048,22 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt",
-      "lines": 131,
-      "sha256": "33a9015b731778c4d94c009684697a0c65c3055037d79e63839b2f4fb8b7adef",
-      "symbols": []
+      "lines": 355,
+      "sha256": "077a68d4f94a7518d9becc1c51a62e1507803404da336e7478e4147a9fd927ff",
+      "symbols": [
+        {
+          "name": "privateConversationId",
+          "line": 94
+        },
+        {
+          "name": "startPomodoro",
+          "line": 100
+        },
+        {
+          "name": "finishEarly",
+          "line": 132
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
