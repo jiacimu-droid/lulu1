@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T11:01:58.402370+00:00",
-  "commit": "c349a2573e21170c5e6e03160506e012c6d426d1",
+  "generatedAt": "2026-08-06T11:03:40.528799+00:00",
+  "commit": "bbf971957c1d5bdd1acd976b78c3e28cac0daeec",
   "branch": "main",
-  "sourceFingerprint": "3f110a5772434a088cf8377ac8a163361b8b53c64795eb18df2b0da91ef69109",
+  "sourceFingerprint": "0c64ad18c7fb734b995a1325480aa64a476afd5c3113d80a926aa0d72ec5f40d",
   "summary": {
     "files": 112,
-    "lines": 29631,
+    "lines": 29653,
     "symbols": 483
   },
   "symbolIndex": {
@@ -389,7 +389,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
-        "line": 81
+        "line": 83
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
@@ -1403,13 +1403,13 @@
     "ProactiveMessageAutomation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
-        "line": 42
+        "line": 44
       }
     ],
     "signalPerceptionChange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
-        "line": 97
+        "line": 99
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -4017,20 +4017,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
-      "lines": 531,
-      "sha256": "2902970118e977c3e8671130efb3e4576ee05b9917e9da9b2be649a37a010ed9",
+      "lines": 553,
+      "sha256": "f444f4fd377d73af9849427a65127aaa5107ac4cafa7212995814079464da07d",
       "symbols": [
         {
           "name": "ProactiveMessageAutomation",
-          "line": 42
+          "line": 44
         },
         {
           "name": "initialize",
-          "line": 81
+          "line": 83
         },
         {
           "name": "signalPerceptionChange",
-          "line": 97
+          "line": 99
         }
       ]
     },
