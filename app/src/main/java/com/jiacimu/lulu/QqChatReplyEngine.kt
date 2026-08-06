@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+// Chat response orchestration lives outside the screen so UI changes do not risk reply behavior.
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluGroupChat
 import com.jiacimu.lulu.data.MigratedDomainStores
