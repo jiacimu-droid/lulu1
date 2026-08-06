@@ -27,8 +27,10 @@ import kotlinx.coroutines.sync.withLock
 import org.json.JSONObject
 import java.time.Duration
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import java.util.UUID
 
 /**
@@ -175,11 +177,17 @@ object ProactiveMessageAutomation {
         val messages = MigratedDomainStores.chat.messages(conversation.id).value
         val lastActivity = messages.lastOrNull()?.createdAt ?: conversation.updatedAt
         val idleMinutes = Duration.between(lastActivity, now).toMinutes().coerceAtLeast(0)
-        val currentTime = LocalTime.now()
+        val zoneId = ZoneId.systemDefault()
+        val localNow = now.atZone(zoneId)
+        val currentTime = localNow.toLocalTime()
+        val localDate = localNow.toLocalDate()
+        val localTimeText = localNow.format(
+            DateTimeFormatter.ofPattern("yyyy年M月d日 EEEE HH:mm:ss", Locale.SIMPLIFIED_CHINESE),
+        )
         val globalQuiet = preferences.quietHoursEnabled && isQuietHour(preferences, currentTime)
         val characterQuiet = character.contactPolicy.quietHoursEnabled && isCharacterQuietHour(character.contactPolicy, currentTime)
         val runtimePrefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val today = LocalDate.now().toString()
+        val today = localDate.toString()
         val storedDay = runtimePrefs.getString("count_day_$characterId", null)
         val contactCount = if (storedDay == today) runtimePrefs.getInt("count_$characterId", 0) else 0
         val callCount = if (storedDay == today) runtimePrefs.getInt("call_count_$characterId", 0) else 0
@@ -262,7 +270,9 @@ object ProactiveMessageAutomation {
                 appendLine("【角色人设】\n${character.persona.ifBlank { "按角色当前设定自然行动。" }}")
                 appendLine("\n【本次真实感知】")
                 appendLine("触发来源：$trigger")
-                appendLine("当前时间：$now；距离最后聊天约 $idleMinutes 分钟；距离上次主动联系约 ${if (minutesSinceContact == Long.MAX_VALUE) "很久" else "$minutesSinceContact 分钟"}")
+                appendLine("设备本地时间：$localTimeText（时区 ${zoneId.id}）")
+                appendLine("当前本地日期：$today。只有发生日期等于 $today 的事件才能称为‘今天’；更早日期必须说‘之前’‘那天’或明确日期。本周累计和历史累计绝不能改写成今天完成。")
+                appendLine("距离最后聊天约 $idleMinutes 分钟；距离上次主动联系约 ${if (minutesSinceContact == Long.MAX_VALUE) "很久" else "$minutesSinceContact 分钟"}")
                 appendLine("设备：$screenContext")
                 if (notifications.isNotBlank()) appendLine("近期通知摘要：\n$notifications")
                 appendLine("允许主动消息：${if (contactAllowed) "是" else "否"}；允许主动来电：${if (callAllowed) "是" else "否"}；允许日记：${if (journalAllowed) "是" else "否"}；允许朋友圈：${if (momentAllowed) "是" else "否"}")
@@ -292,6 +302,7 @@ object ProactiveMessageAutomation {
                 6. group_message 只能使用上面真实存在的 groupId；gameId 只能是 perfect_man、roleplay、turtle_soup、rapport_quiz、yacht_dice、gomoku、memory_match。
                 7. 日记必须是角色第一人称私人内心独白，不是聊天总结或系统说明；朋友圈必须是角色真的愿意公开的内容。
                 8. 角色的用词、主动程度、动作和心声必须由其人设决定，禁止把所有角色写成同一种温柔助手。
+                9. 时间只以“设备本地时间”和“当前本地日期”为准。旧日期的聊天、记忆、学习记录只能作为过去经历，不得写成正在发生或今天发生；日记中的具体钟点不得与本地时间矛盾。
             """.trimIndent(),
             source = "后台感知",
             title = "${character.displayName}的实时感知",
@@ -423,7 +434,18 @@ object ProactiveMessageAutomation {
                     content = "${decision.journalTitle.ifBlank { "没写完的一页" }}\n${decision.journalContent.take(2_000)}",
                     occurredAt = now,
                 )
-                MigratedDomainStores.chat.appendSystemMessage(conversation.id, "[共同活动] 刚刚写了一篇日记")
+                val privateConversation = MigratedDomainStores.chat.conversations.value
+                    .asSequence()
+                    .filter { candidate ->
+                        candidate.characterId == characterId &&
+                            candidate.parentConversationId == null &&
+                            candidate.groupChat == null &&
+                            !candidate.id.endsWith("-study-focus")
+                    }
+                    .maxByOrNull(LuluConversation::updatedAt)
+                privateConversation?.let { target ->
+                    MigratedDomainStores.chat.appendSystemMessage(target.id, "[共同活动] 刚刚写了一篇日记")
+                }
                 runtimePrefs.edit().putLong("last_journal_$characterId", now.toEpochMilli()).apply()
                 return true
             }
