@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T15:39:19.212988+00:00",
-  "commit": "6b482928531fee6ba516efb84e1672c576477881",
+  "generatedAt": "2026-08-06T15:39:44.525583+00:00",
+  "commit": "430cf88b5d6426739d02d9aeaf928dbcadc224b6",
   "branch": "main",
-  "sourceFingerprint": "dfa03efdb209a78557a7c51b3b146e705b9022e7c394fab94eddedd61ad526ef",
+  "sourceFingerprint": "1c2f4de216b72f1ea42ae14812b98e40fcf8dcbcff6157df13407b0272624ec3",
   "summary": {
     "files": 116,
-    "lines": 29897,
+    "lines": 29898,
     "symbols": 484
   },
   "symbolIndex": {
@@ -2087,19 +2087,19 @@
     "reschedule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
-        "line": 215
+        "line": 217
       }
     ],
     "HealthPeriodReminderReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
-        "line": 238
+        "line": 239
       }
     ],
     "HealthReminderBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
-        "line": 272
+        "line": 273
       }
     ],
     "HealthFeatureScreen": [
@@ -4657,8 +4657,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
-      "lines": 283,
-      "sha256": "f92663ae132fdf1692135deade72073c03c4c0498b0c02eb9ca2ad09747a5f74",
+      "lines": 284,
+      "sha256": "4aec247a762ff75ef8cea164bdab86db5ed1ecca8309591acfa7ac83e08dcdab",
       "symbols": [
         {
           "name": "initialize",
@@ -4678,15 +4678,15 @@
         },
         {
           "name": "reschedule",
-          "line": 215
+          "line": 217
         },
         {
           "name": "HealthPeriodReminderReceiver",
-          "line": 238
+          "line": 239
         },
         {
           "name": "HealthReminderBootReceiver",
-          "line": 272
+          "line": 273
         }
       ]
     },
