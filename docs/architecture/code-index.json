@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T11:38:52.660504+00:00",
-  "commit": "a90f453cd3cb1c0cee05e73b9eaaddb4124915f8",
+  "generatedAt": "2026-08-06T11:44:12.862879+00:00",
+  "commit": "483212599c276bb3e2aa33d668c9da72ad72892d",
   "branch": "main",
-  "sourceFingerprint": "96983f163cbda9abf12303146683a4c102cbaed58206f1453100489c931fdc90",
+  "sourceFingerprint": "a72748888ad2ee11a81b05e7f11f548e20d46af48f4eaa5eff150caabd3c1516",
   "summary": {
     "files": 110,
-    "lines": 28523,
-    "symbols": 475
+    "lines": 28566,
+    "symbols": 477
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -911,25 +911,37 @@
     "LegacyConversationMigration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
-        "line": 14
+        "line": 13
       }
     ],
-    "migrateToPrivateAndGroupOnly": [
+    "migrateSavedState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
-        "line": 15
+        "line": 16
+      }
+    ],
+    "findPrivate": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
+        "line": 40
+      }
+    ],
+    "createPrivate": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
+        "line": 46
       }
     ],
     "privateTarget": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
-        "line": 38
+        "line": 63
       }
     ],
-    "resolveBranchTarget": [
+    "branchTarget": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
-        "line": 58
+        "line": 69
       }
     ],
     "LegacyLuluBackupImporter": [
@@ -3546,24 +3558,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
-      "lines": 121,
-      "sha256": "330ac1d7e41f8eb221bbae56e11c5f4c6bc999ca7c45541d30e3e02ff5175bcb",
+      "lines": 164,
+      "sha256": "3bf9603a297bf8ee965d12f38d92a83b41b56e02098c46a442ceb6f620bf6091",
       "symbols": [
         {
           "name": "LegacyConversationMigration",
-          "line": 14
+          "line": 13
         },
         {
-          "name": "migrateToPrivateAndGroupOnly",
-          "line": 15
+          "name": "migrateSavedState",
+          "line": 16
+        },
+        {
+          "name": "findPrivate",
+          "line": 40
+        },
+        {
+          "name": "createPrivate",
+          "line": 46
         },
         {
           "name": "privateTarget",
-          "line": 38
+          "line": 63
         },
         {
-          "name": "resolveBranchTarget",
-          "line": 58
+          "name": "branchTarget",
+          "line": 69
         }
       ]
     },
