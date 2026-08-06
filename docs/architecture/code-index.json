@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T15:02:06.853313+00:00",
-  "commit": "12cac60f42f3ee9049df4a1a13db453640b0a635",
+  "generatedAt": "2026-08-06T15:39:19.212988+00:00",
+  "commit": "6b482928531fee6ba516efb84e1672c576477881",
   "branch": "main",
-  "sourceFingerprint": "fb64226250aa8e222fa70c5c0372732feadb915d97913f16f284ce2518c29d50",
+  "sourceFingerprint": "dfa03efdb209a78557a7c51b3b146e705b9022e7c394fab94eddedd61ad526ef",
   "summary": {
     "files": 116,
-    "lines": 29224,
-    "symbols": 485
+    "lines": 29897,
+    "symbols": 484
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -375,7 +375,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 66
+        "line": 84
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
@@ -1431,7 +1431,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 355
+        "line": 641
       }
     ],
     "scheduleSoon": [
@@ -2027,97 +2027,91 @@
     "disconnect": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 122
+        "line": 140
       }
     ],
-    "column": [
+    "picked": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 196
+        "line": 257
       }
     ],
     "sum": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 198
+        "line": 259
       }
     ],
     "average": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 201
+        "line": 262
       }
     ],
     "minimum": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 204
+        "line": 265
       }
     ],
     "maximum": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 207
+        "line": 268
+      }
+    ],
+    "find": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
+        "line": 393
       }
     ],
     "savePeriod": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
-        "line": 64
-      }
-    ],
-    "deletePeriod": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
-        "line": 77
+        "line": 69
       }
     ],
     "setReminderEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
-        "line": 82
-      }
-    ],
-    "setReminderDaysBefore": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
-        "line": 87
+        "line": 105
       }
     ],
     "prediction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
-        "line": 90
+        "line": 108
       }
     ],
     "reschedule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
-        "line": 171
+        "line": 215
       }
     ],
     "HealthPeriodReminderReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
-        "line": 194
+        "line": 238
       }
     ],
     "HealthReminderBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
-        "line": 228
+        "line": 272
       }
     ],
     "HealthFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 56
+        "line": 55
       }
     ],
     "changeReminder": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 169
+        "line": 170
       }
     ],
     "LuluReadingScreen": [
@@ -4614,53 +4608,57 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt",
-      "lines": 440,
-      "sha256": "eeb85e4e07b2527d7cffd2e306f2a71efdba42e710199d9f14188209eb647eab",
+      "lines": 658,
+      "sha256": "0b1024c83c56e63120646644b5aab1fc494ff5a324206326b61e93ab0e77c7e8",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-      "lines": 393,
-      "sha256": "f8c44c5f57af02430832e72dd5d54ab65fededc1c03b57585cc5e6a07ed4b85d",
+      "lines": 750,
+      "sha256": "f9a293fd87cda3b31b8679140f12b2ebb368805be53775a6dcde38c1ad75374e",
       "symbols": [
         {
           "name": "initialize",
-          "line": 66
+          "line": 84
         },
         {
           "name": "disconnect",
-          "line": 122
+          "line": 140
         },
         {
-          "name": "column",
-          "line": 196
+          "name": "picked",
+          "line": 257
         },
         {
           "name": "sum",
-          "line": 198
+          "line": 259
         },
         {
           "name": "average",
-          "line": 201
+          "line": 262
         },
         {
           "name": "minimum",
-          "line": 204
+          "line": 265
         },
         {
           "name": "maximum",
-          "line": 207
+          "line": 268
+        },
+        {
+          "name": "find",
+          "line": 393
         },
         {
           "name": "schedule",
-          "line": 355
+          "line": 641
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
-      "lines": 239,
-      "sha256": "1edd8a808b6ec059445f937e29f49506f7fed7823b8d5b812d32460a0179c6f3",
+      "lines": 283,
+      "sha256": "f92663ae132fdf1692135deade72073c03c4c0498b0c02eb9ca2ad09747a5f74",
       "symbols": [
         {
           "name": "initialize",
@@ -4668,50 +4666,42 @@
         },
         {
           "name": "savePeriod",
-          "line": 64
-        },
-        {
-          "name": "deletePeriod",
-          "line": 77
+          "line": 69
         },
         {
           "name": "setReminderEnabled",
-          "line": 82
-        },
-        {
-          "name": "setReminderDaysBefore",
-          "line": 87
+          "line": 105
         },
         {
           "name": "prediction",
-          "line": 90
+          "line": 108
         },
         {
           "name": "reschedule",
-          "line": 171
+          "line": 215
         },
         {
           "name": "HealthPeriodReminderReceiver",
-          "line": 194
+          "line": 238
         },
         {
           "name": "HealthReminderBootReceiver",
-          "line": 228
+          "line": 272
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-      "lines": 521,
-      "sha256": "b719b4e564b7b281cd60cd3623dd6b8b3d45954ffa8da1b1556bb7c7eba20782",
+      "lines": 575,
+      "sha256": "73363edf0065871fcc362eae5c0304d8cf5cba1382ac9073cac8ba575ddcd8e0",
       "symbols": [
         {
           "name": "HealthFeatureScreen",
-          "line": 56
+          "line": 55
         },
         {
           "name": "changeReminder",
-          "line": 169
+          "line": 170
         }
       ]
     },
