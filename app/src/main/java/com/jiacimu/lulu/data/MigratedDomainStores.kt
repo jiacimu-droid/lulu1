@@ -18,8 +18,6 @@ data class LuluChatMessage(
     val createdAt: Instant = Instant.now(),
     val status: Status = Status.Sent,
     val favorite: Boolean = false,
-    // Legacy-only metadata retained while old saved branches are folded into normal chats.
-    val branchOriginMessageId: String? = null,
     val authorCharacterId: String? = null,
     val replyToMessageId: String? = null,
 ) {
@@ -65,9 +63,6 @@ data class LuluConversation(
     val lastMessage: String = "",
     val updatedAt: Instant = Instant.now(),
     val unreadCount: Int = 0,
-    // Legacy-only metadata retained until startup migration removes old branch records.
-    val parentConversationId: String? = null,
-    val branchOriginMessageId: String? = null,
     val groupChat: LuluGroupChat? = null,
 )
 
@@ -124,11 +119,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         val cleanTitle = title.trim().ifBlank { "未命名角色" }
         synchronized(lock) {
             conversationState.value
-                .filter {
-                    it.characterId == cleanCharacterId &&
-                        it.parentConversationId == null &&
-                        it.groupChat == null
-                }
+                .filter { it.characterId == cleanCharacterId && it.groupChat == null }
                 .maxByOrNull(LuluConversation::updatedAt)
                 ?.let { return it }
 
@@ -498,8 +489,6 @@ class InMemoryLuluChatStore : LuluChatStore {
         .put("lastMessage", value.lastMessage)
         .put("updatedAt", value.updatedAt.toString())
         .put("unreadCount", value.unreadCount)
-        .put("parentConversationId", value.parentConversationId ?: JSONObject.NULL)
-        .put("branchOriginMessageId", value.branchOriginMessageId ?: JSONObject.NULL)
         .put("groupChat", value.groupChat?.let(::encodeGroupChat) ?: JSONObject.NULL)
 
     private fun decodeConversation(item: JSONObject): LuluConversation = LuluConversation(
@@ -509,8 +498,6 @@ class InMemoryLuluChatStore : LuluChatStore {
         lastMessage = item.optString("lastMessage"),
         updatedAt = item.optString("updatedAt").toInstantOrNow(),
         unreadCount = item.optInt("unreadCount").coerceAtLeast(0),
-        parentConversationId = item.nullableString("parentConversationId"),
-        branchOriginMessageId = item.nullableString("branchOriginMessageId"),
         groupChat = item.optJSONObject("groupChat")?.let(::decodeGroupChat),
     )
 
@@ -570,7 +557,6 @@ class InMemoryLuluChatStore : LuluChatStore {
         .put("createdAt", value.createdAt.toString())
         .put("status", value.status.name)
         .put("favorite", value.favorite)
-        .put("branchOriginMessageId", value.branchOriginMessageId ?: JSONObject.NULL)
         .put("authorCharacterId", value.authorCharacterId ?: JSONObject.NULL)
         .put("replyToMessageId", value.replyToMessageId ?: JSONObject.NULL)
 
@@ -584,7 +570,6 @@ class InMemoryLuluChatStore : LuluChatStore {
         status = runCatching { LuluChatMessage.Status.valueOf(item.optString("status")) }
             .getOrDefault(LuluChatMessage.Status.Sent),
         favorite = item.optBoolean("favorite"),
-        branchOriginMessageId = item.nullableString("branchOriginMessageId"),
         authorCharacterId = item.nullableString("authorCharacterId"),
         replyToMessageId = item.nullableString("replyToMessageId"),
     )
