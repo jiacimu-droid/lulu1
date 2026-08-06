@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T11:26:10.260846+00:00",
-  "commit": "81846047d1d042a46dae44a5e0c4654b8bd4566b",
+  "generatedAt": "2026-08-06T11:27:40.996832+00:00",
+  "commit": "f1e28e4b7c3c40d50c27e27055b4d03353d846d9",
   "branch": "main",
-  "sourceFingerprint": "fe0c3c812b10c2305792970f963f64dc8196a1af2206d7aa7b43733ebf8731d1",
+  "sourceFingerprint": "87a83a5d109d4450e8d4a39e80bc14ea135535ee74f673a4c5b7b52c1031a22f",
   "summary": {
     "files": 110,
     "lines": 28540,
@@ -3547,7 +3547,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
       "lines": 121,
-      "sha256": "4f780c56a863e7bd4ec2b46b633e5caf4a6e82a42a70b656f36281f73e29a2c3",
+      "sha256": "330ac1d7e41f8eb221bbae56e11c5f4c6bc999ca7c45541d30e3e02ff5175bcb",
       "symbols": [
         {
           "name": "LegacyConversationMigration",
