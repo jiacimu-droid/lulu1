@@ -33,11 +33,6 @@ internal enum class StudySection(val label: String) {
     Collection("收藏"), Achievements("成就"), Shop("商店"), Guide("说明"),
 }
 
-internal sealed interface StudyRoute {
-    data class Section(val section: StudySection) : StudyRoute
-    data object Focus : StudyRoute
-}
-
 @Composable
 internal fun StudyCard(
     modifier: Modifier = Modifier,
