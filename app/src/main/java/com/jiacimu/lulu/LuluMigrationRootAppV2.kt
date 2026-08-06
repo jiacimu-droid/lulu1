@@ -6,11 +6,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.design.LuluColors
@@ -19,12 +17,11 @@ import com.jiacimu.lulu.design.LuluTypography
 import com.jiacimu.lulu.games.LuluGamesAppV2
 import com.jiacimu.lulu.health.HealthFeatureScreen
 import com.jiacimu.lulu.study.LuluReadingScreen
+import com.jiacimu.lulu.study.PomodoroCompanionSessions
 import com.jiacimu.lulu.study.PostgraduateExamApp
 import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.StarWishMigratedScreen
 import com.jiacimu.lulu.study.StarWishTab
-import com.jiacimu.lulu.study.StudyFocusMiniWindow
-import com.jiacimu.lulu.study.StudyFocusSessions
 import kotlinx.coroutines.delay
 
 @Composable
@@ -47,11 +44,9 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
     var selectedCharacterId by rememberSaveable { mutableStateOf("lulu") }
     var starWishInitialTab by rememberSaveable { mutableStateOf(StarWishTab.Scroll.name) }
     var initialGameId by rememberSaveable { mutableStateOf<String?>(null) }
-    var studyFocusRequest by rememberSaveable { mutableIntStateOf(0) }
 
     val preferences by LuluAppPreferencesStore.state.collectAsState()
     val studyState by PostgraduateExamStores.main.state.collectAsState()
-    val focusPreferences by StudyFocusSessions.store.state.collectAsState()
     val density = LocalDensity.current
     val preferredDensity = remember(density, preferences.largerText) {
         Density(
@@ -108,7 +103,7 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
             delay(500)
             val beforeSync = studyStore.state.value.pomodoro
             if (studyStore.syncPomodoroClock()) {
-                StudyFocusSessions.handleNaturalCompletion(
+                PomodoroCompanionSessions.handleNaturalCompletion(
                     studyStore = studyStore,
                     actualMinutes = beforeSync.selectedMinutes,
                 )
@@ -117,9 +112,6 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
         }
     }
 
-    val timerHasProgress = focusPreferences.activeSessionId.isNotBlank() &&
-        !focusPreferences.completionHandled
-
     CompositionLocalProvider(LocalDensity provides preferredDensity) {
         MaterialTheme(
             colorScheme = LuluLightColorScheme,
@@ -127,17 +119,14 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
         ) {
             Surface(Modifier.fillMaxSize(), color = LuluColors.Paper) {
                 Box(Modifier.fillMaxSize()) {
-                    // Keep the active chat composition attached to the app root. Its coroutine scope,
-                    // receiving state and pending result therefore survive navigation to other pages.
+                    // Keep the active chat composition attached to the app root so replies continue
+                    // while the user visits another page or temporarily backgrounds the chat.
                     if (chatSessionStarted) {
                         key(selectedConversationId) {
                             QqStyleChatDetailScreen(
                                 conversationId = selectedConversationId,
                                 onBack = ::popRoute,
-                                onOpenBranch = { branchId ->
-                                    selectedConversationId = branchId
-                                    selectedCharacterId = characterIdForConversation(branchId)
-                                },
+                                onOpenBranch = {},
                                 onCharacterSettings = {
                                     selectConversationCharacter()
                                     pushRoute(MigrationRoute.CharacterSettings)
@@ -208,8 +197,7 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                                         starWishInitialTab = StarWishTab.Theater.name
                                         pushRoute(MigrationRoute.Wishes)
                                     },
-                                    focusRequest = studyFocusRequest,
-                                    onFocusRequestConsumed = { studyFocusRequest = 0 },
+                                    onOpenConversation = ::openConversation,
                                 )
                                 MigrationRoute.Games -> LuluGamesAppV2(
                                     onBack = {
@@ -222,21 +210,6 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                                 MigrationRoute.ChatDetail -> Unit
                             }
                         }
-                    }
-
-                    if (route != MigrationRoute.Study && timerHasProgress) {
-                        StudyFocusMiniWindow(
-                            state = studyState,
-                            task = focusPreferences.activeTask,
-                            onOpen = {
-                                studyFocusRequest += 1
-                                pushRoute(MigrationRoute.Study)
-                            },
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .navigationBarsPadding()
-                                .padding(16.dp),
-                        )
                     }
                 }
             }
