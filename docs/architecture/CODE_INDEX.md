@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`adf02834fa965750cd84e86eed194a3aa5e3f203`
+- 基准提交：`5ef24e71f760ecbf2bcf62727da16086bc95324d`
 - 分支：`main`
-- 已索引文件：113
-- 已索引代码/文本行：29198
+- 已索引文件：116
+- 已索引代码/文本行：29224
 - 已发现符号：485
 
 | 文件 | 行数 | 符号数 |
@@ -53,6 +53,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 476 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 106 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 26 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 811 | 43 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 216 | 9 |
@@ -71,6 +72,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 166 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 89 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 439 | 26 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 659 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 377 | 1 |
@@ -78,6 +80,7 @@
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt` | 393 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt` | 239 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt` | 521 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 270 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 324 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 88 | 2 |

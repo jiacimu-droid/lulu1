@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T14:58:00.887911+00:00",
-  "commit": "adf02834fa965750cd84e86eed194a3aa5e3f203",
+  "generatedAt": "2026-08-06T15:01:52.025323+00:00",
+  "commit": "5ef24e71f760ecbf2bcf62727da16086bc95324d",
   "branch": "main",
-  "sourceFingerprint": "86258661f7d90b8b8ad64e470ae5dd0385ed12a2563c3919918f58994896d1cd",
+  "sourceFingerprint": "fb64226250aa8e222fa70c5c0372732feadb915d97913f16f284ce2518c29d50",
   "summary": {
-    "files": 113,
-    "lines": 29198,
+    "files": 116,
+    "lines": 29224,
     "symbols": 485
   },
   "symbolIndex": {
@@ -3783,6 +3783,12 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt",
+      "lines": 10,
+      "sha256": "92ed2091ff91464f4d1a5efc217b91c0dc7f7ad3507957f3018e8ca3a97b190f",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
       "lines": 26,
       "sha256": "b5b51e6390a898299c4c680290f61c7125173e60089801f8dd8130aedad70ccf",
@@ -4420,6 +4426,12 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt",
+      "lines": 8,
+      "sha256": "4fc4966c7168b5ebb7f0de12708716418ce26491dc8c9d6299bdf8cb77606972",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
       "lines": 439,
       "sha256": "6f6e76bea40c8074a9a1a50b375c759ebc9f0c163ec85266a4d88e694a4ac2b5",
@@ -4702,6 +4714,12 @@
           "line": 169
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt",
+      "lines": 8,
+      "sha256": "9d09538acb49af55743f7471134a2496bc55af64c1582d5e0d7cb3ba04ea03ce",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
