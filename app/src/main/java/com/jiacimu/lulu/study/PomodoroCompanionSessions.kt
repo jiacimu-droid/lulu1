@@ -150,17 +150,17 @@ class PomodoroCompanionStore private constructor(context: Context) {
         completionHandled = prefs.getBoolean(KEY_COMPLETION_HANDLED, false),
     )
 
-    private companion object {
-        const val PREFS_NAME = "lulu_study_focus"
-        const val KEY_TASK = "task"
-        const val KEY_AUTOMATIC_DIALOGUE = "automatic_dialogue"
-        const val KEY_ACTIVE_SESSION_ID = "active_session_id"
-        const val KEY_ACTIVE_CHARACTER_ID = "active_character_id"
-        const val KEY_ACTIVE_TASK = "active_task"
-        const val KEY_SESSION_MESSAGE_START = "session_message_start"
-        const val KEY_SESSION_STARTED_AT = "session_started_at"
-        const val KEY_OPENING_HANDLED = "opening_handled"
-        const val KEY_COMPLETION_HANDLED = "completion_handled"
+    companion object {
+        private const val PREFS_NAME = "lulu_study_focus"
+        private const val KEY_TASK = "task"
+        private const val KEY_AUTOMATIC_DIALOGUE = "automatic_dialogue"
+        private const val KEY_ACTIVE_SESSION_ID = "active_session_id"
+        private const val KEY_ACTIVE_CHARACTER_ID = "active_character_id"
+        private const val KEY_ACTIVE_TASK = "active_task"
+        private const val KEY_SESSION_MESSAGE_START = "session_message_start"
+        private const val KEY_SESSION_STARTED_AT = "session_started_at"
+        private const val KEY_OPENING_HANDLED = "opening_handled"
+        private const val KEY_COMPLETION_HANDLED = "completion_handled"
 
         fun create(context: Context): PomodoroCompanionStore = PomodoroCompanionStore(context.applicationContext)
     }
