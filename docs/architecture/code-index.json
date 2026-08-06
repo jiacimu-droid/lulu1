@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T04:18:08.974098+00:00",
-  "commit": "aca52a6953f0da5a6bd7c33c59302efa798884d0",
+  "generatedAt": "2026-08-06T11:01:58.402370+00:00",
+  "commit": "c349a2573e21170c5e6e03160506e012c6d426d1",
   "branch": "main",
-  "sourceFingerprint": "192d2504adc9ab78352ddb57892713cc0048dba16356f683c6cb02e4351ea0f7",
+  "sourceFingerprint": "3f110a5772434a088cf8377ac8a163361b8b53c64795eb18df2b0da91ef69109",
   "summary": {
     "files": 112,
-    "lines": 29610,
+    "lines": 29631,
     "symbols": 483
   },
   "symbolIndex": {
@@ -219,7 +219,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
-        "line": 55
+        "line": 63
       }
     ],
     "prepare": [
@@ -393,7 +393,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
-        "line": 23
+        "line": 28
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
@@ -1463,7 +1463,7 @@
     "RoleReadablePerformanceBridge": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
-        "line": 21
+        "line": 26
       }
     ],
     "SharedTimelineEvent": [
@@ -4082,20 +4082,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
-      "lines": 69,
-      "sha256": "928108764952df514866adf3546aad0f03df9283623f5987a1feb16df8c479a9",
+      "lines": 90,
+      "sha256": "00232162a01570bde917152dd998dc47b8eb59d3c787583aa2644c329d8a8b44",
       "symbols": [
         {
           "name": "RoleReadablePerformanceBridge",
-          "line": 21
+          "line": 26
         },
         {
           "name": "initialize",
-          "line": 23
+          "line": 28
         },
         {
           "name": "shutdown",
-          "line": 55
+          "line": 63
         }
       ]
     },
