@@ -1,15 +1,15 @@
 # Lulu1 代码索引
 
-- 基准提交：`04ed6f69bd528c13dffa8f754d1f3efd8a264923`
+- 基准提交：`b9e32d490d57e8418e04391de6e68f1b5cee41b4`
 - 分支：`main`
-- 已索引文件：111
-- 已索引代码/文本行：28785
-- 已发现符号：472
+- 已索引文件：112
+- 已索引代码/文本行：29751
+- 已发现符号：485
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 102 | 0 |
-| `app/src/main/AndroidManifest.xml` | 111 | 0 |
+| `app/src/main/AndroidManifest.xml` | 126 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 242 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 238 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
@@ -21,7 +21,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 517 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 395 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 335 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 244 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 246 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 130 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 163 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 336 | 4 |
@@ -31,9 +31,9 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 528 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 727 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 73 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 420 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 86 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 75 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 421 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 87 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 212 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 283 | 1 |
@@ -74,6 +74,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 439 | 26 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 659 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 377 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt` | 945 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 270 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 142 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 808 | 32 |

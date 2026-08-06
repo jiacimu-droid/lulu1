@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T19:24:48.168073+00:00",
-  "commit": "04ed6f69bd528c13dffa8f754d1f3efd8a264923",
+  "generatedAt": "2026-08-06T04:14:40.490787+00:00",
+  "commit": "b9e32d490d57e8418e04391de6e68f1b5cee41b4",
   "branch": "main",
-  "sourceFingerprint": "1c114c672ad70a5dfe68ba41b1d35b0de1446d3df969e9f222e623dd44f84544",
+  "sourceFingerprint": "d1e6fd352bdc84a68b35cf9019b2f1fbaeedc6a995226a1fab6af3715bf15686",
   "summary": {
-    "files": 111,
-    "lines": 28785,
-    "symbols": 472
+    "files": 112,
+    "lines": 29751,
+    "symbols": 485
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -119,43 +119,43 @@
     "LuluMigrationRootAppV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 30
+        "line": 31
       }
     ],
     "characterIdForConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 61
+        "line": 62
       }
     ],
     "selectConversationCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 67
+        "line": 68
       }
     ],
     "pushRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 71
+        "line": 72
       }
     ],
     "openConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 75
+        "line": 76
       }
     ],
     "popRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 82
+        "line": 83
       }
     ],
     "replaceTop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 86
+        "line": 87
       }
     ],
     "LuluSettingsHomeScreen": [
@@ -408,6 +408,10 @@
         "line": 434
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
+        "line": 148
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
         "line": 803
       },
@@ -443,7 +447,7 @@
     "MigrationActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-        "line": 28
+        "line": 29
       }
     ],
     "MigrationRoute": [
@@ -455,7 +459,7 @@
     "MigrationEmptyScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
-        "line": 35
+        "line": 36
       }
     ],
     "MomentsScreen": [
@@ -2010,6 +2014,78 @@
         "line": 31
       }
     ],
+    "savePeriod": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
+        "line": 158
+      }
+    ],
+    "deletePeriod": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
+        "line": 175
+      }
+    ],
+    "setReminderEnabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
+        "line": 180
+      }
+    ],
+    "setReminderDaysBefore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
+        "line": 185
+      }
+    ],
+    "prediction": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
+        "line": 188
+      }
+    ],
+    "averageCycleDays": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
+        "line": 201
+      }
+    ],
+    "averagePeriodDays": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
+        "line": 209
+      }
+    ],
+    "HealthFeatureScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
+        "line": 269
+      }
+    ],
+    "changeReminder": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
+        "line": 296
+      }
+    ],
+    "reschedule": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
+        "line": 871
+      }
+    ],
+    "HealthPeriodReminderReceiver": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
+        "line": 894
+      }
+    ],
+    "HealthReminderBootReceiver": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
+        "line": 936
+      }
+    ],
     "LuluReadingScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
@@ -2738,8 +2814,8 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "lines": 111,
-      "sha256": "a04713b589b716a69fd2a868756dd92437638b8bcae231f4936e593a2f6b9955",
+      "lines": 126,
+      "sha256": "af289a3ea84db4cdc6311b57221570afe0f7b38db25027d398d0461b2f4dbddc",
       "symbols": []
     },
     {
@@ -2885,36 +2961,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 244,
-      "sha256": "94a1ec7449886dde2bd246419390b9dc58c002f676688a8ddbaa012d2dcaaa6a",
+      "lines": 246,
+      "sha256": "e936b129861c30437da9ca5fe3d6145c9be761686531dd49c206de5624f87c13",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
-          "line": 30
+          "line": 31
         },
         {
           "name": "characterIdForConversation",
-          "line": 61
+          "line": 62
         },
         {
           "name": "selectConversationCharacter",
-          "line": 67
+          "line": 68
         },
         {
           "name": "pushRoute",
-          "line": 71
+          "line": 72
         },
         {
           "name": "openConversation",
-          "line": 75
+          "line": 76
         },
         {
           "name": "popRoute",
-          "line": 82
+          "line": 83
         },
         {
           "name": "replaceTop",
-          "line": 86
+          "line": 87
         }
       ]
     },
@@ -3089,25 +3165,25 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 73,
-      "sha256": "193e45cb1f4258ab3fa1451e75797dcfa7a26b860404da89f6de503058d4ab89",
+      "lines": 75,
+      "sha256": "e112a58e26c1b069d7b20d8d570018fa94ecac5a9293509d66c3a3183857ad3f",
       "symbols": [
         {
           "name": "MigrationActivity",
-          "line": 28
+          "line": 29
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 420,
-      "sha256": "713a0d9d13771ceae84df5c8a444c4a477d723de1083ce9e968049dd8fa9c7b2",
+      "lines": 421,
+      "sha256": "d7f98fb5d93425ced4a51c0e6cf6429dd3b829d1f01ddac4061f6efc4b9571df",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
-      "lines": 86,
-      "sha256": "916e5fb98863230060432c24eae988264cda85d03e9312674c6a313e11047f1b",
+      "lines": 87,
+      "sha256": "1d5255481a35509ddf1b437fad9212e696088ad872b548d2e4b3bbbd4a271062",
       "symbols": [
         {
           "name": "MigrationRoute",
@@ -3115,7 +3191,7 @@
         },
         {
           "name": "MigrationEmptyScreen",
-          "line": 35
+          "line": 36
         }
       ]
     },
@@ -4517,6 +4593,65 @@
         {
           "name": "LuluGamesAppV2",
           "line": 31
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
+      "lines": 945,
+      "sha256": "edb90a1b73aeb9eb92dd9285abdc061b8d9b2c21652518a251f7665462c1bd4e",
+      "symbols": [
+        {
+          "name": "initialize",
+          "line": 148
+        },
+        {
+          "name": "savePeriod",
+          "line": 158
+        },
+        {
+          "name": "deletePeriod",
+          "line": 175
+        },
+        {
+          "name": "setReminderEnabled",
+          "line": 180
+        },
+        {
+          "name": "setReminderDaysBefore",
+          "line": 185
+        },
+        {
+          "name": "prediction",
+          "line": 188
+        },
+        {
+          "name": "averageCycleDays",
+          "line": 201
+        },
+        {
+          "name": "averagePeriodDays",
+          "line": 209
+        },
+        {
+          "name": "HealthFeatureScreen",
+          "line": 269
+        },
+        {
+          "name": "changeReminder",
+          "line": 296
+        },
+        {
+          "name": "reschedule",
+          "line": 871
+        },
+        {
+          "name": "HealthPeriodReminderReceiver",
+          "line": 894
+        },
+        {
+          "name": "HealthReminderBootReceiver",
+          "line": 936
         }
       ]
     },
