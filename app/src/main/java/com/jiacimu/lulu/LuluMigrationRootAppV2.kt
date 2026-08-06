@@ -17,6 +17,7 @@ import com.jiacimu.lulu.design.LuluColors
 import com.jiacimu.lulu.design.LuluLightColorScheme
 import com.jiacimu.lulu.design.LuluTypography
 import com.jiacimu.lulu.games.LuluGamesAppV2
+import com.jiacimu.lulu.health.HealthFeatureScreen
 import com.jiacimu.lulu.study.LuluReadingScreen
 import com.jiacimu.lulu.study.PostgraduateExamApp
 import com.jiacimu.lulu.study.PostgraduateExamStores
@@ -195,6 +196,7 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                                     onBack = ::popRoute,
                                 )
                                 MigrationRoute.Performance -> OptimizedPerformanceFeatureScreen(::popRoute)
+                                MigrationRoute.Health -> HealthFeatureScreen(::popRoute)
                                 MigrationRoute.Reading -> LuluReadingScreen(::popRoute)
                                 MigrationRoute.Wishes -> StarWishMigratedScreen(
                                     onBack = ::popRoute,
