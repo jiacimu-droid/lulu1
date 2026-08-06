@@ -23,6 +23,7 @@ enum class MigrationRoute {
     Lexicon,
     WorldBook,
     Performance,
+    Health,
     Reading,
     Wishes,
     Study,
