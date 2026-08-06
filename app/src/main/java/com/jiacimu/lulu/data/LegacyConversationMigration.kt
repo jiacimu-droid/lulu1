@@ -81,7 +81,7 @@ object LegacyConversationMigration {
                     val targetMessages = mergedByTarget.getOrPut(target.id) {
                         messageStates[target.id]?.value.orEmpty().toMutableList()
                     }
-                    targetMessages += messageStates[source.id].orEmpty().value.map { message ->
+                    targetMessages += messageStates[source.id]?.value.orEmpty().map { message ->
                         message.copy(conversationId = target.id, branchOriginMessageId = null)
                     }
                 }
