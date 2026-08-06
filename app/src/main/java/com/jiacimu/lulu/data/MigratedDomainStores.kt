@@ -18,6 +18,7 @@ data class LuluChatMessage(
     val createdAt: Instant = Instant.now(),
     val status: Status = Status.Sent,
     val favorite: Boolean = false,
+    // Legacy-only metadata retained while old saved branches are folded into normal chats.
     val branchOriginMessageId: String? = null,
     val authorCharacterId: String? = null,
     val replyToMessageId: String? = null,
@@ -64,6 +65,7 @@ data class LuluConversation(
     val lastMessage: String = "",
     val updatedAt: Instant = Instant.now(),
     val unreadCount: Int = 0,
+    // Legacy-only metadata retained until startup migration removes old branch records.
     val parentConversationId: String? = null,
     val branchOriginMessageId: String? = null,
     val groupChat: LuluGroupChat? = null,
@@ -80,12 +82,12 @@ interface LuluChatStore {
     fun sendUserMessage(conversationId: String, content: String, replyToMessageId: String? = null): LuluChatMessage
     fun appendCharacterMessage(conversationId: String, content: String, authorCharacterId: String? = null): LuluChatMessage
     fun appendSystemMessage(conversationId: String, content: String): LuluChatMessage
+    fun appendPrivateActivityNotice(characterId: String, content: String): LuluChatMessage
     fun markFailed(messageId: String)
     fun markConversationRead(conversationId: String)
     fun editMessage(messageId: String, content: String): Boolean
     fun deleteMessage(messageId: String): Boolean
     fun toggleFavorite(messageId: String): Boolean
-    fun createBranch(conversationId: String, fromMessageId: String): LuluConversation?
 }
 
 /** Retains the old class name while using persistent local storage. */
@@ -313,11 +315,28 @@ class InMemoryLuluChatStore : LuluChatStore {
     override fun appendSystemMessage(conversationId: String, content: String): LuluChatMessage {
         val clean = content.trim()
         require(clean.isNotEmpty()) { "Message content cannot be blank" }
+        val requested = conversationState.value.firstOrNull { it.id == conversationId }
+        val effectiveConversationId = if (clean.startsWith("[共同活动]") && requested?.groupChat != null) {
+            val character = MigratedDomainStores.characters.get(requested.characterId)
+            ensureConversation(requested.characterId, character.displayName).id
+        } else {
+            conversationId
+        }
         return LuluChatMessage(
-            conversationId = conversationId,
+            conversationId = effectiveConversationId,
             sender = LuluChatMessage.Sender.System,
             content = clean,
-        ).also { message -> append(conversationId, message, incrementUnread = false) }
+        ).also { message -> append(effectiveConversationId, message, incrementUnread = false) }
+    }
+
+    override fun appendPrivateActivityNotice(characterId: String, content: String): LuluChatMessage {
+        val cleanCharacterId = characterId.trim().ifBlank { "lulu" }
+        val character = MigratedDomainStores.characters.get(cleanCharacterId)
+        val conversation = ensureConversation(cleanCharacterId, character.displayName)
+        val notice = content.trim().let { text ->
+            if (text.startsWith("[共同活动]")) text else "[共同活动] $text"
+        }
+        return appendSystemMessage(conversation.id, notice)
     }
 
     override fun markFailed(messageId: String) {
@@ -373,39 +392,6 @@ class InMemoryLuluChatStore : LuluChatStore {
     override fun toggleFavorite(messageId: String): Boolean = mutateMessagesContaining(messageId) { messages ->
         messages.map { message ->
             if (message.id == messageId) message.copy(favorite = !message.favorite) else message
-        }
-    }
-
-    override fun createBranch(conversationId: String, fromMessageId: String): LuluConversation? {
-        synchronized(lock) {
-            val sourceMessages = messageStates[conversationId]?.value.orEmpty()
-            val originIndex = sourceMessages.indexOfFirst { message -> message.id == fromMessageId }
-            if (originIndex < 0) return null
-            val sourceConversation = conversationState.value.firstOrNull { conversation -> conversation.id == conversationId }
-                ?: return null
-            val branchId = UUID.randomUUID().toString()
-            val copiedMessages = sourceMessages.take(originIndex + 1).map { message ->
-                message.copy(
-                    id = UUID.randomUUID().toString(),
-                    conversationId = branchId,
-                    branchOriginMessageId = if (message.id == fromMessageId) fromMessageId else message.branchOriginMessageId,
-                )
-            }
-            val branch = LuluConversation(
-                id = branchId,
-                characterId = sourceConversation.characterId,
-                title = "${sourceConversation.title} · 分支",
-                lastMessage = copiedMessages.lastOrNull()?.content.orEmpty(),
-                updatedAt = Instant.now(),
-                parentConversationId = conversationId,
-                branchOriginMessageId = fromMessageId,
-                groupChat = sourceConversation.groupChat,
-            )
-            messageStates[branchId] = MutableStateFlow(copiedMessages)
-            conversationState.value = (listOf(branch) + conversationState.value)
-                .sortedByDescending(LuluConversation::updatedAt)
-            persistLocked()
-            return branch
         }
     }
 
