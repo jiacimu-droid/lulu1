@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`2c0f48a28feeb5790efbb403752deb44f5f6289d`
+- 基准提交：`4581314c8a027ed25376ef2735cdfa4c772e1c3d`
 - 分支：`main`
 - 已索引文件：114
-- 已索引代码/文本行：30419
-- 已发现符号：507
+- 已索引代码/文本行：30360
+- 已发现符号：504
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -78,7 +78,7 @@
 | `app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt` | 898 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 270 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 324 | 17 |
-| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 142 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 88 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 808 | 32 |
 | `app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt` | 208 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt` | 65 | 4 |
@@ -102,7 +102,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudySaveableCompat.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudySaveableInputsCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt` | 219 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 125 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 120 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt` | 511 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 106 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 267 | 9 |

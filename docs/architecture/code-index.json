@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T11:21:24.651245+00:00",
-  "commit": "2c0f48a28feeb5790efbb403752deb44f5f6289d",
+  "generatedAt": "2026-08-06T11:22:04.513085+00:00",
+  "commit": "4581314c8a027ed25376ef2735cdfa4c772e1c3d",
   "branch": "main",
-  "sourceFingerprint": "ab69bd6da64aaf464532de9b81e3c5b4311d21c473ca6413aed5da600267041e",
+  "sourceFingerprint": "4e8502046748966d428116445bac3589dd33dbe7f519d12ad23fe909da3e2326",
   "summary": {
     "files": 114,
-    "lines": 30419,
-    "symbols": 507
+    "lines": 30360,
+    "symbols": 504
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -2027,7 +2027,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
-        "line": 40
+        "line": 28
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt",
@@ -2253,13 +2253,7 @@
     "PostgraduateExamApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
-        "line": 21
-      }
-    ],
-    "openFocus": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
-        "line": 32
+        "line": 19
       }
     ],
     "PostgraduateExamStore": [
@@ -2784,18 +2778,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
         "line": 32
-      }
-    ],
-    "Section": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt",
-        "line": 37
-      }
-    ],
-    "Focus": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt",
-        "line": 38
       }
     ],
     "LuluAccessibilityService": [
@@ -4860,20 +4842,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
-      "lines": 142,
-      "sha256": "2e725fd20457ba72ed87fdb6cab363a82dc131767130c0aa2534c26fc88522fa",
+      "lines": 88,
+      "sha256": "a40f3b6526abf3c2f2c0092d352069fbf52504470133e6b3e08e74b4644b901d",
       "symbols": [
         {
           "name": "PostgraduateExamApp",
-          "line": 21
-        },
-        {
-          "name": "openFocus",
-          "line": 32
+          "line": 19
         },
         {
           "name": "stepBack",
-          "line": 40
+          "line": 28
         }
       ]
     },
@@ -5479,18 +5457,9 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt",
-      "lines": 125,
-      "sha256": "da8e3836622322d3bd8843728d91b4f4db2e04902c1ccd538d7446c15c538415",
-      "symbols": [
-        {
-          "name": "Section",
-          "line": 37
-        },
-        {
-          "name": "Focus",
-          "line": 38
-        }
-      ]
+      "lines": 120,
+      "sha256": "7c5353b50b842b85280f8d44a6ec96d9e800d9eedcdf788cbae9e717b41d9e12",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt",
