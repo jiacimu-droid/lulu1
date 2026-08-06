@@ -19,6 +19,7 @@ import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.UserDataUpgradeGuard
 import com.jiacimu.lulu.data.UserProfileContext
 import com.jiacimu.lulu.games.LuluGames
+import com.jiacimu.lulu.health.HealthCycleStore
 import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.SelfDirectedStudyPlanSeed
 import com.jiacimu.lulu.study.StarWishStores
@@ -41,6 +42,7 @@ class MigrationActivity : ComponentActivity() {
         MomentsStore.initialize(appContext)
         SharedExperienceTimeline.backfillChatHistory()
         CompanionPresenceStore.initialize(appContext)
+        HealthCycleStore.initialize(appContext)
         LuluAiServices.initialize(appContext)
         MemoryModelRuntime.initialize(appContext)
         UserDataUpgradeGuard.refreshBackup(appContext)
