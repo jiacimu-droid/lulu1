@@ -78,8 +78,8 @@ internal object HealthCycleStore {
                 !existing.startDate.isAfter(mergedEnd.plusDays(1))
             val candidateStart = minOf(existing.startDate, mergedStart)
             val candidateEnd = maxOf(existing.endDate, mergedEnd)
-            val candidateLength = ChronoUnit.DAYS.between(candidateStart, candidateEnd) + 1
-            if (touches && candidateLength in 1..15) {
+            val candidateLength = ChronoUnit.DAYS.between(candidateStart, candidateEnd) + 1L
+            if (touches && candidateLength in 1L..15L) {
                 retainedId = retainedId ?: existing.id
                 mergedStart = candidateStart
                 mergedEnd = candidateEnd
@@ -187,7 +187,10 @@ internal object HealthCycleStore {
                 val previous = merged.lastOrNull()
                 val touches = previous != null &&
                     !previous.endDate.isBefore(record.startDate.minusDays(1)) &&
-                    ChronoUnit.DAYS.between(minOf(previous.startDate, record.startDate), maxOf(previous.endDate, record.endDate)) + 1 <= 15
+                    ChronoUnit.DAYS.between(
+                        minOf(previous.startDate, record.startDate),
+                        maxOf(previous.endDate, record.endDate),
+                    ) + 1L <= 15L
                 if (previous != null && touches) {
                     merged[merged.lastIndex] = previous.copy(
                         startDate = minOf(previous.startDate, record.startDate),
