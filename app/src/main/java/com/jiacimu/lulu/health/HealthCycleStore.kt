@@ -27,12 +27,12 @@ internal data class PeriodRecord(
     val id: String,
     val startDate: LocalDate,
     val endDate: LocalDate,
+    val endConfirmed: Boolean = true,
 )
 
 internal data class HealthCycleState(
     val records: List<PeriodRecord> = emptyList(),
     val reminderEnabled: Boolean = true,
-    val reminderDaysBefore: Int = 3,
 )
 
 internal data class PeriodPrediction(
@@ -60,32 +60,50 @@ internal object HealthCycleStore {
         HealthPeriodReminderScheduler.reschedule(context!!, mutableState.value)
     }
 
+    /**
+     * Saves one marked period range. A single selected day means that only the start is known yet.
+     * Later selections that overlap or directly continue that mark are folded into the same record,
+     * so choosing 8/6 first and 8/6—8/10 later never creates two competing entries.
+     */
     @Synchronized
-    fun savePeriod(first: LocalDate, second: LocalDate) {
-        val start = minOf(first, second)
-        val end = maxOf(first, second)
-        val record = PeriodRecord(UUID.randomUUID().toString(), start, end)
-        val records = mutableState.value.records
-            .filterNot { it.startDate == start && it.endDate == end }
-            .plus(record)
-            .sortedByDescending { it.startDate }
+    fun savePeriod(first: LocalDate, second: LocalDate?) {
+        var mergedStart = second?.let { minOf(first, it) } ?: first
+        var mergedEnd = second?.let { maxOf(first, it) } ?: first
+        var endConfirmed = second != null
+        var retainedId: String? = null
+        val remaining = mutableListOf<PeriodRecord>()
+
+        mutableState.value.records.sortedBy(PeriodRecord::startDate).forEach { existing ->
+            val touches = !existing.endDate.isBefore(mergedStart.minusDays(1)) &&
+                !existing.startDate.isAfter(mergedEnd.plusDays(1))
+            val candidateStart = minOf(existing.startDate, mergedStart)
+            val candidateEnd = maxOf(existing.endDate, mergedEnd)
+            val candidateLength = ChronoUnit.DAYS.between(candidateStart, candidateEnd) + 1
+            if (touches && candidateLength in 1..15) {
+                retainedId = retainedId ?: existing.id
+                mergedStart = candidateStart
+                mergedEnd = candidateEnd
+                endConfirmed = endConfirmed || existing.endConfirmed
+            } else {
+                remaining += existing
+            }
+        }
+
+        val merged = PeriodRecord(
+            id = retainedId ?: UUID.randomUUID().toString(),
+            startDate = mergedStart,
+            endDate = mergedEnd,
+            endConfirmed = endConfirmed,
+        )
+        val records = (remaining + merged)
+            .sortedByDescending(PeriodRecord::startDate)
             .take(48)
         persist(mutableState.value.copy(records = records))
     }
 
     @Synchronized
-    fun deletePeriod(id: String) {
-        persist(mutableState.value.copy(records = mutableState.value.records.filterNot { it.id == id }))
-    }
-
-    @Synchronized
     fun setReminderEnabled(enabled: Boolean) {
         persist(mutableState.value.copy(reminderEnabled = enabled))
-    }
-
-    @Synchronized
-    fun setReminderDaysBefore(days: Int) {
-        persist(mutableState.value.copy(reminderDaysBefore = days.coerceIn(0, 14)))
     }
 
     fun prediction(value: HealthCycleState = mutableState.value): PeriodPrediction? {
@@ -110,9 +128,10 @@ internal object HealthCycleStore {
     }
 
     private fun averagePeriodDays(records: List<PeriodRecord>): Int {
-        val lengths = records.map {
-            ChronoUnit.DAYS.between(it.startDate, it.endDate).toInt() + 1
-        }.filter { it in 1..15 }
+        val lengths = records
+            .filter(PeriodRecord::endConfirmed)
+            .map { ChronoUnit.DAYS.between(it.startDate, it.endDate).toInt() + 1 }
+            .filter { it in 1..15 }
         return if (lengths.isEmpty()) 5 else lengths.average().roundToInt().coerceIn(1, 15)
     }
 
@@ -128,14 +147,14 @@ internal object HealthCycleStore {
 
     private fun encode(value: HealthCycleState): JSONObject = JSONObject().apply {
         put("reminderEnabled", value.reminderEnabled)
-        put("reminderDaysBefore", value.reminderDaysBefore)
         put("records", JSONArray().apply {
             value.records.forEach { record ->
                 put(
                     JSONObject()
                         .put("id", record.id)
                         .put("start", record.startDate.toString())
-                        .put("end", record.endDate.toString()),
+                        .put("end", record.endDate.toString())
+                        .put("endConfirmed", record.endConfirmed),
                 )
             }
         })
@@ -154,14 +173,36 @@ internal object HealthCycleStore {
                         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
                         startDate = minOf(start, end),
                         endDate = maxOf(start, end),
+                        endConfirmed = if (item.has("endConfirmed")) {
+                            item.optBoolean("endConfirmed")
+                        } else {
+                            start != end
+                        },
                     ),
                 )
             }
-        }.sortedByDescending { it.startDate }
+        }
+            .sortedBy(PeriodRecord::startDate)
+            .fold(mutableListOf<PeriodRecord>()) { merged, record ->
+                val previous = merged.lastOrNull()
+                val touches = previous != null &&
+                    !previous.endDate.isBefore(record.startDate.minusDays(1)) &&
+                    ChronoUnit.DAYS.between(minOf(previous.startDate, record.startDate), maxOf(previous.endDate, record.endDate)) + 1 <= 15
+                if (previous != null && touches) {
+                    merged[merged.lastIndex] = previous.copy(
+                        startDate = minOf(previous.startDate, record.startDate),
+                        endDate = maxOf(previous.endDate, record.endDate),
+                        endConfirmed = previous.endConfirmed || record.endConfirmed,
+                    )
+                } else {
+                    merged += record
+                }
+                merged
+            }
+            .sortedByDescending(PeriodRecord::startDate)
         HealthCycleState(
             records = records,
             reminderEnabled = root.optBoolean("reminderEnabled", true),
-            reminderDaysBefore = root.optInt("reminderDaysBefore", 3).coerceIn(0, 14),
         )
     }.getOrDefault(HealthCycleState())
 }
@@ -181,7 +222,7 @@ internal object HealthPeriodReminderScheduler {
         manager.cancel(operation)
         if (!state.reminderEnabled) return
         val prediction = HealthCycleStore.prediction(state) ?: return
-        val reminderDate = prediction.startDate.minusDays(state.reminderDaysBefore.toLong())
+        val reminderDate = prediction.startDate.minusDays(1)
         val trigger = reminderDate.atTime(LocalTime.of(9, 0)).atZone(ZoneId.systemDefault()).toInstant()
         if (!trigger.isAfter(Instant.now())) return
         runCatching {
@@ -213,7 +254,7 @@ class HealthPeriodReminderReceiver : BroadcastReceiver() {
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle("经期可能快到了")
-            .setContentText("预计从 ${formatHealthDate(prediction.startDate)} 开始")
+            .setContentText("预计明天（${formatHealthDate(prediction.startDate)}）开始")
             .setContentIntent(openApp)
             .setAutoCancel(true)
             .build()
