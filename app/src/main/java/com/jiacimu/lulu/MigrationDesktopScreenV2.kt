@@ -47,6 +47,7 @@ private val DesktopV2Launchers = listOf(
     DesktopV2Launcher("lexicon", "辞海", Icons.Outlined.MenuBook, MigrationRoute.Lexicon),
     DesktopV2Launcher("worldbook", "世界书", Icons.Outlined.Public, MigrationRoute.WorldBook),
     DesktopV2Launcher("performance", "性能监测", Icons.Outlined.MonitorHeart, MigrationRoute.Performance),
+    DesktopV2Launcher("health", "健康", Icons.Outlined.FavoriteBorder, MigrationRoute.Health),
     DesktopV2Launcher("reading", "阅读", Icons.Outlined.AutoStories, MigrationRoute.Reading),
     DesktopV2Launcher("wishes", "心愿馆", Icons.Outlined.StarOutline, MigrationRoute.Wishes),
     DesktopV2Launcher("study", "考研", Icons.Outlined.School, MigrationRoute.Study),
