@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`185da026cf6d5a1c89c4c078e05d8ea5864cc951`
+- 基准提交：`94a33b31e0a2f2ca01332b03bb81bc6e6dae24e0`
 - 分支：`main`
 - 已索引文件：113
-- 已索引代码/文本行：29566
-- 已发现符号：494
+- 已索引代码/文本行：29189
+- 已发现符号：485
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -77,7 +77,7 @@
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 440 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt` | 393 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt` | 239 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt` | 898 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt` | 521 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 270 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 324 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 88 | 2 |

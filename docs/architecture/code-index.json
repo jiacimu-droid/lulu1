@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T14:55:14.954104+00:00",
-  "commit": "185da026cf6d5a1c89c4c078e05d8ea5864cc951",
+  "generatedAt": "2026-08-06T14:56:22.693606+00:00",
+  "commit": "94a33b31e0a2f2ca01332b03bb81bc6e6dae24e0",
   "branch": "main",
-  "sourceFingerprint": "f496b811e02a3951d99852b5f60983e61bc640ea0d2808abd435e82c92116111",
+  "sourceFingerprint": "fa6cdc5306a7146d7c26cc05562dcfb69bef73dd535ce72a29758a4e5ee7223b",
   "summary": {
     "files": 113,
-    "lines": 29566,
-    "symbols": 494
+    "lines": 29189,
+    "symbols": 485
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -380,10 +380,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
         "line": 54
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 94
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
@@ -2068,92 +2064,60 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
         "line": 64
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 103
       }
     ],
     "deletePeriod": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
         "line": 77
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 116
       }
     ],
     "setReminderEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
         "line": 82
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 121
       }
     ],
     "setReminderDaysBefore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
         "line": 87
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 126
       }
     ],
     "prediction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
         "line": 90
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 129
       }
     ],
     "reschedule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
         "line": 171
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 832
       }
     ],
     "HealthPeriodReminderReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
         "line": 194
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 855
       }
     ],
     "HealthReminderBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
         "line": 228
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 889
       }
     ],
     "HealthFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 210
+        "line": 56
       }
     ],
     "changeReminder": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 235
+        "line": 169
       }
     ],
     "LuluReadingScreen": [
@@ -4726,52 +4690,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-      "lines": 898,
-      "sha256": "ca42d19221748dabcb5b2873e728455f78bbf964a6a49af7aef68de379906202",
+      "lines": 521,
+      "sha256": "b719b4e564b7b281cd60cd3623dd6b8b3d45954ffa8da1b1556bb7c7eba20782",
       "symbols": [
         {
-          "name": "initialize",
-          "line": 94
-        },
-        {
-          "name": "savePeriod",
-          "line": 103
-        },
-        {
-          "name": "deletePeriod",
-          "line": 116
-        },
-        {
-          "name": "setReminderEnabled",
-          "line": 121
-        },
-        {
-          "name": "setReminderDaysBefore",
-          "line": 126
-        },
-        {
-          "name": "prediction",
-          "line": 129
-        },
-        {
           "name": "HealthFeatureScreen",
-          "line": 210
+          "line": 56
         },
         {
           "name": "changeReminder",
-          "line": 235
-        },
-        {
-          "name": "reschedule",
-          "line": 832
-        },
-        {
-          "name": "HealthPeriodReminderReceiver",
-          "line": 855
-        },
-        {
-          "name": "HealthReminderBootReceiver",
-          "line": 889
+          "line": 169
         }
       ]
     },
