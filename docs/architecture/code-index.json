@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T11:22:04.513085+00:00",
-  "commit": "4581314c8a027ed25376ef2735cdfa4c772e1c3d",
+  "generatedAt": "2026-08-06T11:23:00.275796+00:00",
+  "commit": "ac76295ebc6254efd483d8596cedffaf335bf0f2",
   "branch": "main",
-  "sourceFingerprint": "4e8502046748966d428116445bac3589dd33dbe7f519d12ad23fe909da3e2326",
+  "sourceFingerprint": "b44af743e7d95673838b5cd2c86c3228775c88061dc41c540dc3d2d8bf09c84c",
   "summary": {
-    "files": 114,
-    "lines": 30360,
-    "symbols": 504
+    "files": 111,
+    "lines": 29168,
+    "symbols": 480
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -119,43 +119,43 @@
     "LuluMigrationRootAppV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 31
+        "line": 28
       }
     ],
     "characterIdForConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 62
+        "line": 57
       }
     ],
     "selectConversationCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 68
+        "line": 63
       }
     ],
     "pushRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 72
+        "line": 67
       }
     ],
     "openConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 76
+        "line": 71
       }
     ],
     "popRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 83
+        "line": 78
       }
     ],
     "replaceTop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 87
+        "line": 82
       }
     ],
     "LuluSettingsHomeScreen": [
@@ -196,10 +196,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
         "line": 131
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 199
       }
     ],
     "stop": [
@@ -424,10 +420,6 @@
         "line": 252
       },
       {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 202
-      },
-      {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
         "line": 36
       },
@@ -640,10 +632,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
         "line": 245
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 190
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -2128,20 +2116,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
         "line": 78
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 83
       }
     ],
     "updateAutomaticDialogue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
         "line": 82
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 91
       }
     ],
     "beginSession": [
@@ -2152,38 +2132,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
         "line": 181
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 203
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 95
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 207
       }
     ],
     "markOpeningHandled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
         "line": 107
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 116
       }
     ],
     "markCompletionHandled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
         "line": 109
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 120
       }
     ],
     "clearSession": [
@@ -2194,14 +2154,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
         "line": 185
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 124
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 211
       }
     ],
     "PomodoroCompanionSessions": [
@@ -2214,40 +2166,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
         "line": 187
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 215
       }
     ],
     "requestOpeningLine": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
         "line": 192
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 220
       }
     ],
     "handleNaturalCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
         "line": 235
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 261
       }
     ],
     "completeSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
         "line": 245
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 271
       }
     ],
     "PostgraduateExamApp": [
@@ -2486,10 +2422,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt",
         "line": 132
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 252
       }
     ],
     "defaultPrompts": [
@@ -2712,48 +2644,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
         "line": 168
-      }
-    ],
-    "settle": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 235
-      }
-    ],
-    "sendFocusChat": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-        "line": 274
-      }
-    ],
-    "StudyFocusTheme": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 18
-      }
-    ],
-    "StudyFocusPreferences": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 23
-      }
-    ],
-    "StudyFocusSessionStore": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 78
-      }
-    ],
-    "updateTheme": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 87
-      }
-    ],
-    "StudyFocusSessions": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-        "line": 194
       }
     ],
     "draw": [
@@ -3045,36 +2935,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 246,
-      "sha256": "e936b129861c30437da9ca5fe3d6145c9be761686531dd49c206de5624f87c13",
+      "lines": 219,
+      "sha256": "529a2489c0075d38c05d0d29a40e4a9b234e3c267e35fd78174256e1d1362a2d",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
-          "line": 31
+          "line": 28
         },
         {
           "name": "characterIdForConversation",
-          "line": 62
+          "line": 57
         },
         {
           "name": "selectConversationCharacter",
-          "line": 68
+          "line": 63
         },
         {
           "name": "pushRoute",
-          "line": 72
+          "line": 67
         },
         {
           "name": "openConversation",
-          "line": 76
+          "line": 71
         },
         {
           "name": "popRoute",
-          "line": 83
+          "line": 78
         },
         {
           "name": "replaceTop",
-          "line": 87
+          "line": 82
         }
       ]
     },
@@ -5283,122 +5173,6 @@
         {
           "name": "vocabulary",
           "line": 168
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusComplete.kt",
-      "lines": 713,
-      "sha256": "51b08980abcc5a7bb1eb809c160401fd14dcd3ae596f1ba75858f84d598afdf0",
-      "symbols": [
-        {
-          "name": "speak",
-          "line": 199
-        },
-        {
-          "name": "beginSession",
-          "line": 203
-        },
-        {
-          "name": "settle",
-          "line": 235
-        },
-        {
-          "name": "finishEarly",
-          "line": 252
-        },
-        {
-          "name": "sendFocusChat",
-          "line": 274
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusConversationGuard.kt",
-      "lines": 104,
-      "sha256": "1813713807b9877b32016e834130b87965cac5af67a1be86fd2c97bc8a288fe1",
-      "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyFocusSession.kt",
-      "lines": 348,
-      "sha256": "9d8f3464dcc4f21820215582421ca32c1851415bc82afbe4b2bb355e6bcf25e7",
-      "symbols": [
-        {
-          "name": "StudyFocusTheme",
-          "line": 18
-        },
-        {
-          "name": "StudyFocusPreferences",
-          "line": 23
-        },
-        {
-          "name": "StudyFocusSessionStore",
-          "line": 78
-        },
-        {
-          "name": "updateTask",
-          "line": 83
-        },
-        {
-          "name": "updateTheme",
-          "line": 87
-        },
-        {
-          "name": "updateAutomaticDialogue",
-          "line": 91
-        },
-        {
-          "name": "beginSession",
-          "line": 95
-        },
-        {
-          "name": "markOpeningHandled",
-          "line": 116
-        },
-        {
-          "name": "markCompletionHandled",
-          "line": 120
-        },
-        {
-          "name": "clearSession",
-          "line": 124
-        },
-        {
-          "name": "create",
-          "line": 190
-        },
-        {
-          "name": "StudyFocusSessions",
-          "line": 194
-        },
-        {
-          "name": "initialize",
-          "line": 202
-        },
-        {
-          "name": "beginSession",
-          "line": 207
-        },
-        {
-          "name": "clearSession",
-          "line": 211
-        },
-        {
-          "name": "speakIfEnabled",
-          "line": 215
-        },
-        {
-          "name": "requestOpeningLine",
-          "line": 220
-        },
-        {
-          "name": "handleNaturalCompletion",
-          "line": 261
-        },
-        {
-          "name": "completeSession",
-          "line": 271
         }
       ]
     },
