@@ -4,6 +4,8 @@ import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.core.DurationSummary
 import com.jiacimu.lulu.core.MemoryEntry
 import com.jiacimu.lulu.core.MemoryKind
+import com.jiacimu.lulu.study.PostgraduateExamStores
+import com.jiacimu.lulu.study.StudyState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -11,10 +13,13 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.time.Instant
+import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 
 /**
- * Keeps the performance duration summary available to every character through the normal
+ * Keeps calendar-scoped study duration facts available to every character through the normal
  * companion context path. The record uses a stable id, so updates replace one system fact
  * instead of producing an endless stream of duplicate memories.
  */
@@ -28,27 +33,30 @@ object RoleReadablePerformanceBridge {
                 combine(
                     LuluRepositories.performance.observeDurations(),
                     MigratedDomainStores.characters.settings,
-                ) { durations, characters -> durations to characters.values.toList() }
-                    .collectLatest { (durations, characters) ->
-                        if (durations.isEmpty()) return@collectLatest
-                        val now = Instant.now()
-                        characters.forEach { character ->
-                            LuluRepositories.memory.save(
-                                MemoryEntry(
-                                    id = "system-duration-${character.characterId}",
-                                    characterId = character.characterId,
-                                    content = durations.toCompanionFact(),
-                                    kind = MemoryKind.Fact,
-                                    source = "性能监测",
-                                    occurredAt = now,
-                                    createdAt = now,
-                                    strength = 10,
-                                    pinned = true,
-                                    canRecallProactively = true,
-                                ),
-                            )
-                        }
+                    PostgraduateExamStores.main.state,
+                ) { durations, characters, studyState ->
+                    Triple(durations, characters.values.toList(), studyState)
+                }.collectLatest { (durations, characters, studyState) ->
+                    if (durations.isEmpty() && studyState.profile.totalStudyMinutes <= 0) return@collectLatest
+                    val now = Instant.now()
+                    val today = LocalDate.now()
+                    characters.forEach { character ->
+                        LuluRepositories.memory.save(
+                            MemoryEntry(
+                                id = "system-duration-${character.characterId}",
+                                characterId = character.characterId,
+                                content = durations.toCompanionFact(studyState, today),
+                                kind = MemoryKind.Fact,
+                                source = "学习与时长统计",
+                                occurredAt = now,
+                                createdAt = now,
+                                strength = 10,
+                                pinned = true,
+                                canRecallProactively = true,
+                            ),
+                        )
                     }
+                }
             }
         }
     }
@@ -61,8 +69,21 @@ object RoleReadablePerformanceBridge {
     private fun DurationSummary.isEmpty(): Boolean =
         studyMinutes <= 0 && chatMinutes <= 0 && callMinutes <= 0
 
-    private fun DurationSummary.toCompanionFact(): String =
-        "性能监测当前记录：用户累计有效学习 ${studyMinutes.coerceAtLeast(0)} 分钟，" +
-            "聊天 ${chatMinutes.coerceAtLeast(0)} 分钟，通话 ${callMinutes.coerceAtLeast(0)} 分钟。" +
-            "这是应用内累计数据，角色回答相关问题时应直接使用，不要猜测。"
+    private fun DurationSummary.toCompanionFact(studyState: StudyState, today: LocalDate): String {
+        val weekStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val weekEnd = weekStart.plusDays(6)
+        val todayMinutes = studyState.dailyStudyMinutes[today.toString()]?.coerceAtLeast(0) ?: 0
+        val weekMinutes = (0L..6L).sumOf { offset ->
+            studyState.dailyStudyMinutes[weekStart.plusDays(offset).toString()]?.coerceAtLeast(0) ?: 0
+        }
+        val totalMinutes = studyState.profile.totalStudyMinutes.coerceAtLeast(0)
+        return buildString {
+            appendLine("学习时间事实（设备本地日期 $today）：")
+            appendLine("- 今天（$today）：$todayMinutes 分钟。")
+            appendLine("- 本周（$weekStart 至 $weekEnd）：$weekMinutes 分钟。")
+            appendLine("- 历史累计：$totalMinutes 分钟。")
+            appendLine("今天、本周与历史累计是三个不同口径，绝对不可互换。不得把前几天、本周累计或历史累计的时长说成今天完成；谈到旧记录时必须说清对应日期或使用‘之前’‘那天’‘本周累计’。")
+            append("其他应用内累计：聊天 ${chatMinutes.coerceAtLeast(0)} 分钟，通话 ${callMinutes.coerceAtLeast(0)} 分钟。")
+        }
+    }
 }
