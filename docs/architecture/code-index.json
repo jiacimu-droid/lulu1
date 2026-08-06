@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T11:04:08.359425+00:00",
-  "commit": "df6f4f569541d0a02693132bdbaeeb2b5cbf504e",
+  "generatedAt": "2026-08-06T11:06:02.487082+00:00",
+  "commit": "2fbd066278525174826ade5272e060e22174147b",
   "branch": "main",
-  "sourceFingerprint": "74baeeb1931a566b5944f67d222c2ab0ae1845a1660d9a6d6fb7e28d67fe5411",
+  "sourceFingerprint": "6e927df62b5f35627e51afee914b7e4a039f94e4ff89580a5c93505cf8e39c1a",
   "summary": {
     "files": 112,
-    "lines": 29654,
+    "lines": 29748,
     "symbols": 483
   },
   "symbolIndex": {
@@ -409,7 +409,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 92
+        "line": 94
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
@@ -2017,61 +2017,61 @@
     "savePeriod": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 101
+        "line": 103
       }
     ],
     "deletePeriod": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 114
+        "line": 116
       }
     ],
     "setReminderEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 119
+        "line": 121
       }
     ],
     "setReminderDaysBefore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 124
+        "line": 126
       }
     ],
     "prediction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 127
+        "line": 129
       }
     ],
     "HealthFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 208
+        "line": 210
       }
     ],
     "changeReminder": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 233
+        "line": 235
       }
     ],
     "reschedule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 738
+        "line": 832
       }
     ],
     "HealthPeriodReminderReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 761
+        "line": 855
       }
     ],
     "HealthReminderBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 795
+        "line": 889
       }
     ],
     "LuluReadingScreen": [
@@ -4586,52 +4586,52 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-      "lines": 804,
-      "sha256": "29a6f1dbe70271c4da465b7c6e902c1b37736bc97566641e3cf07fbe494a1a94",
+      "lines": 898,
+      "sha256": "ca42d19221748dabcb5b2873e728455f78bbf964a6a49af7aef68de379906202",
       "symbols": [
         {
           "name": "initialize",
-          "line": 92
+          "line": 94
         },
         {
           "name": "savePeriod",
-          "line": 101
+          "line": 103
         },
         {
           "name": "deletePeriod",
-          "line": 114
+          "line": 116
         },
         {
           "name": "setReminderEnabled",
-          "line": 119
+          "line": 121
         },
         {
           "name": "setReminderDaysBefore",
-          "line": 124
+          "line": 126
         },
         {
           "name": "prediction",
-          "line": 127
+          "line": 129
         },
         {
           "name": "HealthFeatureScreen",
-          "line": 208
+          "line": 210
         },
         {
           "name": "changeReminder",
-          "line": 233
+          "line": 235
         },
         {
           "name": "reschedule",
-          "line": 738
+          "line": 832
         },
         {
           "name": "HealthPeriodReminderReceiver",
-          "line": 761
+          "line": 855
         },
         {
           "name": "HealthReminderBootReceiver",
-          "line": 795
+          "line": 889
         }
       ]
     },
