@@ -1,23 +1,18 @@
 package com.jiacimu.lulu
 
 import android.Manifest
-import android.content.pm.PackageManager
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -37,35 +32,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.ai.archiveIdFor
+import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.LuluChatMessage
-import com.jiacimu.lulu.data.LuluGroupChat
 import com.jiacimu.lulu.data.MigratedDomainStores
-import com.jiacimu.lulu.data.CompanionPresenceStore
-import com.jiacimu.lulu.data.UserProfileContext
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.time.Duration
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
-private val QqPage = Color(0xFFFFFFFF)
-private val QqHeader = Color(0xFFFCFCFC)
-private val QqMine = Color(0xFF292929)
-private val QqMineInk = Color(0xFFFFFFFF)
-private val QqOther = Color(0xFFF4F4F4)
-private val QqMuted = Color(0xFF7A7A7E)
-private val QqInk = Color(0xFF1D1D1F)
-private val QqBorder = Color(0xFFE7E7E7)
-private val QqIconSurface = Color(0xFFF4F4F4)
+internal val QqPage = Color(0xFFFFFFFF)
+internal val QqHeader = Color(0xFFFCFCFC)
+internal val QqMine = Color(0xFF292929)
+internal val QqMineInk = Color(0xFFFFFFFF)
+internal val QqOther = Color(0xFFF4F4F4)
+internal val QqMuted = Color(0xFF7A7A7E)
+internal val QqInk = Color(0xFF1D1D1F)
+internal val QqBorder = Color(0xFFE7E7E7)
+internal val QqIconSurface = Color(0xFFF4F4F4)
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun QqStyleChatDetailScreen(
     conversationId: String,
@@ -720,425 +712,4 @@ fun QqStyleChatDetailScreen(
             }
         }
     }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun QqMessageRow(
-    message: LuluChatMessage,
-    characterName: String,
-    characterAvatarUri: String?,
-    characterLabel: String,
-    showCharacterName: Boolean,
-    repliedMessageContent: String?,
-    showAvatar: Boolean,
-    showTime: Boolean,
-    userAvatar: String,
-    userAvatarUri: String?,
-    onCharacterAvatarClick: () -> Unit,
-    onLongClick: () -> Unit,
-    onAcceptGame: (String) -> Unit,
-) {
-    if (message.sender == LuluChatMessage.Sender.System) {
-        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Surface(
-                color = Color(0xFFF1F1F1),
-                shape = RoundedCornerShape(99.dp),
-                border = BorderStroke(1.dp, QqBorder),
-            ) {
-                Text(
-                    message.content.removePrefix("[共同活动]").removePrefix("[群成员变更]").trim(),
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
-                    color = QqMuted,
-                    fontSize = 11.sp,
-                )
-            }
-        }
-        return
-    }
-    val mine = message.sender == LuluChatMessage.Sender.User
-    val gameInvite = remember(message.content, mine) { if (mine) null else parseGameInvite(message.content) }
-    val visibleContent = gameInvite?.message ?: message.content
-    val bubbles = remember(visibleContent, mine, gameInvite) {
-        when {
-            gameInvite != null -> emptyList()
-            mine -> listOf(visibleContent)
-            else -> splitCharacterBubbles(visibleContent)
-        }
-    }
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Top,
-    ) {
-        Box(Modifier.width(44.dp), contentAlignment = Alignment.TopCenter) {
-            if (!mine && showAvatar) {
-                QqAvatar(
-                    characterName.take(1).ifBlank { "露" },
-                    44,
-                    characterAvatarUri,
-                    Modifier.clickable(onClick = onCharacterAvatarClick),
-                )
-            }
-        }
-        Spacer(Modifier.width(9.dp))
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = if (mine) Alignment.End else Alignment.Start,
-        ) {
-            if (!mine && showCharacterName && showAvatar) {
-                Text(
-                    characterLabel,
-                    color = QqMuted,
-                    fontSize = 11.sp,
-                    modifier = Modifier.padding(start = 4.dp, bottom = 3.dp),
-                )
-            }
-            if (gameInvite != null) {
-                GameInviteMessageCard(gameInvite, onAccept = { onAcceptGame(gameInvite.gameId) })
-                Spacer(Modifier.height(5.dp))
-            }
-            bubbles.filter { it.isNotBlank() }.forEachIndexed { index, bubble ->
-                val bubbleWidth = if (bubble.length >= 52) Modifier.fillMaxWidth() else Modifier.widthIn(max = 300.dp)
-                Surface(
-                    modifier = bubbleWidth.combinedClickable(onClick = {}, onLongClick = onLongClick),
-                    color = if (mine) QqMine else QqOther,
-                    shape = RoundedCornerShape(15.dp),
-                    border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
-                    shadowElevation = 0.dp,
-                ) {
-                    Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
-                        repliedMessageContent?.let { quoted ->
-                            Surface(
-                                color = if (mine) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.78f),
-                                shape = RoundedCornerShape(8.dp),
-                            ) {
-                                Text(
-                                    quoted,
-                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp),
-                                    color = if (mine) QqMineInk.copy(alpha = 0.72f) else QqMuted,
-                                    fontSize = 11.sp,
-                                    maxLines = 2,
-                                )
-                            }
-                            Spacer(Modifier.height(6.dp))
-                        }
-                        Text(
-                            bubble,
-                            color = if (mine) QqMineInk else QqInk,
-                            fontSize = 15.sp,
-                            lineHeight = 22.sp,
-                        )
-                        if (message.favorite && index == bubbles.lastIndex) {
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                "★ 已收藏",
-                                color = if (mine) Color.White.copy(alpha = 0.68f) else QqMuted,
-                                fontSize = 10.sp,
-                            )
-                        }
-                    }
-                }
-                if (index != bubbles.lastIndex) Spacer(Modifier.height(5.dp))
-            }
-            if (showTime) {
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm")),
-                    color = QqMuted,
-                    fontSize = 10.sp,
-                    textAlign = if (mine) TextAlign.End else TextAlign.Start,
-                    modifier = Modifier.padding(horizontal = 4.dp),
-                )
-            }
-        }
-        Spacer(Modifier.width(9.dp))
-        Box(Modifier.width(44.dp), contentAlignment = Alignment.TopCenter) {
-            if (mine && showAvatar) QqAvatar(userAvatar, 44, userAvatarUri)
-        }
-    }
-}
-
-private data class GameInviteMessage(val gameId: String, val title: String, val message: String)
-
-private fun parseGameInvite(content: String): GameInviteMessage? {
-    val match = Regex("^\\[游戏邀约\\|([^|\\]]+)\\|([^\\]]+)]\\s*(.*)$", RegexOption.DOT_MATCHES_ALL).find(content.trim())
-        ?: return null
-    return GameInviteMessage(
-        gameId = match.groupValues[1].trim(),
-        title = match.groupValues[2].trim().ifBlank { "一起玩游戏" },
-        message = match.groupValues[3].trim(),
-    )
-}
-
-@Composable
-private fun GameInviteMessageCard(invite: GameInviteMessage, onAccept: () -> Unit) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, QqBorder),
-        shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(Modifier.fillMaxWidth()) {
-            Box(
-                modifier = Modifier.fillMaxWidth().height(86.dp).background(Color(0xFF292929)),
-                contentAlignment = Alignment.CenterStart,
-            ) {
-                Row(Modifier.padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Surface(shape = RoundedCornerShape(14.dp), color = Color.White.copy(alpha = 0.14f), modifier = Modifier.size(50.dp)) {
-                        Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.SportsEsports, null, tint = Color.White) }
-                    }
-                    Spacer(Modifier.width(12.dp))
-                    Column {
-                        Text("游戏邀约", color = Color.White.copy(alpha = 0.72f), fontSize = 11.sp)
-                        Text(invite.title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    }
-                }
-            }
-            Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                if (invite.message.isNotBlank()) Text(invite.message, color = QqInk, lineHeight = 20.sp)
-                Button(
-                    onClick = onAccept,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = QqMine, contentColor = Color.White),
-                    shape = RoundedCornerShape(14.dp),
-                ) {
-                    Icon(Icons.Outlined.PlayArrow, null, Modifier.size(19.dp))
-                    Spacer(Modifier.width(5.dp))
-                    Text("接受邀约")
-                }
-            }
-        }
-    }
-}
-
-private fun splitCharacterBubbles(text: String): List<String> {
-    return text.replace("\r\n", "\n").trim()
-        .split(Regex("\n+"))
-        .map(String::trim)
-        .filter(String::isNotBlank)
-}
-
-private const val SemanticBubbleSeparator = "⟪BUBBLE⟫"
-
-private fun normalizeSemanticBubbles(text: String): String {
-    val normalized = text.replace("\r\n", "\n").trim()
-    if (normalized.isBlank()) return ""
-    val semanticBubbles = normalized
-        .split(SemanticBubbleSeparator)
-        .map { bubble -> bubble.trim().trim('"') }
-        .filter(String::isNotBlank)
-    return semanticBubbles.joinToString("\n")
-}
-
-private data class GroupReplyFlow(
-    val content: String,
-    val nextSpeakerName: String?,
-    val shouldEnd: Boolean,
-)
-
-private fun parseGroupReplyFlow(text: String): GroupReplyFlow {
-    val nextMatch = Regex("⟪NEXT\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE).find(text)
-    val visible = text
-        .replace(Regex("⟪NEXT\\s*:\\s*[^⟫]+⟫", RegexOption.IGNORE_CASE), "")
-        .replace(Regex("⟪END⟫", RegexOption.IGNORE_CASE), "")
-        .trim()
-    return GroupReplyFlow(
-        content = normalizeSemanticBubbles(visible),
-        nextSpeakerName = nextMatch?.groupValues?.getOrNull(1)?.trim()?.takeIf(String::isNotBlank),
-        shouldEnd = text.contains("⟪END⟫", ignoreCase = true),
-    )
-}
-
-internal suspend fun runGroupReplies(
-    conversationId: String,
-    group: LuluGroupChat,
-    pendingText: String,
-    initialHistory: String,
-    activeLabel: String,
-    archiveId: String?,
-    characterNames: Map<String, String>,
-    onError: suspend (String) -> Unit,
-    sceneContext: String = "你正在群聊《${group.name}》中。群里的所有消息对在场成员可见。",
-    onSpeakerChange: (String?) -> Unit = {},
-    afterReply: suspend (String, String) -> Unit = { _, _ -> },
-) {
-    val validMembers = group.members.filter { it.characterId in characterNames }
-    if (validMembers.size < 2) {
-        onError("群聊至少需要两个仍然存在的角色")
-        return
-    }
-    val mentioned = validMembers.filter { member ->
-        val name = member.groupNickname.ifBlank { characterNames[member.characterId].orEmpty() }
-        name.isNotBlank() && pendingText.contains("@$name", ignoreCase = true)
-    }
-    val lastSpeaker = MigratedDomainStores.chat.messages(conversationId).value
-        .lastOrNull { it.sender == LuluChatMessage.Sender.Character }
-        ?.authorCharacterId
-    val remaining = validMembers
-        .filterNot { candidate -> mentioned.any { it.characterId == candidate.characterId } }
-        .let { members ->
-            if (members.size > 1 && members.firstOrNull()?.characterId == lastSpeaker) members.drop(1) + members.first()
-            else members
-        }
-    val ordered = mentioned + remaining
-    val explicitAll = pendingText.contains("@全体成员")
-    val replyLimit = when {
-        group.allowCharacterConversation -> group.maxAutoReplies
-        explicitAll -> validMembers.size.coerceAtMost(group.maxAutoReplies)
-        mentioned.isNotEmpty() -> mentioned.size.coerceAtMost(group.maxAutoReplies)
-        else -> 1
-    }.coerceIn(1, 8)
-    val pendingSpeakers = when {
-        explicitAll -> ordered.toMutableList()
-        mentioned.isNotEmpty() -> mentioned.toMutableList()
-        else -> mutableListOf(ordered.first())
-    }
-    var index = 0
-
-    while (index < replyLimit && pendingSpeakers.isNotEmpty()) {
-        val member = pendingSpeakers.removeAt(0)
-        if (!currentCoroutineContext().isActive) return
-        onSpeakerChange(member.characterId)
-        val character = MigratedDomainStores.characters.get(member.characterId)
-        val memberLabel = member.groupNickname.ifBlank { character.displayName }
-        val latestMessages = MigratedDomainStores.chat.messages(conversationId).value
-        val history = if (index == 0) initialHistory else buildBoundedHistory(
-            messages = latestMessages,
-            characterName = memberLabel,
-            characterNames = characterNames,
-        )
-        val memberList = group.members.joinToString("、") { candidate ->
-            candidate.groupNickname.ifBlank { characterNames[candidate.characterId] ?: candidate.characterId }
-        }
-        val groupInput = buildString {
-            appendLine("[这是群聊，不是私聊。群名：${group.name}；群成员：${group.userGroupNickname}、$memberList。]")
-            appendLine("[当前由你（$memberLabel）发言。只代表你自己，严格遵循你的人设和关系边界；不要替别人说话，不要输出姓名标签。]")
-            if (index > 0) {
-                val previousMessage = latestMessages.lastOrNull { it.sender == LuluChatMessage.Sender.Character }
-                val previousName = previousMessage?.authorCharacterId?.let { id ->
-                    group.members.firstOrNull { it.characterId == id }?.groupNickname
-                        ?.ifBlank { characterNames[id].orEmpty() }
-                        ?.ifBlank { "上一位角色" }
-                } ?: "上一位角色"
-                appendLine("[$previousName 刚刚说：${previousMessage?.content?.takeLast(900).orEmpty()}]")
-                appendLine("[你这次主要回应 $previousName，而不是重新回答用户。可以赞同、质疑、追问、开玩笑或补充；如果已经自然说完，也可以让话题停在这里。]")
-            }
-            appendLine("[请按真实聊天的表达节奏决定发几个气泡，不按字数或标点机械切分。一个完整的动作、情绪、观点或紧密相连的句子应留在同一气泡；只有话题转折、独立的反应/追问、或有意停顿时才另开气泡。]")
-            appendLine("[需要分气泡时，只在两个气泡之间输出 $SemanticBubbleSeparator；一个气泡时不要输出标记。不要为了凑数量拆句，也不要输出姓名标签或其他格式说明。]")
-            if (group.allowCharacterConversation) {
-                appendLine("[根据此刻的内容判断群聊是否还会自然继续：若某位成员会接话，在末尾输出 ⟪NEXT:成员名⟫；若已经自然结束，输出 ⟪END⟫。不要按固定顺序轮流，也不要为了让每个人都说话而硬续。该标记不会显示给用户。]")
-            }
-            if (index == 0) append("用户刚在群里说：$pendingText")
-            else append("用户最初开启的话题：$pendingText")
-        }
-        var result = LuluDeviceToolBridge.respond(
-            characterId = member.characterId,
-            history = history,
-            userText = groupInput,
-            title = activeLabel,
-            archiveId = archiveId,
-            sceneContext = sceneContext,
-        )
-        if (result.getOrNull()?.text.isNullOrBlank() && currentCoroutineContext().isActive) {
-            result = LuluDeviceToolBridge.respond(
-                characterId = member.characterId,
-                history = history,
-                userText = "$groupInput\n[上一次没有生成有效发言。现在必须直接接住上一位成员的话，输出至少一个自然完整的表达。]",
-                title = activeLabel,
-                archiveId = archiveId,
-                sceneContext = sceneContext,
-            )
-        }
-        if (!currentCoroutineContext().isActive) return
-        val reply = result.getOrNull()
-        if (reply != null) {
-            val flow = parseGroupReplyFlow(reply.text)
-            val semanticReply = flow.content
-            if (semanticReply.isNotBlank()) {
-                MigratedDomainStores.chat.appendCharacterMessage(
-                    conversationId = conversationId,
-                    content = semanticReply,
-                    authorCharacterId = member.characterId,
-                )
-                afterReply(member.characterId, semanticReply)
-            }
-            if (group.allowCharacterConversation && !flow.shouldEnd && index + 1 < replyLimit) {
-                val requestedNext = flow.nextSpeakerName?.let { requested ->
-                    validMembers.firstOrNull { candidate ->
-                        val nickname = candidate.groupNickname.ifBlank { characterNames[candidate.characterId].orEmpty() }
-                        val displayName = characterNames[candidate.characterId].orEmpty()
-                        requested.equals(nickname, ignoreCase = true) || requested.equals(displayName, ignoreCase = true)
-                    }
-                }
-                if (requestedNext != null) {
-                    pendingSpeakers.removeAll { it.characterId == requestedNext.characterId }
-                    pendingSpeakers.add(0, requestedNext)
-                }
-            }
-        } else {
-            val error = result.exceptionOrNull()
-            onError("${character.displayName}回复失败：${error?.message ?: "未知错误"}")
-        }
-        index += 1
-    }
-    onSpeakerChange(null)
-}
-
-internal fun buildBoundedHistory(
-    messages: List<LuluChatMessage>,
-    characterName: String,
-    characterNames: Map<String, String> = emptyMap(),
-    maxMessages: Int = 30,
-    maxChars: Int = 12_000,
-): String {
-    val normalized = messages
-        .filter { message ->
-            message.sender != LuluChatMessage.Sender.System || message.content.startsWith("[群成员变更]")
-        }
-        .fold(mutableListOf<LuluChatMessage>()) { result, message ->
-            val previous = result.lastOrNull()
-            val duplicate = previous != null && previous.sender == message.sender && previous.content.trim() == message.content.trim()
-            if (!duplicate) result += message
-            result
-        }
-        .takeLast(maxMessages)
-    val lines = normalized.map { message ->
-        val role = when (message.sender) {
-            LuluChatMessage.Sender.User -> UserProfileContext.displayLabel()
-            LuluChatMessage.Sender.System -> "群聊系统"
-            LuluChatMessage.Sender.Character -> message.authorCharacterId?.let { characterNames[it] } ?: characterName
-        }
-        "$role：${message.content.trim()}"
-    }
-    val selected = ArrayDeque<String>()
-    var chars = 0
-    for (line in lines.asReversed()) {
-        if (selected.isNotEmpty() && chars + line.length > maxChars) break
-        selected.addFirst(line)
-        chars += line.length
-    }
-    return selected.joinToString("\n")
-}
-
-@Composable
-private fun QqGroupAvatar(group: LuluGroupChat, size: Int) {
-    if (!group.avatarUri.isNullOrBlank()) {
-        QqAvatar(group.name.take(1).ifBlank { "群" }, size, group.avatarUri)
-    } else {
-        Surface(
-            modifier = Modifier.size(size.dp),
-            color = QqOther,
-            shape = RoundedCornerShape((size * 0.28f).dp),
-            border = BorderStroke(1.dp, QqBorder),
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(Icons.Outlined.Groups, null, tint = QqInk, modifier = Modifier.size((size * 0.55f).dp))
-            }
-        }
-    }
-}
-
-@Composable
-private fun QqAvatar(label: String, size: Int, imageUri: String? = null, modifier: Modifier = Modifier) {
-    LuluProfileAvatar(imageUri = imageUri, fallback = label, size = size, modifier = modifier)
 }
