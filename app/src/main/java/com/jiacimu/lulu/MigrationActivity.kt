@@ -21,10 +21,10 @@ import com.jiacimu.lulu.data.UserDataUpgradeGuard
 import com.jiacimu.lulu.data.UserProfileContext
 import com.jiacimu.lulu.games.LuluGames
 import com.jiacimu.lulu.health.HealthCycleStore
+import com.jiacimu.lulu.study.PomodoroCompanionSessions
 import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.SelfDirectedStudyPlanSeed
 import com.jiacimu.lulu.study.StarWishStores
-import com.jiacimu.lulu.study.StudyFocusSessions
 import com.jiacimu.lulu.study.StudyRemovedFeatureMigration
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 
@@ -54,13 +54,13 @@ class MigrationActivity : ComponentActivity() {
         PostgraduateExamStores.initialize(appContext)
         SelfDirectedStudyPlanSeed.migrate(appContext, PostgraduateExamStores.main)
         StarWishStores.initialize(appContext)
-        StudyFocusSessions.initialize(appContext)
+        PomodoroCompanionSessions.initialize(appContext)
 
-        val restoredFocusMinutes = PostgraduateExamStores.main.state.value.pomodoro.selectedMinutes
+        val restoredMinutes = PostgraduateExamStores.main.state.value.pomodoro.selectedMinutes
         if (PostgraduateExamStores.main.syncPomodoroClock()) {
-            StudyFocusSessions.handleNaturalCompletion(
+            PomodoroCompanionSessions.handleNaturalCompletion(
                 studyStore = PostgraduateExamStores.main,
-                actualMinutes = restoredFocusMinutes,
+                actualMinutes = restoredMinutes,
             )
         }
 
