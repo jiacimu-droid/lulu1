@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T11:06:02.487082+00:00",
-  "commit": "2fbd066278525174826ade5272e060e22174147b",
+  "generatedAt": "2026-08-06T11:19:13.374362+00:00",
+  "commit": "df10725562d006288111dc2654f139de14ab1924",
   "branch": "main",
-  "sourceFingerprint": "6e927df62b5f35627e51afee914b7e4a039f94e4ff89580a5c93505cf8e39c1a",
+  "sourceFingerprint": "95f64f4b084138aba41deea708fd7c4ca9310efb34e0c39e8f3f3bbe24ca5103",
   "summary": {
-    "files": 112,
-    "lines": 29748,
-    "symbols": 483
+    "files": 113,
+    "lines": 29869,
+    "symbols": 487
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -940,6 +940,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
         "line": 251
+      }
+    ],
+    "LegacyConversationMigration": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
+        "line": 14
+      }
+    ],
+    "migrateToPrivateAndGroupOnly": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
+        "line": 15
+      }
+    ],
+    "privateTarget": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
+        "line": 38
+      }
+    ],
+    "resolveBranchTarget": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
+        "line": 58
       }
     ],
     "LegacyLuluBackupImporter": [
@@ -3612,6 +3636,29 @@
         {
           "name": "observeForCharacter",
           "line": 251
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
+      "lines": 121,
+      "sha256": "4f780c56a863e7bd4ec2b46b633e5caf4a6e82a42a70b656f36281f73e29a2c3",
+      "symbols": [
+        {
+          "name": "LegacyConversationMigration",
+          "line": 14
+        },
+        {
+          "name": "migrateToPrivateAndGroupOnly",
+          "line": 15
+        },
+        {
+          "name": "privateTarget",
+          "line": 38
+        },
+        {
+          "name": "resolveBranchTarget",
+          "line": 58
         }
       ]
     },
