@@ -1,7 +1,6 @@
 package com.jiacimu.lulu
 
 import android.Manifest
-import android.app.AlarmManager
 import android.app.AppOpsManager
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
@@ -39,6 +38,7 @@ import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.data.CompanionPresenceStore
+import com.jiacimu.lulu.health.GadgetbridgeHealthStore
 import com.jiacimu.lulu.system.LuluAccessibilityService
 import com.jiacimu.lulu.system.LuluLocationProvider
 import com.jiacimu.lulu.system.LuluNotificationListenerService
@@ -66,12 +66,20 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
     val notificationConnected by LuluNotificationListenerService.isConnected.collectAsState()
     val presenceStates by CompanionPresenceStore.states.collectAsState()
 
+    remember(context) {
+        GadgetbridgeHealthStore.initialize(context.applicationContext)
+        Unit
+    }
+    val gadgetbridgeState by GadgetbridgeHealthStore.state.collectAsState()
+
     val runtimeLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
     ) { refreshKey++ }
-    val backgroundLocationLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) { refreshKey++ }
+    val gadgetbridgePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            scope.launch { GadgetbridgeHealthStore.connect(context, uri) }
+        }
+    }
 
     fun open(intent: Intent) {
         runCatching { context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
@@ -127,15 +135,15 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            item {
-                CapabilitySummaryCard(snapshot, backgroundModelLabel)
-            }
+            item { CapabilitySummaryCard(snapshot, backgroundModelLabel) }
             item {
                 CapabilityInfoCard(
                     title = "后台感知链路",
-                    body = "当前调用：$backgroundModelLabel\n最近运行：$latestPerceptionLabel\n应用内约每20分钟检查，进程退出后由系统后台任务继续；屏幕出现有意义的变化或收到新通知时也会触发检查。每次感知至少更新角色的状态、动作和心情，再按人设与勿扰设置决定是否发消息、来电、写日记、发朋友圈、游戏邀约或群聊发言。",
+                    body = "当前调用：$backgroundModelLabel\n最近运行：$latestPerceptionLabel\n应用内约每20分钟检查，进程退出后由系统后台任务继续；屏幕变化或新通知也会触发检查。",
                 )
             }
+
+            item { CapabilitySectionTitle("授权信息", "允许角色读取真实信息，但不会因此修改手机内容") }
             item {
                 CapabilityRow(
                     Icons.Outlined.LocationOn,
@@ -146,73 +154,100 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                     runtimeLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION))
                 }
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                item {
-                    CapabilityRow(
-                        Icons.Outlined.MyLocation,
-                        "后台位置",
-                        "允许露露在后台判断你是否到达常用地点",
-                        snapshot.backgroundLocation,
-                    ) { backgroundLocationLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION) }
-                }
+            item {
+                CapabilityRow(
+                    Icons.Outlined.Apps,
+                    "当前使用的应用",
+                    snapshot.foregroundAppLabel,
+                    snapshot.usageAccess,
+                ) { open(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)) }
             }
             item {
-                CapabilityRow(Icons.Outlined.Alarm, "系统闹钟", "角色设置的闹钟会写入手机时钟应用并由系统响铃", true) {
-                    open(Intent(AlarmClock.ACTION_SHOW_ALARMS))
-                }
+                CapabilityRow(
+                    Icons.Outlined.NotificationsActive,
+                    "通知读取",
+                    "读取其他 App 的近期通知并唤醒角色感知",
+                    snapshot.notificationAccess,
+                ) { open(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
             }
             item {
-                CapabilityRow(Icons.Outlined.Apps, "应用使用情况", snapshot.foregroundAppLabel, snapshot.usageAccess) {
-                    open(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+                CapabilityRow(
+                    Icons.Outlined.Storage,
+                    "Gadgetbridge 健康数据",
+                    when {
+                        gadgetbridgeState.importing -> "正在解析 ${gadgetbridgeState.sourceName.ifBlank { "Gadgetbridge.db" }}…"
+                        gadgetbridgeState.connected -> "已授权：${gadgetbridgeState.sourceName.ifBlank { "Gadgetbridge.db" }}；每小时自动刷新"
+                        else -> "选择 /Download/手环/Gadgetbridge.db，只读取该文件"
+                    },
+                    gadgetbridgeState.connected,
+                ) {
+                    gadgetbridgePicker.launch(
+                        arrayOf(
+                            "application/vnd.sqlite3",
+                            "application/x-sqlite3",
+                            "application/octet-stream",
+                            "*/*",
+                        ),
+                    )
                 }
+            }
+
+            item { CapabilitySectionTitle("授权工具", "允许角色执行动作，或保障主动能力在后台运行") }
+            item {
+                CapabilityRow(
+                    Icons.Outlined.Alarm,
+                    "系统闹钟",
+                    "角色可以创建、查看和取消由露露设置的真实系统闹钟",
+                    true,
+                ) { open(Intent(AlarmClock.ACTION_SHOW_ALARMS)) }
             }
             item {
-                CapabilityRow(Icons.Outlined.NotificationsActive, "通知读取", "感知其他 App 的新通知并唤醒角色感知", snapshot.notificationAccess) {
-                    open(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
-                }
+                CapabilityRow(
+                    Icons.Outlined.TouchApp,
+                    "屏幕感知与控制",
+                    snapshot.accessibilityLabel,
+                    snapshot.accessibility,
+                ) { open(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
             }
             item {
-                CapabilityRow(Icons.Outlined.TouchApp, "屏幕感知与控制", snapshot.accessibilityLabel, snapshot.accessibility) {
-                    open(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-                }
+                CapabilityRow(
+                    Icons.Outlined.PictureInPictureAlt,
+                    "悬浮窗",
+                    "允许露露在其他 App 上方陪伴和提示",
+                    snapshot.overlay,
+                ) { open(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))) }
             }
             item {
-                CapabilityRow(Icons.Outlined.PictureInPictureAlt, "悬浮窗", "允许露露在其他 App 上方陪伴和提示", snapshot.overlay) {
-                    open(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}")))
-                }
-            }
-            item {
-                CapabilityRow(Icons.Outlined.CalendarMonth, "日历", "读取和创建日程、考试与学习计划", snapshot.calendar) {
-                    runtimeLauncher.launch(arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR))
-                }
-            }
-            item {
-                CapabilityRow(Icons.Outlined.DirectionsWalk, "活动识别", "识别静止、步行、跑步、骑行等状态", snapshot.activityRecognition) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        runtimeLauncher.launch(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION))
-                    }
-                }
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                item {
-                    CapabilityRow(Icons.Outlined.Bluetooth, "附近设备", "感知耳机、手表和已连接蓝牙设备", snapshot.nearbyDevices) {
-                        runtimeLauncher.launch(arrayOf(Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN))
-                    }
-                }
-            }
-            item {
-                CapabilityRow(Icons.Outlined.Notifications, "发送通知", "主动消息、来电和闹钟提醒", snapshot.notifications) {
+                CapabilityRow(
+                    Icons.Outlined.Notifications,
+                    "发送通知",
+                    "主动消息、来电和闹钟提醒",
+                    snapshot.notifications,
+                ) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         runtimeLauncher.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS))
                     }
                 }
             }
             item {
-                CapabilityRow(Icons.Outlined.BatteryChargingFull, "后台运行", snapshot.batteryOptimizationLabel, snapshot.ignoreBatteryOptimizations) {
+                CapabilityRow(
+                    Icons.Outlined.BatteryChargingFull,
+                    "后台运行",
+                    snapshot.batteryOptimizationLabel,
+                    snapshot.ignoreBatteryOptimizations,
+                ) {
                     open(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:${context.packageName}")))
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun CapabilitySectionTitle(title: String, subtitle: String) {
+    Column(Modifier.padding(top = 10.dp, start = 2.dp, end = 2.dp, bottom = 2.dp)) {
+        Text(title, color = CapabilityInk, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(subtitle, color = CapabilityMuted, fontSize = 11.sp, lineHeight = 16.sp)
     }
 }
 
@@ -280,18 +315,13 @@ private fun CapabilityRow(
 
 private data class CapabilitySnapshot(
     val preciseLocation: Boolean,
-    val backgroundLocation: Boolean,
     val locationLabel: String,
-    val exactAlarm: Boolean,
     val usageAccess: Boolean,
     val foregroundAppLabel: String,
     val notificationAccess: Boolean,
     val accessibility: Boolean,
     val accessibilityLabel: String,
     val overlay: Boolean,
-    val calendar: Boolean,
-    val activityRecognition: Boolean,
-    val nearbyDevices: Boolean,
     val notifications: Boolean,
     val ignoreBatteryOptimizations: Boolean,
     val batteryOptimizationLabel: String,
@@ -301,19 +331,11 @@ private data class CapabilitySnapshot(
     companion object {
         fun read(context: Context, accessibilityConnected: Boolean, notificationConnected: Boolean): CapabilitySnapshot {
             val fine = context.granted(Manifest.permission.ACCESS_FINE_LOCATION)
-            val background = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || context.granted(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-            val alarm = context.getSystemService(AlarmManager::class.java)
-            val exactAlarm = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarm.canScheduleExactAlarms()
             val usage = context.hasUsageAccess()
             val foreground = if (usage) context.recentForegroundPackage() else null
             val notification = notificationConnected || context.hasNotificationListenerAccess()
             val accessibility = accessibilityConnected || context.hasAccessibilityAccess()
             val overlay = Settings.canDrawOverlays(context)
-            val calendar = context.granted(Manifest.permission.READ_CALENDAR) && context.granted(Manifest.permission.WRITE_CALENDAR)
-            val activity = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || context.granted(Manifest.permission.ACTIVITY_RECOGNITION)
-            val nearby = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || (
-                context.granted(Manifest.permission.BLUETOOTH_CONNECT) && context.granted(Manifest.permission.BLUETOOTH_SCAN)
-            )
             val notifications = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || context.granted(Manifest.permission.POST_NOTIFICATIONS)
             val power = context.getSystemService(PowerManager::class.java)
             val ignored = power.isIgnoringBatteryOptimizations(context.packageName)
@@ -325,21 +347,16 @@ private data class CapabilitySnapshot(
             val charging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
             return CapabilitySnapshot(
                 preciseLocation = fine,
-                backgroundLocation = background,
-                locationLabel = if (fine) context.lastLocationLabel() else "允许后可读取具体经纬度和定位精度",
-                exactAlarm = exactAlarm,
+                locationLabel = if (fine) context.lastLocationLabel() else "允许后可主动读取当前位置、定位精度和更新时间",
                 usageAccess = usage,
-                foregroundAppLabel = foreground?.let { "最近前台应用：$it" } ?: "允许后可判断当前和最近使用的 App",
+                foregroundAppLabel = foreground?.let { "最近前台应用：$it" } ?: "允许后只判断当前或最近使用的 App，不统计使用时长",
                 notificationAccess = notification,
                 accessibility = accessibility,
-                accessibilityLabel = if (accessibility) "已连接；界面变化会触发角色重新感知" else "读取当前界面并执行点击、返回、主页等操作",
+                accessibilityLabel = if (accessibility) "已连接；可读取当前界面，并执行返回、主页、通知栏和文字点击" else "读取当前界面，并执行返回、主页、通知栏和文字点击",
                 overlay = overlay,
-                calendar = calendar,
-                activityRecognition = activity,
-                nearbyDevices = nearby,
                 notifications = notifications,
                 ignoreBatteryOptimizations = ignored,
-                batteryOptimizationLabel = if (ignored) "已允许后台稳定运行" else "建议开启，避免主动感知被系统省电延后",
+                batteryOptimizationLabel = if (ignored) "已允许后台稳定运行" else "建议开启，避免主动感知和手环数据刷新被系统延后",
                 batteryPercent = percent,
                 charging = charging,
             )
