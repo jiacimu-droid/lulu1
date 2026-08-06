@@ -9,6 +9,7 @@ import com.jiacimu.lulu.data.ChatMemoryAutomation
 import com.jiacimu.lulu.data.ChatTurnConsistencyAutomation
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.DeterministicMemoryAutomation
+import com.jiacimu.lulu.data.LegacyConversationMigration
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.MemoryModelRuntime
@@ -39,6 +40,7 @@ class MigrationActivity : ComponentActivity() {
         LuluRepositories.worldBook.initialize(appContext)
         SharedExperienceTimeline.initialize(appContext)
         MigratedDomainStores.initialize(appContext)
+        LegacyConversationMigration.migrateToPrivateAndGroupOnly()
         MomentsStore.initialize(appContext)
         SharedExperienceTimeline.backfillChatHistory()
         CompanionPresenceStore.initialize(appContext)
