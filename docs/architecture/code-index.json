@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T14:52:29.352925+00:00",
-  "commit": "3a0b1abdcda23a393bb3d805db2e4e9d32d26821",
+  "generatedAt": "2026-08-06T14:53:54.060931+00:00",
+  "commit": "a4ad383043e65752e9fe97640ef9b19600bebcb9",
   "branch": "main",
-  "sourceFingerprint": "8fb555ad6e3d184131031ee1c5d824fad24edb6cb367a94a49174dec91bc3727",
+  "sourceFingerprint": "2f37d9f66bb4268f969d3b68d35da1f7d5e6dceb245558984e0e055cb42379b7",
   "summary": {
-    "files": 111,
-    "lines": 28733,
-    "symbols": 486
+    "files": 112,
+    "lines": 29126,
+    "symbols": 494
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -372,6 +372,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
         "line": 434
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
+        "line": 66
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
@@ -1428,6 +1432,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
         "line": 31
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
+        "line": 355
       }
     ],
     "scheduleSoon": [
@@ -2018,6 +2026,42 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
         "line": 31
+      }
+    ],
+    "disconnect": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
+        "line": 122
+      }
+    ],
+    "column": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
+        "line": 196
+      }
+    ],
+    "sum": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
+        "line": 198
+      }
+    ],
+    "average": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
+        "line": 201
+      }
+    ],
+    "minimum": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
+        "line": 204
+      }
+    ],
+    "maximum": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
+        "line": 207
       }
     ],
     "savePeriod": [
@@ -4589,6 +4633,45 @@
         {
           "name": "LuluGamesAppV2",
           "line": 31
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
+      "lines": 393,
+      "sha256": "f8c44c5f57af02430832e72dd5d54ab65fededc1c03b57585cc5e6a07ed4b85d",
+      "symbols": [
+        {
+          "name": "initialize",
+          "line": 66
+        },
+        {
+          "name": "disconnect",
+          "line": 122
+        },
+        {
+          "name": "column",
+          "line": 196
+        },
+        {
+          "name": "sum",
+          "line": 198
+        },
+        {
+          "name": "average",
+          "line": 201
+        },
+        {
+          "name": "minimum",
+          "line": 204
+        },
+        {
+          "name": "maximum",
+          "line": 207
+        },
+        {
+          "name": "schedule",
+          "line": 355
         }
       ]
     },
