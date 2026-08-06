@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T14:56:22.693606+00:00",
-  "commit": "94a33b31e0a2f2ca01332b03bb81bc6e6dae24e0",
+  "generatedAt": "2026-08-06T14:57:45.050754+00:00",
+  "commit": "195ed6c3c4abdf4fb8bed9515ba75bfbdf434568",
   "branch": "main",
-  "sourceFingerprint": "fa6cdc5306a7146d7c26cc05562dcfb69bef73dd535ce72a29758a4e5ee7223b",
+  "sourceFingerprint": "200716aa7e747d3f54d7f2c15c9e78d8a5d742de0c650793edc32b50f539425b",
   "summary": {
     "files": 113,
-    "lines": 29189,
+    "lines": 29206,
     "symbols": 485
   },
   "symbolIndex": {
@@ -89,19 +89,19 @@
     "open": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 75
+        "line": 83
       }
     ],
     "refreshLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 99
+        "line": 107
       }
     ],
     "read": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 302
+        "line": 332
       }
     ],
     "saveGroupCall": [
@@ -2923,8 +2923,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-      "lines": 395,
-      "sha256": "e02e48256cfc2eacc0bce1b10ec6761fe13448bfe56abeea143da5f9d99a1aed",
+      "lines": 412,
+      "sha256": "469e43cca57d3422efae2421ad5572c4091bdb8024f6976af069d7b7bddddaaa",
       "symbols": [
         {
           "name": "LuluCapabilitiesScreen",
@@ -2932,15 +2932,15 @@
         },
         {
           "name": "open",
-          "line": 75
+          "line": 83
         },
         {
           "name": "refreshLocation",
-          "line": 99
+          "line": 107
         },
         {
           "name": "read",
-          "line": 302
+          "line": 332
         }
       ]
     },
