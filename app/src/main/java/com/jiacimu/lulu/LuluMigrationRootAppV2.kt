@@ -126,7 +126,6 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                             QqStyleChatDetailScreen(
                                 conversationId = selectedConversationId,
                                 onBack = ::popRoute,
-                                onOpenBranch = {},
                                 onCharacterSettings = {
                                     selectConversationCharacter()
                                     pushRoute(MigrationRoute.CharacterSettings)
