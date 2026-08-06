@@ -213,6 +213,7 @@ internal object HealthCycleStore {
 internal object HealthPeriodReminderScheduler {
     private const val REQUEST_CODE = 0x4845
 
+    // Reminder timing is intentionally fixed: always the morning before the predicted start date.
     fun reschedule(context: Context, state: HealthCycleState) {
         val appContext = context.applicationContext
         val manager = appContext.getSystemService(AlarmManager::class.java)
