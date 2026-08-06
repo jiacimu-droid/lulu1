@@ -70,7 +70,6 @@ private val QqIconSurface = Color(0xFFF4F4F4)
 fun QqStyleChatDetailScreen(
     conversationId: String,
     onBack: () -> Unit,
-    onOpenBranch: (String) -> Unit,
     onCharacterSettings: () -> Unit,
     onWorldBook: () -> Unit,
     onOpenGame: (String?) -> Unit,
@@ -380,34 +379,34 @@ fun QqStyleChatDetailScreen(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     Box {
-                    FilledTonalIconButton(
-                        onClick = {
-                            if (groupChat != null) {
-                                mentionExpanded = true
-                            } else if (voiceListening) {
-                                speechRecognizer?.stopListening()
-                            } else if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-                                beginVoiceCapture()
-                            } else {
-                                microphonePermission.launch(Manifest.permission.RECORD_AUDIO)
-                            }
-                        },
-                        modifier = Modifier.size(50.dp),
-                        colors = IconButtonDefaults.filledTonalIconButtonColors(
-                            containerColor = QqIconSurface,
-                            contentColor = QqInk,
-                        ),
-                    ) {
-                        Icon(
-                            when {
-                                groupChat != null -> Icons.Outlined.AlternateEmail
-                                voiceListening -> Icons.Outlined.GraphicEq
-                                else -> Icons.Outlined.KeyboardVoice
+                        FilledTonalIconButton(
+                            onClick = {
+                                if (groupChat != null) {
+                                    mentionExpanded = true
+                                } else if (voiceListening) {
+                                    speechRecognizer?.stopListening()
+                                } else if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                                    beginVoiceCapture()
+                                } else {
+                                    microphonePermission.launch(Manifest.permission.RECORD_AUDIO)
+                                }
                             },
-                            if (groupChat != null) "@群成员" else "语音输入",
-                            modifier = Modifier.size(27.dp),
-                        )
-                    }
+                            modifier = Modifier.size(50.dp),
+                            colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                containerColor = QqIconSurface,
+                                contentColor = QqInk,
+                            ),
+                        ) {
+                            Icon(
+                                when {
+                                    groupChat != null -> Icons.Outlined.AlternateEmail
+                                    voiceListening -> Icons.Outlined.GraphicEq
+                                    else -> Icons.Outlined.KeyboardVoice
+                                },
+                                if (groupChat != null) "@群成员" else "语音输入",
+                                modifier = Modifier.size(27.dp),
+                            )
+                        }
                     }
                     TextField(
                         value = input,
@@ -505,28 +504,28 @@ fun QqStyleChatDetailScreen(
                     Duration.between(message.createdAt, next.createdAt).toMinutes() >= 2
                 val author = message.authorCharacterId?.let { characters[it] ?: MigratedDomainStores.characters.get(it) }
                     ?: character
-                        QqMessageRow(
-                            message = message,
-                            characterName = author.displayName,
-                            characterAvatarUri = author.avatarUri,
-                            characterLabel = groupChat?.members
-                                ?.firstOrNull { it.characterId == author.characterId }
-                                ?.groupNickname
-                                ?.ifBlank { author.displayName }
-                                ?: author.displayName,
-                            showCharacterName = groupChat?.showMemberNames == true,
-                            repliedMessageContent = message.replyToMessageId
-                                ?.let { replyId -> messages.firstOrNull { it.id == replyId }?.content },
-                            showAvatar = groupStart,
-                            showTime = preferences.showMessageTimestamps && groupEnd,
-                            userAvatar = userAvatar,
-                            userAvatarUri = userAvatarUri,
-                            onCharacterAvatarClick = { presenceCharacterId = author.characterId },
-                            onLongClick = { selectedMessage = message },
-                            onAcceptGame = { gameId ->
-                                message.authorCharacterId?.let { com.jiacimu.lulu.games.LuluGames.store.selectCharacter(it) }
-                                onOpenGame(gameId)
-                            },
+                QqMessageRow(
+                    message = message,
+                    characterName = author.displayName,
+                    characterAvatarUri = author.avatarUri,
+                    characterLabel = groupChat?.members
+                        ?.firstOrNull { it.characterId == author.characterId }
+                        ?.groupNickname
+                        ?.ifBlank { author.displayName }
+                        ?: author.displayName,
+                    showCharacterName = groupChat?.showMemberNames == true,
+                    repliedMessageContent = message.replyToMessageId
+                        ?.let { replyId -> messages.firstOrNull { it.id == replyId }?.content },
+                    showAvatar = groupStart,
+                    showTime = preferences.showMessageTimestamps && groupEnd,
+                    userAvatar = userAvatar,
+                    userAvatarUri = userAvatarUri,
+                    onCharacterAvatarClick = { presenceCharacterId = author.characterId },
+                    onLongClick = { selectedMessage = message },
+                    onAcceptGame = { gameId ->
+                        message.authorCharacterId?.let { com.jiacimu.lulu.games.LuluGames.store.selectCharacter(it) }
+                        onOpenGame(gameId)
+                    },
                 )
             }
             if (receiving) {
@@ -570,10 +569,6 @@ fun QqStyleChatDetailScreen(
                         MigratedDomainStores.chat.toggleFavorite(message.id)
                         selectedMessage = null
                     }) { Text(if (message.favorite) "取消收藏" else "收藏", color = QqInk) }
-                    TextButton(onClick = {
-                        MigratedDomainStores.chat.createBranch(conversationId, message.id)?.let { onOpenBranch(it.id) }
-                        selectedMessage = null
-                    }) { Text("分支", color = QqInk) }
                 }
             },
             dismissButton = {
@@ -918,7 +913,7 @@ private fun GameInviteMessageCard(invite: GameInviteMessage, onAccept: () -> Uni
 
 private fun splitCharacterBubbles(text: String): List<String> {
     return text.replace("\r\n", "\n").trim()
-        .split(Regex("\\n+"))
+        .split(Regex("\n+"))
         .map(String::trim)
         .filter(String::isNotBlank)
 }
