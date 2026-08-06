@@ -1,120 +1,163 @@
 package com.jiacimu.lulu.data
 
-import kotlinx.coroutines.flow.MutableStateFlow
+import android.content.Context
+import org.json.JSONArray
+import org.json.JSONObject
 import java.time.Instant
 import java.util.UUID
 
 /**
- * One-time compatibility cleanup for data created by older builds.
- *
- * Runtime chat now has only two conversation types: ordinary one-to-one chats and group chats.
- * Old branch copies are folded back into their source conversation; old synthetic Pomodoro chats
- * are folded into the character's ordinary private chat. The legacy records are then removed.
+ * Converts old saved branch/focus records before the current chat model is decoded.
+ * After this runs, persisted chat data contains only ordinary private chats and group chats.
  */
 object LegacyConversationMigration {
-    fun migrateToPrivateAndGroupOnly() {
-        val store = MigratedDomainStores.chat as? InMemoryLuluChatStore ?: return
-        runCatching {
-            val type = InMemoryLuluChatStore::class.java
-            val lockField = type.getDeclaredField("lock").apply { isAccessible = true }
-            val conversationField = type.getDeclaredField("conversationState").apply { isAccessible = true }
-            val messagesField = type.getDeclaredField("messageStates").apply { isAccessible = true }
-            val persistMethod = type.getDeclaredMethod("persistLocked").apply { isAccessible = true }
-            val lock = lockField.get(store)
+    private const val PREFS_NAME = "lulu_chat_store"
+    private const val STATE_KEY = "state_v1"
 
-            synchronized(lock) {
-                @Suppress("UNCHECKED_CAST")
-                val conversations = conversationField.get(store) as MutableStateFlow<List<LuluConversation>>
-                @Suppress("UNCHECKED_CAST")
-                val messageStates = messagesField.get(store) as MutableMap<String, MutableStateFlow<List<LuluChatMessage>>>
+    fun migrateSavedState(context: Context) {
+        val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val raw = prefs.getString(STATE_KEY, null) ?: return
+        val root = runCatching { JSONObject(raw) }.getOrNull() ?: return
+        val sourceConversations = root.optJSONArray("conversations") ?: return
+        val messagesRoot = root.optJSONObject("messages") ?: JSONObject()
 
-                val original = conversations.value
-                val legacy = original.filter { conversation ->
-                    conversation.parentConversationId != null || conversation.id.endsWith("-study-focus")
+        val all = buildList {
+            for (index in 0 until sourceConversations.length()) {
+                sourceConversations.optJSONObject(index)?.let { add(JSONObject(it.toString())) }
+            }
+        }
+        if (all.isEmpty()) return
+
+        val byId = all.associateBy { it.optString("id") }
+        val legacyIds = all
+            .filter { conversation ->
+                conversation.stringOrNull("parentConversationId") != null ||
+                    conversation.optString("id").endsWith("-study-focus")
+            }
+            .mapTo(mutableSetOf()) { it.optString("id") }
+
+        val kept = all.filterNot { it.optString("id") in legacyIds }.toMutableList()
+
+        fun findPrivate(characterId: String): JSONObject? = kept
+            .filter { candidate ->
+                candidate.optString("characterId") == characterId && candidate.optJSONObject("groupChat") == null
+            }
+            .maxByOrNull { it.optString("updatedAt") }
+
+        fun createPrivate(characterId: String, title: String): JSONObject {
+            val id = if (characterId == "lulu" && kept.none { it.optString("id") == "lulu-main" }) {
+                "lulu-main"
+            } else {
+                UUID.randomUUID().toString()
+            }
+            return JSONObject()
+                .put("id", id)
+                .put("characterId", characterId)
+                .put("title", title.ifBlank { "未命名角色" })
+                .put("lastMessage", "")
+                .put("updatedAt", Instant.now().toString())
+                .put("unreadCount", 0)
+                .put("groupChat", JSONObject.NULL)
+                .also(kept::add)
+        }
+
+        fun privateTarget(source: JSONObject): JSONObject {
+            val characterId = source.optString("characterId").ifBlank { "lulu" }
+            return findPrivate(characterId)
+                ?: createPrivate(characterId, source.optString("title").substringBefore(" · 分支"))
+        }
+
+        fun branchTarget(source: JSONObject): JSONObject? {
+            var parentId = source.stringOrNull("parentConversationId")
+            val visited = mutableSetOf<String>()
+            while (!parentId.isNullOrBlank() && visited.add(parentId)) {
+                val parent = byId[parentId] ?: break
+                if (parentId !in legacyIds && !parent.optString("id").endsWith("-study-focus")) return parent
+                parentId = parent.stringOrNull("parentConversationId")
+            }
+            return null
+        }
+
+        val mergeTargets = linkedMapOf<String, MutableList<JSONObject>>()
+        val targetObjects = linkedMapOf<String, JSONObject>()
+        legacyIds.mapNotNull(byId::get)
+            .sortedBy { it.optString("updatedAt") }
+            .forEach { source ->
+                val target = if (source.optString("id").endsWith("-study-focus")) {
+                    privateTarget(source)
+                } else {
+                    branchTarget(source) ?: privateTarget(source)
                 }
-                if (legacy.isEmpty()) return@synchronized
-
-                val kept = original.filterNot { it in legacy }.toMutableList()
-
-                fun privateTarget(characterId: String, title: String): LuluConversation {
-                    kept.filter { candidate ->
-                        candidate.groupChat == null && candidate.characterId == characterId
-                    }.maxByOrNull(LuluConversation::updatedAt)?.let { return it }
-
-                    return LuluConversation(
-                        id = if (characterId == "lulu" && kept.none { it.id == "lulu-main" }) {
-                            "lulu-main"
-                        } else {
-                            UUID.randomUUID().toString()
-                        },
-                        characterId = characterId,
-                        title = title.ifBlank { MigratedDomainStores.characters.get(characterId).displayName },
-                        updatedAt = Instant.now(),
-                    ).also { created ->
-                        kept += created
-                        messageStates.putIfAbsent(created.id, MutableStateFlow(emptyList()))
-                    }
+                val targetId = target.optString("id")
+                targetObjects[targetId] = target
+                val merged = mergeTargets.getOrPut(targetId) {
+                    messagesRoot.optJSONArray(targetId).toMessageObjects().toMutableList()
                 }
-
-                fun resolveBranchTarget(conversation: LuluConversation): LuluConversation? {
-                    var parentId = conversation.parentConversationId
-                    val visited = mutableSetOf<String>()
-                    while (!parentId.isNullOrBlank() && visited.add(parentId)) {
-                        val parent = original.firstOrNull { it.id == parentId } ?: break
-                        if (parent.parentConversationId == null && !parent.id.endsWith("-study-focus")) return parent
-                        parentId = parent.parentConversationId
-                    }
-                    return null
+                messagesRoot.optJSONArray(source.optString("id")).toMessageObjects().forEach { message ->
+                    message.put("conversationId", targetId)
+                    message.remove("branchOriginMessageId")
+                    merged += message
                 }
+            }
 
-                val mergedByTarget = linkedMapOf<String, MutableList<LuluChatMessage>>()
-                val targetInfo = linkedMapOf<String, LuluConversation>()
-
-                legacy.sortedBy(LuluConversation::updatedAt).forEach { source ->
-                    val target = if (source.id.endsWith("-study-focus")) {
-                        privateTarget(source.characterId, source.title)
-                    } else {
-                        resolveBranchTarget(source)
-                            ?: privateTarget(source.characterId, source.title.substringBefore(" · 分支"))
-                    }
-                    targetInfo[target.id] = target
-                    val targetMessages = mergedByTarget.getOrPut(target.id) {
-                        messageStates[target.id]?.value.orEmpty().toMutableList()
-                    }
-                    targetMessages += messageStates[source.id]?.value.orEmpty().map { message ->
-                        message.copy(conversationId = target.id, branchOriginMessageId = null)
-                    }
+        mergeTargets.forEach { (targetId, values) ->
+            val deduplicated = linkedMapOf<String, JSONObject>()
+            values.sortedBy { it.optString("createdAt") }.forEach { message ->
+                message.remove("branchOriginMessageId")
+                val key = listOf(
+                    message.optString("sender"),
+                    message.optString("authorCharacterId"),
+                    message.optString("content").trim(),
+                    message.optString("createdAt"),
+                    message.optString("replyToMessageId"),
+                ).joinToString("\u0001")
+                deduplicated.putIfAbsent(key, message)
+            }
+            val merged = deduplicated.values.toList()
+            messagesRoot.put(targetId, JSONArray(merged))
+            targetObjects[targetId]?.apply {
+                merged.lastOrNull()?.let { last ->
+                    put("lastMessage", last.optString("content"))
+                    put("updatedAt", last.optString("createdAt").ifBlank { optString("updatedAt") })
                 }
+            }
+        }
 
-                mergedByTarget.forEach { (targetId, values) ->
-                    val merged = values
-                        .distinctBy { message ->
-                            listOf(
-                                message.sender.name,
-                                message.authorCharacterId.orEmpty(),
-                                message.content.trim(),
-                                message.createdAt.toEpochMilli().toString(),
-                                message.replyToMessageId.orEmpty(),
-                            ).joinToString("\u0001")
-                        }
-                        .sortedBy(LuluChatMessage::createdAt)
-                    messageStates.getOrPut(targetId) { MutableStateFlow(emptyList()) }.value = merged
-                    val target = targetInfo[targetId] ?: kept.firstOrNull { it.id == targetId } ?: return@forEach
-                    val updated = target.copy(
-                        lastMessage = merged.lastOrNull()?.content.orEmpty(),
-                        updatedAt = merged.lastOrNull()?.createdAt ?: target.updatedAt,
-                    )
-                    kept.removeAll { it.id == targetId }
-                    kept += updated
+        legacyIds.forEach(messagesRoot::remove)
+        kept.forEach { conversation ->
+            conversation.remove("parentConversationId")
+            conversation.remove("branchOriginMessageId")
+            messagesRoot.optJSONArray(conversation.optString("id"))?.let { messages ->
+                for (index in 0 until messages.length()) {
+                    messages.optJSONObject(index)?.remove("branchOriginMessageId")
                 }
+            }
+        }
 
-                legacy.forEach { source -> messageStates.remove(source.id) }
-                conversations.value = kept.sortedWith(
-                    compareByDescending<LuluConversation> { it.groupChat?.pinned == true }
-                        .thenByDescending(LuluConversation::updatedAt),
-                )
-                persistMethod.invoke(store)
+        root.put(
+            "conversations",
+            JSONArray(
+                kept.sortedWith(
+                    compareByDescending<JSONObject> { it.optJSONObject("groupChat")?.optBoolean("pinned") == true }
+                        .thenByDescending { it.optString("updatedAt") },
+                ),
+            ),
+        )
+        root.put("messages", messagesRoot)
+        prefs.edit().putString(STATE_KEY, root.toString()).commit()
+    }
+
+    private fun JSONArray?.toMessageObjects(): List<JSONObject> {
+        if (this == null) return emptyList()
+        return buildList {
+            for (index in 0 until length()) {
+                optJSONObject(index)?.let { add(JSONObject(it.toString())) }
             }
         }
     }
+
+    private fun JSONObject.stringOrNull(key: String): String? =
+        takeUnless { isNull(key) }
+            ?.optString(key)
+            ?.takeIf(String::isNotBlank)
 }
