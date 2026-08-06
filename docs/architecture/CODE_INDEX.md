@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`1e70594e75b6acb2553257b07bcf08b0a1fce93f`
+- 基准提交：`37c464766ff206ff1abfccae0ed613f320e74712`
 - 分支：`main`
 - 已索引文件：110
-- 已索引代码/文本行：28566
+- 已索引代码/文本行：28551
 - 已发现符号：477
 
 | 文件 | 行数 | 符号数 |
@@ -54,7 +54,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 106 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 26 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 826 | 43 |
+| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 811 | 43 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 216 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 553 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 118 | 6 |
