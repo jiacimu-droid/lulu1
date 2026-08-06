@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-06T14:53:54.060931+00:00",
-  "commit": "a4ad383043e65752e9fe97640ef9b19600bebcb9",
+  "generatedAt": "2026-08-06T14:55:14.954104+00:00",
+  "commit": "185da026cf6d5a1c89c4c078e05d8ea5864cc951",
   "branch": "main",
-  "sourceFingerprint": "2f37d9f66bb4268f969d3b68d35da1f7d5e6dceb245558984e0e055cb42379b7",
+  "sourceFingerprint": "f496b811e02a3951d99852b5f60983e61bc640ea0d2808abd435e82c92116111",
   "summary": {
-    "files": 112,
-    "lines": 29126,
+    "files": 113,
+    "lines": 29566,
     "symbols": 494
   },
   "symbolIndex": {
@@ -4635,6 +4635,12 @@
           "line": 31
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt",
+      "lines": 440,
+      "sha256": "eeb85e4e07b2527d7cffd2e306f2a71efdba42e710199d9f14188209eb647eab",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
