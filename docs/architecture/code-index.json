@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T05:32:11.780531+00:00",
-  "commit": "64bd762015e5ee0984eaf8ba8213cb272065eddb",
+  "generatedAt": "2026-08-07T05:32:28.001497+00:00",
+  "commit": "03b32837eb6b55932cca1c8fa6548f76ddbada9c",
   "branch": "main",
-  "sourceFingerprint": "b19d259fdf4ac6d936022cbe18f0ca3a87cdfc2e619516275d1fea3897ab6a7c",
+  "sourceFingerprint": "3021e2a6a6b1cb28456c826777d27ef0af33dc33de5aa74d3971d96e9527b72f",
   "summary": {
-    "files": 120,
-    "lines": 30239,
-    "symbols": 493
+    "files": 121,
+    "lines": 30285,
+    "symbols": 494
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -2436,6 +2436,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
         "line": 798
+      }
+    ],
+    "books": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
+        "line": 15
       }
     ],
     "itemsFor": [
@@ -5052,6 +5058,17 @@
         {
           "name": "initialize",
           "line": 803
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
+      "lines": 46,
+      "sha256": "72363d0573398a7c77a70f33d4caea51e6c351d8dbba927b02a25e2ea0a8deb0",
+      "symbols": [
+        {
+          "name": "books",
+          "line": 15
         }
       ]
     },
