@@ -19,13 +19,19 @@ internal fun stripCharacterReplyDirective(text: String): String =
     text.replace(QuoteDirectiveRegex, "").trim()
 
 internal fun normalizeSemanticBubbles(text: String): String {
-    val normalized = stripCharacterReplyDirective(text.replace("\r\n", "\n")).trim()
-    if (normalized.isBlank()) return ""
-    return normalized
+    val raw = text.replace("\r\n", "\n").trim()
+    if (raw.isBlank()) return ""
+    val quoteMarker = QuoteDirectiveRegex.find(raw)?.value.orEmpty()
+    val body = stripCharacterReplyDirective(raw)
         .split(SemanticBubbleSeparator)
         .map { bubble -> bubble.trim().trim('"') }
         .filter(String::isNotBlank)
         .joinToString("\n")
+    return when {
+        body.isBlank() -> ""
+        quoteMarker.isBlank() -> body
+        else -> quoteMarker + body
+    }
 }
 
 private data class GroupReplyFlow(
