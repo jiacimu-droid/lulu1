@@ -33,7 +33,10 @@ private data class ReadingBook(val id: String, val title: String, val content: S
 private data class ReadingLine(val id: String = UUID.randomUUID().toString(), val mine: Boolean, val text: String)
 
 @Composable
-fun LuluReadingScreen(onBack: () -> Unit) {
+fun LuluReadingScreen(
+    onBack: () -> Unit,
+    initialBookTitle: String? = null,
+) {
     val context = LocalContext.current
     val starStore = remember { StarWishStores.main }
     val studyStore = remember { PostgraduateExamStores.main }
@@ -56,6 +59,15 @@ fun LuluReadingScreen(onBack: () -> Unit) {
         }
     }
     val allBooks = uploads + theaterBooks
+
+    LaunchedEffect(initialBookTitle, allBooks.map(ReadingBook::id)) {
+        val title = initialBookTitle?.takeIf(String::isNotBlank) ?: return@LaunchedEffect
+        if (selected == null) {
+            selected = allBooks.firstOrNull { it.title == title }
+            if (selected == null) notice = "没有找到《$title》，它可能已经被删除或改名。"
+        }
+    }
+
     val importer = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
             runCatching {
@@ -152,7 +164,7 @@ private fun ReadingRoom(modifier: Modifier, book: ReadingBook, characterId: Stri
     val character = MigratedDomainStores.characters.get(characterId)
     val scope = rememberCoroutineScope()
     var question by remember { mutableStateOf("") }
-    var discussing by remember { mutableStateOf(false) }
+    var discussing by remember(false) { mutableStateOf(false) }
     var lines by remember(book.id) { mutableStateOf(listOf<ReadingLine>()) }
     var sectionExpanded by remember { mutableStateOf(true) }
 
