@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -7,6 +9,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.PlayArrow
@@ -17,12 +20,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluGroupChat
+import com.jiacimu.lulu.data.MigratedDomainStores
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -44,18 +52,55 @@ internal fun QqMessageRow(
     onAcceptGame: (String) -> Unit,
 ) {
     if (message.sender == LuluChatMessage.Sender.System) {
+        val context = LocalContext.current
+        val notice = remember(message.content) { parseSystemActivityNotice(message.content) }
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Surface(
                 color = Color(0xFFF1F1F1),
                 shape = RoundedCornerShape(99.dp),
                 border = BorderStroke(1.dp, QqBorder),
             ) {
-                Text(
-                    message.content.removePrefix("[共同活动]").removePrefix("[群成员变更]").trim(),
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
-                    color = QqMuted,
-                    fontSize = 11.sp,
-                )
+                if (notice.link == null) {
+                    Text(
+                        notice.visibleText,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
+                        color = QqMuted,
+                        fontSize = 11.sp,
+                    )
+                } else {
+                    val annotated = remember(notice) {
+                        buildAnnotatedString {
+                            append(notice.visibleText)
+                            if (notice.linkStart in 0 until notice.visibleText.length && notice.linkEnd > notice.linkStart) {
+                                addStyle(
+                                    SpanStyle(
+                                        color = QqInk,
+                                        fontWeight = FontWeight.SemiBold,
+                                        textDecoration = TextDecoration.Underline,
+                                    ),
+                                    notice.linkStart,
+                                    notice.linkEnd.coerceAtMost(notice.visibleText.length),
+                                )
+                                addStringAnnotation(
+                                    tag = "system_activity",
+                                    annotation = "open",
+                                    start = notice.linkStart,
+                                    end = notice.linkEnd.coerceAtMost(notice.visibleText.length),
+                                )
+                            }
+                        }
+                    }
+                    ClickableText(
+                        text = annotated,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
+                        style = LocalTextStyle.current.copy(color = QqMuted, fontSize = 11.sp),
+                        onClick = { offset ->
+                            if (annotated.getStringAnnotations("system_activity", offset, offset).isNotEmpty()) {
+                                openSystemActivity(context, message, notice.link)
+                            }
+                        },
+                    )
+                }
             }
         }
         return
@@ -160,6 +205,71 @@ internal fun QqMessageRow(
             if (mine && showAvatar) QqAvatar(userAvatar, 44, userAvatarUri)
         }
     }
+}
+
+private enum class SystemActivityType { Diary, Reading }
+
+private data class SystemActivityLink(
+    val type: SystemActivityType,
+    val targetTitle: String,
+)
+
+private data class SystemActivityNotice(
+    val visibleText: String,
+    val link: SystemActivityLink? = null,
+    val linkStart: Int = -1,
+    val linkEnd: Int = -1,
+)
+
+private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
+    val visible = content
+        .removePrefix("[共同活动]")
+        .removePrefix("[群成员变更]")
+        .trim()
+
+    Regex("刚刚写了一篇日记《([^》]+)》").find(visible)?.let { match ->
+        val diaryWordStart = visible.indexOf("日记")
+        return SystemActivityNotice(
+            visibleText = visible,
+            link = SystemActivityLink(SystemActivityType.Diary, match.groupValues[1].trim()),
+            linkStart = diaryWordStart,
+            linkEnd = diaryWordStart + 2,
+        )
+    }
+
+    Regex("刚刚读了《([^》]+)》").find(visible)?.let { match ->
+        val bookStart = visible.indexOf('《')
+        val bookEnd = visible.indexOf('》', bookStart).let { if (it >= 0) it + 1 else -1 }
+        return SystemActivityNotice(
+            visibleText = visible,
+            link = SystemActivityLink(SystemActivityType.Reading, match.groupValues[1].trim()),
+            linkStart = bookStart,
+            linkEnd = bookEnd,
+        )
+    }
+
+    return SystemActivityNotice(visibleText = visible)
+}
+
+private fun openSystemActivity(context: Context, message: LuluChatMessage, link: SystemActivityLink) {
+    val characterId = MigratedDomainStores.chat.conversations.value
+        .firstOrNull { it.id == message.conversationId }
+        ?.characterId
+        .orEmpty()
+    val intent = Intent(context, MigrationActivity::class.java).apply {
+        when (link.type) {
+            SystemActivityType.Diary -> {
+                putExtra("open_route", MigrationRoute.Lexicon.name)
+                putExtra("open_character_id", characterId)
+                putExtra("open_diary_title", link.targetTitle)
+            }
+            SystemActivityType.Reading -> {
+                putExtra("open_route", MigrationRoute.Reading.name)
+                putExtra("open_reading_title", link.targetTitle)
+            }
+        }
+    }
+    context.startActivity(intent)
 }
 
 private data class GameInviteMessage(val gameId: String, val title: String, val message: String)
