@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T04:49:45.068128+00:00",
-  "commit": "2cc9bd1f859575c9a90873618e65a8c8a7d244f5",
+  "generatedAt": "2026-08-07T05:31:19.009302+00:00",
+  "commit": "f96079c1e68c3e3dbf36cd18c6d5e7c58057fe14",
   "branch": "main",
-  "sourceFingerprint": "731ae540b852598ce4dba38c4c06c426bd9f94f4018ba1c0fd202786356cd174",
+  "sourceFingerprint": "b0429a655f6db2be80456f13578fc45bdf980189cf1b4c08b18d21e0fca5950a",
   "summary": {
-    "files": 119,
-    "lines": 29998,
-    "symbols": 484
+    "files": 120,
+    "lines": 30129,
+    "symbols": 492
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -356,6 +356,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
         "line": 83
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
+        "line": 55
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
@@ -856,6 +860,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 648
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
+        "line": 77
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -1164,6 +1172,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 48
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
+        "line": 34
       }
     ],
     "LuluConversation": [
@@ -1324,6 +1336,10 @@
         "line": 676
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
+        "line": 61
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
         "line": 86
       }
@@ -1416,6 +1432,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
         "line": 99
+      }
+    ],
+    "PerceptionIntervalUnit": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
+        "line": 9
+      }
+    ],
+    "ProactivePerceptionPolicy": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
+        "line": 14
+      }
+    ],
+    "intervalMinutes": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
+        "line": 31
+      }
+    ],
+    "ProactivePerceptionPolicyStore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
+        "line": 45
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -4066,6 +4106,45 @@
         {
           "name": "signalPerceptionChange",
           "line": 99
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
+      "lines": 131,
+      "sha256": "6a3fe5d192f33e0a41c178c040910effaa3ebea9bbb4903fd6c4173b7cc68618",
+      "symbols": [
+        {
+          "name": "PerceptionIntervalUnit",
+          "line": 9
+        },
+        {
+          "name": "ProactivePerceptionPolicy",
+          "line": 14
+        },
+        {
+          "name": "intervalMinutes",
+          "line": 31
+        },
+        {
+          "name": "normalized",
+          "line": 34
+        },
+        {
+          "name": "ProactivePerceptionPolicyStore",
+          "line": 45
+        },
+        {
+          "name": "initialize",
+          "line": 55
+        },
+        {
+          "name": "get",
+          "line": 61
+        },
+        {
+          "name": "update",
+          "line": 77
         }
       ]
     },
