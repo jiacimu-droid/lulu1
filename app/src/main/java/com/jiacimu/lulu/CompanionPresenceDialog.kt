@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.jiacimu.lulu.data.CompanionPresenceState
+import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.ProactivePerceptionScheduler
 import java.time.ZoneId
@@ -34,13 +35,22 @@ internal fun CompanionPresenceDialog(
     val context = LocalContext.current
     val characterId = state?.characterId ?: MigratedDomainStores.characters.settings.value.values
         .firstOrNull { it.displayName == characterName }?.characterId ?: "lulu"
+    val messageAnchor = CompanionPresenceStore.selectedMessageAnchor(characterId)
+    val displayState = if (messageAnchor != null) messageAnchor.state else state
+    val displayHistory = remember(history, messageAnchor?.messageAt) {
+        if (messageAnchor == null) history else history.filter { it.updatedAt <= messageAnchor.messageAt }
+    }
     var historySelected by remember { mutableStateOf(false) }
     var manualCheckRequested by remember { mutableStateOf(false) }
-    val past = remember(history, state) {
-        history.drop(if (history.firstOrNull()?.updatedAt == state?.updatedAt) 1 else 0)
+    val past = remember(displayHistory, displayState) {
+        displayHistory.filter { it.updatedAt != displayState?.updatedAt }
+    }
+    val dismiss = {
+        CompanionPresenceStore.clearMessageAnchor()
+        onDismiss()
     }
 
-    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+    Dialog(onDismissRequest = dismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(
             modifier = Modifier
                 .padding(horizontal = 22.dp, vertical = 24.dp)
@@ -64,6 +74,9 @@ internal fun CompanionPresenceDialog(
                         ) {
                             Text("INNER MOMENT", color = Color(0xFF7A7A7E), fontSize = 9.sp, letterSpacing = 1.5.sp)
                             Text("$characterName · 此刻", color = Color(0xFF1D1D1F), fontWeight = FontWeight.Bold, fontSize = 23.sp)
+                            if (messageAnchor != null) {
+                                Text("这条消息发出时的此刻", color = Color(0xFF7A7A7E), fontSize = 11.sp)
+                            }
                         }
                     }
                     item(key = "tabs") {
@@ -75,17 +88,17 @@ internal fun CompanionPresenceDialog(
 
                     if (!historySelected) {
                         item(key = "current") {
-                            if (state == null) {
-                                Text("还没有形成可查看的此刻状态。", color = Color(0xFF7A7A7E))
+                            if (displayState == null) {
+                                Text("这条消息之前还没有形成可查看的此刻状态。", color = Color(0xFF7A7A7E))
                             } else {
                                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                    PresenceStateContent(state)
+                                    PresenceStateContent(displayState)
                                 }
                             }
                         }
                     } else if (past.isEmpty()) {
                         item(key = "empty-history") {
-                            Text("还没有更早的心声与动作。", color = Color(0xFF7A7A7E))
+                            Text("这之前还没有更早的心声与动作。", color = Color(0xFF7A7A7E))
                         }
                     } else {
                         items(past, key = { it.updatedAt.toEpochMilli() }) { item ->
@@ -105,23 +118,25 @@ internal fun CompanionPresenceDialog(
                         }
                     }
 
-                    item(key = "manual-check") {
-                        OutlinedButton(
-                            onClick = {
-                                ProactivePerceptionScheduler.scheduleManual(context, characterId)
-                                manualCheckRequested = true
-                            },
-                            enabled = !manualCheckRequested,
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                        ) {
-                            Text(if (manualCheckRequested) "已请求，稍后刷新此刻" else "立即检查感知线路")
+                    if (messageAnchor == null) {
+                        item(key = "manual-check") {
+                            OutlinedButton(
+                                onClick = {
+                                    ProactivePerceptionScheduler.scheduleManual(context, characterId)
+                                    manualCheckRequested = true
+                                },
+                                enabled = !manualCheckRequested,
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                            ) {
+                                Text(if (manualCheckRequested) "已请求，稍后刷新此刻" else "立即检查感知线路")
+                            }
                         }
                     }
                 }
 
                 IconButton(
-                    onClick = onDismiss,
+                    onClick = dismiss,
                     modifier = Modifier.align(Alignment.TopEnd).padding(top = 8.dp, end = 8.dp),
                 ) {
                     Icon(Icons.Outlined.Close, "关闭此刻", tint = Color(0xFF1D1D1F))
