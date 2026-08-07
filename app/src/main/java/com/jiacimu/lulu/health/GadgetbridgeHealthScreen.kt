@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.health
 
+import android.app.DatePickerDialog
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -9,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -24,8 +26,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.Locale
 
 private val WearablePaper = Color(0xFFFFFAFB)
@@ -55,6 +59,7 @@ internal fun GadgetbridgeHealthScreen() {
     }
     val state by GadgetbridgeHealthStore.state.collectAsState()
     var refreshedOnOpen by remember { mutableStateOf(false) }
+    var selectedDateText by rememberSaveable { mutableStateOf<String?>(null) }
 
     LaunchedEffect(state.connected, refreshedOnOpen) {
         if (state.connected && !refreshedOnOpen) {
@@ -63,18 +68,39 @@ internal fun GadgetbridgeHealthScreen() {
         }
     }
 
-    val latest = state.latest
-    val latestSleep = state.days.lastOrNull { day ->
+    LaunchedEffect(state.latest?.date, selectedDateText) {
+        if (selectedDateText == null) {
+            selectedDateText = (state.latest?.date ?: LocalDate.now()).toString()
+        }
+    }
+
+    val selectedDate = selectedDateText?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
+        ?: state.latest?.date
+        ?: LocalDate.now()
+    val firstAvailableDate = state.days.minOfOrNull { it.date } ?: LocalDate.now().minusDays(60)
+    val lastSelectableDate = maxOf(LocalDate.now(), state.latest?.date ?: LocalDate.now())
+    val selectedDay = state.days.firstOrNull { it.date == selectedDate }
+    val selectedSleep = selectedDay?.takeIf { day ->
         day.sleepMinutes != null || day.sleepStartEpochSeconds != null || day.deepSleepMinutes != null
     }
-    val recent14 = state.days.takeLast(14)
-    val recent7 = state.days.takeLast(7)
+    val historyThroughSelected = state.days
+        .filter { !it.date.isAfter(selectedDate) }
+        .takeLast(14)
 
     androidx.compose.foundation.lazy.LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
+        item {
+            DateSelectorCard(
+                selectedDate = selectedDate,
+                firstDate = firstAvailableDate,
+                lastDate = lastSelectableDate,
+                onDateChange = { selectedDateText = it.toString() },
+            )
+        }
+
         if (state.connected) {
             item { SyncStatusRow(state) }
         }
@@ -98,23 +124,24 @@ internal fun GadgetbridgeHealthScreen() {
 
         when {
             !state.connected -> item { DisplayOnlyEmptyCard() }
-            latest == null && !state.importing -> item {
+            state.days.isEmpty() && !state.importing -> item {
                 DisplayOnlyEmptyCard("已经完成授权，但数据库里暂时没有可展示的健康数据。请先让手环同步到 Gadgetbridge。")
             }
-            latest != null -> {
-                item { SleepHeroCard(latestSleep) }
-                if (latestSleep != null) {
-                    item { SleepStageCard(latestSleep) }
+            selectedDay == null -> item { NoDataForDateCard(selectedDate) }
+            else -> {
+                item { SleepHeroCard(selectedSleep, selectedDate) }
+                if (selectedSleep != null) {
+                    item { SleepStageCard(selectedSleep) }
                 }
 
-                val sleepDurationValues = recent14.mapNotNull { day ->
+                val sleepDurationValues = historyThroughSelected.mapNotNull { day ->
                     day.sleepMinutes?.takeIf { it > 0 }?.let { day.date.format(dayFormatter) to it.toFloat() }
                 }
                 if (sleepDurationValues.size >= 2) {
                     item {
                         BarChartCard(
                             title = "睡眠时长变化",
-                            subtitle = "近 ${sleepDurationValues.size} 次记录",
+                            subtitle = "截至 ${selectedDate.format(longDateFormatter)} 的近 ${sleepDurationValues.size} 次记录",
                             values = sleepDurationValues,
                             valueLabel = { formatMinutes(it.toInt()) },
                             accent = SleepPurple,
@@ -122,7 +149,7 @@ internal fun GadgetbridgeHealthScreen() {
                     }
                 }
 
-                val bedtimeValues = recent14.mapNotNull { day ->
+                val bedtimeValues = historyThroughSelected.mapNotNull { day ->
                     day.sleepStartEpochSeconds?.let { epoch ->
                         day.date.format(dayFormatter) to bedtimeAxisMinutes(epoch)
                     }
@@ -131,7 +158,7 @@ internal fun GadgetbridgeHealthScreen() {
                     item {
                         LineChartCard(
                             title = "入睡时间变化",
-                            subtitle = "越靠上代表睡得越晚",
+                            subtitle = "截至所选日期，越靠上代表睡得越晚",
                             values = bedtimeValues,
                             accent = SleepPurple,
                             valueLabel = ::formatClockAxis,
@@ -139,12 +166,12 @@ internal fun GadgetbridgeHealthScreen() {
                     }
                 }
 
-                item { SectionTitle("今日身体概览", "基础指标集中展示，不再铺成长长的历史列表") }
+                item { SectionTitle("身体概览") }
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         MetricCard(
                             title = "步数",
-                            value = latest.steps.toString(),
+                            value = selectedDay.steps.toString(),
                             unit = "步",
                             icon = Icons.Outlined.DirectionsWalk,
                             accent = ActivityGreen,
@@ -153,7 +180,7 @@ internal fun GadgetbridgeHealthScreen() {
                         )
                         MetricCard(
                             title = "平均心率",
-                            value = latest.averageHeartRate?.toString() ?: "—",
+                            value = selectedDay.averageHeartRate?.toString() ?: "—",
                             unit = "次/分",
                             icon = Icons.Outlined.FavoriteBorder,
                             accent = WearableAccent,
@@ -166,7 +193,7 @@ internal fun GadgetbridgeHealthScreen() {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         MetricCard(
                             title = "血氧",
-                            value = latest.spo2?.toString() ?: "—",
+                            value = selectedDay.spo2?.toString() ?: "—",
                             unit = "%",
                             icon = Icons.Outlined.WaterDrop,
                             accent = OxygenBlue,
@@ -175,7 +202,7 @@ internal fun GadgetbridgeHealthScreen() {
                         )
                         MetricCard(
                             title = "压力",
-                            value = latest.stress?.toString() ?: "—",
+                            value = selectedDay.stress?.toString() ?: "—",
                             unit = "",
                             icon = Icons.Outlined.Speed,
                             accent = WarmAccent,
@@ -185,17 +212,16 @@ internal fun GadgetbridgeHealthScreen() {
                     }
                 }
 
-                item { ActivitySummaryCard(latest) }
-                item { ExtendedHealthCard(latest) }
+                item { ActivitySummaryCard(selectedDay) }
 
-                val heartValues = recent14.mapNotNull { day ->
+                val heartValues = historyThroughSelected.mapNotNull { day ->
                     day.averageHeartRate?.let { day.date.format(dayFormatter) to it.toFloat() }
                 }
                 if (heartValues.size >= 2) {
                     item {
                         LineChartCard(
                             title = "平均心率趋势",
-                            subtitle = "近 ${heartValues.size} 次记录",
+                            subtitle = "截至 ${selectedDate.format(longDateFormatter)} 的近 ${heartValues.size} 次记录",
                             values = heartValues,
                             accent = WearableAccent,
                             valueLabel = { "${it.toInt()} 次/分" },
@@ -203,27 +229,91 @@ internal fun GadgetbridgeHealthScreen() {
                     }
                 }
 
-                val oxygenValues = recent14.mapNotNull { day ->
+                val oxygenValues = historyThroughSelected.mapNotNull { day ->
                     day.spo2?.let { day.date.format(dayFormatter) to it.toFloat() }
                 }
                 if (oxygenValues.size >= 2) {
                     item {
                         LineChartCard(
                             title = "血氧趋势",
-                            subtitle = "近 ${oxygenValues.size} 次记录",
+                            subtitle = "截至 ${selectedDate.format(longDateFormatter)} 的近 ${oxygenValues.size} 次记录",
                             values = oxygenValues,
                             accent = OxygenBlue,
                             valueLabel = { "${it.toInt()}%" },
                         )
                     }
                 }
-
-                if (recent7.isNotEmpty()) {
-                    item { CompactWeekCard(recent7.reversed()) }
-                }
             }
         }
         item { Spacer(Modifier.height(20.dp)) }
+    }
+}
+
+@Composable
+private fun DateSelectorCard(
+    selectedDate: LocalDate,
+    firstDate: LocalDate,
+    lastDate: LocalDate,
+    onDateChange: (LocalDate) -> Unit,
+) {
+    val context = LocalContext.current
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = WearableCard,
+        shape = RoundedCornerShape(22.dp),
+        border = BorderStroke(1.dp, WearableLine),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconButton(
+                onClick = { onDateChange(selectedDate.minusDays(1)) },
+                enabled = selectedDate.isAfter(firstDate),
+            ) {
+                Icon(Icons.Outlined.ChevronLeft, "前一天", tint = WearableInk)
+            }
+            TextButton(
+                onClick = {
+                    DatePickerDialog(
+                        context,
+                        { _, year, month, dayOfMonth ->
+                            onDateChange(LocalDate.of(year, month + 1, dayOfMonth))
+                        },
+                        selectedDate.year,
+                        selectedDate.monthValue - 1,
+                        selectedDate.dayOfMonth,
+                    ).apply {
+                        datePicker.minDate = firstDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                        datePicker.maxDate = lastDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                    }.show()
+                },
+                modifier = Modifier.weight(1f),
+            ) {
+                Icon(Icons.Outlined.CalendarMonth, null, tint = WearableAccentDeep, modifier = Modifier.size(19.dp))
+                Spacer(Modifier.width(8.dp))
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        if (selectedDate == LocalDate.now()) "今天 · ${selectedDate.format(longDateFormatter)}"
+                        else selectedDate.format(longDateFormatter),
+                        color = WearableInk,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                    )
+                    Text(
+                        selectedDate.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.SIMPLIFIED_CHINESE),
+                        color = WearableMuted,
+                        fontSize = 10.sp,
+                    )
+                }
+            }
+            IconButton(
+                onClick = { onDateChange(selectedDate.plusDays(1)) },
+                enabled = selectedDate.isBefore(lastDate),
+            ) {
+                Icon(Icons.Outlined.ChevronRight, "后一天", tint = WearableInk)
+            }
+        }
     }
 }
 
@@ -278,7 +368,27 @@ private fun DisplayOnlyEmptyCard(message: String = "手环数据尚未授权。�
 }
 
 @Composable
-private fun SleepHeroCard(day: GadgetbridgeDaySummary?) {
+private fun NoDataForDateCard(date: LocalDate) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = WearableCard,
+        shape = RoundedCornerShape(24.dp),
+        border = BorderStroke(1.dp, WearableLine),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 28.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Icon(Icons.Outlined.EventBusy, null, tint = WearableMuted, modifier = Modifier.size(30.dp))
+            Text("${date.format(longDateFormatter)} 暂无数据", color = WearableInk, fontWeight = FontWeight.Bold)
+            Text("可以切换到前后日期查看 Gadgetbridge 已导出的记录。", color = WearableMuted, fontSize = 11.sp)
+        }
+    }
+}
+
+@Composable
+private fun SleepHeroCard(day: GadgetbridgeDaySummary?, selectedDate: LocalDate) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(30.dp),
@@ -299,7 +409,7 @@ private fun SleepHeroCard(day: GadgetbridgeDaySummary?) {
                 Column(Modifier.weight(1f)) {
                     Text("睡眠", color = WearableInk, fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     Text(
-                        day?.date?.let { "${it.monthValue}月${it.dayOfMonth}日夜间记录" } ?: "暂时没有睡眠记录",
+                        if (day != null) "${selectedDate.monthValue}月${selectedDate.dayOfMonth}日夜间记录" else "这一天没有睡眠记录",
                         color = WearableMuted,
                         fontSize = 11.sp,
                     )
@@ -406,11 +516,14 @@ private fun SleepStageCard(day: GadgetbridgeDaySummary) {
 private data class SleepStage(val name: String, val minutes: Int, val color: Color)
 
 @Composable
-private fun SectionTitle(title: String, subtitle: String) {
-    Column(Modifier.padding(top = 3.dp, start = 2.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(title, color = WearableInk, fontSize = 19.sp, fontWeight = FontWeight.Bold)
-        Text(subtitle, color = WearableMuted, fontSize = 11.sp)
-    }
+private fun SectionTitle(title: String) {
+    Text(
+        title,
+        color = WearableInk,
+        fontSize = 19.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(top = 3.dp, start = 2.dp),
+    )
 }
 
 @Composable
@@ -464,34 +577,6 @@ private fun ActivitySummaryCard(day: GadgetbridgeDaySummary) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 rowMetrics.forEach { metric -> DetailMetricCell(metric, Modifier.weight(1f)) }
                 if (rowMetrics.size == 1) Spacer(Modifier.weight(1f))
-            }
-        }
-    }
-}
-
-@Composable
-private fun ExtendedHealthCard(day: GadgetbridgeDaySummary) {
-    val metrics = listOfNotNull(
-        day.restingHeartRate?.let { DetailMetric(Icons.Outlined.FavoriteBorder, "静息心率", "$it 次/分") },
-        day.hrvMillis?.let { DetailMetric(Icons.Outlined.ShowChart, "心率变异性", "$it ms") },
-        day.respiratoryRate?.let { DetailMetric(Icons.Outlined.Air, "呼吸频率", "${formatDecimal(it)} 次/分") },
-        day.skinTemperatureCelsius?.let { DetailMetric(Icons.Outlined.Thermostat, "皮肤温度", "${formatDecimal(it)}℃") },
-        day.bodyEnergy?.let { DetailMetric(Icons.Outlined.BatteryChargingFull, "身体能量", "$it") },
-        day.systolicBloodPressure?.let { systolic ->
-            day.diastolicBloodPressure?.let { diastolic -> DetailMetric(Icons.Outlined.MonitorHeart, "血压", "$systolic/$diastolic") }
-        },
-        day.sleepScore?.let { DetailMetric(Icons.Outlined.StarOutline, "睡眠评分", "$it") },
-    )
-    WearablePanel {
-        Text("更多可读取指标", color = WearableInk, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-        if (metrics.isEmpty()) {
-            Text("当前数据库没有提供额外指标；有数据时会自动出现在这里。", color = WearableMuted, fontSize = 12.sp)
-        } else {
-            metrics.chunked(2).forEach { rowMetrics ->
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    rowMetrics.forEach { metric -> DetailMetricCell(metric, Modifier.weight(1f)) }
-                    if (rowMetrics.size == 1) Spacer(Modifier.weight(1f))
-                }
             }
         }
     }
@@ -596,33 +681,6 @@ private fun ChartEdgeLabels(values: List<Pair<String, Float>>) {
 }
 
 @Composable
-private fun CompactWeekCard(days: List<GadgetbridgeDaySummary>) {
-    WearablePanel {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("近7天概览", color = WearableInk, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-            Spacer(Modifier.weight(1f))
-            Text("睡眠 · 心率 · 步数", color = WearableMuted, fontSize = 10.sp)
-        }
-        days.forEachIndexed { index, day ->
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.width(52.dp)) {
-                    Text(day.date.format(dayFormatter), color = WearableInk, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                    Text(
-                        day.date.dayOfWeek.getDisplayName(java.time.format.TextStyle.SHORT, Locale.SIMPLIFIED_CHINESE),
-                        color = WearableMuted,
-                        fontSize = 9.sp,
-                    )
-                }
-                Text(day.sleepMinutes?.let(::formatMinutes) ?: "—", color = SleepPurple, fontSize = 11.sp, modifier = Modifier.weight(1f))
-                Text(day.averageHeartRate?.let { "$it bpm" } ?: "—", color = WearableAccent, fontSize = 11.sp, modifier = Modifier.weight(1f))
-                Text("${day.steps} 步", color = ActivityGreen, fontSize = 11.sp, modifier = Modifier.weight(1f))
-            }
-            if (index != days.lastIndex) HorizontalDivider(color = WearableLine.copy(alpha = 0.72f))
-        }
-    }
-}
-
-@Composable
 private fun WearablePanel(content: @Composable ColumnScope.() -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -640,6 +698,7 @@ private fun WearablePanel(content: @Composable ColumnScope.() -> Unit) {
 }
 
 private val dayFormatter = DateTimeFormatter.ofPattern("M/d")
+private val longDateFormatter = DateTimeFormatter.ofPattern("M月d日")
 private fun formatMinutes(minutes: Int): String = "${minutes / 60}时${minutes % 60}分"
 private fun formatDistance(meters: Int): String = if (meters >= 1_000) "%.2f 公里".format(Locale.getDefault(), meters / 1_000f) else "$meters 米"
 private fun formatClock(epochSeconds: Long): String = Instant.ofEpochSecond(epochSeconds)
@@ -654,4 +713,3 @@ private fun formatClockAxis(value: Float): String {
     val total = value.toInt().mod(24 * 60)
     return "%02d:%02d".format(Locale.getDefault(), total / 60, total % 60)
 }
-private fun formatDecimal(value: Float): String = "%.1f".format(Locale.getDefault(), value)
