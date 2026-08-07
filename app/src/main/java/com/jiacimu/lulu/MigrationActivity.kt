@@ -78,6 +78,18 @@ class MigrationActivity : ComponentActivity() {
         ProactivePerceptionScheduler.schedule(appContext)
 
         val initialConversationId = intent?.getStringExtra("open_conversation_id")
-        setContent { LuluMigrationRootAppV2(initialConversationId = initialConversationId) }
+        val initialRouteName = intent?.getStringExtra("open_route")
+        val initialCharacterId = intent?.getStringExtra("open_character_id")
+        val initialDiaryTitle = intent?.getStringExtra("open_diary_title")
+        val initialReadingTitle = intent?.getStringExtra("open_reading_title")
+        setContent {
+            LuluMigrationRootAppV2(
+                initialConversationId = initialConversationId,
+                initialRouteName = initialRouteName,
+                initialTargetCharacterId = initialCharacterId,
+                initialDiaryTitle = initialDiaryTitle,
+                initialReadingTitle = initialReadingTitle,
+            )
+        }
     }
 }
