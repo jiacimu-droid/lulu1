@@ -241,6 +241,17 @@ object ProactivePerceptionRuntime {
         val availableGroups = MigratedDomainStores.chat.conversations.value.filter { candidate ->
             candidate.groupChat?.members?.any { it.characterId == characterId } == true
         }
+        val lastCharacterIndex = messages.indexOfLast { message ->
+            message.sender == LuluChatMessage.Sender.Character && message.status == LuluChatMessage.Status.Sent
+        }
+        val pendingUserMessages = messages.drop(lastCharacterIndex + 1).filter { message ->
+            message.sender == LuluChatMessage.Sender.User && message.status == LuluChatMessage.Status.Sent
+        }
+        val pendingUserContext = pendingUserMessages.joinToString("\n") { message ->
+            val timestamp = message.createdAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))
+            val latestMark = if (message.id == pendingUserMessages.lastOrNull()?.id) "【最新，优先接住】" else ""
+            "- $timestamp $latestMark ${message.content.take(500)}"
+        }
         val recent = messages.takeLast(20).joinToString("\n") { message ->
             val speaker = when (message.sender) {
                 LuluChatMessage.Sender.User -> "用户"
@@ -290,6 +301,11 @@ object ProactivePerceptionRuntime {
                 if (concerns.isNotBlank()) appendLine("【挂心】\n$concerns")
                 if (commitments.isNotBlank()) appendLine("【承诺与监督】\n$commitments")
                 if (memoryContext.isNotBlank()) appendLine(memoryContext)
+                if (pendingUserContext.isNotBlank()) {
+                    appendLine("【尚未被你接住的新消息】")
+                    appendLine("这些消息出现在你上一次真实聊天回复之后，不是普通历史。用户还没有收到你对此的回应：")
+                    appendLine(pendingUserContext)
+                }
                 if (recent.isNotBlank()) appendLine("【最近聊天】\n$recent")
             },
             instruction = """
@@ -307,6 +323,7 @@ object ProactivePerceptionRuntime {
                 7. journal 是角色第一人称私人日记；moment 是角色愿意公开的朋友圈。不要把所有动作写成对用户的服务或监督。
                 8. 学习状态只在当前角色就是学习 App 的陪同角色时提供；没提供就代表这个角色没有权限知道，禁止猜。
                 9. 角色语气、主动程度、动作、心声必须服从人设。避免机械问候、固定催睡、固定催学习以及每次重复同一种动作。
+                10. 如果提供了【尚未被你接住的新消息】，把它视为当前私聊最优先的对话上下文。尤其当你选择 message 时，必须自然承接并回应其中标记为【最新，优先接住】的那一句，不能看见后仍另起一个无关话题。可以结合前面的连续几条一起回应，但不要机械复述用户原话，也不要说“针对你上一条消息”。如果此刻按人设真的不想回复，宁可选择 silent 或去做个人行为，也不要给用户发一条与这些未回复消息无关的私聊。
             """.trimIndent(),
             source = "后台主动感知",
             title = "${character.displayName}的主动感知",
