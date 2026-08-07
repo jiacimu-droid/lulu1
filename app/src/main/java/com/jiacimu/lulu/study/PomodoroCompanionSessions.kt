@@ -71,7 +71,6 @@ private fun compactPomodoroUtterance(raw: String, maxChars: Int): String {
 }
 
 class PomodoroCompanionStore private constructor(context: Context) {
-    // Reuse the previous preference file so an in-progress timer is not lost during this upgrade.
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val mutable = MutableStateFlow(load())
     val state: StateFlow<PomodoroCompanionPreferences> = mutable.asStateFlow()
@@ -278,6 +277,7 @@ object PomodoroCompanionSessions {
                 label = "共同番茄钟",
                 detail = buildString {
                     append("任务“$task”，实际学习 ${actualMinutes.coerceAtLeast(1)} 分钟，$reason。")
+                    if (rewardMessage.isNotBlank()) append("结算：$rewardMessage。")
                     if (transcript.isNotBlank()) append("期间的私聊：\n$transcript")
                 },
                 occurredAt = pomodoro.sessionStartedAtEpochMillis
@@ -288,36 +288,6 @@ object PomodoroCompanionSessions {
                 source = "pomodoro",
             )
         }
-
-        if (!pomodoro.automaticDialogueEnabled) return
-        val recentLines = recentPomodoroCharacterLines(conversationId)
-        scope.launch {
-            LuluAiServices.gateway.generate(
-                characterId = characterId,
-                facts = buildString {
-                    appendLine(studyState.roleStudyContext())
-                    appendLine("本次任务：$task")
-                    appendLine("实际记录时长：${actualMinutes.coerceAtLeast(0)}分钟")
-                    appendLine("结束方式：$reason")
-                    if (rewardMessage.isNotBlank()) appendLine("程序结算：$rewardMessage")
-                    appendLine("这句话会作为普通消息进入你和用户唯一的一对一私聊。")
-                    if (recentLines.isNotEmpty()) {
-                        appendLine("近期你在私聊里说过的话：")
-                        recentLines.forEach { appendLine("- $it") }
-                    }
-                },
-                instruction = "以角色自己的身份，自然说一句或两句番茄钟结束时会说的话。保持人设并严格依据真实时长和结束方式；提前结束或未满1分钟时不得说成完整完成。简短自然，只输出角色台词。",
-                source = "考研",
-                title = "番茄钟结束",
-                temperature = 0.95,
-                maxTokens = 130,
-            ).onSuccess { reply ->
-                val text = compactPomodoroUtterance(reply.text, maxChars = 58)
-                if (text.isNotBlank()) {
-                    MigratedDomainStores.chat.appendCharacterMessage(conversationId, text, characterId)
-                    speakIfEnabled(text, studyState.pomodoro.voiceEnabled)
-                }
-            }
-        }
+        // Completion is recorded, but characters no longer send an automatic ending message.
     }
 }
