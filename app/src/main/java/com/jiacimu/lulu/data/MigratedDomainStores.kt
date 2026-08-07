@@ -308,13 +308,24 @@ class InMemoryLuluChatStore : LuluChatStore {
                 message.id == candidateId && message.sender == LuluChatMessage.Sender.User
             } == true
         }
-        return LuluChatMessage(
-            conversationId = conversationId,
-            sender = LuluChatMessage.Sender.Character,
-            content = clean,
-            authorCharacterId = authorCharacterId,
-            replyToMessageId = effectiveReplyId,
-        ).also { message -> append(conversationId, message, incrementUnread = false) }
+        val bubbleContents = if (clean.startsWith("[游戏邀约|")) {
+            listOf(clean)
+        } else {
+            clean.replace("\r\n", "\n")
+                .split(Regex("\n+"))
+                .map(String::trim)
+                .filter(String::isNotBlank)
+        }
+        val created = bubbleContents.mapIndexed { index, bubble ->
+            LuluChatMessage(
+                conversationId = conversationId,
+                sender = LuluChatMessage.Sender.Character,
+                content = bubble,
+                authorCharacterId = authorCharacterId,
+                replyToMessageId = effectiveReplyId.takeIf { index == 0 },
+            ).also { message -> append(conversationId, message, incrementUnread = false) }
+        }
+        return created.last()
     }
 
     override fun appendSystemMessage(conversationId: String, content: String): LuluChatMessage {
