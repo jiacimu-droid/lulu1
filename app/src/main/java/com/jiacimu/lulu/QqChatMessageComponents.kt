@@ -31,11 +31,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluGroupChat
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -132,6 +132,15 @@ internal fun QqMessageRow(
     val triggerPx = remember(density) { with(density) { 58.dp.toPx() } }
     val maxDragPx = remember(density) { with(density) { 92.dp.toPx() } }
     var swipeOffset by remember(message.id) { mutableFloatStateOf(0f) }
+    val timeText = remember(message.createdAt) {
+        message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm"))
+    }
+    val anchorCharacterId = remember(message.authorCharacterId, message.conversationId, mine) {
+        if (mine) null else message.authorCharacterId
+            ?: MigratedDomainStores.chat.conversations.value
+                .firstOrNull { it.id == message.conversationId }
+                ?.characterId
+    }
 
     Box(Modifier.fillMaxWidth()) {
         if (swipeOffset < -6f) {
@@ -180,7 +189,12 @@ internal fun QqMessageRow(
                         characterName.take(1).ifBlank { "露" },
                         44,
                         characterAvatarUri,
-                        Modifier.clickable(onClick = onCharacterAvatarClick),
+                        Modifier.clickable {
+                            anchorCharacterId?.let { id ->
+                                CompanionPresenceStore.selectMessageAnchor(id, message.createdAt)
+                            }
+                            onCharacterAvatarClick()
+                        },
                     )
                 }
             }
@@ -198,61 +212,73 @@ internal fun QqMessageRow(
                     )
                 }
                 if (gameInvite != null) {
-                    GameInviteMessageCard(gameInvite, onAccept = { onAcceptGame(gameInvite.gameId) })
+                    Row(
+                        modifier = if (mine) Modifier.align(Alignment.End) else Modifier.align(Alignment.Start),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        GameInviteMessageCard(
+                            invite = gameInvite,
+                            onAccept = { onAcceptGame(gameInvite.gameId) },
+                            modifier = Modifier.widthIn(max = if (showTime) 260.dp else 300.dp),
+                        )
+                        if (showTime) Text(timeText, color = QqMuted, fontSize = 10.sp)
+                    }
                     Spacer(Modifier.height(5.dp))
                 }
                 bubbles.filter { it.isNotBlank() }.forEachIndexed { index, bubble ->
-                    val bubbleWidth = if (bubble.length >= 52) Modifier.fillMaxWidth() else Modifier.widthIn(max = 300.dp)
-                    Surface(
-                        modifier = bubbleWidth.combinedClickable(onClick = {}, onLongClick = onLongClick),
-                        color = if (mine) QqMine else QqOther,
-                        shape = RoundedCornerShape(15.dp),
-                        border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
-                        shadowElevation = 0.dp,
+                    val isLastBubble = index == bubbles.lastIndex
+                    Row(
+                        modifier = if (mine) Modifier.align(Alignment.End) else Modifier.align(Alignment.Start),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
-                            repliedMessageContent?.let { quoted ->
-                                Surface(
-                                    color = if (mine) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.78f),
-                                    shape = RoundedCornerShape(8.dp),
-                                ) {
+                        Surface(
+                            modifier = Modifier
+                                .widthIn(max = if (showTime && isLastBubble) 260.dp else 300.dp)
+                                .combinedClickable(onClick = {}, onLongClick = onLongClick),
+                            color = if (mine) QqMine else QqOther,
+                            shape = RoundedCornerShape(15.dp),
+                            border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
+                            shadowElevation = 0.dp,
+                        ) {
+                            Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+                                repliedMessageContent?.let { quoted ->
+                                    Surface(
+                                        color = if (mine) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.78f),
+                                        shape = RoundedCornerShape(8.dp),
+                                    ) {
+                                        Text(
+                                            quoted,
+                                            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp),
+                                            color = if (mine) QqMineInk.copy(alpha = 0.72f) else QqMuted,
+                                            fontSize = 11.sp,
+                                            maxLines = 2,
+                                        )
+                                    }
+                                    Spacer(Modifier.height(6.dp))
+                                }
+                                Text(
+                                    bubble,
+                                    color = if (mine) QqMineInk else QqInk,
+                                    fontSize = 15.sp,
+                                    lineHeight = 22.sp,
+                                )
+                                if (message.favorite && isLastBubble) {
+                                    Spacer(Modifier.height(4.dp))
                                     Text(
-                                        quoted,
-                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp),
-                                        color = if (mine) QqMineInk.copy(alpha = 0.72f) else QqMuted,
-                                        fontSize = 11.sp,
-                                        maxLines = 2,
+                                        "★ 已收藏",
+                                        color = if (mine) Color.White.copy(alpha = 0.68f) else QqMuted,
+                                        fontSize = 10.sp,
                                     )
                                 }
-                                Spacer(Modifier.height(6.dp))
-                            }
-                            Text(
-                                bubble,
-                                color = if (mine) QqMineInk else QqInk,
-                                fontSize = 15.sp,
-                                lineHeight = 22.sp,
-                            )
-                            if (message.favorite && index == bubbles.lastIndex) {
-                                Spacer(Modifier.height(4.dp))
-                                Text(
-                                    "★ 已收藏",
-                                    color = if (mine) Color.White.copy(alpha = 0.68f) else QqMuted,
-                                    fontSize = 10.sp,
-                                )
                             }
                         }
+                        if (showTime && isLastBubble) {
+                            Text(timeText, color = QqMuted, fontSize = 10.sp)
+                        }
                     }
-                    if (index != bubbles.lastIndex) Spacer(Modifier.height(5.dp))
-                }
-                if (showTime) {
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm")),
-                        color = QqMuted,
-                        fontSize = 10.sp,
-                        textAlign = if (mine) TextAlign.End else TextAlign.Start,
-                        modifier = Modifier.padding(horizontal = 4.dp),
-                    )
+                    if (!isLastBubble) Spacer(Modifier.height(5.dp))
                 }
             }
             Spacer(Modifier.width(9.dp))
@@ -341,12 +367,16 @@ private fun parseGameInvite(content: String): GameInviteMessage? {
 }
 
 @Composable
-private fun GameInviteMessageCard(invite: GameInviteMessage, onAccept: () -> Unit) {
+private fun GameInviteMessageCard(
+    invite: GameInviteMessage,
+    onAccept: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Card(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         border = BorderStroke(1.dp, QqBorder),
         shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
     ) {
         Column(Modifier.fillMaxWidth()) {
             Box(
