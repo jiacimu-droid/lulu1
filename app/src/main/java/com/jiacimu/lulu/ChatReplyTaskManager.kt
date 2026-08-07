@@ -1,10 +1,10 @@
 package com.jiacimu.lulu
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,12 +30,14 @@ object ChatReplyTaskManager {
 
     class TaskContext internal constructor(private val conversationId: String) {
         fun setTypingCharacter(characterId: String?) {
-            updateState(conversationId) { current -> current.copy(typingCharacterId = characterId) }
+            ChatReplyTaskManager.updateState(conversationId) { current ->
+                current.copy(typingCharacterId = characterId)
+            }
         }
 
         fun reportError(message: String) {
             val clean = message.trim().ifBlank { "回复失败" }
-            updateState(conversationId) { current -> current.copy(lastError = clean) }
+            ChatReplyTaskManager.updateState(conversationId) { current -> current.copy(lastError = clean) }
         }
     }
 
@@ -64,7 +66,7 @@ object ChatReplyTaskManager {
                     startedAt = Instant.now(),
                 )
             }
-            val job = appScope.launch {
+            val job = appScope.launch(start = CoroutineStart.LAZY) {
                 try {
                     TaskContext(cleanId).block()
                 } catch (cancelled: kotlinx.coroutines.CancellationException) {
@@ -79,6 +81,7 @@ object ChatReplyTaskManager {
                 }
             }
             jobs[cleanId] = job
+            job.start()
             return true
         }
     }
