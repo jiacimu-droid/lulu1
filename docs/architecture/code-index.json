@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T15:55:22.277978+00:00",
-  "commit": "dc2765e5d834f0bb864fd94fea340012139f95bc",
+  "generatedAt": "2026-08-07T15:58:38.466518+00:00",
+  "commit": "eabba2d7ccdb974de314a68110b2d6cd2ecc9801",
   "branch": "main",
-  "sourceFingerprint": "4936e82b9ae1e0049792d5c60cda0601b1462f9dea069045efe11127d8b5e0ef",
+  "sourceFingerprint": "3c1d9c51a8a7a71e89c28768b899c3a508b26482d0c2aa804e4f9c5b1ccac078",
   "summary": {
     "files": 126,
     "lines": 31649,
@@ -4082,7 +4082,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
       "lines": 830,
-      "sha256": "a3fbbeeac55d972a210325bb807ac3587ddec41f2aa0c897f059c50554c5009b",
+      "sha256": "ed0e59ac0c871de57a3580ed5d41b642738bb0f015a6396e385446b94fe8a769",
       "symbols": [
         {
           "name": "LuluChatMessage",
