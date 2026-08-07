@@ -1,6 +1,8 @@
 package com.jiacimu.lulu
 
+import android.app.TimePickerDialog
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,14 +14,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jiacimu.lulu.data.CharacterContactPolicy
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.PerceptionIntervalUnit
+import com.jiacimu.lulu.data.ProactivePerceptionPolicyStore
 import com.jiacimu.lulu.design.LuluColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,27 +33,24 @@ fun CharacterSettingsScreenV2(
     onBack: () -> Unit,
     onDeleted: () -> Unit,
 ) {
+    val context = LocalContext.current
+    remember(context) {
+        ProactivePerceptionPolicyStore.initialize(context.applicationContext)
+        Unit
+    }
     val settings by MigratedDomainStores.characters.settings.collectAsState()
+    val perceptionPolicies by ProactivePerceptionPolicyStore.policies.collectAsState()
     val original = settings[characterId] ?: MigratedDomainStores.characters.get(characterId)
+    val perceptionPolicy = perceptionPolicies[characterId] ?: ProactivePerceptionPolicyStore.get(characterId)
     val worldBooks by LuluRepositories.worldBook.observeWorldBooks().collectAsState(initial = emptyList())
     val scope = rememberCoroutineScope()
     var displayName by remember(characterId) { mutableStateOf(original.displayName) }
     var avatarUri by remember(characterId) { mutableStateOf(original.avatarUri) }
     var persona by remember(characterId) { mutableStateOf(original.persona) }
-    var contactEnabled by remember(characterId) { mutableStateOf(original.contactPolicy.enabled) }
-    var adaptiveFrequency by remember(characterId) { mutableStateOf(original.contactPolicy.adaptiveFrequency) }
-    var quietHours by remember(characterId) { mutableStateOf(original.contactPolicy.quietHoursEnabled) }
-    var quietStart by remember(characterId) { mutableStateOf(original.contactPolicy.quietStartHour.toString()) }
-    var quietEnd by remember(characterId) { mutableStateOf(original.contactPolicy.quietEndHour.toString()) }
     var proactiveCalls by remember(characterId) { mutableStateOf(original.contactPolicy.proactiveCallsEnabled) }
-    var callStart by remember(characterId) { mutableStateOf(original.contactPolicy.callWindowStartHour.toString()) }
-    var callEnd by remember(characterId) { mutableStateOf(original.contactPolicy.callWindowEndHour.toString()) }
     var confirmDelete by remember { mutableStateOf(false) }
 
-    LaunchedEffect(
-        displayName, avatarUri, persona, contactEnabled, adaptiveFrequency, quietHours,
-        quietStart, quietEnd, proactiveCalls, callStart, callEnd,
-    ) {
+    LaunchedEffect(displayName, avatarUri, persona, proactiveCalls) {
         if (displayName.isBlank()) return@LaunchedEffect
         delay(350)
         MigratedDomainStores.characters.update(
@@ -56,18 +58,29 @@ fun CharacterSettingsScreenV2(
                 displayName = displayName.trim(),
                 avatarUri = avatarUri,
                 persona = persona.trim(),
-                contactPolicy = CharacterContactPolicy(
-                    enabled = contactEnabled,
-                    adaptiveFrequency = adaptiveFrequency,
-                    quietHoursEnabled = quietHours,
-                    quietStartHour = quietStart.toIntOrNull()?.coerceIn(0, 23) ?: 23,
-                    quietEndHour = quietEnd.toIntOrNull()?.coerceIn(0, 23) ?: 7,
-                    proactiveCallsEnabled = proactiveCalls,
-                    callWindowStartHour = callStart.toIntOrNull()?.coerceIn(0, 23) ?: 9,
-                    callWindowEndHour = callEnd.toIntOrNull()?.coerceIn(0, 23) ?: 22,
-                ),
+                contactPolicy = original.contactPolicy.copy(proactiveCallsEnabled = proactiveCalls),
             ),
         )
+    }
+
+    fun setPerceptionEnabled(enabled: Boolean) {
+        ProactivePerceptionPolicyStore.update(characterId) { current ->
+            if (!enabled) {
+                current.copy(
+                    enabled = false,
+                    rememberedAdaptiveFrequency = current.adaptiveFrequency,
+                    rememberedQuietHoursEnabled = current.quietHoursEnabled,
+                    adaptiveFrequency = false,
+                    quietHoursEnabled = false,
+                )
+            } else {
+                current.copy(
+                    enabled = true,
+                    adaptiveFrequency = current.rememberedAdaptiveFrequency,
+                    quietHoursEnabled = current.rememberedQuietHoursEnabled,
+                )
+            }
+        }
     }
 
     Scaffold(
@@ -129,24 +142,69 @@ fun CharacterSettingsScreenV2(
             }
             item {
                 CharacterV2Card {
-                    Text("主动联系", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    CharacterV2Switch("允许主动联系", "角色可以根据关系和情境主动发消息。", contactEnabled) { contactEnabled = it }
-                    CharacterV2Switch("由角色自适应频率", "不写死每日次数；根据用户状态降低或增加。", adaptiveFrequency) { adaptiveFrequency = it }
-                    CharacterV2Switch("夜间勿扰", "只限制角色主动联系，不影响用户主动打开聊天。", quietHours) { quietHours = it }
-                    if (quietHours) {
-                        CharacterV2HourRow("勿扰开始", quietStart) { quietStart = it }
-                        CharacterV2HourRow("勿扰结束", quietEnd) { quietEnd = it }
+                    Text("主动感知", fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    CharacterV2Switch(
+                        "允许主动感知",
+                        "到这个角色自己的感知时间后，角色会醒来看看此刻，再决定是否行动。",
+                        perceptionPolicy.enabled,
+                    ) { setPerceptionEnabled(it) }
+                    CharacterV2Switch(
+                        "由角色自适应频率",
+                        "以你设置的间隔为最低频率；连续选择不打扰时只会适当延长，最长约 2 倍，不会变得更频繁。",
+                        perceptionPolicy.adaptiveFrequency,
+                        enabled = perceptionPolicy.enabled,
+                    ) { checked ->
+                        ProactivePerceptionPolicyStore.update(characterId) {
+                            it.copy(adaptiveFrequency = checked, rememberedAdaptiveFrequency = checked)
+                        }
+                    }
+                    CharacterV2Switch(
+                        "夜间勿扰",
+                        "勿扰时间内暂停主动感知，到结束时间后再继续；不影响你主动找角色聊天。",
+                        perceptionPolicy.quietHoursEnabled,
+                        enabled = perceptionPolicy.enabled,
+                    ) { checked ->
+                        ProactivePerceptionPolicyStore.update(characterId) {
+                            it.copy(quietHoursEnabled = checked, rememberedQuietHoursEnabled = checked)
+                        }
+                    }
+                    if (perceptionPolicy.enabled) {
+                        CharacterV2IntervalRow(
+                            value = perceptionPolicy.intervalValue.toString(),
+                            unit = perceptionPolicy.intervalUnit,
+                            onValueChange = { text ->
+                                val value = text.toIntOrNull() ?: return@CharacterV2IntervalRow
+                                ProactivePerceptionPolicyStore.update(characterId) { it.copy(intervalValue = value) }
+                            },
+                            onUnitChange = { unit ->
+                                ProactivePerceptionPolicyStore.update(characterId) { it.copy(intervalUnit = unit) }
+                            },
+                        )
+                    }
+                    if (perceptionPolicy.enabled && perceptionPolicy.quietHoursEnabled) {
+                        CharacterV2TimeRow(
+                            label = "勿扰开始",
+                            minutesOfDay = perceptionPolicy.quietStartMinutesOfDay,
+                        ) { minutes ->
+                            ProactivePerceptionPolicyStore.update(characterId) { it.copy(quietStartMinutesOfDay = minutes) }
+                        }
+                        CharacterV2TimeRow(
+                            label = "勿扰结束",
+                            minutesOfDay = perceptionPolicy.quietEndMinutesOfDay,
+                        ) { minutes ->
+                            ProactivePerceptionPolicyStore.update(characterId) { it.copy(quietEndMinutesOfDay = minutes) }
+                        }
                     }
                 }
             }
             item {
                 CharacterV2Card {
                     Text("主动来电", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    CharacterV2Switch("允许主动来电", "角色只有在全局通知许可和自己的时间窗内才能主动来电。", proactiveCalls) { proactiveCalls = it }
-                    if (proactiveCalls) {
-                        CharacterV2HourRow("来电开始", callStart) { callStart = it }
-                        CharacterV2HourRow("来电结束", callEnd) { callEnd = it }
-                    }
+                    CharacterV2Switch(
+                        "允许主动来电",
+                        "角色在主动感知时可以选择给你打电话；不再另外限制每日次数或冷却时间。",
+                        proactiveCalls,
+                    ) { proactiveCalls = it }
                 }
             }
             item {
@@ -202,24 +260,76 @@ fun CharacterSettingsScreenV2(
 }
 
 @Composable
-private fun CharacterV2HourRow(label: String, value: String, onValueChange: (String) -> Unit) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = { onValueChange(it.filter(Char::isDigit).take(2)) },
-        label = { Text("$label（0—23）") },
-        singleLine = true,
-        modifier = Modifier.fillMaxWidth(),
-    )
+private fun CharacterV2IntervalRow(
+    value: String,
+    unit: PerceptionIntervalUnit,
+    onValueChange: (String) -> Unit,
+    onUnitChange: (PerceptionIntervalUnit) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+        Text("感知时间间隔", fontWeight = FontWeight.SemiBold)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            OutlinedTextField(
+                value = value,
+                onValueChange = { text ->
+                    val clean = text.filter(Char::isDigit).take(3)
+                    if (clean.isNotBlank()) onValueChange(clean)
+                },
+                singleLine = true,
+                modifier = Modifier.weight(1f),
+            )
+            PerceptionIntervalUnit.entries.forEach { option ->
+                FilterChip(
+                    selected = unit == option,
+                    onClick = { onUnitChange(option) },
+                    label = { Text(option.label) },
+                )
+            }
+        }
+        Text("计时从最近一次聊天或上一次感知结束后重新开始。", color = LuluColors.Muted, fontSize = 11.sp)
+    }
 }
 
 @Composable
-private fun CharacterV2Switch(title: String, subtitle: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+private fun CharacterV2TimeRow(label: String, minutesOfDay: Int, onChange: (Int) -> Unit) {
+    val context = LocalContext.current
+    val hour = minutesOfDay / 60
+    val minute = minutesOfDay % 60
+    Surface(
+        modifier = Modifier.fillMaxWidth().clickable {
+            TimePickerDialog(
+                context,
+                { _, selectedHour, selectedMinute -> onChange(selectedHour * 60 + selectedMinute) },
+                hour,
+                minute,
+                true,
+            ).show()
+        },
+        color = LuluColors.Paper,
+        shape = RoundedCornerShape(14.dp),
+        border = BorderStroke(1.dp, LuluColors.Border),
+    ) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(label, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            Text(String.format(Locale.getDefault(), "%02d:%02d", hour, minute), color = LuluColors.Muted)
+        }
+    }
+}
+
+@Composable
+private fun CharacterV2Switch(
+    title: String,
+    subtitle: String,
+    checked: Boolean,
+    enabled: Boolean = true,
+    onCheckedChange: (Boolean) -> Unit,
+) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f).padding(end = 10.dp)) {
-            Text(title, fontWeight = FontWeight.SemiBold)
+            Text(title, fontWeight = FontWeight.SemiBold, color = if (enabled) LocalContentColor.current else LuluColors.Muted)
             Text(subtitle, color = LuluColors.Muted, fontSize = 12.sp)
         }
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
+        Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
     }
 }
 
