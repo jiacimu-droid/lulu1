@@ -225,7 +225,7 @@ fun CharacterSettingsScreenV2(
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
                     ) {
-                        Icon(Icons.Outlined.DeleteSweep, null)
+                        Icon(Icons.Outlined.DeleteOutline, null)
                         Spacer(Modifier.width(6.dp))
                         Text(if (clearingRecords) "正在清除…" else "清除所有记录")
                     }
