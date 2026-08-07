@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ed49be50437cf0517d2bcf3d72dc36ece6d51fb9`
+- 基准提交：`c325016744955ba73549a9c781604bbbe68e9fcf`
 - 分支：`main`
 - 已索引文件：124
-- 已索引代码/文本行：31188
+- 已索引代码/文本行：31203
 - 已发现符号：508
 
 | 文件 | 行数 | 符号数 |
@@ -28,7 +28,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 206 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 509 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 555 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 471 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 486 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 727 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 96 | 1 |
