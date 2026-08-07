@@ -299,14 +299,21 @@ class InMemoryLuluChatStore : LuluChatStore {
         authorCharacterId: String?,
         replyToMessageId: String?,
     ): LuluChatMessage {
-        val clean = content.trim()
+        val quoteRegex = Regex("⟪QUOTE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
+        val markerQuoteId = quoteRegex.find(content)?.groupValues?.getOrNull(1)?.trim()?.takeIf(String::isNotBlank)
+        val clean = content.replace(quoteRegex, "").trim()
         require(clean.isNotEmpty()) { "Message content cannot be blank" }
+        val effectiveReplyId = replyToMessageId ?: markerQuoteId?.takeIf { candidateId ->
+            messageStates[conversationId]?.value?.any { message ->
+                message.id == candidateId && message.sender == LuluChatMessage.Sender.User
+            } == true
+        }
         return LuluChatMessage(
             conversationId = conversationId,
             sender = LuluChatMessage.Sender.Character,
             content = clean,
             authorCharacterId = authorCharacterId,
-            replyToMessageId = replyToMessageId,
+            replyToMessageId = effectiveReplyId,
         ).also { message -> append(conversationId, message, incrementUnread = false) }
     }
 
