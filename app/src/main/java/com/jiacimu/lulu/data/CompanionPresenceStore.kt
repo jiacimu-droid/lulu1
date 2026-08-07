@@ -238,6 +238,6 @@ private fun JSONObject.toPresenceState(fallbackCharacterId: String): CompanionPr
 
 private fun String?.cleanPresence(limit: Int): String? = this
     ?.trim()
-    ?.replace(Regex("\s+"), " ")
+    ?.replace(Regex("\\s+"), " ")
     ?.take(limit)
     ?.takeIf(String::isNotBlank)
