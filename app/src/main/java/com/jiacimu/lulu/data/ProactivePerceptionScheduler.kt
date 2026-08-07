@@ -15,56 +15,77 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.health.GadgetbridgeHealthStore
+import com.jiacimu.lulu.study.PostgraduateExamStores
+import com.jiacimu.lulu.study.StarWishStores
+import java.time.Duration
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 /**
- * Keeps perception alive after the activity is backgrounded or the process is killed.
+ * Durable scheduler for proactive perception.
  *
- * WorkManager owns the long model request, so it is not constrained by BroadcastReceiver's short
- * execution window. Periodic work survives process death and reboot; real screen/notification
- * changes enqueue a debounced one-time run.
+ * There are only two automatic sources:
+ * 1) each character's configured fixed interval (with a 2-hour WorkManager watchdog), and
+ * 2) pending concern/promise state, which can cancel adaptive stretching but never beats the
+ *    user's base interval.
+ *
+ * Screen changes and notifications are read as context only and never schedule work.
  */
 object ProactivePerceptionScheduler {
-    private const val PERIODIC_WORK = "lulu-periodic-perception"
-    private const val SIGNAL_WORK = "lulu-signal-perception"
-    private const val DEFAULT_DELAY_MINUTES = 30L
+    private const val WATCHDOG_WORK = "lulu-perception-watchdog-v2"
+    private const val NEXT_DUE_WORK = "lulu-perception-next-due-v2"
+    private const val MANUAL_WORK = "lulu-perception-manual-v2"
 
-    fun schedule(context: Context, delayMinutes: Long = DEFAULT_DELAY_MINUTES, trigger: String = "后台定时") {
+    fun schedule(context: Context) {
         val appContext = context.applicationContext
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-        val periodic = PeriodicWorkRequestBuilder<ProactivePerceptionWorker>(30, TimeUnit.MINUTES)
+        val constraints = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+        val watchdog = PeriodicWorkRequestBuilder<ProactivePerceptionWorker>(2, TimeUnit.HOURS)
             .setConstraints(constraints)
-            .setInputData(Data.Builder().putString("trigger", "后台定时").build())
+            .setInputData(Data.Builder().putString("trigger", "后台两小时守护").build())
             .build()
         WorkManager.getInstance(appContext).enqueueUniquePeriodicWork(
-            PERIODIC_WORK,
+            WATCHDOG_WORK,
             ExistingPeriodicWorkPolicy.UPDATE,
-            periodic,
+            watchdog,
         )
-        if (delayMinutes != DEFAULT_DELAY_MINUTES || trigger != "后台定时") {
-            enqueueOneTime(appContext, delayMinutes.coerceAtLeast(0L), trigger)
+        scheduleNextDue(appContext)
+    }
+
+    fun scheduleNextDue(context: Context) {
+        val appContext = context.applicationContext
+        val manager = WorkManager.getInstance(appContext)
+        val due = runCatching { ProactivePerceptionRuntime.nextDueAt(appContext) }.getOrNull()
+        if (due == null) {
+            manager.cancelUniqueWork(NEXT_DUE_WORK)
+            return
         }
-    }
-
-    fun scheduleSoon(context: Context, trigger: String) {
-        enqueueOneTime(context.applicationContext, 1L, trigger)
-    }
-
-    private fun enqueueOneTime(context: Context, delayMinutes: Long, trigger: String) {
+        val delayMillis = Duration.between(Instant.now(), due).toMillis().coerceAtLeast(0L)
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
-            .setInitialDelay(delayMinutes, TimeUnit.MINUTES)
-            .setConstraints(
-                Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build(),
-            )
-            .setInputData(Data.Builder().putString("trigger", trigger.take(80)).build())
+            .setInitialDelay(delayMillis, TimeUnit.MILLISECONDS)
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(Data.Builder().putString("trigger", "角色时间间隔").build())
             .build()
-        WorkManager.getInstance(context).enqueueUniqueWork(
-            SIGNAL_WORK,
-            ExistingWorkPolicy.REPLACE,
-            request,
-        )
+        manager.enqueueUniqueWork(NEXT_DUE_WORK, ExistingWorkPolicy.REPLACE, request)
+    }
+
+    fun scheduleConcernPromise(context: Context, characterId: String) {
+        ProactivePerceptionRuntime.markConcernPromisePending(context.applicationContext, characterId)
+    }
+
+    fun scheduleManual(context: Context, characterId: String) {
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(
+                Data.Builder()
+                    .putString("trigger", "用户手动检查")
+                    .putString("characterId", characterId)
+                    .putBoolean("force", true)
+                    .build(),
+            )
+            .build()
+        WorkManager.getInstance(context.applicationContext)
+            .enqueueUniqueWork("$MANUAL_WORK-$characterId", ExistingWorkPolicy.REPLACE, request)
     }
 }
 
@@ -74,28 +95,37 @@ class ProactivePerceptionWorker(
 ) : CoroutineWorker(appContext, workerParameters) {
     override suspend fun doWork(): Result = runCatching {
         initializeBackgroundRuntime(applicationContext)
-        ProactiveMessageAutomation.initialize(applicationContext)
-        val trigger = inputData.getString("trigger").orEmpty().ifBlank { "后台定时" }
-        ProactiveMessageAutomation.runBackgroundCycle(trigger = trigger)
+        ProactivePerceptionRuntime.initialize(applicationContext)
+        val trigger = inputData.getString("trigger").orEmpty().ifBlank { "角色时间间隔" }
+        val characterId = inputData.getString("characterId")?.takeIf(String::isNotBlank)
+        val force = inputData.getBoolean("force", false)
+        ProactivePerceptionRuntime.runDueCycle(
+            context = applicationContext,
+            trigger = trigger,
+            targetCharacterId = characterId,
+            force = force,
+        )
+        ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
         Result.success()
     }.getOrElse {
         if (runAttemptCount < 2) Result.retry() else Result.failure()
     }
 }
 
-/** Compatibility receiver: any old pending alarm is converted into durable WorkManager work. */
+/** Old pending alarms no longer trigger a model call; they only rebuild the next due schedule. */
 class ProactivePerceptionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val trigger = intent.getStringExtra("trigger").orEmpty().ifBlank { "后台唤醒" }
-        ProactivePerceptionScheduler.scheduleSoon(context.applicationContext, trigger)
+        ProactivePerceptionScheduler.scheduleNextDue(context.applicationContext)
     }
 }
 
-/** Restores and immediately verifies the perception heartbeat after reboot or cover-install. */
+/** Rebuild the durable watchdog and per-character timer after reboot or cover-install. */
 class ProactivePerceptionBootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
-            ProactivePerceptionScheduler.schedule(context.applicationContext, delayMinutes = 2L, trigger = "开机恢复")
+            initializeBackgroundRuntime(context.applicationContext)
+            ProactivePerceptionRuntime.initialize(context.applicationContext)
+            ProactivePerceptionScheduler.schedule(context.applicationContext)
         }
     }
 }
@@ -114,4 +144,8 @@ private fun initializeBackgroundRuntime(context: Context) {
     CompanionPresenceStore.initialize(context)
     LuluAiServices.initialize(context)
     MemoryModelRuntime.initialize(context)
+    ProactivePerceptionPolicyStore.initialize(context)
+    PostgraduateExamStores.initialize(context)
+    StarWishStores.initialize(context)
+    GadgetbridgeHealthStore.initialize(context)
 }
