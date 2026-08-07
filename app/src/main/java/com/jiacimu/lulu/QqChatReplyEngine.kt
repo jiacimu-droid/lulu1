@@ -11,6 +11,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlin.math.abs
+import kotlin.random.Random
 
 internal const val SemanticBubbleSeparator = "⟪BUBBLE⟫"
 private val QuoteDirectiveRegex = Regex("⟪QUOTE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
@@ -41,7 +42,6 @@ internal fun stripCharacterReplyDirective(text: String): String =
 internal fun normalizeSemanticBubbles(text: String): String {
     val raw = text.replace("\r\n", "\n").trim()
     if (raw.isBlank()) return ""
-    // Keep action markers only until the reply presentation layer converts them into structured effects.
     val quoteMarker = QuoteDirectiveRegex.find(raw)?.value.orEmpty()
     val favoriteMarker = FavoriteDirectiveRegex.find(raw)?.value.orEmpty()
     val recallMarker = RecallDirectiveRegex.find(raw)?.value.orEmpty()
@@ -76,18 +76,18 @@ internal fun parseCharacterReplyPresentation(text: String): CharacterReplyPresen
 
 private fun rolePacingSeed(characterId: String): Long = abs(characterId.hashCode().toLong())
 
-/** A cached group speaker still waits a little before the first bubble so the typing state is visible. */
+/** Give the typing indicator enough time to feel like a person is actually composing the next send. */
 internal fun roleTypingLeadDelayMillis(characterId: String): Long =
-    420L + (rolePacingSeed(characterId) % 680L)
+    900L + (rolePacingSeed(characterId) % 1_100L)
 
 private fun roleBubbleDelayMillis(characterId: String, bubble: String, bubbleIndex: Int): Long {
-    val personalityBeat = 260L + (rolePacingSeed(characterId) % 360L)
-    val contentBeat = (bubble.length * 9L).coerceIn(60L, 330L)
-    return (personalityBeat + contentBeat + bubbleIndex * 35L).coerceIn(320L, 1_050L)
+    val personalityBeat = 620L + (rolePacingSeed(characterId) % 520L)
+    val contentBeat = (bubble.length * 18L).coerceIn(180L, 1_050L)
+    return (personalityBeat + contentBeat + bubbleIndex * 90L).coerceIn(850L, 2_500L)
 }
 
 private fun roleRecallDelayMillis(characterId: String): Long =
-    520L + (rolePacingSeed(characterId) % 360L)
+    900L + (rolePacingSeed(characterId) % 650L)
 
 /**
  * Reveals already-generated bubbles one by one. This never calls the model; it only controls local
@@ -115,6 +115,7 @@ internal suspend fun appendRoleReplyWithPacing(
     }
     val spokenMessages = mutableListOf<LuluChatMessage>()
 
+    delay(roleTypingLeadDelayMillis(characterId))
     bubbles.forEachIndexed { index, bubble ->
         if (!currentCoroutineContext().isActive) return@forEachIndexed
         val created = MigratedDomainStores.chat.appendCharacterMessage(
@@ -140,7 +141,7 @@ internal suspend fun appendRoleReplyWithPacing(
         CharacterMessageFavorites.favorite(characterId, conversationId, target)
     }
     if (presentation.pokeUser && currentCoroutineContext().isActive) {
-        delay(360L + rolePacingSeed(characterId) % 300L)
+        delay(700L + rolePacingSeed(characterId) % 500L)
         MigratedDomainStores.chat.appendSystemMessage(conversationId, "[戳一戳] $characterLabel 戳了戳你。")
     }
     spokenMessages.forEach { message ->
@@ -206,22 +207,21 @@ internal suspend fun runGroupReplies(
         .filterNot { it.id in recalledBeforeLoop }
         .lastOrNull { it.sender == LuluChatMessage.Sender.Character }
         ?.authorCharacterId
+    val random = Random(System.nanoTime())
     val remaining = validMembers
         .filterNot { candidate -> mentioned.any { it.characterId == candidate.characterId } }
-        .let { members ->
-            if (members.size > 1 && members.firstOrNull()?.characterId == lastSpeaker) members.drop(1) + members.first()
-            else members
-        }
+        .shuffled(random)
+        .sortedBy { candidate -> candidate.characterId == lastSpeaker }
     val ordered = mentioned + remaining
     val explicitAll = pendingText.contains("@全体成员")
     val replyLimit = when {
-        group.allowCharacterConversation -> group.maxAutoReplies.coerceAtLeast(validMembers.size)
         explicitAll -> validMembers.size.coerceAtMost(group.maxAutoReplies.coerceAtLeast(validMembers.size))
-        mentioned.isNotEmpty() -> mentioned.size.coerceAtMost(group.maxAutoReplies)
+        mentioned.isNotEmpty() -> group.maxAutoReplies.coerceAtLeast(mentioned.size)
+        group.allowCharacterConversation -> group.maxAutoReplies
         else -> 1
     }.coerceIn(1, 8)
     val pendingSpeakers = when {
-        explicitAll -> ordered.toMutableList()
+        explicitAll -> validMembers.shuffled(random).toMutableList()
         mentioned.isNotEmpty() -> mentioned.toMutableList()
         else -> mutableListOf(ordered.first())
     }
@@ -231,7 +231,6 @@ internal suspend fun runGroupReplies(
         val member = pendingSpeakers.removeAt(0)
         if (!currentCoroutineContext().isActive) return
         onSpeakerChange(member.characterId)
-        if (index > 0) delay(roleTypingLeadDelayMillis(member.characterId))
         val character = MigratedDomainStores.characters.get(member.characterId)
         val memberLabel = member.groupNickname.ifBlank { character.displayName }
         val allLatestMessages = MigratedDomainStores.chat.messages(conversationId).value
@@ -251,12 +250,14 @@ internal suspend fun runGroupReplies(
         val groupInput = buildString {
             appendLine("[这是群聊，不是私聊。群名：${group.name}；群成员：${group.userGroupNickname}、$memberList。]")
             appendLine("[当前由你（$memberLabel）发言。只代表你自己，严格遵循你的人设和关系边界；不要替别人说话，不要输出姓名标签。]")
-            appendLine("[群聊也是连续发生的生活过程。已经出现过的发言、情绪、动作和成员反应都是真实上一刻；从现在的群聊状态继续，不要把用户最初的话当成每一位成员都要重新回答一次的问题。]")
+            appendLine("[群聊是连续发生的生活过程，不是排队答题。成员不需要轮流发言，也不需要每个人都回应；谁想接话、谁沉默、谁连续多说几句，都应由当下内容、人设和关系决定。]")
+            appendLine("[不要按照成员列表顺序安排下一位发言人。若这一刻自然会有人接话，只根据谁最可能真的想说话来选择 ⟪NEXT:成员名⟫；没人需要接就结束。]")
             if (quotableUserMessages.isNotEmpty()) {
                 appendLine("[以下是近期真实的用户气泡；消息ID只用于引用或收藏动作，不属于聊天正文：]")
                 quotableUserMessages.forEach { item -> appendLine("[消息ID=${item.id} 内容=${qqForwardContextText(item.content).take(300)}]") }
-                appendLine("[需要针对用户某一句单独回应时，可在整段回复最前输出 ⟪QUOTE:消息ID⟫；不要为了展示功能而每次引用。]")
-                appendLine("[如果你本人真的很想把用户某一句留下来以后再看，可以在整段回复最前额外输出 ⟪FAVORITE:消息ID⟫。收藏是角色自己的选择，不是用户收藏，也不要滥用；只能使用上面真实存在的用户消息ID。引用和收藏可以各自出现，也可以都不出现。]")
+                appendLine("[引用是正常聊天动作，不必过度克制：当用户连续发了几条、你要针对其中某一句单独回答、话题已经往后走但你想捡回某句、或不引用会让指代不清时，可以在整段回复最前输出 ⟪QUOTE:消息ID⟫。只回应最新一句且上下文很清楚时不必硬引用。]")
+                appendLine("[收藏是你这个角色自己的主观行为。如果用户说了让你很在意、很喜欢、想以后记住或回看的话，例如承诺、特殊称呼、重要心意、戳中你的句子、对关系有意义的瞬间，可以输出 ⟪FAVORITE:消息ID⟫。是否收藏必须服从你的人设和当下感受，不要固定概率，也不要为了展示功能乱收藏。]")
+                appendLine("[⟪QUOTE:...⟫ 与 ⟪FAVORITE:...⟫ 可以同时出现，也可以都不出现；只能使用上面真实存在的消息ID。]")
             }
             if (index > 0) {
                 val previousMessage = latestMessages.lastOrNull { it.sender == LuluChatMessage.Sender.Character }
@@ -266,14 +267,14 @@ internal suspend fun runGroupReplies(
                         ?.ifBlank { "上一位角色" }
                 } ?: "上一位角色"
                 appendLine("[$previousName 刚刚说：${previousMessage?.content?.takeLast(900).orEmpty()}]")
-                appendLine("[你现在站在 $previousName 说完后的下一刻，主要对刚发生的内容作出你自己的反应。可以赞同、质疑、追问、开玩笑或补充；不要重新回到话题起点。]")
+                appendLine("[你现在站在 $previousName 说完后的下一刻，主要对刚发生的内容作出你自己的反应。可以赞同、质疑、追问、开玩笑、插嘴、岔开或不接用户原题；不要重新回到话题起点。]")
             }
             appendLine("[这是即时通讯软件里的线上聊天。请按你自己的语气、停顿、情绪变化、补充、转折、追问和聊天习惯决定什么时候按一次发送。现实聊天中会在这里按发送，就在这里结束当前气泡。]")
             appendLine("[一个气泡通常只承载一个当下表达动作。若先回应、再补一句、再转折或追问，现实聊天会分别按发送，就用 $SemanticBubbleSeparator 分成多个短气泡。不要按固定字数机械切分，也不要把多个表达动作硬塞进一个大气泡。]")
             appendLine("[只有非常少见、很符合当下人设的情况下，例如刚说出口就觉得说漏嘴、说重了或突然后悔，才可以在回复末尾输出 ⟪RECALL:n⟫，n 是本次第 n 个气泡（从1开始）。不要为了显得像真人而频繁撤回。]")
             appendLine("[如果你此刻真的会自然地戳一下用户，可以在回复末尾输出 ⟪POKE_USER⟫；尤其用户刚戳过你时可以考虑戳回来，但不要滥用。]")
             if (group.allowCharacterConversation) {
-                appendLine("[根据此刻的内容判断群聊是否还会自然继续：若某位成员会接话，在末尾输出 ⟪NEXT:成员名⟫；全员都至少参与一次以后，若已经自然结束，输出 ⟪END⟫。不要按固定顺序轮流，也不要为了让某个人重复发言而硬续。该标记不会显示给用户。]")
+                appendLine("[若另一位成员此刻真的会自然接话，在末尾输出 ⟪NEXT:成员名⟫；若这轮自然停下，输出 ⟪END⟫。不要为了凑人数、轮班或让每个人都露脸而硬续。该标记不会显示给用户。]")
             }
             if (index == 0) append("用户刚在群里说：$pendingText")
             else append("这轮话题最初由用户说：$pendingText")
@@ -322,6 +323,7 @@ internal suspend fun runGroupReplies(
             if (group.allowCharacterConversation && !flow.shouldEnd && index + 1 < replyLimit) {
                 val requestedNext = flow.nextSpeakerName?.let { requested ->
                     validMembers.firstOrNull { candidate ->
+                        if (candidate.characterId == member.characterId) return@firstOrNull false
                         val nickname = candidate.groupNickname.ifBlank { characterNames[candidate.characterId].orEmpty() }
                         val displayName = characterNames[candidate.characterId].orEmpty()
                         requested.equals(nickname, ignoreCase = true) || requested.equals(displayName, ignoreCase = true)
