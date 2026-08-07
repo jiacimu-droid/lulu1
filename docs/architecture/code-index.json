@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T07:06:36.601971+00:00",
-  "commit": "07f9cf5fab77d0b9e16a3caaa8f51230ef43b785",
+  "generatedAt": "2026-08-07T07:07:57.228346+00:00",
+  "commit": "2ebce674e7cc0f50fdd13996e3a146ad9f2d3ab9",
   "branch": "main",
-  "sourceFingerprint": "f3eccf4ac19b14fceeceddade1f6bc117af0889b4051dbf159641bcb0de9b086",
+  "sourceFingerprint": "04427e237e57531031ccdc022d5048268cca27830e50b24e93017852f731a4bd",
   "summary": {
     "files": 124,
-    "lines": 31246,
-    "symbols": 508
+    "lines": 31042,
+    "symbols": 505
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -2558,24 +2558,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
         "line": 37
-      }
-    ],
-    "privateConversationId": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt",
-        "line": 94
-      }
-    ],
-    "startPomodoro": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt",
-        "line": 100
-      }
-    ],
-    "finishEarly": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt",
-        "line": 132
       }
     ],
     "defaultPrompts": [
@@ -5267,22 +5249,9 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt",
-      "lines": 355,
-      "sha256": "077a68d4f94a7518d9becc1c51a62e1507803404da336e7478e4147a9fd927ff",
-      "symbols": [
-        {
-          "name": "privateConversationId",
-          "line": 94
-        },
-        {
-          "name": "startPomodoro",
-          "line": 100
-        },
-        {
-          "name": "finishEarly",
-          "line": 132
-        }
-      ]
+      "lines": 151,
+      "sha256": "ee61c1945b8b5b4ab2feec6d39d7589a66752e411d0b58b4d00e93de37fc35ef",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",

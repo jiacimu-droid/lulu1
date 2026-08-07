@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`07f9cf5fab77d0b9e16a3caaa8f51230ef43b785`
+- 基准提交：`2ebce674e7cc0f50fdd13996e3a146ad9f2d3ab9`
 - 分支：`main`
 - 已索引文件：124
-- 已索引代码/文本行：31246
-- 已发现符号：508
+- 已索引代码/文本行：31042
+- 已发现符号：505
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -95,7 +95,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 46 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt` | 208 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt` | 65 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt` | 355 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt` | 151 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt` | 331 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishInventoryBridge.kt` | 49 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt` | 76 | 1 |
