@@ -2,7 +2,6 @@ package com.jiacimu.lulu.system
 
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelReply
-import com.jiacimu.lulu.data.CharacterSettings
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluConversation
@@ -14,15 +13,13 @@ import org.json.JSONObject
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import kotlin.math.ceil
 
 /**
- * Plans one natural multi-turn group discussion with one model request.
+ * Plans one natural group-chat continuation with one model request.
  *
- * Every character participates, but participation is not a one-person-one-line roll call. The same
- * character may return several times to answer the user, respond to another member, interrupt,
- * challenge, joke or pull the topic back. The complete exchange is generated once and cached; the
- * existing chat loop then reveals it turn by turn without making another API request.
+ * The configured auto-reply count is only a safety ceiling. It is never a target or a minimum:
+ * one character may answer once and stop, several characters may join, or someone may naturally
+ * come back later if the conversation really calls for it.
  */
 internal object GroupEnsembleReplyEngine {
     private const val BubbleSeparator = "⟪BUBBLE⟫"
@@ -74,7 +71,7 @@ internal object GroupEnsembleReplyEngine {
             return Result.success(ModelReply(text = "群里现在没有足够的成员能接话。$EndMarker"))
         }
         if (validMembers.size > 8) {
-            return Result.success(ModelReply(text = "这个群目前超过了 8 个角色，暂时无法保证所有人都完整参与这一轮。$EndMarker"))
+            return Result.success(ModelReply(text = "这个群目前超过了 8 个角色，暂时无法稳定编排这一轮。$EndMarker"))
         }
 
         val currentSpeakerId = characterId.takeIf { requested ->
@@ -91,17 +88,7 @@ internal object GroupEnsembleReplyEngine {
                 latestUserMessage.content.contains("@$displayName", ignoreCase = true)
         }.map(LuluGroupMember::characterId)
 
-        val memberCount = validMembers.size
-        val replyLimit = group.maxAutoReplies.coerceIn(memberCount, 8)
-        val minimumDiscussionTurns = ceil(memberCount * 1.6)
-            .toInt()
-            .coerceIn(memberCount, replyLimit)
-        val requiredSpeakerIds = buildList {
-            add(currentSpeakerId)
-            mentionedIds.forEach { id -> if (id !in this) add(id) }
-            validMembers.forEach { member -> if (member.characterId !in this) add(member.characterId) }
-        }
-
+        val replyLimit = group.maxAutoReplies.coerceIn(1, 8)
         val connection = runCatching { LuluAiServices.connectionStore.resolveConnection(archiveId) }
             .getOrElse { error ->
                 return Result.success(fallbackReply(currentSpeakerId, memberLabels, error.message))
@@ -117,11 +104,10 @@ internal object GroupEnsembleReplyEngine {
                 appendLine("当前真实场景：$sceneContext")
                 appendLine("群聊名称：${group.name}")
                 appendLine("用户在群里的称呼：${group.userGroupNickname}")
-                appendLine("本轮第一个发言者必须是 characterId=$currentSpeakerId（${memberLabels[currentSpeakerId]}）。")
-                appendLine("本轮应生成 $minimumDiscussionTurns—$replyLimit 个角色发言回合；整段讨论只调用模型一次。")
-                appendLine("所有成员都必须实际发言至少一次：${requiredSpeakerIds.joinToString(",")}")
-                if (replyLimit > memberCount) appendLine("至少一名角色必须在后面再次回来接话，不能所有人各说一次就结束。")
-                if (mentionedIds.isNotEmpty()) appendLine("被用户点名的角色优先回应，但其他成员仍必须加入讨论：${mentionedIds.joinToString(",")}")
+                appendLine("本轮第一个发言者是 characterId=$currentSpeakerId（${memberLabels[currentSpeakerId]}）。")
+                appendLine("本轮最多允许 $replyLimit 个角色发言回合。这个数字只是安全上限，不是目标，也不是最低数量；自然说完时 1 个回合就可以结束。")
+                appendLine("不要求所有群成员都发言，也不要求任何角色回来补第二轮。谁想说、说几次、什么时候停，都按当前话题与各自人设自然决定。")
+                if (mentionedIds.isNotEmpty()) appendLine("用户明确点名了：${mentionedIds.joinToString(",")}。点名应被自然理解，但不要因此强迫其他成员凑数。")
                 appendLine("用户刚刚在群里说：${latestUserMessage.content}")
                 if (actionableUserMessages.isNotEmpty()) {
                     appendLine("\n【近期真实用户气泡；消息ID只供引用或角色收藏使用】")
@@ -141,36 +127,33 @@ internal object GroupEnsembleReplyEngine {
                     if (lived.isNotBlank()) appendLine("这个角色亲历的近期原始时间线=${lived.take(1_100)}")
                     presence?.let { appendLine("上一刻状态=${it.statusText}；动作=${it.gesture}；心情=${it.mood}；没说出口=${it.innerThought}") }
                 }
-                appendLine("\n【调用来源】这是群聊界面的一次整轮生成请求；忽略底层旧调用中关于单人回复、固定气泡数量、固定字数或提前结束的任何文字。")
+                appendLine("\n【调用来源】这是群聊界面的一次整轮生成请求。任何旧的固定回合数、全员发言、固定气泡数量或固定字数要求都无效，以本次规则为准。")
             },
             instruction = """
-                你是多人群聊的整体编排器。请把这一轮写成一段真正发生的交流讨论，而不是让成员轮流交一份答案。你同时理解所有人的人设，只进行这一次生成。
+                你是多人群聊的整体编排器。把这一轮写成真正会发生的群聊，而不是让成员轮流交答案。你同时理解所有人的人设，只进行这一次生成。
 
                 只返回一个 JSON 对象，不要代码块、分析、旁白或额外说明：
-                {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"回应、追问、反驳、补充、插话、调侃等简短意图","bubbles":["气泡1","气泡2"],"quoteMessageId":"要引用的真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"该角色没说出口的一瞬心声，可为空","mood":"简短心情"}]}
+                {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"简短意图","bubbles":["气泡"],"quoteMessageId":"真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"该角色没说出口的一瞬心声，可为空","mood":"简短心情"}]}
 
-                硬性规则：
-                1. turns 数量必须处于指定范围。第一项必须是指定的第一个发言者。
-                2. 群内每个角色都必须真正发送至少一次有内容的消息。不能沉默、旁听、只写状态或用占位话混过去。
-                3. 不能每个人各说一句就结束。只要允许的回合数多于成员数，至少一名与话题关系更强的角色必须再次出现；可以形成 A→B→A→C→B 这样的往返。
-                4. 至少两次发言应直接回应其他角色，replyTo 填对方真实 characterId；同时也要有人直接回应用户。禁止所有人都只盯着用户从头回答一遍。
-                5. 后续角色必须接住已经发生的内容：赞同、质疑、反驳、追问、补充、插话、玩笑、改口或把跑偏的话拉回来。允许隔一两个人后再次回到先前的分歧。
-                6. 全员参与不等于平均分配。话题核心人物可以出现两三次；安静或冷淡的人可以说得短，但仍应给出符合其人设的真实反应。
-                7. 不要把讨论写得过分整齐。允许短插话、半句反应、打断、改口和轻微跑题，但每一条都必须对交流有作用，禁止连续输出“哈哈”“确实”等空话。
-                8. 每个角色必须严格保持自己的语言习惯、关系边界、称呼和性格差异。不要把所有人统一写成温柔助手，也不要让一个角色替另一个角色发言。
-                9. 这是即时通讯软件里的日常线上群聊。bubbles 就是这个角色实际一次次按下“发送”后出现的消息气泡。先想清楚这个角色此刻真正想表达什么，再按照他自己的语气、停顿、情绪变化、犹豫、补充、转折、追问、吐槽和聊天习惯，自然决定什么时候结束当前气泡、什么时候再发下一条。
-                10. 不按标点、句号、固定字数或固定气泡数量机械切分，也不要为了减少气泡而把现实聊天中本来会分开发送的话强行塞成长段。判断标准是：如果这个角色现实聊天时会在这里按一次发送，就在这里结束一个 bubble。
-                11. quoteMessageId 是可选能力。只有某个角色确实是在针对用户此前某一句气泡单独回应，而且使用引用会更自然时，才填入上方提供的真实消息ID；否则留空。不能引用不存在的ID，不能把角色ID填进去，也不能每个角色都引用。
-                12. favoriteMessageId 也是可选能力，而且应比普通引用更少见。只有这个角色本人真的很想把用户某一句留下来、以后仍愿意再看到时才收藏；只能填上方真实用户消息ID，否则留空。收藏是角色自己的行为，不是为了展示功能，也不要让所有角色对同一句机械收藏。
-                13. 不要虚构用户当前身体、环境或正在做的事情。只能依据用户刚说的话、群聊记录、角色设定和真实时间线互动。
-                14. 最后一两轮可以自然把话重新抛给主人，也可以停在一个仍有余味的观点上；禁止写“讨论结束”“大家都发表了意见”等总结式收尾。
-                15. ${if (isCall) "这是实时群聊电话，quoteMessageId 和 favoriteMessageId 都留空；语言必须更口语化、适合直接念出。" else "这是文字群聊，可以自然使用短促停顿、连续气泡、偶尔引用，以及极少量符合角色意愿的收藏。"}
-                16. statusText、gesture、innerThought、mood 分别属于当前角色本人，不能写成系统分析或推理过程。
+                规则：
+                1. turns 只能在 1 到给定安全上限之间。第一项必须是指定的第一个发言者。安全上限绝不是要填满的目标；一名角色回一句就自然结束，是完全正常的结果。
+                2. 不要求全员参与，不要求每个角色至少说一次，也不要求有人重复出现。只有真的想接话的人才出现；安静、冷淡或觉得没必要说的人可以这一轮完全不发言。
+                3. 如果话题自然形成往返，可以 A→B→A、A→C→B，也可以只有 A。不要固定 ABAB，不要按成员列表轮流，更不要为了“像群聊”强行延长讨论。
+                4. 后续角色如果出现，应真正接住已经发生的内容：赞同、质疑、反驳、追问、补充、插话、玩笑或改口；不要每个人都从头重新回答用户同一个问题。
+                5. 每个角色必须严格保持自己的语言习惯、关系边界、称呼和性格差异。不要把所有人统一写成温柔助手，也不要让一个角色替另一个角色发言。
+                6. bubbles 是这个角色实际一次次按下“发送”后出现的气泡。气泡数量没有最低值、没有推荐值，也没有“至少三条”之类的要求。一个气泡非常正常；只有现实聊天里这个角色真的会停一下再补一句、转折、追问、吐槽或改口时，才继续拆出第二、第三个或更多气泡。
+                7. 不按标点、句号、固定字数或固定数量机械切分，也不要为了显得活泼、丰富或有层次而强行拆成三四条。反过来也不要把本来会分开发送的话硬塞成长段。唯一标准是这个角色现实聊天时会不会在这里按一次发送。
+                8. quoteMessageId 是可选能力。只有确实针对用户此前某一句气泡单独回应且引用更自然时才填写真实消息ID，否则留空；不能编造ID。
+                9. favoriteMessageId 也是可选能力，而且应更少见。只有角色本人真的很想把用户某一句留下来以后再看时才收藏；只能填写提供过的真实用户消息ID，否则留空。
+                10. 不要虚构用户当前身体、环境或正在做的事情。只能依据用户刚说的话、群聊记录、角色设定和真实时间线互动。
+                11. 最后一轮不需要总结，也不需要“把话题交给主人”。自然停住就可以。
+                12. ${if (isCall) "这是实时群聊电话，quoteMessageId 和 favoriteMessageId 都留空；语言必须更口语化、适合直接念出。" else "这是文字群聊，可以自然使用短促停顿、连续气泡、偶尔引用，以及极少量符合角色意愿的收藏。"}
+                13. statusText、gesture、innerThought、mood 分别属于当前角色本人，不能写成系统分析或推理过程。
             """.trimIndent(),
-            source = if (isCall) "群聊电话·单次多轮讨论" else "群聊·单次多轮讨论",
+            source = if (isCall) "群聊电话·自然多人讨论" else "群聊·自然多人讨论",
             title = title,
             temperature = 0.96,
-            maxTokens = (900 + replyLimit * 390).coerceIn(1_500, 3_800),
+            maxTokens = (700 + replyLimit * 300).coerceIn(1_100, 3_200),
             connectionOverride = connection,
         )
 
@@ -182,14 +165,10 @@ internal object GroupEnsembleReplyEngine {
             replyLimit = replyLimit,
             validUserMessageIds = if (isCall) emptySet() else validUserMessageIds,
         )
-        val completed = ensureDiscussionShape(
+        val completed = normalizePlan(
             parsed = parsed,
-            requiredSpeakerIds = requiredSpeakerIds,
             currentSpeakerId = currentSpeakerId,
-            minimumTurns = minimumDiscussionTurns,
             replyLimit = replyLimit,
-            userText = latestUserMessage.content,
-            settings = settings,
         )
 
         synchronized(lock) {
@@ -228,7 +207,7 @@ internal object GroupEnsembleReplyEngine {
             gesture = served.turn.gesture,
             innerThought = served.turn.innerThought,
             mood = served.turn.mood,
-            source = "群聊·单次多轮讨论",
+            source = "群聊·自然多人讨论",
         )
         val marker = served.nextLabel?.let { "⟪NEXT:$it⟫" } ?: EndMarker
         val quote = served.turn.quoteMessageId?.let { "⟪QUOTE:$it⟫" }.orEmpty()
@@ -264,7 +243,7 @@ internal object GroupEnsembleReplyEngine {
                     if (size >= replyLimit) break
                     val item = array.optJSONObject(index) ?: continue
                     val rawSpeaker = item.optString("characterId").ifBlank { item.optString("speaker") }.ifBlank { item.optString("name") }
-                    val resolvedId = resolveSpeakerId(rawSpeaker, validMembers, memberLabels, settings) ?: continue
+                    val resolvedId = resolveSpeakerId(rawSpeaker, validMembers, memberLabels, settings.mapValues { it.value.displayName }) ?: continue
                     val rawBubbles = buildList {
                         val bubblesArray = item.optJSONArray("bubbles")
                         if (bubblesArray != null) {
@@ -294,114 +273,56 @@ internal object GroupEnsembleReplyEngine {
         }.getOrDefault(emptyList())
     }
 
-    private fun ensureDiscussionShape(
+    private fun normalizePlan(
         parsed: List<PlannedTurn>,
-        requiredSpeakerIds: List<String>,
         currentSpeakerId: String,
-        minimumTurns: Int,
         replyLimit: Int,
-        userText: String,
-        settings: Map<String, CharacterSettings>,
     ): List<PlannedTurn> {
-        val required = requiredSpeakerIds.toSet()
-        val result = parsed.filter { it.characterId in required }.take(replyLimit).toMutableList()
-
-        requiredSpeakerIds.forEach { missingId ->
-            if (result.any { it.characterId == missingId }) return@forEach
-            val target = result.lastOrNull()?.characterId ?: "user"
-            val replacement = fallbackParticipationTurn(missingId, target, userText, settings[missingId])
-            if (result.size < replyLimit) result += replacement
-            else {
-                val counts = result.groupingBy(PlannedTurn::characterId).eachCount()
-                val replaceIndex = result.indexOfLast { turn -> turn.characterId != currentSpeakerId && counts.getOrDefault(turn.characterId, 0) > 1 }
-                    .takeIf { it >= 0 }
-                    ?: result.indexOfLast { turn -> counts.getOrDefault(turn.characterId, 0) > 1 }
-                if (replaceIndex >= 0) result[replaceIndex] = replacement
-            }
+        val trimmed = parsed.take(replyLimit)
+        if (trimmed.isEmpty()) return listOf(fallbackTurn(currentSpeakerId))
+        val currentIndex = trimmed.indexOfFirst { it.characterId == currentSpeakerId }
+        if (currentIndex == 0) return trimmed
+        if (currentIndex > 0) {
+            val first = trimmed[currentIndex]
+            return listOf(first) + trimmed.filterIndexed { index, _ -> index != currentIndex }
         }
-
-        var cursor = 0
-        while (result.size < minimumTurns && result.size < replyLimit) {
-            val lastSpeaker = result.lastOrNull()?.characterId
-            val candidates = requiredSpeakerIds.filterNot { it == lastSpeaker }.ifEmpty { requiredSpeakerIds }
-            val speakerId = candidates[cursor % candidates.size]
-            val target = result.lastOrNull()?.characterId ?: "user"
-            result += fallbackContinuationTurn(speakerId, target, userText, settings[speakerId])
-            cursor += 1
-        }
-        return orderForRequestedSpeaker(result, currentSpeakerId)
+        if (replyLimit <= 1) return listOf(fallbackTurn(currentSpeakerId))
+        return listOf(fallbackTurn(currentSpeakerId)) + trimmed.take(replyLimit - 1)
     }
 
-    private fun fallbackParticipationTurn(characterId: String, replyTo: String, userText: String, character: CharacterSettings?): PlannedTurn {
-        val topic = cleanTopic(userText)
-        val bubbles = when (personaTone(character)) {
-            PersonaTone.Reserved -> listOf("我也听到了。", "关于“$topic”，我不想只给一个敷衍的结论。")
-            PersonaTone.Lively -> listOf("等等，我也要加入。", "你们说到“$topic”就想直接翻篇？我还有意见呢。")
-            PersonaTone.Direct -> listOf("我补一句。", "“$topic”这件事，刚才那个说法还不够准确。")
-            PersonaTone.Neutral -> listOf("我也接一下。", "你刚才提到“$topic”，我更想知道真正卡住你的是什么。")
-        }
-        return PlannedTurn(characterId, replyTo, "加入并补充", bubbles, null, null, "加入讨论", "接过话头", "这一轮我也有自己的反应。", "投入")
-    }
-
-    private fun fallbackContinuationTurn(characterId: String, replyTo: String, userText: String, character: CharacterSettings?): PlannedTurn {
-        val topic = cleanTopic(userText)
-        val bubbles = when (personaTone(character)) {
-            PersonaTone.Reserved -> listOf("刚才那句我还没完全同意。", "至少在“$topic”这一点上，不能这么快下结论。")
-            PersonaTone.Lively -> listOf("不行，我得再接一句。", "你刚才那个角度挺有意思，但“$topic”明明还能继续聊呀。")
-            PersonaTone.Direct -> listOf("先别急着收尾。", "你刚刚绕开的那部分，恰好才是“$topic”的重点。")
-            PersonaTone.Neutral -> listOf("我想再接着问一句。", "听完你们刚才的话，我反而更在意“$topic”背后的原因。")
-        }
-        return PlannedTurn(characterId, replyTo, "再次接话", bubbles, null, null, "继续讨论", "顺着上一句话继续", "这个话题还没有真正说完。", "认真")
-    }
-
-    private enum class PersonaTone { Reserved, Lively, Direct, Neutral }
-
-    private fun personaTone(character: CharacterSettings?): PersonaTone {
-        val persona = character?.persona.orEmpty()
-        return when {
-            listOf("冷淡", "寡言", "克制", "沉默", "内敛").any { persona.contains(it) } -> PersonaTone.Reserved
-            listOf("活泼", "开朗", "话多", "元气", "爱闹").any { persona.contains(it) } -> PersonaTone.Lively
-            listOf("直接", "毒舌", "强势", "锋利", "严肃").any { persona.contains(it) } -> PersonaTone.Direct
-            else -> PersonaTone.Neutral
-        }
-    }
-
-    private fun cleanTopic(userText: String): String = userText
-        .replace(Regex("@[^\\s，。！？!?]+"), "")
-        .replace("\n", " ")
-        .trim()
-        .take(30)
-        .ifBlank { "刚才这个话题" }
+    private fun fallbackTurn(characterId: String): PlannedTurn = PlannedTurn(
+        characterId = characterId,
+        replyTo = "user",
+        intent = "回应",
+        bubbles = listOf("我先接一下你刚刚这句。"),
+        quoteMessageId = null,
+        favoriteMessageId = null,
+        statusText = "正在群里回应",
+        gesture = "顺着消息接话",
+        innerThought = "",
+        mood = "平静",
+    )
 
     private fun resolveSpeakerId(
         raw: String,
         validMembers: List<LuluGroupMember>,
         memberLabels: Map<String, String>,
-        settings: Map<String, CharacterSettings>,
+        displayNames: Map<String, String>,
     ): String? {
         val clean = raw.trim()
         if (clean.isBlank()) return null
         return validMembers.firstOrNull { member ->
             val label = memberLabels[member.characterId].orEmpty()
-            val displayName = settings[member.characterId]?.displayName.orEmpty()
+            val displayName = displayNames[member.characterId].orEmpty()
             clean == member.characterId || clean.equals(label, ignoreCase = true) || clean.equals(displayName, ignoreCase = true)
         }?.characterId
     }
 
-    private fun orderForRequestedSpeaker(turns: List<PlannedTurn>, requestedCharacterId: String): List<PlannedTurn> {
-        val firstIndex = turns.indexOfFirst { it.characterId == requestedCharacterId }
-        if (firstIndex <= 0) return turns
-        val first = turns[firstIndex]
-        return listOf(first) + turns.filterIndexed { index, _ -> index != firstIndex }
-    }
-
-    private fun normalizeBubbles(values: List<String>): List<String> {
-        return values.flatMap { value ->
-            value.replace("\r\n", "\n")
-                .split(BubbleSeparator)
-                .map { part -> part.replace(Regex("\\s*\\n+\\s*"), " ").trim().trim('"', '“', '”') }
-        }.filter(String::isNotBlank)
-    }
+    private fun normalizeBubbles(values: List<String>): List<String> = values.flatMap { value ->
+        value.replace("\r\n", "\n")
+            .split(BubbleSeparator)
+            .map { part -> part.replace(Regex("\s*\n+\s*"), " ").trim().trim('"', '“', '”') }
+    }.filter(String::isNotBlank)
 
     private fun fallbackReply(characterId: String, labels: Map<String, String>, reason: String?): ModelReply {
         val label = labels[characterId].orEmpty()
