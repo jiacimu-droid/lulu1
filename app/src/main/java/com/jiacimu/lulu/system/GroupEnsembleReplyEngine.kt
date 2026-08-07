@@ -344,7 +344,7 @@ internal object GroupEnsembleReplyEngine {
     private fun normalizeBubbles(values: List<String>): List<String> = values.flatMap { value ->
         value.replace("\r\n", "\n")
             .split(BubbleSeparator)
-            .map { part -> part.replace(Regex("\s*\n+\s*"), " ").trim().trim('"', '“', '”') }
+            .map { part -> part.lines().joinToString(" ") { line -> line.trim() }.trim().trim('"', '“', '”') }
     }.filter(String::isNotBlank)
 
     private fun fallbackReply(characterId: String, labels: Map<String, String>, reason: String?): ModelReply {
