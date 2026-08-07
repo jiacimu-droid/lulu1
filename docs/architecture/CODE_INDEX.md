@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`4c422db4dc7196726872e4cbabcff38d5563ee71`
+- 基准提交：`f2961f931970045b9492d4021cf9a69862c1e277`
 - 分支：`main`
-- 已索引文件：122
-- 已索引代码/文本行：31023
-- 已发现符号：506
+- 已索引文件：123
+- 已索引代码/文本行：31063
+- 已发现符号：507
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -44,6 +44,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 219 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 698 | 24 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 125 | 28 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 40 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 258 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 82 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 66 | 2 |

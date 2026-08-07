@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T06:57:43.830104+00:00",
-  "commit": "4c422db4dc7196726872e4cbabcff38d5563ee71",
+  "generatedAt": "2026-08-07T06:59:01.603664+00:00",
+  "commit": "f2961f931970045b9492d4021cf9a69862c1e277",
   "branch": "main",
-  "sourceFingerprint": "74c942276c3e9b1133ec98786f6b75811cfe66fee384bb4da26e28d14e617f4e",
+  "sourceFingerprint": "fffc79ddab1686751d577643ef41b58f5171f8f50588a371e24b446f4f345918",
   "summary": {
-    "files": 122,
-    "lines": 31023,
-    "symbols": 506
+    "files": 123,
+    "lines": 31063,
+    "symbols": 507
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -814,6 +814,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
         "line": 121
+      }
+    ],
+    "CharacterRecordReset": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt",
+        "line": 10
       }
     ],
     "ChatLexiconAutomation": [
@@ -3598,6 +3604,17 @@
         {
           "name": "observeDurations",
           "line": 121
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt",
+      "lines": 40,
+      "sha256": "4a55f62cee21666c6e6a0090d7aea6a0ed1e89a83239beed0872d81656b31817",
+      "symbols": [
+        {
+          "name": "CharacterRecordReset",
+          "line": 10
         }
       ]
     },
