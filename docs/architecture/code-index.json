@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T18:50:50.045645+00:00",
-  "commit": "fe3facdc94e47bd7588e3558cbe068d1d6e2bca0",
+  "generatedAt": "2026-08-07T19:08:13.966183+00:00",
+  "commit": "0ae203b6cb0a79641d4e41b323d164ab31d4792e",
   "branch": "main",
-  "sourceFingerprint": "0dee8f53caf9ac5223a4ae71d4ed05c76479dc4ad90b3bf672e4ef22bdccb6cb",
+  "sourceFingerprint": "07e6756ff837949cdd347e8ef0295c334499ec3ae8bfe11d221976946aec41ca",
   "summary": {
     "files": 132,
-    "lines": 32640,
-    "symbols": 540
+    "lines": 32692,
+    "symbols": 543
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -31,13 +31,13 @@
     "ChatAutoVoicePlayback": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 18
+        "line": 20
       }
     ],
     "initialize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 25
+        "line": 32
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
@@ -161,13 +161,31 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 28
+        "line": 27
       }
     ],
     "enqueue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 50
+        "line": 61
+      }
+    ],
+    "replayCached": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
+        "line": 70
+      }
+    ],
+    "hasCached": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
+        "line": 75
+      }
+    ],
+    "remove": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
+        "line": 80
       }
     ],
     "CharacterHubScreen": [
@@ -237,7 +255,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 77
+        "line": 170
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
@@ -401,17 +419,35 @@
     "speak": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 44
+        "line": 63
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
         "line": 131
       }
     ],
+    "speakAndCache": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
+        "line": 92
+      }
+    ],
+    "playCached": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
+        "line": 142
+      }
+    ],
+    "cachedAudioFile": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
+        "line": 152
+      }
+    ],
     "shutdown": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 86
+        "line": 183
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
@@ -600,6 +636,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
         "line": 284
+      }
+    ],
+    "regenerateLatestReply": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
+        "line": 379
       }
     ],
     "ScheduleFeatureScreen": [
@@ -2982,30 +3024,6 @@
         "line": 32
       }
     ],
-    "Report": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/ChatContinuityGuard.kt",
-        "line": 9
-      }
-    ],
-    "inspect": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/ChatContinuityGuard.kt",
-        "line": 14
-      }
-    ],
-    "repairInstruction": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/ChatContinuityGuard.kt",
-        "line": 45
-      }
-    ],
-    "keepNovelBubbles": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/ChatContinuityGuard.kt",
-        "line": 59
-      }
-    ],
     "LuluAccessibilityService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -3081,7 +3099,7 @@
     "LuluDeviceToolBridge": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 25
+        "line": 24
       }
     ],
     "LuluLocationProvider": [
@@ -3156,20 +3174,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-      "lines": 58,
-      "sha256": "a831182c76af05ddc37bb4ebb0d54cd69ab21d95806e861ce530675b1945ed79",
+      "lines": 109,
+      "sha256": "45b60f46b1860e757df6f9f54f740d978346be408d80284f0f84c558a2bade00",
       "symbols": [
         {
           "name": "ChatAutoVoicePlayback",
-          "line": 18
+          "line": 20
         },
         {
           "name": "initialize",
-          "line": 25
+          "line": 32
         },
         {
           "name": "enqueue",
-          "line": 50
+          "line": 61
+        },
+        {
+          "name": "replayCached",
+          "line": 70
+        },
+        {
+          "name": "hasCached",
+          "line": 75
+        },
+        {
+          "name": "remove",
+          "line": 80
         }
       ]
     },
@@ -3234,6 +3264,12 @@
           "line": 108
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTurnActions.kt",
+      "lines": 44,
+      "sha256": "bd422751e017e047dfb98e1a33f8d5061554247d23260ae8f521fead82880449",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatV2InterpolationCompat.kt",
@@ -3412,20 +3448,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-      "lines": 206,
-      "sha256": "adac0be571d0a29cde812232764c690d7735ebef8155cb2d22494b2f26bce871",
+      "lines": 333,
+      "sha256": "78936f6931d7e815cc72b1bd0db12998eb1c1bb227c2c43dd2d94f291bac15c6",
       "symbols": [
         {
           "name": "speak",
-          "line": 44
+          "line": 63
+        },
+        {
+          "name": "speakAndCache",
+          "line": 92
+        },
+        {
+          "name": "playCached",
+          "line": 142
+        },
+        {
+          "name": "cachedAudioFile",
+          "line": 152
         },
         {
           "name": "stop",
-          "line": 77
+          "line": 170
         },
         {
           "name": "shutdown",
-          "line": 86
+          "line": 183
         }
       ]
     },
@@ -3592,8 +3640,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 389,
-      "sha256": "61d6fc412494bb3a8058b6e284ec9e74d01f14859e2ca090f9c8e109c31799a2",
+      "lines": 387,
+      "sha256": "567af11834b0c9e50e567f30dff2503973a92df9d531acee606d9fbffd9cc272",
       "symbols": []
     },
     {
@@ -3616,8 +3664,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 933,
-      "sha256": "d0f938bd3b7cd7f0d6bc36df9b26435fa438097489d286120181f70723089a8c",
+      "lines": 978,
+      "sha256": "d42f0f37019395f2946c4f80e8b5b4df6734c61c3a485fe63f91ef293729f69f",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -3662,6 +3710,10 @@
         {
           "name": "sendAndReceive",
           "line": 284
+        },
+        {
+          "name": "regenerateLatestReply",
+          "line": 379
         }
       ]
     },
@@ -5927,29 +5979,6 @@
       "symbols": []
     },
     {
-      "path": "app/src/main/java/com/jiacimu/lulu/system/ChatContinuityGuard.kt",
-      "lines": 134,
-      "sha256": "93cf8d2c4fa025f6a937ccd0d5c29164d018033d37116259c768c495c17e9fc4",
-      "symbols": [
-        {
-          "name": "Report",
-          "line": 9
-        },
-        {
-          "name": "inspect",
-          "line": 14
-        },
-        {
-          "name": "repairInstruction",
-          "line": 45
-        },
-        {
-          "name": "keepNovelBubbles",
-          "line": 59
-        }
-      ]
-    },
-    {
       "path": "app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt",
       "lines": 373,
       "sha256": "6192cba8de9df051d9958a3f0050b041ed0fcc5023f95214e5d87e81b98d19e8",
@@ -6031,16 +6060,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 442,
-      "sha256": "4bb1056970163250321300e7e50c4d85dfc4466f0288ce9265b1f77174d80586",
+      "lines": 363,
+      "sha256": "d3c63cf0952a4e197c36488e2df59b4223f41c40def1fc606bf9d82f391fe0db",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
-          "line": 25
+          "line": 24
         },
         {
           "name": "initialize",
-          "line": 28
+          "line": 27
         }
       ]
     },
