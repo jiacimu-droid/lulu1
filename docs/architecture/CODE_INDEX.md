@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`62ffeecc72d58c988bc979f34e0e631e239de50c`
+- 基准提交：`63a3b73438f450eeda1b6275bd7e98acf394db2e`
 - 分支：`main`
 - 已索引文件：122
-- 已索引代码/文本行：30700
+- 已索引代码/文本行：30728
 - 已发现符号：502
 
 | 文件 | 行数 | 符号数 |
@@ -17,7 +17,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt` | 145 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt` | 9 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt` | 13 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 381 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 409 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 517 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 412 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 335 | 2 |
