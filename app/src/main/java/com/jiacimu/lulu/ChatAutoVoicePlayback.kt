@@ -36,7 +36,7 @@ object ChatAutoVoicePlayback {
                         if (!CharacterVoicePreferenceStore.isEnabled(request.characterId)) continue
                         val speech = request.text.trim()
                         if (speech.isBlank()) continue
-                        suspendCancellableCoroutine { continuation ->
+                        suspendCancellableCoroutine<Unit> { continuation ->
                             engine?.speak(speech, scope) {
                                 if (continuation.isActive) continuation.resume(Unit)
                             } ?: continuation.resume(Unit)
