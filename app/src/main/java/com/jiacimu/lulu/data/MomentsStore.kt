@@ -33,14 +33,23 @@ data class MomentPost(
 object MomentsStore {
     private const val PREFS_NAME = "lulu_moments"
     private const val KEY_POSTS = "posts_v1"
+    private const val KEY_UNREAD_CHARACTER_IDS = "unread_character_post_ids_v1"
     private var prefs: android.content.SharedPreferences? = null
     private val mutablePosts = MutableStateFlow<List<MomentPost>>(emptyList())
     val posts: StateFlow<List<MomentPost>> = mutablePosts.asStateFlow()
+    private val mutableUnreadCharacterPosts = MutableStateFlow(0)
+    val unreadCharacterPosts: StateFlow<Int> = mutableUnreadCharacterPosts.asStateFlow()
 
     fun initialize(context: Context) {
         if (prefs != null) return
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         mutablePosts.value = decode(prefs?.getString(KEY_POSTS, null))
+        refreshUnreadCount()
+    }
+
+    fun markCharacterPostsSeen() {
+        prefs?.edit()?.putStringSet(KEY_UNREAD_CHARACTER_IDS, emptySet())?.apply()
+        mutableUnreadCharacterPosts.value = 0
     }
 
     fun publishUser(content: String): MomentPost? {
@@ -61,43 +70,66 @@ object MomentsStore {
             content = clean.take(2_000),
         )
         savePost(post)
+        addUnreadCharacterPost(post.id)
         val name = MigratedDomainStores.characters.get(characterId).displayName
         recordForAllCharacters(post, name)
         return post
     }
 
+    /** User posts are social events: every existing character likes and leaves one in-character comment. */
     suspend fun letCharactersReact(postId: String) {
         val post = mutablePosts.value.firstOrNull { it.id == postId && it.authorType == MomentAuthorType.User } ?: return
         MigratedDomainStores.characters.settings.value.values.sortedBy { it.displayName }.forEach { character ->
-            val result = LuluAiServices.gateway.generate(
-                characterId = character.characterId,
-                facts = "用户刚刚在朋友圈发布：${post.content}",
-                instruction = """
-                    你刚刚真实看到了用户发布的这条朋友圈。根据你的人设、你们的关系、连续记忆和当前心情，决定是否点赞、是否评论。
-                    不要为了完成任务强行互动；冷淡、疏远或不感兴趣时可以都不做。评论必须像真实朋友圈评论，简短自然，不写角色名标签。
-                    只返回 JSON：{"like":true或false,"comment":"评论内容或空字符串"}
-                """.trimIndent(),
-                source = "朋友圈互动",
-                title = "${character.displayName}浏览朋友圈",
-                temperature = 0.75,
-                maxTokens = 260,
-                usage = ModelUsage.Chat,
-            ).getOrNull() ?: return@forEach
-            val json = parseJsonObject(result.text) ?: return@forEach
-            val like = json.optBoolean("like", false)
-            val comment = json.optString("comment").trim().take(300)
             mutate { current ->
                 current.map { item ->
                     if (item.id != postId) item else item.copy(
-                        likedCharacterIds = if (like) item.likedCharacterIds + character.characterId else item.likedCharacterIds,
-                        comments = if (comment.isBlank() || item.comments.any { it.characterId == character.characterId }) {
-                            item.comments
-                        } else {
-                            item.comments + MomentComment(characterId = character.characterId, content = comment)
-                        },
+                        likedCharacterIds = item.likedCharacterIds + character.characterId,
                     )
                 }
             }
+            SharedExperienceTimeline.record(
+                eventId = "moment-like-$postId-${character.characterId}",
+                characterId = character.characterId,
+                channel = "朋友圈",
+                speaker = character.displayName,
+                content = "给${UserProfileContext.displayLabel()}的朋友圈点了赞：${post.content.take(240)}",
+                occurredAt = Instant.now(),
+            )
+
+            val generated = LuluAiServices.gateway.generate(
+                characterId = character.characterId,
+                facts = "用户刚刚在朋友圈发布：${post.content}",
+                instruction = """
+                    你刚刚真实看到了用户发布的这条朋友圈。你必须留下一条符合你人设、关系、连续记忆和当前心情的朋友圈评论。
+                    评论要像真实社交软件里的短评论，自然、有区分度，不写角色名标签，不解释规则，不输出 JSON，只输出评论正文。
+                """.trimIndent(),
+                source = "朋友圈互动",
+                title = "${character.displayName}评论朋友圈",
+                temperature = 0.86,
+                maxTokens = 180,
+                usage = ModelUsage.Chat,
+            ).getOrNull()?.text
+                ?.trim()
+                ?.removeSurrounding("\"")
+                ?.take(300)
+                .orEmpty()
+                .ifBlank { "看到了。" }
+
+            val comment = MomentComment(characterId = character.characterId, content = generated)
+            mutate { current ->
+                current.map { item ->
+                    if (item.id != postId || item.comments.any { it.characterId == character.characterId }) item
+                    else item.copy(comments = item.comments + comment)
+                }
+            }
+            SharedExperienceTimeline.record(
+                eventId = "moment-comment-${comment.id}-${character.characterId}",
+                characterId = character.characterId,
+                channel = "朋友圈",
+                speaker = character.displayName,
+                content = "评论了${UserProfileContext.displayLabel()}的朋友圈：${comment.content}",
+                occurredAt = comment.createdAt,
+            )
         }
     }
 
@@ -115,12 +147,64 @@ object MomentsStore {
         }
     }
 
+    fun addUserComment(postId: String, content: String): MomentComment? {
+        val clean = content.trim().take(500)
+        if (clean.isBlank()) return null
+        val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return null
+        val comment = MomentComment(characterId = "__user__", content = clean)
+        mutate { current ->
+            current.map { item -> if (item.id == postId) item.copy(comments = item.comments + comment) else item }
+        }
+        post.authorCharacterId?.let { authorId ->
+            SharedExperienceTimeline.record(
+                eventId = "moment-user-comment-${comment.id}-$authorId",
+                characterId = authorId,
+                channel = "朋友圈",
+                speaker = UserProfileContext.displayLabel(),
+                content = "评论了你的朋友圈：$clean",
+                occurredAt = comment.createdAt,
+            )
+        }
+        return comment
+    }
+
     fun delete(postId: String) {
-        val existed = mutablePosts.value.any { it.id == postId }
-        if (!existed) return
+        val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return
         mutate { current -> current.filterNot { it.id == postId } }
+        removeUnreadCharacterPost(postId)
         MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
             SharedExperienceTimeline.deleteEvent("moment-$postId-$characterId")
+            SharedExperienceTimeline.deleteEvent("moment-like-$postId-$characterId")
+        }
+        post.comments.forEach { comment ->
+            if (comment.characterId == "__user__") {
+                post.authorCharacterId?.let { authorId ->
+                    SharedExperienceTimeline.deleteEvent("moment-user-comment-${comment.id}-$authorId")
+                }
+            } else {
+                SharedExperienceTimeline.deleteEvent("moment-comment-${comment.id}-${comment.characterId}")
+            }
+        }
+    }
+
+    /** Clears authored posts plus this character's likes/comments from other posts. */
+    fun clearCharacterData(characterId: String) {
+        if (characterId.isBlank()) return
+        mutablePosts.value.filter { it.authorCharacterId == characterId }.map(MomentPost::id).forEach(::delete)
+        val reactions = mutablePosts.value.flatMap { post ->
+            post.comments.filter { it.characterId == characterId }.map { comment -> post.id to comment }
+        }
+        mutate { current ->
+            current.map { post ->
+                post.copy(
+                    likedCharacterIds = post.likedCharacterIds - characterId,
+                    comments = post.comments.filterNot { it.characterId == characterId },
+                )
+            }
+        }
+        mutablePosts.value.forEach { post -> SharedExperienceTimeline.deleteEvent("moment-like-${post.id}-$characterId") }
+        reactions.forEach { (_, comment) ->
+            SharedExperienceTimeline.deleteEvent("moment-comment-${comment.id}-$characterId")
         }
     }
 
@@ -137,6 +221,29 @@ object MomentsStore {
                 occurredAt = post.createdAt,
             )
         }
+    }
+
+    private fun addUnreadCharacterPost(postId: String) {
+        val current = prefs?.getStringSet(KEY_UNREAD_CHARACTER_IDS, emptySet()).orEmpty().toMutableSet()
+        current += postId
+        prefs?.edit()?.putStringSet(KEY_UNREAD_CHARACTER_IDS, current)?.apply()
+        mutableUnreadCharacterPosts.value = current.size
+    }
+
+    private fun removeUnreadCharacterPost(postId: String) {
+        val current = prefs?.getStringSet(KEY_UNREAD_CHARACTER_IDS, emptySet()).orEmpty().toMutableSet()
+        if (current.remove(postId)) prefs?.edit()?.putStringSet(KEY_UNREAD_CHARACTER_IDS, current)?.apply()
+        mutableUnreadCharacterPosts.value = current.size
+    }
+
+    private fun refreshUnreadCount() {
+        val existingIds = mutablePosts.value.asSequence()
+            .filter { it.authorType == MomentAuthorType.Character }
+            .map(MomentPost::id)
+            .toSet()
+        val current = prefs?.getStringSet(KEY_UNREAD_CHARACTER_IDS, emptySet()).orEmpty().filterTo(mutableSetOf()) { it in existingIds }
+        prefs?.edit()?.putStringSet(KEY_UNREAD_CHARACTER_IDS, current)?.apply()
+        mutableUnreadCharacterPosts.value = current.size
     }
 
     private fun mutate(transform: (List<MomentPost>) -> List<MomentPost>) {
@@ -202,13 +309,6 @@ object MomentsStore {
                 }
             }
         }.getOrDefault(emptyList())
-    }
-
-    private fun parseJsonObject(raw: String): JSONObject? {
-        val clean = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
-        val start = clean.indexOf('{')
-        val end = clean.lastIndexOf('}')
-        return if (start >= 0 && end > start) runCatching { JSONObject(clean.substring(start, end + 1)) }.getOrNull() else null
     }
 }
 
