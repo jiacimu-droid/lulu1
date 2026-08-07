@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -74,9 +75,19 @@ object ChatReplyTaskManager {
                 } catch (error: Throwable) {
                     TaskContext(cleanId).reportError(error.message ?: "回复失败")
                 } finally {
-                    synchronized(lock) { jobs.remove(cleanId) }
-                    updateState(cleanId) { current ->
-                        current.copy(running = false, typingCharacterId = null)
+                    val completedJob = currentCoroutineContext()[Job]
+                    val stillCurrent = synchronized(lock) {
+                        if (jobs[cleanId] === completedJob) {
+                            jobs.remove(cleanId)
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                    if (stillCurrent) {
+                        updateState(cleanId) { current ->
+                            current.copy(running = false, typingCharacterId = null)
+                        }
                     }
                 }
             }
