@@ -14,7 +14,9 @@ import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.MemoryModelRuntime
 import com.jiacimu.lulu.data.MomentsStore
-import com.jiacimu.lulu.data.ProactiveMessageAutomation
+import com.jiacimu.lulu.data.ProactivePerceptionPolicyStore
+import com.jiacimu.lulu.data.ProactivePerceptionRuntime
+import com.jiacimu.lulu.data.ProactivePerceptionScheduler
 import com.jiacimu.lulu.data.RoleReadablePerformanceBridge
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.UserDataUpgradeGuard
@@ -69,7 +71,12 @@ class MigrationActivity : ComponentActivity() {
         DeterministicMemoryAutomation.initialize(appContext)
         ChatMemoryAutomation.initialize()
         ChatLexiconAutomation.initialize(appContext)
-        ProactiveMessageAutomation.initialize(appContext)
+
+        // Scheduling only: there is no launch-time perception model call and no in-app 20-minute loop.
+        ProactivePerceptionPolicyStore.initialize(appContext)
+        ProactivePerceptionRuntime.initialize(appContext)
+        ProactivePerceptionScheduler.schedule(appContext)
+
         val initialConversationId = intent?.getStringExtra("open_conversation_id")
         setContent { LuluMigrationRootAppV2(initialConversationId = initialConversationId) }
     }
