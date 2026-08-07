@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T06:56:38.984127+00:00",
-  "commit": "e0c9d6f2050a7256201b6bad5313ef902612bdf2",
+  "generatedAt": "2026-08-07T06:57:43.830104+00:00",
+  "commit": "4c422db4dc7196726872e4cbabcff38d5563ee71",
   "branch": "main",
-  "sourceFingerprint": "d7612bf7b4c1dd8ca88963cb7d1675e7cca5ea7280b2ab36d16b9e499c03a558",
+  "sourceFingerprint": "74c942276c3e9b1133ec98786f6b75811cfe66fee384bb4da26e28d14e617f4e",
   "summary": {
     "files": 122,
-    "lines": 30994,
-    "symbols": 505
+    "lines": 31023,
+    "symbols": 506
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -874,6 +874,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
         "line": 77
+      }
+    ],
+    "clearCharacter": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
+        "line": 104
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -3642,8 +3648,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-      "lines": 171,
-      "sha256": "bcfe19e6b2dfc57e36e062939c42017885a35718b7de31d02a181040a250d2b4",
+      "lines": 200,
+      "sha256": "aeec83a9008287cf0d4855380bdd5938a9965750f1feb8ad1a261e3f7245461a",
       "symbols": [
         {
           "name": "CompanionPresenceState",
@@ -3668,6 +3674,10 @@
         {
           "name": "update",
           "line": 59
+        },
+        {
+          "name": "clearCharacter",
+          "line": 104
         }
       ]
     },
