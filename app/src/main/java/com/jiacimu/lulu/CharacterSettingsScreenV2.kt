@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.data.CharacterRecordReset
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.PerceptionIntervalUnit
 import com.jiacimu.lulu.data.ProactivePerceptionPolicyStore
@@ -49,6 +50,9 @@ fun CharacterSettingsScreenV2(
     var persona by remember(characterId) { mutableStateOf(original.persona) }
     var proactiveCalls by remember(characterId) { mutableStateOf(original.contactPolicy.proactiveCallsEnabled) }
     var confirmDelete by remember { mutableStateOf(false) }
+    var confirmClearRecords by remember { mutableStateOf(false) }
+    var clearingRecords by remember { mutableStateOf(false) }
+    var recordNotice by remember { mutableStateOf("") }
 
     LaunchedEffect(displayName, avatarUri, persona, proactiveCalls) {
         if (displayName.isBlank()) return@LaunchedEffect
@@ -208,6 +212,29 @@ fun CharacterSettingsScreenV2(
                 }
             }
             item {
+                CharacterV2Card {
+                    Text("数据与记录", fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    Text(
+                        "保留角色资料与设置，只清除这个角色已经发生过的历史。",
+                        color = LuluColors.Muted,
+                        fontSize = 12.sp,
+                    )
+                    OutlinedButton(
+                        onClick = { confirmClearRecords = true },
+                        enabled = !clearingRecords,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                    ) {
+                        Icon(Icons.Outlined.DeleteSweep, null)
+                        Spacer(Modifier.width(6.dp))
+                        Text(if (clearingRecords) "正在清除…" else "清除所有记录")
+                    }
+                    if (recordNotice.isNotBlank()) {
+                        Text(recordNotice, color = LuluColors.Muted, fontSize = 12.sp)
+                    }
+                }
+            }
+            item {
                 Text("角色世界书", fontWeight = FontWeight.Bold, fontSize = 19.sp)
                 Text("每本可以跟随全局，或为${original.displayName}单独开启、关闭。", color = LuluColors.Muted)
             }
@@ -239,6 +266,35 @@ fun CharacterSettingsScreenV2(
                 }
             }
         }
+    }
+
+    if (confirmClearRecords) {
+        AlertDialog(
+            onDismissRequest = { if (!clearingRecords) confirmClearRecords = false },
+            title = { Text("清除${original.displayName}的所有记录？") },
+            text = {
+                Text(
+                    "会永久清除这个角色的私聊消息、辞海、记忆、朋友圈内容与互动、此刻历史，以及原始时间线里的全部事件。角色头像、人设、主动感知等设置会保留。此操作无法撤销。",
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = !clearingRecords,
+                    onClick = {
+                        clearingRecords = true
+                        scope.launch {
+                            CharacterRecordReset.clearAll(characterId)
+                            clearingRecords = false
+                            confirmClearRecords = false
+                            recordNotice = "${original.displayName}的历史记录已清除"
+                        }
+                    },
+                ) { Text("确认清除", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = {
+                TextButton(enabled = !clearingRecords, onClick = { confirmClearRecords = false }) { Text("取消") }
+            },
+        )
     }
 
     if (confirmDelete) {
