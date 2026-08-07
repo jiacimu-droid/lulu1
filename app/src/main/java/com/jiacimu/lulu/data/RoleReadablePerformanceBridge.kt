@@ -78,12 +78,11 @@ object RoleReadablePerformanceBridge {
         }
         val totalMinutes = studyState.profile.totalStudyMinutes.coerceAtLeast(0)
         return buildString {
-            appendLine("学习时间事实（设备本地日期 $today）：")
-            appendLine("- 今天（$today）：$todayMinutes 分钟。")
-            appendLine("- 本周（$weekStart 至 $weekEnd）：$weekMinutes 分钟。")
-            appendLine("- 历史累计：$totalMinutes 分钟。")
-            appendLine("今天、本周与历史累计是三个不同口径，绝对不可互换。不得把前几天、本周累计或历史累计的时长说成今天完成；谈到旧记录时必须说清对应日期或使用‘之前’‘那天’‘本周累计’。")
-            append("其他应用内累计：聊天 ${chatMinutes.coerceAtLeast(0)} 分钟，通话 ${callMinutes.coerceAtLeast(0)} 分钟。")
+            appendLine("学习时长（设备本地日期 $today）")
+            appendLine("今天：$todayMinutes 分钟")
+            appendLine("本周（$weekStart 至 $weekEnd）：$weekMinutes 分钟")
+            appendLine("历史累计：$totalMinutes 分钟")
+            append("应用内累计：聊天 ${chatMinutes.coerceAtLeast(0)} 分钟，通话 ${callMinutes.coerceAtLeast(0)} 分钟")
         }
     }
 }
