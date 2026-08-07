@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T17:38:40.166375+00:00",
-  "commit": "e8323e90fa0dd83bbdd4d61bed63a05eec133c87",
+  "generatedAt": "2026-08-07T17:39:09.385966+00:00",
+  "commit": "1c1fca54b84cc22d2fbdcfbbcabd6572a8deb953",
   "branch": "main",
-  "sourceFingerprint": "a09d009acbc37402de8ce8201c6fc2833a05c33f8864af0bf466a6c5bb6aa0cf",
+  "sourceFingerprint": "bdddf0df6a98827d21e52f866391bc740598b611184f326bb7e645f1b4a7af10",
   "summary": {
     "files": 129,
-    "lines": 32288,
+    "lines": 32299,
     "symbols": 529
   },
   "symbolIndex": {
@@ -49,49 +49,49 @@
     "ChatReplyTaskManager": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-        "line": 23
+        "line": 24
       }
     ],
     "TaskState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-        "line": 24
+        "line": 25
       }
     ],
     "TaskContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-        "line": 30
+        "line": 31
       }
     ],
     "setTypingCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-        "line": 32
+        "line": 33
       }
     ],
     "reportError": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-        "line": 37
+        "line": 38
       }
     ],
     "state": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-        "line": 50
+        "line": 51
       }
     ],
     "launch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-        "line": 52
+        "line": 53
       }
     ],
     "stop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-        "line": 88
+        "line": 99
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
@@ -105,7 +105,7 @@
     "clearError": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-        "line": 97
+        "line": 108
       }
     ],
     "LexiconFeatureScreenV2": [
@@ -3117,44 +3117,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-      "lines": 108,
-      "sha256": "d89ec843176efbc1e38037d70886de859779679dbd33e44517552693dc8fe56e",
+      "lines": 119,
+      "sha256": "1091c47a5c5c9aca441b756191efb993b0c8d4191f8976b1be39a5bc51675386",
       "symbols": [
         {
           "name": "ChatReplyTaskManager",
-          "line": 23
-        },
-        {
-          "name": "TaskState",
           "line": 24
         },
         {
+          "name": "TaskState",
+          "line": 25
+        },
+        {
           "name": "TaskContext",
-          "line": 30
+          "line": 31
         },
         {
           "name": "setTypingCharacter",
-          "line": 32
+          "line": 33
         },
         {
           "name": "reportError",
-          "line": 37
+          "line": 38
         },
         {
           "name": "state",
-          "line": 50
+          "line": 51
         },
         {
           "name": "launch",
-          "line": 52
+          "line": 53
         },
         {
           "name": "stop",
-          "line": 88
+          "line": 99
         },
         {
           "name": "clearError",
-          "line": 97
+          "line": 108
         }
       ]
     },
