@@ -235,7 +235,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         }
         val memberSummary = (listOf(group.userGroupNickname) + characterNames).joinToString("、")
         group.members
-            .filter { onlyCharacterIds == null || it.characterId in onlyCharacterIds }
+            .filter { onlyCharacterIds == null || member.characterId in onlyCharacterIds }
             .forEach { member ->
                 SharedExperienceTimeline.record(
                     eventId = "group-joined-${conversation.id}-${member.characterId}-${conversation.updatedAt.toEpochMilli()}",
@@ -300,13 +300,17 @@ class InMemoryLuluChatStore : LuluChatStore {
         replyToMessageId: String?,
     ): LuluChatMessage {
         val quoteRegex = Regex("⟪QUOTE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
+        val favoriteRegex = Regex("⟪FAVORITE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
         val markerQuoteId = quoteRegex.find(content)?.groupValues?.getOrNull(1)?.trim()?.takeIf(String::isNotBlank)
-        val clean = content.replace(quoteRegex, "").trim()
+        val markerFavoriteId = favoriteRegex.find(content)?.groupValues?.getOrNull(1)?.trim()?.takeIf(String::isNotBlank)
+        val clean = content.replace(quoteRegex, "").replace(favoriteRegex, "").trim()
         require(clean.isNotEmpty()) { "Message content cannot be blank" }
+        val originalMessages = messageStates[conversationId]?.value.orEmpty()
         val effectiveReplyId = replyToMessageId ?: markerQuoteId?.takeIf { candidateId ->
-            messageStates[conversationId]?.value?.any { message ->
-                message.id == candidateId && message.sender == LuluChatMessage.Sender.User
-            } == true
+            originalMessages.any { message -> message.id == candidateId && message.sender == LuluChatMessage.Sender.User }
+        }
+        val favoriteTarget = markerFavoriteId?.let { candidateId ->
+            originalMessages.firstOrNull { message -> message.id == candidateId && message.sender == LuluChatMessage.Sender.User }
         }
         val bubbleContents = if (clean.startsWith("[游戏邀约|")) {
             listOf(clean)
@@ -316,6 +320,9 @@ class InMemoryLuluChatStore : LuluChatStore {
                 .map(String::trim)
                 .filter(String::isNotBlank)
         }
+        val effectiveAuthorId = authorCharacterId
+            ?: conversationState.value.firstOrNull { it.id == conversationId }?.characterId
+            ?: "lulu"
         val created = bubbleContents.mapIndexed { index, bubble ->
             LuluChatMessage(
                 conversationId = conversationId,
@@ -324,6 +331,9 @@ class InMemoryLuluChatStore : LuluChatStore {
                 authorCharacterId = authorCharacterId,
                 replyToMessageId = effectiveReplyId.takeIf { index == 0 },
             ).also { message -> append(conversationId, message, incrementUnread = false) }
+        }
+        favoriteTarget?.let { target ->
+            CharacterMessageFavorites.favorite(effectiveAuthorId, conversationId, target)
         }
         return created.last()
     }
