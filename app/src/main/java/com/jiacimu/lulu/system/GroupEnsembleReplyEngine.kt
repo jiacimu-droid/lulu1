@@ -34,6 +34,7 @@ internal object GroupEnsembleReplyEngine {
         val intent: String,
         val bubbles: List<String>,
         val quoteMessageId: String?,
+        val favoriteMessageId: String?,
         val statusText: String,
         val gesture: String,
         val innerThought: String,
@@ -60,8 +61,8 @@ internal object GroupEnsembleReplyEngine {
         val group = conversation.groupChat ?: return null
         val messages = MigratedDomainStores.chat.messages(conversation.id).value
         val latestUserMessage = messages.lastOrNull { it.sender == LuluChatMessage.Sender.User } ?: return null
-        val quotableUserMessages = messages.filter { it.sender == LuluChatMessage.Sender.User }.takeLast(8)
-        val validQuoteIds = quotableUserMessages.mapTo(mutableSetOf(), LuluChatMessage::id)
+        val actionableUserMessages = messages.filter { it.sender == LuluChatMessage.Sender.User }.takeLast(8)
+        val validUserMessageIds = actionableUserMessages.mapTo(mutableSetOf(), LuluChatMessage::id)
         val channel = if (sceneContext.contains("电话")) "call" else "chat"
         val planKey = "${conversation.id}:${latestUserMessage.id}:$channel"
 
@@ -122,9 +123,9 @@ internal object GroupEnsembleReplyEngine {
                 if (replyLimit > memberCount) appendLine("至少一名角色必须在后面再次回来接话，不能所有人各说一次就结束。")
                 if (mentionedIds.isNotEmpty()) appendLine("被用户点名的角色优先回应，但其他成员仍必须加入讨论：${mentionedIds.joinToString(",")}")
                 appendLine("用户刚刚在群里说：${latestUserMessage.content}")
-                if (quotableUserMessages.isNotEmpty()) {
-                    appendLine("\n【可引用的近期用户气泡；只有确实针对某一句单独回应时才引用，不要为了展示功能而引用】")
-                    quotableUserMessages.forEach { item -> appendLine("消息ID=${item.id}；内容=${item.content.take(320)}") }
+                if (actionableUserMessages.isNotEmpty()) {
+                    appendLine("\n【近期真实用户气泡；消息ID只供引用或角色收藏使用】")
+                    actionableUserMessages.forEach { item -> appendLine("消息ID=${item.id}；内容=${item.content.take(320)}") }
                 }
                 if (history.isNotBlank()) appendLine("\n【群聊最近记录】\n${history.takeLast(14_000)}")
                 appendLine("\n【群成员设定；每个人必须保持自己的语气、关系和边界】")
@@ -146,7 +147,7 @@ internal object GroupEnsembleReplyEngine {
                 你是多人群聊的整体编排器。请把这一轮写成一段真正发生的交流讨论，而不是让成员轮流交一份答案。你同时理解所有人的人设，只进行这一次生成。
 
                 只返回一个 JSON 对象，不要代码块、分析、旁白或额外说明：
-                {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"回应、追问、反驳、补充、插话、调侃等简短意图","bubbles":["气泡1","气泡2"],"quoteMessageId":"要引用的真实用户消息ID或空字符串","statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"该角色没说出口的一瞬心声，可为空","mood":"简短心情"}]}
+                {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"回应、追问、反驳、补充、插话、调侃等简短意图","bubbles":["气泡1","气泡2"],"quoteMessageId":"要引用的真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"该角色没说出口的一瞬心声，可为空","mood":"简短心情"}]}
 
                 硬性规则：
                 1. turns 数量必须处于指定范围。第一项必须是指定的第一个发言者。
@@ -159,11 +160,12 @@ internal object GroupEnsembleReplyEngine {
                 8. 每个角色必须严格保持自己的语言习惯、关系边界、称呼和性格差异。不要把所有人统一写成温柔助手，也不要让一个角色替另一个角色发言。
                 9. 这是即时通讯软件里的日常线上群聊。bubbles 就是这个角色实际一次次按下“发送”后出现的消息气泡。先想清楚这个角色此刻真正想表达什么，再按照他自己的语气、停顿、情绪变化、犹豫、补充、转折、追问、吐槽和聊天习惯，自然决定什么时候结束当前气泡、什么时候再发下一条。
                 10. 不按标点、句号、固定字数或固定气泡数量机械切分，也不要为了减少气泡而把现实聊天中本来会分开发送的话强行塞成长段。判断标准是：如果这个角色现实聊天时会在这里按一次发送，就在这里结束一个 bubble。
-                11. quoteMessageId 是可选能力，不是固定格式要求。只有某个角色确实是在针对用户此前某一句气泡单独回应，而且使用引用会比普通接话更自然时，才填入上方提供的真实用户消息ID；否则必须留空。不能引用不存在的ID，不能把 replyTo 的角色ID填到 quoteMessageId，也不能每个角色都引用。
-                12. 不要虚构用户当前身体、环境或正在做的事情。只能依据用户刚说的话、群聊记录、角色设定和真实时间线互动。
-                13. 最后一两轮可以自然把话重新抛给主人，也可以停在一个仍有余味的观点上；禁止写“讨论结束”“大家都发表了意见”等总结式收尾。
-                14. ${if (isCall) "这是实时群聊电话，quoteMessageId 留空；语言必须更口语化、适合直接念出。" else "这是文字群聊，可以自然使用短促停顿、连续气泡和偶尔引用用户气泡。"}
-                15. statusText、gesture、innerThought、mood 分别属于当前角色本人，不能写成系统分析或推理过程。
+                11. quoteMessageId 是可选能力。只有某个角色确实是在针对用户此前某一句气泡单独回应，而且使用引用会更自然时，才填入上方提供的真实消息ID；否则留空。不能引用不存在的ID，不能把角色ID填进去，也不能每个角色都引用。
+                12. favoriteMessageId 也是可选能力，而且应比普通引用更少见。只有这个角色本人真的很想把用户某一句留下来、以后仍愿意再看到时才收藏；只能填上方真实用户消息ID，否则留空。收藏是角色自己的行为，不是为了展示功能，也不要让所有角色对同一句机械收藏。
+                13. 不要虚构用户当前身体、环境或正在做的事情。只能依据用户刚说的话、群聊记录、角色设定和真实时间线互动。
+                14. 最后一两轮可以自然把话重新抛给主人，也可以停在一个仍有余味的观点上；禁止写“讨论结束”“大家都发表了意见”等总结式收尾。
+                15. ${if (isCall) "这是实时群聊电话，quoteMessageId 和 favoriteMessageId 都留空；语言必须更口语化、适合直接念出。" else "这是文字群聊，可以自然使用短促停顿、连续气泡、偶尔引用，以及极少量符合角色意愿的收藏。"}
+                16. statusText、gesture、innerThought、mood 分别属于当前角色本人，不能写成系统分析或推理过程。
             """.trimIndent(),
             source = if (isCall) "群聊电话·单次多轮讨论" else "群聊·单次多轮讨论",
             title = title,
@@ -178,7 +180,7 @@ internal object GroupEnsembleReplyEngine {
             validMembers = validMembers,
             memberLabels = memberLabels,
             replyLimit = replyLimit,
-            validQuoteIds = if (isCall) emptySet() else validQuoteIds,
+            validUserMessageIds = if (isCall) emptySet() else validUserMessageIds,
         )
         val completed = ensureDiscussionShape(
             parsed = parsed,
@@ -230,7 +232,8 @@ internal object GroupEnsembleReplyEngine {
         )
         val marker = served.nextLabel?.let { "⟪NEXT:$it⟫" } ?: EndMarker
         val quote = served.turn.quoteMessageId?.let { "⟪QUOTE:$it⟫" }.orEmpty()
-        val text = quote + served.turn.bubbles.joinToString(BubbleSeparator) + marker
+        val favorite = served.turn.favoriteMessageId?.let { "⟪FAVORITE:$it⟫" }.orEmpty()
+        val text = quote + favorite + served.turn.bubbles.joinToString(BubbleSeparator) + marker
         return ModelReply(
             text = text,
             inputTokens = tokenSource?.inputTokens ?: 0,
@@ -246,7 +249,7 @@ internal object GroupEnsembleReplyEngine {
         validMembers: List<LuluGroupMember>,
         memberLabels: Map<String, String>,
         replyLimit: Int,
-        validQuoteIds: Set<String>,
+        validUserMessageIds: Set<String>,
     ): List<PlannedTurn> {
         val settings = MigratedDomainStores.characters.settings.value
         val cleaned = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
@@ -271,13 +274,15 @@ internal object GroupEnsembleReplyEngine {
                     val bubbles = normalizeBubbles(rawBubbles)
                     if (bubbles.isEmpty()) continue
                     val requestedQuoteId = item.optString("quoteMessageId").trim()
+                    val requestedFavoriteId = item.optString("favoriteMessageId").trim()
                     add(
                         PlannedTurn(
                             characterId = resolvedId,
                             replyTo = item.optString("replyTo").ifBlank { "group" }.take(100),
                             intent = item.optString("intent").take(80),
                             bubbles = bubbles,
-                            quoteMessageId = requestedQuoteId.takeIf { it in validQuoteIds },
+                            quoteMessageId = requestedQuoteId.takeIf { it in validUserMessageIds },
+                            favoriteMessageId = requestedFavoriteId.takeIf { it in validUserMessageIds },
                             statusText = item.optString("statusText").ifBlank { item.optString("status") }.take(80),
                             gesture = item.optString("gesture").ifBlank { item.optString("actionDescription") }.take(160),
                             innerThought = item.optString("innerThought").ifBlank { item.optString("inner_voice") }.take(220),
@@ -335,7 +340,7 @@ internal object GroupEnsembleReplyEngine {
             PersonaTone.Direct -> listOf("我补一句。", "“$topic”这件事，刚才那个说法还不够准确。")
             PersonaTone.Neutral -> listOf("我也接一下。", "你刚才提到“$topic”，我更想知道真正卡住你的是什么。")
         }
-        return PlannedTurn(characterId, replyTo, "加入并补充", bubbles, null, "加入讨论", "接过话头", "这一轮我也有自己的反应。", "投入")
+        return PlannedTurn(characterId, replyTo, "加入并补充", bubbles, null, null, "加入讨论", "接过话头", "这一轮我也有自己的反应。", "投入")
     }
 
     private fun fallbackContinuationTurn(characterId: String, replyTo: String, userText: String, character: CharacterSettings?): PlannedTurn {
@@ -346,7 +351,7 @@ internal object GroupEnsembleReplyEngine {
             PersonaTone.Direct -> listOf("先别急着收尾。", "你刚刚绕开的那部分，恰好才是“$topic”的重点。")
             PersonaTone.Neutral -> listOf("我想再接着问一句。", "听完你们刚才的话，我反而更在意“$topic”背后的原因。")
         }
-        return PlannedTurn(characterId, replyTo, "再次接话", bubbles, null, "继续讨论", "顺着上一句话继续", "这个话题还没有真正说完。", "认真")
+        return PlannedTurn(characterId, replyTo, "再次接话", bubbles, null, null, "继续讨论", "顺着上一句话继续", "这个话题还没有真正说完。", "认真")
     }
 
     private enum class PersonaTone { Reserved, Lively, Direct, Neutral }
