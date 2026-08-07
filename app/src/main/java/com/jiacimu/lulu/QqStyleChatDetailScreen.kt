@@ -79,6 +79,10 @@ fun QqStyleChatDetailScreen(
     val userAvatar = remember { userProfilePrefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2) }
     val userAvatarUri = remember { userProfilePrefs.getString("avatar_uri", null) }
     val messages by MigratedDomainStores.chat.messages(conversationId).collectAsState()
+    val visibleMessages = remember(messages) {
+        val recalledIds = recalledMessageIds(messages)
+        messages.filterNot { it.id in recalledIds }
+    }
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val preferences by LuluAppPreferencesStore.state.collectAsState()
@@ -94,7 +98,10 @@ fun QqStyleChatDetailScreen(
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接模型"
     val pendingUserMessages = remember(messages) {
         val lastCharacterIndex = messages.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
-        messages.drop(lastCharacterIndex + 1).filter { it.sender == LuluChatMessage.Sender.User }
+        messages.drop(lastCharacterIndex + 1).filter { message ->
+            message.sender == LuluChatMessage.Sender.User ||
+                (message.sender == LuluChatMessage.Sender.System && message.content.startsWith("[戳一戳] 你戳了戳"))
+        }
     }
 
     val listState = rememberLazyListState()
@@ -250,10 +257,10 @@ fun QqStyleChatDetailScreen(
     }
 
     LaunchedEffect(conversationId) { MigratedDomainStores.chat.markConversationRead(conversationId) }
-    LaunchedEffect(messages.size, preferences.autoScrollChat, imeBottom) {
-        if (messages.isNotEmpty() && (preferences.autoScrollChat || imeBottom > 0)) {
+    LaunchedEffect(visibleMessages.size, preferences.autoScrollChat, imeBottom) {
+        if (visibleMessages.isNotEmpty() && (preferences.autoScrollChat || imeBottom > 0)) {
             val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
-            listState.scrollToItem(messages.lastIndex + announcementOffset)
+            listState.scrollToItem(visibleMessages.lastIndex + announcementOffset)
         }
     }
 
@@ -288,11 +295,20 @@ fun QqStyleChatDetailScreen(
 
         val latestMessages = MigratedDomainStores.chat.messages(conversationId).value
         val lastCharacterIndex = latestMessages.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
-        val latestPending = latestMessages.drop(lastCharacterIndex + 1).filter { it.sender == LuluChatMessage.Sender.User }
+        val latestPending = latestMessages.drop(lastCharacterIndex + 1).filter { message ->
+            message.sender == LuluChatMessage.Sender.User ||
+                (message.sender == LuluChatMessage.Sender.System && message.content.startsWith("[戳一戳] 你戳了戳"))
+        }
         if (latestPending.isEmpty()) return
 
         val pendingIds = latestPending.mapTo(mutableSetOf()) { it.id }
-        val pendingText = latestPending.joinToString("\n") { it.content.trim() }
+        val pendingText = latestPending.joinToString("\n") { message ->
+            if (message.sender == LuluChatMessage.Sender.System) {
+                message.content.removePrefix("[戳一戳]").trim()
+            } else {
+                qqForwardContextText(message.content)
+            }
+        }
         val history = buildBoundedHistory(
             messages = latestMessages.filterNot { it.id in pendingIds },
             characterName = character.displayName,
@@ -453,13 +469,13 @@ fun QqStyleChatDetailScreen(
                         TextButton(
                             enabled = selectedMessageIds.isNotEmpty(),
                             onClick = {
-                                forwardingMessages = messages.filter { it.id in selectedMessageIds }
+                                forwardingMessages = visibleMessages.filter { it.id in selectedMessageIds }
                             },
                         ) { Icon(Icons.Outlined.Share, null); Spacer(Modifier.width(4.dp)); Text("转发") }
                         TextButton(
                             enabled = selectedMessageIds.isNotEmpty(),
                             onClick = {
-                                messages.filter { it.id in selectedMessageIds && !it.favorite }
+                                visibleMessages.filter { it.id in selectedMessageIds && !it.favorite }
                                     .forEach { MigratedDomainStores.chat.toggleFavorite(it.id) }
                                 multiSelectMode = false
                                 selectedMessageIds = emptySet()
@@ -594,9 +610,9 @@ fun QqStyleChatDetailScreen(
                     }
                 }
             }
-            itemsIndexed(messages, key = { _, item -> item.id }) { index, message ->
-                val previous = messages.getOrNull(index - 1)
-                val next = messages.getOrNull(index + 1)
+            itemsIndexed(visibleMessages, key = { _, item -> item.id }) { index, message ->
+                val previous = visibleMessages.getOrNull(index - 1)
+                val next = visibleMessages.getOrNull(index + 1)
                 val groupStart = previous == null || previous.sender != message.sender ||
                     previous.authorCharacterId != message.authorCharacterId ||
                     Duration.between(previous.createdAt, message.createdAt).toMinutes() >= 2
