@@ -214,15 +214,12 @@ internal suspend fun runGroupReplies(
         .sortedBy { candidate -> candidate.characterId == lastSpeaker }
     val ordered = mentioned + remaining
     val explicitAll = pendingText.contains("@全体成员")
-    val replyLimit = when {
-        explicitAll -> validMembers.size.coerceAtMost(group.maxAutoReplies.coerceAtLeast(validMembers.size))
-        mentioned.isNotEmpty() -> group.maxAutoReplies.coerceAtLeast(mentioned.size)
-        group.allowCharacterConversation -> group.maxAutoReplies
-        else -> 1
-    }.coerceIn(1, 8)
+    val replyLimit = group.maxAutoReplies
+        .coerceAtLeast(validMembers.size)
+        .coerceIn(validMembers.size, 8)
     val pendingSpeakers = when {
         explicitAll -> validMembers.shuffled(random).toMutableList()
-        mentioned.isNotEmpty() -> mentioned.toMutableList()
+        mentioned.isNotEmpty() -> mentioned.shuffled(random).toMutableList()
         else -> mutableListOf(ordered.first())
     }
     var index = 0
@@ -250,8 +247,8 @@ internal suspend fun runGroupReplies(
         val groupInput = buildString {
             appendLine("[这是群聊，不是私聊。群名：${group.name}；群成员：${group.userGroupNickname}、$memberList。]")
             appendLine("[当前由你（$memberLabel）发言。只代表你自己，严格遵循你的人设和关系边界；不要替别人说话，不要输出姓名标签。]")
-            appendLine("[群聊是连续发生的生活过程，不是排队答题。成员不需要轮流发言，也不需要每个人都回应；谁想接话、谁沉默、谁连续多说几句，都应由当下内容、人设和关系决定。]")
-            appendLine("[不要按照成员列表顺序安排下一位发言人。若这一刻自然会有人接话，只根据谁最可能真的想说话来选择 ⟪NEXT:成员名⟫；没人需要接就结束。]")
+            appendLine("[这一轮群聊所有角色成员都必须至少真正说一次，但绝不是固定轮班：全员参与是覆盖要求，不是顺序要求。可以 C→B→A，也可以 A→B→C→B→A；已经说过的人可以在别人之后自然回来继续说。]")
+            appendLine("[不要按照成员列表顺序安排下一位。谁接话只看这一刻谁最自然想说；同时要保证这一整轮结束前所有成员至少出现一次。同一角色需要连续补充时可以用多个气泡，隔着别人再次发言时则可以再次成为后续发言者。]")
             if (quotableUserMessages.isNotEmpty()) {
                 appendLine("[以下是近期真实的用户气泡；消息ID只用于引用或收藏动作，不属于聊天正文：]")
                 quotableUserMessages.forEach { item -> appendLine("[消息ID=${item.id} 内容=${qqForwardContextText(item.content).take(300)}]") }
@@ -274,7 +271,7 @@ internal suspend fun runGroupReplies(
             appendLine("[只有非常少见、很符合当下人设的情况下，例如刚说出口就觉得说漏嘴、说重了或突然后悔，才可以在回复末尾输出 ⟪RECALL:n⟫，n 是本次第 n 个气泡（从1开始）。不要为了显得像真人而频繁撤回。]")
             appendLine("[如果你此刻真的会自然地戳一下用户，可以在回复末尾输出 ⟪POKE_USER⟫；尤其用户刚戳过你时可以考虑戳回来，但不要滥用。]")
             if (group.allowCharacterConversation) {
-                appendLine("[若另一位成员此刻真的会自然接话，在末尾输出 ⟪NEXT:成员名⟫；若这轮自然停下，输出 ⟪END⟫。不要为了凑人数、轮班或让每个人都露脸而硬续。该标记不会显示给用户。]")
+                appendLine("[下一位不要按固定名单轮转。根据真实群聊状态选择最自然的接话者并输出 ⟪NEXT:成员名⟫；可以选择之前已经发过言的人，只要整轮最终保证所有成员至少参与一次。全员已经覆盖且话题自然结束时才输出 ⟪END⟫。]")
             }
             if (index == 0) append("用户刚在群里说：$pendingText")
             else append("这轮话题最初由用户说：$pendingText")
