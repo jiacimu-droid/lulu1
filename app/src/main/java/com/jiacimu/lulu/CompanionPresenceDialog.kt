@@ -16,12 +16,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.jiacimu.lulu.data.CompanionPresenceState
-import com.jiacimu.lulu.data.ProactiveMessageAutomation
+import com.jiacimu.lulu.data.ProactivePerceptionScheduler
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
 internal fun CompanionPresenceDialog(
+    characterId: String,
     characterName: String,
     state: CompanionPresenceState?,
     history: List<CompanionPresenceState>,
@@ -83,7 +84,7 @@ internal fun CompanionPresenceDialog(
                 }
                 OutlinedButton(
                     onClick = {
-                        ProactiveMessageAutomation.signalPerceptionChange(context, "用户手动检查 · $characterName")
+                        ProactivePerceptionScheduler.scheduleManual(context, characterId)
                         manualCheckRequested = true
                     },
                     enabled = !manualCheckRequested,
