@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`61280a05a95493b95952a16f18b4691038b6a20a`
+- 基准提交：`0264a3e48fc6c92d3c61a446499182adc44e0885`
 - 分支：`main`
 - 已索引文件：122
-- 已索引代码/文本行：31023
+- 已索引代码/文本行：31027
 - 已发现符号：501
 
 | 文件 | 行数 | 符号数 |
@@ -44,7 +44,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 219 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 698 | 24 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 125 | 28 |
-| `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 254 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 258 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 82 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 66 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 171 | 6 |
