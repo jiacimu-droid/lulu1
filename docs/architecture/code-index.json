@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T16:29:35.042471+00:00",
-  "commit": "2a743cc67975b4eeebe17a76796bf88ddf43cd23",
+  "generatedAt": "2026-08-07T16:31:11.088936+00:00",
+  "commit": "bbada3d63a8551b5f0ec0695ef258d1ace6dc3b8",
   "branch": "main",
-  "sourceFingerprint": "503edf218ab6b4e8a630bbf2e14c3a42bf519587db476e1ec9cb34520efb0a06",
+  "sourceFingerprint": "b0d2db5b9b2d5278689c517de263b2aa0e34acadd935367206f57bee8f47a0e0",
   "summary": {
     "files": 126,
-    "lines": 31578,
-    "symbols": 516
+    "lines": 31622,
+    "symbols": 520
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -317,7 +317,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 36
+        "line": 45
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt",
@@ -900,28 +900,52 @@
         "line": 11
       }
     ],
+    "CompanionPresenceMessageAnchor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
+        "line": 23
+      }
+    ],
     "CompanionPresenceStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 25
+        "line": 31
       }
     ],
     "current": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 42
+        "line": 51
+      }
+    ],
+    "selectMessageAnchor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
+        "line": 60
+      }
+    ],
+    "selectedMessageAnchor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
+        "line": 76
+      }
+    ],
+    "clearMessageAnchor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
+        "line": 79
       }
     ],
     "recordPerceptionAttempt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 47
+        "line": 86
       }
     ],
     "update": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 59
+        "line": 98
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
@@ -939,7 +963,7 @@
     "clearCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 104
+        "line": 147
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -3769,36 +3793,52 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-      "lines": 200,
-      "sha256": "aeec83a9008287cf0d4855380bdd5938a9965750f1feb8ad1a261e3f7245461a",
+      "lines": 244,
+      "sha256": "20bc4d998d5eac363b1be7bbd3a50eac0b48f19287929f936409027b33748f3d",
       "symbols": [
         {
           "name": "CompanionPresenceState",
           "line": 11
         },
         {
+          "name": "CompanionPresenceMessageAnchor",
+          "line": 23
+        },
+        {
           "name": "CompanionPresenceStore",
-          "line": 25
+          "line": 31
         },
         {
           "name": "initialize",
-          "line": 36
+          "line": 45
         },
         {
           "name": "current",
-          "line": 42
+          "line": 51
+        },
+        {
+          "name": "selectMessageAnchor",
+          "line": 60
+        },
+        {
+          "name": "selectedMessageAnchor",
+          "line": 76
+        },
+        {
+          "name": "clearMessageAnchor",
+          "line": 79
         },
         {
           "name": "recordPerceptionAttempt",
-          "line": 47
+          "line": 86
         },
         {
           "name": "update",
-          "line": 59
+          "line": 98
         },
         {
           "name": "clearCharacter",
-          "line": 104
+          "line": 147
         }
       ]
     },
