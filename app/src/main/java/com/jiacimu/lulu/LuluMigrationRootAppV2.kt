@@ -25,15 +25,31 @@ import com.jiacimu.lulu.study.StarWishTab
 import kotlinx.coroutines.delay
 
 @Composable
-fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
-    val initialStack = remember(initialConversationId) {
-        if (initialConversationId.isNullOrBlank()) {
-            listOf(MigrationRoute.Home.name)
-        } else {
-            listOf(MigrationRoute.Home.name, MigrationRoute.Chat.name, MigrationRoute.ChatDetail.name)
+fun LuluMigrationRootAppV2(
+    initialConversationId: String? = null,
+    initialRouteName: String? = null,
+    initialTargetCharacterId: String? = null,
+    initialDiaryTitle: String? = null,
+    initialReadingTitle: String? = null,
+) {
+    val deepLinkRoute = remember(initialRouteName) {
+        runCatching { MigrationRoute.valueOf(initialRouteName.orEmpty()) }.getOrNull()
+            ?.takeIf { it == MigrationRoute.Lexicon || it == MigrationRoute.Reading }
+    }
+    val initialStack = remember(initialConversationId, deepLinkRoute) {
+        when {
+            deepLinkRoute != null && !initialConversationId.isNullOrBlank() -> listOf(
+                MigrationRoute.Home.name,
+                MigrationRoute.Chat.name,
+                MigrationRoute.ChatDetail.name,
+                deepLinkRoute.name,
+            )
+            deepLinkRoute != null -> listOf(MigrationRoute.Home.name, deepLinkRoute.name)
+            initialConversationId.isNullOrBlank() -> listOf(MigrationRoute.Home.name)
+            else -> listOf(MigrationRoute.Home.name, MigrationRoute.Chat.name, MigrationRoute.ChatDetail.name)
         }
     }
-    var routeStack by rememberSaveable(initialConversationId) { mutableStateOf(initialStack) }
+    var routeStack by rememberSaveable(initialConversationId, initialRouteName) { mutableStateOf(initialStack) }
     val route = MigrationRoute.valueOf(routeStack.last())
     var selectedConversationId by rememberSaveable(initialConversationId) {
         mutableStateOf(initialConversationId?.takeIf(String::isNotBlank) ?: "lulu-main")
@@ -41,7 +57,11 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
     var chatSessionStarted by rememberSaveable(initialConversationId) {
         mutableStateOf(!initialConversationId.isNullOrBlank())
     }
-    var selectedCharacterId by rememberSaveable { mutableStateOf("lulu") }
+    var selectedCharacterId by rememberSaveable(initialTargetCharacterId) {
+        mutableStateOf(initialTargetCharacterId?.takeIf(String::isNotBlank) ?: "lulu")
+    }
+    var lexiconInitialDiaryTitle by rememberSaveable(initialDiaryTitle) { mutableStateOf(initialDiaryTitle) }
+    var readingInitialTitle by rememberSaveable(initialReadingTitle) { mutableStateOf(initialReadingTitle) }
     var starWishInitialTab by rememberSaveable { mutableStateOf(StarWishTab.Scroll.name) }
     var initialGameId by rememberSaveable { mutableStateOf<String?>(null) }
 
@@ -88,13 +108,28 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
         popRoute()
     }
 
-    LaunchedEffect(initialConversationId) {
+    LaunchedEffect(initialConversationId, initialRouteName, initialTargetCharacterId, initialDiaryTitle, initialReadingTitle) {
         if (!initialConversationId.isNullOrBlank()) {
             selectedConversationId = initialConversationId
-            selectConversationCharacter()
+            selectedCharacterId = initialTargetCharacterId?.takeIf(String::isNotBlank)
+                ?: characterIdForConversation(initialConversationId)
             chatSessionStarted = true
-            routeStack = listOf(MigrationRoute.Home.name, MigrationRoute.Chat.name, MigrationRoute.ChatDetail.name)
+            routeStack = if (deepLinkRoute != null) {
+                listOf(
+                    MigrationRoute.Home.name,
+                    MigrationRoute.Chat.name,
+                    MigrationRoute.ChatDetail.name,
+                    deepLinkRoute.name,
+                )
+            } else {
+                listOf(MigrationRoute.Home.name, MigrationRoute.Chat.name, MigrationRoute.ChatDetail.name)
+            }
+        } else if (deepLinkRoute != null) {
+            selectedCharacterId = initialTargetCharacterId?.takeIf(String::isNotBlank) ?: "lulu"
+            routeStack = listOf(MigrationRoute.Home.name, deepLinkRoute.name)
         }
+        lexiconInitialDiaryTitle = initialDiaryTitle
+        readingInitialTitle = initialReadingTitle
     }
 
     LaunchedEffect(studyState.pomodoro.running, studyState.pomodoro.endAtEpochMillis) {
@@ -149,6 +184,11 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                                     onOpen = { target ->
                                         if (target == MigrationRoute.WorldBook) selectedCharacterId = "lulu"
                                         if (target == MigrationRoute.Wishes) starWishInitialTab = StarWishTab.Scroll.name
+                                        if (target == MigrationRoute.Lexicon) {
+                                            selectedCharacterId = "lulu"
+                                            lexiconInitialDiaryTitle = null
+                                        }
+                                        if (target == MigrationRoute.Reading) readingInitialTitle = null
                                         pushRoute(target)
                                     },
                                     onOpenConversation = ::openConversation,
@@ -178,14 +218,21 @@ fun LuluMigrationRootAppV2(initialConversationId: String? = null) {
                                 )
 
                                 MigrationRoute.Memory -> MemoryFeatureScreen(::popRoute)
-                                MigrationRoute.Lexicon -> LexiconFeatureScreenV2(::popRoute)
+                                MigrationRoute.Lexicon -> LexiconFeatureScreenV2(
+                                    onBack = ::popRoute,
+                                    initialCharacterId = selectedCharacterId,
+                                    initialDiaryTitle = lexiconInitialDiaryTitle,
+                                )
                                 MigrationRoute.WorldBook -> CharacterWorldBookScreenV2(
                                     initialCharacterId = selectedCharacterId,
                                     onBack = ::popRoute,
                                 )
                                 MigrationRoute.Performance -> OptimizedPerformanceFeatureScreen(::popRoute)
                                 MigrationRoute.Health -> HealthFeatureScreen(::popRoute)
-                                MigrationRoute.Reading -> LuluReadingScreen(::popRoute)
+                                MigrationRoute.Reading -> LuluReadingScreen(
+                                    onBack = ::popRoute,
+                                    initialBookTitle = readingInitialTitle,
+                                )
                                 MigrationRoute.Wishes -> StarWishMigratedScreen(
                                     onBack = ::popRoute,
                                     initialTab = StarWishTab.valueOf(starWishInitialTab),
