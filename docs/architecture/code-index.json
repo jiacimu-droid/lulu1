@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T19:08:13.966183+00:00",
-  "commit": "0ae203b6cb0a79641d4e41b323d164ab31d4792e",
+  "generatedAt": "2026-08-07T19:16:00.599720+00:00",
+  "commit": "20de49aaba1086ba50a75d744bc01db9aa5aa305",
   "branch": "main",
-  "sourceFingerprint": "07e6756ff837949cdd347e8ef0295c334499ec3ae8bfe11d221976946aec41ca",
+  "sourceFingerprint": "5ebab22bb72561c04186576a75eaa23dbef20632b31d51084f1989c8a2eb1fd6",
   "summary": {
     "files": 132,
-    "lines": 32692,
+    "lines": 32694,
     "symbols": 543
   },
   "symbolIndex": {
@@ -3267,8 +3267,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTurnActions.kt",
-      "lines": 44,
-      "sha256": "bd422751e017e047dfb98e1a33f8d5061554247d23260ae8f521fead82880449",
+      "lines": 45,
+      "sha256": "4739900a1240f64d7e109bcd554d09ca3f9c56f4ac1c1fd4f73f489491bc4890",
       "symbols": []
     },
     {
@@ -3640,8 +3640,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 387,
-      "sha256": "567af11834b0c9e50e567f30dff2503973a92df9d531acee606d9fbffd9cc272",
+      "lines": 389,
+      "sha256": "2d9ef3c92348eba6adaf6cc9749238e1166bf6b9578a51f0c6cae8d8be20e1aa",
       "symbols": []
     },
     {
@@ -5980,8 +5980,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt",
-      "lines": 373,
-      "sha256": "6192cba8de9df051d9958a3f0050b041ed0fcc5023f95214e5d87e81b98d19e8",
+      "lines": 370,
+      "sha256": "d85d87653d664e609071d04659a01939ca83ad6dcd2d22ca615dafabe54af089",
       "symbols": []
     },
     {
@@ -6060,8 +6060,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 363,
-      "sha256": "d3c63cf0952a4e197c36488e2df59b4223f41c40def1fc606bf9d82f391fe0db",
+      "lines": 365,
+      "sha256": "0b272ab83f5f78559570a76bd078e55acdce6d36d7094e0dbed674e7a07bb75c",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
