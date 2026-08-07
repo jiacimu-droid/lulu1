@@ -113,6 +113,7 @@ internal suspend fun appendRoleReplyWithPacing(
     val favoriteTarget = presentation.favoriteMessageId?.let { id ->
         before.firstOrNull { it.id == id && it.sender == LuluChatMessage.Sender.User }
     }
+    val spokenMessages = mutableListOf<LuluChatMessage>()
 
     bubbles.forEachIndexed { index, bubble ->
         if (!currentCoroutineContext().isActive) return@forEachIndexed
@@ -127,6 +128,8 @@ internal suspend fun appendRoleReplyWithPacing(
             if (currentCoroutineContext().isActive) {
                 MigratedDomainStores.chat.retractCharacterMessage(created.id, characterLabel)
             }
+        } else {
+            spokenMessages += created
         }
         if (index < bubbles.lastIndex) {
             delay(roleBubbleDelayMillis(characterId, bubble, index))
@@ -140,10 +143,10 @@ internal suspend fun appendRoleReplyWithPacing(
         delay(360L + rolePacingSeed(characterId) % 300L)
         MigratedDomainStores.chat.appendSystemMessage(conversationId, "[戳一戳] $characterLabel 戳了戳你。")
     }
-    val shownBubbles = bubbles.filterIndexed { index, _ -> presentation.recallBubbleNumber != index + 1 }
-    val shown = shownBubbles.joinToString("\n")
-    if (shown.isNotBlank()) ChatAutoVoicePlayback.enqueue(characterId, shown)
-    return shown
+    spokenMessages.forEach { message ->
+        ChatAutoVoicePlayback.enqueue(characterId, message.id, message.content)
+    }
+    return spokenMessages.joinToString("\n", transform = LuluChatMessage::content)
 }
 
 private data class GroupReplyFlow(
@@ -248,6 +251,7 @@ internal suspend fun runGroupReplies(
         val groupInput = buildString {
             appendLine("[这是群聊，不是私聊。群名：${group.name}；群成员：${group.userGroupNickname}、$memberList。]")
             appendLine("[当前由你（$memberLabel）发言。只代表你自己，严格遵循你的人设和关系边界；不要替别人说话，不要输出姓名标签。]")
+            appendLine("[群聊也是连续发生的生活过程。已经出现过的发言、情绪、动作和成员反应都是真实上一刻；从现在的群聊状态继续，不要把用户最初的话当成每一位成员都要重新回答一次的问题。]")
             if (quotableUserMessages.isNotEmpty()) {
                 appendLine("[以下是近期真实的用户气泡；消息ID只用于引用或收藏动作，不属于聊天正文：]")
                 quotableUserMessages.forEach { item -> appendLine("[消息ID=${item.id} 内容=${qqForwardContextText(item.content).take(300)}]") }
@@ -262,17 +266,17 @@ internal suspend fun runGroupReplies(
                         ?.ifBlank { "上一位角色" }
                 } ?: "上一位角色"
                 appendLine("[$previousName 刚刚说：${previousMessage?.content?.takeLast(900).orEmpty()}]")
-                appendLine("[你这次主要回应 $previousName，而不是重新回答用户。可以赞同、质疑、追问、开玩笑或补充；如果已经自然说完，也可以让话题停在这里。]")
+                appendLine("[你现在站在 $previousName 说完后的下一刻，主要对刚发生的内容作出你自己的反应。可以赞同、质疑、追问、开玩笑或补充；不要重新回到话题起点。]")
             }
             appendLine("[这是即时通讯软件里的线上聊天。请按你自己的语气、停顿、情绪变化、补充、转折、追问和聊天习惯决定什么时候按一次发送。现实聊天中会在这里按发送，就在这里结束当前气泡。]")
-            appendLine("[需要多个气泡时，只在两个气泡之间输出 $SemanticBubbleSeparator；不按标点、固定字数或固定数量机械切分，也不要为了减少气泡把本来会分开发送的话硬塞成长段。]")
+            appendLine("[一个气泡通常只承载一个当下表达动作。若先回应、再补一句、再转折或追问，现实聊天会分别按发送，就用 $SemanticBubbleSeparator 分成多个短气泡。不要按固定字数机械切分，也不要把多个表达动作硬塞进一个大气泡。]")
             appendLine("[只有非常少见、很符合当下人设的情况下，例如刚说出口就觉得说漏嘴、说重了或突然后悔，才可以在回复末尾输出 ⟪RECALL:n⟫，n 是本次第 n 个气泡（从1开始）。不要为了显得像真人而频繁撤回。]")
             appendLine("[如果你此刻真的会自然地戳一下用户，可以在回复末尾输出 ⟪POKE_USER⟫；尤其用户刚戳过你时可以考虑戳回来，但不要滥用。]")
             if (group.allowCharacterConversation) {
                 appendLine("[根据此刻的内容判断群聊是否还会自然继续：若某位成员会接话，在末尾输出 ⟪NEXT:成员名⟫；全员都至少参与一次以后，若已经自然结束，输出 ⟪END⟫。不要按固定顺序轮流，也不要为了让某个人重复发言而硬续。该标记不会显示给用户。]")
             }
             if (index == 0) append("用户刚在群里说：$pendingText")
-            else append("用户最初开启的话题：$pendingText")
+            else append("这轮话题最初由用户说：$pendingText")
         }
         var result = LuluDeviceToolBridge.respond(
             characterId = member.characterId,
@@ -352,12 +356,6 @@ internal fun buildBoundedHistory(
                 message.content.startsWith("[群成员变更]") ||
                 message.content.startsWith("[戳一戳]") ||
                 message.content.startsWith("[撤回|")
-        }
-        .fold(mutableListOf<LuluChatMessage>()) { result, message ->
-            val previous = result.lastOrNull()
-            val duplicate = previous != null && previous.sender == message.sender && previous.content.trim() == message.content.trim()
-            if (!duplicate) result += message
-            result
         }
         .takeLast(maxMessages)
     val lines = normalized.map { message ->
