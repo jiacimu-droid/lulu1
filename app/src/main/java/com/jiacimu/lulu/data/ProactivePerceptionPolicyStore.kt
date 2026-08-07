@@ -79,7 +79,7 @@ object ProactivePerceptionPolicyStore {
         val next = transform(get(cleanId)).normalized()
         mutablePolicies.value = mutablePolicies.value + (cleanId to next)
         persist()
-        appContext?.let(ProactivePerceptionScheduler::scheduleNextDue)
+        appContext?.let { context -> ProactivePerceptionScheduler.scheduleNextDue(context) }
     }
 
     private fun persist() {
