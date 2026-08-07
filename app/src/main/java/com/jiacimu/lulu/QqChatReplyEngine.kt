@@ -193,7 +193,11 @@ internal suspend fun runGroupReplies(
         val name = member.groupNickname.ifBlank { characterNames[member.characterId].orEmpty() }
         name.isNotBlank() && pendingText.contains("@$name", ignoreCase = true)
     }
-    val lastSpeaker = MigratedDomainStores.chat.messages(conversationId).value
+    val beforeLoop = MigratedDomainStores.chat.messages(conversationId).value
+    val recalledBeforeLoop = recalledMessageIds(beforeLoop)
+    val lastSpeaker = beforeLoop
+        .asSequence()
+        .filterNot { it.id in recalledBeforeLoop }
         .lastOrNull { it.sender == LuluChatMessage.Sender.Character }
         ?.authorCharacterId
     val remaining = validMembers
@@ -224,9 +228,11 @@ internal suspend fun runGroupReplies(
         if (index > 0) delay(roleTypingLeadDelayMillis(member.characterId))
         val character = MigratedDomainStores.characters.get(member.characterId)
         val memberLabel = member.groupNickname.ifBlank { character.displayName }
-        val latestMessages = MigratedDomainStores.chat.messages(conversationId).value
+        val allLatestMessages = MigratedDomainStores.chat.messages(conversationId).value
+        val recalledLatest = recalledMessageIds(allLatestMessages)
+        val latestMessages = allLatestMessages.filterNot { it.id in recalledLatest }
         val history = if (index == 0) initialHistory else buildBoundedHistory(
-            messages = latestMessages,
+            messages = allLatestMessages,
             characterName = memberLabel,
             characterNames = characterNames,
         )
@@ -335,12 +341,14 @@ internal fun buildBoundedHistory(
     maxMessages: Int = 30,
     maxChars: Int = 12_000,
 ): String {
+    val recalledIds = recalledMessageIds(messages)
     val normalized = messages
+        .filterNot { it.id in recalledIds }
         .filter { message ->
             message.sender != LuluChatMessage.Sender.System ||
                 message.content.startsWith("[群成员变更]") ||
                 message.content.startsWith("[戳一戳]") ||
-                message.content.startsWith("[撤回]")
+                message.content.startsWith("[撤回|")
         }
         .fold(mutableListOf<LuluChatMessage>()) { result, message ->
             val previous = result.lastOrNull()
@@ -350,16 +358,21 @@ internal fun buildBoundedHistory(
         }
         .takeLast(maxMessages)
     val lines = normalized.map { message ->
-        val role = when (message.sender) {
-            LuluChatMessage.Sender.User -> UserProfileContext.displayLabel()
-            LuluChatMessage.Sender.System -> "群聊系统"
-            LuluChatMessage.Sender.Character -> message.authorCharacterId?.let { characterNames[it] } ?: characterName
+        val role = when {
+            message.sender == LuluChatMessage.Sender.System -> "聊天系统"
+            message.sender == LuluChatMessage.Sender.User -> UserProfileContext.displayLabel()
+            else -> message.authorCharacterId?.let { characterNames[it] } ?: characterName
         }
         val quoteContext = message.replyToMessageId
             ?.let { replyId -> messages.firstOrNull { it.id == replyId } }
             ?.let { original -> "（引用：${qqForwardContextText(original.content).take(180)}）" }
             .orEmpty()
-        "$role$quoteContext：${qqForwardContextText(message.content)}"
+        val content = if (message.sender == LuluChatMessage.Sender.System) {
+            stripRecallReceiptDirective(message.content)
+        } else {
+            qqForwardContextText(message.content)
+        }
+        "$role$quoteContext：$content"
     }
     val selected = ArrayDeque<String>()
     var chars = 0
