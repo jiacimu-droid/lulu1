@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T05:43:45.192011+00:00",
-  "commit": "0f8f081f9a5c5c72d7e89ebdc4f0a404c7701456",
+  "generatedAt": "2026-08-07T05:44:41.656388+00:00",
+  "commit": "5ad58c14e6041d125a87c046c388a3edfce41f0b",
   "branch": "main",
-  "sourceFingerprint": "26338ffd866a3756994d535ce1692629ed3da188c340fdb25eb1b14e8922e5ee",
+  "sourceFingerprint": "15f41ebb34ce8f5af44991e973bf603b0410aea35a1d00af09ff3329d63623cc",
   "summary": {
     "files": 122,
     "lines": 31032,
@@ -3020,7 +3020,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
       "lines": 412,
-      "sha256": "469e43cca57d3422efae2421ad5572c4091bdb8024f6976af069d7b7bddddaaa",
+      "sha256": "8e74001eaa7afb960ad368b7989d3034fccd86c8de3c76a78f5f249ede3787c0",
       "symbols": [
         {
           "name": "LuluCapabilitiesScreen",
