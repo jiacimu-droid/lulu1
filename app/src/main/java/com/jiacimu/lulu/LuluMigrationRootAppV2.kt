@@ -245,6 +245,7 @@ fun LuluMigrationRootAppV2(
                                     },
                                     onOpenConversation = ::openConversation,
                                 )
+                                MigrationRoute.Schedule -> ScheduleFeatureScreen(::popRoute)
                                 MigrationRoute.Games -> LuluGamesAppV2(
                                     onBack = {
                                         initialGameId = null
