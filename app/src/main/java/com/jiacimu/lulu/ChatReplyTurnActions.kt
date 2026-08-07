@@ -6,7 +6,8 @@ import com.jiacimu.lulu.data.LuluChatMessage
  * Describes the latest generated reply turn. A turn starts after the last user message (or user poke)
  * and contains the character bubbles plus the character-side system receipts created from that reply.
  * Regeneration is intentionally limited to this latest turn so older conversation history is never
- * silently rewritten underneath newer user messages.
+ * silently rewritten underneath newer user messages. Keeping this boundary explicit also lets the
+ * chat screen delete the old turn, its voice cache, and then run the normal reply pipeline again.
  */
 internal data class RegeneratableReplyTurn(
     val anchorMessageId: String,
