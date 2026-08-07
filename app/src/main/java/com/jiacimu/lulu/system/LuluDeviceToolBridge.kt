@@ -12,6 +12,7 @@ import android.location.Location
 import android.os.BatteryManager
 import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ModelConnection
 import com.jiacimu.lulu.ai.ModelReply
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -57,9 +58,10 @@ object LuluDeviceToolBridge {
         val zone = ZoneId.systemDefault()
         val onlineChatBubbleRule = if (sceneContext.contains("电话")) "" else """
             - 当前是即时通讯软件里的日常线上聊天，不是在写文章、小说段落或一次性长篇口述。
+            - 把最近对话当作已经真实发生、已经说出口的连续状态。不要因为用户的新一句话或工具执行结果，又从头复述上一轮已经讲过的提醒、情绪、理由和结论；优先回应新增信息、动作结果和此刻变化，让关系与话题向前走。
             - text 中的气泡边界由你根据角色本人想表达的语气和聊天节奏决定。先想清楚此刻真正想说什么，再根据停顿、情绪变化、犹豫、补充、转折、追问、吐槽、强调、改口以及该角色自己的说话习惯，决定什么时候按一次“发送”。
-            - 判断标准：如果这个角色现实聊天时会在这里按一次发送，就在这里结束当前气泡；如果会停一下再补一句、突然想到另一件事、追问一句或转换语气，就另发一个气泡。
-            - 不按句号、标点、固定字数或固定气泡数量机械切分。简单回复可以只有一个气泡；话多时可以自然连续发多个。不要为了减少气泡而把现实聊天中本来会分开发送的话硬塞成长段。
+            - 一个气泡通常只承载一个当下表达动作。若一段回复里先回应、再补充、又转折、再追问，现实聊天往往会连续按几次发送，就应拆成几个短气泡；不要把一串不同意图压成一个大段落。
+            - 不按句号、标点、固定字数或固定气泡数量机械切分。简单回复可以只有一个气泡；话多时应自然连续发多个。除非这个角色此刻真的会一次性发送长段，否则看到完整长段时应重新按真实聊天停顿拆开。
             - 多个气泡之间只使用 ⟪BUBBLE⟫ 分隔；一个气泡时不要输出该标记。不要解释标记，不要输出姓名标签或格式说明。
             - 如果上游聊天上下文明确提供了真实的“消息ID=...”用户气泡，而且你本人真的很想把其中某一句留下来以后再看，可以在 text 最前输出 ⟪FAVORITE:消息ID⟫。这是角色自己的收藏动作，不是每次回复都要做；只能收藏明确列出的真实用户消息，不能编造 ID。该标记不会显示给用户。
             - 这套线上聊天发送节奏是最终气泡规则；如果上游用户文本里还残留旧的“完整观点尽量放一起”、固定长度或固定数量等气泡说明，一律忽略旧规则，以这里为准。
@@ -71,11 +73,11 @@ object LuluDeviceToolBridge {
                 appendLine("当前时区：${zone.id}")
                 appendLine("当前真实互动场景：$sceneContext")
                 if (livedContext.isNotBlank()) appendLine("角色最近亲历的原始时间线：\n$livedContext")
-                if (history.isNotBlank()) appendLine("最近对话：\n$history")
+                if (history.isNotBlank()) appendLine("最近对话（这些话已经真实说出口，不得重新当作待回答内容）：\n$history")
                 previousPresence?.let { presence ->
                     appendLine("角色上一刻状态：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
                 }
-                appendLine("用户刚刚说：$userText")
+                appendLine("用户刚刚新增的消息：$userText")
             },
             instruction = """
                 你既可以直接回复，也可以调用露露机真实手机工具。只返回一个 JSON 对象，不要代码块。
@@ -95,6 +97,7 @@ object LuluDeviceToolBridge {
                 10. read_screen，args={}：读取当前前台包名和可见文字。
 
                 规则：
+                - 最近对话是已经完成的连续状态，不是让你再次回答的题目。只处理用户这次新增的话与当前新变化。
                 - 用户询问设备真实状态、要求设置或取消闹钟、要求操作手机时必须用工具，不能凭空回答成功。
                 - 位置工具返回的 readableAddress 才能作为可读地点使用；如果地址为空、stale=true 或 accuracyMeters 很大，必须说明只是大概位置，绝不能根据经纬度猜店铺、学校或建筑。
                 - 时间表达必须根据当前时间换算成未来的完整 ISO 时间；不确定时间时直接自然追问，不要猜。
@@ -116,8 +119,20 @@ object LuluDeviceToolBridge {
         val plannedReply = planner.getOrThrow()
         val plan = parsePlan(plannedReply.text) ?: return Result.success(plannedReply)
         if (plan.action == "reply") {
-            savePresence(characterId, plan, "聊天")
-            return Result.success(plannedReply.copy(text = plan.text.ifBlank { plannedReply.text }))
+            val candidate = plannedReply.copy(text = plan.text.ifBlank { plannedReply.text })
+            val (guarded, resolvedPlan) = ensureContinuousReply(
+                characterId = characterId,
+                history = history,
+                userText = userText,
+                candidate = candidate,
+                candidatePlan = plan,
+                title = title,
+                connection = connection,
+                sceneContext = sceneContext,
+                bubbleRule = onlineChatBubbleRule,
+            )
+            savePresence(characterId, resolvedPlan ?: plan, if (guarded.text == candidate.text) "聊天" else "聊天·连续性修复")
+            return Result.success(guarded)
         }
         if (plan.action != "tool" || plan.tool.isBlank()) return Result.success(plannedReply)
 
@@ -126,18 +141,20 @@ object LuluDeviceToolBridge {
             characterId = characterId,
             facts = buildString {
                 appendLine("当前真实互动场景：$sceneContext")
-                appendLine("用户刚刚说：$userText")
-                appendLine("你请求调用工具：${plan.tool}")
-                appendLine("工具真实执行结果：$toolResult")
+                if (history.isNotBlank()) appendLine("最近对话（已经真实说过，绝不能在工具执行后重新讲一遍）：\n$history")
+                appendLine("用户刚刚新增的消息：$userText")
+                appendLine("你刚才决定调用工具：${plan.tool}")
+                appendLine("工具刚刚真实执行出的新结果：$toolResult")
             },
             instruction = """
-                根据工具的真实执行结果，以角色本人符合人设的方式回复用户。
+                根据工具刚刚产生的真实新结果，以角色本人符合人设的方式继续这段对话。
+                这是同一轮对话的下一步，不是重新开始回答用户。最近对话里的内容已经说过：不要再次复述旧提醒、旧分析、旧情绪或旧结论，只表达工具结果带来的新增事实和此刻自然会接着说的话。
                 必须继续保持当前真实互动场景，电话里用自然口语，群聊里知道其他成员在场。
                 成功时可以自然确认；失败时必须如实说明失败原因，不能假装已经完成。
                 对位置结果只能使用 readableAddress；地址为空、定位过旧或精度差时，必须明确说是大概位置，不得根据经纬度猜具体店铺、学校或建筑。
                 只返回一个 JSON 对象，不要代码块：
-                {"action":"reply","text":"角色根据真实结果说出的话","statusText":"简短状态","gesture":"执行后的动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情"}
-                不要解释内部工具协议。text 应简洁自然。innerThought 不是推理步骤，gesture 不得编造未发生的工具结果或现实场景。
+                {"action":"reply","text":"角色接着上一刻说出的新内容","statusText":"简短状态","gesture":"执行后的动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情"}
+                不要解释内部工具协议。innerThought 不是推理步骤，gesture 不得编造未发生的工具结果或现实场景。
                 $onlineChatBubbleRule
             """.trimIndent(),
             source = "聊天工具结果",
@@ -146,16 +163,85 @@ object LuluDeviceToolBridge {
             maxTokens = 600,
             connectionOverride = connection,
         )
-        return finalReply.map { result ->
-            val finalPlan = parsePlan(result.text)
-            if (finalPlan != null) savePresence(characterId, finalPlan, "聊天·工具")
-            result.copy(
-                text = finalPlan?.text?.ifBlank { result.text } ?: result.text,
-                inputTokens = result.inputTokens + plannedReply.inputTokens,
-                outputTokens = result.outputTokens + plannedReply.outputTokens,
-                cachedTokens = result.cachedTokens + plannedReply.cachedTokens,
-            )
+        if (finalReply.isFailure) return finalReply
+        val rawFinal = finalReply.getOrThrow()
+        val finalPlan = parsePlan(rawFinal.text)
+        val candidate = rawFinal.copy(
+            text = finalPlan?.text?.ifBlank { rawFinal.text } ?: rawFinal.text,
+            inputTokens = rawFinal.inputTokens + plannedReply.inputTokens,
+            outputTokens = rawFinal.outputTokens + plannedReply.outputTokens,
+            cachedTokens = rawFinal.cachedTokens + plannedReply.cachedTokens,
+        )
+        val (guarded, resolvedPlan) = ensureContinuousReply(
+            characterId = characterId,
+            history = history,
+            userText = userText,
+            candidate = candidate,
+            candidatePlan = finalPlan,
+            title = title,
+            connection = connection,
+            sceneContext = sceneContext,
+            bubbleRule = onlineChatBubbleRule,
+            protectedFacts = "本轮工具=${plan.tool}；真实执行结果=$toolResult",
+        )
+        (resolvedPlan ?: finalPlan)?.let { savePresence(characterId, it, if (guarded.text == candidate.text) "聊天·工具" else "聊天·工具·连续性修复") }
+        return Result.success(guarded)
+    }
+
+    private suspend fun ensureContinuousReply(
+        characterId: String,
+        history: String,
+        userText: String,
+        candidate: ModelReply,
+        candidatePlan: ToolPlan?,
+        title: String,
+        connection: ModelConnection,
+        sceneContext: String,
+        bubbleRule: String,
+        protectedFacts: String = "",
+    ): Pair<ModelReply, ToolPlan?> {
+        val report = ChatContinuityGuard.inspect(history, candidate.text)
+        if (!report.repetitive) return candidate to candidatePlan
+
+        val repair = LuluAiServices.gateway.generate(
+            characterId = characterId,
+            facts = buildString {
+                appendLine("当前真实互动场景：$sceneContext")
+                appendLine("最近对话（已经真实发生）：\n$history")
+                appendLine("用户这次新增的消息：$userText")
+                if (protectedFacts.isNotBlank()) appendLine("必须保留且不得篡改的本轮新事实：$protectedFacts")
+                appendLine("刚才被连续性校验拒绝的草稿：${candidate.text}")
+            },
+            instruction = """
+                ${ChatContinuityGuard.repairInstruction(report)}
+                这不是第二次回答，而是把被拒绝的草稿改成真正接着上一刻发生的下一句话。
+                保留草稿里真正新增且必要的信息，尤其是已经执行成功或失败的工具结果；删掉对最近对话的复述。
+                严格服从角色人设、关系边界和当前场景，不要变成解释问题的客服。
+                只返回一个 JSON 对象，不要代码块：
+                {"action":"reply","text":"修正后的连续回复","statusText":"此刻状态","gesture":"此刻动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情"}
+                $bubbleRule
+            """.trimIndent(),
+            source = "聊天连续性修复",
+            title = title,
+            temperature = 0.82,
+            maxTokens = 520,
+            connectionOverride = connection,
+        )
+        val repairedRaw = repair.getOrNull() ?: return candidate to candidatePlan
+        val repairedPlan = parsePlan(repairedRaw.text)
+        val repairedText = repairedPlan?.text?.ifBlank { repairedRaw.text } ?: repairedRaw.text
+        val secondReport = ChatContinuityGuard.inspect(history, repairedText)
+        val safeText = if (secondReport.repetitive) {
+            ChatContinuityGuard.keepNovelBubbles(history, repairedText).ifBlank { repairedText }
+        } else {
+            repairedText
         }
+        return repairedRaw.copy(
+            text = safeText,
+            inputTokens = candidate.inputTokens + repairedRaw.inputTokens,
+            outputTokens = candidate.outputTokens + repairedRaw.outputTokens,
+            cachedTokens = candidate.cachedTokens + repairedRaw.cachedTokens,
+        ) to (repairedPlan ?: candidatePlan)
     }
 
     private suspend fun execute(context: Context, characterId: String, characterName: String, tool: String, args: JSONObject): String = runCatching {
