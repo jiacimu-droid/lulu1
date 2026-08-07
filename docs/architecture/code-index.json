@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T05:39:29.690928+00:00",
-  "commit": "46cfb3038e70e6cf2e06d6d8f5589deb45c55b61",
+  "generatedAt": "2026-08-07T05:43:45.192011+00:00",
+  "commit": "0f8f081f9a5c5c72d7e89ebdc4f0a404c7701456",
   "branch": "main",
-  "sourceFingerprint": "821ab1602982cc57af01ad19eeb42a35fd335d4603aceee5fd2388a5cb7c97cd",
+  "sourceFingerprint": "26338ffd866a3756994d535ce1692629ed3da188c340fdb25eb1b14e8922e5ee",
   "summary": {
     "files": 122,
     "lines": 31032,
@@ -4174,7 +4174,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
       "lines": 131,
-      "sha256": "6a3fe5d192f33e0a41c178c040910effaa3ebea9bbb4903fd6c4173b7cc68618",
+      "sha256": "67613df5337beb97f690937ed4d17f34d8d42bc22da5e0c93409bf0ae80acf10",
       "symbols": [
         {
           "name": "PerceptionIntervalUnit",
