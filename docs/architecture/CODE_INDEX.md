@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`ff89aa171c6e160320d10425380b72f162edfcc4`
+- 基准提交：`8d128b4d1625feeaa1bd6fb1b3cd506c95ee8d23`
 - 分支：`main`
 - 已索引文件：125
-- 已索引代码/文本行：31334
-- 已发现符号：508
+- 已索引代码/文本行：31501
+- 已发现符号：514
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -40,7 +40,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 413 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 238 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 649 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 716 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 883 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 219 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 67 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 698 | 24 |
