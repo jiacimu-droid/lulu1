@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T05:37:01.874062+00:00",
-  "commit": "5bdc6c8cc80865b581c7d709da324e5ebd54b020",
+  "generatedAt": "2026-08-07T05:37:14.883602+00:00",
+  "commit": "edb82ab3e0db473fc0697cf4895ea4b3a7c09826",
   "branch": "main",
-  "sourceFingerprint": "52fd51797bb3d7420cadb3f748d16e2203dcb27cf350d05063f18a97696ea488",
+  "sourceFingerprint": "d0015d31d71b89f5d3ba230d28308447606d0a6bde09edd092c935294a852202",
   "summary": {
     "files": 122,
-    "lines": 31025,
+    "lines": 31020,
     "symbols": 501
   },
   "symbolIndex": {
@@ -2881,13 +2881,13 @@
     "LuluNotificationListenerService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt",
-        "line": 11
+        "line": 12
       }
     ],
     "LuluNotificationSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt",
-        "line": 51
+        "line": 46
       }
     ]
   },
@@ -5618,16 +5618,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt",
-      "lines": 58,
-      "sha256": "0bc1f8c6577fd05057e3960d31e40be4c9b03cd48f26c26a01e38fb93b877f33",
+      "lines": 53,
+      "sha256": "f4c273b753ca9a8bd9cafdc6535e9be2af2ac1c91b2c48596e078d03d62b6c6d",
       "symbols": [
         {
           "name": "LuluNotificationListenerService",
-          "line": 11
+          "line": 12
         },
         {
           "name": "LuluNotificationSnapshot",
-          "line": 51
+          "line": 46
         }
       ]
     },
