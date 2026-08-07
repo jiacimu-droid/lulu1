@@ -44,7 +44,6 @@ import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -89,6 +88,10 @@ fun QqStyleChatDetailScreen(
     val presenceStates by CompanionPresenceStore.states.collectAsState()
     val presenceHistories by CompanionPresenceStore.histories.collectAsState()
     val library by LuluAiServices.connectionStore.library.collectAsState()
+    val replyTaskStates by ChatReplyTaskManager.states.collectAsState()
+    val replyTaskState = replyTaskStates[conversationId] ?: ChatReplyTaskManager.TaskState()
+    val receiving = replyTaskState.running
+    val typingCharacterId = replyTaskState.typingCharacterId
     val conversation = conversations.firstOrNull { it.id == conversationId }
     val groupChat = conversation?.groupChat
     val characterId = conversation?.characterId ?: "lulu"
@@ -109,9 +112,6 @@ fun QqStyleChatDetailScreen(
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
     var input by remember { mutableStateOf("") }
-    var receiving by remember { mutableStateOf(false) }
-    var typingCharacterId by remember { mutableStateOf<String?>(null) }
-    var generationJob by remember { mutableStateOf<Job?>(null) }
     var selectedMessage by remember { mutableStateOf<LuluChatMessage?>(null) }
     var replyingTo by remember { mutableStateOf<LuluChatMessage?>(null) }
     var multiSelectMode by remember { mutableStateOf(false) }
@@ -257,6 +257,12 @@ fun QqStyleChatDetailScreen(
     }
 
     LaunchedEffect(conversationId) { MigratedDomainStores.chat.markConversationRead(conversationId) }
+    LaunchedEffect(replyTaskState.lastError) {
+        replyTaskState.lastError?.let { error ->
+            snackbar.showSnackbar(error)
+            ChatReplyTaskManager.clearError(conversationId)
+        }
+    }
     LaunchedEffect(visibleMessages.size, preferences.autoScrollChat, imeBottom) {
         if (visibleMessages.isNotEmpty() && (preferences.autoScrollChat || imeBottom > 0)) {
             val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
@@ -273,14 +279,11 @@ fun QqStyleChatDetailScreen(
     }
 
     fun stopReceiving() {
-        generationJob?.cancel()
-        generationJob = null
-        typingCharacterId = null
-        receiving = false
+        ChatReplyTaskManager.stop(conversationId)
     }
 
     fun sendAndReceive() {
-        if (receiving) return
+        if (ChatReplyTaskManager.state(conversationId).running) return
         if (activeArchive == null) {
             scope.launch { snackbar.showSnackbar("请先在右上角选择模型") }
             return
@@ -309,71 +312,66 @@ fun QqStyleChatDetailScreen(
                 qqForwardContextText(message.content)
             }
         }
+        val characterNamesSnapshot = characters.mapValues { it.value.displayName }
         val history = buildBoundedHistory(
             messages = latestMessages.filterNot { it.id in pendingIds },
             characterName = character.displayName,
-            characterNames = characters.mapValues { it.value.displayName },
+            characterNames = characterNamesSnapshot,
         )
-        receiving = true
-        generationJob = scope.launch {
-            try {
-                if (groupChat == null) {
-                    typingCharacterId = characterId
-                    val quotableUserMessages = latestMessages
-                        .filter { it.sender == LuluChatMessage.Sender.User }
-                        .takeLast(6)
-                    val privateInput = buildString {
-                        appendLine("[这是即时通讯软件里的日常线上聊天。按照你此刻想表达的语气、停顿、情绪变化、补充、转折、追问、吐槽、强调、改口和自己的聊天习惯决定什么时候按一次发送。现实聊天中会在这里按发送，就在这里结束一个气泡。]")
-                        appendLine("[多个气泡之间只输出 $SemanticBubbleSeparator；不要按标点、固定字数或固定数量机械切分，也不要为了减少气泡把本来会分开发送的话塞成长段。]")
-                        appendLine("[只有非常少见、很符合当下人设的情况下，例如刚说出口就觉得说漏嘴、说重了或突然后悔，才可以在回复末尾输出 ⟪RECALL:n⟫，n 是本次第 n 个气泡（从1开始）。不要为了显得像真人而频繁撤回。]")
-                        appendLine("[如果你此刻真的会自然地戳一下用户，可以在回复末尾输出 ⟪POKE_USER⟫；尤其用户刚戳过你时可以考虑戳回来，但不要滥用。]")
-                        if (quotableUserMessages.isNotEmpty()) {
-                            appendLine("[你也可以像真人聊天一样，偶尔在确实需要针对用户某一句单独回应时引用那条气泡；不要为了展示功能而每次都引用。以下是可引用的近期用户气泡：]")
-                            quotableUserMessages.forEach { item ->
-                                appendLine("[消息ID=${item.id} 内容=${qqForwardContextText(item.content).take(300)}]")
-                            }
-                            appendLine("[如果决定引用，只在整段回复最前输出 ⟪QUOTE:消息ID⟫，随后正常输出回复内容；只能使用上面真实存在的消息ID。没有必要引用时不要输出这个标记。]")
+
+        ChatReplyTaskManager.launch(conversationId) {
+            if (groupChat == null) {
+                setTypingCharacter(characterId)
+                val quotableUserMessages = latestMessages
+                    .filter { it.sender == LuluChatMessage.Sender.User }
+                    .takeLast(6)
+                val privateInput = buildString {
+                    appendLine("[这是即时通讯软件里的日常线上聊天。按照你此刻想表达的语气、停顿、情绪变化、补充、转折、追问、吐槽、强调、改口和自己的聊天习惯决定什么时候按一次发送。现实聊天中会在这里按发送，就在这里结束一个气泡。]")
+                    appendLine("[多个气泡之间只输出 $SemanticBubbleSeparator；不要按标点、固定字数或固定数量机械切分，也不要为了减少气泡把本来会分开发送的话塞成长段。]")
+                    appendLine("[只有非常少见、很符合当下人设的情况下，例如刚说出口就觉得说漏嘴、说重了或突然后悔，才可以在回复末尾输出 ⟪RECALL:n⟫，n 是本次第 n 个气泡（从1开始）。不要为了显得像真人而频繁撤回。]")
+                    appendLine("[如果你此刻真的会自然地戳一下用户，可以在回复末尾输出 ⟪POKE_USER⟫；尤其用户刚戳过你时可以考虑戳回来，但不要滥用。]")
+                    if (quotableUserMessages.isNotEmpty()) {
+                        appendLine("[你也可以像真人聊天一样，偶尔在确实需要针对用户某一句单独回应时引用那条气泡；不要为了展示功能而每次都引用。以下是可引用的近期用户气泡：]")
+                        quotableUserMessages.forEach { item ->
+                            appendLine("[消息ID=${item.id} 内容=${qqForwardContextText(item.content).take(300)}]")
                         }
-                        append("用户消息：$pendingText")
+                        appendLine("[如果决定引用，只在整段回复最前输出 ⟪QUOTE:消息ID⟫，随后正常输出回复内容；只能使用上面真实存在的消息ID。没有必要引用时不要输出这个标记。]")
                     }
-                    val result = LuluDeviceToolBridge.respond(
-                        characterId = characterId,
-                        history = history,
-                        userText = privateInput,
-                        title = activeLabel,
-                        archiveId = chatArchiveId,
-                    )
-                    if (!currentCoroutineContext().isActive) return@launch
-                    result.onSuccess { reply ->
-                        val presentation = parseCharacterReplyPresentation(reply.text)
-                        if (presentation.content.isNotBlank()) {
-                            appendRoleReplyWithPacing(
-                                conversationId = conversationId,
-                                characterId = characterId,
-                                characterLabel = character.displayName,
-                                presentation = presentation,
-                            )
-                        } else {
-                            snackbar.showSnackbar("对方刚才没有说清，再点一次试试")
-                        }
-                    }.onFailure { error -> snackbar.showSnackbar(error.message ?: "回复失败") }
-                } else {
-                    runGroupReplies(
-                        conversationId = conversationId,
-                        group = groupChat,
-                        pendingText = pendingText,
-                        initialHistory = history,
-                        activeLabel = activeLabel,
-                        archiveId = chatArchiveId,
-                        characterNames = characters.mapValues { it.value.displayName },
-                        onError = { snackbar.showSnackbar(it) },
-                        onSpeakerChange = { typingCharacterId = it },
-                    )
+                    append("用户消息：$pendingText")
                 }
-            } finally {
-                typingCharacterId = null
-                receiving = false
-                generationJob = null
+                val result = LuluDeviceToolBridge.respond(
+                    characterId = characterId,
+                    history = history,
+                    userText = privateInput,
+                    title = activeLabel,
+                    archiveId = chatArchiveId,
+                )
+                if (!currentCoroutineContext().isActive) return@launch
+                result.onSuccess { reply ->
+                    val presentation = parseCharacterReplyPresentation(reply.text)
+                    if (presentation.content.isNotBlank()) {
+                        appendRoleReplyWithPacing(
+                            conversationId = conversationId,
+                            characterId = characterId,
+                            characterLabel = character.displayName,
+                            presentation = presentation,
+                        )
+                    } else {
+                        reportError("对方刚才没有说清，再点一次试试")
+                    }
+                }.onFailure { error -> reportError(error.message ?: "回复失败") }
+            } else {
+                runGroupReplies(
+                    conversationId = conversationId,
+                    group = groupChat,
+                    pendingText = pendingText,
+                    initialHistory = history,
+                    activeLabel = activeLabel,
+                    archiveId = chatArchiveId,
+                    characterNames = characterNamesSnapshot,
+                    onError = { reportError(it) },
+                    onSpeakerChange = { setTypingCharacter(it) },
+                )
             }
         }
     }
