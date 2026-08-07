@@ -34,12 +34,14 @@ object ChatLexiconAutomation {
     private val conversationJobs = mutableMapOf<String, Job>()
     private val characterLocks = mutableMapOf<String, Mutex>()
     private var prefs: android.content.SharedPreferences? = null
+    private var appContext: Context? = null
     private var started = false
 
     @Synchronized
     fun initialize(context: Context) {
         if (started) return
         started = true
+        appContext = context.applicationContext
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         scope.launch {
             MigratedDomainStores.chat.conversations.collect { conversations ->
@@ -83,7 +85,7 @@ object ChatLexiconAutomation {
                                             )
                                         }
                                     }
-                                }
+                            }
                     }
                 }
             }
@@ -129,9 +131,11 @@ object ChatLexiconAutomation {
             .getOrElse { return }
         val existingKeys = LuluRepositories.lexicon.snapshot(characterId)
             .mapTo(mutableSetOf(), LexiconEntry::automationDedupeKey)
-        parsed
-            .filter { entry -> existingKeys.add(entry.automationDedupeKey()) }
-            .forEach { entry -> LuluRepositories.lexicon.save(entry) }
+        val saved = parsed.filter { entry -> existingKeys.add(entry.automationDedupeKey()) }
+        saved.forEach { entry -> LuluRepositories.lexicon.save(entry) }
+        if (saved.any { it.section == LexiconSection.Concern || it.section == LexiconSection.Promise }) {
+            appContext?.let { ProactivePerceptionScheduler.scheduleConcernPromise(it, characterId) }
+        }
         markProcessed(userMessage.id, characterId)
     }
 
