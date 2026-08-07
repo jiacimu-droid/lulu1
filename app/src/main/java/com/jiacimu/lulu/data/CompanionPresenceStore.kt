@@ -21,6 +21,12 @@ data class CompanionPresenceState(
     val lastPerceptionNote: String = "",
 )
 
+data class CompanionPresenceMessageAnchor(
+    val characterId: String,
+    val messageAt: Instant,
+    val state: CompanionPresenceState?,
+)
+
 /** Current private/visible role presence shared by chat and background perception. */
 object CompanionPresenceStore {
     private const val PREFS_NAME = "lulu_companion_presence"
@@ -32,6 +38,9 @@ object CompanionPresenceStore {
     val histories: StateFlow<Map<String, List<CompanionPresenceState>>> = mutableHistories.asStateFlow()
     private var prefs: android.content.SharedPreferences? = null
 
+    @Volatile
+    private var selectedMessageAnchor: CompanionPresenceMessageAnchor? = null
+
     @Synchronized
     fun initialize(context: Context) {
         if (prefs != null) return
@@ -41,6 +50,36 @@ object CompanionPresenceStore {
     }
 
     fun current(characterId: String): CompanionPresenceState? = states.value[characterId]
+
+    /**
+     * Anchors the next presence dialog to the state that existed when this concrete chat message
+     * was sent. New chat turns are recorded one-by-one in history, so different message avatars no
+     * longer all open the role's newest state. Older messages fall back to the closest saved state
+     * at or before their timestamp instead of incorrectly showing a future state.
+     */
+    fun selectMessageAnchor(characterId: String, messageAt: Instant) {
+        if (characterId.isBlank()) return
+        val candidates = buildList {
+            addAll(mutableHistories.value[characterId].orEmpty())
+            mutableStates.value[characterId]?.let(::add)
+        }.distinctBy(CompanionPresenceState::updatedAt)
+        val snapshot = candidates
+            .asSequence()
+            .filter { it.updatedAt <= messageAt }
+            .maxByOrNull(CompanionPresenceState::updatedAt)
+        selectedMessageAnchor = CompanionPresenceMessageAnchor(
+            characterId = characterId,
+            messageAt = messageAt,
+            state = snapshot,
+        )
+    }
+
+    fun selectedMessageAnchor(characterId: String): CompanionPresenceMessageAnchor? =
+        selectedMessageAnchor?.takeIf { it.characterId == characterId }
+
+    fun clearMessageAnchor() {
+        selectedMessageAnchor = null
+    }
 
     /** Records that the perception pipeline actually ran, including skips and failures. */
     @Synchronized
@@ -90,7 +129,11 @@ object CompanionPresenceStore {
             lastPerceptionNote = next.lastPerceptionNote,
         ) != next
         val heartbeatDue = previous == null || Duration.between(previous.updatedAt, now).toMinutes() >= 30
-        if (contentChanged || heartbeatDue) {
+        val isChatTurn = source.contains("聊天") || source.contains("群聊")
+
+        // Every actual chat turn owns a distinct 'moment', even if two consecutive states happen to
+        // have the same wording. Non-chat background states may still dedupe to avoid noisy history.
+        if (isChatTurn || contentChanged || heartbeatDue) {
             mutableHistories.value = mutableHistories.value +
                 (characterId to (listOf(next) + mutableHistories.value[characterId].orEmpty())
                     .distinctBy { it.updatedAt }
@@ -105,6 +148,7 @@ object CompanionPresenceStore {
         if (characterId.isBlank()) return
         mutableStates.value = mutableStates.value - characterId
         mutableHistories.value = mutableHistories.value - characterId
+        if (selectedMessageAnchor?.characterId == characterId) selectedMessageAnchor = null
         persist()
     }
 
@@ -194,6 +238,6 @@ private fun JSONObject.toPresenceState(fallbackCharacterId: String): CompanionPr
 
 private fun String?.cleanPresence(limit: Int): String? = this
     ?.trim()
-    ?.replace(Regex("\\s+"), " ")
+    ?.replace(Regex("\s+"), " ")
     ?.take(limit)
     ?.takeIf(String::isNotBlank)
