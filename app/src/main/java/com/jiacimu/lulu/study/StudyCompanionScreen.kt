@@ -1,12 +1,12 @@
 package com.jiacimu.lulu.study
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.LuluProfileAvatar
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -27,6 +28,7 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
         ?: characters.values.firstOrNull()
         ?: MigratedDomainStores.characters.get("lulu")
     val scope = rememberCoroutineScope()
+    var selectorExpanded by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
     var error by remember { mutableStateOf(false) }
     var sleepText by remember { mutableStateOf("23:30") }
@@ -40,35 +42,54 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
     ) {
         item {
             StudyCard {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        Modifier.size(58.dp).background(StudyDesign.wheat, RoundedCornerShape(13.dp)),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            selected.displayName.take(1).ifBlank { "角" },
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
-                    Spacer(Modifier.width(14.dp))
-                    Text(
-                        selected.displayName.ifBlank { "未命名角色" },
-                        modifier = Modifier.weight(1f),
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-                if (characters.isNotEmpty()) {
+                Box {
                     Row(
-                        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectorExpanded = true }
+                            .padding(vertical = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        characters.values.forEach { character ->
-                            FilterChip(
-                                selected = state.profile.selectedCharacterId == character.characterId,
-                                onClick = { store.selectCharacter(character.characterId) },
-                                label = { Text(character.displayName.ifBlank { "未命名" }) },
+                        LuluProfileAvatar(
+                            imageUri = selected.avatarUri,
+                            fallback = selected.displayName.take(1).ifBlank { "角" },
+                            size = 58,
+                        )
+                        Spacer(Modifier.width(14.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                selected.displayName.ifBlank { "未命名角色" },
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Text("点击选择学习陪同角色", color = StudyDesign.muted, fontSize = 12.sp)
+                        }
+                        Icon(Icons.Outlined.ExpandMore, "选择角色", tint = StudyDesign.muted)
+                    }
+                    DropdownMenu(
+                        expanded = selectorExpanded,
+                        onDismissRequest = { selectorExpanded = false },
+                        modifier = Modifier.widthIn(min = 220.dp),
+                    ) {
+                        characters.values.sortedBy { it.displayName }.forEach { character ->
+                            DropdownMenuItem(
+                                text = { Text(character.displayName.ifBlank { "未命名" }) },
+                                leadingIcon = {
+                                    LuluProfileAvatar(
+                                        imageUri = character.avatarUri,
+                                        fallback = character.displayName.take(1).ifBlank { "角" },
+                                        size = 36,
+                                    )
+                                },
+                                trailingIcon = {
+                                    if (character.characterId == selected.characterId) {
+                                        Text("当前", color = StudyDesign.muted, fontSize = 11.sp)
+                                    }
+                                },
+                                onClick = {
+                                    store.selectCharacter(character.characterId)
+                                    selectorExpanded = false
+                                },
                             )
                         }
                     }
@@ -175,7 +196,7 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
             item {
                 StudyCard {
                     visibleEvents.forEachIndexed { index, event ->
-                        Text(event.detail.ifBlank { event.title })
+                        Text(studyEventDisplayText(event))
                         if (index != visibleEvents.lastIndex) {
                             HorizontalDivider(
                                 modifier = Modifier.padding(vertical = 10.dp),
@@ -186,5 +207,26 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
                 }
             }
         }
+    }
+}
+
+private fun studyEventDisplayText(event: StudyEvent): String {
+    val detail = event.detail.trim()
+    if (detail.isBlank()) return event.title.ifBlank { "学习记录" }
+    val looksInternal = detail.contains("StudyTask(") ||
+        listOf("id=", "completed=", "source=", "rewarded=").count(detail::contains) >= 2
+    if (!looksInternal) return detail
+
+    val taskTitle = Regex("title=([^,)\\n]+)")
+        .find(detail)
+        ?.groupValues
+        ?.getOrNull(1)
+        ?.trim()
+        ?.takeIf(String::isNotBlank)
+    return when {
+        !taskTitle.isNullOrBlank() && event.title.isNotBlank() -> "${event.title}：$taskTitle"
+        !taskTitle.isNullOrBlank() -> taskTitle
+        event.title.isNotBlank() -> event.title
+        else -> "学习记录已更新"
     }
 }
