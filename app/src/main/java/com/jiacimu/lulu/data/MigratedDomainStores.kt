@@ -235,7 +235,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         }
         val memberSummary = (listOf(group.userGroupNickname) + characterNames).joinToString("、")
         group.members
-            .filter { onlyCharacterIds == null || member.characterId in onlyCharacterIds }
+            .filter { member -> onlyCharacterIds == null || member.characterId in onlyCharacterIds }
             .forEach { member ->
                 SharedExperienceTimeline.record(
                     eventId = "group-joined-${conversation.id}-${member.characterId}-${conversation.updatedAt.toEpochMilli()}",
@@ -673,7 +673,7 @@ class CharacterSettingsStore {
     fun update(settings: CharacterSettings) {
         require(settings.characterId.isNotBlank()) { "角色 ID 不能为空" }
         synchronized(lock) {
-            state.value = state.value + (settings.characterId to settings)
+            state.value = state.value + (settings.characterId to settings.characterId.let { settings })
             persistLocked()
         }
     }
