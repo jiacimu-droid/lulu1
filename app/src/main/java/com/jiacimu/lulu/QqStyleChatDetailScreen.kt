@@ -28,6 +28,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
@@ -71,6 +72,7 @@ fun QqStyleChatDetailScreen(
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    val density = LocalDensity.current
     val userProfilePrefs = remember { context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE) }
     val userAvatar = remember { userProfilePrefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2) }
     val userAvatarUri = remember { userProfilePrefs.getString("avatar_uri", null) }
@@ -94,6 +96,7 @@ fun QqStyleChatDetailScreen(
     }
 
     val listState = rememberLazyListState()
+    val imeBottom = WindowInsets.ime.getBottom(density)
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
     var input by remember { mutableStateOf("") }
@@ -241,8 +244,8 @@ fun QqStyleChatDetailScreen(
     }
 
     LaunchedEffect(conversationId) { MigratedDomainStores.chat.markConversationRead(conversationId) }
-    LaunchedEffect(messages.size, preferences.autoScrollChat) {
-        if (messages.isNotEmpty() && preferences.autoScrollChat) {
+    LaunchedEffect(messages.size, preferences.autoScrollChat, imeBottom) {
+        if (messages.isNotEmpty() && (preferences.autoScrollChat || imeBottom > 0)) {
             val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
             listState.scrollToItem(messages.lastIndex + announcementOffset)
         }
