@@ -204,10 +204,6 @@ private fun GameHome(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        item {
-            Text("选择一个游戏", fontSize = 25.sp, fontWeight = FontWeight.Bold)
-            Text("进入前再决定谁陪你玩；不同游戏会限制可选人数。", color = GameDesign.muted)
-        }
         items(games, key = { it.id }) { launcher -> GameEntry(launcher, onOpen) }
     }
 }
