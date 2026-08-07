@@ -19,19 +19,13 @@ internal fun stripCharacterReplyDirective(text: String): String =
     text.replace(QuoteDirectiveRegex, "").trim()
 
 internal fun normalizeSemanticBubbles(text: String): String {
-    val normalized = text.replace("\r\n", "\n").trim()
+    val normalized = stripCharacterReplyDirective(text.replace("\r\n", "\n")).trim()
     if (normalized.isBlank()) return ""
-    val quoteMarker = QuoteDirectiveRegex.find(normalized)?.value.orEmpty()
-    val semanticBubbles = stripCharacterReplyDirective(normalized)
+    return normalized
         .split(SemanticBubbleSeparator)
         .map { bubble -> bubble.trim().trim('"') }
         .filter(String::isNotBlank)
-    val body = semanticBubbles.joinToString("\n")
-    return when {
-        body.isBlank() -> ""
-        quoteMarker.isBlank() -> body
-        else -> quoteMarker + body
-    }
+        .joinToString("\n")
 }
 
 private data class GroupReplyFlow(
@@ -45,12 +39,11 @@ private fun parseGroupReplyFlow(text: String): GroupReplyFlow {
     val nextMatch = Regex("⟪NEXT\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE).find(text)
     val quoteId = characterReplyQuoteId(text)
     val visible = stripCharacterReplyDirective(text)
-        .replace(Regex("⟪NEXT\\s*:\\s*[^⟫]+⟫", RegexOption.IGNORE_CASE), "")
+        .replace(Regex("⟪NEXT\\s*:\\s*[^⟫]+)⟫", RegexOption.IGNORE_CASE), "")
         .replace(Regex("⟪END⟫", RegexOption.IGNORE_CASE), "")
         .trim()
-    val normalized = normalizeSemanticBubbles(visible)
     return GroupReplyFlow(
-        content = if (quoteId.isNullOrBlank() || normalized.isBlank()) normalized else "⟪QUOTE:$quoteId⟫$normalized",
+        content = normalizeSemanticBubbles(visible),
         nextSpeakerName = nextMatch?.groupValues?.getOrNull(1)?.trim()?.takeIf(String::isNotBlank),
         shouldEnd = text.contains("⟪END⟫", ignoreCase = true),
         quoteMessageId = quoteId,
@@ -136,7 +129,7 @@ internal suspend fun runGroupReplies(
                         ?.ifBlank { characterNames[id].orEmpty() }
                         ?.ifBlank { "上一位角色" }
                 } ?: "上一位角色"
-                appendLine("[$previousName 刚刚说：${previousMessage?.content?.let(::stripCharacterReplyDirective)?.takeLast(900).orEmpty()}]")
+                appendLine("[$previousName 刚刚说：${previousMessage?.content?.takeLast(900).orEmpty()}]")
                 appendLine("[你这次主要回应 $previousName，而不是重新回答用户。可以赞同、质疑、追问、开玩笑或补充；如果已经自然说完，也可以让话题停在这里。]")
             }
             appendLine("[这是即时通讯软件里的线上聊天。请按你自己的语气、停顿、情绪变化、补充、转折、追问和聊天习惯决定什么时候按一次发送。现实聊天中会在这里按发送，就在这里结束当前气泡。]")
@@ -171,10 +164,14 @@ internal suspend fun runGroupReplies(
             val flow = parseGroupReplyFlow(reply.text)
             val semanticReply = flow.content
             if (semanticReply.isNotBlank()) {
+                val validQuoteId = flow.quoteMessageId?.takeIf { quoteId ->
+                    latestMessages.any { it.id == quoteId && it.sender == LuluChatMessage.Sender.User }
+                }
                 MigratedDomainStores.chat.appendCharacterMessage(
                     conversationId = conversationId,
                     content = semanticReply,
                     authorCharacterId = member.characterId,
+                    replyToMessageId = validQuoteId,
                 )
                 afterReply(member.characterId, semanticReply)
             }
@@ -224,7 +221,11 @@ internal fun buildBoundedHistory(
             LuluChatMessage.Sender.System -> "群聊系统"
             LuluChatMessage.Sender.Character -> message.authorCharacterId?.let { characterNames[it] } ?: characterName
         }
-        "$role：${stripCharacterReplyDirective(message.content).trim()}"
+        val quoteContext = message.replyToMessageId
+            ?.let { replyId -> messages.firstOrNull { it.id == replyId } }
+            ?.let { original -> "（引用：${original.content.take(180)}）" }
+            .orEmpty()
+        "$role$quoteContext：${message.content.trim()}"
     }
     val selected = ArrayDeque<String>()
     var chars = 0
