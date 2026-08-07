@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T05:32:28.001497+00:00",
-  "commit": "03b32837eb6b55932cca1c8fa6548f76ddbada9c",
+  "generatedAt": "2026-08-07T05:35:26.692643+00:00",
+  "commit": "669c068194be156311bcb77d745913e8dc805ba1",
   "branch": "main",
-  "sourceFingerprint": "3021e2a6a6b1cb28456c826777d27ef0af33dc33de5aa74d3971d96e9527b72f",
+  "sourceFingerprint": "c4249248adb5a490e0d38793db9f87983585f80bc4c52e19ea03e1010207b659",
   "summary": {
-    "files": 121,
-    "lines": 30285,
-    "symbols": 494
+    "files": 122,
+    "lines": 30997,
+    "symbols": 499
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -366,6 +366,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
         "line": 55
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
+        "line": 72
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
@@ -1462,6 +1466,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
         "line": 45
+      }
+    ],
+    "ProactivePerceptionRuntime": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
+        "line": 50
+      }
+    ],
+    "markConcernPromisePending": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
+        "line": 77
+      }
+    ],
+    "nextDueAt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
+        "line": 84
+      }
+    ],
+    "clock": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
+        "line": 576
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -4161,6 +4189,33 @@
         {
           "name": "update",
           "line": 77
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
+      "lines": 712,
+      "sha256": "a019057565072e640d902e41466b9b72c12ac9adf73a7fd346e33df3bf7c59e8",
+      "symbols": [
+        {
+          "name": "ProactivePerceptionRuntime",
+          "line": 50
+        },
+        {
+          "name": "initialize",
+          "line": 72
+        },
+        {
+          "name": "markConcernPromisePending",
+          "line": 77
+        },
+        {
+          "name": "nextDueAt",
+          "line": 84
+        },
+        {
+          "name": "clock",
+          "line": 576
         }
       ]
     },
