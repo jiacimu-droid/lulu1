@@ -69,6 +69,11 @@ object ProactivePerceptionScheduler {
         manager.enqueueUniqueWork(NEXT_DUE_WORK, ExistingWorkPolicy.REPLACE, request)
     }
 
+    /** Legacy API kept only so old code can compile; it never creates an event-triggered model run. */
+    fun scheduleSoon(context: Context, trigger: String) {
+        scheduleNextDue(context.applicationContext)
+    }
+
     fun scheduleConcernPromise(context: Context, characterId: String) {
         ProactivePerceptionRuntime.markConcernPromisePending(context.applicationContext, characterId)
     }
