@@ -10,33 +10,50 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 
 internal const val SemanticBubbleSeparator = "⟪BUBBLE⟫"
+private val QuoteDirectiveRegex = Regex("⟪QUOTE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
+
+internal fun characterReplyQuoteId(text: String): String? =
+    QuoteDirectiveRegex.find(text)?.groupValues?.getOrNull(1)?.trim()?.takeIf(String::isNotBlank)
+
+internal fun stripCharacterReplyDirective(text: String): String =
+    text.replace(QuoteDirectiveRegex, "").trim()
 
 internal fun normalizeSemanticBubbles(text: String): String {
     val normalized = text.replace("\r\n", "\n").trim()
     if (normalized.isBlank()) return ""
-    val semanticBubbles = normalized
+    val quoteMarker = QuoteDirectiveRegex.find(normalized)?.value.orEmpty()
+    val semanticBubbles = stripCharacterReplyDirective(normalized)
         .split(SemanticBubbleSeparator)
         .map { bubble -> bubble.trim().trim('"') }
         .filter(String::isNotBlank)
-    return semanticBubbles.joinToString("\n")
+    val body = semanticBubbles.joinToString("\n")
+    return when {
+        body.isBlank() -> ""
+        quoteMarker.isBlank() -> body
+        else -> quoteMarker + body
+    }
 }
 
 private data class GroupReplyFlow(
     val content: String,
     val nextSpeakerName: String?,
     val shouldEnd: Boolean,
+    val quoteMessageId: String?,
 )
 
 private fun parseGroupReplyFlow(text: String): GroupReplyFlow {
     val nextMatch = Regex("⟪NEXT\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE).find(text)
-    val visible = text
+    val quoteId = characterReplyQuoteId(text)
+    val visible = stripCharacterReplyDirective(text)
         .replace(Regex("⟪NEXT\\s*:\\s*[^⟫]+⟫", RegexOption.IGNORE_CASE), "")
         .replace(Regex("⟪END⟫", RegexOption.IGNORE_CASE), "")
         .trim()
+    val normalized = normalizeSemanticBubbles(visible)
     return GroupReplyFlow(
-        content = normalizeSemanticBubbles(visible),
+        content = if (quoteId.isNullOrBlank() || normalized.isBlank()) normalized else "⟪QUOTE:$quoteId⟫$normalized",
         nextSpeakerName = nextMatch?.groupValues?.getOrNull(1)?.trim()?.takeIf(String::isNotBlank),
         shouldEnd = text.contains("⟪END⟫", ignoreCase = true),
+        quoteMessageId = quoteId,
     )
 }
 
@@ -101,9 +118,17 @@ internal suspend fun runGroupReplies(
         val memberList = group.members.joinToString("、") { candidate ->
             candidate.groupNickname.ifBlank { characterNames[candidate.characterId] ?: candidate.characterId }
         }
+        val quotableUserMessages = latestMessages
+            .filter { it.sender == LuluChatMessage.Sender.User }
+            .takeLast(6)
         val groupInput = buildString {
             appendLine("[这是群聊，不是私聊。群名：${group.name}；群成员：${group.userGroupNickname}、$memberList。]")
             appendLine("[当前由你（$memberLabel）发言。只代表你自己，严格遵循你的人设和关系边界；不要替别人说话，不要输出姓名标签。]")
+            if (quotableUserMessages.isNotEmpty()) {
+                appendLine("[你可以像真实聊天一样，在确实有必要针对用户某一句单独回应时引用它；不要每次都引用。可引用的用户气泡如下：]")
+                quotableUserMessages.forEach { item -> appendLine("[消息ID=${item.id} 内容=${item.content.take(300)}]") }
+                appendLine("[如果决定引用，只在整段可见回复最前面输出 ⟪QUOTE:消息ID⟫；只能使用上面真实存在的用户消息ID。没有必要引用时不要输出该标记。]")
+            }
             if (index > 0) {
                 val previousMessage = latestMessages.lastOrNull { it.sender == LuluChatMessage.Sender.Character }
                 val previousName = previousMessage?.authorCharacterId?.let { id ->
@@ -111,11 +136,11 @@ internal suspend fun runGroupReplies(
                         ?.ifBlank { characterNames[id].orEmpty() }
                         ?.ifBlank { "上一位角色" }
                 } ?: "上一位角色"
-                appendLine("[$previousName 刚刚说：${previousMessage?.content?.takeLast(900).orEmpty()}]")
+                appendLine("[$previousName 刚刚说：${previousMessage?.content?.let(::stripCharacterReplyDirective)?.takeLast(900).orEmpty()}]")
                 appendLine("[你这次主要回应 $previousName，而不是重新回答用户。可以赞同、质疑、追问、开玩笑或补充；如果已经自然说完，也可以让话题停在这里。]")
             }
-            appendLine("[请按真实聊天的表达节奏决定发几个气泡，不按字数或标点机械切分。一个完整的动作、情绪、观点或紧密相连的句子应留在同一气泡；只有话题转折、独立的反应/追问、或有意停顿时才另开气泡。]")
-            appendLine("[需要分气泡时，只在两个气泡之间输出 $SemanticBubbleSeparator；一个气泡时不要输出标记。不要为了凑数量拆句，也不要输出姓名标签或其他格式说明。]")
+            appendLine("[这是即时通讯软件里的线上聊天。请按你自己的语气、停顿、情绪变化、补充、转折、追问和聊天习惯决定什么时候按一次发送。现实聊天中会在这里按发送，就在这里结束当前气泡。]")
+            appendLine("[需要多个气泡时，只在两个气泡之间输出 $SemanticBubbleSeparator；不按标点、固定字数或固定数量机械切分，也不要为了减少气泡把本来会分开发送的话硬塞成长段。]")
             if (group.allowCharacterConversation) {
                 appendLine("[根据此刻的内容判断群聊是否还会自然继续：若某位成员会接话，在末尾输出 ⟪NEXT:成员名⟫；若已经自然结束，输出 ⟪END⟫。不要按固定顺序轮流，也不要为了让每个人都说话而硬续。该标记不会显示给用户。]")
             }
@@ -199,7 +224,7 @@ internal fun buildBoundedHistory(
             LuluChatMessage.Sender.System -> "群聊系统"
             LuluChatMessage.Sender.Character -> message.authorCharacterId?.let { characterNames[it] } ?: characterName
         }
-        "$role：${message.content.trim()}"
+        "$role：${stripCharacterReplyDirective(message.content).trim()}"
     }
     val selected = ArrayDeque<String>()
     var chars = 0
