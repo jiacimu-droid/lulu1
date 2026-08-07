@@ -96,8 +96,10 @@ class InMemoryLexiconRepository : LexiconRepository {
     override suspend fun delete(id: String) {
         val deleted = entries.value.firstOrNull { entry -> entry.id == id }
         mutate { current -> current.filterNot { entry -> entry.id == id } }
-        if (deleted?.section == LexiconSection.Diary) {
-            SharedExperienceTimeline.deleteEvent("lexicon-diary-$id")
+        when (deleted?.section) {
+            LexiconSection.Diary -> SharedExperienceTimeline.deleteEvent("lexicon-diary-$id")
+            LexiconSection.Favorite -> SharedExperienceTimeline.deleteEvent("lexicon-favorite-$id")
+            else -> Unit
         }
     }
 
