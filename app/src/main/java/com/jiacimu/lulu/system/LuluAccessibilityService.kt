@@ -3,7 +3,6 @@ package com.jiacimu.lulu.system
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
-import com.jiacimu.lulu.data.ProactiveMessageAutomation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,37 +10,25 @@ import java.time.Instant
 
 /**
  * Local accessibility bridge used by Lulu's phone-assistant and perception layers.
- * It exposes only facts the OS has actually delivered and returns false when an action cannot run.
+ * Screen state is a readable context source only; screen changes no longer wake the AI runtime.
  */
 class LuluAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         instance = this
         mutableState.value = mutableState.value.copy(connected = true)
-        ProactiveMessageAutomation.signalPerceptionChange(applicationContext, "屏幕感知服务已连接")
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         val packageName = event?.packageName?.toString().orEmpty()
         if (packageName.isBlank()) return
         val root = rootInActiveWindow
-        val previous = mutableState.value
-        val next = AccessibilitySnapshot(
+        mutableState.value = AccessibilitySnapshot(
             connected = true,
             packageName = packageName,
             windowTitle = event?.contentDescription?.toString().orEmpty(),
             visibleText = root.collectVisibleText().take(6_000),
             capturedAt = Instant.now(),
         )
-        mutableState.value = next
-        val meaningfulChange = previous.packageName != next.packageName ||
-            previous.windowTitle != next.windowTitle ||
-            previous.visibleText.take(500) != next.visibleText.take(500)
-        if (meaningfulChange) {
-            ProactiveMessageAutomation.signalPerceptionChange(
-                applicationContext,
-                "屏幕变化 · ${next.packageName.takeLast(60)}",
-            )
-        }
     }
 
     override fun onInterrupt() = Unit
