@@ -282,14 +282,14 @@ fun QqStyleChatDetailScreen(
         ChatReplyTaskManager.stop(conversationId)
     }
 
-    fun sendAndReceive() {
+    fun sendAndReceive(includeDraft: Boolean = true) {
         if (ChatReplyTaskManager.state(conversationId).running) return
         if (activeArchive == null) {
             scope.launch { snackbar.showSnackbar("请先在右上角选择模型") }
             return
         }
 
-        val currentInput = input.trim()
+        val currentInput = if (includeDraft) input.trim() else ""
         if (currentInput.isNotBlank()) {
             MigratedDomainStores.chat.sendUserMessage(conversationId, currentInput, replyingTo?.id)
             input = ""
@@ -326,8 +326,9 @@ fun QqStyleChatDetailScreen(
                     .filter { it.sender == LuluChatMessage.Sender.User }
                     .takeLast(6)
                 val privateInput = buildString {
-                    appendLine("[这是即时通讯软件里的日常线上聊天。按照你此刻想表达的语气、停顿、情绪变化、补充、转折、追问、吐槽、强调、改口和自己的聊天习惯决定什么时候按一次发送。现实聊天中会在这里按发送，就在这里结束一个气泡。]")
-                    appendLine("[多个气泡之间只输出 $SemanticBubbleSeparator；不要按标点、固定字数或固定数量机械切分，也不要为了减少气泡把本来会分开发送的话塞成长段。]")
+                    appendLine("[这是连续发生的即时通讯聊天。最近对话是已经经历过的上一刻，不要把每一条新消息当成一次全新的问答；从上一刻的人物状态、关系和话题位置继续。]")
+                    appendLine("[按照你此刻想表达的语气、停顿、情绪变化、补充、转折、追问、吐槽、强调、改口和自己的聊天习惯决定什么时候按一次发送。现实聊天中会在这里按发送，就在这里结束一个气泡。]")
+                    appendLine("[一个气泡通常只放一个当下表达动作。先回应、再补充、再转折或追问时，通常应该连续发送几个短气泡；多个气泡之间只输出 $SemanticBubbleSeparator。不要按固定字数机械切，也不要把几个不同表达动作塞成一个长气泡。]")
                     appendLine("[只有非常少见、很符合当下人设的情况下，例如刚说出口就觉得说漏嘴、说重了或突然后悔，才可以在回复末尾输出 ⟪RECALL:n⟫，n 是本次第 n 个气泡（从1开始）。不要为了显得像真人而频繁撤回。]")
                     appendLine("[如果你此刻真的会自然地戳一下用户，可以在回复末尾输出 ⟪POKE_USER⟫；尤其用户刚戳过你时可以考虑戳回来，但不要滥用。]")
                     if (quotableUserMessages.isNotEmpty()) {
@@ -337,7 +338,7 @@ fun QqStyleChatDetailScreen(
                         }
                         appendLine("[如果决定引用，只在整段回复最前输出 ⟪QUOTE:消息ID⟫，随后正常输出回复内容；只能使用上面真实存在的消息ID。没有必要引用时不要输出这个标记。]")
                     }
-                    append("用户消息：$pendingText")
+                    append("这一刻用户新增的消息：$pendingText")
                 }
                 val result = LuluDeviceToolBridge.respond(
                     characterId = characterId,
@@ -374,6 +375,32 @@ fun QqStyleChatDetailScreen(
                 )
             }
         }
+    }
+
+    fun regenerateLatestReply(message: LuluChatMessage) {
+        if (ChatReplyTaskManager.state(conversationId).running) {
+            selectedMessage = null
+            scope.launch { snackbar.showSnackbar("这一轮还在回复中，先等它说完") }
+            return
+        }
+        if (activeArchive == null) {
+            selectedMessage = null
+            scope.launch { snackbar.showSnackbar("请先在右上角选择模型") }
+            return
+        }
+        val snapshot = MigratedDomainStores.chat.messages(conversationId).value
+        val turn = regeneratableLatestTurn(snapshot, message.id)
+        if (turn == null) {
+            selectedMessage = null
+            scope.launch { snackbar.showSnackbar("只能重新生成最近一轮角色回复，避免改写已经继续发展的聊天历史") }
+            return
+        }
+        turn.generatedMessageIds.forEach { messageId ->
+            ChatAutoVoicePlayback.remove(messageId)
+            MigratedDomainStores.chat.deleteMessage(messageId)
+        }
+        selectedMessage = null
+        sendAndReceive(includeDraft = false)
     }
 
     Scaffold(
@@ -482,7 +509,10 @@ fun QqStyleChatDetailScreen(
                         TextButton(
                             enabled = selectedMessageIds.isNotEmpty(),
                             onClick = {
-                                selectedMessageIds.toList().forEach(MigratedDomainStores.chat::deleteMessage)
+                                selectedMessageIds.toList().forEach { messageId ->
+                                    ChatAutoVoicePlayback.remove(messageId)
+                                    MigratedDomainStores.chat.deleteMessage(messageId)
+                                }
                                 multiSelectMode = false
                                 selectedMessageIds = emptySet()
                             },
@@ -737,8 +767,23 @@ fun QqStyleChatDetailScreen(
                         selectedMessage = null
                     }
                     QqMessageAction(Icons.Outlined.DeleteOutline, "删除", danger = true) {
+                        ChatAutoVoicePlayback.remove(message.id)
                         MigratedDomainStores.chat.deleteMessage(message.id)
                         selectedMessage = null
+                    }
+                }
+                if (message.sender == LuluChatMessage.Sender.Character) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                        QqMessageAction(Icons.Outlined.Refresh, "重新回复") {
+                            regenerateLatestReply(message)
+                        }
+                        QqMessageAction(Icons.Outlined.VolumeUp, "朗读") {
+                            val replayed = ChatAutoVoicePlayback.replayCached(message.id)
+                            selectedMessage = null
+                            if (!replayed) {
+                                scope.launch { snackbar.showSnackbar("这条消息没有保存的语音缓存；朗读不会重新请求语音生成") }
+                            }
+                        }
                     }
                 }
                 Spacer(Modifier.navigationBarsPadding())
