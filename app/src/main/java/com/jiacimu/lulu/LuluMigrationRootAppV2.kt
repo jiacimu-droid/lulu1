@@ -157,23 +157,29 @@ fun LuluMigrationRootAppV2(
                     // Keep the active chat composition attached to the app root so replies continue
                     // while the user visits another page or temporarily backgrounds the chat.
                     if (chatSessionStarted) {
-                        key(selectedConversationId) {
-                            QqStyleChatDetailScreen(
-                                conversationId = selectedConversationId,
-                                onBack = ::popRoute,
-                                onCharacterSettings = {
-                                    selectConversationCharacter()
-                                    pushRoute(MigrationRoute.CharacterSettings)
-                                },
-                                onWorldBook = {
-                                    selectConversationCharacter()
-                                    pushRoute(MigrationRoute.WorldBook)
-                                },
-                                onOpenGame = { gameId ->
-                                    initialGameId = gameId
-                                    pushRoute(MigrationRoute.Games)
-                                },
-                            )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .then(if (route == MigrationRoute.ChatDetail) Modifier.imePadding() else Modifier),
+                        ) {
+                            key(selectedConversationId) {
+                                QqStyleChatDetailScreen(
+                                    conversationId = selectedConversationId,
+                                    onBack = ::popRoute,
+                                    onCharacterSettings = {
+                                        selectConversationCharacter()
+                                        pushRoute(MigrationRoute.CharacterSettings)
+                                    },
+                                    onWorldBook = {
+                                        selectConversationCharacter()
+                                        pushRoute(MigrationRoute.WorldBook)
+                                    },
+                                    onOpenGame = { gameId ->
+                                        initialGameId = gameId
+                                        pushRoute(MigrationRoute.Games)
+                                    },
+                                )
+                            }
                         }
                     }
 
