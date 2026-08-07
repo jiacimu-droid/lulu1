@@ -51,6 +51,7 @@ class MigrationActivity : ComponentActivity() {
         MemoryModelRuntime.initialize(appContext)
         UserDataUpgradeGuard.refreshBackup(appContext)
         LuluDeviceToolBridge.initialize(appContext)
+        ChatAutoVoicePlayback.initialize(appContext)
         LuluGames.initialize(appContext)
         StudyRemovedFeatureMigration.migrate(appContext)
         PostgraduateExamStores.initialize(appContext)
