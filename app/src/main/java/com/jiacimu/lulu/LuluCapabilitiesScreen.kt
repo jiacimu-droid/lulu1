@@ -139,7 +139,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
             item {
                 CapabilityInfoCard(
                     title = "后台感知链路",
-                    body = "当前调用：$backgroundModelLabel\n最近运行：$latestPerceptionLabel\n应用内约每20分钟检查，进程退出后由系统后台任务继续；屏幕变化或新通知也会触发检查。",
+                    body = "当前调用：$backgroundModelLabel\n最近运行：$latestPerceptionLabel\n每个角色按自己设置的感知间隔运行；系统每2小时做一次后台守护。屏幕变化和新通知只作为下次感知的上下文，不会主动唤醒角色。",
                 )
             }
 
@@ -166,7 +166,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                 CapabilityRow(
                     Icons.Outlined.NotificationsActive,
                     "通知读取",
-                    "读取其他 App 的近期通知并唤醒角色感知",
+                    "读取其他 App 的近期通知，作为下一次主动感知的上下文",
                     snapshot.notificationAccess,
                 ) { open(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
             }
