@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T07:01:20.900072+00:00",
-  "commit": "93fdb65c776d643e1b4be57598c13a1d2154a86c",
+  "generatedAt": "2026-08-07T07:01:40.503359+00:00",
+  "commit": "f8569d7e01b62aac9dab52ded0c6f22874257ba2",
   "branch": "main",
-  "sourceFingerprint": "ce9f84d6aac0f7b0f6096cde8b5a7ded3528ad4adef8bb3ef9f397d491c81676",
+  "sourceFingerprint": "2223dd3dfd601e4284c6ec4ff79c9dd008d5133635e07060db91e98b16418c37",
   "summary": {
-    "files": 123,
-    "lines": 31120,
-    "symbols": 507
+    "files": 124,
+    "lines": 31187,
+    "symbols": 508
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -492,6 +492,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
         "line": 215
+      }
+    ],
+    "ScheduleFeatureScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt",
+        "line": 22
       }
     ],
     "ApiConfiguration": [
@@ -3384,6 +3390,17 @@
       "lines": 219,
       "sha256": "c54614c8ac62fbf87a78b8c4701cecc7c06dea2f9ea128b7ef0026632dcae9fa",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt",
+      "lines": 67,
+      "sha256": "44f00fa51fac2b84533c84d57f3b2047f03344a8bcf049e04dd1ae5e749b25a6",
+      "symbols": [
+        {
+          "name": "ScheduleFeatureScreen",
+          "line": 22
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
