@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`8d822ff1462e66c36497ce3037c7233a0011a97b`
+- 基准提交：`d1aba7b698370eb5850a27a73ba3214fb7693c21`
 - 分支：`main`
 - 已索引文件：126
-- 已索引代码/文本行：31535
+- 已索引代码/文本行：31534
 - 已发现符号：516
 
 | 文件 | 行数 | 符号数 |
@@ -68,7 +68,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 729 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 157 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 128 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 90 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 308 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 36 | 4 |

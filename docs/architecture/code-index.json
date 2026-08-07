@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T15:40:28.265987+00:00",
-  "commit": "8d822ff1462e66c36497ce3037c7233a0011a97b",
+  "generatedAt": "2026-08-07T15:40:44.336846+00:00",
+  "commit": "d1aba7b698370eb5850a27a73ba3214fb7693c21",
   "branch": "main",
-  "sourceFingerprint": "768a106016775d37389227ef162e631e0ed7940662887db06381ab7b06f53835",
+  "sourceFingerprint": "64690cee351b02e04f87cef7ce2f07523a4f5b4b400ef52cd3bdadeb2af41958",
   "summary": {
     "files": 126,
-    "lines": 31535,
+    "lines": 31534,
     "symbols": 516
   },
   "symbolIndex": {
@@ -4458,8 +4458,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
-      "lines": 90,
-      "sha256": "00232162a01570bde917152dd998dc47b8eb59d3c787583aa2644c329d8a8b44",
+      "lines": 89,
+      "sha256": "c2eb2e534c7877d66701119fa1a03b8c0537e62303a594a35e958ae0025167c0",
       "symbols": [
         {
           "name": "RoleReadablePerformanceBridge",
