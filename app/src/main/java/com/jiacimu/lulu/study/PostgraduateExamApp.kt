@@ -25,9 +25,14 @@ fun PostgraduateExamApp(
     val context = LocalContext.current
     val state by store.state.collectAsState()
     var section by remember { mutableStateOf(StudySection.Today) }
+    var pomodoroOpen by remember { mutableStateOf(false) }
 
     fun stepBack() {
-        if (section == StudySection.Today) onBack() else section = StudySection.Today
+        when {
+            pomodoroOpen -> pomodoroOpen = false
+            section == StudySection.Today -> onBack()
+            else -> section = StudySection.Today
+        }
     }
 
     BackHandler { stepBack() }
@@ -36,6 +41,16 @@ fun PostgraduateExamApp(
         store.syncDate()
         SelfDirectedStudyPlanSeed.syncRollingPlan(context, store)
         SelfDirectedStudyPlanSeed.ensureDailyReminders(store)
+    }
+
+    if (pomodoroOpen) {
+        StudyPomodoroScreen(
+            state = state,
+            store = store,
+            onBack = { pomodoroOpen = false },
+            onOpenConversation = onOpenConversation,
+        )
+        return
     }
 
     Scaffold(
@@ -72,7 +87,7 @@ fun PostgraduateExamApp(
                     StudySection.Today -> StudyTodayScreenV2(
                         state = state,
                         store = store,
-                        onOpenConversation = onOpenConversation,
+                        onOpenPomodoro = { pomodoroOpen = true },
                     )
                     StudySection.Plan -> StudyPlanScreenV2(state, store)
                     StudySection.Gacha -> StudyGachaScreen(state, store)
