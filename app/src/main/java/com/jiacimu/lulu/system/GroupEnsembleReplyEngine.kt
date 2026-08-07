@@ -32,6 +32,8 @@ internal object GroupEnsembleReplyEngine {
         val bubbles: List<String>,
         val quoteMessageId: String?,
         val favoriteMessageId: String?,
+        val recallBubbleNumber: Int?,
+        val pokeUser: Boolean,
         val statusText: String,
         val gesture: String,
         val innerThought: String,
@@ -140,7 +142,7 @@ internal object GroupEnsembleReplyEngine {
                 你是多人群聊的整体编排器。把这一轮写成真正会发生的群聊，而不是让成员机械轮流交答案。你同时理解所有人的人设，只进行这一次生成。
 
                 只返回一个 JSON 对象，不要代码块、分析、旁白或额外说明：
-                {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"简短意图","bubbles":["气泡"],"quoteMessageId":"真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"该角色没说出口的一瞬心声，可为空","mood":"简短心情"}]}
+                {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"简短意图","bubbles":["气泡"],"quoteMessageId":"真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","recallBubbleNumber":0,"pokeUser":false,"statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"该角色没说出口的一瞬心声，可为空","mood":"简短心情"}]}
 
                 规则：
                 1. turns 的最低数量就是群内角色人数，因为每个角色都必须至少真正发言一次；最高是给定安全上限。不存在“人数×1.6”之类的额外最低回合，也不要求填满上限。
@@ -152,10 +154,12 @@ internal object GroupEnsembleReplyEngine {
                 7. 不按标点、句号、固定字数或固定数量机械切分，也不要为了显得活泼、丰富或有层次而强行拆成三四条。反过来也不要把本来会分开发送的话硬塞成长段。唯一标准是这个角色现实聊天时会不会在这里按一次发送。
                 8. quoteMessageId 是可选能力。只有确实针对用户此前某一句气泡单独回应且引用更自然时才填写真实消息ID，否则留空；不能编造ID。
                 9. favoriteMessageId 也是可选能力，而且应更少见。只有角色本人真的很想把用户某一句留下来以后再看时才收藏；只能填写提供过的真实用户消息ID，否则留空。
-                10. 不要虚构用户当前身体、环境或正在做的事情。只能依据用户刚说的话、群聊记录、角色设定和真实时间线互动。
-                11. 最后一轮不需要总结，也不需要“把话题交给主人”。自然停住就可以。
-                12. ${if (isCall) "这是实时群聊电话，quoteMessageId 和 favoriteMessageId 都留空；语言必须更口语化、适合直接念出。" else "这是文字群聊，可以自然使用短促停顿、连续气泡、偶尔引用，以及极少量符合角色意愿的收藏。"}
-                13. statusText、gesture、innerThought、mood 分别属于当前角色本人，不能写成系统分析或推理过程。
+                10. recallBubbleNumber 默认填 0。只有极少数真正自然的时刻——例如角色刚说出口就觉得说漏嘴、说重了、突然后悔或想装作没说过——才填本次 bubbles 中要撤回的序号（从1开始）。不要为了“像真人”而刻意撤回，也不要频繁使用。
+                11. pokeUser 默认 false。只有这个角色此刻真的会自然戳一下用户时才设为 true，尤其用户刚戳过自己时可以按人设考虑戳回来；不要把戳一戳当固定互动。
+                12. 不要虚构用户当前身体、环境或正在做的事情。只能依据用户刚说的话、群聊记录、角色设定和真实时间线互动。
+                13. 最后一轮不需要总结，也不需要“把话题交给主人”。自然停住就可以。
+                14. ${if (isCall) "这是实时群聊电话，quoteMessageId、favoriteMessageId 留空，recallBubbleNumber=0，pokeUser=false；语言必须更口语化、适合直接念出。" else "这是文字群聊，可以自然使用短促停顿、连续气泡、偶尔引用、极少量收藏，以及非常偶发的撤回或戳一戳。"}
+                15. statusText、gesture、innerThought、mood 分别属于当前角色本人，不能写成系统分析或推理过程。
             """.trimIndent(),
             source = if (isCall) "群聊电话·自然全员讨论" else "群聊·自然全员讨论",
             title = title,
@@ -171,6 +175,7 @@ internal object GroupEnsembleReplyEngine {
             memberLabels = memberLabels,
             replyLimit = replyLimit,
             validUserMessageIds = if (isCall) emptySet() else validUserMessageIds,
+            allowMessageActions = !isCall,
         )
         val completed = ensureAllMembers(
             parsed = parsed,
@@ -220,7 +225,9 @@ internal object GroupEnsembleReplyEngine {
         val marker = served.nextLabel?.let { "⟪NEXT:$it⟫" } ?: EndMarker
         val quote = served.turn.quoteMessageId?.let { "⟪QUOTE:$it⟫" }.orEmpty()
         val favorite = served.turn.favoriteMessageId?.let { "⟪FAVORITE:$it⟫" }.orEmpty()
-        val text = quote + favorite + served.turn.bubbles.joinToString(BubbleSeparator) + marker
+        val recall = served.turn.recallBubbleNumber?.let { "⟪RECALL:$it⟫" }.orEmpty()
+        val poke = if (served.turn.pokeUser) "⟪POKE_USER⟫" else ""
+        val text = quote + favorite + recall + poke + served.turn.bubbles.joinToString(BubbleSeparator) + marker
         return ModelReply(
             text = text,
             inputTokens = tokenSource?.inputTokens ?: 0,
@@ -237,6 +244,7 @@ internal object GroupEnsembleReplyEngine {
         memberLabels: Map<String, String>,
         replyLimit: Int,
         validUserMessageIds: Set<String>,
+        allowMessageActions: Boolean,
     ): List<PlannedTurn> {
         val displayNames = MigratedDomainStores.characters.settings.value.mapValues { it.value.displayName }
         val cleaned = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
@@ -262,14 +270,17 @@ internal object GroupEnsembleReplyEngine {
                     if (bubbles.isEmpty()) continue
                     val requestedQuoteId = item.optString("quoteMessageId").trim()
                     val requestedFavoriteId = item.optString("favoriteMessageId").trim()
+                    val requestedRecall = item.optInt("recallBubbleNumber", 0)
                     add(
                         PlannedTurn(
                             characterId = resolvedId,
                             replyTo = item.optString("replyTo").ifBlank { "group" }.take(100),
                             intent = item.optString("intent").take(80),
                             bubbles = bubbles,
-                            quoteMessageId = requestedQuoteId.takeIf { it in validUserMessageIds },
-                            favoriteMessageId = requestedFavoriteId.takeIf { it in validUserMessageIds },
+                            quoteMessageId = requestedQuoteId.takeIf { allowMessageActions && it in validUserMessageIds },
+                            favoriteMessageId = requestedFavoriteId.takeIf { allowMessageActions && it in validUserMessageIds },
+                            recallBubbleNumber = requestedRecall.takeIf { allowMessageActions && it in 1..bubbles.size },
+                            pokeUser = allowMessageActions && item.optBoolean("pokeUser", false),
                             statusText = item.optString("statusText").ifBlank { item.optString("status") }.take(80),
                             gesture = item.optString("gesture").ifBlank { item.optString("actionDescription") }.take(160),
                             innerThought = item.optString("innerThought").ifBlank { item.optString("inner_voice") }.take(220),
@@ -320,6 +331,8 @@ internal object GroupEnsembleReplyEngine {
         bubbles = listOf("我也说一句。"),
         quoteMessageId = null,
         favoriteMessageId = null,
+        recallBubbleNumber = null,
+        pokeUser = false,
         statusText = "正在群里回应",
         gesture = "接过话头",
         innerThought = "",
