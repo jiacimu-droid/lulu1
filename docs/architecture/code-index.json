@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T19:16:00.599720+00:00",
-  "commit": "20de49aaba1086ba50a75d744bc01db9aa5aa305",
+  "generatedAt": "2026-08-07T19:29:25.218136+00:00",
+  "commit": "4e2f8f221c9d57c55959a4699bbb59ccd831deff",
   "branch": "main",
-  "sourceFingerprint": "5ebab22bb72561c04186576a75eaa23dbef20632b31d51084f1989c8a2eb1fd6",
+  "sourceFingerprint": "8bcc75dd9abba6d1aa22258bd864e365a778da663d75b120792176b4f881dbc4",
   "summary": {
     "files": 132,
-    "lines": 32694,
+    "lines": 32703,
     "symbols": 543
   },
   "symbolIndex": {
@@ -3640,8 +3640,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 389,
-      "sha256": "2d9ef3c92348eba6adaf6cc9749238e1166bf6b9578a51f0c6cae8d8be20e1aa",
+      "lines": 383,
+      "sha256": "7bc469c698f0156c49e2e09117e9bde2f205ecc7f8e1f96365743f7aac018477",
       "symbols": []
     },
     {
@@ -5980,8 +5980,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt",
-      "lines": 370,
-      "sha256": "d85d87653d664e609071d04659a01939ca83ad6dcd2d22ca615dafabe54af089",
+      "lines": 385,
+      "sha256": "a913b2ad36cf5f514e1930938d76d3c5fa874e8ecf504b23dbc38b9175fffbfc",
       "symbols": []
     },
     {
