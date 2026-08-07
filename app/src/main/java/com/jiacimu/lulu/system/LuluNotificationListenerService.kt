@@ -3,16 +3,15 @@ package com.jiacimu.lulu.system
 import android.app.Notification
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import com.jiacimu.lulu.data.ProactiveMessageAutomation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.time.Instant
 
+/** Notification history is a passive context source; new notifications never wake the AI runtime. */
 class LuluNotificationListenerService : NotificationListenerService() {
     override fun onListenerConnected() {
         connected.value = true
-        ProactiveMessageAutomation.signalPerceptionChange(applicationContext, "通知感知服务已连接")
     }
 
     override fun onListenerDisconnected() {
@@ -35,10 +34,6 @@ class LuluNotificationListenerService : NotificationListenerService() {
         recent.value = (listOf(snapshot) + recent.value)
             .distinctBy { value -> "${value.packageName}|${value.title}|${value.text}|${value.postedAt}" }
             .take(80)
-        ProactiveMessageAutomation.signalPerceptionChange(
-            applicationContext,
-            "新通知 · ${item.packageName.takeLast(60)}",
-        )
     }
 
     companion object {
