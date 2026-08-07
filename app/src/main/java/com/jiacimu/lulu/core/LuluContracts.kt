@@ -68,7 +68,7 @@ interface MemoryRepository {
     suspend fun summarizeNow(characterId: String)
 }
 
-enum class LexiconSection { Life, Concern, Promise, Diary }
+enum class LexiconSection { Life, Concern, Promise, Diary, Favorite }
 enum class PromiseKind { Promise, Responsibility, Reminder, LongTermSupervision }
 
 data class LexiconEntry(
