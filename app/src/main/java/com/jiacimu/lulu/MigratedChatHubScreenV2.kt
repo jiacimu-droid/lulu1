@@ -22,6 +22,7 @@ import com.jiacimu.lulu.data.CharacterSettings
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.LuluConversation
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.MomentsStore
 import com.jiacimu.lulu.design.LuluColors
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -44,6 +45,7 @@ fun MigratedChatHubScreenV2(
 ) {
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     val characters by MigratedDomainStores.characters.settings.collectAsState()
+    val unreadMoments by MomentsStore.unreadCharacterPosts.collectAsState()
     var showCreateGroup by remember { mutableStateOf(false) }
     var showCreateCharacter by remember { mutableStateOf(false) }
 
@@ -76,7 +78,21 @@ fun MigratedChatHubScreenV2(
                     NavigationBarItem(
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
-                        icon = { Icon(ChatHubIcons[index], label) },
+                        icon = {
+                            if (index == 2 && unreadMoments > 0) {
+                                BadgedBox(
+                                    badge = {
+                                        Badge {
+                                            Text(if (unreadMoments > 99) "99+" else unreadMoments.toString())
+                                        }
+                                    },
+                                ) {
+                                    Icon(ChatHubIcons[index], label)
+                                }
+                            } else {
+                                Icon(ChatHubIcons[index], label)
+                            }
+                        },
                         label = { Text(label) },
                     )
                 }
