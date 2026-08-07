@@ -2,11 +2,24 @@ package com.jiacimu.lulu
 
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluChatStore
-import com.jiacimu.lulu.data.SharedExperienceTimeline
+
+private val RecallReceiptRegex = Regex("^\\[撤回\\|([^]]+)]\\s*", RegexOption.IGNORE_CASE)
+
+internal fun recalledMessageIdFromReceipt(content: String): String? =
+    RecallReceiptRegex.find(content)?.groupValues?.getOrNull(1)?.trim()?.takeIf(String::isNotBlank)
+
+internal fun stripRecallReceiptDirective(content: String): String =
+    content.replace(RecallReceiptRegex, "").trim()
+
+internal fun recalledMessageIds(messages: List<LuluChatMessage>): Set<String> =
+    messages.asSequence()
+        .filter { it.sender == LuluChatMessage.Sender.System }
+        .mapNotNull { recalledMessageIdFromReceipt(it.content) }
+        .toSet()
 
 /**
- * QQ-style recall is not the same thing as deleting history. The visible message disappears, but
- * the raw timeline keeps the fact that the role said it and then recalled it.
+ * QQ-style recall is not deletion. Keep the original message and its raw timeline event intact,
+ * then append a structured recall receipt. The UI hides the recalled bubble by the referenced ID.
  */
 internal fun LuluChatStore.retractCharacterMessage(messageId: String, actorDisplayName: String): Boolean {
     val conversation = conversations.value.firstOrNull { item ->
@@ -15,11 +28,14 @@ internal fun LuluChatStore.retractCharacterMessage(messageId: String, actorDispl
     val original = messages(conversation.id).value.firstOrNull { it.id == messageId }
         ?.takeIf { it.sender == LuluChatMessage.Sender.Character }
         ?: return false
-    if (!deleteMessage(messageId)) return false
+    val alreadyRecalled = messages(conversation.id).value.any { message ->
+        recalledMessageIdFromReceipt(message.content) == original.id
+    }
+    if (alreadyRecalled) return true
 
-    // deleteMessage correctly removes ordinary deleted content from the raw timeline. A recall is
-    // different, so put the original event back before recording the visible recall receipt.
-    SharedExperienceTimeline.recordConversationMessage(conversation, original)
-    appendSystemMessage(conversation.id, "[撤回] $actorDisplayName 撤回了一条消息。")
+    appendSystemMessage(
+        conversation.id,
+        "[撤回|${original.id}] ${actorDisplayName.trim().ifBlank { "角色" }}撤回了一条消息。",
+    )
     return true
 }
