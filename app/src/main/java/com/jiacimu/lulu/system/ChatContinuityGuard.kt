@@ -16,14 +16,7 @@ internal object ChatContinuityGuard {
         val cleanCandidate = visibleText(candidate)
         if (cleanCandidate.length < 18 || history.isBlank()) return Report(false)
 
-        val recentBodies = history
-            .lineSequence()
-            .map(String::trim)
-            .filter(String::isNotBlank)
-            .map { line -> line.substringAfter('：', line).trim() }
-            .filter { it.length >= 12 }
-            .takeLast(14)
-            .toList()
+        val recentBodies = recentBodies(history)
         if (recentBodies.isEmpty()) return Report(false)
 
         val candidateParts = splitParts(cleanCandidate)
@@ -53,11 +46,51 @@ internal object ChatContinuityGuard {
     fun repairInstruction(report: Report): String {
         val samples = report.repeatedSamples.joinToString("；")
         return buildString {
-            append("[连续性校验没有通过：你这次的草稿和刚才已经说过的话重复过多。不要重述旧结论、旧提醒、旧情绪或重新从头解释。把上一轮当作已经真实说出口并已经发生的状态，只回应用户这一刻新增的内容，让状态继续向前推进。")
+            append("连续性校验没有通过：这次草稿和刚才已经说过的话重复过多。不要重述旧结论、旧提醒、旧情绪，也不要重新从头解释。把上一轮当作已经真实说出口并已经发生的状态，只回应这一刻新增的信息，让关系、动作和话题继续向前推进。")
             if (samples.isNotBlank()) append("尤其不要再次展开这些已经表达过的内容：$samples。")
-            append("如果当前只需要一句新的回应，就只说这一句；如果有几个自然停顿，再用 ⟪BUBBLE⟫ 分成多个短气泡。]")
+            append("如果当前只需要一句新的回应，就只说这一句；如果有几个自然停顿，再用 ⟪BUBBLE⟫ 分成多个短气泡。")
         }
     }
+
+    /**
+     * Last-resort safety net after one repair attempt. Only whole bubbles with very strong overlap
+     * are removed; short acknowledgements and genuinely new tool results are intentionally kept.
+     */
+    fun keepNovelBubbles(history: String, candidate: String): String {
+        if (history.isBlank() || candidate.isBlank()) return candidate.trim()
+        val recent = recentBodies(history)
+        if (recent.isEmpty()) return candidate.trim()
+
+        val actionDirectives = Regex("⟪(?!BUBBLE)[^⟫]+⟫", RegexOption.IGNORE_CASE)
+            .findAll(candidate)
+            .map { it.value }
+            .toList()
+        val body = candidate
+            .replace(actionDirectives, "")
+            .replace("⟪BUBBLE⟫", "\n")
+        val kept = body
+            .lineSequence()
+            .map(String::trim)
+            .filter(String::isNotBlank)
+            .filter { bubble ->
+                bubble.length < 14 || (recent.maxOfOrNull { old -> similarity(bubble, old) } ?: 0.0) < 0.70
+            }
+            .toList()
+        if (kept.isEmpty()) return ""
+        return buildString {
+            actionDirectives.forEach(::append)
+            append(kept.joinToString("⟪BUBBLE⟫"))
+        }.trim()
+    }
+
+    private fun recentBodies(history: String): List<String> = history
+        .lineSequence()
+        .map(String::trim)
+        .filter(String::isNotBlank)
+        .map { line -> line.substringAfter('：', line).trim() }
+        .filter { it.length >= 12 }
+        .takeLast(14)
+        .toList()
 
     private fun splitParts(text: String): List<String> = text
         .replace("⟪BUBBLE⟫", "\n")
