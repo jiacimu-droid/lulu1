@@ -7,25 +7,33 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.Reply
 import androidx.compose.material.icons.outlined.SportsEsports
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.LuluChatMessage
@@ -33,6 +41,7 @@ import com.jiacimu.lulu.data.LuluGroupChat
 import com.jiacimu.lulu.data.MigratedDomainStores
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -49,6 +58,7 @@ internal fun QqMessageRow(
     userAvatarUri: String?,
     onCharacterAvatarClick: () -> Unit,
     onLongClick: () -> Unit,
+    onSwipeReply: () -> Unit,
     onAcceptGame: (String) -> Unit,
 ) {
     if (message.sender == LuluChatMessage.Sender.System) {
@@ -105,9 +115,12 @@ internal fun QqMessageRow(
         }
         return
     }
+
     val mine = message.sender == LuluChatMessage.Sender.User
     val gameInvite = remember(message.content, mine) { if (mine) null else parseGameInvite(message.content) }
-    val visibleContent = gameInvite?.message ?: message.content
+    val visibleContent = remember(message.content, gameInvite) {
+        gameInvite?.message ?: stripCharacterReplyDirective(message.content)
+    }
     val bubbles = remember(visibleContent, mine, gameInvite) {
         when {
             gameInvite != null -> emptyList()
@@ -115,94 +128,137 @@ internal fun QqMessageRow(
             else -> splitCharacterBubbles(visibleContent)
         }
     }
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Top,
-    ) {
-        Box(Modifier.width(44.dp), contentAlignment = Alignment.TopCenter) {
-            if (!mine && showAvatar) {
-                QqAvatar(
-                    characterName.take(1).ifBlank { "露" },
-                    44,
-                    characterAvatarUri,
-                    Modifier.clickable(onClick = onCharacterAvatarClick),
+    val density = LocalDensity.current
+    val triggerPx = remember(density) { with(density) { 58.dp.toPx() } }
+    val maxDragPx = remember(density) { with(density) { 92.dp.toPx() } }
+    var swipeOffset by remember(message.id) { mutableFloatStateOf(0f) }
+
+    Box(Modifier.fillMaxWidth()) {
+        if (swipeOffset < -6f) {
+            Row(
+                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Icon(
+                    Icons.Outlined.Reply,
+                    contentDescription = null,
+                    modifier = Modifier.size(19.dp),
+                    tint = if (-swipeOffset >= triggerPx) QqInk else QqMuted,
+                )
+                Text(
+                    "引用",
+                    fontSize = 11.sp,
+                    color = if (-swipeOffset >= triggerPx) QqInk else QqMuted,
                 )
             }
         }
-        Spacer(Modifier.width(9.dp))
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = if (mine) Alignment.End else Alignment.Start,
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .offset { IntOffset(swipeOffset.roundToInt(), 0) }
+                .pointerInput(message.id) {
+                    detectHorizontalDragGestures(
+                        onDragEnd = {
+                            val shouldReply = -swipeOffset >= triggerPx
+                            swipeOffset = 0f
+                            if (shouldReply) onSwipeReply()
+                        },
+                        onDragCancel = { swipeOffset = 0f },
+                        onHorizontalDrag = { change, dragAmount ->
+                            change.consume()
+                            swipeOffset = (swipeOffset + dragAmount).coerceIn(-maxDragPx, 0f)
+                        },
+                    )
+                },
+            verticalAlignment = Alignment.Top,
         ) {
-            if (!mine && showCharacterName && showAvatar) {
-                Text(
-                    characterLabel,
-                    color = QqMuted,
-                    fontSize = 11.sp,
-                    modifier = Modifier.padding(start = 4.dp, bottom = 3.dp),
-                )
+            Box(Modifier.width(44.dp), contentAlignment = Alignment.TopCenter) {
+                if (!mine && showAvatar) {
+                    QqAvatar(
+                        characterName.take(1).ifBlank { "露" },
+                        44,
+                        characterAvatarUri,
+                        Modifier.clickable(onClick = onCharacterAvatarClick),
+                    )
+                }
             }
-            if (gameInvite != null) {
-                GameInviteMessageCard(gameInvite, onAccept = { onAcceptGame(gameInvite.gameId) })
-                Spacer(Modifier.height(5.dp))
-            }
-            bubbles.filter { it.isNotBlank() }.forEachIndexed { index, bubble ->
-                val bubbleWidth = if (bubble.length >= 52) Modifier.fillMaxWidth() else Modifier.widthIn(max = 300.dp)
-                Surface(
-                    modifier = bubbleWidth.combinedClickable(onClick = {}, onLongClick = onLongClick),
-                    color = if (mine) QqMine else QqOther,
-                    shape = RoundedCornerShape(15.dp),
-                    border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
-                    shadowElevation = 0.dp,
-                ) {
-                    Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
-                        repliedMessageContent?.let { quoted ->
-                            Surface(
-                                color = if (mine) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.78f),
-                                shape = RoundedCornerShape(8.dp),
-                            ) {
+            Spacer(Modifier.width(9.dp))
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = if (mine) Alignment.End else Alignment.Start,
+            ) {
+                if (!mine && showCharacterName && showAvatar) {
+                    Text(
+                        characterLabel,
+                        color = QqMuted,
+                        fontSize = 11.sp,
+                        modifier = Modifier.padding(start = 4.dp, bottom = 3.dp),
+                    )
+                }
+                if (gameInvite != null) {
+                    GameInviteMessageCard(gameInvite, onAccept = { onAcceptGame(gameInvite.gameId) })
+                    Spacer(Modifier.height(5.dp))
+                }
+                bubbles.filter { it.isNotBlank() }.forEachIndexed { index, bubble ->
+                    val bubbleWidth = if (bubble.length >= 52) Modifier.fillMaxWidth() else Modifier.widthIn(max = 300.dp)
+                    Surface(
+                        modifier = bubbleWidth.combinedClickable(onClick = {}, onLongClick = onLongClick),
+                        color = if (mine) QqMine else QqOther,
+                        shape = RoundedCornerShape(15.dp),
+                        border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
+                        shadowElevation = 0.dp,
+                    ) {
+                        Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+                            repliedMessageContent?.let { quoted ->
+                                Surface(
+                                    color = if (mine) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.78f),
+                                    shape = RoundedCornerShape(8.dp),
+                                ) {
+                                    Text(
+                                        quoted,
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp),
+                                        color = if (mine) QqMineInk.copy(alpha = 0.72f) else QqMuted,
+                                        fontSize = 11.sp,
+                                        maxLines = 2,
+                                    )
+                                }
+                                Spacer(Modifier.height(6.dp))
+                            }
+                            Text(
+                                bubble,
+                                color = if (mine) QqMineInk else QqInk,
+                                fontSize = 15.sp,
+                                lineHeight = 22.sp,
+                            )
+                            if (message.favorite && index == bubbles.lastIndex) {
+                                Spacer(Modifier.height(4.dp))
                                 Text(
-                                    quoted,
-                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp),
-                                    color = if (mine) QqMineInk.copy(alpha = 0.72f) else QqMuted,
-                                    fontSize = 11.sp,
-                                    maxLines = 2,
+                                    "★ 已收藏",
+                                    color = if (mine) Color.White.copy(alpha = 0.68f) else QqMuted,
+                                    fontSize = 10.sp,
                                 )
                             }
-                            Spacer(Modifier.height(6.dp))
-                        }
-                        Text(
-                            bubble,
-                            color = if (mine) QqMineInk else QqInk,
-                            fontSize = 15.sp,
-                            lineHeight = 22.sp,
-                        )
-                        if (message.favorite && index == bubbles.lastIndex) {
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                "★ 已收藏",
-                                color = if (mine) Color.White.copy(alpha = 0.68f) else QqMuted,
-                                fontSize = 10.sp,
-                            )
                         }
                     }
+                    if (index != bubbles.lastIndex) Spacer(Modifier.height(5.dp))
                 }
-                if (index != bubbles.lastIndex) Spacer(Modifier.height(5.dp))
+                if (showTime) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm")),
+                        color = QqMuted,
+                        fontSize = 10.sp,
+                        textAlign = if (mine) TextAlign.End else TextAlign.Start,
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                    )
+                }
             }
-            if (showTime) {
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm")),
-                    color = QqMuted,
-                    fontSize = 10.sp,
-                    textAlign = if (mine) TextAlign.End else TextAlign.Start,
-                    modifier = Modifier.padding(horizontal = 4.dp),
-                )
+            Spacer(Modifier.width(9.dp))
+            Box(Modifier.width(44.dp), contentAlignment = Alignment.TopCenter) {
+                if (mine && showAvatar) QqAvatar(userAvatar, 44, userAvatarUri)
             }
-        }
-        Spacer(Modifier.width(9.dp))
-        Box(Modifier.width(44.dp), contentAlignment = Alignment.TopCenter) {
-            if (mine && showAvatar) QqAvatar(userAvatar, 44, userAvatarUri)
         }
     }
 }
