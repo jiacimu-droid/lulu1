@@ -78,7 +78,7 @@ internal object ChatContinuityGuard {
             .toList()
         if (kept.isEmpty()) return ""
         return buildString {
-            actionDirectives.forEach(::append)
+            actionDirectives.forEach { directive -> append(directive) }
             append(kept.joinToString("⟪BUBBLE⟫"))
         }.trim()
     }
