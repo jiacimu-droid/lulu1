@@ -39,7 +39,7 @@ private fun parseGroupReplyFlow(text: String): GroupReplyFlow {
     val nextMatch = Regex("⟪NEXT\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE).find(text)
     val quoteId = characterReplyQuoteId(text)
     val visible = stripCharacterReplyDirective(text)
-        .replace(Regex("⟪NEXT\\s*:\\s*[^⟫]+)⟫", RegexOption.IGNORE_CASE), "")
+        .replace(Regex("⟪NEXT\\s*:\\s*[^⟫]+⟫", RegexOption.IGNORE_CASE), "")
         .replace(Regex("⟪END⟫", RegexOption.IGNORE_CASE), "")
         .trim()
     return GroupReplyFlow(
