@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
@@ -41,6 +40,7 @@ private val LexiconV2Sections = listOf(
     LexiconSection.Concern to "挂心",
     LexiconSection.Promise to "约定",
     LexiconSection.Diary to "日记",
+    LexiconSection.Favorite to "收藏",
 )
 
 private val LexiconV2PromiseKinds = listOf(
@@ -56,6 +56,7 @@ fun LexiconFeatureScreenV2(
     onBack: () -> Unit,
     initialCharacterId: String? = null,
     initialDiaryTitle: String? = null,
+    embedded: Boolean = false,
 ) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val sortedCharacters = remember(characters) { characters.values.sortedBy { it.displayName } }
@@ -88,6 +89,13 @@ fun LexiconFeatureScreenV2(
     var editing by remember { mutableStateOf<LexiconEntry?>(null) }
     var creating by remember { mutableStateOf(false) }
 
+    LaunchedEffect(section) {
+        if (section == LexiconSection.Favorite) {
+            creating = false
+            editing = null
+        }
+    }
+
     LaunchedEffect(initialDiaryTitle, selectedCharacterId, section, entries) {
         val title = initialDiaryTitle?.takeIf(String::isNotBlank) ?: return@LaunchedEffect
         if (section != LexiconSection.Diary) return@LaunchedEffect
@@ -101,19 +109,38 @@ fun LexiconFeatureScreenV2(
     Scaffold(
         containerColor = LuluColors.Paper,
         topBar = {
-            TopAppBar(
-                title = { Text("辞海", fontWeight = FontWeight.SemiBold) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
-                },
-                actions = {
-                    IconButton(onClick = { creating = true }) { Icon(Icons.Outlined.Add, "新增条目") }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
-            )
+            if (!embedded) {
+                TopAppBar(
+                    title = { Text("辞海", fontWeight = FontWeight.SemiBold) },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
+                    },
+                    actions = {
+                        if (section != LexiconSection.Favorite) {
+                            IconButton(onClick = { creating = true }) { Icon(Icons.Outlined.Add, "新增条目") }
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
+                )
+            }
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
+            if (embedded) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 12.dp, bottom = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text("辞海", fontWeight = FontWeight.Bold, fontSize = 23.sp, color = LuluColors.Ink)
+                        Text("角色自己的生活、挂心、约定、日记与收藏", color = LuluColors.Muted, fontSize = 11.sp)
+                    }
+                    if (section != LexiconSection.Favorite) {
+                        IconButton(onClick = { creating = true }) { Icon(Icons.Outlined.Add, "新增条目") }
+                    }
+                }
+            }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -145,7 +172,11 @@ fun LexiconFeatureScreenV2(
                 }
             }
 
-            TabRow(selectedTabIndex = sectionIndex, containerColor = LuluColors.Card) {
+            ScrollableTabRow(
+                selectedTabIndex = sectionIndex,
+                containerColor = LuluColors.Card,
+                edgePadding = 12.dp,
+            ) {
                 LexiconV2Sections.forEachIndexed { index, (_, label) ->
                     Tab(
                         selected = sectionIndex == index,
@@ -165,45 +196,54 @@ fun LexiconFeatureScreenV2(
                     item {
                         LexiconV2Card {
                             Text("还没有${LexiconV2Sections[sectionIndex].second}记录", fontWeight = FontWeight.Bold)
+                            if (section == LexiconSection.Favorite) {
+                                Text("角色在聊天时真心想留下来的主人消息，会出现在这里。", color = LuluColors.Muted, fontSize = 12.sp)
+                            }
                         }
                     }
                 } else {
                     items(visibleEntries, key = LexiconEntry::id) { entry ->
-                        if (entry.section == LexiconSection.Diary) {
-                            DiaryEntryCard(
+                        when (entry.section) {
+                            LexiconSection.Diary -> DiaryEntryCard(
                                 entry = entry,
                                 characterName = characters[entry.characterId]?.displayName ?: "角色",
                                 highlighted = !initialDiaryTitle.isNullOrBlank() && entry.title == initialDiaryTitle,
                                 onEdit = { editing = entry },
                                 onDelete = { scope.launch { LuluRepositories.lexicon.delete(entry.id) } },
                             )
-                        } else LexiconV2Card {
-                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-                                Column(Modifier.weight(1f)) {
-                                    Text(entry.title, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                                    if (entry.section == LexiconSection.Promise) {
-                                        Text(
-                                            LexiconV2PromiseKinds
-                                                .firstOrNull { (kind, _) -> kind == entry.promiseKind }
-                                                ?.second
-                                                ?: "承诺",
-                                            color = LuluColors.Muted,
-                                            fontSize = 11.sp,
+                            LexiconSection.Favorite -> FavoriteEntryCard(
+                                entry = entry,
+                                characterName = characters[entry.characterId]?.displayName ?: "角色",
+                                onDelete = { scope.launch { LuluRepositories.lexicon.delete(entry.id) } },
+                            )
+                            else -> LexiconV2Card {
+                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                                    Column(Modifier.weight(1f)) {
+                                        Text(entry.title, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                                        if (entry.section == LexiconSection.Promise) {
+                                            Text(
+                                                LexiconV2PromiseKinds
+                                                    .firstOrNull { (kind, _) -> kind == entry.promiseKind }
+                                                    ?.second
+                                                    ?: "承诺",
+                                                color = LuluColors.Muted,
+                                                fontSize = 11.sp,
+                                            )
+                                        }
+                                        Text(entry.content, color = LuluColors.Muted)
+                                    }
+                                    IconButton(onClick = { editing = entry }) {
+                                        Icon(Icons.Outlined.Edit, "编辑")
+                                    }
+                                    IconButton(onClick = {
+                                        scope.launch { LuluRepositories.lexicon.delete(entry.id) }
+                                    }) {
+                                        Icon(
+                                            Icons.Outlined.DeleteOutline,
+                                            "删除",
+                                            tint = MaterialTheme.colorScheme.error,
                                         )
                                     }
-                                    Text(entry.content, color = LuluColors.Muted)
-                                }
-                                IconButton(onClick = { editing = entry }) {
-                                    Icon(Icons.Outlined.Edit, "编辑")
-                                }
-                                IconButton(onClick = {
-                                    scope.launch { LuluRepositories.lexicon.delete(entry.id) }
-                                }) {
-                                    Icon(
-                                        Icons.Outlined.DeleteOutline,
-                                        "删除",
-                                        tint = MaterialTheme.colorScheme.error,
-                                    )
                                 }
                             }
                         }
@@ -232,7 +272,7 @@ fun LexiconFeatureScreenV2(
         promiseKind = if (section == LexiconSection.Promise) PromiseKind.Promise else null,
         createdAt = Instant.now(),
         updatedAt = Instant.now(),
-    ).takeIf { creating }
+    ).takeIf { creating && section != LexiconSection.Favorite }
 
     dialogEntry?.let { entry ->
         LexiconEditorDialogV2(
@@ -253,6 +293,26 @@ fun LexiconFeatureScreenV2(
                 creating = false
             },
         )
+    }
+}
+
+@Composable
+private fun FavoriteEntryCard(
+    entry: LexiconEntry,
+    characterName: String,
+    onDelete: () -> Unit,
+) {
+    LexiconV2Card {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text(entry.title, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text("$characterName 收藏的主人消息", color = LuluColors.Muted, fontSize = 11.sp)
+                Text("“${entry.content}”", color = LuluColors.Ink, fontSize = 15.sp, lineHeight = 22.sp)
+            }
+            IconButton(onClick = onDelete) {
+                Icon(Icons.Outlined.DeleteOutline, "删除收藏", tint = MaterialTheme.colorScheme.error)
+            }
+        }
     }
 }
 
