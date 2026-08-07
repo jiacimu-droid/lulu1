@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.CharacterRecordReset
+import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.PerceptionIntervalUnit
 import com.jiacimu.lulu.data.ProactivePerceptionPolicyStore
@@ -37,12 +38,15 @@ fun CharacterSettingsScreenV2(
     val context = LocalContext.current
     remember(context) {
         ProactivePerceptionPolicyStore.initialize(context.applicationContext)
+        CharacterVoicePreferenceStore.initialize(context.applicationContext)
         Unit
     }
     val settings by MigratedDomainStores.characters.settings.collectAsState()
     val perceptionPolicies by ProactivePerceptionPolicyStore.policies.collectAsState()
+    val voicePreferences by CharacterVoicePreferenceStore.autoPlayReplies.collectAsState()
     val original = settings[characterId] ?: MigratedDomainStores.characters.get(characterId)
     val perceptionPolicy = perceptionPolicies[characterId] ?: ProactivePerceptionPolicyStore.get(characterId)
+    val autoPlayVoice = voicePreferences[characterId] == true
     val worldBooks by LuluRepositories.worldBook.observeWorldBooks().collectAsState(initial = emptyList())
     val scope = rememberCoroutineScope()
     var displayName by remember(characterId) { mutableStateOf(original.displayName) }
@@ -209,6 +213,16 @@ fun CharacterSettingsScreenV2(
                         "角色在主动感知时可以选择给你打电话；不再另外限制每日次数或冷却时间。",
                         proactiveCalls,
                     ) { proactiveCalls = it }
+                }
+            }
+            item {
+                CharacterV2Card {
+                    Text("语音回复", fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    CharacterV2Switch(
+                        "自动播放语音",
+                        "这个角色每次生成完一轮聊天回复后，自动使用当前语音设置读出来；即使切到后台或离开聊天页，已经开始生成的回复也不会因为页面退出而取消播放。",
+                        autoPlayVoice,
+                    ) { enabled -> CharacterVoicePreferenceStore.setEnabled(characterId, enabled) }
                 }
             }
             item {
