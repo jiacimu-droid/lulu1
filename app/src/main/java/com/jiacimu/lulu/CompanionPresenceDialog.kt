@@ -16,19 +16,21 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.jiacimu.lulu.data.CompanionPresenceState
+import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.ProactivePerceptionScheduler
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
 internal fun CompanionPresenceDialog(
-    characterId: String,
     characterName: String,
     state: CompanionPresenceState?,
     history: List<CompanionPresenceState>,
     onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
+    val characterId = state?.characterId ?: MigratedDomainStores.characters.settings.value.values
+        .firstOrNull { it.displayName == characterName }?.characterId ?: "lulu"
     var historySelected by remember { mutableStateOf(false) }
     var manualCheckRequested by remember { mutableStateOf(false) }
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
