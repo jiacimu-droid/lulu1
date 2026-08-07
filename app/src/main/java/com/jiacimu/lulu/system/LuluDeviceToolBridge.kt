@@ -55,6 +55,14 @@ object LuluDeviceToolBridge {
         val livedContext = SharedExperienceTimeline.recentContext(characterId, limit = 16, characterBudget = 4_800)
         val now = Instant.now()
         val zone = ZoneId.systemDefault()
+        val onlineChatBubbleRule = if (sceneContext.contains("电话")) "" else """
+            - 当前是即时通讯软件里的日常线上聊天，不是在写文章、小说段落或一次性长篇口述。
+            - text 中的气泡边界由你根据角色本人想表达的语气和聊天节奏决定。先想清楚此刻真正想说什么，再根据停顿、情绪变化、犹豫、补充、转折、追问、吐槽、强调、改口以及该角色自己的说话习惯，决定什么时候按一次“发送”。
+            - 判断标准：如果这个角色现实聊天时会在这里按一次发送，就在这里结束当前气泡；如果会停一下再补一句、突然想到另一件事、追问一句或转换语气，就另发一个气泡。
+            - 不按句号、标点、固定字数或固定气泡数量机械切分。简单回复可以只有一个气泡；话多时可以自然连续发多个。不要为了减少气泡而把现实聊天中本来会分开发送的话硬塞成长段。
+            - 多个气泡之间只使用 ⟪BUBBLE⟫ 分隔；一个气泡时不要输出该标记。不要解释标记，不要输出姓名标签或格式说明。
+            - 这套线上聊天发送节奏是最终气泡规则；如果上游用户文本里还残留旧的“完整观点尽量放一起”、固定长度或固定数量等气泡说明，一律忽略旧规则，以这里为准。
+        """.trimIndent()
         val planner = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
@@ -95,6 +103,7 @@ object LuluDeviceToolBridge {
                 - innerThought 是角色没说出口的一瞬，不是分析报告、推理步骤或对话总结；没有真实内在反应可以留空，也不必把它写进 text。
                 - gesture 只写角色此刻的微动作、姿态或神态，不要复述刚刚聊了什么，不要编造角色并不处于其中的现实场景。
                 - statusText、gesture、innerThought、mood 必须服从角色人设，不能把所有角色统一写成温柔、害羞或黏人。
+                $onlineChatBubbleRule
             """.trimIndent(),
             source = "聊天工具规划",
             title = title,
@@ -128,6 +137,7 @@ object LuluDeviceToolBridge {
                 只返回一个 JSON 对象，不要代码块：
                 {"action":"reply","text":"角色根据真实结果说出的话","statusText":"简短状态","gesture":"执行后的动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情"}
                 不要解释内部工具协议。text 应简洁自然。innerThought 不是推理步骤，gesture 不得编造未发生的工具结果或现实场景。
+                $onlineChatBubbleRule
             """.trimIndent(),
             source = "聊天工具结果",
             title = title,
