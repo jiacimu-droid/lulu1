@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.SpanStyle
@@ -365,29 +366,45 @@ private fun MessageLineWithTime(
     timeText: String,
     content: @Composable (Modifier) -> Unit,
 ) {
-    BoxWithConstraints(
+    Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = if (mine) Alignment.BottomEnd else Alignment.BottomStart,
     ) {
-        val timeWidth = if (showTime) 38.dp else 0.dp
-        val gap = if (showTime) 6.dp else 0.dp
-        val availableBubbleWidth = (maxWidth - timeWidth - gap).coerceAtLeast(120.dp)
-        val bubbleMaxWidth = minOf(300.dp, availableBubbleWidth)
+        Layout(
+            modifier = Modifier.widthIn(max = 300.dp),
+            content = {
+                content(Modifier.widthIn(max = 300.dp))
+                if (showTime) {
+                    Text(
+                        text = timeText,
+                        modifier = Modifier.width(38.dp),
+                        color = QqMuted,
+                        fontSize = 10.sp,
+                        maxLines = 1,
+                        softWrap = false,
+                    )
+                }
+            },
+        ) { measurables, constraints ->
+            val bubble = measurables.first().measure(constraints.copy(minWidth = 0))
+            val time = if (showTime && measurables.size > 1) {
+                measurables[1].measure(constraints.copy(minWidth = 0))
+            } else null
+            val gapPx = 6.dp.roundToPx()
+            val height = maxOf(bubble.height, time?.height ?: 0)
 
-        Row(
-            verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.spacedBy(if (showTime) 6.dp else 0.dp),
-        ) {
-            content(Modifier.widthIn(max = bubbleMaxWidth))
-            if (showTime) {
-                Text(
-                    text = timeText,
-                    modifier = Modifier.width(38.dp),
-                    color = QqMuted,
-                    fontSize = 10.sp,
-                    maxLines = 1,
-                    softWrap = false,
-                )
+            // Report only the bubble's own width. The timestamp is intentionally painted outside
+            // that measured boundary so it never steals width from a normal chat bubble.
+            layout(bubble.width, height) {
+                bubble.placeRelative(0, height - bubble.height)
+                time?.let { timestamp ->
+                    val x = if (mine) {
+                        -timestamp.width - gapPx
+                    } else {
+                        bubble.width + gapPx
+                    }
+                    timestamp.placeRelative(x, height - timestamp.height)
+                }
             }
         }
     }
