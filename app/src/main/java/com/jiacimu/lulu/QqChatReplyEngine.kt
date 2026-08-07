@@ -100,8 +100,8 @@ internal suspend fun runGroupReplies(
     val ordered = mentioned + remaining
     val explicitAll = pendingText.contains("@全体成员")
     val replyLimit = when {
-        group.allowCharacterConversation -> group.maxAutoReplies
-        explicitAll -> validMembers.size.coerceAtMost(group.maxAutoReplies)
+        group.allowCharacterConversation -> group.maxAutoReplies.coerceAtLeast(validMembers.size)
+        explicitAll -> validMembers.size.coerceAtMost(group.maxAutoReplies.coerceAtLeast(validMembers.size))
         mentioned.isNotEmpty() -> mentioned.size.coerceAtMost(group.maxAutoReplies)
         else -> 1
     }.coerceIn(1, 8)
@@ -152,7 +152,7 @@ internal suspend fun runGroupReplies(
             appendLine("[这是即时通讯软件里的线上聊天。请按你自己的语气、停顿、情绪变化、补充、转折、追问和聊天习惯决定什么时候按一次发送。现实聊天中会在这里按发送，就在这里结束当前气泡。]")
             appendLine("[需要多个气泡时，只在两个气泡之间输出 $SemanticBubbleSeparator；不按标点、固定字数或固定数量机械切分，也不要为了减少气泡把本来会分开发送的话硬塞成长段。]")
             if (group.allowCharacterConversation) {
-                appendLine("[根据此刻的内容判断群聊是否还会自然继续：若某位成员会接话，在末尾输出 ⟪NEXT:成员名⟫；若已经自然结束，输出 ⟪END⟫。不要按固定顺序轮流，也不要为了让每个人都说话而硬续。该标记不会显示给用户。]")
+                appendLine("[根据此刻的内容判断群聊是否还会自然继续：若某位成员会接话，在末尾输出 ⟪NEXT:成员名⟫；全员都至少参与一次以后，若已经自然结束，输出 ⟪END⟫。不要按固定顺序轮流，也不要为了让某个人重复发言而硬续。该标记不会显示给用户。]")
             }
             if (index == 0) append("用户刚在群里说：$pendingText")
             else append("用户最初开启的话题：$pendingText")
@@ -169,7 +169,7 @@ internal suspend fun runGroupReplies(
             result = LuluDeviceToolBridge.respond(
                 characterId = member.characterId,
                 history = history,
-                userText = "$groupInput\n[上一次没有生成有效发言。现在必须直接接住上一位成员的话，输出至少一个自然完整的表达。]",
+                userText = "$groupInput\n[上一次没有生成有效发言。现在直接给出至少一个自然完整的表达。]",
                 title = activeLabel,
                 archiveId = archiveId,
                 sceneContext = sceneContext,
