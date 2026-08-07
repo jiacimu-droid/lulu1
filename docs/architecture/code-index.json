@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T15:39:13.126304+00:00",
-  "commit": "26b6a9fbb1c2e5cd656165a25b4e5b525b0000f7",
+  "generatedAt": "2026-08-07T15:40:28.265987+00:00",
+  "commit": "8d822ff1462e66c36497ce3037c7233a0011a97b",
   "branch": "main",
-  "sourceFingerprint": "d2ecd55df93f0de9b4d7cbd442367959be5c7f9563053ad369eb936b07d1bf7a",
+  "sourceFingerprint": "768a106016775d37389227ef162e631e0ed7940662887db06381ab7b06f53835",
   "summary": {
     "files": 126,
-    "lines": 31539,
+    "lines": 31535,
     "symbols": 516
   },
   "symbolIndex": {
@@ -969,7 +969,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 220
+        "line": 221
       }
     ],
     "InMemoryLexiconRepository": [
@@ -1059,19 +1059,19 @@
     "pendingMessageCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 296
+        "line": 297
       }
     ],
     "pendingTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 300
+        "line": 299
       }
     ],
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 505
+        "line": 503
       }
     ],
     "ApiUsageSource": [
@@ -3916,8 +3916,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 541,
-      "sha256": "5920d5e46ff4d641b13bb4385c0aec28eeb2809f3e1a93d6cbc3c33e022c46dc",
+      "lines": 537,
+      "sha256": "0dba54d2ff018d6d745f9215d65f1151aa52900a577c5333ea366f3326369e75",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -3929,19 +3929,19 @@
         },
         {
           "name": "snapshot",
-          "line": 220
+          "line": 221
         },
         {
           "name": "pendingMessageCount",
-          "line": 296
+          "line": 297
         },
         {
           "name": "pendingTimelineEvents",
-          "line": 300
+          "line": 299
         },
         {
           "name": "MemoryDebugState",
-          "line": 505
+          "line": 503
         }
       ]
     },
