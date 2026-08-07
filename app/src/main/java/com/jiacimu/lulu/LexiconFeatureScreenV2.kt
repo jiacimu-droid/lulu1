@@ -5,6 +5,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,27 +52,51 @@ private val LexiconV2PromiseKinds = listOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LexiconFeatureScreenV2(onBack: () -> Unit) {
+fun LexiconFeatureScreenV2(
+    onBack: () -> Unit,
+    initialCharacterId: String? = null,
+    initialDiaryTitle: String? = null,
+) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val sortedCharacters = remember(characters) { characters.values.sortedBy { it.displayName } }
-    var selectedCharacterId by rememberSaveable {
-        mutableStateOf(characters.keys.firstOrNull() ?: "lulu")
+    var selectedCharacterId by rememberSaveable(initialCharacterId) {
+        mutableStateOf(
+            initialCharacterId?.takeIf { it in characters }
+                ?: characters.keys.firstOrNull()
+                ?: "lulu",
+        )
     }
-    LaunchedEffect(characters.keys, selectedCharacterId) {
-        if (selectedCharacterId !in characters && characters.isNotEmpty()) {
+    LaunchedEffect(characters.keys, selectedCharacterId, initialCharacterId) {
+        if (!initialCharacterId.isNullOrBlank() && initialCharacterId in characters && selectedCharacterId != initialCharacterId) {
+            selectedCharacterId = initialCharacterId
+        } else if (selectedCharacterId !in characters && characters.isNotEmpty()) {
             selectedCharacterId = characters.keys.first()
         }
     }
-    var sectionIndex by rememberSaveable { mutableIntStateOf(0) }
+    val diarySectionIndex = remember { LexiconV2Sections.indexOfFirst { it.first == LexiconSection.Diary }.coerceAtLeast(0) }
+    var sectionIndex by rememberSaveable(initialDiaryTitle) {
+        mutableIntStateOf(if (initialDiaryTitle.isNullOrBlank()) 0 else diarySectionIndex)
+    }
     val section = LexiconV2Sections[sectionIndex].first
     val entries by LuluRepositories.lexicon
         .observeEntries(selectedCharacterId, section)
         .collectAsState(initial = emptyList())
     var visibleCount by rememberSaveable(selectedCharacterId, section) { mutableIntStateOf(LEXICON_PAGE_SIZE) }
     val visibleEntries = remember(entries, visibleCount) { entries.take(visibleCount) }
+    val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     var editing by remember { mutableStateOf<LexiconEntry?>(null) }
     var creating by remember { mutableStateOf(false) }
+
+    LaunchedEffect(initialDiaryTitle, selectedCharacterId, section, entries) {
+        val title = initialDiaryTitle?.takeIf(String::isNotBlank) ?: return@LaunchedEffect
+        if (section != LexiconSection.Diary) return@LaunchedEffect
+        val targetIndex = entries.indexOfFirst { it.title == title }
+        if (targetIndex >= 0) {
+            if (targetIndex >= visibleCount) visibleCount = targetIndex + 1
+            listState.scrollToItem(targetIndex)
+        }
+    }
 
     Scaffold(
         containerColor = LuluColors.Paper,
@@ -131,6 +156,7 @@ fun LexiconFeatureScreenV2(onBack: () -> Unit) {
             }
 
             LazyColumn(
+                state = listState,
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -147,6 +173,7 @@ fun LexiconFeatureScreenV2(onBack: () -> Unit) {
                             DiaryEntryCard(
                                 entry = entry,
                                 characterName = characters[entry.characterId]?.displayName ?: "角色",
+                                highlighted = !initialDiaryTitle.isNullOrBlank() && entry.title == initialDiaryTitle,
                                 onEdit = { editing = entry },
                                 onDelete = { scope.launch { LuluRepositories.lexicon.delete(entry.id) } },
                             )
@@ -233,12 +260,13 @@ fun LexiconFeatureScreenV2(onBack: () -> Unit) {
 private fun DiaryEntryCard(
     entry: LexiconEntry,
     characterName: String,
+    highlighted: Boolean,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFEFA)),
-        border = BorderStroke(1.dp, Color(0xFFE8E0D2)),
+        colors = CardDefaults.cardColors(containerColor = if (highlighted) LuluColors.WheatSoft else Color(0xFFFFFEFA)),
+        border = BorderStroke(if (highlighted) 2.dp else 1.dp, if (highlighted) LuluColors.Ink else Color(0xFFE8E0D2)),
         shape = RoundedCornerShape(24.dp),
         modifier = Modifier.fillMaxWidth(),
     ) {
