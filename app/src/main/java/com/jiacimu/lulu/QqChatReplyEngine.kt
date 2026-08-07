@@ -20,7 +20,7 @@ internal fun characterReplyQuoteId(text: String): String? =
 internal fun characterFavoriteMessageId(text: String): String? =
     FavoriteDirectiveRegex.find(text)?.groupValues?.getOrNull(1)?.trim()?.takeIf(String::isNotBlank)
 
-/** Removes invisible role-action markers before anything is displayed, forwarded or persisted. */
+/** Removes invisible role-action markers before anything is displayed or forwarded. */
 internal fun stripCharacterReplyDirective(text: String): String =
     text.replace(QuoteDirectiveRegex, "")
         .replace(FavoriteDirectiveRegex, "")
@@ -29,19 +29,16 @@ internal fun stripCharacterReplyDirective(text: String): String =
 internal fun normalizeSemanticBubbles(text: String): String {
     val raw = text.replace("\r\n", "\n").trim()
     if (raw.isBlank()) return ""
-    // Quote stays alive until appendCharacterMessage converts it into replyToMessageId.
-    // Favorite is handled as an independent side effect and must never enter message content.
+    // Keep action markers only until appendCharacterMessage converts them into structured effects.
     val quoteMarker = QuoteDirectiveRegex.find(raw)?.value.orEmpty()
+    val favoriteMarker = FavoriteDirectiveRegex.find(raw)?.value.orEmpty()
     val body = stripCharacterReplyDirective(raw)
         .split(SemanticBubbleSeparator)
         .map { bubble -> bubble.trim().trim('"') }
         .filter(String::isNotBlank)
         .joinToString("\n")
-    return when {
-        body.isBlank() -> ""
-        quoteMarker.isBlank() -> body
-        else -> quoteMarker + body
-    }
+    if (body.isBlank()) return ""
+    return quoteMarker + favoriteMarker + body
 }
 
 private data class GroupReplyFlow(
