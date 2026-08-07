@@ -75,7 +75,12 @@ interface LuluChatStore {
     fun deleteConversation(conversationId: String): Boolean
     fun clearConversationMessages(conversationId: String): Boolean
     fun sendUserMessage(conversationId: String, content: String, replyToMessageId: String? = null): LuluChatMessage
-    fun appendCharacterMessage(conversationId: String, content: String, authorCharacterId: String? = null): LuluChatMessage
+    fun appendCharacterMessage(
+        conversationId: String,
+        content: String,
+        authorCharacterId: String? = null,
+        replyToMessageId: String? = null,
+    ): LuluChatMessage
     fun appendSystemMessage(conversationId: String, content: String): LuluChatMessage
     fun appendPrivateActivityNotice(characterId: String, content: String): LuluChatMessage
     fun markFailed(messageId: String)
@@ -292,6 +297,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         conversationId: String,
         content: String,
         authorCharacterId: String?,
+        replyToMessageId: String?,
     ): LuluChatMessage {
         val clean = content.trim()
         require(clean.isNotEmpty()) { "Message content cannot be blank" }
@@ -300,6 +306,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             sender = LuluChatMessage.Sender.Character,
             content = clean,
             authorCharacterId = authorCharacterId,
+            replyToMessageId = replyToMessageId,
         ).also { message -> append(conversationId, message, incrementUnread = false) }
     }
 
@@ -454,10 +461,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             "messages",
             JSONObject().apply {
                 messages.forEach { (conversationId, values) ->
-                    put(
-                        conversationId,
-                        JSONArray().apply { values.forEach { message -> put(encodeMessage(message)) } },
-                    )
+                    put(conversationId, JSONArray().apply { values.forEach { message -> put(encodeMessage(message)) } })
                 }
             },
         )
@@ -472,10 +476,7 @@ class InMemoryLuluChatStore : LuluChatStore {
                 val keys = messagesObject.keys()
                 while (keys.hasNext()) {
                     val conversationId = keys.next()
-                    put(
-                        conversationId,
-                        messagesObject.optJSONArray(conversationId).decodeObjects(::decodeMessage),
-                    )
+                    put(conversationId, messagesObject.optJSONArray(conversationId).decodeObjects(::decodeMessage))
                 }
             }
             conversations.sortedByDescending(LuluConversation::updatedAt) to messages
@@ -530,8 +531,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             LuluGroupMember(
                 characterId = member.optString("characterId"),
                 groupNickname = member.optString("groupNickname"),
-                role = runCatching { LuluGroupRole.valueOf(member.optString("role")) }
-                    .getOrDefault(LuluGroupRole.Member),
+                role = runCatching { LuluGroupRole.valueOf(member.optString("role")) }.getOrDefault(LuluGroupRole.Member),
             )
         }.filter { it.characterId.isNotBlank() }
         if (members.size < 2) return@runCatching null
@@ -563,12 +563,10 @@ class InMemoryLuluChatStore : LuluChatStore {
     private fun decodeMessage(item: JSONObject): LuluChatMessage = LuluChatMessage(
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
         conversationId = item.optString("conversationId").ifBlank { "lulu-main" },
-        sender = runCatching { LuluChatMessage.Sender.valueOf(item.optString("sender")) }
-            .getOrDefault(LuluChatMessage.Sender.System),
+        sender = runCatching { LuluChatMessage.Sender.valueOf(item.optString("sender")) }.getOrDefault(LuluChatMessage.Sender.System),
         content = item.optString("content"),
         createdAt = item.optString("createdAt").toInstantOrNow(),
-        status = runCatching { LuluChatMessage.Status.valueOf(item.optString("status")) }
-            .getOrDefault(LuluChatMessage.Status.Sent),
+        status = runCatching { LuluChatMessage.Status.valueOf(item.optString("status")) }.getOrDefault(LuluChatMessage.Status.Sent),
         favorite = item.optBoolean("favorite"),
         authorCharacterId = item.nullableString("authorCharacterId"),
         replyToMessageId = item.nullableString("replyToMessageId"),
@@ -599,9 +597,7 @@ class InMemoryLuluChatStore : LuluChatStore {
                     content = "今天学习辛苦啦。",
                 ),
             )
-        } else {
-            emptyList()
-        }
+        } else emptyList()
     }
 }
 
@@ -674,8 +670,7 @@ class CharacterSettingsStore {
         }
     }
 
-    fun get(characterId: String): CharacterSettings =
-        state.value[characterId] ?: CharacterSettings(characterId, characterId)
+    fun get(characterId: String): CharacterSettings = state.value[characterId] ?: CharacterSettings(characterId, characterId)
 
     private fun persistLocked() {
         prefs?.edit()?.putString(
@@ -715,9 +710,7 @@ class CharacterSettingsStore {
                     val policy = item.optJSONObject("contactPolicy") ?: JSONObject()
                     val worldBooks = buildSet {
                         val ids = item.optJSONArray("defaultWorldBookIds") ?: JSONArray()
-                        for (idIndex in 0 until ids.length()) {
-                            ids.optString(idIndex).takeIf(String::isNotBlank)?.let(::add)
-                        }
+                        for (idIndex in 0 until ids.length()) ids.optString(idIndex).takeIf(String::isNotBlank)?.let(::add)
                     }
                     put(
                         characterId,
@@ -776,9 +769,7 @@ class CharacterWorldBookRuleStore {
     }
 
     fun isEnabled(worldBookId: String, characterId: String, globalEnabled: Boolean): Boolean {
-        val override = state.value.lastOrNull { rule ->
-            rule.worldBookId == worldBookId && rule.characterId == characterId
-        }
+        val override = state.value.lastOrNull { rule -> rule.worldBookId == worldBookId && rule.characterId == characterId }
         return override?.enabled ?: globalEnabled
     }
 }
