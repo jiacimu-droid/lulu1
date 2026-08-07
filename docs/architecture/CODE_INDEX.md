@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f7315fed3950b2fd0f9345168505aceaf6ea8e6e`
+- 基准提交：`5da881cebaa1e0fd7c99a27b34fb87a48cf466fe`
 - 分支：`main`
 - 已索引文件：125
-- 已索引代码/文本行：31299
+- 已索引代码/文本行：31314
 - 已发现符号：508
 
 | 文件 | 行数 | 符号数 |
@@ -90,7 +90,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 282 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 324 | 17 |
-| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 88 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 103 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 808 | 32 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 46 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt` | 208 | 1 |

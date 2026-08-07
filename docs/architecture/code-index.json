@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T07:08:33.172472+00:00",
-  "commit": "f7315fed3950b2fd0f9345168505aceaf6ea8e6e",
+  "generatedAt": "2026-08-07T07:09:10.795349+00:00",
+  "commit": "5da881cebaa1e0fd7c99a27b34fb87a48cf466fe",
   "branch": "main",
-  "sourceFingerprint": "d6690533c05ec3a303a453a88429c9ad2295f49126c36fb847bf57b50f35f0ff",
+  "sourceFingerprint": "bc7289307c59f277740aedace3d294fbc834a0058f5a8aa375eb2fee5028a4df",
   "summary": {
     "files": 125,
-    "lines": 31299,
+    "lines": 31314,
     "symbols": 508
   },
   "symbolIndex": {
@@ -2133,7 +2133,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
-        "line": 28
+        "line": 29
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt",
@@ -5072,8 +5072,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
-      "lines": 88,
-      "sha256": "a40f3b6526abf3c2f2c0092d352069fbf52504470133e6b3e08e74b4644b901d",
+      "lines": 103,
+      "sha256": "22ad2f6947e1145dfe9e016971fe301203cc10f695dcb13fcf1cc14c323534ee",
       "symbols": [
         {
           "name": "PostgraduateExamApp",
@@ -5081,7 +5081,7 @@
         },
         {
           "name": "stepBack",
-          "line": 28
+          "line": 29
         }
       ]
     },
