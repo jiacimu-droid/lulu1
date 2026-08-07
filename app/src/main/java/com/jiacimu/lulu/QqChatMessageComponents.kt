@@ -6,11 +6,12 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.PlayArrow
@@ -20,6 +21,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -32,6 +34,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -117,12 +120,21 @@ internal fun QqMessageRow(
     }
 
     val mine = message.sender == LuluChatMessage.Sender.User
-    val gameInvite = remember(message.content, mine) { if (mine) null else parseGameInvite(message.content) }
-    val visibleContent = remember(message.content, gameInvite) {
-        gameInvite?.message ?: stripCharacterReplyDirective(message.content)
+    val forwardBundle = remember(message.content) { decodeQqForwardedChat(message.content) }
+    var forwardOpen by remember(message.id) { mutableStateOf(false) }
+    val gameInvite = remember(message.content, mine, forwardBundle) {
+        if (mine || forwardBundle != null) null else parseGameInvite(message.content)
     }
-    val bubbles = remember(visibleContent, mine, gameInvite) {
+    val visibleContent = remember(message.content, gameInvite, forwardBundle) {
         when {
+            forwardBundle != null -> ""
+            gameInvite != null -> gameInvite.message
+            else -> stripCharacterReplyDirective(message.content)
+        }
+    }
+    val bubbles = remember(visibleContent, mine, gameInvite, forwardBundle) {
+        when {
+            forwardBundle != null -> emptyList()
             gameInvite != null -> emptyList()
             mine -> listOf(visibleContent)
             else -> splitCharacterBubbles(visibleContent)
@@ -194,12 +206,20 @@ internal fun QqMessageRow(
                         characterName.take(1).ifBlank { "露" },
                         44,
                         characterAvatarUri,
-                        Modifier.clickable {
-                            anchorCharacterId?.let { id ->
-                                CompanionPresenceStore.selectMessageAnchor(id, message.createdAt)
-                            }
-                            onCharacterAvatarClick()
-                        },
+                        Modifier.combinedClickable(
+                            onClick = {
+                                anchorCharacterId?.let { id ->
+                                    CompanionPresenceStore.selectMessageAnchor(id, message.createdAt)
+                                }
+                                onCharacterAvatarClick()
+                            },
+                            onDoubleClick = {
+                                MigratedDomainStores.chat.appendSystemMessage(
+                                    message.conversationId,
+                                    "[戳一戳] 你戳了戳$characterLabel。",
+                                )
+                            },
+                        ),
                     )
                 }
             }
@@ -226,6 +246,22 @@ internal fun QqMessageRow(
                             invite = gameInvite,
                             onAccept = { onAcceptGame(gameInvite.gameId) },
                             modifier = bubbleModifier,
+                        )
+                    }
+                    Spacer(Modifier.height(5.dp))
+                }
+                if (forwardBundle != null) {
+                    MessageLineWithTime(
+                        mine = mine,
+                        showTime = showTime,
+                        timeText = timeText,
+                    ) { bubbleModifier ->
+                        QqForwardedChatCard(
+                            bundle = forwardBundle,
+                            modifier = bubbleModifier.combinedClickable(
+                                onClick = { forwardOpen = true },
+                                onLongClick = onLongClick,
+                            ),
                         )
                     }
                     Spacer(Modifier.height(5.dp))
@@ -287,6 +323,34 @@ internal fun QqMessageRow(
             }
         }
     }
+
+    if (forwardOpen && forwardBundle != null) {
+        AlertDialog(
+            onDismissRequest = { forwardOpen = false },
+            title = { Text(forwardBundle.title, fontWeight = FontWeight.Bold) },
+            text = {
+                Column(
+                    modifier = Modifier.heightIn(max = 520.dp).verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    forwardBundle.entries.forEach { entry ->
+                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(entry.sender, color = QqInk, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                                Spacer(Modifier.weight(1f))
+                                if (entry.timeLabel.isNotBlank()) Text(entry.timeLabel, color = QqMuted, fontSize = 10.sp)
+                            }
+                            Text(entry.content, color = QqInk, fontSize = 13.sp, lineHeight = 19.sp)
+                            HorizontalDivider(color = QqBorder)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { forwardOpen = false }) { Text("关闭", color = QqInk) }
+            },
+        )
+    }
 }
 
 @Composable
@@ -324,6 +388,39 @@ private fun MessageLineWithTime(
     }
 }
 
+@Composable
+private fun QqForwardedChatCard(
+    bundle: QqForwardedChatBundle,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier,
+        color = Color.White,
+        shape = RoundedCornerShape(15.dp),
+        border = BorderStroke(1.dp, QqBorder),
+        shadowElevation = 0.dp,
+    ) {
+        Column(Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
+            Text(bundle.title, color = QqInk, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+            Spacer(Modifier.height(8.dp))
+            bundle.entries.take(3).forEach { entry ->
+                Text(
+                    "${entry.sender}：${entry.content.replace("\n", " ")}",
+                    color = QqMuted,
+                    fontSize = 11.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(3.dp))
+            }
+            Spacer(Modifier.height(6.dp))
+            HorizontalDivider(color = QqBorder)
+            Spacer(Modifier.height(7.dp))
+            Text("查看 ${bundle.entries.size} 条聊天记录", color = QqMuted, fontSize = 10.sp)
+        }
+    }
+}
+
 private enum class SystemActivityType { Diary, Reading }
 
 private data class SystemActivityLink(
@@ -342,6 +439,8 @@ private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
     val visible = content
         .removePrefix("[共同活动]")
         .removePrefix("[群成员变更]")
+        .removePrefix("[戳一戳]")
+        .removePrefix("[撤回]")
         .trim()
 
     Regex("刚刚写了一篇日记《([^》]+)》").find(visible)?.let { match ->
