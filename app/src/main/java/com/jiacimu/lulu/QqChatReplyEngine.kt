@@ -1,6 +1,7 @@
 package com.jiacimu.lulu
 
 // Chat response orchestration lives outside the screen so UI changes do not risk reply behavior.
+import com.jiacimu.lulu.data.CharacterMessageFavorites
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluGroupChat
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -11,16 +12,25 @@ import kotlinx.coroutines.isActive
 
 internal const val SemanticBubbleSeparator = "⟪BUBBLE⟫"
 private val QuoteDirectiveRegex = Regex("⟪QUOTE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
+private val FavoriteDirectiveRegex = Regex("⟪FAVORITE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
 
 internal fun characterReplyQuoteId(text: String): String? =
     QuoteDirectiveRegex.find(text)?.groupValues?.getOrNull(1)?.trim()?.takeIf(String::isNotBlank)
 
+internal fun characterFavoriteMessageId(text: String): String? =
+    FavoriteDirectiveRegex.find(text)?.groupValues?.getOrNull(1)?.trim()?.takeIf(String::isNotBlank)
+
+/** Removes invisible role-action markers before anything is displayed, forwarded or persisted. */
 internal fun stripCharacterReplyDirective(text: String): String =
-    text.replace(QuoteDirectiveRegex, "").trim()
+    text.replace(QuoteDirectiveRegex, "")
+        .replace(FavoriteDirectiveRegex, "")
+        .trim()
 
 internal fun normalizeSemanticBubbles(text: String): String {
     val raw = text.replace("\r\n", "\n").trim()
     if (raw.isBlank()) return ""
+    // Quote stays alive until appendCharacterMessage converts it into replyToMessageId.
+    // Favorite is handled as an independent side effect and must never enter message content.
     val quoteMarker = QuoteDirectiveRegex.find(raw)?.value.orEmpty()
     val body = stripCharacterReplyDirective(raw)
         .split(SemanticBubbleSeparator)
@@ -39,11 +49,13 @@ private data class GroupReplyFlow(
     val nextSpeakerName: String?,
     val shouldEnd: Boolean,
     val quoteMessageId: String?,
+    val favoriteMessageId: String?,
 )
 
 private fun parseGroupReplyFlow(text: String): GroupReplyFlow {
     val nextMatch = Regex("⟪NEXT\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE).find(text)
     val quoteId = characterReplyQuoteId(text)
+    val favoriteId = characterFavoriteMessageId(text)
     val visible = stripCharacterReplyDirective(text)
         .replace(Regex("⟪NEXT\\s*:\\s*[^⟫]+⟫", RegexOption.IGNORE_CASE), "")
         .replace(Regex("⟪END⟫", RegexOption.IGNORE_CASE), "")
@@ -53,6 +65,7 @@ private fun parseGroupReplyFlow(text: String): GroupReplyFlow {
         nextSpeakerName = nextMatch?.groupValues?.getOrNull(1)?.trim()?.takeIf(String::isNotBlank),
         shouldEnd = text.contains("⟪END⟫", ignoreCase = true),
         quoteMessageId = quoteId,
+        favoriteMessageId = favoriteId,
     )
 }
 
@@ -124,9 +137,10 @@ internal suspend fun runGroupReplies(
             appendLine("[这是群聊，不是私聊。群名：${group.name}；群成员：${group.userGroupNickname}、$memberList。]")
             appendLine("[当前由你（$memberLabel）发言。只代表你自己，严格遵循你的人设和关系边界；不要替别人说话，不要输出姓名标签。]")
             if (quotableUserMessages.isNotEmpty()) {
-                appendLine("[你可以像真实聊天一样，在确实有必要针对用户某一句单独回应时引用它；不要每次都引用。可引用的用户气泡如下：]")
+                appendLine("[以下是近期真实的用户气泡；消息ID只用于引用或收藏动作，不属于聊天正文：]")
                 quotableUserMessages.forEach { item -> appendLine("[消息ID=${item.id} 内容=${item.content.take(300)}]") }
-                appendLine("[如果决定引用，只在整段可见回复最前面输出 ⟪QUOTE:消息ID⟫；只能使用上面真实存在的用户消息ID。没有必要引用时不要输出该标记。]")
+                appendLine("[需要针对用户某一句单独回应时，可在整段回复最前输出 ⟪QUOTE:消息ID⟫；不要为了展示功能而每次引用。]")
+                appendLine("[如果你本人真的很想把用户某一句留下来以后再看，可以在整段回复最前额外输出 ⟪FAVORITE:消息ID⟫。收藏是角色自己的选择，不是用户收藏，也不要滥用；只能使用上面真实存在的用户消息ID。引用和收藏可以各自出现，也可以都不出现。]")
             }
             if (index > 0) {
                 val previousMessage = latestMessages.lastOrNull { it.sender == LuluChatMessage.Sender.Character }
@@ -179,6 +193,9 @@ internal suspend fun runGroupReplies(
                     authorCharacterId = member.characterId,
                     replyToMessageId = validQuoteId,
                 )
+                flow.favoriteMessageId
+                    ?.let { id -> latestMessages.firstOrNull { it.id == id && it.sender == LuluChatMessage.Sender.User } }
+                    ?.let { userMessage -> CharacterMessageFavorites.favorite(member.characterId, conversationId, userMessage) }
                 afterReply(member.characterId, semanticReply)
             }
             if (group.allowCharacterConversation && !flow.shouldEnd && index + 1 < replyLimit) {
