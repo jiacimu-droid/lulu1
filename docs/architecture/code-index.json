@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T06:53:43.718088+00:00",
-  "commit": "4f9f98e5ae589c6b739461ff76a6e11c0ed8fd20",
+  "generatedAt": "2026-08-07T06:56:38.984127+00:00",
+  "commit": "e0c9d6f2050a7256201b6bad5313ef902612bdf2",
   "branch": "main",
-  "sourceFingerprint": "2e25e686884e72fd72f493fb624d0f430284e84f2bb8c0233401889039d67ff4",
+  "sourceFingerprint": "d7612bf7b4c1dd8ca88963cb7d1675e7cca5ea7280b2ab36d16b9e499c03a558",
   "summary": {
     "files": 122,
-    "lines": 30840,
+    "lines": 30994,
     "symbols": 505
   },
   "symbolIndex": {
@@ -449,7 +449,7 @@
     "MomentsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt",
-        "line": 32
+        "line": 39
       }
     ],
     "PerformanceFeatureScreen": [
@@ -3291,12 +3291,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt",
-      "lines": 212,
-      "sha256": "7b629b1b84e56f774d97413383cb0ad6a61f82e056284bb00b009ae6b820347b",
+      "lines": 366,
+      "sha256": "7ac209d1addf51f89e7ba6373f1b62fda335f3e89c3f66317e8e78cb3d7ee468",
       "symbols": [
         {
           "name": "MomentsScreen",
-          "line": 32
+          "line": 39
         }
       ]
     },
