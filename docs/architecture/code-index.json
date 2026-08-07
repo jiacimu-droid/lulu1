@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T15:38:54.588499+00:00",
-  "commit": "bf0c62d27f349b8dca608af6a29e822e4371ec55",
+  "generatedAt": "2026-08-07T15:39:13.126304+00:00",
+  "commit": "26b6a9fbb1c2e5cd656165a25b4e5b525b0000f7",
   "branch": "main",
-  "sourceFingerprint": "fabf55f49c8941f3a460205f841bd1e6dc4a14dba0e111ea67d841ae24d407f2",
+  "sourceFingerprint": "d2ecd55df93f0de9b4d7cbd442367959be5c7f9563053ad369eb936b07d1bf7a",
   "summary": {
-    "files": 125,
-    "lines": 31473,
-    "symbols": 514
+    "files": 126,
+    "lines": 31539,
+    "symbols": 516
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -856,6 +856,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
         "line": 121
+      }
+    ],
+    "CharacterMessageFavorites": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt",
+        "line": 20
+      }
+    ],
+    "favorite": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt",
+        "line": 23
       }
     ],
     "CharacterRecordReset": [
@@ -3681,6 +3693,21 @@
         {
           "name": "observeDurations",
           "line": 121
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt",
+      "lines": 66,
+      "sha256": "6712f9f3a9638e5566ab910452220df28996a508ad747f6d35e0b1a1056241df",
+      "symbols": [
+        {
+          "name": "CharacterMessageFavorites",
+          "line": 20
+        },
+        {
+          "name": "favorite",
+          "line": 23
         }
       ]
     },
