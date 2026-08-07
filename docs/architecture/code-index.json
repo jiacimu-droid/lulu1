@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T17:37:58.240040+00:00",
-  "commit": "1f260fea3bae891b534b75aa7e265b7290586a95",
+  "generatedAt": "2026-08-07T17:38:40.166375+00:00",
+  "commit": "e8323e90fa0dd83bbdd4d61bed63a05eec133c87",
   "branch": "main",
-  "sourceFingerprint": "413e61c71cfefe7db3dd3e7dae40df2c72f7047b419af1ba274628e8f101e337",
+  "sourceFingerprint": "a09d009acbc37402de8ce8201c6fc2833a05c33f8864af0bf466a6c5bb6aa0cf",
   "summary": {
     "files": 129,
-    "lines": 32285,
+    "lines": 32288,
     "symbols": 529
   },
   "symbolIndex": {
@@ -73,25 +73,25 @@
     "reportError": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-        "line": 35
+        "line": 37
       }
     ],
     "state": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-        "line": 48
+        "line": 50
       }
     ],
     "launch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-        "line": 50
+        "line": 52
       }
     ],
     "stop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-        "line": 85
+        "line": 88
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
@@ -105,7 +105,7 @@
     "clearError": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-        "line": 94
+        "line": 97
       }
     ],
     "LexiconFeatureScreenV2": [
@@ -3117,8 +3117,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-      "lines": 105,
-      "sha256": "1e6573ba5443f4a863d7a240b4d489140c3224504c3a69e39770c4553366ffce",
+      "lines": 108,
+      "sha256": "d89ec843176efbc1e38037d70886de859779679dbd33e44517552693dc8fe56e",
       "symbols": [
         {
           "name": "ChatReplyTaskManager",
@@ -3138,23 +3138,23 @@
         },
         {
           "name": "reportError",
-          "line": 35
+          "line": 37
         },
         {
           "name": "state",
-          "line": 48
-        },
-        {
-          "name": "launch",
           "line": 50
         },
         {
+          "name": "launch",
+          "line": 52
+        },
+        {
           "name": "stop",
-          "line": 85
+          "line": 88
         },
         {
           "name": "clearError",
-          "line": 94
+          "line": 97
         }
       ]
     },
