@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T05:36:34.687758+00:00",
-  "commit": "df6d2c127447fc71399587b454178e2fb042623b",
+  "generatedAt": "2026-08-07T05:37:01.874062+00:00",
+  "commit": "5bdc6c8cc80865b581c7d709da324e5ebd54b020",
   "branch": "main",
-  "sourceFingerprint": "5c1a8b026db1071d5a7e13b6b3abee5ab58bef275479d14bc58ff117fe2bccb1",
+  "sourceFingerprint": "52fd51797bb3d7420cadb3f748d16e2203dcb27cf350d05063f18a97696ea488",
   "summary": {
     "files": 122,
-    "lines": 31038,
+    "lines": 31025,
     "symbols": 501
   },
   "symbolIndex": {
@@ -1849,7 +1849,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 59
+        "line": 46
       }
     ],
     "attach": [
@@ -2785,31 +2785,31 @@
     "LuluAccessibilityService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 16
+        "line": 15
       }
     ],
     "clickFirstText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 71
+        "line": 58
       }
     ],
     "AccessibilitySnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 81
+        "line": 68
       }
     ],
     "LuluScreenAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 89
+        "line": 76
       }
     ],
     "walk": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 95
+        "line": 82
       }
     ],
     "LuluAlarm": [
@@ -5510,32 +5510,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-      "lines": 106,
-      "sha256": "66b43192e06a20df0a4fa840d4ab81ffe507cfaf45ca0aa766de23a461c31329",
+      "lines": 93,
+      "sha256": "cead205030fb58ce8504654e1b6f825ab3585f87eb1e2036647853223f20e483",
       "symbols": [
         {
           "name": "LuluAccessibilityService",
-          "line": 16
+          "line": 15
         },
         {
           "name": "perform",
-          "line": 59
+          "line": 46
         },
         {
           "name": "clickFirstText",
-          "line": 71
+          "line": 58
         },
         {
           "name": "AccessibilitySnapshot",
-          "line": 81
+          "line": 68
         },
         {
           "name": "LuluScreenAction",
-          "line": 89
+          "line": 76
         },
         {
           "name": "walk",
-          "line": 95
+          "line": 82
         }
       ]
     },
