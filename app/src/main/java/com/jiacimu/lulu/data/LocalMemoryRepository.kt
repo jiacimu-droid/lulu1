@@ -123,7 +123,7 @@ class LocalMemoryRepository : MemoryRepository {
                 characterId = characterId,
                 facts = facts,
                 instruction = """
-                    从给定真实对话中提取值得长期保留的记忆。只返回 JSON 数组，不要代码块。
+                    从给定真实对话与原始事件中提取值得长期保留的记忆。只返回 JSON 数组，不要代码块。
                     每项格式：
                     {"kind":"Fact|Emotion|Timeline","content":"简洁但信息完整的中文记忆","source":"聊天","occurredAt":"ISO-8601时间或空字符串","strength":1到10}
                     规则：
@@ -132,7 +132,8 @@ class LocalMemoryRepository : MemoryRepository {
                     3. Emotion 只保存明确情绪、触发原因和发生时间；不要把普通语气猜成情绪。
                     4. Timeline 只保存有明确时间或里程碑意义的重要经历，例如开始备考、完成一次共同活动；普通聊天不要放入。
                     5. 角色要履行的约定、提醒、责任和监督属于辞海约定，不要重复放进记忆。
-                    6. 日常寒暄、同义重复、已经存在的总结不要重复写入；没有值得保存的内容时返回 []。
+                    6. 输入中的 [私聊]、[电话]、[群聊]、[朋友圈]、[收藏]、[此刻] 等方括号内容只是原始事件来源标签，不是用户说的话，也不是需要记住的提示词。
+                    7. 日常寒暄、同义重复、已经存在的总结不要重复写入；没有值得保存的内容时返回 []。
                 """.trimIndent(),
                 source = "记忆",
                 title = "连续记忆提取",
@@ -294,23 +295,31 @@ class LocalMemoryRepository : MemoryRepository {
         mutate { current -> current.copy(entries = entries) }
     }
 
-    fun pendingMessageCount(characterId: String): Int {
-        return pendingTimelineEvents(characterId).size
-    }
+    fun pendingMessageCount(characterId: String): Int = pendingTimelineEvents(characterId).size
 
     fun pendingTimelineEvents(characterId: String): List<SharedTimelineEvent> {
         val policy = state.value.policies[characterId] ?: MemoryPolicy()
         val processed = state.value.processedMessageIds[characterId].orEmpty()
-        return SharedExperienceTimeline.all(characterId)
+        return memoryEligibleTimelineEvents(characterId)
             .dropLast(policy.excludedRecentMessages.coerceAtLeast(0))
             .filterNot { event -> event.id in processed }
             .sortedBy(SharedTimelineEvent::occurredAt)
     }
 
+    /**
+     * Raw timeline keeps private system receipts for audit/history, but those receipts are not
+     * material for memory extraction. The underlying diary/reading/moment/favorite/etc. already has
+     * its own typed raw event, so counting the receipt again would duplicate the same experience.
+     */
+    private fun memoryEligibleTimelineEvents(characterId: String): List<SharedTimelineEvent> =
+        SharedExperienceTimeline.all(characterId).filterNot { event ->
+            event.channel == "私聊" && event.speaker == "系统"
+        }
+
     private fun readableMessages(
         characterId: String,
         policy: MemoryPolicy,
-    ): List<LuluChatMessage> = SharedExperienceTimeline.all(characterId)
+    ): List<LuluChatMessage> = memoryEligibleTimelineEvents(characterId)
         .map { event ->
             LuluChatMessage(
                 id = event.id,
@@ -434,10 +443,8 @@ class LocalMemoryRepository : MemoryRepository {
                     put(
                         characterId,
                         MemoryPolicy(
-                            excludedRecentMessages = item.optInt("excludedRecentMessages", 10)
-                                .coerceAtLeast(0),
-                            readableThreshold = item.optInt("readableThreshold", 20)
-                                .coerceAtLeast(1),
+                            excludedRecentMessages = item.optInt("excludedRecentMessages", 10).coerceAtLeast(0),
+                            readableThreshold = item.optInt("readableThreshold", 20).coerceAtLeast(1),
                             autoSummarize = item.optBoolean("autoSummarize", true),
                         ),
                     )
@@ -453,19 +460,13 @@ class LocalMemoryRepository : MemoryRepository {
                         characterId,
                         buildSet {
                             for (index in 0 until ids.length()) {
-                                ids.optString(index)
-                                    .takeIf { id -> id.isNotBlank() }
-                                    ?.let(::add)
+                                ids.optString(index).takeIf(String::isNotBlank)?.let(::add)
                             }
                         },
                     )
                 }
             }
-            MemoryStoreState(
-                entries = entries,
-                policies = policies,
-                processedMessageIds = processed,
-            )
+            MemoryStoreState(entries = entries, policies = policies, processedMessageIds = processed)
         }.getOrDefault(MemoryStoreState())
     }
 
@@ -485,13 +486,10 @@ class LocalMemoryRepository : MemoryRepository {
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
         characterId = item.optString("characterId").ifBlank { "lulu" },
         content = item.optString("content"),
-        kind = runCatching { MemoryKind.valueOf(item.optString("kind")) }
-            .getOrDefault(MemoryKind.Fact),
+        kind = runCatching { MemoryKind.valueOf(item.optString("kind")) }.getOrDefault(MemoryKind.Fact),
         source = item.optString("source").ifBlank { "未知" },
-        occurredAt = item.nullableString("occurredAt")
-            ?.let { value -> runCatching { Instant.parse(value) }.getOrNull() },
-        createdAt = item.optString("createdAt")
-            .let { value -> runCatching { Instant.parse(value) }.getOrDefault(Instant.now()) },
+        occurredAt = item.nullableString("occurredAt")?.let { value -> runCatching { Instant.parse(value) }.getOrNull() },
+        createdAt = item.optString("createdAt").let { value -> runCatching { Instant.parse(value) }.getOrDefault(Instant.now()) },
         strength = item.optInt("strength", 5).coerceIn(1, 10),
         pinned = item.optBoolean("pinned"),
         canRecallProactively = item.optBoolean("canRecallProactively", true),
@@ -535,6 +533,4 @@ private fun <T> JSONArray?.decodeObjects(transform: (JSONObject) -> T): List<T> 
 }
 
 private fun JSONObject.nullableString(key: String): String? =
-    takeUnless { json -> json.isNull(key) }
-        ?.optString(key)
-        ?.takeIf { value -> value.isNotBlank() }
+    takeUnless { json -> json.isNull(key) }?.optString(key)?.takeIf(String::isNotBlank)
