@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T17:36:01.475041+00:00",
-  "commit": "33c875e91320293177c419f33f0a9b7544684787",
+  "generatedAt": "2026-08-07T17:37:58.240040+00:00",
+  "commit": "1f260fea3bae891b534b75aa7e265b7290586a95",
   "branch": "main",
-  "sourceFingerprint": "50f20cf937a9cd1abda84ccdc7962b2aeb39e67a5f3ef4e1dc05007a60ae034e",
+  "sourceFingerprint": "413e61c71cfefe7db3dd3e7dae40df2c72f7047b419af1ba274628e8f101e337",
   "summary": {
     "files": 129,
-    "lines": 32287,
+    "lines": 32285,
     "symbols": 529
   },
   "symbolIndex": {
@@ -519,7 +519,7 @@
     "QqStyleChatDetailScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 67
+        "line": 66
       }
     ],
     "messageLabel": [
@@ -567,19 +567,19 @@
     "sendOnly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 266
+        "line": 272
       }
     ],
     "stopReceiving": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 274
+        "line": 280
       }
     ],
     "sendAndReceive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 281
+        "line": 284
       }
     ],
     "ScheduleFeatureScreen": [
@@ -3539,12 +3539,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 935,
-      "sha256": "fb1f298b13b4b1d09380bd4fc3355db011feb6cbb6cfc7cc3b9b09571eb06566",
+      "lines": 933,
+      "sha256": "d0f938bd3b7cd7f0d6bc36df9b26435fa438097489d286120181f70723089a8c",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
-          "line": 67
+          "line": 66
         },
         {
           "name": "messageLabel",
@@ -3576,15 +3576,15 @@
         },
         {
           "name": "sendOnly",
-          "line": 266
+          "line": 272
         },
         {
           "name": "stopReceiving",
-          "line": 274
+          "line": 280
         },
         {
           "name": "sendAndReceive",
-          "line": 281
+          "line": 284
         }
       ]
     },
