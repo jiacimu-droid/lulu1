@@ -91,7 +91,7 @@ private fun roleRecallDelayMillis(characterId: String): Long =
 
 /**
  * Reveals already-generated bubbles one by one. This never calls the model; it only controls local
- * message timing, optional recall, role-favorite, and poke receipts.
+ * message timing, optional recall, role-favorite, poke receipts, and optional voice playback.
  */
 internal suspend fun appendRoleReplyWithPacing(
     conversationId: String,
@@ -140,7 +140,10 @@ internal suspend fun appendRoleReplyWithPacing(
         delay(360L + rolePacingSeed(characterId) % 300L)
         MigratedDomainStores.chat.appendSystemMessage(conversationId, "[戳一戳] $characterLabel 戳了戳你。")
     }
-    return bubbles.joinToString("\n")
+    val shownBubbles = bubbles.filterIndexed { index, _ -> presentation.recallBubbleNumber != index + 1 }
+    val shown = shownBubbles.joinToString("\n")
+    if (shown.isNotBlank()) ChatAutoVoicePlayback.enqueue(characterId, shown)
+    return shown
 }
 
 private data class GroupReplyFlow(
