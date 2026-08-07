@@ -183,7 +183,12 @@ internal fun QqMessageRow(
                 },
             verticalAlignment = Alignment.Top,
         ) {
-            Box(Modifier.width(44.dp), contentAlignment = Alignment.TopCenter) {
+            Box(
+                Modifier
+                    .width(44.dp)
+                    .padding(top = if (!mine && showCharacterName && showAvatar) 8.dp else 0.dp),
+                contentAlignment = Alignment.TopCenter,
+            ) {
                 if (!mine && showAvatar) {
                     QqAvatar(
                         characterName.take(1).ifBlank { "露" },
@@ -212,30 +217,28 @@ internal fun QqMessageRow(
                     )
                 }
                 if (gameInvite != null) {
-                    Row(
-                        modifier = if (mine) Modifier.align(Alignment.End) else Modifier.align(Alignment.Start),
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
+                    MessageLineWithTime(
+                        mine = mine,
+                        showTime = showTime,
+                        timeText = timeText,
+                    ) { bubbleModifier ->
                         GameInviteMessageCard(
                             invite = gameInvite,
                             onAccept = { onAcceptGame(gameInvite.gameId) },
-                            modifier = Modifier.widthIn(max = if (showTime) 260.dp else 300.dp),
+                            modifier = bubbleModifier,
                         )
-                        if (showTime) Text(timeText, color = QqMuted, fontSize = 10.sp)
                     }
                     Spacer(Modifier.height(5.dp))
                 }
                 bubbles.filter { it.isNotBlank() }.forEachIndexed { index, bubble ->
                     val isLastBubble = index == bubbles.lastIndex
-                    Row(
-                        modifier = if (mine) Modifier.align(Alignment.End) else Modifier.align(Alignment.Start),
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
+                    MessageLineWithTime(
+                        mine = mine,
+                        showTime = showTime && isLastBubble,
+                        timeText = timeText,
+                    ) { bubbleModifier ->
                         Surface(
-                            modifier = Modifier
-                                .widthIn(max = if (showTime && isLastBubble) 260.dp else 300.dp)
+                            modifier = bubbleModifier
                                 .combinedClickable(onClick = {}, onLongClick = onLongClick),
                             color = if (mine) QqMine else QqOther,
                             shape = RoundedCornerShape(15.dp),
@@ -274,9 +277,6 @@ internal fun QqMessageRow(
                                 }
                             }
                         }
-                        if (showTime && isLastBubble) {
-                            Text(timeText, color = QqMuted, fontSize = 10.sp)
-                        }
                     }
                     if (!isLastBubble) Spacer(Modifier.height(5.dp))
                 }
@@ -284,6 +284,41 @@ internal fun QqMessageRow(
             Spacer(Modifier.width(9.dp))
             Box(Modifier.width(44.dp), contentAlignment = Alignment.TopCenter) {
                 if (mine && showAvatar) QqAvatar(userAvatar, 44, userAvatarUri)
+            }
+        }
+    }
+}
+
+@Composable
+private fun MessageLineWithTime(
+    mine: Boolean,
+    showTime: Boolean,
+    timeText: String,
+    content: @Composable (Modifier) -> Unit,
+) {
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = if (mine) Alignment.BottomEnd else Alignment.BottomStart,
+    ) {
+        val timeWidth = if (showTime) 38.dp else 0.dp
+        val gap = if (showTime) 6.dp else 0.dp
+        val availableBubbleWidth = (maxWidth - timeWidth - gap).coerceAtLeast(120.dp)
+        val bubbleMaxWidth = minOf(300.dp, availableBubbleWidth)
+
+        Row(
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.spacedBy(if (showTime) 6.dp else 0.dp),
+        ) {
+            content(Modifier.widthIn(max = bubbleMaxWidth))
+            if (showTime) {
+                Text(
+                    text = timeText,
+                    modifier = Modifier.width(38.dp),
+                    color = QqMuted,
+                    fontSize = 10.sp,
+                    maxLines = 1,
+                    softWrap = false,
+                )
             }
         }
     }
