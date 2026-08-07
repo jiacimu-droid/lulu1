@@ -27,6 +27,7 @@ enum class MigrationRoute {
     Reading,
     Wishes,
     Study,
+    Schedule,
     Games,
     Settings,
 }
@@ -75,7 +76,7 @@ fun MigrationEmptyScreen(
                     Text(title, style = MaterialTheme.typography.titleLarge)
                     Text(subtitle, color = LuluColors.Muted)
                     Text(
-                        "这里保留独立路由和未来数据边界，后续增加阅读功能时不会重新改桌面结构。",
+                        "这里保留独立路由和未来数据边界，后续增加功能时不会重新改桌面结构。",
                         color = LuluColors.Muted,
                         style = MaterialTheme.typography.bodySmall,
                     )
