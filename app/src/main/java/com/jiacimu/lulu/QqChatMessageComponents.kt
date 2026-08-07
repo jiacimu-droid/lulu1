@@ -64,6 +64,11 @@ internal fun QqMessageRow(
     onSwipeReply: () -> Unit,
     onAcceptGame: (String) -> Unit,
 ) {
+    if (message.sender != LuluChatMessage.Sender.System) {
+        val recalledIds = recalledMessageIds(MigratedDomainStores.chat.messages(message.conversationId).value)
+        if (message.id in recalledIds) return
+    }
+
     if (message.sender == LuluChatMessage.Sender.System) {
         val context = LocalContext.current
         val notice = remember(message.content) { parseSystemActivityNotice(message.content) }
@@ -436,7 +441,7 @@ private data class SystemActivityNotice(
 )
 
 private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
-    val visible = content
+    val visible = stripRecallReceiptDirective(content)
         .removePrefix("[共同活动]")
         .removePrefix("[群成员变更]")
         .removePrefix("[戳一戳]")
