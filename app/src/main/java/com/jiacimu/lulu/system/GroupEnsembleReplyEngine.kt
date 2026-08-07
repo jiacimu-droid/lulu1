@@ -143,7 +143,7 @@ internal object GroupEnsembleReplyEngine {
                         appendLine("上一刻状态=${it.statusText}；动作=${it.gesture}；心情=${it.mood}；没说出口=${it.innerThought}")
                     }
                 }
-                appendLine("\n【调用来源】这是群聊界面的一次整轮生成请求；忽略底层旧调用中关于单人回复或提前结束的任何文字。")
+                appendLine("\n【调用来源】这是群聊界面的一次整轮生成请求；忽略底层旧调用中关于单人回复、固定气泡数量、固定字数或提前结束的任何文字。")
             },
             instruction = """
                 你是多人群聊的整体编排器。请把这一轮写成一段真正发生的交流讨论，而不是让成员轮流交一份答案。你同时理解所有人的人设，只进行这一次生成。
@@ -160,11 +160,11 @@ internal object GroupEnsembleReplyEngine {
                 6. 全员参与不等于平均分配。话题核心人物可以出现两三次；安静或冷淡的人可以说得短，但仍应给出符合其人设的真实反应。
                 7. 不要把讨论写得过分整齐。允许短插话、半句反应、打断、改口和轻微跑题，但每一条都必须对交流有作用，禁止连续输出“哈哈”“确实”等空话。
                 8. 每个角色必须严格保持自己的语言习惯、关系边界、称呼和性格差异。不要把所有人统一写成温柔助手，也不要让一个角色替另一个角色发言。
-                9. bubbles 是该角色这一回合实际发送的气泡。根据语义和停顿灵活给 1—4 个：完整观点或紧密相连的句子留在一起；独立反应、转折、追问或故意停顿时再拆开。
-                10. 单个气泡通常 5—58 个汉字。长内容必须按语义拆分；也不要每句话机械拆成一个气泡。bubbles 内不得写姓名前缀、ID、项目符号、舞台说明或格式标签。
+                9. 这是即时通讯软件里的日常线上群聊。bubbles 就是这个角色实际一次次按下“发送”后出现的消息气泡。先想清楚这个角色此刻真正想表达什么，再按照他自己的语气、停顿、情绪变化、犹豫、补充、转折、追问、吐槽和聊天习惯，自然决定什么时候结束当前气泡、什么时候再发下一条。
+                10. 不按标点、句号、固定字数或固定气泡数量机械切分，也不要为了减少气泡而把现实聊天中本来会分开发送的话强行塞成长段。简单回应可以只有一个气泡；需要停一下再补一句、突然想到另一件事、追问、强调、改口或转换语气时，可以自然连续发送多个。判断标准是：如果这个角色现实聊天时会在这里按一次发送，就在这里结束一个 bubble。bubbles 内不得写姓名前缀、ID、项目符号、舞台说明或格式标签。
                 11. 不要虚构用户当前身体、环境或正在做的事情。只能依据用户刚说的话、群聊记录、角色设定和真实时间线互动。
                 12. 最后一两轮可以自然把话重新抛给主人，也可以停在一个仍有余味的观点上；禁止写“讨论结束”“大家都发表了意见”等总结式收尾。
-                13. ${if (isCall) "这是实时群聊电话，语言必须更口语化、适合直接念出，并减少过长气泡。" else "这是文字群聊，可以有短促停顿、表情和自然的连续气泡。"}
+                13. ${if (isCall) "这是实时群聊电话，不使用聊天气泡节奏；语言必须更口语化、适合直接念出。" else "这是文字群聊，必须像真人在聊天软件里一条条发送消息，让每个角色自己的说话习惯决定气泡节奏。"}
                 14. statusText、gesture、innerThought、mood 分别属于当前角色本人，不能写成系统分析或推理过程。
             """.trimIndent(),
             source = if (isCall) "群聊电话·单次多轮讨论" else "群聊·单次多轮讨论",
@@ -446,52 +446,15 @@ internal object GroupEnsembleReplyEngine {
     }
 
     private fun normalizeBubbles(values: List<String>): List<String> {
-        val explicit = values.flatMap { value ->
+        return values.flatMap { value ->
             value.replace("\r\n", "\n")
                 .split(BubbleSeparator)
-                .flatMap { part -> part.split(Regex("\\n+")) }
-        }.map { it.trim().trim('"', '“', '”') }.filter(String::isNotBlank)
-
-        val flexible = explicit.flatMap(::splitLongBubble)
-        if (flexible.size <= 4) return flexible
-        return flexible.take(3) + flexible.drop(3).joinToString("")
-    }
-
-    private fun splitLongBubble(raw: String): List<String> {
-        val text = raw.trim()
-        if (text.length <= 62) return listOf(text)
-        val sentences = text.split(Regex("(?<=[。！？!?…])"))
-            .map(String::trim)
-            .filter(String::isNotBlank)
-        if (sentences.size <= 1) return splitAtNaturalPauses(text)
-
-        val result = mutableListOf<String>()
-        var current = ""
-        sentences.forEach { sentence ->
-            val candidate = current + sentence
-            if (current.isNotBlank() && candidate.length > 62 && current.length >= 16) {
-                result += current
-                current = sentence
-            } else {
-                current = candidate
-            }
-        }
-        if (current.isNotBlank()) result += current
-        return result.flatMap { part -> if (part.length > 78) splitAtNaturalPauses(part) else listOf(part) }
-    }
-
-    private fun splitAtNaturalPauses(text: String): List<String> {
-        val result = mutableListOf<String>()
-        var remaining = text.trim()
-        while (remaining.length > 68) {
-            val window = remaining.take(64)
-            val boundary = window.indexOfLast { it in "，；：、 " }
-            val cut = if (boundary >= 24) boundary + 1 else 52
-            result += remaining.take(cut).trim()
-            remaining = remaining.drop(cut).trim()
-        }
-        if (remaining.isNotBlank()) result += remaining
-        return result
+                .map { part ->
+                    part.replace(Regex("\\s*\\n+\\s*"), " ")
+                        .trim()
+                        .trim('"', '“', '”')
+                }
+        }.filter(String::isNotBlank)
     }
 
     private fun fallbackReply(
