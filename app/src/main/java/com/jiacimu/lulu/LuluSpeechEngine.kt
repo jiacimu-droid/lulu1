@@ -9,17 +9,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 import java.util.Locale
 
 internal class LuluSpeechEngine(context: Context) {
+    private data class PendingSynthesis(
+        val utteranceId: String,
+        val generation: Long,
+        val file: File,
+        val fallbackText: String,
+    )
+
     private val appContext = context.applicationContext
     private val prefs = appContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
     private var player: MediaPlayer? = null
     @Volatile private var playbackGeneration = 0L
     @Volatile private var activeUtteranceId: String? = null
+    @Volatile private var pendingSynthesis: PendingSynthesis? = null
     @Volatile private var completionCallback: (() -> Unit)? = null
     private val systemTts = TextToSpeech(appContext) {}
 
@@ -28,16 +37,26 @@ internal class LuluSpeechEngine(context: Context) {
             override fun onStart(utteranceId: String?) = Unit
 
             override fun onDone(utteranceId: String?) {
+                val synthesis = pendingSynthesis
+                if (utteranceId != null && synthesis?.utteranceId == utteranceId) {
+                    pendingSynthesis = null
+                    if (synthesis.generation == playbackGeneration && synthesis.file.exists() && synthesis.file.length() > 0L) {
+                        playAudioFile(synthesis.file, synthesis.generation, deleteAfterPlayback = false)
+                    } else if (synthesis.generation == playbackGeneration) {
+                        finishPlayback()
+                    }
+                    return
+                }
                 if (utteranceId != null && utteranceId == activeUtteranceId) finishPlayback()
             }
 
             @Deprecated("Deprecated in Java")
             override fun onError(utteranceId: String?) {
-                if (utteranceId != null && utteranceId == activeUtteranceId) finishPlayback()
+                handleTtsError(utteranceId)
             }
 
             override fun onError(utteranceId: String?, errorCode: Int) {
-                if (utteranceId != null && utteranceId == activeUtteranceId) finishPlayback()
+                handleTtsError(utteranceId)
             }
         })
     }
@@ -53,9 +72,11 @@ internal class LuluSpeechEngine(context: Context) {
         if (prefs.getString("tts_provider", "system") == "minimax") {
             scope.launch {
                 runCatching { requestMiniMaxAudio(text) }
-                    .onSuccess {
+                    .onSuccess { bytes ->
                         if (requestGeneration == playbackGeneration) {
-                            playMiniMaxAudio(it, requestGeneration)
+                            val audioFile = File.createTempFile("minimax-", ".mp3", appContext.cacheDir)
+                            audioFile.writeBytes(bytes)
+                            playAudioFile(audioFile, requestGeneration, deleteAfterPlayback = true)
                         }
                     }
                     .onFailure {
@@ -67,21 +88,97 @@ internal class LuluSpeechEngine(context: Context) {
         }
     }
 
+    /** Generates speech once, persists the audio file, then plays that exact file. */
+    fun speakAndCache(
+        text: String,
+        cacheBaseFile: File,
+        scope: CoroutineScope,
+        onFinished: (() -> Unit)? = null,
+    ) {
+        if (!prefs.getBoolean("tts_enabled", true) || text.isBlank()) {
+            onFinished?.invoke()
+            return
+        }
+        stop()
+        completionCallback = onFinished
+        val requestGeneration = ++playbackGeneration
+        cacheBaseFile.parentFile?.mkdirs()
+
+        val existing = cachedAudioFile(cacheBaseFile)
+        if (existing != null) {
+            existing.setLastModified(System.currentTimeMillis())
+            playAudioFile(existing, requestGeneration, deleteAfterPlayback = false)
+            return
+        }
+
+        if (prefs.getString("tts_provider", "system") == "minimax") {
+            val target = File(cacheBaseFile.parentFile, "${cacheBaseFile.name}.mp3")
+            scope.launch {
+                runCatching { requestMiniMaxAudio(text) }
+                    .onSuccess { bytes ->
+                        if (requestGeneration == playbackGeneration) {
+                            target.writeBytes(bytes)
+                            playAudioFile(target, requestGeneration, deleteAfterPlayback = false)
+                        }
+                    }
+                    .onFailure {
+                        if (requestGeneration == playbackGeneration) {
+                            synthesizeSystemToCache(
+                                text = text,
+                                target = File(cacheBaseFile.parentFile, "${cacheBaseFile.name}.wav"),
+                                generation = requestGeneration,
+                            )
+                        }
+                    }
+            }
+        } else {
+            synthesizeSystemToCache(
+                text = text,
+                target = File(cacheBaseFile.parentFile, "${cacheBaseFile.name}.wav"),
+                generation = requestGeneration,
+            )
+        }
+    }
+
+    fun playCached(file: File, onFinished: (() -> Unit)? = null): Boolean {
+        if (!file.exists() || file.length() <= 0L) return false
+        stop()
+        completionCallback = onFinished
+        val generation = ++playbackGeneration
+        file.setLastModified(System.currentTimeMillis())
+        playAudioFile(file, generation, deleteAfterPlayback = false)
+        return true
+    }
+
+    fun cachedAudioFile(cacheBaseFile: File): File? {
+        val mp3 = File(cacheBaseFile.parentFile, "${cacheBaseFile.name}.mp3")
+        if (mp3.exists() && mp3.length() > 0L) return mp3
+        val wav = File(cacheBaseFile.parentFile, "${cacheBaseFile.name}.wav")
+        if (wav.exists() && wav.length() > 0L) return wav
+        return null
+    }
+
     suspend fun previewMiniMax(text: String): Result<Unit> = runCatching {
         stop()
         val requestGeneration = ++playbackGeneration
         val audio = requestMiniMaxAudio(text.trim().ifBlank { "你好，我是露露。这个声音听起来还合适吗？" })
         check(requestGeneration == playbackGeneration) { "试听已取消" }
-        playMiniMaxAudio(audio, requestGeneration)
+        val audioFile = File.createTempFile("minimax-preview-", ".mp3", appContext.cacheDir)
+        audioFile.writeBytes(audio)
+        playAudioFile(audioFile, requestGeneration, deleteAfterPlayback = true)
     }
 
     fun stop() {
         playbackGeneration++
         activeUtteranceId = null
-        completionCallback = null
+        pendingSynthesis?.file?.delete()
+        pendingSynthesis = null
         systemTts.stop()
         player?.release()
         player = null
+        val callback = completionCallback
+        completionCallback = null
+        callback?.invoke()
     }
 
     fun shutdown() {
@@ -89,15 +186,46 @@ internal class LuluSpeechEngine(context: Context) {
         systemTts.shutdown()
     }
 
-    private fun speakWithSystem(text: String, generation: Long) {
+    private fun configureSystemTts() {
         val locale = Locale.forLanguageTag(prefs.getString("tts_language", "zh-CN") ?: "zh-CN")
         systemTts.language = locale
         systemTts.setSpeechRate(prefs.getFloat("tts_rate", 1f))
         systemTts.setPitch(prefs.getFloat("tts_pitch", 1f))
+    }
+
+    private fun speakWithSystem(text: String, generation: Long) {
+        configureSystemTts()
         val utteranceId = "lulu-$generation-${System.nanoTime()}"
         activeUtteranceId = utteranceId
         val result = systemTts.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
         if (result == TextToSpeech.ERROR) finishPlayback()
+    }
+
+    private fun synthesizeSystemToCache(text: String, target: File, generation: Long) {
+        configureSystemTts()
+        target.parentFile?.mkdirs()
+        target.delete()
+        val utteranceId = "lulu-cache-$generation-${System.nanoTime()}"
+        pendingSynthesis = PendingSynthesis(utteranceId, generation, target, text)
+        val result = systemTts.synthesizeToFile(text, null, target, utteranceId)
+        if (result == TextToSpeech.ERROR) {
+            pendingSynthesis = null
+            target.delete()
+            if (generation == playbackGeneration) speakWithSystem(text, generation)
+        }
+    }
+
+    private fun handleTtsError(utteranceId: String?) {
+        val synthesis = pendingSynthesis
+        if (utteranceId != null && synthesis?.utteranceId == utteranceId) {
+            pendingSynthesis = null
+            synthesis.file.delete()
+            if (synthesis.generation == playbackGeneration) {
+                speakWithSystem(synthesis.fallbackText, synthesis.generation)
+            }
+            return
+        }
+        if (utteranceId != null && utteranceId == activeUtteranceId) finishPlayback()
     }
 
     private suspend fun requestMiniMaxAudio(text: String): ByteArray = withContext(Dispatchers.IO) {
@@ -162,21 +290,20 @@ internal class LuluSpeechEngine(context: Context) {
         }
     }
 
-    private fun playMiniMaxAudio(bytes: ByteArray, generation: Long) {
-        val audioFile = java.io.File.createTempFile("minimax-", ".mp3", appContext.cacheDir)
-        audioFile.writeBytes(bytes)
+    private fun playAudioFile(file: File, generation: Long, deleteAfterPlayback: Boolean) {
+        player?.release()
         player = MediaPlayer().apply {
-            setDataSource(audioFile.absolutePath)
+            setDataSource(file.absolutePath)
             setOnCompletionListener {
                 it.release()
                 if (player === it) player = null
-                audioFile.delete()
+                if (deleteAfterPlayback) file.delete()
                 if (generation == playbackGeneration) finishPlayback()
             }
             setOnErrorListener { mediaPlayer, _, _ ->
                 mediaPlayer.release()
                 if (player === mediaPlayer) player = null
-                audioFile.delete()
+                if (deleteAfterPlayback) file.delete()
                 if (generation == playbackGeneration) finishPlayback()
                 true
             }
