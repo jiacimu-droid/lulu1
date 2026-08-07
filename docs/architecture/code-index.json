@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T15:00:45.594357+00:00",
-  "commit": "6266089e2f998bb3fce768d9c71dfac00595e73f",
+  "generatedAt": "2026-08-07T15:02:57.204379+00:00",
+  "commit": "d1a7a35ca48067d20fc6ce2c528b95cfd72a7de6",
   "branch": "main",
-  "sourceFingerprint": "a7769362ca138b0abf6c2e1a9ad2dbd2674e1aef95ae0c18284466046db40d1a",
+  "sourceFingerprint": "5ae1e576e19343db56144e46565fa7d617234af5c6ac8288a9828146859eaac8",
   "summary": {
     "files": 125,
-    "lines": 31430,
+    "lines": 31437,
     "symbols": 514
   },
   "symbolIndex": {
@@ -349,11 +349,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 636
+        "line": 643
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 781
+        "line": 788
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
@@ -653,7 +653,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 652
+        "line": 659
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
@@ -917,7 +917,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 644
+        "line": 651
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
@@ -1353,37 +1353,37 @@
     "defaultConversations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 582
+        "line": 589
       }
     ],
     "defaultMessages": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 591
+        "line": 598
       }
     ],
     "CharacterContactPolicy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 603
+        "line": 610
       }
     ],
     "CharacterSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 621
+        "line": 628
       }
     ],
     "CharacterSettingsStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 630
+        "line": 637
       }
     ],
     "delete": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 662
+        "line": 669
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
@@ -1397,7 +1397,7 @@
     "get": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 672
+        "line": 679
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
@@ -1411,37 +1411,37 @@
     "defaultSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 743
+        "line": 750
       }
     ],
     "CharacterWorldBookRule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 753
+        "line": 760
       }
     ],
     "CharacterWorldBookRuleStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 759
+        "line": 766
       }
     ],
     "setEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 763
+        "line": 770
       }
     ],
     "isEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 770
+        "line": 777
       }
     ],
     "MigratedDomainStores": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 776
+        "line": 783
       }
     ],
     "MomentAuthorType": [
@@ -4054,8 +4054,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-      "lines": 802,
-      "sha256": "e28b2c24154ed088b4b8598a374890693507f9ed55ad7c634e61e2d922c51b66",
+      "lines": 809,
+      "sha256": "7730b8343b110af1ea182d76a57e3b96cfae5334fc6960f6b4b22d677574e9d2",
       "symbols": [
         {
           "name": "LuluChatMessage",
@@ -4163,71 +4163,71 @@
         },
         {
           "name": "defaultConversations",
-          "line": 582
+          "line": 589
         },
         {
           "name": "defaultMessages",
-          "line": 591
+          "line": 598
         },
         {
           "name": "CharacterContactPolicy",
-          "line": 603
+          "line": 610
         },
         {
           "name": "CharacterSettings",
-          "line": 621
+          "line": 628
         },
         {
           "name": "CharacterSettingsStore",
-          "line": 630
+          "line": 637
         },
         {
           "name": "initialize",
-          "line": 636
+          "line": 643
         },
         {
           "name": "update",
-          "line": 644
+          "line": 651
         },
         {
           "name": "create",
-          "line": 652
+          "line": 659
         },
         {
           "name": "delete",
-          "line": 662
+          "line": 669
         },
         {
           "name": "get",
-          "line": 672
+          "line": 679
         },
         {
           "name": "defaultSettings",
-          "line": 743
+          "line": 750
         },
         {
           "name": "CharacterWorldBookRule",
-          "line": 753
+          "line": 760
         },
         {
           "name": "CharacterWorldBookRuleStore",
-          "line": 759
+          "line": 766
         },
         {
           "name": "setEnabled",
-          "line": 763
-        },
-        {
-          "name": "isEnabled",
           "line": 770
         },
         {
+          "name": "isEnabled",
+          "line": 777
+        },
+        {
           "name": "MigratedDomainStores",
-          "line": 776
+          "line": 783
         },
         {
           "name": "initialize",
-          "line": 781
+          "line": 788
         }
       ]
     },
