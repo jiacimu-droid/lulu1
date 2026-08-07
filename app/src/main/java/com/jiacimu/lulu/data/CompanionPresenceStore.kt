@@ -95,8 +95,37 @@ object CompanionPresenceStore {
                 (characterId to (listOf(next) + mutableHistories.value[characterId].orEmpty())
                     .distinctBy { it.updatedAt }
                     .take(100))
+            recordPresenceTimeline(next)
         }
         persist()
+    }
+
+    @Synchronized
+    fun clearCharacter(characterId: String) {
+        if (characterId.isBlank()) return
+        mutableStates.value = mutableStates.value - characterId
+        mutableHistories.value = mutableHistories.value - characterId
+        persist()
+    }
+
+    private fun recordPresenceTimeline(state: CompanionPresenceState) {
+        val characterName = runCatching { MigratedDomainStores.characters.get(state.characterId).displayName }
+            .getOrDefault("角色")
+        val detail = buildList {
+            state.statusText.takeIf(String::isNotBlank)?.let { add("状态：$it") }
+            state.gesture.takeIf(String::isNotBlank)?.let { add("动作：$it") }
+            state.mood.takeIf(String::isNotBlank)?.let { add("心情：$it") }
+            state.innerThought.takeIf(String::isNotBlank)?.let { add("心声：$it") }
+        }.joinToString("；")
+        if (detail.isBlank()) return
+        SharedExperienceTimeline.record(
+            eventId = "presence-${state.characterId}-${state.updatedAt.toEpochMilli()}",
+            characterId = state.characterId,
+            channel = "此刻",
+            speaker = characterName,
+            content = detail,
+            occurredAt = state.updatedAt,
+        )
     }
 
     private fun persist() {
