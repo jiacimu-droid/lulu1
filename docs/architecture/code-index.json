@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T15:38:16.064124+00:00",
-  "commit": "d0be3d4b6dad1505340282cb0fdf52c8f0bf3af4",
+  "generatedAt": "2026-08-07T15:38:54.588499+00:00",
+  "commit": "bf0c62d27f349b8dca608af6a29e822e4371ec55",
   "branch": "main",
-  "sourceFingerprint": "011dd35f1ffc2d95b9917a1b86d1086b8262da99ee456dccbb8b7c97ef4180bf",
+  "sourceFingerprint": "fabf55f49c8941f3a460205f841bd1e6dc4a14dba0e111ea67d841ae24d407f2",
   "summary": {
     "files": 125,
-    "lines": 31471,
+    "lines": 31473,
     "symbols": 514
   },
   "symbolIndex": {
@@ -329,7 +329,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 187
+        "line": 189
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -949,11 +949,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 103
+        "line": 105
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 242
+        "line": 244
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -969,19 +969,19 @@
     "InMemoryWorldBookRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 183
+        "line": 185
       }
     ],
     "isEnabledForCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 248
+        "line": 250
       }
     ],
     "observeForCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 251
+        "line": 253
       }
     ],
     "LegacyConversationMigration": [
@@ -3792,8 +3792,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-      "lines": 323,
-      "sha256": "bebc9de9b6482d84dea2ca6ad14949806b565f6f0a4977fb0ad369aaf4cb6dad",
+      "lines": 325,
+      "sha256": "fcd9381cbac9ebf08c733649bd37689d456b379ff5b03722807b5a6a02fd1800",
       "symbols": [
         {
           "name": "InMemoryMemoryRepository",
@@ -3813,27 +3813,27 @@
         },
         {
           "name": "snapshot",
-          "line": 103
+          "line": 105
         },
         {
           "name": "InMemoryWorldBookRepository",
-          "line": 183
+          "line": 185
         },
         {
           "name": "initialize",
-          "line": 187
+          "line": 189
         },
         {
           "name": "snapshot",
-          "line": 242
+          "line": 244
         },
         {
           "name": "isEnabledForCharacter",
-          "line": 248
+          "line": 250
         },
         {
           "name": "observeForCharacter",
-          "line": 251
+          "line": 253
         }
       ]
     },
