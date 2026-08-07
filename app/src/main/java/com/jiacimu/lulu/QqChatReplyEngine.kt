@@ -212,16 +212,13 @@ internal suspend fun runGroupReplies(
         .filterNot { candidate -> mentioned.any { it.characterId == candidate.characterId } }
         .shuffled(random)
         .sortedBy { candidate -> candidate.characterId == lastSpeaker }
-    val ordered = mentioned + remaining
-    val explicitAll = pendingText.contains("@全体成员")
+    val ordered = mentioned.shuffled(random) + remaining
     val replyLimit = group.maxAutoReplies
         .coerceAtLeast(validMembers.size)
         .coerceIn(validMembers.size, 8)
-    val pendingSpeakers = when {
-        explicitAll -> validMembers.shuffled(random).toMutableList()
-        mentioned.isNotEmpty() -> mentioned.shuffled(random).toMutableList()
-        else -> mutableListOf(ordered.first())
-    }
+    // Only choose the first speaker here. The ensemble plan owns every later turn so outer queues
+    // cannot accidentally recreate a fixed A→B→C order.
+    val pendingSpeakers = mutableListOf(ordered.first())
     var index = 0
 
     while (index < replyLimit && pendingSpeakers.isNotEmpty()) {
