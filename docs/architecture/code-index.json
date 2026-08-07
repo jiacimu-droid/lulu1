@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T05:35:26.692643+00:00",
-  "commit": "669c068194be156311bcb77d745913e8dc805ba1",
+  "generatedAt": "2026-08-07T05:36:21.307988+00:00",
+  "commit": "f5125a7d2d39c54c344020d9bd4930c1833e68a8",
   "branch": "main",
-  "sourceFingerprint": "c4249248adb5a490e0d38793db9f87983585f80bc4c52e19ea03e1010207b659",
+  "sourceFingerprint": "7ee4d7125a7646fd736799840a56c7319ae9f97b33e11a1edf4c47df05f9397a",
   "summary": {
     "files": 122,
-    "lines": 30997,
-    "symbols": 499
+    "lines": 31031,
+    "symbols": 501
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -1495,41 +1495,53 @@
     "ProactivePerceptionScheduler": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 27
+        "line": 35
       }
     ],
     "schedule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 31
+        "line": 39
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
         "line": 641
       }
     ],
-    "scheduleSoon": [
+    "scheduleNextDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 50
+        "line": 54
+      }
+    ],
+    "scheduleConcernPromise": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
+        "line": 71
+      }
+    ],
+    "scheduleManual": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
+        "line": 75
       }
     ],
     "ProactivePerceptionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 70
+        "line": 91
       }
     ],
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 87
+        "line": 116
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 95
+        "line": 123
       }
     ],
     "RelevantMemoryRecall": [
@@ -4221,32 +4233,40 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 118,
-      "sha256": "d353a6621fc46740a6dce58d562ca5aab88b6d7765ad9e1f051b94bd1f4ea85f",
+      "lines": 152,
+      "sha256": "d14de331e905a4a48180af40f11ff436e0d117d5d34ab1a86af6b68c1465fda0",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
-          "line": 27
+          "line": 35
         },
         {
           "name": "schedule",
-          "line": 31
+          "line": 39
         },
         {
-          "name": "scheduleSoon",
-          "line": 50
+          "name": "scheduleNextDue",
+          "line": 54
+        },
+        {
+          "name": "scheduleConcernPromise",
+          "line": 71
+        },
+        {
+          "name": "scheduleManual",
+          "line": 75
         },
         {
           "name": "ProactivePerceptionWorker",
-          "line": 70
+          "line": 91
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 87
+          "line": 116
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 95
+          "line": 123
         }
       ]
     },
