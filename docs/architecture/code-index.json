@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T18:48:50.315576+00:00",
-  "commit": "6737b7a128951c1cd3cf01b2ec78a7fa01884279",
+  "generatedAt": "2026-08-07T18:50:50.045645+00:00",
+  "commit": "fe3facdc94e47bd7588e3558cbe068d1d6e2bca0",
   "branch": "main",
-  "sourceFingerprint": "8af74ec6ba41775e10b9ebdea06be08ca9b589f7e8ce4eef335993f0e8658b65",
+  "sourceFingerprint": "0dee8f53caf9ac5223a4ae71d4ed05c76479dc4ad90b3bf672e4ef22bdccb6cb",
   "summary": {
     "files": 132,
     "lines": 32640,
@@ -3157,7 +3157,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
       "lines": 58,
-      "sha256": "616301652e4acca335ab09cbac8b145d74b045dd4331d85e60d11e00e3baa6d7",
+      "sha256": "a831182c76af05ddc37bb4ebb0d54cd69ab21d95806e861ce530675b1945ed79",
       "symbols": [
         {
           "name": "ChatAutoVoicePlayback",
@@ -5929,7 +5929,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/ChatContinuityGuard.kt",
       "lines": 134,
-      "sha256": "d14752b52da0e3c42e0a111b2a37d5e193634f4a9ce82e8fbdfc5ec00b5c0b6c",
+      "sha256": "93cf8d2c4fa025f6a937ccd0d5c29164d018033d37116259c768c495c17e9fc4",
       "symbols": [
         {
           "name": "Report",
