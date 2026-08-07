@@ -82,6 +82,14 @@ internal fun MigrationHomeV2(
         ?.let { characters[it] ?: MigratedDomainStores.characters.get(it) }
         ?: characters["lulu"]
         ?: MigratedDomainStores.characters.get("lulu")
+    val recentGroup = recent?.groupChat
+    val recentDisplayName = recentGroup?.name?.ifBlank { "群聊" } ?: currentCharacter.displayName
+    val recentAvatarUri = recentGroup?.avatarUri ?: currentCharacter.avatarUri
+    val recentFallback = if (recentGroup != null) {
+        recentDisplayName.take(1).ifBlank { "群" }
+    } else {
+        currentCharacter.displayName.take(1).ifBlank { "露" }
+    }
     val today = remember { LocalDate.now() }
     val dateText = remember(today) {
         today.format(DateTimeFormatter.ofPattern("M月d日 EEEE", Locale.SIMPLIFIED_CHINESE))
@@ -138,10 +146,14 @@ internal fun MigrationHomeV2(
 
             Spacer(Modifier.height(12.dp))
             DesktopCompanionCard(
-                characterName = currentCharacter.displayName,
-                avatarUri = currentCharacter.avatarUri,
+                displayName = recentDisplayName,
+                avatarFallback = recentFallback,
+                avatarUri = recentAvatarUri,
+                isGroup = recentGroup != null,
                 recentMessage = recent?.lastMessage
-                    ?.ifBlank { "点这里去找${currentCharacter.displayName}。" }
+                    ?.ifBlank {
+                        if (recentGroup != null) "点这里回到群聊。" else "点这里去找${currentCharacter.displayName}。"
+                    }
                     ?: "今天也来找我说说话吧。",
                 onClick = { recent?.let { onOpenConversation(it.id) } ?: onOpen(MigrationRoute.Chat) },
             )
@@ -194,8 +206,10 @@ internal fun MigrationHomeV2(
 
 @Composable
 private fun DesktopCompanionCard(
-    characterName: String,
+    displayName: String,
+    avatarFallback: String,
     avatarUri: String?,
+    isGroup: Boolean,
     recentMessage: String,
     onClick: () -> Unit,
 ) {
@@ -211,13 +225,18 @@ private fun DesktopCompanionCard(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 17.dp, vertical = 15.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            DesktopV2Avatar(characterName.take(1).ifBlank { "露" }, 72, avatarUri)
+            DesktopV2Avatar(avatarFallback, 72, avatarUri)
             Spacer(Modifier.width(15.dp))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(characterName, color = DesktopInk, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
+                    Text(displayName, color = DesktopInk, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.width(8.dp))
-                    Text("ONLINE", color = DesktopMuted, fontSize = 8.sp, letterSpacing = 1.1.sp)
+                    Text(
+                        if (isGroup) "GROUP" else "ONLINE",
+                        color = DesktopMuted,
+                        fontSize = 8.sp,
+                        letterSpacing = 1.1.sp,
+                    )
                 }
                 Spacer(Modifier.height(3.dp))
                 Text(
@@ -230,11 +249,16 @@ private fun DesktopCompanionCard(
                 )
                 Spacer(Modifier.height(6.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    DesktopTinyTag("陪伴中")
-                    DesktopTinyTag("点我聊天")
+                    DesktopTinyTag(if (isGroup) "群聊" else "陪伴中")
+                    DesktopTinyTag(if (isGroup) "进入群聊" else "点我聊天")
                 }
             }
-            Icon(Icons.Outlined.ChevronRight, "进入聊天", tint = DesktopMuted, modifier = Modifier.size(20.dp))
+            Icon(
+                Icons.Outlined.ChevronRight,
+                if (isGroup) "进入群聊" else "进入聊天",
+                tint = DesktopMuted,
+                modifier = Modifier.size(20.dp),
+            )
         }
     }
 }
