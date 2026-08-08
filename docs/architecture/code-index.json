@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-08T04:08:20.530651+00:00",
-  "commit": "0a9bee832d4ed5d87fbbef31a40aa674bfedc381",
+  "generatedAt": "2026-08-08T04:10:17.916357+00:00",
+  "commit": "5648a4c69493dd22d8509fa78bf2e8749dd49a38",
   "branch": "main",
-  "sourceFingerprint": "ad425f8865b503febd0f03241db74d7ee29fb689ed40b50f6a8bac90f4952cd0",
+  "sourceFingerprint": "889c39f0c8ff50e1e98fcac22758e3ccc82e2c48dd9645678070c515e7531307",
   "summary": {
     "files": 132,
     "lines": 32870,
@@ -3461,7 +3461,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
       "lines": 397,
-      "sha256": "82183c80541257c3b24e9358be0df566a20b7040033e1ee6da1ade0d78ac56aa",
+      "sha256": "e902ec35664f47658882398d3e57f84d1f4888e993a7b58c3970d3421b8c54fd",
       "symbols": [
         {
           "name": "speak",
