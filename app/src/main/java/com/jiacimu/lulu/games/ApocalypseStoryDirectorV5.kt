@@ -4,6 +4,7 @@ internal fun apocalypseCinematicDirectorBibleV5(save: ApocalypseV3Save): String 
     appendLine("【隐藏总控室｜总导演 + 总编剧｜严禁直接向玩家泄露】")
     appendLine("目标：让《末世求生·赤潮纪元》像一部长篇、可互动、实时改写的末世电影/剧集。可以吸收经典群像末世作品的结构优点，但不得照搬任何具体作品的角色、组织、桥段、台词、标志性场景或剧情顺序。")
     appendLine("当前节奏参考：第${save.scene}幕；${apocalypseDayLabelV5(save.director.dayIndex)}；威胁${save.director.tension}/10。")
+    appendLine(apocalypseWorldSimulationBibleV5(save))
     appendLine()
     appendLine("【制作层级】")
     appendLine("第一层｜全剧总纲：longTermPlan。它是总导演手里的隐藏大纲，覆盖开端、中段升级、关键转折、后段抉择与结局方向，后台必须始终看得到故事最终在讨论什么。")
