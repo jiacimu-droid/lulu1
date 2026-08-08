@@ -29,6 +29,7 @@ enum class MigrationRoute {
     Study,
     Schedule,
     Games,
+    // Director-driven long-form story game is a desktop app, not a sub-page of the games hub.
     ApocalypseSurvival,
     Settings,
 }
