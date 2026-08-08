@@ -44,9 +44,11 @@ fun CharacterSettingsScreenV2(
     val settings by MigratedDomainStores.characters.settings.collectAsState()
     val perceptionPolicies by ProactivePerceptionPolicyStore.policies.collectAsState()
     val voicePreferences by CharacterVoicePreferenceStore.autoPlayReplies.collectAsState()
+    val characterVoiceIds by CharacterVoicePreferenceStore.voiceIds.collectAsState()
     val original = settings[characterId] ?: MigratedDomainStores.characters.get(characterId)
     val perceptionPolicy = perceptionPolicies[characterId] ?: ProactivePerceptionPolicyStore.get(characterId)
     val autoPlayVoice = voicePreferences[characterId] == true
+    val characterVoiceId = characterVoiceIds[characterId].orEmpty()
     val worldBooks by LuluRepositories.worldBook.observeWorldBooks().collectAsState(initial = emptyList())
     val scope = rememberCoroutineScope()
     var displayName by remember(characterId) { mutableStateOf(original.displayName) }
@@ -218,11 +220,29 @@ fun CharacterSettingsScreenV2(
             item {
                 CharacterV2Card {
                     Text("语音回复", fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    OutlinedTextField(
+                        value = characterVoiceId,
+                        onValueChange = { CharacterVoicePreferenceStore.setVoiceId(characterId, it) },
+                        label = { Text("MiniMax Voice ID") },
+                        placeholder = { Text("填写这个角色自己的 Voice ID") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Text(
+                        "每个角色可以使用不同的 MiniMax 声音。留空时使用「语音设置」里的默认 Voice ID。",
+                        color = LuluColors.Muted,
+                        fontSize = 12.sp,
+                    )
                     CharacterV2Switch(
                         "自动播放语音",
-                        "这个角色每次生成完一轮聊天回复后，自动使用当前语音设置读出来；即使切到后台或离开聊天页，已经开始生成的回复也不会因为页面退出而取消播放。",
+                        "开启后，这个角色每个新生成的聊天气泡都会用自己的 Voice ID 生成并保存语音缓存，再自动播放；退出聊天页或切到后台不会取消已经开始的语音队列。",
                         autoPlayVoice,
                     ) { enabled -> CharacterVoicePreferenceStore.setEnabled(characterId, enabled) }
+                    Text(
+                        "长按消息选择「朗读」时，会优先播放已有缓存；如果这条消息从未生成过语音，就现生成一次、保存缓存并播放。",
+                        color = LuluColors.Muted,
+                        fontSize = 12.sp,
+                    )
                 }
             }
             item {
