@@ -80,7 +80,19 @@ internal fun StudySectionChips(selected: StudySection, onSelect: (StudySection) 
             FilterChip(
                 selected = section == selected,
                 onClick = { onSelect(section) },
-                label = { Text(section.label) },
+                label = { Text(section.label, fontWeight = if (section == selected) FontWeight.Bold else FontWeight.Medium) },
+                colors = FilterChipDefaults.filterChipColors(
+                    containerColor = StudyDesign.card,
+                    labelColor = StudyDesign.muted,
+                    selectedContainerColor = StudyDesign.dark,
+                    selectedLabelColor = StudyDesign.wheat,
+                ),
+                border = FilterChipDefaults.filterChipBorder(
+                    enabled = true,
+                    selected = section == selected,
+                    borderColor = StudyDesign.border,
+                    selectedBorderColor = StudyDesign.dark,
+                ),
             )
         }
     }
