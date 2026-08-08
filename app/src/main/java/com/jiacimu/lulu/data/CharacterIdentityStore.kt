@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.asStateFlow
 /**
  * Stores world-bound character identity separately from personality/persona.
  *
- * Identity is normally injected together with persona. Cross-world roleplay and apocalypse
- * deliberately omit identity so the same personality can inhabit a different setting without
- * carrying an incompatible job, era, species, faction, or background into that world.
+ * Normal Lulu contexts inject this identity together with persona. Cross-world roleplay and
+ * apocalypse deliberately omit identity so the same personality can inhabit a different setting
+ * without carrying an incompatible job, era, species, faction, or background into that world.
  */
 object CharacterIdentityStore {
     private const val PREFS = "lulu_character_identity"
