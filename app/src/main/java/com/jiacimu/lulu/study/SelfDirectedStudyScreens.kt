@@ -37,19 +37,19 @@ internal fun StudyTodayScreenV2(
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Surface(
                     onClick = onOpenPomodoro,
-                    modifier = Modifier.fillMaxWidth(0.96f).height(46.dp),
-                    color = Color.White,
-                    contentColor = StudyDesign.ink,
-                    shape = RoundedCornerShape(15.dp),
-                    border = BorderStroke(1.5.dp, StudyDesign.wheat),
-                    shadowElevation = 1.dp,
+                    modifier = Modifier.fillMaxWidth(0.96f).height(42.dp),
+                    color = StudyDesign.dark,
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(14.dp),
+                    border = BorderStroke(1.dp, Color(0xFF1F2228)),
+                    shadowElevation = 2.dp,
                 ) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
                             if (state.pomodoro.running) "继续番茄钟" else "开始番茄钟",
-                            fontWeight = FontWeight.Black,
-                            fontSize = 17.sp,
-                            color = StudyDesign.ink,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            color = Color.White,
                         )
                     }
                 }
