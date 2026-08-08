@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-08T14:59:28.861315+00:00",
-  "commit": "96bebadf89c0e82cd60d68c0e60bb45d57fba8d3",
+  "generatedAt": "2026-08-08T15:10:30.165577+00:00",
+  "commit": "c2111d0164aedb7942ca1eaf26faf04ff68d04ac",
   "branch": "main",
-  "sourceFingerprint": "0076e761947ff8141fbf03a8252b170b8306e6777ea48779b5c0832925e9abcc",
+  "sourceFingerprint": "672b16ff398aa649e2c1dd1ea1316f8439d468fa2c2b29b7f899a42fd9e9a32e",
   "summary": {
     "files": 149,
-    "lines": 41683,
+    "lines": 41729,
     "symbols": 613
   },
   "symbolIndex": {
@@ -2165,7 +2165,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 820
+        "line": 823
       }
     ],
     "addPieces": [
@@ -2185,7 +2185,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 812
+        "line": 815
       }
     ],
     "previousPage": [
@@ -2199,7 +2199,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 813
+        "line": 816
       }
     ],
     "load": [
@@ -2241,7 +2241,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 807
+        "line": 810
       }
     ],
     "push": [
@@ -5330,8 +5330,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseStoryDirectorV5.kt",
-      "lines": 30,
-      "sha256": "258f035dafd53833678e448452d0eb396ec4fb2c4e79b6f15d9bcc87aceef55a",
+      "lines": 60,
+      "sha256": "5505b796e7a901612762662a75528e86263b79ef0035ab858efd2856d8523195",
       "symbols": []
     },
     {
@@ -5498,8 +5498,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-      "lines": 1167,
-      "sha256": "b62f6925a7d00d113025ceb27973e89e2b0bacf3dec25f97a60816c83f29d17e",
+      "lines": 1170,
+      "sha256": "8ab8551a112c2ed9900cae5ff97245d572a1be82b08a5b133c241a12656d16c4",
       "symbols": [
         {
           "name": "load",
@@ -5527,26 +5527,26 @@
         },
         {
           "name": "setPage",
-          "line": 807
+          "line": 810
         },
         {
           "name": "nextPage",
-          "line": 812
+          "line": 815
         },
         {
           "name": "previousPage",
-          "line": 813
+          "line": 816
         },
         {
           "name": "submit",
-          "line": 820
+          "line": 823
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Engine.kt",
-      "lines": 278,
-      "sha256": "21d287a6cac9c34e498f5e2c3747910d85727badd377eb083d44de0333999441",
+      "lines": 291,
+      "sha256": "df00b2f6a44aa8c14174001774dbf1ad635dfc5ac85ed4932c1e0db54c12b281",
       "symbols": []
     },
     {
