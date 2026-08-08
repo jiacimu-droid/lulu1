@@ -32,7 +32,7 @@ enum class StudyEntertainmentKind(val label: String) {
 }
 
 enum class StudyShopReward {
-    SingleTicket, DouyinTicket, GameRoundTicket, TheaterFragment, GameTicket, VideoCard, AnimeTicket,
+    SingleTicket, TenTicket, DouyinTicket, GameRoundTicket, TheaterFragment, GameTicket, VideoCard, AnimeTicket,
 }
 
 data class StudyTask(
@@ -207,13 +207,14 @@ internal fun defaultTips(date: LocalDate): List<StudyTip> = listOf(
 internal fun defaultShop(date: LocalDate): List<StudyShopItem> {
     val random = Random(date.toString().hashCode())
     val pool = listOf(
-        StudyShopReward.DouyinTicket to 6,
-        StudyShopReward.GameRoundTicket to 3,
-        StudyShopReward.TheaterFragment to 3,
-        StudyShopReward.GameTicket to 2,
-        StudyShopReward.VideoCard to 2,
-        StudyShopReward.AnimeTicket to 1,
-        StudyShopReward.SingleTicket to 83,
+        StudyShopReward.SingleTicket to 46,
+        StudyShopReward.TenTicket to 10,
+        StudyShopReward.DouyinTicket to 12,
+        StudyShopReward.GameRoundTicket to 8,
+        StudyShopReward.TheaterFragment to 8,
+        StudyShopReward.GameTicket to 6,
+        StudyShopReward.VideoCard to 6,
+        StudyShopReward.AnimeTicket to 4,
     )
     return (1..3).map { slot ->
         val reward = weightedShopReward(pool, random)
@@ -231,11 +232,12 @@ private fun weightedShopReward(pool: List<Pair<StudyShopReward, Int>>, random: R
 }
 
 private fun StudyShopReward.toShopItem(id: String): StudyShopItem = when (this) {
-    StudyShopReward.SingleTicket -> StudyShopItem(id, "单抽券", "用于一次抽卡", 100, this)
-    StudyShopReward.DouyinTicket -> StudyShopItem(id, "抖音时长券", "可使用20分钟", 500, this)
-    StudyShopReward.GameRoundTicket -> StudyShopItem(id, "游戏局数券", "可畅玩4局", 600, this)
-    StudyShopReward.TheaterFragment -> StudyShopItem(id, "小剧场券", "可生成或续写小剧场1章", 600, this)
-    StudyShopReward.GameTicket -> StudyShopItem(id, "电影券", "可观看1部电影", 1_000, this)
-    StudyShopReward.VideoCard -> StudyShopItem(id, "视频解锁卡", "解锁一项视频收藏", 1_000, this)
-    StudyShopReward.AnimeTicket -> StudyShopItem(id, "影视剧一季兑换券", "可兑换一季影视剧", 2_000, this)
+    StudyShopReward.SingleTicket -> StudyShopItem(id, "单抽券", "商店价，比直接单抽省20夸夸值", 80, this)
+    StudyShopReward.TenTicket -> StudyShopItem(id, "十连券", "商店限定折扣，比直接十连省150夸夸值", 650, this)
+    StudyShopReward.DouyinTicket -> StudyShopItem(id, "抖音时长券", "可使用20分钟 · 商店折扣", 360, this)
+    StudyShopReward.GameRoundTicket -> StudyShopItem(id, "游戏局数券", "可畅玩4局 · 商店折扣", 420, this)
+    StudyShopReward.TheaterFragment -> StudyShopItem(id, "小剧场券", "可生成或续写小剧场1章 · 商店折扣", 450, this)
+    StudyShopReward.GameTicket -> StudyShopItem(id, "电影券", "可观看1部电影 · 商店折扣", 780, this)
+    StudyShopReward.VideoCard -> StudyShopItem(id, "视频解锁卡", "解锁一项视频收藏 · 商店折扣", 780, this)
+    StudyShopReward.AnimeTicket -> StudyShopItem(id, "影视剧一季兑换券", "可兑换一整季 · 稀有折扣", 1_500, this)
 }
