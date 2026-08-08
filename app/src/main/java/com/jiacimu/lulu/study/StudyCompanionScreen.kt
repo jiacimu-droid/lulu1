@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -78,9 +79,9 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
                     enabled = state.profile.lastSignInDate != LocalDate.now().toString(),
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = StudyDesign.dark,
-                        contentColor = StudyDesign.wheat,
-                        disabledContainerColor = StudyDesign.wheatSoft,
+                        containerColor = StudyDesign.wheat,
+                        contentColor = StudyDesign.ink,
+                        disabledContainerColor = Color(0xFFF0EEE8),
                         disabledContentColor = StudyDesign.muted,
                     ),
                 ) {
@@ -158,9 +159,9 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
                     enabled = !judgingSleep && state.profile.sleepRewardDate != LocalDate.now().toString(),
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = StudyDesign.dark,
-                        contentColor = StudyDesign.wheat,
-                        disabledContainerColor = StudyDesign.wheatSoft,
+                        containerColor = StudyDesign.wheat,
+                        contentColor = StudyDesign.ink,
+                        disabledContainerColor = Color(0xFFF0EEE8),
                         disabledContentColor = StudyDesign.muted,
                     ),
                 ) {
@@ -200,11 +201,9 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
     if (selectorExpanded) {
         ModalBottomSheet(
             onDismissRequest = { selectorExpanded = false },
-            containerColor = StudyDesign.paper,
+            containerColor = Color.White,
             contentColor = StudyDesign.ink,
-            dragHandle = {
-                BottomSheetDefaults.DragHandle(color = StudyDesign.muted)
-            },
+            dragHandle = { BottomSheetDefaults.DragHandle(color = StudyDesign.muted) },
         ) {
             Column(
                 Modifier.fillMaxWidth().padding(horizontal = 16.dp).navigationBarsPadding(),
@@ -225,9 +224,9 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
                             },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(18.dp),
-                            color = if (isSelected) StudyDesign.dark else StudyDesign.card,
-                            contentColor = if (isSelected) StudyDesign.wheat else StudyDesign.ink,
-                            border = BorderStroke(1.dp, if (isSelected) StudyDesign.dark else StudyDesign.border),
+                            color = if (isSelected) StudyDesign.wheatSoft else Color.White,
+                            contentColor = StudyDesign.ink,
+                            border = BorderStroke(1.5.dp, if (isSelected) StudyDesign.wheat else StudyDesign.border),
                         ) {
                             Row(
                                 Modifier.fillMaxWidth().padding(12.dp),
@@ -244,7 +243,7 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
                                     modifier = Modifier.weight(1f),
                                     fontWeight = FontWeight.Bold,
                                 )
-                                if (isSelected) Icon(Icons.Outlined.Check, "当前角色", tint = StudyDesign.wheat)
+                                if (isSelected) Icon(Icons.Outlined.Check, "当前角色", tint = StudyDesign.ink)
                             }
                         }
                     }
@@ -256,10 +255,10 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
 
 @Composable
 private fun studyOutlinedFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor = StudyDesign.dark,
+    focusedBorderColor = StudyDesign.wheat,
     unfocusedBorderColor = StudyDesign.border,
-    focusedContainerColor = StudyDesign.paper,
-    unfocusedContainerColor = StudyDesign.paper,
+    focusedContainerColor = Color.White,
+    unfocusedContainerColor = Color.White,
 )
 
 private fun studyEventDisplayText(event: StudyEvent): String {
