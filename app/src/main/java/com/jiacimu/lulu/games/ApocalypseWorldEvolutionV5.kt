@@ -127,7 +127,7 @@ internal fun mergeApocalypseWorldFactsV5(previous: List<String>, incoming: List<
             ordinary += fact.take(360)
         }
     }
-    return ordinary.takeLast(28) + mapChanges.values.takeLast(64)
+    return ordinary.takeLast(28) + mapChanges.values.toList().takeLast(64)
 }
 
 private fun parseKnownMapChangesV5(facts: List<String>): List<ApocalypseKnownMapChangeV5> {

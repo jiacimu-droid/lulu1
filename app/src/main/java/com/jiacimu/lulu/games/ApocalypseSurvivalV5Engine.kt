@@ -38,6 +38,7 @@ internal suspend fun planApocalypseV5Beat(
         appendLine("异能人口规则：灾前约8%人口拥有稳定异能，约92%没有稳定异能；末世后因普通人平均死亡率更高，幸存者中的异能者比例可以逐步升高，但除特殊异能者聚居地外不要把异能者写成多数。")
         appendLine(apocalypseWorldGeographyPromptV5())
         appendLine(apocalypseCinematicDirectorBibleV5(save))
+        appendLine("玩家已确认的地图变化账本：${apocalypseMapLedgerPromptV5(save)}")
         appendLine("时间=${apocalypseDayLabelV5(director.dayIndex)} ${apocalypseClockLabelV5(director.clockMinutes)}；天气=${director.weather}；温度=${director.temperatureC}℃")
         appendLine("玩家状态：生命${save.stats.health}/100；体力${save.stats.stamina}/100；感染${save.stats.infection}/100；士气${save.stats.morale}/100")
         appendLine("阶段=${director.phase}；地点=${director.location}；第${save.scene}幕；威胁=${director.tension}/10")
@@ -90,6 +91,9 @@ internal suspend fun planApocalypseV5Beat(
         21. 安全区、组织和联盟可以可靠一段时间。若它们后来出问题，原因应来自资源、制度、隐瞒、误判、研究伦理或立场冲突，并提前留下证据，而不是“其实全员坏人”。
         22. 保留希望和生活感：热饭、修好的灯、重新接通的电台、生日、第一茬蔬菜、陌生人的善意都可以成为重要剧情。黑暗只有和可失去的美好并存才有重量。
         23. 长期蓝图、隐藏线、人物秘密和伏笔回收计划都是导演私密信息，绝不能在正文中直接列出、解释或提前剧透；玩家只能通过当下可观察的事件逐步发现。
+        24. 地图不是静态设定图。建筑可受损、坍塌、停运、被势力占领或被重新修复；道路可封锁后再清障；空置城区可逐步被赤潮植物、水体或菌毯重塑。变化必须来自真实事件与时间，不得为了“末世感”随机毁建筑。
+        25. 当且仅当某个地图变化已经会在本幕被玩家亲眼看到、可靠侦查或可信证据确认时，把它加入worldFacts，格式严格为：MAP_KNOWN|PLACE|城市名|地点名|状态|简短原因；路线用MAP_KNOWN|ROUTE|区域/城市|路线名|状态|简短原因；区域生态/势力边界用MAP_KNOWN|ZONE|城市名|区域名|状态|简短原因。新增条目必须同时写入directive，保证正文让玩家实际获得这条信息。
+        26. MAP_KNOWN是地图长期账本：后续规划必须保留已有条目；同一目标发生新变化时用新的同目标条目覆盖旧状态。隐藏的远处事故、导演私密情报和未经证实的传闻绝不能标成MAP_KNOWN。地图状态既可以恶化，也可以因清障、维修、重建、夺回据点而改善。
     """.trimIndent()
 
     return LuluAiServices.gateway.generate(
@@ -212,7 +216,7 @@ private fun parseApocalypseV5Beat(raw: String, previous: ApocalypseV3Director): 
         sceneGoal = json.optString("sceneGoal").ifBlank { previous.sceneGoal }.take(260),
         activeThreads = json.optJSONArray("activeThreads").v5Strings().ifEmpty { previous.activeThreads }.take(8),
         hiddenThreads = json.optJSONArray("hiddenThreads").v5Strings().ifEmpty { previous.hiddenThreads }.take(8),
-        worldFacts = json.optJSONArray("worldFacts").v5Strings().ifEmpty { previous.worldFacts }.takeLast(28),
+        worldFacts = mergeApocalypseWorldFactsV5(previous.worldFacts, json.optJSONArray("worldFacts").v5Strings()),
         longTermPlan = json.optJSONArray("longTermPlan").v5Strings().ifEmpty { previous.longTermPlan }.take(12),
         factionStates = json.optJSONArray("factionStates").v5Strings().ifEmpty { previous.factionStates }.take(14),
         characterArcs = json.optJSONArray("characterArcs").v5Strings().ifEmpty { previous.characterArcs }.take(14),

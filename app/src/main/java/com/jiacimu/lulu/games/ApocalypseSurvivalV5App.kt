@@ -817,6 +817,7 @@ private fun ApocalypseV5PlayPage(
 
     if (showMapPage) {
         ApocalypseWorldMapPageV5(
+            save = save,
             currentLocation = save.director.location,
             discoveredLocations = save.director.locations,
             onBack = { showMapPage = false },

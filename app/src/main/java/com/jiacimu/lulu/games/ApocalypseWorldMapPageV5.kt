@@ -58,6 +58,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -92,6 +93,7 @@ private val worldMapRoadsV5 = listOf(
 
 @Composable
 internal fun ApocalypseWorldMapPageV5(
+    save: ApocalypseV3Save,
     currentLocation: String,
     discoveredLocations: List<ApocalypseV3Location>,
     onBack: () -> Unit,
@@ -102,6 +104,7 @@ internal fun ApocalypseWorldMapPageV5(
     var selectedCityId by remember(currentLocation) { mutableStateOf(currentCity.id) }
     var layer by remember { mutableStateOf(ApocalypseMapLayerV5.Region) }
     val selectedCity = cities.firstOrNull { it.id == selectedCityId } ?: currentCity
+    val evolution = remember(save.scene, save.director.dayIndex, save.director.worldFacts) { apocalypseMapEvolutionV5(save) }
 
     Scaffold(
         containerColor = WorldMapBg,
@@ -110,7 +113,7 @@ internal fun ApocalypseWorldMapPageV5(
                 title = {
                     Column {
                         Text("东澜地图", fontWeight = FontWeight.Black)
-                        Text("六市区域 · 当前：$currentLocation", color = WorldMapMuted, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text("${apocalypseDayLabelV5(evolution.dayIndex)} · ${evolution.eraTitle} · 当前：$currentLocation", color = WorldMapMuted, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 },
                 navigationIcon = {
@@ -144,12 +147,15 @@ internal fun ApocalypseWorldMapPageV5(
                 }
             }
 
+            item { ApocalypseMapEraBannerV5(evolution) }
+
             if (layer == ApocalypseMapLayerV5.Region) {
                 item {
                     ApocalypseRegionMapCanvasV5(
                         cities = cities,
                         selectedCityId = selectedCity.id,
                         currentCityId = currentCity.id,
+                        evolution = evolution,
                         onSelect = { selectedCityId = it },
                     )
                 }
@@ -209,6 +215,7 @@ internal fun ApocalypseWorldMapPageV5(
                         city = selectedCity,
                         currentLocation = currentLocation,
                         discoveredLocations = discoveredLocations,
+                        evolution = evolution,
                         onSelectPlace = { place -> onPlan(placeTargetV5(selectedCity, place)) },
                     )
                 }
@@ -224,6 +231,13 @@ internal fun ApocalypseWorldMapPageV5(
                         place = place,
                         discovered = discoveredLocations.any { it.name.contains(place.name) || place.name.contains(it.name) },
                         current = currentLocation.contains(place.name),
+                        status = apocalypsePlaceMapStatusV5(
+                            evolution = evolution,
+                            city = selectedCity,
+                            place = place,
+                            currentLocation = currentLocation,
+                            discovered = discoveredLocations.any { it.name.contains(place.name) || place.name.contains(it.name) },
+                        ),
                         onClick = { onPlan(placeTargetV5(selectedCity, place)) },
                     )
                 }
@@ -284,6 +298,7 @@ private fun ApocalypseRegionMapCanvasV5(
     cities: List<ApocalypseWorldCityV5>,
     selectedCityId: String,
     currentCityId: String,
+    evolution: ApocalypseMapEvolutionV5,
     onSelect: (String) -> Unit,
 ) {
     val byId = cities.associateBy { it.id }
@@ -294,6 +309,12 @@ private fun ApocalypseRegionMapCanvasV5(
     ) {
         BoxWithConstraints(Modifier.fillMaxSize().background(WorldMapNight)) {
             Canvas(Modifier.matchParentSize()) {
+                if (evolution.ecologyPressure > 0f) {
+                    val eco = evolution.ecologyPressure.coerceIn(0f, 1f)
+                    drawCircle(Color(0xFF315D4A).copy(alpha = .08f + eco * .16f), size.minDimension * (.12f + eco * .16f), Offset(size.width * .17f, size.height * .68f))
+                    drawCircle(Color(0xFF6F3141).copy(alpha = .05f + eco * .13f), size.minDimension * (.10f + eco * .15f), Offset(size.width * .73f, size.height * .38f))
+                    drawCircle(Color(0xFF315D4A).copy(alpha = .04f + eco * .12f), size.minDimension * (.08f + eco * .13f), Offset(size.width * .47f, size.height * .22f))
+                }
                 worldMapRoadsV5.forEachIndexed { index, road ->
                     val from = byId[road.from] ?: return@forEachIndexed
                     val to = byId[road.to] ?: return@forEachIndexed
@@ -305,7 +326,14 @@ private fun ApocalypseRegionMapCanvasV5(
                         moveTo(start.x, start.y)
                         quadraticBezierTo(mid.x, mid.y, end.x, end.y)
                     }
-                    drawPath(path, color = WorldMapLine, style = Stroke(width = 4f))
+                    val routeStatus = apocalypseRouteMapStatusV5(evolution, road.name)
+                    val routeColor = mapConditionColorV5(routeStatus.condition)
+                    val routeEffect = when (routeStatus.condition) {
+                        ApocalypseMapConditionV5.Blocked -> PathEffect.dashPathEffect(floatArrayOf(8f, 13f))
+                        ApocalypseMapConditionV5.Unknown -> PathEffect.dashPathEffect(floatArrayOf(18f, 12f))
+                        else -> null
+                    }
+                    drawPath(path, color = routeColor.copy(alpha = if (evolution.dayIndex < 0) .85f else .68f), style = Stroke(width = 4f, pathEffect = routeEffect))
                 }
 
                 val river = Path().apply {
@@ -385,6 +413,7 @@ private fun ApocalypseCityInternalMapV5(
     city: ApocalypseWorldCityV5,
     currentLocation: String,
     discoveredLocations: List<ApocalypseV3Location>,
+    evolution: ApocalypseMapEvolutionV5,
     onSelectPlace: (ApocalypseWorldPlaceV5) -> Unit,
 ) {
     val positions = listOf(
@@ -417,7 +446,14 @@ private fun ApocalypseCityInternalMapV5(
                         moveTo(center.x, center.y)
                         quadraticBezierTo((center.x + end.x) / 2f + bend, (center.y + end.y) / 2f, end.x, end.y)
                     }
-                    drawPath(path, color = WorldMapLine, style = Stroke(width = 3f))
+                    drawPath(
+                        path,
+                        color = WorldMapLine.copy(alpha = 1f - evolution.infrastructureDecay * .45f),
+                        style = Stroke(
+                            width = 3f,
+                            pathEffect = if (evolution.dayIndex >= 0) PathEffect.dashPathEffect(floatArrayOf(28f, 7f + evolution.infrastructureDecay * 16f)) else null,
+                        ),
+                    )
                 }
 
                 if (city.id == "linjiang" || city.id == "hailing") {
@@ -446,6 +482,7 @@ private fun ApocalypseCityInternalMapV5(
                 val p = positions[index % positions.size]
                 val discovered = discoveredLocations.any { it.name.contains(place.name) || place.name.contains(it.name) }
                 val current = currentLocation.contains(place.name)
+                val status = apocalypsePlaceMapStatusV5(evolution, city, place, currentLocation, discovered)
                 Surface(
                     modifier = Modifier
                         .offset(x = maxWidth * p.first - 39.dp, y = maxHeight * p.second - 25.dp)
@@ -453,6 +490,7 @@ private fun ApocalypseCityInternalMapV5(
                     onClick = { onSelectPlace(place) },
                     color = when {
                         current -> WorldMapLineBright
+                        status.condition !in setOf(ApocalypseMapConditionV5.Baseline, ApocalypseMapConditionV5.Unknown) -> mapConditionDarkSurfaceV5(status.condition)
                         discovered -> Color(0xFF173D5C)
                         else -> WorldMapNightSoft
                     },
@@ -462,6 +500,7 @@ private fun ApocalypseCityInternalMapV5(
                     Column(Modifier.padding(horizontal = 5.dp, vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(placeIconV5(place.kind), null, tint = if (current) WorldMapNight else WorldMapBlueSoft, modifier = Modifier.size(14.dp))
                         Text(place.name, color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        if (evolution.dayIndex >= 0) Text(status.label, color = mapConditionAccentV5(status.condition), fontSize = 7.sp, maxLines = 1)
                     }
                 }
             }
@@ -478,13 +517,14 @@ private fun ApocalypseWorldPlaceRowV5(
     place: ApocalypseWorldPlaceV5,
     discovered: Boolean,
     current: Boolean,
+    status: ApocalypseMapStatusV5,
     onClick: () -> Unit,
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         color = if (current) Color(0xFFE4F2FF) else WorldMapWhite,
         shape = RoundedCornerShape(15.dp),
-        border = BorderStroke(1.dp, if (current || discovered) WorldMapBlueSoft else WorldMapBorder),
+        border = BorderStroke(1.dp, if (status.condition !in setOf(ApocalypseMapConditionV5.Baseline, ApocalypseMapConditionV5.Unknown)) mapConditionAccentV5(status.condition) else if (current || discovered) WorldMapBlueSoft else WorldMapBorder),
     ) {
         Row(Modifier.padding(11.dp), verticalAlignment = Alignment.CenterVertically) {
             Surface(color = Color(0xFFEAF4FF), shape = RoundedCornerShape(10.dp)) {
@@ -495,14 +535,64 @@ private fun ApocalypseWorldPlaceRowV5(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(place.name, color = WorldMapInk, fontWeight = FontWeight.Bold, fontSize = 13.sp, modifier = Modifier.weight(1f))
                     if (current) Text("当前位置", color = Color(0xFF287EBE), fontSize = 8.sp)
+                    else if (status.condition != ApocalypseMapConditionV5.Baseline) Text(status.label, color = mapConditionAccentV5(status.condition), fontSize = 8.sp)
                     else if (discovered) Text("已发现", color = Color(0xFF287EBE), fontSize = 8.sp)
                 }
                 Text("${city.name} · ${place.kind}", color = Color(0xFF287EBE), fontSize = 9.sp)
+                if (evolutionDetailVisibleV5(status)) Text(status.detail, color = mapConditionAccentV5(status.condition), fontSize = 9.sp, lineHeight = 13.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Text(place.detail, color = WorldMapMuted, fontSize = 10.sp, lineHeight = 14.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             Icon(Icons.Outlined.ChevronRight, null, tint = WorldMapMuted, modifier = Modifier.size(18.dp))
         }
     }
+}
+
+@Composable
+private fun ApocalypseMapEraBannerV5(evolution: ApocalypseMapEvolutionV5) {
+    Surface(
+        color = if (evolution.dayIndex < 0) Color(0xFFEAF4FF) else Color(0xFF101E2C),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, if (evolution.dayIndex < 0) WorldMapBorder else WorldMapLine),
+    ) {
+        Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("${apocalypseDayLabelV5(evolution.dayIndex)} · ${evolution.eraTitle}", color = if (evolution.dayIndex < 0) WorldMapInk else Color.White, fontWeight = FontWeight.Black, modifier = Modifier.weight(1f))
+                if (evolution.dayIndex >= 0) Text("已确认变化 ${evolution.changes.size}", color = WorldMapBlueSoft, fontSize = 9.sp)
+            }
+            Text(evolution.eraDetail, color = if (evolution.dayIndex < 0) WorldMapMuted else Color(0xFF9CB5CA), fontSize = 10.sp, lineHeight = 15.sp)
+            if (evolution.dayIndex >= 0) Text("未确认的远处变化只显示为未知；地图不会泄露导演掌握但玩家尚未发现的事实。", color = Color(0xFF7894AC), fontSize = 9.sp)
+        }
+    }
+}
+
+private fun evolutionDetailVisibleV5(status: ApocalypseMapStatusV5): Boolean =
+    status.condition != ApocalypseMapConditionV5.Baseline && status.detail.isNotBlank()
+
+private fun mapConditionColorV5(condition: ApocalypseMapConditionV5): Color = when (condition) {
+    ApocalypseMapConditionV5.Baseline, ApocalypseMapConditionV5.Open -> Color(0xFF4EA8FF)
+    ApocalypseMapConditionV5.Unknown -> Color(0xFF607287)
+    ApocalypseMapConditionV5.Stressed, ApocalypseMapConditionV5.Offline -> Color(0xFF9B7B52)
+    ApocalypseMapConditionV5.Damaged -> Color(0xFFB8654A)
+    ApocalypseMapConditionV5.Destroyed, ApocalypseMapConditionV5.Blocked -> Color(0xFFB45159)
+    ApocalypseMapConditionV5.Occupied -> Color(0xFF7867A8)
+    ApocalypseMapConditionV5.Rebuilt -> Color(0xFF4B8D72)
+    ApocalypseMapConditionV5.Overgrown -> Color(0xFF547F60)
+    ApocalypseMapConditionV5.Flooded -> Color(0xFF467FA8)
+    ApocalypseMapConditionV5.Contaminated -> Color(0xFFA85666)
+}
+
+private fun mapConditionAccentV5(condition: ApocalypseMapConditionV5): Color = mapConditionColorV5(condition)
+
+private fun mapConditionDarkSurfaceV5(condition: ApocalypseMapConditionV5): Color = when (condition) {
+    ApocalypseMapConditionV5.Destroyed, ApocalypseMapConditionV5.Blocked -> Color(0xFF44252C)
+    ApocalypseMapConditionV5.Damaged -> Color(0xFF493128)
+    ApocalypseMapConditionV5.Occupied -> Color(0xFF302B4B)
+    ApocalypseMapConditionV5.Rebuilt -> Color(0xFF203E34)
+    ApocalypseMapConditionV5.Overgrown -> Color(0xFF253E2E)
+    ApocalypseMapConditionV5.Flooded -> Color(0xFF20394A)
+    ApocalypseMapConditionV5.Contaminated -> Color(0xFF432630)
+    ApocalypseMapConditionV5.Offline, ApocalypseMapConditionV5.Stressed -> Color(0xFF3B342B)
+    else -> Color(0xFF173D5C)
 }
 
 private fun placeIconV5(kind: String) = when (kind) {
