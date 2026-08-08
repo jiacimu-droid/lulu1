@@ -63,8 +63,6 @@ internal fun StudyPomodoroScreen(
         if (!completed) return@LaunchedEffect
         store.resetPomodoro()
         PomodoroCompanionSessions.clearSession()
-        // If this session completed while the focus page was visibly open, leave the focus page.
-        // If it completed in the background, opening Pomodoro later should land directly on fresh setup.
         if (!enteredWithCompletedSession) onBack()
     }
 
@@ -133,7 +131,7 @@ internal fun StudyPomodoroScreen(
     }
 
     Scaffold(
-        containerColor = StudyDesign.paper,
+        containerColor = Color.White,
         topBar = {
             TopAppBar(
                 title = { Text("番茄钟", fontWeight = FontWeight.Bold, color = StudyDesign.ink) },
@@ -148,7 +146,7 @@ internal fun StudyPomodoroScreen(
                         colors = ButtonDefaults.textButtonColors(contentColor = StudyDesign.ink),
                     ) { Text(if (companion.skin == PomodoroSkin.Light) "浅色" else "深色") }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = StudyDesign.paper),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
             )
         },
     ) { padding ->
@@ -159,7 +157,7 @@ internal fun StudyPomodoroScreen(
         ) {
             item {
                 Surface(
-                    color = StudyDesign.card,
+                    color = Color.White,
                     shape = RoundedCornerShape(24.dp),
                     border = BorderStroke(1.dp, StudyDesign.border),
                 ) {
@@ -171,12 +169,7 @@ internal fun StudyPomodoroScreen(
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             shape = RoundedCornerShape(16.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = StudyDesign.dark,
-                                unfocusedBorderColor = StudyDesign.border,
-                                focusedContainerColor = StudyDesign.paper,
-                                unfocusedContainerColor = StudyDesign.paper,
-                            ),
+                            colors = studyPomodoroFieldColors(),
                         )
                         Text("计时方式", fontWeight = FontWeight.SemiBold, color = StudyDesign.ink)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -200,6 +193,7 @@ internal fun StudyPomodoroScreen(
                                         onClick = { minutesText = value.toString() },
                                         label = { Text("$value") },
                                         colors = studyFilterChipColors(),
+                                        border = studyFilterChipBorder(minutesText == value.toString()),
                                     )
                                 }
                             }
@@ -211,12 +205,7 @@ internal fun StudyPomodoroScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
                                 shape = RoundedCornerShape(16.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = StudyDesign.dark,
-                                    unfocusedBorderColor = StudyDesign.border,
-                                    focusedContainerColor = StudyDesign.paper,
-                                    unfocusedContainerColor = StudyDesign.paper,
-                                ),
+                                colors = studyPomodoroFieldColors(),
                             )
                         }
                     }
@@ -225,7 +214,7 @@ internal fun StudyPomodoroScreen(
 
             item {
                 Surface(
-                    color = StudyDesign.card,
+                    color = Color.White,
                     shape = RoundedCornerShape(24.dp),
                     border = BorderStroke(1.dp, StudyDesign.border),
                 ) {
@@ -249,9 +238,9 @@ internal fun StudyPomodoroScreen(
             item {
                 Button(
                     onClick = ::startPomodoro,
-                    modifier = Modifier.fillMaxWidth().height(54.dp),
+                    modifier = Modifier.fillMaxWidth().height(52.dp),
                     shape = RoundedCornerShape(18.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.dark, contentColor = StudyDesign.wheat),
+                    colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.wheat, contentColor = StudyDesign.ink),
                 ) {
                     Text(if (mode == PomodoroTimerMode.Countdown) "开始倒计时" else "开始正计时", fontWeight = FontWeight.Bold)
                 }
@@ -270,15 +259,33 @@ private fun PomodoroModeChip(selected: Boolean, label: String, onClick: () -> Un
         onClick = onClick,
         label = { Text(label, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium) },
         colors = studyFilterChipColors(),
+        border = studyFilterChipBorder(selected),
     )
 }
 
 @Composable
 private fun studyFilterChipColors() = FilterChipDefaults.filterChipColors(
-    containerColor = StudyDesign.paper,
+    containerColor = Color.White,
     labelColor = StudyDesign.muted,
-    selectedContainerColor = StudyDesign.dark,
-    selectedLabelColor = StudyDesign.wheat,
+    selectedContainerColor = StudyDesign.wheatSoft,
+    selectedLabelColor = StudyDesign.ink,
+)
+
+@Composable
+private fun studyFilterChipBorder(selected: Boolean) = FilterChipDefaults.filterChipBorder(
+    enabled = true,
+    selected = selected,
+    borderColor = StudyDesign.border,
+    selectedBorderColor = StudyDesign.wheat,
+    selectedBorderWidth = 1.5.dp,
+)
+
+@Composable
+private fun studyPomodoroFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedBorderColor = StudyDesign.wheat,
+    unfocusedBorderColor = StudyDesign.border,
+    focusedContainerColor = Color.White,
+    unfocusedContainerColor = Color.White,
 )
 
 @Composable
@@ -415,10 +422,10 @@ private fun SettingSwitchRow(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = StudyDesign.wheat,
-                checkedTrackColor = StudyDesign.dark,
+                checkedThumbColor = StudyDesign.ink,
+                checkedTrackColor = StudyDesign.wheat,
                 uncheckedThumbColor = StudyDesign.muted,
-                uncheckedTrackColor = StudyDesign.wheatSoft,
+                uncheckedTrackColor = Color(0xFFF0EEE8),
             ),
         )
     }
