@@ -4,6 +4,9 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
+import com.jiacimu.lulu.data.LuluChatMessage
+import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,6 +36,7 @@ internal class LuluSpeechEngine(context: Context) {
     private val systemTts = TextToSpeech(appContext) {}
 
     init {
+        CharacterVoicePreferenceStore.initialize(appContext)
         systemTts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) = Unit
 
@@ -61,7 +65,12 @@ internal class LuluSpeechEngine(context: Context) {
         })
     }
 
-    fun speak(text: String, scope: CoroutineScope, onFinished: (() -> Unit)? = null) {
+    fun speak(
+        text: String,
+        scope: CoroutineScope,
+        onFinished: (() -> Unit)? = null,
+        voiceIdOverride: String? = null,
+    ) {
         if (!prefs.getBoolean("tts_enabled", true) || text.isBlank()) {
             onFinished?.invoke()
             return
@@ -71,7 +80,7 @@ internal class LuluSpeechEngine(context: Context) {
         val requestGeneration = ++playbackGeneration
         if (prefs.getString("tts_provider", "system") == "minimax") {
             scope.launch {
-                runCatching { requestMiniMaxAudio(text) }
+                runCatching { requestMiniMaxAudio(text, voiceIdOverride) }
                     .onSuccess { bytes ->
                         if (requestGeneration == playbackGeneration) {
                             val audioFile = File.createTempFile("minimax-", ".mp3", appContext.cacheDir)
@@ -94,6 +103,7 @@ internal class LuluSpeechEngine(context: Context) {
         cacheBaseFile: File,
         scope: CoroutineScope,
         onFinished: (() -> Unit)? = null,
+        voiceIdOverride: String? = null,
     ) {
         if (!prefs.getBoolean("tts_enabled", true) || text.isBlank()) {
             onFinished?.invoke()
@@ -114,7 +124,7 @@ internal class LuluSpeechEngine(context: Context) {
         if (prefs.getString("tts_provider", "system") == "minimax") {
             val target = File(cacheBaseFile.parentFile, "${cacheBaseFile.name}.mp3")
             scope.launch {
-                runCatching { requestMiniMaxAudio(text) }
+                runCatching { requestMiniMaxAudio(text, voiceIdOverride) }
                     .onSuccess { bytes ->
                         if (requestGeneration == playbackGeneration) {
                             target.writeBytes(bytes)
@@ -228,11 +238,15 @@ internal class LuluSpeechEngine(context: Context) {
         if (utteranceId != null && utteranceId == activeUtteranceId) finishPlayback()
     }
 
-    private suspend fun requestMiniMaxAudio(text: String): ByteArray = withContext(Dispatchers.IO) {
+    private suspend fun requestMiniMaxAudio(text: String, voiceIdOverride: String? = null): ByteArray = withContext(Dispatchers.IO) {
         val apiKey = prefs.getString("minimax_api_key", "").orEmpty().trim()
-        val voiceId = prefs.getString("minimax_voice_id", "").orEmpty().trim()
+        val voiceId = voiceIdOverride
+            ?.trim()
+            ?.takeIf(String::isNotBlank)
+            ?: resolveCharacterVoiceId(text)
+            ?: prefs.getString("minimax_voice_id", "").orEmpty().trim()
         require(apiKey.isNotBlank()) { "MiniMax API Key 未配置" }
-        require(voiceId.isNotBlank()) { "MiniMax Voice ID 未配置" }
+        require(voiceId.isNotBlank()) { "MiniMax Voice ID 未配置：请在角色设置填写 Voice ID，或配置默认 Voice ID" }
         val endpoint = prefs.getString("minimax_endpoint", DEFAULT_MINIMAX_ENDPOINT)
             .orEmpty().trim().ifBlank { DEFAULT_MINIMAX_ENDPOINT }
         val groupId = prefs.getString("minimax_group_id", "").orEmpty().trim()
@@ -288,6 +302,32 @@ internal class LuluSpeechEngine(context: Context) {
         } finally {
             connection.disconnect()
         }
+    }
+
+    /**
+     * Voice calls append the character message immediately before speaking it. This lets ordinary
+     * speak() calls inherit that character's Voice ID without forcing every call screen to maintain
+     * a second voice-routing layer. Explicit voiceIdOverride always wins.
+     */
+    private fun resolveCharacterVoiceId(text: String): String? {
+        val speech = text.trim()
+        if (speech.isBlank()) return null
+        return MigratedDomainStores.chat.conversations.value
+            .asSequence()
+            .mapNotNull { conversation ->
+                val message = MigratedDomainStores.chat.messages(conversation.id).value
+                    .asReversed()
+                    .firstOrNull { item ->
+                        item.sender == LuluChatMessage.Sender.Character && item.content.trim() == speech
+                    } ?: return@mapNotNull null
+                val characterId = message.authorCharacterId
+                    ?.takeIf(String::isNotBlank)
+                    ?: conversation.characterId
+                val voiceId = CharacterVoicePreferenceStore.voiceId(characterId) ?: return@mapNotNull null
+                Triple(message.createdAt, voiceId, characterId)
+            }
+            .maxByOrNull { it.first }
+            ?.second
     }
 
     private fun playAudioFile(file: File, generation: Long, deleteAfterPlayback: Boolean) {
