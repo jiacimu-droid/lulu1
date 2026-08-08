@@ -620,6 +620,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
             var inventory = state.inventory
             inventory = when (item.reward) {
                 StudyShopReward.SingleTicket -> inventory.copy(singleTickets = inventory.singleTickets + item.amount)
+                StudyShopReward.TenTicket -> inventory.copy(tenTickets = inventory.tenTickets + item.amount)
                 StudyShopReward.DouyinTicket -> inventory.copy(douyinTickets = inventory.douyinTickets + item.amount)
                 StudyShopReward.GameRoundTicket -> inventory.copy(gameRoundTickets = inventory.gameRoundTickets + item.amount)
                 StudyShopReward.TheaterFragment -> inventory.copy(theaterFragments = inventory.theaterFragments + item.amount)
@@ -644,28 +645,50 @@ class PostgraduateExamStore internal constructor(context: Context) {
         val maxSevenDayStudyMinutes = maxStudyMinutesInWindow(state.dailyStudyMinutes, 7)
         val longestThreeHourStreak = longestStudyStreak(state.dailyStudyMinutes, 180)
         val values = listOf(
+            StudyAchievement("daily_1h", "第一小时", "单日学习达到1小时", maxDailyStudyMinutes, 60, 1, 100),
+            StudyAchievement("daily_2h", "坐稳两小时", "单日学习达到2小时", maxDailyStudyMinutes, 120, 2, 200),
+            StudyAchievement("daily_3h", "三小时进入状态", "单日学习达到3小时", maxDailyStudyMinutes, 180, 3, 300),
+            StudyAchievement("daily_4h", "四小时主场", "单日学习达到4小时", maxDailyStudyMinutes, 240, 4, 400),
             StudyAchievement("daily_5h", "长日初成", "单日学习达到5小时", maxDailyStudyMinutes, 300, 5, 500),
             StudyAchievement("daily_6h", "六小时定力", "单日学习达到6小时", maxDailyStudyMinutes, 360, 8, 800),
             StudyAchievement("daily_7h", "七小时深潜", "单日学习达到7小时", maxDailyStudyMinutes, 420, 12, 1_200),
             StudyAchievement("daily_8h", "八小时全神", "单日学习达到8小时", maxDailyStudyMinutes, 480, 20, 2_000),
+            StudyAchievement("week_10h", "七日十小时", "任意连续7天累计学习10小时", maxSevenDayStudyMinutes, 600, 3, 300),
+            StudyAchievement("week_15h", "七日十五小时", "任意连续7天累计学习15小时", maxSevenDayStudyMinutes, 900, 5, 500),
+            StudyAchievement("week_20h", "七日二十小时", "任意连续7天累计学习20小时", maxSevenDayStudyMinutes, 1_200, 8, 800),
             StudyAchievement("week_25h", "七日二十五小时", "任意连续7天累计学习25小时", maxSevenDayStudyMinutes, 1_500, 10, 1_000),
             StudyAchievement("week_30h", "七日三十小时", "任意连续7天累计学习30小时", maxSevenDayStudyMinutes, 1_800, 15, 1_500),
             StudyAchievement("week_35h", "七日三十五小时", "任意连续7天累计学习35小时", maxSevenDayStudyMinutes, 2_100, 20, 2_000),
             StudyAchievement("week_40h", "七日四十小时", "任意连续7天累计学习40小时", maxSevenDayStudyMinutes, 2_400, 30, 3_000),
+            StudyAchievement("streak_3h_3", "三日不断线", "连续3天每天学习至少3小时", longestThreeHourStreak, 3, 2, 200),
+            StudyAchievement("streak_3h_7", "一周不断线", "连续7天每天学习至少3小时", longestThreeHourStreak, 7, 5, 500),
             StudyAchievement("streak_3h_14", "十四日不断线", "连续14天每天学习至少3小时", longestThreeHourStreak, 14, 10, 1_000),
             StudyAchievement("streak_3h_30", "三十日成习", "连续30天每天学习至少3小时", longestThreeHourStreak, 30, 20, 2_500),
             StudyAchievement("streak_3h_60", "六十日长燃", "连续60天每天学习至少3小时", longestThreeHourStreak, 60, 35, 5_000),
             StudyAchievement("streak_3h_100", "百日不熄", "连续100天每天学习至少3小时", longestThreeHourStreak, 100, 60, 10_000),
+            StudyAchievement("signin_3", "三日见面", "累计签到3天", state.profile.totalSignIns, 3, 1, 100),
+            StudyAchievement("signin_7", "签到一周", "累计签到7天", state.profile.totalSignIns, 7, 2, 200),
+            StudyAchievement("signin_30", "签到成习", "累计签到30天", state.profile.totalSignIns, 30, 5, 600),
+            StudyAchievement("pomodoro_1", "第一次落座", "完成第1个番茄钟", state.profile.totalPomodoros, 1, 1, 100),
+            StudyAchievement("pomodoro_10", "十次专注", "累计完成10个番茄钟", state.profile.totalPomodoros, 10, 2, 200),
+            StudyAchievement("pomodoro_30", "三十次落座", "累计完成30个番茄钟", state.profile.totalPomodoros, 30, 3, 300),
+            StudyAchievement("pomodoro_50", "五十次归位", "累计完成50个番茄钟", state.profile.totalPomodoros, 50, 4, 400),
             StudyAchievement("pomodoro_100", "百次落座", "累计完成100个番茄钟", state.profile.totalPomodoros, 100, 5, 500),
             StudyAchievement("pomodoro_300", "三百次不退场", "累计完成300个番茄钟", state.profile.totalPomodoros, 300, 10, 1_000),
             StudyAchievement("pomodoro_500", "五百次专注", "累计完成500个番茄钟", state.profile.totalPomodoros, 500, 15, 2_000),
             StudyAchievement("pomodoro_1000", "千次钟声", "累计完成1000个番茄钟", state.profile.totalPomodoros, 1_000, 30, 5_000),
             StudyAchievement("pomodoro_2000", "两千次归位", "累计完成2000个番茄钟", state.profile.totalPomodoros, 2_000, 60, 12_000),
+            StudyAchievement("task_10", "十件事做完", "累计完成10项待办", state.profile.totalTasksCompleted, 10, 1, 150),
+            StudyAchievement("task_30", "清单开始听话", "累计完成30项待办", state.profile.totalTasksCompleted, 30, 2, 250),
+            StudyAchievement("task_50", "五十项兑现", "累计完成50项待办", state.profile.totalTasksCompleted, 50, 3, 400),
             StudyAchievement("task_100", "百项兑现", "累计完成100项待办", state.profile.totalTasksCompleted, 100, 5, 800),
             StudyAchievement("task_300", "清单成山", "累计完成300项待办", state.profile.totalTasksCompleted, 300, 10, 1_500),
             StudyAchievement("task_500", "五百次完成", "累计完成500项待办", state.profile.totalTasksCompleted, 500, 15, 3_000),
             StudyAchievement("task_1000", "千项落地", "累计完成1000项待办", state.profile.totalTasksCompleted, 1_000, 30, 6_000),
             StudyAchievement("task_2000", "两千项兑现", "累计完成2000项待办", state.profile.totalTasksCompleted, 2_000, 60, 12_000),
+            StudyAchievement("study_1h", "第一盏灯", "累计学习1小时", state.profile.totalStudyMinutes, 60, 1, 100),
+            StudyAchievement("study_10h", "十小时起步", "累计学习10小时", state.profile.totalStudyMinutes, 600, 2, 250),
+            StudyAchievement("study_25h", "二十五小时路标", "累计学习25小时", state.profile.totalStudyMinutes, 1_500, 3, 400),
             StudyAchievement("study_50h", "五十小时灯火", "累计学习50小时", state.profile.totalStudyMinutes, 3_000, 5, 500),
             StudyAchievement("study_100h", "百小时长路", "累计学习100小时", state.profile.totalStudyMinutes, 6_000, 10, 1_000),
             StudyAchievement("study_300h", "三百小时沉潜", "累计学习300小时", state.profile.totalStudyMinutes, 18_000, 20, 3_000),
@@ -673,10 +696,16 @@ class PostgraduateExamStore internal constructor(context: Context) {
             StudyAchievement("study_1000h", "千小时远征", "累计学习1000小时", state.profile.totalStudyMinutes, 60_000, 50, 10_000),
             StudyAchievement("study_1500h", "一千五百小时", "累计学习1500小时", state.profile.totalStudyMinutes, 90_000, 80, 16_000),
             StudyAchievement("study_2000h", "两千小时长征", "累计学习2000小时", state.profile.totalStudyMinutes, 120_000, 100, 20_000),
+            StudyAchievement("vocab_500", "五百次重逢", "累计复习500个词", state.profile.vocabularyReviewed, 500, 1, 100),
+            StudyAchievement("vocab_1000", "千词起步", "累计复习1000个词", state.profile.vocabularyReviewed, 1_000, 2, 200),
+            StudyAchievement("vocab_3000", "三千词痕", "累计复习3000个词", state.profile.vocabularyReviewed, 3_000, 3, 350),
             StudyAchievement("vocab_5000", "五千词痕", "累计复习5000个词", state.profile.vocabularyReviewed, 5_000, 5, 500),
             StudyAchievement("vocab_10000", "万词成路", "累计复习10000个词", state.profile.vocabularyReviewed, 10_000, 10, 1_000),
             StudyAchievement("vocab_30000", "三万次重逢", "累计复习30000个词", state.profile.vocabularyReviewed, 30_000, 20, 3_000),
             StudyAchievement("vocab_50000", "五万词海", "累计复习50000个词", state.profile.vocabularyReviewed, 50_000, 35, 5_000),
+            StudyAchievement("draw_10", "十次愿望", "累计抽卡10次", state.profile.totalDraws, 10, 1, 100),
+            StudyAchievement("draw_30", "三十次愿望", "累计抽卡30次", state.profile.totalDraws, 30, 2, 200),
+            StudyAchievement("draw_100", "百次愿望", "累计抽卡100次", state.profile.totalDraws, 100, 5, 500),
         )
         return state.copy(achievements = values.map { it.copy(claimed = claims[it.id] == true) })
     }
@@ -723,6 +752,19 @@ class PostgraduateExamStore internal constructor(context: Context) {
         return longest
     }
 
+    private fun usesLegacyShopPricing(items: List<StudyShopItem>): Boolean = items.any { item ->
+        when (item.reward) {
+            StudyShopReward.SingleTicket -> item.cost >= 100
+            StudyShopReward.TenTicket -> item.cost >= 800
+            StudyShopReward.DouyinTicket -> item.cost >= 500
+            StudyShopReward.GameRoundTicket -> item.cost >= 600
+            StudyShopReward.TheaterFragment -> item.cost >= 600
+            StudyShopReward.GameTicket -> item.cost >= 1_000
+            StudyShopReward.VideoCard -> item.cost >= 1_000
+            StudyShopReward.AnimeTicket -> item.cost >= 2_000
+        }
+    }
+
     private fun rollover(state: StudyState, today: LocalDate): StudyState {
         val tasks = state.tasks.filter { task ->
             runCatching { !LocalDate.parse(task.date).isBefore(today.minusDays(90)) }.getOrDefault(true)
@@ -738,13 +780,14 @@ class PostgraduateExamStore internal constructor(context: Context) {
                 existingToday.firstOrNull { it.title == preset.title }?.copy(source = StudyTaskSource.Preset) ?: preset
             }
         }
-        if (!dateChanged && state.shopDate == todayKey && withDefaults == state.tasks) return updateAchievements(state)
+        val legacyShop = usesLegacyShopPricing(state.shopItems)
+        if (!dateChanged && state.shopDate == todayKey && withDefaults == state.tasks && !legacyShop) return updateAchievements(state)
         return updateAchievements(
             state.copy(
                 activeDate = todayKey,
                 tasks = withDefaults,
                 tips = if (state.tips.none { it.date == today.toString() }) defaultTips(today) + state.tips else state.tips,
-                shopItems = if (state.shopDate == todayKey) state.shopItems else defaultShop(today),
+                shopItems = if (state.shopDate == todayKey && !legacyShop) state.shopItems else defaultShop(today),
                 shopDate = todayKey,
                 manualShopRefreshDate = if (state.shopDate == todayKey) state.manualShopRefreshDate else "",
                 superMomentAvailable = if (dateChanged) false else state.superMomentAvailable,
