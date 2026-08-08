@@ -183,6 +183,7 @@ internal object StudyStateCodec {
             cost = json.optInt("cost"), reward = reward, amount = json.optInt("amount", 1), purchased = json.optBoolean("purchased"),
         )
         return when (reward) {
+            StudyShopReward.TenTicket -> decoded.copy(title = "十连券", subtitle = "商店限定折扣十连券")
             StudyShopReward.GameRoundTicket -> decoded.copy(title = "游戏局数券", subtitle = "可畅玩4局")
             StudyShopReward.GameTicket -> decoded.copy(title = "电影券", subtitle = "可观看1部电影")
             StudyShopReward.AnimeTicket -> decoded.copy(title = "影视剧一季兑换券", subtitle = "可兑换一季影视剧")
