@@ -15,38 +15,38 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 internal object StudyDesign {
-    val paper = Color(0xFFFFFDF7)
-    val card = Color(0xFFFFFBF1)
-    val wheat = Color(0xFFF4D57D)
-    val wheatSoft = Color(0xFFFFF2C8)
-    val muted = Color(0xFF6D7888)
-    val ink = Color(0xFF343434)
-    val border = Color(0xFFEAE0CC)
-    val dark = Color(0xFF272A30)
-    val darkCard = Color(0xFF343840)
+    val paper = Color(0xFFFFFFFF)
+    val card = Color(0xFFFFFFFF)
+    val wheat = Color(0xFFF1CF68)
+    val wheatSoft = Color(0xFFFFF7D8)
+    val muted = Color(0xFF747474)
+    val ink = Color(0xFF292929)
+    val border = Color(0xFFE9E3D4)
+    // Keep a dark ink token for text/icons and optional focus skins, but normal study surfaces stay white.
+    val dark = Color(0xFF2B2B2B)
+    val darkCard = Color(0xFFF3F3F3)
     val success = Color(0xFF5E7E65)
     val error = Color(0xFFA55C54)
 }
 
 /**
- * Study is one of the few Lulu apps with a deliberate module palette. Keeping a local Material
- * scheme here means menus, sheets, dialogs and future Material components inherit the same
- * yellow/black visual language instead of silently falling back to the desktop gray scheme.
+ * The study app uses white as its base, with wheat yellow only as an accent. Material components
+ * inherit this scheme so menus, sheets and dialogs do not fall back to black backgrounds/yellow text.
  */
 internal val StudyColorScheme = lightColorScheme(
-    primary = StudyDesign.dark,
-    onPrimary = StudyDesign.wheat,
+    primary = StudyDesign.wheat,
+    onPrimary = StudyDesign.ink,
     primaryContainer = StudyDesign.wheatSoft,
     onPrimaryContainer = StudyDesign.ink,
-    secondary = StudyDesign.wheat,
-    onSecondary = StudyDesign.dark,
+    secondary = Color(0xFFD6B34E),
+    onSecondary = StudyDesign.ink,
     secondaryContainer = StudyDesign.wheatSoft,
     onSecondaryContainer = StudyDesign.ink,
     background = StudyDesign.paper,
     onBackground = StudyDesign.ink,
     surface = StudyDesign.card,
     onSurface = StudyDesign.ink,
-    surfaceVariant = StudyDesign.wheatSoft,
+    surfaceVariant = Color(0xFFF7F5EF),
     onSurfaceVariant = StudyDesign.muted,
     outline = StudyDesign.border,
     error = StudyDesign.error,
@@ -89,7 +89,7 @@ internal fun StudyMetric(label: String, value: String, modifier: Modifier = Modi
             Modifier.fillMaxWidth().padding(vertical = 12.dp, horizontal = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(value, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(value, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = StudyDesign.ink)
             Text(label, color = StudyDesign.muted, fontSize = 12.sp)
         }
     }
@@ -107,16 +107,17 @@ internal fun StudySectionChips(selected: StudySection, onSelect: (StudySection) 
                 onClick = { onSelect(section) },
                 label = { Text(section.label, fontWeight = if (section == selected) FontWeight.Bold else FontWeight.Medium) },
                 colors = FilterChipDefaults.filterChipColors(
-                    containerColor = StudyDesign.card,
+                    containerColor = Color.White,
                     labelColor = StudyDesign.muted,
-                    selectedContainerColor = StudyDesign.dark,
-                    selectedLabelColor = StudyDesign.wheat,
+                    selectedContainerColor = Color.White,
+                    selectedLabelColor = StudyDesign.ink,
                 ),
                 border = FilterChipDefaults.filterChipBorder(
                     enabled = true,
                     selected = section == selected,
                     borderColor = StudyDesign.border,
-                    selectedBorderColor = StudyDesign.dark,
+                    selectedBorderColor = StudyDesign.wheat,
+                    selectedBorderWidth = 2.dp,
                 ),
             )
         }
@@ -145,7 +146,7 @@ internal fun StudyProgress(progress: Float) {
         progress = { progress.coerceIn(0f, 1f) },
         modifier = Modifier.fillMaxWidth().height(8.dp),
         color = StudyDesign.wheat,
-        trackColor = Color(0xFFF0E8DA),
+        trackColor = Color(0xFFF0EDE5),
     )
 }
 
