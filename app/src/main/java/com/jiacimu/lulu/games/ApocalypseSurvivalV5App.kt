@@ -804,7 +804,7 @@ private fun ApocalypseV5PlayPage(
     var busy by remember { mutableStateOf(false) }
     var autoPlay by remember { mutableStateOf(false) }
     var showInventory by remember { mutableStateOf(false) }
-    var showMap by remember { mutableStateOf(false) }
+    var showMapPage by remember { mutableStateOf(false) }
     val currentPage = pages.getOrElse(pageIndex) { pages.first() }
     val lastPage = pageIndex >= pages.lastIndex
 
@@ -814,6 +814,19 @@ private fun ApocalypseV5PlayPage(
     }
     fun nextPage() { if (pageIndex < pages.lastIndex) setPage(pageIndex + 1) else autoPlay = false }
     fun previousPage() { if (pageIndex > 0) { autoPlay = false; setPage(pageIndex - 1) } }
+
+    if (showMapPage) {
+        ApocalypseWorldMapPageV5(
+            currentLocation = save.director.location,
+            discoveredLocations = save.director.locations,
+            onBack = { showMapPage = false },
+            onPlan = { location ->
+                action = "我打开地图研究${location.name}，先确认路线、天气、道路、感染者和人类活动，再决定如何前往。"
+                showMapPage = false
+            },
+        )
+        return
+    }
 
     LaunchedEffect(autoPlay, pageIndex, save.scene) {
         if (!autoPlay || lastPage) return@LaunchedEffect
@@ -864,8 +877,6 @@ private fun ApocalypseV5PlayPage(
                 Text("末世求生", color = ApocalypseV5Colors.textOnDark, fontSize = 17.sp, fontWeight = FontWeight.Black)
                 Text("${apocalypseDayLabelV5(save.director.dayIndex)} ${apocalypseClockLabelV5(save.director.clockMinutes)} · ${save.director.weather} ${save.director.temperatureC}℃ · 第${save.scene}幕", color = ApocalypseV5Colors.blue, fontSize = 9.sp)
             }
-            IconButton(onClick = { showMap = true }) { Icon(Icons.Outlined.Map, "地图", tint = ApocalypseV5Colors.textMutedDark) }
-            IconButton(onClick = { showInventory = true }) { Icon(Icons.Outlined.Inventory2, "物资", tint = ApocalypseV5Colors.textMutedDark) }
         }
 
         ApocalypseV5SpeakerStage(
@@ -878,6 +889,8 @@ private fun ApocalypseV5PlayPage(
             stats = save.stats,
             userName = userName,
             userAvatarUri = userAvatarUri,
+            onMap = { showMapPage = true },
+            onInventory = { showInventory = true },
             onAdvance = { if (!lastPage && !busy) nextPage() },
         )
 
@@ -939,17 +952,6 @@ private fun ApocalypseV5PlayPage(
     if (showInventory) {
         ModalBottomSheet(onDismissRequest = { showInventory = false }, containerColor = ApocalypseV5Colors.background) { ApocalypseV5InventorySheet(save) }
     }
-    if (showMap) {
-        ModalBottomSheet(onDismissRequest = { showMap = false }, containerColor = ApocalypseV5Colors.background) {
-            ApocalypseWorldMapSheetV5(
-            currentLocation = save.director.location,
-            discoveredLocations = save.director.locations,
-        ) { location ->
-                action = "我准备前往${location.name}，先观察路线、天气、感染者和人类活动，再决定怎么进入。"
-                showMap = false
-            }
-        }
-    }
 }
 
 @Composable
@@ -963,6 +965,8 @@ private fun ApocalypseV5SpeakerStage(
     stats: ApocalypseV3Stats,
     userName: String,
     userAvatarUri: String?,
+    onMap: () -> Unit,
+    onInventory: () -> Unit,
     onAdvance: () -> Unit,
 ) {
     val character = page.characterId?.let { id -> party.firstOrNull { it.characterId == id } }
@@ -976,6 +980,32 @@ private fun ApocalypseV5SpeakerStage(
                 }
                 Surface(color = ApocalypseV5Colors.surfaceBlue.copy(alpha = .12f), shape = RoundedCornerShape(9.dp), border = BorderStroke(1.dp, ApocalypseV5Colors.blackLine)) {
                     Text("威胁 $tension/10", color = ApocalypseV5Colors.blueSoft, fontSize = 9.sp, modifier = Modifier.padding(horizontal = 7.dp, vertical = 4.dp))
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Surface(
+                    onClick = onMap,
+                    color = Color.Black.copy(alpha = .28f),
+                    shape = RoundedCornerShape(9.dp),
+                    border = BorderStroke(1.dp, ApocalypseV5Colors.blackLine),
+                ) {
+                    Row(Modifier.padding(horizontal = 9.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Outlined.Map, null, tint = ApocalypseV5Colors.blueSoft, modifier = Modifier.size(15.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("地图", color = ApocalypseV5Colors.textOnDark, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+                Surface(
+                    onClick = onInventory,
+                    color = Color.Black.copy(alpha = .28f),
+                    shape = RoundedCornerShape(9.dp),
+                    border = BorderStroke(1.dp, ApocalypseV5Colors.blackLine),
+                ) {
+                    Row(Modifier.padding(horizontal = 9.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Outlined.Inventory2, null, tint = ApocalypseV5Colors.blueSoft, modifier = Modifier.size(15.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("物资", color = ApocalypseV5Colors.textOnDark, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
             Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
