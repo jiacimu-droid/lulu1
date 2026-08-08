@@ -752,18 +752,8 @@ class PostgraduateExamStore internal constructor(context: Context) {
         return longest
     }
 
-    private fun usesLegacyShopPricing(items: List<StudyShopItem>): Boolean = items.any { item ->
-        when (item.reward) {
-            StudyShopReward.SingleTicket -> item.cost >= 100
-            StudyShopReward.TenTicket -> item.cost >= 800
-            StudyShopReward.DouyinTicket -> item.cost >= 500
-            StudyShopReward.GameRoundTicket -> item.cost >= 600
-            StudyShopReward.TheaterFragment -> item.cost >= 600
-            StudyShopReward.GameTicket -> item.cost >= 1_000
-            StudyShopReward.VideoCard -> item.cost >= 1_000
-            StudyShopReward.AnimeTicket -> item.cost >= 2_000
-        }
-    }
+    private fun usesLegacyShopPricing(items: List<StudyShopItem>): Boolean =
+        items.any { item -> item.cost != item.reward.shopCost() }
 
     private fun rollover(state: StudyState, today: LocalDate): StudyState {
         val tasks = state.tasks.filter { task ->
