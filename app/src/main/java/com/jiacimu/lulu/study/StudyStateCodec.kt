@@ -180,14 +180,17 @@ internal object StudyStateCodec {
         val reward = enumOrDefault(json.optString("reward"), StudyShopReward.SingleTicket)
         val decoded = StudyShopItem(
             id = json.optString("id"), title = json.optString("title"), subtitle = json.optString("subtitle"),
-            cost = json.optInt("cost"), reward = reward, amount = json.optInt("amount", 1), purchased = json.optBoolean("purchased"),
+            cost = reward.shopCost(), reward = reward, amount = json.optInt("amount", 1), purchased = json.optBoolean("purchased"),
         )
         return when (reward) {
-            StudyShopReward.TenTicket -> decoded.copy(title = "十连券", subtitle = "商店限定折扣十连券")
-            StudyShopReward.GameRoundTicket -> decoded.copy(title = "游戏局数券", subtitle = "可畅玩4局")
-            StudyShopReward.GameTicket -> decoded.copy(title = "电影券", subtitle = "可观看1部电影")
-            StudyShopReward.AnimeTicket -> decoded.copy(title = "影视剧一季兑换券", subtitle = "可兑换一季影视剧")
-            else -> decoded
+            StudyShopReward.SingleTicket -> decoded.copy(title = "单抽券", subtitle = "商店价，比直接单抽省20夸夸值")
+            StudyShopReward.TenTicket -> decoded.copy(title = "十连券", subtitle = "商店限定折扣，比直接十连省150夸夸值")
+            StudyShopReward.DouyinTicket -> decoded.copy(title = "抖音时长券", subtitle = "紫色稀有商品 · 可使用20分钟")
+            StudyShopReward.GameRoundTicket -> decoded.copy(title = "游戏局数券", subtitle = "紫色稀有商品 · 可畅玩4局")
+            StudyShopReward.TheaterFragment -> decoded.copy(title = "小剧场券", subtitle = "紫色稀有商品 · 可生成或续写小剧场1章")
+            StudyShopReward.GameTicket -> decoded.copy(title = "电影券", subtitle = "金色稀有商品 · 可观看1部电影")
+            StudyShopReward.VideoCard -> decoded.copy(title = "视频解锁卡", subtitle = "金色稀有商品 · 解锁一项视频收藏")
+            StudyShopReward.AnimeTicket -> decoded.copy(title = "影视剧一季兑换券", subtitle = "彩色超稀有商品 · 可兑换一整季")
         }
     }
 
