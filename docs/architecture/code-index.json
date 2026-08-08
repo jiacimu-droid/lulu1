@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-08T06:10:14.108428+00:00",
-  "commit": "40ac8ab185fb1bf4ca95d26b53f06dfbb22112b7",
+  "generatedAt": "2026-08-08T06:51:02.766389+00:00",
+  "commit": "02d82436dd0dd774dfcf6e1cc32cd72a2a6a36bf",
   "branch": "main",
-  "sourceFingerprint": "3e3bcc99bfe17b020553c75f0518e01f8acfb9b260c7d2bf36f55c9d8f2257ef",
+  "sourceFingerprint": "19dd380a002db15ba9cb4a5e915196f2d1ff3256922bae18f9c6109f610f740a",
   "summary": {
-    "files": 133,
-    "lines": 33414,
-    "symbols": 558
+    "files": 134,
+    "lines": 34392,
+    "symbols": 564
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -149,7 +149,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 803
+        "line": 846
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
@@ -296,6 +296,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
         "line": 245
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
+        "line": 106
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -2098,8 +2102,36 @@
     ],
     "load": [
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
+        "line": 102
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
         "line": 147
+      }
+    ],
+    "clear": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
+        "line": 110
+      }
+    ],
+    "partyFor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
+        "line": 133
+      }
+    ],
+    "createNewSave": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
+        "line": 137
+      }
+    ],
+    "submitAction": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
+        "line": 160
       }
     ],
     "perform": [
@@ -2801,7 +2833,7 @@
     "PostgraduateExamStores": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 798
+        "line": 841
       }
     ],
     "books": [
@@ -3227,7 +3259,7 @@
     {
       "path": "app/src/main/AndroidManifest.xml",
       "lines": 119,
-      "sha256": "3863f69d1915834f60ca63c57104d5a3fecf965102b2f2caeae67782c1998fb4",
+      "sha256": "af258eaaf1a4a8f68d2a71a7d21ce66012916fce0283e2733d49828a4cd66d1a",
       "symbols": []
     },
     {
@@ -5120,6 +5152,37 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
+      "lines": 811,
+      "sha256": "82bd145829e8e13c0a8b80f1562bc355514db81ac357ff329fced2d62518851c",
+      "symbols": [
+        {
+          "name": "load",
+          "line": 102
+        },
+        {
+          "name": "save",
+          "line": 106
+        },
+        {
+          "name": "clear",
+          "line": 110
+        },
+        {
+          "name": "partyFor",
+          "line": 133
+        },
+        {
+          "name": "createNewSave",
+          "line": 137
+        },
+        {
+          "name": "submitAction",
+          "line": 160
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
       "lines": 845,
       "sha256": "3dc2c6debdfad5e407a40301bc67714586070f5f83f218025cada3ecfda0ed32",
@@ -5352,8 +5415,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
-      "lines": 377,
-      "sha256": "aafc2247e00eea1f61149a3987060e27e0e183a940eb587e21c4c2f6ea1a71a2",
+      "lines": 401,
+      "sha256": "32d8edacde75c2b1afa4846922bab7ecd94fee2234ae47499e64080ded74b064",
       "symbols": [
         {
           "name": "LuluGamesAppV2",
@@ -5623,8 +5686,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-      "lines": 808,
-      "sha256": "dc30a60813c89ac0bc2440ae44013eabcc05ffb761152fc6e343447a667f478f",
+      "lines": 851,
+      "sha256": "08c758385a09c22975099676c588a4d1a36eeb920a3744029a495d3746b36158",
       "symbols": [
         {
           "name": "PostgraduateExamStore",
@@ -5748,11 +5811,11 @@
         },
         {
           "name": "PostgraduateExamStores",
-          "line": 798
+          "line": 841
         },
         {
           "name": "initialize",
-          "line": 803
+          "line": 846
         }
       ]
     },
@@ -5803,8 +5866,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt",
-      "lines": 151,
-      "sha256": "ee61c1945b8b5b4ab2feec6d39d7589a66752e411d0b58b4d00e93de37fc35ef",
+      "lines": 248,
+      "sha256": "9d845fe93b2219469ebfbe1f4eaad90494dbca350aa71a545d30bb0306fc67c2",
       "symbols": []
     },
     {
@@ -5961,8 +6024,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-      "lines": 241,
-      "sha256": "9b5c6d43603be3cf704309218ca102ee1a70c16a0234f14556eaabc14ca3c6f9",
+      "lines": 243,
+      "sha256": "1b7fedb6784f93f7afe1d421f08af8c75d92aee844d7aed1bb7211ffd90bdb57",
       "symbols": [
         {
           "name": "StudyTaskSource",
@@ -6109,8 +6172,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
-      "lines": 219,
-      "sha256": "b88b4840d4029edf9d86c4f7f2cd43a4b742813ef465ca7215ce2954aaaaecf5",
+      "lines": 220,
+      "sha256": "178e086b5ae7359f6152e345a3c164a7345e5770dd8dda27648c5fed23480756",
       "symbols": [
         {
           "name": "encode",
