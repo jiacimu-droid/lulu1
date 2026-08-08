@@ -30,8 +30,8 @@
         <activity
             android:name=".MigrationActivity"
             android:exported="true"
-            android:showWhenLocked="true"
-            android:turnScreenOn="true"
+            android:showWhenLocked="false"
+            android:turnScreenOn="false"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
