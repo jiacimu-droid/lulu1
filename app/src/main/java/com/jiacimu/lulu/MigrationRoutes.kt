@@ -29,6 +29,7 @@ enum class MigrationRoute {
     Study,
     Schedule,
     Games,
+    ApocalypseSurvival,
     Settings,
 }
 
