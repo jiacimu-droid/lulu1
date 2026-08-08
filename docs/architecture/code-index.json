@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-08T11:17:07.639657+00:00",
-  "commit": "294531405f8c90089f98bcb267e481faaf7a4cca",
+  "generatedAt": "2026-08-08T13:55:04.053397+00:00",
+  "commit": "d63a60988055d01b1321f7350508fa379ffe8d3a",
   "branch": "main",
-  "sourceFingerprint": "2a6ff683640bf7da06413e3fc1bafd9cb31addcd5ea73a72e4974547595aa7a1",
+  "sourceFingerprint": "e0b1a56e10c6f100d643d2742e6b265312feff2e897ad90b9e541477643ddfa7",
   "summary": {
-    "files": 144,
-    "lines": 39623,
-    "symbols": 603
+    "files": 145,
+    "lines": 40714,
+    "symbols": 613
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -312,6 +312,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
         "line": 57
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 66
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -2098,6 +2102,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
         "line": 78
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 103
       }
     ],
     "enterGame": [
@@ -2112,6 +2120,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
         "line": 93
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 118
       }
     ],
     "goBack": [
@@ -2126,6 +2138,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
         "line": 106
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 131
       }
     ],
     "advance": [
@@ -2146,6 +2162,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
         "line": 626
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 754
       }
     ],
     "addPieces": [
@@ -2162,6 +2182,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
         "line": 608
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 746
       }
     ],
     "previousPage": [
@@ -2172,12 +2196,20 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
         "line": 612
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 747
       }
     ],
     "load": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
         "line": 55
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 65
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -2194,6 +2226,10 @@
         "line": 61
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 67
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
         "line": 110
       }
@@ -2202,6 +2238,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
         "line": 603
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 741
       }
     ],
     "push": [
@@ -5449,6 +5489,53 @@
       "lines": 237,
       "sha256": "5f99f19ede8aa5980628581eaf3671dab4798fb13cb369d3aeb9cf49283d20f4",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+      "lines": 1091,
+      "sha256": "ca523c31537aecda288397f3ceff1bff98f3d1af296468006ea3353273985d9a",
+      "symbols": [
+        {
+          "name": "load",
+          "line": 65
+        },
+        {
+          "name": "save",
+          "line": 66
+        },
+        {
+          "name": "clear",
+          "line": 67
+        },
+        {
+          "name": "createSave",
+          "line": 103
+        },
+        {
+          "name": "enterGame",
+          "line": 118
+        },
+        {
+          "name": "goBack",
+          "line": 131
+        },
+        {
+          "name": "setPage",
+          "line": 741
+        },
+        {
+          "name": "nextPage",
+          "line": 746
+        },
+        {
+          "name": "previousPage",
+          "line": 747
+        },
+        {
+          "name": "submit",
+          "line": 754
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseVisualNovelPresentation.kt",
