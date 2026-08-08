@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`86a48c9ce23eeb2b27619573b1aec8375245991b`
+- 基准提交：`e50b76dbde64802dc2a3a64a0959f8c486f629b6`
 - 分支：`main`
 - 已索引文件：135
-- 已索引代码/文本行：34657
+- 已索引代码/文本行：34684
 - 已发现符号：564
 
 | 文件 | 行数 | 符号数 |
@@ -99,7 +99,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 282 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 400 | 29 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 170 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 115 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 117 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 841 | 32 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 46 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt` | 208 | 1 |
@@ -123,7 +123,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudySaveableCompat.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudySaveableInputsCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt` | 223 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 132 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 157 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt` | 385 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 93 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 267 | 9 |
