@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-08T08:54:25.740037+00:00",
-  "commit": "71ee84031b02124e100db4e8600dedc9f11a7290",
+  "generatedAt": "2026-08-08T08:58:41.088704+00:00",
+  "commit": "d1696568c1e26675e4aad0d38bcd6958b1e439a3",
   "branch": "main",
-  "sourceFingerprint": "625b80a1c4323438c705289f32ccbf225d367f7aa5b5b125c655a1855eef6c15",
+  "sourceFingerprint": "21a53186a33a1ede99fb1e5c856ca1cf27759265ab1f181c29b3a5f5208e861a",
   "summary": {
-    "files": 137,
-    "lines": 36172,
+    "files": 138,
+    "lines": 36206,
     "symbols": 575
   },
   "symbolIndex": {
@@ -5128,6 +5128,12 @@
           "line": 57
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseFlowRowCompat.kt",
+      "lines": 34,
+      "sha256": "c387616639ca39ca4e0339abfc384cbe06405ad9d3a92b463e67899af50a228b",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
