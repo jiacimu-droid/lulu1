@@ -11,7 +11,7 @@ internal data class ApocalypseStoryPage(
 )
 
 /**
- * Visual-novel tagged format used by the apocalypse writer.
+ * Visual-novel tagged format used by the apocalypse writer and stage renderer.
  *
  * New scenes use one of these prefixes at the beginning of every display beat:
  * 【旁白】 / 【玩家】 / 【角色:<characterId>】
