@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`56c7844218ddac3ac3c3b72589b316a977ec1a12`
+- 基准提交：`86a48c9ce23eeb2b27619573b1aec8375245991b`
 - 分支：`main`
-- 已索引文件：134
-- 已索引代码/文本行：34384
+- 已索引文件：135
+- 已索引代码/文本行：34657
 - 已发现符号：564
 
 | 文件 | 行数 | 符号数 |
@@ -37,7 +37,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 97 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 444 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 90 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 366 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 457 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 283 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 599 | 0 |
@@ -92,19 +92,19 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 655 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 380 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 715 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt` | 750 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt` | 824 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt` | 284 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt` | 575 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 282 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 400 | 29 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 170 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 114 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 115 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 841 | 32 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 46 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt` | 208 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt` | 65 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt` | 248 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt` | 212 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt` | 331 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishInventoryBridge.kt` | 49 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt` | 76 | 1 |
@@ -113,16 +113,17 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt` | 513 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPanel.kt` | 417 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishVideoPanel.kt` | 149 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/StudyCompanionScreen.kt` | 233 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyAchievementsScreenV2.kt` | 86 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyCompanionScreen.kt` | 285 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDailyContext.kt` | 82 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt` | 254 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt` | 951 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt` | 470 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt` | 463 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt` | 51 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudySaveableCompat.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudySaveableInputsCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt` | 223 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 120 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 132 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt` | 385 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 93 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 267 | 9 |
