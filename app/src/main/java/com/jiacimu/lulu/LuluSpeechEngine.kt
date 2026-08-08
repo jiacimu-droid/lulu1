@@ -305,9 +305,9 @@ internal class LuluSpeechEngine(context: Context) {
     }
 
     /**
-     * Voice calls append the character message immediately before speaking it. This lets ordinary
-     * speak() calls inherit that character's Voice ID without forcing every call screen to maintain
-     * a second voice-routing layer. Explicit voiceIdOverride always wins.
+     * Voice calls append the speaking character's bubbles immediately before asking TTS to read the
+     * combined turn. Match either one bubble or the exact consecutive bubble sequence, so group calls
+     * can switch MiniMax Voice ID when A finishes and B starts even though each turn is read as a block.
      */
     private fun resolveCharacterVoiceId(text: String): String? {
         val speech = text.trim()
@@ -315,16 +315,40 @@ internal class LuluSpeechEngine(context: Context) {
         return MigratedDomainStores.chat.conversations.value
             .asSequence()
             .mapNotNull { conversation ->
-                val message = MigratedDomainStores.chat.messages(conversation.id).value
-                    .asReversed()
-                    .firstOrNull { item ->
-                        item.sender == LuluChatMessage.Sender.Character && item.content.trim() == speech
-                    } ?: return@mapNotNull null
-                val characterId = message.authorCharacterId
-                    ?.takeIf(String::isNotBlank)
-                    ?: conversation.characterId
-                val voiceId = CharacterVoicePreferenceStore.voiceId(characterId) ?: return@mapNotNull null
-                Triple(message.createdAt, voiceId, characterId)
+                val timeline = MigratedDomainStores.chat.messages(conversation.id).value
+                var best: Triple<java.time.Instant, String, String>? = null
+                for (start in timeline.indices.reversed()) {
+                    val first = timeline[start]
+                    if (first.sender != LuluChatMessage.Sender.Character) continue
+                    val characterId = first.authorCharacterId
+                        ?.takeIf(String::isNotBlank)
+                        ?: conversation.characterId
+                    val voiceId = CharacterVoicePreferenceStore.voiceId(characterId) ?: continue
+                    val parts = mutableListOf<String>()
+                    var latestAt = first.createdAt
+                    var cursor = start
+                    while (cursor < timeline.size) {
+                        val candidate = timeline[cursor]
+                        if (candidate.sender != LuluChatMessage.Sender.Character) break
+                        val candidateCharacterId = candidate.authorCharacterId
+                            ?.takeIf(String::isNotBlank)
+                            ?: conversation.characterId
+                        if (candidateCharacterId != characterId) break
+                        parts += candidate.content.trim()
+                        latestAt = candidate.createdAt
+                        val combined = parts.joinToString("\n").trim()
+                        when {
+                            combined == speech -> {
+                                best = Triple(latestAt, voiceId, characterId)
+                                break
+                            }
+                            !speech.startsWith(combined) -> break
+                        }
+                        cursor += 1
+                    }
+                    if (best != null) break
+                }
+                best
             }
             .maxByOrNull { it.first }
             ?.second
