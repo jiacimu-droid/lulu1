@@ -18,6 +18,8 @@ import com.jiacimu.lulu.games.LuluGamesAppV2
 import com.jiacimu.lulu.health.HealthFeatureScreen
 import com.jiacimu.lulu.study.LuluReadingScreen
 import com.jiacimu.lulu.study.PomodoroCompanionSessions
+import com.jiacimu.lulu.study.PomodoroMiniWindow
+import com.jiacimu.lulu.study.PomodoroTimerMode
 import com.jiacimu.lulu.study.PostgraduateExamApp
 import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.StarWishMigratedScreen
@@ -64,9 +66,12 @@ fun LuluMigrationRootAppV2(
     var readingInitialTitle by rememberSaveable(initialReadingTitle) { mutableStateOf(initialReadingTitle) }
     var starWishInitialTab by rememberSaveable { mutableStateOf(StarWishTab.Scroll.name) }
     var initialGameId by rememberSaveable { mutableStateOf<String?>(null) }
+    var pomodoroFocusVisible by rememberSaveable { mutableStateOf(false) }
+    var openPomodoroRequest by rememberSaveable { mutableStateOf(0) }
 
     val preferences by LuluAppPreferencesStore.state.collectAsState()
     val studyState by PostgraduateExamStores.main.state.collectAsState()
+    val pomodoroCompanion by PomodoroCompanionSessions.store.state.collectAsState()
     val density = LocalDensity.current
     val preferredDensity = remember(density, preferences.largerText) {
         Density(
@@ -104,6 +109,11 @@ fun LuluMigrationRootAppV2(
         routeStack = routeStack.dropLast(1) + target.name
     }
 
+    fun openActivePomodoro() {
+        openPomodoroRequest += 1
+        if (route != MigrationRoute.Study) pushRoute(MigrationRoute.Study)
+    }
+
     BackHandler(enabled = routeStack.size > 1) {
         popRoute()
     }
@@ -132,6 +142,7 @@ fun LuluMigrationRootAppV2(
         readingInitialTitle = initialReadingTitle
     }
 
+    // Countdown uses an absolute end timestamp, so leaving the page does not stop or reset it.
     LaunchedEffect(studyState.pomodoro.running, studyState.pomodoro.endAtEpochMillis) {
         val studyStore = PostgraduateExamStores.main
         while (studyStore.state.value.pomodoro.running) {
@@ -250,6 +261,8 @@ fun LuluMigrationRootAppV2(
                                         pushRoute(MigrationRoute.Wishes)
                                     },
                                     onOpenConversation = ::openConversation,
+                                    openPomodoroRequest = openPomodoroRequest,
+                                    onPomodoroVisibilityChanged = { pomodoroFocusVisible = it },
                                 )
                                 MigrationRoute.Schedule -> ScheduleFeatureScreen(::popRoute)
                                 MigrationRoute.Games -> LuluGamesAppV2(
@@ -263,6 +276,28 @@ fun LuluMigrationRootAppV2(
                                 MigrationRoute.ChatDetail -> Unit
                             }
                         }
+                    }
+
+                    val pomodoroActive = pomodoroCompanion.activeSessionId.isNotBlank() && !pomodoroCompanion.completionHandled
+                    if (pomodoroActive && !pomodoroFocusVisible) {
+                        PomodoroMiniWindow(
+                            studyState = studyState,
+                            companion = pomodoroCompanion,
+                            onOpen = ::openActivePomodoro,
+                            onPauseResume = {
+                                if (pomodoroCompanion.timerMode == PomodoroTimerMode.CountUp) {
+                                    PomodoroCompanionSessions.toggleCountUp()
+                                } else {
+                                    PostgraduateExamStores.main.togglePomodoro()
+                                }
+                            },
+                            onEnd = {
+                                PomodoroCompanionSessions.finishActiveSession(
+                                    studyStore = PostgraduateExamStores.main,
+                                    reason = "用户从番茄钟小窗结束",
+                                )
+                            },
+                        )
                     }
                 }
             }
