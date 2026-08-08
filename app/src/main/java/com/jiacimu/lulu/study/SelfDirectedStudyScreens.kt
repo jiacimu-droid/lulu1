@@ -37,18 +37,19 @@ internal fun StudyTodayScreenV2(
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Surface(
                     onClick = onOpenPomodoro,
-                    modifier = Modifier.fillMaxWidth(0.86f).height(58.dp),
-                    color = StudyDesign.dark,
-                    contentColor = Color.White,
-                    shape = RoundedCornerShape(18.dp),
-                    border = BorderStroke(1.dp, Color(0xFF1F2228)),
-                    shadowElevation = 2.dp,
+                    modifier = Modifier.fillMaxWidth(0.96f).height(46.dp),
+                    color = Color.White,
+                    contentColor = StudyDesign.ink,
+                    shape = RoundedCornerShape(15.dp),
+                    border = BorderStroke(1.5.dp, StudyDesign.wheat),
+                    shadowElevation = 1.dp,
                 ) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
                             if (state.pomodoro.running) "继续番茄钟" else "开始番茄钟",
                             fontWeight = FontWeight.Black,
-                            fontSize = 18.sp,
+                            fontSize = 17.sp,
+                            color = StudyDesign.ink,
                         )
                     }
                 }
@@ -74,10 +75,10 @@ internal fun StudyTodayScreenV2(
                         singleLine = true,
                         shape = RoundedCornerShape(15.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = StudyDesign.dark,
+                            focusedBorderColor = StudyDesign.wheat,
                             unfocusedBorderColor = StudyDesign.border,
-                            focusedContainerColor = StudyDesign.paper,
-                            unfocusedContainerColor = StudyDesign.paper,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
                         ),
                     )
                     Button(
@@ -86,9 +87,9 @@ internal fun StudyTodayScreenV2(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(15.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = StudyDesign.dark,
-                            contentColor = StudyDesign.wheat,
-                            disabledContainerColor = Color(0xFFE3E0D8),
+                            containerColor = StudyDesign.wheat,
+                            contentColor = StudyDesign.ink,
+                            disabledContainerColor = Color(0xFFF0EEE8),
                             disabledContentColor = Color(0xFF9D9A93),
                         ),
                     ) { Text("添加", fontWeight = FontWeight.Bold) }
@@ -106,16 +107,18 @@ internal fun StudyTodayScreenV2(
                     modifier = Modifier.weight(1f),
                     fontSize = 19.sp,
                     fontWeight = FontWeight.Black,
+                    color = StudyDesign.ink,
                 )
                 Surface(
                     shape = RoundedCornerShape(13.dp),
-                    color = StudyDesign.dark,
+                    color = Color.White,
+                    border = BorderStroke(1.5.dp, StudyDesign.wheat),
                 ) {
                     Text(
                         "$completed / ${todayTasks.size}   ·   $progressPercent%",
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                         fontWeight = FontWeight.Black,
-                        color = StudyDesign.wheat,
+                        color = StudyDesign.ink,
                         fontSize = 13.sp,
                     )
                 }
@@ -146,9 +149,15 @@ internal fun StudyPlanScreenV2(state: StudyState, store: PostgraduateExamStore) 
                             onClick = { range = item },
                             label = { Text(if (item == StudyPlanRange.Weekly) "周计划" else "月计划") },
                             colors = FilterChipDefaults.filterChipColors(
-                                containerColor = StudyDesign.card,
-                                selectedContainerColor = StudyDesign.dark,
-                                selectedLabelColor = StudyDesign.wheat,
+                                containerColor = Color.White,
+                                selectedContainerColor = StudyDesign.wheatSoft,
+                                selectedLabelColor = StudyDesign.ink,
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = item == range,
+                                borderColor = StudyDesign.border,
+                                selectedBorderColor = StudyDesign.wheat,
                             ),
                         )
                     }
@@ -157,13 +166,19 @@ internal fun StudyPlanScreenV2(state: StudyState, store: PostgraduateExamStore) 
         }
         item {
             StudyCard {
-                Text("添加${if (range == StudyPlanRange.Weekly) "周" else "月"}计划", fontWeight = FontWeight.Bold)
-                OutlinedTextField(title, { title = it }, label = { Text("计划内容") }, modifier = Modifier.fillMaxWidth())
+                Text("添加${if (range == StudyPlanRange.Weekly) "周" else "月"}计划", fontWeight = FontWeight.Bold, color = StudyDesign.ink)
+                OutlinedTextField(
+                    title,
+                    { title = it },
+                    label = { Text("计划内容") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = StudyDesign.wheat, unfocusedBorderColor = StudyDesign.border),
+                )
                 Button(
                     onClick = { store.addPlanItem(range, title, ""); title = "" },
                     enabled = title.isNotBlank(),
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.dark, contentColor = StudyDesign.wheat),
+                    colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.wheat, contentColor = StudyDesign.ink),
                 ) { Text("保存计划") }
             }
         }
@@ -171,8 +186,8 @@ internal fun StudyPlanScreenV2(state: StudyState, store: PostgraduateExamStore) 
         items(items, key = StudyPlanItem::id) { item ->
             StudyCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(item.title, Modifier.weight(1f), fontWeight = FontWeight.Bold)
-                    IconButton(onClick = { store.deletePlanItem(item.id) }) { Icon(Icons.Outlined.DeleteOutline, "删除") }
+                    Text(item.title, Modifier.weight(1f), fontWeight = FontWeight.Bold, color = StudyDesign.ink)
+                    IconButton(onClick = { store.deletePlanItem(item.id) }) { Icon(Icons.Outlined.DeleteOutline, "删除", tint = StudyDesign.muted) }
                 }
                 if (item.note.isNotBlank()) Text(item.note, color = StudyDesign.muted, fontSize = 13.sp, lineHeight = 19.sp)
             }
@@ -184,7 +199,7 @@ internal fun StudyPlanScreenV2(state: StudyState, store: PostgraduateExamStore) 
 private fun SelfDirectedTaskRow(task: StudyTask, store: PostgraduateExamStore) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = if (task.completed) StudyDesign.wheatSoft.copy(alpha = 0.62f) else StudyDesign.card,
+        color = if (task.completed) StudyDesign.wheatSoft.copy(alpha = 0.58f) else Color.White,
         shape = RoundedCornerShape(20.dp),
         border = BorderStroke(1.dp, if (task.completed) StudyDesign.wheat else StudyDesign.border),
     ) {
@@ -195,7 +210,7 @@ private fun SelfDirectedTaskRow(task: StudyTask, store: PostgraduateExamStore) {
             Checkbox(
                 checked = task.completed,
                 onCheckedChange = { store.toggleTask(task.id) },
-                colors = CheckboxDefaults.colors(checkedColor = StudyDesign.dark, checkmarkColor = StudyDesign.wheat),
+                colors = CheckboxDefaults.colors(checkedColor = StudyDesign.wheat, checkmarkColor = StudyDesign.ink),
             )
             Text(
                 task.title,
