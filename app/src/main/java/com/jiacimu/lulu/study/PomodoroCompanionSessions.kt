@@ -127,16 +127,15 @@ class PomodoroCompanionStore private constructor(context: Context) {
         return (current.countUpElapsedSeconds + delta).coerceAtLeast(0)
     }
 
+    /** Refreshes the visible counter in memory; the persisted anchor remains enough to recover after process death. */
     fun syncCountUpClock(nowMillis: Long = System.currentTimeMillis()): Int {
         val elapsed = currentCountUpSeconds(nowMillis)
         val current = mutable.value
         if (current.countUpRunning) {
-            update {
-                it.copy(
-                    countUpElapsedSeconds = elapsed,
-                    countUpAnchorEpochMillis = nowMillis,
-                )
-            }
+            mutable.value = current.copy(
+                countUpElapsedSeconds = elapsed,
+                countUpAnchorEpochMillis = nowMillis,
+            )
         }
         return elapsed
     }
@@ -316,7 +315,7 @@ object PomodoroCompanionSessions {
             store.stopCountUp()
         } else {
             val timer = studyStore.state.value.pomodoro
-            if (timer.running) studyStore.syncPomodoroClock()
+            if (timer.running) studyStore.togglePomodoro()
             val latest = studyStore.state.value.pomodoro
             (latest.selectedMinutes * 60 - latest.remainingSeconds).coerceAtLeast(0)
         }
@@ -334,9 +333,6 @@ object PomodoroCompanionSessions {
             return 0 to "未满1分钟，本次不记录"
         }
 
-        if (pomodoro.timerMode == PomodoroTimerMode.Countdown && studyStore.state.value.pomodoro.running) {
-            studyStore.togglePomodoro()
-        }
         val reward = studyStore.completePomodoro(actualMinutes)
         completeSession(
             studyStore = studyStore,
