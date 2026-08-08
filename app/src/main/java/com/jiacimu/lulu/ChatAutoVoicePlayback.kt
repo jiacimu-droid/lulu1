@@ -2,6 +2,8 @@ package com.jiacimu.lulu
 
 import android.content.Context
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
+import com.jiacimu.lulu.data.LuluChatMessage
+import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -14,14 +16,18 @@ import kotlin.coroutines.resume
 
 /**
  * App-scope voice queue for generated chat replies.
- * Every auto-played character bubble is synthesized once into a persistent local cache keyed by the
- * chat message id. Long-press replay uses that exact file and never calls the model or TTS provider again.
+ *
+ * Auto-played character bubbles are synthesized once into a persistent local cache keyed by the
+ * chat message id. Manual "朗读" first reuses that exact cache; if no cache exists yet, it generates
+ * one with the speaking character's MiniMax Voice ID, saves it, and plays the new file.
  */
 object ChatAutoVoicePlayback {
     private data class Request(
         val characterId: String,
         val messageId: String,
         val text: String,
+        val voiceId: String?,
+        val requireAutoPlay: Boolean,
     )
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -43,14 +49,20 @@ object ChatAutoVoicePlayback {
                 workerStarted = true
                 scope.launch {
                     for (request in queue) {
-                        if (!CharacterVoicePreferenceStore.isEnabled(request.characterId)) continue
+                        if (request.requireAutoPlay && !CharacterVoicePreferenceStore.isEnabled(request.characterId)) continue
                         val speech = request.text.trim()
                         if (speech.isBlank()) continue
                         val base = cacheBase(request.messageId) ?: continue
                         suspendCancellableCoroutine<Unit> { continuation ->
-                            engine?.speakAndCache(speech, base, scope) {
-                                if (continuation.isActive) continuation.resume(Unit)
-                            } ?: continuation.resume(Unit)
+                            engine?.speakAndCache(
+                                text = speech,
+                                cacheBaseFile = base,
+                                scope = scope,
+                                onFinished = {
+                                    if (continuation.isActive) continuation.resume(Unit)
+                                },
+                                voiceIdOverride = request.voiceId,
+                            ) ?: continuation.resume(Unit)
                             continuation.invokeOnCancellation { engine?.stop() }
                         }
                     }
@@ -59,18 +71,45 @@ object ChatAutoVoicePlayback {
         }
     }
 
+    /** Called after a generated character bubble is persisted. */
     fun enqueue(characterId: String, messageId: String, text: String) {
         if (!CharacterVoicePreferenceStore.isEnabled(characterId)) return
         val clean = text.trim()
         if (clean.isBlank() || messageId.isBlank()) return
-        queue.trySend(Request(characterId, messageId, clean))
+        queue.trySend(
+            Request(
+                characterId = characterId,
+                messageId = messageId,
+                text = clean,
+                voiceId = CharacterVoicePreferenceStore.voiceId(characterId),
+                requireAutoPlay = true,
+            ),
+        )
     }
 
-    /** Replays an already cached file. Returns false instead of synthesizing again when no cache exists. */
+    /**
+     * QQ-style "朗读": cached audio wins. If this message never generated voice before, synthesize it
+     * now, persist the cache, then play it. Returns false only when the message cannot be resolved.
+     */
     fun replayCached(messageId: String): Boolean {
         val base = cacheBase(messageId) ?: return false
-        val audio = engine?.cachedAudioFile(base) ?: return false
-        return engine?.playCached(audio) == true
+        val audio = engine?.cachedAudioFile(base)
+        if (audio != null) return engine?.playCached(audio) == true
+
+        val target = resolveCharacterMessage(messageId) ?: return false
+        val characterId = target.first
+        val message = target.second
+        val speech = stripCharacterReplyDirective(message.content).trim()
+        if (speech.isBlank()) return false
+        return queue.trySend(
+            Request(
+                characterId = characterId,
+                messageId = message.id,
+                text = speech,
+                voiceId = CharacterVoicePreferenceStore.voiceId(characterId),
+                requireAutoPlay = false,
+            ),
+        ).isSuccess
     }
 
     fun hasCached(messageId: String): Boolean {
@@ -82,6 +121,20 @@ object ChatAutoVoicePlayback {
         val base = cacheBase(messageId) ?: return
         File(base.parentFile, "${base.name}.mp3").delete()
         File(base.parentFile, "${base.name}.wav").delete()
+    }
+
+    private fun resolveCharacterMessage(messageId: String): Pair<String, LuluChatMessage>? {
+        MigratedDomainStores.chat.conversations.value.forEach { conversation ->
+            val message = MigratedDomainStores.chat.messages(conversation.id).value
+                .firstOrNull { it.id == messageId }
+                ?.takeIf { it.sender == LuluChatMessage.Sender.Character }
+                ?: return@forEach
+            val characterId = message.authorCharacterId
+                ?.takeIf(String::isNotBlank)
+                ?: conversation.characterId
+            if (characterId.isNotBlank()) return characterId to message
+        }
+        return null
     }
 
     private fun cacheBase(messageId: String): File? {
