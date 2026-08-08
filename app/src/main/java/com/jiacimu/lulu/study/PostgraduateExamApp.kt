@@ -58,55 +58,57 @@ fun PostgraduateExamApp(
         onDispose { onPomodoroVisibilityChanged(false) }
     }
 
-    if (pomodoroOpen) {
-        StudyPomodoroScreen(
-            state = state,
-            store = store,
-            onBack = { pomodoroOpen = false },
-            onOpenConversation = onOpenConversation,
-        )
-        return
-    }
-
-    Scaffold(
-        containerColor = StudyDesign.paper,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text("今天也向目标靠近一点", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                        Text(
-                            LocalDate.now().format(DateTimeFormatter.ofPattern("M月d日 EEEE")),
-                            color = StudyDesign.muted,
-                            fontSize = 12.sp,
-                        )
-                    }
-                },
-                navigationIcon = { IconButton(onClick = ::stepBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = StudyDesign.paper),
+    // Study intentionally owns a yellow/black Material theme. This keeps every sheet, dialog,
+    // menu, chip and future Material control inside the app visually consistent by default.
+    MaterialTheme(colorScheme = StudyColorScheme) {
+        if (pomodoroOpen) {
+            StudyPomodoroScreen(
+                state = state,
+                store = store,
+                onBack = { pomodoroOpen = false },
+                onOpenConversation = onOpenConversation,
             )
-        },
-    ) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding)) {
-            Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-                StudySectionChips(section) { section = it }
-            }
-            if (section == StudySection.Today) StudyDailySummaryStrip(state)
-            Box(Modifier.fillMaxSize()) {
-                when (section) {
-                    StudySection.Companion -> StudyCompanionScreen(state, store)
-                    StudySection.Today -> StudyTodayScreenV2(
-                        state = state,
-                        store = store,
-                        onOpenPomodoro = { pomodoroOpen = true },
+        } else {
+            Scaffold(
+                containerColor = StudyDesign.paper,
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            Column {
+                                Text("今天也向目标靠近一点", fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                                Text(
+                                    LocalDate.now().format(DateTimeFormatter.ofPattern("M月d日 EEEE")),
+                                    color = StudyDesign.muted,
+                                    fontSize = 12.sp,
+                                )
+                            }
+                        },
+                        navigationIcon = { IconButton(onClick = ::stepBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = StudyDesign.paper),
                     )
-                    StudySection.Plan -> StudyPlanScreenV2(state, store)
-                    StudySection.Gacha -> StudyGachaScreen(state, store)
-                    StudySection.Collection -> StudyCollectionScreen(state, store, onOpenTheater)
-                    // Keep immediately actionable achievements first; claimed ones stay at the bottom.
-                    StudySection.Achievements -> StudyAchievementsScreenV2(state, store)
-                    StudySection.Shop -> StudyShopScreen(state, store)
-                    StudySection.Guide -> StudyGuideScreen()
+                },
+            ) { padding ->
+                Column(Modifier.fillMaxSize().padding(padding)) {
+                    Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+                        StudySectionChips(section) { section = it }
+                    }
+                    if (section == StudySection.Today) StudyDailySummaryStrip(state)
+                    Box(Modifier.fillMaxSize()) {
+                        when (section) {
+                            StudySection.Companion -> StudyCompanionScreen(state, store)
+                            StudySection.Today -> StudyTodayScreenV2(
+                                state = state,
+                                store = store,
+                                onOpenPomodoro = { pomodoroOpen = true },
+                            )
+                            StudySection.Plan -> StudyPlanScreenV2(state, store)
+                            StudySection.Gacha -> StudyGachaScreen(state, store)
+                            StudySection.Collection -> StudyCollectionScreen(state, store, onOpenTheater)
+                            StudySection.Achievements -> StudyAchievementsScreenV2(state, store)
+                            StudySection.Shop -> StudyShopScreen(state, store)
+                            StudySection.Guide -> StudyGuideScreen()
+                        }
+                    }
                 }
             }
         }
