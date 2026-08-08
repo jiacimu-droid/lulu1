@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`12477723973ad3ba910b2625d681d53cac39c1b5`
+- 基准提交：`5e00bf7d9f26822fc61359ba82d8e0e87b52fe2e`
 - 分支：`main`
-- 已索引文件：152
-- 已索引代码/文本行：42600
-- 已发现符号：616
+- 已索引文件：153
+- 已索引代码/文本行：42957
+- 已发现符号：620
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -49,6 +49,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 219 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 67 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 708 | 24 |
+| `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 145 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 125 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 64 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 66 | 2 |
@@ -88,12 +89,12 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Screen.kt` | 1208 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt` | 1053 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4Engine.kt` | 237 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt` | 1200 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Engine.kt` | 291 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt` | 1201 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Engine.kt` | 295 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Systems.kt` | 176 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseVisualNovelPresentation.kt` | 141 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldEvolutionV5.kt` | 170 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt` | 549 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt` | 639 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt` | 377 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 489 | 6 |
@@ -116,11 +117,11 @@
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 400 | 29 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 170 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 117 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 857 | 33 |
+| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 864 | 34 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 46 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt` | 208 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt` | 65 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt` | 227 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt` | 344 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt` | 331 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishInventoryBridge.kt` | 49 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt` | 76 | 1 |
@@ -133,7 +134,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudyCompanionScreen.kt` | 284 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDailyContext.kt` | 82 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt` | 254 | 21 |
-| `app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt` | 951 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt` | 944 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt` | 470 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt` | 51 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudySaveableCompat.kt` | 8 | 0 |
