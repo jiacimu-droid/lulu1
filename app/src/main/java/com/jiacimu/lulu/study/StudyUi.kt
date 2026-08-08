@@ -15,38 +15,38 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 internal object StudyDesign {
-    val paper = Color(0xFFFFFFFF)
-    val card = Color(0xFFFFFFFF)
-    val wheat = Color(0xFFF1CF68)
-    val wheatSoft = Color(0xFFFFF7D8)
-    val muted = Color(0xFF747474)
-    val ink = Color(0xFF292929)
-    val border = Color(0xFFE9E3D4)
-    // Keep a dark ink token for text/icons and optional focus skins, but normal study surfaces stay white.
-    val dark = Color(0xFF2B2B2B)
-    val darkCard = Color(0xFFF3F3F3)
+    // 考研 App 保留黄黑主视觉：大面积暖纸/浅黄，深色只做重点块和强调。
+    val paper = Color(0xFFFFFDF7)
+    val card = Color(0xFFFFFBF1)
+    val wheat = Color(0xFFF4D57D)
+    val wheatSoft = Color(0xFFFFF2C8)
+    val muted = Color(0xFF6D7888)
+    val ink = Color(0xFF343434)
+    val border = Color(0xFFEAE0CC)
+    val dark = Color(0xFF272A30)
+    val darkCard = Color(0xFF343840)
     val success = Color(0xFF5E7E65)
     val error = Color(0xFFA55C54)
 }
 
 /**
- * The study app uses white as its base, with wheat yellow only as an accent. Material components
- * inherit this scheme so menus, sheets and dialogs do not fall back to black backgrounds/yellow text.
+ * Yellow/black is the study module's deliberate palette. Yellow should occupy more of the ordinary
+ * interface; whenever a control uses a black/dark background its foreground must be white, never yellow.
  */
 internal val StudyColorScheme = lightColorScheme(
-    primary = StudyDesign.wheat,
-    onPrimary = StudyDesign.ink,
+    primary = StudyDesign.dark,
+    onPrimary = Color.White,
     primaryContainer = StudyDesign.wheatSoft,
     onPrimaryContainer = StudyDesign.ink,
-    secondary = Color(0xFFD6B34E),
-    onSecondary = StudyDesign.ink,
+    secondary = StudyDesign.wheat,
+    onSecondary = StudyDesign.dark,
     secondaryContainer = StudyDesign.wheatSoft,
     onSecondaryContainer = StudyDesign.ink,
     background = StudyDesign.paper,
     onBackground = StudyDesign.ink,
     surface = StudyDesign.card,
     onSurface = StudyDesign.ink,
-    surfaceVariant = Color(0xFFF7F5EF),
+    surfaceVariant = StudyDesign.wheatSoft,
     onSurfaceVariant = StudyDesign.muted,
     outline = StudyDesign.border,
     error = StudyDesign.error,
@@ -107,17 +107,16 @@ internal fun StudySectionChips(selected: StudySection, onSelect: (StudySection) 
                 onClick = { onSelect(section) },
                 label = { Text(section.label, fontWeight = if (section == selected) FontWeight.Bold else FontWeight.Medium) },
                 colors = FilterChipDefaults.filterChipColors(
-                    containerColor = Color.White,
+                    containerColor = StudyDesign.card,
                     labelColor = StudyDesign.muted,
-                    selectedContainerColor = Color.White,
-                    selectedLabelColor = StudyDesign.ink,
+                    selectedContainerColor = StudyDesign.dark,
+                    selectedLabelColor = Color.White,
                 ),
                 border = FilterChipDefaults.filterChipBorder(
                     enabled = true,
                     selected = section == selected,
                     borderColor = StudyDesign.border,
-                    selectedBorderColor = StudyDesign.wheat,
-                    selectedBorderWidth = 2.dp,
+                    selectedBorderColor = StudyDesign.dark,
                 ),
             )
         }
@@ -146,7 +145,7 @@ internal fun StudyProgress(progress: Float) {
         progress = { progress.coerceIn(0f, 1f) },
         modifier = Modifier.fillMaxWidth().height(8.dp),
         color = StudyDesign.wheat,
-        trackColor = Color(0xFFF0EDE5),
+        trackColor = Color(0xFFF0E8DA),
     )
 }
 
