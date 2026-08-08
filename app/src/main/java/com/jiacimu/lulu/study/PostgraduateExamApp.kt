@@ -103,6 +103,7 @@ fun PostgraduateExamApp(
                     StudySection.Plan -> StudyPlanScreenV2(state, store)
                     StudySection.Gacha -> StudyGachaScreen(state, store)
                     StudySection.Collection -> StudyCollectionScreen(state, store, onOpenTheater)
+                    // Keep immediately actionable achievements first; claimed ones stay at the bottom.
                     StudySection.Achievements -> StudyAchievementsScreenV2(state, store)
                     StudySection.Shop -> StudyShopScreen(state, store)
                     StudySection.Guide -> StudyGuideScreen()
