@@ -58,6 +58,11 @@ internal fun SavedConfigurationModelPicker(
     }
     val recommendations = remember(pickerKey) {
         when {
+            pickerKey.contains("vision") -> listOf(
+                "gemini-3.6-flash" to "首选 · 稳定版，多模态与空间理解强",
+                "gemini-3.1-pro-preview" to "精度优先 · 更重推理，预览版",
+                "gemini-3.5-flash" to "稳定备选 · 速度与识图平衡",
+            )
             pickerKey.contains("embedding") -> listOf(
                 "BAAI/bge-m3" to "首选 · 中文记忆够用",
                 "Qwen/Qwen3-Embedding-0.6B" to "轻量省钱",
