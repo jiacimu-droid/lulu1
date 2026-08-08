@@ -20,10 +20,13 @@ fun PostgraduateExamApp(
     onBack: () -> Unit,
     onOpenTheater: () -> Unit,
     onOpenConversation: (String) -> Unit,
+    openPomodoroRequest: Int = 0,
+    onPomodoroVisibilityChanged: (Boolean) -> Unit = {},
 ) {
     val store = remember { PostgraduateExamStores.main }
     val context = LocalContext.current
     val state by store.state.collectAsState()
+    val companion by PomodoroCompanionSessions.store.state.collectAsState()
     var section by remember { mutableStateOf(StudySection.Today) }
     var pomodoroOpen by remember { mutableStateOf(false) }
 
@@ -41,6 +44,18 @@ fun PostgraduateExamApp(
         store.syncDate()
         SelfDirectedStudyPlanSeed.syncRollingPlan(context, store)
         SelfDirectedStudyPlanSeed.ensureDailyReminders(store)
+    }
+
+    LaunchedEffect(openPomodoroRequest) {
+        val hasActive = companion.activeSessionId.isNotBlank() && !companion.completionHandled
+        if (openPomodoroRequest > 0 && hasActive) pomodoroOpen = true
+    }
+
+    LaunchedEffect(pomodoroOpen) {
+        onPomodoroVisibilityChanged(pomodoroOpen)
+    }
+    DisposableEffect(Unit) {
+        onDispose { onPomodoroVisibilityChanged(false) }
     }
 
     if (pomodoroOpen) {
@@ -67,9 +82,7 @@ fun PostgraduateExamApp(
                         )
                     }
                 },
-                navigationIcon = {
-                    IconButton(onClick = ::stepBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
-                },
+                navigationIcon = { IconButton(onClick = ::stepBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = StudyDesign.paper),
             )
         },
@@ -78,9 +91,7 @@ fun PostgraduateExamApp(
             Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
                 StudySectionChips(section) { section = it }
             }
-            if (section == StudySection.Today) {
-                StudyDailySummaryStrip(state)
-            }
+            if (section == StudySection.Today) StudyDailySummaryStrip(state)
             Box(Modifier.fillMaxSize()) {
                 when (section) {
                     StudySection.Companion -> StudyCompanionScreen(state, store)
