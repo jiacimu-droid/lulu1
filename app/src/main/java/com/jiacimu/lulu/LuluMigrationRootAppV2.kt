@@ -14,6 +14,8 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.design.LuluColors
 import com.jiacimu.lulu.design.LuluLightColorScheme
 import com.jiacimu.lulu.design.LuluTypography
+import com.jiacimu.lulu.games.CinematicApocalypseGameScreen
+import com.jiacimu.lulu.games.LuluGames
 import com.jiacimu.lulu.games.LuluGamesAppV2
 import com.jiacimu.lulu.health.HealthFeatureScreen
 import com.jiacimu.lulu.study.LuluReadingScreen
@@ -280,6 +282,10 @@ fun LuluMigrationRootAppV2(
                                         popRoute()
                                     },
                                     initialGameId = initialGameId,
+                                )
+                                MigrationRoute.ApocalypseSurvival -> CinematicApocalypseGameScreen(
+                                    gameStore = LuluGames.store,
+                                    onBack = ::popRoute,
                                 )
                                 MigrationRoute.Settings -> LuluSettingsHomeScreen(::popRoute)
                                 MigrationRoute.ChatDetail -> Unit
