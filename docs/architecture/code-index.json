@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-08T04:04:24.503304+00:00",
-  "commit": "256980e42f818185be26a700139044ab720e7250",
+  "generatedAt": "2026-08-08T04:04:49.647009+00:00",
+  "commit": "a8b2afa083a0402cbc7e736581790f0193d6aef2",
   "branch": "main",
-  "sourceFingerprint": "e843879a464d1334495b6230c549240a409b6a7853ec086cc911ea9955747832",
+  "sourceFingerprint": "c977392c26d2f35b2485ea67eb4a545bc81a2c91bdc10f1847ae6872ba90bbea",
   "summary": {
     "files": 132,
-    "lines": 32733,
+    "lines": 32786,
     "symbols": 545
   },
   "symbolIndex": {
@@ -31,13 +31,13 @@
     "ChatAutoVoicePlayback": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 20
+        "line": 24
       }
     ],
     "initialize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 32
+        "line": 38
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
@@ -167,25 +167,25 @@
     "enqueue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 61
+        "line": 75
       }
     ],
     "replayCached": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 70
+        "line": 94
       }
     ],
     "hasCached": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 75
+        "line": 114
       }
     ],
     "remove": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 80
+        "line": 119
       }
     ],
     "CharacterHubScreen": [
@@ -3186,32 +3186,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-      "lines": 109,
-      "sha256": "45b60f46b1860e757df6f9f54f740d978346be408d80284f0f84c558a2bade00",
+      "lines": 162,
+      "sha256": "63d45f59ded8d30ec9c6ae517ae13846dd1f5ea152c42eb965f021c72d17978d",
       "symbols": [
         {
           "name": "ChatAutoVoicePlayback",
-          "line": 20
+          "line": 24
         },
         {
           "name": "initialize",
-          "line": 32
+          "line": 38
         },
         {
           "name": "enqueue",
-          "line": 61
-        },
-        {
-          "name": "replayCached",
-          "line": 70
-        },
-        {
-          "name": "hasCached",
           "line": 75
         },
         {
+          "name": "replayCached",
+          "line": 94
+        },
+        {
+          "name": "hasCached",
+          "line": 114
+        },
+        {
           "name": "remove",
-          "line": 80
+          "line": 119
         }
       ]
     },
