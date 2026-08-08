@@ -28,6 +28,31 @@ internal object StudyDesign {
     val error = Color(0xFFA55C54)
 }
 
+/**
+ * Study is one of the few Lulu apps with a deliberate module palette. Keeping a local Material
+ * scheme here means menus, sheets, dialogs and future Material components inherit the same
+ * yellow/black visual language instead of silently falling back to the desktop gray scheme.
+ */
+internal val StudyColorScheme = lightColorScheme(
+    primary = StudyDesign.dark,
+    onPrimary = StudyDesign.wheat,
+    primaryContainer = StudyDesign.wheatSoft,
+    onPrimaryContainer = StudyDesign.ink,
+    secondary = StudyDesign.wheat,
+    onSecondary = StudyDesign.dark,
+    secondaryContainer = StudyDesign.wheatSoft,
+    onSecondaryContainer = StudyDesign.ink,
+    background = StudyDesign.paper,
+    onBackground = StudyDesign.ink,
+    surface = StudyDesign.card,
+    onSurface = StudyDesign.ink,
+    surfaceVariant = StudyDesign.wheatSoft,
+    onSurfaceVariant = StudyDesign.muted,
+    outline = StudyDesign.border,
+    error = StudyDesign.error,
+    onError = Color.White,
+)
+
 internal enum class StudySection(val label: String) {
     Companion("陪伴"), Today("今日"), Plan("计划"), Gacha("抽卡"),
     Collection("收藏"), Achievements("成就"), Shop("商店"), Guide("说明"),
