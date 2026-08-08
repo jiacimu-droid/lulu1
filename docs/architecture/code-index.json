@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-08T17:04:41.897538+00:00",
-  "commit": "9b8fdd8a3e430c996e8383f4469574ab3afc70dc",
+  "generatedAt": "2026-08-08T17:05:32.806576+00:00",
+  "commit": "2cc5a6c9877c644a1cb5ce359ba4c8dd8c0e6e82",
   "branch": "main",
-  "sourceFingerprint": "e783592f319a8da13f3b28c0176496b756968e66eab693c7086260b0fc1b87a5",
+  "sourceFingerprint": "3191f450e3e1b8bbcdd616d6e975d078fb3df9bef9bbd72557d985b5d30a66b3",
   "summary": {
     "files": 154,
-    "lines": 43280,
-    "symbols": 621
+    "lines": 43389,
+    "symbols": 622
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -593,7 +593,13 @@
     "MomentsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt",
-        "line": 41
+        "line": 42
+      }
+    ],
+    "publish": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt",
+        "line": 209
       }
     ],
     "PerformanceFeatureScreen": [
@@ -4010,12 +4016,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt",
-      "lines": 457,
-      "sha256": "17d2e7a2be9771b85adca5cc05b1a23d76c7b5788ba5d9c19d1ee3fa30fef68c",
+      "lines": 566,
+      "sha256": "d490bc6d85a1625d9aee21756d9ca48e676f0a4ba47e19c04cda2b4eb25bda36",
       "symbols": [
         {
           "name": "MomentsScreen",
-          "line": 41
+          "line": 42
+        },
+        {
+          "name": "publish",
+          "line": 209
         }
       ]
     },
