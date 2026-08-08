@@ -92,7 +92,7 @@ private fun inferLegacySpeaker(
     // Older saves were plain prose. Only infer a character when the paragraph clearly starts with
     // "名字：" / "名字：“"; otherwise keeping it as narration is safer than showing the wrong portrait.
     partyByName.forEach { (name, character) ->
-        val prefixes = listOf("$name：", "$name:", "$name说：", "$name说:")
+        val prefixes = listOf("${name}：", "${name}:", "${name}说：", "${name}说:")
         val prefix = prefixes.firstOrNull(block::startsWith)
         if (prefix != null) {
             return ParsedSpeaker(
