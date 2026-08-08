@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-08T17:03:48.458975+00:00",
-  "commit": "b5dce7ee936a8b00e76d50ef70ac1e0e03ffb31c",
+  "generatedAt": "2026-08-08T17:04:41.897538+00:00",
+  "commit": "9b8fdd8a3e430c996e8383f4469574ab3afc70dc",
   "branch": "main",
-  "sourceFingerprint": "94015362a0ded5795e7ad6f2624ac7b8ab4c4ead7414e62c740da6f8097849f1",
+  "sourceFingerprint": "e783592f319a8da13f3b28c0176496b756968e66eab693c7086260b0fc1b87a5",
   "summary": {
     "files": 154,
-    "lines": 43092,
+    "lines": 43280,
     "symbols": 621
   },
   "symbolIndex": {
@@ -109,7 +109,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 42
+        "line": 51
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
@@ -1067,7 +1067,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 170
+        "line": 328
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -1697,61 +1697,61 @@
     "MomentAuthorType": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 13
+        "line": 17
       }
     ],
     "MomentComment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 15
+        "line": 19
       }
     ],
     "MomentPost": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 22
+        "line": 28
       }
     ],
     "MomentsStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 32
+        "line": 40
       }
     ],
     "markCharacterPostsSeen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 49
+        "line": 58
       }
     ],
     "publishUser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 54
+        "line": 63
       }
     ],
     "publishCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 63
+        "line": 82
       }
     ],
     "toggleUserLike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 135
+        "line": 242
       }
     ],
     "addUserComment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 149
+        "line": 256
       }
     ],
     "clearCharacterData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 191
+        "line": 349
       }
     ],
     "ProactiveMessageAutomation": [
@@ -5022,56 +5022,56 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-      "lines": 316,
-      "sha256": "69917fd918114ae81981bcaedd0deb053f2217adece6c663ce8e0b4ba446e0c0",
+      "lines": 504,
+      "sha256": "494d1a26da859b705a93da5088f1471d25cef1e607836865fcb1f81b561bc289",
       "symbols": [
         {
           "name": "MomentAuthorType",
-          "line": 13
+          "line": 17
         },
         {
           "name": "MomentComment",
-          "line": 15
+          "line": 19
         },
         {
           "name": "MomentPost",
-          "line": 22
+          "line": 28
         },
         {
           "name": "MomentsStore",
-          "line": 32
+          "line": 40
         },
         {
           "name": "initialize",
-          "line": 42
+          "line": 51
         },
         {
           "name": "markCharacterPostsSeen",
-          "line": 49
+          "line": 58
         },
         {
           "name": "publishUser",
-          "line": 54
-        },
-        {
-          "name": "publishCharacter",
           "line": 63
         },
         {
+          "name": "publishCharacter",
+          "line": 82
+        },
+        {
           "name": "toggleUserLike",
-          "line": 135
+          "line": 242
         },
         {
           "name": "addUserComment",
-          "line": 149
+          "line": 256
         },
         {
           "name": "delete",
-          "line": 170
+          "line": 328
         },
         {
           "name": "clearCharacterData",
-          "line": 191
+          "line": 349
         }
       ]
     },
