@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`32676fb658de00dd3700c0e654b050f51f72fe44`
+- 基准提交：`294531405f8c90089f98bcb267e481faaf7a4cca`
 - 分支：`main`
 - 已索引文件：144
-- 已索引代码/文本行：39622
+- 已索引代码/文本行：39623
 - 已发现符号：603
 
 | 文件 | 行数 | 符号数 |
@@ -50,7 +50,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 67 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 708 | 24 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 125 | 28 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 63 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 64 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 66 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 40 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 75 | 6 |
