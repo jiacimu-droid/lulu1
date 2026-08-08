@@ -23,6 +23,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: One-time map import fix
+        if: ${{ hashFiles('app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt') != '' }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt')
+          t = p.read_text()
+          marker = 'import androidx.compose.foundation.Canvas\n'
+          wanted = 'import androidx.compose.foundation.BorderStroke\nimport androidx.compose.foundation.Canvas\n'
+          if 'import androidx.compose.foundation.BorderStroke\n' not in t:
+              if marker not in t:
+                  raise SystemExit('import marker missing')
+              t = t.replace(marker, wanted, 1)
+              p.write_text(t)
+              print('patched')
+          else:
+              print('already patched')
+          PY
+          if git diff --quiet; then
+            echo 'no changes'
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt
+            git commit -m 'fix: import BorderStroke for apocalypse map [skip ci]'
+            git push origin HEAD:main
+          fi
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -100,13 +129,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `[CI] APK build failed on ${shortSha}`,
-              body: [
-                marker,
-                '## Lulu APK 自动构建失败',
-                '',
-                `- **运行：** https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
-                `- **提交：** ${shortSha}`,
-                '',
-                '请优先查看本次运行中的 `gradle-build.log`。'
-              ].join('\n')
+              body: [marker, '## Lulu APK 自动构建失败', '', `- **运行：** https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`, `- **提交：** ${shortSha}`, '', '请优先查看本次运行中的 `gradle-build.log`。'].join('\n')
             })
