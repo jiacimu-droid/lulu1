@@ -58,8 +58,8 @@ fun PostgraduateExamApp(
         onDispose { onPomodoroVisibilityChanged(false) }
     }
 
-    // Study intentionally owns a yellow/black Material theme. This keeps every sheet, dialog,
-    // menu, chip and future Material control inside the app visually consistent by default.
+    // Study owns a white Material theme with wheat-yellow accents so every sheet, dialog and menu
+    // stays inside the study visual language without falling back to black/yellow surfaces.
     MaterialTheme(colorScheme = StudyColorScheme) {
         if (pomodoroOpen) {
             StudyPomodoroScreen(
@@ -105,7 +105,7 @@ fun PostgraduateExamApp(
                             StudySection.Gacha -> StudyGachaScreen(state, store)
                             StudySection.Collection -> StudyCollectionScreen(state, store, onOpenTheater)
                             StudySection.Achievements -> StudyAchievementsScreenV2(state, store)
-                            StudySection.Shop -> StudyShopScreen(state, store)
+                            StudySection.Shop -> StudyShopScreenV2(state, store)
                             StudySection.Guide -> StudyGuideScreen()
                         }
                     }
