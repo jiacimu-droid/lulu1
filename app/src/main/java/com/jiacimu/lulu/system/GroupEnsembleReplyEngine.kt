@@ -2,6 +2,7 @@ package com.jiacimu.lulu.system
 
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelReply
+import com.jiacimu.lulu.data.CharacterIdentityStore
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluConversation
@@ -119,7 +120,7 @@ internal object GroupEnsembleReplyEngine {
                     actionableUserMessages.forEach { item -> appendLine("消息ID=${item.id}；内容=${item.content.take(320)}") }
                 }
                 if (history.isNotBlank()) appendLine("\n【群聊最近记录；这些都已经真实发生】\n${history.takeLast(14_000)}")
-                appendLine("\n【群成员设定；每个人必须保持自己的语气、关系和边界】")
+                appendLine("\n【群成员身份与设定；每个人必须保持自己的语气、关系和边界】")
                 validMembers.forEach { member ->
                     val character = settings.getValue(member.characterId)
                     val label = memberLabels.getValue(member.characterId)
@@ -128,11 +129,14 @@ internal object GroupEnsembleReplyEngine {
                     appendLine("---")
                     appendLine("characterId=${member.characterId}")
                     appendLine("显示名=${character.displayName}；群内称呼=$label")
-                    appendLine("人设=${character.persona.ifBlank { "按该角色已有设定自然表达。" }.take(1_800)}")
+                    CharacterIdentityStore.get(member.characterId)
+                        .takeIf(String::isNotBlank)
+                        ?.let { identity -> appendLine("角色身份=${identity.take(1_500)}") }
+                    appendLine("角色设定=${character.persona.ifBlank { "按该角色已有设定自然表达。" }.take(1_800)}")
                     if (lived.isNotBlank()) appendLine("这个角色亲历的近期原始时间线=${lived.take(1_100)}")
                     presence?.let { appendLine("上一刻状态=${it.statusText}；动作=${it.gesture}；心情=${it.mood}；没说出口=${it.innerThought}") }
                 }
-                appendLine("\n【调用来源】这是群聊界面的一次整轮生成。全员必须参与，但绝不允许把“全员参与”写成固定 ABC 轮班。合法形态包括 C→B→A、A→B→C→B→A、B→A→C→A 等，具体顺序由当前内容和人设决定。")
+                appendLine("\n【调用来源】这是群聊界面的一次整轮生成。全员必须参与，但绝不允许把“全员参与”写成固定 ABC 轮班。合法形态包括 C→B→A、A→B→C→B→A、B→A→C→A 等，具体顺序由当前内容和角色设定决定。")
             },
             instruction = """
                 你是多人群聊的整体编排器。把这一轮写成真正会发生的群聊：所有成员都参与，但发言顺序不固定，而且有人完全可以在别人说过以后再次回来接话。不要把“全员都说话”误解成“一人一次、按名单轮班”。
@@ -142,18 +146,18 @@ internal object GroupEnsembleReplyEngine {
 
                 规则：
                 1. turns 第一项必须是指定的当前发言者，因为界面已经显示这个人正在输入；这个人不是固定成员，而是每轮动态选出的首发者。
-                2. 本轮所有群成员都必须至少出现一次，但“至少一次”绝不等于“只能一次”。只要符合当前话题和人设，同一个角色可以在本轮再次出现。
+                2. 本轮所有群成员都必须至少出现一次，但“至少一次”绝不等于“只能一次”。只要符合当前话题和角色设定，同一个角色可以在本轮再次出现。
                 3. 发言顺序不能跟成员列表绑定，也不能默认 A→B→C。三个人时可以 C→B→A，也可以 A→B→C→B→A、B→A→C→A、C→A→B→C；顺序必须像真实群聊一样由谁最想接这一句话决定。
                 4. 在全员尚未全部出现之前，也允许已经说过的人再次插话，例如 A→B→A→C；只要最终安全上限内每个人至少出现一次即可。
                 5. turns 数量至少覆盖全部成员，最多是给定安全上限。不要为了填满上限强行续聊；但只要自然，也可以使用多余回合让某些角色再次发言。
                 6. 后续角色应真正接住已经发生的内容：赞同、质疑、反驳、追问、补充、插话、玩笑、岔开或改口；不要每个人都从头回答用户同一个问题。
-                7. 每个角色必须严格保持自己的语言习惯、关系边界、称呼和性格差异。不要把所有人统一写成温柔助手，也不要让一个角色替另一个角色发言。
+                7. 每个角色必须严格保持自己的身份、语言习惯、关系边界、称呼和性格差异。不要把所有人统一写成温柔助手，也不要让一个角色替另一个角色发言。
                 8. bubbles 是这个角色一次次按下“发送”后出现的气泡。一个气泡通常只承载一个当下表达动作；先回应、再补一句、再转折或追问时，可以自然拆成几个短气泡。不要按固定字数、句号或固定数量机械切，也不要把几个不同表达动作硬塞成长段。
                 9. quoteMessageId 是正常聊天能力，不必过度克制。用户连续发了几条、角色针对其中某一句单独回应、想捡回稍早的一句、或不引用会让指代不清时，可以填写真实消息ID；只回最新一句且上下文很清楚时留空。
-                10. favoriteMessageId 是角色自己的主观动作。如果用户某句话让这个角色很在意、很喜欢、想以后回看或对关系有特殊意义，例如承诺、特殊称呼、重要心意、戳中他的句子，可以收藏。是否收藏必须服从这个角色的人设和感受，不设固定概率，也不能为了展示功能乱收藏。
+                10. favoriteMessageId 是角色自己的主观动作。如果用户某句话让这个角色很在意、很喜欢、想以后回看或对关系有特殊意义，例如承诺、特殊称呼、重要心意、戳中他的句子，可以收藏。是否收藏必须服从这个角色的设定和感受，不设固定概率，也不能为了展示功能乱收藏。
                 11. recallBubbleNumber 默认 0。只有极少数角色刚说出口就后悔、说漏嘴或想装作没说过的时刻才填真实序号。
                 12. pokeUser 默认 false。只有这个角色此刻真的会自然戳一下用户时才设为 true。
-                13. 不要虚构用户当前身体、环境或正在做的事情。只能依据用户刚说的话、群聊记录、角色设定和真实时间线互动。
+                13. 不要虚构用户当前身体、环境或正在做的事情。只能依据用户刚说的话、群聊记录、角色身份与设定和真实时间线互动。
                 14. 最后一轮不需要总结，不需要“把话题交给主人”，自然停住就可以。
                 15. ${if (isCall) "这是实时群聊电话，quoteMessageId、favoriteMessageId 留空，recallBubbleNumber=0，pokeUser=false；语言必须更口语化、适合直接念出。" else "这是文字群聊，可以自然使用连续短气泡、引用、角色主观收藏，以及非常偶发的撤回或戳一戳。"}
                 16. statusText、gesture、innerThought、mood 分别属于当前角色本人，不能写成系统分析或推理过程。
