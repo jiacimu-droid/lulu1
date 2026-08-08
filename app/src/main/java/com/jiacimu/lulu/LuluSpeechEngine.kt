@@ -68,8 +68,8 @@ internal class LuluSpeechEngine(context: Context) {
     fun speak(
         text: String,
         scope: CoroutineScope,
-        onFinished: (() -> Unit)? = null,
         voiceIdOverride: String? = null,
+        onFinished: (() -> Unit)? = null,
     ) {
         if (!prefs.getBoolean("tts_enabled", true) || text.isBlank()) {
             onFinished?.invoke()
@@ -102,8 +102,8 @@ internal class LuluSpeechEngine(context: Context) {
         text: String,
         cacheBaseFile: File,
         scope: CoroutineScope,
-        onFinished: (() -> Unit)? = null,
         voiceIdOverride: String? = null,
+        onFinished: (() -> Unit)? = null,
     ) {
         if (!prefs.getBoolean("tts_enabled", true) || text.isBlank()) {
             onFinished?.invoke()
