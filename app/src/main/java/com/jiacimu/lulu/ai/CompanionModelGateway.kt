@@ -2,6 +2,7 @@ package com.jiacimu.lulu.ai
 
 import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
+import com.jiacimu.lulu.data.CharacterIdentityStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.RelevantMemoryRecall
@@ -40,6 +41,10 @@ enum class ModelUsage {
     Game,
 }
 
+/**
+ * Full = normal Lulu world: identity + role settings + memories/worldbook/state.
+ * PersonaAndScenario = cross-world scenario: role settings only; original-world identity is excluded.
+ */
 enum class CompanionContextMode {
     Full,
     PersonaAndScenario,
@@ -116,7 +121,7 @@ class ModelConnectionStore private constructor(context: Context) {
         val removedArchiveIds = current.archives
             .filter { it.configurationId == id }
             .mapTo(mutableSetOf()) { it.id }
-        val archives = current.archives.filterNot { it.id in removedArchiveIds }
+        val archives = current.archives.filterNot { it.configurationId == id }
         val active = current.activeArchiveId?.takeUnless { it in removedArchiveIds }
         persist(
             current.copy(
@@ -441,6 +446,7 @@ class CompanionModelGateway(
             requestUrl = "${connection.baseUrl}/chat/completions"
             val character = MigratedDomainStores.characters.get(characterId)
             val fullContext = contextMode == CompanionContextMode.Full
+            val identity = CharacterIdentityStore.get(characterId).takeIf { fullContext }.orEmpty()
             val presence = CompanionPresenceStore.current(characterId).takeIf { fullContext }
             val memories = if (fullContext) RelevantMemoryRecall.recall(characterId, "$facts\n$instruction", limit = 12) else emptyList()
             val recentSharedTimeline = if (fullContext) SharedExperienceTimeline.recentContext(characterId) else ""
@@ -455,14 +461,19 @@ class CompanionModelGateway(
             }
 
             val baseRules = buildString {
-                appendLine("你正在以‘${character.displayName.ifBlank { "角色" }}’的身份参与露露机中的真实活动。")
-                appendLine("角色的人设、关系边界、世界观和语言习惯拥有最高优先级。")
-                appendLine("角色与用户是什么关系、如何称呼用户，只能来自角色人设、用户资料中的希望称呼或已经发生的对话；不得默认用户是‘主人’，也不得默认恋人、朋友或上下级关系。")
+                appendLine("你正在以‘${character.displayName.ifBlank { "角色" }}’参与露露机中的当前活动。")
+                if (fullContext) {
+                    appendLine("这是角色原本所属的露露机世界：角色身份与角色设定都必须生效，身份、关系边界、世界观和语言习惯拥有最高优先级。")
+                } else {
+                    appendLine("这是独立跨世界场景：只继承角色设定中的性格、语言习惯、价值观和关系边界；不得带入角色原世界的身份、职业、时代、阵营或背景。")
+                }
+                appendLine("角色与用户是什么关系、如何称呼用户，只能来自角色设定、当前场景或明确提供的事实；不得默认用户是‘主人’，也不得默认恋人、朋友或上下级关系。")
                 appendLine("程序给出的题目、抽卡、计时、骰子、棋局、得分和历史记录都是不可修改的事实。")
-                appendLine("不得默认温柔、亲密、活泼、顺从、吐槽或夸奖；只输出该角色按其人设真正会说的话。")
+                appendLine("不得默认温柔、亲密、活泼、顺从、吐槽或夸奖；只输出该角色按其设定真正会说的话。")
                 appendLine("本次任务：$instruction")
             }.trim()
-            val personaSection = character.persona.takeIf(String::isNotBlank)?.let { "角色人设：\n$it" }.orEmpty()
+            val identitySection = identity.takeIf(String::isNotBlank)?.let { "角色身份：\n$it" }.orEmpty()
+            val personaSection = character.persona.takeIf(String::isNotBlank)?.let { "角色设定：\n$it" }.orEmpty()
             val globalWorldBookSection = if (globalWorldBooks.isEmpty()) "" else buildString {
                 appendLine("全局世界书：")
                 globalWorldBooks.forEach { entry -> appendLine("- ${entry.title}：${entry.content}") }
@@ -493,6 +504,7 @@ class CompanionModelGateway(
             }.trim()
             val systemPrompt = listOf(
                 baseRules,
+                identitySection,
                 personaSection,
                 userProfileSection,
                 globalWorldBookSection,
@@ -504,11 +516,11 @@ class CompanionModelGateway(
             ).filter(String::isNotBlank).joinToString("\n\n")
             val fixedEstimatedTokens = estimateTokens(systemPrompt.length)
             check(fixedEstimatedTokens <= CHAT_FIXED_CONTEXT_TOKEN_LIMIT) {
-                "当前角色的固定人设和世界书约需 $fixedEstimatedTokens tokens，超过聊天安全预算 $CHAT_FIXED_CONTEXT_TOKEN_LIMIT；不会静默裁剪，请缩短固定设定或减少启用的世界书。"
+                "当前角色的固定身份、设定和世界书约需 $fixedEstimatedTokens tokens，超过聊天安全预算 $CHAT_FIXED_CONTEXT_TOKEN_LIMIT；不会静默裁剪，请缩短固定设定或减少启用的世界书。"
             }
             val userPrompt = "真实事实：\n${facts.trim()}"
             val breakdown = listOf(
-                tokenBreakdown("系统/角色人设", baseRules.length + personaSection.length),
+                tokenBreakdown("系统/角色身份与设定", baseRules.length + identitySection.length + personaSection.length),
                 tokenBreakdown(
                     "记忆/状态/感知",
                     globalWorldBookSection.length + roleWorldBookSection.length + userProfileSection.length + presenceSection.length + timelineSection.length + memorySection.length + lexiconSection.length,
@@ -604,8 +616,6 @@ class CompanionModelGateway(
             textFrom(choice?.opt("text")),
             textFrom(json.opt("output_text")),
             textFrom(json.opt("output")),
-            // Some reasoning-compatible gateways return the requested JSON here
-            // while leaving the normal content field empty.
             textFrom(message?.opt("reasoning_content")),
         ).firstOrNull(String::isNotBlank).orEmpty()
     }
