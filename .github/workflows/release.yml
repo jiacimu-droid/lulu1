@@ -23,6 +23,128 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: One-time apocalypse survival loop upgrade
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          domain_path = Path('app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt')
+          engine_path = Path('app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Engine.kt')
+          app_path = Path('app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt')
+
+          domain = domain_path.read_text()
+          engine = engine_path.read_text()
+          app = app_path.read_text()
+
+          def replace_once(text, old, new, label):
+              if old not in text:
+                  raise SystemExit(f'patch marker not found: {label}')
+              return text.replace(old, new, 1)
+
+          if 'val health: Int = 100' not in domain:
+              domain = replace_once(domain,
+                  '    val baseName: String = "尚未建立",\n)\n\ninternal data class ApocalypseV3Director(',
+                  '    val baseName: String = "尚未建立",\n    val health: Int = 100,\n    val stamina: Int = 85,\n    val infection: Int = 0,\n    val morale: Int = 72,\n)\n\ninternal data class ApocalypseV3Director(',
+                  'stats fields')
+              domain = replace_once(domain,
+                  '    val foreshadowPlan: List<String> = defaultApocalypseForeshadowPlan(),\n)\n\ninternal data class ApocalypseV3Save(',
+                  '    val foreshadowPlan: List<String> = defaultApocalypseForeshadowPlan(),\n    val dayIndex: Int = -7,\n    val clockMinutes: Int = 14 * 60 + 17,\n    val weather: String = "闷热多云",\n    val temperatureC: Int = 34,\n)\n\ninternal data class ApocalypseV3Save(',
+                  'director time fields')
+              domain = replace_once(domain,
+                  '    val baseDelta: Int = 0,\n)\n\ninternal class ApocalypseSurvivalV3Store',
+                  '    val baseDelta: Int = 0,\n    val healthDelta: Int = 0,\n    val staminaDelta: Int = 0,\n    val infectionDelta: Int = 0,\n    val moraleDelta: Int = 0,\n    val minutesPassed: Int = 30,\n)\n\ninternal class ApocalypseSurvivalV3Store',
+                  'beat survival fields')
+              domain = replace_once(domain,
+                  '        baseName = if (stats.baseLevel == 0 && beat.baseDelta > 0) "临时据点" else stats.baseName,\n    )',
+                  '        baseName = if (stats.baseLevel == 0 && beat.baseDelta > 0) "临时据点" else stats.baseName,\n        health = (stats.health + beat.healthDelta).coerceIn(0, 100),\n        stamina = (stats.stamina + beat.staminaDelta).coerceIn(0, 100),\n        infection = (stats.infection + beat.infectionDelta).coerceIn(0, 100),\n        morale = (stats.morale + beat.moraleDelta).coerceIn(0, 100),\n    )',
+                  'apply survival deltas')
+              domain = replace_once(domain,
+                  '    .put("tension", value.tension)\n\nprivate fun decodeApocalypseV3Director',
+                  '    .put("tension", value.tension)\n    .put("dayIndex", value.dayIndex)\n    .put("clockMinutes", value.clockMinutes)\n    .put("weather", value.weather)\n    .put("temperatureC", value.temperatureC)\n\nprivate fun decodeApocalypseV3Director',
+                  'encode director time')
+              domain = replace_once(domain,
+                  '        foreshadowPlan = json.optJSONArray("foreshadowPlan").v3Strings().ifEmpty { defaults.foreshadowPlan },\n    )',
+                  '        foreshadowPlan = json.optJSONArray("foreshadowPlan").v3Strings().ifEmpty { defaults.foreshadowPlan },\n        dayIndex = json.optInt("dayIndex", defaults.dayIndex).coerceIn(-30, 9999),\n        clockMinutes = json.optInt("clockMinutes", defaults.clockMinutes).coerceIn(0, 1439),\n        weather = json.optString("weather", defaults.weather).ifBlank { defaults.weather }.take(40),\n        temperatureC = json.optInt("temperatureC", defaults.temperatureC).coerceIn(-35, 55),\n    )',
+                  'decode director time')
+              domain = replace_once(domain,
+                  '    .put("baseName", value.baseName)\n\nprivate fun decodeApocalypseV3Stats',
+                  '    .put("baseName", value.baseName)\n    .put("health", value.health)\n    .put("stamina", value.stamina)\n    .put("infection", value.infection)\n    .put("morale", value.morale)\n\nprivate fun decodeApocalypseV3Stats',
+                  'encode survival stats')
+              domain = replace_once(domain,
+                  '    baseName = json.optString("baseName", "尚未建立"),\n)',
+                  '    baseName = json.optString("baseName", "尚未建立"),\n    health = json.optInt("health", 100).coerceIn(0, 100),\n    stamina = json.optInt("stamina", 85).coerceIn(0, 100),\n    infection = json.optInt("infection", 0).coerceIn(0, 100),\n    morale = json.optInt("morale", 72).coerceIn(0, 100),\n)',
+                  'decode survival stats')
+
+          if 'minutesPassed, weather, temperatureC' not in engine:
+              engine = replace_once(engine,
+                  '        appendLine(apocalypseWorldGeographyPromptV5())\n        appendLine("阶段=${director.phase}；地点=${director.location}；第${save.scene}幕；威胁=${director.tension}/10")',
+                  '        appendLine(apocalypseWorldGeographyPromptV5())\n        appendLine("时间=${apocalypseDayLabelV5(director.dayIndex)} ${apocalypseClockLabelV5(director.clockMinutes)}；天气=${director.weather}；温度=${director.temperatureC}℃")\n        appendLine("玩家状态：生命${save.stats.health}/100；体力${save.stats.stamina}/100；感染${save.stats.infection}/100；士气${save.stats.morale}/100")\n        appendLine("阶段=${director.phase}；地点=${director.location}；第${save.scene}幕；威胁=${director.tension}/10")',
+                  'director facts time')
+              engine = replace_once(engine,
+                  '        foodDelta, waterDelta, medicineDelta, materialsDelta, coresFound, playerAbilityXpGain, baseDelta,\n        unlockLocations:',
+                  '        foodDelta, waterDelta, medicineDelta, materialsDelta, coresFound, playerAbilityXpGain, baseDelta,\n        healthDelta, staminaDelta, infectionDelta, moraleDelta, minutesPassed, weather, temperatureC,\n        unlockLocations:',
+                  'director json fields')
+              engine = replace_once(engine,
+                  '        12. 东澜地区六市的相对方位、资源定位与交通距离是硬地理设定。跨市移动必须经历真实路程与风险；临江市只是开局城市，不是整个世界。\n',
+                  '        12. 东澜地区六市的相对方位、资源定位与交通距离是硬地理设定。跨市移动必须经历真实路程与风险；临江市只是开局城市，不是整个世界。\n        13. 每次行动必须估算真实耗时并返回minutesPassed：简单整理5—30分钟，搜楼/战斗30—180分钟，跨区数小时，跨市通常3—10小时。时间推进后天气、照明、疲劳和风险都要跟着变化。\n        14. health/stamina/infection/morale都是0—100。受伤降低health；奔跑、战斗、熬夜降低stamina；赤雨、伤口污染和感染者体液提高infection；成功、休息、关系支持可提高morale。不要无缘无故大幅波动。\n        15. foodDelta/waterDelta必须包含真实消耗与搜集的净变化；长时间行动不能人人永远不喝水不吃东西。基地等级越高，休息恢复、净水、医疗和长期生产才越可靠。\n',
+                  'survival principles')
+              engine = replace_once(engine,
+                  '        appendLine(apocalypseWorldGeographyPromptV5())\n        appendLine("资源：食${nextStats.food} 水${nextStats.water}',
+                  '        appendLine(apocalypseWorldGeographyPromptV5())\n        appendLine("时间：${apocalypseDayLabelV5(beat.nextDirector.dayIndex)} ${apocalypseClockLabelV5(beat.nextDirector.clockMinutes)}；天气=${beat.nextDirector.weather} ${beat.nextDirector.temperatureC}℃")\n        appendLine("玩家状态：生命${nextStats.health} 体力${nextStats.stamina} 感染${nextStats.infection} 士气${nextStats.morale}")\n        appendLine("资源：食${nextStats.food} 水${nextStats.water}',
+                  'writer survival facts')
+              engine = replace_once(engine,
+                  '        - 东澜六市地理是硬设定；跨市行动必须写出路程、道路、燃料、天气、桥隧和中途风险，不能把不同城市当成同一街区。\n        - 结尾停在自然可行动节点',
+                  '        - 东澜六市地理是硬设定；跨市行动必须写出路程、道路、燃料、天气、桥隧和中途风险，不能把不同城市当成同一街区。\n        - 时间和身体状态是硬状态：当前时刻、天气、生命、体力、感染、士气必须反映在行动能力和描写里。疲劳时不能像满状态一样连续高强度战斗；高感染要出现现实后果但不能直接无判定宣判死亡。\n        - 基地能力按等级逐步解锁：Lv1安全睡眠/储物，Lv2净水/医疗，Lv3供电/工坊，Lv4防御/通信，Lv5持续生产。不能让低级临时据点凭空拥有完整城市功能。\n        - 结尾停在自然可行动节点',
+                  'writer rules')
+              engine = replace_once(engine,
+                  '    val next = previous.copy(',
+                  '    val minutesPassed = json.optInt("minutesPassed", 30).coerceIn(5, 720)\n    val absoluteMinutes = previous.clockMinutes + minutesPassed\n    val dayAdvance = absoluteMinutes / 1440\n    val nextClockMinutes = absoluteMinutes % 1440\n    val next = previous.copy(',
+                  'parser time prelude')
+              engine = replace_once(engine,
+                  '        assets = (previous.assets + assets).distinctBy { it.id }.takeLast(90),\n        tension = json.optInt("tension", previous.tension).coerceIn(1, 10),',
+                  '        assets = (previous.assets + assets).distinctBy { it.id }.takeLast(90),\n        dayIndex = (previous.dayIndex + dayAdvance).coerceAtMost(9999),\n        clockMinutes = nextClockMinutes,\n        weather = json.optString("weather").ifBlank { previous.weather }.take(40),\n        temperatureC = json.optInt("temperatureC", previous.temperatureC).coerceIn(-35, 55),\n        tension = json.optInt("tension", previous.tension).coerceIn(1, 10),',
+                  'parser director survival')
+              engine = replace_once(engine,
+                  '        baseDelta = json.optInt("baseDelta").coerceIn(0, 1),\n    )',
+                  '        baseDelta = json.optInt("baseDelta").coerceIn(0, 1),\n        healthDelta = json.optInt("healthDelta").coerceIn(-35, 20),\n        staminaDelta = json.optInt("staminaDelta").coerceIn(-45, 40),\n        infectionDelta = json.optInt("infectionDelta").coerceIn(-15, 30),\n        moraleDelta = json.optInt("moraleDelta").coerceIn(-30, 30),\n        minutesPassed = minutesPassed,\n    )',
+                  'parser beat survival')
+
+          if 'ApocalypseSurvivalSnapshotV5(save)' not in app:
+              app = replace_once(app,
+                  '            item { ApocalypseV5MenuEntry(Icons.Outlined.PlayArrow, "进入游戏", if (save == null) "从灾前第七日开始" else "继续第 ${save.scene} 幕", onEnter, emphasis = true) }',
+                  '            if (save != null) { item { ApocalypseSurvivalSnapshotV5(save) } }\n            item { ApocalypseV5MenuEntry(Icons.Outlined.PlayArrow, "进入游戏", if (save == null) "从灾前第七日开始" else "继续第 ${save.scene} 幕", onEnter, emphasis = true) }',
+                  'home survival snapshot')
+              app = replace_once(app,
+                  '                Text("${save.director.phase} · 第${save.scene}幕", color = ApocalypseV5Colors.blue, fontSize = 9.sp)',
+                  '                Text("${apocalypseDayLabelV5(save.director.dayIndex)} ${apocalypseClockLabelV5(save.director.clockMinutes)} · ${save.director.weather} ${save.director.temperatureC}℃ · 第${save.scene}幕", color = ApocalypseV5Colors.blue, fontSize = 9.sp)',
+                  'play header clock')
+              app = replace_once(app,
+                  '                item { ApocalypseV5StatusPanel(save.stats, save.director.phase, save.director.location) }\n                item { ApocalypseV5SectionTitle("最近剧情", "这里保留行动回顾") }',
+                  '                item { ApocalypseV5StatusPanel(save.stats, save.director.phase, save.director.location) }\n                item { ApocalypseObjectivePanelV5(save.director) }\n                item { ApocalypseBaseDashboardV5(save) }\n                item { ApocalypseV5SectionTitle("最近剧情", "这里保留行动回顾") }',
+                  'archive panels')
+              app = replace_once(app,
+                  '                ApocalypseV5StatusValue("基地", if (stats.baseLevel <= 0) "无" else "Lv.${stats.baseLevel}")\n            }\n        }\n    }\n}\n\n@Composable\nprivate fun ApocalypseV5StatusValue',
+                  '                ApocalypseV5StatusValue("基地", if (stats.baseLevel <= 0) "无" else "Lv.${stats.baseLevel}")\n            }\n            HorizontalDivider(color = ApocalypseV5Colors.blackLine)\n            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {\n                ApocalypseV5StatusValue("生命", stats.health.toString())\n                ApocalypseV5StatusValue("体力", stats.stamina.toString())\n                ApocalypseV5StatusValue("感染", stats.infection.toString())\n                ApocalypseV5StatusValue("士气", stats.morale.toString())\n            }\n        }\n    }\n}\n\n@Composable\nprivate fun ApocalypseV5StatusValue',
+                  'status panel survival row')
+
+          domain_path.write_text(domain)
+          engine_path.write_text(engine)
+          app_path.write_text(app)
+          PY
+
+          if git diff --quiet; then
+            echo 'Survival loop patch already applied.'
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt \
+                    app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Engine.kt \
+                    app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt
+            git commit -m 'feat: add time condition base and objectives to apocalypse [skip ci]'
+            git push origin HEAD:main
+          fi
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
