@@ -39,6 +39,7 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
         SettingsHomePage.Voice -> LuluVoiceSettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Memory -> LuluMemorySettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Image -> LuluImageSettingsScreen(onBack = { page = SettingsHomePage.Home })
+        SettingsHomePage.Vision -> LuluVisionSettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Home -> SettingsEntryScreen(
             onBack = onBack,
             onOpenApi = { page = SettingsHomePage.Api },
@@ -46,11 +47,12 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
             onOpenVoice = { page = SettingsHomePage.Voice },
             onOpenMemory = { page = SettingsHomePage.Memory },
             onOpenImage = { page = SettingsHomePage.Image },
+            onOpenVision = { page = SettingsHomePage.Vision },
         )
     }
 }
 
-private enum class SettingsHomePage { Home, Api, Capabilities, Voice, Memory, Image }
+private enum class SettingsHomePage { Home, Api, Capabilities, Voice, Memory, Image, Vision }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,6 +63,7 @@ private fun SettingsEntryScreen(
     onOpenVoice: () -> Unit,
     onOpenMemory: () -> Unit,
     onOpenImage: () -> Unit,
+    onOpenVision: () -> Unit,
 ) {
     Scaffold(
         containerColor = SettingsHomePaper,
@@ -103,6 +106,14 @@ private fun SettingsEntryScreen(
                     title = "记忆设置",
                     subtitle = "配置记忆抽取、Embedding 向量检索与 Rerank 模型",
                     onClick = onOpenMemory,
+                )
+            }
+            item {
+                SettingsEntryRow(
+                    icon = Icons.Outlined.Visibility,
+                    title = "识图设置",
+                    subtitle = "配置朋友圈图片理解模型，让角色真正看懂你发的图片",
+                    onClick = onOpenVision,
                 )
             }
             item {
