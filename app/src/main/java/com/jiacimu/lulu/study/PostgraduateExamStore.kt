@@ -515,6 +515,22 @@ class PostgraduateExamStore internal constructor(context: Context) {
         return message
     }
 
+    fun exchangeSingleTicketsForTen(): String {
+        var message = "单抽券不足，需要10张"
+        mutate { state ->
+            if (state.inventory.singleTickets < 10) return@mutate state
+            message = "兑换成功：单抽券 -10，十连券 +1"
+            state.copy(
+                inventory = state.inventory.copy(
+                    singleTickets = state.inventory.singleTickets - 10,
+                    tenTickets = state.inventory.tenTickets + 1,
+                ),
+                events = addEvent(state.events, "抽卡券兑换", message),
+            )
+        }
+        return message
+    }
+
     fun redeemEntertainment(kind: StudyEntertainmentKind): String {
         var message = "对应收藏数量不足"
         mutate { state ->
