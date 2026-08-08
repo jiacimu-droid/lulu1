@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-07T19:29:25.218136+00:00",
-  "commit": "4e2f8f221c9d57c55959a4699bbb59ccd831deff",
+  "generatedAt": "2026-08-08T04:04:24.503304+00:00",
+  "commit": "256980e42f818185be26a700139044ab720e7250",
   "branch": "main",
-  "sourceFingerprint": "8bcc75dd9abba6d1aa22258bd864e365a778da663d75b120792176b4f881dbc4",
+  "sourceFingerprint": "e843879a464d1334495b6230c549240a409b6a7853ec086cc911ea9955747832",
   "summary": {
     "files": 132,
-    "lines": 32703,
-    "symbols": 543
+    "lines": 32733,
+    "symbols": 545
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -49,7 +49,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
-        "line": 19
+        "line": 23
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt",
@@ -999,7 +999,7 @@
     "isEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
-        "line": 35
+        "line": 48
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -1009,11 +1009,23 @@
     "setEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
-        "line": 37
+        "line": 50
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 791
+      }
+    ],
+    "voiceId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
+        "line": 57
+      }
+    ],
+    "setVoiceId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
+        "line": 61
       }
     ],
     "ChatLexiconAutomation": [
@@ -3984,8 +3996,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
-      "lines": 45,
-      "sha256": "7fc97c5eb10d4cf4e012ac10f412411180ef0e480adfedf9523081b29b5e2e15",
+      "lines": 75,
+      "sha256": "581e5d715d99f83f9e92bad6b56da61b1697dbc4ba3ad3a3d3d9546fecbdc526",
       "symbols": [
         {
           "name": "CharacterVoicePreferenceStore",
@@ -3993,15 +4005,23 @@
         },
         {
           "name": "initialize",
-          "line": 19
+          "line": 23
         },
         {
           "name": "isEnabled",
-          "line": 35
+          "line": 48
         },
         {
           "name": "setEnabled",
-          "line": 37
+          "line": 50
+        },
+        {
+          "name": "voiceId",
+          "line": 57
+        },
+        {
+          "name": "setVoiceId",
+          "line": 61
         }
       ]
     },
