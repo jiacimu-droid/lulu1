@@ -183,7 +183,7 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                         Column(Modifier.weight(1f)) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text(
-                                    group?.name ?: conversation.title.ifBlank { character.displayName },
+                                    group?.name ?: character.displayName.ifBlank { conversation.title.ifBlank { "未命名角色" } },
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 17.sp,
                                 )
