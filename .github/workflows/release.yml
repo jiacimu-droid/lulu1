@@ -23,6 +23,70 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: One-time full apocalypse map integration
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt')
+          text = path.read_text()
+
+          text = text.replace(
+              '    var showMap by remember { mutableStateOf(false) }\n',
+              '    var showMapPage by remember { mutableStateOf(false) }\n',
+          )
+
+          marker = '''    fun previousPage() { if (pageIndex > 0) { autoPlay = false; setPage(pageIndex - 1) } }\n\n'''
+          insert = '''    fun previousPage() { if (pageIndex > 0) { autoPlay = false; setPage(pageIndex - 1) } }\n\n    if (showMapPage) {\n        ApocalypseWorldMapPageV5(\n            currentLocation = save.director.location,\n            discoveredLocations = save.director.locations,\n            onBack = { showMapPage = false },\n            onPlan = { location ->\n                action = "我打开地图研究${location.name}，先确认路线、天气、道路、感染者和人类活动，再决定如何前往。"\n                showMapPage = false\n            },\n        )\n        return\n    }\n\n'''
+          if 'ApocalypseWorldMapPageV5(' not in text:
+              if marker not in text:
+                  raise SystemExit('previousPage marker missing')
+              text = text.replace(marker, insert, 1)
+
+          old_header = '''            IconButton(onClick = { showMap = true }) { Icon(Icons.Outlined.Map, "地图", tint = ApocalypseV5Colors.textMutedDark) }\n            IconButton(onClick = { showInventory = true }) { Icon(Icons.Outlined.Inventory2, "物资", tint = ApocalypseV5Colors.textMutedDark) }\n'''
+          if old_header in text:
+              text = text.replace(old_header, '', 1)
+
+          old_call = '''            userAvatarUri = userAvatarUri,\n            onAdvance = { if (!lastPage && !busy) nextPage() },\n        )\n'''
+          new_call = '''            userAvatarUri = userAvatarUri,\n            onMap = { showMapPage = true },\n            onInventory = { showInventory = true },\n            onAdvance = { if (!lastPage && !busy) nextPage() },\n        )\n'''
+          if 'onMap = { showMapPage = true }' not in text:
+              if old_call not in text:
+                  raise SystemExit('speaker call marker missing')
+              text = text.replace(old_call, new_call, 1)
+
+          old_sheet = '''    if (showMap) {\n        ModalBottomSheet(onDismissRequest = { showMap = false }, containerColor = ApocalypseV5Colors.background) {\n            ApocalypseWorldMapSheetV5(\n            currentLocation = save.director.location,\n            discoveredLocations = save.director.locations,\n        ) { location ->\n                action = "我准备前往${location.name}，先观察路线、天气、感染者和人类活动，再决定怎么进入。"\n                showMap = false\n            }\n        }\n    }\n'''
+          if old_sheet in text:
+              text = text.replace(old_sheet, '', 1)
+
+          old_sig = '''    userName: String,\n    userAvatarUri: String?,\n    onAdvance: () -> Unit,\n) {\n'''
+          new_sig = '''    userName: String,\n    userAvatarUri: String?,\n    onMap: () -> Unit,\n    onInventory: () -> Unit,\n    onAdvance: () -> Unit,\n) {\n'''
+          if '    onMap: () -> Unit,' not in text:
+              if old_sig not in text:
+                  raise SystemExit('speaker signature marker missing')
+              text = text.replace(old_sig, new_sig, 1)
+
+          stage_marker = '''            }\n            Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {\n                when (page.speakerKind) {\n'''
+          stage_tools = '''            }\n            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {\n                Surface(\n                    onClick = onMap,\n                    color = Color.Black.copy(alpha = .28f),\n                    shape = RoundedCornerShape(9.dp),\n                    border = BorderStroke(1.dp, ApocalypseV5Colors.blackLine),\n                ) {\n                    Row(Modifier.padding(horizontal = 9.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {\n                        Icon(Icons.Outlined.Map, null, tint = ApocalypseV5Colors.blueSoft, modifier = Modifier.size(15.dp))\n                        Spacer(Modifier.width(4.dp))\n                        Text("地图", color = ApocalypseV5Colors.textOnDark, fontSize = 9.sp, fontWeight = FontWeight.Bold)\n                    }\n                }\n                Surface(\n                    onClick = onInventory,\n                    color = Color.Black.copy(alpha = .28f),\n                    shape = RoundedCornerShape(9.dp),\n                    border = BorderStroke(1.dp, ApocalypseV5Colors.blackLine),\n                ) {\n                    Row(Modifier.padding(horizontal = 9.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {\n                        Icon(Icons.Outlined.Inventory2, null, tint = ApocalypseV5Colors.blueSoft, modifier = Modifier.size(15.dp))\n                        Spacer(Modifier.width(4.dp))\n                        Text("物资", color = ApocalypseV5Colors.textOnDark, fontSize = 9.sp, fontWeight = FontWeight.Bold)\n                    }\n                }\n            }\n            Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {\n                when (page.speakerKind) {\n'''
+          if 'Text("地图", color = ApocalypseV5Colors.textOnDark' not in text:
+              if stage_marker not in text:
+                  raise SystemExit('stage tools marker missing')
+              text = text.replace(stage_marker, stage_tools, 1)
+
+          if 'showMap)' in text or 'showMap = ' in text:
+              raise SystemExit('legacy showMap reference remains')
+
+          path.write_text(text)
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt
+          if ! git diff --cached --quiet; then
+            git commit -m "feat: open apocalypse map as full page [skip ci]"
+            git push origin HEAD:main
+          fi
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
