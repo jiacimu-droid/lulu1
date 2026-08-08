@@ -158,6 +158,15 @@ fun LuluMigrationRootAppV2(
         }
     }
 
+    // Count-up uses a persisted anchor timestamp. The root keeps its visible elapsed value moving even
+    // after the focus page is closed, which is what lets the draggable mini window stay truthful.
+    LaunchedEffect(pomodoroCompanion.countUpRunning, pomodoroCompanion.countUpAnchorEpochMillis) {
+        while (PomodoroCompanionSessions.store.state.value.countUpRunning) {
+            delay(1_000)
+            PomodoroCompanionSessions.syncCountUpClock()
+        }
+    }
+
     CompositionLocalProvider(LocalDensity provides preferredDensity) {
         MaterialTheme(
             colorScheme = LuluLightColorScheme,
