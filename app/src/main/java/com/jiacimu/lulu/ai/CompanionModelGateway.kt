@@ -121,7 +121,7 @@ class ModelConnectionStore private constructor(context: Context) {
         val removedArchiveIds = current.archives
             .filter { it.configurationId == id }
             .mapTo(mutableSetOf()) { it.id }
-        val archives = current.archives.filterNot { it.configurationId == id }
+        val archives = current.archives.filterNot { it.id == id }
         val active = current.activeArchiveId?.takeUnless { it in removedArchiveIds }
         persist(
             current.copy(
