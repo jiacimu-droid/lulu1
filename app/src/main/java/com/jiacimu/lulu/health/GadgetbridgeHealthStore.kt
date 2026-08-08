@@ -75,6 +75,8 @@ internal object GadgetbridgeHealthStore {
     private const val PREFS_NAME = "lulu_gadgetbridge_health"
     private const val KEY_STATE = "state_v1"
     private const val CACHE_FILE = "gadgetbridge-health-import.db"
+    private const val MAX_SUPPLEMENTAL_ROWS = 50_000
+    private const val MAX_HUAWEI_SLEEP_ROWS = 20_000
 
     private val mutableState = MutableStateFlow(GadgetbridgeHealthState())
     val state: StateFlow<GadgetbridgeHealthState> = mutableState.asStateFlow()
@@ -100,13 +102,15 @@ internal object GadgetbridgeHealthStore {
                     Intent.FLAG_GRANT_READ_URI_PERMISSION,
                 )
             }
-            val current = mutableState.value.copy(
-                sourceUri = uri.toString(),
-                sourceName = displayName(context, uri),
-                importing = true,
-                error = "",
+            setState(
+                context,
+                mutableState.value.copy(
+                    sourceUri = uri.toString(),
+                    sourceName = displayName(context, uri),
+                    importing = true,
+                    error = "",
+                ),
             )
-            setState(context, current)
             importUri(context.applicationContext, uri)
             GadgetbridgeHealthRefreshScheduler.schedule(context)
         }.onFailure { error ->
@@ -142,10 +146,7 @@ internal object GadgetbridgeHealthStore {
         val uri = mutableState.value.sourceUri.takeIf(String::isNotBlank)?.let(Uri::parse)
         if (uri != null) {
             runCatching {
-                context.contentResolver.releasePersistableUriPermission(
-                    uri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
-                )
+                context.contentResolver.releasePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
         }
         setState(context, GadgetbridgeHealthState())
@@ -194,9 +195,7 @@ internal object GadgetbridgeHealthStore {
             database.rawQuery(
                 "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'",
                 null,
-            ).use { cursor ->
-                while (cursor.moveToNext()) add(cursor.getString(0))
-            }
+            ).use { cursor -> while (cursor.moveToNext()) add(cursor.getString(0)) }
         }
         val tableColumns = tables.associateWith { table -> columns(database, table) }
         val preferred = tables.firstOrNull { it.equals("HUAWEI_ACTIVITY_SAMPLE", ignoreCase = true) }
@@ -214,21 +213,35 @@ internal object GadgetbridgeHealthStore {
             readActivitySummary(database, activityTable, tableColumns.getValue(activityTable)).forEach { day ->
                 days[day.date] = day
             }
-            readHuaweiSleepWindows(database, activityTable, tableColumns.getValue(activityTable)).forEach { (date, window) ->
+            readHuaweiSleepAggregates(database, activityTable, tableColumns.getValue(activityTable)).forEach { (date, sleep) ->
                 val current = days[date] ?: GadgetbridgeDaySummary(date)
                 days[date] = current.copy(
-                    sleepMinutes = maxOf(current.sleepMinutes ?: 0, window.minutes).takeIf { it > 0 },
-                    sleepStartEpochSeconds = earliest(current.sleepStartEpochSeconds, window.startEpochSeconds),
-                    sleepEndEpochSeconds = latest(current.sleepEndEpochSeconds, window.endEpochSeconds),
+                    sleepMinutes = maxOf(current.sleepMinutes ?: 0, sleep.sleepMinutes).takeIf { it > 0 },
+                    sleepStartEpochSeconds = sleep.primaryStartEpochSeconds ?: current.sleepStartEpochSeconds,
+                    sleepEndEpochSeconds = sleep.primaryEndEpochSeconds ?: current.sleepEndEpochSeconds,
                 )
             }
         }
 
-        tables.forEach { table ->
-            if (table == activityTable) return@forEach
-            val columns = tableColumns.getValue(table)
-            if (!couldContainHealthData(table, columns)) return@forEach
-            val changed = readSupplementalTable(database, table, columns, days)
+        // Gadgetbridge has used dedicated sleep/stat tables on several device families, including Huawei.
+        // Read those tables after the generic activity table so richer sleep stages/scores can win.
+        val orderedSupplementalTables = tables
+            .filterNot { it == activityTable }
+            .sortedWith(compareByDescending<String> { name ->
+                val upper = name.uppercase(Locale.ROOT)
+                when {
+                    "SLEEP" in upper && ("STATS" in upper || "SUMMARY" in upper) -> 4
+                    "SLEEP" in upper -> 3
+                    "HEALTH" in upper || "VITAL" in upper -> 2
+                    "HUAWEI" in upper -> 1
+                    else -> 0
+                }
+            }.thenBy { it })
+
+        orderedSupplementalTables.forEach { table ->
+            val cols = tableColumns.getValue(table)
+            if (!couldContainHealthData(table, cols)) return@forEach
+            val changed = readSupplementalTable(database, table, cols, days)
             if (changed) usedTables += table
         }
 
@@ -241,7 +254,7 @@ internal object GadgetbridgeHealthStore {
 
         if (normalized.isEmpty()) error("没有找到可识别的 Gadgetbridge 健康数据表")
         return ParsedDatabase(
-            tableName = usedTables.take(4).joinToString("、").ifBlank { activityTable ?: "健康数据" },
+            tableName = usedTables.take(6).joinToString("、").ifBlank { activityTable ?: "健康数据" },
             days = normalized,
         )
     }
@@ -253,7 +266,7 @@ internal object GadgetbridgeHealthStore {
     ): List<GadgetbridgeDaySummary> {
         val timestamp = columns["TIMESTAMP"] ?: return emptyList()
         val quotedTable = quote(table)
-        val quotedTimestamp = quote(timestamp)
+        val timestampEpoch = normalizedEpochSql(quote(timestamp))
 
         fun picked(vararg names: String): String? = names.firstNotNullOfOrNull { columns[it]?.let(::quote) }
         fun sum(vararg names: String): String = picked(*names)?.let { value ->
@@ -269,24 +282,14 @@ internal object GadgetbridgeHealthStore {
             "MAX(CASE WHEN $value BETWEEN $minimum AND $maximum THEN $value END)"
         } ?: "NULL"
 
-        val sleepExpression = if (columns.containsKey("OTHER_TIMESTAMP") && columns.containsKey("RAW_KIND")) {
-            val other = quote(columns.getValue("OTHER_TIMESTAMP"))
-            val kind = quote(columns.getValue("RAW_KIND"))
-            "CAST(SUM(CASE WHEN $kind = 6 AND ABS($other - $quotedTimestamp) BETWEEN 60 AND 86400 " +
-                "THEN ABS($other - $quotedTimestamp) ELSE 0 END) / 60 AS INTEGER)"
-        } else {
-            "NULL"
-        }
-
         val sql = """
             SELECT
-                date($quotedTimestamp, 'unixepoch', 'localtime') AS day,
+                date($timestampEpoch, 'unixepoch', 'localtime') AS day,
                 ${sum("STEPS", "STEP_COUNT")} AS steps,
                 ${average(25.0, 240.0, "HEART_RATE", "HEARTRATE", "BPM")} AS average_hr,
                 ${minimum(25, 240, "HEART_RATE", "HEARTRATE", "BPM")} AS minimum_hr,
                 ${maximum(25, 240, "HEART_RATE", "HEARTRATE", "BPM")} AS maximum_hr,
                 ${average(25.0, 180.0, "RESTING_HEART_RATE", "RESTING_HR", "RHR")} AS resting_hr,
-                $sleepExpression AS sleep_minutes,
                 ${average(50.0, 100.0, "SPO", "SPO2", "OXYGEN_SATURATION")} AS spo2,
                 ${average(1.0, 100.0, "STRESS", "STRESS_LEVEL")} AS stress,
                 ${average(1.0, 350.0, "HRV", "HRV_MS", "RMSSD", "SDNN")} AS hrv,
@@ -300,7 +303,7 @@ internal object GadgetbridgeHealthStore {
                 ${sum("ACTIVE_MINUTES", "ACTIVE_TIME_MINUTES")} AS active_minutes,
                 ${sum("FLOORS", "FLOORS_CLIMBED")} AS floors
             FROM $quotedTable
-            WHERE $quotedTimestamp >= strftime('%s', 'now', '-180 days')
+            WHERE $timestampEpoch >= CAST(strftime('%s', 'now', '-180 days') AS INTEGER)
             GROUP BY day
             HAVING day IS NOT NULL
             ORDER BY day ASC
@@ -318,7 +321,6 @@ internal object GadgetbridgeHealthStore {
                             minimumHeartRate = cursor.nullableInt("minimum_hr"),
                             maximumHeartRate = cursor.nullableInt("maximum_hr"),
                             restingHeartRate = cursor.nullableInt("resting_hr"),
-                            sleepMinutes = cursor.nullableInt("sleep_minutes")?.takeIf { it > 0 },
                             spo2 = cursor.nullableInt("spo2"),
                             stress = cursor.nullableInt("stress"),
                             hrvMillis = cursor.nullableInt("hrv"),
@@ -338,23 +340,38 @@ internal object GadgetbridgeHealthStore {
         }
     }
 
-    private data class SleepWindow(
-        val startEpochSeconds: Long,
-        val endEpochSeconds: Long,
-        val minutes: Int,
+    private data class SleepInterval(val start: Long, val end: Long) {
+        val minutes: Int get() = ((end - start) / 60L).toInt().coerceAtLeast(0)
+    }
+
+    private data class SleepSession(
+        val start: Long,
+        val end: Long,
+        val sleepMinutes: Int,
     )
 
-    private fun readHuaweiSleepWindows(
+    private data class HuaweiSleepAggregate(
+        val sleepMinutes: Int,
+        val primaryStartEpochSeconds: Long?,
+        val primaryEndEpochSeconds: Long?,
+    )
+
+    /**
+     * Huawei's legacy/simple TruSleep data is stored as multiple RAW_KIND=6 intervals in
+     * HUAWEI_ACTIVITY_SAMPLE. Those rows are not one single sleep window: they need to be
+     * accumulated and stitched into sessions. A long daytime gap starts a separate nap/session.
+     */
+    private fun readHuaweiSleepAggregates(
         database: SQLiteDatabase,
         table: String,
         columns: Map<String, String>,
-    ): Map<LocalDate, SleepWindow> {
+    ): Map<LocalDate, HuaweiSleepAggregate> {
         val timestamp = columns["TIMESTAMP"] ?: return emptyMap()
         val other = columns["OTHER_TIMESTAMP"] ?: return emptyMap()
         val kind = columns["RAW_KIND"] ?: return emptyMap()
-        val result = mutableMapOf<LocalDate, SleepWindow>()
+        val intervals = mutableListOf<SleepInterval>()
         val sql = "SELECT ${quote(timestamp)}, ${quote(other)} FROM ${quote(table)} " +
-            "WHERE ${quote(kind)} = 6 ORDER BY ${quote(timestamp)} DESC LIMIT 3000"
+            "WHERE ${quote(kind)} = 6 ORDER BY ${quote(timestamp)} DESC LIMIT $MAX_HUAWEI_SLEEP_ROWS"
         database.rawQuery(sql, null).use { cursor ->
             while (cursor.moveToNext()) {
                 val first = normalizeEpochSeconds(cursor.getLong(0)) ?: continue
@@ -362,26 +379,58 @@ internal object GadgetbridgeHealthStore {
                 val start = minOf(first, second)
                 val end = maxOf(first, second)
                 val minutes = ((end - start) / 60L).toInt()
-                if (minutes !in 5..1_200) continue
+                if (minutes !in 1..1_200) continue
                 val date = Instant.ofEpochSecond(end).atZone(ZoneId.systemDefault()).toLocalDate()
-                val existing = result[date]
-                if (existing == null || minutes > existing.minutes) {
-                    result[date] = SleepWindow(start, end, minutes)
-                }
+                if (date.isBefore(LocalDate.now().minusDays(190)) || date.isAfter(LocalDate.now().plusDays(1))) continue
+                intervals += SleepInterval(start, end)
             }
         }
-        return result
+        if (intervals.isEmpty()) return emptyMap()
+
+        val sorted = intervals.distinct().sortedBy(SleepInterval::start)
+        val sessions = mutableListOf<SleepSession>()
+        var currentStart = sorted.first().start
+        var currentEnd = sorted.first().end
+        var currentSleepMinutes = sorted.first().minutes
+        sorted.drop(1).forEach { interval ->
+            val gapSeconds = interval.start - currentEnd
+            if (gapSeconds <= 90 * 60L) {
+                currentEnd = maxOf(currentEnd, interval.end)
+                currentSleepMinutes += interval.minutes
+            } else {
+                sessions += SleepSession(currentStart, currentEnd, currentSleepMinutes.coerceAtMost(1_200))
+                currentStart = interval.start
+                currentEnd = interval.end
+                currentSleepMinutes = interval.minutes
+            }
+        }
+        sessions += SleepSession(currentStart, currentEnd, currentSleepMinutes.coerceAtMost(1_200))
+
+        return sessions
+            .filter { session -> session.sleepMinutes > 0 && session.end > session.start }
+            .groupBy { session -> Instant.ofEpochSecond(session.end).atZone(ZoneId.systemDefault()).toLocalDate() }
+            .mapValues { (_, dateSessions) ->
+                val primary = dateSessions.maxByOrNull { it.end - it.start }
+                HuaweiSleepAggregate(
+                    sleepMinutes = dateSessions.sumOf { it.sleepMinutes }.coerceIn(1, 1_200),
+                    primaryStartEpochSeconds = primary?.start,
+                    primaryEndEpochSeconds = primary?.end,
+                )
+            }
     }
 
     private fun couldContainHealthData(table: String, columns: Map<String, String>): Boolean {
         val tableName = table.uppercase(Locale.ROOT)
-        if ("SLEEP" in tableName || "HEALTH" in tableName || "SUMMARY" in tableName || "VITAL" in tableName) return true
+        if (
+            "SLEEP" in tableName || "HEALTH" in tableName || "SUMMARY" in tableName ||
+            "VITAL" in tableName || "TRUSLEEP" in tableName
+        ) return true
         val recognized = setOf(
-            "SLEEP_START", "SLEEP_END", "DEEP_SLEEP", "LIGHT_SLEEP", "REM_SLEEP", "SLEEP_SCORE",
+            "SLEEP", "BED", "WAKE", "STAGE", "DEEP", "LIGHT", "REM", "AWAKE",
             "RESTING_HEART_RATE", "HRV", "RMSSD", "RESPIRATORY_RATE", "SKIN_TEMPERATURE",
             "BODY_ENERGY", "BODY_BATTERY", "SYSTOLIC", "DIASTOLIC", "ACTIVE_MINUTES", "FLOORS",
         )
-        return columns.keys.any { key -> recognized.any { token -> key.contains(token) } }
+        return columns.keys.any { key -> recognized.any(key::contains) }
     }
 
     private fun readSupplementalTable(
@@ -394,17 +443,26 @@ internal object GadgetbridgeHealthStore {
             columns[candidate] ?: columns.entries.firstOrNull { (upper, _) -> upper.contains(candidate) }?.value
         }
 
-        val dateColumn = find("LOCAL_DATE", "SUMMARY_DATE", "DATE", "DAY")
-        val timestampColumn = find("TIMESTAMP", "TIME", "START_TIMESTAMP", "START_TIME")
-        val startColumn = find("SLEEP_START_TIMESTAMP", "SLEEP_START", "START_TIMESTAMP", "START_TIME", "BEGIN_TIME")
-        val endColumn = find("SLEEP_END_TIMESTAMP", "SLEEP_END", "END_TIMESTAMP", "END_TIME", "WAKE_TIME", "OTHER_TIMESTAMP")
-        val durationColumn = find("SLEEP_DURATION_MINUTES", "SLEEP_MINUTES", "DURATION_MINUTES", "DURATION")
-        val stageColumn = find("SLEEP_STAGE", "STAGE", "SLEEP_TYPE")
-        val deepColumn = find("DEEP_SLEEP_MINUTES", "DEEP_SLEEP_DURATION", "DEEP_SLEEP")
-        val lightColumn = find("LIGHT_SLEEP_MINUTES", "LIGHT_SLEEP_DURATION", "LIGHT_SLEEP")
-        val remColumn = find("REM_SLEEP_MINUTES", "REM_SLEEP_DURATION", "REM_SLEEP")
-        val awakeColumn = find("AWAKE_MINUTES", "AWAKE_DURATION", "AWAKE_TIME")
-        val sleepScoreColumn = find("SLEEP_SCORE")
+        val dateColumn = find("SLEEP_DATE", "LOCAL_DATE", "SUMMARY_DATE", "CALENDAR_DATE", "DATE", "DAY_START", "DAY")
+        val timestampColumn = find("TIMESTAMP", "SLEEP_TIMESTAMP", "TIME")
+        val startColumn = find(
+            "SLEEP_START_TIMESTAMP", "SLEEP_START", "SLEEP_BEGIN_TIME", "SLEEP_BEGIN",
+            "FALL_ASLEEP_TIME", "BEDTIME", "BED_TIME", "START_TIMESTAMP", "START_TIME", "BEGIN_TIME",
+        )
+        val endColumn = find(
+            "SLEEP_END_TIMESTAMP", "SLEEP_END", "SLEEP_FINISH", "WAKEUP_TIME", "WAKE_UP_TIME",
+            "WAKE_TIME", "END_TIMESTAMP", "END_TIME", "OTHER_TIMESTAMP",
+        )
+        val durationColumn = find(
+            "SLEEP_DURATION_MINUTES", "TOTAL_SLEEP_MINUTES", "TOTAL_SLEEP_TIME", "TOTAL_SLEEP",
+            "SLEEP_DURATION", "SLEEP_MINUTES", "DURATION_MINUTES", "DURATION",
+        )
+        val stageColumn = find("SLEEP_STAGE", "SLEEP_LEVEL", "STAGE", "SLEEP_TYPE")
+        val deepColumn = find("DEEP_SLEEP_MINUTES", "DEEP_SLEEP_DURATION", "DEEP_SLEEP_TIME", "DEEP_DURATION", "DEEP_TIME", "DEEP_SLEEP")
+        val lightColumn = find("LIGHT_SLEEP_MINUTES", "LIGHT_SLEEP_DURATION", "LIGHT_SLEEP_TIME", "LIGHT_DURATION", "LIGHT_TIME", "LIGHT_SLEEP")
+        val remColumn = find("REM_SLEEP_MINUTES", "REM_SLEEP_DURATION", "REM_SLEEP_TIME", "REM_DURATION", "REM_TIME", "REM_SLEEP")
+        val awakeColumn = find("AWAKE_MINUTES", "AWAKE_DURATION", "AWAKE_TIME", "WAKE_DURATION", "AWAKE_SLEEP")
+        val sleepScoreColumn = find("SLEEP_SCORE", "SLEEPSCORE", "SCORE")
         val restingHeartRateColumn = find("RESTING_HEART_RATE", "RESTING_HR", "RHR")
         val hrvColumn = find("HRV_MS", "HRV", "RMSSD", "SDNN")
         val respiratoryColumn = find("RESPIRATORY_RATE", "RESPIRATION_RATE", "BREATHING_RATE")
@@ -424,8 +482,19 @@ internal object GadgetbridgeHealthStore {
             return false
         }
 
+        // Important: do not read the first 10k physical rows. On long-running Gadgetbridge databases
+        // those are often old records and the newest sleep rows are far beyond that range.
+        val orderColumn = endColumn ?: startColumn ?: timestampColumn ?: dateColumn
+        val sql = buildString {
+            append("SELECT * FROM ${quote(table)}")
+            if (orderColumn != null) append(" ORDER BY ${quote(orderColumn)} DESC")
+            append(" LIMIT $MAX_SUPPLEMENTAL_ROWS")
+        }
+        val tableUpper = table.uppercase(Locale.ROOT)
+        val summaryLike = "SUMMARY" in tableUpper || "STATS" in tableUpper || "SESSION" in tableUpper
+
         var changed = false
-        database.rawQuery("SELECT * FROM ${quote(table)} LIMIT 10000", null).use { cursor ->
+        database.rawQuery(sql, null).use { cursor ->
             while (cursor.moveToNext()) {
                 val startEpoch = startColumn?.let { cursor.epochSeconds(it) }
                 val endEpoch = endColumn?.let { cursor.epochSeconds(it) }
@@ -448,8 +517,10 @@ internal object GadgetbridgeHealthStore {
                 if (sleepMinutes != null) {
                     next = next.copy(sleepMinutes = maxOf(next.sleepMinutes ?: 0, sleepMinutes))
                 }
-                if (startEpoch != null) next = next.copy(sleepStartEpochSeconds = earliest(next.sleepStartEpochSeconds, startEpoch))
-                if (endEpoch != null) next = next.copy(sleepEndEpochSeconds = latest(next.sleepEndEpochSeconds, endEpoch))
+                if (summaryLike || stageColumn == null) {
+                    if (startEpoch != null) next = next.copy(sleepStartEpochSeconds = earliest(next.sleepStartEpochSeconds, startEpoch))
+                    if (endEpoch != null) next = next.copy(sleepEndEpochSeconds = latest(next.sleepEndEpochSeconds, endEpoch))
+                }
 
                 deepColumn?.let { column -> cursor.number(column)?.let { value ->
                     next = next.copy(deepSleepMinutes = mergeDuration(next.deepSleepMinutes, durationToMinutes(value, column)))
@@ -469,7 +540,7 @@ internal object GadgetbridgeHealthStore {
                     next = when {
                         "DEEP" in stage || "深睡" in stage -> next.copy(deepSleepMinutes = (next.deepSleepMinutes ?: 0) + sleepMinutes)
                         "LIGHT" in stage || "浅睡" in stage -> next.copy(lightSleepMinutes = (next.lightSleepMinutes ?: 0) + sleepMinutes)
-                        "REM" in stage || "RAPID" in stage -> next.copy(remSleepMinutes = (next.remSleepMinutes ?: 0) + sleepMinutes)
+                        "REM" in stage || "RAPID" in stage || "快速眼动" in stage -> next.copy(remSleepMinutes = (next.remSleepMinutes ?: 0) + sleepMinutes)
                         "AWAKE" in stage || "WAKE" in stage || "清醒" in stage -> next.copy(awakeSleepMinutes = (next.awakeSleepMinutes ?: 0) + sleepMinutes)
                         else -> next
                     }
@@ -503,7 +574,10 @@ internal object GadgetbridgeHealthStore {
         ) {
             ((day.sleepEndEpochSeconds - day.sleepStartEpochSeconds) / 60L).toInt().takeIf { it in 1..1_200 }
         } else null
-        val total = day.sleepMinutes ?: stageSleep.takeIf { it > 0 } ?: windowSleep
+
+        // When Gadgetbridge has already decoded deep/light/REM, that sum is the closest equivalent to
+        // the sleep total shown by its own UI (awake time is intentionally excluded).
+        val total = stageSleep.takeIf { it > 0 } ?: day.sleepMinutes ?: windowSleep
         return day.copy(
             sleepMinutes = total?.coerceIn(1, 1_200),
             deepSleepMinutes = day.deepSleepMinutes?.coerceIn(0, 1_000),
@@ -516,7 +590,8 @@ internal object GadgetbridgeHealthStore {
     private fun hasMeaningfulData(day: GadgetbridgeDaySummary): Boolean =
         day.steps > 0 || listOfNotNull(
             day.averageHeartRate, day.sleepMinutes, day.spo2, day.stress, day.calories,
-            day.deepSleepMinutes, day.hrvMillis, day.bodyEnergy, day.sleepScore,
+            day.deepSleepMinutes, day.lightSleepMinutes, day.remSleepMinutes, day.awakeSleepMinutes,
+            day.hrvMillis, day.bodyEnergy, day.sleepScore,
         ).isNotEmpty() || day.distanceMeters != null || day.respiratoryRate != null || day.skinTemperatureCelsius != null
 
     private fun columns(database: SQLiteDatabase, table: String): Map<String, String> = buildMap {
@@ -531,12 +606,14 @@ internal object GadgetbridgeHealthStore {
 
     private fun quote(identifier: String): String = "\"${identifier.replace("\"", "\"\"")}\""
 
+    private fun normalizedEpochSql(expression: String): String =
+        "(CASE WHEN $expression > 10000000000000 THEN $expression / 1000000 " +
+            "WHEN $expression > 10000000000 THEN $expression / 1000 ELSE $expression END)"
+
     private fun displayName(context: Context, uri: Uri): String {
         return runCatching {
             context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
-                ?.use { cursor ->
-                    if (cursor.moveToFirst()) cursor.getString(0) else null
-                }
+                ?.use { cursor -> if (cursor.moveToFirst()) cursor.getString(0) else null }
         }.getOrNull().orEmpty().ifBlank { uri.lastPathSegment ?: "Gadgetbridge.db" }
     }
 
@@ -741,9 +818,6 @@ private fun latest(first: Long?, second: Long?): Long? = when {
 private fun JSONObject.putNullable(name: String, value: Int?) { put(name, value ?: JSONObject.NULL) }
 private fun JSONObject.putNullable(name: String, value: Long?) { put(name, value ?: JSONObject.NULL) }
 private fun JSONObject.putNullable(name: String, value: Float?) { put(name, value ?: JSONObject.NULL) }
-private fun JSONObject.nullableInt(name: String): Int? =
-    if (!has(name) || isNull(name)) null else optInt(name)
-private fun JSONObject.nullableLong(name: String): Long? =
-    if (!has(name) || isNull(name)) null else optLong(name)
-private fun JSONObject.nullableFloat(name: String): Float? =
-    if (!has(name) || isNull(name)) null else optDouble(name).toFloat()
+private fun JSONObject.nullableInt(name: String): Int? = if (!has(name) || isNull(name)) null else optInt(name)
+private fun JSONObject.nullableLong(name: String): Long? = if (!has(name) || isNull(name)) null else optLong(name)
+private fun JSONObject.nullableFloat(name: String): Float? = if (!has(name) || isNull(name)) null else optDouble(name).toFloat()
