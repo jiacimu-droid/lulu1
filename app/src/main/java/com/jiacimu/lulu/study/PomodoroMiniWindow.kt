@@ -31,7 +31,8 @@ import kotlin.math.roundToInt
 
 /**
  * App-level draggable timer window. It is deliberately Compose-owned instead of a system overlay:
- * no overlay permission is required, and it remains visible while navigating around Lulu.
+ * no overlay permission is required, and it remains visible while navigating around Lulu. Returning
+ * from this window reopens the same active timer rather than starting another Pomodoro session.
  */
 @Composable
 internal fun PomodoroMiniWindow(
