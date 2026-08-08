@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.data.CharacterIdentityStore
 import com.jiacimu.lulu.data.ChatLexiconAutomation
 import com.jiacimu.lulu.data.ChatMemoryAutomation
 import com.jiacimu.lulu.data.ChatTurnConsistencyAutomation
@@ -43,6 +44,7 @@ class MigrationActivity : ComponentActivity() {
         LegacyConversationMigration.migrateSavedState(appContext)
         SharedExperienceTimeline.initialize(appContext)
         MigratedDomainStores.initialize(appContext)
+        CharacterIdentityStore.initialize(appContext)
         MomentsStore.initialize(appContext)
         SharedExperienceTimeline.backfillChatHistory()
         CompanionPresenceStore.initialize(appContext)
