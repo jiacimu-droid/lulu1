@@ -14,7 +14,7 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.design.LuluColors
 import com.jiacimu.lulu.design.LuluLightColorScheme
 import com.jiacimu.lulu.design.LuluTypography
-import com.jiacimu.lulu.games.CinematicApocalypseGameScreen
+import com.jiacimu.lulu.games.ApocalypseSurvivalApp
 import com.jiacimu.lulu.games.LuluGames
 import com.jiacimu.lulu.games.LuluGamesAppV2
 import com.jiacimu.lulu.health.HealthFeatureScreen
@@ -144,7 +144,6 @@ fun LuluMigrationRootAppV2(
         readingInitialTitle = initialReadingTitle
     }
 
-    // Countdown uses an absolute end timestamp, so leaving the page does not stop or reset it.
     LaunchedEffect(studyState.pomodoro.running, studyState.pomodoro.endAtEpochMillis) {
         val studyStore = PostgraduateExamStores.main
         while (studyStore.state.value.pomodoro.running) {
@@ -160,8 +159,6 @@ fun LuluMigrationRootAppV2(
         }
     }
 
-    // Count-up uses a persisted anchor timestamp. The root keeps its visible elapsed value moving even
-    // after the focus page is closed, which is what lets the draggable mini window stay truthful.
     LaunchedEffect(pomodoroCompanion.countUpRunning, pomodoroCompanion.countUpAnchorEpochMillis) {
         while (PomodoroCompanionSessions.store.state.value.countUpRunning) {
             delay(1_000)
@@ -176,8 +173,6 @@ fun LuluMigrationRootAppV2(
         ) {
             Surface(Modifier.fillMaxSize(), color = LuluColors.Paper) {
                 Box(Modifier.fillMaxSize()) {
-                    // Keep the active chat composition attached to the app root so replies continue
-                    // while the user visits another page or temporarily backgrounds the chat.
                     if (chatSessionStarted) {
                         Box(
                             modifier = Modifier
@@ -283,7 +278,7 @@ fun LuluMigrationRootAppV2(
                                     },
                                     initialGameId = initialGameId,
                                 )
-                                MigrationRoute.ApocalypseSurvival -> CinematicApocalypseGameScreen(
+                                MigrationRoute.ApocalypseSurvival -> ApocalypseSurvivalApp(
                                     gameStore = LuluGames.store,
                                     onBack = ::popRoute,
                                 )
