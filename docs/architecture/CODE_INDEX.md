@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b5ee53a09dd01462d2a56b0843b40abe9599e2c7`
+- 基准提交：`40ac8ab185fb1bf4ca95d26b53f06dfbb22112b7`
 - 分支：`main`
 - 已索引文件：133
-- 已索引代码/文本行：33408
+- 已索引代码/文本行：33414
 - 已发现符号：558
 
 | 文件 | 行数 | 符号数 |
@@ -24,7 +24,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 517 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 412 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 335 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 307 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 316 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 130 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 163 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 336 | 4 |
@@ -96,8 +96,8 @@
 | `app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt` | 575 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 282 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 404 | 29 |
-| `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 169 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 400 | 29 |
+| `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 170 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 114 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 808 | 32 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 46 | 1 |
