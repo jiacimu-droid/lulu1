@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-08T10:39:48.718433+00:00",
-  "commit": "fd4600f05632ea77af246095b1d6c10fab60bddd",
+  "generatedAt": "2026-08-08T10:42:47.305531+00:00",
+  "commit": "77cbe2a7804567a23b4cb6dfd9a99489df3f4220",
   "branch": "main",
-  "sourceFingerprint": "d3d773f058abdbd016cac937bdda6a94d28292e98d29c9587777fb56eba709a1",
+  "sourceFingerprint": "515d379bb5081fb984c657b80b96afd31e97baf5b5ddb617d675b137713b642c",
   "summary": {
     "files": 143,
     "lines": 39514,
@@ -5402,7 +5402,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseVisualNovelPresentation.kt",
       "lines": 141,
-      "sha256": "b11eca48c8fb11a3f65b2bd684801e4800dae9fe60819bee30e59b10db9c411a",
+      "sha256": "abcd65a8b3d06cb58c80087480842e574b2753ca6694fa9f4c13bcf33ac67cf5",
       "symbols": [
         {
           "name": "push",
