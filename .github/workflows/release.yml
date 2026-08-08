@@ -1,51 +1,27 @@
-name: Integrate Study All Clear Celebration
+name: Lulu APK
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'preview/**'
   workflow_dispatch:
 
 permissions:
   contents: write
   issues: write
 
+concurrency:
+  group: lulu-apk-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  patch-and-build:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Patch study reward flow
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-
-          def replace_once(path, old, new):
-              p = Path(path)
-              text = p.read_text()
-              if old not in text:
-                  raise SystemExit(f"pattern not found in {path}: {old[:120]!r}")
-              p.write_text(text.replace(old, new, 1))
-
-          store = 'app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt'
-          replace_once(store, '''            val allTodayComplete = allTasksCompleteForDate(tasks, today)\n            val detail = if (firstReward) "$task.title · 夸夸值 +$TASK_COMPLETION_PRAISE" else task.title\n            updateAchievements(\n                state.copy(\n                    tasks = tasks,\n                    profile = state.profile.copy(\n                        praisePoints = state.profile.praisePoints + if (firstReward) TASK_COMPLETION_PRAISE else 0,\n                        experience = state.profile.experience + if (firstReward) TASK_COMPLETION_PRAISE else 0,\n                        totalTasksCompleted = state.profile.totalTasksCompleted + if (firstReward) 1 else 0,\n                        lastStudyDate = if (firstReward) today else state.profile.lastStudyDate,\n                    ),\n                    superMomentAvailable = state.superMomentAvailable ||\n                        (allTodayComplete && state.superMomentClaimedDate != today),\n                    events = addEvent(state.events, if (complete) "待办完成" else "待办取消", detail),\n                ),\n            )''', '''            val allTodayComplete = allTasksCompleteForDate(tasks, today)\n            val unlockAllClear = complete && allTodayComplete && state.superMomentClaimedDate != today\n            val detail = if (firstReward) "$task.title · 夸夸值 +$TASK_COMPLETION_PRAISE" else task.title\n            var events = addEvent(state.events, if (complete) "待办完成" else "待办取消", detail)\n            if (unlockAllClear) {\n                events = addEvent(events, "今日待办全清", "全部待办完成 · 十连券 +2（20连）已自动到账")\n            }\n            updateAchievements(\n                state.copy(\n                    tasks = tasks,\n                    profile = state.profile.copy(\n                        praisePoints = state.profile.praisePoints + if (firstReward) TASK_COMPLETION_PRAISE else 0,\n                        experience = state.profile.experience + if (firstReward) TASK_COMPLETION_PRAISE else 0,\n                        totalTasksCompleted = state.profile.totalTasksCompleted + if (firstReward) 1 else 0,\n                        lastStudyDate = if (firstReward) today else state.profile.lastStudyDate,\n                    ),\n                    inventory = if (unlockAllClear) {\n                        state.inventory.copy(tenTickets = state.inventory.tenTickets + 2)\n                    } else state.inventory,\n                    superMomentAvailable = state.superMomentAvailable || unlockAllClear,\n                    superMomentClaimedDate = if (unlockAllClear) today else state.superMomentClaimedDate,\n                    events = events,\n                ),\n            )''')
-
-          replace_once(store, '''    fun claimSuperMoment(): String {\n        var message = "当前没有可领取的超神奖励"\n        mutate { state ->\n            val today = LocalDate.now().toString()\n            if (!state.superMomentAvailable || state.superMomentClaimedDate == today) return@mutate state\n            message = "今日待办全清：十连抽券 +2（20连）"\n            state.copy(\n                inventory = state.inventory.copy(tenTickets = state.inventory.tenTickets + 2),\n                superMomentAvailable = false,\n                superMomentClaimedDate = today,\n                events = addEvent(state.events, "超神时刻", message),\n            )\n        }\n        return message\n    }''', '''    fun claimSuperMoment(): String {\n        // 兼容旧调用：全清奖励现在在最后一个待办完成时已经自动入账，这里绝不重复发券。\n        var message = "当前没有待展示的全清奖励"\n        mutate { state ->\n            if (!state.superMomentAvailable) return@mutate state\n            message = "今日待办全清：20连奖励已经自动到账"\n            state.copy(superMomentAvailable = false)\n        }\n        return message\n    }\n\n    fun dismissSuperMomentCelebration() = mutate { state ->\n        if (state.superMomentAvailable) state.copy(superMomentAvailable = false) else state\n    }''')
-
-          companion = 'app/src/main/java/com/jiacimu/lulu/study/StudyCompanionScreen.kt'
-          replace_once(companion, '''    if (!looksInternal) return detail''', '''    if (!looksInternal) return if (event.title.isNotBlank()) "${event.title}：$detail" else detail''')
-
-          rewards = 'app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt'
-          replace_once(rewards, '''            if (state.superMomentAvailable) {\n                Button(\n                    onClick = { message = store.claimSuperMoment() },\n                    modifier = Modifier.align(Alignment.TopEnd).padding(14.dp),\n                    colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.wheat, contentColor = StudyDesign.ink),\n                ) { Text("领取十连券") }\n            }\n''', '')
-
-          today = 'app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt'
-          replace_once(today, '''import androidx.compose.foundation.BorderStroke\nimport androidx.compose.foundation.layout.*''', '''import androidx.compose.animation.core.RepeatMode\nimport androidx.compose.animation.core.animateFloat\nimport androidx.compose.animation.core.infiniteRepeatable\nimport androidx.compose.animation.core.rememberInfiniteTransition\nimport androidx.compose.animation.core.tween\nimport androidx.compose.foundation.BorderStroke\nimport androidx.compose.foundation.Canvas\nimport androidx.compose.foundation.background\nimport androidx.compose.foundation.layout.*''')
-          replace_once(today, '''import androidx.compose.ui.Alignment\nimport androidx.compose.ui.Modifier\nimport androidx.compose.ui.graphics.Color''', '''import androidx.compose.ui.Alignment\nimport androidx.compose.ui.Modifier\nimport androidx.compose.ui.geometry.Offset\nimport androidx.compose.ui.graphics.Brush\nimport androidx.compose.ui.graphics.Color''')
-          replace_once(today, '''import androidx.compose.ui.unit.dp\nimport androidx.compose.ui.unit.sp\nimport java.time.LocalDate''', '''import androidx.compose.ui.unit.dp\nimport androidx.compose.ui.unit.sp\nimport androidx.compose.ui.window.Dialog\nimport androidx.compose.ui.window.DialogProperties\nimport java.time.LocalDate\nimport kotlin.math.PI\nimport kotlin.math.cos\nimport kotlin.math.sin''')
-          replace_once(today, '''        if (todayTasks.isEmpty()) {\n            item { StudyCard { Text("今天还没有待办。", color = StudyDesign.muted) } }\n        } else {\n            items(todayTasks, key = StudyTask::id) { task -> SelfDirectedTaskRow(task, store) }\n        }\n    }\n}\n\n@Composable\ninternal fun StudyPlanScreenV2''', '''        if (todayTasks.isEmpty()) {\n            item { StudyCard { Text("今天还没有待办。", color = StudyDesign.muted) } }\n        } else {\n            items(todayTasks, key = StudyTask::id) { task -> SelfDirectedTaskRow(task, store) }\n        }\n    }\n\n    if (state.superMomentAvailable) {\n        StudyAllTasksCelebrationOverlay(onDismiss = store::dismissSuperMomentCelebration)\n    }\n}\n\n@Composable\nprivate fun StudyAllTasksCelebrationOverlay(onDismiss: () -> Unit) {\n    val transition = rememberInfiniteTransition(label = "今日全清庆祝")\n    val sparkle by transition.animateFloat(\n        initialValue = 0f,\n        targetValue = 1f,\n        animationSpec = infiniteRepeatable(animation = tween(1800), repeatMode = RepeatMode.Restart),\n        label = "庆祝粒子",\n    )\n\n    Dialog(\n        onDismissRequest = {},\n        properties = DialogProperties(\n            dismissOnBackPress = false,\n            dismissOnClickOutside = false,\n            usePlatformDefaultWidth = false,\n            decorFitsSystemWindows = false,\n        ),\n    ) {\n        Box(\n            modifier = Modifier\n                .fillMaxSize()\n                .background(\n                    Brush.radialGradient(\n                        colors = listOf(StudyDesign.wheatSoft, Color.White, StudyDesign.paper),\n                    ),\n                )\n                .statusBarsPadding()\n                .navigationBarsPadding(),\n        ) {\n            Canvas(Modifier.fillMaxSize()) {\n                val center = Offset(size.width / 2f, size.height * .36f)\n                repeat(36) { index ->\n                    val angle = index * (PI * 2.0 / 36.0) + sparkle * .65f\n                    val lane = 0.18f + (index % 7) * .045f\n                    val radius = size.minDimension * (lane + sparkle * .12f)\n                    val point = Offset(\n                        center.x + cos(angle).toFloat() * radius,\n                        center.y + sin(angle).toFloat() * radius,\n                    )\n                    drawCircle(\n                        color = if (index % 3 == 0) StudyDesign.wheat else Color(0xFFFFD982),\n                        radius = (3.5f + index % 4) * density,\n                        center = point,\n                        alpha = (1f - sparkle * .55f).coerceIn(.25f, 1f),\n                    )\n                }\n            }\n\n            Column(\n                modifier = Modifier\n                    .align(Alignment.Center)\n                    .fillMaxWidth()\n                    .padding(horizontal = 30.dp),\n                horizontalAlignment = Alignment.CenterHorizontally,\n                verticalArrangement = Arrangement.spacedBy(16.dp),\n            ) {\n                Text("✦  今日全清  ✦", color = StudyDesign.ink, fontSize = 14.sp, fontWeight = FontWeight.Bold)\n                Text(\n                    "今日待办全部完成！",\n                    color = StudyDesign.ink,\n                    fontSize = 31.sp,\n                    fontWeight = FontWeight.Black,\n                )\n                Text(\n                    "今天的努力已经一项一项好好收下啦。愿接下来的复习也继续顺顺利利。",\n                    color = StudyDesign.muted,\n                    fontSize = 15.sp,\n                    lineHeight = 23.sp,\n                )\n                Surface(\n                    color = Color.White.copy(alpha = .92f),\n                    shape = RoundedCornerShape(24.dp),\n                    border = BorderStroke(1.5.dp, StudyDesign.wheat),\n                    shadowElevation = 8.dp,\n                ) {\n                    Column(\n                        Modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 20.dp),\n                        horizontalAlignment = Alignment.CenterHorizontally,\n                        verticalArrangement = Arrangement.spacedBy(6.dp),\n                    ) {\n                        Text("20连奖励已自动到账", color = StudyDesign.ink, fontSize = 18.sp, fontWeight = FontWeight.Black)\n                        Text("十连券 +2", color = StudyDesign.ink, fontSize = 27.sp, fontWeight = FontWeight.Black)\n                        Text("每个首次完成的今日待办，也已分别结算夸夸值 +100", color = StudyDesign.muted, fontSize = 12.sp)\n                    }\n                }\n                Button(\n                    onClick = onDismiss,\n                    modifier = Modifier.fillMaxWidth().height(50.dp),\n                    shape = RoundedCornerShape(16.dp),\n                    colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.dark, contentColor = Color.White),\n                ) {\n                    Text("收下今天的胜利", fontWeight = FontWeight.Black, fontSize = 15.sp)\n                }\n            }\n        }\n    }\n}\n\n@Composable\ninternal fun StudyPlanScreenV2''')
-          PY
 
       - uses: actions/setup-java@v4
         with:
@@ -56,20 +32,81 @@ jobs:
         with:
           gradle-version: '8.10.2'
 
-      - name: Compile Android app
-        run: gradle --no-daemon --stacktrace :app:assembleDebug
-
-      - name: Commit feature
+      - name: Build debug APK
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt \
-                  app/src/main/java/com/jiacimu/lulu/study/StudyCompanionScreen.kt \
-                  app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt \
-                  app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt
-          if git diff --cached --quiet; then
-            echo "No feature diff"
-            exit 0
+          set -o pipefail
+          mkdir -p ci-logs
+          gradle --no-daemon --stacktrace :app:assembleDebug 2>&1 | tee ci-logs/gradle-build.log
+
+      - name: Collect APK
+        run: |
+          mkdir -p apk-artifacts
+          apk="$(find app/build/outputs/apk/debug -name '*-debug.apk' -print -quit)"
+          test -n "$apk"
+          cp "$apk" apk-artifacts/Lulu.apk
+
+      - name: Upload temporary APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lulu-APK-${{ github.sha }}
+          path: apk-artifacts/Lulu.apk
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Publish Lulu release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_NUMBER: ${{ github.run_number }}
+        run: |
+          set -euo pipefail
+          tag="lulu-v${RELEASE_NUMBER}"
+          title="Lulu v${RELEASE_NUMBER}"
+          notes="${title}，构建自 ${GITHUB_SHA}。"
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" apk-artifacts/Lulu.apk --clobber
+            gh release edit "$tag" --title "$title" --notes "$notes"
+          else
+            gh release create "$tag" apk-artifacts/Lulu.apk \
+              --target "$GITHUB_SHA" \
+              --title "$title" \
+              --notes "$notes"
           fi
-          git commit -m "feat: celebrate and auto-reward daily task clear [skip ci]"
-          git push origin HEAD:main
+
+      - name: Upload failure logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: APK-failure-${{ github.sha }}
+          path: ci-logs/*.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Create failure issue
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const shortSha = context.sha.slice(0, 7)
+            const marker = `<!-- lulu1-ci-failure:${context.sha} -->`
+            const existing = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            })
+            if (existing.some(issue => issue.body?.includes(marker))) return
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[CI] APK build failed on ${shortSha}`,
+              body: [
+                marker,
+                '## Lulu APK 自动构建失败',
+                '',
+                `- **运行：** https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+                `- **提交：** ${shortSha}`,
+                '',
+                '请优先查看本次运行中的 `gradle-build.log`。'
+              ].join('\n')
+            })
