@@ -1,121 +1,27 @@
-name: Integrate Evolving Apocalypse Map
+name: Lulu APK
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'preview/**'
   workflow_dispatch:
 
 permissions:
   contents: write
   issues: write
 
+concurrency:
+  group: lulu-apk-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  patch-and-build:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Patch dynamic map integration
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-
-          def replace_once(path, old, new):
-              p = Path(path)
-              text = p.read_text()
-              if old not in text:
-                  raise SystemExit(f"pattern not found in {path}: {old[:100]!r}")
-              p.write_text(text.replace(old, new, 1))
-
-          app = 'app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt'
-          replace_once(app,
-              '''        ApocalypseWorldMapPageV5(\n            currentLocation = save.director.location,''',
-              '''        ApocalypseWorldMapPageV5(\n            save = save,\n            currentLocation = save.director.location,''')
-
-          page = 'app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt'
-          replace_once(page,
-              'import androidx.compose.ui.graphics.Path\n',
-              'import androidx.compose.ui.graphics.Path\nimport androidx.compose.ui.graphics.PathEffect\n')
-          replace_once(page,
-              '''internal fun ApocalypseWorldMapPageV5(\n    currentLocation: String,''',
-              '''internal fun ApocalypseWorldMapPageV5(\n    save: ApocalypseV3Save,\n    currentLocation: String,''')
-          replace_once(page,
-              '''    val selectedCity = cities.firstOrNull { it.id == selectedCityId } ?: currentCity\n\n    Scaffold(''',
-              '''    val selectedCity = cities.firstOrNull { it.id == selectedCityId } ?: currentCity\n    val evolution = remember(save.scene, save.director.dayIndex, save.director.worldFacts) { apocalypseMapEvolutionV5(save) }\n\n    Scaffold(''')
-          replace_once(page,
-              '''                        Text("六市区域 · 当前：$currentLocation", color = WorldMapMuted, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)''',
-              '''                        Text("${apocalypseDayLabelV5(evolution.dayIndex)} · ${evolution.eraTitle} · 当前：$currentLocation", color = WorldMapMuted, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)''')
-          replace_once(page,
-              '''            if (layer == ApocalypseMapLayerV5.Region) {''',
-              '''            item { ApocalypseMapEraBannerV5(evolution) }\n\n            if (layer == ApocalypseMapLayerV5.Region) {''')
-          replace_once(page,
-              '''                        currentCityId = currentCity.id,\n                        onSelect = { selectedCityId = it },''',
-              '''                        currentCityId = currentCity.id,\n                        evolution = evolution,\n                        onSelect = { selectedCityId = it },''')
-          replace_once(page,
-              '''                        discoveredLocations = discoveredLocations,\n                        onSelectPlace = { place -> onPlan(placeTargetV5(selectedCity, place)) },''',
-              '''                        discoveredLocations = discoveredLocations,\n                        evolution = evolution,\n                        onSelectPlace = { place -> onPlan(placeTargetV5(selectedCity, place)) },''')
-          replace_once(page,
-              '''                        current = currentLocation.contains(place.name),\n                        onClick = { onPlan(placeTargetV5(selectedCity, place)) },''',
-              '''                        current = currentLocation.contains(place.name),\n                        status = apocalypsePlaceMapStatusV5(\n                            evolution = evolution,\n                            city = selectedCity,\n                            place = place,\n                            currentLocation = currentLocation,\n                            discovered = discoveredLocations.any { it.name.contains(place.name) || place.name.contains(it.name) },\n                        ),\n                        onClick = { onPlan(placeTargetV5(selectedCity, place)) },''')
-          replace_once(page,
-              '''    currentCityId: String,\n    onSelect: (String) -> Unit,''',
-              '''    currentCityId: String,\n    evolution: ApocalypseMapEvolutionV5,\n    onSelect: (String) -> Unit,''')
-          replace_once(page,
-              '''            Canvas(Modifier.matchParentSize()) {\n                worldMapRoadsV5.forEachIndexed { index, road ->''',
-              '''            Canvas(Modifier.matchParentSize()) {\n                if (evolution.ecologyPressure > 0f) {\n                    val eco = evolution.ecologyPressure.coerceIn(0f, 1f)\n                    drawCircle(Color(0xFF315D4A).copy(alpha = .08f + eco * .16f), size.minDimension * (.12f + eco * .16f), Offset(size.width * .17f, size.height * .68f))\n                    drawCircle(Color(0xFF6F3141).copy(alpha = .05f + eco * .13f), size.minDimension * (.10f + eco * .15f), Offset(size.width * .73f, size.height * .38f))\n                    drawCircle(Color(0xFF315D4A).copy(alpha = .04f + eco * .12f), size.minDimension * (.08f + eco * .13f), Offset(size.width * .47f, size.height * .22f))\n                }\n                worldMapRoadsV5.forEachIndexed { index, road ->''')
-          replace_once(page,
-              '''                    drawPath(path, color = WorldMapLine, style = Stroke(width = 4f))''',
-              '''                    val routeStatus = apocalypseRouteMapStatusV5(evolution, road.name)\n                    val routeColor = mapConditionColorV5(routeStatus.condition)\n                    val routeEffect = when (routeStatus.condition) {\n                        ApocalypseMapConditionV5.Blocked -> PathEffect.dashPathEffect(floatArrayOf(8f, 13f))\n                        ApocalypseMapConditionV5.Unknown -> PathEffect.dashPathEffect(floatArrayOf(18f, 12f))\n                        else -> null\n                    }\n                    drawPath(path, color = routeColor.copy(alpha = if (evolution.dayIndex < 0) .85f else .68f), style = Stroke(width = 4f, pathEffect = routeEffect))''')
-          replace_once(page,
-              '''    discoveredLocations: List<ApocalypseV3Location>,\n    onSelectPlace: (ApocalypseWorldPlaceV5) -> Unit,''',
-              '''    discoveredLocations: List<ApocalypseV3Location>,\n    evolution: ApocalypseMapEvolutionV5,\n    onSelectPlace: (ApocalypseWorldPlaceV5) -> Unit,''')
-          replace_once(page,
-              '''                    drawPath(path, color = WorldMapLine, style = Stroke(width = 3f))''',
-              '''                    drawPath(\n                        path,\n                        color = WorldMapLine.copy(alpha = 1f - evolution.infrastructureDecay * .45f),\n                        style = Stroke(\n                            width = 3f,\n                            pathEffect = if (evolution.dayIndex >= 0) PathEffect.dashPathEffect(floatArrayOf(28f, 7f + evolution.infrastructureDecay * 16f)) else null,\n                        ),\n                    )''')
-          replace_once(page,
-              '''                val discovered = discoveredLocations.any { it.name.contains(place.name) || place.name.contains(it.name) }\n                val current = currentLocation.contains(place.name)\n                Surface(''',
-              '''                val discovered = discoveredLocations.any { it.name.contains(place.name) || place.name.contains(it.name) }\n                val current = currentLocation.contains(place.name)\n                val status = apocalypsePlaceMapStatusV5(evolution, city, place, currentLocation, discovered)\n                Surface(''')
-          replace_once(page,
-              '''                    color = when {\n                        current -> WorldMapLineBright\n                        discovered -> Color(0xFF173D5C)\n                        else -> WorldMapNightSoft\n                    },''',
-              '''                    color = when {\n                        current -> WorldMapLineBright\n                        status.condition !in setOf(ApocalypseMapConditionV5.Baseline, ApocalypseMapConditionV5.Unknown) -> mapConditionDarkSurfaceV5(status.condition)\n                        discovered -> Color(0xFF173D5C)\n                        else -> WorldMapNightSoft\n                    },''')
-          replace_once(page,
-              '''                        Text(place.name, color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)''',
-              '''                        Text(place.name, color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)\n                        if (evolution.dayIndex >= 0) Text(status.label, color = mapConditionAccentV5(status.condition), fontSize = 7.sp, maxLines = 1)''')
-          replace_once(page,
-              '''    current: Boolean,\n    onClick: () -> Unit,''',
-              '''    current: Boolean,\n    status: ApocalypseMapStatusV5,\n    onClick: () -> Unit,''')
-          replace_once(page,
-              '''        border = BorderStroke(1.dp, if (current || discovered) WorldMapBlueSoft else WorldMapBorder),''',
-              '''        border = BorderStroke(1.dp, if (status.condition !in setOf(ApocalypseMapConditionV5.Baseline, ApocalypseMapConditionV5.Unknown)) mapConditionAccentV5(status.condition) else if (current || discovered) WorldMapBlueSoft else WorldMapBorder),''')
-          replace_once(page,
-              '''                    if (current) Text("当前位置", color = Color(0xFF287EBE), fontSize = 8.sp)\n                    else if (discovered) Text("已发现", color = Color(0xFF287EBE), fontSize = 8.sp)''',
-              '''                    if (current) Text("当前位置", color = Color(0xFF287EBE), fontSize = 8.sp)\n                    else if (status.condition != ApocalypseMapConditionV5.Baseline) Text(status.label, color = mapConditionAccentV5(status.condition), fontSize = 8.sp)\n                    else if (discovered) Text("已发现", color = Color(0xFF287EBE), fontSize = 8.sp)''')
-          replace_once(page,
-              '''                Text("${city.name} · ${place.kind}", color = Color(0xFF287EBE), fontSize = 9.sp)\n                Text(place.detail, color = WorldMapMuted, fontSize = 10.sp, lineHeight = 14.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)''',
-              '''                Text("${city.name} · ${place.kind}", color = Color(0xFF287EBE), fontSize = 9.sp)\n                if (evolutionDetailVisibleV5(status)) Text(status.detail, color = mapConditionAccentV5(status.condition), fontSize = 9.sp, lineHeight = 13.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)\n                Text(place.detail, color = WorldMapMuted, fontSize = 10.sp, lineHeight = 14.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)''')
-
-          # append UI helpers before placeIconV5
-          replace_once(page,
-              '''private fun placeIconV5(kind: String) = when (kind) {''',
-              '''@Composable\nprivate fun ApocalypseMapEraBannerV5(evolution: ApocalypseMapEvolutionV5) {\n    Surface(\n        color = if (evolution.dayIndex < 0) Color(0xFFEAF4FF) else Color(0xFF101E2C),\n        shape = RoundedCornerShape(16.dp),\n        border = BorderStroke(1.dp, if (evolution.dayIndex < 0) WorldMapBorder else WorldMapLine),\n    ) {\n        Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {\n            Row(verticalAlignment = Alignment.CenterVertically) {\n                Text("${apocalypseDayLabelV5(evolution.dayIndex)} · ${evolution.eraTitle}", color = if (evolution.dayIndex < 0) WorldMapInk else Color.White, fontWeight = FontWeight.Black, modifier = Modifier.weight(1f))\n                if (evolution.dayIndex >= 0) Text("已确认变化 ${evolution.changes.size}", color = WorldMapBlueSoft, fontSize = 9.sp)\n            }\n            Text(evolution.eraDetail, color = if (evolution.dayIndex < 0) WorldMapMuted else Color(0xFF9CB5CA), fontSize = 10.sp, lineHeight = 15.sp)\n            if (evolution.dayIndex >= 0) Text("未确认的远处变化只显示为未知；地图不会泄露导演掌握但玩家尚未发现的事实。", color = Color(0xFF7894AC), fontSize = 9.sp)\n        }\n    }\n}\n\nprivate fun evolutionDetailVisibleV5(status: ApocalypseMapStatusV5): Boolean =\n    status.condition != ApocalypseMapConditionV5.Baseline && status.detail.isNotBlank()\n\nprivate fun mapConditionColorV5(condition: ApocalypseMapConditionV5): Color = when (condition) {\n    ApocalypseMapConditionV5.Baseline, ApocalypseMapConditionV5.Open -> Color(0xFF4EA8FF)\n    ApocalypseMapConditionV5.Unknown -> Color(0xFF607287)\n    ApocalypseMapConditionV5.Stressed, ApocalypseMapConditionV5.Offline -> Color(0xFF9B7B52)\n    ApocalypseMapConditionV5.Damaged -> Color(0xFFB8654A)\n    ApocalypseMapConditionV5.Destroyed, ApocalypseMapConditionV5.Blocked -> Color(0xFFB45159)\n    ApocalypseMapConditionV5.Occupied -> Color(0xFF7867A8)\n    ApocalypseMapConditionV5.Rebuilt -> Color(0xFF4B8D72)\n    ApocalypseMapConditionV5.Overgrown -> Color(0xFF547F60)\n    ApocalypseMapConditionV5.Flooded -> Color(0xFF467FA8)\n    ApocalypseMapConditionV5.Contaminated -> Color(0xFFA85666)\n}\n\nprivate fun mapConditionAccentV5(condition: ApocalypseMapConditionV5): Color = mapConditionColorV5(condition)\n\nprivate fun mapConditionDarkSurfaceV5(condition: ApocalypseMapConditionV5): Color = when (condition) {\n    ApocalypseMapConditionV5.Destroyed, ApocalypseMapConditionV5.Blocked -> Color(0xFF44252C)\n    ApocalypseMapConditionV5.Damaged -> Color(0xFF493128)\n    ApocalypseMapConditionV5.Occupied -> Color(0xFF302B4B)\n    ApocalypseMapConditionV5.Rebuilt -> Color(0xFF203E34)\n    ApocalypseMapConditionV5.Overgrown -> Color(0xFF253E2E)\n    ApocalypseMapConditionV5.Flooded -> Color(0xFF20394A)\n    ApocalypseMapConditionV5.Contaminated -> Color(0xFF432630)\n    ApocalypseMapConditionV5.Offline, ApocalypseMapConditionV5.Stressed -> Color(0xFF3B342B)\n    else -> Color(0xFF173D5C)\n}\n\nprivate fun placeIconV5(kind: String) = when (kind) {''')
-
-          engine = 'app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Engine.kt'
-          replace_once(engine,
-              '''        appendLine(apocalypseCinematicDirectorBibleV5(save))\n        appendLine("时间=${apocalypseDayLabelV5(director.dayIndex)}''',
-              '''        appendLine(apocalypseCinematicDirectorBibleV5(save))\n        appendLine("玩家已确认的地图变化账本：${apocalypseMapLedgerPromptV5(save)}")\n        appendLine("时间=${apocalypseDayLabelV5(director.dayIndex)}''')
-          replace_once(engine,
-              '''        23. 长期蓝图、隐藏线、人物秘密和伏笔回收计划都是导演私密信息，绝不能在正文中直接列出、解释或提前剧透；玩家只能通过当下可观察的事件逐步发现。\n    """.trimIndent()''',
-              '''        23. 长期蓝图、隐藏线、人物秘密和伏笔回收计划都是导演私密信息，绝不能在正文中直接列出、解释或提前剧透；玩家只能通过当下可观察的事件逐步发现。\n        24. 地图不是静态设定图。建筑可受损、坍塌、停运、被势力占领或被重新修复；道路可封锁后再清障；空置城区可逐步被赤潮植物、水体或菌毯重塑。变化必须来自真实事件与时间，不得为了“末世感”随机毁建筑。\n        25. 当且仅当某个地图变化已经会在本幕被玩家亲眼看到、可靠侦查或可信证据确认时，把它加入worldFacts，格式严格为：MAP_KNOWN|PLACE|城市名|地点名|状态|简短原因；路线用MAP_KNOWN|ROUTE|区域/城市|路线名|状态|简短原因；区域生态/势力边界用MAP_KNOWN|ZONE|城市名|区域名|状态|简短原因。新增条目必须同时写入directive，保证正文让玩家实际获得这条信息。\n        26. MAP_KNOWN是地图长期账本：后续规划必须保留已有条目；同一目标发生新变化时用新的同目标条目覆盖旧状态。隐藏的远处事故、导演私密情报和未经证实的传闻绝不能标成MAP_KNOWN。地图状态既可以恶化，也可以因清障、维修、重建、夺回据点而改善。\n    """.trimIndent()''')
-          replace_once(engine,
-              '''        worldFacts = json.optJSONArray("worldFacts").v5Strings().ifEmpty { previous.worldFacts }.takeLast(28),''',
-              '''        worldFacts = mergeApocalypseWorldFactsV5(previous.worldFacts, json.optJSONArray("worldFacts").v5Strings()),''')
-
-          evo = Path('app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldEvolutionV5.kt')
-          text = evo.read_text().replace('mapChanges.values.takeLast(64)', 'mapChanges.values.toList().takeLast(64)')
-          evo.write_text(text)
-          PY
 
       - uses: actions/setup-java@v4
         with:
@@ -126,37 +32,81 @@ jobs:
         with:
           gradle-version: '8.10.2'
 
-      - name: Compile dynamic map changes
+      - name: Build debug APK
         run: |
           set -o pipefail
           mkdir -p ci-logs
-          gradle --no-daemon --stacktrace :app:assembleDebug 2>&1 | tee ci-logs/dynamic-map-build.log
+          gradle --no-daemon --stacktrace :app:assembleDebug 2>&1 | tee ci-logs/gradle-build.log
 
-      - name: Commit evolving map
+      - name: Collect APK
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldEvolutionV5.kt \
-                  app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt \
-                  app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt \
-                  app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Engine.kt
-          git commit -m "feat: make apocalypse map evolve with world state [skip ci]"
-          git push origin HEAD:main
+          mkdir -p apk-artifacts
+          apk="$(find app/build/outputs/apk/debug -name '*-debug.apk' -print -quit)"
+          test -n "$apk"
+          cp "$apk" apk-artifacts/Lulu.apk
 
-      - name: Report patch failure
-        if: failure()
+      - name: Upload temporary APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lulu-APK-${{ github.sha }}
+          path: apk-artifacts/Lulu.apk
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Publish Lulu release
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_NUMBER: ${{ github.run_number }}
         run: |
-          short="${GITHUB_SHA:0:7}"
-          body="/tmp/map-failure.md"
-          {
-            echo "## 动态末世地图集成失败"
-            echo
-            echo "提交：$short"
-            echo
-            echo '```text'
-            tail -n 100 ci-logs/dynamic-map-build.log 2>/dev/null || true
-            echo '```'
-          } > "$body"
-          gh issue create --title "[CI] Dynamic map patch failed on $short" --body-file "$body" || true
+          set -euo pipefail
+          tag="lulu-v${RELEASE_NUMBER}"
+          title="Lulu v${RELEASE_NUMBER}"
+          notes="${title}，构建自 ${GITHUB_SHA}。"
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" apk-artifacts/Lulu.apk --clobber
+            gh release edit "$tag" --title "$title" --notes "$notes"
+          else
+            gh release create "$tag" apk-artifacts/Lulu.apk \
+              --target "$GITHUB_SHA" \
+              --title "$title" \
+              --notes "$notes"
+          fi
+
+      - name: Upload failure logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: APK-failure-${{ github.sha }}
+          path: ci-logs/*.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Create failure issue
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const shortSha = context.sha.slice(0, 7)
+            const marker = `<!-- lulu1-ci-failure:${context.sha} -->`
+            const existing = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            })
+            if (existing.some(issue => issue.body?.includes(marker))) return
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[CI] APK build failed on ${shortSha}`,
+              body: [
+                marker,
+                '## Lulu APK 自动构建失败',
+                '',
+                `- **运行：** https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+                `- **提交：** ${shortSha}`,
+                '',
+                '请优先查看本次运行中的 `gradle-build.log`。'
+              ].join('\n')
+            })
