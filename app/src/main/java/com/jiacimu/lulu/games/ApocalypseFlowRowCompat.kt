@@ -13,9 +13,9 @@ import androidx.compose.ui.Modifier
 /**
  * Stable local replacement for Compose's experimental FlowRow.
  *
- * Apocalypse settings only needs a compact horizontal ability selector. Keeping this helper in the
- * game package lets the call site stay simple without opting the whole app into ExperimentalLayoutApi.
- * On narrow screens the chips scroll horizontally instead of overflowing.
+ * Apocalypse V2/V3 settings use compact horizontal selectors for abilities and branches. Keeping
+ * this helper in the game package avoids opting the whole app into ExperimentalLayoutApi. On narrow
+ * screens the chips scroll horizontally instead of overflowing.
  */
 @Composable
 internal fun FlowRow(
