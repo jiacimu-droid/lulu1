@@ -4,6 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.MomentAuthorType
 import com.jiacimu.lulu.data.MomentPost
@@ -61,7 +63,19 @@ fun MomentsScreen() {
 
     LaunchedEffect(Unit) { MomentsStore.markCharacterPostsSeen() }
 
-    Box(Modifier.fillMaxSize()) {
+    if (composing) {
+        MomentsComposePage(
+            onBack = { composing = false },
+            onPublish = { content ->
+                val post = MomentsStore.publishUser(content)
+                composing = false
+                if (post != null) scope.launch { MomentsStore.letCharactersReact(post.id) }
+            },
+        )
+        return
+    }
+
+    Box(Modifier.fillMaxSize().background(LuluColors.Paper)) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 96.dp),
@@ -115,59 +129,129 @@ fun MomentsScreen() {
         )
     }
 
-    if (composing) {
-        var content by remember { mutableStateOf("") }
-        AlertDialog(
-            onDismissRequest = { composing = false },
-            title = { Text("发布朋友圈") },
-            text = {
+    if (signatureEditing) {
+        var draft by remember(signature) { mutableStateOf(signature) }
+        Dialog(onDismissRequest = { signatureEditing = false }) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = LuluColors.Paper,
+                contentColor = LuluColors.Ink,
+                shape = RoundedCornerShape(24.dp),
+                border = BorderStroke(1.dp, LuluColors.Border),
+                shadowElevation = 8.dp,
+            ) {
+                Column(
+                    Modifier.fillMaxWidth().padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                ) {
+                    Text("修改签名", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                    OutlinedTextField(
+                        value = draft,
+                        onValueChange = { draft = it.take(80) },
+                        placeholder = { Text("写一句此刻的签名") },
+                        minLines = 2,
+                        maxLines = 4,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = LuluColors.Ink,
+                            unfocusedBorderColor = LuluColors.Border,
+                            focusedContainerColor = LuluColors.Card,
+                            unfocusedContainerColor = LuluColors.Card,
+                        ),
+                    )
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        OutlinedButton(
+                            onClick = { signatureEditing = false },
+                            modifier = Modifier.weight(1f),
+                            border = BorderStroke(1.dp, LuluColors.Border),
+                        ) { Text("取消", color = LuluColors.Ink) }
+                        Button(
+                            onClick = {
+                                signature = draft.trim().ifBlank { "生活正在发生" }
+                                prefs.edit().putString("moments_signature", signature).apply()
+                                signatureEditing = false
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = LuluColors.Wheat,
+                                contentColor = LuluColors.OnWheat,
+                            ),
+                        ) { Text("保存") }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MomentsComposePage(
+    onBack: () -> Unit,
+    onPublish: (String) -> Unit,
+) {
+    var content by remember { mutableStateOf("") }
+    BackHandler(onBack = onBack)
+
+    Scaffold(
+        containerColor = LuluColors.Paper,
+        topBar = {
+            TopAppBar(
+                title = { Text("发动态", fontWeight = FontWeight.SemiBold) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
+                },
+                actions = {
+                    Button(
+                        onClick = { onPublish(content) },
+                        enabled = content.isNotBlank(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = LuluColors.Wheat,
+                            contentColor = LuluColors.OnWheat,
+                            disabledContainerColor = LuluColors.CardStrong,
+                            disabledContentColor = LuluColors.Muted,
+                        ),
+                        shape = RoundedCornerShape(14.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    ) { Text("发布", fontWeight = FontWeight.SemiBold) }
+                    Spacer(Modifier.width(12.dp))
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
+            )
+        },
+    ) { padding ->
+        Column(
+            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 18.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                color = LuluColors.Card,
+                shape = RoundedCornerShape(22.dp),
+                border = BorderStroke(1.dp, LuluColors.Border),
+            ) {
                 OutlinedTextField(
                     value = content,
                     onValueChange = { content = it.take(2_000) },
                     placeholder = { Text("分享此刻发生的事情…") },
-                    minLines = 5,
-                    maxLines = 10,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxSize().padding(4.dp),
+                    minLines = 12,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                    ),
                 )
-            },
-            confirmButton = {
-                Button(
-                    enabled = content.isNotBlank(),
-                    onClick = {
-                        val post = MomentsStore.publishUser(content)
-                        composing = false
-                        if (post != null) scope.launch { MomentsStore.letCharactersReact(post.id) }
-                    },
-                ) { Text("发布") }
-            },
-            dismissButton = { TextButton(onClick = { composing = false }) { Text("取消") } },
-        )
-    }
-
-    if (signatureEditing) {
-        var draft by remember(signature) { mutableStateOf(signature) }
-        AlertDialog(
-            onDismissRequest = { signatureEditing = false },
-            title = { Text("修改朋友圈签名") },
-            text = {
-                OutlinedTextField(
-                    value = draft,
-                    onValueChange = { draft = it.take(80) },
-                    label = { Text("签名") },
-                    minLines = 2,
-                    maxLines = 4,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    signature = draft.trim().ifBlank { "生活正在发生" }
-                    prefs.edit().putString("moments_signature", signature).apply()
-                    signatureEditing = false
-                }) { Text("保存") }
-            },
-            dismissButton = { TextButton(onClick = { signatureEditing = false }) { Text("取消") } },
-        )
+            }
+            Text(
+                "${content.length} / 2000",
+                color = LuluColors.Muted,
+                fontSize = 11.sp,
+                modifier = Modifier.align(Alignment.End),
+            )
+        }
     }
 }
 
@@ -191,8 +275,8 @@ private fun MomentsHeader(
                 ),
             )
         } else {
+            // 用户选择的照片保持原图色彩，不再叠加整张黑色滤镜。
             LuluSelectedPhoto(imageUri = coverUri, modifier = Modifier.fillMaxSize())
-            Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.20f)))
         }
         Column(
             modifier = Modifier.align(Alignment.BottomEnd).padding(end = 18.dp).offset(y = 34.dp),
@@ -211,8 +295,9 @@ private fun MomentsHeader(
                 .padding(start = 18.dp, bottom = 20.dp)
                 .clickable(onClick = onSignatureClick)
                 .padding(vertical = 4.dp),
-            color = Color.White.copy(alpha = 0.90f),
+            color = Color.White,
             fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
         )
         Surface(
             modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
@@ -262,7 +347,11 @@ private fun MomentPostCard(
                     IconButton(onClick = { menuExpanded = true }, modifier = Modifier.size(32.dp)) {
                         Icon(Icons.Outlined.MoreHoriz, "更多", tint = LuluColors.Muted, modifier = Modifier.size(19.dp))
                     }
-                    DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false },
+                        containerColor = LuluColors.Paper,
+                    ) {
                         DropdownMenuItem(
                             text = { Text("复制文字") },
                             leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) },
@@ -318,6 +407,7 @@ private fun MomentPostCard(
         var text by remember { mutableStateOf("") }
         AlertDialog(
             onDismissRequest = { commenting = false },
+            containerColor = LuluColors.Paper,
             title = { Text("评论 $authorName") },
             text = {
                 OutlinedTextField(
@@ -342,8 +432,9 @@ private fun MomentPostCard(
     if (deleting) {
         AlertDialog(
             onDismissRequest = { deleting = false },
+            containerColor = LuluColors.Paper,
             title = { Text("删除这条朋友圈？") },
-            text = { Text("删除后，这条动态及其对应的原始时间线记录会一起移除。") },
+            text = { Text("删除后，这条动态及其对应的原始时间线和派生记忆会一起移除。") },
             confirmButton = {
                 TextButton(onClick = { onDelete(); deleting = false }) {
                     Text("删除", color = MaterialTheme.colorScheme.error)
