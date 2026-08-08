@@ -56,7 +56,7 @@ internal fun StudyShopScreenV2(state: StudyState, store: PostgraduateExamStore) 
                         Spacer(Modifier.width(11.dp))
                         Column(Modifier.weight(1f)) {
                             Text("抽卡券兑换", color = StudyDesign.ink, fontSize = 18.sp, fontWeight = FontWeight.Black)
-                            Text("10 张单抽券 → 1 张十连券", color = StudyDesign.muted, fontSize = 12.sp)
+                            Text("10 张单抽券 → 1 张十连券 · 永久兑换，不占每日商品位", color = StudyDesign.muted, fontSize = 12.sp)
                         }
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
