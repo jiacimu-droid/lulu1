@@ -15,10 +15,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 internal object StudyDesign {
-    // 考研 App 保留黄黑主视觉：大面积暖纸/浅黄，深色只做重点块和强调。
+    // 考研 App 只保留浅黄、白色与黑色系；不再使用土黄/深黄作为强调色。
     val paper = Color(0xFFFFFDF7)
     val card = Color(0xFFFFFBF1)
-    val wheat = Color(0xFFF4D57D)
+    val wheat = Color(0xFFFFF2C8)
     val wheatSoft = Color(0xFFFFF2C8)
     val muted = Color(0xFF6D7888)
     val ink = Color(0xFF343434)
@@ -30,15 +30,14 @@ internal object StudyDesign {
 }
 
 /**
- * Yellow/black is the study module's deliberate palette. Yellow should occupy more of the ordinary
- * interface; whenever a control uses a black/dark background its foreground must be white, never yellow.
+ * 考研模块固定使用浅黄、白色和黑色系。深黄/土黄不得作为按钮、卡片或进度强调色回流。
  */
 internal val StudyColorScheme = lightColorScheme(
     primary = StudyDesign.dark,
     onPrimary = Color.White,
     primaryContainer = StudyDesign.wheatSoft,
     onPrimaryContainer = StudyDesign.ink,
-    secondary = StudyDesign.wheat,
+    secondary = StudyDesign.wheatSoft,
     onSecondary = StudyDesign.dark,
     secondaryContainer = StudyDesign.wheatSoft,
     onSecondaryContainer = StudyDesign.ink,
@@ -144,7 +143,7 @@ internal fun StudyProgress(progress: Float) {
     LinearProgressIndicator(
         progress = { progress.coerceIn(0f, 1f) },
         modifier = Modifier.fillMaxWidth().height(8.dp),
-        color = StudyDesign.wheat,
+        color = StudyDesign.wheatSoft,
         trackColor = Color(0xFFF0E8DA),
     )
 }
