@@ -14,7 +14,7 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.design.LuluColors
 import com.jiacimu.lulu.design.LuluLightColorScheme
 import com.jiacimu.lulu.design.LuluTypography
-import com.jiacimu.lulu.games.ApocalypseSurvivalApp
+import com.jiacimu.lulu.games.ApocalypseSurvivalAppV3
 import com.jiacimu.lulu.games.LuluGames
 import com.jiacimu.lulu.games.LuluGamesAppV2
 import com.jiacimu.lulu.health.HealthFeatureScreen
@@ -278,7 +278,7 @@ fun LuluMigrationRootAppV2(
                                     },
                                     initialGameId = initialGameId,
                                 )
-                                MigrationRoute.ApocalypseSurvival -> ApocalypseSurvivalApp(
+                                MigrationRoute.ApocalypseSurvival -> ApocalypseSurvivalAppV3(
                                     gameStore = LuluGames.store,
                                     onBack = ::popRoute,
                                 )
