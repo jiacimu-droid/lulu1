@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.jiacimu.lulu.ai.VisionModelService
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.MomentAuthorType
 import com.jiacimu.lulu.data.MomentPost
@@ -66,8 +67,8 @@ fun MomentsScreen() {
     if (composing) {
         MomentsComposePage(
             onBack = { composing = false },
-            onPublish = { content ->
-                val post = MomentsStore.publishUser(content)
+            onPublish = { content, imageUri, imageDescription ->
+                val post = MomentsStore.publishUser(content, imageUri, imageDescription)
                 composing = false
                 if (post != null) scope.launch { MomentsStore.letCharactersReact(post.id) }
             },
@@ -100,7 +101,7 @@ fun MomentsScreen() {
                             Icon(Icons.Outlined.Collections, null, tint = LuluColors.Muted, modifier = Modifier.size(46.dp))
                             Spacer(Modifier.height(10.dp))
                             Text("朋友圈还是空的", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                            Text("发布第一条动态后，每个角色都会来点赞和评论。", color = LuluColors.Muted)
+                            Text("可以发文字或图片，角色会像真实朋友圈一样互相点赞、评论和回复。", color = LuluColors.Muted)
                         }
                     }
                 }
@@ -189,10 +190,41 @@ fun MomentsScreen() {
 @Composable
 private fun MomentsComposePage(
     onBack: () -> Unit,
-    onPublish: (String) -> Unit,
+    onPublish: (String, String?, String) -> Unit,
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var content by remember { mutableStateOf("") }
-    BackHandler(onBack = onBack)
+    var imageUri by remember { mutableStateOf<String?>(null) }
+    var publishing by remember { mutableStateOf(false) }
+    var notice by remember { mutableStateOf("") }
+    val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            runCatching { context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
+            imageUri = uri.toString()
+            notice = ""
+        }
+    }
+    BackHandler(enabled = !publishing, onBack = onBack)
+
+    fun publish() {
+        if (publishing || (content.isBlank() && imageUri.isNullOrBlank())) return
+        val selectedImage = imageUri
+        if (selectedImage.isNullOrBlank()) {
+            onPublish(content, null, "")
+            return
+        }
+        publishing = true
+        notice = "正在让识图模型看这张图片…"
+        scope.launch {
+            VisionModelService.describeImage(context, selectedImage, content)
+                .onSuccess { description -> onPublish(content, selectedImage, description) }
+                .onFailure { error ->
+                    publishing = false
+                    notice = error.message ?: "识图失败，请检查识图模型设置"
+                }
+        }
+    }
 
     Scaffold(
         containerColor = LuluColors.Paper,
@@ -200,12 +232,12 @@ private fun MomentsComposePage(
             TopAppBar(
                 title = { Text("发动态", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
+                    IconButton(onClick = onBack, enabled = !publishing) { Icon(Icons.Outlined.ArrowBack, "返回") }
                 },
                 actions = {
                     Button(
-                        onClick = { onPublish(content) },
-                        enabled = content.isNotBlank(),
+                        onClick = ::publish,
+                        enabled = !publishing && (content.isNotBlank() || !imageUri.isNullOrBlank()),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = LuluColors.Wheat,
                             contentColor = LuluColors.OnWheat,
@@ -214,7 +246,13 @@ private fun MomentsComposePage(
                         ),
                         shape = RoundedCornerShape(14.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    ) { Text("发布", fontWeight = FontWeight.SemiBold) }
+                    ) {
+                        if (publishing) {
+                            CircularProgressIndicator(Modifier.size(15.dp), strokeWidth = 2.dp)
+                            Spacer(Modifier.width(6.dp))
+                        }
+                        Text(if (publishing) "识图中" else "发布", fontWeight = FontWeight.SemiBold)
+                    }
                     Spacer(Modifier.width(12.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
@@ -223,7 +261,7 @@ private fun MomentsComposePage(
     ) { padding ->
         Column(
             modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 18.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Surface(
                 modifier = Modifier.fillMaxWidth().weight(1f),
@@ -234,9 +272,9 @@ private fun MomentsComposePage(
                 OutlinedTextField(
                     value = content,
                     onValueChange = { content = it.take(2_000) },
-                    placeholder = { Text("分享此刻发生的事情…") },
+                    placeholder = { Text(if (imageUri == null) "分享此刻发生的事情…" else "给这张图片配一句话…") },
                     modifier = Modifier.fillMaxSize().padding(4.dp),
-                    minLines = 12,
+                    minLines = 8,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color.Transparent,
                         unfocusedBorderColor = Color.Transparent,
@@ -245,12 +283,66 @@ private fun MomentsComposePage(
                     ),
                 )
             }
-            Text(
-                "${content.length} / 2000",
-                color = LuluColors.Muted,
-                fontSize = 11.sp,
-                modifier = Modifier.align(Alignment.End),
-            )
+            if (!imageUri.isNullOrBlank()) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(18.dp),
+                    color = LuluColors.Card,
+                    border = BorderStroke(1.dp, LuluColors.Border),
+                ) {
+                    Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        LuluSelectedPhoto(imageUri = imageUri, modifier = Modifier.fillMaxWidth().height(190.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(
+                                onClick = {
+                                    imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                                },
+                                modifier = Modifier.weight(1f),
+                                enabled = !publishing,
+                            ) {
+                                Icon(Icons.Outlined.PhotoLibrary, null, Modifier.size(17.dp))
+                                Spacer(Modifier.width(5.dp))
+                                Text("换一张")
+                            }
+                            OutlinedButton(
+                                onClick = { imageUri = null; notice = "" },
+                                modifier = Modifier.weight(1f),
+                                enabled = !publishing,
+                            ) {
+                                Icon(Icons.Outlined.Close, null, Modifier.size(17.dp))
+                                Spacer(Modifier.width(5.dp))
+                                Text("移除")
+                            }
+                        }
+                    }
+                }
+            } else {
+                OutlinedButton(
+                    onClick = {
+                        imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !publishing,
+                ) {
+                    Icon(Icons.Outlined.AddPhotoAlternate, null, Modifier.size(19.dp))
+                    Spacer(Modifier.width(7.dp))
+                    Text("添加图片")
+                }
+            }
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                if (notice.isNotBlank()) {
+                    Text(
+                        notice,
+                        modifier = Modifier.weight(1f),
+                        color = if (publishing) LuluColors.Muted else MaterialTheme.colorScheme.error,
+                        fontSize = 11.sp,
+                        lineHeight = 15.sp,
+                    )
+                } else {
+                    Spacer(Modifier.weight(1f))
+                }
+                Text("${content.length} / 2000", color = LuluColors.Muted, fontSize = 11.sp)
+            }
         }
     }
 }
@@ -275,7 +367,6 @@ private fun MomentsHeader(
                 ),
             )
         } else {
-            // 用户选择的照片保持原图色彩，不再叠加整张黑色滤镜。
             LuluSelectedPhoto(imageUri = coverUri, modifier = Modifier.fillMaxSize())
         }
         Column(
@@ -352,15 +443,17 @@ private fun MomentPostCard(
                         onDismissRequest = { menuExpanded = false },
                         containerColor = LuluColors.Paper,
                     ) {
-                        DropdownMenuItem(
-                            text = { Text("复制文字") },
-                            leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) },
-                            onClick = {
-                                val clipboard = context.getSystemService(ClipboardManager::class.java)
-                                clipboard?.setPrimaryClip(ClipData.newPlainText("朋友圈", post.content))
-                                menuExpanded = false
-                            },
-                        )
+                        if (post.content.isNotBlank()) {
+                            DropdownMenuItem(
+                                text = { Text("复制文字") },
+                                leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) },
+                                onClick = {
+                                    val clipboard = context.getSystemService(ClipboardManager::class.java)
+                                    clipboard?.setPrimaryClip(ClipData.newPlainText("朋友圈", post.content))
+                                    menuExpanded = false
+                                },
+                            )
+                        }
                         DropdownMenuItem(
                             text = { Text("删除动态", color = MaterialTheme.colorScheme.error) },
                             leadingIcon = { Icon(Icons.Outlined.DeleteOutline, null, tint = MaterialTheme.colorScheme.error) },
@@ -369,7 +462,18 @@ private fun MomentPostCard(
                     }
                 }
             }
-            Text(post.content, color = LuluColors.Ink, fontSize = 15.sp, lineHeight = 22.sp)
+            if (post.content.isNotBlank()) {
+                Text(post.content, color = LuluColors.Ink, fontSize = 15.sp, lineHeight = 22.sp)
+            }
+            if (!post.imageUri.isNullOrBlank()) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    color = LuluColors.CardStrong,
+                ) {
+                    LuluSelectedPhoto(imageUri = post.imageUri, modifier = Modifier.fillMaxWidth().height(220.dp))
+                }
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(momentRelativeTime(post.createdAt), color = LuluColors.Muted, fontSize = 11.sp, modifier = Modifier.weight(1f))
                 FilledTonalIconButton(onClick = onLike, modifier = Modifier.size(38.dp)) {
@@ -389,8 +493,13 @@ private fun MomentPostCard(
                         }
                         post.comments.forEach { comment ->
                             val commenter = if (comment.characterId == "__user__") "我" else characterNames[comment.characterId] ?: "角色"
+                            val replyTarget = when (comment.replyToCharacterId) {
+                                "__user__" -> "我"
+                                null -> null
+                                else -> characterNames[comment.replyToCharacterId]
+                            }
                             Text(
-                                "$commenter：${comment.content}",
+                                if (replyTarget.isNullOrBlank()) "$commenter：${comment.content}" else "$commenter 回复 $replyTarget：${comment.content}",
                                 color = LuluColors.Ink,
                                 fontSize = 13.sp,
                                 lineHeight = 18.sp,
