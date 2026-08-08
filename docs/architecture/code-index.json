@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-08T17:02:39.716362+00:00",
-  "commit": "5e00bf7d9f26822fc61359ba82d8e0e87b52fe2e",
+  "generatedAt": "2026-08-08T17:03:00.752129+00:00",
+  "commit": "ebc735d558bb3155b7f1ab896635f1a7a5748782",
   "branch": "main",
-  "sourceFingerprint": "f655f464ffc9a411ef55f869a191998978c7c493cab83e6141d472f50edb0c29",
+  "sourceFingerprint": "6c66e9a81c4249ae234d8a100f4d166ed1e221aaf185c9927c0125d19ade5b5f",
   "summary": {
-    "files": 153,
-    "lines": 42957,
-    "symbols": 620
+    "files": 154,
+    "lines": 43076,
+    "symbols": 621
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -482,6 +482,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
         "line": 63
+      }
+    ],
+    "LuluVisionSettingsScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt",
+        "line": 24
       }
     ],
     "LuluVoiceCallScreen": [
@@ -3866,6 +3872,17 @@
         {
           "name": "shutdown",
           "line": 193
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt",
+      "lines": 119,
+      "sha256": "0b05a7641aece0c9ea4de61b342cf6d5b0c629dc527424654c326dfa0c3fc8d7",
+      "symbols": [
+        {
+          "name": "LuluVisionSettingsScreen",
+          "line": 24
         }
       ]
     },
