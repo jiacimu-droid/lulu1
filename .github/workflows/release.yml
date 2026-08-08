@@ -23,6 +23,148 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: One-time import apocalypse photo assets
+        if: ${{ hashFiles('app/src/main/res/drawable-nodpi/apocalypse_city_night.jpg') == '' }}
+        run: |
+          set -euo pipefail
+          mkdir -p app/src/main/res/drawable-nodpi docs
+
+          curl -L --fail --retry 3 \
+            'https://upload.wikimedia.org/wikipedia/commons/d/d4/Industrial_city_at_night.jpg' \
+            -o app/src/main/res/drawable-nodpi/apocalypse_city_night.jpg
+          curl -L --fail --retry 3 \
+            'https://upload.wikimedia.org/wikipedia/commons/e/ef/Abandoned_factory_interior_%2831260792602%29.jpg' \
+            -o app/src/main/res/drawable-nodpi/apocalypse_factory_interior.jpg
+          curl -L --fail --retry 3 \
+            'https://upload.wikimedia.org/wikipedia/commons/f/f6/Dark_Empty_Tunnel.jpg' \
+            -o app/src/main/res/drawable-nodpi/apocalypse_dark_tunnel.jpg
+
+          cat > docs/APOCALYPSE_VISUAL_ASSETS.md <<'EOF'
+          # Apocalypse visual assets
+
+          These images are bundled locally in the Android app; the app does not hotlink them at runtime.
+
+          - `apocalypse_city_night.jpg` — **Industrial city at night**, author Paolo Neo. Public Domain. Source: https://commons.wikimedia.org/wiki/File:Industrial_city_at_night.jpg
+          - `apocalypse_factory_interior.jpg` — **Abandoned factory interior (31260792602)**, author Fairy Duff. Public Domain Mark. Source: https://commons.wikimedia.org/wiki/File:Abandoned_factory_interior_(31260792602).jpg
+          - `apocalypse_dark_tunnel.jpg` — **Dark Empty Tunnel**, author TomIsNotResponding. CC0 1.0 Universal. Source: https://commons.wikimedia.org/wiki/File:Dark_Empty_Tunnel.jpg
+
+          The UI applies blue/black overlays at render time; the source JPEG files are retained as downloaded.
+          EOF
+
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt')
+          text = path.read_text()
+
+          def once(old: str, new: str):
+              global text
+              if old not in text:
+                  raise SystemExit(f'patch marker not found: {old[:100]!r}')
+              text = text.replace(old, new, 1)
+
+          once(
+              'import androidx.compose.foundation.BorderStroke\n',
+              'import androidx.compose.foundation.BorderStroke\nimport androidx.compose.foundation.Image\n',
+          )
+          once(
+              'import androidx.compose.ui.graphics.vector.ImageVector\n',
+              'import androidx.compose.ui.graphics.vector.ImageVector\nimport androidx.compose.ui.layout.ContentScale\nimport androidx.compose.ui.res.painterResource\n',
+          )
+          once(
+              'import com.jiacimu.lulu.LuluProfileAvatar\n',
+              'import com.jiacimu.lulu.LuluProfileAvatar\nimport com.jiacimu.lulu.R\n',
+          )
+
+          marker = 'private class ApocalypseReadingProgressStoreV5(context: Context) {'
+          photo = '''@Composable
+          private fun ApocalypseV5PhotoCard(
+              drawableRes: Int,
+              title: String,
+              subtitle: String,
+          ) {
+              Surface(
+                  modifier = Modifier.fillMaxWidth(),
+                  color = ApocalypseV5Colors.black,
+                  shape = RoundedCornerShape(22.dp),
+                  border = BorderStroke(1.dp, ApocalypseV5Colors.blackLine),
+              ) {
+                  Box(Modifier.fillMaxWidth().height(190.dp)) {
+                      Image(
+                          painter = painterResource(drawableRes),
+                          contentDescription = null,
+                          contentScale = ContentScale.Crop,
+                          modifier = Modifier.fillMaxSize(),
+                      )
+                      Box(
+                          Modifier.matchParentSize().background(
+                              Brush.verticalGradient(
+                                  listOf(Color.Transparent, Color(0x6607111F), ApocalypseV5Colors.black.copy(alpha = .96f)),
+                              ),
+                          ),
+                      )
+                      Column(
+                          modifier = Modifier.align(Alignment.BottomStart).padding(15.dp),
+                          verticalArrangement = Arrangement.spacedBy(3.dp),
+                      ) {
+                          Text(title, color = ApocalypseV5Colors.white, fontSize = 18.sp, fontWeight = FontWeight.Black)
+                          Text(subtitle, color = ApocalypseV5Colors.textMutedDark, fontSize = 10.sp, lineHeight = 15.sp)
+                      }
+                  }
+              }
+          }
+
+          '''
+          once(marker, photo + marker)
+
+          home_marker = '            item { ApocalypseV5MenuEntry(Icons.Outlined.PlayArrow, "进入游戏", if (save == null) "从灾前第七日开始" else "继续第 ${save.scene} 幕", onEnter, emphasis = true) }'
+          once(
+              home_marker,
+              '''            item {
+                  ApocalypseV5PhotoCard(
+                      R.drawable.apocalypse_city_night,
+                      "灾后城市边缘",
+                      "夜色、工业烟雾与断续灯火会成为赤潮纪元的第一层视觉记忆。",
+                  )
+              }
+          ''' + home_marker,
+          )
+
+          world_marker = '            items(lore, key = { it.first }) { (title, detail) ->'
+          once(
+              world_marker,
+              '''            item {
+                  ApocalypseV5PhotoCard(
+                      R.drawable.apocalypse_factory_interior,
+                      "废弃工业区",
+                      "基地、物资与人类聚居点都从这样的空壳里重新长出来。",
+                  )
+              }
+          ''' + world_marker,
+          )
+
+          archive_marker = '                item { ApocalypseV5StatusPanel(save.stats, save.director.phase, save.director.location) }'
+          once(
+              archive_marker,
+              '''                item {
+                      ApocalypseV5PhotoCard(
+                          R.drawable.apocalypse_dark_tunnel,
+                          "地下通路",
+                          "撤离、探索和未知区域会保留更压迫的黑蓝氛围。",
+                      )
+                  }
+          ''' + archive_marker,
+          )
+
+          path.write_text(text)
+          PY
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app/src/main/res/drawable-nodpi docs/APOCALYPSE_VISUAL_ASSETS.md app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt
+          git commit -m 'feat: add licensed apocalypse photo assets [skip ci]'
+          git push origin HEAD:main
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
