@@ -26,46 +26,25 @@ import org.json.JSONObject
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-/** Keeps all migrated games unchanged and adds cinematic story-game + replay entry points. */
+/** Keeps migrated games unchanged and adds the shared replay entry point. */
 @Composable
 fun LuluGamesAppV2(onBack: () -> Unit, initialGameId: String? = null) {
     val store = LuluGames.store
     val state by store.state.collectAsState()
     var replayCenterVisible by remember { mutableStateOf(false) }
-    var apocalypseVisible by remember { mutableStateOf(initialGameId == "apocalypse_story") }
-
-    if (apocalypseVisible) {
-        CinematicApocalypseGameScreen(
-            gameStore = store,
-            onBack = { apocalypseVisible = false },
-        )
-        return
-    }
 
     Box(Modifier.fillMaxSize()) {
         LuluGamesApp(onBack = onBack, initialGameId = initialGameId)
-        Column(
+        SmallFloatingActionButton(
+            onClick = { replayCenterVisible = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .navigationBarsPadding()
                 .padding(end = 18.dp, bottom = 78.dp),
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            containerColor = LuluColors.Wheat,
+            contentColor = LuluColors.OnWheat,
         ) {
-            ExtendedFloatingActionButton(
-                onClick = { apocalypseVisible = true },
-                containerColor = LuluColors.CardStrong,
-                contentColor = LuluColors.Ink,
-                icon = { Icon(Icons.Outlined.MovieCreation, null) },
-                text = { Text("末世剧情", fontWeight = FontWeight.SemiBold) },
-            )
-            SmallFloatingActionButton(
-                onClick = { replayCenterVisible = true },
-                containerColor = LuluColors.Wheat,
-                contentColor = LuluColors.OnWheat,
-            ) {
-                Icon(Icons.Outlined.Replay, "游戏回放")
-            }
+            Icon(Icons.Outlined.Replay, "游戏回放")
         }
     }
 
