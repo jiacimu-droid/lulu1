@@ -78,7 +78,7 @@ internal suspend fun planApocalypseV4Beat(
     )
 }
 
-internal fun writeApocalypseV4Scene(
+internal suspend fun writeApocalypseV4Scene(
     save: ApocalypseV3Save,
     config: ApocalypseV3Config,
     party: List<CharacterSettings>,
