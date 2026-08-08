@@ -38,6 +38,7 @@ internal fun StudyPomodoroScreen(
 
     val active = companion.activeSessionId.isNotBlank() && !companion.completionHandled
     val completed = companion.activeSessionId.isNotBlank() && companion.completionHandled
+    val enteredWithCompletedSession = remember { completed }
     val mode = companion.timerMode
     val palette = remember(companion.skin) { pomodoroPalette(companion.skin) }
     val countdownTotal = (state.pomodoro.selectedMinutes * 60).coerceAtLeast(1)
@@ -58,6 +59,15 @@ internal fun StudyPomodoroScreen(
         return MigratedDomainStores.chat.ensureConversation(characterId, character.displayName).id
     }
 
+    LaunchedEffect(completed) {
+        if (!completed) return@LaunchedEffect
+        store.resetPomodoro()
+        PomodoroCompanionSessions.clearSession()
+        // If this session completed while the focus page was visibly open, leave the focus page.
+        // If it completed in the background, opening Pomodoro later should land directly on fresh setup.
+        if (!enteredWithCompletedSession) onBack()
+    }
+
     fun startPomodoro() {
         val cleanTask = task.trim()
         val minutes = minutesText.toIntOrNull()?.coerceIn(1, 180)
@@ -70,10 +80,6 @@ internal fun StudyPomodoroScreen(
             notice = "倒计时请输入1—180分钟"
             noticeError = true
             return
-        }
-        if (completed) {
-            store.resetPomodoro()
-            PomodoroCompanionSessions.clearSession()
         }
 
         val characterId = state.profile.selectedCharacterId
@@ -95,9 +101,10 @@ internal fun StudyPomodoroScreen(
     }
 
     fun finishPomodoro() {
-        val (minutes, reward) = PomodoroCompanionSessions.finishActiveSession(store)
-        notice = if (minutes > 0) "已学习 $minutes 分钟 · $reward" else reward
-        noticeError = false
+        PomodoroCompanionSessions.finishActiveSession(store)
+        store.resetPomodoro()
+        PomodoroCompanionSessions.clearSession()
+        onBack()
     }
 
     if (active) {
@@ -126,19 +133,22 @@ internal fun StudyPomodoroScreen(
     }
 
     Scaffold(
-        containerColor = Color(0xFFF7F8FA),
+        containerColor = StudyDesign.paper,
         topBar = {
             TopAppBar(
-                title = { Text("番茄钟", fontWeight = FontWeight.Bold) },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
+                title = { Text("番茄钟", fontWeight = FontWeight.Bold, color = StudyDesign.ink) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回", tint = StudyDesign.ink) } },
                 actions = {
-                    TextButton(onClick = {
-                        PomodoroCompanionSessions.store.updateSkin(
-                            if (companion.skin == PomodoroSkin.Light) PomodoroSkin.Dark else PomodoroSkin.Light,
-                        )
-                    }) { Text(if (companion.skin == PomodoroSkin.Light) "浅色" else "深色") }
+                    TextButton(
+                        onClick = {
+                            PomodoroCompanionSessions.store.updateSkin(
+                                if (companion.skin == PomodoroSkin.Light) PomodoroSkin.Dark else PomodoroSkin.Light,
+                            )
+                        },
+                        colors = ButtonDefaults.textButtonColors(contentColor = StudyDesign.ink),
+                    ) { Text(if (companion.skin == PomodoroSkin.Light) "浅色" else "深色") }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF7F8FA)),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = StudyDesign.paper),
             )
         },
     ) { padding ->
@@ -147,145 +157,129 @@ internal fun StudyPomodoroScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            if (completed) {
-                item {
-                    Surface(
-                        color = Color.White,
-                        shape = RoundedCornerShape(24.dp),
-                        border = BorderStroke(1.dp, Color(0xFFE4E7EB)),
-                    ) {
-                        Column(
-                            Modifier.fillMaxWidth().padding(22.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            Icon(Icons.Outlined.CheckCircle, null, modifier = Modifier.size(44.dp), tint = Color(0xFF687D72))
-                            Text("这一轮结束了", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                            Text(companion.activeTask, color = Color(0xFF747B84), textAlign = TextAlign.Center)
-                            if (notice.isNotBlank()) Text(notice, color = Color(0xFF747B84), fontSize = 12.sp, textAlign = TextAlign.Center)
-                            Button(onClick = {
-                                store.resetPomodoro()
-                                PomodoroCompanionSessions.clearSession()
-                                notice = ""
-                            }) { Text("再开一轮") }
-                            OutlinedButton(onClick = { onOpenConversation(privateConversationId()) }) {
-                                Text("查看角色私聊")
-                            }
+            item {
+                Surface(
+                    color = StudyDesign.card,
+                    shape = RoundedCornerShape(24.dp),
+                    border = BorderStroke(1.dp, StudyDesign.border),
+                ) {
+                    Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        OutlinedTextField(
+                            value = task,
+                            onValueChange = { task = it.take(200) },
+                            placeholder = { Text("例如：刑法第14章课程") },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            shape = RoundedCornerShape(16.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = StudyDesign.dark,
+                                unfocusedBorderColor = StudyDesign.border,
+                                focusedContainerColor = StudyDesign.paper,
+                                unfocusedContainerColor = StudyDesign.paper,
+                            ),
+                        )
+                        Text("计时方式", fontWeight = FontWeight.SemiBold, color = StudyDesign.ink)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            PomodoroModeChip(
+                                selected = mode == PomodoroTimerMode.Countdown,
+                                label = "倒计时",
+                                onClick = { PomodoroCompanionSessions.store.updateTimerMode(PomodoroTimerMode.Countdown) },
+                            )
+                            PomodoroModeChip(
+                                selected = mode == PomodoroTimerMode.CountUp,
+                                label = "正计时",
+                                onClick = { PomodoroCompanionSessions.store.updateTimerMode(PomodoroTimerMode.CountUp) },
+                            )
                         }
-                    }
-                }
-            } else {
-                item {
-                    Surface(
-                        color = Color.White,
-                        shape = RoundedCornerShape(24.dp),
-                        border = BorderStroke(1.dp, Color(0xFFE4E7EB)),
-                    ) {
-                        Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text("这一轮要做什么", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                                Text("番茄钟里的陪伴消息直接进入角色原本的私聊，不再创建学习专用聊天。", color = Color(0xFF7A8089), fontSize = 12.sp)
+                        if (mode == PomodoroTimerMode.Countdown) {
+                            Text("倒计时时长", fontWeight = FontWeight.SemiBold, color = StudyDesign.ink)
+                            Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                                listOf(20, 25, 40, 50).forEach { value ->
+                                    FilterChip(
+                                        selected = minutesText == value.toString(),
+                                        onClick = { minutesText = value.toString() },
+                                        label = { Text("$value") },
+                                        colors = studyFilterChipColors(),
+                                    )
+                                }
                             }
                             OutlinedTextField(
-                                value = task,
-                                onValueChange = { task = it.take(200) },
-                                placeholder = { Text("例如：刑法第14章课程") },
+                                value = minutesText,
+                                onValueChange = { minutesText = it.filter(Char::isDigit).take(3) },
+                                label = { Text("自定义分钟") },
+                                suffix = { Text("分钟") },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
                                 shape = RoundedCornerShape(16.dp),
-                            )
-                            Text("计时方式", fontWeight = FontWeight.SemiBold)
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                FilterChip(
-                                    selected = mode == PomodoroTimerMode.Countdown,
-                                    onClick = { PomodoroCompanionSessions.store.updateTimerMode(PomodoroTimerMode.Countdown) },
-                                    label = { Text("倒计时") },
-                                    leadingIcon = { Icon(Icons.Outlined.HourglassBottom, null, Modifier.size(17.dp)) },
-                                )
-                                FilterChip(
-                                    selected = mode == PomodoroTimerMode.CountUp,
-                                    onClick = { PomodoroCompanionSessions.store.updateTimerMode(PomodoroTimerMode.CountUp) },
-                                    label = { Text("正计时") },
-                                    leadingIcon = { Icon(Icons.Outlined.Timer, null, Modifier.size(17.dp)) },
-                                )
-                            }
-                            if (mode == PomodoroTimerMode.Countdown) {
-                                Text("倒计时时长", fontWeight = FontWeight.SemiBold)
-                                Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                                    listOf(20, 25, 40, 50).forEach { value ->
-                                        FilterChip(
-                                            selected = minutesText == value.toString(),
-                                            onClick = { minutesText = value.toString() },
-                                            label = { Text("$value") },
-                                        )
-                                    }
-                                }
-                                OutlinedTextField(
-                                    value = minutesText,
-                                    onValueChange = { minutesText = it.filter(Char::isDigit).take(3) },
-                                    label = { Text("自定义分钟") },
-                                    suffix = { Text("分钟") },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    singleLine = true,
-                                    shape = RoundedCornerShape(16.dp),
-                                )
-                            } else {
-                                Surface(color = Color(0xFFF3F5F7), shape = RoundedCornerShape(16.dp)) {
-                                    Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Outlined.AllInclusive, null, tint = Color(0xFF687482))
-                                        Spacer(Modifier.width(10.dp))
-                                        Text("从 00:00 开始往上计时，直到你手动结束。", color = Color(0xFF5F6670), fontSize = 13.sp)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                item {
-                    Surface(
-                        color = Color.White,
-                        shape = RoundedCornerShape(24.dp),
-                        border = BorderStroke(1.dp, Color(0xFFE4E7EB)),
-                    ) {
-                        Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
-                            Text("陪伴设置", fontSize = 17.sp, fontWeight = FontWeight.Bold)
-                            SettingSwitchRow(
-                                title = "角色开场消息",
-                                subtitle = "开始时让当前角色在原私聊里自然说一句。",
-                                checked = companion.automaticDialogueEnabled,
-                                onCheckedChange = PomodoroCompanionSessions.store::updateAutomaticDialogue,
-                            )
-                            HorizontalDivider(color = Color(0xFFECEEF1))
-                            SettingSwitchRow(
-                                title = "角色语音",
-                                subtitle = "番茄钟开场消息生成后自动读出来。",
-                                checked = state.pomodoro.voiceEnabled,
-                                onCheckedChange = { store.togglePomodoroVoice() },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = StudyDesign.dark,
+                                    unfocusedBorderColor = StudyDesign.border,
+                                    focusedContainerColor = StudyDesign.paper,
+                                    unfocusedContainerColor = StudyDesign.paper,
+                                ),
                             )
                         }
                     }
                 }
+            }
 
-                item {
-                    Button(
-                        onClick = ::startPomodoro,
-                        modifier = Modifier.fillMaxWidth().height(54.dp),
-                        shape = RoundedCornerShape(18.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF252A31)),
-                    ) {
-                        Icon(Icons.Outlined.PlayArrow, null)
-                        Spacer(Modifier.width(7.dp))
-                        Text(if (mode == PomodoroTimerMode.Countdown) "开始倒计时" else "开始正计时", fontWeight = FontWeight.SemiBold)
+            item {
+                Surface(
+                    color = StudyDesign.card,
+                    shape = RoundedCornerShape(24.dp),
+                    border = BorderStroke(1.dp, StudyDesign.border),
+                ) {
+                    Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("陪伴设置", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = StudyDesign.ink)
+                        SettingSwitchRow(
+                            title = "角色开场消息",
+                            checked = companion.automaticDialogueEnabled,
+                            onCheckedChange = PomodoroCompanionSessions.store::updateAutomaticDialogue,
+                        )
+                        HorizontalDivider(color = StudyDesign.border)
+                        SettingSwitchRow(
+                            title = "角色语音",
+                            checked = state.pomodoro.voiceEnabled,
+                            onCheckedChange = { store.togglePomodoroVoice() },
+                        )
                     }
                 }
-                if (notice.isNotBlank()) item {
-                    Text(notice, color = if (noticeError) MaterialTheme.colorScheme.error else Color(0xFF687D72), fontSize = 12.sp)
+            }
+
+            item {
+                Button(
+                    onClick = ::startPomodoro,
+                    modifier = Modifier.fillMaxWidth().height(54.dp),
+                    shape = RoundedCornerShape(18.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.dark, contentColor = StudyDesign.wheat),
+                ) {
+                    Text(if (mode == PomodoroTimerMode.Countdown) "开始倒计时" else "开始正计时", fontWeight = FontWeight.Bold)
                 }
+            }
+            if (notice.isNotBlank()) item {
+                Text(notice, color = if (noticeError) StudyDesign.error else StudyDesign.success, fontSize = 12.sp)
             }
         }
     }
 }
+
+@Composable
+private fun PomodoroModeChip(selected: Boolean, label: String, onClick: () -> Unit) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = { Text(label, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium) },
+        colors = studyFilterChipColors(),
+    )
+}
+
+@Composable
+private fun studyFilterChipColors() = FilterChipDefaults.filterChipColors(
+    containerColor = StudyDesign.paper,
+    labelColor = StudyDesign.muted,
+    selectedContainerColor = StudyDesign.dark,
+    selectedLabelColor = StudyDesign.wheat,
+)
 
 @Composable
 private fun PomodoroFocusScreen(
@@ -402,14 +396,8 @@ private fun PomodoroFocusScreen(
             TextButton(onClick = onOpenConversation, colors = ButtonDefaults.textButtonColors(contentColor = palette.primaryText)) {
                 Icon(Icons.Outlined.ChatBubbleOutline, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("去角色私聊 · 记录与主私聊同步")
+                Text("去角色私聊")
             }
-            Text(
-                "返回不会结束计时；离开后会显示可拖动的小窗。",
-                color = palette.secondaryText.copy(alpha = 0.85f),
-                fontSize = 11.sp,
-                textAlign = TextAlign.Center,
-            )
             Spacer(Modifier.weight(1f))
         }
     }
@@ -418,16 +406,21 @@ private fun PomodoroFocusScreen(
 @Composable
 private fun SettingSwitchRow(
     title: String,
-    subtitle: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(title, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-            Text(subtitle, color = Color(0xFF7A8089), fontSize = 11.sp)
-        }
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
+        Text(title, modifier = Modifier.weight(1f), fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = StudyDesign.ink)
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = StudyDesign.wheat,
+                checkedTrackColor = StudyDesign.dark,
+                uncheckedThumbColor = StudyDesign.muted,
+                uncheckedTrackColor = StudyDesign.wheatSoft,
+            ),
+        )
     }
 }
 
