@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.games
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
