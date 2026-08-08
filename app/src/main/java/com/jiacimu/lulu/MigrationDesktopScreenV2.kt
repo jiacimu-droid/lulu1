@@ -52,6 +52,7 @@ private val DesktopV2Launchers = listOf(
     DesktopV2Launcher("study", "考研", Icons.Outlined.School, MigrationRoute.Study),
     DesktopV2Launcher("schedule", "日程", Icons.Outlined.CalendarMonth, MigrationRoute.Schedule),
     DesktopV2Launcher("games", "游戏", Icons.Outlined.SportsEsports, MigrationRoute.Games),
+    DesktopV2Launcher("apocalypse", "末世求生", Icons.Outlined.Map, MigrationRoute.ApocalypseSurvival),
     DesktopV2Launcher("settings", "设置", Icons.Outlined.Settings, MigrationRoute.Settings),
 )
 
