@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.data.CharacterIdentityStore
 import com.jiacimu.lulu.data.CharacterRecordReset
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -39,9 +40,11 @@ fun CharacterSettingsScreenV2(
     remember(context) {
         ProactivePerceptionPolicyStore.initialize(context.applicationContext)
         CharacterVoicePreferenceStore.initialize(context.applicationContext)
+        CharacterIdentityStore.initialize(context.applicationContext)
         Unit
     }
     val settings by MigratedDomainStores.characters.settings.collectAsState()
+    val identities by CharacterIdentityStore.identities.collectAsState()
     val perceptionPolicies by ProactivePerceptionPolicyStore.policies.collectAsState()
     val voicePreferences by CharacterVoicePreferenceStore.autoPlayReplies.collectAsState()
     val characterVoiceIds by CharacterVoicePreferenceStore.voiceIds.collectAsState()
@@ -53,6 +56,7 @@ fun CharacterSettingsScreenV2(
     val scope = rememberCoroutineScope()
     var displayName by remember(characterId) { mutableStateOf(original.displayName) }
     var avatarUri by remember(characterId) { mutableStateOf(original.avatarUri) }
+    var identity by remember(characterId) { mutableStateOf(identities[characterId].orEmpty()) }
     var persona by remember(characterId) { mutableStateOf(original.persona) }
     var proactiveCalls by remember(characterId) { mutableStateOf(original.contactPolicy.proactiveCallsEnabled) }
     var confirmDelete by remember { mutableStateOf(false) }
@@ -60,9 +64,10 @@ fun CharacterSettingsScreenV2(
     var clearingRecords by remember { mutableStateOf(false) }
     var recordNotice by remember { mutableStateOf("") }
 
-    LaunchedEffect(displayName, avatarUri, persona, proactiveCalls) {
+    LaunchedEffect(displayName, avatarUri, identity, persona, proactiveCalls) {
         if (displayName.isBlank()) return@LaunchedEffect
         delay(350)
+        CharacterIdentityStore.set(characterId, identity)
         MigratedDomainStores.characters.update(
             original.copy(
                 displayName = displayName.trim(),
@@ -141,12 +146,32 @@ fun CharacterSettingsScreenV2(
                         modifier = Modifier.fillMaxWidth(),
                     )
                     OutlinedTextField(
+                        value = identity,
+                        onValueChange = { identity = it },
+                        label = { Text("角色身份") },
+                        placeholder = { Text("身份、职业、时代、阵营、背景等世界观信息") },
+                        minLines = 3,
+                        maxLines = 8,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Text(
+                        "角色身份会用于私聊、群聊、电话、主动感知和普通游戏等原世界场景；跑团与末世求生会主动排除这一栏。",
+                        color = LuluColors.Muted,
+                        fontSize = 11.sp,
+                    )
+                    OutlinedTextField(
                         value = persona,
                         onValueChange = { persona = it },
-                        label = { Text("角色核心设定") },
+                        label = { Text("角色设定") },
+                        placeholder = { Text("性格、说话方式、价值观、关系边界、习惯与处事方式") },
                         minLines = 4,
                         maxLines = 10,
                         modifier = Modifier.fillMaxWidth(),
+                    )
+                    Text(
+                        "角色设定代表这个人本身，会在所有角色生成中使用；包括跑团与末世求生的跨世界版本。",
+                        color = LuluColors.Muted,
+                        fontSize = 11.sp,
                     )
                 }
             }
@@ -308,7 +333,7 @@ fun CharacterSettingsScreenV2(
             title = { Text("清除${original.displayName}的所有记录？") },
             text = {
                 Text(
-                    "会永久清除这个角色的私聊消息、辞海、记忆、朋友圈内容与互动、此刻历史，以及原始时间线里的全部事件。角色头像、人设、主动感知等设置会保留。此操作无法撤销。",
+                    "会永久清除这个角色的私聊消息、辞海、记忆、朋友圈内容与互动、此刻历史，以及原始时间线里的全部事件。角色头像、身份、设定、主动感知等设置会保留。此操作无法撤销。",
                 )
             },
             confirmButton = {
@@ -339,7 +364,10 @@ fun CharacterSettingsScreenV2(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        if (MigratedDomainStores.characters.delete(characterId)) onDeleted()
+                        if (MigratedDomainStores.characters.delete(characterId)) {
+                            CharacterIdentityStore.delete(characterId)
+                            onDeleted()
+                        }
                         confirmDelete = false
                     },
                 ) { Text("删除", color = MaterialTheme.colorScheme.error) }
