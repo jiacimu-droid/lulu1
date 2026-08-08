@@ -145,6 +145,7 @@ private fun initializeBackgroundRuntime(context: Context) {
     LuluRepositories.worldBook.initialize(context)
     SharedExperienceTimeline.initialize(context)
     MigratedDomainStores.initialize(context)
+    CharacterIdentityStore.initialize(context)
     MomentsStore.initialize(context)
     CompanionPresenceStore.initialize(context)
     LuluAiServices.initialize(context)
