@@ -715,10 +715,13 @@ private fun ApocalypseV5WorldPage(config: ApocalypseV3Config, onBack: () -> Unit
                     }
                 }
             }
-            item { ApocalypseV5SectionTitle("导演长期蓝图", "方向可以被玩家行动改写") }
-            items(defaultApocalypseLongTermPlan()) { item ->
+            item { ApocalypseV5SectionTitle("时代走向", "只告诉你这个世界会面对什么，不提前公开导演的未来事件和伏笔") }
+            items(apocalypsePublicEraGuideV5(), key = { it.first }) { (title, detail) ->
                 Surface(color = ApocalypseV5Colors.white, shape = RoundedCornerShape(15.dp), border = BorderStroke(1.dp, ApocalypseV5Colors.border)) {
-                    Text(item, color = ApocalypseV5Colors.ink, fontSize = 11.sp, lineHeight = 18.sp, modifier = Modifier.padding(12.dp))
+                    Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(title, color = ApocalypseV5Colors.blueStrong, fontWeight = FontWeight.Bold)
+                        Text(detail, color = ApocalypseV5Colors.muted, fontSize = 11.sp, lineHeight = 18.sp)
+                    }
                 }
             }
         }
