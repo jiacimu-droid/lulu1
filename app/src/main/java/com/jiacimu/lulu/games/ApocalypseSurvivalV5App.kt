@@ -696,6 +696,7 @@ private fun ApocalypseV5WorldPage(config: ApocalypseV3Config, onBack: () -> Unit
             "基地、物资与人类聚居点都从这样的空壳里重新长出来。",
         )
     }
+            item { ApocalypseWorldAtlasSummaryV5() }
             items(lore, key = { it.first }) { (title, detail) ->
                 Surface(color = ApocalypseV5Colors.white, shape = RoundedCornerShape(18.dp), border = BorderStroke(1.dp, ApocalypseV5Colors.border)) {
                     Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -934,7 +935,10 @@ private fun ApocalypseV5PlayPage(
     }
     if (showMap) {
         ModalBottomSheet(onDismissRequest = { showMap = false }, containerColor = ApocalypseV5Colors.background) {
-            ApocalypseV5MapSheet(save.director.locations) { location ->
+            ApocalypseWorldMapSheetV5(
+            currentLocation = save.director.location,
+            discoveredLocations = save.director.locations,
+        ) { location ->
                 action = "我准备前往${location.name}，先观察路线、天气、感染者和人类活动，再决定怎么进入。"
                 showMap = false
             }
