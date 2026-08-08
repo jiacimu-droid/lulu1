@@ -266,7 +266,7 @@ private fun studyEventDisplayText(event: StudyEvent): String {
     if (detail.isBlank()) return event.title.ifBlank { "学习记录" }
     val looksInternal = detail.contains("StudyTask(") ||
         listOf("id=", "completed=", "source=", "rewarded=").count(detail::contains) >= 2
-    if (!looksInternal) return detail
+    if (!looksInternal) return if (event.title.isNotBlank()) "${event.title}：$detail" else detail
 
     val taskTitle = Regex("title=([^,)\\n]+)")
         .find(detail)

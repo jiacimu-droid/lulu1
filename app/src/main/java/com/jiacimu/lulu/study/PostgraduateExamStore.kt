@@ -177,7 +177,12 @@ class PostgraduateExamStore internal constructor(context: Context) {
                 ) else it
             }
             val allTodayComplete = allTasksCompleteForDate(tasks, today)
+            val unlockAllClear = complete && allTodayComplete && state.superMomentClaimedDate != today
             val detail = if (firstReward) "$task.title · 夸夸值 +$TASK_COMPLETION_PRAISE" else task.title
+            var events = addEvent(state.events, if (complete) "待办完成" else "待办取消", detail)
+            if (unlockAllClear) {
+                events = addEvent(events, "今日待办全清", "全部待办完成 · 十连券 +2（20连）已自动到账")
+            }
             updateAchievements(
                 state.copy(
                     tasks = tasks,
@@ -187,9 +192,12 @@ class PostgraduateExamStore internal constructor(context: Context) {
                         totalTasksCompleted = state.profile.totalTasksCompleted + if (firstReward) 1 else 0,
                         lastStudyDate = if (firstReward) today else state.profile.lastStudyDate,
                     ),
-                    superMomentAvailable = state.superMomentAvailable ||
-                        (allTodayComplete && state.superMomentClaimedDate != today),
-                    events = addEvent(state.events, if (complete) "待办完成" else "待办取消", detail),
+                    inventory = if (unlockAllClear) {
+                        state.inventory.copy(tenTickets = state.inventory.tenTickets + 2)
+                    } else state.inventory,
+                    superMomentAvailable = state.superMomentAvailable || unlockAllClear,
+                    superMomentClaimedDate = if (unlockAllClear) today else state.superMomentClaimedDate,
+                    events = events,
                 ),
             )
         }
@@ -500,19 +508,18 @@ class PostgraduateExamStore internal constructor(context: Context) {
     }
 
     fun claimSuperMoment(): String {
-        var message = "当前没有可领取的超神奖励"
+        // 兼容旧调用：全清奖励现在在最后一个待办完成时已经自动入账，这里绝不重复发券。
+        var message = "当前没有待展示的全清奖励"
         mutate { state ->
-            val today = LocalDate.now().toString()
-            if (!state.superMomentAvailable || state.superMomentClaimedDate == today) return@mutate state
-            message = "今日待办全清：十连抽券 +2（20连）"
-            state.copy(
-                inventory = state.inventory.copy(tenTickets = state.inventory.tenTickets + 2),
-                superMomentAvailable = false,
-                superMomentClaimedDate = today,
-                events = addEvent(state.events, "超神时刻", message),
-            )
+            if (!state.superMomentAvailable) return@mutate state
+            message = "今日待办全清：20连奖励已经自动到账"
+            state.copy(superMomentAvailable = false)
         }
         return message
+    }
+
+    fun dismissSuperMomentCelebration() = mutate { state ->
+        if (state.superMomentAvailable) state.copy(superMomentAvailable = false) else state
     }
 
     fun exchangeSingleTicketsForTen(): String {

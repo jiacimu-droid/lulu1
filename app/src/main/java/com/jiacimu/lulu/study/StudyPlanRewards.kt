@@ -116,13 +116,6 @@ internal fun StudyGachaScreen(state: StudyState, store: PostgraduateExamStore) {
                     draw(store::drawTen, "需要1张十连券或${TEN_DRAW_COST}夸夸值")
                 },
             )
-            if (state.superMomentAvailable) {
-                Button(
-                    onClick = { message = store.claimSuperMoment() },
-                    modifier = Modifier.align(Alignment.TopEnd).padding(14.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.wheat, contentColor = StudyDesign.ink),
-                ) { Text("领取十连券") }
-            }
             if (message.isNotBlank()) {
                 Surface(
                     modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(18.dp),

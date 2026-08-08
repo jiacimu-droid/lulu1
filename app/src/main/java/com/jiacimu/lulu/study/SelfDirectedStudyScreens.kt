@@ -1,6 +1,13 @@
 package com.jiacimu.lulu.study
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,11 +18,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import java.time.LocalDate
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 @Composable
 internal fun StudyTodayScreenV2(
@@ -129,6 +143,109 @@ internal fun StudyTodayScreenV2(
             item { StudyCard { Text("今天还没有待办。", color = StudyDesign.muted) } }
         } else {
             items(todayTasks, key = StudyTask::id) { task -> SelfDirectedTaskRow(task, store) }
+        }
+    }
+
+    if (state.superMomentAvailable) {
+        StudyAllTasksCelebrationOverlay(onDismiss = store::dismissSuperMomentCelebration)
+    }
+}
+
+@Composable
+private fun StudyAllTasksCelebrationOverlay(onDismiss: () -> Unit) {
+    val transition = rememberInfiniteTransition(label = "今日全清庆祝")
+    val sparkle by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(animation = tween(1800), repeatMode = RepeatMode.Restart),
+        label = "庆祝粒子",
+    )
+
+    Dialog(
+        onDismissRequest = {},
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false,
+        ),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(StudyDesign.wheatSoft, Color.White, StudyDesign.paper),
+                    ),
+                )
+                .statusBarsPadding()
+                .navigationBarsPadding(),
+        ) {
+            Canvas(Modifier.fillMaxSize()) {
+                val center = Offset(size.width / 2f, size.height * .36f)
+                repeat(36) { index ->
+                    val angle = index * (PI * 2.0 / 36.0) + sparkle * .65f
+                    val lane = 0.18f + (index % 7) * .045f
+                    val radius = size.minDimension * (lane + sparkle * .12f)
+                    val point = Offset(
+                        center.x + cos(angle).toFloat() * radius,
+                        center.y + sin(angle).toFloat() * radius,
+                    )
+                    drawCircle(
+                        color = if (index % 3 == 0) StudyDesign.wheat else Color(0xFFFFD982),
+                        radius = (3.5f + index % 4) * density,
+                        center = point,
+                        alpha = (1f - sparkle * .55f).coerceIn(.25f, 1f),
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .fillMaxWidth()
+                    .padding(horizontal = 30.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                Text("✦  今日全清  ✦", color = StudyDesign.ink, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    "今日待办全部完成！",
+                    color = StudyDesign.ink,
+                    fontSize = 31.sp,
+                    fontWeight = FontWeight.Black,
+                )
+                Text(
+                    "今天的努力已经一项一项好好收下啦。愿接下来的复习也继续顺顺利利。",
+                    color = StudyDesign.muted,
+                    fontSize = 15.sp,
+                    lineHeight = 23.sp,
+                )
+                Surface(
+                    color = Color.White.copy(alpha = .92f),
+                    shape = RoundedCornerShape(24.dp),
+                    border = BorderStroke(1.5.dp, StudyDesign.wheat),
+                    shadowElevation = 8.dp,
+                ) {
+                    Column(
+                        Modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Text("20连奖励已自动到账", color = StudyDesign.ink, fontSize = 18.sp, fontWeight = FontWeight.Black)
+                        Text("十连券 +2", color = StudyDesign.ink, fontSize = 27.sp, fontWeight = FontWeight.Black)
+                        Text("每个首次完成的今日待办，也已分别结算夸夸值 +100", color = StudyDesign.muted, fontSize = 12.sp)
+                    }
+                }
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.dark, contentColor = Color.White),
+                ) {
+                    Text("收下今天的胜利", fontWeight = FontWeight.Black, fontSize = 15.sp)
+                }
+            }
         }
     }
 }
