@@ -13,14 +13,13 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -69,9 +68,7 @@ internal fun GadgetbridgeHealthScreen() {
     }
 
     LaunchedEffect(state.latest?.date, selectedDateText) {
-        if (selectedDateText == null) {
-            selectedDateText = (state.latest?.date ?: LocalDate.now()).toString()
-        }
+        if (selectedDateText == null) selectedDateText = (state.latest?.date ?: LocalDate.now()).toString()
     }
 
     val selectedDate = selectedDateText?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
@@ -81,14 +78,14 @@ internal fun GadgetbridgeHealthScreen() {
     val lastSelectableDate = maxOf(LocalDate.now(), state.latest?.date ?: LocalDate.now())
     val selectedDay = state.days.firstOrNull { it.date == selectedDate }
     val selectedSleep = selectedDay?.takeIf { day ->
-        day.sleepMinutes != null || day.sleepStartEpochSeconds != null || day.deepSleepMinutes != null
+        day.sleepMinutes != null || day.sleepStartEpochSeconds != null || day.sleepEndEpochSeconds != null ||
+            day.deepSleepMinutes != null || day.lightSleepMinutes != null || day.remSleepMinutes != null ||
+            day.awakeSleepMinutes != null || day.sleepScore != null
     }
-    val historyThroughSelected = state.days
-        .filter { !it.date.isAfter(selectedDate) }
-        .takeLast(14)
+    val historyThroughSelected = state.days.filter { !it.date.isAfter(selectedDate) }.takeLast(14)
 
     androidx.compose.foundation.lazy.LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().background(WearablePaper),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
@@ -101,16 +98,11 @@ internal fun GadgetbridgeHealthScreen() {
             )
         }
 
-        if (state.connected) {
-            item { SyncStatusRow(state) }
-        }
+        if (state.connected) item { SyncStatusRow(state) }
 
         if (state.error.isNotBlank()) {
             item {
-                Surface(
-                    color = MaterialTheme.colorScheme.errorContainer,
-                    shape = RoundedCornerShape(18.dp),
-                ) {
+                Surface(color = MaterialTheme.colorScheme.errorContainer, shape = RoundedCornerShape(18.dp)) {
                     Text(
                         state.error,
                         color = MaterialTheme.colorScheme.onErrorContainer,
@@ -130,41 +122,7 @@ internal fun GadgetbridgeHealthScreen() {
             selectedDay == null -> item { NoDataForDateCard(selectedDate) }
             else -> {
                 item { SleepHeroCard(selectedSleep, selectedDate) }
-                if (selectedSleep != null) {
-                    item { SleepStageCard(selectedSleep) }
-                }
-
-                val sleepDurationValues = historyThroughSelected.mapNotNull { day ->
-                    day.sleepMinutes?.takeIf { it > 0 }?.let { day.date.format(dayFormatter) to it.toFloat() }
-                }
-                if (sleepDurationValues.size >= 2) {
-                    item {
-                        BarChartCard(
-                            title = "睡眠时长变化",
-                            subtitle = "截至 ${selectedDate.format(longDateFormatter)} 的近 ${sleepDurationValues.size} 次记录",
-                            values = sleepDurationValues,
-                            valueLabel = { formatMinutes(it.toInt()) },
-                            accent = SleepPurple,
-                        )
-                    }
-                }
-
-                val bedtimeValues = historyThroughSelected.mapNotNull { day ->
-                    day.sleepStartEpochSeconds?.let { epoch ->
-                        day.date.format(dayFormatter) to bedtimeAxisMinutes(epoch)
-                    }
-                }
-                if (bedtimeValues.size >= 2) {
-                    item {
-                        LineChartCard(
-                            title = "入睡时间变化",
-                            subtitle = "截至所选日期，越靠上代表睡得越晚",
-                            values = bedtimeValues,
-                            accent = SleepPurple,
-                            valueLabel = ::formatClockAxis,
-                        )
-                    }
-                }
+                if (selectedSleep != null) item { SleepStageCard(selectedSleep) }
 
                 item { SectionTitle("身体概览") }
                 item {
@@ -213,15 +171,15 @@ internal fun GadgetbridgeHealthScreen() {
                 }
 
                 item { ActivitySummaryCard(selectedDay) }
+                item { ExtendedVitalsCard(selectedDay) }
 
                 val heartValues = historyThroughSelected.mapNotNull { day ->
                     day.averageHeartRate?.let { day.date.format(dayFormatter) to it.toFloat() }
                 }
                 if (heartValues.size >= 2) {
                     item {
-                        LineChartCard(
+                        CompactTrendCard(
                             title = "平均心率趋势",
-                            subtitle = "截至 ${selectedDate.format(longDateFormatter)} 的近 ${heartValues.size} 次记录",
                             values = heartValues,
                             accent = WearableAccent,
                             valueLabel = { "${it.toInt()} 次/分" },
@@ -234,9 +192,8 @@ internal fun GadgetbridgeHealthScreen() {
                 }
                 if (oxygenValues.size >= 2) {
                     item {
-                        LineChartCard(
+                        CompactTrendCard(
                             title = "血氧趋势",
-                            subtitle = "截至 ${selectedDate.format(longDateFormatter)} 的近 ${oxygenValues.size} 次记录",
                             values = oxygenValues,
                             accent = OxygenBlue,
                             valueLabel = { "${it.toInt()}%" },
@@ -267,19 +224,14 @@ private fun DateSelectorCard(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IconButton(
-                onClick = { onDateChange(selectedDate.minusDays(1)) },
-                enabled = selectedDate.isAfter(firstDate),
-            ) {
+            IconButton(onClick = { onDateChange(selectedDate.minusDays(1)) }, enabled = selectedDate.isAfter(firstDate)) {
                 Icon(Icons.Outlined.ChevronLeft, "前一天", tint = WearableInk)
             }
             TextButton(
                 onClick = {
                     DatePickerDialog(
                         context,
-                        { _, year, month, dayOfMonth ->
-                            onDateChange(LocalDate.of(year, month + 1, dayOfMonth))
-                        },
+                        { _, year, month, dayOfMonth -> onDateChange(LocalDate.of(year, month + 1, dayOfMonth)) },
                         selectedDate.year,
                         selectedDate.monthValue - 1,
                         selectedDate.dayOfMonth,
@@ -294,8 +246,7 @@ private fun DateSelectorCard(
                 Spacer(Modifier.width(8.dp))
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        if (selectedDate == LocalDate.now()) "今天 · ${selectedDate.format(longDateFormatter)}"
-                        else selectedDate.format(longDateFormatter),
+                        if (selectedDate == LocalDate.now()) "今天 · ${selectedDate.format(longDateFormatter)}" else selectedDate.format(longDateFormatter),
                         color = WearableInk,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
@@ -307,10 +258,7 @@ private fun DateSelectorCard(
                     )
                 }
             }
-            IconButton(
-                onClick = { onDateChange(selectedDate.plusDays(1)) },
-                enabled = selectedDate.isBefore(lastDate),
-            ) {
+            IconButton(onClick = { onDateChange(selectedDate.plusDays(1)) }, enabled = selectedDate.isBefore(lastDate)) {
                 Icon(Icons.Outlined.ChevronRight, "后一天", tint = WearableInk)
             }
         }
@@ -333,8 +281,7 @@ private fun SyncStatusRow(state: GadgetbridgeHealthState) {
             if (state.importing) {
                 "正在读取最新手环数据"
             } else {
-                val time = state.lastImportedAt?.atZone(ZoneId.systemDefault())
-                    ?.format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))
+                val time = state.lastImportedAt?.atZone(ZoneId.systemDefault())?.format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))
                 if (time == null) "手环数据已连接" else "已自动同步 · $time"
             },
             color = WearableMuted,
@@ -347,14 +294,9 @@ private fun SyncStatusRow(state: GadgetbridgeHealthState) {
 
 @Composable
 private fun DisplayOnlyEmptyCard(message: String = "手环数据尚未授权。请到“设置 → 权限与能力 → Gadgetbridge 健康数据”选择数据库；这里之后只负责展示。") {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = WearableCard,
-        shape = RoundedCornerShape(26.dp),
-        border = BorderStroke(1.dp, WearableLine),
-    ) {
+    WearablePanel {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 38.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
@@ -362,21 +304,16 @@ private fun DisplayOnlyEmptyCard(message: String = "手环数据尚未授权。�
                 Icon(Icons.Outlined.Watch, null, tint = WearableAccent, modifier = Modifier.padding(15.dp).size(35.dp))
             }
             Text("等待手环数据", color = WearableInk, fontWeight = FontWeight.Bold, fontSize = 19.sp)
-            Text(message, color = WearableMuted, fontSize = 12.sp, lineHeight = 18.sp)
+            Text(message, color = WearableMuted, fontSize = 12.sp, lineHeight = 18.sp, textAlign = TextAlign.Center)
         }
     }
 }
 
 @Composable
 private fun NoDataForDateCard(date: LocalDate) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = WearableCard,
-        shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(1.dp, WearableLine),
-    ) {
+    WearablePanel {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 28.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
@@ -393,127 +330,165 @@ private fun SleepHeroCard(day: GadgetbridgeDaySummary?, selectedDate: LocalDate)
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(30.dp),
         color = SleepLavender,
-        border = BorderStroke(1.dp, SleepPurple.copy(alpha = 0.14f)),
+        border = BorderStroke(1.dp, SleepPurple.copy(alpha = 0.16f)),
     ) {
         Column(
             modifier = Modifier
                 .background(Brush.linearGradient(listOf(Color(0xFFF4F0FC), Color(0xFFFFF1F5))))
                 .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(15.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Surface(color = Color.White.copy(alpha = 0.72f), shape = RoundedCornerShape(16.dp)) {
+                Surface(color = Color.White.copy(alpha = 0.80f), shape = RoundedCornerShape(16.dp)) {
                     Icon(Icons.Outlined.Bedtime, null, tint = SleepPurple, modifier = Modifier.padding(11.dp))
                 }
                 Spacer(Modifier.width(11.dp))
                 Column(Modifier.weight(1f)) {
-                    Text("睡眠", color = WearableInk, fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    Text("睡眠", color = WearableInk, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                     Text(
                         if (day != null) "${selectedDate.monthValue}月${selectedDate.dayOfMonth}日夜间记录" else "这一天没有睡眠记录",
                         color = WearableMuted,
                         fontSize = 11.sp,
                     )
                 }
-                day?.sleepScore?.let { score ->
-                    Surface(color = Color.White.copy(alpha = 0.68f), shape = RoundedCornerShape(14.dp)) {
-                        Text("评分 $score", color = SleepPurple, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp))
-                    }
-                }
+                day?.sleepScore?.let { score -> SleepScoreBadge(score) }
             }
 
-            Text(
-                day?.sleepMinutes?.let(::formatMinutes) ?: "—",
-                color = WearableInk,
-                fontSize = 34.sp,
-                fontWeight = FontWeight.Black,
-            )
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    day?.sleepMinutes?.let(::formatMinutes) ?: "—",
+                    color = WearableInk,
+                    fontSize = 38.sp,
+                    fontWeight = FontWeight.Black,
+                )
+                Spacer(Modifier.width(9.dp))
+                Text("实际睡眠", color = WearableMuted, fontSize = 11.sp, modifier = Modifier.padding(bottom = 7.dp))
+            }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                SleepTimeChip(
-                    label = "入睡",
-                    value = day?.sleepStartEpochSeconds?.let(::formatClock) ?: "—",
-                    modifier = Modifier.weight(1f),
-                )
-                SleepTimeChip(
-                    label = "起床",
-                    value = day?.sleepEndEpochSeconds?.let(::formatClock) ?: "—",
-                    modifier = Modifier.weight(1f),
-                )
-                val deepRatio = day?.let { value ->
-                    val total = value.sleepMinutes ?: 0
-                    value.deepSleepMinutes?.takeIf { total > 0 }?.let { it * 100 / total }
-                }
-                SleepTimeChip(
-                    label = "深睡占比",
-                    value = deepRatio?.let { "$it%" } ?: "—",
-                    modifier = Modifier.weight(1f),
-                )
+            val deepRatio = day?.let { value ->
+                val actualSleep = listOfNotNull(value.deepSleepMinutes, value.lightSleepMinutes, value.remSleepMinutes).sum()
+                    .takeIf { it > 0 }
+                    ?: value.sleepMinutes
+                    ?: 0
+                value.deepSleepMinutes?.takeIf { actualSleep > 0 }?.let { (it * 100f / actualSleep).toInt() }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                SleepTimeChip("入睡", day?.sleepStartEpochSeconds?.let(::formatClock) ?: "—", Modifier.weight(1f))
+                SleepTimeChip("起床", day?.sleepEndEpochSeconds?.let(::formatClock) ?: "—", Modifier.weight(1f))
+                SleepTimeChip("深睡占比", deepRatio?.let { "$it%" } ?: "—", Modifier.weight(1f), highlighted = true)
             }
         }
     }
 }
 
 @Composable
-private fun SleepTimeChip(label: String, value: String, modifier: Modifier) {
-    Surface(modifier = modifier, color = Color.White.copy(alpha = 0.72f), shape = RoundedCornerShape(16.dp)) {
-        Column(Modifier.padding(horizontal = 10.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(label, color = WearableMuted, fontSize = 10.sp)
-            Text(value, color = WearableInk, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+private fun SleepScoreBadge(score: Int) {
+    Surface(
+        modifier = Modifier.width(94.dp).height(82.dp),
+        color = Color.White.copy(alpha = 0.88f),
+        shape = RoundedCornerShape(20.dp),
+        border = BorderStroke(1.dp, SleepPurple.copy(alpha = 0.15f)),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(score.toString(), color = SleepPurple, fontSize = 31.sp, fontWeight = FontWeight.Black)
+            Text("睡眠评分", color = WearableMuted, fontSize = 10.sp, fontWeight = FontWeight.Medium)
         }
     }
 }
+
+@Composable
+private fun SleepTimeChip(label: String, value: String, modifier: Modifier, highlighted: Boolean = false) {
+    Surface(
+        modifier = modifier,
+        color = Color.White.copy(alpha = 0.80f),
+        shape = RoundedCornerShape(16.dp),
+        border = if (highlighted) BorderStroke(1.dp, SleepPurple.copy(alpha = 0.22f)) else null,
+    ) {
+        Column(Modifier.padding(horizontal = 10.dp, vertical = 11.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(label, color = WearableMuted, fontSize = 10.sp)
+            Text(value, color = if (highlighted) SleepPurple else WearableInk, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+        }
+    }
+}
+
+private data class SleepStage(val name: String, val minutes: Int, val color: Color, val isAwake: Boolean = false)
 
 @Composable
 private fun SleepStageCard(day: GadgetbridgeDaySummary) {
     val stages = listOfNotNull(
-        day.deepSleepMinutes?.let { SleepStage("深睡", it, Color(0xFF66558F)) },
-        day.lightSleepMinutes?.let { SleepStage("浅睡", it, Color(0xFF9B8BC3)) },
-        day.remSleepMinutes?.let { SleepStage("快速眼动", it, Color(0xFFC09BC7)) },
-        day.awakeSleepMinutes?.let { SleepStage("清醒", it, Color(0xFFE5B4B8)) },
-    ).filter { it.minutes > 0 }
+        day.deepSleepMinutes?.takeIf { it > 0 }?.let { SleepStage("深睡", it, Color(0xFF5D4C8C)) },
+        day.lightSleepMinutes?.takeIf { it > 0 }?.let { SleepStage("浅睡", it, Color(0xFF9787C0)) },
+        day.remSleepMinutes?.takeIf { it > 0 }?.let { SleepStage("快速眼动", it, Color(0xFFC08EC6)) },
+        day.awakeSleepMinutes?.takeIf { it > 0 }?.let { SleepStage("清醒", it, Color(0xFFE99B9E), isAwake = true) },
+    )
     WearablePanel {
-        Text("睡眠结构", color = WearableInk, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("睡眠结构", color = WearableInk, fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                Text("深睡、浅睡、快速眼动与清醒", color = WearableMuted, fontSize = 10.sp)
+            }
+            Icon(Icons.Outlined.NightlightRound, null, tint = SleepPurple)
+        }
+
         if (stages.isEmpty()) {
-            Text(
-                "当前数据库只提供了睡眠总时长或起止时间，没有可可靠识别的深睡、浅睡与快速眼动分段。",
-                color = WearableMuted,
-                fontSize = 12.sp,
-                lineHeight = 18.sp,
-            )
+            Surface(color = SleepLavender.copy(alpha = 0.55f), shape = RoundedCornerShape(17.dp)) {
+                Text(
+                    "这一天已经有睡眠总时长，但露露机还没有从数据库里解析出睡眠阶段。Gadgetbridge 本身若能显示深睡/浅睡/REM，说明阶段数据确实存在，应该继续按解析问题处理，而不是当成“没有数据”。",
+                    color = WearableMuted,
+                    fontSize = 12.sp,
+                    lineHeight = 19.sp,
+                    modifier = Modifier.padding(14.dp),
+                )
+            }
         } else {
-            val total = stages.sumOf(SleepStage::minutes).coerceAtLeast(1)
-            Canvas(Modifier.fillMaxWidth().height(18.dp)) {
-                var x = 0f
+            val sleepTotal = stages.filterNot(SleepStage::isAwake).sumOf(SleepStage::minutes).coerceAtLeast(1)
+            val timelineTotal = stages.sumOf(SleepStage::minutes).coerceAtLeast(1)
+
+            Row(
+                modifier = Modifier.fillMaxWidth().height(20.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
                 stages.forEach { stage ->
-                    val width = size.width * stage.minutes / total.toFloat()
-                    drawRoundRect(
-                        color = stage.color,
-                        topLeft = Offset(x, 0f),
-                        size = Size(width.coerceAtLeast(2.dp.toPx()), size.height),
-                        cornerRadius = CornerRadius(8.dp.toPx()),
+                    Box(
+                        Modifier
+                            .weight(stage.minutes.toFloat().coerceAtLeast(1f))
+                            .fillMaxHeight()
+                            .background(stage.color, RoundedCornerShape(8.dp)),
                     )
-                    x += width
                 }
             }
-            stages.chunked(2).forEach { rowStages ->
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    rowStages.forEach { stage ->
-                        Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                            Surface(modifier = Modifier.size(9.dp), color = stage.color, shape = RoundedCornerShape(4.dp)) {}
-                            Spacer(Modifier.width(6.dp))
-                            Text(stage.name, color = WearableMuted, fontSize = 11.sp)
-                            Spacer(Modifier.weight(1f))
-                            Text(formatMinutes(stage.minutes), color = WearableInk, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+
+            stages.forEach { stage ->
+                val denominator = if (stage.isAwake) timelineTotal else sleepTotal
+                val ratio = (stage.minutes * 100f / denominator).toInt()
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Color(0xFFFAF8FB),
+                    shape = RoundedCornerShape(17.dp),
+                    border = BorderStroke(1.dp, stage.color.copy(alpha = 0.16f)),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 11.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Surface(Modifier.size(11.dp), RoundedCornerShape(5.dp), stage.color) {}
+                        Spacer(Modifier.width(9.dp))
+                        Text(stage.name, color = WearableInk, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                        Text(formatMinutes(stage.minutes), color = WearableInk, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Spacer(Modifier.width(12.dp))
+                        Surface(color = stage.color.copy(alpha = 0.11f), shape = RoundedCornerShape(10.dp)) {
+                            Text("$ratio%", color = stage.color, fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp))
                         }
                     }
-                    if (rowStages.size == 1) Spacer(Modifier.weight(1f))
                 }
             }
         }
     }
 }
-
-private data class SleepStage(val name: String, val minutes: Int, val color: Color)
 
 @Composable
 private fun SectionTitle(title: String) {
@@ -561,6 +536,8 @@ private fun MetricCard(
     }
 }
 
+private data class DetailMetric(val icon: ImageVector, val title: String, val value: String)
+
 @Composable
 private fun ActivitySummaryCard(day: GadgetbridgeDaySummary) {
     val metrics = listOfNotNull(
@@ -582,7 +559,29 @@ private fun ActivitySummaryCard(day: GadgetbridgeDaySummary) {
     }
 }
 
-private data class DetailMetric(val icon: ImageVector, val title: String, val value: String)
+@Composable
+private fun ExtendedVitalsCard(day: GadgetbridgeDaySummary) {
+    val metrics = listOfNotNull(
+        day.restingHeartRate?.let { DetailMetric(Icons.Outlined.FavoriteBorder, "静息心率", "$it 次/分") },
+        day.hrvMillis?.let { DetailMetric(Icons.Outlined.GraphicEq, "HRV", "$it ms") },
+        day.respiratoryRate?.let { DetailMetric(Icons.Outlined.Air, "呼吸率", "%.1f 次/分".format(Locale.getDefault(), it)) },
+        day.skinTemperatureCelsius?.let { DetailMetric(Icons.Outlined.Thermostat, "皮肤温度", "%.1f℃".format(Locale.getDefault(), it)) },
+        day.bodyEnergy?.let { DetailMetric(Icons.Outlined.BatteryChargingFull, "身体能量", "$it") },
+        if (day.systolicBloodPressure != null || day.diastolicBloodPressure != null) {
+            DetailMetric(Icons.Outlined.Bloodtype, "血压", "${day.systolicBloodPressure ?: "—"}/${day.diastolicBloodPressure ?: "—"}")
+        } else null,
+    )
+    if (metrics.isEmpty()) return
+    WearablePanel {
+        Text("扩展指标", color = WearableInk, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+        metrics.chunked(2).forEach { rowMetrics ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                rowMetrics.forEach { metric -> DetailMetricCell(metric, Modifier.weight(1f)) }
+                if (rowMetrics.size == 1) Spacer(Modifier.weight(1f))
+            }
+        }
+    }
+}
 
 @Composable
 private fun DetailMetricCell(metric: DetailMetric, modifier: Modifier) {
@@ -599,44 +598,8 @@ private fun DetailMetricCell(metric: DetailMetric, modifier: Modifier) {
 }
 
 @Composable
-private fun BarChartCard(
+private fun CompactTrendCard(
     title: String,
-    subtitle: String,
-    values: List<Pair<String, Float>>,
-    valueLabel: (Float) -> String,
-    accent: Color,
-) {
-    val maximum = values.maxOfOrNull { it.second }?.coerceAtLeast(1f) ?: 1f
-    WearablePanel {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text(title, color = WearableInk, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                Text(subtitle, color = WearableMuted, fontSize = 10.sp)
-            }
-            values.lastOrNull()?.let { Text(valueLabel(it.second), color = accent, fontSize = 12.sp, fontWeight = FontWeight.SemiBold) }
-        }
-        Canvas(Modifier.fillMaxWidth().height(126.dp)) {
-            if (values.isEmpty()) return@Canvas
-            val gap = 5.dp.toPx()
-            val width = ((size.width - gap * (values.size - 1)) / values.size).coerceAtLeast(3.dp.toPx())
-            values.forEachIndexed { index, item ->
-                val height = (item.second / maximum * size.height * 0.9f).coerceAtLeast(2.dp.toPx())
-                drawRoundRect(
-                    color = accent.copy(alpha = 0.78f),
-                    topLeft = Offset(index * (width + gap), size.height - height),
-                    size = Size(width, height),
-                    cornerRadius = CornerRadius(6.dp.toPx()),
-                )
-            }
-        }
-        ChartEdgeLabels(values)
-    }
-}
-
-@Composable
-private fun LineChartCard(
-    title: String,
-    subtitle: String,
     values: List<Pair<String, Float>>,
     accent: Color,
     valueLabel: (Float) -> String,
@@ -646,37 +609,26 @@ private fun LineChartCard(
     val range = (maximum - minimum).coerceAtLeast(1f)
     WearablePanel {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text(title, color = WearableInk, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                Text(subtitle, color = WearableMuted, fontSize = 10.sp)
-            }
+            Text(title, color = WearableInk, fontWeight = FontWeight.Bold, fontSize = 17.sp, modifier = Modifier.weight(1f))
             values.lastOrNull()?.let { Text(valueLabel(it.second), color = accent, fontSize = 12.sp, fontWeight = FontWeight.SemiBold) }
         }
-        Canvas(Modifier.fillMaxWidth().height(126.dp)) {
+        Canvas(Modifier.fillMaxWidth().height(104.dp)) {
             if (values.size < 2) return@Canvas
             val points = values.mapIndexed { index, item ->
                 val x = index * size.width / (values.size - 1)
-                val y = size.height - ((item.second - minimum) / range * size.height * 0.78f + size.height * 0.11f)
+                val y = size.height - ((item.second - minimum) / range * size.height * 0.72f + size.height * 0.14f)
                 Offset(x, y)
             }
-            points.zipWithNext().forEach { (first, second) ->
-                drawLine(accent, first, second, strokeWidth = 3.dp.toPx())
-            }
+            points.zipWithNext().forEach { (first, second) -> drawLine(accent, first, second, strokeWidth = 3.dp.toPx()) }
             points.forEach { point ->
                 drawCircle(Color.White, radius = 5.dp.toPx(), center = point)
-                drawCircle(accent, radius = 3.5.dp.toPx(), center = point)
+                drawCircle(accent, radius = 3.3.dp.toPx(), center = point)
             }
         }
-        ChartEdgeLabels(values)
-    }
-}
-
-@Composable
-private fun ChartEdgeLabels(values: List<Pair<String, Float>>) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(values.firstOrNull()?.first.orEmpty(), color = WearableMuted, fontSize = 9.sp)
-        if (values.size > 2) Text(values[values.size / 2].first, color = WearableMuted, fontSize = 9.sp)
-        Text(values.lastOrNull()?.first.orEmpty(), color = WearableMuted, fontSize = 9.sp)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(values.firstOrNull()?.first.orEmpty(), color = WearableMuted, fontSize = 9.sp)
+            Text(values.lastOrNull()?.first.orEmpty(), color = WearableMuted, fontSize = 9.sp)
+        }
     }
 }
 
@@ -704,12 +656,3 @@ private fun formatDistance(meters: Int): String = if (meters >= 1_000) "%.2f 公
 private fun formatClock(epochSeconds: Long): String = Instant.ofEpochSecond(epochSeconds)
     .atZone(ZoneId.systemDefault())
     .format(DateTimeFormatter.ofPattern("HH:mm"))
-private fun bedtimeAxisMinutes(epochSeconds: Long): Float {
-    val time = Instant.ofEpochSecond(epochSeconds).atZone(ZoneId.systemDefault()).toLocalTime()
-    val minutes = time.hour * 60 + time.minute
-    return (if (minutes < 12 * 60) minutes + 24 * 60 else minutes).toFloat()
-}
-private fun formatClockAxis(value: Float): String {
-    val total = value.toInt().mod(24 * 60)
-    return "%02d:%02d".format(Locale.getDefault(), total / 60, total % 60)
-}
