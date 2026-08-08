@@ -3,6 +3,7 @@ package com.jiacimu.lulu.games
 import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,12 +19,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.LuluProfileAvatar
+import com.jiacimu.lulu.R
 import com.jiacimu.lulu.data.CharacterSettings
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.delay
@@ -57,6 +61,43 @@ private object ApocalypseV5Colors {
     val blueSoft = Color(0xFF93CCFF)
     val textOnDark = Color(0xFFF8FBFF)
     val textMutedDark = Color(0xFFAEC4D9)
+}
+
+@Composable
+private fun ApocalypseV5PhotoCard(
+    drawableRes: Int,
+    title: String,
+    subtitle: String,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = ApocalypseV5Colors.black,
+        shape = RoundedCornerShape(22.dp),
+        border = BorderStroke(1.dp, ApocalypseV5Colors.blackLine),
+    ) {
+        Box(Modifier.fillMaxWidth().height(190.dp)) {
+            Image(
+                painter = painterResource(drawableRes),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
+            Box(
+                Modifier.matchParentSize().background(
+                    Brush.verticalGradient(
+                        listOf(Color.Transparent, Color(0x6607111F), ApocalypseV5Colors.black.copy(alpha = .96f)),
+                    ),
+                ),
+            )
+            Column(
+                modifier = Modifier.align(Alignment.BottomStart).padding(15.dp),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                Text(title, color = ApocalypseV5Colors.white, fontSize = 18.sp, fontWeight = FontWeight.Black)
+                Text(subtitle, color = ApocalypseV5Colors.textMutedDark, fontSize = 10.sp, lineHeight = 15.sp)
+            }
+        }
+    }
 }
 
 private class ApocalypseReadingProgressStoreV5(context: Context) {
@@ -263,6 +304,13 @@ private fun ApocalypseV5HomePage(
                     }
                 }
             }
+            item {
+        ApocalypseV5PhotoCard(
+            R.drawable.apocalypse_city_night,
+            "灾后城市边缘",
+            "夜色、工业烟雾与断续灯火会成为赤潮纪元的第一层视觉记忆。",
+        )
+    }
             item { ApocalypseV5MenuEntry(Icons.Outlined.PlayArrow, "进入游戏", if (save == null) "从灾前第七日开始" else "继续第 ${save.scene} 幕", onEnter, emphasis = true) }
             item { ApocalypseV5MenuEntry(Icons.Outlined.AutoAwesome, "异能设定", "你与同行角色的异能、分化和队伍配置", onAbilities) }
             item { ApocalypseV5MenuEntry(Icons.Outlined.Tune, "系统设置", "世界强度与自动播放速度", onSystem) }
@@ -641,6 +689,13 @@ private fun ApocalypseV5WorldPage(config: ApocalypseV3Config, onBack: () -> Unit
                     }
                 }
             }
+            item {
+        ApocalypseV5PhotoCard(
+            R.drawable.apocalypse_factory_interior,
+            "废弃工业区",
+            "基地、物资与人类聚居点都从这样的空壳里重新长出来。",
+        )
+    }
             items(lore, key = { it.first }) { (title, detail) ->
                 Surface(color = ApocalypseV5Colors.white, shape = RoundedCornerShape(18.dp), border = BorderStroke(1.dp, ApocalypseV5Colors.border)) {
                     Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -685,6 +740,13 @@ private fun ApocalypseV5ArchivePage(save: ApocalypseV3Save?, onBack: () -> Unit,
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) { Text("还没有存档", color = ApocalypseV5Colors.muted) }
         } else {
             LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                item {
+            ApocalypseV5PhotoCard(
+                R.drawable.apocalypse_dark_tunnel,
+                "地下通路",
+                "撤离、探索和未知区域会保留更压迫的黑蓝氛围。",
+            )
+        }
                 item { ApocalypseV5StatusPanel(save.stats, save.director.phase, save.director.location) }
                 item { ApocalypseV5SectionTitle("最近剧情", "这里保留行动回顾") }
                 items(save.log.asReversed().take(14)) { log ->
