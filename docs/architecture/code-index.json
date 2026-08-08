@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-08T15:34:49.569494+00:00",
-  "commit": "f4e07960c719939f64bf915c257cf63226ee07d5",
+  "generatedAt": "2026-08-08T15:45:32.031229+00:00",
+  "commit": "12477723973ad3ba910b2625d681d53cac39c1b5",
   "branch": "main",
-  "sourceFingerprint": "ad79a258b90b882cb52ecd88551acc8932e56d5c0bdb80d0aefc86a4bd9fdd46",
+  "sourceFingerprint": "7dd3cbb0cead1de16a3943d0e3093f6e48b37a9a6dedac903776ea3d36f13029",
   "summary": {
-    "files": 151,
-    "lines": 42400,
-    "symbols": 613
+    "files": 152,
+    "lines": 42600,
+    "symbols": 616
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -2165,7 +2165,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 823
+        "line": 836
       }
     ],
     "addPieces": [
@@ -2248,6 +2248,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseVisualNovelPresentation.kt",
         "line": 114
+      }
+    ],
+    "placeChange": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldEvolutionV5.kt",
+        "line": 43
+      }
+    ],
+    "routeChange": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldEvolutionV5.kt",
+        "line": 45
+      }
+    ],
+    "zoneChanges": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldEvolutionV5.kt",
+        "line": 48
       }
     ],
     "saveTurn": [
@@ -5498,8 +5516,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-      "lines": 1170,
-      "sha256": "8ab8551a112c2ed9900cae5ff97245d572a1be82b08a5b133c241a12656d16c4",
+      "lines": 1200,
+      "sha256": "0ef9ee4d11d306d90e05907c192f774bee0e58d3ca2a1c58a85e22b49b64ee90",
       "symbols": [
         {
           "name": "load",
@@ -5539,7 +5557,7 @@
         },
         {
           "name": "submit",
-          "line": 823
+          "line": 836
         }
       ]
     },
@@ -5563,6 +5581,25 @@
         {
           "name": "push",
           "line": 114
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldEvolutionV5.kt",
+      "lines": 170,
+      "sha256": "40a9410bcc47f6e98916d3e7be8d6b102378732788d6fdda5a7cdcf8534c3fd5",
+      "symbols": [
+        {
+          "name": "placeChange",
+          "line": 43
+        },
+        {
+          "name": "routeChange",
+          "line": 45
+        },
+        {
+          "name": "zoneChanges",
+          "line": 48
         }
       ]
     },
