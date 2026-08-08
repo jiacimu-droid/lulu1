@@ -37,6 +37,8 @@ internal suspend fun planApocalypseV5Beat(
         appendLine(apocalypsePlayerSecondaryPromptV5(config))
         appendLine("异能人口规则：灾前约8%人口拥有稳定异能，约92%没有稳定异能；末世后因普通人平均死亡率更高，幸存者中的异能者比例可以逐步升高，但除特殊异能者聚居地外不要把异能者写成多数。")
         appendLine(apocalypseWorldGeographyPromptV5())
+        appendLine("时间=${apocalypseDayLabelV5(director.dayIndex)} ${apocalypseClockLabelV5(director.clockMinutes)}；天气=${director.weather}；温度=${director.temperatureC}℃")
+        appendLine("玩家状态：生命${save.stats.health}/100；体力${save.stats.stamina}/100；感染${save.stats.infection}/100；士气${save.stats.morale}/100")
         appendLine("阶段=${director.phase}；地点=${director.location}；第${save.scene}幕；威胁=${director.tension}/10")
         appendLine("资源：食物${save.stats.food} 水${save.stats.water} 药物${save.stats.medicine} 材料${save.stats.materials} 晶核${save.stats.crystalCores}")
         appendLine("基地=${save.stats.baseName}/Lv.${save.stats.baseLevel}")
@@ -59,6 +61,7 @@ internal suspend fun planApocalypseV5Beat(
         返回字段：phase, location, sceneGoal, beatType, tension, activeThreads, hiddenThreads, worldFacts,
         longTermPlan, factionStates, characterArcs, foreshadowPlan, worldDelta, directive,
         foodDelta, waterDelta, medicineDelta, materialsDelta, coresFound, playerAbilityXpGain, baseDelta,
+        healthDelta, staminaDelta, infectionDelta, moraleDelta, minutesPassed, weather, temperatureC,
         unlockLocations:[{id,name,detail,unlocked}], discoverAssets:[{id,kind,title,detail,quantity,tag}]。
         kind只能 food|water|medicine|material|tool|weapon|vehicle|key|document|clue|map|core。
 
@@ -75,6 +78,9 @@ internal suspend fun planApocalypseV5Beat(
         10. 生存资源、运输、燃料、卫生、睡眠、基地维护都要有现实约束；空间异能可以显著改善搬运和保存，但不能凭空创造物资。
         11. 同行者必须有独立欲望和风险判断，不能全员围着玩家说同一种话；同行角色的异能与分化是硬设定，普通人不能突然觉醒。
         12. 东澜地区六市的相对方位、资源定位与交通距离是硬地理设定。跨市移动必须经历真实路程与风险；临江市只是开局城市，不是整个世界。
+        13. 每次行动必须估算真实耗时并返回minutesPassed：简单整理5—30分钟，搜楼/战斗30—180分钟，跨区数小时，跨市通常3—10小时。时间推进后天气、照明、疲劳和风险都要跟着变化。
+        14. health/stamina/infection/morale都是0—100。受伤降低health；奔跑、战斗、熬夜降低stamina；赤雨、伤口污染和感染者体液提高infection；成功、休息、关系支持可提高morale。不要无缘无故大幅波动。
+        15. foodDelta/waterDelta必须包含真实消耗与搜集的净变化；长时间行动不能人人永远不喝水不吃东西。基地等级越高，休息恢复、净水、医疗和长期生产才越可靠。
     """.trimIndent()
 
     return LuluAiServices.gateway.generate(
@@ -113,6 +119,8 @@ internal suspend fun writeApocalypseV5Scene(
         appendLine(apocalypsePlayerSecondaryPromptV5(config))
         appendLine("异能人口规则：灾前约8%稳定觉醒，约92%普通人；灾后幸存者中的异能者比例会因淘汰效应上升，但不能泛滥。")
         appendLine(apocalypseWorldGeographyPromptV5())
+        appendLine("时间：${apocalypseDayLabelV5(beat.nextDirector.dayIndex)} ${apocalypseClockLabelV5(beat.nextDirector.clockMinutes)}；天气=${beat.nextDirector.weather} ${beat.nextDirector.temperatureC}℃")
+        appendLine("玩家状态：生命${nextStats.health} 体力${nextStats.stamina} 感染${nextStats.infection} 士气${nextStats.morale}")
         appendLine("资源：食${nextStats.food} 水${nextStats.water} 药${nextStats.medicine} 材料${nextStats.materials} 晶核${nextStats.crystalCores}；基地=${nextStats.baseName}/Lv.${nextStats.baseLevel}")
         appendLine("导演动作：${beat.beatType}；本幕目标：${beat.nextDirector.sceneGoal}")
         appendLine("世界变化：${beat.worldDelta}")
@@ -143,6 +151,8 @@ internal suspend fun writeApocalypseV5Scene(
         - 高潮之间允许做饭、整理物资、赶路、建设、争执、休息和关系沉淀。九死一生要靠积累。
         - 晶核、物资、线索、地图和地点只有导演给出时才正式获得，并写清楚如何得到。
         - 东澜六市地理是硬设定；跨市行动必须写出路程、道路、燃料、天气、桥隧和中途风险，不能把不同城市当成同一街区。
+        - 时间和身体状态是硬状态：当前时刻、天气、生命、体力、感染、士气必须反映在行动能力和描写里。疲劳时不能像满状态一样连续高强度战斗；高感染要出现现实后果但不能直接无判定宣判死亡。
+        - 基地能力按等级逐步解锁：Lv1安全睡眠/储物，Lv2净水/医疗，Lv3供电/工坊，Lv4防御/通信，Lv5持续生产。不能让低级临时据点凭空拥有完整城市功能。
         - 结尾停在自然可行动节点，不替玩家决定下一步。
     """.trimIndent()
 
@@ -179,6 +189,10 @@ private fun parseApocalypseV5Beat(raw: String, previous: ApocalypseV3Director): 
             tag = item.optString("tag").take(40),
         )
     }
+    val minutesPassed = json.optInt("minutesPassed", 30).coerceIn(5, 720)
+    val absoluteMinutes = previous.clockMinutes + minutesPassed
+    val dayAdvance = absoluteMinutes / 1440
+    val nextClockMinutes = absoluteMinutes % 1440
     val next = previous.copy(
         phase = json.optString("phase").ifBlank { previous.phase }.take(80),
         location = json.optString("location").ifBlank { previous.location }.take(100),
@@ -192,6 +206,10 @@ private fun parseApocalypseV5Beat(raw: String, previous: ApocalypseV3Director): 
         foreshadowPlan = json.optJSONArray("foreshadowPlan").v5Strings().ifEmpty { previous.foreshadowPlan }.take(14),
         locations = (previous.locations + locations).distinctBy { it.id }.takeLast(36),
         assets = (previous.assets + assets).distinctBy { it.id }.takeLast(90),
+        dayIndex = (previous.dayIndex + dayAdvance).coerceAtMost(9999),
+        clockMinutes = nextClockMinutes,
+        weather = json.optString("weather").ifBlank { previous.weather }.take(40),
+        temperatureC = json.optInt("temperatureC", previous.temperatureC).coerceIn(-35, 55),
         tension = json.optInt("tension", previous.tension).coerceIn(1, 10),
     )
     ApocalypseV3Beat(
@@ -206,6 +224,11 @@ private fun parseApocalypseV5Beat(raw: String, previous: ApocalypseV3Director): 
         coresFound = json.optInt("coresFound").coerceIn(0, 4),
         playerAbilityXpGain = json.optInt("playerAbilityXpGain").coerceIn(0, 5),
         baseDelta = json.optInt("baseDelta").coerceIn(0, 1),
+        healthDelta = json.optInt("healthDelta").coerceIn(-35, 20),
+        staminaDelta = json.optInt("staminaDelta").coerceIn(-45, 40),
+        infectionDelta = json.optInt("infectionDelta").coerceIn(-15, 30),
+        moraleDelta = json.optInt("moraleDelta").coerceIn(-30, 30),
+        minutesPassed = minutesPassed,
     )
 }.getOrNull()
 

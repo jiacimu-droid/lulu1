@@ -311,6 +311,7 @@ private fun ApocalypseV5HomePage(
             "夜色、工业烟雾与断续灯火会成为赤潮纪元的第一层视觉记忆。",
         )
     }
+            if (save != null) { item { ApocalypseSurvivalSnapshotV5(save) } }
             item { ApocalypseV5MenuEntry(Icons.Outlined.PlayArrow, "进入游戏", if (save == null) "从灾前第七日开始" else "继续第 ${save.scene} 幕", onEnter, emphasis = true) }
             item { ApocalypseV5MenuEntry(Icons.Outlined.AutoAwesome, "异能设定", "你与同行角色的异能、分化和队伍配置", onAbilities) }
             item { ApocalypseV5MenuEntry(Icons.Outlined.Tune, "系统设置", "世界强度与自动播放速度", onSystem) }
@@ -749,6 +750,8 @@ private fun ApocalypseV5ArchivePage(save: ApocalypseV3Save?, onBack: () -> Unit,
             )
         }
                 item { ApocalypseV5StatusPanel(save.stats, save.director.phase, save.director.location) }
+                item { ApocalypseObjectivePanelV5(save.director) }
+                item { ApocalypseBaseDashboardV5(save) }
                 item { ApocalypseV5SectionTitle("最近剧情", "这里保留行动回顾") }
                 items(save.log.asReversed().take(14)) { log ->
                     Surface(color = ApocalypseV5Colors.white, shape = RoundedCornerShape(17.dp), border = BorderStroke(1.dp, ApocalypseV5Colors.border)) {
@@ -856,7 +859,7 @@ private fun ApocalypseV5PlayPage(
             IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回", tint = ApocalypseV5Colors.textOnDark) }
             Column(Modifier.weight(1f)) {
                 Text("末世求生", color = ApocalypseV5Colors.textOnDark, fontSize = 17.sp, fontWeight = FontWeight.Black)
-                Text("${save.director.phase} · 第${save.scene}幕", color = ApocalypseV5Colors.blue, fontSize = 9.sp)
+                Text("${apocalypseDayLabelV5(save.director.dayIndex)} ${apocalypseClockLabelV5(save.director.clockMinutes)} · ${save.director.weather} ${save.director.temperatureC}℃ · 第${save.scene}幕", color = ApocalypseV5Colors.blue, fontSize = 9.sp)
             }
             IconButton(onClick = { showMap = true }) { Icon(Icons.Outlined.Map, "地图", tint = ApocalypseV5Colors.textMutedDark) }
             IconButton(onClick = { showInventory = true }) { Icon(Icons.Outlined.Inventory2, "物资", tint = ApocalypseV5Colors.textMutedDark) }
@@ -1111,6 +1114,13 @@ private fun ApocalypseV5StatusPanel(stats: ApocalypseV3Stats, phase: String, loc
                 ApocalypseV5StatusValue("空间", "Lv.${stats.playerAbilityLevel}")
                 ApocalypseV5StatusValue("容量", "${playerSpaceCapacityM3(stats.playerAbilityLevel)}m³")
                 ApocalypseV5StatusValue("基地", if (stats.baseLevel <= 0) "无" else "Lv.${stats.baseLevel}")
+            }
+            HorizontalDivider(color = ApocalypseV5Colors.blackLine)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                ApocalypseV5StatusValue("生命", stats.health.toString())
+                ApocalypseV5StatusValue("体力", stats.stamina.toString())
+                ApocalypseV5StatusValue("感染", stats.infection.toString())
+                ApocalypseV5StatusValue("士气", stats.morale.toString())
             }
         }
     }

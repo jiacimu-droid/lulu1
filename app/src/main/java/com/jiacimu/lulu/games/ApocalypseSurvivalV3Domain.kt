@@ -76,6 +76,10 @@ internal data class ApocalypseV3Stats(
     val playerAbilityXp: Int = 0,
     val baseLevel: Int = 0,
     val baseName: String = "尚未建立",
+    val health: Int = 100,
+    val stamina: Int = 85,
+    val infection: Int = 0,
+    val morale: Int = 72,
 )
 
 internal data class ApocalypseV3Director(
@@ -92,6 +96,10 @@ internal data class ApocalypseV3Director(
     val factionStates: List<String> = defaultApocalypseFactionStates(),
     val characterArcs: List<String> = defaultApocalypseCharacterArcs(),
     val foreshadowPlan: List<String> = defaultApocalypseForeshadowPlan(),
+    val dayIndex: Int = -7,
+    val clockMinutes: Int = 14 * 60 + 17,
+    val weather: String = "闷热多云",
+    val temperatureC: Int = 34,
 )
 
 internal data class ApocalypseV3Save(
@@ -117,6 +125,11 @@ internal data class ApocalypseV3Beat(
     val coresFound: Int = 0,
     val playerAbilityXpGain: Int = 0,
     val baseDelta: Int = 0,
+    val healthDelta: Int = 0,
+    val staminaDelta: Int = 0,
+    val infectionDelta: Int = 0,
+    val moraleDelta: Int = 0,
+    val minutesPassed: Int = 30,
 )
 
 internal class ApocalypseSurvivalV3Store(context: Context) {
@@ -497,6 +510,10 @@ internal fun applyApocalypseV3Beat(stats: ApocalypseV3Stats, beat: ApocalypseV3B
         playerAbilityXp = (stats.playerAbilityXp + beat.playerAbilityXpGain).coerceAtLeast(0),
         baseLevel = (stats.baseLevel + beat.baseDelta).coerceIn(0, 5),
         baseName = if (stats.baseLevel == 0 && beat.baseDelta > 0) "临时据点" else stats.baseName,
+        health = (stats.health + beat.healthDelta).coerceIn(0, 100),
+        stamina = (stats.stamina + beat.staminaDelta).coerceIn(0, 100),
+        infection = (stats.infection + beat.infectionDelta).coerceIn(0, 100),
+        morale = (stats.morale + beat.moraleDelta).coerceIn(0, 100),
     )
     while (next.playerAbilityLevel < 5 && next.playerAbilityXp >= abilityXpThresholdV3(next.playerAbilityLevel)) {
         next = next.copy(
@@ -587,6 +604,10 @@ private fun encodeApocalypseV3Director(value: ApocalypseV3Director): JSONObject 
         }
     })
     .put("tension", value.tension)
+    .put("dayIndex", value.dayIndex)
+    .put("clockMinutes", value.clockMinutes)
+    .put("weather", value.weather)
+    .put("temperatureC", value.temperatureC)
 
 private fun decodeApocalypseV3Director(json: JSONObject): ApocalypseV3Director {
     val defaults = initialApocalypseV3Director()
@@ -615,6 +636,10 @@ private fun decodeApocalypseV3Director(json: JSONObject): ApocalypseV3Director {
         factionStates = json.optJSONArray("factionStates").v3Strings().ifEmpty { defaults.factionStates },
         characterArcs = json.optJSONArray("characterArcs").v3Strings().ifEmpty { defaults.characterArcs },
         foreshadowPlan = json.optJSONArray("foreshadowPlan").v3Strings().ifEmpty { defaults.foreshadowPlan },
+        dayIndex = json.optInt("dayIndex", defaults.dayIndex).coerceIn(-30, 9999),
+        clockMinutes = json.optInt("clockMinutes", defaults.clockMinutes).coerceIn(0, 1439),
+        weather = json.optString("weather", defaults.weather).ifBlank { defaults.weather }.take(40),
+        temperatureC = json.optInt("temperatureC", defaults.temperatureC).coerceIn(-35, 55),
     )
 }
 
@@ -628,6 +653,10 @@ private fun encodeApocalypseV3Stats(value: ApocalypseV3Stats): JSONObject = JSON
     .put("playerAbilityXp", value.playerAbilityXp)
     .put("baseLevel", value.baseLevel)
     .put("baseName", value.baseName)
+    .put("health", value.health)
+    .put("stamina", value.stamina)
+    .put("infection", value.infection)
+    .put("morale", value.morale)
 
 private fun decodeApocalypseV3Stats(json: JSONObject): ApocalypseV3Stats = ApocalypseV3Stats(
     food = json.optInt("food", 2).coerceAtLeast(0),
@@ -640,6 +669,10 @@ private fun decodeApocalypseV3Stats(json: JSONObject): ApocalypseV3Stats = Apoca
     playerAbilityXp = json.optInt("playerAbilityXp", json.optInt("abilityXp", 0)).coerceAtLeast(0),
     baseLevel = json.optInt("baseLevel", 0).coerceIn(0, 5),
     baseName = json.optString("baseName", "尚未建立"),
+    health = json.optInt("health", 100).coerceIn(0, 100),
+    stamina = json.optInt("stamina", 85).coerceIn(0, 100),
+    infection = json.optInt("infection", 0).coerceIn(0, 100),
+    morale = json.optInt("morale", 72).coerceIn(0, 100),
 )
 
 private fun parseV3AssetKind(raw: String): ApocalypseV3AssetKind = when (raw.lowercase()) {
