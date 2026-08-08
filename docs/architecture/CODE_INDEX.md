@@ -1,16 +1,16 @@
 # Lulu1 代码索引
 
-- 基准提交：`77cbe2a7804567a23b4cb6dfd9a99489df3f4220`
+- 基准提交：`32676fb658de00dd3700c0e654b050f51f72fe44`
 - 分支：`main`
-- 已索引文件：143
-- 已索引代码/文本行：39514
-- 已发现符号：598
+- 已索引文件：144
+- 已索引代码/文本行：39622
+- 已发现符号：603
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 102 | 0 |
 | `app/src/main/AndroidManifest.xml` | 119 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 442 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 470 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 238 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 162 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
@@ -34,7 +34,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 488 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 727 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 97 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 99 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 444 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 90 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 457 | 1 |
@@ -48,8 +48,9 @@
 | `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 978 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 219 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 67 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 698 | 24 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 708 | 24 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 125 | 28 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 66 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 40 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 75 | 6 |
@@ -72,7 +73,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 727 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 157 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 158 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 128 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 308 | 13 |
@@ -132,7 +133,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudyShopScreenV2.kt` | 122 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt` | 223 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 157 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt` | 385 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt` | 389 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 93 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 267 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 365 | 2 |
