@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-08T04:04:49.647009+00:00",
-  "commit": "a8b2afa083a0402cbc7e736581790f0193d6aef2",
+  "generatedAt": "2026-08-08T04:05:27.032351+00:00",
+  "commit": "8c597e43579316dca58c4c1f99372e707d527a6f",
   "branch": "main",
-  "sourceFingerprint": "c977392c26d2f35b2485ea67eb4a545bc81a2c91bdc10f1847ae6872ba90bbea",
+  "sourceFingerprint": "58673d11123e771d43dfc93b2ee1d5d852ca709d93d258fa2371e4f8c9ab4940",
   "summary": {
     "files": 132,
-    "lines": 32786,
+    "lines": 32826,
     "symbols": 545
   },
   "symbolIndex": {
@@ -255,7 +255,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 170
+        "line": 180
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
@@ -419,7 +419,7 @@
     "speak": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 63
+        "line": 67
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
@@ -429,25 +429,25 @@
     "speakAndCache": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 92
+        "line": 101
       }
     ],
     "playCached": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 142
+        "line": 152
       }
     ],
     "cachedAudioFile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 152
+        "line": 162
       }
     ],
     "shutdown": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 183
+        "line": 193
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
@@ -3460,32 +3460,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-      "lines": 333,
-      "sha256": "78936f6931d7e815cc72b1bd0db12998eb1c1bb227c2c43dd2d94f291bac15c6",
+      "lines": 373,
+      "sha256": "967c6e018aeac677126339d124dc49c7b05212e21ee7967eb8116c897208ddaf",
       "symbols": [
         {
           "name": "speak",
-          "line": 63
+          "line": 67
         },
         {
           "name": "speakAndCache",
-          "line": 92
+          "line": 101
         },
         {
           "name": "playCached",
-          "line": 142
-        },
-        {
-          "name": "cachedAudioFile",
           "line": 152
         },
         {
+          "name": "cachedAudioFile",
+          "line": 162
+        },
+        {
           "name": "stop",
-          "line": 170
+          "line": 180
         },
         {
           "name": "shutdown",
-          "line": 183
+          "line": 193
         }
       ]
     },
