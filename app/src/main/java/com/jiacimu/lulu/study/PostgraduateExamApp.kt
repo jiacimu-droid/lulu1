@@ -29,9 +29,11 @@ fun PostgraduateExamApp(
     val companion by PomodoroCompanionSessions.store.state.collectAsState()
     var section by remember { mutableStateOf(StudySection.Today) }
     var pomodoroOpen by remember { mutableStateOf(false) }
+    var probabilityDesignerOpen by remember { mutableStateOf(false) }
 
     fun stepBack() {
         when {
+            probabilityDesignerOpen -> probabilityDesignerOpen = false
             pomodoroOpen -> pomodoroOpen = false
             section == StudySection.Today -> onBack()
             else -> section = StudySection.Today
@@ -61,15 +63,19 @@ fun PostgraduateExamApp(
     // Study owns a white Material theme with wheat-yellow accents so every sheet, dialog and menu
     // stays inside the study visual language without falling back to black/yellow surfaces.
     MaterialTheme(colorScheme = StudyColorScheme) {
-        if (pomodoroOpen) {
-            StudyPomodoroScreen(
+        when {
+            probabilityDesignerOpen -> StudyGachaProbabilityScreen(
+                state = state,
+                store = store,
+                onBack = { probabilityDesignerOpen = false },
+            )
+            pomodoroOpen -> StudyPomodoroScreen(
                 state = state,
                 store = store,
                 onBack = { pomodoroOpen = false },
                 onOpenConversation = onOpenConversation,
             )
-        } else {
-            Scaffold(
+            else -> Scaffold(
                 containerColor = StudyDesign.paper,
                 topBar = {
                     TopAppBar(
@@ -103,7 +109,12 @@ fun PostgraduateExamApp(
                             )
                             StudySection.Plan -> StudyPlanScreenV2(state, store)
                             StudySection.Gacha -> StudyGachaScreen(state, store)
-                            StudySection.Collection -> StudyCollectionScreen(state, store, onOpenTheater)
+                            StudySection.Collection -> StudyCollectionScreen(
+                                state = state,
+                                store = store,
+                                onOpenTheater = onOpenTheater,
+                                onOpenProbabilityDesign = { probabilityDesignerOpen = true },
+                            )
                             StudySection.Achievements -> StudyAchievementsScreenV2(state, store)
                             StudySection.Shop -> StudyShopScreenV2(state, store)
                             StudySection.Guide -> StudyGuideScreen()
