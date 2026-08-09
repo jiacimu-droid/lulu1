@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-09T08:55:53.756087+00:00",
-  "commit": "facc0adbafb88250e259b435a39d1a7a988167b5",
+  "generatedAt": "2026-08-09T08:57:44.704405+00:00",
+  "commit": "b2ef25d616f94d5a96d87b27be6acc8e436aa634",
   "branch": "main",
-  "sourceFingerprint": "3908bdbb1f4d37acdc0509b4d60b8c138c66b99b299a1fd220646c5b6b7ba9f8",
+  "sourceFingerprint": "dd5e476ce780494427067dcfbac3fc3d8c050f25d789c81f86f1fe394a665bcd",
   "summary": {
     "files": 155,
-    "lines": 44215,
-    "symbols": 632
+    "lines": 44240,
+    "symbols": 634
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -153,7 +153,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 859
+        "line": 885
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
@@ -3110,64 +3110,76 @@
         "line": 331
       }
     ],
-    "drawSingle": [
+    "saveGachaRules": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
         "line": 376
       }
     ],
+    "drawSingle": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 402
+      }
+    ],
     "drawTen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 378
+        "line": 404
       }
     ],
     "claimSuperMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 509
+        "line": 527
       }
     ],
     "dismissSuperMomentCelebration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 520
+        "line": 538
       }
     ],
     "exchangeSingleTicketsForTen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 524
+        "line": 542
       }
     ],
     "redeemEntertainment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 540
+        "line": 558
+      }
+    ],
+    "redeemCustomReward": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 601
       }
     ],
     "claimAchievement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 596
+        "line": 618
       }
     ],
     "refreshShop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 615
+        "line": 637
       }
     ],
     "buyShopItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 630
+        "line": 652
       }
     ],
     "PostgraduateExamStores": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 854
+        "line": 880
       }
     ],
     "books": [
@@ -6411,8 +6423,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-      "lines": 864,
-      "sha256": "8a02d344bfeaa130be11a40a1498f290064fae8cda4d3c42f162a38a70e46208",
+      "lines": 889,
+      "sha256": "798026ffae941e25516db01ba9213d3321f0b727408d8b400be944f651bd0201",
       "symbols": [
         {
           "name": "PostgraduateExamStore",
@@ -6507,48 +6519,56 @@
           "line": 331
         },
         {
-          "name": "drawSingle",
+          "name": "saveGachaRules",
           "line": 376
         },
         {
+          "name": "drawSingle",
+          "line": 402
+        },
+        {
           "name": "drawTen",
-          "line": 378
+          "line": 404
         },
         {
           "name": "claimSuperMoment",
-          "line": 509
+          "line": 527
         },
         {
           "name": "dismissSuperMomentCelebration",
-          "line": 520
+          "line": 538
         },
         {
           "name": "exchangeSingleTicketsForTen",
-          "line": 524
+          "line": 542
         },
         {
           "name": "redeemEntertainment",
-          "line": 540
+          "line": 558
+        },
+        {
+          "name": "redeemCustomReward",
+          "line": 601
         },
         {
           "name": "claimAchievement",
-          "line": 596
+          "line": 618
         },
         {
           "name": "refreshShop",
-          "line": 615
+          "line": 637
         },
         {
           "name": "buyShopItem",
-          "line": 630
+          "line": 652
         },
         {
           "name": "PostgraduateExamStores",
-          "line": 854
+          "line": 880
         },
         {
           "name": "initialize",
-          "line": 859
+          "line": 885
         }
       ]
     },
