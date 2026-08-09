@@ -112,7 +112,13 @@ internal fun StudyCollectionScreenV2(
         }
 
         item(key = "fragments-title") {
-            Text("画卷碎片", fontSize = 17.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 5.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("画卷碎片", modifier = Modifier.weight(1f), fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                Text("返还碎片 ${state.inventory.returnedBlueFragments}", color = StudyDesign.muted, fontSize = 12.sp)
+            }
         }
 
         items(blueFragmentCatalog.chunked(3), key = { it.joinToString("|") }) { titles ->
@@ -185,7 +191,7 @@ private fun CompactFragmentProgressCard(
             )
             Text("$amount/$BLUE_FRAGMENTS_PER_SCROLL", color = StudyDesign.muted, fontSize = 11.sp)
             LinearProgressIndicator(
-                progress = { amount.toFloat() / BLUE_FRAGMENTS_PER_SCROLL },
+                progress = { (amount.toFloat() / BLUE_FRAGMENTS_PER_SCROLL).coerceIn(0f, 1f) },
                 modifier = Modifier.fillMaxWidth().height(4.dp),
                 color = StudyDesign.wheatSoft,
                 trackColor = StudyDesign.border,
