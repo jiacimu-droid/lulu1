@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-09T09:02:05.513872+00:00",
-  "commit": "8b1068fb326379e38f7e6b74ba21dddaa26c7db8",
+  "generatedAt": "2026-08-09T09:03:05.724428+00:00",
+  "commit": "ce4d08ff3ae79fb26d3572aef087cb8c50ba3bec",
   "branch": "main",
-  "sourceFingerprint": "9554239f29b55a141690fed0c1524e68767e58e48d0ddbe9b4778a794517bf10",
+  "sourceFingerprint": "8eb97a665d592541177ba2c400b77874ee405d390c0ebd915558ac06fb963ae7",
   "summary": {
     "files": 156,
-    "lines": 44627,
-    "symbols": 637
+    "lines": 44605,
+    "symbols": 634
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -157,7 +157,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 252
+        "line": 231
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -821,7 +821,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 245
+        "line": 224
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -3229,61 +3229,43 @@
     "defaultPrompts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 95
+        "line": 85
       }
     ],
     "savePrompts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 110
+        "line": 100
       }
     ],
     "addImage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 114
+        "line": 104
       }
     ],
     "deleteImage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 118
+        "line": 108
       }
     ],
     "setGuide": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 123
+        "line": 113
       }
     ],
     "addChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 127
+        "line": 117
       }
     ],
     "deleteTheater": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 158
-      }
-    ],
-    "addVideo": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 162
-      }
-    ],
-    "unlockVideo": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 164
-      }
-    ],
-    "deleteVideo": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 165
+        "line": 148
       }
     ],
     "consumeTheaterFragment": [
@@ -6641,56 +6623,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-      "lines": 331,
-      "sha256": "583bea5266d8f4188f6a8480488681fba3bbafa37efd7b87d73c9fb5011df42e",
+      "lines": 310,
+      "sha256": "a8b22afbd744df17275fc15766c800ca82c9335ff9d4d8eb4bb1c959e9af2db0",
       "symbols": [
         {
           "name": "defaultPrompts",
-          "line": 95
+          "line": 85
         },
         {
           "name": "savePrompts",
-          "line": 110
+          "line": 100
         },
         {
           "name": "addImage",
-          "line": 114
+          "line": 104
         },
         {
           "name": "deleteImage",
-          "line": 118
+          "line": 108
         },
         {
           "name": "setGuide",
-          "line": 123
+          "line": 113
         },
         {
           "name": "addChapter",
-          "line": 127
+          "line": 117
         },
         {
           "name": "deleteTheater",
-          "line": 158
-        },
-        {
-          "name": "addVideo",
-          "line": 162
-        },
-        {
-          "name": "unlockVideo",
-          "line": 164
-        },
-        {
-          "name": "deleteVideo",
-          "line": 165
+          "line": 148
         },
         {
           "name": "create",
-          "line": 245
+          "line": 224
         },
         {
           "name": "initialize",
-          "line": 252
+          "line": 231
         }
       ]
     },
@@ -6711,8 +6681,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt",
-      "lines": 76,
-      "sha256": "e62f9a29cd8196ce53dc28ffe5c782fbecd5eec54d3eedc1373c0be463610c7c",
+      "lines": 75,
+      "sha256": "c869e1099dfdad3182b26ccc0a70111364c22ac215cfbe47b2cf11b092950950",
       "symbols": [
         {
           "name": "stepBack",
