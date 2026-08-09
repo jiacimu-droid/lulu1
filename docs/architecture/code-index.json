@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-09T05:34:56.357206+00:00",
-  "commit": "4ef501595f2457b0e32e97ad2bdc851f645af3d1",
+  "generatedAt": "2026-08-09T05:35:15.580148+00:00",
+  "commit": "02cac60f9a82fada3b2024e4f19efa85517d9f84",
   "branch": "main",
-  "sourceFingerprint": "4011c1ba082a32ef5415dc26f051f96a09ba13596a2b689f7829d509c6814953",
+  "sourceFingerprint": "b10f44055fce3535ca534f8453a007d8794077759e11b7dcf560e495d0ce6abc",
   "summary": {
     "files": 155,
-    "lines": 43673,
+    "lines": 43678,
     "symbols": 627
   },
   "symbolIndex": {
@@ -2300,10 +2300,10 @@
         "line": 810
       }
     ],
-    "push": [
+    "findCut": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseVisualNovelPresentation.kt",
-        "line": 114
+        "line": 126
       }
     ],
     "placeChange": [
@@ -5698,12 +5698,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseVisualNovelPresentation.kt",
-      "lines": 141,
-      "sha256": "abcd65a8b3d06cb58c80087480842e574b2753ca6694fa9f4c13bcf33ac67cf5",
+      "lines": 146,
+      "sha256": "201152ac1a195d233befbb3f922859afb1760d0619b3c4b74a1444c9cc4ffbf3",
       "symbols": [
         {
-          "name": "push",
-          "line": 114
+          "name": "findCut",
+          "line": 126
         }
       ]
     },
