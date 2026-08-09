@@ -107,7 +107,6 @@ data class StudyInventory(
     val singleTickets: Int = 3,
     val tenTickets: Int = 1,
     val blueFragments: Map<String, Int> = emptyMap(),
-    val returnedBlueFragments: Int = 0,
     val douyinTickets: Int = 0,
     val gameRoundTickets: Int = 0,
     val theaterFragments: Int = 0,
@@ -179,7 +178,7 @@ data class StudyState(
 }
 
 internal const val BLUE_FRAGMENTS_PER_SCROLL = 20
-internal const val BLUE_FULL_DUPLICATE_RETURN_FRAGMENTS = 10
+internal const val BLUE_FULL_DUPLICATE_RETURN_PRAISE = 10
 internal const val SINGLE_DRAW_COST = 100
 internal const val TEN_DRAW_COST = 800
 internal const val NON_NORMAL_PITY = 30
@@ -272,7 +271,7 @@ internal val theaterCatalog = listOf(
     "少卿今天不早朝", "星舰AI说他爱上我了", "废土便利店的草莓糖", "把魔尊契约当话本",
     "被献祭给龙之后", "捡到S级机甲", "我把修真界改成5A景区", "午夜出租车",
     "会整理书桌的幽灵", "欢迎来到心动游戏", "女王陛下的打脸法庭", "末世便利店女王",
-    "女尊朝的首席狼臣", "前男友重生但我是反派", "原始部落的露字祭司", "性转恋综大逃杀",
+    "女尊朝首席狼臣", "前男友重生但我是反派", "原始部落的露字祭司", "性转恋综大逃杀",
 )
 
 internal fun defaultTasks(date: LocalDate): List<StudyTask> = listOf(
