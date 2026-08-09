@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b127a9573401697ce69ce4c3e5e7c5ea9ff0d2ed`
+- 基准提交：`64e729bea358eb018e8f2402ec77e9654ebbbce0`
 - 分支：`main`
 - 已索引文件：156
-- 已索引代码/文本行：44626
+- 已索引代码/文本行：44627
 - 已发现符号：634
 
 | 文件 | 行数 | 符号数 |
@@ -119,7 +119,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 400 | 29 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 170 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 128 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 889 | 36 |
+| `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 890 | 36 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 46 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt` | 208 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt` | 65 | 4 |
