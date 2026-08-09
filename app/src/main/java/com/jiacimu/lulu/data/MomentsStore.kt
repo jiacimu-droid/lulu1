@@ -116,9 +116,9 @@ object MomentsStore {
     }
 
     /**
-     * A user post is evaluated by the whole social circle in one model request. Each character may skip,
-     * only like, only comment, or do both. Comment count is deliberately capped so a post never feels
-     * like every character was forced to line up and answer.
+     * Public Moments use one ensemble model request, but every candidate character must leave one
+     * in-character comment. Likes remain optional. This keeps the user's requested full participation
+     * without paying for one model request per character.
      */
     suspend fun letCharactersReact(postId: String) {
         val post = mutablePosts.value.firstOrNull { it.id == postId && it.authorType == MomentAuthorType.User } ?: return
@@ -138,8 +138,7 @@ object MomentsStore {
         val author = MigratedDomainStores.characters.get(authorId)
         val candidates = MigratedDomainStores.characters.settings.value.values
             .filterNot { it.characterId == authorId }
-            .sortedBy { "$postId:${it.characterId}".hashCode() }
-            .take(5)
+            .sortedBy(CharacterSettings::displayName)
         runBatchReactions(post = post, candidates = candidates, authorName = author.displayName)
     }
 
@@ -150,12 +149,6 @@ object MomentsStore {
     ) {
         if (candidates.isEmpty()) return
         val validIds = candidates.mapTo(linkedSetOf(), CharacterSettings::characterId)
-        val commentLimit = when (candidates.size) {
-            0 -> 0
-            1 -> 1
-            2 -> 1
-            else -> minOf(3, maxOf(1, (candidates.size + 1) / 2))
-        }
         val detailScale = if (candidates.size <= 8) 1f else 0.58f
         fun scaled(value: Int): Int = (value * detailScale).toInt().coerceAtLeast(160)
 
@@ -167,7 +160,7 @@ object MomentsStore {
                 appendLine("作者类型：${if (post.authorType == MomentAuthorType.User) "用户" else "角色"}")
                 appendLine(momentContext(post))
                 appendLine()
-                appendLine("【本轮候选角色】")
+                appendLine("【本轮必须全部评论的角色】")
                 candidates.forEach { character ->
                     val identity = CharacterIdentityStore.get(character.characterId)
                     val lived = SharedExperienceTimeline.recentContext(
@@ -190,38 +183,34 @@ object MomentsStore {
                 }
             },
             instruction = """
-                你是朋友圈的一次性整轮社交编排器。一次请求里决定候选角色分别会不会对这条动态互动，而不是让每个角色各调用一次模型。
+                你是朋友圈的一次性整轮社交编排器。必须在这一次请求里替清单中的每一个角色分别写出他本人会留下的评论，不允许跳过任何人，也不要拆成多次模型调用。
 
                 只返回一个 JSON 对象，不要代码块、解释或旁白：
-                {"reactions":[{"characterId":"真实角色ID","action":"skip|like|comment|like_comment","comment":"评论正文或空字符串"}]}
+                {"reactions":[{"characterId":"真实角色ID","action":"comment|like_comment","comment":"该角色自己的评论正文"}]}
 
                 规则：
-                1. 真实朋友圈里绝不是所有角色都必须评论。每个候选角色都可以 skip、只点赞、只评论或点赞并评论；不要为了“全员参与”强迫互动。
-                2. 这一轮最多允许 $commentLimit 位角色留下评论，也完全允许零评论。点赞人数可以更多，但同样不要求全员点赞。
-                3. reactions 可以包含全部候选角色，也可以省略决定跳过的人；省略就视为 skip。每个 characterId 最多出现一次，只能使用候选清单里的真实 ID。
-                4. 每个评论都必须像对应角色本人写的，服从他的身份、关系、人设、近期真实经历和此刻心情。不同角色不要统一成一种语气，也不要互相代写。
-                5. 用户发的动态不等于在向所有角色提问。角色可以只是看见、点赞、觉得没必要说话，或者真的有一句想说的才评论。
-                6. 如果有配图描述，那是角色在这条朋友圈中实际可见的图片信息，可以自然回应画面细节；不要编造描述之外的画面。
-                7. 评论保持真实社交软件长度，通常一句或几句短话；不写角色名标签，不写 ACTION 标签，不解释规则。
-                8. 只根据原帖、候选角色资料和真实经历判断，不要虚构用户此刻未提供的身体、环境或私密设备状态。
+                1. reactions 必须完整覆盖候选清单中的每一个 characterId，每个人恰好出现一次；任何角色都不能 skip，也不能只点赞不评论。
+                2. 每个人都必须有非空 comment。点赞可以有也可以没有：想点赞就用 like_comment，不点赞就用 comment。
+                3. 虽然所有人都要评论，但绝不能写成整齐报到、统一句式或同一种语气。每条评论都要服从对应角色的身份、关系、人设、近期真实经历和此刻心情。
+                4. 角色之间可以对同一条动态关注完全不同的点：有人接梗、有人关心、有人吐槽、有人只写很短的一句。全员评论不等于机械轮班。
+                5. 如果有配图描述，那是角色在这条朋友圈中实际可见的图片信息，可以自然回应画面细节；不要编造描述之外的画面。
+                6. 评论保持真实社交软件长度，通常一句或几句短话；不写角色名标签，不写 ACTION 标签，不解释规则。
+                7. 只根据原帖、候选角色资料和真实经历判断，不要虚构用户此刻未提供的身体、环境或私密设备状态。
             """.trimIndent(),
-            source = "朋友圈整轮互动",
-            title = "朋友圈一次性角色反应",
-            temperature = 0.88,
-            maxTokens = (520 + candidates.size * 130).coerceIn(760, 3_200),
+            source = "朋友圈全员整轮互动",
+            title = "朋友圈一次性全员评论",
+            temperature = 0.9,
+            maxTokens = (700 + candidates.size * 180).coerceIn(900, 4_000),
             usage = ModelUsage.Chat,
             contextMode = CompanionContextMode.PersonaAndScenario,
         ).getOrNull()?.text.orEmpty()
 
-        val plans = parseReactionPlans(raw, validIds)
-        if (plans.isEmpty()) return
-        var acceptedComments = 0
-        plans.forEach { plan ->
-            val character = candidates.firstOrNull { it.characterId == plan.characterId } ?: return@forEach
-            if (plan.wantsLike) addCharacterLike(post, character, authorName)
-            if (plan.comment.isNotBlank() && acceptedComments < commentLimit) {
-                if (addCharacterTopLevelComment(post, character, authorName, plan.comment)) acceptedComments += 1
-            }
+        val plans = parseReactionPlans(raw, validIds).associateBy(ReactionPlan::characterId)
+        candidates.forEach { character ->
+            val plan = plans[character.characterId]
+            if (plan?.wantsLike == true) addCharacterLike(post, character, authorName)
+            val comment = plan?.comment.orEmpty().ifBlank { fallbackMomentComment(character) }
+            addCharacterTopLevelComment(post, character, authorName, comment)
         }
     }
 
@@ -244,20 +233,25 @@ object MomentsStore {
                 val characterId = item.optString("characterId").trim()
                 if (characterId !in validIds || !seen.add(characterId)) continue
                 val action = item.optString("action").trim().lowercase()
-                if (action == "skip" || action.isBlank()) continue
-                val wantsLike = action == "like" || action == "like_comment" || action == "comment_like"
-                val wantsComment = action == "comment" || action == "like_comment" || action == "comment_like"
-                val comment = if (wantsComment) {
-                    item.optString("comment")
-                        .trim()
-                        .removePrefix("评论：")
-                        .removeSurrounding("\"")
-                        .take(300)
-                } else ""
-                if (wantsLike || comment.isNotBlank()) add(ReactionPlan(characterId, wantsLike, comment))
+                val wantsLike = action == "like_comment" || action == "comment_like" || item.optBoolean("like", false)
+                val comment = item.optString("comment")
+                    .trim()
+                    .removePrefix("评论：")
+                    .removeSurrounding("\"")
+                    .take(300)
+                if (comment.isNotBlank()) add(ReactionPlan(characterId, wantsLike, comment))
             }
         }
     }.getOrDefault(emptyList())
+
+    private fun fallbackMomentComment(character: CharacterSettings): String {
+        val persona = character.persona
+        return when {
+            listOf("寡言", "冷淡", "克制", "内敛").any(persona::contains) -> "嗯，看到了。"
+            listOf("活泼", "开朗", "元气", "爱闹").any(persona::contains) -> "我看到啦。"
+            else -> "看到了。"
+        }
+    }
 
     private fun addCharacterLike(post: MomentPost, character: CharacterSettings, authorName: String) {
         val currentPost = mutablePosts.value.firstOrNull { it.id == post.id } ?: return
@@ -294,13 +288,10 @@ object MomentsStore {
                 else item.copy(comments = item.comments + comment)
             }
         }
-        SharedExperienceTimeline.record(
-            eventId = "moment-comment-${comment.id}-${character.characterId}",
-            characterId = character.characterId,
-            channel = "朋友圈",
-            speaker = character.displayName,
-            content = "评论了${authorName}的朋友圈：${comment.content}",
-            occurredAt = comment.createdAt,
+        recordPublicCommentForAllCharacters(
+            comment = comment,
+            speakerName = character.displayName,
+            timelineText = "【公开评论】评论了${authorName}的朋友圈：${comment.content}",
         )
         return true
     }
@@ -327,19 +318,19 @@ object MomentsStore {
         mutate { current ->
             current.map { item -> if (item.id == postId) item.copy(comments = item.comments + comment) else item }
         }
+        val authorName = postAuthorName(post)
+        recordPublicCommentForAllCharacters(
+            comment = comment,
+            speakerName = UserProfileContext.displayLabel(),
+            timelineText = "【公开评论】评论了${authorName}的朋友圈：$clean",
+        )
         post.authorCharacterId?.let { authorId ->
-            recordUserCommentForCharacter(
-                post = post,
-                comment = comment,
-                characterId = authorId,
-                timelineText = "评论了你的朋友圈：$clean",
-            )
             socialScope.launch { replyToUserComment(postId, comment.id, authorId) }
         }
         return comment
     }
 
-    /** User taps a concrete character comment/reply, creating a real threaded reply to that character. */
+    /** User taps a concrete character comment/reply, creating a directed reply visible in UI but private in raw timelines. */
     fun addUserReply(postId: String, replyToCommentId: String, content: String): MomentComment? {
         val clean = content.trim().take(500)
         if (clean.isBlank()) return null
@@ -356,17 +347,15 @@ object MomentsStore {
             current.map { item -> if (item.id == postId) item.copy(comments = item.comments + comment) else item }
         }
         recordUserCommentForCharacter(
-            post = post,
             comment = comment,
             characterId = targetCharacterId,
-            timelineText = "回复了你在朋友圈的评论“${target.content.take(180)}”：$clean",
+            timelineText = "【定向回复】回复了你在朋友圈的评论“${target.content.take(180)}”：$clean",
         )
         socialScope.launch { replyToUserComment(postId, comment.id, targetCharacterId) }
         return comment
     }
 
     private fun recordUserCommentForCharacter(
-        post: MomentPost,
         comment: MomentComment,
         characterId: String,
         timelineText: String,
@@ -381,6 +370,23 @@ object MomentsStore {
         )
     }
 
+    private fun recordPublicCommentForAllCharacters(
+        comment: MomentComment,
+        speakerName: String,
+        timelineText: String,
+    ) {
+        MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
+            SharedExperienceTimeline.record(
+                eventId = "moment-public-comment-${comment.id}-$characterId",
+                characterId = characterId,
+                channel = "朋友圈",
+                speaker = speakerName,
+                content = timelineText,
+                occurredAt = comment.createdAt,
+            )
+        }
+    }
+
     private suspend fun replyToUserComment(postId: String, commentId: String, responderId: String) {
         val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return
         val userComment = post.comments.firstOrNull {
@@ -390,11 +396,8 @@ object MomentsStore {
 
         val responder = MigratedDomainStores.characters.get(responderId)
         val repliedComment = userComment.replyToCommentId?.let { id -> post.comments.firstOrNull { it.id == id } }
-        val postAuthorName = if (post.authorType == MomentAuthorType.User) {
-            UserProfileContext.displayLabel()
-        } else {
-            post.authorCharacterId?.let { MigratedDomainStores.characters.get(it).displayName }.orEmpty().ifBlank { "角色" }
-        }
+        val postAuthorName = postAuthorName(post)
+        val directPrivateThread = userComment.replyToCharacterId == responderId
         val replyText = LuluAiServices.gateway.generate(
             characterId = responderId,
             facts = buildString {
@@ -461,32 +464,35 @@ object MomentsStore {
                 else item.copy(comments = item.comments + reply)
             }
         }
-        SharedExperienceTimeline.record(
-            eventId = "moment-comment-${reply.id}-$responderId",
-            characterId = responderId,
-            channel = "朋友圈",
-            speaker = responder.displayName,
-            content = "回复了${UserProfileContext.displayLabel()}的朋友圈评论：${reply.content}",
-            occurredAt = reply.createdAt,
-        )
+        if (directPrivateThread) {
+            SharedExperienceTimeline.record(
+                eventId = "moment-comment-${reply.id}-$responderId",
+                characterId = responderId,
+                channel = "朋友圈",
+                speaker = responder.displayName,
+                content = "【定向回复】回复了${UserProfileContext.displayLabel()}：${reply.content}",
+                occurredAt = reply.createdAt,
+            )
+        } else {
+            recordPublicCommentForAllCharacters(
+                comment = reply,
+                speakerName = responder.displayName,
+                timelineText = "【公开评论】回复了${UserProfileContext.displayLabel()}在${postAuthorName}朋友圈下的评论：${reply.content}",
+            )
+        }
     }
 
     fun delete(postId: String) {
         val post = mutablePosts.value.firstOrNull { it.id == postId } ?: return
         mutate { current -> current.filterNot { it.id == postId } }
         removeUnreadCharacterPost(postId)
-        MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
+        val characterIds = MigratedDomainStores.characters.settings.value.keys
+        characterIds.forEach { characterId ->
             SharedExperienceTimeline.deleteEvent("moment-$postId-$characterId")
             SharedExperienceTimeline.deleteEvent("moment-like-$postId-$characterId")
         }
         post.comments.forEach { comment ->
-            if (comment.characterId == USER_COMMENTER_ID) {
-                userCommentTargetCharacterId(post, comment)?.let { characterId ->
-                    SharedExperienceTimeline.deleteEvent("moment-user-comment-${comment.id}-$characterId")
-                }
-            } else {
-                SharedExperienceTimeline.deleteEvent("moment-comment-${comment.id}-${comment.characterId}")
-            }
+            deleteTimelineEventsForComment(post, comment, characterIds)
         }
     }
 
@@ -495,12 +501,12 @@ object MomentsStore {
         if (characterId.isBlank()) return
         mutablePosts.value.filter { it.authorCharacterId == characterId }.map(MomentPost::id).forEach(::delete)
         val authoredComments = mutablePosts.value.flatMap { post ->
-            post.comments.filter { it.characterId == characterId }.map { comment -> post.id to comment }
+            post.comments.filter { it.characterId == characterId }.map { comment -> post to comment }
         }
         val userRepliesToCharacter = mutablePosts.value.flatMap { post ->
             post.comments.filter {
                 it.characterId == USER_COMMENTER_ID && it.replyToCharacterId == characterId
-            }.map { comment -> post.id to comment }
+            }.map { comment -> post to comment }
         }
         mutate { current ->
             current.map { post ->
@@ -514,16 +520,67 @@ object MomentsStore {
             }
         }
         mutablePosts.value.forEach { post -> SharedExperienceTimeline.deleteEvent("moment-like-${post.id}-$characterId") }
-        authoredComments.forEach { (_, comment) ->
-            SharedExperienceTimeline.deleteEvent("moment-comment-${comment.id}-$characterId")
+        val allCharacterIds = MigratedDomainStores.characters.settings.value.keys
+        authoredComments.forEach { (post, comment) ->
+            deleteTimelineEventsForComment(post, comment, allCharacterIds)
         }
         userRepliesToCharacter.forEach { (_, comment) ->
             SharedExperienceTimeline.deleteEvent("moment-user-comment-${comment.id}-$characterId")
         }
     }
 
+    private fun deleteTimelineEventsForComment(
+        post: MomentPost,
+        comment: MomentComment,
+        characterIds: Set<String>,
+    ) {
+        if (isPrivateDirectedComment(post, comment)) {
+            val targetId = when {
+                comment.characterId == USER_COMMENTER_ID -> comment.replyToCharacterId
+                else -> comment.characterId
+            }
+            targetId?.let { characterId ->
+                if (comment.characterId == USER_COMMENTER_ID) {
+                    SharedExperienceTimeline.deleteEvent("moment-user-comment-${comment.id}-$characterId")
+                } else {
+                    SharedExperienceTimeline.deleteEvent("moment-comment-${comment.id}-$characterId")
+                }
+            }
+        } else {
+            characterIds.forEach { characterId ->
+                SharedExperienceTimeline.deleteEvent("moment-public-comment-${comment.id}-$characterId")
+            }
+        }
+
+        // Backward-compatible cleanup for comments created before public-comment fan-out existed.
+        if (comment.characterId == USER_COMMENTER_ID) {
+            userCommentTargetCharacterId(post, comment)?.let { characterId ->
+                SharedExperienceTimeline.deleteEvent("moment-user-comment-${comment.id}-$characterId")
+            }
+        } else {
+            SharedExperienceTimeline.deleteEvent("moment-comment-${comment.id}-${comment.characterId}")
+        }
+    }
+
+    private fun isPrivateDirectedComment(post: MomentPost, comment: MomentComment): Boolean {
+        if (comment.characterId == USER_COMMENTER_ID) return !comment.replyToCharacterId.isNullOrBlank()
+        val parentId = comment.replyToCommentId ?: return false
+        val parent = post.comments.firstOrNull { it.id == parentId } ?: return false
+        return parent.characterId == USER_COMMENTER_ID && parent.replyToCharacterId == comment.characterId
+    }
+
     private fun userCommentTargetCharacterId(post: MomentPost, comment: MomentComment): String? =
         comment.replyToCharacterId?.takeIf { it != USER_COMMENTER_ID } ?: post.authorCharacterId
+
+    private fun postAuthorName(post: MomentPost): String =
+        if (post.authorType == MomentAuthorType.User) {
+            UserProfileContext.displayLabel()
+        } else {
+            post.authorCharacterId
+                ?.let { MigratedDomainStores.characters.get(it).displayName }
+                .orEmpty()
+                .ifBlank { "角色" }
+        }
 
     private fun savePost(post: MomentPost) = mutate { current -> listOf(post) + current }
 
