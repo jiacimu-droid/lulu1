@@ -1,11 +1,11 @@
 package com.jiacimu.lulu.study
 
 import android.content.Context
-import com.jiacimu.lulu.data.SharedExperienceTimeline
-import com.jiacimu.lulu.data.MigratedDomainStores
 import android.util.Base64
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.SharedExperienceTimeline
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +22,6 @@ import java.util.UUID
 internal enum class StarWishTab(val label: String) {
     Scroll("画卷"),
     Theater("小剧场"),
-    Video("视频柜"),
 }
 
 internal data class StarWishImageLaunch(
@@ -44,20 +43,11 @@ internal data class StarWishTheaterChapter(
     val createdAtMillis: Long = System.currentTimeMillis(),
 )
 
-internal data class StarWishVideoItem(
-    val id: String = UUID.randomUUID().toString(),
-    val title: String,
-    val uri: String,
-    val unlocked: Boolean = false,
-    val createdAtMillis: Long = System.currentTimeMillis(),
-)
-
 internal data class StarWishState(
     val imageLaunches: List<StarWishImageLaunch> = emptyList(),
     val customPrompts: Map<String, StarWishOutfitPrompts> = emptyMap(),
     val theaterChapters: Map<String, List<StarWishTheaterChapter>> = emptyMap(),
     val theaterGuides: Map<String, String> = emptyMap(),
-    val videos: List<StarWishVideoItem> = emptyList(),
 )
 
 internal data class StarWishOutfitPrompts(
@@ -160,10 +150,6 @@ internal class StarWishStore private constructor(context: Context) {
         current.copy(theaterChapters = current.theaterChapters - theater, theaterGuides = current.theaterGuides - theater)
     }
 
-    fun addVideo(item: StarWishVideoItem) = update { current -> current.copy(videos = current.videos + item) }
-    fun unlockVideo(id: String) = update { current -> current.copy(videos = current.videos.map { if (it.id == id) it.copy(unlocked = true) else it }) }
-    fun deleteVideo(id: String) = update { current -> current.copy(videos = current.videos.filterNot { it.id == id }) }
-
     private fun update(transform: (StarWishState) -> StarWishState) {
         val next = transform(mutable.value)
         mutable.value = next
@@ -180,7 +166,6 @@ internal class StarWishStore private constructor(context: Context) {
         .put("prompts", JSONObject().apply { value.customPrompts.forEach { (name, prompts) -> put(name, JSONObject().put("solo", prompts.solo).put("interaction", prompts.interaction)) } })
         .put("chapters", JSONObject().apply { value.theaterChapters.forEach { (name, chapters) -> put(name, JSONArray().apply { chapters.forEach { put(encodeChapter(it)) } }) } })
         .put("guides", JSONObject(value.theaterGuides))
-        .put("videos", JSONArray().apply { value.videos.forEach { put(encodeVideo(it)) } })
 
     private fun decode(root: JSONObject): StarWishState {
         val prompts = root.optJSONObject("prompts").decodeMap { item -> StarWishOutfitPrompts(item.optString("solo"), item.optString("interaction")) }
@@ -199,7 +184,10 @@ internal class StarWishStore private constructor(context: Context) {
         val guides = root.optJSONObject("guides")?.let { objectValue ->
             buildMap {
                 val keys = objectValue.keys()
-                while (keys.hasNext()) { val key = keys.next(); put(key, objectValue.optString(key)) }
+                while (keys.hasNext()) {
+                    val key = keys.next()
+                    put(key, objectValue.optString(key))
+                }
             }
         }.orEmpty()
         return StarWishState(
@@ -207,7 +195,6 @@ internal class StarWishStore private constructor(context: Context) {
             customPrompts = prompts,
             theaterChapters = chapters,
             theaterGuides = guides,
-            videos = root.optJSONArray("videos").decodeObjects(::decodeVideo),
         )
     }
 
@@ -229,14 +216,6 @@ internal class StarWishStore private constructor(context: Context) {
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() }, theater = item.optString("theater"),
         chapter = item.optInt("chapter"), title = item.optString("title"), content = item.optString("content"),
         userInfluence = item.optString("userInfluence"), createdAtMillis = item.optLong("createdAt", System.currentTimeMillis()),
-    )
-
-    private fun encodeVideo(value: StarWishVideoItem) = JSONObject()
-        .put("id", value.id).put("title", value.title).put("uri", value.uri).put("unlocked", value.unlocked).put("createdAt", value.createdAtMillis)
-
-    private fun decodeVideo(item: JSONObject) = StarWishVideoItem(
-        id = item.optString("id").ifBlank { UUID.randomUUID().toString() }, title = item.optString("title").ifBlank { "星愿视频" },
-        uri = item.optString("uri"), unlocked = item.optBoolean("unlocked"), createdAtMillis = item.optLong("createdAt", System.currentTimeMillis()),
     )
 
     companion object {
