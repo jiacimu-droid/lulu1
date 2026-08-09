@@ -235,30 +235,31 @@ internal fun defaultGachaRules(): List<StudyGachaRule> = listOf(
 )
 
 internal fun repairGachaRules(source: List<StudyGachaRule>): List<StudyGachaRule> {
-    val defaults = defaultGachaRules()
-    val byId = source.associateBy(StudyGachaRule::id)
-    val builtins = defaults.map { fallback ->
-        val saved = byId[fallback.id]
-        if (saved == null) fallback else fallback.copy(
-            probabilityPercent = saved.probabilityPercent.coerceIn(0.0, 100.0),
-            amountPerDraw = saved.amountPerDraw.coerceIn(1, 999),
-        )
-    }
-    val custom = source.asSequence()
-        .filter { it.type == StudyGachaRewardType.Custom }
-        .filter { it.id.isNotBlank() && it.title.isNotBlank() }
+    val defaultsById = defaultGachaRules().associateBy(StudyGachaRule::id)
+    return source.asSequence()
+        .filter { it.id.isNotBlank() }
         .distinctBy(StudyGachaRule::id)
-        .map { rule ->
-            rule.copy(
-                title = rule.title.trim().take(60),
-                rarity = rule.rarity.takeIf { it != StudyRarity.Normal } ?: StudyRarity.Rare,
-                probabilityPercent = rule.probabilityPercent.coerceIn(0.0, 100.0),
-                amountPerDraw = rule.amountPerDraw.coerceIn(1, 999),
-                type = StudyGachaRewardType.Custom,
-            )
+        .mapNotNull { saved ->
+            val builtin = defaultsById[saved.id]
+            when {
+                builtin != null -> saved.copy(
+                    title = saved.title.trim().ifBlank { builtin.title }.take(60),
+                    rarity = saved.rarity.takeIf { it != StudyRarity.Normal } ?: builtin.rarity,
+                    probabilityPercent = saved.probabilityPercent.coerceIn(0.0, 100.0),
+                    amountPerDraw = saved.amountPerDraw.coerceIn(1, 999),
+                    type = builtin.type,
+                )
+                saved.type == StudyGachaRewardType.Custom && saved.title.isNotBlank() -> saved.copy(
+                    title = saved.title.trim().take(60),
+                    rarity = saved.rarity.takeIf { it != StudyRarity.Normal } ?: StudyRarity.Rare,
+                    probabilityPercent = saved.probabilityPercent.coerceIn(0.0, 100.0),
+                    amountPerDraw = saved.amountPerDraw.coerceIn(1, 999),
+                    type = StudyGachaRewardType.Custom,
+                )
+                else -> null
+            }
         }
         .toList()
-    return builtins + custom
 }
 
 internal val blueFragmentCatalog = listOf(
