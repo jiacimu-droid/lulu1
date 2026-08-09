@@ -64,6 +64,7 @@ data class LuluConversation(
     val updatedAt: Instant = Instant.now(),
     val unreadCount: Int = 0,
     val groupChat: LuluGroupChat? = null,
+    val pinned: Boolean = false,
 )
 
 interface LuluChatStore {
@@ -72,6 +73,7 @@ interface LuluChatStore {
     fun ensureConversation(characterId: String, title: String): LuluConversation
     fun createGroupConversation(name: String, memberIds: List<String>): LuluConversation
     fun updateGroupConversation(conversationId: String, groupChat: LuluGroupChat): Boolean
+    fun setConversationPinned(conversationId: String, pinned: Boolean): Boolean
     fun deleteConversation(conversationId: String): Boolean
     fun clearConversationMessages(conversationId: String): Boolean
     fun sendUserMessage(conversationId: String, content: String, replyToMessageId: String? = null): LuluChatMessage
@@ -185,6 +187,7 @@ class InMemoryLuluChatStore : LuluChatStore {
                         characterId = normalized.members.first().characterId,
                         title = normalized.name,
                         groupChat = normalized,
+                        pinned = normalized.pinned,
                         updatedAt = Instant.now(),
                     )
                 } else {
@@ -222,6 +225,23 @@ class InMemoryLuluChatStore : LuluChatStore {
             }
         }
         return true
+    }
+
+    override fun setConversationPinned(conversationId: String, pinned: Boolean): Boolean = synchronized(lock) {
+        var changed = false
+        conversationState.value = conversationState.value.map { conversation ->
+            if (conversation.id != conversationId || conversation.pinned == pinned) {
+                conversation
+            } else {
+                changed = true
+                conversation.copy(
+                    pinned = pinned,
+                    groupChat = conversation.groupChat?.copy(pinned = pinned),
+                )
+            }
+        }.sortedWith(conversationOrdering())
+        if (changed) persistLocked()
+        changed
     }
 
     private fun recordGroupMembershipAwareness(
@@ -518,17 +538,23 @@ class InMemoryLuluChatStore : LuluChatStore {
         .put("lastMessage", value.lastMessage)
         .put("updatedAt", value.updatedAt.toString())
         .put("unreadCount", value.unreadCount)
+        .put("pinned", value.pinned)
         .put("groupChat", value.groupChat?.let(::encodeGroupChat) ?: JSONObject.NULL)
 
-    private fun decodeConversation(item: JSONObject): LuluConversation = LuluConversation(
-        id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
-        characterId = item.optString("characterId").ifBlank { "lulu" },
-        title = item.optString("title").ifBlank { "露露" },
-        lastMessage = item.optString("lastMessage"),
-        updatedAt = item.optString("updatedAt").toInstantOrNow(),
-        unreadCount = item.optInt("unreadCount").coerceAtLeast(0),
-        groupChat = item.optJSONObject("groupChat")?.let(::decodeGroupChat),
-    )
+    private fun decodeConversation(item: JSONObject): LuluConversation {
+        val groupChat = item.optJSONObject("groupChat")?.let(::decodeGroupChat)
+        val pinned = if (item.has("pinned")) item.optBoolean("pinned") else groupChat?.pinned == true
+        return LuluConversation(
+            id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
+            characterId = item.optString("characterId").ifBlank { "lulu" },
+            title = item.optString("title").ifBlank { "露露" },
+            lastMessage = item.optString("lastMessage"),
+            updatedAt = item.optString("updatedAt").toInstantOrNow(),
+            unreadCount = item.optInt("unreadCount").coerceAtLeast(0),
+            groupChat = groupChat?.copy(pinned = pinned),
+            pinned = pinned,
+        )
+    }
 
     private fun encodeGroupChat(value: LuluGroupChat): JSONObject = JSONObject()
         .put("name", value.name)
@@ -601,7 +627,7 @@ class InMemoryLuluChatStore : LuluChatStore {
     )
 
     private fun conversationOrdering(): Comparator<LuluConversation> =
-        compareByDescending<LuluConversation> { it.groupChat?.pinned == true }
+        compareByDescending<LuluConversation> { it.pinned }
             .thenByDescending(LuluConversation::updatedAt)
 
     private companion object {

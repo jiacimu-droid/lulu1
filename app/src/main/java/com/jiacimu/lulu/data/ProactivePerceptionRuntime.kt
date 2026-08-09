@@ -19,7 +19,6 @@ import com.jiacimu.lulu.MigrationActivity
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.ai.archiveIdFor
-import com.jiacimu.lulu.core.LexiconEntry
 import com.jiacimu.lulu.core.LexiconSection
 import com.jiacimu.lulu.health.GadgetbridgeHealthStore
 import com.jiacimu.lulu.study.PostgraduateExamStores
@@ -37,7 +36,6 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import java.util.UUID
 import kotlin.math.max
 
 /**
@@ -349,11 +347,9 @@ object ProactivePerceptionRuntime {
         )
         val acted = performAction(
             appContext = appContext,
-            conversation = conversation,
             character = character,
             decision = decision,
             availableGroups = availableGroups,
-            readingBooks = readingBooks,
             now = now,
         )
         if (decision.action == Action.SILENT || !acted) {
@@ -372,130 +368,48 @@ object ProactivePerceptionRuntime {
 
     private suspend fun performAction(
         appContext: Context,
-        conversation: LuluConversation,
         character: CharacterSettings,
         decision: Decision,
         availableGroups: List<LuluConversation>,
-        readingBooks: List<com.jiacimu.lulu.study.BackgroundReadingBook>,
         now: Instant,
     ): Boolean {
-        val characterId = character.characterId
-        return when (decision.action) {
-            Action.SILENT -> false
-            Action.MESSAGE -> {
-                if (decision.text.isBlank()) false else {
-                    MigratedDomainStores.chat.appendCharacterMessage(conversation.id, decision.text, characterId)
-                    showMessageNotification(appContext, conversation.id, character.displayName, decision.text)
-                    true
-                }
-            }
-            Action.GROUP_MESSAGE -> {
-                val target = availableGroups.firstOrNull { it.id == decision.groupId }
-                if (target == null || decision.text.isBlank()) false else {
-                    MigratedDomainStores.chat.appendCharacterMessage(target.id, decision.text, characterId)
-                    showMessageNotification(appContext, target.id, "${character.displayName} · ${target.groupChat?.name.orEmpty()}", decision.text)
-                    true
-                }
-            }
-            Action.GAME_INVITE -> {
-                val titles = mapOf(
-                    "roleplay" to "跑团",
-                    "turtle_soup" to "海龟汤",
-                    "yacht_dice" to "快艇骰子",
-                    "gomoku" to "五子棋",
-                    "memory_match" to "记忆配对",
-                )
-                val title = titles[decision.gameId]
-                if (title == null || decision.text.isBlank()) false else {
-                    val content = "[游戏邀约|${decision.gameId}|$title] ${decision.text.take(240)}"
-                    MigratedDomainStores.chat.appendCharacterMessage(conversation.id, content, characterId)
-                    showMessageNotification(appContext, conversation.id, character.displayName, "邀请你一起玩《$title》")
-                    true
-                }
-            }
-            Action.MOMENT -> {
-                if (decision.text.isBlank()) false else {
-                    val published = MomentsStore.publishCharacter(characterId, decision.text.take(2_000)) != null
-                    if (published) MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "刚刚发了一条朋友圈。")
-                    published
-                }
-            }
-            Action.CALL -> {
-                if (!character.contactPolicy.proactiveCallsEnabled || decision.text.isBlank()) false else {
-                    val callText = decision.text.take(100)
-                    MigratedDomainStores.chat.appendCharacterMessage(conversation.id, "[想给你打电话] $callText", characterId)
-                    showCallNotification(appContext, conversation.id, character.displayName, callText)
-                    true
-                }
-            }
-            Action.JOURNAL -> {
-                if (decision.journalContent.isBlank()) false else {
-                    val diaryId = UUID.randomUUID().toString()
-                    val title = decision.journalTitle.ifBlank { "没写完的一页" }.take(30)
-                    LuluRepositories.lexicon.save(
-                        LexiconEntry(
-                            id = diaryId,
-                            characterId = characterId,
-                            section = LexiconSection.Diary,
-                            title = title,
-                            content = decision.journalContent.take(2_000),
-                            createdAt = now,
-                            updatedAt = now,
-                        ),
-                    )
-                    SharedExperienceTimeline.record(
-                        eventId = "lexicon-diary-$diaryId",
-                        characterId = characterId,
-                        channel = "私人日记",
-                        speaker = character.displayName,
-                        content = "$title\n${decision.journalContent.take(2_000)}",
-                        occurredAt = now,
-                    )
-                    MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "刚刚写了一篇日记《$title》。")
-                    true
-                }
-            }
-            Action.READING -> performReading(appContext, character, decision, readingBooks, now)
+        if (decision.action == Action.SILENT) return false
+        val tool = when (decision.action) {
+            Action.MESSAGE -> "send_private_message"
+            Action.GROUP_MESSAGE -> "send_group_message"
+            Action.GAME_INVITE -> "send_game_invite"
+            Action.MOMENT -> "publish_moment"
+            Action.CALL -> "start_call"
+            Action.JOURNAL -> "write_journal"
+            Action.READING -> "read_book"
+            Action.SILENT -> return false
         }
-    }
-
-    private suspend fun performReading(
-        context: Context,
-        character: CharacterSettings,
-        decision: Decision,
-        books: List<com.jiacimu.lulu.study.BackgroundReadingBook>,
-        now: Instant,
-    ): Boolean {
-        val book = books.firstOrNull { it.id == decision.readingBookId } ?: return false
-        val reflection = LuluAiServices.gateway.generate(
-            characterId = character.characterId,
-            facts = buildString {
-                appendLine("你刚刚决定独自去阅读 App 里读《${book.title}》。")
-                appendLine("正文：")
-                append(book.content.take(12_000))
-            },
-            instruction = """
-                认真读提供的正文，写下角色本人真实的阅读感想。不是给用户做书评，不续写，不冒充作者。
-                用角色第一人称，1—3 段，可以写喜欢、不喜欢、联想到什么、对人物或细节的反应。只输出感想正文。
-            """.trimIndent(),
-            source = "主动感知·阅读",
-            title = "${character.displayName}阅读《${book.title}》",
-            temperature = 0.82,
-            maxTokens = 700,
-        ).getOrNull()?.text?.trim().orEmpty()
-        if (reflection.isBlank()) return false
-        SharedExperienceTimeline.record(
-            eventId = "reading-alone-${UUID.randomUUID()}",
-            characterId = character.characterId,
-            channel = "独自阅读《${book.title}》",
-            speaker = character.displayName,
-            content = reflection.take(2_000),
-            occurredAt = now,
-        )
-        MigratedDomainStores.chat.appendPrivateActivityNotice(
-            character.characterId,
-            "刚刚读了《${book.title}》，留下了一点感想：${reflection.replace(Regex("\\s+"), " ").take(180)}",
-        )
+        val args = JSONObject().apply {
+            put("text", decision.text)
+            put("groupId", decision.groupId)
+            put("gameId", decision.gameId)
+            put("title", decision.journalTitle)
+            put("content", decision.journalContent)
+            put("readingBookId", decision.readingBookId)
+        }
+        val result = CompanionActionRuntime.execute(appContext, character.characterId, tool, args, now)
+        if (!result.success) return false
+        when (decision.action) {
+            Action.MESSAGE -> result.conversationId?.let { showMessageNotification(appContext, it, character.displayName, decision.text) }
+            Action.GROUP_MESSAGE -> {
+                val target = availableGroups.firstOrNull { it.id == result.conversationId }
+                result.conversationId?.let {
+                    showMessageNotification(appContext, it, "${character.displayName} · ${target?.groupChat?.name.orEmpty()}", decision.text)
+                }
+            }
+            Action.GAME_INVITE -> result.conversationId?.let {
+                showMessageNotification(appContext, it, character.displayName, result.summary)
+            }
+            Action.CALL -> result.conversationId?.let {
+                showCallNotification(appContext, it, character.displayName, decision.text)
+            }
+            else -> Unit
+        }
         return true
     }
 
@@ -601,6 +515,7 @@ object ProactivePerceptionRuntime {
             ?.format(DateTimeFormatter.ofPattern("M-d HH:mm")) ?: "未知"
         return buildString {
             append("入睡=${clock(sleep?.sleepStartEpochSeconds)}；起床=${clock(sleep?.sleepEndEpochSeconds)}")
+            append("；睡眠结构=深睡${sleep?.deepSleepMinutes?.let { "${it}分钟" } ?: "—"}、浅睡${sleep?.lightSleepMinutes?.let { "${it}分钟" } ?: "—"}、REM${sleep?.remSleepMinutes?.let { "${it}分钟" } ?: "—"}")
             append("；步数=${day?.steps ?: 0}")
             append("；活动热量=${day?.calories?.let { "$it 千卡" } ?: "—"}")
             append("；活动距离=$distance")

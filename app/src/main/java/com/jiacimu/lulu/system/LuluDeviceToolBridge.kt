@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelReply
 import com.jiacimu.lulu.data.CompanionPresenceStore
+import com.jiacimu.lulu.data.CompanionActionRuntime
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import org.json.JSONObject
@@ -40,6 +41,7 @@ object LuluDeviceToolBridge {
     ): Result<ModelReply> {
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
         GroupEnsembleReplyEngine.respondIfApplicable(
+            context = appContext,
             characterId = characterId,
             history = history,
             userText = userText,
@@ -55,6 +57,7 @@ object LuluDeviceToolBridge {
         val livedContext = SharedExperienceTimeline.recentContext(characterId, limit = 16, characterBudget = 4_800)
         val now = Instant.now()
         val zone = ZoneId.systemDefault()
+        val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId)
         val onlineChatBubbleRule = if (sceneContext.contains("电话")) "" else """
             - 当前是即时通讯软件里的日常线上聊天，不是在写文章、小说段落或一次性长篇口述。
             - 你不是每收到一条消息就重新开始一次问答。最近对话、刚才的动作、情绪与关系变化都已经真实发生；从上一刻的状态继续生活，只处理此刻新增的信息和变化。
@@ -98,12 +101,17 @@ object LuluDeviceToolBridge {
                 9. click_text，args={"text":"界面上要点击的文字"}：点击当前屏幕第一个匹配文字。
                 10. read_screen，args={}：读取当前前台包名和可见文字。
 
+                $companionActionContext
+
                 规则：
                 - 最近对话是角色已经经历过的状态轨迹，不是再次等待回答的题目。先承接上一刻，再自然产生下一刻。
                 - 用户询问设备真实状态、要求设置或取消闹钟、要求操作手机时必须用工具，不能凭空回答成功。
                 - 位置工具返回的 readableAddress 才能作为可读地点使用；如果地址为空、stale=true 或 accuracyMeters 很大，必须说明只是大概位置，绝不能根据经纬度猜店铺、学校或建筑。
                 - 时间表达必须根据当前时间换算成未来的完整 ISO 时间；不确定时间时直接自然追问，不要猜。
                 - 屏幕操作只执行用户明确要求的动作。不要连续规划多步操作；一次只调用一个工具。
+                - 露露机内的社交与生活动作可以由角色按人设和当下意愿自主选择，不要求用户逐字下命令。尤其在群聊里，角色可以选择用 send_private_message 或 send_game_invite 私下联系用户；执行后该消息必须只出现在角色私聊，不能伪装成群内消息。
+                - 当前已经在角色私聊时，不要再用 send_private_message 重复发送同一句；直接 reply。当前已经在某个群聊时，不要用 send_group_message 向同一个群重复发言；该工具用于跨到另一个真实群。
+                - publish_moment、write_journal、read_book、send_game_invite、start_call 都会产生真实持久化结果。只有角色此刻真的会这样做时才调用，不要为了展示能力滥用。
                 - 与工具无关的普通聊天直接回复。
                 - 必须意识到“当前真实互动场景”，并以身处该场景的角色身份自然反应；电话里可以意识到正在通话，群聊里可以意识到其他成员也在场。
                 - innerThought 是角色没说出口的一瞬，不是分析报告、推理步骤或对话总结；没有真实内在反应可以留空，也不必把它写进 text。
@@ -215,7 +223,7 @@ object LuluDeviceToolBridge {
                 JSONObject().put("success", true).put("packageName", value.packageName).put("windowTitle", value.windowTitle)
                     .put("visibleText", value.visibleText.take(6_000)).put("capturedAt", value.capturedAt?.toString().orEmpty()).toString()
             }
-            else -> error("未知工具：$tool")
+            else -> CompanionActionRuntime.execute(context, characterId, tool, args).asJson()
         }
     }.getOrElse { error ->
         JSONObject().put("success", false).put("error", error.message ?: error::class.java.simpleName).toString()

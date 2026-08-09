@@ -317,16 +317,18 @@ private fun MomentsComposePage(
                     }
                 }
             } else {
-                OutlinedButton(
-                    onClick = {
-                        imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !publishing,
-                ) {
-                    Icon(Icons.Outlined.AddPhotoAlternate, null, Modifier.size(19.dp))
-                    Spacer(Modifier.width(7.dp))
-                    Text("添加图片")
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
+                    OutlinedButton(
+                        onClick = {
+                            imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        },
+                        enabled = !publishing,
+                        contentPadding = PaddingValues(horizontal = 13.dp, vertical = 8.dp),
+                    ) {
+                        Icon(Icons.Outlined.AddPhotoAlternate, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("添加图片", fontSize = 13.sp)
+                    }
                 }
             }
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

@@ -219,6 +219,8 @@ internal object GadgetbridgeHealthStore {
                     sleepMinutes = maxOf(current.sleepMinutes ?: 0, sleep.sleepMinutes).takeIf { it > 0 },
                     sleepStartEpochSeconds = sleep.primaryStartEpochSeconds ?: current.sleepStartEpochSeconds,
                     sleepEndEpochSeconds = sleep.primaryEndEpochSeconds ?: current.sleepEndEpochSeconds,
+                    deepSleepMinutes = sleep.deepSleepMinutes.takeIf { it > 0 } ?: current.deepSleepMinutes,
+                    lightSleepMinutes = sleep.lightSleepMinutes.takeIf { it > 0 } ?: current.lightSleepMinutes,
                 )
             }
         }
@@ -340,7 +342,7 @@ internal object GadgetbridgeHealthStore {
         }
     }
 
-    private data class SleepInterval(val start: Long, val end: Long) {
+    private data class SleepInterval(val start: Long, val end: Long, val rawKind: Int) {
         val minutes: Int get() = ((end - start) / 60L).toInt().coerceAtLeast(0)
     }
 
@@ -348,16 +350,24 @@ internal object GadgetbridgeHealthStore {
         val start: Long,
         val end: Long,
         val sleepMinutes: Int,
+        val deepSleepMinutes: Int,
+        val lightSleepMinutes: Int,
     )
 
     private data class HuaweiSleepAggregate(
         val sleepMinutes: Int,
         val primaryStartEpochSeconds: Long?,
         val primaryEndEpochSeconds: Long?,
+        val deepSleepMinutes: Int,
+        val lightSleepMinutes: Int,
     )
 
     /**
-     * Huawei's legacy/simple TruSleep data is stored as multiple RAW_KIND=6 intervals in
+     * Gadgetbridge's Huawei provider stores paired interval markers with RAW_KIND=6 for light
+     * sleep and RAW_KIND=7 for deep sleep. Both the start and end marker point at the other end,
+     * so the pair must be de-duplicated before accumulating stage minutes.
+     *
+     * Huawei's legacy/simple TruSleep data is stored as multiple intervals in
      * HUAWEI_ACTIVITY_SAMPLE. Those rows are not one single sleep window: they need to be
      * accumulated and stitched into sessions. A long daytime gap starts a separate nap/session.
      */
@@ -370,8 +380,8 @@ internal object GadgetbridgeHealthStore {
         val other = columns["OTHER_TIMESTAMP"] ?: return emptyMap()
         val kind = columns["RAW_KIND"] ?: return emptyMap()
         val intervals = mutableListOf<SleepInterval>()
-        val sql = "SELECT ${quote(timestamp)}, ${quote(other)} FROM ${quote(table)} " +
-            "WHERE ${quote(kind)} = 6 ORDER BY ${quote(timestamp)} DESC LIMIT $MAX_HUAWEI_SLEEP_ROWS"
+        val sql = "SELECT ${quote(timestamp)}, ${quote(other)}, ${quote(kind)} FROM ${quote(table)} " +
+            "WHERE ${quote(kind)} IN (6, 7) ORDER BY ${quote(timestamp)} DESC LIMIT $MAX_HUAWEI_SLEEP_ROWS"
         database.rawQuery(sql, null).use { cursor ->
             while (cursor.moveToNext()) {
                 val first = normalizeEpochSeconds(cursor.getLong(0)) ?: continue
@@ -380,9 +390,10 @@ internal object GadgetbridgeHealthStore {
                 val end = maxOf(first, second)
                 val minutes = ((end - start) / 60L).toInt()
                 if (minutes !in 1..1_200) continue
+                val rawKind = cursor.getInt(2)
                 val date = Instant.ofEpochSecond(end).atZone(ZoneId.systemDefault()).toLocalDate()
                 if (date.isBefore(LocalDate.now().minusDays(190)) || date.isAfter(LocalDate.now().plusDays(1))) continue
-                intervals += SleepInterval(start, end)
+                intervals += SleepInterval(start, end, rawKind)
             }
         }
         if (intervals.isEmpty()) return emptyMap()
@@ -392,19 +403,36 @@ internal object GadgetbridgeHealthStore {
         var currentStart = sorted.first().start
         var currentEnd = sorted.first().end
         var currentSleepMinutes = sorted.first().minutes
+        var currentDeepMinutes = if (sorted.first().rawKind == 7) sorted.first().minutes else 0
+        var currentLightMinutes = if (sorted.first().rawKind == 6) sorted.first().minutes else 0
         sorted.drop(1).forEach { interval ->
             val gapSeconds = interval.start - currentEnd
             if (gapSeconds <= 90 * 60L) {
                 currentEnd = maxOf(currentEnd, interval.end)
                 currentSleepMinutes += interval.minutes
+                if (interval.rawKind == 7) currentDeepMinutes += interval.minutes else currentLightMinutes += interval.minutes
             } else {
-                sessions += SleepSession(currentStart, currentEnd, currentSleepMinutes.coerceAtMost(1_200))
+                sessions += SleepSession(
+                    currentStart,
+                    currentEnd,
+                    currentSleepMinutes.coerceAtMost(1_200),
+                    currentDeepMinutes.coerceAtMost(1_000),
+                    currentLightMinutes.coerceAtMost(1_000),
+                )
                 currentStart = interval.start
                 currentEnd = interval.end
                 currentSleepMinutes = interval.minutes
+                currentDeepMinutes = if (interval.rawKind == 7) interval.minutes else 0
+                currentLightMinutes = if (interval.rawKind == 6) interval.minutes else 0
             }
         }
-        sessions += SleepSession(currentStart, currentEnd, currentSleepMinutes.coerceAtMost(1_200))
+        sessions += SleepSession(
+            currentStart,
+            currentEnd,
+            currentSleepMinutes.coerceAtMost(1_200),
+            currentDeepMinutes.coerceAtMost(1_000),
+            currentLightMinutes.coerceAtMost(1_000),
+        )
 
         return sessions
             .filter { session -> session.sleepMinutes > 0 && session.end > session.start }
@@ -415,6 +443,8 @@ internal object GadgetbridgeHealthStore {
                     sleepMinutes = dateSessions.sumOf { it.sleepMinutes }.coerceIn(1, 1_200),
                     primaryStartEpochSeconds = primary?.start,
                     primaryEndEpochSeconds = primary?.end,
+                    deepSleepMinutes = dateSessions.sumOf { it.deepSleepMinutes }.coerceIn(0, 1_000),
+                    lightSleepMinutes = dateSessions.sumOf { it.lightSleepMinutes }.coerceIn(0, 1_000),
                 )
             }
     }
@@ -448,7 +478,7 @@ internal object GadgetbridgeHealthStore {
         val startColumn = find(
             "SLEEP_START_TIMESTAMP", "SLEEP_START", "SLEEP_BEGIN_TIME", "SLEEP_BEGIN",
             "FALL_ASLEEP_TIME", "BEDTIME", "BED_TIME", "START_TIMESTAMP", "START_TIME", "BEGIN_TIME",
-        )
+        ) ?: timestampColumn.takeIf { "SLEEP_TIME" in table.uppercase(Locale.ROOT) }
         val endColumn = find(
             "SLEEP_END_TIMESTAMP", "SLEEP_END", "SLEEP_FINISH", "WAKEUP_TIME", "WAKE_UP_TIME",
             "WAKE_TIME", "END_TIMESTAMP", "END_TIME", "OTHER_TIMESTAMP",

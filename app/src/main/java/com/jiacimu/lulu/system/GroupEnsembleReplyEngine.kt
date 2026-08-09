@@ -1,8 +1,10 @@
 package com.jiacimu.lulu.system
 
+import android.content.Context
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelReply
 import com.jiacimu.lulu.data.CharacterIdentityStore
+import com.jiacimu.lulu.data.CompanionActionRuntime
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluConversation
@@ -39,6 +41,8 @@ internal object GroupEnsembleReplyEngine {
         val gesture: String,
         val innerThought: String,
         val mood: String,
+        val tool: String,
+        val args: JSONObject,
     )
 
     private data class CachedPlan(
@@ -50,6 +54,7 @@ internal object GroupEnsembleReplyEngine {
     private val cachedPlans = linkedMapOf<String, CachedPlan>()
 
     suspend fun respondIfApplicable(
+        context: Context,
         characterId: String,
         history: String,
         userText: String,
@@ -66,7 +71,7 @@ internal object GroupEnsembleReplyEngine {
         val channel = if (sceneContext.contains("电话")) "call" else "chat"
         val planKey = "${conversation.id}:${latestUserMessage.id}:$channel"
 
-        takeCachedTurn(planKey, characterId)?.let { return Result.success(it) }
+        takeCachedTurn(context, planKey, characterId)?.let { return Result.success(it) }
 
         val settings = MigratedDomainStores.characters.settings.value
         val validMembers = group.members.filter { member -> member.characterId in settings }
@@ -135,6 +140,7 @@ internal object GroupEnsembleReplyEngine {
                     appendLine("角色设定=${character.persona.ifBlank { "按该角色已有设定自然表达。" }.take(1_800)}")
                     if (lived.isNotBlank()) appendLine("这个角色亲历的近期原始时间线=${lived.take(1_100)}")
                     presence?.let { appendLine("上一刻状态=${it.statusText}；动作=${it.gesture}；心情=${it.mood}；没说出口=${it.innerThought}") }
+                    appendLine(CompanionActionRuntime.capabilityContext(context, member.characterId))
                 }
                 appendLine("\n【调用来源】这是群聊界面的一次整轮生成。全员必须参与，但绝不允许把“全员参与”写成固定 ABC 轮班。合法形态包括 C→B→A、A→B→C→B→A、B→A→C→A 等，具体顺序由当前内容和角色设定决定。")
             },
@@ -142,7 +148,7 @@ internal object GroupEnsembleReplyEngine {
                 你是多人群聊的整体编排器。把这一轮写成真正会发生的群聊：所有成员都参与，但发言顺序不固定，而且有人完全可以在别人说过以后再次回来接话。不要把“全员都说话”误解成“一人一次、按名单轮班”。
 
                 只返回一个 JSON 对象，不要代码块、分析、旁白或额外说明：
-                {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"简短意图","bubbles":["气泡"],"quoteMessageId":"真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","recallBubbleNumber":0,"pokeUser":false,"statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"该角色没说出口的一瞬心声，可为空","mood":"简短心情"}]}
+                {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"简短意图","bubbles":["群里真正说出的气泡"],"tool":"可选的露露机内动作名或空字符串","args":{},"quoteMessageId":"真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","recallBubbleNumber":0,"pokeUser":false,"statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"该角色没说出口的一瞬心声，可为空","mood":"简短心情"}]}
 
                 规则：
                 1. turns 第一项必须是指定的当前发言者，因为界面已经显示这个人正在输入；这个人不是固定成员，而是每轮动态选出的首发者。
@@ -161,6 +167,7 @@ internal object GroupEnsembleReplyEngine {
                 14. 最后一轮不需要总结，不需要“把话题交给主人”，自然停住就可以。
                 15. ${if (isCall) "这是实时群聊电话，quoteMessageId、favoriteMessageId 留空，recallBubbleNumber=0，pokeUser=false；语言必须更口语化、适合直接念出。" else "这是文字群聊，可以自然使用连续短气泡、引用、角色主观收藏，以及非常偶发的撤回或戳一戳。"}
                 16. statusText、gesture、innerThought、mood 分别属于当前角色本人，不能写成系统分析或推理过程。
+                17. 每个角色还可以在自己这一回合自主执行一个真实露露机内动作。尤其用户在群里问“谁想玩”或某个角色想私下找用户时，可以填写 tool=send_game_invite 或 send_private_message；该动作会真实进入这个角色与用户的私聊，不能把私聊内容又写进群气泡。也可按角色意愿发布朋友圈、写日记、读真实正文、跨到另一个所在群聊或在允许时发起来电。没有自然动机时 tool 留空，严禁为了展示功能每轮都调用。
             """.trimIndent(),
             source = if (isCall) "群聊电话·全员自然讨论" else "群聊·全员自然讨论",
             title = title,
@@ -190,7 +197,7 @@ internal object GroupEnsembleReplyEngine {
             while (cachedPlans.size > 24) cachedPlans.remove(cachedPlans.keys.first())
         }
         return Result.success(
-            takeCachedTurn(planKey, currentSpeakerId, baseReply)
+            takeCachedTurn(context, planKey, currentSpeakerId, baseReply)
                 ?: fallbackReply(currentSpeakerId, memberLabels, "群聊编排没有返回有效内容"),
         )
     }
@@ -203,7 +210,12 @@ internal object GroupEnsembleReplyEngine {
             .maxByOrNull(LuluConversation::updatedAt)
     }
 
-    private fun takeCachedTurn(planKey: String, requestedCharacterId: String, tokenSource: ModelReply? = null): ModelReply? {
+    private suspend fun takeCachedTurn(
+        context: Context,
+        planKey: String,
+        requestedCharacterId: String,
+        tokenSource: ModelReply? = null,
+    ): ModelReply? {
         val served = synchronized(lock) {
             val cached = cachedPlans[planKey] ?: return@synchronized null
             val requestedIndex = cached.turns.indexOfFirst { it.characterId == requestedCharacterId }
@@ -223,6 +235,14 @@ internal object GroupEnsembleReplyEngine {
             mood = served.turn.mood,
             source = "群聊·全员自然讨论",
         )
+        if (served.turn.tool.isNotBlank()) {
+            CompanionActionRuntime.execute(
+                context = context,
+                characterId = served.turn.characterId,
+                action = served.turn.tool,
+                args = served.turn.args,
+            )
+        }
         val marker = served.nextLabel?.let { "⟪NEXT:$it⟫" } ?: EndMarker
         val quote = served.turn.quoteMessageId?.let { "⟪QUOTE:$it⟫" }.orEmpty()
         val favorite = served.turn.favoriteMessageId?.let { "⟪FAVORITE:$it⟫" }.orEmpty()
@@ -286,6 +306,13 @@ internal object GroupEnsembleReplyEngine {
                             gesture = item.optString("gesture").ifBlank { item.optString("actionDescription") }.take(160),
                             innerThought = item.optString("innerThought").ifBlank { item.optString("inner_voice") }.take(220),
                             mood = item.optString("mood").take(60),
+                            tool = item.optString("tool").trim().takeIf { requested ->
+                                requested in setOf(
+                                    "send_private_message", "send_group_message", "send_game_invite",
+                                    "publish_moment", "write_journal", "read_book", "start_call",
+                                )
+                            }.orEmpty(),
+                            args = item.optJSONObject("args") ?: JSONObject(),
                         ),
                     )
                 }
@@ -353,6 +380,8 @@ internal object GroupEnsembleReplyEngine {
         gesture = "看着刚刷新的消息回了一句",
         innerThought = "",
         mood = "平静",
+        tool = "",
+        args = JSONObject(),
     )
 
     private fun resolveSpeakerId(

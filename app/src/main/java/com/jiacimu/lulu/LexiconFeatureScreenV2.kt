@@ -1,18 +1,17 @@
 package com.jiacimu.lulu
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -88,6 +87,7 @@ fun LexiconFeatureScreenV2(
     val scope = rememberCoroutineScope()
     var editing by remember { mutableStateOf<LexiconEntry?>(null) }
     var creating by remember { mutableStateOf(false) }
+    var characterMenuExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(section) {
         if (section == LexiconSection.Favorite) {
@@ -109,80 +109,71 @@ fun LexiconFeatureScreenV2(
     Scaffold(
         containerColor = LuluColors.Paper,
         topBar = {
-            if (!embedded) {
-                TopAppBar(
-                    title = { Text("辞海", fontWeight = FontWeight.SemiBold) },
-                    navigationIcon = {
+            TopAppBar(
+                title = { Text(if (embedded) "聊天" else "辞海", fontWeight = FontWeight.SemiBold) },
+                navigationIcon = {
+                    if (!embedded) {
                         IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
-                    },
-                    actions = {
-                        if (section != LexiconSection.Favorite) {
-                            IconButton(onClick = { creating = true }) { Icon(Icons.Outlined.Add, "新增条目") }
+                    }
+                },
+                actions = {
+                    Box {
+                        TextButton(onClick = { characterMenuExpanded = true }) {
+                            Text(
+                                characters[selectedCharacterId]?.displayName.orEmpty().ifBlank { "选择角色" },
+                                color = LuluColors.Ink,
+                                maxLines = 1,
+                            )
+                            Icon(Icons.Outlined.KeyboardArrowDown, "展开角色列表", modifier = Modifier.size(18.dp))
                         }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
-                )
-            }
-        },
-    ) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding)) {
-            if (embedded) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 12.dp, bottom = 2.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(Modifier.weight(1f)) {
-                        Text("辞海", fontWeight = FontWeight.Bold, fontSize = 23.sp, color = LuluColors.Ink)
-                        Text("角色自己的生活、挂心、约定、日记与收藏", color = LuluColors.Muted, fontSize = 11.sp)
+                        DropdownMenu(
+                            expanded = characterMenuExpanded,
+                            onDismissRequest = { characterMenuExpanded = false },
+                        ) {
+                            sortedCharacters.forEach { character ->
+                                DropdownMenuItem(
+                                    text = { Text(character.displayName) },
+                                    onClick = {
+                                        selectedCharacterId = character.characterId
+                                        characterMenuExpanded = false
+                                    },
+                                )
+                            }
+                        }
                     }
                     if (section != LexiconSection.Favorite) {
                         IconButton(onClick = { creating = true }) { Icon(Icons.Outlined.Add, "新增条目") }
                     }
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
+            )
+        },
+    ) { padding ->
+        Column(Modifier.fillMaxSize().padding(padding)) {
+            Box(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center,
             ) {
-                sortedCharacters.forEach { character ->
-                    FilterChip(
-                        selected = selectedCharacterId == character.characterId,
-                        onClick = { selectedCharacterId = character.characterId },
-                        label = { Text(character.displayName) },
-                        leadingIcon = {
-                            Surface(
-                                shape = RoundedCornerShape(6.dp),
-                                color = LuluColors.WheatSoft,
-                                modifier = Modifier.size(24.dp),
+                Surface(
+                    color = LuluColors.Card,
+                    border = BorderStroke(1.dp, LuluColors.Border),
+                    shape = RoundedCornerShape(15.dp),
+                ) {
+                    Row(Modifier.padding(3.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        LexiconV2Sections.forEachIndexed { index, (_, label) ->
+                            TextButton(
+                                onClick = { sectionIndex = index },
+                                modifier = Modifier.width(54.dp).height(34.dp),
+                                contentPadding = PaddingValues(0.dp),
+                                colors = ButtonDefaults.textButtonColors(
+                                    containerColor = if (sectionIndex == index) LuluColors.CardStrong else Color.Transparent,
+                                    contentColor = LuluColors.Ink,
+                                ),
                             ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text(
-                                        character.displayName.take(1).ifBlank { "角" },
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Bold,
-                                    )
-                                }
+                                Text(label, fontSize = 12.sp, fontWeight = if (sectionIndex == index) FontWeight.Bold else FontWeight.Normal)
                             }
-                        },
-                    )
-                }
-            }
-
-            ScrollableTabRow(
-                selectedTabIndex = sectionIndex,
-                containerColor = LuluColors.Card,
-                edgePadding = 12.dp,
-            ) {
-                LexiconV2Sections.forEachIndexed { index, (_, label) ->
-                    Tab(
-                        selected = sectionIndex == index,
-                        onClick = { sectionIndex = index },
-                        text = { Text(label) },
-                    )
+                        }
+                    }
                 }
             }
 

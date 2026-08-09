@@ -1,6 +1,8 @@
 package com.jiacimu.lulu
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -53,25 +55,27 @@ fun MigratedChatHubScreenV2(
     Scaffold(
         containerColor = LuluColors.Paper,
         topBar = {
-            MigratedChatTopBar(
-                title = "聊天",
-                onBack = onBack,
-                actions = {
-                    if (selectedTab == 0 || selectedTab == 1) {
-                        IconButton(
-                            onClick = {
-                                if (selectedTab == 0) showCreateGroup = true else showCreateCharacter = true
-                            },
-                            enabled = selectedTab != 0 || characters.size >= 2,
-                        ) {
-                            Icon(
-                                if (selectedTab == 0) Icons.Outlined.GroupAdd else Icons.Outlined.PersonAdd,
-                                if (selectedTab == 0) "新建群聊" else "新建角色",
-                            )
+            if (selectedTab != 3) {
+                MigratedChatTopBar(
+                    title = "聊天",
+                    onBack = onBack,
+                    actions = {
+                        if (selectedTab == 0 || selectedTab == 1) {
+                            IconButton(
+                                onClick = {
+                                    if (selectedTab == 0) showCreateGroup = true else showCreateCharacter = true
+                                },
+                                enabled = selectedTab != 0 || characters.size >= 2,
+                            ) {
+                                Icon(
+                                    if (selectedTab == 0) Icons.Outlined.GroupAdd else Icons.Outlined.PersonAdd,
+                                    if (selectedTab == 0) "新建群聊" else "新建角色",
+                                )
+                            }
                         }
-                    }
-                },
-            )
+                    },
+                )
+            }
         },
         bottomBar = {
             NavigationBar(containerColor = LuluColors.Card) {
@@ -136,16 +140,18 @@ fun MigratedChatHubScreenV2(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val sorted = remember(conversations) {
         conversations.sortedWith(
-            compareByDescending<LuluConversation> { it.groupChat?.pinned == true }
+            compareByDescending<LuluConversation> { it.pinned }
                 .thenByDescending(LuluConversation::updatedAt),
         )
     }
+    var menuConversationId by remember { mutableStateOf<String?>(null) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -164,16 +170,20 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                 val character = characters[conversation.characterId]
                     ?: MigratedDomainStores.characters.get(conversation.characterId)
                 val group = conversation.groupChat
-                Card(
-                    modifier = Modifier.fillMaxWidth().clickable {
-                        MigratedDomainStores.chat.markConversationRead(conversation.id)
-                        onOpenConversation(conversation.id)
-                    },
-                    colors = CardDefaults.cardColors(containerColor = LuluColors.Card),
-                    border = BorderStroke(1.dp, LuluColors.Border),
-                    shape = RoundedCornerShape(22.dp),
-                ) {
-                    Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box {
+                    Card(
+                        modifier = Modifier.fillMaxWidth().combinedClickable(
+                            onClick = {
+                                MigratedDomainStores.chat.markConversationRead(conversation.id)
+                                onOpenConversation(conversation.id)
+                            },
+                            onLongClick = { menuConversationId = conversation.id },
+                        ),
+                        colors = CardDefaults.cardColors(containerColor = LuluColors.Card),
+                        border = BorderStroke(1.dp, LuluColors.Border),
+                        shape = RoundedCornerShape(22.dp),
+                    ) {
+                        Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                         if (group == null) {
                             ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 50, character.avatarUri)
                         } else {
@@ -200,10 +210,28 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                                 overflow = TextOverflow.Ellipsis,
                             )
                         }
-                        if (conversation.unreadCount > 0) {
-                            Spacer(Modifier.width(7.dp))
-                            Badge { Text(conversation.unreadCount.toString()) }
+                            if (conversation.pinned) {
+                                Spacer(Modifier.width(7.dp))
+                                Icon(Icons.Outlined.PushPin, "已置顶", tint = LuluColors.Muted, modifier = Modifier.size(16.dp))
+                            }
+                            if (conversation.unreadCount > 0) {
+                                Spacer(Modifier.width(7.dp))
+                                Badge { Text(conversation.unreadCount.toString()) }
+                            }
                         }
+                    }
+                    DropdownMenu(
+                        expanded = menuConversationId == conversation.id,
+                        onDismissRequest = { menuConversationId = null },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(if (conversation.pinned) "取消置顶" else "置顶") },
+                            leadingIcon = { Icon(Icons.Outlined.PushPin, null) },
+                            onClick = {
+                                MigratedDomainStores.chat.setConversationPinned(conversation.id, !conversation.pinned)
+                                menuConversationId = null
+                            },
+                        )
                     }
                 }
             }
