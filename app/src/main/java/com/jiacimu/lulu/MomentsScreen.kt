@@ -31,6 +31,7 @@ import androidx.compose.ui.window.Dialog
 import com.jiacimu.lulu.ai.VisionModelService
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.MomentAuthorType
+import com.jiacimu.lulu.data.MomentComment
 import com.jiacimu.lulu.data.MomentPost
 import com.jiacimu.lulu.data.MomentsStore
 import com.jiacimu.lulu.design.LuluColors
@@ -47,7 +48,6 @@ fun MomentsScreen() {
     val userName = remember { prefs.getString("display_name", "我").orEmpty().ifBlank { "我" } }
     val userAvatar = remember { prefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2) }
     val userAvatarUri = remember { prefs.getString("avatar_uri", null) }
-    val scope = rememberCoroutineScope()
     var composing by remember { mutableStateOf(false) }
     var signatureEditing by remember { mutableStateOf(false) }
     var coverUri by remember { mutableStateOf(prefs.getString("moments_cover_uri", null)) }
@@ -68,9 +68,8 @@ fun MomentsScreen() {
         MomentsComposePage(
             onBack = { composing = false },
             onPublish = { content, imageUri, imageDescription ->
-                val post = MomentsStore.publishUser(content, imageUri, imageDescription)
+                MomentsStore.publishUser(content, imageUri, imageDescription)
                 composing = false
-                if (post != null) scope.launch { MomentsStore.letCharactersReact(post.id) }
             },
         )
         return
@@ -101,7 +100,7 @@ fun MomentsScreen() {
                             Icon(Icons.Outlined.Collections, null, tint = LuluColors.Muted, modifier = Modifier.size(46.dp))
                             Spacer(Modifier.height(10.dp))
                             Text("朋友圈还是空的", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                            Text("可以发文字或图片，角色会像真实朋友圈一样互相点赞、评论和回复。", color = LuluColors.Muted)
+                            Text("可以发文字或图片；角色会按自己的性格决定点赞、评论、回复或只是看看。", color = LuluColors.Muted)
                         }
                     }
                 }
@@ -115,6 +114,7 @@ fun MomentsScreen() {
                         characterNames = characters.mapValues { it.value.displayName },
                         onLike = { MomentsStore.toggleUserLike(post.id) },
                         onComment = { text -> MomentsStore.addUserComment(post.id, text) },
+                        onReply = { comment, text -> MomentsStore.addUserReply(post.id, comment.id, text) },
                         onDelete = { MomentsStore.delete(post.id) },
                     )
                 }
@@ -414,6 +414,7 @@ private fun MomentPostCard(
     characterNames: Map<String, String>,
     onLike: () -> Unit,
     onComment: (String) -> Unit,
+    onReply: (MomentComment, String) -> Unit,
     onDelete: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -422,6 +423,7 @@ private fun MomentPostCard(
     val likedByUser = "__user__" in post.likedCharacterIds
     var menuExpanded by remember { mutableStateOf(false) }
     var commenting by remember { mutableStateOf(false) }
+    var replyTarget by remember(post.id) { mutableStateOf<MomentComment?>(null) }
     var deleting by remember { mutableStateOf(false) }
 
     Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.Top) {
@@ -493,17 +495,31 @@ private fun MomentPostCard(
                         }
                         post.comments.forEach { comment ->
                             val commenter = if (comment.characterId == "__user__") "我" else characterNames[comment.characterId] ?: "角色"
-                            val replyTarget = when (comment.replyToCharacterId) {
+                            val replyTargetName = when (comment.replyToCharacterId) {
                                 "__user__" -> "我"
                                 null -> null
                                 else -> characterNames[comment.replyToCharacterId]
                             }
-                            Text(
-                                if (replyTarget.isNullOrBlank()) "$commenter：${comment.content}" else "$commenter 回复 $replyTarget：${comment.content}",
-                                color = LuluColors.Ink,
-                                fontSize = 13.sp,
-                                lineHeight = 18.sp,
-                            )
+                            val canReply = comment.characterId != "__user__"
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .then(if (canReply) Modifier.clickable { replyTarget = comment } else Modifier)
+                                    .padding(vertical = 2.dp),
+                                verticalAlignment = Alignment.Top,
+                            ) {
+                                Text(
+                                    if (replyTargetName.isNullOrBlank()) "$commenter：${comment.content}" else "$commenter 回复 $replyTargetName：${comment.content}",
+                                    modifier = Modifier.weight(1f),
+                                    color = LuluColors.Ink,
+                                    fontSize = 13.sp,
+                                    lineHeight = 18.sp,
+                                )
+                                if (canReply) {
+                                    Spacer(Modifier.width(8.dp))
+                                    Text("回复", color = Color(0xFF637A9A), fontSize = 10.sp, fontWeight = FontWeight.Medium)
+                                }
+                            }
                         }
                     }
                 }
@@ -535,6 +551,51 @@ private fun MomentPostCard(
                 ) { Text("发送") }
             },
             dismissButton = { TextButton(onClick = { commenting = false }) { Text("取消") } },
+        )
+    }
+
+    replyTarget?.let { target ->
+        val targetName = characterNames[target.characterId] ?: "角色"
+        var text by remember(target.id) { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { replyTarget = null },
+            containerColor = LuluColors.Paper,
+            title = { Text("回复 $targetName") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Surface(
+                        color = LuluColors.CardStrong,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            target.content,
+                            color = LuluColors.Muted,
+                            fontSize = 12.sp,
+                            lineHeight = 17.sp,
+                            modifier = Modifier.padding(10.dp),
+                        )
+                    }
+                    OutlinedTextField(
+                        value = text,
+                        onValueChange = { text = it.take(500) },
+                        placeholder = { Text("回复他的这条评论…") },
+                        minLines = 2,
+                        maxLines = 5,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = text.isNotBlank(),
+                    onClick = {
+                        onReply(target, text)
+                        replyTarget = null
+                    },
+                ) { Text("发送") }
+            },
+            dismissButton = { TextButton(onClick = { replyTarget = null }) { Text("取消") } },
         )
     }
 
