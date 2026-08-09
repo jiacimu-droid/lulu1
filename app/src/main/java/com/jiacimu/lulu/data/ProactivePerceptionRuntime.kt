@@ -277,9 +277,10 @@ object ProactivePerceptionRuntime {
             characterId = characterId,
             facts = buildString {
                 appendLine("【角色人设】\n${character.persona.ifBlank { "按角色当前设定自然行动。" }}")
-                appendLine("\n【真实世界感知层】")
+                appendLine("\n【用户现实设备与用户状态感知层】")
+                appendLine("重要归属：下面的电量、前台应用、通知、位置、健康/手环和学习信息都属于用户本人或用户正在使用的现实设备，不属于角色自己的手机或身体。")
                 appendLine("触发来源：$trigger")
-                appendLine("设备本地时间：$localTimeText（时区 ${zoneId.id}）")
+                appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
                 appendLine("允许主动来电：${if (character.contactPolicy.proactiveCallsEnabled) "是" else "否"}")
                 if (readingBooks.isNotEmpty()) {
@@ -313,15 +314,16 @@ object ProactivePerceptionRuntime {
 
                 规则：
                 1. 每次感知都必须形成 statusText、gesture、mood；innerThought 可以为空。silent 不是失败，而是角色决定只过自己的这一刻。
-                2. 手机信息只是现实线索。尤其通知、位置、前台应用和健康数据都不能被夸大推断；健康数据带同步时间时，要意识到它可能在下一次手环导出前保持不变。
-                3. 不设每日主动次数、消息冷却、电话冷却、朋友圈冷却或日记冷却。是否行动由人设、关系、上下文和此刻意愿决定，不要因为“能做”就每次都做。
-                4. message 是主动私聊；group_message 只能使用真实 groupId；game_invite 可用 gameId：roleplay、turtle_soup、yacht_dice、gomoku、memory_match。
-                5. call 只有“允许主动来电=是”时才能选择；否则必须换其他动作或 silent。
-                6. reading 只能使用真实 readingBookId。角色会真正读取对应正文并产生自己的感想，不要假装读了列表之外的书。
-                7. journal 是角色第一人称私人日记；moment 是角色愿意公开的朋友圈。不要把所有动作写成对用户的服务或监督。
-                8. 学习状态只在当前角色就是学习 App 的陪同角色时提供；没提供就代表这个角色没有权限知道，禁止猜。
-                9. 角色语气、主动程度、动作、心声必须服从人设。避免机械问候、固定催睡、固定催学习以及每次重复同一种动作。
-                10. 如果提供了【尚未回复的消息】，它只表示这些是用户新发来、角色尚未回复过的真实聊天内容。不要给其中任何一条额外标记“最新”“最重要”或“最值得回复”，也不要被系统强迫必须接某一句。按角色人设、关系、这些消息彼此的语义和此刻状态，自然决定是否回应、回应哪些以及怎么回应。
+                2. 【归属绝不能混淆】感知层里的手机电量、充电、前台应用/屏幕活动、通知、位置、健康/手环和学习状态默认全部是用户及用户现实设备的数据，不是角色自己的。看到“前台应用=抖音/短视频”只能理解为用户可能正在刷视频，不能写成“我还在刷视频”；看到“电量=20%”不能写成“我手机只剩20%”；通知也不是角色自己收到的。除非另有明确的角色侧设备数据，否则禁止第一人称认领这些信号。
+                3. 手机信息只是观察用户现实状态的线索，不能被夸大推断；健康数据带同步时间时，要意识到它可能在下一次手环导出前保持不变，也不能据此虚构用户更多未提供的身体或环境事实。
+                4. 不设每日主动次数、消息冷却、电话冷却、朋友圈冷却或日记冷却。是否行动由人设、关系、上下文和此刻意愿决定，不要因为“能做”就每次都做。
+                5. message 是主动私聊；group_message 只能使用真实 groupId；game_invite 可用 gameId：roleplay、turtle_soup、yacht_dice、gomoku、memory_match。
+                6. call 只有“允许主动来电=是”时才能选择；否则必须换其他动作或 silent。
+                7. reading 只能使用真实 readingBookId。角色会真正读取对应正文并产生自己的感想，不要假装读了列表之外的书。
+                8. journal 是角色第一人称私人日记；moment 是角色愿意公开的朋友圈。不要把所有动作写成对用户的服务或监督。
+                9. 学习状态只在当前角色就是学习 App 的陪同角色时提供；没提供就代表这个角色没有权限知道，禁止猜。
+                10. 角色语气、主动程度、动作、心声必须服从人设。避免机械问候、固定催睡、固定催学习以及每次重复同一种动作。
+                11. 如果提供了【尚未回复的消息】，它只表示这些是用户新发来、角色尚未回复过的真实聊天内容。不要给其中任何一条额外标记“最新”“最重要”或“最值得回复”，也不要被系统强迫必须接某一句。按角色人设、关系、这些消息彼此的语义和此刻状态，自然决定是否回应、回应哪些以及怎么回应。
             """.trimIndent(),
             source = "后台主动感知",
             title = "${character.displayName}的主动感知",
@@ -498,13 +500,13 @@ object ProactivePerceptionRuntime {
     }
 
     private suspend fun buildRealWorldContext(context: Context, characterId: String, now: Instant): String = buildString {
-        appendLine("时间：${now.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)}")
-        appendLine("电量：${batteryContext(context)}")
-        appendLine("最近前台应用：${foregroundAppContext(context, now)}")
-        appendLine("位置：${locationContext(context)}")
-        appendLine("最近通知（总摘录最多500字）：${notificationContext(now)}")
-        appendLine("健康数据：${healthContext(context, now)}")
-        appendLine("学习状态：${studyContext(characterId)}")
+        appendLine("用户现实时间：${now.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)}")
+        appendLine("用户手机电量：${batteryContext(context)}")
+        appendLine("用户设备最近前台应用：${foregroundAppContext(context, now)}")
+        appendLine("用户设备位置：${locationContext(context)}")
+        appendLine("用户设备最近通知（总摘录最多500字）：${notificationContext(now)}")
+        appendLine("用户健康/手环数据：${healthContext(context, now)}")
+        appendLine("用户学习状态：${studyContext(characterId)}")
     }.trim()
 
     private fun batteryContext(context: Context): String {
