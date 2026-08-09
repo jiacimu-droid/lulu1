@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-09T08:58:25.687449+00:00",
-  "commit": "cffaae60ed7b8988761c82aa308dd2a02bbae2d4",
+  "generatedAt": "2026-08-09T09:00:19.548813+00:00",
+  "commit": "33e3f82709132e0863430b41250119bf27b20e61",
   "branch": "main",
-  "sourceFingerprint": "a20dda1b4542beb341dfd0d19161a02661eee14328a5dd95eb83e285a6066204",
+  "sourceFingerprint": "c882919848bc822dc1d9195a4485605e4f27301094a7456ab8d821615689feb2",
   "summary": {
     "files": 156,
-    "lines": 44563,
+    "lines": 44568,
     "symbols": 637
   },
   "symbolIndex": {
@@ -327,7 +327,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
-        "line": 82
+        "line": 87
       }
     ],
     "LuluImageSettingsScreen": [
@@ -3457,13 +3457,13 @@
     "updateRow": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
-        "line": 65
+        "line": 70
       }
     ],
     "addCustom": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
-        "line": 70
+        "line": 75
       }
     ],
     "draw": [
@@ -6894,20 +6894,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
-      "lines": 323,
-      "sha256": "778afcc9385fd4686fdb2dc92fb8df14a3c4be3b2d2f3290d220386b14985b3e",
+      "lines": 328,
+      "sha256": "a491b1a2def863e790fb3654911c9ce51c9496104b9572943133fd276592adac",
       "symbols": [
         {
           "name": "updateRow",
-          "line": 65
-        },
-        {
-          "name": "addCustom",
           "line": 70
         },
         {
+          "name": "addCustom",
+          "line": 75
+        },
+        {
           "name": "save",
-          "line": 82
+          "line": 87
         }
       ]
     },
