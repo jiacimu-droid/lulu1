@@ -490,14 +490,23 @@ class PostgraduateExamStore internal constructor(context: Context) {
         val rewardRuleId = initial.rewardRuleId
         if (rewardRuleId == null) {
             val scroll = initial.title.substringBefore(" ·")
-            val old = inventory.blueFragments[scroll] ?: 0
+            val old = (inventory.blueFragments[scroll] ?: 0).coerceIn(0, BLUE_FRAGMENTS_PER_SCROLL)
             val full = old >= BLUE_FRAGMENTS_PER_SCROLL
-            result = initial.copy(
-                title = if (full) "$scroll · 专属碎片（已满）" else "$scroll · 专属碎片 ${old + 1}/$BLUE_FRAGMENTS_PER_SCROLL",
-                inventoryChanged = !full,
-            )
-            if (!full) {
+            if (full) {
+                result = initial.copy(
+                    title = "$scroll · 已满，返还碎片 +$BLUE_FULL_DUPLICATE_RETURN_FRAGMENTS",
+                    amount = BLUE_FULL_DUPLICATE_RETURN_FRAGMENTS,
+                    inventoryChanged = true,
+                )
+                inventory = inventory.copy(
+                    returnedBlueFragments = inventory.returnedBlueFragments + BLUE_FULL_DUPLICATE_RETURN_FRAGMENTS,
+                )
+            } else {
                 val next = old + 1
+                result = initial.copy(
+                    title = "$scroll · 专属碎片 $next/$BLUE_FRAGMENTS_PER_SCROLL",
+                    inventoryChanged = true,
+                )
                 inventory = inventory.copy(
                     blueFragments = inventory.blueFragments + (scroll to next),
                     unlockedScrolls = if (next >= BLUE_FRAGMENTS_PER_SCROLL && scroll !in inventory.unlockedScrolls) inventory.unlockedScrolls + scroll else inventory.unlockedScrolls,
