@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-09T15:24:36.160931+00:00",
-  "commit": "b9c4c953e2f29c0cc40da8bd8e5700f8ceaf718c",
+  "generatedAt": "2026-08-09T15:26:55.969962+00:00",
+  "commit": "3c41171df5de1107934df5f1f06ee2ee5bed1f63",
   "branch": "main",
-  "sourceFingerprint": "1d73f0de62c385122a277f8298e60aba9ad2d9c910b813ac59c64e060e39f6fd",
+  "sourceFingerprint": "b9e4408a8ccf6d8ba9787affb3ac5e76c862c18827d657123a44906887572174",
   "summary": {
     "files": 156,
-    "lines": 44657,
-    "symbols": 633
+    "lines": 44695,
+    "symbols": 634
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -153,7 +153,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 894
+        "line": 932
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
@@ -2549,7 +2549,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 30
+        "line": 31
       }
     ],
     "selectCharacters": [
@@ -2985,205 +2985,211 @@
     "PostgraduateExamStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 17
+        "line": 18
       }
     ],
     "syncDate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 26
+        "line": 27
       }
     ],
     "signIn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 35
+        "line": 36
       }
     ],
     "applyInactivityPenalty": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 125
+        "line": 126
       }
     ],
     "addTask": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 145
+        "line": 146
       }
     ],
     "deleteTask": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 164
+        "line": 165
       }
     ],
     "toggleTask": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 166
+        "line": 167
       }
     ],
     "reviewVocabulary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 205
+        "line": 206
       }
     ],
     "addPlanItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 220
+        "line": 221
       }
     ],
     "togglePlanItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 226
+        "line": 227
       }
     ],
     "deletePlanItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 228
+        "line": 229
       }
     ],
     "removePlanItemsByTitle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 229
+        "line": 230
       }
     ],
     "replaceRollingPlanItems": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 233
+        "line": 234
       }
     ],
     "addTip": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 237
+        "line": 238
       }
     ],
     "toggleSchedule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 289
+        "line": 290
       }
     ],
     "clearSchedule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 291
+        "line": 292
       }
     ],
     "setPomodoroDuration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 292
+        "line": 293
       }
     ],
     "togglePomodoroVoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 301
+        "line": 302
       }
     ],
     "togglePomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 303
+        "line": 304
       }
     ],
     "syncPomodoroClock": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 314
+        "line": 315
       }
     ],
     "resetPomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 327
+        "line": 328
       }
     ],
     "completePomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 331
+        "line": 332
       }
     ],
     "saveGachaRules": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 376
+        "line": 377
       }
     ],
     "drawSingle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 402
+        "line": 403
       }
     ],
     "drawTen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 404
+        "line": 405
       }
     ],
     "claimSuperMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 536
+        "line": 543
       }
     ],
     "dismissSuperMomentCelebration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 547
+        "line": 554
       }
     ],
     "exchangeSingleTicketsForTen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 551
+        "line": 558
       }
     ],
     "redeemEntertainment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 567
+        "line": 574
       }
     ],
     "redeemCustomReward": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 610
+        "line": 617
       }
     ],
     "claimAchievement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 627
+        "line": 634
       }
     ],
     "refreshShop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 646
+        "line": 653
       }
     ],
     "buyShopItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 661
+        "line": 668
+      }
+    ],
+    "nextId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
+        "line": 890
       }
     ],
     "PostgraduateExamStores": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 889
+        "line": 927
       }
     ],
     "books": [
@@ -6415,152 +6421,156 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-      "lines": 899,
-      "sha256": "2a1af477cd8336e4acb2b40f3257c31f17393002ad363a15d042007b1482e295",
+      "lines": 937,
+      "sha256": "c4f6d87b3d44a94e460ade79a98a6734ad6a1e201f1a5136ca91db4031f0c748",
       "symbols": [
         {
           "name": "PostgraduateExamStore",
-          "line": 17
+          "line": 18
         },
         {
           "name": "syncDate",
-          "line": 26
+          "line": 27
         },
         {
           "name": "selectCharacter",
-          "line": 30
+          "line": 31
         },
         {
           "name": "signIn",
-          "line": 35
+          "line": 36
         },
         {
           "name": "applyInactivityPenalty",
-          "line": 125
+          "line": 126
         },
         {
           "name": "addTask",
-          "line": 145
+          "line": 146
         },
         {
           "name": "deleteTask",
-          "line": 164
+          "line": 165
         },
         {
           "name": "toggleTask",
-          "line": 166
+          "line": 167
         },
         {
           "name": "reviewVocabulary",
-          "line": 205
+          "line": 206
         },
         {
           "name": "addPlanItem",
-          "line": 220
+          "line": 221
         },
         {
           "name": "togglePlanItem",
-          "line": 226
+          "line": 227
         },
         {
           "name": "deletePlanItem",
-          "line": 228
-        },
-        {
-          "name": "removePlanItemsByTitle",
           "line": 229
         },
         {
+          "name": "removePlanItemsByTitle",
+          "line": 230
+        },
+        {
           "name": "replaceRollingPlanItems",
-          "line": 233
+          "line": 234
         },
         {
           "name": "addTip",
-          "line": 237
+          "line": 238
         },
         {
           "name": "toggleSchedule",
-          "line": 289
+          "line": 290
         },
         {
           "name": "clearSchedule",
-          "line": 291
-        },
-        {
-          "name": "setPomodoroDuration",
           "line": 292
         },
         {
+          "name": "setPomodoroDuration",
+          "line": 293
+        },
+        {
           "name": "togglePomodoroVoice",
-          "line": 301
+          "line": 302
         },
         {
           "name": "togglePomodoro",
-          "line": 303
+          "line": 304
         },
         {
           "name": "syncPomodoroClock",
-          "line": 314
+          "line": 315
         },
         {
           "name": "resetPomodoro",
-          "line": 327
+          "line": 328
         },
         {
           "name": "completePomodoro",
-          "line": 331
+          "line": 332
         },
         {
           "name": "saveGachaRules",
-          "line": 376
+          "line": 377
         },
         {
           "name": "drawSingle",
-          "line": 402
+          "line": 403
         },
         {
           "name": "drawTen",
-          "line": 404
+          "line": 405
         },
         {
           "name": "claimSuperMoment",
-          "line": 536
+          "line": 543
         },
         {
           "name": "dismissSuperMomentCelebration",
-          "line": 547
+          "line": 554
         },
         {
           "name": "exchangeSingleTicketsForTen",
-          "line": 551
+          "line": 558
         },
         {
           "name": "redeemEntertainment",
-          "line": 567
+          "line": 574
         },
         {
           "name": "redeemCustomReward",
-          "line": 610
+          "line": 617
         },
         {
           "name": "claimAchievement",
-          "line": 627
+          "line": 634
         },
         {
           "name": "refreshShop",
-          "line": 646
+          "line": 653
         },
         {
           "name": "buyShopItem",
-          "line": 661
+          "line": 668
+        },
+        {
+          "name": "nextId",
+          "line": 890
         },
         {
           "name": "PostgraduateExamStores",
-          "line": 889
+          "line": 927
         },
         {
           "name": "initialize",
-          "line": 894
+          "line": 932
         }
       ]
     },
