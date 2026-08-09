@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ArrowBack
@@ -15,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.util.UUID
@@ -56,8 +56,13 @@ internal fun StudyGachaProbabilityScreen(
     var message by remember { mutableStateOf("") }
 
     val parsedProbabilities = rows.map { it.probability.replace(',', '.').toDoubleOrNull() }
-    val invalidProbability = parsedProbabilities.any { it == null || !it.isFinite() || it < 0.0 || it > 100.0 }
-    val invalidAmount = rows.any { it.amount.toIntOrNull() !in 1..999 }
+    val invalidProbability = parsedProbabilities.any { value ->
+        value == null || !value.isFinite() || value < 0.0 || value > 100.0
+    }
+    val invalidAmount = rows.any { row ->
+        val amount = row.amount.toIntOrNull()
+        amount == null || amount !in 1..999
+    }
     val invalidTitle = rows.any { it.custom && it.title.trim().isBlank() }
     val nonBlueTotal = parsedProbabilities.filterNotNull().sum()
     val blueProbability = (100.0 - nonBlueTotal).coerceAtLeast(0.0)
