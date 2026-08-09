@@ -8,6 +8,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
 
+private const val APOCALYPSE_ISOLATED_CHARACTER_ID = "__apocalypse_v5_isolated_world__"
+
 private fun apocalypsePlayerSecondaryPromptV5(config: ApocalypseV3Config): String {
     val choice = apocalypsePlayerSecondaryChoiceV5(config)
     val ability = apocalypseAbilityDefinitionV5(choice)
@@ -18,6 +20,22 @@ private fun apocalypsePlayerSecondaryPromptV5(config: ApocalypseV3Config): Strin
     }
 }
 
+private fun apocalypsePartyStylePromptV5(
+    party: List<CharacterSettings>,
+    config: ApocalypseV3Config,
+): String = party.joinToString("\n") { character ->
+    val choice = companionAbilityChoice(config, character.characterId)
+    val ability = apocalypseAbilityDefinitionV5(choice)
+    buildString {
+        append("- characterId=${character.characterId}；游戏显示名=${character.displayName}；")
+        append("风格原始资料=${character.persona.ifBlank { "暂无额外风格资料" }}；")
+        append("本局异能=${ability.name}/${choice.branch}/${ability.rarity.label}/${ability.potential}")
+    }
+}
+
+private fun apocalypseIsolationRuleV5(): String =
+    "本作是与露露机主世界完全隔离的独立世界。角色资料只允许提取性格、说话方式、外貌、习惯、情绪表达和行为风格；资料中涉及原身份、职业、时代、阵营、原世界背景、与玩家或其他角色的原关系、聊天经历、共同事件、承诺、记忆、主时间线状态的内容全部视为禁用信息，不能成为本局事实。本局身份、关系和共同经历只能由当前存档内已经发生的剧情建立。"
+
 internal suspend fun planApocalypseV5Beat(
     save: ApocalypseV3Save,
     config: ApocalypseV3Config,
@@ -25,13 +43,10 @@ internal suspend fun planApocalypseV5Beat(
     action: String,
 ): ApocalypseV3Beat {
     val director = save.director
-    val partyPrompt = party.joinToString("\n") { character ->
-        val choice = companionAbilityChoice(config, character.characterId)
-        val ability = apocalypseAbilityDefinitionV5(choice)
-        "- id=${character.characterId}；${character.displayName}；人设=${character.persona.ifBlank { "遵循既有人设" }}；能力=${ability.name}；稀有度=${ability.rarity.label}；潜力=${ability.potential}；分化=${choice.branch}"
-    }
+    val partyPrompt = apocalypsePartyStylePromptV5(party, config)
     val facts = buildString {
         appendLine("互动长篇：《末世求生·赤潮纪元》")
+        appendLine(apocalypseIsolationRuleV5())
         appendLine("世界模式：${config.worldMode}")
         appendLine(playerSpacePrompt(save.stats))
         appendLine(apocalypsePlayerSecondaryPromptV5(config))
@@ -53,12 +68,21 @@ internal suspend fun planApocalypseV5Beat(
         appendLine("已确认世界事实：${director.worldFacts.takeLast(24).joinToString("｜")}")
         appendLine("已知地点：${director.locations.joinToString("｜") { it.name }}")
         appendLine("已获得资产：${director.assets.joinToString("｜") { "${it.kind.label}:${it.title}" }}")
-        appendLine("同行者硬设定：\n$partyPrompt")
+        appendLine("同行角色风格参考（只按隔离规则提取风格，不继承其中身份/关系/经历）：\n$partyPrompt")
+        if (save.log.isNotEmpty()) {
+            appendLine("本局仍保留的最近剧情记录（这是唯一可用的跨幕共同经历）：\n${save.log.takeLast(8).joinToString("\n---\n")}")
+        }
         appendLine("玩家行动：$action")
         appendLine("上一幕：\n${save.narration.takeLast(3000)}")
     }
     val instruction = """
         你是长篇互动游戏《末世求生》的隐藏总导演。你不写正文，只维护世界、长线剧情和下一幕导演意图。只返回 JSON，不加代码块。
+
+        【世界隔离是最高优先级】
+        - 这是独立游戏世界，不是露露机主世界的延续、梦境、番外或平行记忆回放。
+        - 不得调用、猜测或补全主聊天、主时间线、辞海、世界书、角色长期记忆、共同活动、承诺、原世界身份和原关系。
+        - 同行角色只继承输入资料里的性格、说话方式、外貌、习惯、情绪表达与行为风格。即使风格原始资料里写了职业、身份、关系或过去经历，也必须忽略这些部分。
+        - 角色在本局里的身份、关系、经历只由当前存档的世界事实、导演状态、保留剧情记录和上一幕决定。已经从存档删除的剧情不得靠推测重建。
 
         返回字段：phase, location, sceneGoal, beatType, tension, activeThreads, hiddenThreads, worldFacts,
         longTermPlan, factionStates, characterArcs, foreshadowPlan, worldDelta, directive,
@@ -97,7 +121,7 @@ internal suspend fun planApocalypseV5Beat(
     """.trimIndent()
 
     return LuluAiServices.gateway.generate(
-        characterId = party.firstOrNull()?.characterId ?: "lulu",
+        characterId = APOCALYPSE_ISOLATED_CHARACTER_ID,
         facts = facts,
         instruction = instruction,
         source = "末世求生V5导演",
@@ -120,12 +144,9 @@ internal suspend fun writeApocalypseV5Scene(
     beat: ApocalypseV3Beat,
     nextStats: ApocalypseV3Stats,
 ): Result<String> {
-    val partyPrompt = party.joinToString("\n") { character ->
-        val choice = companionAbilityChoice(config, character.characterId)
-        val ability = apocalypseAbilityDefinitionV5(choice)
-        "- characterId=${character.characterId}；名字=${character.displayName}；人设=${character.persona.ifBlank { "遵循既有人设" }}；异能=${ability.name}/${choice.branch}/${ability.rarity.label}"
-    }
+    val partyPrompt = apocalypsePartyStylePromptV5(party, config)
     val facts = buildString {
+        appendLine(apocalypseIsolationRuleV5())
         appendLine("玩家行动：$action")
         appendLine("阶段：${beat.nextDirector.phase}；地点：${beat.nextDirector.location}；威胁：${beat.nextDirector.tension}/10")
         appendLine(playerSpacePrompt(nextStats))
@@ -138,12 +159,20 @@ internal suspend fun writeApocalypseV5Scene(
         appendLine("导演动作：${beat.beatType}；本幕目标：${beat.nextDirector.sceneGoal}")
         appendLine("世界变化：${beat.worldDelta}")
         appendLine("导演执行指令：${beat.directive}")
-        appendLine("同行者：\n$partyPrompt")
+        appendLine("同行角色风格参考（只按隔离规则提取风格，不继承其中身份/关系/经历）：\n$partyPrompt")
         appendLine("当前明线：${beat.nextDirector.activeThreads.joinToString("｜")}")
+        if (save.log.isNotEmpty()) {
+            appendLine("本局仍保留的最近剧情记录：\n${save.log.takeLast(8).joinToString("\n---\n")}")
+        }
         appendLine("上一幕：\n${save.narration.takeLast(3000)}")
     }
     val instruction = """
         写一幕高质量中文末世互动视觉小说，约750—1200字。不要输出选项、数值面板、解释、Markdown或JSON。
+
+        【世界隔离是最高优先级】
+        - 这是独立游戏世界。不得带入露露机主聊天、主时间线、辞海、世界书、角色长期记忆、共同活动、承诺、原身份、原职业、原世界背景或原关系。
+        - 同行者只继承提供资料中的性格、说话方式、外貌、习惯、情绪表达与行为风格；风格资料中的身份、关系和过去经历一律忽略。
+        - 本局内的人际关系和共同经历只能由当前存档已经保留的剧情形成。已删除的剧情、后果和关系变化不得自行补回。
 
         【必须遵守的视觉小说格式】
         每个显示段单独一段，并且段首必须是以下三种标记之一：
@@ -151,11 +180,11 @@ internal suspend fun writeApocalypseV5Scene(
         【玩家】只用于玩家本人正在直接说话的段落。
         【角色:<characterId>】用于某位同行角色正在说话的段落，characterId必须从同行者清单原样复制。
         同一段只能有一个当前说话人；两个人连续说话必须拆成两段。不要把标记写到句子中间。
-        每段通常1—3句，目标40—90字；客户端还会把超过96字的段落强制切开。
+        每段通常1—2句，目标30—70字；客户端会在不删减任何文字和标点的前提下继续细分长段落。
 
         文学与玩法规则：
         - 玩家刚才的行动必须真实发生并有现实后果，不能偷换成编剧想让玩家做的事。
-        - 同行者严格保持露露机既有人设与关系；异能按设定和分化使用，普通人不能突然觉醒。
+        - 同行者严格保持允许继承的性格、语言、外貌、习惯和行为风格；本局关系只按本局已发生剧情发展。异能按设定和分化使用，普通人不能突然觉醒。
         - 玩家拥有两个异能槽：第一异能固定为空间；第二异能以硬设定为准。没有选择第二异能时绝不能临时补一个。
         - 空间异能当前等级要大胆使用但不能越级；第二异能也不能无代价无限使用。
         - 灾前异能者约8%，所以路人和普通幸存者默认仍应以普通人为主；可以通过末世淘汰让幸存队伍中的异能者比例逐渐提高，但不要写成遍地超能力。
@@ -174,7 +203,7 @@ internal suspend fun writeApocalypseV5Scene(
     """.trimIndent()
 
     return LuluAiServices.gateway.generate(
-        characterId = party.firstOrNull()?.characterId ?: "lulu",
+        characterId = APOCALYPSE_ISOLATED_CHARACTER_ID,
         facts = facts,
         instruction = instruction,
         source = "末世求生V5正文",
