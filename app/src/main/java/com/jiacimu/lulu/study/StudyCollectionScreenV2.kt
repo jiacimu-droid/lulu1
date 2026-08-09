@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 private data class CompactCollectionTicket(
+    val id: String,
     val title: String,
     val amount: Int,
     val use: () -> Unit,
@@ -36,31 +37,40 @@ internal fun StudyCollectionScreenV2(
 
     val builtInTickets = listOf(
         CompactCollectionTicket(
-            savedTitle(StudyGachaRewardType.Douyin, "抖音时长券 · 20分钟"),
-            state.inventory.douyinTickets,
+            id = GACHA_ID_DOUYIN,
+            title = savedTitle(StudyGachaRewardType.Douyin, "抖音时长券 · 20分钟"),
+            amount = state.inventory.douyinTickets,
         ) { message = store.redeemEntertainment(StudyEntertainmentKind.Douyin) },
         CompactCollectionTicket(
-            savedTitle(StudyGachaRewardType.GameRound, "游戏局数券 · 4局"),
-            state.inventory.gameRoundTickets,
+            id = GACHA_ID_GAME_ROUND,
+            title = savedTitle(StudyGachaRewardType.GameRound, "游戏局数券 · 4局"),
+            amount = state.inventory.gameRoundTickets,
         ) { message = store.redeemEntertainment(StudyEntertainmentKind.GameRound) },
         CompactCollectionTicket(
-            savedTitle(StudyGachaRewardType.Theater, "小剧场券"),
-            state.inventory.theaterFragments,
+            id = GACHA_ID_THEATER,
+            title = savedTitle(StudyGachaRewardType.Theater, "小剧场券"),
+            amount = state.inventory.theaterFragments,
         ) {
             message = store.redeemEntertainment(StudyEntertainmentKind.Theater)
             if (!message.contains("不足") && !message.contains("全部")) onOpenTheater()
         },
         CompactCollectionTicket(
-            savedTitle(StudyGachaRewardType.Movie, "电影券 · 1部"),
-            state.inventory.gameTickets,
+            id = GACHA_ID_MOVIE,
+            title = savedTitle(StudyGachaRewardType.Movie, "电影券 · 1部"),
+            amount = state.inventory.gameTickets,
         ) { message = store.redeemEntertainment(StudyEntertainmentKind.Game) },
         CompactCollectionTicket(
-            savedTitle(StudyGachaRewardType.Anime, "影视剧一季兑换券"),
-            state.inventory.animeTickets,
+            id = GACHA_ID_ANIME,
+            title = savedTitle(StudyGachaRewardType.Anime, "影视剧一季兑换券"),
+            amount = state.inventory.animeTickets,
         ) { message = store.redeemEntertainment(StudyEntertainmentKind.Anime) },
     )
     val customTickets = state.gachaRules.filter(StudyGachaRule::custom).map { rule ->
-        CompactCollectionTicket(rule.title, state.inventory.customRewards[rule.id] ?: 0) {
+        CompactCollectionTicket(
+            id = rule.id,
+            title = rule.title,
+            amount = state.inventory.customRewards[rule.id] ?: 0,
+        ) {
             message = store.redeemCustomReward(rule.id)
         }
     }
@@ -82,7 +92,7 @@ internal fun StudyCollectionScreenV2(
             }
         }
 
-        items(builtInTickets, key = { it.title }) { ticket ->
+        items(builtInTickets, key = { it.id }) { ticket ->
             CompactCollectionTicketCard(ticket)
         }
 
@@ -90,7 +100,7 @@ internal fun StudyCollectionScreenV2(
             item(key = "custom-rewards-title") {
                 Text("自定义奖励", fontSize = 17.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp))
             }
-            items(customTickets, key = { it.title }) { ticket ->
+            items(customTickets, key = { it.id }) { ticket ->
                 CompactCollectionTicketCard(ticket)
             }
         }
