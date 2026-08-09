@@ -374,6 +374,32 @@ class PostgraduateExamStore internal constructor(context: Context) {
         return message
     }
 
+    fun saveGachaRules(rules: List<StudyGachaRule>): String {
+        if (rules.any { it.custom && it.title.trim().isBlank() }) return "保存失败：自定义项目名称不能为空"
+        if (rules.any { !it.probabilityPercent.isFinite() || it.probabilityPercent < 0.0 || it.probabilityPercent > 100.0 }) {
+            return "保存失败：单项概率必须在 0% 到 100% 之间"
+        }
+        if (rules.any { it.amountPerDraw !in 1..999 }) return "保存失败：单次获得数量必须在 1 到 999 之间"
+        val repaired = repairGachaRules(rules)
+        val total = repaired.sumOf(StudyGachaRule::probabilityPercent)
+        if (total > 100.000001) return "保存失败：紫色、金色、彩色项目合计概率不能超过 100%"
+        val customIds = repaired.filter(StudyGachaRule::custom).mapTo(mutableSetOf(), StudyGachaRule::id)
+        mutate { state ->
+            state.copy(
+                gachaRules = repaired,
+                inventory = state.inventory.copy(
+                    customRewards = state.inventory.customRewards.filterKeys { it in customIds },
+                ),
+                events = addEvent(
+                    state.events,
+                    "抽卡概率设计",
+                    "已保存 ${repaired.size} 个非蓝色项目；蓝色画卷使用剩余概率 ${probabilityText((100.0 - total).coerceAtLeast(0.0))}%",
+                ),
+            )
+        }
+        return "已保存 · 蓝色画卷 ${probabilityText((100.0 - total).coerceAtLeast(0.0))}%"
+    }
+
     fun drawSingle(): List<StudyDrawResult> = draw(1)
     fun drawTen(): List<StudyDrawResult> = draw(10)
 
@@ -395,7 +421,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
             val generated = mutableListOf<StudyDrawResult>()
             repeat(drawCount) {
                 val forcedRare = working.drawsSinceNonNormal >= NON_NORMAL_PITY - 1
-                val base = if (forcedRare) drawRare() else drawOne()
+                val base = if (forcedRare) drawRare(working.gachaRules) else drawOne(working.gachaRules)
                 val applied = applyDraw(working, base)
                 working = applied.first
                 generated += applied.second
@@ -415,93 +441,85 @@ class PostgraduateExamStore internal constructor(context: Context) {
         return results
     }
 
-    private fun drawOne(): StudyDrawResult {
-        val roll = Random.nextDouble()
-        return when {
-            roll < 0.9395 -> {
-                val scroll = blueFragmentCatalog.random()
-                StudyDrawResult(kind = StudyDrawKind.OutfitFragment, title = "$scroll · 专属碎片", inventoryChanged = true)
-            }
-            roll < 0.9645 -> StudyDrawResult(
-                kind = StudyDrawKind.DouyinTicket,
-                title = StudyDrawKind.DouyinTicket.label,
-                inventoryChanged = true,
-            )
-            roll < 0.9745 -> StudyDrawResult(
-                kind = StudyDrawKind.GameRoundTicket,
-                title = StudyDrawKind.GameRoundTicket.label,
-                inventoryChanged = true,
-            )
-            roll < 0.9845 -> StudyDrawResult(
-                kind = StudyDrawKind.TheaterFragment,
-                title = StudyDrawKind.TheaterFragment.label,
-                inventoryChanged = true,
-            )
-            roll < 0.9925 -> StudyDrawResult(
-                kind = StudyDrawKind.GameTicket,
-                title = StudyDrawKind.GameTicket.label,
-                inventoryChanged = true,
-            )
-            roll < 0.9965 -> StudyDrawResult(
-                kind = StudyDrawKind.VideoCard,
-                title = StudyDrawKind.VideoCard.label,
-                inventoryChanged = true,
-            )
-            else -> StudyDrawResult(
-                kind = StudyDrawKind.AnimeTicket,
-                title = StudyDrawKind.AnimeTicket.label,
-                inventoryChanged = true,
-            )
+    private fun drawOne(rules: List<StudyGachaRule>): StudyDrawResult {
+        val active = repairGachaRules(rules).filter { it.probabilityPercent > 0.0 }
+        val roll = Random.nextDouble(100.0)
+        var cursor = 0.0
+        active.forEach { rule ->
+            cursor += rule.probabilityPercent
+            if (roll < cursor.coerceAtMost(100.0)) return rule.toDrawResult()
         }
+        val scroll = blueFragmentCatalog.random()
+        return StudyDrawResult(
+            rewardRuleId = null,
+            title = "$scroll · 专属碎片",
+            rarity = StudyRarity.Normal,
+            amount = 1,
+            inventoryChanged = true,
+        )
     }
 
-    private fun drawRare(): StudyDrawResult {
-        val roll = Random.nextDouble()
-        return when {
-            roll < 5.0 / 9.0 -> StudyDrawResult(
-                kind = StudyDrawKind.DouyinTicket,
-                title = StudyDrawKind.DouyinTicket.label,
-                inventoryChanged = true,
-            )
-            roll < 7.0 / 9.0 -> StudyDrawResult(
-                kind = StudyDrawKind.GameRoundTicket,
-                title = StudyDrawKind.GameRoundTicket.label,
-                inventoryChanged = true,
-            )
-            else -> StudyDrawResult(
-                kind = StudyDrawKind.TheaterFragment,
-                title = StudyDrawKind.TheaterFragment.label,
-                inventoryChanged = true,
-            )
+    private fun drawRare(rules: List<StudyGachaRule>): StudyDrawResult {
+        val repaired = repairGachaRules(rules)
+        val rare = repaired.filter { it.rarity == StudyRarity.Rare && it.probabilityPercent > 0.0 }
+        val pool = rare.ifEmpty { repaired.filter { it.probabilityPercent > 0.0 } }
+        if (pool.isEmpty()) return drawOne(emptyList())
+        val total = pool.sumOf(StudyGachaRule::probabilityPercent)
+        var roll = Random.nextDouble(total)
+        pool.forEach { rule ->
+            if (roll < rule.probabilityPercent) return rule.toDrawResult()
+            roll -= rule.probabilityPercent
         }
+        return pool.last().toDrawResult()
+    }
+
+    private fun StudyGachaRule.toDrawResult(): StudyDrawResult {
+        val amount = amountPerDraw.coerceIn(1, 999)
+        return StudyDrawResult(
+            rewardRuleId = id,
+            title = if (amount > 1) "$title ×$amount" else title,
+            rarity = rarity,
+            amount = amount,
+            inventoryChanged = true,
+        )
     }
 
     private fun applyDraw(state: StudyState, initial: StudyDrawResult): Pair<StudyState, StudyDrawResult> {
         var inventory = state.inventory
         var result = initial
-        when (initial.kind) {
-            StudyDrawKind.OutfitFragment -> {
-                val scroll = initial.title.substringBefore(" ·")
-                val old = inventory.blueFragments[scroll] ?: 0
-                val full = old >= BLUE_FRAGMENTS_PER_SCROLL
-                result = initial.copy(
-                    title = if (full) "$scroll · 专属碎片（已满）" else "$scroll · 专属碎片 ${old + 1}/$BLUE_FRAGMENTS_PER_SCROLL",
-                    inventoryChanged = !full,
+        val rewardRuleId = initial.rewardRuleId
+        if (rewardRuleId == null) {
+            val scroll = initial.title.substringBefore(" ·")
+            val old = inventory.blueFragments[scroll] ?: 0
+            val full = old >= BLUE_FRAGMENTS_PER_SCROLL
+            result = initial.copy(
+                title = if (full) "$scroll · 专属碎片（已满）" else "$scroll · 专属碎片 ${old + 1}/$BLUE_FRAGMENTS_PER_SCROLL",
+                inventoryChanged = !full,
+            )
+            if (!full) {
+                val next = old + 1
+                inventory = inventory.copy(
+                    blueFragments = inventory.blueFragments + (scroll to next),
+                    unlockedScrolls = if (next >= BLUE_FRAGMENTS_PER_SCROLL && scroll !in inventory.unlockedScrolls) inventory.unlockedScrolls + scroll else inventory.unlockedScrolls,
                 )
-                if (!full) {
-                    val next = old + 1
-                    inventory = inventory.copy(
-                        blueFragments = inventory.blueFragments + (scroll to next),
-                        unlockedScrolls = if (next >= BLUE_FRAGMENTS_PER_SCROLL && scroll !in inventory.unlockedScrolls) inventory.unlockedScrolls + scroll else inventory.unlockedScrolls,
+            }
+        } else {
+            val rule = repairGachaRules(state.gachaRules).firstOrNull { it.id == rewardRuleId }
+            if (rule == null) {
+                result = initial.copy(inventoryChanged = false)
+            } else {
+                val amount = initial.amount.coerceIn(1, 999)
+                inventory = when (rule.type) {
+                    StudyGachaRewardType.Douyin -> inventory.copy(douyinTickets = inventory.douyinTickets + amount)
+                    StudyGachaRewardType.GameRound -> inventory.copy(gameRoundTickets = inventory.gameRoundTickets + amount)
+                    StudyGachaRewardType.Theater -> inventory.copy(theaterFragments = inventory.theaterFragments + amount)
+                    StudyGachaRewardType.Movie -> inventory.copy(gameTickets = inventory.gameTickets + amount)
+                    StudyGachaRewardType.Anime -> inventory.copy(animeTickets = inventory.animeTickets + amount)
+                    StudyGachaRewardType.Custom -> inventory.copy(
+                        customRewards = inventory.customRewards + (rule.id to ((inventory.customRewards[rule.id] ?: 0) + amount)),
                     )
                 }
             }
-            StudyDrawKind.DouyinTicket -> inventory = inventory.copy(douyinTickets = inventory.douyinTickets + 1)
-            StudyDrawKind.GameRoundTicket -> inventory = inventory.copy(gameRoundTickets = inventory.gameRoundTickets + 1)
-            StudyDrawKind.TheaterFragment -> inventory = inventory.copy(theaterFragments = inventory.theaterFragments + 1)
-            StudyDrawKind.GameTicket -> inventory = inventory.copy(gameTickets = inventory.gameTickets + 1)
-            StudyDrawKind.VideoCard -> inventory = inventory.copy(videoCards = inventory.videoCards + 1)
-            StudyDrawKind.AnimeTicket -> inventory = inventory.copy(animeTickets = inventory.animeTickets + 1)
         }
         val streak = if (result.rarity == StudyRarity.Normal) state.drawsSinceNonNormal + 1 else 0
         return state.copy(inventory = inventory, drawsSinceNonNormal = streak.coerceAtMost(NON_NORMAL_PITY - 1)) to result
@@ -571,25 +589,29 @@ class PostgraduateExamStore internal constructor(context: Context) {
                     message = "电影券已使用 · 可观看1部电影"
                     state.copy(inventory = inventory.copy(gameTickets = inventory.gameTickets - 1), events = addEvent(state.events, "娱乐券", message))
                 }
-                StudyEntertainmentKind.Video -> {
-                    if (inventory.videoCards <= 0) return@mutate state
-                    val next = videoCatalog.firstOrNull { it !in inventory.unlockedVideos }
-                    if (next == null) {
-                        message = "视频已经全部解锁"
-                        return@mutate state
-                    }
-                    message = "解锁视频《$next》"
-                    state.copy(
-                        inventory = inventory.copy(videoCards = inventory.videoCards - 1, unlockedVideos = inventory.unlockedVideos + next),
-                        events = addEvent(state.events, "视频收藏", message),
-                    )
-                }
                 StudyEntertainmentKind.Anime -> {
                     if (inventory.animeTickets <= 0) return@mutate state
                     message = "影视剧一季兑换券已使用 · 可兑换一整季"
                     state.copy(inventory = inventory.copy(animeTickets = inventory.animeTickets - 1), events = addEvent(state.events, "娱乐券", message))
                 }
             }
+        }
+        return message
+    }
+
+    fun redeemCustomReward(ruleId: String): String {
+        var message = "对应收藏数量不足"
+        mutate { state ->
+            val rule = state.gachaRules.firstOrNull { it.id == ruleId && it.custom } ?: return@mutate state
+            val current = state.inventory.customRewards[ruleId] ?: 0
+            if (current <= 0) return@mutate state
+            message = "已使用：${rule.title}"
+            val nextMap = if (current <= 1) state.inventory.customRewards - ruleId
+            else state.inventory.customRewards + (ruleId to current - 1)
+            state.copy(
+                inventory = state.inventory.copy(customRewards = nextMap),
+                events = addEvent(state.events, "自定义收藏", message),
+            )
         }
         return message
     }
@@ -648,7 +670,6 @@ class PostgraduateExamStore internal constructor(context: Context) {
                 StudyShopReward.GameRoundTicket -> inventory.copy(gameRoundTickets = inventory.gameRoundTickets + item.amount)
                 StudyShopReward.TheaterFragment -> inventory.copy(theaterFragments = inventory.theaterFragments + item.amount)
                 StudyShopReward.GameTicket -> inventory.copy(gameTickets = inventory.gameTickets + item.amount)
-                StudyShopReward.VideoCard -> inventory.copy(videoCards = inventory.videoCards + item.amount)
                 StudyShopReward.AnimeTicket -> inventory.copy(animeTickets = inventory.animeTickets + item.amount)
             }
             message = "购买成功：${item.title}"
@@ -818,6 +839,11 @@ class PostgraduateExamStore internal constructor(context: Context) {
 
     private fun addEvent(events: List<StudyEvent>, title: String, detail: String): List<StudyEvent> =
         (listOf(StudyEvent(title = title, detail = detail)) + events).take(MAX_EVENTS)
+
+    private fun probabilityText(value: Double): String {
+        val rounded = kotlin.math.round(value * 1000.0) / 1000.0
+        return if (rounded % 1.0 == 0.0) rounded.toInt().toString() else rounded.toString().trimEnd('0').trimEnd('.')
+    }
 
     private fun mutate(transform: (StudyState) -> StudyState) {
         mutableState.update(transform)
