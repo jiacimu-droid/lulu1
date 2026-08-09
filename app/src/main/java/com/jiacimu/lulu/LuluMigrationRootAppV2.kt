@@ -258,7 +258,7 @@ fun LuluMigrationRootAppV2(
                                 )
                                 MigrationRoute.Wishes -> StarWishMigratedScreen(
                                     onBack = ::popRoute,
-                                    initialTab = StarWishTab.valueOf(starWishInitialTab),
+                                    initialTab = runCatching { StarWishTab.valueOf(starWishInitialTab) }.getOrDefault(StarWishTab.Scroll),
                                 )
                                 MigrationRoute.Study -> PostgraduateExamApp(
                                     onBack = ::popRoute,
