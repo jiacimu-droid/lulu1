@@ -68,7 +68,6 @@ internal fun StarWishMigratedScreen(onBack: () -> Unit, initialTab: StarWishTab 
             when (tab) {
                 StarWishTab.Scroll -> StarWishScrollContent(state, studyState, store, context)
                 StarWishTab.Theater -> StarWishTheaterContentV2(state, studyState, store, studyStore)
-                StarWishTab.Video -> StarWishVideoContent(state, studyState, store, studyStore, context)
             }
         }
     }
