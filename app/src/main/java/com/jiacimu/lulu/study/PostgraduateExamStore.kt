@@ -13,6 +13,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.util.UUID
 import kotlin.random.Random
 
 class PostgraduateExamStore internal constructor(context: Context) {
@@ -486,6 +487,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
 
     private fun applyDraw(state: StudyState, initial: StudyDrawResult): Pair<StudyState, StudyDrawResult> {
         var inventory = state.inventory
+        var profile = state.profile
         var result = initial
         val rewardRuleId = initial.rewardRuleId
         if (rewardRuleId == null) {
@@ -494,12 +496,13 @@ class PostgraduateExamStore internal constructor(context: Context) {
             val full = old >= BLUE_FRAGMENTS_PER_SCROLL
             if (full) {
                 result = initial.copy(
-                    title = "$scroll · 已满，返还碎片 +$BLUE_FULL_DUPLICATE_RETURN_FRAGMENTS",
-                    amount = BLUE_FULL_DUPLICATE_RETURN_FRAGMENTS,
-                    inventoryChanged = true,
+                    title = "$scroll · 已满，夸夸值 +$BLUE_FULL_DUPLICATE_RETURN_PRAISE",
+                    amount = BLUE_FULL_DUPLICATE_RETURN_PRAISE,
+                    inventoryChanged = false,
                 )
-                inventory = inventory.copy(
-                    returnedBlueFragments = inventory.returnedBlueFragments + BLUE_FULL_DUPLICATE_RETURN_FRAGMENTS,
+                profile = profile.copy(
+                    praisePoints = profile.praisePoints + BLUE_FULL_DUPLICATE_RETURN_PRAISE,
+                    experience = profile.experience + BLUE_FULL_DUPLICATE_RETURN_PRAISE,
                 )
             } else {
                 val next = old + 1
@@ -531,7 +534,11 @@ class PostgraduateExamStore internal constructor(context: Context) {
             }
         }
         val streak = if (result.rarity == StudyRarity.Normal) state.drawsSinceNonNormal + 1 else 0
-        return state.copy(inventory = inventory, drawsSinceNonNormal = streak.coerceAtMost(NON_NORMAL_PITY - 1)) to result
+        return state.copy(
+            inventory = inventory,
+            profile = profile,
+            drawsSinceNonNormal = streak.coerceAtMost(NON_NORMAL_PITY - 1),
+        ) to result
     }
 
     fun claimSuperMoment(): String {
@@ -874,8 +881,39 @@ class PostgraduateExamStore internal constructor(context: Context) {
             .filterNotNull()
             .mapNotNull { runCatching { StudyStateCodec.decode(it) }.getOrNull() }
             .firstOrNull()
+            ?.let(::repairStableIds)
             ?.let(::updateAchievements)
-            ?: updateAchievements(StudyState())
+            ?: updateAchievements(repairStableIds(StudyState()))
+    }
+
+    private fun repairStableIds(state: StudyState): StudyState {
+        fun nextId(prefix: String, used: MutableSet<String>): String {
+            var candidate: String
+            do candidate = "$prefix-${UUID.randomUUID()}" while (!used.add(candidate))
+            return candidate
+        }
+
+        val taskIds = mutableSetOf<String>()
+        val tasks = state.tasks.map { item ->
+            val id = item.id.trim()
+            if (id.isNotBlank() && taskIds.add(id)) item else item.copy(id = nextId("task", taskIds))
+        }
+        val scheduleIds = mutableSetOf<String>()
+        val schedules = state.schedules.map { item ->
+            val id = item.id.trim()
+            if (id.isNotBlank() && scheduleIds.add(id)) item else item.copy(id = nextId("schedule", scheduleIds))
+        }
+        val planIds = mutableSetOf<String>()
+        val planItems = state.planItems.map { item ->
+            val id = item.id.trim()
+            if (id.isNotBlank() && planIds.add(id)) item else item.copy(id = nextId("plan", planIds))
+        }
+        val tipIds = mutableSetOf<String>()
+        val tips = state.tips.map { item ->
+            val id = item.id.trim()
+            if (id.isNotBlank() && tipIds.add(id)) item else item.copy(id = nextId("tip", tipIds))
+        }
+        return state.copy(tasks = tasks, schedules = schedules, planItems = planItems, tips = tips)
     }
 
     private companion object {
