@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-09T08:57:44.704405+00:00",
-  "commit": "b2ef25d616f94d5a96d87b27be6acc8e436aa634",
+  "generatedAt": "2026-08-09T08:58:25.687449+00:00",
+  "commit": "cffaae60ed7b8988761c82aa308dd2a02bbae2d4",
   "branch": "main",
-  "sourceFingerprint": "dd5e476ce780494427067dcfbac3fc3d8c050f25d789c81f86f1fe394a665bcd",
+  "sourceFingerprint": "a20dda1b4542beb341dfd0d19161a02661eee14328a5dd95eb83e285a6066204",
   "summary": {
-    "files": 155,
-    "lines": 44240,
-    "symbols": 634
+    "files": 156,
+    "lines": 44563,
+    "symbols": 637
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -324,6 +324,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
         "line": 174
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
+        "line": 82
       }
     ],
     "LuluImageSettingsScreen": [
@@ -3448,6 +3452,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
         "line": 177
+      }
+    ],
+    "updateRow": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
+        "line": 65
+      }
+    ],
+    "addCustom": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
+        "line": 70
       }
     ],
     "draw": [
@@ -6873,6 +6889,25 @@
         {
           "name": "vocabulary",
           "line": 177
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
+      "lines": 323,
+      "sha256": "778afcc9385fd4686fdb2dc92fb8df14a3c4be3b2d2f3290d220386b14985b3e",
+      "symbols": [
+        {
+          "name": "updateRow",
+          "line": 65
+        },
+        {
+          "name": "addCustom",
+          "line": 70
+        },
+        {
+          "name": "save",
+          "line": 82
         }
       ]
     },
