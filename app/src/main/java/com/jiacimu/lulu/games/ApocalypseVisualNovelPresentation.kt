@@ -20,7 +20,7 @@ internal data class ApocalypseStoryPage(
 internal fun parseApocalypseStoryPages(
     text: String,
     party: List<CharacterSettings>,
-    maxChars: Int = 96,
+    maxChars: Int = 72,
 ): List<ApocalypseStoryPage> {
     val normalized = text.replace("\r\n", "\n").trim()
     if (normalized.isBlank()) {
@@ -39,7 +39,7 @@ internal fun parseApocalypseStoryPages(
         val tagged = parseTaggedSpeaker(rawBlock)
         val inferred = tagged ?: inferLegacySpeaker(rawBlock, partyByName)
         val cleanText = inferred.text.trim().ifBlank { return@forEach }
-        splitVisualNovelText(cleanText, maxChars).forEach { piece ->
+        splitVisualNovelTextPreservingCharacters(cleanText, maxChars).forEach { piece ->
             pages += ApocalypseStoryPage(
                 speakerKind = inferred.kind,
                 characterId = inferred.characterId,
@@ -49,7 +49,7 @@ internal fun parseApocalypseStoryPages(
     }
 
     return pages.ifEmpty {
-        listOf(ApocalypseStoryPage(ApocalypseStorySpeakerKind.Narrator, text = normalized.take(maxChars)))
+        listOf(ApocalypseStoryPage(ApocalypseStorySpeakerKind.Narrator, text = normalized))
     }
 }
 
@@ -105,36 +105,41 @@ private fun inferLegacySpeaker(
     return ParsedSpeaker(ApocalypseStorySpeakerKind.Narrator, text = block)
 }
 
-private fun splitVisualNovelText(text: String, maxChars: Int): List<String> {
-    val pages = mutableListOf<String>()
-    val sentences = text.split(Regex("(?<=[。！？!?；;])\\s*"))
-        .map(String::trim)
-        .filter(String::isNotBlank)
-    var current = ""
+/**
+ * Split only at substring boundaries. No sentence is rewritten, rejoined, shortened, or chunked with
+ * dropped punctuation, so concatenating all returned pieces recreates [text] byte-for-byte.
+ */
+private fun splitVisualNovelTextPreservingCharacters(text: String, maxChars: Int): List<String> {
+    if (text.isEmpty()) return emptyList()
+    val limit = maxChars.coerceAtLeast(24)
+    if (text.length <= limit) return listOf(text)
 
-    fun push(unit: String) {
-        if (unit.isBlank()) return
-        if (current.isBlank()) {
-            current = unit
-        } else if (current.length + unit.length <= maxChars) {
-            current += unit
-        } else {
-            pages += current.trim()
-            current = unit
+    val strongStops = setOf('。', '！', '？', '!', '?', '；', ';', '…', '\n')
+    val softStops = setOf('，', ',', '、', '：', ':', '）', ')', ']', '】', '》', '”', '’')
+    val result = mutableListOf<String>()
+    var start = 0
+
+    while (start < text.length) {
+        var end = (start + limit).coerceAtMost(text.length)
+        if (end < text.length) {
+            val preferredStart = (start + (limit * 0.55f).toInt()).coerceAtMost(end - 1)
+            fun findCut(stops: Set<Char>): Int {
+                for (index in end - 1 downTo preferredStart) {
+                    if (text[index] in stops) return index + 1
+                }
+                return -1
+            }
+            val strongCut = findCut(strongStops)
+            val softCut = if (strongCut < 0) findCut(softStops) else -1
+            end = when {
+                strongCut > start -> strongCut
+                softCut > start -> softCut
+                else -> end
+            }
         }
+        result += text.substring(start, end)
+        start = end
     }
 
-    sentences.forEach { sentence ->
-        if (sentence.length <= maxChars) {
-            push(sentence)
-        } else {
-            sentence.split(Regex("(?<=[，,、：:])\\s*"))
-                .map(String::trim)
-                .filter(String::isNotBlank)
-                .flatMap { piece -> if (piece.length <= maxChars) listOf(piece) else piece.chunked(maxChars) }
-                .forEach(::push)
-        }
-    }
-    if (current.isNotBlank()) pages += current.trim()
-    return pages.ifEmpty { listOf(text.take(maxChars)) }
+    return result
 }
