@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-09T13:53:59.075561+00:00",
-  "commit": "f3c7d32417914f2afa0760c45e338d19f3829d46",
+  "generatedAt": "2026-08-09T13:55:51.867048+00:00",
+  "commit": "185e86a78bbfcb5b185633998399da6ada31f408",
   "branch": "main",
-  "sourceFingerprint": "fe30b69e46df2f5963bdc02c278d85dfa05b92f94a31fadbac856a530749b4d9",
+  "sourceFingerprint": "36374d76a553751a6f9cd3da33c48a7d5ab8118d32c9319f20eb0a9038bcc367",
   "summary": {
     "files": 156,
-    "lines": 44649,
+    "lines": 44658,
     "symbols": 633
   },
   "symbolIndex": {
@@ -153,7 +153,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 885
+        "line": 894
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
@@ -3135,55 +3135,55 @@
     "claimSuperMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 527
+        "line": 536
       }
     ],
     "dismissSuperMomentCelebration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 538
+        "line": 547
       }
     ],
     "exchangeSingleTicketsForTen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 542
+        "line": 551
       }
     ],
     "redeemEntertainment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 558
+        "line": 567
       }
     ],
     "redeemCustomReward": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 601
+        "line": 610
       }
     ],
     "claimAchievement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 618
+        "line": 627
       }
     ],
     "refreshShop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 637
+        "line": 646
       }
     ],
     "buyShopItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 652
+        "line": 661
       }
     ],
     "PostgraduateExamStores": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 880
+        "line": 889
       }
     ],
     "books": [
@@ -6415,8 +6415,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-      "lines": 890,
-      "sha256": "3d2bb9f00fbdf2a9a09a32927db63d1e589940477c90d227483f0d4624320091",
+      "lines": 899,
+      "sha256": "2a1af477cd8336e4acb2b40f3257c31f17393002ad363a15d042007b1482e295",
       "symbols": [
         {
           "name": "PostgraduateExamStore",
@@ -6524,43 +6524,43 @@
         },
         {
           "name": "claimSuperMoment",
-          "line": 527
+          "line": 536
         },
         {
           "name": "dismissSuperMomentCelebration",
-          "line": 538
+          "line": 547
         },
         {
           "name": "exchangeSingleTicketsForTen",
-          "line": 542
+          "line": 551
         },
         {
           "name": "redeemEntertainment",
-          "line": 558
+          "line": 567
         },
         {
           "name": "redeemCustomReward",
-          "line": 601
+          "line": 610
         },
         {
           "name": "claimAchievement",
-          "line": 618
+          "line": 627
         },
         {
           "name": "refreshShop",
-          "line": 637
+          "line": 646
         },
         {
           "name": "buyShopItem",
-          "line": 652
+          "line": 661
         },
         {
           "name": "PostgraduateExamStores",
-          "line": 880
+          "line": 889
         },
         {
           "name": "initialize",
-          "line": 885
+          "line": 894
         }
       ]
     },
