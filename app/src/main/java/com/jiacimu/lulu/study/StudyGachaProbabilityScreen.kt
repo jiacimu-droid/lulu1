@@ -27,9 +27,7 @@ private data class EditableGachaRule(
     val probability: String,
     val amount: String,
     val type: StudyGachaRewardType,
-) {
-    val custom: Boolean get() = type == StudyGachaRewardType.Custom
-}
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,7 +61,7 @@ internal fun StudyGachaProbabilityScreen(
         val amount = row.amount.toIntOrNull()
         amount == null || amount !in 1..999
     }
-    val invalidTitle = rows.any { it.custom && it.title.trim().isBlank() }
+    val invalidTitle = rows.any { it.title.trim().isBlank() }
     val nonBlueTotal = parsedProbabilities.filterNotNull().sum()
     val blueProbability = (100.0 - nonBlueTotal).coerceAtLeast(0.0)
     val totalTooHigh = nonBlueTotal > 100.000001
@@ -76,7 +74,7 @@ internal fun StudyGachaProbabilityScreen(
     fun addCustom(rarity: StudyRarity) {
         rows = rows + EditableGachaRule(
             id = "custom_${UUID.randomUUID()}",
-            title = "",
+            title = "新项目",
             rarity = rarity,
             probability = "0.1",
             amount = "1",
@@ -87,15 +85,15 @@ internal fun StudyGachaProbabilityScreen(
 
     fun save() {
         if (invalidTitle) {
-            message = "还有自定义项目没有填写名称"
+            message = "项目名称不能为空"
             return
         }
         if (invalidProbability || totalTooHigh) {
-            message = if (totalTooHigh) "紫色、金色、彩色合计概率不能超过100%" else "请检查概率输入"
+            message = if (totalTooHigh) "总概率不能超过100%" else "请检查概率"
             return
         }
         if (invalidAmount) {
-            message = "单次获得数量需要填写1—999的整数"
+            message = "数量需为1—999"
             return
         }
         val rules = rows.map { row ->
@@ -115,12 +113,7 @@ internal fun StudyGachaProbabilityScreen(
         containerColor = StudyDesign.paper,
         topBar = {
             TopAppBar(
-                title = {
-                    Column {
-                        Text("抽卡概率设计", fontWeight = FontWeight.Bold)
-                        Text("紫色 / 金色 / 彩色", color = StudyDesign.muted, fontSize = 11.sp)
-                    }
-                },
+                title = { Text("抽卡概率设计", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
                 },
@@ -131,7 +124,7 @@ internal fun StudyGachaProbabilityScreen(
             Surface(color = StudyDesign.paper, tonalElevation = 3.dp, shadowElevation = 8.dp) {
                 Column(
                     Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     if (message.isNotBlank()) {
                         Text(
@@ -146,7 +139,7 @@ internal fun StudyGachaProbabilityScreen(
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.dark, contentColor = Color.White),
                     ) {
-                        Text("保存概率设计", fontWeight = FontWeight.Bold)
+                        Text("保存", fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -154,24 +147,18 @@ internal fun StudyGachaProbabilityScreen(
     ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item {
                 StudyCard {
-                    Text("概率总览", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text("概率总览", fontSize = 19.sp, fontWeight = FontWeight.Bold)
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ProbabilityMetric("蓝色剩余", blueProbability, Modifier.weight(1f))
-                        ProbabilityMetric("非蓝色", nonBlueTotal, Modifier.weight(1f))
+                        ProbabilityMetric("蓝色", blueProbability, Modifier.weight(1f))
+                        ProbabilityMetric("紫金彩", nonBlueTotal, Modifier.weight(1f))
                     }
-                    Text(
-                        "蓝色画卷不单独编辑，会自动使用100%减去紫色、金色、彩色后的剩余概率。默认：抖音2.5%、游戏2%、小剧场1%（一次3张）、电影0.8%、彩色0.4%。",
-                        color = StudyDesign.muted,
-                        fontSize = 12.sp,
-                        lineHeight = 18.sp,
-                    )
                     if (totalTooHigh) {
-                        Text("当前合计超过100%，请先降低非蓝色概率。", color = StudyDesign.error, fontWeight = FontWeight.SemiBold)
+                        Text("总概率超过100%", color = StudyDesign.error, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -179,35 +166,16 @@ internal fun StudyGachaProbabilityScreen(
             listOf(StudyRarity.Rare, StudyRarity.Epic, StudyRarity.Rainbow).forEach { rarity ->
                 item(key = "header-${rarity.name}") {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text("${rarity.label}项目", fontSize = 19.sp, fontWeight = FontWeight.Bold)
-                            Text(
-                                "合计 ${probabilityEditorText(rows.filter { it.rarity == rarity }.sumOf { it.probability.replace(',', '.').toDoubleOrNull() ?: 0.0 })}%",
-                                color = StudyDesign.muted,
-                                fontSize = 12.sp,
-                            )
-                        }
-                        TextButton(onClick = { addCustom(rarity) }) {
-                            Icon(Icons.Outlined.Add, null, modifier = Modifier.size(17.dp))
-                            Spacer(Modifier.width(4.dp))
-                            Text("添加项目")
-                        }
+                        Text("${rarity.label}项目", fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                        Text(
+                            "${probabilityEditorText(rows.filter { it.rarity == rarity }.sumOf { it.probability.replace(',', '.').toDoubleOrNull() ?: 0.0 })}%",
+                            color = StudyDesign.muted,
+                            fontSize = 12.sp,
+                        )
                     }
                 }
 
-                val rarityRows = rows.filter { it.rarity == rarity }
-                if (rarityRows.isEmpty()) {
-                    item(key = "empty-${rarity.name}") {
-                        Surface(
-                            modifier = Modifier.fillMaxWidth(),
-                            color = rarityTint(rarity),
-                            shape = androidx.compose.foundation.shape.RoundedCornerShape(18.dp),
-                        ) {
-                            Text("还没有${rarity.label}项目，可以点右上角添加。", Modifier.padding(14.dp), color = StudyDesign.muted)
-                        }
-                    }
-                }
-                rarityRows.forEach { row ->
+                rows.filter { it.rarity == rarity }.forEach { row ->
                     item(key = row.id) {
                         GachaRuleEditorCard(
                             row = row,
@@ -220,10 +188,23 @@ internal fun StudyGachaProbabilityScreen(
                             onAmountChange = { value ->
                                 if (value.length <= 3 && value.all(Char::isDigit)) updateRow(row.id) { it.copy(amount = value) }
                             },
-                            onDelete = if (row.custom) {
-                                { rows = rows.filterNot { it.id == row.id }; message = "" }
-                            } else null,
+                            onDelete = {
+                                rows = rows.filterNot { it.id == row.id }
+                                message = ""
+                            },
                         )
+                    }
+                }
+
+                item(key = "add-${rarity.name}") {
+                    OutlinedButton(
+                        onClick = { addCustom(rarity) },
+                        modifier = Modifier.fillMaxWidth(),
+                        border = BorderStroke(1.dp, rarityTint(rarity)),
+                    ) {
+                        Icon(Icons.Outlined.Add, null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("新增${rarity.label}项目")
                     }
                 }
             }
@@ -239,7 +220,7 @@ private fun ProbabilityMetric(label: String, value: Double, modifier: Modifier =
         shape = androidx.compose.foundation.shape.RoundedCornerShape(15.dp),
         border = BorderStroke(1.dp, StudyDesign.border),
     ) {
-        Column(Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text("${probabilityEditorText(value)}%", fontSize = 20.sp, fontWeight = FontWeight.Black)
             Text(label, color = StudyDesign.muted, fontSize = 11.sp)
         }
@@ -252,48 +233,39 @@ private fun GachaRuleEditorCard(
     onTitleChange: (String) -> Unit,
     onProbabilityChange: (String) -> Unit,
     onAmountChange: (String) -> Unit,
-    onDelete: (() -> Unit)?,
+    onDelete: () -> Unit,
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = StudyDesign.card,
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(18.dp),
         border = BorderStroke(1.dp, rarityTint(row.rarity)),
     ) {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Surface(color = rarityTint(row.rarity), shape = androidx.compose.foundation.shape.RoundedCornerShape(99.dp)) {
                     Text(row.rarity.label, Modifier.padding(horizontal = 9.dp, vertical = 4.dp), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 }
-                Spacer(Modifier.width(8.dp))
-                Text(if (row.custom) "自定义项目" else "内置项目", color = StudyDesign.muted, fontSize = 11.sp)
                 Spacer(Modifier.weight(1f))
-                onDelete?.let {
-                    IconButton(onClick = it, modifier = Modifier.size(34.dp)) {
-                        Icon(Icons.Outlined.DeleteOutline, "删除项目", tint = StudyDesign.error)
-                    }
+                IconButton(onClick = onDelete, modifier = Modifier.size(34.dp)) {
+                    Icon(Icons.Outlined.DeleteOutline, "删除项目", tint = StudyDesign.error)
                 }
             }
 
-            if (row.custom) {
-                OutlinedTextField(
-                    value = row.title,
-                    onValueChange = onTitleChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("项目名称") },
-                    placeholder = { Text("例如：旅行券、奶茶券……") },
-                    singleLine = true,
-                )
-            } else {
-                Text(row.title, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            }
+            OutlinedTextField(
+                value = row.title,
+                onValueChange = onTitleChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("名称") },
+                singleLine = true,
+            )
 
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = row.probability,
                     onValueChange = onProbabilityChange,
                     modifier = Modifier.weight(1f),
-                    label = { Text("概率 %") },
+                    label = { Text("概率") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     suffix = { Text("%") },
@@ -302,14 +274,10 @@ private fun GachaRuleEditorCard(
                     value = row.amount,
                     onValueChange = onAmountChange,
                     modifier = Modifier.weight(1f),
-                    label = { Text("单次获得") },
+                    label = { Text("数量") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    suffix = { Text("份") },
                 )
-            }
-            if (row.type == StudyGachaRewardType.Theater) {
-                Text("当前默认一次抽中直接发3张小剧场券。", color = StudyDesign.muted, fontSize = 11.sp)
             }
         }
     }
