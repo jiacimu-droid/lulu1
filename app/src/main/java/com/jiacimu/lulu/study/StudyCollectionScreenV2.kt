@@ -112,13 +112,7 @@ internal fun StudyCollectionScreenV2(
         }
 
         item(key = "fragments-title") {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 5.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text("画卷碎片", modifier = Modifier.weight(1f), fontSize = 17.sp, fontWeight = FontWeight.Bold)
-                Text("返还碎片 ${state.inventory.returnedBlueFragments}", color = StudyDesign.muted, fontSize = 12.sp)
-            }
+            Text("画卷碎片", fontSize = 17.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 5.dp))
         }
 
         items(blueFragmentCatalog.chunked(3), key = { it.joinToString("|") }) { titles ->
