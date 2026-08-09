@@ -109,7 +109,7 @@ fun PostgraduateExamApp(
                             )
                             StudySection.Plan -> StudyPlanScreenV2(state, store)
                             StudySection.Gacha -> StudyGachaScreen(state, store)
-                            StudySection.Collection -> StudyCollectionScreen(
+                            StudySection.Collection -> StudyCollectionScreenV2(
                                 state = state,
                                 store = store,
                                 onOpenTheater = onOpenTheater,
