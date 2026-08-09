@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`185e86a78bbfcb5b185633998399da6ada31f408`
+- 基准提交：`b9c4c953e2f29c0cc40da8bd8e5700f8ceaf718c`
 - 分支：`main`
 - 已索引文件：156
-- 已索引代码/文本行：44658
+- 已索引代码/文本行：44657
 - 已发现符号：633
 
 | 文件 | 行数 | 符号数 |
@@ -135,7 +135,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudyCollectionScreenV2.kt` | 202 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyCompanionScreen.kt` | 274 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyDailyContext.kt` | 82 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt` | 337 | 22 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt` | 336 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt` | 297 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt` | 992 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt` | 470 | 3 |
