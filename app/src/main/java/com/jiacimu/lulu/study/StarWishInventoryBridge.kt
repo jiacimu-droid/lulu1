@@ -21,12 +21,6 @@ internal object StarWishInventoryBridge {
             else inventory.copy(theaterFragments = inventory.theaterFragments - 1)
         }
 
-    fun consumeVideoCard(store: PostgraduateExamStore): Boolean =
-        consume(store) { inventory ->
-            if (inventory.videoCards < 1) null
-            else inventory.copy(videoCards = inventory.videoCards - 1)
-        }
-
     private fun consume(
         store: PostgraduateExamStore,
         transform: (StudyInventory) -> StudyInventory?,
