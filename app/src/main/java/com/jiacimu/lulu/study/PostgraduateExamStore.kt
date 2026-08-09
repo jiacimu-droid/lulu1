@@ -228,7 +228,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
     fun deletePlanItem(id: String) = mutate { state -> state.copy(planItems = state.planItems.filterNot { it.id == id }) }
 
     fun removePlanItemsByTitle(titles: Set<String>) = mutate { state ->
-        state.copy(planItems = state.planItems.filterNot { it.id.startsWith("rolling:") && it.title in titles })
+        state.copy(planItems = state.planItems.filterNot { it.title in titles })
     }
 
     fun replaceRollingPlanItems(items: List<StudyPlanItem>) = mutate { state ->
