@@ -12,14 +12,24 @@ enum class StudyRarity(val label: String) {
     Normal("蓝色"), Rare("紫色"), Epic("金色"), Rainbow("彩色"),
 }
 
-enum class StudyDrawKind(val label: String, val rarity: StudyRarity) {
-    OutfitFragment("画卷专属碎片", StudyRarity.Normal),
-    DouyinTicket("抖音时长券 · 20分钟", StudyRarity.Rare),
-    GameRoundTicket("游戏局数券 · 4局", StudyRarity.Rare),
-    TheaterFragment("小剧场券", StudyRarity.Rare),
-    GameTicket("电影券", StudyRarity.Epic),
-    VideoCard("视频解锁卡", StudyRarity.Epic),
-    AnimeTicket("影视剧一季兑换券", StudyRarity.Rainbow),
+enum class StudyGachaRewardType {
+    Douyin,
+    GameRound,
+    Theater,
+    Movie,
+    Anime,
+    Custom,
+}
+
+data class StudyGachaRule(
+    val id: String,
+    val title: String,
+    val rarity: StudyRarity,
+    val probabilityPercent: Double,
+    val amountPerDraw: Int = 1,
+    val type: StudyGachaRewardType = StudyGachaRewardType.Custom,
+) {
+    val custom: Boolean get() = type == StudyGachaRewardType.Custom
 }
 
 enum class StudyEntertainmentKind(val label: String) {
@@ -27,12 +37,11 @@ enum class StudyEntertainmentKind(val label: String) {
     GameRound("游戏局数券"),
     Theater("小剧场"),
     Game("电影券"),
-    Video("视频解锁卡"),
     Anime("影视剧一季兑换券"),
 }
 
 enum class StudyShopReward {
-    SingleTicket, TenTicket, DouyinTicket, GameRoundTicket, TheaterFragment, GameTicket, VideoCard, AnimeTicket,
+    SingleTicket, TenTicket, DouyinTicket, GameRoundTicket, TheaterFragment, GameTicket, AnimeTicket,
 }
 
 data class StudyTask(
@@ -66,12 +75,12 @@ data class StudyEvent(val id: String = UUID.randomUUID().toString(), val title: 
 
 data class StudyDrawResult(
     val id: String = UUID.randomUUID().toString(),
-    val kind: StudyDrawKind,
+    val rewardRuleId: String? = null,
     val title: String,
+    val rarity: StudyRarity,
+    val amount: Int = 1,
     val inventoryChanged: Boolean,
-) {
-    val rarity: StudyRarity get() = kind.rarity
-}
+)
 
 data class StudyAchievement(
     val id: String,
@@ -103,10 +112,9 @@ data class StudyInventory(
     val theaterFragments: Int = 0,
     // 为兼容已有存档保留旧字段名；这里现在存放电影券数量。
     val gameTickets: Int = 0,
-    val videoCards: Int = 0,
     val animeTickets: Int = 0,
+    val customRewards: Map<String, Int> = emptyMap(),
     val unlockedScrolls: List<String> = emptyList(),
-    val unlockedVideos: List<String> = emptyList(),
     val unlockedTheaters: List<String> = emptyList(),
 )
 
@@ -141,10 +149,11 @@ data class PomodoroState(
 )
 
 data class StudyState(
-    val schemaVersion: Int = 6,
+    val schemaVersion: Int = 7,
     val activeDate: String = LocalDate.now().toString(),
     val profile: StudyProfile = StudyProfile(),
     val inventory: StudyInventory = StudyInventory(),
+    val gachaRules: List<StudyGachaRule> = defaultGachaRules(),
     val tasks: List<StudyTask> = defaultTasks(LocalDate.now()),
     val schedules: List<StudyScheduleBlock> = emptyList(),
     val planItems: List<StudyPlanItem> = defaultPlanItems(),
@@ -176,13 +185,88 @@ internal const val STUDY_REWARD_INTERVAL_MINUTES = 5
 internal const val STUDY_REWARD_PRAISE = 100
 internal const val TASK_COMPLETION_PRAISE = 100
 
+internal const val GACHA_ID_DOUYIN = "builtin_douyin"
+internal const val GACHA_ID_GAME_ROUND = "builtin_game_round"
+internal const val GACHA_ID_THEATER = "builtin_theater"
+internal const val GACHA_ID_MOVIE = "builtin_movie"
+internal const val GACHA_ID_ANIME = "builtin_anime"
+
+internal fun defaultGachaRules(): List<StudyGachaRule> = listOf(
+    StudyGachaRule(
+        id = GACHA_ID_DOUYIN,
+        title = "抖音时长券 · 20分钟",
+        rarity = StudyRarity.Rare,
+        probabilityPercent = 2.5,
+        amountPerDraw = 1,
+        type = StudyGachaRewardType.Douyin,
+    ),
+    StudyGachaRule(
+        id = GACHA_ID_GAME_ROUND,
+        title = "游戏局数券 · 4局",
+        rarity = StudyRarity.Rare,
+        probabilityPercent = 2.0,
+        amountPerDraw = 1,
+        type = StudyGachaRewardType.GameRound,
+    ),
+    StudyGachaRule(
+        id = GACHA_ID_THEATER,
+        title = "小剧场券",
+        rarity = StudyRarity.Rare,
+        probabilityPercent = 1.0,
+        amountPerDraw = 3,
+        type = StudyGachaRewardType.Theater,
+    ),
+    StudyGachaRule(
+        id = GACHA_ID_MOVIE,
+        title = "电影券",
+        rarity = StudyRarity.Epic,
+        probabilityPercent = 0.8,
+        amountPerDraw = 1,
+        type = StudyGachaRewardType.Movie,
+    ),
+    StudyGachaRule(
+        id = GACHA_ID_ANIME,
+        title = "影视剧一季兑换券",
+        rarity = StudyRarity.Rainbow,
+        probabilityPercent = 0.4,
+        amountPerDraw = 1,
+        type = StudyGachaRewardType.Anime,
+    ),
+)
+
+internal fun repairGachaRules(source: List<StudyGachaRule>): List<StudyGachaRule> {
+    val defaults = defaultGachaRules()
+    val byId = source.associateBy(StudyGachaRule::id)
+    val builtins = defaults.map { fallback ->
+        val saved = byId[fallback.id]
+        if (saved == null) fallback else fallback.copy(
+            probabilityPercent = saved.probabilityPercent.coerceIn(0.0, 100.0),
+            amountPerDraw = saved.amountPerDraw.coerceIn(1, 999),
+        )
+    }
+    val custom = source.asSequence()
+        .filter { it.type == StudyGachaRewardType.Custom }
+        .filter { it.id.isNotBlank() && it.title.isNotBlank() }
+        .distinctBy(StudyGachaRule::id)
+        .map { rule ->
+            rule.copy(
+                title = rule.title.trim().take(60),
+                rarity = rule.rarity.takeIf { it != StudyRarity.Normal } ?: StudyRarity.Rare,
+                probabilityPercent = rule.probabilityPercent.coerceIn(0.0, 100.0),
+                amountPerDraw = rule.amountPerDraw.coerceIn(1, 999),
+                type = StudyGachaRewardType.Custom,
+            )
+        }
+        .toList()
+    return builtins + custom
+}
+
 internal val blueFragmentCatalog = listOf(
     "星穹图书馆", "樱吹雪剑道场", "深海回廊", "永夜花庭", "云上列车",
     "琉璃沙漠", "机械蝴蝶", "月光浴场", "废墟花园", "倒悬都市",
     "雨后天台", "星砂邮局", "薄荷钟楼", "雾港旧船", "玻璃温室",
     "极光书房", "柠檬海岸", "雪夜便利店", "琥珀剧院", "云雀庭院",
 )
-internal val videoCatalog = listOf("完成第一小时", "雨天自习室", "角色的监督留言", "深夜收尾", "周计划达成")
 internal val theaterCatalog = listOf(
     "少卿今天不早朝", "星舰AI说他爱上我了", "废土便利店的草莓糖", "把魔尊契约当话本",
     "被献祭给龙之后", "捡到S级机甲", "我把修真界改成5A景区", "午夜出租车",
@@ -213,7 +297,6 @@ internal fun defaultShop(date: LocalDate): List<StudyShopItem> {
         StudyShopReward.GameRoundTicket to 3,
         StudyShopReward.TheaterFragment to 3,
         StudyShopReward.GameTicket to 2,
-        StudyShopReward.VideoCard to 1,
         StudyShopReward.AnimeTicket to 1,
     )
     return (1..3).map { slot ->
@@ -238,7 +321,6 @@ internal fun StudyShopReward.shopCost(): Int = when (this) {
     StudyShopReward.GameRoundTicket -> 2_200
     StudyShopReward.TheaterFragment -> 2_400
     StudyShopReward.GameTicket -> 5_200
-    StudyShopReward.VideoCard -> 6_000
     StudyShopReward.AnimeTicket -> 12_000
 }
 
@@ -249,6 +331,5 @@ private fun StudyShopReward.toShopItem(id: String): StudyShopItem = when (this) 
     StudyShopReward.GameRoundTicket -> StudyShopItem(id, "游戏局数券", "紫色稀有商品 · 可畅玩4局", shopCost(), this)
     StudyShopReward.TheaterFragment -> StudyShopItem(id, "小剧场券", "紫色稀有商品 · 可生成或续写小剧场1章", shopCost(), this)
     StudyShopReward.GameTicket -> StudyShopItem(id, "电影券", "金色稀有商品 · 可观看1部电影", shopCost(), this)
-    StudyShopReward.VideoCard -> StudyShopItem(id, "视频解锁卡", "金色稀有商品 · 解锁一项视频收藏", shopCost(), this)
     StudyShopReward.AnimeTicket -> StudyShopItem(id, "影视剧一季兑换券", "彩色超稀有商品 · 可兑换一整季", shopCost(), this)
 }
