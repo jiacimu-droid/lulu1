@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-09T05:35:15.580148+00:00",
-  "commit": "02cac60f9a82fada3b2024e4f19efa85517d9f84",
+  "generatedAt": "2026-08-09T05:36:14.457682+00:00",
+  "commit": "3ffa37883f93ba2fdd6d0033846a7f56d9d1db40",
   "branch": "main",
-  "sourceFingerprint": "b10f44055fce3535ca534f8453a007d8794077759e11b7dcf560e495d0ce6abc",
+  "sourceFingerprint": "795fba0c1812526dc321a3dae8d650865bc918420d99576a6bd5363a7ef9ea02",
   "summary": {
     "files": 155,
-    "lines": 43678,
+    "lines": 43707,
     "symbols": 627
   },
   "symbolIndex": {
@@ -5686,8 +5686,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Engine.kt",
-      "lines": 295,
-      "sha256": "c2c38c522d39be4bf1219ec9b73500d7a957aa5b78473569abc4830d62055e61",
+      "lines": 324,
+      "sha256": "f1c68b23671bff4d0ec4ac1b157299927ad0884b8d1ef2ff19499720fba0d6dd",
       "symbols": []
     },
     {
