@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3524948647d6b0f3c22f88fbe1aae725fa42bd8b`
+- 基准提交：`8bdc3a6c796d458df390d7ec8ef37b6987649d47`
 - 分支：`main`
 - 已索引文件：155
-- 已索引代码/文本行：43820
+- 已索引代码/文本行：43827
 - 已发现符号：629
 
 | 文件 | 行数 | 符号数 |
@@ -84,7 +84,7 @@
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 93 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseFlowRowCompat.kt` | 34 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt` | 284 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt` | 291 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseStoryDirectorV5.kt` | 88 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt` | 1382 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt` | 704 | 6 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-09T05:38:19.626059+00:00",
-  "commit": "3524948647d6b0f3c22f88fbe1aae725fa42bd8b",
+  "generatedAt": "2026-08-09T05:42:06.042759+00:00",
+  "commit": "8bdc3a6c796d458df390d7ec8ef37b6987649d47",
   "branch": "main",
-  "sourceFingerprint": "03bc21a24a92d944ef1aa04d72151350581dd2635a08412a7b03d494c48a0c7a",
+  "sourceFingerprint": "60af75ffda95c5aef7ad2ef1b7258136e0e8f0b6c1ee0208d67aa6584f0f2ab1",
   "summary": {
     "files": 155,
-    "lines": 43820,
+    "lines": 43827,
     "symbols": 629
   },
   "symbolIndex": {
@@ -2117,13 +2117,13 @@
     "rollback": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
-        "line": 81
+        "line": 82
       }
     ],
     "clear": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
-        "line": 92
+        "line": 98
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
@@ -5456,8 +5456,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
-      "lines": 284,
-      "sha256": "fbb57d8d7f327a00300471d8220bf5dca5fb7be52c4ccbb950d58c22e3138c0e",
+      "lines": 291,
+      "sha256": "d03702dc9570785438eccd829feb57b567f8219f7df1a389ecf28259edd5d34f",
       "symbols": [
         {
           "name": "restoreOnto",
@@ -5473,11 +5473,11 @@
         },
         {
           "name": "rollback",
-          "line": 81
+          "line": 82
         },
         {
           "name": "clear",
-          "line": 92
+          "line": 98
         }
       ]
     },
