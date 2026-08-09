@@ -498,7 +498,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
                 result = initial.copy(
                     title = "$scroll · 已满，夸夸值 +$BLUE_FULL_DUPLICATE_RETURN_PRAISE",
                     amount = BLUE_FULL_DUPLICATE_RETURN_PRAISE,
-                    inventoryChanged = false,
+                    inventoryChanged = true,
                 )
                 profile = profile.copy(
                     praisePoints = profile.praisePoints + BLUE_FULL_DUPLICATE_RETURN_PRAISE,
