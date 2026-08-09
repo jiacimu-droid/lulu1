@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-09T09:26:59.756860+00:00",
-  "commit": "6c97ceb382b53dec682097ef5f423d69844d5bde",
+  "generatedAt": "2026-08-09T09:27:34.440885+00:00",
+  "commit": "b039a5368b5707653c9c017196c679a257edd143",
   "branch": "main",
-  "sourceFingerprint": "bd3a8876e9bfa811798ce160ac20db09a7ab70fd1c39761d0b2211be9b7a3383",
+  "sourceFingerprint": "9e0ee934af1fe57c790692508010f87150da98249a7ccb91e273ee076c57cbb5",
   "summary": {
-    "files": 155,
-    "lines": 44446,
-    "symbols": 633
+    "files": 156,
+    "lines": 44626,
+    "symbols": 634
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -3296,6 +3296,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
         "line": 183
+      }
+    ],
+    "savedTitle": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCollectionScreenV2.kt",
+        "line": 33
       }
     ],
     "StudyTaskSource": [
@@ -6738,6 +6744,17 @@
       "lines": 93,
       "sha256": "81316e224cfc0b44c13db5ae00999de4e98742c115b17c35e689e65e743cf7f9",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCollectionScreenV2.kt",
+      "lines": 180,
+      "sha256": "db700f5db3096f3e07b9039be69ebd2260d8acea4c0dd2dd9b46348d7d8562ea",
+      "symbols": [
+        {
+          "name": "savedTitle",
+          "line": 33
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCompanionScreen.kt",
