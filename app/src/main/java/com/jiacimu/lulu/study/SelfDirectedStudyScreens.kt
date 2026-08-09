@@ -22,6 +22,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -316,9 +317,9 @@ internal fun StudyPlanScreenV2(state: StudyState, store: PostgraduateExamStore) 
 private fun SelfDirectedTaskRow(task: StudyTask, store: PostgraduateExamStore) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = if (task.completed) StudyDesign.wheatSoft.copy(alpha = 0.58f) else Color.White,
+        color = Color.White,
         shape = RoundedCornerShape(20.dp),
-        border = BorderStroke(1.dp, if (task.completed) StudyDesign.wheat else StudyDesign.border),
+        border = BorderStroke(1.dp, StudyDesign.border),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
@@ -327,13 +328,18 @@ private fun SelfDirectedTaskRow(task: StudyTask, store: PostgraduateExamStore) {
             Checkbox(
                 checked = task.completed,
                 onCheckedChange = { store.toggleTask(task.id) },
-                colors = CheckboxDefaults.colors(checkedColor = StudyDesign.wheat, checkmarkColor = StudyDesign.ink),
+                colors = CheckboxDefaults.colors(
+                    checkedColor = StudyDesign.dark,
+                    checkmarkColor = Color.White,
+                    uncheckedColor = StudyDesign.muted,
+                ),
             )
             Text(
                 task.title,
                 Modifier.weight(1f),
                 fontWeight = if (task.completed) FontWeight.Medium else FontWeight.Bold,
                 color = if (task.completed) StudyDesign.muted else StudyDesign.ink,
+                textDecoration = if (task.completed) TextDecoration.LineThrough else TextDecoration.None,
             )
             IconButton(onClick = { store.deleteTask(task.id) }) {
                 Icon(Icons.Outlined.DeleteOutline, "删除", tint = StudyDesign.muted)
