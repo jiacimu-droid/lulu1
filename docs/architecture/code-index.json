@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-09T05:59:19.785928+00:00",
-  "commit": "b42cd736c1a06b64235d5a01fb0f0c56065b5699",
+  "generatedAt": "2026-08-09T06:06:44.258237+00:00",
+  "commit": "cac528fce053131359f4cf513c52fed4941ecb0a",
   "branch": "main",
-  "sourceFingerprint": "35203c9335d18400eaa0b58128344ea79759d2ae44ded62fc87078ce73490ec4",
+  "sourceFingerprint": "910fcc7c59e7ed7b5f7acfb6a61ed37ba368095f4dfd586446c247f07a513796",
   "summary": {
     "files": 155,
-    "lines": 44061,
+    "lines": 44118,
     "symbols": 631
   },
   "symbolIndex": {
@@ -1073,7 +1073,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 473
+        "line": 484
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -1745,31 +1745,31 @@
     "scaled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 160
+        "line": 153
       }
     ],
     "toggleUserLike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 307
+        "line": 298
       }
     ],
     "addUserComment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 321
+        "line": 312
       }
     ],
     "addUserReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 343
+        "line": 334
       }
     ],
     "clearCharacterData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 494
+        "line": 500
       }
     ],
     "ProactiveMessageAutomation": [
@@ -5082,8 +5082,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-      "lines": 663,
-      "sha256": "39ed33e24dfd9f4c85a6c947d82e1a73943ab7b7646dae520a0b639354846297",
+      "lines": 720,
+      "sha256": "0c40c49d0a2fdcc01c32df389df714a31659f0895d2c020366fef82508cae9c5",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -5119,27 +5119,27 @@
         },
         {
           "name": "scaled",
-          "line": 160
+          "line": 153
         },
         {
           "name": "toggleUserLike",
-          "line": 307
+          "line": 298
         },
         {
           "name": "addUserComment",
-          "line": 321
+          "line": 312
         },
         {
           "name": "addUserReply",
-          "line": 343
+          "line": 334
         },
         {
           "name": "delete",
-          "line": 473
+          "line": 484
         },
         {
           "name": "clearCharacterData",
-          "line": 494
+          "line": 500
         }
       ]
     },

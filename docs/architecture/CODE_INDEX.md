@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b42cd736c1a06b64235d5a01fb0f0c56065b5699`
+- 基准提交：`cac528fce053131359f4cf513c52fed4941ecb0a`
 - 分支：`main`
 - 已索引文件：155
-- 已索引代码/文本行：44061
+- 已索引代码/文本行：44118
 - 已发现符号：631
 
 | 文件 | 行数 | 符号数 |
@@ -71,7 +71,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 26 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 830 | 43 |
-| `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 663 | 14 |
+| `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 720 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 729 | 5 |
