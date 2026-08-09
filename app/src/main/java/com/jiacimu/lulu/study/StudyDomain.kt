@@ -107,6 +107,7 @@ data class StudyInventory(
     val singleTickets: Int = 3,
     val tenTickets: Int = 1,
     val blueFragments: Map<String, Int> = emptyMap(),
+    val returnedBlueFragments: Int = 0,
     val douyinTickets: Int = 0,
     val gameRoundTickets: Int = 0,
     val theaterFragments: Int = 0,
@@ -177,7 +178,8 @@ data class StudyState(
     fun vocabulary(date: LocalDate = LocalDate.now()): Int = dailyVocabularyReviewed[date.toString()] ?: 0
 }
 
-internal const val BLUE_FRAGMENTS_PER_SCROLL = 10
+internal const val BLUE_FRAGMENTS_PER_SCROLL = 20
+internal const val BLUE_FULL_DUPLICATE_RETURN_FRAGMENTS = 10
 internal const val SINGLE_DRAW_COST = 100
 internal const val TEN_DRAW_COST = 800
 internal const val NON_NORMAL_PITY = 30
@@ -265,8 +267,6 @@ internal fun repairGachaRules(source: List<StudyGachaRule>): List<StudyGachaRule
 internal val blueFragmentCatalog = listOf(
     "星穹图书馆", "樱吹雪剑道场", "深海回廊", "永夜花庭", "云上列车",
     "琉璃沙漠", "机械蝴蝶", "月光浴场", "废墟花园", "倒悬都市",
-    "雨后天台", "星砂邮局", "薄荷钟楼", "雾港旧船", "玻璃温室",
-    "极光书房", "柠檬海岸", "雪夜便利店", "琥珀剧院", "云雀庭院",
 )
 internal val theaterCatalog = listOf(
     "少卿今天不早朝", "星舰AI说他爱上我了", "废土便利店的草莓糖", "把魔尊契约当话本",
