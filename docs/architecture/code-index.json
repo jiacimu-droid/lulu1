@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-09T13:00:45.953090+00:00",
-  "commit": "868b78c8df9e612c172534ff29dfb2188cfc43a0",
+  "generatedAt": "2026-08-09T13:52:30.243276+00:00",
+  "commit": "218b7f6ca3999abf97adc99095ff1dcbe94132cb",
   "branch": "main",
-  "sourceFingerprint": "ab1b5c352a25203b4fa184257655474e68f08d9930c37954db030683be83c21f",
+  "sourceFingerprint": "2fcbd6c60fb741f789cabe86c5671d7a125a1fbc824793f567662888e2e2b148",
   "summary": {
     "files": 156,
     "lines": 44639,
@@ -3397,37 +3397,37 @@
     "StudyProfile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 120
+        "line": 121
       }
     ],
     "PomodoroState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 142
+        "line": 143
       }
     ],
     "StudyState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 150
+        "line": 151
       }
     ],
     "studyMinutes": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 175
+        "line": 176
       }
     ],
     "pomodoros": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 176
+        "line": 177
       }
     ],
     "vocabulary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 177
+        "line": 178
       }
     ],
     "updateRow": [
@@ -6760,7 +6760,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
       "lines": 337,
-      "sha256": "d8012e9554e41f8516bb3b494b4b106c508788c08ddc923c93fa07c6060fffcb",
+      "sha256": "e4a2a206c890dfa25e986d74fc33ec686c6a9d7544ec17f8d31cb0a513ddacf9",
       "symbols": [
         {
           "name": "StudyTaskSource",
@@ -6828,27 +6828,27 @@
         },
         {
           "name": "StudyProfile",
-          "line": 120
+          "line": 121
         },
         {
           "name": "PomodoroState",
-          "line": 142
+          "line": 143
         },
         {
           "name": "StudyState",
-          "line": 150
+          "line": 151
         },
         {
           "name": "studyMinutes",
-          "line": 175
-        },
-        {
-          "name": "pomodoros",
           "line": 176
         },
         {
-          "name": "vocabulary",
+          "name": "pomodoros",
           "line": 177
+        },
+        {
+          "name": "vocabulary",
+          "line": 178
         }
       ]
     },
