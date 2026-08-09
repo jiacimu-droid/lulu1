@@ -783,9 +783,14 @@ private fun rarityColor(rarity: StudyRarity): Color = when (rarity) {
 private data class CollectionTicket(val title: String, val amount: Int, val use: () -> Unit)
 
 @Composable
-internal fun StudyCollectionScreen(state: StudyState, store: PostgraduateExamStore, onOpenTheater: () -> Unit) {
+internal fun StudyCollectionScreen(
+    state: StudyState,
+    store: PostgraduateExamStore,
+    onOpenTheater: () -> Unit,
+    onOpenProbabilityDesign: () -> Unit,
+) {
     var message by remember { mutableStateOf("") }
-    val tickets = listOf(
+    val builtInTickets = listOf(
         CollectionTicket("抖音时长券 · 20分钟", state.inventory.douyinTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Douyin) },
         CollectionTicket("游戏局数券 · 4局", state.inventory.gameRoundTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.GameRound) },
         CollectionTicket("小剧场券", state.inventory.theaterFragments) {
@@ -793,12 +798,29 @@ internal fun StudyCollectionScreen(state: StudyState, store: PostgraduateExamSto
             if (!message.contains("不足") && !message.contains("全部")) onOpenTheater()
         },
         CollectionTicket("电影券 · 1部", state.inventory.gameTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Game) },
-        CollectionTicket("视频解锁卡", state.inventory.videoCards) { message = store.redeemEntertainment(StudyEntertainmentKind.Video) },
         CollectionTicket("影视剧一季兑换券", state.inventory.animeTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Anime) },
     )
+    val customTickets = state.gachaRules.filter(StudyGachaRule::custom).map { rule ->
+        CollectionTicket(rule.title, state.inventory.customRewards[rule.id] ?: 0) {
+            message = store.redeemCustomReward(rule.id)
+        }
+    }
 
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        items(tickets) { CollectionTicketCard(it) }
+        item(key = "collection-first-ticket") {
+            CollectionTicketCard(
+                ticket = builtInTickets.first(),
+                topRightActionLabel = "概率设计",
+                onTopRightAction = onOpenProbabilityDesign,
+            )
+        }
+        items(builtInTickets.drop(1), key = { it.title }) { CollectionTicketCard(it) }
+        if (customTickets.isNotEmpty()) {
+            item(key = "custom-rewards-title") {
+                Text("自定义奖励", fontSize = 19.sp, fontWeight = FontWeight.Bold)
+            }
+            items(customTickets, key = { it.title }) { CollectionTicketCard(it) }
+        }
         item { Text("画卷碎片", fontSize = 19.sp, fontWeight = FontWeight.Bold) }
         items(blueFragmentCatalog.chunked(2)) { titles ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -806,23 +828,49 @@ internal fun StudyCollectionScreen(state: StudyState, store: PostgraduateExamSto
                 if (titles.size == 1) Spacer(Modifier.weight(1f))
             }
         }
-        item { StudyMessage(message, message.contains("不足")) }
+        item { StudyMessage(message, message.contains("不足") || message.contains("失败")) }
     }
 }
 
 @Composable
-private fun CollectionTicketCard(ticket: CollectionTicket, modifier: Modifier = Modifier) {
-    Surface(modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp), color = StudyDesign.card, border = BorderStroke(1.dp, StudyDesign.border)) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
+private fun CollectionTicketCard(
+    ticket: CollectionTicket,
+    modifier: Modifier = Modifier,
+    topRightActionLabel: String? = null,
+    onTopRightAction: (() -> Unit)? = null,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        color = StudyDesign.card,
+        border = BorderStroke(1.dp, StudyDesign.border),
+    ) {
+        Row(
+            Modifier.fillMaxWidth().padding(start = 15.dp, end = 10.dp, top = 9.dp, bottom = 11.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Column(Modifier.weight(1f)) {
                 Text(ticket.title, fontWeight = FontWeight.Bold)
                 Text("拥有 ${ticket.amount}", color = StudyDesign.muted, fontSize = 12.sp)
             }
-            Button(
-                onClick = ticket.use,
-                enabled = ticket.amount > 0,
-                colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.wheat, contentColor = StudyDesign.ink),
-            ) { Text("使用") }
+            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                if (!topRightActionLabel.isNullOrBlank() && onTopRightAction != null) {
+                    TextButton(
+                        onClick = onTopRightAction,
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                    ) {
+                        Icon(Icons.Outlined.Tune, null, modifier = Modifier.size(15.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text(topRightActionLabel, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+                Button(
+                    onClick = ticket.use,
+                    enabled = ticket.amount > 0,
+                    colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.wheat, contentColor = StudyDesign.ink),
+                    contentPadding = PaddingValues(horizontal = 15.dp, vertical = 7.dp),
+                ) { Text("使用") }
+            }
         }
     }
 }
@@ -925,10 +973,10 @@ internal fun StudyGuideScreen() {
             }
         }
         item { GuideCard("夸夸值", "签到、完成待办和学习时长都会获得夸夸值。累计学习每满5分钟获得100夸夸值，不足部分跨番茄保留。") }
-        item { GuideCard("抽卡概率", "蓝色画卷93.95%；紫色4.5%（抖音券2.5%、游戏局数券1%、小剧场券1%）；金色1.2%（电影券0.8%、视频解锁卡0.4%）；彩色影视剧一季兑换券0.35%。") }
-        item { GuideCard("保底", "连续30抽没有紫／金／彩时，第30抽直接出现紫色结果；紫色保底内部按抖音券、游戏局数券和小剧场券的原始比例抽取。") }
+        item { GuideCard("抽卡概率", "默认蓝色画卷93.3%；紫色5.5%（抖音券2.5%、游戏局数券2%、小剧场券1%，抽中小剧场一次发3张）；金色电影券0.8%；彩色影视剧一季兑换券0.4%。收藏页第一张券右上角的“概率设计”可以修改紫／金／彩项目的概率、单次数量并添加自定义项目；蓝色自动使用剩余概率。") }
+        item { GuideCard("保底", "连续30抽没有紫／金／彩时，第30抽直接出现紫色结果；紫色保底按当前概率设计中的紫色项目权重抽取。") }
         item { GuideCard("画卷碎片", "每套画卷需要10枚自己的专属碎片。已满后仍显示本次抽中物，但不重复计入。") }
-        item { GuideCard("收藏", "抽到的奖励都会进入收藏：抖音20分钟券、游戏4局券、小剧场券、电影券、视频解锁卡和影视剧一季兑换券。") }
+        item { GuideCard("收藏", "抽到的抖音券、游戏局数券、小剧场券、电影券、影视剧一季兑换券，以及你在概率设计里新增的自定义项目都会进入收藏。") }
         item { GuideCard("商店", "商店使用夸夸值，每日展示3件商品，手动刷新每天最多一次。") }
         item { GuideCard("番茄钟", "番茄钟提供云雾原版和深夜墨蓝两套配色，支持自定义时长、提前结束按实际分钟结算、角色语音和专注中聊天。") }
     }
