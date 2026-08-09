@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-09T09:03:05.724428+00:00",
-  "commit": "ce4d08ff3ae79fb26d3572aef087cb8c50ba3bec",
+  "generatedAt": "2026-08-09T09:03:23.172871+00:00",
+  "commit": "35d690d52b0e67936aa8f28140cb28e55fbf8fd5",
   "branch": "main",
-  "sourceFingerprint": "8eb97a665d592541177ba2c400b77874ee405d390c0ebd915558ac06fb963ae7",
+  "sourceFingerprint": "d18617d6fa305d6cc4dc9415db5ce3127baa12710bcaba7b6c685e1dd16165a0",
   "summary": {
     "files": 156,
-    "lines": 44605,
-    "symbols": 634
+    "lines": 44599,
+    "symbols": 633
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -3272,12 +3272,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishInventoryBridge.kt",
         "line": 17
-      }
-    ],
-    "consumeVideoCard": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishInventoryBridge.kt",
-        "line": 23
       }
     ],
     "detailedGuide": [
@@ -6666,16 +6660,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishInventoryBridge.kt",
-      "lines": 49,
-      "sha256": "9005906615ae9ffad2e97f293cda509ae13977c23a53c9e2d205c72f12ca0030",
+      "lines": 43,
+      "sha256": "568f322953fca99d12c24be99d9a4add6eb77f925c90c11e5b5bb35210450d5c",
       "symbols": [
         {
           "name": "consumeTheaterFragment",
           "line": 17
-        },
-        {
-          "name": "consumeVideoCard",
-          "line": 23
         }
       ]
     },
