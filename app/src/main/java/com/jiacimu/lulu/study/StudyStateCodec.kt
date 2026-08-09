@@ -11,6 +11,7 @@ internal object StudyStateCodec {
         .put("activeDate", state.activeDate)
         .put("profile", encodeProfile(state.profile))
         .put("inventory", encodeInventory(state.inventory))
+        .put("gachaRules", JSONArray().apply { state.gachaRules.forEach { put(encodeGachaRule(it)) } })
         .put("tasks", JSONArray().apply { state.tasks.forEach { put(encodeTask(it)) } })
         .put("schedules", JSONArray().apply { state.schedules.forEach { put(encodeSchedule(it)) } })
         .put("planItems", JSONArray().apply { state.planItems.forEach { put(encodePlan(it)) } })
@@ -34,10 +35,11 @@ internal object StudyStateCodec {
         val json = JSONObject(raw)
         val today = LocalDate.now()
         return StudyState(
-            schemaVersion = 6,
+            schemaVersion = 7,
             activeDate = json.optString("activeDate", today.toString()),
             profile = decodeProfile(json.optJSONObject("profile")),
             inventory = decodeInventory(json.optJSONObject("inventory")),
+            gachaRules = repairGachaRules(decodeArray(json.optJSONArray("gachaRules"), ::decodeGachaRule)),
             tasks = decodeArray(json.optJSONArray("tasks"), ::decodeTask).ifEmpty { defaultTasks(today) },
             schedules = decodeArray(json.optJSONArray("schedules"), ::decodeSchedule),
             planItems = decodeArray(json.optJSONArray("planItems"), ::decodePlan).ifEmpty { defaultPlanItems() },
@@ -101,10 +103,9 @@ internal object StudyStateCodec {
         .put("gameRoundTickets", value.gameRoundTickets)
         .put("theaterFragments", value.theaterFragments)
         .put("gameTickets", value.gameTickets)
-        .put("videoCards", value.videoCards)
         .put("animeTickets", value.animeTickets)
+        .put("customRewards", encodeStringIntMap(value.customRewards))
         .put("unlockedScrolls", JSONArray(value.unlockedScrolls))
-        .put("unlockedVideos", JSONArray(value.unlockedVideos))
         .put("unlockedTheaters", JSONArray(value.unlockedTheaters))
 
     private fun decodeInventory(json: JSONObject?): StudyInventory {
@@ -117,13 +118,29 @@ internal object StudyStateCodec {
             gameRoundTickets = json?.optInt("gameRoundTickets", legacyEntertainment?.optInt("Game") ?: 0) ?: 0,
             theaterFragments = json?.optInt("theaterFragments", legacyEntertainment?.optInt("SideStory") ?: 0) ?: 0,
             gameTickets = json?.optInt("gameTickets") ?: 0,
-            videoCards = json?.optInt("videoCards") ?: 0,
             animeTickets = json?.optInt("animeTickets") ?: 0,
+            customRewards = decodeStringIntMap(json?.optJSONObject("customRewards")),
             unlockedScrolls = json?.optJSONArray("unlockedScrolls").toStringList(),
-            unlockedVideos = json?.optJSONArray("unlockedVideos").toStringList(),
             unlockedTheaters = json?.optJSONArray("unlockedTheaters").toStringList(),
         )
     }
+
+    private fun encodeGachaRule(value: StudyGachaRule) = JSONObject()
+        .put("id", value.id)
+        .put("title", value.title)
+        .put("rarity", value.rarity.name)
+        .put("probabilityPercent", value.probabilityPercent)
+        .put("amountPerDraw", value.amountPerDraw)
+        .put("type", value.type.name)
+
+    private fun decodeGachaRule(json: JSONObject) = StudyGachaRule(
+        id = json.optString("id").trim(),
+        title = json.optString("title").trim(),
+        rarity = enumOrDefault(json.optString("rarity"), StudyRarity.Rare),
+        probabilityPercent = json.optDouble("probabilityPercent", 0.0),
+        amountPerDraw = json.optInt("amountPerDraw", 1),
+        type = enumOrDefault(json.optString("type"), StudyGachaRewardType.Custom),
+    )
 
     private fun encodeTask(value: StudyTask) = JSONObject()
         .put("id", value.id).put("title", value.title).put("date", value.date)
@@ -189,7 +206,6 @@ internal object StudyStateCodec {
             StudyShopReward.GameRoundTicket -> decoded.copy(title = "游戏局数券", subtitle = "紫色稀有商品 · 可畅玩4局")
             StudyShopReward.TheaterFragment -> decoded.copy(title = "小剧场券", subtitle = "紫色稀有商品 · 可生成或续写小剧场1章")
             StudyShopReward.GameTicket -> decoded.copy(title = "电影券", subtitle = "金色稀有商品 · 可观看1部电影")
-            StudyShopReward.VideoCard -> decoded.copy(title = "视频解锁卡", subtitle = "金色稀有商品 · 解锁一项视频收藏")
             StudyShopReward.AnimeTicket -> decoded.copy(title = "影视剧一季兑换券", subtitle = "彩色超稀有商品 · 可兑换一整季")
         }
     }
