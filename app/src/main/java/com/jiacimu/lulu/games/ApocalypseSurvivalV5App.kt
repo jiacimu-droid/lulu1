@@ -32,7 +32,6 @@ import com.jiacimu.lulu.data.CharacterSettings
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import java.util.UUID
 
 internal const val APOCALYPSE_PLAYER_SECONDARY_KEY = "__player_secondary__"
@@ -136,11 +135,16 @@ internal fun ApocalypseSurvivalAppV5(
     val context = LocalContext.current
     val storage = remember(context) { ApocalypseSurvivalV3Store(context) }
     val progressStore = remember(context) { ApocalypseReadingProgressStoreV5(context) }
+    val historyStore = remember(context) { ApocalypseV5HistoryStore(context) }
     val gameState by gameStore.state.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     var screen by remember { mutableStateOf(ApocalypseV5Screen.Home) }
     var save by remember { mutableStateOf(storage.loadSave()) }
     var config by remember { mutableStateOf(storage.loadConfig()) }
+
+    LaunchedEffect(Unit) {
+        purgeApocalypseMainWorldLeaks(gameStore)
+    }
 
     fun createSave(): ApocalypseV3Save {
         val party = gameState.selectedCharacterIds.take(4).ifEmpty {
@@ -172,6 +176,32 @@ internal fun ApocalypseSurvivalAppV5(
 
     fun goBack() {
         if (screen == ApocalypseV5Screen.Home) onBack() else screen = ApocalypseV5Screen.Home
+    }
+
+    fun rollbackStory(entryId: String) {
+        val current = save ?: return
+        val rollback = historyStore.rollback(current.id, entryId) ?: return
+        val restored = rollback.target.restoreOnto(current)
+        progressStore.clear()
+        save = restored
+        storage.save(restored)
+    }
+
+    fun clearStoryHistory() {
+        val current = save ?: return
+        val names = current.partyIds.map { id -> characters[id]?.displayName ?: MigratedDomainStores.characters.get(id).displayName }
+        val reset = current.copy(
+            scene = 1,
+            narration = tagApocalypseNarrationAsNarrator(initialApocalypseV3Scene(names)),
+            director = initialApocalypseV3Director(),
+            stats = ApocalypseV3Stats(),
+            log = emptyList(),
+            updatedAt = System.currentTimeMillis(),
+        )
+        historyStore.clear(current.id)
+        progressStore.clear()
+        save = reset
+        storage.save(reset)
     }
 
     BackHandler(onBack = ::goBack)
@@ -221,8 +251,12 @@ internal fun ApocalypseSurvivalAppV5(
 
         ApocalypseV5Screen.Archive -> ApocalypseV5ArchivePage(
             save = save,
+            history = save?.let { historyStore.load(it.id) }.orEmpty(),
             onBack = ::goBack,
-            onClear = {
+            onDeleteHistory = ::rollbackStory,
+            onClearHistory = ::clearStoryHistory,
+            onClearSave = {
+                save?.let { historyStore.clear(it.id) }
                 storage.clearSave()
                 progressStore.clear()
                 save = null
@@ -237,9 +271,9 @@ internal fun ApocalypseSurvivalAppV5(
                 ApocalypseV5PlayPage(
                     save = current,
                     config = config,
-                    gameStore = gameStore,
                     characters = characters,
                     progressStore = progressStore,
+                    historyStore = historyStore,
                     onBack = ::goBack,
                     onSave = { next ->
                         save = next
@@ -305,12 +339,12 @@ private fun ApocalypseV5HomePage(
                 }
             }
             item {
-        ApocalypseV5PhotoCard(
-            R.drawable.apocalypse_city_night,
-            "灾后城市边缘",
-            "夜色、工业烟雾与断续灯火会成为赤潮纪元的第一层视觉记忆。",
-        )
-    }
+                ApocalypseV5PhotoCard(
+                    R.drawable.apocalypse_city_night,
+                    "灾后城市边缘",
+                    "夜色、工业烟雾与断续灯火会成为赤潮纪元的第一层视觉记忆。",
+                )
+            }
             if (save != null) { item { ApocalypseSurvivalSnapshotV5(save) } }
             item { ApocalypseV5MenuEntry(Icons.Outlined.PlayArrow, "进入游戏", if (save == null) "从灾前第七日开始" else "继续第 ${save.scene} 幕", onEnter, emphasis = true) }
             item { ApocalypseV5MenuEntry(Icons.Outlined.AutoAwesome, "异能设定", "你与同行角色的异能、分化和队伍配置", onAbilities) }
@@ -691,12 +725,12 @@ private fun ApocalypseV5WorldPage(config: ApocalypseV3Config, onBack: () -> Unit
                 }
             }
             item {
-        ApocalypseV5PhotoCard(
-            R.drawable.apocalypse_factory_interior,
-            "废弃工业区",
-            "基地、物资与人类聚居点都从这样的空壳里重新长出来。",
-        )
-    }
+                ApocalypseV5PhotoCard(
+                    R.drawable.apocalypse_factory_interior,
+                    "废弃工业区",
+                    "基地、物资与人类聚居点都从这样的空壳里重新长出来。",
+                )
+            }
             item { ApocalypseWorldAtlasSummaryV5() }
             items(lore, key = { it.first }) { (title, detail) ->
                 Surface(color = ApocalypseV5Colors.white, shape = RoundedCornerShape(18.dp), border = BorderStroke(1.dp, ApocalypseV5Colors.border)) {
@@ -729,8 +763,17 @@ private fun ApocalypseV5WorldPage(config: ApocalypseV3Config, onBack: () -> Unit
 }
 
 @Composable
-private fun ApocalypseV5ArchivePage(save: ApocalypseV3Save?, onBack: () -> Unit, onClear: () -> Unit) {
-    var confirm by remember { mutableStateOf(false) }
+private fun ApocalypseV5ArchivePage(
+    save: ApocalypseV3Save?,
+    history: List<ApocalypseV5HistoryEntry>,
+    onBack: () -> Unit,
+    onDeleteHistory: (String) -> Unit,
+    onClearHistory: () -> Unit,
+    onClearSave: () -> Unit,
+) {
+    var deleteTarget by remember { mutableStateOf<ApocalypseV5HistoryEntry?>(null) }
+    var confirmClearHistory by remember { mutableStateOf(false) }
+    var confirmClearSave by remember { mutableStateOf(false) }
     Scaffold(
         containerColor = ApocalypseV5Colors.background,
         topBar = {
@@ -746,23 +789,70 @@ private fun ApocalypseV5ArchivePage(save: ApocalypseV3Save?, onBack: () -> Unit,
         } else {
             LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 item {
-            ApocalypseV5PhotoCard(
-                R.drawable.apocalypse_dark_tunnel,
-                "地下通路",
-                "撤离、探索和未知区域会保留更压迫的黑蓝氛围。",
-            )
-        }
+                    ApocalypseV5PhotoCard(
+                        R.drawable.apocalypse_dark_tunnel,
+                        "地下通路",
+                        "撤离、探索和未知区域会保留更压迫的黑蓝氛围。",
+                    )
+                }
                 item { ApocalypseV5StatusPanel(save.stats, save.director.phase, save.director.location) }
                 item { ApocalypseObjectivePanelV5(save.director) }
                 item { ApocalypseBaseDashboardV5(save) }
-                item { ApocalypseV5SectionTitle("最近剧情", "这里保留行动回顾") }
-                items(save.log.asReversed().take(14)) { log ->
-                    Surface(color = ApocalypseV5Colors.white, shape = RoundedCornerShape(17.dp), border = BorderStroke(1.dp, ApocalypseV5Colors.border)) {
-                        Text(log, color = ApocalypseV5Colors.ink, fontSize = 12.sp, lineHeight = 19.sp, modifier = Modifier.padding(13.dp), maxLines = 7, overflow = TextOverflow.Ellipsis)
+                item { ApocalypseV5SectionTitle("剧情记录", "新记录可逐幕回滚删除；删除某幕会同步删除它之后依赖该幕的剧情与状态") }
+
+                if (history.isNotEmpty()) {
+                    items(history.asReversed(), key = { it.id }) { record ->
+                        Surface(color = ApocalypseV5Colors.white, shape = RoundedCornerShape(17.dp), border = BorderStroke(1.dp, ApocalypseV5Colors.border)) {
+                            Column(Modifier.fillMaxWidth().padding(13.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                                Text("第${record.sceneBefore}幕 · ${record.action}", color = ApocalypseV5Colors.ink, fontSize = 12.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                Text(
+                                    record.narrationAfter.replace(Regex("【[^】]+】"), ""),
+                                    color = ApocalypseV5Colors.muted,
+                                    fontSize = 11.sp,
+                                    lineHeight = 17.sp,
+                                    maxLines = 5,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                                TextButton(onClick = { deleteTarget = record }, modifier = Modifier.align(Alignment.End)) {
+                                    Icon(Icons.Outlined.DeleteOutline, null, modifier = Modifier.size(17.dp))
+                                    Spacer(Modifier.width(4.dp))
+                                    Text("删除这幕", fontSize = 11.sp)
+                                }
+                            }
+                        }
+                    }
+                } else if (save.log.isNotEmpty()) {
+                    item {
+                        Surface(color = ApocalypseV5Colors.surfaceBlue, shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, ApocalypseV5Colors.border)) {
+                            Text(
+                                "这些是升级前留下的旧版记录，没有保存可安全回滚的状态快照，所以不提供假删除。可以使用“清空全部剧情记录”彻底重置本局剧情。",
+                                color = ApocalypseV5Colors.muted,
+                                fontSize = 11.sp,
+                                lineHeight = 17.sp,
+                                modifier = Modifier.padding(12.dp),
+                            )
+                        }
+                    }
+                    items(save.log.asReversed().take(14)) { log ->
+                        Surface(color = ApocalypseV5Colors.white, shape = RoundedCornerShape(17.dp), border = BorderStroke(1.dp, ApocalypseV5Colors.border)) {
+                            Text(log, color = ApocalypseV5Colors.ink, fontSize = 12.sp, lineHeight = 19.sp, modifier = Modifier.padding(13.dp), maxLines = 7, overflow = TextOverflow.Ellipsis)
+                        }
+                    }
+                } else {
+                    item { Text("还没有行动记录。", color = ApocalypseV5Colors.muted, fontSize = 12.sp) }
+                }
+
+                if (history.isNotEmpty() || save.log.isNotEmpty() || save.scene > 1) {
+                    item {
+                        OutlinedButton(onClick = { confirmClearHistory = true }, modifier = Modifier.fillMaxWidth()) {
+                            Icon(Icons.Outlined.DeleteSweep, null)
+                            Spacer(Modifier.width(6.dp))
+                            Text("清空全部剧情记录")
+                        }
                     }
                 }
                 item {
-                    OutlinedButton(onClick = { confirm = true }, modifier = Modifier.fillMaxWidth()) {
+                    OutlinedButton(onClick = { confirmClearSave = true }, modifier = Modifier.fillMaxWidth()) {
                         Icon(Icons.Outlined.RestartAlt, null)
                         Spacer(Modifier.width(6.dp))
                         Text("重新开档")
@@ -771,13 +861,44 @@ private fun ApocalypseV5ArchivePage(save: ApocalypseV3Save?, onBack: () -> Unit,
             }
         }
     }
-    if (confirm) {
+
+    deleteTarget?.let { target ->
         AlertDialog(
-            onDismissRequest = { confirm = false },
+            onDismissRequest = { deleteTarget = null },
+            title = { Text("永久删除第${target.sceneBefore}幕？") },
+            text = { Text("为了保证真的删除，这一幕以及它之后依赖这一幕产生的剧情、物资、地点、关系变化和状态都会一起回滚删除；未来模型上下文也不会再读取它们。此操作不可恢复。") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDeleteHistory(target.id)
+                    deleteTarget = null
+                }) { Text("永久删除") }
+            },
+            dismissButton = { TextButton(onClick = { deleteTarget = null }) { Text("取消") } },
+        )
+    }
+
+    if (confirmClearHistory) {
+        AlertDialog(
+            onDismissRequest = { confirmClearHistory = false },
+            title = { Text("清空全部剧情记录？") },
+            text = { Text("会永久删除本局已经发生的剧情及其派生状态，并回到灾前第七日开场。角色本身和异能配置不会删除。") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onClearHistory()
+                    confirmClearHistory = false
+                }) { Text("永久清空") }
+            },
+            dismissButton = { TextButton(onClick = { confirmClearHistory = false }) { Text("取消") } },
+        )
+    }
+
+    if (confirmClearSave) {
+        AlertDialog(
+            onDismissRequest = { confirmClearSave = false },
             title = { Text("清空末世存档？") },
             text = { Text("会删除当前末世剧情、物资、基地、异能进度和阅读进度。露露机角色本身不会删除。") },
-            confirmButton = { TextButton(onClick = { onClear(); confirm = false }) { Text("清空") } },
-            dismissButton = { TextButton(onClick = { confirm = false }) { Text("取消") } },
+            confirmButton = { TextButton(onClick = { onClearSave(); confirmClearSave = false }) { Text("清空") } },
+            dismissButton = { TextButton(onClick = { confirmClearSave = false }) { Text("取消") } },
         )
     }
 }
@@ -786,9 +907,9 @@ private fun ApocalypseV5ArchivePage(save: ApocalypseV3Save?, onBack: () -> Unit,
 private fun ApocalypseV5PlayPage(
     save: ApocalypseV3Save,
     config: ApocalypseV3Config,
-    gameStore: LuluGameStore,
     characters: Map<String, CharacterSettings>,
     progressStore: ApocalypseReadingProgressStoreV5,
+    historyStore: ApocalypseV5HistoryStore,
     onBack: () -> Unit,
     onSave: (ApocalypseV3Save) -> Unit,
 ) {
@@ -845,6 +966,7 @@ private fun ApocalypseV5PlayPage(
             writeApocalypseV5Scene(save, config, party, clean, beat, nextStats)
                 .onSuccess { text ->
                     if (text.isBlank()) return@onSuccess
+                    historyStore.append(saveBefore = save, action = clean, narrationAfter = text)
                     val next = save.copy(
                         scene = save.scene + 1,
                         narration = text,
@@ -855,15 +977,6 @@ private fun ApocalypseV5PlayPage(
                     )
                     onSave(next)
                     progressStore.save(next.id, next.scene, 0)
-                    val recordId = gameStore.recordExternalGame(
-                        LuluGameType.RoleplayAdventure,
-                        "末世求生 · 第${save.scene}幕",
-                        (55 + beat.nextDirector.tension * 4).coerceAtMost(100),
-                        0,
-                        "${beat.nextDirector.phase}，在${beat.nextDirector.location}执行“$clean”。",
-                        JSONObject().put("scene", save.scene).put("action", clean).put("phase", beat.nextDirector.phase).put("location", beat.nextDirector.location).put("cores", nextStats.crystalCores).put("spaceLevel", nextStats.playerAbilityLevel).toString(),
-                    )
-                    gameStore.attachCharacterReply(recordId, text.replace(Regex("【[^】]+】"), ""))
                     action = ""
                     autoPlay = false
                 }
