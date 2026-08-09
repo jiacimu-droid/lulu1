@@ -69,16 +69,16 @@ class PostgraduateExamStore internal constructor(context: Context) {
             appendLine("入睡时间：${sleepTime.format(DateTimeFormatter.ofPattern("HH:mm"))}")
             appendLine("起床时间：${wakeTime.format(DateTimeFormatter.ofPattern("HH:mm"))}")
             appendLine("睡眠时长：${"%.1f".format(durationHours)}小时")
-            appendLine("个人参考：约01:30前入睡、约09:30前起床；只是参考，不是系统硬门槛。")
         }
         return LuluAiServices.gateway.generate(
             characterId = snapshot.profile.selectedCharacterId,
             facts = facts,
             instruction = """
-                分别判断这次记录是否值得获得早睡奖励和早起奖励，两项必须独立判断，不能因为其中一项不理想就否定另一项。
+                由当前角色自己判断这次记录是否值得获得早睡奖励和早起奖励，不使用系统预设的固定入睡时间、起床时间或几点前/几点后的硬门槛。
+                结合这次实际入睡时间、起床时间、睡眠时长，以及角色已经知道的用户情况来判断。早睡与早起两项必须独立判断，不能因为其中一项不理想就否定另一项。
                 第一行严格只写 SLEEP_ALLOW 或 SLEEP_DENY。
                 第二行严格只写 WAKE_ALLOW 或 WAKE_DENY。
-                第三行起用角色自己的口吻自然回应，可以结合睡眠时长和用户实际情况。
+                第三行起用角色自己的口吻自然回应。
             """.trimIndent(),
             source = "考研",
             title = "作息奖励判断",
@@ -228,7 +228,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
     fun deletePlanItem(id: String) = mutate { state -> state.copy(planItems = state.planItems.filterNot { it.id == id }) }
 
     fun removePlanItemsByTitle(titles: Set<String>) = mutate { state ->
-        state.copy(planItems = state.planItems.filterNot { it.title in titles })
+        state.copy(planItems = state.planItems.filterNot { it.id.startsWith("rolling:") && it.title in titles })
     }
 
     fun replaceRollingPlanItems(items: List<StudyPlanItem>) = mutate { state ->
