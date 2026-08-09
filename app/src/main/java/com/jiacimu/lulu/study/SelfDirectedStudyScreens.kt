@@ -143,7 +143,9 @@ internal fun StudyTodayScreenV2(
         if (todayTasks.isEmpty()) {
             item { StudyCard { Text("今天还没有待办。", color = StudyDesign.muted) } }
         } else {
-            items(todayTasks, key = StudyTask::id) { task -> SelfDirectedTaskRow(task, store) }
+            // Legacy saves can contain duplicate task ids. Positional lazy-list keys keep scrolling safe
+            // even before the store has repaired those old rows.
+            items(todayTasks) { task -> SelfDirectedTaskRow(task, store) }
         }
     }
 
