@@ -75,7 +75,8 @@ internal class ApocalypseV5HistoryStore(context: Context) {
 
     /**
      * Hard-delete is causal: deleting one scene also drops every later scene whose state depended on it.
-     * The caller restores the save from [ApocalypseV5HistoryRollback.target].
+     * The returned target carries a log count aligned to the currently retained history window, including
+     * any legacy prefix that existed before V5 rollback checkpoints were introduced.
      */
     @Synchronized
     fun rollback(saveId: String, entryId: String): ApocalypseV5HistoryRollback? {
@@ -83,9 +84,14 @@ internal class ApocalypseV5HistoryStore(context: Context) {
         val index = entries.indexOfFirst { it.id == entryId }
         if (index < 0) return null
         val target = entries[index]
+        val inferredCurrentLogSize = (entries.lastOrNull()?.logCountBefore?.plus(1) ?: target.logCountBefore)
+            .coerceAtMost(MAX_SAVE_LOG)
+        val legacyPrefixCount = (inferredCurrentLogSize - entries.size).coerceAtLeast(0)
+        val restoredLogCount = (legacyPrefixCount + index).coerceIn(0, inferredCurrentLogSize)
+        val restoredTarget = target.copy(logCountBefore = restoredLogCount)
         val removedCount = entries.size - index
         persist(saveId, entries.take(index))
-        return ApocalypseV5HistoryRollback(target = target, removedCount = removedCount)
+        return ApocalypseV5HistoryRollback(target = restoredTarget, removedCount = removedCount)
     }
 
     @Synchronized
@@ -106,6 +112,7 @@ internal class ApocalypseV5HistoryStore(context: Context) {
     private companion object {
         const val PREFS_NAME = "apocalypse_isolated_history_v5"
         const val MAX_HISTORY = 60
+        const val MAX_SAVE_LOG = 100
     }
 }
 
