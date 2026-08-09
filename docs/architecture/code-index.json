@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-09T05:36:14.457682+00:00",
-  "commit": "3ffa37883f93ba2fdd6d0033846a7f56d9d1db40",
+  "generatedAt": "2026-08-09T05:38:19.626059+00:00",
+  "commit": "3524948647d6b0f3c22f88fbe1aae725fa42bd8b",
   "branch": "main",
-  "sourceFingerprint": "795fba0c1812526dc321a3dae8d650865bc918420d99576a6bd5363a7ef9ea02",
+  "sourceFingerprint": "03bc21a24a92d944ef1aa04d72151350581dd2635a08412a7b03d494c48a0c7a",
   "summary": {
     "files": 155,
-    "lines": 43707,
-    "symbols": 627
+    "lines": 43820,
+    "symbols": 629
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -315,7 +315,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 107
+        "line": 106
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -2097,7 +2097,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 106
+        "line": 105
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -2131,7 +2131,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 108
+        "line": 107
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -2193,7 +2193,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 144
+        "line": 148
       }
     ],
     "enterGame": [
@@ -2211,7 +2211,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 159
+        "line": 163
       }
     ],
     "goBack": [
@@ -2229,7 +2229,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 172
+        "line": 176
       }
     ],
     "advance": [
@@ -2253,7 +2253,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 837
+        "line": 958
       }
     ],
     "addPieces": [
@@ -2273,7 +2273,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 815
+        "line": 936
       }
     ],
     "previousPage": [
@@ -2287,7 +2287,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 816
+        "line": 937
       }
     ],
     "setPage": [
@@ -2297,7 +2297,19 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 810
+        "line": 931
+      }
+    ],
+    "rollbackStory": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 180
+      }
+    ],
+    "clearStoryHistory": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 189
       }
     ],
     "findCut": [
@@ -5639,48 +5651,56 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-      "lines": 1201,
-      "sha256": "b2ee58c5c722e3b6946bce1832e5007a06f7dd78161fb795d077f2826eff32d0",
+      "lines": 1314,
+      "sha256": "8007506c7d52ad03cfe48fa9bfd89724e07350d37423d72732b353e32e7ef216",
       "symbols": [
         {
           "name": "load",
-          "line": 106
+          "line": 105
         },
         {
           "name": "save",
-          "line": 107
+          "line": 106
         },
         {
           "name": "clear",
-          "line": 108
+          "line": 107
         },
         {
           "name": "createSave",
-          "line": 144
+          "line": 148
         },
         {
           "name": "enterGame",
-          "line": 159
+          "line": 163
         },
         {
           "name": "goBack",
-          "line": 172
+          "line": 176
+        },
+        {
+          "name": "rollbackStory",
+          "line": 180
+        },
+        {
+          "name": "clearStoryHistory",
+          "line": 189
         },
         {
           "name": "setPage",
-          "line": 810
+          "line": 931
         },
         {
           "name": "nextPage",
-          "line": 815
+          "line": 936
         },
         {
           "name": "previousPage",
-          "line": 816
+          "line": 937
         },
         {
           "name": "submit",
-          "line": 837
+          "line": 958
         }
       ]
     },
