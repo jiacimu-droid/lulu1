@@ -34,12 +34,17 @@ internal object StudyStateCodec {
     fun decode(raw: String): StudyState {
         val json = JSONObject(raw)
         val today = LocalDate.now()
+        val gachaRules = if (json.has("gachaRules")) {
+            repairGachaRules(decodeArray(json.optJSONArray("gachaRules"), ::decodeGachaRule))
+        } else {
+            defaultGachaRules()
+        }
         return StudyState(
             schemaVersion = 7,
             activeDate = json.optString("activeDate", today.toString()),
             profile = decodeProfile(json.optJSONObject("profile")),
             inventory = decodeInventory(json.optJSONObject("inventory")),
-            gachaRules = repairGachaRules(decodeArray(json.optJSONArray("gachaRules"), ::decodeGachaRule)),
+            gachaRules = gachaRules,
             tasks = decodeArray(json.optJSONArray("tasks"), ::decodeTask).ifEmpty { defaultTasks(today) },
             schedules = decodeArray(json.optJSONArray("schedules"), ::decodeSchedule),
             planItems = decodeArray(json.optJSONArray("planItems"), ::decodePlan).ifEmpty { defaultPlanItems() },
