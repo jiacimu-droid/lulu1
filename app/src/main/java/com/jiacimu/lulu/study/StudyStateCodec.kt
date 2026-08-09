@@ -104,7 +104,6 @@ internal object StudyStateCodec {
         .put("singleTickets", value.singleTickets)
         .put("tenTickets", value.tenTickets)
         .put("blueFragments", encodeStringIntMap(value.blueFragments))
-        .put("returnedBlueFragments", value.returnedBlueFragments)
         .put("douyinTickets", value.douyinTickets)
         .put("gameRoundTickets", value.gameRoundTickets)
         .put("theaterFragments", value.theaterFragments)
@@ -122,7 +121,6 @@ internal object StudyStateCodec {
             singleTickets = json?.optInt("singleTickets", 3) ?: 3,
             tenTickets = json?.optInt("tenTickets", 1) ?: 1,
             blueFragments = blueFragments,
-            returnedBlueFragments = (json?.optInt("returnedBlueFragments") ?: 0).coerceAtLeast(0),
             douyinTickets = json?.optInt("douyinTickets", legacyEntertainment?.optInt("Douyin") ?: 0) ?: 0,
             gameRoundTickets = json?.optInt("gameRoundTickets", legacyEntertainment?.optInt("Game") ?: 0) ?: 0,
             theaterFragments = json?.optInt("theaterFragments", legacyEntertainment?.optInt("SideStory") ?: 0) ?: 0,
