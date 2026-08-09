@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ExpandMore
@@ -16,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.LuluProfileAvatar
@@ -38,7 +36,6 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
     var error by remember { mutableStateOf(false) }
     var sleepText by remember { mutableStateOf("23:30") }
     var wakeText by remember { mutableStateOf("07:30") }
-    var durationText by remember { mutableStateOf("7.5") }
     var judgingSleep by remember { mutableStateOf(false) }
 
     LazyColumn(
@@ -121,29 +118,22 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
                         colors = studyOutlinedFieldColors(),
                     )
                 }
-                OutlinedTextField(
-                    value = durationText,
-                    onValueChange = {
-                        durationText = it.filter { char -> char.isDigit() || char == '.' }.take(4)
-                    },
-                    label = { Text("实际睡眠小时") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    colors = studyOutlinedFieldColors(),
-                )
                 Button(
                     onClick = {
                         val sleep = runCatching { LocalTime.parse(sleepText) }.getOrNull()
                         val wake = runCatching { LocalTime.parse(wakeText) }.getOrNull()
-                        val duration = durationText.toDoubleOrNull()
-                        if (sleep == null || wake == null || duration == null) {
-                            message = "请按 HH:mm 填写时间，并填写实际睡眠小时"
+                        if (sleep == null || wake == null) {
+                            message = "请按 HH:mm 填写入睡和起床时间"
                             error = true
                         } else {
+                            val sleepMinutes = sleep.hour * 60 + sleep.minute
+                            val wakeMinutes = wake.hour * 60 + wake.minute
+                            val rawDuration = wakeMinutes - sleepMinutes
+                            val durationMinutes = if (rawDuration <= 0) rawDuration + 24 * 60 else rawDuration
+                            val durationHours = durationMinutes / 60.0
                             judgingSleep = true
                             scope.launch {
-                                store.evaluateSleepReward(sleep, wake, duration)
+                                store.evaluateSleepReward(sleep, wake, durationHours)
                                     .onSuccess {
                                         message = it
                                         error = false
