@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ae04b9b44db62df2d314ecab2b482f51e4307e2a`
+- 基准提交：`55b3c9be89da6fff7af7b244def7cec91a2f3cab`
 - 分支：`main`
 - 已索引文件：155
-- 已索引代码/文本行：44047
+- 已索引代码/文本行：44059
 - 已发现符号：631
 
 | 文件 | 行数 | 符号数 |
@@ -80,7 +80,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 308 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 36 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 48 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 93 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseFlowRowCompat.kt` | 34 | 0 |
