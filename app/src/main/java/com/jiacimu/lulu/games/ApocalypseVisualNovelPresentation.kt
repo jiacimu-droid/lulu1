@@ -14,7 +14,8 @@ internal data class ApocalypseStoryPage(
  * Visual-novel tagged format used by the apocalypse writer and stage renderer.
  *
  * New scenes use one of these prefixes at the beginning of every display beat:
- * 【旁白】 / 【玩家】 / 【角色:<characterId>】
+ * 【旁白】 / 【玩家】 / 【角色:<characterId>】。V5 的 characterId 既可以来自同行角色，
+ * 也可以来自导演持久化的原创 NPC 档案；解析层保留原始 id，由舞台层决定头像与署名。
  * Legacy saves without tags remain readable and are treated as narration.
  */
 internal fun parseApocalypseStoryPages(

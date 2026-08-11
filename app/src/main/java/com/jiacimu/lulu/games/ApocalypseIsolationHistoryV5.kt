@@ -175,6 +175,10 @@ private fun encodeDirectorV5History(value: ApocalypseV3Director): JSONObject = J
     .put("factionStates", JSONArray(value.factionStates))
     .put("characterArcs", JSONArray(value.characterArcs))
     .put("foreshadowPlan", JSONArray(value.foreshadowPlan))
+    .put("characterDossiers", encodeApocalypseCharacterDossiersV5(value.characterDossiers))
+    .put("foreshadowLedger", encodeApocalypseForeshadowLedgerV5(value.foreshadowLedger))
+    .put("recentBeatTypes", JSONArray(value.recentBeatTypes))
+    .put("recentEmotionalTurns", JSONArray(value.recentEmotionalTurns))
     .put("locations", JSONArray().apply {
         value.locations.forEach { location ->
             put(
@@ -237,6 +241,11 @@ private fun decodeDirectorV5History(json: JSONObject): ApocalypseV3Director {
         factionStates = json.optJSONArray("factionStates").historyStrings().ifEmpty { defaults.factionStates },
         characterArcs = json.optJSONArray("characterArcs").historyStrings().ifEmpty { defaults.characterArcs },
         foreshadowPlan = json.optJSONArray("foreshadowPlan").historyStrings().ifEmpty { defaults.foreshadowPlan },
+        characterDossiers = decodeApocalypseCharacterDossiersV5(json.optJSONArray("characterDossiers")),
+        foreshadowLedger = decodeApocalypseForeshadowLedgerV5(json.optJSONArray("foreshadowLedger"))
+            .ifEmpty { defaults.foreshadowLedger },
+        recentBeatTypes = json.optJSONArray("recentBeatTypes").historyStrings().takeLast(8),
+        recentEmotionalTurns = json.optJSONArray("recentEmotionalTurns").historyStrings().takeLast(8),
         dayIndex = json.optInt("dayIndex", defaults.dayIndex).coerceIn(-30, 9999),
         clockMinutes = json.optInt("clockMinutes", defaults.clockMinutes).coerceIn(0, 1439),
         weather = json.optString("weather", defaults.weather).ifBlank { defaults.weather },

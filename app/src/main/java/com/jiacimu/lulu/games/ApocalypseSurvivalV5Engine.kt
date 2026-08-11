@@ -85,11 +85,20 @@ internal suspend fun planApocalypseV5Beat(
         - 角色在本局里的身份、关系、经历只由当前存档的世界事实、导演状态、保留剧情记录和上一幕决定。已经从存档删除的剧情不得靠推测重建。
 
         返回字段：phase, location, sceneGoal, beatType, tension, activeThreads, hiddenThreads, worldFacts,
-        longTermPlan, factionStates, characterArcs, foreshadowPlan, worldDelta, directive,
+        longTermPlan, factionStates, characterArcs, foreshadowPlan, characterDossiers, foreshadowLedger,
+        worldDelta, directive, openingHook, pressureEscalation, emotionalTurn, closingHook, sceneValueShift,
+        focusCharacterIds, foreshadowMoves,
         foodDelta, waterDelta, medicineDelta, materialsDelta, coresFound, playerAbilityXpGain, baseDelta,
         healthDelta, staminaDelta, infectionDelta, moraleDelta, minutesPassed, weather, temperatureC,
         unlockLocations:[{id,name,detail,unlocked}], discoverAssets:[{id,kind,title,detail,quantity,tag}]。
         kind只能 food|water|medicine|material|tool|weapon|vehicle|key|document|clue|map|core。
+
+        characterDossiers是本幕新增或发生变化的角色编剧档案数组；未变化人物无需重复返回，返回的人物必须给出完整对象。每项字段为：
+        {id,name,storyRole,publicGoal,privateNeed,fear,secret,contradiction,bottomLine,relationshipWeb,arcStage,lastAdvancedScene,status}。
+        同行者沿用其characterId；原创长期NPC使用稳定id（如npc_luo_yan），后续不得换id或换名。只返回真正会持续出现或影响剧情的人物，最多24名。
+        foreshadowLedger是本幕新增或发生变化的伏笔状态数组；未触碰伏笔无需重复返回，返回的伏笔必须给出完整对象。每项字段为：
+        {id,title,hiddenTruth,visibleEvidence,surfaceMeaning,stage,plantedScene,lastTouchedScene,targetPayoffStart,targetPayoffEnd,payoffConsequence,linkedCharacterIds}。
+        stage只能seeded|echoed|distorted|ripe|paid_off|abandoned；最多18条。visibleEvidence只能写玩家在保留剧情中真正见过的证据。
 
         导演原则：
         1. 必须提前维护数月到数年的剧情蓝图、势力状态、人物弧和伏笔回收计划，而不是每一幕临时编。
@@ -118,6 +127,13 @@ internal suspend fun planApocalypseV5Beat(
         24. 地图不是静态设定图。建筑可受损、坍塌、停运、被势力占领或被重新修复；道路可封锁后再清障；空置城区可逐步被赤潮植物、水体或菌毯重塑。变化必须来自真实事件与时间，不得为了“末世感”随机毁建筑。
         25. 当且仅当某个地图变化已经会在本幕被玩家亲眼看到、可靠侦查或可信证据确认时，把它加入worldFacts，格式严格为：MAP_KNOWN|PLACE|城市名|地点名|状态|简短原因；路线用MAP_KNOWN|ROUTE|区域/城市|路线名|状态|简短原因；区域生态/势力边界用MAP_KNOWN|ZONE|城市名|区域名|状态|简短原因。新增条目必须同时写入directive，保证正文让玩家实际获得这条信息。
         26. MAP_KNOWN是地图长期账本：后续规划必须保留已有条目；同一目标发生新变化时用新的同目标条目覆盖旧状态。隐藏的远处事故、导演私密情报和未经证实的传闻绝不能标成MAP_KNOWN。地图状态既可以恶化，也可以因清障、维修、重建、夺回据点而改善。
+        27. 每幕必须有可执行的戏剧节拍：openingHook在前150字内制造具体异常/欲望/问题；pressureEscalation让阻力或代价升级；emotionalTurn改变至少一段关系或玩家对局势的感受；closingHook留下迫近后果、两难信息或新的行动欲望。钩子不能靠凭空枪响、陌生电话、突然昏迷反复套模板。
+        28. sceneValueShift必须写清本幕从什么情绪/关系/处境价值转向什么价值，例如“戒备→勉强信任”“希望→带代价的希望”。没有价值变化的场景视为无效场景，安静戏也必须发生微小但不可逆的改变。
+        29. characterDossiers不是人物简历，而是魅力发动机。重要人物必须同时具备能力与缺口、吸引力与危险性、公开欲望与不愿承认的需求；秘密不必邪恶，矛盾不能被一幕解释完。每幕只聚焦1—2人，其他人保持自己的事务，禁止全员轮流表态。
+        30. 新长期NPC登场前先给独特行动选择、声音/动作识别点和与主线无关的私人目标；不要用外貌形容词代替魅力。角色的高光必须来自他在压力下做出只有他会做的选择。
+        31. 伏笔按seeded→echoed/distorted→ripe→paid_off推进。每次foreshadowMoves必须写“伏笔id:动作:本幕玩家能观察到的具体细节”。回收应同时完成答案、情绪冲击与现实后果；只口头解释真相不算回收。过了targetPayoffEnd仍不处理属于失约，除非玩家选择使其失效并标记abandoned及合理去向。
+        32. 高潮不是单纯提高tension或增加敌人。本幕若为阶段高潮，必须让至少两条此前独立的线发生碰撞，迫使人物做代价明确的选择，并永久改变关系、据点、势力、地图、谜团认知或长期目标；高潮后必须安排后果戏，不能立刻刷新更大危机。
+        33. 只输出本幕真正需要的一个openingHook和一个closingHook。不要每幕都用反转结尾；悬念、情感余震、承诺、倒计时、发现、艰难选择或短暂胜利都可以成为不同类型的钩子，最近使用过的节拍和情绪转折应避免重复。
     """.trimIndent()
 
     return LuluAiServices.gateway.generate(
@@ -127,7 +143,7 @@ internal suspend fun planApocalypseV5Beat(
         source = "末世求生V5导演",
         title = "末世求生 · 导演第${save.scene}幕",
         temperature = 0.72,
-        maxTokens = 2200,
+        maxTokens = 2800,
         usage = ModelUsage.Game,
         contextMode = CompanionContextMode.PersonaAndScenario,
     ).fold(
@@ -145,6 +161,10 @@ internal suspend fun writeApocalypseV5Scene(
     nextStats: ApocalypseV3Stats,
 ): Result<String> {
     val partyPrompt = apocalypsePartyStylePromptV5(party, config)
+    val writerCastIds = (party.map { it.characterId } + beat.focusCharacterIds).toSet()
+    val writerDossiers = beat.nextDirector.characterDossiers
+        .filter { it.id in writerCastIds }
+        .ifEmpty { beat.nextDirector.characterDossiers.filter { it.status == "active" }.takeLast(6) }
     val facts = buildString {
         appendLine(apocalypseIsolationRuleV5())
         appendLine("玩家行动：$action")
@@ -159,6 +179,14 @@ internal suspend fun writeApocalypseV5Scene(
         appendLine("导演动作：${beat.beatType}；本幕目标：${beat.nextDirector.sceneGoal}")
         appendLine("世界变化：${beat.worldDelta}")
         appendLine("导演执行指令：${beat.directive}")
+        appendLine("开场钩子：${beat.openingHook}")
+        appendLine("压力升级：${beat.pressureEscalation}")
+        appendLine("情绪转折：${beat.emotionalTurn}")
+        appendLine("场景价值变化：${beat.sceneValueShift}")
+        appendLine("结尾钩子：${beat.closingHook}")
+        appendLine("本幕聚焦角色：${beat.focusCharacterIds.joinToString("、")}")
+        appendLine("本幕伏笔动作：${beat.foreshadowMoves.joinToString("｜")}")
+        appendLine("本幕角色编剧档案（只用于维持独特动机与潜台词；不得超出导演允许的信息预算）：\n${apocalypseCharacterDossiersPromptV5(writerDossiers)}")
         appendLine("同行角色风格参考（只按隔离规则提取风格，不继承其中身份/关系/经历）：\n$partyPrompt")
         appendLine("当前明线：${beat.nextDirector.activeThreads.joinToString("｜")}")
         if (save.log.isNotEmpty()) {
@@ -178,7 +206,7 @@ internal suspend fun writeApocalypseV5Scene(
         每个显示段单独一段，并且段首必须是以下三种标记之一：
         【旁白】用于环境、动作、内心、无人直接说话的叙事。
         【玩家】只用于玩家本人正在直接说话的段落。
-        【角色:<characterId>】用于某位同行角色正在说话的段落，characterId必须从同行者清单原样复制。
+        【角色:<characterId>】用于同行者或导演演员档案中的人物直接说话，characterId必须从同行者清单或角色编剧档案原样复制。
         同一段只能有一个当前说话人；两个人连续说话必须拆成两段。不要把标记写到句子中间。
         每段通常1—2句，目标30—70字；客户端会在不删减任何文字和标点的前提下继续细分长段落。
 
@@ -197,6 +225,9 @@ internal suspend fun writeApocalypseV5Scene(
         - 基地能力按等级逐步解锁：Lv1安全睡眠/储物，Lv2净水/医疗，Lv3供电/工坊，Lv4防御/通信，Lv5持续生产。不能让低级临时据点凭空拥有完整城市功能。
         - 让场景像电影而不是剧情摘要：用可感知的环境变化、动作、停顿、声音、光线和人物反应承载信息；避免角色站着互相讲设定。
         - 对话要有潜台词和人物差异。重要人物可以避而不答、说半句、误解、改口或在行动中表达立场，但不能为了悬念故意全员谜语人。
+        - 严格执行开场钩子→压力升级→情绪转折→结尾钩子的因果节拍，但不要把这些词写进正文。开场钩子必须尽早出现；结尾钩子必须从本幕已有因果长出来。
+        - 聚焦角色要通过选择、动作、措辞、隐瞒方式和对他人的态度显出魅力与矛盾，禁止用旁白直接总结“他很神秘/强大/温柔”。配角不必人人发言。
+        - 伏笔动作只呈现指定的可观察细节，不得把hiddenTruth、后台档案、回收窗口或导演计划直接说出来。回收时让旧细节在行动和后果中获得新意义，不写解释大会。
         - 大场面前先建立空间和目标，大场面后必须留下实际后果；安静场景同样要有情绪、关系或选择上的推进。
         - 不要为了“刺激”频繁杀角色、背叛、抓走队友或突然出现更强怪物。真正的悬念来自已有规则下越来越难的选择。
         - 结尾停在自然可行动节点，不替玩家决定下一步。
@@ -236,6 +267,10 @@ private fun parseApocalypseV5Beat(raw: String, previous: ApocalypseV3Director): 
         )
     }
     val minutesPassed = json.optInt("minutesPassed", 30).coerceIn(5, 720)
+    val beatType = json.optString("beatType").ifBlank { "continuation" }.take(40)
+    val emotionalTurn = json.optString("emotionalTurn").take(320)
+    val dossierUpdates = decodeApocalypseCharacterDossiersV5(json.optJSONArray("characterDossiers"))
+    val foreshadowUpdates = decodeApocalypseForeshadowLedgerV5(json.optJSONArray("foreshadowLedger"))
     val absoluteMinutes = previous.clockMinutes + minutesPassed
     val dayAdvance = absoluteMinutes / 1440
     val nextClockMinutes = absoluteMinutes % 1440
@@ -250,6 +285,12 @@ private fun parseApocalypseV5Beat(raw: String, previous: ApocalypseV3Director): 
         factionStates = json.optJSONArray("factionStates").v5Strings().ifEmpty { previous.factionStates }.take(14),
         characterArcs = json.optJSONArray("characterArcs").v5Strings().ifEmpty { previous.characterArcs }.take(14),
         foreshadowPlan = json.optJSONArray("foreshadowPlan").v5Strings().ifEmpty { previous.foreshadowPlan }.take(14),
+        characterDossiers = mergeApocalypseCharacterDossiersV5(previous.characterDossiers, dossierUpdates),
+        foreshadowLedger = mergeApocalypseForeshadowLedgerV5(previous.foreshadowLedger, foreshadowUpdates),
+        recentBeatTypes = (previous.recentBeatTypes + beatType).takeLast(8),
+        recentEmotionalTurns = (previous.recentEmotionalTurns + emotionalTurn)
+            .filter(String::isNotBlank)
+            .takeLast(8),
         locations = (previous.locations + locations).distinctBy { it.id }.takeLast(36),
         assets = (previous.assets + assets).distinctBy { it.id }.takeLast(90),
         dayIndex = (previous.dayIndex + dayAdvance).coerceAtMost(9999),
@@ -260,9 +301,16 @@ private fun parseApocalypseV5Beat(raw: String, previous: ApocalypseV3Director): 
     )
     ApocalypseV3Beat(
         nextDirector = next,
-        beatType = json.optString("beatType").ifBlank { "continuation" }.take(40),
-        directive = json.optString("directive").ifBlank { "让玩家行动产生现实后果。" }.take(900),
+        beatType = beatType,
+        directive = json.optString("directive").ifBlank { "让玩家行动产生现实后果。" }.take(1400),
         worldDelta = json.optString("worldDelta").take(500),
+        openingHook = json.optString("openingHook").take(320),
+        pressureEscalation = json.optString("pressureEscalation").take(420),
+        emotionalTurn = emotionalTurn,
+        closingHook = json.optString("closingHook").take(320),
+        sceneValueShift = json.optString("sceneValueShift").take(180),
+        focusCharacterIds = json.optJSONArray("focusCharacterIds").v5Strings().take(2),
+        foreshadowMoves = json.optJSONArray("foreshadowMoves").v5Strings().take(3),
         foodDelta = json.optInt("foodDelta").coerceIn(-4, 4),
         waterDelta = json.optInt("waterDelta").coerceIn(-4, 4),
         medicineDelta = json.optInt("medicineDelta").coerceIn(-4, 4),
@@ -286,6 +334,11 @@ private fun fallbackApocalypseV5Beat(save: ApocalypseV3Save): ApocalypseV3Beat =
     beatType = "continuation",
     directive = "延续已有环境、人物和伏笔，不凭空反转；认真执行玩家行动。",
     worldDelta = "局势按照玩家行为继续变化。",
+    openingHook = "让玩家行动立刻碰到一个来自现有环境或人物目标的具体阻力。",
+    pressureEscalation = "让选择产生资源、时间、关系或信息上的真实代价。",
+    emotionalTurn = "至少让一名在场人物因玩家的选择改变一点态度或暴露一个性格侧面。",
+    closingHook = "停在由本幕因果自然产生、值得玩家回应的新局面。",
+    sceneValueShift = "观望→必须表态",
 )
 
 private fun extractApocalypseV5Json(raw: String): String {

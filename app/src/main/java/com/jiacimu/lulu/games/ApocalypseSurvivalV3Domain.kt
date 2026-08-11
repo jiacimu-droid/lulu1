@@ -96,6 +96,10 @@ internal data class ApocalypseV3Director(
     val factionStates: List<String> = defaultApocalypseFactionStates(),
     val characterArcs: List<String> = defaultApocalypseCharacterArcs(),
     val foreshadowPlan: List<String> = defaultApocalypseForeshadowPlan(),
+    val characterDossiers: List<ApocalypseCharacterDossierV5> = emptyList(),
+    val foreshadowLedger: List<ApocalypseForeshadowV5> = defaultApocalypseForeshadowLedgerV5(),
+    val recentBeatTypes: List<String> = emptyList(),
+    val recentEmotionalTurns: List<String> = emptyList(),
     val dayIndex: Int = -7,
     val clockMinutes: Int = 14 * 60 + 17,
     val weather: String = "闷热多云",
@@ -118,6 +122,13 @@ internal data class ApocalypseV3Beat(
     val beatType: String,
     val directive: String,
     val worldDelta: String,
+    val openingHook: String = "",
+    val pressureEscalation: String = "",
+    val emotionalTurn: String = "",
+    val closingHook: String = "",
+    val sceneValueShift: String = "",
+    val focusCharacterIds: List<String> = emptyList(),
+    val foreshadowMoves: List<String> = emptyList(),
     val foodDelta: Int = 0,
     val waterDelta: Int = 0,
     val medicineDelta: Int = 0,
@@ -585,6 +596,10 @@ private fun encodeApocalypseV3Director(value: ApocalypseV3Director): JSONObject 
     .put("factionStates", JSONArray(value.factionStates))
     .put("characterArcs", JSONArray(value.characterArcs))
     .put("foreshadowPlan", JSONArray(value.foreshadowPlan))
+    .put("characterDossiers", encodeApocalypseCharacterDossiersV5(value.characterDossiers))
+    .put("foreshadowLedger", encodeApocalypseForeshadowLedgerV5(value.foreshadowLedger))
+    .put("recentBeatTypes", JSONArray(value.recentBeatTypes))
+    .put("recentEmotionalTurns", JSONArray(value.recentEmotionalTurns))
     .put("locations", JSONArray().apply {
         value.locations.forEach { location ->
             put(JSONObject().put("id", location.id).put("name", location.name).put("detail", location.detail).put("unlocked", location.unlocked))
@@ -636,6 +651,11 @@ private fun decodeApocalypseV3Director(json: JSONObject): ApocalypseV3Director {
         factionStates = json.optJSONArray("factionStates").v3Strings().ifEmpty { defaults.factionStates },
         characterArcs = json.optJSONArray("characterArcs").v3Strings().ifEmpty { defaults.characterArcs },
         foreshadowPlan = json.optJSONArray("foreshadowPlan").v3Strings().ifEmpty { defaults.foreshadowPlan },
+        characterDossiers = decodeApocalypseCharacterDossiersV5(json.optJSONArray("characterDossiers")),
+        foreshadowLedger = decodeApocalypseForeshadowLedgerV5(json.optJSONArray("foreshadowLedger"))
+            .ifEmpty { defaults.foreshadowLedger },
+        recentBeatTypes = json.optJSONArray("recentBeatTypes").v3Strings().takeLast(8),
+        recentEmotionalTurns = json.optJSONArray("recentEmotionalTurns").v3Strings().takeLast(8),
         dayIndex = json.optInt("dayIndex", defaults.dayIndex).coerceIn(-30, 9999),
         clockMinutes = json.optInt("clockMinutes", defaults.clockMinutes).coerceIn(0, 1439),
         weather = json.optString("weather", defaults.weather).ifBlank { defaults.weather }.take(40),

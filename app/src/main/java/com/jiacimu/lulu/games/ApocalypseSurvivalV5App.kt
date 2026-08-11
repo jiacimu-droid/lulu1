@@ -997,6 +997,7 @@ private fun ApocalypseV5PlayPage(
             modifier = Modifier.fillMaxWidth().weight(1f),
             page = currentPage,
             party = party,
+            storyDossiers = save.director.characterDossiers,
             config = config,
             location = save.director.location,
             tension = save.director.tension,
@@ -1016,7 +1017,7 @@ private fun ApocalypseV5PlayPage(
         ) {
             Column(Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 10.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(apocalypseV5SpeakerLabel(currentPage, party, userName), color = ApocalypseV5Colors.blueStrong, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    Text(apocalypseV5SpeakerLabel(currentPage, party, save.director.characterDossiers, userName), color = ApocalypseV5Colors.blueStrong, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
                     Text("${pageIndex + 1}/${pages.size}", color = ApocalypseV5Colors.muted, fontSize = 9.sp)
                 }
                 Spacer(Modifier.height(5.dp))
@@ -1073,6 +1074,7 @@ private fun ApocalypseV5SpeakerStage(
     modifier: Modifier,
     page: ApocalypseStoryPage,
     party: List<CharacterSettings>,
+    storyDossiers: List<ApocalypseCharacterDossierV5>,
     config: ApocalypseV3Config,
     location: String,
     tension: Int,
@@ -1084,6 +1086,7 @@ private fun ApocalypseV5SpeakerStage(
     onAdvance: () -> Unit,
 ) {
     val character = page.characterId?.let { id -> party.firstOrNull { it.characterId == id } }
+    val storyCharacter = page.characterId?.let { id -> storyDossiers.firstOrNull { it.id == id } }
     val secondary = apocalypseAbilityDefinitionV5(apocalypsePlayerSecondaryChoiceV5(config))
     Box(modifier.background(Brush.verticalGradient(listOf(ApocalypseV5Colors.black, Color(0xFF10283E), ApocalypseV5Colors.blackSoft))).clickable(onClick = onAdvance)) {
         Column(Modifier.fillMaxSize().padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.SpaceBetween) {
@@ -1136,7 +1139,12 @@ private fun ApocalypseV5SpeakerStage(
                     )
                     ApocalypseStorySpeakerKind.Character -> {
                         if (character == null) {
-                            Icon(Icons.Outlined.Person, null, tint = ApocalypseV5Colors.textMutedDark, modifier = Modifier.size(54.dp))
+                            ApocalypseV5SpeakerPortrait(
+                                imageUri = null,
+                                fallback = storyCharacter?.name?.take(1).orEmpty().ifBlank { "角" },
+                                name = storyCharacter?.name ?: "同行角色",
+                                subtitle = storyCharacter?.storyRole?.ifBlank { "幸存者" } ?: "幸存者",
+                            )
                         } else {
                             val choice = companionAbilityChoice(config, character.characterId)
                             val ability = apocalypseAbilityDefinitionV5(choice)
@@ -1184,10 +1192,17 @@ private fun ApocalypseV5TinyStageStat(text: String) {
     }
 }
 
-private fun apocalypseV5SpeakerLabel(page: ApocalypseStoryPage, party: List<CharacterSettings>, userName: String): String = when (page.speakerKind) {
+private fun apocalypseV5SpeakerLabel(
+    page: ApocalypseStoryPage,
+    party: List<CharacterSettings>,
+    storyDossiers: List<ApocalypseCharacterDossierV5>,
+    userName: String,
+): String = when (page.speakerKind) {
     ApocalypseStorySpeakerKind.Narrator -> "旁白"
     ApocalypseStorySpeakerKind.Player -> userName.ifBlank { "我" }
-    ApocalypseStorySpeakerKind.Character -> party.firstOrNull { it.characterId == page.characterId }?.displayName ?: "同行角色"
+    ApocalypseStorySpeakerKind.Character -> party.firstOrNull { it.characterId == page.characterId }?.displayName
+        ?: storyDossiers.firstOrNull { it.id == page.characterId }?.name
+        ?: "同行角色"
 }
 
 @Composable
