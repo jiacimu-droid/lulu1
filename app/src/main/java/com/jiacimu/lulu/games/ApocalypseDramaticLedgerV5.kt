@@ -214,7 +214,7 @@ internal fun mergeApocalypseCharacterDossiersV5(
             status = update.status.ifBlank { old.status },
         )
     }
-    return merged.values.takeLast(24)
+    return merged.values.toList().takeLast(24)
 }
 
 internal fun mergeApocalypseForeshadowLedgerV5(
@@ -238,7 +238,7 @@ internal fun mergeApocalypseForeshadowLedgerV5(
             linkedCharacterIds = (old.linkedCharacterIds + update.linkedCharacterIds).distinct().takeLast(8),
         )
     }
-    return merged.values.takeLast(18)
+    return merged.values.toList().takeLast(18)
 }
 
 internal fun apocalypseCharacterDossiersPromptV5(values: List<ApocalypseCharacterDossierV5>): String =

@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-11T14:30:38.230500+00:00",
-  "commit": "96ffa74208b5b628c2bcad52aa46236c91e7a786",
-  "branch": "main",
-  "sourceFingerprint": "3d66a3468e63a26f94bcdfd7e5783e109d7be3f8cbdb9f3f00efed2b1ea1046c",
+  "generatedAt": "2026-08-11T14:39:23.062122+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "f13d0d79f736447b35518578df6cbb8bdb13beb8d5a4d7fe2350396f4e6488d6",
   "summary": {
     "files": 159,
     "lines": 45930,
@@ -5566,7 +5566,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseDramaticLedgerV5.kt",
       "lines": 288,
-      "sha256": "b857f42cb6bb89d6d8c3844b85fc0c9e7c743dc6c14c00ec31ea86bbeb998ac8",
+      "sha256": "fc754f40aa5837414d08fd3d2f96d3bee8df1cc77a36aec5ae375c9c9b889f6b",
       "symbols": []
     },
     {
