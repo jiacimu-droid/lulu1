@@ -63,6 +63,32 @@ private object ApocalypseV5Colors {
     val textMutedDark = Color(0xFFAEC4D9)
 }
 
+private fun apocalypseV5SceneImage(location: String, text: String): Int {
+    return apocalypseV5SceneImageMatch(location.lowercase())
+        ?: apocalypseV5SceneImageMatch(text.lowercase())
+        ?: R.drawable.apocalypse_city_night
+}
+
+private fun apocalypseV5SceneImageMatch(scene: String): Int? {
+    return when {
+        listOf("东江二水厂", "水厂", "净水厂", "取水口", "供水站", "waterworks").any(scene::contains) -> R.drawable.apocalypse_waterworks
+        listOf("北岸种源站", "种源站", "种子库", "温室", "育种", "greenhouse", "seed bank").any(scene::contains) -> R.drawable.apocalypse_seed_station
+        listOf("学校", "校园", "教学楼", "教室", "图书馆", "中学", "大学", "school", "campus").any(scene::contains) -> R.drawable.apocalypse_school
+        listOf("警局", "派出所", "公安", "应急中心", "联席会", "指挥中心", "police", "emergency center").any(scene::contains) -> R.drawable.apocalypse_emergency_center
+        listOf("医院", "诊所", "急救", "药房", "病房", "medical", "hospital").any(scene::contains) -> R.drawable.apocalypse_hospital
+        listOf("商场", "超市", "便利店", "商店", "市场", "卖场", "store", "mall").any(scene::contains) -> R.drawable.apocalypse_store
+        listOf("住宅", "公寓", "宿舍", "卧室", "客厅", "家中", "楼道", "home", "apartment").any(scene::contains) -> R.drawable.apocalypse_home
+        listOf("停车场", "车库", "地库", "地下室", "garage", "parking").any(scene::contains) -> R.drawable.apocalypse_parking
+        listOf("公路", "高速", "国道", "道路", "桥", "收费站", "车队", "road", "highway").any(scene::contains) -> R.drawable.apocalypse_road
+        listOf("郊区", "村", "农场", "荒野", "田野", "山地", "基地", "避难所", "rural", "farm").any(scene::contains) -> R.drawable.apocalypse_rural
+        listOf("隧道", "地铁", "地下通道", "下水道", "矿井", "tunnel", "subway").any(scene::contains) -> R.drawable.apocalypse_dark_tunnel
+        listOf("工厂", "仓库", "工业", "车间", "厂房", "电站", "factory", "warehouse").any(scene::contains) -> R.drawable.apocalypse_factory_interior
+        listOf("火车站", "铁路", "铁轨", "站台", "列车", "railway", "railroad", "platform").any(scene::contains) -> R.drawable.apocalypse_station
+        listOf("临江市", "旧城区", "市中心", "街道", "街区", "城区", "城市", "city", "street").any(scene::contains) -> R.drawable.apocalypse_linjiang_street
+        else -> null
+    }
+}
+
 @Composable
 private fun ApocalypseV5PhotoCard(
     drawableRes: Int,
@@ -1231,7 +1257,20 @@ private fun ApocalypseV5SpeakerStage(
     val character = page.characterId?.let { id -> party.firstOrNull { it.characterId == id } }
     val storyCharacter = page.characterId?.let { id -> storyDossiers.firstOrNull { it.id == id } }
     val secondary = apocalypseAbilityDefinitionV5(apocalypsePlayerSecondaryChoiceV5(config))
-    Box(modifier.background(Brush.verticalGradient(listOf(ApocalypseV5Colors.black, Color(0xFF10283E), ApocalypseV5Colors.blackSoft))).clickable(onClick = onAdvance)) {
+    Box(modifier.background(ApocalypseV5Colors.black).clickable(onClick = onAdvance)) {
+        Image(
+            painter = painterResource(apocalypseV5SceneImage(location, page.text)),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.matchParentSize(),
+        )
+        Box(
+            Modifier.matchParentSize().background(
+                Brush.verticalGradient(
+                    listOf(Color(0xB807111F), Color(0x6B07111F), Color(0xD907111F)),
+                ),
+            ),
+        )
         Column(Modifier.fillMaxSize().padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.SpaceBetween) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
@@ -1271,8 +1310,7 @@ private fun ApocalypseV5SpeakerStage(
             Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
                 when (page.speakerKind) {
                     ApocalypseStorySpeakerKind.Narrator -> Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                        Icon(Icons.Outlined.Landscape, null, tint = ApocalypseV5Colors.textMutedDark.copy(alpha = .55f), modifier = Modifier.size(58.dp))
-                        Text("$location · 场景", color = ApocalypseV5Colors.textMutedDark, fontSize = 10.sp)
+                        Text("$location · 场景", color = ApocalypseV5Colors.textOnDark, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                     ApocalypseStorySpeakerKind.Player -> ApocalypseV5SpeakerPortrait(
                         imageUri = userAvatarUri,
@@ -1316,12 +1354,11 @@ private fun ApocalypseV5SpeakerStage(
 private fun ApocalypseV5SpeakerPortrait(imageUri: String?, fallback: String, name: String, subtitle: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Surface(
-            modifier = Modifier.size(154.dp),
-            shape = RoundedCornerShape(topStart = 46.dp, topEnd = 46.dp, bottomStart = 22.dp, bottomEnd = 22.dp),
-            color = ApocalypseV5Colors.blackSoft,
-            border = BorderStroke(1.5.dp, ApocalypseV5Colors.blue),
-            shadowElevation = 12.dp,
-        ) { LuluProfileAvatar(imageUri, fallback, 154) }
+            modifier = Modifier.size(308.dp),
+            shape = RoundedCornerShape(68.dp),
+            color = Color.Transparent,
+            shadowElevation = 0.dp,
+        ) { LuluProfileAvatar(imageUri, fallback, 308) }
         Spacer(Modifier.height(8.dp))
         Text(name, color = ApocalypseV5Colors.textOnDark, fontSize = 14.sp, fontWeight = FontWeight.Black)
         Text(subtitle, color = ApocalypseV5Colors.blue, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
