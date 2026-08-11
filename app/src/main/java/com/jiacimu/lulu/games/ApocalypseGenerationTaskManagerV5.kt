@@ -59,16 +59,45 @@ internal object ApocalypseGenerationTaskManagerV5 {
             val appContext = context.applicationContext
             val job = appScope.launch(start = CoroutineStart.LAZY) {
                 try {
-                    val beat = if (needsDirector) {
+                    val planResult = if (needsDirector) {
                         planApocalypseV5Beat(save, config, party, cleanAction)
                     } else {
-                        continueApocalypseV5Beat(save, cleanAction)
+                        ApocalypsePlanResultV5(
+                            beat = continueApocalypseV5Beat(save, cleanAction),
+                            directorApplied = false,
+                        )
+                    }
+                    val plannedBeat = planResult.beat
+                    val usedDirector = planResult.directorApplied
+                    updateState(save.id) { it.copy(usedDirector = usedDirector) }
+                    val projectedStats = applyApocalypseV3Beat(save.stats, plannedBeat)
+                    updateState(save.id) { it.copy(phase = "正在写第${save.scene + 1}幕") }
+                    val outcome = writeApocalypseV5Scene(
+                        save = save,
+                        config = config,
+                        party = party,
+                        action = cleanAction,
+                        beat = plannedBeat,
+                        nextStats = projectedStats,
+                        usedDirector = usedDirector,
+                    )
+                        .getOrElse { error -> throw error }
+                    val resolvedBeat = applyApocalypseSceneOutcomeV5(
+                        save = save,
+                        plannedBeat = plannedBeat,
+                        outcome = outcome,
+                        usedDirector = usedDirector,
+                        party = party,
+                    )
+                    val beat = if (needsDirector && !usedDirector) {
+                        resolvedBeat.copy(
+                            nextDirector = resolvedBeat.nextDirector.copy(directorRefreshNeeded = true),
+                        )
+                    } else {
+                        resolvedBeat
                     }
                     val nextStats = applyApocalypseV3Beat(save.stats, beat)
-                    updateState(save.id) { it.copy(phase = "正在写第${save.scene + 1}幕") }
-                    val text = writeApocalypseV5Scene(save, config, party, cleanAction, beat, nextStats)
-                        .getOrElse { error -> throw error }
-                        .trim()
+                    val text = outcome.text.trim()
                     check(text.isNotBlank()) { "这一幕没有生成出正文，请再试一次。" }
 
                     val storage = ApocalypseSurvivalV3Store(appContext)
@@ -90,7 +119,11 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         narration = text,
                         director = beat.nextDirector,
                         stats = nextStats,
-                        log = (save.log + "第${save.scene + 1}幕｜$cleanAction\n${text.replace(Regex("【[^】]+】"), "").take(700)}")
+                        log = (save.log + buildString {
+                            append("第${save.scene + 1}幕｜行动=${cleanAction.take(180)}")
+                            append("｜结果=${outcome.actionOutcome.ifBlank { compactApocalypseSceneExcerptV5(text, 100) }.take(220)}")
+                            append("｜正史=${outcome.continuitySummary.ifBlank { compactApocalypseSceneExcerptV5(text) }.take(360)}")
+                        })
                             .takeLast(100),
                         updatedAt = System.currentTimeMillis(),
                     )

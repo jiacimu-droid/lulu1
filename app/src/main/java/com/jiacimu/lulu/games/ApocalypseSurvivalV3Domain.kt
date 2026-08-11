@@ -103,6 +103,11 @@ internal data class ApocalypseV3Director(
     val recentEmotionalTurns: List<String> = emptyList(),
     /** Configured companion abilities are only potentials until an on-screen post-impact awakening. */
     val awakenedCompanionIds: List<String> = emptyList(),
+    /** Hard cast continuity: only these actor ids are physically present in the current scene. */
+    val presentCharacterIds: List<String> = emptyList(),
+    val presentCharacterStateKnown: Boolean = false,
+    /** A local one-call scene can request a long-plan refresh on the following turn. */
+    val directorRefreshNeeded: Boolean = false,
     val dayIndex: Int = -7,
     val clockMinutes: Int = 14 * 60 + 17,
     val weather: String = "闷热多云",
@@ -581,16 +586,28 @@ private fun encodeApocalypseV3Save(value: ApocalypseV3Save): JSONObject = JSONOb
     .put("log", JSONArray(value.log))
     .put("updatedAt", value.updatedAt)
 
-private fun decodeApocalypseV3Save(json: JSONObject): ApocalypseV3Save = ApocalypseV3Save(
-    id = json.optString("id").ifBlank { UUID.randomUUID().toString() },
-    scene = json.optInt("scene", 1).coerceAtLeast(1),
-    partyIds = json.optJSONArray("partyIds").v3Strings(),
-    narration = json.optString("narration").ifBlank { initialApocalypseV3Scene(emptyList()) },
-    director = json.optJSONObject("director")?.let(::decodeApocalypseV3Director) ?: initialApocalypseV3Director(),
-    stats = json.optJSONObject("stats")?.let(::decodeApocalypseV3Stats) ?: ApocalypseV3Stats(),
-    log = json.optJSONArray("log").v3Strings(),
-    updatedAt = json.optLong("updatedAt", System.currentTimeMillis()),
-)
+private fun decodeApocalypseV3Save(json: JSONObject): ApocalypseV3Save {
+    val partyIds = json.optJSONArray("partyIds").v3Strings()
+    val restoredDirector = json.optJSONObject("director")?.let(::decodeApocalypseV3Director)
+        ?: initialApocalypseV3Director()
+    return ApocalypseV3Save(
+        id = json.optString("id").ifBlank { UUID.randomUUID().toString() },
+        scene = json.optInt("scene", 1).coerceAtLeast(1),
+        partyIds = partyIds,
+        narration = json.optString("narration").ifBlank { initialApocalypseV3Scene(emptyList()) },
+        director = restoredDirector.copy(
+            presentCharacterIds = if (restoredDirector.presentCharacterStateKnown) {
+                restoredDirector.presentCharacterIds
+            } else {
+                partyIds
+            },
+            presentCharacterStateKnown = true,
+        ),
+        stats = json.optJSONObject("stats")?.let(::decodeApocalypseV3Stats) ?: ApocalypseV3Stats(),
+        log = json.optJSONArray("log").v3Strings(),
+        updatedAt = json.optLong("updatedAt", System.currentTimeMillis()),
+    )
+}
 
 private fun encodeApocalypseV3Director(value: ApocalypseV3Director): JSONObject = JSONObject()
     .put("phase", value.phase)
@@ -608,6 +625,9 @@ private fun encodeApocalypseV3Director(value: ApocalypseV3Director): JSONObject 
     .put("recentBeatTypes", JSONArray(value.recentBeatTypes))
     .put("recentEmotionalTurns", JSONArray(value.recentEmotionalTurns))
     .put("awakenedCompanionIds", JSONArray(value.awakenedCompanionIds))
+    .put("presentCharacterIds", JSONArray(value.presentCharacterIds))
+    .put("presentCharacterStateKnown", value.presentCharacterStateKnown)
+    .put("directorRefreshNeeded", value.directorRefreshNeeded)
     .put("locations", JSONArray().apply {
         value.locations.forEach { location ->
             put(JSONObject().put("id", location.id).put("name", location.name).put("detail", location.detail).put("unlocked", location.unlocked))
@@ -669,6 +689,9 @@ private fun decodeApocalypseV3Director(json: JSONObject): ApocalypseV3Director {
         recentBeatTypes = json.optJSONArray("recentBeatTypes").v3Strings().takeLast(8),
         recentEmotionalTurns = json.optJSONArray("recentEmotionalTurns").v3Strings().takeLast(8),
         awakenedCompanionIds = json.optJSONArray("awakenedCompanionIds").v3Strings().distinct().take(12),
+        presentCharacterIds = json.optJSONArray("presentCharacterIds").v3Strings().distinct().take(10),
+        presentCharacterStateKnown = json.optBoolean("presentCharacterStateKnown", json.has("presentCharacterIds")),
+        directorRefreshNeeded = json.optBoolean("directorRefreshNeeded", false),
         dayIndex = restoredDayIndex,
         clockMinutes = json.optInt("clockMinutes", defaults.clockMinutes).coerceIn(0, 1439),
         weather = json.optString("weather", defaults.weather).ifBlank { defaults.weather }.take(40),

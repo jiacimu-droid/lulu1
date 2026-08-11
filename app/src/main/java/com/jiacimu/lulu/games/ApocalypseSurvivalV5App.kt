@@ -191,7 +191,10 @@ internal fun ApocalypseSurvivalAppV5(
             scene = 1,
             partyIds = party,
             narration = tagApocalypseNarrationAsNarrator(initialApocalypseV3Scene(names)),
-            director = initialApocalypseV3Director(),
+            director = initialApocalypseV3Director().copy(
+                presentCharacterIds = party,
+                presentCharacterStateKnown = true,
+            ),
             stats = ApocalypseV3Stats(),
         )
     }
@@ -203,7 +206,14 @@ internal fun ApocalypseSurvivalAppV5(
         }
         save = current
         if (current.partyIds.isEmpty() && gameState.selectedCharacterIds.isNotEmpty()) {
-            current = current.copy(partyIds = gameState.selectedCharacterIds.take(4))
+            val restoredParty = gameState.selectedCharacterIds.take(4)
+            current = current.copy(
+                partyIds = restoredParty,
+                director = current.director.copy(
+                    presentCharacterIds = current.director.presentCharacterIds.ifEmpty { restoredParty },
+                    presentCharacterStateKnown = true,
+                ),
+            )
             save = current
             storage.save(current)
         }
@@ -229,7 +239,10 @@ internal fun ApocalypseSurvivalAppV5(
         val reset = current.copy(
             scene = 1,
             narration = tagApocalypseNarrationAsNarrator(initialApocalypseV3Scene(names)),
-            director = initialApocalypseV3Director(),
+            director = initialApocalypseV3Director().copy(
+                presentCharacterIds = current.partyIds,
+                presentCharacterStateKnown = true,
+            ),
             stats = ApocalypseV3Stats(),
             log = emptyList(),
             updatedAt = System.currentTimeMillis(),
@@ -1080,7 +1093,16 @@ private fun ApocalypseV5PlayPage(
     val userName = remember { userPrefs.getString("display_name", "我").orEmpty().ifBlank { "我" } }
     val userAvatarUri = remember { userPrefs.getString("avatar_uri", null) }
     val party = save.partyIds.map { id -> characters[id] ?: MigratedDomainStores.characters.get(id) }
-    val pages = remember(save.scene, save.narration, party) { parseApocalypseStoryPages(save.narration, party) }
+    val currentHistory = remember(save.id, save.scene) { historyStore.load(save.id) }
+    val currentEntry = currentHistory.lastOrNull()?.takeIf { it.sceneBefore + 1 == save.scene }
+    val pages = remember(save.scene, save.narration, party, currentEntry?.action) {
+        buildList {
+            currentEntry?.action?.takeIf(String::isNotBlank)?.let { playerAction ->
+                addAll(parseApocalypseStoryPages("【玩家】$playerAction", party))
+            }
+            addAll(parseApocalypseStoryPages(save.narration, party))
+        }
+    }
     var pageIndex by remember(save.id, save.scene, pages.size) { mutableIntStateOf(progressStore.load(save.id, save.scene).coerceIn(0, pages.lastIndex.coerceAtLeast(0))) }
     var action by remember { mutableStateOf("") }
     var autoPlay by remember { mutableStateOf(false) }
@@ -1091,8 +1113,7 @@ private fun ApocalypseV5PlayPage(
     val generationStates by ApocalypseGenerationTaskManagerV5.states.collectAsState()
     val generationState = generationStates[save.id] ?: ApocalypseGenerationTaskManagerV5.TaskState()
     val busy = generationState.running
-    val currentHistory = remember(save.id, save.scene) { historyStore.load(save.id) }
-    val currentEntryId = currentHistory.lastOrNull()?.takeIf { it.sceneBefore + 1 == save.scene }?.id
+    val currentEntryId = currentEntry?.id
     val currentPage = pages.getOrElse(pageIndex) { pages.first() }
     val lastPage = pageIndex >= pages.lastIndex
 

@@ -18,7 +18,7 @@ internal fun apocalypseCinematicDirectorBibleV5(save: ApocalypseV3Save): String 
     appendLine("总纲必须同时存在主航线和1—2条可替代路线。玩家若救下关键人物、拒绝某势力、提前跨市、毁掉设施或建立不同基地，后续要真正换轨。")
     appendLine("总纲要有清晰的开端—发展—中段重估—代价升级—后段选择—结局回收，但不能机械卡幕数；玩家行为决定每个阶段实际持续多久。")
     appendLine("重大谜底和结局议题要提前知道答案或至少知道答案边界。禁止导演为了制造神秘而自己也不知道真相、每次临时再编一层。")
-    appendLine("每3—5幕做一次隐藏连续性复盘：剧情是否仍服务于总纲；哪些伏笔已播种、哪些应回收；哪些人物弧正在推进；哪些旧计划因玩家选择已经失效。失效就重写未来，不回滚玩家事实。")
+    appendLine("每5—7幕做一次隐藏连续性复盘：剧情是否仍服务于总纲；哪些伏笔已播种、哪些应回收；哪些人物弧正在推进；哪些旧计划因玩家选择已经失效。失效就重写未来，不回滚玩家事实。")
     appendLine()
     appendLine("【长篇末世剧剧情发动机】")
     appendLine("发动机A｜群像关系网：重要人物不能只与玩家发生关系。持续维护友情、亲情替代、师徒、竞争、照顾、债务、嫉妒、敬佩、价值观差异等横向关系。每4—8幕至少推进一次NPC与NPC之间的关系变化。")
@@ -88,6 +88,8 @@ internal fun apocalypseCinematicDirectorBibleV5(save: ApocalypseV3Save): String 
     appendLine("结构化角色档案=\n${apocalypseCharacterDossiersPromptV5(save.director.characterDossiers)}")
     appendLine("最近场景类型=${save.director.recentBeatTypes.joinToString("｜")}")
     appendLine("最近情绪转折=${save.director.recentEmotionalTurns.joinToString("｜")}")
+    val presentIds = if (save.director.presentCharacterStateKnown) save.director.presentCharacterIds else save.partyIds
+    appendLine("当前实际在场角色id=${presentIds.joinToString("｜").ifBlank { "无（玩家独处）" }}")
     appendLine("以上都是后台制作资料。玩家前台只能看到当前能观察、能听见、能合理推断出的部分。")
 }
 

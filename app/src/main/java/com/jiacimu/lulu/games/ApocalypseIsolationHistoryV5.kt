@@ -215,6 +215,9 @@ private fun encodeDirectorV5History(value: ApocalypseV3Director): JSONObject = J
     .put("recentBeatTypes", JSONArray(value.recentBeatTypes))
     .put("recentEmotionalTurns", JSONArray(value.recentEmotionalTurns))
     .put("awakenedCompanionIds", JSONArray(value.awakenedCompanionIds))
+    .put("presentCharacterIds", JSONArray(value.presentCharacterIds))
+    .put("presentCharacterStateKnown", value.presentCharacterStateKnown)
+    .put("directorRefreshNeeded", value.directorRefreshNeeded)
     .put("locations", JSONArray().apply {
         value.locations.forEach { location ->
             put(
@@ -287,6 +290,9 @@ private fun decodeDirectorV5History(json: JSONObject): ApocalypseV3Director {
         recentBeatTypes = json.optJSONArray("recentBeatTypes").historyStrings().takeLast(8),
         recentEmotionalTurns = json.optJSONArray("recentEmotionalTurns").historyStrings().takeLast(8),
         awakenedCompanionIds = json.optJSONArray("awakenedCompanionIds").historyStrings().distinct().take(12),
+        presentCharacterIds = json.optJSONArray("presentCharacterIds").historyStrings().distinct().take(10),
+        presentCharacterStateKnown = json.optBoolean("presentCharacterStateKnown", json.has("presentCharacterIds")),
+        directorRefreshNeeded = json.optBoolean("directorRefreshNeeded", false),
         dayIndex = restoredDayIndex,
         clockMinutes = json.optInt("clockMinutes", defaults.clockMinutes).coerceIn(0, 1439),
         weather = json.optString("weather", defaults.weather).ifBlank { defaults.weather },
