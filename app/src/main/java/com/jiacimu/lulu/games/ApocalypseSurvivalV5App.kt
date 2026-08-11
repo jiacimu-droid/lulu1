@@ -1346,6 +1346,17 @@ private fun ApocalypseV5SpeakerStage(
                     }
                 }
             }
+            Row(
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+            ) {
+                ApocalypseV5TinyStageStat("¥${stats.money}")
+                ApocalypseV5TinyStageStat("食 ${stats.food}")
+                ApocalypseV5TinyStageStat("水 ${stats.water}")
+                ApocalypseV5TinyStageStat("药 ${stats.medicine}")
+                ApocalypseV5TinyStageStat("晶 ${stats.crystalCores}")
+                if (stats.baseLevel > 0) ApocalypseV5TinyStageStat("基地 Lv.${stats.baseLevel}")
+            }
             Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
                 when (page.speakerKind) {
                     ApocalypseStorySpeakerKind.Narrator -> Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(9.dp)) {
@@ -1377,14 +1388,6 @@ private fun ApocalypseV5SpeakerStage(
                         }
                     }
                 }
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                ApocalypseV5TinyStageStat("¥${stats.money}")
-                ApocalypseV5TinyStageStat("食 ${stats.food}")
-                ApocalypseV5TinyStageStat("水 ${stats.water}")
-                ApocalypseV5TinyStageStat("药 ${stats.medicine}")
-                ApocalypseV5TinyStageStat("晶 ${stats.crystalCores}")
-                if (stats.baseLevel > 0) ApocalypseV5TinyStageStat("基地 Lv.${stats.baseLevel}")
             }
         }
     }
