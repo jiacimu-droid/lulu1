@@ -27,7 +27,6 @@ private data class CompactCollectionTicket(
 internal fun StudyCollectionScreenV2(
     state: StudyState,
     store: PostgraduateExamStore,
-    onOpenTheater: () -> Unit,
     onOpenProbabilityDesign: () -> Unit,
 ) {
     var message by remember { mutableStateOf("") }
@@ -52,7 +51,6 @@ internal fun StudyCollectionScreenV2(
                 amount = state.inventory.theaterFragments,
             ) {
                 message = store.redeemEntertainment(StudyEntertainmentKind.Theater)
-                if (!message.contains("不足") && !message.contains("全部")) onOpenTheater()
             }
 
             StudyGachaRewardType.Movie -> CompactCollectionTicket(

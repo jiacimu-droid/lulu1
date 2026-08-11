@@ -786,7 +786,6 @@ private data class CollectionTicket(val title: String, val amount: Int, val use:
 internal fun StudyCollectionScreen(
     state: StudyState,
     store: PostgraduateExamStore,
-    onOpenTheater: () -> Unit,
     onOpenProbabilityDesign: () -> Unit,
 ) {
     var message by remember { mutableStateOf("") }
@@ -795,7 +794,6 @@ internal fun StudyCollectionScreen(
         CollectionTicket("游戏局数券 · 4局", state.inventory.gameRoundTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.GameRound) },
         CollectionTicket("小剧场券", state.inventory.theaterFragments) {
             message = store.redeemEntertainment(StudyEntertainmentKind.Theater)
-            if (!message.contains("不足") && !message.contains("全部")) onOpenTheater()
         },
         CollectionTicket("电影券 · 1部", state.inventory.gameTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Game) },
         CollectionTicket("影视剧一季兑换券", state.inventory.animeTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Anime) },

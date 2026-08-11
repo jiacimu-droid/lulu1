@@ -699,15 +699,10 @@ class PostgraduateExamStore internal constructor(context: Context) {
                 }
                 StudyEntertainmentKind.Theater -> {
                     if (inventory.theaterFragments <= 0) return@mutate state
-                    val next = theaterCatalog.firstOrNull { it !in inventory.unlockedTheaters }
-                    if (next == null) {
-                        message = "小剧场已经全部解锁"
-                        return@mutate state
-                    }
-                    message = "解锁小剧场《$next》"
+                    message = "小剧场券已使用"
                     state.copy(
-                        inventory = inventory.copy(theaterFragments = inventory.theaterFragments - 1, unlockedTheaters = inventory.unlockedTheaters + next),
-                        events = addEvent(state.events, "小剧场", message),
+                        inventory = inventory.copy(theaterFragments = inventory.theaterFragments - 1),
+                        events = addEvent(state.events, "娱乐券", message),
                     )
                 }
                 StudyEntertainmentKind.Game -> {

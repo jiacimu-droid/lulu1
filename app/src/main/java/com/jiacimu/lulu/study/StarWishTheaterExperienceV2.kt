@@ -291,7 +291,7 @@ private fun TheaterReaderV2(
                     shape = RoundedCornerShape(16.dp),
                 )
                 Button(
-                    enabled = !generating && studyState.inventory.theaterFragments >= StarWishRules.THEATER_FRAGMENTS_PER_CHAPTER && chapters.size < StarWishRules.MAX_CHAPTERS_PER_THEATER,
+                    enabled = !generating && chapters.size < StarWishRules.MAX_CHAPTERS_PER_THEATER,
                     onClick = {
                         generating = true
                         message = ""
@@ -322,16 +322,14 @@ private fun TheaterReaderV2(
                                 temperature = 0.82,
                                 maxTokens = 4400,
                             ).onSuccess { reply ->
-                                if (StarWishInventoryBridge.consumeTheaterFragment(studyStore)) {
-                                    store.addChapter(
-                                        StarWishTheaterChapter(theater = seed.title, chapter = chapterNumber, title = "第 $chapterNumber 章", content = reply.text, userInfluence = influence.trim()),
-                                        studyState.profile.selectedCharacterId,
-                                    )
-                                    selectedIndex = chapterNumber - 1
-                                    influence = ""
-                                    message = "第 $chapterNumber 章已生成"
-                                    listState.scrollToItem(0)
-                                } else message = "小剧场券不足"
+                                store.addChapter(
+                                    StarWishTheaterChapter(theater = seed.title, chapter = chapterNumber, title = "第 $chapterNumber 章", content = reply.text, userInfluence = influence.trim()),
+                                    studyState.profile.selectedCharacterId,
+                                )
+                                selectedIndex = chapterNumber - 1
+                                influence = ""
+                                message = "第 $chapterNumber 章已生成"
+                                listState.scrollToItem(0)
                             }.onFailure { message = it.message ?: "章节生成失败" }
                             generating = false
                         }

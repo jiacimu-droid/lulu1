@@ -1359,9 +1359,7 @@ private fun ApocalypseV5SpeakerStage(
             }
             Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
                 when (page.speakerKind) {
-                    ApocalypseStorySpeakerKind.Narrator -> Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                        Text("$location · 场景", color = ApocalypseV5Colors.textOnDark, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                    }
+                    ApocalypseStorySpeakerKind.Narrator -> Unit
                     ApocalypseStorySpeakerKind.Player -> ApocalypseV5SpeakerPortrait(
                         imageUri = userAvatarUri,
                         fallback = userName.take(1).ifBlank { "我" },

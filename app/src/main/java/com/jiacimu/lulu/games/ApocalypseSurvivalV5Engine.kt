@@ -53,7 +53,7 @@ private fun apocalypseRecentContinuityV5(save: ApocalypseV3Save): String = build
 internal fun shouldPlanApocalypseV5Beat(save: ApocalypseV3Save, action: String): Boolean {
     val nextScene = save.scene + 1
     if (nextScene % 4 == 0 || save.director.tension >= 8 || save.director.longTermPlan.size < 8) return true
-    if (save.director.foreshadowLedger.any { it.status == "ripe" }) return true
+    if (save.director.foreshadowLedger.any { it.stage == "ripe" }) return true
     val structuralSignals = listOf(
         "前往", "离开", "出发", "跨市", "搬迁", "撤离", "地图", "路线",
         "买", "采购", "付款", "花费", "卖掉", "出售", "交易", "报酬", "退款", "钱", "元",

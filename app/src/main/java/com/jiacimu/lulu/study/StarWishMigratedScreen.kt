@@ -55,7 +55,7 @@ internal fun StarWishMigratedScreen(onBack: () -> Unit, initialTab: StarWishTab 
                     if (tab == StarWishTab.Theater) {
                         Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
                             Text(
-                                "碎片 ${studyState.inventory.theaterFragments}",
+                                "小剧场券 ${studyState.inventory.theaterFragments}",
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 style = MaterialTheme.typography.labelMedium,

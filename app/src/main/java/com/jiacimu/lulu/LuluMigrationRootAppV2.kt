@@ -262,10 +262,6 @@ fun LuluMigrationRootAppV2(
                                 )
                                 MigrationRoute.Study -> PostgraduateExamApp(
                                     onBack = ::popRoute,
-                                    onOpenTheater = {
-                                        starWishInitialTab = StarWishTab.Theater.name
-                                        pushRoute(MigrationRoute.Wishes)
-                                    },
                                     onOpenConversation = ::openConversation,
                                     openPomodoroRequest = openPomodoroRequest,
                                     onPomodoroVisibilityChanged = { pomodoroFocusVisible = it },
