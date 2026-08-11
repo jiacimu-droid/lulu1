@@ -34,7 +34,6 @@ import com.jiacimu.lulu.R
 import com.jiacimu.lulu.data.CharacterSettings
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.UUID
 
 internal const val APOCALYPSE_PLAYER_SECONDARY_KEY = "__player_secondary__"
@@ -128,7 +127,7 @@ private fun ApocalypseV5PhotoCard(
     }
 }
 
-private class ApocalypseReadingProgressStoreV5(context: Context) {
+internal class ApocalypseReadingProgressStoreV5(context: Context) {
     private val prefs = context.applicationContext.getSharedPreferences("apocalypse_reading_progress", Context.MODE_PRIVATE)
     private fun key(saveId: String, scene: Int) = "${saveId}_$scene"
     fun load(saveId: String, scene: Int): Int = prefs.getInt(key(saveId, scene), 0).coerceAtLeast(0)
@@ -167,12 +166,19 @@ internal fun ApocalypseSurvivalAppV5(
     val historyStore = remember(context) { ApocalypseV5HistoryStore(context) }
     val gameState by gameStore.state.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
+    val generationStates by ApocalypseGenerationTaskManagerV5.states.collectAsState()
     var screen by remember { mutableStateOf(ApocalypseV5Screen.Home) }
     var save by remember { mutableStateOf(storage.loadSave()) }
     var config by remember { mutableStateOf(storage.loadConfig()) }
+    val generationState = save?.id?.let { generationStates[it] }
 
     LaunchedEffect(Unit) {
         purgeApocalypseMainWorldLeaks(gameStore)
+    }
+
+    LaunchedEffect(generationState?.completedScene) {
+        val completedScene = generationState?.completedScene ?: return@LaunchedEffect
+        if (completedScene > (save?.scene ?: 0)) storage.loadSave()?.let { save = it }
     }
 
     fun createSave(): ApocalypseV3Save {
@@ -191,10 +197,11 @@ internal fun ApocalypseSurvivalAppV5(
     }
 
     fun enterGame() {
-        var current = save ?: createSave().also {
+        var current = storage.loadSave() ?: save ?: createSave().also {
             save = it
             storage.save(it)
         }
+        save = current
         if (current.partyIds.isEmpty() && gameState.selectedCharacterIds.isNotEmpty()) {
             current = current.copy(partyIds = gameState.selectedCharacterIds.take(4))
             save = current
@@ -239,6 +246,7 @@ internal fun ApocalypseSurvivalAppV5(
         ApocalypseV5Screen.Home -> ApocalypseV5HomePage(
             save = save,
             config = config,
+            generationState = generationState,
             onBack = onBack,
             onEnter = ::enterGame,
             onAbilities = { screen = ApocalypseV5Screen.AbilitySettings },
@@ -324,10 +332,6 @@ internal fun ApocalypseSurvivalAppV5(
                     onBack = ::goBack,
                     onHistory = { screen = ApocalypseV5Screen.StoryHistory },
                     onDeleteCurrent = { entryId -> rollbackStory(entryId) },
-                    onSave = { next ->
-                        save = next
-                        storage.save(next)
-                    },
                 )
             }
         }
@@ -338,6 +342,7 @@ internal fun ApocalypseSurvivalAppV5(
 private fun ApocalypseV5HomePage(
     save: ApocalypseV3Save?,
     config: ApocalypseV3Config,
+    generationState: ApocalypseGenerationTaskManagerV5.TaskState?,
     onBack: () -> Unit,
     onEnter: () -> Unit,
     onAbilities: () -> Unit,
@@ -362,7 +367,19 @@ private fun ApocalypseV5HomePage(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             if (save != null) { item { ApocalypseSurvivalSnapshotV5(save) } }
-            item { ApocalypseV5MenuEntry(Icons.Outlined.PlayArrow, "进入游戏", if (save == null) "从灾前第七日开始" else "继续第 ${save.scene} 幕", onEnter, emphasis = true) }
+            item {
+                ApocalypseV5MenuEntry(
+                    Icons.Outlined.PlayArrow,
+                    if (generationState?.running == true) "剧情正在后台生成" else "进入游戏",
+                    when {
+                        generationState?.running == true -> generationState.phase.ifBlank { "退出页面也不会中断" }
+                        save == null -> "从灾前第七日开始"
+                        else -> "继续第 ${save.scene} 幕"
+                    },
+                    onEnter,
+                    emphasis = true,
+                )
+            }
             item { ApocalypseV5MenuEntry(Icons.Outlined.AutoAwesome, "异能设定", "你与同行角色的异能、分化和队伍配置", onAbilities) }
             item { ApocalypseV5MenuEntry(Icons.Outlined.Tune, "系统设置", "世界强度与自动播放速度", onSystem) }
             item { ApocalypseV5MenuEntry(Icons.Outlined.Public, "世界档案", "赤潮生态、异能社会、丧尸进化与长期剧情骨架", onWorld) }
@@ -1057,25 +1074,23 @@ private fun ApocalypseV5PlayPage(
     onBack: () -> Unit,
     onHistory: () -> Unit,
     onDeleteCurrent: (String) -> Unit,
-    onSave: (ApocalypseV3Save) -> Unit,
 ) {
     val context = LocalContext.current
     val userPrefs = remember(context) { context.getSharedPreferences("lulu_user_profile", Context.MODE_PRIVATE) }
     val userName = remember { userPrefs.getString("display_name", "我").orEmpty().ifBlank { "我" } }
     val userAvatarUri = remember { userPrefs.getString("avatar_uri", null) }
-    val scope = rememberCoroutineScope()
     val party = save.partyIds.map { id -> characters[id] ?: MigratedDomainStores.characters.get(id) }
     val pages = remember(save.scene, save.narration, party) { parseApocalypseStoryPages(save.narration, party) }
     var pageIndex by remember(save.id, save.scene, pages.size) { mutableIntStateOf(progressStore.load(save.id, save.scene).coerceIn(0, pages.lastIndex.coerceAtLeast(0))) }
     var action by remember { mutableStateOf("") }
-    var busy by remember { mutableStateOf(false) }
     var autoPlay by remember { mutableStateOf(false) }
     var showInventory by remember { mutableStateOf(false) }
     var showMapPage by remember { mutableStateOf(false) }
     var confirmDeleteCurrent by remember { mutableStateOf(false) }
-    var generationPhase by remember { mutableStateOf("") }
     var generationSeconds by remember { mutableIntStateOf(0) }
-    var generationError by remember { mutableStateOf<String?>(null) }
+    val generationStates by ApocalypseGenerationTaskManagerV5.states.collectAsState()
+    val generationState = generationStates[save.id] ?: ApocalypseGenerationTaskManagerV5.TaskState()
+    val busy = generationState.running
     val currentHistory = remember(save.id, save.scene) { historyStore.load(save.id) }
     val currentEntryId = currentHistory.lastOrNull()?.takeIf { it.sceneBefore + 1 == save.scene }?.id
     val currentPage = pages.getOrElse(pageIndex) { pages.first() }
@@ -1108,60 +1123,25 @@ private fun ApocalypseV5PlayPage(
         nextPage()
     }
 
-    LaunchedEffect(busy) {
-        generationSeconds = 0
+    LaunchedEffect(busy, generationState.startedAtMillis) {
+        generationSeconds = generationState.startedAtMillis?.let { ((System.currentTimeMillis() - it) / 1_000L).toInt() } ?: 0
         while (busy) {
             delay(1_000)
-            generationSeconds += 1
+            generationSeconds = generationState.startedAtMillis?.let { ((System.currentTimeMillis() - it) / 1_000L).toInt() } ?: 0
         }
     }
 
-    BackHandler(enabled = busy) {
-        generationError = "这一幕还在生成，完成后才能离开，避免丢失已经等待的进度。"
+    LaunchedEffect(generationState.lastError, generationState.action) {
+        if (generationState.lastError != null && action.isBlank()) action = generationState.action
     }
 
     fun submit() {
         val clean = action.trim()
         if (clean.isBlank() || busy || !lastPage) return
-        scope.launch {
-            busy = true
-            generationError = null
-            generationPhase = "正在推演行动后果"
-            try {
-                val beat = planApocalypseV5Beat(save, config, party, clean)
-                val nextStats = applyApocalypseV3Beat(save.stats, beat)
-                generationPhase = "正在写第${save.scene + 1}幕"
-                writeApocalypseV5Scene(save, config, party, clean, beat, nextStats)
-                    .onSuccess { text ->
-                        if (text.isBlank()) {
-                            generationError = "这一幕没有生成出正文，请再试一次。你的行动还保留着。"
-                            return@onSuccess
-                        }
-                        generationError = null
-                        historyStore.append(saveBefore = save, action = clean, narrationAfter = text)
-                        val next = save.copy(
-                            scene = save.scene + 1,
-                            narration = text,
-                            director = beat.nextDirector,
-                            stats = nextStats,
-                            log = (save.log + "第${save.scene + 1}幕｜$clean\n${text.replace(Regex("【[^】]+】"), "").take(700)}").takeLast(100),
-                            updatedAt = System.currentTimeMillis(),
-                        )
-                        onSave(next)
-                        progressStore.save(next.id, next.scene, 0)
-                        action = ""
-                        autoPlay = false
-                    }
-                    .onFailure {
-                        generationError = "生成失败了，请检查游戏模型或网络后重试。你的行动没有丢失。"
-                    }
-            } catch (error: Throwable) {
-                if (error is kotlinx.coroutines.CancellationException) throw error
-                generationError = "生成被意外中断了，请重试。你的行动没有丢失。"
-            } finally {
-                busy = false
-                generationPhase = ""
-            }
+        val started = ApocalypseGenerationTaskManagerV5.launch(context, save, config, party, clean)
+        if (started) {
+            action = ""
+            autoPlay = false
         }
     }
 
@@ -1188,7 +1168,7 @@ private fun ApocalypseV5PlayPage(
                 .padding(horizontal = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IconButton(onClick = onBack, enabled = !busy) { Icon(Icons.Outlined.ArrowBack, "返回", tint = ApocalypseV5Colors.textOnDark) }
+            IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回", tint = ApocalypseV5Colors.textOnDark) }
             Column(Modifier.weight(1f)) {
                 Text("末世求生", color = ApocalypseV5Colors.textOnDark, fontSize = 17.sp, fontWeight = FontWeight.Black)
                 Text("${apocalypseDayLabelV5(save.director.dayIndex)} ${apocalypseClockLabelV5(save.director.clockMinutes)} · ${save.director.weather} ${save.director.temperatureC}℃ · 第${save.scene}幕", color = ApocalypseV5Colors.blueSoft, fontSize = 10.sp)
@@ -1260,9 +1240,13 @@ private fun ApocalypseV5PlayPage(
                             CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = ApocalypseV5Colors.white)
                             Spacer(Modifier.width(8.dp))
                         }
-                        Text(if (busy) "$generationPhase · ${generationSeconds}s" else "行动", fontWeight = FontWeight.Black)
+                        Text(if (busy) "${generationState.phase} · ${generationSeconds}s" else "行动", fontWeight = FontWeight.Black)
                     }
-                    generationError?.let { message ->
+                    if (busy) {
+                        Spacer(Modifier.height(6.dp))
+                        Text("可以返回其他页面，剧情会继续生成。", color = ApocalypseV5Colors.muted, fontSize = 11.sp)
+                    }
+                    generationState.lastError?.let { message ->
                         Spacer(Modifier.height(6.dp))
                         Text(message, color = MaterialTheme.colorScheme.error, fontSize = 11.sp, lineHeight = 16.sp)
                     }

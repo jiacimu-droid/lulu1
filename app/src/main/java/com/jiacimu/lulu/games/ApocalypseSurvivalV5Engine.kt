@@ -46,6 +46,49 @@ private fun apocalypseRecentContinuityV5(save: ApocalypseV3Save): String = build
     append(save.narration.takeLast(2_800))
 }
 
+/**
+ * The long-form director is intentionally periodic. Ordinary dialogue and small continuations reuse
+ * its latest blueprint; state-changing or structurally risky actions wake it immediately.
+ */
+internal fun shouldPlanApocalypseV5Beat(save: ApocalypseV3Save, action: String): Boolean {
+    val nextScene = save.scene + 1
+    if (nextScene % 4 == 0 || save.director.tension >= 8 || save.director.longTermPlan.size < 8) return true
+    if (save.director.foreshadowLedger.any { it.status == "ripe" }) return true
+    val structuralSignals = listOf(
+        "前往", "离开", "出发", "跨市", "搬迁", "撤离", "地图", "路线",
+        "买", "采购", "付款", "花费", "卖掉", "出售", "交易", "报酬", "退款", "钱", "元",
+        "搜集", "搜寻", "物资", "食物", "饮水", "药", "燃料", "晶核",
+        "攻击", "战斗", "开枪", "杀", "受伤", "感染", "治疗", "救人",
+        "建造", "基地", "升级", "修复", "招募", "加入", "离队", "背叛",
+        "觉醒", "异能", "训练", "休息", "睡觉", "重大", "决定",
+    )
+    return structuralSignals.any(action::contains) || action.length >= 180
+}
+
+/** A zero-cost beat for scenes that do not need the director model to rewrite the long plan. */
+internal fun continueApocalypseV5Beat(save: ApocalypseV3Save, action: String): ApocalypseV3Beat {
+    val minutesPassed = 20
+    val absoluteMinutes = save.director.clockMinutes + minutesPassed
+    val nextDirector = save.director.copy(
+        sceneGoal = "承接玩家行动“${action.take(90)}”，推进当前场景中的人物、信息或现实后果。",
+        recentBeatTypes = (save.director.recentBeatTypes + "continuation").takeLast(8),
+        dayIndex = (save.director.dayIndex + absoluteMinutes / 1440).coerceAtMost(9999),
+        clockMinutes = absoluteMinutes % 1440,
+    )
+    return ApocalypseV3Beat(
+        nextDirector = nextDirector,
+        beatType = "continuation",
+        directive = "沿用总导演最近的长期蓝图，不重排主线；完整执行玩家行动，让当前人物关系或信息至少向前移动一步。",
+        worldDelta = "世界继续按既有状态运行，没有凭空发生新的重大结构变化。",
+        openingHook = "直接承接上一幕尚未完成的动作与玩家刚才的选择。",
+        pressureEscalation = "从当前环境或人物目标中产生一个轻微但具体的阻力。",
+        emotionalTurn = "让一名在场人物通过行动或措辞显露态度变化。",
+        closingHook = "停在由本幕因果自然形成的新行动节点。",
+        sceneValueShift = "停滞→向前一步",
+        minutesPassed = minutesPassed,
+    )
+}
+
 internal suspend fun planApocalypseV5Beat(
     save: ApocalypseV3Save,
     config: ApocalypseV3Config,
