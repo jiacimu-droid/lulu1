@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-11T18:34:55.353457+00:00",
-  "commit": "1c53e198d7bcd18719e830153162ec5d73ccae65",
+  "generatedAt": "2026-08-11T19:04:47.620302+00:00",
+  "commit": "4d209d9be1b5815b7fb1569bf7706fe0f99311d8",
   "branch": "main",
-  "sourceFingerprint": "8c3f15d07800b9fbd40ec82fa24d03f62ac0a2a31608468976e3dc8ce6754d58",
+  "sourceFingerprint": "7c4d0700789676403324f094eb763e2f2293a348097750d80b32c44b3a130d6c",
   "summary": {
     "files": 161,
-    "lines": 46778,
+    "lines": 46989,
     "symbols": 648
   },
   "symbolIndex": {
@@ -45,7 +45,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 701
+        "line": 844
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
@@ -227,7 +227,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-        "line": 19
+        "line": 20
       }
     ],
     "TaskContext": [
@@ -255,7 +255,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-        "line": 35
+        "line": 36
       }
     ],
     "launch": [
@@ -265,7 +265,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-        "line": 37
+        "line": 38
       }
     ],
     "stop": [
@@ -850,16 +850,16 @@
         "line": 338
       }
     ],
-    "textFrom": [
+    "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 601
+        "line": 723
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 691
+        "line": 834
       }
     ],
     "VisionModelService": [
@@ -4297,8 +4297,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 708,
-      "sha256": "f04a0f7576a8fbadcd6052aa3b417e1ab33e22f7bb489424c7de604e46a723e4",
+      "lines": 851,
+      "sha256": "d3743ba83c37243d72b8116258ea653b1d8d4d6bea42411e6eceb1d06349d8fb",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -4385,16 +4385,16 @@
           "line": 338
         },
         {
-          "name": "textFrom",
-          "line": 601
+          "name": "consumeEvent",
+          "line": 723
         },
         {
           "name": "LuluAiServices",
-          "line": 691
+          "line": 834
         },
         {
           "name": "initialize",
-          "line": 701
+          "line": 844
         }
       ]
     },
@@ -5589,20 +5589,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-      "lines": 173,
-      "sha256": "1104e2985a2547aa4983c58d368dc89fb0ce4ed0bbfe396c1d92e269162126d1",
+      "lines": 180,
+      "sha256": "917d97467c853f2219f748f6f4249f7251f290a545994a706efa1a9ddcb9d918",
       "symbols": [
         {
           "name": "TaskState",
-          "line": 19
+          "line": 20
         },
         {
           "name": "state",
-          "line": 35
+          "line": 36
         },
         {
           "name": "launch",
-          "line": 37
+          "line": 38
         }
       ]
     },
@@ -5635,8 +5635,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSceneOutcomeV5.kt",
-      "lines": 279,
-      "sha256": "d2f7670999b1faf6bcc474a001fa42912044f35bcea6d0ae6061d0a01d958fe9",
+      "lines": 322,
+      "sha256": "96b69b85f345c5a55fe05549e18790e1716c4e39da3a053dbebb429047e143b7",
       "symbols": []
     },
     {
@@ -5864,8 +5864,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Engine.kt",
-      "lines": 641,
-      "sha256": "55f144f6cd91649932f5f3432077de866efb54a0909e02ce451ca146d18a43e6",
+      "lines": 659,
+      "sha256": "683eb93b3afcddfacd157a99f66a6d82c4be4a9bf8b03ed65849552923828595",
       "symbols": []
     },
     {
