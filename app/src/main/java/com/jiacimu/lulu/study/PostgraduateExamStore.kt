@@ -4,6 +4,10 @@ import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.core.DurationSummary
+import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.SharedExperienceTimeline
+import com.jiacimu.lulu.health.HealthRolePerception
+import com.jiacimu.lulu.health.HealthSleepObservation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,6 +15,7 @@ import kotlinx.coroutines.flow.update
 import org.json.JSONArray
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.UUID
@@ -57,26 +62,28 @@ class PostgraduateExamStore internal constructor(context: Context) {
         return message
     }
 
-    suspend fun evaluateSleepReward(
-        sleepTime: LocalTime,
-        wakeTime: LocalTime,
-        durationHours: Double,
-        today: LocalDate = LocalDate.now(),
+    internal suspend fun evaluateSleepReward(
+        observation: HealthSleepObservation,
     ): Result<String> {
-        val snapshot = rollover(mutableState.value, today)
-        if (snapshot.profile.sleepRewardDate == today.toString()) return Result.success("今天的作息奖励已经判断过了")
-        val facts = buildString {
-            appendLine("日期：$today")
-            appendLine("入睡时间：${sleepTime.format(DateTimeFormatter.ofPattern("HH:mm"))}")
-            appendLine("起床时间：${wakeTime.format(DateTimeFormatter.ofPattern("HH:mm"))}")
-            appendLine("睡眠时长：${"%.1f".format(durationHours)}小时")
+        val date = observation.date
+        val snapshot = rollover(mutableState.value, LocalDate.now())
+        if (snapshot.profile.sleepRewardDate == date.toString()) {
+            return Result.success(
+                "这次作息已经判断过了；如果你不同意，可以直接去和陪伴角色协商。",
+            )
         }
+        val characterId = snapshot.profile.selectedCharacterId
+        require(characterId.isNotBlank()) { "请先选择学习陪伴角色" }
+        recordSleepObservation(characterId, observation)
         return LuluAiServices.gateway.generate(
-            characterId = snapshot.profile.selectedCharacterId,
-            facts = facts,
+            characterId = characterId,
+            facts = HealthRolePerception.sleepJudgmentContext(observation),
             instruction = """
-                由当前角色自己判断这次记录是否值得获得早睡奖励和早起奖励，不使用系统预设的固定入睡时间、起床时间或几点前/几点后的硬门槛。
-                结合这次实际入睡时间、起床时间、睡眠时长，以及角色已经知道的用户情况来判断。早睡与早起两项必须独立判断，不能因为其中一项不理想就否定另一项。
+                由当前学习陪伴角色自己判断这次健康 App 检测到的真实记录，
+                是否值得获得早睡奖励和早起奖励。不要使用系统预设的固定入睡、起床硬门槛。
+                结合实际作息、角色已经知道的用户情况和相较过去是否有真实进步来判断。
+                时间仍不够健康不等于必须否定进步奖励；是否鼓励由角色人设、价值观、关系和协商方式决定。
+                早睡与早起两项必须独立判断，不能因为其中一项不理想就否定另一项。
                 第一行严格只写 SLEEP_ALLOW 或 SLEEP_DENY。
                 第二行严格只写 WAKE_ALLOW 或 WAKE_DENY。
                 第三行起用角色自己的口吻自然回应。
@@ -84,7 +91,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
             source = "考研",
             title = "作息奖励判断",
             maxTokens = 420,
-        ).map { reply ->
+        ).mapCatching { reply ->
             val lines = reply.text.lineSequence().map(String::trim).filter(String::isNotBlank).toList()
             val sleepAllowed = lines.any { it.equals("SLEEP_ALLOW", ignoreCase = true) }
             val wakeAllowed = lines.any { it.equals("WAKE_ALLOW", ignoreCase = true) }
@@ -98,30 +105,133 @@ class PostgraduateExamStore internal constructor(context: Context) {
                 .joinToString("\n")
                 .trim()
                 .ifBlank { "今天的作息记录我收到了。" }
-            val tickets = (if (sleepAllowed) 1 else 0) + (if (wakeAllowed) 1 else 0)
-            val rewardText = buildList {
-                if (sleepAllowed) add("早睡奖励：十连抽券 +1")
-                if (wakeAllowed) add("早起奖励：十连抽券 +1")
-            }.joinToString("\n").ifBlank { "本次未发放作息奖励" }
-            var result = "$roleText\n$rewardText"
-            mutate { current ->
-                val state = rollover(current, today)
-                if (state.profile.sleepRewardDate == today.toString()) return@mutate state
-                result = "$roleText\n$rewardText"
-                updateAchievements(
-                    state.copy(
-                        profile = state.profile.copy(sleepRewardDate = today.toString()),
-                        inventory = state.inventory.copy(tenTickets = state.inventory.tenTickets + tickets),
-                        events = addEvent(
-                            state.events,
-                            if (tickets > 0) "作息奖励" else "作息记录",
-                            result,
-                        ),
-                    ),
-                )
-            }
-            result
+            settleSleepReward(
+                characterId = characterId,
+                observation = observation,
+                grantSleep = sleepAllowed,
+                grantWake = wakeAllowed,
+                reason = roleText,
+                source = "学习 App检测",
+                markJudged = true,
+            ).getOrThrow()
         }
+    }
+
+    internal fun sleepRewardContext(observation: HealthSleepObservation): String {
+        val date = observation.date.toString()
+        val profile = mutableState.value.profile
+        return buildString {
+            appendLine(observation.rawFact())
+            appendLine("当前学习陪伴角色=${profile.selectedCharacterId}")
+            appendLine("早睡奖励=${if ("$date:sleep" in profile.sleepRewardGrantedKeys) "已发放" else "尚未发放"}")
+            appendLine("早起奖励=${if ("$date:wake" in profile.sleepRewardGrantedKeys) "已发放" else "尚未发放"}")
+            if (profile.sleepRewardDate == date) appendLine("学习 App 已做过一次判断；用户仍可在私聊中协商未发放的项目。")
+        }.trim()
+    }
+
+    internal fun grantSleepRewardFromChat(
+        characterId: String,
+        observation: HealthSleepObservation,
+        grantSleep: Boolean,
+        grantWake: Boolean,
+        reason: String,
+    ): Result<String> = runCatching {
+        val cleanCharacterId = characterId.trim()
+        require(cleanCharacterId.isNotBlank()) { "角色不存在" }
+        require(mutableState.value.profile.selectedCharacterId == cleanCharacterId) {
+            "只有当前学习陪伴角色可以发放作息奖励"
+        }
+        require(grantSleep || grantWake) { "没有选择要发放的奖励" }
+        recordSleepObservation(cleanCharacterId, observation)
+        settleSleepReward(
+            characterId = cleanCharacterId,
+            observation = observation,
+            grantSleep = grantSleep,
+            grantWake = grantWake,
+            reason = reason.trim().ifBlank { "角色在私聊协商后决定补发奖励。" },
+            source = "私聊协商",
+            markJudged = true,
+        ).getOrThrow()
+    }
+
+    private fun settleSleepReward(
+        characterId: String,
+        observation: HealthSleepObservation,
+        grantSleep: Boolean,
+        grantWake: Boolean,
+        reason: String,
+        source: String,
+        markJudged: Boolean,
+    ): Result<String> = runCatching {
+        val date = observation.date.toString()
+        val sleepKey = "$date:sleep"
+        val wakeKey = "$date:wake"
+        var result = ""
+        var newlyGrantedSleep = false
+        var newlyGrantedWake = false
+        mutate { current ->
+            val state = rollover(current, LocalDate.now())
+            val granted = state.profile.sleepRewardGrantedKeys.toMutableSet()
+            newlyGrantedSleep = grantSleep && granted.add(sleepKey)
+            newlyGrantedWake = grantWake && granted.add(wakeKey)
+            val tickets = (if (newlyGrantedSleep) 1 else 0) + (if (newlyGrantedWake) 1 else 0)
+            val decisionText = buildList {
+                add(reason)
+                if (newlyGrantedSleep) add("早睡奖励：十连抽券 +1")
+                else if (grantSleep) add("早睡奖励此前已经发放，本次不重复增加")
+                if (newlyGrantedWake) add("早起奖励：十连抽券 +1")
+                else if (grantWake) add("早起奖励此前已经发放，本次不重复增加")
+                if (!grantSleep && !grantWake) add("本次未发放作息奖励")
+            }
+            result = decisionText.joinToString("\n")
+            updateAchievements(
+                state.copy(
+                    profile = state.profile.copy(
+                        sleepRewardDate = if (markJudged) date else state.profile.sleepRewardDate,
+                        sleepRewardGrantedKeys = granted,
+                    ),
+                    inventory = state.inventory.copy(tenTickets = state.inventory.tenTickets + tickets),
+                    events = addEvent(
+                        state.events,
+                        if (tickets > 0) "作息奖励" else "作息判断",
+                        "$source · $result",
+                    ),
+                ),
+            )
+        }
+        val characterName = MigratedDomainStores.characters.get(characterId).displayName.ifBlank { "学习陪伴角色" }
+        val verdict = buildString {
+            append("${observation.rawFact()}\n")
+            append("判断来源=$source；早睡=${if (grantSleep) "允许" else "否决"}；早起=${if (grantWake) "允许" else "否决"}")
+            append("；实际新增十连券=${(if (newlyGrantedSleep) 1 else 0) + (if (newlyGrantedWake) 1 else 0)}")
+            append("\n理由=$reason")
+        }
+        SharedExperienceTimeline.record(
+            eventId = "sleep-reward-${UUID.randomUUID()}",
+            characterId = characterId,
+            channel = "作息奖励判断",
+            speaker = characterName,
+            content = verdict,
+            occurredAt = java.time.Instant.now(),
+        )
+        result
+    }
+
+    private fun recordSleepObservation(characterId: String, observation: HealthSleepObservation) {
+        val identity = listOf(
+            observation.date.toString(),
+            observation.sleepStart?.epochSecond?.toString().orEmpty(),
+            observation.wakeTime?.epochSecond?.toString().orEmpty(),
+        ).joinToString("-")
+        SharedExperienceTimeline.record(
+            eventId = "health-sleep-${characterId.hashCode()}-$identity",
+            characterId = characterId,
+            channel = "健康感知",
+            speaker = "健康 App",
+            content = observation.rawFact(),
+            occurredAt = observation.wakeTime ?: observation.importedAt ?: java.time.Instant.now(),
+            triggerExtraction = false,
+        )
     }
 
     fun applyInactivityPenalty(today: LocalDate = LocalDate.now()): String {
@@ -913,7 +1023,25 @@ class PostgraduateExamStore internal constructor(context: Context) {
             val id = item.id.trim()
             if (id.isNotBlank() && tipIds.add(id)) item else item.copy(id = nextId("tip", tipIds))
         }
-        return state.copy(tasks = tasks, schedules = schedules, planItems = planItems, tips = tips)
+        val legacyGrantedKeys = state.events.asSequence()
+            .filter { it.title == "作息奖励" }
+            .flatMap { event ->
+                val date = event.createdAt.atZone(ZoneId.systemDefault()).toLocalDate().toString()
+                buildList {
+                    if (event.detail.contains("早睡奖励")) add("$date:sleep")
+                    if (event.detail.contains("早起奖励")) add("$date:wake")
+                }.asSequence()
+            }
+            .toSet()
+        return state.copy(
+            tasks = tasks,
+            schedules = schedules,
+            planItems = planItems,
+            tips = tips,
+            profile = state.profile.copy(
+                sleepRewardGrantedKeys = state.profile.sleepRewardGrantedKeys + legacyGrantedKeys,
+            ),
+        )
     }
 
     private companion object {

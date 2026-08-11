@@ -80,6 +80,7 @@ internal object StudyStateCodec {
         .put("vocabularyReviewed", value.vocabularyReviewed)
         .put("claimedLevels", JSONArray(value.claimedLevels.toList()))
         .put("sleepRewardDate", value.sleepRewardDate)
+        .put("sleepRewardGrantedKeys", JSONArray(value.sleepRewardGrantedKeys.toList()))
         .put("inactivityPenaltyDate", value.inactivityPenaltyDate)
 
     private fun decodeProfile(json: JSONObject?): StudyProfile = StudyProfile(
@@ -97,6 +98,7 @@ internal object StudyStateCodec {
         vocabularyReviewed = json?.optInt("vocabularyReviewed") ?: 0,
         claimedLevels = json?.optJSONArray("claimedLevels").toIntSet(),
         sleepRewardDate = json?.optString("sleepRewardDate").orEmpty(),
+        sleepRewardGrantedKeys = json?.optJSONArray("sleepRewardGrantedKeys").toStringSet(),
         inactivityPenaltyDate = json?.optString("inactivityPenaltyDate").orEmpty(),
     )
 
@@ -242,5 +244,9 @@ internal object StudyStateCodec {
     private fun JSONArray?.toIntSet(): Set<Int> = buildSet {
         val array = this@toIntSet ?: return@buildSet
         for (index in 0 until array.length()) add(array.optInt(index))
+    }
+    private fun JSONArray?.toStringSet(): Set<String> = buildSet {
+        val array = this@toStringSet ?: return@buildSet
+        for (index in 0 until array.length()) array.optString(index).takeIf(String::isNotBlank)?.let(::add)
     }
 }

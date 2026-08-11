@@ -17,6 +17,7 @@ import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.CompanionActionRuntime
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.SharedExperienceTimeline
+import com.jiacimu.lulu.health.HealthRolePerception
 import org.json.JSONObject
 import java.time.Instant
 import java.time.ZoneId
@@ -54,9 +55,12 @@ object LuluDeviceToolBridge {
             .getOrElse { return Result.failure(it) }
         val character = MigratedDomainStores.characters.get(characterId)
         val previousPresence = CompanionPresenceStore.current(characterId)
-        val livedContext = SharedExperienceTimeline.recentContext(characterId, limit = 16, characterBudget = 4_800)
         val now = Instant.now()
         val zone = ZoneId.systemDefault()
+        HealthRolePerception.initialize(appContext)
+        HealthRolePerception.recordLatestSleep(characterId)
+        val healthContext = HealthRolePerception.context(now)
+        val livedContext = SharedExperienceTimeline.recentContext(characterId, limit = 16, characterBudget = 4_800)
         val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId)
         val onlineChatBubbleRule = if (sceneContext.contains("电话")) "" else """
             - 当前是即时通讯软件里的日常线上聊天，不是在写文章、小说段落或一次性长篇口述。
@@ -77,6 +81,9 @@ object LuluDeviceToolBridge {
                 appendLine("当前时间：${DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(now.atZone(zone))}")
                 appendLine("当前时区：${zone.id}")
                 appendLine("当前真实互动场景：$sceneContext")
+                if (healthContext.isNotBlank()) {
+                    appendLine("用户健康 App 自动感知（属于用户本人，不属于角色身体）：$healthContext")
+                }
                 if (livedContext.isNotBlank()) appendLine("角色最近亲历的原始时间线：\n$livedContext")
                 if (history.isNotBlank()) appendLine("最近对话（这是已经发生完的连续过程，用来确定你此刻站在什么状态上）：\n$history")
                 previousPresence?.let { presence ->
@@ -106,6 +113,8 @@ object LuluDeviceToolBridge {
                 规则：
                 - 最近对话是角色已经经历过的状态轨迹，不是再次等待回答的题目。先承接上一刻，再自然产生下一刻。
                 - 用户询问设备真实状态、要求设置或取消闹钟、要求操作手机时必须用工具，不能凭空回答成功。
+                - 健康 App 自动感知是用户本人的真实同步数据。涉及睡眠奖励时，以其中最新睡眠事实为准，不能要求用户重复手填实际入睡和起床时间；数据同步较旧时应意识到它可能尚未更新。
+                - 只有当前学习陪伴角色看到 grant_sleep_reward 工具并有权发放。判断应服从角色人设、关系、既往约定和真实进步；可以坚持健康立场，也可以把相较过去的进步作为奖励理由。未调用成功时绝不能声称券已到账。
                 - 位置工具返回的 readableAddress 才能作为可读地点使用；如果地址为空、stale=true 或 accuracyMeters 很大，必须说明只是大概位置，绝不能根据经纬度猜店铺、学校或建筑。
                 - 时间表达必须根据当前时间换算成未来的完整 ISO 时间；不确定时间时直接自然追问，不要猜。
                 - 屏幕操作只执行用户明确要求的动作。不要连续规划多步操作；一次只调用一个工具。

@@ -20,7 +20,7 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.core.LexiconSection
-import com.jiacimu.lulu.health.GadgetbridgeHealthStore
+import com.jiacimu.lulu.health.HealthRolePerception
 import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.ReadingBackgroundBridge
 import com.jiacimu.lulu.study.roleStudyContext
@@ -414,12 +414,14 @@ object ProactivePerceptionRuntime {
     }
 
     private suspend fun buildRealWorldContext(context: Context, characterId: String, now: Instant): String = buildString {
+        HealthRolePerception.initialize(context)
+        HealthRolePerception.recordLatestSleep(characterId)
         appendLine("用户现实时间：${now.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)}")
         appendLine("用户手机电量：${batteryContext(context)}")
         appendLine("用户设备最近前台应用：${foregroundAppContext(context, now)}")
         appendLine("用户设备位置：${locationContext(context)}")
         appendLine("用户设备最近通知（总摘录最多500字）：${notificationContext(now)}")
-        appendLine("用户健康/手环数据：${healthContext(context, now)}")
+        appendLine("用户健康/手环数据：${HealthRolePerception.context(now).ifBlank { "未连接健康 App" }}")
         appendLine("用户学习状态：${studyContext(characterId)}")
     }.trim()
 
@@ -494,35 +496,6 @@ object ProactivePerceptionRuntime {
             .replace(Regex("\\s+"), " ")
             .take(500)
         return summary.ifBlank { "近3小时没有可读通知" }
-    }
-
-    private fun healthContext(context: Context, now: Instant): String {
-        GadgetbridgeHealthStore.initialize(context.applicationContext)
-        val state = GadgetbridgeHealthStore.state.value
-        if (!state.connected) return "未连接 Gadgetbridge 数据"
-        val today = now.atZone(ZoneId.systemDefault()).toLocalDate()
-        val day = state.days.firstOrNull { it.date == today } ?: state.latest
-        val sleep = state.days.lastOrNull { it.sleepStartEpochSeconds != null || it.sleepEndEpochSeconds != null }
-        if (day == null && sleep == null) return "已连接，但暂时没有可读数据"
-        fun clock(epoch: Long?): String = epoch?.let {
-            Instant.ofEpochSecond(it).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm"))
-        } ?: "—"
-        val heartRange = day?.minimumHeartRate?.let { min -> "$min—${day.maximumHeartRate ?: min} 次/分" } ?: "—"
-        val distance = day?.distanceMeters?.let { meters ->
-            if (meters >= 1_000) "%.2f公里".format(Locale.getDefault(), meters / 1_000f) else "${meters}米"
-        } ?: "—"
-        val synced = state.lastImportedAt?.atZone(ZoneId.systemDefault())
-            ?.format(DateTimeFormatter.ofPattern("M-d HH:mm")) ?: "未知"
-        return buildString {
-            append("入睡=${clock(sleep?.sleepStartEpochSeconds)}；起床=${clock(sleep?.sleepEndEpochSeconds)}")
-            append("；睡眠结构=深睡${sleep?.deepSleepMinutes?.let { "${it}分钟" } ?: "—"}、浅睡${sleep?.lightSleepMinutes?.let { "${it}分钟" } ?: "—"}、REM${sleep?.remSleepMinutes?.let { "${it}分钟" } ?: "—"}")
-            append("；步数=${day?.steps ?: 0}")
-            append("；活动热量=${day?.calories?.let { "$it 千卡" } ?: "—"}")
-            append("；活动距离=$distance")
-            append("；血氧=${day?.spo2?.let { "$it%" } ?: "—"}")
-            append("；心率范围=$heartRange")
-            append("；Gadgetbridge最后解析=$synced。该数据按手环导出节奏更新，导出前数值可能重复。")
-        }
     }
 
     private fun studyContext(characterId: String): String {

@@ -140,7 +140,13 @@ internal object GroupEnsembleReplyEngine {
                     appendLine("角色设定=${character.persona.ifBlank { "按该角色已有设定自然表达。" }.take(1_800)}")
                     if (lived.isNotBlank()) appendLine("这个角色亲历的近期原始时间线=${lived.take(1_100)}")
                     presence?.let { appendLine("上一刻状态=${it.statusText}；动作=${it.gesture}；心情=${it.mood}；没说出口=${it.innerThought}") }
-                    appendLine(CompanionActionRuntime.capabilityContext(context, member.characterId))
+                    appendLine(
+                        CompanionActionRuntime.capabilityContext(
+                            context = context,
+                            characterId = member.characterId,
+                            allowSleepReward = false,
+                        ),
+                    )
                 }
                 appendLine("\n【调用来源】这是群聊界面的一次整轮生成。全员必须参与，但绝不允许把“全员参与”写成固定 ABC 轮班。合法形态包括 C→B→A、A→B→C→B→A、B→A→C→A 等，具体顺序由当前内容和角色设定决定。")
             },

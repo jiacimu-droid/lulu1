@@ -14,18 +14,27 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.LuluProfileAvatar
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.health.GadgetbridgeHealthStore
+import com.jiacimu.lulu.health.HealthRolePerception
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStore) {
+    val context = LocalContext.current
+    remember(context) {
+        HealthRolePerception.initialize(context)
+        Unit
+    }
+    val healthState by GadgetbridgeHealthStore.state.collectAsState()
+    val sleepObservation = remember(healthState.days, healthState.lastImportedAt) { HealthRolePerception.latestSleep() }
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val selected = characters[state.profile.selectedCharacterId]
         ?: characters.values.firstOrNull()
@@ -34,9 +43,15 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
     var selectorExpanded by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
     var error by remember { mutableStateOf(false) }
-    var sleepText by remember { mutableStateOf("23:30") }
-    var wakeText by remember { mutableStateOf("07:30") }
     var judgingSleep by remember { mutableStateOf(false) }
+    var refreshedHealth by remember { mutableStateOf(false) }
+
+    LaunchedEffect(healthState.connected, refreshedHealth) {
+        if (healthState.connected && !refreshedHealth) {
+            refreshedHealth = true
+            GadgetbridgeHealthStore.refresh(context)
+        }
+    }
 
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
@@ -100,40 +115,29 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
             StudyCard {
                 Text("早睡与早起奖励", fontSize = 19.sp, fontWeight = FontWeight.Bold, color = StudyDesign.ink)
                 Text("早睡、早起分别通过，各得1张十连券。", color = StudyDesign.muted)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
-                        value = sleepText,
-                        onValueChange = { sleepText = it.take(5) },
-                        label = { Text("入睡 HH:mm") },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                        colors = studyOutlinedFieldColors(),
+                if (sleepObservation == null) {
+                    Text(
+                        if (healthState.connected) "健康 App 暂时没有可用睡眠记录" else "请先在健康 App 连接并同步手环数据",
+                        color = StudyDesign.muted,
                     )
-                    OutlinedTextField(
-                        value = wakeText,
-                        onValueChange = { wakeText = it.take(5) },
-                        label = { Text("起床 HH:mm") },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                        colors = studyOutlinedFieldColors(),
-                    )
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        StudyMetric("实际入睡", sleepObservation.clock(sleepObservation.sleepStart), Modifier.weight(1f))
+                        StudyMetric("实际起床", sleepObservation.clock(sleepObservation.wakeTime), Modifier.weight(1f))
+                        StudyMetric("实际睡眠", sleepObservation.durationLabel(), Modifier.weight(1f))
+                    }
+                    Text("健康 App · ${sleepObservation.date}", color = StudyDesign.muted, fontSize = 12.sp)
                 }
                 Button(
                     onClick = {
-                        val sleep = runCatching { LocalTime.parse(sleepText) }.getOrNull()
-                        val wake = runCatching { LocalTime.parse(wakeText) }.getOrNull()
-                        if (sleep == null || wake == null) {
-                            message = "请按 HH:mm 填写入睡和起床时间"
+                        val detected = sleepObservation
+                        if (detected == null) {
+                            message = "健康 App 还没有同步到睡眠记录"
                             error = true
                         } else {
-                            val sleepMinutes = sleep.hour * 60 + sleep.minute
-                            val wakeMinutes = wake.hour * 60 + wake.minute
-                            val rawDuration = wakeMinutes - sleepMinutes
-                            val durationMinutes = if (rawDuration <= 0) rawDuration + 24 * 60 else rawDuration
-                            val durationHours = durationMinutes / 60.0
                             judgingSleep = true
                             scope.launch {
-                                store.evaluateSleepReward(sleep, wake, durationHours)
+                                store.evaluateSleepReward(detected)
                                     .onSuccess {
                                         message = it
                                         error = false
@@ -146,7 +150,8 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
                             }
                         }
                     },
-                    enabled = !judgingSleep && state.profile.sleepRewardDate != LocalDate.now().toString(),
+                    enabled = !judgingSleep && sleepObservation != null &&
+                        state.profile.sleepRewardDate != sleepObservation.date.toString(),
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = StudyDesign.wheat,
@@ -157,9 +162,10 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
                 ) {
                     Text(
                         when {
-                            state.profile.sleepRewardDate == LocalDate.now().toString() -> "今日已领取"
+                            sleepObservation != null && state.profile.sleepRewardDate == sleepObservation.date.toString() ->
+                                "本次已判断 · 可私聊协商"
                             judgingSleep -> "角色正在判断…"
-                            else -> "提交今日作息"
+                            else -> "让角色检测本次作息"
                         },
                         fontWeight = FontWeight.Bold,
                     )

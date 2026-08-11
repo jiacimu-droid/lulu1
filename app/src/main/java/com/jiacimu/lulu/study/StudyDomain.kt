@@ -135,6 +135,8 @@ data class StudyProfile(
     // 仅用于兼容旧存档，等级功能已经移除。
     val claimedLevels: Set<Int> = emptySet(),
     val sleepRewardDate: String = "",
+    /** Ledger entries use yyyy-MM-dd:sleep / yyyy-MM-dd:wake so each half can be reconsidered once. */
+    val sleepRewardGrantedKeys: Set<String> = emptySet(),
     val inactivityPenaltyDate: String = "",
 ) {
     val totalPraiseEarned: Int get() = experience
