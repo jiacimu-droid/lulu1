@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-11T17:03:51.433795+00:00",
-  "commit": "local",
-  "branch": "local",
+  "generatedAt": "2026-08-11T17:04:55.820096+00:00",
+  "commit": "efbb77b1afacdd29fe257c9f5872c591703130f3",
+  "branch": "main",
   "sourceFingerprint": "5556af14d7e930c64b58e645b9228912352ba64969de56490d2d09cf32aebd02",
   "summary": {
     "files": 159,
