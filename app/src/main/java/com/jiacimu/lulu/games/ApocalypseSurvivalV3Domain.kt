@@ -67,6 +67,7 @@ internal data class ApocalypseV3Config(
 )
 
 internal data class ApocalypseV3Stats(
+    val money: Int = 3_000,
     val food: Int = 2,
     val water: Int = 2,
     val medicine: Int = 1,
@@ -129,6 +130,7 @@ internal data class ApocalypseV3Beat(
     val sceneValueShift: String = "",
     val focusCharacterIds: List<String> = emptyList(),
     val foreshadowMoves: List<String> = emptyList(),
+    val moneyDelta: Int = 0,
     val foodDelta: Int = 0,
     val waterDelta: Int = 0,
     val medicineDelta: Int = 0,
@@ -513,6 +515,7 @@ internal fun splitApocalypseStoryPages(text: String, maxChars: Int = 112): List<
 
 internal fun applyApocalypseV3Beat(stats: ApocalypseV3Stats, beat: ApocalypseV3Beat): ApocalypseV3Stats {
     var next = stats.copy(
+        money = (stats.money + beat.moneyDelta).coerceIn(0, 9_999_999),
         food = (stats.food + beat.foodDelta).coerceIn(0, 999),
         water = (stats.water + beat.waterDelta).coerceIn(0, 999),
         medicine = (stats.medicine + beat.medicineDelta).coerceIn(0, 999),
@@ -664,6 +667,7 @@ private fun decodeApocalypseV3Director(json: JSONObject): ApocalypseV3Director {
 }
 
 private fun encodeApocalypseV3Stats(value: ApocalypseV3Stats): JSONObject = JSONObject()
+    .put("money", value.money)
     .put("food", value.food)
     .put("water", value.water)
     .put("medicine", value.medicine)
@@ -679,6 +683,7 @@ private fun encodeApocalypseV3Stats(value: ApocalypseV3Stats): JSONObject = JSON
     .put("morale", value.morale)
 
 private fun decodeApocalypseV3Stats(json: JSONObject): ApocalypseV3Stats = ApocalypseV3Stats(
+    money = json.optInt("money", 3_000).coerceIn(0, 9_999_999),
     food = json.optInt("food", 2).coerceAtLeast(0),
     water = json.optInt("water", 2).coerceAtLeast(0),
     medicine = json.optInt("medicine", 1).coerceAtLeast(0),

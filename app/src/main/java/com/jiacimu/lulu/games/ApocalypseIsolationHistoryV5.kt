@@ -289,6 +289,7 @@ private fun decodeDirectorV5History(json: JSONObject): ApocalypseV3Director {
 }
 
 private fun encodeStatsV5History(value: ApocalypseV3Stats): JSONObject = JSONObject()
+    .put("money", value.money)
     .put("food", value.food)
     .put("water", value.water)
     .put("medicine", value.medicine)
@@ -304,6 +305,7 @@ private fun encodeStatsV5History(value: ApocalypseV3Stats): JSONObject = JSONObj
     .put("morale", value.morale)
 
 private fun decodeStatsV5History(json: JSONObject): ApocalypseV3Stats = ApocalypseV3Stats(
+    money = json.optInt("money", 3_000).coerceIn(0, 9_999_999),
     food = json.optInt("food", 2).coerceAtLeast(0),
     water = json.optInt("water", 2).coerceAtLeast(0),
     medicine = json.optInt("medicine", 1).coerceAtLeast(0),

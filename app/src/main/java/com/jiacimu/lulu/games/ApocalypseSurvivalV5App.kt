@@ -6,9 +6,11 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
@@ -46,21 +48,21 @@ private data class ApocalypseAbilityTarget(
 )
 
 private object ApocalypseV5Colors {
-    val black = Color(0xFF07111F)
-    val blackSoft = Color(0xFF0E1B2B)
-    val blackLine = Color(0xFF1D3550)
+    val black = Color(0xFF101714)
+    val blackSoft = Color(0xFF18211D)
+    val blackLine = Color(0xFF34423B)
     val white = Color(0xFFFFFFFF)
-    val background = Color(0xFFF3F8FD)
-    val surfaceBlue = Color(0xFFEAF4FF)
-    val surfaceBlueStrong = Color(0xFFD8ECFF)
-    val ink = Color(0xFF0A1726)
-    val muted = Color(0xFF607287)
-    val border = Color(0xFFD3E3F2)
-    val blue = Color(0xFF4EA8FF)
-    val blueStrong = Color(0xFF2387E8)
-    val blueSoft = Color(0xFF93CCFF)
-    val textOnDark = Color(0xFFF8FBFF)
-    val textMutedDark = Color(0xFFAEC4D9)
+    val background = Color(0xFFF5F6F3)
+    val surfaceBlue = Color(0xFFEDF1ED)
+    val surfaceBlueStrong = Color(0xFFDDE7E0)
+    val ink = Color(0xFF1B211E)
+    val muted = Color(0xFF68726C)
+    val border = Color(0xFFD9DED9)
+    val blue = Color(0xFFB7CDBF)
+    val blueStrong = Color(0xFF526D5E)
+    val blueSoft = Color(0xFFC9D9CF)
+    val textOnDark = Color(0xFFF7F9F6)
+    val textMutedDark = Color(0xFFB8C5BD)
 }
 
 private fun apocalypseV5SceneImage(location: String, text: String): Int {
@@ -1071,6 +1073,9 @@ private fun ApocalypseV5PlayPage(
     var showInventory by remember { mutableStateOf(false) }
     var showMapPage by remember { mutableStateOf(false) }
     var confirmDeleteCurrent by remember { mutableStateOf(false) }
+    var generationPhase by remember { mutableStateOf("") }
+    var generationSeconds by remember { mutableIntStateOf(0) }
+    var generationError by remember { mutableStateOf<String?>(null) }
     val currentHistory = remember(save.id, save.scene) { historyStore.load(save.id) }
     val currentEntryId = currentHistory.lastOrNull()?.takeIf { it.sceneBefore + 1 == save.scene }?.id
     val currentPage = pages.getOrElse(pageIndex) { pages.first() }
@@ -1103,40 +1108,90 @@ private fun ApocalypseV5PlayPage(
         nextPage()
     }
 
+    LaunchedEffect(busy) {
+        generationSeconds = 0
+        while (busy) {
+            delay(1_000)
+            generationSeconds += 1
+        }
+    }
+
+    BackHandler(enabled = busy) {
+        generationError = "这一幕还在生成，完成后才能离开，避免丢失已经等待的进度。"
+    }
+
     fun submit() {
         val clean = action.trim()
         if (clean.isBlank() || busy || !lastPage) return
         scope.launch {
             busy = true
-            val beat = planApocalypseV5Beat(save, config, party, clean)
-            val nextStats = applyApocalypseV3Beat(save.stats, beat)
-            writeApocalypseV5Scene(save, config, party, clean, beat, nextStats)
-                .onSuccess { text ->
-                    if (text.isBlank()) return@onSuccess
-                    historyStore.append(saveBefore = save, action = clean, narrationAfter = text)
-                    val next = save.copy(
-                        scene = save.scene + 1,
-                        narration = text,
-                        director = beat.nextDirector,
-                        stats = nextStats,
-                        log = (save.log + "第${save.scene + 1}幕｜$clean\n${text.replace(Regex("【[^】]+】"), "").take(700)}").takeLast(100),
-                        updatedAt = System.currentTimeMillis(),
-                    )
-                    onSave(next)
-                    progressStore.save(next.id, next.scene, 0)
-                    action = ""
-                    autoPlay = false
-                }
-            busy = false
+            generationError = null
+            generationPhase = "正在推演行动后果"
+            try {
+                val beat = planApocalypseV5Beat(save, config, party, clean)
+                val nextStats = applyApocalypseV3Beat(save.stats, beat)
+                generationPhase = "正在写第${save.scene + 1}幕"
+                writeApocalypseV5Scene(save, config, party, clean, beat, nextStats)
+                    .onSuccess { text ->
+                        if (text.isBlank()) {
+                            generationError = "这一幕没有生成出正文，请再试一次。你的行动还保留着。"
+                            return@onSuccess
+                        }
+                        generationError = null
+                        historyStore.append(saveBefore = save, action = clean, narrationAfter = text)
+                        val next = save.copy(
+                            scene = save.scene + 1,
+                            narration = text,
+                            director = beat.nextDirector,
+                            stats = nextStats,
+                            log = (save.log + "第${save.scene + 1}幕｜$clean\n${text.replace(Regex("【[^】]+】"), "").take(700)}").takeLast(100),
+                            updatedAt = System.currentTimeMillis(),
+                        )
+                        onSave(next)
+                        progressStore.save(next.id, next.scene, 0)
+                        action = ""
+                        autoPlay = false
+                    }
+                    .onFailure {
+                        generationError = "生成失败了，请检查游戏模型或网络后重试。你的行动没有丢失。"
+                    }
+            } catch (error: Throwable) {
+                if (error is kotlinx.coroutines.CancellationException) throw error
+                generationError = "生成被意外中断了，请重试。你的行动没有丢失。"
+            } finally {
+                busy = false
+                generationPhase = ""
+            }
         }
     }
 
-    Column(Modifier.fillMaxSize().background(ApocalypseV5Colors.black).statusBarsPadding().imePadding()) {
-        Row(Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 5.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回", tint = ApocalypseV5Colors.textOnDark) }
+    Box(Modifier.fillMaxSize().background(ApocalypseV5Colors.black).statusBarsPadding().imePadding()) {
+        ApocalypseV5SpeakerStage(
+            modifier = Modifier.fillMaxSize(),
+            page = currentPage,
+            party = party,
+            storyDossiers = save.director.characterDossiers,
+            config = config,
+            location = save.director.location,
+            tension = save.director.tension,
+            stats = save.stats,
+            userName = userName,
+            userAvatarUri = userAvatarUri,
+            onMap = { if (!busy) showMapPage = true },
+            onInventory = { if (!busy) showInventory = true },
+            onAdvance = { if (!lastPage && !busy) nextPage() },
+        )
+
+        Row(
+            Modifier.fillMaxWidth().height(54.dp).align(Alignment.TopCenter)
+                .background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = .68f), Color.Transparent)))
+                .padding(horizontal = 5.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconButton(onClick = onBack, enabled = !busy) { Icon(Icons.Outlined.ArrowBack, "返回", tint = ApocalypseV5Colors.textOnDark) }
             Column(Modifier.weight(1f)) {
                 Text("末世求生", color = ApocalypseV5Colors.textOnDark, fontSize = 17.sp, fontWeight = FontWeight.Black)
-                Text("${apocalypseDayLabelV5(save.director.dayIndex)} ${apocalypseClockLabelV5(save.director.clockMinutes)} · ${save.director.weather} ${save.director.temperatureC}℃ · 第${save.scene}幕", color = ApocalypseV5Colors.blue, fontSize = 9.sp)
+                Text("${apocalypseDayLabelV5(save.director.dayIndex)} ${apocalypseClockLabelV5(save.director.clockMinutes)} · ${save.director.weather} ${save.director.temperatureC}℃ · 第${save.scene}幕", color = ApocalypseV5Colors.blueSoft, fontSize = 10.sp)
             }
             IconButton(onClick = onHistory, enabled = !busy) {
                 Icon(Icons.Outlined.History, "剧情历史", tint = ApocalypseV5Colors.textOnDark)
@@ -1148,27 +1203,11 @@ private fun ApocalypseV5PlayPage(
             }
         }
 
-        ApocalypseV5SpeakerStage(
-            modifier = Modifier.fillMaxWidth().weight(1f),
-            page = currentPage,
-            party = party,
-            storyDossiers = save.director.characterDossiers,
-            config = config,
-            location = save.director.location,
-            tension = save.director.tension,
-            stats = save.stats,
-            userName = userName,
-            userAvatarUri = userAvatarUri,
-            onMap = { showMapPage = true },
-            onInventory = { showInventory = true },
-            onAdvance = { if (!lastPage && !busy) nextPage() },
-        )
-
         Surface(
-            modifier = Modifier.fillMaxWidth().navigationBarsPadding(),
-            color = ApocalypseV5Colors.background,
+            modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter).navigationBarsPadding(),
+            color = ApocalypseV5Colors.background.copy(alpha = .98f),
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-            shadowElevation = 8.dp,
+            shadowElevation = 12.dp,
         ) {
             Column(Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 10.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1177,7 +1216,7 @@ private fun ApocalypseV5PlayPage(
                 }
                 Spacer(Modifier.height(5.dp))
                 Surface(
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 112.dp, max = 146.dp).clickable(enabled = !lastPage && !busy) { nextPage() },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp, max = 168.dp).clickable(enabled = !lastPage && !busy) { nextPage() },
                     color = ApocalypseV5Colors.white,
                     shape = RoundedCornerShape(17.dp),
                     border = BorderStroke(1.dp, ApocalypseV5Colors.border),
@@ -1201,7 +1240,10 @@ private fun ApocalypseV5PlayPage(
                         colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = ApocalypseV5Colors.blueStrong, unfocusedBorderColor = ApocalypseV5Colors.border),
                     )
                     Spacer(Modifier.height(5.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
                         SuggestionChip(onClick = { action = "我仔细搜集能长期保存的食物、饮水、药物、能源和工具，并优先利用空间异能降低搬运风险。" }, label = { Text("搜物资", fontSize = 9.sp) })
                         SuggestionChip(onClick = { action = "我重新评估当前据点的水源、出入口、防御、排污、能源和撤退路线。" }, label = { Text("看基地", fontSize = 9.sp) })
                         SuggestionChip(onClick = { action = "我检查并训练自己的两个异能槽，优先练习当前等级已经允许的能力。" }, label = { Text("练异能", fontSize = 9.sp) })
@@ -1213,7 +1255,17 @@ private fun ApocalypseV5PlayPage(
                         modifier = Modifier.fillMaxWidth().height(43.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = ApocalypseV5Colors.blueStrong, contentColor = ApocalypseV5Colors.white),
                         shape = RoundedCornerShape(14.dp),
-                    ) { Text(if (busy) "导演正在重排剧情……" else "行动", fontWeight = FontWeight.Black) }
+                    ) {
+                        if (busy) {
+                            CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = ApocalypseV5Colors.white)
+                            Spacer(Modifier.width(8.dp))
+                        }
+                        Text(if (busy) "$generationPhase · ${generationSeconds}s" else "行动", fontWeight = FontWeight.Black)
+                    }
+                    generationError?.let { message ->
+                        Spacer(Modifier.height(6.dp))
+                        Text(message, color = MaterialTheme.colorScheme.error, fontSize = 11.sp, lineHeight = 16.sp)
+                    }
                 }
             }
         }
@@ -1271,14 +1323,17 @@ private fun ApocalypseV5SpeakerStage(
                 ),
             ),
         )
-        Column(Modifier.fillMaxSize().padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.SpaceBetween) {
+        Column(
+            Modifier.fillMaxSize().padding(start = 14.dp, end = 14.dp, top = 62.dp, bottom = 190.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+        ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(location, color = ApocalypseV5Colors.textOnDark, fontSize = 17.sp, fontWeight = FontWeight.Black, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text("空间 Lv.${stats.playerAbilityLevel} · ${playerSpaceCapacityM3(stats.playerAbilityLevel)}m³", color = ApocalypseV5Colors.textMutedDark, fontSize = 8.sp)
+                    Text("空间 Lv.${stats.playerAbilityLevel} · ${playerSpaceCapacityM3(stats.playerAbilityLevel)}m³", color = ApocalypseV5Colors.textMutedDark, fontSize = 10.sp)
                 }
                 Surface(color = ApocalypseV5Colors.surfaceBlue.copy(alpha = .12f), shape = RoundedCornerShape(9.dp), border = BorderStroke(1.dp, ApocalypseV5Colors.blackLine)) {
-                    Text("威胁 $tension/10", color = ApocalypseV5Colors.blueSoft, fontSize = 9.sp, modifier = Modifier.padding(horizontal = 7.dp, vertical = 4.dp))
+                    Text("威胁 $tension/10", color = ApocalypseV5Colors.blueSoft, fontSize = 10.sp, modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp))
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -1288,10 +1343,10 @@ private fun ApocalypseV5SpeakerStage(
                     shape = RoundedCornerShape(9.dp),
                     border = BorderStroke(1.dp, ApocalypseV5Colors.blackLine),
                 ) {
-                    Row(Modifier.padding(horizontal = 9.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.heightIn(min = 40.dp).padding(horizontal = 11.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Outlined.Map, null, tint = ApocalypseV5Colors.blueSoft, modifier = Modifier.size(15.dp))
                         Spacer(Modifier.width(4.dp))
-                        Text("地图", color = ApocalypseV5Colors.textOnDark, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                        Text("地图", color = ApocalypseV5Colors.textOnDark, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                 }
                 Surface(
@@ -1300,10 +1355,10 @@ private fun ApocalypseV5SpeakerStage(
                     shape = RoundedCornerShape(9.dp),
                     border = BorderStroke(1.dp, ApocalypseV5Colors.blackLine),
                 ) {
-                    Row(Modifier.padding(horizontal = 9.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.heightIn(min = 40.dp).padding(horizontal = 11.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Outlined.Inventory2, null, tint = ApocalypseV5Colors.blueSoft, modifier = Modifier.size(15.dp))
                         Spacer(Modifier.width(4.dp))
-                        Text("物资", color = ApocalypseV5Colors.textOnDark, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                        Text("物资", color = ApocalypseV5Colors.textOnDark, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -1340,6 +1395,7 @@ private fun ApocalypseV5SpeakerStage(
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                ApocalypseV5TinyStageStat("¥${stats.money}")
                 ApocalypseV5TinyStageStat("食 ${stats.food}")
                 ApocalypseV5TinyStageStat("水 ${stats.water}")
                 ApocalypseV5TinyStageStat("药 ${stats.medicine}")
@@ -1368,7 +1424,7 @@ private fun ApocalypseV5SpeakerPortrait(imageUri: String?, fallback: String, nam
 @Composable
 private fun ApocalypseV5TinyStageStat(text: String) {
     Surface(color = Color.Black.copy(alpha = .28f), shape = RoundedCornerShape(8.dp)) {
-        Text(text, color = ApocalypseV5Colors.textMutedDark, fontSize = 7.sp, modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp))
+        Text(text, color = ApocalypseV5Colors.textMutedDark, fontSize = 9.sp, modifier = Modifier.padding(horizontal = 7.dp, vertical = 5.dp))
     }
 }
 
@@ -1445,6 +1501,7 @@ private fun ApocalypseV5StatusPanel(stats: ApocalypseV3Stats, phase: String, loc
         Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("$phase · $location", color = ApocalypseV5Colors.textOnDark, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                ApocalypseV5StatusValue("资金", "¥${stats.money}")
                 ApocalypseV5StatusValue("食物", stats.food.toString())
                 ApocalypseV5StatusValue("饮水", stats.water.toString())
                 ApocalypseV5StatusValue("药物", stats.medicine.toString())

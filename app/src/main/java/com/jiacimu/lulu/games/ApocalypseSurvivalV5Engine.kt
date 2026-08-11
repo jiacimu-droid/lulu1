@@ -36,6 +36,16 @@ private fun apocalypsePartyStylePromptV5(
 private fun apocalypseIsolationRuleV5(): String =
     "本作是与露露机主世界完全隔离的独立世界。角色资料只允许提取性格、说话方式、外貌、习惯、情绪表达和行为风格；资料中涉及原身份、职业、时代、阵营、原世界背景、与玩家或其他角色的原关系、聊天经历、共同事件、承诺、记忆、主时间线状态的内容全部视为禁用信息，不能成为本局事实。本局身份、关系和共同经历只能由当前存档内已经发生的剧情建立。"
 
+private fun apocalypseRecentContinuityV5(save: ApocalypseV3Save): String = buildString {
+    val earlierScenes = save.log.dropLast(1).takeLast(5)
+    if (earlierScenes.isNotEmpty()) {
+        appendLine("更早的近期剧情摘要：")
+        appendLine(earlierScenes.joinToString("\n---\n"))
+    }
+    appendLine("第${save.scene}幕衔接尾段：")
+    append(save.narration.takeLast(2_800))
+}
+
 internal suspend fun planApocalypseV5Beat(
     save: ApocalypseV3Save,
     config: ApocalypseV3Config,
@@ -58,7 +68,7 @@ internal suspend fun planApocalypseV5Beat(
         appendLine("时间=${apocalypseDayLabelV5(director.dayIndex)} ${apocalypseClockLabelV5(director.clockMinutes)}；天气=${director.weather}；温度=${director.temperatureC}℃")
         appendLine("玩家状态：生命${save.stats.health}/100；体力${save.stats.stamina}/100；感染${save.stats.infection}/100；士气${save.stats.morale}/100")
         appendLine("阶段=${director.phase}；地点=${director.location}；当前已读到第${save.scene}幕；本次必须规划第${nextScene}幕；威胁=${director.tension}/10")
-        appendLine("资源：食物${save.stats.food} 水${save.stats.water} 药物${save.stats.medicine} 材料${save.stats.materials} 晶核${save.stats.crystalCores}")
+        appendLine("资源：资金¥${save.stats.money} 食物${save.stats.food} 水${save.stats.water} 药物${save.stats.medicine} 材料${save.stats.materials} 晶核${save.stats.crystalCores}")
         appendLine("基地=${save.stats.baseName}/Lv.${save.stats.baseLevel}")
         appendLine("当前明线：${director.activeThreads.joinToString("｜")}")
         appendLine("隐藏长期线：${director.hiddenThreads.joinToString("｜")}")
@@ -70,11 +80,8 @@ internal suspend fun planApocalypseV5Beat(
         appendLine("已知地点：${director.locations.joinToString("｜") { it.name }}")
         appendLine("已获得资产：${director.assets.joinToString("｜") { "${it.kind.label}:${it.title}" }}")
         appendLine("同行角色风格参考（只按隔离规则提取风格，不继承其中身份/关系/经历）：\n$partyPrompt")
-        if (save.log.isNotEmpty()) {
-            appendLine("本局仍保留的最近剧情记录（这是唯一可用的跨幕共同经历）：\n${save.log.takeLast(16).joinToString("\n---\n")}")
-        }
+        appendLine("本局仍保留的连续剧情（这是唯一可用的跨幕共同经历）：\n${apocalypseRecentContinuityV5(save)}")
         appendLine("玩家行动：$action")
-        appendLine("第${save.scene}幕完整衔接尾段：\n${save.narration.takeLast(4500)}")
     }
     val instruction = """
         你是长篇互动游戏《末世求生》的隐藏总导演。你不写正文，只维护世界、长线剧情和下一幕导演意图。只返回 JSON，不加代码块。
@@ -89,7 +96,7 @@ internal suspend fun planApocalypseV5Beat(
         longTermPlan, factionStates, characterArcs, foreshadowPlan, characterDossiers, foreshadowLedger,
         worldDelta, directive, openingHook, pressureEscalation, emotionalTurn, closingHook, sceneValueShift,
         focusCharacterIds, foreshadowMoves,
-        foodDelta, waterDelta, medicineDelta, materialsDelta, coresFound, playerAbilityXpGain, baseDelta,
+        moneyDelta, foodDelta, waterDelta, medicineDelta, materialsDelta, coresFound, playerAbilityXpGain, baseDelta,
         healthDelta, staminaDelta, infectionDelta, moraleDelta, minutesPassed, weather, temperatureC,
         unlockLocations:[{id,name,detail,unlocked}], discoverAssets:[{id,kind,title,detail,quantity,tag}]。
         kind只能 food|water|medicine|material|tool|weapon|vehicle|key|document|clue|map|core。
@@ -117,6 +124,7 @@ internal suspend fun planApocalypseV5Beat(
         13. 每次行动必须估算真实耗时并返回minutesPassed：简单整理5—30分钟，搜楼/战斗30—180分钟，跨区数小时，跨市通常3—10小时。时间推进后天气、照明、疲劳和风险都要跟着变化。
         14. health/stamina/infection/morale都是0—100。受伤降低health；奔跑、战斗、熬夜降低stamina；赤雨、伤口污染和感染者体液提高infection；成功、休息、关系支持可提高morale。不要无缘无故大幅波动。
         15. foodDelta/waterDelta必须包含真实消耗与搜集的净变化；长时间行动不能人人永远不喝水不吃东西。基地等级越高，休息恢复、净水、医疗和长期生产才越可靠。
+        15a. moneyDelta是本幕真实发生的资金净变化，单位为元：购买、付款写负数，出售、报酬、退款写正数；没有明确交易就必须为0，绝不能为了配合物资变化凭空扣钱或加钱。余额不足时不能完成超额购买。灾前和灾变初期金钱仍有效；供应链崩溃后保留余额，但交易价值应逐步让位于物资、信用、票证和劳务。
         16. 故事必须有“电影呼吸”：连续高压2—3幕后安排低压段落，让人物做饭、疗伤、守夜、修车、谈心、争执或整理遗物；安静段也必须推进关系或信息。
         17. 每4—7幕至少让一个旧细节获得新意义；每8—14幕才允许一次真正改变局面的阶段性大场面或重大回收。不要每幕反转，也不要连续十几幕没有任何兑现。
         18. 同时维护生存层、人际/势力层、长期谜团层。单幕突出1—2层即可，第三层只留可回看的微小痕迹，避免百科全书式解释。
@@ -148,7 +156,7 @@ internal suspend fun planApocalypseV5Beat(
         usage = ModelUsage.Game,
         contextMode = CompanionContextMode.PersonaAndScenario,
     ).fold(
-        onSuccess = { parseApocalypseV5Beat(it.text, director) ?: fallbackApocalypseV5Beat(save) },
+        onSuccess = { parseApocalypseV5Beat(it.text, director, save.stats.money) ?: fallbackApocalypseV5Beat(save) },
         onFailure = { fallbackApocalypseV5Beat(save) },
     )
 }
@@ -177,7 +185,8 @@ internal suspend fun writeApocalypseV5Scene(
         appendLine(apocalypseWorldGeographyPromptV5())
         appendLine("时间：${apocalypseDayLabelV5(beat.nextDirector.dayIndex)} ${apocalypseClockLabelV5(beat.nextDirector.clockMinutes)}；天气=${beat.nextDirector.weather} ${beat.nextDirector.temperatureC}℃")
         appendLine("玩家状态：生命${nextStats.health} 体力${nextStats.stamina} 感染${nextStats.infection} 士气${nextStats.morale}")
-        appendLine("资源：食${nextStats.food} 水${nextStats.water} 药${nextStats.medicine} 材料${nextStats.materials} 晶核${nextStats.crystalCores}；基地=${nextStats.baseName}/Lv.${nextStats.baseLevel}")
+        appendLine("资源：资金¥${nextStats.money} 食${nextStats.food} 水${nextStats.water} 药${nextStats.medicine} 材料${nextStats.materials} 晶核${nextStats.crystalCores}；基地=${nextStats.baseName}/Lv.${nextStats.baseLevel}")
+        appendLine("本幕资金净变化：${if (beat.moneyDelta >= 0) "+" else ""}${beat.moneyDelta}元")
         appendLine("导演动作：${beat.beatType}；本幕目标：${beat.nextDirector.sceneGoal}")
         appendLine("世界变化：${beat.worldDelta}")
         appendLine("导演执行指令：${beat.directive}")
@@ -191,10 +200,7 @@ internal suspend fun writeApocalypseV5Scene(
         appendLine("本幕角色编剧档案（只用于维持独特动机与潜台词；不得超出导演允许的信息预算）：\n${apocalypseCharacterDossiersPromptV5(writerDossiers)}")
         appendLine("同行角色风格参考（只按隔离规则提取风格，不继承其中身份/关系/经历）：\n$partyPrompt")
         appendLine("当前明线：${beat.nextDirector.activeThreads.joinToString("｜")}")
-        if (save.log.isNotEmpty()) {
-            appendLine("本局仍保留的最近剧情记录：\n${save.log.takeLast(16).joinToString("\n---\n")}")
-        }
-        appendLine("第${save.scene}幕完整衔接尾段：\n${save.narration.takeLast(4500)}")
+        appendLine("本局仍保留的连续剧情：\n${apocalypseRecentContinuityV5(save)}")
     }
     val instruction = """
         紧接第${save.scene}幕，写第${nextScene}幕高质量中文末世互动视觉小说，约750—1200字。不要输出选项、数值面板、解释、Markdown或JSON。
@@ -220,6 +226,7 @@ internal suspend fun writeApocalypseV5Scene(
         - 空间异能当前等级要大胆使用但不能越级；第二异能也不能无代价无限使用。
         - 灾前异能者约8%，所以路人和普通幸存者默认仍应以普通人为主；可以通过末世淘汰让幸存队伍中的异能者比例逐渐提高，但不要写成遍地超能力。
         - 生存细节要有重量：水、保质、药物、燃料、噪音、伤口、睡眠、卫生、天气、车辆和电力会影响选择。
+        - 资金余额是硬状态。涉及购买、付款、出售、报酬或退款时，正文金额必须和导演结算后的余额、moneyDelta一致；余额不足不能硬买。秩序崩溃后可以出现“有钱也买不到”，但不能擅自清空余额。
         - 赤潮生态要进入植物、动物、土壤、水和天气，不要只写丧尸。
         - 高潮之间允许做饭、整理物资、赶路、建设、争执、休息和关系沉淀。九死一生要靠积累。
         - 晶核、物资、线索、地图和地点只有导演给出时才正式获得，并写清楚如何得到。
@@ -249,7 +256,7 @@ internal suspend fun writeApocalypseV5Scene(
     ).map { it.text.trim() }
 }
 
-private fun parseApocalypseV5Beat(raw: String, previous: ApocalypseV3Director): ApocalypseV3Beat? = runCatching {
+private fun parseApocalypseV5Beat(raw: String, previous: ApocalypseV3Director, availableMoney: Int): ApocalypseV3Beat? = runCatching {
     val json = JSONObject(extractApocalypseV5Json(raw))
     val locations = json.optJSONArray("unlockLocations").v5Objects { item ->
         ApocalypseV3Location(
@@ -314,6 +321,7 @@ private fun parseApocalypseV5Beat(raw: String, previous: ApocalypseV3Director): 
         sceneValueShift = json.optString("sceneValueShift").take(180),
         focusCharacterIds = json.optJSONArray("focusCharacterIds").v5Strings().take(2),
         foreshadowMoves = json.optJSONArray("foreshadowMoves").v5Strings().take(3),
+        moneyDelta = json.optInt("moneyDelta").coerceIn(-availableMoney.coerceIn(0, 50_000), 50_000),
         foodDelta = json.optInt("foodDelta").coerceIn(-4, 4),
         waterDelta = json.optInt("waterDelta").coerceIn(-4, 4),
         medicineDelta = json.optInt("medicineDelta").coerceIn(-4, 4),
