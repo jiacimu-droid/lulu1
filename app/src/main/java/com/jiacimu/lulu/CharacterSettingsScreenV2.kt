@@ -135,7 +135,6 @@ fun CharacterSettingsScreenV2(
                         )
                         Column(Modifier.weight(1f)) {
                             Text("角色头像", fontWeight = FontWeight.SemiBold)
-                            Text("点击头像，从手机相册选择图片", color = LuluColors.Muted, fontSize = 12.sp)
                         }
                     }
                     OutlinedTextField(
@@ -154,11 +153,6 @@ fun CharacterSettingsScreenV2(
                         maxLines = 8,
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    Text(
-                        "角色身份会用于私聊、群聊、电话、主动感知和普通游戏等原世界场景；跑团与末世求生会主动排除这一栏。",
-                        color = LuluColors.Muted,
-                        fontSize = 11.sp,
-                    )
                     OutlinedTextField(
                         value = persona,
                         onValueChange = { persona = it },
@@ -168,25 +162,18 @@ fun CharacterSettingsScreenV2(
                         maxLines = 10,
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    Text(
-                        "角色设定代表这个人本身，会在所有角色生成中使用；包括跑团与末世求生的跨世界版本。",
-                        color = LuluColors.Muted,
-                        fontSize = 11.sp,
-                    )
                 }
             }
             item {
                 CharacterV2Card {
                     Text("主动感知", fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     CharacterV2Switch(
-                        "允许主动感知",
-                        "到这个角色自己的感知时间后，角色会醒来看看此刻，再决定是否行动。",
-                        perceptionPolicy.enabled,
+                        title = "允许主动感知",
+                        checked = perceptionPolicy.enabled,
                     ) { setPerceptionEnabled(it) }
                     CharacterV2Switch(
-                        "由角色自适应频率",
-                        "以你设置的间隔为最低频率；连续选择不打扰时只会适当延长，最长约 2 倍，不会变得更频繁。",
-                        perceptionPolicy.adaptiveFrequency,
+                        title = "由角色自适应频率",
+                        checked = perceptionPolicy.adaptiveFrequency,
                         enabled = perceptionPolicy.enabled,
                     ) { checked ->
                         ProactivePerceptionPolicyStore.update(characterId) {
@@ -194,9 +181,8 @@ fun CharacterSettingsScreenV2(
                         }
                     }
                     CharacterV2Switch(
-                        "夜间勿扰",
-                        "勿扰时间内暂停主动感知，到结束时间后再继续；不影响你主动找角色聊天。",
-                        perceptionPolicy.quietHoursEnabled,
+                        title = "夜间勿扰",
+                        checked = perceptionPolicy.quietHoursEnabled,
                         enabled = perceptionPolicy.enabled,
                     ) { checked ->
                         ProactivePerceptionPolicyStore.update(characterId) {
@@ -236,9 +222,8 @@ fun CharacterSettingsScreenV2(
                 CharacterV2Card {
                     Text("主动来电", fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     CharacterV2Switch(
-                        "允许主动来电",
-                        "角色在主动感知时可以选择给你打电话；不再另外限制每日次数或冷却时间。",
-                        proactiveCalls,
+                        title = "允许主动来电",
+                        checked = proactiveCalls,
                     ) { proactiveCalls = it }
                 }
             }
@@ -253,31 +238,15 @@ fun CharacterSettingsScreenV2(
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    Text(
-                        "每个角色可以使用不同的 MiniMax 声音。留空时使用「语音设置」里的默认 Voice ID。",
-                        color = LuluColors.Muted,
-                        fontSize = 12.sp,
-                    )
                     CharacterV2Switch(
-                        "自动播放语音",
-                        "开启后，这个角色每个新生成的聊天气泡都会用自己的 Voice ID 生成并保存语音缓存，再自动播放；退出聊天页或切到后台不会取消已经开始的语音队列。",
-                        autoPlayVoice,
+                        title = "自动播放语音",
+                        checked = autoPlayVoice,
                     ) { enabled -> CharacterVoicePreferenceStore.setEnabled(characterId, enabled) }
-                    Text(
-                        "长按消息选择「朗读」时，会优先播放已有缓存；如果这条消息从未生成过语音，就现生成一次、保存缓存并播放。",
-                        color = LuluColors.Muted,
-                        fontSize = 12.sp,
-                    )
                 }
             }
             item {
                 CharacterV2Card {
                     Text("数据与记录", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    Text(
-                        "保留角色资料与设置，只清除这个角色已经发生过的历史。",
-                        color = LuluColors.Muted,
-                        fontSize = 12.sp,
-                    )
                     OutlinedButton(
                         onClick = { confirmClearRecords = true },
                         enabled = !clearingRecords,
@@ -295,13 +264,11 @@ fun CharacterSettingsScreenV2(
             }
             item {
                 Text("角色世界书", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                Text("每本可以跟随全局，或为${original.displayName}单独开启、关闭。", color = LuluColors.Muted)
             }
             if (worldBooks.isEmpty()) {
                 item {
                     CharacterV2Card {
                         Text("还没有世界书", fontWeight = FontWeight.Bold)
-                        Text("先在桌面的世界书 App 中创建。", color = LuluColors.Muted)
                     }
                 }
             } else {
@@ -384,13 +351,15 @@ private fun CharacterV2IntervalRow(
     onValueChange: (String) -> Unit,
     onUnitChange: (PerceptionIntervalUnit) -> Unit,
 ) {
+    var draft by remember(value) { mutableStateOf(value) }
     Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
         Text("感知时间间隔", fontWeight = FontWeight.SemiBold)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
-                value = value,
+                value = draft,
                 onValueChange = { text ->
                     val clean = text.filter(Char::isDigit).take(3)
+                    draft = clean
                     if (clean.isNotBlank()) onValueChange(clean)
                 },
                 singleLine = true,
@@ -404,7 +373,6 @@ private fun CharacterV2IntervalRow(
                 )
             }
         }
-        Text("计时从最近一次聊天或上一次感知结束后重新开始。", color = LuluColors.Muted, fontSize = 11.sp)
     }
 }
 
@@ -437,16 +405,17 @@ private fun CharacterV2TimeRow(label: String, minutesOfDay: Int, onChange: (Int)
 @Composable
 private fun CharacterV2Switch(
     title: String,
-    subtitle: String,
     checked: Boolean,
     enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f).padding(end = 10.dp)) {
-            Text(title, fontWeight = FontWeight.SemiBold, color = if (enabled) LocalContentColor.current else LuluColors.Muted)
-            Text(subtitle, color = LuluColors.Muted, fontSize = 12.sp)
-        }
+        Text(
+            title,
+            fontWeight = FontWeight.SemiBold,
+            color = if (enabled) LocalContentColor.current else LuluColors.Muted,
+            modifier = Modifier.weight(1f).padding(end = 10.dp),
+        )
         Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
     }
 }

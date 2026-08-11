@@ -218,6 +218,12 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                                 Spacer(Modifier.width(7.dp))
                                 Badge { Text(conversation.unreadCount.toString()) }
                             }
+                            IconButton(
+                                onClick = { menuConversationId = conversation.id },
+                                modifier = Modifier.size(32.dp),
+                            ) {
+                                Icon(Icons.Outlined.MoreVert, "会话操作", modifier = Modifier.size(18.dp))
+                            }
                         }
                     }
                     DropdownMenu(

@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.data.LuluConversation
 import com.jiacimu.lulu.data.MigratedDomainStores
 import java.time.LocalDate
 import java.time.LocalTime
@@ -78,12 +79,15 @@ internal fun MigrationHomeV2(
     val context = LocalContext.current
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
-    val recent = conversations.maxByOrNull { it.updatedAt }
-    val currentCharacter = recent?.characterId
+    val shortcutConversation = conversations
+        .filter(LuluConversation::pinned)
+        .maxByOrNull(LuluConversation::updatedAt)
+        ?: conversations.maxByOrNull(LuluConversation::updatedAt)
+    val currentCharacter = shortcutConversation?.characterId
         ?.let { characters[it] ?: MigratedDomainStores.characters.get(it) }
         ?: characters["lulu"]
         ?: MigratedDomainStores.characters.get("lulu")
-    val recentGroup = recent?.groupChat
+    val recentGroup = shortcutConversation?.groupChat
     val recentDisplayName = recentGroup?.name?.ifBlank { "群聊" } ?: currentCharacter.displayName
     val recentAvatarUri = recentGroup?.avatarUri ?: currentCharacter.avatarUri
     val recentFallback = if (recentGroup != null) {
@@ -151,12 +155,12 @@ internal fun MigrationHomeV2(
                 avatarFallback = recentFallback,
                 avatarUri = recentAvatarUri,
                 isGroup = recentGroup != null,
-                recentMessage = recent?.lastMessage
+                recentMessage = shortcutConversation?.lastMessage
                     ?.ifBlank {
                         if (recentGroup != null) "点这里回到群聊。" else "点这里去找${currentCharacter.displayName}。"
                     }
                     ?: "今天也来找我说说话吧。",
-                onClick = { recent?.let { onOpenConversation(it.id) } ?: onOpen(MigrationRoute.Chat) },
+                onClick = { shortcutConversation?.let { onOpenConversation(it.id) } ?: onOpen(MigrationRoute.Chat) },
             )
 
             Spacer(Modifier.height(10.dp))

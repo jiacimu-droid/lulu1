@@ -30,7 +30,7 @@ data class ProactivePerceptionPolicy(
         }.coerceAtLeast(1L)
 
     fun intervalMinutes(adaptiveMultiplier: Double = 1.0): Long =
-        (baseIntervalMinutes * adaptiveMultiplier.coerceAtLeast(1.0)).roundToLong().coerceAtLeast(1L)
+        (baseIntervalMinutes * adaptiveMultiplier.coerceIn(0.1, 10.0)).roundToLong().coerceAtLeast(1L)
 
     fun normalized(): ProactivePerceptionPolicy = copy(
         quietStartMinutesOfDay = quietStartMinutesOfDay.coerceIn(0, 24 * 60 - 1),

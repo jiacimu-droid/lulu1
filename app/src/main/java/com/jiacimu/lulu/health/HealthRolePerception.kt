@@ -140,14 +140,14 @@ internal object HealthRolePerception {
                 )
             }
             day?.activeMinutes?.let { add("活跃=${it}分钟") }
-            day?.floorsClimbed?.let { add("爬楼=$it层") }
+            day?.floorsClimbed?.let { add("爬楼=${it}层") }
             day?.minimumHeartRate?.let { min -> add("心率范围=$min—${day.maximumHeartRate ?: min}次/分") }
-            day?.averageHeartRate?.let { add("平均心率=$it次/分") }
-            day?.restingHeartRate?.let { add("静息心率=$it次/分") }
+            day?.averageHeartRate?.let { add("平均心率=${it}次/分") }
+            day?.restingHeartRate?.let { add("静息心率=${it}次/分") }
             day?.spo2?.let { add("血氧=$it%") }
             day?.stress?.let { add("压力=$it") }
             day?.hrvMillis?.let { add("HRV=${it}毫秒") }
-            day?.respiratoryRate?.let { add("呼吸率=$it次/分") }
+            day?.respiratoryRate?.let { add("呼吸率=${it}次/分") }
             day?.skinTemperatureCelsius?.let { add("皮肤温度=$it℃") }
             day?.bodyEnergy?.let { add("身体能量=$it") }
             if (day?.systolicBloodPressure != null || day?.diastolicBloodPressure != null) {

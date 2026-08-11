@@ -175,8 +175,15 @@ object ProactivePerceptionRuntime {
                 else -> 2.0
             }
         }
-        val due = anchor.plus(Duration.ofMinutes(policy.intervalMinutes(multiplier)))
+        val timingVariation = stableTimingVariation(characterId, anchor)
+        val due = anchor.plus(Duration.ofMinutes(policy.intervalMinutes(multiplier * timingVariation)))
         return deferPastQuietHours(due, policy)
+    }
+
+    private fun stableTimingVariation(characterId: String, anchor: Instant): Double {
+        val unsignedHash = "$characterId:${anchor.toEpochMilli()}".hashCode().toLong() and 0xffff_ffffL
+        val fraction = unsignedHash.toDouble() / 0xffff_ffffL.toDouble()
+        return 0.85 + fraction * 0.30
     }
 
     private fun deferPastQuietHours(time: Instant, policy: ProactivePerceptionPolicy): Instant {

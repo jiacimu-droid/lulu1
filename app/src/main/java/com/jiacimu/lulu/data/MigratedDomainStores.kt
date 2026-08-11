@@ -106,7 +106,22 @@ class InMemoryLuluChatStore : LuluChatStore {
             if (prefs != null) return
             prefs = context.applicationContext.getSharedPreferences(CHAT_PREFS, Context.MODE_PRIVATE)
             val loaded = decode(prefs?.getString(CHAT_STATE, null))
-            conversationState.value = loaded.first.ifEmpty { defaultConversations() }.sortedWith(conversationOrdering())
+            conversationState.value = loaded.first.ifEmpty { defaultConversations() }
+                .map { conversation ->
+                    val lastMessage = loaded.second[conversation.id]
+                        .orEmpty()
+                        .filter { it.status == LuluChatMessage.Status.Sent }
+                        .maxByOrNull(LuluChatMessage::createdAt)
+                    if (lastMessage == null) {
+                        conversation
+                    } else {
+                        conversation.copy(
+                            lastMessage = lastMessage.content,
+                            updatedAt = lastMessage.createdAt,
+                        )
+                    }
+                }
+                .sortedWith(conversationOrdering())
             messageStates.clear()
             loaded.second.forEach { (conversationId, messages) ->
                 messageStates[conversationId] = MutableStateFlow(messages)
@@ -188,7 +203,6 @@ class InMemoryLuluChatStore : LuluChatStore {
                         title = normalized.name,
                         groupChat = normalized,
                         pinned = normalized.pinned,
-                        updatedAt = Instant.now(),
                     )
                 } else {
                     conversation
