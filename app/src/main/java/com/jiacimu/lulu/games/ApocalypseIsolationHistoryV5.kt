@@ -37,6 +37,41 @@ internal data class ApocalypseV5HistoryRollback(
     val removedCount: Int,
 )
 
+internal data class ApocalypseV5ReadableScene(
+    val sceneNumber: Int,
+    val narration: String,
+    val actionThatLedHere: String?,
+    val deleteEntryId: String?,
+)
+
+/** A stored history entry is a transition; expose its before/after sides as actual readable scenes. */
+internal fun readableApocalypseScenesV5(
+    current: ApocalypseV3Save,
+    history: List<ApocalypseV5HistoryEntry>,
+): List<ApocalypseV5ReadableScene> {
+    if (history.isEmpty()) {
+        return listOf(
+            ApocalypseV5ReadableScene(current.scene, current.narration, null, null),
+        )
+    }
+    return buildList {
+        val first = history.first()
+        add(ApocalypseV5ReadableScene(first.sceneBefore, first.narrationBefore, null, null))
+        history.forEach { entry ->
+            add(
+                ApocalypseV5ReadableScene(
+                    sceneNumber = entry.sceneBefore + 1,
+                    narration = entry.narrationAfter,
+                    actionThatLedHere = entry.action,
+                    deleteEntryId = entry.id,
+                ),
+            )
+        }
+    }.filter { it.narration.isNotBlank() }
+        .distinctBy { it.sceneNumber }
+        .sortedBy { it.sceneNumber }
+}
+
 internal class ApocalypseV5HistoryStore(context: Context) {
     private val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 

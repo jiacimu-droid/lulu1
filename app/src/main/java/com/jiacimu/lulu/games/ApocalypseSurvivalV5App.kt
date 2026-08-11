@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -36,7 +37,7 @@ import java.util.UUID
 
 internal const val APOCALYPSE_PLAYER_SECONDARY_KEY = "__player_secondary__"
 
-private enum class ApocalypseV5Screen { Home, AbilitySettings, SystemSettings, World, Archive, Play }
+private enum class ApocalypseV5Screen { Home, AbilitySettings, SystemSettings, World, Archive, Play, StoryHistory }
 
 private data class ApocalypseAbilityTarget(
     val id: String,
@@ -263,6 +264,24 @@ internal fun ApocalypseSurvivalAppV5(
             },
         )
 
+        ApocalypseV5Screen.StoryHistory -> {
+            val current = save
+            if (current == null) {
+                LaunchedEffect(Unit) { screen = ApocalypseV5Screen.Home }
+            } else {
+                ApocalypseV5StoryHistoryPage(
+                    save = current,
+                    history = historyStore.load(current.id),
+                    characters = characters,
+                    onBack = { screen = ApocalypseV5Screen.Play },
+                    onDeleteScene = { entryId ->
+                        rollbackStory(entryId)
+                        screen = ApocalypseV5Screen.Play
+                    },
+                )
+            }
+        }
+
         ApocalypseV5Screen.Play -> {
             val current = save
             if (current == null) {
@@ -275,6 +294,8 @@ internal fun ApocalypseSurvivalAppV5(
                     progressStore = progressStore,
                     historyStore = historyStore,
                     onBack = ::goBack,
+                    onHistory = { screen = ApocalypseV5Screen.StoryHistory },
+                    onDeleteCurrent = { entryId -> rollbackStory(entryId) },
                     onSave = { next ->
                         save = next
                         storage.save(next)
@@ -312,39 +333,6 @@ private fun ApocalypseV5HomePage(
             contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            item {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = ApocalypseV5Colors.black,
-                    contentColor = ApocalypseV5Colors.textOnDark,
-                    shape = RoundedCornerShape(28.dp),
-                ) {
-                    Box(
-                        Modifier.background(
-                            Brush.linearGradient(
-                                listOf(ApocalypseV5Colors.black, Color(0xFF0D2A46), ApocalypseV5Colors.blackSoft),
-                            ),
-                        ),
-                    ) {
-                        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text("RED TIDE / 赤潮纪元", color = ApocalypseV5Colors.blue, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                            Text("活下去，也保留选择。", fontSize = 25.sp, lineHeight = 32.sp, fontWeight = FontWeight.Black)
-                            Text("视觉小说式长篇 · 自由行动 · 空间成长 · 基地与群像", color = ApocalypseV5Colors.textMutedDark, fontSize = 11.sp)
-                            if (save != null) {
-                                HorizontalDivider(color = ApocalypseV5Colors.blackLine)
-                                Text("${save.director.phase} · 第${save.scene}幕 · ${save.director.location}", color = ApocalypseV5Colors.textMutedDark, fontSize = 11.sp)
-                            }
-                        }
-                    }
-                }
-            }
-            item {
-                ApocalypseV5PhotoCard(
-                    R.drawable.apocalypse_city_night,
-                    "灾后城市边缘",
-                    "夜色、工业烟雾与断续灯火会成为赤潮纪元的第一层视觉记忆。",
-                )
-            }
             if (save != null) { item { ApocalypseSurvivalSnapshotV5(save) } }
             item { ApocalypseV5MenuEntry(Icons.Outlined.PlayArrow, "进入游戏", if (save == null) "从灾前第七日开始" else "继续第 ${save.scene} 幕", onEnter, emphasis = true) }
             item { ApocalypseV5MenuEntry(Icons.Outlined.AutoAwesome, "异能设定", "你与同行角色的异能、分化和队伍配置", onAbilities) }
@@ -763,6 +751,134 @@ private fun ApocalypseV5WorldPage(config: ApocalypseV3Config, onBack: () -> Unit
 }
 
 @Composable
+private fun ApocalypseV5StoryHistoryPage(
+    save: ApocalypseV3Save,
+    history: List<ApocalypseV5HistoryEntry>,
+    characters: Map<String, CharacterSettings>,
+    onBack: () -> Unit,
+    onDeleteScene: (String) -> Unit,
+) {
+    val scenes = remember(save.id, save.scene, save.narration, history) {
+        readableApocalypseScenesV5(save, history)
+    }
+    val party = save.partyIds.map { id -> characters[id] ?: MigratedDomainStores.characters.get(id) }
+    var selectedIndex by rememberSaveable(save.id, scenes.size) { mutableStateOf<Int?>(null) }
+    var deleteTarget by remember { mutableStateOf<ApocalypseV5ReadableScene?>(null) }
+    val selected = selectedIndex?.let(scenes::getOrNull)
+
+    Scaffold(
+        containerColor = ApocalypseV5Colors.background,
+        topBar = {
+            TopAppBar(
+                title = { Text(selected?.let { "第${it.sceneNumber}幕" } ?: "剧情历史", fontWeight = FontWeight.Black) },
+                navigationIcon = {
+                    IconButton(onClick = { if (selectedIndex != null) selectedIndex = null else onBack() }) {
+                        Icon(Icons.Outlined.ArrowBack, "返回")
+                    }
+                },
+                actions = {
+                    if (selected?.deleteEntryId != null) {
+                        IconButton(onClick = { deleteTarget = selected }) {
+                            Icon(Icons.Outlined.DeleteOutline, "删除这一幕", tint = MaterialTheme.colorScheme.error)
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = ApocalypseV5Colors.background),
+            )
+        },
+    ) { padding ->
+        if (selected == null) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(padding),
+                contentPadding = PaddingValues(18.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                items(scenes, key = { it.sceneNumber }) { scene ->
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().clickable { selectedIndex = scenes.indexOf(scene) },
+                        color = ApocalypseV5Colors.white,
+                        shape = RoundedCornerShape(17.dp),
+                        border = BorderStroke(1.dp, ApocalypseV5Colors.border),
+                    ) {
+                        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("第${scene.sceneNumber}幕", color = ApocalypseV5Colors.ink, fontWeight = FontWeight.Black, modifier = Modifier.weight(1f))
+                                if (scene.sceneNumber == save.scene) Text("当前", color = ApocalypseV5Colors.blueStrong, fontSize = 11.sp)
+                                Icon(Icons.Outlined.ChevronRight, null, tint = ApocalypseV5Colors.muted)
+                            }
+                            scene.actionThatLedHere?.takeIf(String::isNotBlank)?.let { action ->
+                                Text("你的行动：$action", color = ApocalypseV5Colors.blueStrong, fontSize = 11.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                            }
+                            Text(
+                                scene.narration.replace(Regex("【[^】]+】"), ""),
+                                color = ApocalypseV5Colors.muted,
+                                fontSize = 12.sp,
+                                lineHeight = 18.sp,
+                                maxLines = 4,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    }
+                }
+            }
+        } else {
+            val pages = remember(selected.narration, party) { parseApocalypseStoryPages(selected.narration, party) }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(padding),
+                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+            ) {
+                selected.actionThatLedHere?.takeIf(String::isNotBlank)?.let { action ->
+                    item {
+                        Surface(color = ApocalypseV5Colors.surfaceBlue, shape = RoundedCornerShape(15.dp)) {
+                            Text("你的行动：$action", color = ApocalypseV5Colors.blueStrong, fontSize = 12.sp, lineHeight = 18.sp, modifier = Modifier.padding(12.dp))
+                        }
+                    }
+                }
+                items(pages) { page ->
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            apocalypseV5SpeakerLabel(page, party, save.director.characterDossiers, "我"),
+                            color = ApocalypseV5Colors.blueStrong,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp,
+                        )
+                        Text(page.text, color = ApocalypseV5Colors.ink, fontSize = 16.sp, lineHeight = 27.sp)
+                    }
+                }
+                item {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        TextButton(
+                            onClick = { selectedIndex = (selectedIndex ?: 0) - 1 },
+                            enabled = (selectedIndex ?: 0) > 0,
+                        ) { Icon(Icons.Outlined.ChevronLeft, null); Text("上一幕") }
+                        TextButton(
+                            onClick = { selectedIndex = (selectedIndex ?: 0) + 1 },
+                            enabled = (selectedIndex ?: 0) < scenes.lastIndex,
+                        ) { Text("下一幕"); Icon(Icons.Outlined.ChevronRight, null) }
+                    }
+                }
+            }
+        }
+    }
+
+    deleteTarget?.let { target ->
+        AlertDialog(
+            onDismissRequest = { deleteTarget = null },
+            title = { Text("删除第${target.sceneNumber}幕并重新来？") },
+            text = { Text("这一幕以及它之后产生的剧情、伏笔、关系、物资和世界状态都会永久删除。随后会回到上一幕，你可以重新行动生成新的剧情。") },
+            confirmButton = {
+                TextButton(onClick = {
+                    target.deleteEntryId?.let(onDeleteScene)
+                    deleteTarget = null
+                }) { Text("永久删除") }
+            },
+            dismissButton = { TextButton(onClick = { deleteTarget = null }) { Text("取消") } },
+        )
+    }
+}
+
+@Composable
 private fun ApocalypseV5ArchivePage(
     save: ApocalypseV3Save?,
     history: List<ApocalypseV5HistoryEntry>,
@@ -804,7 +920,7 @@ private fun ApocalypseV5ArchivePage(
                     items(history.asReversed(), key = { it.id }) { record ->
                         Surface(color = ApocalypseV5Colors.white, shape = RoundedCornerShape(17.dp), border = BorderStroke(1.dp, ApocalypseV5Colors.border)) {
                             Column(Modifier.fillMaxWidth().padding(13.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                                Text("第${record.sceneBefore}幕 · ${record.action}", color = ApocalypseV5Colors.ink, fontSize = 12.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                Text("第${record.sceneBefore + 1}幕 · ${record.action}", color = ApocalypseV5Colors.ink, fontSize = 12.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
                                 Text(
                                     record.narrationAfter.replace(Regex("【[^】]+】"), ""),
                                     color = ApocalypseV5Colors.muted,
@@ -865,7 +981,7 @@ private fun ApocalypseV5ArchivePage(
     deleteTarget?.let { target ->
         AlertDialog(
             onDismissRequest = { deleteTarget = null },
-            title = { Text("永久删除第${target.sceneBefore}幕？") },
+            title = { Text("永久删除第${target.sceneBefore + 1}幕？") },
             text = { Text("为了保证真的删除，这一幕以及它之后依赖这一幕产生的剧情、物资、地点、关系变化和状态都会一起回滚删除；未来模型上下文也不会再读取它们。此操作不可恢复。") },
             confirmButton = {
                 TextButton(onClick = {
@@ -911,6 +1027,8 @@ private fun ApocalypseV5PlayPage(
     progressStore: ApocalypseReadingProgressStoreV5,
     historyStore: ApocalypseV5HistoryStore,
     onBack: () -> Unit,
+    onHistory: () -> Unit,
+    onDeleteCurrent: (String) -> Unit,
     onSave: (ApocalypseV3Save) -> Unit,
 ) {
     val context = LocalContext.current
@@ -926,6 +1044,9 @@ private fun ApocalypseV5PlayPage(
     var autoPlay by remember { mutableStateOf(false) }
     var showInventory by remember { mutableStateOf(false) }
     var showMapPage by remember { mutableStateOf(false) }
+    var confirmDeleteCurrent by remember { mutableStateOf(false) }
+    val currentHistory = remember(save.id, save.scene) { historyStore.load(save.id) }
+    val currentEntryId = currentHistory.lastOrNull()?.takeIf { it.sceneBefore + 1 == save.scene }?.id
     val currentPage = pages.getOrElse(pageIndex) { pages.first() }
     val lastPage = pageIndex >= pages.lastIndex
 
@@ -972,7 +1093,7 @@ private fun ApocalypseV5PlayPage(
                         narration = text,
                         director = beat.nextDirector,
                         stats = nextStats,
-                        log = (save.log + "第${save.scene}幕｜$clean\n${text.replace(Regex("【[^】]+】"), "").take(460)}").takeLast(100),
+                        log = (save.log + "第${save.scene + 1}幕｜$clean\n${text.replace(Regex("【[^】]+】"), "").take(700)}").takeLast(100),
                         updatedAt = System.currentTimeMillis(),
                     )
                     onSave(next)
@@ -990,6 +1111,14 @@ private fun ApocalypseV5PlayPage(
             Column(Modifier.weight(1f)) {
                 Text("末世求生", color = ApocalypseV5Colors.textOnDark, fontSize = 17.sp, fontWeight = FontWeight.Black)
                 Text("${apocalypseDayLabelV5(save.director.dayIndex)} ${apocalypseClockLabelV5(save.director.clockMinutes)} · ${save.director.weather} ${save.director.temperatureC}℃ · 第${save.scene}幕", color = ApocalypseV5Colors.blue, fontSize = 9.sp)
+            }
+            IconButton(onClick = onHistory, enabled = !busy) {
+                Icon(Icons.Outlined.History, "剧情历史", tint = ApocalypseV5Colors.textOnDark)
+            }
+            if (currentEntryId != null) {
+                IconButton(onClick = { confirmDeleteCurrent = true }, enabled = !busy) {
+                    Icon(Icons.Outlined.DeleteOutline, "删除当前幕", tint = ApocalypseV5Colors.textOnDark)
+                }
             }
         }
 
@@ -1066,6 +1195,20 @@ private fun ApocalypseV5PlayPage(
 
     if (showInventory) {
         ModalBottomSheet(onDismissRequest = { showInventory = false }, containerColor = ApocalypseV5Colors.background) { ApocalypseV5InventorySheet(save) }
+    }
+    if (confirmDeleteCurrent && currentEntryId != null) {
+        AlertDialog(
+            onDismissRequest = { confirmDeleteCurrent = false },
+            title = { Text("删除第${save.scene}幕并重新来？") },
+            text = { Text("当前幕以及它产生的剧情状态会永久删除，并回到第${save.scene - 1}幕。你可以重新输入行动，生成新的第${save.scene}幕。") },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmDeleteCurrent = false
+                    onDeleteCurrent(currentEntryId)
+                }) { Text("永久删除") }
+            },
+            dismissButton = { TextButton(onClick = { confirmDeleteCurrent = false }) { Text("取消") } },
+        )
     }
 }
 

@@ -43,6 +43,7 @@ internal suspend fun planApocalypseV5Beat(
     action: String,
 ): ApocalypseV3Beat {
     val director = save.director
+    val nextScene = save.scene + 1
     val partyPrompt = apocalypsePartyStylePromptV5(party, config)
     val facts = buildString {
         appendLine("互动长篇：《末世求生·赤潮纪元》")
@@ -56,7 +57,7 @@ internal suspend fun planApocalypseV5Beat(
         appendLine("玩家已确认的地图变化账本：${apocalypseMapLedgerPromptV5(save)}")
         appendLine("时间=${apocalypseDayLabelV5(director.dayIndex)} ${apocalypseClockLabelV5(director.clockMinutes)}；天气=${director.weather}；温度=${director.temperatureC}℃")
         appendLine("玩家状态：生命${save.stats.health}/100；体力${save.stats.stamina}/100；感染${save.stats.infection}/100；士气${save.stats.morale}/100")
-        appendLine("阶段=${director.phase}；地点=${director.location}；第${save.scene}幕；威胁=${director.tension}/10")
+        appendLine("阶段=${director.phase}；地点=${director.location}；当前已读到第${save.scene}幕；本次必须规划第${nextScene}幕；威胁=${director.tension}/10")
         appendLine("资源：食物${save.stats.food} 水${save.stats.water} 药物${save.stats.medicine} 材料${save.stats.materials} 晶核${save.stats.crystalCores}")
         appendLine("基地=${save.stats.baseName}/Lv.${save.stats.baseLevel}")
         appendLine("当前明线：${director.activeThreads.joinToString("｜")}")
@@ -70,10 +71,10 @@ internal suspend fun planApocalypseV5Beat(
         appendLine("已获得资产：${director.assets.joinToString("｜") { "${it.kind.label}:${it.title}" }}")
         appendLine("同行角色风格参考（只按隔离规则提取风格，不继承其中身份/关系/经历）：\n$partyPrompt")
         if (save.log.isNotEmpty()) {
-            appendLine("本局仍保留的最近剧情记录（这是唯一可用的跨幕共同经历）：\n${save.log.takeLast(8).joinToString("\n---\n")}")
+            appendLine("本局仍保留的最近剧情记录（这是唯一可用的跨幕共同经历）：\n${save.log.takeLast(16).joinToString("\n---\n")}")
         }
         appendLine("玩家行动：$action")
-        appendLine("上一幕：\n${save.narration.takeLast(3000)}")
+        appendLine("第${save.scene}幕完整衔接尾段：\n${save.narration.takeLast(4500)}")
     }
     val instruction = """
         你是长篇互动游戏《末世求生》的隐藏总导演。你不写正文，只维护世界、长线剧情和下一幕导演意图。只返回 JSON，不加代码块。
@@ -141,7 +142,7 @@ internal suspend fun planApocalypseV5Beat(
         facts = facts,
         instruction = instruction,
         source = "末世求生V5导演",
-        title = "末世求生 · 导演第${save.scene}幕",
+        title = "末世求生 · 导演第${nextScene}幕",
         temperature = 0.72,
         maxTokens = 2800,
         usage = ModelUsage.Game,
@@ -160,6 +161,7 @@ internal suspend fun writeApocalypseV5Scene(
     beat: ApocalypseV3Beat,
     nextStats: ApocalypseV3Stats,
 ): Result<String> {
+    val nextScene = save.scene + 1
     val partyPrompt = apocalypsePartyStylePromptV5(party, config)
     val writerCastIds = (party.map { it.characterId } + beat.focusCharacterIds).toSet()
     val writerDossiers = beat.nextDirector.characterDossiers
@@ -190,12 +192,12 @@ internal suspend fun writeApocalypseV5Scene(
         appendLine("同行角色风格参考（只按隔离规则提取风格，不继承其中身份/关系/经历）：\n$partyPrompt")
         appendLine("当前明线：${beat.nextDirector.activeThreads.joinToString("｜")}")
         if (save.log.isNotEmpty()) {
-            appendLine("本局仍保留的最近剧情记录：\n${save.log.takeLast(8).joinToString("\n---\n")}")
+            appendLine("本局仍保留的最近剧情记录：\n${save.log.takeLast(16).joinToString("\n---\n")}")
         }
-        appendLine("上一幕：\n${save.narration.takeLast(3000)}")
+        appendLine("第${save.scene}幕完整衔接尾段：\n${save.narration.takeLast(4500)}")
     }
     val instruction = """
-        写一幕高质量中文末世互动视觉小说，约750—1200字。不要输出选项、数值面板、解释、Markdown或JSON。
+        紧接第${save.scene}幕，写第${nextScene}幕高质量中文末世互动视觉小说，约750—1200字。不要输出选项、数值面板、解释、Markdown或JSON。
 
         【世界隔离是最高优先级】
         - 这是独立游戏世界。不得带入露露机主聊天、主时间线、辞海、世界书、角色长期记忆、共同活动、承诺、原身份、原职业、原世界背景或原关系。
@@ -211,6 +213,7 @@ internal suspend fun writeApocalypseV5Scene(
         每段通常1—2句，目标30—70字；客户端会在不删减任何文字和标点的前提下继续细分长段落。
 
         文学与玩法规则：
+        - 开头必须承接上一幕最后可见的地点、在场人物、姿态、未完成动作和玩家刚才的行动，不得跳时空、重复开场、总结上一幕或把已发生的事再演一次。
         - 玩家刚才的行动必须真实发生并有现实后果，不能偷换成编剧想让玩家做的事。
         - 同行者严格保持允许继承的性格、语言、外貌、习惯和行为风格；本局关系只按本局已发生剧情发展。异能按设定和分化使用，普通人不能突然觉醒。
         - 玩家拥有两个异能槽：第一异能固定为空间；第二异能以硬设定为准。没有选择第二异能时绝不能临时补一个。
@@ -238,7 +241,7 @@ internal suspend fun writeApocalypseV5Scene(
         facts = facts,
         instruction = instruction,
         source = "末世求生V5正文",
-        title = "末世求生 · 第${save.scene}幕",
+        title = "末世求生 · 第${nextScene}幕",
         temperature = 0.80,
         maxTokens = 2300,
         usage = ModelUsage.Game,
