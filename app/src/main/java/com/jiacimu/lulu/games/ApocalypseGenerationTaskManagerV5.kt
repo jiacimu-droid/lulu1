@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.net.SocketTimeoutException
 
 /** Keeps apocalypse scene generation alive when its Compose page leaves the screen. */
 internal object ApocalypseGenerationTaskManagerV5 {
@@ -90,8 +91,11 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         party = party,
                     )
                     val beat = if (needsDirector && !usedDirector) {
+                        // The director already had its chance this scene. A timeout or malformed JSON
+                        // must not force another expensive director call on every following action;
+                        // the normal cadence or the player's next structural choice can wake it again.
                         resolvedBeat.copy(
-                            nextDirector = resolvedBeat.nextDirector.copy(directorRefreshNeeded = true),
+                            nextDirector = resolvedBeat.nextDirector.copy(directorRefreshNeeded = false),
                         )
                     } else {
                         resolvedBeat
@@ -142,8 +146,11 @@ internal object ApocalypseGenerationTaskManagerV5 {
                     updateState(save.id) {
                         it.copy(
                             phase = "",
-                            lastError = error.message?.trim().orEmpty().ifBlank {
-                                "生成失败了，请检查游戏模型或网络后重试。"
+                            lastError = when (error) {
+                                is SocketTimeoutException -> "游戏模型太久没有继续返回内容，本次没有写入存档；你的行动已经保留，可以直接重试。"
+                                else -> error.message?.trim().orEmpty().ifBlank {
+                                    "生成失败了，请检查游戏模型或网络后重试。"
+                                }
                             },
                         )
                     }

@@ -433,6 +433,8 @@ class CompanionModelGateway(
         connectionOverride: ModelConnection? = null,
         usage: ModelUsage? = null,
         contextMode: CompanionContextMode = CompanionContextMode.Full,
+        streamResponse: Boolean = false,
+        readTimeoutMillis: Int = DEFAULT_MODEL_READ_TIMEOUT_MILLIS,
     ): Result<ModelReply> = withContext(Dispatchers.IO) {
         val totalStartedAt = System.nanoTime()
         var requestUrl: String? = null
@@ -533,7 +535,15 @@ class CompanionModelGateway(
             val estimatedInputTokens = breakdown.sumOf { item -> item.estimatedTokens }
             val promptMillis = elapsedMillis(promptStartedAt)
             val modelStartedAt = System.nanoTime()
-            val reply = openAiCompatible(connection, systemPrompt, userPrompt, temperature, maxTokens)
+            val reply = openAiCompatible(
+                connection = connection,
+                system = systemPrompt,
+                user = userPrompt,
+                temperature = temperature,
+                maxTokens = maxTokens,
+                streamResponse = streamResponse,
+                readTimeoutMillis = readTimeoutMillis,
+            )
             val modelMillis = elapsedMillis(modelStartedAt)
             val totalMillis = elapsedMillis(totalStartedAt)
             LuluRepositories.performance.recordGeneration(
@@ -569,6 +579,8 @@ class CompanionModelGateway(
         user: String,
         temperature: Double,
         maxTokens: Int,
+        streamResponse: Boolean,
+        readTimeoutMillis: Int,
     ): ModelReply {
         val body = JSONObject()
             .put("model", connection.model)
@@ -580,11 +592,35 @@ class CompanionModelGateway(
                     .put(JSONObject().put("role", "system").put("content", system))
                     .put(JSONObject().put("role", "user").put("content", user)),
             )
+        val url = "${connection.baseUrl}/chat/completions"
+        val headers = mapOf("Authorization" to "Bearer ${connection.apiKey}")
+        if (streamResponse) {
+            body.put("stream", true)
+            try {
+                return requestPostStreamingReply(
+                    url = url,
+                    headers = headers,
+                    body = body,
+                    readTimeoutMillis = readTimeoutMillis,
+                )
+            } catch (error: ModelHttpException) {
+                // A few OpenAI-compatible relays reject the stream flag even though their normal
+                // chat endpoint works. Only retry those immediate protocol rejections; never turn a
+                // timeout, rate limit or server failure into a second expensive generation.
+                if (error.status !in setOf(400, 422)) throw error
+                body.remove("stream")
+            }
+        }
         val json = requestPostJson(
-            url = "${connection.baseUrl}/chat/completions",
-            headers = mapOf("Authorization" to "Bearer ${connection.apiKey}"),
+            url = url,
+            headers = headers,
             body = body,
+            readTimeoutMillis = readTimeoutMillis,
         )
+        return modelReplyFromJson(json)
+    }
+
+    private fun modelReplyFromJson(json: JSONObject): ModelReply {
         val text = extractModelText(json)
         check(text.isNotBlank()) { "模型没有返回可读取的内容" }
         val usage = json.optJSONObject("usage")
@@ -598,26 +634,26 @@ class CompanionModelGateway(
     }
 
     private fun extractModelText(json: JSONObject): String {
-        fun textFrom(value: Any?): String = when (value) {
-            is String -> value
-            is JSONObject -> sequenceOf("text", "content", "output_text")
-                .map { key -> textFrom(value.opt(key)) }
-                .firstOrNull(String::isNotBlank)
-                .orEmpty()
-            is JSONArray -> (0 until value.length())
-                .joinToString("") { index -> textFrom(value.opt(index)) }
-            else -> ""
-        }.trim()
-
         val choice = json.optJSONArray("choices")?.optJSONObject(0)
         val message = choice?.optJSONObject("message")
         return sequenceOf(
-            textFrom(message?.opt("content")),
-            textFrom(choice?.opt("text")),
-            textFrom(json.opt("output_text")),
-            textFrom(json.opt("output")),
-            textFrom(message?.opt("reasoning_content")),
-        ).firstOrNull(String::isNotBlank).orEmpty()
+            modelTextValue(message?.opt("content")),
+            modelTextValue(choice?.opt("text")),
+            modelTextValue(json.opt("output_text")),
+            modelTextValue(json.opt("output")),
+            modelTextValue(message?.opt("reasoning_content")),
+        ).firstOrNull(String::isNotBlank).orEmpty().trim()
+    }
+
+    private fun modelTextValue(value: Any?): String = when (value) {
+        is String -> value
+        is JSONObject -> sequenceOf("text", "content", "output_text")
+            .map { key -> modelTextValue(value.opt(key)) }
+            .firstOrNull(String::isNotBlank)
+            .orEmpty()
+        is JSONArray -> (0 until value.length())
+            .joinToString("") { index -> modelTextValue(value.opt(index)) }
+        else -> ""
     }
 
     private fun requestGetJson(url: String, headers: Map<String, String>): JSONObject {
@@ -638,17 +674,117 @@ class CompanionModelGateway(
         url: String,
         headers: Map<String, String>,
         body: JSONObject,
+        readTimeoutMillis: Int = DEFAULT_MODEL_READ_TIMEOUT_MILLIS,
     ): JSONObject {
         val connection = URL(url).openConnection() as HttpURLConnection
         return try {
             connection.requestMethod = "POST"
             connection.connectTimeout = 30_000
-            connection.readTimeout = 90_000
+            connection.readTimeout = readTimeoutMillis.coerceIn(30_000, 300_000)
             connection.doOutput = true
             connection.setRequestProperty("Content-Type", "application/json; charset=utf-8")
             headers.forEach { (key, value) -> connection.setRequestProperty(key, value) }
             connection.outputStream.bufferedWriter(Charsets.UTF_8).use { it.write(body.toString()) }
             readJsonResponse(connection)
+        } finally {
+            connection.disconnect()
+        }
+    }
+
+    private fun requestPostStreamingReply(
+        url: String,
+        headers: Map<String, String>,
+        body: JSONObject,
+        readTimeoutMillis: Int,
+    ): ModelReply {
+        val connection = URL(url).openConnection() as HttpURLConnection
+        return try {
+            connection.requestMethod = "POST"
+            connection.connectTimeout = 30_000
+            connection.readTimeout = readTimeoutMillis.coerceIn(30_000, 300_000)
+            connection.doOutput = true
+            connection.setRequestProperty("Content-Type", "application/json; charset=utf-8")
+            connection.setRequestProperty("Accept", "text/event-stream, application/json")
+            headers.forEach { (key, value) -> connection.setRequestProperty(key, value) }
+            connection.outputStream.bufferedWriter(Charsets.UTF_8).use { it.write(body.toString()) }
+
+            val status = connection.responseCode
+            if (status !in 200..299) {
+                val raw = connection.errorStream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
+                throw modelHttpException(status, raw)
+            }
+
+            val content = StringBuilder()
+            val reasoning = StringBuilder()
+            val plainResponse = StringBuilder()
+            var inputTokens = 0
+            var outputTokens = 0
+            var cachedTokens = 0
+
+            fun consumeEvent(rawEvent: String): Boolean {
+                val payload = rawEvent.trim()
+                if (payload.isBlank() || payload == "[DONE]") return true
+                val chunk = runCatching { JSONObject(payload) }.getOrNull() ?: return false
+                val choice = chunk.optJSONArray("choices")?.optJSONObject(0)
+                val delta = choice?.optJSONObject("delta")
+                if (delta != null) {
+                    content.append(modelTextValue(delta.opt("content")))
+                    reasoning.append(modelTextValue(delta.opt("reasoning_content")))
+                } else if (content.isEmpty()) {
+                    val message = choice?.optJSONObject("message")
+                    content.append(modelTextValue(message?.opt("content")))
+                    content.append(modelTextValue(choice?.opt("text")))
+                    reasoning.append(modelTextValue(message?.opt("reasoning_content")))
+                }
+                chunk.optJSONObject("usage")?.let { usage ->
+                    inputTokens = usage.optInt("prompt_tokens", inputTokens)
+                    outputTokens = usage.optInt("completion_tokens", outputTokens)
+                    cachedTokens = usage.optJSONObject("prompt_tokens_details")
+                        ?.optInt("cached_tokens", cachedTokens)
+                        ?: cachedTokens
+                }
+                return true
+            }
+
+            connection.inputStream.bufferedReader(Charsets.UTF_8).use { reader ->
+                val eventData = StringBuilder()
+                while (true) {
+                    val line = reader.readLine() ?: break
+                    when {
+                        line.isBlank() -> {
+                            if (eventData.isNotEmpty()) {
+                                consumeEvent(eventData.toString())
+                                eventData.setLength(0)
+                            }
+                        }
+                        line.startsWith("data:") -> {
+                            val payload = line.removePrefix("data:").trimStart()
+                            if (eventData.isEmpty()) {
+                                if (!consumeEvent(payload)) eventData.append(payload)
+                            } else {
+                                eventData.append('\n').append(payload)
+                                if (consumeEvent(eventData.toString())) eventData.setLength(0)
+                            }
+                        }
+                        line.startsWith(":") || line.startsWith("event:") ||
+                            line.startsWith("id:") || line.startsWith("retry:") -> Unit
+                        else -> plainResponse.appendLine(line)
+                    }
+                }
+                if (eventData.isNotEmpty()) consumeEvent(eventData.toString())
+            }
+
+            if (content.isEmpty() && reasoning.isEmpty() && plainResponse.isNotBlank()) {
+                return modelReplyFromJson(JSONObject(plainResponse.toString()))
+            }
+            val text = content.toString().trim().ifBlank { reasoning.toString().trim() }
+            check(text.isNotBlank()) { "模型流式响应没有返回可读取的内容" }
+            ModelReply(
+                text = text,
+                inputTokens = inputTokens,
+                outputTokens = outputTokens,
+                cachedTokens = cachedTokens,
+            )
         } finally {
             connection.disconnect()
         }
@@ -661,11 +797,7 @@ class CompanionModelGateway(
             ?.use { it.readText() }
             .orEmpty()
         if (status !in 200..299) {
-            val message = runCatching { JSONObject(raw).optJSONObject("error")?.optString("message") }
-                .getOrNull()
-                .orEmpty()
-                .ifBlank { raw.take(500) }
-            error("模型请求失败（$status）：$message")
+            throw modelHttpException(status, raw)
         }
         check(raw.isNotBlank()) { "接口返回了空内容" }
         return if (raw.trimStart().startsWith("[")) {
@@ -673,6 +805,14 @@ class CompanionModelGateway(
         } else {
             JSONObject(raw)
         }
+    }
+
+    private fun modelHttpException(status: Int, raw: String): ModelHttpException {
+        val message = runCatching { JSONObject(raw).optJSONObject("error")?.optString("message") }
+            .getOrNull()
+            .orEmpty()
+            .ifBlank { raw.take(500) }
+        return ModelHttpException(status, "模型请求失败（$status）：$message")
     }
 }
 
@@ -687,6 +827,9 @@ private fun estimateTokens(chars: Int): Int = ((chars / 1.8f) + 0.5f).toInt().co
 private fun elapsedMillis(startedAtNanos: Long): Long =
     ((System.nanoTime() - startedAtNanos) / 1_000_000L).coerceAtLeast(0L)
 
+private class ModelHttpException(val status: Int, message: String) : IllegalStateException(message)
+
+private const val DEFAULT_MODEL_READ_TIMEOUT_MILLIS = 90_000
 private const val CHAT_FIXED_CONTEXT_TOKEN_LIMIT = 18_000
 
 object LuluAiServices {

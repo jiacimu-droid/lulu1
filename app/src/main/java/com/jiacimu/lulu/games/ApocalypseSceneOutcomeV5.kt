@@ -16,11 +16,13 @@ internal const val APOCALYPSE_SCENE_TEXT_MARKER_V5 = "<<<APOCALYPSE_SCENE>>>"
 internal data class ApocalypseSceneOutcomeV5(
     val text: String,
     val actionAcknowledged: Boolean = false,
+    val actionAcknowledgementReported: Boolean = false,
     val actionOutcome: String = "",
     val continuitySummary: String = "",
     val respondedCharacterIds: List<String> = emptyList(),
     val directorRefreshNeeded: Boolean = false,
     val presentCharactersReported: Boolean = false,
+    val receiptParsed: Boolean = false,
     val delta: ApocalypseSceneDeltaV5 = ApocalypseSceneDeltaV5(),
 )
 
@@ -54,25 +56,59 @@ internal fun parseApocalypseSceneOutcomeV5(raw: String): ApocalypseSceneOutcomeV
     val normalized = raw.trim()
     val stateStart = normalized.indexOf(APOCALYPSE_SCENE_STATE_MARKER_V5)
     val sceneStart = normalized.indexOf(APOCALYPSE_SCENE_TEXT_MARKER_V5)
-    if (stateStart < 0 || sceneStart <= stateStart) return@runCatching null
-    val stateJson = normalized
-        .substring(stateStart + APOCALYPSE_SCENE_STATE_MARKER_V5.length, sceneStart)
+    val stateBlock: String
+    val text: String
+    if (stateStart >= 0 && sceneStart >= 0 && stateStart < sceneStart) {
+        stateBlock = normalized.substring(stateStart + APOCALYPSE_SCENE_STATE_MARKER_V5.length, sceneStart)
+        text = normalized.substring(sceneStart + APOCALYPSE_SCENE_TEXT_MARKER_V5.length).trim()
+    } else if (stateStart >= 0 && sceneStart >= 0) {
+        text = normalized.substring(sceneStart + APOCALYPSE_SCENE_TEXT_MARKER_V5.length, stateStart).trim()
+        stateBlock = normalized.substring(stateStart + APOCALYPSE_SCENE_STATE_MARKER_V5.length)
+    } else {
+        // Some compatible models preserve the JSON and visual-novel tags but omit our sentinel
+        // lines. Recover either JSON-first or scene-first output without spending a second request.
+        val markerless = normalized
+            .replace(APOCALYPSE_SCENE_STATE_MARKER_V5, "")
+            .replace(APOCALYPSE_SCENE_TEXT_MARKER_V5, "")
+            .trim()
+        val objectStart = markerless.indexOf('{')
+        val objectEnd = markerless.lastIndexOf('}')
+        if (objectStart < 0 || objectEnd <= objectStart) return@runCatching null
+        val storyTags = listOf("【旁白】", "【玩家】", "【角色:")
+        val storyBefore = storyTags.map { markerless.indexOf(it) }.filter { it in 0 until objectStart }.minOrNull()
+        val storyAfter = storyTags
+            .map { markerless.indexOf(it, startIndex = objectEnd + 1) }
+            .filter { it > objectEnd }
+            .minOrNull()
+        stateBlock = markerless.substring(objectStart, objectEnd + 1)
+        text = when {
+            storyBefore != null -> markerless.substring(storyBefore, objectStart).trim()
+            storyAfter != null -> markerless.substring(storyAfter).trim()
+            else -> return@runCatching null
+        }
+    }
+    val cleanedState = stateBlock
         .trim()
         .removePrefix("```json")
         .removePrefix("```")
         .removeSuffix("```")
         .trim()
-    val json = JSONObject(stateJson)
-    val text = normalized.substring(sceneStart + APOCALYPSE_SCENE_TEXT_MARKER_V5.length).trim()
-    if (text.isBlank()) return@runCatching null
+    val objectStart = cleanedState.indexOf('{')
+    val objectEnd = cleanedState.lastIndexOf('}')
+    if (objectStart < 0 || objectEnd <= objectStart) return@runCatching null
+    val json = JSONObject(cleanedState.substring(objectStart, objectEnd + 1))
+    val visibleText = text.trim().removePrefix("```text").removePrefix("```").removeSuffix("```").trim()
+    if (visibleText.isBlank()) return@runCatching null
     ApocalypseSceneOutcomeV5(
-        text = text,
+        text = visibleText,
         actionAcknowledged = json.optBoolean("actionAcknowledged", false),
+        actionAcknowledgementReported = json.has("actionAcknowledged"),
         actionOutcome = json.optString("actionOutcome").trim().take(240),
         continuitySummary = json.optString("continuitySummary").trim().take(360),
         respondedCharacterIds = json.optJSONArray("respondedCharacterIds").sceneStringsV5().distinct().take(8),
         directorRefreshNeeded = json.optBoolean("directorRefreshNeeded", false),
         presentCharactersReported = json.has("presentCharacterIds"),
+        receiptParsed = true,
         delta = ApocalypseSceneDeltaV5(
             location = json.optString("location").trim().take(100),
             sceneGoal = json.optString("sceneGoal").trim().take(260),
@@ -110,14 +146,25 @@ internal fun parseApocalypseSceneOutcomeV5(raw: String): ApocalypseSceneOutcomeV
     )
 }.getOrNull()
 
-internal fun fallbackApocalypseSceneOutcomeV5(raw: String): ApocalypseSceneOutcomeV5 {
-    val text = raw
-        .substringAfter(APOCALYPSE_SCENE_TEXT_MARKER_V5, raw)
+internal fun fallbackApocalypseSceneOutcomeV5(raw: String, action: String = ""): ApocalypseSceneOutcomeV5 {
+    val afterSceneMarker = raw.substringAfter(APOCALYPSE_SCENE_TEXT_MARKER_V5, raw)
+    val withoutTrailingState = afterSceneMarker.substringBefore(APOCALYPSE_SCENE_STATE_MARKER_V5)
+    val firstStoryTag = listOf("【旁白】", "【玩家】", "【角色:")
+        .map { withoutTrailingState.indexOf(it) }
+        .filter { it >= 0 }
+        .minOrNull()
+    val text = (firstStoryTag?.let { withoutTrailingState.substring(it) } ?: withoutTrailingState)
+        .trim()
+        .removePrefix("```")
+        .removeSuffix("```")
         .trim()
         .ifBlank { "【旁白】这一幕没有生成出有效正文。" }
     val plain = text.replace(Regex("【[^】]+】"), "").trim()
     return ApocalypseSceneOutcomeV5(
         text = text,
+        actionOutcome = action.takeIf(String::isNotBlank)?.let {
+            "玩家行动“${it.take(90)}”已经进入本幕；具体结果以正文为准。"
+        }.orEmpty(),
         continuitySummary = compactApocalypseSceneExcerptV5(plain),
     )
 }
@@ -131,12 +178,8 @@ internal fun apocalypseSceneOutcomeNeedsRepairV5(
 ): Boolean {
     if (outcome.text.isBlank()) return true
     val tagged = outcome.text.contains("【旁白】") || outcome.text.contains("【玩家】") || outcome.text.contains("【角色:")
-    if (
-        !tagged || !outcome.actionAcknowledged || outcome.actionOutcome.isBlank() ||
-        !outcome.presentCharactersReported
-    ) return true
-    val genericOutcome = listOf("剧情继续", "继续推进", "行动成功", "产生影响", "有所变化")
-    if (outcome.actionOutcome.length < 28 && genericOutcome.any(outcome.actionOutcome::contains)) return true
+    if (!tagged) return true
+    if (outcome.receiptParsed && outcome.actionAcknowledgementReported && !outcome.actionAcknowledged) return true
     if (!apocalypseActionLooksLikeSpeechV5(action)) return false
 
     val availableIds = (party.map { it.characterId } + dossiers.map { it.id }).toSet()
@@ -147,10 +190,8 @@ internal fun apocalypseSceneOutcomeNeedsRepairV5(
         dossiers.filter { action.contains(it.name, ignoreCase = true) }.forEach { add(it.id) }
     }.intersect(present)
     val expected = namedTargets.ifEmpty { present }
-    val responseIds = outcome.respondedCharacterIds.filter(expected::contains)
-    if (responseIds.isEmpty()) return true
     val earlyText = outcome.text.take((outcome.text.length * 0.55f).toInt().coerceAtLeast(240))
-    return responseIds.none { earlyText.contains("【角色:$it】") }
+    return expected.none { earlyText.contains("【角色:$it】") }
 }
 
 /** Apply writer-owned local consequences only when the expensive director was skipped. */
@@ -177,7 +218,9 @@ internal fun applyApocalypseSceneOutcomeV5(
                 },
                 presentCharacterStateKnown = outcome.presentCharactersReported ||
                     plannedBeat.nextDirector.presentCharacterStateKnown,
-                directorRefreshNeeded = outcome.directorRefreshNeeded,
+                // This scene already received a director pass. Do not let the writer immediately
+                // schedule another one and recreate a director-every-scene loop.
+                directorRefreshNeeded = false,
             ),
         )
     }
