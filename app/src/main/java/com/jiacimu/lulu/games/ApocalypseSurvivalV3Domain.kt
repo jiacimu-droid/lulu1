@@ -101,6 +101,8 @@ internal data class ApocalypseV3Director(
     val foreshadowLedger: List<ApocalypseForeshadowV5> = defaultApocalypseForeshadowLedgerV5(),
     val recentBeatTypes: List<String> = emptyList(),
     val recentEmotionalTurns: List<String> = emptyList(),
+    /** Configured companion abilities are only potentials until an on-screen post-impact awakening. */
+    val awakenedCompanionIds: List<String> = emptyList(),
     val dayIndex: Int = -7,
     val clockMinutes: Int = 14 * 60 + 17,
     val weather: String = "闷热多云",
@@ -361,7 +363,9 @@ internal fun abilityXpThresholdV3(level: Int): Int = when (level) {
 }
 
 internal fun defaultApocalypseLongTermPlan(): List<String> = listOf(
-    "灾前7日｜信息不确定但社会秩序仍在：屯水、食品、药、能源、运输工具；验证七日预警；选择第一据点。",
+    "灾前7—5日｜隐秘准备窗口：社会、商场、物流、支付和交通完全正常；玩家利用信息差采购水、食品、药、能源和工具，不得提前出现官方管制或全民恐慌。",
+    "灾前4—3日｜异常验证窗口：零星病例、设备噪声和局部抢购开始出现，但城市总体正常；玩家仍能换店、网购、租车、找仓储并调整据点。",
+    "灾前2—1日｜最后准备窗口：少数品类可能限购、排队或延迟，公共部门开始内部响应；不能一刀切封死囤货，玩家此前准备必须形成明显优势。",
     "主沉降0—72小时｜通信、电力、医院和交通开始断裂；第一批感染者仍以普通行尸为主；玩家必须把灾前准备转化为真实生存优势。",
     "灾后1—6周｜建立可持续据点，寻找稳定水源与药品；幸存者小团体形成；猎行者和环境异化第一次改变行动规则。",
     "灾后2—6个月｜城市被不同势力切割，晶核成为能源与异能成长资源；基地从藏身处升级为需要治理、生产和关系维护的共同体。",
@@ -399,7 +403,7 @@ internal fun apocalypseWorldLoreV3(): List<Pair<String, String>> = listOf(
     "动物" to "犬科、鸦科和啮齿类最早出现方向感、协作和繁殖变化。大型动物会出现领地性异变种。动物不会统一变怪物，它们仍会饥饿、迁徙、护幼和争夺水源，因此生态链本身会推动安全区兴衰。",
     "土地与水" to "裸露土壤逐渐形成红锈色生物膜，盐分和重金属迁移速度加快。地表水最先失去可靠性，深层地下水、封闭水塔、净化膜和维护良好的管网成为基地核心资产。结晶菌毯既能采集源质，也会吸引感染者。",
     "气候" to "赤雨、逆温红雾、无雨雷暴、骤冷与热浪共同组成赤潮天气。天气会改变孢粉浓度、无线电距离、感染者活跃度、道路安全和异能稳定性，不只是背景。",
-    "人类与异能生态" to "大多数人始终是普通人。约四分之三人口没有稳定异能；常见异能以感官和体能强化为主，少见异能才出现元素、念动力和治疗，真正稀有的规则型能力极少。普通人依然是文明运行主体。",
+    "人类与异能生态" to "大多数人始终是普通人。灾后形成稳定异能的硬基线约8%，约92%没有稳定异能；常见异能以感官和体能强化为主，少见异能才出现元素、念动力和治疗，真正稀有的规则型能力极少。同行设置的是潜在分化，必须在灾后经历可见觉醒事件才能使用。普通人依然是文明运行主体。",
     "异能分化" to "异能不是固定职业。同一种火焰可以走爆燃、持续燃烧或高温塑形；千里眼可以走超远距、微观细节或高速目标追踪。初始强度、成长潜力、人格习惯和训练方式都会改变最终形态。",
     "感染者" to "早期行尸行动迟缓，主要依赖声音、血味和群体刺激。持续吸收源质后才逐渐出现速度型猎行者、骨甲/感官特化变异体、能够影响低阶尸群的统御体，以及极少数会改变整片区域生态的灾厄级个体。高阶感染者数量更少，但越来越会利用环境。",
     "源晶核" to "感染者脑内会逐渐形成源质结晶。普通行尸多数只有混浊碎核，能量少、杂质高；高阶晶核更完整，可用于异能成长、设备供能和研究。取核必须真正接近尸体，保存不当会持续释放污染，吸收过量会造成鸣蚀。",
@@ -408,7 +412,7 @@ internal fun apocalypseWorldLoreV3(): List<Pair<String, String>> = listOf(
 )
 
 internal fun initialApocalypseV3Director(): ApocalypseV3Director = ApocalypseV3Director(
-    phase = "灾前第7日",
+    phase = "秩序正常 · 隐秘准备",
     location = "临江市 · 旧城区公寓",
     sceneGoal = "确认七日预警是否值得相信，并在社会秩序仍正常时开始第一轮准备。",
     activeThreads = listOf(
@@ -603,6 +607,7 @@ private fun encodeApocalypseV3Director(value: ApocalypseV3Director): JSONObject 
     .put("foreshadowLedger", encodeApocalypseForeshadowLedgerV5(value.foreshadowLedger))
     .put("recentBeatTypes", JSONArray(value.recentBeatTypes))
     .put("recentEmotionalTurns", JSONArray(value.recentEmotionalTurns))
+    .put("awakenedCompanionIds", JSONArray(value.awakenedCompanionIds))
     .put("locations", JSONArray().apply {
         value.locations.forEach { location ->
             put(JSONObject().put("id", location.id).put("name", location.name).put("detail", location.detail).put("unlocked", location.unlocked))
@@ -629,13 +634,17 @@ private fun encodeApocalypseV3Director(value: ApocalypseV3Director): JSONObject 
 
 private fun decodeApocalypseV3Director(json: JSONObject): ApocalypseV3Director {
     val defaults = initialApocalypseV3Director()
+    val restoredDayIndex = json.optInt("dayIndex", defaults.dayIndex).coerceIn(-30, 9999)
     return ApocalypseV3Director(
-        phase = json.optString("phase", defaults.phase),
+        phase = apocalypsePhaseForDayV5(restoredDayIndex),
         location = json.optString("location", defaults.location),
         sceneGoal = json.optString("sceneGoal").ifBlank { defaults.sceneGoal },
         activeThreads = json.optJSONArray("activeThreads").v3Strings().ifEmpty { defaults.activeThreads },
         hiddenThreads = json.optJSONArray("hiddenThreads").v3Strings().ifEmpty { defaults.hiddenThreads },
-        worldFacts = json.optJSONArray("worldFacts").v3Strings().ifEmpty { defaults.worldFacts },
+        worldFacts = sanitizePrematureWorldFactsV5(
+            restoredDayIndex,
+            json.optJSONArray("worldFacts").v3Strings().ifEmpty { defaults.worldFacts },
+        ),
         locations = json.optJSONArray("locations").v3Objects { item ->
             ApocalypseV3Location(item.optString("id"), item.optString("name"), item.optString("detail"), item.optBoolean("unlocked", true))
         }.ifEmpty { defaults.locations },
@@ -659,7 +668,8 @@ private fun decodeApocalypseV3Director(json: JSONObject): ApocalypseV3Director {
             .ifEmpty { defaults.foreshadowLedger },
         recentBeatTypes = json.optJSONArray("recentBeatTypes").v3Strings().takeLast(8),
         recentEmotionalTurns = json.optJSONArray("recentEmotionalTurns").v3Strings().takeLast(8),
-        dayIndex = json.optInt("dayIndex", defaults.dayIndex).coerceIn(-30, 9999),
+        awakenedCompanionIds = json.optJSONArray("awakenedCompanionIds").v3Strings().distinct().take(12),
+        dayIndex = restoredDayIndex,
         clockMinutes = json.optInt("clockMinutes", defaults.clockMinutes).coerceIn(0, 1439),
         weather = json.optString("weather", defaults.weather).ifBlank { defaults.weather }.take(40),
         temperatureC = json.optInt("temperatureC", defaults.temperatureC).coerceIn(-35, 55),

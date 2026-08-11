@@ -23,13 +23,58 @@ private fun apocalypsePlayerSecondaryPromptV5(config: ApocalypseV3Config): Strin
 private fun apocalypsePartyStylePromptV5(
     party: List<CharacterSettings>,
     config: ApocalypseV3Config,
+    awakenedCompanionIds: List<String>,
 ): String = party.joinToString("\n") { character ->
     val choice = companionAbilityChoice(config, character.characterId)
     val ability = apocalypseAbilityDefinitionV5(choice)
     buildString {
         append("- characterId=${character.characterId}；游戏显示名=${character.displayName}；")
         append("风格原始资料=${character.persona.ifBlank { "暂无额外风格资料" }}；")
-        append("本局异能=${ability.name}/${choice.branch}/${ability.rarity.label}/${ability.potential}")
+        when {
+            ability.id == "none" -> append("异能硬状态=普通人；不得觉醒或使用任何异能")
+            character.characterId in awakenedCompanionIds -> append("异能硬状态=已在保留剧情中觉醒；能力=${ability.name}/${choice.branch}/${ability.rarity.label}/${ability.potential}")
+            else -> append("异能硬状态=潜在分化${ability.name}/${choice.branch}，当前尚未觉醒；在正文完成觉醒事件前绝对不能使用")
+        }
+    }
+}
+
+internal fun apocalypsePhaseForDayV5(dayIndex: Int): String = when {
+    dayIndex <= -5 -> "秩序正常 · 隐秘准备"
+    dayIndex <= -3 -> "零星异常 · 采购仍畅通"
+    dayIndex < 0 -> "公开预警 · 最后准备"
+    dayIndex == 0 -> "赤潮主沉降"
+    dayIndex <= 3 -> "城市失序初期"
+    dayIndex <= 42 -> "求生与据点"
+    dayIndex <= 180 -> "势力形成期"
+    else -> "赤潮新生态"
+}
+
+private fun apocalypseSocietyContractV5(dayIndex: Int): String = when {
+    dayIndex <= -5 -> "灾前硬状态：城市完全正常运转，官方和公众不知道末世将至。商场、物流、网购、支付、租车和跨区交通可用。大量采购可以引起店员询问、库存或资金等现实摩擦，但禁止以防灾管制、官方限购、封城、征用或全民抢购强行阻止玩家囤货。"
+    dayIndex <= -3 -> "灾前硬状态：只有零星异常和局部传闻，城市总体正常。个别缺货可以发生，但必须提供换店、预订、网购、批发市场或其他真实替代路径；禁止全城管制和全面限购。"
+    dayIndex < 0 -> "灾前硬状态：公开异常逐渐增加，少数敏感品类可以排队、延迟或有限购，但商业与交通不能整体提前瘫痪；玩家仍应拥有完成最后采购、运输和据点调整的可玩空间。"
+    else -> "灾后硬状态：管制、断供和交通失序只能依据当前保留剧情与真实时间逐步发生，不得把尚未发生的世界变化倒写进过去。"
+}
+
+internal fun sanitizePrematureWorldFactsV5(dayIndex: Int, facts: List<String>): List<String> {
+    if (dayIndex >= 0) return facts
+    val impossibleBeforeImpact = listOf("封城", "全面管制", "物资征用", "供应链崩溃", "交通全面停运", "全民抢购")
+    val tooEarlyBeforeDayThree = listOf("官方限购", "城市管制", "商场停业")
+    return facts.filterNot { fact ->
+        impossibleBeforeImpact.any(fact::contains) ||
+            (dayIndex <= -3 && tooEarlyBeforeDayThree.any(fact::contains))
+    }
+}
+
+private fun apocalypseActionLooksLikeSpeechV5(action: String): Boolean =
+    listOf("说", "问", "告诉", "喊", "叫", "回答", "回复", "商量", "请求", "？", "?", "“", "”")
+        .any(action::contains)
+
+private fun apocalypsePlayerActionContractV5(action: String): String {
+    val looksLikeSpeech = apocalypseActionLooksLikeSpeechV5(action)
+    return buildString {
+        append("玩家行动因果合同：本幕前25%必须让‘${action.take(180)}’实际发生，不得用新危机、转场、旁白概述或导演主线覆盖它；行动必须至少改变信息、关系、资源、位置、时间或风险中的一项，并在本幕可见。")
+        if (looksLikeSpeech) append("这是发言/交流行动：必须出现【玩家】发言段，并让至少一名当前在场的相关人物在同一幕用语言、动作、停顿或态度直接回应其具体内容；不能答非所问，也不能无视后切走。")
     }
 }
 
@@ -69,10 +114,12 @@ internal fun shouldPlanApocalypseV5Beat(save: ApocalypseV3Save, action: String):
 internal fun continueApocalypseV5Beat(save: ApocalypseV3Save, action: String): ApocalypseV3Beat {
     val minutesPassed = 20
     val absoluteMinutes = save.director.clockMinutes + minutesPassed
+    val nextDayIndex = (save.director.dayIndex + absoluteMinutes / 1440).coerceAtMost(9999)
     val nextDirector = save.director.copy(
+        phase = apocalypsePhaseForDayV5(nextDayIndex),
         sceneGoal = "承接玩家行动“${action.take(90)}”，推进当前场景中的人物、信息或现实后果。",
         recentBeatTypes = (save.director.recentBeatTypes + "continuation").takeLast(8),
-        dayIndex = (save.director.dayIndex + absoluteMinutes / 1440).coerceAtMost(9999),
+        dayIndex = nextDayIndex,
         clockMinutes = absoluteMinutes % 1440,
     )
     return ApocalypseV3Beat(
@@ -97,14 +144,16 @@ internal suspend fun planApocalypseV5Beat(
 ): ApocalypseV3Beat {
     val director = save.director
     val nextScene = save.scene + 1
-    val partyPrompt = apocalypsePartyStylePromptV5(party, config)
+    val partyPrompt = apocalypsePartyStylePromptV5(party, config, director.awakenedCompanionIds)
     val facts = buildString {
         appendLine("互动长篇：《末世求生·赤潮纪元》")
         appendLine(apocalypseIsolationRuleV5())
         appendLine("世界模式：${config.worldMode}")
         appendLine(playerSpacePrompt(save.stats))
         appendLine(apocalypsePlayerSecondaryPromptV5(config))
-        appendLine("异能人口规则：灾前约8%人口拥有稳定异能，约92%没有稳定异能；末世后因普通人平均死亡率更高，幸存者中的异能者比例可以逐步升高，但除特殊异能者聚居地外不要把异能者写成多数。")
+        appendLine("异能人口规则：除玩家这一特殊提前觉醒者外，稳定异能从赤潮主沉降后才逐步形成；最终硬基线约8%，约92%没有稳定异能。")
+        appendLine(apocalypseSocietyContractV5(director.dayIndex))
+        appendLine(apocalypsePlayerActionContractV5(action))
         appendLine(apocalypseWorldGeographyPromptV5())
         appendLine(apocalypseCinematicDirectorBibleV5(save))
         appendLine("玩家已确认的地图变化账本：${apocalypseMapLedgerPromptV5(save)}")
@@ -138,7 +187,7 @@ internal suspend fun planApocalypseV5Beat(
         返回字段：phase, location, sceneGoal, beatType, tension, activeThreads, hiddenThreads, worldFacts,
         longTermPlan, factionStates, characterArcs, foreshadowPlan, characterDossiers, foreshadowLedger,
         worldDelta, directive, openingHook, pressureEscalation, emotionalTurn, closingHook, sceneValueShift,
-        focusCharacterIds, foreshadowMoves,
+        focusCharacterIds, foreshadowMoves, awakenCompanionIds:[characterId],
         moneyDelta, foodDelta, waterDelta, medicineDelta, materialsDelta, coresFound, playerAbilityXpGain, baseDelta,
         healthDelta, staminaDelta, infectionDelta, moraleDelta, minutesPassed, weather, temperatureC,
         unlockLocations:[{id,name,detail,unlocked}], discoverAssets:[{id,kind,title,detail,quantity,tag}]。
@@ -156,13 +205,14 @@ internal suspend fun planApocalypseV5Beat(
         2. 蓝图不是铁路。玩家可以拒绝、绕路、提前发现、救人或毁掉原计划；发生后承认事实并重排未来。
         3. 每幕推进一个核心戏剧动作，最多顺带推进一条暗线。2—4幕让旧细节产生新意义，6—10幕才安排真正改变局面的回收或反转。
         4. 重大反转必须有可回看的依据，禁止凭空失忆、万能组织、无缘由背叛和突然救世主。
-        5. 灾前稳定异能者约占8%，普通人约占92%。末世淘汰可以提高幸存者中的异能者比例，但除特殊据点外仍不应默认异能者为多数。体能/感官型占异能的大头；元素、念动力更少；空间、预知等规则型能力极其稀有。
+        5. 玩家是目前唯一已确认的灾前提前觉醒者，这是长期谜团和主角特殊性。其他人的稳定异能只能在赤潮主沉降后逐步形成，最终硬基线约8%，约92%仍是普通人。末世淘汰可提高幸存者中的异能者比例，但除特殊据点外仍不应成为多数。
         6. 玩家第一异能固定为空间系高稳定共鸣；玩家可以另外拥有一个第二异能槽。两种异能都是硬设定，不能无故遗忘、替换或突然出现第三种能力。
         7. 空间系成长：Lv1不能稳定空间刃；Lv2裂隙刃雏形；Lv3闪位与稳定空间刃；Lv4空间锁/裂隙陷阱；Lv5领域。第二异能同样必须遵守它自己的分化与代价。
         8. 赤潮同时影响植物、动物、土壤、水体、气候、人类和感染者；剧情不能退化成只有丧尸。
         9. 感染者进化有时间尺度，越高阶越稀少。晶核必须真实获取，不能当自动掉落金币。
         10. 生存资源、运输、燃料、卫生、睡眠、基地维护都要有现实约束；空间异能可以显著改善搬运和保存，但不能凭空创造物资。
         11. 同行者必须有独立欲望和风险判断，不能全员围着玩家说同一种话；同行角色的异能与分化是硬设定，普通人不能突然觉醒。
+        11a. 同行设置中的异能只是灾后潜在分化，不等于开局已经觉醒。灾前dayIndex<0时awakenCompanionIds必须为空，同行者绝不能使用异能。dayIndex>=0后，每幕最多让一名已配置非普通人潜能的同行者觉醒；必须把其characterId放入awakenCompanionIds，并在directive要求正文先完整演出异常征兆、失控或确认能力的过程，之后才能首次主动使用。已经在“已觉醒列表”的角色无需重复觉醒。普通人永远不能加入该列表。
         12. 东澜地区六市的相对方位、资源定位与交通距离是硬地理设定。跨市移动必须经历真实路程与风险；临江市只是开局城市，不是整个世界。
         13. 每次行动必须估算真实耗时并返回minutesPassed：简单整理5—30分钟，搜楼/战斗30—180分钟，跨区数小时，跨市通常3—10小时。时间推进后天气、照明、疲劳和风险都要跟着变化。
         14. health/stamina/infection/morale都是0—100。受伤降低health；奔跑、战斗、熬夜降低stamina；赤雨、伤口污染和感染者体液提高infection；成功、休息、关系支持可提高morale。不要无缘无故大幅波动。
@@ -186,6 +236,7 @@ internal suspend fun planApocalypseV5Beat(
         31. 伏笔按seeded→echoed/distorted→ripe→paid_off推进。每次foreshadowMoves必须写“伏笔id:动作:本幕玩家能观察到的具体细节”。回收应同时完成答案、情绪冲击与现实后果；只口头解释真相不算回收。过了targetPayoffEnd仍不处理属于失约，除非玩家选择使其失效并标记abandoned及合理去向。
         32. 高潮不是单纯提高tension或增加敌人。本幕若为阶段高潮，必须让至少两条此前独立的线发生碰撞，迫使人物做代价明确的选择，并永久改变关系、据点、势力、地图、谜团认知或长期目标；高潮后必须安排后果戏，不能立刻刷新更大危机。
         33. 只输出本幕真正需要的一个openingHook和一个closingHook。不要每幕都用反转结尾；悬念、情感余震、承诺、倒计时、发现、艰难选择或短暂胜利都可以成为不同类型的钩子，最近使用过的节拍和情绪转折应避免重复。
+        34. phase不得自由发挥，必须与输入中的真实dayIndex一致。灾前七天是按真实时间流逝的完整游玩期，不是七幕倒计时；不得为了制造紧张提前进入全面管制、封城、征用或供应链崩溃。
     """.trimIndent()
 
     return LuluAiServices.gateway.generate(
@@ -199,7 +250,7 @@ internal suspend fun planApocalypseV5Beat(
         usage = ModelUsage.Game,
         contextMode = CompanionContextMode.PersonaAndScenario,
     ).fold(
-        onSuccess = { parseApocalypseV5Beat(it.text, director, save.stats.money) ?: fallbackApocalypseV5Beat(save) },
+        onSuccess = { parseApocalypseV5Beat(it.text, director, save.stats.money, config, party) ?: fallbackApocalypseV5Beat(save) },
         onFailure = { fallbackApocalypseV5Beat(save) },
     )
 }
@@ -213,7 +264,8 @@ internal suspend fun writeApocalypseV5Scene(
     nextStats: ApocalypseV3Stats,
 ): Result<String> {
     val nextScene = save.scene + 1
-    val partyPrompt = apocalypsePartyStylePromptV5(party, config)
+    val partyPrompt = apocalypsePartyStylePromptV5(party, config, beat.nextDirector.awakenedCompanionIds)
+    val newlyAwakened = beat.nextDirector.awakenedCompanionIds - save.director.awakenedCompanionIds.toSet()
     val writerCastIds = (party.map { it.characterId } + beat.focusCharacterIds).toSet()
     val writerDossiers = beat.nextDirector.characterDossiers
         .filter { it.id in writerCastIds }
@@ -224,7 +276,10 @@ internal suspend fun writeApocalypseV5Scene(
         appendLine("阶段：${beat.nextDirector.phase}；地点：${beat.nextDirector.location}；威胁：${beat.nextDirector.tension}/10")
         appendLine(playerSpacePrompt(nextStats))
         appendLine(apocalypsePlayerSecondaryPromptV5(config))
-        appendLine("异能人口规则：灾前约8%稳定觉醒，约92%普通人；灾后幸存者中的异能者比例会因淘汰效应上升，但不能泛滥。")
+        appendLine("异能人口规则：玩家是唯一已确认的灾前提前觉醒者；其他稳定异能在主沉降后才逐步形成，最终约8%，约92%仍是普通人。")
+        appendLine(apocalypseSocietyContractV5(beat.nextDirector.dayIndex))
+        appendLine(apocalypsePlayerActionContractV5(action))
+        appendLine("同行异能硬状态：已觉醒=${beat.nextDirector.awakenedCompanionIds.joinToString().ifBlank { "无" }}；本幕新觉醒=${newlyAwakened.joinToString().ifBlank { "无" }}。")
         appendLine(apocalypseWorldGeographyPromptV5())
         appendLine("时间：${apocalypseDayLabelV5(beat.nextDirector.dayIndex)} ${apocalypseClockLabelV5(beat.nextDirector.clockMinutes)}；天气=${beat.nextDirector.weather} ${beat.nextDirector.temperatureC}℃")
         appendLine("玩家状态：生命${nextStats.health} 体力${nextStats.stamina} 感染${nextStats.infection} 士气${nextStats.morale}")
@@ -264,10 +319,12 @@ internal suspend fun writeApocalypseV5Scene(
         文学与玩法规则：
         - 开头必须承接上一幕最后可见的地点、在场人物、姿态、未完成动作和玩家刚才的行动，不得跳时空、重复开场、总结上一幕或把已发生的事再演一次。
         - 玩家刚才的行动必须真实发生并有现实后果，不能偷换成编剧想让玩家做的事。
+        - 玩家行动是本幕第一优先级，不是给导演参考的建议。开头四分之一内必须执行；如果玩家在说话或提问，必须写【玩家】段并让相关在场角色对具体内容作出可辨认的回应，然后才可推进其他线。
         - 同行者严格保持允许继承的性格、语言、外貌、习惯和行为风格；本局关系只按本局已发生剧情发展。异能按设定和分化使用，普通人不能突然觉醒。
         - 玩家拥有两个异能槽：第一异能固定为空间；第二异能以硬设定为准。没有选择第二异能时绝不能临时补一个。
         - 空间异能当前等级要大胆使用但不能越级；第二异能也不能无代价无限使用。
-        - 灾前异能者约8%，所以路人和普通幸存者默认仍应以普通人为主；可以通过末世淘汰让幸存队伍中的异能者比例逐渐提高，但不要写成遍地超能力。
+        - 玩家是当前唯一已确认的灾前提前觉醒者。其他人不得在主沉降前使用异能；灾后稳定觉醒硬基线约8%，普通人约92%，不要写成遍地超能力。
+        - 同行异能状态以“已觉醒/本幕新觉醒”清单为唯一准据。未列入已觉醒的同行者不能感知、调用或误打误撞使用其潜在异能。若列入本幕新觉醒，必须先用完整可见事件描写征兆、失控/发现、本人和旁人的反应及确认，不能第一句就熟练使用；灾前绝不允许同行觉醒。
         - 生存细节要有重量：水、保质、药物、燃料、噪音、伤口、睡眠、卫生、天气、车辆和电力会影响选择。
         - 资金余额是硬状态。涉及购买、付款、出售、报酬或退款时，正文金额必须和导演结算后的余额、moneyDelta一致；余额不足不能硬买。秩序崩溃后可以出现“有钱也买不到”，但不能擅自清空余额。
         - 赤潮生态要进入植物、动物、土壤、水和天气，不要只写丧尸。
@@ -286,7 +343,7 @@ internal suspend fun writeApocalypseV5Scene(
         - 结尾停在自然可行动节点，不替玩家决定下一步。
     """.trimIndent()
 
-    return LuluAiServices.gateway.generate(
+    val firstDraft = LuluAiServices.gateway.generate(
         characterId = APOCALYPSE_ISOLATED_CHARACTER_ID,
         facts = facts,
         instruction = instruction,
@@ -296,10 +353,47 @@ internal suspend fun writeApocalypseV5Scene(
         maxTokens = 2300,
         usage = ModelUsage.Game,
         contextMode = CompanionContextMode.PersonaAndScenario,
+    ).getOrElse { return Result.failure(it) }.text.trim()
+
+    val playerSpeechIndex = firstDraft.indexOf("【玩家】")
+    val characterResponseIndex = firstDraft.indexOf("【角色:", startIndex = (playerSpeechIndex + 1).coerceAtLeast(0))
+    val missingSpeechResponse = apocalypseActionLooksLikeSpeechV5(action) &&
+        (party.isNotEmpty() || writerDossiers.isNotEmpty()) &&
+        (playerSpeechIndex < 0 || characterResponseIndex <= playerSpeechIndex || characterResponseIndex > firstDraft.length / 2)
+    if (!missingSpeechResponse) return Result.success(firstDraft)
+
+    val repairFacts = buildString {
+        appendLine(facts)
+        appendLine("【上一版不合格正文｜仅供返工，不是已发生正史】")
+        append(firstDraft.take(6_000))
+    }
+    val repairInstruction = instruction + """
+
+        【强制返工原因】上一版没有完整呈现玩家的发言，或没有让在场角色回应。请整幕重写，不要解释返工过程：
+        1. 开头四分之一内必须出现【玩家】段，准确保留玩家行动中的发言意图；
+        2. 紧接着让至少一名在场同行者用【角色:characterId】语言或明确动作回应具体内容；
+        3. 回应必须改变关系、信息或接下来的行动，不能只写“点点头”后照旧推进导演原计划。
+    """.trimIndent()
+    return LuluAiServices.gateway.generate(
+        characterId = APOCALYPSE_ISOLATED_CHARACTER_ID,
+        facts = repairFacts,
+        instruction = repairInstruction,
+        source = "末世求生V5正文返工",
+        title = "末世求生 · 第${nextScene}幕返工",
+        temperature = 0.68,
+        maxTokens = 2300,
+        usage = ModelUsage.Game,
+        contextMode = CompanionContextMode.PersonaAndScenario,
     ).map { it.text.trim() }
 }
 
-private fun parseApocalypseV5Beat(raw: String, previous: ApocalypseV3Director, availableMoney: Int): ApocalypseV3Beat? = runCatching {
+private fun parseApocalypseV5Beat(
+    raw: String,
+    previous: ApocalypseV3Director,
+    availableMoney: Int,
+    config: ApocalypseV3Config,
+    party: List<CharacterSettings>,
+): ApocalypseV3Beat? = runCatching {
     val json = JSONObject(extractApocalypseV5Json(raw))
     val locations = json.optJSONArray("unlockLocations").v5Objects { item ->
         ApocalypseV3Location(
@@ -327,13 +421,30 @@ private fun parseApocalypseV5Beat(raw: String, previous: ApocalypseV3Director, a
     val absoluteMinutes = previous.clockMinutes + minutesPassed
     val dayAdvance = absoluteMinutes / 1440
     val nextClockMinutes = absoluteMinutes % 1440
+    val nextDayIndex = (previous.dayIndex + dayAdvance).coerceAtMost(9999)
+    val eligibleAwakeningIds = if (nextDayIndex < 0) {
+        emptySet()
+    } else {
+        party.mapNotNull { character ->
+            character.characterId.takeIf {
+                companionAbilityChoice(config, it).abilityId != "none" && it !in previous.awakenedCompanionIds
+            }
+        }.toSet()
+    }
+    val newAwakeningIds = json.optJSONArray("awakenCompanionIds").v5Strings()
+        .filter { it in eligibleAwakeningIds }
+        .distinct()
+        .take(1)
     val next = previous.copy(
-        phase = json.optString("phase").ifBlank { previous.phase }.take(80),
+        phase = apocalypsePhaseForDayV5(nextDayIndex),
         location = json.optString("location").ifBlank { previous.location }.take(100),
         sceneGoal = json.optString("sceneGoal").ifBlank { previous.sceneGoal }.take(260),
         activeThreads = json.optJSONArray("activeThreads").v5Strings().ifEmpty { previous.activeThreads }.take(8),
         hiddenThreads = json.optJSONArray("hiddenThreads").v5Strings().ifEmpty { previous.hiddenThreads }.take(8),
-        worldFacts = mergeApocalypseWorldFactsV5(previous.worldFacts, json.optJSONArray("worldFacts").v5Strings()),
+        worldFacts = sanitizePrematureWorldFactsV5(
+            nextDayIndex,
+            mergeApocalypseWorldFactsV5(previous.worldFacts, json.optJSONArray("worldFacts").v5Strings()),
+        ),
         longTermPlan = json.optJSONArray("longTermPlan").v5Strings().ifEmpty { previous.longTermPlan }.take(12),
         factionStates = json.optJSONArray("factionStates").v5Strings().ifEmpty { previous.factionStates }.take(14),
         characterArcs = json.optJSONArray("characterArcs").v5Strings().ifEmpty { previous.characterArcs }.take(14),
@@ -344,9 +455,10 @@ private fun parseApocalypseV5Beat(raw: String, previous: ApocalypseV3Director, a
         recentEmotionalTurns = (previous.recentEmotionalTurns + emotionalTurn)
             .filter(String::isNotBlank)
             .takeLast(8),
+        awakenedCompanionIds = (previous.awakenedCompanionIds + newAwakeningIds).distinct().take(12),
         locations = (previous.locations + locations).distinctBy { it.id }.takeLast(36),
         assets = (previous.assets + assets).distinctBy { it.id }.takeLast(90),
-        dayIndex = (previous.dayIndex + dayAdvance).coerceAtMost(9999),
+        dayIndex = nextDayIndex,
         clockMinutes = nextClockMinutes,
         weather = json.optString("weather").ifBlank { previous.weather }.take(40),
         temperatureC = json.optInt("temperatureC", previous.temperatureC).coerceIn(-35, 55),
@@ -382,6 +494,7 @@ private fun parseApocalypseV5Beat(raw: String, previous: ApocalypseV3Director, a
 
 private fun fallbackApocalypseV5Beat(save: ApocalypseV3Save): ApocalypseV3Beat = ApocalypseV3Beat(
     nextDirector = save.director.copy(
+        phase = apocalypsePhaseForDayV5(save.director.dayIndex),
         sceneGoal = "承认玩家刚才的自由行动，让它改变资源、关系、风险或信息，并继续沿长期世界状态自然演化。",
         tension = if (save.scene % 6 == 0) (save.director.tension + 1).coerceAtMost(7) else save.director.tension,
     ),

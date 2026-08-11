@@ -405,7 +405,7 @@ private fun ApocalypseV5HomePage(
                 val configured = config.partyAbilities
                     .filterKeys { it != APOCALYPSE_PLAYER_SECONDARY_KEY }
                     .values.count { it.abilityId != "none" }
-                Text("已为 $configured 位同行角色设置异能。灾前稳定觉醒率约 8%；末世淘汰会让幸存者中的异能者比例逐步升高，但异能依然不是人人都有。", color = ApocalypseV5Colors.muted, fontSize = 10.sp, lineHeight = 15.sp)
+                Text("已为 $configured 位同行角色设置灾后潜在分化。同行者灾前不会觉醒；灾后也必须先在剧情中经历完整觉醒事件，才能使用能力。", color = ApocalypseV5Colors.muted, fontSize = 10.sp, lineHeight = 15.sp)
             }
         }
     }
@@ -529,12 +529,12 @@ private fun ApocalypseV5AbilitySettingsPage(
                 Surface(color = ApocalypseV5Colors.black, shape = RoundedCornerShape(18.dp)) {
                     Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                         Text("异能稀有度规则", color = ApocalypseV5Colors.blue, fontWeight = FontWeight.Black)
-                        Text("灾前约 8% 人口形成稳定异能，约 92% 仍是普通人。末世后普通人平均死亡率更高，因此幸存者群体里的异能者比例会逐渐上升；但除特殊据点外，不把异能者写成多数。", color = ApocalypseV5Colors.textMutedDark, fontSize = 11.sp, lineHeight = 17.sp)
+                        Text("主沉降后约 8% 人口会形成稳定异能，约 92% 仍是普通人。你为同行选择的是潜在分化；灾前不会生效，灾后必须经过正文中的觉醒事件。", color = ApocalypseV5Colors.textMutedDark, fontSize = 11.sp, lineHeight = 17.sp)
                     }
                 }
             }
 
-            item { ApocalypseV5SectionTitle("同行角色", "最多4人；普通人依旧可以靠专业技能成为队伍核心") }
+            item { ApocalypseV5SectionTitle("同行角色与潜在分化", "最多4人；选择的能力不会在灾前直接生效") }
             items(characters.sortedBy { it.displayName }, key = { it.characterId }) { character ->
                 val selected = character.characterId in party
                 val choice = choices[character.characterId] ?: ApocalypseAbilityChoice()
@@ -569,7 +569,7 @@ private fun ApocalypseV5AbilitySettingsPage(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text("分化：${choice.branch}", color = ApocalypseV5Colors.muted, fontSize = 11.sp, modifier = Modifier.weight(1f))
                                 TextButton(onClick = { target = ApocalypseAbilityTarget(character.characterId, character.displayName) }) {
-                                    Text("设置异能", color = ApocalypseV5Colors.blueStrong)
+                                    Text("设置潜在分化", color = ApocalypseV5Colors.blueStrong)
                                 }
                             }
                         }
@@ -733,7 +733,7 @@ private fun ApocalypseV5WorldPage(config: ApocalypseV3Config, onBack: () -> Unit
     val lore = remember {
         apocalypseWorldLoreV3().map { (title, detail) ->
             if (title == "人类与异能生态") {
-                title to "绝大多数人仍是普通人。灾前约8%人口形成稳定异能，约92%没有稳定异能；末世后由于普通人生存率更低，幸存者中的异能者比例会逐渐上升，但除异能者聚居地外通常仍不应成为多数。体能与感官强化占异能中的大头，元素与念动力更少，空间、预知等规则型能力极其罕见。"
+                title to "玩家是目前唯一已确认的灾前提前觉醒者。其他稳定异能从赤潮主沉降后才逐步形成，人口硬基线约8%，约92%没有稳定异能；灾后幸存者中的比例会因淘汰与聚集上升，但通常仍不应成为多数。"
             } else title to detail
         }
     }

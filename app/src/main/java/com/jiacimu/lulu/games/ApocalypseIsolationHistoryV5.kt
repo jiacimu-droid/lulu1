@@ -214,6 +214,7 @@ private fun encodeDirectorV5History(value: ApocalypseV3Director): JSONObject = J
     .put("foreshadowLedger", encodeApocalypseForeshadowLedgerV5(value.foreshadowLedger))
     .put("recentBeatTypes", JSONArray(value.recentBeatTypes))
     .put("recentEmotionalTurns", JSONArray(value.recentEmotionalTurns))
+    .put("awakenedCompanionIds", JSONArray(value.awakenedCompanionIds))
     .put("locations", JSONArray().apply {
         value.locations.forEach { location ->
             put(
@@ -246,13 +247,17 @@ private fun encodeDirectorV5History(value: ApocalypseV3Director): JSONObject = J
 
 private fun decodeDirectorV5History(json: JSONObject): ApocalypseV3Director {
     val defaults = initialApocalypseV3Director()
+    val restoredDayIndex = json.optInt("dayIndex", defaults.dayIndex).coerceIn(-30, 9999)
     return ApocalypseV3Director(
-        phase = json.optString("phase", defaults.phase).ifBlank { defaults.phase },
+        phase = apocalypsePhaseForDayV5(restoredDayIndex),
         location = json.optString("location", defaults.location).ifBlank { defaults.location },
         sceneGoal = json.optString("sceneGoal", defaults.sceneGoal).ifBlank { defaults.sceneGoal },
         activeThreads = json.optJSONArray("activeThreads").historyStrings().ifEmpty { defaults.activeThreads },
         hiddenThreads = json.optJSONArray("hiddenThreads").historyStrings().ifEmpty { defaults.hiddenThreads },
-        worldFacts = json.optJSONArray("worldFacts").historyStrings().ifEmpty { defaults.worldFacts },
+        worldFacts = sanitizePrematureWorldFactsV5(
+            restoredDayIndex,
+            json.optJSONArray("worldFacts").historyStrings().ifEmpty { defaults.worldFacts },
+        ),
         locations = json.optJSONArray("locations").historyObjects { item ->
             ApocalypseV3Location(
                 id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
@@ -281,7 +286,8 @@ private fun decodeDirectorV5History(json: JSONObject): ApocalypseV3Director {
             .ifEmpty { defaults.foreshadowLedger },
         recentBeatTypes = json.optJSONArray("recentBeatTypes").historyStrings().takeLast(8),
         recentEmotionalTurns = json.optJSONArray("recentEmotionalTurns").historyStrings().takeLast(8),
-        dayIndex = json.optInt("dayIndex", defaults.dayIndex).coerceIn(-30, 9999),
+        awakenedCompanionIds = json.optJSONArray("awakenedCompanionIds").historyStrings().distinct().take(12),
+        dayIndex = restoredDayIndex,
         clockMinutes = json.optInt("clockMinutes", defaults.clockMinutes).coerceIn(0, 1439),
         weather = json.optString("weather", defaults.weather).ifBlank { defaults.weather },
         temperatureC = json.optInt("temperatureC", defaults.temperatureC).coerceIn(-35, 55),
