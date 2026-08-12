@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T18:18:02.637035+00:00",
-  "commit": "179148504a7e746d145757984df5a0fda61c8728",
+  "generatedAt": "2026-08-12T18:18:40.430175+00:00",
+  "commit": "40149cba2e020da89de1fb52c3b381bc9e9ca167",
   "branch": "main",
-  "sourceFingerprint": "9641c4e369ce43e23ea9eecd5a9a9c120022e75abcec7a8972c701456e6dbe0b",
+  "sourceFingerprint": "14f12252c63ff456b5b25d4a000af3306b59da8ec7319f68afdca06920b48255",
   "summary": {
     "files": 176,
-    "lines": 53340,
-    "symbols": 689
+    "lines": 53426,
+    "symbols": 690
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -2226,6 +2226,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
         "line": 57
+      }
+    ],
+    "sumKind": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseCurrentSceneInventoryRepairV5.kt",
+        "line": 69
       }
     ],
     "concreteOwnsAggregate": [
@@ -5917,9 +5923,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseCurrentSceneInventoryRepairV5.kt",
-      "lines": 77,
-      "sha256": "511648bbdbcd149a4c5b37ffb4acab6c2391a736083bc15484465abe534fa611",
-      "symbols": []
+      "lines": 163,
+      "sha256": "a8c9625b73c063a713ba603cfcf9cb66386eb5f24deb9b12beb4029bd3f01ad8",
+      "symbols": [
+        {
+          "name": "sumKind",
+          "line": 69
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseDramaticLedgerV5.kt",

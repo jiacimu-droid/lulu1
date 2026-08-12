@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`179148504a7e746d145757984df5a0fda61c8728`
+- 基准提交：`40149cba2e020da89de1fb52c3b381bc9e9ca167`
 - 分支：`main`
 - 已索引文件：176
-- 已索引代码/文本行：53340
-- 已发现符号：689
+- 已索引代码/文本行：53426
+- 已发现符号：690
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -90,7 +90,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseAbilityProgressionV5.kt` | 301 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseCastIdentityV5.kt` | 374 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseCoreMysteryV5.kt` | 178 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseCurrentSceneInventoryRepairV5.kt` | 77 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseCurrentSceneInventoryRepairV5.kt` | 163 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseDramaticLedgerV5.kt` | 698 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseFlowRowCompat.kt` | 34 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt` | 303 | 3 |
