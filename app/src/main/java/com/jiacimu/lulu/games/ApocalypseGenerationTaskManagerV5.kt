@@ -49,9 +49,6 @@ internal object ApocalypseGenerationTaskManagerV5 {
         if (save.id.isBlank() || cleanAction.isBlank()) return false
         val appContext = context.applicationContext
 
-        // One-time repair for saves affected by the old generic-XP bug. Before impact there cannot be
-        // legal crystal cores, so any pre-impact Lv.2+ state is provably invalid. Persist the repair and
-        // transparently continue the same requested action against the corrected save.
         val repairedSave = sanitizeApocalypseLoadedAbilityStateV5(save)
         if (repairedSave != save) {
             ApocalypseSurvivalV3Store(appContext).save(repairedSave)
@@ -61,9 +58,6 @@ internal object ApocalypseGenerationTaskManagerV5 {
         val livingWorldStore = ApocalypseLivingWorldStoreV5(appContext)
         synchronized(lock) {
             if (jobs[save.id]?.isActive == true) return false
-            // A stale backstage request must never turn into director-every-scene behavior when its
-            // background model refresh failed. Normal living-world wakeups therefore get a minimum
-            // one-scene breathing gap; structural player choices can still wake the director now.
             val backstageWake = runCatching { livingWorldStore.shouldWakeDirector(save) }.getOrDefault(false) &&
                 save.scene % 2 == 0
             val needsDirector = shouldPlanApocalypseV5Beat(save, cleanAction) || backstageWake
@@ -78,8 +72,6 @@ internal object ApocalypseGenerationTaskManagerV5 {
             }
             val job = appScope.launch(start = CoroutineStart.LAZY) {
                 try {
-                    // Semantic plot recall is independent from the long-form director's structural
-                    // planning. Run it in parallel with a director pass when one is needed.
                     val plotMemoryDeferred = async {
                         runCatching {
                             ApocalypsePlotMemoryRuntimeV5.recall(
@@ -90,8 +82,6 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         }.getOrDefault("")
                     }
 
-                    // The living-world ledger is local and private. It contains offscreen clocks and
-                    // prepared-but-skippable setups, so only the director receives its hidden layer.
                     val livingWorldContext = runCatching {
                         livingWorldStore.promptForDirector(save)
                     }.getOrDefault("")
@@ -114,8 +104,6 @@ internal object ApocalypseGenerationTaskManagerV5 {
 
                     updateState(save.id) { it.copy(phase = "正在整理相关旧剧情") }
                     val plotMemoryContext = plotMemoryDeferred.await()
-                    // The model may propose generic XP or over-generous core drops. V5 validates
-                    // both before projected stats are shown to the prose writer.
                     val plannedBeat = sanitizeApocalypseAbilityProgressionV5(save, cleanAction, planResult.beat)
                     val usedDirector = planResult.directorApplied
                     updateState(save.id) { it.copy(usedDirector = usedDirector) }
@@ -129,26 +117,20 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         beat = plannedBeat,
                         nextStats = projectedStats,
                         usedDirector = usedDirector,
-                        // The prose writer gets only canonically recalled old scenes, not hidden
-                        // backstage truths. Anything secret must first be transformed by the director
-                        // into an observable directive/foreshadow move.
                         plotMemoryContext = plotMemoryContext,
-                        // Keep network streaming for transport reliability, but do not expose the
-                        // ever-changing last partial page on the stage. That preview caused the whole
-                        // chapter to race across the screen and then jump back to page one.
                         onPartialText = { _ ->
                             updateState(save.id) {
                                 it.copy(phase = "正文正在生成", partialText = "")
                             }
                         },
-                    )
-                        .getOrElse { error -> throw error }
+                    ).getOrElse { error -> throw error }
 
-                    // Concrete item rows are the source of truth for inventory-backed counters. Repair
-                    // common model omissions locally instead of spending another scene-generation call:
-                    // bulk packages are expanded to consumable units, narrated completed purchases can
-                    // fill missing item rows, and named consumption can fill a missing negative change.
-                    val inventoryOutcome = reconcileApocalypseInventoryOutcomeV5(save, outcome)
+                    // First rescue concrete items from the prose itself. This catches natural narration
+                    // such as “整箱的子弹、高分子防爆盾牌、防爆弹枪、战术背心被我收进了空间” even if
+                    // the model omitted discoverAssets, put the acquisition verb after the item list,
+                    // or used a kind name the old parser did not recognise.
+                    val narratedOutcome = recoverApocalypseNarratedInventoryV5(outcome)
+                    val inventoryOutcome = reconcileApocalypseInventoryOutcomeV5(save, narratedOutcome)
                     val resolvedBeat = applyApocalypseSceneOutcomeV5(
                         save = save,
                         plannedBeat = plannedBeat,
@@ -157,21 +139,13 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         party = party,
                     )
                     val rawBeat = if (needsDirector && !usedDirector) {
-                        // The director already had its chance this scene. A timeout or malformed JSON
-                        // must not force another expensive director call on every following action;
-                        // the normal cadence or the player's next structural choice can wake it again.
                         resolvedBeat.copy(
                             nextDirector = resolvedBeat.nextDirector.copy(directorRefreshNeeded = false),
                         )
                     } else {
                         resolvedBeat
                     }
-                    // Validate the writer receipt too. Only real visible core acquisition can add
-                    // usable cores, and only deliberate absorption with a matching core spend can add
-                    // stable resonance progress.
                     val sanitizedBeat = sanitizeApocalypseAbilityProgressionV5(save, cleanAction, rawBeat)
-                    // The legacy merge layer kept only 90 distinct item rows. Restore untouched older
-                    // items after all other scene validation so a long-running warehouse can grow.
                     val beat = preserveApocalypseInventoryLedgerV5(save, inventoryOutcome, sanitizedBeat)
                     val nextStats = applyApocalypseV3Beat(save.stats, beat)
                     val normalizedText = normalizeApocalypseStorySpeakerTagsV5(
@@ -216,15 +190,11 @@ internal object ApocalypseGenerationTaskManagerV5 {
                             append("第${save.scene + 1}幕｜行动=${cleanAction.take(180)}")
                             append("｜结果=${persistedOutcome.actionOutcome.ifBlank { compactApocalypseSceneExcerptV5(text, 100) }.take(220)}")
                             append("｜正史=${persistedOutcome.continuitySummary.ifBlank { compactApocalypseSceneExcerptV5(text) }.take(360)}")
-                        })
-                            .takeLast(100),
+                        }).takeLast(100),
                         updatedAt = System.currentTimeMillis(),
                     )
                     storage.save(next)
 
-                    // First advance the hidden world locally so even an offline/failed backstage model
-                    // cannot freeze the rest of the world. This state is plot-only and never becomes
-                    // player-visible canon by itself.
                     runCatching {
                         livingWorldStore.recordScene(
                             saveBefore = save,
@@ -243,17 +213,11 @@ internal object ApocalypseGenerationTaskManagerV5 {
                             outcome = persistedOutcome,
                         )
                     }.onSuccess {
-                        // Vectorization and model-change reindexing never hold the visible generation
-                        // chain open. A missing/slow Embedding endpoint leaves the local plot card usable.
                         appScope.launch {
                             ApocalypsePlotMemoryRuntimeV5.refreshEmbeddings(appContext, next.id)
                         }
                     }
 
-                    // A compact backstage pass periodically updates offscreen actors, world clocks and
-                    // fair surprise setups. It runs only after the scene is already saved, so it never
-                    // blocks the player's visible chapter. If the player has already advanced or rolled
-                    // back by the time it returns, the stale backstage result is discarded.
                     if (ApocalypseLivingWorldRuntimeV5.shouldRefreshBackstage(next, beat, persistedOutcome, usedDirector)) {
                         appScope.launch {
                             runCatching {
