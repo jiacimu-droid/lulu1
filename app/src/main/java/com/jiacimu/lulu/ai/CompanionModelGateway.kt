@@ -442,9 +442,12 @@ class CompanionModelGateway(
         var attemptedModel: String? = null
         runCatching {
             val promptStartedAt = System.nanoTime()
-            val connection = connectionOverride ?: connectionStore.resolveConnection(
-                usage?.let(connectionStore::selectedArchiveId),
-            )
+            val requestedArchiveId = if (source.startsWith("末世求生")) {
+                ScopedModelSelections.selectedArchiveId(ScopedModelSelections.APOCALYPSE)
+            } else {
+                usage?.let(connectionStore::selectedArchiveId)
+            }
+            val connection = connectionOverride ?: connectionStore.resolveConnection(requestedArchiveId)
             attemptedModel = connection.model
             requestUrl = "${connection.baseUrl}/chat/completions"
             val character = MigratedDomainStores.characters.get(characterId)
@@ -866,6 +869,7 @@ object LuluAiServices {
         get() = checkNotNull(gatewayInternal) { "LuluAiServices 尚未初始化" }
 
     fun initialize(context: Context) {
+        ScopedModelSelections.initialize(context)
         if (connectionStoreInternal != null) return
         connectionStoreInternal = ModelConnectionStore.create(context)
         gatewayInternal = CompanionModelGateway(connectionStore)
