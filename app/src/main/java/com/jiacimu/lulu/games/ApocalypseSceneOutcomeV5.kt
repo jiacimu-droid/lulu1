@@ -266,13 +266,20 @@ internal fun apocalypseSceneOutcomeNeedsRepairV5(
     if (outcome.text.isBlank()) return true
     val tagged = outcome.text.contains("【旁白】") || outcome.text.contains("【玩家】") || outcome.text.contains("【角色:")
     if (!tagged) return true
-    // Receipt omissions are recoverable metadata defects, not proof that the prose ignored the
-    // player. Retrying a whole scene for one missing delta/summary made a normal action wait for two
-    // long model calls and could still discard both usable drafts. Only an explicit rejection from
-    // a parsed receipt is strong enough to trigger a content rewrite here.
-    if (outcome.actionAcknowledgementReported && !outcome.actionAcknowledged) return true
-    // Legacy saves may still need best-effort display recovery, but newly generated prose must
-    // never canonize an anonymous placeholder as a character identity.
+
+    // A receipt flag is not reliable enough to throw away a complete 800–1100 character scene by
+    // itself. Only an explicit rejection with no reported action result is strong evidence that the
+    // writer actually skipped the action. This removes the common two-full-generation latency loop.
+    if (
+        outcome.actionAcknowledgementReported &&
+        !outcome.actionAcknowledged &&
+        outcome.actionOutcome.isBlank()
+    ) {
+        return true
+    }
+
+    // Anonymous placeholder speakers can corrupt the persistent cast graph, so this remains a hard
+    // repair condition. Concrete Chinese names/roles are recovered into stable dossiers downstream.
     val speakerTokens = apocalypseStorySpeakerTokensV5(outcome.text)
     val effectiveDossiers = mergeApocalypseCharacterDossiersV5(dossiers, outcome.castUpdates, party)
     if (speakerTokens.any { token ->
@@ -287,30 +294,11 @@ internal fun apocalypseSceneOutcomeNeedsRepairV5(
     ) {
         return true
     }
-    // A concrete Chinese name or role such as “养父” may be a first-appearance NPC. The cast
-    // expander below persists it with a stable id, so forcing the model to rewrite it first only
-    // adds latency and often produces the same valid speaker again.
-    if (!apocalypseActionLooksLikeSpeechV5(action)) return false
 
-    val availableIds = (party.map { it.characterId } + effectiveDossiers.map { it.id }).toSet()
-    val present = normalizeApocalypseCharacterRefsV5(
-        values = presentCharacterIds + outcome.delta.presentCharacterIds,
-        party = party,
-        dossiers = effectiveDossiers,
-        presentCharacterIds = presentCharacterIds,
-    ).filter(availableIds::contains).toSet()
-    if (present.isEmpty()) return false
-    val namedTargets = buildSet {
-        party.filter { action.contains(it.displayName, ignoreCase = true) }.forEach { add(it.characterId) }
-        effectiveDossiers.filter { dossier ->
-            (listOf(dossier.name, dossier.relationshipLabel) + dossier.aliases)
-                .filter(String::isNotBlank)
-                .any { action.contains(it, ignoreCase = true) }
-        }.forEach { add(it.id) }
-    }.intersect(present)
-    val expected = namedTargets.ifEmpty { present }
-    val earlyText = outcome.text.take((outcome.text.length * 0.55f).toInt().coerceAtLeast(240))
-    return expected.none { earlyText.contains("【角色:$it】") }
+    // Speech timing and the exact position of a speaker tag are quality preferences, not grounds for
+    // a second expensive model call. The prompt still asks for an early direct response; if the
+    // model supplies usable tagged prose and a result, keep it instead of discarding the whole scene.
+    return false
 }
 
 private fun resolveApocalypseElapsedMinutesV5(
