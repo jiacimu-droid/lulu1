@@ -143,10 +143,16 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         },
                     )
                         .getOrElse { error -> throw error }
+
+                    // Concrete item rows are the source of truth for inventory-backed counters. Repair
+                    // common model omissions locally instead of spending another scene-generation call:
+                    // bulk packages are expanded to consumable units, narrated completed purchases can
+                    // fill missing item rows, and named consumption can fill a missing negative change.
+                    val inventoryOutcome = reconcileApocalypseInventoryOutcomeV5(save, outcome)
                     val resolvedBeat = applyApocalypseSceneOutcomeV5(
                         save = save,
                         plannedBeat = plannedBeat,
-                        outcome = outcome,
+                        outcome = inventoryOutcome,
                         usedDirector = usedDirector,
                         party = party,
                     )
@@ -163,10 +169,13 @@ internal object ApocalypseGenerationTaskManagerV5 {
                     // Validate the writer receipt too. Only real visible core acquisition can add
                     // usable cores, and only deliberate absorption with a matching core spend can add
                     // stable resonance progress.
-                    val beat = sanitizeApocalypseAbilityProgressionV5(save, cleanAction, rawBeat)
+                    val sanitizedBeat = sanitizeApocalypseAbilityProgressionV5(save, cleanAction, rawBeat)
+                    // The legacy merge layer kept only 90 distinct item rows. Restore untouched older
+                    // items after all other scene validation so a long-running warehouse can grow.
+                    val beat = preserveApocalypseInventoryLedgerV5(save, inventoryOutcome, sanitizedBeat)
                     val nextStats = applyApocalypseV3Beat(save.stats, beat)
                     val normalizedText = normalizeApocalypseStorySpeakerTagsV5(
-                        text = outcome.text,
+                        text = inventoryOutcome.text,
                         party = party,
                         dossiers = beat.nextDirector.characterDossiers,
                         presentCharacterIds = beat.nextDirector.presentCharacterIds,
@@ -178,7 +187,7 @@ internal object ApocalypseGenerationTaskManagerV5 {
                     )
                     check(text.isNotBlank()) { "这一幕没有生成出正文，请再试一次。" }
                     val persistedOutcome = withApocalypseAbilityUpgradeCanonV5(
-                        outcome = outcome,
+                        outcome = inventoryOutcome,
                         before = save.stats,
                         after = nextStats,
                         visibleText = text,
