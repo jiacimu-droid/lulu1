@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T11:29:01.091637+00:00",
-  "commit": "ccbf0881d9b3e113ad20141e66fb797901a1dbcb",
+  "generatedAt": "2026-08-12T11:30:46.973839+00:00",
+  "commit": "21d019082c27d04309bd99d9ee7a7d48d0ce9366",
   "branch": "main",
-  "sourceFingerprint": "f802998bb5e7a51d074aa6c0b082a4904100ef111161c9ccf5938c888ba53d89",
+  "sourceFingerprint": "b3bc0a799edd0b0cf0a15efe61104faa32e91b0776e5f438b134c34eb9e4503c",
   "summary": {
     "files": 172,
-    "lines": 51740,
+    "lines": 51767,
     "symbols": 682
   },
   "symbolIndex": {
@@ -4387,8 +4387,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 383,
-      "sha256": "7bc469c698f0156c49e2e09117e9bde2f205ecc7f8e1f96365743f7aac018477",
+      "lines": 410,
+      "sha256": "7a319960b8c48a28ab1676364fd685342ed86666e1a98e9af64170e485e1ba78",
       "symbols": []
     },
     {
