@@ -89,6 +89,16 @@ private fun sanitizeApocalypseCoreAssetsV5(
     }
 }
 
+private fun apocalypsePlayerFirstPersonAndInventoryReceiptRuleV5(): String = """
+【玩家第一人称与物资回执硬规则】
+1. 玩家本人在正文中的动作、感受、判断、观察和内心一律使用第一人称“我”。禁止旁白用玩家名字、昵称、“玩家”“她/他”来叙述玩家本人，例如必须写“我把装备收进空间”，不能写“佳辞把装备收进空间”。其他角色在直接对话中可以自然称呼玩家姓名。
+2. 只要本幕实际获得任何实体物资，状态回执必须生成完整获得清单。新协议优先字段为acquiredItems；同时兼容discoverAssets。正文实际获得N种具体物品，acquiredItems就必须有N条，一条都不能漏，不能只挑其中一件。
+3. acquiredItems每条必须包含{id,kind,title,quantity,unit,detail,tag}。title只能是具体物品名，禁止“枪械及战术装备”“若干物资”这种合并名。quantity必须是明确整数，unit必须是实际单位（支/把/面/件/发/枚/瓶/罐/包/盒/袋/卷/台/辆等）。
+4. 同一采购里的枪、盾牌、背心、弹药必须拆成四条独立记录。例如正文获得“民用防暴胶弹枪4支、高分子防爆盾牌2面、模块化战术防弹背心13件、橡塑防爆弹120发”，回执必须逐项完整列出4条，数量分别为4、2、13、120。
+5. 箱/盒/提等包装如果正文知道内部数量，必须折算到可消耗单位并在detail保留包装关系；不知道箱内数量时保留“1箱未拆封”，绝不能虚构发数/瓶数。
+6. 已有物品的消耗、丢失、赠送、损坏用inventoryChanges负quantityDelta；新获得物品不要同时在inventoryChanges再加一次，避免重复入账。
+""".trimIndent()
+
 /**
  * Sanitize both director and writer beats. This is the final authority even when a compatible model
  * returns over-generous drops or generic XP.
@@ -141,10 +151,12 @@ internal fun sanitizeApocalypseAbilityProgressionV5(
 
     val abilityRule = apocalypseAbilityProgressRuleV5(save.stats, dayIndex)
     val inventoryRule = apocalypseInventoryQuantityContractV5()
+    val povAndReceiptRule = apocalypsePlayerFirstPersonAndInventoryReceiptRuleV5()
     val directiveParts = buildList {
         beat.directive.trim().takeIf(String::isNotBlank)?.let(::add)
         if (!beat.directive.contains("【晶核与空间异能成长硬规则】")) add(abilityRule)
         if (!beat.directive.contains("【具体物资与数量硬规则】")) add(inventoryRule)
+        if (!beat.directive.contains("【玩家第一人称与物资回执硬规则】")) add(povAndReceiptRule)
     }
     val directive = directiveParts.joinToString("\n")
 
