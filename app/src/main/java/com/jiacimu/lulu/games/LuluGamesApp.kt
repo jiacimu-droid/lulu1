@@ -23,9 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ModelArchiveIconButton
 import com.jiacimu.lulu.ai.ModelUsage
-import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.delay
 import org.json.JSONObject
@@ -60,11 +59,8 @@ private data class GameLauncher(
 fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null) {
     val store = remember { LuluGames.store }
     val state by store.state.collectAsState()
-    val library by LuluAiServices.connectionStore.library.collectAsState()
-    val gameArchiveId = library.archiveIdFor(ModelUsage.Game)
     var route by remember(initialGameId) { mutableStateOf(initialGameId.toGameRouteOrHome()) }
     var pendingRoute by remember { mutableStateOf<GameRoute?>(null) }
-    var modelExpanded by remember { mutableStateOf(false) }
 
     fun stepBack() {
         if (route == GameRoute.Home) onBack() else route = GameRoute.Home
@@ -110,33 +106,19 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null) {
                             Icon(Icons.Outlined.History, "游戏记录与回放")
                         }
                     }
-                    Box {
-                        IconButton(onClick = { modelExpanded = true }) {
-                            Icon(Icons.Outlined.Memory, "选择游戏模型")
-                        }
-                        DropdownMenu(expanded = modelExpanded, onDismissRequest = { modelExpanded = false }) {
-                            if (library.archives.isEmpty()) {
-                                DropdownMenuItem(text = { Text("还没有模型存档") }, enabled = false, onClick = {})
-                            } else {
-                                library.archives.forEach { archive ->
-                                    val selected = archive.id == gameArchiveId
-                                    DropdownMenuItem(
-                                        leadingIcon = {
-                                            Icon(
-                                                if (selected) Icons.Outlined.RadioButtonChecked else Icons.Outlined.RadioButtonUnchecked,
-                                                null,
-                                            )
-                                        },
-                                        text = { Text(LuluAiServices.connectionStore.archiveLabel(archive)) },
-                                        onClick = {
-                                            LuluAiServices.connectionStore.selectArchive(archive.id, ModelUsage.Game)
-                                            modelExpanded = false
-                                        },
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    ModelArchiveIconButton(
+                        usage = ModelUsage.Game,
+                        title = "游戏模型",
+                        subtitle = "只切换“游戏”应用使用的模型存档；末世求生有自己的独立模型，不会跟着改变。",
+                        icon = Icons.Outlined.Memory,
+                        contentDescription = "选择游戏模型",
+                        tint = GameDesign.ink,
+                        accent = GameDesign.ink,
+                        background = GameDesign.paper,
+                        ink = GameDesign.ink,
+                        muted = GameDesign.muted,
+                        border = GameDesign.border,
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = GameDesign.paper),
             )
