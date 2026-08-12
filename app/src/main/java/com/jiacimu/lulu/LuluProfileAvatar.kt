@@ -1,14 +1,14 @@
 package com.jiacimu.lulu
 
-import android.content.Intent
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.LruCache
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -40,14 +40,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.InputStream
 import java.net.URL
 import java.security.MessageDigest
 import javax.net.ssl.HttpsURLConnection
 
 private const val LULU_REMOTE_AVATAR_MAX_BYTES = 3 * 1024 * 1024
+private const val LULU_AVATAR_MAX_EDGE = 768
 
-// Keep enough portraits hot for long visual-novel scenes. A 512px ARGB bitmap is roughly 1 MiB;
-// 32 MiB avoids repeatedly evicting the small cast and re-showing placeholders between dialogue beats.
+// A bounded decode keeps one portrait around ~2.3 MiB or less instead of accidentally caching a
+// 12/48MP camera bitmap. The cache then remains predictable even when many characters are visible.
 private val luluAvatarBitmapCache = object : LruCache<String, Bitmap>(32 * 1024) {
     override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount / 1024
 }
@@ -66,9 +68,6 @@ internal fun LuluProfileAvatar(
 ) {
     val avatarShape = RoundedCornerShape((size * 0.22f).dp)
     val context = LocalContext.current
-    // Important for the visual-novel stage: do not reset an already-cached portrait to null for one
-    // composition frame merely because the speaker changed. That null frame was the visible "flash"
-    // when advancing from the player's line to another speaker.
     val initialBitmap = remember(imageUri) { cachedLuluAvatarBitmap(imageUri) }
     val bitmap by produceState<Bitmap?>(initialValue = initialBitmap, imageUri) {
         val uri = imageUri?.takeIf(String::isNotBlank)
@@ -104,20 +103,31 @@ private fun loadLuluAvatarBitmap(context: Context, value: String): Bitmap? {
     val bitmap = when (uri.scheme?.lowercase()) {
         "https" -> loadLuluRemoteAvatarBitmap(context, value)
         "http" -> null
-        else -> runCatching {
-            context.contentResolver.openInputStream(uri)?.use(BitmapFactory::decodeStream)
-        }.getOrNull()
+        else -> decodeContentUriBounded(context, uri)
     } ?: return null
     synchronized(luluAvatarBitmapCache) { luluAvatarBitmapCache.put(value, bitmap) }
     return bitmap
 }
+
+private fun decodeContentUriBounded(context: Context, uri: Uri): Bitmap? = runCatching {
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    context.contentResolver.openInputStream(uri)?.use { input -> BitmapFactory.decodeStream(input, null, bounds) }
+    if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return@runCatching null
+    val options = BitmapFactory.Options().apply {
+        inSampleSize = calculateAvatarSample(bounds.outWidth, bounds.outHeight)
+        inPreferredConfig = Bitmap.Config.ARGB_8888
+    }
+    context.contentResolver.openInputStream(uri)?.use { input ->
+        BitmapFactory.decodeStream(input, null, options)
+    }
+}.getOrNull()
 
 private fun loadLuluRemoteAvatarBitmap(context: Context, value: String): Bitmap? {
     val directory = File(context.cacheDir, "lulu-avatar-images")
     if (!directory.exists() && !directory.mkdirs()) return null
     val cacheFile = File(directory, "${luluAvatarCacheKey(value)}.img")
     if (cacheFile.isFile) {
-        BitmapFactory.decodeFile(cacheFile.absolutePath)?.let { bitmap ->
+        decodeFileBounded(cacheFile)?.let { bitmap ->
             synchronized(luluAvatarBitmapCache) { luluAvatarBitmapCache.put(value, bitmap) }
             return bitmap
         }
@@ -134,7 +144,7 @@ private fun loadLuluRemoteAvatarBitmap(context: Context, value: String): Bitmap?
         val declaredLength = connection.contentLengthLong
         if (declaredLength > LULU_REMOTE_AVATAR_MAX_BYTES) return null
         val bytes = connection.inputStream.use(::readLuluAvatarBytes) ?: return null
-        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
+        val bitmap = decodeBytesBounded(bytes) ?: return null
         runCatching { cacheFile.writeBytes(bytes) }
         synchronized(luluAvatarBitmapCache) { luluAvatarBitmapCache.put(value, bitmap) }
         bitmap
@@ -145,7 +155,47 @@ private fun loadLuluRemoteAvatarBitmap(context: Context, value: String): Bitmap?
     }
 }
 
-private fun readLuluAvatarBytes(input: java.io.InputStream): ByteArray? {
+private fun decodeFileBounded(file: File): Bitmap? = runCatching {
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    BitmapFactory.decodeFile(file.absolutePath, bounds)
+    if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return@runCatching null
+    BitmapFactory.decodeFile(
+        file.absolutePath,
+        BitmapFactory.Options().apply {
+            inSampleSize = calculateAvatarSample(bounds.outWidth, bounds.outHeight)
+            inPreferredConfig = Bitmap.Config.ARGB_8888
+        },
+    )
+}.getOrNull()
+
+private fun decodeBytesBounded(bytes: ByteArray): Bitmap? = runCatching {
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+    if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return@runCatching null
+    BitmapFactory.decodeByteArray(
+        bytes,
+        0,
+        bytes.size,
+        BitmapFactory.Options().apply {
+            inSampleSize = calculateAvatarSample(bounds.outWidth, bounds.outHeight)
+            inPreferredConfig = Bitmap.Config.ARGB_8888
+        },
+    )
+}.getOrNull()
+
+private fun calculateAvatarSample(width: Int, height: Int): Int {
+    var sample = 1
+    var sampledWidth = width
+    var sampledHeight = height
+    while (sampledWidth > LULU_AVATAR_MAX_EDGE * 2 || sampledHeight > LULU_AVATAR_MAX_EDGE * 2) {
+        sample *= 2
+        sampledWidth = width / sample
+        sampledHeight = height / sample
+    }
+    return sample.coerceAtLeast(1)
+}
+
+private fun readLuluAvatarBytes(input: InputStream): ByteArray? {
     val output = ByteArrayOutputStream()
     val buffer = ByteArray(8 * 1024)
     var total = 0
@@ -205,12 +255,9 @@ internal fun LuluAvatarPicker(
 @Composable
 internal fun LuluSelectedPhoto(imageUri: String?, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val bitmap = remember(imageUri) {
-        imageUri?.takeIf(String::isNotBlank)?.let { value ->
-            runCatching {
-                context.contentResolver.openInputStream(Uri.parse(value))?.use(BitmapFactory::decodeStream)?.asImageBitmap()
-            }.getOrNull()
-        }
+    val bitmap by produceState<Bitmap?>(initialValue = cachedLuluAvatarBitmap(imageUri), imageUri) {
+        val source = imageUri?.takeIf(String::isNotBlank)
+        value = if (source == null) null else withContext(Dispatchers.IO) { loadLuluAvatarBitmap(context, source) }
     }
     Surface(
         modifier = modifier,
@@ -219,7 +266,7 @@ internal fun LuluSelectedPhoto(imageUri: String?, modifier: Modifier = Modifier)
         border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
     ) {
         if (bitmap != null) {
-            Image(bitmap, null, Modifier.fillMaxSize().clip(RoundedCornerShape(18.dp)), contentScale = ContentScale.Crop)
+            Image(bitmap!!.asImageBitmap(), null, Modifier.fillMaxSize().clip(RoundedCornerShape(18.dp)), contentScale = ContentScale.Crop)
         } else {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Icon(Icons.Outlined.AddAPhoto, "插入照片", tint = Color(0xFF7A7A7E))
