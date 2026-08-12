@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T09:27:10.819014+00:00",
-  "commit": "d92966841b50a4e4ac55528c83d6a949ef10a5dd",
+  "generatedAt": "2026-08-12T09:58:06.406581+00:00",
+  "commit": "8d2b8203add3ec6a764370a8fe5854ad4d37c092",
   "branch": "main",
-  "sourceFingerprint": "24e04a6d53bb3691c064c416e286f279f518e67fb55fabe08240a09bddede793",
+  "sourceFingerprint": "17f17faf2a21472f77ee68157beb9d9bd757d2b19aca9e86d824cf4ddefb1979",
   "summary": {
-    "files": 165,
-    "lines": 50177,
+    "files": 166,
+    "lines": 50492,
     "symbols": 665
   },
   "symbolIndex": {
@@ -2147,7 +2147,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-        "line": 34
+        "line": 35
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
@@ -2185,7 +2185,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-        "line": 191
+        "line": 196
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
@@ -2219,7 +2219,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-        "line": 66
+        "line": 67
       }
     ],
     "replaceFromBackstage": [
@@ -2237,37 +2237,37 @@
     "bootstrapFromSave": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-        "line": 40
+        "line": 41
       }
     ],
     "updateCard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-        "line": 115
+        "line": 116
       }
     ],
     "deleteCard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-        "line": 142
+        "line": 143
       }
     ],
     "invalidateEmbeddings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-        "line": 150
+        "line": 151
       }
     ],
     "updateEmbeddings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-        "line": 168
+        "line": 169
       }
     ],
     "trimAfterScene": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-        "line": 185
+        "line": 186
       }
     ],
     "loadSave": [
@@ -4048,8 +4048,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt",
-      "lines": 208,
-      "sha256": "48e394a3b5764be6e940b9cc41aa2a560a9f13909766d8947e08f911ac5b9ca4",
+      "lines": 230,
+      "sha256": "211ccbebb2d533dce45e745118de323163196e2314ae39506b629bcba004e82d",
       "symbols": []
     },
     {
@@ -5674,6 +5674,12 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseAbilityProgressionV5.kt",
+      "lines": 257,
+      "sha256": "626f3de3337ca3c35043d8b3643eb81ea7fa9e5297f61e6e549306ddbfe3b112",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseCastIdentityV5.kt",
       "lines": 374,
       "sha256": "d8aac810009a2ac74f6015d6d68853fba33f8fffe62d1c8754d204c877b180e8",
@@ -5693,8 +5699,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-      "lines": 280,
-      "sha256": "5bcf105a69809ad001a8303767dd70b4be4c2adfc9cd55d1f7dc8b33e1615dbd",
+      "lines": 310,
+      "sha256": "b49f51f9185bbc5ca2258afafa00993588391e39113c28d9110c08e626928658",
       "symbols": [
         {
           "name": "TaskState",
@@ -5776,44 +5782,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-      "lines": 454,
-      "sha256": "79c4fea8f81d727f72d706d3a73f35123cfe560e4619f7b7f106fd9c49b46b8a",
+      "lines": 460,
+      "sha256": "dbd63798f89d62bb298748a032c2464ea6d54d5847bb5087702e13935a713b76",
       "symbols": [
         {
           "name": "load",
-          "line": 34
+          "line": 35
         },
         {
           "name": "bootstrapFromSave",
-          "line": 40
+          "line": 41
         },
         {
           "name": "recordScene",
-          "line": 66
+          "line": 67
         },
         {
           "name": "updateCard",
-          "line": 115
+          "line": 116
         },
         {
           "name": "deleteCard",
-          "line": 142
+          "line": 143
         },
         {
           "name": "invalidateEmbeddings",
-          "line": 150
+          "line": 151
         },
         {
           "name": "updateEmbeddings",
-          "line": 168
+          "line": 169
         },
         {
           "name": "trimAfterScene",
-          "line": 185
+          "line": 186
         },
         {
           "name": "clear",
-          "line": 191
+          "line": 196
         }
       ]
     },

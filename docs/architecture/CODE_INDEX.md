@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d92966841b50a4e4ac55528c83d6a949ef10a5dd`
+- 基准提交：`8d2b8203add3ec6a764370a8fe5854ad4d37c092`
 - 分支：`main`
-- 已索引文件：165
-- 已索引代码/文本行：50177
+- 已索引文件：166
+- 已索引代码/文本行：50492
 - 已发现符号：665
 
 | 文件 | 行数 | 符号数 |
@@ -25,7 +25,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 412 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 335 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 313 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 208 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 230 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 174 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 336 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 397 | 6 |
@@ -84,14 +84,15 @@
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 48 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 93 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseAbilityProgressionV5.kt` | 257 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseCastIdentityV5.kt` | 374 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseDramaticLedgerV5.kt` | 698 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseFlowRowCompat.kt` | 34 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt` | 280 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt` | 310 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt` | 352 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt` | 676 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryManagerV5.kt` | 310 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt` | 454 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt` | 460 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSceneOutcomeV5.kt` | 710 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseStoryDirectorV5.kt` | 62 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt` | 1382 | 10 |
