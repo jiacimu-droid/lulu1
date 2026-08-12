@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T10:53:12.173654+00:00",
-  "commit": "7837dbb69373e517bbfe0a0f9d7cbef5080d31d2",
+  "generatedAt": "2026-08-12T10:55:01.822880+00:00",
+  "commit": "5df5efd9bf9430eaf45e13387827464171170dd9",
   "branch": "main",
-  "sourceFingerprint": "f3470ca1166dfa47b21fb832747d3590ecba0440ff3001abfa0b24e99241ece0",
+  "sourceFingerprint": "e1fe5abaf48a3a56331b5f5aa932f940d6bea67b5ee06ddff278dab3fb7bb46d",
   "summary": {
     "files": 170,
-    "lines": 51389,
+    "lines": 51393,
     "symbols": 671
   },
   "symbolIndex": {
@@ -45,7 +45,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 867
+        "line": 870
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -865,19 +865,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 730
+        "line": 733
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 742
+        "line": 745
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 857
+        "line": 860
       }
     ],
     "ScopedModelSelections": [
@@ -4427,8 +4427,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 874,
-      "sha256": "0544977f9032e75bac19313713716b29e60e9506c14897b316cfb92140a0ca88",
+      "lines": 878,
+      "sha256": "a0c3e994d5dfd80145729e6f37a421041500f0db256fa99afc4c4463de45fc5b",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -4516,19 +4516,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 730
+          "line": 733
         },
         {
           "name": "consumeEvent",
-          "line": 742
+          "line": 745
         },
         {
           "name": "LuluAiServices",
-          "line": 857
+          "line": 860
         },
         {
           "name": "initialize",
-          "line": 867
+          "line": 870
         }
       ]
     },
