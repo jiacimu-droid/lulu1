@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T11:50:32.188379+00:00",
-  "commit": "14f954d8b13935e7e7ae5b6db72a6782a8d95dce",
+  "generatedAt": "2026-08-12T11:52:44.064636+00:00",
+  "commit": "274561f03e4e6056a032c175f90c05545b21df89",
   "branch": "main",
-  "sourceFingerprint": "239c28f3ba5929feff6c8d57c3f83c055a927b014ec6aa8cce8017610b4f2f97",
+  "sourceFingerprint": "6389aebccff38a3c6365ef31713ae5f32e66011e379cec9961ce4f297bf23ad7",
   "summary": {
     "files": 172,
-    "lines": 51774,
+    "lines": 51775,
     "symbols": 685
   },
   "symbolIndex": {
@@ -601,7 +601,7 @@
     "LexiconFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 587
+        "line": 588
       }
     ],
     "MigrationActivity": [
@@ -4301,8 +4301,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-      "lines": 762,
-      "sha256": "7628243d0d87e0a9bf27fbb51b31d849c6ac00b606fb1d750930d2597a02a863",
+      "lines": 763,
+      "sha256": "fce3a63890b1abc5dce89b6429b77320729ecdfa81f2bab0690a913bbcd29ba6",
       "symbols": [
         {
           "name": "LuluRepositories",
@@ -4318,7 +4318,7 @@
         },
         {
           "name": "LexiconFeatureScreen",
-          "line": 587
+          "line": 588
         }
       ]
     },
