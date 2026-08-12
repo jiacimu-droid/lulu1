@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`87b5c7f526c69ea7fb4fb0c3d3cd112fc67d0d10`
+- 基准提交：`1076527072660f8ad5c0bee1ec73b09dcddcaf56`
 - 分支：`main`
-- 已索引文件：168
-- 已索引代码/文本行：51164
+- 已索引文件：169
+- 已索引代码/文本行：51329
 - 已发现符号：666
 
 | 文件 | 行数 | 符号数 |
@@ -38,6 +38,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 99 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 449 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 90 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 165 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 629 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 283 | 1 |

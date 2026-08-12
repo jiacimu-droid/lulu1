@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T10:24:49.734150+00:00",
-  "commit": "87b5c7f526c69ea7fb4fb0c3d3cd112fc67d0d10",
+  "generatedAt": "2026-08-12T10:52:56.211687+00:00",
+  "commit": "1076527072660f8ad5c0bee1ec73b09dcddcaf56",
   "branch": "main",
-  "sourceFingerprint": "9d8d064baa3237bacd5c7a4ab9a9f7fb03eb134ae18728b9ef4389ec41fcff14",
+  "sourceFingerprint": "be11983a53c50ab79bc06892109fa9c9dd469a1cb4389d739b4967f725aab78e",
   "summary": {
-    "files": 168,
-    "lines": 51164,
+    "files": 169,
+    "lines": 51329,
     "symbols": 666
   },
   "symbolIndex": {
@@ -4255,6 +4255,12 @@
           "line": 39
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt",
+      "lines": 165,
+      "sha256": "29c24d9fe29e599fd33a78fbbdd4a3e2e6127e194782156a0c82a868f87c19d6",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt",
