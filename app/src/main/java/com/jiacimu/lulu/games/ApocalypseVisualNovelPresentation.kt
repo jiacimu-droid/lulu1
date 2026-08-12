@@ -24,7 +24,7 @@ internal fun parseApocalypseStoryPages(
     party: List<CharacterSettings>,
     dossiers: List<ApocalypseCharacterDossierV5> = emptyList(),
     presentCharacterIds: List<String> = emptyList(),
-    maxChars: Int = 72,
+    maxChars: Int = 86,
 ): List<ApocalypseStoryPage> {
     val normalized = text.replace("\r\n", "\n").trim()
     if (normalized.isBlank()) {
