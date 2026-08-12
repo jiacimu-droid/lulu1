@@ -49,7 +49,9 @@ internal object ApocalypseGenerationTaskManagerV5 {
         if (save.id.isBlank() || cleanAction.isBlank()) return false
         val appContext = context.applicationContext
 
-        val repairedSave = sanitizeApocalypseLoadedAbilityStateV5(save)
+        val repairedSave = repairApocalypseCurrentSceneInventoryV5(
+            sanitizeApocalypseLoadedAbilityStateV5(save),
+        )
         if (repairedSave != save) {
             ApocalypseSurvivalV3Store(appContext).save(repairedSave)
             return launch(context, repairedSave, config, party, cleanAction)
@@ -125,10 +127,6 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         },
                     ).getOrElse { error -> throw error }
 
-                    // First rescue concrete items from the prose itself. This catches natural narration
-                    // such as “整箱的子弹、高分子防爆盾牌、防爆弹枪、战术背心被我收进了空间” even if
-                    // the model omitted discoverAssets, put the acquisition verb after the item list,
-                    // or used a kind name the old parser did not recognise.
                     val narratedOutcome = recoverApocalypseNarratedInventoryV5(outcome)
                     val inventoryOutcome = reconcileApocalypseInventoryOutcomeV5(save, narratedOutcome)
                     val resolvedBeat = applyApocalypseSceneOutcomeV5(
