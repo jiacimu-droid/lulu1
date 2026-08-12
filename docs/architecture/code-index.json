@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T11:27:08.534147+00:00",
-  "commit": "54f6706f2229fec63f08d2fd47fd38e72ceca3c5",
+  "generatedAt": "2026-08-12T11:27:33.423456+00:00",
+  "commit": "72381814f868c68527a108bb32e1f8c7b64d9d1a",
   "branch": "main",
-  "sourceFingerprint": "1767cc9fb9348a17daaa4d12bb241ff41c22a6c3d25ab06df61c1fb354843a95",
+  "sourceFingerprint": "e00d7ed0c59432f197c4a9e37a121e86ad164702ee6e447ced48599304e0bbaf",
   "summary": {
     "files": 172,
-    "lines": 51634,
+    "lines": 51643,
     "symbols": 682
   },
   "symbolIndex": {
@@ -2023,7 +2023,7 @@
     "formatForPrompt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 65
+        "line": 74
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -5648,8 +5648,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-      "lines": 128,
-      "sha256": "ff50e088f6569b241b12e0b9c9ead93548d8e9c07b0aad5070d98056f8a65254",
+      "lines": 137,
+      "sha256": "14c51ba22a0556470f11a961159a972c502e8911b6dff3fb0bc9a4df3d5dd5e1",
       "symbols": [
         {
           "name": "RelevantMemoryRecall",
@@ -5657,7 +5657,7 @@
         },
         {
           "name": "formatForPrompt",
-          "line": 65
+          "line": 74
         }
       ]
     },
