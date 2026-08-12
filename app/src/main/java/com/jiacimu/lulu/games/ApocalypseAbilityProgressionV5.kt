@@ -12,9 +12,9 @@ internal fun apocalypseAbilityProgressRuleV5(stats: ApocalypseV3Stats, dayIndex:
     val cost = apocalypseCoreCostPerResonancePointV5(stats.playerAbilityLevel)
     append("【晶核与空间异能成长硬规则】当前空间Lv.${stats.playerAbilityLevel}，可用晶核等价量=${stats.crystalCores}，")
     append("本级稳定共鸣=${stats.playerAbilityXp}/${abilityXpThresholdV3(stats.playerAbilityLevel)}。")
-    append("晶核栏记录的是可安全利用的标准晶核等价量，不等于击杀数：普通感染者多数没有完整可用晶核，常见的是无核、污染碎核或需要多枚碎片才能整理出的等价量；越高阶个体才越可能留下完整高质量晶核。")
-    append("击杀不会自动入账。只有正文明确发生取核、筛选、回收、交易或获得样本，才能增加晶核；灾后早期普通战斗通常为0，偶尔才有少量可用收获。")
-    append("playerAbilityXpGain不是普通经验。只有玩家明确选择吸收/炼化晶核强化空间异能，并真实扣除已有晶核时才可增加；训练、战斗、频繁使用异能、情绪高潮都只能提升熟练度，绝不能自行加等级经验。")
+    append("晶核栏记录的是可安全利用的标准晶核等价量，不等于击杀数：绝大多数普通感染者没有完整可用晶核，常见的是无核、污染碎核或很多碎片才能整理出1个标准等价量；越高阶个体才越可能留下完整高质量晶核。")
+    append("击杀不会自动入账。只有正文明确发生取核、筛选、回收、交易或获得样本，才能增加晶核；普通尸群即使数量很多也通常只有0—1个标准等价量，不能按一只丧尸一颗晶核结算。")
+    append("playerAbilityXpGain不是普通经验。只有玩家明确选择吸收/炼化晶核强化空间异能，并真实扣除已有晶核时才可增加；训练、战斗、频繁使用异能、情绪高潮都只能提升熟练度，绝不能自行加等级共鸣。")
     if (stats.playerAbilityLevel < 5) {
         append("当前等级每获得1点稳定共鸣至少消耗${cost}个可用晶核等价量；本幕最多完成当前一级的突破，不能连续跳级。")
     } else {
@@ -22,7 +22,7 @@ internal fun apocalypseAbilityProgressRuleV5(stats: ApocalypseV3Stats, dayIndex:
     }
     append("真正升级必须在正文中可见演出：玩家要明确感到容量、边界、距离感或新能力发生质变，并明确知道自己从旧等级突破到新等级；绝不能只改左上角状态栏。")
     if (dayIndex < 0) {
-        append("当前仍在赤潮主沉降前：尚不存在可合法获取并吸收的源晶核，因此晶核增加、共鸣增长和空间升级一律禁止。")
+        append("当前仍在赤潮主沉降前：尚不存在可合法获取并吸收的源晶核，因此晶核增加、共鸣增长和空间升级一律禁止；已经保留的既有等级可以继续使用，但共鸣不能增长。")
     }
 }
 
@@ -33,20 +33,25 @@ internal fun apocalypseActionRequestsCoreAbsorptionV5(action: String): Boolean {
         .any(text::contains)
 }
 
+/**
+ * One resonance point is intentionally expensive. The level thresholds are small legacy integers,
+ * so the real long-term pacing lives in the number of usable core equivalents required per point.
+ */
 internal fun apocalypseCoreCostPerResonancePointV5(level: Int): Int = when (level.coerceIn(1, 5)) {
-    1 -> 3
-    2 -> 5
-    3 -> 8
-    4 -> 12
+    1 -> 4
+    2 -> 8
+    3 -> 14
+    4 -> 24
     else -> Int.MAX_VALUE
 }
 
+/** Hard per-scene ceiling, not a guaranteed drop. Ordinary fights should still usually award zero. */
 private fun apocalypseCoreGainCapV5(dayIndex: Int): Int = when {
     dayIndex < 0 -> 0
-    dayIndex <= 6 -> 2
-    dayIndex <= 42 -> 3
-    dayIndex <= 180 -> 5
-    else -> 8
+    dayIndex <= 13 -> 1
+    dayIndex <= 59 -> 2
+    dayIndex <= 179 -> 3
+    else -> 5
 }
 
 private fun apocalypseCoreAcquisitionIsVisibleV5(action: String, beat: ApocalypseV3Beat): Boolean {
@@ -167,20 +172,19 @@ internal fun sanitizeApocalypseAbilityProgressionV5(
 }
 
 /**
- * Repairs the old bug only where it is logically impossible to be legitimate: before impact there
- * are no source cores, so a pre-impact level-up or resonance gain cannot have been earned.
+ * One-time migration for saves touched by the old generic-XP bug. The user's already-visible space
+ * level is grandfathered so an existing Lv.2 save does not suddenly become weaker, but impossible
+ * pre-impact crystal holdings and the silently accumulated resonance bar are reset to zero.
  */
 internal fun sanitizeApocalypseLoadedAbilityStateV5(save: ApocalypseV3Save): ApocalypseV3Save {
     if (save.director.dayIndex >= 0) return save
-    if (save.stats.playerAbilityLevel <= 1 && save.stats.playerAbilityXp == 0 && save.stats.crystalCores == 0) return save
-    val cleanedFacts = save.director.worldFacts.filterNot(::apocalypseLooksLikeSpaceUpgradeClaimV5)
+    if (save.stats.playerAbilityXp == 0 && save.stats.crystalCores == 0) return save
     return save.copy(
-        director = save.director.copy(worldFacts = cleanedFacts),
         stats = save.stats.copy(
             crystalCores = 0,
-            playerAbilityLevel = 1,
             playerAbilityXp = 0,
         ),
+        updatedAt = System.currentTimeMillis(),
     )
 }
 
