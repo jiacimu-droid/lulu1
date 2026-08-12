@@ -38,7 +38,7 @@ import java.util.UUID
 
 internal const val APOCALYPSE_PLAYER_SECONDARY_KEY = "__player_secondary__"
 
-private enum class ApocalypseV5Screen { Home, AbilitySettings, SystemSettings, World, Archive, Play, StoryHistory }
+private enum class ApocalypseV5Screen { Home, AbilitySettings, SystemSettings, PlotMemory, World, Archive, Play, StoryHistory }
 
 private data class ApocalypseAbilityTarget(
     val id: String,
@@ -317,6 +317,7 @@ internal fun ApocalypseSurvivalAppV5(
             onEnter = ::enterGame,
             onAbilities = { screen = ApocalypseV5Screen.AbilitySettings },
             onSystem = { screen = ApocalypseV5Screen.SystemSettings },
+            onPlotMemory = { screen = ApocalypseV5Screen.PlotMemory },
             onWorld = { screen = ApocalypseV5Screen.World },
             onArchive = { screen = ApocalypseV5Screen.Archive },
         )
@@ -350,6 +351,8 @@ internal fun ApocalypseSurvivalAppV5(
             },
         )
 
+        ApocalypseV5Screen.PlotMemory -> ApocalypsePlotMemoryManagerV5(save = save, onBack = ::goBack)
+
         ApocalypseV5Screen.World -> ApocalypseV5WorldPage(config, ::goBack)
 
         ApocalypseV5Screen.Archive -> ApocalypseV5ArchivePage(
@@ -359,7 +362,10 @@ internal fun ApocalypseSurvivalAppV5(
             onDeleteHistory = ::rollbackStory,
             onClearHistory = ::clearStoryHistory,
             onClearSave = {
-                save?.let { historyStore.clear(it.id) }
+                save?.let {
+                    historyStore.clear(it.id)
+                    ApocalypsePlotMemoryStoreV5(context).clear(it.id)
+                }
                 storage.clearSave()
                 progressStore.clear()
                 save = null
@@ -413,6 +419,7 @@ private fun ApocalypseV5HomePage(
     onEnter: () -> Unit,
     onAbilities: () -> Unit,
     onSystem: () -> Unit,
+    onPlotMemory: () -> Unit,
     onWorld: () -> Unit,
     onArchive: () -> Unit,
 ) {
@@ -448,6 +455,7 @@ private fun ApocalypseV5HomePage(
             }
             item { ApocalypseV5MenuEntry(Icons.Outlined.AutoAwesome, "异能设定", "你与同行角色的异能、分化和队伍配置", onAbilities) }
             item { ApocalypseV5MenuEntry(Icons.Outlined.Tune, "系统设置", "世界强度与自动播放速度", onSystem) }
+            item { ApocalypseV5MenuEntry(Icons.Outlined.Search, "剧情记忆库", "查看、修改、删除与重建本存档的剧情向量记忆", onPlotMemory) }
             item { ApocalypseV5MenuEntry(Icons.Outlined.Public, "世界档案", "赤潮生态、异能社会、丧尸进化与长期剧情骨架", onWorld) }
             item { ApocalypseV5MenuEntry(Icons.Outlined.History, "存档与回顾", "基地、物资、晶核和最近剧情", onArchive) }
             item {
