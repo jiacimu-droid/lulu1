@@ -1213,23 +1213,7 @@ private fun ApocalypseV5PlayPage(
     val busy = generationState.running
     val currentEntryId = currentEntry?.id
     val currentPage = pages.getOrElse(pageIndex) { pages.first() }
-    val streamingPages = remember(
-        generationState.partialText,
-        party,
-        save.director.characterDossiers,
-        save.director.presentCharacterIds,
-    ) {
-        generationState.partialText.takeIf(String::isNotBlank)?.let { partial ->
-            parseApocalypseStoryPages(
-                text = partial,
-                party = party,
-                dossiers = save.director.characterDossiers,
-                presentCharacterIds = save.director.presentCharacterIds,
-            )
-        }.orEmpty()
-    }
-    val streamingPage = streamingPages.lastOrNull()
-    val displayPage = streamingPage ?: currentPage
+    val displayPage = currentPage
     val lastPage = pageIndex >= pages.lastIndex
 
     fun setPage(next: Int) {
@@ -1326,72 +1310,90 @@ private fun ApocalypseV5PlayPage(
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
             shadowElevation = 12.dp,
         ) {
-            Column(Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 10.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.fillMaxWidth().padding(vertical = 10.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Text(
-                        if (streamingPage != null) "第${save.scene + 1}幕 · 正在生成" else apocalypseV5SpeakerLabel(currentPage, party, save.director.characterDossiers, userName),
+                        if (busy) "第${save.scene + 1}幕 · 正在生成" else apocalypseV5SpeakerLabel(currentPage, party, save.director.characterDossiers, userName),
                         color = ApocalypseV5Colors.blueStrong,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.weight(1f),
                     )
-                    Text(if (streamingPage != null) "${streamingPages.size}段" else "${pageIndex + 1}/${pages.size}", color = ApocalypseV5Colors.muted, fontSize = 9.sp)
+                    Text("${pageIndex + 1}/${pages.size}", color = ApocalypseV5Colors.muted, fontSize = 9.sp)
                 }
-                Spacer(Modifier.height(5.dp))
+                Spacer(Modifier.height(7.dp))
                 Surface(
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp, max = 168.dp).clickable(enabled = !lastPage && !busy) { nextPage() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 132.dp, max = 220.dp)
+                        .clickable(enabled = !lastPage && !busy) { nextPage() },
                     color = ApocalypseV5Colors.white,
-                    shape = RoundedCornerShape(17.dp),
+                    shape = RoundedCornerShape(0.dp),
                     border = BorderStroke(1.dp, ApocalypseV5Colors.border),
                 ) {
-                    Text(displayPage.text, color = ApocalypseV5Colors.ink, fontSize = 16.sp, lineHeight = 24.sp, modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp))
+                    Text(
+                        displayPage.text,
+                        color = ApocalypseV5Colors.ink,
+                        fontSize = 16.sp,
+                        lineHeight = 24.sp,
+                        modifier = Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
+                    )
                 }
-                Row(Modifier.fillMaxWidth().height(39.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                Row(
+                    Modifier.fillMaxWidth().height(43.dp).padding(horizontal = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
                     TextButton(onClick = ::previousPage, enabled = pageIndex > 0) { Icon(Icons.Outlined.ChevronLeft, null, Modifier.size(18.dp)); Text("上一段", fontSize = 10.sp) }
                     TextButton(onClick = { autoPlay = !autoPlay }, enabled = !lastPage) { Icon(if (autoPlay) Icons.Outlined.Pause else Icons.Outlined.PlayArrow, null, Modifier.size(17.dp)); Spacer(Modifier.width(3.dp)); Text(if (autoPlay) "暂停" else "自动", fontSize = 10.sp) }
                     TextButton(onClick = ::nextPage, enabled = !lastPage) { Text("下一段", fontSize = 10.sp); Icon(Icons.Outlined.ChevronRight, null, Modifier.size(18.dp)) }
                 }
                 if (lastPage) {
-                    OutlinedTextField(
-                        value = action,
-                        onValueChange = { action = it.take(600) },
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("你接下来想做什么？") },
-                        minLines = 1,
-                        maxLines = 2,
-                        shape = RoundedCornerShape(14.dp),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = ApocalypseV5Colors.blueStrong, unfocusedBorderColor = ApocalypseV5Colors.border),
-                    )
-                    Spacer(Modifier.height(5.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        SuggestionChip(onClick = { action = "我仔细搜集能长期保存的食物、饮水、药物、能源和工具，并优先利用空间异能降低搬运风险。" }, label = { Text("搜物资", fontSize = 9.sp) })
-                        SuggestionChip(onClick = { action = "我重新评估当前据点的水源、出入口、防御、排污、能源和撤退路线。" }, label = { Text("看基地", fontSize = 9.sp) })
-                        SuggestionChip(onClick = { action = "我检查并训练自己的两个异能槽，优先练习当前等级已经允许的能力。" }, label = { Text("练异能", fontSize = 9.sp) })
-                    }
-                    Spacer(Modifier.height(5.dp))
-                    Button(
-                        onClick = ::submit,
-                        enabled = action.isNotBlank() && !busy,
-                        modifier = Modifier.fillMaxWidth().height(43.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = ApocalypseV5Colors.blueStrong, contentColor = ApocalypseV5Colors.white),
-                        shape = RoundedCornerShape(14.dp),
-                    ) {
-                        if (busy) {
-                            CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = ApocalypseV5Colors.white)
-                            Spacer(Modifier.width(8.dp))
+                    Column(Modifier.fillMaxWidth().padding(horizontal = 15.dp)) {
+                        OutlinedTextField(
+                            value = action,
+                            onValueChange = { action = it.take(600) },
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = { Text("你接下来想做什么？") },
+                            minLines = 1,
+                            maxLines = 2,
+                            shape = RoundedCornerShape(14.dp),
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = ApocalypseV5Colors.blueStrong, unfocusedBorderColor = ApocalypseV5Colors.border),
+                        )
+                        Spacer(Modifier.height(5.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            SuggestionChip(onClick = { action = "我仔细搜集能长期保存的食物、饮水、药物、能源和工具，并优先利用空间异能降低搬运风险。" }, label = { Text("搜物资", fontSize = 9.sp) })
+                            SuggestionChip(onClick = { action = "我重新评估当前据点的水源、出入口、防御、排污、能源和撤退路线。" }, label = { Text("看基地", fontSize = 9.sp) })
+                            SuggestionChip(onClick = { action = "我检查并训练自己的两个异能槽，优先练习当前等级已经允许的能力。" }, label = { Text("练异能", fontSize = 9.sp) })
                         }
-                        Text(if (busy) "${generationState.phase} · ${generationSeconds}s" else "行动", fontWeight = FontWeight.Black)
-                    }
-                    if (busy) {
-                        Spacer(Modifier.height(6.dp))
-                        Text("可以返回其他页面，剧情会继续生成。", color = ApocalypseV5Colors.muted, fontSize = 11.sp)
-                    }
-                    generationState.lastError?.let { message ->
-                        Spacer(Modifier.height(6.dp))
-                        Text(message, color = MaterialTheme.colorScheme.error, fontSize = 11.sp, lineHeight = 16.sp)
+                        Spacer(Modifier.height(5.dp))
+                        Button(
+                            onClick = ::submit,
+                            enabled = action.isNotBlank() && !busy,
+                            modifier = Modifier.fillMaxWidth().height(43.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = ApocalypseV5Colors.blueStrong, contentColor = ApocalypseV5Colors.white),
+                            shape = RoundedCornerShape(14.dp),
+                        ) {
+                            if (busy) {
+                                CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = ApocalypseV5Colors.white)
+                                Spacer(Modifier.width(8.dp))
+                            }
+                            Text(if (busy) "${generationState.phase} · ${generationSeconds}s" else "行动", fontWeight = FontWeight.Black)
+                        }
+                        if (busy) {
+                            Spacer(Modifier.height(6.dp))
+                            Text("可以返回其他页面，剧情会继续生成。", color = ApocalypseV5Colors.muted, fontSize = 11.sp)
+                        }
+                        generationState.lastError?.let { message ->
+                            Spacer(Modifier.height(6.dp))
+                            Text(message, color = MaterialTheme.colorScheme.error, fontSize = 11.sp, lineHeight = 16.sp)
+                        }
                     }
                 }
             }
@@ -1456,7 +1458,7 @@ private fun ApocalypseV5SpeakerStage(
             ),
         )
         Column(
-            Modifier.fillMaxSize().padding(start = 14.dp, end = 14.dp, top = 62.dp, bottom = 190.dp),
+            Modifier.fillMaxSize().padding(start = 14.dp, end = 14.dp, top = 62.dp, bottom = 236.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
