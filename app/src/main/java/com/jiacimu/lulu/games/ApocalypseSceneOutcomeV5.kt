@@ -8,6 +8,12 @@ import java.util.UUID
 internal const val APOCALYPSE_SCENE_STATE_MARKER_V5 = "<<<APOCALYPSE_STATE>>>"
 internal const val APOCALYPSE_SCENE_TEXT_MARKER_V5 = "<<<APOCALYPSE_SCENE>>>"
 
+private val APOCALYPSE_REQUIRED_DELTA_FIELDS_V5 = listOf(
+    "minutesPassed", "moneyDelta", "foodDelta", "waterDelta", "medicineDelta", "materialsDelta",
+    "coresFound", "playerAbilityXpGain", "baseDelta", "healthDelta", "staminaDelta",
+    "infectionDelta", "moraleDelta",
+)
+
 /**
  * A scene is useful only when its prose and its persisted world state agree. The writer returns this
  * compact receipt in the same model call as the prose, so ordinary player actions do not need a
@@ -23,6 +29,10 @@ internal data class ApocalypseSceneOutcomeV5(
     val directorRefreshNeeded: Boolean = false,
     val presentCharactersReported: Boolean = false,
     val receiptParsed: Boolean = false,
+    val simulationStateReported: Boolean = false,
+    val characterStatePatches: List<ApocalypseCharacterStatePatchV5> = emptyList(),
+    val storyThreadUpdates: List<ApocalypseStoryThreadV5> = emptyList(),
+    val foreshadowPatches: List<ApocalypseForeshadowPatchV5> = emptyList(),
     val delta: ApocalypseSceneDeltaV5 = ApocalypseSceneDeltaV5(),
 )
 
@@ -109,6 +119,10 @@ internal fun parseApocalypseSceneOutcomeV5(raw: String): ApocalypseSceneOutcomeV
         directorRefreshNeeded = json.optBoolean("directorRefreshNeeded", false),
         presentCharactersReported = json.has("presentCharacterIds"),
         receiptParsed = true,
+        simulationStateReported = APOCALYPSE_REQUIRED_DELTA_FIELDS_V5.all(json::has),
+        characterStatePatches = decodeApocalypseCharacterStatePatchesV5(json.optJSONArray("characterStatePatches")),
+        storyThreadUpdates = decodeApocalypseStoryThreadsV5(json.optJSONArray("storyThreadUpdates")),
+        foreshadowPatches = decodeApocalypseForeshadowPatchesV5(json.optJSONArray("foreshadowPatches")),
         delta = ApocalypseSceneDeltaV5(
             location = json.optString("location").trim().take(100),
             sceneGoal = json.optString("sceneGoal").trim().take(260),
@@ -179,7 +193,9 @@ internal fun apocalypseSceneOutcomeNeedsRepairV5(
     if (outcome.text.isBlank()) return true
     val tagged = outcome.text.contains("【旁白】") || outcome.text.contains("【玩家】") || outcome.text.contains("【角色:")
     if (!tagged) return true
-    if (outcome.receiptParsed && outcome.actionAcknowledgementReported && !outcome.actionAcknowledged) return true
+    if (!outcome.receiptParsed || !outcome.simulationStateReported) return true
+    if (outcome.continuitySummary.isBlank() || outcome.actionOutcome.isBlank()) return true
+    if (!outcome.actionAcknowledgementReported || !outcome.actionAcknowledged) return true
     if (!apocalypseActionLooksLikeSpeechV5(action)) return false
 
     val availableIds = (party.map { it.characterId } + dossiers.map { it.id }).toSet()
@@ -205,10 +221,50 @@ internal fun applyApocalypseSceneOutcomeV5(
     if (usedDirector) {
         val validIds = validApocalypsePresentIdsV5(plannedBeat.nextDirector, party)
         val present = outcome.delta.presentCharacterIds.filter(validIds::contains)
+        val elapsed = if (outcome.simulationStateReported) outcome.delta.minutesPassed.coerceIn(5, 720) else plannedBeat.minutesPassed
+        val absoluteMinutes = save.director.clockMinutes + elapsed
+        val nextDayIndex = (save.director.dayIndex + absoluteMinutes / 1440).coerceAtMost(9999)
+        val patchedDossiers = mergeApocalypseCharacterStatePatchesV5(
+            previous = plannedBeat.nextDirector.characterDossiers,
+            patches = outcome.characterStatePatches.filter { it.id in validIds },
+            scene = save.scene + 1,
+        )
+        val finalFacts = sanitizePrematureWorldFactsV5(
+            nextDayIndex,
+            mergeApocalypseWorldFactsV5(
+                plannedBeat.nextDirector.worldFacts,
+                outcome.delta.worldFactsAdd,
+            ),
+        )
         return plannedBeat.copy(
             nextDirector = plannedBeat.nextDirector.copy(
+                phase = apocalypsePhaseForDayV5(nextDayIndex),
                 location = outcome.delta.location.ifBlank { plannedBeat.nextDirector.location },
                 sceneGoal = outcome.delta.sceneGoal.ifBlank { plannedBeat.nextDirector.sceneGoal },
+                worldFacts = finalFacts,
+                characterArcs = (plannedBeat.nextDirector.characterArcs + outcome.delta.characterStateAdds)
+                    .filter(String::isNotBlank)
+                    .distinct()
+                    .takeLast(14),
+                storyThreads = mergeApocalypseStoryThreadsV5(
+                    plannedBeat.nextDirector.storyThreads,
+                    outcome.storyThreadUpdates,
+                ),
+                characterDossiers = patchedDossiers,
+                foreshadowLedger = mergeApocalypseForeshadowPatchesV5(
+                    plannedBeat.nextDirector.foreshadowLedger,
+                    outcome.foreshadowPatches,
+                    save.scene + 1,
+                ),
+                assets = (plannedBeat.nextDirector.assets + outcome.delta.discoverAssets)
+                    .distinctBy { it.id }
+                    .takeLast(90),
+                recentBeatTypes = (plannedBeat.nextDirector.recentBeatTypes + outcome.delta.beatType)
+                    .filter(String::isNotBlank)
+                    .takeLast(8),
+                recentEmotionalTurns = (plannedBeat.nextDirector.recentEmotionalTurns + outcome.delta.emotionalTurn)
+                    .filter(String::isNotBlank)
+                    .takeLast(8),
                 weather = outcome.delta.weather.ifBlank { plannedBeat.nextDirector.weather },
                 temperatureC = outcome.delta.temperatureC ?: plannedBeat.nextDirector.temperatureC,
                 presentCharacterIds = if (outcome.presentCharactersReported) {
@@ -221,7 +277,22 @@ internal fun applyApocalypseSceneOutcomeV5(
                 // This scene already received a director pass. Do not let the writer immediately
                 // schedule another one and recreate a director-every-scene loop.
                 directorRefreshNeeded = false,
+                dayIndex = nextDayIndex,
+                clockMinutes = absoluteMinutes % 1440,
             ),
+            moneyDelta = if (outcome.simulationStateReported) outcome.delta.moneyDelta.coerceIn(-save.stats.money, 1_000_000) else plannedBeat.moneyDelta,
+            foodDelta = if (outcome.simulationStateReported) outcome.delta.foodDelta.coerceIn(-save.stats.food, 999) else plannedBeat.foodDelta,
+            waterDelta = if (outcome.simulationStateReported) outcome.delta.waterDelta.coerceIn(-save.stats.water, 999) else plannedBeat.waterDelta,
+            medicineDelta = if (outcome.simulationStateReported) outcome.delta.medicineDelta.coerceIn(-save.stats.medicine, 999) else plannedBeat.medicineDelta,
+            materialsDelta = if (outcome.simulationStateReported) outcome.delta.materialsDelta.coerceIn(-save.stats.materials, 999) else plannedBeat.materialsDelta,
+            coresFound = if (outcome.simulationStateReported) outcome.delta.coresFound.coerceIn(-save.stats.crystalCores, 99) else plannedBeat.coresFound,
+            playerAbilityXpGain = if (outcome.simulationStateReported) outcome.delta.playerAbilityXpGain.coerceIn(0, 10) else plannedBeat.playerAbilityXpGain,
+            baseDelta = if (outcome.simulationStateReported) outcome.delta.baseDelta.coerceIn(-1, 1) else plannedBeat.baseDelta,
+            healthDelta = if (outcome.simulationStateReported) outcome.delta.healthDelta.coerceIn(-35, 20) else plannedBeat.healthDelta,
+            staminaDelta = if (outcome.simulationStateReported) outcome.delta.staminaDelta.coerceIn(-45, 40) else plannedBeat.staminaDelta,
+            infectionDelta = if (outcome.simulationStateReported) outcome.delta.infectionDelta.coerceIn(-15, 30) else plannedBeat.infectionDelta,
+            moraleDelta = if (outcome.simulationStateReported) outcome.delta.moraleDelta.coerceIn(-30, 30) else plannedBeat.moraleDelta,
+            minutesPassed = elapsed,
         )
     }
 
@@ -231,6 +302,11 @@ internal fun applyApocalypseSceneOutcomeV5(
     val nextDayIndex = (save.director.dayIndex + absoluteMinutes / 1440).coerceAtMost(9999)
     val validIds = validApocalypsePresentIdsV5(save.director, party)
     val nextPresent = delta.presentCharacterIds.filter(validIds::contains).distinct().take(10)
+    val patchedDossiers = mergeApocalypseCharacterStatePatchesV5(
+        previous = save.director.characterDossiers,
+        patches = outcome.characterStatePatches.filter { it.id in validIds },
+        scene = save.scene + 1,
+    )
     val facts = sanitizePrematureWorldFactsV5(
         nextDayIndex,
         mergeApocalypseWorldFactsV5(save.director.worldFacts, delta.worldFactsAdd),
@@ -244,6 +320,13 @@ internal fun applyApocalypseSceneOutcomeV5(
             .filter(String::isNotBlank)
             .distinct()
             .takeLast(14),
+        storyThreads = mergeApocalypseStoryThreadsV5(save.director.storyThreads, outcome.storyThreadUpdates),
+        characterDossiers = patchedDossiers,
+        foreshadowLedger = mergeApocalypseForeshadowPatchesV5(
+            save.director.foreshadowLedger,
+            outcome.foreshadowPatches,
+            save.scene + 1,
+        ),
         assets = (save.director.assets + delta.discoverAssets).distinctBy { it.id }.takeLast(90),
         recentBeatTypes = (save.director.recentBeatTypes + delta.beatType).takeLast(8),
         recentEmotionalTurns = (save.director.recentEmotionalTurns + delta.emotionalTurn)
@@ -266,14 +349,14 @@ internal fun applyApocalypseSceneOutcomeV5(
         beatType = delta.beatType,
         worldDelta = outcome.actionOutcome,
         emotionalTurn = delta.emotionalTurn,
-        moneyDelta = delta.moneyDelta.coerceIn(-save.stats.money.coerceIn(0, 50_000), 50_000),
-        foodDelta = delta.foodDelta.coerceIn(-4, 8),
-        waterDelta = delta.waterDelta.coerceIn(-4, 8),
-        medicineDelta = delta.medicineDelta.coerceIn(-4, 8),
-        materialsDelta = delta.materialsDelta.coerceIn(-4, 8),
-        coresFound = delta.coresFound.coerceIn(0, 4),
-        playerAbilityXpGain = delta.playerAbilityXpGain.coerceIn(0, 5),
-        baseDelta = delta.baseDelta.coerceIn(0, 1),
+        moneyDelta = delta.moneyDelta.coerceIn(-save.stats.money, 1_000_000),
+        foodDelta = delta.foodDelta.coerceIn(-save.stats.food, 999),
+        waterDelta = delta.waterDelta.coerceIn(-save.stats.water, 999),
+        medicineDelta = delta.medicineDelta.coerceIn(-save.stats.medicine, 999),
+        materialsDelta = delta.materialsDelta.coerceIn(-save.stats.materials, 999),
+        coresFound = delta.coresFound.coerceIn(-save.stats.crystalCores, 99),
+        playerAbilityXpGain = delta.playerAbilityXpGain.coerceIn(0, 10),
+        baseDelta = delta.baseDelta.coerceIn(-1, 1),
         healthDelta = delta.healthDelta.coerceIn(-35, 20),
         staminaDelta = delta.staminaDelta.coerceIn(-45, 40),
         infectionDelta = delta.infectionDelta.coerceIn(-15, 30),

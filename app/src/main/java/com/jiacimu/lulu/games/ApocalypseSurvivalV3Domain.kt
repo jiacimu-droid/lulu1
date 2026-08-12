@@ -97,6 +97,7 @@ internal data class ApocalypseV3Director(
     val factionStates: List<String> = defaultApocalypseFactionStates(),
     val characterArcs: List<String> = defaultApocalypseCharacterArcs(),
     val foreshadowPlan: List<String> = defaultApocalypseForeshadowPlan(),
+    val storyThreads: List<ApocalypseStoryThreadV5> = defaultApocalypseStoryThreadsV5(),
     val characterDossiers: List<ApocalypseCharacterDossierV5> = emptyList(),
     val foreshadowLedger: List<ApocalypseForeshadowV5> = defaultApocalypseForeshadowLedgerV5(),
     val recentBeatTypes: List<String> = emptyList(),
@@ -620,6 +621,7 @@ private fun encodeApocalypseV3Director(value: ApocalypseV3Director): JSONObject 
     .put("factionStates", JSONArray(value.factionStates))
     .put("characterArcs", JSONArray(value.characterArcs))
     .put("foreshadowPlan", JSONArray(value.foreshadowPlan))
+    .put("storyThreads", encodeApocalypseStoryThreadsV5(value.storyThreads))
     .put("characterDossiers", encodeApocalypseCharacterDossiersV5(value.characterDossiers))
     .put("foreshadowLedger", encodeApocalypseForeshadowLedgerV5(value.foreshadowLedger))
     .put("recentBeatTypes", JSONArray(value.recentBeatTypes))
@@ -683,6 +685,8 @@ private fun decodeApocalypseV3Director(json: JSONObject): ApocalypseV3Director {
         factionStates = json.optJSONArray("factionStates").v3Strings().ifEmpty { defaults.factionStates },
         characterArcs = json.optJSONArray("characterArcs").v3Strings().ifEmpty { defaults.characterArcs },
         foreshadowPlan = json.optJSONArray("foreshadowPlan").v3Strings().ifEmpty { defaults.foreshadowPlan },
+        storyThreads = decodeApocalypseStoryThreadsV5(json.optJSONArray("storyThreads"))
+            .ifEmpty { defaults.storyThreads },
         characterDossiers = decodeApocalypseCharacterDossiersV5(json.optJSONArray("characterDossiers")),
         foreshadowLedger = decodeApocalypseForeshadowLedgerV5(json.optJSONArray("foreshadowLedger"))
             .ifEmpty { defaults.foreshadowLedger },

@@ -84,8 +84,23 @@ internal fun apocalypseCinematicDirectorBibleV5(save: ApocalypseV3Save): String 
     appendLine("人物弧=${save.director.characterArcs.joinToString("｜")}")
     appendLine("势力状态=${save.director.factionStates.joinToString("｜")}")
     appendLine("伏笔计划=${save.director.foreshadowPlan.joinToString("｜")}")
-    appendLine("结构化伏笔账本=\n${apocalypseForeshadowLedgerPromptV5(save.director.foreshadowLedger)}")
-    appendLine("结构化角色档案=\n${apocalypseCharacterDossiersPromptV5(save.director.characterDossiers)}")
+    val directorThreads = save.director.storyThreads
+        .filter { it.status != "resolved" && it.status != "abandoned" }
+        .sortedByDescending { it.lastTouchedScene }
+        .take(12)
+    appendLine("结构化明暗线账本=\n${apocalypseStoryThreadsPromptV5(directorThreads)}")
+    val directorForeshadows = save.director.foreshadowLedger
+        .filter { it.stage != "paid_off" && it.stage != "abandoned" }
+        .sortedWith(compareBy<ApocalypseForeshadowV5> { it.targetPayoffEnd }.thenByDescending { it.lastTouchedScene })
+        .take(12)
+    appendLine("结构化伏笔账本=\n${apocalypseForeshadowLedgerPromptV5(directorForeshadows)}")
+    val directorDossiers = save.director.characterDossiers
+        .sortedWith(
+            compareByDescending<ApocalypseCharacterDossierV5> { it.id in save.director.presentCharacterIds }
+                .thenByDescending { it.lastSeenScene },
+        )
+        .take(16)
+    appendLine("结构化角色档案=\n${apocalypseCharacterDossiersPromptV5(directorDossiers)}")
     appendLine("最近场景类型=${save.director.recentBeatTypes.joinToString("｜")}")
     appendLine("最近情绪转折=${save.director.recentEmotionalTurns.joinToString("｜")}")
     val presentIds = if (save.director.presentCharacterStateKnown) save.director.presentCharacterIds else save.partyIds

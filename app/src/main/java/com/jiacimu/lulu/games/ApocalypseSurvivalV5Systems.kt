@@ -120,11 +120,62 @@ internal fun ApocalypseObjectivePanelV5(director: ApocalypseV3Director) {
                 Text("当前目标", color = SystemInk, fontWeight = FontWeight.Black, fontSize = 17.sp)
             }
             Text(director.sceneGoal, color = SystemInk, fontSize = 12.sp, lineHeight = 18.sp)
-            director.activeThreads.take(4).forEach { thread ->
+            val visibleThreads = director.storyThreads
+                .filter { it.visibility == "main" && it.status == "active" }
+                .map { "${it.title}：${it.currentState}" }
+                .take(4)
+                .ifEmpty { director.activeThreads.take(4) }
+            visibleThreads.forEach { thread ->
                 Row(verticalAlignment = Alignment.Top) {
                     Text("•", color = SystemBlue, fontWeight = FontWeight.Black)
                     Spacer(Modifier.width(7.dp))
                     Text(thread, color = SystemMuted, fontSize = 11.sp, lineHeight = 17.sp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+internal fun ApocalypseCharacterStatePanelV5(dossiers: List<ApocalypseCharacterDossierV5>) {
+    if (dossiers.isEmpty()) return
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = Color.White,
+        shape = RoundedCornerShape(18.dp),
+        border = BorderStroke(1.dp, SystemBorder),
+    ) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Outlined.Groups, null, tint = SystemBlue, modifier = Modifier.size(19.dp))
+                Spacer(Modifier.width(7.dp))
+                Text("人物状态", color = SystemInk, fontWeight = FontWeight.Black, fontSize = 17.sp)
+            }
+            dossiers.sortedByDescending { it.lastSeenScene }.take(12).forEach { dossier ->
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(dossier.name, color = SystemInk, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        Spacer(Modifier.width(6.dp))
+                        val statusLabel = when (dossier.status) {
+                            "away" -> "离屏"
+                            "missing" -> "失联"
+                            "dead" -> "死亡"
+                            else -> "活动中"
+                        }
+                        Text(statusLabel, color = SystemBlue, fontSize = 9.sp)
+                    }
+                    Text(
+                        listOf(dossier.currentLocation, dossier.physicalState, dossier.emotionalState)
+                            .filter(String::isNotBlank)
+                            .joinToString(" · ")
+                            .ifBlank { "状态尚未在剧情中确认" },
+                        color = SystemMuted,
+                        fontSize = 10.sp,
+                        lineHeight = 15.sp,
+                    )
+                    dossier.offscreenIntent.takeIf(String::isNotBlank)?.let { intent ->
+                        Text("当前打算：$intent", color = SystemMuted, fontSize = 9.sp, lineHeight = 14.sp)
+                    }
                 }
             }
         }

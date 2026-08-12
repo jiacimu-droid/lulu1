@@ -186,14 +186,22 @@ internal fun ApocalypseSurvivalAppV5(
             characters.keys.firstOrNull()?.let(::listOf).orEmpty()
         }
         val names = party.map { id -> characters[id]?.displayName ?: MigratedDomainStores.characters.get(id).displayName }
+        val partySettings = party.map { id -> characters[id] ?: MigratedDomainStores.characters.get(id) }
+        val initialDirector = initialApocalypseV3Director()
         return ApocalypseV3Save(
             id = UUID.randomUUID().toString(),
             scene = 1,
             partyIds = party,
             narration = tagApocalypseNarrationAsNarrator(initialApocalypseV3Scene(names)),
-            director = initialApocalypseV3Director().copy(
+            director = initialDirector.copy(
                 presentCharacterIds = party,
                 presentCharacterStateKnown = true,
+                characterDossiers = ensureApocalypsePartyDossiersV5(
+                    previous = initialDirector.characterDossiers,
+                    party = partySettings,
+                    location = initialDirector.location,
+                    scene = 1,
+                ),
             ),
             stats = ApocalypseV3Stats(),
         )
@@ -205,13 +213,32 @@ internal fun ApocalypseSurvivalAppV5(
             storage.save(it)
         }
         save = current
+        val currentParty = current.partyIds.map { id -> characters[id] ?: MigratedDomainStores.characters.get(id) }
+        val ensuredDossiers = ensureApocalypsePartyDossiersV5(
+            previous = current.director.characterDossiers,
+            party = currentParty,
+            location = current.director.location,
+            scene = current.scene,
+        )
+        if (ensuredDossiers != current.director.characterDossiers) {
+            current = current.copy(director = current.director.copy(characterDossiers = ensuredDossiers))
+            save = current
+            storage.save(current)
+        }
         if (current.partyIds.isEmpty() && gameState.selectedCharacterIds.isNotEmpty()) {
             val restoredParty = gameState.selectedCharacterIds.take(4)
+            val restoredSettings = restoredParty.map { id -> characters[id] ?: MigratedDomainStores.characters.get(id) }
             current = current.copy(
                 partyIds = restoredParty,
                 director = current.director.copy(
                     presentCharacterIds = current.director.presentCharacterIds.ifEmpty { restoredParty },
                     presentCharacterStateKnown = true,
+                    characterDossiers = ensureApocalypsePartyDossiersV5(
+                        previous = current.director.characterDossiers,
+                        party = restoredSettings,
+                        location = current.director.location,
+                        scene = current.scene,
+                    ),
                 ),
             )
             save = current
@@ -236,12 +263,20 @@ internal fun ApocalypseSurvivalAppV5(
     fun clearStoryHistory() {
         val current = save ?: return
         val names = current.partyIds.map { id -> characters[id]?.displayName ?: MigratedDomainStores.characters.get(id).displayName }
+        val partySettings = current.partyIds.map { id -> characters[id] ?: MigratedDomainStores.characters.get(id) }
+        val initialDirector = initialApocalypseV3Director()
         val reset = current.copy(
             scene = 1,
             narration = tagApocalypseNarrationAsNarrator(initialApocalypseV3Scene(names)),
-            director = initialApocalypseV3Director().copy(
+            director = initialDirector.copy(
                 presentCharacterIds = current.partyIds,
                 presentCharacterStateKnown = true,
+                characterDossiers = ensureApocalypsePartyDossiersV5(
+                    previous = initialDirector.characterDossiers,
+                    party = partySettings,
+                    location = initialDirector.location,
+                    scene = 1,
+                ),
             ),
             stats = ApocalypseV3Stats(),
             log = emptyList(),
@@ -971,6 +1006,7 @@ private fun ApocalypseV5ArchivePage(
                 }
                 item { ApocalypseV5StatusPanel(save.stats, save.director.phase, save.director.location) }
                 item { ApocalypseObjectivePanelV5(save.director) }
+                item { ApocalypseCharacterStatePanelV5(save.director.characterDossiers) }
                 item { ApocalypseBaseDashboardV5(save) }
                 item { ApocalypseV5SectionTitle("剧情记录", "新记录可逐幕回滚删除；删除某幕会同步删除它之后依赖该幕的剧情与状态") }
 
@@ -1517,6 +1553,10 @@ private fun ApocalypseV5StatusPanel(stats: ApocalypseV3Stats, phase: String, loc
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 ApocalypseV5StatusValue("晶核", stats.crystalCores.toString())
                 ApocalypseV5StatusValue("空间", "Lv.${stats.playerAbilityLevel}")
+                ApocalypseV5StatusValue(
+                    "经验",
+                    if (stats.playerAbilityLevel >= 5) "MAX" else "${stats.playerAbilityXp}/${abilityXpThresholdV3(stats.playerAbilityLevel)}",
+                )
                 ApocalypseV5StatusValue("容量", "${playerSpaceCapacityM3(stats.playerAbilityLevel)}m³")
                 ApocalypseV5StatusValue("基地", if (stats.baseLevel <= 0) "无" else "Lv.${stats.baseLevel}")
             }

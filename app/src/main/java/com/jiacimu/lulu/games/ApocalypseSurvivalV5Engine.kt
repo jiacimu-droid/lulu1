@@ -95,6 +95,7 @@ private fun apocalypseWriterCanonPackV5(save: ApocalypseV3Save): String = buildS
     val director = save.director
     appendLine("不可改写的近期正史=${director.worldFacts.takeLast(14).joinToString("｜").ifBlank { "暂无新增正史" }}")
     appendLine("当前明线=${director.activeThreads.takeLast(5).joinToString("｜")}")
+    appendLine("结构化剧情线账本=\n${apocalypseStoryThreadsPromptV5(director.storyThreads.filter { it.status == "active" || it.status == "dormant" }.sortedByDescending { it.lastTouchedScene }.take(10))}")
     appendLine("人物/关系状态=${director.characterArcs.takeLast(8).joinToString("｜")}")
     appendLine(
         "当前在场角色id=" + if (director.presentCharacterStateKnown) {
@@ -105,6 +106,14 @@ private fun apocalypseWriterCanonPackV5(save: ApocalypseV3Save): String = buildS
     )
     appendLine("已获得关键资产=${director.assets.takeLast(20).joinToString("｜") { "${it.kind.label}:${it.title}×${it.quantity}" }.ifBlank { "无" }}")
     appendLine("已知地点=${director.locations.takeLast(16).joinToString("｜") { it.name }}")
+}
+
+private fun apocalypseWriterForeshadowPackV5(director: ApocalypseV3Director): String {
+    val active = director.foreshadowLedger
+        .filter { it.stage != "paid_off" && it.stage != "abandoned" }
+        .sortedWith(compareBy<ApocalypseForeshadowV5> { it.targetPayoffEnd }.thenByDescending { it.lastTouchedScene })
+        .take(7)
+    return apocalypseForeshadowLedgerPromptV5(active)
 }
 
 /**
@@ -118,7 +127,13 @@ internal fun shouldPlanApocalypseV5Beat(save: ApocalypseV3Save, action: String):
     // them should pin the game into an expensive director call on every single scene.
     val periodicUrgency = save.director.tension >= 8 ||
         save.director.longTermPlan.size < 8 ||
-        save.director.foreshadowLedger.any { it.stage == "ripe" }
+        save.director.foreshadowLedger.any {
+            it.stage == "ripe" ||
+                (it.stage != "paid_off" && it.stage != "abandoned" && nextScene >= it.targetPayoffEnd - 1)
+        } ||
+        save.director.storyThreads.any {
+            it.status == "active" && it.lastTouchedScene in 1 until (nextScene - 8)
+        }
     if (periodicUrgency && nextScene % 3 == 0) return true
     // Local purchases, searches, fights, conversations and training are persisted by the writer's
     // one-call scene receipt. Wake the expensive director only when the long blueprint itself may move.
@@ -213,7 +228,7 @@ internal suspend fun planApocalypseV5Beat(
         - 角色在本局里的身份、关系、经历只由当前存档的世界事实、导演状态、保留剧情记录和上一幕决定。已经从存档删除的剧情不得靠推测重建。
 
         返回字段：phase, location, sceneGoal, beatType, tension, activeThreads, hiddenThreads, worldFacts,
-        longTermPlan, factionStates, characterArcs, foreshadowPlan, characterDossiers, foreshadowLedger,
+        longTermPlan, factionStates, characterArcs, foreshadowPlan, storyThreads, characterDossiers, foreshadowLedger,
         worldDelta, directive, openingHook, pressureEscalation, emotionalTurn, closingHook, sceneValueShift,
         focusCharacterIds, presentCharacterIds:[characterId], foreshadowMoves, awakenCompanionIds:[characterId],
         moneyDelta, foodDelta, waterDelta, medicineDelta, materialsDelta, coresFound, playerAbilityXpGain, baseDelta,
@@ -222,11 +237,14 @@ internal suspend fun planApocalypseV5Beat(
         kind只能 food|water|medicine|material|tool|weapon|vehicle|key|document|clue|map|core。
 
         characterDossiers是本幕新增或发生变化的角色编剧档案数组；未变化人物无需重复返回，返回的人物必须给出完整对象。每项字段为：
-        {id,name,storyRole,publicGoal,privateNeed,fear,secret,contradiction,bottomLine,relationshipWeb,arcStage,lastAdvancedScene,status}。
-        同行者沿用其characterId；原创长期NPC使用稳定id（如npc_luo_yan），后续不得换id或换名。只返回真正会持续出现或影响剧情的人物，最多24名。
+        {id,name,storyRole,publicGoal,privateNeed,fear,secret,contradiction,bottomLine,relationshipWeb,arcStage,lastAdvancedScene,status,currentLocation,physicalState,emotionalState,knowledge,carriedItems,offscreenIntent,lastSeenScene}。
+        同行者沿用其characterId；原创长期NPC使用稳定id（如npc_luo_yan），后续不得换id或换名。只返回本幕新增或变化的人物，单次最多8名；总档案由客户端长期保存，不能用不再返回表示删除。
         foreshadowLedger是本幕新增或发生变化的伏笔状态数组；未触碰伏笔无需重复返回，返回的伏笔必须给出完整对象。每项字段为：
         {id,title,hiddenTruth,visibleEvidence,surfaceMeaning,stage,plantedScene,lastTouchedScene,targetPayoffStart,targetPayoffEnd,payoffConsequence,linkedCharacterIds}。
-        stage只能seeded|echoed|distorted|ripe|paid_off|abandoned；最多18条。visibleEvidence只能写玩家在保留剧情中真正见过的证据。
+        stage只能seeded|echoed|distorted|ripe|paid_off|abandoned；单次最多6条。visibleEvidence只能写玩家在保留剧情中真正见过的证据。
+        storyThreads是发生变化的明线/暗线账本数组；未变化无需重复返回。每项字段为：
+        {id,title,visibility,currentState,nextPressure,status,lastTouchedScene,linkedCharacterIds,linkedForeshadowIds}。
+        visibility只能main|hidden；status只能active|dormant|resolved|abandoned。必须沿用稳定id，不得把同一条线换名重建。
 
         导演原则：
         1. 必须提前维护数月到数年的剧情蓝图、势力状态、人物弧和伏笔回收计划，而不是每一幕临时编。
@@ -246,6 +264,7 @@ internal suspend fun planApocalypseV5Beat(
         14. health/stamina/infection/morale都是0—100。受伤降低health；奔跑、战斗、熬夜降低stamina；赤雨、伤口污染和感染者体液提高infection；成功、休息、关系支持可提高morale。不要无缘无故大幅波动。
         15. foodDelta/waterDelta必须包含真实消耗与搜集的净变化；长时间行动不能人人永远不喝水不吃东西。基地等级越高，休息恢复、净水、医疗和长期生产才越可靠。
         15a. moneyDelta是本幕真实发生的资金净变化，单位为元：购买、付款写负数，出售、报酬、退款写正数；没有明确交易就必须为0，绝不能为了配合物资变化凭空扣钱或加钱。余额不足时不能完成超额购买。灾前和灾变初期金钱仍有效；供应链崩溃后保留余额，但交易价值应逐步让位于物资、信用、票证和劳务。
+        15b. 历史字段名coresFound实际按“晶核净变化”结算：取得晶核为正，吸收、交易或消耗晶核为负，不变为0；不能花费超过现有晶核。baseDelta同样是基地等级净变化，建设可+1，严重受损或主动废弃可-1，必须有正文因果。
         16. 故事必须有“电影呼吸”：连续高压2—3幕后安排低压段落，让人物做饭、疗伤、守夜、修车、谈心、争执或整理遗物；安静段也必须推进关系或信息。
         17. 每4—7幕至少让一个旧细节获得新意义；每8—14幕才允许一次真正改变局面的阶段性大场面或重大回收。不要每幕反转，也不要连续十几幕没有任何兑现。
         18. 同时维护生存层、人际/势力层、长期谜团层。单幕突出1—2层即可，第三层只留可回看的微小痕迹，避免百科全书式解释。
@@ -266,6 +285,8 @@ internal suspend fun planApocalypseV5Beat(
         33. 只输出本幕真正需要的一个openingHook和一个closingHook。不要每幕都用反转结尾；悬念、情感余震、承诺、倒计时、发现、艰难选择或短暂胜利都可以成为不同类型的钩子，最近使用过的节拍和情绪转折应避免重复。
         34. phase不得自由发挥，必须与输入中的真实dayIndex一致。灾前七天是按真实时间流逝的完整游玩期，不是七幕倒计时；不得为了制造紧张提前进入全面管制、封城、征用或供应链崩溃。
         35. presentCharacterIds是本幕结束时与玩家处在同一可直接交流场景中的角色硬状态。人物离开、失散、加入现场或被留在别处必须真实更新；不在场者不能凭空接话、递物或看到现场事件。
+        36. 每个长期人物/NPC都是独立运行的角色，不是对白头像。characterDossiers必须保存其当前/最后确认地点、伤病疲劳、持续情绪、已知信息、关键随身物、离屏意图和上次在场幕数；人物离屏时允许按其目标推进，但只有玩家能合理得知的结果才能写进正文。
+        37. storyThreads是明线暗线的连续性账本。每个新冲突、承诺、谜题或长期目标都要么归入既有稳定id，要么建立新id；推进时更新currentState和nextPressure，解决时标记resolved，玩家选择使其失效时标记abandoned并说明因果去向。禁止用不断开新线掩盖旧线。
     """.trimIndent()
 
     return LuluAiServices.gateway.generate(
@@ -336,7 +357,7 @@ internal suspend fun writeApocalypseV5Scene(
         appendLine("行动前资源：资金¥${save.stats.money} 食${save.stats.food} 水${save.stats.water} 药${save.stats.medicine} 材料${save.stats.materials} 晶核${save.stats.crystalCores}")
         appendLine("玩家状态：生命${nextStats.health} 体力${nextStats.stamina} 感染${nextStats.infection} 士气${nextStats.morale}")
         appendLine("导演预结算后资源：资金¥${nextStats.money} 食${nextStats.food} 水${nextStats.water} 药${nextStats.medicine} 材料${nextStats.materials} 晶核${nextStats.crystalCores}；基地=${nextStats.baseName}/Lv.${nextStats.baseLevel}")
-        appendLine("结算模式：${if (usedDirector) "导演已完成硬状态结算；状态回执不得再次重复增减" else "本幕跳过导演；你必须在同一次输出的状态回执中如实结算行动后果"}")
+        appendLine("结算模式：${if (usedDirector) "导演给出的数值只是预算；你必须按最终正文重新报告本幕从行动开始到幕末的完整净变化" else "本幕跳过导演；你必须在同一次输出的状态回执中如实结算行动后果"}")
         appendLine("导演动作：${beat.beatType}；本幕目标：${beat.nextDirector.sceneGoal}")
         appendLine("世界变化：${beat.worldDelta}")
         appendLine("导演执行指令：${beat.directive}")
@@ -347,6 +368,8 @@ internal suspend fun writeApocalypseV5Scene(
         appendLine("结尾钩子：${beat.closingHook}")
         appendLine("本幕聚焦角色：${beat.focusCharacterIds.joinToString("、")}")
         appendLine("本幕伏笔动作：${beat.foreshadowMoves.joinToString("｜")}")
+        appendLine("本幕结束时明暗线账本：\n${apocalypseStoryThreadsPromptV5(beat.nextDirector.storyThreads.filter { it.status == "active" || it.status == "dormant" }.sortedByDescending { it.lastTouchedScene }.take(12))}")
+        appendLine("当前可调度伏笔账本（hiddenTruth只供幕后写作，正文绝不能直说）：\n${apocalypseWriterForeshadowPackV5(beat.nextDirector)}")
         appendLine("本幕角色编剧档案（只用于维持独特动机与潜台词；不得超出导演允许的信息预算）：\n${apocalypseCharacterDossiersPromptV5(writerDossiers)}")
         appendLine("当前实际在场角色id：${presentIds.joinToString("、").ifBlank { "无" }}")
         appendLine("本幕相关角色风格参考（只按隔离规则提取风格，不继承其中身份/关系/经历）：\n$partyPrompt")
@@ -361,15 +384,19 @@ internal suspend fun writeApocalypseV5Scene(
         $APOCALYPSE_SCENE_TEXT_MARKER_V5
         【旁白】正文……
         $APOCALYPSE_SCENE_STATE_MARKER_V5
-        {"actionAcknowledged":true,"actionOutcome":"行动造成的具体可见结果","continuitySummary":"供下一幕使用的短正史摘要","respondedCharacterIds":[],"directorRefreshNeeded":false,"location":"幕末真实地点","sceneGoal":"幕末仍待处理的近期目标","beatType":"关系/探索/生存等","emotionalTurn":"关系或情绪变化","worldFactsAdd":[],"characterStateAdds":[],"presentCharacterIds":[],"weather":"幕末天气","temperatureC":34,"minutesPassed":20,"moneyDelta":0,"foodDelta":0,"waterDelta":0,"medicineDelta":0,"materialsDelta":0,"coresFound":0,"playerAbilityXpGain":0,"baseDelta":0,"healthDelta":0,"staminaDelta":0,"infectionDelta":0,"moraleDelta":0,"discoverAssets":[]}
+        {"actionAcknowledged":true,"actionOutcome":"行动造成的具体可见结果","continuitySummary":"供下一幕使用的短正史摘要","respondedCharacterIds":[],"directorRefreshNeeded":false,"location":"幕末真实地点","sceneGoal":"幕末仍待处理的近期目标","beatType":"关系/探索/生存等","emotionalTurn":"关系或情绪变化","worldFactsAdd":[],"characterStateAdds":[],"characterStatePatches":[],"storyThreadUpdates":[],"foreshadowPatches":[],"presentCharacterIds":[],"weather":"幕末天气","temperatureC":34,"minutesPassed":20,"moneyDelta":0,"foodDelta":0,"waterDelta":0,"medicineDelta":0,"materialsDelta":0,"coresFound":0,"playerAbilityXpGain":0,"baseDelta":0,"healthDelta":0,"staminaDelta":0,"infectionDelta":0,"moraleDelta":0,"discoverAssets":[]}
         回执只能是一个合法、单行JSON对象；写完JSON立即停止。
 
         - actionOutcome必须准确说明玩家行动实际怎样发生、谁怎样回应、带来什么结果，不能写“剧情继续推进”。
         - continuitySummary用120—240字保留幕末地点、在场人物、未完成动作、关键所得/损失和关系变化，不得写后台秘密。
         - respondedCharacterIds只列本幕真正直接回应玩家发言的角色id，而且正文前半必须实际出现对应【角色:id】段。
         - presentCharacterIds只列幕末与玩家处于同一可直接交流现场的人；不在场者不能接话或看到事件。
-        - ${if (usedDirector) "导演已经结算本幕；所有数值delta必须填0，location/在场人物/幕末天气仍须如实报告。" else "本幕没有导演结算；交易、搜集、消耗、受伤、移动、时间、天气和关系变化必须在此状态块真实落账，并与正文完全一致。"}
+        - 无论本幕是否调用导演，回执都是最终唯一结算凭据。所有delta必须报告“行动开始状态→幕末状态”的完整净变化，不能因为导演给过预算就填0；交易、搜集、饮食、受伤、感染、休息、时间、天气和能力成长必须与正文一致。
+        - 历史字段名coresFound按晶核净变化填写：获得为正，吸收/交易/消耗为负；baseDelta按基地等级净变化填写，受损或废弃可以为-1。
         - worldFactsAdd最多4条，只记录以后不可装作没发生的事实；characterStateAdds最多3条，只记录可持续的人际/立场变化。临时动作不要滥记。
+        - characterStatePatches只更新本幕真正变化或离屏行动被确认的人物，最多4人：[{"id":"稳定角色id","currentLocation":"当前/最后确认地点","physicalState":"伤病疲劳等","emotionalState":"可持续情绪与立场","knowledgeAdds":[],"carriedItems":[],"relationshipChanges":[],"offscreenIntent":"下一步独立打算","status":"active/away/missing/dead","lastSeenScene":${nextScene}}]。没有变化的字段可省略；carriedItems一旦给出视为完整随身物快照。
+        - storyThreadUpdates只更新本幕真正推进、转向、解决或放弃的明线/暗线，最多3条，字段为{id,title,visibility,currentState,nextPressure,status,lastTouchedScene,linkedCharacterIds,linkedForeshadowIds}；同一条线必须沿用已有id。
+        - foreshadowPatches只更新本幕真正出现可观察细节的已有伏笔，最多2条，字段为{id,stage,evidenceAdds,surfaceMeaning,linkedCharacterIds,lastTouchedScene}。evidenceAdds只能写玩家确实看到/听到/可靠确认的证据，绝不能写hiddenTruth。
         - directorRefreshNeeded只有在玩家行动使长期蓝图换轨、重要人物/势力结构改变或阶段目标失效时才为true；普通对话、采购、搜索、战斗和训练不需要。
         - discoverAssets格式为[{"id":"稳定或新id","kind":"food|water|medicine|material|tool|weapon|vehicle|key|document|clue|map|core","title":"名称","detail":"来源与状态","quantity":1,"tag":""}]。
 
@@ -404,6 +431,8 @@ internal suspend fun writeApocalypseV5Scene(
         - 时间和身体状态是硬状态：当前时刻、天气、生命、体力、感染、士气必须反映在行动能力和描写里。疲劳时不能像满状态一样连续高强度战斗；高感染要出现现实后果但不能直接无判定宣判死亡。
         - 基地能力按等级逐步解锁：Lv1安全睡眠/储物，Lv2净水/医疗，Lv3供电/工坊，Lv4防御/通信，Lv5持续生产。不能让低级临时据点凭空拥有完整城市功能。
         - 让场景像电影而不是剧情摘要：用可感知的环境变化、动作、停顿、声音、光线和人物反应承载信息；避免角色站着互相讲设定。
+        - 文笔采用成熟类型小说的场景写法：保持清晰视点，让感官细节服务于危险、欲望和人物判断；长短句随节奏变化，少用套话、空泛形容词、连续比喻和解释性总结。不要模仿或复刻任何具体作品、作者、角色或名句。
+        - 末世氛围必须随阶段变化。灾前写“日常仍在运转却出现不协调细节”的反差；失序初期写基础设施、信息与人群秩序逐步断裂；长期阶段写污染生态、维护劳动和新秩序。不能从第一天起始终用同一种阴暗滤镜。
         - 对话要有潜台词和人物差异。重要人物可以避而不答、说半句、误解、改口或在行动中表达立场，但不能为了悬念故意全员谜语人。
         - 严格执行开场钩子→压力升级→情绪转折→结尾钩子的因果节拍，但不要把这些词写进正文。开场钩子必须尽早出现；结尾钩子必须从本幕已有因果长出来。
         - 聚焦角色要通过选择、动作、措辞、隐瞒方式和对他人的态度显出魅力与矛盾，禁止用旁白直接总结“他很神秘/强大/温柔”。配角不必人人发言。
@@ -420,7 +449,7 @@ internal suspend fun writeApocalypseV5Scene(
         source = "末世求生V5正文",
         title = "末世求生 · 第${nextScene}幕",
         temperature = 0.80,
-        maxTokens = 1700,
+        maxTokens = 2100,
         usage = ModelUsage.Game,
         contextMode = CompanionContextMode.PersonaAndScenario,
         streamResponse = true,
@@ -439,9 +468,15 @@ internal suspend fun writeApocalypseV5Scene(
     val repairFacts = buildString {
         appendLine("玩家行动原文：$action")
         appendLine("时空=${apocalypseDayLabelV5(promptDirector.dayIndex)} ${apocalypseClockLabelV5(promptDirector.clockMinutes)}｜${promptDirector.location}")
+        appendLine("行动前数值：资金¥${save.stats.money} 食${save.stats.food} 水${save.stats.water} 药${save.stats.medicine} 材料${save.stats.materials} 晶核${save.stats.crystalCores}；生命${save.stats.health} 体力${save.stats.stamina} 感染${save.stats.infection} 士气${save.stats.morale}；基地Lv.${save.stats.baseLevel}")
+        appendLine("导演预算后数值（仅供核对，不是最终结算）：资金¥${nextStats.money} 食${nextStats.food} 水${nextStats.water} 药${nextStats.medicine} 材料${nextStats.materials} 晶核${nextStats.crystalCores}；生命${nextStats.health} 体力${nextStats.stamina} 感染${nextStats.infection} 士气${nextStats.morale}；基地Lv.${nextStats.baseLevel}")
+        appendLine(playerSpacePrompt(save.stats))
+        appendLine(apocalypsePlayerSecondaryPromptV5(config))
         appendLine("当前在场角色id=${presentIds.joinToString("、").ifBlank { "无" }}")
         appendLine("相关角色风格：\n$partyPrompt")
         appendLine("硬状态：\n${apocalypseWriterCanonPackV5(save)}")
+        appendLine("角色动态档案：\n${apocalypseCharacterDossiersPromptV5(writerDossiers)}")
+        appendLine("伏笔账本：\n${apocalypseWriterForeshadowPackV5(beat.nextDirector)}")
         appendLine("上一幕衔接：\n${apocalypseRecentContinuityV5(save)}")
         appendLine("【不合格初稿｜只用于修正，不是正史】")
         append(firstOutcome.text.take(3_200))
@@ -454,7 +489,7 @@ internal suspend fun writeApocalypseV5Scene(
         $APOCALYPSE_SCENE_TEXT_MARKER_V5
         【旁白】或【角色:id】格式的正文
         $APOCALYPSE_SCENE_STATE_MARKER_V5
-        最后一行输出合法JSON，至少包含actionAcknowledged、actionOutcome、continuitySummary、respondedCharacterIds、presentCharacterIds、minutesPassed以及所有资源delta；未变化的delta填0。
+        最后一行输出合法JSON，至少包含actionAcknowledged、actionOutcome、continuitySummary、respondedCharacterIds、presentCharacterIds、characterStatePatches、storyThreadUpdates、foreshadowPatches、minutesPassed以及所有资源/身体delta；未变化的delta填0。所有delta都表示行动开始到幕末的最终净变化，不能因导演预算而省略。
     """.trimIndent()
     return LuluAiServices.gateway.generate(
         characterId = APOCALYPSE_ISOLATED_CHARACTER_ID,
@@ -463,7 +498,7 @@ internal suspend fun writeApocalypseV5Scene(
         source = "末世求生V5正文返工",
         title = "末世求生 · 第${nextScene}幕返工",
         temperature = 0.68,
-        maxTokens = 1350,
+        maxTokens = 1700,
         usage = ModelUsage.Game,
         contextMode = CompanionContextMode.PersonaAndScenario,
         streamResponse = true,
@@ -519,6 +554,7 @@ private fun parseApocalypseV5Beat(
     val emotionalTurn = json.optString("emotionalTurn").take(320)
     val dossierUpdates = decodeApocalypseCharacterDossiersV5(json.optJSONArray("characterDossiers"))
     val foreshadowUpdates = decodeApocalypseForeshadowLedgerV5(json.optJSONArray("foreshadowLedger"))
+    val storyThreadUpdates = decodeApocalypseStoryThreadsV5(json.optJSONArray("storyThreads"))
     val absoluteMinutes = previous.clockMinutes + minutesPassed
     val dayAdvance = absoluteMinutes / 1440
     val nextClockMinutes = absoluteMinutes % 1440
@@ -557,6 +593,7 @@ private fun parseApocalypseV5Beat(
         factionStates = json.optJSONArray("factionStates").v5Strings().ifEmpty { previous.factionStates }.take(14),
         characterArcs = json.optJSONArray("characterArcs").v5Strings().ifEmpty { previous.characterArcs }.take(14),
         foreshadowPlan = json.optJSONArray("foreshadowPlan").v5Strings().ifEmpty { previous.foreshadowPlan }.take(14),
+        storyThreads = mergeApocalypseStoryThreadsV5(previous.storyThreads, storyThreadUpdates),
         characterDossiers = mergedDossiers,
         foreshadowLedger = mergeApocalypseForeshadowLedgerV5(previous.foreshadowLedger, foreshadowUpdates),
         recentBeatTypes = (previous.recentBeatTypes + beatType).takeLast(8),
@@ -596,9 +633,9 @@ private fun parseApocalypseV5Beat(
         waterDelta = json.optInt("waterDelta").coerceIn(-4, 4),
         medicineDelta = json.optInt("medicineDelta").coerceIn(-4, 4),
         materialsDelta = json.optInt("materialsDelta").coerceIn(-4, 4),
-        coresFound = json.optInt("coresFound").coerceIn(0, 4),
+        coresFound = json.optInt("coresFound").coerceIn(-99, 99),
         playerAbilityXpGain = json.optInt("playerAbilityXpGain").coerceIn(0, 5),
-        baseDelta = json.optInt("baseDelta").coerceIn(0, 1),
+        baseDelta = json.optInt("baseDelta").coerceIn(-1, 1),
         healthDelta = json.optInt("healthDelta").coerceIn(-35, 20),
         staminaDelta = json.optInt("staminaDelta").coerceIn(-45, 40),
         infectionDelta = json.optInt("infectionDelta").coerceIn(-15, 30),

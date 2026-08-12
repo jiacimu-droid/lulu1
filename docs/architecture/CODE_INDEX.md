@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`7d88b1b771677bd59fe383d5ea85544852852074`
-- 分支：`main`
+- 基准提交：`local`
+- 分支：`local`
 - 已索引文件：161
-- 已索引代码/文本行：47013
+- 已索引代码/文本行：47541
 - 已发现符号：648
 
 | 文件 | 行数 | 符号数 |
@@ -84,20 +84,20 @@
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 48 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 93 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseDramaticLedgerV5.kt` | 288 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseDramaticLedgerV5.kt` | 583 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseFlowRowCompat.kt` | 34 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt` | 180 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt` | 349 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSceneOutcomeV5.kt` | 322 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseStoryDirectorV5.kt` | 104 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt` | 352 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSceneOutcomeV5.kt` | 405 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseStoryDirectorV5.kt` | 119 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt` | 1382 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt` | 762 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt` | 766 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Screen.kt` | 1208 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt` | 1053 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4Engine.kt` | 237 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt` | 1572 | 12 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Engine.kt` | 659 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Systems.kt` | 176 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt` | 1612 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Engine.kt` | 696 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Systems.kt` | 227 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseVisualNovelPresentation.kt` | 171 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldEvolutionV5.kt` | 170 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt` | 639 | 0 |

@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.games
 
+import com.jiacimu.lulu.data.CharacterSettings
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -17,6 +18,48 @@ internal data class ApocalypseCharacterDossierV5(
     val arcStage: String,
     val lastAdvancedScene: Int,
     val status: String = "active",
+    /** Dynamic save-state. These fields belong to this game world, not the companion's main memory. */
+    val currentLocation: String = "",
+    val physicalState: String = "",
+    val emotionalState: String = "",
+    val knowledge: List<String> = emptyList(),
+    val carriedItems: List<String> = emptyList(),
+    val offscreenIntent: String = "",
+    val lastSeenScene: Int = 0,
+)
+
+internal data class ApocalypseCharacterStatePatchV5(
+    val id: String,
+    val currentLocation: String? = null,
+    val physicalState: String? = null,
+    val emotionalState: String? = null,
+    val knowledgeAdds: List<String> = emptyList(),
+    val carriedItems: List<String>? = null,
+    val relationshipChanges: List<String> = emptyList(),
+    val offscreenIntent: String? = null,
+    val status: String? = null,
+    val lastSeenScene: Int? = null,
+)
+
+internal data class ApocalypseStoryThreadV5(
+    val id: String,
+    val title: String,
+    val visibility: String,
+    val currentState: String,
+    val nextPressure: String,
+    val status: String = "active",
+    val lastTouchedScene: Int = 0,
+    val linkedCharacterIds: List<String> = emptyList(),
+    val linkedForeshadowIds: List<String> = emptyList(),
+)
+
+internal data class ApocalypseForeshadowPatchV5(
+    val id: String,
+    val stage: String? = null,
+    val evidenceAdds: List<String> = emptyList(),
+    val surfaceMeaning: String? = null,
+    val linkedCharacterIds: List<String> = emptyList(),
+    val lastTouchedScene: Int? = null,
 )
 
 internal data class ApocalypseForeshadowV5(
@@ -102,6 +145,79 @@ internal fun defaultApocalypseForeshadowLedgerV5(): List<ApocalypseForeshadowV5>
     ),
 )
 
+internal fun defaultApocalypseStoryThreadsV5(): List<ApocalypseStoryThreadV5> = listOf(
+    ApocalypseStoryThreadV5(
+        id = "countdown_preparation",
+        title = "七日倒计时与生存准备",
+        visibility = "main",
+        currentState = "玩家刚收到七日预警，城市秩序仍正常，准备窗口完整开放。",
+        nextPressure = "在不暴露异常优势的前提下完成第一批采购、运输与据点判断。",
+        lastTouchedScene = 1,
+    ),
+    ApocalypseStoryThreadV5(
+        id = "b8_warning",
+        title = "B8与第一避难区警告",
+        visibility = "hidden",
+        currentState = "玩家只持有B8图纸残片和一句来源不明的避难区警告。",
+        nextPressure = "让现实中的独立细节逐步验证或质疑预警，暂不揭晓真相。",
+        lastTouchedScene = 1,
+        linkedForeshadowIds = listOf("b8_shelter", "shelter_one_warning"),
+    ),
+    ApocalypseStoryThreadV5(
+        id = "early_space_awakening",
+        title = "空间异能提前觉醒",
+        visibility = "hidden",
+        currentState = "玩家在主沉降前七天觉醒空间系，是目前唯一确认的灾前觉醒者。",
+        nextPressure = "先通过能力边界和黑色裂线留下疑问，不急于解释来源。",
+        lastTouchedScene = 1,
+        linkedForeshadowIds = listOf("space_early_awaken", "red_static_1417"),
+    ),
+)
+
+internal fun ensureApocalypsePartyDossiersV5(
+    previous: List<ApocalypseCharacterDossierV5>,
+    party: List<CharacterSettings>,
+    location: String,
+    scene: Int,
+): List<ApocalypseCharacterDossierV5> {
+    val partyById = party.associateBy { it.characterId }
+    val migrated = previous.map { dossier ->
+        val character = partyById[dossier.id] ?: return@map dossier
+        dossier.copy(
+            name = dossier.name.ifBlank { character.displayName },
+            currentLocation = dossier.currentLocation.ifBlank { "最后位置待确认" },
+            physicalState = dossier.physicalState.ifBlank { "当前身体状态待确认" },
+            emotionalState = dossier.emotionalState.ifBlank { "当前持续情绪待确认" },
+            offscreenIntent = dossier.offscreenIntent.ifBlank { "按自身性格观察局势并形成下一步判断" },
+            lastSeenScene = dossier.lastSeenScene.takeIf { it > 0 } ?: dossier.lastAdvancedScene,
+        )
+    }
+    val knownIds = migrated.mapTo(mutableSetOf()) { it.id }
+    val seeded = party.mapNotNull { character ->
+        if (!knownIds.add(character.characterId)) return@mapNotNull null
+        ApocalypseCharacterDossierV5(
+            id = character.characterId,
+            name = character.displayName,
+            storyRole = "开局同行者；具体专业、立场与本局关系必须由剧情建立",
+            publicGoal = "在七日预警与即将到来的赤潮中活下去，并形成自己的判断",
+            privateNeed = "尚未在本局显露",
+            fear = "尚未在本局显露",
+            secret = "尚未在本局建立；不得从露露机主世界资料搬运秘密",
+            contradiction = "等待通过选择、行动习惯与压力反应逐步显露",
+            bottomLine = "尚未在本局通过事件确认",
+            relationshipWeb = emptyList(),
+            arcStage = "开端：尚未对七日预警作出稳定立场",
+            lastAdvancedScene = scene,
+            currentLocation = location,
+            physicalState = "未见明确伤病",
+            emotionalState = "对异常消息的真实态度尚待本局剧情表现",
+            offscreenIntent = "留意局势并按自身性格形成下一步判断",
+            lastSeenScene = scene,
+        )
+    }
+    return (migrated + seeded).takeLast(64)
+}
+
 internal fun encodeApocalypseCharacterDossiersV5(values: List<ApocalypseCharacterDossierV5>): JSONArray =
     JSONArray().apply {
         values.forEach { value ->
@@ -119,7 +235,14 @@ internal fun encodeApocalypseCharacterDossiersV5(values: List<ApocalypseCharacte
                     .put("relationshipWeb", JSONArray(value.relationshipWeb))
                     .put("arcStage", value.arcStage)
                     .put("lastAdvancedScene", value.lastAdvancedScene)
-                    .put("status", value.status),
+                    .put("status", value.status)
+                    .put("currentLocation", value.currentLocation)
+                    .put("physicalState", value.physicalState)
+                    .put("emotionalState", value.emotionalState)
+                    .put("knowledge", JSONArray(value.knowledge))
+                    .put("carriedItems", JSONArray(value.carriedItems))
+                    .put("offscreenIntent", value.offscreenIntent)
+                    .put("lastSeenScene", value.lastSeenScene),
             )
         }
     }
@@ -143,6 +266,84 @@ internal fun decodeApocalypseCharacterDossiersV5(array: JSONArray?): List<Apocal
             arcStage = item.optString("arcStage").take(180),
             lastAdvancedScene = item.optInt("lastAdvancedScene", 0).coerceAtLeast(0),
             status = item.optString("status", "active").ifBlank { "active" }.take(40),
+            currentLocation = item.optString("currentLocation").take(100),
+            physicalState = item.optString("physicalState").take(220),
+            emotionalState = item.optString("emotionalState").take(220),
+            knowledge = item.optJSONArray("knowledge").v5LedgerStrings().distinct().takeLast(12),
+            carriedItems = item.optJSONArray("carriedItems").v5LedgerStrings().distinct().takeLast(12),
+            offscreenIntent = item.optString("offscreenIntent").take(260),
+            lastSeenScene = item.optInt("lastSeenScene", item.optInt("lastAdvancedScene", 0)).coerceAtLeast(0),
+        )
+    }
+
+internal fun encodeApocalypseStoryThreadsV5(values: List<ApocalypseStoryThreadV5>): JSONArray =
+    JSONArray().apply {
+        values.forEach { value ->
+            put(
+                JSONObject()
+                    .put("id", value.id)
+                    .put("title", value.title)
+                    .put("visibility", value.visibility)
+                    .put("currentState", value.currentState)
+                    .put("nextPressure", value.nextPressure)
+                    .put("status", value.status)
+                    .put("lastTouchedScene", value.lastTouchedScene)
+                    .put("linkedCharacterIds", JSONArray(value.linkedCharacterIds))
+                    .put("linkedForeshadowIds", JSONArray(value.linkedForeshadowIds)),
+            )
+        }
+    }
+
+internal fun decodeApocalypseStoryThreadsV5(array: JSONArray?): List<ApocalypseStoryThreadV5> =
+    array.v5LedgerObjects { item ->
+        val id = item.optString("id").trim()
+        val title = item.optString("title").trim()
+        if (id.isBlank() || title.isBlank()) return@v5LedgerObjects null
+        if (listOf("visibility", "currentState", "nextPressure", "status", "lastTouchedScene").any { !item.has(it) }) {
+            return@v5LedgerObjects null
+        }
+        ApocalypseStoryThreadV5(
+            id = id.take(80),
+            title = title.take(100),
+            visibility = normalizeApocalypseThreadVisibilityV5(item.optString("visibility", "main")),
+            currentState = item.optString("currentState").take(360),
+            nextPressure = item.optString("nextPressure").take(320),
+            status = normalizeApocalypseThreadStatusV5(item.optString("status", "active")),
+            lastTouchedScene = item.optInt("lastTouchedScene", 0).coerceAtLeast(0),
+            linkedCharacterIds = item.optJSONArray("linkedCharacterIds").v5LedgerStrings().distinct().take(8),
+            linkedForeshadowIds = item.optJSONArray("linkedForeshadowIds").v5LedgerStrings().distinct().take(8),
+        )
+    }
+
+internal fun decodeApocalypseCharacterStatePatchesV5(array: JSONArray?): List<ApocalypseCharacterStatePatchV5> =
+    array.v5LedgerObjects { item ->
+        val id = item.optString("id").trim()
+        if (id.isBlank()) return@v5LedgerObjects null
+        ApocalypseCharacterStatePatchV5(
+            id = id.take(80),
+            currentLocation = item.optionalLedgerStringV5("currentLocation", 100),
+            physicalState = item.optionalLedgerStringV5("physicalState", 220),
+            emotionalState = item.optionalLedgerStringV5("emotionalState", 220),
+            knowledgeAdds = item.optJSONArray("knowledgeAdds").v5LedgerStrings().distinct().take(6),
+            carriedItems = item.optJSONArray("carriedItems")?.v5LedgerStrings()?.distinct()?.take(12),
+            relationshipChanges = item.optJSONArray("relationshipChanges").v5LedgerStrings().distinct().take(4),
+            offscreenIntent = item.optionalLedgerStringV5("offscreenIntent", 260),
+            status = item.optionalLedgerStringV5("status", 40),
+            lastSeenScene = item.optInt("lastSeenScene").takeIf { item.has("lastSeenScene") }?.coerceAtLeast(0),
+        )
+    }
+
+internal fun decodeApocalypseForeshadowPatchesV5(array: JSONArray?): List<ApocalypseForeshadowPatchV5> =
+    array.v5LedgerObjects { item ->
+        val id = item.optString("id").trim()
+        if (id.isBlank()) return@v5LedgerObjects null
+        ApocalypseForeshadowPatchV5(
+            id = id.take(80),
+            stage = item.optionalLedgerStringV5("stage", 20)?.let(::normalizeApocalypseForeshadowStageV5),
+            evidenceAdds = item.optJSONArray("evidenceAdds").v5LedgerStrings().distinct().take(4),
+            surfaceMeaning = item.optionalLedgerStringV5("surfaceMeaning", 260),
+            linkedCharacterIds = item.optJSONArray("linkedCharacterIds").v5LedgerStrings().distinct().take(8),
+            lastTouchedScene = item.optInt("lastTouchedScene").takeIf { item.has("lastTouchedScene") }?.coerceAtLeast(0),
         )
     }
 
@@ -212,9 +413,81 @@ internal fun mergeApocalypseCharacterDossiersV5(
             arcStage = update.arcStage.ifBlank { old.arcStage },
             lastAdvancedScene = maxOf(old.lastAdvancedScene, update.lastAdvancedScene),
             status = update.status.ifBlank { old.status },
+            currentLocation = update.currentLocation.ifBlank { old.currentLocation },
+            physicalState = update.physicalState.ifBlank { old.physicalState },
+            emotionalState = update.emotionalState.ifBlank { old.emotionalState },
+            knowledge = (old.knowledge + update.knowledge).distinct().takeLast(12),
+            carriedItems = update.carriedItems.ifEmpty { old.carriedItems },
+            offscreenIntent = update.offscreenIntent.ifBlank { old.offscreenIntent },
+            lastSeenScene = maxOf(old.lastSeenScene, update.lastSeenScene),
         )
     }
-    return merged.values.toList().takeLast(24)
+    return merged.values.toList().takeLast(64)
+}
+
+internal fun mergeApocalypseCharacterStatePatchesV5(
+    previous: List<ApocalypseCharacterDossierV5>,
+    patches: List<ApocalypseCharacterStatePatchV5>,
+    scene: Int,
+): List<ApocalypseCharacterDossierV5> {
+    if (patches.isEmpty()) return previous
+    val patchesById = patches.associateBy { it.id }
+    return previous.map { old ->
+        val patch = patchesById[old.id] ?: return@map old
+        old.copy(
+            currentLocation = patch.currentLocation ?: old.currentLocation,
+            physicalState = patch.physicalState ?: old.physicalState,
+            emotionalState = patch.emotionalState ?: old.emotionalState,
+            knowledge = (old.knowledge + patch.knowledgeAdds).distinct().takeLast(12),
+            carriedItems = patch.carriedItems ?: old.carriedItems,
+            relationshipWeb = (old.relationshipWeb + patch.relationshipChanges).distinct().takeLast(10),
+            offscreenIntent = patch.offscreenIntent ?: old.offscreenIntent,
+            status = patch.status?.ifBlank { old.status } ?: old.status,
+            lastSeenScene = patch.lastSeenScene ?: scene,
+        )
+    }
+}
+
+internal fun mergeApocalypseStoryThreadsV5(
+    previous: List<ApocalypseStoryThreadV5>,
+    updates: List<ApocalypseStoryThreadV5>,
+): List<ApocalypseStoryThreadV5> {
+    if (updates.isEmpty()) return previous
+    val merged = LinkedHashMap<String, ApocalypseStoryThreadV5>()
+    previous.forEach { merged[it.id] = it }
+    updates.forEach { update ->
+        val old = merged[update.id]
+        merged[update.id] = if (old == null) update else update.copy(
+            title = update.title.ifBlank { old.title },
+            visibility = update.visibility.ifBlank { old.visibility },
+            currentState = update.currentState.ifBlank { old.currentState },
+            nextPressure = update.nextPressure.ifBlank { old.nextPressure },
+            status = update.status.ifBlank { old.status },
+            lastTouchedScene = maxOf(old.lastTouchedScene, update.lastTouchedScene),
+            linkedCharacterIds = (old.linkedCharacterIds + update.linkedCharacterIds).distinct().takeLast(8),
+            linkedForeshadowIds = (old.linkedForeshadowIds + update.linkedForeshadowIds).distinct().takeLast(8),
+        )
+    }
+    return merged.values.toList().takeLast(64)
+}
+
+internal fun mergeApocalypseForeshadowPatchesV5(
+    previous: List<ApocalypseForeshadowV5>,
+    patches: List<ApocalypseForeshadowPatchV5>,
+    scene: Int,
+): List<ApocalypseForeshadowV5> {
+    if (patches.isEmpty()) return previous
+    val patchesById = patches.associateBy { it.id }
+    return previous.map { old ->
+        val patch = patchesById[old.id] ?: return@map old
+        old.copy(
+            visibleEvidence = (old.visibleEvidence + patch.evidenceAdds).distinct().takeLast(8),
+            surfaceMeaning = patch.surfaceMeaning ?: old.surfaceMeaning,
+            stage = patch.stage?.let { progressedApocalypseForeshadowStageV5(old.stage, it) } ?: old.stage,
+            lastTouchedScene = maxOf(old.lastTouchedScene, patch.lastTouchedScene ?: scene),
+            linkedCharacterIds = (old.linkedCharacterIds + patch.linkedCharacterIds).distinct().takeLast(8),
+        )
+    }
 }
 
 internal fun mergeApocalypseForeshadowLedgerV5(
@@ -238,7 +511,7 @@ internal fun mergeApocalypseForeshadowLedgerV5(
             linkedCharacterIds = (old.linkedCharacterIds + update.linkedCharacterIds).distinct().takeLast(8),
         )
     }
-    return merged.values.toList().takeLast(18)
+    return merged.values.toList().takeLast(40)
 }
 
 internal fun apocalypseCharacterDossiersPromptV5(values: List<ApocalypseCharacterDossierV5>): String =
@@ -248,8 +521,17 @@ internal fun apocalypseCharacterDossiersPromptV5(values: List<ApocalypseCharacte
             append("外在目标=${value.publicGoal}；内在需求=${value.privateNeed}；恐惧=${value.fear}；")
             append("秘密=${value.secret}；矛盾魅力=${value.contradiction}；底线=${value.bottomLine}；")
             append("关系网=${value.relationshipWeb.joinToString("、")}；弧光=${value.arcStage}；上次推进=第${value.lastAdvancedScene}幕")
+            append("；当前地点=${value.currentLocation.ifBlank { "未记录" }}；身体=${value.physicalState.ifBlank { "未记录" }}；情绪=${value.emotionalState.ifBlank { "未记录" }}")
+            append("；已知=${value.knowledge.joinToString("、").ifBlank { "未记录" }}；随身=${value.carriedItems.joinToString("、").ifBlank { "未记录" }}")
+            append("；离屏意图=${value.offscreenIntent.ifBlank { "未记录" }}；上次在场=第${value.lastSeenScene}幕")
         }
     }.ifBlank { "尚未建立。总导演必须为本幕实际出现的长期人物建立档案。" }
+
+internal fun apocalypseStoryThreadsPromptV5(values: List<ApocalypseStoryThreadV5>): String =
+    values.joinToString("\n") { value ->
+        "- ${value.id}/${value.title} [${value.visibility}/${value.status}] 当前=${value.currentState}；下一压力=${value.nextPressure}；" +
+            "上次推进=第${value.lastTouchedScene}幕；关联人物=${value.linkedCharacterIds.joinToString("、")}；关联伏笔=${value.linkedForeshadowIds.joinToString("、")}"
+    }.ifBlank { "尚未建立剧情线账本。" }
 
 internal fun apocalypseForeshadowLedgerPromptV5(values: List<ApocalypseForeshadowV5>): String =
     values.joinToString("\n") { value ->
@@ -264,6 +546,19 @@ internal fun apocalypseForeshadowLedgerPromptV5(values: List<ApocalypseForeshado
 private fun normalizeApocalypseForeshadowStageV5(raw: String): String = when (raw.trim().lowercase()) {
     "echoed", "distorted", "ripe", "paid_off", "abandoned" -> raw.trim().lowercase()
     else -> "seeded"
+}
+
+private fun normalizeApocalypseThreadVisibilityV5(raw: String): String =
+    if (raw.trim().lowercase() == "hidden") "hidden" else "main"
+
+private fun normalizeApocalypseThreadStatusV5(raw: String): String = when (raw.trim().lowercase()) {
+    "active", "dormant", "resolved", "abandoned" -> raw.trim().lowercase()
+    else -> "active"
+}
+
+private fun JSONObject.optionalLedgerStringV5(key: String, maxLength: Int): String? {
+    if (!has(key)) return null
+    return optString(key).trim().take(maxLength)
 }
 
 private fun progressedApocalypseForeshadowStageV5(previous: String, update: String): String {

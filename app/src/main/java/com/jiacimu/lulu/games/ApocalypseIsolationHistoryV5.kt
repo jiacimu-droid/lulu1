@@ -210,6 +210,7 @@ private fun encodeDirectorV5History(value: ApocalypseV3Director): JSONObject = J
     .put("factionStates", JSONArray(value.factionStates))
     .put("characterArcs", JSONArray(value.characterArcs))
     .put("foreshadowPlan", JSONArray(value.foreshadowPlan))
+    .put("storyThreads", encodeApocalypseStoryThreadsV5(value.storyThreads))
     .put("characterDossiers", encodeApocalypseCharacterDossiersV5(value.characterDossiers))
     .put("foreshadowLedger", encodeApocalypseForeshadowLedgerV5(value.foreshadowLedger))
     .put("recentBeatTypes", JSONArray(value.recentBeatTypes))
@@ -284,6 +285,8 @@ private fun decodeDirectorV5History(json: JSONObject): ApocalypseV3Director {
         factionStates = json.optJSONArray("factionStates").historyStrings().ifEmpty { defaults.factionStates },
         characterArcs = json.optJSONArray("characterArcs").historyStrings().ifEmpty { defaults.characterArcs },
         foreshadowPlan = json.optJSONArray("foreshadowPlan").historyStrings().ifEmpty { defaults.foreshadowPlan },
+        storyThreads = decodeApocalypseStoryThreadsV5(json.optJSONArray("storyThreads"))
+            .ifEmpty { defaults.storyThreads },
         characterDossiers = decodeApocalypseCharacterDossiersV5(json.optJSONArray("characterDossiers")),
         foreshadowLedger = decodeApocalypseForeshadowLedgerV5(json.optJSONArray("foreshadowLedger"))
             .ifEmpty { defaults.foreshadowLedger },
