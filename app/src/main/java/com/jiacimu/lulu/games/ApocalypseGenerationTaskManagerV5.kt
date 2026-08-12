@@ -47,9 +47,12 @@ internal object ApocalypseGenerationTaskManagerV5 {
     ): Boolean {
         val cleanAction = action.trim()
         if (save.id.isBlank() || cleanAction.isBlank()) return false
+        val appContext = context.applicationContext
+        val livingWorldStore = ApocalypseLivingWorldStoreV5(appContext)
         synchronized(lock) {
             if (jobs[save.id]?.isActive == true) return false
-            val needsDirector = shouldPlanApocalypseV5Beat(save, cleanAction)
+            val backstageWake = runCatching { livingWorldStore.shouldWakeDirector(save) }.getOrDefault(false)
+            val needsDirector = shouldPlanApocalypseV5Beat(save, cleanAction) || backstageWake
             updateState(save.id) {
                 TaskState(
                     running = true,
@@ -59,12 +62,10 @@ internal object ApocalypseGenerationTaskManagerV5 {
                     usedDirector = needsDirector,
                 )
             }
-            val appContext = context.applicationContext
             val job = appScope.launch(start = CoroutineStart.LAZY) {
                 try {
                     // Semantic plot recall is independent from the long-form director's structural
-                    // planning. Run both network paths together so opening the vector timeout does
-                    // not put embedding/rerank in front of a 1–3 minute director request.
+                    // planning. Run it in parallel with a director pass when one is needed.
                     val plotMemoryDeferred = async {
                         runCatching {
                             ApocalypsePlotMemoryRuntimeV5.recall(
@@ -75,12 +76,21 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         }.getOrDefault("")
                     }
 
+                    // The living-world ledger is local and private. It contains offscreen clocks and
+                    // prepared-but-skippable setups, so only the director receives its hidden layer.
+                    val livingWorldContext = runCatching {
+                        livingWorldStore.promptForDirector(save)
+                    }.getOrDefault("")
+
                     val planResult = if (needsDirector) {
-                        updateState(save.id) { it.copy(phase = "导演规划 · 同时检索旧剧情") }
-                        // The director already owns structured world facts, long-term ledgers and the
-                        // previous scene. Semantic old-scene recall is reserved for the writer here,
-                        // avoiding a serial wait while keeping the actual scene continuity rich.
-                        planApocalypseV5Beat(save, config, party, cleanAction, plotMemoryContext = "")
+                        updateState(save.id) { it.copy(phase = "导演规划 · 世界继续在镜头外运行") }
+                        planApocalypseV5Beat(
+                            save = save,
+                            config = config,
+                            party = party,
+                            action = cleanAction,
+                            plotMemoryContext = livingWorldContext,
+                        )
                     } else {
                         ApocalypsePlanResultV5(
                             beat = continueApocalypseV5Beat(save, cleanAction),
@@ -103,6 +113,9 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         beat = plannedBeat,
                         nextStats = projectedStats,
                         usedDirector = usedDirector,
+                        // The prose writer gets only canonically recalled old scenes, not hidden
+                        // backstage truths. Anything secret must first be transformed by the director
+                        // into an observable directive/foreshadow move.
                         plotMemoryContext = plotMemoryContext,
                         onPartialText = { partial ->
                             updateState(save.id) {
@@ -165,6 +178,20 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         updatedAt = System.currentTimeMillis(),
                     )
                     storage.save(next)
+
+                    // First advance the hidden world locally so even an offline/failed backstage model
+                    // cannot freeze the rest of the world. This state is plot-only and never becomes
+                    // player-visible canon by itself.
+                    runCatching {
+                        livingWorldStore.recordScene(
+                            saveBefore = save,
+                            saveAfter = next,
+                            action = cleanAction,
+                            outcome = outcome,
+                            beat = beat,
+                        )
+                    }
+
                     runCatching {
                         ApocalypsePlotMemoryStoreV5(appContext).recordScene(
                             saveBefore = save,
@@ -179,6 +206,26 @@ internal object ApocalypseGenerationTaskManagerV5 {
                             ApocalypsePlotMemoryRuntimeV5.refreshEmbeddings(appContext, next.id)
                         }
                     }
+
+                    // A compact backstage pass periodically updates offscreen actors, world clocks and
+                    // fair surprise setups. It runs only after the scene is already saved, so it never
+                    // blocks the player's visible chapter. If the player has already advanced or rolled
+                    // back by the time it returns, the stale backstage result is discarded.
+                    if (ApocalypseLivingWorldRuntimeV5.shouldRefreshBackstage(next, beat, outcome, usedDirector)) {
+                        appScope.launch {
+                            runCatching {
+                                ApocalypseLivingWorldRuntimeV5.refreshAfterScene(
+                                    context = appContext,
+                                    saveBefore = save,
+                                    saveAfter = next,
+                                    action = cleanAction,
+                                    outcome = outcome,
+                                    beat = beat,
+                                )
+                            }
+                        }
+                    }
+
                     ApocalypseReadingProgressStoreV5(appContext).save(next.id, next.scene, 0)
                     updateState(save.id) {
                         it.copy(
