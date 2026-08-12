@@ -31,9 +31,7 @@ internal fun parseApocalypseStoryPages(
     val partyByName = party
         .filter { it.displayName.isNotBlank() }
         .associateBy { it.displayName.trim() }
-    val blocks = normalized.split(Regex("\\n\\s*\\n+"))
-        .map(String::trim)
-        .filter(String::isNotBlank)
+    val blocks = splitApocalypseSpeakerBlocks(normalized)
     val pages = mutableListOf<ApocalypseStoryPage>()
 
     blocks.forEach { rawBlock ->
@@ -68,6 +66,32 @@ private data class ParsedSpeaker(
     val text: String,
 )
 
+private val apocalypseSpeakerTag = Regex("【(?:旁白|玩家|角色\\s*[:：]\\s*[^】\\r\\n]+)】")
+
+/**
+ * Split on every speaker tag instead of only on blank paragraphs. Models occasionally put the
+ * next tagged beat after a single newline (or directly after the previous sentence). Keeping that
+ * text in one block would make the later internal `【角色:<id>】` marker visible to the player.
+ */
+private fun splitApocalypseSpeakerBlocks(text: String): List<String> {
+    val matches = apocalypseSpeakerTag.findAll(text).toList()
+    if (matches.isEmpty()) {
+        return text.split(Regex("\\n\\s*\\n+"))
+            .map(String::trim)
+            .filter(String::isNotBlank)
+    }
+
+    return buildList {
+        val legacyPrefix = text.substring(0, matches.first().range.first).trim()
+        if (legacyPrefix.isNotBlank()) addAll(splitApocalypseSpeakerBlocks(legacyPrefix))
+
+        matches.forEachIndexed { index, match ->
+            val end = matches.getOrNull(index + 1)?.range?.first ?: text.length
+            text.substring(match.range.first, end).trim().takeIf(String::isNotBlank)?.let(::add)
+        }
+    }
+}
+
 private fun parseTaggedSpeaker(block: String): ParsedSpeaker? {
     val narrator = "【旁白】"
     val player = "【玩家】"
@@ -77,7 +101,7 @@ private fun parseTaggedSpeaker(block: String): ParsedSpeaker? {
     if (block.startsWith(player)) {
         return ParsedSpeaker(ApocalypseStorySpeakerKind.Player, text = block.removePrefix(player))
     }
-    val match = Regex("^【角色:([^】]+)】").find(block) ?: return null
+    val match = Regex("^【角色\\s*[:：]\\s*([^】]+)】").find(block) ?: return null
     val id = match.groupValues[1].trim().takeIf(String::isNotBlank) ?: return null
     return ParsedSpeaker(
         kind = ApocalypseStorySpeakerKind.Character,
