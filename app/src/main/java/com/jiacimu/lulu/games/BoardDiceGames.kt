@@ -57,6 +57,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
     var rolling by remember { mutableStateOf(false) }
     var lastResult by remember { mutableStateOf("") }
     var turnLog by remember { mutableStateOf(emptyList<String>()) }
+    var matchLog by remember { mutableStateOf(emptyList<String>()) }
     var roleResponse by remember { mutableStateOf(GameRoleResponse()) }
     var responseSpeaker by remember { mutableStateOf("") }
     val currentPlayer = players[currentPlayerIndex.coerceIn(players.indices)]
@@ -72,6 +73,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         rolling = false
         lastResult = ""
         turnLog = emptyList()
+        matchLog = emptyList()
         roleResponse = GameRoleResponse()
         responseSpeaker = ""
     }
@@ -81,46 +83,49 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         val nextScores = scores + (player.id to nextPlayerScores)
         scores = nextScores
         lastResult = "${player.name}把 ${scoredDice.joinToString("、")} 填入${category.label}，得到${points}分。"
-        val recordId = store.recordExternalGame(
-            LuluGameType.YachtDice,
-            "快艇骰子 · ${player.name}第${nextPlayerScores.size}轮",
-            points,
-            0,
-            lastResult,
-            JSONObject()
-                .put("player", player.name)
-                .put("category", category.name)
-                .put("score", points)
-                .put("dice", JSONArray(scoredDice))
-                .put("rolls", rolls)
-                .toString(),
-            characterIdOverride = player.characterId,
-        )
-        saveGameAsSharedMemory(scope, store, recordId)
+        val nextMatchLog = matchLog + "${player.name}第${nextPlayerScores.size}轮：$lastResult"
+        matchLog = nextMatchLog
+
+        // A round is only an internal step of this one match. The role may react, but the round does
+        // not become a game-history row, raw timeline event or long-term memory by itself.
         if (player.characterId != null) {
             responseSpeaker = player.name
             requestGameRoleResponse(
-                scope, store, recordId, lastResult,
-                "你刚刚亲自完成了这一回合。根据真实骰面和计分类别，以角色自己的语气回应1-2句，不得修改分数。",
-                "快艇骰子 · ${player.name}", { roleResponse = it }, maxTokens = 180,
+                scope = scope,
+                store = store,
+                recordId = null,
+                facts = lastResult,
+                instruction = "你刚刚亲自完成了这一回合。根据真实骰面和计分类别，以角色自己的语气回应1-2句，不得修改分数。",
+                title = "快艇骰子 · ${player.name}",
+                onState = { roleResponse = it },
+                maxTokens = 180,
                 characterIdOverride = player.characterId,
             )
         }
+
         val finished = players.all { candidate ->
             val count = if (candidate.id == player.id) nextPlayerScores.size else nextScores[candidate.id].orEmpty().size
             count == YachtCategory.entries.size
         }
         if (finished) {
             val ranking = players.sortedByDescending { nextScores[it.id].orEmpty().values.sum() }
-            val summary = ranking.joinToString("；") { "${it.name}${nextScores[it.id].orEmpty().values.sum()}分" }
-            store.recordExternalGame(
+            val rankingSummary = ranking.joinToString("；") { "${it.name}${nextScores[it.id].orEmpty().values.sum()}分" }
+            val winner = ranking.firstOrNull()?.name ?: "未知"
+            val recordId = store.recordExternalGame(
                 LuluGameType.YachtDice,
-                "快艇骰子 · 完整对局",
+                "快艇骰子",
                 nextScores["user"].orEmpty().values.sum(),
                 0,
-                "整局结束：$summary。",
-                JSONObject().put("completed", true).put("ranking", summary).toString(),
+                "完整一局结束：$rankingSummary；胜者：$winner。",
+                JSONObject()
+                    .put("completed", true)
+                    .put("ranking", rankingSummary)
+                    .put("winner", winner)
+                    .put("roundCountPerPlayer", YachtCategory.entries.size)
+                    .put("turns", JSONArray(nextMatchLog))
+                    .toString(),
             )
+            saveGameAsSharedMemory(scope, store, recordId)
         }
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size
         dice = emptyList()
@@ -241,6 +246,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                     val ranking = players.sortedByDescending { scores[it.id].orEmpty().values.sum() }
                     Text("本局排名", fontSize = 21.sp, fontWeight = FontWeight.Bold)
                     ranking.forEachIndexed { index, player -> Text("${index + 1}. ${player.name}　${scores[player.id].orEmpty().values.sum()}分") }
+                    Text("游戏记录会把这一整局作为一条记录保存，不会把13轮分别写进原始时间线。", color = GameDesign.muted, fontSize = 12.sp)
                     Button(onClick = ::reset, modifier = Modifier.fillMaxWidth()) { Text("新一局") }
                 }
             }
@@ -267,10 +273,7 @@ private fun YachtScoreTable(
                 val usedScore = scores[category]
                 val preview = if (dice.size == 5) scoreYacht(category, dice) else 0
                 Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .clickable(enabled = canScore && usedScore == null) { onScore(category) }
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                    Modifier.fillMaxWidth().clickable(enabled = canScore && usedScore == null) { onScore(category) }.padding(horizontal = 16.dp, vertical = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(category.label)
@@ -292,8 +295,7 @@ private fun YachtScoreTable(
 
 private fun chooseYachtHolds(dice: List<Int>): Set<Int> {
     val counts = dice.groupingBy { it }.eachCount()
-    val bestValue = counts.maxWithOrNull(compareBy<Map.Entry<Int, Int>> { it.value }.thenBy { it.key })?.key
-        ?: return emptySet()
+    val bestValue = counts.maxWithOrNull(compareBy<Map.Entry<Int, Int>> { it.value }.thenBy { it.key })?.key ?: return emptySet()
     return dice.indices.filterTo(mutableSetOf()) { dice[it] == bestValue }
 }
 
@@ -341,11 +343,7 @@ internal fun GomokuScreen(store: LuluGameStore) {
             when (outcome) { "用户获胜" -> 100; "平局" -> 60; else -> 35 },
             if (outcome == "用户获胜") 20 else 5,
             "用户执黑、${character.displayName}执白，共走${moves}手，结果：$outcome。",
-            JSONObject()
-                .put("outcome", outcome)
-                .put("moves", moves)
-                .put("board", JSONArray(finalBoard))
-                .toString(),
+            JSONObject().put("outcome", outcome).put("moves", moves).put("board", JSONArray(finalBoard)).toString(),
         )
         saveGameAsSharedMemory(scope, store, recordId)
         requestGameRoleResponse(
@@ -392,18 +390,15 @@ internal fun GomokuScreen(store: LuluGameStore) {
         item { Text(status, Modifier.padding(horizontal = 4.dp), fontWeight = FontWeight.SemiBold) }
         item {
             Canvas(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-                    .pointerInput(board, finished) {
-                        detectTapGestures { offset ->
-                            if (finished) return@detectTapGestures
-                            val cell = size.width / 15f
-                            val col = (offset.x / cell).toInt().coerceIn(0, 14)
-                            val row = (offset.y / cell).toInt().coerceIn(0, 14)
-                            place(row, col)
-                        }
-                    },
+                modifier = Modifier.fillMaxWidth().aspectRatio(1f).pointerInput(board, finished) {
+                    detectTapGestures { offset ->
+                        if (finished) return@detectTapGestures
+                        val cell = size.width / 15f
+                        val col = (offset.x / cell).toInt().coerceIn(0, 14)
+                        val row = (offset.y / cell).toInt().coerceIn(0, 14)
+                        place(row, col)
+                    }
+                },
             ) {
                 drawRect(GameDesign.board)
                 val cell = size.width / 15f
@@ -435,9 +430,7 @@ private fun chooseGomokuMove(board: List<Int>): Int {
     val nearby = open.filter { index ->
         val row = index / 15
         val col = index % 15
-        board.indices.any { other ->
-            board[other] != 0 && abs(other / 15 - row) <= 2 && abs(other % 15 - col) <= 2
-        }
+        board.indices.any { other -> board[other] != 0 && abs(other / 15 - row) <= 2 && abs(other % 15 - col) <= 2 }
     }.ifEmpty { open }
     return nearby.maxByOrNull { index ->
         linePotential(board.withStone(index, 2), index, 2) * 3 +
