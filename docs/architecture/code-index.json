@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T11:52:44.064636+00:00",
-  "commit": "274561f03e4e6056a032c175f90c05545b21df89",
+  "generatedAt": "2026-08-12T11:55:41.596801+00:00",
+  "commit": "b7f8acda21dff15fc41b5fe53c43724d111fc593",
   "branch": "main",
-  "sourceFingerprint": "6389aebccff38a3c6365ef31713ae5f32e66011e379cec9961ce4f297bf23ad7",
+  "sourceFingerprint": "ce941fcca288c3d925fd2bcf445703bfdf03cfd5e59f1d8a2fef8f7d950f2252",
   "summary": {
     "files": 172,
-    "lines": 51775,
+    "lines": 51774,
     "symbols": 685
   },
   "symbolIndex": {
@@ -535,7 +535,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 524
+        "line": 523
       }
     ],
     "dial": [
@@ -2635,37 +2635,37 @@
     "finishAdventure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 331
+        "line": 313
       }
     ],
     "ask": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 436
+        "line": 435
       }
     ],
     "reveal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 463
+        "line": 462
       }
     ],
     "answer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 552
+        "line": 551
       }
     ],
     "next": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 561
+        "line": 560
       }
     ],
     "play": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 636
+        "line": 635
       }
     ],
     "partyFor": [
@@ -6373,8 +6373,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-      "lines": 681,
-      "sha256": "bc96f4e406491cd1690df5ffbd4201fe9a7080d135c0b7bf5a67364868f6bded",
+      "lines": 680,
+      "sha256": "da7ede734cbba82ead7c52aec5c714e47cfda56467114074f5487028a9fb828d",
       "symbols": [
         {
           "name": "nextRound",
@@ -6398,31 +6398,31 @@
         },
         {
           "name": "finishAdventure",
-          "line": 331
+          "line": 313
         },
         {
           "name": "ask",
-          "line": 436
+          "line": 435
         },
         {
           "name": "reveal",
-          "line": 463
+          "line": 462
         },
         {
           "name": "prepare",
-          "line": 524
+          "line": 523
         },
         {
           "name": "answer",
-          "line": 552
+          "line": 551
         },
         {
           "name": "next",
-          "line": 561
+          "line": 560
         },
         {
           "name": "play",
-          "line": 636
+          "line": 635
         }
       ]
     },
