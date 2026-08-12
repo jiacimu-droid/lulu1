@@ -139,12 +139,14 @@ internal fun sanitizeApocalypseAbilityProgressionV5(
         }
     }
 
-    val rule = apocalypseAbilityProgressRuleV5(save.stats, dayIndex)
-    val directive = if (beat.directive.contains("【晶核与空间异能成长硬规则】")) {
-        beat.directive
-    } else {
-        listOf(beat.directive.trim(), rule).filter(String::isNotBlank).joinToString("\n")
+    val abilityRule = apocalypseAbilityProgressRuleV5(save.stats, dayIndex)
+    val inventoryRule = apocalypseInventoryQuantityContractV5()
+    val directiveParts = buildList {
+        beat.directive.trim().takeIf(String::isNotBlank)?.let(::add)
+        if (!beat.directive.contains("【晶核与空间异能成长硬规则】")) add(abilityRule)
+        if (!beat.directive.contains("【具体物资与数量硬规则】")) add(inventoryRule)
     }
+    val directive = directiveParts.joinToString("\n")
 
     val illegalUpgrade = validatedXpGain == 0 && !wantsAbsorption
     val cleanedFacts = if (!illegalUpgrade) {
