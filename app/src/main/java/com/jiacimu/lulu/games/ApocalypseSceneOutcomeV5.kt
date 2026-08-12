@@ -195,16 +195,17 @@ internal fun apocalypseSceneOutcomeNeedsRepairV5(
     if (outcome.text.isBlank()) return true
     val tagged = outcome.text.contains("【旁白】") || outcome.text.contains("【玩家】") || outcome.text.contains("【角色:")
     if (!tagged) return true
-    if (!outcome.receiptParsed || !outcome.simulationStateReported) return true
-    if (outcome.continuitySummary.isBlank() || outcome.actionOutcome.isBlank()) return true
-    if (!outcome.actionAcknowledgementReported || !outcome.actionAcknowledged) return true
+    // Receipt omissions are recoverable metadata defects, not proof that the prose ignored the
+    // player. Retrying a whole scene for one missing delta/summary made a normal action wait for two
+    // long model calls and could still discard both usable drafts. Only an explicit rejection from
+    // a parsed receipt is strong enough to trigger a content rewrite here.
+    if (outcome.actionAcknowledgementReported && !outcome.actionAcknowledged) return true
     // Legacy saves may still need best-effort display recovery, but newly generated prose must
     // never canonize an anonymous placeholder as a character identity.
     val speakerTokens = apocalypseStorySpeakerTokensV5(outcome.text)
-    if (speakerTokens.any(::isApocalypseGenericCastLabelV5)) return true
     val effectiveDossiers = mergeApocalypseCharacterDossiersV5(dossiers, outcome.castUpdates, party)
     if (speakerTokens.any { token ->
-            !resolveApocalypseSpeakerTokenV5(
+            isApocalypseGenericCastLabelV5(token) && !resolveApocalypseSpeakerTokenV5(
                 rawToken = token,
                 party = party,
                 dossiers = effectiveDossiers,
@@ -215,6 +216,9 @@ internal fun apocalypseSceneOutcomeNeedsRepairV5(
     ) {
         return true
     }
+    // A concrete Chinese name or role such as “养父” may be a first-appearance NPC. The cast
+    // expander below persists it with a stable id, so forcing the model to rewrite it first only
+    // adds latency and often produces the same valid speaker again.
     if (!apocalypseActionLooksLikeSpeechV5(action)) return false
 
     val availableIds = (party.map { it.characterId } + effectiveDossiers.map { it.id }).toSet()

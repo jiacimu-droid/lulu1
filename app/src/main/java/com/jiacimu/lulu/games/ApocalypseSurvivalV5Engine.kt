@@ -394,7 +394,6 @@ internal suspend fun writeApocalypseV5Scene(
         appendLine("结尾钩子：${beat.closingHook}")
         appendLine("本幕聚焦角色：${beat.focusCharacterIds.joinToString("、")}")
         appendLine("本幕伏笔动作：${beat.foreshadowMoves.joinToString("｜")}")
-        appendLine("本幕结束时明暗线账本：\n${apocalypseStoryThreadsPromptV5(beat.nextDirector.storyThreads.filter { it.status == "active" || it.status == "dormant" }.sortedByDescending { it.lastTouchedScene }.take(12))}")
         appendLine("当前可调度伏笔账本（hiddenTruth只供幕后写作，正文绝不能直说）：\n${apocalypseWriterForeshadowPackV5(beat.nextDirector)}")
         appendLine("本幕角色编剧档案（只用于维持独特动机与潜台词；不得超出导演允许的信息预算）：\n${apocalypseCharacterDossiersPromptV5(writerDossiers)}")
         appendLine("当前实际在场角色id：${presentIds.joinToString("、").ifBlank { "无" }}")
@@ -403,7 +402,7 @@ internal suspend fun writeApocalypseV5Scene(
         appendLine("本局仍保留的连续剧情：\n${apocalypseRecentContinuityV5(save)}")
     }
     val instruction = """
-        紧接第${save.scene}幕，写第${nextScene}幕高质量中文末世互动视觉小说，约600—900字。不要输出选项、数值面板、解释或Markdown。
+        紧接第${save.scene}幕，写第${nextScene}幕高质量中文末世互动视觉小说，约550—800字。不要输出选项、数值面板、解释或Markdown。
 
         【输出协议｜状态块不会展示给玩家】
         先写正文、后写回执，严格使用以下顺序；这样即使模型输出受限，也必须优先保住玩家能读到的剧情：
@@ -480,7 +479,7 @@ internal suspend fun writeApocalypseV5Scene(
         source = "末世求生V5正文",
         title = "末世求生 · 第${nextScene}幕",
         temperature = 0.80,
-        maxTokens = 2100,
+        maxTokens = 1700,
         usage = ModelUsage.Game,
         contextMode = CompanionContextMode.PersonaAndScenario,
         streamResponse = true,
@@ -526,7 +525,7 @@ internal suspend fun writeApocalypseV5Scene(
         append(firstOutcome.text.take(3_200))
     }
     val repairInstruction = """
-        把初稿精简重写为500—750字中文互动视觉小说。不要解释返工，不要输出选项或Markdown。
+        把初稿精简重写为350—550字中文互动视觉小说。不要解释返工，不要输出选项或Markdown。
         第一优先级是让玩家行动真的发生；若玩家说话或提问，正文前半必须由正确的在场人物针对具体内容回应，并改变信息、关系、资源、位置、时间或风险至少一项。
         角色只继承提供的性格和说话方式，不得带入其他世界经历；保持当前地点、人物、资源和灾前/灾后阶段。
         输出顺序必须是：
@@ -543,7 +542,7 @@ internal suspend fun writeApocalypseV5Scene(
         source = "末世求生V5正文返工",
         title = "末世求生 · 第${nextScene}幕返工",
         temperature = 0.68,
-        maxTokens = 1700,
+        maxTokens = 1200,
         usage = ModelUsage.Game,
         contextMode = CompanionContextMode.PersonaAndScenario,
         streamResponse = true,
