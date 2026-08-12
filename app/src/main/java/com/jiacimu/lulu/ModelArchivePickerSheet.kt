@@ -20,6 +20,7 @@ import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,6 +53,7 @@ import com.jiacimu.lulu.ai.archiveIdFor
  * so it looked like a foreign panel on several screens. This sheet owns its complete visual surface
  * and makes the scope of a model choice explicit before the user changes it.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ModelArchivePickerSheet(
     title: String,
