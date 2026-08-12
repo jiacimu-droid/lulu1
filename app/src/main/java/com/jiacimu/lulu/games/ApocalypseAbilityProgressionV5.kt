@@ -172,9 +172,8 @@ internal fun sanitizeApocalypseAbilityProgressionV5(
 }
 
 /**
- * One-time migration for saves touched by the old generic-XP bug. The user's already-visible space
- * level is grandfathered so an existing Lv.2 save does not suddenly become weaker, but impossible
- * pre-impact crystal holdings and the silently accumulated resonance bar are reset to zero.
+ * Hard runtime correction: before main impact no new crystal resonance can be earned. Preserve an
+ * already visible Lv.2+ level, but reject stray pre-impact progress and impossible pre-impact cores.
  */
 internal fun sanitizeApocalypseLoadedAbilityStateV5(save: ApocalypseV3Save): ApocalypseV3Save {
     if (save.director.dayIndex >= 0) return save
@@ -186,6 +185,33 @@ internal fun sanitizeApocalypseLoadedAbilityStateV5(save: ApocalypseV3Save): Apo
         ),
         updatedAt = System.currentTimeMillis(),
     )
+}
+
+/**
+ * One-time migration for the save that lived through the old generic-XP implementation. It resets
+ * the current resonance bar exactly once while preserving the already-visible level. After this flag
+ * is written, legitimate post-impact crystal absorption can build resonance normally.
+ */
+internal fun migrateApocalypseLegacyResonanceOnceV5(
+    context: Context,
+    save: ApocalypseV3Save,
+): ApocalypseV3Save {
+    val appContext = context.applicationContext
+    val prefs = appContext.getSharedPreferences("apocalypse_ability_migrations_v5", Context.MODE_PRIVATE)
+    val key = "resonance_reset_v2_${save.id}"
+    val hardSanitized = sanitizeApocalypseLoadedAbilityStateV5(save)
+    if (prefs.getBoolean(key, false)) return hardSanitized
+
+    val migrated = if (hardSanitized.stats.playerAbilityXp == 0) {
+        hardSanitized
+    } else {
+        hardSanitized.copy(
+            stats = hardSanitized.stats.copy(playerAbilityXp = 0),
+            updatedAt = System.currentTimeMillis(),
+        )
+    }
+    prefs.edit().putBoolean(key, true).apply()
+    return migrated
 }
 
 internal fun ensureApocalypseAbilityUpgradeNarrationV5(
