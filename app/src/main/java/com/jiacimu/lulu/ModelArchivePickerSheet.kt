@@ -22,20 +22,28 @@ import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.ai.archiveIdFor
 
 /**
  * One consistent archive switcher for chat, calls and game-like apps.
@@ -160,5 +168,86 @@ internal fun ModelArchivePickerSheet(
             }
             Spacer(Modifier.navigationBarsPadding())
         }
+    }
+}
+
+@Composable
+internal fun ModelArchiveIconButton(
+    usage: ModelUsage,
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    contentDescription: String,
+    tint: Color,
+    accent: Color = Color(0xFF526D5E),
+    background: Color = Color(0xFFF7F7F6),
+    ink: Color = Color(0xFF1D211F),
+    muted: Color = Color(0xFF727975),
+    border: Color = Color(0xFFE0E4E1),
+    enabled: Boolean = true,
+) {
+    val library by LuluAiServices.connectionStore.library.collectAsState()
+    var visible by remember { mutableStateOf(false) }
+    val selectedId = library.archiveIdFor(usage)
+    IconButton(onClick = { visible = true }, enabled = enabled) {
+        Icon(icon, contentDescription, tint = tint)
+    }
+    if (visible) {
+        ModelArchivePickerSheet(
+            title = title,
+            subtitle = subtitle,
+            selectedArchiveId = selectedId,
+            onSelect = { id ->
+                LuluAiServices.connectionStore.selectArchive(id, usage)
+                visible = false
+            },
+            onDismiss = { visible = false },
+            accent = accent,
+            background = background,
+            ink = ink,
+            muted = muted,
+            border = border,
+        )
+    }
+}
+
+@Composable
+internal fun ModelArchiveTextButton(
+    usage: ModelUsage,
+    title: String,
+    subtitle: String,
+    activeLabel: String,
+    icon: ImageVector,
+    accent: Color,
+    textColor: Color,
+    background: Color,
+    muted: Color,
+    border: Color,
+    enabled: Boolean = true,
+) {
+    val library by LuluAiServices.connectionStore.library.collectAsState()
+    var visible by remember { mutableStateOf(false) }
+    val selectedId = library.archiveIdFor(usage)
+    TextButton(onClick = { visible = true }, enabled = enabled) {
+        Icon(icon, null, tint = accent, modifier = Modifier.size(16.dp))
+        Spacer(Modifier.width(5.dp))
+        Text(activeLabel, maxLines = 1, fontSize = 12.sp, color = textColor)
+    }
+    if (visible) {
+        ModelArchivePickerSheet(
+            title = title,
+            subtitle = subtitle,
+            selectedArchiveId = selectedId,
+            onSelect = { id ->
+                LuluAiServices.connectionStore.selectArchive(id, usage)
+                visible = false
+            },
+            onDismiss = { visible = false },
+            accent = accent,
+            background = background,
+            ink = textColor,
+            muted = muted,
+            border = border,
+        )
     }
 }
