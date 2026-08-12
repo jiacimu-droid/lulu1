@@ -61,8 +61,19 @@ internal object ApocalypseGenerationTaskManagerV5 {
             val appContext = context.applicationContext
             val job = appScope.launch(start = CoroutineStart.LAZY) {
                 try {
+                    updateState(save.id) { it.copy(phase = "正在检索本局旧剧情") }
+                    val plotMemoryContext = runCatching {
+                        ApocalypsePlotMemoryRuntimeV5.recall(
+                            context = appContext,
+                            save = save,
+                            action = cleanAction,
+                        )
+                    }.getOrDefault("")
+                    updateState(save.id) {
+                        it.copy(phase = if (needsDirector) "导演规划关键节点" else "沿用剧情蓝图")
+                    }
                     val planResult = if (needsDirector) {
-                        planApocalypseV5Beat(save, config, party, cleanAction)
+                        planApocalypseV5Beat(save, config, party, cleanAction, plotMemoryContext)
                     } else {
                         ApocalypsePlanResultV5(
                             beat = continueApocalypseV5Beat(save, cleanAction),
@@ -82,6 +93,7 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         beat = plannedBeat,
                         nextStats = projectedStats,
                         usedDirector = usedDirector,
+                        plotMemoryContext = plotMemoryContext,
                         onPartialText = { partial ->
                             updateState(save.id) {
                                 it.copy(phase = "正文正在生成", partialText = partial)
@@ -143,6 +155,20 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         updatedAt = System.currentTimeMillis(),
                     )
                     storage.save(next)
+                    runCatching {
+                        ApocalypsePlotMemoryStoreV5(appContext).recordScene(
+                            saveBefore = save,
+                            saveAfter = next,
+                            action = cleanAction,
+                            outcome = outcome,
+                        )
+                    }.onSuccess {
+                        // Vectorization and model-change reindexing never hold the visible generation
+                        // chain open. A missing/slow Embedding endpoint leaves the local plot card usable.
+                        appScope.launch {
+                            ApocalypsePlotMemoryRuntimeV5.refreshEmbeddings(appContext, next.id)
+                        }
+                    }
                     ApocalypseReadingProgressStoreV5(appContext).save(next.id, next.scene, 0)
                     updateState(save.id) {
                         it.copy(

@@ -154,8 +154,9 @@ internal data class ApocalypseV3Beat(
 )
 
 internal class ApocalypseSurvivalV3Store(context: Context) {
+    private val appContext = context.applicationContext
     // Reuse the same preference file so an existing V2 save can be migrated without losing it.
-    private val prefs = context.applicationContext.getSharedPreferences("apocalypse_survival_v2", Context.MODE_PRIVATE)
+    private val prefs = appContext.getSharedPreferences("apocalypse_survival_v2", Context.MODE_PRIVATE)
 
     fun loadSave(): ApocalypseV3Save? {
         val raw = prefs.getString("save_v3", null) ?: prefs.getString("save", null) ?: return null
@@ -167,6 +168,7 @@ internal class ApocalypseSurvivalV3Store(context: Context) {
     }
 
     fun clearSave() {
+        loadSave()?.id?.let { ApocalypsePlotMemoryStoreV5(appContext).clear(it) }
         prefs.edit().remove("save_v3").remove("save").apply()
     }
 

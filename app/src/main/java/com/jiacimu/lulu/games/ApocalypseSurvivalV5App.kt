@@ -272,6 +272,7 @@ internal fun ApocalypseSurvivalAppV5(
         val rollback = historyStore.rollback(current.id, entryId) ?: return
         val restored = rollback.target.restoreOnto(current)
         progressStore.clear()
+        ApocalypsePlotMemoryStoreV5(context).trimAfterScene(restored.id, restored.scene)
         save = restored
         storage.save(restored)
     }
@@ -299,6 +300,7 @@ internal fun ApocalypseSurvivalAppV5(
             updatedAt = System.currentTimeMillis(),
         )
         historyStore.clear(current.id)
+        ApocalypsePlotMemoryStoreV5(context).trimAfterScene(current.id, reset.scene)
         progressStore.clear()
         save = reset
         storage.save(reset)

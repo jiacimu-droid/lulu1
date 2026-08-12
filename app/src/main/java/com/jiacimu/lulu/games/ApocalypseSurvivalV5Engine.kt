@@ -247,6 +247,7 @@ internal suspend fun planApocalypseV5Beat(
     config: ApocalypseV3Config,
     party: List<CharacterSettings>,
     action: String,
+    plotMemoryContext: String = "",
 ): ApocalypsePlanResultV5 {
     val director = save.director
     val nextScene = save.scene + 1
@@ -281,6 +282,9 @@ internal suspend fun planApocalypseV5Beat(
         appendLine("已知地点：${director.locations.joinToString("｜") { it.name }}")
         appendLine("已获得资产：${director.assets.joinToString("｜") { "${it.kind.label}:${it.title}" }}")
         appendLine("同行角色风格参考（只按隔离规则提取风格，不继承其中身份/关系/经历）：\n$partyPrompt")
+        if (plotMemoryContext.isNotBlank()) {
+            appendLine("本存档按本幕语义召回的旧剧情：\n$plotMemoryContext")
+        }
         appendLine("本局仍保留的连续剧情（这是唯一可用的跨幕共同经历）：\n${apocalypseRecentContinuityV5(save)}")
     }
     val instruction = """
@@ -363,7 +367,7 @@ internal suspend fun planApocalypseV5Beat(
         source = "末世求生V5导演",
         title = "末世求生 · 导演第${nextScene}幕",
         temperature = 0.72,
-        maxTokens = 2400,
+        maxTokens = 1900,
         usage = ModelUsage.Game,
         contextMode = CompanionContextMode.PersonaAndScenario,
         streamResponse = true,
@@ -386,6 +390,7 @@ internal suspend fun writeApocalypseV5Scene(
     beat: ApocalypseV3Beat,
     nextStats: ApocalypseV3Stats,
     usedDirector: Boolean,
+    plotMemoryContext: String = "",
     onPartialText: (String) -> Unit = {},
 ): Result<ApocalypseSceneOutcomeV5> {
     val nextScene = save.scene + 1
@@ -469,6 +474,9 @@ internal suspend fun writeApocalypseV5Scene(
         appendLine("当前实际在场角色id：${presentIds.joinToString("、").ifBlank { "无" }}")
         appendLine("本幕相关角色风格参考（只按隔离规则提取风格，不继承其中身份/关系/经历）：\n$partyPrompt")
         appendLine("本局硬状态摘要：\n${apocalypseWriterCanonPackV5(save, contextNeeds)}")
+        if (plotMemoryContext.isNotBlank()) {
+            appendLine("本存档按本幕语义召回的旧剧情（只用于旧事衔接，若与当前硬状态冲突，以硬状态为准）：\n$plotMemoryContext")
+        }
         appendLine("本局仍保留的连续剧情：\n${apocalypseRecentContinuityV5(save)}")
     }
     val instruction = """
@@ -555,11 +563,11 @@ internal suspend fun writeApocalypseV5Scene(
         source = "末世求生V5正文",
         title = "末世求生 · 第${nextScene}幕",
         temperature = 0.80,
-        maxTokens = 2300,
+        maxTokens = 2100,
         usage = ModelUsage.Game,
         contextMode = CompanionContextMode.PersonaAndScenario,
         streamResponse = true,
-        readTimeoutMillis = 120_000,
+        readTimeoutMillis = 90_000,
         onStreamText = { raw ->
             apocalypseStreamingSceneTextV5(raw).takeIf(String::isNotBlank)?.let(onPartialText)
         },
@@ -599,6 +607,7 @@ internal suspend fun writeApocalypseV5Scene(
         appendLine("角色动态档案：\n${apocalypseCharacterDossiersPromptV5(writerDossiers)}")
         appendLine("初稿新增演员档案：\n${apocalypseCharacterDossiersPromptV5(firstOutcome.castUpdates)}")
         appendLine("伏笔账本：\n${apocalypseWriterForeshadowPackV5(beat.nextDirector)}")
+        if (plotMemoryContext.isNotBlank()) appendLine("相关旧剧情：\n$plotMemoryContext")
         appendLine("上一幕衔接：\n${apocalypseRecentContinuityV5(save)}")
         appendLine("【不合格初稿｜只用于修正，不是正史】")
         append(firstOutcome.text.take(3_200))
@@ -621,11 +630,11 @@ internal suspend fun writeApocalypseV5Scene(
         source = "末世求生V5正文返工",
         title = "末世求生 · 第${nextScene}幕返工",
         temperature = 0.68,
-        maxTokens = 1900,
+        maxTokens = 1650,
         usage = ModelUsage.Game,
         contextMode = CompanionContextMode.PersonaAndScenario,
         streamResponse = true,
-        readTimeoutMillis = 120_000,
+        readTimeoutMillis = 75_000,
         onStreamText = { raw ->
             apocalypseStreamingSceneTextV5(raw).takeIf(String::isNotBlank)?.let(onPartialText)
         },
