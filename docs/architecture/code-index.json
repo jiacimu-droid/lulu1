@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T10:52:56.211687+00:00",
-  "commit": "1076527072660f8ad5c0bee1ec73b09dcddcaf56",
+  "generatedAt": "2026-08-12T10:53:12.173654+00:00",
+  "commit": "7837dbb69373e517bbfe0a0f9d7cbef5080d31d2",
   "branch": "main",
-  "sourceFingerprint": "be11983a53c50ab79bc06892109fa9c9dd469a1cb4389d739b4967f725aab78e",
+  "sourceFingerprint": "f3470ca1166dfa47b21fb832747d3590ecba0440ff3001abfa0b24e99241ece0",
   "summary": {
-    "files": 169,
-    "lines": 51329,
-    "symbols": 666
+    "files": 170,
+    "lines": 51389,
+    "symbols": 671
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -46,6 +46,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
         "line": 867
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+        "line": 15
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
@@ -802,12 +806,20 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
         "line": 191
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+        "line": 20
       }
     ],
     "resolveConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
         "line": 193
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+        "line": 49
       }
     ],
     "archiveLabel": [
@@ -866,6 +878,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
         "line": 857
+      }
+    ],
+    "ScopedModelSelections": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+        "line": 11
+      }
+    ],
+    "select": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+        "line": 40
       }
     ],
     "VisionModelService": [
@@ -4505,6 +4529,33 @@
         {
           "name": "initialize",
           "line": 867
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+      "lines": 60,
+      "sha256": "3e60578b583d0662157833606c1578a8d829a0b0b3c1976c95e34b8b2411c512",
+      "symbols": [
+        {
+          "name": "ScopedModelSelections",
+          "line": 11
+        },
+        {
+          "name": "initialize",
+          "line": 15
+        },
+        {
+          "name": "selectedArchiveId",
+          "line": 20
+        },
+        {
+          "name": "select",
+          "line": 40
+        },
+        {
+          "name": "resolveConnection",
+          "line": 49
         }
       ]
     },

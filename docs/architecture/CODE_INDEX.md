@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`1076527072660f8ad5c0bee1ec73b09dcddcaf56`
+- 基准提交：`7837dbb69373e517bbfe0a0f9d7cbef5080d31d2`
 - 分支：`main`
-- 已索引文件：169
-- 已索引代码/文本行：51329
-- 已发现符号：666
+- 已索引文件：170
+- 已索引代码/文本行：51389
+- 已发现符号：671
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -51,6 +51,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 155 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 874 | 25 |
+| `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 60 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 145 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 125 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 64 | 5 |
