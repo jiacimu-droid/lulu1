@@ -26,9 +26,8 @@ import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.DirectionsCar
 import androidx.compose.material.icons.outlined.GpsFixed
 import androidx.compose.material.icons.outlined.Handyman
-import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Key
-import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material.icons.outlined.Restaurant
 import androidx.compose.material.icons.outlined.Search
@@ -48,7 +47,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -61,7 +59,6 @@ private val InventoryAccentV5 = Color(0xFF526D5E)
 private val InventoryAccentSoftV5 = Color(0xFFDDE7E0)
 private val InventoryDarkV5 = Color(0xFF101714)
 private val InventoryDarkLineV5 = Color(0xFF34423B)
-private val InventoryDarkTextV5 = Color(0xFFF7F9F6)
 private val InventoryDarkMutedV5 = Color(0xFFB8C5BD)
 
 private enum class ApocalypseInventoryCategoryV5(
@@ -74,9 +71,10 @@ private enum class ApocalypseInventoryCategoryV5(
     Food("食物", Icons.Outlined.Restaurant, setOf(ApocalypseV3AssetKind.Food), "主食、即食餐、罐头与其他食材"),
     Water("饮水", Icons.Outlined.WaterDrop, setOf(ApocalypseV3AssetKind.Water), "瓶装水、储水与可直接饮用水"),
     Medicine("药品", Icons.Outlined.MedicalServices, setOf(ApocalypseV3AssetKind.Medicine), "药物、急救与医疗耗材"),
+    Household("生活用品", Icons.Outlined.Home, setOf(ApocalypseV3AssetKind.Tool, ApocalypseV3AssetKind.Material), "洗漱、清洁、衣物、床品、餐具与日常消耗品"),
     Material("材料", Icons.Outlined.Construction, setOf(ApocalypseV3AssetKind.Material), "建设、维修与加工材料"),
     Weapon("武器", Icons.Outlined.GpsFixed, setOf(ApocalypseV3AssetKind.Weapon), "近战、远程与防卫装备"),
-    Tool("工具", Icons.Outlined.Handyman, setOf(ApocalypseV3AssetKind.Tool), "工具、设备与生存用品"),
+    Tool("工具", Icons.Outlined.Handyman, setOf(ApocalypseV3AssetKind.Tool), "维修、拆装、生产与专业设备"),
     Vehicle("载具", Icons.Outlined.DirectionsCar, setOf(ApocalypseV3AssetKind.Vehicle), "车辆与可移动运输资源"),
     Key("钥匙/权限", Icons.Outlined.Key, setOf(ApocalypseV3AssetKind.Key), "门禁、钥匙与访问权限"),
     Core("晶核", Icons.Outlined.AutoAwesome, setOf(ApocalypseV3AssetKind.Core), "可安全利用的标准晶核等价量"),
@@ -84,21 +82,51 @@ private enum class ApocalypseInventoryCategoryV5(
     Document("文件", Icons.Outlined.Description, setOf(ApocalypseV3AssetKind.Document), "档案、清单、记录与纸面资料"),
 }
 
+private val apocalypseHouseholdKeywordsV5 = listOf(
+    "卫生纸", "厕纸", "卷纸", "抽纸", "纸巾", "湿巾", "卫生巾", "护垫", "纸尿裤",
+    "牙刷", "牙膏", "牙线", "漱口", "洗面奶", "洁面", "洗发", "护发", "沐浴", "香皂", "肥皂",
+    "洗衣液", "洗衣粉", "洗洁精", "清洁剂", "清洁液", "抹布", "百洁布", "海绵", "拖把", "扫帚",
+    "毛巾", "浴巾", "脸盆", "水盆", "衣架", "晾衣", "垃圾袋", "保鲜膜", "保鲜袋", "收纳袋", "收纳箱",
+    "床单", "被套", "被子", "薄被", "毯子", "毛毯", "枕头", "枕套", "凉席", "睡袋",
+    "内衣", "内裤", "袜子", "袜", "衣服", "衣物", "外套", "裤子", "鞋子", "拖鞋", "雨衣", "雨伞",
+    "碗", "筷子", "筷", "勺子", "汤勺", "叉子", "餐具", "杯子", "水杯", "饭盒", "餐盒",
+    "梳子", "镜子", "剃须", "指甲剪", "棉签", "棉棒", "暖宝宝", "蚊香", "驱蚊",
+)
+
+private fun isApocalypseHouseholdAssetV5(asset: ApocalypseV3Asset): Boolean {
+    if (asset.kind != ApocalypseV3AssetKind.Tool && asset.kind != ApocalypseV3AssetKind.Material) return false
+    val searchable = "${asset.title} ${asset.tag} ${asset.detail}".lowercase()
+    return apocalypseHouseholdKeywordsV5.any(searchable::contains)
+}
+
+private fun apocalypseAssetBelongsToInventoryCategoryV5(
+    category: ApocalypseInventoryCategoryV5,
+    asset: ApocalypseV3Asset,
+): Boolean = when (category) {
+    ApocalypseInventoryCategoryV5.Money -> false
+    ApocalypseInventoryCategoryV5.Household -> isApocalypseHouseholdAssetV5(asset)
+    ApocalypseInventoryCategoryV5.Material -> asset.kind == ApocalypseV3AssetKind.Material && !isApocalypseHouseholdAssetV5(asset)
+    ApocalypseInventoryCategoryV5.Tool -> asset.kind == ApocalypseV3AssetKind.Tool && !isApocalypseHouseholdAssetV5(asset)
+    else -> asset.kind in category.kinds
+}
+
 @Composable
 internal fun ApocalypseInventoryBrowserSheetV5(save: ApocalypseV3Save) {
     var selectedCategory by remember(save.id, save.scene) { mutableStateOf<ApocalypseInventoryCategoryV5?>(null) }
-    val assets = remember(save.director.assets) { save.director.assets.filterNot { it.kind == ApocalypseV3AssetKind.Map } }
-    val mapCount = remember(save.director.assets) { save.director.assets.count { it.kind == ApocalypseV3AssetKind.Map } }
+    val assets = remember(save.director.assets) {
+        save.director.assets.filterNot { it.kind == ApocalypseV3AssetKind.Map }
+    }
     val categories = remember(save.stats, assets) {
         ApocalypseInventoryCategoryV5.entries.filter { category ->
-            category == ApocalypseInventoryCategoryV5.Money ||
-                category in setOf(
-                    ApocalypseInventoryCategoryV5.Food,
-                    ApocalypseInventoryCategoryV5.Water,
-                    ApocalypseInventoryCategoryV5.Medicine,
-                    ApocalypseInventoryCategoryV5.Material,
-                    ApocalypseInventoryCategoryV5.Core,
-                ) || assets.any { it.kind in category.kinds }
+            category in setOf(
+                ApocalypseInventoryCategoryV5.Money,
+                ApocalypseInventoryCategoryV5.Food,
+                ApocalypseInventoryCategoryV5.Water,
+                ApocalypseInventoryCategoryV5.Medicine,
+                ApocalypseInventoryCategoryV5.Household,
+                ApocalypseInventoryCategoryV5.Material,
+                ApocalypseInventoryCategoryV5.Core,
+            ) || assets.any { apocalypseAssetBelongsToInventoryCategoryV5(category, it) }
         }
     }
 
@@ -109,40 +137,21 @@ internal fun ApocalypseInventoryBrowserSheetV5(save: ApocalypseV3Save) {
             .padding(horizontal = 18.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            Text("物资仓库", color = InventoryInkV5, fontSize = 26.sp, fontWeight = FontWeight.Black)
-            Text("先按类别看总量，再点进去看具体买了什么、拿到了什么。", color = InventoryMutedV5, fontSize = 12.sp, lineHeight = 18.sp)
-        }
+        Text("物资仓库", color = InventoryInkV5, fontSize = 26.sp, fontWeight = FontWeight.Black)
 
         ApocalypseInventoryOverviewV5(save)
-
-        if (mapCount > 0) {
-            Surface(
-                color = InventoryAccentSoftV5,
-                shape = RoundedCornerShape(16.dp),
-                border = BorderStroke(1.dp, InventoryBorderV5),
-            ) {
-                Row(Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 11.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.Map, null, tint = InventoryAccentV5, modifier = Modifier.size(21.dp))
-                    Spacer(Modifier.width(9.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text("地图资料已归入地图系统", color = InventoryInkV5, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                        Text("$mapCount 份地图/施工图不会再混在线索清单里；请从游戏里的“地图”查看地点和子区域。", color = InventoryMutedV5, fontSize = 10.sp, lineHeight = 15.sp)
-                    }
-                }
-            }
-        }
 
         Text("分类", color = InventoryInkV5, fontSize = 18.sp, fontWeight = FontWeight.Black)
         LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(9.dp)) {
             items(categories.chunked(2)) { rowCategories ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                     rowCategories.forEach { category ->
+                        val categoryAssets = assets.filter { apocalypseAssetBelongsToInventoryCategoryV5(category, it) }
                         ApocalypseInventoryCategoryCardV5(
                             modifier = Modifier.weight(1f),
                             category = category,
                             value = inventoryCategoryValueV5(category, save, assets),
-                            itemCount = assets.count { it.kind in category.kinds },
+                            itemCount = categoryAssets.size,
                             onClick = { selectedCategory = category },
                         )
                     }
@@ -161,7 +170,7 @@ internal fun ApocalypseInventoryBrowserSheetV5(save: ApocalypseV3Save) {
             ApocalypseInventoryCategoryDetailV5(
                 save = save,
                 category = category,
-                assets = assets.filter { it.kind in category.kinds },
+                assets = assets.filter { apocalypseAssetBelongsToInventoryCategoryV5(category, it) },
             )
         }
     }
@@ -174,29 +183,26 @@ private fun ApocalypseInventoryOverviewV5(save: ApocalypseV3Save) {
         shape = RoundedCornerShape(24.dp),
         border = BorderStroke(1.dp, InventoryDarkLineV5),
     ) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = 17.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(
-                "${save.director.phase} · ${save.director.location}",
-                color = InventoryDarkTextV5,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+        Column(
+            Modifier.fillMaxWidth().padding(horizontal = 17.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                ApocalypseInventoryOverviewValueV5("资金", "¥${save.stats.money}")
-                ApocalypseInventoryOverviewValueV5("食物", save.stats.food.toString())
-                ApocalypseInventoryOverviewValueV5("饮水", save.stats.water.toString())
-                ApocalypseInventoryOverviewValueV5("药品", save.stats.medicine.toString())
+                ApocalypseInventoryOverviewValueV5("生命", save.stats.health.toString())
+                ApocalypseInventoryOverviewValueV5("体力", save.stats.stamina.toString())
+                ApocalypseInventoryOverviewValueV5("感染", save.stats.infection.toString())
+                ApocalypseInventoryOverviewValueV5("士气", save.stats.morale.toString())
             }
             HorizontalDivider(color = InventoryDarkLineV5)
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                ApocalypseInventoryOverviewValueV5("材料", save.stats.materials.toString())
-                ApocalypseInventoryOverviewValueV5("晶核", save.stats.crystalCores.toString())
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 ApocalypseInventoryOverviewValueV5("空间", "Lv.${save.stats.playerAbilityLevel}")
                 ApocalypseInventoryOverviewValueV5(
                     "共鸣",
-                    if (save.stats.playerAbilityLevel >= 5) "MAX" else "${save.stats.playerAbilityXp}/${abilityXpThresholdV3(save.stats.playerAbilityLevel)}",
+                    if (save.stats.playerAbilityLevel >= 5) {
+                        "MAX"
+                    } else {
+                        "${save.stats.playerAbilityXp}/${abilityXpThresholdV3(save.stats.playerAbilityLevel)}"
+                    },
                 )
             }
         }
@@ -269,15 +275,29 @@ private fun ApocalypseInventoryCategoryDetailV5(
                 Text(category.label, color = InventoryInkV5, fontSize = 23.sp, fontWeight = FontWeight.Black)
                 Text(category.subtitle, color = InventoryMutedV5, fontSize = 11.sp)
             }
-            Text(inventoryCategoryValueV5(category, save, save.director.assets), color = InventoryAccentV5, fontSize = 20.sp, fontWeight = FontWeight.Black)
+            Text(
+                inventoryCategoryValueV5(category, save, save.director.assets),
+                color = InventoryAccentV5,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Black,
+            )
         }
 
         if (category == ApocalypseInventoryCategoryV5.Money) {
-            Surface(color = InventoryCardV5, shape = RoundedCornerShape(18.dp), border = BorderStroke(1.dp, InventoryBorderV5)) {
+            Surface(
+                color = InventoryCardV5,
+                shape = RoundedCornerShape(18.dp),
+                border = BorderStroke(1.dp, InventoryBorderV5),
+            ) {
                 Column(Modifier.fillMaxWidth().padding(15.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text("当前可用资金", color = InventoryInkV5, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                     Text("¥${save.stats.money}", color = InventoryAccentV5, fontWeight = FontWeight.Black, fontSize = 26.sp)
-                    Text("资金是余额字段，不会把每张纸币做成物品条目。购买、付款、出售、报酬和退款只在剧情真实发生时改变余额。", color = InventoryMutedV5, fontSize = 11.sp, lineHeight = 17.sp)
+                    Text(
+                        "资金是余额字段，不会把每张纸币做成物品条目。购买、付款、出售、报酬和退款只在剧情真实发生时改变余额。",
+                        color = InventoryMutedV5,
+                        fontSize = 11.sp,
+                        lineHeight = 17.sp,
+                    )
                 }
             }
         } else if (assets.isEmpty()) {
@@ -287,12 +307,22 @@ private fun ApocalypseInventoryCategoryDetailV5(
         } else {
             LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(9.dp)) {
                 items(assets, key = { it.id }) { asset ->
-                    Surface(color = InventoryCardV5, shape = RoundedCornerShape(17.dp), border = BorderStroke(1.dp, InventoryBorderV5)) {
+                    Surface(
+                        color = InventoryCardV5,
+                        shape = RoundedCornerShape(17.dp),
+                        border = BorderStroke(1.dp, InventoryBorderV5),
+                    ) {
                         Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(category.icon, null, tint = InventoryAccentV5, modifier = Modifier.size(19.dp))
                                 Spacer(Modifier.width(8.dp))
-                                Text(asset.title, color = InventoryInkV5, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                                Text(
+                                    asset.title,
+                                    color = InventoryInkV5,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.weight(1f),
+                                )
                                 Text("×${asset.quantity}", color = InventoryAccentV5, fontSize = 12.sp, fontWeight = FontWeight.Black)
                             }
                             asset.tag.takeIf(String::isNotBlank)?.let { tag ->
@@ -319,5 +349,8 @@ private fun inventoryCategoryValueV5(
     ApocalypseInventoryCategoryV5.Medicine -> save.stats.medicine.toString()
     ApocalypseInventoryCategoryV5.Material -> save.stats.materials.toString()
     ApocalypseInventoryCategoryV5.Core -> save.stats.crystalCores.toString()
-    else -> assets.filter { it.kind in category.kinds }.sumOf { it.quantity }.toString()
+    else -> assets
+        .filter { apocalypseAssetBelongsToInventoryCategoryV5(category, it) }
+        .sumOf { it.quantity }
+        .toString()
 }
