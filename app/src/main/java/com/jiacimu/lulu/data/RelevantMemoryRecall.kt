@@ -19,7 +19,16 @@ object RelevantMemoryRecall {
     ): List<MemoryEntry> {
         val cleanQuery = query.trim()
         val queryTerms = terms(cleanQuery)
-        val memories = LuluRepositories.memory.snapshot(characterId).take(60)
+        val memories = LuluRepositories.memory.snapshot(characterId)
+            .asSequence()
+            .filter { memory ->
+                DigitalLifeProfileStore.allowsTimestamp(
+                    characterId,
+                    memory.occurredAt ?: memory.createdAt,
+                )
+            }
+            .take(60)
+            .toList()
         val lexical = memories
             .asSequence()
             .map { memory -> memory to score(memory, queryTerms, now) }
