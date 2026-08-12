@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T11:44:50.795733+00:00",
-  "commit": "14c167145c8d7b779d8a88003f547e491c740043",
+  "generatedAt": "2026-08-12T11:45:48.771206+00:00",
+  "commit": "58107cd3edc055c22e3190a226b548010323b8a2",
   "branch": "main",
-  "sourceFingerprint": "b5bd88817404e391abf937e648eb3d2bfda93bc0e851efbcb2779866ecc3145d",
+  "sourceFingerprint": "c27590a3d6e8cfea887055a07afd42eb724357badcef2d3d5f0e92b5874ce156",
   "summary": {
     "files": 172,
-    "lines": 51755,
+    "lines": 51746,
     "symbols": 685
   },
   "symbolIndex": {
@@ -291,7 +291,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
-        "line": 136
+        "line": 129
       }
     ],
     "clearError": [
@@ -485,7 +485,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
-        "line": 131
+        "line": 124
       }
     ],
     "speakAndCache": [
@@ -2699,7 +2699,7 @@
     "attach": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
-        "line": 127
+        "line": 122
       }
     ],
     "GameModelConnectionStatus": [
@@ -6478,20 +6478,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
-      "lines": 166,
-      "sha256": "083e90b07bbd30c2a4765939783b0d6c7e0113de5607d88bc96e06df87cf0ef4",
+      "lines": 157,
+      "sha256": "1af7f21ac87be09ae16a5a917a0403186fb6220bb3947dfeb83c998b54ff3e79",
       "symbols": [
         {
           "name": "attach",
-          "line": 127
+          "line": 122
         },
         {
           "name": "speak",
-          "line": 131
+          "line": 124
         },
         {
           "name": "stop",
-          "line": 136
+          "line": 129
         }
       ]
     },
