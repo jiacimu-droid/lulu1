@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T10:55:01.822880+00:00",
-  "commit": "5df5efd9bf9430eaf45e13387827464171170dd9",
+  "generatedAt": "2026-08-12T10:55:20.948782+00:00",
+  "commit": "8c7db725546bb45ef68bf3da1fec04cf15372b90",
   "branch": "main",
-  "sourceFingerprint": "e1fe5abaf48a3a56331b5f5aa932f940d6bea67b5ee06ddff278dab3fb7bb46d",
+  "sourceFingerprint": "3a210b78e7ffbeb1e1051329364224976e5e71578fbe79d0f22f22efc56dc725",
   "summary": {
-    "files": 170,
-    "lines": 51393,
+    "files": 171,
+    "lines": 51453,
     "symbols": 671
   },
   "symbolIndex": {
@@ -5847,6 +5847,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseMapIntelV5.kt",
       "lines": 289,
       "sha256": "5a3c489620f038e3e774491fdc7e070fa2705b9b0dbdcfea39649e2ea0368407",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseModelPickerV5.kt",
+      "lines": 60,
+      "sha256": "56a80fb130ee9180161d8c730f19b866b0f49d634d7dc0b48bc6b486990243f6",
       "symbols": []
     },
     {
