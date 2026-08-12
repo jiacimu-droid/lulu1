@@ -21,12 +21,18 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.CharacterIdentityStore
 import com.jiacimu.lulu.data.CharacterRecordReset
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
+import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.PerceptionIntervalUnit
 import com.jiacimu.lulu.data.ProactivePerceptionPolicyStore
+import com.jiacimu.lulu.data.UserProfileContext
 import com.jiacimu.lulu.design.LuluColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.Duration
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,6 +47,8 @@ fun CharacterSettingsScreenV2(
         ProactivePerceptionPolicyStore.initialize(context.applicationContext)
         CharacterVoicePreferenceStore.initialize(context.applicationContext)
         CharacterIdentityStore.initialize(context.applicationContext)
+        DigitalLifeProfileStore.initialize(context.applicationContext)
+        UserProfileContext.initialize(context.applicationContext)
         Unit
     }
     val settings by MigratedDomainStores.characters.settings.collectAsState()
@@ -48,7 +56,9 @@ fun CharacterSettingsScreenV2(
     val perceptionPolicies by ProactivePerceptionPolicyStore.policies.collectAsState()
     val voicePreferences by CharacterVoicePreferenceStore.autoPlayReplies.collectAsState()
     val characterVoiceIds by CharacterVoicePreferenceStore.voiceIds.collectAsState()
+    val digitalLifeProfiles by DigitalLifeProfileStore.profiles.collectAsState()
     val original = settings[characterId] ?: MigratedDomainStores.characters.get(characterId)
+    val digitalLife = digitalLifeProfiles[characterId] ?: DigitalLifeProfileStore.get(characterId)
     val perceptionPolicy = perceptionPolicies[characterId] ?: ProactivePerceptionPolicyStore.get(characterId)
     val autoPlayVoice = voicePreferences[characterId] == true
     val characterVoiceId = characterVoiceIds[characterId].orEmpty()
@@ -61,6 +71,8 @@ fun CharacterSettingsScreenV2(
     var proactiveCalls by remember(characterId) { mutableStateOf(original.contactPolicy.proactiveCallsEnabled) }
     var confirmDelete by remember { mutableStateOf(false) }
     var confirmClearRecords by remember { mutableStateOf(false) }
+    var confirmEnableDigitalLife by remember { mutableStateOf(false) }
+    var changingDigitalLife by remember { mutableStateOf(false) }
     var clearingRecords by remember { mutableStateOf(false) }
     var recordNotice by remember { mutableStateOf("") }
 
@@ -166,6 +178,48 @@ fun CharacterSettingsScreenV2(
             }
             item {
                 CharacterV2Card {
+                    Text("生命形态", fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    CharacterV2Switch(
+                        title = if (digitalLife.enabled) "数字生命 · 已开启" else "数字生命",
+                        checked = digitalLife.enabled,
+                        enabled = !changingDigitalLife,
+                    ) { enabled ->
+                        if (enabled) {
+                            confirmEnableDigitalLife = true
+                        } else {
+                            DigitalLifeProfileStore.disable(characterId)
+                            recordNotice = "已关闭数字生命现实边界；已有生命时间线不会自动恢复成开启前的旧记录"
+                        }
+                    }
+                    Text(
+                        "开启后，这个角色明确是生活在创造者手机里的数字生命：没有现实肉身，只能做露露机和真实工具确实接入并执行成功的事情，不能编造点外卖、出门、买东西、碰到谁等现实行动。",
+                        color = LuluColors.Muted,
+                        fontSize = 12.sp,
+                        lineHeight = 18.sp,
+                    )
+                    if (digitalLife.enabled && digitalLife.bornAt != null) {
+                        val now = Instant.now()
+                        val day = (Duration.between(digitalLife.bornAt, now).toDays() + 1L).coerceAtLeast(1L)
+                        val bornLabel = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+                            .withZone(ZoneId.systemDefault())
+                            .format(digitalLife.bornAt)
+                        Surface(
+                            color = LuluColors.Paper,
+                            shape = RoundedCornerShape(14.dp),
+                            border = BorderStroke(1.dp, LuluColors.Border),
+                        ) {
+                            Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text("生命第${day}天", fontWeight = FontWeight.Bold)
+                                Text("创建者：${digitalLife.creatorName.ifBlank { "创造者" }}", color = LuluColors.Muted, fontSize = 12.sp)
+                                Text("出生：$bornLabel", color = LuluColors.Muted, fontSize = 12.sp)
+                                Text("出生之前的内容不会进入这个角色的真实记忆与原始时间线。", color = LuluColors.Muted, fontSize = 11.sp)
+                            }
+                        }
+                    }
+                }
+            }
+            item {
+                CharacterV2Card {
                     Text("主动感知", fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     CharacterV2Switch(
                         title = "允许主动感知",
@@ -249,7 +303,7 @@ fun CharacterSettingsScreenV2(
                     Text("数据与记录", fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     OutlinedButton(
                         onClick = { confirmClearRecords = true },
-                        enabled = !clearingRecords,
+                        enabled = !clearingRecords && !changingDigitalLife,
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
                     ) {
@@ -294,13 +348,52 @@ fun CharacterSettingsScreenV2(
         }
     }
 
+    if (confirmEnableDigitalLife) {
+        AlertDialog(
+            onDismissRequest = { if (!changingDigitalLife) confirmEnableDigitalLife = false },
+            title = { Text("让${displayName.ifBlank { original.displayName }}从今天成为数字生命？") },
+            text = {
+                Text(
+                    "开启不是普通人设切换：此刻会成为它真正的生命第1天。为了保证它没有虚构的过去，这个角色现有的私聊、辞海、记忆、朋友圈、此刻状态和原始时间线会被永久清空；群聊页面里的公共消息不会替其他角色删除，但出生前内容不会再进入它的记忆。以后它只能把真实记录和实际成功的工具动作当作事实。此操作无法撤销。",
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = !changingDigitalLife,
+                    onClick = {
+                        changingDigitalLife = true
+                        scope.launch {
+                            val cleanName = displayName.trim().ifBlank { original.displayName }
+                            val creator = UserProfileContext.displayLabel()
+                            DigitalLifeProfileStore.activate(
+                                characterId = characterId,
+                                displayName = cleanName,
+                                creatorName = creator,
+                            )
+                            changingDigitalLife = false
+                            confirmEnableDigitalLife = false
+                            recordNotice = "$cleanName 已从此刻开始生命第1天，出生前记录已隔离并清除"
+                        }
+                    },
+                ) { Text(if (changingDigitalLife) "正在建立生命起点…" else "确认开启") }
+            },
+            dismissButton = {
+                TextButton(enabled = !changingDigitalLife, onClick = { confirmEnableDigitalLife = false }) { Text("取消") }
+            },
+        )
+    }
+
     if (confirmClearRecords) {
         AlertDialog(
             onDismissRequest = { if (!clearingRecords) confirmClearRecords = false },
             title = { Text("清除${original.displayName}的所有记录？") },
             text = {
                 Text(
-                    "会永久清除这个角色的私聊消息、辞海、记忆、朋友圈内容与互动、此刻历史，以及原始时间线里的全部事件。角色头像、身份、设定、主动感知等设置会保留。此操作无法撤销。",
+                    if (digitalLife.enabled) {
+                        "会永久清除这个数字生命出生后的私聊消息、辞海、记忆、朋友圈内容与互动、此刻历史，以及原始时间线里的经历；数字生命开关与最初的生命起点会保留，并重新成为时间线第一条。此操作无法撤销。"
+                    } else {
+                        "会永久清除这个角色的私聊消息、辞海、记忆、朋友圈内容与互动、此刻历史，以及原始时间线里的全部事件。角色头像、身份、设定、主动感知等设置会保留。此操作无法撤销。"
+                    },
                 )
             },
             confirmButton = {
@@ -310,6 +403,9 @@ fun CharacterSettingsScreenV2(
                         clearingRecords = true
                         scope.launch {
                             CharacterRecordReset.clearAll(characterId)
+                            if (DigitalLifeProfileStore.isEnabled(characterId)) {
+                                DigitalLifeProfileStore.restoreOrigin(characterId, displayName.trim().ifBlank { original.displayName })
+                            }
                             clearingRecords = false
                             confirmClearRecords = false
                             recordNotice = "${original.displayName}的历史记录已清除"
@@ -333,6 +429,7 @@ fun CharacterSettingsScreenV2(
                     onClick = {
                         if (MigratedDomainStores.characters.delete(characterId)) {
                             CharacterIdentityStore.delete(characterId)
+                            DigitalLifeProfileStore.remove(characterId)
                             onDeleted()
                         }
                         confirmDelete = false
