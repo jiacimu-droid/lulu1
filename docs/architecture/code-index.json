@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T18:01:56.239644+00:00",
-  "commit": "9ca7d5fcb01c82d7db84424a929d10dfa78e578d",
+  "generatedAt": "2026-08-12T18:03:50.232210+00:00",
+  "commit": "be5c1fa1b6f69aab2cd56f580fb0782407150c8b",
   "branch": "main",
-  "sourceFingerprint": "7991f0ea46d01392209221d5e3a4fac54f6a2668edd784e2c19e253bf8e4cd4f",
+  "sourceFingerprint": "b64cad03ab0d909f6d601326081bd246a030e54f6004afe47115461cd74803f8",
   "summary": {
     "files": 176,
-    "lines": 53720,
-    "symbols": 690
+    "lines": 53318,
+    "symbols": 689
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -2228,16 +2228,10 @@
         "line": 57
       }
     ],
-    "ownConcreteDelta": [
+    "concreteOwnsAggregate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryLedgerV5.kt",
-        "line": 69
-      }
-    ],
-    "has": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryLedgerV5.kt",
-        "line": 646
+        "line": 45
       }
     ],
     "restoreOnto": [
@@ -5966,16 +5960,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryLedgerV5.kt",
-      "lines": 746,
-      "sha256": "b1608978ceabcf18de7345036a60c0f0c627e28183b9ce06ed52c3f7d829da93",
+      "lines": 344,
+      "sha256": "f89bbe5fd953b7a9eb60ee30afdb1ce8885823ec4d22d2dbcb137a1abe8c95b6",
       "symbols": [
         {
-          "name": "ownConcreteDelta",
-          "line": 69
-        },
-        {
-          "name": "has",
-          "line": 646
+          "name": "concreteOwnsAggregate",
+          "line": 45
         }
       ]
     },

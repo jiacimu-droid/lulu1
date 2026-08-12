@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`9ca7d5fcb01c82d7db84424a929d10dfa78e578d`
+- 基准提交：`be5c1fa1b6f69aab2cd56f580fb0782407150c8b`
 - 分支：`main`
 - 已索引文件：176
-- 已索引代码/文本行：53720
-- 已发现符号：690
+- 已索引代码/文本行：53318
+- 已发现符号：689
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -95,7 +95,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseFlowRowCompat.kt` | 34 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt` | 303 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryBrowserV5.kt` | 429 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryLedgerV5.kt` | 746 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryLedgerV5.kt` | 344 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt` | 352 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt` | 676 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseMapIntelV5.kt` | 541 | 0 |
