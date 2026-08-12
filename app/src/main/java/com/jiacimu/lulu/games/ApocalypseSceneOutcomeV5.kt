@@ -13,7 +13,7 @@ private val APOCALYPSE_DELTA_FIELDS_V5 = setOf(
     "coresFound", "playerAbilityXpGain", "baseDelta", "healthDelta", "staminaDelta",
     "infectionDelta", "moraleDelta", "moneyAfter", "foodAfter", "waterAfter", "medicineAfter",
     "materialsAfter", "coresAfter", "healthAfter", "staminaAfter", "infectionAfter", "moraleAfter",
-    "endDayIndex", "endClockMinutes", "discoverAssets", "inventoryChanges",
+    "endDayIndex", "endClockMinutes", "acquiredItems", "discoverAssets", "inventoryChanges",
 )
 
 /**
@@ -102,8 +102,6 @@ internal fun parseApocalypseSceneOutcomeV5(raw: String): ApocalypseSceneOutcomeV
         text = normalized.substring(sceneStart + APOCALYPSE_SCENE_TEXT_MARKER_V5.length, stateStart).trim()
         stateBlock = normalized.substring(stateStart + APOCALYPSE_SCENE_STATE_MARKER_V5.length)
     } else {
-        // Some compatible models preserve the JSON and visual-novel tags but omit our sentinel
-        // lines. Recover either JSON-first or scene-first output without spending a second request.
         val markerless = normalized
             .replace(APOCALYPSE_SCENE_STATE_MARKER_V5, "")
             .replace(APOCALYPSE_SCENE_TEXT_MARKER_V5, "")
@@ -135,8 +133,36 @@ internal fun parseApocalypseSceneOutcomeV5(raw: String): ApocalypseSceneOutcomeV
     if (objectStart < 0 || objectEnd <= objectStart) return@runCatching null
     val json = JSONObject(cleanedState.substring(objectStart, objectEnd + 1))
     val reportedStateFields = APOCALYPSE_DELTA_FIELDS_V5.filterTo(mutableSetOf(), json::has)
+    if (json.has("acquiredItems")) reportedStateFields += "discoverAssets"
     val visibleText = text.trim().removePrefix("```text").removePrefix("```").removeSuffix("```").trim()
     if (visibleText.isBlank()) return@runCatching null
+
+    fun decodeAssetArray(name: String): List<ApocalypseV3Asset> = json.optJSONArray(name).sceneObjectsV5 { item ->
+        val title = item.optString("title").ifBlank { "新发现" }.trim().take(70)
+        val rawTag = item.optString("tag").trim()
+        val unit = item.optString("unit").trim().take(16)
+        val tag = listOf(
+            rawTag,
+            unit.takeIf(String::isNotBlank)?.let { "单位=$it" }.orEmpty(),
+        ).filter(String::isNotBlank).distinct().joinToString("；").take(80)
+        ApocalypseV3Asset(
+            id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
+            kind = parseSceneAssetKindV5(item.optString("kind")),
+            title = title,
+            detail = item.optString("detail").trim().take(360),
+            quantity = item.optInt("quantity", 1).coerceIn(1, 99_999),
+            tag = tag,
+        )
+    }
+    val acquiredItems = decodeAssetArray("acquiredItems")
+    val legacyDiscovered = decodeAssetArray("discoverAssets")
+    val completeAcquisitions = (acquiredItems + legacyDiscovered)
+        .distinctBy { asset ->
+            val key = asset.title.lowercase().replace(Regex("\\s+"), "")
+            "${asset.kind}|$key"
+        }
+        .take(64)
+
     ApocalypseSceneOutcomeV5(
         text = visibleText,
         actionAcknowledged = json.optBoolean("actionAcknowledged", false),
@@ -158,11 +184,11 @@ internal fun parseApocalypseSceneOutcomeV5(raw: String): ApocalypseSceneOutcomeV
                 id = item.optString("id").trim(),
                 kind = parseSceneAssetKindV5(item.optString("kind")),
                 title = item.optString("title").trim().take(70),
-                quantityDelta = item.optInt("quantityDelta").coerceIn(-999, 999),
+                quantityDelta = item.optInt("quantityDelta").coerceIn(-99_999, 99_999),
                 detail = item.optString("detail").trim().take(360),
-                tag = item.optString("tag").trim().take(40),
+                tag = item.optString("tag").trim().take(80),
             )
-        }.filter { it.quantityDelta != 0 && (it.id.isNotBlank() || it.title.isNotBlank()) }.take(8),
+        }.filter { it.quantityDelta != 0 && (it.id.isNotBlank() || it.title.isNotBlank()) }.take(64),
         delta = ApocalypseSceneDeltaV5(
             location = json.optString("location").trim().take(100),
             sceneGoal = json.optString("sceneGoal").trim().take(260),
@@ -171,16 +197,7 @@ internal fun parseApocalypseSceneOutcomeV5(raw: String): ApocalypseSceneOutcomeV
             worldFactsAdd = json.optJSONArray("worldFactsAdd").sceneStringsV5().distinct().take(4),
             characterStateAdds = json.optJSONArray("characterStateAdds").sceneStringsV5().distinct().take(3),
             presentCharacterIds = json.optJSONArray("presentCharacterIds").sceneStringsV5().distinct().take(10),
-            discoverAssets = json.optJSONArray("discoverAssets").sceneObjectsV5 { item ->
-                ApocalypseV3Asset(
-                    id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
-                    kind = parseSceneAssetKindV5(item.optString("kind")),
-                    title = item.optString("title").ifBlank { "新发现" }.take(70),
-                    detail = item.optString("detail").take(360),
-                    quantity = item.optInt("quantity", 1).coerceIn(1, 999),
-                    tag = item.optString("tag").take(40),
-                )
-            }.take(4),
+            discoverAssets = completeAcquisitions,
             weather = json.optString("weather").trim().take(40),
             temperatureC = json.optInt("temperatureC").takeIf { json.has("temperatureC") }?.coerceIn(-35, 55),
             minutesPassed = json.optInt("minutesPassed", 20).coerceIn(1, 10_080),
@@ -197,11 +214,11 @@ internal fun parseApocalypseSceneOutcomeV5(raw: String): ApocalypseSceneOutcomeV
             infectionDelta = json.optInt("infectionDelta"),
             moraleDelta = json.optInt("moraleDelta"),
             moneyAfter = json.optIntOrNullV5("moneyAfter")?.coerceIn(0, 9_999_999),
-            foodAfter = json.optIntOrNullV5("foodAfter")?.coerceIn(0, 999),
-            waterAfter = json.optIntOrNullV5("waterAfter")?.coerceIn(0, 999),
-            medicineAfter = json.optIntOrNullV5("medicineAfter")?.coerceIn(0, 999),
-            materialsAfter = json.optIntOrNullV5("materialsAfter")?.coerceIn(0, 999),
-            coresAfter = json.optIntOrNullV5("coresAfter")?.coerceIn(0, 9999),
+            foodAfter = json.optIntOrNullV5("foodAfter")?.coerceIn(0, 99_999),
+            waterAfter = json.optIntOrNullV5("waterAfter")?.coerceIn(0, 99_999),
+            medicineAfter = json.optIntOrNullV5("medicineAfter")?.coerceIn(0, 99_999),
+            materialsAfter = json.optIntOrNullV5("materialsAfter")?.coerceIn(0, 99_999),
+            coresAfter = json.optIntOrNullV5("coresAfter")?.coerceIn(0, 99_999),
             healthAfter = json.optIntOrNullV5("healthAfter")?.coerceIn(0, 100),
             staminaAfter = json.optIntOrNullV5("staminaAfter")?.coerceIn(0, 100),
             infectionAfter = json.optIntOrNullV5("infectionAfter")?.coerceIn(0, 100),
@@ -267,9 +284,6 @@ internal fun apocalypseSceneOutcomeNeedsRepairV5(
     val tagged = outcome.text.contains("【旁白】") || outcome.text.contains("【玩家】") || outcome.text.contains("【角色:")
     if (!tagged) return true
 
-    // A receipt flag is not reliable enough to throw away a complete 800–1100 character scene by
-    // itself. Only an explicit rejection with no reported action result is strong evidence that the
-    // writer actually skipped the action. This removes the common two-full-generation latency loop.
     if (
         outcome.actionAcknowledgementReported &&
         !outcome.actionAcknowledged &&
@@ -278,8 +292,6 @@ internal fun apocalypseSceneOutcomeNeedsRepairV5(
         return true
     }
 
-    // Anonymous placeholder speakers can corrupt the persistent cast graph, so this remains a hard
-    // repair condition. Concrete Chinese names/roles are recovered into stable dossiers downstream.
     val speakerTokens = apocalypseStorySpeakerTokensV5(outcome.text)
     val effectiveDossiers = mergeApocalypseCharacterDossiersV5(dossiers, outcome.castUpdates, party)
     if (speakerTokens.any { token ->
@@ -295,9 +307,6 @@ internal fun apocalypseSceneOutcomeNeedsRepairV5(
         return true
     }
 
-    // Speech timing and the exact position of a speaker tag are quality preferences, not grounds for
-    // a second expensive model call. The prompt still asks for an early direct response; if the
-    // model supplies usable tagged prose and a result, keep it instead of discarding the whole scene.
     return false
 }
 
@@ -381,7 +390,7 @@ private fun mergeApocalypseAcquiredAssetsV5(
             merged[existingIndex] = existing.copy(
                 detail = addition.detail.ifBlank { existing.detail },
                 quantity = if (replaceOnly) maxOf(existing.quantity, addition.quantity) else {
-                    (existing.quantity + addition.quantity).coerceAtMost(999)
+                    (existing.quantity + addition.quantity).coerceAtMost(99_999)
                 },
                 tag = addition.tag.ifBlank { existing.tag },
             )
@@ -399,7 +408,7 @@ private fun mergeApocalypseAcquiredAssetsV5(
                     kind = change.kind,
                     title = change.title.ifBlank { "新增${change.kind.label}" },
                     detail = change.detail,
-                    quantity = change.quantityDelta,
+                    quantity = change.quantityDelta.coerceAtMost(99_999),
                     tag = change.tag,
                 )
             }
@@ -410,14 +419,14 @@ private fun mergeApocalypseAcquiredAssetsV5(
                 merged.removeAt(existingIndex)
             } else {
                 merged[existingIndex] = existing.copy(
-                    quantity = nextQuantity.coerceAtMost(999),
+                    quantity = nextQuantity.coerceAtMost(99_999),
                     detail = change.detail.ifBlank { existing.detail },
                     tag = change.tag.ifBlank { existing.tag },
                 )
             }
         }
     }
-    return merged.takeLast(90)
+    return merged.takeLast(280)
 }
 
 /** Apply writer-owned local consequences only when the expensive director was skipped. */
@@ -507,17 +516,15 @@ internal fun applyApocalypseSceneOutcomeV5(
                 },
                 presentCharacterStateKnown = outcome.presentCharactersReported ||
                     plannedBeat.nextDirector.presentCharacterStateKnown,
-                // This scene already received a director pass. Do not let the writer immediately
-                // schedule another one and recreate a director-every-scene loop.
                 directorRefreshNeeded = false,
                 dayIndex = nextDayIndex,
                 clockMinutes = absoluteMinutes % 1440,
             ),
             moneyDelta = resolveApocalypseStateDeltaV5(outcome, "moneyDelta", "moneyAfter", outcome.delta.moneyDelta, outcome.delta.moneyAfter, save.stats.money, plannedBeat.moneyDelta).coerceIn(-save.stats.money, 1_000_000),
-            foodDelta = resolveApocalypseStateDeltaV5(outcome, "foodDelta", "foodAfter", outcome.delta.foodDelta, outcome.delta.foodAfter, save.stats.food, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Food) ?: plannedBeat.foodDelta).coerceIn(-save.stats.food, 999),
-            waterDelta = resolveApocalypseStateDeltaV5(outcome, "waterDelta", "waterAfter", outcome.delta.waterDelta, outcome.delta.waterAfter, save.stats.water, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Water) ?: plannedBeat.waterDelta).coerceIn(-save.stats.water, 999),
-            medicineDelta = resolveApocalypseStateDeltaV5(outcome, "medicineDelta", "medicineAfter", outcome.delta.medicineDelta, outcome.delta.medicineAfter, save.stats.medicine, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Medicine) ?: plannedBeat.medicineDelta).coerceIn(-save.stats.medicine, 999),
-            materialsDelta = resolveApocalypseStateDeltaV5(outcome, "materialsDelta", "materialsAfter", outcome.delta.materialsDelta, outcome.delta.materialsAfter, save.stats.materials, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Material) ?: plannedBeat.materialsDelta).coerceIn(-save.stats.materials, 999),
+            foodDelta = resolveApocalypseStateDeltaV5(outcome, "foodDelta", "foodAfter", outcome.delta.foodDelta, outcome.delta.foodAfter, save.stats.food, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Food) ?: plannedBeat.foodDelta).coerceIn(-save.stats.food, 99_999),
+            waterDelta = resolveApocalypseStateDeltaV5(outcome, "waterDelta", "waterAfter", outcome.delta.waterDelta, outcome.delta.waterAfter, save.stats.water, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Water) ?: plannedBeat.waterDelta).coerceIn(-save.stats.water, 99_999),
+            medicineDelta = resolveApocalypseStateDeltaV5(outcome, "medicineDelta", "medicineAfter", outcome.delta.medicineDelta, outcome.delta.medicineAfter, save.stats.medicine, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Medicine) ?: plannedBeat.medicineDelta).coerceIn(-save.stats.medicine, 99_999),
+            materialsDelta = resolveApocalypseStateDeltaV5(outcome, "materialsDelta", "materialsAfter", outcome.delta.materialsDelta, outcome.delta.materialsAfter, save.stats.materials, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Material) ?: plannedBeat.materialsDelta).coerceIn(-save.stats.materials, 99_999),
             coresFound = resolveApocalypseStateDeltaV5(outcome, "coresFound", "coresAfter", outcome.delta.coresFound, outcome.delta.coresAfter, save.stats.crystalCores, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Core) ?: plannedBeat.coresFound).coerceIn(-save.stats.crystalCores, 99),
             playerAbilityXpGain = if ("playerAbilityXpGain" in outcome.reportedStateFields) outcome.delta.playerAbilityXpGain.coerceIn(0, 10) else plannedBeat.playerAbilityXpGain,
             baseDelta = if ("baseDelta" in outcome.reportedStateFields) outcome.delta.baseDelta.coerceIn(-1, 1) else plannedBeat.baseDelta,
@@ -601,10 +608,10 @@ internal fun applyApocalypseSceneOutcomeV5(
         worldDelta = outcome.actionOutcome,
         emotionalTurn = delta.emotionalTurn,
         moneyDelta = resolveApocalypseStateDeltaV5(outcome, "moneyDelta", "moneyAfter", delta.moneyDelta, delta.moneyAfter, save.stats.money, 0).coerceIn(-save.stats.money, 1_000_000),
-        foodDelta = resolveApocalypseStateDeltaV5(outcome, "foodDelta", "foodAfter", delta.foodDelta, delta.foodAfter, save.stats.food, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Food) ?: 0).coerceIn(-save.stats.food, 999),
-        waterDelta = resolveApocalypseStateDeltaV5(outcome, "waterDelta", "waterAfter", delta.waterDelta, delta.waterAfter, save.stats.water, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Water) ?: 0).coerceIn(-save.stats.water, 999),
-        medicineDelta = resolveApocalypseStateDeltaV5(outcome, "medicineDelta", "medicineAfter", delta.medicineDelta, delta.medicineAfter, save.stats.medicine, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Medicine) ?: 0).coerceIn(-save.stats.medicine, 999),
-        materialsDelta = resolveApocalypseStateDeltaV5(outcome, "materialsDelta", "materialsAfter", delta.materialsDelta, delta.materialsAfter, save.stats.materials, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Material) ?: 0).coerceIn(-save.stats.materials, 999),
+        foodDelta = resolveApocalypseStateDeltaV5(outcome, "foodDelta", "foodAfter", delta.foodDelta, delta.foodAfter, save.stats.food, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Food) ?: 0).coerceIn(-save.stats.food, 99_999),
+        waterDelta = resolveApocalypseStateDeltaV5(outcome, "waterDelta", "waterAfter", delta.waterDelta, delta.waterAfter, save.stats.water, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Water) ?: 0).coerceIn(-save.stats.water, 99_999),
+        medicineDelta = resolveApocalypseStateDeltaV5(outcome, "medicineDelta", "medicineAfter", delta.medicineDelta, delta.medicineAfter, save.stats.medicine, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Medicine) ?: 0).coerceIn(-save.stats.medicine, 99_999),
+        materialsDelta = resolveApocalypseStateDeltaV5(outcome, "materialsDelta", "materialsAfter", delta.materialsDelta, delta.materialsAfter, save.stats.materials, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Material) ?: 0).coerceIn(-save.stats.materials, 99_999),
         coresFound = resolveApocalypseStateDeltaV5(outcome, "coresFound", "coresAfter", delta.coresFound, delta.coresAfter, save.stats.crystalCores, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Core) ?: 0).coerceIn(-save.stats.crystalCores, 99),
         playerAbilityXpGain = if ("playerAbilityXpGain" in outcome.reportedStateFields) delta.playerAbilityXpGain.coerceIn(0, 10) else 0,
         baseDelta = if ("baseDelta" in outcome.reportedStateFields) delta.baseDelta.coerceIn(-1, 1) else 0,
@@ -693,17 +700,18 @@ private fun <T> JSONArray?.sceneObjectsV5(mapper: (JSONObject) -> T): List<T> = 
     }
 }
 
-private fun parseSceneAssetKindV5(raw: String): ApocalypseV3AssetKind = when (raw.lowercase()) {
-    "food" -> ApocalypseV3AssetKind.Food
-    "water" -> ApocalypseV3AssetKind.Water
-    "medicine" -> ApocalypseV3AssetKind.Medicine
-    "material" -> ApocalypseV3AssetKind.Material
-    "tool", "item" -> ApocalypseV3AssetKind.Tool
-    "weapon" -> ApocalypseV3AssetKind.Weapon
-    "vehicle" -> ApocalypseV3AssetKind.Vehicle
-    "key" -> ApocalypseV3AssetKind.Key
-    "document" -> ApocalypseV3AssetKind.Document
-    "map" -> ApocalypseV3AssetKind.Map
-    "core" -> ApocalypseV3AssetKind.Core
-    else -> ApocalypseV3AssetKind.Clue
+private fun parseSceneAssetKindV5(raw: String): ApocalypseV3AssetKind = when (raw.trim().lowercase()) {
+    "food", "食品", "食物" -> ApocalypseV3AssetKind.Food
+    "water", "drink", "饮水", "水" -> ApocalypseV3AssetKind.Water
+    "medicine", "medical", "药品", "医疗" -> ApocalypseV3AssetKind.Medicine
+    "material", "materials", "材料", "建材" -> ApocalypseV3AssetKind.Material
+    "weapon", "combat", "firearm", "firearms", "ammo", "ammunition", "armor", "riot gear", "tactical gear", "战斗", "武器", "枪械", "弹药", "防暴装备", "防爆装备", "战术装备" -> ApocalypseV3AssetKind.Weapon
+    "vehicle", "载具", "车辆" -> ApocalypseV3AssetKind.Vehicle
+    "key", "access", "钥匙", "权限" -> ApocalypseV3AssetKind.Key
+    "document", "file", "文件", "档案" -> ApocalypseV3AssetKind.Document
+    "map", "地图" -> ApocalypseV3AssetKind.Map
+    "core", "crystal", "晶核" -> ApocalypseV3AssetKind.Core
+    "clue", "intel", "线索", "情报" -> ApocalypseV3AssetKind.Clue
+    "tool", "item", "household", "survival", "electronics", "energy", "gear", "工具", "生活用品", "生存装备", "电子通讯", "能源燃料", "其他" -> ApocalypseV3AssetKind.Tool
+    else -> ApocalypseV3AssetKind.Tool
 }
