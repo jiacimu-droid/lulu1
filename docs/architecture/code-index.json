@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T08:51:23.900693+00:00",
-  "commit": "8c449070a83bfd37b624f72e8528e8cd7b25b61d",
+  "generatedAt": "2026-08-12T08:52:19.035327+00:00",
+  "commit": "b311b8248982a6abdb04147462fefe76164756c1",
   "branch": "main",
-  "sourceFingerprint": "2e80df54d0cc6704e598420ab65e7144cc9c7346f8a31505e5252e91e239487d",
+  "sourceFingerprint": "97a0eaf0ff704a6346361730ee45689c1a0454420263d071614ae96df3a383af",
   "summary": {
     "files": 164,
-    "lines": 49412,
+    "lines": 49422,
     "symbols": 659
   },
   "symbolIndex": {
@@ -227,7 +227,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-        "line": 20
+        "line": 21
       }
     ],
     "TaskContext": [
@@ -255,7 +255,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-        "line": 37
+        "line": 38
       }
     ],
     "launch": [
@@ -265,7 +265,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-        "line": 39
+        "line": 40
       }
     ],
     "stop": [
@@ -5661,20 +5661,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-      "lines": 219,
-      "sha256": "aa45a25776a63f8c70bbc9f422b523166713eee71b29b9e5cccde56099bddf1c",
+      "lines": 229,
+      "sha256": "dc304565e46d1c14256e4a5e0e42719a28c4146e3bc326558fce11972402e4a9",
       "symbols": [
         {
           "name": "TaskState",
-          "line": 20
+          "line": 21
         },
         {
           "name": "state",
-          "line": 37
+          "line": 38
         },
         {
           "name": "launch",
-          "line": 39
+          "line": 40
         }
       ]
     },
