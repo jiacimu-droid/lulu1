@@ -7,7 +7,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -64,7 +63,6 @@ fun LuluVoiceCallScreen(
     val messages by messagesFlow.collectAsState()
     val character = MigratedDomainStores.characters.get(state.characterId.ifBlank { characterId })
     val listState = rememberLazyListState()
-    var modelExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(conversationId, characterId, characterName) {
         LuluVoiceCallSession.prepare(context, conversationId, characterId, characterName)
@@ -119,18 +117,7 @@ fun LuluVoiceCallScreen(
                     .padding(horizontal = 20.dp, vertical = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                CallTopBar(
-                    activeLabel = activeLabel,
-                    expanded = modelExpanded,
-                    onExpandedChange = { modelExpanded = it },
-                    archives = library.archives,
-                    activeArchiveId = voiceArchiveId,
-                    onSelectArchive = {
-                        LuluAiServices.connectionStore.selectArchive(it, ModelUsage.VoiceCall)
-                        modelExpanded = false
-                    },
-                    onMinimize = onDismiss,
-                )
+                CallTopBar(activeLabel = activeLabel, onMinimize = onDismiss)
 
                 Spacer(Modifier.height(18.dp))
                 Box(contentAlignment = Alignment.Center) {
@@ -238,9 +225,7 @@ fun LuluVoiceCallScreen(
                                         }
                                     }
                                     if (state.partialTranscript.isNotBlank()) {
-                                        item {
-                                            Text("你：${state.partialTranscript}", color = CallMuted, fontSize = 13.sp)
-                                        }
+                                        item { Text("你：${state.partialTranscript}", color = CallMuted, fontSize = 13.sp) }
                                     }
                                 }
                             }
@@ -272,11 +257,7 @@ fun LuluVoiceCallScreen(
                         Spacer(Modifier.height(8.dp))
                         Text("拨打电话", color = CallMuted, fontSize = 12.sp)
                     }
-
-                    CallPhase.Dialing -> {
-                        CallPrimaryHangup(label = "取消呼叫", onClick = LuluVoiceCallSession::cancelDial)
-                    }
-
+                    CallPhase.Dialing -> CallPrimaryHangup(label = "取消呼叫", onClick = LuluVoiceCallSession::cancelDial)
                     CallPhase.Connected -> {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -295,25 +276,11 @@ fun LuluVoiceCallScreen(
                                 active = !state.microphoneMuted,
                                 onClick = LuluVoiceCallSession::toggleMicrophone,
                             )
-                            CallControl(
-                                icon = Icons.Outlined.KeyboardArrowDown,
-                                label = "缩小",
-                                active = false,
-                                onClick = onDismiss,
-                            )
-                            CallControl(
-                                icon = Icons.Outlined.CallEnd,
-                                label = "挂断",
-                                active = true,
-                                danger = true,
-                                onClick = LuluVoiceCallSession::endCall,
-                            )
+                            CallControl(Icons.Outlined.KeyboardArrowDown, "缩小", false, onClick = onDismiss)
+                            CallControl(Icons.Outlined.CallEnd, "挂断", true, danger = true, onClick = LuluVoiceCallSession::endCall)
                         }
                     }
-
-                    CallPhase.Ended, CallPhase.Idle -> {
-                        CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp, color = CallBlue)
-                    }
+                    CallPhase.Ended, CallPhase.Idle -> CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp, color = CallBlue)
                 }
                 Spacer(Modifier.height(16.dp))
             }
@@ -329,21 +296,9 @@ private fun CallAmbientBackground(state: LuluVoiceCallState) {
         label = "通话氛围",
     )
     Canvas(Modifier.fillMaxSize()) {
-        drawCircle(
-            color = CallLavender.copy(alpha = .48f),
-            radius = size.minDimension * .48f * pulse,
-            center = Offset(size.width * .15f, size.height * .22f),
-        )
-        drawCircle(
-            color = CallBlueSoft.copy(alpha = .58f),
-            radius = size.minDimension * .52f,
-            center = Offset(size.width * .88f, size.height * .36f),
-        )
-        drawCircle(
-            color = CallWarm.copy(alpha = .68f),
-            radius = size.minDimension * .4f,
-            center = Offset(size.width * .44f, size.height * .94f),
-        )
+        drawCircle(CallLavender.copy(alpha = .48f), size.minDimension * .48f * pulse, Offset(size.width * .15f, size.height * .22f))
+        drawCircle(CallBlueSoft.copy(alpha = .58f), size.minDimension * .52f, Offset(size.width * .88f, size.height * .36f))
+        drawCircle(CallWarm.copy(alpha = .68f), size.minDimension * .4f, Offset(size.width * .44f, size.height * .94f))
     }
 }
 
@@ -351,10 +306,7 @@ private fun CallAmbientBackground(state: LuluVoiceCallState) {
 private fun CallActivityIndicator(state: LuluVoiceCallState) {
     val active = state.listening || state.thinking || state.speaking
     Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(99.dp))
-            .background(Color.White.copy(alpha = .58f))
-            .padding(horizontal = 14.dp, vertical = 8.dp),
+        modifier = Modifier.clip(RoundedCornerShape(99.dp)).background(Color.White.copy(alpha = .58f)).padding(horizontal = 14.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -365,32 +317,20 @@ private fun CallActivityIndicator(state: LuluVoiceCallState) {
                 else -> 6 + ((index * 5) % 4) * 3
             }
             Box(
-                Modifier
-                    .width(3.dp)
-                    .height(height.dp)
-                    .clip(CircleShape)
-                    .background(
-                        when {
-                            state.speaking -> Color(0xFF9A6BB5)
-                            state.listening -> CallBlue
-                            else -> CallMuted.copy(alpha = .55f)
-                        },
-                    ),
+                Modifier.width(3.dp).height(height.dp).clip(CircleShape).background(
+                    when {
+                        state.speaking -> Color(0xFF9A6BB5)
+                        state.listening -> CallBlue
+                        else -> CallMuted.copy(alpha = .55f)
+                    },
+                ),
             )
         }
     }
 }
 
 @Composable
-private fun CallTopBar(
-    activeLabel: String,
-    expanded: Boolean,
-    onExpandedChange: (Boolean) -> Unit,
-    archives: List<com.jiacimu.lulu.ai.ModelArchive>,
-    activeArchiveId: String?,
-    onSelectArchive: (String) -> Unit,
-    onMinimize: () -> Unit,
-) {
+private fun CallTopBar(activeLabel: String, onMinimize: () -> Unit) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         FilledTonalIconButton(
             onClick = onMinimize,
@@ -399,51 +339,25 @@ private fun CallTopBar(
                 containerColor = Color.White.copy(alpha = .68f),
                 contentColor = CallInk,
             ),
-        ) {
-            Icon(Icons.Outlined.KeyboardArrowDown, "缩小通话")
-        }
+        ) { Icon(Icons.Outlined.KeyboardArrowDown, "缩小通话") }
         Spacer(Modifier.width(10.dp))
         Column {
             Text("语音通话", color = CallInk, fontWeight = FontWeight.Black, fontSize = 16.sp)
             Text("缩小后仍会继续", color = CallMuted, fontSize = 10.sp)
         }
         Spacer(Modifier.weight(1f))
-        Box {
-            Surface(
-                modifier = Modifier.clickable { onExpandedChange(true) },
-                color = Color.White.copy(alpha = .68f),
-                shape = RoundedCornerShape(99.dp),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = .88f)),
-            ) {
-                Row(
-                    Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(Icons.Outlined.Tune, null, modifier = Modifier.size(15.dp), tint = CallBlue)
-                    Spacer(Modifier.width(5.dp))
-                    Text(activeLabel, maxLines = 1, fontSize = 11.sp, color = CallInk, modifier = Modifier.widthIn(max = 190.dp))
-                }
-            }
-            DropdownMenu(expanded = expanded, onDismissRequest = { onExpandedChange(false) }) {
-                if (archives.isEmpty()) {
-                    DropdownMenuItem(text = { Text("还没有模型存档") }, enabled = false, onClick = {})
-                } else {
-                    archives.forEach { archive ->
-                        val selected = archive.id == activeArchiveId
-                        DropdownMenuItem(
-                            text = { Text(LuluAiServices.connectionStore.archiveLabel(archive)) },
-                            leadingIcon = {
-                                Icon(
-                                    if (selected) Icons.Outlined.RadioButtonChecked else Icons.Outlined.RadioButtonUnchecked,
-                                    null,
-                                )
-                            },
-                            onClick = { onSelectArchive(archive.id) },
-                        )
-                    }
-                }
-            }
-        }
+        ModelArchiveTextButton(
+            usage = ModelUsage.VoiceCall,
+            title = "电话模型",
+            subtitle = "只切换语音通话使用的模型存档；聊天、游戏和末世求生不会跟着改变。",
+            activeLabel = activeLabel,
+            icon = Icons.Outlined.Tune,
+            accent = CallBlue,
+            textColor = CallInk,
+            background = Color(0xFFF3F6FF),
+            muted = CallMuted,
+            border = CallLine,
+        )
     }
 }
 
@@ -467,9 +381,7 @@ private fun CallControl(
                 },
                 contentColor = if (danger) Color.White else CallInk,
             ),
-        ) {
-            Icon(icon, label, modifier = Modifier.size(24.dp))
-        }
+        ) { Icon(icon, label, modifier = Modifier.size(24.dp)) }
         Spacer(Modifier.height(6.dp))
         Text(label, color = CallMuted, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
     }
@@ -481,9 +393,7 @@ private fun CallPrimaryHangup(label: String, onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier.size(72.dp),
         colors = IconButtonDefaults.filledIconButtonColors(containerColor = CallDanger, contentColor = Color.White),
-    ) {
-        Icon(Icons.Outlined.CallEnd, label, modifier = Modifier.size(30.dp))
-    }
+    ) { Icon(Icons.Outlined.CallEnd, label, modifier = Modifier.size(30.dp)) }
     Spacer(Modifier.height(8.dp))
     Text(label, color = CallMuted, fontSize = 12.sp)
 }
