@@ -5,70 +5,23 @@ import android.content.Context
 private const val APOCALYPSE_INVENTORY_MANUAL_PREFS_V5 = "apocalypse_inventory_manual_v5"
 
 /**
- * Safe repair for the newest already-saved scene. It restores non-consumable concrete items that the
- * current narration explicitly says were acquired, plus explicit inventory-count snapshots from old
- * builds (for example “胶弹枪4支、盾牌2面、背心13件、4盒共120发防爆弹”).
+ * Legacy compatibility cleanup only.
  *
- * Manual deletions are remembered separately. Once the player deletes a bogus recovered item, the
- * current-scene repair must not immediately resurrect the same row on the next sheet open.
+ * Older builds appended a visible "【旁白】入库清点：..." paragraph and attempted to reconstruct
+ * missing inventory by scanning prose. That audit/recovery path is deliberately gone. Inventory now
+ * comes only from the writer's structured acquiredItems/discoverAssets receipt.
+ *
+ * This function therefore never creates, changes, or reclassifies inventory. It only removes the old
+ * visible audit paragraph from the newest save when encountered.
  */
 internal fun repairApocalypseCurrentSceneInventoryV5(
     context: Context,
     save: ApocalypseV3Save,
 ): ApocalypseV3Save {
-    if (save.narration.isBlank()) return save
-    val deletedKeys = apocalypseDeletedInventoryKeysV5(context, save.id)
-
-    val acquisitionRecovered = recoverApocalypseNarratedInventoryV5(
-        ApocalypseSceneOutcomeV5(text = save.narration),
-    ).delta.discoverAssets
-    val snapshotRecovered = recoverApocalypseExplicitInventorySnapshotV5(save.narration)
-
-    val recovered = (acquisitionRecovered + snapshotRecovered)
-        .filter { asset ->
-            asset.kind !in setOf(
-                ApocalypseV3AssetKind.Food,
-                ApocalypseV3AssetKind.Water,
-                ApocalypseV3AssetKind.Medicine,
-                ApocalypseV3AssetKind.Core,
-                ApocalypseV3AssetKind.Map,
-            ) && apocalypseRepairAssetKeyV5(asset.title) !in deletedKeys
-        }
-        .groupBy { apocalypseRepairAssetKeyV5(it.title) }
-        .values
-        .mapNotNull { variants -> variants.maxByOrNull { it.quantity } }
-        .take(64)
-
-    if (recovered.isEmpty()) return save
-
-    val merged = save.director.assets.toMutableList()
-    var changed = false
-    recovered.forEach { candidate ->
-        val existingIndex = merged.indexOfFirst { existing ->
-            apocalypseRepairAssetKeyV5(existing.title) == apocalypseRepairAssetKeyV5(candidate.title)
-        }
-        if (existingIndex < 0) {
-            merged += candidate
-            changed = true
-        } else {
-            val existing = merged[existingIndex]
-            // Old builds often saved one placeholder unit even when the visible current scene showed
-            // an explicit larger count. For the newest scene, the explicit visible count is safe to
-            // use as a repair because no later scene can have consumed it yet.
-            if (candidate.quantity > existing.quantity) {
-                merged[existingIndex] = existing.copy(
-                    kind = candidate.kind,
-                    quantity = candidate.quantity,
-                    detail = candidate.detail.ifBlank { existing.detail },
-                    tag = candidate.tag.ifBlank { existing.tag },
-                )
-                changed = true
-            }
-        }
-    }
-    if (!changed) return save
+    val cleanedNarration = stripLegacyApocalypseInventoryAuditV5(save.narration)
+    if (cleanedNarration == save.narration) return save
     return save.copy(
-        director = save.director.copy(assets = merged.takeLast(280)),
+        narration = cleanedNarration,
         updatedAt = System.currentTimeMillis(),
     )
 }
@@ -103,13 +56,6 @@ internal fun deleteApocalypseInventoryAssetV5(
         updatedAt = System.currentTimeMillis(),
     )
 }
-
-private fun apocalypseDeletedInventoryKeysV5(context: Context, saveId: String): Set<String> =
-    context.applicationContext
-        .getSharedPreferences(APOCALYPSE_INVENTORY_MANUAL_PREFS_V5, Context.MODE_PRIVATE)
-        .getStringSet("deleted_$saveId", emptySet())
-        ?.toSet()
-        .orEmpty()
 
 private fun apocalypseRememberDeletedInventoryKeyV5(context: Context, saveId: String, key: String) {
     if (saveId.isBlank() || key.isBlank()) return
