@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,7 +53,7 @@ internal object ApocalypseGenerationTaskManagerV5 {
             updateState(save.id) {
                 TaskState(
                     running = true,
-                    phase = if (needsDirector) "导演规划关键节点" else "沿用剧情蓝图",
+                    phase = if (needsDirector) "导演规划 · 同时检索旧剧情" else "正在检索本局旧剧情",
                     action = cleanAction,
                     startedAtMillis = System.currentTimeMillis(),
                     usedDirector = needsDirector,
@@ -61,25 +62,34 @@ internal object ApocalypseGenerationTaskManagerV5 {
             val appContext = context.applicationContext
             val job = appScope.launch(start = CoroutineStart.LAZY) {
                 try {
-                    updateState(save.id) { it.copy(phase = "正在检索本局旧剧情") }
-                    val plotMemoryContext = runCatching {
-                        ApocalypsePlotMemoryRuntimeV5.recall(
-                            context = appContext,
-                            save = save,
-                            action = cleanAction,
-                        )
-                    }.getOrDefault("")
-                    updateState(save.id) {
-                        it.copy(phase = if (needsDirector) "导演规划关键节点" else "沿用剧情蓝图")
+                    // Semantic plot recall is independent from the long-form director's structural
+                    // planning. Run both network paths together so opening the vector timeout does
+                    // not put embedding/rerank in front of a 1–3 minute director request.
+                    val plotMemoryDeferred = async {
+                        runCatching {
+                            ApocalypsePlotMemoryRuntimeV5.recall(
+                                context = appContext,
+                                save = save,
+                                action = cleanAction,
+                            )
+                        }.getOrDefault("")
                     }
+
                     val planResult = if (needsDirector) {
-                        planApocalypseV5Beat(save, config, party, cleanAction, plotMemoryContext)
+                        updateState(save.id) { it.copy(phase = "导演规划 · 同时检索旧剧情") }
+                        // The director already owns structured world facts, long-term ledgers and the
+                        // previous scene. Semantic old-scene recall is reserved for the writer here,
+                        // avoiding a serial wait while keeping the actual scene continuity rich.
+                        planApocalypseV5Beat(save, config, party, cleanAction, plotMemoryContext = "")
                     } else {
                         ApocalypsePlanResultV5(
                             beat = continueApocalypseV5Beat(save, cleanAction),
                             directorApplied = false,
                         )
                     }
+
+                    updateState(save.id) { it.copy(phase = "正在整理相关旧剧情") }
+                    val plotMemoryContext = plotMemoryDeferred.await()
                     val plannedBeat = planResult.beat
                     val usedDirector = planResult.directorApplied
                     updateState(save.id) { it.copy(usedDirector = usedDirector) }
