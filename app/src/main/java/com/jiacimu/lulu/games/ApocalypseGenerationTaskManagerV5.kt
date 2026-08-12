@@ -48,12 +48,26 @@ internal object ApocalypseGenerationTaskManagerV5 {
         val cleanAction = action.trim()
         if (save.id.isBlank() || cleanAction.isBlank()) return false
         val appContext = context.applicationContext
+        val storage = ApocalypseSurvivalV3Store(appContext)
+
+        // Inventory can be manually corrected from its bottom sheet without recreating the Play
+        // composable. Always prefer the newest persisted save before spending any model request, so a
+        // deleted bogus row cannot be silently reintroduced by a stale in-memory save.
+        val latestStored = storage.loadSave()
+        if (
+            latestStored != null &&
+            latestStored.id == save.id &&
+            (latestStored.updatedAt != save.updatedAt || latestStored.scene != save.scene)
+        ) {
+            return launch(context, latestStored, config, party, cleanAction)
+        }
 
         val repairedSave = repairApocalypseCurrentSceneInventoryV5(
+            appContext,
             sanitizeApocalypseLoadedAbilityStateV5(save),
         )
         if (repairedSave != save) {
-            ApocalypseSurvivalV3Store(appContext).save(repairedSave)
+            storage.save(repairedSave)
             return launch(context, repairedSave, config, party, cleanAction)
         }
 
@@ -165,7 +179,6 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         visibleText = text,
                     )
 
-                    val storage = ApocalypseSurvivalV3Store(appContext)
                     val latest = storage.loadSave()
                     check(
                         latest != null &&
