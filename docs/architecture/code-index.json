@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T10:14:34.200709+00:00",
-  "commit": "ff9642d753a7aa6ec83fbd9ee0a415580748aba5",
+  "generatedAt": "2026-08-12T10:16:33.006851+00:00",
+  "commit": "c8e45c6caac71b5909025430e988c3664cffbc08",
   "branch": "main",
-  "sourceFingerprint": "5025005c7b14cee100bdcd95cde53bb29092b147e23ee50d4d9ba646716cbb38",
+  "sourceFingerprint": "115dbf21d98a6d642cdb49b812fb82db351441b6682d2ef515bafc2feed57c62",
   "summary": {
     "files": 168,
-    "lines": 51109,
-    "symbols": 665
+    "lines": 51127,
+    "symbols": 666
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -2472,6 +2472,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldEvolutionV5.kt",
         "line": 48
+      }
+    ],
+    "openDetail": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt",
+        "line": 106
       }
     ],
     "saveTurn": [
@@ -6113,9 +6119,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt",
-      "lines": 639,
-      "sha256": "7e7d4103f4eb76e0e43f2deac9a1467085c3447a79430b1a985a2578aacc8542",
-      "symbols": []
+      "lines": 657,
+      "sha256": "4e99d96697816497908de2f5103d81d7e9d334468e9b78b641783434d083d5a0",
+      "symbols": [
+        {
+          "name": "openDetail",
+          "line": 106
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt",
