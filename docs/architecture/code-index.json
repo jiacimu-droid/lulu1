@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T06:23:40.945012+00:00",
-  "commit": "e8fff4de1dad6beab7abfbaaa36de84e02d3089e",
+  "generatedAt": "2026-08-12T06:52:33.396808+00:00",
+  "commit": "b3ddc55b91adf60924abe49cfa68d2b770e1fe73",
   "branch": "main",
-  "sourceFingerprint": "3b8b2abd41f60be9fbc33e18ee8e7f9601b9dc487acdbbba6a261d7ee9821761",
+  "sourceFingerprint": "86ee06c484d54899986384e46e2b87d7a19c62f21b0142cedb2af27fa9ac6bbe",
   "summary": {
     "files": 162,
-    "lines": 48365,
+    "lines": 48368,
     "symbols": 648
   },
   "symbolIndex": {
@@ -5641,8 +5641,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSceneOutcomeV5.kt",
-      "lines": 523,
-      "sha256": "55d74913bd1a1ec62a6cd8eda00c436fd0e43a12eb5b59aa36e4ac2cecc1c19f",
+      "lines": 527,
+      "sha256": "01a60458fa68e2ae62300de015f3111cfd516d265029f2ac65e7da6d3bba76e3",
       "symbols": []
     },
     {
@@ -5870,8 +5870,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Engine.kt",
-      "lines": 757,
-      "sha256": "742da353aa162b62dfb2960ef511b85165d173ffe8b1aa4a328d99fd68806ba0",
+      "lines": 756,
+      "sha256": "f95cbf944292a92ac677dde4dc7712134385843d1d2653c7c86711673590e8ca",
       "symbols": []
     },
     {
