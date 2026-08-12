@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T11:13:33.955955+00:00",
-  "commit": "93f3a6a67075c27fa2fa372633713222d6b05391",
+  "generatedAt": "2026-08-12T11:25:48.008861+00:00",
+  "commit": "ad742f844e8f1e6352a2680efc5634e7462c914c",
   "branch": "main",
-  "sourceFingerprint": "bc4d6ec76d490f06b4bcc31feb6ee388ed8c37f3cb6bef29fae28cfdad67ab1d",
+  "sourceFingerprint": "fa9ab66d9e3d6c1040e1d616166a7b349c368348eaca84a617d817ad0648096c",
   "summary": {
-    "files": 171,
-    "lines": 51417,
-    "symbols": 671
+    "files": 172,
+    "lines": 51608,
+    "symbols": 682
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -78,6 +78,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt",
         "line": 28
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
+        "line": 40
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
@@ -198,6 +202,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
         "line": 119
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
+        "line": 95
       }
     ],
     "CharacterHubScreen": [
@@ -1094,6 +1102,10 @@
         "line": 40
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
+        "line": 45
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 740
       },
@@ -1157,6 +1169,10 @@
     "isEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
+        "line": 48
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
         "line": 48
       },
       {
@@ -1292,6 +1308,52 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt",
         "line": 21
+      }
+    ],
+    "DigitalLifeProfile": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
+        "line": 22
+      }
+    ],
+    "DigitalLifeProfileStore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
+        "line": 28
+      }
+    ],
+    "birthAt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
+        "line": 50
+      }
+    ],
+    "allowsTimestamp": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
+        "line": 53
+      }
+    ],
+    "disable": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
+        "line": 85
+      }
+    ],
+    "restoreOrigin": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
+        "line": 106
+      }
+    ],
+    "promptSection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
+        "line": 111
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
+        "line": 11
       }
     ],
     "InMemoryMemoryRepository": [
@@ -2074,12 +2136,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
         "line": 4
-      }
-    ],
-    "promptSection": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
-        "line": 11
       }
     ],
     "displayLabel": [
@@ -4904,6 +4960,57 @@
         {
           "name": "initialize",
           "line": 28
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
+      "lines": 191,
+      "sha256": "c1f55b8ac9c379f83e74e351ee8bcdd1d04bad084e0c3d359c233dd931a3979d",
+      "symbols": [
+        {
+          "name": "DigitalLifeProfile",
+          "line": 22
+        },
+        {
+          "name": "DigitalLifeProfileStore",
+          "line": 28
+        },
+        {
+          "name": "initialize",
+          "line": 40
+        },
+        {
+          "name": "get",
+          "line": 45
+        },
+        {
+          "name": "isEnabled",
+          "line": 48
+        },
+        {
+          "name": "birthAt",
+          "line": 50
+        },
+        {
+          "name": "allowsTimestamp",
+          "line": 53
+        },
+        {
+          "name": "disable",
+          "line": 85
+        },
+        {
+          "name": "remove",
+          "line": 95
+        },
+        {
+          "name": "restoreOrigin",
+          "line": 106
+        },
+        {
+          "name": "promptSection",
+          "line": 111
         }
       ]
     },
