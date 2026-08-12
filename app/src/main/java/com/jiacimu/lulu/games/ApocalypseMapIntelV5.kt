@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +17,9 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Map
@@ -34,10 +35,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,6 +55,24 @@ internal data class ApocalypseMapIntelV5(
     val sourceDetail: String,
     val location: ApocalypseV3Location,
     val nodes: List<String>,
+)
+
+private data class ApocalypseFloorRoomV5(
+    val label: String,
+    val x: Float,
+    val y: Float,
+    val width: Float,
+    val height: Float,
+    val primary: Boolean = false,
+)
+
+private data class ApocalypseFloorPlanV5(
+    val levelLabel: String,
+    val rooms: List<ApocalypseFloorRoomV5>,
+    val corridorLabels: List<String>,
+    val routeSteps: List<String>,
+    val routePoints: List<Pair<Float, Float>>,
+    val hasExplicitDirections: Boolean,
 )
 
 internal fun apocalypseMapIntelForCityV5(
@@ -118,6 +141,11 @@ internal fun ApocalypseLocationDetailSheetV5(
     onDismiss: () -> Unit,
     onPlan: (ApocalypseV3Location) -> Unit,
 ) {
+    val mapTitle = intel?.sourceTitle ?: location.name
+    val mapDetail = intel?.sourceDetail?.ifBlank { location.detail } ?: location.detail
+    val mapNodes = intel?.nodes ?: extractMapNodesV5(location.name, location.detail, "")
+    val plan = buildApocalypseFloorPlanV5(mapTitle, mapDetail, mapNodes, intel?.parentPlaceName.orEmpty())
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         containerColor = Color(0xFFF3F8FD),
@@ -125,7 +153,7 @@ internal fun ApocalypseLocationDetailSheetV5(
         Column(
             Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(.88f)
+                .fillMaxHeight(.92f)
                 .padding(horizontal = 18.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
@@ -136,45 +164,86 @@ internal fun ApocalypseLocationDetailSheetV5(
                 Spacer(Modifier.width(11.dp))
                 Column(Modifier.weight(1f)) {
                     Text(location.name, color = Color(0xFF0A1726), fontSize = 21.sp, fontWeight = FontWeight.Black, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    Text("${city.name} · 地点详情", color = Color(0xFF607287), fontSize = 11.sp)
+                    Text("${city.name} · 具体区域地图", color = Color(0xFF607287), fontSize = 11.sp)
                 }
             }
 
-            ApocalypseKnownSubareaMapV5(
-                title = intel?.sourceTitle ?: location.name,
-                nodes = intel?.nodes ?: extractMapNodesV5(location.name, location.detail, ""),
-            )
-
-            Surface(
-                color = Color.White,
-                shape = RoundedCornerShape(18.dp),
-                border = BorderStroke(1.dp, Color(0xFFD3E3F2)),
+            Column(
+                Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("已知资料", color = Color(0xFF0A1726), fontWeight = FontWeight.Black, fontSize = 15.sp)
-                    Text(location.detail.ifBlank { "目前只确认了这个地点的位置，还没有更多内部资料。" }, color = Color(0xFF607287), fontSize = 11.sp, lineHeight = 17.sp)
-                    intel?.let {
-                        if (it.sourceDetail.isNotBlank() && !location.detail.contains(it.sourceDetail)) {
-                            Text("地图来源：${it.sourceTitle}", color = Color(0xFF287EBE), fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                            Text(it.sourceDetail, color = Color(0xFF607287), fontSize = 11.sp, lineHeight = 17.sp)
+                ApocalypseKnownFloorPlanV5(title = mapTitle, plan = plan)
+
+                Surface(
+                    color = Color.White,
+                    shape = RoundedCornerShape(18.dp),
+                    border = BorderStroke(1.dp, Color(0xFFD3E3F2)),
+                ) {
+                    Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                        Text("已知路线", color = Color(0xFF0A1726), fontWeight = FontWeight.Black, fontSize = 15.sp)
+                        if (plan.routeSteps.isEmpty()) {
+                            Text(
+                                "这份资料确认了区域和通路，但没有写清每一个转向。图上会画出房间、主走廊和已知连接；没有方向依据的相对位置会标成示意，后续取得更完整平面图后自动更新。",
+                                color = Color(0xFF607287),
+                                fontSize = 11.sp,
+                                lineHeight = 17.sp,
+                            )
+                        } else {
+                            plan.routeSteps.forEachIndexed { index, step ->
+                                Row(verticalAlignment = Alignment.Top) {
+                                    Surface(color = Color(0xFFD8ECFF), shape = RoundedCornerShape(8.dp)) {
+                                        Text("${index + 1}", color = Color(0xFF287EBE), fontSize = 10.sp, fontWeight = FontWeight.Black, modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp))
+                                    }
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(step, color = Color(0xFF42566C), fontSize = 11.sp, lineHeight = 17.sp, modifier = Modifier.weight(1f))
+                                }
+                            }
                         }
                     }
                 }
-            }
 
-            Surface(
-                color = Color(0xFFEAF4FF),
-                shape = RoundedCornerShape(16.dp),
-                border = BorderStroke(1.dp, Color(0xFF93CCFF)),
-            ) {
-                Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.MyLocation, null, tint = Color(0xFF287EBE), modifier = Modifier.size(20.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text("只显示你已经取得的地图、地点和剧情资料；没有确认过的房间、通道和出口不会凭空补出来。", color = Color(0xFF607287), fontSize = 10.sp, lineHeight = 15.sp)
+                Surface(
+                    color = Color.White,
+                    shape = RoundedCornerShape(18.dp),
+                    border = BorderStroke(1.dp, Color(0xFFD3E3F2)),
+                ) {
+                    Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("已知资料", color = Color(0xFF0A1726), fontWeight = FontWeight.Black, fontSize = 15.sp)
+                        Text(location.detail.ifBlank { "目前只确认了这个地点的位置，还没有更多内部资料。" }, color = Color(0xFF607287), fontSize = 11.sp, lineHeight = 17.sp)
+                        intel?.let {
+                            if (it.sourceDetail.isNotBlank() && !location.detail.contains(it.sourceDetail)) {
+                                Text("地图来源：${it.sourceTitle}", color = Color(0xFF287EBE), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                Text(it.sourceDetail, color = Color(0xFF607287), fontSize = 11.sp, lineHeight = 17.sp)
+                            }
+                        }
+                    }
                 }
+
+                Surface(
+                    color = Color(0xFFEAF4FF),
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(1.dp, Color(0xFF93CCFF)),
+                ) {
+                    Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Outlined.MyLocation, null, tint = Color(0xFF287EBE), modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            if (plan.hasExplicitDirections) {
+                                "蓝色路线按已经取得的方向描述绘制；房间和走廊只使用已知资料，不会提前画出未知区域。"
+                            } else {
+                                "房间和通路已经按平面图方式展开；资料没说明具体方位的部分只做结构示意，不会把示意位置当成剧情正史。"
+                            },
+                            color = Color(0xFF607287),
+                            fontSize = 10.sp,
+                            lineHeight = 15.sp,
+                        )
+                    }
+                }
+                Spacer(Modifier.height(4.dp))
             }
 
-            Spacer(Modifier.weight(1f))
             Button(
                 onClick = { onPlan(location) },
                 modifier = Modifier.fillMaxWidth(),
@@ -192,55 +261,238 @@ internal fun ApocalypseLocationDetailSheetV5(
 }
 
 @Composable
-private fun ApocalypseKnownSubareaMapV5(title: String, nodes: List<String>) {
-    val safeNodes = nodes.filter(String::isNotBlank).distinct().take(6).ifEmpty { listOf(title.take(16).ifBlank { "已知位置" }) }
-    val positions = listOf(
-        .16f to .24f,
-        .53f to .18f,
-        .82f to .34f,
-        .72f to .70f,
-        .38f to .78f,
-        .15f to .61f,
-    )
+private fun ApocalypseKnownFloorPlanV5(title: String, plan: ApocalypseFloorPlanV5) {
+    val wall = Color(0xFF4E6B82)
+    val roomFill = Color(0xFF10263A)
+    val roomPrimary = Color(0xFF163D5C)
+    val hallFloor = Color(0xFF152C40)
+    val route = Color(0xFF55B7FF)
+    val unknown = Color(0xFF60788C)
+
     Surface(
-        modifier = Modifier.fillMaxWidth().height(300.dp),
+        modifier = Modifier.fillMaxWidth().height(390.dp),
         color = Color(0xFF07111F),
         shape = RoundedCornerShape(22.dp),
     ) {
         BoxWithConstraints(Modifier.fillMaxSize().background(Color(0xFF07111F))) {
             Canvas(Modifier.fillMaxSize()) {
-                val points = safeNodes.indices.map { index ->
-                    val p = positions[index % positions.size]
-                    Offset(size.width * p.first, size.height * p.second)
+                val hallWidth = size.minDimension * .085f
+                val mainStart = Offset(size.width * .08f, size.height * .52f)
+                val mainEnd = Offset(size.width * .92f, size.height * .52f)
+
+                // Main corridor: thick wall outline plus a lighter walkable floor, so this reads as a
+                // real passage instead of a graph edge.
+                drawLine(wall, mainStart, mainEnd, strokeWidth = hallWidth + 8f, cap = StrokeCap.Square)
+                drawLine(hallFloor, mainStart, mainEnd, strokeWidth = hallWidth, cap = StrokeCap.Square)
+
+                plan.rooms.forEach { room ->
+                    val left = size.width * room.x
+                    val top = size.height * room.y
+                    val width = size.width * room.width
+                    val height = size.height * room.height
+                    val centerX = left + width / 2f
+                    val roomTouchesTop = room.y < .5f
+                    val roomDoorY = if (roomTouchesTop) top + height else top
+                    val hallY = size.height * .52f
+
+                    // Branch corridor from the main passage to each confirmed room.
+                    drawLine(
+                        wall,
+                        Offset(centerX, hallY),
+                        Offset(centerX, roomDoorY),
+                        strokeWidth = hallWidth * .62f + 7f,
+                        cap = StrokeCap.Square,
+                    )
+                    drawLine(
+                        hallFloor,
+                        Offset(centerX, hallY),
+                        Offset(centerX, roomDoorY),
+                        strokeWidth = hallWidth * .62f,
+                        cap = StrokeCap.Square,
+                    )
+
+                    drawRect(if (room.primary) roomPrimary else roomFill, topLeft = Offset(left, top), size = Size(width, height))
+                    drawRect(wall, topLeft = Offset(left, top), size = Size(width, height), style = Stroke(width = 3f))
+
+                    // A short bright threshold marks the actual doorway into the room.
+                    drawLine(
+                        Color(0xFF93CCFF),
+                        Offset(centerX - width * .12f, roomDoorY),
+                        Offset(centerX + width * .12f, roomDoorY),
+                        strokeWidth = 5f,
+                    )
                 }
-                if (points.size > 1) {
-                    points.zipWithNext().forEach { (from, to) ->
-                        val path = Path().apply {
-                            moveTo(from.x, from.y)
-                            quadraticBezierTo((from.x + to.x) / 2f, (from.y + to.y) / 2f - 18f, to.x, to.y)
-                        }
-                        drawPath(path, color = Color(0xFF31536F), style = Stroke(width = 4f))
+
+                if (plan.routePoints.size >= 2) {
+                    val routePath = Path().apply {
+                        val first = plan.routePoints.first()
+                        moveTo(size.width * first.first, size.height * first.second)
+                        plan.routePoints.drop(1).forEach { point -> lineTo(size.width * point.first, size.height * point.second) }
                     }
-                }
-                points.forEach { point ->
-                    drawCircle(Color(0xFF4EA8FF), radius = 6f, center = point)
+                    drawPath(routePath, route.copy(alpha = .28f), style = Stroke(width = 12f, cap = StrokeCap.Round))
+                    drawPath(routePath, route, style = Stroke(width = 4f, cap = StrokeCap.Round))
+                    plan.routePoints.forEach { point ->
+                        drawCircle(route, radius = 5f, center = Offset(size.width * point.first, size.height * point.second))
+                    }
+                } else {
+                    // No explicit direction wording: keep the unexplored ends visibly uncertain.
+                    drawLine(
+                        unknown,
+                        Offset(size.width * .03f, size.height * .52f),
+                        mainStart,
+                        strokeWidth = 3f,
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(9f, 8f)),
+                    )
+                    drawLine(
+                        unknown,
+                        mainEnd,
+                        Offset(size.width * .97f, size.height * .52f),
+                        strokeWidth = 3f,
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(9f, 8f)),
+                    )
                 }
             }
-            safeNodes.forEachIndexed { index, node ->
-                val p = positions[index % positions.size]
-                Surface(
-                    modifier = Modifier.offset(x = maxWidth * p.first - 43.dp, y = maxHeight * p.second - 22.dp).width(88.dp),
-                    color = Color(0xFF0D2033),
-                    shape = RoundedCornerShape(11.dp),
-                    border = BorderStroke(1.dp, Color(0xFF31536F)),
+
+            plan.rooms.forEach { room ->
+                Column(
+                    modifier = Modifier
+                        .offset(x = maxWidth * room.x, y = maxHeight * room.y)
+                        .width(maxWidth * room.width)
+                        .height(maxHeight * room.height)
+                        .padding(4.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
                 ) {
-                    Text(node, color = Color.White, fontSize = 9.sp, lineHeight = 12.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(horizontal = 6.dp, vertical = 7.dp))
+                    Text(
+                        room.label,
+                        color = Color.White,
+                        fontSize = 9.sp,
+                        lineHeight = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
             }
-            Text("已知内部图层 · $title", color = Color(0xFF9CB5CA), fontSize = 9.sp, modifier = Modifier.align(Alignment.TopStart).padding(11.dp))
-            Text("连线只表示已知区域之间存在关联，不擅自补全未知结构", color = Color(0xFF7894AC), fontSize = 8.sp, modifier = Modifier.align(Alignment.BottomStart).padding(10.dp))
+
+            if (plan.corridorLabels.isNotEmpty()) {
+                Surface(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color(0xFF0B1D2D).copy(alpha = .92f),
+                    shape = RoundedCornerShape(7.dp),
+                ) {
+                    Text(
+                        plan.corridorLabels.joinToString(" / ").take(28),
+                        color = Color(0xFFA9C8E1),
+                        fontSize = 8.sp,
+                        modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
+                    )
+                }
+            }
+
+            Text("平面图 · $title", color = Color(0xFFC1D5E5), fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.TopStart).padding(11.dp))
+            if (plan.levelLabel.isNotBlank()) {
+                Surface(modifier = Modifier.align(Alignment.TopEnd).padding(10.dp), color = Color(0xFF173D5C), shape = RoundedCornerShape(8.dp)) {
+                    Text(plan.levelLabel, color = Color(0xFF93CCFF), fontSize = 10.sp, fontWeight = FontWeight.Black, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
+                }
+            }
+            Text(
+                if (plan.hasExplicitDirections) "蓝线＝资料中可确认的行进方向" else "虚线＝尚未确认的延伸方向",
+                color = Color(0xFF7894AC),
+                fontSize = 8.sp,
+                modifier = Modifier.align(Alignment.BottomStart).padding(10.dp),
+            )
+            Text("北 ↑", color = Color(0xFF7894AC), fontSize = 8.sp, modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp))
         }
     }
+}
+
+private fun buildApocalypseFloorPlanV5(
+    title: String,
+    detail: String,
+    nodes: List<String>,
+    parentPlace: String,
+): ApocalypseFloorPlanV5 {
+    val cleanNodes = nodes.filter(String::isNotBlank).distinct().take(10)
+    val levelLabel = Regex("(?:B\\d{1,2}|负\\d{1,2}层|地下\\d{1,2}层|\\d{1,2}层)", RegexOption.IGNORE_CASE)
+        .find("$title $detail")
+        ?.value
+        ?.uppercase()
+        .orEmpty()
+
+    val corridorWords = listOf("走廊", "过道", "通道", "换乘通道", "地下通道", "隧道", "连廊")
+    val corridorLabels = cleanNodes.filter { node -> corridorWords.any(node::contains) }.take(3)
+    val nonRoom = cleanNodes.filter { node ->
+        node.equals(levelLabel, ignoreCase = true) || corridorWords.any(node::contains)
+    }.toSet()
+    val candidates = cleanNodes.filterNot { it in nonRoom }.toMutableList()
+    if (candidates.size > 1 && parentPlace.isNotBlank()) candidates.remove(parentPlace)
+    if (candidates.isEmpty()) candidates += title.take(18).ifBlank { "已知区域" }
+
+    val slots = listOf(
+        ApocalypseFloorRoomV5("", .10f, .13f, .19f, .20f, true),
+        ApocalypseFloorRoomV5("", .35f, .10f, .20f, .21f),
+        ApocalypseFloorRoomV5("", .62f, .13f, .20f, .20f),
+        ApocalypseFloorRoomV5("", .73f, .65f, .19f, .19f),
+        ApocalypseFloorRoomV5("", .46f, .69f, .20f, .19f),
+        ApocalypseFloorRoomV5("", .18f, .67f, .20f, .20f),
+        ApocalypseFloorRoomV5("", .77f, .35f, .16f, .15f),
+        ApocalypseFloorRoomV5("", .05f, .39f, .16f, .15f),
+    )
+    val rooms = candidates.take(slots.size).mapIndexed { index, label -> slots[index].copy(label = label) }
+    val routeSteps = extractDirectionalRouteV5(detail)
+    return ApocalypseFloorPlanV5(
+        levelLabel = levelLabel,
+        rooms = rooms,
+        corridorLabels = corridorLabels.ifEmpty { listOf("主走廊") },
+        routeSteps = routeSteps,
+        routePoints = if (routeSteps.isEmpty()) emptyList() else buildDirectionalPolylineV5(detail),
+        hasExplicitDirections = routeSteps.isNotEmpty(),
+    )
+}
+
+private fun extractDirectionalRouteV5(detail: String): List<String> {
+    if (detail.isBlank()) return emptyList()
+    val directionRegex = Regex("直走|向前|左转|左拐|右转|右拐|掉头|尽头|上楼|下楼|上行|下行|进入|穿过|经过|出口|入口")
+    return detail
+        .split(Regex("[。；;！!\\n]+"))
+        .map(String::trim)
+        .filter { clause -> clause.length in 2..120 && directionRegex.containsMatchIn(clause) }
+        .distinct()
+        .take(6)
+}
+
+private fun buildDirectionalPolylineV5(detail: String): List<Pair<Float, Float>> {
+    val tokens = Regex("直走|向前|左转|左拐|右转|右拐|掉头")
+        .findAll(detail)
+        .map { it.value }
+        .take(8)
+        .toList()
+    if (tokens.isEmpty()) return emptyList()
+    var x = .10f
+    var y = .52f
+    var direction = 0 // 0 east, 1 south, 2 west, 3 north
+    val points = mutableListOf(x to y)
+    tokens.forEach { token ->
+        direction = when {
+            token.contains("右") -> (direction + 1) % 4
+            token.contains("左") -> (direction + 3) % 4
+            token == "掉头" -> (direction + 2) % 4
+            else -> direction
+        }
+        val step = .15f
+        when (direction) {
+            0 -> x += step
+            1 -> y += step
+            2 -> x -= step
+            else -> y -= step
+        }
+        x = x.coerceIn(.08f, .92f)
+        y = y.coerceIn(.18f, .82f)
+        points += x to y
+    }
+    return points.distinct()
 }
 
 private fun bestMapParentPlaceV5(text: String, city: ApocalypseWorldCityV5): ApocalypseWorldPlaceV5? {
@@ -268,13 +520,13 @@ private fun extractMapNodesV5(title: String, detail: String, parentPlace: String
     parentPlace.takeIf(String::isNotBlank)?.let(nodes::add)
     Regex("B\\d{1,2}", RegexOption.IGNORE_CASE).findAll(text).map { it.value.uppercase() }.forEach(nodes::add)
     val knownLabels = listOf(
-        "备用控制区", "控制区", "防灾层", "站厅", "站台", "换乘通道", "设备间", "机房", "柴油机房",
-        "药剂库", "取水口", "仓库", "冷库", "入口", "出口", "闸门", "隧道", "地下通道", "避难区",
-        "实验室", "温室", "种子库", "配电室", "值班室", "停车区", "装卸区",
+        "备用控制区", "控制区", "防灾层", "站厅", "站台", "换乘通道", "主走廊", "走廊", "过道", "设备间", "机房", "柴油机房",
+        "药剂库", "取水口", "仓库", "冷库", "入口", "出口", "闸门", "隧道", "地下通道", "避难区", "楼梯间", "电梯厅",
+        "实验室", "温室", "种子库", "配电室", "值班室", "停车区", "装卸区", "办公室", "储藏室", "检修间", "泵房",
     )
     knownLabels.filter { text.contains(it) }.forEach(nodes::add)
     title.takeIf { it.isNotBlank() && nodes.none { node -> title.contains(node) } }?.let { nodes.add(it.take(18)) }
-    return nodes.take(6)
+    return nodes.take(10)
 }
 
 private fun mapTextOverlapScoreV5(left: String, right: String): Int {
