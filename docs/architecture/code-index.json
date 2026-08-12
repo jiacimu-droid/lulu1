@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T10:55:20.948782+00:00",
-  "commit": "8c7db725546bb45ef68bf3da1fec04cf15372b90",
+  "generatedAt": "2026-08-12T10:56:48.555356+00:00",
+  "commit": "1d96760c887dddec8351a4ba0c5d273f0e69f7ae",
   "branch": "main",
-  "sourceFingerprint": "3a210b78e7ffbeb1e1051329364224976e5e71578fbe79d0f22f22efc56dc725",
+  "sourceFingerprint": "e295575bfb518f351e081ba24675c6b6b676bfea31bd6c8d60b7a586c9a5d879",
   "summary": {
     "files": 171,
-    "lines": 51453,
+    "lines": 51459,
     "symbols": 671
   },
   "symbolIndex": {
@@ -3161,19 +3161,19 @@
     "finishActiveSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 309
+        "line": 315
       }
     ],
     "handleNaturalCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 346
+        "line": 352
       }
     ],
     "completeSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 356
+        "line": 362
       }
     ],
     "PostgraduateExamApp": [
@@ -6723,8 +6723,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-      "lines": 400,
-      "sha256": "39712fec9b4396a264ae20574a250cd467103077cfdbfd8eaa854cc40ecc23e6",
+      "lines": 406,
+      "sha256": "5e73b9708a8cbdc85f56fd3bde98a5628aacbeba8295b5c1aab55fe9271325e7",
       "symbols": [
         {
           "name": "PomodoroTimerMode",
@@ -6832,15 +6832,15 @@
         },
         {
           "name": "finishActiveSession",
-          "line": 309
+          "line": 315
         },
         {
           "name": "handleNaturalCompletion",
-          "line": 346
+          "line": 352
         },
         {
           "name": "completeSession",
-          "line": 356
+          "line": 362
         }
       ]
     },

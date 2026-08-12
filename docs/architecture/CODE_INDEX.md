@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`8c7db725546bb45ef68bf3da1fec04cf15372b90`
+- 基准提交：`1d96760c887dddec8351a4ba0c5d273f0e69f7ae`
 - 分支：`main`
 - 已索引文件：171
-- 已索引代码/文本行：51453
+- 已索引代码/文本行：51459
 - 已发现符号：671
 
 | 文件 | 行数 | 符号数 |
@@ -131,7 +131,7 @@
 | `app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt` | 185 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 282 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 400 | 29 |
+| `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 406 | 29 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 170 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 126 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 1060 | 37 |
