@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T16:02:23.332362+00:00",
-  "commit": "ed0a049183840315dfc12b481ecdc8c4f2b47867",
+  "generatedAt": "2026-08-12T16:10:17.906277+00:00",
+  "commit": "3da4913a50f5e68fecfc575677bf49694977c227",
   "branch": "main",
-  "sourceFingerprint": "54ec9f32cc48d2cf1a6911238711dcf78f4707d0af1699387cbd7ee8cdbe90d2",
+  "sourceFingerprint": "fd2b76ceacd9fded9814f9795d72bac2069ff966099cae57ebd2b6d8a466503d",
   "summary": {
-    "files": 173,
-    "lines": 53288,
-    "symbols": 688
+    "files": 174,
+    "lines": 53686,
+    "symbols": 690
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -2238,6 +2238,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryLedgerV5.kt",
         "line": 646
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseNarratedInventoryRecoveryV5.kt",
+        "line": 272
       }
     ],
     "restoreOnto": [
@@ -2342,6 +2346,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt",
         "line": 213
+      }
+    ],
+    "key": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseNarratedInventoryRecoveryV5.kt",
+        "line": 357
       }
     ],
     "bootstrapFromSave": [
@@ -6024,6 +6034,21 @@
       "lines": 60,
       "sha256": "56a80fb130ee9180161d8c730f19b866b0f49d634d7dc0b48bc6b486990243f6",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseNarratedInventoryRecoveryV5.kt",
+      "lines": 398,
+      "sha256": "38981a980ae06017f0487e90d3de0c56ae56af6e48a0fdec8f954ada3258dee4",
+      "symbols": [
+        {
+          "name": "has",
+          "line": 272
+        },
+        {
+          "name": "key",
+          "line": 357
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryManagerV5.kt",
