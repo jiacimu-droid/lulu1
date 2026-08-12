@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`58107cd3edc055c22e3190a226b548010323b8a2`
+- 基准提交：`28563e6353ee381541f396721f6020e5dc8be2b9`
 - 分支：`main`
 - 已索引文件：172
-- 已索引代码/文本行：51746
+- 已索引代码/文本行：51739
 - 已发现符号：685
 
 | 文件 | 行数 | 符号数 |
@@ -114,7 +114,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt` | 657 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt` | 377 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 489 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 482 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 681 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 811 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt` | 845 | 3 |
