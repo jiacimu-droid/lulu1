@@ -126,8 +126,6 @@ private fun apocalypseInventoryCategoryForAssetV5(asset: ApocalypseV3Asset): Apo
     val text = inventoryTextV5(asset)
     val tags = asset.tag.split('；', ';').map { it.trim() }
 
-    // Strong semantic types first. This deliberately outranks a stale “待分类” tag so an old
-    // “香辣薯片/防爆盾牌” row repairs itself as soon as the new APK opens.
     if (asset.kind == ApocalypseV3AssetKind.Map) return ApocalypseInventoryCategoryV5.Document
     if (asset.kind == ApocalypseV3AssetKind.Core) return ApocalypseInventoryCategoryV5.Core
     if (asset.kind == ApocalypseV3AssetKind.Key) return ApocalypseInventoryCategoryV5.Key
@@ -150,7 +148,6 @@ private fun apocalypseInventoryCategoryForAssetV5(asset: ApocalypseV3Asset): Apo
     if (hasInventoryWordV5(text, toolWordsV5)) return ApocalypseInventoryCategoryV5.Tool
     if (hasInventoryWordV5(text, materialWordsV5)) return ApocalypseInventoryCategoryV5.Material
 
-    // Only genuinely unresolved rows fall through to the manual/unknown tags.
     if (tags.any { it == "战斗" }) return ApocalypseInventoryCategoryV5.Combat
     if (tags.any { it == "生活用品" }) return ApocalypseInventoryCategoryV5.Household
     if (tags.any { it == "生存装备" }) return ApocalypseInventoryCategoryV5.Survival
@@ -189,6 +186,15 @@ internal fun ApocalypseInventoryBrowserSheetV5(save: ApocalypseV3Save) {
 
     LaunchedEffect(initialWorking.updatedAt) {
         if (initialWorking != latestStored) storage.save(initialWorking)
+        if (apocalypseInventoryHasBundledRowsV5(initialWorking.director.assets)) {
+            runCatching { migrateApocalypseBundledInventoryV5(initialWorking) }
+                .getOrNull()
+                ?.takeIf { it != initialWorking }
+                ?.let { migrated ->
+                    storage.save(migrated)
+                    workingSave = migrated
+                }
+        }
     }
 
     val assets = remember(workingSave.director.assets) {
@@ -396,6 +402,8 @@ private fun apocalypseInventoryAssetUnitV5(asset: ApocalypseV3Asset): String {
         ApocalypseV3AssetKind.Food -> when {
             asset.title.contains("罐头") || asset.title.contains("罐装") -> "罐"
             asset.title.contains("方便面") || asset.title.contains("泡面") || asset.title.contains("饼干") || asset.title.contains("薯片") || asset.title.contains("零食") -> "包"
+            asset.title.contains("糖") -> "颗"
+            asset.title.contains("巧克力") -> "块"
             asset.title.contains("盒") || asset.title.contains("快餐") -> "盒"
             else -> "份"
         }
