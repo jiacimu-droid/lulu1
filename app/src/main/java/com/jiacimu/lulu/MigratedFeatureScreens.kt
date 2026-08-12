@@ -90,6 +90,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
     var editingMemory by remember { mutableStateOf<MemoryEntry?>(null) }
     var creatingMemory by remember { mutableStateOf(false) }
     var organizing by remember { mutableStateOf(false) }
+    var maintenanceNotice by remember { mutableStateOf("") }
     val pendingEvents = repository.pendingTimelineEvents(selectedCharacterId)
 
     val filtered = remember(memories, section, search) {
@@ -137,7 +138,10 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                 characters.values.forEach { character ->
                     FilterChip(
                         selected = selectedCharacterId == character.characterId,
-                        onClick = { selectedCharacterId = character.characterId },
+                        onClick = {
+                            selectedCharacterId = character.characterId
+                            maintenanceNotice = ""
+                        },
                         label = { Text(character.displayName) },
                         leadingIcon = {
                             Surface(shape = CircleShape, color = FeatureWheat, modifier = Modifier.size(22.dp)) {
@@ -193,6 +197,38 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                         },
                         modifier = Modifier.fillMaxWidth(),
                     ) { Text("保存记忆规则") }
+                    OutlinedButton(
+                        onClick = {
+                            organizing = true
+                            maintenanceNotice = ""
+                            scope.launch {
+                                val removed = repository.maintain(selectedCharacterId)
+                                maintenanceNotice = if (removed > 0) {
+                                    "已安全合并 $removed 条重复/高度重复记忆"
+                                } else {
+                                    "没有发现可以安全自动合并的重复记忆"
+                                }
+                                organizing = false
+                            }
+                        },
+                        enabled = !organizing,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        if (organizing) {
+                            CircularProgressIndicator(Modifier.size(17.dp), strokeWidth = 2.dp)
+                            Spacer(Modifier.width(7.dp))
+                        }
+                        Text(if (organizing) "正在维护…" else "整理已有重复记忆")
+                    }
+                    Text(
+                        "删除记忆后，它会立即退出召回范围，并留下删除标记，自动总结不会再把同一条重新生成；如果多个角色里存在同一条错误记忆，手动删除会一起清掉等价副本。",
+                        color = FeatureBlueGray,
+                        fontSize = 11.sp,
+                        lineHeight = 16.sp,
+                    )
+                    if (maintenanceNotice.isNotBlank()) {
+                        Text(maintenanceNotice, color = FeatureBlueGray, fontSize = 12.sp)
+                    }
                 }
                 Spacer(Modifier.height(10.dp))
             }
@@ -226,9 +262,9 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                 Text(
                     when (section) {
                         MemoryPageSection.Recent -> "这里是三类已整理记忆的合并视图，不会另外生成一份重复内容。"
-                        MemoryPageSection.Fact -> "长期稳定的身份、偏好、边界和持续计划。"
+                        MemoryPageSection.Fact -> "长期稳定的身份、偏好、边界和持续计划；不会再靠‘不是/其实/应该’等关键词机械判定。"
                         MemoryPageSection.Emotion -> "明确发生过的情绪、原因与时间，不把普通语气猜成情绪。"
-                        MemoryPageSection.Timeline -> "有时间或里程碑意义的重要经历；普通聊天和约定不放这里。"
+                        MemoryPageSection.Timeline -> "有时间或里程碑意义的重要经历；普通聊天、无互动番茄钟和约定不放这里。"
                         MemoryPageSection.Pending -> ""
                     },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
@@ -313,7 +349,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                         MemoryEntryCard(
                             memory = memory,
                             onEdit = { editingMemory = memory },
-                            onDelete = { scope.launch { repository.delete(memory.id) } },
+                            onDelete = { scope.launch { repository.deleteEverywhereEquivalent(memory.id) } },
                             onTogglePinned = { scope.launch { repository.togglePinned(memory.id) } },
                             onToggleRecall = { scope.launch { repository.toggleRecall(memory.id) } },
                         )
@@ -350,7 +386,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                 creatingMemory = false
             },
             onDelete = {
-                scope.launch { repository.delete(memory.id) }
+                scope.launch { repository.deleteEverywhereEquivalent(memory.id) }
                 editingMemory = null
                 creatingMemory = false
             },
@@ -390,7 +426,7 @@ private fun MemoryEntryCard(
         MemoryMetricLine("创建时间", memory.createdAt.atZone(ZoneId.systemDefault()).format(MemoryDateTimeFormatter))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             TextButton(onClick = onTogglePinned) {
-                Icon(if (memory.pinned) Icons.Outlined.PushPin else Icons.Outlined.PushPin, null)
+                Icon(Icons.Outlined.PushPin, null)
                 Spacer(Modifier.width(4.dp))
                 Text(if (memory.pinned) "取消固定" else "固定")
             }
@@ -509,8 +545,7 @@ private fun MemoryEditorDialog(
                 if (!isNew) {
                     TextButton(onClick = onDelete) { Text("删除", color = MaterialTheme.colorScheme.error) }
                 }
-                TextButton(onClick = onDismiss) { Text("取消") }
-            }
+                TextButton(onClick = onDismiss) { Text("取消") }</n            }
         },
     )
 }
