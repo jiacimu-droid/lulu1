@@ -38,7 +38,19 @@ object CharacterIdentityStore {
         }
     }
 
-    fun get(characterId: String): String = mutable.value[characterId].orEmpty()
+    /**
+     * Model-facing identity. Digital-life ontology is prepended only here, so the editable identity
+     * field stays clean while every normal/full model call receives the non-negotiable reality rule.
+     */
+    fun get(characterId: String): String {
+        val rawIdentity = mutable.value[characterId].orEmpty()
+        val displayName = runCatching { MigratedDomainStores.characters.get(characterId).displayName }
+            .getOrDefault("角色")
+        val digitalLife = DigitalLifeProfileStore.promptSection(characterId, displayName)
+        return listOf(digitalLife, rawIdentity)
+            .filter(String::isNotBlank)
+            .joinToString("\n\n")
+    }
 
     fun set(characterId: String, identity: String) {
         val cleanId = characterId.trim()
