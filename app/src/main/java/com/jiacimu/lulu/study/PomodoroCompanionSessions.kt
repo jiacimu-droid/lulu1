@@ -300,7 +300,13 @@ object PomodoroCompanionSessions {
             ).onSuccess { reply ->
                 val text = compactPomodoroUtterance(reply.text, maxChars = 52)
                 if (text.isNotBlank()) {
-                    MigratedDomainStores.chat.appendCharacterMessage(conversationId, text, characterId)
+                    // A model request may outlive a chat screen or a user deleting the old thread.
+                    // Resolve the private conversation again at delivery time instead of appending to
+                    // a stale id; this keeps generated study messages from crashing the app.
+                    val liveConversationId = MigratedDomainStores.chat
+                        .ensureConversation(characterId, character.displayName)
+                        .id
+                    MigratedDomainStores.chat.appendCharacterMessage(liveConversationId, text, characterId)
                     speakIfEnabled(text, studyState.pomodoro.voiceEnabled)
                 }
             }
