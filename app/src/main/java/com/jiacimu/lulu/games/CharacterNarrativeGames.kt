@@ -300,30 +300,12 @@ internal fun RoleplayAdventureScreen(store: LuluGameStore) {
                 maxTokens = 620,
                 usage = ModelUsage.Game,
             ).onSuccess { reply ->
-                val turn = RoleplayTurn(clean, roll, result, reply.text)
-                val nextTurns = turns + turn
-                turns = nextTurns
-                val recordId = store.recordExternalGame(
-                    LuluGameType.RoleplayAdventure,
-                    "轻量跑团 · 第${nextTurns.size}幕",
-                    roll * 5,
-                    if (roll >= 12) 6 else 3,
-                    "在${chapter}执行‘$clean’，d20=$roll，$result。",
-                    JSONObject()
-                        .put("scenario", "倒走的钟")
-                        .put("chapter", chapter)
-                        .put("action", clean)
-                        .put("roll", roll)
-                        .put("result", result)
-                        .put("role_text", reply.text)
-                        .toString(),
-                )
-                store.attachCharacterReply(recordId, reply.text)
-                saveGameAsSharedMemory(scope, store, recordId)
+                // One action is an internal turn of the same adventure, not a game-history record.
+                turns = turns + RoleplayTurn(clean, roll, result, reply.text)
                 roleResponse = GameRoleResponse(text = reply.text)
                 action = ""
             }.onFailure { error ->
-                roleResponse = GameRoleResponse(error = error.message ?: "本轮角色回应生成失败；骰点尚未写入记录，请重试。")
+                roleResponse = GameRoleResponse(error = error.message ?: "本轮角色回应生成失败；这一幕没有落盘，请重试。")
             }
             busy = false
         }
@@ -334,13 +316,29 @@ internal fun RoleplayAdventureScreen(store: LuluGameStore) {
         finished = true
         val successes = turns.count { it.roll >= 12 }
         val summary = "完成《倒走的钟》共${turns.size}幕，成功${successes}次，最后行动是${turns.last().action}。"
+        val details = JSONObject()
+            .put("scenario", "倒走的钟")
+            .put("completed", true)
+            .put("turns", JSONArray().apply {
+                turns.forEachIndexed { index, turn ->
+                    put(
+                        JSONObject()
+                            .put("index", index + 1)
+                            .put("action", turn.action)
+                            .put("roll", turn.roll)
+                            .put("result", turn.result)
+                            .put("role_text", turn.roleText),
+                    )
+                }
+            })
+            .toString()
         val recordId = store.recordExternalGame(
             LuluGameType.RoleplayAdventure,
-            "轻量跑团 · 完结",
+            "轻量跑团 · 倒走的钟",
             (successes * 20 + turns.size * 5).coerceAtMost(100),
             18,
             summary,
-            JSONObject().put("scenario", "倒走的钟").put("completed", true).put("turns", turns.size).toString(),
+            details,
         )
         saveGameAsSharedMemory(scope, store, recordId)
         requestGameRoleResponse(
@@ -385,6 +383,7 @@ internal fun RoleplayAdventureScreen(store: LuluGameStore) {
                     Text(if (busy) "正在判定并生成…" else "掷d20并行动")
                 }
                 OutlinedButton(onClick = ::finishAdventure, enabled = turns.isNotEmpty() && !finished, modifier = Modifier.fillMaxWidth()) { Text("结束并保存本次冒险") }
+                Text("整次冒险只会在结束时生成一条游戏记录和一条原始时间线；中间每一幕只保留在本局过程里。", color = GameDesign.muted, fontSize = 12.sp)
                 if (finished) {
                     Button(
                         onClick = {
