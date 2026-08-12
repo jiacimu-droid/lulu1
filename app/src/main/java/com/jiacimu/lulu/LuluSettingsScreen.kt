@@ -255,7 +255,7 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text("模型存档", color = SettingsInk, fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    Text("点按存档即可切换当前聊天模型", color = SettingsMuted, fontSize = 12.sp)
+                    Text("这里管理所有可用模型；聊天、电话、游戏和末世求生分别在各自页面选择。点按这里只设置新功能首次使用时的默认兜底。", color = SettingsMuted, fontSize = 12.sp, lineHeight = 18.sp)
                 }
             }
             if (library.archives.isEmpty()) {
@@ -320,7 +320,7 @@ private fun ModelArchiveRow(archive: ModelArchive, label: String, selected: Bool
             Spacer(Modifier.width(5.dp))
             Column(Modifier.weight(1f)) {
                 Text(label, fontWeight = FontWeight.Bold, color = SettingsInk)
-                Text(if (selected) "当前聊天模型" else "点按设为当前模型", color = SettingsMuted, fontSize = 12.sp)
+                Text(if (selected) "默认兜底存档" else "点按设为默认兜底", color = SettingsMuted, fontSize = 12.sp)
             }
             IconButton(onClick = onDelete) { Icon(Icons.Outlined.Close, "移出存档", tint = SettingsMuted) }
         }
