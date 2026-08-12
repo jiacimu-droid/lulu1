@@ -51,7 +51,11 @@ internal object ApocalypseGenerationTaskManagerV5 {
         val livingWorldStore = ApocalypseLivingWorldStoreV5(appContext)
         synchronized(lock) {
             if (jobs[save.id]?.isActive == true) return false
-            val backstageWake = runCatching { livingWorldStore.shouldWakeDirector(save) }.getOrDefault(false)
+            // A stale backstage request must never turn into director-every-scene behavior when its
+            // background model refresh failed. Normal living-world wakeups therefore get a minimum
+            // one-scene breathing gap; structural player choices can still wake the director now.
+            val backstageWake = runCatching { livingWorldStore.shouldWakeDirector(save) }.getOrDefault(false) &&
+                save.scene % 2 == 0
             val needsDirector = shouldPlanApocalypseV5Beat(save, cleanAction) || backstageWake
             updateState(save.id) {
                 TaskState(
