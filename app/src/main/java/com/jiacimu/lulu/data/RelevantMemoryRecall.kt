@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.LuluRepositories
+import com.jiacimu.lulu.ai.ModelConnection
 import com.jiacimu.lulu.core.MemoryEntry
 import java.time.Duration
 import java.time.Instant
@@ -14,6 +15,11 @@ import kotlin.math.ln
  * memory ("肚子不舒服") being clarified by a newer utterance ("昨天拉肚子").
  */
 object RelevantMemoryRecall {
+    private val embeddingCache = object : LinkedHashMap<String, FloatArray>(128, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, FloatArray>?): Boolean =
+            size > MAX_EMBEDDING_CACHE
+    }
+
     suspend fun recall(
         characterId: String,
         query: String,
@@ -67,21 +73,7 @@ object RelevantMemoryRecall {
         val vectorRanked = if (MemoryModelRuntime.vectorEnabled()) {
             val connection = MemoryModelRuntime.embeddingConnection()
             if (connection == null || cleanQuery.isBlank() || vectorPool.isEmpty()) emptyList() else {
-                com.jiacimu.lulu.ai.LuluAiServices.gateway
-                    .embed(connection, listOf(cleanQuery) + vectorPool.map { it.content })
-                    .getOrNull()
-                    ?.takeIf { vectors -> vectors.size == vectorPool.size + 1 }
-                    ?.let { vectors ->
-                        val queryVector = vectors.first()
-                        vectorPool.zip(vectors.drop(1))
-                            .sortedWith(
-                                compareByDescending<Pair<MemoryEntry, FloatArray>> { pair -> pair.first.pinned }
-                                    .thenByDescending { pair -> cosine(queryVector, pair.second) },
-                            )
-                            .take(VECTOR_CANDIDATES)
-                            .map { pair -> pair.first }
-                    }
-                    .orEmpty()
+                rankByEmbedding(connection, cleanQuery, vectorPool)
             }
         } else emptyList()
 
@@ -137,6 +129,64 @@ object RelevantMemoryRecall {
                 appendLine(memory.content.take(MAX_MEMORY_CHARS))
             }
         }.trim()
+    }
+
+    private suspend fun rankByEmbedding(
+        connection: ModelConnection,
+        cleanQuery: String,
+        memories: List<MemoryEntry>,
+    ): List<MemoryEntry> {
+        val cachedVectors = arrayOfNulls<FloatArray>(memories.size)
+        val missingIndices = mutableListOf<Int>()
+        synchronized(embeddingCache) {
+            memories.forEachIndexed { index, memory ->
+                val cached = embeddingCache[embeddingKey(connection, memory)]
+                if (cached == null) missingIndices += index else cachedVectors[index] = cached
+            }
+        }
+
+        // Query vectors are intentionally not cached: the current utterance changes every turn.
+        // Existing memory vectors are cached, so a warm recall normally embeds only the query plus
+        // memories that were newly created or edited since the previous turn.
+        val inputs = buildList {
+            add(cleanQuery)
+            missingIndices.forEach { index -> add(memories[index].content) }
+        }
+        val vectors = com.jiacimu.lulu.ai.LuluAiServices.gateway
+            .embed(connection, inputs)
+            .getOrNull()
+            ?.takeIf { result -> result.size == inputs.size }
+            ?: return emptyList()
+        val queryVector = vectors.first()
+        val newVectors = vectors.drop(1)
+        missingIndices.forEachIndexed { position, memoryIndex ->
+            val vector = newVectors.getOrNull(position) ?: return@forEachIndexed
+            cachedVectors[memoryIndex] = vector
+            synchronized(embeddingCache) {
+                embeddingCache[embeddingKey(connection, memories[memoryIndex])] = vector
+            }
+        }
+
+        return memories
+            .mapIndexedNotNull { index, memory -> cachedVectors[index]?.let { vector -> memory to vector } }
+            .sortedWith(
+                compareByDescending<Pair<MemoryEntry, FloatArray>> { pair -> pair.first.pinned }
+                    .thenByDescending { pair -> cosine(queryVector, pair.second) },
+            )
+            .take(VECTOR_CANDIDATES)
+            .map { pair -> pair.first }
+    }
+
+    private fun embeddingKey(connection: ModelConnection, memory: MemoryEntry): String = buildString {
+        append(connection.baseUrl.trimEnd('/'))
+        append('|')
+        append(connection.model)
+        append('|')
+        append(memory.id)
+        append('|')
+        append(memory.content.length)
+        append('|')
+        append(memory.content.hashCode())
     }
 
     private fun fuseRankings(
@@ -294,6 +344,7 @@ object RelevantMemoryRecall {
     private const val RERANK_POOL = 48
     private const val MAX_QUERY_CHARS = 1800
     private const val MAX_MEMORY_CHARS = 520
+    private const val MAX_EMBEDDING_CACHE = 600
     private const val RRF_K = 50.0
     private const val MIN_RELEVANCE_SCORE = 0.72
 }
