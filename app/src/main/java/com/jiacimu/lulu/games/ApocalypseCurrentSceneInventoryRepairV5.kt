@@ -5,12 +5,12 @@ import android.content.Context
 private const val APOCALYPSE_INVENTORY_MANUAL_PREFS_V5 = "apocalypse_inventory_manual_v5"
 
 /**
- * Safe repair for the newest already-saved scene. It only restores non-consumable concrete items
- * that the current narration explicitly says were acquired, so opening a newer APK can recover a
- * shield/weapon/tool that was omitted by the old receipt parser without replaying the scene.
+ * Safe repair for the newest already-saved scene. It restores non-consumable concrete items that the
+ * current narration explicitly says were acquired, plus explicit inventory-count snapshots from old
+ * builds (for example “胶弹枪4支、盾牌2面、背心13件、4盒共120发防爆弹”).
  *
  * Manual deletions are remembered separately. Once the player deletes a bogus recovered item, the
- * current-scene repair must not immediately resurrect the same bad row on the next sheet open.
+ * current-scene repair must not immediately resurrect the same row on the next sheet open.
  */
 internal fun repairApocalypseCurrentSceneInventoryV5(
     context: Context,
@@ -18,28 +18,52 @@ internal fun repairApocalypseCurrentSceneInventoryV5(
 ): ApocalypseV3Save {
     if (save.narration.isBlank()) return save
     val deletedKeys = apocalypseDeletedInventoryKeysV5(context, save.id)
-    val recovered = recoverApocalypseNarratedInventoryV5(
+
+    val acquisitionRecovered = recoverApocalypseNarratedInventoryV5(
         ApocalypseSceneOutcomeV5(text = save.narration),
-    ).delta.discoverAssets.filter { asset ->
-        asset.kind !in setOf(
-            ApocalypseV3AssetKind.Food,
-            ApocalypseV3AssetKind.Water,
-            ApocalypseV3AssetKind.Medicine,
-            ApocalypseV3AssetKind.Core,
-            ApocalypseV3AssetKind.Map,
-        ) && apocalypseRepairAssetKeyV5(asset.title) !in deletedKeys
-    }
+    ).delta.discoverAssets
+    val snapshotRecovered = recoverApocalypseExplicitInventorySnapshotV5(save.narration)
+
+    val recovered = (acquisitionRecovered + snapshotRecovered)
+        .filter { asset ->
+            asset.kind !in setOf(
+                ApocalypseV3AssetKind.Food,
+                ApocalypseV3AssetKind.Water,
+                ApocalypseV3AssetKind.Medicine,
+                ApocalypseV3AssetKind.Core,
+                ApocalypseV3AssetKind.Map,
+            ) && apocalypseRepairAssetKeyV5(asset.title) !in deletedKeys
+        }
+        .groupBy { apocalypseRepairAssetKeyV5(it.title) }
+        .values
+        .mapNotNull { variants -> variants.maxByOrNull { it.quantity } }
+        .take(64)
+
     if (recovered.isEmpty()) return save
 
     val merged = save.director.assets.toMutableList()
     var changed = false
     recovered.forEach { candidate ->
-        val exists = merged.any { existing ->
+        val existingIndex = merged.indexOfFirst { existing ->
             apocalypseRepairAssetKeyV5(existing.title) == apocalypseRepairAssetKeyV5(candidate.title)
         }
-        if (!exists) {
+        if (existingIndex < 0) {
             merged += candidate
             changed = true
+        } else {
+            val existing = merged[existingIndex]
+            // Old builds often saved one placeholder unit even when the visible current scene showed
+            // an explicit larger count. For the newest scene, the explicit visible count is safe to
+            // use as a repair because no later scene can have consumed it yet.
+            if (candidate.quantity > existing.quantity) {
+                merged[existingIndex] = existing.copy(
+                    kind = candidate.kind,
+                    quantity = candidate.quantity,
+                    detail = candidate.detail.ifBlank { existing.detail },
+                    tag = candidate.tag.ifBlank { existing.tag },
+                )
+                changed = true
+            }
         }
     }
     if (!changed) return save
