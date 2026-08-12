@@ -22,9 +22,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.CharacterSettings
 import com.jiacimu.lulu.data.CompanionPresenceStore
+import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.LuluConversation
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.MomentsStore
+import com.jiacimu.lulu.data.UserProfileContext
 import com.jiacimu.lulu.design.LuluColors
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -87,13 +89,9 @@ fun MigratedChatHubScreenV2(
                             if (index == 2 && unreadMoments > 0) {
                                 BadgedBox(
                                     badge = {
-                                        Badge {
-                                            Text(if (unreadMoments > 99) "99+" else unreadMoments.toString())
-                                        }
+                                        Badge { Text(if (unreadMoments > 99) "99+" else unreadMoments.toString()) }
                                     },
-                                ) {
-                                    Icon(ChatHubIcons[index], label)
-                                }
+                                ) { Icon(ChatHubIcons[index], label) }
                             } else {
                                 Icon(ChatHubIcons[index], label)
                             }
@@ -130,8 +128,15 @@ fun MigratedChatHubScreenV2(
     if (showCreateCharacter) {
         ChatHubV2CreateCharacterDialog(
             onDismiss = { showCreateCharacter = false },
-            onCreate = { name, persona ->
+            onCreate = { name, persona, digitalLife ->
                 val created = MigratedDomainStores.characters.create(name, persona)
+                if (digitalLife) {
+                    DigitalLifeProfileStore.registerNewLife(
+                        characterId = created.characterId,
+                        displayName = created.displayName,
+                        creatorName = UserProfileContext.displayLabel(),
+                    )
+                }
                 MigratedDomainStores.chat.ensureConversation(created.characterId, created.displayName)
                 showCreateCharacter = false
                 onCharacterSettings(created.characterId)
@@ -146,10 +151,7 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val sorted = remember(conversations) {
-        conversations.sortedWith(
-            compareByDescending<LuluConversation> { it.pinned }
-                .thenByDescending(LuluConversation::updatedAt),
-        )
+        conversations.sortedWith(compareByDescending<LuluConversation> { it.pinned }.thenByDescending(LuluConversation::updatedAt))
     }
     var menuConversationId by remember { mutableStateOf<String?>(null) }
 
@@ -167,8 +169,7 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
             }
         } else {
             items(sorted, key = LuluConversation::id, contentType = { "conversation" }) { conversation ->
-                val character = characters[conversation.characterId]
-                    ?: MigratedDomainStores.characters.get(conversation.characterId)
+                val character = characters[conversation.characterId] ?: MigratedDomainStores.characters.get(conversation.characterId)
                 val group = conversation.groupChat
                 Box {
                     Card(
@@ -184,32 +185,32 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                         shape = RoundedCornerShape(22.dp),
                     ) {
                         Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        if (group == null) {
-                            ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 50, character.avatarUri)
-                        } else {
-                            ChatHubV2GroupAvatar(group.name, group.avatarUri)
-                        }
-                        Spacer(Modifier.width(12.dp))
-                        Column(Modifier.weight(1f)) {
-                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            if (group == null) {
+                                ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 50, character.avatarUri)
+                            } else {
+                                ChatHubV2GroupAvatar(group.name, group.avatarUri)
+                            }
+                            Spacer(Modifier.width(12.dp))
+                            Column(Modifier.weight(1f)) {
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text(
+                                        group?.name ?: character.displayName.ifBlank { conversation.title.ifBlank { "未命名角色" } },
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 17.sp,
+                                    )
+                                    Text(
+                                        conversation.updatedAt.atZone(ZoneId.systemDefault()).format(ChatHubV2Time),
+                                        color = LuluColors.Muted,
+                                        fontSize = 11.sp,
+                                    )
+                                }
                                 Text(
-                                    group?.name ?: character.displayName.ifBlank { conversation.title.ifBlank { "未命名角色" } },
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 17.sp,
-                                )
-                                Text(
-                                    conversation.updatedAt.atZone(ZoneId.systemDefault()).format(ChatHubV2Time),
+                                    conversation.lastMessage.ifBlank { "还没有消息，点开后开始聊天。" },
                                     color = LuluColors.Muted,
-                                    fontSize = 11.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
                                 )
                             }
-                            Text(
-                                conversation.lastMessage.ifBlank { "还没有消息，点开后开始聊天。" },
-                                color = LuluColors.Muted,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
                             if (conversation.pinned) {
                                 Spacer(Modifier.width(7.dp))
                                 Icon(Icons.Outlined.PushPin, "已置顶", tint = LuluColors.Muted, modifier = Modifier.size(16.dp))
@@ -218,18 +219,12 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                                 Spacer(Modifier.width(7.dp))
                                 Badge { Text(conversation.unreadCount.toString()) }
                             }
-                            IconButton(
-                                onClick = { menuConversationId = conversation.id },
-                                modifier = Modifier.size(32.dp),
-                            ) {
+                            IconButton(onClick = { menuConversationId = conversation.id }, modifier = Modifier.size(32.dp)) {
                                 Icon(Icons.Outlined.MoreVert, "会话操作", modifier = Modifier.size(18.dp))
                             }
                         }
                     }
-                    DropdownMenu(
-                        expanded = menuConversationId == conversation.id,
-                        onDismissRequest = { menuConversationId = null },
-                    ) {
+                    DropdownMenu(expanded = menuConversationId == conversation.id, onDismissRequest = { menuConversationId = null }) {
                         DropdownMenuItem(
                             text = { Text(if (conversation.pinned) "取消置顶" else "置顶") },
                             leadingIcon = { Icon(Icons.Outlined.PushPin, null) },
@@ -290,28 +285,16 @@ private fun ChatHubV2Characters(
                 presence?.let { state ->
                     val visiblePresence = state.gesture.ifBlank { state.statusText }
                     if (visiblePresence.isNotBlank()) {
-                        Text(
-                            visiblePresence,
-                            color = LuluColors.Muted,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            fontSize = 13.sp,
-                        )
+                        Text(visiblePresence, color = LuluColors.Muted, maxLines = 2, overflow = TextOverflow.Ellipsis, fontSize = 13.sp)
                     }
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                    OutlinedButton(
-                        onClick = { onCharacterSettings(character.characterId) },
-                        modifier = Modifier.weight(1f),
-                    ) {
+                    OutlinedButton(onClick = { onCharacterSettings(character.characterId) }, modifier = Modifier.weight(1f)) {
                         Icon(Icons.Outlined.Tune, null, Modifier.size(17.dp))
                         Spacer(Modifier.width(4.dp))
                         Text("角色设置")
                     }
-                    OutlinedButton(
-                        onClick = { onWorldBook(character.characterId) },
-                        modifier = Modifier.weight(1f),
-                    ) {
+                    OutlinedButton(onClick = { onWorldBook(character.characterId) }, modifier = Modifier.weight(1f)) {
                         Icon(Icons.Outlined.Public, null, Modifier.size(17.dp))
                         Spacer(Modifier.width(4.dp))
                         Text("世界书")
@@ -326,15 +309,9 @@ private fun ChatHubV2Characters(
                         onOpenConversation(conversation.id)
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = LuluColors.Wheat,
-                        contentColor = LuluColors.OnWheat,
-                    ),
+                    colors = ButtonDefaults.buttonColors(containerColor = LuluColors.Wheat, contentColor = LuluColors.OnWheat),
                 ) {
-                    Text(
-                        if (privateChat == null) "开始和${character.displayName}私聊" else "继续和${character.displayName}私聊",
-                        fontWeight = FontWeight.Bold,
-                    )
+                    Text(if (privateChat == null) "开始和${character.displayName}私聊" else "继续和${character.displayName}私聊", fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -374,9 +351,7 @@ private fun ChatHubV2CreateGroupDialog(
                         ) {
                             Checkbox(
                                 checked = checked,
-                                onCheckedChange = {
-                                    selected = if (checked) selected - character.characterId else selected + character.characterId
-                                },
+                                onCheckedChange = { selected = if (checked) selected - character.characterId else selected + character.characterId },
                             )
                             ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 38, character.avatarUri)
                             Spacer(Modifier.width(9.dp))
@@ -387,10 +362,7 @@ private fun ChatHubV2CreateGroupDialog(
             }
         },
         confirmButton = {
-            TextButton(
-                enabled = name.isNotBlank() && selected.size >= 2,
-                onClick = { onCreate(name.trim(), selected.toList()) },
-            ) { Text("创建") }
+            TextButton(enabled = name.isNotBlank() && selected.size >= 2, onClick = { onCreate(name.trim(), selected.toList()) }) { Text("创建") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } },
     )
@@ -416,12 +388,7 @@ private fun ChatHubV2Profile() {
         item(key = "profile") {
             ChatHubV2Card {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    LuluAvatarPicker(
-                        imageUri = avatarUri,
-                        fallback = name.take(1).ifBlank { "主" },
-                        size = 78,
-                        onSelected = { avatarUri = it },
-                    )
+                    LuluAvatarPicker(imageUri = avatarUri, fallback = name.take(1).ifBlank { "主" }, size = 78, onSelected = { avatarUri = it })
                     Spacer(Modifier.width(14.dp))
                     Column {
                         Text(name.ifBlank { "我" }, style = MaterialTheme.typography.titleLarge)
@@ -459,10 +426,11 @@ private fun ChatHubV2Profile() {
 @Composable
 private fun ChatHubV2CreateCharacterDialog(
     onDismiss: () -> Unit,
-    onCreate: (String, String) -> Unit,
+    onCreate: (String, String, Boolean) -> Unit,
 ) {
     var name by remember { mutableStateOf("") }
     var persona by remember { mutableStateOf("") }
+    var digitalLife by remember { mutableStateOf(true) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("新建角色") },
@@ -470,10 +438,22 @@ private fun ChatHubV2CreateCharacterDialog(
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(name, { name = it }, label = { Text("角色名称") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(persona, { persona = it }, label = { Text("角色核心设定") }, minLines = 4, modifier = Modifier.fillMaxWidth())
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("出生为数字生命", fontWeight = FontWeight.SemiBold)
+                        Text(
+                            "开启后，创建这一刻就是生命第1天：没有创建前的个人记忆，没有现实肉身，只承认之后真实发生的记录与真实执行成功的能力。",
+                            color = LuluColors.Muted,
+                            fontSize = 11.sp,
+                            lineHeight = 16.sp,
+                        )
+                    }
+                    Switch(checked = digitalLife, onCheckedChange = { digitalLife = it })
+                }
             }
         },
         confirmButton = {
-            TextButton(enabled = name.isNotBlank(), onClick = { onCreate(name.trim(), persona.trim()) }) {
+            TextButton(enabled = name.isNotBlank(), onClick = { onCreate(name.trim(), persona.trim(), digitalLife) }) {
                 Text("创建并设置")
             }
         },
@@ -489,11 +469,7 @@ private fun ChatHubV2Card(content: @Composable ColumnScope.() -> Unit) {
         border = BorderStroke(1.dp, LuluColors.Border),
         shape = RoundedCornerShape(22.dp),
     ) {
-        Column(
-            Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            content = content,
-        )
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
     }
 }
 
@@ -512,9 +488,7 @@ private fun ChatHubV2GroupAvatar(name: String, imageUri: String?) {
             color = LuluColors.Wheat.copy(alpha = 0.42f),
             border = BorderStroke(1.dp, LuluColors.Border),
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(Icons.Outlined.Groups, null, Modifier.size(30.dp))
-            }
+            Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Groups, null, Modifier.size(30.dp)) }
         }
     }
 }
