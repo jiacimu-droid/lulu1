@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T18:03:50.232210+00:00",
-  "commit": "be5c1fa1b6f69aab2cd56f580fb0782407150c8b",
+  "generatedAt": "2026-08-12T18:18:02.637035+00:00",
+  "commit": "179148504a7e746d145757984df5a0fda61c8728",
   "branch": "main",
-  "sourceFingerprint": "b64cad03ab0d909f6d601326081bd246a030e54f6004afe47115461cd74803f8",
+  "sourceFingerprint": "9641c4e369ce43e23ea9eecd5a9a9c120022e75abcec7a8972c701456e6dbe0b",
   "summary": {
     "files": 176,
-    "lines": 53318,
+    "lines": 53340,
     "symbols": 689
   },
   "symbolIndex": {
@@ -2341,7 +2341,7 @@
     "positiveDeltaWithoutConcrete": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseNarratedInventoryRecoveryV5.kt",
-        "line": 81
+        "line": 85
       }
     ],
     "bootstrapFromSave": [
@@ -6041,12 +6041,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseNarratedInventoryRecoveryV5.kt",
-      "lines": 290,
-      "sha256": "b579ece639998c20a86e36211f8930c00875a145703e59ef678e92f6be512a45",
+      "lines": 312,
+      "sha256": "cab6c1e53fdf3fa5b1ac09d56517844d4c0bcabced4580ecba77d174688721b4",
       "symbols": [
         {
           "name": "positiveDeltaWithoutConcrete",
-          "line": 81
+          "line": 85
         }
       ]
     },
