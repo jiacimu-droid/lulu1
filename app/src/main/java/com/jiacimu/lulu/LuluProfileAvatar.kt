@@ -46,8 +46,15 @@ import javax.net.ssl.HttpsURLConnection
 
 private const val LULU_REMOTE_AVATAR_MAX_BYTES = 3 * 1024 * 1024
 
-private val luluAvatarBitmapCache = object : LruCache<String, Bitmap>(16 * 1024) {
+// Keep enough portraits hot for long visual-novel scenes. A 512px ARGB bitmap is roughly 1 MiB;
+// 32 MiB avoids repeatedly evicting the small cast and re-showing placeholders between dialogue beats.
+private val luluAvatarBitmapCache = object : LruCache<String, Bitmap>(32 * 1024) {
     override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount / 1024
+}
+
+private fun cachedLuluAvatarBitmap(value: String?): Bitmap? {
+    val key = value?.takeIf(String::isNotBlank) ?: return null
+    return synchronized(luluAvatarBitmapCache) { luluAvatarBitmapCache.get(key) }
 }
 
 @Composable
@@ -59,10 +66,21 @@ internal fun LuluProfileAvatar(
 ) {
     val avatarShape = RoundedCornerShape((size * 0.22f).dp)
     val context = LocalContext.current
-    val bitmap by produceState<Bitmap?>(initialValue = null, imageUri) {
-        value = imageUri?.takeIf(String::isNotBlank)?.let { uri ->
-            withContext(Dispatchers.IO) { loadLuluAvatarBitmap(context, uri) }
+    // Important for the visual-novel stage: do not reset an already-cached portrait to null for one
+    // composition frame merely because the speaker changed. That null frame was the visible "flash"
+    // when advancing from the player's line to another speaker.
+    val initialBitmap = remember(imageUri) { cachedLuluAvatarBitmap(imageUri) }
+    val bitmap by produceState<Bitmap?>(initialValue = initialBitmap, imageUri) {
+        val uri = imageUri?.takeIf(String::isNotBlank)
+        if (uri == null) {
+            value = null
+            return@produceState
         }
+        cachedLuluAvatarBitmap(uri)?.let {
+            value = it
+            return@produceState
+        }
+        value = withContext(Dispatchers.IO) { loadLuluAvatarBitmap(context, uri) }
     }
     Surface(
         modifier = modifier.size(size.dp),
@@ -99,7 +117,10 @@ private fun loadLuluRemoteAvatarBitmap(context: Context, value: String): Bitmap?
     if (!directory.exists() && !directory.mkdirs()) return null
     val cacheFile = File(directory, "${luluAvatarCacheKey(value)}.img")
     if (cacheFile.isFile) {
-        BitmapFactory.decodeFile(cacheFile.absolutePath)?.let { return it }
+        BitmapFactory.decodeFile(cacheFile.absolutePath)?.let { bitmap ->
+            synchronized(luluAvatarBitmapCache) { luluAvatarBitmapCache.put(value, bitmap) }
+            return bitmap
+        }
         cacheFile.delete()
     }
 
@@ -115,6 +136,7 @@ private fun loadLuluRemoteAvatarBitmap(context: Context, value: String): Bitmap?
         val bytes = connection.inputStream.use(::readLuluAvatarBytes) ?: return null
         val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
         runCatching { cacheFile.writeBytes(bytes) }
+        synchronized(luluAvatarBitmapCache) { luluAvatarBitmapCache.put(value, bitmap) }
         bitmap
     } catch (_: Throwable) {
         null

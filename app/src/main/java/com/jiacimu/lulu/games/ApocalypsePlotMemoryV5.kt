@@ -30,7 +30,8 @@ internal data class ApocalypsePlotMemoryCardV5(
 )
 
 internal class ApocalypsePlotMemoryStoreV5(context: Context) {
-    private val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val appContext = context.applicationContext
+    private val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     fun load(saveId: String): List<ApocalypsePlotMemoryCardV5> = synchronized(LOCK) {
         decodeCards(prefs.getString(key(saveId), null)).filter { it.saveId == saveId }
@@ -187,11 +188,16 @@ internal class ApocalypsePlotMemoryStoreV5(context: Context) {
         synchronized(LOCK) {
             persist(saveId, decodeCards(prefs.getString(key(saveId), null)).filter { it.scene <= scene })
         }
+        // Story rollback is causal, not merely visual. The backstage living-world ledger may contain
+        // plans derived from deleted scenes, so discard that future-only cache and let it rebuild from
+        // the restored canonical save on the next director pass.
+        clearApocalypseFutureCachesForRollbackV5(appContext, saveId)
     }
 
     fun clear(saveId: String) {
         if (saveId.isBlank()) return
         synchronized(LOCK) { prefs.edit().remove(key(saveId)).apply() }
+        clearApocalypseFutureCachesForRollbackV5(appContext, saveId)
     }
 
     private fun persist(saveId: String, cards: List<ApocalypsePlotMemoryCardV5>) {

@@ -48,6 +48,16 @@ internal object ApocalypseGenerationTaskManagerV5 {
         val cleanAction = action.trim()
         if (save.id.isBlank() || cleanAction.isBlank()) return false
         val appContext = context.applicationContext
+
+        // One-time repair for saves affected by the old generic-XP bug. Before impact there cannot be
+        // legal crystal cores, so any pre-impact Lv.2+ state is provably invalid. Persist the repair and
+        // transparently continue the same requested action against the corrected save.
+        val repairedSave = sanitizeApocalypseLoadedAbilityStateV5(save)
+        if (repairedSave != save) {
+            ApocalypseSurvivalV3Store(appContext).save(repairedSave)
+            return launch(context, repairedSave, config, party, cleanAction)
+        }
+
         val livingWorldStore = ApocalypseLivingWorldStoreV5(appContext)
         synchronized(lock) {
             if (jobs[save.id]?.isActive == true) return false
@@ -104,7 +114,9 @@ internal object ApocalypseGenerationTaskManagerV5 {
 
                     updateState(save.id) { it.copy(phase = "正在整理相关旧剧情") }
                     val plotMemoryContext = plotMemoryDeferred.await()
-                    val plannedBeat = planResult.beat
+                    // The model may propose generic XP or over-generous core drops. V5 validates
+                    // both before projected stats are shown to the prose writer.
+                    val plannedBeat = sanitizeApocalypseAbilityProgressionV5(save, cleanAction, planResult.beat)
                     val usedDirector = planResult.directorApplied
                     updateState(save.id) { it.copy(usedDirector = usedDirector) }
                     val projectedStats = applyApocalypseV3Beat(save.stats, plannedBeat)
@@ -121,9 +133,12 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         // backstage truths. Anything secret must first be transformed by the director
                         // into an observable directive/foreshadow move.
                         plotMemoryContext = plotMemoryContext,
-                        onPartialText = { partial ->
+                        // Keep network streaming for transport reliability, but do not expose the
+                        // ever-changing last partial page on the stage. That preview caused the whole
+                        // chapter to race across the screen and then jump back to page one.
+                        onPartialText = { _ ->
                             updateState(save.id) {
-                                it.copy(phase = "正文正在生成", partialText = partial)
+                                it.copy(phase = "正文正在生成", partialText = "")
                             }
                         },
                     )
@@ -135,7 +150,7 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         usedDirector = usedDirector,
                         party = party,
                     )
-                    val beat = if (needsDirector && !usedDirector) {
+                    val rawBeat = if (needsDirector && !usedDirector) {
                         // The director already had its chance this scene. A timeout or malformed JSON
                         // must not force another expensive director call on every following action;
                         // the normal cadence or the player's next structural choice can wake it again.
@@ -145,14 +160,29 @@ internal object ApocalypseGenerationTaskManagerV5 {
                     } else {
                         resolvedBeat
                     }
+                    // Validate the writer receipt too. Only real visible core acquisition can add
+                    // usable cores, and only deliberate absorption with a matching core spend can add
+                    // stable resonance progress.
+                    val beat = sanitizeApocalypseAbilityProgressionV5(save, cleanAction, rawBeat)
                     val nextStats = applyApocalypseV3Beat(save.stats, beat)
-                    val text = normalizeApocalypseStorySpeakerTagsV5(
+                    val normalizedText = normalizeApocalypseStorySpeakerTagsV5(
                         text = outcome.text,
                         party = party,
                         dossiers = beat.nextDirector.characterDossiers,
                         presentCharacterIds = beat.nextDirector.presentCharacterIds,
                     ).trim()
+                    val text = ensureApocalypseAbilityUpgradeNarrationV5(
+                        text = normalizedText,
+                        before = save.stats,
+                        after = nextStats,
+                    )
                     check(text.isNotBlank()) { "这一幕没有生成出正文，请再试一次。" }
+                    val persistedOutcome = withApocalypseAbilityUpgradeCanonV5(
+                        outcome = outcome,
+                        before = save.stats,
+                        after = nextStats,
+                        visibleText = text,
+                    )
 
                     val storage = ApocalypseSurvivalV3Store(appContext)
                     val latest = storage.loadSave()
@@ -175,8 +205,8 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         stats = nextStats,
                         log = (save.log + buildString {
                             append("第${save.scene + 1}幕｜行动=${cleanAction.take(180)}")
-                            append("｜结果=${outcome.actionOutcome.ifBlank { compactApocalypseSceneExcerptV5(text, 100) }.take(220)}")
-                            append("｜正史=${outcome.continuitySummary.ifBlank { compactApocalypseSceneExcerptV5(text) }.take(360)}")
+                            append("｜结果=${persistedOutcome.actionOutcome.ifBlank { compactApocalypseSceneExcerptV5(text, 100) }.take(220)}")
+                            append("｜正史=${persistedOutcome.continuitySummary.ifBlank { compactApocalypseSceneExcerptV5(text) }.take(360)}")
                         })
                             .takeLast(100),
                         updatedAt = System.currentTimeMillis(),
@@ -191,7 +221,7 @@ internal object ApocalypseGenerationTaskManagerV5 {
                             saveBefore = save,
                             saveAfter = next,
                             action = cleanAction,
-                            outcome = outcome,
+                            outcome = persistedOutcome,
                             beat = beat,
                         )
                     }
@@ -201,7 +231,7 @@ internal object ApocalypseGenerationTaskManagerV5 {
                             saveBefore = save,
                             saveAfter = next,
                             action = cleanAction,
-                            outcome = outcome,
+                            outcome = persistedOutcome,
                         )
                     }.onSuccess {
                         // Vectorization and model-change reindexing never hold the visible generation
@@ -215,7 +245,7 @@ internal object ApocalypseGenerationTaskManagerV5 {
                     // fair surprise setups. It runs only after the scene is already saved, so it never
                     // blocks the player's visible chapter. If the player has already advanced or rolled
                     // back by the time it returns, the stale backstage result is discarded.
-                    if (ApocalypseLivingWorldRuntimeV5.shouldRefreshBackstage(next, beat, outcome, usedDirector)) {
+                    if (ApocalypseLivingWorldRuntimeV5.shouldRefreshBackstage(next, beat, persistedOutcome, usedDirector)) {
                         appScope.launch {
                             runCatching {
                                 ApocalypseLivingWorldRuntimeV5.refreshAfterScene(
@@ -223,7 +253,7 @@ internal object ApocalypseGenerationTaskManagerV5 {
                                     saveBefore = save,
                                     saveAfter = next,
                                     action = cleanAction,
-                                    outcome = outcome,
+                                    outcome = persistedOutcome,
                                     beat = beat,
                                 )
                             }
