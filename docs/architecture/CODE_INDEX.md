@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0a4bf913f492ef6e7b9a1a69e22eb5c7e87955b2`
+- 基准提交：`5bef674e2ef8a474ab0510bd246fc51891454026`
 - 分支：`main`
 - 已索引文件：175
-- 已索引代码/文本行：53486
+- 已索引代码/文本行：53630
 - 已发现符号：690
 
 | 文件 | 行数 | 符号数 |
@@ -99,7 +99,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt` | 676 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseMapIntelV5.kt` | 541 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseModelPickerV5.kt` | 60 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseNarratedInventoryRecoveryV5.kt` | 398 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseNarratedInventoryRecoveryV5.kt` | 542 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryManagerV5.kt` | 310 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt` | 460 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSceneOutcomeV5.kt` | 710 | 0 |
