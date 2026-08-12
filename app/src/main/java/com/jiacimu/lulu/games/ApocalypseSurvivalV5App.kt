@@ -439,6 +439,7 @@ private fun ApocalypseV5HomePage(
             TopAppBar(
                 title = { Text("末世求生", fontWeight = FontWeight.Black, color = ApocalypseV5Colors.ink) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
+                actions = { ApocalypseModelArchiveButtonV5(tint = ApocalypseV5Colors.ink) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = ApocalypseV5Colors.background),
             )
         },
@@ -1308,6 +1309,7 @@ private fun ApocalypseV5PlayPage(
                 Text("末世求生", color = ApocalypseV5Colors.textOnDark, fontSize = 17.sp, fontWeight = FontWeight.Black)
                 Text("${apocalypseDayLabelV5(save.director.dayIndex)} ${apocalypseClockLabelV5(save.director.clockMinutes)} · ${save.director.weather} ${save.director.temperatureC}℃ · 第${save.scene}幕", color = ApocalypseV5Colors.blueSoft, fontSize = 10.sp)
             }
+            ApocalypseModelArchiveButtonV5(tint = ApocalypseV5Colors.textOnDark, enabled = !busy)
             IconButton(onClick = onHistory, enabled = !busy) {
                 Icon(Icons.Outlined.History, "剧情历史", tint = ApocalypseV5Colors.textOnDark)
             }
