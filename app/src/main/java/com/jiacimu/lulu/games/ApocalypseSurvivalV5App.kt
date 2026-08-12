@@ -1318,7 +1318,7 @@ private fun ApocalypseV5PlayPage(
                     Text(
                         if (busy) "第${save.scene + 1}幕 · 正在生成" else apocalypseV5SpeakerLabel(currentPage, party, save.director.characterDossiers, userName),
                         color = ApocalypseV5Colors.blueStrong,
-                        fontSize = 11.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.weight(1f),
                     )
@@ -1363,16 +1363,7 @@ private fun ApocalypseV5PlayPage(
                             shape = RoundedCornerShape(14.dp),
                             colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = ApocalypseV5Colors.blueStrong, unfocusedBorderColor = ApocalypseV5Colors.border),
                         )
-                        Spacer(Modifier.height(5.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        ) {
-                            SuggestionChip(onClick = { action = "我仔细搜集能长期保存的食物、饮水、药物、能源和工具，并优先利用空间异能降低搬运风险。" }, label = { Text("搜物资", fontSize = 9.sp) })
-                            SuggestionChip(onClick = { action = "我重新评估当前据点的水源、出入口、防御、排污、能源和撤退路线。" }, label = { Text("看基地", fontSize = 9.sp) })
-                            SuggestionChip(onClick = { action = "我检查并训练自己的两个异能槽，优先练习当前等级已经允许的能力。" }, label = { Text("练异能", fontSize = 9.sp) })
-                        }
-                        Spacer(Modifier.height(5.dp))
+                        Spacer(Modifier.height(7.dp))
                         Button(
                             onClick = ::submit,
                             enabled = action.isNotBlank() && !busy,
@@ -1462,10 +1453,15 @@ private fun ApocalypseV5SpeakerStage(
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(location, color = ApocalypseV5Colors.textOnDark, fontSize = 17.sp, fontWeight = FontWeight.Black, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text("空间 Lv.${stats.playerAbilityLevel} · ${playerSpaceCapacityM3(stats.playerAbilityLevel)}m³", color = ApocalypseV5Colors.textMutedDark, fontSize = 10.sp)
-                }
+                Text(
+                    location,
+                    color = ApocalypseV5Colors.textOnDark,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
                 Surface(color = ApocalypseV5Colors.surfaceBlue.copy(alpha = .12f), shape = RoundedCornerShape(9.dp), border = BorderStroke(1.dp, ApocalypseV5Colors.blackLine)) {
                     Text("威胁 $tension/10", color = ApocalypseV5Colors.blueSoft, fontSize = 10.sp, modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp))
                 }
@@ -1505,6 +1501,7 @@ private fun ApocalypseV5SpeakerStage(
                 ApocalypseV5TinyStageStat("水 ${stats.water}")
                 ApocalypseV5TinyStageStat("药 ${stats.medicine}")
                 ApocalypseV5TinyStageStat("晶 ${stats.crystalCores}")
+                ApocalypseV5TinyStageStat("空间 Lv.${stats.playerAbilityLevel}")
                 if (stats.baseLevel > 0) ApocalypseV5TinyStageStat("基地 Lv.${stats.baseLevel}")
             }
             Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
