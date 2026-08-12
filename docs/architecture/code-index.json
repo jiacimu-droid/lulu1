@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T11:26:23.999948+00:00",
-  "commit": "c17b2b590892814b441293e7748c173ccc68b348",
+  "generatedAt": "2026-08-12T11:27:08.534147+00:00",
+  "commit": "54f6706f2229fec63f08d2fd47fd38e72ceca3c5",
   "branch": "main",
-  "sourceFingerprint": "14ba9761d00c0c701da8c02ae2742290d0663706a24ca44fd2cbd9d39c459e33",
+  "sourceFingerprint": "1767cc9fb9348a17daaa4d12bb241ff41c22a6c3d25ab06df61c1fb354843a95",
   "summary": {
     "files": 172,
-    "lines": 51622,
+    "lines": 51634,
     "symbols": 682
   },
   "symbolIndex": {
@@ -2059,19 +2059,19 @@
     "recordChatMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 88
+        "line": 92
       }
     ],
     "record": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 105
+        "line": 109
       }
     ],
     "all": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 145
+        "line": 153
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -2081,31 +2081,31 @@
     "deleteEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 149
+        "line": 157
       }
     ],
     "deleteConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 170
+        "line": 178
       }
     ],
     "deleteConversationData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 181
+        "line": 189
       }
     ],
     "recentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 201
+        "line": 209
       }
     ],
     "remember": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 219
+        "line": 227
       }
     ],
     "UserDataUpgradeGuard": [
@@ -5682,8 +5682,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 308,
-      "sha256": "f09a011847cf2f932eb3aadfa5b6f11c086d505a1e5aae01d63871c4ede7f640",
+      "lines": 320,
+      "sha256": "0cc85fca472a3c279085ded51897b7e1032c302423144e0f6e7936ffde2c58d1",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -5707,35 +5707,35 @@
         },
         {
           "name": "recordChatMessage",
-          "line": 88
+          "line": 92
         },
         {
           "name": "record",
-          "line": 105
+          "line": 109
         },
         {
           "name": "all",
-          "line": 145
+          "line": 153
         },
         {
           "name": "deleteEvent",
-          "line": 149
+          "line": 157
         },
         {
           "name": "deleteConversationMessage",
-          "line": 170
+          "line": 178
         },
         {
           "name": "deleteConversationData",
-          "line": 181
+          "line": 189
         },
         {
           "name": "recentContext",
-          "line": 201
+          "line": 209
         },
         {
           "name": "remember",
-          "line": 219
+          "line": 227
         }
       ]
     },
