@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`b311b8248982a6abdb04147462fefe76164756c1`
+- 基准提交：`ff5cc7f2b5acb27f9e99e9ba15630315bae194ef`
 - 分支：`main`
-- 已索引文件：164
-- 已索引代码/文本行：49422
-- 已发现符号：659
+- 已索引文件：165
+- 已索引代码/文本行：50098
+- 已发现符号：665
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -89,6 +89,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseFlowRowCompat.kt` | 34 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt` | 229 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt` | 352 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt` | 676 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryManagerV5.kt` | 310 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt` | 454 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSceneOutcomeV5.kt` | 710 | 0 |

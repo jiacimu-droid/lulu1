@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T08:52:19.035327+00:00",
-  "commit": "b311b8248982a6abdb04147462fefe76164756c1",
+  "generatedAt": "2026-08-12T09:20:53.808065+00:00",
+  "commit": "ff5cc7f2b5acb27f9e99e9ba15630315bae194ef",
   "branch": "main",
-  "sourceFingerprint": "97a0eaf0ff704a6346361730ee45689c1a0454420263d071614ae96df3a383af",
+  "sourceFingerprint": "ce4b9ccfd5d80af3c287f62e2650eba7ffeeb42c6416cda82f8137bcad1c26ff",
   "summary": {
-    "files": 164,
-    "lines": 49422,
-    "symbols": 659
+    "files": 165,
+    "lines": 50098,
+    "symbols": 665
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -2142,6 +2142,10 @@
         "line": 79
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt",
+        "line": 78
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
         "line": 34
       },
@@ -2196,16 +2200,44 @@
         "line": 110
       }
     ],
-    "bootstrapFromSave": [
+    "promptForDirector": [
       {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-        "line": 40
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt",
+        "line": 90
+      }
+    ],
+    "shouldWakeDirector": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt",
+        "line": 135
       }
     ],
     "recordScene": [
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt",
+        "line": 142
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
         "line": 66
+      }
+    ],
+    "replaceFromBackstage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt",
+        "line": 181
+      }
+    ],
+    "shouldRefreshBackstage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt",
+        "line": 213
+      }
+    ],
+    "bootstrapFromSave": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
+        "line": 40
       }
     ],
     "updateCard": [
@@ -5702,6 +5734,37 @@
         {
           "name": "clear",
           "line": 133
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt",
+      "lines": 676,
+      "sha256": "993e14b9ff142e82961e376d862e5cf12cb7faa656f3080a30e7376707065eb7",
+      "symbols": [
+        {
+          "name": "load",
+          "line": 78
+        },
+        {
+          "name": "promptForDirector",
+          "line": 90
+        },
+        {
+          "name": "shouldWakeDirector",
+          "line": 135
+        },
+        {
+          "name": "recordScene",
+          "line": 142
+        },
+        {
+          "name": "replaceFromBackstage",
+          "line": 181
+        },
+        {
+          "name": "shouldRefreshBackstage",
+          "line": 213
         }
       ]
     },
