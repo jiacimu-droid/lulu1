@@ -52,6 +52,10 @@ object SharedExperienceTimeline {
         message: LuluChatMessage,
         triggerExtraction: Boolean = true,
     ) {
+        // Game completion already owns one canonical raw game event. The little chat receipt is UI
+        // decoration only and must never become a second copy of the same match in raw timeline.
+        if (message.sender == LuluChatMessage.Sender.System && message.content.startsWith("[共同活动]")) return
+
         val group = conversation.groupChat
         if (group == null) {
             recordChatMessage(
@@ -115,6 +119,10 @@ object SharedExperienceTimeline {
         val clean = content.trim()
         val database = helper?.writableDatabase ?: return
         if (eventId.isBlank() || characterId.isBlank() || clean.isBlank()) return
+        if (!DigitalLifeProfileStore.allowsTimestamp(characterId, occurredAt)) return
+        // A role's in-game reaction belongs inside the one match record, not beside it as another
+        // raw timeline event. Old callers may still try to emit this id, so reject it centrally.
+        if (eventId.startsWith("game-reply-")) return
         val deleted = database.query(
             "deleted_timeline_events",
             arrayOf("event_id"),
@@ -227,6 +235,7 @@ object SharedExperienceTimeline {
     ) {
         val cleanDetail = detail.trim()
         if (memoryId.isBlank() || characterId.isBlank() || cleanDetail.isBlank()) return
+        if (!DigitalLifeProfileStore.allowsTimestamp(characterId, occurredAt)) return
         scope.launch {
             LuluRepositories.memory.upsert(
                 MemoryEntry(
@@ -248,11 +257,14 @@ object SharedExperienceTimeline {
     private fun query(characterId: String, limit: Int?): List<SharedTimelineEvent> {
         val database = helper?.readableDatabase ?: return emptyList()
         val order = if (limit == null) "occurred_at ASC" else "occurred_at DESC"
+        val birth = DigitalLifeProfileStore.birthAt(characterId)
+        val selection = if (birth == null) "character_id = ?" else "character_id = ? AND occurred_at >= ?"
+        val args = if (birth == null) arrayOf(characterId) else arrayOf(characterId, birth.toEpochMilli().toString())
         return database.query(
             "timeline_events",
             arrayOf("id", "character_id", "channel", "speaker", "content", "occurred_at"),
-            "character_id = ?",
-            arrayOf(characterId),
+            selection,
+            args,
             null,
             null,
             order,
