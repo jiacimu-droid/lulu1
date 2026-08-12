@@ -545,7 +545,8 @@ private fun MemoryEditorDialog(
                 if (!isNew) {
                     TextButton(onClick = onDelete) { Text("删除", color = MaterialTheme.colorScheme.error) }
                 }
-                TextButton(onClick = onDismiss) { Text("取消") }</n            }
+                TextButton(onClick = onDismiss) { Text("取消") }
+            }
         },
     )
 }
