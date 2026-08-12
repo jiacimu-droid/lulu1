@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T16:18:46.166359+00:00",
-  "commit": "7c9e9ad82c9709914319220a44738169a58485f6",
+  "generatedAt": "2026-08-12T16:20:17.523677+00:00",
+  "commit": "0a4bf913f492ef6e7b9a1a69e22eb5c7e87955b2",
   "branch": "main",
-  "sourceFingerprint": "36c55fb66fcb26c3000a49d64a8a3022959e047def629ae0d16a590182e102a4",
+  "sourceFingerprint": "61bd84a6b9235b6dc30cc8d9ea47b2080a3b6defaaf6a595cd2b02263738f79e",
   "summary": {
     "files": 175,
-    "lines": 53571,
+    "lines": 53486,
     "symbols": 690
   },
   "symbolIndex": {
@@ -5952,8 +5952,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryBrowserV5.kt",
-      "lines": 422,
-      "sha256": "9c34008a1800a69b642bd7ed26ed312a6eedc42274c299e95443730ae6054725",
+      "lines": 337,
+      "sha256": "7bc6c440d6d3249780e852355d34cb7eac434533dfbad2c577e51cbf60038d25",
       "symbols": []
     },
     {
