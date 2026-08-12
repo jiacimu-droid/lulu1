@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T11:00:43.941342+00:00",
-  "commit": "1186b1178c690787df43b9051a2083908d1d16e1",
+  "generatedAt": "2026-08-12T11:01:33.397624+00:00",
+  "commit": "3578fce4c5d949e5f0b2bbe9474bd4e006234099",
   "branch": "main",
-  "sourceFingerprint": "0fc0ed8d90dc3fbefa240ae001b3f3151c5c338cc0334d881033f6c437c9f7d1",
+  "sourceFingerprint": "a0c403ab9d27164bde60fcf3c6d8f70773a817d096332a00410c9c91ca344f35",
   "summary": {
     "files": 171,
-    "lines": 51461,
+    "lines": 51550,
     "symbols": 671
   },
   "symbolIndex": {
@@ -4282,8 +4282,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt",
-      "lines": 165,
-      "sha256": "29c24d9fe29e599fd33a78fbbdd4a3e2e6127e194782156a0c82a868f87c19d6",
+      "lines": 254,
+      "sha256": "fe2b52ce05c265b53299dd83229f6fcfab63729e5af9ff7f4e55a60ae6a0d916",
       "symbols": []
     },
     {
