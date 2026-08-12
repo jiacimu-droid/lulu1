@@ -73,7 +73,7 @@ private enum class ApocalypseInventoryCategoryV5(
     Medicine("药品", Icons.Outlined.MedicalServices, setOf(ApocalypseV3AssetKind.Medicine), "药物、急救与医疗耗材"),
     Household("生活用品", Icons.Outlined.Home, setOf(ApocalypseV3AssetKind.Tool, ApocalypseV3AssetKind.Material), "洗漱、清洁、衣物、床品、餐具与日常消耗品"),
     Material("材料", Icons.Outlined.Construction, setOf(ApocalypseV3AssetKind.Material), "建设、维修与加工材料"),
-    Weapon("武器", Icons.Outlined.GpsFixed, setOf(ApocalypseV3AssetKind.Weapon), "近战、远程与防卫装备"),
+    Combat("战斗", Icons.Outlined.GpsFixed, setOf(ApocalypseV3AssetKind.Weapon), "枪械、弹药、冷兵器、防暴防弹装备与战术护具"),
     Tool("工具", Icons.Outlined.Handyman, setOf(ApocalypseV3AssetKind.Tool), "维修、拆装、生产与专业设备"),
     Vehicle("载具", Icons.Outlined.DirectionsCar, setOf(ApocalypseV3AssetKind.Vehicle), "车辆与可移动运输资源"),
     Key("钥匙/权限", Icons.Outlined.Key, setOf(ApocalypseV3AssetKind.Key), "门禁、钥匙与访问权限"),
@@ -93,7 +93,28 @@ private val apocalypseHouseholdKeywordsV5 = listOf(
     "梳子", "镜子", "剃须", "指甲剪", "棉签", "棉棒", "暖宝宝", "蚊香", "驱蚊",
 )
 
+private val apocalypseCombatKeywordsV5 = listOf(
+    "枪械", "枪支", "手枪", "步枪", "冲锋枪", "霰弹枪", "猎枪", "狙击枪", "机枪", "卡宾枪",
+    "弹药", "子弹", "弹匣", "弹夹", "枪套", "枪托", "瞄准镜", "消音器", "抑制器",
+    "砍刀", "开山刀", "折叠刀", "战术刀", "匕首", "军刀", "长刀", "短刀", "斧头", "战斧",
+    "弓箭", "弓弩", "弩箭", "甩棍", "防身棍", "警棍", "撬棍", "盾牌", "防暴盾", "防爆盾",
+    "防暴装备", "防爆装备", "防弹装备", "防刺装备", "防弹衣", "防刺服", "防暴服", "防爆服",
+    "战术头盔", "防弹头盔", "头盔", "护甲", "装甲背心", "战术背心", "防弹背心", "战术护具",
+    "护膝", "护肘", "战术手套", "战术护目镜", "战术腰带", "战术装备", "作战装备", "combat", "weapon",
+    "firearm", "ammo", "ammunition", "armor", "armour", "riot gear", "tactical gear", "ballistic",
+)
+
+private fun isApocalypseCombatAssetV5(asset: ApocalypseV3Asset): Boolean {
+    if (asset.kind == ApocalypseV3AssetKind.Weapon) return true
+    // A real document/map about weapons is still a document/map. This fallback is mainly for old
+    // saves where a concrete item was mistakenly parsed as Tool / Material / Clue.
+    if (asset.kind in setOf(ApocalypseV3AssetKind.Document, ApocalypseV3AssetKind.Map, ApocalypseV3AssetKind.Key)) return false
+    val searchable = "${asset.title} ${asset.tag}".lowercase()
+    return apocalypseCombatKeywordsV5.any(searchable::contains)
+}
+
 private fun isApocalypseHouseholdAssetV5(asset: ApocalypseV3Asset): Boolean {
+    if (isApocalypseCombatAssetV5(asset)) return false
     if (asset.kind != ApocalypseV3AssetKind.Tool && asset.kind != ApocalypseV3AssetKind.Material) return false
     if (asset.tag.contains("生活用品")) return true
     val searchable = "${asset.title} ${asset.tag} ${asset.detail}".lowercase()
@@ -105,9 +126,11 @@ private fun apocalypseAssetBelongsToInventoryCategoryV5(
     asset: ApocalypseV3Asset,
 ): Boolean = when (category) {
     ApocalypseInventoryCategoryV5.Money -> false
+    ApocalypseInventoryCategoryV5.Combat -> isApocalypseCombatAssetV5(asset)
     ApocalypseInventoryCategoryV5.Household -> isApocalypseHouseholdAssetV5(asset)
-    ApocalypseInventoryCategoryV5.Material -> asset.kind == ApocalypseV3AssetKind.Material && !isApocalypseHouseholdAssetV5(asset)
-    ApocalypseInventoryCategoryV5.Tool -> asset.kind == ApocalypseV3AssetKind.Tool && !isApocalypseHouseholdAssetV5(asset)
+    ApocalypseInventoryCategoryV5.Material -> asset.kind == ApocalypseV3AssetKind.Material && !isApocalypseCombatAssetV5(asset) && !isApocalypseHouseholdAssetV5(asset)
+    ApocalypseInventoryCategoryV5.Tool -> asset.kind == ApocalypseV3AssetKind.Tool && !isApocalypseCombatAssetV5(asset) && !isApocalypseHouseholdAssetV5(asset)
+    ApocalypseInventoryCategoryV5.Clue -> asset.kind == ApocalypseV3AssetKind.Clue && !isApocalypseCombatAssetV5(asset)
     else -> asset.kind in category.kinds
 }
 
@@ -126,6 +149,7 @@ internal fun ApocalypseInventoryBrowserSheetV5(save: ApocalypseV3Save) {
                 ApocalypseInventoryCategoryV5.Medicine,
                 ApocalypseInventoryCategoryV5.Household,
                 ApocalypseInventoryCategoryV5.Material,
+                ApocalypseInventoryCategoryV5.Combat,
                 ApocalypseInventoryCategoryV5.Core,
             ) || assets.any { apocalypseAssetBelongsToInventoryCategoryV5(category, it) }
         }
