@@ -87,6 +87,7 @@ class LocalMemoryRepository : MemoryRepository {
             val batch = pending.take(threshold)
 
             if (batch.size < threshold) {
+                if (processedThisRun > 0) maintain(characterId, silent = true)
                 refreshDebug(
                     message = if (processedThisRun == 0) {
                         "可整理消息 ${batch.size}/$threshold，尚未达到阈值"
@@ -127,13 +128,14 @@ class LocalMemoryRepository : MemoryRepository {
                     每项格式：
                     {"kind":"Fact|Emotion|Timeline","content":"简洁但信息完整的中文记忆","source":"聊天","occurredAt":"ISO-8601时间或空字符串","strength":1到10}
                     规则：
-                    1. 不编造未发生事实。
-                    2. Fact 只保存长期稳定的身份事实、持续计划、明确偏好与边界。
-                    3. Emotion 只保存明确情绪、触发原因和发生时间；不要把普通语气猜成情绪。
-                    4. Timeline 只保存有明确时间或里程碑意义的重要经历，例如开始备考、完成一次共同活动；普通聊天不要放入。
-                    5. 角色要履行的约定、提醒、责任和监督属于辞海约定，不要重复放进记忆。
-                    6. 输入中的 [私聊]、[电话]、[群聊]、[朋友圈]、[收藏]、[此刻] 等方括号内容只是原始事件来源标签，不是用户说的话，也不是需要记住的提示词。
-                    7. 日常寒暄、同义重复、已经存在的总结不要重复写入；没有值得保存的内容时返回 []。
+                    1. 不编造未发生事实，必须结合这一整批上下文理解语义，不能因为某一句出现“不是、其实、应该、喜欢、不要”等词就机械判定为纠正、偏好或边界。
+                    2. Fact 只保存上下文能够确认的长期稳定身份事实、持续计划、明确偏好与边界。口头反驳、临时观点、针对当下情境的一句话、语气性否定都不是长期事实。
+                    3. 如果用户是在纠正角色，必须从前后文确认“先前具体误解是什么、用户实际澄清的稳定事实是什么”，只保存澄清后的事实；无法确认就不要保存。
+                    4. Emotion 只保存明确情绪、触发原因和发生时间；不要把普通语气猜成情绪。
+                    5. Timeline 只保存有明确时间或里程碑意义的重要经历，例如开始备考、真正完成了一次有互动的共同活动；普通聊天、单纯打开计时器、无交流的番茄钟不要放入。
+                    6. 角色要履行的约定、提醒、责任和监督属于辞海约定，不要重复放进记忆。
+                    7. 输入中的 [私聊]、[电话]、[群聊]、[朋友圈]、[收藏]、[此刻] 等方括号内容只是原始事件来源标签，不是用户说的话，也不是需要记住的提示词。
+                    8. 日常寒暄、同义重复、已经存在的总结不要重复写入；没有值得保存的内容时返回 []。
                 """.trimIndent(),
                 source = "记忆",
                 title = "连续记忆提取",
@@ -176,10 +178,13 @@ class LocalMemoryRepository : MemoryRepository {
 
             val batchIds = batch.mapTo(mutableSetOf()) { message -> message.id }
             val provenance = "timeline-batch:${batchIds.joinToString("|")}"
-            val existingKeys = state.value.entries
+            val snapshot = state.value
+            val existingKeys = snapshot.entries
                 .filter { entry -> entry.characterId == characterId }
                 .mapTo(mutableSetOf()) { entry -> entry.dedupeKey() }
+            val deletedKeys = snapshot.deletedMemoryKeys
             val unique = parsed.getOrThrow()
+                .filter { entry -> entry.scopedMemoryKey() !in deletedKeys }
                 .filter { entry -> existingKeys.add(entry.dedupeKey()) }
                 .map { entry -> entry.copy(source = provenance) }
 
@@ -220,14 +225,28 @@ class LocalMemoryRepository : MemoryRepository {
     }
 
     fun snapshot(characterId: String): List<MemoryEntry> = state.value.entries
-        .filter { entry -> entry.characterId == characterId && entry.canRecallProactively }
+        .filter { entry ->
+            entry.characterId == characterId &&
+                entry.canRecallProactively &&
+                DigitalLifeProfileStore.allowsTimestamp(characterId, entry.occurredAt ?: entry.createdAt)
+        }
         .sortedWith(
             compareByDescending<MemoryEntry> { entry -> entry.pinned }
                 .thenByDescending { entry -> entry.strength }
                 .thenByDescending { entry -> entry.occurredAt ?: entry.createdAt },
         )
 
+    /** Explicit editor save may intentionally restore a previously deleted wording. */
     suspend fun save(entry: MemoryEntry) {
+        saveInternal(entry, allowRestore = true)
+    }
+
+    /** Programmatic writes never resurrect a memory the user explicitly deleted. */
+    suspend fun upsert(entry: MemoryEntry) {
+        saveInternal(entry, allowRestore = false)
+    }
+
+    private fun saveInternal(entry: MemoryEntry, allowRestore: Boolean) {
         require(entry.characterId.isNotBlank()) { "角色不能为空" }
         require(entry.content.isNotBlank()) { "记忆内容不能为空" }
         val clean = entry.copy(
@@ -235,22 +254,85 @@ class LocalMemoryRepository : MemoryRepository {
             source = entry.source.trim().ifBlank { "手动" },
             strength = entry.strength.coerceIn(1, 10),
         )
+        val scopedKey = clean.scopedMemoryKey()
         mutate { current ->
+            if (!allowRestore && scopedKey in current.deletedMemoryKeys) return@mutate current
             val index = current.entries.indexOfFirst { item -> item.id == clean.id }
-            if (index < 0) {
-                current.copy(entries = current.entries + clean)
+            val nextEntries = if (index < 0) {
+                current.entries + clean
             } else {
-                current.copy(entries = current.entries.toMutableList().apply { set(index, clean) })
+                current.entries.toMutableList().apply { set(index, clean) }
             }
+            current.copy(
+                entries = nextEntries,
+                deletedMemoryKeys = if (allowRestore) current.deletedMemoryKeys - scopedKey else current.deletedMemoryKeys,
+            )
         }
         refreshDebug("记忆已保存", entry.characterId)
     }
 
-    suspend fun upsert(entry: MemoryEntry) = save(entry)
-
+    /** Delete only the concrete entry; internal cleanup callers use this form. */
     suspend fun delete(id: String) {
-        mutate { current -> current.copy(entries = current.entries.filterNot { entry -> entry.id == id }) }
+        val target = state.value.entries.firstOrNull { it.id == id }
+        mutate { current ->
+            current.copy(
+                entries = current.entries.filterNot { entry -> entry.id == id },
+                deletedMemoryKeys = target?.let { current.deletedMemoryKeys + it.scopedMemoryKey() }
+                    ?: current.deletedMemoryKeys,
+            )
+        }
         refreshDebug("记忆已删除")
+    }
+
+    /**
+     * User-facing delete: if the same semantic memory leaked into several roles, one deletion clears
+     * every equivalent copy and tombstones each affected role so batch extraction cannot recreate it.
+     */
+    suspend fun deleteEverywhereEquivalent(id: String): Int {
+        val target = state.value.entries.firstOrNull { entry -> entry.id == id } ?: return 0
+        val targetKey = target.memoryIdentityKey()
+        var removed = 0
+        mutate { current ->
+            val victims = current.entries.filter { entry -> entry.memoryIdentityKey() == targetKey }
+            removed = victims.size
+            current.copy(
+                entries = current.entries.filterNot { entry -> entry.memoryIdentityKey() == targetKey },
+                deletedMemoryKeys = current.deletedMemoryKeys + victims.map(MemoryEntry::scopedMemoryKey),
+            )
+        }
+        refreshDebug(if (removed > 1) "已删除 $removed 个角色中的同内容记忆" else "记忆已删除")
+        return removed
+    }
+
+    /** Conservative local maintenance: merge exact and very-high-similarity duplicates only. */
+    suspend fun maintain(characterId: String): Int = maintain(characterId, silent = false)
+
+    private fun maintain(characterId: String, silent: Boolean): Int {
+        var removed = 0
+        mutate { current ->
+            val target = current.entries
+                .filter { it.characterId == characterId }
+                .sortedWith(
+                    compareByDescending<MemoryEntry> { it.pinned }
+                        .thenByDescending { it.strength }
+                        .thenByDescending { it.occurredAt ?: it.createdAt },
+                )
+            val kept = mutableListOf<MemoryEntry>()
+            target.forEach { candidate ->
+                val index = kept.indexOfFirst { existing -> memoriesEquivalentForMaintenance(existing, candidate) }
+                if (index < 0) {
+                    kept += candidate
+                } else {
+                    kept[index] = mergeMemory(kept[index], candidate)
+                    removed += 1
+                }
+            }
+            if (removed == 0) current else current.copy(
+                entries = current.entries.filterNot { it.characterId == characterId } + kept,
+            )
+        }
+        if (!silent) refreshDebug(if (removed == 0) "记忆维护完成，没有发现可安全合并的重复项" else "记忆维护完成，合并了 $removed 条重复记忆", characterId)
+        return removed
     }
 
     suspend fun deleteDerivedFromEvent(eventId: String) {
@@ -428,6 +510,7 @@ class LocalMemoryRepository : MemoryRepository {
                 }
             },
         )
+        .put("deletedMemoryKeys", JSONArray(value.deletedMemoryKeys.toList()))
 
     private fun decode(raw: String?): MemoryStoreState {
         if (raw.isNullOrBlank()) return MemoryStoreState()
@@ -466,7 +549,11 @@ class LocalMemoryRepository : MemoryRepository {
                     )
                 }
             }
-            MemoryStoreState(entries = entries, policies = policies, processedMessageIds = processed)
+            val deleted = buildSet {
+                val array = root.optJSONArray("deletedMemoryKeys") ?: JSONArray()
+                for (index in 0 until array.length()) array.optString(index).takeIf(String::isNotBlank)?.let(::add)
+            }
+            MemoryStoreState(entries = entries, policies = policies, processedMessageIds = processed, deletedMemoryKeys = deleted)
         }.getOrDefault(MemoryStoreState())
     }
 
@@ -517,10 +604,57 @@ private data class MemoryStoreState(
     val entries: List<MemoryEntry> = emptyList(),
     val policies: Map<String, MemoryPolicy> = emptyMap(),
     val processedMessageIds: Map<String, Set<String>> = emptyMap(),
+    val deletedMemoryKeys: Set<String> = emptySet(),
 )
 
 private fun MemoryEntry.dedupeKey(): String =
-    content.lowercase().replace(Regex("[\\p{P}\\p{S}\\s]+"), "").take(240)
+    kind.name + ":" + memoryIdentityKey()
+
+private fun MemoryEntry.scopedMemoryKey(): String =
+    characterId + ":" + memoryIdentityKey()
+
+private fun MemoryEntry.memoryIdentityKey(): String = content
+    .lowercase()
+    .replace(Regex("^(用户明确表达过边界|用户纠正过一件事|用户明确表达过偏好)[：:]?"), "")
+    .replace(Regex("[\\p{P}\\p{S}\\s]+"), "")
+    .take(320)
+
+private fun memoriesEquivalentForMaintenance(left: MemoryEntry, right: MemoryEntry): Boolean {
+    if (left.kind != right.kind) return false
+    val a = left.memoryIdentityKey()
+    val b = right.memoryIdentityKey()
+    if (a == b) return true
+    if (a.length < 12 || b.length < 12) return false
+    val shorter = minOf(a.length, b.length).toDouble()
+    val longer = maxOf(a.length, b.length).toDouble()
+    if (shorter / longer >= 0.78 && (a.contains(b) || b.contains(a))) return true
+    return bigramJaccard(a, b) >= 0.88
+}
+
+private fun bigramJaccard(left: String, right: String): Double {
+    fun grams(value: String): Set<String> = if (value.length < 2) setOf(value) else value.windowed(2).toSet()
+    val a = grams(left)
+    val b = grams(right)
+    if (a.isEmpty() || b.isEmpty()) return 0.0
+    return a.intersect(b).size.toDouble() / a.union(b).size.coerceAtLeast(1).toDouble()
+}
+
+private fun mergeMemory(primary: MemoryEntry, duplicate: MemoryEntry): MemoryEntry {
+    val preferredContent = when {
+        primary.pinned && !duplicate.pinned -> primary.content
+        duplicate.pinned && !primary.pinned -> duplicate.content
+        duplicate.content.length > primary.content.length -> duplicate.content
+        else -> primary.content
+    }
+    return primary.copy(
+        content = preferredContent,
+        strength = maxOf(primary.strength, duplicate.strength),
+        pinned = primary.pinned || duplicate.pinned,
+        canRecallProactively = primary.canRecallProactively || duplicate.canRecallProactively,
+        occurredAt = listOfNotNull(primary.occurredAt, duplicate.occurredAt).minOrNull(),
+        createdAt = minOf(primary.createdAt, duplicate.createdAt),
+    )
+}
 
 private fun <T> JSONArray?.decodeObjects(transform: (JSONObject) -> T): List<T> {
     if (this == null) return emptyList()
