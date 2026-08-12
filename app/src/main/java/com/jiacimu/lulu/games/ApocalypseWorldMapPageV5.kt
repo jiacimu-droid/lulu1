@@ -223,6 +223,7 @@ internal fun ApocalypseWorldMapPageV5(
                         discoveredLocations = discoveredLocations,
                         evolution = evolution,
                         onSelectPlace = { place -> openDetail(selectedCity, placeTargetV5(selectedCity, place)) },
+                        onSelectDynamic = { location -> openDetail(selectedCity, location) },
                     )
                 }
 
@@ -462,9 +463,29 @@ private fun ApocalypseCityInternalMapV5(
     discoveredLocations: List<ApocalypseV3Location>,
     evolution: ApocalypseMapEvolutionV5,
     onSelectPlace: (ApocalypseWorldPlaceV5) -> Unit,
+    onSelectDynamic: (ApocalypseV3Location) -> Unit,
 ) {
-    val positions = listOf(.18f to .23f, .52f to .16f, .80f to .28f, .72f to .54f, .83f to .76f, .48f to .82f, .16f to .70f, .28f to .48f)
-    Surface(modifier = Modifier.fillMaxWidth().height(430.dp), color = WorldMapNight, shape = RoundedCornerShape(22.dp)) {
+    val positions = listOf(
+        .18f to .23f, .52f to .16f, .80f to .28f, .72f to .54f, .83f to .76f, .48f to .82f, .16f to .70f, .28f to .48f,
+        .08f to .37f, .91f to .47f, .65f to .91f, .34f to .92f, .08f to .84f, .91f to .88f,
+    )
+    val staticNames = city.places.map { it.name }
+    val otherCities = apocalypseWorldCitiesV5().filterNot { it.id == city.id }
+    val cityIsCurrent = currentLocation.contains(city.name) || city.places.any { currentLocation.contains(it.name) }
+    val dynamicPlaces = discoveredLocations.filter { known ->
+        val explicitlyOtherCity = otherCities.any { other -> known.name.contains(other.name) || known.detail.contains(other.name) }
+        val parentMatch = city.places.any { place ->
+            known.name.contains(place.name) || known.detail.contains(place.name) || place.name.contains(known.name)
+        }
+        val belongs = known.name.contains(city.name) || known.detail.contains(city.name) || parentMatch || (cityIsCurrent && !explicitlyOtherCity)
+        belongs && staticNames.none { staticName -> known.name.contains(staticName) && known.name.length <= staticName.length + 2 }
+    }.distinctBy { it.id }.takeLast(6)
+
+    fun dynamicAnchorIndex(location: ApocalypseV3Location): Int? = city.places.indexOfFirst { place ->
+        location.name.contains(place.name) || location.detail.contains(place.name) || place.name.contains(location.name)
+    }.takeIf { it >= 0 }
+
+    Surface(modifier = Modifier.fillMaxWidth().height(470.dp), color = WorldMapNight, shape = RoundedCornerShape(22.dp)) {
         BoxWithConstraints(Modifier.fillMaxSize().background(WorldMapNight)) {
             Canvas(Modifier.fillMaxSize()) {
                 val center = Offset(size.width * .5f, size.height * .5f)
@@ -478,6 +499,30 @@ private fun ApocalypseCityInternalMapV5(
                         quadraticBezierTo((center.x + end.x) / 2f + if (index % 2 == 0) 42f else -42f, (center.y + end.y) / 2f, end.x, end.y)
                     }
                     drawPath(path, WorldMapLine.copy(alpha = 1f - evolution.infrastructureDecay * .45f), style = Stroke(width = 3f))
+                }
+                dynamicPlaces.forEachIndexed { dynamicIndex, location ->
+                    val index = city.places.size + dynamicIndex
+                    val p = positions[index % positions.size]
+                    val end = Offset(size.width * p.first, size.height * p.second)
+                    val anchorIndex = dynamicAnchorIndex(location)
+                    val start = if (anchorIndex != null) {
+                        val anchor = positions[anchorIndex % positions.size]
+                        Offset(size.width * anchor.first, size.height * anchor.second)
+                    } else {
+                        center
+                    }
+                    val path = Path().apply {
+                        moveTo(start.x, start.y)
+                        quadraticBezierTo((start.x + end.x) / 2f, (start.y + end.y) / 2f - 16f, end.x, end.y)
+                    }
+                    drawPath(
+                        path,
+                        color = Color(0xFF72C8FF),
+                        style = Stroke(
+                            width = 3f,
+                            pathEffect = if (anchorIndex == null) PathEffect.dashPathEffect(floatArrayOf(9f, 8f)) else null,
+                        ),
+                    )
                 }
                 if (city.id == "linjiang" || city.id == "hailing") {
                     val water = Path().apply {
@@ -525,7 +570,28 @@ private fun ApocalypseCityInternalMapV5(
                     }
                 }
             }
+
+            dynamicPlaces.forEachIndexed { dynamicIndex, location ->
+                val index = city.places.size + dynamicIndex
+                val p = positions[index % positions.size]
+                Surface(
+                    modifier = Modifier.offset(x = maxWidth * p.first - 42.dp, y = maxHeight * p.second - 27.dp).width(88.dp),
+                    onClick = { onSelectDynamic(location) },
+                    color = Color(0xFF174968),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, Color(0xFF72C8FF)),
+                ) {
+                    Column(Modifier.padding(horizontal = 5.dp, vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Outlined.MyLocation, null, tint = Color(0xFF9DDCFF), modifier = Modifier.size(14.dp))
+                        Text(location.name.substringAfterLast("·").trim().ifBlank { location.name }, color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        Text(if (dynamicAnchorIndex(location) != null) "新发现" else "方位待确认", color = Color(0xFF9DDCFF), fontSize = 7.sp, maxLines = 1)
+                    }
+                }
+            }
             Text("${city.name} · 重要设施关系图", color = Color(0xFF9CB5CA), fontSize = 9.sp, modifier = Modifier.align(Alignment.TopStart).padding(11.dp))
+            if (dynamicPlaces.isNotEmpty()) {
+                Text("蓝色节点＝剧情新发现 · 虚线＝已知在本市但精确关系待确认", color = Color(0xFF7894AC), fontSize = 8.sp, modifier = Modifier.align(Alignment.BottomStart).padding(10.dp))
+            }
         }
     }
 }
