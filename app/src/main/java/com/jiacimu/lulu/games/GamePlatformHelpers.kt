@@ -23,7 +23,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.util.Locale
-import java.util.UUID
 
 internal data class GameRoleResponse(
     val loading: Boolean = false,
@@ -34,7 +33,7 @@ internal data class GameRoleResponse(
 internal fun requestGameRoleResponse(
     scope: CoroutineScope,
     store: LuluGameStore,
-    recordId: String,
+    recordId: String?,
     facts: String,
     instruction: String,
     title: String,
@@ -64,10 +63,12 @@ internal fun requestGameRoleResponse(
             connectionOverride = connection,
         )
         result.onSuccess { reply ->
-            store.attachCharacterReply(recordId, reply.text)
+            // Round-by-round banter can exist inside a match without becoming a persistent game
+            // record. Only callers that pass the final match record attach the reply to history.
+            recordId?.let { id -> store.attachCharacterReply(id, reply.text) }
             onState(GameRoleResponse(text = reply.text))
         }.onFailure { error ->
-            onState(GameRoleResponse(error = error.message ?: "角色回应生成失败；游戏结果和记录已经保存。"))
+            onState(GameRoleResponse(error = error.message ?: "角色回应生成失败，请重试。"))
         }
     }
 }
@@ -101,13 +102,9 @@ internal fun saveGameAsSharedMemory(
 internal fun rememberGameSpeaker(): GameSpeaker {
     val context = LocalContext.current
     var ready by remember { mutableStateOf(false) }
-    val speaker = remember {
-        GameSpeaker { ready }
-    }
+    val speaker = remember { GameSpeaker { ready } }
     DisposableEffect(context) {
-        val tts = TextToSpeech(context) { status ->
-            ready = status == TextToSpeech.SUCCESS
-        }
+        val tts = TextToSpeech(context) { status -> ready = status == TextToSpeech.SUCCESS }
         tts.language = Locale.SIMPLIFIED_CHINESE
         speaker.attach(tts)
         onDispose {
@@ -119,24 +116,18 @@ internal fun rememberGameSpeaker(): GameSpeaker {
     return speaker
 }
 
-internal class GameSpeaker(
-    private val isReady: () -> Boolean,
-) {
+internal class GameSpeaker(private val isReady: () -> Boolean) {
     private var tts: TextToSpeech? = null
     var enabled: Boolean = true
 
-    fun attach(value: TextToSpeech?) {
-        tts = value
-    }
+    fun attach(value: TextToSpeech?) { tts = value }
 
     fun speak(text: String) {
         if (!enabled || !isReady() || text.isBlank()) return
         tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "lulu-game-${System.currentTimeMillis()}")
     }
 
-    fun stop() {
-        tts?.stop()
-    }
+    fun stop() { tts?.stop() }
 }
 
 @Composable
