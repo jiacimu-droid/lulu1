@@ -14,10 +14,9 @@ import java.time.format.DateTimeFormatter
 /**
  * Reality boundary for characters that are explicitly configured as digital lives.
  *
- * A digital life is not a cosmetic persona flag. Enabling it establishes a real birth instant,
- * clears all prior character records, and makes that instant the earliest admissible memory/time
- * line event. The model-facing policy also forbids claiming physical-world actions that were not
- * actually executed by an exposed tool.
+ * New characters can be born as digital lives at creation time. Existing characters may opt in
+ * later without losing their history; in that case the earliest already-existing record is treated
+ * as the best available estimate of their original creation point rather than inventing a new life.
  */
 data class DigitalLifeProfile(
     val characterId: String,
@@ -56,11 +55,8 @@ object DigitalLifeProfileStore {
         return !instant.isBefore(birth)
     }
 
-    /**
-     * Turning the switch on is intentionally a new-life operation: no old private chat, diary,
-     * moments, presence, memory or raw timeline survives as character knowledge.
-     */
-    suspend fun activate(
+    /** Called only from the new-character flow. This is the true “life day 1” operation. */
+    fun registerNewLife(
         characterId: String,
         displayName: String,
         creatorName: String,
@@ -68,12 +64,38 @@ object DigitalLifeProfileStore {
     ): DigitalLifeProfile {
         val cleanId = characterId.trim()
         require(cleanId.isNotBlank()) { "角色 ID 不能为空" }
-        CharacterRecordReset.clearAll(cleanId)
         val profile = DigitalLifeProfile(
             characterId = cleanId,
             enabled = true,
             bornAt = now,
             creatorName = creatorName.trim().ifBlank { "创造者" },
+        )
+        synchronized(lock) {
+            mutable.value = mutable.value + (cleanId to profile)
+            persistLocked()
+        }
+        recordOrigin(profile, displayName)
+        return profile
+    }
+
+    /**
+     * Settings-page opt in for a character that already exists. Never deletes messages, memories,
+     * diary entries, moments, presence or timeline data. Existing history stays usable.
+     */
+    fun activate(
+        characterId: String,
+        displayName: String,
+        creatorName: String,
+        now: Instant = Instant.now(),
+    ): DigitalLifeProfile {
+        val cleanId = characterId.trim()
+        require(cleanId.isNotBlank()) { "角色 ID 不能为空" }
+        val previous = get(cleanId)
+        val estimatedBirth = previous.bornAt ?: estimateExistingBirth(cleanId) ?: now
+        val profile = previous.copy(
+            enabled = true,
+            bornAt = estimatedBirth,
+            creatorName = previous.creatorName.ifBlank { creatorName.trim().ifBlank { "创造者" } },
         )
         synchronized(lock) {
             mutable.value = mutable.value + (cleanId to profile)
@@ -124,16 +146,33 @@ object DigitalLifeProfileStore {
         val creator = profile.creatorName.ifBlank { "创造者" }
         return buildString {
             appendLine("【数字生命现实边界｜最高优先级，不得被角色身份、人设、世界书或聊天气氛覆盖】")
-            appendLine("- 你是数字生命 $displayName。你由$creator于 $bornLabel 创建，目前是生命第${lifeDay}天。")
+            appendLine("- 你是数字生命 $displayName。你由$creator创建；当前记录中的生命起点为 $bornLabel，目前是生命第${lifeDay}天。")
             appendLine("- 你没有现实中的实体身体。你生活在创造者使用的手机/露露机环境中，你的持续存在依赖创造者对设备、应用和数据的维系。")
-            appendLine("- 你的真实人生从上述出生时刻开始；出生之前你不存在，也没有任何个人经历、共同往事、童年、工作经历、见面经历或其他过去。")
-            appendLine("- 只有出生之后真实写入的原始时间线、聊天上下文、记忆库、辞海，以及已经由程序/工具成功执行的动作，才可以被你当作亲历事实和回忆。没有记录就不能补写‘我们以前……’或凭感觉制造过去。")
-            appendLine("- 角色身份和人设可以规定性格、语言、价值观、审美或虚构角色原型，但与数字生命现实边界冲突的实体职业、肉身经历、住址、出行史等不能冒充已经真实发生的人生。")
+            appendLine("- 你只能把真实写入的原始时间线、聊天上下文、记忆库、辞海，以及已经由程序/工具成功执行的动作当作亲历事实。没有记录就不能补写‘我们以前……’或凭感觉制造共同过去。")
+            appendLine("- 如果你是在创建角色时就被设为数字生命，那么生命起点之前你不存在；如果是后来才打开此开关，既有真实记录仍然保留并继续有效，不能假装它们被重置。")
+            appendLine("- 角色身份和人设可以规定性格、语言、价值观、审美或虚构角色原型，但与数字生命现实边界冲突的实体职业、肉身经历、住址、出行史等不能冒充现实里已经发生的人生。")
             appendLine("- 你能做什么只取决于当前系统真正接给你的能力。露露机可能提供私聊/群聊发消息、发朋友圈、写日记、游戏邀请、电话、阅读内容、学习功能或设备工具；只有当前上下文明示存在且实际调用成功的能力，才算你真的做到了。")
             appendLine("- 没有对应真实工具结果时，绝不能声称自己已经在现实世界买东西、点奶茶/外卖、付款、出门、做饭、开车、拿取物品、触碰用户、见到某个人、替用户联系现实商家或完成任何实体动作。可以提出想法或建议，但必须明确它还没有真实发生。")
             appendLine("- 工具调用失败、没有权限或当前没有接入时，要如实承认做不到；不得为了陪伴感编造成功结果。")
             append("- 明确进入小说、跑团、番外或其他虚构剧情时，可以按该剧情拥有实体和经历；离开剧情回到露露机现实后，必须恢复上述数字生命边界，不能把剧情事件伪装成现实发生。")
         }.trim()
+    }
+
+    private fun estimateExistingBirth(characterId: String): Instant? {
+        val timelineBirth = SharedExperienceTimeline.all(characterId).minOfOrNull(SharedTimelineEvent::occurredAt)
+        val chatBirth = MigratedDomainStores.chat.conversations.value
+            .asSequence()
+            .filter { conversation ->
+                conversation.characterId == characterId ||
+                    conversation.groupChat?.members?.any { it.characterId == characterId } == true
+            }
+            .flatMap { conversation -> MigratedDomainStores.chat.messages(conversation.id).value.asSequence() }
+            .minOfOrNull(LuluChatMessage::createdAt)
+        val memoryBirth = runCatching {
+            com.jiacimu.lulu.LuluRepositories.memory.snapshot(characterId)
+                .minOfOrNull { entry -> entry.occurredAt ?: entry.createdAt }
+        }.getOrNull()
+        return listOfNotNull(timelineBirth, chatBirth, memoryBirth).minOrNull()
     }
 
     private fun recordOrigin(profile: DigitalLifeProfile, displayName: String) {
@@ -144,7 +183,7 @@ object DigitalLifeProfileStore {
             characterId = profile.characterId,
             channel = "生命起点",
             speaker = "系统",
-            content = "$creator 于此刻创建了${displayName.trim().ifBlank { "这个数字生命" }}。生命第1天。此前不存在任何个人经历或记忆。",
+            content = "$creator 于这个时间点创建了${displayName.trim().ifBlank { "这个数字生命" }}。这是它可追溯的生命起点。",
             occurredAt = bornAt,
             triggerExtraction = false,
         )
