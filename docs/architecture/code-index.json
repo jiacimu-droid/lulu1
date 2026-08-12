@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T17:08:37.547343+00:00",
-  "commit": "8de3a2aef5801c075cb43c3fac3d847d630df77e",
+  "generatedAt": "2026-08-12T17:10:29.662569+00:00",
+  "commit": "d1db34bb7ba64dced33ee0619a4585d34ec4d901",
   "branch": "main",
-  "sourceFingerprint": "ec2315ca651f6572bf9a63cc8393dc302f1d795916341448dd19c75b0b546515",
+  "sourceFingerprint": "34365d83f4488a71b62832a0b9dd1ebdc317ddaacdb97ac93c1ba46d79d301fd",
   "summary": {
     "files": 175,
-    "lines": 53684,
-    "symbols": 690
+    "lines": 53692,
+    "symbols": 691
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -2388,6 +2388,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
         "line": 186
+      }
+    ],
+    "decodeAssetArray": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSceneOutcomeV5.kt",
+        "line": 139
       }
     ],
     "loadSave": [
@@ -6107,9 +6113,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSceneOutcomeV5.kt",
-      "lines": 710,
-      "sha256": "d47216fec648c4d129ddee2c6b7b0dab20876c5844054f223c40e3c48d44ff35",
-      "symbols": []
+      "lines": 718,
+      "sha256": "8561d93fe078bebd984928cc1beddd99daab24a063c2959f9d57ab3238da54e6",
+      "symbols": [
+        {
+          "name": "decodeAssetArray",
+          "line": 139
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseStoryDirectorV5.kt",
