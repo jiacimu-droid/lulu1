@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T14:17:38.010301+00:00",
-  "commit": "9e6dc10a51ebf8b45845a063f24fb3dc2698f766",
+  "generatedAt": "2026-08-12T14:37:46.284300+00:00",
+  "commit": "c301c14691ee2dd9419cdea43a3cb6d9b48a72df",
   "branch": "main",
-  "sourceFingerprint": "76e8f7d7259fd251ef455d752f28489af5f18ce6fd3ee725782c8753e78fd614",
+  "sourceFingerprint": "0d07246e0f6d2ed206c6f0dc7aeb15d82dac08b783fa5a0c40249b86fae82e46",
   "summary": {
     "files": 172,
     "lines": 52306,
@@ -6296,7 +6296,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseVisualNovelPresentation.kt",
       "lines": 191,
-      "sha256": "1845dafeaee225970a576a401f2f6ecf62bc233751edd99c216b65a5ab964758",
+      "sha256": "e3b67f0d41058a5f5efda7953e2868f562df72d6d4f8d776a7e2e16972c08862",
       "symbols": [
         {
           "name": "findCut",
