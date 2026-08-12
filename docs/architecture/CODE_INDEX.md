@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`1a7829c3f90d722f16ee29b49b95fba49c6219ce`
+- 基准提交：`8e47cc4dfa845d86d8596d16c03bf21ad700e056`
 - 分支：`main`
 - 已索引文件：171
-- 已索引代码/文本行：51433
+- 已索引代码/文本行：51415
 - 已发现符号：671
 
 | 文件 | 行数 | 符号数 |
@@ -122,7 +122,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 439 | 26 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 655 | 13 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 637 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 380 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt` | 854 | 9 |

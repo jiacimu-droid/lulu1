@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T11:07:13.684519+00:00",
-  "commit": "1a7829c3f90d722f16ee29b49b95fba49c6219ce",
+  "generatedAt": "2026-08-12T11:09:08.660197+00:00",
+  "commit": "8e47cc4dfa845d86d8596d16c03bf21ad700e056",
   "branch": "main",
-  "sourceFingerprint": "0b8f3ac56de3cd7f6a20d6af2a51792d79c5b519c6f98caae377d385883cd358",
+  "sourceFingerprint": "e0ca89a03410d8b23b3d9dc437ad76a652b30c4ad06deb756acd161b8e09eed9",
   "summary": {
     "files": 171,
-    "lines": 51433,
+    "lines": 51415,
     "symbols": 671
   },
   "symbolIndex": {
@@ -2791,73 +2791,73 @@
     "Home": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 36
+        "line": 35
       }
     ],
     "PerfectMan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 37
+        "line": 36
       }
     ],
     "Roleplay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 38
+        "line": 37
       }
     ],
     "TurtleSoup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 39
+        "line": 38
       }
     ],
     "RapportQuiz": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 40
+        "line": 39
       }
     ],
     "YachtDice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 41
+        "line": 40
       }
     ],
     "Gomoku": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 42
+        "line": 41
       }
     ],
     "MemoryMatch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 43
+        "line": 42
       }
     ],
     "Records": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 44
+        "line": 43
       }
     ],
     "Replay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 45
+        "line": 44
       }
     ],
     "LuluGamesApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 60
+        "line": 59
       }
     ],
     "stepBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 68
+        "line": 64
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
@@ -2871,7 +2871,7 @@
     "tap": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 305
+        "line": 287
       }
     ],
     "LuluGamesAppV2": [
@@ -6494,60 +6494,60 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 655,
-      "sha256": "a3d1da074e08e81b0d79a4dec174fc1476c549d1c3c74c1ab4aaf6038c83f169",
+      "lines": 637,
+      "sha256": "44705fa1504f06ed41433f3ed38412890cfd58962f71e1857374c21971fc50f3",
       "symbols": [
         {
           "name": "Home",
-          "line": 36
+          "line": 35
         },
         {
           "name": "PerfectMan",
-          "line": 37
+          "line": 36
         },
         {
           "name": "Roleplay",
-          "line": 38
+          "line": 37
         },
         {
           "name": "TurtleSoup",
-          "line": 39
+          "line": 38
         },
         {
           "name": "RapportQuiz",
-          "line": 40
+          "line": 39
         },
         {
           "name": "YachtDice",
-          "line": 41
+          "line": 40
         },
         {
           "name": "Gomoku",
-          "line": 42
+          "line": 41
         },
         {
           "name": "MemoryMatch",
-          "line": 43
+          "line": 42
         },
         {
           "name": "Records",
-          "line": 44
+          "line": 43
         },
         {
           "name": "Replay",
-          "line": 45
+          "line": 44
         },
         {
           "name": "LuluGamesApp",
-          "line": 60
+          "line": 59
         },
         {
           "name": "stepBack",
-          "line": 68
+          "line": 64
         },
         {
           "name": "tap",
-          "line": 305
+          "line": 287
         }
       ]
     },
