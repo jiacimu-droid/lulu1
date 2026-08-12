@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T16:45:19.767198+00:00",
-  "commit": "431f52b243f8b9a51766c059230b9bd6d6017864",
+  "generatedAt": "2026-08-12T16:45:54.010381+00:00",
+  "commit": "daf18d9202de905f410b591fee8f720b05540c01",
   "branch": "main",
-  "sourceFingerprint": "695241c5f8ed8a84452b7739ec7c886a0c89b941c0cde59802a5497211047ccf",
+  "sourceFingerprint": "104f55787b2be0e74a9d7edd1fcb34cac0de7b6e9566289147a7d2dab06f301d",
   "summary": {
     "files": 175,
-    "lines": 53777,
+    "lines": 53790,
     "symbols": 690
   },
   "symbolIndex": {
@@ -5933,8 +5933,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-      "lines": 281,
-      "sha256": "3a62d004b5c0cc741d0dc8f897f07ed623696b41e590ba1e81490dd579c20a2a",
+      "lines": 294,
+      "sha256": "c52b83e47c658deda97c4a1aeccc40db9149898ab263c54a7ae40e01b62b0544",
       "symbols": [
         {
           "name": "TaskState",
