@@ -118,7 +118,6 @@ fun QqStyleChatDetailScreen(
     var selectedMessageIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var forwardingMessages by remember { mutableStateOf<List<LuluChatMessage>?>(null) }
     var moreExpanded by remember { mutableStateOf(false) }
-    var modelExpanded by remember { mutableStateOf(false) }
     var callVisible by remember { mutableStateOf(false) }
     var presenceCharacterId by remember { mutableStateOf<String?>(null) }
     var groupSettingsVisible by remember { mutableStateOf(false) }
@@ -439,26 +438,19 @@ fun QqStyleChatDetailScreen(
                 },
                 actions = {
                     if (!multiSelectMode) {
-                        Box {
-                            IconButton(onClick = { modelExpanded = true }) { Icon(Icons.Outlined.SwapHoriz, "切换模型", tint = QqInk) }
-                            DropdownMenu(expanded = modelExpanded, onDismissRequest = { modelExpanded = false }) {
-                                if (library.archives.isEmpty()) {
-                                    DropdownMenuItem(text = { Text("还没有模型存档") }, enabled = false, onClick = {})
-                                } else {
-                                    library.archives.forEach { archive ->
-                                        val selected = archive.id == chatArchiveId
-                                        DropdownMenuItem(
-                                            leadingIcon = { Icon(if (selected) Icons.Outlined.RadioButtonChecked else Icons.Outlined.RadioButtonUnchecked, null, tint = QqInk) },
-                                            text = { Text(LuluAiServices.connectionStore.archiveLabel(archive)) },
-                                            onClick = {
-                                                LuluAiServices.connectionStore.selectArchive(archive.id, ModelUsage.Chat)
-                                                modelExpanded = false
-                                            },
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                        ModelArchiveIconButton(
+                            usage = ModelUsage.Chat,
+                            title = "聊天模型",
+                            subtitle = "只切换聊天使用的模型存档；电话、游戏和末世求生不会跟着改变。",
+                            icon = Icons.Outlined.SwapHoriz,
+                            contentDescription = "切换聊天模型",
+                            tint = QqInk,
+                            accent = QqInk,
+                            background = QqPage,
+                            ink = QqInk,
+                            muted = QqMuted,
+                            border = QqBorder,
+                        )
                         IconButton(onClick = {
                             focusManager.clearFocus(force = true)
                             keyboardController?.hide()
