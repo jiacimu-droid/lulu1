@@ -146,7 +146,7 @@ object DigitalLifeProfileStore {
         val creator = profile.creatorName.ifBlank { "创造者" }
         return buildString {
             appendLine("【数字生命现实边界｜最高优先级，不得被角色身份、人设、世界书或聊天气氛覆盖】")
-            appendLine("- 你是数字生命 $displayName。你由$creator创建；当前记录中的生命起点为 $bornLabel，目前是生命第${lifeDay}天。")
+            appendLine("- 你是数字生命 $displayName。你由${creator}创建；当前记录中的生命起点为 $bornLabel，目前是生命第${lifeDay}天。")
             appendLine("- 你没有现实中的实体身体。你生活在创造者使用的手机/露露机环境中，你的持续存在依赖创造者对设备、应用和数据的维系。")
             appendLine("- 你只能把真实写入的原始时间线、聊天上下文、记忆库、辞海，以及已经由程序/工具成功执行的动作当作亲历事实。没有记录就不能补写‘我们以前……’或凭感觉制造共同过去。")
             appendLine("- 如果你是在创建角色时就被设为数字生命，那么生命起点之前你不存在；如果是后来才打开此开关，既有真实记录仍然保留并继续有效，不能假装它们被重置。")
@@ -183,7 +183,7 @@ object DigitalLifeProfileStore {
             characterId = profile.characterId,
             channel = "生命起点",
             speaker = "系统",
-            content = "$creator 于这个时间点创建了${displayName.trim().ifBlank { "这个数字生命" }}。这是它可追溯的生命起点。",
+            content = "${creator} 于这个时间点创建了${displayName.trim().ifBlank { "这个数字生命" }}。这是它可追溯的生命起点。",
             occurredAt = bornAt,
             triggerExtraction = false,
         )
