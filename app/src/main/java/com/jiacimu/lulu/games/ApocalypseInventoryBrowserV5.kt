@@ -95,6 +95,7 @@ private val apocalypseHouseholdKeywordsV5 = listOf(
 
 private fun isApocalypseHouseholdAssetV5(asset: ApocalypseV3Asset): Boolean {
     if (asset.kind != ApocalypseV3AssetKind.Tool && asset.kind != ApocalypseV3AssetKind.Material) return false
+    if (asset.tag.contains("生活用品")) return true
     val searchable = "${asset.title} ${asset.tag} ${asset.detail}".lowercase()
     return apocalypseHouseholdKeywordsV5.any(searchable::contains)
 }
@@ -323,11 +324,22 @@ private fun ApocalypseInventoryCategoryDetailV5(
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.weight(1f),
                                 )
-                                Text("×${asset.quantity}", color = InventoryAccentV5, fontSize = 12.sp, fontWeight = FontWeight.Black)
+                                Text(
+                                    "×${asset.quantity}${apocalypseInventoryAssetUnitV5(asset)}",
+                                    color = InventoryAccentV5,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Black,
+                                )
                             }
-                            asset.tag.takeIf(String::isNotBlank)?.let { tag ->
-                                Text(tag, color = InventoryAccentV5, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                            }
+                            asset.tag
+                                .split('；', ';')
+                                .map(String::trim)
+                                .filter { it.isNotBlank() && !it.startsWith("单位=") }
+                                .joinToString(" · ")
+                                .takeIf(String::isNotBlank)
+                                ?.let { tag ->
+                                    Text(tag, color = InventoryAccentV5, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                }
                             Text(asset.detail.ifBlank { "暂无更多说明" }, color = InventoryMutedV5, fontSize = 11.sp, lineHeight = 17.sp)
                         }
                     }
@@ -335,6 +347,33 @@ private fun ApocalypseInventoryCategoryDetailV5(
                 item { Spacer(Modifier.navigationBarsPadding()) }
             }
         }
+    }
+}
+
+private fun apocalypseInventoryAssetUnitV5(asset: ApocalypseV3Asset): String {
+    Regex("(?:^|[；;])单位=([^；;]+)")
+        .find(asset.tag)
+        ?.groupValues
+        ?.getOrNull(1)
+        ?.trim()
+        ?.takeIf(String::isNotBlank)
+        ?.let { return it }
+    return when (asset.kind) {
+        ApocalypseV3AssetKind.Water -> if (asset.title.contains("桶装")) "桶" else "瓶"
+        ApocalypseV3AssetKind.Food -> when {
+            asset.title.contains("罐头") || asset.title.contains("罐装") -> "罐"
+            asset.title.contains("方便面") || asset.title.contains("泡面") || asset.title.contains("饼干") -> "包"
+            asset.title.contains("盒") || asset.title.contains("快餐") -> "盒"
+            else -> "份"
+        }
+        ApocalypseV3AssetKind.Medicine -> "件"
+        ApocalypseV3AssetKind.Weapon -> "件"
+        ApocalypseV3AssetKind.Vehicle -> "辆"
+        ApocalypseV3AssetKind.Key -> "枚"
+        ApocalypseV3AssetKind.Document,
+        ApocalypseV3AssetKind.Clue -> "份"
+        ApocalypseV3AssetKind.Core -> "枚"
+        else -> "件"
     }
 }
 
