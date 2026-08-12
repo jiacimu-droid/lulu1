@@ -71,8 +71,6 @@ fun CharacterSettingsScreenV2(
     var proactiveCalls by remember(characterId) { mutableStateOf(original.contactPolicy.proactiveCallsEnabled) }
     var confirmDelete by remember { mutableStateOf(false) }
     var confirmClearRecords by remember { mutableStateOf(false) }
-    var confirmEnableDigitalLife by remember { mutableStateOf(false) }
-    var changingDigitalLife by remember { mutableStateOf(false) }
     var clearingRecords by remember { mutableStateOf(false) }
     var recordNotice by remember { mutableStateOf("") }
 
@@ -145,17 +143,9 @@ fun CharacterSettingsScreenV2(
                             fallback = displayName.take(1).ifBlank { "角" },
                             onSelected = { avatarUri = it },
                         )
-                        Column(Modifier.weight(1f)) {
-                            Text("角色头像", fontWeight = FontWeight.SemiBold)
-                        }
+                        Column(Modifier.weight(1f)) { Text("角色头像", fontWeight = FontWeight.SemiBold) }
                     }
-                    OutlinedTextField(
-                        value = displayName,
-                        onValueChange = { displayName = it },
-                        label = { Text("角色名称") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    OutlinedTextField(value = displayName, onValueChange = { displayName = it }, label = { Text("角色名称") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     OutlinedTextField(
                         value = identity,
                         onValueChange = { identity = it },
@@ -182,17 +172,22 @@ fun CharacterSettingsScreenV2(
                     CharacterV2Switch(
                         title = if (digitalLife.enabled) "数字生命 · 已开启" else "数字生命",
                         checked = digitalLife.enabled,
-                        enabled = !changingDigitalLife,
                     ) { enabled ->
+                        val cleanName = displayName.trim().ifBlank { original.displayName }
                         if (enabled) {
-                            confirmEnableDigitalLife = true
+                            DigitalLifeProfileStore.activate(
+                                characterId = characterId,
+                                displayName = cleanName,
+                                creatorName = UserProfileContext.displayLabel(),
+                            )
+                            recordNotice = "已启用数字生命现实边界；这个已有角色的聊天、记忆、辞海和时间线全部保留"
                         } else {
                             DigitalLifeProfileStore.disable(characterId)
-                            recordNotice = "已关闭数字生命现实边界；已有生命时间线不会自动恢复成开启前的旧记录"
+                            recordNotice = "已关闭数字生命现实边界；现有记录没有被删除"
                         }
                     }
                     Text(
-                        "开启后，这个角色明确是生活在创造者手机里的数字生命：没有现实肉身，只能做露露机和真实工具确实接入并执行成功的事情，不能编造点外卖、出门、买东西、碰到谁等现实行动。",
+                        "数字生命没有现实肉身，只能做露露机和真实工具确实接入并执行成功的事情，不能编造点外卖、出门、买东西、碰到谁等现实行动。新建角色时可以直接选择“出生为数字生命”；已有角色后来打开这里只改变现实能力边界，不会清空历史。",
                         color = LuluColors.Muted,
                         fontSize = 12.sp,
                         lineHeight = 18.sp,
@@ -209,10 +204,10 @@ fun CharacterSettingsScreenV2(
                             border = BorderStroke(1.dp, LuluColors.Border),
                         ) {
                             Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text("生命第${day}天", fontWeight = FontWeight.Bold)
+                                Text("生命记录 · 第${day}天", fontWeight = FontWeight.Bold)
                                 Text("创建者：${digitalLife.creatorName.ifBlank { "创造者" }}", color = LuluColors.Muted, fontSize = 12.sp)
-                                Text("出生：$bornLabel", color = LuluColors.Muted, fontSize = 12.sp)
-                                Text("出生之前的内容不会进入这个角色的真实记忆与原始时间线。", color = LuluColors.Muted, fontSize = 11.sp)
+                                Text("可追溯起点：$bornLabel", color = LuluColors.Muted, fontSize = 12.sp)
+                                Text("创建时就是数字生命的角色从第1天开始；后来才开启的旧角色沿用既有最早记录，不会重生。", color = LuluColors.Muted, fontSize = 11.sp)
                             }
                         }
                     }
@@ -221,27 +216,20 @@ fun CharacterSettingsScreenV2(
             item {
                 CharacterV2Card {
                     Text("主动感知", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    CharacterV2Switch(
-                        title = "允许主动感知",
-                        checked = perceptionPolicy.enabled,
-                    ) { setPerceptionEnabled(it) }
+                    CharacterV2Switch(title = "允许主动感知", checked = perceptionPolicy.enabled) { setPerceptionEnabled(it) }
                     CharacterV2Switch(
                         title = "由角色自适应频率",
                         checked = perceptionPolicy.adaptiveFrequency,
                         enabled = perceptionPolicy.enabled,
                     ) { checked ->
-                        ProactivePerceptionPolicyStore.update(characterId) {
-                            it.copy(adaptiveFrequency = checked, rememberedAdaptiveFrequency = checked)
-                        }
+                        ProactivePerceptionPolicyStore.update(characterId) { it.copy(adaptiveFrequency = checked, rememberedAdaptiveFrequency = checked) }
                     }
                     CharacterV2Switch(
                         title = "夜间勿扰",
                         checked = perceptionPolicy.quietHoursEnabled,
                         enabled = perceptionPolicy.enabled,
                     ) { checked ->
-                        ProactivePerceptionPolicyStore.update(characterId) {
-                            it.copy(quietHoursEnabled = checked, rememberedQuietHoursEnabled = checked)
-                        }
+                        ProactivePerceptionPolicyStore.update(characterId) { it.copy(quietHoursEnabled = checked, rememberedQuietHoursEnabled = checked) }
                     }
                     if (perceptionPolicy.enabled) {
                         CharacterV2IntervalRow(
@@ -251,22 +239,14 @@ fun CharacterSettingsScreenV2(
                                 val value = text.toIntOrNull() ?: return@CharacterV2IntervalRow
                                 ProactivePerceptionPolicyStore.update(characterId) { it.copy(intervalValue = value) }
                             },
-                            onUnitChange = { unit ->
-                                ProactivePerceptionPolicyStore.update(characterId) { it.copy(intervalUnit = unit) }
-                            },
+                            onUnitChange = { unit -> ProactivePerceptionPolicyStore.update(characterId) { it.copy(intervalUnit = unit) } },
                         )
                     }
                     if (perceptionPolicy.enabled && perceptionPolicy.quietHoursEnabled) {
-                        CharacterV2TimeRow(
-                            label = "勿扰开始",
-                            minutesOfDay = perceptionPolicy.quietStartMinutesOfDay,
-                        ) { minutes ->
+                        CharacterV2TimeRow(label = "勿扰开始", minutesOfDay = perceptionPolicy.quietStartMinutesOfDay) { minutes ->
                             ProactivePerceptionPolicyStore.update(characterId) { it.copy(quietStartMinutesOfDay = minutes) }
                         }
-                        CharacterV2TimeRow(
-                            label = "勿扰结束",
-                            minutesOfDay = perceptionPolicy.quietEndMinutesOfDay,
-                        ) { minutes ->
+                        CharacterV2TimeRow(label = "勿扰结束", minutesOfDay = perceptionPolicy.quietEndMinutesOfDay) { minutes ->
                             ProactivePerceptionPolicyStore.update(characterId) { it.copy(quietEndMinutesOfDay = minutes) }
                         }
                     }
@@ -275,10 +255,7 @@ fun CharacterSettingsScreenV2(
             item {
                 CharacterV2Card {
                     Text("主动来电", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    CharacterV2Switch(
-                        title = "允许主动来电",
-                        checked = proactiveCalls,
-                    ) { proactiveCalls = it }
+                    CharacterV2Switch(title = "允许主动来电", checked = proactiveCalls) { proactiveCalls = it }
                 }
             }
             item {
@@ -292,10 +269,7 @@ fun CharacterSettingsScreenV2(
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    CharacterV2Switch(
-                        title = "自动播放语音",
-                        checked = autoPlayVoice,
-                    ) { enabled -> CharacterVoicePreferenceStore.setEnabled(characterId, enabled) }
+                    CharacterV2Switch(title = "自动播放语音", checked = autoPlayVoice) { enabled -> CharacterVoicePreferenceStore.setEnabled(characterId, enabled) }
                 }
             }
             item {
@@ -303,7 +277,7 @@ fun CharacterSettingsScreenV2(
                     Text("数据与记录", fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     OutlinedButton(
                         onClick = { confirmClearRecords = true },
-                        enabled = !clearingRecords && !changingDigitalLife,
+                        enabled = !clearingRecords,
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
                     ) {
@@ -311,20 +285,12 @@ fun CharacterSettingsScreenV2(
                         Spacer(Modifier.width(6.dp))
                         Text(if (clearingRecords) "正在清除…" else "清除所有记录")
                     }
-                    if (recordNotice.isNotBlank()) {
-                        Text(recordNotice, color = LuluColors.Muted, fontSize = 12.sp)
-                    }
+                    if (recordNotice.isNotBlank()) Text(recordNotice, color = LuluColors.Muted, fontSize = 12.sp)
                 }
             }
-            item {
-                Text("角色世界书", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-            }
+            item { Text("角色世界书", fontWeight = FontWeight.Bold, fontSize = 19.sp) }
             if (worldBooks.isEmpty()) {
-                item {
-                    CharacterV2Card {
-                        Text("还没有世界书", fontWeight = FontWeight.Bold)
-                    }
-                }
+                item { CharacterV2Card { Text("还没有世界书", fontWeight = FontWeight.Bold) } }
             } else {
                 items(worldBooks, key = { it.id }) { book ->
                     CharacterV2Card {
@@ -332,55 +298,14 @@ fun CharacterSettingsScreenV2(
                         Text(if (book.globalEnabled) "全局默认：开启" else "全局默认：关闭", color = LuluColors.Muted, fontSize = 12.sp)
                         val selected = book.characterOverrides[characterId]
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            CharacterV2WorldChoice("跟随全局", selected == null, Modifier.weight(1f)) {
-                                scope.launch { LuluRepositories.worldBook.setCharacterOverride(book.id, characterId, null) }
-                            }
-                            CharacterV2WorldChoice("单独开启", selected == true, Modifier.weight(1f)) {
-                                scope.launch { LuluRepositories.worldBook.setCharacterOverride(book.id, characterId, true) }
-                            }
-                            CharacterV2WorldChoice("单独关闭", selected == false, Modifier.weight(1f)) {
-                                scope.launch { LuluRepositories.worldBook.setCharacterOverride(book.id, characterId, false) }
-                            }
+                            CharacterV2WorldChoice("跟随全局", selected == null, Modifier.weight(1f)) { scope.launch { LuluRepositories.worldBook.setCharacterOverride(book.id, characterId, null) } }
+                            CharacterV2WorldChoice("单独开启", selected == true, Modifier.weight(1f)) { scope.launch { LuluRepositories.worldBook.setCharacterOverride(book.id, characterId, true) } }
+                            CharacterV2WorldChoice("单独关闭", selected == false, Modifier.weight(1f)) { scope.launch { LuluRepositories.worldBook.setCharacterOverride(book.id, characterId, false) } }
                         }
                     }
                 }
             }
         }
-    }
-
-    if (confirmEnableDigitalLife) {
-        AlertDialog(
-            onDismissRequest = { if (!changingDigitalLife) confirmEnableDigitalLife = false },
-            title = { Text("让${displayName.ifBlank { original.displayName }}从今天成为数字生命？") },
-            text = {
-                Text(
-                    "开启不是普通人设切换：此刻会成为它真正的生命第1天。为了保证它没有虚构的过去，这个角色现有的私聊、辞海、记忆、朋友圈、此刻状态和原始时间线会被永久清空；群聊页面里的公共消息不会替其他角色删除，但出生前内容不会再进入它的记忆。以后它只能把真实记录和实际成功的工具动作当作事实。此操作无法撤销。",
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    enabled = !changingDigitalLife,
-                    onClick = {
-                        changingDigitalLife = true
-                        scope.launch {
-                            val cleanName = displayName.trim().ifBlank { original.displayName }
-                            val creator = UserProfileContext.displayLabel()
-                            DigitalLifeProfileStore.activate(
-                                characterId = characterId,
-                                displayName = cleanName,
-                                creatorName = creator,
-                            )
-                            changingDigitalLife = false
-                            confirmEnableDigitalLife = false
-                            recordNotice = "$cleanName 已从此刻开始生命第1天，出生前记录已隔离并清除"
-                        }
-                    },
-                ) { Text(if (changingDigitalLife) "正在建立生命起点…" else "确认开启") }
-            },
-            dismissButton = {
-                TextButton(enabled = !changingDigitalLife, onClick = { confirmEnableDigitalLife = false }) { Text("取消") }
-            },
-        )
     }
 
     if (confirmClearRecords) {
@@ -390,7 +315,7 @@ fun CharacterSettingsScreenV2(
             text = {
                 Text(
                     if (digitalLife.enabled) {
-                        "会永久清除这个数字生命出生后的私聊消息、辞海、记忆、朋友圈内容与互动、此刻历史，以及原始时间线里的经历；数字生命开关与最初的生命起点会保留，并重新成为时间线第一条。此操作无法撤销。"
+                        "会永久清除这个数字生命的私聊消息、辞海、记忆、朋友圈内容与互动、此刻历史，以及原始时间线里的经历；数字生命设置和可追溯生命起点会保留。此操作无法撤销。"
                     } else {
                         "会永久清除这个角色的私聊消息、辞海、记忆、朋友圈内容与互动、此刻历史，以及原始时间线里的全部事件。角色头像、身份、设定、主动感知等设置会保留。此操作无法撤销。"
                     },
@@ -413,9 +338,7 @@ fun CharacterSettingsScreenV2(
                     },
                 ) { Text("确认清除", color = MaterialTheme.colorScheme.error) }
             },
-            dismissButton = {
-                TextButton(enabled = !clearingRecords, onClick = { confirmClearRecords = false }) { Text("取消") }
-            },
+            dismissButton = { TextButton(enabled = !clearingRecords, onClick = { confirmClearRecords = false }) { Text("取消") } },
         )
     }
 
@@ -463,11 +386,7 @@ private fun CharacterV2IntervalRow(
                 modifier = Modifier.weight(1f),
             )
             PerceptionIntervalUnit.entries.forEach { option ->
-                FilterChip(
-                    selected = unit == option,
-                    onClick = { onUnitChange(option) },
-                    label = { Text(option.label) },
-                )
+                FilterChip(selected = unit == option, onClick = { onUnitChange(option) }, label = { Text(option.label) })
             }
         }
     }
@@ -480,13 +399,7 @@ private fun CharacterV2TimeRow(label: String, minutesOfDay: Int, onChange: (Int)
     val minute = minutesOfDay % 60
     Surface(
         modifier = Modifier.fillMaxWidth().clickable {
-            TimePickerDialog(
-                context,
-                { _, selectedHour, selectedMinute -> onChange(selectedHour * 60 + selectedMinute) },
-                hour,
-                minute,
-                true,
-            ).show()
+            TimePickerDialog(context, { _, selectedHour, selectedMinute -> onChange(selectedHour * 60 + selectedMinute) }, hour, minute, true).show()
         },
         color = LuluColors.Paper,
         shape = RoundedCornerShape(14.dp),
@@ -507,12 +420,7 @@ private fun CharacterV2Switch(
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            title,
-            fontWeight = FontWeight.SemiBold,
-            color = if (enabled) LocalContentColor.current else LuluColors.Muted,
-            modifier = Modifier.weight(1f).padding(end = 10.dp),
-        )
+        Text(title, fontWeight = FontWeight.SemiBold, color = if (enabled) LocalContentColor.current else LuluColors.Muted, modifier = Modifier.weight(1f).padding(end = 10.dp))
         Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
     }
 }
