@@ -10,6 +10,7 @@ import com.jiacimu.lulu.data.ChatMemoryAutomation
 import com.jiacimu.lulu.data.ChatTurnConsistencyAutomation
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.DeterministicMemoryAutomation
+import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.LegacyConversationMigration
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -38,6 +39,7 @@ class MigrationActivity : ComponentActivity() {
         UserDataUpgradeGuard.protectBeforeStoresInitialize(appContext)
         LuluAppPreferencesStore.initialize(appContext)
         UserProfileContext.initialize(appContext)
+        DigitalLifeProfileStore.initialize(appContext)
         LuluRepositories.initialize(appContext)
         LuluRepositories.lexicon.initialize(appContext)
         LuluRepositories.worldBook.initialize(appContext)
