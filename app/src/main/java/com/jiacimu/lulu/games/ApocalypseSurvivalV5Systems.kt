@@ -23,9 +23,8 @@ private val SystemMuted = Color(0xFF607287)
 private val SystemBorder = Color(0xFFD3E3F2)
 
 internal fun apocalypseDayLabelV5(dayIndex: Int): String = when {
-    dayIndex < 0 -> "灾前第${-dayIndex}日"
-    dayIndex == 0 -> "主沉降日"
-    else -> "灾后第${dayIndex}日"
+    dayIndex < 0 -> "灾变前${-dayIndex}天"
+    else -> "灾变第${dayIndex + 1}天"
 }
 
 internal fun apocalypseClockLabelV5(clockMinutes: Int): String {

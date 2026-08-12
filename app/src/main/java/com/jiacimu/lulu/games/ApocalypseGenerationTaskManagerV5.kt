@@ -25,6 +25,7 @@ internal object ApocalypseGenerationTaskManagerV5 {
         val lastError: String? = null,
         val completedScene: Int? = null,
         val usedDirector: Boolean = false,
+        val partialText: String = "",
     )
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -81,6 +82,11 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         beat = plannedBeat,
                         nextStats = projectedStats,
                         usedDirector = usedDirector,
+                        onPartialText = { partial ->
+                            updateState(save.id) {
+                                it.copy(phase = "正文正在生成", partialText = partial)
+                            }
+                        },
                     )
                         .getOrElse { error -> throw error }
                     val resolvedBeat = applyApocalypseSceneOutcomeV5(
@@ -143,6 +149,7 @@ internal object ApocalypseGenerationTaskManagerV5 {
                             phase = "",
                             lastError = null,
                             completedScene = next.scene,
+                            partialText = "",
                         )
                     }
                 } catch (cancelled: kotlinx.coroutines.CancellationException) {
@@ -157,6 +164,7 @@ internal object ApocalypseGenerationTaskManagerV5 {
                                     "生成失败了，请检查游戏模型或网络后重试。"
                                 }
                             },
+                            partialText = "",
                         )
                     }
                 } finally {

@@ -8,10 +8,12 @@ import java.util.UUID
 internal const val APOCALYPSE_SCENE_STATE_MARKER_V5 = "<<<APOCALYPSE_STATE>>>"
 internal const val APOCALYPSE_SCENE_TEXT_MARKER_V5 = "<<<APOCALYPSE_SCENE>>>"
 
-private val APOCALYPSE_REQUIRED_DELTA_FIELDS_V5 = listOf(
+private val APOCALYPSE_DELTA_FIELDS_V5 = setOf(
     "minutesPassed", "moneyDelta", "foodDelta", "waterDelta", "medicineDelta", "materialsDelta",
     "coresFound", "playerAbilityXpGain", "baseDelta", "healthDelta", "staminaDelta",
-    "infectionDelta", "moraleDelta",
+    "infectionDelta", "moraleDelta", "moneyAfter", "foodAfter", "waterAfter", "medicineAfter",
+    "materialsAfter", "coresAfter", "healthAfter", "staminaAfter", "infectionAfter", "moraleAfter",
+    "endDayIndex", "endClockMinutes", "discoverAssets", "inventoryChanges",
 )
 
 /**
@@ -30,11 +32,23 @@ internal data class ApocalypseSceneOutcomeV5(
     val presentCharactersReported: Boolean = false,
     val receiptParsed: Boolean = false,
     val simulationStateReported: Boolean = false,
+    /** Exact fields present in the receipt. Missing means unchanged, never “discard every delta”. */
+    val reportedStateFields: Set<String> = emptySet(),
     val castUpdates: List<ApocalypseCharacterDossierV5> = emptyList(),
     val characterStatePatches: List<ApocalypseCharacterStatePatchV5> = emptyList(),
     val storyThreadUpdates: List<ApocalypseStoryThreadV5> = emptyList(),
     val foreshadowPatches: List<ApocalypseForeshadowPatchV5> = emptyList(),
+    val inventoryChanges: List<ApocalypseInventoryChangeV5> = emptyList(),
     val delta: ApocalypseSceneDeltaV5 = ApocalypseSceneDeltaV5(),
+)
+
+internal data class ApocalypseInventoryChangeV5(
+    val id: String = "",
+    val kind: ApocalypseV3AssetKind,
+    val title: String,
+    val quantityDelta: Int,
+    val detail: String = "",
+    val tag: String = "",
 )
 
 internal data class ApocalypseSceneDeltaV5(
@@ -61,6 +75,18 @@ internal data class ApocalypseSceneDeltaV5(
     val staminaDelta: Int = 0,
     val infectionDelta: Int = 0,
     val moraleDelta: Int = 0,
+    val moneyAfter: Int? = null,
+    val foodAfter: Int? = null,
+    val waterAfter: Int? = null,
+    val medicineAfter: Int? = null,
+    val materialsAfter: Int? = null,
+    val coresAfter: Int? = null,
+    val healthAfter: Int? = null,
+    val staminaAfter: Int? = null,
+    val infectionAfter: Int? = null,
+    val moraleAfter: Int? = null,
+    val endDayIndex: Int? = null,
+    val endClockMinutes: Int? = null,
 )
 
 internal fun parseApocalypseSceneOutcomeV5(raw: String): ApocalypseSceneOutcomeV5? = runCatching {
@@ -108,6 +134,7 @@ internal fun parseApocalypseSceneOutcomeV5(raw: String): ApocalypseSceneOutcomeV
     val objectEnd = cleanedState.lastIndexOf('}')
     if (objectStart < 0 || objectEnd <= objectStart) return@runCatching null
     val json = JSONObject(cleanedState.substring(objectStart, objectEnd + 1))
+    val reportedStateFields = APOCALYPSE_DELTA_FIELDS_V5.filterTo(mutableSetOf(), json::has)
     val visibleText = text.trim().removePrefix("```text").removePrefix("```").removeSuffix("```").trim()
     if (visibleText.isBlank()) return@runCatching null
     ApocalypseSceneOutcomeV5(
@@ -120,11 +147,22 @@ internal fun parseApocalypseSceneOutcomeV5(raw: String): ApocalypseSceneOutcomeV
         directorRefreshNeeded = json.optBoolean("directorRefreshNeeded", false),
         presentCharactersReported = json.has("presentCharacterIds"),
         receiptParsed = true,
-        simulationStateReported = APOCALYPSE_REQUIRED_DELTA_FIELDS_V5.all(json::has),
+        simulationStateReported = reportedStateFields.isNotEmpty(),
+        reportedStateFields = reportedStateFields,
         castUpdates = decodeApocalypseCastUpdatesV5(json.optJSONArray("castUpdates")),
         characterStatePatches = decodeApocalypseCharacterStatePatchesV5(json.optJSONArray("characterStatePatches")),
         storyThreadUpdates = decodeApocalypseStoryThreadsV5(json.optJSONArray("storyThreadUpdates")),
         foreshadowPatches = decodeApocalypseForeshadowPatchesV5(json.optJSONArray("foreshadowPatches")),
+        inventoryChanges = json.optJSONArray("inventoryChanges").sceneObjectsV5 { item ->
+            ApocalypseInventoryChangeV5(
+                id = item.optString("id").trim(),
+                kind = parseSceneAssetKindV5(item.optString("kind")),
+                title = item.optString("title").trim().take(70),
+                quantityDelta = item.optInt("quantityDelta").coerceIn(-999, 999),
+                detail = item.optString("detail").trim().take(360),
+                tag = item.optString("tag").trim().take(40),
+            )
+        }.filter { it.quantityDelta != 0 && (it.id.isNotBlank() || it.title.isNotBlank()) }.take(8),
         delta = ApocalypseSceneDeltaV5(
             location = json.optString("location").trim().take(100),
             sceneGoal = json.optString("sceneGoal").trim().take(260),
@@ -145,7 +183,7 @@ internal fun parseApocalypseSceneOutcomeV5(raw: String): ApocalypseSceneOutcomeV
             }.take(4),
             weather = json.optString("weather").trim().take(40),
             temperatureC = json.optInt("temperatureC").takeIf { json.has("temperatureC") }?.coerceIn(-35, 55),
-            minutesPassed = json.optInt("minutesPassed", 20).coerceIn(5, 720),
+            minutesPassed = json.optInt("minutesPassed", 20).coerceIn(1, 10_080),
             moneyDelta = json.optInt("moneyDelta"),
             foodDelta = json.optInt("foodDelta"),
             waterDelta = json.optInt("waterDelta"),
@@ -158,6 +196,18 @@ internal fun parseApocalypseSceneOutcomeV5(raw: String): ApocalypseSceneOutcomeV
             staminaDelta = json.optInt("staminaDelta"),
             infectionDelta = json.optInt("infectionDelta"),
             moraleDelta = json.optInt("moraleDelta"),
+            moneyAfter = json.optIntOrNullV5("moneyAfter")?.coerceIn(0, 9_999_999),
+            foodAfter = json.optIntOrNullV5("foodAfter")?.coerceIn(0, 999),
+            waterAfter = json.optIntOrNullV5("waterAfter")?.coerceIn(0, 999),
+            medicineAfter = json.optIntOrNullV5("medicineAfter")?.coerceIn(0, 999),
+            materialsAfter = json.optIntOrNullV5("materialsAfter")?.coerceIn(0, 999),
+            coresAfter = json.optIntOrNullV5("coresAfter")?.coerceIn(0, 9999),
+            healthAfter = json.optIntOrNullV5("healthAfter")?.coerceIn(0, 100),
+            staminaAfter = json.optIntOrNullV5("staminaAfter")?.coerceIn(0, 100),
+            infectionAfter = json.optIntOrNullV5("infectionAfter")?.coerceIn(0, 100),
+            moraleAfter = json.optIntOrNullV5("moraleAfter")?.coerceIn(0, 100),
+            endDayIndex = json.optIntOrNullV5("endDayIndex")?.coerceIn(-9999, 9999),
+            endClockMinutes = json.optIntOrNullV5("endClockMinutes")?.coerceIn(0, 1439),
         ),
     )
 }.getOrNull()
@@ -184,6 +234,27 @@ internal fun fallbackApocalypseSceneOutcomeV5(raw: String, action: String = ""):
         continuitySummary = compactApocalypseSceneExcerptV5(plain),
     )
 }
+
+/** Hides the JSON-first receipt and exposes only prose that has actually arrived from the stream. */
+internal fun apocalypseStreamingSceneTextV5(raw: String): String {
+    val sceneStart = raw.indexOf(APOCALYPSE_SCENE_TEXT_MARKER_V5)
+    if (sceneStart < 0) return ""
+    val afterMarker = raw.substring(sceneStart + APOCALYPSE_SCENE_TEXT_MARKER_V5.length)
+        .substringBefore(APOCALYPSE_SCENE_STATE_MARKER_V5)
+        .trim()
+        .removePrefix("```text")
+        .removePrefix("```")
+        .trim()
+    val firstStoryTag = listOf("【旁白】", "【玩家】", "【角色:")
+        .map { marker -> afterMarker.indexOf(marker) }
+        .filter { it >= 0 }
+        .minOrNull()
+        ?: return ""
+    return afterMarker.substring(firstStoryTag).take(8_000)
+}
+
+private fun JSONObject.optIntOrNullV5(name: String): Int? =
+    if (has(name) && !isNull(name)) optInt(name) else null
 
 internal fun apocalypseSceneOutcomeNeedsRepairV5(
     action: String,
@@ -242,6 +313,125 @@ internal fun apocalypseSceneOutcomeNeedsRepairV5(
     return expected.none { earlyText.contains("【角色:$it】") }
 }
 
+private fun resolveApocalypseElapsedMinutesV5(
+    save: ApocalypseV3Save,
+    outcome: ApocalypseSceneOutcomeV5,
+    fallbackMinutes: Int,
+): Int {
+    val delta = outcome.delta
+    if (
+        "endDayIndex" in outcome.reportedStateFields &&
+        "endClockMinutes" in outcome.reportedStateFields &&
+        delta.endDayIndex != null && delta.endClockMinutes != null
+    ) {
+        val currentAbsolute = save.director.dayIndex.toLong() * 1440L + save.director.clockMinutes
+        val endingAbsolute = delta.endDayIndex.toLong() * 1440L + delta.endClockMinutes
+        val statedElapsed = endingAbsolute - currentAbsolute
+        if (statedElapsed in 1L..10_080L) return statedElapsed.toInt()
+    }
+    return if ("minutesPassed" in outcome.reportedStateFields) {
+        delta.minutesPassed.coerceIn(1, 10_080)
+    } else {
+        fallbackMinutes.coerceIn(1, 10_080)
+    }
+}
+
+private fun resolveApocalypseStateDeltaV5(
+    outcome: ApocalypseSceneOutcomeV5,
+    deltaField: String,
+    afterField: String,
+    reportedDelta: Int,
+    reportedAfter: Int?,
+    current: Int,
+    fallbackDelta: Int,
+): Int = when {
+    afterField in outcome.reportedStateFields && reportedAfter != null -> reportedAfter - current
+    deltaField in outcome.reportedStateFields -> reportedDelta
+    else -> fallbackDelta
+}
+
+private fun inferredApocalypseAssetDeltaV5(
+    outcome: ApocalypseSceneOutcomeV5,
+    kind: ApocalypseV3AssetKind,
+): Int? {
+    val additions = outcome.delta.discoverAssets
+        .takeIf { "discoverAssets" in outcome.reportedStateFields }
+        ?.filter { it.kind == kind }
+        ?.sumOf { it.quantity }
+        ?: 0
+    val changes = outcome.inventoryChanges
+        .takeIf { "inventoryChanges" in outcome.reportedStateFields }
+        ?.filter { it.kind == kind }
+        ?.sumOf { it.quantityDelta }
+        ?: 0
+    return (additions + changes).takeIf {
+        "discoverAssets" in outcome.reportedStateFields || "inventoryChanges" in outcome.reportedStateFields
+    }
+}
+
+private fun mergeApocalypseAcquiredAssetsV5(
+    previous: List<ApocalypseV3Asset>,
+    additions: List<ApocalypseV3Asset>,
+    changes: List<ApocalypseInventoryChangeV5> = emptyList(),
+): List<ApocalypseV3Asset> {
+    val merged = previous.toMutableList()
+    additions.forEach { addition ->
+        val existingIndex = merged.indexOfFirst { existing ->
+            existing.id == addition.id ||
+                (existing.kind == addition.kind && existing.title.equals(addition.title, ignoreCase = true))
+        }
+        if (existingIndex < 0) {
+            merged += addition
+        } else {
+            val existing = merged[existingIndex]
+            val replaceOnly = addition.kind in setOf(
+                ApocalypseV3AssetKind.Key,
+                ApocalypseV3AssetKind.Document,
+                ApocalypseV3AssetKind.Clue,
+                ApocalypseV3AssetKind.Map,
+            )
+            merged[existingIndex] = existing.copy(
+                detail = addition.detail.ifBlank { existing.detail },
+                quantity = if (replaceOnly) maxOf(existing.quantity, addition.quantity) else {
+                    (existing.quantity + addition.quantity).coerceAtMost(999)
+                },
+                tag = addition.tag.ifBlank { existing.tag },
+            )
+        }
+    }
+    changes.forEach { change ->
+        val existingIndex = merged.indexOfFirst { existing ->
+            (change.id.isNotBlank() && existing.id == change.id) ||
+                (existing.kind == change.kind && existing.title.equals(change.title, ignoreCase = true))
+        }
+        if (existingIndex < 0) {
+            if (change.quantityDelta > 0) {
+                merged += ApocalypseV3Asset(
+                    id = change.id.ifBlank { UUID.randomUUID().toString() },
+                    kind = change.kind,
+                    title = change.title.ifBlank { "新增${change.kind.label}" },
+                    detail = change.detail,
+                    quantity = change.quantityDelta,
+                    tag = change.tag,
+                )
+            }
+        } else {
+            val existing = merged[existingIndex]
+            val nextQuantity = (existing.quantity + change.quantityDelta).coerceAtLeast(0)
+            if (nextQuantity == 0) {
+                merged.removeAt(existingIndex)
+            } else {
+                merged[existingIndex] = existing.copy(
+                    quantity = nextQuantity.coerceAtMost(999),
+                    detail = change.detail.ifBlank { existing.detail },
+                    tag = change.tag.ifBlank { existing.tag },
+                )
+            }
+        }
+    }
+    return merged.takeLast(90)
+}
+
 /** Apply writer-owned local consequences only when the expensive director was skipped. */
 internal fun applyApocalypseSceneOutcomeV5(
     save: ApocalypseV3Save,
@@ -266,7 +456,7 @@ internal fun applyApocalypseSceneOutcomeV5(
             dossiers = expandedDossiers,
             presentCharacterIds = plannedBeat.nextDirector.presentCharacterIds,
         ).filter(validIds::contains)
-        val elapsed = if (outcome.simulationStateReported) outcome.delta.minutesPassed.coerceIn(5, 720) else plannedBeat.minutesPassed
+        val elapsed = resolveApocalypseElapsedMinutesV5(save, outcome, plannedBeat.minutesPassed)
         val absoluteMinutes = save.director.clockMinutes + elapsed
         val nextDayIndex = (save.director.dayIndex + absoluteMinutes / 1440).coerceAtMost(9999)
         val patchedDossiers = mergeApocalypseCharacterStatePatchesV5(
@@ -306,9 +496,14 @@ internal fun applyApocalypseSceneOutcomeV5(
                     outcome.foreshadowPatches,
                     save.scene + 1,
                 ),
-                assets = (plannedBeat.nextDirector.assets + outcome.delta.discoverAssets)
-                    .distinctBy { it.id }
-                    .takeLast(90),
+                assets = if (
+                    "discoverAssets" in outcome.reportedStateFields ||
+                    "inventoryChanges" in outcome.reportedStateFields
+                ) {
+                    mergeApocalypseAcquiredAssetsV5(save.director.assets, outcome.delta.discoverAssets, outcome.inventoryChanges)
+                } else {
+                    plannedBeat.nextDirector.assets
+                },
                 recentBeatTypes = (plannedBeat.nextDirector.recentBeatTypes + outcome.delta.beatType)
                     .filter(String::isNotBlank)
                     .takeLast(8),
@@ -330,24 +525,24 @@ internal fun applyApocalypseSceneOutcomeV5(
                 dayIndex = nextDayIndex,
                 clockMinutes = absoluteMinutes % 1440,
             ),
-            moneyDelta = if (outcome.simulationStateReported) outcome.delta.moneyDelta.coerceIn(-save.stats.money, 1_000_000) else plannedBeat.moneyDelta,
-            foodDelta = if (outcome.simulationStateReported) outcome.delta.foodDelta.coerceIn(-save.stats.food, 999) else plannedBeat.foodDelta,
-            waterDelta = if (outcome.simulationStateReported) outcome.delta.waterDelta.coerceIn(-save.stats.water, 999) else plannedBeat.waterDelta,
-            medicineDelta = if (outcome.simulationStateReported) outcome.delta.medicineDelta.coerceIn(-save.stats.medicine, 999) else plannedBeat.medicineDelta,
-            materialsDelta = if (outcome.simulationStateReported) outcome.delta.materialsDelta.coerceIn(-save.stats.materials, 999) else plannedBeat.materialsDelta,
-            coresFound = if (outcome.simulationStateReported) outcome.delta.coresFound.coerceIn(-save.stats.crystalCores, 99) else plannedBeat.coresFound,
-            playerAbilityXpGain = if (outcome.simulationStateReported) outcome.delta.playerAbilityXpGain.coerceIn(0, 10) else plannedBeat.playerAbilityXpGain,
-            baseDelta = if (outcome.simulationStateReported) outcome.delta.baseDelta.coerceIn(-1, 1) else plannedBeat.baseDelta,
-            healthDelta = if (outcome.simulationStateReported) outcome.delta.healthDelta.coerceIn(-35, 20) else plannedBeat.healthDelta,
-            staminaDelta = if (outcome.simulationStateReported) outcome.delta.staminaDelta.coerceIn(-45, 40) else plannedBeat.staminaDelta,
-            infectionDelta = if (outcome.simulationStateReported) outcome.delta.infectionDelta.coerceIn(-15, 30) else plannedBeat.infectionDelta,
-            moraleDelta = if (outcome.simulationStateReported) outcome.delta.moraleDelta.coerceIn(-30, 30) else plannedBeat.moraleDelta,
+            moneyDelta = resolveApocalypseStateDeltaV5(outcome, "moneyDelta", "moneyAfter", outcome.delta.moneyDelta, outcome.delta.moneyAfter, save.stats.money, plannedBeat.moneyDelta).coerceIn(-save.stats.money, 1_000_000),
+            foodDelta = resolveApocalypseStateDeltaV5(outcome, "foodDelta", "foodAfter", outcome.delta.foodDelta, outcome.delta.foodAfter, save.stats.food, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Food) ?: plannedBeat.foodDelta).coerceIn(-save.stats.food, 999),
+            waterDelta = resolveApocalypseStateDeltaV5(outcome, "waterDelta", "waterAfter", outcome.delta.waterDelta, outcome.delta.waterAfter, save.stats.water, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Water) ?: plannedBeat.waterDelta).coerceIn(-save.stats.water, 999),
+            medicineDelta = resolveApocalypseStateDeltaV5(outcome, "medicineDelta", "medicineAfter", outcome.delta.medicineDelta, outcome.delta.medicineAfter, save.stats.medicine, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Medicine) ?: plannedBeat.medicineDelta).coerceIn(-save.stats.medicine, 999),
+            materialsDelta = resolveApocalypseStateDeltaV5(outcome, "materialsDelta", "materialsAfter", outcome.delta.materialsDelta, outcome.delta.materialsAfter, save.stats.materials, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Material) ?: plannedBeat.materialsDelta).coerceIn(-save.stats.materials, 999),
+            coresFound = resolveApocalypseStateDeltaV5(outcome, "coresFound", "coresAfter", outcome.delta.coresFound, outcome.delta.coresAfter, save.stats.crystalCores, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Core) ?: plannedBeat.coresFound).coerceIn(-save.stats.crystalCores, 99),
+            playerAbilityXpGain = if ("playerAbilityXpGain" in outcome.reportedStateFields) outcome.delta.playerAbilityXpGain.coerceIn(0, 10) else plannedBeat.playerAbilityXpGain,
+            baseDelta = if ("baseDelta" in outcome.reportedStateFields) outcome.delta.baseDelta.coerceIn(-1, 1) else plannedBeat.baseDelta,
+            healthDelta = resolveApocalypseStateDeltaV5(outcome, "healthDelta", "healthAfter", outcome.delta.healthDelta, outcome.delta.healthAfter, save.stats.health, plannedBeat.healthDelta).coerceIn(-35, 20),
+            staminaDelta = resolveApocalypseStateDeltaV5(outcome, "staminaDelta", "staminaAfter", outcome.delta.staminaDelta, outcome.delta.staminaAfter, save.stats.stamina, plannedBeat.staminaDelta).coerceIn(-45, 40),
+            infectionDelta = resolveApocalypseStateDeltaV5(outcome, "infectionDelta", "infectionAfter", outcome.delta.infectionDelta, outcome.delta.infectionAfter, save.stats.infection, plannedBeat.infectionDelta).coerceIn(-15, 30),
+            moraleDelta = resolveApocalypseStateDeltaV5(outcome, "moraleDelta", "moraleAfter", outcome.delta.moraleDelta, outcome.delta.moraleAfter, save.stats.morale, plannedBeat.moraleDelta).coerceIn(-30, 30),
             minutesPassed = elapsed,
         )
     }
 
     val delta = outcome.delta
-    val elapsed = delta.minutesPassed.coerceIn(5, 720)
+    val elapsed = resolveApocalypseElapsedMinutesV5(save, outcome, plannedBeat.minutesPassed)
     val absoluteMinutes = save.director.clockMinutes + elapsed
     val nextDayIndex = (save.director.dayIndex + absoluteMinutes / 1440).coerceAtMost(9999)
     val expandedDossiers = expandApocalypseSceneCastV5(
@@ -395,7 +590,7 @@ internal fun applyApocalypseSceneOutcomeV5(
             outcome.foreshadowPatches,
             save.scene + 1,
         ),
-        assets = (save.director.assets + delta.discoverAssets).distinctBy { it.id }.takeLast(90),
+        assets = mergeApocalypseAcquiredAssetsV5(save.director.assets, delta.discoverAssets, outcome.inventoryChanges),
         recentBeatTypes = (save.director.recentBeatTypes + delta.beatType).takeLast(8),
         recentEmotionalTurns = (save.director.recentEmotionalTurns + delta.emotionalTurn)
             .filter(String::isNotBlank)
@@ -417,18 +612,18 @@ internal fun applyApocalypseSceneOutcomeV5(
         beatType = delta.beatType,
         worldDelta = outcome.actionOutcome,
         emotionalTurn = delta.emotionalTurn,
-        moneyDelta = delta.moneyDelta.coerceIn(-save.stats.money, 1_000_000),
-        foodDelta = delta.foodDelta.coerceIn(-save.stats.food, 999),
-        waterDelta = delta.waterDelta.coerceIn(-save.stats.water, 999),
-        medicineDelta = delta.medicineDelta.coerceIn(-save.stats.medicine, 999),
-        materialsDelta = delta.materialsDelta.coerceIn(-save.stats.materials, 999),
-        coresFound = delta.coresFound.coerceIn(-save.stats.crystalCores, 99),
-        playerAbilityXpGain = delta.playerAbilityXpGain.coerceIn(0, 10),
-        baseDelta = delta.baseDelta.coerceIn(-1, 1),
-        healthDelta = delta.healthDelta.coerceIn(-35, 20),
-        staminaDelta = delta.staminaDelta.coerceIn(-45, 40),
-        infectionDelta = delta.infectionDelta.coerceIn(-15, 30),
-        moraleDelta = delta.moraleDelta.coerceIn(-30, 30),
+        moneyDelta = resolveApocalypseStateDeltaV5(outcome, "moneyDelta", "moneyAfter", delta.moneyDelta, delta.moneyAfter, save.stats.money, 0).coerceIn(-save.stats.money, 1_000_000),
+        foodDelta = resolveApocalypseStateDeltaV5(outcome, "foodDelta", "foodAfter", delta.foodDelta, delta.foodAfter, save.stats.food, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Food) ?: 0).coerceIn(-save.stats.food, 999),
+        waterDelta = resolveApocalypseStateDeltaV5(outcome, "waterDelta", "waterAfter", delta.waterDelta, delta.waterAfter, save.stats.water, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Water) ?: 0).coerceIn(-save.stats.water, 999),
+        medicineDelta = resolveApocalypseStateDeltaV5(outcome, "medicineDelta", "medicineAfter", delta.medicineDelta, delta.medicineAfter, save.stats.medicine, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Medicine) ?: 0).coerceIn(-save.stats.medicine, 999),
+        materialsDelta = resolveApocalypseStateDeltaV5(outcome, "materialsDelta", "materialsAfter", delta.materialsDelta, delta.materialsAfter, save.stats.materials, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Material) ?: 0).coerceIn(-save.stats.materials, 999),
+        coresFound = resolveApocalypseStateDeltaV5(outcome, "coresFound", "coresAfter", delta.coresFound, delta.coresAfter, save.stats.crystalCores, inferredApocalypseAssetDeltaV5(outcome, ApocalypseV3AssetKind.Core) ?: 0).coerceIn(-save.stats.crystalCores, 99),
+        playerAbilityXpGain = if ("playerAbilityXpGain" in outcome.reportedStateFields) delta.playerAbilityXpGain.coerceIn(0, 10) else 0,
+        baseDelta = if ("baseDelta" in outcome.reportedStateFields) delta.baseDelta.coerceIn(-1, 1) else 0,
+        healthDelta = resolveApocalypseStateDeltaV5(outcome, "healthDelta", "healthAfter", delta.healthDelta, delta.healthAfter, save.stats.health, 0).coerceIn(-35, 20),
+        staminaDelta = resolveApocalypseStateDeltaV5(outcome, "staminaDelta", "staminaAfter", delta.staminaDelta, delta.staminaAfter, save.stats.stamina, 0).coerceIn(-45, 40),
+        infectionDelta = resolveApocalypseStateDeltaV5(outcome, "infectionDelta", "infectionAfter", delta.infectionDelta, delta.infectionAfter, save.stats.infection, 0).coerceIn(-15, 30),
+        moraleDelta = resolveApocalypseStateDeltaV5(outcome, "moraleDelta", "moraleAfter", delta.moraleDelta, delta.moraleAfter, save.stats.morale, 0).coerceIn(-30, 30),
         minutesPassed = elapsed,
     )
 }

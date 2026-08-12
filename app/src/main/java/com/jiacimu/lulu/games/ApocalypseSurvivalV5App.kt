@@ -1193,6 +1193,23 @@ private fun ApocalypseV5PlayPage(
     val busy = generationState.running
     val currentEntryId = currentEntry?.id
     val currentPage = pages.getOrElse(pageIndex) { pages.first() }
+    val streamingPages = remember(
+        generationState.partialText,
+        party,
+        save.director.characterDossiers,
+        save.director.presentCharacterIds,
+    ) {
+        generationState.partialText.takeIf(String::isNotBlank)?.let { partial ->
+            parseApocalypseStoryPages(
+                text = partial,
+                party = party,
+                dossiers = save.director.characterDossiers,
+                presentCharacterIds = save.director.presentCharacterIds,
+            )
+        }.orEmpty()
+    }
+    val streamingPage = streamingPages.lastOrNull()
+    val displayPage = streamingPage ?: currentPage
     val lastPage = pageIndex >= pages.lastIndex
 
     fun setPage(next: Int) {
@@ -1247,7 +1264,7 @@ private fun ApocalypseV5PlayPage(
     Box(Modifier.fillMaxSize().background(ApocalypseV5Colors.black).statusBarsPadding().imePadding()) {
         ApocalypseV5SpeakerStage(
             modifier = Modifier.fillMaxSize(),
-            page = currentPage,
+            page = displayPage,
             party = party,
             storyDossiers = save.director.characterDossiers,
             config = config,
@@ -1290,8 +1307,14 @@ private fun ApocalypseV5PlayPage(
         ) {
             Column(Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 10.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(apocalypseV5SpeakerLabel(currentPage, party, save.director.characterDossiers, userName), color = ApocalypseV5Colors.blueStrong, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                    Text("${pageIndex + 1}/${pages.size}", color = ApocalypseV5Colors.muted, fontSize = 9.sp)
+                    Text(
+                        if (streamingPage != null) "第${save.scene + 1}幕 · 正在生成" else apocalypseV5SpeakerLabel(currentPage, party, save.director.characterDossiers, userName),
+                        color = ApocalypseV5Colors.blueStrong,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text(if (streamingPage != null) "${streamingPages.size}段" else "${pageIndex + 1}/${pages.size}", color = ApocalypseV5Colors.muted, fontSize = 9.sp)
                 }
                 Spacer(Modifier.height(5.dp))
                 Surface(
@@ -1300,7 +1323,7 @@ private fun ApocalypseV5PlayPage(
                     shape = RoundedCornerShape(17.dp),
                     border = BorderStroke(1.dp, ApocalypseV5Colors.border),
                 ) {
-                    Text(currentPage.text, color = ApocalypseV5Colors.ink, fontSize = 16.sp, lineHeight = 24.sp, modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp))
+                    Text(displayPage.text, color = ApocalypseV5Colors.ink, fontSize = 16.sp, lineHeight = 24.sp, modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp))
                 }
                 Row(Modifier.fillMaxWidth().height(39.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                     TextButton(onClick = ::previousPage, enabled = pageIndex > 0) { Icon(Icons.Outlined.ChevronLeft, null, Modifier.size(18.dp)); Text("上一段", fontSize = 10.sp) }

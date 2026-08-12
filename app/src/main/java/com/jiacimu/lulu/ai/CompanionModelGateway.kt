@@ -435,6 +435,7 @@ class CompanionModelGateway(
         contextMode: CompanionContextMode = CompanionContextMode.Full,
         streamResponse: Boolean = false,
         readTimeoutMillis: Int = DEFAULT_MODEL_READ_TIMEOUT_MILLIS,
+        onStreamText: ((String) -> Unit)? = null,
     ): Result<ModelReply> = withContext(Dispatchers.IO) {
         val totalStartedAt = System.nanoTime()
         var requestUrl: String? = null
@@ -543,6 +544,7 @@ class CompanionModelGateway(
                 maxTokens = maxTokens,
                 streamResponse = streamResponse,
                 readTimeoutMillis = readTimeoutMillis,
+                onStreamText = onStreamText,
             )
             val modelMillis = elapsedMillis(modelStartedAt)
             val totalMillis = elapsedMillis(totalStartedAt)
@@ -581,6 +583,7 @@ class CompanionModelGateway(
         maxTokens: Int,
         streamResponse: Boolean,
         readTimeoutMillis: Int,
+        onStreamText: ((String) -> Unit)?,
     ): ModelReply {
         val body = JSONObject()
             .put("model", connection.model)
@@ -602,6 +605,7 @@ class CompanionModelGateway(
                     headers = headers,
                     body = body,
                     readTimeoutMillis = readTimeoutMillis,
+                    onStreamText = onStreamText,
                 )
             } catch (error: ModelHttpException) {
                 // A few OpenAI-compatible relays reject the stream flag even though their normal
@@ -617,7 +621,7 @@ class CompanionModelGateway(
             body = body,
             readTimeoutMillis = readTimeoutMillis,
         )
-        return modelReplyFromJson(json)
+        return modelReplyFromJson(json).also { reply -> onStreamText?.invoke(reply.text) }
     }
 
     private fun modelReplyFromJson(json: JSONObject): ModelReply {
@@ -696,6 +700,7 @@ class CompanionModelGateway(
         headers: Map<String, String>,
         body: JSONObject,
         readTimeoutMillis: Int,
+        onStreamText: ((String) -> Unit)?,
     ): ModelReply {
         val connection = URL(url).openConnection() as HttpURLConnection
         return try {
@@ -720,6 +725,20 @@ class CompanionModelGateway(
             var inputTokens = 0
             var outputTokens = 0
             var cachedTokens = 0
+            var lastCallbackLength = 0
+            var lastCallbackNanos = System.nanoTime()
+
+            fun publishVisibleProgress(force: Boolean = false) {
+                if (onStreamText == null || content.isEmpty()) return
+                val now = System.nanoTime()
+                val enoughText = content.length - lastCallbackLength >= 48
+                val enoughTime = now - lastCallbackNanos >= 120_000_000L
+                if (force || enoughText || enoughTime) {
+                    onStreamText.invoke(content.toString())
+                    lastCallbackLength = content.length
+                    lastCallbackNanos = now
+                }
+            }
 
             fun consumeEvent(rawEvent: String): Boolean {
                 val payload = rawEvent.trim()
@@ -743,6 +762,7 @@ class CompanionModelGateway(
                         ?.optInt("cached_tokens", cachedTokens)
                         ?: cachedTokens
                 }
+                publishVisibleProgress()
                 return true
             }
 
@@ -775,10 +795,13 @@ class CompanionModelGateway(
             }
 
             if (content.isEmpty() && reasoning.isEmpty() && plainResponse.isNotBlank()) {
-                return modelReplyFromJson(JSONObject(plainResponse.toString()))
+                return modelReplyFromJson(JSONObject(plainResponse.toString())).also { reply ->
+                    onStreamText?.invoke(reply.text)
+                }
             }
             val text = content.toString().trim().ifBlank { reasoning.toString().trim() }
             check(text.isNotBlank()) { "模型流式响应没有返回可读取的内容" }
+            publishVisibleProgress(force = true)
             ModelReply(
                 text = text,
                 inputTokens = inputTokens,
