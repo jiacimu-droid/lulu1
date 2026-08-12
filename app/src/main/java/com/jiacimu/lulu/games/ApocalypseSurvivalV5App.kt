@@ -1263,7 +1263,7 @@ private fun ApocalypseV5PlayPage(
 
         Row(
             Modifier.fillMaxWidth().height(54.dp).align(Alignment.TopCenter)
-                .background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = .68f), Color.Transparent)))
+                .background(Brush.verticalGradient(listOf(ApocalypseV5Colors.black.copy(alpha = .44f), Color.Transparent)))
                 .padding(horizontal = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -1402,7 +1402,10 @@ private fun ApocalypseV5SpeakerStage(
         Box(
             Modifier.matchParentSize().background(
                 Brush.verticalGradient(
-                    listOf(Color(0xB807111F), Color(0x6B07111F), Color(0xD907111F)),
+                    0f to Color(0x5C101B18),
+                    .30f to Color(0x24101B18),
+                    .64f to Color(0x14101B18),
+                    1f to Color(0x4D101B18),
                 ),
             ),
         )
