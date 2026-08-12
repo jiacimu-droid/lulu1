@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`4016e449a7ff8a4c47524ed32d7ff6dad9e1272f`
+- 基准提交：`89778c9d9feed6aa18464b47074de6e7c56b42fd`
 - 分支：`main`
-- 已索引文件：176
-- 已索引代码/文本行：53398
-- 已发现符号：690
+- 已索引文件：175
+- 已索引代码/文本行：53278
+- 已发现符号：689
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -95,7 +95,6 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt` | 294 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryBrowserV5.kt` | 429 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryLedgerV5.kt` | 746 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventorySnapshotRecoveryV5.kt` | 120 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt` | 352 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt` | 676 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseMapIntelV5.kt` | 541 | 0 |
