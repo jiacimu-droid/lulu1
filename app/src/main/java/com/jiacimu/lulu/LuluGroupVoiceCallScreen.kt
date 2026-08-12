@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
@@ -69,7 +68,6 @@ internal fun LuluGroupVoiceCallScreen(
     var listening by remember { mutableStateOf(false) }
     var thinking by remember { mutableStateOf(false) }
     var speakerEnabled by remember { mutableStateOf(true) }
-    var modelExpanded by remember { mutableStateOf(false) }
     var elapsedSeconds by remember { mutableLongStateOf(0L) }
     var startedAt by remember { mutableLongStateOf(0L) }
     var callStartedAt by remember { mutableStateOf<Instant?>(null) }
@@ -97,9 +95,7 @@ internal fun LuluGroupVoiceCallScreen(
         if (phase == GroupCallPhase.Connected) {
             phase = GroupCallPhase.Ended
             scope.launch { delay(650); onDismiss() }
-        } else {
-            onDismiss()
-        }
+        } else onDismiss()
     }
 
     LaunchedEffect(phase) {
@@ -171,30 +167,18 @@ internal fun LuluGroupVoiceCallScreen(
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = ::closeCall) { Icon(Icons.Outlined.KeyboardArrowDown, "收起群聊电话") }
                     Spacer(Modifier.weight(1f))
-                    Box {
-                        TextButton(onClick = { modelExpanded = true }) {
-                            Icon(Icons.Outlined.Tune, null, Modifier.size(16.dp))
-                            Spacer(Modifier.width(5.dp))
-                            Text(activeLabel, maxLines = 1, fontSize = 12.sp)
-                        }
-                        DropdownMenu(expanded = modelExpanded, onDismissRequest = { modelExpanded = false }) {
-                            library.archives.forEach { archive ->
-                                DropdownMenuItem(
-                                    text = { Text(LuluAiServices.connectionStore.archiveLabel(archive)) },
-                                    leadingIcon = {
-                                        Icon(
-                                            if (archive.id == voiceArchiveId) Icons.Outlined.RadioButtonChecked else Icons.Outlined.RadioButtonUnchecked,
-                                            null,
-                                        )
-                                    },
-                                    onClick = {
-                                        LuluAiServices.connectionStore.selectArchive(archive.id, ModelUsage.VoiceCall)
-                                        modelExpanded = false
-                                    },
-                                )
-                            }
-                        }
-                    }
+                    ModelArchiveTextButton(
+                        usage = ModelUsage.VoiceCall,
+                        title = "电话模型",
+                        subtitle = "单人电话和群聊电话共用电话模型；聊天、游戏和末世求生不会跟着改变。",
+                        activeLabel = activeLabel,
+                        icon = Icons.Outlined.Tune,
+                        accent = Color(0xFF5F77A9),
+                        textColor = Color(0xFF1D1D1F),
+                        background = Color.White,
+                        muted = Color(0xFF77777B),
+                        border = Color(0xFFE7E7E7),
+                    )
                 }
 
                 Text("${group.name}（${group.members.size + 1}）", fontWeight = FontWeight.Bold, fontSize = 22.sp)
@@ -248,9 +232,7 @@ internal fun LuluGroupVoiceCallScreen(
                                 containerColor = if (phase == GroupCallPhase.Ready) Color(0xFF292929) else Color(0xFFE34848),
                                 contentColor = Color.White,
                             ),
-                        ) {
-                            Icon(if (phase == GroupCallPhase.Ready) Icons.Outlined.Call else Icons.Outlined.CallEnd, null, Modifier.size(29.dp))
-                        }
+                        ) { Icon(if (phase == GroupCallPhase.Ready) Icons.Outlined.Call else Icons.Outlined.CallEnd, null, Modifier.size(29.dp)) }
                         Spacer(Modifier.height(8.dp))
                         Text(if (phase == GroupCallPhase.Ready) "拨打群聊电话" else "取消", color = Color(0xFF77777B), fontSize = 12.sp)
                         Spacer(Modifier.height(46.dp))
@@ -280,8 +262,7 @@ internal fun LuluGroupVoiceCallScreen(
                                             LuluChatMessage.Sender.Character -> {
                                                 val member = group.members.firstOrNull { it.characterId == message.authorCharacterId }
                                                 val character = message.authorCharacterId?.let { characters[it] }
-                                                member?.groupNickname?.ifBlank { character?.displayName.orEmpty() }
-                                                    ?.ifBlank { "角色" } ?: "角色"
+                                                member?.groupNickname?.ifBlank { character?.displayName.orEmpty() }?.ifBlank { "角色" } ?: "角色"
                                             }
                                         }
                                         Text(speaker, color = Color(0xFF77777B), fontSize = 11.sp)
