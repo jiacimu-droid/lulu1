@@ -85,55 +85,16 @@ private enum class ApocalypseInventoryCategoryV5(
     Other("其他", Icons.Outlined.Home, "暂时无法精确归类的实体物资；识别失败也会保留在这里"),
 }
 
-private val foodWordsV5 = listOf(
-    "罐头", "方便面", "泡面", "面饼", "饼干", "压缩粮", "大米", "米袋", "面粉", "挂面", "面条", "面包", "火腿",
-    "香肠", "午餐肉", "水饺", "饺子", "馒头", "快餐", "盒饭", "点心", "巧克力", "糖果", "能量棒", "肉干", "冻肉",
-    "食品", "粮食", "食用油", "调味料", "蔬菜", "水果",
-)
+private val foodWordsV5 = listOf("罐头", "方便面", "泡面", "面饼", "饼干", "压缩粮", "大米", "米袋", "面粉", "挂面", "面条", "面包", "火腿", "香肠", "午餐肉", "水饺", "饺子", "馒头", "快餐", "盒饭", "点心", "巧克力", "糖果", "能量棒", "肉干", "冻肉", "食品", "粮食", "食用油", "调味料", "蔬菜", "水果")
 private val waterWordsV5 = listOf("矿泉水", "纯净水", "饮用水", "瓶装水", "桶装水", "净水", "饮料", "果汁", "汽水", "苏打水", "运动饮料")
-private val medicineWordsV5 = listOf(
-    "药品", "药物", "退烧", "止痛", "消炎", "抗生素", "抗过敏", "止泻", "胃药", "感冒药", "维生素", "绷带", "纱布",
-    "创可贴", "碘伏", "医用酒精", "消毒液", "止血", "急救包", "医疗包", "注射器", "口罩", "体温计", "医疗耗材",
-)
-private val householdWordsV5 = listOf(
-    "卫生纸", "厕纸", "纸巾", "湿巾", "卫生巾", "牙刷", "牙膏", "牙线", "洗面奶", "洗发", "护发", "沐浴", "香皂", "肥皂",
-    "洗衣液", "洗洁精", "清洁剂", "抹布", "拖把", "扫帚", "毛巾", "浴巾", "衣架", "垃圾袋", "收纳箱", "床单", "被套",
-    "被子", "毯子", "枕头", "内衣", "内裤", "袜子", "衣物", "外套", "裤子", "鞋子", "拖鞋", "餐具", "筷子", "勺子",
-    "叉子", "杯子", "饭盒", "餐盒", "梳子", "镜子", "指甲剪", "棉签",
-)
-private val combatWordsV5 = listOf(
-    "枪械", "枪支", "手枪", "步枪", "冲锋枪", "霰弹枪", "猎枪", "狙击枪", "机枪", "卡宾枪", "防爆弹枪", "防暴弹枪",
-    "弹药", "子弹", "弹匣", "弹夹", "砍刀", "开山刀", "折叠刀", "战术刀", "匕首", "军刀", "长刀", "短刀", "斧头",
-    "战斧", "弓箭", "弓弩", "弩箭", "甩棍", "防身棍", "警棍", "撬棍", "盾牌", "防暴盾", "防爆盾", "防爆装备",
-    "防暴装备", "防弹装备", "防刺装备", "防弹衣", "防刺服", "防暴服", "防爆服", "战术头盔", "防弹头盔", "护甲",
-    "战术背心", "防弹背心", "战术护具", "战术手套", "护膝", "护肘", "firearm", "ammo", "ammunition", "armor", "riot gear", "tactical gear",
-)
-private val survivalWordsV5 = listOf(
-    "背包", "登山包", "行军包", "帐篷", "天幕", "睡袋", "防潮垫", "折叠床", "手电筒", "手电", "头灯", "营灯", "指南针",
-    "罗盘", "望远镜", "求生哨", "救生衣", "安全绳", "攀岩绳", "登山绳", "登山扣", "滤水器", "净水器", "净水片",
-    "防毒面具", "防护面具", "护目镜", "雨衣", "雨披", "保温毯", "急救毯", "工兵铲", "户外炉", "卡式炉", "露营炉",
-)
-private val energyWordsV5 = listOf(
-    "汽油", "柴油", "煤油", "燃油", "燃料", "液化气", "煤气", "天然气", "燃气", "气罐", "丁烷", "丙烷", "固体燃料",
-    "酒精燃料", "木炭", "煤炭", "木柴", "发电机", "太阳能板", "蓄电池", "备用电池", "干电池", "锂电池", "电池组",
-    "储能电源", "户外电源",
-)
-private val electronicsWordsV5 = listOf(
-    "手机", "智能手机", "对讲机", "无线电", "收音机", "卫星电话", "电脑", "笔记本电脑", "平板电脑", "充电宝", "移动电源",
-    "充电器", "数据线", "电源线", "插线板", "电源适配器", "相机", "摄像机", "无人机", "gps", "定位器", "导航仪",
-    "耳机", "麦克风", "监控", "摄像头", "传感器", "探测器", "智能手表", "硬盘", "u盘",
-)
-private val toolWordsV5 = listOf(
-    "锤子", "铁锤", "榔头", "扳手", "螺丝刀", "改锥", "钳子", "电钻", "手电钻", "电锯", "手锯", "锯子", "工具箱",
-    "卷尺", "水平尺", "测电笔", "万用表", "电烙铁", "焊机", "铁锹", "铁铲", "铲子", "镐", "锄头", "剪刀", "美工刀",
-    "胶枪", "管钳", "套筒", "棘轮", "千斤顶",
-)
-private val materialWordsV5 = listOf(
-    "木板", "木方", "木材", "胶合板", "钢板", "铁板", "钢管", "铁管", "角钢", "型钢", "钢筋", "铁丝", "钢丝", "铁钉",
-    "钉子", "螺丝", "螺栓", "螺母", "垫片", "水泥", "砂浆", "沙子", "砂石", "砖", "玻璃", "建材", "电线", "线缆",
-    "网线", "铜线", "胶带", "扎带", "绳子", "麻绳", "塑料布", "防水布", "篷布", "管材", "水管", "软管", "零件",
-    "配件", "轴承", "齿轮", "弹簧", "密封圈", "滤芯", "五金件",
-)
+private val medicineWordsV5 = listOf("药品", "药物", "退烧", "止痛", "消炎", "抗生素", "抗过敏", "止泻", "胃药", "感冒药", "维生素", "绷带", "纱布", "创可贴", "碘伏", "医用酒精", "消毒液", "止血", "急救包", "医疗包", "注射器", "口罩", "体温计", "医疗耗材")
+private val householdWordsV5 = listOf("卫生纸", "厕纸", "纸巾", "湿巾", "卫生巾", "牙刷", "牙膏", "牙线", "洗面奶", "洗发", "护发", "沐浴", "香皂", "肥皂", "洗衣液", "洗洁精", "清洁剂", "抹布", "拖把", "扫帚", "毛巾", "浴巾", "衣架", "垃圾袋", "收纳箱", "床单", "被套", "被子", "毯子", "枕头", "内衣", "内裤", "袜子", "衣物", "外套", "裤子", "鞋子", "拖鞋", "餐具", "筷子", "勺子", "叉子", "杯子", "饭盒", "餐盒", "梳子", "镜子", "指甲剪", "棉签")
+private val combatWordsV5 = listOf("枪械", "枪支", "手枪", "步枪", "冲锋枪", "霰弹枪", "猎枪", "狙击枪", "机枪", "卡宾枪", "防爆弹枪", "防暴弹枪", "弹药", "子弹", "弹匣", "弹夹", "砍刀", "开山刀", "折叠刀", "战术刀", "匕首", "军刀", "长刀", "短刀", "斧头", "战斧", "弓箭", "弓弩", "弩箭", "甩棍", "防身棍", "警棍", "撬棍", "盾牌", "防暴盾", "防爆盾", "防爆装备", "防暴装备", "防弹装备", "防刺装备", "防弹衣", "防刺服", "防暴服", "防爆服", "战术头盔", "防弹头盔", "护甲", "战术背心", "防弹背心", "战术护具", "战术手套", "护膝", "护肘", "firearm", "ammo", "ammunition", "armor", "riot gear", "tactical gear")
+private val survivalWordsV5 = listOf("背包", "登山包", "行军包", "帐篷", "天幕", "睡袋", "防潮垫", "折叠床", "手电筒", "手电", "头灯", "营灯", "指南针", "罗盘", "望远镜", "求生哨", "救生衣", "安全绳", "攀岩绳", "登山绳", "登山扣", "滤水器", "净水器", "净水片", "防毒面具", "防护面具", "护目镜", "雨衣", "雨披", "保温毯", "急救毯", "工兵铲", "户外炉", "卡式炉", "露营炉")
+private val energyWordsV5 = listOf("汽油", "柴油", "煤油", "燃油", "燃料", "液化气", "煤气", "天然气", "燃气", "气罐", "丁烷", "丙烷", "固体燃料", "酒精燃料", "木炭", "煤炭", "木柴", "发电机", "太阳能板", "蓄电池", "备用电池", "干电池", "锂电池", "电池组", "储能电源", "户外电源")
+private val electronicsWordsV5 = listOf("手机", "智能手机", "对讲机", "无线电", "收音机", "卫星电话", "电脑", "笔记本电脑", "平板电脑", "充电宝", "移动电源", "充电器", "数据线", "电源线", "插线板", "电源适配器", "相机", "摄像机", "无人机", "gps", "定位器", "导航仪", "耳机", "麦克风", "监控", "摄像头", "传感器", "探测器", "智能手表", "硬盘", "u盘")
+private val toolWordsV5 = listOf("锤子", "铁锤", "榔头", "扳手", "螺丝刀", "改锥", "钳子", "电钻", "手电钻", "电锯", "手锯", "锯子", "工具箱", "卷尺", "水平尺", "测电笔", "万用表", "电烙铁", "焊机", "铁锹", "铁铲", "铲子", "镐", "锄头", "剪刀", "美工刀", "胶枪", "管钳", "套筒", "棘轮", "千斤顶")
+private val materialWordsV5 = listOf("木板", "木方", "木材", "胶合板", "钢板", "铁板", "钢管", "铁管", "角钢", "型钢", "钢筋", "铁丝", "钢丝", "铁钉", "钉子", "螺丝", "螺栓", "螺母", "垫片", "水泥", "砂浆", "沙子", "砂石", "砖", "玻璃", "建材", "电线", "线缆", "网线", "铜线", "胶带", "扎带", "绳子", "麻绳", "塑料布", "防水布", "篷布", "管材", "水管", "软管", "零件", "配件", "轴承", "齿轮", "弹簧", "密封圈", "滤芯", "五金件")
 private val vehicleWordsV5 = listOf("汽车", "轿车", "越野车", "suv", "面包车", "货车", "卡车", "皮卡", "摩托", "电动车", "自行车", "三轮车", "拖车", "房车", "巴士", "救护车", "工程车", "叉车", "船", "快艇")
 private val keyWordsV5 = listOf("钥匙", "门禁卡", "门卡", "房卡", "通行证", "权限卡", "身份卡", "员工卡", "密码", "口令", "验证码", "访问权限")
 private val documentWordsV5 = listOf("文件", "档案", "记录", "清单", "报告", "日志", "名单", "图纸", "施工图", "说明书", "手册", "照片", "录音", "录像", "票据", "收据", "合同", "证件", "账本", "笔记", "信件")
@@ -145,9 +106,6 @@ private fun hasInventoryWordV5(text: String, words: List<String>): Boolean = wor
 private fun apocalypseInventoryCategoryForAssetV5(asset: ApocalypseV3Asset): ApocalypseInventoryCategoryV5 {
     val text = inventoryTextV5(asset)
     val tags = asset.tag.split('；', ';').map { it.trim() }
-
-    // Explicit semantic tags from the recovery layer win. “待分类” is intentionally checked first:
-    // an entity that definitely exists but is not understood must be visible under Other.
     if (tags.any { it == "待分类" || it == "其他" }) return ApocalypseInventoryCategoryV5.Other
     if (tags.any { it == "战斗" }) return ApocalypseInventoryCategoryV5.Combat
     if (tags.any { it == "生活用品" }) return ApocalypseInventoryCategoryV5.Household
@@ -160,9 +118,6 @@ private fun apocalypseInventoryCategoryForAssetV5(asset: ApocalypseV3Asset): Apo
     if (asset.kind == ApocalypseV3AssetKind.Key) return ApocalypseInventoryCategoryV5.Key
     if (asset.kind == ApocalypseV3AssetKind.Vehicle) return ApocalypseInventoryCategoryV5.Vehicle
     if (asset.kind == ApocalypseV3AssetKind.Document) return ApocalypseInventoryCategoryV5.Document
-
-    // Preserve genuine clue semantics, but rescue old parser mistakes such as a concrete “防爆盾牌”
-    // that was stored as Clue merely because its model kind was unknown.
     if (asset.kind == ApocalypseV3AssetKind.Clue && hasInventoryWordV5(text, clueWordsV5)) return ApocalypseInventoryCategoryV5.Clue
 
     if (asset.kind == ApocalypseV3AssetKind.Food || hasInventoryWordV5(text, foodWordsV5)) return ApocalypseInventoryCategoryV5.Food
@@ -191,15 +146,19 @@ private fun apocalypseInventoryCategoryForAssetV5(asset: ApocalypseV3Asset): Apo
         ApocalypseV3AssetKind.Document -> ApocalypseInventoryCategoryV5.Document
         ApocalypseV3AssetKind.Map -> ApocalypseInventoryCategoryV5.Document
         ApocalypseV3AssetKind.Core -> ApocalypseInventoryCategoryV5.Core
-        ApocalypseV3AssetKind.Clue,
-        ApocalypseV3AssetKind.Tool -> ApocalypseInventoryCategoryV5.Other
+        ApocalypseV3AssetKind.Clue, ApocalypseV3AssetKind.Tool -> ApocalypseInventoryCategoryV5.Other
     }
 }
 
 @Composable
 internal fun ApocalypseInventoryBrowserSheetV5(save: ApocalypseV3Save) {
     var selectedCategory by remember(save.id, save.scene) { mutableStateOf<ApocalypseInventoryCategoryV5?>(null) }
-    val assets = remember(save.director.assets) { save.director.assets.filterNot { it.kind == ApocalypseV3AssetKind.Map } }
+    val visibleSave = remember(save.id, save.scene, save.narration, save.director.assets) {
+        repairApocalypseCurrentSceneInventoryV5(save)
+    }
+    val assets = remember(visibleSave.director.assets) {
+        visibleSave.director.assets.filterNot { it.kind == ApocalypseV3AssetKind.Map }
+    }
     val categorized = remember(assets) { assets.groupBy(::apocalypseInventoryCategoryForAssetV5) }
     val alwaysVisible = remember {
         setOf(
@@ -219,10 +178,7 @@ internal fun ApocalypseInventoryBrowserSheetV5(save: ApocalypseV3Save) {
         ApocalypseInventoryCategoryV5.entries.filter { it in alwaysVisible || categorized[it].orEmpty().isNotEmpty() }
     }
 
-    Column(
-        Modifier.fillMaxWidth().fillMaxHeight(.90f).padding(horizontal = 18.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
+    Column(Modifier.fillMaxWidth().fillMaxHeight(.90f).padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("物资仓库", color = InventoryInkV5, fontSize = 26.sp, fontWeight = FontWeight.Black)
         ApocalypseInventoryOverviewV5(save)
         Text("分类", color = InventoryInkV5, fontSize = 18.sp, fontWeight = FontWeight.Black)
@@ -248,12 +204,7 @@ internal fun ApocalypseInventoryBrowserSheetV5(save: ApocalypseV3Save) {
 
     selectedCategory?.let { category ->
         ModalBottomSheet(onDismissRequest = { selectedCategory = null }, containerColor = InventoryBgV5) {
-            ApocalypseInventoryCategoryDetailV5(
-                save = save,
-                category = category,
-                assets = categorized[category].orEmpty(),
-                categorized = categorized,
-            )
+            ApocalypseInventoryCategoryDetailV5(save, category, categorized[category].orEmpty(), categorized)
         }
     }
 }
@@ -271,10 +222,7 @@ private fun ApocalypseInventoryOverviewV5(save: ApocalypseV3Save) {
             HorizontalDivider(color = InventoryDarkLineV5)
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 ApocalypseInventoryOverviewValueV5("空间", "Lv.${save.stats.playerAbilityLevel}")
-                ApocalypseInventoryOverviewValueV5(
-                    "共鸣",
-                    if (save.stats.playerAbilityLevel >= 5) "MAX" else "${save.stats.playerAbilityXp}/${abilityXpThresholdV3(save.stats.playerAbilityLevel)}",
-                )
+                ApocalypseInventoryOverviewValueV5("共鸣", if (save.stats.playerAbilityLevel >= 5) "MAX" else "${save.stats.playerAbilityXp}/${abilityXpThresholdV3(save.stats.playerAbilityLevel)}")
             }
         }
     }
@@ -289,20 +237,8 @@ private fun ApocalypseInventoryOverviewValueV5(label: String, value: String) {
 }
 
 @Composable
-private fun ApocalypseInventoryCategoryCardV5(
-    modifier: Modifier,
-    category: ApocalypseInventoryCategoryV5,
-    value: String,
-    itemCount: Int,
-    onClick: () -> Unit,
-) {
-    Surface(
-        modifier = modifier.heightIn(min = 96.dp),
-        onClick = onClick,
-        color = InventoryCardV5,
-        shape = RoundedCornerShape(19.dp),
-        border = BorderStroke(1.dp, InventoryBorderV5),
-    ) {
+private fun ApocalypseInventoryCategoryCardV5(modifier: Modifier, category: ApocalypseInventoryCategoryV5, value: String, itemCount: Int, onClick: () -> Unit) {
+    Surface(modifier = modifier.heightIn(min = 96.dp), onClick = onClick, color = InventoryCardV5, shape = RoundedCornerShape(19.dp), border = BorderStroke(1.dp, InventoryBorderV5)) {
         Column(Modifier.fillMaxSize().padding(13.dp), verticalArrangement = Arrangement.SpaceBetween) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(color = InventoryAccentSoftV5, shape = RoundedCornerShape(11.dp)) {
@@ -321,16 +257,8 @@ private fun ApocalypseInventoryCategoryCardV5(
 }
 
 @Composable
-private fun ApocalypseInventoryCategoryDetailV5(
-    save: ApocalypseV3Save,
-    category: ApocalypseInventoryCategoryV5,
-    assets: List<ApocalypseV3Asset>,
-    categorized: Map<ApocalypseInventoryCategoryV5, List<ApocalypseV3Asset>>,
-) {
-    Column(
-        Modifier.fillMaxWidth().fillMaxHeight(.84f).padding(horizontal = 18.dp),
-        verticalArrangement = Arrangement.spacedBy(11.dp),
-    ) {
+private fun ApocalypseInventoryCategoryDetailV5(save: ApocalypseV3Save, category: ApocalypseInventoryCategoryV5, assets: List<ApocalypseV3Asset>, categorized: Map<ApocalypseInventoryCategoryV5, List<ApocalypseV3Asset>>) {
+    Column(Modifier.fillMaxWidth().fillMaxHeight(.84f).padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(11.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Surface(color = InventoryAccentSoftV5, shape = RoundedCornerShape(13.dp)) {
                 Icon(category.icon, null, tint = InventoryAccentV5, modifier = Modifier.padding(10.dp).size(23.dp))
@@ -342,7 +270,6 @@ private fun ApocalypseInventoryCategoryDetailV5(
             }
             Text(inventoryCategoryValueV5(category, save, categorized), color = InventoryAccentV5, fontSize = 20.sp, fontWeight = FontWeight.Black)
         }
-
         if (category == ApocalypseInventoryCategoryV5.Money) {
             Surface(color = InventoryCardV5, shape = RoundedCornerShape(18.dp), border = BorderStroke(1.dp, InventoryBorderV5)) {
                 Column(Modifier.fillMaxWidth().padding(15.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -353,12 +280,7 @@ private fun ApocalypseInventoryCategoryDetailV5(
             }
         } else if (assets.isEmpty()) {
             Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
-                Text(
-                    if (category == ApocalypseInventoryCategoryV5.Other) "目前没有待分类物资。以后任何已经获得但暂时识别不了的实体物品都会出现在这里。"
-                    else "这一类目前还没有具体物品记录。",
-                    color = InventoryMutedV5,
-                    fontSize = 13.sp,
-                )
+                Text(if (category == ApocalypseInventoryCategoryV5.Other) "目前没有待分类物资。以后任何已经获得但暂时识别不了的实体物品都会出现在这里。" else "这一类目前还没有具体物品记录。", color = InventoryMutedV5, fontSize = 13.sp)
             }
         } else {
             LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(9.dp)) {
@@ -371,12 +293,9 @@ private fun ApocalypseInventoryCategoryDetailV5(
                                 Text(asset.title, color = InventoryInkV5, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
                                 Text("×${asset.quantity}${apocalypseInventoryAssetUnitV5(asset)}", color = InventoryAccentV5, fontSize = 12.sp, fontWeight = FontWeight.Black)
                             }
-                            asset.tag.split('；', ';')
-                                .map(String::trim)
-                                .filter { it.isNotBlank() && !it.startsWith("单位=") }
-                                .joinToString(" · ")
-                                .takeIf(String::isNotBlank)
-                                ?.let { Text(it, color = InventoryAccentV5, fontSize = 9.sp, fontWeight = FontWeight.Bold) }
+                            asset.tag.split('；', ';').map(String::trim).filter { it.isNotBlank() && !it.startsWith("单位=") }.joinToString(" · ").takeIf(String::isNotBlank)?.let {
+                                Text(it, color = InventoryAccentV5, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                            }
                             Text(asset.detail.ifBlank { "暂无更多说明" }, color = InventoryMutedV5, fontSize = 11.sp, lineHeight = 17.sp)
                         }
                     }
@@ -406,11 +325,7 @@ private fun apocalypseInventoryAssetUnitV5(asset: ApocalypseV3Asset): String {
     }
 }
 
-private fun inventoryCategoryValueV5(
-    category: ApocalypseInventoryCategoryV5,
-    save: ApocalypseV3Save,
-    categorized: Map<ApocalypseInventoryCategoryV5, List<ApocalypseV3Asset>>,
-): String = when (category) {
+private fun inventoryCategoryValueV5(category: ApocalypseInventoryCategoryV5, save: ApocalypseV3Save, categorized: Map<ApocalypseInventoryCategoryV5, List<ApocalypseV3Asset>>): String = when (category) {
     ApocalypseInventoryCategoryV5.Money -> "¥${save.stats.money}"
     ApocalypseInventoryCategoryV5.Food -> save.stats.food.toString()
     ApocalypseInventoryCategoryV5.Water -> save.stats.water.toString()
