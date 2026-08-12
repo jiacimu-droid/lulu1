@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -41,7 +40,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -64,8 +62,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.math.cos
-import kotlin.math.sin
 
 private val WorldMapBg = Color(0xFFF3F8FD)
 private val WorldMapNight = Color(0xFF07111F)
@@ -103,8 +99,15 @@ internal fun ApocalypseWorldMapPageV5(
     val currentCity = remember(currentLocation, cities) { resolveWorldMapCityV5(currentLocation, cities) }
     var selectedCityId by remember(currentLocation) { mutableStateOf(currentCity.id) }
     var layer by remember { mutableStateOf(ApocalypseMapLayerV5.Region) }
+    var selectedLocation by remember(save.id, save.scene) { mutableStateOf<ApocalypseV3Location?>(null) }
+    var detailCityId by remember(save.id, save.scene) { mutableStateOf(currentCity.id) }
     val selectedCity = cities.firstOrNull { it.id == selectedCityId } ?: currentCity
     val evolution = remember(save.scene, save.director.dayIndex, save.director.worldFacts) { apocalypseMapEvolutionV5(save) }
+
+    fun openDetail(city: ApocalypseWorldCityV5, location: ApocalypseV3Location) {
+        detailCityId = city.id
+        selectedLocation = location
+    }
 
     Scaffold(
         containerColor = WorldMapBg,
@@ -113,12 +116,16 @@ internal fun ApocalypseWorldMapPageV5(
                 title = {
                     Column {
                         Text("东澜地图", fontWeight = FontWeight.Black)
-                        Text("${apocalypseDayLabelV5(evolution.dayIndex)} · ${evolution.eraTitle} · 当前：$currentLocation", color = WorldMapMuted, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(
+                            "${apocalypseDayLabelV5(evolution.dayIndex)} · ${evolution.eraTitle} · 当前：$currentLocation",
+                            color = WorldMapMuted,
+                            fontSize = 10.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                     }
                 },
-                navigationIcon = {
-                    IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
-                },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = WorldMapBg),
             )
         },
@@ -167,9 +174,7 @@ internal fun ApocalypseWorldMapPageV5(
                         onPlan = { onPlan(cityApproachTargetV5(selectedCity)) },
                     )
                 }
-                item {
-                    Text("六市关键功能", color = WorldMapInk, fontSize = 16.sp, fontWeight = FontWeight.Black)
-                }
+                item { Text("六市关键功能", color = WorldMapInk, fontSize = 16.sp, fontWeight = FontWeight.Black) }
                 items(cities, key = { it.id }) { city ->
                     Surface(
                         modifier = Modifier.fillMaxWidth().clickable {
@@ -210,63 +215,82 @@ internal fun ApocalypseWorldMapPageV5(
                         }
                     }
                 }
+
                 item {
                     ApocalypseCityInternalMapV5(
                         city = selectedCity,
                         currentLocation = currentLocation,
                         discoveredLocations = discoveredLocations,
                         evolution = evolution,
-                        onSelectPlace = { place -> onPlan(placeTargetV5(selectedCity, place)) },
+                        onSelectPlace = { place -> openDetail(selectedCity, placeTargetV5(selectedCity, place)) },
                     )
                 }
+
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                         Text("${selectedCity.name} · 重要地点", color = WorldMapInk, fontSize = 16.sp, fontWeight = FontWeight.Black)
-                        Text("点击地点可以直接写入下一步行动；地图是剧情地理图，不代表灾后道路仍可通行。", color = WorldMapMuted, fontSize = 10.sp)
+                        Text("先点开地点看已知资料和内部图层，再决定是否把它写入下一步行动。", color = WorldMapMuted, fontSize = 10.sp)
                     }
                 }
                 items(selectedCity.places, key = { it.id }) { place ->
+                    val discovered = discoveredLocations.any { it.name.contains(place.name) || place.name.contains(it.name) }
                     ApocalypseWorldPlaceRowV5(
                         city = selectedCity,
                         place = place,
-                        discovered = discoveredLocations.any { it.name.contains(place.name) || place.name.contains(it.name) },
+                        discovered = discovered,
                         current = currentLocation.contains(place.name),
                         status = apocalypsePlaceMapStatusV5(
                             evolution = evolution,
                             city = selectedCity,
                             place = place,
                             currentLocation = currentLocation,
-                            discovered = discoveredLocations.any { it.name.contains(place.name) || place.name.contains(it.name) },
+                            discovered = discovered,
                         ),
-                        onClick = { onPlan(placeTargetV5(selectedCity, place)) },
+                        onClick = { openDetail(selectedCity, placeTargetV5(selectedCity, place)) },
                     )
                 }
+
                 val dynamic = dynamicLocationsForCityV5(selectedCity, currentCity, discoveredLocations)
                 if (dynamic.isNotEmpty()) {
-                    item {
-                        Text("剧情中新发现", color = WorldMapInk, fontSize = 14.sp, fontWeight = FontWeight.Black)
-                    }
+                    item { Text("剧情中新发现", color = WorldMapInk, fontSize = 14.sp, fontWeight = FontWeight.Black) }
                     items(dynamic, key = { it.id }) { location ->
+                        ApocalypseDynamicMapLocationRowV5(location = location, onClick = { openDetail(selectedCity, location) })
+                    }
+                }
+
+                val mapIntel = apocalypseMapIntelForCityV5(save, selectedCity, currentCity)
+                if (mapIntel.isNotEmpty()) {
+                    item {
+                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Text("地图资料与子区域", color = WorldMapInk, fontSize = 15.sp, fontWeight = FontWeight.Black)
+                            Text("施工图、平面图和路线资料会直接归到地图，不再塞进物资清单。", color = WorldMapMuted, fontSize = 10.sp)
+                        }
+                    }
+                    items(mapIntel, key = { it.assetId }) { intel ->
                         Surface(
-                            modifier = Modifier.fillMaxWidth().clickable { onPlan(location) },
-                            color = Color(0xFFEAF4FF),
-                            shape = RoundedCornerShape(15.dp),
-                            border = BorderStroke(1.dp, WorldMapBlueSoft),
+                            modifier = Modifier.fillMaxWidth().clickable { openDetail(selectedCity, intel.location) },
+                            color = Color(0xFFDFF0FF),
+                            shape = RoundedCornerShape(16.dp),
+                            border = BorderStroke(1.dp, Color(0xFF8CCAFF)),
                         ) {
-                            Row(Modifier.padding(11.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Outlined.MyLocation, null, tint = Color(0xFF287EBE), modifier = Modifier.size(19.dp))
+                            Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Surface(color = Color(0xFFCFE8FF), shape = RoundedCornerShape(10.dp)) {
+                                    Icon(Icons.Outlined.Map, null, tint = Color(0xFF287EBE), modifier = Modifier.padding(8.dp).size(19.dp))
+                                }
                                 Spacer(Modifier.width(9.dp))
                                 Column(Modifier.weight(1f)) {
-                                    Text(location.name, color = WorldMapInk, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                                    Text(location.detail, color = WorldMapMuted, fontSize = 10.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                    Text(intel.sourceTitle, color = WorldMapInk, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                    if (intel.parentPlaceName.isNotBlank()) Text("归属：${intel.parentPlaceName}", color = Color(0xFF287EBE), fontSize = 9.sp)
+                                    Text(intel.sourceDetail, color = WorldMapMuted, fontSize = 10.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
                                 }
                                 Icon(Icons.Outlined.ChevronRight, null, tint = WorldMapMuted, modifier = Modifier.size(18.dp))
                             }
                         }
                     }
                 }
-                item {
-                    if (selectedCity.id != currentCity.id) {
+
+                if (selectedCity.id != currentCity.id) {
+                    item {
                         Button(
                             onClick = { onPlan(cityApproachTargetV5(selectedCity)) },
                             modifier = Modifier.fillMaxWidth(),
@@ -282,13 +306,48 @@ internal fun ApocalypseWorldMapPageV5(
 
             item {
                 Text(
-                    "地图只展示灾前硬地理、已知基础设施与剧情中已经发现的地点。桥梁、道路、水电和势力控制会随时间变化，必须在剧情中重新侦查。",
+                    "地图只展示灾前硬地理、已经取得的地图资料与剧情中确认过的地点。未发现的房间、道路变化和势力控制不会被地图提前剧透。",
                     color = WorldMapMuted,
                     fontSize = 9.sp,
                     lineHeight = 14.sp,
                 )
                 Spacer(Modifier.navigationBarsPadding())
             }
+        }
+    }
+
+    selectedLocation?.let { location ->
+        val detailCity = cities.firstOrNull { it.id == detailCityId } ?: selectedCity
+        val intel = apocalypseBestMapIntelForLocationV5(save, detailCity, currentCity, location)
+        ApocalypseLocationDetailSheetV5(
+            location = location,
+            city = detailCity,
+            intel = intel,
+            onDismiss = { selectedLocation = null },
+            onPlan = { target ->
+                selectedLocation = null
+                onPlan(target)
+            },
+        )
+    }
+}
+
+@Composable
+private fun ApocalypseDynamicMapLocationRowV5(location: ApocalypseV3Location, onClick: () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        color = Color(0xFFEAF4FF),
+        shape = RoundedCornerShape(15.dp),
+        border = BorderStroke(1.dp, WorldMapBlueSoft),
+    ) {
+        Row(Modifier.padding(11.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Outlined.MyLocation, null, tint = Color(0xFF287EBE), modifier = Modifier.size(19.dp))
+            Spacer(Modifier.width(9.dp))
+            Column(Modifier.weight(1f)) {
+                Text(location.name, color = WorldMapInk, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                Text(location.detail, color = WorldMapMuted, fontSize = 10.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            }
+            Icon(Icons.Outlined.ChevronRight, null, tint = WorldMapMuted, modifier = Modifier.size(18.dp))
         }
     }
 }
@@ -302,18 +361,13 @@ private fun ApocalypseRegionMapCanvasV5(
     onSelect: (String) -> Unit,
 ) {
     val byId = cities.associateBy { it.id }
-    Surface(
-        modifier = Modifier.fillMaxWidth().height(390.dp),
-        color = WorldMapNight,
-        shape = RoundedCornerShape(22.dp),
-    ) {
+    Surface(modifier = Modifier.fillMaxWidth().height(390.dp), color = WorldMapNight, shape = RoundedCornerShape(22.dp)) {
         BoxWithConstraints(Modifier.fillMaxSize().background(WorldMapNight)) {
-            Canvas(Modifier.matchParentSize()) {
+            Canvas(Modifier.fillMaxSize()) {
                 if (evolution.ecologyPressure > 0f) {
                     val eco = evolution.ecologyPressure.coerceIn(0f, 1f)
                     drawCircle(Color(0xFF315D4A).copy(alpha = .08f + eco * .16f), size.minDimension * (.12f + eco * .16f), Offset(size.width * .17f, size.height * .68f))
                     drawCircle(Color(0xFF6F3141).copy(alpha = .05f + eco * .13f), size.minDimension * (.10f + eco * .15f), Offset(size.width * .73f, size.height * .38f))
-                    drawCircle(Color(0xFF315D4A).copy(alpha = .04f + eco * .12f), size.minDimension * (.08f + eco * .13f), Offset(size.width * .47f, size.height * .22f))
                 }
                 worldMapRoadsV5.forEachIndexed { index, road ->
                     val from = byId[road.from] ?: return@forEachIndexed
@@ -321,21 +375,18 @@ private fun ApocalypseRegionMapCanvasV5(
                     val start = Offset(size.width * from.x, size.height * from.y)
                     val end = Offset(size.width * to.x, size.height * to.y)
                     val bend = if (index % 2 == 0) 28f else -28f
-                    val mid = Offset((start.x + end.x) / 2f + bend, (start.y + end.y) / 2f - bend * .35f)
                     val path = Path().apply {
                         moveTo(start.x, start.y)
-                        quadraticBezierTo(mid.x, mid.y, end.x, end.y)
+                        quadraticBezierTo((start.x + end.x) / 2f + bend, (start.y + end.y) / 2f - bend * .35f, end.x, end.y)
                     }
                     val routeStatus = apocalypseRouteMapStatusV5(evolution, road.name)
-                    val routeColor = mapConditionColorV5(routeStatus.condition)
-                    val routeEffect = when (routeStatus.condition) {
+                    val effect = when (routeStatus.condition) {
                         ApocalypseMapConditionV5.Blocked -> PathEffect.dashPathEffect(floatArrayOf(8f, 13f))
                         ApocalypseMapConditionV5.Unknown -> PathEffect.dashPathEffect(floatArrayOf(18f, 12f))
                         else -> null
                     }
-                    drawPath(path, color = routeColor.copy(alpha = if (evolution.dayIndex < 0) .85f else .68f), style = Stroke(width = 4f, pathEffect = routeEffect))
+                    drawPath(path, mapConditionColorV5(routeStatus.condition).copy(alpha = .75f), style = Stroke(width = 4f, pathEffect = effect))
                 }
-
                 val river = Path().apply {
                     moveTo(size.width * .08f, size.height * .34f)
                     cubicTo(size.width * .25f, size.height * .40f, size.width * .30f, size.height * .58f, size.width * .48f, size.height * .54f)
@@ -348,9 +399,7 @@ private fun ApocalypseRegionMapCanvasV5(
                 val selected = city.id == selectedCityId
                 val current = city.id == currentCityId
                 Surface(
-                    modifier = Modifier
-                        .offset(x = maxWidth * city.x - 39.dp, y = maxHeight * city.y - 24.dp)
-                        .width(82.dp),
+                    modifier = Modifier.offset(x = maxWidth * city.x - 39.dp, y = maxHeight * city.y - 24.dp).width(82.dp),
                     onClick = { onSelect(city.id) },
                     color = when {
                         current -> WorldMapLineBright
@@ -366,10 +415,8 @@ private fun ApocalypseRegionMapCanvasV5(
                     }
                 }
             }
-
             Text("北 ↑", color = Color(0xFF7894AC), fontSize = 9.sp, modifier = Modifier.align(Alignment.TopEnd).padding(11.dp))
             Text("东江", color = Color(0xFF6FAAD0), fontSize = 8.sp, modifier = Modifier.align(Alignment.CenterEnd).padding(end = 9.dp))
-            Text("弯曲线：主要公路/铁路走廊 · 蓝色水系：东江", color = Color(0xFF7894AC), fontSize = 8.sp, modifier = Modifier.align(Alignment.BottomStart).padding(10.dp))
         }
     }
 }
@@ -416,52 +463,28 @@ private fun ApocalypseCityInternalMapV5(
     evolution: ApocalypseMapEvolutionV5,
     onSelectPlace: (ApocalypseWorldPlaceV5) -> Unit,
 ) {
-    val positions = listOf(
-        .18f to .23f,
-        .52f to .16f,
-        .80f to .28f,
-        .72f to .54f,
-        .83f to .76f,
-        .48f to .82f,
-        .16f to .70f,
-        .28f to .48f,
-    )
-
-    Surface(
-        modifier = Modifier.fillMaxWidth().height(430.dp),
-        color = WorldMapNight,
-        shape = RoundedCornerShape(22.dp),
-    ) {
+    val positions = listOf(.18f to .23f, .52f to .16f, .80f to .28f, .72f to .54f, .83f to .76f, .48f to .82f, .16f to .70f, .28f to .48f)
+    Surface(modifier = Modifier.fillMaxWidth().height(430.dp), color = WorldMapNight, shape = RoundedCornerShape(22.dp)) {
         BoxWithConstraints(Modifier.fillMaxSize().background(WorldMapNight)) {
-            Canvas(Modifier.matchParentSize()) {
+            Canvas(Modifier.fillMaxSize()) {
                 val center = Offset(size.width * .5f, size.height * .5f)
-                drawCircle(color = Color(0xFF17334A), radius = size.minDimension * .31f, center = center, style = Stroke(width = 3f))
-                drawCircle(color = Color(0xFF10283E), radius = size.minDimension * .20f, center = center, style = Stroke(width = 2f))
-
+                drawCircle(Color(0xFF17334A), size.minDimension * .31f, center, style = Stroke(width = 3f))
+                drawCircle(Color(0xFF10283E), size.minDimension * .20f, center, style = Stroke(width = 2f))
                 city.places.forEachIndexed { index, _ ->
                     val p = positions[index % positions.size]
                     val end = Offset(size.width * p.first, size.height * p.second)
-                    val bend = if (index % 2 == 0) 42f else -42f
                     val path = Path().apply {
                         moveTo(center.x, center.y)
-                        quadraticBezierTo((center.x + end.x) / 2f + bend, (center.y + end.y) / 2f, end.x, end.y)
+                        quadraticBezierTo((center.x + end.x) / 2f + if (index % 2 == 0) 42f else -42f, (center.y + end.y) / 2f, end.x, end.y)
                     }
-                    drawPath(
-                        path,
-                        color = WorldMapLine.copy(alpha = 1f - evolution.infrastructureDecay * .45f),
-                        style = Stroke(
-                            width = 3f,
-                            pathEffect = if (evolution.dayIndex >= 0) PathEffect.dashPathEffect(floatArrayOf(28f, 7f + evolution.infrastructureDecay * 16f)) else null,
-                        ),
-                    )
+                    drawPath(path, WorldMapLine.copy(alpha = 1f - evolution.infrastructureDecay * .45f), style = Stroke(width = 3f))
                 }
-
                 if (city.id == "linjiang" || city.id == "hailing") {
                     val water = Path().apply {
                         moveTo(size.width * .02f, size.height * .58f)
                         cubicTo(size.width * .24f, size.height * .48f, size.width * .55f, size.height * .64f, size.width * .98f, size.height * .52f)
                     }
-                    drawPath(water, color = Color(0xFF1C5279), style = Stroke(width = 9f))
+                    drawPath(water, Color(0xFF1C5279), style = Stroke(width = 9f))
                 }
             }
 
@@ -484,9 +507,7 @@ private fun ApocalypseCityInternalMapV5(
                 val current = currentLocation.contains(place.name)
                 val status = apocalypsePlaceMapStatusV5(evolution, city, place, currentLocation, discovered)
                 Surface(
-                    modifier = Modifier
-                        .offset(x = maxWidth * p.first - 39.dp, y = maxHeight * p.second - 25.dp)
-                        .width(82.dp),
+                    modifier = Modifier.offset(x = maxWidth * p.first - 39.dp, y = maxHeight * p.second - 25.dp).width(82.dp),
                     onClick = { onSelectPlace(place) },
                     color = when {
                         current -> WorldMapLineBright
@@ -504,9 +525,7 @@ private fun ApocalypseCityInternalMapV5(
                     }
                 }
             }
-
             Text("${city.name} · 重要设施关系图", color = Color(0xFF9CB5CA), fontSize = 9.sp, modifier = Modifier.align(Alignment.TopStart).padding(11.dp))
-            Text("曲线为城区主干通道示意；具体路况以剧情侦查为准", color = Color(0xFF7894AC), fontSize = 8.sp, modifier = Modifier.align(Alignment.BottomStart).padding(10.dp))
         }
     }
 }
@@ -539,7 +558,9 @@ private fun ApocalypseWorldPlaceRowV5(
                     else if (discovered) Text("已发现", color = Color(0xFF287EBE), fontSize = 8.sp)
                 }
                 Text("${city.name} · ${place.kind}", color = Color(0xFF287EBE), fontSize = 9.sp)
-                if (evolutionDetailVisibleV5(status)) Text(status.detail, color = mapConditionAccentV5(status.condition), fontSize = 9.sp, lineHeight = 13.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                if (status.condition != ApocalypseMapConditionV5.Baseline && status.detail.isNotBlank()) {
+                    Text(status.detail, color = mapConditionAccentV5(status.condition), fontSize = 9.sp, lineHeight = 13.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                }
                 Text(place.detail, color = WorldMapMuted, fontSize = 10.sp, lineHeight = 14.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             Icon(Icons.Outlined.ChevronRight, null, tint = WorldMapMuted, modifier = Modifier.size(18.dp))
@@ -564,9 +585,6 @@ private fun ApocalypseMapEraBannerV5(evolution: ApocalypseMapEvolutionV5) {
         }
     }
 }
-
-private fun evolutionDetailVisibleV5(status: ApocalypseMapStatusV5): Boolean =
-    status.condition != ApocalypseMapConditionV5.Baseline && status.detail.isNotBlank()
 
 private fun mapConditionColorV5(condition: ApocalypseMapConditionV5): Color = when (condition) {
     ApocalypseMapConditionV5.Baseline, ApocalypseMapConditionV5.Open -> Color(0xFF4EA8FF)
@@ -605,9 +623,7 @@ private fun placeIconV5(kind: String) = when (kind) {
 }
 
 private fun resolveWorldMapCityV5(location: String, cities: List<ApocalypseWorldCityV5>): ApocalypseWorldCityV5 {
-    return cities.firstOrNull { city ->
-        location.contains(city.name) || city.places.any { location.contains(it.name) }
-    } ?: cities.first()
+    return cities.firstOrNull { city -> location.contains(city.name) || city.places.any { location.contains(it.name) } } ?: cities.first()
 }
 
 private fun cityApproachTargetV5(city: ApocalypseWorldCityV5) = ApocalypseV3Location(
@@ -632,7 +648,9 @@ private fun dynamicLocationsForCityV5(
     val staticNames = city.places.map { it.name }
     return discovered.filter { known ->
         val belongs = known.name.contains(city.name) || known.detail.contains(city.name) ||
-            (city.id == currentCity.id && !apocalypseWorldCitiesV5().any { other -> other.id != city.id && (known.name.contains(other.name) || known.detail.contains(other.name)) })
+            (city.id == currentCity.id && !apocalypseWorldCitiesV5().any { other ->
+                other.id != city.id && (known.name.contains(other.name) || known.detail.contains(other.name))
+            })
         belongs && staticNames.none { staticName -> known.name.contains(staticName) || staticName.contains(known.name) }
-    }.takeLast(12)
+    }.takeLast(16)
 }
