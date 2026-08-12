@@ -62,6 +62,15 @@ internal object ApocalypseGenerationTaskManagerV5 {
             return launch(context, latestStored, config, party, cleanAction)
         }
 
+        // The first scene explicitly promises answers about its opening mysteries. Migrate older saves
+        // before any new model call so those promises cannot silently disappear from a long-running
+        // director ledger. This does not reveal anything to the player; it only repairs hidden state.
+        val continuitySave = ensureApocalypseCoreMysteryContinuityV5(save)
+        if (continuitySave != save) {
+            storage.save(continuitySave)
+            return launch(context, continuitySave, config, party, cleanAction)
+        }
+
         val repairedSave = repairApocalypseCurrentSceneInventoryV5(
             appContext,
             sanitizeApocalypseLoadedAbilityStateV5(save),
