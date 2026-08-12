@@ -2,6 +2,7 @@ package com.jiacimu.lulu
 
 // Chat response orchestration lives outside the screen so UI changes do not risk reply behavior.
 import com.jiacimu.lulu.data.CharacterMessageFavorites
+import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluGroupChat
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -207,6 +208,14 @@ internal suspend fun runGroupReplies(
         .filterNot { it.id in recalledBeforeLoop }
         .lastOrNull { it.sender == LuluChatMessage.Sender.Character }
         ?.authorCharacterId
+    val lastCharacterBeforePending = beforeLoop.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
+    val initialPendingIds = beforeLoop
+        .drop(lastCharacterBeforePending + 1)
+        .filter { message ->
+            message.sender == LuluChatMessage.Sender.User ||
+                (message.sender == LuluChatMessage.Sender.System && message.content.startsWith("[戳一戳]"))
+        }
+        .mapTo(mutableSetOf()) { it.id }
     val random = Random(System.nanoTime())
     val remaining = validMembers
         .filterNot { candidate -> mentioned.any { it.characterId == candidate.characterId } }
@@ -228,13 +237,21 @@ internal suspend fun runGroupReplies(
         val character = MigratedDomainStores.characters.get(member.characterId)
         val memberLabel = member.groupNickname.ifBlank { character.displayName }
         val allLatestMessages = MigratedDomainStores.chat.messages(conversationId).value
-        val recalledLatest = recalledMessageIds(allLatestMessages)
-        val latestMessages = allLatestMessages.filterNot { it.id in recalledLatest }
-        val history = if (index == 0) initialHistory else buildBoundedHistory(
-            messages = allLatestMessages,
+        val memberVisibleMessages = allLatestMessages.filter { message ->
+            DigitalLifeProfileStore.allowsTimestamp(member.characterId, message.createdAt)
+        }
+        val recalledLatest = recalledMessageIds(memberVisibleMessages)
+        val latestMessages = memberVisibleMessages.filterNot { it.id in recalledLatest }
+        val historySource = if (index == 0) {
+            memberVisibleMessages.filterNot { it.id in initialPendingIds }
+        } else {
+            memberVisibleMessages
+        }
+        val history = buildBoundedHistory(
+            messages = historySource,
             characterName = memberLabel,
             characterNames = characterNames,
-        )
+        ).ifBlank { initialHistory.takeIf { !DigitalLifeProfileStore.isEnabled(member.characterId) }.orEmpty() }
         val memberList = group.members.joinToString("、") { candidate ->
             candidate.groupNickname.ifBlank { characterNames[candidate.characterId] ?: candidate.characterId }
         }
@@ -344,8 +361,18 @@ internal fun buildBoundedHistory(
     maxMessages: Int = 30,
     maxChars: Int = 12_000,
 ): String {
-    val recalledIds = recalledMessageIds(messages)
-    val normalized = messages
+    // Private chat callers only pass a display name, so infer the character when unambiguous. This
+    // keeps old private messages from being reintroduced after a digital-life birth/reset.
+    val inferredCharacterId = MigratedDomainStores.characters.settings.value.values
+        .singleOrNull { it.displayName == characterName }
+        ?.characterId
+    val eligibleMessages = if (inferredCharacterId == null) {
+        messages
+    } else {
+        messages.filter { message -> DigitalLifeProfileStore.allowsTimestamp(inferredCharacterId, message.createdAt) }
+    }
+    val recalledIds = recalledMessageIds(eligibleMessages)
+    val normalized = eligibleMessages
         .filterNot { it.id in recalledIds }
         .filter { message ->
             message.sender != LuluChatMessage.Sender.System ||
@@ -361,7 +388,7 @@ internal fun buildBoundedHistory(
             else -> message.authorCharacterId?.let { characterNames[it] } ?: characterName
         }
         val quoteContext = message.replyToMessageId
-            ?.let { replyId -> messages.firstOrNull { it.id == replyId } }
+            ?.let { replyId -> eligibleMessages.firstOrNull { it.id == replyId } }
             ?.let { original -> "（引用：${qqForwardContextText(original.content).take(180)}）" }
             .orEmpty()
         val content = if (message.sender == LuluChatMessage.Sender.System) {
