@@ -7,6 +7,7 @@ internal enum class ApocalypseStorySpeakerKind { Narrator, Player, Character }
 internal data class ApocalypseStoryPage(
     val speakerKind: ApocalypseStorySpeakerKind,
     val characterId: String? = null,
+    val speakerLabel: String? = null,
     val text: String,
 )
 
@@ -21,6 +22,8 @@ internal data class ApocalypseStoryPage(
 internal fun parseApocalypseStoryPages(
     text: String,
     party: List<CharacterSettings>,
+    dossiers: List<ApocalypseCharacterDossierV5> = emptyList(),
+    presentCharacterIds: List<String> = emptyList(),
     maxChars: Int = 72,
 ): List<ApocalypseStoryPage> {
     val normalized = text.replace("\r\n", "\n").trim()
@@ -28,20 +31,37 @@ internal fun parseApocalypseStoryPages(
         return listOf(ApocalypseStoryPage(ApocalypseStorySpeakerKind.Narrator, text = "……"))
     }
 
-    val partyByName = party
-        .filter { it.displayName.isNotBlank() }
-        .associateBy { it.displayName.trim() }
+    val castByName = buildMap<String, String> {
+        party.filter { it.displayName.isNotBlank() }.forEach { put(it.displayName.trim(), it.characterId) }
+        dossiers.forEach { dossier ->
+            (listOf(dossier.name, dossier.relationshipLabel) + dossier.aliases)
+                .filter(String::isNotBlank)
+                .forEach { put(it.trim(), dossier.id) }
+        }
+    }
     val blocks = splitApocalypseSpeakerBlocks(normalized)
     val pages = mutableListOf<ApocalypseStoryPage>()
 
     blocks.forEach { rawBlock ->
         val tagged = parseTaggedSpeaker(rawBlock)
-        val inferred = tagged ?: inferLegacySpeaker(rawBlock, partyByName)
+        val inferred = tagged ?: inferLegacySpeaker(rawBlock, castByName)
         val cleanText = inferred.text.trim().ifBlank { return@forEach }
+        val resolution = if (inferred.kind == ApocalypseStorySpeakerKind.Character) {
+            resolveApocalypseSpeakerTokenV5(
+                rawToken = inferred.characterId.orEmpty(),
+                party = party,
+                dossiers = dossiers,
+                presentCharacterIds = presentCharacterIds,
+                visibleText = normalized,
+            )
+        } else {
+            null
+        }
         splitVisualNovelTextPreservingCharacters(cleanText, maxChars).forEach { piece ->
             pages += ApocalypseStoryPage(
                 speakerKind = inferred.kind,
-                characterId = inferred.characterId,
+                characterId = resolution?.characterId ?: inferred.characterId,
+                speakerLabel = resolution?.displayName,
                 text = piece,
             )
         }
@@ -112,17 +132,17 @@ private fun parseTaggedSpeaker(block: String): ParsedSpeaker? {
 
 private fun inferLegacySpeaker(
     block: String,
-    partyByName: Map<String, CharacterSettings>,
+    castByName: Map<String, String>,
 ): ParsedSpeaker {
     // Older saves were plain prose. Only infer a character when the paragraph clearly starts with
     // "名字：" / "名字：“"; otherwise keeping it as narration is safer than showing the wrong portrait.
-    partyByName.forEach { (name, character) ->
+    castByName.forEach { (name, characterId) ->
         val prefixes = listOf("${name}：", "${name}:", "${name}说：", "${name}说:")
         val prefix = prefixes.firstOrNull(block::startsWith)
         if (prefix != null) {
             return ParsedSpeaker(
                 kind = ApocalypseStorySpeakerKind.Character,
-                characterId = character.characterId,
+                characterId = characterId,
                 text = block.removePrefix(prefix).trim(),
             )
         }

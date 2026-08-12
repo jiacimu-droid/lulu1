@@ -101,7 +101,12 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         resolvedBeat
                     }
                     val nextStats = applyApocalypseV3Beat(save.stats, beat)
-                    val text = outcome.text.trim()
+                    val text = normalizeApocalypseStorySpeakerTagsV5(
+                        text = outcome.text,
+                        party = party,
+                        dossiers = beat.nextDirector.characterDossiers,
+                        presentCharacterIds = beat.nextDirector.presentCharacterIds,
+                    ).trim()
                     check(text.isNotBlank()) { "这一幕没有生成出正文，请再试一次。" }
 
                     val storage = ApocalypseSurvivalV3Store(appContext)

@@ -154,7 +154,7 @@ internal fun ApocalypseCharacterStatePanelV5(dossiers: List<ApocalypseCharacterD
             dossiers.sortedByDescending { it.lastSeenScene }.take(12).forEach { dossier ->
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(dossier.name, color = SystemInk, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        Text(apocalypseDossierDisplayNameV5(dossier), color = SystemInk, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                         Spacer(Modifier.width(6.dp))
                         val statusLabel = when (dossier.status) {
                             "away" -> "离屏"

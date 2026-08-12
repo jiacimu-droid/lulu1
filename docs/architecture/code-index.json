@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T04:49:55.659649+00:00",
-  "commit": "ed784096a91eb98a92f317477050bfe5a84fa54b",
-  "branch": "main",
-  "sourceFingerprint": "151c82bd5a327384d6e04dc85010ce1735fc27481399581a0ff7bdd858612bc9",
+  "generatedAt": "2026-08-12T05:52:21.453669+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "1766f02e6d4a72f8c245cd01fda7c88a3864268c34485235e70606f7ecee0a38",
   "summary": {
-    "files": 161,
-    "lines": 47541,
+    "files": 162,
+    "lines": 48263,
     "symbols": 648
   },
   "symbolIndex": {
@@ -2297,7 +2297,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 1194
+        "line": 1220
       }
     ],
     "addPieces": [
@@ -2317,7 +2317,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 1160
+        "line": 1186
       }
     ],
     "previousPage": [
@@ -2331,7 +2331,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 1161
+        "line": 1187
       }
     ],
     "setPage": [
@@ -2341,7 +2341,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 1155
+        "line": 1181
       }
     ],
     "rollbackStory": [
@@ -2359,7 +2359,7 @@
     "findCut": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseVisualNovelPresentation.kt",
-        "line": 151
+        "line": 171
       }
     ],
     "placeChange": [
@@ -3954,8 +3954,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt",
-      "lines": 130,
-      "sha256": "b73c165094aa677ff24f9d3922a7a4b1e6c2b123e0c0489065a921e14b97cfd4",
+      "lines": 208,
+      "sha256": "48e394a3b5764be6e940b9cc41aa2a560a9f13909766d8947e08f911ac5b9ca4",
       "symbols": []
     },
     {
@@ -5576,9 +5576,15 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseCastIdentityV5.kt",
+      "lines": 309,
+      "sha256": "25a1b362c9110c0d6974a52b8e13e5847ad0ec51700cacea79a8c63b8e5a3248",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseDramaticLedgerV5.kt",
-      "lines": 583,
-      "sha256": "b7fe9ab574a7e0d8ea6e1da34a6731196c7a8ecc1d2efe3fde1dd57d38666ffd",
+      "lines": 688,
+      "sha256": "9af742771663da617c688801819b258cb8017bac5bb0d888197011d009508bc6",
       "symbols": []
     },
     {
@@ -5589,8 +5595,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-      "lines": 180,
-      "sha256": "917d97467c853f2219f748f6f4249f7251f290a545994a706efa1a9ddcb9d918",
+      "lines": 185,
+      "sha256": "0e7e8639382ca68402f27298576caac4eb635410e0bd8f0b5b6317d82cc41601",
       "symbols": [
         {
           "name": "TaskState",
@@ -5635,14 +5641,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSceneOutcomeV5.kt",
-      "lines": 405,
-      "sha256": "4a29c93db9127928ef687d8c23df639149d27e5abfa3126fb89e9078be698d4e",
+      "lines": 523,
+      "sha256": "8135ce17f2637e5b3fa208ce1fc9cabf2f9f787c7e32ae31e824d0051866c1a6",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseStoryDirectorV5.kt",
-      "lines": 119,
-      "sha256": "9cd4965731d3b20d8478e14d2ac624093bcdb68932b07524e063be7ce5d85be4",
+      "lines": 121,
+      "sha256": "b4507dec13afb9c0f51d4daf09cc4ac74f13224660ddef88f2224492a7281f75",
       "symbols": []
     },
     {
@@ -5809,8 +5815,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-      "lines": 1612,
-      "sha256": "dd97ec04865a0fd19720d39a6f1fff9689e4f1f0835102ee2cdee73d01e9ef17",
+      "lines": 1645,
+      "sha256": "8bcc88f1c7d428ba7fb0017fcfa2be68a9d18c84b0019e6c98ceab8b11f392bd",
       "symbols": [
         {
           "name": "load",
@@ -5846,42 +5852,42 @@
         },
         {
           "name": "setPage",
-          "line": 1155
+          "line": 1181
         },
         {
           "name": "nextPage",
-          "line": 1160
+          "line": 1186
         },
         {
           "name": "previousPage",
-          "line": 1161
+          "line": 1187
         },
         {
           "name": "submit",
-          "line": 1194
+          "line": 1220
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Engine.kt",
-      "lines": 696,
-      "sha256": "3f0fc0930b8f870ef2fd9aba8880a19fc2b31c6974d79555ed06af7c4d131fe3",
+      "lines": 748,
+      "sha256": "0fd63f731d8d6b1c36543fa368a4f52b53fd4a115fb85c1302d5ac4786ba53f6",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Systems.kt",
       "lines": 227,
-      "sha256": "580e50513d21b639656db79bc69f322bb08a2e3e1898ed4e28fbd0f6fa83a68a",
+      "sha256": "90be23eae41ddaecf1c06108a231d2f1ece3bbdfc954b8adab81f2f1e37ee381",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseVisualNovelPresentation.kt",
-      "lines": 171,
-      "sha256": "d9886709d2655e5a43d915859a83cf99e6250ffce3f37061d4a2db9c95529f28",
+      "lines": 191,
+      "sha256": "1845dafeaee225970a576a401f2f6ecf62bc233751edd99c216b65a5ab964758",
       "symbols": [
         {
           "name": "findCut",
-          "line": 151
+          "line": 171
         }
       ]
     },

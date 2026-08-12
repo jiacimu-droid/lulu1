@@ -26,6 +26,10 @@ internal data class ApocalypseCharacterDossierV5(
     val carriedItems: List<String> = emptyList(),
     val offscreenIntent: String = "",
     val lastSeenScene: Int = 0,
+    /** Player-facing identity. Minor NPCs may use a clear role label until the director names them. */
+    val relationshipLabel: String = "",
+    val aliases: List<String> = emptyList(),
+    val importance: String = "recurring",
 )
 
 internal data class ApocalypseCharacterStatePatchV5(
@@ -183,13 +187,19 @@ internal fun ensureApocalypsePartyDossiersV5(
     val partyById = party.associateBy { it.characterId }
     val migrated = previous.map { dossier ->
         val character = partyById[dossier.id] ?: return@map dossier
+        val currentName = character.displayName.trim().ifBlank { dossier.name }
         dossier.copy(
-            name = dossier.name.ifBlank { character.displayName },
+            name = currentName,
             currentLocation = dossier.currentLocation.ifBlank { "最后位置待确认" },
             physicalState = dossier.physicalState.ifBlank { "当前身体状态待确认" },
             emotionalState = dossier.emotionalState.ifBlank { "当前持续情绪待确认" },
             offscreenIntent = dossier.offscreenIntent.ifBlank { "按自身性格观察局势并形成下一步判断" },
             lastSeenScene = dossier.lastSeenScene.takeIf { it > 0 } ?: dossier.lastAdvancedScene,
+            aliases = (dossier.aliases + dossier.name)
+                .filter { it.isNotBlank() && it != currentName && isApocalypsePersistableCastAliasV5(it) }
+                .distinct()
+                .takeLast(8),
+            importance = "companion",
         )
     }
     val knownIds = migrated.mapTo(mutableSetOf()) { it.id }
@@ -213,6 +223,7 @@ internal fun ensureApocalypsePartyDossiersV5(
             emotionalState = "对异常消息的真实态度尚待本局剧情表现",
             offscreenIntent = "留意局势并按自身性格形成下一步判断",
             lastSeenScene = scene,
+            importance = "companion",
         )
     }
     return (migrated + seeded).takeLast(64)
@@ -242,7 +253,10 @@ internal fun encodeApocalypseCharacterDossiersV5(values: List<ApocalypseCharacte
                     .put("knowledge", JSONArray(value.knowledge))
                     .put("carriedItems", JSONArray(value.carriedItems))
                     .put("offscreenIntent", value.offscreenIntent)
-                    .put("lastSeenScene", value.lastSeenScene),
+                    .put("lastSeenScene", value.lastSeenScene)
+                    .put("relationshipLabel", value.relationshipLabel)
+                    .put("aliases", JSONArray(value.aliases))
+                    .put("importance", value.importance),
             )
         }
     }
@@ -252,9 +266,12 @@ internal fun decodeApocalypseCharacterDossiersV5(array: JSONArray?): List<Apocal
         val id = item.optString("id").trim()
         val name = item.optString("name").trim()
         if (id.isBlank() || name.isBlank()) return@v5LedgerObjects null
+        val relationshipLabel = item.optString("relationshipLabel").trim().take(30).ifBlank {
+            name.takeIf(::apocalypseLooksLikeRelationshipOrRoleV5).orEmpty().take(30)
+        }
         ApocalypseCharacterDossierV5(
             id = id.take(80),
-            name = name.take(40),
+            name = apocalypseStableNpcNameV5(id, name, relationshipLabel),
             storyRole = item.optString("storyRole").take(100),
             publicGoal = item.optString("publicGoal").take(220),
             privateNeed = item.optString("privateNeed").take(220),
@@ -273,6 +290,12 @@ internal fun decodeApocalypseCharacterDossiersV5(array: JSONArray?): List<Apocal
             carriedItems = item.optJSONArray("carriedItems").v5LedgerStrings().distinct().takeLast(12),
             offscreenIntent = item.optString("offscreenIntent").take(260),
             lastSeenScene = item.optInt("lastSeenScene", item.optInt("lastAdvancedScene", 0)).coerceAtLeast(0),
+            relationshipLabel = relationshipLabel,
+            aliases = item.optJSONArray("aliases").v5LedgerStrings()
+                .filter(::isApocalypsePersistableCastAliasV5)
+                .distinct()
+                .takeLast(8),
+            importance = normalizeApocalypseCastImportanceV5(item.optString("importance", "recurring")),
         )
     }
 
@@ -330,6 +353,52 @@ internal fun decodeApocalypseCharacterStatePatchesV5(array: JSONArray?): List<Ap
             offscreenIntent = item.optionalLedgerStringV5("offscreenIntent", 260),
             status = item.optionalLedgerStringV5("status", 40),
             lastSeenScene = item.optInt("lastSeenScene").takeIf { item.has("lastSeenScene") }?.coerceAtLeast(0),
+        )
+    }
+
+/**
+ * The one-call writer can introduce a person without waking the expensive long-form director.
+ * These compact records are expanded into the same persistent dossier used by director-created NPCs.
+ */
+internal fun decodeApocalypseCastUpdatesV5(array: JSONArray?): List<ApocalypseCharacterDossierV5> =
+    array.v5LedgerObjects { item ->
+        val id = item.optString("id").trim().take(80)
+        if (id.isBlank()) return@v5LedgerObjects null
+        val proposedName = item.optString("name").trim().take(40)
+        val relationshipLabel = item.optString("relationshipLabel").trim().take(30).ifBlank {
+            proposedName.takeIf(::apocalypseLooksLikeRelationshipOrRoleV5).orEmpty().take(30)
+        }
+        val name = apocalypseStableNpcNameV5(id, proposedName, relationshipLabel)
+        ApocalypseCharacterDossierV5(
+            id = id,
+            name = name,
+            storyRole = item.optString("storyRole").trim().ifBlank {
+                relationshipLabel.ifBlank { "本幕出现的人物；具体身份等待剧情建立" }
+            }.take(100),
+            publicGoal = item.optString("publicGoal").trim().ifBlank { "完成当前现实目标" }.take(220),
+            privateNeed = item.optString("privateNeed").trim().ifBlank { "尚未显露" }.take(220),
+            fear = item.optString("fear").trim().ifBlank { "尚未显露" }.take(220),
+            secret = item.optString("secret").trim().ifBlank { "尚未建立；不得凭空补写" }.take(320),
+            contradiction = item.optString("contradiction").trim().ifBlank { "等待后续行动显露" }.take(220),
+            bottomLine = item.optString("bottomLine").trim().ifBlank { "尚未确认" }.take(220),
+            relationshipWeb = item.optJSONArray("relationshipWeb").v5LedgerStrings().distinct().take(8),
+            arcStage = item.optString("arcStage").trim().ifBlank { "初次登场" }.take(180),
+            lastAdvancedScene = item.optInt("lastAdvancedScene", 0).coerceAtLeast(0),
+            status = item.optString("status", "active").trim().ifBlank { "active" }.take(40),
+            currentLocation = item.optString("currentLocation").trim().take(100),
+            physicalState = item.optString("physicalState").trim().take(220),
+            emotionalState = item.optString("emotionalState").trim().take(220),
+            knowledge = item.optJSONArray("knowledge").v5LedgerStrings().distinct().takeLast(12),
+            carriedItems = item.optJSONArray("carriedItems").v5LedgerStrings().distinct().takeLast(12),
+            offscreenIntent = item.optString("offscreenIntent").trim().take(260),
+            lastSeenScene = item.optInt("lastSeenScene", 0).coerceAtLeast(0),
+            relationshipLabel = relationshipLabel,
+            aliases = item.optJSONArray("aliases").v5LedgerStrings()
+                .plus(listOfNotNull(relationshipLabel.takeIf(String::isNotBlank)))
+                .filter { it != name && isApocalypsePersistableCastAliasV5(it) }
+                .distinct()
+                .takeLast(8),
+            importance = normalizeApocalypseCastImportanceV5(item.optString("importance", "cameo")),
         )
     }
 
@@ -398,29 +467,63 @@ internal fun mergeApocalypseCharacterDossiersV5(
     if (updates.isEmpty()) return previous
     val merged = LinkedHashMap<String, ApocalypseCharacterDossierV5>()
     previous.forEach { merged[it.id] = it }
-    updates.forEach { update ->
-        val old = merged[update.id]
-        merged[update.id] = if (old == null) update else update.copy(
-            name = update.name.ifBlank { old.name },
-            storyRole = update.storyRole.ifBlank { old.storyRole },
-            publicGoal = update.publicGoal.ifBlank { old.publicGoal },
-            privateNeed = update.privateNeed.ifBlank { old.privateNeed },
-            fear = update.fear.ifBlank { old.fear },
-            secret = update.secret.ifBlank { old.secret },
-            contradiction = update.contradiction.ifBlank { old.contradiction },
-            bottomLine = update.bottomLine.ifBlank { old.bottomLine },
-            relationshipWeb = update.relationshipWeb.ifEmpty { old.relationshipWeb },
-            arcStage = update.arcStage.ifBlank { old.arcStage },
-            lastAdvancedScene = maxOf(old.lastAdvancedScene, update.lastAdvancedScene),
-            status = update.status.ifBlank { old.status },
-            currentLocation = update.currentLocation.ifBlank { old.currentLocation },
-            physicalState = update.physicalState.ifBlank { old.physicalState },
-            emotionalState = update.emotionalState.ifBlank { old.emotionalState },
-            knowledge = (old.knowledge + update.knowledge).distinct().takeLast(12),
-            carriedItems = update.carriedItems.ifEmpty { old.carriedItems },
-            offscreenIntent = update.offscreenIntent.ifBlank { old.offscreenIntent },
-            lastSeenScene = maxOf(old.lastSeenScene, update.lastSeenScene),
-        )
+    updates.forEach { rawUpdate ->
+        val old = merged[rawUpdate.id] ?: merged.values.firstOrNull { sameApocalypseCastIdentityV5(it, rawUpdate) }
+        val update = if (old != null && old.id != rawUpdate.id) {
+            rawUpdate.copy(
+                id = old.id,
+                aliases = (rawUpdate.aliases + rawUpdate.id).distinct().takeLast(8),
+            )
+        } else {
+            rawUpdate
+        }
+        merged[update.id] = if (old == null) {
+            update.copy(
+                name = apocalypseStableNpcNameV5(update.id, update.name, update.relationshipLabel),
+                importance = normalizeApocalypseCastImportanceV5(update.importance),
+            )
+        } else {
+            val relationship = update.relationshipLabel.ifBlank { old.relationshipLabel }
+            val oldName = apocalypseStableNpcNameV5(old.id, old.name, old.relationshipLabel)
+            val proposedName = apocalypseStableNpcNameV5(update.id, update.name, relationship)
+            val oldWasOnlyRole = old.relationshipLabel.isNotBlank() && oldName == old.relationshipLabel
+            val proposedIsProperName = proposedName.isNotBlank() && proposedName != relationship &&
+                !isApocalypseGenericCastLabelV5(proposedName)
+            val stableName = if (
+                (isApocalypseGenericCastLabelV5(old.name) || oldWasOnlyRole) && proposedIsProperName
+            ) {
+                proposedName
+            } else {
+                oldName
+            }
+            update.copy(
+                name = stableName,
+                storyRole = update.storyRole.ifBlank { old.storyRole },
+                publicGoal = update.publicGoal.ifBlank { old.publicGoal },
+                privateNeed = update.privateNeed.ifBlank { old.privateNeed },
+                fear = update.fear.ifBlank { old.fear },
+                secret = update.secret.ifBlank { old.secret },
+                contradiction = update.contradiction.ifBlank { old.contradiction },
+                bottomLine = update.bottomLine.ifBlank { old.bottomLine },
+                relationshipWeb = update.relationshipWeb.ifEmpty { old.relationshipWeb },
+                arcStage = update.arcStage.ifBlank { old.arcStage },
+                lastAdvancedScene = maxOf(old.lastAdvancedScene, update.lastAdvancedScene),
+                status = update.status.ifBlank { old.status },
+                currentLocation = update.currentLocation.ifBlank { old.currentLocation },
+                physicalState = update.physicalState.ifBlank { old.physicalState },
+                emotionalState = update.emotionalState.ifBlank { old.emotionalState },
+                knowledge = (old.knowledge + update.knowledge).distinct().takeLast(12),
+                carriedItems = update.carriedItems.ifEmpty { old.carriedItems },
+                offscreenIntent = update.offscreenIntent.ifBlank { old.offscreenIntent },
+                lastSeenScene = maxOf(old.lastSeenScene, update.lastSeenScene),
+                relationshipLabel = relationship,
+                aliases = (old.aliases + update.aliases + oldName + relationship)
+                    .filter { it.isNotBlank() && it != stableName && isApocalypsePersistableCastAliasV5(it) }
+                    .distinct()
+                    .takeLast(8),
+                importance = promoteApocalypseCastImportanceV5(old.importance, update.importance),
+            )
+        }
     }
     return merged.values.toList().takeLast(64)
 }
@@ -517,7 +620,9 @@ internal fun mergeApocalypseForeshadowLedgerV5(
 internal fun apocalypseCharacterDossiersPromptV5(values: List<ApocalypseCharacterDossierV5>): String =
     values.joinToString("\n") { value ->
         buildString {
-            append("- ${value.id}/${value.name} [${value.status}] 叙事功能=${value.storyRole}；")
+            append("- ${value.id}/${apocalypseDossierDisplayNameV5(value)} [${value.status}/${value.importance}] ")
+            append("正式名=${value.name}；称谓=${value.relationshipLabel.ifBlank { "无" }}；别名=${value.aliases.joinToString("、").ifBlank { "无" }}；")
+            append("叙事功能=${value.storyRole}；")
             append("外在目标=${value.publicGoal}；内在需求=${value.privateNeed}；恐惧=${value.fear}；")
             append("秘密=${value.secret}；矛盾魅力=${value.contradiction}；底线=${value.bottomLine}；")
             append("关系网=${value.relationshipWeb.joinToString("、")}；弧光=${value.arcStage}；上次推进=第${value.lastAdvancedScene}幕")

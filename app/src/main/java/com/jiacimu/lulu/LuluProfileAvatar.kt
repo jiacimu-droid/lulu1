@@ -1,8 +1,11 @@
 package com.jiacimu.lulu
 
 import android.content.Intent
+import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.LruCache
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.PickVisualMediaRequest
@@ -20,6 +23,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +36,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.net.URL
+import java.security.MessageDigest
+import javax.net.ssl.HttpsURLConnection
+
+private const val LULU_REMOTE_AVATAR_MAX_BYTES = 3 * 1024 * 1024
+
+private val luluAvatarBitmapCache = object : LruCache<String, Bitmap>(16 * 1024) {
+    override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount / 1024
+}
 
 @Composable
 internal fun LuluProfileAvatar(
@@ -41,11 +59,9 @@ internal fun LuluProfileAvatar(
 ) {
     val avatarShape = RoundedCornerShape((size * 0.22f).dp)
     val context = LocalContext.current
-    val bitmap = remember(imageUri) {
-        imageUri?.takeIf(String::isNotBlank)?.let { value ->
-            runCatching {
-                context.contentResolver.openInputStream(Uri.parse(value))?.use(BitmapFactory::decodeStream)?.asImageBitmap()
-            }.getOrNull()
+    val bitmap by produceState<Bitmap?>(initialValue = null, imageUri) {
+        value = imageUri?.takeIf(String::isNotBlank)?.let { uri ->
+            withContext(Dispatchers.IO) { loadLuluAvatarBitmap(context, uri) }
         }
     }
     Surface(
@@ -55,7 +71,7 @@ internal fun LuluProfileAvatar(
         border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
     ) {
         if (bitmap != null) {
-            Image(bitmap, null, Modifier.fillMaxSize().clip(avatarShape), contentScale = ContentScale.Crop)
+            Image(bitmap!!.asImageBitmap(), null, Modifier.fillMaxSize().clip(avatarShape), contentScale = ContentScale.Crop)
         } else {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(fallback.take(2).ifBlank { "主" }, fontWeight = FontWeight.Bold, fontSize = (size / 2.8).sp, color = Color(0xFF1D1D1F))
@@ -63,6 +79,68 @@ internal fun LuluProfileAvatar(
         }
     }
 }
+
+private fun loadLuluAvatarBitmap(context: Context, value: String): Bitmap? {
+    synchronized(luluAvatarBitmapCache) { luluAvatarBitmapCache.get(value) }?.let { return it }
+    val uri = runCatching { Uri.parse(value) }.getOrNull() ?: return null
+    val bitmap = when (uri.scheme?.lowercase()) {
+        "https" -> loadLuluRemoteAvatarBitmap(context, value)
+        "http" -> null
+        else -> runCatching {
+            context.contentResolver.openInputStream(uri)?.use(BitmapFactory::decodeStream)
+        }.getOrNull()
+    } ?: return null
+    synchronized(luluAvatarBitmapCache) { luluAvatarBitmapCache.put(value, bitmap) }
+    return bitmap
+}
+
+private fun loadLuluRemoteAvatarBitmap(context: Context, value: String): Bitmap? {
+    val directory = File(context.cacheDir, "lulu-avatar-images")
+    if (!directory.exists() && !directory.mkdirs()) return null
+    val cacheFile = File(directory, "${luluAvatarCacheKey(value)}.img")
+    if (cacheFile.isFile) {
+        BitmapFactory.decodeFile(cacheFile.absolutePath)?.let { return it }
+        cacheFile.delete()
+    }
+
+    val connection = runCatching { URL(value).openConnection() as? HttpsURLConnection }.getOrNull() ?: return null
+    return try {
+        connection.connectTimeout = 5_000
+        connection.readTimeout = 8_000
+        connection.instanceFollowRedirects = true
+        connection.setRequestProperty("User-Agent", "Lulu-Android/1.0")
+        if (connection.responseCode !in 200..299) return null
+        val declaredLength = connection.contentLengthLong
+        if (declaredLength > LULU_REMOTE_AVATAR_MAX_BYTES) return null
+        val bytes = connection.inputStream.use(::readLuluAvatarBytes) ?: return null
+        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
+        runCatching { cacheFile.writeBytes(bytes) }
+        bitmap
+    } catch (_: Throwable) {
+        null
+    } finally {
+        connection.disconnect()
+    }
+}
+
+private fun readLuluAvatarBytes(input: java.io.InputStream): ByteArray? {
+    val output = ByteArrayOutputStream()
+    val buffer = ByteArray(8 * 1024)
+    var total = 0
+    while (true) {
+        val count = input.read(buffer)
+        if (count < 0) break
+        total += count
+        if (total > LULU_REMOTE_AVATAR_MAX_BYTES) return null
+        output.write(buffer, 0, count)
+    }
+    return output.toByteArray()
+}
+
+private fun luluAvatarCacheKey(value: String): String =
+    MessageDigest.getInstance("SHA-256")
+        .digest(value.toByteArray(Charsets.UTF_8))
+        .joinToString("") { byte -> (byte.toInt() and 0xff).toString(16).padStart(2, '0') }
 
 @Composable
 internal fun LuluAvatarPicker(

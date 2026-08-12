@@ -30,6 +30,7 @@ internal data class ApocalypseSceneOutcomeV5(
     val presentCharactersReported: Boolean = false,
     val receiptParsed: Boolean = false,
     val simulationStateReported: Boolean = false,
+    val castUpdates: List<ApocalypseCharacterDossierV5> = emptyList(),
     val characterStatePatches: List<ApocalypseCharacterStatePatchV5> = emptyList(),
     val storyThreadUpdates: List<ApocalypseStoryThreadV5> = emptyList(),
     val foreshadowPatches: List<ApocalypseForeshadowPatchV5> = emptyList(),
@@ -120,6 +121,7 @@ internal fun parseApocalypseSceneOutcomeV5(raw: String): ApocalypseSceneOutcomeV
         presentCharactersReported = json.has("presentCharacterIds"),
         receiptParsed = true,
         simulationStateReported = APOCALYPSE_REQUIRED_DELTA_FIELDS_V5.all(json::has),
+        castUpdates = decodeApocalypseCastUpdatesV5(json.optJSONArray("castUpdates")),
         characterStatePatches = decodeApocalypseCharacterStatePatchesV5(json.optJSONArray("characterStatePatches")),
         storyThreadUpdates = decodeApocalypseStoryThreadsV5(json.optJSONArray("storyThreadUpdates")),
         foreshadowPatches = decodeApocalypseForeshadowPatchesV5(json.optJSONArray("foreshadowPatches")),
@@ -196,14 +198,40 @@ internal fun apocalypseSceneOutcomeNeedsRepairV5(
     if (!outcome.receiptParsed || !outcome.simulationStateReported) return true
     if (outcome.continuitySummary.isBlank() || outcome.actionOutcome.isBlank()) return true
     if (!outcome.actionAcknowledgementReported || !outcome.actionAcknowledged) return true
+    // Legacy saves may still need best-effort display recovery, but newly generated prose must
+    // never canonize an anonymous placeholder as a character identity.
+    val speakerTokens = apocalypseStorySpeakerTokensV5(outcome.text)
+    if (speakerTokens.any(::isApocalypseGenericCastLabelV5)) return true
+    val effectiveDossiers = mergeApocalypseCharacterDossiersV5(dossiers, outcome.castUpdates)
+    if (speakerTokens.any { token ->
+            !resolveApocalypseSpeakerTokenV5(
+                rawToken = token,
+                party = party,
+                dossiers = effectiveDossiers,
+                presentCharacterIds = presentCharacterIds + outcome.delta.presentCharacterIds,
+                visibleText = outcome.text,
+            ).knownCharacter
+        }
+    ) {
+        return true
+    }
     if (!apocalypseActionLooksLikeSpeechV5(action)) return false
 
-    val availableIds = (party.map { it.characterId } + dossiers.map { it.id }).toSet()
-    val present = presentCharacterIds.filter(availableIds::contains).toSet()
+    val availableIds = (party.map { it.characterId } + effectiveDossiers.map { it.id }).toSet()
+    val present = normalizeApocalypseCharacterRefsV5(
+        values = presentCharacterIds + outcome.delta.presentCharacterIds,
+        party = party,
+        dossiers = effectiveDossiers,
+        presentCharacterIds = presentCharacterIds,
+    ).filter(availableIds::contains).toSet()
     if (present.isEmpty()) return false
     val namedTargets = buildSet {
         party.filter { action.contains(it.displayName, ignoreCase = true) }.forEach { add(it.characterId) }
-        dossiers.filter { action.contains(it.name, ignoreCase = true) }.forEach { add(it.id) }
+        effectiveDossiers.filter { dossier ->
+            (listOf(dossier.name, dossier.relationshipLabel) + dossier.aliases)
+                .filter(String::isNotBlank)
+                .any { action.contains(it, ignoreCase = true) }
+        }.forEach { add(it.id) }
     }.intersect(present)
     val expected = namedTargets.ifEmpty { present }
     val earlyText = outcome.text.take((outcome.text.length * 0.55f).toInt().coerceAtLeast(240))
@@ -219,14 +247,32 @@ internal fun applyApocalypseSceneOutcomeV5(
     party: List<CharacterSettings>,
 ): ApocalypseV3Beat {
     if (usedDirector) {
-        val validIds = validApocalypsePresentIdsV5(plannedBeat.nextDirector, party)
-        val present = outcome.delta.presentCharacterIds.filter(validIds::contains)
+        val expandedDossiers = expandApocalypseSceneCastV5(
+            base = plannedBeat.nextDirector.characterDossiers,
+            outcome = outcome,
+            party = party,
+            location = outcome.delta.location.ifBlank { plannedBeat.nextDirector.location },
+            scene = save.scene + 1,
+        )
+        val expandedDirector = plannedBeat.nextDirector.copy(characterDossiers = expandedDossiers)
+        val validIds = validApocalypsePresentIdsV5(expandedDirector, party)
+        val present = normalizeApocalypseCharacterRefsV5(
+            values = outcome.delta.presentCharacterIds,
+            party = party,
+            dossiers = expandedDossiers,
+            presentCharacterIds = plannedBeat.nextDirector.presentCharacterIds,
+        ).filter(validIds::contains)
         val elapsed = if (outcome.simulationStateReported) outcome.delta.minutesPassed.coerceIn(5, 720) else plannedBeat.minutesPassed
         val absoluteMinutes = save.director.clockMinutes + elapsed
         val nextDayIndex = (save.director.dayIndex + absoluteMinutes / 1440).coerceAtMost(9999)
         val patchedDossiers = mergeApocalypseCharacterStatePatchesV5(
-            previous = plannedBeat.nextDirector.characterDossiers,
-            patches = outcome.characterStatePatches.filter { it.id in validIds },
+            previous = expandedDossiers,
+            patches = normalizeApocalypseCharacterStatePatchesV5(
+                patches = outcome.characterStatePatches,
+                party = party,
+                dossiers = expandedDossiers,
+                presentCharacterIds = plannedBeat.nextDirector.presentCharacterIds,
+            ).filter { it.id in validIds },
             scene = save.scene + 1,
         )
         val finalFacts = sanitizePrematureWorldFactsV5(
@@ -300,11 +346,29 @@ internal fun applyApocalypseSceneOutcomeV5(
     val elapsed = delta.minutesPassed.coerceIn(5, 720)
     val absoluteMinutes = save.director.clockMinutes + elapsed
     val nextDayIndex = (save.director.dayIndex + absoluteMinutes / 1440).coerceAtMost(9999)
-    val validIds = validApocalypsePresentIdsV5(save.director, party)
-    val nextPresent = delta.presentCharacterIds.filter(validIds::contains).distinct().take(10)
+    val expandedDossiers = expandApocalypseSceneCastV5(
+        base = save.director.characterDossiers,
+        outcome = outcome,
+        party = party,
+        location = delta.location.ifBlank { save.director.location },
+        scene = save.scene + 1,
+    )
+    val expandedDirector = save.director.copy(characterDossiers = expandedDossiers)
+    val validIds = validApocalypsePresentIdsV5(expandedDirector, party)
+    val nextPresent = normalizeApocalypseCharacterRefsV5(
+        values = delta.presentCharacterIds,
+        party = party,
+        dossiers = expandedDossiers,
+        presentCharacterIds = save.director.presentCharacterIds,
+    ).filter(validIds::contains).distinct().take(10)
     val patchedDossiers = mergeApocalypseCharacterStatePatchesV5(
-        previous = save.director.characterDossiers,
-        patches = outcome.characterStatePatches.filter { it.id in validIds },
+        previous = expandedDossiers,
+        patches = normalizeApocalypseCharacterStatePatchesV5(
+            patches = outcome.characterStatePatches,
+            party = party,
+            dossiers = expandedDossiers,
+            presentCharacterIds = save.director.presentCharacterIds,
+        ).filter { it.id in validIds },
         scene = save.scene + 1,
     )
     val facts = sanitizePrematureWorldFactsV5(
@@ -375,6 +439,60 @@ private fun validApocalypsePresentIdsV5(
     director: ApocalypseV3Director,
     party: List<CharacterSettings>,
 ): Set<String> = (party.map { it.characterId } + director.characterDossiers.map { it.id }).toSet()
+
+private fun expandApocalypseSceneCastV5(
+    base: List<ApocalypseCharacterDossierV5>,
+    outcome: ApocalypseSceneOutcomeV5,
+    party: List<CharacterSettings>,
+    location: String,
+    scene: Int,
+): List<ApocalypseCharacterDossierV5> {
+    val reported = outcome.castUpdates.map { update ->
+        update.copy(
+            currentLocation = update.currentLocation.ifBlank { location },
+            lastAdvancedScene = update.lastAdvancedScene.takeIf { it > 0 } ?: scene,
+            lastSeenScene = update.lastSeenScene.takeIf { it > 0 } ?: scene,
+        )
+    }
+    val withReported = mergeApocalypseCharacterDossiersV5(base, reported)
+    val recoveredFromTags = synthesizeApocalypseSpeakerDossiersV5(
+        text = outcome.text,
+        party = party,
+        existing = withReported,
+        location = location,
+        scene = scene,
+    )
+    return mergeApocalypseCharacterDossiersV5(withReported, recoveredFromTags)
+}
+
+private fun normalizeApocalypseCharacterRefsV5(
+    values: List<String>,
+    party: List<CharacterSettings>,
+    dossiers: List<ApocalypseCharacterDossierV5>,
+    presentCharacterIds: List<String>,
+): List<String> = values.mapNotNull { raw ->
+    resolveApocalypseSpeakerTokenV5(
+        rawToken = raw,
+        party = party,
+        dossiers = dossiers,
+        presentCharacterIds = presentCharacterIds,
+    ).characterId
+}.distinct()
+
+private fun normalizeApocalypseCharacterStatePatchesV5(
+    patches: List<ApocalypseCharacterStatePatchV5>,
+    party: List<CharacterSettings>,
+    dossiers: List<ApocalypseCharacterDossierV5>,
+    presentCharacterIds: List<String>,
+): List<ApocalypseCharacterStatePatchV5> = patches.mapNotNull { patch ->
+    val id = resolveApocalypseSpeakerTokenV5(
+        rawToken = patch.id,
+        party = party,
+        dossiers = dossiers,
+        presentCharacterIds = presentCharacterIds,
+    ).characterId ?: return@mapNotNull null
+    patch.copy(id = id)
+}.distinctBy { it.id }
 
 private fun JSONArray?.sceneStringsV5(): List<String> = buildList {
     val array = this@sceneStringsV5 ?: return@buildList

@@ -915,7 +915,19 @@ private fun ApocalypseV5StoryHistoryPage(
                 }
             }
         } else {
-            val pages = remember(selected.narration, party) { parseApocalypseStoryPages(selected.narration, party) }
+            val pages = remember(
+                selected.narration,
+                party,
+                save.director.characterDossiers,
+                save.director.presentCharacterIds,
+            ) {
+                parseApocalypseStoryPages(
+                    text = selected.narration,
+                    party = party,
+                    dossiers = save.director.characterDossiers,
+                    presentCharacterIds = save.director.presentCharacterIds,
+                )
+            }
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp),
@@ -1131,12 +1143,26 @@ private fun ApocalypseV5PlayPage(
     val party = save.partyIds.map { id -> characters[id] ?: MigratedDomainStores.characters.get(id) }
     val currentHistory = remember(save.id, save.scene) { historyStore.load(save.id) }
     val currentEntry = currentHistory.lastOrNull()?.takeIf { it.sceneBefore + 1 == save.scene }
-    val pages = remember(save.scene, save.narration, party, currentEntry?.action) {
+    val pages = remember(
+        save.scene,
+        save.narration,
+        party,
+        currentEntry?.action,
+        save.director.characterDossiers,
+        save.director.presentCharacterIds,
+    ) {
         buildList {
             currentEntry?.action?.takeIf(String::isNotBlank)?.let { playerAction ->
                 addAll(parseApocalypseStoryPages("【玩家】$playerAction", party))
             }
-            addAll(parseApocalypseStoryPages(save.narration, party))
+            addAll(
+                parseApocalypseStoryPages(
+                    text = save.narration,
+                    party = party,
+                    dossiers = save.director.characterDossiers,
+                    presentCharacterIds = save.director.presentCharacterIds,
+                ),
+            )
         }
     }
     var pageIndex by remember(save.id, save.scene, pages.size) { mutableIntStateOf(progressStore.load(save.id, save.scene).coerceIn(0, pages.lastIndex.coerceAtLeast(0))) }
@@ -1425,11 +1451,16 @@ private fun ApocalypseV5SpeakerStage(
                     )
                     ApocalypseStorySpeakerKind.Character -> {
                         if (character == null) {
+                            val npcName = storyCharacter?.let(::apocalypseDossierDisplayNameV5)
+                                ?: page.speakerLabel
+                                ?: page.characterId?.let(::apocalypseDeterministicNpcNameV5)
+                                ?: "说话人未标明"
+                            val npcId = storyCharacter?.id ?: page.characterId ?: npcName
                             ApocalypseV5SpeakerPortrait(
-                                imageUri = null,
-                                fallback = storyCharacter?.name?.take(1).orEmpty().ifBlank { "角" },
-                                name = storyCharacter?.name ?: "同行角色",
-                                subtitle = storyCharacter?.storyRole?.ifBlank { "幸存者" } ?: "幸存者",
+                                imageUri = apocalypseNpcAvatarUriV5(npcId),
+                                fallback = npcName.take(2).ifBlank { "人" },
+                                name = npcName,
+                                subtitle = storyCharacter?.storyRole?.ifBlank { "本幕人物" } ?: "本幕人物",
                             )
                         } else {
                             val choice = companionAbilityChoice(config, character.characterId)
@@ -1479,8 +1510,10 @@ private fun apocalypseV5SpeakerLabel(
     ApocalypseStorySpeakerKind.Narrator -> "旁白"
     ApocalypseStorySpeakerKind.Player -> userName.ifBlank { "我" }
     ApocalypseStorySpeakerKind.Character -> party.firstOrNull { it.characterId == page.characterId }?.displayName
-        ?: storyDossiers.firstOrNull { it.id == page.characterId }?.name
-        ?: "同行角色"
+        ?: storyDossiers.firstOrNull { it.id == page.characterId }?.let(::apocalypseDossierDisplayNameV5)
+        ?: page.speakerLabel
+        ?: page.characterId?.let(::apocalypseDeterministicNpcNameV5)
+        ?: "说话人未标明"
 }
 
 @Composable

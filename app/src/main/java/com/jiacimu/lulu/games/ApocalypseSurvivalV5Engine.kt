@@ -66,9 +66,17 @@ internal fun sanitizePrematureWorldFactsV5(dayIndex: Int, facts: List<String>): 
     }
 }
 
-internal fun apocalypseActionLooksLikeSpeechV5(action: String): Boolean =
-    listOf("说", "问", "告诉", "喊", "回答", "回复", "商量", "请求", "？", "?", "“", "”")
-        .any(action::contains)
+internal fun apocalypseActionLooksLikeSpeechV5(action: String): Boolean {
+    if (listOf("说", "问", "告诉", "喊", "回答", "回复", "商量", "请求", "？", "?", "“", "”")
+            .any(action::contains)
+    ) {
+        return true
+    }
+    // Players often type the words themselves without adding “我说”. A vocative surrounded by
+    // punctuation is a direct-address signal, while “我去找姐姐” is not.
+    return Regex("(?:^|[，。！!？?、\\s])(你们?|姐|哥|爸|妈|老师|医生|队长)(?:[，。！!？?、\\s]|$)")
+        .containsMatchIn(action)
+}
 
 private fun apocalypsePlayerActionContractV5(action: String): String {
     val looksLikeSpeech = apocalypseActionLooksLikeSpeechV5(action)
@@ -237,8 +245,10 @@ internal suspend fun planApocalypseV5Beat(
         kind只能 food|water|medicine|material|tool|weapon|vehicle|key|document|clue|map|core。
 
         characterDossiers是本幕新增或发生变化的角色编剧档案数组；未变化人物无需重复返回，返回的人物必须给出完整对象。每项字段为：
-        {id,name,storyRole,publicGoal,privateNeed,fear,secret,contradiction,bottomLine,relationshipWeb,arcStage,lastAdvancedScene,status,currentLocation,physicalState,emotionalState,knowledge,carriedItems,offscreenIntent,lastSeenScene}。
-        同行者沿用其characterId；原创长期NPC使用稳定id（如npc_luo_yan），后续不得换id或换名。只返回本幕新增或变化的人物，单次最多8名；总档案由客户端长期保存，不能用不再返回表示删除。
+        {id,name,relationshipLabel,aliases,importance,storyRole,publicGoal,privateNeed,fear,secret,contradiction,bottomLine,relationshipWeb,arcStage,lastAdvancedScene,status,currentLocation,physicalState,emotionalState,knowledge,carriedItems,offscreenIntent,lastSeenScene}。
+        importance只能cameo|recurring|key|companion。同行者沿用其characterId、设置中的游戏显示名和companion重要度，绝不能改名；原创NPC使用稳定id（如npc_luo_yan），后续不得换id或无故换名。
+        功能性短暂NPC可先把name和relationshipLabel都写成清楚称谓，如养父、养母、收银员；若判断会持续影响剧情，必须在首次重要登场时给自然正式姓名，并保留养父等称谓。禁止同行角色、幸存者甲乙、陌生人、男人、女人、NPC等占位名。
+        只返回本幕新增或变化的人物，单次最多8名；总档案由客户端长期保存，不能用不再返回表示删除。
         foreshadowLedger是本幕新增或发生变化的伏笔状态数组；未触碰伏笔无需重复返回，返回的伏笔必须给出完整对象。每项字段为：
         {id,title,hiddenTruth,visibleEvidence,surfaceMeaning,stage,plantedScene,lastTouchedScene,targetPayoffStart,targetPayoffEnd,payoffConsequence,linkedCharacterIds}。
         stage只能seeded|echoed|distorted|ripe|paid_off|abandoned；单次最多6条。visibleEvidence只能写玩家在保留剧情中真正见过的证据。
@@ -336,8 +346,24 @@ internal suspend fun writeApocalypseV5Scene(
     val newlyAwakened = beat.nextDirector.awakenedCompanionIds - save.director.awakenedCompanionIds.toSet()
     val writerCastIds = (presentIds + beat.focusCharacterIds).toSet()
     val writerDossiers = beat.nextDirector.characterDossiers
-        .filter { it.id in writerCastIds }
-        .take(8)
+        .filter { dossier ->
+            dossier.id in writerCastIds ||
+                (listOf(dossier.name, dossier.relationshipLabel) + dossier.aliases)
+                    .filter(String::isNotBlank)
+                    .any { action.contains(it, ignoreCase = true) } ||
+                dossier.currentLocation == promptDirector.location ||
+                dossier.lastSeenScene >= save.scene - 2
+        }
+        .sortedWith(
+            compareByDescending<ApocalypseCharacterDossierV5> { it.id in writerCastIds }
+                .thenByDescending { dossier ->
+                    (listOf(dossier.name, dossier.relationshipLabel) + dossier.aliases)
+                        .filter(String::isNotBlank)
+                        .any { action.contains(it, ignoreCase = true) }
+                }
+                .thenByDescending { it.lastSeenScene },
+        )
+        .take(12)
     val facts = buildString {
         appendLine(apocalypseIsolationRuleV5())
         appendLine("【最高优先输入】玩家行动原文：$action")
@@ -384,7 +410,7 @@ internal suspend fun writeApocalypseV5Scene(
         $APOCALYPSE_SCENE_TEXT_MARKER_V5
         【旁白】正文……
         $APOCALYPSE_SCENE_STATE_MARKER_V5
-        {"actionAcknowledged":true,"actionOutcome":"行动造成的具体可见结果","continuitySummary":"供下一幕使用的短正史摘要","respondedCharacterIds":[],"directorRefreshNeeded":false,"location":"幕末真实地点","sceneGoal":"幕末仍待处理的近期目标","beatType":"关系/探索/生存等","emotionalTurn":"关系或情绪变化","worldFactsAdd":[],"characterStateAdds":[],"characterStatePatches":[],"storyThreadUpdates":[],"foreshadowPatches":[],"presentCharacterIds":[],"weather":"幕末天气","temperatureC":34,"minutesPassed":20,"moneyDelta":0,"foodDelta":0,"waterDelta":0,"medicineDelta":0,"materialsDelta":0,"coresFound":0,"playerAbilityXpGain":0,"baseDelta":0,"healthDelta":0,"staminaDelta":0,"infectionDelta":0,"moraleDelta":0,"discoverAssets":[]}
+        {"actionAcknowledged":true,"actionOutcome":"行动造成的具体可见结果","continuitySummary":"供下一幕使用的短正史摘要","respondedCharacterIds":[],"directorRefreshNeeded":false,"location":"幕末真实地点","sceneGoal":"幕末仍待处理的近期目标","beatType":"关系/探索/生存等","emotionalTurn":"关系或情绪变化","worldFactsAdd":[],"characterStateAdds":[],"castUpdates":[],"characterStatePatches":[],"storyThreadUpdates":[],"foreshadowPatches":[],"presentCharacterIds":[],"weather":"幕末天气","temperatureC":34,"minutesPassed":20,"moneyDelta":0,"foodDelta":0,"waterDelta":0,"medicineDelta":0,"materialsDelta":0,"coresFound":0,"playerAbilityXpGain":0,"baseDelta":0,"healthDelta":0,"staminaDelta":0,"infectionDelta":0,"moraleDelta":0,"discoverAssets":[]}
         回执只能是一个合法、单行JSON对象；写完JSON立即停止。
 
         - actionOutcome必须准确说明玩家行动实际怎样发生、谁怎样回应、带来什么结果，不能写“剧情继续推进”。
@@ -394,6 +420,10 @@ internal suspend fun writeApocalypseV5Scene(
         - 无论本幕是否调用导演，回执都是最终唯一结算凭据。所有delta必须报告“行动开始状态→幕末状态”的完整净变化，不能因为导演给过预算就填0；交易、搜集、饮食、受伤、感染、休息、时间、天气和能力成长必须与正文一致。
         - 历史字段名coresFound按晶核净变化填写：获得为正，吸收/交易/消耗为负；baseDelta按基地等级净变化填写，受损或废弃可以为-1。
         - worldFactsAdd最多4条，只记录以后不可装作没发生的事实；characterStateAdds最多3条，只记录可持续的人际/立场变化。临时动作不要滥记。
+        - castUpdates负责让本幕新出现或身份升级的人物立刻进入永久演员名册，最多4人。字段为{id,name,relationshipLabel,aliases,importance,storyRole,publicGoal,privateNeed,fear,secret,contradiction,bottomLine,relationshipWeb,arcStage,lastAdvancedScene,status,currentLocation,physicalState,emotionalState,knowledge,carriedItems,offscreenIntent,lastSeenScene}。
+        - 已有同行者必须沿用同行清单的characterId和游戏显示名，不能写入castUpdates改名。新NPC使用稳定npc_* id；同一个养父、养母、店员或邻居后续必须复用同一id。
+        - 只在纯功能性小角色确实无需正式姓名时，允许name直接写“养父”“养母”“收银员”等明确称谓；relationshipLabel同步写该称谓。只要会再次出现、影响关系/线索或承担重要选择，importance写recurring/key并立即取符合世界和年龄的自然姓名，同时保留称谓供玩家辨认。
+        - 禁止把任何人的name、relationshipLabel或【角色:id】写成“同行角色、同行者、角色、人物、幸存者甲/乙、陌生人、男人、女人、某人、NPC”。每一个直接说话的人都必须使用同行清单、已有档案或本次castUpdates中的精确稳定id。
         - characterStatePatches只更新本幕真正变化或离屏行动被确认的人物，最多4人：[{"id":"稳定角色id","currentLocation":"当前/最后确认地点","physicalState":"伤病疲劳等","emotionalState":"可持续情绪与立场","knowledgeAdds":[],"carriedItems":[],"relationshipChanges":[],"offscreenIntent":"下一步独立打算","status":"active/away/missing/dead","lastSeenScene":${nextScene}}]。没有变化的字段可省略；carriedItems一旦给出视为完整随身物快照。
         - storyThreadUpdates只更新本幕真正推进、转向、解决或放弃的明线/暗线，最多3条，字段为{id,title,visibility,currentState,nextPressure,status,lastTouchedScene,linkedCharacterIds,linkedForeshadowIds}；同一条线必须沿用已有id。
         - foreshadowPatches只更新本幕真正出现可观察细节的已有伏笔，最多2条，字段为{id,stage,evidenceAdds,surfaceMeaning,linkedCharacterIds,lastTouchedScene}。evidenceAdds只能写玩家确实看到/听到/可靠确认的证据，绝不能写hiddenTruth。
@@ -409,7 +439,7 @@ internal suspend fun writeApocalypseV5Scene(
         每个显示段单独一段，并且段首必须是以下三种标记之一：
         【旁白】用于环境、动作、内心、无人直接说话的叙事。
         【玩家】只用于玩家本人正在直接说话的段落。
-        【角色:<characterId>】用于同行者或导演演员档案中的人物直接说话，characterId必须从同行者清单或角色编剧档案原样复制。
+        【角色:<characterId>】用于同行者、已有演员档案或本幕castUpdates中的人物直接说话，characterId必须原样复制稳定id。标签里绝不能写姓名、称谓、同行角色或其他占位词。
         同一段只能有一个当前说话人；两个人连续说话必须拆成两段。不要把标记写到句子中间。
         每段通常1—2句，目标30—70字；客户端会在不删减任何文字和标点的前提下继续细分长段落。
 
@@ -456,14 +486,26 @@ internal suspend fun writeApocalypseV5Scene(
         readTimeoutMillis = 120_000,
     ).getOrElse { return Result.failure(it) }.text.trim()
     val firstOutcome = parseApocalypseSceneOutcomeV5(firstRaw) ?: fallbackApocalypseSceneOutcomeV5(firstRaw, action)
+    val firstCast = mergeApocalypseCharacterDossiersV5(writerDossiers, firstOutcome.castUpdates)
     val needsRepair = apocalypseSceneOutcomeNeedsRepairV5(
         action = action,
         outcome = firstOutcome,
         party = relevantParty,
-        dossiers = writerDossiers,
+        dossiers = firstCast,
         presentCharacterIds = presentIds,
     )
-    if (!needsRepair) return Result.success(firstOutcome)
+    if (!needsRepair) {
+        return Result.success(
+            firstOutcome.copy(
+                text = normalizeApocalypseStorySpeakerTagsV5(
+                    text = firstOutcome.text,
+                    party = party,
+                    dossiers = firstCast,
+                    presentCharacterIds = presentIds + firstOutcome.delta.presentCharacterIds,
+                ),
+            ),
+        )
+    }
 
     val repairFacts = buildString {
         appendLine("玩家行动原文：$action")
@@ -476,6 +518,7 @@ internal suspend fun writeApocalypseV5Scene(
         appendLine("相关角色风格：\n$partyPrompt")
         appendLine("硬状态：\n${apocalypseWriterCanonPackV5(save)}")
         appendLine("角色动态档案：\n${apocalypseCharacterDossiersPromptV5(writerDossiers)}")
+        appendLine("初稿新增演员档案：\n${apocalypseCharacterDossiersPromptV5(firstOutcome.castUpdates)}")
         appendLine("伏笔账本：\n${apocalypseWriterForeshadowPackV5(beat.nextDirector)}")
         appendLine("上一幕衔接：\n${apocalypseRecentContinuityV5(save)}")
         appendLine("【不合格初稿｜只用于修正，不是正史】")
@@ -489,7 +532,8 @@ internal suspend fun writeApocalypseV5Scene(
         $APOCALYPSE_SCENE_TEXT_MARKER_V5
         【旁白】或【角色:id】格式的正文
         $APOCALYPSE_SCENE_STATE_MARKER_V5
-        最后一行输出合法JSON，至少包含actionAcknowledged、actionOutcome、continuitySummary、respondedCharacterIds、presentCharacterIds、characterStatePatches、storyThreadUpdates、foreshadowPatches、minutesPassed以及所有资源/身体delta；未变化的delta填0。所有delta都表示行动开始到幕末的最终净变化，不能因导演预算而省略。
+        最后一行输出合法JSON，至少包含actionAcknowledged、actionOutcome、continuitySummary、respondedCharacterIds、presentCharacterIds、castUpdates、characterStatePatches、storyThreadUpdates、foreshadowPatches、minutesPassed以及所有资源/身体delta；未变化的delta填0。所有delta都表示行动开始到幕末的最终净变化，不能因导演预算而省略。
+        所有直接说话者必须使用同行清单、已有档案或castUpdates中的精确稳定id；禁止“同行角色、幸存者甲乙、陌生人、男人、女人、NPC”等占位名。
     """.trimIndent()
     return LuluAiServices.gateway.generate(
         characterId = APOCALYPSE_ISOLATED_CHARACTER_ID,
@@ -506,16 +550,24 @@ internal suspend fun writeApocalypseV5Scene(
     ).mapCatching { generated ->
         val repaired = parseApocalypseSceneOutcomeV5(generated.text)
             ?: fallbackApocalypseSceneOutcomeV5(generated.text, action)
+        val repairedCast = mergeApocalypseCharacterDossiersV5(writerDossiers, repaired.castUpdates)
         check(
             !apocalypseSceneOutcomeNeedsRepairV5(
                 action = action,
                 outcome = repaired,
                 party = relevantParty,
-                dossiers = writerDossiers,
+                dossiers = repairedCast,
                 presentCharacterIds = presentIds,
             ),
         ) { "模型连续两次没有真正回应你的行动，这一幕没有写入存档，请重试。" }
-        repaired
+        repaired.copy(
+            text = normalizeApocalypseStorySpeakerTagsV5(
+                text = repaired.text,
+                party = party,
+                dossiers = repairedCast,
+                presentCharacterIds = presentIds + repaired.delta.presentCharacterIds,
+            ),
+        )
     }
 }
 
