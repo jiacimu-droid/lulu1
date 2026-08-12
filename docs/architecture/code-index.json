@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T17:24:59.087310+00:00",
-  "commit": "89778c9d9feed6aa18464b47074de6e7c56b42fd",
+  "generatedAt": "2026-08-12T17:41:09.971025+00:00",
+  "commit": "039f40dc2b4d8a5b5d16c40f221e95ef82d9afad",
   "branch": "main",
-  "sourceFingerprint": "44ebcbbd0216820189d32d24114bfd4e93956c9539e78b005247ad748a0423f9",
+  "sourceFingerprint": "6d26997dde2d7c84cc9dc69b5b5ba074ad90c15d8355977b8530ef947b48ca24",
   "summary": {
-    "files": 175,
-    "lines": 53278,
+    "files": 176,
+    "lines": 53456,
     "symbols": 689
   },
   "symbolIndex": {
@@ -5907,6 +5907,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseCastIdentityV5.kt",
       "lines": 374,
       "sha256": "d8aac810009a2ac74f6015d6d68853fba33f8fffe62d1c8754d204c877b180e8",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseCoreMysteryV5.kt",
+      "lines": 178,
+      "sha256": "09a22ab3596a5f7db579367b2e158ff7595a3bf777a64578065723e33fc7fe79",
       "symbols": []
     },
     {
