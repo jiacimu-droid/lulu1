@@ -26,7 +26,11 @@ internal fun parseApocalypseStoryPages(
     presentCharacterIds: List<String> = emptyList(),
     maxChars: Int = 86,
 ): List<ApocalypseStoryPage> {
-    val normalized = text.replace("\r\n", "\n").trim()
+    // Older builds appended a client-generated "【旁白】入库清点：..." system audit to the prose.
+    // It was never story content, so strip it before pagination. New builds no longer create it.
+    val normalized = stripLegacyApocalypseInventoryAuditV5(text)
+        .replace("\r\n", "\n")
+        .trim()
     if (normalized.isBlank()) {
         return listOf(ApocalypseStoryPage(ApocalypseStorySpeakerKind.Narrator, text = "……"))
     }
