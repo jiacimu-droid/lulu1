@@ -300,9 +300,6 @@ object PomodoroCompanionSessions {
             ).onSuccess { reply ->
                 val text = compactPomodoroUtterance(reply.text, maxChars = 52)
                 if (text.isNotBlank()) {
-                    // A model request may outlive a chat screen or a user deleting the old thread.
-                    // Resolve the private conversation again at delivery time instead of appending to
-                    // a stale id; this keeps generated study messages from crashing the app.
                     val liveConversationId = MigratedDomainStores.chat
                         .ensureConversation(characterId, character.displayName)
                         .id
@@ -387,19 +384,23 @@ object PomodoroCompanionSessions {
                     val speaker = if (message.sender == LuluChatMessage.Sender.User) "用户" else character.displayName
                     "$speaker：${message.content.trim()}"
                 }
-            SharedExperienceTimeline.remember(
-                memoryId = "pomodoro-${pomodoro.activeSessionId}",
-                characterId = characterId,
-                label = "共同番茄钟",
-                detail = buildString {
-                    append("任务“$task”，实际学习 ${actualMinutes.coerceAtLeast(1)} 分钟，$reason。")
-                    if (rewardMessage.isNotBlank()) append("结算：$rewardMessage。")
-                    if (transcript.isNotBlank()) append("期间的私聊：\n$transcript")
-                },
-                occurredAt = pomodoro.sessionStartedAtEpochMillis.takeIf { it > 0L }?.let(Instant::ofEpochMilli) ?: Instant.now(),
-                strength = 6,
-                source = "pomodoro",
-            )
+            // Study duration/rewards are still recorded by the study module. Shared companion memory
+            // only exists when the two of them actually interacted during this concrete session.
+            if (transcript.isNotBlank()) {
+                SharedExperienceTimeline.remember(
+                    memoryId = "pomodoro-${pomodoro.activeSessionId}",
+                    characterId = characterId,
+                    label = "共同番茄钟",
+                    detail = buildString {
+                        append("任务“$task”，实际学习 ${actualMinutes.coerceAtLeast(1)} 分钟，$reason。")
+                        if (rewardMessage.isNotBlank()) append("结算：$rewardMessage。")
+                        append("期间的私聊：\n$transcript")
+                    },
+                    occurredAt = pomodoro.sessionStartedAtEpochMillis.takeIf { it > 0L }?.let(Instant::ofEpochMilli) ?: Instant.now(),
+                    strength = 6,
+                    source = "pomodoro",
+                )
+            }
         }
     }
 }
