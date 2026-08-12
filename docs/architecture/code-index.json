@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T11:26:04.579730+00:00",
-  "commit": "a3cd708db13b65089e05ec3bcdd8e5755e78485b",
+  "generatedAt": "2026-08-12T11:26:23.999948+00:00",
+  "commit": "c17b2b590892814b441293e7748c173ccc68b348",
   "branch": "main",
-  "sourceFingerprint": "72205ce930faebc831ebe957de858619140845b8968391be1348c1b798699824",
+  "sourceFingerprint": "14ba9761d00c0c701da8c02ae2742290d0663706a24ca44fd2cbd9d39c459e33",
   "summary": {
     "files": 172,
-    "lines": 51610,
+    "lines": 51622,
     "symbols": 682
   },
   "symbolIndex": {
@@ -1099,7 +1099,7 @@
     "get": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 40
+        "line": 45
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -1121,13 +1121,13 @@
     "set": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 42
+        "line": 54
       }
     ],
     "delete": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 54
+        "line": 66
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -4755,8 +4755,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-      "lines": 64,
-      "sha256": "fb7172c98d32c34b1ace587d0942309e170d3ad924eb8bfc366284789187e406",
+      "lines": 76,
+      "sha256": "759a166d0e442adc676162d074e812d1af858fea31c099c380b9a0c5cc01c387",
       "symbols": [
         {
           "name": "CharacterIdentityStore",
@@ -4768,15 +4768,15 @@
         },
         {
           "name": "get",
-          "line": 40
+          "line": 45
         },
         {
           "name": "set",
-          "line": 42
+          "line": 54
         },
         {
           "name": "delete",
-          "line": 54
+          "line": 66
         }
       ]
     },
