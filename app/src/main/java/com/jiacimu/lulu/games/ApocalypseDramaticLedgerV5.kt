@@ -185,7 +185,8 @@ internal fun ensureApocalypsePartyDossiersV5(
     scene: Int,
 ): List<ApocalypseCharacterDossierV5> {
     val partyById = party.associateBy { it.characterId }
-    val migrated = previous.map { dossier ->
+    val canonicalPrevious = previous.map { canonicalizeApocalypsePartyDossierV5(it, party) }
+    val migrated = mergeApocalypseCharacterDossiersV5(emptyList(), canonicalPrevious).map { dossier ->
         val character = partyById[dossier.id] ?: return@map dossier
         val currentName = character.displayName.trim().ifBlank { dossier.name }
         dossier.copy(
@@ -269,9 +270,10 @@ internal fun decodeApocalypseCharacterDossiersV5(array: JSONArray?): List<Apocal
         val relationshipLabel = item.optString("relationshipLabel").trim().take(30).ifBlank {
             name.takeIf(::apocalypseLooksLikeRelationshipOrRoleV5).orEmpty().take(30)
         }
+        val stableName = apocalypseStableNpcNameV5(id, name, relationshipLabel)
         ApocalypseCharacterDossierV5(
             id = id.take(80),
-            name = apocalypseStableNpcNameV5(id, name, relationshipLabel),
+            name = stableName,
             storyRole = item.optString("storyRole").take(100),
             publicGoal = item.optString("publicGoal").take(220),
             privateNeed = item.optString("privateNeed").take(220),
@@ -292,6 +294,7 @@ internal fun decodeApocalypseCharacterDossiersV5(array: JSONArray?): List<Apocal
             lastSeenScene = item.optInt("lastSeenScene", item.optInt("lastAdvancedScene", 0)).coerceAtLeast(0),
             relationshipLabel = relationshipLabel,
             aliases = item.optJSONArray("aliases").v5LedgerStrings()
+                .plus(listOfNotNull(name.takeIf { it != stableName }))
                 .filter(::isApocalypsePersistableCastAliasV5)
                 .distinct()
                 .takeLast(8),
@@ -394,7 +397,12 @@ internal fun decodeApocalypseCastUpdatesV5(array: JSONArray?): List<ApocalypseCh
             lastSeenScene = item.optInt("lastSeenScene", 0).coerceAtLeast(0),
             relationshipLabel = relationshipLabel,
             aliases = item.optJSONArray("aliases").v5LedgerStrings()
-                .plus(listOfNotNull(relationshipLabel.takeIf(String::isNotBlank)))
+                .plus(
+                    listOfNotNull(
+                        relationshipLabel.takeIf(String::isNotBlank),
+                        proposedName.takeIf { it.isNotBlank() && it != name },
+                    ),
+                )
                 .filter { it != name && isApocalypsePersistableCastAliasV5(it) }
                 .distinct()
                 .takeLast(8),
@@ -463,11 +471,13 @@ internal fun decodeApocalypseForeshadowLedgerV5(array: JSONArray?): List<Apocaly
 internal fun mergeApocalypseCharacterDossiersV5(
     previous: List<ApocalypseCharacterDossierV5>,
     updates: List<ApocalypseCharacterDossierV5>,
+    party: List<CharacterSettings> = emptyList(),
 ): List<ApocalypseCharacterDossierV5> {
     if (updates.isEmpty()) return previous
     val merged = LinkedHashMap<String, ApocalypseCharacterDossierV5>()
     previous.forEach { merged[it.id] = it }
-    updates.forEach { rawUpdate ->
+    updates.forEach { suppliedUpdate ->
+        val rawUpdate = canonicalizeApocalypsePartyDossierV5(suppliedUpdate, party)
         val old = merged[rawUpdate.id] ?: merged.values.firstOrNull { sameApocalypseCastIdentityV5(it, rawUpdate) }
         val update = if (old != null && old.id != rawUpdate.id) {
             rawUpdate.copy(

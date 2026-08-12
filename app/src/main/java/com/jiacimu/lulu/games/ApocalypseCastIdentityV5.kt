@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.games
 
 import com.jiacimu.lulu.data.CharacterSettings
+import net.sourceforge.pinyin4j.PinyinHelper
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -54,6 +55,52 @@ internal fun isApocalypseGenericCastLabelV5(raw: String): Boolean {
 internal fun isApocalypsePersistableCastAliasV5(raw: String): Boolean =
     raw.trim().startsWith("npc_", ignoreCase = true) || !isApocalypseGenericCastLabelV5(raw)
 
+private fun apocalypseContainsHanV5(raw: String): Boolean = raw.any { character ->
+    Character.UnicodeScript.of(character.code) == Character.UnicodeScript.HAN
+}
+
+private fun apocalypseLatinIdentityKeyV5(raw: String): String = raw
+    .lowercase()
+    .replace(Regex("[^a-z0-9]"), "")
+
+/**
+ * Models sometimes transliterate a configured Chinese role name and then return that pinyin as a
+ * new NPC id (for example 江渡 -> jiangdu). These keys are only used to recover the immutable
+ * configured identity; pinyin is never a player-facing name.
+ */
+private fun apocalypseCastIdentityKeysV5(raw: String): Set<String> {
+    val clean = raw.trim()
+    if (clean.isBlank()) return emptySet()
+    val keys = linkedSetOf(apocalypseLatinIdentityKeyV5(clean))
+    if (!apocalypseContainsHanV5(clean)) return keys.filter(String::isNotBlank).toSet()
+
+    var combinations = listOf("")
+    clean.forEach { character ->
+        val syllables = PinyinHelper.toHanyuPinyinStringArray(character)
+            ?.map { it.lowercase().replace(Regex("[1-5]"), "").replace("u:", "v") }
+            ?.distinct()
+            ?.take(4)
+            .orEmpty()
+        val parts = syllables.ifEmpty { listOf(character.toString()) }
+        combinations = combinations.flatMap { prefix -> parts.map { prefix + it } }.distinct().take(32)
+    }
+    combinations.mapTo(keys, ::apocalypseLatinIdentityKeyV5)
+    return keys.filter(String::isNotBlank).toSet()
+}
+
+private fun apocalypseConfiguredPartyMatchV5(
+    rawValues: List<String>,
+    party: List<CharacterSettings>,
+): CharacterSettings? {
+    val candidateKeys = rawValues.flatMapTo(linkedSetOf(), ::apocalypseCastIdentityKeysV5)
+    if (candidateKeys.isEmpty()) return null
+    return party.filter { character ->
+        val protectedKeys = apocalypseCastIdentityKeysV5(character.characterId) +
+            apocalypseCastIdentityKeysV5(character.displayName)
+        candidateKeys.any(protectedKeys::contains)
+    }.singleOrNull()
+}
+
 internal fun apocalypseLooksLikeRelationshipOrRoleV5(raw: String): Boolean {
     val clean = raw.trim()
     return clean in APOCALYPSE_RELATION_LABELS_V5 ||
@@ -99,15 +146,36 @@ internal fun apocalypseStableNpcNameV5(
     val proposed = proposedName.trim().take(40)
     val relationship = relationshipLabel.trim().take(30)
     return when {
-        proposed.isNotBlank() && !isApocalypseGenericCastLabelV5(proposed) -> proposed
-        relationship.isNotBlank() && !isApocalypseGenericCastLabelV5(relationship) -> relationship
+        proposed.isNotBlank() && apocalypseContainsHanV5(proposed) && !isApocalypseGenericCastLabelV5(proposed) -> proposed
+        relationship.isNotBlank() && apocalypseContainsHanV5(relationship) && !isApocalypseGenericCastLabelV5(relationship) -> relationship
         else -> apocalypseDeterministicNpcNameV5(stableId)
     }
 }
 
+internal fun canonicalizeApocalypsePartyDossierV5(
+    dossier: ApocalypseCharacterDossierV5,
+    party: List<CharacterSettings>,
+): ApocalypseCharacterDossierV5 {
+    val character = apocalypseConfiguredPartyMatchV5(
+        listOf(dossier.id, dossier.name, dossier.relationshipLabel) + dossier.aliases,
+        party,
+    ) ?: return dossier
+    val displayName = character.displayName.trim().ifBlank { dossier.name }
+    return dossier.copy(
+        id = character.characterId,
+        name = displayName,
+        aliases = (dossier.aliases + dossier.id + dossier.name)
+            .filter { it.isNotBlank() && !it.equals(displayName, ignoreCase = true) }
+            .filter(::isApocalypsePersistableCastAliasV5)
+            .distinct()
+            .takeLast(8),
+        importance = "companion",
+    )
+}
+
 internal fun apocalypseDossierDisplayNameV5(dossier: ApocalypseCharacterDossierV5): String {
     val name = apocalypseStableNpcNameV5(dossier.id, dossier.name, dossier.relationshipLabel)
-    val relationship = dossier.relationshipLabel.trim()
+    val relationship = dossier.relationshipLabel.trim().takeIf(::apocalypseContainsHanV5).orEmpty()
     return if (
         relationship.isNotBlank() &&
         !name.equals(relationship, ignoreCase = true) &&
@@ -149,11 +217,7 @@ internal fun resolveApocalypseSpeakerTokenV5(
     visibleText: String = "",
 ): ApocalypseSpeakerResolutionV5 {
     val token = rawToken.trim().removePrefix("<").removeSuffix(">").trim()
-    val partyMatches = party.filter { character ->
-        token.equals(character.characterId, ignoreCase = true) ||
-            token.equals(character.displayName, ignoreCase = true)
-    }
-    partyMatches.singleOrNull()?.let { character ->
+    apocalypseConfiguredPartyMatchV5(listOf(token), party)?.let { character ->
         return ApocalypseSpeakerResolutionV5(
             characterId = character.characterId,
             displayName = character.displayName,
@@ -226,7 +290,8 @@ internal fun resolveApocalypseSpeakerTokenV5(
     val displayName = when {
         apocalypseLooksLikeRelationshipOrRoleV5(token) -> token
         token.startsWith("npc_", ignoreCase = true) -> apocalypseDeterministicNpcNameV5(token)
-        token.isNotBlank() -> token.take(40)
+        token.isNotBlank() && apocalypseContainsHanV5(token) -> token.take(40)
+        token.isNotBlank() -> apocalypseDeterministicNpcNameV5(token)
         else -> "说话人未标明"
     }
     return ApocalypseSpeakerResolutionV5(

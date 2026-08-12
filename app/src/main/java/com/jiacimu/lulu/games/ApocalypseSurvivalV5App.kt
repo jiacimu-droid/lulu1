@@ -220,8 +220,24 @@ internal fun ApocalypseSurvivalAppV5(
             location = current.director.location,
             scene = current.scene,
         )
-        if (ensuredDossiers != current.director.characterDossiers) {
-            current = current.copy(director = current.director.copy(characterDossiers = ensuredDossiers))
+        val ensuredPresentIds = current.director.presentCharacterIds.mapNotNull { rawId ->
+            resolveApocalypseSpeakerTokenV5(
+                rawToken = rawId,
+                party = currentParty,
+                dossiers = ensuredDossiers,
+                presentCharacterIds = current.director.presentCharacterIds,
+            ).characterId
+        }.distinct().take(10)
+        if (
+            ensuredDossiers != current.director.characterDossiers ||
+            ensuredPresentIds != current.director.presentCharacterIds
+        ) {
+            current = current.copy(
+                director = current.director.copy(
+                    characterDossiers = ensuredDossiers,
+                    presentCharacterIds = ensuredPresentIds,
+                ),
+            )
             save = current
             storage.save(current)
         }

@@ -422,6 +422,7 @@ internal suspend fun writeApocalypseV5Scene(
         - worldFactsAdd最多4条，只记录以后不可装作没发生的事实；characterStateAdds最多3条，只记录可持续的人际/立场变化。临时动作不要滥记。
         - castUpdates负责让本幕新出现或身份升级的人物立刻进入永久演员名册，最多4人。字段为{id,name,relationshipLabel,aliases,importance,storyRole,publicGoal,privateNeed,fear,secret,contradiction,bottomLine,relationshipWeb,arcStage,lastAdvancedScene,status,currentLocation,physicalState,emotionalState,knowledge,carriedItems,offscreenIntent,lastSeenScene}。
         - 已有同行者必须沿用同行清单的characterId和游戏显示名，不能写入castUpdates改名。新NPC使用稳定npc_* id；同一个养父、养母、店员或邻居后续必须复用同一id。
+        - 所有玩家可见姓名必须是自然中文名或中文称谓。禁止把英文、拼音、characterId、UUID、npc_* id当作name或显示名；例如不得把中文同行姓名改写成拼音。
         - 只在纯功能性小角色确实无需正式姓名时，允许name直接写“养父”“养母”“收银员”等明确称谓；relationshipLabel同步写该称谓。只要会再次出现、影响关系/线索或承担重要选择，importance写recurring/key并立即取符合世界和年龄的自然姓名，同时保留称谓供玩家辨认。
         - 禁止把任何人的name、relationshipLabel或【角色:id】写成“同行角色、同行者、角色、人物、幸存者甲/乙、陌生人、男人、女人、某人、NPC”。每一个直接说话的人都必须使用同行清单、已有档案或本次castUpdates中的精确稳定id。
         - characterStatePatches只更新本幕真正变化或离屏行动被确认的人物，最多4人：[{"id":"稳定角色id","currentLocation":"当前/最后确认地点","physicalState":"伤病疲劳等","emotionalState":"可持续情绪与立场","knowledgeAdds":[],"carriedItems":[],"relationshipChanges":[],"offscreenIntent":"下一步独立打算","status":"active/away/missing/dead","lastSeenScene":${nextScene}}]。没有变化的字段可省略；carriedItems一旦给出视为完整随身物快照。
@@ -486,7 +487,7 @@ internal suspend fun writeApocalypseV5Scene(
         readTimeoutMillis = 120_000,
     ).getOrElse { return Result.failure(it) }.text.trim()
     val firstOutcome = parseApocalypseSceneOutcomeV5(firstRaw) ?: fallbackApocalypseSceneOutcomeV5(firstRaw, action)
-    val firstCast = mergeApocalypseCharacterDossiersV5(writerDossiers, firstOutcome.castUpdates)
+    val firstCast = mergeApocalypseCharacterDossiersV5(writerDossiers, firstOutcome.castUpdates, party)
     val needsRepair = apocalypseSceneOutcomeNeedsRepairV5(
         action = action,
         outcome = firstOutcome,
@@ -550,7 +551,7 @@ internal suspend fun writeApocalypseV5Scene(
     ).mapCatching { generated ->
         val repaired = parseApocalypseSceneOutcomeV5(generated.text)
             ?: fallbackApocalypseSceneOutcomeV5(generated.text, action)
-        val repairedCast = mergeApocalypseCharacterDossiersV5(writerDossiers, repaired.castUpdates)
+        val repairedCast = mergeApocalypseCharacterDossiersV5(writerDossiers, repaired.castUpdates, party)
         check(
             !apocalypseSceneOutcomeNeedsRepairV5(
                 action = action,
@@ -624,9 +625,17 @@ private fun parseApocalypseV5Beat(
         .filter { it in eligibleAwakeningIds }
         .distinct()
         .take(1)
-    val mergedDossiers = mergeApocalypseCharacterDossiersV5(previous.characterDossiers, dossierUpdates)
+    val mergedDossiers = mergeApocalypseCharacterDossiersV5(previous.characterDossiers, dossierUpdates, party)
     val validPresentIds = (party.map { it.characterId } + mergedDossiers.map { it.id }).toSet()
     val presentCharacterIds = json.optJSONArray("presentCharacterIds").v5Strings()
+        .mapNotNull { raw ->
+            resolveApocalypseSpeakerTokenV5(
+                rawToken = raw,
+                party = party,
+                dossiers = mergedDossiers,
+                presentCharacterIds = previous.presentCharacterIds,
+            ).characterId
+        }
         .filter(validPresentIds::contains)
         .distinct()
         .take(10)

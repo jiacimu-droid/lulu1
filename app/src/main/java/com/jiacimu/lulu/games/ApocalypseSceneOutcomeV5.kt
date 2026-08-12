@@ -202,7 +202,7 @@ internal fun apocalypseSceneOutcomeNeedsRepairV5(
     // never canonize an anonymous placeholder as a character identity.
     val speakerTokens = apocalypseStorySpeakerTokensV5(outcome.text)
     if (speakerTokens.any(::isApocalypseGenericCastLabelV5)) return true
-    val effectiveDossiers = mergeApocalypseCharacterDossiersV5(dossiers, outcome.castUpdates)
+    val effectiveDossiers = mergeApocalypseCharacterDossiersV5(dossiers, outcome.castUpdates, party)
     if (speakerTokens.any { token ->
             !resolveApocalypseSpeakerTokenV5(
                 rawToken = token,
@@ -454,7 +454,7 @@ private fun expandApocalypseSceneCastV5(
             lastSeenScene = update.lastSeenScene.takeIf { it > 0 } ?: scene,
         )
     }
-    val withReported = mergeApocalypseCharacterDossiersV5(base, reported)
+    val withReported = mergeApocalypseCharacterDossiersV5(base, reported, party)
     val recoveredFromTags = synthesizeApocalypseSpeakerDossiersV5(
         text = outcome.text,
         party = party,
@@ -462,7 +462,7 @@ private fun expandApocalypseSceneCastV5(
         location = location,
         scene = scene,
     )
-    return mergeApocalypseCharacterDossiersV5(withReported, recoveredFromTags)
+    return mergeApocalypseCharacterDossiersV5(withReported, recoveredFromTags, party)
 }
 
 private fun normalizeApocalypseCharacterRefsV5(
