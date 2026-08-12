@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T11:41:07.911931+00:00",
-  "commit": "f6c86ac00ae5e8c339a5762041a862eaf284677f",
+  "generatedAt": "2026-08-12T11:42:27.301183+00:00",
+  "commit": "1d4e125bc3eb52361e0c8ba5c81b66d1384999ce",
   "branch": "main",
-  "sourceFingerprint": "cd76556f7ebc5a212c5c22b0f018df72be20b5000e7789220c2e8f9a4a2dc853",
+  "sourceFingerprint": "491da4596405e99f68802c9a42c1e52df32d66d58f654780f1ec54512f1c8db8",
   "summary": {
     "files": 172,
-    "lines": 51826,
+    "lines": 51873,
     "symbols": 685
   },
   "symbolIndex": {
@@ -4152,8 +4152,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt",
-      "lines": 230,
-      "sha256": "211ccbebb2d533dce45e745118de323163196e2314ae39506b629bcba004e82d",
+      "lines": 277,
+      "sha256": "45ed1a3b83136c8b131ffe50dc9dc84b84bc39ba9b5abcfb64cae17d4f51afd1",
       "symbols": []
     },
     {
