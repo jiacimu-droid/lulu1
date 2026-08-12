@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T08:43:01.485099+00:00",
-  "commit": "f594a4d8c6f540da8923ab6a9f3464087861ede8",
+  "generatedAt": "2026-08-12T08:44:30.681101+00:00",
+  "commit": "426c28a1a64e692ffaaba8c37352d0237f680ca3",
   "branch": "main",
-  "sourceFingerprint": "8dee42f990ff48db2506e5103c071abe57c03904c01587b18622472d12ea1bce",
+  "sourceFingerprint": "43cf863307751784e6645fceceda79769242ca1111892d095de0f3faaa5a4e0b",
   "summary": {
-    "files": 163,
-    "lines": 49106,
+    "files": 164,
+    "lines": 49416,
     "symbols": 659
   },
   "symbolIndex": {
@@ -5704,6 +5704,12 @@
           "line": 133
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryManagerV5.kt",
+      "lines": 310,
+      "sha256": "ee6416d3b6440e5bc334ccb18d080801aa2e6bcac44c6432b449af69c0969956",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
