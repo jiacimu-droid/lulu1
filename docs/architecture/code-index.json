@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-12T14:37:46.284300+00:00",
-  "commit": "c301c14691ee2dd9419cdea43a3cb6d9b48a72df",
+  "generatedAt": "2026-08-12T14:43:07.773521+00:00",
+  "commit": "4ebce45b793bbf25c9da3f0033b6ed1787ca1591",
   "branch": "main",
-  "sourceFingerprint": "0d07246e0f6d2ed206c6f0dc7aeb15d82dac08b783fa5a0c40249b86fae82e46",
+  "sourceFingerprint": "52a61bb046a60cb94296eec253bd7d3010706dd213fd0763891430fa3fa1ed23",
   "summary": {
     "files": 172,
-    "lines": 52306,
+    "lines": 52307,
     "symbols": 686
   },
   "symbolIndex": {
@@ -2483,7 +2483,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 1273
+        "line": 1257
       }
     ],
     "addPieces": [
@@ -2503,7 +2503,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 1239
+        "line": 1223
       }
     ],
     "previousPage": [
@@ -2517,7 +2517,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 1240
+        "line": 1224
       }
     ],
     "setPage": [
@@ -2527,7 +2527,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 1234
+        "line": 1218
       }
     ],
     "rollbackStory": [
@@ -6223,8 +6223,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-      "lines": 1710,
-      "sha256": "43e7d1d4628852a8df75f9886eb8aedebf67048e92b1f4c39065451913d146a7",
+      "lines": 1711,
+      "sha256": "c66010799366b48349860bcb2ecd161ab2df27f63bda86055c3727c5e5ac168f",
       "symbols": [
         {
           "name": "load",
@@ -6260,19 +6260,19 @@
         },
         {
           "name": "setPage",
-          "line": 1234
+          "line": 1218
         },
         {
           "name": "nextPage",
-          "line": 1239
+          "line": 1223
         },
         {
           "name": "previousPage",
-          "line": 1240
+          "line": 1224
         },
         {
           "name": "submit",
-          "line": 1273
+          "line": 1257
         }
       ]
     },
