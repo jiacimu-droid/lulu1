@@ -174,6 +174,13 @@ internal fun ApocalypseSurvivalAppV5(
 
     LaunchedEffect(Unit) {
         purgeApocalypseMainWorldLeaks(gameStore)
+        storage.loadSave()?.let { loaded ->
+            val migrated = migrateApocalypseLegacyResonanceOnceV5(context, loaded)
+            if (migrated != loaded) {
+                storage.save(migrated)
+                save = migrated
+            }
+        }
     }
 
     LaunchedEffect(generationState?.completedScene) {
@@ -212,7 +219,9 @@ internal fun ApocalypseSurvivalAppV5(
             save = it
             storage.save(it)
         }
+        current = migrateApocalypseLegacyResonanceOnceV5(context, current)
         save = current
+        storage.save(current)
         val currentParty = current.partyIds.map { id -> characters[id] ?: MigratedDomainStores.characters.get(id) }
         val ensuredDossiers = ensureApocalypsePartyDossiersV5(
             previous = current.director.characterDossiers,
@@ -1388,7 +1397,9 @@ private fun ApocalypseV5PlayPage(
     }
 
     if (showInventory) {
-        ModalBottomSheet(onDismissRequest = { showInventory = false }, containerColor = ApocalypseV5Colors.background) { ApocalypseV5InventorySheet(save) }
+        ModalBottomSheet(onDismissRequest = { showInventory = false }, containerColor = ApocalypseV5Colors.background) {
+            ApocalypseInventoryBrowserSheetV5(save)
+        }
     }
     if (confirmDeleteCurrent && currentEntryId != null) {
         AlertDialog(
@@ -1639,7 +1650,7 @@ private fun ApocalypseV5StatusPanel(stats: ApocalypseV3Stats, phase: String, loc
                 ApocalypseV5StatusValue("晶核", stats.crystalCores.toString())
                 ApocalypseV5StatusValue("空间", "Lv.${stats.playerAbilityLevel}")
                 ApocalypseV5StatusValue(
-                    "经验",
+                    "共鸣",
                     if (stats.playerAbilityLevel >= 5) "MAX" else "${stats.playerAbilityXp}/${abilityXpThresholdV3(stats.playerAbilityLevel)}",
                 )
                 ApocalypseV5StatusValue("容量", "${playerSpaceCapacityM3(stats.playerAbilityLevel)}m³")
