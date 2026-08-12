@@ -4,11 +4,6 @@ import android.content.Context
 import android.util.Base64
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.MemoryModelRuntime
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONArray
 import org.json.JSONObject
 import java.nio.ByteBuffer
@@ -116,6 +111,61 @@ internal class ApocalypsePlotMemoryStoreV5(context: Context) {
         }
     }
 
+    /** Manual edits are intentionally supported: plot memory is user-auditable canon, not a black box. */
+    fun updateCard(
+        saveId: String,
+        cardId: String,
+        content: String,
+        worldTime: String,
+        location: String,
+        eventTypes: List<String>,
+        importance: Double,
+    ): Boolean = synchronized(LOCK) {
+        val cards = decodeCards(prefs.getString(key(saveId), null))
+        val index = cards.indexOfFirst { it.id == cardId && it.saveId == saveId }
+        if (index < 0) return@synchronized false
+        val next = cards.toMutableList()
+        next[index] = next[index].copy(
+            content = content.trim().take(900),
+            worldTime = worldTime.trim().take(80),
+            location = location.trim().take(100),
+            eventTypes = eventTypes.map(String::trim).filter(String::isNotBlank).distinct().take(6),
+            importance = importance.coerceIn(0.0, 1.0),
+            // Editing text invalidates the old vector; the UI/background refresh will rebuild it.
+            embeddingSignature = "",
+            embeddingDimension = 0,
+            embedding = FloatArray(0),
+        )
+        persist(saveId, next)
+        true
+    }
+
+    fun deleteCard(saveId: String, cardId: String): Boolean = synchronized(LOCK) {
+        val cards = decodeCards(prefs.getString(key(saveId), null))
+        val next = cards.filterNot { it.id == cardId && it.saveId == saveId }
+        if (next.size == cards.size) return@synchronized false
+        persist(saveId, next)
+        true
+    }
+
+    fun invalidateEmbeddings(saveId: String) {
+        if (saveId.isBlank()) return
+        synchronized(LOCK) {
+            val cards = decodeCards(prefs.getString(key(saveId), null))
+            if (cards.isEmpty()) return@synchronized
+            persist(
+                saveId,
+                cards.map {
+                    it.copy(
+                        embeddingSignature = "",
+                        embeddingDimension = 0,
+                        embedding = FloatArray(0),
+                    )
+                },
+            )
+        }
+    }
+
     fun updateEmbeddings(saveId: String, updates: Map<String, EmbeddedPlotMemoryV5>) {
         if (updates.isEmpty()) return
         synchronized(LOCK) {
@@ -164,7 +214,6 @@ internal class ApocalypsePlotMemoryStoreV5(context: Context) {
 internal data class EmbeddedPlotMemoryV5(val signature: String, val vector: FloatArray)
 
 internal object ApocalypsePlotMemoryRuntimeV5 {
-    private val networkScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val activeRefreshes = mutableSetOf<String>()
 
     suspend fun recall(
@@ -195,11 +244,10 @@ internal object ApocalypsePlotMemoryRuntimeV5 {
         val embeddedCards = if (signature.isBlank()) emptyList() else cards.filter {
             it.embeddingSignature == signature && it.embedding.isNotEmpty() && it.embeddingDimension == it.embedding.size
         }
+        // No artificial 1–2 second cutoff here. The configured model/network owns its real timeout.
+        // This keeps semantic recall from silently degrading to lexical recall on a merely slow endpoint.
         val queryVector = if (connection == null || embeddedCards.isEmpty()) null else {
-            val deferred = networkScope.async {
-                LuluAiServices.gateway.embed(connection, listOf(query)).getOrNull()?.singleOrNull()
-            }
-            withTimeoutOrNull(VECTOR_WAIT_MILLIS) { deferred.await() }
+            LuluAiServices.gateway.embed(connection, listOf(query)).getOrNull()?.singleOrNull()
         }
         var candidates = if (queryVector != null) {
             val lexicalById = lexical.associate { it.first.id to it.second }
@@ -216,10 +264,7 @@ internal object ApocalypsePlotMemoryRuntimeV5 {
         }
         if (rerankConnection != null) {
             val snapshot = candidates
-            val deferred = networkScope.async {
-                LuluAiServices.gateway.rerank(rerankConnection, query, snapshot.map { it.content }).getOrNull()
-            }
-            val order = withTimeoutOrNull(RERANK_WAIT_MILLIS) { deferred.await() }
+            val order = LuluAiServices.gateway.rerank(rerankConnection, query, snapshot.map { it.content }).getOrNull()
             if (!order.isNullOrEmpty()) {
                 candidates = order.mapNotNull(snapshot::getOrNull) + snapshot.filterIndexed { index, _ -> index !in order }
             }
@@ -239,10 +284,11 @@ internal object ApocalypsePlotMemoryRuntimeV5 {
                 ?: return
             val signature = embeddingSignature(connection)
             val store = ApocalypsePlotMemoryStoreV5(context)
+            // Background rebuilding is no longer capped to 96 cards per pass. Process every stale
+            // plot card in bounded API batches so old saves can fully catch up by themselves.
             val pending = store.load(saveId)
                 .filter { it.embeddingSignature != signature || it.embedding.isEmpty() }
                 .sortedWith(compareByDescending<ApocalypsePlotMemoryCardV5> { it.importance }.thenByDescending { it.scene })
-                .take(MAX_REINDEX_PER_PASS)
             pending.chunked(EMBED_BATCH_SIZE).forEach { batch ->
                 val vectors = LuluAiServices.gateway.embed(connection, batch.map { it.content }).getOrNull()
                     ?.takeIf { it.size == batch.size }
@@ -259,10 +305,7 @@ internal object ApocalypsePlotMemoryRuntimeV5 {
         }
     }
 
-    private const val VECTOR_WAIT_MILLIS = 1_400L
-    private const val RERANK_WAIT_MILLIS = 900L
     private const val EMBED_BATCH_SIZE = 32
-    private const val MAX_REINDEX_PER_PASS = 96
 }
 
 private fun plotEventTypes(
