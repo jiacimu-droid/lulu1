@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,7 +21,18 @@ import androidx.compose.ui.unit.sp
 @Composable
 internal fun StudyShopScreenV2(state: StudyState, store: PostgraduateExamStore) {
     var message by remember { mutableStateOf("") }
-    val canRefresh = state.manualShopRefreshDate != state.activeDate
+    val context = LocalContext.current
+    val refreshPrefs = remember {
+        context.getSharedPreferences("study_shop_refresh_guard", android.content.Context.MODE_PRIVATE)
+    }
+    val persistedRefreshDate = refreshPrefs.getString("date", "").orEmpty()
+    val canRefresh = state.manualShopRefreshDate != state.activeDate && persistedRefreshDate != state.activeDate
+
+    LaunchedEffect(state.activeDate, state.manualShopRefreshDate) {
+        if (state.manualShopRefreshDate == state.activeDate) {
+            refreshPrefs.edit().putString("date", state.activeDate).apply()
+        }
+    }
 
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
@@ -33,11 +45,24 @@ internal fun StudyShopScreenV2(state: StudyState, store: PostgraduateExamStore) 
                         Text("神秘商店", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = StudyDesign.ink)
                         Text("夸夸值：${state.profile.praisePoints}", color = StudyDesign.muted)
                     }
-                    IconButton(onClick = { message = store.refreshShop() }, enabled = canRefresh) {
+                    IconButton(
+                        onClick = {
+                            if (refreshPrefs.getString("date", "").orEmpty() == state.activeDate) {
+                                message = "今天已经手动刷新过了"
+                            } else {
+                                val result = store.refreshShop()
+                                if (result == "商店已刷新") {
+                                    refreshPrefs.edit().putString("date", state.activeDate).apply()
+                                }
+                                message = result
+                            }
+                        },
+                        enabled = canRefresh,
+                    ) {
                         Icon(Icons.Outlined.Refresh, "刷新", tint = if (canRefresh) StudyDesign.ink else StudyDesign.muted)
                     }
                 }
-                Text("每天自动刷新3件商品；手动刷新每天最多一次。", color = StudyDesign.muted, fontSize = 12.sp)
+                Text("每天自动刷新3件随机商品；抽卡券出现权重更高，手动刷新每天最多一次。", color = StudyDesign.muted, fontSize = 12.sp)
             }
         }
 
