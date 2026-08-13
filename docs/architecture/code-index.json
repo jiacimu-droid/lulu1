@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-13T04:08:49.536787+00:00",
-  "commit": "92f80920164c4ccf4b75e334a959bd1e16a750bb",
+  "generatedAt": "2026-08-13T06:46:04.927741+00:00",
+  "commit": "0fade979914ac8d29a5795d83d39e578935d4ff2",
   "branch": "main",
-  "sourceFingerprint": "83428aaf96ef57b5e7e54f2ffad95c276cf3dadfbedea36747da506ff97adbb6",
+  "sourceFingerprint": "3897d4327f27e04825b1fad81a3be02422f420254e1a25512750b75627152bf5",
   "summary": {
     "files": 178,
-    "lines": 53527,
+    "lines": 53604,
     "symbols": 696
   },
   "symbolIndex": {
@@ -7501,8 +7501,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-      "lines": 338,
-      "sha256": "8a8539182df41f9b3e8a1680da2182da6460016fad9b9a14d3572d7d9682ea2a",
+      "lines": 415,
+      "sha256": "eb6882c40a7ce25744964ad8d7c8a9c8f978cd824ae1c6000717fe108e3141b2",
       "symbols": [
         {
           "name": "StudyTaskSource",
