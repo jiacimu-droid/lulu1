@@ -48,9 +48,9 @@ import javax.net.ssl.HttpsURLConnection
 private const val LULU_REMOTE_AVATAR_MAX_BYTES = 3 * 1024 * 1024
 private const val LULU_AVATAR_MAX_EDGE = 768
 
-// A bounded decode keeps one portrait around ~2.3 MiB or less instead of accidentally caching a
-// 12/48MP camera bitmap. The cache then remains predictable even when many characters are visible.
-private val luluAvatarBitmapCache = object : LruCache<String, Bitmap>(32 * 1024) {
+// Keep a larger bounded portrait cache so chat/character lists can be recreated without briefly
+// falling back to initials while the same avatar is decoded again in the background.
+private val luluAvatarBitmapCache = object : LruCache<String, Bitmap>(64 * 1024) {
     override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount / 1024
 }
 
