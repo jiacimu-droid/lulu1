@@ -1,30 +1,26 @@
 package com.jiacimu.lulu.games
 
-import com.jiacimu.lulu.ai.CompanionContextMode
-import com.jiacimu.lulu.ai.LuluAiServices
-import com.jiacimu.lulu.ai.ModelUsage
-import org.json.JSONArray
-import org.json.JSONObject
-import java.util.UUID
-
 /**
- * Inventory is canonical only through the writer's hidden structured receipt.
+ * Inventory is canonical only through the scene writer's hidden structured receipt.
  *
- * Prose stays literary and is never regex-scanned for stock. This file only validates/repairs the
- * already structured receipt when a model still tries to collapse several independently consumable
- * things into a single parent package row.
+ * The client deliberately does not infer, split or invent inventory semantics. The writing model must
+ * decide the concrete SKU list and quantities itself in the same generation that writes the scene.
+ * This file is only a validator/save gate plus legacy visible-audit cleanup.
  */
 internal fun apocalypseInventoryQuantityContractV5(): String = """
-【具体物资与数量硬规则】
-1. 只要本幕真实购买、搜集、领取、交换、捡到、搬走或收入空间任何实体物品，隐藏状态回执 acquiredItems 必须逐项完整列出本幕真正获得的全部物品；客户端只按结构化清单入库，绝不从正文反推库存。
-2. 仓库只保存“最小可独立消耗/使用/计数的具体SKU”。组合箱、礼包、礼盒、套装、拼盘、一批装备、若干食品、混合物资、套餐、综合补给都不能作为最终库存条目；必须把内部每一种真实物品拆成独立记录，父级包装只写进 detail 作为来源。
-3. acquiredItems 每项必须包含 id、kind、title、quantity、unit、detail、tag。title只能是一个具体物品名；quantity必须是明确整数；unit必须是实际追踪单位。
-4. 食物必须使用后续真正会消耗的单位：糖果按颗，薯片按包，巧克力按块/条，罐头按罐，方便面按包，饼干按包，饮料/水按瓶/罐，面包按包/片，速冻饺子按袋/盒，馄饨按袋/盒。药片按片、胶囊按粒、绷带按卷、针剂按支。弹药按发/枚，枪械按支/把，盾牌按面，背心/护甲/头盔按件。
-5. 如果采购的是N个相同组合箱，模型必须在同一幕确定每个子品类的“每箱数量×箱数=总数量”，直接把总数量写进 acquiredItems；不能再保留“组合箱×N份”的父条目。
-6. 如果正文已经明确包装数量，严格使用正文数字。例如10箱水×12瓶/箱=120瓶；4盒弹药共120发，则库存记录120发而不是4盒。不得把“份”当作万能单位。
-7. 新获得的每个子品类只出现一次；不要同时在 acquiredItems 和 inventoryChanges 正向重复入账。已有物品吃掉、喝掉、使用、丢失、赠送、损坏时才用 inventoryChanges 的负 quantityDelta，并沿用具体库存名称/id。
-8. 正文获得N种具体东西，acquiredItems必须有N条或更多（组合包装拆开后通常更多），一件都不能漏。没有获得新物品时返回空数组 []。
-9. 不得在玩家可见正文中追加“入库清点”“库存审计”“系统补记”“数量待确认”等系统文字。
+【模型主动拆分物资｜最高优先硬规则】
+1. 你是本幕正文作者，同时也是本幕唯一的物资记账者。写正文前，先在内部完成一次“本幕获得/消耗物资盘点”，确定每一个具体SKU、准确数量和真实计量单位；然后正文与隐藏状态回执必须共同使用这一份盘点结果。客户端不会替你猜、拆、补数量。
+2. 只要本幕真实购买、搜集、领取、交换、捡到、搬走或收入空间任何实体物品，隐藏回执必须主动返回 acquiredItems。正文获得多少种具体SKU，acquiredItems就逐项列多少种，一件都不能漏。
+3. 仓库只保存“最小可独立消耗/使用/计数的具体SKU”。组合箱、礼包、礼盒、套装、套餐、拼盘、一批装备、若干食品、混合物资、综合补给都绝对不能作为最终库存title。父包装只能写进detail作为来源。
+4. acquiredItems每项必须包含{id,kind,title,quantity,unit,detail,tag}。title只能写一个具体物品名；quantity必须是明确整数；unit必须是后续真正会扣减的单位。
+5. 组合包装必须由你主动展开。例如“6箱零食组合箱，内有薯片、奶糖、巧克力、果干”，你必须在本幕就决定并固定每箱构成，再返回“香辣薯片×总包数、奶糖×总颗数、巧克力×总块数、果干×总袋数”等独立SKU；禁止返回“零食组合箱×6份”。
+6. 食物优先用可直接消耗单位：糖果按颗，薯片按包，巧克力按块/条，罐头按罐，方便面/饼干按包，水和饮料按瓶/罐，面包按包/片，速冻食品按袋/盒。药片按片、胶囊按粒、绷带按卷、针剂按支。弹药按发/枚，枪械按支/把，盾牌按面，背心/护甲/头盔按件。
+7. 正文明示包装数量时必须精确换算。例如10箱水×12瓶/箱=120瓶；4盒弹药共120发，则acquiredItems记录120发而不是4盒。不得把“份”当万能单位。
+8. 如果玩家买的是虚构组合商品且正文此前没有给出子品数量，你作为本幕作者必须在写正文时一次性确定合理、明确、不过度夸张的包装构成，并把这些数字写进正文可见采购/清点结果与acquiredItems；以后这组数字成为正史，不能下一幕改口。
+9. 同一种具体SKU本幕只返回一条，数量合并。新获得只放acquiredItems；已有库存吃掉、喝掉、使用、丢失、赠送、损坏时用inventoryChanges负quantityDelta，并沿用已有具体库存id/title。
+10. 正文与回执必须一致：正文说吃了1颗奶糖，inventoryChanges就让奶糖-1；正文说吃了1包薯片，就让薯片-1。不能只减抽象“食物”而不减具体SKU。
+11. 不得在玩家可见正文中写“入库清点、库存审计、系统补记、数量待确认”等系统文字。物资账单只存在隐藏回执；正文只自然写采购、清点、食用和使用行为。
+12. 无论其他旧示例是否出现discoverAssets，以本规则为准：新获得物资优先完整写入acquiredItems；discoverAssets仅视为旧兼容字段，不能用它规避逐SKU拆分。
 """.trimIndent()
 
 private val apocalypseBundledInventoryWordsV5 = listOf(
@@ -37,7 +33,7 @@ private val apocalypseBundledInventoryWordsV5 = listOf(
 
 private val apocalypseBundledInventoryJoinersV5 = listOf("及", "以及", "与", "和", "、", "/", "+")
 
-/** Final save gate and migration detector. A parent package row is not a legal concrete warehouse SKU. */
+/** A parent package row is never a legal final concrete warehouse SKU. */
 internal fun apocalypseInventoryAssetNeedsGranularRepairV5(asset: ApocalypseV3Asset): Boolean {
     val title = asset.title.trim()
     val detail = asset.detail.trim()
@@ -79,7 +75,7 @@ internal fun apocalypseInventoryAssetNeedsGranularRepairV5(asset: ApocalypseV3As
 internal fun apocalypseInventoryHasBundledRowsV5(assets: List<ApocalypseV3Asset>): Boolean =
     assets.any(::apocalypseInventoryAssetNeedsGranularRepairV5)
 
-private fun apocalypseInventoryReceiptNeedsGranularRepairV5(outcome: ApocalypseSceneOutcomeV5): Boolean {
+internal fun apocalypseInventoryReceiptNeedsGranularRepairV5(outcome: ApocalypseSceneOutcomeV5): Boolean {
     val additions = outcome.delta.discoverAssets
     if (additions.any(::apocalypseInventoryAssetNeedsGranularRepairV5)) return true
 
@@ -95,169 +91,20 @@ private fun apocalypseInventoryReceiptNeedsGranularRepairV5(outcome: ApocalypseS
 /**
  * Compatibility hook used by the generation pipeline.
  *
- * It never infers stock from prose. If the structured receipt is too coarse, a hidden repair call
- * rewrites only acquiredItems. The visible story remains unchanged. Two attempts are allowed because
- * some models repeat the same parent-package wording on the first repair.
+ * No second inventory model, no prose regex and no client-side semantic splitting. If the scene
+ * writer did not produce an atomic receipt, the scene is rejected instead of silently saving a bad
+ * warehouse row. The writing model must get it right in its own scene generation / normal rewrite.
  */
 internal suspend fun recoverApocalypseNarratedInventoryV5(
     outcome: ApocalypseSceneOutcomeV5,
 ): ApocalypseSceneOutcomeV5 {
     val cleaned = outcome.copy(text = stripLegacyApocalypseInventoryAuditV5(outcome.text))
-    if (!apocalypseInventoryReceiptNeedsGranularRepairV5(cleaned)) return cleaned
-
-    val originalAssets = JSONArray().apply {
-        cleaned.delta.discoverAssets.forEach { asset ->
-            put(apocalypseAssetJsonV5(asset))
-        }
+    if (apocalypseInventoryReceiptNeedsGranularRepairV5(cleaned)) {
+        throw IllegalStateException(
+            "本幕模型没有把获得物资主动拆成具体SKU和数量；这次结果没有写入存档，请重试这一幕。",
+        )
     }
-
-    var previousBad = ""
-    repeat(2) { attempt ->
-        val facts = buildString {
-            appendLine("【不展示给玩家的库存SKU修复】")
-            appendLine("玩家可见正文仅用于理解本幕真实获得了哪些东西，绝对不要改写正文：")
-            appendLine(cleaned.text.take(5_600))
-            appendLine("原结构化新增物资：")
-            appendLine(originalAssets.toString())
-            appendLine("原动作结果：${cleaned.actionOutcome.take(500)}")
-            if (previousBad.isNotBlank()) {
-                appendLine("上一次仍不合格的返回（禁止照抄）：")
-                appendLine(previousBad.take(3_000))
-            }
-        }
-        val instruction = """
-            你只修复这一幕的隐藏新增库存SKU，不改正文，不补剧情，不解释。只返回一个合法单行JSON对象：{"acquiredItems":[...]}。
-
-            ${apocalypseInventoryQuantityContractV5()}
-
-            本次是第${attempt + 1}次校验，必须满足：
-            - 最终 acquiredItems 中绝对不能出现“组合箱、组合、礼包、礼盒、套装、套餐、拼盘、一批、若干、多种、战术装备、食品物资”等父包装/泛称标题。
-            - 原清单中已经足够具体的单品必须保留，不能因为拆父包装而漏掉。
-            - 对父包装，父条目本身必须删除，只返回内部每个独立SKU。
-            - 如果原detail/正文列出了内部品类但没逐项数量，你现在必须为每个子品类确定合理明确整数，并把该数量固定为本幕正史；不得返回“未知/若干/一份”。
-            - quantity是最终可追踪单位总数，不是外包装数量；detail保留“来源：6箱组合装；每箱4包薯片，共24包”这类包装关系。
-            - 同一种具体SKU只返回一条，数量合并；不要返回 inventoryChanges、正文或Markdown。
-        """.trimIndent()
-
-        val generated = LuluAiServices.gateway.generate(
-            characterId = "__apocalypse_inventory_receipt_v5__",
-            facts = facts,
-            instruction = instruction,
-            source = "末世求生V5物资SKU细分",
-            title = "末世求生 · 隐藏物资SKU细分",
-            temperature = if (attempt == 0) 0.16 else 0.08,
-            maxTokens = 1700,
-            usage = ModelUsage.Game,
-            contextMode = CompanionContextMode.PersonaAndScenario,
-            streamResponse = false,
-            readTimeoutMillis = 45_000,
-        ).getOrNull()
-
-        if (generated != null) {
-            val repairedAssets = parseApocalypseGranularInventoryRepairV5(generated.text)
-            if (
-                repairedAssets.isNotEmpty() &&
-                repairedAssets.none(::apocalypseInventoryAssetNeedsGranularRepairV5)
-            ) {
-                val fields = cleaned.reportedStateFields.toMutableSet().apply {
-                    add("acquiredItems")
-                    add("discoverAssets")
-                }
-                return cleaned.copy(
-                    simulationStateReported = true,
-                    reportedStateFields = fields,
-                    delta = cleaned.delta.copy(discoverAssets = repairedAssets.take(128)),
-                )
-            }
-            previousBad = generated.text
-        }
-    }
-
-    throw IllegalStateException("物资清单连续两次仍把多个品类混在一起；这一幕没有写入存档，请重试。")
-}
-
-private fun apocalypseAssetJsonV5(asset: ApocalypseV3Asset): JSONObject = JSONObject()
-    .put("id", asset.id)
-    .put("kind", apocalypseStructuredInventoryKindNameV5(asset.kind))
-    .put("title", asset.title)
-    .put("quantity", asset.quantity)
-    .put("unit", apocalypseStructuredInventoryUnitV5(asset))
-    .put("detail", asset.detail)
-    .put("tag", asset.tag)
-
-private fun parseApocalypseGranularInventoryRepairV5(raw: String): List<ApocalypseV3Asset> = runCatching {
-    val normalized = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
-    val start = normalized.indexOf('{')
-    val end = normalized.lastIndexOf('}')
-    if (start < 0 || end <= start) return@runCatching emptyList()
-    val json = JSONObject(normalized.substring(start, end + 1))
-    val array = json.optJSONArray("acquiredItems") ?: return@runCatching emptyList()
-    buildList {
-        for (index in 0 until array.length()) {
-            val item = array.optJSONObject(index) ?: continue
-            val title = item.optString("title").trim().take(80)
-            val quantity = item.optInt("quantity", 0).coerceIn(1, 99_999)
-            val unit = item.optString("unit").trim().take(16)
-            if (title.isBlank() || quantity <= 0 || unit.isBlank()) continue
-            val rawTag = item.optString("tag").trim()
-            val tag = listOf(rawTag, "单位=$unit")
-                .filter(String::isNotBlank)
-                .distinct()
-                .joinToString("；")
-                .take(100)
-            add(
-                ApocalypseV3Asset(
-                    id = item.optString("id").trim().ifBlank { UUID.randomUUID().toString() },
-                    kind = parseApocalypseStructuredInventoryKindV5(item.optString("kind")),
-                    title = title,
-                    detail = item.optString("detail").trim().take(420),
-                    quantity = quantity,
-                    tag = tag,
-                ),
-            )
-        }
-    }
-        .groupBy { "${it.kind}|${it.title.lowercase().replace(Regex("\\s+"), "")}" }
-        .values
-        .map { same ->
-            val first = same.first()
-            first.copy(
-                quantity = same.sumOf { it.quantity }.coerceAtMost(99_999),
-                detail = same.map { it.detail }.filter(String::isNotBlank).distinct().joinToString("；").take(420),
-                tag = same.flatMap { it.tag.split('；', ';') }.map(String::trim).filter(String::isNotBlank).distinct().joinToString("；").take(100),
-            )
-        }
-        .take(128)
-}.getOrDefault(emptyList())
-
-private fun parseApocalypseStructuredInventoryKindV5(raw: String): ApocalypseV3AssetKind = when (raw.trim().lowercase()) {
-    "food", "食品", "食物" -> ApocalypseV3AssetKind.Food
-    "water", "drink", "饮水", "饮料" -> ApocalypseV3AssetKind.Water
-    "medicine", "medical", "药品", "医疗" -> ApocalypseV3AssetKind.Medicine
-    "material", "materials", "材料" -> ApocalypseV3AssetKind.Material
-    "tool", "tools", "item", "工具" -> ApocalypseV3AssetKind.Tool
-    "weapon", "combat", "firearm", "ammo", "armor", "战斗", "武器", "枪械", "弹药", "护甲" -> ApocalypseV3AssetKind.Weapon
-    "vehicle", "载具" -> ApocalypseV3AssetKind.Vehicle
-    "key", "钥匙", "权限" -> ApocalypseV3AssetKind.Key
-    "document", "file", "文件" -> ApocalypseV3AssetKind.Document
-    "map", "地图" -> ApocalypseV3AssetKind.Map
-    "core", "晶核" -> ApocalypseV3AssetKind.Core
-    else -> ApocalypseV3AssetKind.Clue
-}
-
-private fun apocalypseStructuredInventoryKindNameV5(kind: ApocalypseV3AssetKind): String = when (kind) {
-    ApocalypseV3AssetKind.Food -> "food"
-    ApocalypseV3AssetKind.Water -> "water"
-    ApocalypseV3AssetKind.Medicine -> "medicine"
-    ApocalypseV3AssetKind.Material -> "material"
-    ApocalypseV3AssetKind.Tool -> "tool"
-    ApocalypseV3AssetKind.Weapon -> "weapon"
-    ApocalypseV3AssetKind.Vehicle -> "vehicle"
-    ApocalypseV3AssetKind.Key -> "key"
-    ApocalypseV3AssetKind.Document -> "document"
-    ApocalypseV3AssetKind.Clue -> "clue"
-    ApocalypseV3AssetKind.Map -> "map"
-    ApocalypseV3AssetKind.Core -> "core"
+    return cleaned
 }
 
 private fun apocalypseStructuredInventoryUnitV5(asset: ApocalypseV3Asset): String {
