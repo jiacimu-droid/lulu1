@@ -100,13 +100,8 @@ internal fun StudyCollectionScreenV2(
             CompactCollectionTicketCard(ticket)
         }
 
-        if (customTickets.isNotEmpty()) {
-            item(key = "custom-rewards-title") {
-                Text("自定义奖励", fontSize = 17.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp))
-            }
-            items(customTickets, key = { it.id }) { ticket ->
-                CompactCollectionTicketCard(ticket)
-            }
+        items(customTickets, key = { it.id }) { ticket ->
+            CompactCollectionTicketCard(ticket)
         }
 
         item(key = "fragments-title") {
