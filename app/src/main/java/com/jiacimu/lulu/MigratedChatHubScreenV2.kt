@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.CharacterSettings
+import com.jiacimu.lulu.data.ChatUnreadStore
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.LuluConversation
@@ -50,7 +51,17 @@ fun MigratedChatHubScreenV2(
 ) {
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     val characters by MigratedDomainStores.characters.settings.collectAsState()
+    val conversations by MigratedDomainStores.chat.conversations.collectAsState()
+    val unreadRevision by ChatUnreadStore.revision.collectAsState()
     val unreadMoments by MomentsStore.unreadCharacterPosts.collectAsState()
+    val totalUnreadMessages = remember(conversations, unreadRevision) {
+        conversations.sumOf { conversation ->
+            ChatUnreadStore.unreadCount(
+                conversationId = conversation.id,
+                messages = MigratedDomainStores.chat.messages(conversation.id).value,
+            )
+        }
+    }
     var showCreateGroup by remember { mutableStateOf(false) }
     var showCreateCharacter by remember { mutableStateOf(false) }
 
@@ -82,14 +93,19 @@ fun MigratedChatHubScreenV2(
         bottomBar = {
             NavigationBar(containerColor = LuluColors.Card) {
                 ChatHubLabels.forEachIndexed { index, label ->
+                    val badgeCount = when (index) {
+                        0 -> totalUnreadMessages
+                        2 -> unreadMoments
+                        else -> 0
+                    }
                     NavigationBarItem(
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
                         icon = {
-                            if (index == 2 && unreadMoments > 0) {
+                            if (badgeCount > 0) {
                                 BadgedBox(
                                     badge = {
-                                        Badge { Text(if (unreadMoments > 99) "99+" else unreadMoments.toString()) }
+                                        Badge { Text(if (badgeCount > 99) "99+" else badgeCount.toString()) }
                                     },
                                 ) { Icon(ChatHubIcons[index], label) }
                             } else {
@@ -150,6 +166,7 @@ fun MigratedChatHubScreenV2(
 private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
+    val unreadRevision by ChatUnreadStore.revision.collectAsState()
     val sorted = remember(conversations) {
         conversations.sortedWith(compareByDescending<LuluConversation> { it.pinned }.thenByDescending(LuluConversation::updatedAt))
     }
@@ -171,10 +188,15 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
             items(sorted, key = LuluConversation::id, contentType = { "conversation" }) { conversation ->
                 val character = characters[conversation.characterId] ?: MigratedDomainStores.characters.get(conversation.characterId)
                 val group = conversation.groupChat
+                val messages by MigratedDomainStores.chat.messages(conversation.id).collectAsState()
+                val unreadCount = remember(messages, unreadRevision) {
+                    ChatUnreadStore.unreadCount(conversation.id, messages)
+                }
                 Box {
                     Card(
                         modifier = Modifier.fillMaxWidth().combinedClickable(
                             onClick = {
+                                ChatUnreadStore.markRead(conversation.id, messages)
                                 MigratedDomainStores.chat.markConversationRead(conversation.id)
                                 onOpenConversation(conversation.id)
                             },
@@ -215,9 +237,9 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                                 Spacer(Modifier.width(7.dp))
                                 Icon(Icons.Outlined.PushPin, "已置顶", tint = LuluColors.Muted, modifier = Modifier.size(16.dp))
                             }
-                            if (conversation.unreadCount > 0) {
+                            if (unreadCount > 0) {
                                 Spacer(Modifier.width(7.dp))
-                                Badge { Text(conversation.unreadCount.toString()) }
+                                Badge { Text(if (unreadCount > 99) "99+" else unreadCount.toString()) }
                             }
                             IconButton(onClick = { menuConversationId = conversation.id }, modifier = Modifier.size(32.dp)) {
                                 Icon(Icons.Outlined.MoreVert, "会话操作", modifier = Modifier.size(18.dp))
