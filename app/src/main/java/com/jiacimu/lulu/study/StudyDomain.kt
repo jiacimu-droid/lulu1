@@ -183,7 +183,9 @@ internal const val BLUE_FRAGMENTS_PER_SCROLL = 20
 internal const val BLUE_FULL_DUPLICATE_RETURN_PRAISE = 20
 internal const val SINGLE_DRAW_COST = 100
 internal const val TEN_DRAW_COST = 800
-internal const val NON_NORMAL_PITY = 30
+// No hidden rarity override: every draw follows the user's saved percentages exactly.
+// Keep the legacy counter effectively unreachable so old save/codec fields remain compatible.
+internal const val NON_NORMAL_PITY = Int.MAX_VALUE
 internal const val STUDY_REWARD_INTERVAL_MINUTES = 5
 internal const val STUDY_REWARD_PRAISE = 100
 internal const val TASK_COMPLETION_PRAISE = 100
@@ -291,6 +293,9 @@ internal fun defaultTips(date: LocalDate): List<StudyTip> = listOf(
 )
 
 private const val CUSTOM_SHOP_RULE_MARKER = "|gacha-rule|"
+private const val SHOP_TICKET_WEIGHT = 70
+private const val SHOP_COLLECTION_WEIGHT = 30
+private const val SHOP_SINGLE_TICKET_WEIGHT = 55
 
 private data class StudyShopCandidate(
     val key: String,
@@ -299,15 +304,23 @@ private data class StudyShopCandidate(
 )
 
 /**
- * The shop always has two draw-ticket slots plus one collection slot. The collection slot is built
- * from the user's current gacha/collection rules, so newly-added custom rewards are eligible on the
- * next deterministic refresh instead of being excluded by a hard-coded built-in pool.
+ * Each of the three daily cards is rolled independently. Draw tickets own 70% of the top-level
+ * weight, while collection rewards own 30%. This intentionally allows combinations such as three
+ * tickets, two tickets plus one collection, or occasionally several collection cards instead of
+ * forcing the old Single + Ten + collection template. Collection candidates always come from the
+ * user's current saved collection rules, including newly-added custom rewards.
+ *
+ * A manual refresh is represented by the existing caller passing tomorrow's date while the real
+ * calendar is still today. Give that preview a separate deterministic seed so today's manual refresh
+ * does not become identical to tomorrow's automatic shop.
  */
 internal fun defaultShop(
     date: LocalDate,
     gachaRules: List<StudyGachaRule> = defaultGachaRules(),
 ): List<StudyShopItem> {
-    val random = Random(date.toString().hashCode())
+    val manualVariant = if (date.isAfter(LocalDate.now())) 1 else 0
+    val seed = 31 * date.toString().hashCode() + manualVariant * 0x5F3759DF
+    val random = Random(seed)
     val collectionCandidates = repairGachaRules(gachaRules)
         .mapNotNull { rule ->
             val weight = when (rule.rarity) {
@@ -318,19 +331,25 @@ internal fun defaultShop(
             }
             if (weight <= 0) null else StudyShopCandidate("rule:${rule.id}", weight) { id -> rule.toShopItem(id) }
         }
+    val usedCollectionKeys = mutableSetOf<String>()
 
-    val result = mutableListOf(
-        StudyShopReward.SingleTicket.toShopItem("${date}-1-SingleTicket"),
-        StudyShopReward.TenTicket.toShopItem("${date}-2-TenTicket"),
-    )
-    if (collectionCandidates.isNotEmpty()) {
-        val candidate = weightedShopCandidate(collectionCandidates, random)
-        result += candidate.build("${date}-3")
-    } else {
-        // Damaged/empty collection settings should not leave the third card blank.
-        result += StudyShopReward.SingleTicket.toShopItem("${date}-3-SingleTicket-fallback")
+    return (1..3).map { slot ->
+        val collectionRoll = random.nextInt(SHOP_TICKET_WEIGHT + SHOP_COLLECTION_WEIGHT)
+        val chooseCollection = collectionCandidates.isNotEmpty() && collectionRoll >= SHOP_TICKET_WEIGHT
+        if (!chooseCollection) {
+            val reward = if (random.nextInt(100) < SHOP_SINGLE_TICKET_WEIGHT) {
+                StudyShopReward.SingleTicket
+            } else {
+                StudyShopReward.TenTicket
+            }
+            reward.toShopItem("${date}-$manualVariant-$slot-${reward.name}")
+        } else {
+            val unused = collectionCandidates.filterNot { it.key in usedCollectionKeys }
+            val candidate = weightedShopCandidate(unused.ifEmpty { collectionCandidates }, random)
+            usedCollectionKeys += candidate.key
+            candidate.build("${date}-$manualVariant-$slot")
+        }
     }
-    return result
 }
 
 private fun weightedShopCandidate(pool: List<StudyShopCandidate>, random: Random): StudyShopCandidate {
