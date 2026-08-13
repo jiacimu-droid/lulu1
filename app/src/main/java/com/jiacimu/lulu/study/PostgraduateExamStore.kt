@@ -496,11 +496,15 @@ class PostgraduateExamStore internal constructor(context: Context) {
         if (total > 100.000001) return "保存失败：紫色、金色、彩色项目合计概率不能超过 100%"
         val customIds = repaired.filter(StudyGachaRule::custom).mapTo(mutableSetOf(), StudyGachaRule::id)
         mutate { state ->
+            val today = LocalDate.now()
             state.copy(
                 gachaRules = repaired,
                 inventory = state.inventory.copy(
                     customRewards = state.inventory.customRewards.filterKeys { it in customIds },
                 ),
+                shopItems = rebuildShopForRules(state, today, repaired),
+                shopDate = today.toString(),
+                manualShopRefreshDate = if (state.shopDate == today.toString()) state.manualShopRefreshDate else "",
                 events = addEvent(
                     state.events,
                     "抽卡概率设计",
@@ -762,7 +766,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
             if (state.manualShopRefreshDate == today.toString()) return@mutate state
             message = "商店已刷新"
             state.copy(
-                shopItems = defaultShop(today.plusDays(1)),
+                shopItems = defaultShop(today.plusDays(1), state.gachaRules),
                 shopDate = today.toString(),
                 manualShopRefreshDate = today.toString(),
                 events = addEvent(state.events, "刷新商店", message),
@@ -783,15 +787,30 @@ class PostgraduateExamStore internal constructor(context: Context) {
                 message = "夸夸值不足，还需要 ${item.cost - state.profile.praisePoints}"
                 return@mutate state
             }
+            val customRuleId = item.customShopRuleId()
             var inventory = state.inventory
-            inventory = when (item.reward) {
-                StudyShopReward.SingleTicket -> inventory.copy(singleTickets = inventory.singleTickets + item.amount)
-                StudyShopReward.TenTicket -> inventory.copy(tenTickets = inventory.tenTickets + item.amount)
-                StudyShopReward.DouyinTicket -> inventory.copy(douyinTickets = inventory.douyinTickets + item.amount)
-                StudyShopReward.GameRoundTicket -> inventory.copy(gameRoundTickets = inventory.gameRoundTickets + item.amount)
-                StudyShopReward.TheaterFragment -> inventory.copy(theaterFragments = inventory.theaterFragments + item.amount)
-                StudyShopReward.GameTicket -> inventory.copy(gameTickets = inventory.gameTickets + item.amount)
-                StudyShopReward.AnimeTicket -> inventory.copy(animeTickets = inventory.animeTickets + item.amount)
+            inventory = if (customRuleId != null) {
+                val rule = repairGachaRules(state.gachaRules)
+                    .firstOrNull { candidate -> candidate.id == customRuleId && candidate.custom }
+                if (rule == null) {
+                    message = "这件自定义收藏已经不存在了，刷新商店后再看看"
+                    return@mutate state
+                }
+                val amount = item.amount.coerceIn(1, 999)
+                inventory.copy(
+                    customRewards = inventory.customRewards +
+                        (rule.id to ((inventory.customRewards[rule.id] ?: 0) + amount)),
+                )
+            } else {
+                when (item.reward) {
+                    StudyShopReward.SingleTicket -> inventory.copy(singleTickets = inventory.singleTickets + item.amount)
+                    StudyShopReward.TenTicket -> inventory.copy(tenTickets = inventory.tenTickets + item.amount)
+                    StudyShopReward.DouyinTicket -> inventory.copy(douyinTickets = inventory.douyinTickets + item.amount)
+                    StudyShopReward.GameRoundTicket -> inventory.copy(gameRoundTickets = inventory.gameRoundTickets + item.amount)
+                    StudyShopReward.TheaterFragment -> inventory.copy(theaterFragments = inventory.theaterFragments + item.amount)
+                    StudyShopReward.GameTicket -> inventory.copy(gameTickets = inventory.gameTickets + item.amount)
+                    StudyShopReward.AnimeTicket -> inventory.copy(animeTickets = inventory.animeTickets + item.amount)
+                }
             }
             message = "购买成功：${item.title}"
             state.copy(
@@ -917,8 +936,27 @@ class PostgraduateExamStore internal constructor(context: Context) {
         return longest
     }
 
-    private fun usesLegacyShopPricing(items: List<StudyShopItem>): Boolean =
-        items.any { item -> item.cost != item.reward.shopCost() }
+    private fun shopSeedDate(state: StudyState, today: LocalDate): LocalDate {
+        val todayKey = today.toString()
+        val manualRefreshActive = state.shopDate == todayKey && state.manualShopRefreshDate == todayKey
+        return if (manualRefreshActive) today.plusDays(1) else today
+    }
+
+    private fun rebuildShopForRules(
+        state: StudyState,
+        today: LocalDate,
+        rules: List<StudyGachaRule>,
+    ): List<StudyShopItem> {
+        val sameShopDay = state.shopDate == today.toString()
+        val purchasedIds = if (sameShopDay) {
+            state.shopItems.asSequence().filter(StudyShopItem::purchased).mapTo(mutableSetOf(), StudyShopItem::id)
+        } else {
+            emptySet()
+        }
+        return defaultShop(shopSeedDate(state, today), rules).map { item ->
+            if (item.id in purchasedIds) item.copy(purchased = true) else item
+        }
+    }
 
     private fun rollover(state: StudyState, today: LocalDate): StudyState {
         val tasks = state.tasks.filter { task ->
@@ -935,14 +973,21 @@ class PostgraduateExamStore internal constructor(context: Context) {
                 existingToday.firstOrNull { it.title == preset.title }?.copy(source = StudyTaskSource.Preset) ?: preset
             }
         }
-        val legacyShop = usesLegacyShopPricing(state.shopItems)
-        if (!dateChanged && state.shopDate == todayKey && withDefaults == state.tasks && !legacyShop) return updateAchievements(state)
+        val rebuiltShop = rebuildShopForRules(state, today, state.gachaRules)
+        if (
+            !dateChanged &&
+            state.shopDate == todayKey &&
+            withDefaults == state.tasks &&
+            rebuiltShop == state.shopItems
+        ) {
+            return updateAchievements(state)
+        }
         return updateAchievements(
             state.copy(
                 activeDate = todayKey,
                 tasks = withDefaults,
                 tips = if (state.tips.none { it.date == today.toString() }) defaultTips(today) + state.tips else state.tips,
-                shopItems = if (state.shopDate == todayKey && !legacyShop) state.shopItems else defaultShop(today),
+                shopItems = rebuiltShop,
                 shopDate = todayKey,
                 manualShopRefreshDate = if (state.shopDate == todayKey) state.manualShopRefreshDate else "",
                 superMomentAvailable = if (dateChanged) false else state.superMomentAvailable,
