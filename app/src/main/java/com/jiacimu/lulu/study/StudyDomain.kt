@@ -299,19 +299,15 @@ private data class StudyShopCandidate(
 )
 
 /**
- * The shop has one draw-ticket slot plus two collection slots. Collection slots are built from the
- * user's current gacha/collection rules, so newly-added custom rewards are eligible immediately on
- * the next deterministic refresh instead of being excluded by a hard-coded built-in pool.
+ * The shop always has two draw-ticket slots plus one collection slot. The collection slot is built
+ * from the user's current gacha/collection rules, so newly-added custom rewards are eligible on the
+ * next deterministic refresh instead of being excluded by a hard-coded built-in pool.
  */
 internal fun defaultShop(
     date: LocalDate,
     gachaRules: List<StudyGachaRule> = defaultGachaRules(),
 ): List<StudyShopItem> {
     val random = Random(date.toString().hashCode())
-    val ticketCandidates = mutableListOf(
-        StudyShopCandidate("SingleTicket", 65) { id -> StudyShopReward.SingleTicket.toShopItem(id) },
-        StudyShopCandidate("TenTicket", 35) { id -> StudyShopReward.TenTicket.toShopItem(id) },
-    )
     val collectionCandidates = repairGachaRules(gachaRules)
         .mapNotNull { rule ->
             val weight = when (rule.rarity) {
@@ -322,26 +318,17 @@ internal fun defaultShop(
             }
             if (weight <= 0) null else StudyShopCandidate("rule:${rule.id}", weight) { id -> rule.toShopItem(id) }
         }
-        .toMutableList()
 
-    val result = mutableListOf<StudyShopItem>()
-    if (ticketCandidates.isNotEmpty()) {
-        val ticket = weightedShopCandidate(ticketCandidates, random)
-        result += ticket.build("${date}-1-${ticket.key}")
-    }
-
-    repeat(2) { index ->
-        if (collectionCandidates.isEmpty()) return@repeat
+    val result = mutableListOf(
+        StudyShopReward.SingleTicket.toShopItem("${date}-1-SingleTicket"),
+        StudyShopReward.TenTicket.toShopItem("${date}-2-TenTicket"),
+    )
+    if (collectionCandidates.isNotEmpty()) {
         val candidate = weightedShopCandidate(collectionCandidates, random)
-        collectionCandidates.remove(candidate)
-        result += candidate.build("${date}-${index + 2}")
-    }
-
-    // Defensive fallback for damaged/empty custom configurations: still keep three useful slots.
-    while (result.size < 3 && ticketCandidates.isNotEmpty()) {
-        val candidate = weightedShopCandidate(ticketCandidates, random)
-        ticketCandidates.remove(candidate)
-        result += candidate.build("${date}-${result.size + 1}-${candidate.key}-fallback")
+        result += candidate.build("${date}-3")
+    } else {
+        // Damaged/empty collection settings should not leave the third card blank.
+        result += StudyShopReward.SingleTicket.toShopItem("${date}-3-SingleTicket-fallback")
     }
     return result
 }
@@ -363,8 +350,8 @@ internal fun StudyRarity.shopCost(): Int = when (this) {
 }
 
 internal fun StudyShopReward.shopCost(): Int = when (this) {
-    StudyShopReward.SingleTicket -> 80
-    StudyShopReward.TenTicket -> 650
+    StudyShopReward.SingleTicket -> 60
+    StudyShopReward.TenTicket -> 500
     StudyShopReward.DouyinTicket -> 1_000
     StudyShopReward.GameRoundTicket -> 1_000
     StudyShopReward.TheaterFragment -> 1_000
@@ -404,8 +391,8 @@ private fun StudyGachaRule.toShopItem(baseId: String): StudyShopItem {
 }
 
 private fun StudyShopReward.toShopItem(id: String): StudyShopItem = when (this) {
-    StudyShopReward.SingleTicket -> StudyShopItem(id, "单抽券", "商店价，比直接单抽省20夸夸值", shopCost(), this)
-    StudyShopReward.TenTicket -> StudyShopItem(id, "十连券", "商店限定折扣，比直接十连省150夸夸值", shopCost(), this)
+    StudyShopReward.SingleTicket -> StudyShopItem(id, "单抽券", "商店价，比直接单抽省40夸夸值", shopCost(), this)
+    StudyShopReward.TenTicket -> StudyShopItem(id, "十连券", "商店限定折扣，比直接十连省300夸夸值", shopCost(), this)
     StudyShopReward.DouyinTicket -> StudyShopItem(id, "抖音时长券", "紫色收藏商品 · 可使用20分钟", shopCost(), this)
     StudyShopReward.GameRoundTicket -> StudyShopItem(id, "游戏局数券", "紫色收藏商品 · 可畅玩4局", shopCost(), this)
     StudyShopReward.TheaterFragment -> StudyShopItem(id, "小剧场券", "紫色收藏商品 · 可生成或续写小剧场1章", shopCost(), this)
