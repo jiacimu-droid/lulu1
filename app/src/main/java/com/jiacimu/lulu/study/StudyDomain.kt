@@ -180,7 +180,7 @@ data class StudyState(
 }
 
 internal const val BLUE_FRAGMENTS_PER_SCROLL = 20
-internal const val BLUE_FULL_DUPLICATE_RETURN_PRAISE = 10
+internal const val BLUE_FULL_DUPLICATE_RETURN_PRAISE = 20
 internal const val SINGLE_DRAW_COST = 100
 internal const val TEN_DRAW_COST = 800
 internal const val NON_NORMAL_PITY = 30
@@ -290,48 +290,125 @@ internal fun defaultTips(date: LocalDate): List<StudyTip> = listOf(
     StudyTip(text = "真题训练优先记录错因，不用为了速度跳过复盘。", date = date.toString()),
 )
 
-internal fun defaultShop(date: LocalDate): List<StudyShopItem> {
+private const val CUSTOM_SHOP_RULE_MARKER = "|gacha-rule|"
+
+private data class StudyShopCandidate(
+    val key: String,
+    val weight: Int,
+    val build: (String) -> StudyShopItem,
+)
+
+/**
+ * The shop has one draw-ticket slot plus two collection slots. Collection slots are built from the
+ * user's current gacha/collection rules, so newly-added custom rewards are eligible immediately on
+ * the next deterministic refresh instead of being excluded by a hard-coded built-in pool.
+ */
+internal fun defaultShop(
+    date: LocalDate,
+    gachaRules: List<StudyGachaRule> = defaultGachaRules(),
+): List<StudyShopItem> {
     val random = Random(date.toString().hashCode())
-    val pool = listOf(
-        StudyShopReward.SingleTicket to 60,
-        StudyShopReward.TenTicket to 25,
-        StudyShopReward.DouyinTicket to 5,
-        StudyShopReward.GameRoundTicket to 3,
-        StudyShopReward.TheaterFragment to 3,
-        StudyShopReward.GameTicket to 2,
-        StudyShopReward.AnimeTicket to 1,
+    val ticketCandidates = mutableListOf(
+        StudyShopCandidate("SingleTicket", 65) { id -> StudyShopReward.SingleTicket.toShopItem(id) },
+        StudyShopCandidate("TenTicket", 35) { id -> StudyShopReward.TenTicket.toShopItem(id) },
     )
-    return (1..3).map { slot ->
-        val reward = weightedShopReward(pool, random)
-        reward.toShopItem("${date}-$slot-${reward.name}")
+    val collectionCandidates = repairGachaRules(gachaRules)
+        .mapNotNull { rule ->
+            val weight = when (rule.rarity) {
+                StudyRarity.Normal -> 0
+                StudyRarity.Rare -> 6
+                StudyRarity.Epic -> 3
+                StudyRarity.Rainbow -> 1
+            }
+            if (weight <= 0) null else StudyShopCandidate("rule:${rule.id}", weight) { id -> rule.toShopItem(id) }
+        }
+        .toMutableList()
+
+    val result = mutableListOf<StudyShopItem>()
+    if (ticketCandidates.isNotEmpty()) {
+        val ticket = weightedShopCandidate(ticketCandidates, random)
+        result += ticket.build("${date}-1-${ticket.key}")
     }
+
+    repeat(2) { index ->
+        if (collectionCandidates.isEmpty()) return@repeat
+        val candidate = weightedShopCandidate(collectionCandidates, random)
+        collectionCandidates.remove(candidate)
+        result += candidate.build("${date}-${index + 2}")
+    }
+
+    // Defensive fallback for damaged/empty custom configurations: still keep three useful slots.
+    while (result.size < 3 && ticketCandidates.isNotEmpty()) {
+        val candidate = weightedShopCandidate(ticketCandidates, random)
+        ticketCandidates.remove(candidate)
+        result += candidate.build("${date}-${result.size + 1}-${candidate.key}-fallback")
+    }
+    return result
 }
 
-private fun weightedShopReward(pool: List<Pair<StudyShopReward, Int>>, random: Random): StudyShopReward {
-    var roll = random.nextInt(pool.sumOf { it.second })
-    pool.forEach { (item, weight) ->
-        if (roll < weight) return item
-        roll -= weight
+private fun weightedShopCandidate(pool: List<StudyShopCandidate>, random: Random): StudyShopCandidate {
+    var roll = random.nextInt(pool.sumOf { it.weight }.coerceAtLeast(1))
+    pool.forEach { candidate ->
+        if (roll < candidate.weight) return candidate
+        roll -= candidate.weight
     }
-    return pool.last().first
+    return pool.last()
+}
+
+internal fun StudyRarity.shopCost(): Int = when (this) {
+    StudyRarity.Normal -> 1_000
+    StudyRarity.Rare -> 1_000
+    StudyRarity.Epic -> 2_000
+    StudyRarity.Rainbow -> 3_000
 }
 
 internal fun StudyShopReward.shopCost(): Int = when (this) {
-    StudyShopReward.SingleTicket -> 80
-    StudyShopReward.TenTicket -> 650
-    StudyShopReward.DouyinTicket -> 1_800
-    StudyShopReward.GameRoundTicket -> 2_200
-    StudyShopReward.TheaterFragment -> 2_400
-    StudyShopReward.GameTicket -> 5_200
-    StudyShopReward.AnimeTicket -> 12_000
+    StudyShopReward.SingleTicket -> 60
+    StudyShopReward.TenTicket -> 500
+    StudyShopReward.DouyinTicket -> 1_000
+    StudyShopReward.GameRoundTicket -> 1_000
+    StudyShopReward.TheaterFragment -> 1_000
+    StudyShopReward.GameTicket -> 2_000
+    StudyShopReward.AnimeTicket -> 3_000
+}
+
+internal fun StudyShopItem.customShopRuleId(): String? =
+    id.substringAfter(CUSTOM_SHOP_RULE_MARKER, "").trim().takeIf(String::isNotBlank)
+
+private fun StudyGachaRule.toShopItem(baseId: String): StudyShopItem {
+    val amount = amountPerDraw.coerceIn(1, 999)
+    val customId = if (custom) "$baseId$CUSTOM_SHOP_RULE_MARKER$id" else "$baseId-$id"
+    val reward = when (type) {
+        StudyGachaRewardType.Douyin -> StudyShopReward.DouyinTicket
+        StudyGachaRewardType.GameRound -> StudyShopReward.GameRoundTicket
+        StudyGachaRewardType.Theater -> StudyShopReward.TheaterFragment
+        StudyGachaRewardType.Movie -> StudyShopReward.GameTicket
+        StudyGachaRewardType.Anime -> StudyShopReward.AnimeTicket
+        // Custom items use a harmless legacy enum placeholder; buyShopItem detects the encoded rule id
+        // before the legacy reward switch and credits the matching custom inventory instead.
+        StudyGachaRewardType.Custom -> StudyShopReward.SingleTicket
+    }
+    val amountSuffix = if (amount > 1) " ×$amount" else ""
+    return StudyShopItem(
+        id = customId,
+        title = "$title$amountSuffix",
+        subtitle = if (custom) {
+            "${rarity.label}收藏商品 · 来自你当前的自定义收藏池"
+        } else {
+            "${rarity.label}收藏商品 · 来自当前收藏池"
+        },
+        cost = rarity.shopCost(),
+        reward = reward,
+        amount = amount,
+    )
 }
 
 private fun StudyShopReward.toShopItem(id: String): StudyShopItem = when (this) {
-    StudyShopReward.SingleTicket -> StudyShopItem(id, "单抽券", "商店价，比直接单抽省20夸夸值", shopCost(), this)
-    StudyShopReward.TenTicket -> StudyShopItem(id, "十连券", "商店限定折扣，比直接十连省150夸夸值", shopCost(), this)
-    StudyShopReward.DouyinTicket -> StudyShopItem(id, "抖音时长券", "紫色稀有商品 · 可使用20分钟", shopCost(), this)
-    StudyShopReward.GameRoundTicket -> StudyShopItem(id, "游戏局数券", "紫色稀有商品 · 可畅玩4局", shopCost(), this)
-    StudyShopReward.TheaterFragment -> StudyShopItem(id, "小剧场券", "紫色稀有商品 · 可生成或续写小剧场1章", shopCost(), this)
-    StudyShopReward.GameTicket -> StudyShopItem(id, "电影券", "金色稀有商品 · 可观看1部电影", shopCost(), this)
-    StudyShopReward.AnimeTicket -> StudyShopItem(id, "影视剧一季兑换券", "彩色超稀有商品 · 可兑换一整季", shopCost(), this)
+    StudyShopReward.SingleTicket -> StudyShopItem(id, "单抽券", "商店价，比直接单抽省40夸夸值", shopCost(), this)
+    StudyShopReward.TenTicket -> StudyShopItem(id, "十连券", "商店限定折扣，比直接十连省300夸夸值", shopCost(), this)
+    StudyShopReward.DouyinTicket -> StudyShopItem(id, "抖音时长券", "紫色收藏商品 · 可使用20分钟", shopCost(), this)
+    StudyShopReward.GameRoundTicket -> StudyShopItem(id, "游戏局数券", "紫色收藏商品 · 可畅玩4局", shopCost(), this)
+    StudyShopReward.TheaterFragment -> StudyShopItem(id, "小剧场券", "紫色收藏商品 · 可生成或续写小剧场1章", shopCost(), this)
+    StudyShopReward.GameTicket -> StudyShopItem(id, "电影券", "金色收藏商品 · 可观看1部电影", shopCost(), this)
+    StudyShopReward.AnimeTicket -> StudyShopItem(id, "影视剧一季兑换券", "彩色收藏商品 · 可兑换一整季", shopCost(), this)
 }
