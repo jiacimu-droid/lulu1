@@ -90,13 +90,19 @@ private fun sanitizeApocalypseCoreAssetsV5(
 }
 
 private fun apocalypsePlayerFirstPersonAndInventoryReceiptRuleV5(): String = """
-【玩家第一人称与物资回执硬规则】
+【玩家第一人称与模型主动物资拆分硬规则】
 1. 玩家本人在正文中的动作、感受、判断、观察和内心一律使用第一人称“我”。禁止旁白用玩家名字、昵称、“玩家”“她/他”来叙述玩家本人，例如必须写“我把装备收进空间”，不能写“佳辞把装备收进空间”。其他角色在直接对话中可以自然称呼玩家姓名。
-2. 只要本幕实际获得任何实体物资，状态回执必须生成完整获得清单。新协议优先字段为acquiredItems；同时兼容discoverAssets。正文实际获得N种具体物品，acquiredItems就必须有N条，一条都不能漏，不能只挑其中一件。
-3. acquiredItems每条必须包含{id,kind,title,quantity,unit,detail,tag}。title只能是具体物品名，禁止“枪械及战术装备”“若干物资”这种合并名。quantity必须是明确整数，unit必须是实际单位（支/把/面/件/发/枚/瓶/罐/包/盒/袋/卷/台/辆等）。
-4. 同一采购里的枪、盾牌、背心、弹药必须拆成四条独立记录。例如正文获得“民用防暴胶弹枪4支、高分子防爆盾牌2面、模块化战术防弹背心13件、橡塑防爆弹120发”，回执必须逐项完整列出4条，数量分别为4、2、13、120。
-5. 箱/盒/提等包装如果正文知道内部数量，必须折算到可消耗单位并在detail保留包装关系；不知道箱内数量时保留“1箱未拆封”，绝不能虚构发数/瓶数。
-6. 已有物品的消耗、丢失、赠送、损坏用inventoryChanges负quantityDelta；新获得物品不要同时在inventoryChanges再加一次，避免重复入账。
+2. 你不是只负责写小说，也负责本幕唯一的物资记账。只要本幕可能发生采购、领取、搜集、拾取、交换、拆箱、食用、饮用或消耗，你必须在动笔写正文前先内部完成一次SKU盘点：列出本幕每一种具体物品、最终数量、可扣减单位，再按这份盘点写正文并生成隐藏回执。客户端不会替你做语义拆分。
+3. 新获得物资优先使用acquiredItems，格式固定为{id,kind,title,quantity,unit,detail,tag}。正文实际获得N种具体SKU，acquiredItems至少N条，一件不能漏；组合包装拆开后条数应更多。无新获得时返回[]。
+4. title必须是单一、具体、可独立计数/消耗的SKU。禁止把“零食组合箱、早点组合箱、礼包、套装、枪械及战术装备、若干物资、一批食品、综合补给”作为库存title。父包装只能写进detail。
+5. 如果玩家买6箱零食组合箱且箱内有薯片、奶糖、巧克力、果干，你必须在本幕主动决定合理的每箱构成，并在正文自然写清至少一次实际清点结果；acquiredItems直接返回各子SKU的总数量，例如香辣薯片24包、奶糖120颗、巧克力30块、果干18袋。禁止返回“组合箱×6份”。
+6. 同一采购里的枪、盾牌、背心、弹药必须拆成独立记录。例如正文获得“民用防暴胶弹枪4支、高分子防爆盾牌2面、模块化战术防弹背心13件、橡塑防爆弹120发”，acquiredItems必须逐项列4条，quantity分别4、2、13、120，unit分别支、面、件、发。
+7. 箱/盒/提只是包装，不是默认库存单位。只要内部数量在本幕可知，就必须换算为后续真正扣减的单位；正文说10箱水每箱12瓶，就记录120瓶；4盒弹药共120发就记录120发。只有剧情明确“未拆封且内部数量确实无法确认”时才允许保留箱/盒，并且不能同时假装知道内部数量。
+8. 食物按真正食用单位跟踪：糖果颗、薯片包、巧克力块/条、罐头罐、方便面/饼干包、水和饮料瓶/罐、速冻食品袋/盒。药片片、胶囊粒、绷带卷、针剂支；弹药发/枚；枪支支/把；盾牌面；背心/护甲/头盔件。
+9. 已有物品吃掉、喝掉、使用、丢失、赠送、损坏时，用inventoryChanges负quantityDelta并沿用已有库存id/title。正文写“我吃了一颗奶糖”就必须让奶糖-1；写“我吃了一包薯片”就必须让薯片-1。不能只改抽象foodDelta而不改具体SKU。
+10. 新获得不要同时在inventoryChanges做正向增加，避免重复入账。同一SKU本幕只出现一次，数量合并。
+11. 无论后面的旧输出示例是否写discoverAssets，都以本规则为最高优先：新获得必须优先完整写acquiredItems；discoverAssets只是兼容旧字段，不能用它绕过逐SKU拆分和unit。
+12. 禁止在正文末尾追加“入库清点、库存审计、系统补记、数量待确认”等系统日志。正文只自然呈现现实清点动作；真正账单放隐藏回执。
 """.trimIndent()
 
 /**
@@ -155,8 +161,8 @@ internal fun sanitizeApocalypseAbilityProgressionV5(
     val directiveParts = buildList {
         beat.directive.trim().takeIf(String::isNotBlank)?.let(::add)
         if (!beat.directive.contains("【晶核与空间异能成长硬规则】")) add(abilityRule)
-        if (!beat.directive.contains("【具体物资与数量硬规则】")) add(inventoryRule)
-        if (!beat.directive.contains("【玩家第一人称与物资回执硬规则】")) add(povAndReceiptRule)
+        if (!beat.directive.contains("【模型主动拆分物资｜最高优先硬规则】")) add(inventoryRule)
+        if (!beat.directive.contains("【玩家第一人称与模型主动物资拆分硬规则】")) add(povAndReceiptRule)
     }
     val directive = directiveParts.joinToString("\n")
 
