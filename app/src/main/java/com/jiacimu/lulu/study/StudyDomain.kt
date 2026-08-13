@@ -350,8 +350,8 @@ internal fun StudyRarity.shopCost(): Int = when (this) {
 }
 
 internal fun StudyShopReward.shopCost(): Int = when (this) {
-    StudyShopReward.SingleTicket -> 60
-    StudyShopReward.TenTicket -> 500
+    StudyShopReward.SingleTicket -> 80
+    StudyShopReward.TenTicket -> 650
     StudyShopReward.DouyinTicket -> 1_000
     StudyShopReward.GameRoundTicket -> 1_000
     StudyShopReward.TheaterFragment -> 1_000
@@ -391,8 +391,8 @@ private fun StudyGachaRule.toShopItem(baseId: String): StudyShopItem {
 }
 
 private fun StudyShopReward.toShopItem(id: String): StudyShopItem = when (this) {
-    StudyShopReward.SingleTicket -> StudyShopItem(id, "单抽券", "商店价，比直接单抽省40夸夸值", shopCost(), this)
-    StudyShopReward.TenTicket -> StudyShopItem(id, "十连券", "商店限定折扣，比直接十连省300夸夸值", shopCost(), this)
+    StudyShopReward.SingleTicket -> StudyShopItem(id, "单抽券", "商店价，比直接单抽省20夸夸值", shopCost(), this)
+    StudyShopReward.TenTicket -> StudyShopItem(id, "十连券", "商店限定折扣，比直接十连省150夸夸值", shopCost(), this)
     StudyShopReward.DouyinTicket -> StudyShopItem(id, "抖音时长券", "紫色收藏商品 · 可使用20分钟", shopCost(), this)
     StudyShopReward.GameRoundTicket -> StudyShopItem(id, "游戏局数券", "紫色收藏商品 · 可畅玩4局", shopCost(), this)
     StudyShopReward.TheaterFragment -> StudyShopItem(id, "小剧场券", "紫色收藏商品 · 可生成或续写小剧场1章", shopCost(), this)
