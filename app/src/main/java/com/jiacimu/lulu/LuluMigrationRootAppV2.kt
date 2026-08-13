@@ -116,6 +116,14 @@ fun LuluMigrationRootAppV2(
         if (route != MigrationRoute.Study) pushRoute(MigrationRoute.Study)
     }
 
+    // QqStyleChatDetailScreen intentionally remains composed behind other routes. This explicit
+    // visibility/lifecycle bridge is therefore the source of truth for when a message is actually
+    // seen. Background replies and replies received while browsing other Lulu pages remain unread.
+    ChatUnreadVisibilityEffect(
+        conversationId = selectedConversationId,
+        routeVisible = chatSessionStarted && route == MigrationRoute.ChatDetail,
+    )
+
     BackHandler(enabled = routeStack.size > 1) {
         popRoute()
     }
