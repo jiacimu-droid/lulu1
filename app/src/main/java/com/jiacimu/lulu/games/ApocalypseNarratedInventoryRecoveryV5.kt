@@ -20,7 +20,7 @@ internal fun apocalypseInventoryQuantityContractV5(): String = """
 9. 同一种具体SKU本幕只返回一条，数量合并。新获得只放acquiredItems；已有库存吃掉、喝掉、使用、丢失、赠送、损坏时用inventoryChanges负quantityDelta，并沿用已有具体库存id/title。
 10. 正文与回执必须一致：正文说吃了1颗奶糖，inventoryChanges就让奶糖-1；正文说吃了1包薯片，就让薯片-1。不能只减抽象“食物”而不减具体SKU。
 11. 不得在玩家可见正文中写“入库清点、库存审计、系统补记、数量待确认”等系统文字。物资账单只存在隐藏回执；正文只自然写采购、清点、食用和使用行为。
-12. 无论其他旧示例是否出现discoverAssets，以本规则为准：新获得物资优先完整写入acquiredItems；discoverAssets仅视为旧兼容字段，不能用它规避逐SKU拆分。
+12. 无论其他旧示例是否出现discoverAssets，以本规则为准：新获得物资必须完整写入acquiredItems；discoverAssets仅视为旧兼容字段，不能用它规避逐SKU拆分。
 """.trimIndent()
 
 private val apocalypseBundledInventoryWordsV5 = listOf(
@@ -77,6 +77,8 @@ internal fun apocalypseInventoryHasBundledRowsV5(assets: List<ApocalypseV3Asset>
 
 internal fun apocalypseInventoryReceiptNeedsGranularRepairV5(outcome: ApocalypseSceneOutcomeV5): Boolean {
     val additions = outcome.delta.discoverAssets
+    if (additions.isNotEmpty() && "acquiredItems" !in outcome.reportedStateFields) return true
+    if (additions.any { asset -> !Regex("(?:^|[；;])单位=[^；;]+").containsMatchIn(asset.tag) }) return true
     if (additions.any(::apocalypseInventoryAssetNeedsGranularRepairV5)) return true
 
     fun positiveDeltaWithoutConcrete(kind: ApocalypseV3AssetKind, delta: Int, field: String): Boolean =
@@ -101,7 +103,7 @@ internal suspend fun recoverApocalypseNarratedInventoryV5(
     val cleaned = outcome.copy(text = stripLegacyApocalypseInventoryAuditV5(outcome.text))
     if (apocalypseInventoryReceiptNeedsGranularRepairV5(cleaned)) {
         throw IllegalStateException(
-            "本幕模型没有把获得物资主动拆成具体SKU和数量；这次结果没有写入存档，请重试这一幕。",
+            "本幕模型没有主动返回逐SKU acquiredItems（含明确数量和单位）；这次结果没有写入存档，请重试这一幕。",
         )
     }
     return cleaned
