@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-13T04:06:35.864122+00:00",
-  "commit": "c0769e2e6ab29b72cf654e4294a020b8fbd26d67",
+  "generatedAt": "2026-08-13T04:06:54.313167+00:00",
+  "commit": "2a590400fd3706b4542aeb7abff7ee3358a546a0",
   "branch": "main",
-  "sourceFingerprint": "1d48d071ea370990ae4ab3daede2e7f523854b74a7b2c82520e33bd5a41f137b",
+  "sourceFingerprint": "a3d4de94d0f0c66b921657ab04f0bb178218c530ba0b83f5e5c4dc09a63bbe30",
   "summary": {
-    "files": 177,
-    "lines": 53413,
+    "files": 178,
+    "lines": 53497,
     "symbols": 696
   },
   "symbolIndex": {
@@ -4073,6 +4073,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTurnActions.kt",
       "lines": 45,
       "sha256": "4739900a1240f64d7e109bcd554d09ca3f9c56f4ac1c1fd4f73f489491bc4890",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ChatUnreadVisibilityEffect.kt",
+      "lines": 84,
+      "sha256": "b38cacfed3b557fb91db3136b4cedc1de4722b8d9cfcae7a9bef2e9991e32a0d",
       "symbols": []
     },
     {
