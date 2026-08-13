@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`fa4e16ea4a7ac5cafe01f9a33430a53e808b4d3f`
+- 基准提交：`c0769e2e6ab29b72cf654e4294a020b8fbd26d67`
 - 分支：`main`
-- 已索引文件：176
-- 已索引代码/文本行：53289
-- 已发现符号：690
+- 已索引文件：177
+- 已索引代码/文本行：53413
+- 已发现符号：696
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -61,6 +61,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 258 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 82 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 66 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt` | 124 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 229 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 244 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt` | 20 | 2 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-13T03:56:16.624182+00:00",
-  "commit": "fa4e16ea4a7ac5cafe01f9a33430a53e808b4d3f",
+  "generatedAt": "2026-08-13T04:06:35.864122+00:00",
+  "commit": "c0769e2e6ab29b72cf654e4294a020b8fbd26d67",
   "branch": "main",
-  "sourceFingerprint": "153d8035a521b55f861597169f723307a3de47334c1739b5f792c55186951a27",
+  "sourceFingerprint": "1d48d071ea370990ae4ab3daede2e7f523854b74a7b2c82520e33bd5a41f137b",
   "summary": {
-    "files": 176,
-    "lines": 53289,
-    "symbols": 690
+    "files": 177,
+    "lines": 53413,
+    "symbols": 696
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -70,6 +70,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt",
         "line": 23
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt",
+        "line": 26
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -1218,6 +1222,36 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt",
         "line": 17
+      }
+    ],
+    "ChatUnreadStore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt",
+        "line": 16
+      }
+    ],
+    "ensureBaseline": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt",
+        "line": 37
+      }
+    ],
+    "markRead": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt",
+        "line": 53
+      }
+    ],
+    "unreadCount": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt",
+        "line": 78
+      }
+    ],
+    "clearConversation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt",
+        "line": 106
       }
     ],
     "asJson": [
@@ -4927,6 +4961,37 @@
         {
           "name": "initialize",
           "line": 23
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt",
+      "lines": 124,
+      "sha256": "fa6431460740663bc32274d35a5acd19b01d36472f5800427ad14b3f8c36d4b6",
+      "symbols": [
+        {
+          "name": "ChatUnreadStore",
+          "line": 16
+        },
+        {
+          "name": "initialize",
+          "line": 26
+        },
+        {
+          "name": "ensureBaseline",
+          "line": 37
+        },
+        {
+          "name": "markRead",
+          "line": 53
+        },
+        {
+          "name": "unreadCount",
+          "line": 78
+        },
+        {
+          "name": "clearConversation",
+          "line": 106
         }
       ]
     },
