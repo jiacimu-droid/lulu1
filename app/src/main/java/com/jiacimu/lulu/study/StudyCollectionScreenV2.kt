@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 private data class CompactCollectionTicket(
     val id: String,
     val title: String,
+    val rarity: StudyRarity,
     val amount: Int,
     val use: () -> Unit,
 )
@@ -36,18 +37,21 @@ internal fun StudyCollectionScreenV2(
             StudyGachaRewardType.Douyin -> CompactCollectionTicket(
                 id = rule.id,
                 title = rule.title,
+                rarity = rule.rarity,
                 amount = state.inventory.douyinTickets,
             ) { message = store.redeemEntertainment(StudyEntertainmentKind.Douyin) }
 
             StudyGachaRewardType.GameRound -> CompactCollectionTicket(
                 id = rule.id,
                 title = rule.title,
+                rarity = rule.rarity,
                 amount = state.inventory.gameRoundTickets,
             ) { message = store.redeemEntertainment(StudyEntertainmentKind.GameRound) }
 
             StudyGachaRewardType.Theater -> CompactCollectionTicket(
                 id = rule.id,
                 title = rule.title,
+                rarity = rule.rarity,
                 amount = state.inventory.theaterFragments,
             ) {
                 message = store.redeemEntertainment(StudyEntertainmentKind.Theater)
@@ -56,12 +60,14 @@ internal fun StudyCollectionScreenV2(
             StudyGachaRewardType.Movie -> CompactCollectionTicket(
                 id = rule.id,
                 title = rule.title,
+                rarity = rule.rarity,
                 amount = state.inventory.gameTickets,
             ) { message = store.redeemEntertainment(StudyEntertainmentKind.Game) }
 
             StudyGachaRewardType.Anime -> CompactCollectionTicket(
                 id = rule.id,
                 title = rule.title,
+                rarity = rule.rarity,
                 amount = state.inventory.animeTickets,
             ) { message = store.redeemEntertainment(StudyEntertainmentKind.Anime) }
 
@@ -73,11 +79,13 @@ internal fun StudyCollectionScreenV2(
         CompactCollectionTicket(
             id = rule.id,
             title = rule.title,
+            rarity = rule.rarity,
             amount = state.inventory.customRewards[rule.id] ?: 0,
         ) {
             message = store.redeemCustomReward(rule.id)
         }
     }
+    val allTickets = (builtInTickets + customTickets).distinctBy { it.id }
 
     LazyColumn(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
@@ -96,16 +104,30 @@ internal fun StudyCollectionScreenV2(
             }
         }
 
-        items(builtInTickets, key = { it.id }) { ticket ->
-            CompactCollectionTicketCard(ticket)
-        }
-
-        items(customTickets, key = { it.id }) { ticket ->
-            CompactCollectionTicketCard(ticket)
+        listOf(StudyRarity.Rare, StudyRarity.Epic, StudyRarity.Rainbow).forEach { rarity ->
+            val tickets = allTickets.filter { it.rarity == rarity }
+            item(key = "rarity-title-${rarity.name}") {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 1.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text("${rarity.label}收藏", fontSize = 17.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    Text("${tickets.size} 项", color = StudyDesign.muted, fontSize = 11.sp)
+                }
+            }
+            if (tickets.isEmpty()) {
+                item(key = "rarity-empty-${rarity.name}") {
+                    Text("这一档暂时还没有收藏项目", color = StudyDesign.muted, fontSize = 12.sp, modifier = Modifier.padding(vertical = 5.dp))
+                }
+            } else {
+                items(tickets, key = { "${rarity.name}-${it.id}" }) { ticket ->
+                    CompactCollectionTicketCard(ticket)
+                }
+            }
         }
 
         item(key = "fragments-title") {
-            Text("画卷碎片", fontSize = 17.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 5.dp))
+            Text("蓝色画卷碎片", fontSize = 17.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp))
         }
 
         items(blueFragmentCatalog.chunked(3), key = { it.joinToString("|") }) { titles ->
