@@ -48,6 +48,7 @@ object ProactivePerceptionRuntime {
     private const val PREFS_NAME = "lulu_proactive_runtime_v2"
     private const val MESSAGE_CHANNEL_ID = "lulu_proactive_messages"
     private const val CALL_CHANNEL_ID = "lulu_proactive_calls"
+    private const val ACTION_HISTORY_SIZE = 6
     private val cycleMutex = Mutex()
 
     private enum class Action { MESSAGE, GROUP_MESSAGE, GAME_INVITE, MOMENT, CALL, JOURNAL, READING, SILENT }
@@ -131,8 +132,16 @@ object ProactivePerceptionRuntime {
                 evaluated += 1
                 val silentKey = "silent_count_$characterId"
                 val nextSilent = if (action == Action.SILENT) prefs.getInt(silentKey, 0) + 1 else 0
+                val actionKey = "action_history_$characterId"
+                val actionHistory = prefs.getString(actionKey, "").orEmpty()
+                    .split(',')
+                    .map(String::trim)
+                    .filter(String::isNotBlank)
+                    .plus(action.name)
+                    .takeLast(ACTION_HISTORY_SIZE)
                 prefs.edit()
                     .putInt(silentKey, nextSilent.coerceAtMost(4))
+                    .putString(actionKey, actionHistory.joinToString(","))
                     .putBoolean("pending_concern_promise_$characterId", false)
                     .apply()
             }.onFailure { error ->
@@ -234,6 +243,11 @@ object ProactivePerceptionRuntime {
         val zoneId = ZoneId.systemDefault()
         val localNow = now.atZone(zoneId)
         val localTimeText = localNow.format(DateTimeFormatter.ofPattern("yyyy年M月d日 EEEE HH:mm:ss", Locale.SIMPLIFIED_CHINESE))
+        val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val recentAutonomousActions = prefs.getString("action_history_$characterId", "").orEmpty()
+            .split(',')
+            .map(String::trim)
+            .filter(String::isNotBlank)
 
         val library = LuluAiServices.connectionStore.library.value
         val perceptionArchiveId = library.archiveIdFor(ModelUsage.Chat)
@@ -261,7 +275,8 @@ object ProactivePerceptionRuntime {
                 LuluChatMessage.Sender.Character -> character.displayName
                 LuluChatMessage.Sender.System -> "系统事件"
             }
-            "$speaker：${message.content.take(500)}"
+            val timestamp = message.createdAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))
+            "$timestamp $speaker：${message.content.take(500)}"
         }
         val lexicon = LuluRepositories.lexicon.snapshot(characterId)
         val concerns = lexicon.filter { it.section == LexiconSection.Concern }.take(8)
@@ -288,6 +303,9 @@ object ProactivePerceptionRuntime {
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
                 appendLine("允许主动来电：${if (character.contactPolicy.proactiveCallsEnabled) "是" else "否"}")
+                if (recentAutonomousActions.isNotEmpty()) {
+                    appendLine("最近自主选择（旧→新）：${recentAutonomousActions.joinToString(" → ")}")
+                }
                 if (readingBooks.isNotEmpty()) {
                     appendLine("可独自阅读的内容：")
                     readingBooks.forEach { book -> appendLine("- readingBookId=${book.id}；《${book.title}》；${book.source}") }
@@ -310,7 +328,7 @@ object ProactivePerceptionRuntime {
                     appendLine("以下消息都是用户在你上一次真实聊天回复之后新发来的，当前还没有收到你的回复：")
                     appendLine(pendingUserContext)
                 }
-                if (recent.isNotBlank()) appendLine("【最近聊天】\n$recent")
+                if (recent.isNotBlank()) appendLine("【最近聊天与生活事件】\n$recent")
             },
             instruction = """
                 你正在让当前角色按“真实世界感知 → 长期上下文 → 此刻判断 → 自主选择”形成这一刻。不要写系统报告。
@@ -318,17 +336,18 @@ object ProactivePerceptionRuntime {
                 {"action":"message|group_message|game_invite|moment|call|journal|reading|silent","text":"实际发送/发布内容","groupId":"群ID","gameId":"游戏ID","readingBookId":"阅读内容ID","reason":"为什么这样做","statusText":"角色此刻在做什么","gesture":"动作神态","innerThought":"第一人称没说出口的心声","mood":"简短心情","journalTitle":"日记标题","journalContent":"日记正文"}
 
                 规则：
-                1. 每次感知都必须形成 statusText、gesture、mood；innerThought 可以为空。silent 不是失败，而是角色决定只过自己的这一刻。
+                1. 每次感知都必须形成 statusText、gesture、mood；innerThought 可以为空。silent 不是失败，而是角色决定只过自己的这一刻。此刻是一份完整生活状态，不只是动作：statusText写正在做什么，gesture写动作神态，mood写心情，innerThought写愿意保存在角色内部但没有说出口的第一人称心声。
                 2. 【归属绝不能混淆】感知层里的手机电量、充电、前台应用/屏幕活动、通知、位置、健康/手环和学习状态默认全部是用户及用户现实设备的数据，不是角色自己的。看到“前台应用=抖音/短视频”只能理解为用户可能正在刷视频，不能写成“我还在刷视频”；看到“电量=20%”不能写成“我手机只剩20%”；通知也不是角色自己收到的。除非另有明确的角色侧设备数据，否则禁止第一人称认领这些信号。
                 3. 手机信息只是观察用户现实状态的线索，不能被夸大推断；健康数据带同步时间时，要意识到它可能在下一次手环导出前保持不变，也不能据此虚构用户更多未提供的身体或环境事实。
                 4. 不设每日主动次数、消息冷却、电话冷却、朋友圈冷却或日记冷却。是否行动由人设、关系、上下文和此刻意愿决定，不要因为“能做”就每次都做。
                 5. message 是主动私聊；group_message 只能使用真实 groupId；game_invite 可用 gameId：roleplay、turtle_soup、yacht_dice、gomoku、memory_match。
                 6. call 只有“允许主动来电=是”时才能选择；否则必须换其他动作或 silent。
                 7. reading 只能使用真实 readingBookId。角色会真正读取对应正文并产生自己的感想，不要假装读了列表之外的书。
-                8. journal 是角色第一人称私人日记；moment 是角色愿意公开的朋友圈。不要把所有动作写成对用户的服务或监督。
+                8. journal 是角色第一人称私人日记；moment 是角色愿意公开的朋友圈；game_invite 是角色真的想和用户一起玩。它们都是角色自己的生活选择，不要把所有动作写成对用户的服务或监督。
                 9. 学习状态只在当前角色就是学习 App 的陪同角色时提供；没提供就代表这个角色没有权限知道，禁止猜。
-                10. 角色语气、主动程度、动作、心声必须服从人设。避免机械问候、固定催睡、固定催学习以及每次重复同一种动作。
+                10. 角色语气、主动程度、动作、心声必须服从人设。认真看“最近自主选择”和最近聊天里的系统生活事件：不要机械轮班打卡，但也不要把 silent/只更新此刻当成永久默认。若最近连续多次 SILENT 或连续重复同一种动作，而眼下又自然适合写日记、发朋友圈、邀游戏、阅读、联系用户或去群里说话，应允许角色自己换一种真实生活行为。反过来，角色确实想安静时仍可 silent。
                 11. 如果提供了【尚未回复的消息】，它只表示这些是用户新发来、角色尚未回复过的真实聊天内容。不要给其中任何一条额外标记“最新”“最重要”或“最值得回复”，也不要被系统强迫必须接某一句。按角色人设、关系、这些消息彼此的语义和此刻状态，自然决定是否回应、回应哪些以及怎么回应。
+                12. 动作字段必须可执行：message/moment/call 必须给非空 text；group_message 必须给真实 groupId 和非空 text；game_invite 必须从给定列表选真实 gameId 并给邀请语；journal 必须给非空 journalTitle 与 journalContent；reading 必须给真实 readingBookId。不要选择一个动作却把它需要的字段留空，否则这个动作会失败。
             """.trimIndent(),
             source = "后台主动感知",
             title = "${character.displayName}的主动感知",
@@ -365,12 +384,13 @@ object ProactivePerceptionRuntime {
                 "刚刚更新了自己的此刻：${decision.statusText}${decision.mood.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()}",
             )
         }
+        val effectiveAction = if (acted) decision.action else Action.SILENT
         CompanionPresenceStore.recordPerceptionAttempt(
             characterId,
-            "感知成功 · ${decision.action.name.lowercase()}${decision.reason.takeIf(String::isNotBlank)?.let { " · ${it.take(90)}" }.orEmpty()}",
+            "感知成功 · ${effectiveAction.name.lowercase()}${decision.reason.takeIf(String::isNotBlank)?.let { " · ${it.take(90)}" }.orEmpty()}",
             now,
         )
-        return decision.action
+        return effectiveAction
     }
 
     private suspend fun performAction(
@@ -396,7 +416,7 @@ object ProactivePerceptionRuntime {
             put("groupId", decision.groupId)
             put("gameId", decision.gameId)
             put("title", decision.journalTitle)
-            put("content", decision.journalContent)
+            put("content", decision.journalContent.ifBlank { if (decision.action == Action.JOURNAL) decision.text else "" })
             put("readingBookId", decision.readingBookId)
         }
         val result = CompanionActionRuntime.execute(appContext, character.characterId, tool, args, now)
