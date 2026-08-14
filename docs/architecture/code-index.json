@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-14T06:15:29.806855+00:00",
-  "commit": "d51ffe58274cc7512015393257b2b6b1642edb70",
+  "generatedAt": "2026-08-14T06:33:07.883152+00:00",
+  "commit": "90f4705cfd97acd1deb144069d6349b5bd6faf34",
   "branch": "main",
-  "sourceFingerprint": "966a77b06a23b709517db50f5bb7c15f87328e93593b1a27f68243209ca3f6d7",
+  "sourceFingerprint": "a0272376be570002f9471a25329af06f22e7dbe1d8b9c02c396dda79012ab5b3",
   "summary": {
-    "files": 181,
-    "lines": 54028,
-    "symbols": 696
+    "files": 182,
+    "lines": 54487,
+    "symbols": 704
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -2262,25 +2262,11 @@
         "line": 57
       }
     ],
-    "sumKind": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseCurrentSceneInventoryRepairV5.kt",
-        "line": 69
-      }
-    ],
-    "concreteOwnsAggregate": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryLedgerV5.kt",
-        "line": 45
-      }
-    ],
-    "restoreOnto": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
-        "line": 24
-      }
-    ],
     "load": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
+        "line": 38
+      },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
         "line": 79
@@ -2310,19 +2296,33 @@
         "line": 147
       }
     ],
-    "append": [
+    "has": [
       {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
-        "line": 93
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
+        "line": 45
       }
     ],
-    "rollback": [
+    "upsert": [
       {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
-        "line": 117
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
+        "line": 48
+      }
+    ],
+    "trimAfterScene": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
+        "line": 61
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
+        "line": 186
       }
     ],
     "clear": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
+        "line": 70
+      },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
         "line": 133
@@ -2346,8 +2346,56 @@
     ],
     "promptForDirector": [
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
+        "line": 83
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt",
         "line": 90
+      }
+    ],
+    "list": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
+        "line": 364
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
+        "line": 421
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
+        "line": 67
+      }
+    ],
+    "sumKind": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseCurrentSceneInventoryRepairV5.kt",
+        "line": 69
+      }
+    ],
+    "concreteOwnsAggregate": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryLedgerV5.kt",
+        "line": 45
+      }
+    ],
+    "restoreOnto": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
+        "line": 24
+      }
+    ],
+    "append": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
+        "line": 93
+      }
+    ],
+    "rollback": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
+        "line": 117
       }
     ],
     "shouldWakeDirector": [
@@ -2412,12 +2460,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
         "line": 169
-      }
-    ],
-    "trimAfterScene": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-        "line": 186
       }
     ],
     "decodeAssetArray": [
@@ -3874,12 +3916,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
         "line": 42
-      }
-    ],
-    "list": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 67
       }
     ],
     "cancel": [
@@ -5985,6 +6021,45 @@
       "lines": 374,
       "sha256": "d8aac810009a2ac74f6015d6d68853fba33f8fffe62d1c8754d204c877b180e8",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
+      "lines": 459,
+      "sha256": "22e515a1c88c35f12ac0630a2db94a59fa87d2b311526499cfa9a7b7c43bbb0f",
+      "symbols": [
+        {
+          "name": "load",
+          "line": 38
+        },
+        {
+          "name": "has",
+          "line": 45
+        },
+        {
+          "name": "upsert",
+          "line": 48
+        },
+        {
+          "name": "trimAfterScene",
+          "line": 61
+        },
+        {
+          "name": "clear",
+          "line": 70
+        },
+        {
+          "name": "promptForDirector",
+          "line": 83
+        },
+        {
+          "name": "list",
+          "line": 364
+        },
+        {
+          "name": "list",
+          "line": 421
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChronologicalPlotRecallV5.kt",
