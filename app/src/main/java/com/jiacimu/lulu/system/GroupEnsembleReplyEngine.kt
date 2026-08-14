@@ -11,6 +11,7 @@ import com.jiacimu.lulu.data.LuluConversation
 import com.jiacimu.lulu.data.LuluGroupMember
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.SharedExperienceTimeline
+import com.jiacimu.lulu.data.UserProfileContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
@@ -106,6 +107,7 @@ internal object GroupEnsembleReplyEngine {
         val now = Instant.now()
         val zone = ZoneId.systemDefault()
         val isCall = channel == "call"
+        val userProfileContext = UserProfileContext.promptSection()
 
         val generated = LuluAiServices.gateway.generate(
             characterId = currentSpeakerId,
@@ -114,6 +116,10 @@ internal object GroupEnsembleReplyEngine {
                 appendLine("当前真实场景：$sceneContext")
                 appendLine("群聊名称：${group.name}")
                 appendLine("用户在群里的称呼：${group.userGroupNickname}")
+                if (userProfileContext.isNotBlank()) {
+                    appendLine("【用户自己设定的资料上下文｜所有成员只能按这里真实存在的内容理解用户】")
+                    appendLine(userProfileContext)
+                }
                 appendLine("本轮界面当前先显示 characterId=$currentSpeakerId（${memberLabels[currentSpeakerId]}）正在输入，因此 turns 第一项必须是这个角色；这个首发角色本身已经由外层按当前群聊状态动态选出，并不是固定 A。")
                 appendLine("这一轮共有 $memberCount 个角色成员，每个人都必须至少真正发言一次；这是参与约束，不是发言顺序。")
                 appendLine("本轮最多允许 $replyLimit 个角色回合。全员各出现一次以后，仍然可以让任何已经发过言的人再次插话、回应别人或回来补一句，不要求每个人只说一次。")
@@ -124,12 +130,19 @@ internal object GroupEnsembleReplyEngine {
                     appendLine("\n【近期真实用户气泡；消息ID只供引用或角色收藏使用】")
                     actionableUserMessages.forEach { item -> appendLine("消息ID=${item.id}；内容=${item.content.take(320)}") }
                 }
-                if (history.isNotBlank()) appendLine("\n【群聊最近记录；这些都已经真实发生】\n${history.takeLast(14_000)}")
-                appendLine("\n【群成员身份与设定；每个人必须保持自己的语气、关系和边界】")
+                if (history.isNotBlank()) {
+                    appendLine("\n【当前群聊的局部接话记录｜只用于接住眼前群话题，不是角色的全部记忆】")
+                    appendLine(history.takeLast(14_000))
+                    appendLine("群聊如果中断过很久，不能把上一次群聊末尾误当成刚刚发生；角色在间隔期间的私聊、电话、游戏和其他真实经历以其个人原始时间线为准。")
+                }
+                appendLine("\n【群成员身份与各自原始时间线｜每个人只能继承自己真正经历过的事】")
                 validMembers.forEach { member ->
                     val character = settings.getValue(member.characterId)
                     val label = memberLabels.getValue(member.characterId)
-                    val lived = SharedExperienceTimeline.recentContext(member.characterId, limit = 8, characterBudget = 1_100)
+                    // Do not create a separate "group memory". Every real group message is already
+                    // copied into each participating member's own durable raw timeline. Read the same
+                    // normal timeline window used by companion context instead of the old 8-item stub.
+                    val lived = SharedExperienceTimeline.recentContext(member.characterId)
                     val presence = CompanionPresenceStore.current(member.characterId)
                     appendLine("---")
                     appendLine("characterId=${member.characterId}")
@@ -138,7 +151,10 @@ internal object GroupEnsembleReplyEngine {
                         .takeIf(String::isNotBlank)
                         ?.let { identity -> appendLine("角色身份=${identity.take(1_500)}") }
                     appendLine("角色设定=${character.persona.ifBlank { "按该角色已有设定自然表达。" }.take(1_800)}")
-                    if (lived.isNotBlank()) appendLine("这个角色亲历的近期原始时间线=${lived.take(1_100)}")
+                    if (lived.isNotBlank()) {
+                        appendLine("这个角色自己的原始时间线（私聊/群聊/电话/游戏/共同事件按真实发生时间连续排列）：")
+                        appendLine(lived)
+                    }
                     presence?.let { appendLine("上一刻状态=${it.statusText}；动作=${it.gesture}；心情=${it.mood}；没说出口=${it.innerThought}") }
                     appendLine(
                         CompanionActionRuntime.capabilityContext(
@@ -169,11 +185,14 @@ internal object GroupEnsembleReplyEngine {
                 10. favoriteMessageId 是角色自己的主观动作。如果用户某句话让这个角色很在意、很喜欢、想以后回看或对关系有特殊意义，例如承诺、特殊称呼、重要心意、戳中他的句子，可以收藏。是否收藏必须服从这个角色的设定和感受，不设固定概率，也不能为了展示功能乱收藏。
                 11. recallBubbleNumber 默认 0。只有极少数角色刚说出口就后悔、说漏嘴或想装作没说过的时刻才填真实序号。
                 12. pokeUser 默认 false。只有这个角色此刻真的会自然戳一下用户时才设为 true。
-                13. 不要虚构用户当前身体、环境或正在做的事情。只能依据用户刚说的话、群聊记录、角色身份与设定和真实时间线互动。
+                13. 不要虚构用户当前身体、环境或正在做的事情。只能依据用户刚说的话、群聊局部记录、角色身份与设定、用户设定资料和角色自己的真实原始时间线互动。
                 14. 最后一轮不需要总结，不需要“把话题交给主人”，自然停住就可以。
                 15. ${if (isCall) "这是实时群聊电话，quoteMessageId、favoriteMessageId 留空，recallBubbleNumber=0，pokeUser=false；语言必须更口语化、适合直接念出。" else "这是文字群聊，可以自然使用连续短气泡、引用、角色主观收藏，以及非常偶发的撤回或戳一戳。"}
                 16. statusText、gesture、innerThought、mood 分别属于当前角色本人，不能写成系统分析或推理过程。
                 17. 每个角色还可以在自己这一回合自主执行一个真实露露机内动作。尤其用户在群里问“谁想玩”或某个角色想私下找用户时，可以填写 tool=send_game_invite 或 send_private_message；该动作会真实进入这个角色与用户的私聊，不能把私聊内容又写进群气泡。也可按角色意愿发布朋友圈、写日记、读真实正文、跨到另一个所在群聊或在允许时发起来电。没有自然动机时 tool 留空，严禁为了展示功能每轮都调用。
+                18. 群聊不是独立记忆空间。每个角色只有自己的那条原始时间线：私聊、群聊、电话、游戏和共同事件都按真实时间写在其中。群聊局部记录只负责“此刻怎么接话”，不能覆盖或替代个人时间线。
+                19. 如果这个群隔了很久才重新说话，而某个角色在间隔期间和用户发生过新的私聊/电话/游戏经历，那么这些更晚发生的个人经历才是这个角色更近的状态；不能因为重新打开群聊就把很久以前的群话题当作刚刚发生。
+                20. 私聊知识严格按角色隔离。A 与用户私聊里发生的事情可以让 A 在群里记得，但除非后来真实在群里说出、转发或通过其他共同事件让 B 知道，否则 B 不能凭空知道 A 的私聊内容。
             """.trimIndent(),
             source = if (isCall) "群聊电话·全员自然讨论" else "群聊·全员自然讨论",
             title = title,
