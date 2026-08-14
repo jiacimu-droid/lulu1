@@ -1,53 +1,22 @@
 package com.jiacimu.lulu.games
 
 private fun apocalypseDirectorContinuitySpineV5(save: ApocalypseV3Save): List<String> {
-    val logs = save.log
-    if (logs.size <= 14) return logs
-    val director = save.director
-    val rawKeys = buildList {
-        addAll(director.activeThreads)
-        addAll(director.hiddenThreads)
-        addAll(director.factionStates)
-        addAll(director.characterArcs)
-        addAll(director.foreshadowPlan)
-        director.storyThreads.forEach { thread ->
-            add(thread.title)
-            add(thread.currentState)
-        }
-        director.characterDossiers.forEach { dossier ->
-            add(dossier.name)
-            addAll(dossier.aliases)
-        }
-        director.foreshadowLedger.forEach { clue ->
-            add(clue.title)
-            add(clue.surfaceMeaning)
+    // Plot is a timeline, not a bag of semantically similar notes. Keep every retained scene in its
+    // original order and compress each entry locally; never rank/reorder the director's main history.
+    return save.log.mapIndexed { index, line ->
+        val scene = Regex("第(\\d+)幕").find(line)?.groupValues?.getOrNull(1)?.toIntOrNull() ?: index + 1
+        val action = Regex("｜行动=([^｜]+)").find(line)?.groupValues?.getOrNull(1)?.trim().orEmpty()
+        val canon = when {
+            "｜正史=" in line -> line.substringAfter("｜正史=")
+            "｜结果=" in line -> line.substringAfter("｜结果=")
+            else -> line
+        }.trim()
+        buildString {
+            append("第${scene}幕")
+            if (action.isNotBlank()) append("｜行动=${action.take(70)}")
+            append("｜正史=${canon.take(190)}")
         }
     }
-    val keys = rawKeys
-        .flatMap { it.split(Regex("[｜：；，。！？、\\s/]+")) }
-        .map(String::trim)
-        .filter { it.length in 2..18 }
-        .distinct()
-        .take(80)
-    val older = logs.dropLast(2)
-    val rankedIndices = older.indices
-        .sortedByDescending { index ->
-            val line = older[index]
-            val overlap = keys.count(line::contains)
-            val scene = Regex("第(\\d+)幕").find(line)?.groupValues?.getOrNull(1)?.toIntOrNull() ?: index + 1
-            overlap * 20 + if (scene <= 4) 12 else 0 + if (scene % 10 == 0) 8 else 0
-        }
-        .take(10)
-    val anchors = buildSet {
-        addAll(rankedIndices)
-        addAll(older.indices.take(3))
-        older.indices.filterTo(this) { (it + 1) % 10 == 0 }
-        addAll(older.indices.takeLast(3))
-    }
-    return anchors
-        .sorted()
-        .map(older::get)
-        .takeLast(16)
 }
 
 /**
@@ -60,11 +29,12 @@ internal fun apocalypseCinematicDirectorBibleV5(save: ApocalypseV3Save): String 
     appendLine("目标：把《末世求生·赤潮纪元》持续写成可互动的长篇群像末世故事。第${save.scene}幕；${apocalypseDayLabelV5(save.director.dayIndex)}；威胁${save.director.tension}/10。")
     appendLine("层级：longTermPlan负责全剧方向；active/hidden threads、factionStates、characterArcs、foreshadowPlan负责未来数幕；sceneGoal+beatType+directive只负责下一幕。玩家选择可以改未来，但不能改写已发生正史。")
     appendLine("总纲：维持8—12个有因果关系的长期节点，包含阶段压力、人物/势力变化、谜团推进和替代路线。重大真相必须先有答案边界，再播种可回看的证据，禁止临时套娃。")
-    appendLine("连续性：硬状态、上一幕完整正文、结构化账本和召回到的旧剧情优先。已解决/放弃的线不重建；角色、地点、物资、关系、伤势、时间和已公开信息不能失忆或瞬移。")
+    appendLine("连续性：硬状态、上一幕完整正文、结构化账本和按幕顺序的长期时间轴优先。已解决/放弃的线不重建；角色、地点、物资、关系、伤势、时间和已公开信息不能失忆或瞬移。")
     val continuitySpine = apocalypseDirectorContinuitySpineV5(save)
     if (continuitySpine.isNotEmpty()) {
-        appendLine("【跨长篇历史脊柱｜从本存档旧幕中按长期人物/剧情线抽取，只用于防遗忘】")
-        continuitySpine.forEach { line -> appendLine("- ${line.take(520)}") }
+        appendLine("【按幕顺序的长期时间轴｜绝不按相关性重排】")
+        continuitySpine.forEach { line -> appendLine("- $line") }
+        appendLine("时间轴是长篇因果主骨架。任何语义/向量检索只能用于补找某个具体旧细节，不能替代、重排或覆盖这条时间轴，也不能因为某条旧事‘更相关’就把它误当成更晚发生。")
     }
     appendLine("玩家行动：下一幕首先兑现玩家刚输入的行动。对话必须让正确的在场对象针对具体内容回应；行动可以失败、被拒绝或产生代价，但不能被导演主线覆盖。")
     appendLine("节奏：每幕一个核心戏剧动作，最多顺带推进一条暗线。生存、人物、探索、治理、旅行、势力、生态和高潮轮换；大危机后先让伤亡、资源、关系和维护后果落地。")
