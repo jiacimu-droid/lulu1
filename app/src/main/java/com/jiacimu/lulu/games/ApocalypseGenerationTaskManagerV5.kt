@@ -89,7 +89,13 @@ internal object ApocalypseGenerationTaskManagerV5 {
             updateState(save.id) {
                 TaskState(
                     running = true,
-                    phase = if (needsDirector) "正在召回相关旧剧情" else "正在检索本局旧剧情",
+                    phase = if (save.scene >= 10 && save.scene % 10 == 0) {
+                        "正在整理阶段剧情"
+                    } else if (needsDirector) {
+                        "正在召回相关旧剧情"
+                    } else {
+                        "正在检索本局旧剧情"
+                    },
                     action = cleanAction,
                     startedAtMillis = System.currentTimeMillis(),
                     usedDirector = needsDirector,
@@ -97,6 +103,28 @@ internal object ApocalypseGenerationTaskManagerV5 {
             }
             val job = appScope.launch(start = CoroutineStart.LAZY) {
                 try {
+                    // A ten-scene boundary is a real editorial checkpoint. If an upgraded long save is
+                    // already sitting on scene 60, build the current 41-60 bundle before planning 61;
+                    // older missing bundles are filled gradually in the background below.
+                    if (save.scene >= 10 && save.scene % 10 == 0) {
+                        updateState(save.id) {
+                            it.copy(
+                                phase = if (save.scene % 20 == 0) {
+                                    "正在整理第${save.scene - 19}—${save.scene}幕阶段总结"
+                                } else {
+                                    "正在整理第${save.scene - 9}—${save.scene}幕小结"
+                                },
+                            )
+                        }
+                        runCatching {
+                            ApocalypseChapterSummaryRuntimeV5.ensureCurrentMilestone(appContext, save)
+                        }
+                    }
+
+                    val chapterSummaryContext = runCatching {
+                        ApocalypseChapterSummaryStoreV5(appContext).promptForDirector(save)
+                    }.getOrDefault("")
+
                     val plotMemoryDeferred = async {
                         runCatching {
                             recallApocalypsePlotMemoryChronologicallyV5(
@@ -128,6 +156,7 @@ internal object ApocalypseGenerationTaskManagerV5 {
                             action = cleanAction,
                             plotMemoryContext = apocalypseDirectorSupplementContextV5(
                                 chronologicalPlotRecall = directorPlotMemoryContext,
+                                chapterSummaryContext = chapterSummaryContext,
                                 livingWorldContext = livingWorldContext,
                             ),
                         )
@@ -250,6 +279,20 @@ internal object ApocalypseGenerationTaskManagerV5 {
                     }.onSuccess {
                         appScope.launch {
                             ApocalypsePlotMemoryRuntimeV5.refreshEmbeddings(appContext, next.id)
+                        }
+                    }
+
+                    // Build milestone summaries as soon as the milestone scene lands. On old upgraded
+                    // saves, backfill one missing 20-scene bundle per new scene so history catches up
+                    // naturally without blocking the player with many one-time model calls.
+                    if (next.scene >= 10) {
+                        appScope.launch {
+                            runCatching {
+                                if (next.scene % 10 == 0) {
+                                    ApocalypseChapterSummaryRuntimeV5.ensureCurrentMilestone(appContext, next)
+                                }
+                                ApocalypseChapterSummaryRuntimeV5.backfillOneOlderBundle(appContext, next)
+                            }
                         }
                     }
 
