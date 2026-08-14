@@ -1,5 +1,55 @@
 package com.jiacimu.lulu.games
 
+private fun apocalypseDirectorContinuitySpineV5(save: ApocalypseV3Save): List<String> {
+    val logs = save.log
+    if (logs.size <= 14) return logs
+    val director = save.director
+    val rawKeys = buildList {
+        addAll(director.activeThreads)
+        addAll(director.hiddenThreads)
+        addAll(director.factionStates)
+        addAll(director.characterArcs)
+        addAll(director.foreshadowPlan)
+        director.storyThreads.forEach { thread ->
+            add(thread.title)
+            add(thread.currentState)
+        }
+        director.characterDossiers.forEach { dossier ->
+            add(dossier.name)
+            addAll(dossier.aliases)
+        }
+        director.foreshadowLedger.forEach { clue ->
+            add(clue.title)
+            add(clue.surfaceMeaning)
+        }
+    }
+    val keys = rawKeys
+        .flatMap { it.split(Regex("[｜：；，。！？、\\s/]+")) }
+        .map(String::trim)
+        .filter { it.length in 2..18 }
+        .distinct()
+        .take(80)
+    val older = logs.dropLast(2)
+    val rankedIndices = older.indices
+        .sortedByDescending { index ->
+            val line = older[index]
+            val overlap = keys.count(line::contains)
+            val scene = Regex("第(\\d+)幕").find(line)?.groupValues?.getOrNull(1)?.toIntOrNull() ?: index + 1
+            overlap * 20 + if (scene <= 4) 12 else 0 + if (scene % 10 == 0) 8 else 0
+        }
+        .take(10)
+    val anchors = buildSet {
+        addAll(rankedIndices)
+        addAll(older.indices.take(3))
+        older.indices.filterTo(this) { (it + 1) % 10 == 0 }
+        addAll(older.indices.takeLast(3))
+    }
+    return anchors
+        .sorted()
+        .map(older::get)
+        .takeLast(16)
+}
+
 /**
  * Runtime showrunner contract. The detailed world state, geography, ledgers and recent canon are
  * injected separately by ApocalypseSurvivalV5Engine. Keeping this contract compact avoids sending
@@ -11,11 +61,20 @@ internal fun apocalypseCinematicDirectorBibleV5(save: ApocalypseV3Save): String 
     appendLine("层级：longTermPlan负责全剧方向；active/hidden threads、factionStates、characterArcs、foreshadowPlan负责未来数幕；sceneGoal+beatType+directive只负责下一幕。玩家选择可以改未来，但不能改写已发生正史。")
     appendLine("总纲：维持8—12个有因果关系的长期节点，包含阶段压力、人物/势力变化、谜团推进和替代路线。重大真相必须先有答案边界，再播种可回看的证据，禁止临时套娃。")
     appendLine("连续性：硬状态、上一幕完整正文、结构化账本和召回到的旧剧情优先。已解决/放弃的线不重建；角色、地点、物资、关系、伤势、时间和已公开信息不能失忆或瞬移。")
+    val continuitySpine = apocalypseDirectorContinuitySpineV5(save)
+    if (continuitySpine.isNotEmpty()) {
+        appendLine("【跨长篇历史脊柱｜从本存档旧幕中按长期人物/剧情线抽取，只用于防遗忘】")
+        continuitySpine.forEach { line -> appendLine("- ${line.take(520)}") }
+    }
     appendLine("玩家行动：下一幕首先兑现玩家刚输入的行动。对话必须让正确的在场对象针对具体内容回应；行动可以失败、被拒绝或产生代价，但不能被导演主线覆盖。")
     appendLine("节奏：每幕一个核心戏剧动作，最多顺带推进一条暗线。生存、人物、探索、治理、旅行、势力、生态和高潮轮换；大危机后先让伤亡、资源、关系和维护后果落地。")
     appendLine("伏笔：优先使用已有foreshadowLedger/storyThreads。2—4幕可让旧细节产生新意义，真正改变局面的回收通常需要更长积累；hiddenTruth只供后台，正文只能展示角色可观察证据。")
     appendLine(apocalypseCoreMysteryDirectorContractV5(save))
     appendLine("人物：重要NPC必须有自己的目标、恐惧、底线、关系网和离屏生活。变化要有积累，不能为反转突然背叛、失忆、降智或无理由牺牲。同行者始终使用角色设置中的稳定id和显示名。")
+    appendLine("群像生态：世界绝不能长期缩成‘玩家+同行者对一个幕后组织’。持续维护多条彼此独立的人际/职业/社区/机构/商业/行政网络；其中大量人物和组织与核心谜团无关，也可能彼此冲突、合作或根本不知道对方存在。不同异常不得默认合并成同一幕后答案。")
+    appendLine("提前登场：真正会长期影响故事的人，可以在重要性尚未揭晓时以普通、合理、低戏剧性的身份先出现，例如交易对象、邻居、职员、司机、医护、管理人员、同行路人或一次工作往来。先留下可回看的真实接触，再允许后来重要；禁止等到需要角色时才凭空生成‘关键人物’，也禁止一出场就用镜头语言告诉玩家此人必然重要。")
+    appendLine("灾前社会：末世前不需要硬造公开武装势力，但真实城市已经存在物流、物业、医疗、学校、企业、家庭、兴趣圈、政府部门、地下交易和私人关系网。让这些网络各自运行并偶尔交叉；重要人物可以提前生活在其中，不能所有人都等主沉降后才出生。")
+    appendLine("藏与爆发：线索成熟前允许长期低可见度，只给符合当下渠道的细节；真正爆发必须由世界时间、人物行动和累计证据共同触发。不能为了证明导演有伏笔而频繁提醒玩家，也不能连续几十幕只故弄玄虚却不给任何可验证推进。")
     appendLine("世界：灾变按真实时间逐步损坏社会、供水、电力、通信、医疗、交通和供应链。赤潮同时影响植物、动物、水、土壤、天气与感染者；现代组织不会第一小时集体蒸发，也不会后期凭空资源无限。")
     appendLine("资源：金钱、食水、药品、燃料、卫生、睡眠、车辆、道路和基地维护都要真实结算。空间能力改善搬运与保存但不创造物资；晶核必须有真实来源。")
     appendLine("异能：玩家是唯一已确认的灾前提前觉醒者；其他稳定异能主沉降后才逐步出现，普通人仍是多数。同行潜在分化不是开局已觉醒，正文完成可见觉醒事件后才允许使用。")
