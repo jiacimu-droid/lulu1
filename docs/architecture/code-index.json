@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-14T06:00:30.012205+00:00",
-  "commit": "1f6717ab0ae8056babb92067b4ec25d9e8665eaa",
+  "generatedAt": "2026-08-14T06:07:20.164729+00:00",
+  "commit": "02b6f7bb13d176d5a8ccb5cb23d76a7269547640",
   "branch": "main",
-  "sourceFingerprint": "c592546db86f355032ea8ae83f6aa52cd34988f7cea7380807cd7a802a5eeb20",
+  "sourceFingerprint": "39bd206572688791687be0f27089974480bf81c5210177f523136860bba06762",
   "summary": {
-    "files": 178,
-    "lines": 53893,
+    "files": 180,
+    "lines": 53988,
     "symbols": 696
   },
   "symbolIndex": {
@@ -6035,6 +6035,12 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseHistoryRangeItemsV5.kt",
+      "lines": 85,
+      "sha256": "9135c4225759a978bf3baa86fd1ebb0322b3e8c964fe19c992b6cd1edc7ca060",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryBrowserV5.kt",
       "lines": 437,
       "sha256": "ba25ca92afc71205cf1997677104c16f07a9ef6afee0546dc76b0b70be15cdaf",
@@ -6180,6 +6186,12 @@
           "line": 196
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseRangeCompatV5.kt",
+      "lines": 10,
+      "sha256": "052bbc45ad889ca516b80211959e852e884d1f64abd6455945b41e8031b5d432",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSceneOutcomeV5.kt",

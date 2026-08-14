@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`1f6717ab0ae8056babb92067b4ec25d9e8665eaa`
+- 基准提交：`02b6f7bb13d176d5a8ccb5cb23d76a7269547640`
 - 分支：`main`
-- 已索引文件：178
-- 已索引代码/文本行：53893
+- 已索引文件：180
+- 已索引代码/文本行：53988
 - 已发现符号：696
 
 | 文件 | 行数 | 符号数 |
@@ -96,6 +96,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseDramaticLedgerV5.kt` | 698 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseFlowRowCompat.kt` | 34 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt` | 303 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseHistoryRangeItemsV5.kt` | 85 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryBrowserV5.kt` | 437 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryLedgerV5.kt` | 344 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt` | 352 | 5 |
@@ -105,6 +106,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseNarratedInventoryRecoveryV5.kt` | 161 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryManagerV5.kt` | 310 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt` | 460 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseRangeCompatV5.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSceneOutcomeV5.kt` | 718 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseStoryDirectorV5.kt` | 122 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt` | 1382 | 10 |
