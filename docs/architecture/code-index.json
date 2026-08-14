@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-14T06:12:53.905358+00:00",
-  "commit": "d4747de246043a75adffa440621f02e8edf962ca",
+  "generatedAt": "2026-08-14T06:14:55.867258+00:00",
+  "commit": "d789474939f12fcf332626f63adeb55992682f04",
   "branch": "main",
-  "sourceFingerprint": "31f43aeacf9bb9c3585b450864b78b1b433509bf2247a3eeaddffdcfbfca2cf2",
+  "sourceFingerprint": "a8afbeb74d37920e2fb05a3e18de4907d77e728374cfcf271b1e45a4a9828deb",
   "summary": {
-    "files": 180,
-    "lines": 53958,
+    "files": 181,
+    "lines": 54013,
     "symbols": 696
   },
   "symbolIndex": {
@@ -5984,6 +5984,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseCastIdentityV5.kt",
       "lines": 374,
       "sha256": "d8aac810009a2ac74f6015d6d68853fba33f8fffe62d1c8754d204c877b180e8",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChronologicalPlotRecallV5.kt",
+      "lines": 55,
+      "sha256": "3da23bec0ac0e7b42cf856904c0573aa2e7c8dafde9c22677700e1bd722c1ecd",
       "symbols": []
     },
     {
