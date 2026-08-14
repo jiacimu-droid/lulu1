@@ -89,7 +89,7 @@ internal object ApocalypseGenerationTaskManagerV5 {
             updateState(save.id) {
                 TaskState(
                     running = true,
-                    phase = if (needsDirector) "导演规划 · 同时检索旧剧情" else "正在检索本局旧剧情",
+                    phase = if (needsDirector) "正在召回相关旧剧情" else "正在检索本局旧剧情",
                     action = cleanAction,
                     startedAtMillis = System.currentTimeMillis(),
                     usedDirector = needsDirector,
@@ -99,7 +99,7 @@ internal object ApocalypseGenerationTaskManagerV5 {
                 try {
                     val plotMemoryDeferred = async {
                         runCatching {
-                            ApocalypsePlotMemoryRuntimeV5.recall(
+                            recallApocalypsePlotMemoryChronologicallyV5(
                                 context = appContext,
                                 save = save,
                                 action = cleanAction,
@@ -111,14 +111,25 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         livingWorldStore.promptForDirector(save)
                     }.getOrDefault("")
 
+                    // Relevance chooses which old scenes deserve a closer look; chronology decides how
+                    // the director reads them. The director waits for this ordered supplement because
+                    // long-form causal quality is more important here than shaving off a few seconds.
+                    val directorPlotMemoryContext = if (needsDirector) {
+                        plotMemoryDeferred.await()
+                    } else {
+                        ""
+                    }
                     val planResult = if (needsDirector) {
-                        updateState(save.id) { it.copy(phase = "导演规划 · 世界继续在镜头外运行") }
+                        updateState(save.id) { it.copy(phase = "导演规划 · 按时间轴核对旧剧情") }
                         planApocalypseV5Beat(
                             save = save,
                             config = config,
                             party = party,
                             action = cleanAction,
-                            plotMemoryContext = livingWorldContext,
+                            plotMemoryContext = apocalypseDirectorSupplementContextV5(
+                                chronologicalPlotRecall = directorPlotMemoryContext,
+                                livingWorldContext = livingWorldContext,
+                            ),
                         )
                     } else {
                         ApocalypsePlanResultV5(
@@ -128,7 +139,11 @@ internal object ApocalypseGenerationTaskManagerV5 {
                     }
 
                     updateState(save.id) { it.copy(phase = "正在整理相关旧剧情") }
-                    val plotMemoryContext = plotMemoryDeferred.await()
+                    val plotMemoryContext = if (needsDirector) {
+                        directorPlotMemoryContext
+                    } else {
+                        plotMemoryDeferred.await()
+                    }
                     val plannedBeat = sanitizeApocalypseAbilityProgressionV5(save, cleanAction, planResult.beat)
                     val usedDirector = planResult.directorApplied
                     updateState(save.id) { it.copy(usedDirector = usedDirector) }
