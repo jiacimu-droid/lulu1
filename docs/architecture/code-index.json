@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-14T05:58:45.400204+00:00",
-  "commit": "2514c7c1194c44fca84e0c224386aed530d49976",
+  "generatedAt": "2026-08-14T06:00:30.012205+00:00",
+  "commit": "1f6717ab0ae8056babb92067b4ec25d9e8665eaa",
   "branch": "main",
-  "sourceFingerprint": "e9f07d1ba86f162cd55e9025cd04576daefad93e6f546ddbefba689c8a0f30ec",
+  "sourceFingerprint": "c592546db86f355032ea8ae83f6aa52cd34988f7cea7380807cd7a802a5eeb20",
   "summary": {
     "files": 178,
-    "lines": 53873,
+    "lines": 53893,
     "symbols": 696
   },
   "symbolIndex": {
@@ -133,7 +133,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 69
+        "line": 70
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
@@ -1999,13 +1999,13 @@
     "markConcernPromisePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 74
+        "line": 75
       }
     ],
     "nextDueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 81
+        "line": 82
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -5713,8 +5713,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 624,
-      "sha256": "6bdcecf0bf49337092afa2358c9d65834a211f112dfffd4411215d1c19cb6d08",
+      "lines": 644,
+      "sha256": "7b8a264d3e124a71868122c72401b07e3336aa6384ec2fb61ecb2a6080f216ae",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -5722,15 +5722,15 @@
         },
         {
           "name": "initialize",
-          "line": 69
+          "line": 70
         },
         {
           "name": "markConcernPromisePending",
-          "line": 74
+          "line": 75
         },
         {
           "name": "nextDueAt",
-          "line": 81
+          "line": 82
         }
       ]
     },
