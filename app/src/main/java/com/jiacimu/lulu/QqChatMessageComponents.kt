@@ -77,57 +77,56 @@ internal fun QqMessageRow(
         val receiptTime = remember(message.createdAt) {
             message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
         }
+        val receiptPrefix = "$receiptTime  "
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Surface(
                 color = Color(0xFFF1F1F1),
                 shape = RoundedCornerShape(16.dp),
                 border = BorderStroke(1.dp, QqBorder),
             ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                ) {
-                    Text(receiptTime, color = QqMuted.copy(alpha = .72f), fontSize = 9.sp)
-                    if (notice.link == null) {
-                        Text(
-                            notice.visibleText,
-                            color = QqMuted,
-                            fontSize = 11.sp,
-                        )
-                    } else {
-                        val annotated = remember(notice) {
-                            buildAnnotatedString {
-                                append(notice.visibleText)
-                                if (notice.linkStart in 0 until notice.visibleText.length && notice.linkEnd > notice.linkStart) {
-                                    addStyle(
-                                        SpanStyle(
-                                            color = QqInk,
-                                            fontWeight = FontWeight.SemiBold,
-                                            textDecoration = TextDecoration.Underline,
-                                        ),
-                                        notice.linkStart,
-                                        notice.linkEnd.coerceAtMost(notice.visibleText.length),
-                                    )
-                                    addStringAnnotation(
-                                        tag = "system_activity",
-                                        annotation = "open",
-                                        start = notice.linkStart,
-                                        end = notice.linkEnd.coerceAtMost(notice.visibleText.length),
-                                    )
-                                }
+                if (notice.link == null) {
+                    Text(
+                        text = receiptPrefix + notice.visibleText,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        color = QqMuted,
+                        fontSize = 11.sp,
+                    )
+                } else {
+                    val annotated = remember(notice, receiptPrefix) {
+                        buildAnnotatedString {
+                            append(receiptPrefix)
+                            append(notice.visibleText)
+                            val shiftedStart = notice.linkStart + receiptPrefix.length
+                            val shiftedEnd = notice.linkEnd + receiptPrefix.length
+                            if (notice.linkStart in 0 until notice.visibleText.length && notice.linkEnd > notice.linkStart) {
+                                addStyle(
+                                    SpanStyle(
+                                        color = QqInk,
+                                        fontWeight = FontWeight.SemiBold,
+                                        textDecoration = TextDecoration.Underline,
+                                    ),
+                                    shiftedStart,
+                                    shiftedEnd.coerceAtMost(length),
+                                )
+                                addStringAnnotation(
+                                    tag = "system_activity",
+                                    annotation = "open",
+                                    start = shiftedStart,
+                                    end = shiftedEnd.coerceAtMost(length),
+                                )
                             }
                         }
-                        ClickableText(
-                            text = annotated,
-                            style = LocalTextStyle.current.copy(color = QqMuted, fontSize = 11.sp),
-                            onClick = { offset ->
-                                if (annotated.getStringAnnotations("system_activity", offset, offset).isNotEmpty()) {
-                                    openSystemActivity(context, message, notice.link)
-                                }
-                            },
-                        )
                     }
+                    ClickableText(
+                        text = annotated,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        style = LocalTextStyle.current.copy(color = QqMuted, fontSize = 11.sp),
+                        onClick = { offset ->
+                            if (annotated.getStringAnnotations("system_activity", offset, offset).isNotEmpty()) {
+                                openSystemActivity(context, message, notice.link)
+                            }
+                        },
+                    )
                 }
             }
         }
@@ -465,12 +464,21 @@ private data class SystemActivityNotice(
 )
 
 private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
-    val visible = stripRecallReceiptDirective(content)
+    val rawVisible = stripRecallReceiptDirective(content)
         .removePrefix("[共同活动]")
         .removePrefix("[群成员变更]")
         .removePrefix("[戳一戳]")
         .removePrefix("[撤回]")
         .trim()
+    val visible = if (
+        rawVisible.startsWith("刚刚更新了自己的此刻") ||
+        rawVisible.startsWith("更新了自己的此刻") ||
+        rawVisible.startsWith("刚刚更新了此刻")
+    ) {
+        "更新了此刻"
+    } else {
+        rawVisible
+    }
 
     Regex("刚刚写了一篇日记《([^》]+)》").find(visible)?.let { match ->
         val diaryWordStart = visible.indexOf("日记")
