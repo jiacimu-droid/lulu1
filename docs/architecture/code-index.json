@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-14T06:07:20.164729+00:00",
-  "commit": "02b6f7bb13d176d5a8ccb5cb23d76a7269547640",
+  "generatedAt": "2026-08-14T06:12:53.905358+00:00",
+  "commit": "d4747de246043a75adffa440621f02e8edf962ca",
   "branch": "main",
-  "sourceFingerprint": "39bd206572688791687be0f27089974480bf81c5210177f523136860bba06762",
+  "sourceFingerprint": "31f43aeacf9bb9c3585b450864b78b1b433509bf2247a3eeaddffdcfbfca2cf2",
   "summary": {
     "files": 180,
-    "lines": 53988,
+    "lines": 53958,
     "symbols": 696
   },
   "symbolIndex": {
@@ -6206,8 +6206,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseStoryDirectorV5.kt",
-      "lines": 122,
-      "sha256": "ded3f0959a8ca581530887bc0c48e9befe95b334329a6605e60bcd0279b8e340",
+      "lines": 92,
+      "sha256": "de1643df5f8b42a3a6aa051999857e3a8216fb07398768e40d1b13627d82f25c",
       "symbols": []
     },
     {
