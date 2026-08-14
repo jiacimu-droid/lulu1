@@ -50,6 +50,7 @@ import kotlin.math.roundToInt
 private const val LULU_REMOTE_AVATAR_MAX_BYTES = 3 * 1024 * 1024
 private const val LULU_AVATAR_MAX_EDGE = 768
 private const val LULU_AVATAR_PREVIEW_MAX_EDGE = 192
+private const val LULU_AVATAR_PREVIEW_DISPLAY_MAX_DP = 112
 
 // Keep bounded full-size portraits for settings/detail pages.
 private val luluAvatarBitmapCache = object : LruCache<String, Bitmap>(48 * 1024) {
@@ -84,25 +85,46 @@ internal fun LuluProfileAvatar(
 ) {
     val avatarShape = RoundedCornerShape((size * 0.22f).dp)
     val context = LocalContext.current
-    // Preview files are tiny; loading one immediately prevents the visible initials -> portrait flash.
-    val initialBitmap = remember(imageUri) {
-        cachedLuluAvatarBitmap(imageUri) ?: loadStoredLuluAvatarPreview(context, imageUri)
+    val smallDisplay = size <= LULU_AVATAR_PREVIEW_DISPLAY_MAX_DP
+    // Small chat/list avatars can stay on the persistent 192px preview. Large cards/portraits may
+    // show that preview immediately to avoid a blank flash, but must continue loading the full image.
+    val initialBitmap = remember(imageUri, smallDisplay) {
+        cachedLuluAvatarFullBitmap(imageUri)
+            ?: cachedLuluAvatarPreviewBitmap(imageUri)
+            ?: loadStoredLuluAvatarPreview(context, imageUri)
     }
-    val bitmap by produceState<Bitmap?>(initialValue = initialBitmap, imageUri) {
+    val bitmap by produceState<Bitmap?>(initialValue = initialBitmap, imageUri, smallDisplay) {
         val uri = imageUri?.takeIf(String::isNotBlank)
         if (uri == null) {
             value = null
             return@produceState
         }
-        cachedLuluAvatarBitmap(uri)?.let {
+
+        cachedLuluAvatarFullBitmap(uri)?.let {
             value = it
             return@produceState
         }
-        loadStoredLuluAvatarPreview(context, uri)?.let {
-            value = it
+
+        if (smallDisplay) {
+            cachedLuluAvatarPreviewBitmap(uri)?.let {
+                value = it
+                return@produceState
+            }
+            loadStoredLuluAvatarPreview(context, uri)?.let {
+                value = it
+                return@produceState
+            }
+            value = withContext(Dispatchers.IO) { loadLuluAvatarBitmap(context, uri, preferPreview = true) }
             return@produceState
         }
-        value = withContext(Dispatchers.IO) { loadLuluAvatarBitmap(context, uri, preferPreview = true) }
+
+        // A large portrait is never allowed to settle on the 192px preview. Keep the preview as the
+        // temporary visible placeholder, then replace it with the bounded full-resolution bitmap.
+        if (value == null) {
+            value = cachedLuluAvatarPreviewBitmap(uri) ?: loadStoredLuluAvatarPreview(context, uri)
+        }
+        val full = withContext(Dispatchers.IO) { loadLuluAvatarBitmap(context, uri, preferPreview = false) }
+        if (full != null) value = full
     }
     Surface(
         modifier = modifier.size(size.dp),
