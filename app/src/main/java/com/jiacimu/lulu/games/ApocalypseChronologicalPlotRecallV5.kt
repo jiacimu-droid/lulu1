@@ -41,8 +41,13 @@ internal suspend fun recallApocalypsePlotMemoryChronologicallyV5(
 
 internal fun apocalypseDirectorSupplementContextV5(
     chronologicalPlotRecall: String,
+    chapterSummaryContext: String,
     livingWorldContext: String,
 ): String = buildString {
+    if (chapterSummaryContext.isNotBlank()) {
+        appendLine("【长篇章节压缩档案｜按原始幕序】")
+        appendLine(chapterSummaryContext)
+    }
     if (chronologicalPlotRecall.isNotBlank()) {
         appendLine("【相关旧剧情补充｜已按原始幕序排列】")
         appendLine(chronologicalPlotRecall)
