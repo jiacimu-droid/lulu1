@@ -19,6 +19,7 @@ import androidx.compose.material.icons.outlined.Reply
 import androidx.compose.material.icons.outlined.SportsEsports
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -73,52 +74,60 @@ internal fun QqMessageRow(
     if (message.sender == LuluChatMessage.Sender.System) {
         val context = LocalContext.current
         val notice = remember(message.content) { parseSystemActivityNotice(message.content) }
+        val receiptTime = remember(message.createdAt) {
+            message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+        }
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Surface(
                 color = Color(0xFFF1F1F1),
-                shape = RoundedCornerShape(99.dp),
+                shape = RoundedCornerShape(16.dp),
                 border = BorderStroke(1.dp, QqBorder),
             ) {
-                if (notice.link == null) {
-                    Text(
-                        notice.visibleText,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
-                        color = QqMuted,
-                        fontSize = 11.sp,
-                    )
-                } else {
-                    val annotated = remember(notice) {
-                        buildAnnotatedString {
-                            append(notice.visibleText)
-                            if (notice.linkStart in 0 until notice.visibleText.length && notice.linkEnd > notice.linkStart) {
-                                addStyle(
-                                    SpanStyle(
-                                        color = QqInk,
-                                        fontWeight = FontWeight.SemiBold,
-                                        textDecoration = TextDecoration.Underline,
-                                    ),
-                                    notice.linkStart,
-                                    notice.linkEnd.coerceAtMost(notice.visibleText.length),
-                                )
-                                addStringAnnotation(
-                                    tag = "system_activity",
-                                    annotation = "open",
-                                    start = notice.linkStart,
-                                    end = notice.linkEnd.coerceAtMost(notice.visibleText.length),
-                                )
+                Column(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    Text(receiptTime, color = QqMuted.copy(alpha = .72f), fontSize = 9.sp)
+                    if (notice.link == null) {
+                        Text(
+                            notice.visibleText,
+                            color = QqMuted,
+                            fontSize = 11.sp,
+                        )
+                    } else {
+                        val annotated = remember(notice) {
+                            buildAnnotatedString {
+                                append(notice.visibleText)
+                                if (notice.linkStart in 0 until notice.visibleText.length && notice.linkEnd > notice.linkStart) {
+                                    addStyle(
+                                        SpanStyle(
+                                            color = QqInk,
+                                            fontWeight = FontWeight.SemiBold,
+                                            textDecoration = TextDecoration.Underline,
+                                        ),
+                                        notice.linkStart,
+                                        notice.linkEnd.coerceAtMost(notice.visibleText.length),
+                                    )
+                                    addStringAnnotation(
+                                        tag = "system_activity",
+                                        annotation = "open",
+                                        start = notice.linkStart,
+                                        end = notice.linkEnd.coerceAtMost(notice.visibleText.length),
+                                    )
+                                }
                             }
                         }
+                        ClickableText(
+                            text = annotated,
+                            style = LocalTextStyle.current.copy(color = QqMuted, fontSize = 11.sp),
+                            onClick = { offset ->
+                                if (annotated.getStringAnnotations("system_activity", offset, offset).isNotEmpty()) {
+                                    openSystemActivity(context, message, notice.link)
+                                }
+                            },
+                        )
                     }
-                    ClickableText(
-                        text = annotated,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
-                        style = LocalTextStyle.current.copy(color = QqMuted, fontSize = 11.sp),
-                        onClick = { offset ->
-                            if (annotated.getStringAnnotations("system_activity", offset, offset).isNotEmpty()) {
-                                openSystemActivity(context, message, notice.link)
-                            }
-                        },
-                    )
                 }
             }
         }
@@ -393,8 +402,6 @@ private fun MessageLineWithTime(
             val gapPx = 6.dp.roundToPx()
             val height = maxOf(bubble.height, time?.height ?: 0)
 
-            // Report only the bubble's own width. The timestamp is intentionally painted outside
-            // that measured boundary so it never steals width from a normal chat bubble.
             layout(bubble.width, height) {
                 bubble.placeRelative(0, height - bubble.height)
                 time?.let { timestamp ->
@@ -592,7 +599,43 @@ internal fun QqGroupAvatar(group: LuluGroupChat, size: Int) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun QqAvatar(label: String, size: Int, imageUri: String? = null, modifier: Modifier = Modifier) {
-    LuluProfileAvatar(imageUri = imageUri, fallback = label, size = size, modifier = modifier)
+    val characters by MigratedDomainStores.characters.settings.collectAsState()
+    val presenceStates by CompanionPresenceStore.states.collectAsState()
+    val presenceHistories by CompanionPresenceStore.histories.collectAsState()
+    val latestPresenceCharacter = remember(size, label, imageUri, characters) {
+        if (size != 42) {
+            null
+        } else {
+            characters.values.firstOrNull { character ->
+                !imageUri.isNullOrBlank() && character.avatarUri == imageUri
+            } ?: characters.values.firstOrNull { character ->
+                character.displayName.take(1).ifBlank { "露" } == label
+            }
+        }
+    }
+    var latestPresenceOpen by remember(latestPresenceCharacter?.characterId) { mutableStateOf(false) }
+    val avatarModifier = if (latestPresenceCharacter == null) {
+        modifier
+    } else {
+        modifier.combinedClickable(
+            onClick = {
+                CompanionPresenceStore.clearMessageAnchor()
+                latestPresenceOpen = true
+            },
+            onLongClick = {},
+        )
+    }
+    LuluProfileAvatar(imageUri = imageUri, fallback = label, size = size, modifier = avatarModifier)
+
+    if (latestPresenceOpen && latestPresenceCharacter != null) {
+        CompanionPresenceDialog(
+            characterName = latestPresenceCharacter.displayName,
+            state = presenceStates[latestPresenceCharacter.characterId],
+            history = presenceHistories[latestPresenceCharacter.characterId].orEmpty(),
+            onDismiss = { latestPresenceOpen = false },
+        )
+    }
 }
