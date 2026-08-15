@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-15T04:33:35.198044+00:00",
-  "commit": "cbf83e56691d6ab0439051f0abda43f527138b1a",
+  "generatedAt": "2026-08-15T04:45:51.866788+00:00",
+  "commit": "88ab5ae13601050b88fba1803f2759a4818ce066",
   "branch": "main",
-  "sourceFingerprint": "efdce8a50c4be75fca31a3c7422e13621202f4ced2509ce7f133aba826aa5f9b",
+  "sourceFingerprint": "f22ea9d610184d5bc36ec1061d7c2b626ddf7d94c5c0f5864378c648fd9c43a4",
   "summary": {
     "files": 182,
-    "lines": 54607,
+    "lines": 54626,
     "symbols": 704
   },
   "symbolIndex": {
@@ -6117,8 +6117,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseHistoryRangeItemsV5.kt",
-      "lines": 82,
-      "sha256": "7596e386d78d28d39f709026c7a7c0375bdd793c7594443a845a16b837bbf145",
+      "lines": 101,
+      "sha256": "31d404acdac616ba06cd8446b8de52fe89d3274e40e2968c320c57b584f7ed11",
       "symbols": []
     },
     {
