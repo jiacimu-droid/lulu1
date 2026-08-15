@@ -1,4 +1,4 @@
-package com.jiacimu.lulu.games
+package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Text
@@ -16,13 +14,16 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.games.ApocalypseV5ReadableScene
 
 private val apocalypseHistoryBucketStartV5 = mutableIntStateOf(1)
 private var apocalypseHistoryLastMaxSceneV5: Int = -1
 
 /**
- * Specialized overload used by the V5 story-history list. It keeps the existing scene-card renderer
- * untouched, but inserts a lightweight 10-scene chapter selector before the cards.
+ * Specialized overload intentionally lives beside Compose's explicitly imported lazy `items`.
+ * ApocalypseSurvivalV5App imports androidx.compose.foundation.lazy.items, so keeping this overload
+ * in that same package guarantees the V5 story-history List<ApocalypseV5ReadableScene> call selects
+ * this more-specific overload instead of silently falling back to the generic Compose list renderer.
  */
 internal fun LazyListScope.items(
     scenes: List<ApocalypseV5ReadableScene>,
@@ -30,6 +31,7 @@ internal fun LazyListScope.items(
     itemContent: @Composable LazyItemScope.(ApocalypseV5ReadableScene) -> Unit,
 ) {
     if (scenes.isEmpty()) return
+
     val minScene = scenes.minOf(ApocalypseV5ReadableScene::sceneNumber)
     val maxScene = scenes.maxOf(ApocalypseV5ReadableScene::sceneNumber)
     val firstBucket = ((minScene - 1).coerceAtLeast(0) / 10) * 10 + 1
@@ -42,6 +44,7 @@ internal fun LazyListScope.items(
         apocalypseHistoryLastMaxSceneV5 = maxScene
         apocalypseHistoryBucketStartV5.intValue = lastBucket
     }
+
     val selectedStart = apocalypseHistoryBucketStartV5.intValue
     val selectedEnd = minOf(selectedStart + 9, maxScene)
     val visibleScenes = scenes.filter { it.sceneNumber in selectedStart..selectedEnd }
@@ -51,18 +54,18 @@ internal fun LazyListScope.items(
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState())
-                .padding(bottom = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(7.dp),
+                .padding(bottom = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             buckets.forEach { start ->
                 val end = minOf(start + 9, maxScene)
                 FilterChip(
                     selected = selectedStart == start,
                     onClick = { apocalypseHistoryBucketStartV5.intValue = start },
-                    label = { Text("$start–$end", fontSize = 11.sp) },
+                    label = { Text("$start–$end", fontSize = 12.sp) },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = ApocalypseV5ColorsCompat.selected,
-                        selectedLabelColor = ApocalypseV5ColorsCompat.selectedText,
+                        selectedContainerColor = androidx.compose.ui.graphics.Color(0xFFDDE7E0),
+                        selectedLabelColor = androidx.compose.ui.graphics.Color(0xFF526D5E),
                     ),
                 )
             }
@@ -75,10 +78,4 @@ internal fun LazyListScope.items(
     ) { index ->
         itemContent(visibleScenes[index])
     }
-}
-
-/** Keep this helper independent of the page's private color object. */
-private object ApocalypseV5ColorsCompat {
-    val selected = androidx.compose.ui.graphics.Color(0xFFDDE7E0)
-    val selectedText = androidx.compose.ui.graphics.Color(0xFF526D5E)
 }
