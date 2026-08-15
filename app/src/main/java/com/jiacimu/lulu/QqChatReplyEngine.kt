@@ -75,6 +75,20 @@ internal fun parseCharacterReplyPresentation(text: String): CharacterReplyPresen
     )
 }
 
+/**
+ * User messages that belong to the current unanswered turn.
+ *
+ * This is intentionally turn-based rather than count-based: one new user message means one action
+ * candidate; five consecutive user messages before the role replies means five candidates. Older
+ * user messages that already received a character reply stay in history/memory but are no longer
+ * eligible for automatic quote/favorite actions in a later turn.
+ */
+internal fun currentReplyTargetUserMessages(messages: List<LuluChatMessage>): List<LuluChatMessage> {
+    val lastCharacterIndex = messages.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
+    return messages.drop(lastCharacterIndex + 1)
+        .filter { it.sender == LuluChatMessage.Sender.User }
+}
+
 private fun rolePacingSeed(characterId: String): Long = abs(characterId.hashCode().toLong())
 
 /** Give the typing indicator enough time to feel like a person is actually composing the next send. */
@@ -99,6 +113,7 @@ internal suspend fun appendRoleReplyWithPacing(
     characterId: String,
     characterLabel: String,
     presentation: CharacterReplyPresentation,
+    actionableUserMessageIds: Set<String>? = null,
 ): String {
     val bubbles = presentation.content
         .replace("\r\n", "\n")
@@ -108,10 +123,12 @@ internal suspend fun appendRoleReplyWithPacing(
     if (bubbles.isEmpty()) return ""
 
     val before = MigratedDomainStores.chat.messages(conversationId).value
+    val allowedActionIds = actionableUserMessageIds
+        ?: currentReplyTargetUserMessages(before).mapTo(mutableSetOf(), LuluChatMessage::id)
     val validQuoteId = presentation.quoteMessageId?.takeIf { id ->
-        before.any { it.id == id && it.sender == LuluChatMessage.Sender.User }
+        id in allowedActionIds && before.any { it.id == id && it.sender == LuluChatMessage.Sender.User }
     }
-    val favoriteTarget = presentation.favoriteMessageId?.let { id ->
+    val favoriteTarget = presentation.favoriteMessageId?.takeIf { it in allowedActionIds }?.let { id ->
         before.firstOrNull { it.id == id && it.sender == LuluChatMessage.Sender.User }
     }
     val spokenMessages = mutableListOf<LuluChatMessage>()
@@ -209,13 +226,16 @@ internal suspend fun runGroupReplies(
         .lastOrNull { it.sender == LuluChatMessage.Sender.Character }
         ?.authorCharacterId
     val lastCharacterBeforePending = beforeLoop.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
-    val initialPendingIds = beforeLoop
+    val initialPendingMessages = beforeLoop
         .drop(lastCharacterBeforePending + 1)
         .filter { message ->
             message.sender == LuluChatMessage.Sender.User ||
                 (message.sender == LuluChatMessage.Sender.System && message.content.startsWith("[戳一戳]"))
         }
-        .mapTo(mutableSetOf()) { it.id }
+    val initialPendingIds = initialPendingMessages.mapTo(mutableSetOf(), LuluChatMessage::id)
+    val initialPendingUserIds = initialPendingMessages
+        .filter { it.sender == LuluChatMessage.Sender.User }
+        .mapTo(mutableSetOf(), LuluChatMessage::id)
     val random = Random(System.nanoTime())
     val remaining = validMembers
         .filterNot { candidate -> mentioned.any { it.characterId == candidate.characterId } }
@@ -255,19 +275,19 @@ internal suspend fun runGroupReplies(
         val memberList = group.members.joinToString("、") { candidate ->
             candidate.groupNickname.ifBlank { characterNames[candidate.characterId] ?: candidate.characterId }
         }
-        val quotableUserMessages = latestMessages
-            .filter { it.sender == LuluChatMessage.Sender.User }
-            .takeLast(6)
+        val quotableUserMessages = latestMessages.filter { message ->
+            message.sender == LuluChatMessage.Sender.User && message.id in initialPendingUserIds
+        }
         val groupInput = buildString {
             appendLine("[这是群聊，不是私聊。群名：${group.name}；群成员：${group.userGroupNickname}、$memberList。]")
             appendLine("[当前由你（$memberLabel）发言。只代表你自己，严格遵循你的人设和关系边界；不要替别人说话，不要输出姓名标签。]")
             appendLine("[这一轮群聊所有角色成员都必须至少真正说一次，但绝不是固定轮班：全员参与是覆盖要求，不是顺序要求。可以 C→B→A，也可以 A→B→C→B→A；已经说过的人可以在别人之后自然回来继续说。]")
             appendLine("[不要按照成员列表顺序安排下一位。谁接话只看这一刻谁最自然想说；同时要保证这一整轮结束前所有成员至少出现一次。同一角色需要连续补充时可以用多个气泡，隔着别人再次发言时则可以再次成为后续发言者。]")
             if (quotableUserMessages.isNotEmpty()) {
-                appendLine("[以下是近期真实的用户气泡；消息ID只用于引用或收藏动作，不属于聊天正文：]")
+                appendLine("[以下只列本轮用户在角色回复前连续发来的真实消息；数量跟随用户实际发送，不按固定条数截取。消息ID只用于这一轮引用或收藏：]")
                 quotableUserMessages.forEach { item -> appendLine("[消息ID=${item.id} 内容=${qqForwardContextText(item.content).take(300)}]") }
-                appendLine("[引用是正常聊天动作，不必过度克制：当用户连续发了几条、你要针对其中某一句单独回答、话题已经往后走但你想捡回某句、或不引用会让指代不清时，可以在整段回复最前输出 ⟪QUOTE:消息ID⟫。只回应最新一句且上下文很清楚时不必硬引用。]")
-                appendLine("[收藏是你这个角色自己的主观行为。如果用户说了让你很在意、很喜欢、想以后记住或回看的话，例如承诺、特殊称呼、重要心意、戳中你的句子、对关系有意义的瞬间，可以输出 ⟪FAVORITE:消息ID⟫。是否收藏必须服从你的人设和当下感受，不要固定概率，也不要为了展示功能乱收藏。]")
+                appendLine("[引用只能针对上面这一轮尚未被回复的用户消息。用户连续发多句时，可针对其中某一句单独回应；只有一条时就只能引用这一条。不要回头引用更早轮次已经回答完的旧消息。]")
+                appendLine("[收藏也只能在这一轮回复发生时针对上面的用户消息做决定。如果其中某句话让你很在意、很喜欢、想以后记住或回看，可以收藏；一旦这一轮已经结束，后续新话题里不要再突然补收藏旧消息。]")
                 appendLine("[⟪QUOTE:...⟫ 与 ⟪FAVORITE:...⟫ 可以同时出现，也可以都不出现；只能使用上面真实存在的消息ID。]")
             }
             if (index > 0) {
@@ -314,9 +334,7 @@ internal suspend fun runGroupReplies(
             val flow = parseGroupReplyFlow(reply.text)
             val semanticReply = flow.content
             if (semanticReply.isNotBlank()) {
-                val validQuoteId = flow.quoteMessageId?.takeIf { quoteId ->
-                    latestMessages.any { it.id == quoteId && it.sender == LuluChatMessage.Sender.User }
-                }
+                val validQuoteId = flow.quoteMessageId?.takeIf { quoteId -> quoteId in initialPendingUserIds }
                 val shown = appendRoleReplyWithPacing(
                     conversationId = conversationId,
                     characterId = member.characterId,
@@ -328,6 +346,7 @@ internal suspend fun runGroupReplies(
                         recallBubbleNumber = flow.recallBubbleNumber,
                         pokeUser = flow.pokeUser,
                     ),
+                    actionableUserMessageIds = initialPendingUserIds,
                 )
                 if (shown.isNotBlank()) afterReply(member.characterId, shown)
             }
