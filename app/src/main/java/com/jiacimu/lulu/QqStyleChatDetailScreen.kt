@@ -321,21 +321,21 @@ fun QqStyleChatDetailScreen(
         ChatReplyTaskManager.launch(conversationId) {
             if (groupChat == null) {
                 setTypingCharacter(characterId)
-                val quotableUserMessages = latestMessages
-                    .filter { it.sender == LuluChatMessage.Sender.User }
-                    .takeLast(6)
+                val actionableUserMessages = latestPending.filter { it.sender == LuluChatMessage.Sender.User }
+                val actionableUserMessageIds = actionableUserMessages.mapTo(mutableSetOf(), LuluChatMessage::id)
                 val privateInput = buildString {
                     appendLine("[这是连续发生的即时通讯聊天。最近对话是已经经历过的上一刻，不要把每一条新消息当成一次全新的问答；从上一刻的人物状态、关系和话题位置继续。]")
                     appendLine("[按照你此刻想表达的语气、停顿、情绪变化、补充、转折、追问、吐槽、强调、改口和自己的聊天习惯决定什么时候按一次发送。现实聊天中会在这里按发送，就在这里结束一个气泡。]")
                     appendLine("[一个气泡通常只放一个当下表达动作。先回应、再补充、再转折或追问时，通常应该连续发送几个短气泡；多个气泡之间只输出 $SemanticBubbleSeparator。不要按固定字数机械切，也不要把几个不同表达动作塞成一个长气泡。]")
                     appendLine("[只有非常少见、很符合当下人设的情况下，例如刚说出口就觉得说漏嘴、说重了或突然后悔，才可以在回复末尾输出 ⟪RECALL:n⟫，n 是本次第 n 个气泡（从1开始）。不要为了显得像真人而频繁撤回。]")
                     appendLine("[如果你此刻真的会自然地戳一下用户，可以在回复末尾输出 ⟪POKE_USER⟫；尤其用户刚戳过你时可以考虑戳回来，但不要滥用。]")
-                    if (quotableUserMessages.isNotEmpty()) {
-                        appendLine("[你也可以像真人聊天一样，偶尔在确实需要针对用户某一句单独回应时引用那条气泡；不要为了展示功能而每次都引用。以下是可引用的近期用户气泡：]")
-                        quotableUserMessages.forEach { item ->
+                    if (actionableUserMessages.isNotEmpty()) {
+                        appendLine("[以下只列这一轮用户在你回复前连续发来的真实消息；数量按用户实际发送决定，不按固定条数截取。它们是这一轮引用和收藏的唯一候选：]")
+                        actionableUserMessages.forEach { item ->
                             appendLine("[消息ID=${item.id} 内容=${qqForwardContextText(item.content).take(300)}]")
                         }
-                        appendLine("[如果决定引用，只在整段回复最前输出 ⟪QUOTE:消息ID⟫，随后正常输出回复内容；只能使用上面真实存在的消息ID。没有必要引用时不要输出这个标记。]")
+                        appendLine("[如果决定引用，只能引用上面这一轮的消息；用户只发一条时就只有这一条候选。不要回头引用已经在更早轮次回答完的旧消息。]")
+                        appendLine("[如果某句让你很在意、很喜欢、想以后回看，可以在回应这一轮时输出 ⟪FAVORITE:消息ID⟫；也只能收藏上面的本轮消息。不要等用户已经换了新话题后再回来补收藏旧消息。]")
                     }
                     append("这一刻用户新增的消息：$pendingText")
                 }
@@ -355,6 +355,7 @@ fun QqStyleChatDetailScreen(
                             characterId = characterId,
                             characterLabel = character.displayName,
                             presentation = presentation,
+                            actionableUserMessageIds = actionableUserMessageIds,
                         )
                     } else {
                         reportError("对方刚才没有说清，再点一次试试")
