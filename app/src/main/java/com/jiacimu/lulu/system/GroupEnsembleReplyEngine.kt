@@ -67,12 +67,19 @@ internal object GroupEnsembleReplyEngine {
         val group = conversation.groupChat ?: return null
         val messages = MigratedDomainStores.chat.messages(conversation.id).value
         val latestUserMessage = messages.lastOrNull { it.sender == LuluChatMessage.Sender.User } ?: return null
-        val actionableUserMessages = messages.filter { it.sender == LuluChatMessage.Sender.User }.takeLast(8)
-        val validUserMessageIds = actionableUserMessages.mapTo(mutableSetOf(), LuluChatMessage::id)
         val channel = if (sceneContext.contains("电话")) "call" else "chat"
         val planKey = "${conversation.id}:${latestUserMessage.id}:$channel"
 
+        // Later members in the same generated group round reuse the cached plan even though a
+        // character message has already been appended. Resolve the cache before recomputing the
+        // current unanswered user turn.
         takeCachedTurn(context, planKey, characterId)?.let { return Result.success(it) }
+
+        val lastCharacterIndex = messages.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
+        val actionableUserMessages = messages
+            .drop(lastCharacterIndex + 1)
+            .filter { it.sender == LuluChatMessage.Sender.User }
+        val validUserMessageIds = actionableUserMessages.mapTo(mutableSetOf(), LuluChatMessage::id)
 
         val settings = MigratedDomainStores.characters.settings.value
         val validMembers = group.members.filter { member -> member.characterId in settings }
@@ -125,10 +132,12 @@ internal object GroupEnsembleReplyEngine {
                 appendLine("本轮最多允许 $replyLimit 个角色回合。全员各出现一次以后，仍然可以让任何已经发过言的人再次插话、回应别人或回来补一句，不要求每个人只说一次。")
                 appendLine("必须覆盖的成员集合：${requiredSpeakerIds.joinToString(",")}。这个列表只是集合，不代表 A→B→C 的次序，严禁照列表顺序机械输出。")
                 if (mentionedIds.isNotEmpty()) appendLine("用户明确点名了：${mentionedIds.joinToString(",")}。被点名角色应自然更早接话，但其他成员这一轮仍然都要至少参与一次。")
-                appendLine("用户刚刚在群里说：${latestUserMessage.content}")
                 if (actionableUserMessages.isNotEmpty()) {
-                    appendLine("\n【近期真实用户气泡；消息ID只供引用或角色收藏使用】")
+                    appendLine("\n【本轮用户尚未被回复的真实消息｜数量跟随用户实际发送，不按固定条数截取】")
                     actionableUserMessages.forEach { item -> appendLine("消息ID=${item.id}；内容=${item.content.take(320)}") }
+                    appendLine("这些消息同时构成本轮引用/收藏的唯一候选。已经在更早轮次回复完的旧消息不在候选中。")
+                } else {
+                    appendLine("用户刚刚在群里说：${latestUserMessage.content}")
                 }
                 if (history.isNotBlank()) {
                     appendLine("\n【当前群聊的局部接话记录｜只用于接住眼前群话题，不是角色的全部记忆】")
@@ -181,8 +190,8 @@ internal object GroupEnsembleReplyEngine {
                 6. 后续角色应真正接住已经发生的内容：赞同、质疑、反驳、追问、补充、插话、玩笑、岔开或改口；不要每个人都从头回答用户同一个问题。
                 7. 每个角色必须严格保持自己的身份、语言习惯、关系边界、称呼和性格差异。不要把所有人统一写成温柔助手，也不要让一个角色替另一个角色发言。
                 8. bubbles 是这个角色一次次按下“发送”后出现的气泡。一个气泡通常只承载一个当下表达动作；先回应、再补一句、再转折或追问时，可以自然拆成几个短气泡。不要按固定字数、句号或固定数量机械切，也不要把几个不同表达动作硬塞成长段。
-                9. quoteMessageId 是正常聊天能力，不必过度克制。用户连续发了几条、角色针对其中某一句单独回应、想捡回稍早的一句、或不引用会让指代不清时，可以填写真实消息ID；只回最新一句且上下文很清楚时留空。
-                10. favoriteMessageId 是角色自己的主观动作。如果用户某句话让这个角色很在意、很喜欢、想以后回看或对关系有特殊意义，例如承诺、特殊称呼、重要心意、戳中他的句子，可以收藏。是否收藏必须服从这个角色的设定和感受，不设固定概率，也不能为了展示功能乱收藏。
+                9. quoteMessageId 只能从“本轮用户尚未被回复的真实消息”中选择。用户这轮只发一条，就只有这一条候选；连续发几条，就都可以按内容自然选择。不要回头引用更早轮次已经回答完的旧消息。
+                10. favoriteMessageId 同样只能从本轮尚未被回复的用户消息中选择，并且要在回应这一轮时当场决定。不要在后续新话题中突然回来补收藏已经回复完的旧消息。
                 11. recallBubbleNumber 默认 0。只有极少数角色刚说出口就后悔、说漏嘴或想装作没说过的时刻才填真实序号。
                 12. pokeUser 默认 false。只有这个角色此刻真的会自然戳一下用户时才设为 true。
                 13. 不要虚构用户当前身体、环境或正在做的事情。只能依据用户刚说的话、群聊局部记录、角色身份与设定、用户设定资料和角色自己的真实原始时间线互动。
