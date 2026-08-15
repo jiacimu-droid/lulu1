@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a8786f049d17dac3f8fd91fae8b781e47b53cf33`
+- 基准提交：`6e083383f8ae74eb4e86c476c7acc9cbc7526ec0`
 - 分支：`main`
 - 已索引文件：184
-- 已索引代码/文本行：54829
+- 已索引代码/文本行：54882
 - 已发现符号：704
 
 | 文件 | 行数 | 符号数 |
@@ -30,7 +30,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 174 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 336 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 397 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 58 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 92 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 119 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 419 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 555 | 8 |
@@ -171,7 +171,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudySaveableInputsCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyShopScreenV2.kt` | 147 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt` | 253 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/study/StudyStyledDropdownCompat.kt` | 41 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyStyledDropdownCompat.kt` | 60 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 156 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt` | 451 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 93 | 6 |
