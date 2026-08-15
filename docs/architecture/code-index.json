@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-15T06:31:08.444565+00:00",
-  "commit": "7dec45a1bd91093a693db40488823d3582e05bfa",
+  "generatedAt": "2026-08-15T06:40:51.241751+00:00",
+  "commit": "59b9336cf825eafeb076da1b2736371117063ce9",
   "branch": "main",
-  "sourceFingerprint": "66dabbe49209069f70d8c1fa603b5ff1c021bfac772b9dbe357507203331a6ce",
+  "sourceFingerprint": "720642849b5c69ee4a2c2e4deefced7833bc6a716bfadd671af46e479e53d78d",
   "summary": {
-    "files": 182,
-    "lines": 54730,
+    "files": 184,
+    "lines": 54829,
     "symbols": 704
   },
   "symbolIndex": {
@@ -4328,6 +4328,12 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt",
+      "lines": 58,
+      "sha256": "abd3f73f72774dc8ae161912910177d5601a86c5e29dec5360f582b79da9a070",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt",
       "lines": 119,
       "sha256": "0b05a7641aece0c9ea4de61b342cf6d5b0c629dc527424654c326dfa0c3fc8d7",
@@ -7783,6 +7789,12 @@
           "line": 33
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStyledDropdownCompat.kt",
+      "lines": 41,
+      "sha256": "43a8d8e885241b645dda68cfbebf608385c0ff26ef5201cc00464474400a272c",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt",
