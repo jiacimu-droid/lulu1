@@ -3,13 +3,14 @@ package androidx.compose.foundation.lazy
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.weight
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
@@ -87,11 +88,12 @@ internal fun LazyListScope.items(
             Column(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 13.dp),
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .padding(end = 104.dp),
+                    ) {
                         Text(
                             text = "章节浏览",
                             color = ApocalypseHistoryRangeColorsV5.ink,
@@ -107,7 +109,9 @@ internal fun LazyListScope.items(
                     }
 
                     Surface(
-                        modifier = Modifier.clickable { expanded = !expanded },
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .clickable { expanded = !expanded },
                         color = ApocalypseHistoryRangeColorsV5.selectedSurface,
                         shape = RoundedCornerShape(13.dp),
                         border = BorderStroke(1.dp, ApocalypseHistoryRangeColorsV5.border),
@@ -145,7 +149,8 @@ internal fun LazyListScope.items(
                     )
                     Spacer(Modifier.height(8.dp))
 
-                    buckets.chunked(3).forEachIndexed { rowIndex, rowBuckets ->
+                    val bucketRows = buckets.chunked(3)
+                    bucketRows.forEachIndexed { rowIndex, rowBuckets ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -155,7 +160,7 @@ internal fun LazyListScope.items(
                                 val selected = start == selectedStart
                                 Surface(
                                     modifier = Modifier
-                                        .weight(1f)
+                                        .width(88.dp)
                                         .clickable {
                                             apocalypseHistoryBucketStartV5.intValue = start
                                             expanded = false
@@ -169,7 +174,7 @@ internal fun LazyListScope.items(
                                     ),
                                 ) {
                                     Text(
-                                        text = if (selected) "✓  $start–$end" else "$start–$end",
+                                        text = if (selected) "✓ $start–$end" else "$start–$end",
                                         modifier = Modifier.padding(horizontal = 9.dp, vertical = 10.dp),
                                         color = if (selected) ApocalypseHistoryRangeColorsV5.accent else ApocalypseHistoryRangeColorsV5.ink,
                                         fontSize = 11.sp,
@@ -178,10 +183,10 @@ internal fun LazyListScope.items(
                                 }
                             }
                             repeat(3 - rowBuckets.size) {
-                                Spacer(Modifier.weight(1f))
+                                Spacer(Modifier.width(88.dp))
                             }
                         }
-                        if (rowIndex != buckets.chunked(3).lastIndex) {
+                        if (rowIndex != bucketRows.lastIndex) {
                             Spacer(Modifier.height(8.dp))
                         }
                     }
