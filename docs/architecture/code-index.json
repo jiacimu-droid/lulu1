@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-15T03:54:53.946022+00:00",
-  "commit": "a6cca6e7ce7552276ba5363e9e694d56d00482f1",
+  "generatedAt": "2026-08-15T03:56:27.005903+00:00",
+  "commit": "bdc70699792fd4d1458ec070c3a474249c289032",
   "branch": "main",
-  "sourceFingerprint": "1e849ec2dbe773331baf70c240c1e88fd09eae1973a582c4d8cc876ef36e8464",
+  "sourceFingerprint": "59b7a4acbb17b603c40085c5149487243b1b2cf48bd2702f4e52fffaafe596b0",
   "summary": {
     "files": 182,
     "lines": 54610,
@@ -719,7 +719,7 @@
     "regenerateLatestReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 378
+        "line": 379
       }
     ],
     "ScheduleFeatureScreen": [
@@ -4536,7 +4536,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
       "lines": 970,
-      "sha256": "291f5faf7ff025a83fd544ed5610d001100a8321e57438bfa7cc250b746256ba",
+      "sha256": "22ba619dc736b6a2c6388d7755a0a52fb22535dd7022f8ff108e32bd8d30c5b7",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -4584,7 +4584,7 @@
         },
         {
           "name": "regenerateLatestReply",
-          "line": 378
+          "line": 379
         }
       ]
     },
