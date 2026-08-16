@@ -332,13 +332,14 @@ object DigitalWorldStore {
     ): MeetingSession {
         val cleanDestination = destination.trim()
         require(cleanDestination.isNotBlank()) { "目的地不能为空" }
+        val systemTurnId = UUID.randomUUID().toString()
         val updated = synchronized(lock) {
             val current = mutable.value.meetings.firstOrNull { it.id == sessionId } ?: error("见面记录不存在")
             require(current.endedAt == null) { "见面已经结束" }
             require(current.reality == MeetingReality.DIGITAL_WORLD) { "现实场景见面不能使用数字世界移动" }
             require(cleanDestination in meetingLocationOptions(current)) { "当前共享世界还没有开放这个地点" }
             val systemTurn = MeetingTurn(
-                id = UUID.randomUUID().toString(),
+                id = systemTurnId,
                 speakerId = "system",
                 speakerName = "数字世界",
                 sceneText = when (cleanDestination) {
@@ -363,7 +364,7 @@ object DigitalWorldStore {
             recordMeetingTimeline(
                 updated,
                 id,
-                "move-${systemTurn.id}-$id",
+                "move-$systemTurnId-$id",
                 "数字世界",
                 "参与者一起前往${updated.location}。",
                 now,
