@@ -38,13 +38,13 @@ private data class MeetingReply(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DigitalWorldMeetingApp(onBack: () -> Unit) {
+fun DigitalWorldMeetingApp(onBack: () -> Unit, initialCharacterId: String? = null) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val profiles by DigitalLifeProfileStore.profiles.collectAsState()
     val world by DigitalWorldStore.state.collectAsState()
     val library by LuluAiServices.connectionStore.library.collectAsState()
     val scope = rememberCoroutineScope()
-    var selectedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var selectedIds by remember(initialCharacterId) { mutableStateOf(initialCharacterId?.takeIf(String::isNotBlank)?.let(::setOf) ?: emptySet()) }
     var activeSessionId by remember { mutableStateOf<String?>(null) }
     var input by remember { mutableStateOf("") }
     var generating by remember { mutableStateOf(false) }

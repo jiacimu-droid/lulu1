@@ -275,7 +275,10 @@ fun LuluMigrationRootAppV2(
                                     onPomodoroVisibilityChanged = { pomodoroFocusVisible = it },
                                 )
                                 MigrationRoute.Schedule -> ScheduleFeatureScreen(::popRoute)
-                                MigrationRoute.Meeting -> DigitalWorldMeetingApp(::popRoute)
+                                MigrationRoute.Meeting -> DigitalWorldMeetingApp(
+                                    onBack = ::popRoute,
+                                    initialCharacterId = selectedCharacterId,
+                                )
                                 MigrationRoute.Games -> LuluGamesAppV2(
                                     onBack = {
                                         initialGameId = null

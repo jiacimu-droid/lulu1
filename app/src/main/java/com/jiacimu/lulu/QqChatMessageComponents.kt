@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Reply
@@ -66,13 +67,13 @@ internal fun QqMessageRow(
     onSwipeReply: () -> Unit,
     onAcceptGame: (String) -> Unit,
 ) {
+    val context = LocalContext.current
     if (message.sender != LuluChatMessage.Sender.System) {
         val recalledIds = recalledMessageIds(MigratedDomainStores.chat.messages(message.conversationId).value)
         if (message.id in recalledIds) return
     }
 
     if (message.sender == LuluChatMessage.Sender.System) {
-        val context = LocalContext.current
         val notice = remember(message.content) { parseSystemActivityNotice(message.content) }
         val receiptTime = remember(message.createdAt) {
             message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
@@ -139,17 +140,21 @@ internal fun QqMessageRow(
     val gameInvite = remember(message.content, mine, forwardBundle) {
         if (mine || forwardBundle != null) null else parseGameInvite(message.content)
     }
-    val visibleContent = remember(message.content, gameInvite, forwardBundle) {
+    val worldInvite = remember(message.content, mine, forwardBundle) {
+        if (mine || forwardBundle != null) null else parseWorldInvite(message.content)
+    }
+    val visibleContent = remember(message.content, gameInvite, worldInvite, forwardBundle) {
         when {
             forwardBundle != null -> ""
             gameInvite != null -> gameInvite.message
+            worldInvite != null -> worldInvite.message
             else -> stripCharacterReplyDirective(message.content)
         }
     }
-    val bubbles = remember(visibleContent, mine, gameInvite, forwardBundle) {
+    val bubbles = remember(visibleContent, mine, gameInvite, worldInvite, forwardBundle) {
         when {
             forwardBundle != null -> emptyList()
-            gameInvite != null -> emptyList()
+            gameInvite != null || worldInvite != null -> emptyList()
             mine -> listOf(visibleContent)
             else -> splitCharacterBubbles(visibleContent)
         }
@@ -259,6 +264,26 @@ internal fun QqMessageRow(
                         GameInviteMessageCard(
                             invite = gameInvite,
                             onAccept = { onAcceptGame(gameInvite.gameId) },
+                            modifier = bubbleModifier,
+                        )
+                    }
+                    Spacer(Modifier.height(5.dp))
+                }
+                if (worldInvite != null) {
+                    MessageLineWithTime(
+                        mine = mine,
+                        showTime = showTime,
+                        timeText = timeText,
+                    ) { bubbleModifier ->
+                        WorldInviteMessageCard(
+                            invite = worldInvite,
+                            onAccept = {
+                                context.startActivity(
+                                    Intent(context, MigrationActivity::class.java)
+                                        .putExtra("open_route", MigrationRoute.Meeting.name)
+                                        .putExtra("open_character_id", worldInvite.characterId),
+                                )
+                            },
                             modifier = bubbleModifier,
                         )
                     }
@@ -523,6 +548,62 @@ private fun openSystemActivity(context: Context, message: LuluChatMessage, link:
         }
     }
     context.startActivity(intent)
+}
+
+private data class WorldInviteMessage(val characterId: String, val message: String)
+
+private fun parseWorldInvite(content: String): WorldInviteMessage? {
+    val match = Regex("^\\[见面邀约\\|([^\\]]+)]\\s*(.*)$", RegexOption.DOT_MATCHES_ALL).find(content.trim())
+        ?: return null
+    return WorldInviteMessage(
+        characterId = match.groupValues[1].trim(),
+        message = match.groupValues[2].trim(),
+    ).takeIf { it.characterId.isNotBlank() }
+}
+
+@Composable
+private fun WorldInviteMessageCard(
+    invite: WorldInviteMessage,
+    onAccept: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, QqBorder),
+        shape = RoundedCornerShape(20.dp),
+        modifier = modifier,
+    ) {
+        Column(Modifier.fillMaxWidth()) {
+            Box(
+                modifier = Modifier.fillMaxWidth().height(86.dp).background(Color(0xFF8EA7B8)),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                Row(Modifier.padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Surface(shape = RoundedCornerShape(14.dp), color = Color.White.copy(alpha = 0.18f), modifier = Modifier.size(50.dp)) {
+                        Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Cloud, null, tint = Color.White) }
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column {
+                        Text("数字世界邀约", color = Color.White.copy(alpha = 0.78f), fontSize = 11.sp)
+                        Text("在世界入口见面", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    }
+                }
+            }
+            Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (invite.message.isNotBlank()) Text(invite.message, color = QqInk, lineHeight = 20.sp)
+                Button(
+                    onClick = onAccept,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = QqMine, contentColor = Color.White),
+                    shape = RoundedCornerShape(14.dp),
+                ) {
+                    Icon(Icons.Outlined.Cloud, null, Modifier.size(19.dp))
+                    Spacer(Modifier.width(5.dp))
+                    Text("接受邀请，进入世界")
+                }
+            }
+        }
+    }
 }
 
 private data class GameInviteMessage(val gameId: String, val title: String, val message: String)

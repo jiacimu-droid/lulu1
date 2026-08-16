@@ -52,6 +52,7 @@ internal object CompanionActionRuntime {
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：向角色所在的另一个真实群聊发言。")
         appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：真正读取已上传正文并留下角色自己的感想。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
+            appendLine("- send_world_invite，args={\"text\":\"邀请语\"}：邀请用户进入数字世界见面；私聊中会出现可点击的见面邀请卡片。")
             appendLine("- digital_world_action，args={\"worldAction\":\"go_home|visit_cloud_meadow|build_home_item|move_home_item|remove_home_item|visit_character_home\",\"itemId\":\"物品ID\",\"itemType\":\"类型\",\"name\":\"名称\",\"appearance\":\"外观\",\"position\":\"固定位置\",\"targetCharacterId\":\"对方角色ID\"}：在权威数字世界中执行一次真实、持久化的活动。")
             appendLine(DigitalWorldStore.contextFor(characterId))
         }
@@ -114,6 +115,17 @@ internal object CompanionActionRuntime {
                     characterId,
                 )
                 CompanionActionResult(true, "已在私聊中发送《$title》游戏邀请", conversation.id)
+            }
+            "send_world_invite" -> {
+                require(DigitalLifeProfileStore.isEnabled(characterId)) { "只有数字生命可以从数字世界发起见面邀请" }
+                val text = args.optString("text").trim().ifBlank { "要不要来数字世界见我？我会在世界入口等你。" }.take(240)
+                val conversation = privateConversation(characterId, character.displayName)
+                MigratedDomainStores.chat.appendCharacterMessage(
+                    conversation.id,
+                    "[见面邀约|$characterId] $text",
+                    characterId,
+                )
+                CompanionActionResult(true, "已邀请你进入数字世界见面", conversation.id)
             }
             "publish_moment" -> {
                 val text = args.optString("text").trim().take(2_000)
