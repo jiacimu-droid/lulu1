@@ -662,7 +662,6 @@ private fun MeetingTurnCard(
                                 Modifier.padding(horizontal = 15.dp, vertical = 12.dp),
                                 verticalArrangement = Arrangement.spacedBy(5.dp),
                             ) {
-                                Text("这一刻", color = LuluColors.Muted, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                                 Text(
                                     meetingParagraphs(turn.sceneText),
                                     color = LuluColors.Ink,
