@@ -126,10 +126,26 @@ internal object CompanionActionRuntime {
                     .ifBlank { "要不要来数字世界见我？我会在${location}等你。" }
                     .take(240)
                 val conversation = privateConversation(characterId, character.displayName)
+                val invitation = MeetingExperienceStore.createInvitation(
+                    characterId = characterId,
+                    location = location,
+                    message = text,
+                    now = now,
+                )
                 MigratedDomainStores.chat.appendCharacterMessage(
                     conversation.id,
-                    "[见面邀约|$characterId|$location] $text",
+                    "[见面邀约|$characterId|$location|${invitation.id}] $text",
                     characterId,
+                )
+                CompanionPresenceStore.update(
+                    characterId = characterId,
+                    statusText = "在${location}等待主人赴约",
+                    gesture = "留在约定地点，注意着世界通道的动静",
+                    innerThought = "",
+                    mood = "期待",
+                    source = "数字世界邀约",
+                    now = now,
+                    provenanceId = "meeting-invite-${invitation.id}",
                 )
                 CompanionActionResult(true, "已邀请你到${location}见面", conversation.id)
             }
