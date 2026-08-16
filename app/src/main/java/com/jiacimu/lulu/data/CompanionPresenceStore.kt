@@ -162,7 +162,7 @@ object CompanionPresenceStore {
                 .filterNot { it.provenanceId in provenanceIds }
             nextHistories[characterId] = remaining
             val current = nextStates[characterId]
-            if (current?.provenanceId in provenanceIds) {
+            if (current?.provenanceId?.let { it in provenanceIds } == true) {
                 val restored = snapshots[characterId] ?: remaining.maxByOrNull(CompanionPresenceState::updatedAt)
                 if (restored == null) nextStates.remove(characterId) else nextStates[characterId] = restored
             }
