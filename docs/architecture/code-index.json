@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T14:39:54.883658+00:00",
-  "commit": "b91e72affe3fc53a9fe6f4c83f0e8574de763f4d",
+  "generatedAt": "2026-08-16T14:42:29.327062+00:00",
+  "commit": "447d6dac359f8743b0904c65ab7d6e040ef5d90e",
   "branch": "main",
-  "sourceFingerprint": "987d74d65efc5d2d57f67a9eab727b3e060424c7229f59a4aa3a4fe7ddc5e26f",
+  "sourceFingerprint": "966b412157d620184bec09f01994d7d05841c997d59f72c012eeb8db2e1233ad",
   "summary": {
     "files": 187,
-    "lines": 57258,
+    "lines": 57362,
     "symbols": 751
   },
   "symbolIndex": {
@@ -4419,8 +4419,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-      "lines": 1139,
-      "sha256": "1cd8dee6d208c4a7c8bfe1333532e78b6b33111a675cdf9a9e2627922389216a",
+      "lines": 1233,
+      "sha256": "597e9fe118b562f391cd3d39539c089593c14a659d17f8f22d8ce0799fea1a25",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
@@ -5484,8 +5484,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 634,
-      "sha256": "cd5e3fd78ccad333fa37a6d107c0a7ca9f1cf2f5498928f88ff31377a305675d",
+      "lines": 644,
+      "sha256": "5ec72cfa6837fd276a5cc7fd85db75ac7e46424328c8c520d6d834cc1a0ad81e",
       "symbols": [
         {
           "name": "MeetingReality",
