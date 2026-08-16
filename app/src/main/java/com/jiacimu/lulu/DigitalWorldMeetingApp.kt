@@ -708,15 +708,18 @@ private data class MeetingDisplayGroup(
 private fun List<MeetingTurn>.toMeetingDisplayGroups(): List<MeetingDisplayGroup> {
     val groups = mutableListOf<MeetingDisplayGroup>()
     forEach { turn ->
+        val previous = groups.lastOrNull()
+        val previousTurn = previous?.turns?.lastOrNull()
+        val continuesLegacyExchange = previous?.key?.startsWith("legacy:") == true &&
+            previousTurn != null &&
+            kotlin.math.abs(turn.occurredAt.toEpochMilli() - previousTurn.occurredAt.toEpochMilli()) <= 2_500L
         val exchangeKey = turn.exchangeId?.takeIf(String::isNotBlank)?.let { "exchange:$it" }
         val key = when {
             exchangeKey != null -> exchangeKey
+            continuesLegacyExchange -> previous.key
             turn.speakerId == "system" -> "system:${turn.id}"
-            turn.speakerId == null -> "legacy:${turn.id}"
-            groups.lastOrNull()?.key?.startsWith("legacy:") == true -> groups.last().key
             else -> "legacy:${turn.id}"
         }
-        val previous = groups.lastOrNull()
         if (previous?.key == key) {
             groups[groups.lastIndex] = previous.copy(turns = previous.turns + turn)
         } else {
