@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T14:53:17.718656+00:00",
-  "commit": "4eef1c15542349bcc8f60d24d5e50ff145d790db",
+  "generatedAt": "2026-08-16T14:58:22.765811+00:00",
+  "commit": "6ae4973de22b3841cc151b32e9e0a0af6edcc5ed",
   "branch": "main",
-  "sourceFingerprint": "40db60cfe76ef4bb6a0835490e1d56abe838e55ecb8fb1ef313e4368d2970cb4",
+  "sourceFingerprint": "5ecf00fb2bbe1b6c57f7a8b35b90123b67b5df092e7398a5223c68b295207c2d",
   "summary": {
     "files": 187,
-    "lines": 57390,
-    "symbols": 751
+    "lines": 57440,
+    "symbols": 752
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -89,7 +89,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 95
+        "line": 96
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
@@ -1349,7 +1349,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 473
+        "line": 521
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -1479,125 +1479,131 @@
     "MeetingSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 55
+        "line": 56
       }
     ],
     "DigitalWorldState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 67
+        "line": 68
       }
     ],
     "DigitalWorldActionResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 75
+        "line": 76
       }
     ],
     "DigitalWorldStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 82
+        "line": 83
       }
     ],
     "homeLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 100
+        "line": 101
       }
     ],
     "ensureHome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 102
+        "line": 103
       }
     ],
     "itemsAtHome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 117
+        "line": 118
       }
     ],
     "locationOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 120
+        "line": 121
       }
     ],
     "contextFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 123
+        "line": 124
       }
     ],
     "performAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 157
+        "line": 158
       }
     ],
     "startMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 238
+        "line": 239
       }
     ],
     "appendMeetingTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 293
+        "line": 294
       }
     ],
     "meetingLocationOptions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 304
+        "line": 305
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 322
+        "line": 323
       }
     ],
     "invitationLocationOptions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 315
+        "line": 316
       }
     ],
     "moveMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 325
+        "line": 326
       }
     ],
     "endMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 368
+        "line": 375
       }
     ],
     "deleteMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 383
+        "line": 390
+      }
+    ],
+    "deleteMeetingExchange": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
+        "line": 403
       }
     ],
     "pruneEmptyMeetings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 396
+        "line": 444
       }
     ],
     "recordMeetingTimeline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 400
+        "line": 448
       }
     ],
     "meetingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 421
+        "line": 469
       }
     ],
     "InMemoryMemoryRepository": [
@@ -5484,8 +5490,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 657,
-      "sha256": "5ef5f6b712fc1bbfd2e1f6b838671c7560da189f455d2b0ddac36cc55fa0df0f",
+      "lines": 707,
+      "sha256": "347820416201b3f8c99d0df87fb5e2702ec976f6d07dde7835c60c7a621bb8b4",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -5517,95 +5523,99 @@
         },
         {
           "name": "MeetingSession",
-          "line": 55
+          "line": 56
         },
         {
           "name": "DigitalWorldState",
-          "line": 67
+          "line": 68
         },
         {
           "name": "DigitalWorldActionResult",
-          "line": 75
+          "line": 76
         },
         {
           "name": "DigitalWorldStore",
-          "line": 82
+          "line": 83
         },
         {
           "name": "initialize",
-          "line": 95
+          "line": 96
         },
         {
           "name": "homeLocation",
-          "line": 100
+          "line": 101
         },
         {
           "name": "ensureHome",
-          "line": 102
+          "line": 103
         },
         {
           "name": "itemsAtHome",
-          "line": 117
+          "line": 118
         },
         {
           "name": "locationOf",
-          "line": 120
+          "line": 121
         },
         {
           "name": "contextFor",
-          "line": 123
+          "line": 124
         },
         {
           "name": "performAction",
-          "line": 157
+          "line": 158
         },
         {
           "name": "startMeeting",
-          "line": 238
+          "line": 239
         },
         {
           "name": "appendMeetingTurn",
-          "line": 293
+          "line": 294
         },
         {
           "name": "meetingLocationOptions",
-          "line": 304
+          "line": 305
         },
         {
           "name": "invitationLocationOptions",
-          "line": 315
+          "line": 316
         },
         {
           "name": "meetingLocationOptions",
-          "line": 322
+          "line": 323
         },
         {
           "name": "moveMeeting",
-          "line": 325
+          "line": 326
         },
         {
           "name": "endMeeting",
-          "line": 368
+          "line": 375
         },
         {
           "name": "deleteMeeting",
-          "line": 383
+          "line": 390
+        },
+        {
+          "name": "deleteMeetingExchange",
+          "line": 403
         },
         {
           "name": "pruneEmptyMeetings",
-          "line": 396
+          "line": 444
         },
         {
           "name": "recordMeetingTimeline",
-          "line": 400
+          "line": 448
         },
         {
           "name": "meetingContext",
-          "line": 421
+          "line": 469
         },
         {
           "name": "clearCharacter",
-          "line": 473
+          "line": 521
         }
       ]
     },
