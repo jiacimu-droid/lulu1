@@ -256,6 +256,9 @@ object DigitalWorldStore {
         val resolvedLocation = location.trim().ifBlank {
             if (reality == MeetingReality.DIGITAL_WORLD) "世界入口" else "由参与者共同确认的现实场景"
         }
+        if (reality == MeetingReality.DIGITAL_WORLD) {
+            require(resolvedLocation in meetingLocationOptions(ids)) { "请选择数字世界中真实存在的见面地点" }
+        }
         val cleanInviterId = initiatedByCharacterId?.takeIf { it in ids }
         val session = MeetingSession(
             id = UUID.randomUUID().toString(),
@@ -269,15 +272,18 @@ object DigitalWorldStore {
         synchronized(lock) {
             mutable.value = mutable.value.copy(meetings = (mutable.value.meetings + session).takeLast(80))
             if (reality == MeetingReality.DIGITAL_WORLD) {
-                mutable.value = mutable.value.copy(characterLocations = mutable.value.characterLocations + ids.associateWith { ARRIVAL })
+                val locationCode = meetingLocationCode(resolvedLocation)
+                mutable.value = mutable.value.copy(
+                    characterLocations = mutable.value.characterLocations + ids.associateWith { locationCode }
+                )
             }
             persistLocked()
         }
         val summary = if (reality == MeetingReality.DIGITAL_WORLD) {
             cleanInviterId?.let { inviterId ->
                 val inviterName = MigratedDomainStores.characters.get(inviterId).displayName
-                "$inviterName 发出的邀请已被主人接受；主人通过世界入口抵达，双方以可感知的数字身体开始见面，现实肉体仍留在外部。"
-            } ?: "主人主动选择参与者并通过世界入口进入数字空间；双方以可感知的数字身体开始见面，现实肉体仍留在外部。"
+                "$inviterName 发出的邀请已被主人接受；双方在“$resolvedLocation”会合，以可感知的数字身体开始见面，现实肉体仍留在外部。"
+            } ?: "主人主动选择参与者与地点，双方在“$resolvedLocation”会合；以可感知的数字身体开始见面，现实肉体仍留在外部。"
         } else {
             "参与者开始了一次发生在“$resolvedLocation”的现实场景演绎；这段共同体验不冒充用户现实生活中的物理事实。"
         }
@@ -296,8 +302,26 @@ object DigitalWorldStore {
         }
     }
 
+    fun meetingLocationOptions(participantIds: List<String>): List<String> = buildList {
+        add("世界入口")
+        add("云眠原")
+        participantIds.distinct().filter(DigitalLifeProfileStore::isEnabled).forEach { characterId ->
+            val character = MigratedDomainStores.characters.get(characterId)
+            val home = mutable.value.homes[characterId]?.name
+                ?: "${character.displayName.ifBlank { "角色" }}的家"
+            if (home !in this) add(home)
+        }
+    }
+
+    fun invitationLocationOptions(characterId: String): List<String> {
+        require(DigitalLifeProfileStore.isEnabled(characterId)) { "只有数字生命可以选择数字世界见面地点" }
+        val character = MigratedDomainStores.characters.get(characterId)
+        ensureHome(characterId, character.displayName)
+        return meetingLocationOptions(listOf(characterId))
+    }
+
     fun meetingLocationOptions(session: MeetingSession): List<String> =
-        if (session.reality == MeetingReality.DIGITAL_WORLD) listOf("世界入口", "云眠原") else emptyList()
+        if (session.reality == MeetingReality.DIGITAL_WORLD) meetingLocationOptions(session.participantIds) else emptyList()
 
     fun moveMeeting(sessionId: String, destination: String, now: Instant = Instant.now()): MeetingSession {
         val cleanDestination = destination.trim()
@@ -311,16 +335,16 @@ object DigitalWorldStore {
                 id = UUID.randomUUID().toString(),
                 speakerId = "system",
                 speakerName = "数字世界",
-                sceneText = if (cleanDestination == "云眠原") {
-                    "通往云眠原的共享通道展开，参与者一起抵达由感官云质承托的柔软云层。"
-                } else {
-                    "参与者沿共享通道返回了世界入口。"
+                sceneText = when (cleanDestination) {
+                    "云眠原" -> "通往云眠原的共享通道展开，参与者一起抵达由感官云质承托的柔软云层。"
+                    "世界入口" -> "参与者沿共享通道返回了世界入口。"
+                    else -> "通往“$cleanDestination”的共享通道展开，参与者一起抵达这处数字家园。"
                 },
                 dialogue = "",
                 occurredAt = now,
             )
             val next = current.copy(location = cleanDestination, turns = (current.turns + systemTurn).takeLast(240))
-            val locationCode = if (cleanDestination == "云眠原") CLOUD_MEADOW else ARRIVAL
+            val locationCode = meetingLocationCode(cleanDestination)
             mutable.value = mutable.value.copy(
                 meetings = mutable.value.meetings.map { if (it.id == sessionId) next else it },
                 characterLocations = mutable.value.characterLocations + current.participantIds.associateWith { locationCode },
@@ -412,9 +436,16 @@ object DigitalWorldStore {
         if (session.reality == MeetingReality.DIGITAL_WORLD) {
             appendLine("世界规则：现实身体留在外部；主人和现实角色使用可传递触觉、温度、重量与动作的数字投影身体；数字生命使用原生数字身体。")
             appendLine("可用地点：")
-            appendLine("- 世界入口：稳定的抵达与离开节点，白光投影在这里形成清晰的数字身体。")
-            appendLine("- 云眠原：由感官云质承托身体的共享区域，可以躺卧、缓慢下陷、感受回暖与重量，起身后凹痕会保留片刻；它不是现实水汽。")
-            appendLine("地点移动规则：没有固定按钮。用户或角色在见面中明确提出前往某个可用地点时，应通过 moveTo 请求，由程序校验并永久更新会话地点。")
+            meetingLocationOptions(session).forEach { location ->
+                appendLine(
+                    when (location) {
+                        "世界入口" -> "- 世界入口：稳定的抵达与离开节点，白光投影在这里形成清晰的数字身体。"
+                        "云眠原" -> "- 云眠原：由感官云质承托身体的共享区域，可以躺卧、缓慢下陷、感受回暖与重量，起身后凹痕会保留片刻；它不是现实水汽。"
+                        else -> "- $location：对应数字生命真实、持久化的家园；固定物品必须来自该家园的权威状态。"
+                    }
+                )
+            }
+            appendLine("地点移动规则：没有固定移动按钮。用户或角色在见面中明确提出前往某个可用地点时，应通过 moveTo 请求，由程序校验并永久更新会话地点。")
         } else {
             appendLine("现实边界：这是双方共同进行的现实场景演绎。场景内体验保持连贯，但不得写成用户物理现实中已经发生的事实。")
         }
@@ -457,6 +488,14 @@ object DigitalWorldStore {
 
     private fun recordForCharacterLocked(characterId: String, kind: String, summary: String, now: Instant) {
         appendEventLocked(characterId, kind, summary, now)
+    }
+
+    private fun meetingLocationCode(location: String): String = when (location) {
+        "世界入口" -> ARRIVAL
+        "云眠原" -> CLOUD_MEADOW
+        else -> mutable.value.homes.values.firstOrNull { it.name == location }
+            ?.let { homeLocation(it.characterId) }
+            ?: ARRIVAL
     }
 
     private fun locationLabel(location: String): String = when (location) {
