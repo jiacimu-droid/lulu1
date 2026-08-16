@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T04:45:10.722161+00:00",
-  "commit": "9020a0ae6183d713ab2dbf5886c0df91bbe4fad3",
+  "generatedAt": "2026-08-16T04:52:35.789804+00:00",
+  "commit": "ae1fedd31672fb62017f4fd7e764ef795636f50e",
   "branch": "main",
-  "sourceFingerprint": "c15aa4b1fef42f4c0d1bc5cb780319c813c68db7db9e3569ece6e3ae8a61b888",
+  "sourceFingerprint": "0fd264602b3c8efb5fa070fd63660a5abb9978a30763e45c9f4a82aebc091a97",
   "summary": {
     "files": 186,
-    "lines": 56019,
+    "lines": 56034,
     "symbols": 731
   },
   "symbolIndex": {
@@ -4301,8 +4301,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-      "lines": 464,
-      "sha256": "8cb3a6664bf31cc8613728404de784028a7a039cfb5538a854ff42c2963f2bac",
+      "lines": 479,
+      "sha256": "7ec7f953e3cd3a023730ec713695d2fc4d686dad369dcdaa4b87162edeb6c772",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
