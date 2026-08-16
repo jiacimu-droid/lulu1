@@ -1104,21 +1104,21 @@ private fun MeetingDialogueRow(
     val isUser = speakerId == null
     val bubble: @Composable () -> Unit = {
         Surface(
-            modifier = Modifier.widthIn(max = 265.dp),
+            modifier = Modifier.widthIn(max = 248.dp),
             color = if (isUser) Color(0xFF242424) else Color(0xFFFCFCFC),
             contentColor = if (isUser) Color.White else Color(0xFF242424),
             shape = if (isUser) {
-                RoundedCornerShape(topStart = 19.dp, topEnd = 6.dp, bottomEnd = 19.dp, bottomStart = 19.dp)
+                RoundedCornerShape(topStart = 17.dp, topEnd = 6.dp, bottomEnd = 17.dp, bottomStart = 17.dp)
             } else {
-                RoundedCornerShape(topStart = 6.dp, topEnd = 19.dp, bottomEnd = 19.dp, bottomStart = 19.dp)
+                RoundedCornerShape(topStart = 6.dp, topEnd = 17.dp, bottomEnd = 17.dp, bottomStart = 17.dp)
             },
             border = if (isUser) null else BorderStroke(1.dp, Color(0xFFDDDDDD)),
         ) {
             Text(
-                "“${text.trim().trim('“', '”', '"')}”",
-                fontSize = 16.sp,
-                lineHeight = 24.sp,
-                modifier = Modifier.padding(horizontal = 15.dp, vertical = 11.dp),
+                text.trim().trim('“', '”', '"'),
+                fontSize = 15.sp,
+                lineHeight = 22.sp,
+                modifier = Modifier.padding(horizontal = 13.dp, vertical = 9.dp),
             )
         }
     }
@@ -1622,7 +1622,7 @@ private suspend fun generateMeetingReply(
     val lengthInstruction = when (writing.length) {
         MeetingProseLength.BRIEF -> "简略：推进一个清楚的小动作或一句回应，通常 1—3 句描写、1—3 个片段；保留必要因果，不铺陈。"
         MeetingProseLength.BALANCED -> "适中：把当前小情节自然展开，通常 3—6 句描写、2—5 个片段，兼顾动作与氛围。"
-        MeetingProseLength.RICH -> "丰富：即使主人输入很短，也把这一小步写得饱满，通常 6—10 句描写、3—7 个片段；增加有用的感官、微动作、停顿和空间变化，但不擅自推进重大情节。"
+        MeetingProseLength.RICH -> "丰富：即使主人输入很短，也要推进一个完整、可体验的小场景单元，而不是只做一次反应。角色可在同一轮连续完成 2—4 个彼此有因果的动作，通常 8—14 句描写、4—9 个片段；充分使用环境、感官、微动作、停顿和空间变化，但不擅自替主人作决定或跳过重大情节。"
     }
     val styleInstruction = when (writing.style) {
         MeetingProseStyle.NATURAL -> "自然：清楚、生活化、克制，优先让动作与对话顺畅，不追求华丽句式。"
@@ -1641,7 +1641,7 @@ private suspend fun generateMeetingReply(
             else appendLine("这一刻主人已经发生的言语或动作：$latestMoment")
         },
         instruction = """
-            你正在以${character.displayName}的身份参与一场连续见面。只推进当前一小步，不要一次写完整故事，不要总结历史。
+            你正在以${character.displayName}的身份参与一场连续见面。每轮推进一个完整、可体验的小场景单元，不要只停在单一反应上，也不要一次写完整故事或总结历史。
             只返回一个 JSON 对象，不要代码块：
             {"sequence":[{"speaker":"user","type":"dialogue","text":"主人先说的话"},{"speaker":"character","type":"action","text":"${character.displayName}随后的反应"},{"speaker":"user","type":"dialogue","text":"主人接着说的话"},{"speaker":"character","type":"dialogue","text":"${character.displayName}随后说的话"}],"moveTo":"明确要前往的可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"仍持续的环境事实","participants":[{"participantId":"user 或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["仍在持续的身体接触"],"heldItems":["仍拿着的物品"]}]},"statusText":"简短当前状态","gesture":"延续到下一刻的姿态","innerThought":"未说出口的极短心声，可为空","mood":"简短心情"}
 
@@ -1649,6 +1649,8 @@ private suspend fun generateMeetingReply(
             - sequence 是双方共享的唯一时间顺序；speaker=user 表示主人，speaker=character 表示${character.displayName}。界面会严格按数组顺序逐项展示。
             - expandUserDraft=$expandUserDraft。为 false 时，sequence 中只能出现 speaker=character；为 true 时，应忠实还原主人草稿描述的一来一回，可以出现 user → character → user → character，不能把主人所有内容放完以后才统一写角色。
             - 扩写是默认职责：即使主人只输入很短、很口语或不完整的草稿，也必须把它整理成有文学质感、能被看见和感受到的现场，而不是照抄成干巴巴的一句话。
+            - 体验优先：${character.displayName}不能只站着回应一句话。除非现场确实要求克制或静止，角色应主动连续做几件符合性格、关系和空间条件的小事，例如调整距离、使用已有物品、整理现场、带主人观察某处、延续触碰、准备一件小东西或自然发起一个轻量互动，让这一轮有起承转合。
+            - 角色可以主动创造“小变化”，但不得替主人答应、移动、接受触碰或产生感受；需要主人选择的地方，停在角色已经发出邀请、伸出手或做好准备的那一刻，把决定权留给主人。
             - 补全主人侧时保留原意和语气：可以补足自然衔接、说话方式、草稿已经暗示的细小动作，以及主人当下能够直接感知的环境与触感；不得添加新的重大决定、强烈情绪、未暗示的亲密行为、内心想法或后果。主人没有描述的后续台词不得替主人新增。
             - 先把主人草稿中明确写出的言语和动作按原顺序当作不可移动的时间锚点，再把角色反应插到对应原因之后。任何片段都不得提前提及、顺应或回应数组后面才发生的动作。
             - 因果顺序必须在输出前自检：例如主人“往后退一步”导致角色原本放在她头发上的手滑开，必须先输出 user/action=往后退，再输出 character/action=手随之离开；绝不能先写角色“顺着她退开的势头”，下一项才补主人后退。
@@ -1662,7 +1664,7 @@ private suspend fun generateMeetingReply(
             - action 片段采用贴身但可观察的小说式描写；自然调动光影、声音、气味、温度、触感、空间距离，并写清动作起承转合。不要把可直接演出的内容藏进 innerThought。
             - innerThought 是后台派生状态，不显示在正文；能用动作、目光、停顿或语气表现的，一律优先写进 sequence。它可以为空，绝不能替主人编造心理、感受或反应。
             - 氛围必须服务于当前关系和地点：温柔、紧张、暧昧、轻松或安静都要由既有情境自然生长，不能无缘无故切换情绪，也不能写成套路化网文腔。
-            - 不要为了格式机械交替；只有真的再次开口或画面发生变化时才新建片段。整轮通常二到六个片段，避免碎成十几个短句。
+            - 不要为了格式机械交替；只有真的再次开口或画面发生变化时才新建片段。片段数量服从所选丰富度；“丰富”允许角色在同一轮经历多个连续动作与一两次开口，但每一项都必须推动现场，避免切成无意义的碎句。
             - 如果用户明确提出一起去某个“可用地点”，moveTo 填该地点的准确名称，并在 action 片段中自然写出从当前位置出发和抵达的连续过程；没有明确移动意图时必须留空。地点变化由程序校验并真实保存，不能只在文字中假装移动。
             - action 是可观察事实，不是上帝视角小说；innerThought 不会展示给用户，也不能泄露推理过程。
             - sceneState 是本轮结束后的结构化现场，只记录持续到下一轮的事实；必须包含 user 与所有参与者，使用准确 participantId。短暂动作写在正文，不要误存成持续姿态。它不是额外剧情，也不会作为另一段正文展示。
@@ -1675,7 +1677,7 @@ private suspend fun generateMeetingReply(
         source = if (session.reality == MeetingReality.DIGITAL_WORLD) "数字世界见面" else "现实场景见面",
         title = "${character.displayName}的见面回合",
         temperature = 0.82,
-        maxTokens = 1_800,
+        maxTokens = 2_400,
         connectionOverride = connection,
         memoryRequest = UnifiedMemoryRequest(
             currentInput = latestMoment,
@@ -1769,7 +1771,7 @@ private fun parseMeetingReply(raw: String, session: MeetingSession): MeetingRepl
 
 private fun parseMeetingExchange(json: JSONObject): List<MeetingExchangeSegment> = buildList {
     val array = json.optJSONArray("sequence") ?: json.optJSONArray("exchangeSegments") ?: return@buildList
-    for (index in 0 until minOf(array.length(), 14)) {
+    for (index in 0 until minOf(array.length(), 20)) {
         val item = array.optJSONObject(index) ?: continue
         val text = item.optString("text").trim().take(2_000)
         val actor = when (item.optString("speaker").trim().lowercase()) {
