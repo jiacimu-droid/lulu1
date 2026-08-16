@@ -60,6 +60,7 @@ fun DigitalWorldMeetingApp(
     onBack: () -> Unit,
     invitedCharacterId: String? = null,
     invitationText: String = "",
+    invitationLocation: String = "",
     onInvitationConsumed: () -> Unit = {},
 ) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
@@ -98,6 +99,13 @@ fun DigitalWorldMeetingApp(
     val selectedArchiveLabel = selectedArchiveId?.let { id ->
         library.archives.firstOrNull { it.id == id }?.let(LuluAiServices.connectionStore::archiveLabel)
     }.orEmpty().ifBlank { "选择见面模型" }
+    val finishActiveMeeting: () -> Unit = {
+        activeSession?.let { session ->
+            if (session.turns.isEmpty()) DigitalWorldStore.deleteMeeting(session.id)
+            else DigitalWorldStore.endMeeting(session.id)
+        }
+        activeSessionId = null
+    }
 
     LaunchedEffect(invitedCharacterId) {
         val inviterId = invitedCharacterId?.takeIf(String::isNotBlank) ?: return@LaunchedEffect
@@ -107,7 +115,7 @@ fun DigitalWorldMeetingApp(
         runCatching {
             DigitalWorldStore.startMeeting(
                 participantIds = listOf(inviterId),
-                location = "",
+                location = invitationLocation.trim().ifBlank { "世界入口" },
                 initiatedByCharacterId = inviterId,
                 invitationText = invitationText,
             )
@@ -128,15 +136,35 @@ fun DigitalWorldMeetingApp(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        when {
-                            showHistory -> "见面记录"
-                            activeSession == null -> "见面"
-                            activeSession.reality == MeetingReality.DIGITAL_WORLD -> "数字世界见面"
-                            else -> "现实场景见面"
-                        },
-                        fontWeight = FontWeight.SemiBold,
-                    )
+                    when {
+                        showHistory -> Text("见面记录", fontWeight = FontWeight.SemiBold)
+                        activeSession != null -> Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                activeSession.participantIds.take(2).forEach { characterId ->
+                                    val character = MigratedDomainStores.characters.get(characterId)
+                                    LuluProfileAvatar(
+                                        imageUri = character.avatarUri,
+                                        fallback = character.displayName.take(1).ifBlank { "角" },
+                                        size = 32,
+                                    )
+                                }
+                            }
+                            Text(
+                                activeSession.participantIds.joinToString("、") {
+                                    MigratedDomainStores.characters.get(it).displayName
+                                },
+                                color = LuluColors.Ink,
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                        else -> Text("见面", fontWeight = FontWeight.SemiBold)
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -152,6 +180,11 @@ fun DigitalWorldMeetingApp(
                     }) { Icon(Icons.Outlined.ArrowBack, "返回") }
                 },
                 actions = {
+                    if (activeSession?.endedAt == null && activeSession != null && !showHistory) {
+                        TextButton(onClick = finishActiveMeeting) {
+                            Text("结束", color = LuluColors.Ink, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
                     Box {
                         IconButton(onClick = { showTopMenu = true }) { Icon(Icons.Outlined.MoreVert, "见面菜单") }
                         DropdownMenu(expanded = showTopMenu, onDismissRequest = { showTopMenu = false }) {
@@ -227,11 +260,6 @@ fun DigitalWorldMeetingApp(
                         }
                     }
                 },
-                onEnd = {
-                    if (activeSession.turns.isEmpty()) DigitalWorldStore.deleteMeeting(activeSession.id)
-                    else DigitalWorldStore.endMeeting(activeSession.id)
-                    activeSessionId = null
-                },
             )
         }
     }
@@ -281,6 +309,17 @@ private fun MeetingLobby(
 ) {
     val selectedHasDigital = selectedIds.any { profiles[it]?.enabled == true }
     val selectedResolved = selectedIds.all { id -> (profiles[id] ?: DigitalLifeProfileStore.get(id)).isResolved }
+    val digitalLocationOptions = remember(selectedIds, selectedHasDigital) {
+        if (selectedHasDigital) DigitalWorldStore.meetingLocationOptions(selectedIds.toList()) else emptyList()
+    }
+    var showLocationMenu by remember { mutableStateOf(false) }
+    LaunchedEffect(digitalLocationOptions, selectedHasDigital) {
+        when {
+            selectedHasDigital && digitalLocationOptions.isNotEmpty() && locationDraft !in digitalLocationOptions ->
+                onLocationChanged(digitalLocationOptions.first())
+            !selectedHasDigital -> onLocationChanged("")
+        }
+    }
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
@@ -332,18 +371,64 @@ private fun MeetingLobby(
             }
         }
 
-        if (selectedIds.isNotEmpty() && !selectedHasDigital) {
+        if (selectedIds.isNotEmpty()) {
             item {
-                OutlinedTextField(
-                    value = locationDraft,
-                    onValueChange = onLocationChanged,
-                    label = { Text("见面地点") },
-                    placeholder = { Text("例如：傍晚的咖啡馆") },
-                    leadingIcon = { Icon(Icons.Outlined.Place, null) },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(17.dp),
-                    singleLine = true,
-                )
+                if (selectedHasDigital) {
+                    Box(Modifier.fillMaxWidth()) {
+                        OutlinedButton(
+                            onClick = { showLocationMenu = true },
+                            modifier = Modifier.fillMaxWidth().height(50.dp),
+                            shape = RoundedCornerShape(17.dp),
+                            border = BorderStroke(1.dp, LuluColors.Border),
+                            contentPadding = PaddingValues(horizontal = 14.dp),
+                        ) {
+                            Icon(Icons.Outlined.Place, null, tint = LuluColors.BlueGray)
+                            Spacer(Modifier.width(9.dp))
+                            Text(
+                                locationDraft.ifBlank { "选择见面地点" },
+                                color = LuluColors.Ink,
+                                modifier = Modifier.weight(1f),
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Start,
+                            )
+                            Icon(Icons.Outlined.ExpandMore, null, tint = LuluColors.Muted)
+                        }
+                        DropdownMenu(
+                            expanded = showLocationMenu,
+                            onDismissRequest = { showLocationMenu = false },
+                            modifier = Modifier.fillMaxWidth(0.88f),
+                        ) {
+                            digitalLocationOptions.forEach { location ->
+                                DropdownMenuItem(
+                                    text = { Text(location) },
+                                    leadingIcon = {
+                                        Icon(
+                                            if (location.endsWith("的家")) Icons.Outlined.Home else Icons.Outlined.Place,
+                                            null,
+                                        )
+                                    },
+                                    trailingIcon = {
+                                        if (location == locationDraft) Icon(Icons.Outlined.Check, null)
+                                    },
+                                    onClick = {
+                                        onLocationChanged(location)
+                                        showLocationMenu = false
+                                    },
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    OutlinedTextField(
+                        value = locationDraft,
+                        onValueChange = onLocationChanged,
+                        label = { Text("见面地点") },
+                        placeholder = { Text("例如：傍晚的咖啡馆") },
+                        leadingIcon = { Icon(Icons.Outlined.Place, null) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(17.dp),
+                        singleLine = true,
+                    )
+                }
             }
         }
 
@@ -351,14 +436,16 @@ private fun MeetingLobby(
             Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
                 Button(
                     onClick = onStart,
-                    enabled = selectedIds.isNotEmpty() && selectedResolved,
+                    enabled = selectedIds.isNotEmpty() &&
+                        selectedResolved &&
+                        (!selectedHasDigital || locationDraft in digitalLocationOptions),
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(17.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = LuluColors.Wheat, contentColor = LuluColors.OnWheat),
                 ) {
                     Icon(if (selectedHasDigital) Icons.Outlined.Cloud else Icons.Outlined.DirectionsWalk, null)
                     Spacer(Modifier.width(7.dp))
-                    Text(if (selectedHasDigital) "从世界入口见面" else "开始见面", fontWeight = FontWeight.Bold)
+                    Text("开始见面", fontWeight = FontWeight.Bold)
                 }
                 if (selectedIds.isNotEmpty() && !selectedResolved) {
                     Text("请先在角色设置中确认生命形态", color = MaterialTheme.colorScheme.error, fontSize = 11.sp)
@@ -472,51 +559,34 @@ private fun MeetingRoom(
     errorText: String,
     onInputChanged: (String) -> Unit,
     onSend: () -> Unit,
-    onEnd: () -> Unit,
 ) {
     Column(modifier) {
-        Surface(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 6.dp),
-            color = LuluColors.Card,
-            shape = RoundedCornerShape(18.dp),
-            border = BorderStroke(1.dp, LuluColors.Border),
+        Box(
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 2.dp),
+            contentAlignment = Alignment.Center,
         ) {
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
+            Surface(
+                color = LuluColors.CardStrong,
+                shape = RoundedCornerShape(50),
+                border = BorderStroke(1.dp, LuluColors.Border),
             ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                    session.participantIds.take(3).forEach { characterId ->
-                        val character = MigratedDomainStores.characters.get(characterId)
-                        LuluProfileAvatar(
-                            imageUri = character.avatarUri,
-                            fallback = character.displayName.take(1).ifBlank { "角" },
-                            size = 36,
-                        )
-                    }
-                }
-                Spacer(Modifier.width(10.dp))
-                Text(
-                    session.participantIds.joinToString("、") {
-                        MigratedDomainStores.characters.get(it).displayName
-                    },
-                    modifier = Modifier.weight(1f),
-                    color = LuluColors.Ink,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                if (!viewOnly) {
-                    Spacer(Modifier.width(8.dp))
-                    FilledTonalButton(
-                        onClick = onEnd,
-                        modifier = Modifier.height(36.dp),
-                        shape = RoundedCornerShape(14.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                    ) {
-                        Text("结束", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                    }
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                ) {
+                    Icon(
+                        Icons.Outlined.Place,
+                        contentDescription = null,
+                        tint = LuluColors.BlueGray,
+                        modifier = Modifier.size(14.dp),
+                    )
+                    Text(
+                        session.location,
+                        color = MeetingProseColor,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
                 }
             }
         }
@@ -624,7 +694,7 @@ private fun MeetingTurnCard(
                 LuluProfileAvatar(
                     imageUri = userAvatarUri,
                     fallback = userAvatar,
-                    size = 46,
+                    size = 43,
                 )
             }
         }
@@ -634,16 +704,17 @@ private fun MeetingTurnCard(
                 LuluProfileAvatar(
                     imageUri = character.avatarUri,
                     fallback = character.displayName.take(1).ifBlank { "角" },
-                    size = 46,
+                    size = 43,
                 )
                 Spacer(Modifier.width(10.dp))
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                    MeetingOrderedSegments(turn.orderedSegments(), isUser = false)
                     Text(
                         turn.occurredAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm")),
                         color = LuluColors.Muted,
                         fontSize = 10.sp,
+                        modifier = Modifier.padding(start = 3.dp),
                     )
-                    MeetingOrderedSegments(turn.orderedSegments(), isUser = false)
                 }
             }
         }
@@ -752,7 +823,7 @@ private suspend fun runInvitedMeetingOpening(sessionId: String, inviterId: Strin
     val reply = generateMeetingReply(
         session = session,
         characterId = inviterId,
-        latestMoment = "主人刚刚接受了你发出的邀请，并通过世界入口抵达。请自然地迎接主人；这不是主人说出口的话，不得替主人补写动作、感受或台词。",
+        latestMoment = "主人刚刚接受了你发出的邀请，并抵达约定地点“${session.location}”。请在这个地点自然迎接主人；这不是主人说出口的话，不得替主人补写动作、感受或台词。",
         systemMoment = true,
     ).getOrThrow()
     val now = Instant.now()
@@ -1016,6 +1087,29 @@ private suspend fun generateMeetingReply(
         temperature = 0.82,
         maxTokens = 1_400,
         connectionOverride = connection,
+        memoryRequest = UnifiedMemoryRequest(
+            currentInput = latestMoment,
+            sceneContext = buildString {
+                append("连续见面；当前地点=${session.location}；")
+                append("模式=${if (session.reality == MeetingReality.DIGITAL_WORLD) "数字世界" else "现实场景"}；")
+                append(
+                    "参与者=" + session.participantIds.joinToString("、") {
+                        MigratedDomainStores.characters.get(it).displayName
+                    }
+                )
+            },
+            recentContext = session.turns.takeLast(16).joinToString("\n") { turn ->
+                val body = turn.orderedSegments().asMeetingTranscript()
+                "${turn.speakerName}：$body"
+            },
+            taskIntent = if (systemMoment) {
+                "延续此前私聊或群聊中的邀请与关系，完成抵达后的迎接"
+            } else if (expandUserDraft) {
+                "理解主人本轮草稿，并与角色既往聊天、群聊和见面经历无缝衔接"
+            } else {
+                "读取完整现场顺序，以当前角色身份连续回应"
+            },
+        ),
     ).getOrThrow()
     parseMeetingReply(result.text)
 }
