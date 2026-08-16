@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T11:01:47.500611+00:00",
-  "commit": "99987a9a8727b47d0f69b01183ead1173fe6cf34",
+  "generatedAt": "2026-08-16T11:24:42.579513+00:00",
+  "commit": "f6f854c876513b386df9cbfe5881ac9b2cb59ad2",
   "branch": "main",
-  "sourceFingerprint": "5cb6f5334b95fd6d9c51a02c7c7454700f8e15ebf0ffd1fe225c9664f7c8ec01",
+  "sourceFingerprint": "3f6cbb2a8570759ee70841f71c207d9fa5c1563030fe5097ee698578b03db0c8",
   "summary": {
     "files": 187,
-    "lines": 56628,
-    "symbols": 743
+    "lines": 56745,
+    "symbols": 746
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -311,7 +311,7 @@
     "DigitalWorldMeetingApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 41
+        "line": 42
       }
     ],
     "LexiconFeatureScreenV2": [
@@ -1349,7 +1349,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 398
+        "line": 415
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -1548,16 +1548,28 @@
         "line": 333
       }
     ],
-    "recordMeetingTimeline": [
+    "deleteMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
         "line": 348
       }
     ],
+    "pruneEmptyMeetings": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
+        "line": 361
+      }
+    ],
+    "recordMeetingTimeline": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
+        "line": 365
+      }
+    ],
     "meetingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 369
+        "line": 386
       }
     ],
     "InMemoryMemoryRepository": [
@@ -2318,34 +2330,40 @@
         "line": 189
       }
     ],
-    "deleteConversationMessage": [
+    "deleteEventsByIdPrefix": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
         "line": 210
       }
     ],
+    "deleteConversationMessage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
+        "line": 225
+      }
+    ],
     "deleteConversationData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 221
+        "line": 236
       }
     ],
     "recentEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 241
+        "line": 256
       }
     ],
     "recentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 244
+        "line": 259
       }
     ],
     "remember": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 262
+        "line": 277
       }
     ],
     "UnifiedMemoryRequest": [
@@ -4373,12 +4391,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-      "lines": 659,
-      "sha256": "bf3e07253a3283c5231ed10e3f47f828cc3575bea805685c257a0034a890cf74",
+      "lines": 744,
+      "sha256": "1e7ddb5ea187ba9d245043b21948ff0ddfacf1a32675ec02789e65d8ff40e227",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
-          "line": 41
+          "line": 42
         }
       ]
     },
@@ -5438,8 +5456,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 522,
-      "sha256": "1ee8b7b402ada3853006ef1f8a07b0067e9ffe5e2dc2c60d8ac3ca6ed6ba2fc4",
+      "lines": 539,
+      "sha256": "9e9d1be702c8a128c36cf8fe465a6db3088966be44c9187dac44c41e622e7250",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -5522,16 +5540,24 @@
           "line": 333
         },
         {
-          "name": "recordMeetingTimeline",
+          "name": "deleteMeeting",
           "line": 348
         },
         {
+          "name": "pruneEmptyMeetings",
+          "line": 361
+        },
+        {
+          "name": "recordMeetingTimeline",
+          "line": 365
+        },
+        {
           "name": "meetingContext",
-          "line": 369
+          "line": 386
         },
         {
           "name": "clearCharacter",
-          "line": 398
+          "line": 415
         }
       ]
     },
@@ -6219,8 +6245,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 355,
-      "sha256": "3aa9c4676223a58b31b75f2c424e9e6e6d70f855b120f703dd1dde4dd2ecdff0",
+      "lines": 370,
+      "sha256": "d5cc9a688a3e04051d7a58ddd0dd50fc5a0d076906e65bfdcac079e13b300ea2",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -6263,24 +6289,28 @@
           "line": 189
         },
         {
-          "name": "deleteConversationMessage",
+          "name": "deleteEventsByIdPrefix",
           "line": 210
         },
         {
+          "name": "deleteConversationMessage",
+          "line": 225
+        },
+        {
           "name": "deleteConversationData",
-          "line": 221
+          "line": 236
         },
         {
           "name": "recentEvents",
-          "line": 241
+          "line": 256
         },
         {
           "name": "recentContext",
-          "line": 244
+          "line": 259
         },
         {
           "name": "remember",
-          "line": 262
+          "line": 277
         }
       ]
     },
