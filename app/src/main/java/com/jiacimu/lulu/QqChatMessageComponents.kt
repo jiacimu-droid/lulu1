@@ -20,6 +20,7 @@ import androidx.compose.material.icons.outlined.Reply
 import androidx.compose.material.icons.outlined.SportsEsports
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -47,6 +48,9 @@ import com.jiacimu.lulu.data.LuluGroupChat
 import com.jiacimu.lulu.data.MeetingExperienceStore
 import com.jiacimu.lulu.data.MeetingInvitationStatus
 import com.jiacimu.lulu.data.MigratedDomainStores
+import kotlinx.coroutines.delay
+import java.time.Duration
+import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
@@ -589,7 +593,16 @@ private fun WorldInviteMessageCard(
     val experience by MeetingExperienceStore.state.collectAsState()
     val invitationStatus = invite.invitationId.takeIf(String::isNotBlank)
         ?.let { id -> experience.invitations.firstOrNull { it.id == id }?.status }
+    val invitationRecord = invite.invitationId.takeIf(String::isNotBlank)
+        ?.let { id -> experience.invitations.firstOrNull { it.id == id } }
     val canRespond = invite.invitationId.isBlank() || invitationStatus == MeetingInvitationStatus.PENDING
+    LaunchedEffect(invitationRecord?.id, invitationRecord?.status, invitationRecord?.expiresAt) {
+        val record = invitationRecord?.takeIf { it.status == MeetingInvitationStatus.PENDING }
+            ?: return@LaunchedEffect
+        val waitMillis = Duration.between(Instant.now(), record.expiresAt).toMillis().coerceAtLeast(0L)
+        if (waitMillis > 0L) delay(waitMillis + 100L)
+        MeetingExperienceStore.expireInvitations()
+    }
     Card(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         border = BorderStroke(1.dp, QqBorder),
