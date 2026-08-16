@@ -501,7 +501,7 @@ private fun MeetingRoom(
                     session.participantIds.take(3).forEach { characterId ->
                         val character = MigratedDomainStores.characters.get(characterId)
                         LuluProfileAvatar(
-                            avatarUri = character.avatarUri,
+                            imageUri = character.avatarUri,
                             fallback = character.displayName.take(1).ifBlank { "角" },
                             size = 44,
                         )
@@ -633,7 +633,7 @@ private fun MeetingTurnCard(turn: MeetingTurn) {
             val character = MigratedDomainStores.characters.get(turn.speakerId)
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
                 LuluProfileAvatar(
-                    avatarUri = character.avatarUri,
+                    imageUri = character.avatarUri,
                     fallback = character.displayName.take(1).ifBlank { "角" },
                     size = 46,
                 )
