@@ -758,7 +758,7 @@ private fun MeetingSceneCard(
         modifier = Modifier.fillMaxWidth().then(longPressModifier),
         color = Color(0xFFFCFCFC),
         shape = RoundedCornerShape(22.dp),
-        border = BorderStroke(1.dp, Color(0xFFE2E2E2)),
+        border = BorderStroke(1.dp, Color(0xFF242424)),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 13.dp),
@@ -793,7 +793,7 @@ private fun MeetingSceneCard(
 private fun MeetingNarration(text: String) {
     Text(
         text = meetingParagraphs(text),
-        color = Color(0xFF747474),
+        color = Color(0xFF454545),
         fontSize = 15.sp,
         lineHeight = 24.sp,
         modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 4.dp),
