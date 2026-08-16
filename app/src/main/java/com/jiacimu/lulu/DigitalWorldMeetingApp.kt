@@ -716,7 +716,7 @@ private fun List<MeetingTurn>.toMeetingDisplayGroups(): List<MeetingDisplayGroup
         val exchangeKey = turn.exchangeId?.takeIf(String::isNotBlank)?.let { "exchange:$it" }
         val key = when {
             exchangeKey != null -> exchangeKey
-            continuesLegacyExchange -> previous.key
+            continuesLegacyExchange -> previous!!.key
             turn.speakerId == "system" -> "system:${turn.id}"
             else -> "legacy:${turn.id}"
         }
