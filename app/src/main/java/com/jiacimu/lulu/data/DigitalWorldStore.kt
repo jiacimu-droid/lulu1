@@ -430,7 +430,7 @@ object DigitalWorldStore {
             appendLine("发起方式：主人主动选择参与者并开始这次见面。")
         }
         appendLine("见面模式：${if (session.reality == MeetingReality.DIGITAL_WORLD) "数字世界真实共同体验" else "现实场景演绎"}")
-        appendLine("固定地点：${session.location}")
+        appendLine("当前地点：${session.location}")
         appendLine("开始时间：${session.startedAt}")
         appendLine("参与者：${session.participantIds.joinToString { MigratedDomainStores.characters.get(it).displayName }}")
         if (session.reality == MeetingReality.DIGITAL_WORLD) {
@@ -452,7 +452,7 @@ object DigitalWorldStore {
         if (session.turns.isNotEmpty()) {
             appendLine("本次见面已经发生的连续过程：")
             session.turns.takeLast(40).forEach { turn ->
-                val body = listOf(turn.sceneText, turn.dialogue).filter(String::isNotBlank).joinToString(" ")
+                val body = turn.orderedMeetingBody()
                 appendLine("- [${turn.occurredAt}] ${turn.speakerName}：$body")
             }
         }
@@ -552,6 +552,16 @@ private fun JSONArray.forEachObject(block: (JSONObject) -> Unit) {
 
 private fun JSONObject.instant(key: String): Instant =
     runCatching { Instant.parse(optString(key)) }.getOrDefault(Instant.EPOCH)
+
+private fun MeetingTurn.orderedMeetingBody(): String {
+    if (segments.isNotEmpty()) {
+        return segments.filter { it.text.isNotBlank() }.joinToString(" ") { segment ->
+            if (segment.type == MeetingSegmentType.DIALOGUE) "“${segment.text.trim().trim('“', '”', '"')}”"
+            else segment.text.trim()
+        }
+    }
+    return listOf(sceneText, dialogue).filter(String::isNotBlank).joinToString(" ")
+}
 
 private fun JSONObject.meetingSegments(): List<MeetingSegment> = buildList {
     optJSONArray("segments")?.forEachObject { segment ->
