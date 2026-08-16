@@ -82,6 +82,7 @@ data class MeetingInvitationRecord(
 data class MeetingExperienceState(
     val writing: MeetingWritingPreferences = MeetingWritingPreferences(),
     val scenes: Map<String, MeetingSceneSnapshot> = emptyMap(),
+    val sessionOrigins: Map<String, Map<String, String>> = emptyMap(),
     val exchanges: List<MeetingExchangeRecord> = emptyList(),
     val invitations: List<MeetingInvitationRecord> = emptyList(),
 )
@@ -137,6 +138,20 @@ object MeetingExperienceStore {
             persistLocked()
         }
     }
+
+    fun registerSessionOrigin(sessionId: String, characterLocations: Map<String, String>) {
+        if (sessionId.isBlank() || characterLocations.isEmpty()) return
+        synchronized(lock) {
+            if (sessionId in mutable.value.sessionOrigins) return
+            mutable.value = mutable.value.copy(
+                sessionOrigins = mutable.value.sessionOrigins + (sessionId to characterLocations)
+            )
+            persistLocked()
+        }
+    }
+
+    fun sessionOrigin(sessionId: String): Map<String, String> =
+        mutable.value.sessionOrigins[sessionId].orEmpty()
 
     fun beginExchange(
         session: MeetingSession,
@@ -223,6 +238,7 @@ object MeetingExperienceStore {
             mutable.value = mutable.value.copy(
                 exchanges = mutable.value.exchanges.filterNot { it.sessionId == sessionId },
                 scenes = mutable.value.scenes - sessionId,
+                sessionOrigins = mutable.value.sessionOrigins - sessionId,
             )
             persistLocked()
         }
@@ -351,6 +367,11 @@ object MeetingExperienceStore {
     private fun encode(state: MeetingExperienceState): JSONObject = JSONObject().apply {
         put("writing", state.writing.toJson())
         put("scenes", JSONObject().apply { state.scenes.forEach { (id, scene) -> put(id, scene.toJson()) } })
+        put("sessionOrigins", JSONObject().apply {
+            state.sessionOrigins.forEach { (sessionId, locations) ->
+                put(sessionId, JSONObject().apply { locations.forEach { (id, location) -> put(id, location) } })
+            }
+        })
         put("exchanges", JSONArray().apply { state.exchanges.forEach { put(it.toJson()) } })
         put("invitations", JSONArray().apply { state.invitations.forEach { put(it.toJson()) } })
     }
@@ -364,12 +385,20 @@ object MeetingExperienceStore {
         val exchanges = buildList {
             root.optJSONArray("exchanges")?.forEachMeetingObject { it.toExchange()?.let(::add) }
         }
+        val origins = buildMap {
+            val source = root.optJSONObject("sessionOrigins") ?: JSONObject()
+            source.keys().forEach { sessionId ->
+                val locations = source.optJSONObject(sessionId) ?: return@forEach
+                put(sessionId, buildMap { locations.keys().forEach { id -> put(id, locations.optString(id)) } })
+            }
+        }
         val invitations = buildList {
             root.optJSONArray("invitations")?.forEachMeetingObject { it.toInvitation()?.let(::add) }
         }
         MeetingExperienceState(
             writing = root.optJSONObject("writing")?.toWriting() ?: MeetingWritingPreferences(),
             scenes = scenes,
+            sessionOrigins = origins,
             exchanges = exchanges,
             invitations = invitations,
         )
