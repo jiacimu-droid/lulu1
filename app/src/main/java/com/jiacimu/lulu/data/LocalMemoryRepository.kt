@@ -344,8 +344,12 @@ class LocalMemoryRepository : MemoryRepository {
         mutate { current ->
             current.copy(
                 entries = current.entries.filterNot { entry ->
-                    entry.source.startsWith("timeline-batch:") &&
-                        eventId in entry.source.removePrefix("timeline-batch:").split('|')
+                    val sourceIds = when {
+                        entry.source.startsWith("timeline-events:") -> entry.source.removePrefix("timeline-events:").split('|')
+                        entry.source.startsWith("timeline-batch:") -> entry.source.removePrefix("timeline-batch:").split('|')
+                        else -> emptyList()
+                    }
+                    eventId in sourceIds
                 },
                 processedMessageIds = current.processedMessageIds.mapValues { (_, ids) -> ids - eventId },
             )
@@ -663,9 +667,20 @@ private fun mergeMemory(primary: MemoryEntry, duplicate: MemoryEntry): MemoryEnt
         strength = maxOf(primary.strength, duplicate.strength),
         pinned = primary.pinned || duplicate.pinned,
         canRecallProactively = primary.canRecallProactively || duplicate.canRecallProactively,
+        source = mergeMemoryProvenance(primary.source, duplicate.source),
         occurredAt = listOfNotNull(primary.occurredAt, duplicate.occurredAt).minOrNull(),
         createdAt = minOf(primary.createdAt, duplicate.createdAt),
     )
+}
+
+private fun mergeMemoryProvenance(first: String, second: String): String {
+    fun ids(source: String, prefix: String): List<String> =
+        source.takeIf { it.startsWith(prefix) }?.removePrefix(prefix)?.split('|')?.filter(String::isNotBlank).orEmpty()
+    val precise = (ids(first, "timeline-events:") + ids(second, "timeline-events:")).distinct().take(12)
+    if (precise.isNotEmpty()) return "timeline-events:${precise.joinToString("|")}"
+    val batch = (ids(first, "timeline-batch:") + ids(second, "timeline-batch:")).distinct().take(40)
+    if (batch.isNotEmpty()) return "timeline-batch:${batch.joinToString("|")}"
+    return first.ifBlank { second }
 }
 
 private fun <T> JSONArray?.decodeObjects(transform: (JSONObject) -> T): List<T> {
