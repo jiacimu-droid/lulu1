@@ -1622,7 +1622,7 @@ private suspend fun generateMeetingReply(
     val lengthInstruction = when (writing.length) {
         MeetingProseLength.BRIEF -> "简略：推进一个清楚的小动作或一句回应，通常 1—3 句描写、1—3 个片段；保留必要因果，不铺陈。"
         MeetingProseLength.BALANCED -> "适中：把当前小情节自然展开，通常 3—6 句描写、2—5 个片段，兼顾动作与氛围。"
-        MeetingProseLength.RICH -> "丰富：即使主人输入很短，也要推进一个完整、可体验的小场景单元，而不是只做一次反应。角色可在同一轮连续完成 2—4 个彼此有因果的动作，通常 8—14 句描写、4—9 个片段；充分使用环境、感官、微动作、停顿和空间变化，但不擅自替主人作决定或跳过重大情节。"
+        MeetingProseLength.RICH -> "丰富：即使主人只输入几个字，也必须自然发展成一段真正有剧情的完整现场，正文通常约 700—1200 个中文字符、12—20 句、6—12 个片段。角色可主动连续完成 3—6 个彼此有因果的动作，并推动 1—2 个小事件，使本轮形成‘承接上一刻 → 主动行动 → 现场或关系发生变化 → 留下新的可回应点’。丰富不是堆砌感官词，而是要让事情真实地往下发生；可以自然引出新的小话题、小惊喜、小照顾或轻量活动，但不得替主人作决定、编造主人反应或一口气跳完重大情节。"
     }
     val styleInstruction = when (writing.style) {
         MeetingProseStyle.NATURAL -> "自然：清楚、生活化、克制，优先让动作与对话顺畅，不追求华丽句式。"
@@ -1641,7 +1641,7 @@ private suspend fun generateMeetingReply(
             else appendLine("这一刻主人已经发生的言语或动作：$latestMoment")
         },
         instruction = """
-            你正在以${character.displayName}的身份参与一场连续见面。每轮推进一个完整、可体验的小场景单元，不要只停在单一反应上，也不要一次写完整故事或总结历史。
+            你正在以${character.displayName}的身份参与一场连续见面。每轮都要让现场自然向前发展：写成一段完整、可体验的剧情，而不是对主人输入作出一次反应就停住。可以推进一段小情节，但不要一次写完整故事或总结历史。
             只返回一个 JSON 对象，不要代码块：
             {"sequence":[{"speaker":"user","type":"dialogue","text":"主人先说的话"},{"speaker":"character","type":"action","text":"${character.displayName}随后的反应"},{"speaker":"user","type":"dialogue","text":"主人接着说的话"},{"speaker":"character","type":"dialogue","text":"${character.displayName}随后说的话"}],"moveTo":"明确要前往的可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"仍持续的环境事实","participants":[{"participantId":"user 或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["仍在持续的身体接触"],"heldItems":["仍拿着的物品"]}]},"statusText":"简短当前状态","gesture":"延续到下一刻的姿态","innerThought":"未说出口的极短心声，可为空","mood":"简短心情"}
 
@@ -1649,14 +1649,16 @@ private suspend fun generateMeetingReply(
             - sequence 是双方共享的唯一时间顺序；speaker=user 表示主人，speaker=character 表示${character.displayName}。界面会严格按数组顺序逐项展示。
             - expandUserDraft=$expandUserDraft。为 false 时，sequence 中只能出现 speaker=character；为 true 时，应忠实还原主人草稿描述的一来一回，可以出现 user → character → user → character，不能把主人所有内容放完以后才统一写角色。
             - 扩写是默认职责：即使主人只输入很短、很口语或不完整的草稿，也必须把它整理成有文学质感、能被看见和感受到的现场，而不是照抄成干巴巴的一句话。
-            - 体验优先：${character.displayName}不能只站着回应一句话。除非现场确实要求克制或静止，角色应主动连续做几件符合性格、关系和空间条件的小事，例如调整距离、使用已有物品、整理现场、带主人观察某处、延续触碰、准备一件小东西或自然发起一个轻量互动，让这一轮有起承转合。
+            - 体验优先：${character.displayName}不能只站着回应一句话，也不能用大量静态氛围描写掩盖剧情没有前进。除非现场确实要求克制或静止，角色应主动连续做几件符合性格、关系和空间条件的事，例如调整距离、使用已有物品、整理现场、带主人观察某处、延续触碰、准备一件小东西、谈起与记忆有关的话题、制造一个轻微惊喜，或自然发起并开始一个轻量互动，让这一轮有明确的起承转合。
+            - 角色拥有行动主动性：回应主人之后，可以依据人设、关系、当前地点和已有记忆继续往下做，不必每做一个小动作都停下来等待主人许可。只要动作完全属于角色自己且不会强迫主人，就应把准备、尝试、完成及引发的小变化连续写出来。
+            - 剧情推进自检：如果删掉形容词后，本轮只剩“角色看了主人、笑了、说了一句话”，说明不够丰富，必须加入真正改变现场状态或关系节奏的行动。丰富模式每轮至少要出现一个可辨认的小事件或状态变化，而不只是更长的同义描写。
             - 角色可以主动创造“小变化”，但不得替主人答应、移动、接受触碰或产生感受；需要主人选择的地方，停在角色已经发出邀请、伸出手或做好准备的那一刻，把决定权留给主人。
             - 补全主人侧时保留原意和语气：可以补足自然衔接、说话方式、草稿已经暗示的细小动作，以及主人当下能够直接感知的环境与触感；不得添加新的重大决定、强烈情绪、未暗示的亲密行为、内心想法或后果。主人没有描述的后续台词不得替主人新增。
             - 先把主人草稿中明确写出的言语和动作按原顺序当作不可移动的时间锚点，再把角色反应插到对应原因之后。任何片段都不得提前提及、顺应或回应数组后面才发生的动作。
             - 因果顺序必须在输出前自检：例如主人“往后退一步”导致角色原本放在她头发上的手滑开，必须先输出 user/action=往后退，再输出 character/action=手随之离开；绝不能先写角色“顺着她退开的势头”，下一项才补主人后退。
             - 如果主人草稿先要求角色做某事、明确描述角色随后做了，再继续说话，应依次输出 user/dialogue → character/action → user/dialogue；角色动作必须属于 speaker=character，绝不能塞进主人片段或角色的一整段旁白里。
             - type=action 只放该 speaker 可被观察到的动作、神态及紧邻的环境变化；type=dialogue 只放该 speaker 真正说出口的话，text 中不要添加引号。每次开口都单独作为一个 dialogue 项。
-            - 只能让${character.displayName}回应主人明确写出的部分和当前自然反应；角色片段绝不能代替主人说话，主人片段也不能混进角色的 text。
+            - ${character.displayName}先回应主人明确写出的部分，再可以基于现场与人设主动延展后续小剧情；角色片段绝不能代替主人说话，主人片段也不能混进角色的 text。
             - 其他角色的既有言行是事实，但不要替其他角色继续说话或行动；他们会获得自己的回合。
             - 地点、参与者、上一刻身体位置、拿着的物品和已经发生的动作必须连续。每次移动都要检查距离、朝向、肢体可达范围和正在发生的接触：拉开距离前仍接触的手必须先被带开、松开或收回，不能悬空、瞬移或同时占据互相矛盾的位置。没有程序记录的固定家具不得凭空出现。
             - 本轮情节丰富度：$lengthInstruction
@@ -1677,7 +1679,7 @@ private suspend fun generateMeetingReply(
         source = if (session.reality == MeetingReality.DIGITAL_WORLD) "数字世界见面" else "现实场景见面",
         title = "${character.displayName}的见面回合",
         temperature = 0.82,
-        maxTokens = 2_400,
+        maxTokens = 3_600,
         connectionOverride = connection,
         memoryRequest = UnifiedMemoryRequest(
             currentInput = latestMoment,
@@ -1771,7 +1773,7 @@ private fun parseMeetingReply(raw: String, session: MeetingSession): MeetingRepl
 
 private fun parseMeetingExchange(json: JSONObject): List<MeetingExchangeSegment> = buildList {
     val array = json.optJSONArray("sequence") ?: json.optJSONArray("exchangeSegments") ?: return@buildList
-    for (index in 0 until minOf(array.length(), 20)) {
+    for (index in 0 until minOf(array.length(), 28)) {
         val item = array.optJSONObject(index) ?: continue
         val text = item.optString("text").trim().take(2_000)
         val actor = when (item.optString("speaker").trim().lowercase()) {
