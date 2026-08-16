@@ -44,8 +44,9 @@ fun DigitalWorldMeetingApp(onBack: () -> Unit, initialCharacterId: String? = nul
     val world by DigitalWorldStore.state.collectAsState()
     val library by LuluAiServices.connectionStore.library.collectAsState()
     val scope = rememberCoroutineScope()
-    var selectedIds by remember(initialCharacterId) { mutableStateOf(initialCharacterId?.takeIf(String::isNotBlank)?.let { setOf(it) } ?: emptySet()) }
+    var selectedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var activeSessionId by remember { mutableStateOf<String?>(null) }
+    var inviteHandled by remember(initialCharacterId) { mutableStateOf(false) }
     var input by remember { mutableStateOf("") }
     var generating by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf("") }
@@ -57,6 +58,20 @@ fun DigitalWorldMeetingApp(onBack: () -> Unit, initialCharacterId: String? = nul
     val selectedArchiveLabel = selectedArchiveId?.let { id ->
         library.archives.firstOrNull { it.id == id }?.let(LuluAiServices.connectionStore::archiveLabel)
     }.orEmpty().ifBlank { "选择见面模型" }
+
+    LaunchedEffect(initialCharacterId) {
+        val inviterId = initialCharacterId?.takeIf(String::isNotBlank) ?: return@LaunchedEffect
+        if (inviteHandled) return@LaunchedEffect
+        inviteHandled = true
+        runCatching {
+            DigitalWorldStore.startMeeting(listOf(inviterId), "")
+        }.onSuccess { session ->
+            activeSessionId = session.id
+            errorText = ""
+        }.onFailure { error ->
+            errorText = error.message ?: "无法接受这次见面邀请"
+        }
+    }
 
     Scaffold(
         containerColor = LuluColors.Paper,
