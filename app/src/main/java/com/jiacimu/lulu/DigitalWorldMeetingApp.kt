@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -625,7 +626,10 @@ private fun MeetingRoom(
         if (imeBottom > 0 || session.turns.isNotEmpty()) {
             withFrameNanos { }
             val lastItemIndex = messageListState.layoutInfo.totalItemsCount - 1
-            if (lastItemIndex >= 0) messageListState.scrollToItem(lastItemIndex)
+            if (lastItemIndex >= 0) {
+                messageListState.scrollToItem(lastItemIndex)
+                messageListState.scrollBy(Float.MAX_VALUE)
+            }
         }
     }
 
