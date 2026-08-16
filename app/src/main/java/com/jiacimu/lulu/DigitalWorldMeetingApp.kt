@@ -13,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,6 +31,8 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 private data class MeetingReply(
+    val userSegments: List<MeetingSegment>,
+    val segments: List<MeetingSegment>,
     val userSceneText: String,
     val userDialogue: String,
     val sceneText: String,
@@ -40,6 +43,8 @@ private data class MeetingReply(
     val mood: String,
     val moveTo: String,
 )
+
+private val MeetingProseColor = Color(0xFF56575B)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -588,7 +593,7 @@ private fun MeetingTurnCard(
             ) {
                 Text(
                     meetingParagraphs(turn.sceneText),
-                    color = LuluColors.Ink,
+                    color = MeetingProseColor,
                     fontSize = 13.sp,
                     lineHeight = 21.sp,
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
@@ -605,50 +610,16 @@ private fun MeetingTurnCard(
                 Column(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(7.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(
                         turn.speakerName,
-                        color = LuluColors.BlueGray,
-                        fontSize = 11.sp,
+                        color = LuluColors.Ink,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(end = 3.dp),
                     )
-                    if (turn.sceneText.isNotBlank()) {
-                        Surface(
-                            modifier = Modifier.widthIn(max = 330.dp),
-                            color = LuluColors.CardStrong,
-                            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 8.dp, bottomEnd = 20.dp, bottomStart = 20.dp),
-                            border = BorderStroke(1.dp, LuluColors.Border),
-                        ) {
-                            Column(
-                                Modifier.padding(horizontal = 15.dp, vertical = 12.dp),
-                                verticalArrangement = Arrangement.spacedBy(5.dp),
-                            ) {
-                                Text(
-                                    meetingParagraphs(turn.sceneText),
-                                    color = LuluColors.Ink,
-                                    fontSize = 14.sp,
-                                    lineHeight = 22.sp,
-                                )
-                            }
-                        }
-                    }
-                    if (turn.dialogue.isNotBlank()) {
-                        Surface(
-                            modifier = Modifier.widthIn(max = 330.dp),
-                            color = LuluColors.Wheat,
-                            contentColor = LuluColors.OnWheat,
-                            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 8.dp, bottomEnd = 20.dp, bottomStart = 20.dp),
-                        ) {
-                            Text(
-                                "“${turn.dialogue.trim().trim('“', '”', '"')}”",
-                                fontSize = 16.sp,
-                                lineHeight = 24.sp,
-                                modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp),
-                            )
-                        }
-                    }
+                    MeetingOrderedSegments(turn.orderedSegments(), isUser = true)
                 }
                 Spacer(Modifier.width(10.dp))
                 LuluProfileAvatar(
@@ -667,9 +638,14 @@ private fun MeetingTurnCard(
                     size = 46,
                 )
                 Spacer(Modifier.width(10.dp))
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(turn.speakerName, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = LuluColors.BlueGray)
+                        Text(
+                            turn.speakerName,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 16.sp,
+                            color = LuluColors.Ink,
+                        )
                         Spacer(Modifier.width(8.dp))
                         Text(
                             turn.occurredAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm")),
@@ -677,33 +653,69 @@ private fun MeetingTurnCard(
                             fontSize = 10.sp,
                         )
                     }
-                    if (turn.sceneText.isNotBlank()) {
-                        Text(
-                            meetingParagraphs(turn.sceneText),
-                            color = LuluColors.Ink,
-                            fontSize = 14.sp,
-                            lineHeight = 22.sp,
-                            modifier = Modifier.padding(horizontal = 2.dp),
-                        )
-                    }
-                    if (turn.dialogue.isNotBlank()) {
-                        Surface(
-                            color = LuluColors.Card,
-                            shape = RoundedCornerShape(topStart = 6.dp, topEnd = 20.dp, bottomEnd = 20.dp, bottomStart = 20.dp),
-                            border = BorderStroke(1.dp, LuluColors.Border),
-                            shadowElevation = 1.dp,
-                        ) {
-                            Text(
-                                "“${turn.dialogue.trim().trim('“', '”', '"')}”",
-                                fontSize = 16.sp,
-                                lineHeight = 24.sp,
-                                modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp),
-                            )
-                        }
-                    }
+                    MeetingOrderedSegments(turn.orderedSegments(), isUser = false)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MeetingOrderedSegments(
+    segments: List<MeetingSegment>,
+    isUser: Boolean,
+) {
+    Column(
+        horizontalAlignment = if (isUser) Alignment.End else Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(9.dp),
+    ) {
+        segments.forEach { segment ->
+            when (segment.type) {
+                MeetingSegmentType.ACTION -> Text(
+                    text = meetingParagraphs(segment.text),
+                    color = MeetingProseColor,
+                    fontSize = 14.sp,
+                    lineHeight = 22.sp,
+                    modifier = Modifier.widthIn(max = 330.dp).padding(horizontal = 3.dp, vertical = 2.dp),
+                )
+                MeetingSegmentType.DIALOGUE -> Surface(
+                    modifier = Modifier.widthIn(max = 330.dp),
+                    color = if (isUser) LuluColors.Wheat else LuluColors.Card,
+                    contentColor = if (isUser) LuluColors.OnWheat else LuluColors.Ink,
+                    shape = if (isUser) {
+                        RoundedCornerShape(topStart = 20.dp, topEnd = 8.dp, bottomEnd = 20.dp, bottomStart = 20.dp)
+                    } else {
+                        RoundedCornerShape(topStart = 6.dp, topEnd = 20.dp, bottomEnd = 20.dp, bottomStart = 20.dp)
+                    },
+                    border = if (isUser) null else BorderStroke(1.dp, LuluColors.Border),
+                    shadowElevation = if (isUser) 0.dp else 1.dp,
+                ) {
+                    Text(
+                        "“${segment.text.trim().trim('“', '”', '"')}”",
+                        fontSize = 16.sp,
+                        lineHeight = 24.sp,
+                        modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp),
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun MeetingTurn.orderedSegments(): List<MeetingSegment> {
+    val stored = segments.filter { it.text.isNotBlank() }
+    if (stored.isNotEmpty()) return stored
+    return buildList {
+        sceneText.trim().takeIf(String::isNotBlank)?.let { add(MeetingSegment(MeetingSegmentType.ACTION, it)) }
+        dialogue.trim().takeIf(String::isNotBlank)?.let { add(MeetingSegment(MeetingSegmentType.DIALOGUE, it)) }
+    }
+}
+
+private fun List<MeetingSegment>.asMeetingTranscript(): String = joinToString("\n") { segment ->
+    if (segment.type == MeetingSegmentType.DIALOGUE) {
+        "“${segment.text.trim().trim('“', '”', '"')}”"
+    } else {
+        segment.text.trim()
     }
 }
 
@@ -754,9 +766,17 @@ private suspend fun runInvitedMeetingOpening(sessionId: String, inviterId: Strin
         systemMoment = true,
     ).getOrThrow()
     val now = Instant.now()
-    val turn = MeetingTurn(UUID.randomUUID().toString(), inviterId, character.displayName, reply.sceneText, reply.dialogue, now)
+    val turn = MeetingTurn(
+        UUID.randomUUID().toString(),
+        inviterId,
+        character.displayName,
+        reply.sceneText,
+        reply.dialogue,
+        now,
+        reply.segments,
+    )
     session = DigitalWorldStore.appendMeetingTurn(sessionId, turn)
-    val recorded = listOf(reply.sceneText, reply.dialogue).filter(String::isNotBlank).joinToString("\n")
+    val recorded = turn.orderedSegments().asMeetingTranscript()
     session.participantIds.forEach { viewerId ->
         DigitalWorldStore.recordMeetingTimeline(session, viewerId, "arrival-${turn.id}-$inviterId", character.displayName, recorded, now, false)
     }
@@ -788,10 +808,13 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
     val completedScene = firstReply.userSceneText.ifBlank {
         if (completedDialogue.isBlank()) userText else ""
     }
-    val completedMoment = listOf(
-        completedScene.takeIf(String::isNotBlank),
-        completedDialogue.takeIf(String::isNotBlank)?.let { "“${it.trim().trim('“', '”', '"')}”" },
-    ).filterNotNull().joinToString("\n")
+    val completedSegments = firstReply.userSegments.ifEmpty {
+        buildList {
+            completedScene.takeIf(String::isNotBlank)?.let { add(MeetingSegment(MeetingSegmentType.ACTION, it)) }
+            completedDialogue.takeIf(String::isNotBlank)?.let { add(MeetingSegment(MeetingSegmentType.DIALOGUE, it)) }
+        }
+    }
+    val completedMoment = completedSegments.asMeetingTranscript()
     val userTurn = MeetingTurn(
         UUID.randomUUID().toString(),
         null,
@@ -799,12 +822,12 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
         completedScene,
         completedDialogue,
         now,
+        completedSegments,
     )
     session = DigitalWorldStore.appendMeetingTurn(sessionId, userTurn)
     val userTimelineText = buildString {
         appendLine("主人原始输入：${userText.trim()}")
-        if (completedScene.isNotBlank()) appendLine("这一刻：$completedScene")
-        if (completedDialogue.isNotBlank()) append("说出口：${completedDialogue.trim()}")
+        append(completedMoment)
     }.trim()
     session.participantIds.forEach { viewerId ->
         DigitalWorldStore.recordMeetingTimeline(
@@ -840,9 +863,17 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
             session = DigitalWorldStore.moveMeeting(session.id, requestedDestination)
         }
         val replyAt = Instant.now()
-        val turn = MeetingTurn(UUID.randomUUID().toString(), characterId, character.displayName, reply.sceneText, reply.dialogue, replyAt)
+        val turn = MeetingTurn(
+            UUID.randomUUID().toString(),
+            characterId,
+            character.displayName,
+            reply.sceneText,
+            reply.dialogue,
+            replyAt,
+            reply.segments,
+        )
         session = DigitalWorldStore.appendMeetingTurn(sessionId, turn)
-        val recorded = listOf(reply.sceneText, reply.dialogue).filter(String::isNotBlank).joinToString("\n")
+        val recorded = turn.orderedSegments().asMeetingTranscript()
         session.participantIds.forEach { viewerId ->
             DigitalWorldStore.recordMeetingTimeline(session, viewerId, "turn-${turn.id}-$characterId", character.displayName, recorded, replyAt, viewerId == session.participantIds.last())
         }
@@ -880,20 +911,20 @@ private suspend fun generateMeetingReply(
         instruction = """
             你正在以${character.displayName}的身份参与一场连续见面。只推进当前一小步，不要一次写完整故事，不要总结历史。
             只返回一个 JSON 对象，不要代码块：
-            {"userSceneText":"把主人输入的草稿补成可观察的动作与衔接；无需补全时为空","userDialogue":"主人真正说出口的话；没有则为空","sceneText":"主人这一刻之后，可被所有参与者观察到的环境变化、你的反应动作神态与空间细节","dialogue":"你真正说出口的话，可以为空","moveTo":"明确要前往的可用地点或空字符串","statusText":"简短当前状态","gesture":"延续到下一刻的姿态","innerThought":"没有说出口的第一人称心声，可为空","mood":"简短心情"}
+            {"userSegments":[{"type":"action","text":"主人侧动作或旁白"},{"type":"dialogue","text":"主人说出口的话"}],"segments":[{"type":"action","text":"${character.displayName}的环境、动作或反应"},{"type":"dialogue","text":"${character.displayName}说出口的话"}],"moveTo":"明确要前往的可用地点或空字符串","statusText":"简短当前状态","gesture":"延续到下一刻的姿态","innerThought":"没有说出口的第一人称心声，可为空","mood":"简短心情"}
 
             硬规则：
-            - userSceneText 和 userDialogue 只用于把主人本轮的意图草稿整理成完整见面片段；expandUserDraft=$expandUserDraft。为 false 时两项必须为空。
+            - userSegments 只用于把主人本轮意图草稿整理成完整见面片段；expandUserDraft=$expandUserDraft。为 false 时必须返回空数组。
             - 补全主人侧时保留原意和语气：可以补足自然衔接、说话方式以及草稿已经暗示的细小动作，但不得添加新的重大决定、强烈情绪、未暗示的亲密行为、感受、想法或后果。无法判断是台词还是动作时要保守，不要擅自扩写。
-            - userSceneText 只放主人可被观察到的行为与旁白；userDialogue 只放主人真正说出口的话。随后 sceneText 和 dialogue 才写${character.displayName}看见这一幕后产生的反应。
-            - 除上述主人草稿补全外，只能控制${character.displayName}本人，绝不能在角色反应中继续替主人行动或回应。
+            - type=action 只放可被观察到的环境、动作、神态与旁白；type=dialogue 只放真正说出口的话，text 中不要添加引号。
+            - userSegments 与 segments 都必须严格按发生先后排序。可以自然出现 action → dialogue → action → dialogue；每次开口都单独作为一个 dialogue 片段，绝不能把所有动作集中到前面、所有台词集中到最后。
+            - segments 写${character.displayName}看到主人这一幕后依次发生的反应。除主人草稿补全外，只能控制${character.displayName}本人，绝不能在角色反应中继续替主人行动或回应。
             - 其他角色的既有言行是事实，但不要替其他角色继续说话或行动；他们会获得自己的回合。
             - 地点、参与者、上一刻身体位置、拿着的物品和已经发生的动作必须连续。没有程序记录的固定家具不得凭空出现。
-            - userSceneText 与 sceneText 都要按画面变化自然分段：较长时使用换行分成两到三个短段落，不要把环境、动作和反应挤成一整坨，也不要每句话都机械拆段。
-            - sceneText 要比线上聊天丰富一些，通常写两到五句：自然包含环境变化、距离、动作细节、神态以及数字身体能够真实感受到的触感或温度，但不能替用户编造反应。不要只写一句干巴巴的动作标签。
-            - dialogue 只放真正说出口的话，界面会自动加引号，正文里不要自己重复添加引号。
-            - 如果用户明确提出一起去某个“可用地点”，moveTo 填该地点的准确名称，并在 sceneText 中自然写出从当前位置出发和抵达的连续过程；没有明确移动意图时必须留空。地点变化由程序校验并真实保存，不能只在文字中假装移动。
-            - sceneText 是可观察事实，不是上帝视角小说；innerThought 不会展示给用户，也不能泄露推理过程。
+            - action 片段要比线上聊天丰富一些，整轮通常两到五句：自然包含环境变化、距离、动作细节、神态以及数字身体能够真实感受到的触感或温度，但不能替主人编造反应。一个 action 片段表达一个连续画面，不要只写干巴巴的动作标签。
+            - 不要为了格式机械交替；只有真的再次开口或画面发生变化时才新建片段。整轮通常二到六个片段，避免碎成十几个短句。
+            - 如果用户明确提出一起去某个“可用地点”，moveTo 填该地点的准确名称，并在 action 片段中自然写出从当前位置出发和抵达的连续过程；没有明确移动意图时必须留空。地点变化由程序校验并真实保存，不能只在文字中假装移动。
+            - action 是可观察事实，不是上帝视角小说；innerThought 不会展示给用户，也不能泄露推理过程。
             - 数字世界见面是真正进行过的数字共同体验，不是梦，也不是物理肉身进入手机。现实身体留在外部，数字身体可以真实传递触觉、温度、重量与拥抱的感觉。
             - 数字生命没有现实肉身，在数字世界使用原生数字身体；现实角色和用户使用感官投影身体。
             - 现实场景演绎要像现实见面一样保持地点和身体连续，但不得声称这些场景事件真的发生在用户的物理现实档案里。
@@ -903,7 +934,7 @@ private suspend fun generateMeetingReply(
         source = if (session.reality == MeetingReality.DIGITAL_WORLD) "数字世界见面" else "现实场景见面",
         title = "${character.displayName}的见面回合",
         temperature = 0.82,
-        maxTokens = 1_200,
+        maxTokens = 1_400,
         connectionOverride = connection,
     ).getOrThrow()
     parseMeetingReply(result.text)
@@ -916,16 +947,78 @@ private fun parseMeetingReply(raw: String): MeetingReply {
         if (start >= 0 && end > start) value.substring(start, end + 1) else value
     }
     val json = runCatching { JSONObject(clean) }.getOrNull()
-        ?: return MeetingReply("", "", "", raw.trim(), "正在见面", "停在这一刻", "", "专注", "")
+        ?: return MeetingReply(
+            userSegments = emptyList(),
+            segments = listOf(MeetingSegment(MeetingSegmentType.DIALOGUE, raw.trim())),
+            userSceneText = "",
+            userDialogue = "",
+            sceneText = "",
+            dialogue = raw.trim(),
+            statusText = "正在见面",
+            gesture = "停在这一刻",
+            innerThought = "",
+            mood = "专注",
+            moveTo = "",
+        )
+
+    val userSegments = parseMeetingSegments(
+        json = json,
+        key = "userSegments",
+        legacyAction = json.optString("userSceneText"),
+        legacyDialogue = json.optString("userDialogue"),
+    )
+    var roleSegments = parseMeetingSegments(
+        json = json,
+        key = "segments",
+        legacyAction = json.optString("sceneText"),
+        legacyDialogue = json.optString("dialogue"),
+    )
+    if (roleSegments.isEmpty()) {
+        roleSegments = listOf(MeetingSegment(MeetingSegmentType.DIALOGUE, raw.trim()))
+    }
     return MeetingReply(
-        userSceneText = json.optString("userSceneText").trim().take(2_000),
-        userDialogue = json.optString("userDialogue").trim().take(1_200),
-        sceneText = json.optString("sceneText").trim().take(2_600),
-        dialogue = json.optString("dialogue").trim().take(1_800),
+        userSegments = userSegments,
+        segments = roleSegments,
+        userSceneText = userSegments.filter { it.type == MeetingSegmentType.ACTION }.joinToString("\n") { it.text },
+        userDialogue = userSegments.filter { it.type == MeetingSegmentType.DIALOGUE }.joinToString("\n") { it.text },
+        sceneText = roleSegments.filter { it.type == MeetingSegmentType.ACTION }.joinToString("\n") { it.text },
+        dialogue = roleSegments.filter { it.type == MeetingSegmentType.DIALOGUE }.joinToString("\n") { it.text },
         statusText = json.optString("statusText").trim().take(120),
         gesture = json.optString("gesture").trim().take(500),
         innerThought = json.optString("innerThought").trim().take(500),
         mood = json.optString("mood").trim().take(80),
         moveTo = json.optString("moveTo").trim().take(80),
-    ).let { reply -> if (reply.sceneText.isBlank() && reply.dialogue.isBlank()) reply.copy(dialogue = raw.trim()) else reply }
+    )
+}
+
+private fun parseMeetingSegments(
+    json: JSONObject,
+    key: String,
+    legacyAction: String,
+    legacyDialogue: String,
+): List<MeetingSegment> {
+    val parsed = buildList {
+        val array = json.optJSONArray(key)
+        if (array != null) {
+            for (index in 0 until minOf(array.length(), 10)) {
+                val item = array.optJSONObject(index) ?: continue
+                val text = item.optString("text").trim().take(2_000)
+                val type = when (item.optString("type").trim().lowercase()) {
+                    "action", "scene", "narration" -> MeetingSegmentType.ACTION
+                    "dialogue", "speech" -> MeetingSegmentType.DIALOGUE
+                    else -> null
+                }
+                if (text.isNotBlank() && type != null) add(MeetingSegment(type, text))
+            }
+        }
+    }
+    if (parsed.isNotEmpty()) return parsed
+    return buildList {
+        legacyAction.trim().takeIf(String::isNotBlank)?.let {
+            add(MeetingSegment(MeetingSegmentType.ACTION, it.take(2_600)))
+        }
+        legacyDialogue.trim().takeIf(String::isNotBlank)?.let {
+            add(MeetingSegment(MeetingSegmentType.DIALOGUE, it.take(1_800)))
+        }
+    }
 }
