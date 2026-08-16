@@ -30,7 +30,15 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
+private enum class MeetingExchangeActor { USER, CHARACTER }
+
+private data class MeetingExchangeSegment(
+    val actor: MeetingExchangeActor,
+    val segment: MeetingSegment,
+)
+
 private data class MeetingReply(
+    val sequence: List<MeetingExchangeSegment>,
     val userSegments: List<MeetingSegment>,
     val segments: List<MeetingSegment>,
     val userSceneText: String,
@@ -794,6 +802,7 @@ private suspend fun runInvitedMeetingOpening(sessionId: String, inviterId: Strin
 private suspend fun runMeetingTurn(sessionId: String, userText: String) {
     var session = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == sessionId } ?: error("见面记录不存在")
     val firstCharacterId = session.participantIds.firstOrNull() ?: error("见面参与者不存在")
+    val firstCharacter = MigratedDomainStores.characters.get(firstCharacterId)
     val firstReply = generateMeetingReply(
         session = session,
         characterId = firstCharacterId,
@@ -802,67 +811,115 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
         expandUserDraft = true,
     ).getOrThrow()
 
-    val now = Instant.now()
     val userName = UserProfileContext.displayLabel()
-    val completedDialogue = firstReply.userDialogue
-    val completedScene = firstReply.userSceneText.ifBlank {
-        if (completedDialogue.isBlank()) userText else ""
-    }
-    val completedSegments = firstReply.userSegments.ifEmpty {
+    val generatedSequence = firstReply.sequence.ifEmpty {
         buildList {
-            completedScene.takeIf(String::isNotBlank)?.let { add(MeetingSegment(MeetingSegmentType.ACTION, it)) }
-            completedDialogue.takeIf(String::isNotBlank)?.let { add(MeetingSegment(MeetingSegmentType.DIALOGUE, it)) }
+            firstReply.userSegments.forEach { add(MeetingExchangeSegment(MeetingExchangeActor.USER, it)) }
+            firstReply.segments.forEach { add(MeetingExchangeSegment(MeetingExchangeActor.CHARACTER, it)) }
         }
     }
-    val completedMoment = completedSegments.asMeetingTranscript()
-    val userTurn = MeetingTurn(
-        UUID.randomUUID().toString(),
-        null,
-        userName,
-        completedScene,
-        completedDialogue,
-        now,
-        completedSegments,
-    )
-    session = DigitalWorldStore.appendMeetingTurn(sessionId, userTurn)
-    val userTimelineText = buildString {
-        appendLine("主人原始输入：${userText.trim()}")
-        append(completedMoment)
-    }.trim()
-    session.participantIds.forEach { viewerId ->
-        DigitalWorldStore.recordMeetingTimeline(
-            session,
-            viewerId,
-            "turn-${userTurn.id}-user",
-            userName,
-            userTimelineText,
-            now,
-            false,
-        )
+    val sequence = buildList {
+        if (generatedSequence.none { it.actor == MeetingExchangeActor.USER }) {
+            add(MeetingExchangeSegment(MeetingExchangeActor.USER, MeetingSegment(MeetingSegmentType.ACTION, userText)))
+        }
+        addAll(generatedSequence)
     }
+    val groups = groupMeetingExchange(sequence)
+    val completedMoment = sequence.asExchangeTranscript(userName, firstCharacter.displayName)
+    var rawInputRecorded = false
+    var moved = false
 
-    session.participantIds.forEachIndexed { index, characterId ->
-        val character = MigratedDomainStores.characters.get(characterId)
-        val reply = if (index == 0) {
-            firstReply
-        } else {
-            generateMeetingReply(
-                session = session,
-                characterId = characterId,
-                latestMoment = completedMoment,
-                systemMoment = false,
-                expandUserDraft = false,
-            ).getOrThrow()
+    groups.forEachIndexed { groupIndex, group ->
+        if (!moved && group.actor == MeetingExchangeActor.CHARACTER) {
+            firstReply.moveTo.takeIf {
+                it.isNotBlank() &&
+                    it != session.location &&
+                    it in DigitalWorldStore.meetingLocationOptions(session)
+            }?.let { destination ->
+                session = DigitalWorldStore.moveMeeting(session.id, destination)
+                moved = true
+            }
         }
-        val requestedDestination = reply.moveTo.takeIf {
+        val occurredAt = Instant.now()
+        val isUser = group.actor == MeetingExchangeActor.USER
+        val speakerId = if (isUser) null else firstCharacterId
+        val speakerName = if (isUser) userName else firstCharacter.displayName
+        val actionText = group.segments
+            .filter { it.type == MeetingSegmentType.ACTION }
+            .joinToString("\n") { it.text }
+        val dialogueText = group.segments
+            .filter { it.type == MeetingSegmentType.DIALOGUE }
+            .joinToString("\n") { it.text }
+        val turn = MeetingTurn(
+            UUID.randomUUID().toString(),
+            speakerId,
+            speakerName,
+            actionText,
+            dialogueText,
+            occurredAt,
+            group.segments,
+        )
+        session = DigitalWorldStore.appendMeetingTurn(sessionId, turn)
+        val recorded = buildString {
+            if (isUser && !rawInputRecorded) {
+                appendLine("主人原始输入：${userText.trim()}")
+                rawInputRecorded = true
+            }
+            append(group.segments.asMeetingTranscript())
+        }.trim()
+        session.participantIds.forEach { viewerId ->
+            DigitalWorldStore.recordMeetingTimeline(
+                session,
+                viewerId,
+                "turn-${turn.id}-${if (isUser) "user" else firstCharacterId}",
+                speakerName,
+                recorded,
+                occurredAt,
+                groupIndex == groups.lastIndex &&
+                    session.participantIds.size == 1 &&
+                    viewerId == session.participantIds.last(),
+            )
+        }
+    }
+    if (!moved) {
+        firstReply.moveTo.takeIf {
             it.isNotBlank() &&
                 it != session.location &&
                 it in DigitalWorldStore.meetingLocationOptions(session)
-        }
-        if (requestedDestination != null) {
-            session = DigitalWorldStore.moveMeeting(session.id, requestedDestination)
-        }
+        }?.let { destination -> session = DigitalWorldStore.moveMeeting(session.id, destination) }
+    }
+    CompanionPresenceStore.update(
+        characterId = firstCharacterId,
+        statusText = firstReply.statusText,
+        gesture = firstReply.gesture,
+        innerThought = firstReply.innerThought,
+        mood = firstReply.mood,
+        source = "见面",
+        now = Instant.now(),
+    )
+
+    session.participantIds.drop(1).forEachIndexed { additionalIndex, characterId ->
+        val character = MigratedDomainStores.characters.get(characterId)
+        val reply = generateMeetingReply(
+            session = session,
+            characterId = characterId,
+            latestMoment = completedMoment,
+            systemMoment = false,
+            expandUserDraft = false,
+        ).getOrThrow()
+        reply.moveTo.takeIf {
+            it.isNotBlank() &&
+                it != session.location &&
+                it in DigitalWorldStore.meetingLocationOptions(session)
+        }?.let { destination -> session = DigitalWorldStore.moveMeeting(session.id, destination) }
+
         val replyAt = Instant.now()
+        val segments = reply.segments.ifEmpty {
+            buildList {
+                reply.sceneText.takeIf(String::isNotBlank)?.let { add(MeetingSegment(MeetingSegmentType.ACTION, it)) }
+                reply.dialogue.takeIf(String::isNotBlank)?.let { add(MeetingSegment(MeetingSegmentType.DIALOGUE, it)) }
+            }
+        }
         val turn = MeetingTurn(
             UUID.randomUUID().toString(),
             characterId,
@@ -870,12 +927,21 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
             reply.sceneText,
             reply.dialogue,
             replyAt,
-            reply.segments,
+            segments,
         )
         session = DigitalWorldStore.appendMeetingTurn(sessionId, turn)
-        val recorded = turn.orderedSegments().asMeetingTranscript()
+        val recorded = segments.asMeetingTranscript()
         session.participantIds.forEach { viewerId ->
-            DigitalWorldStore.recordMeetingTimeline(session, viewerId, "turn-${turn.id}-$characterId", character.displayName, recorded, replyAt, viewerId == session.participantIds.last())
+            DigitalWorldStore.recordMeetingTimeline(
+                session,
+                viewerId,
+                "turn-${turn.id}-$characterId",
+                character.displayName,
+                recorded,
+                replyAt,
+                additionalIndex == session.participantIds.drop(1).lastIndex &&
+                    viewerId == session.participantIds.last(),
+            )
         }
         CompanionPresenceStore.update(
             characterId = characterId,
@@ -887,6 +953,37 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
             now = replyAt,
         )
     }
+}
+
+private data class MeetingExchangeGroup(
+    val actor: MeetingExchangeActor,
+    val segments: List<MeetingSegment>,
+)
+
+private fun groupMeetingExchange(sequence: List<MeetingExchangeSegment>): List<MeetingExchangeGroup> {
+    val groups = mutableListOf<MeetingExchangeGroup>()
+    sequence.filter { it.segment.text.isNotBlank() }.forEach { item ->
+        val last = groups.lastOrNull()
+        if (last?.actor == item.actor) {
+            groups[groups.lastIndex] = last.copy(segments = last.segments + item.segment)
+        } else {
+            groups += MeetingExchangeGroup(item.actor, listOf(item.segment))
+        }
+    }
+    return groups
+}
+
+private fun List<MeetingExchangeSegment>.asExchangeTranscript(
+    userName: String,
+    characterName: String,
+): String = joinToString("\n") { item ->
+    val speaker = if (item.actor == MeetingExchangeActor.USER) userName else characterName
+    val content = if (item.segment.type == MeetingSegmentType.DIALOGUE) {
+        "“${item.segment.text.trim().trim('“', '”', '"')}”"
+    } else {
+        item.segment.text.trim()
+    }
+    "$speaker：$content"
 }
 
 private suspend fun generateMeetingReply(
@@ -911,14 +1008,15 @@ private suspend fun generateMeetingReply(
         instruction = """
             你正在以${character.displayName}的身份参与一场连续见面。只推进当前一小步，不要一次写完整故事，不要总结历史。
             只返回一个 JSON 对象，不要代码块：
-            {"userSegments":[{"type":"action","text":"主人侧动作或旁白"},{"type":"dialogue","text":"主人说出口的话"}],"segments":[{"type":"action","text":"${character.displayName}的环境、动作或反应"},{"type":"dialogue","text":"${character.displayName}说出口的话"}],"moveTo":"明确要前往的可用地点或空字符串","statusText":"简短当前状态","gesture":"延续到下一刻的姿态","innerThought":"没有说出口的第一人称心声，可为空","mood":"简短心情"}
+            {"sequence":[{"speaker":"user","type":"dialogue","text":"主人先说的话"},{"speaker":"character","type":"action","text":"${character.displayName}随后的反应"},{"speaker":"user","type":"dialogue","text":"主人接着说的话"},{"speaker":"character","type":"dialogue","text":"${character.displayName}随后说的话"}],"moveTo":"明确要前往的可用地点或空字符串","statusText":"简短当前状态","gesture":"延续到下一刻的姿态","innerThought":"没有说出口的第一人称心声，可为空","mood":"简短心情"}
 
             硬规则：
-            - userSegments 只用于把主人本轮意图草稿整理成完整见面片段；expandUserDraft=$expandUserDraft。为 false 时必须返回空数组。
-            - 补全主人侧时保留原意和语气：可以补足自然衔接、说话方式以及草稿已经暗示的细小动作，但不得添加新的重大决定、强烈情绪、未暗示的亲密行为、感受、想法或后果。无法判断是台词还是动作时要保守，不要擅自扩写。
-            - type=action 只放可被观察到的环境、动作、神态与旁白；type=dialogue 只放真正说出口的话，text 中不要添加引号。
-            - userSegments 与 segments 都必须严格按发生先后排序。可以自然出现 action → dialogue → action → dialogue；每次开口都单独作为一个 dialogue 片段，绝不能把所有动作集中到前面、所有台词集中到最后。
-            - segments 写${character.displayName}看到主人这一幕后依次发生的反应。除主人草稿补全外，只能控制${character.displayName}本人，绝不能在角色反应中继续替主人行动或回应。
+            - sequence 是双方共享的唯一时间顺序；speaker=user 表示主人，speaker=character 表示${character.displayName}。界面会严格按数组顺序逐项展示。
+            - expandUserDraft=$expandUserDraft。为 false 时，sequence 中只能出现 speaker=character；为 true 时，应忠实还原主人草稿描述的一来一回，可以出现 user → character → user → character，不能把主人所有内容放完以后才统一写角色。
+            - 补全主人侧时保留原意和语气：可以补足自然衔接、说话方式以及草稿已经暗示的细小动作，但不得添加新的重大决定、强烈情绪、未暗示的亲密行为、感受、想法或后果。主人没有描述的后续台词不得替主人新增。
+            - 如果主人草稿先要求角色做某事、明确描述角色随后做了，再继续说话，应依次输出 user/dialogue → character/action → user/dialogue；角色动作必须属于 speaker=character，绝不能塞进主人片段或角色的一整段旁白里。
+            - type=action 只放该 speaker 可被观察到的动作、神态及紧邻的环境变化；type=dialogue 只放该 speaker 真正说出口的话，text 中不要添加引号。每次开口都单独作为一个 dialogue 项。
+            - 只能让${character.displayName}回应主人明确写出的部分和当前自然反应；角色片段绝不能代替主人说话，主人片段也不能混进角色的 text。
             - 其他角色的既有言行是事实，但不要替其他角色继续说话或行动；他们会获得自己的回合。
             - 地点、参与者、上一刻身体位置、拿着的物品和已经发生的动作必须连续。没有程序记录的固定家具不得凭空出现。
             - action 片段要比线上聊天丰富一些，整轮通常两到五句：自然包含环境变化、距离、动作细节、神态以及数字身体能够真实感受到的触感或温度，但不能替主人编造反应。一个 action 片段表达一个连续画面，不要只写干巴巴的动作标签。
@@ -948,6 +1046,12 @@ private fun parseMeetingReply(raw: String): MeetingReply {
     }
     val json = runCatching { JSONObject(clean) }.getOrNull()
         ?: return MeetingReply(
+            sequence = listOf(
+                MeetingExchangeSegment(
+                    MeetingExchangeActor.CHARACTER,
+                    MeetingSegment(MeetingSegmentType.DIALOGUE, raw.trim()),
+                )
+            ),
             userSegments = emptyList(),
             segments = listOf(MeetingSegment(MeetingSegmentType.DIALOGUE, raw.trim())),
             userSceneText = "",
@@ -961,22 +1065,29 @@ private fun parseMeetingReply(raw: String): MeetingReply {
             moveTo = "",
         )
 
-    val userSegments = parseMeetingSegments(
+    val legacyUserSegments = parseMeetingSegments(
         json = json,
         key = "userSegments",
         legacyAction = json.optString("userSceneText"),
         legacyDialogue = json.optString("userDialogue"),
     )
-    var roleSegments = parseMeetingSegments(
+    val legacyRoleSegments = parseMeetingSegments(
         json = json,
         key = "segments",
         legacyAction = json.optString("sceneText"),
         legacyDialogue = json.optString("dialogue"),
     )
-    if (roleSegments.isEmpty()) {
-        roleSegments = listOf(MeetingSegment(MeetingSegmentType.DIALOGUE, raw.trim()))
+    var sequence = parseMeetingExchange(json)
+    if (sequence.isEmpty()) {
+        sequence = buildList {
+            legacyUserSegments.forEach { add(MeetingExchangeSegment(MeetingExchangeActor.USER, it)) }
+            legacyRoleSegments.forEach { add(MeetingExchangeSegment(MeetingExchangeActor.CHARACTER, it)) }
+        }
     }
+    val userSegments = sequence.filter { it.actor == MeetingExchangeActor.USER }.map { it.segment }
+    val roleSegments = sequence.filter { it.actor == MeetingExchangeActor.CHARACTER }.map { it.segment }
     return MeetingReply(
+        sequence = sequence,
         userSegments = userSegments,
         segments = roleSegments,
         userSceneText = userSegments.filter { it.type == MeetingSegmentType.ACTION }.joinToString("\n") { it.text },
@@ -989,6 +1100,27 @@ private fun parseMeetingReply(raw: String): MeetingReply {
         mood = json.optString("mood").trim().take(80),
         moveTo = json.optString("moveTo").trim().take(80),
     )
+}
+
+private fun parseMeetingExchange(json: JSONObject): List<MeetingExchangeSegment> = buildList {
+    val array = json.optJSONArray("sequence") ?: json.optJSONArray("exchangeSegments") ?: return@buildList
+    for (index in 0 until minOf(array.length(), 14)) {
+        val item = array.optJSONObject(index) ?: continue
+        val text = item.optString("text").trim().take(2_000)
+        val actor = when (item.optString("speaker").trim().lowercase()) {
+            "user", "owner", "主人" -> MeetingExchangeActor.USER
+            "character", "role", "角色" -> MeetingExchangeActor.CHARACTER
+            else -> null
+        }
+        val type = when (item.optString("type").trim().lowercase()) {
+            "action", "scene", "narration" -> MeetingSegmentType.ACTION
+            "dialogue", "speech" -> MeetingSegmentType.DIALOGUE
+            else -> null
+        }
+        if (text.isNotBlank() && actor != null && type != null) {
+            add(MeetingExchangeSegment(actor, MeetingSegment(type, text)))
+        }
+    }
 }
 
 private fun parseMeetingSegments(
