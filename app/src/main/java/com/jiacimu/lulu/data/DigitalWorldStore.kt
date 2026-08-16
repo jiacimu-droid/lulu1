@@ -435,6 +435,19 @@ object DigitalWorldStore {
         appendLine("参与者：${session.participantIds.joinToString { MigratedDomainStores.characters.get(it).displayName }}")
         if (session.reality == MeetingReality.DIGITAL_WORLD) {
             appendLine("世界规则：现实身体留在外部；主人和现实角色使用可传递触觉、温度、重量与动作的数字投影身体；数字生命使用原生数字身体。")
+            val currentHome = mutable.value.homes.values.firstOrNull { it.name == session.location }
+            if (currentHome != null) {
+                val homeItems = itemsAtHome(currentHome.characterId)
+                appendLine("当前所在家园的权威状态：${currentHome.name}")
+                if (homeItems.isEmpty()) {
+                    appendLine("- 家中目前空无一物")
+                } else {
+                    homeItems.forEach { item ->
+                        appendLine("- ${item.name}；${item.appearance}；固定位置=${item.position}")
+                    }
+                }
+                appendLine("所有参与者只能依据以上固定物品描写这个家，禁止凭空增加家具、房间或摆设。")
+            }
             appendLine("可用地点：")
             meetingLocationOptions(session).forEach { location ->
                 appendLine(
