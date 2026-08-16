@@ -38,7 +38,7 @@ fun LuluMigrationRootAppV2(
 ) {
     val deepLinkRoute = remember(initialRouteName) {
         runCatching { MigrationRoute.valueOf(initialRouteName.orEmpty()) }.getOrNull()
-            ?.takeIf { it == MigrationRoute.Lexicon || it == MigrationRoute.Reading }
+            ?.takeIf { it == MigrationRoute.Lexicon || it == MigrationRoute.Reading || it == MigrationRoute.Meeting }
     }
     val initialStack = remember(initialConversationId, deepLinkRoute) {
         when {
@@ -68,6 +68,13 @@ fun LuluMigrationRootAppV2(
     var readingInitialTitle by rememberSaveable(initialReadingTitle) { mutableStateOf(initialReadingTitle) }
     var starWishInitialTab by rememberSaveable { mutableStateOf(StarWishTab.Scroll.name) }
     var initialGameId by rememberSaveable { mutableStateOf<String?>(null) }
+    var meetingInviteCharacterId by rememberSaveable(initialRouteName, initialTargetCharacterId) {
+        mutableStateOf(
+            initialTargetCharacterId?.takeIf {
+                initialRouteName == MigrationRoute.Meeting.name && it.isNotBlank()
+            },
+        )
+    }
     var pomodoroFocusVisible by rememberSaveable { mutableStateOf(false) }
     var openPomodoroRequest by rememberSaveable { mutableStateOf(0) }
 
@@ -251,7 +258,7 @@ fun LuluMigrationRootAppV2(
                                 MigrationRoute.Memory -> MemoryFeatureScreen(::popRoute)
                                 MigrationRoute.Lexicon -> LexiconFeatureScreenV2(
                                     onBack = ::popRoute,
-                                    initialCharacterId = initialTargetCharacterId.takeIf { deepLinkRoute == MigrationRoute.Meeting },
+                                    initialCharacterId = selectedCharacterId,
                                     initialDiaryTitle = lexiconInitialDiaryTitle,
                                 )
                                 MigrationRoute.WorldBook -> CharacterWorldBookScreenV2(
@@ -277,7 +284,8 @@ fun LuluMigrationRootAppV2(
                                 MigrationRoute.Schedule -> ScheduleFeatureScreen(::popRoute)
                                 MigrationRoute.Meeting -> DigitalWorldMeetingApp(
                                     onBack = ::popRoute,
-                                    initialCharacterId = selectedCharacterId,
+                                    invitedCharacterId = meetingInviteCharacterId,
+                                    onInvitationConsumed = { meetingInviteCharacterId = null },
                                 )
                                 MigrationRoute.Games -> LuluGamesAppV2(
                                     onBack = {
