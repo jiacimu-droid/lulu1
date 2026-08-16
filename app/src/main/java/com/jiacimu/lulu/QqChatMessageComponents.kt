@@ -282,7 +282,8 @@ internal fun QqMessageRow(
                                     Intent(context, MigrationActivity::class.java)
                                         .putExtra("open_route", MigrationRoute.Meeting.name)
                                         .putExtra("open_character_id", worldInvite.characterId)
-                                        .putExtra("open_meeting_invitation_text", worldInvite.message),
+                                        .putExtra("open_meeting_invitation_text", worldInvite.message)
+                                        .putExtra("open_meeting_location", worldInvite.location),
                                 )
                             },
                             modifier = bubbleModifier,
@@ -551,14 +552,21 @@ private fun openSystemActivity(context: Context, message: LuluChatMessage, link:
     context.startActivity(intent)
 }
 
-private data class WorldInviteMessage(val characterId: String, val message: String)
+private data class WorldInviteMessage(
+    val characterId: String,
+    val location: String,
+    val message: String,
+)
 
 private fun parseWorldInvite(content: String): WorldInviteMessage? {
-    val match = Regex("^\\[见面邀约\\|([^\\]]+)]\\s*(.*)$", RegexOption.DOT_MATCHES_ALL).find(content.trim())
-        ?: return null
+    val match = Regex(
+        "^\\[见面邀约\\|([^|\\]]+)(?:\\|([^\\]]+))?]\\s*(.*)$",
+        RegexOption.DOT_MATCHES_ALL,
+    ).find(content.trim()) ?: return null
     return WorldInviteMessage(
         characterId = match.groupValues[1].trim(),
-        message = match.groupValues[2].trim(),
+        location = match.groupValues[2].trim().ifBlank { "世界入口" },
+        message = match.groupValues[3].trim(),
     ).takeIf { it.characterId.isNotBlank() }
 }
 
@@ -586,7 +594,7 @@ private fun WorldInviteMessageCard(
                     Spacer(Modifier.width(12.dp))
                     Column {
                         Text("数字世界邀约", color = Color.White.copy(alpha = 0.78f), fontSize = 11.sp)
-                        Text("在世界入口见面", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Text("在${invite.location}见面", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     }
                 }
             }
