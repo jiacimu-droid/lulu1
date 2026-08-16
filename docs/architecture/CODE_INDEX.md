@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`de8b813f30e451a0e3cb1c6e53fc370687caa727`
+- 基准提交：`2cdbca12cd4503c9b5ae18bf80de72a4bea55d8d`
 - 分支：`main`
 - 已索引文件：188
-- 已索引代码/文本行：58053
-- 已发现符号：785
+- 已索引代码/文本行：58091
+- 已发现符号：786
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -38,7 +38,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 543 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 763 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 107 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 109 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 450 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 91 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 256 | 0 |
@@ -66,7 +66,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 66 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt` | 124 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 255 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 244 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 280 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt` | 20 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 233 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 708 | 31 |
