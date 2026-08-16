@@ -35,6 +35,7 @@ fun LuluMigrationRootAppV2(
     initialTargetCharacterId: String? = null,
     initialDiaryTitle: String? = null,
     initialReadingTitle: String? = null,
+    initialMeetingInvitationText: String? = null,
 ) {
     val deepLinkRoute = remember(initialRouteName) {
         runCatching { MigrationRoute.valueOf(initialRouteName.orEmpty()) }.getOrNull()
@@ -74,6 +75,9 @@ fun LuluMigrationRootAppV2(
                 initialRouteName == MigrationRoute.Meeting.name && it.isNotBlank()
             },
         )
+    }
+    var meetingInvitationText by rememberSaveable(initialRouteName, initialMeetingInvitationText) {
+        mutableStateOf(initialMeetingInvitationText?.takeIf { initialRouteName == MigrationRoute.Meeting.name })
     }
     var pomodoroFocusVisible by rememberSaveable { mutableStateOf(false) }
     var openPomodoroRequest by rememberSaveable { mutableStateOf(0) }
@@ -285,7 +289,11 @@ fun LuluMigrationRootAppV2(
                                 MigrationRoute.Meeting -> DigitalWorldMeetingApp(
                                     onBack = ::popRoute,
                                     invitedCharacterId = meetingInviteCharacterId,
-                                    onInvitationConsumed = { meetingInviteCharacterId = null },
+                                    invitationText = meetingInvitationText.orEmpty(),
+                                    onInvitationConsumed = {
+                                        meetingInviteCharacterId = null
+                                        meetingInvitationText = null
+                                    },
                                 )
                                 MigrationRoute.Games -> LuluGamesAppV2(
                                     onBack = {

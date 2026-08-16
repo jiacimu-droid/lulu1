@@ -41,6 +41,7 @@ private data class MeetingReply(
 fun DigitalWorldMeetingApp(
     onBack: () -> Unit,
     invitedCharacterId: String? = null,
+    invitationText: String = "",
     onInvitationConsumed: () -> Unit = {},
 ) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
@@ -69,10 +70,19 @@ fun DigitalWorldMeetingApp(
         inviteHandled = true
         onInvitationConsumed()
         runCatching {
-            DigitalWorldStore.startMeeting(listOf(inviterId), "")
+            DigitalWorldStore.startMeeting(
+                participantIds = listOf(inviterId),
+                location = "",
+                initiatedByCharacterId = inviterId,
+                invitationText = invitationText,
+            )
         }.onSuccess { session ->
             activeSessionId = session.id
             errorText = ""
+            generating = true
+            runCatching { runInvitedMeetingOpening(session.id, inviterId) }
+                .onFailure { errorText = it.message ?: "角色迎接失败，可以直接继续见面" }
+            generating = false
         }.onFailure { error ->
             errorText = error.message ?: "无法接受这次见面邀请"
         }
@@ -392,6 +402,33 @@ private fun MeetingCard(onClick: (() -> Unit)? = null, content: @Composable Colu
     }
 }
 
+private suspend fun runInvitedMeetingOpening(sessionId: String, inviterId: String) {
+    var session = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == sessionId } ?: error("见面记录不存在")
+    val character = MigratedDomainStores.characters.get(inviterId)
+    val reply = generateMeetingReply(
+        session = session,
+        characterId = inviterId,
+        latestMoment = "主人刚刚接受了你发出的邀请，并通过世界入口抵达。请自然地迎接主人；这不是主人说出口的话，不得替主人补写动作、感受或台词。",
+        systemMoment = true,
+    ).getOrThrow()
+    val now = Instant.now()
+    val turn = MeetingTurn(UUID.randomUUID().toString(), inviterId, character.displayName, reply.sceneText, reply.dialogue, now)
+    session = DigitalWorldStore.appendMeetingTurn(sessionId, turn)
+    val recorded = listOf(reply.sceneText, reply.dialogue).filter(String::isNotBlank).joinToString("\n")
+    session.participantIds.forEach { viewerId ->
+        DigitalWorldStore.recordMeetingTimeline(session, viewerId, "arrival-${turn.id}-$inviterId", character.displayName, recorded, now, false)
+    }
+    CompanionPresenceStore.update(
+        characterId = inviterId,
+        statusText = reply.statusText,
+        gesture = reply.gesture,
+        innerThought = reply.innerThought,
+        mood = reply.mood,
+        source = "见面·迎接",
+        now = now,
+    )
+}
+
 private suspend fun runMeetingTurn(sessionId: String, userText: String) {
     var session = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == sessionId } ?: error("见面记录不存在")
     val now = Instant.now()
@@ -404,7 +441,7 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
 
     for (characterId in session.participantIds) {
         val character = MigratedDomainStores.characters.get(characterId)
-        val reply = generateMeetingReply(session, characterId, userText).getOrThrow()
+        val reply = generateMeetingReply(session, characterId, userText, false).getOrThrow()
         val replyAt = Instant.now()
         val turn = MeetingTurn(UUID.randomUUID().toString(), characterId, character.displayName, reply.sceneText, reply.dialogue, replyAt)
         session = DigitalWorldStore.appendMeetingTurn(sessionId, turn)
@@ -427,7 +464,8 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
 private suspend fun generateMeetingReply(
     session: MeetingSession,
     characterId: String,
-    userText: String,
+    latestMoment: String,
+    systemMoment: Boolean = false,
 ): Result<MeetingReply> = runCatching {
     val character = MigratedDomainStores.characters.get(characterId)
     val connection = ScopedModelSelections.resolveConnection(ScopedModelSelections.MEETING)
@@ -435,9 +473,10 @@ private suspend fun generateMeetingReply(
     val result = LuluAiServices.gateway.generate(
         characterId = characterId,
         facts = buildString {
-            appendLine(DigitalWorldStore.meetingContext(session))
+            appendLine(DigitalWorldStore.meetingContext(session, characterId))
             if (digitalNative) appendLine(DigitalWorldStore.contextFor(characterId))
-            appendLine("这一刻用户刚刚新增的言语或动作：$userText")
+            if (systemMoment) appendLine("这一刻刚发生的系统确认事实：$latestMoment")
+            else appendLine("这一刻用户刚刚新增的言语或动作：$latestMoment")
         },
         instruction = """
             你正在以${character.displayName}的身份参与一场连续见面。只推进当前一小步，不要一次写完整故事，不要总结历史。

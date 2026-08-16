@@ -281,7 +281,8 @@ internal fun QqMessageRow(
                                 context.startActivity(
                                     Intent(context, MigrationActivity::class.java)
                                         .putExtra("open_route", MigrationRoute.Meeting.name)
-                                        .putExtra("open_character_id", worldInvite.characterId),
+                                        .putExtra("open_character_id", worldInvite.characterId)
+                                        .putExtra("open_meeting_invitation_text", worldInvite.message),
                                 )
                             },
                             modifier = bubbleModifier,

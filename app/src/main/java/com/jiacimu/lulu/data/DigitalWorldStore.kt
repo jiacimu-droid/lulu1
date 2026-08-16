@@ -51,6 +51,8 @@ data class MeetingSession(
     val reality: MeetingReality,
     val location: String,
     val startedAt: Instant,
+    val initiatedByCharacterId: String? = null,
+    val invitationText: String = "",
     val endedAt: Instant? = null,
     val turns: List<MeetingTurn> = emptyList(),
 )
@@ -229,6 +231,8 @@ object DigitalWorldStore {
     fun startMeeting(
         participantIds: List<String>,
         location: String,
+        initiatedByCharacterId: String? = null,
+        invitationText: String = "",
         now: Instant = Instant.now(),
     ): MeetingSession {
         val ids = participantIds.map(String::trim).filter(String::isNotBlank).distinct()
@@ -244,7 +248,16 @@ object DigitalWorldStore {
         val resolvedLocation = location.trim().ifBlank {
             if (reality == MeetingReality.DIGITAL_WORLD) "世界入口" else "由参与者共同确认的现实场景"
         }
-        val session = MeetingSession(UUID.randomUUID().toString(), ids, reality, resolvedLocation, now)
+        val cleanInviterId = initiatedByCharacterId?.takeIf { it in ids }
+        val session = MeetingSession(
+            id = UUID.randomUUID().toString(),
+            participantIds = ids,
+            reality = reality,
+            location = resolvedLocation,
+            startedAt = now,
+            initiatedByCharacterId = cleanInviterId,
+            invitationText = invitationText.trim().take(500),
+        )
         synchronized(lock) {
             mutable.value = mutable.value.copy(meetings = (mutable.value.meetings + session).takeLast(80))
             if (reality == MeetingReality.DIGITAL_WORLD) {
@@ -253,7 +266,10 @@ object DigitalWorldStore {
             persistLocked()
         }
         val summary = if (reality == MeetingReality.DIGITAL_WORLD) {
-            "参与者通过世界入口进入数字空间，以可感知的数字身体开始见面；现实肉体仍留在外部。"
+            cleanInviterId?.let { inviterId ->
+                val inviterName = MigratedDomainStores.characters.get(inviterId).displayName
+                "$inviterName 发出的邀请已被主人接受；主人通过世界入口抵达，双方以可感知的数字身体开始见面，现实肉体仍留在外部。"
+            } ?: "主人主动选择参与者并通过世界入口进入数字空间；双方以可感知的数字身体开始见面，现实肉体仍留在外部。"
         } else {
             "参与者开始了一次发生在“$resolvedLocation”的现实场景演绎；这段共同体验不冒充用户现实生活中的物理事实。"
         }
@@ -351,7 +367,28 @@ object DigitalWorldStore {
         )
     }
 
-    fun meetingContext(session: MeetingSession): String = buildString {
+    fun meetingContext(session: MeetingSession, characterId: String): String = buildString {
+        val inviterId = session.initiatedByCharacterId
+        if (inviterId != null) {
+            val inviterName = MigratedDomainStores.characters.get(inviterId).displayName
+            appendLine("发起方式：$inviterName 主动邀请主人进入数字世界，主人已经接受并抵达。")
+            if (session.invitationText.isNotBlank()) appendLine("邀请时原话：${session.invitationText}")
+            if (inviterId == characterId) appendLine("身份连续性：这次邀请正是你本人发出的；主人现在是来赴你的约。")
+        } else {
+            appendLine("发起方式：主人主动选择参与者并开始这次见面。")
+        }
+        val previous = mutable.value.meetings.asReversed().firstOrNull { old ->
+            old.id != session.id && old.endedAt != null && characterId in old.participantIds
+        }
+        if (previous != null) {
+            appendLine("【与该角色上一次已经结束的见面｜用于跨场衔接】")
+            appendLine("时间：${previous.startedAt}；地点：${previous.location}")
+            previous.turns.takeLast(10).forEach { turn ->
+                val body = listOf(turn.sceneText, turn.dialogue).filter(String::isNotBlank).joinToString(" ")
+                if (body.isNotBlank()) appendLine("- ${turn.speakerName}：${body.take(500)}")
+            }
+            appendLine("以上是已经发生过的共同经历；可以自然记得，但不要机械复述。")
+        }
         appendLine("见面模式：${if (session.reality == MeetingReality.DIGITAL_WORLD) "数字世界真实共同体验" else "现实场景演绎"}")
         appendLine("固定地点：${session.location}")
         appendLine("开始时间：${session.startedAt}")
@@ -464,6 +501,8 @@ private fun MeetingSession.toJson(): JSONObject = JSONObject().apply {
     put("reality", reality.name)
     put("location", location)
     put("startedAt", startedAt.toString())
+    put("initiatedByCharacterId", initiatedByCharacterId.orEmpty())
+    put("invitationText", invitationText)
     put("endedAt", endedAt?.toString().orEmpty())
     put("turns", JSONArray().apply { turns.forEach { turn -> put(JSONObject().put("id", turn.id).put("speakerId", turn.speakerId.orEmpty()).put("speakerName", turn.speakerName).put("sceneText", turn.sceneText).put("dialogue", turn.dialogue).put("occurredAt", turn.occurredAt.toString())) } })
 }
@@ -486,6 +525,8 @@ private fun JSONObject.toMeeting(): MeetingSession? {
         reality = runCatching { MeetingReality.valueOf(optString("reality")) }.getOrDefault(MeetingReality.REALISTIC_SIMULATION),
         location = optString("location"),
         startedAt = instant("startedAt"),
+        initiatedByCharacterId = optString("initiatedByCharacterId").takeIf(String::isNotBlank),
+        invitationText = optString("invitationText"),
         endedAt = optString("endedAt").takeIf(String::isNotBlank)?.let { runCatching { Instant.parse(it) }.getOrNull() },
         turns = turns,
     )

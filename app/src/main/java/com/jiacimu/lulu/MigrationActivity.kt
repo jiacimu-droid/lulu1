@@ -89,6 +89,7 @@ class MigrationActivity : ComponentActivity() {
         val initialCharacterId = intent?.getStringExtra("open_character_id")
         val initialDiaryTitle = intent?.getStringExtra("open_diary_title")
         val initialReadingTitle = intent?.getStringExtra("open_reading_title")
+        val initialMeetingInvitationText = intent?.getStringExtra("open_meeting_invitation_text")
         setContent {
             LuluMigrationRootAppV2(
                 initialConversationId = initialConversationId,
@@ -96,6 +97,7 @@ class MigrationActivity : ComponentActivity() {
                 initialTargetCharacterId = initialCharacterId,
                 initialDiaryTitle = initialDiaryTitle,
                 initialReadingTitle = initialReadingTitle,
+                initialMeetingInvitationText = initialMeetingInvitationText,
             )
         }
     }
