@@ -245,6 +245,7 @@ object DigitalWorldStore {
         now: Instant = Instant.now(),
     ): MeetingSession {
         val ids = participantIds.map(String::trim).filter(String::isNotBlank).distinct()
+        val originLocations = ids.associateWith(::locationOf)
         require(ids.isNotEmpty()) { "至少选择一位见面角色" }
         require(ids.all(DigitalLifeProfileStore::isResolved)) { "参与者中有旧角色尚未确认生命形态" }
         val reality = if (ids.any(DigitalLifeProfileStore::isEnabled)) MeetingReality.DIGITAL_WORLD else MeetingReality.REALISTIC_SIMULATION
@@ -270,6 +271,7 @@ object DigitalWorldStore {
             initiatedByCharacterId = cleanInviterId,
             invitationText = invitationText.trim().take(500),
         )
+        MeetingExperienceStore.registerSessionOrigin(session.id, originLocations)
         synchronized(lock) {
             mutable.value = mutable.value.copy(meetings = (mutable.value.meetings + session).takeLast(80))
             if (reality == MeetingReality.DIGITAL_WORLD) {
@@ -390,48 +392,94 @@ object DigitalWorldStore {
     }
 
     fun deleteMeeting(sessionId: String): Boolean {
+        val exchangeRecords = MeetingExperienceStore.state.value.exchanges
+            .filter { it.sessionId == sessionId }
+            .sortedBy(MeetingExchangeRecord::createdAt)
+        val provenanceIds = exchangeRecords.map { "meeting-$sessionId-${it.id}" }.toSet()
+        val beforePresence = exchangeRecords.firstOrNull()?.beforePresence.orEmpty()
+        val originLocations = MeetingExperienceStore.sessionOrigin(sessionId)
         val removed = synchronized(lock) {
             val session = mutable.value.meetings.firstOrNull { it.id == sessionId } ?: return false
-            mutable.value = mutable.value.copy(meetings = mutable.value.meetings.filterNot { it.id == sessionId })
+            mutable.value = mutable.value.copy(
+                meetings = mutable.value.meetings.filterNot { it.id == sessionId },
+                characterLocations = mutable.value.characterLocations + originLocations,
+            )
             persistLocked()
             session
         }
         removed.participantIds.distinct().forEach { characterId ->
             SharedExperienceTimeline.deleteEventsByIdPrefix(characterId, "meeting-${removed.id}-")
         }
+        CompanionPresenceStore.rollbackMeetingProvenance(provenanceIds, beforePresence)
+        MeetingExperienceStore.removeSession(sessionId)
         return true
     }
 
     fun deleteMeetingExchange(sessionId: String, turnId: String): Int {
+        val session = mutable.value.meetings.firstOrNull { it.id == sessionId } ?: return 0
+        val target = session.turns.firstOrNull { it.id == turnId } ?: return 0
+        val transaction = target.exchangeId?.let(MeetingExperienceStore::exchange)
+        if (transaction != null) {
+            val affected = MeetingExperienceStore.recordsFrom(sessionId, transaction.id)
+            return rewindMeetingExchanges(sessionId, affected, transaction.beforeScene)
+        }
+
         val removed = synchronized(lock) {
-            val session = mutable.value.meetings.firstOrNull { it.id == sessionId } ?: return 0
-            val targetIndex = session.turns.indexOfFirst { it.id == turnId }
+            val current = mutable.value.meetings.firstOrNull { it.id == sessionId } ?: return 0
+            val targetIndex = current.turns.indexOfFirst { it.id == turnId }
             if (targetIndex < 0) return 0
-            val target = session.turns[targetIndex]
-            val removedTurns = target.exchangeId?.takeIf(String::isNotBlank)?.let { exchangeId ->
-                session.turns.filter { it.exchangeId == exchangeId }
-            } ?: run {
-                if (target.speakerId == "system") {
-                    listOf(target)
-                } else {
-                    val start = (targetIndex downTo 0).firstOrNull { session.turns[it].speakerId == null }
-                        ?: targetIndex
-                    val end = ((start + 1) until session.turns.size)
-                        .firstOrNull { session.turns[it].speakerId == null }
-                        ?: session.turns.size
-                    session.turns.subList(start, end)
-                }
-            }
+            val start = (targetIndex downTo 0).firstOrNull { current.turns[it].speakerId == null } ?: targetIndex
+            val end = ((start + 1) until current.turns.size)
+                .firstOrNull { current.turns[it].speakerId == null } ?: current.turns.size
+            val removedTurns = if (target.speakerId == "system") listOf(target) else current.turns.subList(start, end)
             val removedIds = removedTurns.map(MeetingTurn::id).toSet()
-            val updated = session.copy(turns = session.turns.filterNot { it.id in removedIds })
-            mutable.value = mutable.value.copy(
-                meetings = mutable.value.meetings.map { if (it.id == sessionId) updated else it }
-            )
+            val updated = current.copy(turns = current.turns.filterNot { it.id in removedIds })
+            mutable.value = mutable.value.copy(meetings = mutable.value.meetings.map { if (it.id == sessionId) updated else it })
             persistLocked()
             removedTurns
         }
-        removed.forEach { turn ->
-            mutable.value.meetings.firstOrNull { it.id == sessionId }?.participantIds.orEmpty().forEach { characterId ->
+        deleteMeetingTurnEvents(sessionId, session.participantIds, removed)
+        return removed.size
+    }
+
+    fun rewindMeetingExchanges(
+        sessionId: String,
+        records: List<MeetingExchangeRecord>,
+        restoredScene: MeetingSceneSnapshot,
+    ): Int {
+        if (records.isEmpty()) return 0
+        val exchangeIds = records.map(MeetingExchangeRecord::id).toSet()
+        val explicitTurnIds = records.flatMap(MeetingExchangeRecord::turnIds).toSet()
+        val result = synchronized(lock) {
+            val current = mutable.value.meetings.firstOrNull { it.id == sessionId } ?: return 0
+            val removedTurns = current.turns.filter { it.exchangeId in exchangeIds || it.id in explicitTurnIds }
+            val updated = current.copy(
+                location = restoredScene.location,
+                turns = current.turns.filterNot { it in removedTurns },
+            )
+            val locationCode = meetingLocationCode(restoredScene.location)
+            mutable.value = mutable.value.copy(
+                meetings = mutable.value.meetings.map { if (it.id == sessionId) updated else it },
+                characterLocations = mutable.value.characterLocations +
+                    current.participantIds.associateWith { locationCode },
+            )
+            persistLocked()
+            current.participantIds to removedTurns
+        }
+        deleteMeetingTurnEvents(sessionId, result.first, result.second)
+        val provenanceIds = exchangeIds.map { "meeting-$sessionId-$it" }.toSet()
+        CompanionPresenceStore.rollbackMeetingProvenance(provenanceIds, records.first().beforePresence)
+        MeetingExperienceStore.removeRecords(sessionId, exchangeIds, restoredScene)
+        return result.second.size
+    }
+
+    private fun deleteMeetingTurnEvents(
+        sessionId: String,
+        participantIds: List<String>,
+        turns: List<MeetingTurn>,
+    ) {
+        turns.forEach { turn ->
+            participantIds.forEach { characterId ->
                 listOf("turn", "arrival", "move").forEach { kind ->
                     SharedExperienceTimeline.deleteEventsByIdPrefix(
                         characterId,
@@ -440,7 +488,6 @@ object DigitalWorldStore {
                 }
             }
         }
-        return removed.size
     }
 
     fun pruneEmptyMeetings() {
