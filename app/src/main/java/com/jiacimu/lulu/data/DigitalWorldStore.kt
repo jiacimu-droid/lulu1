@@ -459,11 +459,14 @@ object DigitalWorldStore {
                 location = restoredScene.location,
                 turns = current.turns.filterNot { it in removedTurns },
             )
-            val locationCode = meetingLocationCode(restoredScene.location)
+            val restoredLocations = if (current.reality == MeetingReality.DIGITAL_WORLD) {
+                val locationCode = meetingLocationCode(restoredScene.location)
+                current.participantIds.associateWith { locationCode }
+            } else emptyMap()
             mutable.value = mutable.value.copy(
                 meetings = mutable.value.meetings.map { if (it.id == sessionId) updated else it },
                 characterLocations = mutable.value.characterLocations +
-                    current.participantIds.associateWith { locationCode },
+                    restoredLocations,
             )
             persistLocked()
             current.participantIds to removedTurns
