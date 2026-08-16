@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T16:53:13.320803+00:00",
-  "commit": "d9cf767ee2cccc4d97b46733c494f436978c22f1",
+  "generatedAt": "2026-08-16T16:55:10.261217+00:00",
+  "commit": "556d5bfac7984a08b00bdb443b6410b5eaf19237",
   "branch": "main",
-  "sourceFingerprint": "78b4d27cd8efed8c817502e73465f2f5889a730fc4b43264d44dd64004e4c6f9",
+  "sourceFingerprint": "4331da95b4fbec445ca23a485c2dd324300275433d82c1bb5467c3edeb0bab26",
   "summary": {
     "files": 189,
-    "lines": 58851,
+    "lines": 58859,
     "symbols": 800
   },
   "symbolIndex": {
@@ -4699,8 +4699,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-      "lines": 1826,
-      "sha256": "6d3e671d61af2dd7b09840fa80a1641a0f8c17a82e688378b62446d352e38c22",
+      "lines": 1834,
+      "sha256": "80ff3620451662fc7f1e8202904646bea73ed1633b30368991d002885062c010",
       "symbols": [
         {
           "name": "ledgerText",
