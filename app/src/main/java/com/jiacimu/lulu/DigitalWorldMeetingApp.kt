@@ -81,7 +81,11 @@ fun DigitalWorldMeetingApp(
     }.orEmpty().ifBlank { "选择见面模型" }
 
     LaunchedEffect(Unit) {
-        DigitalWorldStore.pruneEmptyMeetings()
+        if (invitedCharacterId.isNullOrBlank()) {
+            world.meetings.lastOrNull { it.endedAt == null }?.let { unfinished ->
+                activeSessionId = unfinished.id
+            }
+        }
     }
 
     LaunchedEffect(invitedCharacterId) {
@@ -127,10 +131,11 @@ fun DigitalWorldMeetingApp(
                     IconButton(onClick = {
                         when {
                             showHistory -> showHistory = false
-                            activeSession != null -> {
-                                if (activeSession.turns.isEmpty()) DigitalWorldStore.deleteMeeting(activeSession.id)
+                            activeSession?.endedAt != null -> {
                                 activeSessionId = null
+                                showHistory = true
                             }
+                            activeSession != null -> onBack()
                             else -> onBack()
                         }
                     }) { Icon(Icons.Outlined.ArrowBack, "返回") }
@@ -166,7 +171,7 @@ fun DigitalWorldMeetingApp(
             showHistory -> MeetingHistoryScreen(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 characters = characters.values.sortedBy(CharacterSettings::displayName),
-                meetings = world.meetings.filter { it.turns.isNotEmpty() },
+                meetings = world.meetings.filter { it.endedAt != null && it.turns.isNotEmpty() },
                 onOpen = { showHistory = false; activeSessionId = it },
                 onDelete = { pendingDeleteSession = it },
             )
@@ -265,53 +270,11 @@ private fun MeetingLobby(
 ) {
     val selectedHasDigital = selectedIds.any { profiles[it]?.enabled == true }
     val selectedResolved = selectedIds.all { id -> (profiles[id] ?: DigitalLifeProfileStore.get(id)).isResolved }
-    val modeTitle = when {
-        selectedIds.isEmpty() -> "先选择想见的人"
-        selectedHasDigital -> "数字世界 · 世界入口"
-        else -> "现实场景见面"
-    }
-    val modeSubtitle = when {
-        selectedIds.isEmpty() -> "可以同时选择多位角色"
-        selectedHasDigital -> "以可感知的数字身体进入"
-        else -> "${selectedIds.size} 位参与者"
-    }
-
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item {
-            Surface(
-                color = LuluColors.CardStrong,
-                shape = RoundedCornerShape(24.dp),
-                border = BorderStroke(1.dp, LuluColors.Border),
-            ) {
-                Row(
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 15.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Surface(color = LuluColors.Paper, shape = RoundedCornerShape(15.dp)) {
-                        Icon(
-                            if (selectedHasDigital || selectedIds.isEmpty()) Icons.Outlined.Cloud else Icons.Outlined.Place,
-                            null,
-                            tint = LuluColors.BlueGray,
-                            modifier = Modifier.padding(11.dp).size(25.dp),
-                        )
-                    }
-                    Spacer(Modifier.width(12.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(modeTitle, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                        Text(modeSubtitle, color = LuluColors.Muted, fontSize = 11.sp)
-                    }
-                }
-            }
-        }
-
-        item {
-            Text("选择角色", fontWeight = FontWeight.Bold, fontSize = 17.sp, modifier = Modifier.padding(horizontal = 2.dp))
-        }
-
         item {
             Surface(
                 color = LuluColors.Card,
