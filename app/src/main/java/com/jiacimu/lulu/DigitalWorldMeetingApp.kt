@@ -194,108 +194,203 @@ private fun MeetingLobby(
 ) {
     val selectedHasDigital = selectedIds.any { profiles[it]?.enabled == true }
     val selectedResolved = selectedIds.all { id -> (profiles[id] ?: DigitalLifeProfileStore.get(id)).isResolved }
-    val recent = world.meetings.asReversed().take(8)
+    val recent = world.meetings.asReversed().take(6)
+    val modeTitle = when {
+        selectedIds.isEmpty() -> "先选择想见的人"
+        selectedHasDigital -> "数字世界 · 世界入口"
+        else -> "现实场景见面"
+    }
+    val modeSubtitle = when {
+        selectedIds.isEmpty() -> "可以同时选择多位角色"
+        selectedHasDigital -> "以可感知的数字身体进入"
+        else -> "${selectedIds.size} 位参与者"
+    }
+
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(13.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
-            MeetingCard {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Surface(color = LuluColors.CardStrong, shape = RoundedCornerShape(18.dp)) {
-                        Icon(Icons.Outlined.Cloud, null, modifier = Modifier.padding(13.dp).size(30.dp), tint = LuluColors.BlueGray)
+            Surface(
+                color = LuluColors.CardStrong,
+                shape = RoundedCornerShape(24.dp),
+                border = BorderStroke(1.dp, LuluColors.Border),
+            ) {
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 15.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Surface(color = LuluColors.Paper, shape = RoundedCornerShape(15.dp)) {
+                        Icon(
+                            if (selectedHasDigital || selectedIds.isEmpty()) Icons.Outlined.Cloud else Icons.Outlined.Place,
+                            null,
+                            tint = LuluColors.BlueGray,
+                            modifier = Modifier.padding(11.dp).size(25.dp),
+                        )
                     }
                     Spacer(Modifier.width(12.dp))
-                    Column {
-                        Text("世界入口", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                        Text("每次进入数字世界都会从这里获得可感知的数字身体。", color = LuluColors.Muted, fontSize = 12.sp, lineHeight = 18.sp)
+                    Column(Modifier.weight(1f)) {
+                        Text(modeTitle, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Text(modeSubtitle, color = LuluColors.Muted, fontSize = 11.sp)
+                    }
+                    TextButton(onClick = onModel) {
+                        Icon(Icons.Outlined.Tune, null, Modifier.size(16.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("模型", fontSize = 12.sp)
                     }
                 }
             }
         }
+
         item {
-            MeetingCard {
-                Text("选择参与者", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("包含数字生命时进入数字世界；全部是现实角色时进行现实场景演绎。", color = LuluColors.Muted, fontSize = 12.sp)
-                characters.forEach { character ->
-                    val checked = character.characterId in selectedIds
-                    val profile = profiles[character.characterId] ?: DigitalLifeProfileStore.get(character.characterId)
-                    Row(
-                        modifier = Modifier.fillMaxWidth().clickable { onToggle(character.characterId) }.padding(vertical = 5.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Checkbox(checked = checked, onCheckedChange = { onToggle(character.characterId) })
-                        LuluProfileAvatar(character.avatarUri, character.displayName.take(1).ifBlank { "角" }, 42)
-                        Spacer(Modifier.width(10.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(character.displayName, fontWeight = FontWeight.SemiBold)
-                            Text(
-                                when {
-                                    profile.enabled -> "数字生命 · 原生数字身体"
-                                    profile.isResolved -> "现实角色 · 场景身体/数字投影"
-                                    else -> "尚未确认生命形态"
-                                },
-                                color = LuluColors.Muted,
-                                fontSize = 11.sp,
-                            )
+            Text("选择角色", fontWeight = FontWeight.Bold, fontSize = 17.sp, modifier = Modifier.padding(horizontal = 2.dp))
+        }
+
+        item {
+            Surface(
+                color = LuluColors.Card,
+                shape = RoundedCornerShape(20.dp),
+                border = BorderStroke(1.dp, LuluColors.Border),
+            ) {
+                Column(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                    characters.forEachIndexed { index, character ->
+                        val checked = character.characterId in selectedIds
+                        val profile = profiles[character.characterId] ?: DigitalLifeProfileStore.get(character.characterId)
+                        Surface(
+                            onClick = { onToggle(character.characterId) },
+                            color = if (checked) LuluColors.CardStrong else LuluColors.Card,
+                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp, vertical = 2.dp),
+                        ) {
+                            Row(
+                                Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 9.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                LuluProfileAvatar(character.avatarUri, character.displayName.take(1).ifBlank { "角" }, 44)
+                                Spacer(Modifier.width(11.dp))
+                                Column(Modifier.weight(1f)) {
+                                    Text(character.displayName, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                                    Text(
+                                        when {
+                                            profile.enabled -> "数字生命"
+                                            profile.isResolved -> "现实角色"
+                                            else -> "待确认生命形态"
+                                        },
+                                        color = if (!profile.isResolved) MaterialTheme.colorScheme.error else LuluColors.Muted,
+                                        fontSize = 11.sp,
+                                    )
+                                }
+                                Checkbox(checked = checked, onCheckedChange = { onToggle(character.characterId) })
+                            }
                         }
+                        if (index != characters.lastIndex) HorizontalDivider(
+                            Modifier.padding(start = 70.dp, end = 12.dp),
+                            color = LuluColors.Border,
+                        )
                     }
                 }
-                if (!selectedHasDigital) {
-                    OutlinedTextField(
-                        value = locationDraft,
-                        onValueChange = onLocationChanged,
-                        label = { Text("现实场景地点") },
-                        placeholder = { Text("例如：傍晚的咖啡馆；可以留空") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                    )
-                } else {
-                    Surface(color = LuluColors.Paper, shape = RoundedCornerShape(14.dp), border = BorderStroke(1.dp, LuluColors.Border)) {
-                        Text("本次将从世界入口开始，进入后可以一起前往云眠原。", modifier = Modifier.padding(12.dp), color = LuluColors.Muted, fontSize = 12.sp)
-                    }
-                }
-                OutlinedButton(onClick = onModel, modifier = Modifier.fillMaxWidth()) {
-                    Icon(Icons.Outlined.Memory, null, Modifier.size(17.dp))
-                    Spacer(Modifier.width(7.dp))
-                    Text(selectedArchiveLabel, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
+            }
+        }
+
+        if (selectedIds.isNotEmpty() && !selectedHasDigital) {
+            item {
+                OutlinedTextField(
+                    value = locationDraft,
+                    onValueChange = onLocationChanged,
+                    label = { Text("见面地点") },
+                    placeholder = { Text("例如：傍晚的咖啡馆") },
+                    leadingIcon = { Icon(Icons.Outlined.Place, null) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(17.dp),
+                    singleLine = true,
+                )
+            }
+        }
+
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
                 Button(
                     onClick = onStart,
                     enabled = selectedIds.isNotEmpty() && selectedResolved,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    shape = RoundedCornerShape(17.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = LuluColors.Wheat, contentColor = LuluColors.OnWheat),
-                ) { Text("开始见面", fontWeight = FontWeight.Bold) }
+                ) {
+                    Icon(if (selectedHasDigital) Icons.Outlined.Cloud else Icons.Outlined.DirectionsWalk, null)
+                    Spacer(Modifier.width(7.dp))
+                    Text(if (selectedHasDigital) "从世界入口见面" else "开始见面", fontWeight = FontWeight.Bold)
+                }
+                Text(
+                    selectedArchiveLabel,
+                    modifier = Modifier.fillMaxWidth().clickable(onClick = onModel),
+                    color = LuluColors.Muted,
+                    fontSize = 10.sp,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
                 if (selectedIds.isNotEmpty() && !selectedResolved) {
-                    Text("请先到角色设置为旧角色确认一次生命形态。", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                    Text("请先在角色设置中确认生命形态", color = MaterialTheme.colorScheme.error, fontSize = 11.sp)
                 }
-                if (errorText.isNotBlank()) Text(errorText, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                if (errorText.isNotBlank()) Text(errorText, color = MaterialTheme.colorScheme.error, fontSize = 11.sp)
             }
         }
-        item {
-            MeetingCard {
-                Text("共享区域 · 云眠原", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("感官云质会承托数字身体。躺下时缓慢下陷并从内部回暖，翻身会留下扩散的云纹，起身后的凹痕会保留片刻。", color = LuluColors.Muted, lineHeight = 19.sp)
-            }
-        }
+
         if (recent.isNotEmpty()) {
-            item { Text("见面记录", fontWeight = FontWeight.Bold, fontSize = 18.sp) }
+            item {
+                Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("最近见面", fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                    Spacer(Modifier.weight(1f))
+                    Text("${recent.size} 条", color = LuluColors.Muted, fontSize = 11.sp)
+                }
+            }
             items(recent, key = MeetingSession::id) { session ->
-                MeetingCard(onClick = { onResume(session.id) }) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(if (session.reality == MeetingReality.DIGITAL_WORLD) "数字世界见面" else "现实场景演绎", fontWeight = FontWeight.Bold)
-                        Text(session.startedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("M月d日 HH:mm")), color = LuluColors.Muted, fontSize = 11.sp)
+                Surface(
+                    onClick = { onResume(session.id) },
+                    color = LuluColors.Card,
+                    shape = RoundedCornerShape(17.dp),
+                    border = BorderStroke(1.dp, LuluColors.Border),
+                ) {
+                    Row(
+                        Modifier.fillMaxWidth().padding(13.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Surface(color = LuluColors.CardStrong, shape = RoundedCornerShape(12.dp)) {
+                            Icon(
+                                if (session.reality == MeetingReality.DIGITAL_WORLD) Icons.Outlined.Cloud else Icons.Outlined.Place,
+                                null,
+                                tint = LuluColors.BlueGray,
+                                modifier = Modifier.padding(9.dp).size(20.dp),
+                            )
+                        }
+                        Spacer(Modifier.width(11.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                session.participantIds.joinToString { MigratedDomainStores.characters.get(it).displayName },
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            Text(
+                                "${session.location} · ${session.startedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))}",
+                                color = LuluColors.Muted,
+                                fontSize = 11.sp,
+                                maxLines = 1,
+                            )
+                        }
+                        if (session.endedAt == null) {
+                            Text("继续", color = LuluColors.BlueGray, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        } else {
+                            Icon(Icons.Outlined.ChevronRight, null, tint = LuluColors.Muted, modifier = Modifier.size(18.dp))
+                        }
                     }
-                    Text(session.location, color = LuluColors.Muted)
-                    Text(session.participantIds.joinToString { MigratedDomainStores.characters.get(it).displayName }, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(if (session.endedAt == null) "尚未结束 · 点此继续" else "已结束 · ${session.turns.size}条记录", color = LuluColors.Muted, fontSize = 11.sp)
                 }
             }
         }
+        item { Spacer(Modifier.height(12.dp)) }
     }
 }
-
 @Composable
 private fun MeetingRoom(
     modifier: Modifier,
@@ -310,68 +405,109 @@ private fun MeetingRoom(
     onEnd: () -> Unit,
 ) {
     Column(modifier) {
-        Surface(color = LuluColors.Card, border = BorderStroke(1.dp, LuluColors.Border)) {
-            Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text(session.location, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                        Text(
-                            if (session.reality == MeetingReality.DIGITAL_WORLD) "现实身体留在外部 · 当前使用可感知数字身体" else "现实场景演绎 · 不冒充物理现实记录",
-                            color = LuluColors.Muted,
-                            fontSize = 11.sp,
+        Surface(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+            color = LuluColors.CardStrong,
+            shape = RoundedCornerShape(20.dp),
+            border = BorderStroke(1.dp, LuluColors.Border),
+        ) {
+            Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Surface(color = LuluColors.Paper, shape = RoundedCornerShape(12.dp)) {
+                        Icon(
+                            if (session.reality == MeetingReality.DIGITAL_WORLD) Icons.Outlined.Cloud else Icons.Outlined.Place,
+                            null,
+                            tint = LuluColors.BlueGray,
+                            modifier = Modifier.padding(8.dp).size(19.dp),
                         )
                     }
-                    if (!viewOnly) TextButton(onClick = onEnd) { Text("结束见面") }
+                    Spacer(Modifier.width(10.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(session.location, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                        Text(
+                            session.participantIds.joinToString { MigratedDomainStores.characters.get(it).displayName },
+                            color = LuluColors.Muted,
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    if (!viewOnly) TextButton(onClick = onEnd) { Text("结束", fontSize = 12.sp) }
                 }
                 if (!viewOnly && session.reality == MeetingReality.DIGITAL_WORLD && session.location != "云眠原") {
-                    OutlinedButton(onClick = onCloudMeadow, modifier = Modifier.fillMaxWidth()) {
-                        Icon(Icons.Outlined.Cloud, null, Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("一起前往云眠原")
-                    }
+                    AssistChip(
+                        onClick = onCloudMeadow,
+                        label = { Text("前往云眠原", fontSize = 12.sp) },
+                        leadingIcon = { Icon(Icons.Outlined.Cloud, null, Modifier.size(16.dp)) },
+                        modifier = Modifier.align(Alignment.End),
+                    )
                 }
             }
         }
+
         LazyColumn(
             modifier = Modifier.weight(1f).fillMaxWidth(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(horizontal = 13.dp, vertical = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            if (session.turns.isEmpty()) {
+            if (session.turns.isEmpty() && !generating) {
                 item {
-                    MeetingCard {
-                        Text(if (session.reality == MeetingReality.DIGITAL_WORLD) "感官连接已经建立。脚下的云质正在适应这具数字身体的重量。" else "场景已经建立，你可以先说话或写下自己的动作。", color = LuluColors.Muted, lineHeight = 19.sp)
+                    Box(Modifier.fillMaxWidth().padding(vertical = 40.dp), contentAlignment = Alignment.Center) {
+                        Text("连接已经建立", color = LuluColors.Muted, fontSize = 12.sp)
                     }
                 }
             }
             items(session.turns, key = MeetingTurn::id) { turn ->
                 MeetingTurnCard(turn, turn.speakerId == null)
             }
-            if (generating) item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
+            if (generating) {
+                item {
+                    Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp, color = LuluColors.BlueGray)
+                        Spacer(Modifier.width(9.dp))
+                        Text("对方正在靠近这一刻…", color = LuluColors.Muted, fontSize = 12.sp)
+                    }
+                }
+            }
         }
-        if (errorText.isNotBlank()) Text(errorText, color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 16.dp))
+
+        if (errorText.isNotBlank()) {
+            Text(errorText, color = MaterialTheme.colorScheme.error, fontSize = 11.sp, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
+        }
         if (viewOnly) {
-            Text("这次见面已经结束，以上为完整保存的原始过程。", color = LuluColors.Muted, fontSize = 12.sp, modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp))
+            Text(
+                "见面已结束 · 原始过程已保存",
+                color = LuluColors.Muted,
+                fontSize = 11.sp,
+                modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(14.dp),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            )
         } else {
-            Row(
-                modifier = Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(12.dp),
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                OutlinedTextField(
-                    value = input,
-                    onValueChange = onInputChanged,
-                    placeholder = { Text("说话，或者写下你的动作……") },
-                    modifier = Modifier.weight(1f),
-                    minLines = 1,
-                    maxLines = 4,
-                )
-                FilledIconButton(onClick = onSend, enabled = input.isNotBlank() && !generating) { Icon(Icons.Outlined.Send, "发送") }
+            Surface(color = LuluColors.Paper, tonalElevation = 3.dp) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 12.dp, vertical = 9.dp),
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    OutlinedTextField(
+                        value = input,
+                        onValueChange = onInputChanged,
+                        placeholder = { Text("说话或写下动作…") },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(18.dp),
+                        minLines = 1,
+                        maxLines = 4,
+                    )
+                    FilledIconButton(
+                        onClick = onSend,
+                        enabled = input.isNotBlank() && !generating,
+                        modifier = Modifier.size(50.dp),
+                    ) { Icon(Icons.Outlined.Send, "发送") }
+                }
             }
         }
     }
 }
-
 @Composable
 private fun MeetingTurnCard(turn: MeetingTurn, user: Boolean) {
     Surface(
