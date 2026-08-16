@@ -5,8 +5,7 @@ import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.data.CharacterIdentityStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.CompanionPresenceStore
-import com.jiacimu.lulu.data.RelevantMemoryRecall
-import com.jiacimu.lulu.data.SharedExperienceTimeline
+import com.jiacimu.lulu.data.UnifiedMemoryOrchestrator
 import com.jiacimu.lulu.data.TokenBreakdownItem
 import com.jiacimu.lulu.data.UserProfileContext
 import kotlinx.coroutines.Dispatchers
@@ -455,9 +454,14 @@ class CompanionModelGateway(
             val identity = CharacterIdentityStore.get(characterId).takeIf { fullContext }.orEmpty()
             val presence = CompanionPresenceStore.current(characterId).takeIf { fullContext }
             val recallQuery = "$facts\n$instruction"
-            val memories = if (fullContext) RelevantMemoryRecall.recall(characterId, recallQuery, limit = 12) else emptyList()
-            val recalledRawTimeline = if (fullContext) RelevantMemoryRecall.sourceEvidenceForPrompt(characterId, recallQuery, memories) else ""
-            val recentSharedTimeline = if (fullContext) SharedExperienceTimeline.recentContext(characterId) else ""
+            val unifiedMemory = if (fullContext) {
+                UnifiedMemoryOrchestrator.assemble(characterId, recallQuery)
+            } else {
+                UnifiedMemoryOrchestrator.empty()
+            }
+            val memories = unifiedMemory.memories
+            val recalledRawTimeline = unifiedMemory.sourceEvidence
+            val recentSharedTimeline = unifiedMemory.recentTimeline
             val userProfileSection = if (fullContext) UserProfileContext.promptSection() else ""
             val lexicon = if (fullContext) LuluRepositories.lexicon.snapshot(characterId).take(24) else emptyList()
             val allWorldBooks = if (fullContext) LuluRepositories.worldBook.snapshot() else emptyList()

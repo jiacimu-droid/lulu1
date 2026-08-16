@@ -290,12 +290,6 @@ object ProactivePerceptionRuntime {
             .joinToString("\n") { "- ${it.title}：${it.content}" }
         val commitments = lexicon.filter { it.section == LexiconSection.Promise }.take(10)
             .joinToString("\n") { "- ${it.title}：${it.content}" }
-        val memories = RelevantMemoryRecall.recall(
-            characterId = characterId,
-            query = listOf(recent.takeLast(3_000), concerns, commitments).joinToString("\n"),
-            limit = 10,
-        )
-        val memoryContext = RelevantMemoryRecall.formatForPrompt(memories)
         val previousPresence = CompanionPresenceStore.current(characterId)
         val deviceContext = buildRealWorldContext(appContext, characterId, now)
         val readingBooks = ReadingBackgroundBridge.books(appContext).take(12)
@@ -330,7 +324,6 @@ object ProactivePerceptionRuntime {
                 }
                 if (concerns.isNotBlank()) appendLine("【挂心】\n$concerns")
                 if (commitments.isNotBlank()) appendLine("【承诺与监督】\n$commitments")
-                if (memoryContext.isNotBlank()) appendLine(memoryContext)
                 if (digitalWorldContext.isNotBlank()) appendLine(digitalWorldContext)
                 if (pendingUserContext.isNotBlank()) {
                     appendLine("【尚未回复的消息】")

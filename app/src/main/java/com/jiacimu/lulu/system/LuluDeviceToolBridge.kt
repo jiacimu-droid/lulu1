@@ -16,7 +16,6 @@ import com.jiacimu.lulu.ai.ModelReply
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.CompanionActionRuntime
 import com.jiacimu.lulu.data.MigratedDomainStores
-import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.health.HealthRolePerception
 import org.json.JSONObject
 import java.time.Instant
@@ -60,7 +59,6 @@ object LuluDeviceToolBridge {
         HealthRolePerception.initialize(appContext)
         HealthRolePerception.recordLatestSleep(characterId)
         val healthContext = HealthRolePerception.context(now)
-        val livedContext = SharedExperienceTimeline.recentContext(characterId, limit = 16, characterBudget = 4_800)
         val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId)
         val onlineChatBubbleRule = if (sceneContext.contains("电话")) "" else """
             - 当前是即时通讯软件里的日常线上聊天，不是在写文章、小说段落或一次性长篇口述。
@@ -84,7 +82,6 @@ object LuluDeviceToolBridge {
                 if (healthContext.isNotBlank()) {
                     appendLine("用户健康 App 自动感知（属于用户本人，不属于角色身体）：$healthContext")
                 }
-                if (livedContext.isNotBlank()) appendLine("角色最近亲历的原始时间线：\n$livedContext")
                 if (history.isNotBlank()) appendLine("最近对话（这是已经发生完的连续过程，用来确定你此刻站在什么状态上）：\n$history")
                 previousPresence?.let { presence ->
                     appendLine("角色上一刻状态：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")

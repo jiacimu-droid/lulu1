@@ -151,6 +151,26 @@ object MomentsStore {
         val validIds = candidates.mapTo(linkedSetOf(), CharacterSettings::characterId)
         val detailScale = if (candidates.size <= 8) 1f else 0.58f
         fun scaled(value: Int): Int = (value * detailScale).toInt().coerceAtLeast(160)
+        val socialRecallQuery = buildString {
+            appendLine(authorName)
+            appendLine(momentContext(post))
+        }
+        val candidateMemoryContexts = buildMap {
+            candidates.forEach { character ->
+                put(
+                    character.characterId,
+                    UnifiedMemoryOrchestrator.assemble(
+                        characterId = character.characterId,
+                        query = socialRecallQuery,
+                        recallLimit = 6,
+                        evidenceLimit = 4,
+                        evidenceCharacterBudget = scaled(1_000),
+                        recentLimit = 6,
+                        recentCharacterBudget = scaled(1_100),
+                    ),
+                )
+            }
+        }
 
         val raw = LuluAiServices.gateway.generate(
             characterId = SOCIAL_BATCH_CHARACTER_ID,
@@ -163,18 +183,16 @@ object MomentsStore {
                 appendLine("【本轮必须全部评论的角色】")
                 candidates.forEach { character ->
                     val identity = CharacterIdentityStore.get(character.characterId)
-                    val lived = SharedExperienceTimeline.recentContext(
-                        characterId = character.characterId,
-                        limit = 6,
-                        characterBudget = scaled(620),
-                    )
+                    val memoryContext = candidateMemoryContexts[character.characterId]
                     val presence = CompanionPresenceStore.current(character.characterId)
                     appendLine("---")
                     appendLine("characterId=${character.characterId}")
                     appendLine("显示名=${character.displayName}")
                     if (identity.isNotBlank()) appendLine("身份与关系=${identity.take(scaled(760))}")
                     appendLine("人设=${character.persona.ifBlank { "按该角色现有人设自然行动。" }.take(scaled(980))}")
-                    if (lived.isNotBlank()) appendLine("近期真实经历=${lived.take(scaled(620))}")
+                    memoryContext?.compactPromptSection(characterBudget = scaled(1_900))
+                        ?.takeIf(String::isNotBlank)
+                        ?.let { appendLine(it) }
                     presence?.let {
                         appendLine(
                             "上一刻状态=${it.statusText.take(120)}；动作=${it.gesture.take(120)}；心情=${it.mood.take(80)}；没说出口=${it.innerThought.take(180)}",

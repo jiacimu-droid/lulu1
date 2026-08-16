@@ -10,7 +10,7 @@ import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluConversation
 import com.jiacimu.lulu.data.LuluGroupMember
 import com.jiacimu.lulu.data.MigratedDomainStores
-import com.jiacimu.lulu.data.SharedExperienceTimeline
+import com.jiacimu.lulu.data.UnifiedMemoryOrchestrator
 import com.jiacimu.lulu.data.UserProfileContext
 import org.json.JSONArray
 import org.json.JSONObject
@@ -115,6 +115,27 @@ internal object GroupEnsembleReplyEngine {
         val zone = ZoneId.systemDefault()
         val isCall = channel == "call"
         val userProfileContext = UserProfileContext.promptSection()
+        val ensembleRecallQuery = buildString {
+            appendLine(sceneContext)
+            appendLine(latestUserMessage.content)
+            appendLine(history.takeLast(6_000))
+        }
+        val memberMemoryContexts = buildMap {
+            validMembers.forEach { member ->
+                put(
+                    member.characterId,
+                    UnifiedMemoryOrchestrator.assemble(
+                        characterId = member.characterId,
+                        query = ensembleRecallQuery,
+                        recallLimit = 8,
+                        evidenceLimit = 6,
+                        evidenceCharacterBudget = 2_200,
+                        recentLimit = 10,
+                        recentCharacterBudget = 2_400,
+                    ),
+                )
+            }
+        }
 
         val generated = LuluAiServices.gateway.generate(
             characterId = currentSpeakerId,
@@ -148,10 +169,9 @@ internal object GroupEnsembleReplyEngine {
                 validMembers.forEach { member ->
                     val character = settings.getValue(member.characterId)
                     val label = memberLabels.getValue(member.characterId)
-                    // Do not create a separate "group memory". Every real group message is already
-                    // copied into each participating member's own durable raw timeline. Read the same
-                    // normal timeline window used by companion context instead of the old 8-item stub.
-                    val lived = SharedExperienceTimeline.recentContext(member.characterId)
+                    // Group chat has no separate memory silo. Each member is recalled through the
+                    // same semantic -> raw-evidence -> recent-timeline dispatcher as private chat.
+                    val memoryContext = memberMemoryContexts[member.characterId]
                     val presence = CompanionPresenceStore.current(member.characterId)
                     appendLine("---")
                     appendLine("characterId=${member.characterId}")
@@ -160,10 +180,9 @@ internal object GroupEnsembleReplyEngine {
                         .takeIf(String::isNotBlank)
                         ?.let { identity -> appendLine("角色身份=${identity.take(1_500)}") }
                     appendLine("角色设定=${character.persona.ifBlank { "按该角色已有设定自然表达。" }.take(1_800)}")
-                    if (lived.isNotBlank()) {
-                        appendLine("这个角色自己的原始时间线（私聊/群聊/电话/游戏/共同事件按真实发生时间连续排列）：")
-                        appendLine(lived)
-                    }
+                    memoryContext?.compactPromptSection(characterBudget = 4_200)
+                        ?.takeIf(String::isNotBlank)
+                        ?.let { appendLine(it) }
                     presence?.let { appendLine("上一刻状态=${it.statusText}；动作=${it.gesture}；心情=${it.mood}；没说出口=${it.innerThought}") }
                     appendLine(
                         CompanionActionRuntime.capabilityContext(
