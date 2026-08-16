@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T04:25:00.283433+00:00",
-  "commit": "3e6832f0d1dc5ac4a7156c93a959777c80d2fc2c",
+  "generatedAt": "2026-08-16T04:44:35.119086+00:00",
+  "commit": "f6ac44b46c4161b20eed503801bb1c91a0438eaf",
   "branch": "main",
-  "sourceFingerprint": "d362f53b230c783d622c2c8de89871b8d652777d44574adda197cd7c6ed37e11",
+  "sourceFingerprint": "1222e463b43ae214715256984bb236e64c456cc3a610756c0894932ffed898ce",
   "summary": {
     "files": 186,
-    "lines": 55921,
+    "lines": 56019,
     "symbols": 731
   },
   "symbolIndex": {
@@ -4302,7 +4302,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
       "lines": 464,
-      "sha256": "e60c38604ec6ba2dfbe83b5de35c79c04f4372a43d83c10110e2258e4051c669",
+      "sha256": "34af91a7e88f985153294b04f45e5d48c2e5137716a406fcfd14fd80b30d8e99",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
@@ -4388,8 +4388,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 322,
-      "sha256": "7af9255bd3d3a97c48623cec0978ad72ae8775625a1f2db355a4f24f122f3f67",
+      "lines": 325,
+      "sha256": "fd72d7071743fd1a25cdf5f4c773562725e8f7d655267e6d2e1c13cbda843b9d",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
@@ -4680,8 +4680,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 650,
-      "sha256": "09ccdb5c522baa373e33e72d5d7962de7d01942676385989c6b56e5daf2dbaf4",
+      "lines": 731,
+      "sha256": "c9c638cd46ee6c5f5a8b4fe8959e6fc1251c3613ae33c4dfd1f293db52b077dc",
       "symbols": []
     },
     {
@@ -5214,8 +5214,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 238,
-      "sha256": "fbdd8a4956a5cf646a6516f42c102ebd139769c272fe775354393c53d02f7ea0",
+      "lines": 250,
+      "sha256": "f6a880b50d110b74dc02d419eaa95e92abca91f68b5b084388d5cc95c53835b7",
       "symbols": [
         {
           "name": "asJson",
@@ -6035,8 +6035,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 670,
-      "sha256": "0de7821c39fc4db001d9233d3a9ae9ee258c5510a7d61c670373598da15d0081",
+      "lines": 672,
+      "sha256": "7819672c1b65d2c7b784cbb2521c4afc67c75bc5791e179a13911a45d2a113ea",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",

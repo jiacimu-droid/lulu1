@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3e6832f0d1dc5ac4a7156c93a959777c80d2fc2c`
+- 基准提交：`f6ac44b46c4161b20eed503801bb1c91a0438eaf`
 - 分支：`main`
 - 已索引文件：186
-- 已索引代码/文本行：55921
+- 已索引代码/文本行：56019
 - 已发现符号：731
 
 | 文件 | 行数 | 符号数 |
@@ -26,7 +26,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 517 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 412 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 316 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 322 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 325 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 373 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 174 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 336 | 4 |
@@ -45,7 +45,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 629 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 283 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 650 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 731 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 428 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 82 | 0 |
@@ -65,7 +65,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 82 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 66 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt` | 124 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 238 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 250 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 244 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt` | 20 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 233 | 16 |
@@ -83,7 +83,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 720 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 670 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 672 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 158 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 351 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
