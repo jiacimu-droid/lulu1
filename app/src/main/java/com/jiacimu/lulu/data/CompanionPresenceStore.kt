@@ -19,6 +19,7 @@ data class CompanionPresenceState(
     val source: String = "",
     val lastPerceptionAt: Instant? = null,
     val lastPerceptionNote: String = "",
+    val provenanceId: String = "",
 )
 
 data class CompanionPresenceMessageAnchor(
@@ -103,6 +104,7 @@ object CompanionPresenceStore {
         mood: String?,
         source: String,
         now: Instant = Instant.now(),
+        provenanceId: String = "",
     ) {
         if (characterId.isBlank()) return
         val previous = mutableStates.value[characterId]
@@ -116,6 +118,7 @@ object CompanionPresenceStore {
             source = source.take(40),
             lastPerceptionAt = if (source.contains("感知")) now else previous?.lastPerceptionAt,
             lastPerceptionNote = if (source.contains("感知")) "感知成功，已形成新的此刻状态" else previous?.lastPerceptionNote.orEmpty(),
+            provenanceId = provenanceId,
         )
         if (next.statusText.isBlank() && next.gesture.isBlank() && next.innerThought.isBlank() && next.mood.isBlank()) {
             recordPerceptionAttempt(characterId, "模型返回了空状态", now)
@@ -144,6 +147,35 @@ object CompanionPresenceStore {
     }
 
     @Synchronized
+    fun rollbackMeetingProvenance(
+        provenanceIds: Set<String>,
+        snapshots: Map<String, CompanionPresenceState?>,
+    ) {
+        if (provenanceIds.isEmpty()) return
+        val affectedCharacters = snapshots.keys + mutableStates.value.values
+            .filter { it.provenanceId in provenanceIds }
+            .map(CompanionPresenceState::characterId)
+        val nextHistories = mutableHistories.value.toMutableMap()
+        val nextStates = mutableStates.value.toMutableMap()
+        affectedCharacters.distinct().forEach { characterId ->
+            val remaining = nextHistories[characterId].orEmpty()
+                .filterNot { it.provenanceId in provenanceIds }
+            nextHistories[characterId] = remaining
+            val current = nextStates[characterId]
+            if (current?.provenanceId in provenanceIds) {
+                val restored = snapshots[characterId] ?: remaining.maxByOrNull(CompanionPresenceState::updatedAt)
+                if (restored == null) nextStates.remove(characterId) else nextStates[characterId] = restored
+            }
+            provenanceIds.forEach { provenanceId ->
+                SharedExperienceTimeline.deleteEvent("presence-$provenanceId-$characterId")
+            }
+        }
+        mutableHistories.value = nextHistories
+        mutableStates.value = nextStates
+        persist()
+    }
+
+    @Synchronized
     fun clearCharacter(characterId: String) {
         if (characterId.isBlank()) return
         mutableStates.value = mutableStates.value - characterId
@@ -163,7 +195,9 @@ object CompanionPresenceStore {
         }.joinToString("；")
         if (detail.isBlank()) return
         SharedExperienceTimeline.record(
-            eventId = "presence-${state.characterId}-${state.updatedAt.toEpochMilli()}",
+            eventId = state.provenanceId.takeIf(String::isNotBlank)
+                ?.let { "presence-$it-${state.characterId}" }
+                ?: "presence-${state.characterId}-${state.updatedAt.toEpochMilli()}",
             characterId = state.characterId,
             channel = "此刻",
             speaker = characterName,
@@ -218,6 +252,7 @@ private fun CompanionPresenceState.toJson(): JSONObject = JSONObject().apply {
     put("source", source)
     put("lastPerceptionAt", lastPerceptionAt?.toString().orEmpty())
     put("lastPerceptionNote", lastPerceptionNote)
+    put("provenanceId", provenanceId)
 }
 
 private fun JSONObject.toPresenceState(fallbackCharacterId: String): CompanionPresenceState? {
@@ -233,6 +268,7 @@ private fun JSONObject.toPresenceState(fallbackCharacterId: String): CompanionPr
         source = optString("source"),
         lastPerceptionAt = optString("lastPerceptionAt").takeIf(String::isNotBlank)?.let { runCatching { Instant.parse(it) }.getOrNull() },
         lastPerceptionNote = optString("lastPerceptionNote"),
+        provenanceId = optString("provenanceId"),
     )
 }
 
