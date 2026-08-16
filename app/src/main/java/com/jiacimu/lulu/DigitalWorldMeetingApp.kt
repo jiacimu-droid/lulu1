@@ -786,13 +786,20 @@ private fun MeetingOrderedSegments(
     ) {
         segments.forEach { segment ->
             when (segment.type) {
-                MeetingSegmentType.ACTION -> Text(
-                    text = meetingParagraphs(segment.text),
-                    color = MeetingProseColor,
-                    fontSize = 14.sp,
-                    lineHeight = 22.sp,
-                    modifier = Modifier.widthIn(max = 330.dp).padding(horizontal = 3.dp, vertical = 2.dp),
-                )
+                MeetingSegmentType.ACTION -> Surface(
+                    modifier = Modifier.widthIn(max = 330.dp),
+                    color = Color(0xFFF6F5F3),
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(1.dp, Color(0xFFE2E0DC)),
+                ) {
+                    Text(
+                        text = meetingParagraphs(segment.text),
+                        color = Color(0xFF74767B),
+                        fontSize = 15.sp,
+                        lineHeight = 24.sp,
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
+                    )
+                }
                 MeetingSegmentType.DIALOGUE -> Surface(
                     modifier = Modifier.widthIn(max = 330.dp),
                     color = if (isUser) LuluColors.Wheat else LuluColors.Card,
@@ -1125,11 +1132,13 @@ private suspend fun generateMeetingReply(
             - expandUserDraft=$expandUserDraft。为 false 时，sequence 中只能出现 speaker=character；为 true 时，应忠实还原主人草稿描述的一来一回，可以出现 user → character → user → character，不能把主人所有内容放完以后才统一写角色。
             - 扩写是默认职责：即使主人只输入很短、很口语或不完整的草稿，也必须把它整理成有文学质感、能被看见和感受到的现场，而不是照抄成干巴巴的一句话。
             - 补全主人侧时保留原意和语气：可以补足自然衔接、说话方式、草稿已经暗示的细小动作，以及主人当下能够直接感知的环境与触感；不得添加新的重大决定、强烈情绪、未暗示的亲密行为、内心想法或后果。主人没有描述的后续台词不得替主人新增。
+            - 先把主人草稿中明确写出的言语和动作按原顺序当作不可移动的时间锚点，再把角色反应插到对应原因之后。任何片段都不得提前提及、顺应或回应数组后面才发生的动作。
+            - 因果顺序必须在输出前自检：例如主人“往后退一步”导致角色原本放在她头发上的手滑开，必须先输出 user/action=往后退，再输出 character/action=手随之离开；绝不能先写角色“顺着她退开的势头”，下一项才补主人后退。
             - 如果主人草稿先要求角色做某事、明确描述角色随后做了，再继续说话，应依次输出 user/dialogue → character/action → user/dialogue；角色动作必须属于 speaker=character，绝不能塞进主人片段或角色的一整段旁白里。
             - type=action 只放该 speaker 可被观察到的动作、神态及紧邻的环境变化；type=dialogue 只放该 speaker 真正说出口的话，text 中不要添加引号。每次开口都单独作为一个 dialogue 项。
             - 只能让${character.displayName}回应主人明确写出的部分和当前自然反应；角色片段绝不能代替主人说话，主人片段也不能混进角色的 text。
             - 其他角色的既有言行是事实，但不要替其他角色继续说话或行动；他们会获得自己的回合。
-            - 地点、参与者、上一刻身体位置、拿着的物品和已经发生的动作必须连续。没有程序记录的固定家具不得凭空出现。
+            - 地点、参与者、上一刻身体位置、拿着的物品和已经发生的动作必须连续。每次移动都要检查距离、朝向、肢体可达范围和正在发生的接触：拉开距离前仍接触的手必须先被带开、松开或收回，不能悬空、瞬移或同时占据互相矛盾的位置。没有程序记录的固定家具不得凭空出现。
             - action 片段必须采用细腻的小说式描写，整轮通常三到八句；根据现场自然调动光影、声音、气味、温度、触感、空间距离等感官细节，并写清动作的起承转合、细微神态、停顿和呼吸，不要堆砌形容词。
             - 可以从${character.displayName}的贴身视角写一两句短暂、含蓄的心理波动，让反应更有生命感；这不是分析推理，也绝不能替主人编造心理、感受或反应。一个 action 片段表达一个连续画面，不要只写干巴巴的动作标签。
             - 氛围必须服务于当前关系和地点：温柔、紧张、暧昧、轻松或安静都要由既有情境自然生长，不能无缘无故切换情绪，也不能写成套路化网文腔。
