@@ -77,6 +77,7 @@ data class MeetingInvitationRecord(
     val expiresAt: Instant,
     val status: MeetingInvitationStatus = MeetingInvitationStatus.PENDING,
     val resolvedAt: Instant? = null,
+    val beforePresence: CompanionPresenceState? = null,
 )
 
 data class MeetingExperienceState(
@@ -198,6 +199,20 @@ object MeetingExperienceStore {
         )
     }.also { updateScene(it?.sessionId.orEmpty(), afterScene) }
 
+    /** Saves partial output so an interrupted process can rewind before it resumes. */
+    fun checkpointExchange(
+        exchangeId: String,
+        turnIds: List<String>,
+        scene: MeetingSceneSnapshot,
+        directorPlan: String = "",
+    ) = updateExchange(exchangeId) {
+        it.copy(
+            turnIds = turnIds.distinct(),
+            afterScene = scene,
+            directorPlan = directorPlan.take(2_000),
+        )
+    }.also { updateScene(it?.sessionId.orEmpty(), scene) }
+
     fun failExchange(exchangeId: String, message: String) = updateExchange(exchangeId) {
         it.copy(status = MeetingExchangeStatus.FAILED, error = message.trim().ifBlank { "生成失败" }.take(500))
     }
@@ -206,6 +221,13 @@ object MeetingExperienceStore {
 
     fun exchangeForTurn(turn: MeetingTurn): MeetingExchangeRecord? =
         turn.exchangeId?.let(::exchange) ?: mutable.value.exchanges.firstOrNull { turn.id in it.turnIds }
+
+    fun discardExchange(exchangeId: String) {
+        synchronized(lock) {
+            mutable.value = mutable.value.copy(exchanges = mutable.value.exchanges.filterNot { it.id == exchangeId })
+            persistLocked()
+        }
+    }
 
     fun pendingForSession(sessionId: String): List<MeetingExchangeRecord> = mutable.value.exchanges
         .filter { it.sessionId == sessionId && it.status in setOf(MeetingExchangeStatus.PENDING, MeetingExchangeStatus.RUNNING, MeetingExchangeStatus.FAILED) }
@@ -257,6 +279,7 @@ object MeetingExperienceStore {
             message = message.trim().take(500),
             createdAt = now,
             expiresAt = now.plusSeconds(24 * 60 * 60),
+            beforePresence = CompanionPresenceStore.current(characterId),
         )
         synchronized(lock) {
             mutable.value = mutable.value.copy(
@@ -277,6 +300,10 @@ object MeetingExperienceStore {
 
     fun rejectInvitation(invitationId: String, now: Instant = Instant.now()): MeetingInvitationRecord? {
         val resolved = resolveInvitation(invitationId, MeetingInvitationStatus.REJECTED, now) ?: return null
+        CompanionPresenceStore.rollbackMeetingProvenance(
+            setOf("meeting-invite-${resolved.id}"),
+            mapOf(resolved.characterId to resolved.beforePresence),
+        )
         SharedExperienceTimeline.record(
             eventId = "meeting-invite-${resolved.id}-rejected",
             characterId = resolved.characterId,
@@ -302,6 +329,10 @@ object MeetingExperienceStore {
             persistLocked()
         }
         expired.forEach { invite ->
+            CompanionPresenceStore.rollbackMeetingProvenance(
+                setOf("meeting-invite-${invite.id}"),
+                mapOf(invite.characterId to invite.beforePresence),
+            )
             SharedExperienceTimeline.record(
                 eventId = "meeting-invite-${invite.id}-expired",
                 characterId = invite.characterId,
@@ -322,7 +353,7 @@ object MeetingExperienceStore {
         var resolved: MeetingInvitationRecord? = null
         synchronized(lock) {
             val current = mutable.value.invitations.firstOrNull { it.id == invitationId } ?: return null
-            if (current.status != MeetingInvitationStatus.PENDING) return current
+            if (current.status != MeetingInvitationStatus.PENDING) return null
             resolved = current.copy(status = status, resolvedAt = now)
             mutable.value = mutable.value.copy(
                 invitations = mutable.value.invitations.map { if (it.id == invitationId) resolved!! else it }
@@ -523,6 +554,7 @@ private fun MeetingInvitationRecord.toJson() = JSONObject()
     .put("expiresAt", expiresAt.toString())
     .put("status", status.name)
     .put("resolvedAt", resolvedAt?.toString().orEmpty())
+    .put("beforePresence", beforePresence.toNullableJson())
 
 private fun JSONObject.toInvitation(): MeetingInvitationRecord? {
     val id = optString("id")
@@ -537,6 +569,7 @@ private fun JSONObject.toInvitation(): MeetingInvitationRecord? {
         expiresAt = instantOrNow("expiresAt"),
         status = runCatching { MeetingInvitationStatus.valueOf(optString("status")) }.getOrDefault(MeetingInvitationStatus.PENDING),
         resolvedAt = optString("resolvedAt").takeIf(String::isNotBlank)?.let { runCatching { Instant.parse(it) }.getOrNull() },
+        beforePresence = optJSONObject("beforePresence")?.toPresenceSnapshot(),
     )
 }
 
