@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T14:42:43.800206+00:00",
-  "commit": "757e9ba3ecf360772479aab432dc47ffb10fbd11",
+  "generatedAt": "2026-08-16T14:43:05.109836+00:00",
+  "commit": "dee8cf198d6e23195fd8feaa1a071886d1f6768a",
   "branch": "main",
-  "sourceFingerprint": "966b412157d620184bec09f01994d7d05841c997d59f72c012eeb8db2e1233ad",
+  "sourceFingerprint": "1a76439b43e6ee34a8f514f09f0ccae6f10b1dd8b10623c08cb06a45ddd35aff",
   "summary": {
     "files": 187,
-    "lines": 57362,
+    "lines": 57375,
     "symbols": 751
   },
   "symbolIndex": {
@@ -1349,7 +1349,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 460
+        "line": 473
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -5484,8 +5484,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 644,
-      "sha256": "5ec72cfa6837fd276a5cc7fd85db75ac7e46424328c8c520d6d834cc1a0ad81e",
+      "lines": 657,
+      "sha256": "5ef5f6b712fc1bbfd2e1f6b838671c7560da189f455d2b0ddac36cc55fa0df0f",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -5605,7 +5605,7 @@
         },
         {
           "name": "clearCharacter",
-          "line": 460
+          "line": 473
         }
       ]
     },
