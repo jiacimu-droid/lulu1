@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T10:15:43.331996+00:00",
-  "commit": "7c9a888ab552d4a74f837d61ba27a440468a3f36",
+  "generatedAt": "2026-08-16T10:24:29.358183+00:00",
+  "commit": "c0d161b092c0b03304525e3f7168064356d20611",
   "branch": "main",
-  "sourceFingerprint": "408b4d83e724e59e891d9fb85995e98602bdc34c53971c055b64a27547d31bce",
+  "sourceFingerprint": "3c098907f7765c6a6298af2b3f4e7786282c19e7ec344f797d3b40d78b3be34f",
   "summary": {
     "files": 186,
-    "lines": 56274,
-    "symbols": 731
+    "lines": 56375,
+    "symbols": 733
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -45,7 +45,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 870
+        "line": 874
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -887,19 +887,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 733
+        "line": 737
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 745
+        "line": 749
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 860
+        "line": 864
       }
     ],
     "ScopedModelSelections": [
@@ -1349,7 +1349,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 410
+        "line": 398
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -1581,7 +1581,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 226
+        "line": 230
       }
     ],
     "InMemoryLexiconRepository": [
@@ -1671,25 +1671,25 @@
     "pendingMessageCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 379
+        "line": 383
       }
     ],
     "pendingTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 381
+        "line": 385
       }
     ],
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 590
+        "line": 602
       }
     ],
     "grams": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 635
+        "line": 647
       }
     ],
     "ApiUsageSource": [
@@ -2230,10 +2230,16 @@
         "line": 17
       }
     ],
+    "sourceEvidenceForPrompt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
+        "line": 125
+      }
+    ],
     "formatForPrompt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 115
+        "line": 177
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -2288,34 +2294,40 @@
         "line": 55
       }
     ],
-    "deleteEvent": [
+    "eventsByIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
         "line": 157
       }
     ],
-    "deleteConversationMessage": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 178
-      }
-    ],
-    "deleteConversationData": [
+    "deleteEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
         "line": 189
       }
     ],
+    "deleteConversationMessage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
+        "line": 210
+      }
+    ],
+    "deleteConversationData": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
+        "line": 221
+      }
+    ],
     "recentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 209
+        "line": 241
       }
     ],
     "remember": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 227
+        "line": 259
       }
     ],
     "UserDataUpgradeGuard": [
@@ -4782,8 +4794,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 878,
-      "sha256": "a0c3e994d5dfd80145729e6f37a421041500f0db256fa99afc4c4463de45fc5b",
+      "lines": 882,
+      "sha256": "5d79cc5a7b35e9ec09e426901ba61254bd895f97bf56e3a73115c51aa44475ff",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -4871,19 +4883,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 733
+          "line": 737
         },
         {
           "name": "consumeEvent",
-          "line": 745
+          "line": 749
         },
         {
           "name": "LuluAiServices",
-          "line": 860
+          "line": 864
         },
         {
           "name": "initialize",
-          "line": 870
+          "line": 874
         }
       ]
     },
@@ -5366,8 +5378,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 534,
-      "sha256": "7de7d0515fdbd7f9958567ce826986ee238ae57bc697a1007c29fa171e06e292",
+      "lines": 522,
+      "sha256": "1ee8b7b402ada3853006ef1f8a07b0067e9ffe5e2dc2c60d8ac3ca6ed6ba2fc4",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -5459,7 +5471,7 @@
         },
         {
           "name": "clearCharacter",
-          "line": 410
+          "line": 398
         }
       ]
     },
@@ -5562,8 +5574,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 671,
-      "sha256": "2b39fc754c2f94619a0439df57c7af622012f756ec2563abcf21f803220d4114",
+      "lines": 683,
+      "sha256": "42d1b7c23fe2b142ccfea11c00ecd92b0a1c88fcf25971e08da6b1a19b7ccad0",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -5575,23 +5587,23 @@
         },
         {
           "name": "snapshot",
-          "line": 226
+          "line": 230
         },
         {
           "name": "pendingMessageCount",
-          "line": 379
+          "line": 383
         },
         {
           "name": "pendingTimelineEvents",
-          "line": 381
+          "line": 385
         },
         {
           "name": "MemoryDebugState",
-          "line": 590
+          "line": 602
         },
         {
           "name": "grams",
-          "line": 635
+          "line": 647
         }
       ]
     },
@@ -6101,16 +6113,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-      "lines": 351,
-      "sha256": "1567623a58df84ff58aa9de31fb6dd74e3346f0425528691df8f50ec3d9c10ba",
+      "lines": 416,
+      "sha256": "0dcdb99f2532cb79600080395c49f2cd7b53575cf6e225f5e61aae58f7817759",
       "symbols": [
         {
           "name": "RelevantMemoryRecall",
           "line": 17
         },
         {
+          "name": "sourceEvidenceForPrompt",
+          "line": 125
+        },
+        {
           "name": "formatForPrompt",
-          "line": 115
+          "line": 177
         }
       ]
     },
@@ -6135,8 +6151,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 320,
-      "sha256": "0cc85fca472a3c279085ded51897b7e1032c302423144e0f6e7936ffde2c58d1",
+      "lines": 352,
+      "sha256": "907c45fec392c210b0d8646302db7bd09d2866701e8135fec18ed9cf7a150731",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -6171,24 +6187,28 @@
           "line": 153
         },
         {
-          "name": "deleteEvent",
+          "name": "eventsByIds",
           "line": 157
         },
         {
-          "name": "deleteConversationMessage",
-          "line": 178
-        },
-        {
-          "name": "deleteConversationData",
+          "name": "deleteEvent",
           "line": 189
         },
         {
+          "name": "deleteConversationMessage",
+          "line": 210
+        },
+        {
+          "name": "deleteConversationData",
+          "line": 221
+        },
+        {
           "name": "recentContext",
-          "line": 209
+          "line": 241
         },
         {
           "name": "remember",
-          "line": 227
+          "line": 259
         }
       ]
     },
