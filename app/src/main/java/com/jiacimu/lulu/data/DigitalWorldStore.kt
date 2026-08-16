@@ -452,7 +452,9 @@ object DigitalWorldStore {
         val explicitTurnIds = records.flatMap(MeetingExchangeRecord::turnIds).toSet()
         val result = synchronized(lock) {
             val current = mutable.value.meetings.firstOrNull { it.id == sessionId } ?: return 0
-            val removedTurns = current.turns.filter { it.exchangeId in exchangeIds || it.id in explicitTurnIds }
+            val removedTurns = current.turns.filter { turn ->
+                turn.exchangeId?.let { it in exchangeIds } == true || turn.id in explicitTurnIds
+            }
             val updated = current.copy(
                 location = restoredScene.location,
                 turns = current.turns.filterNot { it in removedTurns },
