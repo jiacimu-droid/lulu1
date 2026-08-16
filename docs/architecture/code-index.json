@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T10:24:29.358183+00:00",
-  "commit": "c0d161b092c0b03304525e3f7168064356d20611",
+  "generatedAt": "2026-08-16T10:25:17.499944+00:00",
+  "commit": "95931543ef0ddb527af5bf41dae85e3c6435f035",
   "branch": "main",
-  "sourceFingerprint": "3c098907f7765c6a6298af2b3f4e7786282c19e7ec344f797d3b40d78b3be34f",
+  "sourceFingerprint": "3ca6e61f9da4a02ed1ec9d93cec6c821d96e61a55a39f62f72b19d4435eaf537",
   "summary": {
     "files": 186,
-    "lines": 56375,
-    "symbols": 733
+    "lines": 56390,
+    "symbols": 734
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -1671,25 +1671,31 @@
     "pendingMessageCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 383
+        "line": 387
       }
     ],
     "pendingTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 385
+        "line": 389
       }
     ],
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 602
+        "line": 606
       }
     ],
     "grams": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 647
+        "line": 651
+      }
+    ],
+    "ids": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
+        "line": 677
       }
     ],
     "ApiUsageSource": [
@@ -5574,8 +5580,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 683,
-      "sha256": "42d1b7c23fe2b142ccfea11c00ecd92b0a1c88fcf25971e08da6b1a19b7ccad0",
+      "lines": 698,
+      "sha256": "9962969f9514b6421942f3ee2edb2221ddad08b4aa201e61bebffa9bee87e1a2",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -5591,19 +5597,23 @@
         },
         {
           "name": "pendingMessageCount",
-          "line": 383
+          "line": 387
         },
         {
           "name": "pendingTimelineEvents",
-          "line": 385
+          "line": 389
         },
         {
           "name": "MemoryDebugState",
-          "line": 602
+          "line": 606
         },
         {
           "name": "grams",
-          "line": 647
+          "line": 651
+        },
+        {
+          "name": "ids",
+          "line": 677
         }
       ]
     },
