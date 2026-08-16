@@ -756,7 +756,7 @@ private fun MeetingSceneCard(
     }
     Surface(
         modifier = Modifier.fillMaxWidth().then(longPressModifier),
-        color = Color(0xFFFCFCFC),
+        color = Color.White,
         shape = RoundedCornerShape(22.dp),
         border = BorderStroke(1.dp, Color(0xFF242424)),
     ) {
@@ -811,7 +811,7 @@ private fun MeetingDialogueRow(
     val bubble: @Composable () -> Unit = {
         Surface(
             modifier = Modifier.widthIn(max = 265.dp),
-            color = if (isUser) Color(0xFF242424) else Color.White,
+            color = if (isUser) Color(0xFF242424) else Color(0xFFFCFCFC),
             contentColor = if (isUser) Color.White else Color(0xFF242424),
             shape = if (isUser) {
                 RoundedCornerShape(topStart = 19.dp, topEnd = 6.dp, bottomEnd = 19.dp, bottomStart = 19.dp)
