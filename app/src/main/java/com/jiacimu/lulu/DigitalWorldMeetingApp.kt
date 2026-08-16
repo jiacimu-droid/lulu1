@@ -150,7 +150,7 @@ fun DigitalWorldMeetingApp(
                                     LuluProfileAvatar(
                                         imageUri = character.avatarUri,
                                         fallback = character.displayName.take(1).ifBlank { "角" },
-                                        size = 32,
+                                        size = 48,
                                     )
                                 }
                             }
@@ -159,7 +159,7 @@ fun DigitalWorldMeetingApp(
                                     MigratedDomainStores.characters.get(it).displayName
                                 },
                                 color = LuluColors.Ink,
-                                fontSize = 17.sp,
+                                fontSize = 19.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
