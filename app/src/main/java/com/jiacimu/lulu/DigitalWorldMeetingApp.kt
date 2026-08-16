@@ -87,19 +87,17 @@ fun DigitalWorldMeetingApp(
     var pendingDeleteSession by remember { mutableStateOf<MeetingSession?>(null) }
     var locationDraft by remember { mutableStateOf("") }
 
-    val activeSession = world.meetings.firstOrNull { it.id == activeSessionId }
+    val unfinishedSessionId = if (invitedCharacterId.isNullOrBlank()) {
+        world.meetings.lastOrNull { it.endedAt == null }?.id
+    } else {
+        null
+    }
+    val resolvedActiveSessionId = activeSessionId ?: unfinishedSessionId
+    val activeSession = world.meetings.firstOrNull { it.id == resolvedActiveSessionId }
     val selectedArchiveId = ScopedModelSelections.selectedArchiveId(ScopedModelSelections.MEETING, library)
     val selectedArchiveLabel = selectedArchiveId?.let { id ->
         library.archives.firstOrNull { it.id == id }?.let(LuluAiServices.connectionStore::archiveLabel)
     }.orEmpty().ifBlank { "选择见面模型" }
-
-    LaunchedEffect(Unit) {
-        if (invitedCharacterId.isNullOrBlank()) {
-            world.meetings.lastOrNull { it.endedAt == null }?.let { unfinished ->
-                activeSessionId = unfinished.id
-            }
-        }
-    }
 
     LaunchedEffect(invitedCharacterId) {
         val inviterId = invitedCharacterId?.takeIf(String::isNotBlank) ?: return@LaunchedEffect
@@ -478,47 +476,47 @@ private fun MeetingRoom(
 ) {
     Column(modifier) {
         Surface(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 6.dp),
             color = LuluColors.Card,
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(18.dp),
             border = BorderStroke(1.dp, LuluColors.Border),
-            shadowElevation = 1.dp,
         ) {
             Row(
-                Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 14.dp),
+                Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                     session.participantIds.take(3).forEach { characterId ->
                         val character = MigratedDomainStores.characters.get(characterId)
                         LuluProfileAvatar(
                             imageUri = character.avatarUri,
                             fallback = character.displayName.take(1).ifBlank { "角" },
-                            size = 44,
+                            size = 36,
                         )
                     }
                 }
-                Spacer(Modifier.width(12.dp))
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(session.location, fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    Text(
-                        session.participantIds.joinToString("、") { MigratedDomainStores.characters.get(it).displayName },
-                        color = LuluColors.Muted,
-                        fontSize = 12.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        if (session.reality == MeetingReality.DIGITAL_WORLD) "数字身体感知已连接" else "现实场景演绎中",
-                        color = LuluColors.BlueGray,
-                        fontSize = 10.sp,
-                    )
-                }
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    session.participantIds.joinToString("、") {
+                        MigratedDomainStores.characters.get(it).displayName
+                    },
+                    modifier = Modifier.weight(1f),
+                    color = LuluColors.Ink,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
                 if (!viewOnly) {
+                    Spacer(Modifier.width(8.dp))
                     FilledTonalButton(
                         onClick = onEnd,
-                        contentPadding = PaddingValues(horizontal = 13.dp, vertical = 8.dp),
-                    ) { Text("结束", fontSize = 12.sp) }
+                        modifier = Modifier.height(36.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                    ) {
+                        Text("结束", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    }
                 }
             }
         }
@@ -543,7 +541,7 @@ private fun MeetingRoom(
                     Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
                         CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp, color = LuluColors.BlueGray)
                         Spacer(Modifier.width(9.dp))
-                        Text("对方正在靠近这一刻…", color = LuluColors.Muted, fontSize = 12.sp)
+                        Text("对方正在回应…", color = LuluColors.Muted, fontSize = 12.sp)
                     }
                 }
             }
@@ -620,13 +618,6 @@ private fun MeetingTurnCard(
                     horizontalAlignment = Alignment.End,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Text(
-                        turn.speakerName,
-                        color = LuluColors.Ink,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(end = 3.dp),
-                    )
                     MeetingOrderedSegments(turn.orderedSegments(), isUser = true)
                 }
                 Spacer(Modifier.width(10.dp))
@@ -647,20 +638,6 @@ private fun MeetingTurnCard(
                 )
                 Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            turn.speakerName,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 16.sp,
-                            color = LuluColors.Ink,
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            turn.occurredAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm")),
-                            color = LuluColors.Muted,
-                            fontSize = 10.sp,
-                        )
-                    }
                     MeetingOrderedSegments(turn.orderedSegments(), isUser = false)
                 }
             }
