@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T15:40:14.705855+00:00",
-  "commit": "1d4902443a03422873f4cda7336aad70070ef645",
+  "generatedAt": "2026-08-16T15:58:23.179101+00:00",
+  "commit": "de8b813f30e451a0e3cb1c6e53fc370687caa727",
   "branch": "main",
-  "sourceFingerprint": "b22fa1aece037a68cbf5c277f255099f5ddfa50936c7df43d150e65e32a0c205",
+  "sourceFingerprint": "45b54c497aae892f144837c1ab0673a90f6be85313a63d5ef1756a607141c27f",
   "summary": {
-    "files": 187,
-    "lines": 57530,
-    "symbols": 752
+    "files": 188,
+    "lines": 58053,
+    "symbols": 785
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -106,6 +106,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
         "line": 28
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 105
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
@@ -1430,6 +1434,10 @@
         "line": 157
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 36
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
         "line": 11
       }
@@ -1858,6 +1866,192 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt",
         "line": 101
+      }
+    ],
+    "MeetingProseLength": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 11
+      }
+    ],
+    "MeetingProseStyle": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 13
+      }
+    ],
+    "MeetingWritingPreferences": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 15
+      }
+    ],
+    "MeetingParticipantSceneState": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 20
+      }
+    ],
+    "MeetingSceneSnapshot": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 29
+      }
+    ],
+    "MeetingExchangeStatus": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 51
+      }
+    ],
+    "MeetingExchangeRecord": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 53
+      }
+    ],
+    "MeetingInvitationStatus": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 68
+      }
+    ],
+    "MeetingInvitationRecord": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 70
+      }
+    ],
+    "MeetingExperienceState": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 81
+      }
+    ],
+    "MeetingExperienceStore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 93
+      }
+    ],
+    "writingPreferences": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 111
+      }
+    ],
+    "updateWriting": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 113
+      }
+    ],
+    "sceneFor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 125
+      }
+    ],
+    "updateScene": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 132
+      }
+    ],
+    "beginExchange": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 140
+      }
+    ],
+    "markRunning": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 166
+      }
+    ],
+    "completeExchange": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 168
+      }
+    ],
+    "failExchange": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 185
+      }
+    ],
+    "exchange": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 189
+      }
+    ],
+    "exchangeForTurn": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 191
+      }
+    ],
+    "pendingForSession": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 194
+      }
+    ],
+    "completedForSession": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 198
+      }
+    ],
+    "recordsFrom": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 203
+      }
+    ],
+    "removeRecords": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 209
+      }
+    ],
+    "removeSession": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 220
+      }
+    ],
+    "createInvitation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 230
+      }
+    ],
+    "invitation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 253
+      }
+    ],
+    "acceptInvitation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 258
+      }
+    ],
+    "rejectInvitation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 261
+      }
+    ],
+    "expireInvitations": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 274
       }
     ],
     "vectorEnabled": [
@@ -5861,6 +6055,145 @@
       "lines": 10,
       "sha256": "92ed2091ff91464f4d1a5efc217b91c0dc7f7ad3507957f3018e8ca3a97b190f",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+      "lines": 523,
+      "sha256": "3e71671d02bf1fbb793a6c930fbc89977ee32d15434aa105d77bf91227343a6b",
+      "symbols": [
+        {
+          "name": "MeetingProseLength",
+          "line": 11
+        },
+        {
+          "name": "MeetingProseStyle",
+          "line": 13
+        },
+        {
+          "name": "MeetingWritingPreferences",
+          "line": 15
+        },
+        {
+          "name": "MeetingParticipantSceneState",
+          "line": 20
+        },
+        {
+          "name": "MeetingSceneSnapshot",
+          "line": 29
+        },
+        {
+          "name": "promptSection",
+          "line": 36
+        },
+        {
+          "name": "MeetingExchangeStatus",
+          "line": 51
+        },
+        {
+          "name": "MeetingExchangeRecord",
+          "line": 53
+        },
+        {
+          "name": "MeetingInvitationStatus",
+          "line": 68
+        },
+        {
+          "name": "MeetingInvitationRecord",
+          "line": 70
+        },
+        {
+          "name": "MeetingExperienceState",
+          "line": 81
+        },
+        {
+          "name": "MeetingExperienceStore",
+          "line": 93
+        },
+        {
+          "name": "initialize",
+          "line": 105
+        },
+        {
+          "name": "writingPreferences",
+          "line": 111
+        },
+        {
+          "name": "updateWriting",
+          "line": 113
+        },
+        {
+          "name": "sceneFor",
+          "line": 125
+        },
+        {
+          "name": "updateScene",
+          "line": 132
+        },
+        {
+          "name": "beginExchange",
+          "line": 140
+        },
+        {
+          "name": "markRunning",
+          "line": 166
+        },
+        {
+          "name": "completeExchange",
+          "line": 168
+        },
+        {
+          "name": "failExchange",
+          "line": 185
+        },
+        {
+          "name": "exchange",
+          "line": 189
+        },
+        {
+          "name": "exchangeForTurn",
+          "line": 191
+        },
+        {
+          "name": "pendingForSession",
+          "line": 194
+        },
+        {
+          "name": "completedForSession",
+          "line": 198
+        },
+        {
+          "name": "recordsFrom",
+          "line": 203
+        },
+        {
+          "name": "removeRecords",
+          "line": 209
+        },
+        {
+          "name": "removeSession",
+          "line": 220
+        },
+        {
+          "name": "createInvitation",
+          "line": 230
+        },
+        {
+          "name": "invitation",
+          "line": 253
+        },
+        {
+          "name": "acceptInvitation",
+          "line": 258
+        },
+        {
+          "name": "rejectInvitation",
+          "line": 261
+        },
+        {
+          "name": "expireInvitations",
+          "line": 274
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
