@@ -637,7 +637,12 @@ private fun MeetingTurnCard(
                     size = 46,
                 )
                 Spacer(Modifier.width(10.dp))
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        turn.occurredAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm")),
+                        color = LuluColors.Muted,
+                        fontSize = 10.sp,
+                    )
                     MeetingOrderedSegments(turn.orderedSegments(), isUser = false)
                 }
             }
