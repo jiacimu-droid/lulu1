@@ -288,6 +288,9 @@ object DigitalWorldStore {
         }
     }
 
+    fun meetingLocationOptions(session: MeetingSession): List<String> =
+        if (session.reality == MeetingReality.DIGITAL_WORLD) listOf("世界入口", "云眠原") else emptyList()
+
     fun moveMeeting(sessionId: String, destination: String, now: Instant = Instant.now()): MeetingSession {
         val cleanDestination = destination.trim()
         require(cleanDestination.isNotBlank()) { "目的地不能为空" }
@@ -295,7 +298,7 @@ object DigitalWorldStore {
             val current = mutable.value.meetings.firstOrNull { it.id == sessionId } ?: error("见面记录不存在")
             require(current.endedAt == null) { "见面已经结束" }
             require(current.reality == MeetingReality.DIGITAL_WORLD) { "现实场景见面不能使用数字世界移动" }
-            require(cleanDestination == "云眠原" || cleanDestination == "世界入口") { "当前共享世界还没有开放这个地点" }
+            require(cleanDestination in meetingLocationOptions(current)) { "当前共享世界还没有开放这个地点" }
             val systemTurn = MeetingTurn(
                 id = UUID.randomUUID().toString(),
                 speakerId = "system",
@@ -400,7 +403,10 @@ object DigitalWorldStore {
         appendLine("参与者：${session.participantIds.joinToString { MigratedDomainStores.characters.get(it).displayName }}")
         if (session.reality == MeetingReality.DIGITAL_WORLD) {
             appendLine("世界规则：现实身体留在外部；主人和现实角色使用可传递触觉、温度、重量与动作的数字投影身体；数字生命使用原生数字身体。")
-            appendLine("云眠原规则：感官云质可以承托身体，躺下时缓慢下陷并回暖，起身后凹痕保留片刻；它不是现实水汽。")
+            appendLine("可用地点：")
+            appendLine("- 世界入口：稳定的抵达与离开节点，白光投影在这里形成清晰的数字身体。")
+            appendLine("- 云眠原：由感官云质承托身体的共享区域，可以躺卧、缓慢下陷、感受回暖与重量，起身后凹痕会保留片刻；它不是现实水汽。")
+            appendLine("地点移动规则：没有固定按钮。用户或角色在见面中明确提出前往某个可用地点时，应通过 moveTo 请求，由程序校验并永久更新会话地点。")
         } else {
             appendLine("现实边界：这是双方共同进行的现实场景演绎。场景内体验保持连贯，但不得写成用户物理现实中已经发生的事实。")
         }

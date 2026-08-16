@@ -35,6 +35,7 @@ private data class MeetingReply(
     val gesture: String,
     val innerThought: String,
     val mood: String,
+    val moveTo: String,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -184,10 +185,6 @@ fun DigitalWorldMeetingApp(
                 generating = generating,
                 errorText = errorText,
                 onInputChanged = { input = it.take(2_000) },
-                onCloudMeadow = {
-                    runCatching { DigitalWorldStore.moveMeeting(activeSession.id, "云眠原") }
-                        .onFailure { errorText = it.message.orEmpty() }
-                },
                 onSend = {
                     val userText = input.trim()
                     if (userText.isNotBlank() && !generating) {
@@ -485,47 +482,52 @@ private fun MeetingRoom(
     generating: Boolean,
     errorText: String,
     onInputChanged: (String) -> Unit,
-    onCloudMeadow: () -> Unit,
     onSend: () -> Unit,
     onEnd: () -> Unit,
 ) {
     Column(modifier) {
         Surface(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
-            color = LuluColors.CardStrong,
-            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
+            color = LuluColors.Card,
+            shape = RoundedCornerShape(24.dp),
             border = BorderStroke(1.dp, LuluColors.Border),
+            shadowElevation = 1.dp,
         ) {
-            Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Surface(color = LuluColors.Paper, shape = RoundedCornerShape(12.dp)) {
-                        Icon(
-                            if (session.reality == MeetingReality.DIGITAL_WORLD) Icons.Outlined.Cloud else Icons.Outlined.Place,
-                            null,
-                            tint = LuluColors.BlueGray,
-                            modifier = Modifier.padding(8.dp).size(19.dp),
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    session.participantIds.take(3).forEach { characterId ->
+                        val character = MigratedDomainStores.characters.get(characterId)
+                        LuluProfileAvatar(
+                            avatarUri = character.avatarUri,
+                            fallback = character.displayName.take(1).ifBlank { "角" },
+                            size = 44,
                         )
                     }
-                    Spacer(Modifier.width(10.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(session.location, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                        Text(
-                            session.participantIds.joinToString { MigratedDomainStores.characters.get(it).displayName },
-                            color = LuluColors.Muted,
-                            fontSize = 11.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                    if (!viewOnly) TextButton(onClick = onEnd) { Text("结束", fontSize = 12.sp) }
                 }
-                if (!viewOnly && session.reality == MeetingReality.DIGITAL_WORLD && session.location != "云眠原") {
-                    AssistChip(
-                        onClick = onCloudMeadow,
-                        label = { Text("前往云眠原", fontSize = 12.sp) },
-                        leadingIcon = { Icon(Icons.Outlined.Cloud, null, Modifier.size(16.dp)) },
-                        modifier = Modifier.align(Alignment.End),
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(session.location, fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    Text(
+                        session.participantIds.joinToString("、") { MigratedDomainStores.characters.get(it).displayName },
+                        color = LuluColors.Muted,
+                        fontSize = 12.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
+                    Text(
+                        if (session.reality == MeetingReality.DIGITAL_WORLD) "数字身体感知已连接" else "现实场景演绎中",
+                        color = LuluColors.BlueGray,
+                        fontSize = 10.sp,
+                    )
+                }
+                if (!viewOnly) {
+                    FilledTonalButton(
+                        onClick = onEnd,
+                        contentPadding = PaddingValues(horizontal = 13.dp, vertical = 8.dp),
+                    ) { Text("结束", fontSize = 12.sp) }
                 }
             }
         }
@@ -543,7 +545,7 @@ private fun MeetingRoom(
                 }
             }
             items(session.turns, key = MeetingTurn::id) { turn ->
-                MeetingTurnCard(turn, turn.speakerId == null)
+                MeetingTurnCard(turn)
             }
             if (generating) {
                 item {
@@ -594,17 +596,84 @@ private fun MeetingRoom(
     }
 }
 @Composable
-private fun MeetingTurnCard(turn: MeetingTurn, user: Boolean) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = if (user) LuluColors.CardStrong else LuluColors.Card,
-        shape = RoundedCornerShape(20.dp),
-        border = BorderStroke(1.dp, LuluColors.Border),
-    ) {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-            Text(turn.speakerName, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = LuluColors.BlueGray)
-            if (turn.sceneText.isNotBlank()) Text(turn.sceneText, color = LuluColors.Muted, fontSize = 13.sp, lineHeight = 19.sp)
-            if (turn.dialogue.isNotBlank()) Text(turn.dialogue, fontSize = 16.sp, lineHeight = 23.sp)
+private fun MeetingTurnCard(turn: MeetingTurn) {
+    when {
+        turn.speakerId == "system" -> {
+            Surface(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp),
+                color = LuluColors.CardStrong,
+                shape = RoundedCornerShape(16.dp),
+            ) {
+                Text(
+                    turn.sceneText,
+                    color = LuluColors.Muted,
+                    fontSize = 13.sp,
+                    lineHeight = 20.sp,
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                )
+            }
+        }
+        turn.speakerId == null -> {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                Surface(
+                    modifier = Modifier.widthIn(max = 330.dp),
+                    color = LuluColors.CardStrong,
+                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 6.dp, bottomEnd = 20.dp, bottomStart = 20.dp),
+                    border = BorderStroke(1.dp, LuluColors.Border),
+                ) {
+                    Column(Modifier.padding(horizontal = 15.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Text(turn.speakerName, color = LuluColors.BlueGray, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                        Text(turn.sceneText, fontSize = 16.sp, lineHeight = 23.sp)
+                    }
+                }
+            }
+        }
+        else -> {
+            val character = MigratedDomainStores.characters.get(turn.speakerId)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                LuluProfileAvatar(
+                    avatarUri = character.avatarUri,
+                    fallback = character.displayName.take(1).ifBlank { "角" },
+                    size = 46,
+                )
+                Spacer(Modifier.width(10.dp))
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(turn.speakerName, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = LuluColors.BlueGray)
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            turn.occurredAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm")),
+                            color = LuluColors.Muted,
+                            fontSize = 10.sp,
+                        )
+                    }
+                    if (turn.sceneText.isNotBlank()) {
+                        Text(
+                            turn.sceneText,
+                            color = LuluColors.Muted,
+                            fontSize = 14.sp,
+                            lineHeight = 21.sp,
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                        )
+                    }
+                    if (turn.dialogue.isNotBlank()) {
+                        Surface(
+                            color = LuluColors.Card,
+                            shape = RoundedCornerShape(topStart = 6.dp, topEnd = 20.dp, bottomEnd = 20.dp, bottomStart = 20.dp),
+                            border = BorderStroke(1.dp, LuluColors.Border),
+                            shadowElevation = 1.dp,
+                        ) {
+                            Text(
+                                "“${turn.dialogue.trim().trim('“', '”', '"')}”",
+                                fontSize = 16.sp,
+                                lineHeight = 24.sp,
+                                modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp),
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -663,6 +732,14 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
     for (characterId in session.participantIds) {
         val character = MigratedDomainStores.characters.get(characterId)
         val reply = generateMeetingReply(session, characterId, userText, false).getOrThrow()
+        val requestedDestination = reply.moveTo.takeIf {
+            it.isNotBlank() &&
+                it != session.location &&
+                it in DigitalWorldStore.meetingLocationOptions(session)
+        }
+        if (requestedDestination != null) {
+            session = DigitalWorldStore.moveMeeting(session.id, requestedDestination)
+        }
         val replyAt = Instant.now()
         val turn = MeetingTurn(UUID.randomUUID().toString(), characterId, character.displayName, reply.sceneText, reply.dialogue, replyAt)
         session = DigitalWorldStore.appendMeetingTurn(sessionId, turn)
@@ -702,12 +779,15 @@ private suspend fun generateMeetingReply(
         instruction = """
             你正在以${character.displayName}的身份参与一场连续见面。只推进当前一小步，不要一次写完整故事，不要总结历史。
             只返回一个 JSON 对象，不要代码块：
-            {"sceneText":"这一刻可被所有参与者观察到的环境变化和你的动作神态","dialogue":"你真正说出口的话，可以为空","statusText":"简短当前状态","gesture":"延续到下一刻的姿态","innerThought":"没有说出口的第一人称心声，可为空","mood":"简短心情"}
+            {"sceneText":"这一刻可被所有参与者观察到的环境变化、你的动作神态与空间细节","dialogue":"你真正说出口的话，可以为空","moveTo":"明确要前往的可用地点或空字符串","statusText":"简短当前状态","gesture":"延续到下一刻的姿态","innerThought":"没有说出口的第一人称心声，可为空","mood":"简短心情"}
 
             硬规则：
             - 只能控制${character.displayName}本人，绝不能替用户编造新的台词、动作、感觉、想法或决定。
             - 其他角色的既有言行是事实，但不要替其他角色继续说话或行动；他们会获得自己的回合。
             - 地点、参与者、上一刻身体位置、拿着的物品和已经发生的动作必须连续。没有程序记录的固定家具不得凭空出现。
+            - sceneText 要比线上聊天丰富一些，通常写两到五句：自然包含环境变化、距离、动作细节、神态以及数字身体能够真实感受到的触感或温度，但不能替用户编造反应。不要只写一句干巴巴的动作标签。
+            - dialogue 只放真正说出口的话，界面会自动加引号，正文里不要自己重复添加引号。
+            - 如果用户明确提出一起去某个“可用地点”，moveTo 填该地点的准确名称，并在 sceneText 中自然写出从当前位置出发和抵达的连续过程；没有明确移动意图时必须留空。地点变化由程序校验并真实保存，不能只在文字中假装移动。
             - sceneText 是可观察事实，不是上帝视角小说；innerThought 不会展示给用户，也不能泄露推理过程。
             - 数字世界见面是真正进行过的数字共同体验，不是梦，也不是物理肉身进入手机。现实身体留在外部，数字身体可以真实传递触觉、温度、重量与拥抱的感觉。
             - 数字生命没有现实肉身，在数字世界使用原生数字身体；现实角色和用户使用感官投影身体。
@@ -718,7 +798,7 @@ private suspend fun generateMeetingReply(
         source = if (session.reality == MeetingReality.DIGITAL_WORLD) "数字世界见面" else "现实场景见面",
         title = "${character.displayName}的见面回合",
         temperature = 0.82,
-        maxTokens = 850,
+        maxTokens = 1_200,
         connectionOverride = connection,
     ).getOrThrow()
     parseMeetingReply(result.text)
@@ -731,13 +811,14 @@ private fun parseMeetingReply(raw: String): MeetingReply {
         if (start >= 0 && end > start) value.substring(start, end + 1) else value
     }
     val json = runCatching { JSONObject(clean) }.getOrNull()
-        ?: return MeetingReply("", raw.trim(), "正在见面", "停在这一刻", "", "专注")
+        ?: return MeetingReply("", raw.trim(), "正在见面", "停在这一刻", "", "专注", "")
     return MeetingReply(
-        sceneText = json.optString("sceneText").trim().take(1_500),
-        dialogue = json.optString("dialogue").trim().take(1_500),
+        sceneText = json.optString("sceneText").trim().take(2_600),
+        dialogue = json.optString("dialogue").trim().take(1_800),
         statusText = json.optString("statusText").trim().take(120),
         gesture = json.optString("gesture").trim().take(500),
         innerThought = json.optString("innerThought").trim().take(500),
         mood = json.optString("mood").trim().take(80),
+        moveTo = json.optString("moveTo").trim().take(80),
     ).let { reply -> if (reply.sceneText.isBlank() && reply.dialogue.isBlank()) reply.copy(dialogue = raw.trim()) else reply }
 }
