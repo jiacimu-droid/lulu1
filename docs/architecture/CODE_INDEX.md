@@ -1,16 +1,16 @@
 # Lulu1 代码索引
 
-- 基准提交：`36871771370beef774c2a7ddc2ae86943975644e`
+- 基准提交：`3e6832f0d1dc5ac4a7156c93a959777c80d2fc2c`
 - 分支：`main`
 - 已索引文件：186
-- 已索引代码/文本行：55919
+- 已索引代码/文本行：55921
 - 已发现符号：731
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 103 | 0 |
 | `app/src/main/AndroidManifest.xml` | 119 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 454 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 456 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 238 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 162 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
