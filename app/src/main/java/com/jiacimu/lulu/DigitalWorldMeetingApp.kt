@@ -907,6 +907,7 @@ private suspend fun runInvitedMeetingOpening(sessionId: String, inviterId: Strin
 }
 
 private suspend fun runMeetingTurn(sessionId: String, userText: String) {
+    val exchangeId = UUID.randomUUID().toString()
     var session = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == sessionId } ?: error("见面记录不存在")
     val firstCharacterId = session.participantIds.firstOrNull() ?: error("见面参与者不存在")
     val firstCharacter = MigratedDomainStores.characters.get(firstCharacterId)
@@ -943,7 +944,7 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
                     it != session.location &&
                     it in DigitalWorldStore.meetingLocationOptions(session)
             }?.let { destination ->
-                session = DigitalWorldStore.moveMeeting(session.id, destination)
+                session = DigitalWorldStore.moveMeeting(session.id, destination, exchangeId)
                 moved = true
             }
         }
@@ -965,6 +966,7 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
             dialogueText,
             occurredAt,
             group.segments,
+            exchangeId,
         )
         session = DigitalWorldStore.appendMeetingTurn(sessionId, turn)
         val recorded = buildString {
@@ -993,7 +995,7 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
             it.isNotBlank() &&
                 it != session.location &&
                 it in DigitalWorldStore.meetingLocationOptions(session)
-        }?.let { destination -> session = DigitalWorldStore.moveMeeting(session.id, destination) }
+        }?.let { destination -> session = DigitalWorldStore.moveMeeting(session.id, destination, exchangeId) }
     }
     CompanionPresenceStore.update(
         characterId = firstCharacterId,
@@ -1018,7 +1020,7 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
             it.isNotBlank() &&
                 it != session.location &&
                 it in DigitalWorldStore.meetingLocationOptions(session)
-        }?.let { destination -> session = DigitalWorldStore.moveMeeting(session.id, destination) }
+        }?.let { destination -> session = DigitalWorldStore.moveMeeting(session.id, destination, exchangeId) }
 
         val replyAt = Instant.now()
         val segments = reply.segments.ifEmpty {
@@ -1035,6 +1037,7 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
             reply.dialogue,
             replyAt,
             segments,
+            exchangeId,
         )
         session = DigitalWorldStore.appendMeetingTurn(sessionId, turn)
         val recorded = segments.asMeetingTranscript()
@@ -1120,13 +1123,16 @@ private suspend fun generateMeetingReply(
             硬规则：
             - sequence 是双方共享的唯一时间顺序；speaker=user 表示主人，speaker=character 表示${character.displayName}。界面会严格按数组顺序逐项展示。
             - expandUserDraft=$expandUserDraft。为 false 时，sequence 中只能出现 speaker=character；为 true 时，应忠实还原主人草稿描述的一来一回，可以出现 user → character → user → character，不能把主人所有内容放完以后才统一写角色。
-            - 补全主人侧时保留原意和语气：可以补足自然衔接、说话方式以及草稿已经暗示的细小动作，但不得添加新的重大决定、强烈情绪、未暗示的亲密行为、感受、想法或后果。主人没有描述的后续台词不得替主人新增。
+            - 扩写是默认职责：即使主人只输入很短、很口语或不完整的草稿，也必须把它整理成有文学质感、能被看见和感受到的现场，而不是照抄成干巴巴的一句话。
+            - 补全主人侧时保留原意和语气：可以补足自然衔接、说话方式、草稿已经暗示的细小动作，以及主人当下能够直接感知的环境与触感；不得添加新的重大决定、强烈情绪、未暗示的亲密行为、内心想法或后果。主人没有描述的后续台词不得替主人新增。
             - 如果主人草稿先要求角色做某事、明确描述角色随后做了，再继续说话，应依次输出 user/dialogue → character/action → user/dialogue；角色动作必须属于 speaker=character，绝不能塞进主人片段或角色的一整段旁白里。
             - type=action 只放该 speaker 可被观察到的动作、神态及紧邻的环境变化；type=dialogue 只放该 speaker 真正说出口的话，text 中不要添加引号。每次开口都单独作为一个 dialogue 项。
             - 只能让${character.displayName}回应主人明确写出的部分和当前自然反应；角色片段绝不能代替主人说话，主人片段也不能混进角色的 text。
             - 其他角色的既有言行是事实，但不要替其他角色继续说话或行动；他们会获得自己的回合。
             - 地点、参与者、上一刻身体位置、拿着的物品和已经发生的动作必须连续。没有程序记录的固定家具不得凭空出现。
-            - action 片段要比线上聊天丰富一些，整轮通常两到五句：自然包含环境变化、距离、动作细节、神态以及数字身体能够真实感受到的触感或温度，但不能替主人编造反应。一个 action 片段表达一个连续画面，不要只写干巴巴的动作标签。
+            - action 片段必须采用细腻的小说式描写，整轮通常三到八句；根据现场自然调动光影、声音、气味、温度、触感、空间距离等感官细节，并写清动作的起承转合、细微神态、停顿和呼吸，不要堆砌形容词。
+            - 可以从${character.displayName}的贴身视角写一两句短暂、含蓄的心理波动，让反应更有生命感；这不是分析推理，也绝不能替主人编造心理、感受或反应。一个 action 片段表达一个连续画面，不要只写干巴巴的动作标签。
+            - 氛围必须服务于当前关系和地点：温柔、紧张、暧昧、轻松或安静都要由既有情境自然生长，不能无缘无故切换情绪，也不能写成套路化网文腔。
             - 不要为了格式机械交替；只有真的再次开口或画面发生变化时才新建片段。整轮通常二到六个片段，避免碎成十几个短句。
             - 如果用户明确提出一起去某个“可用地点”，moveTo 填该地点的准确名称，并在 action 片段中自然写出从当前位置出发和抵达的连续过程；没有明确移动意图时必须留空。地点变化由程序校验并真实保存，不能只在文字中假装移动。
             - action 是可观察事实，不是上帝视角小说；innerThought 不会展示给用户，也不能泄露推理过程。
@@ -1139,7 +1145,7 @@ private suspend fun generateMeetingReply(
         source = if (session.reality == MeetingReality.DIGITAL_WORLD) "数字世界见面" else "现实场景见面",
         title = "${character.displayName}的见面回合",
         temperature = 0.82,
-        maxTokens = 1_400,
+        maxTokens = 1_800,
         connectionOverride = connection,
         memoryRequest = UnifiedMemoryRequest(
             currentInput = latestMoment,
