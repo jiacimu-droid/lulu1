@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T16:00:21.779928+00:00",
-  "commit": "5212fc690b56f3f21adc487fe2ddcaecbd474ac7",
+  "generatedAt": "2026-08-16T16:01:31.388338+00:00",
+  "commit": "75e27f77fc626baf9664e14f20dad175d4d5e2ef",
   "branch": "main",
-  "sourceFingerprint": "1d74beae9f164155ed986be8c836240917d51ac687817b3c534a8cd49692786a",
+  "sourceFingerprint": "d436d3e42d3b56d6262dcea303c70f4d90169248f9bcd5a1fbd78a580a6499a9",
   "summary": {
-    "files": 188,
-    "lines": 58167,
-    "symbols": 789
+    "files": 189,
+    "lines": 58247,
+    "symbols": 794
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -250,6 +250,10 @@
         "line": 25
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt",
+        "line": 19
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
         "line": 21
       }
@@ -278,6 +282,10 @@
         "line": 51
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt",
+        "line": 31
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
         "line": 38
       }
@@ -286,6 +294,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
         "line": 53
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt",
+        "line": 33
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
@@ -310,6 +322,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
         "line": 108
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt",
+        "line": 71
       }
     ],
     "DigitalWorldMeetingApp": [
@@ -596,6 +612,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
         "line": 469
+      }
+    ],
+    "MeetingReplyTaskManager": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt",
+        "line": 18
       }
     ],
     "MigratedChatHubScreenV2": [
@@ -4902,6 +4924,33 @@
         {
           "name": "LuluVoiceCallService",
           "line": 469
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt",
+      "lines": 80,
+      "sha256": "0f6aa79610ba004f6ce427c79642cb71cb6ce328b5873694e1328b89c54772e9",
+      "symbols": [
+        {
+          "name": "MeetingReplyTaskManager",
+          "line": 18
+        },
+        {
+          "name": "TaskState",
+          "line": 19
+        },
+        {
+          "name": "state",
+          "line": 31
+        },
+        {
+          "name": "launch",
+          "line": 33
+        },
+        {
+          "name": "clearError",
+          "line": 71
         }
       ]
     },
