@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T16:01:31.388338+00:00",
-  "commit": "75e27f77fc626baf9664e14f20dad175d4d5e2ef",
+  "generatedAt": "2026-08-16T16:06:03.295936+00:00",
+  "commit": "53465192ee179cd0541c4b6cea279b46daf69d5c",
   "branch": "main",
-  "sourceFingerprint": "d436d3e42d3b56d6262dcea303c70f4d90169248f9bcd5a1fbd78a580a6499a9",
+  "sourceFingerprint": "a963f1cdca555ac2178c31aeb5d3e1f284a54cc071c6d72f195227fb76e8d34c",
   "summary": {
     "files": 189,
-    "lines": 58247,
+    "lines": 58252,
     "symbols": 794
   },
   "symbolIndex": {
@@ -1381,7 +1381,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 569
+        "line": 571
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -1633,19 +1633,19 @@
     "pruneEmptyMeetings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 492
+        "line": 494
       }
     ],
     "recordMeetingTimeline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 496
+        "line": 498
       }
     ],
     "meetingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 517
+        "line": 519
       }
     ],
     "InMemoryMemoryRepository": [
@@ -5621,7 +5621,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
       "lines": 280,
-      "sha256": "c5dc91740e01125610475f75884e9571b9b117baadda2402a8e178c663b35e66",
+      "sha256": "73516ff993ab3ef012695f3e87756c7a0509e61435777e6183c236c9b3b3e23e",
       "symbols": [
         {
           "name": "CompanionPresenceState",
@@ -5761,8 +5761,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 755,
-      "sha256": "ef85d56f97a64a70a59b4a1c848efb6b4356db9edeeadcd7234070ec6744bf0b",
+      "lines": 758,
+      "sha256": "170aba44849a72d3bca0d9524e43663de3d8c3499064c95013187f75e6709d79",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -5878,19 +5878,19 @@
         },
         {
           "name": "pruneEmptyMeetings",
-          "line": 492
+          "line": 494
         },
         {
           "name": "recordMeetingTimeline",
-          "line": 496
+          "line": 498
         },
         {
           "name": "meetingContext",
-          "line": 517
+          "line": 519
         },
         {
           "name": "clearCharacter",
-          "line": 569
+          "line": 571
         }
       ]
     },
@@ -6139,8 +6139,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-      "lines": 552,
-      "sha256": "99b76e4f89a5a3b82319915936aa61e336734328ce16415d96d3ad001de277bf",
+      "lines": 554,
+      "sha256": "ec8efc5ce78c2e7b8edcd805e034e61f9bd9dfe48d3de9906d9a072af442d29b",
       "symbols": [
         {
           "name": "MeetingProseLength",

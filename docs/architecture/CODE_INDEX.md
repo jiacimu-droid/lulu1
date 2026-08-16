@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`75e27f77fc626baf9664e14f20dad175d4d5e2ef`
+- 基准提交：`53465192ee179cd0541c4b6cea279b46daf69d5c`
 - 分支：`main`
 - 已索引文件：189
-- 已索引代码/文本行：58247
+- 已索引代码/文本行：58252
 - 已发现符号：794
 
 | 文件 | 行数 | 符号数 |
@@ -70,7 +70,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 280 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt` | 20 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 233 | 16 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 755 | 32 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 758 | 32 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 325 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt` | 164 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
@@ -79,7 +79,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 106 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 552 | 35 |
+| `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 554 | 35 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 26 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 870 | 44 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 739 | 14 |
