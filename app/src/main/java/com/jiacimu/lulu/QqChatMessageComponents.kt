@@ -44,6 +44,8 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluGroupChat
+import com.jiacimu.lulu.data.MeetingExperienceStore
+import com.jiacimu.lulu.data.MeetingInvitationStatus
 import com.jiacimu.lulu.data.MigratedDomainStores
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -283,8 +285,13 @@ internal fun QqMessageRow(
                                         .putExtra("open_route", MigrationRoute.Meeting.name)
                                         .putExtra("open_character_id", worldInvite.characterId)
                                         .putExtra("open_meeting_invitation_text", worldInvite.message)
-                                        .putExtra("open_meeting_location", worldInvite.location),
+                                        .putExtra("open_meeting_location", worldInvite.location)
+                                        .putExtra("open_meeting_invitation_id", worldInvite.invitationId),
                                 )
+                            },
+                            onReject = {
+                                worldInvite.invitationId.takeIf(String::isNotBlank)
+                                    ?.let { MeetingExperienceStore.rejectInvitation(it) }
                             },
                             modifier = bubbleModifier,
                         )
@@ -555,18 +562,20 @@ private fun openSystemActivity(context: Context, message: LuluChatMessage, link:
 private data class WorldInviteMessage(
     val characterId: String,
     val location: String,
+    val invitationId: String,
     val message: String,
 )
 
 private fun parseWorldInvite(content: String): WorldInviteMessage? {
     val match = Regex(
-        "^\\[见面邀约\\|([^|\\]]+)(?:\\|([^\\]]+))?]\\s*(.*)$",
+        "^\\[见面邀约\\|([^|\\]]+)(?:\\|([^|\\]]+))?(?:\\|([^\\]]+))?]\\s*(.*)$",
         RegexOption.DOT_MATCHES_ALL,
     ).find(content.trim()) ?: return null
     return WorldInviteMessage(
         characterId = match.groupValues[1].trim(),
         location = match.groupValues[2].trim().ifBlank { "世界入口" },
-        message = match.groupValues[3].trim(),
+        invitationId = match.groupValues[3].trim(),
+        message = match.groupValues[4].trim(),
     ).takeIf { it.characterId.isNotBlank() }
 }
 
@@ -574,8 +583,13 @@ private fun parseWorldInvite(content: String): WorldInviteMessage? {
 private fun WorldInviteMessageCard(
     invite: WorldInviteMessage,
     onAccept: () -> Unit,
+    onReject: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val experience by MeetingExperienceStore.state.collectAsState()
+    val invitationStatus = invite.invitationId.takeIf(String::isNotBlank)
+        ?.let { id -> experience.invitations.firstOrNull { it.id == id }?.status }
+    val canRespond = invite.invitationId.isBlank() || invitationStatus == MeetingInvitationStatus.PENDING
     Card(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         border = BorderStroke(1.dp, QqBorder),
@@ -600,15 +614,35 @@ private fun WorldInviteMessageCard(
             }
             Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (invite.message.isNotBlank()) Text(invite.message, color = QqInk, lineHeight = 20.sp)
-                Button(
-                    onClick = onAccept,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = QqMine, contentColor = Color.White),
-                    shape = RoundedCornerShape(14.dp),
-                ) {
-                    Icon(Icons.Outlined.Cloud, null, Modifier.size(19.dp))
-                    Spacer(Modifier.width(5.dp))
-                    Text("接受邀请，进入世界")
+                if (canRespond) {
+                    Button(
+                        onClick = onAccept,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = QqMine, contentColor = Color.White),
+                        shape = RoundedCornerShape(14.dp),
+                    ) {
+                        Icon(Icons.Outlined.Cloud, null, Modifier.size(19.dp))
+                        Spacer(Modifier.width(5.dp))
+                        Text("接受邀请，进入世界")
+                    }
+                    if (invite.invitationId.isNotBlank()) {
+                        TextButton(onClick = onReject, modifier = Modifier.fillMaxWidth()) {
+                            Text("这次先不去", color = QqMuted)
+                        }
+                    }
+                } else {
+                    Text(
+                        when (invitationStatus) {
+                            MeetingInvitationStatus.ACCEPTED -> "已接受 · 见面已经开始"
+                            MeetingInvitationStatus.REJECTED -> "已婉拒这次邀请"
+                            MeetingInvitationStatus.EXPIRED -> "邀请已过期"
+                            else -> "邀请已失效"
+                        },
+                        color = QqMuted,
+                        fontSize = 12.sp,
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    )
                 }
             }
         }
