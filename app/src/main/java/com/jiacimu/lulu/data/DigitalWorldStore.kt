@@ -377,18 +377,6 @@ object DigitalWorldStore {
         } else {
             appendLine("发起方式：主人主动选择参与者并开始这次见面。")
         }
-        val previous = mutable.value.meetings.asReversed().firstOrNull { old ->
-            old.id != session.id && old.endedAt != null && characterId in old.participantIds
-        }
-        if (previous != null) {
-            appendLine("【与该角色上一次已经结束的见面｜用于跨场衔接】")
-            appendLine("时间：${previous.startedAt}；地点：${previous.location}")
-            previous.turns.takeLast(10).forEach { turn ->
-                val body = listOf(turn.sceneText, turn.dialogue).filter(String::isNotBlank).joinToString(" ")
-                if (body.isNotBlank()) appendLine("- ${turn.speakerName}：${body.take(500)}")
-            }
-            appendLine("以上是已经发生过的共同经历；可以自然记得，但不要机械复述。")
-        }
         appendLine("见面模式：${if (session.reality == MeetingReality.DIGITAL_WORLD) "数字世界真实共同体验" else "现实场景演绎"}")
         appendLine("固定地点：${session.location}")
         appendLine("开始时间：${session.startedAt}")

@@ -454,7 +454,9 @@ class CompanionModelGateway(
             val fullContext = contextMode == CompanionContextMode.Full
             val identity = CharacterIdentityStore.get(characterId).takeIf { fullContext }.orEmpty()
             val presence = CompanionPresenceStore.current(characterId).takeIf { fullContext }
-            val memories = if (fullContext) RelevantMemoryRecall.recall(characterId, "$facts\n$instruction", limit = 12) else emptyList()
+            val recallQuery = "$facts\n$instruction"
+            val memories = if (fullContext) RelevantMemoryRecall.recall(characterId, recallQuery, limit = 12) else emptyList()
+            val recalledRawTimeline = if (fullContext) RelevantMemoryRecall.sourceEvidenceForPrompt(characterId, recallQuery, memories) else ""
             val recentSharedTimeline = if (fullContext) SharedExperienceTimeline.recentContext(characterId) else ""
             val userProfileSection = if (fullContext) UserProfileContext.promptSection() else ""
             val lexicon = if (fullContext) LuluRepositories.lexicon.snapshot(characterId).take(24) else emptyList()
@@ -492,6 +494,7 @@ class CompanionModelGateway(
                 appendLine("可用连续记忆（只能按内容本身使用，不得扩写成未发生事实）：")
                 memories.forEach { appendLine("- ${it.content}") }
             }.trim()
+            val memoryEvidenceSection = recalledRawTimeline
             val timelineSection = recentSharedTimeline.takeIf(String::isNotBlank)?.let {
                 "最近共同时间线（真实原始记录，按时间连续发生）：\n$it"
             }.orEmpty()
@@ -518,6 +521,7 @@ class CompanionModelGateway(
                 presenceSection,
                 timelineSection,
                 memorySection,
+                memoryEvidenceSection,
                 lexiconSection,
             ).filter(String::isNotBlank).joinToString("\n\n")
             val fixedEstimatedTokens = estimateTokens(systemPrompt.length)
@@ -529,7 +533,7 @@ class CompanionModelGateway(
                 tokenBreakdown("系统/角色身份与设定", baseRules.length + identitySection.length + personaSection.length),
                 tokenBreakdown(
                     "记忆/状态/感知",
-                    globalWorldBookSection.length + roleWorldBookSection.length + userProfileSection.length + presenceSection.length + timelineSection.length + memorySection.length + lexiconSection.length,
+                    globalWorldBookSection.length + roleWorldBookSection.length + userProfileSection.length + presenceSection.length + timelineSection.length + memorySection.length + memoryEvidenceSection.length + lexiconSection.length,
                 ),
                 tokenBreakdown("工具/MCP说明", 0),
                 tokenBreakdown("用户上下文", userPrompt.length),

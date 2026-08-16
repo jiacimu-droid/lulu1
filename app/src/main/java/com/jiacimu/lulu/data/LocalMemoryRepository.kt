@@ -116,9 +116,10 @@ class LocalMemoryRepository : MemoryRepository {
                 lastExtractedCount = extractedThisRun,
             )
 
+            val batchIds = batch.mapTo(mutableSetOf()) { message -> message.id }
             val facts = batch.joinToString("\n") { message ->
                 val sender = if (message.sender == LuluChatMessage.Sender.User) "用户" else "角色"
-                "[${message.createdAt}] $sender：${message.content}"
+                "[事件ID=${message.id}] [${message.createdAt}] $sender：${message.content}"
             }
             val result = LuluAiServices.gateway.generate(
                 characterId = characterId,
@@ -126,7 +127,7 @@ class LocalMemoryRepository : MemoryRepository {
                 instruction = """
                     从给定真实对话与原始事件中提取值得长期保留的记忆。只返回 JSON 数组，不要代码块。
                     每项格式：
-                    {"kind":"Fact|Emotion|Timeline","content":"简洁但信息完整的中文记忆","source":"聊天","occurredAt":"ISO-8601时间或空字符串","strength":1到10}
+                    {"kind":"Fact|Emotion|Timeline","content":"包含人物、事件、原因、结果与必要语境的完整中文记忆","sourceEventIds":["直接支持该记忆的事件ID"],"occurredAt":"ISO-8601时间或空字符串","strength":1到10}
                     规则：
                     1. 不编造未发生事实，必须结合这一整批上下文理解语义，不能因为某一句出现“不是、其实、应该、喜欢、不要”等词就机械判定为纠正、偏好或边界。
                     2. Fact 只保存上下文能够确认的长期稳定身份事实、持续计划、明确偏好与边界。口头反驳、临时观点、针对当下情境的一句话、语气性否定都不是长期事实。
@@ -135,7 +136,9 @@ class LocalMemoryRepository : MemoryRepository {
                     5. Timeline 只保存有明确时间或里程碑意义的重要经历，例如开始备考、真正完成了一次有互动的共同活动；普通聊天、单纯打开计时器、无交流的番茄钟不要放入。
                     6. 角色要履行的约定、提醒、责任和监督属于辞海约定，不要重复放进记忆。
                     7. 输入中的 [私聊]、[电话]、[群聊]、[朋友圈]、[收藏]、[此刻] 等方括号内容只是原始事件来源标签，不是用户说的话，也不是需要记住的提示词。
-                    8. 日常寒暄、同义重复、已经存在的总结不要重复写入；没有值得保存的内容时返回 []。
+                    8. 每条记忆必须给出1—6个直接支持它的 sourceEventIds，只能复制输入中真实存在的事件ID；不要把整批ID都塞进去。
+                    9. 记忆必须保留将来理解同义改写所需的人物、对象、原因、结果和必要语境，避免只写模糊关键词；但不要复制无关寒暄。
+                    10. 日常寒暄、同义重复、已经存在的总结不要重复写入；没有值得保存的内容时返回 []。
                 """.trimIndent(),
                 source = "记忆",
                 title = "连续记忆提取",
@@ -160,7 +163,7 @@ class LocalMemoryRepository : MemoryRepository {
             }
 
             val reply = result.getOrThrow()
-            val parsed = runCatching { parseMemoryArray(reply.text, characterId) }
+            val parsed = runCatching { parseMemoryArray(reply.text, characterId, batchIds) }
             if (parsed.isFailure) {
                 val error = parsed.exceptionOrNull()
                 refreshDebug(
@@ -176,7 +179,6 @@ class LocalMemoryRepository : MemoryRepository {
                 return
             }
 
-            val batchIds = batch.mapTo(mutableSetOf()) { message -> message.id }
             val provenance = "timeline-batch:${batchIds.joinToString("|")}"
             val snapshot = state.value
             val existingKeys = snapshot.entries
@@ -186,7 +188,9 @@ class LocalMemoryRepository : MemoryRepository {
             val unique = parsed.getOrThrow()
                 .filter { entry -> entry.scopedMemoryKey() !in deletedKeys }
                 .filter { entry -> existingKeys.add(entry.dedupeKey()) }
-                .map { entry -> entry.copy(source = provenance) }
+                .map { entry ->
+                    if (entry.source.startsWith("timeline-events:")) entry else entry.copy(source = provenance)
+                }
 
             mutate { current ->
                 val currentProcessed = current.processedMessageIds[characterId].orEmpty()
@@ -413,7 +417,7 @@ class LocalMemoryRepository : MemoryRepository {
         }
         .dropLast(policy.excludedRecentMessages.coerceAtLeast(0))
 
-    private fun parseMemoryArray(raw: String, characterId: String): List<MemoryEntry> {
+    private fun parseMemoryArray(raw: String, characterId: String, allowedSourceIds: Set<String>): List<MemoryEntry> {
         val clean = raw.trim()
             .removePrefix("```json")
             .removePrefix("```")
@@ -434,13 +438,21 @@ class LocalMemoryRepository : MemoryRepository {
                 val occurredAt = item.optString("occurredAt").trim()
                     .takeIf { value -> value.isNotBlank() }
                     ?.let { value -> runCatching { Instant.parse(value) }.getOrNull() }
+                val sourceIds = buildList {
+                    val sourceArray = item.optJSONArray("sourceEventIds") ?: JSONArray()
+                    for (sourceIndex in 0 until sourceArray.length()) {
+                        sourceArray.optString(sourceIndex)
+                            .takeIf { it in allowedSourceIds }
+                            ?.let(::add)
+                    }
+                }.distinct().take(6)
                 add(
                     MemoryEntry(
                         id = UUID.randomUUID().toString(),
                         characterId = characterId,
                         content = content,
                         kind = kind,
-                        source = item.optString("source").trim().ifBlank { "聊天" },
+                        source = if (sourceIds.isEmpty()) "聊天" else "timeline-events:${sourceIds.joinToString("|")}",
                         occurredAt = occurredAt,
                         createdAt = Instant.now(),
                         strength = item.optInt("strength", 5).coerceIn(1, 10),

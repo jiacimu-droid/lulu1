@@ -153,6 +153,38 @@ object SharedExperienceTimeline {
 
     fun all(characterId: String): List<SharedTimelineEvent> = query(characterId, null).sortedBy(SharedTimelineEvent::occurredAt)
 
+    /** Resolve derived-memory provenance back to the exact immutable raw timeline records. */
+    fun eventsByIds(characterId: String, eventIds: Collection<String>): List<SharedTimelineEvent> {
+        val ids = eventIds.map(String::trim).filter(String::isNotBlank).distinct().take(120)
+        val database = helper?.readableDatabase ?: return emptyList()
+        if (characterId.isBlank() || ids.isEmpty()) return emptyList()
+        val placeholders = ids.joinToString(",") { "?" }
+        val args = arrayOf(characterId, *ids.toTypedArray())
+        return database.query(
+            "timeline_events",
+            arrayOf("id", "character_id", "channel", "speaker", "content", "occurred_at"),
+            "character_id = ? AND id IN ($placeholders)",
+            args,
+            null,
+            null,
+            "occurred_at ASC",
+        ).use { cursor ->
+            buildList {
+                while (cursor.moveToNext()) {
+                    val event = SharedTimelineEvent(
+                        id = cursor.getString(0),
+                        characterId = cursor.getString(1),
+                        channel = cursor.getString(2),
+                        speaker = cursor.getString(3),
+                        content = cursor.getString(4),
+                        occurredAt = Instant.ofEpochMilli(cursor.getLong(5)),
+                    )
+                    if (DigitalLifeProfileStore.allowsTimestamp(characterId, event.occurredAt)) add(event)
+                }
+            }
+        }
+    }
+
     /** Permanently removes raw context and leaves a tombstone so history backfill cannot restore it. */
     fun deleteEvent(eventId: String) {
         if (eventId.isBlank()) return

@@ -97,9 +97,14 @@ object RelevantMemoryRecall {
                     .rerank(connection, cleanQuery, candidates.map { it.content })
                     .getOrNull()
                 if (!order.isNullOrEmpty()) {
-                    val orderedIds = order.mapNotNull { index -> candidates.getOrNull(index)?.id }.toSet()
-                    candidates = order.mapNotNull { index -> candidates.getOrNull(index) } +
-                        candidates.filterNot { memory -> memory.id in orderedIds }
+                    val reranked = order.mapNotNull { index -> candidates.getOrNull(index) }
+                    candidates = fuseRankings(
+                        memories = candidates,
+                        rankings = listOf(
+                            candidates to 2.4,
+                            reranked to 5.0,
+                        ),
+                    ).take(RERANK_POOL)
                 }
             }
         }
@@ -111,6 +116,63 @@ object RelevantMemoryRecall {
         return candidates
             .distinctBy(MemoryEntry::id)
             .take(effectiveLimit)
+    }
+
+    /**
+     * A vector hit is only a pointer. Expand its provenance back to raw timeline evidence so the
+     * model receives the exact words and chronology instead of treating a summary as the record.
+     */
+    fun sourceEvidenceForPrompt(
+        characterId: String,
+        query: String,
+        memories: List<MemoryEntry>,
+        limit: Int = 10,
+        characterBudget: Int = 4_200,
+    ): String {
+        if (memories.isEmpty()) return ""
+        val focused = focusQuery(query)
+        val queryTerms = terms(focused)
+        val ranked = mutableMapOf<String, Pair<SharedTimelineEvent, Double>>()
+        memories.take(12).forEachIndexed { memoryRank, memory ->
+            val precise = memory.source.startsWith("timeline-events:")
+            val ids = when {
+                precise -> memory.source.removePrefix("timeline-events:").split('|')
+                memory.source.startsWith("timeline-batch:") -> memory.source.removePrefix("timeline-batch:").split('|')
+                else -> emptyList()
+            }.filter(String::isNotBlank)
+            if (ids.isEmpty()) return@forEachIndexed
+            val memoryTerms = terms(memory.content)
+            SharedExperienceTimeline.eventsByIds(characterId, ids).forEach { event ->
+                val eventTerms = terms("${event.channel} ${event.speaker} ${event.content}")
+                val semanticTerms = queryTerms + memoryTerms
+                val overlap = if (semanticTerms.isEmpty() || eventTerms.isEmpty()) 0.0 else
+                    semanticTerms.intersect(eventTerms).size.toDouble() / semanticTerms.size.coerceAtLeast(1)
+                val score = (12.0 / (memoryRank + 1.0)) + overlap * 18.0 + if (precise) 8.0 else 0.0
+                val previous = ranked[event.id]
+                if (previous == null || score > previous.second) ranked[event.id] = event to score
+            }
+        }
+        val selected = ranked.values
+            .sortedWith(compareByDescending<Pair<SharedTimelineEvent, Double>> { it.second }.thenByDescending { it.first.occurredAt })
+            .take(limit.coerceIn(1, 16))
+            .map(Pair<SharedTimelineEvent, Double>::first)
+            .sortedBy(SharedTimelineEvent::occurredAt)
+        if (selected.isEmpty()) return ""
+        val lines = selected.map { event ->
+            "[${event.occurredAt}] [${event.channel}] ${event.speaker}：${event.content.take(1_200)}"
+        }
+        val kept = mutableListOf<String>()
+        var used = 0
+        for (line in lines) {
+            if (used + line.length > characterBudget && kept.isNotEmpty()) break
+            kept += line
+            used += line.length
+        }
+        return buildString {
+            appendLine("召回记忆对应的原始时间线证据：")
+            appendLine("以下是摘要所指向的真实原始记录；事实、措辞和时间以原始记录为准，摘要仅用于检索。")
+            kept.forEach(::appendLine)
+        }.trim()
     }
 
     fun formatForPrompt(memories: List<MemoryEntry>): String = if (memories.isEmpty()) {
@@ -279,6 +341,9 @@ object RelevantMemoryRecall {
             line.startsWith("当前用户") ||
             line.startsWith("用户本轮") ||
             line.startsWith("本轮用户") ||
+            line.startsWith("这一刻用户") ||
+            line.startsWith("用户刚刚") ||
+            line.startsWith("当前输入") ||
             lower.startsWith("user:") ||
             lower.startsWith("user：")
     }
