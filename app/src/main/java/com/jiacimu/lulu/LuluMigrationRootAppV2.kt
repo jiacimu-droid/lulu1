@@ -37,6 +37,7 @@ fun LuluMigrationRootAppV2(
     initialReadingTitle: String? = null,
     initialMeetingInvitationText: String? = null,
     initialMeetingLocation: String? = null,
+    initialMeetingInvitationId: String? = null,
 ) {
     val deepLinkRoute = remember(initialRouteName) {
         runCatching { MigrationRoute.valueOf(initialRouteName.orEmpty()) }.getOrNull()
@@ -86,6 +87,9 @@ fun LuluMigrationRootAppV2(
                 ?.takeIf { initialRouteName == MigrationRoute.Meeting.name }
                 ?.ifBlank { "世界入口" }
         )
+    }
+    var meetingInvitationId by rememberSaveable(initialRouteName, initialMeetingInvitationId) {
+        mutableStateOf(initialMeetingInvitationId?.takeIf { initialRouteName == MigrationRoute.Meeting.name })
     }
     var pomodoroFocusVisible by rememberSaveable { mutableStateOf(false) }
     var openPomodoroRequest by rememberSaveable { mutableStateOf(0) }
@@ -299,10 +303,12 @@ fun LuluMigrationRootAppV2(
                                     invitedCharacterId = meetingInviteCharacterId,
                                     invitationText = meetingInvitationText.orEmpty(),
                                     invitationLocation = meetingInviteLocation.orEmpty(),
+                                    invitationId = meetingInvitationId.orEmpty(),
                                     onInvitationConsumed = {
                                         meetingInviteCharacterId = null
                                         meetingInvitationText = null
                                         meetingInviteLocation = null
+                                        meetingInvitationId = null
                                     },
                                 )
                                 MigrationRoute.Games -> LuluGamesAppV2(
