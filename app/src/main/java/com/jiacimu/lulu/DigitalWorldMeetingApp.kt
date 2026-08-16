@@ -619,6 +619,7 @@ private fun MeetingRoom(
     val messageListState = rememberLazyListState()
     val density = LocalDensity.current
     val imeBottom = WindowInsets.ime.getBottom(density)
+    val displayGroups = remember(session.turns) { session.turns.toMeetingDisplayGroups() }
 
     LaunchedEffect(imeBottom, session.turns.size, generating) {
         if (imeBottom > 0 || session.turns.isNotEmpty()) {
@@ -642,12 +643,13 @@ private fun MeetingRoom(
                     }
                 }
             }
-            items(session.turns, key = MeetingTurn::id) { turn ->
-                MeetingTurnCard(
-                    turn = turn,
+            items(displayGroups, key = MeetingDisplayGroup::key) { group ->
+                MeetingSceneCard(
+                    group = group,
                     userAvatar = userAvatar,
                     userAvatarUri = userAvatarUri,
-                    onLongClick = if (turn.speakerId == "system") null else { { onDeleteTurnRequest(turn) } },
+                    onLongClick = group.turns.firstOrNull { it.speakerId != "system" }
+                        ?.let { turn -> { onDeleteTurnRequest(turn) } },
                 )
             }
             if (generating) {
@@ -698,128 +700,154 @@ private fun MeetingRoom(
         }
     }
 }
+private data class MeetingDisplayGroup(
+    val key: String,
+    val turns: List<MeetingTurn>,
+)
+
+private fun List<MeetingTurn>.toMeetingDisplayGroups(): List<MeetingDisplayGroup> {
+    val groups = mutableListOf<MeetingDisplayGroup>()
+    forEach { turn ->
+        val exchangeKey = turn.exchangeId?.takeIf(String::isNotBlank)?.let { "exchange:$it" }
+        val key = when {
+            exchangeKey != null -> exchangeKey
+            turn.speakerId == "system" -> "system:${turn.id}"
+            turn.speakerId == null -> "legacy:${turn.id}"
+            groups.lastOrNull()?.key?.startsWith("legacy:") == true -> groups.last().key
+            else -> "legacy:${turn.id}"
+        }
+        val previous = groups.lastOrNull()
+        if (previous?.key == key) {
+            groups[groups.lastIndex] = previous.copy(turns = previous.turns + turn)
+        } else {
+            groups += MeetingDisplayGroup(key, listOf(turn))
+        }
+    }
+    return groups
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun MeetingTurnCard(
-    turn: MeetingTurn,
+private fun MeetingSceneCard(
+    group: MeetingDisplayGroup,
     userAvatar: String,
     userAvatarUri: String?,
     onLongClick: (() -> Unit)?,
 ) {
+    if (group.turns.all { it.speakerId == "system" }) {
+        Text(
+            text = group.turns.joinToString("\n") { meetingParagraphs(it.sceneText) },
+            color = Color(0xFF858585),
+            fontSize = 13.sp,
+            lineHeight = 21.sp,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 28.dp, vertical = 8.dp),
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+        )
+        return
+    }
+
     val longPressModifier = if (onLongClick == null) {
         Modifier
     } else {
         Modifier.combinedClickable(onClick = {}, onLongClick = onLongClick)
     }
-    when {
-        turn.speakerId == "system" -> {
-            Surface(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp).then(longPressModifier),
-                color = LuluColors.CardStrong,
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Text(
-                    meetingParagraphs(turn.sceneText),
-                    color = MeetingProseColor,
-                    fontSize = 13.sp,
-                    lineHeight = 21.sp,
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                )
-            }
-        }
-        turn.speakerId == null -> {
-            Row(
-                modifier = Modifier.fillMaxWidth().then(longPressModifier),
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.End,
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    MeetingOrderedSegments(turn.orderedSegments(), isUser = true)
-                }
-                Spacer(Modifier.width(10.dp))
-                LuluProfileAvatar(
-                    imageUri = userAvatarUri,
-                    fallback = userAvatar,
-                    size = 43,
-                )
-            }
-        }
-        else -> {
-            val character = MigratedDomainStores.characters.get(turn.speakerId)
-            Row(Modifier.fillMaxWidth().then(longPressModifier), verticalAlignment = Alignment.Top) {
-                LuluProfileAvatar(
-                    imageUri = character.avatarUri,
-                    fallback = character.displayName.take(1).ifBlank { "角" },
-                    size = 43,
-                )
-                Spacer(Modifier.width(10.dp))
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    MeetingOrderedSegments(turn.orderedSegments(), isUser = false)
-                    Text(
-                        turn.occurredAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm")),
-                        color = LuluColors.Muted,
-                        fontSize = 10.sp,
-                        modifier = Modifier.padding(start = 3.dp),
-                    )
+    Surface(
+        modifier = Modifier.fillMaxWidth().then(longPressModifier),
+        color = Color(0xFFFCFCFC),
+        shape = RoundedCornerShape(22.dp),
+        border = BorderStroke(1.dp, Color(0xFFE2E2E2)),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 13.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            group.turns.forEach { turn ->
+                turn.orderedSegments().forEach { segment ->
+                    when (segment.type) {
+                        MeetingSegmentType.ACTION -> MeetingNarration(segment.text)
+                        MeetingSegmentType.DIALOGUE -> MeetingDialogueRow(
+                            text = segment.text,
+                            speakerId = turn.speakerId,
+                            userAvatar = userAvatar,
+                            userAvatarUri = userAvatarUri,
+                        )
+                    }
                 }
             }
+            Text(
+                group.turns.maxOf(MeetingTurn::occurredAt)
+                    .atZone(ZoneId.systemDefault())
+                    .format(DateTimeFormatter.ofPattern("HH:mm")),
+                color = Color(0xFF9A9A9A),
+                fontSize = 10.sp,
+                modifier = Modifier.align(Alignment.End).padding(end = 4.dp),
+            )
         }
     }
 }
 
 @Composable
-private fun MeetingOrderedSegments(
-    segments: List<MeetingSegment>,
-    isUser: Boolean,
+private fun MeetingNarration(text: String) {
+    Text(
+        text = meetingParagraphs(text),
+        color = Color(0xFF747474),
+        fontSize = 15.sp,
+        lineHeight = 24.sp,
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 4.dp),
+    )
+}
+
+@Composable
+private fun MeetingDialogueRow(
+    text: String,
+    speakerId: String?,
+    userAvatar: String,
+    userAvatarUri: String?,
 ) {
-    Column(
-        horizontalAlignment = if (isUser) Alignment.End else Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(9.dp),
+    val isUser = speakerId == null
+    val bubble: @Composable () -> Unit = {
+        Surface(
+            modifier = Modifier.widthIn(max = 265.dp),
+            color = if (isUser) Color(0xFF242424) else Color.White,
+            contentColor = if (isUser) Color.White else Color(0xFF242424),
+            shape = if (isUser) {
+                RoundedCornerShape(topStart = 19.dp, topEnd = 6.dp, bottomEnd = 19.dp, bottomStart = 19.dp)
+            } else {
+                RoundedCornerShape(topStart = 6.dp, topEnd = 19.dp, bottomEnd = 19.dp, bottomStart = 19.dp)
+            },
+            border = if (isUser) null else BorderStroke(1.dp, Color(0xFFDDDDDD)),
+        ) {
+            Text(
+                "“${text.trim().trim('“', '”', '"')}”",
+                fontSize = 16.sp,
+                lineHeight = 24.sp,
+                modifier = Modifier.padding(horizontal = 15.dp, vertical = 11.dp),
+            )
+        }
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start,
     ) {
-        segments.forEach { segment ->
-            when (segment.type) {
-                MeetingSegmentType.ACTION -> Surface(
-                    modifier = Modifier.widthIn(max = 330.dp),
-                    color = if (isUser) Color(0xFFF4F0EA) else Color(0xFFF1F3F4),
-                    shape = if (isUser) {
-                        RoundedCornerShape(topStart = 15.dp, topEnd = 6.dp, bottomEnd = 15.dp, bottomStart = 15.dp)
-                    } else {
-                        RoundedCornerShape(topStart = 6.dp, topEnd = 15.dp, bottomEnd = 15.dp, bottomStart = 15.dp)
-                    },
-                ) {
-                    Text(
-                        text = meetingParagraphs(segment.text),
-                        color = Color(0xFF777A80),
-                        fontSize = 15.sp,
-                        lineHeight = 24.sp,
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
-                    )
-                }
-                MeetingSegmentType.DIALOGUE -> Surface(
-                    modifier = Modifier.widthIn(max = 330.dp),
-                    color = if (isUser) LuluColors.Wheat else LuluColors.Card,
-                    contentColor = if (isUser) LuluColors.OnWheat else LuluColors.Ink,
-                    shape = if (isUser) {
-                        RoundedCornerShape(topStart = 20.dp, topEnd = 8.dp, bottomEnd = 20.dp, bottomStart = 20.dp)
-                    } else {
-                        RoundedCornerShape(topStart = 6.dp, topEnd = 20.dp, bottomEnd = 20.dp, bottomStart = 20.dp)
-                    },
-                    border = if (isUser) null else BorderStroke(1.dp, LuluColors.Border),
-                    shadowElevation = if (isUser) 0.dp else 1.dp,
-                ) {
-                    Text(
-                        "“${segment.text.trim().trim('“', '”', '"')}”",
-                        fontSize = 16.sp,
-                        lineHeight = 24.sp,
-                        modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp),
-                    )
-                }
-            }
+        if (isUser) {
+            bubble()
+            Spacer(Modifier.width(8.dp))
+            LuluProfileAvatar(
+                imageUri = userAvatarUri,
+                fallback = userAvatar,
+                size = 43,
+            )
+        } else {
+            val character = MigratedDomainStores.characters.get(speakerId.orEmpty())
+            LuluProfileAvatar(
+                imageUri = character.avatarUri,
+                fallback = character.displayName.take(1).ifBlank { "角" },
+                size = 43,
+            )
+            Spacer(Modifier.width(8.dp))
+            bubble()
         }
     }
 }
