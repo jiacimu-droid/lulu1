@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T04:44:35.119086+00:00",
-  "commit": "f6ac44b46c4161b20eed503801bb1c91a0438eaf",
+  "generatedAt": "2026-08-16T04:45:10.722161+00:00",
+  "commit": "9020a0ae6183d713ab2dbf5886c0df91bbe4fad3",
   "branch": "main",
-  "sourceFingerprint": "1222e463b43ae214715256984bb236e64c456cc3a610756c0894932ffed898ce",
+  "sourceFingerprint": "c15aa4b1fef42f4c0d1bc5cb780319c813c68db7db9e3569ece6e3ae8a61b888",
   "summary": {
     "files": 186,
     "lines": 56019,
@@ -4302,7 +4302,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
       "lines": 464,
-      "sha256": "34af91a7e88f985153294b04f45e5d48c2e5137716a406fcfd14fd80b30d8e99",
+      "sha256": "8cb3a6664bf31cc8613728404de784028a7a039cfb5538a854ff42c2963f2bac",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
@@ -4389,7 +4389,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
       "lines": 325,
-      "sha256": "fd72d7071743fd1a25cdf5f4c773562725e8f7d655267e6d2e1c13cbda843b9d",
+      "sha256": "4478b268ed99d1fe5a8d4a58aa6658da8219f8e23c6ee105939568f6ca5b5f02",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
