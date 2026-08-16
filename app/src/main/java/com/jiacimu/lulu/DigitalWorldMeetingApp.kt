@@ -29,6 +29,8 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 private data class MeetingReply(
+    val userSceneText: String,
+    val userDialogue: String,
     val sceneText: String,
     val dialogue: String,
     val statusText: String,
@@ -579,7 +581,7 @@ private fun MeetingRoom(
                     OutlinedTextField(
                         value = input,
                         onValueChange = onInputChanged,
-                        placeholder = { Text("说话或写下动作…") },
+                        placeholder = { Text("写个大概，剩下的会自然补全…") },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(18.dp),
                         minLines = 1,
@@ -615,16 +617,47 @@ private fun MeetingTurnCard(turn: MeetingTurn) {
             }
         }
         turn.speakerId == null -> {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                Surface(
-                    modifier = Modifier.widthIn(max = 330.dp),
-                    color = LuluColors.CardStrong,
-                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 6.dp, bottomEnd = 20.dp, bottomStart = 20.dp),
-                    border = BorderStroke(1.dp, LuluColors.Border),
-                ) {
-                    Column(Modifier.padding(horizontal = 15.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                        Text(turn.speakerName, color = LuluColors.BlueGray, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
-                        Text(turn.sceneText, fontSize = 16.sp, lineHeight = 23.sp)
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(7.dp),
+            ) {
+                Text(
+                    turn.speakerName,
+                    color = LuluColors.BlueGray,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(end = 3.dp),
+                )
+                if (turn.sceneText.isNotBlank()) {
+                    Surface(
+                        modifier = Modifier.widthIn(max = 330.dp),
+                        color = LuluColors.CardStrong,
+                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 8.dp, bottomEnd = 20.dp, bottomStart = 20.dp),
+                        border = BorderStroke(1.dp, LuluColors.Border),
+                    ) {
+                        Column(
+                            Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Text("这一刻", color = LuluColors.Muted, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                            Text(turn.sceneText, color = LuluColors.Muted, fontSize = 14.sp, lineHeight = 21.sp)
+                        }
+                    }
+                }
+                if (turn.dialogue.isNotBlank()) {
+                    Surface(
+                        modifier = Modifier.widthIn(max = 330.dp),
+                        color = LuluColors.Wheat,
+                        contentColor = LuluColors.OnWheat,
+                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 8.dp, bottomEnd = 20.dp, bottomStart = 20.dp),
+                    ) {
+                        Text(
+                            "“${turn.dialogue.trim().trim('“', '”', '"')}”",
+                            fontSize = 16.sp,
+                            lineHeight = 24.sp,
+                            modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp),
+                        )
                     }
                 }
             }
@@ -721,17 +754,64 @@ private suspend fun runInvitedMeetingOpening(sessionId: String, inviterId: Strin
 
 private suspend fun runMeetingTurn(sessionId: String, userText: String) {
     var session = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == sessionId } ?: error("见面记录不存在")
+    val firstCharacterId = session.participantIds.firstOrNull() ?: error("见面参与者不存在")
+    val firstReply = generateMeetingReply(
+        session = session,
+        characterId = firstCharacterId,
+        latestMoment = userText,
+        systemMoment = false,
+        expandUserDraft = true,
+    ).getOrThrow()
+
     val now = Instant.now()
     val userName = UserProfileContext.displayLabel()
-    val userTurn = MeetingTurn(UUID.randomUUID().toString(), null, userName, userText, "", now)
+    val completedDialogue = firstReply.userDialogue
+    val completedScene = firstReply.userSceneText.ifBlank {
+        if (completedDialogue.isBlank()) userText else ""
+    }
+    val completedMoment = listOf(
+        completedScene.takeIf(String::isNotBlank),
+        completedDialogue.takeIf(String::isNotBlank)?.let { "“${it.trim().trim('“', '”', '"')}”" },
+    ).filterNotNull().joinToString("\n")
+    val userTurn = MeetingTurn(
+        UUID.randomUUID().toString(),
+        null,
+        userName,
+        completedScene,
+        completedDialogue,
+        now,
+    )
     session = DigitalWorldStore.appendMeetingTurn(sessionId, userTurn)
+    val userTimelineText = buildString {
+        appendLine("主人原始输入：${userText.trim()}")
+        if (completedScene.isNotBlank()) appendLine("这一刻：$completedScene")
+        if (completedDialogue.isNotBlank()) append("说出口：${completedDialogue.trim()}")
+    }.trim()
     session.participantIds.forEach { viewerId ->
-        DigitalWorldStore.recordMeetingTimeline(session, viewerId, "turn-${userTurn.id}-user", userName, userText, now, false)
+        DigitalWorldStore.recordMeetingTimeline(
+            session,
+            viewerId,
+            "turn-${userTurn.id}-user",
+            userName,
+            userTimelineText,
+            now,
+            false,
+        )
     }
 
-    for (characterId in session.participantIds) {
+    session.participantIds.forEachIndexed { index, characterId ->
         val character = MigratedDomainStores.characters.get(characterId)
-        val reply = generateMeetingReply(session, characterId, userText, false).getOrThrow()
+        val reply = if (index == 0) {
+            firstReply
+        } else {
+            generateMeetingReply(
+                session = session,
+                characterId = characterId,
+                latestMoment = completedMoment,
+                systemMoment = false,
+                expandUserDraft = false,
+            ).getOrThrow()
+        }
         val requestedDestination = reply.moveTo.takeIf {
             it.isNotBlank() &&
                 it != session.location &&
@@ -764,6 +844,7 @@ private suspend fun generateMeetingReply(
     characterId: String,
     latestMoment: String,
     systemMoment: Boolean = false,
+    expandUserDraft: Boolean = false,
 ): Result<MeetingReply> = runCatching {
     val character = MigratedDomainStores.characters.get(characterId)
     val connection = ScopedModelSelections.resolveConnection(ScopedModelSelections.MEETING)
@@ -774,15 +855,19 @@ private suspend fun generateMeetingReply(
             appendLine(DigitalWorldStore.meetingContext(session, characterId))
             if (digitalNative) appendLine(DigitalWorldStore.contextFor(characterId))
             if (systemMoment) appendLine("这一刻刚发生的系统确认事实：$latestMoment")
-            else appendLine("这一刻用户刚刚新增的言语或动作：$latestMoment")
+            else if (expandUserDraft) appendLine("主人刚输入的意图草稿，需要先补全再回应：$latestMoment")
+            else appendLine("这一刻主人已经发生的言语或动作：$latestMoment")
         },
         instruction = """
             你正在以${character.displayName}的身份参与一场连续见面。只推进当前一小步，不要一次写完整故事，不要总结历史。
             只返回一个 JSON 对象，不要代码块：
-            {"sceneText":"这一刻可被所有参与者观察到的环境变化、你的动作神态与空间细节","dialogue":"你真正说出口的话，可以为空","moveTo":"明确要前往的可用地点或空字符串","statusText":"简短当前状态","gesture":"延续到下一刻的姿态","innerThought":"没有说出口的第一人称心声，可为空","mood":"简短心情"}
+            {"userSceneText":"把主人输入的草稿补成可观察的动作与衔接；无需补全时为空","userDialogue":"主人真正说出口的话；没有则为空","sceneText":"主人这一刻之后，可被所有参与者观察到的环境变化、你的反应动作神态与空间细节","dialogue":"你真正说出口的话，可以为空","moveTo":"明确要前往的可用地点或空字符串","statusText":"简短当前状态","gesture":"延续到下一刻的姿态","innerThought":"没有说出口的第一人称心声，可为空","mood":"简短心情"}
 
             硬规则：
-            - 只能控制${character.displayName}本人，绝不能替用户编造新的台词、动作、感觉、想法或决定。
+            - userSceneText 和 userDialogue 只用于把主人本轮的意图草稿整理成完整见面片段；expandUserDraft=$expandUserDraft。为 false 时两项必须为空。
+            - 补全主人侧时保留原意和语气：可以补足自然衔接、说话方式以及草稿已经暗示的细小动作，但不得添加新的重大决定、强烈情绪、未暗示的亲密行为、感受、想法或后果。无法判断是台词还是动作时要保守，不要擅自扩写。
+            - userSceneText 只放主人可被观察到的行为与旁白；userDialogue 只放主人真正说出口的话。随后 sceneText 和 dialogue 才写${character.displayName}看见这一幕后产生的反应。
+            - 除上述主人草稿补全外，只能控制${character.displayName}本人，绝不能在角色反应中继续替主人行动或回应。
             - 其他角色的既有言行是事实，但不要替其他角色继续说话或行动；他们会获得自己的回合。
             - 地点、参与者、上一刻身体位置、拿着的物品和已经发生的动作必须连续。没有程序记录的固定家具不得凭空出现。
             - sceneText 要比线上聊天丰富一些，通常写两到五句：自然包含环境变化、距离、动作细节、神态以及数字身体能够真实感受到的触感或温度，但不能替用户编造反应。不要只写一句干巴巴的动作标签。
@@ -811,8 +896,10 @@ private fun parseMeetingReply(raw: String): MeetingReply {
         if (start >= 0 && end > start) value.substring(start, end + 1) else value
     }
     val json = runCatching { JSONObject(clean) }.getOrNull()
-        ?: return MeetingReply("", raw.trim(), "正在见面", "停在这一刻", "", "专注", "")
+        ?: return MeetingReply("", "", "", raw.trim(), "正在见面", "停在这一刻", "", "专注", "")
     return MeetingReply(
+        userSceneText = json.optString("userSceneText").trim().take(2_000),
+        userDialogue = json.optString("userDialogue").trim().take(1_200),
         sceneText = json.optString("sceneText").trim().take(2_600),
         dialogue = json.optString("dialogue").trim().take(1_800),
         statusText = json.optString("statusText").trim().take(120),
