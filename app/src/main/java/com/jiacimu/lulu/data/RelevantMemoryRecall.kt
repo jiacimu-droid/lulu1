@@ -122,14 +122,13 @@ object RelevantMemoryRecall {
      * A vector hit is only a pointer. Expand its provenance back to raw timeline evidence so the
      * model receives the exact words and chronology instead of treating a summary as the record.
      */
-    fun sourceEvidenceForPrompt(
+    fun sourceEvidenceEvents(
         characterId: String,
         query: String,
         memories: List<MemoryEntry>,
         limit: Int = 10,
-        characterBudget: Int = 4_200,
-    ): String {
-        if (memories.isEmpty()) return ""
+    ): List<SharedTimelineEvent> {
+        if (memories.isEmpty()) return emptyList()
         val focused = focusQuery(query)
         val queryTerms = terms(focused)
         val ranked = mutableMapOf<String, Pair<SharedTimelineEvent, Double>>()
@@ -152,11 +151,21 @@ object RelevantMemoryRecall {
                 if (previous == null || score > previous.second) ranked[event.id] = event to score
             }
         }
-        val selected = ranked.values
+        return ranked.values
             .sortedWith(compareByDescending<Pair<SharedTimelineEvent, Double>> { it.second }.thenByDescending { it.first.occurredAt })
             .take(limit.coerceIn(1, 16))
             .map(Pair<SharedTimelineEvent, Double>::first)
             .sortedBy(SharedTimelineEvent::occurredAt)
+    }
+
+    fun sourceEvidenceForPrompt(
+        characterId: String,
+        query: String,
+        memories: List<MemoryEntry>,
+        limit: Int = 10,
+        characterBudget: Int = 4_200,
+    ): String {
+        val selected = sourceEvidenceEvents(characterId, query, memories, limit)
         if (selected.isEmpty()) return ""
         val lines = selected.map { event ->
             "[${event.occurredAt}] [${event.channel}] ${event.speaker}：${event.content.take(1_200)}"

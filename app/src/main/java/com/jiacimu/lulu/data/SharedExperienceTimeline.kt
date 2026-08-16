@@ -239,8 +239,11 @@ object SharedExperienceTimeline {
         }
     }
 
+    fun recentEvents(characterId: String, limit: Int): List<SharedTimelineEvent> =
+        if (limit <= 0) emptyList() else query(characterId, limit).sortedBy(SharedTimelineEvent::occurredAt)
+
     fun recentContext(characterId: String, limit: Int = 24, characterBudget: Int = 7_000): String {
-        val events = query(characterId, limit).sortedBy(SharedTimelineEvent::occurredAt)
+        val events = recentEvents(characterId, limit)
         if (events.isEmpty()) return ""
         val lines = events.map { event ->
             "[${event.occurredAt}] [${event.channel}] ${event.speaker}：${event.content.take(1_200)}"

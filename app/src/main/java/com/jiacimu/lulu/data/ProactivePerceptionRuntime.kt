@@ -357,6 +357,12 @@ object ProactivePerceptionRuntime {
             temperature = 0.86,
             maxTokens = 1_500,
             connectionOverride = connection,
+            memoryRequest = UnifiedMemoryRequest(
+                currentInput = pendingUserContext,
+                sceneContext = "后台主动感知 · $trigger",
+                recentContext = listOf(recent, concerns, commitments).filter(String::isNotBlank).joinToString("\n"),
+                taskIntent = "根据角色人设与当前生活状态自主决定行动或保持安静",
+            ),
         ).getOrElse { error ->
             CompanionPresenceStore.recordPerceptionAttempt(characterId, "模型请求失败 · ${error.message.orEmpty().take(120)}", now)
             throw error

@@ -16,6 +16,7 @@ import com.jiacimu.lulu.ai.ModelReply
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.CompanionActionRuntime
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.UnifiedMemoryRequest
 import com.jiacimu.lulu.health.HealthRolePerception
 import org.json.JSONObject
 import java.time.Instant
@@ -130,6 +131,12 @@ object LuluDeviceToolBridge {
             temperature = 0.45,
             maxTokens = 700,
             connectionOverride = connection,
+            memoryRequest = UnifiedMemoryRequest(
+                currentInput = userText,
+                sceneContext = sceneContext,
+                recentContext = history,
+                taskIntent = "判断是直接回复还是执行一个真实手机工具",
+            ),
         )
         if (planner.isFailure) return planner
         val plannedReply = planner.getOrThrow()

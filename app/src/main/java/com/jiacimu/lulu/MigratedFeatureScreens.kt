@@ -188,7 +188,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                                 repository.updatePolicy(
                                     selectedCharacterId,
                                     MemoryPolicy(
-                                        excludedRecentMessages = excluded.toIntOrNull()?.coerceAtLeast(0) ?: 10,
+                                        excludedRecentMessages = excluded.toIntOrNull()?.coerceAtLeast(0) ?: 25,
                                         readableThreshold = threshold.toIntOrNull()?.coerceAtLeast(1) ?: 20,
                                         autoSummarize = autoSummarize,
                                     ),

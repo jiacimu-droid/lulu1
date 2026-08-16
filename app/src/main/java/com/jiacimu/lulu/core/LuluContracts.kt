@@ -56,7 +56,7 @@ data class MemoryEntry(
 )
 
 data class MemoryPolicy(
-    val excludedRecentMessages: Int = 10,
+    val excludedRecentMessages: Int = 25,
     val readableThreshold: Int = 20,
     val autoSummarize: Boolean = true,
 )

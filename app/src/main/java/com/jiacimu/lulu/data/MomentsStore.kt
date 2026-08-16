@@ -151,22 +151,22 @@ object MomentsStore {
         val validIds = candidates.mapTo(linkedSetOf(), CharacterSettings::characterId)
         val detailScale = if (candidates.size <= 8) 1f else 0.58f
         fun scaled(value: Int): Int = (value * detailScale).toInt().coerceAtLeast(160)
-        val socialRecallQuery = buildString {
-            appendLine(authorName)
-            appendLine(momentContext(post))
-        }
+        val socialMemoryRequest = UnifiedMemoryRequest(
+            currentInput = momentContext(post),
+            sceneContext = "朋友圈原帖，作者：$authorName",
+            taskIntent = "判断每个角色是否会点赞，并生成符合本人经历的评论",
+        )
         val candidateMemoryContexts = buildMap {
             candidates.forEach { character ->
                 put(
                     character.characterId,
                     UnifiedMemoryOrchestrator.assemble(
                         characterId = character.characterId,
-                        query = socialRecallQuery,
+                        request = socialMemoryRequest,
                         recallLimit = 6,
                         evidenceLimit = 4,
-                        evidenceCharacterBudget = scaled(1_000),
-                        recentLimit = 6,
-                        recentCharacterBudget = scaled(1_100),
+                        evidenceCharacterBudget = 2_200,
+                        recentCharacterBudget = 2_600,
                     ),
                 )
             }
@@ -190,7 +190,7 @@ object MomentsStore {
                     appendLine("显示名=${character.displayName}")
                     if (identity.isNotBlank()) appendLine("身份与关系=${identity.take(scaled(760))}")
                     appendLine("人设=${character.persona.ifBlank { "按该角色现有人设自然行动。" }.take(scaled(980))}")
-                    memoryContext?.compactPromptSection(characterBudget = scaled(1_900))
+                    memoryContext?.compactPromptSection(characterBudget = 3_600)
                         ?.takeIf(String::isNotBlank)
                         ?.let { appendLine(it) }
                     presence?.let {
@@ -221,6 +221,7 @@ object MomentsStore {
             maxTokens = (700 + candidates.size * 180).coerceIn(900, 4_000),
             usage = ModelUsage.Chat,
             contextMode = CompanionContextMode.PersonaAndScenario,
+            memoryRequest = socialMemoryRequest,
         ).getOrNull()?.text.orEmpty()
 
         val plans = parseReactionPlans(raw, validIds).associateBy(ReactionPlan::characterId)

@@ -6,6 +6,7 @@ import com.jiacimu.lulu.data.CharacterIdentityStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.UnifiedMemoryOrchestrator
+import com.jiacimu.lulu.data.UnifiedMemoryRequest
 import com.jiacimu.lulu.data.TokenBreakdownItem
 import com.jiacimu.lulu.data.UserProfileContext
 import kotlinx.coroutines.Dispatchers
@@ -432,6 +433,7 @@ class CompanionModelGateway(
         connectionOverride: ModelConnection? = null,
         usage: ModelUsage? = null,
         contextMode: CompanionContextMode = CompanionContextMode.Full,
+        memoryRequest: UnifiedMemoryRequest? = null,
         streamResponse: Boolean = false,
         readTimeoutMillis: Int = DEFAULT_MODEL_READ_TIMEOUT_MILLIS,
         onStreamText: ((String) -> Unit)? = null,
@@ -455,7 +457,10 @@ class CompanionModelGateway(
             val presence = CompanionPresenceStore.current(characterId).takeIf { fullContext }
             val recallQuery = "$facts\n$instruction"
             val unifiedMemory = if (fullContext) {
-                UnifiedMemoryOrchestrator.assemble(characterId, recallQuery)
+                UnifiedMemoryOrchestrator.assemble(
+                    characterId = characterId,
+                    request = memoryRequest ?: UnifiedMemoryRequest.legacy(facts, instruction),
+                )
             } else {
                 UnifiedMemoryOrchestrator.empty()
             }

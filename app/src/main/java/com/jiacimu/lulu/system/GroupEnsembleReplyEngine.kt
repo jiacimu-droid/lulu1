@@ -11,6 +11,7 @@ import com.jiacimu.lulu.data.LuluConversation
 import com.jiacimu.lulu.data.LuluGroupMember
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.UnifiedMemoryOrchestrator
+import com.jiacimu.lulu.data.UnifiedMemoryRequest
 import com.jiacimu.lulu.data.UserProfileContext
 import org.json.JSONArray
 import org.json.JSONObject
@@ -115,23 +116,23 @@ internal object GroupEnsembleReplyEngine {
         val zone = ZoneId.systemDefault()
         val isCall = channel == "call"
         val userProfileContext = UserProfileContext.promptSection()
-        val ensembleRecallQuery = buildString {
-            appendLine(sceneContext)
-            appendLine(latestUserMessage.content)
-            appendLine(history.takeLast(6_000))
-        }
+        val ensembleMemoryRequest = UnifiedMemoryRequest(
+            currentInput = latestUserMessage.content,
+            sceneContext = sceneContext,
+            recentContext = history.takeLast(6_000),
+            taskIntent = "延续当前群聊并让每个成员按自己的经历自然接话",
+        )
         val memberMemoryContexts = buildMap {
             validMembers.forEach { member ->
                 put(
                     member.characterId,
                     UnifiedMemoryOrchestrator.assemble(
                         characterId = member.characterId,
-                        query = ensembleRecallQuery,
+                        request = ensembleMemoryRequest,
                         recallLimit = 8,
                         evidenceLimit = 6,
-                        evidenceCharacterBudget = 2_200,
-                        recentLimit = 10,
-                        recentCharacterBudget = 2_400,
+                        evidenceCharacterBudget = 2_800,
+                        recentCharacterBudget = 3_200,
                     ),
                 )
             }
@@ -227,6 +228,7 @@ internal object GroupEnsembleReplyEngine {
             temperature = 1.02,
             maxTokens = (700 + replyLimit * 300).coerceIn(1_100, 3_200),
             connectionOverride = connection,
+            memoryRequest = ensembleMemoryRequest,
         )
 
         val baseReply = generated.getOrElse { error -> return Result.success(fallbackReply(currentSpeakerId, memberLabels, error.message)) }
