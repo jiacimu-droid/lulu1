@@ -459,6 +459,7 @@ private fun CompanionPresenceState?.toNullableJson(): Any = this?.let { state ->
     .put("source", state.source)
     .put("lastPerceptionAt", state.lastPerceptionAt?.toString().orEmpty())
     .put("lastPerceptionNote", state.lastPerceptionNote)
+    .put("provenanceId", state.provenanceId)
 } ?: JSONObject.NULL
 
 private fun JSONObject.toPresenceSnapshot(): CompanionPresenceState? = CompanionPresenceState(
@@ -471,6 +472,7 @@ private fun JSONObject.toPresenceSnapshot(): CompanionPresenceState? = Companion
     source = optString("source"),
     lastPerceptionAt = optString("lastPerceptionAt").takeIf(String::isNotBlank)?.let { runCatching { Instant.parse(it) }.getOrNull() },
     lastPerceptionNote = optString("lastPerceptionNote"),
+    provenanceId = optString("provenanceId"),
 )
 
 private fun MeetingExchangeRecord.toJson() = JSONObject()
