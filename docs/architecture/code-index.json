@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T11:24:42.579513+00:00",
-  "commit": "f6f854c876513b386df9cbfe5881ac9b2cb59ad2",
+  "generatedAt": "2026-08-16T13:27:52.809302+00:00",
+  "commit": "dee1025cef56f0502b36fba423292a82b0b3fd11",
   "branch": "main",
-  "sourceFingerprint": "3f6cbb2a8570759ee70841f71c207d9fa5c1563030fe5097ee698578b03db0c8",
+  "sourceFingerprint": "3daa452b39ec0962e6d274a3fbcbd5c2b5f730f044022b3e4cffe64cf485d3e4",
   "summary": {
     "files": 187,
-    "lines": 56745,
-    "symbols": 746
+    "lines": 56832,
+    "symbols": 747
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -311,7 +311,7 @@
     "DigitalWorldMeetingApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 42
+        "line": 43
       }
     ],
     "LexiconFeatureScreenV2": [
@@ -1349,7 +1349,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 415
+        "line": 421
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -1536,40 +1536,46 @@
         "line": 279
       }
     ],
-    "moveMeeting": [
+    "meetingLocationOptions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
         "line": 290
       }
     ],
+    "moveMeeting": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
+        "line": 293
+      }
+    ],
     "endMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 333
+        "line": 336
       }
     ],
     "deleteMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 348
+        "line": 351
       }
     ],
     "pruneEmptyMeetings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 361
+        "line": 364
       }
     ],
     "recordMeetingTimeline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 365
+        "line": 368
       }
     ],
     "meetingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 386
+        "line": 389
       }
     ],
     "InMemoryMemoryRepository": [
@@ -4391,12 +4397,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-      "lines": 744,
-      "sha256": "1e7ddb5ea187ba9d245043b21948ff0ddfacf1a32675ec02789e65d8ff40e227",
+      "lines": 825,
+      "sha256": "58dcb56983d6287c2a14d360ec72b6b7651ee3ec9069244ef96ff658d3d80adc",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
-          "line": 42
+          "line": 43
         }
       ]
     },
@@ -5456,8 +5462,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 539,
-      "sha256": "9e9d1be702c8a128c36cf8fe465a6db3088966be44c9187dac44c41e622e7250",
+      "lines": 545,
+      "sha256": "599fb20d6337131daa4ce7a30e255ae9b9d8cff90a9fe0f1c884e3e39ea5503d",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -5532,32 +5538,36 @@
           "line": 279
         },
         {
-          "name": "moveMeeting",
+          "name": "meetingLocationOptions",
           "line": 290
         },
         {
+          "name": "moveMeeting",
+          "line": 293
+        },
+        {
           "name": "endMeeting",
-          "line": 333
+          "line": 336
         },
         {
           "name": "deleteMeeting",
-          "line": 348
+          "line": 351
         },
         {
           "name": "pruneEmptyMeetings",
-          "line": 361
+          "line": 364
         },
         {
           "name": "recordMeetingTimeline",
-          "line": 365
+          "line": 368
         },
         {
           "name": "meetingContext",
-          "line": 386
+          "line": 389
         },
         {
           "name": "clearCharacter",
-          "line": 415
+          "line": 421
         }
       ]
     },
