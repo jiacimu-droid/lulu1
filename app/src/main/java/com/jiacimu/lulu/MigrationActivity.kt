@@ -16,6 +16,7 @@ import com.jiacimu.lulu.data.LegacyConversationMigration
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.MemoryModelRuntime
+import com.jiacimu.lulu.data.MeetingExperienceStore
 import com.jiacimu.lulu.data.MomentsStore
 import com.jiacimu.lulu.data.ProactivePerceptionPolicyStore
 import com.jiacimu.lulu.data.ProactivePerceptionRuntime
@@ -52,6 +53,7 @@ class MigrationActivity : ComponentActivity() {
         MomentsStore.initialize(appContext)
         SharedExperienceTimeline.backfillChatHistory()
         CompanionPresenceStore.initialize(appContext)
+        MeetingExperienceStore.initialize(appContext)
         HealthCycleStore.initialize(appContext)
         LuluAiServices.initialize(appContext)
         MemoryModelRuntime.initialize(appContext)
