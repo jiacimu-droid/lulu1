@@ -13,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -53,6 +54,14 @@ fun DigitalWorldMeetingApp(
     val world by DigitalWorldStore.state.collectAsState()
     val library by LuluAiServices.connectionStore.library.collectAsState()
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val userProfilePrefs = remember {
+        context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE)
+    }
+    val userAvatar = remember {
+        userProfilePrefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2)
+    }
+    val userAvatarUri = remember { userProfilePrefs.getString("avatar_uri", null) }
     var selectedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var activeSessionId by remember { mutableStateOf<String?>(null) }
     var inviteHandled by remember(invitedCharacterId) { mutableStateOf(false) }
@@ -183,6 +192,8 @@ fun DigitalWorldMeetingApp(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 session = activeSession,
                 viewOnly = activeSession.endedAt != null,
+                userAvatar = userAvatar,
+                userAvatarUri = userAvatarUri,
                 input = input,
                 generating = generating,
                 errorText = errorText,
@@ -480,6 +491,8 @@ private fun MeetingRoom(
     modifier: Modifier,
     session: MeetingSession,
     viewOnly: Boolean,
+    userAvatar: String,
+    userAvatarUri: String?,
     input: String,
     generating: Boolean,
     errorText: String,
@@ -547,7 +560,7 @@ private fun MeetingRoom(
                 }
             }
             items(session.turns, key = MeetingTurn::id) { turn ->
-                MeetingTurnCard(turn)
+                MeetingTurnCard(turn, userAvatar, userAvatarUri)
             }
             if (generating) {
                 item {
@@ -598,7 +611,11 @@ private fun MeetingRoom(
     }
 }
 @Composable
-private fun MeetingTurnCard(turn: MeetingTurn) {
+private fun MeetingTurnCard(
+    turn: MeetingTurn,
+    userAvatar: String,
+    userAvatarUri: String?,
+) {
     when {
         turn.speakerId == "system" -> {
             Surface(
@@ -607,59 +624,76 @@ private fun MeetingTurnCard(turn: MeetingTurn) {
                 shape = RoundedCornerShape(16.dp),
             ) {
                 Text(
-                    turn.sceneText,
-                    color = LuluColors.Muted,
+                    meetingParagraphs(turn.sceneText),
+                    color = LuluColors.Ink,
                     fontSize = 13.sp,
-                    lineHeight = 20.sp,
+                    lineHeight = 21.sp,
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                 )
             }
         }
         turn.speakerId == null -> {
-            Column(
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(7.dp),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.End,
             ) {
-                Text(
-                    turn.speakerName,
-                    color = LuluColors.BlueGray,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(end = 3.dp),
-                )
-                if (turn.sceneText.isNotBlank()) {
-                    Surface(
-                        modifier = Modifier.widthIn(max = 330.dp),
-                        color = LuluColors.CardStrong,
-                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 8.dp, bottomEnd = 20.dp, bottomStart = 20.dp),
-                        border = BorderStroke(1.dp, LuluColors.Border),
-                    ) {
-                        Column(
-                            Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(7.dp),
+                ) {
+                    Text(
+                        turn.speakerName,
+                        color = LuluColors.BlueGray,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(end = 3.dp),
+                    )
+                    if (turn.sceneText.isNotBlank()) {
+                        Surface(
+                            modifier = Modifier.widthIn(max = 330.dp),
+                            color = LuluColors.CardStrong,
+                            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 8.dp, bottomEnd = 20.dp, bottomStart = 20.dp),
+                            border = BorderStroke(1.dp, LuluColors.Border),
                         ) {
-                            Text("这一刻", color = LuluColors.Muted, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
-                            Text(turn.sceneText, color = LuluColors.Muted, fontSize = 14.sp, lineHeight = 21.sp)
+                            Column(
+                                Modifier.padding(horizontal = 15.dp, vertical = 12.dp),
+                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                            ) {
+                                Text("这一刻", color = LuluColors.Muted, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    meetingParagraphs(turn.sceneText),
+                                    color = LuluColors.Ink,
+                                    fontSize = 14.sp,
+                                    lineHeight = 22.sp,
+                                )
+                            }
+                        }
+                    }
+                    if (turn.dialogue.isNotBlank()) {
+                        Surface(
+                            modifier = Modifier.widthIn(max = 330.dp),
+                            color = LuluColors.Wheat,
+                            contentColor = LuluColors.OnWheat,
+                            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 8.dp, bottomEnd = 20.dp, bottomStart = 20.dp),
+                        ) {
+                            Text(
+                                "“${turn.dialogue.trim().trim('“', '”', '"')}”",
+                                fontSize = 16.sp,
+                                lineHeight = 24.sp,
+                                modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp),
+                            )
                         }
                     }
                 }
-                if (turn.dialogue.isNotBlank()) {
-                    Surface(
-                        modifier = Modifier.widthIn(max = 330.dp),
-                        color = LuluColors.Wheat,
-                        contentColor = LuluColors.OnWheat,
-                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 8.dp, bottomEnd = 20.dp, bottomStart = 20.dp),
-                    ) {
-                        Text(
-                            "“${turn.dialogue.trim().trim('“', '”', '"')}”",
-                            fontSize = 16.sp,
-                            lineHeight = 24.sp,
-                            modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp),
-                        )
-                    }
-                }
+                Spacer(Modifier.width(10.dp))
+                LuluProfileAvatar(
+                    imageUri = userAvatarUri,
+                    fallback = userAvatar,
+                    size = 46,
+                )
             }
         }
         else -> {
@@ -683,10 +717,10 @@ private fun MeetingTurnCard(turn: MeetingTurn) {
                     }
                     if (turn.sceneText.isNotBlank()) {
                         Text(
-                            turn.sceneText,
-                            color = LuluColors.Muted,
+                            meetingParagraphs(turn.sceneText),
+                            color = LuluColors.Ink,
                             fontSize = 14.sp,
-                            lineHeight = 21.sp,
+                            lineHeight = 22.sp,
                             modifier = Modifier.padding(horizontal = 2.dp),
                         )
                     }
@@ -708,6 +742,29 @@ private fun MeetingTurnCard(turn: MeetingTurn) {
                 }
             }
         }
+    }
+}
+
+private fun meetingParagraphs(raw: String): String {
+    val normalized = raw.trim()
+        .replace(Regex("[\\t ]+"), " ")
+        .replace(Regex("\\n{3,}"), "\n\n")
+    if (normalized.isBlank()) return ""
+    val explicitParagraphs = normalized
+        .split(Regex("\\n+"))
+        .map { it.trim() }
+        .filter { it.isNotBlank() }
+    if (explicitParagraphs.size > 1) return explicitParagraphs.joinToString("\n\n")
+
+    val sentences = Regex(""".*?[。！？!?](?:[”’])?|.+$""")
+        .findAll(normalized)
+        .map { it.value.trim() }
+        .filter(String::isNotBlank)
+        .toList()
+    return if (sentences.size <= 2) {
+        normalized
+    } else {
+        sentences.chunked(2).joinToString("\n\n") { paragraph -> paragraph.joinToString("") }
     }
 }
 
@@ -870,6 +927,7 @@ private suspend fun generateMeetingReply(
             - 除上述主人草稿补全外，只能控制${character.displayName}本人，绝不能在角色反应中继续替主人行动或回应。
             - 其他角色的既有言行是事实，但不要替其他角色继续说话或行动；他们会获得自己的回合。
             - 地点、参与者、上一刻身体位置、拿着的物品和已经发生的动作必须连续。没有程序记录的固定家具不得凭空出现。
+            - userSceneText 与 sceneText 都要按画面变化自然分段：较长时使用换行分成两到三个短段落，不要把环境、动作和反应挤成一整坨，也不要每句话都机械拆段。
             - sceneText 要比线上聊天丰富一些，通常写两到五句：自然包含环境变化、距离、动作细节、神态以及数字身体能够真实感受到的触感或温度，但不能替用户编造反应。不要只写一句干巴巴的动作标签。
             - dialogue 只放真正说出口的话，界面会自动加引号，正文里不要自己重复添加引号。
             - 如果用户明确提出一起去某个“可用地点”，moveTo 填该地点的准确名称，并在 sceneText 中自然写出从当前位置出发和抵达的连续过程；没有明确移动意图时必须留空。地点变化由程序校验并真实保存，不能只在文字中假装移动。
