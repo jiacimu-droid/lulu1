@@ -18,8 +18,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -28,7 +30,9 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ScopedModelSelections
 import com.jiacimu.lulu.data.*
 import com.jiacimu.lulu.design.LuluColors
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
 import java.time.ZoneId
@@ -55,7 +59,21 @@ private data class MeetingReply(
     val innerThought: String,
     val mood: String,
     val moveTo: String,
+    val sceneSnapshot: MeetingSceneSnapshot?,
 )
+
+private data class MeetingDirectorPlan(
+    val order: List<String>,
+    val guidance: String,
+) {
+    fun ledgerText(): String = buildString {
+        append("顺序=")
+        append(order.joinToString(" → "))
+        if (guidance.isNotBlank()) append("；调度=").append(guidance)
+    }
+}
+
+private const val INVITED_OPENING_PREFIX = "__meeting_invited_opening__:"
 
 private val MeetingProseColor = Color(0xFF56575B)
 
@@ -66,14 +84,17 @@ fun DigitalWorldMeetingApp(
     invitedCharacterId: String? = null,
     invitationText: String = "",
     invitationLocation: String = "",
+    invitationId: String = "",
     onInvitationConsumed: () -> Unit = {},
 ) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val profiles by DigitalLifeProfileStore.profiles.collectAsState()
     val world by DigitalWorldStore.state.collectAsState()
+    val experience by MeetingExperienceStore.state.collectAsState()
+    val taskStates by MeetingReplyTaskManager.states.collectAsState()
     val library by LuluAiServices.connectionStore.library.collectAsState()
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val clipboard = LocalClipboardManager.current
     val userProfilePrefs = remember {
         context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE)
     }
@@ -83,15 +104,16 @@ fun DigitalWorldMeetingApp(
     val userAvatarUri = remember { userProfilePrefs.getString("avatar_uri", null) }
     var selectedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var activeSessionId by remember { mutableStateOf<String?>(null) }
-    var inviteHandled by remember(invitedCharacterId) { mutableStateOf(false) }
+    var inviteHandled by remember(invitedCharacterId, invitationId) { mutableStateOf(false) }
     var input by remember { mutableStateOf("") }
-    var generating by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf("") }
     var showModelPicker by remember { mutableStateOf(false) }
+    var showWritingPicker by remember { mutableStateOf(false) }
     var showTopMenu by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
     var pendingDeleteSession by remember { mutableStateOf<MeetingSession?>(null) }
     var pendingDeleteTurn by remember { mutableStateOf<MeetingTurn?>(null) }
+    var selectedSceneGroup by remember { mutableStateOf<MeetingDisplayGroup?>(null) }
     var locationDraft by remember { mutableStateOf("") }
 
     val unfinishedSessionId = if (invitedCharacterId.isNullOrBlank()) {
@@ -101,6 +123,11 @@ fun DigitalWorldMeetingApp(
     }
     val resolvedActiveSessionId = activeSessionId ?: unfinishedSessionId
     val activeSession = world.meetings.firstOrNull { it.id == resolvedActiveSessionId }
+    val activeTask = activeSession?.id?.let(taskStates::get)
+    val generating = activeTask?.running == true
+    val visibleError = errorText.ifBlank { activeTask?.lastError.orEmpty() }
+    val failedExchange = activeSession?.id?.let(MeetingExperienceStore::pendingForSession)
+        ?.lastOrNull { it.status == MeetingExchangeStatus.FAILED }
     val selectedArchiveId = ScopedModelSelections.selectedArchiveId(ScopedModelSelections.MEETING, library)
     val selectedArchiveLabel = selectedArchiveId?.let { id ->
         library.archives.firstOrNull { it.id == id }?.let(LuluAiServices.connectionStore::archiveLabel)
@@ -113,28 +140,89 @@ fun DigitalWorldMeetingApp(
         activeSessionId = null
     }
 
-    LaunchedEffect(invitedCharacterId) {
+    fun launchExchange(session: MeetingSession, rawDraft: String, invitedOpening: Boolean = false): Boolean {
+        val record = MeetingExperienceStore.beginExchange(
+            session = session,
+            rawDraft = if (invitedOpening) INVITED_OPENING_PREFIX + rawDraft else rawDraft,
+        )
+        val launched = MeetingReplyTaskManager.launch(session.id, record.id) {
+            if (invitedOpening) runInvitedMeetingOpening(session.id, rawDraft, record.id)
+            else runMeetingTurn(session.id, rawDraft, record.id)
+        }
+        if (!launched) MeetingExperienceStore.discardExchange(record.id)
+        return launched
+    }
+
+    fun rewindAndRegenerate(record: MeetingExchangeRecord, editOnly: Boolean) {
+        val rawDraft = record.rawDraft.removePrefix(INVITED_OPENING_PREFIX)
+        val affected = MeetingExperienceStore.recordsFrom(record.sessionId, record.id)
+        DigitalWorldStore.rewindMeetingExchanges(record.sessionId, affected, record.beforeScene)
+        val rewound = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == record.sessionId }
+        if (editOnly) {
+            MeetingReplyTaskManager.clearError(record.sessionId)
+            input = rawDraft
+        } else if (rewound != null) {
+            errorText = ""
+            launchExchange(rewound, rawDraft, record.rawDraft.startsWith(INVITED_OPENING_PREFIX))
+        }
+    }
+
+    LaunchedEffect(invitedCharacterId, invitationId) {
         val inviterId = invitedCharacterId?.takeIf(String::isNotBlank) ?: return@LaunchedEffect
         if (inviteHandled) return@LaunchedEffect
         inviteHandled = true
         onInvitationConsumed()
         runCatching {
-            DigitalWorldStore.startMeeting(
+            if (invitationId.isNotBlank()) {
+                val invite = MeetingExperienceStore.invitation(invitationId)
+                    ?: error("这份见面邀请已经不存在")
+                require(invite.characterId == inviterId) { "见面邀请与角色不一致" }
+                require(invite.status == MeetingInvitationStatus.PENDING) {
+                    when (invite.status) {
+                        MeetingInvitationStatus.ACCEPTED -> "这份邀请已经接受过了"
+                        MeetingInvitationStatus.REJECTED -> "这份邀请已经被婉拒"
+                        MeetingInvitationStatus.EXPIRED -> "这份邀请已经过期"
+                        MeetingInvitationStatus.PENDING -> ""
+                    }
+                }
+            }
+            val session = DigitalWorldStore.startMeeting(
                 participantIds = listOf(inviterId),
                 location = invitationLocation.trim().ifBlank { "世界入口" },
                 initiatedByCharacterId = inviterId,
                 invitationText = invitationText,
             )
+            if (invitationId.isNotBlank()) MeetingExperienceStore.acceptInvitation(invitationId)
+            session
         }.onSuccess { session ->
             activeSessionId = session.id
             errorText = ""
-            generating = true
-            runCatching { runInvitedMeetingOpening(session.id, inviterId) }
-                .onFailure { errorText = it.message ?: "角色迎接失败，可以直接继续见面" }
-            generating = false
+            launchExchange(session, inviterId, invitedOpening = true)
         }.onFailure { error ->
             errorText = error.message ?: "无法接受这次见面邀请"
         }
+    }
+
+    // A process may have died after partial output was saved. Rewind that incomplete transaction,
+    // then restart it from the same raw draft; navigating away in the same process needs no restart.
+    LaunchedEffect(activeSession?.id) {
+        val session = activeSession ?: return@LaunchedEffect
+        if (session.endedAt != null || MeetingReplyTaskManager.state(session.id).running) return@LaunchedEffect
+        val pending = MeetingExperienceStore.pendingForSession(session.id)
+            .firstOrNull { it.status in setOf(MeetingExchangeStatus.PENDING, MeetingExchangeStatus.RUNNING) }
+            ?: return@LaunchedEffect
+        val resumedSession = if (pending.status == MeetingExchangeStatus.RUNNING) {
+            DigitalWorldStore.rewindMeetingExchanges(session.id, listOf(pending), pending.beforeScene)
+            DigitalWorldStore.state.value.meetings.firstOrNull { it.id == session.id } ?: return@LaunchedEffect
+        } else session
+        val opening = pending.rawDraft.startsWith(INVITED_OPENING_PREFIX)
+        val rawDraft = pending.rawDraft.removePrefix(INVITED_OPENING_PREFIX)
+        val record = MeetingExperienceStore.beginExchange(resumedSession, pending.rawDraft, pending.id)
+        val resumed = MeetingReplyTaskManager.launch(resumedSession.id, record.id) {
+            if (opening) runInvitedMeetingOpening(resumedSession.id, rawDraft, record.id)
+            else runMeetingTurn(resumedSession.id, rawDraft, record.id)
+        }
+        if (!resumed) MeetingExperienceStore.discardExchange(record.id)
     }
 
     Scaffold(
@@ -214,7 +302,7 @@ fun DigitalWorldMeetingApp(
                 },
                 actions = {
                     if (activeSession?.endedAt == null && activeSession != null && !showHistory) {
-                        TextButton(onClick = finishActiveMeeting) {
+                        TextButton(onClick = finishActiveMeeting, enabled = !generating) {
                             Text("结束", color = LuluColors.Ink, fontWeight = FontWeight.SemiBold)
                         }
                     } else if (activeSession?.endedAt != null && !showHistory) {
@@ -240,6 +328,20 @@ fun DigitalWorldMeetingApp(
                                 },
                                 leadingIcon = { Icon(Icons.Outlined.Memory, null) },
                                 onClick = { showTopMenu = false; showModelPicker = true },
+                            )
+                            DropdownMenuItem(
+                                text = {
+                                    Column {
+                                        Text("见面写法")
+                                        Text(
+                                            "${experience.writing.length.label()} · ${experience.writing.style.label()}",
+                                            color = LuluColors.Muted,
+                                            fontSize = 10.sp,
+                                        )
+                                    }
+                                },
+                                leadingIcon = { Icon(Icons.Outlined.AutoStories, null) },
+                                onClick = { showTopMenu = false; showWritingPicker = true },
                             )
                         }
                     }
@@ -282,20 +384,19 @@ fun DigitalWorldMeetingApp(
                 userAvatarUri = userAvatarUri,
                 input = input,
                 generating = generating,
-                errorText = errorText,
+                canSend = !generating && failedExchange == null,
+                errorText = visibleError,
                 onInputChanged = { input = it.take(2_000) },
-                onDeleteTurnRequest = { turn -> pendingDeleteTurn = turn },
+                onSceneLongClick = { group -> selectedSceneGroup = group },
+                onRetry = failedExchange?.takeIf { !generating }?.let { record ->
+                    { rewindAndRegenerate(record, editOnly = false) }
+                },
                 onSend = {
                     val userText = input.trim()
-                    if (userText.isNotBlank() && !generating) {
-                        input = ""
+                    if (userText.isNotBlank() && !generating && failedExchange == null) {
                         errorText = ""
-                        generating = true
-                        scope.launch {
-                            runCatching { runMeetingTurn(activeSession.id, userText) }
-                                .onFailure { errorText = it.message ?: "见面回复失败" }
-                            generating = false
-                        }
+                        if (launchExchange(activeSession, userText)) input = ""
+                        else errorText = "上一轮还在生成，请稍等一下"
                     }
                 },
             )
@@ -320,11 +421,21 @@ fun DigitalWorldMeetingApp(
     }
 
     pendingDeleteTurn?.let { turn ->
+        val record = MeetingExperienceStore.exchangeForTurn(turn)
+        val laterCount = record?.let { MeetingExperienceStore.recordsFrom(record.sessionId, it.id).size - 1 } ?: 0
         AlertDialog(
             onDismissRequest = { pendingDeleteTurn = null },
             icon = { Icon(Icons.Outlined.DeleteSweep, null) },
             title = { Text("删除这一轮互动？") },
-            text = { Text("会删除这次输入以及由它生成的一来一回，并同步清除对应原始时间线和派生记忆。此操作无法恢复。") },
+            text = {
+                Text(
+                    buildString {
+                        append("会删除这次输入及完整场景，并同步清除原始时间线、语义记忆来源、姿态、心声和地点状态。")
+                        if (laterCount > 0) append(" 为保证因果连续，后面的 $laterCount 个场景也会一起回退。")
+                        append(" 此操作无法恢复。")
+                    }
+                )
+            },
             confirmButton = {
                 TextButton(onClick = {
                     activeSession?.let { session ->
@@ -335,6 +446,61 @@ fun DigitalWorldMeetingApp(
             },
             dismissButton = { TextButton(onClick = { pendingDeleteTurn = null }) { Text("取消") } },
         )
+    }
+
+    selectedSceneGroup?.let { group ->
+        val turn = group.turns.firstOrNull { it.speakerId != "system" }
+        val record = turn?.let(MeetingExperienceStore::exchangeForTurn)
+        val canRewrite = activeSession?.endedAt == null && record != null && !generating
+        ModalBottomSheet(onDismissRequest = { selectedSceneGroup = null }) {
+            Text(
+                "这一段",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+            )
+            ListItem(
+                headlineContent = { Text("复制完整场景") },
+                leadingContent = { Icon(Icons.Outlined.ContentCopy, null) },
+                modifier = Modifier.clickable {
+                    clipboard.setText(AnnotatedString(group.asCopyText()))
+                    selectedSceneGroup = null
+                },
+            )
+            ListItem(
+                headlineContent = { Text("编辑原输入并重来") },
+                supportingContent = if (canRewrite) ({ Text("这一段之后的内容会一并回退") }) else null,
+                leadingContent = { Icon(Icons.Outlined.Edit, null) },
+                modifier = Modifier.clickable(enabled = canRewrite) {
+                    rewindAndRegenerate(record!!, editOnly = true)
+                    selectedSceneGroup = null
+                },
+                colors = ListItemDefaults.colors(
+                    headlineColor = if (canRewrite) LuluColors.Ink else LuluColors.Muted,
+                ),
+            )
+            ListItem(
+                headlineContent = { Text("用原输入重新生成") },
+                supportingContent = if (canRewrite) ({ Text("从这一刻重新续写，不叠加旧结果") }) else null,
+                leadingContent = { Icon(Icons.Outlined.Refresh, null) },
+                modifier = Modifier.clickable(enabled = canRewrite) {
+                    rewindAndRegenerate(record!!, editOnly = false)
+                    selectedSceneGroup = null
+                },
+                colors = ListItemDefaults.colors(
+                    headlineColor = if (canRewrite) LuluColors.Ink else LuluColors.Muted,
+                ),
+            )
+            ListItem(
+                headlineContent = { Text("彻底删除这一段", color = MaterialTheme.colorScheme.error) },
+                leadingContent = { Icon(Icons.Outlined.DeleteSweep, null, tint = MaterialTheme.colorScheme.error) },
+                modifier = Modifier.clickable(enabled = turn != null && !generating) {
+                    pendingDeleteTurn = turn
+                    selectedSceneGroup = null
+                },
+            )
+            Spacer(Modifier.navigationBarsPadding().height(10.dp))
+        }
     }
 
     if (showModelPicker) {
@@ -349,6 +515,70 @@ fun DigitalWorldMeetingApp(
             onDismiss = { showModelPicker = false },
         )
     }
+
+    if (showWritingPicker) {
+        MeetingWritingPreferencesDialog(
+            preferences = experience.writing,
+            onLength = { MeetingExperienceStore.updateWriting(length = it) },
+            onStyle = { MeetingExperienceStore.updateWriting(style = it) },
+            onDismiss = { showWritingPicker = false },
+        )
+    }
+}
+
+private fun MeetingProseLength.label(): String = when (this) {
+    MeetingProseLength.BRIEF -> "简略"
+    MeetingProseLength.BALANCED -> "适中"
+    MeetingProseLength.RICH -> "丰富"
+}
+
+private fun MeetingProseStyle.label(): String = when (this) {
+    MeetingProseStyle.NATURAL -> "自然"
+    MeetingProseStyle.SUBTLE -> "细腻含蓄"
+    MeetingProseStyle.LITERARY -> "氛围文学"
+}
+
+@Composable
+private fun MeetingWritingPreferencesDialog(
+    preferences: MeetingWritingPreferences,
+    onLength: (MeetingProseLength) -> Unit,
+    onStyle: (MeetingProseStyle) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("见面写法") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("情节丰富度", fontWeight = FontWeight.Medium)
+                    Text("控制这一小步展开多少细节，不要求你把输入写完整。", color = LuluColors.Muted, fontSize = 12.sp)
+                    Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                        MeetingProseLength.values().forEach { option ->
+                            FilterChip(
+                                selected = preferences.length == option,
+                                onClick = { onLength(option) },
+                                label = { Text(option.label()) },
+                            )
+                        }
+                    }
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("描写风格", fontWeight = FontWeight.Medium)
+                    Text("“细腻含蓄”会用目光、停顿、呼吸与触感呈现情绪，少直接宣告心声。", color = LuluColors.Muted, fontSize = 12.sp)
+                    MeetingProseStyle.values().forEach { option ->
+                        FilterChip(
+                            selected = preferences.style == option,
+                            onClick = { onStyle(option) },
+                            label = { Text(option.label()) },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("完成") } },
+    )
 }
 
 @Composable
@@ -612,63 +842,118 @@ private fun MeetingRoom(
     userAvatarUri: String?,
     input: String,
     generating: Boolean,
+    canSend: Boolean,
     errorText: String,
     onInputChanged: (String) -> Unit,
     onSend: () -> Unit,
-    onDeleteTurnRequest: (MeetingTurn) -> Unit,
+    onSceneLongClick: (MeetingDisplayGroup) -> Unit,
+    onRetry: (() -> Unit)?,
 ) {
     val messageListState = rememberLazyListState()
+    val scrollScope = rememberCoroutineScope()
     val density = LocalDensity.current
     val imeBottom = WindowInsets.ime.getBottom(density)
     val displayGroups = remember(session.turns) { session.turns.toMeetingDisplayGroups() }
+    var autoFollow by remember(session.id) { mutableStateOf(true) }
+    var forcingBottom by remember(session.id) { mutableStateOf(false) }
+    val hasUnseenContent by remember {
+        derivedStateOf { !autoFollow && messageListState.canScrollForward }
+    }
 
-    LaunchedEffect(imeBottom, session.turns.size, generating) {
-        if (imeBottom > 0 || session.turns.isNotEmpty()) {
+    suspend fun scrollToAbsoluteBottom() {
+        forcingBottom = true
+        try {
             withFrameNanos { }
             val lastItemIndex = messageListState.layoutInfo.totalItemsCount - 1
             if (lastItemIndex >= 0) {
                 messageListState.scrollToItem(lastItemIndex)
                 messageListState.scrollBy(Float.MAX_VALUE)
+                autoFollow = true
             }
+        } finally {
+            forcingBottom = false
         }
     }
 
+    LaunchedEffect(messageListState) {
+        snapshotFlow { messageListState.isScrollInProgress to messageListState.canScrollForward }
+            .collect { (scrolling, canScrollForward) ->
+                if (scrolling && !forcingBottom) autoFollow = !canScrollForward
+            }
+    }
+
+    LaunchedEffect(imeBottom) {
+        if (imeBottom > 0) {
+            autoFollow = true
+            scrollToAbsoluteBottom()
+        }
+    }
+
+    LaunchedEffect(session.turns.size, generating) {
+        if (autoFollow) scrollToAbsoluteBottom()
+    }
+
     Column(modifier) {
-        LazyColumn(
-            state = messageListState,
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 13.dp, vertical = 6.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            if (session.turns.isEmpty() && !generating) {
-                item {
-                    Box(Modifier.fillMaxWidth().padding(vertical = 40.dp), contentAlignment = Alignment.Center) {
-                        Text("连接已经建立", color = LuluColors.Muted, fontSize = 12.sp)
+        Box(Modifier.weight(1f).fillMaxWidth()) {
+            LazyColumn(
+                state = messageListState,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 13.dp, vertical = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                if (session.turns.isEmpty() && !generating) {
+                    item {
+                        Box(Modifier.fillMaxWidth().padding(vertical = 40.dp), contentAlignment = Alignment.Center) {
+                            Text("连接已经建立", color = LuluColors.Muted, fontSize = 12.sp)
+                        }
+                    }
+                }
+                items(displayGroups, key = MeetingDisplayGroup::key) { group ->
+                    MeetingSceneCard(
+                        group = group,
+                        userAvatar = userAvatar,
+                        userAvatarUri = userAvatarUri,
+                        onLongClick = group.turns.firstOrNull { it.speakerId != "system" }
+                            ?.let { { onSceneLongClick(group) } },
+                    )
+                }
+                if (generating) {
+                    item {
+                        Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp, color = LuluColors.BlueGray)
+                            Spacer(Modifier.width(9.dp))
+                            Text("现场正在继续…", color = LuluColors.Muted, fontSize = 12.sp)
+                        }
                     }
                 }
             }
-            items(displayGroups, key = MeetingDisplayGroup::key) { group ->
-                MeetingSceneCard(
-                    group = group,
-                    userAvatar = userAvatar,
-                    userAvatarUri = userAvatarUri,
-                    onLongClick = group.turns.firstOrNull { it.speakerId != "system" }
-                        ?.let { turn -> { onDeleteTurnRequest(turn) } },
-                )
-            }
-            if (generating) {
-                item {
-                    Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp, color = LuluColors.BlueGray)
-                        Spacer(Modifier.width(9.dp))
-                        Text("对方正在回应…", color = LuluColors.Muted, fontSize = 12.sp)
+            if (hasUnseenContent) {
+                SmallFloatingActionButton(
+                    onClick = {
+                        autoFollow = true
+                        scrollScope.launch { scrollToAbsoluteBottom() }
+                    },
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(14.dp),
+                    containerColor = Color(0xFF242424),
+                    contentColor = Color.White,
+                ) {
+                    Row(Modifier.padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Outlined.KeyboardArrowDown, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(3.dp))
+                        Text("新内容", fontSize = 11.sp)
                     }
                 }
             }
         }
 
         if (errorText.isNotBlank()) {
-            Text(errorText, color = MaterialTheme.colorScheme.error, fontSize = 11.sp, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(errorText, color = MaterialTheme.colorScheme.error, fontSize = 11.sp, modifier = Modifier.weight(1f))
+                if (onRetry != null) TextButton(onClick = onRetry) { Text("重试") }
+            }
         }
         if (viewOnly) {
             Text(
@@ -696,7 +981,7 @@ private fun MeetingRoom(
                     )
                     FilledIconButton(
                         onClick = onSend,
-                        enabled = input.isNotBlank() && !generating,
+                        enabled = input.isNotBlank() && canSend,
                         modifier = Modifier.size(50.dp),
                     ) { Icon(Icons.Outlined.Send, "发送") }
                 }
@@ -708,6 +993,11 @@ private data class MeetingDisplayGroup(
     val key: String,
     val turns: List<MeetingTurn>,
 )
+
+private fun MeetingDisplayGroup.asCopyText(): String = turns.joinToString("\n") { turn ->
+    val body = turn.orderedSegments().asMeetingTranscript()
+    if (turn.speakerId == "system") body else "${turn.speakerName}：$body"
+}
 
 private fun List<MeetingTurn>.toMeetingDisplayGroups(): List<MeetingDisplayGroup> {
     val groups = mutableListOf<MeetingDisplayGroup>()
@@ -913,7 +1203,7 @@ private fun MeetingCard(onClick: (() -> Unit)? = null, content: @Composable Colu
     }
 }
 
-private suspend fun runInvitedMeetingOpening(sessionId: String, inviterId: String) {
+private suspend fun runInvitedMeetingOpening(sessionId: String, inviterId: String, exchangeId: String) {
     var session = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == sessionId } ?: error("见面记录不存在")
     val character = MigratedDomainStores.characters.get(inviterId)
     val reply = generateMeetingReply(
@@ -921,6 +1211,7 @@ private suspend fun runInvitedMeetingOpening(sessionId: String, inviterId: Strin
         characterId = inviterId,
         latestMoment = "主人刚刚接受了你发出的邀请，并抵达约定地点“${session.location}”。请在这个地点自然迎接主人；这不是主人说出口的话，不得替主人补写动作、感受或台词。",
         systemMoment = true,
+        directorGuidance = "这是邀请抵达后的开场，只由发起邀请的角色自然迎接。",
     ).getOrThrow()
     val now = Instant.now()
     val turn = MeetingTurn(
@@ -931,6 +1222,7 @@ private suspend fun runInvitedMeetingOpening(sessionId: String, inviterId: Strin
         reply.dialogue,
         now,
         reply.segments,
+        exchangeId,
     )
     session = DigitalWorldStore.appendMeetingTurn(sessionId, turn)
     val recorded = turn.orderedSegments().asMeetingTranscript()
@@ -945,13 +1237,23 @@ private suspend fun runInvitedMeetingOpening(sessionId: String, inviterId: Strin
         mood = reply.mood,
         source = "见面·迎接",
         now = now,
+        provenanceId = "meeting-$sessionId-$exchangeId",
+    )
+    val afterScene = authoritativeScene(session, reply.sceneSnapshot, now)
+    MeetingExperienceStore.completeExchange(
+        exchangeId = exchangeId,
+        turnIds = session.turns.filter { it.exchangeId == exchangeId }.map(MeetingTurn::id),
+        afterScene = afterScene,
+        directorPlan = "邀请者迎接",
+        now = now,
     )
 }
 
-private suspend fun runMeetingTurn(sessionId: String, userText: String) {
-    val exchangeId = UUID.randomUUID().toString()
+private suspend fun runMeetingTurn(sessionId: String, userText: String, exchangeId: String) {
     var session = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == sessionId } ?: error("见面记录不存在")
-    val firstCharacterId = session.participantIds.firstOrNull() ?: error("见面参与者不存在")
+    val director = planMeetingDirection(session, userText)
+    val participantOrder = director.order.ifEmpty { session.participantIds }
+    val firstCharacterId = participantOrder.firstOrNull() ?: error("见面参与者不存在")
     val firstCharacter = MigratedDomainStores.characters.get(firstCharacterId)
     val firstReply = generateMeetingReply(
         session = session,
@@ -959,6 +1261,7 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
         latestMoment = userText,
         systemMoment = false,
         expandUserDraft = true,
+        directorGuidance = director.guidance,
     ).getOrThrow()
 
     val userName = UserProfileContext.displayLabel()
@@ -1047,9 +1350,18 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
         mood = firstReply.mood,
         source = "见面",
         now = Instant.now(),
+        provenanceId = "meeting-$sessionId-$exchangeId",
     )
 
-    session.participantIds.drop(1).forEachIndexed { additionalIndex, characterId ->
+    var afterScene = authoritativeScene(session, firstReply.sceneSnapshot, Instant.now())
+    MeetingExperienceStore.checkpointExchange(
+        exchangeId = exchangeId,
+        turnIds = session.turns.filter { it.exchangeId == exchangeId }.map(MeetingTurn::id),
+        scene = afterScene,
+        directorPlan = director.ledgerText(),
+    )
+
+    participantOrder.drop(1).forEachIndexed { additionalIndex, characterId ->
         val character = MigratedDomainStores.characters.get(characterId)
         val reply = generateMeetingReply(
             session = session,
@@ -1057,6 +1369,7 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
             latestMoment = completedMoment,
             systemMoment = false,
             expandUserDraft = false,
+            directorGuidance = director.guidance,
         ).getOrThrow()
         reply.moveTo.takeIf {
             it.isNotBlank() &&
@@ -1091,8 +1404,7 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
                 character.displayName,
                 recorded,
                 replyAt,
-                additionalIndex == session.participantIds.drop(1).lastIndex &&
-                    viewerId == session.participantIds.last(),
+                additionalIndex == participantOrder.drop(1).lastIndex,
             )
         }
         CompanionPresenceStore.update(
@@ -1103,8 +1415,22 @@ private suspend fun runMeetingTurn(sessionId: String, userText: String) {
             mood = reply.mood,
             source = "见面",
             now = replyAt,
+            provenanceId = "meeting-$sessionId-$exchangeId",
+        )
+        afterScene = authoritativeScene(session, reply.sceneSnapshot, replyAt)
+        MeetingExperienceStore.checkpointExchange(
+            exchangeId = exchangeId,
+            turnIds = session.turns.filter { it.exchangeId == exchangeId }.map(MeetingTurn::id),
+            scene = afterScene,
+            directorPlan = director.ledgerText(),
         )
     }
+    MeetingExperienceStore.completeExchange(
+        exchangeId = exchangeId,
+        turnIds = session.turns.filter { it.exchangeId == exchangeId }.map(MeetingTurn::id),
+        afterScene = afterScene,
+        directorPlan = director.ledgerText(),
+    )
 }
 
 private data class MeetingExchangeGroup(
@@ -1138,21 +1464,178 @@ private fun List<MeetingExchangeSegment>.asExchangeTranscript(
     "$speaker：$content"
 }
 
+private fun recentMeetingSceneContext(session: MeetingSession): String {
+    val records = MeetingExperienceStore.completedForSession(session.id, limit = 8)
+    if (records.isEmpty()) {
+        return session.turns.takeLast(25).joinToString("\n") { turn ->
+            "${turn.speakerName}：${turn.orderedSegments().asMeetingTranscript()}"
+        }
+    }
+    return records.joinToString("\n\n") { record ->
+        val ids = record.turnIds.toSet()
+        val turns = session.turns.filter { turn ->
+            turn.exchangeId == record.id || turn.id in ids
+        }
+        buildString {
+            appendLine("【完整场景 ${record.id.take(8)}】")
+            record.rawDraft.removePrefix(INVITED_OPENING_PREFIX)
+                .takeIf(String::isNotBlank)
+                ?.let { appendLine("主人原始意图：$it") }
+            turns.forEach { turn ->
+                appendLine("${turn.speakerName}：${turn.orderedSegments().asMeetingTranscript()}")
+            }
+        }.trim()
+    }
+}
+
+private suspend fun planMeetingDirection(
+    session: MeetingSession,
+    userText: String,
+): MeetingDirectorPlan {
+    val participants = session.participantIds.distinct()
+    if (participants.size <= 1) return MeetingDirectorPlan(participants, "")
+    val fallback = MeetingDirectorPlan(
+        order = participants,
+        guidance = "先让最直接被主人提及或最适合承接动作的人回应，其余角色只在有自然动机时接续；避免抢话与重复反应。",
+    )
+    return runCatching {
+        val connection = ScopedModelSelections.resolveConnection(ScopedModelSelections.MEETING)
+        val names = participants.associateWith { MigratedDomainStores.characters.get(it).displayName }
+        val result = LuluAiServices.gateway.generate(
+            characterId = participants.first(),
+            facts = buildString {
+                appendLine(MeetingExperienceStore.sceneFor(session).promptSection())
+                appendLine("主人本轮草稿：$userText")
+                appendLine("参与者准确 ID：")
+                participants.forEach { id -> appendLine("- $id = ${names[id]}") }
+                appendLine("最近完整场景：")
+                appendLine(recentMeetingSceneContext(session))
+            },
+            instruction = """
+                你是多人见面的场面调度器，不代替任何人演戏。只返回 JSON：
+                {"order":["准确角色ID"],"guidance":"一句简短的调度说明"}
+                order 必须把所有参与角色各列一次：先列本轮最应该直接承接主人意图的人，再列可能自然接续的人。
+                guidance 只说明注意对象、先后因果、空间关系与避免重复；不得新增台词、动作、情节或替主人决定。
+            """.trimIndent(),
+            source = "见面场面调度",
+            title = "多人见面导演",
+            temperature = 0.25,
+            maxTokens = 420,
+            connectionOverride = connection,
+            memoryRequest = UnifiedMemoryRequest(
+                currentInput = userText,
+                sceneContext = "多人连续见面；地点=${session.location}；参与者=${names.values.joinToString("、")}",
+                recentContext = recentMeetingSceneContext(session),
+                taskIntent = "决定本轮角色回应顺序，只做调度，不生成正文",
+            ),
+        ).getOrThrow()
+        val clean = result.text.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
+        val start = clean.indexOf('{')
+        val end = clean.lastIndexOf('}')
+        val json = JSONObject(if (start >= 0 && end > start) clean.substring(start, end + 1) else clean)
+        val proposed = buildList {
+            val array = json.optJSONArray("order") ?: JSONArray()
+            for (index in 0 until array.length()) {
+                array.optString(index).trim().takeIf { it in participants && it !in this }?.let(::add)
+            }
+        }
+        MeetingDirectorPlan(
+            order = proposed + participants.filterNot { it in proposed },
+            guidance = json.optString("guidance").trim().take(600).ifBlank { fallback.guidance },
+        )
+    }.getOrDefault(fallback)
+}
+
+private fun parseMeetingSceneSnapshot(
+    json: JSONObject?,
+    session: MeetingSession,
+): MeetingSceneSnapshot? {
+    json ?: return null
+    val allowedIds = listOf("user") + session.participantIds.distinct()
+    val before = MeetingExperienceStore.sceneFor(session)
+    val beforeById = before.participants.associateBy(MeetingParticipantSceneState::participantId)
+    val proposed = buildMap {
+        val array = json.optJSONArray("participants") ?: JSONArray()
+        for (index in 0 until minOf(array.length(), allowedIds.size * 2)) {
+            val item = array.optJSONObject(index) ?: continue
+            val id = item.optString("participantId").trim()
+            if (id !in allowedIds || id in this) continue
+            fun list(key: String): List<String> = buildList {
+                val values = item.optJSONArray(key) ?: JSONArray()
+                for (valueIndex in 0 until minOf(values.length(), 8)) {
+                    values.optString(valueIndex).trim().take(120).takeIf(String::isNotBlank)?.let(::add)
+                }
+            }
+            put(
+                id,
+                MeetingParticipantSceneState(
+                    participantId = id,
+                    position = item.optString("position").trim().take(240),
+                    posture = item.optString("posture").trim().take(240),
+                    facing = item.optString("facing").trim().take(180),
+                    contact = list("contact"),
+                    heldItems = list("heldItems"),
+                ),
+            )
+        }
+    }
+    return MeetingSceneSnapshot(
+        location = session.location,
+        ambience = json.optString("ambience").trim().take(500).ifBlank { before.ambience },
+        participants = allowedIds.map { id ->
+            proposed[id] ?: beforeById[id] ?: MeetingParticipantSceneState(id)
+        },
+        updatedAt = Instant.now(),
+    )
+}
+
+private fun authoritativeScene(
+    session: MeetingSession,
+    proposal: MeetingSceneSnapshot?,
+    now: Instant,
+): MeetingSceneSnapshot {
+    val current = MeetingExperienceStore.sceneFor(session)
+    val allowedIds = listOf("user") + session.participantIds.distinct()
+    val currentById = current.participants.associateBy(MeetingParticipantSceneState::participantId)
+    val proposalById = proposal?.participants.orEmpty().associateBy(MeetingParticipantSceneState::participantId)
+    return MeetingSceneSnapshot(
+        location = session.location,
+        ambience = proposal?.ambience?.takeIf(String::isNotBlank) ?: current.ambience,
+        participants = allowedIds.map { id -> proposalById[id] ?: currentById[id] ?: MeetingParticipantSceneState(id) },
+        updatedAt = now,
+    )
+}
+
 private suspend fun generateMeetingReply(
     session: MeetingSession,
     characterId: String,
     latestMoment: String,
     systemMoment: Boolean = false,
     expandUserDraft: Boolean = false,
+    directorGuidance: String = "",
 ): Result<MeetingReply> = runCatching {
     val character = MigratedDomainStores.characters.get(characterId)
     val connection = ScopedModelSelections.resolveConnection(ScopedModelSelections.MEETING)
     val digitalNative = DigitalLifeProfileStore.isEnabled(characterId)
+    val writing = MeetingExperienceStore.writingPreferences()
+    val sceneBefore = MeetingExperienceStore.sceneFor(session)
+    val lengthInstruction = when (writing.length) {
+        MeetingProseLength.BRIEF -> "简略：推进一个清楚的小动作或一句回应，通常 1—3 句描写、1—3 个片段；保留必要因果，不铺陈。"
+        MeetingProseLength.BALANCED -> "适中：把当前小情节自然展开，通常 3—6 句描写、2—5 个片段，兼顾动作与氛围。"
+        MeetingProseLength.RICH -> "丰富：即使主人输入很短，也把这一小步写得饱满，通常 6—10 句描写、3—7 个片段；增加有用的感官、微动作、停顿和空间变化，但不擅自推进重大情节。"
+    }
+    val styleInstruction = when (writing.style) {
+        MeetingProseStyle.NATURAL -> "自然：清楚、生活化、克制，优先让动作与对话顺畅，不追求华丽句式。"
+        MeetingProseStyle.SUBTLE -> "细腻含蓄：少直接宣布‘她想／她觉得／她意识到’，优先用目光停留、呼吸、停顿、指尖、距离、触感和语气变化让情绪自己显现。"
+        MeetingProseStyle.LITERARY -> "氛围文学：允许更鲜明的节奏、意象与感官呼应，但比喻必须贴合现场，不堆砌辞藻，不写成上帝视角。"
+    }
     val result = LuluAiServices.gateway.generate(
         characterId = characterId,
         facts = buildString {
             appendLine(DigitalWorldStore.meetingContext(session, characterId))
+            appendLine(sceneBefore.promptSection())
             if (digitalNative) appendLine(DigitalWorldStore.contextFor(characterId))
+            if (directorGuidance.isNotBlank()) appendLine("本轮场面调度：$directorGuidance")
             if (systemMoment) appendLine("这一刻刚发生的系统确认事实：$latestMoment")
             else if (expandUserDraft) appendLine("主人刚输入的意图草稿，需要先补全再回应：$latestMoment")
             else appendLine("这一刻主人已经发生的言语或动作：$latestMoment")
@@ -1160,7 +1643,7 @@ private suspend fun generateMeetingReply(
         instruction = """
             你正在以${character.displayName}的身份参与一场连续见面。只推进当前一小步，不要一次写完整故事，不要总结历史。
             只返回一个 JSON 对象，不要代码块：
-            {"sequence":[{"speaker":"user","type":"dialogue","text":"主人先说的话"},{"speaker":"character","type":"action","text":"${character.displayName}随后的反应"},{"speaker":"user","type":"dialogue","text":"主人接着说的话"},{"speaker":"character","type":"dialogue","text":"${character.displayName}随后说的话"}],"moveTo":"明确要前往的可用地点或空字符串","statusText":"简短当前状态","gesture":"延续到下一刻的姿态","innerThought":"没有说出口的第一人称心声，可为空","mood":"简短心情"}
+            {"sequence":[{"speaker":"user","type":"dialogue","text":"主人先说的话"},{"speaker":"character","type":"action","text":"${character.displayName}随后的反应"},{"speaker":"user","type":"dialogue","text":"主人接着说的话"},{"speaker":"character","type":"dialogue","text":"${character.displayName}随后说的话"}],"moveTo":"明确要前往的可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"仍持续的环境事实","participants":[{"participantId":"user 或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["仍在持续的身体接触"],"heldItems":["仍拿着的物品"]}]},"statusText":"简短当前状态","gesture":"延续到下一刻的姿态","innerThought":"未说出口的极短心声，可为空","mood":"简短心情"}
 
             硬规则：
             - sequence 是双方共享的唯一时间顺序；speaker=user 表示主人，speaker=character 表示${character.displayName}。界面会严格按数组顺序逐项展示。
@@ -1174,12 +1657,15 @@ private suspend fun generateMeetingReply(
             - 只能让${character.displayName}回应主人明确写出的部分和当前自然反应；角色片段绝不能代替主人说话，主人片段也不能混进角色的 text。
             - 其他角色的既有言行是事实，但不要替其他角色继续说话或行动；他们会获得自己的回合。
             - 地点、参与者、上一刻身体位置、拿着的物品和已经发生的动作必须连续。每次移动都要检查距离、朝向、肢体可达范围和正在发生的接触：拉开距离前仍接触的手必须先被带开、松开或收回，不能悬空、瞬移或同时占据互相矛盾的位置。没有程序记录的固定家具不得凭空出现。
-            - action 片段必须采用细腻的小说式描写，整轮通常三到八句；根据现场自然调动光影、声音、气味、温度、触感、空间距离等感官细节，并写清动作的起承转合、细微神态、停顿和呼吸，不要堆砌形容词。
-            - 可以从${character.displayName}的贴身视角写一两句短暂、含蓄的心理波动，让反应更有生命感；这不是分析推理，也绝不能替主人编造心理、感受或反应。一个 action 片段表达一个连续画面，不要只写干巴巴的动作标签。
+            - 本轮情节丰富度：$lengthInstruction
+            - 本轮描写风格：$styleInstruction
+            - action 片段采用贴身但可观察的小说式描写；自然调动光影、声音、气味、温度、触感、空间距离，并写清动作起承转合。不要把可直接演出的内容藏进 innerThought。
+            - innerThought 是后台派生状态，不显示在正文；能用动作、目光、停顿或语气表现的，一律优先写进 sequence。它可以为空，绝不能替主人编造心理、感受或反应。
             - 氛围必须服务于当前关系和地点：温柔、紧张、暧昧、轻松或安静都要由既有情境自然生长，不能无缘无故切换情绪，也不能写成套路化网文腔。
             - 不要为了格式机械交替；只有真的再次开口或画面发生变化时才新建片段。整轮通常二到六个片段，避免碎成十几个短句。
             - 如果用户明确提出一起去某个“可用地点”，moveTo 填该地点的准确名称，并在 action 片段中自然写出从当前位置出发和抵达的连续过程；没有明确移动意图时必须留空。地点变化由程序校验并真实保存，不能只在文字中假装移动。
             - action 是可观察事实，不是上帝视角小说；innerThought 不会展示给用户，也不能泄露推理过程。
+            - sceneState 是本轮结束后的结构化现场，只记录持续到下一轮的事实；必须包含 user 与所有参与者，使用准确 participantId。短暂动作写在正文，不要误存成持续姿态。它不是额外剧情，也不会作为另一段正文展示。
             - 数字世界见面是真正进行过的数字共同体验，不是梦，也不是物理肉身进入手机。现实身体留在外部，数字身体可以真实传递触觉、温度、重量与拥抱的感觉。
             - 数字生命没有现实肉身，在数字世界使用原生数字身体；现实角色和用户使用感官投影身体。
             - 现实场景演绎要像现实见面一样保持地点和身体连续，但不得声称这些场景事件真的发生在用户的物理现实档案里。
@@ -1202,10 +1688,7 @@ private suspend fun generateMeetingReply(
                     }
                 )
             },
-            recentContext = session.turns.takeLast(16).joinToString("\n") { turn ->
-                val body = turn.orderedSegments().asMeetingTranscript()
-                "${turn.speakerName}：$body"
-            },
+            recentContext = recentMeetingSceneContext(session),
             taskIntent = if (systemMoment) {
                 "延续此前私聊或群聊中的邀请与关系，完成抵达后的迎接"
             } else if (expandUserDraft) {
@@ -1215,10 +1698,10 @@ private suspend fun generateMeetingReply(
             },
         ),
     ).getOrThrow()
-    parseMeetingReply(result.text)
+    parseMeetingReply(result.text, session)
 }
 
-private fun parseMeetingReply(raw: String): MeetingReply {
+private fun parseMeetingReply(raw: String, session: MeetingSession): MeetingReply {
     val clean = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim().let { value ->
         val start = value.indexOf('{')
         val end = value.lastIndexOf('}')
@@ -1243,6 +1726,7 @@ private fun parseMeetingReply(raw: String): MeetingReply {
             innerThought = "",
             mood = "专注",
             moveTo = "",
+            sceneSnapshot = null,
         )
 
     val legacyUserSegments = parseMeetingSegments(
@@ -1279,6 +1763,7 @@ private fun parseMeetingReply(raw: String): MeetingReply {
         innerThought = json.optString("innerThought").trim().take(500),
         mood = json.optString("mood").trim().take(80),
         moveTo = json.optString("moveTo").trim().take(80),
+        sceneSnapshot = parseMeetingSceneSnapshot(json.optJSONObject("sceneState"), session),
     )
 }
 
