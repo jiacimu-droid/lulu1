@@ -1,7 +1,9 @@
 package com.jiacimu.lulu
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -88,6 +90,7 @@ fun DigitalWorldMeetingApp(
     var showTopMenu by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
     var pendingDeleteSession by remember { mutableStateOf<MeetingSession?>(null) }
+    var pendingDeleteTurn by remember { mutableStateOf<MeetingTurn?>(null) }
     var locationDraft by remember { mutableStateOf("") }
 
     val unfinishedSessionId = if (invitedCharacterId.isNullOrBlank()) {
@@ -186,6 +189,10 @@ fun DigitalWorldMeetingApp(
                         TextButton(onClick = finishActiveMeeting) {
                             Text("结束", color = LuluColors.Ink, fontWeight = FontWeight.SemiBold)
                         }
+                    } else if (activeSession?.endedAt != null && !showHistory) {
+                        IconButton(onClick = { pendingDeleteSession = activeSession }) {
+                            Icon(Icons.Outlined.DeleteOutline, "彻底删除这次见面")
+                        }
                     }
                     Box {
                         IconButton(onClick = { showTopMenu = true }) { Icon(Icons.Outlined.MoreVert, "见面菜单") }
@@ -249,6 +256,7 @@ fun DigitalWorldMeetingApp(
                 generating = generating,
                 errorText = errorText,
                 onInputChanged = { input = it.take(2_000) },
+                onDeleteTurnRequest = { turn -> pendingDeleteTurn = turn },
                 onSend = {
                     val userText = input.trim()
                     if (userText.isNotBlank() && !generating) {
@@ -280,6 +288,24 @@ fun DigitalWorldMeetingApp(
                 }) { Text("彻底删除", color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = { TextButton(onClick = { pendingDeleteSession = null }) { Text("取消") } },
+        )
+    }
+
+    pendingDeleteTurn?.let { turn ->
+        AlertDialog(
+            onDismissRequest = { pendingDeleteTurn = null },
+            icon = { Icon(Icons.Outlined.DeleteSweep, null) },
+            title = { Text("删除这一轮互动？") },
+            text = { Text("会删除这次输入以及由它生成的一来一回，并同步清除对应原始时间线和派生记忆。此操作无法恢复。") },
+            confirmButton = {
+                TextButton(onClick = {
+                    activeSession?.let { session ->
+                        DigitalWorldStore.deleteMeetingExchange(session.id, turn.id)
+                    }
+                    pendingDeleteTurn = null
+                }) { Text("彻底删除", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = { TextButton(onClick = { pendingDeleteTurn = null }) { Text("取消") } },
         )
     }
 
@@ -561,6 +587,7 @@ private fun MeetingRoom(
     errorText: String,
     onInputChanged: (String) -> Unit,
     onSend: () -> Unit,
+    onDeleteTurnRequest: (MeetingTurn) -> Unit,
 ) {
     val messageListState = rememberLazyListState()
     val density = LocalDensity.current
@@ -619,7 +646,12 @@ private fun MeetingRoom(
                 }
             }
             items(session.turns, key = MeetingTurn::id) { turn ->
-                MeetingTurnCard(turn, userAvatar, userAvatarUri)
+                MeetingTurnCard(
+                    turn = turn,
+                    userAvatar = userAvatar,
+                    userAvatarUri = userAvatarUri,
+                    onLongClick = if (turn.speakerId == "system") null else { { onDeleteTurnRequest(turn) } },
+                )
             }
             if (generating) {
                 item {
@@ -669,16 +701,23 @@ private fun MeetingRoom(
         }
     }
 }
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MeetingTurnCard(
     turn: MeetingTurn,
     userAvatar: String,
     userAvatarUri: String?,
+    onLongClick: (() -> Unit)?,
 ) {
+    val longPressModifier = if (onLongClick == null) {
+        Modifier
+    } else {
+        Modifier.combinedClickable(onClick = {}, onLongClick = onLongClick)
+    }
     when {
         turn.speakerId == "system" -> {
             Surface(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp).then(longPressModifier),
                 color = LuluColors.CardStrong,
                 shape = RoundedCornerShape(16.dp),
             ) {
@@ -694,7 +733,7 @@ private fun MeetingTurnCard(
         }
         turn.speakerId == null -> {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().then(longPressModifier),
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.End,
             ) {
@@ -715,7 +754,7 @@ private fun MeetingTurnCard(
         }
         else -> {
             val character = MigratedDomainStores.characters.get(turn.speakerId)
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+            Row(Modifier.fillMaxWidth().then(longPressModifier), verticalAlignment = Alignment.Top) {
                 LuluProfileAvatar(
                     imageUri = character.avatarUri,
                     fallback = character.displayName.take(1).ifBlank { "角" },
