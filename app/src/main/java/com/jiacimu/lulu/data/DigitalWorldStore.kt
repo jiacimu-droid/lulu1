@@ -51,6 +51,7 @@ data class MeetingTurn(
     val dialogue: String,
     val occurredAt: Instant,
     val segments: List<MeetingSegment> = emptyList(),
+    val exchangeId: String? = null,
 )
 
 data class MeetingSession(
@@ -323,7 +324,12 @@ object DigitalWorldStore {
     fun meetingLocationOptions(session: MeetingSession): List<String> =
         if (session.reality == MeetingReality.DIGITAL_WORLD) meetingLocationOptions(session.participantIds) else emptyList()
 
-    fun moveMeeting(sessionId: String, destination: String, now: Instant = Instant.now()): MeetingSession {
+    fun moveMeeting(
+        sessionId: String,
+        destination: String,
+        exchangeId: String? = null,
+        now: Instant = Instant.now(),
+    ): MeetingSession {
         val cleanDestination = destination.trim()
         require(cleanDestination.isNotBlank()) { "目的地不能为空" }
         val updated = synchronized(lock) {
@@ -342,6 +348,7 @@ object DigitalWorldStore {
                 },
                 dialogue = "",
                 occurredAt = now,
+                exchangeId = exchangeId,
             )
             val next = current.copy(location = cleanDestination, turns = (current.turns + systemTurn).takeLast(240))
             val locationCode = meetingLocationCode(cleanDestination)
@@ -356,7 +363,7 @@ object DigitalWorldStore {
             recordMeetingTimeline(
                 updated,
                 id,
-                "move-${now.toEpochMilli()}-$id",
+                "move-${systemTurn.id}-$id",
                 "数字世界",
                 "参与者一起前往${updated.location}。",
                 now,
@@ -392,6 +399,47 @@ object DigitalWorldStore {
             SharedExperienceTimeline.deleteEventsByIdPrefix(characterId, "meeting-${removed.id}-")
         }
         return true
+    }
+
+    fun deleteMeetingExchange(sessionId: String, turnId: String): Int {
+        val removed = synchronized(lock) {
+            val session = mutable.value.meetings.firstOrNull { it.id == sessionId } ?: return 0
+            val targetIndex = session.turns.indexOfFirst { it.id == turnId }
+            if (targetIndex < 0) return 0
+            val target = session.turns[targetIndex]
+            val removedTurns = target.exchangeId?.takeIf(String::isNotBlank)?.let { exchangeId ->
+                session.turns.filter { it.exchangeId == exchangeId }
+            } ?: run {
+                if (target.speakerId == "system") {
+                    listOf(target)
+                } else {
+                    val start = (targetIndex downTo 0).firstOrNull { session.turns[it].speakerId == null }
+                        ?: targetIndex
+                    val end = ((start + 1) until session.turns.size)
+                        .firstOrNull { session.turns[it].speakerId == null }
+                        ?: session.turns.size
+                    session.turns.subList(start, end)
+                }
+            }
+            val removedIds = removedTurns.map(MeetingTurn::id).toSet()
+            val updated = session.copy(turns = session.turns.filterNot { it.id in removedIds })
+            mutable.value = mutable.value.copy(
+                meetings = mutable.value.meetings.map { if (it.id == sessionId) updated else it }
+            )
+            persistLocked()
+            removedTurns
+        }
+        removed.forEach { turn ->
+            mutable.value.meetings.firstOrNull { it.id == sessionId }?.participantIds.orEmpty().forEach { characterId ->
+                listOf("turn", "arrival", "move").forEach { kind ->
+                    SharedExperienceTimeline.deleteEventsByIdPrefix(
+                        characterId,
+                        "meeting-$sessionId-$kind-${turn.id}-",
+                    )
+                }
+            }
+        }
+        return removed.size
     }
 
     fun pruneEmptyMeetings() {
@@ -607,6 +655,7 @@ private fun MeetingSession.toJson(): JSONObject = JSONObject().apply {
                     .put("sceneText", turn.sceneText)
                     .put("dialogue", turn.dialogue)
                     .put("occurredAt", turn.occurredAt.toString())
+                    .put("exchangeId", turn.exchangeId.orEmpty())
                     .put("segments", JSONArray().apply {
                         turn.segments.forEach { segment ->
                             put(
@@ -639,6 +688,7 @@ private fun JSONObject.toMeeting(): MeetingSession? {
                     dialogue = item.optString("dialogue"),
                     occurredAt = item.instant("occurredAt"),
                     segments = item.meetingSegments(),
+                    exchangeId = item.optString("exchangeId").takeIf(String::isNotBlank),
                 )
             )
         }
