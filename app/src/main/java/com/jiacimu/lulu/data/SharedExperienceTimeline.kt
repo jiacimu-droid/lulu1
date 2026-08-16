@@ -208,6 +208,21 @@ object SharedExperienceTimeline {
         scope.launch { LuluRepositories.memory.deleteDerivedFromEvent(eventId) }
     }
 
+    fun deleteEventsByIdPrefix(characterId: String, eventIdPrefix: String) {
+        if (characterId.isBlank() || eventIdPrefix.isBlank()) return
+        val database = helper?.readableDatabase ?: return
+        val ids = database.query(
+            "timeline_events",
+            arrayOf("id"),
+            "character_id = ? AND id LIKE ?",
+            arrayOf(characterId, "${eventIdPrefix}%"),
+            null,
+            null,
+            null,
+        ).use { cursor -> buildList { while (cursor.moveToNext()) add(cursor.getString(0)) } }
+        ids.forEach(::deleteEvent)
+    }
+
     fun deleteConversationMessage(conversation: LuluConversation, messageId: String) {
         val group = conversation.groupChat
         if (group == null) {

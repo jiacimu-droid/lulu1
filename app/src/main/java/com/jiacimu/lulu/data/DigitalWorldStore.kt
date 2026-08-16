@@ -346,6 +346,23 @@ object DigitalWorldStore {
         return updated
     }
 
+    fun deleteMeeting(sessionId: String): Boolean {
+        val removed = synchronized(lock) {
+            val session = mutable.value.meetings.firstOrNull { it.id == sessionId } ?: return false
+            mutable.value = mutable.value.copy(meetings = mutable.value.meetings.filterNot { it.id == sessionId })
+            persistLocked()
+            session
+        }
+        removed.participantIds.distinct().forEach { characterId ->
+            SharedExperienceTimeline.deleteEventsByIdPrefix(characterId, "meeting-${removed.id}-")
+        }
+        return true
+    }
+
+    fun pruneEmptyMeetings() {
+        mutable.value.meetings.filter { it.turns.isEmpty() }.map(MeetingSession::id).forEach(::deleteMeeting)
+    }
+
     fun recordMeetingTimeline(
         session: MeetingSession,
         viewerCharacterId: String,

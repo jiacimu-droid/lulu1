@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -56,6 +57,9 @@ fun DigitalWorldMeetingApp(
     var generating by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf("") }
     var showModelPicker by remember { mutableStateOf(false) }
+    var showTopMenu by remember { mutableStateOf(false) }
+    var showHistory by remember { mutableStateOf(false) }
+    var pendingDeleteSession by remember { mutableStateOf<MeetingSession?>(null) }
     var locationDraft by remember { mutableStateOf("") }
 
     val activeSession = world.meetings.firstOrNull { it.id == activeSessionId }
@@ -63,6 +67,10 @@ fun DigitalWorldMeetingApp(
     val selectedArchiveLabel = selectedArchiveId?.let { id ->
         library.archives.firstOrNull { it.id == id }?.let(LuluAiServices.connectionStore::archiveLabel)
     }.orEmpty().ifBlank { "选择见面模型" }
+
+    LaunchedEffect(Unit) {
+        DigitalWorldStore.pruneEmptyMeetings()
+    }
 
     LaunchedEffect(invitedCharacterId) {
         val inviterId = invitedCharacterId?.takeIf(String::isNotBlank) ?: return@LaunchedEffect
@@ -92,32 +100,72 @@ fun DigitalWorldMeetingApp(
         containerColor = LuluColors.Paper,
         topBar = {
             TopAppBar(
-                title = { Text(if (activeSession == null) "见面" else if (activeSession.reality == MeetingReality.DIGITAL_WORLD) "数字世界见面" else "现实场景见面", fontWeight = FontWeight.SemiBold) },
+                title = {
+                    Text(
+                        when {
+                            showHistory -> "见面记录"
+                            activeSession == null -> "见面"
+                            activeSession.reality == MeetingReality.DIGITAL_WORLD -> "数字世界见面"
+                            else -> "现实场景见面"
+                        },
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = {
-                        if (activeSession != null) activeSessionId = null else onBack()
+                        when {
+                            showHistory -> showHistory = false
+                            activeSession != null -> {
+                                if (activeSession.turns.isEmpty()) DigitalWorldStore.deleteMeeting(activeSession.id)
+                                activeSessionId = null
+                            }
+                            else -> onBack()
+                        }
                     }) { Icon(Icons.Outlined.ArrowBack, "返回") }
                 },
                 actions = {
-                    IconButton(onClick = { showModelPicker = true }) { Icon(Icons.Outlined.Memory, "见面模型") }
+                    Box {
+                        IconButton(onClick = { showTopMenu = true }) { Icon(Icons.Outlined.MoreVert, "见面菜单") }
+                        DropdownMenu(expanded = showTopMenu, onDismissRequest = { showTopMenu = false }) {
+                            DropdownMenuItem(
+                                text = { Text("见面记录") },
+                                leadingIcon = { Icon(Icons.Outlined.History, null) },
+                                enabled = activeSession == null,
+                                onClick = { showTopMenu = false; showHistory = true },
+                            )
+                            DropdownMenuItem(
+                                text = {
+                                    Column {
+                                        Text("见面模型")
+                                        Text(selectedArchiveLabel, color = LuluColors.Muted, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    }
+                                },
+                                leadingIcon = { Icon(Icons.Outlined.Memory, null) },
+                                onClick = { showTopMenu = false; showModelPicker = true },
+                            )
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
             )
         },
     ) { padding ->
-        if (activeSession == null) {
-            MeetingLobby(
+        when {
+            showHistory -> MeetingHistoryScreen(
+                modifier = Modifier.fillMaxSize().padding(padding),
+                characters = characters.values.sortedBy(CharacterSettings::displayName),
+                meetings = world.meetings.filter { it.turns.isNotEmpty() },
+                onOpen = { showHistory = false; activeSessionId = it },
+                onDelete = { pendingDeleteSession = it },
+            )
+            activeSession == null -> MeetingLobby(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 characters = characters.values.sortedBy(CharacterSettings::displayName),
                 profiles = profiles,
-                world = world,
                 selectedIds = selectedIds,
                 locationDraft = locationDraft,
-                selectedArchiveLabel = selectedArchiveLabel,
                 onToggle = { id -> selectedIds = if (id in selectedIds) selectedIds - id else selectedIds + id },
                 onLocationChanged = { locationDraft = it.take(80) },
-                onModel = { showModelPicker = true },
-                onResume = { activeSessionId = it },
                 onStart = {
                     runCatching {
                         val session = DigitalWorldStore.startMeeting(selectedIds.toList(), locationDraft)
@@ -128,8 +176,7 @@ fun DigitalWorldMeetingApp(
                 },
                 errorText = errorText,
             )
-        } else {
-            MeetingRoom(
+            else -> MeetingRoom(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 session = activeSession,
                 viewOnly = activeSession.endedAt != null,
@@ -155,11 +202,29 @@ fun DigitalWorldMeetingApp(
                     }
                 },
                 onEnd = {
-                    DigitalWorldStore.endMeeting(activeSession.id)
+                    if (activeSession.turns.isEmpty()) DigitalWorldStore.deleteMeeting(activeSession.id)
+                    else DigitalWorldStore.endMeeting(activeSession.id)
                     activeSessionId = null
                 },
             )
         }
+    }
+
+    pendingDeleteSession?.let { session ->
+        AlertDialog(
+            onDismissRequest = { pendingDeleteSession = null },
+            icon = { Icon(Icons.Outlined.DeleteOutline, null) },
+            title = { Text("删除这次见面？") },
+            text = { Text("会同时删除见面内容、对应原始时间线和由这些记录产生的派生记忆，无法恢复。") },
+            confirmButton = {
+                TextButton(onClick = {
+                    DigitalWorldStore.deleteMeeting(session.id)
+                    if (activeSessionId == session.id) activeSessionId = null
+                    pendingDeleteSession = null
+                }) { Text("彻底删除", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = { TextButton(onClick = { pendingDeleteSession = null }) { Text("取消") } },
+        )
     }
 
     if (showModelPicker) {
@@ -181,20 +246,15 @@ private fun MeetingLobby(
     modifier: Modifier,
     characters: List<CharacterSettings>,
     profiles: Map<String, DigitalLifeProfile>,
-    world: DigitalWorldState,
     selectedIds: Set<String>,
     locationDraft: String,
-    selectedArchiveLabel: String,
     onToggle: (String) -> Unit,
     onLocationChanged: (String) -> Unit,
-    onModel: () -> Unit,
-    onResume: (String) -> Unit,
     onStart: () -> Unit,
     errorText: String,
 ) {
     val selectedHasDigital = selectedIds.any { profiles[it]?.enabled == true }
     val selectedResolved = selectedIds.all { id -> (profiles[id] ?: DigitalLifeProfileStore.get(id)).isResolved }
-    val recent = world.meetings.asReversed().take(6)
     val modeTitle = when {
         selectedIds.isEmpty() -> "先选择想见的人"
         selectedHasDigital -> "数字世界 · 世界入口"
@@ -233,11 +293,6 @@ private fun MeetingLobby(
                     Column(Modifier.weight(1f)) {
                         Text(modeTitle, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                         Text(modeSubtitle, color = LuluColors.Muted, fontSize = 11.sp)
-                    }
-                    TextButton(onClick = onModel) {
-                        Icon(Icons.Outlined.Tune, null, Modifier.size(16.dp))
-                        Spacer(Modifier.width(4.dp))
-                        Text("模型", fontSize = 12.sp)
                     }
                 }
             }
@@ -321,15 +376,6 @@ private fun MeetingLobby(
                     Spacer(Modifier.width(7.dp))
                     Text(if (selectedHasDigital) "从世界入口见面" else "开始见面", fontWeight = FontWeight.Bold)
                 }
-                Text(
-                    selectedArchiveLabel,
-                    modifier = Modifier.fillMaxWidth().clickable(onClick = onModel),
-                    color = LuluColors.Muted,
-                    fontSize = 10.sp,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
                 if (selectedIds.isNotEmpty() && !selectedResolved) {
                     Text("请先在角色设置中确认生命形态", color = MaterialTheme.colorScheme.error, fontSize = 11.sp)
                 }
@@ -337,60 +383,99 @@ private fun MeetingLobby(
             }
         }
 
-        if (recent.isNotEmpty()) {
-            item {
-                Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text("最近见面", fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                    Spacer(Modifier.weight(1f))
-                    Text("${recent.size} 条", color = LuluColors.Muted, fontSize = 11.sp)
-                }
-            }
-            items(recent, key = MeetingSession::id) { session ->
-                Surface(
-                    onClick = { onResume(session.id) },
-                    color = LuluColors.Card,
-                    shape = RoundedCornerShape(17.dp),
-                    border = BorderStroke(1.dp, LuluColors.Border),
-                ) {
-                    Row(
-                        Modifier.fillMaxWidth().padding(13.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Surface(color = LuluColors.CardStrong, shape = RoundedCornerShape(12.dp)) {
-                            Icon(
-                                if (session.reality == MeetingReality.DIGITAL_WORLD) Icons.Outlined.Cloud else Icons.Outlined.Place,
-                                null,
-                                tint = LuluColors.BlueGray,
-                                modifier = Modifier.padding(9.dp).size(20.dp),
-                            )
-                        }
-                        Spacer(Modifier.width(11.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(
-                                session.participantIds.joinToString { MigratedDomainStores.characters.get(it).displayName },
-                                fontWeight = FontWeight.SemiBold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                            Text(
-                                "${session.location} · ${session.startedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))}",
-                                color = LuluColors.Muted,
-                                fontSize = 11.sp,
-                                maxLines = 1,
-                            )
-                        }
-                        if (session.endedAt == null) {
-                            Text("继续", color = LuluColors.BlueGray, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        } else {
-                            Icon(Icons.Outlined.ChevronRight, null, tint = LuluColors.Muted, modifier = Modifier.size(18.dp))
-                        }
-                    }
-                }
-            }
-        }
         item { Spacer(Modifier.height(12.dp)) }
     }
 }
+@Composable
+private fun MeetingHistoryScreen(
+    modifier: Modifier,
+    characters: List<CharacterSettings>,
+    meetings: List<MeetingSession>,
+    onOpen: (String) -> Unit,
+    onDelete: (MeetingSession) -> Unit,
+) {
+    val participantIds = remember(meetings) { meetings.flatMap(MeetingSession::participantIds).toSet() }
+    val availableCharacters = remember(characters, participantIds) { characters.filter { it.characterId in participantIds } }
+    var selectedCharacterId by remember { mutableStateOf<String?>(null) }
+    val visibleMeetings = remember(meetings, selectedCharacterId) {
+        meetings.asReversed().filter { selectedCharacterId == null || selectedCharacterId in it.participantIds }
+    }
+    Column(modifier) {
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            item { FilterChip(selected = selectedCharacterId == null, onClick = { selectedCharacterId = null }, label = { Text("全部") }) }
+            items(availableCharacters, key = CharacterSettings::characterId) { character ->
+                FilterChip(
+                    selected = selectedCharacterId == character.characterId,
+                    onClick = { selectedCharacterId = character.characterId },
+                    label = { Text(character.displayName) },
+                )
+            }
+        }
+        if (visibleMeetings.isEmpty()) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("还没有真正发生过的见面", color = LuluColors.Muted)
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                items(visibleMeetings, key = MeetingSession::id) { session ->
+                    Surface(
+                        onClick = { onOpen(session.id) },
+                        color = LuluColors.Card,
+                        shape = RoundedCornerShape(18.dp),
+                        border = BorderStroke(1.dp, LuluColors.Border),
+                    ) {
+                        Row(
+                            Modifier.fillMaxWidth().padding(start = 14.dp, top = 12.dp, bottom = 12.dp, end = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Surface(color = LuluColors.CardStrong, shape = RoundedCornerShape(12.dp)) {
+                                Icon(
+                                    if (session.reality == MeetingReality.DIGITAL_WORLD) Icons.Outlined.Cloud else Icons.Outlined.Place,
+                                    null,
+                                    tint = LuluColors.BlueGray,
+                                    modifier = Modifier.padding(9.dp).size(20.dp),
+                                )
+                            }
+                            Spacer(Modifier.width(11.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(
+                                    session.participantIds.joinToString { MigratedDomainStores.characters.get(it).displayName },
+                                    fontWeight = FontWeight.SemiBold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                                Text(
+                                    "${session.location} · ${session.startedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))}",
+                                    color = LuluColors.Muted,
+                                    fontSize = 11.sp,
+                                    maxLines = 1,
+                                )
+                                Text(
+                                    if (session.endedAt == null) "进行中 · ${session.turns.size} 个片段" else "${session.turns.size} 个片段",
+                                    color = LuluColors.BlueGray,
+                                    fontSize = 10.sp,
+                                )
+                            }
+                            IconButton(onClick = { onDelete(session) }) {
+                                Icon(Icons.Outlined.DeleteOutline, "删除见面", tint = LuluColors.Muted)
+                            }
+                        }
+                    }
+                }
+                item { Spacer(Modifier.height(12.dp)) }
+            }
+        }
+    }
+}
+
 @Composable
 private fun MeetingRoom(
     modifier: Modifier,
