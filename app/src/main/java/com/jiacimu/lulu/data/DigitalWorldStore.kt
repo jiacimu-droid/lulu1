@@ -36,6 +36,13 @@ data class DigitalWorldEvent(
     val occurredAt: Instant,
 )
 
+enum class MeetingSegmentType { ACTION, DIALOGUE }
+
+data class MeetingSegment(
+    val type: MeetingSegmentType,
+    val text: String,
+)
+
 data class MeetingTurn(
     val id: String,
     val speakerId: String?,
@@ -43,6 +50,7 @@ data class MeetingTurn(
     val sceneText: String,
     val dialogue: String,
     val occurredAt: Instant,
+    val segments: List<MeetingSegment> = emptyList(),
 )
 
 data class MeetingSession(
@@ -506,6 +514,18 @@ private fun JSONArray.forEachObject(block: (JSONObject) -> Unit) {
 private fun JSONObject.instant(key: String): Instant =
     runCatching { Instant.parse(optString(key)) }.getOrDefault(Instant.EPOCH)
 
+private fun JSONObject.meetingSegments(): List<MeetingSegment> = buildList {
+    optJSONArray("segments")?.forEachObject { segment ->
+        val text = segment.optString("text").trim()
+        val type = when (segment.optString("type").trim().lowercase()) {
+            "action", "scene", "narration" -> MeetingSegmentType.ACTION
+            "dialogue", "speech" -> MeetingSegmentType.DIALOGUE
+            else -> null
+        }
+        if (text.isNotBlank() && type != null) add(MeetingSegment(type, text))
+    }
+}
+
 private fun MeetingSession.toJson(): JSONObject = JSONObject().apply {
     put("id", id)
     put("participantIds", JSONArray(participantIds))
@@ -515,7 +535,28 @@ private fun MeetingSession.toJson(): JSONObject = JSONObject().apply {
     put("initiatedByCharacterId", initiatedByCharacterId.orEmpty())
     put("invitationText", invitationText)
     put("endedAt", endedAt?.toString().orEmpty())
-    put("turns", JSONArray().apply { turns.forEach { turn -> put(JSONObject().put("id", turn.id).put("speakerId", turn.speakerId.orEmpty()).put("speakerName", turn.speakerName).put("sceneText", turn.sceneText).put("dialogue", turn.dialogue).put("occurredAt", turn.occurredAt.toString())) } })
+    put("turns", JSONArray().apply {
+        turns.forEach { turn ->
+            put(
+                JSONObject()
+                    .put("id", turn.id)
+                    .put("speakerId", turn.speakerId.orEmpty())
+                    .put("speakerName", turn.speakerName)
+                    .put("sceneText", turn.sceneText)
+                    .put("dialogue", turn.dialogue)
+                    .put("occurredAt", turn.occurredAt.toString())
+                    .put("segments", JSONArray().apply {
+                        turn.segments.forEach { segment ->
+                            put(
+                                JSONObject()
+                                    .put("type", segment.type.name.lowercase())
+                                    .put("text", segment.text)
+                            )
+                        }
+                    })
+            )
+        }
+    })
 }
 
 private fun JSONObject.toMeeting(): MeetingSession? {
@@ -527,7 +568,17 @@ private fun JSONObject.toMeeting(): MeetingSession? {
     }
     val turns = buildList {
         optJSONArray("turns")?.forEachObject { item ->
-            add(MeetingTurn(item.optString("id"), item.optString("speakerId").takeIf(String::isNotBlank), item.optString("speakerName"), item.optString("sceneText"), item.optString("dialogue"), item.instant("occurredAt")))
+            add(
+                MeetingTurn(
+                    id = item.optString("id"),
+                    speakerId = item.optString("speakerId").takeIf(String::isNotBlank),
+                    speakerName = item.optString("speakerName"),
+                    sceneText = item.optString("sceneText"),
+                    dialogue = item.optString("dialogue"),
+                    occurredAt = item.instant("occurredAt"),
+                    segments = item.meetingSegments(),
+                )
+            )
         }
     }
     return MeetingSession(
