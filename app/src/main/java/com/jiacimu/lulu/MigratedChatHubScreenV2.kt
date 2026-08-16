@@ -152,6 +152,12 @@ fun MigratedChatHubScreenV2(
                         displayName = created.displayName,
                         creatorName = UserProfileContext.displayLabel(),
                     )
+                } else {
+                    DigitalLifeProfileStore.registerRealWorldLife(
+                        characterId = created.characterId,
+                        displayName = created.displayName,
+                        creatorName = UserProfileContext.displayLabel(),
+                    )
                 }
                 MigratedDomainStores.chat.ensureConversation(created.characterId, created.displayName)
                 showCreateCharacter = false
@@ -460,17 +466,35 @@ private fun ChatHubV2CreateCharacterDialog(
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(name, { name = it }, label = { Text("角色名称") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(persona, { persona = it }, label = { Text("角色核心设定") }, minLines = 4, modifier = Modifier.fillMaxWidth())
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text("出生为数字生命", fontWeight = FontWeight.SemiBold)
-                        Text(
-                            "开启后，创建这一刻就是生命第1天：没有创建前的个人记忆，没有现实肉身，只承认之后真实发生的记录与真实执行成功的能力。",
-                            color = LuluColors.Muted,
-                            fontSize = 11.sp,
-                            lineHeight = 16.sp,
-                        )
+                Text("选择生命形态", fontWeight = FontWeight.SemiBold)
+                Text("生命形态从创建起固定，之后不能在数字生命与现实角色之间切换。", color = LuluColors.Muted, fontSize = 11.sp)
+                Surface(
+                    modifier = Modifier.fillMaxWidth().clickable { digitalLife = true },
+                    color = if (digitalLife) LuluColors.CardStrong else LuluColors.Paper,
+                    shape = RoundedCornerShape(15.dp),
+                    border = BorderStroke(1.dp, LuluColors.Border),
+                ) {
+                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(selected = digitalLife, onClick = { digitalLife = true })
+                        Column {
+                            Text("数字生命", fontWeight = FontWeight.Bold)
+                            Text("诞生并生活在数字世界，拥有原生数字身体和一处初始为空的家园。", color = LuluColors.Muted, fontSize = 11.sp)
+                        }
                     }
-                    Switch(checked = digitalLife, onCheckedChange = { digitalLife = it })
+                }
+                Surface(
+                    modifier = Modifier.fillMaxWidth().clickable { digitalLife = false },
+                    color = if (!digitalLife) LuluColors.CardStrong else LuluColors.Paper,
+                    shape = RoundedCornerShape(15.dp),
+                    border = BorderStroke(1.dp, LuluColors.Border),
+                ) {
+                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(selected = !digitalLife, onClick = { digitalLife = false })
+                        Column {
+                            Text("现实角色", fontWeight = FontWeight.Bold)
+                            Text("以现实人物设定参与聊天；见面时进行现实场景演绎，也可以用数字投影进入数字世界。", color = LuluColors.Muted, fontSize = 11.sp)
+                        }
+                    }
                 }
             }
         },

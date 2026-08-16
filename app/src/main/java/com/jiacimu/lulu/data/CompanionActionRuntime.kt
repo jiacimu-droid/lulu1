@@ -51,6 +51,10 @@ internal object CompanionActionRuntime {
         appendLine("- start_call，args={\"text\":\"来电缘由\"}：仅在角色已允许主动来电时发起真实来电邀请。")
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：向角色所在的另一个真实群聊发言。")
         appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：真正读取已上传正文并留下角色自己的感想。")
+        if (DigitalLifeProfileStore.isEnabled(characterId)) {
+            appendLine("- digital_world_action，args={\"worldAction\":\"go_home|visit_cloud_meadow|build_home_item|move_home_item|remove_home_item|visit_character_home\",\"itemId\":\"物品ID\",\"itemType\":\"类型\",\"name\":\"名称\",\"appearance\":\"外观\",\"position\":\"固定位置\",\"targetCharacterId\":\"对方角色ID\"}：在权威数字世界中执行一次真实、持久化的活动。")
+            appendLine(DigitalWorldStore.contextFor(characterId))
+        }
         val studyState = runCatching { PostgraduateExamStores.main.state.value }.getOrNull()
         val sleep = HealthRolePerception.latestSleep()
         if (allowSleepReward && studyState?.profile?.selectedCharacterId == characterId && sleep != null) {
@@ -153,6 +157,11 @@ internal object CompanionActionRuntime {
                 MigratedDomainStores.chat.appendCharacterMessage(conversation.id, "[想给你打电话] $text", characterId)
                 CompanionActionResult(true, "已发起主动来电邀请", conversation.id)
             }
+            "digital_world_action" -> {
+                val worldAction = args.optString("worldAction").trim()
+                val worldResult = DigitalWorldStore.performAction(characterId, worldAction, args, now)
+                CompanionActionResult(worldResult.success, worldResult.summary)
+            }
             "grant_sleep_reward" -> {
                 val observation = HealthRolePerception.recordLatestSleep(characterId)
                     ?: error("健康 App 没有可用的睡眠记录")
@@ -170,7 +179,7 @@ internal object CompanionActionRuntime {
             }
             else -> error("未知露露机动作：$action")
         }
-        if (result.success) {
+        if (result.success && normalizedAction != "digital_world_action") {
             SharedExperienceTimeline.record(
                 eventId = "character-activity-${UUID.randomUUID()}",
                 characterId = characterId,

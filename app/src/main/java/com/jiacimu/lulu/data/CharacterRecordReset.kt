@@ -19,6 +19,7 @@ object CharacterRecordReset {
             }
 
         MomentsStore.clearCharacterData(cleanId)
+        DigitalWorldStore.clearCharacter(cleanId)
 
         LuluRepositories.lexicon.snapshot(cleanId)
             .map { it.id }

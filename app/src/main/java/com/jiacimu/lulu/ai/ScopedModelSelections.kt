@@ -10,6 +10,7 @@ import android.content.Context
  */
 object ScopedModelSelections {
     const val APOCALYPSE = "apocalypse_survival"
+    const val MEETING = "meeting"
 
     private var prefs: android.content.SharedPreferences? = null
 
@@ -31,6 +32,7 @@ object ScopedModelSelections {
         // is persisted the two selectors are completely independent.
         val fallback = when (scope) {
             APOCALYPSE -> library.archiveIdFor(ModelUsage.Game)
+            MEETING -> library.archiveIdFor(ModelUsage.Chat)
             else -> library.activeArchiveId?.takeIf { candidate -> library.archives.any { it.id == candidate } }
                 ?: library.archives.firstOrNull()?.id
         }

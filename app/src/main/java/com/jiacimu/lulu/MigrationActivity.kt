@@ -11,6 +11,7 @@ import com.jiacimu.lulu.data.ChatTurnConsistencyAutomation
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.DeterministicMemoryAutomation
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
+import com.jiacimu.lulu.data.DigitalWorldStore
 import com.jiacimu.lulu.data.LegacyConversationMigration
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -47,6 +48,7 @@ class MigrationActivity : ComponentActivity() {
         SharedExperienceTimeline.initialize(appContext)
         MigratedDomainStores.initialize(appContext)
         CharacterIdentityStore.initialize(appContext)
+        DigitalWorldStore.initialize(appContext)
         MomentsStore.initialize(appContext)
         SharedExperienceTimeline.backfillChatHistory()
         CompanionPresenceStore.initialize(appContext)

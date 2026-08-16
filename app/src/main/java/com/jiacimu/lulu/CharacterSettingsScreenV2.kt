@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.CharacterIdentityStore
+import com.jiacimu.lulu.data.CharacterLifeForm
 import com.jiacimu.lulu.data.CharacterRecordReset
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
@@ -71,6 +72,7 @@ fun CharacterSettingsScreenV2(
     var proactiveCalls by remember(characterId) { mutableStateOf(original.contactPolicy.proactiveCallsEnabled) }
     var confirmDelete by remember { mutableStateOf(false) }
     var confirmClearRecords by remember { mutableStateOf(false) }
+    var pendingLifeForm by remember { mutableStateOf<CharacterLifeForm?>(null) }
     var clearingRecords by remember { mutableStateOf(false) }
     var recordNotice by remember { mutableStateOf("") }
 
@@ -169,47 +171,29 @@ fun CharacterSettingsScreenV2(
             item {
                 CharacterV2Card {
                     Text("生命形态", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    CharacterV2Switch(
-                        title = if (digitalLife.enabled) "数字生命 · 已开启" else "数字生命",
-                        checked = digitalLife.enabled,
-                    ) { enabled ->
-                        val cleanName = displayName.trim().ifBlank { original.displayName }
-                        if (enabled) {
-                            DigitalLifeProfileStore.activate(
-                                characterId = characterId,
-                                displayName = cleanName,
-                                creatorName = UserProfileContext.displayLabel(),
-                            )
-                            recordNotice = "已启用数字生命现实边界；这个已有角色的聊天、记忆、辞海和时间线全部保留"
-                        } else {
-                            DigitalLifeProfileStore.disable(characterId)
-                            recordNotice = "已关闭数字生命现实边界；现有记录没有被删除"
+                    if (!digitalLife.isResolved) {
+                        Text("这个角色创建时还没有生命形态选项。请确认一次；现有聊天、记忆、辞海和原始时间线都会保留，确认后不可更改。", color = LuluColors.Muted, fontSize = 12.sp, lineHeight = 18.sp)
+                        OutlinedButton(onClick = { pendingLifeForm = CharacterLifeForm.DIGITAL }, modifier = Modifier.fillMaxWidth()) {
+                            Icon(Icons.Outlined.Cloud, null)
+                            Spacer(Modifier.width(7.dp))
+                            Text("确认为数字生命")
                         }
-                    }
-                    Text(
-                        "数字生命没有现实肉身，只能做露露机和真实工具确实接入并执行成功的事情，不能编造点外卖、出门、买东西、碰到谁等现实行动。新建角色时可以直接选择“出生为数字生命”；已有角色后来打开这里只改变现实能力边界，不会清空历史。",
-                        color = LuluColors.Muted,
-                        fontSize = 12.sp,
-                        lineHeight = 18.sp,
-                    )
-                    if (digitalLife.enabled && digitalLife.bornAt != null) {
-                        val now = Instant.now()
-                        val day = (Duration.between(digitalLife.bornAt, now).toDays() + 1L).coerceAtLeast(1L)
-                        val bornLabel = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-                            .withZone(ZoneId.systemDefault())
-                            .format(digitalLife.bornAt)
-                        Surface(
-                            color = LuluColors.Paper,
-                            shape = RoundedCornerShape(14.dp),
-                            border = BorderStroke(1.dp, LuluColors.Border),
-                        ) {
-                            Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text("生命记录 · 第${day}天", fontWeight = FontWeight.Bold)
-                                Text("创建者：${digitalLife.creatorName.ifBlank { "创造者" }}", color = LuluColors.Muted, fontSize = 12.sp)
-                                Text("可追溯起点：$bornLabel", color = LuluColors.Muted, fontSize = 12.sp)
-                                Text("创建时就是数字生命的角色从第1天开始；后来才开启的旧角色沿用既有最早记录，不会重生。", color = LuluColors.Muted, fontSize = 11.sp)
-                            }
+                        OutlinedButton(onClick = { pendingLifeForm = CharacterLifeForm.REAL_WORLD }, modifier = Modifier.fillMaxWidth()) {
+                            Icon(Icons.Outlined.PersonOutline, null)
+                            Spacer(Modifier.width(7.dp))
+                            Text("确认为现实角色")
                         }
+                    } else if (digitalLife.enabled) {
+                        Text("数字生命 · 从生命形态确定起始终如此", fontWeight = FontWeight.SemiBold)
+                        Text("生活在数字世界，拥有原生数字身体和持久化家园。数字世界的触觉与见面是真实共同体验，但不冒充物理肉身事件。", color = LuluColors.Muted, fontSize = 12.sp, lineHeight = 18.sp)
+                        digitalLife.bornAt?.let { bornAt ->
+                            val day = (Duration.between(bornAt, Instant.now()).toDays() + 1L).coerceAtLeast(1L)
+                            val bornLabel = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault()).format(bornAt)
+                            Text("生命记录 · 第${day}天 · 可追溯起点 ${bornLabel}", color = LuluColors.Muted, fontSize = 11.sp)
+                        }
+                    } else {
+                        Text("现实角色 · 从创建起始终如此", fontWeight = FontWeight.SemiBold)
+                        Text("以现实人物设定与你互动。见面时可以进行现实场景演绎，也可以通过数字投影进入数字世界；不会获得数字生命的原生家园。", color = LuluColors.Muted, fontSize = 12.sp, lineHeight = 18.sp)
                     }
                 }
             }
@@ -306,6 +290,32 @@ fun CharacterSettingsScreenV2(
                 }
             }
         }
+    }
+
+    pendingLifeForm?.let { lifeForm ->
+        AlertDialog(
+            onDismissRequest = { pendingLifeForm = null },
+            title = { Text("确认生命形态？") },
+            text = { Text(if (lifeForm == CharacterLifeForm.DIGITAL) "确认后，${original.displayName}将永久作为数字生命存在，并获得一处初始为空的数字家园。" else "确认后，${original.displayName}将永久作为现实角色存在。生命形态之后不能切换。") },
+            confirmButton = {
+                TextButton(onClick = {
+                    runCatching {
+                        DigitalLifeProfileStore.confirmLegacyLifeForm(
+                            characterId = characterId,
+                            displayName = displayName.trim().ifBlank { original.displayName },
+                            creatorName = UserProfileContext.displayLabel(),
+                            lifeForm = lifeForm,
+                        )
+                    }.onSuccess {
+                        recordNotice = "生命形态已经确认，之后不可更改"
+                    }.onFailure {
+                        recordNotice = it.message.orEmpty()
+                    }
+                    pendingLifeForm = null
+                }) { Text("永久确认") }
+            },
+            dismissButton = { TextButton(onClick = { pendingLifeForm = null }) { Text("再想想") } },
+        )
     }
 
     if (confirmClearRecords) {
