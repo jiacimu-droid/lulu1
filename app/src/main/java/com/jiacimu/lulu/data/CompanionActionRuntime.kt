@@ -123,7 +123,7 @@ internal object CompanionActionRuntime {
                 val location = args.optString("location").trim()
                 require(location in locations) { "发起见面邀请前必须从可用地点中选定一个" }
                 val text = args.optString("text").trim()
-                    .ifBlank { "要不要来数字世界见我？我会在$location等你。" }
+                    .ifBlank { "要不要来数字世界见我？我会在${location}等你。" }
                     .take(240)
                 val conversation = privateConversation(characterId, character.displayName)
                 MigratedDomainStores.chat.appendCharacterMessage(
@@ -131,7 +131,7 @@ internal object CompanionActionRuntime {
                     "[见面邀约|$characterId|$location] $text",
                     characterId,
                 )
-                CompanionActionResult(true, "已邀请你到$location见面", conversation.id)
+                CompanionActionResult(true, "已邀请你到${location}见面", conversation.id)
             }
             "publish_moment" -> {
                 val text = args.optString("text").trim().take(2_000)
