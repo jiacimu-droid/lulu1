@@ -161,12 +161,39 @@ fun DigitalWorldMeetingApp(
                                 activeSession.participantIds.joinToString("、") {
                                     MigratedDomainStores.characters.get(it).displayName
                                 },
+                                modifier = Modifier.widthIn(max = 104.dp),
                                 color = LuluColors.Ink,
                                 fontSize = 19.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
+                            Surface(
+                                color = Color(0xFFF1F2F3),
+                                shape = RoundedCornerShape(12.dp),
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                ) {
+                                    Icon(
+                                        Icons.Outlined.Place,
+                                        contentDescription = null,
+                                        tint = Color(0xFF85888E),
+                                        modifier = Modifier.size(12.dp),
+                                    )
+                                    Text(
+                                        activeSession.location,
+                                        modifier = Modifier.widthIn(max = 72.dp),
+                                        color = Color(0xFF74777D),
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
+                            }
                         }
                         else -> Text("见面", fontWeight = FontWeight.SemiBold)
                     }
@@ -602,36 +629,6 @@ private fun MeetingRoom(
     }
 
     Column(modifier) {
-        Box(
-            modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 2.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Surface(
-                color = LuluColors.CardStrong,
-                shape = RoundedCornerShape(50),
-                border = BorderStroke(1.dp, LuluColors.Border),
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                ) {
-                    Icon(
-                        Icons.Outlined.Place,
-                        contentDescription = null,
-                        tint = LuluColors.BlueGray,
-                        modifier = Modifier.size(14.dp),
-                    )
-                    Text(
-                        session.location,
-                        color = MeetingProseColor,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
-            }
-        }
-
         LazyColumn(
             state = messageListState,
             modifier = Modifier.weight(1f).fillMaxWidth(),
@@ -788,13 +785,16 @@ private fun MeetingOrderedSegments(
             when (segment.type) {
                 MeetingSegmentType.ACTION -> Surface(
                     modifier = Modifier.widthIn(max = 330.dp),
-                    color = Color(0xFFF6F5F3),
-                    shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(1.dp, Color(0xFFE2E0DC)),
+                    color = if (isUser) Color(0xFFF4F0EA) else Color(0xFFF1F3F4),
+                    shape = if (isUser) {
+                        RoundedCornerShape(topStart = 15.dp, topEnd = 6.dp, bottomEnd = 15.dp, bottomStart = 15.dp)
+                    } else {
+                        RoundedCornerShape(topStart = 6.dp, topEnd = 15.dp, bottomEnd = 15.dp, bottomStart = 15.dp)
+                    },
                 ) {
                     Text(
                         text = meetingParagraphs(segment.text),
-                        color = Color(0xFF74767B),
+                        color = Color(0xFF777A80),
                         fontSize = 15.sp,
                         lineHeight = 24.sp,
                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
