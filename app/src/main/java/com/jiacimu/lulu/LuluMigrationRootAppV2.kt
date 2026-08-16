@@ -251,7 +251,7 @@ fun LuluMigrationRootAppV2(
                                 MigrationRoute.Memory -> MemoryFeatureScreen(::popRoute)
                                 MigrationRoute.Lexicon -> LexiconFeatureScreenV2(
                                     onBack = ::popRoute,
-                                    initialCharacterId = selectedCharacterId,
+                                    initialCharacterId = initialTargetCharacterId.takeIf { deepLinkRoute == MigrationRoute.Meeting },
                                     initialDiaryTitle = lexiconInitialDiaryTitle,
                                 )
                                 MigrationRoute.WorldBook -> CharacterWorldBookScreenV2(
