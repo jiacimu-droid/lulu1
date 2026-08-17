@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-17T05:16:55.336465+00:00",
-  "commit": "976367108ce644aa23d62cd0b84e5d3379d23442",
+  "generatedAt": "2026-08-17T05:19:42.318691+00:00",
+  "commit": "1cab968ea5f27195464c11331527591eb9559832",
   "branch": "main",
-  "sourceFingerprint": "83c7dfe450d9605bce7765408030bb935e61f310abadcf5be24b6929a1bc10e9",
+  "sourceFingerprint": "a711c122943f30aa0505690fba71d05032b6940e2c466dacc1c3bb36896cb5cd",
   "summary": {
     "files": 188,
-    "lines": 58918,
+    "lines": 58939,
     "symbols": 800
   },
   "symbolIndex": {
@@ -177,7 +177,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 1096
+        "line": 1100
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
@@ -4101,37 +4101,37 @@
     "redeemCustomReward": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 722
+        "line": 726
       }
     ],
     "claimAchievement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 739
+        "line": 743
       }
     ],
     "refreshShop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 758
+        "line": 762
       }
     ],
     "buyShopItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 773
+        "line": 777
       }
     ],
     "nextId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 1036
+        "line": 1040
       }
     ],
     "PostgraduateExamStores": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 1091
+        "line": 1095
       }
     ],
     "books": [
@@ -8231,8 +8231,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-      "lines": 1101,
-      "sha256": "282a1f843fb3d41afd29d67b82aa2dcf9a698357b18624f5308e4fbea9dedf7d",
+      "lines": 1105,
+      "sha256": "a60dbdf7b31e6de93aba380eda27cb6f269311f986d4fe0940c70122f50f8e34",
       "symbols": [
         {
           "name": "PostgraduateExamStore",
@@ -8356,31 +8356,31 @@
         },
         {
           "name": "redeemCustomReward",
-          "line": 722
+          "line": 726
         },
         {
           "name": "claimAchievement",
-          "line": 739
+          "line": 743
         },
         {
           "name": "refreshShop",
-          "line": 758
+          "line": 762
         },
         {
           "name": "buyShopItem",
-          "line": 773
+          "line": 777
         },
         {
           "name": "nextId",
-          "line": 1036
+          "line": 1040
         },
         {
           "name": "PostgraduateExamStores",
-          "line": 1091
+          "line": 1095
         },
         {
           "name": "initialize",
-          "line": 1096
+          "line": 1100
         }
       ]
     },
@@ -8550,8 +8550,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCollectionScreenV2.kt",
-      "lines": 204,
-      "sha256": "dd9ed2ac5722f4a19165df83c91a0c2d23670290bde818ecd7080d8c24009ee1",
+      "lines": 211,
+      "sha256": "9786a603e930ecda01fccde26587ba49ff0cfb28131cc74f2613a77fd42f25bc",
       "symbols": []
     },
     {
@@ -8568,8 +8568,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-      "lines": 412,
-      "sha256": "789f0b62fa1f85a0109620a88a0e8885d6aff20cd8672e9706becfeba4eec281",
+      "lines": 421,
+      "sha256": "c064cb356c8ac85f698cc90d6b807f0f5b8b3f8e87741d04457f7e211ce4d9ea",
       "symbols": [
         {
           "name": "StudyTaskSource",
@@ -8682,8 +8682,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt",
-      "lines": 987,
-      "sha256": "54704fbdc5b055e917a1c0d99791527cb594beefd479063a9e9d2ccf3cc7d334",
+      "lines": 990,
+      "sha256": "5ee60a41b8d591c3af84c4eee6a0cbd7ea9c6d314cbae5b5e5f639b5a29f2dec",
       "symbols": [
         {
           "name": "draw",
@@ -8745,8 +8745,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
-      "lines": 255,
-      "sha256": "85181adc0df2a89e70690917af23ad1bb1a8228cd27ce3e68f9702603558f65f",
+      "lines": 253,
+      "sha256": "73915b236ad7011c885b18a9b844da1ced74feafcf905f2109b9d46d1df3e6ae",
       "symbols": [
         {
           "name": "encode",
