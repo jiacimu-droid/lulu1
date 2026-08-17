@@ -21,8 +21,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.ScopedModelArchiveIconButton
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ScopedModelSelections
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
@@ -163,6 +165,13 @@ private fun TheaterBookshelfV2(
             Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回心愿馆") }
                 Text("小剧场", modifier = Modifier.weight(1f), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                ScopedModelArchiveIconButton(
+                    scope = ScopedModelSelections.THEATER,
+                    title = "小剧场模型",
+                    subtitle = "只用于小剧场规划与续写，不会改变聊天、跑团或末世求生的模型。",
+                    contentDescription = "选择小剧场模型",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                )
                 TextButton(onClick = onArchive) {
                     Icon(Icons.Outlined.Inventory2, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(4.dp))
@@ -423,6 +432,7 @@ private fun TheaterReaderV2(
                 title = "${seed.title} · 第${chapterNumber}章",
                 temperature = 0.82,
                 maxTokens = 4400,
+                connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
                 contextMode = CompanionContextMode.Isolated,
             ).onSuccess { reply ->
                 store.addChapter(

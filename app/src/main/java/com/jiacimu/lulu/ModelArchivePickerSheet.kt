@@ -29,6 +29,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,12 +39,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.ai.ScopedModelSelections
 import com.jiacimu.lulu.ai.archiveIdFor
 
 /**
@@ -248,6 +251,55 @@ internal fun ModelArchiveTextButton(
             accent = accent,
             background = background,
             ink = textColor,
+            muted = muted,
+            border = border,
+        )
+    }
+}
+
+@Composable
+internal fun ScopedModelArchiveIconButton(
+    scope: String,
+    title: String,
+    subtitle: String,
+    contentDescription: String,
+    tint: Color,
+    accent: Color = Color(0xFF526D5E),
+    background: Color = Color(0xFFF7F7F6),
+    ink: Color = Color(0xFF1D211F),
+    muted: Color = Color(0xFF727975),
+    border: Color = Color(0xFFE0E4E1),
+    enabled: Boolean = true,
+) {
+    val context = LocalContext.current
+    val library by LuluAiServices.connectionStore.library.collectAsState()
+    var visible by remember { mutableStateOf(false) }
+    var selectedId by remember(library.archives, scope) {
+        mutableStateOf(ScopedModelSelections.selectedArchiveId(scope, library))
+    }
+
+    LaunchedEffect(context, library.archives, scope) {
+        ScopedModelSelections.initialize(context)
+        selectedId = ScopedModelSelections.selectedArchiveId(scope, library)
+    }
+
+    IconButton(onClick = { visible = true }, enabled = enabled) {
+        Icon(Icons.Outlined.Memory, contentDescription, tint = tint)
+    }
+    if (visible) {
+        ModelArchivePickerSheet(
+            title = title,
+            subtitle = subtitle,
+            selectedArchiveId = selectedId,
+            onSelect = { id ->
+                ScopedModelSelections.select(scope, id)
+                selectedId = id
+                visible = false
+            },
+            onDismiss = { visible = false },
+            accent = accent,
+            background = background,
+            ink = ink,
             muted = muted,
             border = border,
         )

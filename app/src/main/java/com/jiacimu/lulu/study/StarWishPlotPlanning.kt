@@ -3,6 +3,7 @@ package com.jiacimu.lulu.study
 import android.content.Context
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ScopedModelSelections
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -127,6 +128,7 @@ internal object StarWishPlotPlanner {
             title = if (existingTitle.isNullOrBlank()) "三套剧情规划" else "《$existingTitle》的三套剧情规划",
             temperature = 0.9,
             maxTokens = 7600,
+            connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
             contextMode = CompanionContextMode.Isolated,
         ).getOrThrow().text
         parseJson(reply).ifEmpty { parseLoose(reply) }.take(3).takeIf { it.isNotEmpty() }
