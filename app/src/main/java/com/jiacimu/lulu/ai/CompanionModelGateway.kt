@@ -501,7 +501,11 @@ class CompanionModelGateway(
             }.trim()
             val memorySection = if (memories.isEmpty()) "" else buildString {
                 appendLine("可用连续记忆（只能按内容本身使用，不得扩写成未发生事实）：")
-                memories.forEach { appendLine("- ${it.content}") }
+                memories.forEach { memory ->
+                    val memoryTime = memory.occurredAt ?: memory.createdAt
+                    val timeKind = if (memory.occurredAt != null) "发生时间" else "记录时间"
+                    appendLine("- [$timeKind=$memoryTime] ${memory.content}")
+                }
             }.trim()
             val memoryEvidenceSection = recalledRawTimeline
             val timelineSection = recentSharedTimeline.takeIf(String::isNotBlank)?.let {

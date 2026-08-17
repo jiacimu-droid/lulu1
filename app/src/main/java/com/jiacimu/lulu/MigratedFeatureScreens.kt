@@ -75,7 +75,6 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
     var selectedCharacterId by rememberSaveable {
         mutableStateOf(characters.keys.firstOrNull() ?: "lulu")
     }
-    val selectedCharacter = characters[selectedCharacterId] ?: MigratedDomainStores.characters.get(selectedCharacterId)
     val policy by repository.observePolicy(selectedCharacterId).collectAsState(initial = MemoryPolicy())
     val memories by repository.observeMemories(selectedCharacterId).collectAsState(initial = emptyList())
     val debug by repository.debugState.collectAsState()
@@ -90,7 +89,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
     var editingMemory by remember { mutableStateOf<MemoryEntry?>(null) }
     var creatingMemory by remember { mutableStateOf(false) }
     var organizing by remember { mutableStateOf(false) }
-    var maintenanceNotice by remember { mutableStateOf("") }
+    val snackbarHostState = remember { SnackbarHostState() }
     val pendingEvents = repository.pendingTimelineEvents(selectedCharacterId)
 
     val filtered = remember(memories, section, search) {
@@ -109,6 +108,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
 
     Scaffold(
         containerColor = FeaturePaper,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("记忆", fontWeight = FontWeight.SemiBold) },
@@ -118,6 +118,26 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                 actions = {
                     IconButton(onClick = { showSettings = !showSettings }) {
                         Icon(Icons.Outlined.Tune, "记忆设置")
+                    }
+                    IconButton(
+                        onClick = {
+                            organizing = true
+                            scope.launch {
+                                val removed = repository.maintainAll()
+                                snackbarHostState.showSnackbar(
+                                    if (removed > 0) "已整理全部角色，合并 $removed 条重复记忆"
+                                    else "全部角色都没有可安全合并的重复记忆",
+                                )
+                                organizing = false
+                            }
+                        },
+                        enabled = !organizing,
+                    ) {
+                        if (organizing) {
+                            CircularProgressIndicator(Modifier.size(19.dp), strokeWidth = 2.dp)
+                        } else {
+                            Icon(Icons.Outlined.AutoFixHigh, "整理全部角色的重复记忆")
+                        }
                     }
                     IconButton(onClick = { creatingMemory = true }) {
                         Icon(Icons.Outlined.Add, "手动添加记忆")
@@ -140,7 +160,6 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                         selected = selectedCharacterId == character.characterId,
                         onClick = {
                             selectedCharacterId = character.characterId
-                            maintenanceNotice = ""
                         },
                         label = { Text(character.displayName) },
                         leadingIcon = {
@@ -156,20 +175,36 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
 
             if (showSettings) {
                 FeatureCardBox(Modifier.padding(horizontal = 16.dp)) {
-                    Text("${selectedCharacter.displayName}的记忆规则", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text("全部角色共用的记忆规则", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     OutlinedTextField(
                         value = excluded,
                         onValueChange = { value -> excluded = value.filter(Char::isDigit) },
-                        label = { Text("最近 N 条消息不读取") },
+                        label = { Text("最近 N 条暂不总结") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
                     OutlinedTextField(
                         value = threshold,
                         onValueChange = { value -> threshold = value.filter(Char::isDigit) },
-                        label = { Text("可读消息达到此数量才总结") },
+                        label = { Text("每 N 条总结一次") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
+                    )
+                    val excludedValue = excluded.toIntOrNull()?.coerceAtLeast(0) ?: 25
+                    val thresholdValue = threshold.toIntOrNull()?.coerceAtLeast(1) ?: 20
+                    val contextValue = (excludedValue.toLong() + thresholdValue.toLong())
+                        .coerceAtMost(Int.MAX_VALUE.toLong())
+                        .toInt()
+                    Text(
+                        "角色原始上下文：$contextValue 条（$excludedValue 条保护区 + $thresholdValue 条总结批次）",
+                        color = FeatureBlueGray,
+                        fontSize = 12.sp,
+                    )
+                    Text(
+                        "若总结失败或待整理内容超过一批，原始上下文会自动扩大到覆盖全部积压，不让消息落入空档。",
+                        color = FeatureBlueGray,
+                        fontSize = 11.sp,
+                        lineHeight = 16.sp,
                     )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -188,47 +223,21 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                                 repository.updatePolicy(
                                     selectedCharacterId,
                                     MemoryPolicy(
-                                        excludedRecentMessages = excluded.toIntOrNull()?.coerceAtLeast(0) ?: 25,
-                                        readableThreshold = threshold.toIntOrNull()?.coerceAtLeast(1) ?: 20,
+                                        excludedRecentMessages = excludedValue,
+                                        readableThreshold = thresholdValue,
                                         autoSummarize = autoSummarize,
                                     ),
                                 )
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                    ) { Text("保存记忆规则") }
-                    OutlinedButton(
-                        onClick = {
-                            organizing = true
-                            maintenanceNotice = ""
-                            scope.launch {
-                                val removed = repository.maintain(selectedCharacterId)
-                                maintenanceNotice = if (removed > 0) {
-                                    "已安全合并 $removed 条重复/高度重复记忆"
-                                } else {
-                                    "没有发现可以安全自动合并的重复记忆"
-                                }
-                                organizing = false
-                            }
-                        },
-                        enabled = !organizing,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        if (organizing) {
-                            CircularProgressIndicator(Modifier.size(17.dp), strokeWidth = 2.dp)
-                            Spacer(Modifier.width(7.dp))
-                        }
-                        Text(if (organizing) "正在维护…" else "整理已有重复记忆")
-                    }
+                    ) { Text("保存统一设置") }
                     Text(
                         "删除记忆后，它会立即退出召回范围，并留下删除标记，自动总结不会再把同一条重新生成；如果多个角色里存在同一条错误记忆，手动删除会一起清掉等价副本。",
                         color = FeatureBlueGray,
                         fontSize = 11.sp,
                         lineHeight = 16.sp,
                     )
-                    if (maintenanceNotice.isNotBlank()) {
-                        Text(maintenanceNotice, color = FeatureBlueGray, fontSize = 12.sp)
-                    }
                 }
                 Spacer(Modifier.height(10.dp))
             }
@@ -286,8 +295,12 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                                 "当前约有 ${repository.pendingMessageCount(selectedCharacterId)} 条可读消息尚未进入成功批次。",
                                 color = FeatureBlueGray,
                             )
-                            Text("阈值：${policy.readableThreshold} 条；最近排除：${policy.excludedRecentMessages} 条", color = FeatureBlueGray, fontSize = 12.sp)
-                            Text("最近排除只是暂缓，之后有新消息时会按原时间顺序进入队列，不会丢弃。私聊和该角色参与的群聊都在这里。", color = FeatureBlueGray, fontSize = 12.sp)
+                            Text(
+                                "每 ${policy.readableThreshold} 条总结一次；最近 ${policy.excludedRecentMessages} 条暂不总结；基础原始上下文 ${policy.rawContextMessageCount} 条。",
+                                color = FeatureBlueGray,
+                                fontSize = 12.sp,
+                            )
+                            Text("最近保护区只是暂缓总结，始终会作为原文交给角色；之后有新消息时按原时间顺序进入队列。私聊、群聊和数字世界见面都共用这条时间线。", color = FeatureBlueGray, fontSize = 12.sp)
                             Button(
                                 onClick = {
                                     organizing = true

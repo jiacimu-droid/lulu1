@@ -59,7 +59,16 @@ data class MemoryPolicy(
     val excludedRecentMessages: Int = 25,
     val readableThreshold: Int = 20,
     val autoSummarize: Boolean = true,
-)
+) {
+    /**
+     * The raw context must cover both the not-yet-eligible tail and one complete extraction batch.
+     * This is a minimum: runtime may temporarily expand it when failed extraction leaves a backlog.
+     */
+    val rawContextMessageCount: Int
+        get() = (excludedRecentMessages.toLong() + readableThreshold.toLong())
+            .coerceAtMost(Int.MAX_VALUE.toLong())
+            .toInt()
+}
 
 interface MemoryRepository {
     fun observeMemories(characterId: String): Flow<List<MemoryEntry>>

@@ -53,15 +53,15 @@ class LocalMemoryRepository : MemoryRepository {
     }
 
     override fun observePolicy(characterId: String): Flow<MemoryPolicy> = state.map { snapshot ->
-        snapshot.policies[characterId] ?: MemoryPolicy()
+        snapshot.resolvedPolicy(characterId)
     }
 
     override suspend fun updatePolicy(characterId: String, policy: MemoryPolicy) {
         require(characterId.isNotBlank()) { "角色不能为空" }
         require(policy.excludedRecentMessages >= 0) { "最近消息排除数量不能为负数" }
         require(policy.readableThreshold > 0) { "总结阈值必须大于 0" }
-        mutate { current -> current.copy(policies = current.policies + (characterId to policy)) }
-        refreshDebug("已保存记忆规则", characterId)
+        mutate { current -> current.copy(globalPolicy = policy) }
+        refreshDebug("已保存全部角色共用的记忆规则", characterId)
     }
 
     override suspend fun summarizeNow(characterId: String) {
@@ -75,7 +75,7 @@ class LocalMemoryRepository : MemoryRepository {
     }
 
     private suspend fun summarizeContinuously(characterId: String) {
-        val policy = state.value.policies[characterId] ?: MemoryPolicy()
+        val policy = state.value.resolvedPolicy(characterId)
         val threshold = policy.readableThreshold.coerceAtLeast(1)
         val readable = readableMessages(characterId, policy)
         var processedThisRun = 0
@@ -311,6 +311,17 @@ class LocalMemoryRepository : MemoryRepository {
     /** Conservative local maintenance: merge exact and very-high-similarity duplicates only. */
     suspend fun maintain(characterId: String): Int = maintain(characterId, silent = false)
 
+    /** One user action maintains every role's memory library, including roles not currently open. */
+    suspend fun maintainAll(): Int {
+        val characterIds = state.value.entries.mapTo(linkedSetOf(), MemoryEntry::characterId)
+        val removed = characterIds.sumOf { characterId -> maintain(characterId, silent = true) }
+        refreshDebug(
+            if (removed == 0) "全部角色记忆维护完成，没有发现可安全合并的重复项"
+            else "全部角色记忆维护完成，合并了 $removed 条重复记忆",
+        )
+        return removed
+    }
+
     private fun maintain(characterId: String, silent: Boolean): Int {
         var removed = 0
         mutate { current ->
@@ -388,12 +399,33 @@ class LocalMemoryRepository : MemoryRepository {
     fun pendingMessageCount(characterId: String): Int = pendingTimelineEvents(characterId).size
 
     fun pendingTimelineEvents(characterId: String): List<SharedTimelineEvent> {
-        val policy = state.value.policies[characterId] ?: MemoryPolicy()
+        val policy = state.value.resolvedPolicy(characterId)
         val processed = state.value.processedMessageIds[characterId].orEmpty()
         return memoryEligibleTimelineEvents(characterId)
             .dropLast(policy.excludedRecentMessages.coerceAtLeast(0))
             .filterNot { event -> event.id in processed }
             .sortedBy(SharedTimelineEvent::occurredAt)
+    }
+
+    /**
+     * Complete raw context for generation. Normally this is exactly protected-tail + one batch.
+     * If extraction fails or is disabled long enough to create a larger unprocessed backlog, the
+     * window expands to include that backlog instead of silently creating a memory hole.
+     */
+    fun contextTimelineEvents(characterId: String): List<SharedTimelineEvent> {
+        val snapshot = state.value
+        val policy = snapshot.resolvedPolicy(characterId)
+        val processed = snapshot.processedMessageIds[characterId].orEmpty()
+        val eligible = memoryEligibleTimelineEvents(characterId)
+        val baselineIds = eligible
+            .takeLast(policy.rawContextMessageCount.coerceAtLeast(0))
+            .mapTo(linkedSetOf(), SharedTimelineEvent::id)
+        val unresolvedIds = eligible
+            .asSequence()
+            .filterNot { event -> event.id in processed }
+            .mapTo(linkedSetOf(), SharedTimelineEvent::id)
+        val requiredIds = baselineIds + unresolvedIds
+        return eligible.filter { event -> event.id in requiredIds }
     }
 
     /**
@@ -519,6 +551,10 @@ class LocalMemoryRepository : MemoryRepository {
             },
         )
         .put(
+            "globalPolicy",
+            value.globalPolicy?.let(::encodePolicy) ?: JSONObject.NULL,
+        )
+        .put(
             "processedMessageIds",
             JSONObject().apply {
                 value.processedMessageIds.forEach { (characterId, ids) ->
@@ -549,6 +585,10 @@ class LocalMemoryRepository : MemoryRepository {
                     )
                 }
             }
+            val globalPolicy = root.optJSONObject("globalPolicy")?.let(::decodePolicy)
+                // Old saves were per-role. Pick the safest configured policy once, then every role
+                // observes the same migrated value from this point onward.
+                ?: policies.values.maxByOrNull { policy -> policy.rawContextMessageCount }
             val processedObject = root.optJSONObject("processedMessageIds") ?: JSONObject()
             val processed = buildMap {
                 val keys = processedObject.keys()
@@ -569,9 +609,26 @@ class LocalMemoryRepository : MemoryRepository {
                 val array = root.optJSONArray("deletedMemoryKeys") ?: JSONArray()
                 for (index in 0 until array.length()) array.optString(index).takeIf(String::isNotBlank)?.let(::add)
             }
-            MemoryStoreState(entries = entries, policies = policies, processedMessageIds = processed, deletedMemoryKeys = deleted)
+            MemoryStoreState(
+                entries = entries,
+                policies = policies,
+                globalPolicy = globalPolicy,
+                processedMessageIds = processed,
+                deletedMemoryKeys = deleted,
+            )
         }.getOrDefault(MemoryStoreState())
     }
+
+    private fun encodePolicy(policy: MemoryPolicy): JSONObject = JSONObject()
+        .put("excludedRecentMessages", policy.excludedRecentMessages)
+        .put("readableThreshold", policy.readableThreshold)
+        .put("autoSummarize", policy.autoSummarize)
+
+    private fun decodePolicy(item: JSONObject): MemoryPolicy = MemoryPolicy(
+        excludedRecentMessages = item.optInt("excludedRecentMessages", 25).coerceAtLeast(0),
+        readableThreshold = item.optInt("readableThreshold", 20).coerceAtLeast(1),
+        autoSummarize = item.optBoolean("autoSummarize", true),
+    )
 
     private fun encodeEntry(entry: MemoryEntry): JSONObject = JSONObject()
         .put("id", entry.id)
@@ -619,9 +676,13 @@ data class MemoryDebugState(
 private data class MemoryStoreState(
     val entries: List<MemoryEntry> = emptyList(),
     val policies: Map<String, MemoryPolicy> = emptyMap(),
+    val globalPolicy: MemoryPolicy? = null,
     val processedMessageIds: Map<String, Set<String>> = emptyMap(),
     val deletedMemoryKeys: Set<String> = emptySet(),
 )
+
+private fun MemoryStoreState.resolvedPolicy(characterId: String): MemoryPolicy =
+    globalPolicy ?: policies[characterId] ?: MemoryPolicy()
 
 private fun MemoryEntry.dedupeKey(): String =
     kind.name + ":" + memoryIdentityKey()

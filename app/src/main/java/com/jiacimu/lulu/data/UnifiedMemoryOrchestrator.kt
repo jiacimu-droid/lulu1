@@ -2,7 +2,6 @@ package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.core.MemoryEntry
-import kotlinx.coroutines.flow.first
 
 data class UnifiedMemoryRequest(
     val currentInput: String = "",
@@ -75,11 +74,7 @@ object UnifiedMemoryOrchestrator {
         recentCharacterBudget: Int = 7_000,
     ): UnifiedMemoryContext {
         if (characterId.isBlank()) return empty()
-        val recentCount = LuluRepositories.memory.observePolicy(characterId)
-            .first()
-            .excludedRecentMessages
-            .coerceAtLeast(0)
-        val recentEvents = SharedExperienceTimeline.recentEvents(characterId, recentCount)
+        val recentEvents = LuluRepositories.memory.contextTimelineEvents(characterId)
         val recentIds = recentEvents.mapTo(mutableSetOf(), SharedTimelineEvent::id)
         val query = request.retrievalQuery()
         val memories = RelevantMemoryRecall.recall(characterId, query, recallLimit)
@@ -128,7 +123,8 @@ private fun renderMemorySummaries(memories: List<MemoryEntry>, characterBudget: 
     val lines = mutableListOf<String>()
     var used = header.length + 1
     memories.take(8).forEach { memory ->
-        val line = "- ${memory.content.trim().replace("\n", " ")}"
+        val memoryTime = memory.occurredAt ?: memory.createdAt
+        val line = "- [$memoryTime] ${memory.content.trim().replace("\n", " ")}"
         if (used + line.length + 1 <= characterBudget) {
             lines += line
             used += line.length + 1
@@ -155,19 +151,18 @@ private fun renderEventSection(
 
 private fun renderEventLines(events: List<SharedTimelineEvent>, characterBudget: Int): List<String> {
     if (events.isEmpty() || characterBudget <= 0) return emptyList()
-    val selected = mutableListOf<String>()
-    var used = 0
-    for (event in events.asReversed()) {
+    val prefixes = events.map { event -> "[${event.occurredAt}] [${event.channel}] ${event.speaker}：" }
+    val prefixCost = prefixes.sumOf(String::length) + events.size
+    // Budgets are soft here: omitting an older unresolved event is worse than a modest overflow.
+    // Share the available content space across every chronological record instead of filling from
+    // newest to oldest and silently dropping the beginning of the pending window.
+    val effectiveBudget = maxOf(characterBudget, prefixCost + events.size * MIN_EVENT_CONTENT_CHARS)
+    val contentBudget = (effectiveBudget - prefixCost).coerceAtLeast(events.size)
+    val perEvent = (contentBudget / events.size).coerceAtLeast(MIN_EVENT_CONTENT_CHARS)
+    return events.mapIndexed { index, event ->
         val content = event.content.trim().replace("\n", " ")
-        val prefix = "[${event.occurredAt}] [${event.channel}] ${event.speaker}："
-        val fullLine = prefix + content
-        if (used + fullLine.length + 1 <= characterBudget) {
-            selected += fullLine
-            used += fullLine.length + 1
-        } else if (selected.isEmpty()) {
-            val available = (characterBudget - prefix.length - 2).coerceAtLeast(0)
-            if (available > 0) selected += prefix + content.take(available) + "…"
-        }
+        prefixes[index] + if (content.length <= perEvent) content else content.take(perEvent) + "…"
     }
-    return selected.asReversed()
 }
+
+private const val MIN_EVENT_CONTENT_CHARS = 48

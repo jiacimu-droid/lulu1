@@ -36,7 +36,6 @@ object RelevantMemoryRecall {
                     memory.occurredAt ?: memory.createdAt,
                 )
             }
-            .take(MAX_MEMORY_POOL)
             .toList()
         if (memories.isEmpty()) return emptyList()
 
@@ -67,7 +66,8 @@ object RelevantMemoryRecall {
             addAll(pinnedRanked)
             // Keep a broader high-strength/recency tail so vector search can discover genuinely
             // semantic matches that share few or no literal words with the new message.
-            addAll(memories.take(VECTOR_POOL_LIMIT))
+            addAll(memories.take(VECTOR_POOL_LIMIT / 2))
+            addAll(evenlySample(memories, VECTOR_POOL_LIMIT / 2))
         }.distinctBy(MemoryEntry::id).take(VECTOR_POOL_LIMIT)
 
         val vectorRanked = if (MemoryModelRuntime.vectorEnabled()) {
@@ -196,6 +196,9 @@ object RelevantMemoryRecall {
             memories.forEach { memory ->
                 append("- [")
                 append(memory.kind.name)
+                append("][")
+                append(if (memory.occurredAt != null) "发生=" else "记录=")
+                append(memory.occurredAt ?: memory.createdAt)
                 append("] ")
                 appendLine(memory.content.take(MAX_MEMORY_CHARS))
             }
@@ -280,6 +283,15 @@ object RelevantMemoryRecall {
                     .thenByDescending { memory -> memory.strength }
                     .thenByDescending { memory -> memory.occurredAt ?: memory.createdAt },
             )
+    }
+
+    private fun evenlySample(memories: List<MemoryEntry>, limit: Int): List<MemoryEntry> {
+        if (limit <= 0 || memories.isEmpty()) return emptyList()
+        if (memories.size <= limit) return memories
+        val lastIndex = memories.lastIndex.toDouble()
+        return (0 until limit)
+            .map { sampleIndex -> memories[((sampleIndex * lastIndex) / (limit - 1).coerceAtLeast(1)).toInt()] }
+            .distinctBy(MemoryEntry::id)
     }
 
     private fun score(
@@ -410,7 +422,6 @@ object RelevantMemoryRecall {
         "今天", "昨天", "前天", "昨晚", "昨夜", "今早", "刚才", "刚刚", "之前", "最近", "那天", "上次",
     )
 
-    private const val MAX_MEMORY_POOL = 160
     private const val VECTOR_POOL_LIMIT = 96
     private const val LEXICAL_CANDIDATES = 56
     private const val VECTOR_CANDIDATES = 56
