@@ -51,9 +51,7 @@ internal object StudyStateCodec {
             tips = decodeArray(json.optJSONArray("tips"), ::decodeTip).ifEmpty { defaultTips(today) },
             events = decodeArray(json.optJSONArray("events"), ::decodeEvent),
             achievements = decodeArray(json.optJSONArray("achievements"), ::decodeAchievement),
-            shopItems = decodeArray(json.optJSONArray("shopItems"), ::decodeShop)
-                .filterNot { it.reward == StudyShopReward.TheaterFragment }
-                .ifEmpty { defaultShop(today, gachaRules) },
+            shopItems = decodeArray(json.optJSONArray("shopItems"), ::decodeShop).ifEmpty { defaultShop(today, gachaRules) },
             shopDate = json.optString("shopDate", today.toString()),
             manualShopRefreshDate = json.optString("manualShopRefreshDate"),
             drawsSinceNonNormal = json.optInt("drawsSinceNonNormal").coerceIn(0, NON_NORMAL_PITY - 1),
@@ -215,7 +213,7 @@ internal object StudyStateCodec {
             StudyShopReward.TenTicket -> decoded.copy(title = "十连券", subtitle = "商店限定折扣，比直接十连省150夸夸值")
             StudyShopReward.DouyinTicket -> decoded.copy(title = "抖音时长券", subtitle = "紫色稀有商品 · 可使用20分钟")
             StudyShopReward.GameRoundTicket -> decoded.copy(title = "游戏局数券", subtitle = "紫色稀有商品 · 可畅玩4局")
-            StudyShopReward.TheaterFragment -> decoded.copy(title = "已移除奖励", subtitle = "旧版本兼容数据")
+            StudyShopReward.TheaterFragment -> decoded.copy(title = "小剧场券", subtitle = "紫色稀有商品 · 使用数量由你自己决定")
             StudyShopReward.GameTicket -> decoded.copy(title = "电影券", subtitle = "金色稀有商品 · 可观看1部电影")
             StudyShopReward.AnimeTicket -> decoded.copy(title = "影视剧一季兑换券", subtitle = "彩色超稀有商品 · 可兑换一整季")
         }

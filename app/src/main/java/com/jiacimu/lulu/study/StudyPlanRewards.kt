@@ -792,6 +792,9 @@ internal fun StudyCollectionScreen(
     val builtInTickets = listOf(
         CollectionTicket("抖音时长券 · 20分钟", state.inventory.douyinTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Douyin) },
         CollectionTicket("游戏局数券 · 4局", state.inventory.gameRoundTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.GameRound) },
+        CollectionTicket("小剧场券", state.inventory.theaterFragments) {
+            message = store.redeemEntertainment(StudyEntertainmentKind.Theater)
+        },
         CollectionTicket("电影券 · 1部", state.inventory.gameTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Game) },
         CollectionTicket("影视剧一季兑换券", state.inventory.animeTickets) { message = store.redeemEntertainment(StudyEntertainmentKind.Anime) },
     )
@@ -968,10 +971,10 @@ internal fun StudyGuideScreen() {
             }
         }
         item { GuideCard("夸夸值", "签到、完成待办和学习时长都会获得夸夸值。累计学习每满5分钟获得100夸夸值，不足部分跨番茄保留。") }
-        item { GuideCard("抽卡概率", "默认蓝色画卷94.3%；紫色4.5%（抖音券2.5%、游戏局数券2%）；金色电影券0.8%；彩色影视剧一季兑换券0.4%。收藏页的“概率设计”可以修改紫／金／彩项目的概率、单次数量并添加自定义项目；蓝色自动使用剩余概率。") }
+        item { GuideCard("抽卡概率", "默认蓝色画卷93.3%；紫色5.5%（抖音券2.5%、游戏局数券2%、小剧场券1%，抽中小剧场一次发3张）；金色电影券0.8%；彩色影视剧一季兑换券0.4%。收藏页的“概率设计”可以修改紫／金／彩项目的概率、单次数量并添加自定义项目；蓝色自动使用剩余概率。") }
         item { GuideCard("十连规则", "每抽都独立使用概率设计中已保存的单抽概率；十连只是连续抽10次，可能全部为蓝色，没有保底或隐藏加成。") }
         item { GuideCard("画卷碎片", "每套画卷需要10枚自己的专属碎片。已满后仍显示本次抽中物，但不重复计入。") }
-        item { GuideCard("收藏", "收藏展示抖音券、游戏局数券、电影券、影视剧一季兑换券和自定义项目。小剧场可在心愿馆直接生成或续写，不需要任何券。") }
+        item { GuideCard("收藏", "抽到的小剧场券会正常进入收藏，由你自己决定使用几张；创建小剧场、生成剧情规划和续写章节都不自动消耗券。") }
         item { GuideCard("商店", "商店使用夸夸值，每日展示3件商品，手动刷新每天最多一次。") }
         item { GuideCard("番茄钟", "番茄钟提供云雾原版和深夜墨蓝两套配色，支持自定义时长、提前结束按实际分钟结算、角色语音和专注中聊天。") }
     }

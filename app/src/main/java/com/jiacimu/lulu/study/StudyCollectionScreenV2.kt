@@ -48,7 +48,14 @@ internal fun StudyCollectionScreenV2(
                 amount = state.inventory.gameRoundTickets,
             ) { message = store.redeemEntertainment(StudyEntertainmentKind.GameRound) }
 
-            StudyGachaRewardType.Theater -> null
+            StudyGachaRewardType.Theater -> CompactCollectionTicket(
+                id = rule.id,
+                title = rule.title,
+                rarity = rule.rarity,
+                amount = state.inventory.theaterFragments,
+            ) {
+                message = store.redeemEntertainment(StudyEntertainmentKind.Theater)
+            }
 
             StudyGachaRewardType.Movie -> CompactCollectionTicket(
                 id = rule.id,

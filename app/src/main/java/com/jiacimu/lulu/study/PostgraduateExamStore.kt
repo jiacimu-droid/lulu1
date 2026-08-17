@@ -638,7 +638,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
                 inventory = when (rule.type) {
                     StudyGachaRewardType.Douyin -> inventory.copy(douyinTickets = inventory.douyinTickets + amount)
                     StudyGachaRewardType.GameRound -> inventory.copy(gameRoundTickets = inventory.gameRoundTickets + amount)
-                    StudyGachaRewardType.Theater -> inventory
+                    StudyGachaRewardType.Theater -> inventory.copy(theaterFragments = inventory.theaterFragments + amount)
                     StudyGachaRewardType.Movie -> inventory.copy(gameTickets = inventory.gameTickets + amount)
                     StudyGachaRewardType.Anime -> inventory.copy(animeTickets = inventory.animeTickets + amount)
                     StudyGachaRewardType.Custom -> inventory.copy(
@@ -702,8 +702,12 @@ class PostgraduateExamStore internal constructor(context: Context) {
                     state.copy(inventory = inventory.copy(gameRoundTickets = inventory.gameRoundTickets - 1), events = addEvent(state.events, "娱乐券", message))
                 }
                 StudyEntertainmentKind.Theater -> {
-                    message = "小剧场现在可以直接使用，不再需要券"
-                    state
+                    if (inventory.theaterFragments <= 0) return@mutate state
+                    message = "小剧场券已使用 · 剩余 ${inventory.theaterFragments - 1} 张"
+                    state.copy(
+                        inventory = inventory.copy(theaterFragments = inventory.theaterFragments - 1),
+                        events = addEvent(state.events, "娱乐券", message),
+                    )
                 }
                 StudyEntertainmentKind.Game -> {
                     if (inventory.gameTickets <= 0) return@mutate state
@@ -803,7 +807,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
                     StudyShopReward.TenTicket -> inventory.copy(tenTickets = inventory.tenTickets + item.amount)
                     StudyShopReward.DouyinTicket -> inventory.copy(douyinTickets = inventory.douyinTickets + item.amount)
                     StudyShopReward.GameRoundTicket -> inventory.copy(gameRoundTickets = inventory.gameRoundTickets + item.amount)
-                    StudyShopReward.TheaterFragment -> inventory
+                    StudyShopReward.TheaterFragment -> inventory.copy(theaterFragments = inventory.theaterFragments + item.amount)
                     StudyShopReward.GameTicket -> inventory.copy(gameTickets = inventory.gameTickets + item.amount)
                     StudyShopReward.AnimeTicket -> inventory.copy(animeTickets = inventory.animeTickets + item.amount)
                 }
