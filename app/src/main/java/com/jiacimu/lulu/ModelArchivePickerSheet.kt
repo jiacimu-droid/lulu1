@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -270,6 +271,7 @@ internal fun ScopedModelArchiveIconButton(
     muted: Color = Color(0xFF727975),
     border: Color = Color(0xFFE0E4E1),
     enabled: Boolean = true,
+    showLabel: Boolean = false,
 ) {
     val context = LocalContext.current
     val library by LuluAiServices.connectionStore.library.collectAsState()
@@ -283,8 +285,17 @@ internal fun ScopedModelArchiveIconButton(
         selectedId = ScopedModelSelections.selectedArchiveId(scope, library)
     }
 
-    IconButton(onClick = { visible = true }, enabled = enabled) {
-        Icon(Icons.Outlined.Memory, contentDescription, tint = tint)
+    val selectedLabel = library.archives.firstOrNull { it.id == selectedId }?.model.orEmpty().ifBlank { "选择模型" }
+    if (showLabel) {
+        TextButton(onClick = { visible = true }, enabled = enabled, modifier = Modifier.widthIn(max = 112.dp)) {
+            Icon(Icons.Outlined.Memory, contentDescription, tint = tint, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(4.dp))
+            Text(selectedLabel, color = tint, maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 11.sp)
+        }
+    } else {
+        IconButton(onClick = { visible = true }, enabled = enabled) {
+            Icon(Icons.Outlined.Memory, contentDescription, tint = tint)
+        }
     }
     if (visible) {
         ModelArchivePickerSheet(
