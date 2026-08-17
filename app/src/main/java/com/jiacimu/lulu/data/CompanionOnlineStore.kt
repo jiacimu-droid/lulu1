@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import com.jiacimu.lulu.qqForwardContextText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -43,6 +44,7 @@ data class CompanionUnreadSnapshot(
  *
  * A wake-up means five minutes of guaranteed perception, never a guaranteed reply. While a
  * character is online, new relevant chat events schedule an independent perception for that role.
+ * User Moments are perceived through MomentsStore by the same online-state predicate.
  */
 object CompanionOnlineStore {
     private const val PREFS_NAME = "lulu_companion_online_v1"
@@ -156,10 +158,7 @@ object CompanionOnlineStore {
                 }
                 persistLocked()
             }
-            if (
-                conversation.groupChat == null &&
-                isOnline(conversation.characterId, now)
-            ) {
+            if (conversation.groupChat == null && isOnline(conversation.characterId, now)) {
                 val current = mutableStates.value[conversation.characterId]
                 if (current != null) {
                     mutableStates.value = mutableStates.value + (
@@ -223,7 +222,7 @@ object CompanionOnlineStore {
                     .orEmpty().ifBlank { "角色" }
                 LuluChatMessage.Sender.System -> "系统"
             }
-            "- ${message.createdAt}｜$scene｜$speaker：${message.content.take(600)}"
+            "- ${message.createdAt}｜$scene｜$speaker：${qqForwardContextText(message.content).take(600)}"
         }
         return CompanionUnreadSnapshot(text, events.maxOfOrNull { (_, message) -> message.createdAt })
     }
@@ -238,7 +237,6 @@ object CompanionOnlineStore {
         }
     }
 
-    /** Role reset starts a new subjective life without erasing other roles' witness history. */
     fun resetCharacter(characterId: String, now: Instant = Instant.now()) {
         if (characterId.isBlank()) return
         synchronized(lock) {
@@ -265,7 +263,6 @@ object CompanionOnlineStore {
             synchronized(lock) {
                 val current = mutableStates.value[characterId] ?: return@synchronized
                 if (!current.isOnline()) {
-                    // Change the stored value at the exact expiry so Compose updates immediately.
                     mutableStates.value = mutableStates.value + (
                         characterId to current.copy(onlineUntil = Instant.now().minusMillis(1L))
                     )
