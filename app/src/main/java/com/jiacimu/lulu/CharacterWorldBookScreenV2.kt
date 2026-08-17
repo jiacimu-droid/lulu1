@@ -61,7 +61,7 @@ fun CharacterWorldBookScreenV2(
                 WorldV2Card {
                     Text("拼接与覆盖规则", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     Text("世界书按列表从上到下拼接。全局开启时默认作用于所有角色；角色级的单独开启或关闭优先于全局。", color = LuluColors.Muted)
-                    Text("固定人设与世界书合计超过安全预算时会明确报错，不会静默裁剪。", color = LuluColors.Muted, fontSize = 12.sp)
+                    Text("发送时会完整拼接角色设定与已启用世界书；可用上下文长度以实际模型接口为准。", color = LuluColors.Muted, fontSize = 12.sp)
                 }
             }
             item {
