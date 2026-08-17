@@ -153,10 +153,10 @@ fun DigitalWorldMeetingApp(
                 }
             }
             val session = DigitalWorldStore.startMeeting(
-                participantIds = listOf(inviterId),
-                location = invitationLocation.trim().ifBlank { "世界入口" },
-                invitedByCharacterId = inviterId,
-                invitationText = invitationText,
+                listOf(inviterId),
+                invitationLocation.trim().ifBlank { "世界入口" },
+                inviterId,
+                invitationText,
             )
             if (invitationId.isNotBlank()) MeetingExperienceStore.acceptInvitation(invitationId)
             session
