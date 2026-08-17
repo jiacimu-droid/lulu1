@@ -24,10 +24,7 @@ internal data class CompanionActionResult(
         .toString()
 }
 
-/**
- * One real execution layer for both foreground chat decisions and background perception.
- * Prompts may differ by scene, but social actions must never have separate fake implementations.
- */
+/** One real execution layer shared by foreground chat decisions and background perception. */
 internal object CompanionActionRuntime {
     private val gameTitles = mapOf(
         "roleplay" to "跑团",
@@ -43,13 +40,13 @@ internal object CompanionActionRuntime {
         allowSleepReward: Boolean = true,
     ): String = buildString {
         HealthRolePerception.initialize(context)
-        appendLine("角色可执行的露露机内动作（这些动作在前台聊天与后台主动感知中共用同一个真实执行层）：")
-        appendLine("- send_private_message，args={\"text\":\"私聊内容\"}：在角色与用户的私聊中真实发送消息。")
+        appendLine("角色可执行的露露机内动作（前台聊天与后台主动感知共用同一个真实执行层）：")
+        appendLine("- send_private_message，args={\"text\":\"私聊内容\"}：一对一找用户说话。适合明确有一件事想对用户本人说、继续两人的话题或关系，不是公开生活播报。")
         appendLine("- send_game_invite，args={\"gameId\":\"游戏ID\",\"text\":\"邀请语\"}：在角色私聊中发送可点击的游戏邀请。")
-        appendLine("- publish_moment，args={\"text\":\"动态正文\"}：以角色身份真实发布朋友圈。")
-        appendLine("- write_journal，args={\"title\":\"标题\",\"content\":\"正文\"}：真实写入该角色辞海的日记。")
+        appendLine("- publish_moment，args={\"text\":\"动态正文\"}：朋友圈是公开分享日常。只有角色此刻真的有一段生活、心情、见闻或小事觉得值得让朋友们看到时才发；它不是定期状态更新，也不是为了证明自己活跃。")
+        appendLine("- write_journal，args={\"title\":\"标题\",\"content\":\"正文\"}：日记是角色私下整理自己、消化情绪、保存想法与经历的地方，不是绕路给用户传话。")
         appendLine("- start_call，args={\"text\":\"来电缘由\"}：仅在角色已允许主动来电时发起真实来电邀请。")
-        appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：向角色所在的另一个真实群聊发言。")
+        appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。只在想参与那个群正在发生的共享话题时发言；在线、看见消息都不等于必须说话。")
         appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：真正读取阅读 App 里的上传正文或小剧场章节，并留下角色自己的感想。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             appendLine("- send_world_invite，args={\"location\":\"准确地点名\",\"text\":\"邀请语\"}：邀请用户到指定数字世界地点见面；私聊中会出现标明地点的可点击邀请卡片。")
@@ -195,10 +192,7 @@ internal object CompanionActionRuntime {
                 val worldAction = args.optString("worldAction").trim()
                 val worldResult = DigitalWorldStore.performAction(characterId, worldAction, args, now)
                 if (worldResult.success) {
-                    MigratedDomainStores.chat.appendPrivateActivityNotice(
-                        characterId,
-                        "【数字世界回执】${worldResult.summary}",
-                    )
+                    MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, worldResult.summary)
                 }
                 CompanionActionResult(worldResult.success, worldResult.summary)
             }
