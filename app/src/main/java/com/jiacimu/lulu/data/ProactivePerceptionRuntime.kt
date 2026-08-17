@@ -80,6 +80,11 @@ object ProactivePerceptionRuntime {
         val awaitingReply: Boolean,
     )
 
+    private data class ActionExecution(
+        val success: Boolean,
+        val summary: String,
+    )
+
     fun initialize(context: Context) {
         ProactivePerceptionPolicyStore.initialize(context.applicationContext)
         createNotificationChannels(context.applicationContext)
@@ -305,7 +310,7 @@ object ProactivePerceptionRuntime {
             .joinToString("\n") { "- ${it.title}：${it.content}" }
         val previousPresence = CompanionPresenceStore.current(characterId)
         val deviceContext = buildRealWorldContext(appContext, characterId, now)
-        val readingBooks = ReadingBackgroundBridge.books(appContext).take(12)
+        val readingBooks = ReadingBackgroundBridge.books(appContext).take(24)
         val digitalWorldContext = if (DigitalLifeProfileStore.isEnabled(characterId)) DigitalWorldStore.contextFor(characterId) else ""
 
         val result = LuluAiServices.gateway.generate(
@@ -315,6 +320,7 @@ object ProactivePerceptionRuntime {
                 appendLine("\n【用户现实设备与用户状态感知层】")
                 appendLine("重要归属：下面的电量、前台应用、通知、位置、健康/手环和学习信息都属于用户本人或用户正在使用的现实设备，不属于角色自己的手机或身体。")
                 appendLine("触发来源：$trigger")
+                appendLine("本次判断：如果没有待处理的新消息，这仍是角色真实生活的一段时间，不是只能更新状态的空轮询。")
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
                 appendLine("允许主动来电：${if (character.contactPolicy.proactiveCallsEnabled) "是" else "否"}")
@@ -322,8 +328,8 @@ object ProactivePerceptionRuntime {
                     appendLine("最近自主选择（旧→新）：${recentAutonomousActions.joinToString(" → ")}")
                 }
                 if (readingBooks.isNotEmpty()) {
-                    appendLine("可独自阅读的内容：")
-                    readingBooks.forEach { book -> appendLine("- readingBookId=${book.id}；《${book.title}》；${book.source}") }
+                    appendLine("阅读 App 中可独自阅读的内容：")
+                    readingBooks.forEach { book -> appendLine("- readingBookId=${book.id}；${book.title}；来源=${book.source}") }
                 }
                 if (availableGroups.isNotEmpty()) {
                     appendLine("所在群聊：")
@@ -362,17 +368,17 @@ object ProactivePerceptionRuntime {
                 1. 每次感知都必须形成 statusText、gesture、mood；innerThought 可以为空。silent 不是失败，而是角色决定只过自己的这一刻。此刻是一份完整生活状态，不只是动作：statusText写正在做什么，gesture写动作神态，mood写心情，innerThought写愿意保存在角色内部但没有说出口的第一人称心声。
                 2. 【归属绝不能混淆】感知层里的手机电量、充电、前台应用/屏幕活动、通知、位置、健康/手环和学习状态默认全部是用户及用户现实设备的数据，不是角色自己的。看到“前台应用=抖音/短视频”只能理解为用户可能正在刷视频，不能写成“我还在刷视频”；看到“电量=20%”不能写成“我手机只剩20%”；通知也不是角色自己收到的。除非另有明确的角色侧设备数据，否则禁止第一人称认领这些信号。
                 3. 手机信息只是观察用户现实状态的线索，不能被夸大推断；健康数据带同步时间时，要意识到它可能在下一次手环导出前保持不变，也不能据此虚构用户更多未提供的身体或环境事实。
-                4. 不设每日主动次数、消息冷却、电话冷却、朋友圈冷却或日记冷却。是否行动由人设、关系、上下文和此刻意愿决定，不要因为“能做”就每次都做。
+                4. 不设每日主动次数、消息冷却、电话冷却、朋友圈冷却或日记冷却。是否行动由人设、关系、上下文和此刻意愿决定，不要因为“能做”就每次都做。但“不想打扰用户”不等于只能 silent：角色完全可以阅读、写日记，或在数字世界回家、建设家园、闲逛，过自己的生活。
                 5. message 是主动私聊；group_message 只能使用真实 groupId；game_invite 可用 gameId：roleplay、turtle_soup、yacht_dice、gomoku、memory_match。
                 6. call 只有“允许主动来电=是”时才能选择；否则必须换其他动作或 silent。
-                7. reading 只能使用真实 readingBookId。角色会真正读取对应正文并产生自己的感想，不要假装读了列表之外的书。
+                7. reading 只能使用阅读 App 列表里的真实 readingBookId。列表可包含用户上传的故事和已生成的小剧场具体章节；选择后会真正读取该章正文、产生角色自己的感想，并记录阅读回执与原始时间线。不要假装读了列表之外的内容。
                 8. journal 是角色第一人称私人日记；moment 是角色愿意公开的朋友圈；game_invite 是角色真的想和用户一起玩。它们都是角色自己的生活选择，不要把所有动作写成对用户的服务或监督。
                 9. 学习状态只在当前角色就是学习 App 的陪同角色时提供；没提供就代表这个角色没有权限知道，禁止猜。
-                10. 角色语气、主动程度、动作、心声必须服从人设。行动不是概率抽签，也不是机械轮班：必须能从人设、关系、最新动态、未完话题和此刻意愿解释。认真看“最近自主选择”和最近聊天里的系统生活事件；没有新的真实理由时不要连续重复同一种动作，但也不要为了凑多样性硬换动作。若最近连续多次 SILENT，而眼下自然适合写日记、发朋友圈、邀游戏、阅读、联系用户或去群里说话，应允许角色自己行动。
+                10. 角色语气、主动程度、动作、心声必须服从人设。行动不是概率抽签，也不是机械轮班：必须能从人设、关系、最新动态、未完话题和此刻意愿解释。认真看“最近自主选择”和最近聊天里的系统生活事件；没有新的真实理由时不要连续重复同一种动作，但也不要为了凑多样性硬换动作。若最近连续多次 SILENT，再次 silent 必须有符合当前人设和处境的具体理由；否则应从阅读、日记、数字世界生活或真正想做的社交动作中选一件。
                 11. 【用户跨场景最新动态】按真实时间从新到旧列出私聊和群聊消息；其中标有“待回复”的内容应成为这一刻的优先注意对象，并优先在它发生的场景自然回应，除非人设、关系或语义给出明确的不回应理由。没有待回复动态时，再自由决定自己的生活。不要把“优先注意”写成系统报告。
                 11.1 【本次上线尚未处理的新动态】是角色本次真正看见的未读内容，可能包括用户或其他角色的发言。看见不等于必须回复；如果决定回应，必须去对应的私聊或群聊，不能把别人的话当成自己的记忆，也不能泄露其他角色的私聊。
                 12. 动作字段必须可执行：message/moment/call 必须给非空 text；group_message 必须给真实 groupId 和非空 text；game_invite 必须从给定列表选真实 gameId 并给邀请语；world_invite 必须给非空邀请语；journal 必须给非空 journalTitle 与 journalContent；reading 必须给真实 readingBookId。不要选择一个动作却把它需要的字段留空，否则这个动作会失败。
-                13. 只有数字生命看到数字世界权威状态时才能选择 world_invite 或 digital_world。world_invite 是邀请用户从世界入口进入并与你见面，不等于你自己移动地点；只有真正想见用户时才选择，并必须填写可用地点中的真实 location。家中物品只能使用权威状态里的 itemId；新增家具一次只能建一件，必须给名称、外观和固定位置，并符合角色自己的真实意愿。不能用文字假装建设成功，不能同时出现在两个地点。串门只能使用提供的真实 targetCharacterId。silent 仍然是完全正常的选择。
+                13. 只有数字生命看到数字世界权威状态时才能选择 world_invite 或 digital_world。world_invite 是邀请用户从世界入口进入并与你见面，不等于你自己移动地点；只有真正想见用户时才选择，并必须填写可用地点中的真实 location。家中物品只能使用权威状态里的 itemId；新增家具一次只能建一件，必须给名称、外观和固定位置，并符合角色自己的真实意愿。如果想建家具却不在自己家，本次应先 go_home，之后的感知再 build_home_item。不能用文字假装建设成功，不能同时出现在两个地点。串门只能使用提供的真实 targetCharacterId。silent 仍然是完全正常的选择，但不是“没有人找我”时的默认值。
             """.trimIndent(),
             source = "后台主动感知",
             title = "${character.displayName}的主动感知",
@@ -402,7 +408,7 @@ object ProactivePerceptionRuntime {
             source = "后台主动感知",
             now = now,
         )
-        val acted = performAction(
+        val execution = performAction(
             appContext = appContext,
             character = character,
             decision = decision,
@@ -410,16 +416,25 @@ object ProactivePerceptionRuntime {
             now = now,
         )
         val interactiveWake = trigger.contains("呼唤") || trigger.startsWith("在线期间")
-        if ((decision.action == Action.SILENT || !acted) && !interactiveWake) {
+        if (decision.action == Action.SILENT && !interactiveWake) {
             MigratedDomainStores.chat.appendPrivateActivityNotice(
                 characterId,
                 "刚刚更新了自己的此刻：${decision.statusText}${decision.mood.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()}",
             )
+        } else if (decision.action != Action.SILENT && !execution.success) {
+            MigratedDomainStores.chat.appendPrivateActivityNotice(
+                characterId,
+                "【动作未完成】${execution.summary.take(180)}",
+            )
         }
-        val effectiveAction = if (acted) decision.action else Action.SILENT
+        val effectiveAction = if (execution.success) decision.action else Action.SILENT
         CompanionPresenceStore.recordPerceptionAttempt(
             characterId,
-            "感知成功 · ${effectiveAction.name.lowercase()}${decision.reason.takeIf(String::isNotBlank)?.let { " · ${it.take(90)}" }.orEmpty()}",
+            if (decision.action != Action.SILENT && !execution.success) {
+                "动作失败 · ${decision.action.name.lowercase()} · ${execution.summary.take(120)}"
+            } else {
+                "感知成功 · ${effectiveAction.name.lowercase()}${decision.reason.takeIf(String::isNotBlank)?.let { " · ${it.take(90)}" }.orEmpty()}"
+            },
             now,
         )
         CompanionOnlineStore.markSeen(characterId, onlineUnread.newestAt)
@@ -432,8 +447,8 @@ object ProactivePerceptionRuntime {
         decision: Decision,
         availableGroups: List<LuluConversation>,
         now: Instant,
-    ): Boolean {
-        if (decision.action == Action.SILENT) return false
+    ): ActionExecution {
+        if (decision.action == Action.SILENT) return ActionExecution(false, "角色选择保持安静")
         val tool = when (decision.action) {
             Action.MESSAGE -> "send_private_message"
             Action.GROUP_MESSAGE -> "send_group_message"
@@ -444,7 +459,7 @@ object ProactivePerceptionRuntime {
             Action.JOURNAL -> "write_journal"
             Action.READING -> "read_book"
             Action.DIGITAL_WORLD -> "digital_world_action"
-            Action.SILENT -> return false
+            Action.SILENT -> return ActionExecution(false, "角色选择保持安静")
         }
         val args = JSONObject().apply {
             put("text", decision.text)
@@ -463,7 +478,7 @@ object ProactivePerceptionRuntime {
             put("location", decision.location)
         }
         val result = CompanionActionRuntime.execute(appContext, character.characterId, tool, args, now)
-        if (!result.success) return false
+        if (!result.success) return ActionExecution(false, result.summary.ifBlank { "执行器没有返回失败原因" })
         when (decision.action) {
             Action.MESSAGE -> result.conversationId?.let { showMessageNotification(appContext, it, character.displayName, decision.text) }
             Action.GROUP_MESSAGE -> {
@@ -480,7 +495,7 @@ object ProactivePerceptionRuntime {
             }
             else -> Unit
         }
-        return true
+        return ActionExecution(true, result.summary)
     }
 
     private suspend fun buildRealWorldContext(context: Context, characterId: String, now: Instant): String = buildString {
