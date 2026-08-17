@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-17T05:13:01.996426+00:00",
-  "commit": "3947d02791665018459f7b7aeda4c6296ce94d5e",
+  "generatedAt": "2026-08-17T05:16:55.336465+00:00",
+  "commit": "976367108ce644aa23d62cd0b84e5d3379d23442",
   "branch": "main",
-  "sourceFingerprint": "677e3c20987e057688519a10f6bd1712a029d814104e25772371d719715db5bc",
+  "sourceFingerprint": "83c7dfe450d9605bce7765408030bb935e61f310abadcf5be24b6929a1bc10e9",
   "summary": {
-    "files": 189,
-    "lines": 58964,
-    "symbols": 801
+    "files": 188,
+    "lines": 58918,
+    "symbols": 800
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -177,7 +177,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 1100
+        "line": 1096
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
@@ -3607,7 +3607,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt",
-        "line": 25
+        "line": 26
       }
     ],
     "tap": [
@@ -4101,37 +4101,37 @@
     "redeemCustomReward": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 726
+        "line": 722
       }
     ],
     "claimAchievement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 743
+        "line": 739
       }
     ],
     "refreshShop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 762
+        "line": 758
       }
     ],
     "buyShopItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 777
+        "line": 773
       }
     ],
     "nextId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 1040
+        "line": 1036
       }
     ],
     "PostgraduateExamStores": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 1095
+        "line": 1091
       }
     ],
     "books": [
@@ -4214,12 +4214,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
         "line": 148
-      }
-    ],
-    "consumeTheaterFragment": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishInventoryBridge.kt",
-        "line": 17
       }
     ],
     "detailedGuide": [
@@ -8237,8 +8231,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-      "lines": 1105,
-      "sha256": "4a8f2a7bb374668552f55df59ca4530bf5086788065ca6e7299347f9e5ecc7ca",
+      "lines": 1101,
+      "sha256": "282a1f843fb3d41afd29d67b82aa2dcf9a698357b18624f5308e4fbea9dedf7d",
       "symbols": [
         {
           "name": "PostgraduateExamStore",
@@ -8362,31 +8356,31 @@
         },
         {
           "name": "redeemCustomReward",
-          "line": 726
+          "line": 722
         },
         {
           "name": "claimAchievement",
-          "line": 743
+          "line": 739
         },
         {
           "name": "refreshShop",
-          "line": 762
+          "line": 758
         },
         {
           "name": "buyShopItem",
-          "line": 777
+          "line": 773
         },
         {
           "name": "nextId",
-          "line": 1040
+          "line": 1036
         },
         {
           "name": "PostgraduateExamStores",
-          "line": 1095
+          "line": 1091
         },
         {
           "name": "initialize",
-          "line": 1100
+          "line": 1096
         }
       ]
     },
@@ -8485,24 +8479,13 @@
       ]
     },
     {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishInventoryBridge.kt",
-      "lines": 43,
-      "sha256": "568f322953fca99d12c24be99d9a4add6eb77f925c90c11e5b5bb35210450d5c",
-      "symbols": [
-        {
-          "name": "consumeTheaterFragment",
-          "line": 17
-        }
-      ]
-    },
-    {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt",
-      "lines": 65,
-      "sha256": "4362a94cce4da8d3f69608bd1badaa6f6356ec8a4506fec88aa5e37a17142c5e",
+      "lines": 71,
+      "sha256": "137cafae8ee8528d4960e0db17b7b98390c0698c32afb79c182fee2a8766756b",
       "symbols": [
         {
           "name": "stepBack",
-          "line": 25
+          "line": 26
         }
       ]
     },
@@ -8549,8 +8532,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-      "lines": 500,
-      "sha256": "97e11eac8d0175a098d1b53b921876e6198af0d5227e2a866284f320fa668fcf",
+      "lines": 502,
+      "sha256": "bd726d446254544b06c5fef374d5f904c9deeb6288cbe0185152783ff8211d47",
       "symbols": []
     },
     {
@@ -8585,8 +8568,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-      "lines": 421,
-      "sha256": "fba9c1549bfc6d863781cf8ae0adf28de574be2252e22a11657f0e69aaebbc07",
+      "lines": 412,
+      "sha256": "789f0b62fa1f85a0109620a88a0e8885d6aff20cd8672e9706becfeba4eec281",
       "symbols": [
         {
           "name": "StudyTaskSource",
@@ -8700,7 +8683,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt",
       "lines": 987,
-      "sha256": "0507e705e1461e497debe49f9c32821b73fbaafdc53cad83a5d71289d730572c",
+      "sha256": "54704fbdc5b055e917a1c0d99791527cb594beefd479063a9e9d2ccf3cc7d334",
       "symbols": [
         {
           "name": "draw",
@@ -8762,8 +8745,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
-      "lines": 253,
-      "sha256": "61df6baa43e2ac4c5e002f25084d308368d3bd1eab13ee9def4d5f40dbe249f9",
+      "lines": 255,
+      "sha256": "85181adc0df2a89e70690917af23ad1bb1a8228cd27ce3e68f9702603558f65f",
       "symbols": [
         {
           "name": "encode",
