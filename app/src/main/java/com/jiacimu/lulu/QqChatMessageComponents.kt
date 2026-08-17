@@ -9,6 +9,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
@@ -84,56 +85,58 @@ internal fun QqMessageRow(
         val receiptTime = remember(message.createdAt) {
             message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
         }
-        val receiptPrefix = "$receiptTime  "
-        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(receiptTime, color = QqMuted.copy(alpha = 0.72f), fontSize = 9.sp)
             Surface(
-                color = Color(0xFFF1F1F1),
-                shape = RoundedCornerShape(16.dp),
-                border = BorderStroke(1.dp, QqBorder),
+                color = Color(0xFFF5F5F4),
+                shape = RoundedCornerShape(9.dp),
+                shadowElevation = 0.dp,
             ) {
-                if (notice.link == null) {
-                    Text(
-                        text = receiptPrefix + notice.visibleText,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        color = QqMuted,
-                        fontSize = 11.sp,
-                    )
-                } else {
-                    val annotated = remember(notice, receiptPrefix) {
-                        buildAnnotatedString {
-                            append(receiptPrefix)
-                            append(notice.visibleText)
-                            val shiftedStart = notice.linkStart + receiptPrefix.length
-                            val shiftedEnd = notice.linkEnd + receiptPrefix.length
-                            if (notice.linkStart in 0 until notice.visibleText.length && notice.linkEnd > notice.linkStart) {
-                                addStyle(
-                                    SpanStyle(
-                                        color = QqInk,
-                                        fontWeight = FontWeight.SemiBold,
-                                        textDecoration = TextDecoration.Underline,
-                                    ),
-                                    shiftedStart,
-                                    shiftedEnd.coerceAtMost(length),
-                                )
-                                addStringAnnotation(
-                                    tag = "system_activity",
-                                    annotation = "open",
-                                    start = shiftedStart,
-                                    end = shiftedEnd.coerceAtMost(length),
-                                )
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Surface(modifier = Modifier.size(5.dp), shape = CircleShape, color = QqMuted.copy(alpha = 0.45f)) {}
+                    if (notice.link == null) {
+                        Text(notice.visibleText, color = QqMuted, fontSize = 10.5.sp, lineHeight = 15.sp)
+                    } else {
+                        val annotated = remember(notice) {
+                            buildAnnotatedString {
+                                append(notice.visibleText)
+                                if (notice.linkStart in 0 until notice.visibleText.length && notice.linkEnd > notice.linkStart) {
+                                    addStyle(
+                                        SpanStyle(
+                                            color = QqInk.copy(alpha = 0.82f),
+                                            fontWeight = FontWeight.Medium,
+                                            textDecoration = TextDecoration.Underline,
+                                        ),
+                                        notice.linkStart,
+                                        notice.linkEnd.coerceAtMost(length),
+                                    )
+                                    addStringAnnotation(
+                                        tag = "system_activity",
+                                        annotation = "open",
+                                        start = notice.linkStart,
+                                        end = notice.linkEnd.coerceAtMost(length),
+                                    )
+                                }
                             }
                         }
+                        ClickableText(
+                            text = annotated,
+                            style = LocalTextStyle.current.copy(color = QqMuted, fontSize = 10.5.sp, lineHeight = 15.sp),
+                            onClick = { offset ->
+                                if (annotated.getStringAnnotations("system_activity", offset, offset).isNotEmpty()) {
+                                    openSystemActivity(context, message, notice.link)
+                                }
+                            },
+                        )
                     }
-                    ClickableText(
-                        text = annotated,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        style = LocalTextStyle.current.copy(color = QqMuted, fontSize = 11.sp),
-                        onClick = { offset ->
-                            if (annotated.getStringAnnotations("system_activity", offset, offset).isNotEmpty()) {
-                                openSystemActivity(context, message, notice.link)
-                            }
-                        },
-                    )
                 }
             }
         }
@@ -174,9 +177,7 @@ internal fun QqMessageRow(
     }
     val anchorCharacterId = remember(message.authorCharacterId, message.conversationId, mine) {
         if (mine) null else message.authorCharacterId
-            ?: MigratedDomainStores.chat.conversations.value
-                .firstOrNull { it.id == message.conversationId }
-                ?.characterId
+            ?: MigratedDomainStores.chat.conversations.value.firstOrNull { it.id == message.conversationId }?.characterId
     }
 
     Box(Modifier.fillMaxWidth()) {
@@ -186,103 +187,44 @@ internal fun QqMessageRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                Icon(
-                    Icons.Outlined.Reply,
-                    contentDescription = null,
-                    modifier = Modifier.size(19.dp),
-                    tint = if (-swipeOffset >= triggerPx) QqInk else QqMuted,
-                )
-                Text(
-                    "引用",
-                    fontSize = 11.sp,
-                    color = if (-swipeOffset >= triggerPx) QqInk else QqMuted,
-                )
+                Icon(Icons.Outlined.Reply, null, Modifier.size(19.dp), tint = if (-swipeOffset >= triggerPx) QqInk else QqMuted)
+                Text("引用", fontSize = 11.sp, color = if (-swipeOffset >= triggerPx) QqInk else QqMuted)
             }
         }
-
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .offset { IntOffset(swipeOffset.roundToInt(), 0) }
-                .pointerInput(message.id) {
-                    detectHorizontalDragGestures(
-                        onDragEnd = {
-                            val shouldReply = -swipeOffset >= triggerPx
-                            swipeOffset = 0f
-                            if (shouldReply) onSwipeReply()
-                        },
-                        onDragCancel = { swipeOffset = 0f },
-                        onHorizontalDrag = { change, dragAmount ->
-                            change.consume()
-                            swipeOffset = (swipeOffset + dragAmount).coerceIn(-maxDragPx, 0f)
-                        },
-                    )
-                },
+            modifier = Modifier.fillMaxWidth().offset { IntOffset(swipeOffset.roundToInt(), 0) }.pointerInput(message.id) {
+                detectHorizontalDragGestures(
+                    onDragEnd = { val shouldReply = -swipeOffset >= triggerPx; swipeOffset = 0f; if (shouldReply) onSwipeReply() },
+                    onDragCancel = { swipeOffset = 0f },
+                    onHorizontalDrag = { change, dragAmount -> change.consume(); swipeOffset = (swipeOffset + dragAmount).coerceIn(-maxDragPx, 0f) },
+                )
+            },
             verticalAlignment = Alignment.Top,
         ) {
-            Box(
-                Modifier
-                    .width(44.dp)
-                    .padding(top = if (!mine && showCharacterName && showAvatar) 8.dp else 0.dp),
-                contentAlignment = Alignment.TopCenter,
-            ) {
+            Box(Modifier.width(44.dp).padding(top = if (!mine && showCharacterName && showAvatar) 8.dp else 0.dp), contentAlignment = Alignment.TopCenter) {
                 if (!mine && showAvatar) {
                     QqAvatar(
-                        characterName.take(1).ifBlank { "露" },
-                        44,
-                        characterAvatarUri,
+                        characterName.take(1).ifBlank { "露" }, 44, characterAvatarUri,
                         Modifier.combinedClickable(
-                            onClick = {
-                                anchorCharacterId?.let { id ->
-                                    CompanionPresenceStore.selectMessageAnchor(id, message.createdAt)
-                                }
-                                onCharacterAvatarClick()
-                            },
-                            onDoubleClick = {
-                                MigratedDomainStores.chat.appendSystemMessage(
-                                    message.conversationId,
-                                    "[戳一戳] 你戳了戳$characterLabel。",
-                                )
-                            },
+                            onClick = { anchorCharacterId?.let { CompanionPresenceStore.selectMessageAnchor(it, message.createdAt) }; onCharacterAvatarClick() },
+                            onDoubleClick = { MigratedDomainStores.chat.appendSystemMessage(message.conversationId, "[戳一戳] 你戳了戳$characterLabel。") },
                         ),
                     )
                 }
             }
             Spacer(Modifier.width(9.dp))
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = if (mine) Alignment.End else Alignment.Start,
-            ) {
+            Column(Modifier.weight(1f), horizontalAlignment = if (mine) Alignment.End else Alignment.Start) {
                 if (!mine && showCharacterName && showAvatar) {
-                    Text(
-                        characterLabel,
-                        color = QqMuted,
-                        fontSize = 11.sp,
-                        modifier = Modifier.padding(start = 4.dp, bottom = 3.dp),
-                    )
+                    Text(characterLabel, color = QqMuted, fontSize = 11.sp, modifier = Modifier.padding(start = 4.dp, bottom = 3.dp))
                 }
                 if (gameInvite != null) {
-                    MessageLineWithTime(
-                        mine = mine,
-                        showTime = showTime,
-                        timeText = timeText,
-                    ) { bubbleModifier ->
-                        GameInviteMessageCard(
-                            invite = gameInvite,
-                            onAccept = { onAcceptGame(gameInvite.gameId) },
-                            modifier = bubbleModifier,
-                        )
-                    }
+                    MessageLineWithTime(mine, showTime, timeText) { bubbleModifier -> GameInviteMessageCard(gameInvite, { onAcceptGame(gameInvite.gameId) }, bubbleModifier) }
                     Spacer(Modifier.height(5.dp))
                 }
                 if (worldInvite != null) {
-                    MessageLineWithTime(
-                        mine = mine,
-                        showTime = showTime,
-                        timeText = timeText,
-                    ) { bubbleModifier ->
+                    MessageLineWithTime(mine, showTime, timeText) { bubbleModifier ->
                         WorldInviteMessageCard(
-                            invite = worldInvite,
+                            worldInvite,
                             onAccept = {
                                 context.startActivity(
                                     Intent(context, MigrationActivity::class.java)
@@ -293,41 +235,23 @@ internal fun QqMessageRow(
                                         .putExtra("open_meeting_invitation_id", worldInvite.invitationId),
                                 )
                             },
-                            onReject = {
-                                worldInvite.invitationId.takeIf(String::isNotBlank)
-                                    ?.let { MeetingExperienceStore.rejectInvitation(it) }
-                            },
+                            onReject = { worldInvite.invitationId.takeIf(String::isNotBlank)?.let { MeetingExperienceStore.rejectInvitation(it) } },
                             modifier = bubbleModifier,
                         )
                     }
                     Spacer(Modifier.height(5.dp))
                 }
                 if (forwardBundle != null) {
-                    MessageLineWithTime(
-                        mine = mine,
-                        showTime = showTime,
-                        timeText = timeText,
-                    ) { bubbleModifier ->
-                        QqForwardedChatCard(
-                            bundle = forwardBundle,
-                            modifier = bubbleModifier.combinedClickable(
-                                onClick = { forwardOpen = true },
-                                onLongClick = onLongClick,
-                            ),
-                        )
+                    MessageLineWithTime(mine, showTime, timeText) { bubbleModifier ->
+                        QqForwardedChatCard(forwardBundle, bubbleModifier.combinedClickable(onClick = { forwardOpen = true }, onLongClick = onLongClick))
                     }
                     Spacer(Modifier.height(5.dp))
                 }
-                bubbles.filter { it.isNotBlank() }.forEachIndexed { index, bubble ->
+                bubbles.filter(String::isNotBlank).forEachIndexed { index, bubble ->
                     val isLastBubble = index == bubbles.lastIndex
-                    MessageLineWithTime(
-                        mine = mine,
-                        showTime = showTime && isLastBubble,
-                        timeText = timeText,
-                    ) { bubbleModifier ->
+                    MessageLineWithTime(mine, showTime && isLastBubble, timeText) { bubbleModifier ->
                         Surface(
-                            modifier = bubbleModifier
-                                .combinedClickable(onClick = {}, onLongClick = onLongClick),
+                            modifier = bubbleModifier.combinedClickable(onClick = {}, onLongClick = onLongClick),
                             color = if (mine) QqMine else QqOther,
                             shape = RoundedCornerShape(15.dp),
                             border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
@@ -335,33 +259,14 @@ internal fun QqMessageRow(
                         ) {
                             Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
                                 repliedMessageContent?.let { quoted ->
-                                    Surface(
-                                        color = if (mine) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.78f),
-                                        shape = RoundedCornerShape(8.dp),
-                                    ) {
-                                        Text(
-                                            quoted,
-                                            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp),
-                                            color = if (mine) QqMineInk.copy(alpha = 0.72f) else QqMuted,
-                                            fontSize = 11.sp,
-                                            maxLines = 2,
-                                        )
+                                    Surface(color = if (mine) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.78f), shape = RoundedCornerShape(8.dp)) {
+                                        Text(quoted, Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp), color = if (mine) QqMineInk.copy(alpha = 0.72f) else QqMuted, fontSize = 11.sp, maxLines = 2)
                                     }
                                     Spacer(Modifier.height(6.dp))
                                 }
-                                Text(
-                                    bubble,
-                                    color = if (mine) QqMineInk else QqInk,
-                                    fontSize = 15.sp,
-                                    lineHeight = 22.sp,
-                                )
+                                Text(bubble, color = if (mine) QqMineInk else QqInk, fontSize = 15.sp, lineHeight = 22.sp)
                                 if (message.favorite && isLastBubble) {
-                                    Spacer(Modifier.height(4.dp))
-                                    Text(
-                                        "★ 已收藏",
-                                        color = if (mine) Color.White.copy(alpha = 0.68f) else QqMuted,
-                                        fontSize = 10.sp,
-                                    )
+                                    Spacer(Modifier.height(4.dp)); Text("★ 已收藏", color = if (mine) Color.White.copy(alpha = 0.68f) else QqMuted, fontSize = 10.sp)
                                 }
                             }
                         }
@@ -370,9 +275,7 @@ internal fun QqMessageRow(
                 }
             }
             Spacer(Modifier.width(9.dp))
-            Box(Modifier.width(44.dp), contentAlignment = Alignment.TopCenter) {
-                if (mine && showAvatar) QqAvatar(userAvatar, 44, userAvatarUri)
-            }
+            Box(Modifier.width(44.dp), contentAlignment = Alignment.TopCenter) { if (mine && showAvatar) QqAvatar(userAvatar, 44, userAvatarUri) }
         }
     }
 
@@ -381,268 +284,121 @@ internal fun QqMessageRow(
             onDismissRequest = { forwardOpen = false },
             title = { Text(forwardBundle.title, fontWeight = FontWeight.Bold) },
             text = {
-                Column(
-                    modifier = Modifier.heightIn(max = 520.dp).verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
+                Column(Modifier.heightIn(max = 520.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     forwardBundle.entries.forEach { entry ->
                         Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(entry.sender, color = QqInk, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
-                                Spacer(Modifier.weight(1f))
+                                Text(entry.sender, color = QqInk, fontWeight = FontWeight.SemiBold, fontSize = 13.sp); Spacer(Modifier.weight(1f))
                                 if (entry.timeLabel.isNotBlank()) Text(entry.timeLabel, color = QqMuted, fontSize = 10.sp)
                             }
-                            Text(entry.content, color = QqInk, fontSize = 13.sp, lineHeight = 19.sp)
-                            HorizontalDivider(color = QqBorder)
+                            Text(entry.content, color = QqInk, fontSize = 13.sp, lineHeight = 19.sp); HorizontalDivider(color = QqBorder)
                         }
                     }
                 }
             },
-            confirmButton = {
-                TextButton(onClick = { forwardOpen = false }) { Text("关闭", color = QqInk) }
-            },
+            confirmButton = { TextButton(onClick = { forwardOpen = false }) { Text("关闭", color = QqInk) } },
         )
     }
 }
 
 @Composable
-private fun MessageLineWithTime(
-    mine: Boolean,
-    showTime: Boolean,
-    timeText: String,
-    content: @Composable (Modifier) -> Unit,
-) {
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = if (mine) Alignment.BottomEnd else Alignment.BottomStart,
-    ) {
+private fun MessageLineWithTime(mine: Boolean, showTime: Boolean, timeText: String, content: @Composable (Modifier) -> Unit) {
+    Box(Modifier.fillMaxWidth(), contentAlignment = if (mine) Alignment.BottomEnd else Alignment.BottomStart) {
         Layout(
             modifier = Modifier.widthIn(max = 300.dp),
             content = {
                 content(Modifier.widthIn(max = 300.dp))
-                if (showTime) {
-                    Text(
-                        text = timeText,
-                        modifier = Modifier.width(38.dp),
-                        color = QqMuted,
-                        fontSize = 10.sp,
-                        maxLines = 1,
-                        softWrap = false,
-                    )
-                }
+                if (showTime) Text(timeText, Modifier.width(38.dp), color = QqMuted, fontSize = 10.sp, maxLines = 1, softWrap = false)
             },
         ) { measurables, constraints ->
             val bubble = measurables.first().measure(constraints.copy(minWidth = 0))
-            val time = if (showTime && measurables.size > 1) {
-                measurables[1].measure(constraints.copy(minWidth = 0))
-            } else null
+            val time = if (showTime && measurables.size > 1) measurables[1].measure(constraints.copy(minWidth = 0)) else null
             val gapPx = 6.dp.roundToPx()
             val height = maxOf(bubble.height, time?.height ?: 0)
-
             layout(bubble.width, height) {
                 bubble.placeRelative(0, height - bubble.height)
-                time?.let { timestamp ->
-                    val x = if (mine) {
-                        -timestamp.width - gapPx
-                    } else {
-                        bubble.width + gapPx
-                    }
-                    timestamp.placeRelative(x, height - timestamp.height)
-                }
+                time?.let { it.placeRelative(if (mine) -it.width - gapPx else bubble.width + gapPx, height - it.height) }
             }
         }
     }
 }
 
 @Composable
-private fun QqForwardedChatCard(
-    bundle: QqForwardedChatBundle,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier,
-        color = Color.White,
-        shape = RoundedCornerShape(15.dp),
-        border = BorderStroke(1.dp, QqBorder),
-        shadowElevation = 0.dp,
-    ) {
+private fun QqForwardedChatCard(bundle: QqForwardedChatBundle, modifier: Modifier = Modifier) {
+    Surface(modifier, color = Color.White, shape = RoundedCornerShape(15.dp), border = BorderStroke(1.dp, QqBorder), shadowElevation = 0.dp) {
         Column(Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
-            Text(bundle.title, color = QqInk, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
-            Spacer(Modifier.height(8.dp))
+            Text(bundle.title, color = QqInk, fontWeight = FontWeight.SemiBold, fontSize = 15.sp); Spacer(Modifier.height(8.dp))
             bundle.entries.take(3).forEach { entry ->
-                Text(
-                    "${entry.sender}：${entry.content.replace("\n", " ")}",
-                    color = QqMuted,
-                    fontSize = 11.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Spacer(Modifier.height(3.dp))
+                Text("${entry.sender}：${entry.content.replace("\n", " ")}", color = QqMuted, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis); Spacer(Modifier.height(3.dp))
             }
-            Spacer(Modifier.height(6.dp))
-            HorizontalDivider(color = QqBorder)
-            Spacer(Modifier.height(7.dp))
+            Spacer(Modifier.height(6.dp)); HorizontalDivider(color = QqBorder); Spacer(Modifier.height(7.dp))
             Text("查看 ${bundle.entries.size} 条聊天记录", color = QqMuted, fontSize = 10.sp)
         }
     }
 }
 
 private enum class SystemActivityType { Diary, Reading }
-
-private data class SystemActivityLink(
-    val type: SystemActivityType,
-    val targetTitle: String,
-)
-
-private data class SystemActivityNotice(
-    val visibleText: String,
-    val link: SystemActivityLink? = null,
-    val linkStart: Int = -1,
-    val linkEnd: Int = -1,
-)
+private data class SystemActivityLink(val type: SystemActivityType, val targetTitle: String)
+private data class SystemActivityNotice(val visibleText: String, val link: SystemActivityLink? = null, val linkStart: Int = -1, val linkEnd: Int = -1)
 
 private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
-    val rawVisible = stripRecallReceiptDirective(content)
-        .removePrefix("[共同活动]")
-        .removePrefix("[群成员变更]")
-        .removePrefix("[戳一戳]")
-        .removePrefix("[撤回]")
-        .trim()
-    val visible = if (
-        rawVisible.startsWith("刚刚更新了自己的此刻") ||
-        rawVisible.startsWith("更新了自己的此刻") ||
-        rawVisible.startsWith("刚刚更新了此刻")
-    ) {
-        "更新了此刻"
-    } else {
-        rawVisible
-    }
-
+    val rawVisible = stripRecallReceiptDirective(content).removePrefix("[共同活动]").removePrefix("[群成员变更]").removePrefix("[戳一戳]").removePrefix("[撤回]").trim()
+    val visible = if (rawVisible.startsWith("刚刚更新了自己的此刻") || rawVisible.startsWith("更新了自己的此刻") || rawVisible.startsWith("刚刚更新了此刻")) "更新了此刻" else rawVisible
     Regex("刚刚写了一篇日记《([^》]+)》").find(visible)?.let { match ->
-        val diaryWordStart = visible.indexOf("日记")
-        return SystemActivityNotice(
-            visibleText = visible,
-            link = SystemActivityLink(SystemActivityType.Diary, match.groupValues[1].trim()),
-            linkStart = diaryWordStart,
-            linkEnd = diaryWordStart + 2,
-        )
+        val start = visible.indexOf("日记")
+        return SystemActivityNotice(visible, SystemActivityLink(SystemActivityType.Diary, match.groupValues[1].trim()), start, start + 2)
     }
-
     Regex("刚刚读了《([^》]+)》").find(visible)?.let { match ->
-        val bookStart = visible.indexOf('《')
-        val bookEnd = visible.indexOf('》', bookStart).let { if (it >= 0) it + 1 else -1 }
-        return SystemActivityNotice(
-            visibleText = visible,
-            link = SystemActivityLink(SystemActivityType.Reading, match.groupValues[1].trim()),
-            linkStart = bookStart,
-            linkEnd = bookEnd,
-        )
+        val start = visible.indexOf('《'); val end = visible.indexOf('》', start).let { if (it >= 0) it + 1 else -1 }
+        return SystemActivityNotice(visible, SystemActivityLink(SystemActivityType.Reading, match.groupValues[1].trim()), start, end)
     }
-
-    return SystemActivityNotice(visibleText = visible)
+    return SystemActivityNotice(visible)
 }
 
 private fun openSystemActivity(context: Context, message: LuluChatMessage, link: SystemActivityLink) {
-    val characterId = MigratedDomainStores.chat.conversations.value
-        .firstOrNull { it.id == message.conversationId }
-        ?.characterId
-        .orEmpty()
+    val characterId = MigratedDomainStores.chat.conversations.value.firstOrNull { it.id == message.conversationId }?.characterId.orEmpty()
     val intent = Intent(context, MigrationActivity::class.java).apply {
         when (link.type) {
-            SystemActivityType.Diary -> {
-                putExtra("open_route", MigrationRoute.Lexicon.name)
-                putExtra("open_character_id", characterId)
-                putExtra("open_diary_title", link.targetTitle)
-            }
-            SystemActivityType.Reading -> {
-                putExtra("open_route", MigrationRoute.Reading.name)
-                putExtra("open_reading_title", link.targetTitle)
-            }
+            SystemActivityType.Diary -> { putExtra("open_route", MigrationRoute.Lexicon.name); putExtra("open_character_id", characterId); putExtra("open_diary_title", link.targetTitle) }
+            SystemActivityType.Reading -> { putExtra("open_route", MigrationRoute.Reading.name); putExtra("open_reading_title", link.targetTitle) }
         }
     }
     context.startActivity(intent)
 }
 
-private data class WorldInviteMessage(
-    val characterId: String,
-    val location: String,
-    val invitationId: String,
-    val message: String,
-)
-
+private data class WorldInviteMessage(val characterId: String, val location: String, val invitationId: String, val message: String)
 private fun parseWorldInvite(content: String): WorldInviteMessage? {
-    val match = Regex(
-        "^\\[见面邀约\\|([^|\\]]+)(?:\\|([^|\\]]+))?(?:\\|([^\\]]+))?]\\s*(.*)$",
-        RegexOption.DOT_MATCHES_ALL,
-    ).find(content.trim()) ?: return null
-    return WorldInviteMessage(
-        characterId = match.groupValues[1].trim(),
-        location = match.groupValues[2].trim().ifBlank { "世界入口" },
-        invitationId = match.groupValues[3].trim(),
-        message = match.groupValues[4].trim(),
-    ).takeIf { it.characterId.isNotBlank() }
+    val match = Regex("^\\[见面邀约\\|([^|\\]]+)(?:\\|([^|\\]]+))?(?:\\|([^\\]]+))?]\\s*(.*)$", RegexOption.DOT_MATCHES_ALL).find(content.trim()) ?: return null
+    return WorldInviteMessage(match.groupValues[1].trim(), match.groupValues[2].trim().ifBlank { "世界入口" }, match.groupValues[3].trim(), match.groupValues[4].trim()).takeIf { it.characterId.isNotBlank() }
 }
 
 @Composable
-private fun WorldInviteMessageCard(
-    invite: WorldInviteMessage,
-    onAccept: () -> Unit,
-    onReject: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun WorldInviteMessageCard(invite: WorldInviteMessage, onAccept: () -> Unit, onReject: () -> Unit, modifier: Modifier = Modifier) {
     val experience by MeetingExperienceStore.state.collectAsState()
-    val invitationStatus = invite.invitationId.takeIf(String::isNotBlank)
-        ?.let { id -> experience.invitations.firstOrNull { it.id == id }?.status }
-    val invitationRecord = invite.invitationId.takeIf(String::isNotBlank)
-        ?.let { id -> experience.invitations.firstOrNull { it.id == id } }
+    val invitationStatus = invite.invitationId.takeIf(String::isNotBlank)?.let { id -> experience.invitations.firstOrNull { it.id == id }?.status }
+    val invitationRecord = invite.invitationId.takeIf(String::isNotBlank)?.let { id -> experience.invitations.firstOrNull { it.id == id } }
     val canRespond = invite.invitationId.isBlank() || invitationStatus == MeetingInvitationStatus.PENDING
     LaunchedEffect(invitationRecord?.id, invitationRecord?.status, invitationRecord?.expiresAt) {
-        val record = invitationRecord?.takeIf { it.status == MeetingInvitationStatus.PENDING }
-            ?: return@LaunchedEffect
+        val record = invitationRecord?.takeIf { it.status == MeetingInvitationStatus.PENDING } ?: return@LaunchedEffect
         val waitMillis = Duration.between(Instant.now(), record.expiresAt).toMillis().coerceAtLeast(0L)
         if (waitMillis > 0L) delay(waitMillis + 100L)
         MeetingExperienceStore.expireInvitations()
     }
-    Card(
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, QqBorder),
-        shape = RoundedCornerShape(20.dp),
-        modifier = modifier,
-    ) {
+    Card(colors = CardDefaults.cardColors(containerColor = Color.White), border = BorderStroke(1.dp, QqBorder), shape = RoundedCornerShape(20.dp), modifier = modifier) {
         Column(Modifier.fillMaxWidth()) {
-            Box(
-                modifier = Modifier.fillMaxWidth().height(86.dp).background(Color(0xFF8EA7B8)),
-                contentAlignment = Alignment.CenterStart,
-            ) {
+            Box(Modifier.fillMaxWidth().height(86.dp).background(Color(0xFF8EA7B8)), contentAlignment = Alignment.CenterStart) {
                 Row(Modifier.padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Surface(shape = RoundedCornerShape(14.dp), color = Color.White.copy(alpha = 0.18f), modifier = Modifier.size(50.dp)) {
-                        Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Cloud, null, tint = Color.White) }
-                    }
-                    Spacer(Modifier.width(12.dp))
-                    Column {
-                        Text("数字世界邀约", color = Color.White.copy(alpha = 0.78f), fontSize = 11.sp)
-                        Text("在${invite.location}见面", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    }
+                    Surface(shape = RoundedCornerShape(14.dp), color = Color.White.copy(alpha = 0.18f), modifier = Modifier.size(50.dp)) { Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Cloud, null, tint = Color.White) } }
+                    Spacer(Modifier.width(12.dp)); Column { Text("数字世界邀约", color = Color.White.copy(alpha = 0.78f), fontSize = 11.sp); Text("在${invite.location}见面", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp) }
                 }
             }
             Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (invite.message.isNotBlank()) Text(invite.message, color = QqInk, lineHeight = 20.sp)
                 if (canRespond) {
-                    Button(
-                        onClick = onAccept,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = QqMine, contentColor = Color.White),
-                        shape = RoundedCornerShape(14.dp),
-                    ) {
-                        Icon(Icons.Outlined.Cloud, null, Modifier.size(19.dp))
-                        Spacer(Modifier.width(5.dp))
-                        Text("接受邀请，进入世界")
+                    Button(onAccept, Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = QqMine, contentColor = Color.White), shape = RoundedCornerShape(14.dp)) {
+                        Icon(Icons.Outlined.Cloud, null, Modifier.size(19.dp)); Spacer(Modifier.width(5.dp)); Text("接受邀请，进入世界")
                     }
-                    if (invite.invitationId.isNotBlank()) {
-                        TextButton(onClick = onReject, modifier = Modifier.fillMaxWidth()) {
-                            Text("这次先不去", color = QqMuted)
-                        }
-                    }
+                    if (invite.invitationId.isNotBlank()) TextButton(onReject, Modifier.fillMaxWidth()) { Text("这次先不去", color = QqMuted) }
                 } else {
                     Text(
                         when (invitationStatus) {
@@ -651,10 +407,7 @@ private fun WorldInviteMessageCard(
                             MeetingInvitationStatus.EXPIRED -> "邀请已过期"
                             else -> "邀请已失效"
                         },
-                        color = QqMuted,
-                        fontSize = 12.sp,
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        color = QqMuted, fontSize = 12.sp, modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     )
                 }
             }
@@ -663,84 +416,38 @@ private fun WorldInviteMessageCard(
 }
 
 private data class GameInviteMessage(val gameId: String, val title: String, val message: String)
-
 private fun parseGameInvite(content: String): GameInviteMessage? {
-    val match = Regex("^\\[游戏邀约\\|([^|\\]]+)\\|([^\\]]+)]\\s*(.*)$", RegexOption.DOT_MATCHES_ALL).find(content.trim())
-        ?: return null
-    return GameInviteMessage(
-        gameId = match.groupValues[1].trim(),
-        title = match.groupValues[2].trim().ifBlank { "一起玩游戏" },
-        message = match.groupValues[3].trim(),
-    )
+    val match = Regex("^\\[游戏邀约\\|([^|\\]]+)\\|([^\\]]+)]\\s*(.*)$", RegexOption.DOT_MATCHES_ALL).find(content.trim()) ?: return null
+    return GameInviteMessage(match.groupValues[1].trim(), match.groupValues[2].trim().ifBlank { "一起玩游戏" }, match.groupValues[3].trim())
 }
 
 @Composable
-private fun GameInviteMessageCard(
-    invite: GameInviteMessage,
-    onAccept: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, QqBorder),
-        shape = RoundedCornerShape(20.dp),
-        modifier = modifier,
-    ) {
+private fun GameInviteMessageCard(invite: GameInviteMessage, onAccept: () -> Unit, modifier: Modifier = Modifier) {
+    Card(colors = CardDefaults.cardColors(containerColor = Color.White), border = BorderStroke(1.dp, QqBorder), shape = RoundedCornerShape(20.dp), modifier = modifier) {
         Column(Modifier.fillMaxWidth()) {
-            Box(
-                modifier = Modifier.fillMaxWidth().height(86.dp).background(Color(0xFF292929)),
-                contentAlignment = Alignment.CenterStart,
-            ) {
+            Box(Modifier.fillMaxWidth().height(86.dp).background(Color(0xFF292929)), contentAlignment = Alignment.CenterStart) {
                 Row(Modifier.padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Surface(shape = RoundedCornerShape(14.dp), color = Color.White.copy(alpha = 0.14f), modifier = Modifier.size(50.dp)) {
-                        Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.SportsEsports, null, tint = Color.White) }
-                    }
-                    Spacer(Modifier.width(12.dp))
-                    Column {
-                        Text("游戏邀约", color = Color.White.copy(alpha = 0.72f), fontSize = 11.sp)
-                        Text(invite.title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    }
+                    Surface(shape = RoundedCornerShape(14.dp), color = Color.White.copy(alpha = 0.14f), modifier = Modifier.size(50.dp)) { Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.SportsEsports, null, tint = Color.White) } }
+                    Spacer(Modifier.width(12.dp)); Column { Text("游戏邀约", color = Color.White.copy(alpha = 0.72f), fontSize = 11.sp); Text(invite.title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 19.sp) }
                 }
             }
             Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (invite.message.isNotBlank()) Text(invite.message, color = QqInk, lineHeight = 20.sp)
-                Button(
-                    onClick = onAccept,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = QqMine, contentColor = Color.White),
-                    shape = RoundedCornerShape(14.dp),
-                ) {
-                    Icon(Icons.Outlined.PlayArrow, null, Modifier.size(19.dp))
-                    Spacer(Modifier.width(5.dp))
-                    Text("接受邀约")
+                Button(onAccept, Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = QqMine, contentColor = Color.White), shape = RoundedCornerShape(14.dp)) {
+                    Icon(Icons.Outlined.PlayArrow, null, Modifier.size(19.dp)); Spacer(Modifier.width(5.dp)); Text("接受邀约")
                 }
             }
         }
     }
 }
 
-private fun splitCharacterBubbles(text: String): List<String> {
-    return text.replace("\r\n", "\n").trim()
-        .split(Regex("\n+"))
-        .map(String::trim)
-        .filter(String::isNotBlank)
-}
+private fun splitCharacterBubbles(text: String): List<String> = text.replace("\r\n", "\n").trim().split(Regex("\n+")).map(String::trim).filter(String::isNotBlank)
 
 @Composable
 internal fun QqGroupAvatar(group: LuluGroupChat, size: Int) {
-    if (!group.avatarUri.isNullOrBlank()) {
-        QqAvatar(group.name.take(1).ifBlank { "群" }, size, group.avatarUri)
-    } else {
-        Surface(
-            modifier = Modifier.size(size.dp),
-            color = QqOther,
-            shape = RoundedCornerShape((size * 0.28f).dp),
-            border = BorderStroke(1.dp, QqBorder),
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(Icons.Outlined.Groups, null, tint = QqInk, modifier = Modifier.size((size * 0.55f).dp))
-            }
-        }
+    if (!group.avatarUri.isNullOrBlank()) QqAvatar(group.name.take(1).ifBlank { "群" }, size, group.avatarUri)
+    else Surface(Modifier.size(size.dp), color = QqOther, shape = RoundedCornerShape((size * 0.28f).dp), border = BorderStroke(1.dp, QqBorder)) {
+        Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Groups, null, tint = QqInk, modifier = Modifier.size((size * 0.55f).dp)) }
     }
 }
 
@@ -751,30 +458,14 @@ internal fun QqAvatar(label: String, size: Int, imageUri: String? = null, modifi
     val presenceStates by CompanionPresenceStore.states.collectAsState()
     val presenceHistories by CompanionPresenceStore.histories.collectAsState()
     val latestPresenceCharacter = remember(size, label, imageUri, characters) {
-        if (size != 42) {
-            null
-        } else {
-            characters.values.firstOrNull { character ->
-                !imageUri.isNullOrBlank() && character.avatarUri == imageUri
-            } ?: characters.values.firstOrNull { character ->
-                character.displayName.take(1).ifBlank { "露" } == label
-            }
-        }
+        if (size != 42) null else characters.values.firstOrNull { !imageUri.isNullOrBlank() && it.avatarUri == imageUri }
+            ?: characters.values.firstOrNull { it.displayName.take(1).ifBlank { "露" } == label }
     }
     var latestPresenceOpen by remember(latestPresenceCharacter?.characterId) { mutableStateOf(false) }
-    val avatarModifier = if (latestPresenceCharacter == null) {
-        modifier
-    } else {
-        modifier.combinedClickable(
-            onClick = {
-                CompanionPresenceStore.clearMessageAnchor()
-                latestPresenceOpen = true
-            },
-            onLongClick = {},
-        )
-    }
+    val avatarModifier = if (latestPresenceCharacter == null) modifier else modifier.combinedClickable(
+        onClick = { CompanionPresenceStore.clearMessageAnchor(); latestPresenceOpen = true }, onLongClick = {},
+    )
     LuluProfileAvatar(imageUri = imageUri, fallback = label, size = size, modifier = avatarModifier)
-
     if (latestPresenceOpen && latestPresenceCharacter != null) {
         CompanionPresenceDialog(
             characterName = latestPresenceCharacter.displayName,
