@@ -45,7 +45,7 @@ internal object CompanionActionRuntime {
         appendLine("- send_game_invite，args={\"gameId\":\"游戏ID\",\"text\":\"邀请语\"}：在角色私聊中发送可点击的游戏邀请。")
         appendLine("- publish_moment，args={\"text\":\"动态正文\"}：朋友圈是公开分享日常。只有角色此刻真的有一段生活、心情、见闻或小事觉得值得让朋友们看到时才发；它不是定期状态更新，也不是为了证明自己活跃。")
         appendLine("- write_journal，args={\"title\":\"标题\",\"content\":\"正文\"}：日记是角色私下整理自己、消化情绪、保存想法与经历的地方，不是绕路给用户传话。")
-        appendLine("- start_call，args={\"text\":\"来电缘由\"}：仅在角色已允许主动来电时发起真实来电邀请。")
+        appendLine("- start_call，args={\"text\":\"为什么此刻想打电话\"}：仅在角色已允许主动来电时发起真正的来电。会进入待接听状态并触发来电通知，不再伪装成一条聊天消息。")
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。只在想参与那个群正在发生的共享话题时发言；在线、看见消息都不等于必须说话。")
         appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：真正读取阅读 App 里的上传正文或小剧场章节，并留下角色自己的感想。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
@@ -183,10 +183,18 @@ internal object CompanionActionRuntime {
             "read_book" -> readBook(context, character, args.optString("readingBookId").trim(), now)
             "start_call" -> {
                 require(character.contactPolicy.proactiveCallsEnabled) { "该角色未开启主动来电" }
-                val text = args.optString("text").trim().ifBlank { "忽然有点想听听你的声音。" }.take(100)
+                val reason = args.optString("text").trim()
+                    .ifBlank { "忽然有点想听听你的声音。" }
+                    .take(300)
                 val conversation = privateConversation(characterId, character.displayName)
-                MigratedDomainStores.chat.appendCharacterMessage(conversation.id, "[想给你打电话] $text", characterId)
-                CompanionActionResult(true, "已发起主动来电邀请", conversation.id)
+                ProactiveIncomingCallStore.offer(
+                    context = context,
+                    characterId = characterId,
+                    conversationId = conversation.id,
+                    reason = reason,
+                    now = now,
+                )
+                CompanionActionResult(true, "已发起真实来电", conversation.id)
             }
             "digital_world_action" -> {
                 val worldAction = args.optString("worldAction").trim()
