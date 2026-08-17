@@ -22,16 +22,17 @@ internal fun StarWishMigratedScreen(onBack: () -> Unit, initialTab: StarWishTab 
     val state by store.state.collectAsState()
     val studyState by studyStore.state.collectAsState()
     var tab by rememberSaveable(initialTab) { mutableStateOf(initialTab) }
+    var theaterDetailOpen by rememberSaveable { mutableStateOf(false) }
     fun stepBack() {
         if (tab == StarWishTab.Scroll) onBack() else tab = StarWishTab.Scroll
     }
-    BackHandler { stepBack() }
+    BackHandler(enabled = !theaterDetailOpen) { stepBack() }
 
     Scaffold(containerColor = StudyDesign.paper) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            Surface(color = StudyDesign.paper, tonalElevation = 1.dp, shadowElevation = 1.dp) {
+            if (!theaterDetailOpen) Surface(color = StudyDesign.paper, tonalElevation = 1.dp, shadowElevation = 1.dp) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().statusBarsPadding().height(58.dp).padding(horizontal = 8.dp),
+                    modifier = Modifier.fillMaxWidth().height(58.dp).padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(onClick = ::stepBack) {
@@ -57,7 +58,12 @@ internal fun StarWishMigratedScreen(onBack: () -> Unit, initialTab: StarWishTab 
 
             when (tab) {
                 StarWishTab.Scroll -> StarWishScrollContent(state, studyState, store, context)
-                StarWishTab.Theater -> StarWishTheaterContentV2(state, studyState, store, studyStore)
+                StarWishTab.Theater -> StarWishTheaterContentV2(
+                    state = state,
+                    studyState = studyState,
+                    store = store,
+                    onDetailPageChanged = { theaterDetailOpen = it },
+                )
             }
         }
     }

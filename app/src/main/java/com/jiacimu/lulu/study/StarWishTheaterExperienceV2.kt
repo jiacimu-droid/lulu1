@@ -29,7 +29,7 @@ internal fun StarWishTheaterContentV2(
     state: StarWishState,
     studyState: StudyState,
     store: StarWishStore,
-    studyStore: PostgraduateExamStore,
+    onDetailPageChanged: (Boolean) -> Unit,
 ) {
     val context = LocalContext.current
     val customLibrary = remember { StarWishCustomTheaterLibrary.get(context) }
@@ -41,6 +41,10 @@ internal fun StarWishTheaterContentV2(
         (customTheaters + StarWishRules.theaters).distinctBy { it.title }
     }
     val openedSeed = allTheaters.firstOrNull { it.title == openedTitle }
+
+    LaunchedEffect(mode) {
+        onDetailPageChanged(mode != TheaterV2Mode.BOOKSHELF)
+    }
 
     BackHandler(enabled = mode != TheaterV2Mode.BOOKSHELF) {
         mode = when (mode) {
@@ -71,7 +75,6 @@ internal fun StarWishTheaterContentV2(
                 state = state,
                 studyState = studyState,
                 store = store,
-                studyStore = studyStore,
                 onBack = { mode = TheaterV2Mode.BOOKSHELF },
                 onPlanner = { mode = TheaterV2Mode.PLANNER },
                 onRegenerate = { mode = TheaterV2Mode.GENERATOR },
@@ -192,7 +195,6 @@ private fun TheaterReaderV2(
     state: StarWishState,
     studyState: StudyState,
     store: StarWishStore,
-    studyStore: PostgraduateExamStore,
     onBack: () -> Unit,
     onPlanner: () -> Unit,
     onRegenerate: () -> Unit,

@@ -192,7 +192,6 @@ internal const val TASK_COMPLETION_PRAISE = 100
 
 internal const val GACHA_ID_DOUYIN = "builtin_douyin"
 internal const val GACHA_ID_GAME_ROUND = "builtin_game_round"
-internal const val GACHA_ID_THEATER = "builtin_theater"
 internal const val GACHA_ID_MOVIE = "builtin_movie"
 internal const val GACHA_ID_ANIME = "builtin_anime"
 
@@ -212,14 +211,6 @@ internal fun defaultGachaRules(): List<StudyGachaRule> = listOf(
         probabilityPercent = 2.0,
         amountPerDraw = 1,
         type = StudyGachaRewardType.GameRound,
-    ),
-    StudyGachaRule(
-        id = GACHA_ID_THEATER,
-        title = "小剧场券",
-        rarity = StudyRarity.Rare,
-        probabilityPercent = 1.0,
-        amountPerDraw = 3,
-        type = StudyGachaRewardType.Theater,
     ),
     StudyGachaRule(
         id = GACHA_ID_MOVIE,
@@ -414,7 +405,7 @@ private fun StudyShopReward.toShopItem(id: String): StudyShopItem = when (this) 
     StudyShopReward.TenTicket -> StudyShopItem(id, "十连券", "商店限定折扣，比直接十连省150夸夸值", shopCost(), this)
     StudyShopReward.DouyinTicket -> StudyShopItem(id, "抖音时长券", "紫色收藏商品 · 可使用20分钟", shopCost(), this)
     StudyShopReward.GameRoundTicket -> StudyShopItem(id, "游戏局数券", "紫色收藏商品 · 可畅玩4局", shopCost(), this)
-    StudyShopReward.TheaterFragment -> StudyShopItem(id, "小剧场券", "紫色收藏商品 · 可生成或续写小剧场1章", shopCost(), this)
+    StudyShopReward.TheaterFragment -> StudyShopItem(id, "已移除奖励", "旧版本兼容数据", shopCost(), this)
     StudyShopReward.GameTicket -> StudyShopItem(id, "电影券", "金色收藏商品 · 可观看1部电影", shopCost(), this)
     StudyShopReward.AnimeTicket -> StudyShopItem(id, "影视剧一季兑换券", "彩色收藏商品 · 可兑换一整季", shopCost(), this)
 }
