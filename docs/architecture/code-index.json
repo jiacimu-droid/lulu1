@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-17T10:33:46.526848+00:00",
-  "commit": "8f60c39a07c65732f7e4238cf2e4c5c15c8312fa",
+  "generatedAt": "2026-08-17T15:02:16.432386+00:00",
+  "commit": "b7f9ec42059b9348ffae4a61b5cf429596bb85cd",
   "branch": "main",
-  "sourceFingerprint": "738c9f782598eafe7b4e32976fac5c91bcc40279a959eb5c1cccc59b9245f7ff",
+  "sourceFingerprint": "2e3d1e658036aee9c19005cf6ba4f58f79b36f1c1f66d97daa5cb6923366868f",
   "summary": {
     "files": 190,
-    "lines": 60275,
+    "lines": 60270,
     "symbols": 825
   },
   "symbolIndex": {
@@ -45,7 +45,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 904
+        "line": 899
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -963,19 +963,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 767
+        "line": 763
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 779
+        "line": 775
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 894
+        "line": 889
       }
     ],
     "ScopedModelSelections": [
@@ -4702,7 +4702,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
       "lines": 238,
-      "sha256": "ad17b400ff4764649b7c73c18ee54c26a31236756f248fc3c6be8a83e037338a",
+      "sha256": "f0d77a23cc115ffac98399f78009ae3ffae96b376fe94d1b5c86f9dc77ae9a39",
       "symbols": [
         {
           "name": "CharacterWorldBookScreenV2",
@@ -5369,8 +5369,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 912,
-      "sha256": "2581652a968bb3d2347e7e81ba97002adcfff1c5bc785e95e51161873388dc1a",
+      "lines": 907,
+      "sha256": "25b0d15a70ca2e6697ceb4c948fa85f50d0295cf4cafa5050206302afc651968",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -5458,19 +5458,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 767
+          "line": 763
         },
         {
           "name": "consumeEvent",
-          "line": 779
+          "line": 775
         },
         {
           "name": "LuluAiServices",
-          "line": 894
+          "line": 889
         },
         {
           "name": "initialize",
-          "line": 904
+          "line": 899
         }
       ]
     },
