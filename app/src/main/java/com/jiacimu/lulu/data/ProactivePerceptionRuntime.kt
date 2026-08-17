@@ -21,6 +21,7 @@ import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.core.LexiconSection
 import com.jiacimu.lulu.health.HealthRolePerception
+import com.jiacimu.lulu.qqForwardContextText
 import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.ReadingBackgroundBridge
 import com.jiacimu.lulu.study.roleStudyContext
@@ -148,7 +149,11 @@ object ProactivePerceptionRuntime {
                     .putString(actionKey, actionHistory.joinToString(","))
                     .putBoolean("pending_concern_promise_$characterId", false).apply()
             }.onFailure { error ->
-                CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知失败 · ${error.message.orEmpty().ifBlank { error::class.java.simpleName }.take(120)}", now)
+                CompanionPresenceStore.recordPerceptionAttempt(
+                    characterId,
+                    "感知失败 · ${error.message.orEmpty().ifBlank { error::class.java.simpleName }.take(120)}",
+                    now,
+                )
             }
         }
         evaluated
@@ -163,9 +168,11 @@ object ProactivePerceptionRuntime {
     ): Instant {
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val messages = MigratedDomainStores.chat.messages(conversation.id).value
-        val lastChat = messages.asSequence().filter { it.status == LuluChatMessage.Status.Sent && it.sender != LuluChatMessage.Sender.System }
+        val lastChat = messages.asSequence()
+            .filter { it.status == LuluChatMessage.Status.Sent && it.sender != LuluChatMessage.Sender.System }
             .maxByOrNull(LuluChatMessage::createdAt)?.createdAt ?: conversation.updatedAt
-        val lastEvaluation = prefs.getLong("last_evaluation_$characterId", 0L).takeIf { it > 0L }?.let(Instant::ofEpochMilli)
+        val lastEvaluation = prefs.getLong("last_evaluation_$characterId", 0L)
+            .takeIf { it > 0L }?.let(Instant::ofEpochMilli)
         val anchor = listOfNotNull(lastChat, lastEvaluation).maxOrNull() ?: now
         val pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false)
         val multiplier = when {
@@ -193,7 +200,11 @@ object ProactivePerceptionRuntime {
         val minute = local.hour * 60 + local.minute
         val quiet = if (start < end) minute in start until end else minute >= start || minute < end
         if (!quiet) return time
-        val endDate = when { start < end -> local.toLocalDate(); minute >= start -> local.toLocalDate().plusDays(1); else -> local.toLocalDate() }
+        val endDate = when {
+            start < end -> local.toLocalDate()
+            minute >= start -> local.toLocalDate().plusDays(1)
+            else -> local.toLocalDate()
+        }
         return endDate.atTime(end / 60, end % 60).atZone(zone).toInstant()
     }
 
@@ -206,18 +217,28 @@ object ProactivePerceptionRuntime {
         return if (start < end) minute in start until end else minute >= start || minute < end
     }
 
-    private fun latestPrivateConversations(): List<LuluConversation> = MigratedDomainStores.chat.conversations.value.asSequence()
-        .filter { it.parentConversationId == null && it.groupChat == null && !it.id.endsWith("-study-focus") }
-        .groupBy(LuluConversation::characterId).mapNotNull { (_, values) -> values.maxByOrNull(LuluConversation::updatedAt) }
+    private fun latestPrivateConversations(): List<LuluConversation> =
+        MigratedDomainStores.chat.conversations.value.asSequence()
+            .filter { it.parentConversationId == null && it.groupChat == null && !it.id.endsWith("-study-focus") }
+            .groupBy(LuluConversation::characterId)
+            .mapNotNull { (_, values) -> values.maxByOrNull(LuluConversation::updatedAt) }
 
-    private suspend fun evaluateCharacter(appContext: Context, conversation: LuluConversation, trigger: String, now: Instant): Action {
+    private suspend fun evaluateCharacter(
+        appContext: Context,
+        conversation: LuluConversation,
+        trigger: String,
+        now: Instant,
+    ): Action {
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val character = MigratedDomainStores.characters.get(characterId)
         val messages = MigratedDomainStores.chat.messages(conversation.id).value
         val zoneId = ZoneId.systemDefault()
-        val localTimeText = now.atZone(zoneId).format(DateTimeFormatter.ofPattern("yyyy年M月d日 EEEE HH:mm:ss", Locale.SIMPLIFIED_CHINESE))
+        val localTimeText = now.atZone(zoneId).format(
+            DateTimeFormatter.ofPattern("yyyy年M月d日 EEEE HH:mm:ss", Locale.SIMPLIFIED_CHINESE),
+        )
         val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val recentAutonomousActions = prefs.getString("action_history_$characterId", "").orEmpty().split(',').map(String::trim).filter(String::isNotBlank)
+        val recentAutonomousActions = prefs.getString("action_history_$characterId", "").orEmpty()
+            .split(',').map(String::trim).filter(String::isNotBlank)
         val library = LuluAiServices.connectionStore.library.value
         val perceptionArchiveId = library.archiveIdFor(ModelUsage.Chat)
         if (perceptionArchiveId == null) {
@@ -225,23 +246,35 @@ object ProactivePerceptionRuntime {
             return Action.SILENT
         }
         val connection = LuluAiServices.connectionStore.resolveConnection(perceptionArchiveId)
-        val availableGroups = MigratedDomainStores.chat.conversations.value.filter { it.groupChat?.members?.any { member -> member.characterId == characterId } == true }
+        val availableGroups = MigratedDomainStores.chat.conversations.value.filter {
+            it.groupChat?.members?.any { member -> member.characterId == characterId } == true
+        }
         val onlineUnread = CompanionOnlineStore.unreadChatSnapshot(characterId)
         if (trigger.startsWith("在线期间") && onlineUnread.text.isBlank()) return Action.SILENT
         val userActivities = collectUserActivities(characterId)
-        val pendingUserContext = userActivities.filter(UserActivity::awaitingReply).joinToString("\n") { formatUserActivity(it, zoneId) }
-        val recentUserActivityContext = userActivities.take(12).joinToString("\n") { formatUserActivity(it, zoneId) }
+        val pendingUserContext = userActivities.filter(UserActivity::awaitingReply)
+            .joinToString("\n") { formatUserActivity(it, zoneId) }
+        val recentUserActivityContext = userActivities.take(12)
+            .joinToString("\n") { formatUserActivity(it, zoneId) }
         val recent = messages.takeLast(20).joinToString("\n") { message ->
-            val speaker = when (message.sender) { LuluChatMessage.Sender.User -> "用户"; LuluChatMessage.Sender.Character -> character.displayName; LuluChatMessage.Sender.System -> "系统事件" }
-            "${message.createdAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))} $speaker：${message.content.take(500)}"
+            val speaker = when (message.sender) {
+                LuluChatMessage.Sender.User -> "用户"
+                LuluChatMessage.Sender.Character -> character.displayName
+                LuluChatMessage.Sender.System -> "系统事件"
+            }
+            "${message.createdAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))} $speaker：${qqForwardContextText(message.content).take(500)}"
         }
         val lexicon = LuluRepositories.lexicon.snapshot(characterId)
-        val concerns = lexicon.filter { it.section == LexiconSection.Concern }.take(8).joinToString("\n") { "- ${it.title}：${it.content}" }
-        val commitments = lexicon.filter { it.section == LexiconSection.Promise }.take(10).joinToString("\n") { "- ${it.title}：${it.content}" }
+        val concerns = lexicon.filter { it.section == LexiconSection.Concern }.take(8)
+            .joinToString("\n") { "- ${it.title}：${it.content}" }
+        val commitments = lexicon.filter { it.section == LexiconSection.Promise }.take(10)
+            .joinToString("\n") { "- ${it.title}：${it.content}" }
         val previousPresence = CompanionPresenceStore.current(characterId)
         val deviceContext = buildRealWorldContext(appContext, characterId, now)
         val readingBooks = ReadingBackgroundBridge.books(appContext).take(24)
-        val digitalWorldContext = if (DigitalLifeProfileStore.isEnabled(characterId)) DigitalWorldStore.contextFor(characterId) else ""
+        val digitalWorldContext = if (DigitalLifeProfileStore.isEnabled(characterId)) {
+            DigitalWorldStore.contextFor(characterId)
+        } else ""
 
         val result = LuluAiServices.gateway.generate(
             characterId = characterId,
@@ -254,76 +287,95 @@ object ProactivePerceptionRuntime {
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
                 appendLine("允许主动来电：${if (character.contactPolicy.proactiveCallsEnabled) "是" else "否"}")
-                if (recentAutonomousActions.isNotEmpty()) appendLine("最近自主选择（旧→新）：${recentAutonomousActions.joinToString(" → ")}")
+                if (recentAutonomousActions.isNotEmpty()) {
+                    appendLine("最近自主选择（旧→新）：${recentAutonomousActions.joinToString(" → ")}")
+                }
                 if (readingBooks.isNotEmpty()) {
                     appendLine("阅读 App 中可独自阅读的内容：")
                     readingBooks.forEach { appendLine("- readingBookId=${it.id}；${it.title}；来源=${it.source}") }
                 }
                 if (availableGroups.isNotEmpty()) {
                     appendLine("所在群聊：")
-                    availableGroups.forEach { appendLine("- groupId=${it.id}；${it.groupChat?.name}；最近=${it.lastMessage.take(120)}") }
+                    availableGroups.forEach {
+                        appendLine("- groupId=${it.id}；${it.groupChat?.name}；最近=${it.lastMessage.take(120)}")
+                    }
                 }
-                if (recentUserActivityContext.isNotBlank()) { appendLine("【用户跨场景最新动态｜新→旧】"); appendLine(recentUserActivityContext) }
-                if (onlineUnread.text.isNotBlank()) { appendLine("【本次上线尚未处理的新动态｜旧→新】"); appendLine(onlineUnread.text) }
+                if (recentUserActivityContext.isNotBlank()) {
+                    appendLine("【用户跨场景最新动态｜新→旧】")
+                    appendLine(recentUserActivityContext)
+                }
+                if (onlineUnread.text.isNotBlank()) {
+                    appendLine("【本次上线尚未处理的新动态｜旧→新】")
+                    appendLine(onlineUnread.text)
+                }
                 appendLine("\n【长期上下文层】")
-                previousPresence?.let { appendLine("上一刻：${it.statusText}；${it.gesture}；${it.mood}；心声=${it.innerThought}") }
+                previousPresence?.let {
+                    appendLine("上一刻：${it.statusText}；${it.gesture}；${it.mood}；心声=${it.innerThought}")
+                }
                 if (concerns.isNotBlank()) appendLine("【挂心】\n$concerns")
                 if (commitments.isNotBlank()) appendLine("【承诺与监督】\n$commitments")
                 if (digitalWorldContext.isNotBlank()) appendLine(digitalWorldContext)
-                if (pendingUserContext.isNotBlank()) { appendLine("【尚未回复的消息】"); appendLine("以下消息都是用户在你上一次真实聊天回复之后新发来的，当前还没有收到你的回复："); appendLine(pendingUserContext) }
+                if (pendingUserContext.isNotBlank()) {
+                    appendLine("【尚未回复的消息】")
+                    appendLine("以下消息都是用户在你上一次真实聊天回复之后新发来的，当前还没有收到你的回复：")
+                    appendLine(pendingUserContext)
+                }
                 if (recent.isNotBlank()) appendLine("【最近聊天与生活事件】\n$recent")
             },
-            instruction = """
-                你正在让当前角色按“真实世界感知 → 长期上下文 → 此刻判断 → 自主选择”形成这一刻。不要写系统报告。
-                只返回 JSON：
-                {"action":"message|group_message|game_invite|world_invite|moment|call|journal|reading|digital_world|silent","text":"实际发送/发布内容","groupId":"群ID","gameId":"游戏ID","readingBookId":"阅读内容ID","location":"数字世界准确地点","worldAction":"go_home|visit_cloud_meadow|build_home_item|move_home_item|remove_home_item|visit_character_home","itemId":"物品ID","itemType":"类型","itemName":"物品名称","appearance":"明确外观","position":"固定位置","targetCharacterId":"对方角色ID","reason":"为什么这样做","statusText":"角色此刻在做什么","gesture":"动作神态","innerThought":"第一人称没说出口的心声","mood":"简短心情","journalTitle":"日记标题","journalContent":"日记正文"}
-
-                规则：
-                1. 每次感知都必须形成 statusText、gesture、mood；innerThought 可以为空。silent 不是失败，而是角色决定只过自己的这一刻。此刻是一份完整生活状态，不只是动作。
-                2. 【归属绝不能混淆】感知层里的手机电量、充电、前台应用/屏幕活动、通知、位置、健康/手环和学习状态默认全部是用户及用户现实设备的数据，不是角色自己的。除非另有明确的角色侧设备数据，否则禁止第一人称认领这些信号。
-                3. 手机信息只是观察用户现实状态的线索，不能被夸大推断；健康数据带同步时间时，要意识到它可能在下一次手环导出前保持不变，也不能据此虚构用户更多未提供的身体或环境事实。
-                4. 没有“为了活跃而定期做某件事”的日程。朋友圈、日记、私聊和群聊都不是周期任务；刚做过同类动作且没有新的生活事件或新的真实动机时，应自然降低再次选择它的优先级。不要机械轮换，也不要靠概率抽签。与此同时，“不想打扰用户”不等于只能 silent：角色可以阅读、写日记，或在数字世界回家、建设家园、闲逛，过自己的生活。
-                5. message 是明确想对用户本人说一件事的一对一私聊，承载两人的专属上下文；group_message 是想加入某个真实群聊正在发生的共享话题，只能使用真实 groupId。在线或看见群消息不代表必须发言，群里没话想说就可以潜水。game_invite 可用 gameId：roleplay、turtle_soup、yacht_dice、gomoku、memory_match。
-                6. call 只有“允许主动来电=是”时才能选择；否则必须换其他动作或 silent。
-                7. reading 只能使用阅读 App 列表里的真实 readingBookId。选择后会真正读取正文、产生角色自己的感想，并记录阅读回执与原始时间线。不要假装读列表之外的内容。
-                8. moment=朋友圈，是把一段自己觉得值得让朋友们看见的日常、心情、见闻、小发现公开分享出去；不是“更新一下状态”，也绝不因为隔了一段时间没发就补发。journal=私人日记，是角色只给自己看的自我整理、情绪消化、经历记录或想法沉淀，不是换一种方式给用户传话。group_message=和共同伙伴聊天；message=专门找用户一对一说话；game_invite=真的想和用户一起玩。这些用途不同，先判断自己的社交意图再选动作。
-                9. 学习状态只在当前角色就是学习 App 的陪同角色时提供；没提供就代表这个角色没有权限知道，禁止猜。
-                10. 角色语气、主动程度、动作、心声必须服从人设。认真看“最近自主选择”和最近聊天里的生活事件：没有新的真实理由时不要连续重复同一种动作；但也不要为了凑多样性硬换动作。朋友圈尤其要像真人——有可分享的生活片段就可以自然发，没有就不发；日记则在角色确实想整理自己时写。若最近连续多次 SILENT，再次 silent 必须有符合当前人设和处境的具体理由；否则应从阅读、日记、数字世界生活或真正想做的社交动作中选一件。
-                11. 【用户跨场景最新动态】按真实时间从新到旧列出私聊和群聊消息；标有“待回复”的内容应成为这一刻的优先注意对象，并优先在它发生的场景自然回应，除非有明确不回应理由。没有待回复动态时，再自由决定自己的生活。
-                11.1 【本次上线尚未处理的新动态】是角色本次真正看见的未读内容，可能包括用户或其他角色发言。看见不等于必须回复；决定回应时必须去对应的私聊或群聊，不能把别人的话当成自己的记忆，也不能泄露其他角色的私聊。
-                12. 动作字段必须可执行：message/moment/call 必须给非空 text；group_message 必须给真实 groupId 和非空 text；game_invite 必须选真实 gameId；world_invite 必须给邀请语；journal 必须给非空 journalTitle 与 journalContent；reading 必须给真实 readingBookId。
-                13. 只有数字生命看到数字世界权威状态时才能选择 world_invite 或 digital_world。world_invite 是邀请用户进入并见面，不等于自己移动。家中物品只能使用权威状态里的 itemId；新增家具一次只能建一件。如果想建家具却不在自己家，本次应先 go_home，之后再 build_home_item。不能用文字假装建设成功，不能同时出现在两个地点。silent 仍然正常，但不是“没有人找我”时的默认值。
-            """.trimIndent(),
+            instruction = proactiveDecisionInstruction(),
             source = "后台主动感知",
             title = "${character.displayName}的主动感知",
             temperature = 0.86,
             maxTokens = 1_500,
             connectionOverride = connection,
             memoryRequest = UnifiedMemoryRequest(
-                currentInput = listOf(pendingUserContext, onlineUnread.text).filter(String::isNotBlank).joinToString("\n"),
+                currentInput = listOf(pendingUserContext, onlineUnread.text)
+                    .filter(String::isNotBlank).joinToString("\n"),
                 sceneContext = "后台主动感知 · $trigger",
-                recentContext = listOf(recent, concerns, commitments).filter(String::isNotBlank).joinToString("\n"),
+                recentContext = listOf(recent, concerns, commitments)
+                    .filter(String::isNotBlank).joinToString("\n"),
                 taskIntent = "根据角色人设与当前生活状态自主决定行动或保持安静",
             ),
         ).getOrElse { error ->
-            CompanionPresenceStore.recordPerceptionAttempt(characterId, "模型请求失败 · ${error.message.orEmpty().take(120)}", now)
+            CompanionPresenceStore.recordPerceptionAttempt(
+                characterId,
+                "模型请求失败 · ${error.message.orEmpty().take(120)}",
+                now,
+            )
             throw error
         }
         val parsed = parseDecision(result.text) ?: error("模型返回无法解析：${result.text.take(100)}")
         val decision = parsed.withPresenceFallback(character)
-        CompanionPresenceStore.update(characterId, decision.statusText, decision.gesture, decision.innerThought, decision.mood, "后台主动感知", now)
+        CompanionPresenceStore.update(
+            characterId,
+            decision.statusText,
+            decision.gesture,
+            decision.innerThought,
+            decision.mood,
+            "后台主动感知",
+            now,
+        )
         val execution = performAction(appContext, character, decision, availableGroups, now)
         val interactiveWake = trigger.contains("呼唤") || trigger.startsWith("在线期间")
         if (decision.action == Action.SILENT && !interactiveWake) {
-            MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "刚刚更新了自己的此刻：${decision.statusText}${decision.mood.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()}")
+            MigratedDomainStores.chat.appendPrivateActivityNotice(
+                characterId,
+                "刚刚更新了自己的此刻：${decision.statusText}${decision.mood.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()}",
+            )
         } else if (decision.action != Action.SILENT && !execution.success) {
-            MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "【动作未完成】${execution.summary.take(180)}")
+            MigratedDomainStores.chat.appendPrivateActivityNotice(
+                characterId,
+                "【动作未完成】${execution.summary.take(180)}",
+            )
         }
         val effectiveAction = if (execution.success) decision.action else Action.SILENT
         CompanionPresenceStore.recordPerceptionAttempt(
             characterId,
-            if (decision.action != Action.SILENT && !execution.success) "动作失败 · ${decision.action.name.lowercase()} · ${execution.summary.take(120)}"
-            else "感知成功 · ${effectiveAction.name.lowercase()}${decision.reason.takeIf(String::isNotBlank)?.let { " · ${it.take(90)}" }.orEmpty()}",
+            if (decision.action != Action.SILENT && !execution.success) {
+                "动作失败 · ${decision.action.name.lowercase()} · ${execution.summary.take(120)}"
+            } else {
+                "感知成功 · ${effectiveAction.name.lowercase()}${decision.reason.takeIf(String::isNotBlank)?.let { " · ${it.take(90)}" }.orEmpty()}"
+            },
             now,
         )
         CompanionOnlineStore.markSeen(characterId, onlineUnread.newestAt)
@@ -351,28 +403,56 @@ object ProactivePerceptionRuntime {
             Action.SILENT -> return ActionExecution(false, "角色选择保持安静")
         }
         val args = JSONObject().apply {
-            put("text", decision.text); put("groupId", decision.groupId); put("gameId", decision.gameId)
-            put("title", decision.journalTitle); put("content", decision.journalContent.ifBlank { if (decision.action == Action.JOURNAL) decision.text else "" })
-            put("readingBookId", decision.readingBookId); put("worldAction", decision.worldAction); put("itemId", decision.itemId)
-            put("itemType", decision.itemType); put("name", decision.itemName); put("appearance", decision.appearance)
-            put("position", decision.position); put("targetCharacterId", decision.targetCharacterId); put("location", decision.location)
+            put("text", decision.text)
+            put("groupId", decision.groupId)
+            put("gameId", decision.gameId)
+            put("title", decision.journalTitle)
+            put("content", decision.journalContent.ifBlank { if (decision.action == Action.JOURNAL) decision.text else "" })
+            put("readingBookId", decision.readingBookId)
+            put("worldAction", decision.worldAction)
+            put("itemId", decision.itemId)
+            put("itemType", decision.itemType)
+            put("name", decision.itemName)
+            put("appearance", decision.appearance)
+            put("position", decision.position)
+            put("targetCharacterId", decision.targetCharacterId)
+            put("location", decision.location)
         }
         val result = CompanionActionRuntime.execute(appContext, character.characterId, tool, args, now)
-        if (!result.success) return ActionExecution(false, result.summary.ifBlank { "执行器没有返回失败原因" })
+        if (!result.success) {
+            return ActionExecution(false, result.summary.ifBlank { "执行器没有返回失败原因" })
+        }
         when (decision.action) {
-            Action.MESSAGE -> result.conversationId?.let { showMessageNotification(appContext, it, character.displayName, decision.text) }
+            Action.MESSAGE -> result.conversationId?.let {
+                showMessageNotification(appContext, it, character.displayName, decision.text)
+            }
             Action.GROUP_MESSAGE -> {
                 val target = availableGroups.firstOrNull { it.id == result.conversationId }
-                result.conversationId?.let { showMessageNotification(appContext, it, "${character.displayName} · ${target?.groupChat?.name.orEmpty()}", decision.text) }
+                result.conversationId?.let {
+                    showMessageNotification(
+                        appContext,
+                        it,
+                        "${character.displayName} · ${target?.groupChat?.name.orEmpty()}",
+                        decision.text,
+                    )
+                }
             }
-            Action.GAME_INVITE, Action.WORLD_INVITE -> result.conversationId?.let { showMessageNotification(appContext, it, character.displayName, result.summary) }
-            Action.CALL -> result.conversationId?.let { showCallNotification(appContext, it, character.displayName, decision.text) }
+            Action.GAME_INVITE, Action.WORLD_INVITE -> result.conversationId?.let {
+                showMessageNotification(appContext, it, character.displayName, result.summary)
+            }
+            Action.CALL -> result.conversationId?.let {
+                showCallNotification(appContext, it, character.displayName, decision.text)
+            }
             else -> Unit
         }
         return ActionExecution(true, result.summary)
     }
 
-    private suspend fun buildRealWorldContext(context: Context, characterId: String, now: Instant): String = buildString {
+    private suspend fun buildRealWorldContext(
+        context: Context,
+        characterId: String,
+        now: Instant,
+    ): String = buildString {
         HealthRolePerception.initialize(context)
         HealthRolePerception.recordLatestSleep(characterId)
         appendLine("用户现实时间：${now.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)}")
@@ -391,37 +471,62 @@ object ProactivePerceptionRuntime {
         if (level < 0 || scale <= 0) return "暂时不可用"
         val percent = level * 100 / scale
         val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
-        val charging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
+        val charging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+            status == BatteryManager.BATTERY_STATUS_FULL
         return "$percent%${if (charging) "，正在充电" else ""}"
     }
 
     private fun foregroundAppContext(context: Context, now: Instant): String {
         val accessibility = LuluAccessibilityService.state.value
-        val freshAccessibility = accessibility.capturedAt?.let { Duration.between(it, now).abs().toMinutes() <= 15 } == true
-        val packageName = if (accessibility.connected && freshAccessibility && accessibility.packageName.isNotBlank()) accessibility.packageName else runCatching {
+        val freshAccessibility = accessibility.capturedAt?.let {
+            Duration.between(it, now).abs().toMinutes() <= 15
+        } == true
+        val packageName = if (
+            accessibility.connected && freshAccessibility && accessibility.packageName.isNotBlank()
+        ) {
+            accessibility.packageName
+        } else runCatching {
             val usage = context.getSystemService(UsageStatsManager::class.java)
-            val end = System.currentTimeMillis(); val events = usage.queryEvents(end - 15 * 60_000L, end); val event = UsageEvents.Event()
-            var latestPackage = ""; var latestTime = 0L
+            val end = System.currentTimeMillis()
+            val events = usage.queryEvents(end - 15 * 60_000L, end)
+            val event = UsageEvents.Event()
+            var latestPackage = ""
+            var latestTime = 0L
             while (events.hasNextEvent()) {
                 events.getNextEvent(event)
-                if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED && event.timeStamp >= latestTime) { latestPackage = event.packageName.orEmpty(); latestTime = event.timeStamp }
+                if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED && event.timeStamp >= latestTime) {
+                    latestPackage = event.packageName.orEmpty()
+                    latestTime = event.timeStamp
+                }
             }
             latestPackage
         }.getOrDefault("")
         if (packageName.isBlank()) return "未授权或近期没有记录"
-        val appLabel = runCatching { val info = context.packageManager.getApplicationInfo(packageName, 0); context.packageManager.getApplicationLabel(info).toString() }.getOrNull()
-        return if (appLabel.isNullOrBlank() || appLabel == packageName) packageName else "$appLabel（$packageName）"
+        val appLabel = runCatching {
+            val info = context.packageManager.getApplicationInfo(packageName, 0)
+            context.packageManager.getApplicationLabel(info).toString()
+        }.getOrNull()
+        return if (appLabel.isNullOrBlank() || appLabel == packageName) packageName
+        else "$appLabel（$packageName）"
     }
 
     private suspend fun locationContext(context: Context): String {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return "未授权"
-        val location = runCatching { LuluLocationProvider.freshLocation(context) }.getOrNull() ?: return "暂时没有新位置"
+        if (
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) !=
+            PackageManager.PERMISSION_GRANTED
+        ) return "未授权"
+        val location = runCatching { LuluLocationProvider.freshLocation(context) }.getOrNull()
+            ?: return "暂时没有新位置"
         val ageMinutes = (System.currentTimeMillis() - location.time).coerceAtLeast(0L) / 60_000L
         val readable = runCatching {
             if (!Geocoder.isPresent()) return@runCatching ""
-            Geocoder(context, Locale.getDefault()).getFromLocation(location.latitude, location.longitude, 1)?.firstOrNull()?.let { address ->
-                listOfNotNull(address.subLocality, address.locality, address.adminArea, address.countryName).map(String::trim).filter(String::isNotBlank).distinct().joinToString("，")
-            }.orEmpty()
+            Geocoder(context, Locale.getDefault())
+                .getFromLocation(location.latitude, location.longitude, 1)
+                ?.firstOrNull()
+                ?.let { address ->
+                    listOfNotNull(address.subLocality, address.locality, address.adminArea, address.countryName)
+                        .map(String::trim).filter(String::isNotBlank).distinct().joinToString("，")
+                }.orEmpty()
         }.getOrDefault("")
         return "${readable.ifBlank { "仅获得坐标，未获得可靠行政区地址" }}；精度约${location.accuracy.toInt()}米；数据约${ageMinutes}分钟前"
     }
@@ -429,16 +534,24 @@ object ProactivePerceptionRuntime {
     private fun notificationContext(now: Instant): String {
         if (!LuluNotificationListenerService.isConnected.value) return "未授权"
         return LuluNotificationListenerService.notifications.value.asSequence()
-            .filter { Duration.between(it.postedAt, now).abs().toMinutes() <= 180 }.filter { it.packageName != "app.lulu" }.take(8)
-            .joinToString("；") { "${it.packageName}｜${it.title.take(60)}｜${it.text.take(120)}" }.replace(Regex("\\s+"), " ").take(500)
+            .filter { Duration.between(it.postedAt, now).abs().toMinutes() <= 180 }
+            .filter { it.packageName != "app.lulu" }
+            .take(8)
+            .joinToString("；") { "${it.packageName}｜${it.title.take(60)}｜${it.text.take(120)}" }
+            .replace(Regex("\\s+"), " ")
+            .take(500)
             .ifBlank { "近3小时没有可读通知" }
     }
 
     private fun studyContext(characterId: String): String {
         val state = PostgraduateExamStores.main.state.value
-        if (state.profile.selectedCharacterId != characterId) return "当前角色不是学习 App 的陪同角色，无权读取学习状态"
+        if (state.profile.selectedCharacterId != characterId) {
+            return "当前角色不是学习 App 的陪同角色，无权读取学习状态"
+        }
         val pomodoro = state.pomodoro
-        val current = if (pomodoro.running) "番茄钟进行中，剩余约${max(0, pomodoro.remainingSeconds) / 60}分钟" else "当前没有进行中的番茄钟"
+        val current = if (pomodoro.running) {
+            "番茄钟进行中，剩余约${max(0, pomodoro.remainingSeconds) / 60}分钟"
+        } else "当前没有进行中的番茄钟"
         return "$current；${state.roleStudyContext().replace("\n", "；")}"
     }
 
@@ -448,16 +561,31 @@ object ProactivePerceptionRuntime {
         val reserved = listOf("冷淡", "克制", "寡言", "内敛").any(persona::contains)
         val lively = listOf("活泼", "开朗", "元气", "爱闹").any(persona::contains)
         return copy(
-            statusText = statusText.ifBlank { if (reserved) "安静地过着自己的这一刻" else if (lively) "被一点念头勾走了注意力" else "停下来想了想最近的事" },
-            gesture = gesture.ifBlank { if (reserved) "视线停了一会儿，没有急着开口" else if (lively) "晃了晃神，又兴致勃勃地想起什么" else "指尖停住，短暂出了会儿神" },
+            statusText = statusText.ifBlank {
+                if (reserved) "安静地过着自己的这一刻"
+                else if (lively) "被一点念头勾走了注意力"
+                else "停下来想了想最近的事"
+            },
+            gesture = gesture.ifBlank {
+                if (reserved) "视线停了一会儿，没有急着开口"
+                else if (lively) "晃了晃神，又兴致勃勃地想起什么"
+                else "指尖停住，短暂出了会儿神"
+            },
             mood = mood.ifBlank { if (reserved) "克制" else if (lively) "有点兴致" else "若有所思" },
         )
     }
 
     private fun parseDecision(raw: String): Decision? = runCatching {
-        val clean = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim().let { value ->
-            val start = value.indexOf('{'); val end = value.lastIndexOf('}'); if (start >= 0 && end > start) value.substring(start, end + 1) else value
-        }
+        val clean = raw.trim()
+            .removePrefix("```json")
+            .removePrefix("```")
+            .removeSuffix("```")
+            .trim()
+            .let { value ->
+                val start = value.indexOf('{')
+                val end = value.lastIndexOf('}')
+                if (start >= 0 && end > start) value.substring(start, end + 1) else value
+            }
         val json = JSONObject(clean)
         Decision(
             action = when (json.optString("action").trim().lowercase()) {
@@ -472,61 +600,126 @@ object ProactivePerceptionRuntime {
                 "digital_world", "digitalworld", "数字世界", "数字家园" -> Action.DIGITAL_WORLD
                 else -> Action.SILENT
             },
-            text = json.optString("text").trim(), reason = json.optString("reason").trim(),
+            text = json.optString("text").trim(),
+            reason = json.optString("reason").trim(),
             statusText = json.optString("statusText").ifBlank { json.optString("status") }.trim(),
             gesture = json.optString("gesture").ifBlank { json.optString("actionDescription") }.trim(),
-            innerThought = json.optString("innerThought").ifBlank { json.optString("inner_voice") }.trim(), mood = json.optString("mood").trim(),
-            journalTitle = json.optString("journalTitle").trim(), journalContent = json.optString("journalContent").trim(),
-            groupId = json.optString("groupId").trim(), gameId = json.optString("gameId").trim(), readingBookId = json.optString("readingBookId").trim(),
-            worldAction = json.optString("worldAction").trim(), itemId = json.optString("itemId").trim(), itemType = json.optString("itemType").trim(),
-            itemName = json.optString("itemName").ifBlank { json.optString("name") }.trim(), appearance = json.optString("appearance").trim(), position = json.optString("position").trim(),
-            targetCharacterId = json.optString("targetCharacterId").trim(), location = json.optString("location").trim(),
+            innerThought = json.optString("innerThought").ifBlank { json.optString("inner_voice") }.trim(),
+            mood = json.optString("mood").trim(),
+            journalTitle = json.optString("journalTitle").trim(),
+            journalContent = json.optString("journalContent").trim(),
+            groupId = json.optString("groupId").trim(),
+            gameId = json.optString("gameId").trim(),
+            readingBookId = json.optString("readingBookId").trim(),
+            worldAction = json.optString("worldAction").trim(),
+            itemId = json.optString("itemId").trim(),
+            itemType = json.optString("itemType").trim(),
+            itemName = json.optString("itemName").ifBlank { json.optString("name") }.trim(),
+            appearance = json.optString("appearance").trim(),
+            position = json.optString("position").trim(),
+            targetCharacterId = json.optString("targetCharacterId").trim(),
+            location = json.optString("location").trim(),
         )
     }.getOrNull()
 
-    private fun collectUserActivities(characterId: String): List<UserActivity> = MigratedDomainStores.chat.conversations.value.asSequence()
-        .filter { conversation -> conversation.groupChat?.members?.any { it.characterId == characterId } == true || (conversation.groupChat == null && conversation.characterId == characterId && !conversation.id.endsWith("-study-focus")) }
-        .flatMap { conversation ->
-            val conversationMessages = MigratedDomainStores.chat.messages(conversation.id).value
-            val lastRoleReplyIndex = conversationMessages.indexOfLast { message -> message.status == LuluChatMessage.Status.Sent && message.sender == LuluChatMessage.Sender.Character && (conversation.groupChat == null || message.authorCharacterId == characterId) }
-            conversationMessages.asSequence().mapIndexedNotNull { index, message ->
-                message.takeIf { it.status == LuluChatMessage.Status.Sent && it.sender == LuluChatMessage.Sender.User }?.let { UserActivity(conversation, it, index > lastRoleReplyIndex) }
-            }.toList().takeLast(6).asSequence()
-        }.sortedByDescending { it.message.createdAt }.take(20).toList()
+    private fun collectUserActivities(characterId: String): List<UserActivity> =
+        MigratedDomainStores.chat.conversations.value.asSequence()
+            .filter { conversation ->
+                conversation.groupChat?.members?.any { it.characterId == characterId } == true ||
+                    (conversation.groupChat == null && conversation.characterId == characterId && !conversation.id.endsWith("-study-focus"))
+            }
+            .flatMap { conversation ->
+                val conversationMessages = MigratedDomainStores.chat.messages(conversation.id).value
+                val lastRoleReplyIndex = conversationMessages.indexOfLast { message ->
+                    message.status == LuluChatMessage.Status.Sent &&
+                        message.sender == LuluChatMessage.Sender.Character &&
+                        (conversation.groupChat == null || message.authorCharacterId == characterId)
+                }
+                conversationMessages.asSequence().mapIndexedNotNull { index, message ->
+                    message.takeIf {
+                        it.status == LuluChatMessage.Status.Sent && it.sender == LuluChatMessage.Sender.User
+                    }?.let { UserActivity(conversation, it, index > lastRoleReplyIndex) }
+                }.toList().takeLast(6).asSequence()
+            }
+            .sortedByDescending { it.message.createdAt }
+            .take(20)
+            .toList()
 
     private fun formatUserActivity(activity: UserActivity, zoneId: ZoneId): String {
-        val timestamp = activity.message.createdAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))
+        val timestamp = activity.message.createdAt.atZone(zoneId)
+            .format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))
         val scene = activity.conversation.groupChat?.name?.let { "群聊《$it》" } ?: "私聊"
-        return "- $timestamp｜$scene｜${if (activity.awaitingReply) "待回复" else "已看见/已回应"}｜${activity.message.content.take(500)}"
+        return "- $timestamp｜$scene｜${if (activity.awaitingReply) "待回复" else "已看见/已回应"}｜${qqForwardContextText(activity.message.content).take(500)}"
     }
 
     private fun createNotificationChannels(context: Context) {
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.O) return
         val manager = context.getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(NotificationChannel(MESSAGE_CHANNEL_ID, "角色主动消息", NotificationManager.IMPORTANCE_DEFAULT))
-        manager.createNotificationChannel(NotificationChannel(CALL_CHANNEL_ID, "角色主动来电", NotificationManager.IMPORTANCE_HIGH))
+        manager.createNotificationChannel(
+            NotificationChannel(MESSAGE_CHANNEL_ID, "角色主动消息", NotificationManager.IMPORTANCE_DEFAULT),
+        )
+        manager.createNotificationChannel(
+            NotificationChannel(CALL_CHANNEL_ID, "角色主动来电", NotificationManager.IMPORTANCE_HIGH),
+        )
     }
 
     private fun conversationIntent(context: Context, conversationId: String): PendingIntent {
-        val intent = Intent(context, MigrationActivity::class.java).putExtra("open_conversation_id", conversationId).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        return PendingIntent.getActivity(context, conversationId.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val intent = Intent(context, MigrationActivity::class.java)
+            .putExtra("open_conversation_id", conversationId)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        return PendingIntent.getActivity(
+            context,
+            conversationId.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
     }
 
-    private fun showMessageNotification(context: Context, conversationId: String, title: String, text: String) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
-        val notification = NotificationCompat.Builder(context, MESSAGE_CHANNEL_ID).setSmallIcon(com.jiacimu.lulu.R.drawable.lulu_exact_icon)
-            .setContentTitle(title).setContentText(text.take(180)).setStyle(NotificationCompat.BigTextStyle().bigText(text.take(600)))
-            .setAutoCancel(true).setContentIntent(conversationIntent(context, conversationId)).build()
-        context.getSystemService(NotificationManager::class.java).notify((conversationId + text).hashCode(), notification)
+    private fun showMessageNotification(
+        context: Context,
+        conversationId: String,
+        title: String,
+        text: String,
+    ) {
+        if (
+            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) return
+        val notification = NotificationCompat.Builder(context, MESSAGE_CHANNEL_ID)
+            .setSmallIcon(com.jiacimu.lulu.R.drawable.lulu_exact_icon)
+            .setContentTitle(title)
+            .setContentText(text.take(180))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text.take(600)))
+            .setAutoCancel(true)
+            .setContentIntent(conversationIntent(context, conversationId))
+            .build()
+        context.getSystemService(NotificationManager::class.java)
+            .notify((conversationId + text).hashCode(), notification)
     }
 
-    private fun showCallNotification(context: Context, conversationId: String, title: String, text: String) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
+    private fun showCallNotification(
+        context: Context,
+        conversationId: String,
+        title: String,
+        text: String,
+    ) {
+        if (
+            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) return
         val pending = conversationIntent(context, conversationId)
-        val notification = NotificationCompat.Builder(context, CALL_CHANNEL_ID).setSmallIcon(com.jiacimu.lulu.R.drawable.lulu_exact_icon)
-            .setContentTitle("$title 想给你打电话").setContentText(text.take(160)).setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_CALL).setAutoCancel(true).setContentIntent(pending).setFullScreenIntent(pending, true).build()
-        context.getSystemService(NotificationManager::class.java).notify(("call-$conversationId-$nowMarker").hashCode(), notification)
+        val notification = NotificationCompat.Builder(context, CALL_CHANNEL_ID)
+            .setSmallIcon(com.jiacimu.lulu.R.drawable.lulu_exact_icon)
+            .setContentTitle("$title 想给你打电话")
+            .setContentText(text.take(160))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_CALL)
+            .setAutoCancel(true)
+            .setContentIntent(pending)
+            .setFullScreenIntent(pending, true)
+            .build()
+        context.getSystemService(NotificationManager::class.java)
+            .notify(("call-$conversationId-$nowMarker").hashCode(), notification)
     }
 
     private val nowMarker: Long get() = System.currentTimeMillis() / 10_000L
