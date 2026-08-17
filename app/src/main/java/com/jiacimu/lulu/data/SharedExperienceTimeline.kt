@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.jiacimu.lulu.LuluRepositories
+import com.jiacimu.lulu.qqForwardContextText
 import com.jiacimu.lulu.core.MemoryEntry
 import com.jiacimu.lulu.core.MemoryKind
 import kotlinx.coroutines.CoroutineScope
@@ -43,19 +44,12 @@ object SharedExperienceTimeline {
         }
     }
 
-    /**
-     * A private chat belongs to its companion. A group message belongs to every member who was
-     * present, with a per-character event id so one member can never overwrite another's copy.
-     */
     fun recordConversationMessage(
         conversation: LuluConversation,
         message: LuluChatMessage,
         triggerExtraction: Boolean = true,
     ) {
-        // Game completion already owns one canonical raw game event. The little chat receipt is UI
-        // decoration only and must never become a second copy of the same match in raw timeline.
         if (message.sender == LuluChatMessage.Sender.System && message.content.startsWith("[共同活动]")) return
-
         val group = conversation.groupChat
         if (group == null) {
             recordChatMessage(
@@ -66,7 +60,6 @@ object SharedExperienceTimeline {
             )
             return
         }
-
         val speaker = when (message.sender) {
             LuluChatMessage.Sender.User -> group.userGroupNickname
             LuluChatMessage.Sender.Character -> {
@@ -104,7 +97,8 @@ object SharedExperienceTimeline {
             LuluChatMessage.Sender.Character -> "角色"
             LuluChatMessage.Sender.System -> "系统"
         }
-        record(message.id, characterId, channel, speaker, message.content, message.createdAt, triggerExtraction)
+        val readableContent = qqForwardContextText(message.content)
+        record(message.id, characterId, channel, speaker, readableContent, message.createdAt, triggerExtraction)
     }
 
     fun record(
@@ -120,8 +114,6 @@ object SharedExperienceTimeline {
         val database = helper?.writableDatabase ?: return
         if (eventId.isBlank() || characterId.isBlank() || clean.isBlank()) return
         if (!DigitalLifeProfileStore.allowsTimestamp(characterId, occurredAt)) return
-        // A role's in-game reaction belongs inside the one match record, not beside it as another
-        // raw timeline event. Old callers may still try to emit this id, so reject it centrally.
         if (eventId.startsWith("game-reply-")) return
         val deleted = database.query(
             "deleted_timeline_events",
@@ -151,9 +143,9 @@ object SharedExperienceTimeline {
         }
     }
 
-    fun all(characterId: String): List<SharedTimelineEvent> = query(characterId, null).sortedBy(SharedTimelineEvent::occurredAt)
+    fun all(characterId: String): List<SharedTimelineEvent> =
+        query(characterId, null).sortedBy(SharedTimelineEvent::occurredAt)
 
-    /** Resolve derived-memory provenance back to the exact immutable raw timeline records. */
     fun eventsByIds(characterId: String, eventIds: Collection<String>): List<SharedTimelineEvent> {
         val ids = eventIds.map(String::trim).filter(String::isNotBlank).distinct().take(120)
         val database = helper?.readableDatabase ?: return emptyList()
@@ -185,7 +177,6 @@ object SharedExperienceTimeline {
         }
     }
 
-    /** Permanently removes raw context and leaves a tombstone so history backfill cannot restore it. */
     fun deleteEvent(eventId: String) {
         if (eventId.isBlank()) return
         val database = helper?.writableDatabase ?: return
@@ -273,7 +264,6 @@ object SharedExperienceTimeline {
         return kept.asReversed().joinToString("\n")
     }
 
-    /** Save a derived memory. Raw events are recorded separately and never replaced by this summary. */
     fun remember(
         memoryId: String,
         characterId: String,
