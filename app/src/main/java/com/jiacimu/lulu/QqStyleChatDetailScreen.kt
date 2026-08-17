@@ -40,6 +40,8 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.data.CompanionPresenceStore
+import com.jiacimu.lulu.data.CompanionOnlineReason
+import com.jiacimu.lulu.data.CompanionOnlineStore
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -86,6 +88,7 @@ fun QqStyleChatDetailScreen(
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val preferences by LuluAppPreferencesStore.state.collectAsState()
     val presenceStates by CompanionPresenceStore.states.collectAsState()
+    val onlineStates by CompanionOnlineStore.states.collectAsState()
     val presenceHistories by CompanionPresenceStore.histories.collectAsState()
     val library by LuluAiServices.connectionStore.library.collectAsState()
     val replyTaskStates by ChatReplyTaskManager.states.collectAsState()
@@ -99,14 +102,10 @@ fun QqStyleChatDetailScreen(
     val chatArchiveId = library.archiveIdFor(ModelUsage.Chat)
     val activeArchive = library.archives.firstOrNull { it.id == chatArchiveId }
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接模型"
-    val pendingUserMessages = remember(messages) {
-        val lastCharacterIndex = messages.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
-        messages.drop(lastCharacterIndex + 1).filter { message ->
-            message.sender == LuluChatMessage.Sender.User ||
-                (message.sender == LuluChatMessage.Sender.System && message.content.startsWith("[戳一戳] 你戳了戳"))
-        }
+    val onlineMemberCount = groupChat?.members.orEmpty().count { member ->
+        onlineStates[member.characterId]?.isOnline() == true
     }
-
+    val privateOnline = onlineStates[characterId]?.isOnline() == true
     val listState = rememberLazyListState()
     val imeBottom = WindowInsets.ime.getBottom(density)
     val scope = rememberCoroutineScope()
@@ -281,6 +280,33 @@ fun QqStyleChatDetailScreen(
         ChatReplyTaskManager.stop(conversationId)
     }
 
+    fun wakeOnline(includeDraft: Boolean = true) {
+        val currentConversation = conversation ?: return
+        if (activeArchive == null) {
+            scope.launch { snackbar.showSnackbar("请先在右上角选择模型") }
+            return
+        }
+        if (includeDraft) {
+            val currentInput = input.trim()
+            if (currentInput.isNotBlank()) {
+                MigratedDomainStores.chat.sendUserMessage(conversationId, currentInput, replyingTo?.id)
+                input = ""
+                replyingTo = null
+            }
+        }
+        if (groupChat == null) {
+            CompanionOnlineStore.wakeCharacter(
+                characterId = characterId,
+                reason = CompanionOnlineReason.PrivateWake,
+                trigger = "用户在私聊呼唤上线",
+            )
+            scope.launch { snackbar.showSnackbar("已呼唤 ${character.displayName} 上线 5 分钟；是否回应由角色自己决定") }
+        } else {
+            CompanionOnlineStore.wakeGroup(currentConversation)
+            scope.launch { snackbar.showSnackbar("已呼唤群成员上线 5 分钟；每个人会独立决定是否发言") }
+        }
+    }
+
     fun sendAndReceive(includeDraft: Boolean = true) {
         if (ChatReplyTaskManager.state(conversationId).running) return
         if (activeArchive == null) {
@@ -400,7 +426,7 @@ fun QqStyleChatDetailScreen(
             MigratedDomainStores.chat.deleteMessage(messageId)
         }
         selectedMessage = null
-        sendAndReceive(includeDraft = false)
+        if (groupChat == null) sendAndReceive(includeDraft = false) else wakeOnline(includeDraft = false)
     }
 
     Scaffold(
@@ -432,7 +458,16 @@ fun QqStyleChatDetailScreen(
                                     fontSize = 17.sp,
                                     color = QqInk,
                                 )
-                                if (groupChat == null) Text(activeLabel, fontSize = 10.sp, color = QqMuted, maxLines = 1)
+                                Text(
+                                    if (groupChat == null) {
+                                        "${if (privateOnline) "在线" else "离线"} · $activeLabel"
+                                    } else {
+                                        "$onlineMemberCount 人在线"
+                                    },
+                                    fontSize = 10.sp,
+                                    color = if (groupChat == null && privateOnline || groupChat != null && onlineMemberCount > 0) Color(0xFF2A9D63) else QqMuted,
+                                    maxLines = 1,
+                                )
                             }
                         }
                     }
@@ -589,8 +624,8 @@ fun QqStyleChatDetailScreen(
                                 ),
                             ) { Icon(Icons.Outlined.Send, "只发送") }
                             FilledTonalIconButton(
-                                onClick = { if (receiving) stopReceiving() else sendAndReceive() },
-                                enabled = receiving || input.isNotBlank() || pendingUserMessages.isNotEmpty(),
+                                onClick = { if (receiving) stopReceiving() else wakeOnline() },
+                                enabled = true,
                                 colors = IconButtonDefaults.filledTonalIconButtonColors(
                                     containerColor = QqIconSurface,
                                     contentColor = QqInk,
@@ -598,7 +633,7 @@ fun QqStyleChatDetailScreen(
                                     disabledContentColor = QqMuted.copy(alpha = 0.45f),
                                 ),
                             ) {
-                                Icon(if (receiving) Icons.Outlined.StopCircle else Icons.Outlined.MarkChatRead, if (receiving) "停止" else "发送并让对方回复")
+                                Icon(if (receiving) Icons.Outlined.StopCircle else Icons.Outlined.MarkChatRead, if (receiving) "停止" else "呼唤上线")
                             }
                         }
                     }

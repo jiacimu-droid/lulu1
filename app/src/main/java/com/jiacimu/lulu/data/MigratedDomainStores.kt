@@ -456,9 +456,11 @@ class InMemoryLuluChatStore : LuluChatStore {
     }
 
     private fun append(conversationId: String, message: LuluChatMessage, incrementUnread: Boolean) {
+        lateinit var appendedConversation: LuluConversation
         synchronized(lock) {
             val current = conversationState.value.firstOrNull { conversation -> conversation.id == conversationId }
                 ?: error("会话不存在：$conversationId。请先通过 ensureConversation 建立角色会话。")
+            appendedConversation = current
             val state = messageStates.getOrPut(conversationId) { MutableStateFlow(emptyList()) }
             state.value = state.value + message
             val updated = current.copy(
@@ -471,6 +473,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             persistLocked()
             SharedExperienceTimeline.recordConversationMessage(current, message)
         }
+        CompanionOnlineStore.onConversationMessage(appendedConversation, message)
     }
 
     private fun mutateMessagesContaining(

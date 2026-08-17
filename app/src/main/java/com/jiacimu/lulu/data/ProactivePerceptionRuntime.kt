@@ -39,10 +39,8 @@ import java.util.Locale
 import kotlin.math.max
 
 /**
- * Low-frequency per-character proactive perception.
- *
- * Model calls are driven only by a character's own interval (plus pending concern/promise state)
- * or an explicit user manual check. Screen and notification changes are data sources, never wakeups.
+ * Per-character autonomous perception used by both low-frequency background life and short online
+ * sessions. Every evaluation belongs to one character and can legitimately end in silence.
  */
 object ProactivePerceptionRuntime {
     private const val PREFS_NAME = "lulu_proactive_runtime_v2"
@@ -138,6 +136,15 @@ object ProactivePerceptionRuntime {
                 else -> trigger
             }
             prefs.edit().putLong("last_evaluation_$characterId", now.toEpochMilli()).apply()
+            if (!force || !CompanionOnlineStore.isOnline(characterId, now)) {
+                CompanionOnlineStore.wakeCharacter(
+                    characterId = characterId,
+                    reason = CompanionOnlineReason.BackgroundPerception,
+                    trigger = effectiveTrigger,
+                    perceiveNow = false,
+                    now = now,
+                )
+            }
             CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知启动 · $effectiveTrigger", now)
             val result = runCatching {
                 evaluateCharacter(appContext, conversation, effectiveTrigger, now)
@@ -273,6 +280,8 @@ object ProactivePerceptionRuntime {
         val availableGroups = MigratedDomainStores.chat.conversations.value.filter { candidate ->
             candidate.groupChat?.members?.any { it.characterId == characterId } == true
         }
+        val onlineUnread = CompanionOnlineStore.unreadChatSnapshot(characterId)
+        if (trigger.startsWith("在线期间") && onlineUnread.text.isBlank()) return Action.SILENT
         val userActivities = collectUserActivities(characterId)
         val pendingUserContext = userActivities.filter(UserActivity::awaitingReply).joinToString("\n") { activity ->
             formatUserActivity(activity, zoneId)
@@ -326,6 +335,10 @@ object ProactivePerceptionRuntime {
                     appendLine("【用户跨场景最新动态｜新→旧】")
                     appendLine(recentUserActivityContext)
                 }
+                if (onlineUnread.text.isNotBlank()) {
+                    appendLine("【本次上线尚未处理的新动态｜旧→新】")
+                    appendLine(onlineUnread.text)
+                }
                 appendLine("\n【长期上下文层】")
                 previousPresence?.let {
                     appendLine("上一刻：${it.statusText}；${it.gesture}；${it.mood}；心声=${it.innerThought}")
@@ -357,6 +370,7 @@ object ProactivePerceptionRuntime {
                 9. 学习状态只在当前角色就是学习 App 的陪同角色时提供；没提供就代表这个角色没有权限知道，禁止猜。
                 10. 角色语气、主动程度、动作、心声必须服从人设。行动不是概率抽签，也不是机械轮班：必须能从人设、关系、最新动态、未完话题和此刻意愿解释。认真看“最近自主选择”和最近聊天里的系统生活事件；没有新的真实理由时不要连续重复同一种动作，但也不要为了凑多样性硬换动作。若最近连续多次 SILENT，而眼下自然适合写日记、发朋友圈、邀游戏、阅读、联系用户或去群里说话，应允许角色自己行动。
                 11. 【用户跨场景最新动态】按真实时间从新到旧列出私聊和群聊消息；其中标有“待回复”的内容应成为这一刻的优先注意对象，并优先在它发生的场景自然回应，除非人设、关系或语义给出明确的不回应理由。没有待回复动态时，再自由决定自己的生活。不要把“优先注意”写成系统报告。
+                11.1 【本次上线尚未处理的新动态】是角色本次真正看见的未读内容，可能包括用户或其他角色的发言。看见不等于必须回复；如果决定回应，必须去对应的私聊或群聊，不能把别人的话当成自己的记忆，也不能泄露其他角色的私聊。
                 12. 动作字段必须可执行：message/moment/call 必须给非空 text；group_message 必须给真实 groupId 和非空 text；game_invite 必须从给定列表选真实 gameId 并给邀请语；world_invite 必须给非空邀请语；journal 必须给非空 journalTitle 与 journalContent；reading 必须给真实 readingBookId。不要选择一个动作却把它需要的字段留空，否则这个动作会失败。
                 13. 只有数字生命看到数字世界权威状态时才能选择 world_invite 或 digital_world。world_invite 是邀请用户从世界入口进入并与你见面，不等于你自己移动地点；只有真正想见用户时才选择，并必须填写可用地点中的真实 location。家中物品只能使用权威状态里的 itemId；新增家具一次只能建一件，必须给名称、外观和固定位置，并符合角色自己的真实意愿。不能用文字假装建设成功，不能同时出现在两个地点。串门只能使用提供的真实 targetCharacterId。silent 仍然是完全正常的选择。
             """.trimIndent(),
@@ -366,7 +380,7 @@ object ProactivePerceptionRuntime {
             maxTokens = 1_500,
             connectionOverride = connection,
             memoryRequest = UnifiedMemoryRequest(
-                currentInput = pendingUserContext,
+                currentInput = listOf(pendingUserContext, onlineUnread.text).filter(String::isNotBlank).joinToString("\n"),
                 sceneContext = "后台主动感知 · $trigger",
                 recentContext = listOf(recent, concerns, commitments).filter(String::isNotBlank).joinToString("\n"),
                 taskIntent = "根据角色人设与当前生活状态自主决定行动或保持安静",
@@ -395,7 +409,8 @@ object ProactivePerceptionRuntime {
             availableGroups = availableGroups,
             now = now,
         )
-        if (decision.action == Action.SILENT || !acted) {
+        val interactiveWake = trigger.contains("呼唤") || trigger.startsWith("在线期间")
+        if ((decision.action == Action.SILENT || !acted) && !interactiveWake) {
             MigratedDomainStores.chat.appendPrivateActivityNotice(
                 characterId,
                 "刚刚更新了自己的此刻：${decision.statusText}${decision.mood.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()}",
@@ -407,6 +422,7 @@ object ProactivePerceptionRuntime {
             "感知成功 · ${effectiveAction.name.lowercase()}${decision.reason.takeIf(String::isNotBlank)?.let { " · ${it.take(90)}" }.orEmpty()}",
             now,
         )
+        CompanionOnlineStore.markSeen(characterId, onlineUnread.newestAt)
         return effectiveAction
     }
 

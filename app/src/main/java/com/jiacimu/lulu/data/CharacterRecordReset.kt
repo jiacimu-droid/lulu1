@@ -31,6 +31,7 @@ object CharacterRecordReset {
             .forEach { id -> LuluRepositories.memory.delete(id) }
 
         CompanionPresenceStore.clearCharacter(cleanId)
+        CompanionOnlineStore.resetCharacter(cleanId)
 
         SharedExperienceTimeline.all(cleanId)
             .map { it.id }

@@ -25,17 +25,14 @@ import java.util.concurrent.TimeUnit
 /**
  * Durable scheduler for proactive perception.
  *
- * There are only two automatic sources:
- * 1) each character's configured fixed interval (with a 2-hour WorkManager watchdog), and
- * 2) pending concern/promise state, which can cancel adaptive stretching but never beats the
- *    user's base interval.
- *
- * Screen changes and notifications are read as context only and never schedule work.
+ * Long-lived background work follows each role's interval. Short online sessions enqueue an
+ * independent per-role perception when a relevant unread chat event arrives. Device signals remain
+ * context only and never wake a role by themselves.
  */
 object ProactivePerceptionScheduler {
     private const val WATCHDOG_WORK = "lulu-perception-watchdog-v2"
     private const val NEXT_DUE_WORK = "lulu-perception-next-due-v2"
-    private const val MANUAL_WORK = "lulu-perception-manual-v2"
+    private const val ONLINE_WORK = "lulu-perception-online-v1"
 
     fun schedule(context: Context) {
         val appContext = context.applicationContext
@@ -79,18 +76,27 @@ object ProactivePerceptionScheduler {
     }
 
     fun scheduleManual(context: Context, characterId: String) {
+        CompanionOnlineStore.wakeCharacter(
+            characterId = characterId,
+            reason = CompanionOnlineReason.BackgroundPerception,
+            trigger = "用户手动检查",
+        )
+    }
+
+    fun scheduleOnline(context: Context, characterId: String, trigger: String) {
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInputData(
                 Data.Builder()
-                    .putString("trigger", "用户手动检查")
+                    .putString("trigger", trigger)
                     .putString("characterId", characterId)
                     .putBoolean("force", true)
+                    .putBoolean("requireOnline", true)
                     .build(),
             )
             .build()
         WorkManager.getInstance(context.applicationContext)
-            .enqueueUniqueWork("$MANUAL_WORK-$characterId", ExistingWorkPolicy.REPLACE, request)
+            .enqueueUniqueWork("$ONLINE_WORK-$characterId", ExistingWorkPolicy.APPEND_OR_REPLACE, request)
     }
 }
 
@@ -104,6 +110,11 @@ class ProactivePerceptionWorker(
         val trigger = inputData.getString("trigger").orEmpty().ifBlank { "角色时间间隔" }
         val characterId = inputData.getString("characterId")?.takeIf(String::isNotBlank)
         val force = inputData.getBoolean("force", false)
+        val requireOnline = inputData.getBoolean("requireOnline", false)
+        if (requireOnline && (characterId == null || !CompanionOnlineStore.isOnline(characterId))) {
+            ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
+            return@runCatching Result.success()
+        }
         ProactivePerceptionRuntime.runDueCycle(
             context = applicationContext,
             trigger = trigger,
@@ -148,6 +159,7 @@ private fun initializeBackgroundRuntime(context: Context) {
     CharacterIdentityStore.initialize(context)
     MomentsStore.initialize(context)
     CompanionPresenceStore.initialize(context)
+    CompanionOnlineStore.initialize(context)
     LuluAiServices.initialize(context)
     MemoryModelRuntime.initialize(context)
     ProactivePerceptionPolicyStore.initialize(context)

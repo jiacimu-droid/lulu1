@@ -9,6 +9,7 @@ import com.jiacimu.lulu.data.ChatLexiconAutomation
 import com.jiacimu.lulu.data.ChatMemoryAutomation
 import com.jiacimu.lulu.data.ChatTurnConsistencyAutomation
 import com.jiacimu.lulu.data.CompanionPresenceStore
+import com.jiacimu.lulu.data.CompanionOnlineStore
 import com.jiacimu.lulu.data.DeterministicMemoryAutomation
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.DigitalWorldStore
@@ -53,6 +54,7 @@ class MigrationActivity : ComponentActivity() {
         MomentsStore.initialize(appContext)
         SharedExperienceTimeline.backfillChatHistory()
         CompanionPresenceStore.initialize(appContext)
+        CompanionOnlineStore.initialize(appContext)
         MeetingExperienceStore.initialize(appContext)
         HealthCycleStore.initialize(appContext)
         LuluAiServices.initialize(appContext)

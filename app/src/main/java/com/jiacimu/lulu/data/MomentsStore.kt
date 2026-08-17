@@ -44,10 +44,7 @@ object MomentsStore {
     private const val KEY_POSTS = "posts_v1"
     private const val KEY_UNREAD_CHARACTER_IDS = "unread_character_post_ids_v1"
     private const val USER_COMMENTER_ID = "__user__"
-    private const val SOCIAL_BATCH_CHARACTER_ID = "__moments_social_batch__"
-
     private data class ReactionPlan(
-        val characterId: String,
         val wantsLike: Boolean,
         val comment: String,
     )
@@ -87,7 +84,7 @@ object MomentsStore {
         )
         savePost(post)
         recordForAllCharacters(post, UserProfileContext.displayLabel())
-        socialScope.launch { letCharactersReact(post.id) }
+        socialScope.launch { letOnlineCharactersReact(post.id) }
         return post
     }
 
@@ -115,19 +112,31 @@ object MomentsStore {
         return post
     }
 
-    /**
-     * Public Moments use one ensemble model request, but every candidate character must leave one
-     * in-character comment. Likes remain optional. This keeps the user's requested full participation
-     * without paying for one model request per character.
-     */
+    /** A user post is an @all-style wake-up; every role perceives it independently and may stay silent. */
     suspend fun letCharactersReact(postId: String) {
         val post = mutablePosts.value.firstOrNull { it.id == postId && it.authorType == MomentAuthorType.User } ?: return
         val candidates = MigratedDomainStores.characters.settings.value.values.sortedBy(CharacterSettings::displayName)
-        runBatchReactions(
-            post = post,
-            candidates = candidates,
-            authorName = UserProfileContext.displayLabel(),
-        )
+        candidates.forEach { character ->
+            CompanionOnlineStore.wakeCharacter(
+                characterId = character.characterId,
+                reason = CompanionOnlineReason.MomentsWake,
+                trigger = "用户发布朋友圈并呼唤角色来看",
+                perceiveNow = false,
+            )
+        }
+        candidates.forEach { character ->
+            runIndependentReaction(post, character, UserProfileContext.displayLabel())
+        }
+    }
+
+    private suspend fun letOnlineCharactersReact(postId: String) {
+        val post = mutablePosts.value.firstOrNull { it.id == postId && it.authorType == MomentAuthorType.User } ?: return
+        val candidates = MigratedDomainStores.characters.settings.value.values
+            .filter { CompanionOnlineStore.isOnline(it.characterId) }
+            .sortedBy(CharacterSettings::displayName)
+        candidates.forEach { character ->
+            runIndependentReaction(post, character, UserProfileContext.displayLabel())
+        }
     }
 
     private suspend fun letOtherCharactersReact(postId: String) {
@@ -137,103 +146,82 @@ object MomentsStore {
         val authorId = post.authorCharacterId ?: return
         val author = MigratedDomainStores.characters.get(authorId)
         val candidates = MigratedDomainStores.characters.settings.value.values
-            .filterNot { it.characterId == authorId }
+            .filter { it.characterId != authorId && CompanionOnlineStore.isOnline(it.characterId) }
             .sortedBy(CharacterSettings::displayName)
-        runBatchReactions(post = post, candidates = candidates, authorName = author.displayName)
+        candidates.forEach { character -> runIndependentReaction(post, character, author.displayName) }
     }
 
-    private suspend fun runBatchReactions(
+    private suspend fun runIndependentReaction(
         post: MomentPost,
-        candidates: List<CharacterSettings>,
+        character: CharacterSettings,
         authorName: String,
     ) {
-        if (candidates.isEmpty()) return
-        val validIds = candidates.mapTo(linkedSetOf(), CharacterSettings::characterId)
-        val detailScale = if (candidates.size <= 8) 1f else 0.58f
-        fun scaled(value: Int): Int = (value * detailScale).toInt().coerceAtLeast(160)
         val socialMemoryRequest = UnifiedMemoryRequest(
             currentInput = momentContext(post),
             sceneContext = "朋友圈原帖，作者：$authorName",
-            taskIntent = "判断每个角色是否会点赞，并生成符合本人经历的评论",
+            taskIntent = "当前角色独立判断是否点赞、评论，或者只看不回应",
         )
-        val candidateMemoryContexts = buildMap {
-            candidates.forEach { character ->
-                put(
-                    character.characterId,
-                    UnifiedMemoryOrchestrator.assemble(
-                        characterId = character.characterId,
-                        request = socialMemoryRequest,
-                        recallLimit = 6,
-                        evidenceLimit = 4,
-                        evidenceCharacterBudget = 2_200,
-                        recentCharacterBudget = 2_600,
-                    ),
-                )
-            }
-        }
+        val memoryContext = UnifiedMemoryOrchestrator.assemble(
+            characterId = character.characterId,
+            request = socialMemoryRequest,
+            recallLimit = 6,
+            evidenceLimit = 4,
+            evidenceCharacterBudget = 2_200,
+            recentCharacterBudget = 2_600,
+        )
+        val identity = CharacterIdentityStore.get(character.characterId)
+        val presence = CompanionPresenceStore.current(character.characterId)
 
         val raw = LuluAiServices.gateway.generate(
-            characterId = SOCIAL_BATCH_CHARACTER_ID,
+            characterId = character.characterId,
             facts = buildString {
                 appendLine("【朋友圈原帖】")
                 appendLine("作者：$authorName")
                 appendLine("作者类型：${if (post.authorType == MomentAuthorType.User) "用户" else "角色"}")
                 appendLine(momentContext(post))
                 appendLine()
-                appendLine("【本轮必须全部评论的角色】")
-                candidates.forEach { character ->
-                    val identity = CharacterIdentityStore.get(character.characterId)
-                    val memoryContext = candidateMemoryContexts[character.characterId]
-                    val presence = CompanionPresenceStore.current(character.characterId)
-                    appendLine("---")
-                    appendLine("characterId=${character.characterId}")
-                    appendLine("显示名=${character.displayName}")
-                    if (identity.isNotBlank()) appendLine("身份与关系=${identity.take(scaled(760))}")
-                    appendLine("人设=${character.persona.ifBlank { "按该角色现有人设自然行动。" }.take(scaled(980))}")
-                    memoryContext?.compactPromptSection(characterBudget = 3_600)
-                        ?.takeIf(String::isNotBlank)
-                        ?.let { appendLine(it) }
-                    presence?.let {
-                        appendLine(
-                            "上一刻状态=${it.statusText.take(120)}；动作=${it.gesture.take(120)}；心情=${it.mood.take(80)}；没说出口=${it.innerThought.take(180)}",
-                        )
-                    }
+                appendLine("【当前独立判断的角色】")
+                appendLine("characterId=${character.characterId}")
+                appendLine("显示名=${character.displayName}")
+                if (identity.isNotBlank()) appendLine("身份与关系=${identity.take(760)}")
+                appendLine("人设=${character.persona.ifBlank { "按该角色现有人设自然行动。" }.take(980)}")
+                memoryContext.compactPromptSection(characterBudget = 3_600)
+                    .takeIf(String::isNotBlank)
+                    ?.let { appendLine(it) }
+                presence?.let {
+                    appendLine(
+                        "上一刻状态=${it.statusText.take(120)}；动作=${it.gesture.take(120)}；心情=${it.mood.take(80)}；没说出口=${it.innerThought.take(180)}",
+                    )
                 }
             },
             instruction = """
-                你是朋友圈的一次性整轮社交编排器。必须在这一次请求里替清单中的每一个角色分别写出他本人会留下的评论，不允许跳过任何人，也不要拆成多次模型调用。
+                你就是当前这个角色。你刚上线看见了这条朋友圈，请按本人性格、关系、经历和此刻心情独立决定怎么做。看见不等于必须互动。
 
                 只返回一个 JSON 对象，不要代码块、解释或旁白：
-                {"reactions":[{"characterId":"真实角色ID","action":"comment|like_comment","comment":"该角色自己的评论正文"}]}
+                {"action":"none|like|comment|like_comment","comment":"评论正文；不评论时留空"}
 
                 规则：
-                1. reactions 必须完整覆盖候选清单中的每一个 characterId，每个人恰好出现一次；任何角色都不能 skip，也不能只点赞不评论。
-                2. 每个人都必须有非空 comment。点赞可以有也可以没有：想点赞就用 like_comment，不点赞就用 comment。
-                3. 虽然所有人都要评论，但绝不能写成整齐报到、统一句式或同一种语气。每条评论都要服从对应角色的身份、关系、人设、近期真实经历和此刻心情。
-                4. 角色之间可以对同一条动态关注完全不同的点：有人接梗、有人关心、有人吐槽、有人只写很短的一句。全员评论不等于机械轮班。
-                5. 如果有配图描述，那是角色在这条朋友圈中实际可见的图片信息，可以自然回应画面细节；不要编造描述之外的画面。
-                6. 评论保持真实社交软件长度，通常一句或几句短话；不写角色名标签，不写 ACTION 标签，不解释规则。
-                7. 只根据原帖、候选角色资料和真实经历判断，不要虚构用户此刻未提供的身体、环境或私密设备状态。
+                1. none、只点赞、只评论、点赞并评论都是真实有效的选择。关系不好、不想搭理或觉得没必要时可以 none。
+                2. 不要因为用户呼唤了你，就机械地表示“看到了”；行动必须符合这个角色本人。
+                3. 如果评论，应像真实社交软件里的自然短评论，可以接梗、关心、吐槽，也可以只写很短一句；不写角色名标签或规则说明。
+                4. 如果有配图描述，那是实际可见的信息，可以回应画面细节；不要编造描述之外的画面。
+                5. 只根据原帖、本人资料和真实经历判断，不要虚构用户未提供的身体、环境或私密设备状态。
             """.trimIndent(),
-            source = "朋友圈全员整轮互动",
-            title = "朋友圈一次性全员评论",
+            source = "朋友圈独立感知",
+            title = "${character.displayName}查看朋友圈",
             temperature = 0.9,
-            maxTokens = (700 + candidates.size * 180).coerceIn(900, 4_000),
+            maxTokens = 600,
             usage = ModelUsage.Chat,
             contextMode = CompanionContextMode.PersonaAndScenario,
             memoryRequest = socialMemoryRequest,
         ).getOrNull()?.text.orEmpty()
 
-        val plans = parseReactionPlans(raw, validIds).associateBy(ReactionPlan::characterId)
-        candidates.forEach { character ->
-            val plan = plans[character.characterId]
-            if (plan?.wantsLike == true) addCharacterLike(post, character, authorName)
-            val comment = plan?.comment.orEmpty().ifBlank { fallbackMomentComment(character) }
-            addCharacterTopLevelComment(post, character, authorName, comment)
-        }
+        val plan = parseReactionPlan(raw) ?: return
+        if (plan.wantsLike) addCharacterLike(post, character, authorName)
+        if (plan.comment.isNotBlank()) addCharacterTopLevelComment(post, character, authorName, plan.comment)
     }
 
-    private fun parseReactionPlans(raw: String, validIds: Set<String>): List<ReactionPlan> = runCatching {
+    private fun parseReactionPlan(raw: String): ReactionPlan? = runCatching {
         val clean = raw.trim()
             .removePrefix("```json")
             .removePrefix("```")
@@ -244,33 +232,18 @@ object MomentsStore {
                 val end = value.lastIndexOf('}')
                 if (start >= 0 && end > start) value.substring(start, end + 1) else value
             }
-        val reactions = JSONObject(clean).optJSONArray("reactions") ?: return@runCatching emptyList()
-        buildList {
-            val seen = mutableSetOf<String>()
-            for (index in 0 until reactions.length()) {
-                val item = reactions.optJSONObject(index) ?: continue
-                val characterId = item.optString("characterId").trim()
-                if (characterId !in validIds || !seen.add(characterId)) continue
-                val action = item.optString("action").trim().lowercase()
-                val wantsLike = action == "like_comment" || action == "comment_like" || item.optBoolean("like", false)
-                val comment = item.optString("comment")
-                    .trim()
-                    .removePrefix("评论：")
-                    .removeSurrounding("\"")
-                    .take(300)
-                if (comment.isNotBlank()) add(ReactionPlan(characterId, wantsLike, comment))
-            }
+        val item = JSONObject(clean)
+        val action = item.optString("action").trim().lowercase()
+        if (action !in setOf("none", "like", "comment", "like_comment", "comment_like")) return@runCatching null
+        val wantsLike = action == "like" || action == "like_comment" || action == "comment_like"
+        val wantsComment = action == "comment" || action == "like_comment" || action == "comment_like"
+        val comment = if (wantsComment) {
+            item.optString("comment").trim().removePrefix("评论：").removeSurrounding("\"").take(300)
+        } else {
+            ""
         }
-    }.getOrDefault(emptyList())
-
-    private fun fallbackMomentComment(character: CharacterSettings): String {
-        val persona = character.persona
-        return when {
-            listOf("寡言", "冷淡", "克制", "内敛").any(persona::contains) -> "嗯，看到了。"
-            listOf("活泼", "开朗", "元气", "爱闹").any(persona::contains) -> "我看到啦。"
-            else -> "看到了。"
-        }
-    }
+        ReactionPlan(wantsLike = wantsLike, comment = comment)
+    }.getOrNull()
 
     private fun addCharacterLike(post: MomentPost, character: CharacterSettings, authorName: String) {
         val currentPost = mutablePosts.value.firstOrNull { it.id == post.id } ?: return
@@ -413,6 +386,13 @@ object MomentsStore {
         } ?: return
         if (post.comments.any { it.characterId == responderId && it.replyToCommentId == commentId }) return
 
+        CompanionOnlineStore.wakeCharacter(
+            characterId = responderId,
+            reason = CompanionOnlineReason.MomentsWake,
+            trigger = "用户在朋友圈评论区呼唤角色",
+            perceiveNow = false,
+        )
+
         val responder = MigratedDomainStores.characters.get(responderId)
         val repliedComment = userComment.replyToCommentId?.let { id -> post.comments.firstOrNull { it.id == id } }
         val postAuthorName = postAuthorName(post)
@@ -455,21 +435,30 @@ object MomentsStore {
                 }
             },
             instruction = """
-                这是朋友圈评论区里正在发生的真实一对一回复。请只以你自己的口吻接住用户刚刚对你的评论或回复。
+                这是朋友圈评论区里正在发生的真实一对一互动。你已经上线并看见用户刚刚对你的评论或回复，但看见不等于必须回应。
                 如果原帖不是你发的，也不要把原帖说成自己的；你只是正在那个评论区里继续和用户说话。
-                回复要像真实朋友圈评论区：短、自然、符合你和用户的关系，可以接梗、回答、反问或只回一句，不要扩写成聊天长文。
-                不替其他角色说话，不写角色名，不写“回复：”标签，不解释规则，只输出你真正要发出的回复正文。
+                只返回 JSON：{"action":"reply|silent","text":"决定回复时的正文，否则留空"}
+                是否回复由你的人设、关系、情绪和这条内容决定。回复要短、自然，可以接梗、回答、反问或只回一句，不扩写成聊天长文。
+                不替其他角色说话，不写角色名，不写“回复：”标签，不解释规则。
             """.trimIndent(),
             source = "朋友圈单独回复",
             title = "${responder.displayName}回复朋友圈评论",
             temperature = 0.86,
             maxTokens = 180,
             usage = ModelUsage.Chat,
-        ).getOrNull()?.text
-            ?.trim()
-            ?.removeSurrounding("\"")
-            ?.take(300)
-            .orEmpty()
+        ).getOrNull()?.text.orEmpty().let { raw ->
+            runCatching {
+                val clean = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
+                val start = clean.indexOf('{')
+                val end = clean.lastIndexOf('}')
+                val json = JSONObject(if (start >= 0 && end > start) clean.substring(start, end + 1) else clean)
+                if (json.optString("action").trim().lowercase() == "reply") {
+                    json.optString("text").trim().removeSurrounding("\"").take(300)
+                } else {
+                    ""
+                }
+            }.getOrDefault("")
+        }
         if (replyText.isBlank()) return
         val reply = MomentComment(
             characterId = responderId,

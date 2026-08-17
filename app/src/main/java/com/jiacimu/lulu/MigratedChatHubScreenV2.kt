@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.CharacterSettings
 import com.jiacimu.lulu.data.ChatUnreadStore
 import com.jiacimu.lulu.data.CompanionPresenceStore
+import com.jiacimu.lulu.data.CompanionOnlineStore
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.LuluConversation
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -173,6 +175,7 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val unreadRevision by ChatUnreadStore.revision.collectAsState()
+    val onlineStates by CompanionOnlineStore.states.collectAsState()
     val sorted = remember(conversations) {
         conversations.sortedWith(compareByDescending<LuluConversation> { it.pinned }.thenByDescending(LuluConversation::updatedAt))
     }
@@ -194,6 +197,10 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
             items(sorted, key = LuluConversation::id, contentType = { "conversation" }) { conversation ->
                 val character = characters[conversation.characterId] ?: MigratedDomainStores.characters.get(conversation.characterId)
                 val group = conversation.groupChat
+                val onlineCount = group?.members.orEmpty().count { member ->
+                    onlineStates[member.characterId]?.isOnline() == true
+                }
+                val privateOnline = onlineStates[conversation.characterId]?.isOnline() == true
                 val messages by MigratedDomainStores.chat.messages(conversation.id).collectAsState()
                 val unreadCount = remember(messages, unreadRevision) {
                     ChatUnreadStore.unreadCount(conversation.id, messages)
@@ -221,11 +228,23 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                             Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text(
-                                        group?.name ?: character.displayName.ifBlank { conversation.title.ifBlank { "未命名角色" } },
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 17.sp,
-                                    )
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            group?.name ?: character.displayName.ifBlank { conversation.title.ifBlank { "未命名角色" } },
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 17.sp,
+                                        )
+                                        Spacer(Modifier.width(7.dp))
+                                        Text(
+                                            if (group == null) {
+                                                if (privateOnline) "在线" else "离线"
+                                            } else {
+                                                "$onlineCount 人在线"
+                                            },
+                                            color = if (group == null && privateOnline || group != null && onlineCount > 0) Color(0xFF2A9D63) else LuluColors.Muted,
+                                            fontSize = 10.sp,
+                                        )
+                                    }
                                     Text(
                                         conversation.updatedAt.atZone(ZoneId.systemDefault()).format(ChatHubV2Time),
                                         color = LuluColors.Muted,
@@ -277,6 +296,7 @@ private fun ChatHubV2Characters(
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val presenceStates by CompanionPresenceStore.states.collectAsState()
+    val onlineStates by CompanionOnlineStore.states.collectAsState()
     val sortedCharacters = remember(characters) { characters.values.sortedBy(CharacterSettings::displayName) }
     val privateByCharacter = remember(conversations) {
         conversations
@@ -293,12 +313,22 @@ private fun ChatHubV2Characters(
         items(sortedCharacters, key = CharacterSettings::characterId, contentType = { "character" }) { character ->
             val privateChat = privateByCharacter[character.characterId]
             val presence = presenceStates[character.characterId]
+            val isOnline = onlineStates[character.characterId]?.isOnline() == true
             ChatHubV2Card {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ChatHubV2Avatar(character.displayName.take(1).ifBlank { "角" }, 56, character.avatarUri)
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(character.displayName, fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(character.displayName, fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                if (isOnline) "在线" else "离线",
+                                color = if (isOnline) Color(0xFF2A9D63) else LuluColors.Muted,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
                         Text(
                             when {
                                 character.characterId == "lulu" -> "默认陪伴角色"

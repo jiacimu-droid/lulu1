@@ -42,6 +42,7 @@ import java.time.Instant
 @Composable
 fun MomentsScreen() {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val posts by MomentsStore.posts.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val prefs = remember { context.getSharedPreferences("lulu_user_profile", Context.MODE_PRIVATE) }
@@ -114,6 +115,7 @@ fun MomentsScreen() {
                         characterNames = characters.mapValues { it.value.displayName },
                         onLike = { MomentsStore.toggleUserLike(post.id) },
                         onComment = { text -> MomentsStore.addUserComment(post.id, text) },
+                        onCallCharacters = { scope.launch { MomentsStore.letCharactersReact(post.id) } },
                         onReply = { comment, text -> MomentsStore.addUserReply(post.id, comment.id, text) },
                         onDelete = { MomentsStore.delete(post.id) },
                     )
@@ -416,6 +418,7 @@ private fun MomentPostCard(
     characterNames: Map<String, String>,
     onLike: () -> Unit,
     onComment: (String) -> Unit,
+    onCallCharacters: () -> Unit,
     onReply: (MomentComment, String) -> Unit,
     onDelete: () -> Unit,
 ) {
@@ -484,8 +487,17 @@ private fun MomentPostCard(
                     Icon(if (likedByUser) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder, "点赞", modifier = Modifier.size(19.dp))
                 }
                 Spacer(Modifier.width(6.dp))
-                FilledTonalIconButton(onClick = { commenting = true }, modifier = Modifier.size(38.dp)) {
-                    Icon(Icons.Outlined.ChatBubbleOutline, "评论", modifier = Modifier.size(19.dp))
+                FilledTonalIconButton(
+                    onClick = {
+                        if (post.authorType == MomentAuthorType.User) onCallCharacters() else commenting = true
+                    },
+                    modifier = Modifier.size(38.dp),
+                ) {
+                    Icon(
+                        if (post.authorType == MomentAuthorType.User) Icons.Outlined.MarkChatRead else Icons.Outlined.ChatBubbleOutline,
+                        if (post.authorType == MomentAuthorType.User) "呼唤全部角色来看" else "评论",
+                        modifier = Modifier.size(19.dp),
+                    )
                 }
             }
             val visibleLikes = post.likedCharacterIds.filterNot { it == "__user__" }.mapNotNull { characterNames[it] } + if (likedByUser) listOf("我") else emptyList()
