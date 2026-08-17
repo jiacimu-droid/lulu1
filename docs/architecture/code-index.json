@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-17T05:49:13.977672+00:00",
-  "commit": "c1aae4fa941aac1da7f1a6837ba0ed7326725b08",
+  "generatedAt": "2026-08-17T06:14:18.493551+00:00",
+  "commit": "a430f37870576a2d83c10e439588d17d9e2861a4",
   "branch": "main",
-  "sourceFingerprint": "7a1c0eb33925c1077122effc58c9e66eebb9525f53c250df76a737f15026b9ee",
+  "sourceFingerprint": "0ef68e7b86e1a079626e147927836300d788a8b60db1507006bec27e0a38edb7",
   "summary": {
     "files": 189,
-    "lines": 59427,
-    "symbols": 805
+    "lines": 59814,
+    "symbols": 810
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -181,7 +181,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 203
+        "line": 295
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -196,6 +196,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
         "line": 75
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
+        "line": 39
       }
     ],
     "replayCached": [
@@ -422,10 +426,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
         "line": 174
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterArchiveStore.kt",
-        "line": 24
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
@@ -937,11 +937,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 196
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterArchiveStore.kt",
-        "line": 101
+        "line": 288
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -1199,7 +1195,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 88
+        "line": 102
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
+        "line": 130
       }
     ],
     "set": [
@@ -1223,11 +1223,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 76
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterArchiveStore.kt",
-        "line": 30
+        "line": 90
       }
     ],
     "CharacterMessageFavorites": [
@@ -2655,7 +2651,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 57
+        "line": 71
       }
     ],
     "eventsByIds": [
@@ -4185,85 +4181,125 @@
     "defaultPrompts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 75
+        "line": 95
       }
     ],
     "savePrompts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 90
+        "line": 111
       }
     ],
     "addImage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 94
+        "line": 115
       }
     ],
     "deleteImage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 98
+        "line": 119
       }
     ],
     "setGuide": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 103
+        "line": 124
+      }
+    ],
+    "setStoryPlan": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
+        "line": 128
+      }
+    ],
+    "setLedger": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
+        "line": 137
       }
     ],
     "addChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 107
+        "line": 141
+      }
+    ],
+    "updateChapter": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
+        "line": 147
+      }
+    ],
+    "deleteChaptersFrom": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
+        "line": 156
       }
     ],
     "deleteTheater": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 113
+        "line": 164
       }
     ],
-    "restoreTheater": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 117
-      }
-    ],
-    "detailedGuide": [
+    "storyGuide": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
         "line": 25
       }
     ],
+    "chapterPlans": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
+        "line": 49
+      }
+    ],
+    "detailedGuide": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
+        "line": 59
+      }
+    ],
     "add": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 68
+        "line": 82
       }
     ],
     "text": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 154
+        "line": 168
       }
     ],
     "value": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 187
+        "line": 201
       }
     ],
     "generateNextChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 404
+        "line": 299
       }
     ],
     "attemptBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 604
+        "line": 569
+      }
+    ],
+    "cancel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
+        "line": 63
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
+        "line": 74
       }
     ],
     "StudyTaskSource": [
@@ -4498,12 +4534,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
         "line": 42
-      }
-    ],
-    "cancel": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 74
       }
     ],
     "LuluAlarmReceiver": [
@@ -8463,48 +8493,60 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-      "lines": 290,
-      "sha256": "95b5f6773bd051e32286db230831a40919e369b86b3574dd4f2692a0676f8152",
+      "lines": 404,
+      "sha256": "8e1f1c45a4b21f023c3d5c7ec3646b58131a755b4d990183bda79f7f7e92206a",
       "symbols": [
         {
           "name": "defaultPrompts",
-          "line": 75
+          "line": 95
         },
         {
           "name": "savePrompts",
-          "line": 90
+          "line": 111
         },
         {
           "name": "addImage",
-          "line": 94
+          "line": 115
         },
         {
           "name": "deleteImage",
-          "line": 98
+          "line": 119
         },
         {
           "name": "setGuide",
-          "line": 103
+          "line": 124
+        },
+        {
+          "name": "setStoryPlan",
+          "line": 128
+        },
+        {
+          "name": "setLedger",
+          "line": 137
         },
         {
           "name": "addChapter",
-          "line": 107
+          "line": 141
+        },
+        {
+          "name": "updateChapter",
+          "line": 147
+        },
+        {
+          "name": "deleteChaptersFrom",
+          "line": 156
         },
         {
           "name": "deleteTheater",
-          "line": 113
-        },
-        {
-          "name": "restoreTheater",
-          "line": 117
+          "line": 164
         },
         {
           "name": "create",
-          "line": 196
+          "line": 288
         },
         {
           "name": "initialize",
-          "line": 203
+          "line": 295
         }
       ]
     },
@@ -8516,36 +8558,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-      "lines": 200,
-      "sha256": "82b172d1140c653766a17bd713def2ddfa48675ab0217a0a4060c24341d08790",
+      "lines": 230,
+      "sha256": "8c94356074fee25dc60e917ba84ad54dac24ccce36211d093077fdee7dcb35c2",
       "symbols": [
         {
-          "name": "detailedGuide",
+          "name": "storyGuide",
           "line": 25
         },
         {
+          "name": "chapterPlans",
+          "line": 49
+        },
+        {
+          "name": "detailedGuide",
+          "line": 59
+        },
+        {
           "name": "all",
-          "line": 57
+          "line": 71
         },
         {
           "name": "add",
-          "line": 68
+          "line": 82
         },
         {
           "name": "delete",
-          "line": 76
+          "line": 90
         },
         {
           "name": "get",
-          "line": 88
+          "line": 102
         },
         {
           "name": "text",
-          "line": 154
+          "line": 168
         },
         {
           "name": "value",
-          "line": 187
+          "line": 201
         }
       ]
     },
@@ -8556,36 +8606,36 @@
       "symbols": []
     },
     {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterArchiveStore.kt",
-      "lines": 104,
-      "sha256": "f5a6ed3eeff1482ac554dfedbb3bd5a80221dd9b6f713455a24c8e535467f559",
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
+      "lines": 815,
+      "sha256": "b6a9368f2783228f29af628b2e0568e866957a00b527007968d9b8fd69d9efa0",
       "symbols": [
         {
-          "name": "save",
-          "line": 24
+          "name": "generateNextChapter",
+          "line": 299
         },
         {
-          "name": "delete",
-          "line": 30
-        },
-        {
-          "name": "create",
-          "line": 101
+          "name": "attemptBack",
+          "line": 569
         }
       ]
     },
     {
-      "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-      "lines": 787,
-      "sha256": "49e8391f81966178581d5644dfd0fc0326ee60d2b94c2589e687dbe42a3377ad",
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
+      "lines": 319,
+      "sha256": "1a4cf474c490340def697ae2913c6806d9b5c6d9482f62ed9ee7f13a1c89965d",
       "symbols": [
         {
-          "name": "generateNextChapter",
-          "line": 404
+          "name": "enqueue",
+          "line": 39
         },
         {
-          "name": "attemptBack",
-          "line": 604
+          "name": "cancel",
+          "line": 63
+        },
+        {
+          "name": "get",
+          "line": 130
         }
       ]
     },
