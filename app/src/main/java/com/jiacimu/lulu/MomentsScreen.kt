@@ -42,7 +42,6 @@ import java.time.Instant
 @Composable
 fun MomentsScreen() {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val posts by MomentsStore.posts.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val prefs = remember { context.getSharedPreferences("lulu_user_profile", Context.MODE_PRIVATE) }
@@ -115,7 +114,7 @@ fun MomentsScreen() {
                         characterNames = characters.mapValues { it.value.displayName },
                         onLike = { MomentsStore.toggleUserLike(post.id) },
                         onComment = { text -> MomentsStore.addUserComment(post.id, text) },
-                        onCallCharacters = { scope.launch { MomentsStore.letCharactersReact(post.id) } },
+                        onCallCharacters = { MomentsStore.requestCharactersReact(post.id) },
                         onReply = { comment, text -> MomentsStore.addUserReply(post.id, comment.id, text) },
                         onDelete = { MomentsStore.delete(post.id) },
                     )

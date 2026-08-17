@@ -113,6 +113,10 @@ object MomentsStore {
     }
 
     /** A user post is an @all-style wake-up; every role perceives it independently and may stay silent. */
+    fun requestCharactersReact(postId: String) {
+        socialScope.launch { letCharactersReact(postId) }
+    }
+
     suspend fun letCharactersReact(postId: String) {
         val post = mutablePosts.value.firstOrNull { it.id == postId && it.authorType == MomentAuthorType.User } ?: return
         val candidates = MigratedDomainStores.characters.settings.value.values.sortedBy(CharacterSettings::displayName)

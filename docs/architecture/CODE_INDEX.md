@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`881815e5d0aa2b0b36c3b6ce0e8dd7d6d2b34d92`
+- 基准提交：`520bc4cc5fec4220bc165f7c2b81324a2be604c8`
 - 分支：`main`
 - 已索引文件：190
-- 已索引代码/文本行：60272
-- 已发现符号：824
+- 已索引代码/文本行：60275
+- 已发现符号：825
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -43,7 +43,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 450 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 91 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 319 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 641 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 640 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 283 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 787 | 0 |
@@ -83,7 +83,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 587 | 37 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 26 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 873 | 44 |
-| `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 728 | 13 |
+| `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 732 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 727 | 4 |
