@@ -34,11 +34,31 @@ internal data class StarWishTheaterChapter(
     val createdAtMillis: Long = System.currentTimeMillis(),
 )
 
+internal data class StarWishChapterPlan(
+    val id: String = UUID.randomUUID().toString(),
+    val number: Int,
+    val title: String,
+    val outline: String,
+)
+
+internal data class StarWishStoryLedger(
+    val summary: String = "",
+    val characters: String = "",
+    val worldState: String = "",
+    val relationships: String = "",
+    val openThreads: String = "",
+    val foreshadows: String = "",
+    val keyItems: String = "",
+    val updatedThroughChapter: Int = 0,
+)
+
 internal data class StarWishState(
     val imageLaunches: List<StarWishImageLaunch> = emptyList(),
     val customPrompts: Map<String, StarWishOutfitPrompts> = emptyMap(),
     val theaterChapters: Map<String, List<StarWishTheaterChapter>> = emptyMap(),
     val theaterGuides: Map<String, String> = emptyMap(),
+    val theaterPlans: Map<String, List<StarWishChapterPlan>> = emptyMap(),
+    val theaterLedgers: Map<String, StarWishStoryLedger> = emptyMap(),
 )
 
 internal data class StarWishOutfitPrompts(
@@ -52,7 +72,7 @@ internal data class StarWishTheaterSeed(
 )
 
 internal object StarWishRules {
-    const val MAX_CHAPTERS_PER_THEATER = 20
+    const val MAX_CHAPTERS_PER_THEATER = 200
 
     val theaters = listOf(
         StarWishTheaterSeed("少卿不早朝，摄政王露沉提点心来审我", "宫廷权谋、现代刑侦穿越、大理寺少卿、摄政王露沉。主角是会破案也会摆烂的女王型少卿，露沉权倾朝野却逐渐向她低头。剧情要有朝堂打脸、奇案反转、暧昧试探、主从拉扯。"),
@@ -85,6 +105,7 @@ internal object StarWishRules {
 
 internal class StarWishStore private constructor(context: Context) {
     private val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val stateFile = File(context.applicationContext.filesDir, "starwish/state_v2.json")
     private val mutable = MutableStateFlow(load())
     val state: StateFlow<StarWishState> = mutable.asStateFlow()
 
@@ -105,39 +126,83 @@ internal class StarWishStore private constructor(context: Context) {
         current.copy(theaterGuides = current.theaterGuides + (theater to guide.trim()))
     }
 
+    fun setStoryPlan(theater: String, guide: String, plans: List<StarWishChapterPlan>) = update { current ->
+        current.copy(
+            theaterGuides = current.theaterGuides + (theater to guide.trim()),
+            theaterPlans = current.theaterPlans + (theater to plans.mapIndexed { index, plan ->
+                plan.copy(number = index + 1, title = plan.title.ifBlank { "第 ${index + 1} 章" })
+            }),
+        )
+    }
+
+    fun setLedger(theater: String, ledger: StarWishStoryLedger) = update { current ->
+        current.copy(theaterLedgers = current.theaterLedgers + (theater to ledger))
+    }
+
     fun addChapter(chapter: StarWishTheaterChapter) {
         update { current ->
             current.copy(theaterChapters = current.theaterChapters + (chapter.theater to (current.theaterChapters[chapter.theater].orEmpty() + chapter)))
         }
     }
 
-    fun deleteTheater(theater: String) = update { current ->
-        current.copy(theaterChapters = current.theaterChapters - theater, theaterGuides = current.theaterGuides - theater)
-    }
-
-    fun restoreTheater(theater: String, guide: String, chapters: List<StarWishTheaterChapter>) = update { current ->
+    fun updateChapter(theater: String, chapterId: String, title: String, content: String) = update { current ->
         current.copy(
-            theaterChapters = current.theaterChapters + (theater to chapters),
-            theaterGuides = current.theaterGuides + (theater to guide),
+            theaterChapters = current.theaterChapters + (theater to current.theaterChapters[theater].orEmpty().map { chapter ->
+                if (chapter.id == chapterId) chapter.copy(title = title.trim(), content = content.trim()) else chapter
+            }),
+            theaterLedgers = current.theaterLedgers - theater,
         )
     }
 
+    fun deleteChaptersFrom(theater: String, chapterNumber: Int) = update { current ->
+        val kept = current.theaterChapters[theater].orEmpty().filter { it.chapter < chapterNumber }
+        current.copy(
+            theaterChapters = current.theaterChapters + (theater to kept),
+            theaterLedgers = current.theaterLedgers - theater,
+        )
+    }
+
+    fun deleteTheater(theater: String) = update { current ->
+        current.copy(
+            theaterChapters = current.theaterChapters - theater,
+            theaterGuides = current.theaterGuides - theater,
+            theaterPlans = current.theaterPlans - theater,
+            theaterLedgers = current.theaterLedgers - theater,
+        )
+    }
+
+    @Synchronized
     private fun update(transform: (StarWishState) -> StarWishState) {
         val next = transform(mutable.value)
         mutable.value = next
-        prefs.edit().putString(KEY_STATE, encode(next).toString()).apply()
+        persist(next)
     }
 
-    private fun load(): StarWishState = prefs.getString(KEY_STATE, null)
+    private fun load(): StarWishState = runCatching { stateFile.takeIf(File::isFile)?.readText() }.getOrNull()
         ?.takeIf(String::isNotBlank)
         ?.let { raw -> runCatching { decode(JSONObject(raw)) }.getOrNull() }
+        ?: prefs.getString(KEY_STATE, null)
+        ?.takeIf(String::isNotBlank)
+        ?.let { raw -> runCatching { decode(JSONObject(raw)) }.getOrNull()?.also(::persist) }
         ?: StarWishState()
+
+    private fun persist(value: StarWishState) {
+        stateFile.parentFile?.mkdirs()
+        val temporary = File(stateFile.parentFile, "${stateFile.name}.tmp")
+        temporary.writeText(encode(value).toString())
+        if (!temporary.renameTo(stateFile)) {
+            stateFile.writeText(temporary.readText())
+            temporary.delete()
+        }
+    }
 
     private fun encode(value: StarWishState): JSONObject = JSONObject()
         .put("images", JSONArray().apply { value.imageLaunches.forEach { put(encodeImage(it)) } })
         .put("prompts", JSONObject().apply { value.customPrompts.forEach { (name, prompts) -> put(name, JSONObject().put("solo", prompts.solo).put("interaction", prompts.interaction)) } })
         .put("chapters", JSONObject().apply { value.theaterChapters.forEach { (name, chapters) -> put(name, JSONArray().apply { chapters.forEach { put(encodeChapter(it)) } }) } })
         .put("guides", JSONObject(value.theaterGuides))
+        .put("plans", JSONObject().apply { value.theaterPlans.forEach { (name, plans) -> put(name, JSONArray().apply { plans.forEach { put(encodePlan(it)) } }) } })
+        .put("ledgers", JSONObject().apply { value.theaterLedgers.forEach { (name, ledger) -> put(name, encodeLedger(ledger)) } })
 
     private fun decode(root: JSONObject): StarWishState {
         val prompts = root.optJSONObject("prompts").decodeMap { item -> StarWishOutfitPrompts(item.optString("solo"), item.optString("interaction")) }
@@ -162,11 +227,15 @@ internal class StarWishStore private constructor(context: Context) {
                 }
             }
         }.orEmpty()
+        val plans = root.optJSONObject("plans").decodeArrayMap(::decodePlan)
+        val ledgers = root.optJSONObject("ledgers").decodeObjectMap(::decodeLedger)
         return StarWishState(
             imageLaunches = root.optJSONArray("images").decodeObjects(::decodeImage),
             customPrompts = prompts,
             theaterChapters = chapters,
             theaterGuides = guides,
+            theaterPlans = plans,
+            theaterLedgers = ledgers,
         )
     }
 
@@ -188,6 +257,29 @@ internal class StarWishStore private constructor(context: Context) {
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() }, theater = item.optString("theater"),
         chapter = item.optInt("chapter"), title = item.optString("title"), content = item.optString("content"),
         userInfluence = item.optString("userInfluence"), createdAtMillis = item.optLong("createdAt", System.currentTimeMillis()),
+    )
+
+    private fun encodePlan(value: StarWishChapterPlan) = JSONObject()
+        .put("id", value.id).put("number", value.number).put("title", value.title).put("outline", value.outline)
+
+    private fun decodePlan(item: JSONObject) = StarWishChapterPlan(
+        id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
+        number = item.optInt("number"),
+        title = item.optString("title"),
+        outline = item.optString("outline"),
+    )
+
+    private fun encodeLedger(value: StarWishStoryLedger) = JSONObject()
+        .put("summary", value.summary).put("characters", value.characters).put("worldState", value.worldState)
+        .put("relationships", value.relationships).put("openThreads", value.openThreads)
+        .put("foreshadows", value.foreshadows).put("keyItems", value.keyItems)
+        .put("updatedThroughChapter", value.updatedThroughChapter)
+
+    private fun decodeLedger(item: JSONObject) = StarWishStoryLedger(
+        summary = item.optString("summary"), characters = item.optString("characters"),
+        worldState = item.optString("worldState"), relationships = item.optString("relationships"),
+        openThreads = item.optString("openThreads"), foreshadows = item.optString("foreshadows"),
+        keyItems = item.optString("keyItems"), updatedThroughChapter = item.optInt("updatedThroughChapter"),
     )
 
     companion object {
@@ -274,6 +366,28 @@ private fun <T> JSONObject?.decodeMap(transform: (JSONObject) -> T): Map<String,
             val key = keys.next()
             val item = this@decodeMap.optJSONObject(key) ?: continue
             put(key, transform(item))
+        }
+    }
+}
+
+private fun <T> JSONObject?.decodeArrayMap(transform: (JSONObject) -> T): Map<String, List<T>> {
+    if (this == null) return emptyMap()
+    return buildMap {
+        val keys = this@decodeArrayMap.keys()
+        while (keys.hasNext()) {
+            val key = keys.next()
+            put(key, this@decodeArrayMap.optJSONArray(key).decodeObjects(transform))
+        }
+    }
+}
+
+private fun <T> JSONObject?.decodeObjectMap(transform: (JSONObject) -> T): Map<String, T> {
+    if (this == null) return emptyMap()
+    return buildMap {
+        val keys = this@decodeObjectMap.keys()
+        while (keys.hasNext()) {
+            val key = keys.next()
+            this@decodeObjectMap.optJSONObject(key)?.let { put(key, transform(it)) }
         }
     }
 }

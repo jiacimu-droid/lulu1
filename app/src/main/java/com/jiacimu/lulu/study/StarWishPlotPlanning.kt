@@ -22,7 +22,7 @@ internal data class StarWishPlotCandidate(
     val chapters: List<String>,
     val wordCount: String,
 ) {
-    fun detailedGuide(): String = buildString {
+    fun storyGuide(): String = buildString {
         appendLine("【世界观】")
         appendLine(worldview.trim())
         appendLine("\n【故事总纲】")
@@ -45,6 +45,20 @@ internal data class StarWishPlotCandidate(
         appendLine(highlights.trim())
         appendLine("\n【每章建议字数】")
         appendLine(wordCount.ifBlank { "1800-3000" })
+    }.trim()
+
+    fun chapterPlans(): List<StarWishChapterPlan> = chapters.mapIndexed { index, chapter ->
+        val clean = chapter.trim()
+        val firstLine = clean.lineSequence().firstOrNull().orEmpty().take(30)
+        StarWishChapterPlan(
+            number = index + 1,
+            title = firstLine.takeIf { it.length in 2..30 } ?: "第 ${index + 1} 章",
+            outline = clean,
+        )
+    }
+
+    fun detailedGuide(): String = buildString {
+        appendLine(storyGuide())
         chapters.forEachIndexed { index, chapter ->
             appendLine("\n【第${index + 1}章规划】")
             appendLine(chapter.trim())
@@ -197,3 +211,19 @@ internal object StarWishPlotPlanner {
         }
     }
 }
+
+internal fun starWishPlansFromLegacyGuide(guide: String): List<StarWishChapterPlan> {
+    val matches = Regex("【第(\\d+)章规划】([\\s\\S]*?)(?=\\n【第\\d+章规划】|$)").findAll(guide).toList()
+    return matches.mapIndexed { index, match ->
+        val number = match.groupValues.getOrNull(1)?.toIntOrNull() ?: index + 1
+        val outline = match.groupValues.getOrNull(2).orEmpty().trim()
+        StarWishChapterPlan(
+            number = number,
+            title = outline.lineSequence().firstOrNull().orEmpty().take(30).ifBlank { "第 $number 章" },
+            outline = outline,
+        )
+    }
+}
+
+internal fun starWishGuideWithoutLegacyPlans(guide: String): String =
+    guide.substringBefore("【第1章规划】").trim().ifBlank { guide.trim() }
