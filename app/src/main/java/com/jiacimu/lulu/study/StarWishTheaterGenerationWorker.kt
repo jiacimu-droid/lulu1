@@ -59,6 +59,7 @@ internal class StarWishTheaterGenerationManager private constructor(context: Con
             if (stale) ExistingWorkPolicy.REPLACE else ExistingWorkPolicy.KEEP,
             request,
         )
+        Unit
     }
 
     fun cancel(theater: String) {
