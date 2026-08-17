@@ -14,17 +14,34 @@ internal data class BackgroundReadingBook(
 internal object ReadingBackgroundBridge {
     fun books(context: Context): List<BackgroundReadingBook> {
         val uploaded = loadUploaded(context)
-        val theater = StarWishStores.main.state.value.theaterChapters.mapNotNull { (title, chapters) ->
-            if (chapters.isEmpty()) null else BackgroundReadingBook(
-                id = "theater:$title",
-                title = title,
-                content = chapters.sortedBy { it.chapter }.joinToString("\n\n") { chapter ->
-                    "第${chapter.chapter}章 ${chapter.title}\n${chapter.content}"
-                },
-                source = "小剧场",
-            )
+        val theaterChapters = StarWishStores.main.state.value.theaterChapters
+            .flatMap { (theaterTitle, chapters) ->
+                chapters.map { chapter ->
+                    BackgroundReadingBook(
+                        id = "theater-chapter:${chapter.id}",
+                        title = "《$theaterTitle》·第${chapter.chapter}章 ${chapter.title}",
+                        content = chapter.content,
+                        source = "小剧场章节",
+                    ) to chapter.createdAtMillis
+                }
+            }
+            .sortedByDescending { (_, createdAtMillis) -> createdAtMillis }
+            .map { (book, _) -> book }
+        return interleave(theaterChapters, uploaded)
+            .distinctBy(BackgroundReadingBook::id)
+            .take(80)
+    }
+
+    /** Keep both generated chapters and uploaded books visible in a bounded model context. */
+    private fun interleave(
+        theaterChapters: List<BackgroundReadingBook>,
+        uploaded: List<BackgroundReadingBook>,
+    ): List<BackgroundReadingBook> = buildList {
+        val size = maxOf(theaterChapters.size, uploaded.size)
+        repeat(size) { index ->
+            theaterChapters.getOrNull(index)?.let(::add)
+            uploaded.getOrNull(index)?.let(::add)
         }
-        return (uploaded + theater).distinctBy(BackgroundReadingBook::id).take(40)
     }
 
     private fun loadUploaded(context: Context): List<BackgroundReadingBook> = runCatching {
