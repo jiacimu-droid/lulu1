@@ -550,10 +550,6 @@ class CompanionModelGateway(
                 memoryEvidenceSection,
                 lexiconSection,
             ).filter(String::isNotBlank).joinToString("\n\n")
-            val fixedEstimatedTokens = estimateTokens(systemPrompt.length)
-            check(fixedEstimatedTokens <= CHAT_FIXED_CONTEXT_TOKEN_LIMIT) {
-                "当前角色的固定身份、设定和世界书约需 $fixedEstimatedTokens tokens，超过聊天安全预算 $CHAT_FIXED_CONTEXT_TOKEN_LIMIT；不会静默裁剪，请缩短固定设定或减少启用的世界书。"
-            }
             val userPrompt = if (contextMode == CompanionContextMode.Isolated) {
                 "本次独立任务素材：\n${facts.trim()}"
             } else {
@@ -890,7 +886,6 @@ private fun elapsedMillis(startedAtNanos: Long): Long =
 private class ModelHttpException(val status: Int, message: String) : IllegalStateException(message)
 
 private const val DEFAULT_MODEL_READ_TIMEOUT_MILLIS = 90_000
-private const val CHAT_FIXED_CONTEXT_TOKEN_LIMIT = 18_000
 
 object LuluAiServices {
     private var connectionStoreInternal: ModelConnectionStore? = null
