@@ -1,13 +1,16 @@
+Warning: truncated output (original token count: 55252)
+Total output lines: 8998
+
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-16T16:55:10.261217+00:00",
-  "commit": "556d5bfac7984a08b00bdb443b6410b5eaf19237",
+  "generatedAt": "2026-08-17T03:56:21.554939+00:00",
+  "commit": "a830099b576951f8bf31e79a8362894097544494",
   "branch": "main",
-  "sourceFingerprint": "4331da95b4fbec445ca23a485c2dd324300275433d82c1bb5467c3edeb0bab26",
+  "sourceFingerprint": "3a8dc16c4910664dd5a78795ac69129a143a7cbee2b07437f83fea6b6d188dea",
   "summary": {
     "files": 189,
-    "lines": 58859,
-    "symbols": 800
+    "lines": 58952,
+    "symbols": 801
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -45,7 +48,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 883
+        "line": 887
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -677,7 +680,7 @@
     "LexiconFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 588
+        "line": 601
       }
     ],
     "MigrationActivity": [
@@ -949,19 +952,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 746
+        "line": 750
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 758
+        "line": 762
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 873
+        "line": 877
       }
     ],
     "ScopedModelSelections": [
@@ -1067,103 +1070,103 @@
     "MemoryRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 63
+        "line": 72
       }
     ],
     "observeMemories": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 65
+        "line": 74
       }
     ],
     "observePolicy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 66
+        "line": 75
       }
     ],
     "LexiconSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 70
+        "line": 79
       }
     ],
     "PromiseKind": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 72
+        "line": 81
       }
     ],
     "LexiconEntry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 73
+        "line": 82
       }
     ],
     "LexiconRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 84
+        "line": 93
       }
     ],
     "observeEntries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 86
+        "line": 95
       }
     ],
     "WorldBookEntry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 90
+        "line": 99
       }
     ],
     "WorldBookRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 98
+        "line": 107
       }
     ],
     "observeWorldBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 100
+        "line": 109
       }
     ],
     "TokenUsage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 104
+        "line": 113
       }
     ],
     "DurationSummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 111
+        "line": 120
       }
     ],
     "PerformanceRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 117
+        "line": 126
       }
     ],
     "observeErrors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 119
+        "line": 128
       }
     ],
     "observeTokenUsage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 120
+        "line": 129
       }
     ],
     "observeDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 121
+        "line": 130
       }
     ],
     "CharacterIdentityStore": [
@@ -1795,31 +1798,37 @@
     "pendingMessageCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 387
+        "line": 398
       }
     ],
     "pendingTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 389
+        "line": 400
+      }
+    ],
+    "contextTimelineEvents": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
+        "line": 415
       }
     ],
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 606
+        "line": 663
       }
     ],
     "grams": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 651
+        "line": 712
       }
     ],
     "ids": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 677
+        "line": 738
       }
     ],
     "ApiUsageSource": [
@@ -2691,43 +2700,43 @@
     "UnifiedMemoryRequest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 6
+        "line": 5
       }
     ],
     "retrievalQuery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 13
+        "line": 12
       }
     ],
     "legacy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 21
+        "line": 20
       }
     ],
     "UnifiedMemoryContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 29
+        "line": 28
       }
     ],
     "compactPromptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 46
+        "line": 45
       }
     ],
     "UnifiedMemoryOrchestrator": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 65
+        "line": 64
       }
     ],
     "empty": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 67
+        "line": 66
       }
     ],
     "UserDataUpgradeGuard": [
@@ -3862,839 +3871,7 @@
     ],
     "stopCountUp": [
       {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 153
-      }
-    ],
-    "clearSession": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 159
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 254
-      }
-    ],
-    "PomodoroCompanionSessions": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 237
-      }
-    ],
-    "speakIfEnabled": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 259
-      }
-    ],
-    "requestOpeningLine": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 264
-      }
-    ],
-    "finishActiveSession": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 312
-      }
-    ],
-    "handleNaturalCompletion": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 349
-      }
-    ],
-    "completeSession": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 359
-      }
-    ],
-    "PostgraduateExamApp": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
-        "line": 19
-      }
-    ],
-    "PostgraduateExamStore": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 23
-      }
-    ],
-    "syncDate": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 32
-      }
-    ],
-    "signIn": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 41
-      }
-    ],
-    "applyInactivityPenalty": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 236
-      }
-    ],
-    "addTask": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 256
-      }
-    ],
-    "deleteTask": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 275
-      }
-    ],
-    "toggleTask": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 277
-      }
-    ],
-    "reviewVocabulary": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 316
-      }
-    ],
-    "addPlanItem": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 331
-      }
-    ],
-    "togglePlanItem": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 337
-      }
-    ],
-    "deletePlanItem": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 339
-      }
-    ],
-    "removePlanItemsByTitle": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 340
-      }
-    ],
-    "replaceRollingPlanItems": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 344
-      }
-    ],
-    "addTip": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 348
-      }
-    ],
-    "toggleSchedule": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 400
-      }
-    ],
-    "clearSchedule": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 402
-      }
-    ],
-    "setPomodoroDuration": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 403
-      }
-    ],
-    "togglePomodoroVoice": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 412
-      }
-    ],
-    "togglePomodoro": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 414
-      }
-    ],
-    "syncPomodoroClock": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 425
-      }
-    ],
-    "resetPomodoro": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 438
-      }
-    ],
-    "completePomodoro": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 442
-      }
-    ],
-    "saveGachaRules": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 487
-      }
-    ],
-    "drawSingle": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 517
-      }
-    ],
-    "drawTen": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 519
-      }
-    ],
-    "claimSuperMoment": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 657
-      }
-    ],
-    "dismissSuperMomentCelebration": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 668
-      }
-    ],
-    "exchangeSingleTicketsForTen": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 672
-      }
-    ],
-    "redeemEntertainment": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 688
-      }
-    ],
-    "redeemCustomReward": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 726
-      }
-    ],
-    "claimAchievement": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 743
-      }
-    ],
-    "refreshShop": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 762
-      }
-    ],
-    "buyShopItem": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 777
-      }
-    ],
-    "nextId": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 1040
-      }
-    ],
-    "PostgraduateExamStores": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-        "line": 1095
-      }
-    ],
-    "books": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 15
-      }
-    ],
-    "itemsFor": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt",
-        "line": 14
-      }
-    ],
-    "SelfDirectedStudyPlanSeed": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
-        "line": 7
-      }
-    ],
-    "migrate": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
-        "line": 11
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt",
-        "line": 12
-      }
-    ],
-    "syncRollingPlan": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
-        "line": 24
-      }
-    ],
-    "ensureDailyReminders": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
-        "line": 37
-      }
-    ],
-    "defaultPrompts": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 85
-      }
-    ],
-    "savePrompts": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 100
-      }
-    ],
-    "addImage": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 104
-      }
-    ],
-    "deleteImage": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 108
-      }
-    ],
-    "setGuide": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 113
-      }
-    ],
-    "addChapter": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 117
-      }
-    ],
-    "deleteTheater": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 148
-      }
-    ],
-    "consumeTheaterFragment": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishInventoryBridge.kt",
-        "line": 17
-      }
-    ],
-    "detailedGuide": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 23
-      }
-    ],
-    "add": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 66
-      }
-    ],
-    "text": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 150
-      }
-    ],
-    "value": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 183
-      }
-    ],
-    "StudyTaskSource": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 7
-      }
-    ],
-    "StudyPlanRange": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 9
-      }
-    ],
-    "StudyRarity": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 10
-      }
-    ],
-    "StudyGachaRewardType": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 14
-      }
-    ],
-    "StudyGachaRule": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 23
-      }
-    ],
-    "StudyEntertainmentKind": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 34
-      }
-    ],
-    "StudyShopReward": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 42
-      }
-    ],
-    "StudyTask": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 46
-      }
-    ],
-    "StudyScheduleBlock": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 55
-      }
-    ],
-    "StudyPlanItem": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 64
-      }
-    ],
-    "StudyTip": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 72
-      }
-    ],
-    "StudyEvent": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 74
-      }
-    ],
-    "StudyDrawResult": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 75
-      }
-    ],
-    "StudyAchievement": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 84
-      }
-    ],
-    "StudyShopItem": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 95
-      }
-    ],
-    "StudyInventory": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 105
-      }
-    ],
-    "StudyProfile": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 120
-      }
-    ],
-    "PomodoroState": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 144
-      }
-    ],
-    "StudyState": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 152
-      }
-    ],
-    "studyMinutes": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 177
-      }
-    ],
-    "pomodoros": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 178
-      }
-    ],
-    "vocabulary": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-        "line": 179
-      }
-    ],
-    "updateRow": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
-        "line": 68
-      }
-    ],
-    "addCustom": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
-        "line": 73
-      }
-    ],
-    "draw": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt",
-        "line": 93
-      }
-    ],
-    "privateConversationId": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-        "line": 55
-      }
-    ],
-    "startPomodoro": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-        "line": 68
-      }
-    ],
-    "finishPomodoro": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-        "line": 100
-      }
-    ],
-    "StudyRemovedFeatureMigration": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt",
-        "line": 8
-      }
-    ],
-    "encode": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
-        "line": 9
-      }
-    ],
-    "decode": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
-        "line": 33
-      }
-    ],
-    "LuluAccessibilityService": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 15
-      }
-    ],
-    "clickFirstText": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 58
-      }
-    ],
-    "AccessibilitySnapshot": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 68
-      }
-    ],
-    "LuluScreenAction": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 76
-      }
-    ],
-    "walk": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 82
-      }
-    ],
-    "LuluAlarm": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 21
-      }
-    ],
-    "LuluAlarmSystem": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 30
-      }
-    ],
-    "canScheduleExact": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 42
-      }
-    ],
-    "cancel": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 74
-      }
-    ],
-    "LuluAlarmReceiver": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 248
-      }
-    ],
-    "LuluBootReceiver": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 259
-      }
-    ],
-    "LuluDeviceToolBridge": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 26
-      }
-    ],
-    "LuluLocationProvider": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
-        "line": 17
-      }
-    ],
-    "bestSystemLocation": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
-        "line": 50
-      }
-    ],
-    "label": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
-        "line": 60
-      }
-    ],
-    "LuluNotificationListenerService": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt",
-        "line": 12
-      }
-    ],
-    "LuluNotificationSnapshot": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt",
-        "line": 46
-      }
-    ]
-  },
-  "files": [
-    {
-      "path": "app/build.gradle.kts",
-      "lines": 103,
-      "sha256": "a00a2ba5e714dcfc591263c92caa370baf99bb17c0e73e549ace1924208ce622",
-      "symbols": []
-    },
-    {
-      "path": "app/src/main/AndroidManifest.xml",
-      "lines": 119,
-      "sha256": "af258eaaf1a4a8f68d2a71a7d21ce66012916fce0283e2733d49828a4cd66d1a",
-      "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-      "lines": 456,
-      "sha256": "c499aacd2fda90f1bace69ec64a93ee24098e0d8248b3ca95c5aab7a5f1d5d2f",
-      "symbols": [
-        {
-          "name": "CharacterSettingsScreenV2",
-          "line": 43
-        },
-        {
-          "name": "setPerceptionEnabled",
-          "line": 94
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-      "lines": 238,
-      "sha256": "ad17b400ff4764649b7c73c18ee54c26a31236756f248fc3c6be8a83e037338a",
-      "symbols": [
-        {
-          "name": "CharacterWorldBookScreenV2",
-          "line": 29
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-      "lines": 162,
-      "sha256": "63d45f59ded8d30ec9c6ae517ae13846dd1f5ea152c42eb965f021c72d17978d",
-      "symbols": [
-        {
-          "name": "ChatAutoVoicePlayback",
-          "line": 24
-        },
-        {
-          "name": "initialize",
-          "line": 38
-        },
-        {
-          "name": "enqueue",
-          "line": 75
-        },
-        {
-          "name": "replayCached",
-          "line": 94
-        },
-        {
-          "name": "hasCached",
-          "line": 114
-        },
-        {
-          "name": "remove",
-          "line": 119
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
-      "lines": 232,
-      "sha256": "9abfed8baf630ecab8c02953ec56fc3126ccbd1737b1bfecc7ee35f9cfa73697",
-      "symbols": [
-        {
-          "name": "CharacterHubScreen",
-          "line": 36
-        },
-        {
-          "name": "MomentsPlaceholderScreen",
-          "line": 120
-        },
-        {
-          "name": "MyProfileScreen",
-          "line": 147
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-      "lines": 119,
-      "sha256": "1091c47a5c5c9aca441b756191efb993b0c8d4191f8976b1be39a5bc51675386",
-      "symbols": [
-        {
-          "name": "ChatReplyTaskManager",
-          "line": 24
-        },
-        {
-          "name": "TaskState",
-          "line": 25
-        },
-        {
-          "name": "TaskContext",
-          "line": 31
-        },
-        {
-          "name": "setTypingCharacter",
-          "line": 33
-        },
-        {
-          "name": "reportError",
-          "line": 38
-        },
-        {
-          "name": "state",
-          "line": 51
-        },
-        {
-          "name": "launch",
-          "line": 53
-        },
-        {
-          "name": "stop",
-          "line": 99
-        },
-        {
-          "name": "clearError",
-          "line": 108
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTurnActions.kt",
-      "lines": 45,
-      "sha256": "4739900a1240f64d7e109bcd554d09ca3f9c56f4ac1c1fd4f73f489491bc4890",
-      "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/ChatUnreadVisibilityEffect.kt",
-      "lines": 84,
-      "sha256": "b38cacfed3b557fb91db3136b4cedc1de4722b8d9cfcae7a9bef2e9991e32a0d",
-      "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/ChatV2InterpolationCompat.kt",
-      "lines": 5,
-      "sha256": "69b79b686b2bfee14ba83ac9945c8717dab10858d782f2bdac68f8f51e1b7f49",
-      "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 185,
-      "sha256": "54b304ded7c6bf0667ea0c3f33d2514675ccfd8efe962147015e76f3a5de9d34",
-      "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt",
-      "lines": 9,
-      "sha256": "46fc32384c6d1133bd417e7e928b961bc605b7d1ac600555f20b8a175e959d15",
-      "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt",
-      "lines": 13,
-      "sha256": "5616ca751a2e2b94e4d77f1cc8d0bd795a97a7d67c12dfdde642f8eb3105124b",
+        "path": "app/src/main/java/…5252 tokens truncated…dfdde642f8eb3105124b",
       "symbols": []
     },
     {
@@ -5023,8 +4200,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-      "lines": 763,
-      "sha256": "001267ac69ef2cee8f839740ebbe65b286edad3be9d8fa72bcc5751aa2c3b372",
+      "lines": 776,
+      "sha256": "9a518bcf90985ef3270718bd6a62dd6110eb4cd7b3e936f070ba95fd46faaa36",
       "symbols": [
         {
           "name": "LuluRepositories",
@@ -5040,7 +4217,7 @@
         },
         {
           "name": "LexiconFeatureScreen",
-          "line": 588
+          "line": 601
         }
       ]
     },
@@ -5223,8 +4400,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 891,
-      "sha256": "93f66e10adcb89a82312ce34ea4f6d6b15248f9add1a639d9a5a4d901addadc1",
+      "lines": 895,
+      "sha256": "547d0f21d80d2e96046964616a3b7f727f2ebac2b3e8f0d441aa6e6a1f3841a6",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -5312,19 +4489,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 746
+          "line": 750
         },
         {
           "name": "consumeEvent",
-          "line": 758
+          "line": 762
         },
         {
           "name": "LuluAiServices",
-          "line": 873
+          "line": 877
         },
         {
           "name": "initialize",
-          "line": 883
+          "line": 887
         }
       ]
     },
@@ -5376,8 +4553,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-      "lines": 125,
-      "sha256": "32dd190726d6135dde2f9308fd457be6653a04346e55a0a87b54d6ff6c29508a",
+      "lines": 134,
+      "sha256": "491912b3733cdc46fd35636e77a024b0088511041015dfadd6ec93d52a5a6a24",
       "symbols": [
         {
           "name": "CharacterSummary",
@@ -5425,71 +4602,71 @@
         },
         {
           "name": "MemoryRepository",
-          "line": 63
-        },
-        {
-          "name": "observeMemories",
-          "line": 65
-        },
-        {
-          "name": "observePolicy",
-          "line": 66
-        },
-        {
-          "name": "LexiconSection",
-          "line": 70
-        },
-        {
-          "name": "PromiseKind",
           "line": 72
         },
         {
+          "name": "observeMemories",
+          "line": 74
+        },
+        {
+          "name": "observePolicy",
+          "line": 75
+        },
+        {
+          "name": "LexiconSection",
+          "line": 79
+        },
+        {
+          "name": "PromiseKind",
+          "line": 81
+        },
+        {
           "name": "LexiconEntry",
-          "line": 73
+          "line": 82
         },
         {
           "name": "LexiconRepository",
-          "line": 84
+          "line": 93
         },
         {
           "name": "observeEntries",
-          "line": 86
+          "line": 95
         },
         {
           "name": "WorldBookEntry",
-          "line": 90
+          "line": 99
         },
         {
           "name": "WorldBookRepository",
-          "line": 98
+          "line": 107
         },
         {
           "name": "observeWorldBooks",
-          "line": 100
+          "line": 109
         },
         {
           "name": "TokenUsage",
-          "line": 104
+          "line": 113
         },
         {
           "name": "DurationSummary",
-          "line": 111
-        },
-        {
-          "name": "PerformanceRepository",
-          "line": 117
-        },
-        {
-          "name": "observeErrors",
-          "line": 119
-        },
-        {
-          "name": "observeTokenUsage",
           "line": 120
         },
         {
+          "name": "PerformanceRepository",
+          "line": 126
+        },
+        {
+          "name": "observeErrors",
+          "line": 128
+        },
+        {
+          "name": "observeTokenUsage",
+          "line": 129
+        },
+        {
           "name": "observeDurations",
-          "line": 121
+          "line": 130
         }
       ]
     },
@@ -6043,8 +5220,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 698,
-      "sha256": "9962969f9514b6421942f3ee2edb2221ddad08b4aa201e61bebffa9bee87e1a2",
+      "lines": 759,
+      "sha256": "0a31f5ce2d7efd6bea9073d6b4773f278e00e446643fb025f43603a5b1519504",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -6060,23 +5237,27 @@
         },
         {
           "name": "pendingMessageCount",
-          "line": 387
+          "line": 398
         },
         {
           "name": "pendingTimelineEvents",
-          "line": 389
+          "line": 400
+        },
+        {
+          "name": "contextTimelineEvents",
+          "line": 415
         },
         {
           "name": "MemoryDebugState",
-          "line": 606
+          "line": 663
         },
         {
           "name": "grams",
-          "line": 651
+          "line": 712
         },
         {
           "name": "ids",
-          "line": 677
+          "line": 738
         }
       ]
     },
@@ -6741,8 +5922,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-      "lines": 425,
-      "sha256": "976edab036c96e44cca4468446cfa571e363a5a4554a24ffdd9557daccfa1bd7",
+      "lines": 436,
+      "sha256": "332e04c3983e583b0a0fd9e04db590e6cd6b8a9458bd612a20596a62962d2f3b",
       "symbols": [
         {
           "name": "RelevantMemoryRecall",
@@ -6854,36 +6035,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 174,
-      "sha256": "b94e44e3635afbbce1bb53cf307e0f4e374286c40e70316a0ed1b88676650b47",
+      "lines": 169,
+      "sha256": "8a46c34d33eb865953b7de4004074b6c960e5ca0a1ba84c3c7ee74b034b3d7e8",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
-          "line": 6
+          "line": 5
         },
         {
           "name": "retrievalQuery",
-          "line": 13
+          "line": 12
         },
         {
           "name": "legacy",
-          "line": 21
+          "line": 20
         },
         {
           "name": "UnifiedMemoryContext",
-          "line": 29
+          "line": 28
         },
         {
           "name": "compactPromptSection",
-          "line": 46
+          "line": 45
         },
         {
           "name": "UnifiedMemoryOrchestrator",
-          "line": 65
+          "line": 64
         },
         {
           "name": "empty",
-          "line": 67
+          "line": 66
         }
       ]
     },
