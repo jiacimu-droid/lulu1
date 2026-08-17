@@ -50,7 +50,7 @@ internal object CompanionActionRuntime {
         appendLine("- write_journal，args={\"title\":\"标题\",\"content\":\"正文\"}：真实写入该角色辞海的日记。")
         appendLine("- start_call，args={\"text\":\"来电缘由\"}：仅在角色已允许主动来电时发起真实来电邀请。")
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：向角色所在的另一个真实群聊发言。")
-        appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：真正读取已上传正文并留下角色自己的感想。")
+        appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：真正读取阅读 App 里的上传正文或小剧场章节，并留下角色自己的感想。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             appendLine("- send_world_invite，args={\"location\":\"准确地点名\",\"text\":\"邀请语\"}：邀请用户到指定数字世界地点见面；私聊中会出现标明地点的可点击邀请卡片。")
             appendLine("  可选邀请地点：${DigitalWorldStore.invitationLocationOptions(characterId).joinToString("、")}；发起邀请的你必须主动选定其中一个。")
@@ -71,10 +71,10 @@ internal object CompanionActionRuntime {
             appendLine("角色所在群聊：")
             groups.forEach { conversation -> appendLine("- groupId=${conversation.id}；群名=${conversation.groupChat?.name}") }
         }
-        val books = ReadingBackgroundBridge.books(context).take(12)
+        val books = ReadingBackgroundBridge.books(context).take(24)
         if (books.isNotEmpty()) {
             appendLine("可真实阅读的内容：")
-            books.forEach { book -> appendLine("- readingBookId=${book.id}；《${book.title}》") }
+            books.forEach { book -> appendLine("- readingBookId=${book.id}；${book.title}；来源=${book.source}") }
         }
     }.trim()
 
@@ -194,6 +194,12 @@ internal object CompanionActionRuntime {
             "digital_world_action" -> {
                 val worldAction = args.optString("worldAction").trim()
                 val worldResult = DigitalWorldStore.performAction(characterId, worldAction, args, now)
+                if (worldResult.success) {
+                    MigratedDomainStores.chat.appendPrivateActivityNotice(
+                        characterId,
+                        "【数字世界回执】${worldResult.summary}",
+                    )
+                }
                 CompanionActionResult(worldResult.success, worldResult.summary)
             }
             "grant_sleep_reward" -> {
@@ -264,7 +270,7 @@ internal object CompanionActionRuntime {
         )
         MigratedDomainStores.chat.appendPrivateActivityNotice(
             character.characterId,
-            "刚刚读了《${book.title}》，留下了一点感想：${reflection.replace(Regex("\\s+"), " ").take(180)}",
+            "【阅读回执】刚刚在阅读 App 读了${book.title}，留下了一点感想：${reflection.replace(Regex("\\s+"), " ").take(180)}",
         )
         return CompanionActionResult(true, "已真正阅读《${book.title}》并留下感想")
     }
