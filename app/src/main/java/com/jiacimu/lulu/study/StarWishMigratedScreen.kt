@@ -52,17 +52,6 @@ internal fun StarWishMigratedScreen(onBack: () -> Unit, initialTab: StarWishTab 
                         }
                     }
                     Spacer(Modifier.weight(1f))
-                    if (tab == StarWishTab.Theater) {
-                        Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
-                            Text(
-                                "小剧场券 ${studyState.inventory.theaterFragments}",
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.SemiBold,
-                            )
-                        }
-                    }
                 }
             }
 

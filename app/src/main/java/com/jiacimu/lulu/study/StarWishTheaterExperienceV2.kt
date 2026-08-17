@@ -54,7 +54,6 @@ internal fun StarWishTheaterContentV2(
         TheaterV2Mode.BOOKSHELF -> TheaterBookshelfV2(
             theaters = allTheaters,
             state = state,
-            fragmentCount = studyState.inventory.theaterFragments,
             onOpen = {
                 openedTitle = it
                 mode = TheaterV2Mode.READER
@@ -119,7 +118,6 @@ internal fun StarWishTheaterContentV2(
 private fun TheaterBookshelfV2(
     theaters: List<StarWishTheaterSeed>,
     state: StarWishState,
-    fragmentCount: Int,
     onOpen: (String) -> Unit,
     onGenerate: () -> Unit,
     onDelete: (String) -> Unit,
@@ -135,13 +133,6 @@ private fun TheaterBookshelfV2(
                 Spacer(Modifier.width(8.dp))
                 Text("剧情生成器 · 给我三套故事")
             }
-        }
-        item {
-            Text(
-                "小剧场券 $fragmentCount",
-                color = StudyDesign.muted,
-                style = MaterialTheme.typography.labelMedium,
-            )
         }
         items(theaters, key = { it.title }) { seed ->
             val chapterCount = state.theaterChapters[seed.title].orEmpty().size
@@ -231,14 +222,12 @@ private fun TheaterReaderV2(
                 IconButton(onClick = { chapterMenu = true }, enabled = chapters.isNotEmpty()) {
                     Icon(Icons.Outlined.FormatListNumbered, "章节")
                 }
+                IconButton(onClick = onPlanner) {
+                    Icon(Icons.Outlined.EditNote, "剧情规划")
+                }
                 Box {
                     IconButton(onClick = { overflowMenu = true }) { Icon(Icons.Outlined.MoreVert, "更多") }
                     DropdownMenu(expanded = overflowMenu, onDismissRequest = { overflowMenu = false }) {
-                        DropdownMenuItem(
-                            text = { Text("剧情规划") },
-                            leadingIcon = { Icon(Icons.Outlined.EditNote, null) },
-                            onClick = { overflowMenu = false; onPlanner() },
-                        )
                         DropdownMenuItem(
                             text = { Text("重新生成剧情规划") },
                             leadingIcon = { Icon(Icons.Outlined.AutoAwesome, null) },

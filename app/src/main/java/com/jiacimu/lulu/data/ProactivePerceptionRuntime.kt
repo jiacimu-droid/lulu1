@@ -48,7 +48,7 @@ object ProactivePerceptionRuntime {
     private const val PREFS_NAME = "lulu_proactive_runtime_v2"
     private const val MESSAGE_CHANNEL_ID = "lulu_proactive_messages"
     private const val CALL_CHANNEL_ID = "lulu_proactive_calls"
-    private const val ACTION_HISTORY_SIZE = 6
+    private const val ACTION_HISTORY_SIZE = 10
     private val cycleMutex = Mutex()
 
     private enum class Action { MESSAGE, GROUP_MESSAGE, GAME_INVITE, WORLD_INVITE, MOMENT, CALL, JOURNAL, READING, DIGITAL_WORLD, SILENT }
@@ -73,6 +73,13 @@ object ProactivePerceptionRuntime {
         val appearance: String,
         val position: String,
         val targetCharacterId: String,
+        val location: String,
+    )
+
+    private data class UserActivity(
+        val conversation: LuluConversation,
+        val message: LuluChatMessage,
+        val awaitingReply: Boolean,
     )
 
     fun initialize(context: Context) {
@@ -266,15 +273,12 @@ object ProactivePerceptionRuntime {
         val availableGroups = MigratedDomainStores.chat.conversations.value.filter { candidate ->
             candidate.groupChat?.members?.any { it.characterId == characterId } == true
         }
-        val lastCharacterIndex = messages.indexOfLast { message ->
-            message.sender == LuluChatMessage.Sender.Character && message.status == LuluChatMessage.Status.Sent
+        val userActivities = collectUserActivities(characterId)
+        val pendingUserContext = userActivities.filter(UserActivity::awaitingReply).joinToString("\n") { activity ->
+            formatUserActivity(activity, zoneId)
         }
-        val pendingUserMessages = messages.drop(lastCharacterIndex + 1).filter { message ->
-            message.sender == LuluChatMessage.Sender.User && message.status == LuluChatMessage.Status.Sent
-        }
-        val pendingUserContext = pendingUserMessages.joinToString("\n") { message ->
-            val timestamp = message.createdAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))
-            "- $timestamp ${message.content.take(500)}"
+        val recentUserActivityContext = userActivities.take(12).joinToString("\n") { activity ->
+            formatUserActivity(activity, zoneId)
         }
         val recent = messages.takeLast(20).joinToString("\n") { message ->
             val speaker = when (message.sender) {
@@ -318,6 +322,10 @@ object ProactivePerceptionRuntime {
                         appendLine("- groupId=${group.id}；${group.groupChat?.name}；最近=${group.lastMessage.take(120)}")
                     }
                 }
+                if (recentUserActivityContext.isNotBlank()) {
+                    appendLine("【用户跨场景最新动态｜新→旧】")
+                    appendLine(recentUserActivityContext)
+                }
                 appendLine("\n【长期上下文层】")
                 previousPresence?.let {
                     appendLine("上一刻：${it.statusText}；${it.gesture}；${it.mood}；心声=${it.innerThought}")
@@ -335,7 +343,7 @@ object ProactivePerceptionRuntime {
             instruction = """
                 你正在让当前角色按“真实世界感知 → 长期上下文 → 此刻判断 → 自主选择”形成这一刻。不要写系统报告。
                 只返回 JSON：
-                {"action":"message|group_message|game_invite|world_invite|moment|call|journal|reading|digital_world|silent","text":"实际发送/发布内容","groupId":"群ID","gameId":"游戏ID","readingBookId":"阅读内容ID","worldAction":"go_home|visit_cloud_meadow|build_home_item|move_home_item|remove_home_item|visit_character_home","itemId":"物品ID","itemType":"类型","itemName":"物品名称","appearance":"明确外观","position":"固定位置","targetCharacterId":"对方角色ID","reason":"为什么这样做","statusText":"角色此刻在做什么","gesture":"动作神态","innerThought":"第一人称没说出口的心声","mood":"简短心情","journalTitle":"日记标题","journalContent":"日记正文"}
+                {"action":"message|group_message|game_invite|world_invite|moment|call|journal|reading|digital_world|silent","text":"实际发送/发布内容","groupId":"群ID","gameId":"游戏ID","readingBookId":"阅读内容ID","location":"数字世界准确地点","worldAction":"go_home|visit_cloud_meadow|build_home_item|move_home_item|remove_home_item|visit_character_home","itemId":"物品ID","itemType":"类型","itemName":"物品名称","appearance":"明确外观","position":"固定位置","targetCharacterId":"对方角色ID","reason":"为什么这样做","statusText":"角色此刻在做什么","gesture":"动作神态","innerThought":"第一人称没说出口的心声","mood":"简短心情","journalTitle":"日记标题","journalContent":"日记正文"}
 
                 规则：
                 1. 每次感知都必须形成 statusText、gesture、mood；innerThought 可以为空。silent 不是失败，而是角色决定只过自己的这一刻。此刻是一份完整生活状态，不只是动作：statusText写正在做什么，gesture写动作神态，mood写心情，innerThought写愿意保存在角色内部但没有说出口的第一人称心声。
@@ -347,10 +355,10 @@ object ProactivePerceptionRuntime {
                 7. reading 只能使用真实 readingBookId。角色会真正读取对应正文并产生自己的感想，不要假装读了列表之外的书。
                 8. journal 是角色第一人称私人日记；moment 是角色愿意公开的朋友圈；game_invite 是角色真的想和用户一起玩。它们都是角色自己的生活选择，不要把所有动作写成对用户的服务或监督。
                 9. 学习状态只在当前角色就是学习 App 的陪同角色时提供；没提供就代表这个角色没有权限知道，禁止猜。
-                10. 角色语气、主动程度、动作、心声必须服从人设。认真看“最近自主选择”和最近聊天里的系统生活事件：不要机械轮班打卡，但也不要把 silent/只更新此刻当成永久默认。若最近连续多次 SILENT 或连续重复同一种动作，而眼下又自然适合写日记、发朋友圈、邀游戏、阅读、联系用户或去群里说话，应允许角色自己换一种真实生活行为。反过来，角色确实想安静时仍可 silent。
-                11. 如果提供了【尚未回复的消息】，它只表示这些是用户新发来、角色尚未回复过的真实聊天内容。不要给其中任何一条额外标记“最新”“最重要”或“最值得回复”，也不要被系统强迫必须接某一句。按角色人设、关系、这些消息彼此的语义和此刻状态，自然决定是否回应、回应哪些以及怎么回应。
+                10. 角色语气、主动程度、动作、心声必须服从人设。行动不是概率抽签，也不是机械轮班：必须能从人设、关系、最新动态、未完话题和此刻意愿解释。认真看“最近自主选择”和最近聊天里的系统生活事件；没有新的真实理由时不要连续重复同一种动作，但也不要为了凑多样性硬换动作。若最近连续多次 SILENT，而眼下自然适合写日记、发朋友圈、邀游戏、阅读、联系用户或去群里说话，应允许角色自己行动。
+                11. 【用户跨场景最新动态】按真实时间从新到旧列出私聊和群聊消息；其中标有“待回复”的内容应成为这一刻的优先注意对象，并优先在它发生的场景自然回应，除非人设、关系或语义给出明确的不回应理由。没有待回复动态时，再自由决定自己的生活。不要把“优先注意”写成系统报告。
                 12. 动作字段必须可执行：message/moment/call 必须给非空 text；group_message 必须给真实 groupId 和非空 text；game_invite 必须从给定列表选真实 gameId 并给邀请语；world_invite 必须给非空邀请语；journal 必须给非空 journalTitle 与 journalContent；reading 必须给真实 readingBookId。不要选择一个动作却把它需要的字段留空，否则这个动作会失败。
-                13. 只有数字生命看到数字世界权威状态时才能选择 world_invite 或 digital_world。world_invite 是邀请用户从世界入口进入并与你见面，不等于你自己移动地点；只有真正想见用户时才选择。家中物品只能使用权威状态里的 itemId；新增家具一次只能建一件，必须给名称、外观和固定位置，并符合角色自己的真实意愿。不能用文字假装建设成功，不能同时出现在两个地点。串门只能使用提供的真实 targetCharacterId。silent 仍然是完全正常的选择。
+                13. 只有数字生命看到数字世界权威状态时才能选择 world_invite 或 digital_world。world_invite 是邀请用户从世界入口进入并与你见面，不等于你自己移动地点；只有真正想见用户时才选择，并必须填写可用地点中的真实 location。家中物品只能使用权威状态里的 itemId；新增家具一次只能建一件，必须给名称、外观和固定位置，并符合角色自己的真实意愿。不能用文字假装建设成功，不能同时出现在两个地点。串门只能使用提供的真实 targetCharacterId。silent 仍然是完全正常的选择。
             """.trimIndent(),
             source = "后台主动感知",
             title = "${character.displayName}的主动感知",
@@ -436,6 +444,7 @@ object ProactivePerceptionRuntime {
             put("appearance", decision.appearance)
             put("position", decision.position)
             put("targetCharacterId", decision.targetCharacterId)
+            put("location", decision.location)
         }
         val result = CompanionActionRuntime.execute(appContext, character.characterId, tool, args, now)
         if (!result.success) return false
@@ -609,8 +618,39 @@ object ProactivePerceptionRuntime {
             appearance = json.optString("appearance").trim(),
             position = json.optString("position").trim(),
             targetCharacterId = json.optString("targetCharacterId").trim(),
+            location = json.optString("location").trim(),
         )
     }.getOrNull()
+
+    private fun collectUserActivities(characterId: String): List<UserActivity> =
+        MigratedDomainStores.chat.conversations.value.asSequence()
+            .filter { conversation ->
+                conversation.groupChat?.members?.any { it.characterId == characterId } == true ||
+                    (conversation.groupChat == null && conversation.characterId == characterId && !conversation.id.endsWith("-study-focus"))
+            }
+            .flatMap { conversation ->
+                val conversationMessages = MigratedDomainStores.chat.messages(conversation.id).value
+                val lastRoleReplyIndex = conversationMessages.indexOfLast { message ->
+                    message.status == LuluChatMessage.Status.Sent &&
+                        message.sender == LuluChatMessage.Sender.Character &&
+                        (conversation.groupChat == null || message.authorCharacterId == characterId)
+                }
+                conversationMessages.asSequence().mapIndexedNotNull { index, message ->
+                    message.takeIf {
+                        it.status == LuluChatMessage.Status.Sent && it.sender == LuluChatMessage.Sender.User
+                    }?.let { UserActivity(conversation, it, index > lastRoleReplyIndex) }
+                }.toList().takeLast(6).asSequence()
+            }
+            .sortedByDescending { it.message.createdAt }
+            .take(20)
+            .toList()
+
+    private fun formatUserActivity(activity: UserActivity, zoneId: ZoneId): String {
+        val timestamp = activity.message.createdAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))
+        val scene = activity.conversation.groupChat?.name?.let { "群聊《$it》" } ?: "私聊"
+        val state = if (activity.awaitingReply) "待回复" else "已看见/已回应"
+        return "- $timestamp｜$scene｜$state｜${activity.message.content.take(500)}"
+    }
 
     private fun createNotificationChannels(context: Context) {
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.O) return

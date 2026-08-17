@@ -218,7 +218,7 @@ internal object GroupEnsembleReplyEngine {
                 14. 最后一轮不需要总结，不需要“把话题交给主人”，自然停住就可以。
                 15. ${if (isCall) "这是实时群聊电话，quoteMessageId、favoriteMessageId 留空，recallBubbleNumber=0，pokeUser=false；语言必须更口语化、适合直接念出。" else "这是文字群聊，可以自然使用连续短气泡、引用、角色主观收藏，以及非常偶发的撤回或戳一戳。"}
                 16. statusText、gesture、innerThought、mood 分别属于当前角色本人，不能写成系统分析或推理过程。
-                17. 每个角色还可以在自己这一回合自主执行一个真实露露机内动作。尤其用户在群里问“谁想玩”或某个角色想私下找用户时，可以填写 tool=send_game_invite 或 send_private_message；该动作会真实进入这个角色与用户的私聊，不能把私聊内容又写进群气泡。也可按角色意愿发布朋友圈、写日记、读真实正文、跨到另一个所在群聊或在允许时发起来电。没有自然动机时 tool 留空，严禁为了展示功能每轮都调用。
+                17. 每个角色还可以在自己这一回合自主执行一个真实露露机内动作。尤其用户在群里问“谁想玩”或某个角色想私下找用户时，可以填写 tool=send_game_invite 或 send_private_message；该动作会真实进入这个角色与用户的私聊，不能把私聊内容又写进群气泡。也可按角色意愿发布朋友圈、写日记、读真实正文、跨到另一个所在群聊、在允许时发起来电、邀请进入数字世界或创建家具。没有自然动机时 tool 留空，严禁为了展示功能每轮都调用。用户明确要求某角色立即执行可用动作时，该角色可以按人设拒绝；一旦答应就必须填写对应 tool，不能只在气泡里口头声称成功。
                 18. 群聊不是独立记忆空间。每个角色只有自己的那条原始时间线：私聊、群聊、电话、游戏和共同事件都按真实时间写在其中。群聊局部记录只负责“此刻怎么接话”，不能覆盖或替代个人时间线。
                 19. 如果这个群隔了很久才重新说话，而某个角色在间隔期间和用户发生过新的私聊/电话/游戏经历，那么这些更晚发生的个人经历才是这个角色更近的状态；不能因为重新打开群聊就把很久以前的群话题当作刚刚发生。
                 20. 私聊知识严格按角色隔离。A 与用户私聊里发生的事情可以让 A 在群里记得，但除非后来真实在群里说出、转发或通过其他共同事件让 B 知道，否则 B 不能凭空知道 A 的私聊内容。
@@ -364,7 +364,8 @@ internal object GroupEnsembleReplyEngine {
                             tool = item.optString("tool").trim().takeIf { requested ->
                                 requested in setOf(
                                     "send_private_message", "send_group_message", "send_game_invite",
-                                    "publish_moment", "write_journal", "read_book", "start_call",
+                                    "send_world_invite", "publish_moment", "write_journal", "read_book",
+                                    "start_call", "digital_world_action",
                                 )
                             }.orEmpty(),
                             args = item.optJSONObject("args") ?: JSONObject(),
