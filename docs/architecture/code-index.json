@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-17T15:02:32.015701+00:00",
-  "commit": "4236995e57a2d45275bdd676a81a00d340c3870b",
-  "branch": "main",
-  "sourceFingerprint": "2e3d1e658036aee9c19005cf6ba4f58f79b36f1c1f66d97daa5cb6923366868f",
+  "generatedAt": "2026-08-17T15:11:15.592999+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "27eaf779564db25bf8b2e7779891c09713a952ea3aa1d16270bd1eaa238d1bea",
   "summary": {
     "files": 190,
-    "lines": 60270,
+    "lines": 60308,
     "symbols": 825
   },
   "symbolIndex": {
@@ -145,7 +145,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 82
+        "line": 87
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
@@ -2591,13 +2591,13 @@
     "markConcernPromisePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 87
+        "line": 92
       }
     ],
     "nextDueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 94
+        "line": 99
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -5801,8 +5801,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 272,
-      "sha256": "8a7e4de5dad78440f43db288c0dd4fd51695e1dce90b0a7f5adfb69cfd85eb33",
+      "lines": 278,
+      "sha256": "f5bc67a7a56e8b8e0f8e76cfd0a9a3d5e91bcb71de2813c9e6af79452ff08ef6",
       "symbols": [
         {
           "name": "asJson",
@@ -6884,8 +6884,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 727,
-      "sha256": "b14d177bcea1b76383fe3d4795b62299a7353338b03604b861a302207a52328d",
+      "lines": 742,
+      "sha256": "2def11e676ace9233aadb3902e99bb89b585aa72be9115f3a4edda45a8f7cce7",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -6893,15 +6893,15 @@
         },
         {
           "name": "initialize",
-          "line": 82
-        },
-        {
-          "name": "markConcernPromisePending",
           "line": 87
         },
         {
+          "name": "markConcernPromisePending",
+          "line": 92
+        },
+        {
           "name": "nextDueAt",
-          "line": 94
+          "line": 99
         }
       ]
     },
@@ -8595,8 +8595,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-      "lines": 46,
-      "sha256": "72363d0573398a7c77a70f33d4caea51e6c351d8dbba927b02a25e2ea0a8deb0",
+      "lines": 63,
+      "sha256": "b44a400dc88c98e4c5f708b34bd5dd67fc8c52b8a0501fefe26d1002e8e136d1",
       "symbols": [
         {
           "name": "books",
