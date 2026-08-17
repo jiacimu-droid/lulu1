@@ -19,7 +19,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.util.UUID
-import kotlin.math.pow
 
 private data class EditableGachaRule(
     val id: String,
@@ -66,7 +65,6 @@ internal fun StudyGachaProbabilityScreen(
     val nonBlueTotal = parsedProbabilities.filterNotNull().sum()
     val blueProbability = (100.0 - nonBlueTotal).coerceAtLeast(0.0)
     val totalTooHigh = nonBlueTotal > 100.000001
-    val tenDrawAnyNonBlue = if (totalTooHigh) 100.0 else 100.0 * (1.0 - (1.0 - nonBlueTotal / 100.0).pow(10))
 
     fun updateRow(id: String, transform: (EditableGachaRule) -> EditableGachaRule) {
         rows = rows.map { if (it.id == id) transform(it) else it }
@@ -158,9 +156,8 @@ internal fun StudyGachaProbabilityScreen(
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         ProbabilityMetric("蓝色", blueProbability, Modifier.weight(1f))
                         ProbabilityMetric("紫金彩", nonBlueTotal, Modifier.weight(1f))
-                        ProbabilityMetric("十连至少1个", tenDrawAnyNonBlue, Modifier.weight(1f))
                     }
-                    Text("每抽独立按已保存概率计算；十连没有额外保底或隐藏加成。", color = StudyDesign.muted, fontSize = 12.sp)
+                    Text("每抽独立按已保存概率计算；十连只是连续抽10次，没有保底或隐藏加成。", color = StudyDesign.muted, fontSize = 12.sp)
                     if (totalTooHigh) {
                         Text("总概率超过100%", color = StudyDesign.error, fontWeight = FontWeight.SemiBold)
                     }

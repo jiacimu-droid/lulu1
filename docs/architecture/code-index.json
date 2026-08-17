@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-17T05:11:00.519160+00:00",
-  "commit": "0abd9b5112f1ea1ec8250d18ba204a09b32e8302",
-  "branch": "main",
-  "sourceFingerprint": "15529b8ecc5a60107d7e1c0632ae73b1cf32ceda33b007ffe22db44e3d12c705",
+  "generatedAt": "2026-08-17T05:12:12.604898+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "677e3c20987e057688519a10f6bd1712a029d814104e25772371d719715db5bc",
   "summary": {
     "files": 189,
-    "lines": 58967,
+    "lines": 58964,
     "symbols": 801
   },
   "symbolIndex": {
@@ -425,7 +425,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
-        "line": 87
+        "line": 85
       }
     ],
     "LuluImageSettingsScreen": [
@@ -4381,13 +4381,13 @@
     "updateRow": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
-        "line": 70
+        "line": 68
       }
     ],
     "addCustom": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
-        "line": 75
+        "line": 73
       }
     ],
     "draw": [
@@ -8680,27 +8680,27 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
-      "lines": 301,
-      "sha256": "6db5aae24a76c2ae4041901dd810dd4663f0dbaeb24084497007acfae03f4a0d",
+      "lines": 298,
+      "sha256": "4c23e3861e57f3926f8932d6efbcf751579f8fc92c76011b01824a1500a97318",
       "symbols": [
         {
           "name": "updateRow",
-          "line": 70
+          "line": 68
         },
         {
           "name": "addCustom",
-          "line": 75
+          "line": 73
         },
         {
           "name": "save",
-          "line": 87
+          "line": 85
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt",
       "lines": 987,
-      "sha256": "cf76f85a4d351c037f95ab0ec1df7de90b6019aeed1101cd3e16b6895624f895",
+      "sha256": "0507e705e1461e497debe49f9c32821b73fbaafdc53cad83a5d71289d730572c",
       "symbols": [
         {
           "name": "draw",
