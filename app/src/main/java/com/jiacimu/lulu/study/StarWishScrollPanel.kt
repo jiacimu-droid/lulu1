@@ -58,7 +58,7 @@ internal fun StarWishScrollContent(
         item {
             StudyCard {
                 Text("星愿画卷", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("集齐同名蓝色碎片后解锁主题；图片使用当前模型存档的图片接口生成。", color = StudyDesign.muted)
+                Text("集齐同名蓝色碎片后解锁主题；生成只使用设置中的独立生图接口与生图模型。", color = StudyDesign.muted)
                 if (unlocked.isEmpty()) {
                     Text("还没有解锁画卷，先在考研抽卡中收集 10 枚同名碎片。", color = StudyDesign.error)
                 } else {

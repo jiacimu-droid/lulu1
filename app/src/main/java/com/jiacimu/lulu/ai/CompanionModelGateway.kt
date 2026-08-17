@@ -44,10 +44,12 @@ enum class ModelUsage {
 /**
  * Full = normal Lulu world: identity + role settings + memories/worldbook/state.
  * PersonaAndScenario = cross-world scenario: role settings only; original-world identity is excluded.
+ * Isolated = standalone content generation: no character, chat, memory, timeline, profile, or worldbook context.
  */
 enum class CompanionContextMode {
     Full,
     PersonaAndScenario,
+    Isolated,
 }
 
 data class ModelLibraryState(
@@ -453,6 +455,7 @@ class CompanionModelGateway(
             requestUrl = "${connection.baseUrl}/chat/completions"
             val character = MigratedDomainStores.characters.get(characterId)
             val fullContext = contextMode == CompanionContextMode.Full
+            val personaContext = contextMode == CompanionContextMode.PersonaAndScenario
             val identity = CharacterIdentityStore.get(characterId).takeIf { fullContext }.orEmpty()
             val presence = CompanionPresenceStore.current(characterId).takeIf { fullContext }
             val recallQuery = "$facts\n$instruction"
@@ -478,19 +481,29 @@ class CompanionModelGateway(
             }
 
             val baseRules = buildString {
-                appendLine("你正在以‘${character.displayName.ifBlank { "角色" }}’参与露露机中的当前活动。")
-                if (fullContext) {
-                    appendLine("这是角色原本所属的露露机世界：角色身份与角色设定都必须生效，身份、关系边界、世界观和语言习惯拥有最高优先级。")
-                } else {
-                    appendLine("这是独立跨世界场景：只继承角色设定中的性格、语言习惯、价值观和关系边界；不得带入角色原世界的身份、职业、时代、阵营或背景。")
+                when (contextMode) {
+                    CompanionContextMode.Full -> {
+                        appendLine("你正在以‘${character.displayName.ifBlank { "角色" }}’参与露露机中的当前活动。")
+                        appendLine("这是角色原本所属的露露机世界：角色身份与角色设定都必须生效，身份、关系边界、世界观和语言习惯拥有最高优先级。")
+                    }
+                    CompanionContextMode.PersonaAndScenario -> {
+                        appendLine("你正在以‘${character.displayName.ifBlank { "角色" }}’参与露露机中的当前活动。")
+                        appendLine("这是独立跨世界场景：只继承角色设定中的性格、语言习惯、价值观和关系边界；不得带入角色原世界的身份、职业、时代、阵营或背景。")
+                    }
+                    CompanionContextMode.Isolated -> {
+                        appendLine("这是完全独立的内容生成任务。")
+                        appendLine("不得读取、继承或猜测任何角色身份、人设、聊天记录、记忆、共同时间线、用户资料或世界书；只允许使用本次任务明确提供的素材。")
+                    }
                 }
-                appendLine("角色与用户是什么关系、如何称呼用户，只能来自角色设定、当前场景或明确提供的事实；不得默认用户是‘主人’，也不得默认恋人、朋友或上下级关系。")
-                appendLine("程序给出的题目、抽卡、计时、骰子、棋局、得分和历史记录都是不可修改的事实。")
-                appendLine("不得默认温柔、亲密、活泼、顺从、吐槽或夸奖；只输出该角色按其设定真正会说的话。")
+                if (contextMode != CompanionContextMode.Isolated) {
+                    appendLine("角色与用户是什么关系、如何称呼用户，只能来自角色设定、当前场景或明确提供的事实；不得默认用户是‘主人’，也不得默认恋人、朋友或上下级关系。")
+                    appendLine("程序给出的题目、抽卡、计时、骰子、棋局、得分和历史记录都是不可修改的事实。")
+                    appendLine("不得默认温柔、亲密、活泼、顺从、吐槽或夸奖；只输出该角色按其设定真正会说的话。")
+                }
                 appendLine("本次任务：$instruction")
             }.trim()
             val identitySection = identity.takeIf(String::isNotBlank)?.let { "角色身份：\n$it" }.orEmpty()
-            val personaSection = character.persona.takeIf(String::isNotBlank)?.let { "角色设定：\n$it" }.orEmpty()
+            val personaSection = character.persona.takeIf { fullContext || personaContext }?.takeIf(String::isNotBlank)?.let { "角色设定：\n$it" }.orEmpty()
             val globalWorldBookSection = if (globalWorldBooks.isEmpty()) "" else buildString {
                 appendLine("全局世界书：")
                 globalWorldBooks.forEach { entry -> appendLine("- ${entry.title}：${entry.content}") }
@@ -541,7 +554,11 @@ class CompanionModelGateway(
             check(fixedEstimatedTokens <= CHAT_FIXED_CONTEXT_TOKEN_LIMIT) {
                 "当前角色的固定身份、设定和世界书约需 $fixedEstimatedTokens tokens，超过聊天安全预算 $CHAT_FIXED_CONTEXT_TOKEN_LIMIT；不会静默裁剪，请缩短固定设定或减少启用的世界书。"
             }
-            val userPrompt = "真实事实：\n${facts.trim()}"
+            val userPrompt = if (contextMode == CompanionContextMode.Isolated) {
+                "本次独立任务素材：\n${facts.trim()}"
+            } else {
+                "真实事实：\n${facts.trim()}"
+            }
             val breakdown = listOf(
                 tokenBreakdown("系统/角色身份与设定", baseRules.length + identitySection.length + personaSection.length),
                 tokenBreakdown(

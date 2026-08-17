@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import kotlinx.coroutines.launch
 
@@ -289,6 +290,7 @@ private fun TheaterReader(
                                 title = "${seed.title} · 第${chapterNumber}章",
                                 temperature = 0.9,
                                 maxTokens = 4200,
+                                contextMode = CompanionContextMode.Isolated,
                             ).onSuccess { reply ->
                                 store.addChapter(
                                     StarWishTheaterChapter(
@@ -298,7 +300,6 @@ private fun TheaterReader(
                                         content = reply.text,
                                         userInfluence = influence.trim(),
                                     ),
-                                    studyState.profile.selectedCharacterId,
                                 )
                                 selectedChapterIndex = chapterNumber - 1
                                 influence = ""

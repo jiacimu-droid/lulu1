@@ -25,7 +25,6 @@ import com.jiacimu.lulu.study.PomodoroTimerMode
 import com.jiacimu.lulu.study.PostgraduateExamApp
 import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.StarWishMigratedScreen
-import com.jiacimu.lulu.study.StarWishTab
 import kotlinx.coroutines.delay
 
 @Composable
@@ -69,7 +68,6 @@ fun LuluMigrationRootAppV2(
     }
     var lexiconInitialDiaryTitle by rememberSaveable(initialDiaryTitle) { mutableStateOf(initialDiaryTitle) }
     var readingInitialTitle by rememberSaveable(initialReadingTitle) { mutableStateOf(initialReadingTitle) }
-    var starWishInitialTab by rememberSaveable { mutableStateOf(StarWishTab.Scroll.name) }
     var initialGameId by rememberSaveable { mutableStateOf<String?>(null) }
     var meetingInviteCharacterId by rememberSaveable(initialRouteName, initialTargetCharacterId) {
         mutableStateOf(
@@ -237,7 +235,6 @@ fun LuluMigrationRootAppV2(
                                 MigrationRoute.Home -> MigrationHomeV2(
                                     onOpen = { target ->
                                         if (target == MigrationRoute.WorldBook) selectedCharacterId = "lulu"
-                                        if (target == MigrationRoute.Wishes) starWishInitialTab = StarWishTab.Scroll.name
                                         if (target == MigrationRoute.Lexicon) {
                                             selectedCharacterId = "lulu"
                                             lexiconInitialDiaryTitle = null
@@ -287,10 +284,7 @@ fun LuluMigrationRootAppV2(
                                     onBack = ::popRoute,
                                     initialBookTitle = readingInitialTitle,
                                 )
-                                MigrationRoute.Wishes -> StarWishMigratedScreen(
-                                    onBack = ::popRoute,
-                                    initialTab = runCatching { StarWishTab.valueOf(starWishInitialTab) }.getOrDefault(StarWishTab.Scroll),
-                                )
+                                MigrationRoute.Wishes -> StarWishMigratedScreen(onBack = ::popRoute)
                                 MigrationRoute.Study -> PostgraduateExamApp(
                                     onBack = ::popRoute,
                                     onOpenConversation = ::openConversation,

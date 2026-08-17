@@ -3,9 +3,6 @@ package com.jiacimu.lulu.study
 import android.content.Context
 import android.util.Base64
 import com.jiacimu.lulu.LuluRepositories
-import com.jiacimu.lulu.ai.LuluAiServices
-import com.jiacimu.lulu.data.MigratedDomainStores
-import com.jiacimu.lulu.data.SharedExperienceTimeline
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,13 +13,7 @@ import org.json.JSONObject
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
-import java.time.Instant
 import java.util.UUID
-
-internal enum class StarWishTab(val label: String) {
-    Scroll("画卷"),
-    Theater("小剧场"),
-}
 
 internal data class StarWishImageLaunch(
     val id: String = UUID.randomUUID().toString(),
@@ -62,7 +53,6 @@ internal data class StarWishTheaterSeed(
 
 internal object StarWishRules {
     const val MAX_CHAPTERS_PER_THEATER = 20
-    const val THEATER_FRAGMENTS_PER_CHAPTER = 1
 
     val theaters = listOf(
         StarWishTheaterSeed("少卿不早朝，摄政王露沉提点心来审我", "宫廷权谋、现代刑侦穿越、大理寺少卿、摄政王露沉。主角是会破案也会摆烂的女王型少卿，露沉权倾朝野却逐渐向她低头。剧情要有朝堂打脸、奇案反转、暧昧试探、主从拉扯。"),
@@ -115,39 +105,21 @@ internal class StarWishStore private constructor(context: Context) {
         current.copy(theaterGuides = current.theaterGuides + (theater to guide.trim()))
     }
 
-    fun addChapter(chapter: StarWishTheaterChapter, characterId: String) {
+    fun addChapter(chapter: StarWishTheaterChapter) {
         update { current ->
             current.copy(theaterChapters = current.theaterChapters + (chapter.theater to (current.theaterChapters[chapter.theater].orEmpty() + chapter)))
         }
-        SharedExperienceTimeline.record(
-            eventId = "theater-raw-${chapter.id}",
-            characterId = characterId,
-            channel = "共同阅读《${chapter.theater}》",
-            speaker = "故事正文",
-            content = "第${chapter.chapter}章 ${chapter.title}\n${chapter.content}",
-            occurredAt = Instant.ofEpochMilli(chapter.createdAtMillis),
-        )
-        SharedExperienceTimeline.remember(
-            memoryId = "theater-${chapter.id}",
-            characterId = characterId,
-            label = "共同阅读《${chapter.theater}》第${chapter.chapter}章",
-            detail = buildString {
-                if (chapter.userInfluence.isNotBlank()) append("用户影响了剧情：${chapter.userInfluence}。")
-                append("本章发生了：${chapter.content.takeLast(1_200)}")
-            },
-            occurredAt = Instant.ofEpochMilli(chapter.createdAtMillis),
-            strength = 4,
-            source = "theater",
-        )
-        val conversation = MigratedDomainStores.chat.conversations.value
-            .filter { it.characterId == characterId && it.parentConversationId == null && !it.id.endsWith("-study-focus") }
-            .maxByOrNull { it.updatedAt }
-            ?: MigratedDomainStores.chat.ensureConversation(characterId, "共同聊天")
-        MigratedDomainStores.chat.appendSystemMessage(conversation.id, "[共同活动] 刚刚一起读了《${chapter.theater}》第${chapter.chapter}章")
     }
 
     fun deleteTheater(theater: String) = update { current ->
         current.copy(theaterChapters = current.theaterChapters - theater, theaterGuides = current.theaterGuides - theater)
+    }
+
+    fun restoreTheater(theater: String, guide: String, chapters: List<StarWishTheaterChapter>) = update { current ->
+        current.copy(
+            theaterChapters = current.theaterChapters + (theater to chapters),
+            theaterGuides = current.theaterGuides + (theater to guide),
+        )
     }
 
     private fun update(transform: (StarWishState) -> StarWishState) {
@@ -236,10 +208,18 @@ internal object StarWishStores {
 internal class StarWishImageService(private val context: Context) {
     suspend fun generate(outfit: String, prompt: String, interaction: Boolean): Result<StarWishImageLaunch> = withContext(Dispatchers.IO) {
         runCatching {
-            val connection = LuluAiServices.connectionStore.resolveConnection()
-            val body = JSONObject().put("model", connection.model).put("prompt", prompt).put("n", 1)
-                .put("size", "1024x1024").put("response_format", "b64_json")
-            val endpoint = "${connection.baseUrl}/images/generations"
+            val prefs = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+            check(prefs.getBoolean("image_enabled", false)) { "请先在设置中启用生图" }
+            val baseUrl = prefs.getString("image_url", "").orEmpty().trim().trimEnd('/')
+            val apiKey = prefs.getString("image_key", "").orEmpty().trim()
+            val model = prefs.getString("image_model", "").orEmpty().trim()
+            val size = prefs.getString("image_size", "1024x1024").orEmpty().trim().ifBlank { "1024x1024" }
+            val negativePrompt = prefs.getString("image_negative_prompt", "").orEmpty().trim()
+            check(baseUrl.isNotBlank() && apiKey.isNotBlank() && model.isNotBlank()) { "请先完成独立生图接口与模型设置" }
+            val body = JSONObject().put("model", model).put("prompt", prompt).put("n", 1)
+                .put("size", size).put("response_format", "b64_json")
+            if (negativePrompt.isNotBlank()) body.put("negative_prompt", negativePrompt)
+            val endpoint = "$baseUrl/images/generations"
             val http = URL(endpoint).openConnection() as HttpURLConnection
             val raw = try {
                 http.requestMethod = "POST"
@@ -247,7 +227,7 @@ internal class StarWishImageService(private val context: Context) {
                 http.readTimeout = 180_000
                 http.doOutput = true
                 http.setRequestProperty("Content-Type", "application/json; charset=utf-8")
-                http.setRequestProperty("Authorization", "Bearer ${connection.apiKey}")
+                http.setRequestProperty("Authorization", "Bearer $apiKey")
                 http.outputStream.bufferedWriter(Charsets.UTF_8).use { it.write(body.toString()) }
                 val status = http.responseCode
                 val text = (if (status in 200..299) http.inputStream else http.errorStream)

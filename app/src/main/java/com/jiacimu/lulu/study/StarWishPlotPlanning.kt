@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.study
 
 import android.content.Context
+import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import org.json.JSONArray
 import org.json.JSONObject
@@ -104,7 +105,7 @@ internal object StarWishPlotPlanner {
         }
         val instruction = """
             你是成熟的长篇类型小说总策划。一次设计3套差异明显、能够真正展开成小说的小剧场方案。
-            必须贴合当前角色人设、关系边界和语言习惯。用户偏好高于原有大纲；大纲是导航，不是铁轨。
+            这是完全独立的小剧场小说，不得引用真实角色人设、关系、聊天、记忆或共同时间线。只依据本次提供的题材、已有大纲和用户偏好创作；用户偏好高于原有大纲，大纲是导航，不是铁轨。
             三套方案的核心驱动力必须不同，可使用恋爱攻略、被攻略、系统任务、轻喜剧、悬疑、权谋、冒险、循环、末日经营、治愈、甜中带刀等方向，但不能三套都依赖同一种反派。
 
             每套必须详细包含：
@@ -126,6 +127,7 @@ internal object StarWishPlotPlanner {
             title = if (existingTitle.isNullOrBlank()) "三套剧情规划" else "《$existingTitle》的三套剧情规划",
             temperature = 0.9,
             maxTokens = 7600,
+            contextMode = CompanionContextMode.Isolated,
         ).getOrThrow().text
         parseJson(reply).ifEmpty { parseLoose(reply) }.take(3).takeIf { it.isNotEmpty() }
             ?: error("剧情已经生成，但格式仍无法识别。")
