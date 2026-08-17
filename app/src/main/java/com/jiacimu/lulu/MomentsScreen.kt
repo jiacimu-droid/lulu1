@@ -1,10 +1,7 @@
 package com.jiacimu.lulu
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,7 +13,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.outlined.Collections
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,16 +27,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.jiacimu.lulu.ai.VisionModelService
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.MomentAuthorType
-import com.jiacimu.lulu.data.MomentComment
-import com.jiacimu.lulu.data.MomentPost
 import com.jiacimu.lulu.data.MomentsStore
 import com.jiacimu.lulu.design.LuluColors
-import kotlinx.coroutines.launch
-import java.time.Duration
-import java.time.Instant
 
 @Composable
 fun MomentsScreen() {
@@ -56,7 +49,9 @@ fun MomentsScreen() {
     }
     val coverPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
-            runCatching { context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
+            runCatching {
+                context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
             coverUri = uri.toString()
             prefs.edit().putString("moments_cover_uri", coverUri).apply()
         }
@@ -95,17 +90,26 @@ fun MomentsScreen() {
             }
             if (posts.isEmpty()) {
                 item(key = "empty") {
-                    Box(Modifier.fillParentMaxHeight(0.55f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier.fillParentMaxHeight(0.55f).fillMaxWidth(),
+                        contentAlignment = Alignment.Center,
+                    ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Outlined.Collections, null, tint = LuluColors.Muted, modifier = Modifier.size(46.dp))
                             Spacer(Modifier.height(10.dp))
                             Text("朋友圈还是空的", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                            Text("可以发文字或图片；角色会按自己的性格决定点赞、评论、回复或只是看看。", color = LuluColors.Muted)
+                            Text(
+                                "朋友圈是分享日常，不需要定期更新。角色看见后会按自己的性格决定点赞、评论或只是看看。",
+                                color = LuluColors.Muted,
+                                fontSize = 12.sp,
+                                lineHeight = 18.sp,
+                                modifier = Modifier.padding(horizontal = 28.dp),
+                            )
                         }
                     }
                 }
             } else {
-                items(posts, key = MomentPost::id) { post ->
+                items(posts, key = { it.id }) { post ->
                     MomentPostCard(
                         post = post,
                         userName = userName,
@@ -121,6 +125,7 @@ fun MomentsScreen() {
                 }
             }
         }
+
         ExtendedFloatingActionButton(
             onClick = { composing = true },
             modifier = Modifier.align(Alignment.BottomEnd).padding(18.dp).navigationBarsPadding(),
@@ -143,7 +148,7 @@ fun MomentsScreen() {
                 shadowElevation = 8.dp,
             ) {
                 Column(
-                    Modifier.fillMaxWidth().padding(20.dp),
+                    modifier = Modifier.fillMaxWidth().padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
                     Text("修改签名", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
@@ -175,176 +180,10 @@ fun MomentsScreen() {
                                 signatureEditing = false
                             },
                             modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = LuluColors.Wheat,
-                                contentColor = LuluColors.OnWheat,
-                            ),
+                            colors = ButtonDefaults.buttonColors(containerColor = LuluColors.Wheat, contentColor = LuluColors.OnWheat),
                         ) { Text("保存") }
                     }
                 }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun MomentsComposePage(
-    onBack: () -> Unit,
-    onPublish: (String, String?, String) -> Unit,
-) {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    var content by remember { mutableStateOf("") }
-    var imageUri by remember { mutableStateOf<String?>(null) }
-    var publishing by remember { mutableStateOf(false) }
-    var notice by remember { mutableStateOf("") }
-    val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        if (uri != null) {
-            runCatching { context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
-            imageUri = uri.toString()
-            notice = ""
-        }
-    }
-    BackHandler(enabled = !publishing, onBack = onBack)
-
-    fun publish() {
-        if (publishing || (content.isBlank() && imageUri.isNullOrBlank())) return
-        val selectedImage = imageUri
-        if (selectedImage.isNullOrBlank()) {
-            onPublish(content, null, "")
-            return
-        }
-        publishing = true
-        notice = "正在让识图模型看这张图片…"
-        scope.launch {
-            VisionModelService.describeImage(context, selectedImage, content)
-                .onSuccess { description -> onPublish(content, selectedImage, description) }
-                .onFailure { error ->
-                    publishing = false
-                    notice = error.message ?: "识图失败，请检查识图模型设置"
-                }
-        }
-    }
-
-    Scaffold(
-        containerColor = LuluColors.Paper,
-        topBar = {
-            TopAppBar(
-                title = { Text("发动态", fontWeight = FontWeight.SemiBold) },
-                navigationIcon = {
-                    IconButton(onClick = onBack, enabled = !publishing) { Icon(Icons.Outlined.ArrowBack, "返回") }
-                },
-                actions = {
-                    Button(
-                        onClick = ::publish,
-                        enabled = !publishing && (content.isNotBlank() || !imageUri.isNullOrBlank()),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = LuluColors.Wheat,
-                            contentColor = LuluColors.OnWheat,
-                            disabledContainerColor = LuluColors.CardStrong,
-                            disabledContentColor = LuluColors.Muted,
-                        ),
-                        shape = RoundedCornerShape(14.dp),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    ) {
-                        if (publishing) {
-                            CircularProgressIndicator(Modifier.size(15.dp), strokeWidth = 2.dp)
-                            Spacer(Modifier.width(6.dp))
-                        }
-                        Text(if (publishing) "识图中" else "发布", fontWeight = FontWeight.SemiBold)
-                    }
-                    Spacer(Modifier.width(12.dp))
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
-            )
-        },
-    ) { padding ->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 18.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Surface(
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                color = LuluColors.Card,
-                shape = RoundedCornerShape(22.dp),
-                border = BorderStroke(1.dp, LuluColors.Border),
-            ) {
-                OutlinedTextField(
-                    value = content,
-                    onValueChange = { content = it.take(2_000) },
-                    placeholder = { Text(if (imageUri == null) "分享此刻发生的事情…" else "给这张图片配一句话…") },
-                    modifier = Modifier.fillMaxSize().padding(4.dp),
-                    minLines = 8,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent,
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                    ),
-                )
-            }
-            if (!imageUri.isNullOrBlank()) {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(18.dp),
-                    color = LuluColors.Card,
-                    border = BorderStroke(1.dp, LuluColors.Border),
-                ) {
-                    Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        LuluSelectedPhoto(imageUri = imageUri, modifier = Modifier.fillMaxWidth().height(190.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(
-                                onClick = {
-                                    imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                                },
-                                modifier = Modifier.weight(1f),
-                                enabled = !publishing,
-                            ) {
-                                Icon(Icons.Outlined.PhotoLibrary, null, Modifier.size(17.dp))
-                                Spacer(Modifier.width(5.dp))
-                                Text("换一张")
-                            }
-                            OutlinedButton(
-                                onClick = { imageUri = null; notice = "" },
-                                modifier = Modifier.weight(1f),
-                                enabled = !publishing,
-                            ) {
-                                Icon(Icons.Outlined.Close, null, Modifier.size(17.dp))
-                                Spacer(Modifier.width(5.dp))
-                                Text("移除")
-                            }
-                        }
-                    }
-                }
-            } else {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
-                    OutlinedButton(
-                        onClick = {
-                            imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                        },
-                        enabled = !publishing,
-                        contentPadding = PaddingValues(horizontal = 13.dp, vertical = 8.dp),
-                    ) {
-                        Icon(Icons.Outlined.AddPhotoAlternate, null, Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("添加图片", fontSize = 13.sp)
-                    }
-                }
-            }
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                if (notice.isNotBlank()) {
-                    Text(
-                        notice,
-                        modifier = Modifier.weight(1f),
-                        color = if (publishing) LuluColors.Muted else MaterialTheme.colorScheme.error,
-                        fontSize = 11.sp,
-                        lineHeight = 15.sp,
-                    )
-                } else {
-                    Spacer(Modifier.weight(1f))
-                }
-                Text("${content.length} / 2000", color = LuluColors.Muted, fontSize = 11.sp)
             }
         }
     }
@@ -384,8 +223,7 @@ private fun MomentsHeader(
         }
         Text(
             signature,
-            modifier = Modifier
-                .align(Alignment.BottomStart)
+            modifier = Modifier.align(Alignment.BottomStart)
                 .padding(start = 18.dp, bottom = 20.dp)
                 .clickable(onClick = onSignatureClick)
                 .padding(vertical = 4.dp),
@@ -398,7 +236,10 @@ private fun MomentsHeader(
             color = Color.Black.copy(alpha = 0.28f),
             shape = RoundedCornerShape(99.dp),
         ) {
-            Row(Modifier.padding(horizontal = 9.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Icon(Icons.Outlined.PhotoCamera, null, tint = Color.White, modifier = Modifier.size(14.dp))
                 Spacer(Modifier.width(4.dp))
                 Text("更换背景", color = Color.White, fontSize = 10.sp)
@@ -406,234 +247,4 @@ private fun MomentsHeader(
         }
     }
     Spacer(Modifier.height(46.dp))
-}
-
-@Composable
-private fun MomentPostCard(
-    post: MomentPost,
-    userName: String,
-    userAvatar: String,
-    userAvatarUri: String?,
-    characterNames: Map<String, String>,
-    onLike: () -> Unit,
-    onComment: (String) -> Unit,
-    onCallCharacters: () -> Unit,
-    onReply: (MomentComment, String) -> Unit,
-    onDelete: () -> Unit,
-) {
-    val context = LocalContext.current
-    val authorCharacter = post.authorCharacterId?.let(MigratedDomainStores.characters::get)
-    val authorName = if (post.authorType == MomentAuthorType.User) userName else authorCharacter?.displayName.orEmpty().ifBlank { "角色" }
-    val likedByUser = "__user__" in post.likedCharacterIds
-    var menuExpanded by remember { mutableStateOf(false) }
-    var commenting by remember { mutableStateOf(false) }
-    var replyTarget by remember(post.id) { mutableStateOf<MomentComment?>(null) }
-    var deleting by remember { mutableStateOf(false) }
-
-    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.Top) {
-        LuluProfileAvatar(
-            imageUri = if (post.authorType == MomentAuthorType.User) userAvatarUri else authorCharacter?.avatarUri,
-            fallback = if (post.authorType == MomentAuthorType.User) userAvatar else authorName.take(1),
-            size = 48,
-        )
-        Spacer(Modifier.width(11.dp))
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text(authorName, color = Color(0xFF475A75), fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.weight(1f))
-                Box {
-                    IconButton(onClick = { menuExpanded = true }, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Outlined.MoreHoriz, "更多", tint = LuluColors.Muted, modifier = Modifier.size(19.dp))
-                    }
-                    DropdownMenu(
-                        expanded = menuExpanded,
-                        onDismissRequest = { menuExpanded = false },
-                        containerColor = LuluColors.Paper,
-                    ) {
-                        if (post.content.isNotBlank()) {
-                            DropdownMenuItem(
-                                text = { Text("复制文字") },
-                                leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) },
-                                onClick = {
-                                    val clipboard = context.getSystemService(ClipboardManager::class.java)
-                                    clipboard?.setPrimaryClip(ClipData.newPlainText("朋友圈", post.content))
-                                    menuExpanded = false
-                                },
-                            )
-                        }
-                        DropdownMenuItem(
-                            text = { Text("删除动态", color = MaterialTheme.colorScheme.error) },
-                            leadingIcon = { Icon(Icons.Outlined.DeleteOutline, null, tint = MaterialTheme.colorScheme.error) },
-                            onClick = { menuExpanded = false; deleting = true },
-                        )
-                    }
-                }
-            }
-            if (post.content.isNotBlank()) {
-                Text(post.content, color = LuluColors.Ink, fontSize = 15.sp, lineHeight = 22.sp)
-            }
-            if (!post.imageUri.isNullOrBlank()) {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    color = LuluColors.CardStrong,
-                ) {
-                    LuluSelectedPhoto(imageUri = post.imageUri, modifier = Modifier.fillMaxWidth().height(220.dp))
-                }
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(momentRelativeTime(post.createdAt), color = LuluColors.Muted, fontSize = 11.sp, modifier = Modifier.weight(1f))
-                FilledTonalIconButton(onClick = onLike, modifier = Modifier.size(38.dp)) {
-                    Icon(if (likedByUser) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder, "点赞", modifier = Modifier.size(19.dp))
-                }
-                Spacer(Modifier.width(6.dp))
-                FilledTonalIconButton(
-                    onClick = {
-                        if (post.authorType == MomentAuthorType.User) onCallCharacters() else commenting = true
-                    },
-                    modifier = Modifier.size(38.dp),
-                ) {
-                    Icon(
-                        if (post.authorType == MomentAuthorType.User) Icons.Outlined.MarkChatRead else Icons.Outlined.ChatBubbleOutline,
-                        if (post.authorType == MomentAuthorType.User) "呼唤全部角色来看" else "评论",
-                        modifier = Modifier.size(19.dp),
-                    )
-                }
-            }
-            val visibleLikes = post.likedCharacterIds.filterNot { it == "__user__" }.mapNotNull { characterNames[it] } + if (likedByUser) listOf("我") else emptyList()
-            if (visibleLikes.isNotEmpty() || post.comments.isNotEmpty()) {
-                Surface(color = LuluColors.CardStrong, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(horizontal = 11.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                        if (visibleLikes.isNotEmpty()) {
-                            Text("♥ ${visibleLikes.joinToString("、")}", color = Color(0xFF475A75), fontWeight = FontWeight.Medium, fontSize = 12.sp)
-                        }
-                        post.comments.forEach { comment ->
-                            val commenter = if (comment.characterId == "__user__") "我" else characterNames[comment.characterId] ?: "角色"
-                            val replyTargetName = when (comment.replyToCharacterId) {
-                                "__user__" -> "我"
-                                null -> null
-                                else -> characterNames[comment.replyToCharacterId]
-                            }
-                            val canReply = comment.characterId != "__user__"
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .then(if (canReply) Modifier.clickable { replyTarget = comment } else Modifier)
-                                    .padding(vertical = 2.dp),
-                                verticalAlignment = Alignment.Top,
-                            ) {
-                                Text(
-                                    if (replyTargetName.isNullOrBlank()) "$commenter：${comment.content}" else "$commenter 回复 $replyTargetName：${comment.content}",
-                                    modifier = Modifier.weight(1f),
-                                    color = LuluColors.Ink,
-                                    fontSize = 13.sp,
-                                    lineHeight = 18.sp,
-                                )
-                                if (canReply) {
-                                    Spacer(Modifier.width(8.dp))
-                                    Text("回复", color = Color(0xFF637A9A), fontSize = 10.sp, fontWeight = FontWeight.Medium)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    HorizontalDivider(color = LuluColors.Border, modifier = Modifier.padding(start = 75.dp))
-
-    if (commenting) {
-        var text by remember { mutableStateOf("") }
-        AlertDialog(
-            onDismissRequest = { commenting = false },
-            containerColor = LuluColors.Paper,
-            title = { Text("评论 $authorName") },
-            text = {
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = { text = it.take(500) },
-                    placeholder = { Text("写下评论…") },
-                    minLines = 2,
-                    maxLines = 5,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    enabled = text.isNotBlank(),
-                    onClick = { onComment(text); commenting = false },
-                ) { Text("发送") }
-            },
-            dismissButton = { TextButton(onClick = { commenting = false }) { Text("取消") } },
-        )
-    }
-
-    replyTarget?.let { target ->
-        val targetName = characterNames[target.characterId] ?: "角色"
-        var text by remember(target.id) { mutableStateOf("") }
-        AlertDialog(
-            onDismissRequest = { replyTarget = null },
-            containerColor = LuluColors.Paper,
-            title = { Text("回复 $targetName") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Surface(
-                        color = LuluColors.CardStrong,
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(
-                            target.content,
-                            color = LuluColors.Muted,
-                            fontSize = 12.sp,
-                            lineHeight = 17.sp,
-                            modifier = Modifier.padding(10.dp),
-                        )
-                    }
-                    OutlinedTextField(
-                        value = text,
-                        onValueChange = { text = it.take(500) },
-                        placeholder = { Text("回复他的这条评论…") },
-                        minLines = 2,
-                        maxLines = 5,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    enabled = text.isNotBlank(),
-                    onClick = {
-                        onReply(target, text)
-                        replyTarget = null
-                    },
-                ) { Text("发送") }
-            },
-            dismissButton = { TextButton(onClick = { replyTarget = null }) { Text("取消") } },
-        )
-    }
-
-    if (deleting) {
-        AlertDialog(
-            onDismissRequest = { deleting = false },
-            containerColor = LuluColors.Paper,
-            title = { Text("删除这条朋友圈？") },
-            text = { Text("删除后，这条动态及其对应的原始时间线和派生记忆会一起移除。") },
-            confirmButton = {
-                TextButton(onClick = { onDelete(); deleting = false }) {
-                    Text("删除", color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = { TextButton(onClick = { deleting = false }) { Text("取消") } },
-        )
-    }
-}
-
-private fun momentRelativeTime(time: Instant): String {
-    val minutes = Duration.between(time, Instant.now()).toMinutes().coerceAtLeast(0)
-    return when {
-        minutes < 1 -> "刚刚"
-        minutes < 60 -> "${minutes}分钟前"
-        minutes < 24 * 60 -> "${minutes / 60}小时前"
-        else -> "${minutes / (24 * 60)}天前"
-    }
 }
