@@ -33,6 +33,7 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 private const val LEXICON_PAGE_SIZE = 40
+private const val FAVORITE_REASON_SEPARATOR = "\n\n收藏理由："
 
 private val LexiconV2Sections = listOf(
     LexiconSection.Life to "生活",
@@ -293,12 +294,33 @@ private fun FavoriteEntryCard(
     characterName: String,
     onDelete: () -> Unit,
 ) {
+    val parts = remember(entry.id, entry.content) {
+        val index = entry.content.indexOf(FAVORITE_REASON_SEPARATOR)
+        if (index < 0) {
+            entry.content.trim() to ""
+        } else {
+            entry.content.substring(0, index).trim() to
+                entry.content.substring(index + FAVORITE_REASON_SEPARATOR.length).trim()
+        }
+    }
     LexiconV2Card {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
                 Text(entry.title, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Text("$characterName 收藏的主人消息", color = LuluColors.Muted, fontSize = 11.sp)
-                Text("“${entry.content}”", color = LuluColors.Ink, fontSize = 15.sp, lineHeight = 22.sp)
+                Text("“${parts.first}”", color = LuluColors.Ink, fontSize = 15.sp, lineHeight = 22.sp)
+                if (parts.second.isNotBlank()) {
+                    Surface(
+                        color = LuluColors.CardStrong,
+                        shape = RoundedCornerShape(13.dp),
+                        modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
+                    ) {
+                        Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("为什么想收藏", color = LuluColors.Muted, fontSize = 10.sp, fontWeight = FontWeight.Medium)
+                            Text(parts.second, color = LuluColors.Ink, fontSize = 13.sp, lineHeight = 19.sp)
+                        }
+                    }
+                }
             }
             IconButton(onClick = onDelete) {
                 Icon(Icons.Outlined.DeleteOutline, "删除收藏", tint = MaterialTheme.colorScheme.error)
