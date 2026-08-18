@@ -15,7 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.zIndex
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -258,7 +258,6 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom
         strokeWidth = 1.5.dp.toPx(),
     )
 
-    // A restrained perspective grid: fewer rays, all meeting at one real vanishing point.
     val floorHeight = size.height - wallBottom
     val vanishing = Offset(size.width * .50f, wallBottom)
     repeat(7) { index ->
@@ -484,7 +483,6 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawCloudMeadow() {
         ),
     )
 
-    // A pale distant moon/sun and a soft halo keep the sky from feeling flat.
     drawCircle(
         Color.White.copy(alpha = .24f),
         radius = size.minDimension * .13f,
@@ -496,7 +494,6 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawCloudMeadow() {
         center = Offset(size.width * .77f, size.height * .19f),
     )
 
-    // Distant cloud banks.
     repeat(12) { index ->
         val row = index / 6
         val column = index % 6
@@ -509,7 +506,6 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawCloudMeadow() {
         )
     }
 
-    // The actual meadow is a broad cloud shelf with layered puffs and faint depth shadows.
     val meadowTop = size.height * .55f
     drawRoundRect(
         Color(0xFFB9CDD5).copy(alpha = .18f),
@@ -533,7 +529,6 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawCloudMeadow() {
         )
     }
 
-    // Soft depressions and paths make the cloud surface feel walkable instead of like a flat card.
     repeat(4) { index ->
         val y = meadowTop + size.height * (.10f + index * .055f)
         drawOval(
@@ -543,7 +538,6 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawCloudMeadow() {
         )
     }
 
-    // Tiny luminous cloud-grass and drifting motes.
     repeat(8) { index ->
         val x = size.width * (.12f + index * .105f)
         val baseY = meadowTop + size.height * (.20f + (index % 2) * .035f)
