@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c48c6063255f90d6ae5ff82863224a9b0de6d305`
+- 基准提交：`230d91b4ac5e0eebc021d019999379b73c7ac520`
 - 分支：`main`
 - 已索引文件：211
-- 已索引代码/文本行：63537
+- 已索引代码/文本行：63762
 - 已发现符号：858
 
 | 文件 | 行数 | 符号数 |
@@ -22,14 +22,14 @@
 | `app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt` | 9 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalFurnitureDialogs.kt` | 193 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalFurnitureStickerUi.kt` | 498 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 404 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalFurnitureStickerUi.kt` | 500 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 414 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 517 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt` | 334 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingRuntimeV2.kt` | 258 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt` | 549 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt` | 584 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingUiV2.kt` | 457 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 659 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 837 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 518 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 517 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 412 | 4 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-18T06:53:26.739679+00:00",
-  "commit": "c48c6063255f90d6ae5ff82863224a9b0de6d305",
+  "generatedAt": "2026-08-18T07:40:11.397222+00:00",
+  "commit": "230d91b4ac5e0eebc021d019999379b73c7ac520",
   "branch": "main",
-  "sourceFingerprint": "7fb7a6934802cedd25e9a32e0b032ebd6778572a578eb8755e4310f8f3f9a1e7",
+  "sourceFingerprint": "c05b18faffc4de621ce0546b9680966df0beb9747598246bcedb325452e9397c",
   "summary": {
     "files": 211,
-    "lines": 63537,
+    "lines": 63762,
     "symbols": 858
   },
   "symbolIndex": {
@@ -369,7 +369,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-        "line": 118
+        "line": 120
       }
     ],
     "DigitalWorldMeetingApp": [
@@ -423,7 +423,7 @@
     "flush": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-        "line": 519
+        "line": 554
       }
     ],
     "LexiconFeatureScreenV2": [
@@ -5035,14 +5035,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalFurnitureStickerUi.kt",
-      "lines": 498,
-      "sha256": "e0cabf77c5f9ef1d46dc1c8433d4cc3282f398a22cfbe882d99beb52f64845dc",
+      "lines": 500,
+      "sha256": "7e9afdbc2a0a1480f8004b151b903ac157fb522bc6120c5b40649fc192f2b6ce",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-      "lines": 404,
-      "sha256": "c0b1fab60715da4900c55b04495eb7af54d71ea9ef6d29551a2eb8559fe19cac",
+      "lines": 414,
+      "sha256": "b883df660fbc454bc97ecd2e8d3526751df1a743d620db21b167c7765ab589a0",
       "symbols": [
         {
           "name": "sceneLabel",
@@ -5108,16 +5108,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-      "lines": 549,
-      "sha256": "2d08bed4f61bd80d8bc5b02f2b56de87fd5e7f27201ca3cc4bd4543eca57ab95",
+      "lines": 584,
+      "sha256": "4c4014b8412280018a419bfa1ecb661d7e651bde794ddd80938b7744fc5d5554",
       "symbols": [
         {
           "name": "toggleVoice",
-          "line": 118
+          "line": 120
         },
         {
           "name": "flush",
-          "line": 519
+          "line": 554
         }
       ]
     },
@@ -5129,8 +5129,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt",
-      "lines": 659,
-      "sha256": "b10eff2c19af8f72ecd27950052448fe1e90004d036f6d22ca5a444d271ea300",
+      "lines": 837,
+      "sha256": "bc7014880eb22e7903ca8355fdc252dc02831bd2f32230ca17bbc1888f1beff0",
       "symbols": []
     },
     {
