@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.ColumnScope
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -33,21 +35,25 @@ internal fun DropdownMenu(
     offset: DpOffset = DpOffset.Zero,
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(focusable = true),
+    shape: Shape = RoundedCornerShape(20.dp),
     containerColor: Color? = null,
     tonalElevation: Dp = 0.dp,
     shadowElevation: Dp = 12.dp,
+    border: BorderStroke? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val shape = RoundedCornerShape(20.dp)
     val background = containerColor ?: MaterialTheme.colorScheme.surface
-    val border = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.72f)
+    val resolvedBorder = border ?: BorderStroke(
+        1.dp,
+        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.72f),
+    )
 
     androidx.compose.material3.DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest,
         modifier = modifier
             .clip(shape)
-            .border(1.dp, border, shape),
+            .border(resolvedBorder, shape),
         offset = offset,
         scrollState = scrollState,
         properties = properties,
