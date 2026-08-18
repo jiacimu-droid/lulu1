@@ -66,9 +66,10 @@ object DigitalFurnitureCatalog {
         val kind = kindFor(haystack)
         val candidates = styles.filter { it.kind == kind }
         return candidates.maxByOrNull { style ->
-            style.keywords.count { keyword -> keyword.lowercase() in haystack } * 10 +
-                if (style.displayName.lowercase() in haystack) 8 else 0 +
-                if (style.pattern != "plain" && style.pattern in haystack) 2 else 0
+            val keywordScore = style.keywords.count { keyword -> keyword.lowercase() in haystack } * 10
+            val nameScore = if (style.displayName.lowercase() in haystack) 8 else 0
+            val patternScore = if (style.pattern != "plain" && style.pattern in haystack) 2 else 0
+            keywordScore + nameScore + patternScore
         } ?: styles.last()
     }
 
