@@ -177,22 +177,41 @@ internal object ApocalypseGenerationTaskManagerV5 {
                     val usedDirector = planResult.directorApplied
                     updateState(save.id) { it.copy(usedDirector = usedDirector) }
                     val projectedStats = applyApocalypseV3Beat(save.stats, plannedBeat)
-                    updateState(save.id) { it.copy(phase = "正在写第${save.scene + 1}幕") }
-                    val outcome = writeApocalypseV5Scene(
-                        save = save,
-                        config = config,
-                        party = party,
-                        action = cleanAction,
-                        beat = plannedBeat,
-                        nextStats = projectedStats,
-                        usedDirector = usedDirector,
-                        plotMemoryContext = plotMemoryContext,
-                        onPartialText = { _ ->
-                            updateState(save.id) {
-                                it.copy(phase = "正文正在生成", partialText = "")
-                            }
-                        },
-                    ).getOrElse { error -> throw error }
+
+                    suspend fun writeSceneAttempt(phaseLabel: String): ApocalypseSceneOutcomeV5 {
+                        updateState(save.id) { it.copy(phase = phaseLabel) }
+                        return writeApocalypseV5Scene(
+                            save = save,
+                            config = config,
+                            party = party,
+                            action = cleanAction,
+                            beat = plannedBeat,
+                            nextStats = projectedStats,
+                            usedDirector = usedDirector,
+                            plotMemoryContext = plotMemoryContext,
+                            onPartialText = { _ ->
+                                updateState(save.id) {
+                                    it.copy(phase = "正文正在生成", partialText = "")
+                                }
+                            },
+                        ).getOrElse { error -> throw error }
+                    }
+
+                    var outcome = writeSceneAttempt("正在写第${save.scene + 1}幕")
+                    var quality = inspectApocalypseNarrativeV5(outcome.text)
+                    if (!quality.complete) {
+                        // A provider can finish the JSON receipt and then hit its output cap in the prose.
+                        // Never canonize that half sentence. Re-run only the writer with the already planned
+                        // beat; the expensive director and plot retrieval are deliberately not repeated.
+                        updateState(save.id) {
+                            it.copy(phase = "检测到正文未写完 · 正在自动重写")
+                        }
+                        outcome = writeSceneAttempt("正文尾部不完整 · 正在重新写完整这一幕")
+                        quality = inspectApocalypseNarrativeV5(outcome.text)
+                    }
+                    check(quality.complete) {
+                        "游戏模型连续两次返回了未写完的正文（${quality.reason}）。这次没有写入存档，你的行动已经保留，可以直接重试。"
+                    }
 
                     val narratedOutcome = recoverApocalypseNarratedInventoryV5(outcome)
                     val inventoryOutcome = reconcileApocalypseInventoryOutcomeV5(save, narratedOutcome)
@@ -225,6 +244,10 @@ internal object ApocalypseGenerationTaskManagerV5 {
                         after = nextStats,
                     )
                     check(text.isNotBlank()) { "这一幕没有生成出正文，请再试一次。" }
+                    val finalQuality = inspectApocalypseNarrativeV5(text)
+                    check(finalQuality.complete) {
+                        "这一幕在最终整理时发现正文不完整（${finalQuality.reason}），因此没有写入存档。你的行动已经保留，可以直接重试。"
+                    }
                     val persistedOutcome = withApocalypseAbilityUpgradeCanonV5(
                         outcome = inventoryOutcome,
                         before = save.stats,
