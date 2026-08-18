@@ -19,8 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.jiacimu.lulu.data.DigitalWorldItem
+import com.jiacimu.lulu.data.DigitalFurnitureCatalog
 import com.jiacimu.lulu.data.DigitalFurnitureStyle
+import com.jiacimu.lulu.data.DigitalWorldItem
 import java.time.Instant
 
 @Composable
