@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -178,7 +180,7 @@ internal fun DigitalWorldMeetingSceneExperience(
             colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
         )
 
-        Box(Modifier.fillMaxWidth().weight(.53f)) {
+        Box(Modifier.fillMaxWidth().weight(.54f)) {
             if (session.reality == MeetingReality.DIGITAL_WORLD) {
                 DigitalWorldSceneCanvas(
                     modifier = Modifier.fillMaxSize(),
@@ -199,8 +201,9 @@ internal fun DigitalWorldMeetingSceneExperience(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(.36f)
-                .padding(horizontal = 10.dp, vertical = 5.dp)
+                .weight(.35f)
+                .offset(y = (-3).dp)
+                .padding(horizontal = 10.dp, vertical = 3.dp)
                 .then(
                     currentPage?.let { page ->
                         Modifier.combinedClickable(
@@ -210,82 +213,118 @@ internal fun DigitalWorldMeetingSceneExperience(
                     } ?: Modifier,
                 ),
             color = Color(0xFFFEFEFD),
-            shape = RoundedCornerShape(19.dp),
+            shape = RoundedCornerShape(20.dp),
             border = BorderStroke(1.dp, Color(0xFF302F2D)),
-            shadowElevation = 1.dp,
+            shadowElevation = 2.dp,
         ) {
             Column(
-                Modifier.fillMaxSize().padding(horizontal = 15.dp, vertical = 11.dp),
+                Modifier.fillMaxSize().padding(horizontal = 15.dp, vertical = 10.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
+                if (pages.isNotEmpty()) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(2.dp)
+                            .padding(horizontal = 1.dp),
+                    ) {
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .align(Alignment.Center)
+                                .then(Modifier),
+                        ) {
+                            Surface(
+                                modifier = Modifier.fillMaxSize(),
+                                color = Color(0xFFE6E3DD),
+                            ) {}
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .fillMaxWidth(((pageIndex + 1f) / pages.size).coerceIn(0f, 1f)),
+                                color = Color(0xFF494642),
+                            ) {}
+                        }
+                    }
+                    Spacer(Modifier.height(7.dp))
+                }
+
                 Box(
                     Modifier.fillMaxWidth().weight(1f),
                     contentAlignment = Alignment.TopStart,
                 ) {
-                    when {
-                        currentPage != null -> {
-                            Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                                if (currentPage.type == MeetingSegmentType.DIALOGUE) {
-                                    val speakerId = currentPage.speakerId
-                                    val speaker = speakerId
-                                        ?.takeUnless { it == "system" }
-                                        ?.let { id -> characters.firstOrNull { it.characterId == id } }
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    ) {
-                                        if (speakerId == null) {
-                                            LuluProfileAvatar(userAvatarUri, userAvatar, 32)
-                                            Text(
-                                                userName,
-                                                color = Color(0xFF2A2A2A),
-                                                fontSize = 15.5.sp,
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                        } else if (speaker != null) {
-                                            LuluProfileAvatar(
-                                                speaker.avatarUri,
-                                                speaker.displayName.take(1).ifBlank { "角" },
-                                                34,
-                                            )
-                                            Text(
-                                                speaker.displayName,
-                                                color = Color(0xFF242424),
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                        } else {
-                                            Text(
-                                                currentPage.speakerName,
-                                                color = Color(0xFF242424),
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.Bold,
-                                            )
+                    Crossfade(
+                        targetState = pageIndex,
+                        animationSpec = tween(120),
+                        label = "meeting-reading-page",
+                    ) { targetIndex ->
+                        val page = pages.getOrNull(targetIndex)
+                        when {
+                            page != null -> {
+                                Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                                    if (page.type == MeetingSegmentType.DIALOGUE) {
+                                        val speakerId = page.speakerId
+                                        val speaker = speakerId
+                                            ?.takeUnless { it == "system" }
+                                            ?.let { id -> characters.firstOrNull { it.characterId == id } }
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        ) {
+                                            if (speakerId == null) {
+                                                LuluProfileAvatar(userAvatarUri, userAvatar, 32)
+                                                Text(
+                                                    userName,
+                                                    color = Color(0xFF2A2A2A),
+                                                    fontSize = 15.5.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                )
+                                            } else if (speaker != null) {
+                                                LuluProfileAvatar(
+                                                    speaker.avatarUri,
+                                                    speaker.displayName.take(1).ifBlank { "角" },
+                                                    34,
+                                                )
+                                                Text(
+                                                    speaker.displayName,
+                                                    color = Color(0xFF242424),
+                                                    fontSize = 16.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                )
+                                            } else {
+                                                Text(
+                                                    page.speakerName,
+                                                    color = Color(0xFF242424),
+                                                    fontSize = 16.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                )
+                                            }
                                         }
                                     }
+                                    Text(
+                                        page.text,
+                                        color = Color(0xFF252525),
+                                        fontSize = 14.5.sp,
+                                        lineHeight = 22.sp,
+                                    )
                                 }
-                                Text(
-                                    currentPage.text,
-                                    color = Color(0xFF252525),
-                                    fontSize = 14.5.sp,
-                                    lineHeight = 22.sp,
-                                )
                             }
-                        }
-                        generating -> {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(16.dp),
-                                    strokeWidth = 1.8.dp,
-                                    color = Color(0xFF333333),
-                                )
-                                Text("正在继续……", color = Color(0xFF777570), fontSize = 11.sp)
+                            generating -> {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(16.dp),
+                                        strokeWidth = 1.8.dp,
+                                        color = Color(0xFF333333),
+                                    )
+                                    Text("正在继续……", color = Color(0xFF777570), fontSize = 11.sp)
+                                }
                             }
+                            else -> Text("……", color = Color(0xFF999999), fontSize = 15.sp)
                         }
-                        else -> Text("……", color = Color(0xFF999999), fontSize = 15.sp)
                     }
                 }
 
@@ -501,10 +540,6 @@ private fun readingPagesForGroup(group: MeetingUiDisplayGroup): List<MeetingRead
     }
 }
 
-/**
- * Page prose aggressively enough that large-font devices never need to hide the end of a paragraph.
- * Sentence punctuation is preferred; commas/semicolons become soft break points for long sentences.
- */
 private fun readingChunks(raw: String, maxChars: Int): List<String> {
     val normalized = raw
         .trim()
