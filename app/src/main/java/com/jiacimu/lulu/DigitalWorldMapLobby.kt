@@ -49,7 +49,6 @@ internal fun DigitalWorldMapLobby(
     var openSceneCode by remember { mutableStateOf<String?>(null) }
     var showCatalog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
-    var showVoiceSettings by remember { mutableStateOf(false) }
     var pendingLegacyQuickStart by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) { MeetingVoicePlayback.initialize(context) }
@@ -103,6 +102,10 @@ internal fun DigitalWorldMapLobby(
         pendingLegacyQuickStart = characterId
     }
 
+    fun toggleVoice() {
+        MeetingVoicePlayback.setEnabled(context, !voiceEnabled)
+    }
+
     val activeSceneCode = openSceneCode
     val activeSceneLabel = activeSceneCode?.let(::sceneLabel)
     val activeHomeId = activeSceneCode
@@ -130,41 +133,23 @@ internal fun DigitalWorldMapLobby(
                 IconButton(onClick = { showCatalog = true }) {
                     Icon(Icons.Outlined.Chair, "家具城")
                 }
-                IconButton(onClick = { showVoiceSettings = true }) {
-                    Icon(
-                        if (voiceEnabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
-                        if (voiceEnabled) "见面语音已开启" else "见面语音已关闭",
-                    )
-                }
+                MeetingVoiceToggleButton(
+                    enabled = voiceEnabled,
+                    onToggle = ::toggleVoice,
+                )
                 Box {
-                    IconButton(onClick = { showMenu = true }) { Icon(Icons.Outlined.MoreVert, "更多") }
-                    DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-                        DropdownMenuItem(
-                            text = { Text("见面记录") },
-                            leadingIcon = { Icon(Icons.Outlined.History, null) },
-                            onClick = { showMenu = false; onOpenHistory() },
-                        )
-                        DropdownMenuItem(
-                            text = { Text("见面模型") },
-                            leadingIcon = { Icon(Icons.Outlined.Memory, null) },
-                            onClick = { showMenu = false; onOpenModelPicker() },
-                        )
-                        DropdownMenuItem(
-                            text = { Text("见面写法") },
-                            leadingIcon = { Icon(Icons.Outlined.AutoStories, null) },
-                            onClick = { showMenu = false; onOpenWritingPicker() },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(if (voiceEnabled) "语音：已开启" else "语音：已关闭") },
-                            leadingIcon = {
-                                Icon(
-                                    if (voiceEnabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
-                                    null,
-                                )
-                            },
-                            onClick = { showMenu = false; showVoiceSettings = true },
-                        )
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(Icons.Outlined.MoreVert, "更多", tint = Color(0xFF2E2E2E))
                     }
+                    MeetingOverflowMenu(
+                        expanded = showMenu,
+                        voiceEnabled = voiceEnabled,
+                        onDismiss = { showMenu = false },
+                        onToggleVoice = ::toggleVoice,
+                        onOpenHistory = onOpenHistory,
+                        onOpenModelPicker = onOpenModelPicker,
+                        onOpenWritingPicker = onOpenWritingPicker,
+                    )
                 }
             },
             windowInsets = WindowInsets(0, 0, 0, 0),
@@ -201,7 +186,6 @@ internal fun DigitalWorldMapLobby(
     }
 
     if (showCatalog) FurnitureCatalogDialog(onDismiss = { showCatalog = false })
-    if (showVoiceSettings) MeetingPageVoiceSettingsDialog(onDismiss = { showVoiceSettings = false })
 }
 
 @Composable
