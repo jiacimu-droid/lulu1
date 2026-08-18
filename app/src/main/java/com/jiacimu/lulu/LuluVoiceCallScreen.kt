@@ -188,9 +188,13 @@ fun LuluVoiceCallScreen(
                                 Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
                                     Text(
                                         when (state.phase) {
-                                            CallPhase.Ready -> "拨通以后不需要再按住麦克风\n像普通电话一样，直接说话就好"
+                                            CallPhase.Ready -> "接通后麦克风会自动打开\n像普通电话一样，直接说话就好"
                                             CallPhase.Dialing -> "正在等待对方接听"
-                                            CallPhase.Connected -> if (state.microphoneMuted) "麦克风已静音" else "我会自动听你说完，再让对方回应"
+                                            CallPhase.Connected -> if (state.microphoneMuted) {
+                                                "麦克风已静音"
+                                            } else {
+                                                "麦克风已经常开\n直接说话，我会自动听你说完"
+                                            }
                                             else -> "通话字幕会显示在这里"
                                         },
                                         color = CallMuted,
@@ -233,7 +237,7 @@ fun LuluVoiceCallScreen(
                     }
                 }
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(12.dp))
                 when (state.phase) {
                     CallPhase.Ready -> {
                         FilledIconButton(
@@ -259,6 +263,13 @@ fun LuluVoiceCallScreen(
                     }
                     CallPhase.Dialing -> CallPrimaryHangup(label = "取消呼叫", onClick = LuluVoiceCallSession::cancelDial)
                     CallPhase.Connected -> {
+                        Text(
+                            if (state.microphoneMuted) "已静音 · 点麦克风恢复" else "麦克风常开 · 直接说话",
+                            color = CallMuted,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                        )
+                        Spacer(Modifier.height(9.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -272,8 +283,8 @@ fun LuluVoiceCallScreen(
                             )
                             CallControl(
                                 icon = if (state.microphoneMuted) Icons.Outlined.MicOff else Icons.Outlined.Mic,
-                                label = if (state.microphoneMuted) "取消静音" else "麦克风",
-                                active = !state.microphoneMuted,
+                                label = if (state.microphoneMuted) "取消静音" else "静音",
+                                active = state.microphoneMuted,
                                 onClick = LuluVoiceCallSession::toggleMicrophone,
                             )
                             CallControl(Icons.Outlined.KeyboardArrowDown, "缩小", false, onClick = onDismiss)
@@ -407,7 +418,7 @@ private fun callStatusText(state: LuluVoiceCallState, modelConnected: Boolean): 
     state.thinking -> "${state.characterName} 正在回应"
     state.speaking -> "${state.characterName} 正在说话 · ${formatCallDuration(state.elapsedSeconds)}"
     state.listening -> "正在听你说话 · ${formatCallDuration(state.elapsedSeconds)}"
-    state.connected -> "已接通 · ${formatCallDuration(state.elapsedSeconds)}"
+    state.connected -> "麦克风常开 · ${formatCallDuration(state.elapsedSeconds)}"
     else -> state.statusMessage
 }
 
