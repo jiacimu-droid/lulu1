@@ -95,7 +95,7 @@ internal fun MeetingOverflowMenu(
                 color = Color(0xFFF2F1EE),
             ) {
                 Text(
-                    "数字世界",
+                    "见面",
                     color = Color(0xFF777570),
                     fontSize = 8.5.sp,
                     modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp),
