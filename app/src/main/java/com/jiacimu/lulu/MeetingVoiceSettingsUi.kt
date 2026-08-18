@@ -1,10 +1,10 @@
 package com.jiacimu.lulu
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.weight
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.design.LuluColors
 
@@ -28,7 +29,7 @@ internal fun MeetingPageVoiceSettingsDialog(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         title = { Text("见面语音") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(androidx.compose.ui.unit.dp(14f))) {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
