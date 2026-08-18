@@ -117,7 +117,8 @@ internal fun DigitalWorldMapLobby(
             title = {
                 Text(
                     activeSceneLabel ?: "数字世界",
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -130,17 +131,21 @@ internal fun DigitalWorldMapLobby(
                 }
             },
             actions = {
-                IconButton(onClick = { showCatalog = true }) {
-                    Icon(Icons.Outlined.Chair, "家具城")
-                }
+                MeetingToolButton(
+                    icon = Icons.Outlined.Chair,
+                    contentDescription = "家具城",
+                    onClick = { showCatalog = true },
+                )
                 MeetingVoiceToggleButton(
                     enabled = voiceEnabled,
                     onToggle = ::toggleVoice,
                 )
                 Box {
-                    IconButton(onClick = { showMenu = true }) {
-                        Icon(Icons.Outlined.MoreVert, "更多", tint = Color(0xFF2E2E2E))
-                    }
+                    MeetingToolButton(
+                        icon = Icons.Outlined.MoreVert,
+                        contentDescription = "更多",
+                        onClick = { showMenu = true },
+                    )
                     MeetingOverflowMenu(
                         expanded = showMenu,
                         voiceEnabled = voiceEnabled,
@@ -201,7 +206,7 @@ private fun DigitalWorldMapPage(
     }
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
+        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 9.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         item {
@@ -209,15 +214,15 @@ private fun DigitalWorldMapPage(
                 MapPlaceCard(
                     modifier = Modifier.weight(1f),
                     title = "世界入口",
-                    subtitle = peopleAt(world, DigitalWorldStore.ARRIVAL),
                     icon = Icons.Outlined.AutoAwesome,
+                    residents = residentsAt(world, DigitalWorldStore.ARRIVAL, characters),
                     onClick = { onOpenScene(DigitalWorldStore.ARRIVAL) },
                 )
                 MapPlaceCard(
                     modifier = Modifier.weight(1f),
                     title = "云眠原",
-                    subtitle = peopleAt(world, DigitalWorldStore.CLOUD_MEADOW),
                     icon = Icons.Outlined.Cloud,
+                    residents = residentsAt(world, DigitalWorldStore.CLOUD_MEADOW, characters),
                     onClick = { onOpenScene(DigitalWorldStore.CLOUD_MEADOW) },
                 )
             }
@@ -226,14 +231,14 @@ private fun DigitalWorldMapPage(
             item(key = rowCharacters.joinToString("|") { it.characterId }) {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     rowCharacters.forEach { character ->
+                        val homeCode = DigitalWorldStore.homeLocation(character.characterId)
                         val itemCount = world.items.count { it.ownerCharacterId == character.characterId }
                         MapHomeCard(
                             modifier = Modifier.weight(1f),
                             character = character,
                             itemCount = itemCount,
-                            isHome = world.characterLocations[character.characterId] ==
-                                DigitalWorldStore.homeLocation(character.characterId),
-                            onClick = { onOpenScene(DigitalWorldStore.homeLocation(character.characterId)) },
+                            residents = residentsAt(world, homeCode, characters),
+                            onClick = { onOpenScene(homeCode) },
                         )
                     }
                     if (rowCharacters.size == 1) Spacer(Modifier.weight(1f))
@@ -248,23 +253,46 @@ private fun DigitalWorldMapPage(
 private fun MapPlaceCard(
     modifier: Modifier,
     title: String,
-    subtitle: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
+    residents: List<CharacterSettings>,
     onClick: () -> Unit,
 ) {
     Surface(
-        modifier = modifier.height(132.dp).clickable(onClick = onClick),
+        modifier = modifier.height(136.dp).clickable(onClick = onClick),
         color = Color(0xFFFCFCFB),
         shape = RoundedCornerShape(22.dp),
-        border = BorderStroke(1.dp, Color(0xFF292929)),
+        border = BorderStroke(1.dp, Color(0xFF34322F)),
+        shadowElevation = 1.dp,
     ) {
-        Column(Modifier.fillMaxSize().padding(14.dp), verticalArrangement = Arrangement.SpaceBetween) {
-            Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFFF1F1EF), modifier = Modifier.size(43.dp)) {
-                Box(contentAlignment = Alignment.Center) { Icon(icon, null, tint = Color(0xFF333333)) }
+        Column(
+            Modifier.fillMaxSize().padding(horizontal = 14.dp, vertical = 13.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Surface(
+                    shape = RoundedCornerShape(13.dp),
+                    color = Color(0xFFF1F0ED),
+                    border = BorderStroke(.7.dp, Color(0xFFE0DED8)),
+                    modifier = Modifier.size(43.dp),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(icon, null, tint = Color(0xFF333333), modifier = Modifier.size(21.dp))
+                    }
+                }
+                Spacer(Modifier.weight(1f))
+                ResidentAvatarStrip(residents)
             }
-            Column {
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF202020))
-                Text(subtitle, color = Color(0xFF777777), fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (residents.isNotEmpty()) {
+                    Text(
+                        residents.joinToString("、") { it.displayName },
+                        color = Color(0xFF777570),
+                        fontSize = 9.5.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
     }
@@ -275,43 +303,101 @@ private fun MapHomeCard(
     modifier: Modifier,
     character: CharacterSettings,
     itemCount: Int,
-    isHome: Boolean,
+    residents: List<CharacterSettings>,
     onClick: () -> Unit,
 ) {
     Surface(
         modifier = modifier.height(154.dp).clickable(onClick = onClick),
         color = Color(0xFFFCFCFB),
         shape = RoundedCornerShape(22.dp),
-        border = BorderStroke(1.dp, Color(0xFF292929)),
+        border = BorderStroke(1.dp, Color(0xFF34322F)),
+        shadowElevation = 1.dp,
     ) {
-        Column(Modifier.fillMaxSize().padding(13.dp), verticalArrangement = Arrangement.SpaceBetween) {
+        Column(
+            Modifier.fillMaxSize().padding(horizontal = 13.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+        ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Surface(shape = RoundedCornerShape(12.dp), color = Color(0xFFF0EFEB), modifier = Modifier.size(43.dp)) {
-                    Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Home, null, tint = Color(0xFF393632)) }
-                }
-                Spacer(Modifier.weight(1f))
-                if (isHome) {
-                    Surface(color = Color(0xFF262626), contentColor = Color.White, shape = RoundedCornerShape(9.dp)) {
-                        Text("在家", fontSize = 9.sp, modifier = Modifier.padding(horizontal = 7.dp, vertical = 4.dp))
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0xFFF0EFEB),
+                    border = BorderStroke(.7.dp, Color(0xFFE0DED8)),
+                    modifier = Modifier.size(42.dp),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(Icons.Outlined.Home, null, tint = Color(0xFF393632), modifier = Modifier.size(20.dp))
                     }
                 }
+                Spacer(Modifier.weight(1f))
+                ResidentAvatarStrip(residents)
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 LuluProfileAvatar(character.avatarUri, character.displayName.take(1).ifBlank { "角" }, 34)
                 Spacer(Modifier.width(8.dp))
-                Column(Modifier.weight(1f)) {
-                    Text("${character.displayName}的家", fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1)
-                    Text("$itemCount 件家具", color = Color(0xFF777777), fontSize = 10.sp)
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        "${character.displayName}的家",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        if (residents.isEmpty()) {
+                            "$itemCount 件家具"
+                        } else {
+                            "${residents.size} 人在这里 · $itemCount 件家具"
+                        },
+                        color = Color(0xFF777570),
+                        fontSize = 9.5.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
             }
         }
     }
 }
 
-private fun peopleAt(world: DigitalWorldState, code: String): String {
-    val names = world.characterLocations
-        .filterValues { it == code }
-        .keys
-        .map { MigratedDomainStores.characters.get(it).displayName }
-    return if (names.isEmpty()) "" else names.joinToString("、")
+@Composable
+private fun ResidentAvatarStrip(residents: List<CharacterSettings>) {
+    if (residents.isEmpty()) return
+    Row(horizontalArrangement = Arrangement.spacedBy(3.dp), verticalAlignment = Alignment.CenterVertically) {
+        residents.take(3).forEach { character ->
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(.7.dp, Color(0xFFD8D6D1)),
+                color = Color.White,
+            ) {
+                LuluProfileAvatar(
+                    character.avatarUri,
+                    character.displayName.take(1).ifBlank { "角" },
+                    22,
+                )
+            }
+        }
+        if (residents.size > 3) {
+            Surface(
+                modifier = Modifier.size(22.dp),
+                shape = RoundedCornerShape(8.dp),
+                color = Color(0xFFF0EFEC),
+                border = BorderStroke(.7.dp, Color(0xFFD8D6D1)),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        "+${residents.size - 3}",
+                        color = Color(0xFF686560),
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            }
+        }
+    }
 }
+
+private fun residentsAt(
+    world: DigitalWorldState,
+    code: String,
+    characters: List<CharacterSettings>,
+): List<CharacterSettings> = characters.filter { world.characterLocations[it.characterId] == code }
