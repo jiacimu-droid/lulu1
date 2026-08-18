@@ -17,30 +17,46 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-internal fun MeetingVoiceToggleButton(
-    enabled: Boolean,
-    onToggle: () -> Unit,
+internal fun MeetingToolButton(
+    icon: ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit,
+    active: Boolean = false,
 ) {
-    IconButton(onClick = onToggle) {
+    IconButton(onClick = onClick) {
         Surface(
-            modifier = Modifier.size(32.dp),
-            shape = RoundedCornerShape(10.dp),
-            color = if (enabled) Color(0xFF252525) else Color(0xFFF4F4F2),
+            modifier = Modifier.size(34.dp),
+            shape = RoundedCornerShape(11.dp),
+            color = if (active) Color(0xFF242424) else Color(0xFFF7F6F3),
             border = BorderStroke(
                 1.dp,
-                if (enabled) Color(0xFF252525) else Color(0xFFD9D9D5),
+                if (active) Color(0xFF242424) else Color(0xFFD8D6D1),
             ),
+            shadowElevation = if (active) 0.dp else 1.dp,
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
-                    imageVector = if (enabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
-                    contentDescription = if (enabled) "关闭见面语音" else "开启见面语音",
-                    tint = if (enabled) Color.White else Color(0xFF343434),
+                    imageVector = icon,
+                    contentDescription = contentDescription,
+                    tint = if (active) Color.White else Color(0xFF353535),
                     modifier = Modifier.size(18.dp),
                 )
             }
         }
     }
+}
+
+@Composable
+internal fun MeetingVoiceToggleButton(
+    enabled: Boolean,
+    onToggle: () -> Unit,
+) {
+    MeetingToolButton(
+        icon = if (enabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
+        contentDescription = if (enabled) "关闭见面语音" else "开启见面语音",
+        onClick = onToggle,
+        active = enabled,
+    )
 }
 
 @Composable
@@ -56,20 +72,36 @@ internal fun MeetingOverflowMenu(
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismiss,
-        modifier = Modifier.width(214.dp),
-        shape = RoundedCornerShape(18.dp),
+        modifier = Modifier.width(220.dp),
+        shape = RoundedCornerShape(19.dp),
         containerColor = Color(0xFFFEFEFD),
         tonalElevation = 0.dp,
         shadowElevation = 8.dp,
-        border = BorderStroke(1.dp, Color(0xFF292929)),
+        border = BorderStroke(1.dp, Color(0xFF2C2B29)),
     ) {
-        Text(
-            "见面设置",
-            color = Color(0xFF888888),
-            fontSize = 10.5.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp),
-        )
+        Row(
+            modifier = Modifier.padding(start = 14.dp, end = 12.dp, top = 8.dp, bottom = 5.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                "见面设置",
+                color = Color(0xFF777570),
+                fontSize = 10.5.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f),
+            )
+            Surface(
+                shape = RoundedCornerShape(99.dp),
+                color = Color(0xFFF2F1EE),
+            ) {
+                Text(
+                    "数字世界",
+                    color = Color(0xFF777570),
+                    fontSize = 8.5.sp,
+                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp),
+                )
+            }
+        }
         MeetingMenuRow(
             icon = if (voiceEnabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
             title = "角色台词语音",
@@ -105,7 +137,7 @@ internal fun MeetingOverflowMenu(
                 onOpenWritingPicker()
             },
         )
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(5.dp))
     }
 }
 
@@ -121,17 +153,17 @@ private fun MeetingMenuRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 11.dp, vertical = 8.dp),
+            .padding(horizontal = 11.dp, vertical = 7.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Surface(
-            modifier = Modifier.size(31.dp),
-            shape = RoundedCornerShape(9.dp),
-            color = if (selected) Color(0xFF252525) else Color(0xFFF2F2F0),
+            modifier = Modifier.size(32.dp),
+            shape = RoundedCornerShape(10.dp),
+            color = if (selected) Color(0xFF252525) else Color(0xFFF4F3F0),
             border = BorderStroke(
                 1.dp,
-                if (selected) Color(0xFF252525) else Color(0xFFE2E2DE),
+                if (selected) Color(0xFF252525) else Color(0xFFE0DED9),
             ),
         ) {
             Box(contentAlignment = Alignment.Center) {
