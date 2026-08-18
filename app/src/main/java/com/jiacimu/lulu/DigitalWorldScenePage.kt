@@ -11,9 +11,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -33,42 +35,57 @@ internal fun DigitalWorldScenePage(
     onCharacterClick: (String) -> Unit,
     onOpenCatalog: () -> Unit,
 ) {
-    val residents = characters.filter { character -> world.characterLocations[character.characterId] == sceneCode }
-    Column(modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton(onClick = onBackToMap) { Icon(Icons.Outlined.Map, "返回地图") }
-            Column(Modifier.weight(1f)) {
-                Text(sceneLabel, fontSize = 19.sp, fontWeight = FontWeight.Bold)
-                Text(
-                    if (homeCharacterId != null) "真实家园场景 · 点击家具查看 · 点击小人开始互动"
-                    else "共享场景 · 点击小人开始互动",
-                    color = LuluColors.Muted,
-                    fontSize = 10.5.sp,
-                )
-            }
-            if (homeCharacterId != null) {
-                IconButton(onClick = onOpenCatalog) { Icon(Icons.Outlined.Chair, "家具城") }
-            }
-        }
-        if (homeCharacterId != null) {
-            DigitalHomeRoom(
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                characterId = homeCharacterId,
-                residents = residents,
-                world = world,
-                onCharacterClick = onCharacterClick,
-            )
-        } else {
-            SharedWorldScene(
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                sceneCode = sceneCode,
-                residents = residents,
-                onCharacterClick = onCharacterClick,
-            )
-        }
+    Column(modifier.fillMaxSize()) {
+        TopAppBar(
+            title = { Text(sceneLabel, fontWeight = FontWeight.SemiBold) },
+            navigationIcon = {
+                IconButton(onClick = onBackToMap) { Icon(Icons.Outlined.ArrowBack, "返回地图") }
+            },
+            actions = {
+                if (homeCharacterId != null) {
+                    IconButton(onClick = onOpenCatalog) { Icon(Icons.Outlined.Chair, "家具城") }
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
+        )
+        DigitalWorldSceneCanvas(
+            modifier = Modifier.fillMaxWidth().weight(1f),
+            sceneCode = sceneCode,
+            homeCharacterId = homeCharacterId,
+            characters = characters,
+            world = world,
+            onCharacterClick = onCharacterClick,
+        )
+    }
+}
+
+@Composable
+internal fun DigitalWorldSceneCanvas(
+    modifier: Modifier,
+    sceneCode: String,
+    homeCharacterId: String?,
+    characters: List<CharacterSettings>,
+    world: DigitalWorldState,
+    onCharacterClick: (String) -> Unit,
+) {
+    val residents = characters.filter { character ->
+        world.characterLocations[character.characterId] == sceneCode
+    }
+    if (homeCharacterId != null) {
+        DigitalHomeRoom(
+            modifier = modifier,
+            characterId = homeCharacterId,
+            residents = residents,
+            world = world,
+            onCharacterClick = onCharacterClick,
+        )
+    } else {
+        SharedWorldScene(
+            modifier = modifier,
+            sceneCode = sceneCode,
+            residents = residents,
+            onCharacterClick = onCharacterClick,
+        )
     }
 }
 
@@ -80,126 +97,214 @@ private fun DigitalHomeRoom(
     world: DigitalWorldState,
     onCharacterClick: (String) -> Unit,
 ) {
-    val owner = MigratedDomainStores.characters.get(characterId)
     val items = world.items.filter { it.ownerCharacterId == characterId }
     var selectedItem by remember { mutableStateOf<DigitalWorldItem?>(null) }
 
-    Column(modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
-        Surface(
-            modifier = Modifier.fillMaxWidth().weight(1f),
-            color = Color(0xFFF7F3EA),
-            shape = RoundedCornerShape(26.dp),
-            border = BorderStroke(1.dp, Color(0xFFD9D1C4)),
-        ) {
-            BoxWithConstraints(Modifier.fillMaxSize().padding(10.dp)) {
-                Canvas(Modifier.matchParentSize()) {
-                    val floorTop = size.height * 0.22f
-                    drawRect(
-                        Color(0xFFF1ECE2),
-                        topLeft = Offset(0f, floorTop),
-                        size = Size(size.width, size.height - floorTop),
-                    )
-                    val gap = 28.dp.toPx()
-                    var y = floorTop
-                    while (y < size.height) {
-                        drawLine(
-                            Color(0xFFE2D9CC),
-                            Offset(0f, y),
-                            Offset(size.width, y),
-                            strokeWidth = 1.dp.toPx(),
+    Surface(
+        modifier = modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+        color = Color(0xFFF8F5EE),
+        shape = RoundedCornerShape(24.dp),
+        border = BorderStroke(1.dp, Color(0xFF2A2927)),
+    ) {
+        BoxWithConstraints(Modifier.fillMaxSize().padding(5.dp)) {
+            Canvas(Modifier.matchParentSize()) {
+                drawIllustratedRoom()
+            }
+
+            items.sortedWith(compareBy({ furnitureLayer(it) }, { it.createdAt })).forEachIndexed { index, item ->
+                val style = DigitalFurnitureCatalog.resolve(item)
+                val placement = furniturePlacement(item, index)
+                FurnitureSticker(
+                    item = item,
+                    style = style,
+                    modifier = Modifier
+                        .offset(
+                            x = (maxWidth - stickerWidth(style.kind)) * placement.first,
+                            y = (maxHeight - stickerHeight(style.kind)) * placement.second,
                         )
-                        y += gap
-                    }
-                    drawLine(
-                        Color(0xFFDDD4C8),
-                        Offset(0f, floorTop),
-                        Offset(size.width, floorTop),
-                        strokeWidth = 1.dp.toPx(),
-                    )
-                }
+                        .clickable { selectedItem = item },
+                )
+            }
 
-                items.sortedBy {
-                    if (DigitalFurnitureCatalog.resolve(it).kind == DigitalFurnitureKind.RUG) 0 else 1
-                }.forEachIndexed { index, item ->
-                    val style = DigitalFurnitureCatalog.resolve(item)
-                    val placement = furniturePlacement(item, index)
-                    FurnitureSticker(
-                        item = item,
-                        style = style,
-                        modifier = Modifier
-                            .offset(
-                                x = (maxWidth - stickerWidth(style.kind)) * placement.first,
-                                y = (maxHeight - stickerHeight(style.kind)) * placement.second,
-                            )
-                            .clickable { selectedItem = item },
-                    )
+            residents.forEachIndexed { index, character ->
+                val alignment = when (index % 5) {
+                    0 -> Alignment.Center
+                    1 -> Alignment.CenterStart
+                    2 -> Alignment.CenterEnd
+                    3 -> Alignment.BottomStart
+                    else -> Alignment.BottomEnd
                 }
-
-                residents.forEachIndexed { index, character ->
-                    Column(
-                        modifier = Modifier
-                            .align(if (index % 2 == 0) Alignment.Center else Alignment.BottomEnd)
-                            .padding(18.dp)
-                            .clickable { onCharacterClick(character.characterId) },
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Surface(shape = RoundedCornerShape(18.dp), shadowElevation = 5.dp) {
-                            LuluProfileAvatar(
-                                character.avatarUri,
-                                character.displayName.take(1).ifBlank { "角" },
-                                58,
-                            )
-                        }
-                        Spacer(Modifier.height(4.dp))
-                        Surface(color = Color.White.copy(alpha = .88f), shape = RoundedCornerShape(9.dp)) {
-                            Text(
-                                character.displayName,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
-                            )
-                        }
-                    }
-                }
-
-                if (items.isEmpty()) {
-                    Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Outlined.HomeWork, null, tint = LuluColors.Muted, modifier = Modifier.size(34.dp))
-                        Spacer(Modifier.height(8.dp))
-                        Text("这里还空空的", color = LuluColors.Muted, fontSize = 12.sp)
-                        Text("角色以后创建的家具会真实摆进这个房间", color = LuluColors.Muted, fontSize = 10.sp)
-                    }
-                }
+                SceneCharacterSprite(
+                    character = character,
+                    modifier = Modifier.align(alignment).padding(20.dp),
+                    onClick = { onCharacterClick(character.characterId) },
+                )
             }
         }
-        Spacer(Modifier.height(7.dp))
-        Text(
-            if (residents.any { it.characterId == owner.characterId }) "${owner.displayName}现在在家"
-            else "${owner.displayName}现在不在家 · 你仍然可以看看已经存在的家具",
-            color = LuluColors.Muted,
-            fontSize = 10.5.sp,
-            modifier = Modifier.padding(horizontal = 6.dp),
-        )
     }
 
     selectedItem?.let { item ->
         AlertDialog(
             onDismissRequest = { selectedItem = null },
-            icon = { Icon(Icons.Outlined.Chair, null) },
             title = { Text(item.name, fontWeight = FontWeight.Bold) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(item.appearance, lineHeight = 20.sp)
                     Text("位置：${item.position}", color = LuluColors.Muted, fontSize = 12.sp)
-                    Text(
-                        "贴图：${DigitalFurnitureCatalog.resolve(item).displayName}",
-                        color = LuluColors.BlueGray,
-                        fontSize = 11.sp,
-                    )
                 }
             },
             confirmButton = { TextButton(onClick = { selectedItem = null }) { Text("好") } },
         )
+    }
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom() {
+    val wallBottom = size.height * .40f
+    val wall = Color(0xFFF8F5EF)
+    val wallShadow = Color(0xFFEDE7DE)
+    val floor = Color(0xFFE4D8C8)
+    val floorLine = Color(0xFFC8B9A7).copy(alpha = .72f)
+    val ink = Color(0xFF514B44).copy(alpha = .38f)
+
+    drawRect(wall)
+    drawRect(
+        wallShadow.copy(alpha = .52f),
+        topLeft = Offset(0f, 0f),
+        size = Size(size.width * .055f, wallBottom),
+    )
+    drawRect(
+        wallShadow.copy(alpha = .30f),
+        topLeft = Offset(size.width * .94f, 0f),
+        size = Size(size.width * .06f, wallBottom),
+    )
+    drawRect(
+        floor,
+        topLeft = Offset(0f, wallBottom),
+        size = Size(size.width, size.height - wallBottom),
+    )
+
+    drawRect(
+        Color(0xFFCEC0AF),
+        topLeft = Offset(0f, wallBottom - 5.dp.toPx()),
+        size = Size(size.width, 6.dp.toPx()),
+    )
+    drawLine(
+        Color.White.copy(alpha = .68f),
+        Offset(0f, wallBottom - 7.dp.toPx()),
+        Offset(size.width, wallBottom - 7.dp.toPx()),
+        strokeWidth = 2.dp.toPx(),
+    )
+
+    val vanishing = Offset(size.width * .50f, wallBottom)
+    repeat(9) { index ->
+        val bottomX = size.width * index / 8f
+        drawLine(
+            floorLine,
+            Offset(bottomX, size.height),
+            vanishing,
+            strokeWidth = 1.dp.toPx(),
+        )
+    }
+    listOf(.12f, .25f, .41f, .60f, .80f).forEach { fraction ->
+        val y = wallBottom + (size.height - wallBottom) * fraction
+        drawLine(floorLine, Offset(0f, y), Offset(size.width, y), strokeWidth = 1.dp.toPx())
+    }
+
+    val windowLeft = size.width * .63f
+    val windowTop = size.height * .075f
+    val windowWidth = size.width * .23f
+    val windowHeight = size.height * .20f
+    drawRoundRect(
+        Color(0xFF31302E),
+        topLeft = Offset(windowLeft - 3.dp.toPx(), windowTop - 3.dp.toPx()),
+        size = Size(windowWidth + 6.dp.toPx(), windowHeight + 6.dp.toPx()),
+        cornerRadius = CornerRadius(6.dp.toPx()),
+    )
+    drawRect(
+        Color(0xFFDCE8ED),
+        topLeft = Offset(windowLeft, windowTop),
+        size = Size(windowWidth, windowHeight),
+    )
+    drawLine(ink, Offset(windowLeft + windowWidth / 2f, windowTop), Offset(windowLeft + windowWidth / 2f, windowTop + windowHeight), 1.5.dp.toPx())
+    drawLine(ink, Offset(windowLeft, windowTop + windowHeight / 2f), Offset(windowLeft + windowWidth, windowTop + windowHeight / 2f), 1.5.dp.toPx())
+    drawCircle(
+        Color.White.copy(alpha = .68f),
+        radius = windowWidth * .10f,
+        center = Offset(windowLeft + windowWidth * .76f, windowTop + windowHeight * .28f),
+    )
+
+    val lightPatch = Path().apply {
+        moveTo(windowLeft + windowWidth * .12f, wallBottom)
+        lineTo(windowLeft + windowWidth * .95f, wallBottom)
+        lineTo(size.width * .93f, size.height * .82f)
+        lineTo(size.width * .60f, size.height * .76f)
+        close()
+    }
+    drawPath(lightPatch, Color.White.copy(alpha = .17f))
+
+    drawLine(
+        ink,
+        Offset(size.width * .055f, 0f),
+        Offset(size.width * .055f, wallBottom),
+        strokeWidth = 1.dp.toPx(),
+    )
+    drawLine(
+        ink,
+        Offset(size.width * .94f, 0f),
+        Offset(size.width * .94f, wallBottom),
+        strokeWidth = 1.dp.toPx(),
+    )
+}
+
+private fun furnitureLayer(item: DigitalWorldItem): Int = when (DigitalFurnitureCatalog.resolve(item).kind) {
+    DigitalFurnitureKind.WALL_ART,
+    DigitalFurnitureKind.CLOCK,
+    DigitalFurnitureKind.MIRROR -> 0
+    DigitalFurnitureKind.RUG -> 1
+    else -> 2
+}
+
+@Composable
+private fun SceneCharacterSprite(
+    character: CharacterSettings,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Column(
+        modifier = modifier.clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Surface(
+            shape = RoundedCornerShape(15.dp),
+            color = Color.White,
+            border = BorderStroke(1.dp, Color(0xFF2B2B2B)),
+            shadowElevation = 3.dp,
+        ) {
+            LuluProfileAvatar(
+                character.avatarUri,
+                character.displayName.take(1).ifBlank { "角" },
+                48,
+            )
+        }
+        Canvas(Modifier.size(width = 36.dp, height = 34.dp)) {
+            val body = Color(0xFF3A3A3A)
+            drawRoundRect(
+                body,
+                topLeft = Offset(size.width * .18f, size.height * .02f),
+                size = Size(size.width * .64f, size.height * .60f),
+                cornerRadius = CornerRadius(size.width * .20f),
+            )
+            drawLine(body, Offset(size.width * .34f, size.height * .55f), Offset(size.width * .27f, size.height * .96f), strokeWidth = 5.dp.toPx())
+            drawLine(body, Offset(size.width * .66f, size.height * .55f), Offset(size.width * .73f, size.height * .96f), strokeWidth = 5.dp.toPx())
+        }
+        Surface(color = Color.White.copy(alpha = .90f), shape = RoundedCornerShape(8.dp)) {
+            Text(
+                character.displayName,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+            )
+        }
     }
 }
 
@@ -212,69 +317,66 @@ private fun SharedWorldScene(
 ) {
     val cloud = sceneCode == DigitalWorldStore.CLOUD_MEADOW
     Surface(
-        modifier = modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+        modifier = modifier.padding(horizontal = 10.dp, vertical = 6.dp),
         color = if (cloud) Color(0xFFF0F5F7) else Color(0xFFF5F4F0),
-        shape = RoundedCornerShape(26.dp),
-        border = BorderStroke(1.dp, LuluColors.Border),
+        shape = RoundedCornerShape(24.dp),
+        border = BorderStroke(1.dp, Color(0xFF2A2927)),
     ) {
         Box(Modifier.fillMaxSize().padding(16.dp)) {
             Canvas(Modifier.matchParentSize()) {
                 if (cloud) {
-                    repeat(7) { i ->
-                        val x = size.width * ((i % 4) + 0.45f) / 4.7f
-                        val y = size.height * ((i / 4) + 1.1f) / 3.2f
+                    drawRect(Color(0xFFE9F0F3))
+                    repeat(9) { i ->
+                        val x = size.width * ((i % 5) + .25f) / 5.0f
+                        val y = size.height * ((i / 5) + 1.12f) / 2.65f
                         drawCircle(
-                            Color.White.copy(alpha = .86f),
-                            radius = 42.dp.toPx(),
+                            Color.White.copy(alpha = .88f),
+                            radius = (34 + (i % 3) * 8).dp.toPx(),
                             center = Offset(x, y),
                         )
                     }
+                    drawLine(
+                        Color(0xFFB9C8CE).copy(alpha = .48f),
+                        Offset(0f, size.height * .70f),
+                        Offset(size.width, size.height * .70f),
+                        strokeWidth = 1.dp.toPx(),
+                    )
                 } else {
+                    drawRect(Color(0xFFF2EFE8))
                     drawCircle(
-                        Color(0xFFE7E1D6),
-                        radius = 78.dp.toPx(),
+                        Color(0xFF9F988C).copy(alpha = .40f),
+                        radius = 82.dp.toPx(),
                         center = Offset(size.width * .5f, size.height * .48f),
                         style = Stroke(2.dp.toPx()),
                     )
                     drawCircle(
                         Color(0xFFFDFCF9),
-                        radius = 54.dp.toPx(),
+                        radius = 58.dp.toPx(),
                         center = Offset(size.width * .5f, size.height * .48f),
                     )
-                }
-            }
-            if (residents.isEmpty()) {
-                Text(
-                    "现在这里没有角色",
-                    color = LuluColors.Muted,
-                    fontSize = 12.sp,
-                    modifier = Modifier.align(Alignment.Center),
-                )
-            } else {
-                residents.forEachIndexed { index, character ->
-                    Column(
-                        modifier = Modifier
-                            .align(
-                                when (index % 4) {
-                                    0 -> Alignment.Center
-                                    1 -> Alignment.CenterStart
-                                    2 -> Alignment.CenterEnd
-                                    else -> Alignment.BottomCenter
-                                },
-                            )
-                            .padding(18.dp)
-                            .clickable { onCharacterClick(character.characterId) },
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        LuluProfileAvatar(
-                            character.avatarUri,
-                            character.displayName.take(1).ifBlank { "角" },
-                            62,
-                        )
-                        Spacer(Modifier.height(5.dp))
-                        Text(character.displayName, fontWeight = FontWeight.SemiBold, fontSize = 11.sp)
+                    repeat(8) { index ->
+                        val angleX = if (index % 2 == 0) .18f else .82f
+                        val y = size.height * (.12f + (index / 2) * .20f)
+                        drawCircle(Color(0xFFCDC6BA), radius = 3.dp.toPx(), center = Offset(size.width * angleX, y))
                     }
                 }
+            }
+            residents.forEachIndexed { index, character ->
+                SceneCharacterSprite(
+                    character = character,
+                    modifier = Modifier
+                        .align(
+                            when (index % 5) {
+                                0 -> Alignment.Center
+                                1 -> Alignment.CenterStart
+                                2 -> Alignment.CenterEnd
+                                3 -> Alignment.BottomStart
+                                else -> Alignment.BottomEnd
+                            },
+                        )
+                        .padding(18.dp),
+                    onClick = { onCharacterClick(character.characterId) },
+                )
             }
         }
     }
