@@ -1,9 +1,8 @@
 package com.jiacimu.lulu
 
-import android.app.Activity
-import android.content.Intent
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.SystemClock
-import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateDpAsState
@@ -28,9 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.ai.archiveIdFor
+import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluGroupChat
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -61,19 +62,66 @@ internal fun LuluGroupVoiceCallScreen(
         messages.drop(callStartCount).filter { it.sender != LuluChatMessage.Sender.System }
     }
     val listState = rememberLazyListState()
-    val speechEngine = remember { LuluSpeechEngine(context) }
 
     var phase by remember { mutableStateOf(GroupCallPhase.Ready) }
     var activeSpeakerId by remember { mutableStateOf<String?>(null) }
     var listening by remember { mutableStateOf(false) }
+    var partialTranscript by remember { mutableStateOf("") }
     var thinking by remember { mutableStateOf(false) }
+    var speaking by remember { mutableStateOf(false) }
     var speakerEnabled by remember { mutableStateOf(true) }
+    var microphoneMuted by remember { mutableStateOf(false) }
+    var microphonePermissionGranted by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED,
+        )
+    }
     var elapsedSeconds by remember { mutableLongStateOf(0L) }
     var startedAt by remember { mutableLongStateOf(0L) }
     var callStartedAt by remember { mutableStateOf<Instant?>(null) }
     val callId = remember { UUID.randomUUID().toString() }
+    val latestSpeakerEnabled by rememberUpdatedState(speakerEnabled)
 
-    DisposableEffect(Unit) { onDispose { speechEngine.shutdown() } }
+    val speechQueue = remember(context) {
+        LuluCallSpeechQueue(
+            context = context,
+            scope = scope,
+            onSpeakerChanged = { activeSpeakerId = it },
+            onBusyChanged = { speaking = it },
+        )
+    }
+
+    val recognizedSpeechHandler = remember { mutableStateOf<(String) -> Unit>({}) }
+    val continuousRecognizer = remember(context) {
+        LuluContinuousSpeechRecognizer(
+            context = context,
+            scope = scope,
+            onListeningChanged = { listening = it },
+            onPartialText = { partialTranscript = it },
+            onSpeech = { spoken -> recognizedSpeechHandler.value(spoken) },
+        )
+    }
+
+    val microphonePermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        microphonePermissionGranted = granted
+        if (!granted) microphoneMuted = true
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            continuousRecognizer.destroy()
+            speechQueue.shutdown()
+        }
+    }
+
+    // Ordinary QQ auto-read is a separate speech engine. During a group call the call queue owns
+    // every spoken line, otherwise the same bubble can be read twice or overlap the phone audio.
+    DisposableEffect(phase) {
+        if (phase == GroupCallPhase.Connected) ChatAutoVoicePlayback.suppressAutoPlay()
+        onDispose {
+            if (phase == GroupCallPhase.Connected) ChatAutoVoicePlayback.resumeAutoPlay()
+        }
+    }
 
     fun saveGroupCall() {
         val occurredAt = callStartedAt ?: return
@@ -91,12 +139,65 @@ internal fun LuluGroupVoiceCallScreen(
 
     fun closeCall() {
         if (phase == GroupCallPhase.Connected) saveGroupCall()
-        speechEngine.stop()
+        continuousRecognizer.setEnabled(false)
+        speechQueue.stop()
         if (phase == GroupCallPhase.Connected) {
             phase = GroupCallPhase.Ended
             scope.launch { delay(650); onDismiss() }
-        } else onDismiss()
+        } else {
+            onDismiss()
+        }
     }
+
+    val submitRecognizedSpeech: (String) -> Unit = { spoken ->
+        val clean = spoken.trim()
+        if (
+            clean.isNotBlank() &&
+            phase == GroupCallPhase.Connected &&
+            !microphoneMuted &&
+            !thinking
+        ) {
+            val archive = activeArchive
+            if (archive == null) {
+                continuousRecognizer.retrySoon()
+            } else {
+                MigratedDomainStores.chat.sendUserMessage(conversationId, clean)
+                thinking = true
+                scope.launch {
+                    val currentMessages = MigratedDomainStores.chat.messages(conversationId).value
+                    val names = group.members.associate { member ->
+                        val character = characters[member.characterId] ?: MigratedDomainStores.characters.get(member.characterId)
+                        member.characterId to member.groupNickname.ifBlank { character.displayName }
+                    }
+                    runGroupReplies(
+                        conversationId = conversationId,
+                        group = group,
+                        pendingText = clean,
+                        initialHistory = buildBoundedHistory(currentMessages.dropLast(1), group.name, names),
+                        activeLabel = activeLabel,
+                        archiveId = voiceArchiveId,
+                        characterNames = names,
+                        onError = {},
+                        sceneContext = "你正在群聊《${group.name}》的实时多人电话中。用户和其他群成员都在通话里；你听得见刚才的发言，也知道自己的声音和字幕会被所有人听见、看见。具体关系和称呼服从你的人设，回复要口语化。",
+                        // Generation can run ahead of audio. The phone queue below alone controls who
+                        // is visibly speaking and guarantees that later text never cuts off earlier speech.
+                        onSpeakerChange = {},
+                        afterReply = { characterId, text ->
+                            if (latestSpeakerEnabled) {
+                                speechQueue.enqueue(
+                                    text = text,
+                                    speakerId = characterId,
+                                    voiceId = CharacterVoicePreferenceStore.voiceId(characterId),
+                                )
+                            }
+                        },
+                    )
+                    thinking = false
+                }
+            }
+        }
+    }
+    SideEffect { recognizedSpeechHandler.value = submitRecognizedSpeech }
 
     LaunchedEffect(phase) {
         if (phase == GroupCallPhase.Dialing) {
@@ -104,6 +205,7 @@ internal fun LuluGroupVoiceCallScreen(
             if (phase == GroupCallPhase.Dialing) {
                 phase = GroupCallPhase.Connected
                 callStartedAt = Instant.now()
+                microphoneMuted = false
             }
             return@LaunchedEffect
         }
@@ -115,53 +217,54 @@ internal fun LuluGroupVoiceCallScreen(
         }
     }
 
-    LaunchedEffect(transcript.size) {
+    // Ask once when the call connects. Afterwards the microphone is hands-free; the mic button is
+    // only a normal mute toggle, just like a real phone call.
+    LaunchedEffect(phase, microphoneMuted, microphonePermissionGranted) {
+        if (
+            phase == GroupCallPhase.Connected &&
+            !microphoneMuted &&
+            !microphonePermissionGranted
+        ) {
+            microphonePermission.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
+    LaunchedEffect(phase, microphoneMuted, microphonePermissionGranted, thinking, speaking) {
+        val shouldListen =
+            phase == GroupCallPhase.Connected &&
+                !microphoneMuted &&
+                microphonePermissionGranted
+        continuousRecognizer.setEnabled(shouldListen)
+        continuousRecognizer.setBlocked(!shouldListen || thinking || speaking)
+    }
+
+    LaunchedEffect(transcript.size, partialTranscript) {
         if (transcript.isNotEmpty()) listState.animateScrollToItem(transcript.lastIndex)
     }
 
-    val recognizer = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        listening = false
-        val spoken = if (result.resultCode == Activity.RESULT_OK) {
-            result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.trim().orEmpty()
-        } else ""
-        if (spoken.isBlank() || activeArchive == null) return@rememberLauncherForActivityResult
-        MigratedDomainStores.chat.sendUserMessage(conversationId, spoken)
-        thinking = true
-        scope.launch {
-            val currentMessages = MigratedDomainStores.chat.messages(conversationId).value
-            val names = group.members.associate { member ->
-                val character = characters[member.characterId] ?: MigratedDomainStores.characters.get(member.characterId)
-                member.characterId to member.groupNickname.ifBlank { character.displayName }
-            }
-            runGroupReplies(
-                conversationId = conversationId,
-                group = group,
-                pendingText = spoken,
-                initialHistory = buildBoundedHistory(currentMessages.dropLast(1), group.name, names),
-                activeLabel = activeLabel,
-                archiveId = voiceArchiveId,
-                characterNames = names,
-                onError = {},
-                sceneContext = "你正在群聊《${group.name}》的实时多人电话中。用户和其他群成员都在通话里；你听得见刚才的发言，也知道自己的声音和字幕会被所有人听见、看见。具体关系和称呼服从你的人设，回复要口语化。",
-                onSpeakerChange = { activeSpeakerId = it },
-                afterReply = { characterId, text ->
-                    activeSpeakerId = characterId
-                    if (speakerEnabled) speechEngine.speak(text, scope)
-                    delay((text.length * 95L).coerceIn(1_200L, 6_500L))
-                },
-            )
-            activeSpeakerId = null
-            thinking = false
-        }
+    val activeSpeakerName = activeSpeakerId?.let { id ->
+        val member = group.members.firstOrNull { it.characterId == id }
+        val character = characters[id] ?: runCatching { MigratedDomainStores.characters.get(id) }.getOrNull()
+        member?.groupNickname?.ifBlank { character?.displayName.orEmpty() }
+            ?.ifBlank { character?.displayName ?: "角色" }
+            ?: character?.displayName
     }
 
     Dialog(
         onDismissRequest = {},
-        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = false, dismissOnClickOutside = false),
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false,
+        ),
     ) {
         Surface(Modifier.fillMaxSize(), color = Color.White) {
             Column(
-                modifier = Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().padding(horizontal = 20.dp, vertical = 10.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
+                    .padding(horizontal = 20.dp, vertical = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -188,8 +291,11 @@ internal fun LuluGroupVoiceCallScreen(
                         phase == GroupCallPhase.Ready -> "尚未拨打"
                         phase == GroupCallPhase.Dialing -> "正在呼叫群成员…"
                         phase == GroupCallPhase.Ended -> "通话已结束"
+                        speaking -> "${activeSpeakerName ?: "群成员"} 正在说话"
                         listening -> "正在听你说话"
-                        thinking && activeSpeakerId == null -> "群成员正在回应"
+                        thinking -> "群成员正在回应"
+                        microphoneMuted -> "麦克风已静音"
+                        !microphonePermissionGranted -> "需要麦克风权限"
                         else -> "%02d:%02d".format(elapsedSeconds / 60, elapsedSeconds % 60)
                     },
                     color = Color(0xFF77777B),
@@ -205,15 +311,22 @@ internal fun LuluGroupVoiceCallScreen(
                 ) {
                     items(group.members, key = { it.characterId }) { member ->
                         val character = characters[member.characterId] ?: MigratedDomainStores.characters.get(member.characterId)
-                        val speaking = activeSpeakerId == member.characterId
-                        val avatarSize by animateDpAsState(if (speaking) 84.dp else 64.dp, label = "group-speaker")
+                        val isSpeaking = activeSpeakerId == member.characterId && speaking
+                        val avatarSize by animateDpAsState(if (isSpeaking) 84.dp else 64.dp, label = "group-speaker")
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Surface(
                                 modifier = Modifier.size(avatarSize),
                                 shape = RoundedCornerShape(avatarSize * 0.25f),
-                                border = BorderStroke(if (speaking) 3.dp else 1.dp, if (speaking) Color(0xFF292929) else Color(0xFFE7E7E7)),
+                                border = BorderStroke(
+                                    if (isSpeaking) 3.dp else 1.dp,
+                                    if (isSpeaking) Color(0xFF292929) else Color(0xFFE7E7E7),
+                                ),
                             ) {
-                                LuluProfileAvatar(character.avatarUri, character.displayName.take(1).ifBlank { "角" }, avatarSize.value.toInt())
+                                LuluProfileAvatar(
+                                    character.avatarUri,
+                                    character.displayName.take(1).ifBlank { "角" },
+                                    avatarSize.value.toInt(),
+                                )
                             }
                             Spacer(Modifier.height(6.dp))
                             Text(member.groupNickname.ifBlank { character.displayName }, fontSize = 11.sp, maxLines = 1)
@@ -225,18 +338,31 @@ internal fun LuluGroupVoiceCallScreen(
                     GroupCallPhase.Ready, GroupCallPhase.Dialing -> {
                         Spacer(Modifier.weight(1f))
                         FilledIconButton(
-                            onClick = { phase = if (phase == GroupCallPhase.Ready) GroupCallPhase.Dialing else GroupCallPhase.Ready },
+                            onClick = {
+                                phase = if (phase == GroupCallPhase.Ready) GroupCallPhase.Dialing else GroupCallPhase.Ready
+                            },
                             enabled = activeArchive != null,
                             modifier = Modifier.size(70.dp),
                             colors = IconButtonDefaults.filledIconButtonColors(
                                 containerColor = if (phase == GroupCallPhase.Ready) Color(0xFF292929) else Color(0xFFE34848),
                                 contentColor = Color.White,
                             ),
-                        ) { Icon(if (phase == GroupCallPhase.Ready) Icons.Outlined.Call else Icons.Outlined.CallEnd, null, Modifier.size(29.dp)) }
+                        ) {
+                            Icon(
+                                if (phase == GroupCallPhase.Ready) Icons.Outlined.Call else Icons.Outlined.CallEnd,
+                                null,
+                                Modifier.size(29.dp),
+                            )
+                        }
                         Spacer(Modifier.height(8.dp))
-                        Text(if (phase == GroupCallPhase.Ready) "拨打群聊电话" else "取消", color = Color(0xFF77777B), fontSize = 12.sp)
+                        Text(
+                            if (phase == GroupCallPhase.Ready) "拨打群聊电话" else "取消",
+                            color = Color(0xFF77777B),
+                            fontSize = 12.sp,
+                        )
                         Spacer(Modifier.height(46.dp))
                     }
+
                     GroupCallPhase.Connected -> {
                         Spacer(Modifier.height(14.dp))
                         Surface(
@@ -245,9 +371,18 @@ internal fun LuluGroupVoiceCallScreen(
                             shape = RoundedCornerShape(22.dp),
                             border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
                         ) {
-                            if (transcript.isEmpty()) {
+                            if (transcript.isEmpty() && partialTranscript.isBlank()) {
                                 Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
-                                    Text("群聊电话字幕会显示在这里", color = Color(0xFF77777B), textAlign = TextAlign.Center)
+                                    Text(
+                                        if (microphoneMuted) {
+                                            "麦克风已静音"
+                                        } else {
+                                            "麦克风已经打开\n像普通电话一样，直接说话就好"
+                                        },
+                                        color = Color(0xFF77777B),
+                                        textAlign = TextAlign.Center,
+                                        lineHeight = 21.sp,
+                                    )
                                 }
                             } else {
                                 LazyColumn(
@@ -262,47 +397,76 @@ internal fun LuluGroupVoiceCallScreen(
                                             LuluChatMessage.Sender.Character -> {
                                                 val member = group.members.firstOrNull { it.characterId == message.authorCharacterId }
                                                 val character = message.authorCharacterId?.let { characters[it] }
-                                                member?.groupNickname?.ifBlank { character?.displayName.orEmpty() }?.ifBlank { "角色" } ?: "角色"
+                                                member?.groupNickname
+                                                    ?.ifBlank { character?.displayName.orEmpty() }
+                                                    ?.ifBlank { "角色" }
+                                                    ?: "角色"
                                             }
                                         }
                                         Text(speaker, color = Color(0xFF77777B), fontSize = 11.sp)
                                         Text(message.content, fontSize = 15.sp, lineHeight = 22.sp)
                                     }
+                                    if (partialTranscript.isNotBlank()) {
+                                        item(key = "group-call-partial") {
+                                            Text(
+                                                "${group.userGroupNickname}：$partialTranscript",
+                                                color = Color(0xFF77777B),
+                                                fontSize = 13.sp,
+                                                lineHeight = 19.sp,
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
-                        Spacer(Modifier.height(16.dp))
+
+                        Spacer(Modifier.height(10.dp))
+                        Text(
+                            when {
+                                microphoneMuted -> "已静音 · 点麦克风恢复"
+                                speaking || thinking -> "对方说完后会自动继续听你"
+                                else -> "麦克风常开 · 直接说话"
+                            },
+                            color = Color(0xFF77777B),
+                            fontSize = 11.sp,
+                        )
+                        Spacer(Modifier.height(10.dp))
+
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                            FilledTonalIconButton(onClick = { speakerEnabled = !speakerEnabled; if (!speakerEnabled) speechEngine.stop() }, modifier = Modifier.size(58.dp)) {
+                            FilledTonalIconButton(
+                                onClick = {
+                                    val next = !speakerEnabled
+                                    speakerEnabled = next
+                                    if (!next) speechQueue.stop()
+                                },
+                                modifier = Modifier.size(58.dp),
+                            ) {
                                 Icon(if (speakerEnabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff, "扬声器")
                             }
-                            FilledIconButton(
-                                onClick = {
-                                    if (listening || thinking) return@FilledIconButton
-                                    listening = true
-                                    recognizer.launch(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                                        putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                                        putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN")
-                                        putExtra(RecognizerIntent.EXTRA_PROMPT, "在群聊电话里说话")
-                                    })
-                                },
-                                enabled = !thinking,
-                                modifier = Modifier.size(66.dp),
-                                colors = IconButtonDefaults.filledIconButtonColors(
-                                    containerColor = Color(0xFF292929),
-                                    contentColor = Color.White,
-                                    disabledContainerColor = Color(0xFF55565A),
-                                    disabledContentColor = Color.White.copy(alpha = 0.72f),
+                            FilledTonalIconButton(
+                                onClick = { microphoneMuted = !microphoneMuted },
+                                modifier = Modifier.size(58.dp),
+                                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                    containerColor = if (microphoneMuted) Color(0xFFE4E4E4) else Color(0xFF292929),
+                                    contentColor = if (microphoneMuted) Color(0xFF333333) else Color.White,
                                 ),
-                            ) { Icon(if (listening) Icons.Outlined.Hearing else Icons.Outlined.Mic, "说话", tint = Color.White) }
+                            ) {
+                                Icon(
+                                    if (microphoneMuted) Icons.Outlined.MicOff else Icons.Outlined.Mic,
+                                    if (microphoneMuted) "取消静音" else "静音",
+                                )
+                            }
                             FilledIconButton(
                                 onClick = ::closeCall,
                                 modifier = Modifier.size(58.dp),
                                 colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color(0xFFE34848)),
-                            ) { Icon(Icons.Outlined.CallEnd, "挂断", tint = Color.White) }
+                            ) {
+                                Icon(Icons.Outlined.CallEnd, "挂断", tint = Color.White)
+                            }
                         }
                         Spacer(Modifier.height(14.dp))
                     }
+
                     GroupCallPhase.Ended -> {
                         Spacer(Modifier.weight(1f))
                         CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp)
