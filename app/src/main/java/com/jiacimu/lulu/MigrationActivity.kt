@@ -19,6 +19,7 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.MemoryModelRuntime
 import com.jiacimu.lulu.data.MeetingExperienceStore
 import com.jiacimu.lulu.data.MomentsStore
+import com.jiacimu.lulu.data.ProactiveIncomingCallStore
 import com.jiacimu.lulu.data.ProactivePerceptionPolicyStore
 import com.jiacimu.lulu.data.ProactivePerceptionRuntime
 import com.jiacimu.lulu.data.ProactivePerceptionScheduler
@@ -55,6 +56,7 @@ class MigrationActivity : ComponentActivity() {
         SharedExperienceTimeline.backfillChatHistory()
         CompanionPresenceStore.initialize(appContext)
         CompanionOnlineStore.initialize(appContext)
+        ProactiveIncomingCallStore.initialize(appContext)
         MeetingExperienceStore.initialize(appContext)
         HealthCycleStore.initialize(appContext)
         LuluAiServices.initialize(appContext)
@@ -107,6 +109,7 @@ class MigrationActivity : ComponentActivity() {
                 initialMeetingLocation = initialMeetingLocation,
                 initialMeetingInvitationId = initialMeetingInvitationId,
             )
+            ProactiveIncomingCallOverlay()
         }
     }
 }

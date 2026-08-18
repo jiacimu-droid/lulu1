@@ -51,7 +51,7 @@ object ProactiveIncomingCallStore {
             expiresAt = now.plus(lifetime),
         )
         mutablePending.value = call
-        prefs?.edit()?.putString(KEY_PENDING, encode(call)).apply()
+        prefs?.edit()?.putString(KEY_PENDING, encode(call))?.apply()
         return call
     }
 
