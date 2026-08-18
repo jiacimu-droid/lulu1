@@ -14,7 +14,6 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
@@ -42,31 +41,28 @@ fun DigitalWorldMeetingApp(
     val clipboard = LocalClipboardManager.current
     val meetingVoiceEnabled by MeetingVoicePlayback.enabled.collectAsState()
     val meetingVoicePace by MeetingVoicePlayback.pace.collectAsState()
-    val profilePrefs = remember { context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE) }
-    val userAvatar = remember { profilePrefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2) }
-    val userAvatarUri = remember { profilePrefs.getString("avatar_uri", null) }
 
-    var selectedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var activeSessionId by remember { mutableStateOf<String?>(null) }
+    var browsingMap by remember { mutableStateOf(false) }
     var inviteHandled by remember(invitedCharacterId, invitationId) { mutableStateOf(false) }
     var input by remember { mutableStateOf("") }
     var errorText by remember { mutableStateOf("") }
     var showModelPicker by remember { mutableStateOf(false) }
     var showWritingPicker by remember { mutableStateOf(false) }
     var showVoiceSettings by remember { mutableStateOf(false) }
-    var showTopMenu by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
     var pendingDeleteSession by remember { mutableStateOf<MeetingSession?>(null) }
     var pendingDeleteTurn by remember { mutableStateOf<MeetingTurn?>(null) }
     var selectedSceneGroup by remember { mutableStateOf<MeetingUiDisplayGroup?>(null) }
-    var locationDraft by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) { MeetingVoicePlayback.initialize(context) }
 
-    val unfinishedSessionId = if (invitedCharacterId.isNullOrBlank()) {
+    val unfinishedSessionId = if (!browsingMap && invitedCharacterId.isNullOrBlank()) {
         world.meetings.lastOrNull { it.endedAt == null }?.id
-    } else null
-    val resolvedActiveSessionId = activeSessionId ?: unfinishedSessionId
+    } else {
+        null
+    }
+    val resolvedActiveSessionId = if (browsingMap) null else activeSessionId ?: unfinishedSessionId
     val activeSession = world.meetings.firstOrNull { it.id == resolvedActiveSessionId }
     val activeTask = activeSession?.id?.let(taskStates::get)
     val generating = activeTask?.running == true
@@ -75,10 +71,6 @@ fun DigitalWorldMeetingApp(
         ?.let(MeetingExperienceStore::pendingForSession)
         ?.lastOrNull { it.status == MeetingExchangeStatus.FAILED }
     val selectedArchiveId = ScopedModelSelections.selectedArchiveId(ScopedModelSelections.MEETING, library)
-    val selectedArchiveLabel = selectedArchiveId
-        ?.let { id -> library.archives.firstOrNull { it.id == id }?.let(LuluAiServices.connectionStore::archiveLabel) }
-        .orEmpty()
-        .ifBlank { "选择见面模型" }
 
     var seenVoiceTurnIds by remember(activeSession?.id) {
         mutableStateOf(activeSession?.turns.orEmpty().mapTo(mutableSetOf(), MeetingTurn::id))
@@ -112,6 +104,24 @@ fun DigitalWorldMeetingApp(
         return launched
     }
 
+    fun openDirectMeeting(characterId: String, location: String) {
+        val existing = DigitalWorldStore.state.value.meetings.lastOrNull { session ->
+            session.endedAt == null &&
+                session.participantIds == listOf(characterId) &&
+                session.location == location
+        }
+        runCatching {
+            existing ?: DigitalWorldStore.startMeeting(listOf(characterId), location)
+        }.onSuccess { session ->
+            activeSessionId = session.id
+            browsingMap = false
+            input = ""
+            errorText = ""
+        }.onFailure { error ->
+            errorText = error.message ?: "无法进入这个场景"
+        }
+    }
+
     fun rewindAndRegenerate(record: MeetingExchangeRecord, editOnly: Boolean) {
         val rawDraft = record.rawDraft.removePrefix(MEETING_INVITED_OPENING_PREFIX_V2)
         val affected = MeetingExperienceStore.recordsFrom(record.sessionId, record.id)
@@ -132,6 +142,7 @@ fun DigitalWorldMeetingApp(
             else DigitalWorldStore.endMeeting(session.id)
         }
         activeSessionId = null
+        browsingMap = true
     }
 
     LaunchedEffect(invitedCharacterId, invitationId) {
@@ -162,6 +173,7 @@ fun DigitalWorldMeetingApp(
             session
         }.onSuccess { session ->
             activeSessionId = session.id
+            browsingMap = false
             errorText = ""
             launchExchange(session, inviterId, true)
         }.onFailure { error ->
@@ -178,7 +190,9 @@ fun DigitalWorldMeetingApp(
         val resumedSession = if (pending.status == MeetingExchangeStatus.RUNNING) {
             DigitalWorldStore.rewindMeetingExchanges(session.id, listOf(pending), pending.beforeScene)
             DigitalWorldStore.state.value.meetings.firstOrNull { it.id == session.id } ?: return@LaunchedEffect
-        } else session
+        } else {
+            session
+        }
         val opening = pending.rawDraft.startsWith(MEETING_INVITED_OPENING_PREFIX_V2)
         val rawDraft = pending.rawDraft.removePrefix(MEETING_INVITED_OPENING_PREFIX_V2)
         val record = MeetingExperienceStore.beginExchange(resumedSession, pending.rawDraft, pending.id)
@@ -192,90 +206,17 @@ fun DigitalWorldMeetingApp(
     Scaffold(
         containerColor = LuluColors.Paper,
         topBar = {
-            TopAppBar(
-                title = {
-                    when {
-                        showHistory -> Text("见面记录", fontWeight = FontWeight.SemiBold)
-                        activeSession != null -> MeetingTopTitle(activeSession)
-                        else -> Text("见面", fontWeight = FontWeight.SemiBold)
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        when {
-                            showHistory -> showHistory = false
-                            activeSession?.endedAt != null -> {
-                                activeSessionId = null
-                                showHistory = true
-                            }
-                            else -> onBack()
+            if (showHistory) {
+                TopAppBar(
+                    title = { Text("见面记录", fontWeight = FontWeight.SemiBold) },
+                    navigationIcon = {
+                        IconButton(onClick = { showHistory = false }) {
+                            Icon(Icons.Outlined.ArrowBack, "返回")
                         }
-                    }) { Icon(Icons.Outlined.ArrowBack, "返回") }
-                },
-                actions = {
-                    if (activeSession?.endedAt == null && activeSession != null && !showHistory) {
-                        TextButton(onClick = finishActiveMeeting, enabled = !generating) {
-                            Text("结束", color = LuluColors.Ink, fontWeight = FontWeight.SemiBold)
-                        }
-                    } else if (activeSession?.endedAt != null && !showHistory) {
-                        IconButton(onClick = { pendingDeleteSession = activeSession }) {
-                            Icon(Icons.Outlined.DeleteOutline, "彻底删除这次见面")
-                        }
-                    }
-                    Box {
-                        IconButton(onClick = { showTopMenu = true }) { Icon(Icons.Outlined.MoreVert, "见面菜单") }
-                        DropdownMenu(expanded = showTopMenu, onDismissRequest = { showTopMenu = false }) {
-                            DropdownMenuItem(
-                                text = { Text("见面记录") },
-                                leadingIcon = { Icon(Icons.Outlined.History, null) },
-                                enabled = activeSession == null,
-                                onClick = { showTopMenu = false; showHistory = true },
-                            )
-                            DropdownMenuItem(
-                                text = {
-                                    Column {
-                                        Text("见面模型")
-                                        Text(selectedArchiveLabel, color = LuluColors.Muted, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                    }
-                                },
-                                leadingIcon = { Icon(Icons.Outlined.Memory, null) },
-                                onClick = { showTopMenu = false; showModelPicker = true },
-                            )
-                            DropdownMenuItem(
-                                text = {
-                                    Column {
-                                        Text("见面写法")
-                                        Text(
-                                            "${meetingLengthLabel(experience.writing.length)} · ${meetingStyleLabel(experience.writing.style)}",
-                                            color = LuluColors.Muted,
-                                            fontSize = 10.sp,
-                                        )
-                                    }
-                                },
-                                leadingIcon = { Icon(Icons.Outlined.AutoStories, null) },
-                                onClick = { showTopMenu = false; showWritingPicker = true },
-                            )
-                            DropdownMenuItem(
-                                text = {
-                                    Column {
-                                        Text("语音设置")
-                                        Text(
-                                            if (meetingVoiceEnabled) "自动朗读角色台词 · ${meetingVoicePace.label}" else "自动朗读已关闭",
-                                            color = LuluColors.Muted,
-                                            fontSize = 10.sp,
-                                        )
-                                    }
-                                },
-                                leadingIcon = {
-                                    Icon(if (meetingVoiceEnabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff, null)
-                                },
-                                onClick = { showTopMenu = false; showVoiceSettings = true },
-                            )
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
-            )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
+                )
+            }
         },
     ) { padding ->
         when {
@@ -283,45 +224,65 @@ fun DigitalWorldMeetingApp(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 characters = characters.values.sortedBy(CharacterSettings::displayName),
                 meetings = world.meetings.filter { it.endedAt != null && it.turns.isNotEmpty() },
-                onOpen = { showHistory = false; activeSessionId = it },
+                onOpen = { id ->
+                    showHistory = false
+                    activeSessionId = id
+                    browsingMap = false
+                },
                 onDelete = { pendingDeleteSession = it },
             )
-            activeSession == null -> MeetingUiLobby(
+
+            activeSession == null -> DigitalWorldMapLobby(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 characters = characters.values.sortedBy(CharacterSettings::displayName),
                 profiles = profiles,
-                selectedIds = selectedIds,
-                locationDraft = locationDraft,
-                onToggle = { id -> selectedIds = if (id in selectedIds) selectedIds - id else selectedIds + id },
-                onLocationChanged = { locationDraft = it.take(80) },
-                onStart = {
-                    runCatching { DigitalWorldStore.startMeeting(selectedIds.toList(), locationDraft) }
-                        .onSuccess { activeSessionId = it.id; input = ""; errorText = "" }
-                        .onFailure { errorText = it.message.orEmpty() }
-                },
+                selectedIds = emptySet(),
+                locationDraft = "",
+                onToggle = {},
+                onLocationChanged = {},
+                onStart = {},
                 errorText = errorText,
+                onBack = onBack,
+                onDirectMeeting = ::openDirectMeeting,
+                onOpenHistory = { showHistory = true },
+                onOpenModelPicker = { showModelPicker = true },
+                onOpenWritingPicker = { showWritingPicker = true },
+                onOpenVoiceSettings = { showVoiceSettings = true },
             )
-            else -> MeetingUiRoom(
+
+            else -> DigitalWorldMeetingSceneExperience(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 session = activeSession,
-                viewOnly = activeSession.endedAt != null,
-                userAvatar = userAvatar,
-                userAvatarUri = userAvatarUri,
+                characters = characters.values.sortedBy(CharacterSettings::displayName),
+                world = world,
                 input = input,
                 generating = generating,
                 canSend = !generating && failedExchange == null,
                 errorText = visibleError,
+                onBackToMap = {
+                    activeSessionId = null
+                    browsingMap = true
+                },
+                onEnd = finishActiveMeeting,
+                onDelete = { pendingDeleteSession = activeSession },
                 onInputChanged = { input = it.take(2_000) },
-                onSceneLongClick = { selectedSceneGroup = it },
-                onRetry = failedExchange?.takeIf { !generating }?.let { record -> { rewindAndRegenerate(record, false) } },
                 onSend = {
                     val userText = input.trim()
                     if (userText.isNotBlank() && !generating && failedExchange == null) {
                         errorText = ""
                         if (launchExchange(activeSession, userText)) input = ""
-                        else errorText = "上一轮还在生成，请稍等一下"
+                        else errorText = "上一轮还在生成"
                     }
                 },
+                onRetry = failedExchange?.takeIf { !generating }?.let { record ->
+                    { rewindAndRegenerate(record, false) }
+                },
+                onSceneLongClick = { selectedSceneGroup = it },
+                onCharacterClick = ::openDirectMeeting,
+                onOpenHistory = { showHistory = true },
+                onOpenModelPicker = { showModelPicker = true },
+                onOpenWritingPicker = { showWritingPicker = true },
+                onOpenVoiceSettings = { showVoiceSettings = true },
             )
         }
     }
@@ -335,7 +296,10 @@ fun DigitalWorldMeetingApp(
             confirmButton = {
                 TextButton(onClick = {
                     DigitalWorldStore.deleteMeeting(session.id)
-                    if (activeSessionId == session.id) activeSessionId = null
+                    if (resolvedActiveSessionId == session.id || activeSessionId == session.id) {
+                        activeSessionId = null
+                        browsingMap = true
+                    }
                     pendingDeleteSession = null
                 }) { Text("彻底删除", color = MaterialTheme.colorScheme.error) }
             },
@@ -372,7 +336,12 @@ fun DigitalWorldMeetingApp(
         val record = turn?.let(MeetingExperienceStore::exchangeForTurn)
         val canRewrite = activeSession?.endedAt == null && record != null && !generating
         ModalBottomSheet(onDismissRequest = { selectedSceneGroup = null }) {
-            Text("这一段", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
+            Text(
+                "这一段",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+            )
             ListItem(
                 headlineContent = { Text("复制完整场景") },
                 leadingContent = { Icon(Icons.Outlined.ContentCopy, null) },
@@ -389,7 +358,9 @@ fun DigitalWorldMeetingApp(
                     rewindAndRegenerate(record!!, true)
                     selectedSceneGroup = null
                 },
-                colors = ListItemDefaults.colors(headlineColor = if (canRewrite) LuluColors.Ink else LuluColors.Muted),
+                colors = ListItemDefaults.colors(
+                    headlineColor = if (canRewrite) LuluColors.Ink else LuluColors.Muted,
+                ),
             )
             ListItem(
                 headlineContent = { Text("用原输入重新生成") },
@@ -399,7 +370,9 @@ fun DigitalWorldMeetingApp(
                     rewindAndRegenerate(record!!, false)
                     selectedSceneGroup = null
                 },
-                colors = ListItemDefaults.colors(headlineColor = if (canRewrite) LuluColors.Ink else LuluColors.Muted),
+                colors = ListItemDefaults.colors(
+                    headlineColor = if (canRewrite) LuluColors.Ink else LuluColors.Muted,
+                ),
             )
             ListItem(
                 headlineContent = { Text("彻底删除这一段", color = MaterialTheme.colorScheme.error) },
@@ -416,7 +389,7 @@ fun DigitalWorldMeetingApp(
     if (showModelPicker) {
         ModelArchivePickerSheet(
             title = "见面模型",
-            subtitle = "只影响模拟见面和现实场景见面，不会改动聊天、电话或游戏模型。",
+            subtitle = "只影响见面，不会改动聊天、电话或游戏模型。",
             selectedArchiveId = selectedArchiveId,
             onSelect = {
                 ScopedModelSelections.select(ScopedModelSelections.MEETING, it)
@@ -444,39 +417,12 @@ fun DigitalWorldMeetingApp(
     }
 }
 
-@Composable
-private fun MeetingTopTitle(session: MeetingSession) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-            session.participantIds.take(2).forEach { id ->
-                val character = MigratedDomainStores.characters.get(id)
-                LuluProfileAvatar(character.avatarUri, character.displayName.take(1).ifBlank { "角" }, 42)
-            }
-        }
-        Text(
-            session.participantIds.joinToString("、") { MigratedDomainStores.characters.get(it).displayName },
-            modifier = Modifier.widthIn(max = 104.dp),
-            color = LuluColors.Ink,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Surface(color = Color(0xFFF1F2F3), shape = RoundedCornerShape(11.dp)) {
-            Row(Modifier.padding(horizontal = 6.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.Place, null, tint = Color(0xFF85888E), modifier = Modifier.size(11.dp))
-                Spacer(Modifier.width(3.dp))
-                Text(session.location, Modifier.widthIn(max = 72.dp), color = Color(0xFF74777D), fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
-        }
-    }
-}
-
 private fun meetingLengthLabel(value: MeetingProseLength): String = when (value) {
     MeetingProseLength.BRIEF -> "简略"
     MeetingProseLength.BALANCED -> "适中"
     MeetingProseLength.RICH -> "丰富"
 }
+
 private fun meetingStyleLabel(value: MeetingProseStyle): String = when (value) {
     MeetingProseStyle.NATURAL -> "自然"
     MeetingProseStyle.SUBTLE -> "细腻含蓄"
@@ -542,16 +488,18 @@ private fun MeetingWritingPreferencesDialogV2(
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("情节丰富度", fontWeight = FontWeight.Medium)
-                    Text("控制这一小步展开多少细节，不要求你把输入写完整。", color = LuluColors.Muted, fontSize = 12.sp)
                     Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                         MeetingProseLength.values().forEach { option ->
-                            FilterChip(selected = preferences.length == option, onClick = { onLength(option) }, label = { Text(meetingLengthLabel(option)) })
+                            FilterChip(
+                                selected = preferences.length == option,
+                                onClick = { onLength(option) },
+                                label = { Text(meetingLengthLabel(option)) },
+                            )
                         }
                     }
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("描写风格", fontWeight = FontWeight.Medium)
-                    Text("“细腻含蓄”会用目光、停顿、呼吸与触感呈现情绪，少直接宣告心声。", color = LuluColors.Muted, fontSize = 12.sp)
                     MeetingProseStyle.values().forEach { option ->
                         FilterChip(
                             selected = preferences.style == option,
