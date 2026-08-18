@@ -45,10 +45,14 @@ internal fun DigitalWorldMapLobby(
 ) {
     val context = LocalContext.current
     val world by DigitalWorldStore.state.collectAsState()
+    val voiceEnabled by MeetingVoicePlayback.enabled.collectAsState()
     var openSceneCode by remember { mutableStateOf<String?>(null) }
     var showCatalog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
+    var showVoiceSettings by remember { mutableStateOf(false) }
     var pendingLegacyQuickStart by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) { MeetingVoicePlayback.initialize(context) }
 
     LaunchedEffect(characters, profiles) {
         characters.forEach { character ->
@@ -126,6 +130,12 @@ internal fun DigitalWorldMapLobby(
                 IconButton(onClick = { showCatalog = true }) {
                     Icon(Icons.Outlined.Chair, "家具城")
                 }
+                IconButton(onClick = { showVoiceSettings = true }) {
+                    Icon(
+                        if (voiceEnabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
+                        if (voiceEnabled) "见面语音已开启" else "见面语音已关闭",
+                    )
+                }
                 Box {
                     IconButton(onClick = { showMenu = true }) { Icon(Icons.Outlined.MoreVert, "更多") }
                     DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
@@ -145,13 +155,19 @@ internal fun DigitalWorldMapLobby(
                             onClick = { showMenu = false; onOpenWritingPicker() },
                         )
                         DropdownMenuItem(
-                            text = { Text("语音设置") },
-                            leadingIcon = { Icon(Icons.Outlined.VolumeUp, null) },
-                            onClick = { showMenu = false; onOpenVoiceSettings() },
+                            text = { Text(if (voiceEnabled) "语音：已开启" else "语音：已关闭") },
+                            leadingIcon = {
+                                Icon(
+                                    if (voiceEnabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
+                                    null,
+                                )
+                            },
+                            onClick = { showMenu = false; showVoiceSettings = true },
                         )
                     }
                 }
             },
+            windowInsets = WindowInsets(0, 0, 0, 0),
             colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
         )
 
@@ -185,6 +201,7 @@ internal fun DigitalWorldMapLobby(
     }
 
     if (showCatalog) FurnitureCatalogDialog(onDismiss = { showCatalog = false })
+    if (showVoiceSettings) MeetingPageVoiceSettingsDialog(onDismiss = { showVoiceSettings = false })
 }
 
 @Composable
