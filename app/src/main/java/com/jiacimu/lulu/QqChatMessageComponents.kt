@@ -83,14 +83,12 @@ internal fun QqMessageRow(
     if (message.sender == LuluChatMessage.Sender.System) {
         val notice = remember(message.content) { parseSystemActivityNotice(message.content) }
         val receiptTime = remember(message.createdAt) {
-            message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+            message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm"))
         }
-        Column(
+        Box(
             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            contentAlignment = Alignment.Center,
         ) {
-            Text(receiptTime, color = Color(0xFF8A8A8A), fontSize = 9.sp)
             Surface(
                 color = Color(0xFFFEFEFD),
                 shape = RoundedCornerShape(10.dp),
@@ -100,17 +98,19 @@ internal fun QqMessageRow(
                 Row(
                     modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    Surface(
-                        modifier = Modifier.size(5.dp),
-                        shape = CircleShape,
-                        color = Color(0xFF252525),
-                    ) {}
+                    Text(
+                        receiptTime,
+                        color = Color(0xFF777777),
+                        fontSize = 9.5.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                    Text("·", color = Color(0xFF9A9A9A), fontSize = 10.sp)
                     if (notice.link == null) {
                         Text(
                             notice.visibleText,
-                            color = Color(0xFF4A4A4A),
+                            color = Color(0xFF3F3F3F),
                             fontSize = 10.5.sp,
                             lineHeight = 15.sp,
                         )
@@ -140,7 +140,7 @@ internal fun QqMessageRow(
                         ClickableText(
                             text = annotated,
                             style = LocalTextStyle.current.copy(
-                                color = Color(0xFF4A4A4A),
+                                color = Color(0xFF3F3F3F),
                                 fontSize = 10.5.sp,
                                 lineHeight = 15.sp,
                             ),
