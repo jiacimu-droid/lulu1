@@ -22,6 +22,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
@@ -33,6 +34,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.jiacimu.lulu.data.*
 import com.jiacimu.lulu.design.LuluColors
+import kotlinx.coroutines.delay
+import kotlin.math.abs
 
 private data class SceneUserProfile(
     val avatarText: String,
@@ -86,14 +89,19 @@ internal fun DigitalWorldScenePage(
             windowInsets = WindowInsets(0, 0, 0, 0),
             colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
         )
-        DigitalWorldSceneCanvas(
+        Box(
             modifier = Modifier.fillMaxWidth().weight(1f),
-            sceneCode = sceneCode,
-            homeCharacterId = homeCharacterId,
-            characters = characters,
-            world = world,
-            onCharacterClick = onCharacterClick,
-        )
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            DigitalWorldSceneCanvas(
+                modifier = Modifier.fillMaxWidth().aspectRatio(1f),
+                sceneCode = sceneCode,
+                homeCharacterId = homeCharacterId,
+                characters = characters,
+                world = world,
+                onCharacterClick = onCharacterClick,
+            )
+        }
     }
 }
 
@@ -170,9 +178,7 @@ private fun DigitalHomeRoom(
                     }
                 },
         ) {
-            Canvas(Modifier.matchParentSize()) {
-                drawIllustratedRoom()
-            }
+            Canvas(Modifier.matchParentSize()) { drawIllustratedRoom() }
 
             items.forEachIndexed { index, item ->
                 val style = DigitalFurnitureCatalog.resolve(item)
@@ -191,18 +197,70 @@ private fun DigitalHomeRoom(
             }
 
             residents.forEachIndexed { index, character ->
-                val anchor = residentAnchor(index, character.characterId, shared = false)
-                SceneCharacterSprite(
-                    character = character,
-                    scale = personDepthScale(anchor.y),
-                    modifier = Modifier
-                        .offset(
-                            x = (maxWidth - 54.dp) * anchor.x,
-                            y = (maxHeight - 80.dp) * anchor.y,
-                        )
-                        .zIndex(personDepthZ(anchor.y)),
-                    onClick = { onCharacterClick(character.characterId) },
-                )
+                key(character.characterId) {
+                    val base = remember(character.characterId, index) {
+                        residentAnchor(index, character.characterId, shared = false)
+                    }
+                    var targetX by rememberSaveable(character.characterId, "home-x") { mutableStateOf(base.x) }
+                    var targetY by rememberSaveable(character.characterId, "home-y") { mutableStateOf(base.y) }
+                    var walking by remember(character.characterId) { mutableStateOf(false) }
+                    val residentX by animateFloatAsState(
+                        targetX,
+                        tween(1150),
+                        label = "resident-${character.characterId}-x",
+                    )
+                    val residentY by animateFloatAsState(
+                        targetY,
+                        tween(1150),
+                        label = "resident-${character.characterId}-y",
+                        finishedListener = { walking = false },
+                    )
+
+                    LaunchedEffect(character.characterId) {
+                        val seed = character.characterId.hashCode() and Int.MAX_VALUE
+                        var step = 0
+                        while (true) {
+                            delay(6500L + ((seed + step * 977) % 4200))
+                            val moveTowardUser = (seed + step) % 4 == 0
+                            if (moveTowardUser) {
+                                val side = if ((seed + step) % 2 == 0) -.11f else .11f
+                                targetX = (userTargetX + side).coerceIn(.08f, .82f)
+                                targetY = (userTargetY - .035f).coerceIn(.48f, .78f)
+                            } else {
+                                val dx = (((seed / 13 + step * 17) % 21) - 10) * .008f
+                                val dy = (((seed / 29 + step * 11) % 15) - 7) * .006f
+                                targetX = (base.x + dx).coerceIn(.08f, .82f)
+                                targetY = (base.y + dy).coerceIn(.47f, .78f)
+                            }
+                            walking = true
+                            step++
+                        }
+                    }
+
+                    LaunchedEffect(userTargetX, userTargetY) {
+                        val proximity = abs(base.x - userTargetX) + abs(base.y - userTargetY)
+                        if (proximity < .46f) {
+                            delay(720)
+                            val side = if (base.x <= userTargetX) -.105f else .105f
+                            targetX = (userTargetX + side).coerceIn(.08f, .82f)
+                            targetY = (userTargetY - .03f).coerceIn(.48f, .78f)
+                            walking = true
+                        }
+                    }
+
+                    SceneCharacterSprite(
+                        character = character,
+                        scale = personDepthScale(residentY),
+                        walking = walking,
+                        modifier = Modifier
+                            .offset(
+                                x = (maxWidth - 58.dp) * residentX,
+                                y = (maxHeight - 68.dp) * residentY,
+                            )
+                            .zIndex(personDepthZ(residentY)),
+                        onClick = { onCharacterClick(character.characterId) },
+                    )
+                }
             }
 
             ScenePersonSprite(
@@ -212,11 +270,11 @@ private fun DigitalHomeRoom(
                 walking = userWalking,
                 modifier = Modifier
                     .offset(
-                        x = (maxWidth - 54.dp) * userX,
-                        y = (maxHeight - 80.dp) * userY,
+                        x = (maxWidth - 58.dp) * userX,
+                        y = (maxHeight - 68.dp) * userY,
                     )
                     .zIndex(personDepthZ(userY) + .05f),
-                bodyColor = Color(0xFF8C8881),
+                limbColor = Color(0xFF77736D),
             )
         }
     }
@@ -263,14 +321,13 @@ private fun personDepthZ(y: Float): Float = 2.6f + y.coerceIn(0f, 1f) * 10f
 
 private fun personDepthScale(y: Float): Float {
     val normalized = ((y.coerceIn(.42f, .84f) - .42f) / .42f).coerceIn(0f, 1f)
-    return .84f + normalized * .16f
+    return .86f + normalized * .14f
 }
 
 private fun furnitureDepthZ(kind: DigitalFurnitureKind, y: Float): Float = when (kind) {
     DigitalFurnitureKind.WALL_ART,
     DigitalFurnitureKind.CLOCK,
     DigitalFurnitureKind.MIRROR -> .6f
-
     DigitalFurnitureKind.RUG -> 1.1f
     else -> 2f + y.coerceIn(0f, 1f) * 10f
 }
@@ -278,7 +335,6 @@ private fun furnitureDepthZ(kind: DigitalFurnitureKind, y: Float): Float = when 
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom() {
     val wallBottom = size.height * .39f
     val wall = Color(0xFFF8F5EF)
-    val wallShadow = Color(0xFFEDE7DE)
     val floor = Color(0xFFE5DACB)
     val floorLine = Color(0xFF9E8F7E).copy(alpha = .18f)
     val ink = Color(0xFF514B44).copy(alpha = .34f)
@@ -286,21 +342,11 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom
     drawRect(wall)
     drawRect(
         Brush.verticalGradient(
-            listOf(Color.White.copy(alpha = .20f), Color.Transparent),
+            listOf(Color.White.copy(alpha = .22f), Color.Transparent),
             startY = 0f,
             endY = wallBottom,
         ),
         size = Size(size.width, wallBottom),
-    )
-    drawRect(
-        wallShadow.copy(alpha = .44f),
-        topLeft = Offset(0f, 0f),
-        size = Size(size.width * .055f, wallBottom),
-    )
-    drawRect(
-        wallShadow.copy(alpha = .26f),
-        topLeft = Offset(size.width * .94f, 0f),
-        size = Size(size.width * .06f, wallBottom),
     )
     drawRect(
         Brush.verticalGradient(
@@ -311,17 +357,10 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom
         topLeft = Offset(0f, wallBottom),
         size = Size(size.width, size.height - wallBottom),
     )
-
     drawRect(
         Color(0xFFCEC0AF),
         topLeft = Offset(0f, wallBottom - 4.dp.toPx()),
         size = Size(size.width, 5.dp.toPx()),
-    )
-    drawLine(
-        Color.White.copy(alpha = .62f),
-        Offset(0f, wallBottom - 6.dp.toPx()),
-        Offset(size.width, wallBottom - 6.dp.toPx()),
-        strokeWidth = 1.3.dp.toPx(),
     )
 
     val floorHeight = size.height - wallBottom
@@ -386,7 +425,6 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom
     }
     drawPath(lightPatch, Color.White.copy(alpha = .16f))
 
-    // A tiny framed print keeps the opposite wall from feeling unfinished without adding another color.
     val frameLeft = size.width * .16f
     val frameTop = size.height * .10f
     drawRoundRect(
@@ -408,19 +446,6 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom
         Offset(frameLeft + size.width * .125f, frameTop + size.height * .082f),
         strokeWidth = 1.dp.toPx(),
     )
-
-    drawLine(
-        ink,
-        Offset(size.width * .055f, 0f),
-        Offset(size.width * .055f, wallBottom),
-        strokeWidth = .8.dp.toPx(),
-    )
-    drawLine(
-        ink,
-        Offset(size.width * .94f, 0f),
-        Offset(size.width * .94f, wallBottom),
-        strokeWidth = .8.dp.toPx(),
-    )
 }
 
 @Composable
@@ -428,14 +453,16 @@ private fun SceneCharacterSprite(
     character: CharacterSettings,
     modifier: Modifier = Modifier,
     scale: Float = 1f,
+    walking: Boolean = false,
     onClick: () -> Unit,
 ) {
     ScenePersonSprite(
         avatarUri = character.avatarUri,
         avatarText = character.displayName.take(1).ifBlank { "角" },
         modifier = modifier,
-        bodyColor = Color(0xFF4B4B4B),
+        limbColor = Color(0xFF55514C),
         scale = scale,
+        walking = walking,
         onClick = onClick,
     )
 }
@@ -445,86 +472,91 @@ private fun ScenePersonSprite(
     avatarUri: String?,
     avatarText: String,
     modifier: Modifier = Modifier,
-    bodyColor: Color,
+    limbColor: Color,
     scale: Float = 1f,
     walking: Boolean = false,
     onClick: (() -> Unit)? = null,
 ) {
     val stepScaleY by animateFloatAsState(
-        targetValue = if (walking) .94f else 1f,
+        targetValue = if (walking) .95f else 1f,
         animationSpec = tween(if (walking) 120 else 180),
         label = "scene-person-step",
     )
     val clickableModifier = if (onClick == null) modifier else modifier.clickable(onClick = onClick)
-    Column(
-        modifier = clickableModifier.graphicsLayer {
-            scaleX = scale
-            scaleY = scale * stepScaleY
-            transformOrigin = TransformOrigin(.5f, 1f)
-        },
-        horizontalAlignment = Alignment.CenterHorizontally,
+
+    Box(
+        modifier = clickableModifier
+            .size(width = 58.dp, height = 68.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale * stepScaleY
+                transformOrigin = TransformOrigin(.5f, 1f)
+            },
+        contentAlignment = Alignment.TopCenter,
     ) {
+        Canvas(Modifier.matchParentSize()) {
+            val limb = limbColor.copy(alpha = .78f)
+            val limbWidth = 3.4.dp.toPx()
+
+            drawOval(
+                Color.Black.copy(alpha = if (walking) .06f else .09f),
+                topLeft = Offset(size.width * .20f, size.height * .90f),
+                size = Size(size.width * .60f, size.height * .075f),
+            )
+
+            // No torso: the avatar itself is the whole character, with tiny limbs growing from it.
+            drawLine(
+                limb,
+                Offset(size.width * .18f, size.height * .45f),
+                Offset(size.width * .055f, size.height * .61f),
+                strokeWidth = limbWidth,
+                cap = StrokeCap.Round,
+            )
+            drawLine(
+                limb,
+                Offset(size.width * .82f, size.height * .45f),
+                Offset(size.width * .945f, size.height * .61f),
+                strokeWidth = limbWidth,
+                cap = StrokeCap.Round,
+            )
+            drawCircle(limb, 2.6.dp.toPx(), Offset(size.width * .05f, size.height * .62f))
+            drawCircle(limb, 2.6.dp.toPx(), Offset(size.width * .95f, size.height * .62f))
+
+            val leftFootX = if (walking) .30f else .36f
+            val rightFootX = if (walking) .70f else .64f
+            drawLine(
+                limb,
+                Offset(size.width * .40f, size.height * .67f),
+                Offset(size.width * leftFootX, size.height * .86f),
+                strokeWidth = limbWidth,
+                cap = StrokeCap.Round,
+            )
+            drawLine(
+                limb,
+                Offset(size.width * .60f, size.height * .67f),
+                Offset(size.width * rightFootX, size.height * .86f),
+                strokeWidth = limbWidth,
+                cap = StrokeCap.Round,
+            )
+            drawOval(
+                limb,
+                Offset(size.width * (leftFootX - .07f), size.height * .84f),
+                Size(size.width * .15f, size.height * .075f),
+            )
+            drawOval(
+                limb,
+                Offset(size.width * (rightFootX - .07f), size.height * .84f),
+                Size(size.width * .15f, size.height * .075f),
+            )
+        }
+
         Surface(
             shape = RoundedCornerShape(15.dp),
             color = Color.White,
             border = BorderStroke(1.dp, Color(0xFF2B2B2B)),
             shadowElevation = 2.dp,
         ) {
-            LuluProfileAvatar(avatarUri, avatarText, 46)
-        }
-        Canvas(Modifier.size(width = 44.dp, height = 38.dp).offset(y = (-4).dp)) {
-            val ink = Color(0xFF353535)
-            val softBody = bodyColor.copy(alpha = .18f)
-            val paw = bodyColor.copy(alpha = .32f)
-
-            drawOval(
-                Color.Black.copy(alpha = if (walking) .07f else .10f),
-                topLeft = Offset(size.width * .18f, size.height * .79f),
-                size = Size(size.width * .64f, size.height * .13f),
-            )
-            drawOval(
-                paw,
-                topLeft = Offset(size.width * .01f, size.height * .25f),
-                size = Size(size.width * .25f, size.height * .41f),
-            )
-            drawOval(
-                paw,
-                topLeft = Offset(size.width * .74f, size.height * .25f),
-                size = Size(size.width * .25f, size.height * .41f),
-            )
-            drawRoundRect(
-                softBody,
-                topLeft = Offset(size.width * .13f, size.height * .01f),
-                size = Size(size.width * .74f, size.height * .72f),
-                cornerRadius = CornerRadius(size.width * .28f),
-            )
-            drawRoundRect(
-                ink.copy(alpha = .68f),
-                topLeft = Offset(size.width * .13f, size.height * .01f),
-                size = Size(size.width * .74f, size.height * .72f),
-                cornerRadius = CornerRadius(size.width * .28f),
-                style = Stroke(1.dp.toPx()),
-            )
-            drawOval(
-                Color.White.copy(alpha = .78f),
-                topLeft = Offset(size.width * .31f, size.height * .22f),
-                size = Size(size.width * .38f, size.height * .31f),
-            )
-            drawCircle(
-                bodyColor.copy(alpha = .72f),
-                radius = 2.2.dp.toPx(),
-                center = Offset(size.width * .50f, size.height * .16f),
-            )
-            drawOval(
-                bodyColor.copy(alpha = .78f),
-                topLeft = Offset(size.width * .20f, size.height * .67f),
-                size = Size(size.width * .27f, size.height * .20f),
-            )
-            drawOval(
-                bodyColor.copy(alpha = .78f),
-                topLeft = Offset(size.width * .53f, size.height * .67f),
-                size = Size(size.width * .27f, size.height * .20f),
-            )
+            LuluProfileAvatar(avatarUri, avatarText, 48)
         }
     }
 }
@@ -582,8 +614,8 @@ private fun SharedWorldScene(
                     scale = personDepthScale(anchor.y),
                     modifier = Modifier
                         .offset(
-                            x = (maxWidth - 54.dp) * anchor.x,
-                            y = (maxHeight - 80.dp) * anchor.y,
+                            x = (maxWidth - 58.dp) * anchor.x,
+                            y = (maxHeight - 68.dp) * anchor.y,
                         )
                         .zIndex(personDepthZ(anchor.y)),
                     onClick = { onCharacterClick(character.characterId) },
@@ -597,11 +629,11 @@ private fun SharedWorldScene(
                 walking = userWalking,
                 modifier = Modifier
                     .offset(
-                        x = (maxWidth - 54.dp) * userX,
-                        y = (maxHeight - 80.dp) * userY,
+                        x = (maxWidth - 58.dp) * userX,
+                        y = (maxHeight - 68.dp) * userY,
                     )
                     .zIndex(personDepthZ(userY) + .05f),
-                bodyColor = Color(0xFF8C8881),
+                limbColor = Color(0xFF77736D),
             )
         }
     }
@@ -620,7 +652,6 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawCloudMeadow() {
         ),
     )
 
-    // Diffused sun, kept almost monochrome so it stays inside the app's restrained palette.
     drawCircle(
         Color.White.copy(alpha = .20f),
         radius = size.minDimension * .17f,
@@ -632,7 +663,6 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawCloudMeadow() {
         center = Offset(size.width * .78f, size.height * .18f),
     )
 
-    // Far cloud banks create an actual horizon instead of a row of identical circles.
     listOf(
         Triple(.03f, .31f, .34f),
         Triple(.28f, .35f, .30f),
@@ -645,7 +675,6 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawCloudMeadow() {
         )
     }
 
-    // Two distant floating cloud-islands make the space feel much larger than the viewport.
     drawOval(
         Color(0xFFA9BEC7).copy(alpha = .13f),
         topLeft = Offset(size.width * .12f, size.height * .45f),
@@ -685,7 +714,6 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawCloudMeadow() {
         cornerRadius = CornerRadius(size.height * .15f),
     )
 
-    // Uneven cloud rim avoids the old scalloped-copy-paste look.
     val rim = listOf(.045f, .09f, .055f, .082f, .050f, .090f, .058f, .078f, .052f)
     rim.forEachIndexed { index, radiusRatio ->
         val x = size.width * (.03f + index * .118f)
@@ -696,59 +724,45 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawCloudMeadow() {
         )
     }
 
-    // A soft winding trail gives the eye a path into the scene and also hints where people can stand.
     val trail = Path().apply {
-        moveTo(size.width * .46f, size.height * .86f)
+        moveTo(size.width * .46f, meadowTop + size.height * .04f)
         cubicTo(
-            size.width * .39f,
-            size.height * .79f,
-            size.width * .57f,
-            size.height * .74f,
-            size.width * .50f,
-            size.height * .68f,
-        )
-        cubicTo(
-            size.width * .45f,
-            size.height * .63f,
-            size.width * .53f,
-            size.height * .60f,
-            size.width * .50f,
-            size.height * .57f,
+            size.width * .38f,
+            meadowTop + size.height * .11f,
+            size.width * .60f,
+            meadowTop + size.height * .16f,
+            size.width * .47f,
+            meadowTop + size.height * .27f,
         )
     }
     drawPath(
         trail,
-        Color(0xFFB7CAD1).copy(alpha = .16f),
-        style = Stroke(width = 15.dp.toPx()),
-    )
-    drawPath(
-        trail,
-        Color.White.copy(alpha = .58f),
-        style = Stroke(width = 8.dp.toPx()),
+        Color(0xFFAFC4CD).copy(alpha = .13f),
+        style = Stroke(18.dp.toPx(), cap = StrokeCap.Round),
     )
 
-    repeat(7) { index ->
-        val x = size.width * (.12f + index * .12f)
-        val baseY = meadowTop + size.height * (.20f + (index % 2) * .028f)
+    repeat(8) { index ->
+        val x = size.width * (.12f + index * .105f)
+        val baseY = meadowTop + size.height * (.20f + (index % 2) * .035f)
         drawLine(
-            Color(0xFF9EB4BD).copy(alpha = .42f),
+            Color(0xFF9EB4BD).copy(alpha = .40f),
             Offset(x, baseY),
-            Offset(x + size.width * .007f, baseY - size.height * .040f),
+            Offset(x + size.width * .008f, baseY - size.height * .045f),
             strokeWidth = 1.dp.toPx(),
         )
         drawCircle(
-            Color.White.copy(alpha = .90f),
-            radius = 2.0.dp.toPx(),
-            center = Offset(x + size.width * .008f, baseY - size.height * .043f),
+            Color.White.copy(alpha = .88f),
+            radius = 2.2.dp.toPx(),
+            center = Offset(x + size.width * .009f, baseY - size.height * .048f),
         )
     }
 
-    repeat(12) { index ->
+    repeat(11) { index ->
         val x = size.width * ((index * 37 % 91) / 100f + .04f)
-        val y = size.height * ((index * 19 % 43) / 100f + .11f)
+        val y = size.height * ((index * 19 % 43) / 100f + .12f)
         drawCircle(
-            Color.White.copy(alpha = .55f),
-            radius = (1.1f + index % 3).dp.toPx(),
+            Color.White.copy(alpha = .60f),
+            radius = (1.2f + index % 3).dp.toPx(),
             center = Offset(x.coerceAtMost(size.width * .95f), y),
         )
     }
@@ -757,80 +771,63 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawCloudMeadow() {
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawArrivalScene() {
     drawRect(
         Brush.verticalGradient(
-            listOf(Color(0xFFF8F6F0), Color(0xFFEDE9E0)),
+            listOf(Color(0xFFF8F6F0), Color(0xFFEAE6DD)),
             startY = 0f,
             endY = size.height,
         ),
     )
 
-    val horizon = size.height * .42f
+    val horizon = size.height * .54f
     drawLine(
-        Color(0xFFBDB5AA).copy(alpha = .20f),
-        Offset(size.width * .08f, horizon),
-        Offset(size.width * .92f, horizon),
+        Color(0xFFB9B1A6).copy(alpha = .30f),
+        Offset(0f, horizon),
+        Offset(size.width, horizon),
         strokeWidth = 1.dp.toPx(),
     )
+
     drawOval(
-        Color(0xFF8D867D).copy(alpha = .10f),
-        topLeft = Offset(size.width * .18f, size.height * .68f),
-        size = Size(size.width * .64f, size.height * .10f),
+        Color(0xFFAAA196).copy(alpha = .10f),
+        Offset(size.width * .17f, size.height * .70f),
+        Size(size.width * .66f, size.height * .12f),
     )
     drawOval(
-        Color.White.copy(alpha = .54f),
-        topLeft = Offset(size.width * .20f, size.height * .61f),
-        size = Size(size.width * .60f, size.height * .12f),
-    )
-    drawOval(
-        Color(0xFFA59D92).copy(alpha = .24f),
-        topLeft = Offset(size.width * .26f, size.height * .635f),
-        size = Size(size.width * .48f, size.height * .075f),
-        style = Stroke(1.2.dp.toPx()),
+        Color.White.copy(alpha = .78f),
+        Offset(size.width * .13f, size.height * .61f),
+        Size(size.width * .74f, size.height * .15f),
     )
 
-    val portalTop = size.height * .17f
     val portalLeft = size.width * .31f
+    val portalTop = size.height * .20f
     val portalWidth = size.width * .38f
-    val portalHeight = size.height * .45f
+    val portalHeight = size.height * .42f
     drawOval(
-        Color.White.copy(alpha = .24f),
-        topLeft = Offset(portalLeft - size.width * .035f, portalTop - size.height * .025f),
-        size = Size(portalWidth + size.width * .07f, portalHeight + size.height * .05f),
+        Color.White.copy(alpha = .46f),
+        Offset(portalLeft - size.width * .045f, portalTop - size.height * .035f),
+        Size(portalWidth + size.width * .09f, portalHeight + size.height * .07f),
     )
     drawOval(
-        Color(0xFF8F887E).copy(alpha = .50f),
-        topLeft = Offset(portalLeft, portalTop),
-        size = Size(portalWidth, portalHeight),
+        Color(0xFF8F887F).copy(alpha = .46f),
+        Offset(portalLeft, portalTop),
+        Size(portalWidth, portalHeight),
         style = Stroke(2.dp.toPx()),
     )
     drawOval(
-        Color.White.copy(alpha = .72f),
-        topLeft = Offset(portalLeft + size.width * .035f, portalTop + size.height * .035f),
-        size = Size(portalWidth - size.width * .07f, portalHeight - size.height * .07f),
-        style = Stroke(1.2.dp.toPx()),
-    )
-    drawOval(
         Brush.verticalGradient(
-            listOf(Color.White.copy(alpha = .22f), Color(0xFFD7E1E3).copy(alpha = .16f)),
+            listOf(Color.White.copy(alpha = .82f), Color(0xFFDDE2E1).copy(alpha = .38f)),
             startY = portalTop,
             endY = portalTop + portalHeight,
         ),
-        topLeft = Offset(portalLeft + size.width * .055f, portalTop + size.height * .055f),
-        size = Size(portalWidth - size.width * .11f, portalHeight - size.height * .11f),
+        Offset(portalLeft + size.width * .025f, portalTop + size.height * .025f),
+        Size(portalWidth - size.width * .05f, portalHeight - size.height * .05f),
     )
 
-    // Sparse stones around the platform break the perfect symmetry without clutter.
-    listOf(
-        Offset(.18f, .73f),
-        Offset(.29f, .78f),
-        Offset(.73f, .76f),
-        Offset(.84f, .70f),
-        Offset(.12f, .58f),
-        Offset(.88f, .55f),
-    ).forEachIndexed { index, ratio ->
+    repeat(9) { index ->
+        val x = size.width * (.12f + ((index * 31) % 77) / 100f)
+        val y = size.height * (.67f + (index % 3) * .055f)
         drawOval(
-            Color(0xFFA8A095).copy(alpha = .34f),
-            topLeft = Offset(size.width * ratio.x, size.height * ratio.y),
-            size = Size((5 + index % 3 * 2).dp.toPx(), (3 + index % 2 * 2).dp.toPx()),
+            Color(0xFFA8A096).copy(alpha = .30f),
+            Offset(x, y),
+            Size((5 + index % 3).dp.toPx(), (3 + index % 2).dp.toPx()),
         )
     }
 }
