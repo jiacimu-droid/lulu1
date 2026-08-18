@@ -2,6 +2,7 @@ package com.jiacimu.lulu
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -131,7 +132,8 @@ internal fun DigitalWorldMeetingSceneExperience(
             title = {
                 Text(
                     session.location,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -141,7 +143,11 @@ internal fun DigitalWorldMeetingSceneExperience(
             },
             actions = {
                 if (viewOnly) {
-                    IconButton(onClick = onDelete) { Icon(Icons.Outlined.DeleteOutline, "删除") }
+                    MeetingToolButton(
+                        icon = Icons.Outlined.DeleteOutline,
+                        contentDescription = "删除",
+                        onClick = onDelete,
+                    )
                 } else {
                     TextButton(onClick = onEnd, enabled = !generating) {
                         Text("结束", color = Color(0xFF222222), fontWeight = FontWeight.SemiBold)
@@ -152,9 +158,11 @@ internal fun DigitalWorldMeetingSceneExperience(
                     onToggle = ::toggleVoice,
                 )
                 Box {
-                    IconButton(onClick = { showMenu = true }) {
-                        Icon(Icons.Outlined.MoreVert, "更多", tint = Color(0xFF2E2E2E))
-                    }
+                    MeetingToolButton(
+                        icon = Icons.Outlined.MoreVert,
+                        contentDescription = "更多",
+                        onClick = { showMenu = true },
+                    )
                     MeetingOverflowMenu(
                         expanded = showMenu,
                         voiceEnabled = voiceEnabled,
@@ -202,14 +210,18 @@ internal fun DigitalWorldMeetingSceneExperience(
                     } ?: Modifier,
                 ),
             color = Color(0xFFFEFEFD),
-            shape = RoundedCornerShape(18.dp),
-            border = BorderStroke(1.dp, Color(0xFF252525)),
+            shape = RoundedCornerShape(19.dp),
+            border = BorderStroke(1.dp, Color(0xFF302F2D)),
+            shadowElevation = 1.dp,
         ) {
             Column(
-                Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 10.dp),
+                Modifier.fillMaxSize().padding(horizontal = 15.dp, vertical = 11.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
-                Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.CenterStart) {
+                Box(
+                    Modifier.fillMaxWidth().weight(1f),
+                    contentAlignment = Alignment.TopStart,
+                ) {
                     when {
                         currentPage != null -> {
                             Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
@@ -261,11 +273,17 @@ internal fun DigitalWorldMeetingSceneExperience(
                             }
                         }
                         generating -> {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(18.dp),
-                                strokeWidth = 2.dp,
-                                color = Color(0xFF333333),
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    strokeWidth = 1.8.dp,
+                                    color = Color(0xFF333333),
+                                )
+                                Text("正在继续……", color = Color(0xFF777570), fontSize = 11.sp)
+                            }
                         }
                         else -> Text("……", color = Color(0xFF999999), fontSize = 15.sp)
                     }
@@ -274,26 +292,39 @@ internal fun DigitalWorldMeetingSceneExperience(
                 Row(
                     Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    TextButton(
-                        onClick = { pageIndex = (pageIndex - 1).coerceAtLeast(0) },
+                    MeetingPageNavButton(
+                        label = "上一段",
+                        icon = Icons.Outlined.ChevronLeft,
+                        iconAfter = false,
                         enabled = pageIndex > 0,
-                    ) {
-                        Icon(Icons.Outlined.ChevronLeft, null, Modifier.size(18.dp))
-                        Text("上一段")
-                    }
+                        onClick = { pageIndex = (pageIndex - 1).coerceAtLeast(0) },
+                    )
                     Spacer(Modifier.weight(1f))
                     if (pages.isNotEmpty()) {
-                        Text("${pageIndex + 1} / ${pages.size}", color = Color(0xFF888888), fontSize = 10.sp)
+                        Surface(
+                            shape = RoundedCornerShape(99.dp),
+                            color = Color(0xFFF2F1EE),
+                            border = BorderStroke(.7.dp, Color(0xFFE0DED9)),
+                        ) {
+                            Text(
+                                "${pageIndex + 1} / ${pages.size}",
+                                color = Color(0xFF777570),
+                                fontSize = 9.5.sp,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
+                            )
+                        }
                     }
                     Spacer(Modifier.weight(1f))
-                    TextButton(
-                        onClick = { pageIndex = (pageIndex + 1).coerceAtMost(pages.lastIndex) },
+                    MeetingPageNavButton(
+                        label = "下一段",
+                        icon = Icons.Outlined.ChevronRight,
+                        iconAfter = true,
                         enabled = pages.isNotEmpty() && pageIndex < pages.lastIndex,
-                    ) {
-                        Text("下一段")
-                        Icon(Icons.Outlined.ChevronRight, null, Modifier.size(18.dp))
-                    }
+                        onClick = { pageIndex = (pageIndex + 1).coerceAtMost(pages.lastIndex) },
+                    )
                 }
             }
         }
@@ -309,7 +340,7 @@ internal fun DigitalWorldMeetingSceneExperience(
         }
 
         if (!viewOnly) {
-            Surface(color = LuluColors.Paper, tonalElevation = 2.dp) {
+            Surface(color = LuluColors.Paper, tonalElevation = 0.dp) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -323,26 +354,82 @@ internal fun DigitalWorldMeetingSceneExperience(
                         value = input,
                         onValueChange = onInputChanged,
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("写一点……") },
+                        placeholder = { Text("写一点……", fontSize = 13.sp) },
                         minLines = 1,
                         maxLines = 3,
                         shape = RoundedCornerShape(16.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF34322F),
+                            unfocusedBorderColor = Color(0xFFD5D2CC),
+                            cursorColor = Color(0xFF2B2B2B),
+                        ),
                     )
                     FilledIconButton(
                         onClick = onSend,
                         enabled = input.isNotBlank() && canSend,
-                        modifier = Modifier.size(48.dp),
+                        modifier = Modifier.size(47.dp),
+                        shape = RoundedCornerShape(15.dp),
                         colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = Color(0xFF252525),
                             contentColor = Color.White,
+                            disabledContainerColor = Color(0xFFE6E4DF),
+                            disabledContentColor = Color(0xFFAAA7A0),
                         ),
                     ) {
-                        Icon(Icons.Outlined.Send, "发送")
+                        Icon(Icons.Outlined.Send, "发送", modifier = Modifier.size(19.dp))
                     }
                 }
             }
         } else {
             Spacer(Modifier.navigationBarsPadding().height(8.dp))
+        }
+    }
+}
+
+@Composable
+private fun MeetingPageNavButton(
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    iconAfter: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier.clickable(enabled = enabled, onClick = onClick),
+        shape = RoundedCornerShape(99.dp),
+        color = if (enabled) Color(0xFFFEFEFD) else Color(0xFFF6F5F2),
+        border = BorderStroke(
+            .8.dp,
+            if (enabled) Color(0xFF373532) else Color(0xFFE2E0DB),
+        ),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            if (!iconAfter) {
+                Icon(
+                    icon,
+                    null,
+                    tint = if (enabled) Color(0xFF34322F) else Color(0xFFB7B4AE),
+                    modifier = Modifier.size(16.dp),
+                )
+            }
+            Text(
+                label,
+                color = if (enabled) Color(0xFF34322F) else Color(0xFFB7B4AE),
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium,
+            )
+            if (iconAfter) {
+                Icon(
+                    icon,
+                    null,
+                    tint = if (enabled) Color(0xFF34322F) else Color(0xFFB7B4AE),
+                    modifier = Modifier.size(16.dp),
+                )
+            }
         }
     }
 }
