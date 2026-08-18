@@ -1,10 +1,6 @@
 package com.jiacimu.lulu
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.weight
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
