@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`230d91b4ac5e0eebc021d019999379b73c7ac520`
+- 基准提交：`f1299019c06ead3a7f2e586ef4d19aef27239639`
 - 分支：`main`
-- 已索引文件：211
-- 已索引代码/文本行：63762
-- 已发现符号：858
+- 已索引文件：213
+- 已索引代码/文本行：64260
+- 已发现符号：867
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -12,7 +12,7 @@
 | `app/src/main/AndroidManifest.xml` | 119 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 456 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 238 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 162 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 182 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt` | 119 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ChatReplyTurnActions.kt` | 45 | 0 |
@@ -27,13 +27,15 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 517 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt` | 334 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingRuntimeV2.kt` | 258 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt` | 584 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt` | 640 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingUiV2.kt` | 457 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 837 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 834 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 518 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 517 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 412 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 316 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 480 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 360 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 373 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 174 | 1 |

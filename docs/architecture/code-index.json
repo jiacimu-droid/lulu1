@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-18T07:40:11.397222+00:00",
-  "commit": "230d91b4ac5e0eebc021d019999379b73c7ac520",
+  "generatedAt": "2026-08-18T13:36:26.364071+00:00",
+  "commit": "f1299019c06ead3a7f2e586ef4d19aef27239639",
   "branch": "main",
-  "sourceFingerprint": "c05b18faffc4de621ce0546b9680966df0beb9747598246bcedb325452e9397c",
+  "sourceFingerprint": "7c20b6c99953699c5fd302ed7ecfd0f9985819dca6e621d249628f0721fddeb1",
   "summary": {
-    "files": 211,
-    "lines": 63762,
-    "symbols": 858
+    "files": 213,
+    "lines": 64260,
+    "symbols": 867
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -37,7 +37,7 @@
     "initialize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 38
+        "line": 39
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
@@ -204,10 +204,26 @@
         "line": 29
       }
     ],
+    "suppressAutoPlay": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
+        "line": 81
+      }
+    ],
+    "resumeAutoPlay": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
+        "line": 86
+      }
+    ],
     "enqueue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 75
+        "line": 94
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
+        "line": 32
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
@@ -217,19 +233,19 @@
     "replayCached": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 94
+        "line": 114
       }
     ],
     "hasCached": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 114
+        "line": 134
       }
     ],
     "remove": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 119
+        "line": 139
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -326,6 +342,10 @@
         "line": 99
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
+        "line": 43
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
         "line": 180
       },
@@ -369,7 +389,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-        "line": 120
+        "line": 126
       }
     ],
     "DigitalWorldMeetingApp": [
@@ -420,10 +440,10 @@
         "line": 67
       }
     ],
-    "flush": [
+    "flushPage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-        "line": 554
+        "line": 589
       }
     ],
     "LexiconFeatureScreenV2": [
@@ -490,6 +510,20 @@
         "line": 325
       }
     ],
+    "shutdown": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
+        "line": 52
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
+        "line": 193
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
+        "line": 63
+      }
+    ],
     "LuluCapabilitiesScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
@@ -514,16 +548,52 @@
         "line": 332
       }
     ],
+    "setEnabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt",
+        "line": 39
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
+        "line": 64
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
+        "line": 50
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
+        "line": 834
+      }
+    ],
+    "setBlocked": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt",
+        "line": 45
+      }
+    ],
+    "retrySoon": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt",
+        "line": 51
+      }
+    ],
+    "destroy": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt",
+        "line": 55
+      }
+    ],
     "saveGroupCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt",
-        "line": 77
+        "line": 125
       }
     ],
     "closeCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt",
-        "line": 91
+        "line": 139
       }
     ],
     "LuluMigrationRootAppV2": [
@@ -632,16 +702,6 @@
         "line": 162
       }
     ],
-    "shutdown": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 193
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
-        "line": 63
-      }
-    ],
     "LuluVisionSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt",
@@ -722,20 +782,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
         "line": 29
-      }
-    ],
-    "setEnabled": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
-        "line": 64
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
-        "line": 50
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 834
       }
     ],
     "setPace": [
@@ -4900,8 +4946,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-      "lines": 162,
-      "sha256": "63d45f59ded8d30ec9c6ae517ae13846dd1f5ea152c42eb965f021c72d17978d",
+      "lines": 182,
+      "sha256": "fe62e03a3b480403b60af4212da26da0653d8472f7609661ad76b9b43eed2282",
       "symbols": [
         {
           "name": "ChatAutoVoicePlayback",
@@ -4909,23 +4955,31 @@
         },
         {
           "name": "initialize",
-          "line": 38
+          "line": 39
+        },
+        {
+          "name": "suppressAutoPlay",
+          "line": 81
+        },
+        {
+          "name": "resumeAutoPlay",
+          "line": 86
         },
         {
           "name": "enqueue",
-          "line": 75
-        },
-        {
-          "name": "replayCached",
           "line": 94
         },
         {
-          "name": "hasCached",
+          "name": "replayCached",
           "line": 114
         },
         {
+          "name": "hasCached",
+          "line": 134
+        },
+        {
           "name": "remove",
-          "line": 119
+          "line": 139
         }
       ]
     },
@@ -5108,16 +5162,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-      "lines": 584,
-      "sha256": "4c4014b8412280018a419bfa1ecb661d7e651bde794ddd80938b7744fc5d5554",
+      "lines": 640,
+      "sha256": "4aecf14a6bb5bb9be69fea1eb8d0b5e54270f6f7ca1e7934e9b3e2157ab2d9eb",
       "symbols": [
         {
           "name": "toggleVoice",
-          "line": 120
+          "line": 126
         },
         {
-          "name": "flush",
-          "line": 554
+          "name": "flushPage",
+          "line": 589
         }
       ]
     },
@@ -5129,8 +5183,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt",
-      "lines": 837,
-      "sha256": "bc7014880eb22e7903ca8355fdc252dc02831bd2f32230ca17bbc1888f1beff0",
+      "lines": 834,
+      "sha256": "7443484d46ca4a80c3e65e27a8b2f1a87db1cc85c91c030ca26049a0f369bffd",
       "symbols": []
     },
     {
@@ -5172,6 +5226,25 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
+      "lines": 89,
+      "sha256": "0daa39ea8fbed0a292c19996ee5e5acc2aad88de35e3ef14ebecb1e1b28de0c4",
+      "symbols": [
+        {
+          "name": "enqueue",
+          "line": 32
+        },
+        {
+          "name": "stop",
+          "line": 43
+        },
+        {
+          "name": "shutdown",
+          "line": 52
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
       "lines": 412,
       "sha256": "8e74001eaa7afb960ad368b7989d3034fccd86c8de3c76a78f5f249ede3787c0",
@@ -5195,17 +5268,40 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt",
+      "lines": 172,
+      "sha256": "668aabd697accf23b73f631b08f6caf2ac292fe107266ee746990128a099e954",
+      "symbols": [
+        {
+          "name": "setEnabled",
+          "line": 39
+        },
+        {
+          "name": "setBlocked",
+          "line": 45
+        },
+        {
+          "name": "retrySoon",
+          "line": 51
+        },
+        {
+          "name": "destroy",
+          "line": 55
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt",
-      "lines": 316,
-      "sha256": "ef24d7395716abc36193c7bb3a058e5dff458dfaa3dec96e96407b03e60b009e",
+      "lines": 480,
+      "sha256": "667df75b0c1028ec65ed1b8aeb5923271c1e4c4ef73e7ae6c9411d2d44eb87fe",
       "symbols": [
         {
           "name": "saveGroupCall",
-          "line": 77
+          "line": 125
         },
         {
           "name": "closeCall",
-          "line": 91
+          "line": 139
         }
       ]
     },
