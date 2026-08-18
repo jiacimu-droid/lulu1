@@ -431,7 +431,7 @@ class CompanionModelGateway(
         source: String,
         title: String,
         temperature: Double = 0.8,
-        maxTokens: Int = 500,
+        maxTokens: Int? = 500,
         connectionOverride: ModelConnection? = null,
         usage: ModelUsage? = null,
         contextMode: CompanionContextMode = CompanionContextMode.Full,
@@ -613,7 +613,7 @@ class CompanionModelGateway(
         system: String,
         user: String,
         temperature: Double,
-        maxTokens: Int,
+        maxTokens: Int?,
         streamResponse: Boolean,
         readTimeoutMillis: Int,
         onStreamText: ((String) -> Unit)?,
@@ -621,13 +621,13 @@ class CompanionModelGateway(
         val body = JSONObject()
             .put("model", connection.model)
             .put("temperature", temperature)
-            .put("max_tokens", maxTokens)
             .put(
                 "messages",
                 JSONArray()
                     .put(JSONObject().put("role", "system").put("content", system))
                     .put(JSONObject().put("role", "user").put("content", user)),
             )
+        if (maxTokens != null) body.put("max_tokens", maxTokens)
         val url = "${connection.baseUrl}/chat/completions"
         val headers = mapOf("Authorization" to "Bearer ${connection.apiKey}")
         if (streamResponse) {
