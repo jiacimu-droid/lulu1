@@ -57,10 +57,13 @@ internal fun StyledFurnitureCatalogDialog(onDismiss: () -> Unit) {
                         }
                     }
                     Spacer(Modifier.width(10.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text("家具城", fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color(0xFF22211F))
-                        Text("看看数字世界里的家具", fontSize = 9.5.sp, color = Color(0xFF827E78))
-                    }
+                    Text(
+                        "家具城",
+                        modifier = Modifier.weight(1f),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 17.sp,
+                        color = Color(0xFF22211F),
+                    )
                     IconButton(onClick = onDismiss) {
                         Icon(Icons.Outlined.Close, "关闭", tint = Color(0xFF4B4945))
                     }
