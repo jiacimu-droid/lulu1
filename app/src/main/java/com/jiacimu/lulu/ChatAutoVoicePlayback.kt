@@ -35,6 +35,7 @@ object ChatAutoVoicePlayback {
     private var appContext: Context? = null
     private var engine: LuluSpeechEngine? = null
     private var workerStarted = false
+    private var autoPlaySuppressionDepth = 0
 
     fun initialize(context: Context) {
         synchronized(this) {
@@ -49,6 +50,7 @@ object ChatAutoVoicePlayback {
                 workerStarted = true
                 scope.launch {
                     for (request in queue) {
+                        if (request.requireAutoPlay && autoPlaySuppressed()) continue
                         if (request.requireAutoPlay && !CharacterVoicePreferenceStore.isEnabled(request.characterId)) continue
                         val speech = request.text.trim()
                         if (speech.isBlank()) continue
@@ -71,8 +73,26 @@ object ChatAutoVoicePlayback {
         }
     }
 
+    /**
+     * Live calls own their own ordered speech queue. Suppress ordinary chat auto-read while a call
+     * is active so the same generated bubble cannot be spoken twice by two independent engines.
+     */
+    @Synchronized
+    fun suppressAutoPlay() {
+        autoPlaySuppressionDepth += 1
+    }
+
+    @Synchronized
+    fun resumeAutoPlay() {
+        if (autoPlaySuppressionDepth > 0) autoPlaySuppressionDepth -= 1
+    }
+
+    @Synchronized
+    private fun autoPlaySuppressed(): Boolean = autoPlaySuppressionDepth > 0
+
     /** Called after a generated character bubble is persisted. */
     fun enqueue(characterId: String, messageId: String, text: String) {
+        if (autoPlaySuppressed()) return
         if (!CharacterVoicePreferenceStore.isEnabled(characterId)) return
         val clean = text.trim()
         if (clean.isBlank() || messageId.isBlank()) return
