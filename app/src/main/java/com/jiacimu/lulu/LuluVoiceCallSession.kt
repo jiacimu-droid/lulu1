@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.ai.archiveIdFor
+import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.SharedExperienceTimeline
@@ -69,7 +70,7 @@ internal object LuluVoiceCallSession {
 
     private var appContext: Context? = null
     private var recognizer: SpeechRecognizer? = null
-    private var speechEngine: LuluSpeechEngine? = null
+    private var speechQueue: LuluCallSpeechQueue? = null
     private var timerJob: Job? = null
     private var dialJob: Job? = null
     private var restartListeningJob: Job? = null
@@ -157,7 +158,7 @@ internal object LuluVoiceCallSession {
         mutableState.update { it.copy(speakerEnabled = enabled) }
         audioManager?.isSpeakerphoneOn = enabled
         if (!enabled) {
-            speechEngine?.stop()
+            speechQueue?.stop()
             mutableState.update { it.copy(speaking = false) }
             scheduleListening(120)
         }
@@ -174,7 +175,7 @@ internal object LuluVoiceCallSession {
         timerJob?.cancel()
         restartListeningJob?.cancel()
         pauseRecognition()
-        speechEngine?.stop()
+        speechQueue?.stop()
         saveCallExperience(current)
         mutableState.update {
             it.copy(
@@ -197,7 +198,27 @@ internal object LuluVoiceCallSession {
     private fun initialize(context: Context) {
         if (appContext != null) return
         appContext = context.applicationContext
-        speechEngine = LuluSpeechEngine(context.applicationContext)
+        CharacterVoicePreferenceStore.initialize(context.applicationContext)
+        speechQueue = LuluCallSpeechQueue(
+            context = context.applicationContext,
+            scope = scope,
+            onBusyChanged = { busy ->
+                val current = mutableState.value
+                mutableState.update {
+                    it.copy(
+                        speaking = busy,
+                        statusMessage = when {
+                            busy -> "${it.characterName} 正在说话"
+                            it.connected && !it.microphoneMuted -> "正在听你说话"
+                            else -> it.statusMessage
+                        },
+                    )
+                }
+                if (!busy && current.connected && !current.microphoneMuted) {
+                    scheduleListening(220)
+                }
+            },
+        )
         audioManager = context.applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         ensureRecognizer()
     }
@@ -375,11 +396,16 @@ internal object LuluVoiceCallSession {
                     )
                 }
                 if (shouldSpeak) {
-                    speechEngine?.speak(text, scope) {
-                        scope.launch {
-                            mutableState.update { it.copy(speaking = false, statusMessage = "正在听你说话") }
-                            scheduleListening(220)
-                        }
+                    val queue = speechQueue
+                    if (queue != null) {
+                        queue.enqueue(
+                            text = text,
+                            speakerId = latest.characterId,
+                            voiceId = CharacterVoicePreferenceStore.voiceId(latest.characterId),
+                        )
+                    } else {
+                        mutableState.update { it.copy(speaking = false) }
+                        scheduleListening(220)
                     }
                 } else {
                     scheduleListening(220)
