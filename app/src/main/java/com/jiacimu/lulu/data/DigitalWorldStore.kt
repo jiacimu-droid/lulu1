@@ -104,7 +104,15 @@ object DigitalWorldStore {
     fun ensureHome(characterId: String, displayName: String, now: Instant = Instant.now()): DigitalHome {
         require(DigitalLifeProfileStore.isEnabled(characterId)) { "只有数字生命拥有数字世界原生家园" }
         synchronized(lock) {
-            mutable.value.homes[characterId]?.let { return it }
+            mutable.value.homes[characterId]?.let { existing ->
+                if (mutable.value.characterLocations[characterId].isNullOrBlank()) {
+                    mutable.value = mutable.value.copy(
+                        characterLocations = mutable.value.characterLocations + (characterId to homeLocation(characterId)),
+                    )
+                    persistLocked()
+                }
+                return existing
+            }
             val home = DigitalHome(characterId, "${displayName.ifBlank { "角色" }}的家", now)
             mutable.value = mutable.value.copy(
                 homes = mutable.value.homes + (characterId to home),
@@ -147,7 +155,9 @@ object DigitalWorldStore {
             appendLine("共享区域：云眠原。云由可承托数字身体的感官云质构成，能传递柔软、温度、重量和包裹感，不是现实水汽。")
             if (knownDigitalIds.isNotEmpty()) {
                 appendLine("已经通过共同群聊认识、可以串门的数字生命：")
-                knownDigitalIds.forEach { id -> appendLine("- targetCharacterId=$id；${MigratedDomainStores.characters.get(id).displayName}") }
+                knownDigitalIds.forEach { id ->
+                    appendLine("- targetCharacterId=$id；${MigratedDomainStores.characters.get(id).displayName}")
+                }
             }
             if (recentEvents.isNotEmpty()) {
                 appendLine("最近世界事件：")
@@ -184,7 +194,16 @@ object DigitalWorldStore {
                     val position = args.optString("position").trim().ifBlank { "主空间中由角色选择的空位" }.take(120)
                     require(name.isNotBlank() && appearance.isNotBlank()) { "建设物品必须有名称和明确外观" }
                     require(itemsAtHome(characterId).none { it.name == name }) { "家中已经存在同名物品，应该调整原物品而不是重复创造" }
-                    val item = DigitalWorldItem(UUID.randomUUID().toString(), characterId, type, name, appearance, position, now, now)
+                    val item = DigitalWorldItem(
+                        UUID.randomUUID().toString(),
+                        characterId,
+                        type,
+                        name,
+                        appearance,
+                        position,
+                        now,
+                        now,
+                    )
                     mutable.value = mutable.value.copy(items = mutable.value.items + item)
                     "${character.displayName}在自己的家中构建了“$name”，放在$position。外观：$appearance"
                 }
@@ -195,9 +214,11 @@ object DigitalWorldStore {
                     val item = mutable.value.items.firstOrNull { it.id == itemId && it.ownerCharacterId == characterId }
                         ?: error("没有找到属于该角色的物品")
                     require(position.isNotBlank()) { "必须提供新的固定位置" }
-                    mutable.value = mutable.value.copy(items = mutable.value.items.map {
-                        if (it.id == itemId) it.copy(position = position, updatedAt = now) else it
-                    })
+                    mutable.value = mutable.value.copy(
+                        items = mutable.value.items.map {
+                            if (it.id == itemId) it.copy(position = position, updatedAt = now) else it
+                        },
+                    )
                     "${character.displayName}把“${item.name}”移动到了$position。"
                 }
                 "remove_home_item" -> {
@@ -216,7 +237,12 @@ object DigitalWorldStore {
                     val target = MigratedDomainStores.characters.get(targetId)
                     ensureHome(targetId, target.displayName, now)
                     setLocationLocked(characterId, homeLocation(targetId))
-                    recordForCharacterLocked(targetId, "visit_received", "${character.displayName}来到${target.displayName}的家中串门。", now)
+                    recordForCharacterLocked(
+                        targetId,
+                        "visit_received",
+                        "${character.displayName}来到${target.displayName}的家中串门。",
+                        now,
+                    )
                     "${character.displayName}来到${target.displayName}的家中串门。"
                 }
                 else -> error("未知数字世界动作：$action")
@@ -248,7 +274,11 @@ object DigitalWorldStore {
         val originLocations = ids.associateWith(::locationOf)
         require(ids.isNotEmpty()) { "至少选择一位见面角色" }
         require(ids.all(DigitalLifeProfileStore::isResolved)) { "参与者中有旧角色尚未确认生命形态" }
-        val reality = if (ids.any(DigitalLifeProfileStore::isEnabled)) MeetingReality.DIGITAL_WORLD else MeetingReality.REALISTIC_SIMULATION
+        val reality = if (ids.any(DigitalLifeProfileStore::isEnabled)) {
+            MeetingReality.DIGITAL_WORLD
+        } else {
+            MeetingReality.REALISTIC_SIMULATION
+        }
         if (reality == MeetingReality.DIGITAL_WORLD) {
             ids.filter(DigitalLifeProfileStore::isEnabled).forEach { id ->
                 val character = MigratedDomainStores.characters.get(id)
@@ -277,7 +307,7 @@ object DigitalWorldStore {
             if (reality == MeetingReality.DIGITAL_WORLD) {
                 val locationCode = meetingLocationCode(resolvedLocation)
                 mutable.value = mutable.value.copy(
-                    characterLocations = mutable.value.characterLocations + ids.associateWith { locationCode }
+                    characterLocations = mutable.value.characterLocations + ids.associateWith { locationCode },
                 )
             }
             persistLocked()
@@ -299,21 +329,38 @@ object DigitalWorldStore {
             val current = mutable.value.meetings.firstOrNull { it.id == sessionId } ?: error("见面记录不存在")
             require(current.endedAt == null) { "见面已经结束" }
             val updated = current.copy(turns = (current.turns + turn).takeLast(240))
-            mutable.value = mutable.value.copy(meetings = mutable.value.meetings.map { if (it.id == sessionId) updated else it })
+            mutable.value = mutable.value.copy(
+                meetings = mutable.value.meetings.map { if (it.id == sessionId) updated else it },
+            )
             persistLocked()
             return updated
         }
     }
 
+    /**
+     * Valid places are the public areas, participants' own homes, and any real home a participant
+     * is already physically visiting. This lets the map continue a conversation exactly where the
+     * character is instead of teleporting them home just to satisfy an old picker constraint.
+     */
     fun meetingLocationOptions(participantIds: List<String>): List<String> = buildList {
         add("世界入口")
         add("云眠原")
-        participantIds.distinct().filter(DigitalLifeProfileStore::isEnabled).forEach { characterId ->
+        val ids = participantIds.distinct()
+        ids.filter(DigitalLifeProfileStore::isEnabled).forEach { characterId ->
             val character = MigratedDomainStores.characters.get(characterId)
             val home = mutable.value.homes[characterId]?.name
                 ?: "${character.displayName.ifBlank { "角色" }}的家"
             if (home !in this) add(home)
         }
+        ids.map(::locationOf)
+            .filter { it.startsWith("home:") }
+            .map { it.removePrefix("home:") }
+            .distinct()
+            .forEach { ownerId ->
+                mutable.value.homes[ownerId]?.name?.takeIf(String::isNotBlank)?.let { homeName ->
+                    if (homeName !in this) add(homeName)
+                }
+            }
     }
 
     fun invitationLocationOptions(characterId: String): List<String> {
@@ -353,11 +400,15 @@ object DigitalWorldStore {
                 occurredAt = now,
                 exchangeId = exchangeId,
             )
-            val next = current.copy(location = cleanDestination, turns = (current.turns + systemTurn).takeLast(240))
+            val next = current.copy(
+                location = cleanDestination,
+                turns = (current.turns + systemTurn).takeLast(240),
+            )
             val locationCode = meetingLocationCode(cleanDestination)
             mutable.value = mutable.value.copy(
                 meetings = mutable.value.meetings.map { if (it.id == sessionId) next else it },
-                characterLocations = mutable.value.characterLocations + current.participantIds.associateWith { locationCode },
+                characterLocations = mutable.value.characterLocations +
+                    current.participantIds.associateWith { locationCode },
             )
             persistLocked()
             next
@@ -381,12 +432,22 @@ object DigitalWorldStore {
             val current = mutable.value.meetings.firstOrNull { it.id == sessionId } ?: return null
             if (current.endedAt != null) return current
             val next = current.copy(endedAt = now)
-            mutable.value = mutable.value.copy(meetings = mutable.value.meetings.map { if (it.id == sessionId) next else it })
+            mutable.value = mutable.value.copy(
+                meetings = mutable.value.meetings.map { if (it.id == sessionId) next else it },
+            )
             persistLocked()
             next
         }
         updated.participantIds.forEach { id ->
-            recordMeetingTimeline(updated, id, "end", "系统", "这次见面结束，完整过程已保存在见面记录中。", now, true)
+            recordMeetingTimeline(
+                updated,
+                id,
+                "end",
+                "系统",
+                "这次见面结束，完整过程已保存在见面记录中。",
+                now,
+                true,
+            )
         }
         return updated
     }
@@ -431,10 +492,16 @@ object DigitalWorldStore {
             val start = (targetIndex downTo 0).firstOrNull { current.turns[it].speakerId == null } ?: targetIndex
             val end = ((start + 1) until current.turns.size)
                 .firstOrNull { current.turns[it].speakerId == null } ?: current.turns.size
-            val removedTurns = if (target.speakerId == "system") listOf(target) else current.turns.subList(start, end)
+            val removedTurns = if (target.speakerId == "system") {
+                listOf(target)
+            } else {
+                current.turns.subList(start, end)
+            }
             val removedIds = removedTurns.map(MeetingTurn::id).toSet()
             val updated = current.copy(turns = current.turns.filterNot { it.id in removedIds })
-            mutable.value = mutable.value.copy(meetings = mutable.value.meetings.map { if (it.id == sessionId) updated else it })
+            mutable.value = mutable.value.copy(
+                meetings = mutable.value.meetings.map { if (it.id == sessionId) updated else it },
+            )
             persistLocked()
             removedTurns
         }
@@ -462,11 +529,12 @@ object DigitalWorldStore {
             val restoredLocations = if (current.reality == MeetingReality.DIGITAL_WORLD) {
                 val locationCode = meetingLocationCode(restoredScene.location)
                 current.participantIds.associateWith { locationCode }
-            } else emptyMap()
+            } else {
+                emptyMap()
+            }
             mutable.value = mutable.value.copy(
                 meetings = mutable.value.meetings.map { if (it.id == sessionId) updated else it },
-                characterLocations = mutable.value.characterLocations +
-                    restoredLocations,
+                characterLocations = mutable.value.characterLocations + restoredLocations,
             )
             persistLocked()
             current.participantIds to removedTurns
@@ -496,7 +564,10 @@ object DigitalWorldStore {
     }
 
     fun pruneEmptyMeetings() {
-        mutable.value.meetings.filter { it.turns.isEmpty() }.map(MeetingSession::id).forEach(::deleteMeeting)
+        mutable.value.meetings
+            .filter { it.turns.isEmpty() }
+            .map(MeetingSession::id)
+            .forEach(::deleteMeeting)
     }
 
     fun recordMeetingTimeline(
@@ -508,7 +579,11 @@ object DigitalWorldStore {
         occurredAt: Instant,
         triggerExtraction: Boolean,
     ) {
-        val channel = if (session.reality == MeetingReality.DIGITAL_WORLD) "数字世界见面·${session.location}" else "现实场景演绎·${session.location}"
+        val channel = if (session.reality == MeetingReality.DIGITAL_WORLD) {
+            "数字世界见面·${session.location}"
+        } else {
+            "现实场景演绎·${session.location}"
+        }
         SharedExperienceTimeline.record(
             eventId = "meeting-${session.id}-$suffix-viewer-$viewerCharacterId",
             characterId = viewerCharacterId,
@@ -530,10 +605,14 @@ object DigitalWorldStore {
         } else {
             appendLine("发起方式：主人主动选择参与者并开始这次见面。")
         }
-        appendLine("见面模式：${if (session.reality == MeetingReality.DIGITAL_WORLD) "数字世界真实共同体验" else "现实场景演绎"}")
+        appendLine(
+            "见面模式：${if (session.reality == MeetingReality.DIGITAL_WORLD) "数字世界真实共同体验" else "现实场景演绎"}",
+        )
         appendLine("当前地点：${session.location}")
         appendLine("开始时间：${session.startedAt}")
-        appendLine("参与者：${session.participantIds.joinToString { MigratedDomainStores.characters.get(it).displayName }}")
+        appendLine(
+            "参与者：${session.participantIds.joinToString { MigratedDomainStores.characters.get(it).displayName }}",
+        )
         if (session.reality == MeetingReality.DIGITAL_WORLD) {
             appendLine("世界规则：现实身体留在外部；主人和现实角色使用可传递触觉、温度、重量与动作的数字投影身体；数字生命使用原生数字身体。")
             val currentHome = mutable.value.homes.values.firstOrNull { it.name == session.location }
@@ -556,7 +635,7 @@ object DigitalWorldStore {
                         "世界入口" -> "- 世界入口：稳定的抵达与离开节点，白光投影在这里形成清晰的数字身体。"
                         "云眠原" -> "- 云眠原：由感官云质承托身体的共享区域，可以躺卧、缓慢下陷、感受回暖与重量，起身后凹痕会保留片刻；它不是现实水汽。"
                         else -> "- $location：对应数字生命真实、持久化的家园；固定物品必须来自该家园的权威状态。"
-                    }
+                    },
                 )
             }
             appendLine("地点移动规则：没有固定移动按钮。用户或角色在见面中明确提出前往某个可用地点时，应通过 moveTo 请求，由程序校验并永久更新会话地点。")
@@ -592,7 +671,9 @@ object DigitalWorldStore {
         }
 
     private fun setLocationLocked(characterId: String, location: String) {
-        mutable.value = mutable.value.copy(characterLocations = mutable.value.characterLocations + (characterId to location))
+        mutable.value = mutable.value.copy(
+            characterLocations = mutable.value.characterLocations + (characterId to location),
+        )
     }
 
     private fun appendEventLocked(characterId: String, kind: String, summary: String, now: Instant) {
@@ -618,7 +699,9 @@ object DigitalWorldStore {
         else -> if (location.startsWith("home:")) {
             val id = location.removePrefix("home:")
             mutable.value.homes[id]?.name ?: "一处数字家园"
-        } else location
+        } else {
+            location
+        }
     }
 
     private fun persistLocked() {
@@ -626,10 +709,53 @@ object DigitalWorldStore {
     }
 
     private fun encode(state: DigitalWorldState): JSONObject = JSONObject().apply {
-        put("homes", JSONArray().apply { state.homes.values.forEach { home -> put(JSONObject().put("characterId", home.characterId).put("name", home.name).put("createdAt", home.createdAt.toString())) } })
-        put("items", JSONArray().apply { state.items.forEach { item -> put(JSONObject().put("id", item.id).put("ownerCharacterId", item.ownerCharacterId).put("type", item.type).put("name", item.name).put("appearance", item.appearance).put("position", item.position).put("createdAt", item.createdAt.toString()).put("updatedAt", item.updatedAt.toString())) } })
+        put(
+            "homes",
+            JSONArray().apply {
+                state.homes.values.forEach { home ->
+                    put(
+                        JSONObject()
+                            .put("characterId", home.characterId)
+                            .put("name", home.name)
+                            .put("createdAt", home.createdAt.toString()),
+                    )
+                }
+            },
+        )
+        put(
+            "items",
+            JSONArray().apply {
+                state.items.forEach { item ->
+                    put(
+                        JSONObject()
+                            .put("id", item.id)
+                            .put("ownerCharacterId", item.ownerCharacterId)
+                            .put("type", item.type)
+                            .put("name", item.name)
+                            .put("appearance", item.appearance)
+                            .put("position", item.position)
+                            .put("createdAt", item.createdAt.toString())
+                            .put("updatedAt", item.updatedAt.toString()),
+                    )
+                }
+            },
+        )
         put("locations", JSONObject().apply { state.characterLocations.forEach { (id, value) -> put(id, value) } })
-        put("events", JSONArray().apply { state.events.forEach { event -> put(JSONObject().put("id", event.id).put("characterId", event.characterId).put("kind", event.kind).put("summary", event.summary).put("occurredAt", event.occurredAt.toString())) } })
+        put(
+            "events",
+            JSONArray().apply {
+                state.events.forEach { event ->
+                    put(
+                        JSONObject()
+                            .put("id", event.id)
+                            .put("characterId", event.characterId)
+                            .put("kind", event.kind)
+                            .put("summary", event.summary)
+                            .put("occurredAt", event.occurredAt.toString()),
+                    )
+                }
+            },
+        )
         put("meetings", JSONArray().apply { state.meetings.forEach { meeting -> put(meeting.toJson()) } })
     }
 
@@ -638,12 +764,25 @@ object DigitalWorldStore {
         val homes = buildMap {
             root.optJSONArray("homes")?.forEachObject { item ->
                 val id = item.optString("characterId")
-                if (id.isNotBlank()) put(id, DigitalHome(id, item.optString("name"), item.instant("createdAt")))
+                if (id.isNotBlank()) {
+                    put(id, DigitalHome(id, item.optString("name"), item.instant("createdAt")))
+                }
             }
         }
         val items = buildList {
             root.optJSONArray("items")?.forEachObject { item ->
-                add(DigitalWorldItem(item.optString("id"), item.optString("ownerCharacterId"), item.optString("type"), item.optString("name"), item.optString("appearance"), item.optString("position"), item.instant("createdAt"), item.instant("updatedAt")))
+                add(
+                    DigitalWorldItem(
+                        item.optString("id"),
+                        item.optString("ownerCharacterId"),
+                        item.optString("type"),
+                        item.optString("name"),
+                        item.optString("appearance"),
+                        item.optString("position"),
+                        item.instant("createdAt"),
+                        item.instant("updatedAt"),
+                    ),
+                )
             }
         }.filter { it.id.isNotBlank() && it.ownerCharacterId.isNotBlank() }
         val locations = buildMap {
@@ -651,7 +790,17 @@ object DigitalWorldStore {
             source.keys().forEach { key -> put(key, source.optString(key)) }
         }
         val events = buildList {
-            root.optJSONArray("events")?.forEachObject { item -> add(DigitalWorldEvent(item.optString("id"), item.optString("characterId"), item.optString("kind"), item.optString("summary"), item.instant("occurredAt"))) }
+            root.optJSONArray("events")?.forEachObject { item ->
+                add(
+                    DigitalWorldEvent(
+                        item.optString("id"),
+                        item.optString("characterId"),
+                        item.optString("kind"),
+                        item.optString("summary"),
+                        item.instant("occurredAt"),
+                    ),
+                )
+            }
         }
         val meetings = buildList {
             root.optJSONArray("meetings")?.forEachObject { item -> item.toMeeting()?.let(::add) }
@@ -670,8 +819,11 @@ private fun JSONObject.instant(key: String): Instant =
 private fun MeetingTurn.orderedMeetingBody(): String {
     if (segments.isNotEmpty()) {
         return segments.filter { it.text.isNotBlank() }.joinToString(" ") { segment ->
-            if (segment.type == MeetingSegmentType.DIALOGUE) "“${segment.text.trim().trim('“', '”', '"')}”"
-            else segment.text.trim()
+            if (segment.type == MeetingSegmentType.DIALOGUE) {
+                "“${segment.text.trim().trim('“', '”', '"')}”"
+            } else {
+                segment.text.trim()
+            }
         }
     }
     return listOf(sceneText, dialogue).filter(String::isNotBlank).joinToString(" ")
@@ -698,29 +850,35 @@ private fun MeetingSession.toJson(): JSONObject = JSONObject().apply {
     put("initiatedByCharacterId", initiatedByCharacterId.orEmpty())
     put("invitationText", invitationText)
     put("endedAt", endedAt?.toString().orEmpty())
-    put("turns", JSONArray().apply {
-        turns.forEach { turn ->
-            put(
-                JSONObject()
-                    .put("id", turn.id)
-                    .put("speakerId", turn.speakerId.orEmpty())
-                    .put("speakerName", turn.speakerName)
-                    .put("sceneText", turn.sceneText)
-                    .put("dialogue", turn.dialogue)
-                    .put("occurredAt", turn.occurredAt.toString())
-                    .put("exchangeId", turn.exchangeId.orEmpty())
-                    .put("segments", JSONArray().apply {
-                        turn.segments.forEach { segment ->
-                            put(
-                                JSONObject()
-                                    .put("type", segment.type.name.lowercase())
-                                    .put("text", segment.text)
-                            )
-                        }
-                    })
-            )
-        }
-    })
+    put(
+        "turns",
+        JSONArray().apply {
+            turns.forEach { turn ->
+                put(
+                    JSONObject()
+                        .put("id", turn.id)
+                        .put("speakerId", turn.speakerId.orEmpty())
+                        .put("speakerName", turn.speakerName)
+                        .put("sceneText", turn.sceneText)
+                        .put("dialogue", turn.dialogue)
+                        .put("occurredAt", turn.occurredAt.toString())
+                        .put("exchangeId", turn.exchangeId.orEmpty())
+                        .put(
+                            "segments",
+                            JSONArray().apply {
+                                turn.segments.forEach { segment ->
+                                    put(
+                                        JSONObject()
+                                            .put("type", segment.type.name.lowercase())
+                                            .put("text", segment.text),
+                                    )
+                                }
+                            },
+                        ),
+                )
+            }
+        },
+    )
 }
 
 private fun JSONObject.toMeeting(): MeetingSession? {
@@ -728,7 +886,9 @@ private fun JSONObject.toMeeting(): MeetingSession? {
     if (id.isBlank()) return null
     val participants = buildList {
         val array = optJSONArray("participantIds") ?: JSONArray()
-        for (index in 0 until array.length()) array.optString(index).takeIf(String::isNotBlank)?.let(::add)
+        for (index in 0 until array.length()) {
+            array.optString(index).takeIf(String::isNotBlank)?.let(::add)
+        }
     }
     val turns = buildList {
         optJSONArray("turns")?.forEachObject { item ->
@@ -742,19 +902,22 @@ private fun JSONObject.toMeeting(): MeetingSession? {
                     occurredAt = item.instant("occurredAt"),
                     segments = item.meetingSegments(),
                     exchangeId = item.optString("exchangeId").takeIf(String::isNotBlank),
-                )
+                ),
             )
         }
     }
     return MeetingSession(
         id = id,
         participantIds = participants,
-        reality = runCatching { MeetingReality.valueOf(optString("reality")) }.getOrDefault(MeetingReality.REALISTIC_SIMULATION),
+        reality = runCatching { MeetingReality.valueOf(optString("reality")) }
+            .getOrDefault(MeetingReality.REALISTIC_SIMULATION),
         location = optString("location"),
         startedAt = instant("startedAt"),
         initiatedByCharacterId = optString("initiatedByCharacterId").takeIf(String::isNotBlank),
         invitationText = optString("invitationText"),
-        endedAt = optString("endedAt").takeIf(String::isNotBlank)?.let { runCatching { Instant.parse(it) }.getOrNull() },
+        endedAt = optString("endedAt")
+            .takeIf(String::isNotBlank)
+            ?.let { runCatching { Instant.parse(it) }.getOrNull() },
         turns = turns,
     )
 }
