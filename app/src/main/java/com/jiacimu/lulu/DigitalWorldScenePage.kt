@@ -32,7 +32,6 @@ import com.jiacimu.lulu.data.*
 import com.jiacimu.lulu.design.LuluColors
 
 private data class SceneUserProfile(
-    val name: String,
     val avatarText: String,
     val avatarUri: String?,
 )
@@ -42,12 +41,7 @@ private fun rememberSceneUserProfile(): SceneUserProfile {
     val context = LocalContext.current
     return remember(context) {
         val prefs = context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE)
-        val label = UserProfileContext.displayLabel()
-            .takeUnless { it == "用户" }
-            .orEmpty()
-            .ifBlank { "我" }
         SceneUserProfile(
-            name = label,
             avatarText = prefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2),
             avatarUri = prefs.getString("avatar_uri", null),
         )
@@ -194,14 +188,13 @@ private fun DigitalHomeRoom(
             ScenePersonSprite(
                 avatarUri = userProfile.avatarUri,
                 avatarText = userProfile.avatarText,
-                label = userProfile.name,
                 modifier = Modifier
                     .offset(
-                        x = (maxWidth - 58.dp) * userX,
-                        y = (maxHeight - 92.dp) * userY,
+                        x = (maxWidth - 54.dp) * userX,
+                        y = (maxHeight - 78.dp) * userY,
                     )
                     .zIndex(8f),
-                bodyColor = Color(0xFF636363),
+                bodyColor = Color(0xFF8C8881),
             )
         }
     }
@@ -333,9 +326,8 @@ private fun SceneCharacterSprite(
     ScenePersonSprite(
         avatarUri = character.avatarUri,
         avatarText = character.displayName.take(1).ifBlank { "角" },
-        label = character.displayName,
         modifier = modifier,
-        bodyColor = Color(0xFF3A3A3A),
+        bodyColor = Color(0xFF4B4B4B),
         onClick = onClick,
     )
 }
@@ -344,7 +336,6 @@ private fun SceneCharacterSprite(
 private fun ScenePersonSprite(
     avatarUri: String?,
     avatarText: String,
-    label: String,
     modifier: Modifier = Modifier,
     bodyColor: Color,
     onClick: (() -> Unit)? = null,
@@ -362,37 +353,59 @@ private fun ScenePersonSprite(
         ) {
             LuluProfileAvatar(avatarUri, avatarText, 46)
         }
-        Surface(
-            color = Color.White.copy(alpha = .94f),
-            shape = RoundedCornerShape(8.dp),
-            border = BorderStroke(.6.dp, Color(0xFF2D2D2D).copy(alpha = .30f)),
-            modifier = Modifier.offset(y = (-2).dp),
-        ) {
-            Text(
-                label,
-                fontSize = 10.5.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(horizontal = 6.dp, vertical = 1.5.dp),
+        Canvas(Modifier.size(width = 42.dp, height = 34.dp).offset(y = (-4).dp)) {
+            val ink = Color(0xFF353535)
+            val softBody = bodyColor.copy(alpha = .16f)
+            val paw = bodyColor.copy(alpha = .30f)
+
+            // Two soft side paws sit behind the bean-shaped body.
+            drawOval(
+                paw,
+                topLeft = Offset(size.width * .01f, size.height * .27f),
+                size = Size(size.width * .25f, size.height * .42f),
             )
-        }
-        Canvas(Modifier.size(width = 31.dp, height = 24.dp).offset(y = (-4).dp)) {
+            drawOval(
+                paw,
+                topLeft = Offset(size.width * .74f, size.height * .27f),
+                size = Size(size.width * .25f, size.height * .42f),
+            )
+
+            // Rounded mascot body: deliberately more like a charm than a tiny human torso.
             drawRoundRect(
-                bodyColor,
-                topLeft = Offset(size.width * .20f, 0f),
-                size = Size(size.width * .60f, size.height * .58f),
-                cornerRadius = CornerRadius(size.width * .18f),
+                softBody,
+                topLeft = Offset(size.width * .13f, size.height * .02f),
+                size = Size(size.width * .74f, size.height * .72f),
+                cornerRadius = CornerRadius(size.width * .28f),
             )
-            drawLine(
-                bodyColor,
-                Offset(size.width * .36f, size.height * .50f),
-                Offset(size.width * .29f, size.height * .96f),
-                strokeWidth = 4.dp.toPx(),
+            drawRoundRect(
+                ink.copy(alpha = .72f),
+                topLeft = Offset(size.width * .13f, size.height * .02f),
+                size = Size(size.width * .74f, size.height * .72f),
+                cornerRadius = CornerRadius(size.width * .28f),
+                style = Stroke(1.dp.toPx()),
             )
-            drawLine(
-                bodyColor,
-                Offset(size.width * .64f, size.height * .50f),
-                Offset(size.width * .71f, size.height * .96f),
-                strokeWidth = 4.dp.toPx(),
+
+            drawOval(
+                Color.White.copy(alpha = .78f),
+                topLeft = Offset(size.width * .31f, size.height * .23f),
+                size = Size(size.width * .38f, size.height * .32f),
+            )
+            drawCircle(
+                bodyColor.copy(alpha = .72f),
+                radius = 2.2.dp.toPx(),
+                center = Offset(size.width * .50f, size.height * .17f),
+            )
+
+            // Tiny oval feet replace the old straight stick legs.
+            drawOval(
+                bodyColor.copy(alpha = .78f),
+                topLeft = Offset(size.width * .20f, size.height * .68f),
+                size = Size(size.width * .27f, size.height * .22f),
+            )
+            drawOval(
+                bodyColor.copy(alpha = .78f),
+                topLeft = Offset(size.width * .53f, size.height * .68f),
+                size = Size(size.width * .27f, size.height * .22f),
             )
         }
     }
@@ -457,14 +470,13 @@ private fun SharedWorldScene(
             ScenePersonSprite(
                 avatarUri = userProfile.avatarUri,
                 avatarText = userProfile.avatarText,
-                label = userProfile.name,
                 modifier = Modifier
                     .offset(
-                        x = (maxWidth - 58.dp) * userX,
-                        y = (maxHeight - 92.dp) * userY,
+                        x = (maxWidth - 54.dp) * userX,
+                        y = (maxHeight - 78.dp) * userY,
                     )
                     .zIndex(7f),
-                bodyColor = Color(0xFF636363),
+                bodyColor = Color(0xFF8C8881),
             )
         }
     }
