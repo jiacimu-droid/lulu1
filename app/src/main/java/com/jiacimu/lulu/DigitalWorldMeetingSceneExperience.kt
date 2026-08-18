@@ -61,7 +61,6 @@ internal fun DigitalWorldMeetingSceneExperience(
     var pageIndex by remember(session.id) { mutableIntStateOf(0) }
     var previousPageCount by remember(session.id) { mutableIntStateOf(pages.size) }
     var showMenu by remember { mutableStateOf(false) }
-    var showVoiceSettings by remember { mutableStateOf(false) }
 
     val userProfilePrefs = remember(context) {
         context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE)
@@ -116,6 +115,10 @@ internal fun DigitalWorldMeetingSceneExperience(
         onDispose { MeetingVoicePlayback.stopVisibleDialogue(session.id) }
     }
 
+    fun toggleVoice() {
+        MeetingVoicePlayback.setEnabled(context, !voiceEnabled)
+    }
+
     val homeId = world.homes.values.firstOrNull { it.name == session.location }?.characterId
     val sceneCode = when (session.location) {
         "世界入口" -> DigitalWorldStore.ARRIVAL
@@ -144,41 +147,23 @@ internal fun DigitalWorldMeetingSceneExperience(
                         Text("结束", color = Color(0xFF222222), fontWeight = FontWeight.SemiBold)
                     }
                 }
-                IconButton(onClick = { showVoiceSettings = true }) {
-                    Icon(
-                        if (voiceEnabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
-                        if (voiceEnabled) "见面语音已开启" else "见面语音已关闭",
-                    )
-                }
+                MeetingVoiceToggleButton(
+                    enabled = voiceEnabled,
+                    onToggle = ::toggleVoice,
+                )
                 Box {
-                    IconButton(onClick = { showMenu = true }) { Icon(Icons.Outlined.MoreVert, "更多") }
-                    DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-                        DropdownMenuItem(
-                            text = { Text("见面记录") },
-                            leadingIcon = { Icon(Icons.Outlined.History, null) },
-                            onClick = { showMenu = false; onOpenHistory() },
-                        )
-                        DropdownMenuItem(
-                            text = { Text("见面模型") },
-                            leadingIcon = { Icon(Icons.Outlined.Memory, null) },
-                            onClick = { showMenu = false; onOpenModelPicker() },
-                        )
-                        DropdownMenuItem(
-                            text = { Text("见面写法") },
-                            leadingIcon = { Icon(Icons.Outlined.AutoStories, null) },
-                            onClick = { showMenu = false; onOpenWritingPicker() },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(if (voiceEnabled) "语音：已开启" else "语音：已关闭") },
-                            leadingIcon = {
-                                Icon(
-                                    if (voiceEnabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
-                                    null,
-                                )
-                            },
-                            onClick = { showMenu = false; showVoiceSettings = true },
-                        )
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(Icons.Outlined.MoreVert, "更多", tint = Color(0xFF2E2E2E))
                     }
+                    MeetingOverflowMenu(
+                        expanded = showMenu,
+                        voiceEnabled = voiceEnabled,
+                        onDismiss = { showMenu = false },
+                        onToggleVoice = ::toggleVoice,
+                        onOpenHistory = onOpenHistory,
+                        onOpenModelPicker = onOpenModelPicker,
+                        onOpenWritingPicker = onOpenWritingPicker,
+                    )
                 }
             },
             windowInsets = WindowInsets(0, 0, 0, 0),
@@ -359,10 +344,6 @@ internal fun DigitalWorldMeetingSceneExperience(
         } else {
             Spacer(Modifier.navigationBarsPadding().height(8.dp))
         }
-    }
-
-    if (showVoiceSettings) {
-        MeetingPageVoiceSettingsDialog(onDismiss = { showVoiceSettings = false })
     }
 }
 
