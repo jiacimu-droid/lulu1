@@ -190,7 +190,7 @@ internal fun DigitalWorldMapLobby(
         }
     }
 
-    if (showCatalog) FurnitureCatalogDialog(onDismiss = { showCatalog = false })
+    if (showCatalog) StyledFurnitureCatalogDialog(onDismiss = { showCatalog = false })
 }
 
 @Composable
