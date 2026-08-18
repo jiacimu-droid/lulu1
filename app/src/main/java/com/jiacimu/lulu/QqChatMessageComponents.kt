@@ -90,20 +90,30 @@ internal fun QqMessageRow(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Text(receiptTime, color = QqMuted.copy(alpha = 0.72f), fontSize = 9.sp)
+            Text(receiptTime, color = Color(0xFF8A8A8A), fontSize = 9.sp)
             Surface(
-                color = Color(0xFFF5F5F4),
-                shape = RoundedCornerShape(9.dp),
+                color = Color(0xFFFEFEFD),
+                shape = RoundedCornerShape(10.dp),
+                border = BorderStroke(1.dp, Color(0xFF252525)),
                 shadowElevation = 0.dp,
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                    modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
                 ) {
-                    Surface(modifier = Modifier.size(5.dp), shape = CircleShape, color = QqMuted.copy(alpha = 0.45f)) {}
+                    Surface(
+                        modifier = Modifier.size(5.dp),
+                        shape = CircleShape,
+                        color = Color(0xFF252525),
+                    ) {}
                     if (notice.link == null) {
-                        Text(notice.visibleText, color = QqMuted, fontSize = 10.5.sp, lineHeight = 15.sp)
+                        Text(
+                            notice.visibleText,
+                            color = Color(0xFF4A4A4A),
+                            fontSize = 10.5.sp,
+                            lineHeight = 15.sp,
+                        )
                     } else {
                         val annotated = remember(notice) {
                             buildAnnotatedString {
@@ -111,8 +121,8 @@ internal fun QqMessageRow(
                                 if (notice.linkStart in 0 until notice.visibleText.length && notice.linkEnd > notice.linkStart) {
                                     addStyle(
                                         SpanStyle(
-                                            color = QqInk.copy(alpha = 0.82f),
-                                            fontWeight = FontWeight.Medium,
+                                            color = Color(0xFF151515),
+                                            fontWeight = FontWeight.SemiBold,
                                             textDecoration = TextDecoration.Underline,
                                         ),
                                         notice.linkStart,
@@ -129,7 +139,11 @@ internal fun QqMessageRow(
                         }
                         ClickableText(
                             text = annotated,
-                            style = LocalTextStyle.current.copy(color = QqMuted, fontSize = 10.5.sp, lineHeight = 15.sp),
+                            style = LocalTextStyle.current.copy(
+                                color = Color(0xFF4A4A4A),
+                                fontSize = 10.5.sp,
+                                lineHeight = 15.sp,
+                            ),
                             onClick = { offset ->
                                 if (annotated.getStringAnnotations("system_activity", offset, offset).isNotEmpty()) {
                                     openSystemActivity(context, message, notice.link)
@@ -399,7 +413,7 @@ private fun QqForwardedChatCard(bundle: QqForwardedChatBundle, modifier: Modifie
     }
 }
 
-private enum class SystemActivityType { Diary, Reading, DigitalHome }
+private enum class SystemActivityType { Diary, Reading, DigitalHome, Favorite }
 private data class SystemActivityLink(val type: SystemActivityType, val targetTitle: String)
 private data class SystemActivityNotice(
     val visibleText: String,
@@ -416,6 +430,16 @@ private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
         .removePrefix("[撤回]")
         .trim()
 
+    if (rawVisible.contains("收藏了一条消息")) {
+        val compact = "收藏了一条消息"
+        val start = compact.indexOf("收藏")
+        return SystemActivityNotice(
+            compact,
+            SystemActivityLink(SystemActivityType.Favorite, ""),
+            start,
+            start + 2,
+        )
+    }
     Regex("在自己的家中构建了[“\"]([^”\"]+)[”\"]").find(rawVisible)?.let { match ->
         val itemName = match.groupValues[1].trim()
         val compact = "创建了 $itemName"
@@ -504,6 +528,11 @@ private fun openSystemActivity(context: Context, message: LuluChatMessage, link:
                     com.jiacimu.lulu.data.DigitalWorldNavigationStore.requestHome(context, targetCharacterId)
                 }
                 putExtra("open_route", MigrationRoute.Meeting.name)
+            }
+            SystemActivityType.Favorite -> {
+                putExtra("open_route", MigrationRoute.Lexicon.name)
+                putExtra("open_character_id", characterId)
+                putExtra("open_lexicon_section", "Favorite")
             }
         }
     }
