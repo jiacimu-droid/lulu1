@@ -94,6 +94,7 @@ class MigrationActivity : ComponentActivity() {
         val initialRouteName = intent?.getStringExtra("open_route")
         val initialCharacterId = intent?.getStringExtra("open_character_id")
         val initialDiaryTitle = intent?.getStringExtra("open_diary_title")
+        val initialLexiconSection = intent?.getStringExtra("open_lexicon_section")
         val initialReadingTitle = intent?.getStringExtra("open_reading_title")
         val initialMeetingInvitationText = intent?.getStringExtra("open_meeting_invitation_text")
         val initialMeetingLocation = intent?.getStringExtra("open_meeting_location")
@@ -104,6 +105,7 @@ class MigrationActivity : ComponentActivity() {
                 initialRouteName = initialRouteName,
                 initialTargetCharacterId = initialCharacterId,
                 initialDiaryTitle = initialDiaryTitle,
+                initialLexiconSection = initialLexiconSection,
                 initialReadingTitle = initialReadingTitle,
                 initialMeetingInvitationText = initialMeetingInvitationText,
                 initialMeetingLocation = initialMeetingLocation,
