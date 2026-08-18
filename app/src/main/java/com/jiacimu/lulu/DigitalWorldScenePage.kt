@@ -9,13 +9,13 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Chair
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.zIndex
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -28,12 +28,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.jiacimu.lulu.data.*
 import com.jiacimu.lulu.design.LuluColors
 
 private data class SceneUserProfile(
     val avatarText: String,
     val avatarUri: String?,
+)
+
+private data class SceneAnchor(
+    val x: Float,
+    val y: Float,
 )
 
 @Composable
@@ -68,7 +74,11 @@ internal fun DigitalWorldScenePage(
             },
             actions = {
                 if (homeCharacterId != null) {
-                    IconButton(onClick = onOpenCatalog) { Icon(Icons.Outlined.Chair, "家具城") }
+                    MeetingToolButton(
+                        icon = Icons.Outlined.Chair,
+                        contentDescription = "家具城",
+                        onClick = onOpenCatalog,
+                    )
                 }
             },
             windowInsets = WindowInsets(0, 0, 0, 0),
@@ -127,7 +137,7 @@ private fun DigitalHomeRoom(
     val userProfile = rememberSceneUserProfile()
     var selectedItem by remember { mutableStateOf<DigitalWorldItem?>(null) }
     var userTargetX by rememberSaveable(characterId) { mutableStateOf(.76f) }
-    var userTargetY by rememberSaveable(characterId) { mutableStateOf(.74f) }
+    var userTargetY by rememberSaveable(characterId) { mutableStateOf(.72f) }
     val userX by animateFloatAsState(userTargetX, tween(430), label = "digital-user-x")
     val userY by animateFloatAsState(userTargetY, tween(430), label = "digital-user-y")
 
@@ -145,8 +155,8 @@ private fun DigitalHomeRoom(
                     detectTapGestures { tap ->
                         val width = size.width.toFloat().coerceAtLeast(1f)
                         val height = size.height.toFloat().coerceAtLeast(1f)
-                        userTargetX = (tap.x / width).coerceIn(.03f, .88f)
-                        userTargetY = (tap.y / height).coerceIn(.08f, .84f)
+                        userTargetX = (tap.x / width).coerceIn(.04f, .88f)
+                        userTargetY = (tap.y / height).coerceIn(.43f, .84f)
                     }
                 },
         ) {
@@ -154,7 +164,7 @@ private fun DigitalHomeRoom(
                 drawIllustratedRoom()
             }
 
-            items.sortedWith(compareBy({ furnitureLayer(it) }, { it.createdAt })).forEachIndexed { index, item ->
+            items.forEachIndexed { index, item ->
                 val style = DigitalFurnitureCatalog.resolve(item)
                 val placement = furniturePlacement(item, index)
                 FurnitureSticker(
@@ -165,22 +175,21 @@ private fun DigitalHomeRoom(
                             x = (maxWidth - stickerWidth(style.kind)) * placement.first,
                             y = (maxHeight - stickerHeight(style.kind)) * placement.second,
                         )
-                        .zIndex((furnitureLayer(item) + 1).toFloat())
+                        .zIndex(furnitureDepthZ(style.kind, placement.second))
                         .clickable { selectedItem = item },
                 )
             }
 
             residents.forEachIndexed { index, character ->
-                val alignment = when (index % 5) {
-                    0 -> Alignment.Center
-                    1 -> Alignment.CenterStart
-                    2 -> Alignment.CenterEnd
-                    3 -> Alignment.BottomStart
-                    else -> Alignment.BottomEnd
-                }
+                val anchor = residentAnchor(index, character.characterId, shared = false)
                 SceneCharacterSprite(
                     character = character,
-                    modifier = Modifier.align(alignment).padding(20.dp).zIndex(7f),
+                    modifier = Modifier
+                        .offset(
+                            x = (maxWidth - 54.dp) * anchor.x,
+                            y = (maxHeight - 80.dp) * anchor.y,
+                        )
+                        .zIndex(personDepthZ(anchor.y)),
                     onClick = { onCharacterClick(character.characterId) },
                 )
             }
@@ -191,9 +200,9 @@ private fun DigitalHomeRoom(
                 modifier = Modifier
                     .offset(
                         x = (maxWidth - 54.dp) * userX,
-                        y = (maxHeight - 78.dp) * userY,
+                        y = (maxHeight - 80.dp) * userY,
                     )
-                    .zIndex(8f),
+                    .zIndex(personDepthZ(userY) + .05f),
                 bodyColor = Color(0xFF8C8881),
             )
         }
@@ -214,12 +223,53 @@ private fun DigitalHomeRoom(
     }
 }
 
+private fun residentAnchor(index: Int, stableId: String, shared: Boolean): SceneAnchor {
+    val anchors = if (shared) {
+        listOf(
+            SceneAnchor(.44f, .56f),
+            SceneAnchor(.20f, .64f),
+            SceneAnchor(.69f, .62f),
+            SceneAnchor(.31f, .75f),
+            SceneAnchor(.60f, .77f),
+            SceneAnchor(.80f, .72f),
+        )
+    } else {
+        listOf(
+            SceneAnchor(.43f, .50f),
+            SceneAnchor(.19f, .59f),
+            SceneAnchor(.68f, .58f),
+            SceneAnchor(.31f, .70f),
+            SceneAnchor(.59f, .73f),
+            SceneAnchor(.78f, .67f),
+        )
+    }
+    val base = anchors[index % anchors.size]
+    val positiveHash = stableId.hashCode() and Int.MAX_VALUE
+    val jitterX = ((positiveHash % 9) - 4) * .005f
+    val jitterY = (((positiveHash / 11) % 7) - 3) * .004f
+    return SceneAnchor(
+        x = (base.x + jitterX).coerceIn(.05f, .86f),
+        y = (base.y + jitterY).coerceIn(if (shared) .52f else .46f, .82f),
+    )
+}
+
+private fun personDepthZ(y: Float): Float = 2.6f + y.coerceIn(0f, 1f) * 10f
+
+private fun furnitureDepthZ(kind: DigitalFurnitureKind, y: Float): Float = when (kind) {
+    DigitalFurnitureKind.WALL_ART,
+    DigitalFurnitureKind.CLOCK,
+    DigitalFurnitureKind.MIRROR -> .6f
+
+    DigitalFurnitureKind.RUG -> 1.1f
+    else -> 2f + y.coerceIn(0f, 1f) * 10f
+}
+
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom() {
     val wallBottom = size.height * .39f
     val wall = Color(0xFFF8F5EF)
     val wallShadow = Color(0xFFEDE7DE)
     val floor = Color(0xFFE5DACB)
-    val floorLine = Color(0xFF9E8F7E).copy(alpha = .30f)
+    val floorLine = Color(0xFF9E8F7E).copy(alpha = .22f)
     val ink = Color(0xFF514B44).copy(alpha = .35f)
 
     drawRect(wall)
@@ -253,23 +303,21 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom
 
     val floorHeight = size.height - wallBottom
     val vanishing = Offset(size.width * .50f, wallBottom)
-    repeat(7) { index ->
-        val bottomX = size.width * index / 6f
+    listOf(0f, .18f, .36f, .64f, .82f, 1f).forEach { ratio ->
         drawLine(
             floorLine,
-            Offset(bottomX, size.height),
+            Offset(size.width * ratio, size.height),
             vanishing,
-            strokeWidth = .8.dp.toPx(),
+            strokeWidth = .7.dp.toPx(),
         )
     }
-    listOf(.24f, .43f, .62f, .82f).forEach { depth ->
-        val perspectiveDepth = depth * depth
-        val y = wallBottom + floorHeight * perspectiveDepth
+    listOf(.31f, .52f, .72f, .88f).forEach { depth ->
+        val y = wallBottom + floorHeight * depth * depth
         drawLine(
-            floorLine.copy(alpha = floorLine.alpha * .88f),
+            floorLine.copy(alpha = floorLine.alpha * .82f),
             Offset(0f, y),
             Offset(size.width, y),
-            strokeWidth = .8.dp.toPx(),
+            strokeWidth = .7.dp.toPx(),
         )
     }
 
@@ -288,8 +336,18 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom
         topLeft = Offset(windowLeft, windowTop),
         size = Size(windowWidth, windowHeight),
     )
-    drawLine(ink, Offset(windowLeft + windowWidth / 2f, windowTop), Offset(windowLeft + windowWidth / 2f, windowTop + windowHeight), 1.4.dp.toPx())
-    drawLine(ink, Offset(windowLeft, windowTop + windowHeight / 2f), Offset(windowLeft + windowWidth, windowTop + windowHeight / 2f), 1.4.dp.toPx())
+    drawLine(
+        ink,
+        Offset(windowLeft + windowWidth / 2f, windowTop),
+        Offset(windowLeft + windowWidth / 2f, windowTop + windowHeight),
+        strokeWidth = 1.4.dp.toPx(),
+    )
+    drawLine(
+        ink,
+        Offset(windowLeft, windowTop + windowHeight / 2f),
+        Offset(windowLeft + windowWidth, windowTop + windowHeight / 2f),
+        strokeWidth = 1.4.dp.toPx(),
+    )
     drawCircle(
         Color.White.copy(alpha = .72f),
         radius = windowWidth * .10f,
@@ -305,16 +363,18 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom
     }
     drawPath(lightPatch, Color.White.copy(alpha = .14f))
 
-    drawLine(ink, Offset(size.width * .055f, 0f), Offset(size.width * .055f, wallBottom), strokeWidth = .8.dp.toPx())
-    drawLine(ink, Offset(size.width * .94f, 0f), Offset(size.width * .94f, wallBottom), strokeWidth = .8.dp.toPx())
-}
-
-private fun furnitureLayer(item: DigitalWorldItem): Int = when (DigitalFurnitureCatalog.resolve(item).kind) {
-    DigitalFurnitureKind.WALL_ART,
-    DigitalFurnitureKind.CLOCK,
-    DigitalFurnitureKind.MIRROR -> 0
-    DigitalFurnitureKind.RUG -> 1
-    else -> 2
+    drawLine(
+        ink,
+        Offset(size.width * .055f, 0f),
+        Offset(size.width * .055f, wallBottom),
+        strokeWidth = .8.dp.toPx(),
+    )
+    drawLine(
+        ink,
+        Offset(size.width * .94f, 0f),
+        Offset(size.width * .94f, wallBottom),
+        strokeWidth = .8.dp.toPx(),
+    )
 }
 
 @Composable
@@ -353,59 +413,58 @@ private fun ScenePersonSprite(
         ) {
             LuluProfileAvatar(avatarUri, avatarText, 46)
         }
-        Canvas(Modifier.size(width = 42.dp, height = 34.dp).offset(y = (-4).dp)) {
+        Canvas(Modifier.size(width = 44.dp, height = 38.dp).offset(y = (-4).dp)) {
             val ink = Color(0xFF353535)
-            val softBody = bodyColor.copy(alpha = .16f)
-            val paw = bodyColor.copy(alpha = .30f)
+            val softBody = bodyColor.copy(alpha = .18f)
+            val paw = bodyColor.copy(alpha = .32f)
 
-            // Two soft side paws sit behind the bean-shaped body.
             drawOval(
-                paw,
-                topLeft = Offset(size.width * .01f, size.height * .27f),
-                size = Size(size.width * .25f, size.height * .42f),
+                Color.Black.copy(alpha = .10f),
+                topLeft = Offset(size.width * .18f, size.height * .79f),
+                size = Size(size.width * .64f, size.height * .13f),
             )
             drawOval(
                 paw,
-                topLeft = Offset(size.width * .74f, size.height * .27f),
-                size = Size(size.width * .25f, size.height * .42f),
+                topLeft = Offset(size.width * .01f, size.height * .25f),
+                size = Size(size.width * .25f, size.height * .41f),
             )
-
-            // Rounded mascot body: deliberately more like a charm than a tiny human torso.
+            drawOval(
+                paw,
+                topLeft = Offset(size.width * .74f, size.height * .25f),
+                size = Size(size.width * .25f, size.height * .41f),
+            )
             drawRoundRect(
                 softBody,
-                topLeft = Offset(size.width * .13f, size.height * .02f),
+                topLeft = Offset(size.width * .13f, size.height * .01f),
                 size = Size(size.width * .74f, size.height * .72f),
                 cornerRadius = CornerRadius(size.width * .28f),
             )
             drawRoundRect(
-                ink.copy(alpha = .72f),
-                topLeft = Offset(size.width * .13f, size.height * .02f),
+                ink.copy(alpha = .68f),
+                topLeft = Offset(size.width * .13f, size.height * .01f),
                 size = Size(size.width * .74f, size.height * .72f),
                 cornerRadius = CornerRadius(size.width * .28f),
                 style = Stroke(1.dp.toPx()),
             )
-
             drawOval(
                 Color.White.copy(alpha = .78f),
-                topLeft = Offset(size.width * .31f, size.height * .23f),
-                size = Size(size.width * .38f, size.height * .32f),
+                topLeft = Offset(size.width * .31f, size.height * .22f),
+                size = Size(size.width * .38f, size.height * .31f),
             )
             drawCircle(
                 bodyColor.copy(alpha = .72f),
                 radius = 2.2.dp.toPx(),
-                center = Offset(size.width * .50f, size.height * .17f),
-            )
-
-            // Tiny oval feet replace the old straight stick legs.
-            drawOval(
-                bodyColor.copy(alpha = .78f),
-                topLeft = Offset(size.width * .20f, size.height * .68f),
-                size = Size(size.width * .27f, size.height * .22f),
+                center = Offset(size.width * .50f, size.height * .16f),
             )
             drawOval(
                 bodyColor.copy(alpha = .78f),
-                topLeft = Offset(size.width * .53f, size.height * .68f),
-                size = Size(size.width * .27f, size.height * .22f),
+                topLeft = Offset(size.width * .20f, size.height * .67f),
+                size = Size(size.width * .27f, size.height * .20f),
+            )
+            drawOval(
+                bodyColor.copy(alpha = .78f),
+                topLeft = Offset(size.width * .53f, size.height * .67f),
+                size = Size(size.width * .27f, size.height * .20f),
             )
         }
     }
@@ -424,6 +483,7 @@ private fun SharedWorldScene(
     var userTargetY by rememberSaveable(sceneCode) { mutableStateOf(.70f) }
     val userX by animateFloatAsState(userTargetX, tween(430), label = "shared-user-x")
     val userY by animateFloatAsState(userTargetY, tween(430), label = "shared-user-y")
+    val minWalkY = if (cloud) .53f else .34f
 
     Surface(
         modifier = modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -439,8 +499,8 @@ private fun SharedWorldScene(
                     detectTapGestures { tap ->
                         val width = size.width.toFloat().coerceAtLeast(1f)
                         val height = size.height.toFloat().coerceAtLeast(1f)
-                        userTargetX = (tap.x / width).coerceIn(.03f, .88f)
-                        userTargetY = (tap.y / height).coerceIn(.08f, .84f)
+                        userTargetX = (tap.x / width).coerceIn(.04f, .88f)
+                        userTargetY = (tap.y / height).coerceIn(minWalkY, .84f)
                     }
                 },
         ) {
@@ -449,20 +509,15 @@ private fun SharedWorldScene(
             }
 
             residents.forEachIndexed { index, character ->
+                val anchor = residentAnchor(index, character.characterId, shared = true)
                 SceneCharacterSprite(
                     character = character,
                     modifier = Modifier
-                        .align(
-                            when (index % 5) {
-                                0 -> Alignment.Center
-                                1 -> Alignment.CenterStart
-                                2 -> Alignment.CenterEnd
-                                3 -> Alignment.BottomStart
-                                else -> Alignment.BottomEnd
-                            },
+                        .offset(
+                            x = (maxWidth - 54.dp) * anchor.x,
+                            y = (maxHeight - 80.dp) * anchor.y,
                         )
-                        .padding(18.dp)
-                        .zIndex(6f),
+                        .zIndex(personDepthZ(anchor.y)),
                     onClick = { onCharacterClick(character.characterId) },
                 )
             }
@@ -473,9 +528,9 @@ private fun SharedWorldScene(
                 modifier = Modifier
                     .offset(
                         x = (maxWidth - 54.dp) * userX,
-                        y = (maxHeight - 78.dp) * userY,
+                        y = (maxHeight - 80.dp) * userY,
                     )
-                    .zIndex(7f),
+                    .zIndex(personDepthZ(userY) + .05f),
                 bodyColor = Color(0xFF8C8881),
             )
         }
