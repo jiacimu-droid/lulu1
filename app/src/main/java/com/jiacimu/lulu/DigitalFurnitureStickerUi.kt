@@ -1,14 +1,8 @@
 package com.jiacimu.lulu
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Chair
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,14 +13,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.jiacimu.lulu.data.*
-import com.jiacimu.lulu.design.LuluColors
-import java.time.Instant
-import kotlin.math.absoluteValue
+import com.jiacimu.lulu.data.DigitalFurnitureCatalog
+import com.jiacimu.lulu.data.DigitalFurnitureKind
+import com.jiacimu.lulu.data.DigitalFurnitureStyle
+import com.jiacimu.lulu.data.DigitalWorldItem
 
 @Composable
 internal fun FurnitureSticker(
@@ -35,463 +27,473 @@ internal fun FurnitureSticker(
     modifier: Modifier = Modifier,
     preview: Boolean = false,
 ) {
-    val width = if (preview) 68.dp else stickerWidth(style.kind)
-    val height = if (preview) 58.dp else stickerHeight(style.kind)
+    val width = if (preview) 72.dp else stickerWidth(style.kind)
+    val height = if (preview) 62.dp else stickerHeight(style.kind)
     val base = stickerColor(style.colorKey)
     Box(modifier.size(width, height), contentAlignment = Alignment.Center) {
-        Canvas(Modifier.matchParentSize()) { drawFurnitureSticker(style, base) }
-        if (preview) {
-            Text(
-                item.name,
-                fontSize = 7.5.sp,
-                color = Color(0xFF4A4743),
-                maxLines = 1,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .background(Color.White.copy(alpha = .86f), RoundedCornerShape(5.dp))
-                    .padding(horizontal = 3.dp, vertical = 1.dp),
-            )
+        Canvas(Modifier.size(width, height)) {
+            drawFurnitureSticker(style, base)
         }
     }
 }
 
 private fun DrawScope.drawFurnitureSticker(style: DigitalFurnitureStyle, base: Color) {
-    val dark = darken(base)
-    val darker = darken(dark)
+    val dark = darken(base, .76f)
+    val darker = darken(base, .58f)
+    val soft = lighten(base, .28f)
+    val pale = lighten(base, .55f)
     val white = Color(0xFFFFFEFB)
-    val line = Color(0xFF514C46).copy(alpha = .52f)
+    val ink = Color(0xFF554F49).copy(alpha = .72f)
+    val softInk = ink.copy(alpha = .36f)
+    val shadow = Color.Black.copy(alpha = .075f)
 
     when (style.kind) {
         DigitalFurnitureKind.BED -> {
-            drawOval(
-                Color.Black.copy(alpha = .10f),
-                topLeft = Offset(size.width * .08f, size.height * .78f),
-                size = Size(size.width * .84f, size.height * .15f),
+            drawOval(shadow, Offset(size.width * .08f, size.height * .82f), Size(size.width * .84f, size.height * .12f))
+            drawRoundRect(
+                darker,
+                Offset(size.width * .07f, size.height * .18f),
+                Size(size.width * .86f, size.height * .67f),
+                CornerRadius(size.height * .10f),
             )
             drawRoundRect(
                 dark,
-                topLeft = Offset(size.width * .03f, size.height * .08f),
-                size = Size(size.width * .94f, size.height * .34f),
-                cornerRadius = CornerRadius(size.height * .11f),
+                Offset(size.width * .05f, size.height * .06f),
+                Size(size.width * .90f, size.height * .31f),
+                CornerRadius(size.height * .13f),
             )
             drawRoundRect(
-                darker,
-                topLeft = Offset(size.width * .08f, size.height * .34f),
-                size = Size(size.width * .84f, size.height * .55f),
-                cornerRadius = CornerRadius(size.height * .10f),
+                soft,
+                Offset(size.width * .10f, size.height * .27f),
+                Size(size.width * .80f, size.height * .52f),
+                CornerRadius(size.height * .08f),
             )
             drawRoundRect(
-                base,
-                topLeft = Offset(size.width * .10f, size.height * .28f),
-                size = Size(size.width * .80f, size.height * .52f),
-                cornerRadius = CornerRadius(size.height * .10f),
+                pale,
+                Offset(size.width * .12f, size.height * .49f),
+                Size(size.width * .76f, size.height * .28f),
+                CornerRadius(size.height * .07f),
             )
-            drawRoundRect(
-                white,
-                topLeft = Offset(size.width * .14f, size.height * .25f),
-                size = Size(size.width * .29f, size.height * .20f),
-                cornerRadius = CornerRadius(size.height * .08f),
-            )
-            drawRoundRect(
-                white,
-                topLeft = Offset(size.width * .57f, size.height * .25f),
-                size = Size(size.width * .29f, size.height * .20f),
-                cornerRadius = CornerRadius(size.height * .08f),
-            )
-            when (style.pattern) {
-                "stripe" -> repeat(5) { index ->
-                    val y = size.height * (.51f + index * .065f)
-                    drawLine(white.copy(alpha = .58f), Offset(size.width * .13f, y), Offset(size.width * .87f, y), strokeWidth = 2.3f)
-                }
-                "check" -> {
-                    repeat(4) { index ->
-                        val x = size.width * (.18f + index * .18f)
-                        drawLine(white.copy(alpha = .44f), Offset(x, size.height * .48f), Offset(x, size.height * .78f), strokeWidth = 1.8f)
-                    }
-                    repeat(3) { index ->
-                        val y = size.height * (.53f + index * .10f)
-                        drawLine(white.copy(alpha = .44f), Offset(size.width * .11f, y), Offset(size.width * .89f, y), strokeWidth = 1.8f)
-                    }
+            drawRoundRect(white, Offset(size.width * .15f, size.height * .25f), Size(size.width * .28f, size.height * .19f), CornerRadius(size.height * .07f))
+            drawRoundRect(white, Offset(size.width * .57f, size.height * .25f), Size(size.width * .28f, size.height * .19f), CornerRadius(size.height * .07f))
+            drawLine(softInk, Offset(size.width * .13f, size.height * .81f), Offset(size.width * .10f, size.height * .93f), 2.2.dp.toPx())
+            drawLine(softInk, Offset(size.width * .87f, size.height * .81f), Offset(size.width * .90f, size.height * .93f), 2.2.dp.toPx())
+            if (style.pattern == "stripe") {
+                repeat(4) { index ->
+                    val y = size.height * (.55f + index * .055f)
+                    drawLine(white.copy(alpha = .65f), Offset(size.width * .17f, y), Offset(size.width * .83f, y), 1.2.dp.toPx())
                 }
             }
-            drawLine(line, Offset(size.width * .12f, size.height * .80f), Offset(size.width * .09f, size.height * .94f), strokeWidth = 3f)
-            drawLine(line, Offset(size.width * .88f, size.height * .80f), Offset(size.width * .91f, size.height * .94f), strokeWidth = 3f)
         }
 
         DigitalFurnitureKind.SOFA -> {
-            drawOval(Color.Black.copy(alpha = .08f), Offset(size.width * .08f, size.height * .78f), Size(size.width * .84f, size.height * .16f))
-            drawRoundRect(dark, Offset(size.width * .06f, size.height * .08f), Size(size.width * .88f, size.height * .46f), CornerRadius(size.height * .15f))
-            drawRoundRect(base, Offset(size.width * .02f, size.height * .35f), Size(size.width * .96f, size.height * .50f), CornerRadius(size.height * .17f))
-            drawRoundRect(base.copy(alpha = .95f), Offset(0f, size.height * .43f), Size(size.width * .15f, size.height * .34f), CornerRadius(size.height * .10f))
-            drawRoundRect(base.copy(alpha = .95f), Offset(size.width * .85f, size.height * .43f), Size(size.width * .15f, size.height * .34f), CornerRadius(size.height * .10f))
-            drawLine(white.copy(alpha = .55f), Offset(size.width / 2f, size.height * .45f), Offset(size.width / 2f, size.height * .79f), strokeWidth = 2f)
+            drawOval(shadow, Offset(size.width * .09f, size.height * .82f), Size(size.width * .82f, size.height * .11f))
+            drawRoundRect(
+                dark,
+                Offset(size.width * .08f, size.height * .10f),
+                Size(size.width * .84f, size.height * .52f),
+                CornerRadius(size.height * .16f),
+            )
+            drawRoundRect(
+                soft,
+                Offset(size.width * .12f, size.height * .17f),
+                Size(size.width * .35f, size.height * .36f),
+                CornerRadius(size.height * .11f),
+            )
+            drawRoundRect(
+                soft,
+                Offset(size.width * .53f, size.height * .17f),
+                Size(size.width * .35f, size.height * .36f),
+                CornerRadius(size.height * .11f),
+            )
+            drawRoundRect(
+                base,
+                Offset(size.width * .07f, size.height * .49f),
+                Size(size.width * .86f, size.height * .31f),
+                CornerRadius(size.height * .11f),
+            )
+            drawRoundRect(dark, Offset(0f, size.height * .42f), Size(size.width * .16f, size.height * .36f), CornerRadius(size.height * .10f))
+            drawRoundRect(dark, Offset(size.width * .84f, size.height * .42f), Size(size.width * .16f, size.height * .36f), CornerRadius(size.height * .10f))
+            drawLine(softInk, Offset(size.width * .18f, size.height * .78f), Offset(size.width * .17f, size.height * .91f), 2.dp.toPx())
+            drawLine(softInk, Offset(size.width * .82f, size.height * .78f), Offset(size.width * .83f, size.height * .91f), 2.dp.toPx())
+            drawLine(white.copy(alpha = .52f), Offset(size.width * .50f, size.height * .52f), Offset(size.width * .50f, size.height * .75f), 1.2.dp.toPx())
         }
 
         DigitalFurnitureKind.COFFEE_TABLE,
         DigitalFurnitureKind.TABLE,
         DigitalFurnitureKind.DESK -> {
-            drawOval(Color.Black.copy(alpha = .07f), Offset(size.width * .10f, size.height * .77f), Size(size.width * .80f, size.height * .15f))
-            drawRoundRect(base, size = Size(size.width, size.height * .59f), cornerRadius = CornerRadius(size.height * .10f))
+            drawOval(shadow, Offset(size.width * .13f, size.height * .83f), Size(size.width * .74f, size.height * .10f))
+            val topColor = if (style.colorKey == "glass") Color(0xFFDCE9ED).copy(alpha = .82f) else soft
+            drawRoundRect(
+                darker,
+                Offset(size.width * .05f, size.height * .16f),
+                Size(size.width * .90f, size.height * .34f),
+                CornerRadius(size.height * .09f),
+            )
+            drawRoundRect(
+                topColor,
+                Offset(size.width * .07f, size.height * .10f),
+                Size(size.width * .86f, size.height * .31f),
+                CornerRadius(size.height * .09f),
+            )
             if (style.colorKey == "glass") {
-                drawRoundRect(Color.White.copy(alpha = .34f), Offset(size.width * .06f, size.height * .06f), Size(size.width * .88f, size.height * .44f), CornerRadius(size.height * .08f), style = Stroke(2f))
+                drawLine(Color.White.copy(alpha = .78f), Offset(size.width * .17f, size.height * .16f), Offset(size.width * .53f, size.height * .16f), 1.2.dp.toPx())
             }
-            drawLine(dark, Offset(size.width * .19f, size.height * .54f), Offset(size.width * .14f, size.height), strokeWidth = size.width * .045f)
-            drawLine(dark, Offset(size.width * .81f, size.height * .54f), Offset(size.width * .86f, size.height), strokeWidth = size.width * .045f)
+            drawLine(dark, Offset(size.width * .20f, size.height * .43f), Offset(size.width * .15f, size.height * .88f), size.width * .035f)
+            drawLine(dark, Offset(size.width * .80f, size.height * .43f), Offset(size.width * .85f, size.height * .88f), size.width * .035f)
+            if (style.kind == DigitalFurnitureKind.DESK) {
+                drawRoundRect(pale, Offset(size.width * .31f, size.height * .47f), Size(size.width * .38f, size.height * .17f), CornerRadius(4.dp.toPx()))
+            }
         }
 
         DigitalFurnitureKind.CHAIR -> {
-            drawRoundRect(dark, Offset(size.width * .08f, 0f), Size(size.width * .84f, size.height * .46f), CornerRadius(size.height * .10f))
-            drawRoundRect(base, Offset(0f, size.height * .36f), Size(size.width, size.height * .34f), CornerRadius(size.height * .09f))
-            drawLine(dark, Offset(size.width * .20f, size.height * .62f), Offset(size.width * .14f, size.height), strokeWidth = size.width * .055f)
-            drawLine(dark, Offset(size.width * .80f, size.height * .62f), Offset(size.width * .86f, size.height), strokeWidth = size.width * .055f)
+            drawOval(shadow, Offset(size.width * .18f, size.height * .87f), Size(size.width * .64f, size.height * .08f))
+            drawRoundRect(
+                dark,
+                Offset(size.width * .14f, size.height * .03f),
+                Size(size.width * .72f, size.height * .48f),
+                CornerRadius(size.width * .18f),
+            )
+            drawRoundRect(
+                pale,
+                Offset(size.width * .22f, size.height * .11f),
+                Size(size.width * .56f, size.height * .28f),
+                CornerRadius(size.width * .15f),
+            )
+            drawRoundRect(
+                base,
+                Offset(size.width * .08f, size.height * .43f),
+                Size(size.width * .84f, size.height * .28f),
+                CornerRadius(size.width * .12f),
+            )
+            drawLine(dark, Offset(size.width * .26f, size.height * .67f), Offset(size.width * .20f, size.height * .94f), size.width * .045f)
+            drawLine(dark, Offset(size.width * .74f, size.height * .67f), Offset(size.width * .80f, size.height * .94f), size.width * .045f)
         }
 
         DigitalFurnitureKind.SHELF -> {
-            drawRoundRect(dark, size = size, cornerRadius = CornerRadius(size.width * .10f))
-            drawRoundRect(base, Offset(size.width * .07f, size.height * .04f), Size(size.width * .86f, size.height * .91f), CornerRadius(size.width * .07f))
-            repeat(4) { index ->
-                val y = size.height * (index + 1) / 5f
-                drawLine(white.copy(alpha = .70f), Offset(size.width * .08f, y), Offset(size.width * .92f, y), strokeWidth = 2f)
+            drawOval(shadow, Offset(size.width * .12f, size.height * .92f), Size(size.width * .76f, size.height * .06f))
+            drawRoundRect(darker, size = Size(size.width, size.height * .94f), cornerRadius = CornerRadius(size.width * .09f))
+            drawRoundRect(soft, Offset(size.width * .06f, size.height * .035f), Size(size.width * .88f, size.height * .86f), CornerRadius(size.width * .065f))
+            repeat(3) { index ->
+                val y = size.height * (.26f + index * .22f)
+                drawLine(dark.copy(alpha = .50f), Offset(size.width * .08f, y), Offset(size.width * .92f, y), 1.6.dp.toPx())
             }
-            repeat(5) { index ->
-                val x = size.width * (.14f + (index % 3) * .22f)
-                val y = size.height * (.11f + (index / 3) * .38f)
-                drawRoundRect(darker.copy(alpha = .62f), Offset(x, y), Size(size.width * .12f, size.height * .16f), CornerRadius(2f))
+            val bookColors = listOf(base, pale, dark)
+            repeat(6) { index ->
+                val row = index / 3
+                val col = index % 3
+                drawRoundRect(
+                    bookColors[index % bookColors.size],
+                    Offset(size.width * (.14f + col * .24f), size.height * (.10f + row * .45f)),
+                    Size(size.width * .10f, size.height * .14f),
+                    CornerRadius(2.dp.toPx()),
+                )
             }
         }
 
         DigitalFurnitureKind.CABINET,
         DigitalFurnitureKind.NIGHTSTAND -> {
-            drawOval(Color.Black.copy(alpha = .07f), Offset(size.width * .10f, size.height * .84f), Size(size.width * .80f, size.height * .12f))
-            drawRoundRect(base, size = Size(size.width, size.height * .88f), cornerRadius = CornerRadius(size.width * .12f))
-            drawLine(white.copy(alpha = .62f), Offset(size.width * .08f, size.height * .45f), Offset(size.width * .92f, size.height * .45f), strokeWidth = 2f)
-            drawCircle(darker, radius = size.width * .035f, center = Offset(size.width * .50f, size.height * .30f))
-            drawCircle(darker, radius = size.width * .035f, center = Offset(size.width * .50f, size.height * .62f))
-            drawLine(dark, Offset(size.width * .17f, size.height * .84f), Offset(size.width * .15f, size.height), strokeWidth = 3f)
-            drawLine(dark, Offset(size.width * .83f, size.height * .84f), Offset(size.width * .85f, size.height), strokeWidth = 3f)
+            drawOval(shadow, Offset(size.width * .13f, size.height * .89f), Size(size.width * .74f, size.height * .07f))
+            drawRoundRect(darker, Offset(size.width * .04f, size.height * .05f), Size(size.width * .92f, size.height * .82f), CornerRadius(size.width * .12f))
+            drawRoundRect(soft, Offset(size.width * .08f, size.height * .08f), Size(size.width * .84f, size.height * .75f), CornerRadius(size.width * .10f))
+            drawLine(softInk, Offset(size.width * .13f, size.height * .43f), Offset(size.width * .87f, size.height * .43f), 1.2.dp.toPx())
+            drawCircle(darker, size.width * .030f, Offset(size.width * .50f, size.height * .29f))
+            drawCircle(darker, size.width * .030f, Offset(size.width * .50f, size.height * .62f))
+            drawLine(dark, Offset(size.width * .20f, size.height * .84f), Offset(size.width * .18f, size.height * .95f), 2.dp.toPx())
+            drawLine(dark, Offset(size.width * .80f, size.height * .84f), Offset(size.width * .82f, size.height * .95f), 2.dp.toPx())
         }
 
         DigitalFurnitureKind.FLOOR_LAMP -> {
-            val glow = if (style.colorKey == "warm") Color(0xFFFFD998) else base
-            drawCircle(glow.copy(alpha = .16f), radius = size.width * .47f, center = Offset(size.width * .52f, size.height * .24f))
+            val glow = if (style.colorKey == "warm") Color(0xFFF4D89C) else pale
+            drawCircle(glow.copy(alpha = .11f), size.width * .43f, Offset(size.width * .52f, size.height * .23f))
             if (style.id == "lamp_arc") {
                 val arc = Path().apply {
-                    moveTo(size.width * .32f, size.height * .86f)
-                    cubicTo(size.width * .32f, size.height * .28f, size.width * .58f, size.height * .12f, size.width * .72f, size.height * .20f)
+                    moveTo(size.width * .30f, size.height * .87f)
+                    cubicTo(size.width * .28f, size.height * .34f, size.width * .50f, size.height * .14f, size.width * .72f, size.height * .19f)
                 }
-                drawPath(arc, dark, style = Stroke(size.width * .055f))
+                drawPath(arc, ink, style = Stroke(size.width * .045f))
             } else {
-                drawLine(dark, Offset(size.width * .50f, size.height * .35f), Offset(size.width * .50f, size.height * .86f), strokeWidth = size.width * .055f)
+                drawLine(ink, Offset(size.width * .50f, size.height * .34f), Offset(size.width * .50f, size.height * .87f), size.width * .045f)
             }
             val shade = Path().apply {
-                moveTo(size.width * .24f, size.height * .10f)
-                lineTo(size.width * .76f, size.height * .10f)
-                lineTo(size.width * .66f, size.height * .34f)
-                lineTo(size.width * .34f, size.height * .34f)
+                moveTo(size.width * .25f, size.height * .09f)
+                lineTo(size.width * .75f, size.height * .09f)
+                lineTo(size.width * .65f, size.height * .34f)
+                lineTo(size.width * .35f, size.height * .34f)
                 close()
             }
-            drawPath(shade, glow.copy(alpha = .94f))
-            drawLine(darker.copy(alpha = .45f), Offset(size.width * .27f, size.height * .31f), Offset(size.width * .73f, size.height * .31f), strokeWidth = 1.5f)
-            drawOval(dark, Offset(size.width * .23f, size.height * .84f), Size(size.width * .54f, size.height * .10f))
-            if (style.pattern == "sparkle") {
-                repeat(5) { i ->
-                    val x = size.width * (.30f + (i % 3) * .20f)
-                    val y = size.height * (.14f + (i / 3) * .10f)
-                    drawCircle(Color.White.copy(alpha = .85f), radius = 1.5f + i % 2, center = Offset(x, y))
-                }
-            }
+            drawPath(shade, glow)
+            drawPath(shade, softInk, style = Stroke(1.dp.toPx()))
+            drawOval(ink, Offset(size.width * .24f, size.height * .85f), Size(size.width * .52f, size.height * .08f))
         }
 
         DigitalFurnitureKind.TABLE_LAMP -> {
-            val glow = if (style.colorKey == "warm") Color(0xFFFFD998) else base
-            drawCircle(glow.copy(alpha = .14f), radius = size.width * .46f, center = Offset(size.width * .50f, size.height * .31f))
+            val glow = if (style.colorKey == "warm") Color(0xFFF4D89C) else pale
+            drawCircle(glow.copy(alpha = .10f), size.width * .40f, Offset(size.width * .50f, size.height * .31f))
             if (style.id == "lamp_mushroom") {
-                drawOval(base, Offset(size.width * .15f, size.height * .10f), Size(size.width * .70f, size.height * .40f))
-                drawRoundRect(dark, Offset(size.width * .42f, size.height * .45f), Size(size.width * .16f, size.height * .36f), CornerRadius(size.width * .07f))
+                drawOval(glow, Offset(size.width * .16f, size.height * .12f), Size(size.width * .68f, size.height * .34f))
+                drawRoundRect(dark, Offset(size.width * .43f, size.height * .43f), Size(size.width * .14f, size.height * .36f), CornerRadius(size.width * .06f))
             } else {
                 val shade = Path().apply {
-                    moveTo(size.width * .23f, size.height * .12f)
-                    lineTo(size.width * .77f, size.height * .12f)
-                    lineTo(size.width * .66f, size.height * .47f)
-                    lineTo(size.width * .34f, size.height * .47f)
+                    moveTo(size.width * .24f, size.height * .12f)
+                    lineTo(size.width * .76f, size.height * .12f)
+                    lineTo(size.width * .65f, size.height * .46f)
+                    lineTo(size.width * .35f, size.height * .46f)
                     close()
                 }
-                drawPath(shade, if (style.colorKey == "glass") Color.White.copy(alpha = .42f) else glow)
-                if (style.colorKey == "glass") drawPath(shade, dark, style = Stroke(1.6f))
-                drawLine(dark, Offset(size.width / 2f, size.height * .47f), Offset(size.width / 2f, size.height * .82f), strokeWidth = size.width * .055f)
+                drawPath(shade, glow)
+                drawPath(shade, softInk, style = Stroke(1.dp.toPx()))
+                drawLine(ink, Offset(size.width * .50f, size.height * .46f), Offset(size.width * .50f, size.height * .80f), size.width * .045f)
             }
-            drawOval(dark, Offset(size.width * .25f, size.height * .80f), Size(size.width * .50f, size.height * .11f))
+            drawOval(ink, Offset(size.width * .26f, size.height * .79f), Size(size.width * .48f, size.height * .08f))
         }
 
         DigitalFurnitureKind.RUG -> {
-            val rugColor = base.copy(alpha = .72f)
+            val rug = lighten(base, .48f).copy(alpha = .72f)
+            drawOval(Color.Black.copy(alpha = .035f), Offset(size.width * .03f, size.height * .09f), Size(size.width * .94f, size.height * .84f))
             if (style.pattern == "round") {
-                drawOval(rugColor, size = size)
+                drawOval(rug, Offset(size.width * .02f, size.height * .03f), Size(size.width * .96f, size.height * .88f))
+                drawOval(softInk.copy(alpha = .18f), Offset(size.width * .08f, size.height * .10f), Size(size.width * .84f, size.height * .74f), style = Stroke(1.dp.toPx()))
             } else {
-                drawRoundRect(rugColor, size = size, cornerRadius = CornerRadius(size.height * .28f))
+                drawRoundRect(rug, Offset(size.width * .02f, size.height * .04f), Size(size.width * .96f, size.height * .86f), CornerRadius(size.height * .24f))
+                drawRoundRect(softInk.copy(alpha = .18f), Offset(size.width * .08f, size.height * .11f), Size(size.width * .84f, size.height * .72f), CornerRadius(size.height * .19f), style = Stroke(1.dp.toPx()))
             }
-            when (style.pattern) {
-                "stripe" -> repeat(5) { index ->
-                    val y = size.height * (index + 1) / 6f
-                    drawLine(white.copy(alpha = .62f), Offset(size.width * .07f, y), Offset(size.width * .93f, y), strokeWidth = 2.5f)
-                }
-                "check" -> {
-                    repeat(4) { index ->
-                        val x = size.width * (index + 1) / 5f
-                        drawLine(white.copy(alpha = .43f), Offset(x, size.height * .08f), Offset(x, size.height * .92f), strokeWidth = 2f)
-                    }
-                    repeat(3) { index ->
-                        val y = size.height * (index + 1) / 4f
-                        drawLine(white.copy(alpha = .43f), Offset(size.width * .06f, y), Offset(size.width * .94f, y), strokeWidth = 2f)
-                    }
+            if (style.pattern == "stripe") {
+                repeat(3) { index ->
+                    val y = size.height * (.30f + index * .17f)
+                    drawLine(white.copy(alpha = .58f), Offset(size.width * .17f, y), Offset(size.width * .83f, y), 1.2.dp.toPx())
                 }
             }
         }
 
         DigitalFurnitureKind.PLANT -> {
-            drawOval(Color.Black.copy(alpha = .06f), Offset(size.width * .20f, size.height * .87f), Size(size.width * .60f, size.height * .09f))
-            val pot = if (style.colorKey == "cactus") Color(0xFFD4B28D) else Color(0xFFC7A17B)
-            drawRoundRect(pot, Offset(size.width * .27f, size.height * .63f), Size(size.width * .46f, size.height * .31f), CornerRadius(size.width * .12f))
+            drawOval(shadow, Offset(size.width * .20f, size.height * .88f), Size(size.width * .60f, size.height * .07f))
+            val pot = if (style.colorKey == "cactus") Color(0xFFD6B89A) else Color(0xFFC8A98A)
+            drawRoundRect(pot, Offset(size.width * .28f, size.height * .64f), Size(size.width * .44f, size.height * .28f), CornerRadius(size.width * .11f))
             val leaf = when (style.colorKey) {
-                "olive" -> Color(0xFF788C64)
-                "cactus" -> Color(0xFF78A06F)
-                else -> Color(0xFF668D68)
+                "olive" -> Color(0xFF7C8E6B)
+                "cactus" -> Color(0xFF78A176)
+                else -> Color(0xFF6F9270)
             }
             if (style.colorKey == "cactus") {
-                drawRoundRect(leaf, Offset(size.width * .40f, size.height * .12f), Size(size.width * .20f, size.height * .58f), CornerRadius(size.width * .10f))
-                drawRoundRect(leaf, Offset(size.width * .26f, size.height * .31f), Size(size.width * .18f, size.height * .24f), CornerRadius(size.width * .09f))
-                drawRoundRect(leaf, Offset(size.width * .57f, size.height * .25f), Size(size.width * .18f, size.height * .27f), CornerRadius(size.width * .09f))
+                drawRoundRect(leaf, Offset(size.width * .40f, size.height * .13f), Size(size.width * .20f, size.height * .56f), CornerRadius(size.width * .10f))
+                drawRoundRect(leaf, Offset(size.width * .27f, size.height * .33f), Size(size.width * .18f, size.height * .22f), CornerRadius(size.width * .09f))
+                drawRoundRect(leaf, Offset(size.width * .56f, size.height * .27f), Size(size.width * .18f, size.height * .25f), CornerRadius(size.width * .09f))
             } else {
-                repeat(6) { index ->
-                    val spread = index - 2
+                val leaves = listOf(
+                    Offset(.18f, .20f), Offset(.33f, .08f), Offset(.49f, .16f),
+                    Offset(.55f, .04f), Offset(.63f, .24f), Offset(.30f, .30f),
+                )
+                leaves.forEachIndexed { index, p ->
                     drawOval(
-                        leaf.copy(alpha = .90f - index * .035f),
-                        Offset(size.width * (.31f + spread * .075f), size.height * (.08f + spread.absoluteValue * .055f)),
-                        Size(size.width * .34f, size.height * .48f),
+                        leaf.copy(alpha = .88f - index * .035f),
+                        Offset(size.width * p.x, size.height * p.y),
+                        Size(size.width * .28f, size.height * .40f),
                     )
                 }
             }
         }
 
         DigitalFurnitureKind.TV -> {
-            drawRoundRect(darker, Offset(size.width * .04f, size.height * .06f), Size(size.width * .92f, size.height * .69f), CornerRadius(size.height * .06f))
-            drawRoundRect(Color(0xFF25292C), Offset(size.width * .09f, size.height * .11f), Size(size.width * .82f, size.height * .57f), CornerRadius(size.height * .04f))
-            drawRoundRect(Color(0xFF6C8796).copy(alpha = .28f), Offset(size.width * .13f, size.height * .15f), Size(size.width * .36f, size.height * .19f), CornerRadius(size.height * .03f))
-            drawLine(dark, Offset(size.width * .50f, size.height * .74f), Offset(size.width * .50f, size.height * .90f), strokeWidth = 3f)
-            drawRoundRect(dark, Offset(size.width * .27f, size.height * .87f), Size(size.width * .46f, size.height * .08f), CornerRadius(4f))
+            drawOval(shadow, Offset(size.width * .17f, size.height * .90f), Size(size.width * .66f, size.height * .06f))
+            drawRoundRect(darker, Offset(size.width * .05f, size.height * .06f), Size(size.width * .90f, size.height * .66f), CornerRadius(size.height * .06f))
+            drawRoundRect(Color(0xFF303639), Offset(size.width * .09f, size.height * .10f), Size(size.width * .82f, size.height * .57f), CornerRadius(size.height * .04f))
+            drawRoundRect(Color(0xFFB5CAD3).copy(alpha = .20f), Offset(size.width * .15f, size.height * .16f), Size(size.width * .32f, size.height * .15f), CornerRadius(size.height * .03f))
+            drawLine(dark, Offset(size.width * .50f, size.height * .72f), Offset(size.width * .50f, size.height * .86f), 2.3.dp.toPx())
+            drawRoundRect(dark, Offset(size.width * .29f, size.height * .85f), Size(size.width * .42f, size.height * .07f), CornerRadius(4.dp.toPx()))
         }
 
         DigitalFurnitureKind.MIRROR -> {
-            val frame = if (style.colorKey == "glass") Color(0xFFB7AAA0) else dark
+            val frame = if (style.colorKey == "glass") Color(0xFFB9AEA5) else dark
             if (style.pattern == "round") {
                 drawOval(Color(0xFFEAF1F3), Offset(size.width * .10f, size.height * .08f), Size(size.width * .80f, size.height * .80f))
-                drawOval(frame, Offset(size.width * .10f, size.height * .08f), Size(size.width * .80f, size.height * .80f), style = Stroke(3f))
+                drawOval(frame, Offset(size.width * .10f, size.height * .08f), Size(size.width * .80f, size.height * .80f), style = Stroke(2.dp.toPx()))
             } else {
                 drawRoundRect(Color(0xFFEAF1F3), Offset(size.width * .14f, size.height * .04f), Size(size.width * .72f, size.height * .90f), CornerRadius(size.width * .34f))
-                drawRoundRect(frame, Offset(size.width * .14f, size.height * .04f), Size(size.width * .72f, size.height * .90f), CornerRadius(size.width * .34f), style = Stroke(3f))
+                drawRoundRect(frame, Offset(size.width * .14f, size.height * .04f), Size(size.width * .72f, size.height * .90f), CornerRadius(size.width * .34f), style = Stroke(2.dp.toPx()))
             }
-            drawLine(Color.White.copy(alpha = .78f), Offset(size.width * .31f, size.height * .18f), Offset(size.width * .55f, size.height * .52f), strokeWidth = 2f)
+            drawLine(Color.White.copy(alpha = .76f), Offset(size.width * .31f, size.height * .18f), Offset(size.width * .55f, size.height * .52f), 1.3.dp.toPx())
         }
 
         DigitalFurnitureKind.WALL_ART -> {
-            drawRoundRect(darker, size = size, cornerRadius = CornerRadius(4f))
-            drawRect(Color(0xFFF6F3EC), Offset(size.width * .07f, size.height * .07f), Size(size.width * .86f, size.height * .86f))
+            drawRoundRect(darker, size = size, cornerRadius = CornerRadius(5.dp.toPx()))
+            drawRect(Color(0xFFF8F5EF), Offset(size.width * .07f, size.height * .07f), Size(size.width * .86f, size.height * .86f))
             if (style.id == "art_landscape") {
                 val hills = Path().apply {
-                    moveTo(size.width * .12f, size.height * .68f)
-                    lineTo(size.width * .36f, size.height * .40f)
-                    lineTo(size.width * .52f, size.height * .60f)
-                    lineTo(size.width * .68f, size.height * .35f)
-                    lineTo(size.width * .88f, size.height * .68f)
+                    moveTo(size.width * .14f, size.height * .67f)
+                    lineTo(size.width * .37f, size.height * .43f)
+                    lineTo(size.width * .53f, size.height * .59f)
+                    lineTo(size.width * .69f, size.height * .37f)
+                    lineTo(size.width * .86f, size.height * .67f)
                 }
-                drawPath(hills, base, style = Stroke(3f))
+                drawPath(hills, dark.copy(alpha = .55f), style = Stroke(1.5.dp.toPx()))
             } else {
-                drawLine(darker, Offset(size.width * .25f, size.height * .72f), Offset(size.width * .67f, size.height * .26f), strokeWidth = 2f)
-                drawCircle(darker, radius = size.minDimension * .11f, center = Offset(size.width * .38f, size.height * .39f), style = Stroke(2f))
+                drawLine(softInk, Offset(size.width * .27f, size.height * .70f), Offset(size.width * .67f, size.height * .28f), 1.4.dp.toPx())
+                drawCircle(softInk, size.minDimension * .10f, Offset(size.width * .39f, size.height * .40f), style = Stroke(1.4.dp.toPx()))
             }
         }
 
         DigitalFurnitureKind.CLOCK -> {
-            drawCircle(white, radius = size.minDimension * .42f, center = center)
-            drawCircle(dark, radius = size.minDimension * .42f, center = center, style = Stroke(3f))
-            drawLine(darker, center, Offset(center.x, center.y - size.height * .20f), strokeWidth = 2.5f)
-            drawLine(darker, center, Offset(center.x + size.width * .16f, center.y + size.height * .08f), strokeWidth = 2.5f)
-            drawCircle(darker, radius = 3f, center = center)
+            drawCircle(white, size.minDimension * .41f, center)
+            drawCircle(dark, size.minDimension * .41f, center, style = Stroke(2.dp.toPx()))
+            drawLine(darker, center, Offset(center.x, center.y - size.height * .19f), 1.5.dp.toPx())
+            drawLine(darker, center, Offset(center.x + size.width * .15f, center.y + size.height * .08f), 1.5.dp.toPx())
+            drawCircle(darker, 2.dp.toPx(), center)
         }
 
         DigitalFurnitureKind.CUSHION -> {
-            drawRoundRect(base, Offset(size.width * .08f, size.height * .10f), Size(size.width * .84f, size.height * .78f), CornerRadius(size.width * .20f))
-            drawCircle(white.copy(alpha = .62f), radius = 2.5f, center = center)
-            if (style.pattern == "stripe") repeat(4) { index ->
-                val x = size.width * (.24f + index * .16f)
-                drawLine(white.copy(alpha = .62f), Offset(x, size.height * .18f), Offset(x, size.height * .82f), strokeWidth = 2f)
-            }
+            drawRoundRect(soft, Offset(size.width * .08f, size.height * .10f), Size(size.width * .84f, size.height * .78f), CornerRadius(size.width * .20f))
+            drawRoundRect(softInk.copy(alpha = .16f), Offset(size.width * .12f, size.height * .14f), Size(size.width * .76f, size.height * .70f), CornerRadius(size.width * .18f), style = Stroke(1.dp.toPx()))
+            drawCircle(white.copy(alpha = .68f), 2.dp.toPx(), center)
         }
 
         DigitalFurnitureKind.BASKET -> {
-            drawRoundRect(base, Offset(size.width * .08f, size.height * .28f), Size(size.width * .84f, size.height * .64f), CornerRadius(size.width * .12f))
-            repeat(4) { index ->
-                val y = size.height * (.40f + index * .12f)
-                drawLine(white.copy(alpha = .38f), Offset(size.width * .13f, y), Offset(size.width * .87f, y), strokeWidth = 1.8f)
+            drawOval(shadow, Offset(size.width * .16f, size.height * .88f), Size(size.width * .68f, size.height * .07f))
+            drawRoundRect(soft, Offset(size.width * .09f, size.height * .31f), Size(size.width * .82f, size.height * .59f), CornerRadius(size.width * .12f))
+            repeat(3) { index ->
+                val y = size.height * (.45f + index * .13f)
+                drawLine(dark.copy(alpha = .24f), Offset(size.width * .15f, y), Offset(size.width * .85f, y), 1.dp.toPx())
             }
             val handle = Path().apply {
-                moveTo(size.width * .29f, size.height * .35f)
-                cubicTo(size.width * .31f, size.height * .04f, size.width * .69f, size.height * .04f, size.width * .71f, size.height * .35f)
+                moveTo(size.width * .29f, size.height * .37f)
+                cubicTo(size.width * .31f, size.height * .08f, size.width * .69f, size.height * .08f, size.width * .71f, size.height * .37f)
             }
-            drawPath(handle, dark, style = Stroke(3f))
+            drawPath(handle, dark.copy(alpha = .66f), style = Stroke(2.dp.toPx()))
         }
 
         DigitalFurnitureKind.DECOR -> {
             if (style.colorKey == "glass") {
-                drawOval(Color(0xFFDAE8EC).copy(alpha = .55f), Offset(size.width * .26f, size.height * .24f), Size(size.width * .48f, size.height * .62f))
-                drawOval(Color.White.copy(alpha = .70f), Offset(size.width * .36f, size.height * .29f), Size(size.width * .12f, size.height * .42f))
+                drawOval(Color(0xFFD8E7EA).copy(alpha = .62f), Offset(size.width * .27f, size.height * .25f), Size(size.width * .46f, size.height * .60f))
+                drawOval(Color.White.copy(alpha = .72f), Offset(size.width * .37f, size.height * .30f), Size(size.width * .10f, size.height * .40f))
             } else {
-                drawCircle(base, radius = size.minDimension * .35f, center = center)
-                drawCircle(white.copy(alpha = .66f), radius = size.minDimension * .14f, center = center)
+                drawCircle(soft, size.minDimension * .34f, center)
+                drawCircle(white.copy(alpha = .68f), size.minDimension * .13f, center)
             }
         }
     }
 }
 
+/** Kept for old callers; the visible catalog is now the custom Lulu-styled dialog. */
 @Composable
 internal fun FurnitureCatalogDialog(onDismiss: () -> Unit) {
-    val rows = DigitalFurnitureCatalog.styles.chunked(2)
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = { Icon(Icons.Outlined.Chair, null) },
-        title = { Text("家具城", fontWeight = FontWeight.Bold) },
-        text = {
-            LazyColumn(
-                modifier = Modifier.heightIn(max = 560.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                items(rows, key = { row -> row.joinToString("|") { it.id } }) { row ->
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        row.forEach { style ->
-                            Surface(
-                                color = Color(0xFFFAF9F7),
-                                shape = RoundedCornerShape(16.dp),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE3E0DA)),
-                                modifier = Modifier.weight(1f),
-                            ) {
-                                Column(
-                                    Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 9.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                ) {
-                                    Box(Modifier.height(68.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                        FurnitureCatalogPreview(style)
-                                    }
-                                    Text(style.displayName, fontWeight = FontWeight.SemiBold, fontSize = 11.5.sp, maxLines = 1)
-                                    Text(
-                                        DigitalFurnitureCatalog.kindLabel(style.kind),
-                                        color = LuluColors.Muted,
-                                        fontSize = 9.sp,
-                                    )
-                                }
-                            }
-                        }
-                        if (row.size == 1) Spacer(Modifier.weight(1f))
-                    }
-                }
-            }
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("关闭") } },
-    )
-}
-
-@Composable
-private fun FurnitureCatalogPreview(style: DigitalFurnitureStyle) {
-    val fake = DigitalWorldItem(
-        id = "preview-${style.id}",
-        ownerCharacterId = "preview",
-        type = style.kind.name.lowercase(),
-        name = style.displayName,
-        appearance = style.displayName,
-        position = "预览",
-        createdAt = Instant.EPOCH,
-        updatedAt = Instant.EPOCH,
-    )
-    FurnitureSticker(fake, style, preview = true)
+    StyledFurnitureCatalogDialog(onDismiss)
 }
 
 internal fun furniturePlacement(item: DigitalWorldItem, index: Int): Pair<Float, Float> {
     val text = item.position.lowercase()
     val kind = DigitalFurnitureCatalog.resolve(item).kind
+    val fallback = defaultFurniturePlacement(kind, index)
+
     val x = when {
         listOf("最左", "左侧", "靠左", "左边").any(text::contains) -> .06f
         listOf("最右", "右侧", "靠右", "右边").any(text::contains) -> .72f
         listOf("正中", "中央", "中间", "中心").any(text::contains) -> .38f
-        else -> ((item.id.hashCode().absoluteValue % 67) / 100f).coerceIn(.04f, .72f)
+        else -> fallback.first
     }
     val y = when {
         kind in setOf(DigitalFurnitureKind.WALL_ART, DigitalFurnitureKind.CLOCK, DigitalFurnitureKind.MIRROR) -> .10f
-        kind == DigitalFurnitureKind.RUG -> .69f
-        listOf("上方", "里面", "后方", "靠墙", "墙边", "窗边").any(text::contains) -> .28f
-        listOf("下方", "门边", "前方", "入口").any(text::contains) -> .68f
-        listOf("正中", "中央", "中间", "中心").any(text::contains) -> .47f
-        else -> (((item.id.reversed().hashCode().absoluteValue + index * 19) % 45) / 100f + .28f).coerceIn(.27f, .72f)
+        kind == DigitalFurnitureKind.RUG -> .67f
+        listOf("上方", "里面", "后方", "靠墙", "墙边", "窗边").any(text::contains) -> .30f
+        listOf("下方", "门边", "前方", "入口").any(text::contains) -> .67f
+        listOf("正中", "中央", "中间", "中心").any(text::contains) -> .48f
+        else -> fallback.second
     }
-    return x to y
+    return x.coerceIn(.03f, .74f) to y.coerceIn(.08f, .72f)
+}
+
+private fun defaultFurniturePlacement(kind: DigitalFurnitureKind, index: Int): Pair<Float, Float> {
+    val alternate = index % 2 == 1
+    return when (kind) {
+        DigitalFurnitureKind.BED -> (if (alternate) .48f else .08f) to .34f
+        DigitalFurnitureKind.SOFA -> (if (alternate) .49f else .10f) to .40f
+        DigitalFurnitureKind.RUG -> .27f to .67f
+        DigitalFurnitureKind.COFFEE_TABLE -> .38f to .56f
+        DigitalFurnitureKind.TABLE -> (if (alternate) .12f else .53f) to .43f
+        DigitalFurnitureKind.DESK -> (if (alternate) .51f else .09f) to .39f
+        DigitalFurnitureKind.CHAIR -> (if (alternate) .24f else .66f) to .54f
+        DigitalFurnitureKind.SHELF -> (if (alternate) .70f else .04f) to .27f
+        DigitalFurnitureKind.CABINET -> (if (alternate) .71f else .05f) to .29f
+        DigitalFurnitureKind.NIGHTSTAND -> (if (alternate) .67f else .20f) to .40f
+        DigitalFurnitureKind.FLOOR_LAMP -> (if (alternate) .80f else .05f) to .35f
+        DigitalFurnitureKind.TABLE_LAMP -> (if (alternate) .66f else .24f) to .42f
+        DigitalFurnitureKind.PLANT -> (if (alternate) .78f else .06f) to .49f
+        DigitalFurnitureKind.TV -> .57f to .28f
+        DigitalFurnitureKind.MIRROR -> (if (alternate) .72f else .12f) to .10f
+        DigitalFurnitureKind.WALL_ART -> (if (alternate) .62f else .17f) to .10f
+        DigitalFurnitureKind.CLOCK -> (if (alternate) .76f else .28f) to .10f
+        DigitalFurnitureKind.CUSHION -> (if (alternate) .58f else .20f) to .57f
+        DigitalFurnitureKind.BASKET -> (if (alternate) .69f else .10f) to .58f
+        DigitalFurnitureKind.DECOR -> (if (alternate) .63f else .31f) to .50f
+    }
 }
 
 internal fun stickerWidth(kind: DigitalFurnitureKind): Dp = when (kind) {
-    DigitalFurnitureKind.BED -> 126.dp
-    DigitalFurnitureKind.SOFA -> 118.dp
-    DigitalFurnitureKind.RUG -> 142.dp
-    DigitalFurnitureKind.COFFEE_TABLE, DigitalFurnitureKind.TABLE, DigitalFurnitureKind.DESK -> 84.dp
-    DigitalFurnitureKind.SHELF, DigitalFurnitureKind.CABINET -> 68.dp
-    DigitalFurnitureKind.NIGHTSTAND -> 54.dp
-    DigitalFurnitureKind.CHAIR -> 50.dp
-    DigitalFurnitureKind.FLOOR_LAMP -> 52.dp
-    DigitalFurnitureKind.TABLE_LAMP, DigitalFurnitureKind.PLANT, DigitalFurnitureKind.DECOR -> 50.dp
-    DigitalFurnitureKind.TV -> 92.dp
-    DigitalFurnitureKind.MIRROR -> 58.dp
-    DigitalFurnitureKind.WALL_ART -> 62.dp
-    DigitalFurnitureKind.CLOCK -> 46.dp
-    DigitalFurnitureKind.CUSHION -> 44.dp
-    DigitalFurnitureKind.BASKET -> 52.dp
+    DigitalFurnitureKind.BED -> 118.dp
+    DigitalFurnitureKind.SOFA -> 108.dp
+    DigitalFurnitureKind.RUG -> 124.dp
+    DigitalFurnitureKind.COFFEE_TABLE -> 72.dp
+    DigitalFurnitureKind.TABLE, DigitalFurnitureKind.DESK -> 80.dp
+    DigitalFurnitureKind.SHELF, DigitalFurnitureKind.CABINET -> 64.dp
+    DigitalFurnitureKind.NIGHTSTAND -> 50.dp
+    DigitalFurnitureKind.CHAIR -> 48.dp
+    DigitalFurnitureKind.FLOOR_LAMP -> 48.dp
+    DigitalFurnitureKind.TABLE_LAMP, DigitalFurnitureKind.PLANT, DigitalFurnitureKind.DECOR -> 47.dp
+    DigitalFurnitureKind.TV -> 86.dp
+    DigitalFurnitureKind.MIRROR -> 54.dp
+    DigitalFurnitureKind.WALL_ART -> 58.dp
+    DigitalFurnitureKind.CLOCK -> 43.dp
+    DigitalFurnitureKind.CUSHION -> 40.dp
+    DigitalFurnitureKind.BASKET -> 48.dp
 }
 
 internal fun stickerHeight(kind: DigitalFurnitureKind): Dp = when (kind) {
-    DigitalFurnitureKind.BED -> 86.dp
-    DigitalFurnitureKind.SOFA -> 74.dp
-    DigitalFurnitureKind.RUG -> 84.dp
-    DigitalFurnitureKind.COFFEE_TABLE, DigitalFurnitureKind.TABLE, DigitalFurnitureKind.DESK -> 58.dp
-    DigitalFurnitureKind.SHELF, DigitalFurnitureKind.CABINET -> 96.dp
-    DigitalFurnitureKind.NIGHTSTAND -> 58.dp
-    DigitalFurnitureKind.CHAIR -> 60.dp
-    DigitalFurnitureKind.FLOOR_LAMP -> 102.dp
-    DigitalFurnitureKind.TABLE_LAMP, DigitalFurnitureKind.PLANT, DigitalFurnitureKind.DECOR -> 64.dp
-    DigitalFurnitureKind.TV -> 68.dp
-    DigitalFurnitureKind.MIRROR -> 96.dp
-    DigitalFurnitureKind.WALL_ART -> 76.dp
-    DigitalFurnitureKind.CLOCK -> 46.dp
-    DigitalFurnitureKind.CUSHION -> 44.dp
-    DigitalFurnitureKind.BASKET -> 60.dp
+    DigitalFurnitureKind.BED -> 80.dp
+    DigitalFurnitureKind.SOFA -> 68.dp
+    DigitalFurnitureKind.RUG -> 64.dp
+    DigitalFurnitureKind.COFFEE_TABLE -> 48.dp
+    DigitalFurnitureKind.TABLE, DigitalFurnitureKind.DESK -> 54.dp
+    DigitalFurnitureKind.SHELF, DigitalFurnitureKind.CABINET -> 90.dp
+    DigitalFurnitureKind.NIGHTSTAND -> 54.dp
+    DigitalFurnitureKind.CHAIR -> 58.dp
+    DigitalFurnitureKind.FLOOR_LAMP -> 96.dp
+    DigitalFurnitureKind.TABLE_LAMP, DigitalFurnitureKind.PLANT, DigitalFurnitureKind.DECOR -> 60.dp
+    DigitalFurnitureKind.TV -> 64.dp
+    DigitalFurnitureKind.MIRROR -> 90.dp
+    DigitalFurnitureKind.WALL_ART -> 70.dp
+    DigitalFurnitureKind.CLOCK -> 43.dp
+    DigitalFurnitureKind.CUSHION -> 40.dp
+    DigitalFurnitureKind.BASKET -> 56.dp
 }
 
 private fun stickerColor(key: String): Color = when (key) {
-    "sky" -> Color(0xFFABC9D9)
-    "sage" -> Color(0xFFA9BEA3)
-    "wood" -> Color(0xFFC9A77D)
-    "walnut" -> Color(0xFF80654E)
-    "charcoal" -> Color(0xFF5C6062)
-    "white" -> Color(0xFFF8F8F5)
-    "warm" -> Color(0xFFF2C97D)
-    "leaf" -> Color(0xFF80A47A)
-    "olive" -> Color(0xFF89966E)
-    "cactus" -> Color(0xFF76A36F)
-    "rose" -> Color(0xFFD7B2AE)
-    "latte" -> Color(0xFFC6A88D)
-    "navy" -> Color(0xFF5B6B7D)
-    "glass" -> Color(0xFFBFD5DC)
-    "rattan" -> Color(0xFFC69E70)
-    else -> Color(0xFFE8DCC7)
+    "sky" -> Color(0xFFB7CBD4)
+    "sage" -> Color(0xFFB7C4B1)
+    "wood" -> Color(0xFFC7AD8D)
+    "walnut" -> Color(0xFF8A715F)
+    "charcoal" -> Color(0xFF696B6B)
+    "white" -> Color(0xFFF3F2EE)
+    "warm" -> Color(0xFFE7C88E)
+    "leaf" -> Color(0xFF8EAA89)
+    "olive" -> Color(0xFF969E7E)
+    "cactus" -> Color(0xFF82A67B)
+    "rose" -> Color(0xFFD1B0AC)
+    "latte" -> Color(0xFFC5AD98)
+    "navy" -> Color(0xFF68788A)
+    "glass" -> Color(0xFFC6D9DE)
+    "rattan" -> Color(0xFFC5A47E)
+    else -> Color(0xFFDED3C3)
 }
 
-private fun darken(color: Color): Color = Color(
-    red = (color.red * .78f).coerceIn(0f, 1f),
-    green = (color.green * .78f).coerceIn(0f, 1f),
-    blue = (color.blue * .78f).coerceIn(0f, 1f),
+private fun darken(color: Color, factor: Float): Color = Color(
+    red = (color.red * factor).coerceIn(0f, 1f),
+    green = (color.green * factor).coerceIn(0f, 1f),
+    blue = (color.blue * factor).coerceIn(0f, 1f),
+    alpha = color.alpha,
+)
+
+private fun lighten(color: Color, amount: Float): Color = Color(
+    red = (color.red + (1f - color.red) * amount).coerceIn(0f, 1f),
+    green = (color.green + (1f - color.green) * amount).coerceIn(0f, 1f),
+    blue = (color.blue + (1f - color.blue) * amount).coerceIn(0f, 1f),
     alpha = color.alpha,
 )
