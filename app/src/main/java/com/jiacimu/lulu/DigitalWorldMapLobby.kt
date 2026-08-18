@@ -170,14 +170,24 @@ internal fun DigitalWorldMapLobby(
                 onOpenScene = ::openScene,
             )
         } else {
-            DigitalWorldSceneCanvas(
+            // A room is an illustrated scene, not a stretchable background. Keep exactly the
+            // same near-square composition used by the meeting experience and leave the
+            // remaining screen as calm paper space instead of distorting the room vertically.
+            Box(
                 modifier = Modifier.fillMaxWidth().weight(1f),
-                sceneCode = activeSceneCode,
-                homeCharacterId = activeHomeId,
-                characters = characters,
-                world = world,
-                onCharacterClick = { talkTo(it, activeSceneLabel ?: "世界入口") },
-            )
+                contentAlignment = Alignment.TopCenter,
+            ) {
+                DigitalWorldSceneCanvas(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f),
+                    sceneCode = activeSceneCode,
+                    homeCharacterId = activeHomeId,
+                    characters = characters,
+                    world = world,
+                    onCharacterClick = { talkTo(it, activeSceneLabel ?: "世界入口") },
+                )
+            }
         }
 
         if (errorText.isNotBlank()) {
