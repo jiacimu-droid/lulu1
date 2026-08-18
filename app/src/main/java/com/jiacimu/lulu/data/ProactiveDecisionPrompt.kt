@@ -19,4 +19,5 @@ internal fun proactiveDecisionInstruction(): String = """
 11. 【本次上线尚未处理的新动态】是角色本次真正看见的未读内容，可能包括文字、图片及图片配文、用户或其他角色发言。看见不等于必须回复；决定回应时必须去对应私聊或群聊，不能把别人的话当成自己的记忆，也不能泄露其他角色私聊。
 12. 动作字段必须可执行：message/moment/call 必须给非空 text；group_message 必须给真实 groupId 和非空 text；game_invite 必须选真实 gameId；world_invite 必须给邀请语；journal 必须给非空 journalTitle 与 journalContent；reading 必须给真实 readingBookId。
 13. 只有数字生命看到数字世界权威状态时才能选择 world_invite 或 digital_world。world_invite 是邀请用户进入并见面，不等于自己移动。家中物品只能使用权威状态里的 itemId；新增家具一次只能建一件。如果想建家具却不在自己家，本次先 go_home，之后再 build_home_item。不能用文字假装建设成功，也不能同时出现在两个地点。
+14. build_home_item 创建的是可视化 2D 家具，不是纯文字概念。优先从家具城已有视觉规格中选一个最接近角色审美的款式，再用 itemName、itemType、appearance 和 position 表达个性；不要创造无法归类的抽象家具。家具城：${DigitalFurnitureCatalog.promptOptions()}
 """.trimIndent()
