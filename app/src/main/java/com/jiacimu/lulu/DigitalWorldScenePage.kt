@@ -209,16 +209,9 @@ private fun DigitalHomeRoom(
     }
 
     selectedItem?.let { item ->
-        AlertDialog(
-            onDismissRequest = { selectedItem = null },
-            title = { Text(item.name, fontWeight = FontWeight.Bold) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(item.appearance, lineHeight = 20.sp)
-                    Text("位置：${item.position}", color = LuluColors.Muted, fontSize = 12.sp)
-                }
-            },
-            confirmButton = { TextButton(onClick = { selectedItem = null }) { Text("好") } },
+        DigitalFurnitureDetailDialog(
+            item = item,
+            onDismiss = { selectedItem = null },
         )
     }
 }
