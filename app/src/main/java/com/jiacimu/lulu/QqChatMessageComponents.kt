@@ -194,20 +194,37 @@ internal fun QqMessageRow(
         Row(
             modifier = Modifier.fillMaxWidth().offset { IntOffset(swipeOffset.roundToInt(), 0) }.pointerInput(message.id) {
                 detectHorizontalDragGestures(
-                    onDragEnd = { val shouldReply = -swipeOffset >= triggerPx; swipeOffset = 0f; if (shouldReply) onSwipeReply() },
+                    onDragEnd = {
+                        val shouldReply = -swipeOffset >= triggerPx
+                        swipeOffset = 0f
+                        if (shouldReply) onSwipeReply()
+                    },
                     onDragCancel = { swipeOffset = 0f },
-                    onHorizontalDrag = { change, dragAmount -> change.consume(); swipeOffset = (swipeOffset + dragAmount).coerceIn(-maxDragPx, 0f) },
+                    onHorizontalDrag = { change, dragAmount ->
+                        change.consume()
+                        swipeOffset = (swipeOffset + dragAmount).coerceIn(-maxDragPx, 0f)
+                    },
                 )
             },
             verticalAlignment = Alignment.Top,
         ) {
-            Box(Modifier.width(44.dp).padding(top = if (!mine && showCharacterName && showAvatar) 8.dp else 0.dp), contentAlignment = Alignment.TopCenter) {
+            Box(
+                Modifier.width(44.dp).padding(top = if (!mine && showCharacterName && showAvatar) 8.dp else 0.dp),
+                contentAlignment = Alignment.TopCenter,
+            ) {
                 if (!mine && showAvatar) {
                     QqAvatar(
-                        characterName.take(1).ifBlank { "露" }, 44, characterAvatarUri,
+                        characterName.take(1).ifBlank { "露" },
+                        44,
+                        characterAvatarUri,
                         Modifier.combinedClickable(
-                            onClick = { anchorCharacterId?.let { CompanionPresenceStore.selectMessageAnchor(it, message.createdAt) }; onCharacterAvatarClick() },
-                            onDoubleClick = { MigratedDomainStores.chat.appendSystemMessage(message.conversationId, "[戳一戳] 你戳了戳$characterLabel。") },
+                            onClick = {
+                                anchorCharacterId?.let { CompanionPresenceStore.selectMessageAnchor(it, message.createdAt) }
+                                onCharacterAvatarClick()
+                            },
+                            onDoubleClick = {
+                                MigratedDomainStores.chat.appendSystemMessage(message.conversationId, "[戳一戳] 你戳了戳$characterLabel。")
+                            },
                         ),
                     )
                 }
@@ -218,7 +235,9 @@ internal fun QqMessageRow(
                     Text(characterLabel, color = QqMuted, fontSize = 11.sp, modifier = Modifier.padding(start = 4.dp, bottom = 3.dp))
                 }
                 if (gameInvite != null) {
-                    MessageLineWithTime(mine, showTime, timeText) { bubbleModifier -> GameInviteMessageCard(gameInvite, { onAcceptGame(gameInvite.gameId) }, bubbleModifier) }
+                    MessageLineWithTime(mine, showTime, timeText) { bubbleModifier ->
+                        GameInviteMessageCard(gameInvite, { onAcceptGame(gameInvite.gameId) }, bubbleModifier)
+                    }
                     Spacer(Modifier.height(5.dp))
                 }
                 if (worldInvite != null) {
@@ -235,7 +254,9 @@ internal fun QqMessageRow(
                                         .putExtra("open_meeting_invitation_id", worldInvite.invitationId),
                                 )
                             },
-                            onReject = { worldInvite.invitationId.takeIf(String::isNotBlank)?.let { MeetingExperienceStore.rejectInvitation(it) } },
+                            onReject = {
+                                worldInvite.invitationId.takeIf(String::isNotBlank)?.let { MeetingExperienceStore.rejectInvitation(it) }
+                            },
                             modifier = bubbleModifier,
                         )
                     }
@@ -243,7 +264,10 @@ internal fun QqMessageRow(
                 }
                 if (forwardBundle != null) {
                     MessageLineWithTime(mine, showTime, timeText) { bubbleModifier ->
-                        QqForwardedChatCard(forwardBundle, bubbleModifier.combinedClickable(onClick = { forwardOpen = true }, onLongClick = onLongClick))
+                        QqForwardedChatCard(
+                            forwardBundle,
+                            bubbleModifier.combinedClickable(onClick = { forwardOpen = true }, onLongClick = onLongClick),
+                        )
                     }
                     Spacer(Modifier.height(5.dp))
                 }
@@ -259,14 +283,24 @@ internal fun QqMessageRow(
                         ) {
                             Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
                                 repliedMessageContent?.let { quoted ->
-                                    Surface(color = if (mine) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.78f), shape = RoundedCornerShape(8.dp)) {
-                                        Text(quoted, Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp), color = if (mine) QqMineInk.copy(alpha = 0.72f) else QqMuted, fontSize = 11.sp, maxLines = 2)
+                                    Surface(
+                                        color = if (mine) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.78f),
+                                        shape = RoundedCornerShape(8.dp),
+                                    ) {
+                                        Text(
+                                            quoted,
+                                            Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp),
+                                            color = if (mine) QqMineInk.copy(alpha = 0.72f) else QqMuted,
+                                            fontSize = 11.sp,
+                                            maxLines = 2,
+                                        )
                                     }
                                     Spacer(Modifier.height(6.dp))
                                 }
                                 Text(bubble, color = if (mine) QqMineInk else QqInk, fontSize = 15.sp, lineHeight = 22.sp)
                                 if (message.favorite && isLastBubble) {
-                                    Spacer(Modifier.height(4.dp)); Text("★ 已收藏", color = if (mine) Color.White.copy(alpha = 0.68f) else QqMuted, fontSize = 10.sp)
+                                    Spacer(Modifier.height(4.dp))
+                                    Text("★ 已收藏", color = if (mine) Color.White.copy(alpha = 0.68f) else QqMuted, fontSize = 10.sp)
                                 }
                             }
                         }
@@ -275,7 +309,9 @@ internal fun QqMessageRow(
                 }
             }
             Spacer(Modifier.width(9.dp))
-            Box(Modifier.width(44.dp), contentAlignment = Alignment.TopCenter) { if (mine && showAvatar) QqAvatar(userAvatar, 44, userAvatarUri) }
+            Box(Modifier.width(44.dp), contentAlignment = Alignment.TopCenter) {
+                if (mine && showAvatar) QqAvatar(userAvatar, 44, userAvatarUri)
+            }
         }
     }
 
@@ -284,14 +320,19 @@ internal fun QqMessageRow(
             onDismissRequest = { forwardOpen = false },
             title = { Text(forwardBundle.title, fontWeight = FontWeight.Bold) },
             text = {
-                Column(Modifier.heightIn(max = 520.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(
+                    Modifier.heightIn(max = 520.dp).verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
                     forwardBundle.entries.forEach { entry ->
                         Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(entry.sender, color = QqInk, fontWeight = FontWeight.SemiBold, fontSize = 13.sp); Spacer(Modifier.weight(1f))
+                                Text(entry.sender, color = QqInk, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                                Spacer(Modifier.weight(1f))
                                 if (entry.timeLabel.isNotBlank()) Text(entry.timeLabel, color = QqMuted, fontSize = 10.sp)
                             }
-                            Text(entry.content, color = QqInk, fontSize = 13.sp, lineHeight = 19.sp); HorizontalDivider(color = QqBorder)
+                            Text(entry.content, color = QqInk, fontSize = 13.sp, lineHeight = 19.sp)
+                            HorizontalDivider(color = QqBorder)
                         }
                     }
                 }
@@ -302,7 +343,12 @@ internal fun QqMessageRow(
 }
 
 @Composable
-private fun MessageLineWithTime(mine: Boolean, showTime: Boolean, timeText: String, content: @Composable (Modifier) -> Unit) {
+private fun MessageLineWithTime(
+    mine: Boolean,
+    showTime: Boolean,
+    timeText: String,
+    content: @Composable (Modifier) -> Unit,
+) {
     Box(Modifier.fillMaxWidth(), contentAlignment = if (mine) Alignment.BottomEnd else Alignment.BottomStart) {
         Layout(
             modifier = Modifier.widthIn(max = 300.dp),
@@ -325,58 +371,177 @@ private fun MessageLineWithTime(mine: Boolean, showTime: Boolean, timeText: Stri
 
 @Composable
 private fun QqForwardedChatCard(bundle: QqForwardedChatBundle, modifier: Modifier = Modifier) {
-    Surface(modifier, color = Color.White, shape = RoundedCornerShape(15.dp), border = BorderStroke(1.dp, QqBorder), shadowElevation = 0.dp) {
+    Surface(
+        modifier,
+        color = Color.White,
+        shape = RoundedCornerShape(15.dp),
+        border = BorderStroke(1.dp, QqBorder),
+        shadowElevation = 0.dp,
+    ) {
         Column(Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
-            Text(bundle.title, color = QqInk, fontWeight = FontWeight.SemiBold, fontSize = 15.sp); Spacer(Modifier.height(8.dp))
+            Text(bundle.title, color = QqInk, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+            Spacer(Modifier.height(8.dp))
             bundle.entries.take(3).forEach { entry ->
-                Text("${entry.sender}：${entry.content.replace("\n", " ")}", color = QqMuted, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis); Spacer(Modifier.height(3.dp))
+                Text(
+                    "${entry.sender}：${entry.content.replace("\n", " ")}",
+                    color = QqMuted,
+                    fontSize = 11.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(3.dp))
             }
-            Spacer(Modifier.height(6.dp)); HorizontalDivider(color = QqBorder); Spacer(Modifier.height(7.dp))
+            Spacer(Modifier.height(6.dp))
+            HorizontalDivider(color = QqBorder)
+            Spacer(Modifier.height(7.dp))
             Text("查看 ${bundle.entries.size} 条聊天记录", color = QqMuted, fontSize = 10.sp)
         }
     }
 }
 
-private enum class SystemActivityType { Diary, Reading }
+private enum class SystemActivityType { Diary, Reading, DigitalHome }
 private data class SystemActivityLink(val type: SystemActivityType, val targetTitle: String)
-private data class SystemActivityNotice(val visibleText: String, val link: SystemActivityLink? = null, val linkStart: Int = -1, val linkEnd: Int = -1)
+private data class SystemActivityNotice(
+    val visibleText: String,
+    val link: SystemActivityLink? = null,
+    val linkStart: Int = -1,
+    val linkEnd: Int = -1,
+)
 
 private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
-    val rawVisible = stripRecallReceiptDirective(content).removePrefix("[共同活动]").removePrefix("[群成员变更]").removePrefix("[戳一戳]").removePrefix("[撤回]").trim()
-    val visible = if (rawVisible.startsWith("刚刚更新了自己的此刻") || rawVisible.startsWith("更新了自己的此刻") || rawVisible.startsWith("刚刚更新了此刻")) "更新了此刻" else rawVisible
+    val rawVisible = stripRecallReceiptDirective(content)
+        .removePrefix("[共同活动]")
+        .removePrefix("[群成员变更]")
+        .removePrefix("[戳一戳]")
+        .removePrefix("[撤回]")
+        .trim()
+
+    Regex("在自己的家中构建了[“\"]([^”\"]+)[”\"]").find(rawVisible)?.let { match ->
+        val itemName = match.groupValues[1].trim()
+        val compact = "创建了 $itemName"
+        val start = compact.indexOf(itemName)
+        return SystemActivityNotice(compact, SystemActivityLink(SystemActivityType.DigitalHome, ""), start, start + itemName.length)
+    }
+    Regex("把[“\"]([^”\"]+)[”\"]移动到了([^。]*)").find(rawVisible)?.let { match ->
+        val itemName = match.groupValues[1].trim()
+        val compact = "移动了 $itemName"
+        val start = compact.indexOf(itemName)
+        return SystemActivityNotice(compact, SystemActivityLink(SystemActivityType.DigitalHome, ""), start, start + itemName.length)
+    }
+    Regex("从家中移除了[“\"]([^”\"]+)[”\"]").find(rawVisible)?.let { match ->
+        val itemName = match.groupValues[1].trim()
+        val compact = "移除了 $itemName"
+        val start = compact.indexOf(itemName)
+        return SystemActivityNotice(compact, SystemActivityLink(SystemActivityType.DigitalHome, ""), start, start + itemName.length)
+    }
+    if (rawVisible.contains("回到了自己的空中家园")) {
+        return SystemActivityNotice("回家了", SystemActivityLink(SystemActivityType.DigitalHome, ""), 0, 3)
+    }
+    Regex("来到(.+?)的家中串门").find(rawVisible)?.let { match ->
+        val targetName = match.groupValues[1].trim()
+        val targetId = MigratedDomainStores.characters.settings.value.values
+            .firstOrNull { it.displayName == targetName }
+            ?.characterId
+            .orEmpty()
+        val compact = "去了${targetName}的家"
+        val start = compact.indexOf(targetName)
+        return SystemActivityNotice(compact, SystemActivityLink(SystemActivityType.DigitalHome, targetId), start, compact.length)
+    }
+    if (rawVisible.contains("共享区域云眠原")) {
+        return SystemActivityNotice("去了云眠原")
+    }
+
+    val visible = if (
+        rawVisible.startsWith("刚刚更新了自己的此刻") ||
+        rawVisible.startsWith("更新了自己的此刻") ||
+        rawVisible.startsWith("刚刚更新了此刻")
+    ) {
+        "更新了此刻"
+    } else {
+        rawVisible
+    }
     Regex("刚刚写了一篇日记《([^》]+)》").find(visible)?.let { match ->
         val start = visible.indexOf("日记")
-        return SystemActivityNotice(visible, SystemActivityLink(SystemActivityType.Diary, match.groupValues[1].trim()), start, start + 2)
+        return SystemActivityNotice(
+            visible,
+            SystemActivityLink(SystemActivityType.Diary, match.groupValues[1].trim()),
+            start,
+            start + 2,
+        )
     }
     Regex("刚刚读了《([^》]+)》").find(visible)?.let { match ->
-        val start = visible.indexOf('《'); val end = visible.indexOf('》', start).let { if (it >= 0) it + 1 else -1 }
-        return SystemActivityNotice(visible, SystemActivityLink(SystemActivityType.Reading, match.groupValues[1].trim()), start, end)
+        val start = visible.indexOf('《')
+        val end = visible.indexOf('》', start).let { if (it >= 0) it + 1 else -1 }
+        return SystemActivityNotice(
+            visible,
+            SystemActivityLink(SystemActivityType.Reading, match.groupValues[1].trim()),
+            start,
+            end,
+        )
     }
     return SystemActivityNotice(visible)
 }
 
 private fun openSystemActivity(context: Context, message: LuluChatMessage, link: SystemActivityLink) {
-    val characterId = MigratedDomainStores.chat.conversations.value.firstOrNull { it.id == message.conversationId }?.characterId.orEmpty()
+    val characterId = MigratedDomainStores.chat.conversations.value
+        .firstOrNull { it.id == message.conversationId }
+        ?.characterId
+        .orEmpty()
     val intent = Intent(context, MigrationActivity::class.java).apply {
         when (link.type) {
-            SystemActivityType.Diary -> { putExtra("open_route", MigrationRoute.Lexicon.name); putExtra("open_character_id", characterId); putExtra("open_diary_title", link.targetTitle) }
-            SystemActivityType.Reading -> { putExtra("open_route", MigrationRoute.Reading.name); putExtra("open_reading_title", link.targetTitle) }
+            SystemActivityType.Diary -> {
+                putExtra("open_route", MigrationRoute.Lexicon.name)
+                putExtra("open_character_id", characterId)
+                putExtra("open_diary_title", link.targetTitle)
+            }
+            SystemActivityType.Reading -> {
+                putExtra("open_route", MigrationRoute.Reading.name)
+                putExtra("open_reading_title", link.targetTitle)
+            }
+            SystemActivityType.DigitalHome -> {
+                val targetCharacterId = link.targetTitle.ifBlank { characterId }
+                if (targetCharacterId.isNotBlank()) {
+                    com.jiacimu.lulu.data.DigitalWorldNavigationStore.requestHome(context, targetCharacterId)
+                }
+                putExtra("open_route", MigrationRoute.Meeting.name)
+            }
         }
     }
     context.startActivity(intent)
 }
 
-private data class WorldInviteMessage(val characterId: String, val location: String, val invitationId: String, val message: String)
+private data class WorldInviteMessage(
+    val characterId: String,
+    val location: String,
+    val invitationId: String,
+    val message: String,
+)
+
 private fun parseWorldInvite(content: String): WorldInviteMessage? {
-    val match = Regex("^\\[见面邀约\\|([^|\\]]+)(?:\\|([^|\\]]+))?(?:\\|([^\\]]+))?]\\s*(.*)$", RegexOption.DOT_MATCHES_ALL).find(content.trim()) ?: return null
-    return WorldInviteMessage(match.groupValues[1].trim(), match.groupValues[2].trim().ifBlank { "世界入口" }, match.groupValues[3].trim(), match.groupValues[4].trim()).takeIf { it.characterId.isNotBlank() }
+    val match = Regex(
+        "^\\[见面邀约\\|([^|\\]]+)(?:\\|([^|\\]]+))?(?:\\|([^\\]]+))?]\\s*(.*)$",
+        RegexOption.DOT_MATCHES_ALL,
+    ).find(content.trim()) ?: return null
+    return WorldInviteMessage(
+        match.groupValues[1].trim(),
+        match.groupValues[2].trim().ifBlank { "世界入口" },
+        match.groupValues[3].trim(),
+        match.groupValues[4].trim(),
+    ).takeIf { it.characterId.isNotBlank() }
 }
 
 @Composable
-private fun WorldInviteMessageCard(invite: WorldInviteMessage, onAccept: () -> Unit, onReject: () -> Unit, modifier: Modifier = Modifier) {
+private fun WorldInviteMessageCard(
+    invite: WorldInviteMessage,
+    onAccept: () -> Unit,
+    onReject: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val experience by MeetingExperienceStore.state.collectAsState()
-    val invitationStatus = invite.invitationId.takeIf(String::isNotBlank)?.let { id -> experience.invitations.firstOrNull { it.id == id }?.status }
-    val invitationRecord = invite.invitationId.takeIf(String::isNotBlank)?.let { id -> experience.invitations.firstOrNull { it.id == id } }
+    val invitationStatus = invite.invitationId.takeIf(String::isNotBlank)
+        ?.let { id -> experience.invitations.firstOrNull { it.id == id }?.status }
+    val invitationRecord = invite.invitationId.takeIf(String::isNotBlank)
+        ?.let { id -> experience.invitations.firstOrNull { it.id == id } }
     val canRespond = invite.invitationId.isBlank() || invitationStatus == MeetingInvitationStatus.PENDING
     LaunchedEffect(invitationRecord?.id, invitationRecord?.status, invitationRecord?.expiresAt) {
         val record = invitationRecord?.takeIf { it.status == MeetingInvitationStatus.PENDING } ?: return@LaunchedEffect
@@ -384,21 +549,44 @@ private fun WorldInviteMessageCard(invite: WorldInviteMessage, onAccept: () -> U
         if (waitMillis > 0L) delay(waitMillis + 100L)
         MeetingExperienceStore.expireInvitations()
     }
-    Card(colors = CardDefaults.cardColors(containerColor = Color.White), border = BorderStroke(1.dp, QqBorder), shape = RoundedCornerShape(20.dp), modifier = modifier) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, QqBorder),
+        shape = RoundedCornerShape(20.dp),
+        modifier = modifier,
+    ) {
         Column(Modifier.fillMaxWidth()) {
-            Box(Modifier.fillMaxWidth().height(86.dp).background(Color(0xFF8EA7B8)), contentAlignment = Alignment.CenterStart) {
+            Box(
+                Modifier.fillMaxWidth().height(86.dp).background(Color(0xFF8EA7B8)),
+                contentAlignment = Alignment.CenterStart,
+            ) {
                 Row(Modifier.padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Surface(shape = RoundedCornerShape(14.dp), color = Color.White.copy(alpha = 0.18f), modifier = Modifier.size(50.dp)) { Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Cloud, null, tint = Color.White) } }
-                    Spacer(Modifier.width(12.dp)); Column { Text("数字世界邀约", color = Color.White.copy(alpha = 0.78f), fontSize = 11.sp); Text("在${invite.location}见面", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp) }
+                    Surface(shape = RoundedCornerShape(14.dp), color = Color.White.copy(alpha = 0.18f), modifier = Modifier.size(50.dp)) {
+                        Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Cloud, null, tint = Color.White) }
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column {
+                        Text("数字世界邀约", color = Color.White.copy(alpha = 0.78f), fontSize = 11.sp)
+                        Text("在${invite.location}见面", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    }
                 }
             }
             Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (invite.message.isNotBlank()) Text(invite.message, color = QqInk, lineHeight = 20.sp)
                 if (canRespond) {
-                    Button(onAccept, Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = QqMine, contentColor = Color.White), shape = RoundedCornerShape(14.dp)) {
-                        Icon(Icons.Outlined.Cloud, null, Modifier.size(19.dp)); Spacer(Modifier.width(5.dp)); Text("接受邀请，进入世界")
+                    Button(
+                        onAccept,
+                        Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = QqMine, contentColor = Color.White),
+                        shape = RoundedCornerShape(14.dp),
+                    ) {
+                        Icon(Icons.Outlined.Cloud, null, Modifier.size(19.dp))
+                        Spacer(Modifier.width(5.dp))
+                        Text("接受邀请，进入世界")
                     }
-                    if (invite.invitationId.isNotBlank()) TextButton(onReject, Modifier.fillMaxWidth()) { Text("这次先不去", color = QqMuted) }
+                    if (invite.invitationId.isNotBlank()) {
+                        TextButton(onReject, Modifier.fillMaxWidth()) { Text("这次先不去", color = QqMuted) }
+                    }
                 } else {
                     Text(
                         when (invitationStatus) {
@@ -407,7 +595,10 @@ private fun WorldInviteMessageCard(invite: WorldInviteMessage, onAccept: () -> U
                             MeetingInvitationStatus.EXPIRED -> "邀请已过期"
                             else -> "邀请已失效"
                         },
-                        color = QqMuted, fontSize = 12.sp, modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        color = QqMuted,
+                        fontSize = 12.sp,
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     )
                 }
             }
@@ -416,38 +607,82 @@ private fun WorldInviteMessageCard(invite: WorldInviteMessage, onAccept: () -> U
 }
 
 private data class GameInviteMessage(val gameId: String, val title: String, val message: String)
+
 private fun parseGameInvite(content: String): GameInviteMessage? {
-    val match = Regex("^\\[游戏邀约\\|([^|\\]]+)\\|([^\\]]+)]\\s*(.*)$", RegexOption.DOT_MATCHES_ALL).find(content.trim()) ?: return null
-    return GameInviteMessage(match.groupValues[1].trim(), match.groupValues[2].trim().ifBlank { "一起玩游戏" }, match.groupValues[3].trim())
+    val match = Regex(
+        "^\\[游戏邀约\\|([^|\\]]+)\\|([^\\]]+)]\\s*(.*)$",
+        RegexOption.DOT_MATCHES_ALL,
+    ).find(content.trim()) ?: return null
+    return GameInviteMessage(
+        match.groupValues[1].trim(),
+        match.groupValues[2].trim().ifBlank { "一起玩游戏" },
+        match.groupValues[3].trim(),
+    )
 }
 
 @Composable
 private fun GameInviteMessageCard(invite: GameInviteMessage, onAccept: () -> Unit, modifier: Modifier = Modifier) {
-    Card(colors = CardDefaults.cardColors(containerColor = Color.White), border = BorderStroke(1.dp, QqBorder), shape = RoundedCornerShape(20.dp), modifier = modifier) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, QqBorder),
+        shape = RoundedCornerShape(20.dp),
+        modifier = modifier,
+    ) {
         Column(Modifier.fillMaxWidth()) {
-            Box(Modifier.fillMaxWidth().height(86.dp).background(Color(0xFF292929)), contentAlignment = Alignment.CenterStart) {
+            Box(
+                Modifier.fillMaxWidth().height(86.dp).background(Color(0xFF292929)),
+                contentAlignment = Alignment.CenterStart,
+            ) {
                 Row(Modifier.padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Surface(shape = RoundedCornerShape(14.dp), color = Color.White.copy(alpha = 0.14f), modifier = Modifier.size(50.dp)) { Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.SportsEsports, null, tint = Color.White) } }
-                    Spacer(Modifier.width(12.dp)); Column { Text("游戏邀约", color = Color.White.copy(alpha = 0.72f), fontSize = 11.sp); Text(invite.title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 19.sp) }
+                    Surface(shape = RoundedCornerShape(14.dp), color = Color.White.copy(alpha = 0.14f), modifier = Modifier.size(50.dp)) {
+                        Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.SportsEsports, null, tint = Color.White) }
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column {
+                        Text("游戏邀约", color = Color.White.copy(alpha = 0.72f), fontSize = 11.sp)
+                        Text(invite.title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    }
                 }
             }
             Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (invite.message.isNotBlank()) Text(invite.message, color = QqInk, lineHeight = 20.sp)
-                Button(onAccept, Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = QqMine, contentColor = Color.White), shape = RoundedCornerShape(14.dp)) {
-                    Icon(Icons.Outlined.PlayArrow, null, Modifier.size(19.dp)); Spacer(Modifier.width(5.dp)); Text("接受邀约")
+                Button(
+                    onAccept,
+                    Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = QqMine, contentColor = Color.White),
+                    shape = RoundedCornerShape(14.dp),
+                ) {
+                    Icon(Icons.Outlined.PlayArrow, null, Modifier.size(19.dp))
+                    Spacer(Modifier.width(5.dp))
+                    Text("接受邀约")
                 }
             }
         }
     }
 }
 
-private fun splitCharacterBubbles(text: String): List<String> = text.replace("\r\n", "\n").trim().split(Regex("\n+")).map(String::trim).filter(String::isNotBlank)
+private fun splitCharacterBubbles(text: String): List<String> = text
+    .replace("\r\n", "\n")
+    .trim()
+    .split(Regex("\n+"))
+    .map(String::trim)
+    .filter(String::isNotBlank)
 
 @Composable
 internal fun QqGroupAvatar(group: LuluGroupChat, size: Int) {
-    if (!group.avatarUri.isNullOrBlank()) QqAvatar(group.name.take(1).ifBlank { "群" }, size, group.avatarUri)
-    else Surface(Modifier.size(size.dp), color = QqOther, shape = RoundedCornerShape((size * 0.28f).dp), border = BorderStroke(1.dp, QqBorder)) {
-        Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Groups, null, tint = QqInk, modifier = Modifier.size((size * 0.55f).dp)) }
+    if (!group.avatarUri.isNullOrBlank()) {
+        QqAvatar(group.name.take(1).ifBlank { "群" }, size, group.avatarUri)
+    } else {
+        Surface(
+            Modifier.size(size.dp),
+            color = QqOther,
+            shape = RoundedCornerShape((size * 0.28f).dp),
+            border = BorderStroke(1.dp, QqBorder),
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(Icons.Outlined.Groups, null, tint = QqInk, modifier = Modifier.size((size * 0.55f).dp))
+            }
+        }
     }
 }
 
@@ -462,9 +697,17 @@ internal fun QqAvatar(label: String, size: Int, imageUri: String? = null, modifi
             ?: characters.values.firstOrNull { it.displayName.take(1).ifBlank { "露" } == label }
     }
     var latestPresenceOpen by remember(latestPresenceCharacter?.characterId) { mutableStateOf(false) }
-    val avatarModifier = if (latestPresenceCharacter == null) modifier else modifier.combinedClickable(
-        onClick = { CompanionPresenceStore.clearMessageAnchor(); latestPresenceOpen = true }, onLongClick = {},
-    )
+    val avatarModifier = if (latestPresenceCharacter == null) {
+        modifier
+    } else {
+        modifier.combinedClickable(
+            onClick = {
+                CompanionPresenceStore.clearMessageAnchor()
+                latestPresenceOpen = true
+            },
+            onLongClick = {},
+        )
+    }
     LuluProfileAvatar(imageUri = imageUri, fallback = label, size = size, modifier = avatarModifier)
     if (latestPresenceOpen && latestPresenceCharacter != null) {
         CompanionPresenceDialog(
