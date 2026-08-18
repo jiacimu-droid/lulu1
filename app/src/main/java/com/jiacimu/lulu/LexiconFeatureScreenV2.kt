@@ -56,6 +56,7 @@ fun LexiconFeatureScreenV2(
     onBack: () -> Unit,
     initialCharacterId: String? = null,
     initialDiaryTitle: String? = null,
+    initialSectionName: String? = null,
     embedded: Boolean = false,
 ) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
@@ -74,10 +75,25 @@ fun LexiconFeatureScreenV2(
             selectedCharacterId = characters.keys.first()
         }
     }
-    val diarySectionIndex = remember { LexiconV2Sections.indexOfFirst { it.first == LexiconSection.Diary }.coerceAtLeast(0) }
-    var sectionIndex by rememberSaveable(initialDiaryTitle) {
-        mutableIntStateOf(if (initialDiaryTitle.isNullOrBlank()) 0 else diarySectionIndex)
+
+    val diarySectionIndex = remember {
+        LexiconV2Sections.indexOfFirst { it.first == LexiconSection.Diary }.coerceAtLeast(0)
     }
+    val requestedSectionIndex = remember(initialSectionName) {
+        LexiconV2Sections.indexOfFirst { (section, _) ->
+            section.name.equals(initialSectionName.orEmpty(), ignoreCase = true)
+        }.takeIf { it >= 0 } ?: 0
+    }
+    var sectionIndex by rememberSaveable(initialDiaryTitle, initialSectionName) {
+        mutableIntStateOf(
+            if (!initialDiaryTitle.isNullOrBlank()) diarySectionIndex else requestedSectionIndex,
+        )
+    }
+
+    LaunchedEffect(initialDiaryTitle, initialSectionName) {
+        sectionIndex = if (!initialDiaryTitle.isNullOrBlank()) diarySectionIndex else requestedSectionIndex
+    }
+
     val section = LexiconV2Sections[sectionIndex].first
     val entries by LuluRepositories.lexicon
         .observeEntries(selectedCharacterId, section)
@@ -171,7 +187,11 @@ fun LexiconFeatureScreenV2(
                                     contentColor = LuluColors.Ink,
                                 ),
                             ) {
-                                Text(label, fontSize = 12.sp, fontWeight = if (sectionIndex == index) FontWeight.Bold else FontWeight.Normal)
+                                Text(
+                                    label,
+                                    fontSize = 12.sp,
+                                    fontWeight = if (sectionIndex == index) FontWeight.Bold else FontWeight.Normal,
+                                )
                             }
                         }
                     }
@@ -189,7 +209,11 @@ fun LexiconFeatureScreenV2(
                         LexiconV2Card {
                             Text("还没有${LexiconV2Sections[sectionIndex].second}记录", fontWeight = FontWeight.Bold)
                             if (section == LexiconSection.Favorite) {
-                                Text("角色在聊天时真心想留下来的主人消息，会出现在这里。", color = LuluColors.Muted, fontSize = 12.sp)
+                                Text(
+                                    "角色在聊天时真心想留下来的主人消息，会出现在这里。",
+                                    color = LuluColors.Muted,
+                                    fontSize = 12.sp,
+                                )
                             }
                         }
                     }
@@ -315,7 +339,10 @@ private fun FavoriteEntryCard(
                         shape = RoundedCornerShape(13.dp),
                         modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
                     ) {
-                        Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Column(
+                            Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
                             Text("为什么想收藏", color = LuluColors.Muted, fontSize = 10.sp, fontWeight = FontWeight.Medium)
                             Text(parts.second, color = LuluColors.Ink, fontSize = 13.sp, lineHeight = 19.sp)
                         }
@@ -339,7 +366,10 @@ private fun DiaryEntryCard(
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = if (highlighted) LuluColors.WheatSoft else Color(0xFFFFFEFA)),
-        border = BorderStroke(if (highlighted) 2.dp else 1.dp, if (highlighted) LuluColors.Ink else Color(0xFFE8E0D2)),
+        border = BorderStroke(
+            if (highlighted) 2.dp else 1.dp,
+            if (highlighted) LuluColors.Ink else Color(0xFFE8E0D2),
+        ),
         shape = RoundedCornerShape(24.dp),
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -355,7 +385,11 @@ private fun DiaryEntryCard(
                     modifier = Modifier.size(40.dp),
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Text(entry.updatedAt.atZone(ZoneId.systemDefault()).dayOfMonth.toString(), color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(
+                            entry.updatedAt.atZone(ZoneId.systemDefault()).dayOfMonth.toString(),
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                        )
                     }
                 }
                 Spacer(Modifier.width(11.dp))
@@ -368,7 +402,9 @@ private fun DiaryEntryCard(
                     )
                 }
                 IconButton(onClick = onEdit) { Icon(Icons.Outlined.Edit, "编辑日记") }
-                IconButton(onClick = onDelete) { Icon(Icons.Outlined.DeleteOutline, "删除日记", tint = MaterialTheme.colorScheme.error) }
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Outlined.DeleteOutline, "删除日记", tint = MaterialTheme.colorScheme.error)
+                }
             }
             HorizontalDivider(color = Color(0xFFE8E0D2))
             Row(Modifier.padding(horizontal = 18.dp, vertical = 18.dp), verticalAlignment = Alignment.Top) {
