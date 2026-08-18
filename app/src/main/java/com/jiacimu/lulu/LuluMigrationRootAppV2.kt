@@ -33,6 +33,7 @@ fun LuluMigrationRootAppV2(
     initialRouteName: String? = null,
     initialTargetCharacterId: String? = null,
     initialDiaryTitle: String? = null,
+    initialLexiconSection: String? = null,
     initialReadingTitle: String? = null,
     initialMeetingInvitationText: String? = null,
     initialMeetingLocation: String? = null,
@@ -67,6 +68,7 @@ fun LuluMigrationRootAppV2(
         mutableStateOf(initialTargetCharacterId?.takeIf(String::isNotBlank) ?: "lulu")
     }
     var lexiconInitialDiaryTitle by rememberSaveable(initialDiaryTitle) { mutableStateOf(initialDiaryTitle) }
+    var lexiconInitialSection by rememberSaveable(initialLexiconSection) { mutableStateOf(initialLexiconSection) }
     var readingInitialTitle by rememberSaveable(initialReadingTitle) { mutableStateOf(initialReadingTitle) }
     var initialGameId by rememberSaveable { mutableStateOf<String?>(null) }
     var meetingInviteCharacterId by rememberSaveable(initialRouteName, initialTargetCharacterId) {
@@ -83,7 +85,7 @@ fun LuluMigrationRootAppV2(
         mutableStateOf(
             initialMeetingLocation
                 ?.takeIf { initialRouteName == MigrationRoute.Meeting.name }
-                ?.ifBlank { "世界入口" }
+                ?.ifBlank { "世界入口" },
         )
     }
     var meetingInvitationId by rememberSaveable(initialRouteName, initialMeetingInvitationId) {
@@ -137,9 +139,6 @@ fun LuluMigrationRootAppV2(
         if (route != MigrationRoute.Study) pushRoute(MigrationRoute.Study)
     }
 
-    // QqStyleChatDetailScreen intentionally remains composed behind other routes. This explicit
-    // visibility/lifecycle bridge is therefore the source of truth for when a message is actually
-    // seen. Background replies and replies received while browsing other Lulu pages remain unread.
     ChatUnreadVisibilityEffect(
         conversationId = selectedConversationId,
         routeVisible = chatSessionStarted && route == MigrationRoute.ChatDetail,
@@ -149,7 +148,14 @@ fun LuluMigrationRootAppV2(
         popRoute()
     }
 
-    LaunchedEffect(initialConversationId, initialRouteName, initialTargetCharacterId, initialDiaryTitle, initialReadingTitle) {
+    LaunchedEffect(
+        initialConversationId,
+        initialRouteName,
+        initialTargetCharacterId,
+        initialDiaryTitle,
+        initialLexiconSection,
+        initialReadingTitle,
+    ) {
         if (!initialConversationId.isNullOrBlank()) {
             selectedConversationId = initialConversationId
             selectedCharacterId = initialTargetCharacterId?.takeIf(String::isNotBlank)
@@ -170,6 +176,7 @@ fun LuluMigrationRootAppV2(
             routeStack = listOf(MigrationRoute.Home.name, deepLinkRoute.name)
         }
         lexiconInitialDiaryTitle = initialDiaryTitle
+        lexiconInitialSection = initialLexiconSection
         readingInitialTitle = initialReadingTitle
     }
 
@@ -238,6 +245,7 @@ fun LuluMigrationRootAppV2(
                                         if (target == MigrationRoute.Lexicon) {
                                             selectedCharacterId = "lulu"
                                             lexiconInitialDiaryTitle = null
+                                            lexiconInitialSection = null
                                         }
                                         if (target == MigrationRoute.Reading) readingInitialTitle = null
                                         pushRoute(target)
@@ -273,6 +281,7 @@ fun LuluMigrationRootAppV2(
                                     onBack = ::popRoute,
                                     initialCharacterId = selectedCharacterId,
                                     initialDiaryTitle = lexiconInitialDiaryTitle,
+                                    initialSectionName = lexiconInitialSection,
                                 )
                                 MigrationRoute.WorldBook -> CharacterWorldBookScreenV2(
                                     initialCharacterId = selectedCharacterId,
