@@ -24,7 +24,7 @@ internal fun parseApocalypseStoryPages(
     party: List<CharacterSettings>,
     dossiers: List<ApocalypseCharacterDossierV5> = emptyList(),
     presentCharacterIds: List<String> = emptyList(),
-    maxChars: Int = 86,
+    maxChars: Int = 118,
 ): List<ApocalypseStoryPage> {
     // Older builds appended a client-generated "【旁白】入库清点：..." system audit to the prose.
     // It was never story content, so strip it before pagination. New builds no longer create it.
@@ -155,40 +155,92 @@ private fun inferLegacySpeaker(
 }
 
 /**
- * Split only at substring boundaries. No sentence is rewritten, rejoined, shortened, or chunked with
- * dropped punctuation, so concatenating all returned pieces recreates [text] byte-for-byte.
+ * Prefer complete sentences over a mechanically even character count. A page may grow beyond the
+ * preferred limit when that keeps one natural sentence intact. Only a genuinely oversized sentence
+ * falls back to commas/secondary pauses. Every returned piece remains an exact substring of [text].
  */
 private fun splitVisualNovelTextPreservingCharacters(text: String, maxChars: Int): List<String> {
     if (text.isEmpty()) return emptyList()
-    val limit = maxChars.coerceAtLeast(24)
-    if (text.length <= limit) return listOf(text)
+    val preferred = maxChars.coerceAtLeast(48)
+    if (text.length <= preferred) return listOf(text)
 
-    val strongStops = setOf('。', '！', '？', '!', '?', '；', ';', '…', '\n')
-    val softStops = setOf('，', ',', '、', '：', ':', '）', ')', ']', '】', '》', '”', '’')
-    val result = mutableListOf<String>()
+    val hardSentenceLimit = (preferred * 1.55f).toInt().coerceAtLeast(preferred + 24)
+    val sentenceEnds = setOf('。', '！', '？', '!', '?', '；', ';', '…', '\n')
+    val closers = setOf('”', '’', '）', ')', '】', ']', '》')
+
+    val sentences = mutableListOf<String>()
     var start = 0
-
-    while (start < text.length) {
-        var end = (start + limit).coerceAtMost(text.length)
-        if (end < text.length) {
-            val preferredStart = (start + (limit * 0.55f).toInt()).coerceAtMost(end - 1)
-            fun findCut(stops: Set<Char>): Int {
-                for (index in end - 1 downTo preferredStart) {
-                    if (text[index] in stops) return index + 1
-                }
-                return -1
-            }
-            val strongCut = findCut(strongStops)
-            val softCut = if (strongCut < 0) findCut(softStops) else -1
-            end = when {
-                strongCut > start -> strongCut
-                softCut > start -> softCut
-                else -> end
-            }
+    var index = 0
+    while (index < text.length) {
+        if (text[index] in sentenceEnds) {
+            var end = index + 1
+            while (end < text.length && (text[end] in sentenceEnds || text[end] in closers)) end += 1
+            sentences += text.substring(start, end)
+            start = end
+            index = end
+        } else {
+            index += 1
         }
-        result += text.substring(start, end)
-        start = end
+    }
+    if (start < text.length) sentences += text.substring(start)
+
+    val result = mutableListOf<String>()
+    val page = StringBuilder()
+
+    fun flushPage() {
+        if (page.isNotEmpty()) {
+            result += page.toString()
+            page.clear()
+        }
     }
 
-    return result
+    sentences.filter(String::isNotEmpty).forEach { sentence ->
+        if (sentence.length > hardSentenceLimit) {
+            flushPage()
+            result += splitOversizedVisualSentence(sentence, preferred, hardSentenceLimit)
+            return@forEach
+        }
+
+        if (page.isEmpty()) {
+            page.append(sentence)
+        } else if (page.length + sentence.length <= preferred) {
+            page.append(sentence)
+        } else {
+            flushPage()
+            page.append(sentence)
+        }
+    }
+    flushPage()
+
+    return result.ifEmpty { listOf(text) }
+}
+
+private fun splitOversizedVisualSentence(
+    sentence: String,
+    preferred: Int,
+    hardLimit: Int,
+): List<String> {
+    val softStops = setOf('，', ',', '、', '：', ':', '）', ')', ']', '】', '》', '”', '’')
+    val pieces = mutableListOf<String>()
+    var start = 0
+    while (start < sentence.length) {
+        if (sentence.length - start <= hardLimit) {
+            pieces += sentence.substring(start)
+            break
+        }
+
+        val target = (start + preferred).coerceAtMost(sentence.length)
+        val minCut = (start + (preferred * .68f).toInt()).coerceAtMost(target)
+        var cut = -1
+        for (index in target - 1 downTo minCut) {
+            if (sentence[index] in softStops) {
+                cut = index + 1
+                break
+            }
+        }
+        if (cut <= start) cut = (start + hardLimit).coerceAtMost(sentence.length)
+        pieces += sentence.substring(start, cut)
+        start = cut
+    }
+    return pieces
 }
