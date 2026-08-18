@@ -43,120 +43,17 @@ internal fun MeetingUiLobby(
     onStart: () -> Unit,
     errorText: String,
 ) {
-    val selectedHasDigital = selectedIds.any { profiles[it]?.enabled == true }
-    val selectedResolved = selectedIds.all { (profiles[it] ?: DigitalLifeProfileStore.get(it)).isResolved }
-    val locationOptions = remember(selectedIds, selectedHasDigital) {
-        if (selectedHasDigital) DigitalWorldStore.meetingLocationOptions(selectedIds.toList()) else emptyList()
-    }
-    var showLocationMenu by remember { mutableStateOf(false) }
-    LaunchedEffect(locationOptions, selectedHasDigital) {
-        when {
-            selectedHasDigital && locationOptions.isNotEmpty() && locationDraft !in locationOptions -> onLocationChanged(locationOptions.first())
-            !selectedHasDigital -> onLocationChanged("")
-        }
-    }
-    LazyColumn(
+    DigitalWorldMapLobby(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        item {
-            Surface(color = LuluColors.Card, shape = RoundedCornerShape(20.dp), border = BorderStroke(1.dp, LuluColors.Border)) {
-                Column(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                    characters.forEachIndexed { index, character ->
-                        val checked = character.characterId in selectedIds
-                        val profile = profiles[character.characterId] ?: DigitalLifeProfileStore.get(character.characterId)
-                        Surface(
-                            onClick = { onToggle(character.characterId) },
-                            color = if (checked) LuluColors.CardStrong else LuluColors.Card,
-                            shape = RoundedCornerShape(16.dp),
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp, vertical = 2.dp),
-                        ) {
-                            Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 9.dp), verticalAlignment = Alignment.CenterVertically) {
-                                LuluProfileAvatar(character.avatarUri, character.displayName.take(1).ifBlank { "角" }, 44)
-                                Spacer(Modifier.width(11.dp))
-                                Column(Modifier.weight(1f)) {
-                                    Text(character.displayName, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
-                                    Text(
-                                        when { profile.enabled -> "数字生命"; profile.isResolved -> "现实角色"; else -> "待确认生命形态" },
-                                        color = if (!profile.isResolved) MaterialTheme.colorScheme.error else LuluColors.Muted,
-                                        fontSize = 11.sp,
-                                    )
-                                }
-                                Checkbox(checked = checked, onCheckedChange = { onToggle(character.characterId) })
-                            }
-                        }
-                        if (index != characters.lastIndex) HorizontalDivider(Modifier.padding(start = 70.dp, end = 12.dp), color = LuluColors.Border)
-                    }
-                }
-            }
-        }
-        if (selectedIds.isNotEmpty()) item {
-            if (selectedHasDigital) {
-                Box(Modifier.fillMaxWidth()) {
-                    OutlinedButton(
-                        onClick = { showLocationMenu = true },
-                        modifier = Modifier.fillMaxWidth().height(50.dp),
-                        shape = RoundedCornerShape(17.dp),
-                        border = BorderStroke(1.dp, LuluColors.Border),
-                        contentPadding = PaddingValues(horizontal = 14.dp),
-                    ) {
-                        Icon(Icons.Outlined.Place, null, tint = LuluColors.BlueGray)
-                        Spacer(Modifier.width(9.dp))
-                        Text(
-                            locationDraft.ifBlank { "选择见面地点" },
-                            color = LuluColors.Ink,
-                            modifier = Modifier.weight(1f),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Start,
-                        )
-                        Icon(Icons.Outlined.ExpandMore, null, tint = LuluColors.Muted)
-                    }
-                    DropdownMenu(
-                        expanded = showLocationMenu,
-                        onDismissRequest = { showLocationMenu = false },
-                        modifier = Modifier.fillMaxWidth(0.88f),
-                    ) {
-                        locationOptions.forEach { location ->
-                            DropdownMenuItem(
-                                text = { Text(location) },
-                                leadingIcon = { Icon(if (location.endsWith("的家")) Icons.Outlined.Home else Icons.Outlined.Place, null) },
-                                trailingIcon = { if (location == locationDraft) Icon(Icons.Outlined.Check, null) },
-                                onClick = { onLocationChanged(location); showLocationMenu = false },
-                            )
-                        }
-                    }
-                }
-            } else {
-                OutlinedTextField(
-                    value = locationDraft,
-                    onValueChange = onLocationChanged,
-                    label = { Text("见面地点") },
-                    placeholder = { Text("例如：傍晚的咖啡馆") },
-                    leadingIcon = { Icon(Icons.Outlined.Place, null) },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(17.dp),
-                    singleLine = true,
-                )
-            }
-        }
-        item {
-            Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                Button(
-                    onClick = onStart,
-                    enabled = selectedIds.isNotEmpty() && selectedResolved && (!selectedHasDigital || locationDraft in locationOptions),
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
-                    shape = RoundedCornerShape(17.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = LuluColors.Wheat, contentColor = LuluColors.OnWheat),
-                ) {
-                    Icon(if (selectedHasDigital) Icons.Outlined.Cloud else Icons.Outlined.DirectionsWalk, null)
-                    Spacer(Modifier.width(7.dp)); Text("开始见面", fontWeight = FontWeight.Bold)
-                }
-                if (selectedIds.isNotEmpty() && !selectedResolved) Text("请先在角色设置中确认生命形态", color = MaterialTheme.colorScheme.error, fontSize = 11.sp)
-                if (errorText.isNotBlank()) Text(errorText, color = MaterialTheme.colorScheme.error, fontSize = 11.sp)
-            }
-        }
-        item { Spacer(Modifier.height(12.dp)) }
-    }
+        characters = characters,
+        profiles = profiles,
+        selectedIds = selectedIds,
+        locationDraft = locationDraft,
+        onToggle = onToggle,
+        onLocationChanged = onLocationChanged,
+        onStart = onStart,
+        errorText = errorText,
+    )
 }
 
 @Composable
@@ -170,7 +67,9 @@ internal fun MeetingUiHistory(
     val participantIds = remember(meetings) { meetings.flatMap(MeetingSession::participantIds).toSet() }
     val available = remember(characters, participantIds) { characters.filter { it.characterId in participantIds } }
     var selectedCharacterId by remember { mutableStateOf<String?>(null) }
-    val visible = remember(meetings, selectedCharacterId) { meetings.asReversed().filter { selectedCharacterId == null || selectedCharacterId in it.participantIds } }
+    val visible = remember(meetings, selectedCharacterId) {
+        meetings.asReversed().filter { selectedCharacterId == null || selectedCharacterId in it.participantIds }
+    }
     Column(modifier) {
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
@@ -179,11 +78,17 @@ internal fun MeetingUiHistory(
         ) {
             item { FilterChip(selected = selectedCharacterId == null, onClick = { selectedCharacterId = null }, label = { Text("全部") }) }
             items(available, key = CharacterSettings::characterId) { character ->
-                FilterChip(selected = selectedCharacterId == character.characterId, onClick = { selectedCharacterId = character.characterId }, label = { Text(character.displayName) })
+                FilterChip(
+                    selected = selectedCharacterId == character.characterId,
+                    onClick = { selectedCharacterId = character.characterId },
+                    label = { Text(character.displayName) },
+                )
             }
         }
         if (visible.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("还没有真正发生过的见面", color = LuluColors.Muted) }
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("还没有真正发生过的见面", color = LuluColors.Muted)
+            }
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -223,9 +128,15 @@ internal fun MeetingUiHistory(
                                     fontSize = 11.sp,
                                     maxLines = 1,
                                 )
-                                Text(if (session.endedAt == null) "进行中 · ${session.turns.size} 个片段" else "${session.turns.size} 个片段", color = LuluColors.BlueGray, fontSize = 10.sp)
+                                Text(
+                                    if (session.endedAt == null) "进行中 · ${session.turns.size} 个片段" else "${session.turns.size} 个片段",
+                                    color = LuluColors.BlueGray,
+                                    fontSize = 10.sp,
+                                )
                             }
-                            IconButton(onClick = { onDelete(session) }) { Icon(Icons.Outlined.DeleteOutline, "删除见面", tint = LuluColors.Muted) }
+                            IconButton(onClick = { onDelete(session) }) {
+                                Icon(Icons.Outlined.DeleteOutline, "删除见面", tint = LuluColors.Muted)
+                            }
                         }
                     }
                 }
@@ -270,7 +181,9 @@ internal fun MeetingUiRoom(
                 listState.scrollBy(Float.MAX_VALUE)
                 autoFollow = true
             }
-        } finally { forcingBottom = false }
+        } finally {
+            forcingBottom = false
+        }
     }
 
     LaunchedEffect(listState) {
@@ -278,8 +191,15 @@ internal fun MeetingUiRoom(
             if (scrolling && !forcingBottom) autoFollow = !canForward
         }
     }
-    LaunchedEffect(imeBottom) { if (imeBottom > 0) { autoFollow = true; scrollToBottom() } }
-    LaunchedEffect(session.turns.size, generating) { if (autoFollow) scrollToBottom() }
+    LaunchedEffect(imeBottom) {
+        if (imeBottom > 0) {
+            autoFollow = true
+            scrollToBottom()
+        }
+    }
+    LaunchedEffect(session.turns.size, generating) {
+        if (autoFollow) scrollToBottom()
+    }
 
     Column(modifier) {
         Box(Modifier.weight(1f).fillMaxWidth()) {
@@ -289,9 +209,11 @@ internal fun MeetingUiRoom(
                 contentPadding = PaddingValues(horizontal = 13.dp, vertical = 6.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                if (session.turns.isEmpty() && !generating) item {
-                    Box(Modifier.fillMaxWidth().padding(vertical = 40.dp), contentAlignment = Alignment.Center) {
-                        Text("连接已经建立", color = LuluColors.Muted, fontSize = 12.sp)
+                if (session.turns.isEmpty() && !generating) {
+                    item {
+                        Box(Modifier.fillMaxWidth().padding(vertical = 40.dp), contentAlignment = Alignment.Center) {
+                            Text("连接已经建立", color = LuluColors.Muted, fontSize = 12.sp)
+                        }
                     }
                 }
                 items(groups, key = MeetingUiDisplayGroup::key) { group ->
@@ -302,26 +224,39 @@ internal fun MeetingUiRoom(
                         onLongClick = group.turns.firstOrNull { it.speakerId != "system" }?.let { { onSceneLongClick(group) } },
                     )
                 }
-                if (generating) item {
-                    Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp, color = LuluColors.BlueGray)
-                        Spacer(Modifier.width(9.dp)); Text("现场正在继续…", color = LuluColors.Muted, fontSize = 12.sp)
+                if (generating) {
+                    item {
+                        Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp, color = LuluColors.BlueGray)
+                            Spacer(Modifier.width(9.dp))
+                            Text("现场正在继续…", color = LuluColors.Muted, fontSize = 12.sp)
+                        }
                     }
                 }
             }
-            if (hasUnseen) SmallFloatingActionButton(
-                onClick = { autoFollow = true; scrollScope.launch { scrollToBottom() } },
-                modifier = Modifier.align(Alignment.BottomEnd).padding(14.dp),
-                containerColor = Color(0xFF242424),
-                contentColor = Color.White,
-            ) {
-                Row(Modifier.padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.KeyboardArrowDown, null, Modifier.size(18.dp)); Spacer(Modifier.width(3.dp)); Text("新内容", fontSize = 11.sp)
+            if (hasUnseen) {
+                SmallFloatingActionButton(
+                    onClick = {
+                        autoFollow = true
+                        scrollScope.launch { scrollToBottom() }
+                    },
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(14.dp),
+                    containerColor = Color(0xFF242424),
+                    contentColor = Color.White,
+                ) {
+                    Row(Modifier.padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Outlined.KeyboardArrowDown, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(3.dp))
+                        Text("新内容", fontSize = 11.sp)
+                    }
                 }
             }
         }
         if (errorText.isNotBlank()) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Text(errorText, color = MaterialTheme.colorScheme.error, fontSize = 11.sp, modifier = Modifier.weight(1f))
                 if (onRetry != null) TextButton(onClick = onRetry) { Text("重试") }
             }
@@ -350,7 +285,11 @@ internal fun MeetingUiRoom(
                         minLines = 1,
                         maxLines = 4,
                     )
-                    FilledIconButton(onClick = onSend, enabled = input.isNotBlank() && canSend, modifier = Modifier.size(50.dp)) {
+                    FilledIconButton(
+                        onClick = onSend,
+                        enabled = input.isNotBlank() && canSend,
+                        modifier = Modifier.size(50.dp),
+                    ) {
                         Icon(Icons.Outlined.Send, "发送")
                     }
                 }
@@ -378,8 +317,11 @@ private fun List<MeetingTurn>.meetingUiGroups(): List<MeetingUiDisplayGroup> {
             turn.speakerId == "system" -> "system:${turn.id}"
             else -> "legacy:${turn.id}"
         }
-        if (previous?.key == key) groups[groups.lastIndex] = previous.copy(turns = previous.turns + turn)
-        else groups += MeetingUiDisplayGroup(key, listOf(turn))
+        if (previous?.key == key) {
+            groups[groups.lastIndex] = previous.copy(turns = previous.turns + turn)
+        } else {
+            groups += MeetingUiDisplayGroup(key, listOf(turn))
+        }
     }
     return groups
 }
@@ -410,7 +352,10 @@ private fun MeetingUiSceneCard(
         shape = RoundedCornerShape(22.dp),
         border = BorderStroke(1.dp, Color(0xFF242424)),
     ) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 13.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(
+            Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 13.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
             group.turns.forEach { turn ->
                 turn.meetingOrderedSegments().forEach { segment ->
                     when (segment.type) {
@@ -426,7 +371,9 @@ private fun MeetingUiSceneCard(
                 }
             }
             Text(
-                group.turns.maxOf(MeetingTurn::occurredAt).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm")),
+                group.turns.maxOf(MeetingTurn::occurredAt)
+                    .atZone(ZoneId.systemDefault())
+                    .format(DateTimeFormatter.ofPattern("HH:mm")),
                 color = Color(0xFF9A9A9A),
                 fontSize = 10.sp,
                 modifier = Modifier.align(Alignment.End).padding(end = 4.dp),
@@ -443,11 +390,19 @@ private fun MeetingUiDialogue(text: String, speakerId: String?, userAvatar: Stri
             modifier = Modifier.widthIn(max = 248.dp),
             color = if (isUser) Color(0xFF242424) else Color(0xFFFCFCFC),
             contentColor = if (isUser) Color.White else Color(0xFF242424),
-            shape = if (isUser) RoundedCornerShape(topStart = 17.dp, topEnd = 6.dp, bottomEnd = 17.dp, bottomStart = 17.dp)
-            else RoundedCornerShape(topStart = 6.dp, topEnd = 17.dp, bottomEnd = 17.dp, bottomStart = 17.dp),
+            shape = if (isUser) {
+                RoundedCornerShape(topStart = 17.dp, topEnd = 6.dp, bottomEnd = 17.dp, bottomStart = 17.dp)
+            } else {
+                RoundedCornerShape(topStart = 6.dp, topEnd = 17.dp, bottomEnd = 17.dp, bottomStart = 17.dp)
+            },
             border = if (isUser) null else BorderStroke(1.dp, Color(0xFFDDDDDD)),
         ) {
-            Text(text.trim().trim('“', '”', '"'), fontSize = 15.sp, lineHeight = 22.sp, modifier = Modifier.padding(horizontal = 13.dp, vertical = 9.dp))
+            Text(
+                text.trim().trim('“', '”', '"'),
+                fontSize = 15.sp,
+                lineHeight = 22.sp,
+                modifier = Modifier.padding(horizontal = 13.dp, vertical = 9.dp),
+            )
         }
     }
     Row(
@@ -456,11 +411,14 @@ private fun MeetingUiDialogue(text: String, speakerId: String?, userAvatar: Stri
         horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start,
     ) {
         if (isUser) {
-            bubble(); Spacer(Modifier.width(8.dp)); LuluProfileAvatar(userAvatarUri, userAvatar, 43)
+            bubble()
+            Spacer(Modifier.width(8.dp))
+            LuluProfileAvatar(userAvatarUri, userAvatar, 43)
         } else {
             val character = MigratedDomainStores.characters.get(speakerId.orEmpty())
             LuluProfileAvatar(character.avatarUri, character.displayName.take(1).ifBlank { "角" }, 43)
-            Spacer(Modifier.width(8.dp)); bubble()
+            Spacer(Modifier.width(8.dp))
+            bubble()
         }
     }
 }
@@ -475,14 +433,24 @@ internal fun MeetingTurn.meetingOrderedSegments(): List<MeetingSegment> {
 }
 
 internal fun List<MeetingSegment>.meetingTranscript(): String = joinToString("\n") { segment ->
-    if (segment.type == MeetingSegmentType.DIALOGUE) "“${segment.text.trim().trim('“', '”', '"')}”" else segment.text.trim()
+    if (segment.type == MeetingSegmentType.DIALOGUE) {
+        "“${segment.text.trim().trim('“', '”', '"')}”"
+    } else {
+        segment.text.trim()
+    }
 }
 
 private fun meetingUiParagraphs(raw: String): String {
-    val normalized = raw.trim().replace(Regex("[\\t ]+"), " ").replace(Regex("\\n{3,}"), "\n\n")
+    val normalized = raw.trim()
+        .replace(Regex("[\\t ]+"), " ")
+        .replace(Regex("\\n{3,}"), "\n\n")
     if (normalized.isBlank()) return ""
     val explicit = normalized.split(Regex("\\n+")).map(String::trim).filter(String::isNotBlank)
     if (explicit.size > 1) return explicit.joinToString("\n\n")
-    val sentences = Regex(""".*?[。！？!?](?:[”’])?|.+$""").findAll(normalized).map { it.value.trim() }.filter(String::isNotBlank).toList()
+    val sentences = Regex(""".*?[。！？!?](?:[”’])?|.+$""")
+        .findAll(normalized)
+        .map { it.value.trim() }
+        .filter(String::isNotBlank)
+        .toList()
     return if (sentences.size <= 2) normalized else sentences.chunked(2).joinToString("\n\n") { it.joinToString("") }
 }
