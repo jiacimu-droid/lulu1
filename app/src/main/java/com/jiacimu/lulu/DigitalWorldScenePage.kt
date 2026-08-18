@@ -22,7 +22,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -138,14 +140,21 @@ private fun DigitalHomeRoom(
     var selectedItem by remember { mutableStateOf<DigitalWorldItem?>(null) }
     var userTargetX by rememberSaveable(characterId) { mutableStateOf(.76f) }
     var userTargetY by rememberSaveable(characterId) { mutableStateOf(.72f) }
+    var userWalking by rememberSaveable(characterId) { mutableStateOf(false) }
     val userX by animateFloatAsState(userTargetX, tween(430), label = "digital-user-x")
-    val userY by animateFloatAsState(userTargetY, tween(430), label = "digital-user-y")
+    val userY by animateFloatAsState(
+        userTargetY,
+        tween(430),
+        label = "digital-user-y",
+        finishedListener = { userWalking = false },
+    )
 
     Surface(
         modifier = modifier.padding(horizontal = 10.dp, vertical = 6.dp),
         color = Color(0xFFF8F5EE),
         shape = RoundedCornerShape(24.dp),
         border = BorderStroke(1.dp, Color(0xFF2A2927)),
+        shadowElevation = 1.dp,
     ) {
         BoxWithConstraints(
             Modifier
@@ -155,6 +164,7 @@ private fun DigitalHomeRoom(
                     detectTapGestures { tap ->
                         val width = size.width.toFloat().coerceAtLeast(1f)
                         val height = size.height.toFloat().coerceAtLeast(1f)
+                        userWalking = true
                         userTargetX = (tap.x / width).coerceIn(.04f, .88f)
                         userTargetY = (tap.y / height).coerceIn(.43f, .84f)
                     }
@@ -184,6 +194,7 @@ private fun DigitalHomeRoom(
                 val anchor = residentAnchor(index, character.characterId, shared = false)
                 SceneCharacterSprite(
                     character = character,
+                    scale = personDepthScale(anchor.y),
                     modifier = Modifier
                         .offset(
                             x = (maxWidth - 54.dp) * anchor.x,
@@ -197,6 +208,8 @@ private fun DigitalHomeRoom(
             ScenePersonSprite(
                 avatarUri = userProfile.avatarUri,
                 avatarText = userProfile.avatarText,
+                scale = personDepthScale(userY),
+                walking = userWalking,
                 modifier = Modifier
                     .offset(
                         x = (maxWidth - 54.dp) * userX,
@@ -248,6 +261,11 @@ private fun residentAnchor(index: Int, stableId: String, shared: Boolean): Scene
 
 private fun personDepthZ(y: Float): Float = 2.6f + y.coerceIn(0f, 1f) * 10f
 
+private fun personDepthScale(y: Float): Float {
+    val normalized = ((y.coerceIn(.42f, .84f) - .42f) / .42f).coerceIn(0f, 1f)
+    return .84f + normalized * .16f
+}
+
 private fun furnitureDepthZ(kind: DigitalFurnitureKind, y: Float): Float = when (kind) {
     DigitalFurnitureKind.WALL_ART,
     DigitalFurnitureKind.CLOCK,
@@ -262,22 +280,34 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom
     val wall = Color(0xFFF8F5EF)
     val wallShadow = Color(0xFFEDE7DE)
     val floor = Color(0xFFE5DACB)
-    val floorLine = Color(0xFF9E8F7E).copy(alpha = .22f)
-    val ink = Color(0xFF514B44).copy(alpha = .35f)
+    val floorLine = Color(0xFF9E8F7E).copy(alpha = .18f)
+    val ink = Color(0xFF514B44).copy(alpha = .34f)
 
     drawRect(wall)
     drawRect(
-        wallShadow.copy(alpha = .48f),
+        Brush.verticalGradient(
+            listOf(Color.White.copy(alpha = .20f), Color.Transparent),
+            startY = 0f,
+            endY = wallBottom,
+        ),
+        size = Size(size.width, wallBottom),
+    )
+    drawRect(
+        wallShadow.copy(alpha = .44f),
         topLeft = Offset(0f, 0f),
         size = Size(size.width * .055f, wallBottom),
     )
     drawRect(
-        wallShadow.copy(alpha = .28f),
+        wallShadow.copy(alpha = .26f),
         topLeft = Offset(size.width * .94f, 0f),
         size = Size(size.width * .06f, wallBottom),
     )
     drawRect(
-        floor,
+        Brush.verticalGradient(
+            listOf(Color(0xFFEBE1D4), floor),
+            startY = wallBottom,
+            endY = size.height,
+        ),
         topLeft = Offset(0f, wallBottom),
         size = Size(size.width, size.height - wallBottom),
     )
@@ -288,29 +318,29 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom
         size = Size(size.width, 5.dp.toPx()),
     )
     drawLine(
-        Color.White.copy(alpha = .64f),
+        Color.White.copy(alpha = .62f),
         Offset(0f, wallBottom - 6.dp.toPx()),
         Offset(size.width, wallBottom - 6.dp.toPx()),
-        strokeWidth = 1.5.dp.toPx(),
+        strokeWidth = 1.3.dp.toPx(),
     )
 
     val floorHeight = size.height - wallBottom
     val vanishing = Offset(size.width * .50f, wallBottom)
-    listOf(0f, .18f, .36f, .64f, .82f, 1f).forEach { ratio ->
+    listOf(0f, .20f, .38f, .62f, .80f, 1f).forEach { ratio ->
         drawLine(
             floorLine,
             Offset(size.width * ratio, size.height),
             vanishing,
-            strokeWidth = .7.dp.toPx(),
+            strokeWidth = .65.dp.toPx(),
         )
     }
-    listOf(.31f, .52f, .72f, .88f).forEach { depth ->
+    listOf(.34f, .56f, .75f, .90f).forEach { depth ->
         val y = wallBottom + floorHeight * depth * depth
         drawLine(
-            floorLine.copy(alpha = floorLine.alpha * .82f),
+            floorLine.copy(alpha = floorLine.alpha * .80f),
             Offset(0f, y),
             Offset(size.width, y),
-            strokeWidth = .7.dp.toPx(),
+            strokeWidth = .65.dp.toPx(),
         )
     }
 
@@ -325,7 +355,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom
         cornerRadius = CornerRadius(6.dp.toPx()),
     )
     drawRect(
-        Brush.verticalGradient(listOf(Color(0xFFDDE9EF), Color(0xFFC9D9E0))),
+        Brush.verticalGradient(listOf(Color(0xFFE2EDF1), Color(0xFFC7D9E1))),
         topLeft = Offset(windowLeft, windowTop),
         size = Size(windowWidth, windowHeight),
     )
@@ -333,16 +363,16 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom
         ink,
         Offset(windowLeft + windowWidth / 2f, windowTop),
         Offset(windowLeft + windowWidth / 2f, windowTop + windowHeight),
-        strokeWidth = 1.4.dp.toPx(),
+        strokeWidth = 1.3.dp.toPx(),
     )
     drawLine(
         ink,
         Offset(windowLeft, windowTop + windowHeight / 2f),
         Offset(windowLeft + windowWidth, windowTop + windowHeight / 2f),
-        strokeWidth = 1.4.dp.toPx(),
+        strokeWidth = 1.3.dp.toPx(),
     )
     drawCircle(
-        Color.White.copy(alpha = .72f),
+        Color.White.copy(alpha = .76f),
         radius = windowWidth * .10f,
         center = Offset(windowLeft + windowWidth * .76f, windowTop + windowHeight * .28f),
     )
@@ -354,7 +384,30 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom
         lineTo(size.width * .64f, size.height * .72f)
         close()
     }
-    drawPath(lightPatch, Color.White.copy(alpha = .14f))
+    drawPath(lightPatch, Color.White.copy(alpha = .16f))
+
+    // A tiny framed print keeps the opposite wall from feeling unfinished without adding another color.
+    val frameLeft = size.width * .16f
+    val frameTop = size.height * .10f
+    drawRoundRect(
+        Color(0xFF4D4944).copy(alpha = .42f),
+        topLeft = Offset(frameLeft, frameTop),
+        size = Size(size.width * .15f, size.height * .12f),
+        cornerRadius = CornerRadius(4.dp.toPx()),
+        style = Stroke(1.dp.toPx()),
+    )
+    drawLine(
+        Color(0xFFAFA59A).copy(alpha = .45f),
+        Offset(frameLeft + size.width * .025f, frameTop + size.height * .078f),
+        Offset(frameLeft + size.width * .075f, frameTop + size.height * .045f),
+        strokeWidth = 1.dp.toPx(),
+    )
+    drawLine(
+        Color(0xFFAFA59A).copy(alpha = .45f),
+        Offset(frameLeft + size.width * .075f, frameTop + size.height * .045f),
+        Offset(frameLeft + size.width * .125f, frameTop + size.height * .082f),
+        strokeWidth = 1.dp.toPx(),
+    )
 
     drawLine(
         ink,
@@ -374,6 +427,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom
 private fun SceneCharacterSprite(
     character: CharacterSettings,
     modifier: Modifier = Modifier,
+    scale: Float = 1f,
     onClick: () -> Unit,
 ) {
     ScenePersonSprite(
@@ -381,6 +435,7 @@ private fun SceneCharacterSprite(
         avatarText = character.displayName.take(1).ifBlank { "角" },
         modifier = modifier,
         bodyColor = Color(0xFF4B4B4B),
+        scale = scale,
         onClick = onClick,
     )
 }
@@ -391,11 +446,22 @@ private fun ScenePersonSprite(
     avatarText: String,
     modifier: Modifier = Modifier,
     bodyColor: Color,
+    scale: Float = 1f,
+    walking: Boolean = false,
     onClick: (() -> Unit)? = null,
 ) {
+    val stepScaleY by animateFloatAsState(
+        targetValue = if (walking) .94f else 1f,
+        animationSpec = tween(if (walking) 120 else 180),
+        label = "scene-person-step",
+    )
     val clickableModifier = if (onClick == null) modifier else modifier.clickable(onClick = onClick)
     Column(
-        modifier = clickableModifier,
+        modifier = clickableModifier.graphicsLayer {
+            scaleX = scale
+            scaleY = scale * stepScaleY
+            transformOrigin = TransformOrigin(.5f, 1f)
+        },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Surface(
@@ -412,7 +478,7 @@ private fun ScenePersonSprite(
             val paw = bodyColor.copy(alpha = .32f)
 
             drawOval(
-                Color.Black.copy(alpha = .10f),
+                Color.Black.copy(alpha = if (walking) .07f else .10f),
                 topLeft = Offset(size.width * .18f, size.height * .79f),
                 size = Size(size.width * .64f, size.height * .13f),
             )
@@ -474,8 +540,14 @@ private fun SharedWorldScene(
     val userProfile = rememberSceneUserProfile()
     var userTargetX by rememberSaveable(sceneCode) { mutableStateOf(.73f) }
     var userTargetY by rememberSaveable(sceneCode) { mutableStateOf(.70f) }
+    var userWalking by rememberSaveable(sceneCode) { mutableStateOf(false) }
     val userX by animateFloatAsState(userTargetX, tween(430), label = "shared-user-x")
-    val userY by animateFloatAsState(userTargetY, tween(430), label = "shared-user-y")
+    val userY by animateFloatAsState(
+        userTargetY,
+        tween(430),
+        label = "shared-user-y",
+        finishedListener = { userWalking = false },
+    )
     val minWalkY = if (cloud) .53f else .34f
 
     Surface(
@@ -483,6 +555,7 @@ private fun SharedWorldScene(
         color = if (cloud) Color(0xFFF0F5F7) else Color(0xFFF5F4F0),
         shape = RoundedCornerShape(24.dp),
         border = BorderStroke(1.dp, Color(0xFF2A2927)),
+        shadowElevation = 1.dp,
     ) {
         BoxWithConstraints(
             Modifier
@@ -492,6 +565,7 @@ private fun SharedWorldScene(
                     detectTapGestures { tap ->
                         val width = size.width.toFloat().coerceAtLeast(1f)
                         val height = size.height.toFloat().coerceAtLeast(1f)
+                        userWalking = true
                         userTargetX = (tap.x / width).coerceIn(.04f, .88f)
                         userTargetY = (tap.y / height).coerceIn(minWalkY, .84f)
                     }
@@ -505,6 +579,7 @@ private fun SharedWorldScene(
                 val anchor = residentAnchor(index, character.characterId, shared = true)
                 SceneCharacterSprite(
                     character = character,
+                    scale = personDepthScale(anchor.y),
                     modifier = Modifier
                         .offset(
                             x = (maxWidth - 54.dp) * anchor.x,
@@ -518,6 +593,8 @@ private fun SharedWorldScene(
             ScenePersonSprite(
                 avatarUri = userProfile.avatarUri,
                 avatarText = userProfile.avatarText,
+                scale = personDepthScale(userY),
+                walking = userWalking,
                 modifier = Modifier
                     .offset(
                         x = (maxWidth - 54.dp) * userX,
@@ -534,8 +611,8 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawCloudMeadow() {
     drawRect(
         brush = Brush.verticalGradient(
             colors = listOf(
-                Color(0xFFE8F2F6),
-                Color(0xFFDCE9EE),
+                Color(0xFFE6F0F4),
+                Color(0xFFD9E7EC),
                 Color(0xFFF7F9F8),
             ),
             startY = 0f,
@@ -543,82 +620,135 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawCloudMeadow() {
         ),
     )
 
+    // Diffused sun, kept almost monochrome so it stays inside the app's restrained palette.
     drawCircle(
-        Color.White.copy(alpha = .24f),
-        radius = size.minDimension * .13f,
-        center = Offset(size.width * .77f, size.height * .19f),
+        Color.White.copy(alpha = .20f),
+        radius = size.minDimension * .17f,
+        center = Offset(size.width * .78f, size.height * .18f),
     )
     drawCircle(
-        Color.White.copy(alpha = .78f),
-        radius = size.minDimension * .055f,
-        center = Offset(size.width * .77f, size.height * .19f),
+        Color.White.copy(alpha = .76f),
+        radius = size.minDimension * .052f,
+        center = Offset(size.width * .78f, size.height * .18f),
     )
 
-    repeat(12) { index ->
-        val row = index / 6
-        val column = index % 6
-        val x = size.width * (.04f + column * .19f)
-        val y = size.height * (.34f + row * .10f)
+    // Far cloud banks create an actual horizon instead of a row of identical circles.
+    listOf(
+        Triple(.03f, .31f, .34f),
+        Triple(.28f, .35f, .30f),
+        Triple(.61f, .30f, .37f),
+    ).forEachIndexed { index, (x, y, width) ->
         drawOval(
-            Color.White.copy(alpha = if (row == 0) .52f else .68f),
-            topLeft = Offset(x, y),
-            size = Size(size.width * (.18f + (index % 3) * .025f), size.height * .085f),
+            Color.White.copy(alpha = .35f + index * .08f),
+            topLeft = Offset(size.width * x, size.height * y),
+            size = Size(size.width * width, size.height * (.075f + index * .006f)),
         )
     }
+
+    // Two distant floating cloud-islands make the space feel much larger than the viewport.
+    drawOval(
+        Color(0xFFA9BEC7).copy(alpha = .13f),
+        topLeft = Offset(size.width * .12f, size.height * .45f),
+        size = Size(size.width * .23f, size.height * .035f),
+    )
+    drawOval(
+        Color.White.copy(alpha = .72f),
+        topLeft = Offset(size.width * .10f, size.height * .405f),
+        size = Size(size.width * .26f, size.height * .055f),
+    )
+    drawOval(
+        Color(0xFFA9BEC7).copy(alpha = .11f),
+        topLeft = Offset(size.width * .69f, size.height * .43f),
+        size = Size(size.width * .20f, size.height * .030f),
+    )
+    drawOval(
+        Color.White.copy(alpha = .64f),
+        topLeft = Offset(size.width * .68f, size.height * .395f),
+        size = Size(size.width * .22f, size.height * .050f),
+    )
 
     val meadowTop = size.height * .55f
     drawRoundRect(
-        Color(0xFFB9CDD5).copy(alpha = .18f),
-        topLeft = Offset(size.width * .04f, meadowTop + size.height * .055f),
-        size = Size(size.width * .92f, size.height * .34f),
+        Color(0xFF9FB7C0).copy(alpha = .18f),
+        topLeft = Offset(size.width * .045f, meadowTop + size.height * .065f),
+        size = Size(size.width * .91f, size.height * .34f),
         cornerRadius = CornerRadius(size.height * .16f),
     )
     drawRoundRect(
-        Color.White.copy(alpha = .91f),
-        topLeft = Offset(size.width * .02f, meadowTop),
-        size = Size(size.width * .96f, size.height * .32f),
+        Brush.verticalGradient(
+            listOf(Color.White.copy(alpha = .98f), Color(0xFFF4F8F8).copy(alpha = .96f)),
+            startY = meadowTop,
+            endY = size.height * .88f,
+        ),
+        topLeft = Offset(size.width * .025f, meadowTop),
+        size = Size(size.width * .95f, size.height * .32f),
         cornerRadius = CornerRadius(size.height * .15f),
     )
-    repeat(10) { index ->
-        val x = size.width * (.02f + index * .105f)
-        val radius = size.height * (.050f + (index % 3) * .008f)
+
+    // Uneven cloud rim avoids the old scalloped-copy-paste look.
+    val rim = listOf(.045f, .09f, .055f, .082f, .050f, .090f, .058f, .078f, .052f)
+    rim.forEachIndexed { index, radiusRatio ->
+        val x = size.width * (.03f + index * .118f)
         drawCircle(
-            Color.White.copy(alpha = .96f),
-            radius = radius,
-            center = Offset(x, meadowTop + size.height * .015f),
+            Color.White.copy(alpha = .98f),
+            radius = size.height * radiusRatio,
+            center = Offset(x.coerceAtMost(size.width * .97f), meadowTop + size.height * .012f),
         )
     }
 
-    repeat(4) { index ->
-        val y = meadowTop + size.height * (.10f + index * .055f)
-        drawOval(
-            Color(0xFFAFC4CD).copy(alpha = .10f),
-            topLeft = Offset(size.width * (.16f + index * .12f), y),
-            size = Size(size.width * .25f, size.height * .032f),
+    // A soft winding trail gives the eye a path into the scene and also hints where people can stand.
+    val trail = Path().apply {
+        moveTo(size.width * .46f, size.height * .86f)
+        cubicTo(
+            size.width * .39f,
+            size.height * .79f,
+            size.width * .57f,
+            size.height * .74f,
+            size.width * .50f,
+            size.height * .68f,
+        )
+        cubicTo(
+            size.width * .45f,
+            size.height * .63f,
+            size.width * .53f,
+            size.height * .60f,
+            size.width * .50f,
+            size.height * .57f,
         )
     }
+    drawPath(
+        trail,
+        Color(0xFFB7CAD1).copy(alpha = .16f),
+        style = Stroke(width = 15.dp.toPx()),
+    )
+    drawPath(
+        trail,
+        Color.White.copy(alpha = .58f),
+        style = Stroke(width = 8.dp.toPx()),
+    )
 
-    repeat(8) { index ->
-        val x = size.width * (.12f + index * .105f)
-        val baseY = meadowTop + size.height * (.20f + (index % 2) * .035f)
+    repeat(7) { index ->
+        val x = size.width * (.12f + index * .12f)
+        val baseY = meadowTop + size.height * (.20f + (index % 2) * .028f)
         drawLine(
-            Color(0xFF9EB4BD).copy(alpha = .44f),
+            Color(0xFF9EB4BD).copy(alpha = .42f),
             Offset(x, baseY),
-            Offset(x + size.width * .008f, baseY - size.height * .045f),
+            Offset(x + size.width * .007f, baseY - size.height * .040f),
             strokeWidth = 1.dp.toPx(),
         )
         drawCircle(
-            Color.White.copy(alpha = .88f),
-            radius = 2.2.dp.toPx(),
-            center = Offset(x + size.width * .009f, baseY - size.height * .048f),
+            Color.White.copy(alpha = .90f),
+            radius = 2.0.dp.toPx(),
+            center = Offset(x + size.width * .008f, baseY - size.height * .043f),
         )
     }
-    repeat(11) { index ->
+
+    repeat(12) { index ->
         val x = size.width * ((index * 37 % 91) / 100f + .04f)
-        val y = size.height * ((index * 19 % 43) / 100f + .12f)
+        val y = size.height * ((index * 19 % 43) / 100f + .11f)
         drawCircle(
-            Color.White.copy(alpha = .60f),
-            radius = (1.2f + index % 3).dp.toPx(),
+            Color.White.copy(alpha = .55f),
+            radius = (1.1f + index % 3).dp.toPx(),
             center = Offset(x.coerceAtMost(size.width * .95f), y),
         )
     }
@@ -632,27 +762,75 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawArrivalScene() 
             endY = size.height,
         ),
     )
-    val centerPoint = Offset(size.width * .5f, size.height * .48f)
-    drawCircle(
-        Color.White.copy(alpha = .72f),
-        radius = 92.dp.toPx(),
-        center = centerPoint,
+
+    val horizon = size.height * .42f
+    drawLine(
+        Color(0xFFBDB5AA).copy(alpha = .20f),
+        Offset(size.width * .08f, horizon),
+        Offset(size.width * .92f, horizon),
+        strokeWidth = 1.dp.toPx(),
     )
-    drawCircle(
-        Color(0xFF9F988C).copy(alpha = .42f),
-        radius = 82.dp.toPx(),
-        center = centerPoint,
+    drawOval(
+        Color(0xFF8D867D).copy(alpha = .10f),
+        topLeft = Offset(size.width * .18f, size.height * .68f),
+        size = Size(size.width * .64f, size.height * .10f),
+    )
+    drawOval(
+        Color.White.copy(alpha = .54f),
+        topLeft = Offset(size.width * .20f, size.height * .61f),
+        size = Size(size.width * .60f, size.height * .12f),
+    )
+    drawOval(
+        Color(0xFFA59D92).copy(alpha = .24f),
+        topLeft = Offset(size.width * .26f, size.height * .635f),
+        size = Size(size.width * .48f, size.height * .075f),
+        style = Stroke(1.2.dp.toPx()),
+    )
+
+    val portalTop = size.height * .17f
+    val portalLeft = size.width * .31f
+    val portalWidth = size.width * .38f
+    val portalHeight = size.height * .45f
+    drawOval(
+        Color.White.copy(alpha = .24f),
+        topLeft = Offset(portalLeft - size.width * .035f, portalTop - size.height * .025f),
+        size = Size(portalWidth + size.width * .07f, portalHeight + size.height * .05f),
+    )
+    drawOval(
+        Color(0xFF8F887E).copy(alpha = .50f),
+        topLeft = Offset(portalLeft, portalTop),
+        size = Size(portalWidth, portalHeight),
         style = Stroke(2.dp.toPx()),
     )
-    drawCircle(
-        Color(0xFFB8B0A4).copy(alpha = .24f),
-        radius = 64.dp.toPx(),
-        center = centerPoint,
-        style = Stroke(1.dp.toPx()),
+    drawOval(
+        Color.White.copy(alpha = .72f),
+        topLeft = Offset(portalLeft + size.width * .035f, portalTop + size.height * .035f),
+        size = Size(portalWidth - size.width * .07f, portalHeight - size.height * .07f),
+        style = Stroke(1.2.dp.toPx()),
     )
-    repeat(8) { index ->
-        val x = if (index % 2 == 0) size.width * .18f else size.width * .82f
-        val y = size.height * (.12f + (index / 2) * .20f)
-        drawCircle(Color(0xFFCDC6BA), radius = 3.dp.toPx(), center = Offset(x, y))
+    drawOval(
+        Brush.verticalGradient(
+            listOf(Color.White.copy(alpha = .22f), Color(0xFFD7E1E3).copy(alpha = .16f)),
+            startY = portalTop,
+            endY = portalTop + portalHeight,
+        ),
+        topLeft = Offset(portalLeft + size.width * .055f, portalTop + size.height * .055f),
+        size = Size(portalWidth - size.width * .11f, portalHeight - size.height * .11f),
+    )
+
+    // Sparse stones around the platform break the perfect symmetry without clutter.
+    listOf(
+        Offset(.18f, .73f),
+        Offset(.29f, .78f),
+        Offset(.73f, .76f),
+        Offset(.84f, .70f),
+        Offset(.12f, .58f),
+        Offset(.88f, .55f),
+    ).forEachIndexed { index, ratio ->
+        drawOval(
+            Color(0xFFA8A095).copy(alpha = .34f),
+            topLeft = Offset(size.width * ratio.x, size.height * ratio.y),
+            size = Size((5 + index % 3 * 2).dp.toPx(), (3 + index % 2 * 2).dp.toPx()),
+        )
     }
 }
