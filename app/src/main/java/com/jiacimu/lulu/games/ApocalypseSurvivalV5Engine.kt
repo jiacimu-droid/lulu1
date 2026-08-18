@@ -50,9 +50,9 @@ internal fun apocalypsePhaseForDayV5(dayIndex: Int): String = when {
 }
 
 private fun apocalypseSocietyContractV5(dayIndex: Int): String = when {
-    dayIndex <= -5 -> "灾前硬状态：城市完全正常运转，官方和公众不知道末世将至。商场、物流、网购、支付、租车和跨区交通可用。大量采购可以引起店员询问、库存或资金等现实摩擦，但禁止以防灾管制、官方限购、封城、征用或全民抢购强行阻止玩家囤货。"
-    dayIndex <= -3 -> "灾前硬状态：只有零星异常和局部传闻，城市总体正常。个别缺货可以发生，但必须提供换店、预订、网购、批发市场或其他真实替代路径；禁止全城管制和全面限购。"
-    dayIndex < 0 -> "灾前硬状态：公开异常逐渐增加，少数敏感品类可以排队、延迟或有限购，但商业与交通不能整体提前瘫痪；玩家仍应拥有完成最后采购、运输和据点调整的可玩空间。"
+    dayIndex <= -5 -> "灾前硬状态：城市完全正常运转，官方和公众不知道末世将至。商场、物流、网购、支付、租车和跨区交通可用。大量采购可以引起店员询问、库存或资金等现实摩擦，但禁止以防灾管制、官方限购、封城、征用或全民抢购强行阻止玩家囤货。城市必须是有人生活的：除非玩家明确独处，只要身处住宅、商店、街道、仓库、餐馆、医院、物业、车站等有人空间，就自然出现与场景匹配的邻居、店员、收银员、老板、快递员、司机、医护、物业、维修人员、顾客或其他普通人；通常1—3人即可，不要把城市写成空景。"
+    dayIndex <= -3 -> "灾前硬状态：只有零星异常和局部传闻，城市总体正常。个别缺货可以发生，但必须提供换店、预订、网购、批发市场或其他真实替代路径；禁止全城管制和全面限购。异常优先通过正常社会里的具体人和具体摩擦表现：物流延迟、商家改口、动物反常、医院奇怪病例、邻里传闻、天气变化、价格波动、交通拥堵和互相矛盾的消息。NPC各有自己的判断，不能所有人都神神秘秘地知道末世。"
+    dayIndex < 0 -> "灾前硬状态：公开异常逐渐增加，少数敏感品类可以排队、延迟或有限购，但商业与交通不能整体提前瘫痪；玩家仍应拥有完成最后采购、运输和据点调整的可玩空间。让亲友、商家、物业、医护、司机、同事/同学、邻居、配送人员和公共服务人员继续按各自生活行动，警报、取消、抢购苗头、家人来电、工作安排、维修和交通变化都可以成为真实事件，但不能提前写成灾后废城。"
     else -> "灾后硬状态：管制、断供和交通失序只能依据当前保留剧情与真实时间逐步发生，不得把尚未发生的世界变化倒写进过去。"
 }
 
@@ -216,6 +216,7 @@ internal fun continueApocalypseV5Beat(save: ApocalypseV3Save, action: String): A
     val minutesPassed = 20
     val absoluteMinutes = save.director.clockMinutes + minutesPassed
     val nextDayIndex = (save.director.dayIndex + absoluteMinutes / 1440).coerceAtMost(9999)
+    val preImpact = save.director.dayIndex < 0
     val nextDirector = save.director.copy(
         phase = apocalypsePhaseForDayV5(nextDayIndex),
         sceneGoal = "承接玩家行动“${action.take(90)}”，推进当前场景中的人物、信息或现实后果。",
@@ -226,11 +227,23 @@ internal fun continueApocalypseV5Beat(save: ApocalypseV3Save, action: String): A
     return ApocalypseV3Beat(
         nextDirector = nextDirector,
         beatType = "continuation",
-        directive = "沿用总导演最近的长期蓝图，不重排主线；完整执行玩家行动，让当前人物关系或信息至少向前移动一步。",
+        directive = if (preImpact) {
+            "沿用总导演最近的长期蓝图，不重排主线；完整执行玩家行动。灾前城市仍然繁忙有人：若玩家没有明确独处，让场景里合理存在普通NPC、交易对象、邻里或服务人员，并优先复用已经建立的NPC；让至少一段人物关系、现实事务、信息或小事件自然向前移动，不必强行制造灾难。"
+        } else {
+            "沿用总导演最近的长期蓝图，不重排主线；完整执行玩家行动，让当前人物关系或信息至少向前移动一步。"
+        },
         worldDelta = "世界继续按既有状态运行，没有凭空发生新的重大结构变化。",
-        openingHook = "直接承接上一幕尚未完成的动作与玩家刚才的选择。",
-        pressureEscalation = "从当前环境或人物目标中产生一个轻微但具体的阻力。",
-        emotionalTurn = "让一名在场人物通过行动或措辞显露态度变化。",
+        openingHook = if (preImpact) {
+            "直接承接上一幕与玩家选择；钩子可以来自当前人的欲望、交易、邻里、工作、物流、天气、交通或生活里的具体变化，不必来自危险。"
+        } else {
+            "直接承接上一幕尚未完成的动作与玩家刚才的选择。"
+        },
+        pressureEscalation = if (preImpact) {
+            "从当前人物目标或正常社会流程中产生一个轻微但具体的摩擦、机会或选择，让玩家有东西可回应；禁止为了刺激提前制造灾后危机。"
+        } else {
+            "从当前环境或人物目标中产生一个轻微但具体的阻力。"
+        },
+        emotionalTurn = "让一名在场人物通过行动或措辞显露态度变化；若有已建立NPC，优先让其拥有可记住的具体反应，而不是一次性路人台词。",
         closingHook = "停在由本幕因果自然形成的新行动节点。",
         sceneValueShift = "停滞→向前一步",
         minutesPassed = minutesPassed,
@@ -341,6 +354,9 @@ internal suspend fun planApocalypseV5Beat(
         18. 同时维护生存层、人际/势力层、长期谜团层。单幕突出1—2层即可，第三层只留可回看的微小痕迹，避免百科全书式解释。
         19. 设计经典末世电影式场面时只借用“类型结构”而非具体作品：撤离、围困、夜间搜救、车队、桥隧、停电、暴雨、港口、山路、临时安全区等都必须由当前地理与资源状态自然触发。
         20. 重要NPC必须拥有独立于玩家的目标、恐惧、关系和底线；至少维持若干NPC彼此之间的关系线。秘密不等于背叛，死亡不等于深刻。禁止靠随机杀熟和强行黑化制造刺激。
+        20a. 灾前dayIndex<0时不能因为“末世尚未发生”就让NPC和剧情休眠。玩家处在有人地点时，通常让1—3名符合地点的普通人自然出现或回归；连续两幕都只有玩家和同行者时，下一幕若场景合理应优先恢复城市社会存在感。
+        20b. 灾前七天要逐步培育若干会在后来值得玩家记住的NPC：邻居、店主、仓库/物流人员、司机、医护、物业、维修人员、同事同学、家人朋友、公共服务人员等都可以。不要一次性灌入十个人；优先反复使用已经建立的人，让关系、印象、承诺和私人问题自然累计。
+        20c. 灾前事件可以完全不涉及怪物或主谜团：交易、采购、送货、车辆、租赁、维修、医疗、工作学习、邻里、人情、交通、天气、动物异常、失物、误会、邀请、善意、价格和排队本身就能形成可玩的选择。每个事件至少让人物、资源、信息、关系或时间产生一个真实后果。
         21. 安全区、组织和联盟可以可靠一段时间。若它们后来出问题，原因应来自资源、制度、隐瞒、误判、研究伦理或立场冲突，并提前留下证据，而不是“其实全员坏人”。
         22. 保留希望和生活感：热饭、修好的灯、重新接通的电台、生日、第一茬蔬菜、陌生人的善意都可以成为重要剧情。黑暗只有和可失去的美好并存才有重量。
         23. 长期蓝图、隐藏线、人物秘密和伏笔回收计划都是导演私密信息，绝不能在正文中直接列出、解释或提前剧透；玩家只能通过当下可观察的事件逐步发现。
@@ -480,7 +496,7 @@ internal suspend fun writeApocalypseV5Scene(
         appendLine("本局仍保留的连续剧情：\n${apocalypseRecentContinuityV5(save)}")
     }
     val instruction = """
-        紧接第${save.scene}幕，写第${nextScene}幕高质量中文末世互动视觉小说，约800—1100字。不要输出选项、数值面板、解释或Markdown。
+        紧接第${save.scene}幕，写第${nextScene}幕高质量中文末世互动视觉小说。以场景完整、人物真实、玩家行动有反馈和自然结束为第一目标；不设硬性字数上限，普通幕通常约1200—2500字，复杂多人场景可以更长，安静但有效的场景也可以自然略短。不要为了压字数跳过人物反应、把事件总结掉或在半句话停止。不要输出选项、数值面板、解释或Markdown。
 
         【输出协议｜状态块不会展示给玩家】
         先写精简回执、后写正文，严格使用以下顺序；状态先落账，避免长正文截断金钱、物资和时间：
@@ -525,7 +541,7 @@ internal suspend fun writeApocalypseV5Scene(
         【玩家】只用于玩家本人正在直接说话的段落。
         【角色:<characterId>】用于同行者、已有演员档案或本幕castUpdates中的人物直接说话，characterId必须原样复制稳定id。标签里绝不能写姓名、称谓、同行角色或其他占位词。
         同一段只能有一个当前说话人；两个人连续说话必须拆成两段。不要把标记写到句子中间。
-        每段通常1—2句，目标30—70字；客户端会在不删减任何文字和标点的前提下继续细分长段落。
+        每段通常1—3句；优先形成自然完整的小段落，不要为了客户端分页主动把一句话砍碎。客户端会在不删减任何文字和标点的前提下按完整句子继续分页。
 
         文学与玩法规则：
         - 开头必须承接上一幕最后可见的地点、在场人物、姿态、未完成动作和玩家刚才的行动，不得跳时空、重复开场、总结上一幕或把已发生的事再演一次。
@@ -547,13 +563,17 @@ internal suspend fun writeApocalypseV5Scene(
         - 让场景像电影而不是剧情摘要：用可感知的环境变化、动作、停顿、声音、光线和人物反应承载信息；避免角色站着互相讲设定。
         - 文笔采用成熟类型小说的场景写法：保持清晰视点，让感官细节服务于危险、欲望和人物判断；长短句随节奏变化，少用套话、空泛形容词、连续比喻和解释性总结。不要模仿或复刻任何具体作品、作者、角色或名句。
         - 末世氛围必须随阶段变化。灾前写“日常仍在运转却出现不协调细节”的反差；失序初期写基础设施、信息与人群秩序逐步断裂；长期阶段写污染生态、维护劳动和新秩序。不能从第一天起始终用同一种阴暗滤镜。
+        - 灾前不是空白等待期。dayIndex<0且玩家不在明确独处场景时，要让住宅、商店、街道、医院、仓库、餐馆、物业、车站等地方有真实社会密度；通常1—3名场景相关NPC就够。买东西会遇到老板/店员/仓库/配送，修东西会遇到维修人员，住家会有邻居/物业，出行会有司机/乘客/交警等。不要让所有现实事务自动无人物完成。
+        - 灾前事件可以是普通但有后果的生活事件：送错货、谈价格、缺货找替代、车辆故障、租赁和维修、医院排队、工作学习安排、家人来电、邻里摩擦、宠物/野生动物反常、天气、失物、偶遇、邀请、支付问题、交通检查、陌生善意或误会。它们不必连接末世谜团，但至少改变人物、资源、信息、时间、路线或关系中的一项。
+        - 优先复用已建立的NPC。一个人如果会再出现、玩家记住了他、与玩家形成交易/人情/矛盾/承诺，或承担长期选择，立刻通过castUpdates建立稳定id和自然中文名，并让他有自己的职业/处境、目标、说话习惯、关系网和离屏计划。不要每幕用新的“收银员甲”“陌生人”替代旧人物。
+        - 角色塑造不是给简历。让人物通过只有他会做的选择、具体措辞、动作习惯、尴尬、偏见、幽默、能力、软肋和对不同人的不同态度被玩家认识。重复登场的人要记得玩家此前做过什么，也要在玩家没看见时继续自己的生活；大量NPC可以与核心谜团完全无关。
         - 对话要有潜台词和人物差异。重要人物可以避而不答、说半句、误解、改口或在行动中表达立场，但不能为了悬念故意全员谜语人。
         - 严格执行开场钩子→压力升级→情绪转折→结尾钩子的因果节拍，但不要把这些词写进正文。开场钩子必须尽早出现；结尾钩子必须从本幕已有因果长出来。
         - 聚焦角色要通过选择、动作、措辞、隐瞒方式和对他人的态度显出魅力与矛盾，禁止用旁白直接总结“他很神秘/强大/温柔”。配角不必人人发言。
         - 伏笔动作只呈现指定的可观察细节，不得把hiddenTruth、后台档案、回收窗口或导演计划直接说出来。回收时让旧细节在行动和后果中获得新意义，不写解释大会。
         - 大场面前先建立空间和目标，大场面后必须留下实际后果；安静场景同样要有情绪、关系或选择上的推进。
         - 不要为了“刺激”频繁杀角色、背叛、抓走队友或突然出现更强怪物。真正的悬念来自已有规则下越来越难的选择。
-        - 结尾停在自然可行动节点，不替玩家决定下一步。
+        - 结尾停在自然可行动节点，不替玩家决定下一步；必须以完整句子自然结束，绝不能为了输出长度在逗号、冒号、半句对白或未闭合引号处停止。
     """.trimIndent()
 
     val firstRaw = LuluAiServices.gateway.generate(
@@ -563,11 +583,11 @@ internal suspend fun writeApocalypseV5Scene(
         source = "末世求生V5正文",
         title = "末世求生 · 第${nextScene}幕",
         temperature = 0.80,
-        maxTokens = 2100,
+        maxTokens = null,
         usage = ModelUsage.Game,
         contextMode = CompanionContextMode.PersonaAndScenario,
         streamResponse = true,
-        readTimeoutMillis = 90_000,
+        readTimeoutMillis = 180_000,
         onStreamText = { raw ->
             apocalypseStreamingSceneTextV5(raw).takeIf(String::isNotBlank)?.let(onPartialText)
         },
@@ -597,6 +617,7 @@ internal suspend fun writeApocalypseV5Scene(
     val repairFacts = buildString {
         appendLine("玩家行动原文：$action")
         appendLine("时空=${apocalypseDayLabelV5(promptDirector.dayIndex)} ${apocalypseClockLabelV5(promptDirector.clockMinutes)}｜${promptDirector.location}")
+        appendLine(apocalypseSocietyContractV5(promptDirector.dayIndex))
         appendLine("行动前数值：资金¥${save.stats.money} 食${save.stats.food} 水${save.stats.water} 药${save.stats.medicine} 材料${save.stats.materials} 晶核${save.stats.crystalCores}；生命${save.stats.health} 体力${save.stats.stamina} 感染${save.stats.infection} 士气${save.stats.morale}；基地Lv.${save.stats.baseLevel}")
         appendLine("导演预算后数值（仅供核对，不是最终结算）：资金¥${nextStats.money} 食${nextStats.food} 水${nextStats.water} 药${nextStats.medicine} 材料${nextStats.materials} 晶核${nextStats.crystalCores}；生命${nextStats.health} 体力${nextStats.stamina} 感染${nextStats.infection} 士气${nextStats.morale}；基地Lv.${nextStats.baseLevel}")
         appendLine(playerSpacePrompt(save.stats))
@@ -613,9 +634,9 @@ internal suspend fun writeApocalypseV5Scene(
         append(firstOutcome.text.take(3_200))
     }
     val repairInstruction = """
-        把初稿重写为650—900字中文互动视觉小说。不要解释返工，不要输出选项或Markdown。
+        把初稿完整重写为自然结束的高质量中文互动视觉小说。不设硬性字数上限，通常约1000—2200字；多人、交易、冲突或复杂事件可以更长。不要为了缩短输出概述人物反应，也绝不能在半句话、逗号或未闭合对白处结束。不要解释返工，不要输出选项或Markdown。
         第一优先级是让玩家行动真的发生；若玩家说话或提问，正文前半必须由正确的在场人物针对具体内容回应，并改变信息、关系、资源、位置、时间或风险至少一项。
-        角色只继承提供的性格和说话方式，不得带入其他世界经历；保持当前地点、人物、资源和灾前/灾后阶段。
+        角色只继承提供的性格和说话方式，不得带入其他世界经历；保持当前地点、人物、资源和灾前/灾后阶段。灾前若处于有人场所，继续保留真实NPC和社会互动，不能在返工时把人物全部删成空景。
         输出顺序必须是：
         $APOCALYPSE_SCENE_STATE_MARKER_V5
         单行合法JSON，至少包含actionAcknowledged、actionOutcome、continuitySummary、respondedCharacterIds、presentCharacterIds、minutesPassed、endDayIndex、endClockMinutes；其他字段只返回真实变化，数值变化同时返回delta和After绝对值；新增具体物品用discoverAssets，消耗已有物品用inventoryChanges的负quantityDelta。
@@ -630,11 +651,11 @@ internal suspend fun writeApocalypseV5Scene(
         source = "末世求生V5正文返工",
         title = "末世求生 · 第${nextScene}幕返工",
         temperature = 0.68,
-        maxTokens = 1650,
+        maxTokens = null,
         usage = ModelUsage.Game,
         contextMode = CompanionContextMode.PersonaAndScenario,
         streamResponse = true,
-        readTimeoutMillis = 75_000,
+        readTimeoutMillis = 150_000,
         onStreamText = { raw ->
             apocalypseStreamingSceneTextV5(raw).takeIf(String::isNotBlank)?.let(onPartialText)
         },
