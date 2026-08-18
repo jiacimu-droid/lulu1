@@ -7,7 +7,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -16,9 +18,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.*
 import com.jiacimu.lulu.design.LuluColors
@@ -95,18 +100,19 @@ internal fun DigitalWorldMeetingSceneExperience(
 
     LaunchedEffect(session.id, currentPage?.voiceKey, voiceEnabled) {
         val page = currentPage
+        val speakerId = page?.speakerId
         if (
             voiceEnabled &&
             page != null &&
             page.type == MeetingSegmentType.DIALOGUE &&
-            !page.speakerId.isNullOrBlank() &&
-            page.speakerId != "system"
+            !speakerId.isNullOrBlank() &&
+            speakerId != "system"
         ) {
             MeetingVoicePlayback.playVisibleDialogue(
                 context = context,
                 sessionId = session.id,
                 pageKey = page.voiceKey,
-                characterId = page.speakerId,
+                characterId = speakerId,
                 text = page.text,
             )
         } else {
@@ -180,10 +186,16 @@ internal fun DigitalWorldMeetingSceneExperience(
             colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
         )
 
-        Box(Modifier.fillMaxWidth().weight(.54f)) {
+        // Keep the scene square even while the keyboard is resizing the available height.
+        // It may become smaller, but it will never be vertically stretched or flattened.
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxWidth().weight(.54f),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            val sceneSize = minOf(maxWidth, maxHeight)
             if (session.reality == MeetingReality.DIGITAL_WORLD) {
                 DigitalWorldSceneCanvas(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.size(sceneSize),
                     sceneCode = sceneCode,
                     homeCharacterId = homeId,
                     characters = characters,
@@ -192,7 +204,7 @@ internal fun DigitalWorldMeetingSceneExperience(
                 )
             } else {
                 RealisticMeetingIllustration(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.size(sceneSize),
                     participantIds = session.participantIds,
                 )
             }
@@ -232,8 +244,7 @@ internal fun DigitalWorldMeetingSceneExperience(
                             Modifier
                                 .fillMaxWidth()
                                 .height(1.dp)
-                                .align(Alignment.Center)
-                                .then(Modifier),
+                                .align(Alignment.Center),
                         ) {
                             Surface(
                                 modifier = Modifier.fillMaxSize(),
@@ -262,52 +273,63 @@ internal fun DigitalWorldMeetingSceneExperience(
                         val page = pages.getOrNull(targetIndex)
                         when {
                             page != null -> {
-                                Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                                    if (page.type == MeetingSegmentType.DIALOGUE) {
-                                        val speakerId = page.speakerId
-                                        val speaker = speakerId
-                                            ?.takeUnless { it == "system" }
-                                            ?.let { id -> characters.firstOrNull { it.characterId == id } }
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        ) {
-                                            if (speakerId == null) {
-                                                LuluProfileAvatar(userAvatarUri, userAvatar, 32)
-                                                Text(
-                                                    userName,
-                                                    color = Color(0xFF2A2A2A),
-                                                    fontSize = 15.5.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                )
-                                            } else if (speaker != null) {
-                                                LuluProfileAvatar(
-                                                    speaker.avatarUri,
-                                                    speaker.displayName.take(1).ifBlank { "角" },
-                                                    34,
-                                                )
-                                                Text(
-                                                    speaker.displayName,
-                                                    color = Color(0xFF242424),
-                                                    fontSize = 16.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                )
-                                            } else {
-                                                Text(
-                                                    page.speakerName,
-                                                    color = Color(0xFF242424),
-                                                    fontSize = 16.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                )
+                                key(page.voiceKey) {
+                                    val pageScroll = rememberScrollState()
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .verticalScroll(pageScroll),
+                                        verticalArrangement = Arrangement.spacedBy(9.dp),
+                                    ) {
+                                        if (page.type == MeetingSegmentType.DIALOGUE) {
+                                            val speakerId = page.speakerId
+                                            val speaker = speakerId
+                                                ?.takeUnless { it == "system" }
+                                                ?.let { id -> characters.firstOrNull { it.characterId == id } }
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                            ) {
+                                                if (speakerId == null) {
+                                                    LuluProfileAvatar(userAvatarUri, userAvatar, 38)
+                                                    Text(
+                                                        userName,
+                                                        color = Color(0xFF282828),
+                                                        fontSize = 17.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                    )
+                                                } else if (speaker != null) {
+                                                    LuluProfileAvatar(
+                                                        speaker.avatarUri,
+                                                        speaker.displayName.take(1).ifBlank { "角" },
+                                                        40,
+                                                    )
+                                                    Text(
+                                                        speaker.displayName,
+                                                        color = Color(0xFF222222),
+                                                        fontSize = 17.5.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                    )
+                                                } else {
+                                                    Text(
+                                                        page.speakerName,
+                                                        color = Color(0xFF222222),
+                                                        fontSize = 17.5.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                    )
+                                                }
                                             }
                                         }
+                                        Text(
+                                            page.text,
+                                            color = Color(0xFF252525),
+                                            style = TextStyle(
+                                                fontSize = 15.sp,
+                                                lineHeight = 23.sp,
+                                                textIndent = TextIndent(firstLine = 2.em),
+                                            ),
+                                        )
                                     }
-                                    Text(
-                                        page.text,
-                                        color = Color(0xFF252525),
-                                        fontSize = 14.5.sp,
-                                        lineHeight = 22.sp,
-                                    )
                                 }
                             }
                             generating -> {
@@ -373,7 +395,12 @@ internal fun DigitalWorldMeetingSceneExperience(
                 Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 2.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(errorText, color = MaterialTheme.colorScheme.error, fontSize = 10.5.sp, modifier = Modifier.weight(1f))
+                Text(
+                    errorText,
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 10.5.sp,
+                    modifier = Modifier.weight(1f),
+                )
                 if (onRetry != null) TextButton(onClick = onRetry) { Text("重试") }
             }
         }
@@ -519,8 +546,8 @@ private fun meetingSceneGroups(turns: List<MeetingTurn>): List<MeetingUiDisplayG
 private fun readingPagesForGroup(group: MeetingUiDisplayGroup): List<MeetingReadingPage> = buildList {
     group.turns.forEach { turn ->
         turn.meetingOrderedSegments().forEachIndexed { segmentIndex, segment ->
-            val maxChars = if (segment.type == MeetingSegmentType.DIALOGUE) 40 else 52
-            readingChunks(segment.text, maxChars).forEachIndexed { chunkIndex, chunk ->
+            val targetChars = if (segment.type == MeetingSegmentType.DIALOGUE) 92 else 132
+            readingChunks(segment.text, targetChars).forEachIndexed { chunkIndex, chunk ->
                 add(
                     MeetingReadingPage(
                         group = group,
@@ -540,7 +567,11 @@ private fun readingPagesForGroup(group: MeetingUiDisplayGroup): List<MeetingRead
     }
 }
 
-private fun readingChunks(raw: String, maxChars: Int): List<String> {
+/**
+ * targetChars is a soft target, not a guillotine. Complete sentences stay intact.
+ * A single unusually long sentence stays on one page and can be scrolled vertically.
+ */
+private fun readingChunks(raw: String, targetChars: Int): List<String> {
     val normalized = raw
         .trim()
         .replace(Regex("[\\t ]+"), " ")
@@ -548,36 +579,61 @@ private fun readingChunks(raw: String, maxChars: Int): List<String> {
     if (normalized.isBlank()) return emptyList()
 
     val result = mutableListOf<String>()
-    normalized.split(Regex("\\n+")).map(String::trim).filter(String::isNotBlank).forEach { paragraph ->
-        val buffer = StringBuilder()
-        var softBreak = -1
+    normalized
+        .split(Regex("\\n+"))
+        .map(String::trim)
+        .filter(String::isNotBlank)
+        .forEach { paragraph ->
+            val sentences = sentenceSafePieces(paragraph)
+            val page = StringBuilder()
 
-        fun flush(count: Int = buffer.length) {
-            if (count <= 0) return
-            val chunk = buffer.substring(0, count).trim()
-            if (chunk.isNotBlank()) result += chunk
-            val remainder = buffer.substring(count).trimStart()
-            buffer.clear()
-            buffer.append(remainder)
-            softBreak = -1
-            buffer.forEachIndexed { index, char ->
-                if (char in "，、；;：:") softBreak = index + 1
+            fun flushPage() {
+                val text = page.toString().trim()
+                if (text.isNotBlank()) result += text
+                page.clear()
             }
-        }
 
-        paragraph.forEach { char ->
-            buffer.append(char)
-            if (char in "，、；;：:") softBreak = buffer.length
-
-            val sentenceEnd = char in "。！？!?"
-            if (sentenceEnd && buffer.length >= 18) {
-                flush()
-            } else if (buffer.length >= maxChars) {
-                val breakAt = softBreak.takeIf { it in 22 until buffer.length } ?: buffer.length
-                flush(breakAt)
+            sentences.forEach { sentence ->
+                if (page.isEmpty()) {
+                    page.append(sentence)
+                } else if (page.length + sentence.length <= targetChars) {
+                    page.append(sentence)
+                } else {
+                    flushPage()
+                    page.append(sentence)
+                }
             }
+            flushPage()
         }
-        if (buffer.isNotBlank()) flush()
-    }
     return result
+}
+
+private fun sentenceSafePieces(paragraph: String): List<String> {
+    if (paragraph.isBlank()) return emptyList()
+    val pieces = mutableListOf<String>()
+    val buffer = StringBuilder()
+    val closingMarks = "”’」』）》】\""
+    var sentenceEnded = false
+
+    paragraph.forEachIndexed { index, char ->
+        buffer.append(char)
+        if (char in "。！？!?" || char == '…') {
+            sentenceEnded = true
+        }
+
+        if (sentenceEnded) {
+            val next = paragraph.getOrNull(index + 1)
+            val shouldWait = next != null && (next in closingMarks || next == '…')
+            if (!shouldWait) {
+                val sentence = buffer.toString().trim()
+                if (sentence.isNotBlank()) pieces += sentence
+                buffer.clear()
+                sentenceEnded = false
+            }
+        }
+    }
+
+    val tail = buffer.toString().trim()
+    if (tail.isNotBlank()) pieces += tail
+    return pieces.ifEmpty { listOf(paragraph) }
 }
