@@ -273,7 +273,42 @@ class PostgraduateExamStore internal constructor(context: Context) {
         }
     }
 
-    fun deleteTask(taskId: String) = mutate { state -> state.copy(tasks = state.tasks.filterNot { it.id == taskId }) }
+    fun deleteTask(taskId: String) = mutate { state ->
+        val task = state.tasks.firstOrNull { it.id == taskId } ?: return@mutate state
+        if (task.source == StudyTaskSource.Preset) rememberPresetTaskDismissal(task)
+
+        val tasks = state.tasks.filterNot { it.id == taskId }
+        val today = LocalDate.now().toString()
+        val unlockAllClear =
+            task.date == today &&
+                allTasksCompleteForDate(tasks, today) &&
+                state.superMomentClaimedDate != today
+
+        var events = addEvent(
+            state.events,
+            "删除待办",
+            if (task.source == StudyTaskSource.Preset && task.date == today) {
+                "今天移除固定待办 · ${task.title}"
+            } else {
+                task.title
+            },
+        )
+        if (unlockAllClear) {
+            events = addEvent(events, "今日待办全清", "删除不需要的待办后，其余今日待办已全部完成 · 十连券 +2（20连）已自动到账")
+        }
+
+        updateAchievements(
+            state.copy(
+                tasks = tasks,
+                inventory = if (unlockAllClear) {
+                    state.inventory.copy(tenTickets = state.inventory.tenTickets + 2)
+                } else state.inventory,
+                superMomentAvailable = state.superMomentAvailable || unlockAllClear,
+                superMomentClaimedDate = if (unlockAllClear) today else state.superMomentClaimedDate,
+                events = events,
+            ),
+        )
+    }
 
     fun toggleTask(taskId: String) {
         mutate { state ->
@@ -966,13 +1001,16 @@ class PostgraduateExamStore internal constructor(context: Context) {
         val dateChanged = state.activeDate != todayKey
         val existingToday = tasks.filter { it.date == todayKey }
         val preserved = tasks.filterNot { it.date == todayKey && it.source == StudyTaskSource.Preset }
-        val withDefaults = preserved + defaultTasks(today).map { preset ->
-            if (dateChanged) {
-                preset
-            } else {
-                existingToday.firstOrNull { it.title == preset.title }?.copy(source = StudyTaskSource.Preset) ?: preset
+        val dismissedPresetKeys = dismissedPresetTaskKeys(today)
+        val withDefaults = preserved + defaultTasks(today)
+            .filterNot { presetTaskDismissKey(it) in dismissedPresetKeys }
+            .map { preset ->
+                if (dateChanged) {
+                    preset
+                } else {
+                    existingToday.firstOrNull { it.title == preset.title }?.copy(source = StudyTaskSource.Preset) ?: preset
+                }
             }
-        }
         val rebuiltShop = rebuildShopForRules(state, today, state.gachaRules)
         if (
             !dateChanged &&
@@ -996,6 +1034,30 @@ class PostgraduateExamStore internal constructor(context: Context) {
                 } else state.pomodoro,
             ),
         )
+    }
+
+    private fun presetTaskDismissKey(task: StudyTask): String =
+        "${task.date}$PRESET_TASK_KEY_SEPARATOR${task.title.trim()}"
+
+    private fun rememberPresetTaskDismissal(task: StudyTask) {
+        val keys = prefs.getStringSet(KEY_DISMISSED_PRESET_TASKS, emptySet()).orEmpty().toMutableSet()
+        if (keys.add(presetTaskDismissKey(task))) {
+            prefs.edit().putStringSet(KEY_DISMISSED_PRESET_TASKS, keys).apply()
+        }
+    }
+
+    private fun dismissedPresetTaskKeys(today: LocalDate): Set<String> {
+        val saved = prefs.getStringSet(KEY_DISMISSED_PRESET_TASKS, emptySet()).orEmpty().toSet()
+        if (saved.isEmpty()) return emptySet()
+        val cutoff = today.minusDays(90)
+        val kept = saved.filterTo(mutableSetOf()) { key ->
+            val rawDate = key.substringBefore(PRESET_TASK_KEY_SEPARATOR)
+            runCatching { !LocalDate.parse(rawDate).isBefore(cutoff) }.getOrDefault(false)
+        }
+        if (kept.size != saved.size) {
+            prefs.edit().putStringSet(KEY_DISMISSED_PRESET_TASKS, kept).apply()
+        }
+        return kept
     }
 
     private fun allTasksCompleteForDate(tasks: List<StudyTask>, date: String): Boolean {
@@ -1088,6 +1150,8 @@ class PostgraduateExamStore internal constructor(context: Context) {
         const val PREFS_NAME = "lulu_study_complete"
         const val KEY_STATE = "state"
         const val KEY_BACKUP = "state_backup"
+        const val KEY_DISMISSED_PRESET_TASKS = "dismissed_preset_tasks"
+        const val PRESET_TASK_KEY_SEPARATOR = "\u001F"
         const val MAX_EVENTS = 200
         val TIME_REGEX = Regex("^(?:[01]\\d|2[0-3]):[0-5]\\d$")
     }
