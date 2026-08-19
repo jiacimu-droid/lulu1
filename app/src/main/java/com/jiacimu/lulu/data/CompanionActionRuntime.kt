@@ -47,11 +47,11 @@ internal object CompanionActionRuntime {
         appendLine("- write_journal，args={\"title\":\"标题\",\"content\":\"正文\"}：日记是角色私下整理自己、消化情绪、保存想法与经历的地方，不是绕路给用户传话。")
         appendLine("- start_call，args={\"text\":\"为什么此刻想打电话\"}：仅在角色已允许主动来电时发起真正的来电。会进入待接听状态并触发来电通知，不再伪装成一条聊天消息。")
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。只在想参与那个群正在发生的共享话题时发言；在线、看见消息都不等于必须说话。")
-        appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：真正读取阅读 App 里的上传正文或小剧场章节，并留下角色自己的感想。")
+        appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：真正读取阅读 App 里的上传正文或小剧场章节，并留下角色自己的感想；这会成为角色之后可以自然想起、聊起的真实生活经历。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             appendLine("- send_world_invite，args={\"location\":\"准确地点名\",\"text\":\"邀请语\"}：邀请用户到指定数字世界地点见面；私聊中会出现标明地点的可点击邀请卡片。")
             appendLine("  可选邀请地点：${DigitalWorldStore.invitationLocationOptions(characterId).joinToString("、")}；发起邀请的你必须主动选定其中一个。")
-            appendLine("- digital_world_action，args={\"worldAction\":\"go_home|visit_cloud_meadow|build_home_item|move_home_item|remove_home_item|visit_character_home\",\"itemId\":\"物品ID\",\"itemType\":\"类型\",\"name\":\"名称\",\"appearance\":\"外观\",\"position\":\"固定位置\",\"targetCharacterId\":\"对方角色ID\"}：在权威数字世界中执行一次真实、持久化的活动。")
+            appendLine("- digital_world_action，args={\"worldAction\":\"go_home|visit_cloud_meadow|build_home_item|move_home_item|remove_home_item|visit_character_home\",\"itemId\":\"物品ID\",\"itemType\":\"类型\",\"name\":\"名称\",\"appearance\":\"外观\",\"position\":\"固定位置\",\"targetCharacterId\":\"对方角色ID\"}：在权威数字世界中执行一次真实、持久化的活动。外出或串门抵达后，如果那里已经有别的数字生命，程序会把同地点事实变成真实相遇、唤醒对方并保存共同见面记录。")
             appendLine(DigitalWorldStore.contextFor(characterId))
         }
         val studyState = runCatching { PostgraduateExamStores.main.state.value }.getOrNull()
@@ -198,9 +198,16 @@ internal object CompanionActionRuntime {
             }
             "digital_world_action" -> {
                 val worldAction = args.optString("worldAction").trim()
+                val previousLocation = DigitalWorldStore.locationOf(characterId)
                 val worldResult = DigitalWorldStore.performAction(characterId, worldAction, args, now)
                 if (worldResult.success) {
                     MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, worldResult.summary)
+                    AutonomousSocialRuntime.onWorldArrival(
+                        context = context,
+                        characterId = characterId,
+                        previousLocation = previousLocation,
+                        now = now,
+                    )
                 }
                 CompanionActionResult(worldResult.success, worldResult.summary)
             }
@@ -272,7 +279,7 @@ internal object CompanionActionRuntime {
         )
         MigratedDomainStores.chat.appendPrivateActivityNotice(
             character.characterId,
-            "【阅读回执】刚刚在阅读 App 读了${book.title}，留下了一点感想：${reflection.replace(Regex("\\s+"), " ").take(180)}",
+            "刚刚读了《${book.title}》，留下了一点感想：${reflection.replace(Regex("\\s+"), " ").take(180)}",
         )
         return CompanionActionResult(true, "已真正阅读《${book.title}》并留下感想")
     }
