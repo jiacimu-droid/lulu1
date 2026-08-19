@@ -104,9 +104,9 @@ private fun apocalypseNpcHasPlayerFacingIntentV5(dossier: ApocalypseCharacterDos
 private fun apocalypseLikelyPublicActionV5(action: String, location: String): Boolean {
     val text = "$action $location"
     val publicSignals = listOf(
-        "出门", "出去", "逛", "街", "市场", "超市", "商场", "医院", "诊所", "药店", "学校",
-        "车站", "地铁", "公交", "打车", "开车", "仓库", "物流园", "水厂", "工厂", "维修", "买",
-        "采购", "办事", "饭店", "餐馆", "便利店", "公园", "物业", "社区", "警局", "消防",
+        "出门", "出去", "逛", "街", "市场", "菜市场", "超市", "商场", "医院", "社区医院", "诊所", "药店", "学校",
+        "车站", "地铁", "公交", "打车", "开车", "仓库", "物流园", "水厂", "工厂", "维修", "修车厂", "加油站", "买",
+        "采购", "办事", "政务", "银行", "快递", "饭店", "餐馆", "便利店", "公园", "物业", "社区", "警局", "消防", "图书馆", "找人",
     )
     val privateSignals = listOf("睡觉", "洗澡", "独处", "关门", "卧室", "自己房间", "在家休息")
     if (privateSignals.any(text::contains) && publicSignals.none(text::contains)) return false
