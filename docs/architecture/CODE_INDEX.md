@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9a475b6d83d06a48e9b5cb336d20f75266cb90ca`
+- 基准提交：`ef2e33941af44fea12beddc0da4b7d9a29b7e73b`
 - 分支：`main`
-- 已索引文件：216
-- 已索引代码/文本行：65084
+- 已索引文件：217
+- 已索引代码/文本行：65154
 - 已发现符号：875
 
 | 文件 | 行数 | 符号数 |
@@ -139,11 +139,12 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseModelPickerV5.kt` | 60 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseNarratedInventoryRecoveryV5.kt` | 161 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseNarrativeQualityV5.kt` | 64 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseNpcEcologyV5.kt` | 69 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryManagerV5.kt` | 310 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt` | 460 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseRangeCompatV5.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSceneOutcomeV5.kt` | 718 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseStoryDirectorV5.kt` | 100 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseStoryDirectorV5.kt` | 101 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt` | 1382 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt` | 768 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Screen.kt` | 1208 | 6 |

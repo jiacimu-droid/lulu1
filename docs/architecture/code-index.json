@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-19T11:31:27.764952+00:00",
-  "commit": "9a475b6d83d06a48e9b5cb336d20f75266cb90ca",
+  "generatedAt": "2026-08-19T12:08:28.408838+00:00",
+  "commit": "ef2e33941af44fea12beddc0da4b7d9a29b7e73b",
   "branch": "main",
-  "sourceFingerprint": "90f33638ec0912a75c980eb72183f118fd676fd04c415a748ce5403d40c375b2",
+  "sourceFingerprint": "b0adadb69ce8b6294c49caf8abd98627c55993eef9cd0892b64eccd75b77cb54",
   "summary": {
-    "files": 216,
-    "lines": 65084,
+    "files": 217,
+    "lines": 65154,
     "symbols": 875
   },
   "symbolIndex": {
@@ -8061,6 +8061,12 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseNpcEcologyV5.kt",
+      "lines": 69,
+      "sha256": "a607b0be275093d90d8d0243db650d080402529c82c517d5e77cb6449ccf1c81",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryManagerV5.kt",
       "lines": 310,
       "sha256": "ee6416d3b6440e5bc334ccb18d080801aa2e6bcac44c6432b449af69c0969956",
@@ -8128,8 +8134,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseStoryDirectorV5.kt",
-      "lines": 100,
-      "sha256": "2ff4308b6d25b8033c164d9398c967de10e146ea4256e04c514b1fd91e6d60ec",
+      "lines": 101,
+      "sha256": "76a82413b652901478feb3570e20e33309b53697126f1e9a845fd71425b489b8",
       "symbols": []
     },
     {
