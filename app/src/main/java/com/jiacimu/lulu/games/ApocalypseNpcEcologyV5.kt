@@ -55,6 +55,25 @@ internal fun apocalypseNpcEcologyPromptV5(
     }
 }.trim()
 
+/**
+ * Under-populated long saves should not wait for the ordinary six-scene director cadence when the
+ * player goes somewhere social. One director wake is worth the extra call because it repairs the
+ * cast ledger before the writer invents another empty location.
+ */
+internal fun shouldWakeApocalypseNpcEcologyDirectorV5(save: ApocalypseV3Save, playerAction: String): Boolean {
+    if (!apocalypseLikelyPublicActionV5(playerAction, save.director.location)) return false
+    val partyIds = save.partyIds.toSet()
+    val recurringCount = save.director.characterDossiers.count {
+        it.id !in partyIds && it.importance in setOf("recurring", "key") && it.status !in setOf("dead", "missing")
+    }
+    return when {
+        save.scene >= 40 -> recurringCount < 6
+        save.scene >= 20 -> recurringCount < 5
+        save.scene >= 8 -> recurringCount < 3
+        else -> false
+    }
+}
+
 private fun apocalypseLikelyPublicActionV5(action: String, location: String): Boolean {
     val text = "$action $location"
     val publicSignals = listOf(
