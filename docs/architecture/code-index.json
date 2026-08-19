@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-19T12:08:28.408838+00:00",
-  "commit": "ef2e33941af44fea12beddc0da4b7d9a29b7e73b",
+  "generatedAt": "2026-08-19T12:10:22.962583+00:00",
+  "commit": "1f3f00d482db6d08f51cfac5c74084959c0927c2",
   "branch": "main",
-  "sourceFingerprint": "b0adadb69ce8b6294c49caf8abd98627c55993eef9cd0892b64eccd75b77cb54",
+  "sourceFingerprint": "576bfc27264aa9ab884e2339136365988bdabf0b87c59ab2ee91d87a0a4f1c21",
   "summary": {
     "files": 217,
-    "lines": 65154,
+    "lines": 65176,
     "symbols": 875
   },
   "symbolIndex": {
@@ -7933,8 +7933,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-      "lines": 384,
-      "sha256": "9357b73b3aed0e3392dba3818d46f3171c68bff608911a50dbf55069e0d9cea5",
+      "lines": 387,
+      "sha256": "cbeb42534001f0c1dcaab961e9950d1428511365a60805ca554a63521ecf3a2f",
       "symbols": [
         {
           "name": "TaskState",
@@ -8062,8 +8062,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseNpcEcologyV5.kt",
-      "lines": 69,
-      "sha256": "a607b0be275093d90d8d0243db650d080402529c82c517d5e77cb6449ccf1c81",
+      "lines": 88,
+      "sha256": "203d3a3063701a1012a4d36808f051c5e51b0d4b0e8f10c4f2982fd5cab8e297",
       "symbols": []
     },
     {
