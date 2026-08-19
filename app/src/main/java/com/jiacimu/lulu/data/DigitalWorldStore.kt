@@ -233,7 +233,7 @@ object DigitalWorldStore {
                     val targetId = args.optString("targetCharacterId").trim()
                     require(targetId.isNotBlank() && targetId != characterId) { "必须指定另一位角色" }
                     require(DigitalLifeProfileStore.isEnabled(targetId)) { "对方不是拥有数字家园的数字生命" }
-                    require(charactersKnowEachOther(characterId, targetId)) { "两位角色还没有通过共同群聊认识，不能擅自串门" }
+                    require(charactersKnowEachOther(characterId, targetId)) { "两位角色还不认识；有共同群聊或过去真实见过面任一成立都算认识，当前尚未满足，不能擅自串门" }
                     val target = MigratedDomainStores.characters.get(targetId)
                     ensureHome(targetId, target.displayName, now)
                     setLocationLocked(characterId, homeLocation(targetId))
@@ -665,10 +665,7 @@ object DigitalWorldStore {
     }
 
     private fun charactersKnowEachOther(first: String, second: String): Boolean =
-        MigratedDomainStores.chat.conversations.value.any { conversation ->
-            val ids = conversation.groupChat?.members?.map { it.characterId }.orEmpty()
-            first in ids && second in ids
-        }
+        CharacterSocialRelationship.knowsEachOther(first, second)
 
     private fun setLocationLocked(characterId: String, location: String) {
         mutable.value = mutable.value.copy(
