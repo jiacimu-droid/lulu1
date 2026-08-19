@@ -53,6 +53,20 @@ internal object CompanionActionRuntime {
             appendLine("  可选邀请地点：${DigitalWorldStore.invitationLocationOptions(characterId).joinToString("、")}；发起邀请的你必须主动选定其中一个。")
             appendLine("- digital_world_action，args={\"worldAction\":\"go_home|visit_cloud_meadow|build_home_item|move_home_item|remove_home_item|visit_character_home\",\"itemId\":\"物品ID\",\"itemType\":\"类型\",\"name\":\"名称\",\"appearance\":\"外观\",\"position\":\"固定位置\",\"targetCharacterId\":\"对方角色ID\"}：在权威数字世界中执行一次真实、持久化的活动。外出或串门抵达后，如果那里已经有别的数字生命，程序会把同地点事实变成真实相遇、唤醒对方并保存共同见面记录。")
             appendLine(DigitalWorldStore.contextFor(characterId))
+            val socialTargets = MigratedDomainStores.characters.settings.value.keys
+                .asSequence()
+                .filter { it != characterId && DigitalLifeProfileStore.isEnabled(it) }
+                .map { it to CharacterSocialRelationship.snapshot(characterId, it) }
+                .filter { (_, relation) -> relation.knowsEachOther }
+                .toList()
+            if (socialTargets.isNotEmpty()) {
+                appendLine("【可以自然来往/串门的已认识数字生命】")
+                appendLine("认识来源可以是共同群聊，也可以是过去真实见过面；共同群聊本身就算认识。关系阶段只是交往经验，不代表强制亲密。")
+                socialTargets.forEach { (targetId, relation) ->
+                    val target = MigratedDomainStores.characters.get(targetId)
+                    appendLine("- targetCharacterId=$targetId；${target.displayName}；${relation.shortContext()}")
+                }
+            }
         }
         val studyState = runCatching { PostgraduateExamStores.main.state.value }.getOrNull()
         val sleep = HealthRolePerception.latestSleep()
