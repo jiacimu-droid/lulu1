@@ -13,6 +13,7 @@ internal fun apocalypseNpcEcologyPromptV5(
     val npcs = save.director.characterDossiers.filter { it.id !in partyIds && it.importance != "companion" }
     val recurring = npcs.filter { it.importance == "recurring" || it.importance == "key" }
     val recentlySeen = npcs.filter { it.lastSeenScene >= (save.scene - 8).coerceAtLeast(1) }
+    val recentScenes = save.log.takeLast(5)
     val longSaveStarved = save.scene >= 20 && recurring.size < 6
     val severelyStarved = save.scene >= 8 && recurring.size < 3
     val likelyPublic = apocalypseLikelyPublicActionV5(playerAction, save.director.location)
@@ -28,6 +29,12 @@ internal fun apocalypseNpcEcologyPromptV5(
     appendLine("主动联系闭环：已经和玩家有过具体交集、且offscreenIntent与玩家有关的NPC，后续可以基于真实渠道主动打电话、发消息、上门、托人传话、再次偶遇、提出交易、提醒风险、请玩家帮忙或兑现承诺。不能所有关系都永远等玩家先去找。")
     appendLine("主动联系必须有前因和渠道：至少满足曾经见过/交换过联系方式/知道住处或工作地点/有共同联系人/处于同一社区或组织之一。禁止陌生人凭空精准知道玩家位置和私人号码。")
     appendLine("多样性：不要连续两幕只围绕同一个组织、同一个职业网络或同一种NPC冲突。玩家若没有主动追某条线，优先切换到另一组真实人和现实事务。")
+
+    if (recentScenes.isNotEmpty()) {
+        appendLine("最近5幕去重参考（只用于判断是否重复，不得覆盖正史）：")
+        recentScenes.forEach { line -> appendLine("- ${line.take(260)}") }
+        appendLine("如果这些记录反复出现同一组织/同一职业网络/同一NPC，请主动降低其下一幕权重；除非玩家本次明确继续追它，否则换一条社会网络。")
+    }
 
     if (severelyStarved || longSaveStarved) {
         appendLine("【人口饥荒修复｜当前存档明显缺NPC】")
