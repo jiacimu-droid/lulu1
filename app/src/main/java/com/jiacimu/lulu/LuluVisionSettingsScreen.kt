@@ -62,7 +62,7 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Outlined.Visibility, null, tint = Color(0xFF292929))
                             Spacer(Modifier.width(9.dp))
-                            Text("图片理解", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            Text("图片理解 · 聊天 / 朋友圈", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         }
                         Text(
                             "聊天和朋友圈发图时，露露机会先理解图片，再把结果作为角色内部上下文。这里的专用识图模型是可选的：不单独配置时，会自动尝试当前聊天模型；只要聊天模型本身支持图片输入，就不需要再配第二个模型。",
