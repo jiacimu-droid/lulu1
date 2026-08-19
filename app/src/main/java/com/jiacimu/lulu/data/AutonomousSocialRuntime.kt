@@ -216,6 +216,7 @@ internal object AutonomousSocialRuntime {
                 }
             }
         }.trim()
+        val socialHistory = CharacterSocialRelationship.contextForGroup(participantIds)
 
         val anchorId = participantIds.first()
         val result = LuluAiServices.gateway.generate(
@@ -229,6 +230,7 @@ internal object AutonomousSocialRuntime {
                     val character = characters.getValue(id)
                     appendLine("- id=$id；姓名=${character.displayName}；人设=${character.persona.ifBlank { "按现有关系与性格自然行动" }}")
                 }
+                appendLine(socialHistory)
                 appendLine(recentLife)
             },
             instruction = """
@@ -240,11 +242,12 @@ internal object AutonomousSocialRuntime {
                 1. 主人不在现场，绝不能让主人说话、行动、被看见或被默认参与；也不要让角色突然对主人隔空汇报。
                 2. 只能使用上面列出的准确 speakerId。每个人保持自己的性格、关系和说话方式，不要写成同一种客服腔。
                 3. 这是生活中的一个小片段，不是强制剧情事件。通常 2—8 个 turn 即可；可以只是打招呼、坐一会儿、聊最近的小事、提到自己读过的东西、一起看看某样已有物品，也可以有自然的安静和停顿。
-                4. 不要为了“产生关系”强行亲密、吵架、告白或制造戏剧冲突。关系应从重复相处、共同经历、记住彼此的小事中慢慢长出来。
-                5. action 只写该 speaker 自己的动作、神态和当下可直接感知的环境，不能替另一个角色决定动作或心理；dialogue 只放真正说出口的话，不加引号。
-                6. 如果最近生活里出现阅读、日记、群聊、世界活动等经历，可以在人设合适时自然成为话题；不要机械复述，也不要每次都提。
-                7. 家园里不能凭空增加家具、房间、食物或道具；共享地点也不要创造永久设施。
-                8. summary 只写这次确实发生的事实，方便双方以后记得；不要写分析、好感度数值或系统解释。
+                4. 必须尊重“角色间已有社会关系”里的真实历史：共同群聊已经意味着认识；见面次数越多可以越自然熟悉，但不能仅凭次数强行升级成喜欢、恋爱、亲密或敌意。第一次见面与经常来往的相处方式应有自然区别。
+                5. 不要为了“产生关系”强行亲密、吵架、告白或制造戏剧冲突。关系应从重复相处、共同经历、记住彼此的小事中慢慢长出来。
+                6. action 只写该 speaker 自己的动作、神态和当下可直接感知的环境，不能替另一个角色决定动作或心理；dialogue 只放真正说出口的话，不加引号。
+                7. 如果最近生活里出现阅读、日记、群聊、世界活动等经历，可以在人设合适时自然成为话题；不要机械复述，也不要每次都提。
+                8. 家园里不能凭空增加家具、房间、食物或道具；共享地点也不要创造永久设施。
+                9. summary 只写这次确实发生的事实，方便双方以后记得；不要写分析、好感度数值或系统解释。
             """.trimIndent(),
             source = "角色自主相遇",
             title = "${participantIds.joinToString("与") { characters.getValue(it).displayName }}在$location",
