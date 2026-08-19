@@ -13,6 +13,7 @@ internal fun apocalypseNpcEcologyPromptV5(
     val npcs = save.director.characterDossiers.filter { it.id !in partyIds && it.importance != "companion" }
     val recurring = npcs.filter { it.importance == "recurring" || it.importance == "key" }
     val recentlySeen = npcs.filter { it.lastSeenScene >= (save.scene - 8).coerceAtLeast(1) }
+    val contactCandidates = recurring.filter { apocalypseNpcHasPlayerFacingIntentV5(it, save.scene) }
     val recentScenes = save.log.takeLast(5)
     val longSaveStarved = save.scene >= 20 && recurring.size < 6
     val severelyStarved = save.scene >= 8 && recurring.size < 3
@@ -29,6 +30,14 @@ internal fun apocalypseNpcEcologyPromptV5(
     appendLine("主动联系闭环：已经和玩家有过具体交集、且offscreenIntent与玩家有关的NPC，后续可以基于真实渠道主动打电话、发消息、上门、托人传话、再次偶遇、提出交易、提醒风险、请玩家帮忙或兑现承诺。不能所有关系都永远等玩家先去找。")
     appendLine("主动联系必须有前因和渠道：至少满足曾经见过/交换过联系方式/知道住处或工作地点/有共同联系人/处于同一社区或组织之一。禁止陌生人凭空精准知道玩家位置和私人号码。")
     appendLine("多样性：不要连续两幕只围绕同一个组织、同一个职业网络或同一种NPC冲突。玩家若没有主动追某条线，优先切换到另一组真实人和现实事务。")
+
+    if (contactCandidates.isNotEmpty()) {
+        appendLine("【可以主动找玩家的NPC候选｜不是强制全部出现】")
+        contactCandidates.take(5).forEach { dossier ->
+            appendLine("- ${dossier.id}/${apocalypseDossierDisplayNameV5(dossier)}：${dossier.offscreenIntent.take(180)}；上次在场第${dossier.lastSeenScene}幕")
+        }
+        appendLine("如果其中某人的意图已经到达合理时机，允许他主动联系或来到前台；若当前时机不合适，让意图继续离屏，不要硬塞。")
+    }
 
     if (recentScenes.isNotEmpty()) {
         appendLine("最近5幕去重参考（只用于判断是否重复，不得覆盖正史）：")
@@ -57,21 +66,39 @@ internal fun apocalypseNpcEcologyPromptV5(
 
 /**
  * Under-populated long saves should not wait for the ordinary six-scene director cadence when the
- * player goes somewhere social. One director wake is worth the extra call because it repairs the
- * cast ledger before the writer invents another empty location.
+ * player goes somewhere social. Existing NPCs with a ripe player-facing intention can also wake the
+ * director periodically so relationships are allowed to move without the player always initiating.
  */
 internal fun shouldWakeApocalypseNpcEcologyDirectorV5(save: ApocalypseV3Save, playerAction: String): Boolean {
-    if (!apocalypseLikelyPublicActionV5(playerAction, save.director.location)) return false
     val partyIds = save.partyIds.toSet()
-    val recurringCount = save.director.characterDossiers.count {
+    val recurring = save.director.characterDossiers.filter {
         it.id !in partyIds && it.importance in setOf("recurring", "key") && it.status !in setOf("dead", "missing")
     }
-    return when {
-        save.scene >= 40 -> recurringCount < 6
-        save.scene >= 20 -> recurringCount < 5
-        save.scene >= 8 -> recurringCount < 3
-        else -> false
+    val publicRepairNeeded = if (apocalypseLikelyPublicActionV5(playerAction, save.director.location)) {
+        when {
+            save.scene >= 40 -> recurring.size < 6
+            save.scene >= 20 -> recurring.size < 5
+            save.scene >= 8 -> recurring.size < 3
+            else -> false
+        }
+    } else {
+        false
     }
+    if (publicRepairNeeded) return true
+
+    val ripeContactExists = recurring.any { apocalypseNpcHasPlayerFacingIntentV5(it, save.scene) }
+    return ripeContactExists && save.scene % 3 == 0
+}
+
+private fun apocalypseNpcHasPlayerFacingIntentV5(dossier: ApocalypseCharacterDossierV5, scene: Int): Boolean {
+    if (dossier.lastSeenScene <= 0 || scene - dossier.lastSeenScene < 2) return false
+    val intent = dossier.offscreenIntent.trim()
+    if (intent.isBlank()) return false
+    val contactSignals = listOf(
+        "玩家", "联系", "找", "拜访", "上门", "电话", "消息", "提醒", "通知", "约", "交易", "交付",
+        "归还", "兑现", "求助", "帮忙", "邀请", "见面", "碰面", "道谢", "还人情", "谈谈", "问问",
+    )
+    return contactSignals.any(intent::contains)
 }
 
 private fun apocalypseLikelyPublicActionV5(action: String, location: String): Boolean {
