@@ -63,9 +63,18 @@ internal fun QqChatComposer(
                     imageDescription = description.trim().take(1_800)
                     imageNotice = ""
                 }
-                .onFailure {
+                .onFailure { error ->
                     imageDescription = ""
-                    imageNotice = "识图失败，仍可发送图片；角色只能看到你的配文。"
+                    val reason = error.message
+                        .orEmpty()
+                        .replace(Regex("\\s+"), " ")
+                        .trim()
+                        .take(260)
+                    imageNotice = if (reason.isBlank()) {
+                        "识图失败，仍可发送图片；角色只能看到你的配文。"
+                    } else {
+                        "识图失败：$reason。仍可发送图片；角色只能看到你的配文。"
+                    }
                 }
             imageBusy = false
         }
