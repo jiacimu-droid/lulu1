@@ -55,7 +55,19 @@ fun DigitalWorldMeetingApp(
     var pendingDeleteTurn by remember { mutableStateOf<MeetingTurn?>(null) }
     var selectedSceneGroup by remember { mutableStateOf<MeetingUiDisplayGroup?>(null) }
 
-    LaunchedEffect(Unit) { MeetingVoicePlayback.initialize(context) }
+    LaunchedEffect(Unit) {
+        MeetingVoicePlayback.initialize(context)
+        DigitalWorldNavigationStore.consumeMeeting(context)?.let { sessionId ->
+            val saved = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == sessionId }
+            if (saved != null && saved.turns.isNotEmpty()) {
+                activeSessionId = saved.id
+                browsingMap = false
+                showHistory = false
+                input = ""
+                errorText = ""
+            }
+        }
+    }
 
     val unfinishedSessionId = if (!browsingMap && invitedCharacterId.isNullOrBlank()) {
         world.meetings.lastOrNull { it.endedAt == null }?.id
