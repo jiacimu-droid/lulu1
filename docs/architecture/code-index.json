@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-19T07:21:08.897833+00:00",
-  "commit": "e731d459eefd741ef795bb3c9db903e63b53eee4",
+  "generatedAt": "2026-08-19T11:29:59.979025+00:00",
+  "commit": "5b6dfa77f8487c5afb2b3a439e582a6b98975b13",
   "branch": "main",
-  "sourceFingerprint": "7acda00354b00d223c3f262129550e5dc0bab609e3c7745b45f69a901987d342",
+  "sourceFingerprint": "d04483e5cb103a941a1543dafc82e3bb0facbd528f9e2e4a14c7b724be8c45c0",
   "summary": {
-    "files": 215,
-    "lines": 64904,
-    "symbols": 869
+    "files": 216,
+    "lines": 65075,
+    "symbols": 875
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -1165,7 +1165,7 @@
     "configuration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-        "line": 29
+        "line": 30
       }
     ],
     "CharacterSummary": [
@@ -1412,6 +1412,58 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt",
         "line": 10
+      }
+    ],
+    "CharacterSocialRelationshipSnapshot": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
+        "line": 4
+      }
+    ],
+    "shortContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
+        "line": 15
+      }
+    ],
+    "CharacterSocialRelationship": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
+        "line": 36
+      }
+    ],
+    "snapshot": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
+        "line": 37
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 39
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 105
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 244
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
+        "line": 230
+      }
+    ],
+    "knowsEachOther": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
+        "line": 85
+      }
+    ],
+    "contextForGroup": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
+        "line": 88
       }
     ],
     "CharacterVoicePreferenceStore": [
@@ -1992,24 +2044,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
         "line": 21
-      }
-    ],
-    "snapshot": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 39
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 105
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 244
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 230
       }
     ],
     "InMemoryLexiconRepository": [
@@ -5433,8 +5467,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt",
-      "lines": 119,
-      "sha256": "0b05a7641aece0c9ea4de61b342cf6d5b0c629dc527424654c326dfa0c3fc8d7",
+      "lines": 125,
+      "sha256": "42bfe2e280664377009994c8d64d1f0fc4e938dd09afc16584817c7099b3bfb6",
       "symbols": [
         {
           "name": "LuluVisionSettingsScreen",
@@ -5974,8 +6008,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-      "lines": 145,
-      "sha256": "d7750ecee75551548dbb9687264bb97efc1f9127251cd666780e9682a99a723d",
+      "lines": 185,
+      "sha256": "63d3eb7229a209e446bcc3fba2e54dc0343ab74931bce2af871da7891349c46f",
       "symbols": [
         {
           "name": "VisionModelService",
@@ -5987,7 +6021,7 @@
         },
         {
           "name": "configuration",
-          "line": 29
+          "line": 30
         }
       ]
     },
@@ -6112,8 +6146,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
-      "lines": 319,
-      "sha256": "d245a511a26b8c8cea282f7017dd7c8bdb1738955502e8a49a35c66798ccd254",
+      "lines": 322,
+      "sha256": "30a25ca8a63901462877842a5b71cecad2b7c5224f4dd3680d377f9d2a9b6997",
       "symbols": []
     },
     {
@@ -6166,6 +6200,37 @@
         {
           "name": "CharacterRecordReset",
           "line": 10
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
+      "lines": 111,
+      "sha256": "c285df505fd32217c96ca5c8c6f201e3ab5acf0c7199f886f1baf2104b5f3293",
+      "symbols": [
+        {
+          "name": "CharacterSocialRelationshipSnapshot",
+          "line": 4
+        },
+        {
+          "name": "shortContext",
+          "line": 15
+        },
+        {
+          "name": "CharacterSocialRelationship",
+          "line": 36
+        },
+        {
+          "name": "snapshot",
+          "line": 37
+        },
+        {
+          "name": "knowsEachOther",
+          "line": 85
+        },
+        {
+          "name": "contextForGroup",
+          "line": 88
         }
       ]
     },
@@ -6278,8 +6343,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 287,
-      "sha256": "20a03b67bbd716f787e27ab7cc0de869f62a26aad05c519f4874a602375f63db",
+      "lines": 301,
+      "sha256": "8225763593ed9b0fa86481a2968b117c0b1769fac4e3534cbf758f776b16c34d",
       "symbols": [
         {
           "name": "asJson",
@@ -6551,8 +6616,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 924,
-      "sha256": "eca0b6c7331f300354ef4787e2b25b67082b4417144204fcab6279dbbb2af755",
+      "lines": 921,
+      "sha256": "9901684bef0d339368701a2ce7a29cc9b2e7f977aa85abfa1ed8f23ffee48c0a",
       "symbols": [
         {
           "name": "MeetingReality",
