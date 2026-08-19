@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-19T12:10:22.962583+00:00",
-  "commit": "1f3f00d482db6d08f51cfac5c74084959c0927c2",
+  "generatedAt": "2026-08-19T12:12:04.676280+00:00",
+  "commit": "caee3dd8f738ec9a6ecb0339b8dbd54ea2318f72",
   "branch": "main",
-  "sourceFingerprint": "576bfc27264aa9ab884e2339136365988bdabf0b87c59ab2ee91d87a0a4f1c21",
+  "sourceFingerprint": "b3dfdb081e904d16de352f38e40fcce94155dd7839b45642dd299e92f3f1a084",
   "summary": {
     "files": 217,
-    "lines": 65176,
+    "lines": 65203,
     "symbols": 875
   },
   "symbolIndex": {
@@ -8062,8 +8062,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseNpcEcologyV5.kt",
-      "lines": 88,
-      "sha256": "203d3a3063701a1012a4d36808f051c5e51b0d4b0e8f10c4f2982fd5cab8e297",
+      "lines": 115,
+      "sha256": "b1810713d6b5427fefa61cbdd2632933871616f541e0e4e562a248f3a8522392",
       "symbols": []
     },
     {
