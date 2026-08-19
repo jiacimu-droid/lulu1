@@ -85,12 +85,15 @@ internal object ApocalypseGenerationTaskManagerV5 {
             if (jobs[save.id]?.isActive == true) return false
             val backstageWake = runCatching { livingWorldStore.shouldWakeDirector(save) }.getOrDefault(false) &&
                 save.scene % 2 == 0
-            val needsDirector = shouldPlanApocalypseV5Beat(save, cleanAction) || backstageWake
+            val npcEcologyWake = shouldWakeApocalypseNpcEcologyDirectorV5(save, cleanAction)
+            val needsDirector = shouldPlanApocalypseV5Beat(save, cleanAction) || backstageWake || npcEcologyWake
             updateState(save.id) {
                 TaskState(
                     running = true,
                     phase = if (save.scene >= 10 && save.scene % 10 == 0) {
                         "正在整理阶段剧情"
+                    } else if (npcEcologyWake) {
+                        "正在恢复世界人物生态"
                     } else if (needsDirector) {
                         "正在召回相关旧剧情"
                     } else {
