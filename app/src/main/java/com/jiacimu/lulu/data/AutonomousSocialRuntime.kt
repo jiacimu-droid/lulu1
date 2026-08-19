@@ -146,7 +146,7 @@ internal object AutonomousSocialRuntime {
 
         val finishedAt = now.plusMillis((generated.turns.size + 2L) * 900L)
         val summary = generated.summary.ifBlank {
-            "${names.joinToString("、")}在$location自然碰面，一起度过了一小段属于他们自己的时间。"
+            "${names.joinToString("、")}在${location}自然碰面，一起度过了一小段属于他们自己的时间。"
         }
         participantIds.forEach { id ->
             DigitalWorldStore.recordMeetingTimeline(
