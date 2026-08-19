@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-19T11:29:59.979025+00:00",
-  "commit": "5b6dfa77f8487c5afb2b3a439e582a6b98975b13",
+  "generatedAt": "2026-08-19T11:31:27.764952+00:00",
+  "commit": "9a475b6d83d06a48e9b5cb336d20f75266cb90ca",
   "branch": "main",
-  "sourceFingerprint": "d04483e5cb103a941a1543dafc82e3bb0facbd528f9e2e4a14c7b724be8c45c0",
+  "sourceFingerprint": "90f33638ec0912a75c980eb72183f118fd676fd04c415a748ce5403d40c375b2",
   "summary": {
     "files": 216,
-    "lines": 65075,
+    "lines": 65084,
     "symbols": 875
   },
   "symbolIndex": {
@@ -893,13 +893,13 @@
     "payload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-        "line": 82
+        "line": 91
       }
     ],
     "clearAttachment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-        "line": 88
+        "line": 97
       }
     ],
     "QqStyleChatDetailScreen": [
@@ -5468,7 +5468,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt",
       "lines": 125,
-      "sha256": "42bfe2e280664377009994c8d64d1f0fc4e938dd09afc16584817c7099b3bfb6",
+      "sha256": "98bd4447ee97bc57b1493d7c36896ce2523ee727b93217ce333cda468f994772",
       "symbols": [
         {
           "name": "LuluVisionSettingsScreen",
@@ -5749,16 +5749,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-      "lines": 223,
-      "sha256": "afe9daa7573a306a400997408468acb4cad3ce2f7a3ec26859f5ed8f390813df",
+      "lines": 232,
+      "sha256": "6ae96678f913ef86fd07423393011a836db756364eb9e5176c0dfb9133f35720",
       "symbols": [
         {
           "name": "payload",
-          "line": 82
+          "line": 91
         },
         {
           "name": "clearAttachment",
-          "line": 88
+          "line": 97
         }
       ]
     },
