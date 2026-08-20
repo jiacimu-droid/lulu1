@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`59ecf14ce1cbe78b83ce716f279039265019ec41`
+- 基准提交：`6e26e4ff549179a5c8361e2aeb23f9de8e83b97f`
 - 分支：`main`
 - 已索引文件：217
-- 已索引代码/文本行：65697
+- 已索引代码/文本行：65699
 - 已发现符号：876
 
 | 文件 | 行数 | 符号数 |
@@ -94,7 +94,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt` | 225 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 233 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt` | 45 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 921 | 32 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 923 | 32 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 325 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt` | 164 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
