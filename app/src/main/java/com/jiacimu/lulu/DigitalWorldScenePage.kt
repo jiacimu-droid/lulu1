@@ -35,7 +35,6 @@ import androidx.compose.ui.zIndex
 import com.jiacimu.lulu.data.*
 import com.jiacimu.lulu.design.LuluColors
 import kotlinx.coroutines.delay
-import kotlin.math.abs
 
 private data class SceneUserProfile(
     val avatarText: String,
@@ -121,6 +120,7 @@ internal fun DigitalWorldSceneCanvas(
         DigitalHomeRoom(
             modifier = modifier,
             characterId = homeCharacterId,
+            sceneCode = sceneCode,
             residents = residents,
             world = world,
             onCharacterClick = onCharacterClick,
@@ -139,6 +139,7 @@ internal fun DigitalWorldSceneCanvas(
 private fun DigitalHomeRoom(
     modifier: Modifier,
     characterId: String,
+    sceneCode: String,
     residents: List<CharacterSettings>,
     world: DigitalWorldState,
     onCharacterClick: (String) -> Unit,
@@ -183,6 +184,7 @@ private fun DigitalHomeRoom(
             items.forEachIndexed { index, item ->
                 val style = DigitalFurnitureCatalog.resolve(item)
                 val placement = furniturePlacement(item, index)
+                val depthScale = furnitureDepthScale(style.kind, placement.second)
                 FurnitureSticker(
                     item = item,
                     style = style,
@@ -191,6 +193,11 @@ private fun DigitalHomeRoom(
                             x = (maxWidth - stickerWidth(style.kind)) * placement.first,
                             y = (maxHeight - stickerHeight(style.kind)) * placement.second,
                         )
+                        .graphicsLayer {
+                            scaleX = depthScale
+                            scaleY = depthScale
+                            transformOrigin = TransformOrigin(.5f, 1f)
+                        }
                         .zIndex(furnitureDepthZ(style.kind, placement.second))
                         .clickable { selectedItem = item },
                 )
@@ -200,6 +207,13 @@ private fun DigitalHomeRoom(
                 key(character.characterId) {
                     val base = remember(character.characterId, index) {
                         residentAnchor(index, character.characterId, shared = false)
+                    }
+                    val followsUser = remember(world.meetings, world.homes, sceneCode, character.characterId) {
+                        characterExplicitlyWelcomedUserHere(
+                            world = world,
+                            sceneCode = sceneCode,
+                            characterId = character.characterId,
+                        )
                     }
                     var targetX by rememberSaveable(character.characterId, "home-x") { mutableStateOf(base.x) }
                     var targetY by rememberSaveable(character.characterId, "home-y") { mutableStateOf(base.y) }
@@ -216,12 +230,12 @@ private fun DigitalHomeRoom(
                         finishedListener = { walking = false },
                     )
 
-                    LaunchedEffect(character.characterId) {
+                    LaunchedEffect(character.characterId, followsUser) {
                         val seed = character.characterId.hashCode() and Int.MAX_VALUE
                         var step = 0
                         while (true) {
                             delay(6500L + ((seed + step * 977) % 4200))
-                            val moveTowardUser = (seed + step) % 4 == 0
+                            val moveTowardUser = followsUser && (seed + step) % 4 == 0
                             if (moveTowardUser) {
                                 val side = if ((seed + step) % 2 == 0) -.11f else .11f
                                 targetX = (userTargetX + side).coerceIn(.08f, .82f)
@@ -237,15 +251,13 @@ private fun DigitalHomeRoom(
                         }
                     }
 
-                    LaunchedEffect(userTargetX, userTargetY) {
-                        val proximity = abs(base.x - userTargetX) + abs(base.y - userTargetY)
-                        if (proximity < .46f) {
-                            delay(720)
-                            val side = if (base.x <= userTargetX) -.105f else .105f
-                            targetX = (userTargetX + side).coerceIn(.08f, .82f)
-                            targetY = (userTargetY - .03f).coerceIn(.48f, .78f)
-                            walking = true
-                        }
+                    LaunchedEffect(userTargetX, userTargetY, followsUser) {
+                        if (!followsUser) return@LaunchedEffect
+                        delay(720)
+                        val side = if (targetX <= userTargetX) -.105f else .105f
+                        targetX = (userTargetX + side).coerceIn(.08f, .82f)
+                        targetY = (userTargetY - .03f).coerceIn(.48f, .78f)
+                        walking = true
                     }
 
                     SceneCharacterSprite(
@@ -284,6 +296,34 @@ private fun DigitalHomeRoom(
             item = item,
             onDismiss = { selectedItem = null },
         )
+    }
+}
+
+/**
+ * The map never forces a resident to shadow the user. Auto-follow is reserved for the strongest
+ * explicit evidence we already have without adding another model call: this exact character invited
+ * the user into an active digital-world meeting at this scene. Manual home entry remains possible,
+ * but it does not silently rewrite the resident into a welcoming host.
+ */
+private fun characterExplicitlyWelcomedUserHere(
+    world: DigitalWorldState,
+    sceneCode: String,
+    characterId: String,
+): Boolean {
+    val sceneLabel = when (sceneCode) {
+        DigitalWorldStore.ARRIVAL -> "世界入口"
+        DigitalWorldStore.CLOUD_MEADOW -> "云眠原"
+        else -> if (sceneCode.startsWith("home:")) {
+            val ownerId = sceneCode.removePrefix("home:")
+            world.homes[ownerId]?.name
+        } else null
+    } ?: return false
+
+    return world.meetings.any { session ->
+        session.endedAt == null &&
+            session.location == sceneLabel &&
+            session.initiatedByCharacterId == characterId &&
+            characterId in session.participantIds
     }
 }
 
@@ -332,17 +372,49 @@ private fun furnitureDepthZ(kind: DigitalFurnitureKind, y: Float): Float = when 
     else -> 2f + y.coerceIn(0f, 1f) * 10f
 }
 
+private fun furnitureDepthScale(kind: DigitalFurnitureKind, y: Float): Float = when (kind) {
+    DigitalFurnitureKind.WALL_ART,
+    DigitalFurnitureKind.CLOCK,
+    DigitalFurnitureKind.MIRROR -> 1f
+    DigitalFurnitureKind.RUG -> .98f
+    else -> {
+        val normalized = ((y.coerceIn(.27f, .72f) - .27f) / .45f).coerceIn(0f, 1f)
+        .88f + normalized * .16f
+    }
+}
+
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom() {
     val wallBottom = size.height * .39f
     val wall = Color(0xFFF8F5EF)
     val floor = Color(0xFFE5DACB)
-    val floorLine = Color(0xFF9E8F7E).copy(alpha = .18f)
+    val floorLine = Color(0xFF8F8172).copy(alpha = .18f)
     val ink = Color(0xFF514B44).copy(alpha = .34f)
+    val backLeft = size.width * .065f
+    val backRight = size.width * .935f
 
     drawRect(wall)
+
+    // Slight side-wall planes make the room read as a space instead of a flat rectangle.
+    val leftWallPlane = Path().apply {
+        moveTo(0f, 0f)
+        lineTo(backLeft, size.height * .035f)
+        lineTo(backLeft, wallBottom)
+        lineTo(0f, wallBottom)
+        close()
+    }
+    val rightWallPlane = Path().apply {
+        moveTo(size.width, 0f)
+        lineTo(backRight, size.height * .035f)
+        lineTo(backRight, wallBottom)
+        lineTo(size.width, wallBottom)
+        close()
+    }
+    drawPath(leftWallPlane, Color(0xFFEDE7DE).copy(alpha = .55f))
+    drawPath(rightWallPlane, Color(0xFFEDE7DE).copy(alpha = .45f))
+
     drawRect(
         Brush.verticalGradient(
-            listOf(Color.White.copy(alpha = .22f), Color.Transparent),
+            listOf(Color.White.copy(alpha = .24f), Color.Transparent),
             startY = 0f,
             endY = wallBottom,
         ),
@@ -357,31 +429,69 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIllustratedRoom
         topLeft = Offset(0f, wallBottom),
         size = Size(size.width, size.height - wallBottom),
     )
+
+    // Back-wall edge + tiny shadow: furniture now has a clear wall/floor reference line.
     drawRect(
-        Color(0xFFCEC0AF),
-        topLeft = Offset(0f, wallBottom - 4.dp.toPx()),
-        size = Size(size.width, 5.dp.toPx()),
+        Color(0xFFB8AA99).copy(alpha = .30f),
+        topLeft = Offset(backLeft, wallBottom - 5.dp.toPx()),
+        size = Size(backRight - backLeft, 6.dp.toPx()),
+    )
+    drawLine(
+        Color(0xFF8F8172).copy(alpha = .20f),
+        Offset(backLeft, wallBottom + 2.dp.toPx()),
+        Offset(backRight, wallBottom + 2.dp.toPx()),
+        strokeWidth = 1.dp.toPx(),
     )
 
     val floorHeight = size.height - wallBottom
     val vanishing = Offset(size.width * .50f, wallBottom)
-    listOf(0f, .20f, .38f, .62f, .80f, 1f).forEach { ratio ->
+
+    // Room edges continue into the foreground, making the one-point perspective unmistakable.
+    drawLine(
+        floorLine.copy(alpha = .26f),
+        Offset(backLeft, wallBottom),
+        Offset(0f, size.height),
+        strokeWidth = 1.dp.toPx(),
+    )
+    drawLine(
+        floorLine.copy(alpha = .26f),
+        Offset(backRight, wallBottom),
+        Offset(size.width, size.height),
+        strokeWidth = 1.dp.toPx(),
+    )
+
+    listOf(.08f, .25f, .40f, .60f, .75f, .92f).forEachIndexed { index, ratio ->
         drawLine(
-            floorLine,
+            floorLine.copy(alpha = .12f + (index % 2) * .045f),
             Offset(size.width * ratio, size.height),
             vanishing,
-            strokeWidth = .65.dp.toPx(),
+            strokeWidth = if (index == 0 || index == 5) .85.dp.toPx() else .65.dp.toPx(),
         )
     }
-    listOf(.34f, .56f, .75f, .90f).forEach { depth ->
-        val y = wallBottom + floorHeight * depth * depth
+
+    // Cross-lines bunch up near the back wall and open toward the viewer, like real floor boards.
+    listOf(.055f, .12f, .22f, .36f, .53f, .73f, .94f).forEachIndexed { index, depth ->
+        val y = wallBottom + floorHeight * depth
         drawLine(
-            floorLine.copy(alpha = floorLine.alpha * .80f),
+            floorLine.copy(alpha = .10f + index * .012f),
             Offset(0f, y),
             Offset(size.width, y),
-            strokeWidth = .65.dp.toPx(),
+            strokeWidth = .62.dp.toPx(),
         )
     }
+
+    drawLine(
+        ink.copy(alpha = .18f),
+        Offset(backLeft, size.height * .035f),
+        Offset(backLeft, wallBottom),
+        strokeWidth = .8.dp.toPx(),
+    )
+    drawLine(
+        ink.copy(alpha = .18f),
+        Offset(backRight, size.height * .035f),
+        Offset(backRight, wallBottom),
+        strokeWidth = .8.dp.toPx(),
+    )
 
     val windowLeft = size.width * .63f
     val windowTop = size.height * .075f
