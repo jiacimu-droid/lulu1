@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-20T06:03:31.661515+00:00",
-  "commit": "de6393a4ac86c2d4728701df3d85d0af4ce989f5",
+  "generatedAt": "2026-08-20T06:04:01.145097+00:00",
+  "commit": "6a13bbea5121e18f110173f96568aea65f10b3c1",
   "branch": "main",
-  "sourceFingerprint": "4da84e42660b505cf17e214c2164a6e710c57643536146227abe645ceeb7ce39",
+  "sourceFingerprint": "49672a6f21559c8e2ff1b9bef88e320bf3e30604da562145233ed8a12602c955",
   "summary": {
     "files": 217,
     "lines": 65720,
@@ -6159,7 +6159,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
       "lines": 97,
-      "sha256": "916ed9276bec2371d2bb51360a3eea166b3fabec1fbcc4cfc3a93fcc1f9513dc",
+      "sha256": "93a450453476ed6bcd2368fa5ed19476dab48f04321e8885c85860e9cf69c847",
       "symbols": [
         {
           "name": "CharacterIdentityStore",
