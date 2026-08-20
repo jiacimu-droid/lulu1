@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-20T05:59:33.166169+00:00",
-  "commit": "6e26e4ff549179a5c8361e2aeb23f9de8e83b97f",
+  "generatedAt": "2026-08-20T06:03:31.661515+00:00",
+  "commit": "de6393a4ac86c2d4728701df3d85d0af4ce989f5",
   "branch": "main",
-  "sourceFingerprint": "a1937331017e8d117a7ae7258cc87f41bcfc595046d715d11608b787d16775ca",
+  "sourceFingerprint": "4da84e42660b505cf17e214c2164a6e710c57643536146227abe645ceeb7ce39",
   "summary": {
     "files": 217,
-    "lines": 65699,
+    "lines": 65720,
     "symbols": 876
   },
   "symbolIndex": {
@@ -1375,13 +1375,13 @@
     "set": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 54
+        "line": 75
       }
     ],
     "delete": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 66
+        "line": 87
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -6158,8 +6158,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-      "lines": 76,
-      "sha256": "759a166d0e442adc676162d074e812d1af858fea31c099c380b9a0c5cc01c387",
+      "lines": 97,
+      "sha256": "916ed9276bec2371d2bb51360a3eea166b3fabec1fbcc4cfc3a93fcc1f9513dc",
       "symbols": [
         {
           "name": "CharacterIdentityStore",
@@ -6175,11 +6175,11 @@
         },
         {
           "name": "set",
-          "line": 54
+          "line": 75
         },
         {
           "name": "delete",
-          "line": 66
+          "line": 87
         }
       ]
     },
