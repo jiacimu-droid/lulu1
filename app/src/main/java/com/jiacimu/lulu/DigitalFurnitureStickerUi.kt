@@ -27,8 +27,16 @@ internal fun FurnitureSticker(
     modifier: Modifier = Modifier,
     preview: Boolean = false,
 ) {
-    val width = if (preview) 72.dp else stickerWidth(style.kind)
-    val height = if (preview) 62.dp else stickerHeight(style.kind)
+    val width = if (preview) {
+        if (style.kind == DigitalFurnitureKind.RUG) 78.dp else 72.dp
+    } else {
+        stickerWidth(style.kind)
+    }
+    val height = if (preview) {
+        if (style.kind == DigitalFurnitureKind.RUG) 44.dp else 62.dp
+    } else {
+        stickerHeight(style.kind)
+    }
     val base = stickerColor(style.colorKey)
     Box(modifier.size(width, height), contentAlignment = Alignment.Center) {
         Canvas(Modifier.size(width, height)) {
@@ -207,8 +215,23 @@ private fun DrawScope.drawTableLike(style: DigitalFurnitureStyle, p: StickerPale
             drawOval(topColor, Offset(size.width * left, size.height * topY), Size(size.width * width, size.height * topH))
         }
         else -> {
-            drawRoundRect(p.darker, Offset(size.width * .05f, size.height * (topY + .06f)), Size(size.width * .90f, size.height * topH), CornerRadius(size.height * .07f))
-            drawRoundRect(topColor, Offset(size.width * .07f, size.height * topY), Size(size.width * .86f, size.height * topH), CornerRadius(size.height * .07f))
+            // A floor-standing table is seen slightly from above: the back edge is narrower than the front.
+            val underside = Path().apply {
+                moveTo(size.width * .14f, size.height * (topY + .055f))
+                lineTo(size.width * .86f, size.height * (topY + .055f))
+                lineTo(size.width * .96f, size.height * (topY + topH + .05f))
+                lineTo(size.width * .04f, size.height * (topY + topH + .05f))
+                close()
+            }
+            val top = Path().apply {
+                moveTo(size.width * .15f, size.height * topY)
+                lineTo(size.width * .85f, size.height * topY)
+                lineTo(size.width * .94f, size.height * (topY + topH))
+                lineTo(size.width * .06f, size.height * (topY + topH))
+                close()
+            }
+            drawPath(underside, p.darker)
+            drawPath(top, topColor)
         }
     }
     if (style.colorKey == "glass") {
@@ -383,39 +406,99 @@ private fun DrawScope.drawTableLamp(style: DigitalFurnitureStyle, p: StickerPale
 }
 
 private fun DrawScope.drawRug(style: DigitalFurnitureStyle, p: StickerPalette) {
-    val rug = lighten(p.base, .42f).copy(alpha = .82f)
-    drawOval(Color.Black.copy(alpha = .035f), Offset(size.width * .03f, size.height * .09f), Size(size.width * .94f, size.height * .84f))
+    val rug = lighten(p.base, .42f).copy(alpha = .84f)
+    val topY = .19f
+    val bottomY = .82f
+    val topInset = .18f
+    val bottomInset = .035f
+
+    // A rug lives on the floor plane. The rear edge is narrower and the whole shape is vertically
+    // foreshortened; this avoids the old "upright square sticker" look.
+    val shadow = Path().apply {
+        moveTo(size.width * (topInset - .015f), size.height * (topY + .04f))
+        lineTo(size.width * (1f - topInset + .015f), size.height * (topY + .04f))
+        lineTo(size.width * (1f - bottomInset), size.height * (bottomY + .055f))
+        lineTo(size.width * bottomInset, size.height * (bottomY + .055f))
+        close()
+    }
+    drawPath(shadow, Color.Black.copy(alpha = .045f))
+
     when (style.pattern) {
-        "round" -> drawOval(rug, Offset(size.width * .05f, size.height * .05f), Size(size.width * .90f, size.height * .84f))
+        "round" -> {
+            drawOval(
+                rug,
+                Offset(size.width * .07f, size.height * .25f),
+                Size(size.width * .86f, size.height * .50f),
+            )
+        }
         "cloud" -> {
-            drawOval(rug, Offset(size.width * .04f, size.height * .22f), Size(size.width * .45f, size.height * .58f))
-            drawOval(rug, Offset(size.width * .28f, size.height * .08f), Size(size.width * .42f, size.height * .72f))
-            drawOval(rug, Offset(size.width * .53f, size.height * .24f), Size(size.width * .43f, size.height * .55f))
+            drawOval(rug, Offset(size.width * .06f, size.height * .36f), Size(size.width * .42f, size.height * .34f))
+            drawOval(rug, Offset(size.width * .29f, size.height * .25f), Size(size.width * .42f, size.height * .43f))
+            drawOval(rug, Offset(size.width * .54f, size.height * .37f), Size(size.width * .40f, size.height * .31f))
         }
         "flower" -> {
             repeat(6) { index ->
                 val angle = Math.toRadians(index * 60.0)
                 val cx = .50f + kotlin.math.cos(angle).toFloat() * .24f
-                val cy = .48f + kotlin.math.sin(angle).toFloat() * .25f
-                drawCircle(rug, size.minDimension * .22f, Offset(size.width * cx, size.height * cy))
+                val cy = .50f + kotlin.math.sin(angle).toFloat() * .17f
+                drawOval(
+                    rug,
+                    Offset(size.width * (cx - .17f), size.height * (cy - .16f)),
+                    Size(size.width * .34f, size.height * .32f),
+                )
             }
-            drawCircle(Color(0xFFE7C88E), size.minDimension * .18f, center)
+            drawOval(
+                Color(0xFFE7C88E),
+                Offset(size.width * .38f, size.height * .38f),
+                Size(size.width * .24f, size.height * .24f),
+            )
         }
-        else -> drawRoundRect(rug, Offset(size.width * .03f, size.height * .06f), Size(size.width * .94f, size.height * .82f), CornerRadius(size.height * .22f))
+        else -> {
+            val floorShape = Path().apply {
+                moveTo(size.width * topInset, size.height * topY)
+                lineTo(size.width * (1f - topInset), size.height * topY)
+                lineTo(size.width * (1f - bottomInset), size.height * bottomY)
+                lineTo(size.width * bottomInset, size.height * bottomY)
+                close()
+            }
+            drawPath(floorShape, rug)
+        }
     }
+
     if (style.pattern == "stripe") {
         repeat(4) { index ->
-            val y = size.height * (.26f + index * .14f)
-            drawLine(p.white.copy(alpha = .58f), Offset(size.width * .16f, y), Offset(size.width * .84f, y), 1.2.dp.toPx())
+            val t = (index + 1) / 5f
+            val y = topY + (bottomY - topY) * t
+            val inset = topInset + (bottomInset - topInset) * t
+            drawLine(
+                p.white.copy(alpha = .58f),
+                Offset(size.width * (inset + .05f), size.height * y),
+                Offset(size.width * (1f - inset - .05f), size.height * y),
+                1.15.dp.toPx(),
+            )
         }
     } else if (style.pattern == "check") {
         repeat(3) { index ->
-            val x = size.width * (.28f + index * .16f)
-            drawLine(p.white.copy(alpha = .42f), Offset(x, size.height * .15f), Offset(x, size.height * .79f), 1.dp.toPx())
+            val fraction = .28f + index * .22f
+            val topX = topInset + (1f - topInset * 2f) * fraction
+            val bottomX = bottomInset + (1f - bottomInset * 2f) * fraction
+            drawLine(
+                p.white.copy(alpha = .42f),
+                Offset(size.width * topX, size.height * (topY + .025f)),
+                Offset(size.width * bottomX, size.height * (bottomY - .025f)),
+                1.dp.toPx(),
+            )
         }
         repeat(3) { index ->
-            val y = size.height * (.28f + index * .15f)
-            drawLine(p.white.copy(alpha = .42f), Offset(size.width * .15f, y), Offset(size.width * .85f, y), 1.dp.toPx())
+            val t = .26f + index * .20f
+            val y = topY + (bottomY - topY) * t
+            val inset = topInset + (bottomInset - topInset) * t
+            drawLine(
+                p.white.copy(alpha = .42f),
+                Offset(size.width * (inset + .025f), size.height * y),
+                Offset(size.width * (1f - inset - .025f), size.height * y),
+                1.dp.toPx(),
+            )
         }
     }
 }
@@ -678,22 +761,25 @@ internal fun furniturePlacement(item: DigitalWorldItem, index: Int): Pair<Float,
     val text = item.position.lowercase()
     val kind = DigitalFurnitureCatalog.resolve(item).kind
     val fallback = defaultFurniturePlacement(kind, index)
+    val rug = kind == DigitalFurnitureKind.RUG
 
     val x = when {
-        listOf("最左", "左侧", "靠左", "左边").any(text::contains) -> .06f
-        listOf("最右", "右侧", "靠右", "右边").any(text::contains) -> .72f
-        listOf("正中", "中央", "中间", "中心").any(text::contains) -> .38f
+        listOf("最左", "左侧", "靠左", "左边").any(text::contains) -> if (rug) .10f else .06f
+        listOf("最右", "右侧", "靠右", "右边").any(text::contains) -> if (rug) .58f else .72f
+        listOf("正中", "中央", "中间", "中心").any(text::contains) -> if (rug) .28f else .38f
         else -> fallback.first
     }
     val y = when {
         kind in setOf(DigitalFurnitureKind.WALL_ART, DigitalFurnitureKind.CLOCK, DigitalFurnitureKind.MIRROR) -> .10f
-        kind == DigitalFurnitureKind.RUG -> .67f
+        rug -> .69f
         listOf("上方", "里面", "后方", "靠墙", "墙边", "窗边").any(text::contains) -> .30f
         listOf("下方", "门边", "前方", "入口").any(text::contains) -> .67f
         listOf("正中", "中央", "中间", "中心").any(text::contains) -> .48f
         else -> fallback.second
     }
-    return x.coerceIn(.03f, .74f) to y.coerceIn(.08f, .72f)
+    val maxX = if (rug) .62f else .74f
+    val minY = if (rug) .62f else .08f
+    return x.coerceIn(.03f, maxX) to y.coerceIn(minY, .72f)
 }
 
 private fun defaultFurniturePlacement(kind: DigitalFurnitureKind, index: Int): Pair<Float, Float> {
@@ -701,7 +787,7 @@ private fun defaultFurniturePlacement(kind: DigitalFurnitureKind, index: Int): P
     return when (kind) {
         DigitalFurnitureKind.BED -> (if (alternate) .48f else .08f) to .34f
         DigitalFurnitureKind.SOFA -> (if (alternate) .49f else .10f) to .40f
-        DigitalFurnitureKind.RUG -> .27f to .67f
+        DigitalFurnitureKind.RUG -> .28f to .69f
         DigitalFurnitureKind.COFFEE_TABLE -> .38f to .56f
         DigitalFurnitureKind.TABLE -> (if (alternate) .12f else .53f) to .43f
         DigitalFurnitureKind.DESK -> (if (alternate) .51f else .09f) to .39f
@@ -710,22 +796,22 @@ private fun defaultFurniturePlacement(kind: DigitalFurnitureKind, index: Int): P
         DigitalFurnitureKind.CABINET -> (if (alternate) .71f else .05f) to .29f
         DigitalFurnitureKind.NIGHTSTAND -> (if (alternate) .67f else .20f) to .40f
         DigitalFurnitureKind.FLOOR_LAMP -> (if (alternate) .80f else .05f) to .35f
-        DigitalFurnitureKind.TABLE_LAMP -> (if (alternate) .66f else .24f) to .42f
+        DigitalFurnitureKind.TABLE_LAMP -> (if (alternate) .66f else .24f) to .40f
         DigitalFurnitureKind.PLANT -> (if (alternate) .78f else .06f) to .49f
         DigitalFurnitureKind.TV -> .57f to .28f
         DigitalFurnitureKind.MIRROR -> (if (alternate) .72f else .12f) to .10f
         DigitalFurnitureKind.WALL_ART -> (if (alternate) .62f else .17f) to .10f
         DigitalFurnitureKind.CLOCK -> (if (alternate) .76f else .28f) to .10f
-        DigitalFurnitureKind.CUSHION -> (if (alternate) .58f else .20f) to .57f
+        DigitalFurnitureKind.CUSHION -> (if (alternate) .58f else .20f) to .55f
         DigitalFurnitureKind.BASKET -> (if (alternate) .69f else .10f) to .58f
-        DigitalFurnitureKind.DECOR -> (if (alternate) .63f else .31f) to .50f
+        DigitalFurnitureKind.DECOR -> (if (alternate) .63f else .31f) to .48f
     }
 }
 
 internal fun stickerWidth(kind: DigitalFurnitureKind): Dp = when (kind) {
     DigitalFurnitureKind.BED -> 118.dp
     DigitalFurnitureKind.SOFA -> 108.dp
-    DigitalFurnitureKind.RUG -> 124.dp
+    DigitalFurnitureKind.RUG -> 128.dp
     DigitalFurnitureKind.COFFEE_TABLE -> 72.dp
     DigitalFurnitureKind.TABLE, DigitalFurnitureKind.DESK -> 80.dp
     DigitalFurnitureKind.SHELF, DigitalFurnitureKind.CABINET -> 64.dp
@@ -744,7 +830,7 @@ internal fun stickerWidth(kind: DigitalFurnitureKind): Dp = when (kind) {
 internal fun stickerHeight(kind: DigitalFurnitureKind): Dp = when (kind) {
     DigitalFurnitureKind.BED -> 82.dp
     DigitalFurnitureKind.SOFA -> 70.dp
-    DigitalFurnitureKind.RUG -> 64.dp
+    DigitalFurnitureKind.RUG -> 44.dp
     DigitalFurnitureKind.COFFEE_TABLE -> 48.dp
     DigitalFurnitureKind.TABLE, DigitalFurnitureKind.DESK -> 54.dp
     DigitalFurnitureKind.SHELF, DigitalFurnitureKind.CABINET -> 90.dp
