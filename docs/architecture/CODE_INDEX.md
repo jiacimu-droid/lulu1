@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`07b8dadcf68ac8daa3309dce667848d4b2b3b964`
+- 基准提交：`021aa059a6fa4e9b679e9a22be85cc793fb772a9`
 - 分支：`main`
 - 已索引文件：217
-- 已索引代码/文本行：65333
+- 已索引代码/文本行：65372
 - 已发现符号：876
 
 | 文件 | 行数 | 符号数 |
@@ -91,7 +91,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 342 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 280 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt` | 20 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt` | 186 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt` | 225 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 233 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt` | 45 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 921 | 32 |

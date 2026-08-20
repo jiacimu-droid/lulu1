@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-20T05:21:46.681509+00:00",
-  "commit": "07b8dadcf68ac8daa3309dce667848d4b2b3b964",
+  "generatedAt": "2026-08-20T05:22:41.592725+00:00",
+  "commit": "021aa059a6fa4e9b679e9a22be85cc793fb772a9",
   "branch": "main",
-  "sourceFingerprint": "8e228276e6bb38b6fb0004b0a6616a8ef595852b85e327587660cd9534ae12b2",
+  "sourceFingerprint": "b40370b953174fa6d2c8ed50adc5a98764cd9422759902ca2a41367e5e3ca6a6",
   "summary": {
     "files": 217,
-    "lines": 65333,
+    "lines": 65372,
     "symbols": 876
   },
   "symbolIndex": {
@@ -1737,19 +1737,19 @@
     "resolve": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt",
-        "line": 120
+        "line": 159
       }
     ],
     "promptOptions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt",
-        "line": 132
+        "line": 171
       }
     ],
     "kindLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt",
-        "line": 139
+        "line": 178
       }
     ],
     "CharacterLifeForm": [
@@ -6493,8 +6493,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt",
-      "lines": 186,
-      "sha256": "a4d691a603bdb38dc868b500dda129fc84c170952458d55b1d56d0b081ba12ee",
+      "lines": 225,
+      "sha256": "777ebc628dcd9a7ef1f937bf4dc2f9d3007659121b5b6694029bd0bfc7b1e0f4",
       "symbols": [
         {
           "name": "DigitalFurnitureKind",
@@ -6510,15 +6510,15 @@
         },
         {
           "name": "resolve",
-          "line": 120
+          "line": 159
         },
         {
           "name": "promptOptions",
-          "line": 132
+          "line": 171
         },
         {
           "name": "kindLabel",
-          "line": 139
+          "line": 178
         }
       ]
     },
