@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0b02c1ab8c60c8a6380b0f82ffb3a37b175a7b40`
+- 基准提交：`84b1db6930da91e9925fb2e236299750fcc7724f`
 - 分支：`main`
 - 已索引文件：217
-- 已索引代码/文本行：65830
+- 已索引代码/文本行：65916
 - 已发现符号：876
 
 | 文件 | 行数 | 符号数 |
@@ -22,7 +22,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt` | 9 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalFurnitureDialogs.kt` | 193 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalFurnitureStickerUi.kt` | 795 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalFurnitureStickerUi.kt` | 881 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 414 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 529 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt` | 334 | 2 |
