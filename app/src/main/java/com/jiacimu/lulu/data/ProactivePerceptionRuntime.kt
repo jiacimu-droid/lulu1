@@ -140,14 +140,14 @@ object ProactivePerceptionRuntime {
             val result = runCatching { evaluateCharacter(appContext, conversation, effectiveTrigger, now) }
             result.onSuccess { action ->
                 evaluated += 1
-                val silentKey = "silent_count_$characterId"
-                val nextSilent = if (action == Action.SILENT) prefs.getInt(silentKey, 0) + 1 else 0
                 val actionKey = "action_history_$characterId"
                 val actionHistory = prefs.getString(actionKey, "").orEmpty().split(',').map(String::trim)
                     .filter(String::isNotBlank).plus(action.name).takeLast(ACTION_HISTORY_SIZE)
-                prefs.edit().putInt(silentKey, nextSilent.coerceAtMost(4))
+                prefs.edit()
                     .putString(actionKey, actionHistory.joinToString(","))
-                    .putBoolean("pending_concern_promise_$characterId", false).apply()
+                    .putBoolean("pending_concern_promise_$characterId", false)
+                    .remove("silent_count_$characterId")
+                    .apply()
             }.onFailure { error ->
                 CompanionPresenceStore.recordPerceptionAttempt(
                     characterId,
@@ -174,15 +174,10 @@ object ProactivePerceptionRuntime {
         val lastEvaluation = prefs.getLong("last_evaluation_$characterId", 0L)
             .takeIf { it > 0L }?.let(Instant::ofEpochMilli)
         val anchor = listOfNotNull(lastChat, lastEvaluation).maxOrNull() ?: now
-        val pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false)
-        val multiplier = when {
-            pendingConcern -> 1.0
-            !policy.adaptiveFrequency -> 1.0
-            lastEvaluation == null || lastChat.isAfter(lastEvaluation) -> 1.0
-            else -> when (prefs.getInt("silent_count_$characterId", 0)) { 0 -> 1.0; 1 -> 1.5; else -> 2.0 }
-        }
-        val timingVariation = stableTimingVariation(characterId, anchor)
-        return deferPastQuietHours(anchor.plus(Duration.ofMinutes(policy.intervalMinutes(multiplier * timingVariation))), policy)
+        // Adaptive timing may make the wake moment feel less clockwork, but it must never punish a
+        // character for choosing SILENT or reward/penalize any particular action.
+        val timingVariation = if (policy.adaptiveFrequency) stableTimingVariation(characterId, anchor) else 1.0
+        return deferPastQuietHours(anchor.plus(Duration.ofMinutes(policy.intervalMinutes(timingVariation))), policy)
     }
 
     private fun stableTimingVariation(characterId: String, anchor: Instant): Double {
@@ -250,7 +245,6 @@ object ProactivePerceptionRuntime {
             it.groupChat?.members?.any { member -> member.characterId == characterId } == true
         }
         val onlineUnread = CompanionOnlineStore.unreadChatSnapshot(characterId)
-        if (trigger.startsWith("在线期间") && onlineUnread.text.isBlank()) return Action.SILENT
         val userActivities = collectUserActivities(characterId)
         val pendingUserContext = userActivities.filter(UserActivity::awaitingReply)
             .joinToString("\n") { formatUserActivity(it, zoneId) }
@@ -283,12 +277,12 @@ object ProactivePerceptionRuntime {
                 appendLine("\n【用户现实设备与用户状态感知层】")
                 appendLine("重要归属：下面的电量、前台应用、通知、位置、健康/手环和学习信息都属于用户本人或用户正在使用的现实设备，不属于角色自己的手机或身体。")
                 appendLine("触发来源：$trigger")
-                appendLine("本次判断：如果没有待处理的新消息，这仍是角色真实生活的一段时间，不是只能更新状态的空轮询。")
+                appendLine("本次判断：如果没有待处理的新消息，这仍是角色真实生活的一段时间，不是只能更新状态的空轮询；在线期间也不会因为没有未读消息就被系统强制 SILENT。")
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
                 appendLine("允许主动来电：${if (character.contactPolicy.proactiveCallsEnabled) "是" else "否"}")
                 if (recentAutonomousActions.isNotEmpty()) {
-                    appendLine("最近自主选择（旧→新）：${recentAutonomousActions.joinToString(" → ")}")
+                    appendLine("最近自主选择（旧→新，仅作为生活历史，不用于惩罚重复）：${recentAutonomousActions.joinToString(" → ")}")
                 }
                 if (readingBooks.isNotEmpty()) {
                     appendLine("阅读 App 中可独自阅读的内容：")
@@ -317,7 +311,7 @@ object ProactivePerceptionRuntime {
                 if (digitalWorldContext.isNotBlank()) appendLine(digitalWorldContext)
                 if (pendingUserContext.isNotBlank()) {
                     appendLine("【尚未回复的消息】")
-                    appendLine("以下消息都是用户在你上一次真实聊天回复之后新发来的，当前还没有收到你的回复：")
+                    appendLine("以下消息都是用户在你上一次真实聊天回复之后新发来的，当前还没有收到你的回复；这是事实信息，不是系统强制待办。")
                     appendLine(pendingUserContext)
                 }
                 if (recent.isNotBlank()) appendLine("【最近聊天与生活事件】\n$recent")
