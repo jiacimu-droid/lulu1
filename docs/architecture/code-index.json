@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-20T05:11:47.255177+00:00",
-  "commit": "49d0da456c0e3ba00c40ef2705242970f8466ce5",
+  "generatedAt": "2026-08-20T05:12:49.562283+00:00",
+  "commit": "0e806b0a038b77b672aabe8abd10752ccbe1e77b",
   "branch": "main",
-  "sourceFingerprint": "83194f628933eaa2045d55da76b8eee7e002071638d502970dea545ebe6eeb5a",
+  "sourceFingerprint": "d7ed73ffc418771f9c271006447bf6dc7f0846f9a289976393cdf703c3621bc7",
   "summary": {
     "files": 217,
-    "lines": 65250,
-    "symbols": 875
+    "lines": 65333,
+    "symbols": 876
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -287,7 +287,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-        "line": 21
+        "line": 99
       }
     ],
     "TaskContext": [
@@ -319,7 +319,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-        "line": 38
+        "line": 116
       }
     ],
     "launch": [
@@ -333,7 +333,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-        "line": 40
+        "line": 118
       }
     ],
     "stop": [
@@ -3312,6 +3312,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseCurrentSceneInventoryRepairV5.kt",
         "line": 69
+      }
+    ],
+    "hasAny": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
+        "line": 23
       }
     ],
     "concreteOwnsAggregate": [
@@ -7933,20 +7939,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-      "lines": 387,
-      "sha256": "cbeb42534001f0c1dcaab961e9950d1428511365a60805ca554a63521ecf3a2f",
+      "lines": 470,
+      "sha256": "9dcb8617b9aaf9c2c59d464aa2fba5a961a52372d173373fc25caf702a86d645",
       "symbols": [
         {
+          "name": "hasAny",
+          "line": 23
+        },
+        {
           "name": "TaskState",
-          "line": 21
+          "line": 99
         },
         {
           "name": "state",
-          "line": 38
+          "line": 116
         },
         {
           "name": "launch",
-          "line": 40
+          "line": 118
         }
       ]
     },
