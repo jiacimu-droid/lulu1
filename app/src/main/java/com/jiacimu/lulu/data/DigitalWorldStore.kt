@@ -193,7 +193,9 @@ object DigitalWorldStore {
                     val appearance = args.optString("appearance").trim().take(500)
                     val position = args.optString("position").trim().ifBlank { "主空间中由角色选择的空位" }.take(120)
                     require(name.isNotBlank() && appearance.isNotBlank()) { "建设物品必须有名称和明确外观" }
-                    require(itemsAtHome(characterId).none { it.name == name }) { "家中已经存在同名物品，应该调整原物品而不是重复创造" }
+                    // Multiple pieces may naturally share a human-facing name (two chairs, two lamps,
+                    // matching cushions, etc.). Stable item IDs, appearance and position distinguish them;
+                    // never turn naming into an artificial anti-repeat rule.
                     val item = DigitalWorldItem(
                         UUID.randomUUID().toString(),
                         characterId,
