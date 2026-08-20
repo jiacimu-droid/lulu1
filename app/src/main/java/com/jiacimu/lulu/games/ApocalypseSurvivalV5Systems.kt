@@ -72,19 +72,61 @@ internal fun ApocalypseSurvivalSnapshotV5(save: ApocalypseV3Save) {
         color = SystemNight,
         shape = RoundedCornerShape(20.dp),
     ) {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Icon(Icons.Outlined.Schedule, null, tint = Color(0xFF4EA8FF), modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(7.dp))
                 Text(
-                    "${apocalypseDayLabelV5(director.dayIndex)} · ${apocalypseClockLabelV5(director.clockMinutes)}",
+                    apocalypseDayLabelV5(director.dayIndex),
                     color = Color.White,
                     fontWeight = FontWeight.Black,
+                    fontSize = 16.sp,
+                    maxLines = 1,
+                )
+                Spacer(Modifier.width(10.dp))
+                Surface(
+                    color = Color(0xFF132236),
+                    shape = RoundedCornerShape(10.dp),
+                ) {
+                    Text(
+                        apocalypseClockLabelV5(director.clockMinutes),
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp,
+                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
+                        maxLines = 1,
+                    )
+                }
+            }
+            Text(
+                "${director.weather} · ${director.temperatureC}℃",
+                color = Color(0xFFAEC4D9),
+                fontSize = 10.sp,
+                lineHeight = 15.sp,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Icon(
+                    Icons.Outlined.Place,
+                    null,
+                    tint = Color(0xFF72B9FF),
+                    modifier = Modifier.padding(top = 1.dp).size(15.dp),
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    "${director.location} · ${apocalypseSurvivalConditionLabelV5(stats)}",
+                    color = Color(0xFFAEC4D9),
+                    fontSize = 11.sp,
+                    lineHeight = 16.sp,
                     modifier = Modifier.weight(1f),
                 )
-                Text("${director.weather} · ${director.temperatureC}℃", color = Color(0xFFAEC4D9), fontSize = 10.sp)
             }
-            Text("${director.location} · ${apocalypseSurvivalConditionLabelV5(stats)}", color = Color(0xFFAEC4D9), fontSize = 11.sp)
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 ApocalypseConditionValueV5("生命", stats.health, false)
                 ApocalypseConditionValueV5("体力", stats.stamina, false)
