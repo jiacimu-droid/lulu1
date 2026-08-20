@@ -29,9 +29,9 @@ data class CharacterSocialRelationshipSnapshot(
 }
 
 /**
- * Social familiarity is derived from real history instead of a hidden affection score.
- * A common group already means the characters know each other; completed shared meetings add
- * lived experience and gradually change how familiar their future interactions may feel.
+ * Social acquaintance is derived from real history instead of a hidden affection score or a
+ * numeric familiarity ladder. A common group already means the characters know each other;
+ * completed meetings are factual shared experience, but the count never auto-upgrades intimacy.
  */
 object CharacterSocialRelationship {
     fun snapshot(firstCharacterId: String, secondCharacterId: String): CharacterSocialRelationshipSnapshot {
@@ -66,10 +66,8 @@ object CharacterSocialRelationship {
         val lastMetAt = meetings.lastOrNull()?.let { it.endedAt ?: it.startedAt }
 
         val stage = when {
-            meetingCount >= 6 -> "经常来往"
-            meetingCount >= 3 -> "已经熟悉"
-            meetingCount >= 1 && commonGroups.isNotEmpty() -> "认识且见过面"
-            meetingCount >= 1 -> "已经见过面"
+            meetingCount > 0 && commonGroups.isNotEmpty() -> "共同群聊认识且真实见过面"
+            meetingCount > 0 -> "真实见过面"
             commonGroups.isNotEmpty() -> "共同群聊认识"
             else -> "尚未认识"
         }
@@ -102,9 +100,9 @@ object CharacterSocialRelationship {
             }
         }
         return buildString {
-            appendLine("【角色间已有社会关系｜由共同群聊和真实见面历史推导，不是好感度】")
+            appendLine("【角色间已有社会关系｜共同群聊与真实见面只是事实，不是好感度或升级条】")
             lines.forEach(::appendLine)
-            append("关系阶段只代表认识与来往经验，不自动代表喜欢、亲密、恋爱或敌意。")
+            append("见面次数没有自动升级阈值。是否变熟、亲近、疏远、喜欢、厌烦或维持原样，只能从实际相处内容、时间跨度、双方人设、记住彼此什么以及之后各自是否还想来往中自然形成。")
         }
     }
 }
