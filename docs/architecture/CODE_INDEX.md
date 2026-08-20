@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0b25661cebda3b8ff5d26cf56ec5de3b4d62d7d7`
+- 基准提交：`f7d62d80a98d0196653ee0b5996a40a7ed2f4307`
 - 分支：`main`
 - 已索引文件：217
-- 已索引代码/文本行：65667
+- 已索引代码/文本行：65711
 - 已发现符号：876
 
 | 文件 | 行数 | 符号数 |
@@ -124,7 +124,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseAbilityProgressionV5.kt` | 307 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseCastIdentityV5.kt` | 374 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt` | 459 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseChronologicalPlotRecallV5.kt` | 60 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseChronologicalPlotRecallV5.kt` | 104 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseCoreMysteryV5.kt` | 178 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseCurrentSceneInventoryRepairV5.kt` | 163 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseDramaticLedgerV5.kt` | 698 | 0 |
