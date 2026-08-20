@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`1177a2459bd3871305b77be3e984dde1351e1c63`
+- 基准提交：`49d0da456c0e3ba00c40ef2705242970f8466ce5`
 - 分支：`main`
 - 已索引文件：217
-- 已索引代码/文本行：65248
+- 已索引代码/文本行：65250
 - 已发现符号：875
 
 | 文件 | 行数 | 符号数 |
@@ -107,7 +107,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 26 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 873 | 44 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 732 | 14 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 26 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 28 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 96 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
