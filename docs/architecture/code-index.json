@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-20T05:53:41.525068+00:00",
-  "commit": "fe2c29829e8702f9bed9bd7444927a27541830aa",
+  "generatedAt": "2026-08-20T05:54:54.790923+00:00",
+  "commit": "c8102630bd48652cb1a80a167dc09e73a0619046",
   "branch": "main",
-  "sourceFingerprint": "e5ed331182b7f322e6603bd38a422ed4a48d0887741a18ea84738ed8e7c3a4fd",
+  "sourceFingerprint": "d185d7461c3437986699af6fe1fd679a95ca7aa38c098cfc7a0f3ba5f93a5503",
   "summary": {
     "files": 217,
-    "lines": 65705,
+    "lines": 65703,
     "symbols": 876
   },
   "symbolIndex": {
@@ -1457,13 +1457,13 @@
     "knowsEachOther": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 85
+        "line": 83
       }
     ],
     "contextForGroup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 88
+        "line": 86
       }
     ],
     "CharacterVoicePreferenceStore": [
@@ -6211,8 +6211,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-      "lines": 111,
-      "sha256": "c285df505fd32217c96ca5c8c6f201e3ab5acf0c7199f886f1baf2104b5f3293",
+      "lines": 109,
+      "sha256": "0db86b9772ce255b1d6da10eeb02f85256ac39513fe777b38fbcbe1dc2367fb2",
       "symbols": [
         {
           "name": "CharacterSocialRelationshipSnapshot",
@@ -6232,11 +6232,11 @@
         },
         {
           "name": "knowsEachOther",
-          "line": 85
+          "line": 83
         },
         {
           "name": "contextForGroup",
-          "line": 88
+          "line": 86
         }
       ]
     },
