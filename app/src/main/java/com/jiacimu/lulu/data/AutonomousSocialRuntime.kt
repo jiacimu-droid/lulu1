@@ -6,7 +6,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
 import org.json.JSONObject
-import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 
@@ -16,7 +15,6 @@ import java.util.UUID
  */
 internal object AutonomousSocialRuntime {
     private val encounterMutex = Mutex()
-    private val encounterCooldown: Duration = Duration.ofMinutes(15)
 
     suspend fun onWorldArrival(
         context: Context,
@@ -55,15 +53,10 @@ internal object AutonomousSocialRuntime {
                 session.location == location &&
                 session.participantIds.any { it in participantSet }
         }
+        // Only reject a genuinely overlapping live session. Once a meeting has ended, the same
+        // characters may meet again immediately if their own later movement brings them together.
+        // Repetition is a character choice, not a system cooldown policy.
         if (activeOverlap) return@withLock
-
-        val recentCutoff = now.minus(encounterCooldown)
-        val duplicateRecent = world.meetings.any { session ->
-            session.endedAt?.isAfter(recentCutoff) == true &&
-                session.location == location &&
-                session.participantIds.toSet() == participantSet
-        }
-        if (duplicateRecent) return@withLock
 
         val characters = participantIds.associateWith(MigratedDomainStores.characters::get)
         val names = participantIds.map { characters.getValue(it).displayName }
