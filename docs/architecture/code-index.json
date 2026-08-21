@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-21T12:07:25.802323+00:00",
-  "commit": "353c22c4546b2b35851f35cfa8bb9a960c581ca7",
+  "generatedAt": "2026-08-21T12:07:44.690802+00:00",
+  "commit": "c795133f006f6dddd5f6709674be9685afeea71e",
   "branch": "main",
-  "sourceFingerprint": "c3e98b34d032b0aac38ef23453ab80d8559a117ebd3c568c9599420de7e0c34a",
+  "sourceFingerprint": "0b57f8fe50b165beba9b0734456519f05afd0c4c46b59248d742d3c1de8647a2",
   "summary": {
     "files": 217,
-    "lines": 65957,
+    "lines": 65964,
     "symbols": 876
   },
   "symbolIndex": {
@@ -4539,13 +4539,13 @@
     "syncRollingPlan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
-        "line": 24
+        "line": 27
       }
     ],
     "ensureDailyReminders": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
-        "line": 37
+        "line": 40
       }
     ],
     "defaultPrompts": [
@@ -9280,8 +9280,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
-      "lines": 65,
-      "sha256": "88d6e752ac6717cd58c16bb1bd7f2b6a79cd8f3ef84f186f968a1163044e136a",
+      "lines": 72,
+      "sha256": "23956819aa86cdf3567a87bc8af39d10f44091ecf35b9042d618998c26925301",
       "symbols": [
         {
           "name": "SelfDirectedStudyPlanSeed",
@@ -9293,11 +9293,11 @@
         },
         {
           "name": "syncRollingPlan",
-          "line": 24
+          "line": 27
         },
         {
           "name": "ensureDailyReminders",
-          "line": 37
+          "line": 40
         }
       ]
     },
