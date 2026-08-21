@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-20T06:16:24.127809+00:00",
-  "commit": "84b1db6930da91e9925fb2e236299750fcc7724f",
+  "generatedAt": "2026-08-21T12:07:25.802323+00:00",
+  "commit": "353c22c4546b2b35851f35cfa8bb9a960c581ca7",
   "branch": "main",
-  "sourceFingerprint": "08ee92555e0b9733302bc687c72527bd75de3ce9807dbf66498001af064ead58",
+  "sourceFingerprint": "c3e98b34d032b0aac38ef23453ab80d8559a117ebd3c568c9599420de7e0c34a",
   "summary": {
     "files": 217,
-    "lines": 65916,
+    "lines": 65957,
     "symbols": 876
   },
   "symbolIndex": {
@@ -4517,7 +4517,7 @@
     "itemsFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt",
-        "line": 14
+        "line": 22
       }
     ],
     "SelfDirectedStudyPlanSeed": [
@@ -9269,12 +9269,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt",
-      "lines": 208,
-      "sha256": "4f9bfdd39c9fa4b9865936c7bc28c6ac7a43cb42ea693220796b89fc077fa031",
+      "lines": 249,
+      "sha256": "f421adf9ccc78a9c7088186545ebc92f01435fcc9dffee5a8c9851e77ee07e3d",
       "symbols": [
         {
           "name": "itemsFor",
-          "line": 14
+          "line": 22
         }
       ]
     },
