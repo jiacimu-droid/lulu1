@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-02T07:06:03.666675+00:00",
-  "commit": "b9b8d3fe07e39818762756d16bf597ebc03012ca",
+  "generatedAt": "2026-09-02T07:38:15.225162+00:00",
+  "commit": "5841cab5faaf62043b4174053b8a5efd48c09aa5",
   "branch": "main",
-  "sourceFingerprint": "820595dda1ec9534d1b4e32e1b3d05771245d5e1ab9a8d89d60b5c43d440b924",
+  "sourceFingerprint": "f703126e3f1f79c45f277463181935bb176453520f01de17ecd277703534ff5e",
   "summary": {
-    "files": 218,
-    "lines": 66769,
-    "symbols": 887
+    "files": 219,
+    "lines": 67203,
+    "symbols": 895
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -157,7 +157,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 82
+        "line": 85
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
@@ -1715,7 +1715,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 656
+        "line": 710
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -1840,6 +1840,36 @@
         "line": 11
       }
     ],
+    "optionsFor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
+        "line": 10
+      }
+    ],
+    "promptFor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
+        "line": 85
+      }
+    ],
+    "itemActivitySummary": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
+        "line": 90
+      }
+    ],
+    "locationOptions": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
+        "line": 132
+      }
+    ],
+    "locationActivitySummary": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
+        "line": 151
+      }
+    ],
     "tick": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -1859,7 +1889,19 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 133
+        "line": 139
+      }
+    ],
+    "blockingSummaryForItem": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
+        "line": 129
+      }
+    ],
+    "handle": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
+        "line": 144
       }
     ],
     "DigitalWorldNavigationStore": [
@@ -1976,92 +2018,98 @@
         "line": 127
       }
     ],
-    "locationOf": [
+    "itemsAtLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
         "line": 130
       }
     ],
+    "locationOf": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
+        "line": 136
+      }
+    ],
     "performAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 169
+        "line": 185
       }
     ],
     "startMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 268
+        "line": 322
       }
     ],
     "appendMeetingTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 329
+        "line": 383
       }
     ],
     "meetingLocationOptions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 348
+        "line": 402
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 375
+        "line": 429
       }
     ],
     "invitationLocationOptions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 368
+        "line": 422
       }
     ],
     "moveMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 378
+        "line": 432
       }
     ],
     "endMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 432
+        "line": 486
       }
     ],
     "deleteMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 457
+        "line": 511
       }
     ],
     "deleteMeetingExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 481
+        "line": 535
       }
     ],
     "rewindMeetingExchanges": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 514
+        "line": 568
       }
     ],
     "pruneEmptyMeetings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 568
+        "line": 622
       }
     ],
     "recordMeetingTimeline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 575
+        "line": 629
       }
     ],
     "meetingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 600
+        "line": 654
       }
     ],
     "InMemoryMemoryRepository": [
@@ -2925,13 +2973,13 @@
     "markConcernPromisePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 87
+        "line": 90
       }
     ],
     "nextDueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 94
+        "line": 97
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -6410,7 +6458,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 334,
-      "sha256": "ae077b7267a37a4e3944476eb7da01d6011b685ad80a0ade7493a70490b2da69",
+      "sha256": "6ead3f332e58b6581b527e6dbc2c5a19af71cb439004ea52b735888ad7164482",
       "symbols": [
         {
           "name": "asJson",
@@ -6654,9 +6702,36 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
+      "lines": 173,
+      "sha256": "91bae4b5f20dfed307c64a779a49727b1164ccf8cc032ae670e49028b8a7bd3c",
+      "symbols": [
+        {
+          "name": "optionsFor",
+          "line": 10
+        },
+        {
+          "name": "promptFor",
+          "line": 85
+        },
+        {
+          "name": "itemActivitySummary",
+          "line": 90
+        },
+        {
+          "name": "locationOptions",
+          "line": 132
+        },
+        {
+          "name": "locationActivitySummary",
+          "line": 151
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-      "lines": 371,
-      "sha256": "845305b6952f798b0c1e04d9dea369b04a081bae0be65b88f89bf4e2021dbae9",
+      "lines": 568,
+      "sha256": "d019abe212f12238c0dbf27bca36d0d3fc40d3b99adb9d46edd4bdfa81fd8997",
       "symbols": [
         {
           "name": "initialize",
@@ -6677,6 +6752,14 @@
         {
           "name": "clearCharacter",
           "line": 118
+        },
+        {
+          "name": "blockingSummaryForItem",
+          "line": 129
+        },
+        {
+          "name": "handle",
+          "line": 144
         }
       ]
     },
@@ -6709,8 +6792,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 925,
-      "sha256": "862f6fbb3310a279f56a30448693b05adf8d6f653907292249fefabeae9bdb5a",
+      "lines": 979,
+      "sha256": "37f9d2e7877019c92efdb1d520905ea60f9c27e0c35ce4afca8fa694564720a6",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -6773,72 +6856,76 @@
           "line": 127
         },
         {
-          "name": "locationOf",
+          "name": "itemsAtLocation",
           "line": 130
         },
         {
+          "name": "locationOf",
+          "line": 136
+        },
+        {
           "name": "contextFor",
-          "line": 133
+          "line": 139
         },
         {
           "name": "performAction",
-          "line": 169
+          "line": 185
         },
         {
           "name": "startMeeting",
-          "line": 268
+          "line": 322
         },
         {
           "name": "appendMeetingTurn",
-          "line": 329
+          "line": 383
         },
         {
           "name": "meetingLocationOptions",
-          "line": 348
+          "line": 402
         },
         {
           "name": "invitationLocationOptions",
-          "line": 368
+          "line": 422
         },
         {
           "name": "meetingLocationOptions",
-          "line": 375
+          "line": 429
         },
         {
           "name": "moveMeeting",
-          "line": 378
-        },
-        {
-          "name": "endMeeting",
           "line": 432
         },
         {
+          "name": "endMeeting",
+          "line": 486
+        },
+        {
           "name": "deleteMeeting",
-          "line": 457
+          "line": 511
         },
         {
           "name": "deleteMeetingExchange",
-          "line": 481
+          "line": 535
         },
         {
           "name": "rewindMeetingExchanges",
-          "line": 514
-        },
-        {
-          "name": "pruneEmptyMeetings",
           "line": 568
         },
         {
+          "name": "pruneEmptyMeetings",
+          "line": 622
+        },
+        {
           "name": "recordMeetingTimeline",
-          "line": 575
+          "line": 629
         },
         {
           "name": "meetingContext",
-          "line": 600
+          "line": 654
         },
         {
           "name": "clearCharacter",
-          "line": 656
+          "line": 710
         }
       ]
     },
@@ -7519,8 +7606,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 28,
-      "sha256": "f4fea6e35e960d34881984fcf560340f40a12dfdc48a0ac4e0d53e735425c73f",
+      "lines": 29,
+      "sha256": "ad7e5023b057f78e5d3a62ab3246b4e6082926cda3efc9e2b708ba54d26c8e18",
       "symbols": []
     },
     {
@@ -7618,8 +7705,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 752,
-      "sha256": "6533935cba74677c2a8e35724be5c7e4429db588ada65ef3d57f893515be9c5a",
+      "lines": 761,
+      "sha256": "6cac0b11b2c3356e06107940901bccbed0f4f84f46c4a2a54339f64686459c03",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -7627,15 +7714,15 @@
         },
         {
           "name": "initialize",
-          "line": 82
+          "line": 85
         },
         {
           "name": "markConcernPromisePending",
-          "line": 87
+          "line": 90
         },
         {
           "name": "nextDueAt",
-          "line": 94
+          "line": 97
         }
       ]
     },

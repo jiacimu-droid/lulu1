@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`b9b8d3fe07e39818762756d16bf597ebc03012ca`
+- 基准提交：`5841cab5faaf62043b4174053b8a5efd48c09aa5`
 - 分支：`main`
-- 已索引文件：218
-- 已索引代码/文本行：66769
-- 已发现符号：887
+- 已索引文件：219
+- 已索引代码/文本行：67203
+- 已发现符号：895
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -93,9 +93,10 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt` | 20 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt` | 225 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 233 | 16 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 371 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt` | 173 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 568 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt` | 45 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 925 | 32 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 979 | 33 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 325 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt` | 164 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
@@ -108,11 +109,11 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 26 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 873 | 44 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 732 | 14 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 28 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 29 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 96 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 752 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 761 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 170 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 436 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
