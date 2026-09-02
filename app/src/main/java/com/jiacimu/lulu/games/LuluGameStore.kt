@@ -337,7 +337,7 @@ class LuluGameStore internal constructor(context: Context) {
             "signal_hunt" -> {
                 val signalCells = (0..8).shuffled(random).take(3).toSet()
                 val route = (0..8).shuffled(random).take(5)
-                val moves = buildList {
+                val moves = buildList<SignalHuntMove> {
                     route.forEach { cell ->
                         if (count { it.foundSignal } >= 3) return@forEach
                         val found = cell in signalCells
