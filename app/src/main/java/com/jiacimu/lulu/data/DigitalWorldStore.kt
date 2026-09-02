@@ -128,6 +128,12 @@ object DigitalWorldStore {
     fun itemsAtHome(characterId: String): List<DigitalWorldItem> =
         mutable.value.items.filter { it.ownerCharacterId == characterId }.sortedBy(DigitalWorldItem::createdAt)
 
+    fun itemsAtLocation(characterId: String): List<DigitalWorldItem> {
+        val location = locationOf(characterId)
+        if (!location.startsWith("home:")) return emptyList()
+        return itemsAtHome(location.removePrefix("home:"))
+    }
+
     fun locationOf(characterId: String): String = mutable.value.characterLocations[characterId]
         ?: if (DigitalLifeProfileStore.isEnabled(characterId)) homeLocation(characterId) else "现实世界"
 
@@ -136,6 +142,8 @@ object DigitalWorldStore {
         val character = MigratedDomainStores.characters.get(characterId)
         val home = runCatching { ensureHome(characterId, character.displayName) }.getOrNull()
         val items = itemsAtHome(characterId)
+        val currentLocationCode = locationOf(characterId)
+        val currentItems = itemsAtLocation(characterId)
         val recentEvents = mutable.value.events.filter { it.characterId == characterId }.takeLast(12)
         val knownDigitalIds = MigratedDomainStores.chat.conversations.value
             .asSequence()
@@ -154,6 +162,14 @@ object DigitalWorldStore {
                 appendLine("- itemId=${item.id}；${item.name}；${item.appearance}；位置=${item.position}")
             }
             appendLine("共享区域：云眠原。云由可承托数字身体的感官云质构成，能传递柔软、温度、重量和包裹感，不是现实水汽。")
+            if (currentItems.isNotEmpty()) {
+                appendLine("当前位置可真实使用的家具：")
+                appendLine(DigitalWorldActivityCatalog.promptFor(currentItems))
+            }
+            val locationActivities = DigitalWorldActivityCatalog.locationOptions(currentLocationCode)
+            if (locationActivities.isNotEmpty()) {
+                appendLine("当前位置可执行 activityId：${locationActivities.joinToString("/") { (id, label) -> "$id=$label" }}")
+            }
             if (knownDigitalIds.isNotEmpty()) {
                 appendLine("已经通过共同群聊认识、可以串门的数字生命：")
                 knownDigitalIds.forEach { id ->
@@ -231,6 +247,44 @@ object DigitalWorldStore {
                         ?: error("没有找到属于该角色的物品")
                     mutable.value = mutable.value.copy(items = mutable.value.items.filterNot { it.id == itemId })
                     "${character.displayName}从家中移除了“${item.name}”。"
+                }
+                "use_home_item" -> {
+                    val currentLocation = locationOf(characterId)
+                    require(currentLocation.startsWith("home:")) { "当前地点没有可使用的家具" }
+                    val itemId = args.optString("itemId").trim()
+                    val activityId = args.optString("activityId").trim().lowercase()
+                    val ownerId = currentLocation.removePrefix("home:")
+                    val item = mutable.value.items.firstOrNull { it.id == itemId && it.ownerCharacterId == ownerId }
+                        ?: error("指定家具不在角色当前所在地点")
+                    val blocked = DigitalWorldLifeEventStore.blockingSummaryForItem(item.id)
+                    require(blocked == null || activityId !in setOf("lie_down", "rest", "nap", "sleep", "sit", "curl_up")) {
+                        "这件家具正受未解决事件影响，暂时不能安心休息：$blocked"
+                    }
+                    DigitalWorldActivityCatalog.itemActivitySummary(
+                        character.displayName,
+                        item,
+                        activityId,
+                    ) ?: error("该家具不支持这个真实活动")
+                }
+                "use_location" -> {
+                    val locationCode = locationOf(characterId)
+                    val activityId = args.optString("activityId").trim().lowercase()
+                    DigitalWorldActivityCatalog.locationActivitySummary(
+                        character.displayName,
+                        locationCode,
+                        activityId,
+                        locationLabel(locationCode),
+                    ) ?: error("当前位置不支持这个真实活动")
+                }
+                "handle_incident" -> {
+                    val incidentId = args.optString("incidentId").trim()
+                    val approach = args.optString("approach").trim().lowercase()
+                    DigitalWorldLifeEventStore.handle(
+                        characterId = characterId,
+                        incidentId = incidentId,
+                        approach = approach,
+                        now = now,
+                    ).summary
                 }
                 "visit_character_home" -> {
                     val targetId = args.optString("targetCharacterId").trim()

@@ -70,6 +70,9 @@ object ProactivePerceptionRuntime {
         val position: String,
         val targetCharacterId: String,
         val location: String,
+        val activityId: String,
+        val incidentId: String,
+        val approach: String,
     )
 
     private data class UserActivity(
@@ -441,6 +444,9 @@ object ProactivePerceptionRuntime {
             put("position", decision.position)
             put("targetCharacterId", decision.targetCharacterId)
             put("location", decision.location)
+            put("activityId", decision.activityId)
+            put("incidentId", decision.incidentId)
+            put("approach", decision.approach)
         }
         val result = CompanionActionRuntime.execute(appContext, character.characterId, tool, args, now)
         if (!result.success) {
@@ -644,6 +650,9 @@ object ProactivePerceptionRuntime {
             position = json.optString("position").trim(),
             targetCharacterId = json.optString("targetCharacterId").trim(),
             location = json.optString("location").trim(),
+            activityId = json.optString("activityId").trim().lowercase(),
+            incidentId = json.optString("incidentId").trim(),
+            approach = json.optString("approach").trim().lowercase(),
         )
     }.getOrNull()
 
