@@ -33,6 +33,7 @@ import java.time.format.DateTimeFormatter
 
 private sealed interface GameRoute {
     data object Home : GameRoute
+    data object SignalHunt : GameRoute
     data object PerfectMan : GameRoute
     data object Roleplay : GameRoute
     data object TurtleSoup : GameRoute
@@ -127,6 +128,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null) {
         Box(Modifier.fillMaxSize().padding(padding)) {
             when (val current = route) {
                 GameRoute.Home -> GameHome(onOpen = { pendingRoute = it })
+                GameRoute.SignalHunt -> SignalHuntScreen(store)
                 GameRoute.PerfectMan -> PerfectManScreen(store)
                 GameRoute.Roleplay -> Unit
                 GameRoute.TurtleSoup -> TurtleSoupScreen(store)
@@ -146,6 +148,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null) {
 
 private fun GameRoute.title(): String = when (this) {
     GameRoute.Home -> "游戏"
+    GameRoute.SignalHunt -> "信号追踪"
     GameRoute.PerfectMan -> "满分男"
     GameRoute.Roleplay -> "跑团"
     GameRoute.TurtleSoup -> "海龟汤"
@@ -158,6 +161,7 @@ private fun GameRoute.title(): String = when (this) {
 }
 
 private fun String?.toGameRouteOrHome(): GameRoute = when (this?.trim()?.lowercase()) {
+    "signal_hunt" -> GameRoute.SignalHunt
     "perfect_man" -> GameRoute.PerfectMan
     "roleplay" -> GameRoute.Roleplay
     "turtle_soup" -> GameRoute.TurtleSoup
@@ -173,6 +177,7 @@ private fun GameHome(
     onOpen: (GameRoute) -> Unit,
 ) {
     val games = listOf(
+        GameLauncher("signal_hunt", "信号追踪", "三枚真实信号、最多探测五格，完整路线会保存。", Icons.Outlined.Radar, GameRoute.SignalHunt),
         GameLauncher("perfect_man", "满分男", "轮流描述与猜分，由角色真实判断。", Icons.Outlined.PersonSearch, GameRoute.PerfectMan),
         GameLauncher("roleplay", "跑团", "长期剧情存档、同行小队与沉浸式小说叙事。", Icons.Outlined.AutoStories, GameRoute.Roleplay, 1, 4),
         GameLauncher("turtle_soup", "海龟汤", "固定汤底、自由提问与共同推理。", Icons.Outlined.HelpOutline, GameRoute.TurtleSoup, 1, 3),
@@ -272,7 +277,7 @@ private fun GameParticipantPickerScreen(
 private fun GameRoute.playerLimits(): Pair<Int, Int> = when (this) {
     GameRoute.Roleplay -> 1 to 4
     GameRoute.TurtleSoup, GameRoute.RapportQuiz, GameRoute.YachtDice -> 1 to 3
-    GameRoute.PerfectMan, GameRoute.Gomoku, GameRoute.MemoryMatch -> 1 to 1
+    GameRoute.SignalHunt, GameRoute.PerfectMan, GameRoute.Gomoku, GameRoute.MemoryMatch -> 1 to 1
     else -> 1 to 1
 }
 

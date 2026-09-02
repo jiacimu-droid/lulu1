@@ -97,6 +97,7 @@ object DigitalWorldStore {
         if (prefs != null) return
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         mutable.value = decode(prefs?.getString(KEY_STATE, null))
+        DigitalWorldLifeEventStore.initialize(context.applicationContext)
     }
 
     fun homeLocation(characterId: String): String = "home:$characterId"
@@ -654,6 +655,7 @@ object DigitalWorldStore {
     }.trim()
 
     fun clearCharacter(characterId: String) {
+        DigitalWorldLifeEventStore.clearCharacter(characterId)
         synchronized(lock) {
             mutable.value = mutable.value.copy(
                 homes = mutable.value.homes - characterId,

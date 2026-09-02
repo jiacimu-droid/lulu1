@@ -6,6 +6,7 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.core.LexiconEntry
 import com.jiacimu.lulu.core.LexiconSection
 import com.jiacimu.lulu.health.HealthRolePerception
+import com.jiacimu.lulu.games.LuluGames
 import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.ReadingBackgroundBridge
 import org.json.JSONObject
@@ -27,6 +28,7 @@ internal data class CompanionActionResult(
 /** One real execution layer shared by foreground chat decisions and background perception. */
 internal object CompanionActionRuntime {
     private val gameTitles = mapOf(
+        "signal_hunt" to "信号追踪",
         "roleplay" to "跑团",
         "turtle_soup" to "海龟汤",
         "yacht_dice" to "快艇骰子",
@@ -43,6 +45,7 @@ internal object CompanionActionRuntime {
         appendLine("角色可执行的露露机内动作（前台聊天与后台主动感知共用同一个真实执行层）：")
         appendLine("- send_private_message，args={\"text\":\"私聊内容\"}：一对一找用户说话。适合明确有一件事想对用户本人说、继续两人的话题或关系，不是公开生活播报。")
         appendLine("- send_game_invite，args={\"gameId\":\"游戏ID\",\"text\":\"邀请语\"}：在角色私聊中发送可点击的游戏邀请。")
+        appendLine("- play_solo_game，args={\"gameId\":\"signal_hunt|memory_match\"}：由游戏馆真实规则自动跑完一局并保存准确过程、分数和独自游戏记录；角色不能自己编输赢。")
         appendLine("- publish_moment，args={\"text\":\"动态正文\"}：朋友圈是公开分享日常。角色有好笑、惊讶、烦人、得意、失败、沉迷、值得吐槽或想让熟人看见的小事时，可以像真人一样随手发；朋友圈不是稀有动作，也不是定期打卡。")
         appendLine("- write_journal，args={\"title\":\"标题\",\"content\":\"正文\"}：日记是角色私下整理自己、消化情绪、保存想法与经历的地方，不是绕路给用户传话。")
         appendLine("- start_call，args={\"text\":\"为什么此刻想打电话\"}：仅在角色已允许主动来电时发起真正的来电。会进入待接听状态并触发来电通知，不再伪装成一条聊天消息。")
@@ -82,10 +85,12 @@ internal object CompanionActionRuntime {
             appendLine("角色所在群聊：")
             groups.forEach { conversation -> appendLine("- groupId=${conversation.id}；群名=${conversation.groupChat?.name}") }
         }
-        val books = ReadingBackgroundBridge.books(context).take(24)
+        val books = ReadingBackgroundBridge.availableBooks(context, characterId).take(24)
         if (books.isNotEmpty()) {
-            appendLine("可真实阅读的内容：")
-            books.forEach { book -> appendLine("- readingBookId=${book.id}；${book.title}；来源=${book.source}") }
+            appendLine("可真实继续阅读的内容：")
+            books.forEach { book ->
+                appendLine("- readingBookId=${book.id}；${book.title}；来源=${book.source}；${ReadingBackgroundBridge.progressLabel(context, characterId, book)}")
+            }
         }
     }.trim()
 
@@ -195,6 +200,15 @@ internal object CompanionActionRuntime {
                 CompanionActionResult(true, "已写入日记《$title》")
             }
             "read_book" -> readBook(context, character, args.optString("readingBookId").trim(), now)
+            "play_solo_game" -> {
+                val gameId = args.optString("gameId").trim().lowercase()
+                require(gameId in setOf("signal_hunt", "memory_match")) { "独自游戏只能选择游戏馆中已支持自动结算的真实游戏" }
+                LuluGames.initialize(context)
+                val played = LuluGames.store.playAutonomousGame(characterId, gameId, now)
+                    ?: error("游戏馆未能完成这局游戏")
+                MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "刚刚在游戏馆${played.summary}")
+                CompanionActionResult(true, played.summary)
+            }
             "start_call" -> {
                 require(character.contactPolicy.proactiveCallsEnabled) { "该角色未开启主动来电" }
                 val reason = args.optString("text").trim()
@@ -242,7 +256,7 @@ internal object CompanionActionRuntime {
             }
             else -> error("未知露露机动作：$action")
         }
-        if (result.success && normalizedAction != "digital_world_action") {
+        if (result.success && normalizedAction !in setOf("digital_world_action", "play_solo_game")) {
             SharedExperienceTimeline.record(
                 eventId = "character-activity-${UUID.randomUUID()}",
                 characterId = characterId,
@@ -271,30 +285,49 @@ internal object CompanionActionRuntime {
         readingBookId: String,
         now: Instant,
     ): CompanionActionResult {
-        val book = ReadingBackgroundBridge.books(context).firstOrNull { it.id == readingBookId }
-            ?: return CompanionActionResult(false, "没有找到指定阅读内容")
+        val slice = ReadingBackgroundBridge.nextSlice(context, character.characterId, readingBookId)
+            ?: return CompanionActionResult(false, "没有找到指定阅读内容，或者这份内容已经读完")
         val reflection = LuluAiServices.gateway.generate(
             characterId = character.characterId,
-            facts = "你刚刚决定独自去阅读 App 里读《${book.title}》。\n正文：\n${book.content.take(12_000)}",
-            instruction = "认真读提供的正文，写下角色本人真实的阅读感想。不是给用户做书评，不续写，不冒充作者。用角色第一人称，1—3段，只输出感想正文。",
-            source = "角色行动·阅读",
-            title = "${character.displayName}阅读《${book.title}》",
+            facts = buildString {
+                appendLine("程序已经让你真实读取阅读 App 中《${slice.book.title}》的下一段。")
+                appendLine("权威进度：字符 ${slice.startOffset}—${slice.endOffset} / ${slice.totalLength}；本段之后${if (slice.completed) "已读完" else "尚未读完"}。")
+                appendLine("以下是唯一实际读到的原文，不得补写不存在的内容：")
+                append(slice.text)
+            },
+            instruction = "只根据提供的真实原文，写下角色本人此刻的阅读感想。不是给用户做书评，不续写，不冒充作者，不声称读到未提供的部分。用角色第一人称，1—3段，只输出感想正文。",
+            source = "角色行动·连续阅读",
+            title = "${character.displayName}继续读《${slice.book.title}》",
             temperature = 0.82,
             maxTokens = 700,
         ).getOrNull()?.text?.trim().orEmpty()
-        if (reflection.isBlank()) return CompanionActionResult(false, "阅读感想生成失败")
+        val factualReceipt = "真实阅读《${slice.book.title}》字符 ${slice.startOffset}—${slice.endOffset}/${slice.totalLength}${if (slice.completed) "，已读完" else "，下次从 ${slice.endOffset} 继续"}"
+        val timelineContent = buildString {
+            appendLine(factualReceipt)
+            if (reflection.isNotBlank()) {
+                append("阅读感想：")
+                append(reflection.take(2_000))
+            }
+        }.trim()
         SharedExperienceTimeline.record(
             eventId = "reading-alone-${UUID.randomUUID()}",
             characterId = character.characterId,
-            channel = "独自阅读《${book.title}》",
+            channel = "独自阅读《${slice.book.title}》",
             speaker = character.displayName,
-            content = reflection.take(2_000),
+            content = timelineContent,
             occurredAt = now,
         )
         MigratedDomainStores.chat.appendPrivateActivityNotice(
             character.characterId,
-            "刚刚读了《${book.title}》，留下了一点感想：${reflection.replace(Regex("\\s+"), " ").take(180)}",
+            buildString {
+                append("刚刚")
+                append(factualReceipt)
+                if (reflection.isNotBlank()) {
+                    append("；留下感想：")
+                    append(reflection.replace(Regex("\\s+"), " ").take(180))
+                }
+            },
         )
-        return CompanionActionResult(true, "已真正阅读《${book.title}》并留下感想")
+        return CompanionActionResult(true, factualReceipt)
     }
 }

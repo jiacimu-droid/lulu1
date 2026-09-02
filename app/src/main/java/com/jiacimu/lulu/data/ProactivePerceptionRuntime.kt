@@ -47,7 +47,7 @@ object ProactivePerceptionRuntime {
     private const val ACTION_HISTORY_SIZE = 10
     private val cycleMutex = Mutex()
 
-    private enum class Action { MESSAGE, GROUP_MESSAGE, GAME_INVITE, WORLD_INVITE, MOMENT, CALL, JOURNAL, READING, DIGITAL_WORLD, SILENT }
+    private enum class Action { MESSAGE, GROUP_MESSAGE, GAME_INVITE, SOLO_GAME, WORLD_INVITE, MOMENT, CALL, JOURNAL, READING, DIGITAL_WORLD, SILENT }
 
     private data class Decision(
         val action: Action,
@@ -70,9 +70,6 @@ object ProactivePerceptionRuntime {
         val position: String,
         val targetCharacterId: String,
         val location: String,
-        val lifeEventType: String,
-        val lifeEvent: String,
-        val lifeEventImpact: String,
     )
 
     private data class UserActivity(
@@ -229,6 +226,9 @@ object ProactivePerceptionRuntime {
     ): Action {
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val character = MigratedDomainStores.characters.get(characterId)
+        val worldTick = if (DigitalLifeProfileStore.isEnabled(characterId)) {
+            DigitalWorldLifeEventStore.tick(appContext, characterId, now)
+        } else null
         val messages = MigratedDomainStores.chat.messages(conversation.id).value
         val zoneId = ZoneId.systemDefault()
         val localTimeText = now.atZone(zoneId).format(
@@ -263,9 +263,10 @@ object ProactivePerceptionRuntime {
         }
         val recentLifeContext = SharedExperienceTimeline.all(characterId)
             .filter { event ->
-                event.channel.startsWith("角色生活") ||
+                event.channel.startsWith("数字世界事件") ||
                     event.channel.startsWith("数字世界·生活片段") ||
-                    event.channel.startsWith("独自阅读")
+                    event.channel.startsWith("独自阅读") ||
+                    event.channel.startsWith("独自游戏")
             }
             .takeLast(12)
             .joinToString("\n") { event ->
@@ -278,9 +279,12 @@ object ProactivePerceptionRuntime {
             .joinToString("\n") { "- ${it.title}：${it.content}" }
         val previousPresence = CompanionPresenceStore.current(characterId)
         val deviceContext = buildRealWorldContext(appContext, characterId, now)
-        val readingBooks = ReadingBackgroundBridge.books(appContext).take(24)
+        val readingBooks = ReadingBackgroundBridge.availableBooks(appContext, characterId).take(24)
         val digitalWorldContext = if (DigitalLifeProfileStore.isEnabled(characterId)) {
-            DigitalWorldStore.contextFor(characterId)
+            listOf(
+                DigitalWorldStore.contextFor(characterId),
+                DigitalWorldLifeEventStore.contextFor(characterId),
+            ).filter(String::isNotBlank).joinToString("\n")
         } else ""
 
         val result = LuluAiServices.gateway.generate(
@@ -299,7 +303,9 @@ object ProactivePerceptionRuntime {
                 }
                 if (readingBooks.isNotEmpty()) {
                     appendLine("阅读 App 中可独自阅读的内容：")
-                    readingBooks.forEach { appendLine("- readingBookId=${it.id}；${it.title}；来源=${it.source}") }
+                    readingBooks.forEach {
+                        appendLine("- readingBookId=${it.id}；${it.title}；来源=${it.source}；${ReadingBackgroundBridge.progressLabel(appContext, characterId, it)}")
+                    }
                 }
                 if (availableGroups.isNotEmpty()) {
                     appendLine("所在群聊：")
@@ -326,6 +332,11 @@ object ProactivePerceptionRuntime {
                 if (concerns.isNotBlank()) appendLine("【挂心】\n$concerns")
                 if (commitments.isNotBlank()) appendLine("【承诺与监督】\n$commitments")
                 if (digitalWorldContext.isNotBlank()) appendLine(digitalWorldContext)
+                worldTick?.let {
+                    appendLine("【本轮数字世界程序事件｜不可改写】")
+                    appendLine(it.summary)
+                    appendLine("incidentId=${it.incidentId}；status=${it.status}；stage=${it.stage}；anchorItemId=${it.anchorItemId}")
+                }
                 if (pendingUserContext.isNotBlank()) {
                     appendLine("【尚未回复的消息】")
                     appendLine("以下消息都是用户在你上一次真实聊天回复之后新发来的，当前还没有收到你的回复；这是事实信息，不是系统强制待办。")
@@ -345,7 +356,7 @@ object ProactivePerceptionRuntime {
                 sceneContext = "后台主动感知 · $trigger",
                 recentContext = listOf(recent, recentLifeContext, concerns, commitments)
                     .filter(String::isNotBlank).joinToString("\n"),
-                taskIntent = "先延续并生成角色自己的具体生活片段，再根据角色本人分享冲动决定行动或保持安静",
+                taskIntent = "只依据程序已记录的真实状态选择可执行动作；可对本轮权威事件产生反应，但不得生成新的事实",
             ),
         ).getOrElse { error ->
             CompanionPresenceStore.recordPerceptionAttempt(
@@ -366,21 +377,13 @@ object ProactivePerceptionRuntime {
             "后台主动感知",
             now,
         )
-        recordLifeEvent(character, decision, now)
         val execution = performAction(appContext, character, decision, availableGroups, now)
         val interactiveWake = trigger.contains("呼唤") || trigger.startsWith("在线期间")
         if (decision.action == Action.SILENT && !interactiveWake) {
             MigratedDomainStores.chat.appendPrivateActivityNotice(
                 characterId,
-                if (decision.lifeEvent.isNotBlank()) {
-                    buildString {
-                        append("刚刚经历了一点自己的生活：")
-                        append(decision.lifeEvent.take(220))
-                        decision.lifeEventImpact.takeIf(String::isNotBlank)?.let { append(" · ").append(it.take(100)) }
-                    }
-                } else {
-                    "刚刚更新了自己的此刻：${decision.statusText}${decision.mood.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()}"
-                },
+                worldTick?.summary?.let { "刚刚经历了数字世界程序事件：${it.take(260)}" }
+                    ?: "刚刚更新了自己的此刻：${decision.statusText}${decision.mood.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()}",
             )
         } else if (decision.action != Action.SILENT && !execution.success) {
             MigratedDomainStores.chat.appendPrivateActivityNotice(
@@ -414,6 +417,7 @@ object ProactivePerceptionRuntime {
             Action.MESSAGE -> "send_private_message"
             Action.GROUP_MESSAGE -> "send_group_message"
             Action.GAME_INVITE -> "send_game_invite"
+            Action.SOLO_GAME -> "play_solo_game"
             Action.WORLD_INVITE -> "send_world_invite"
             Action.MOMENT -> "publish_moment"
             Action.CALL -> "start_call"
@@ -612,6 +616,7 @@ object ProactivePerceptionRuntime {
                 "message", "消息" -> Action.MESSAGE
                 "group_message", "groupmessage", "群聊消息", "群聊发言" -> Action.GROUP_MESSAGE
                 "game_invite", "gameinvite", "游戏邀约", "邀请游戏" -> Action.GAME_INVITE
+                "solo_game", "sologame", "独自游戏" -> Action.SOLO_GAME
                 "world_invite", "worldinvite", "见面邀约", "邀请见面", "邀请进入数字世界" -> Action.WORLD_INVITE
                 "moment", "moments", "朋友圈", "动态" -> Action.MOMENT
                 "call", "phone", "电话", "来电" -> Action.CALL
@@ -639,47 +644,8 @@ object ProactivePerceptionRuntime {
             position = json.optString("position").trim(),
             targetCharacterId = json.optString("targetCharacterId").trim(),
             location = json.optString("location").trim(),
-            lifeEventType = json.optString("lifeEventType").trim().lowercase(),
-            lifeEvent = json.optString("lifeEvent").trim().take(1_200),
-            lifeEventImpact = json.optString("lifeEventImpact").trim().take(600),
         )
     }.getOrNull()
-
-    private fun recordLifeEvent(
-        character: CharacterSettings,
-        decision: Decision,
-        now: Instant,
-    ) {
-        val event = decision.lifeEvent.trim()
-        if (event.isBlank()) return
-        val typeLabel = when (decision.lifeEventType) {
-            "hobby" -> "兴趣"
-            "solo_game" -> "独自游戏"
-            "reading" -> "阅读余韵"
-            "home" -> "居家"
-            "environment" -> "环境插曲"
-            "social" -> "社交余韵"
-            "digital_world" -> "数字世界"
-            "thought" -> "念头"
-            "rest" -> "休息"
-            else -> "日常"
-        }
-        val content = buildString {
-            append(event)
-            decision.lifeEventImpact.takeIf(String::isNotBlank)?.let {
-                append("\n留下的余韵：")
-                append(it)
-            }
-        }
-        SharedExperienceTimeline.record(
-            eventId = "autonomous-life-${character.characterId}-${now.toEpochMilli()}",
-            characterId = character.characterId,
-            channel = "角色生活·$typeLabel",
-            speaker = character.displayName,
-            content = content,
-            occurredAt = now,
-        )
-    }
 
     private fun collectUserActivities(characterId: String): List<UserActivity> =
         MigratedDomainStores.chat.conversations.value.asSequence()

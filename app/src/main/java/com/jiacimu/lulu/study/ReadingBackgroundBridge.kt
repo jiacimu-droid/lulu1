@@ -2,6 +2,7 @@ package com.jiacimu.lulu.study
 
 import android.content.Context
 import org.json.JSONArray
+import java.security.MessageDigest
 
 internal data class BackgroundReadingBook(
     val id: String,
@@ -10,8 +11,19 @@ internal data class BackgroundReadingBook(
     val source: String,
 )
 
-/** Read-only bridge used when a character chooses to spend a perception cycle reading. */
+internal data class BackgroundReadingSlice(
+    val book: BackgroundReadingBook,
+    val text: String,
+    val startOffset: Int,
+    val endOffset: Int,
+    val totalLength: Int,
+    val completed: Boolean,
+)
+
+/** Read-only content bridge plus program-owned, per-character reading progress. */
 internal object ReadingBackgroundBridge {
+    private const val PROGRESS_PREFS = "lulu_background_reading_progress_v1"
+
     fun books(context: Context): List<BackgroundReadingBook> {
         val uploaded = loadUploaded(context)
         val theaterChapters = StarWishStores.main.state.value.theaterChapters
@@ -30,6 +42,56 @@ internal object ReadingBackgroundBridge {
         return interleave(theaterChapters, uploaded)
             .distinctBy(BackgroundReadingBook::id)
             .take(80)
+    }
+
+    fun availableBooks(context: Context, characterId: String): List<BackgroundReadingBook> =
+        books(context).filter { progress(context, characterId, it) < it.content.length }
+
+    fun progressLabel(context: Context, characterId: String, book: BackgroundReadingBook): String {
+        val offset = progress(context, characterId, book)
+        val percent = if (book.content.isEmpty()) 100 else (offset * 100 / book.content.length).coerceIn(0, 100)
+        return "进度 $offset/${book.content.length}（$percent%）"
+    }
+
+    /**
+     * Returns the exact next excerpt and advances the durable cursor. A completed book does not
+     * silently restart; it disappears from [availableBooks] until the source text changes.
+     */
+    fun nextSlice(
+        context: Context,
+        characterId: String,
+        bookId: String,
+        maxChars: Int = 6_000,
+    ): BackgroundReadingSlice? {
+        val book = books(context).firstOrNull { it.id == bookId } ?: return null
+        if (book.content.isEmpty()) return null
+        val start = progress(context, characterId, book)
+        if (start >= book.content.length) return null
+        val end = (start + maxChars.coerceIn(800, 12_000)).coerceAtMost(book.content.length)
+        val prefs = context.applicationContext.getSharedPreferences(PROGRESS_PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putInt(progressKey(characterId, book), end).apply()
+        return BackgroundReadingSlice(
+            book = book,
+            text = book.content.substring(start, end),
+            startOffset = start,
+            endOffset = end,
+            totalLength = book.content.length,
+            completed = end >= book.content.length,
+        )
+    }
+
+    private fun progress(context: Context, characterId: String, book: BackgroundReadingBook): Int {
+        val value = context.applicationContext.getSharedPreferences(PROGRESS_PREFS, Context.MODE_PRIVATE)
+            .getInt(progressKey(characterId, book), 0)
+        return value.coerceIn(0, book.content.length)
+    }
+
+    private fun progressKey(characterId: String, book: BackgroundReadingBook): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+            .digest("${book.id}\u0000${book.content.length}\u0000${book.content.take(128)}".toByteArray())
+            .take(8)
+            .joinToString("") { "%02x".format(it) }
+        return "cursor:$characterId:${book.id}:$digest"
     }
 
     /** Keep both generated chapters and uploaded books visible in a bounded model context. */

@@ -16,6 +16,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
 import java.util.UUID
+import kotlin.random.Random
 
 /** Product-parity game identifiers from lulu/master plus Lulu1 additions. */
 enum class LuluGameType {
@@ -44,6 +45,15 @@ data class LuluGameRecord(
     val characterReply: String = "",
     val activityMessageId: String? = null,
     val createdAt: Instant = Instant.now(),
+)
+
+data class AutonomousGameResult(
+    val recordId: String,
+    val gameId: String,
+    val title: String,
+    val score: Int,
+    val summary: String,
+    val detailsJson: String,
 )
 
 data class SignalHuntMove(
@@ -247,6 +257,8 @@ class LuluGameStore internal constructor(context: Context) {
         summary: String,
         detailsJson: String = "{}",
         characterIdOverride: String? = null,
+        playedWithCharacterOverride: Boolean? = null,
+        createdAtOverride: Instant? = null,
     ): String {
         val snapshot = mutableState.value
         val record = LuluGameRecord(
@@ -255,9 +267,10 @@ class LuluGameStore internal constructor(context: Context) {
             score = score.coerceAtLeast(0),
             rewardCoins = reward.coerceAtLeast(0),
             characterId = characterIdOverride ?: snapshot.selectedCharacterId,
-            playedWithCharacter = snapshot.playWithCharacter,
+            playedWithCharacter = playedWithCharacterOverride ?: snapshot.playWithCharacter,
             summary = summary,
             detailsJson = detailsJson,
+            createdAt = createdAtOverride ?: Instant.now(),
         )
         mutate { state ->
             state.copy(
@@ -296,8 +309,136 @@ class LuluGameStore internal constructor(context: Context) {
                     if (item.id == record.id) item.copy(activityMessageId = activityMessage.id) else item
                 })
             }
+        } else if (record.characterId.isNotBlank()) {
+            SharedExperienceTimeline.record(
+                eventId = "game-solo-${record.id}",
+                characterId = record.characterId,
+                channel = "独自游戏《${record.title}》",
+                speaker = "游戏馆记录",
+                content = buildString {
+                    append("${record.summary}\n得分：${record.score}")
+                    if (record.detailsJson != "{}") append("\n真实过程数据：${record.detailsJson}")
+                },
+                occurredAt = record.createdAt,
+            )
         }
         return record.id
+    }
+
+    fun playAutonomousGame(
+        characterId: String,
+        gameId: String,
+        now: Instant = Instant.now(),
+    ): AutonomousGameResult? {
+        if (characterId.isBlank()) return null
+        val normalized = gameId.trim().lowercase()
+        val random = Random("$characterId:$normalized:${now.toEpochMilli()}".hashCode())
+        val played = when (normalized) {
+            "signal_hunt" -> {
+                val signalCells = (0..8).shuffled(random).take(3).toSet()
+                val route = (0..8).shuffled(random).take(5)
+                val moves = buildList {
+                    route.forEach { cell ->
+                        if (count { it.foundSignal } >= 3) return@forEach
+                        val found = cell in signalCells
+                        val streak = if (found && lastOrNull()?.foundSignal == true) 2 else 1
+                        add(SignalHuntMove(cell, found, if (found) 20 + (streak - 1) * 5 else 0))
+                    }
+                }
+                val found = moves.count(SignalHuntMove::foundSignal)
+                val score = moves.sumOf(SignalHuntMove::points)
+                val details = JSONObject()
+                    .put("game", "signal_hunt")
+                    .put("signalCells", JSONArray(signalCells.toList()))
+                    .put(
+                        "moves",
+                        JSONArray().apply {
+                            moves.forEach { move ->
+                                put(
+                                    JSONObject()
+                                        .put("cell", move.cell)
+                                        .put("foundSignal", move.foundSignal)
+                                        .put("points", move.points),
+                                )
+                            }
+                        },
+                    )
+                    .toString()
+                AutonomousGameDraft(
+                    gameId = normalized,
+                    type = LuluGameType.SignalHunt,
+                    title = "信号追踪",
+                    score = score,
+                    summary = "独自完成一局信号追踪：探测 ${moves.size} 格，找到 $found/3 个信号，得分 $score。",
+                    detailsJson = details,
+                )
+            }
+            "memory_match" -> {
+                val cards = listOf("🌙", "🍰", "🎧", "🌸", "🧸", "☕", "🌙", "🍰", "🎧", "🌸", "🧸", "☕")
+                    .shuffled(random)
+                val unmatched = cards.indices.toMutableSet()
+                val known = mutableMapOf<String, Int>()
+                val turns = JSONArray()
+                var moves = 0
+                while (unmatched.isNotEmpty()) {
+                    val first = unmatched.random(random)
+                    val firstValue = cards[first]
+                    val rememberedPair = known[firstValue]?.takeIf { it in unmatched && it != first }
+                    val second = rememberedPair ?: unmatched.filterNot { it == first }.random(random)
+                    val matched = cards[first] == cards[second]
+                    turns.put(
+                        JSONObject()
+                            .put("first", first)
+                            .put("second", second)
+                            .put("firstValue", cards[first])
+                            .put("secondValue", cards[second])
+                            .put("matched", matched),
+                    )
+                    moves += 1
+                    if (matched) {
+                        unmatched.remove(first)
+                        unmatched.remove(second)
+                        known.remove(firstValue)
+                    } else {
+                        known[firstValue] = first
+                        known[cards[second]] = second
+                    }
+                }
+                val score = (1_200 - (moves - 6).coerceAtLeast(0) * 60).coerceAtLeast(120)
+                AutonomousGameDraft(
+                    gameId = normalized,
+                    type = LuluGameType.MemoryMatch,
+                    title = "记忆配对",
+                    score = score,
+                    summary = "独自完成一局记忆配对：用 $moves 轮找齐 6 对卡片，得分 $score。",
+                    detailsJson = JSONObject()
+                        .put("game", "memory_match")
+                        .put("cards", JSONArray(cards))
+                        .put("turns", turns)
+                        .toString(),
+                )
+            }
+            else -> return null
+        }
+        val recordId = recordExternalGame(
+            type = played.type,
+            title = played.title,
+            score = played.score,
+            reward = 0,
+            summary = played.summary,
+            detailsJson = played.detailsJson,
+            characterIdOverride = characterId,
+            playedWithCharacterOverride = false,
+            createdAtOverride = now,
+        )
+        return AutonomousGameResult(
+            recordId = recordId,
+            gameId = played.gameId,
+            title = played.title,
+            score = played.score,
+            summary = played.summary,
+            detailsJson = played.detailsJson,
+        )
     }
 
     fun attachCharacterReply(recordId: String, reply: String) {
@@ -401,6 +542,15 @@ class LuluGameStore internal constructor(context: Context) {
             records = records,
         )
     }.getOrElse { LuluGameState() }
+
+    private data class AutonomousGameDraft(
+        val gameId: String,
+        val type: LuluGameType,
+        val title: String,
+        val score: Int,
+        val summary: String,
+        val detailsJson: String,
+    )
 
     private companion object {
         const val PREFS_NAME = "lulu_games"
