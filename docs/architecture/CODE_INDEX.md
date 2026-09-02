@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c795133f006f6dddd5f6709674be9685afeea71e`
+- 基准提交：`a0f41b2f3c4cf2d6d038097a6c2db4351850aff5`
 - 分支：`main`
 - 已索引文件：217
-- 已索引代码/文本行：65964
+- 已索引代码/文本行：66198
 - 已发现符号：876
 
 | 文件 | 行数 | 符号数 |
@@ -77,7 +77,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 185 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 134 | 28 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 315 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 481 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 97 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 158 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 42 | 1 |
@@ -107,11 +107,11 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 26 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 873 | 44 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 732 | 14 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 29 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 32 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 96 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 721 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 786 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 170 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 436 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
