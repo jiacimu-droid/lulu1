@@ -349,7 +349,7 @@ internal object AutonomousSocialRuntime {
         )
         CompanionPresenceStore.update(
             characterId = characterId,
-            statusText = event.statusText.ifBlank { "在$location消磨着自己的时间" },
+            statusText = event.statusText.ifBlank { "在${location}消磨着自己的时间" },
             gesture = event.gesture.ifBlank { "停下来留意着周围的动静" },
             innerThought = event.innerThought,
             mood = event.mood.ifBlank { "平静" },
@@ -378,7 +378,7 @@ internal object AutonomousSocialRuntime {
         if (shareResult == null || !shareResult.success) {
             MigratedDomainStores.chat.appendPrivateActivityNotice(
                 characterId,
-                "刚刚在$location遇到了一点小插曲：${event.event.replace(Regex("\\s+"), " ").take(220)}",
+                "刚刚在${location}遇到了一点小插曲：${event.event.replace(Regex("\\s+"), " ").take(220)}",
             )
         }
     }
