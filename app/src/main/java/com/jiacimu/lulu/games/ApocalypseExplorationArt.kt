@@ -26,6 +26,9 @@ internal enum class ApocalypseRuinKind {
     Cache,
     Exit,
     Anomaly,
+    StationRoom,
+    Equipment,
+    Radar,
 }
 
 internal data class ApocalypseRuinObject(
@@ -122,6 +125,105 @@ private fun apocalypseLocationSetDress(location: String, terrain: ApocalypseTerr
     }
 }
 
+private fun isWeatherStationLocation(location: String): Boolean =
+    location.contains("白榆气象观测站") || (location.contains("气象") && location.contains("观测站"))
+
+private fun buildWeatherStationExplorationMap(
+    sceneName: String,
+    tension: Int,
+    suffix: String,
+): ApocalypseExplorationMap {
+    val objects = listOf(
+        ApocalypseRuinObject(
+            "$suffix-station-operations",
+            "气象业务楼 · 值班操作室",
+            ApocalypseRuinKind.StationRoom,
+            WorldRectangle(115f, 105f, 625f, 390f),
+            "我走进白榆气象观测站的值班操作室，检查雷达主机、UPS、电台、值班日志和最近一次完整气象记录，确认这里现在还能恢复哪些功能。",
+            blocksMovement = false,
+        ),
+        ApocalypseRuinObject(
+            "$suffix-station-dorm",
+            "生活区 · 宿舍与简易厨房",
+            ApocalypseRuinKind.StationRoom,
+            WorldRectangle(120f, 465f, 575f, 705f),
+            "我进入观测站生活区，逐间检查宿舍、简易厨房、储水容器和人员留下的痕迹，确认这里适不适合作为长期休息区。",
+            blocksMovement = false,
+        ),
+        ApocalypseRuinObject(
+            "$suffix-station-radar",
+            "S波段天气雷达塔",
+            ApocalypseRuinKind.Radar,
+            WorldRectangle(1_050f, 110f, 1_335f, 405f),
+            "我来到天气雷达塔基，检查天线转台、馈线、机柜和结构损伤；如果供电与主机还能恢复，这里可以重新监视赤潮云团和异常天气。",
+        ),
+        ApocalypseRuinObject(
+            "$suffix-station-comms",
+            "短波电台与卫星通信机柜",
+            ApocalypseRuinKind.Equipment,
+            WorldRectangle(1_470f, 145f, 1_690f, 315f),
+            "我检查短波电台、卫星通信终端和备用天线接口，记录还能使用的频段、损坏部件以及可能收到外界信号的条件。",
+        ),
+        ApocalypseRuinObject(
+            "$suffix-station-generator",
+            "柴油发电机组",
+            ApocalypseRuinKind.Equipment,
+            WorldRectangle(690f, 500f, 895f, 650f),
+            "我打开柴油发电机组的检修盖，确认油量、蓄电池、滤芯和输出线路；在没有核实负载前不贸然启动，只把真实可恢复状态记下来。",
+        ),
+        ApocalypseRuinObject(
+            "$suffix-station-solar",
+            "屋外太阳能阵列与储能柜",
+            ApocalypseRuinKind.Equipment,
+            WorldRectangle(1_155f, 540f, 1_465f, 690f),
+            "我沿太阳能阵列检查碎裂面板、汇流箱和储能柜，判断白天能稳定提供多少基础电力，以及哪些线路需要修复。",
+        ),
+        ApocalypseRuinObject(
+            "$suffix-station-cache",
+            "应急物资库",
+            ApocalypseRuinKind.Cache,
+            WorldRectangle(275f, 785f, 410f, 885f),
+            "我打开观测站应急物资库，先核对封条与清单，再清点保温毯、工具、应急食品、电池和医疗包；只把实际确认到的物资带入后续剧情。",
+        ),
+        ApocalypseRuinObject(
+            "$suffix-station-water",
+            "净水与储水设备",
+            ApocalypseRuinKind.Cache,
+            WorldRectangle(1_505f, 650f, 1_655f, 765f),
+            "我检查净水滤芯、储水罐、管路和水质监测记录，确认这套设备目前是否安全、还剩多少可用能力，以及修复需要什么。",
+        ),
+        ApocalypseRuinObject(
+            "$suffix-station-wreck",
+            "观测站四驱巡检车",
+            ApocalypseRuinKind.Wreck,
+            WorldRectangle(790f, 790f, 1_090f, 925f),
+            "我检查观测站的四驱巡检车，确认钥匙、油量、电瓶、轮胎、后备箱和车载工具，判断它是否能承担山路侦察与撤离。",
+        ),
+        ApocalypseRuinObject(
+            "$suffix-station-gate",
+            "山口防护门与围栏",
+            ApocalypseRuinKind.Barricade,
+            WorldRectangle(1_265f, 960f, 1_610f, 1_045f),
+            "我沿山口防护门和围栏检查锁具、破口、脚印和视野死角，决定基地外围哪些位置需要优先加固。",
+        ),
+        ApocalypseRuinObject(
+            "$suffix-station-exit",
+            "下山公路与补给路线",
+            ApocalypseRuinKind.Exit,
+            WorldRectangle(815f, 1_055f, 1_085f, 1_145f),
+            "我在白榆气象观测站门外确认下山公路、可见路况和撤退方向，把这里作为之后外出搜集物资时真正要走的路线，而不是剧情里的瞬移出口。",
+            blocksMovement = false,
+        ),
+    )
+    return ApocalypseExplorationMap(
+        terrain = ApocalypseTerrain.Facility,
+        location = sceneName,
+        objects = objects,
+        playerStart = WorldVector(940f, 985f),
+        threatStart = WorldVector(1_760f, 1_080f - tension.coerceIn(0, 10) * 7f),
+    )
+}
+
 internal fun buildApocalypseExplorationMap(location: String, tension: Int): ApocalypseExplorationMap {
     val terrain = when {
         listOf("水库", "河", "湖", "码头", "岸", "坝").any(location::contains) -> ApocalypseTerrain.Waterside
@@ -132,6 +234,9 @@ internal fun buildApocalypseExplorationMap(location: String, tension: Int): Apoc
     }
     val suffix = (location.hashCode() and Int.MAX_VALUE).toString(36)
     val sceneName = location.ifBlank { "未知区域" }
+    if (isWeatherStationLocation(sceneName)) {
+        return buildWeatherStationExplorationMap(sceneName, tension, suffix)
+    }
     val dress = apocalypseLocationSetDress(sceneName, terrain)
     val objects = mutableListOf<ApocalypseRuinObject>()
 
@@ -217,6 +322,108 @@ internal fun buildApocalypseExplorationMap(location: String, tension: Int): Apoc
 private fun overlap(a: WorldRectangle, b: WorldRectangle): Boolean =
     a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top
 
+private fun DrawScope.drawWeatherStationTerrain(phase: Float) {
+    drawRect(
+        Brush.radialGradient(
+            listOf(Color(0xFF485851), Color(0xFF1D2D29), Color(0xFF101C19)),
+            center = Offset(850f, 460f),
+            radius = 1_350f,
+        ),
+        size = Size(APOCALYPSE_WORLD_WIDTH, APOCALYPSE_WORLD_HEIGHT),
+    )
+    repeat(8) { ridge ->
+        val y = 65f + ridge * 105f
+        val ridgePath = Path().apply {
+            moveTo(-80f, y + 95f)
+            lineTo(190f, y + 8f)
+            lineTo(390f, y + 72f)
+            lineTo(650f, y - 18f)
+            lineTo(920f, y + 86f)
+            lineTo(1_180f, y + 12f)
+            lineTo(1_430f, y + 78f)
+            lineTo(1_710f, y - 5f)
+            lineTo(1_980f, y + 94f)
+        }
+        drawPath(ridgePath, Color(0xFF73847B).copy(alpha = .045f + ridge * .006f), style = Stroke(7f))
+    }
+    drawRoundRect(
+        Color.Black.copy(alpha = .28f),
+        Offset(78f, 74f),
+        Size(1_710f, 1_045f),
+        CornerRadius(34f),
+    )
+    drawRoundRect(
+        Brush.linearGradient(
+            listOf(Color(0xFF5E6964), Color(0xFF424C48), Color(0xFF313B37)),
+            start = Offset(100f, 90f),
+            end = Offset(1_760f, 1_080f),
+        ),
+        Offset(92f, 82f),
+        Size(1_690f, 1_020f),
+        CornerRadius(28f),
+    )
+    val serviceRoad = Path().apply {
+        moveTo(760f, 1_220f)
+        lineTo(1_130f, 1_220f)
+        lineTo(1_105f, 930f)
+        lineTo(1_330f, 735f)
+        lineTo(1_220f, 650f)
+        lineTo(930f, 845f)
+        close()
+    }
+    drawPath(serviceRoad, Color(0xFF2C3330))
+    drawPath(serviceRoad, Color.White.copy(alpha = .08f), style = Stroke(5f))
+
+    drawCircle(Color(0xFF262E2B), 122f, Offset(955f, 720f))
+    drawCircle(Color.White.copy(alpha = .11f), 112f, Offset(955f, 720f), style = Stroke(5f))
+    drawLine(Color.White.copy(alpha = .10f), Offset(850f, 720f), Offset(1_060f, 720f), 5f)
+    drawLine(Color.White.copy(alpha = .10f), Offset(955f, 615f), Offset(955f, 825f), 5f)
+
+    repeat(18) { index ->
+        val x = 108f + index * 92f
+        val top = if (index % 3 == 0) 92f else 105f
+        drawLine(Color(0xFF9DAAA4).copy(alpha = .30f), Offset(x, top), Offset(x, top + 35f), 4f)
+    }
+    repeat(18) { index ->
+        val x = 108f + index * 92f
+        drawLine(Color(0xFF9DAAA4).copy(alpha = .24f), Offset(x, 1_060f), Offset(x, 1_095f), 4f)
+    }
+    drawLine(Color(0xFFB9C5BE).copy(alpha = .22f), Offset(110f, 110f), Offset(1_750f, 110f), 3f)
+    drawLine(Color(0xFFB9C5BE).copy(alpha = .22f), Offset(110f, 1_075f), Offset(1_750f, 1_075f), 3f)
+
+    repeat(7) { index ->
+        val x = 1_180f + index * 45f
+        drawRoundRect(
+            Brush.linearGradient(listOf(Color(0xFF233A3C), Color(0xFF55777A))),
+            Offset(x, 520f + (index % 2) * 9f),
+            Size(38f, 105f),
+            CornerRadius(4f),
+        )
+        drawLine(Color.White.copy(alpha = .21f), Offset(x + 6f, 528f), Offset(x + 30f, 610f), 2f)
+    }
+
+    repeat(22) { index ->
+        val x = 150f + ((index * 173) % 1_560)
+        val y = 140f + ((index * 97) % 850)
+        drawCircle(
+            Color(0xFFD5E5DA).copy(alpha = .045f + phase * .025f),
+            2f + index % 3,
+            Offset(x, y),
+        )
+    }
+
+    drawCircle(
+        Brush.radialGradient(listOf(Color(0xFFF2DEAE).copy(alpha = .10f), Color.Transparent)),
+        340f,
+        Offset(360f, 350f),
+    )
+    drawCircle(
+        Brush.radialGradient(listOf(Color(0xFFAFE7E1).copy(alpha = .08f), Color.Transparent)),
+        390f,
+        Offset(1_280f, 310f),
+    )
+}
+
 internal fun DrawScope.drawApocalypseExplorationWorld(
     map: ApocalypseExplorationMap,
     phase: Float,
@@ -225,91 +432,96 @@ internal fun DrawScope.drawApocalypseExplorationWorld(
     threat: WorldVector,
 ) {
     val palette = apocalypsePalette(map.terrain)
-    drawRect(palette.ground, size = Size(APOCALYPSE_WORLD_WIDTH, APOCALYPSE_WORLD_HEIGHT))
-    drawRect(
-        Brush.radialGradient(
-            listOf(Color(0xFFD9E4CF).copy(alpha = .13f), Color.Transparent),
-            center = Offset(850f, 60f),
-            radius = 1_100f,
-        ),
-        size = Size(APOCALYPSE_WORLD_WIDTH, APOCALYPSE_WORLD_HEIGHT),
-    )
+    val weatherStation = isWeatherStationLocation(map.location)
+    if (weatherStation) {
+        drawWeatherStationTerrain(phase)
+    } else {
+        drawRect(palette.ground, size = Size(APOCALYPSE_WORLD_WIDTH, APOCALYPSE_WORLD_HEIGHT))
+        drawRect(
+            Brush.radialGradient(
+                listOf(Color(0xFFD9E4CF).copy(alpha = .13f), Color.Transparent),
+                center = Offset(850f, 60f),
+                radius = 1_100f,
+            ),
+            size = Size(APOCALYPSE_WORLD_WIDTH, APOCALYPSE_WORLD_HEIGHT),
+        )
 
-    when (map.terrain) {
-        ApocalypseTerrain.Road, ApocalypseTerrain.City, ApocalypseTerrain.Facility -> {
-            val road = Path().apply {
-                moveTo(635f, -30f)
-                lineTo(1_255f, -30f)
-                lineTo(1_145f, 1_230f)
-                lineTo(745f, 1_230f)
-                close()
-            }
-            drawPath(road, palette.road)
-            drawPath(road, Color.White.copy(alpha = .055f), style = Stroke(7f))
-            repeat(10) { index ->
-                val y = 45f + index * 132f
-                drawRoundRect(
-                    Color(0xFFD5D3C2).copy(alpha = .23f),
-                    topLeft = Offset(925f - index * 5f, y),
-                    size = Size(22f, 67f),
-                    cornerRadius = CornerRadius(5f),
-                )
-            }
-            repeat(17) { index ->
-                val x = 710f + (index * 83 % 480)
-                val y = 80f + (index * 127 % 1_040)
-                val crack = Path().apply {
-                    moveTo(x, y)
-                    lineTo(x + 22f, y + 12f)
-                    lineTo(x + 8f, y + 31f)
-                    lineTo(x + 38f, y + 45f)
+        when (map.terrain) {
+            ApocalypseTerrain.Road, ApocalypseTerrain.City, ApocalypseTerrain.Facility -> {
+                val road = Path().apply {
+                    moveTo(635f, -30f)
+                    lineTo(1_255f, -30f)
+                    lineTo(1_145f, 1_230f)
+                    lineTo(745f, 1_230f)
+                    close()
                 }
-                drawPath(crack, Color(0xFF111A18).copy(alpha = .33f), style = Stroke(3f, cap = StrokeCap.Round))
+                drawPath(road, palette.road)
+                drawPath(road, Color.White.copy(alpha = .055f), style = Stroke(7f))
+                repeat(10) { index ->
+                    val y = 45f + index * 132f
+                    drawRoundRect(
+                        Color(0xFFD5D3C2).copy(alpha = .23f),
+                        topLeft = Offset(925f - index * 5f, y),
+                        size = Size(22f, 67f),
+                        cornerRadius = CornerRadius(5f),
+                    )
+                }
+                repeat(17) { index ->
+                    val x = 710f + (index * 83 % 480)
+                    val y = 80f + (index * 127 % 1_040)
+                    val crack = Path().apply {
+                        moveTo(x, y)
+                        lineTo(x + 22f, y + 12f)
+                        lineTo(x + 8f, y + 31f)
+                        lineTo(x + 38f, y + 45f)
+                    }
+                    drawPath(crack, Color(0xFF111A18).copy(alpha = .33f), style = Stroke(3f, cap = StrokeCap.Round))
+                }
+            }
+            ApocalypseTerrain.Waterside -> {
+                drawRect(
+                    Brush.linearGradient(
+                        listOf(Color(0xFF253B3B), Color(0xFF0B2429), Color(0xFF071D24)),
+                        start = Offset(1_040f, 0f),
+                        end = Offset(1_900f, 1_200f),
+                    ),
+                    topLeft = Offset(1_220f, 0f),
+                    size = Size(680f, 1_200f),
+                )
+                repeat(22) { index ->
+                    val y = (index * 59f + phase * 42f) % 1_260f
+                    drawLine(Color(0xFFB8E0DD).copy(alpha = .08f), Offset(1_245f, y), Offset(1_860f, y + 32f), 3f, StrokeCap.Round)
+                }
+            }
+            ApocalypseTerrain.Forest -> Unit
+        }
+
+        if (map.terrain != ApocalypseTerrain.Forest) {
+            repeat(12) { index ->
+                val seed = (map.location.hashCode().toLong() * 113L + index * 811L) and Long.MAX_VALUE
+                val x = 100f + (seed % 1_680L)
+                val y = 240f + ((seed / 37L) % 820L)
+                val width = 54f + (seed % 120L)
+                drawOval(
+                    Brush.radialGradient(
+                        listOf(Color(0xFF9BC3BC).copy(alpha = .13f), Color(0xFF081311).copy(alpha = .20f)),
+                        center = Offset(x + width * .35f, y + 7f),
+                        radius = width,
+                    ),
+                    topLeft = Offset(x, y),
+                    size = Size(width, 22f + index % 4 * 5f),
+                )
+                drawLine(Color.White.copy(alpha = .07f), Offset(x + 8f, y + 5f), Offset(x + width * .64f, y + 5f), 2f, StrokeCap.Round)
             }
         }
-        ApocalypseTerrain.Waterside -> {
-            drawRect(
-                Brush.linearGradient(
-                    listOf(Color(0xFF253B3B), Color(0xFF0B2429), Color(0xFF071D24)),
-                    start = Offset(1_040f, 0f),
-                    end = Offset(1_900f, 1_200f),
-                ),
-                topLeft = Offset(1_220f, 0f),
-                size = Size(680f, 1_200f),
-            )
-            repeat(22) { index ->
-                val y = (index * 59f + phase * 42f) % 1_260f
-                drawLine(Color(0xFFB8E0DD).copy(alpha = .08f), Offset(1_245f, y), Offset(1_860f, y + 32f), 3f, StrokeCap.Round)
-            }
-        }
-        ApocalypseTerrain.Forest -> Unit
-    }
 
-    if (map.terrain != ApocalypseTerrain.Forest) {
-        repeat(12) { index ->
-            val seed = (map.location.hashCode().toLong() * 113L + index * 811L) and Long.MAX_VALUE
-            val x = 100f + (seed % 1_680L)
-            val y = 240f + ((seed / 37L) % 820L)
-            val width = 54f + (seed % 120L)
-            drawOval(
-                Brush.radialGradient(
-                    listOf(Color(0xFF9BC3BC).copy(alpha = .13f), Color(0xFF081311).copy(alpha = .20f)),
-                    center = Offset(x + width * .35f, y + 7f),
-                    radius = width,
-                ),
-                topLeft = Offset(x, y),
-                size = Size(width, 22f + index % 4 * 5f),
-            )
-            drawLine(Color.White.copy(alpha = .07f), Offset(x + 8f, y + 5f), Offset(x + width * .64f, y + 5f), 2f, StrokeCap.Round)
+        repeat(if (map.terrain == ApocalypseTerrain.Forest) 90 else 48) { index ->
+            val seed = (index * 1_103_515_245L + map.location.hashCode() * 97L) and Long.MAX_VALUE
+            val x = (seed % 1_900L).toFloat()
+            val y = ((seed / 71L) % 1_200L).toFloat()
+            val length = 13f + (seed % 29L)
+            drawLine(palette.debris.copy(alpha = .12f + (index % 4) * .035f), Offset(x, y), Offset(x + length, y + (index % 3 - 1) * 9f), 2.5f, StrokeCap.Round)
         }
-    }
-
-    repeat(if (map.terrain == ApocalypseTerrain.Forest) 90 else 48) { index ->
-        val seed = (index * 1_103_515_245L + map.location.hashCode() * 97L) and Long.MAX_VALUE
-        val x = (seed % 1_900L).toFloat()
-        val y = ((seed / 71L) % 1_200L).toFloat()
-        val length = 13f + (seed % 29L)
-        drawLine(palette.debris.copy(alpha = .12f + (index % 4) * .035f), Offset(x, y), Offset(x + length, y + (index % 3 - 1) * 9f), 2.5f, StrokeCap.Round)
     }
 
     map.objects.sortedBy { it.bounds.bottom }.forEach { objectInWorld ->
@@ -411,6 +623,76 @@ private fun DrawScope.drawApocalypseObject(
             )
             drawRoundRect(Color(0xFF201C18).copy(alpha = .88f), Offset(b.center.x - 72f, b.top + 132f), Size(144f, 46f), CornerRadius(5f))
             drawLine(Color(0xFFD7C08B).copy(alpha = .42f), Offset(b.center.x - 50f, b.top + 155f), Offset(b.center.x + 50f, b.top + 155f), 5f, StrokeCap.Round)
+        }
+        ApocalypseRuinKind.StationRoom -> {
+            drawRoundRect(Color.Black.copy(alpha = .30f), Offset(b.left + 15f, b.top + 18f), Size(b.width, b.height), CornerRadius(18f))
+            drawRoundRect(
+                Brush.linearGradient(listOf(Color(0xFF9CA9A3), Color(0xFF67736E), Color(0xFF4C5853))),
+                Offset(b.left, b.top),
+                Size(b.width, b.height),
+                CornerRadius(16f),
+            )
+            drawRoundRect(Color(0xFF192521).copy(alpha = .86f), Offset(b.left + 20f, b.top + 24f), Size(b.width - 40f, b.height - 48f), CornerRadius(11f))
+            drawRoundRect(
+                Brush.radialGradient(listOf(Color(0xFFBFD7CD).copy(alpha = .15f), Color.Transparent)),
+                Offset(b.left + 28f, b.top + 32f),
+                Size(b.width - 56f, b.height - 64f),
+                CornerRadius(9f),
+            )
+            val doorWidth = 86f
+            drawLine(Color(0xFFB6C0BA), Offset(b.left + 12f, b.top + 11f), Offset(b.right - 12f, b.top + 11f), 8f, StrokeCap.Round)
+            drawLine(Color(0xFFB6C0BA), Offset(b.left + 11f, b.top + 12f), Offset(b.left + 11f, b.bottom - 12f), 8f, StrokeCap.Round)
+            drawLine(Color(0xFFB6C0BA), Offset(b.right - 11f, b.top + 12f), Offset(b.right - 11f, b.bottom - 12f), 8f, StrokeCap.Round)
+            drawLine(Color(0xFFB6C0BA), Offset(b.left + 12f, b.bottom - 11f), Offset(b.center.x - doorWidth / 2f, b.bottom - 11f), 8f, StrokeCap.Round)
+            drawLine(Color(0xFFB6C0BA), Offset(b.center.x + doorWidth / 2f, b.bottom - 11f), Offset(b.right - 12f, b.bottom - 11f), 8f, StrokeCap.Round)
+            repeat(4) { index ->
+                val x = b.left + 74f + index * (b.width - 148f) / 3f
+                drawRoundRect(Color(0xFF24403D), Offset(x - 28f, b.top + 46f), Size(56f, 37f), CornerRadius(6f))
+                drawLine(Color(0xFF8BB7AE).copy(alpha = .60f), Offset(x - 18f, b.top + 57f), Offset(x + 18f, b.top + 57f), 3f, StrokeCap.Round)
+            }
+        }
+        ApocalypseRuinKind.Equipment -> {
+            val active = if (explored) Color(0xFF759A8F) else Color(0xFF8DBAAE)
+            drawRoundRect(Color.Black.copy(alpha = .38f), Offset(b.left + 12f, b.top + 15f), Size(b.width, b.height), CornerRadius(14f))
+            drawRoundRect(Color(0xFF283633), Offset(b.left, b.top + 10f), Size(b.width, b.height - 4f), CornerRadius(12f))
+            drawRoundRect(
+                Brush.linearGradient(listOf(Color(0xFF65746F), Color(0xFF3F4C48))),
+                Offset(b.left, b.top),
+                Size(b.width, b.height - 12f),
+                CornerRadius(12f),
+            )
+            drawRoundRect(Color(0xFF10201E), Offset(b.left + 18f, b.top + 19f), Size(b.width - 36f, b.height * .42f), CornerRadius(7f))
+            drawRoundRect(active.copy(alpha = .48f + phase * .14f), Offset(b.left + 28f, b.top + 29f), Size(b.width - 56f, 11f), CornerRadius(5f))
+            repeat(5) { index ->
+                drawCircle(
+                    if (index == 0 && !explored) Color(0xFFE3C970) else Color(0xFF93A79F),
+                    5f,
+                    Offset(b.left + 27f + index * 24f, b.bottom - 28f),
+                )
+            }
+        }
+        ApocalypseRuinKind.Radar -> {
+            val center = b.center.toOffset()
+            drawOval(Color.Black.copy(alpha = .36f), Offset(b.left - 26f, b.bottom - 36f), Size(b.width + 52f, 54f))
+            drawCircle(Color(0xFF465550), b.width * .32f, center)
+            drawCircle(Color(0xFF82938C), b.width * .30f, center)
+            drawCircle(Color.White.copy(alpha = .18f), b.width * .29f, center, style = Stroke(4f))
+            drawLine(Color(0xFF26322F), Offset(center.x, center.y + 50f), Offset(center.x, b.top + 44f), 24f, StrokeCap.Round)
+            drawLine(Color(0xFF94A49D), Offset(center.x, center.y + 43f), Offset(center.x, b.top + 48f), 12f, StrokeCap.Round)
+            drawOval(
+                Brush.linearGradient(listOf(Color(0xFFD5DDD8), Color(0xFF71827B))),
+                Offset(center.x - 94f, b.top + 35f),
+                Size(188f, 82f),
+            )
+            drawOval(Color.White.copy(alpha = .35f), Offset(center.x - 91f, b.top + 38f), Size(182f, 76f), style = Stroke(5f))
+            drawLine(Color(0xFF394742), Offset(center.x, b.top + 76f), Offset(center.x + 82f, b.top + 22f), 8f, StrokeCap.Round)
+            if (!explored) {
+                drawCircle(
+                    Brush.radialGradient(listOf(Color(0xFFA7F4E0).copy(alpha = .18f + phase * .10f), Color.Transparent)),
+                    155f,
+                    center,
+                )
+            }
         }
         ApocalypseRuinKind.Wreck -> {
             drawOval(Color.Black.copy(alpha = .42f), Offset(b.left + 8f, b.top + 30f), Size(b.width, b.height))
