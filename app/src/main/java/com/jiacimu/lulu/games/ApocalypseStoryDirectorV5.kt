@@ -30,6 +30,18 @@ internal fun apocalypseCinematicDirectorBibleV5(save: ApocalypseV3Save): String 
     appendLine("层级：longTermPlan负责全剧方向；active/hidden threads、factionStates、characterArcs、foreshadowPlan负责未来数幕；sceneGoal+beatType+directive只负责下一幕。玩家选择可以改未来，但不能改写已发生正史。")
     appendLine("总纲：维持8—12个有因果关系的长期节点，包含阶段压力、人物/势力变化、谜团推进和替代路线。重大真相必须先有答案边界，再播种可回看的证据，禁止临时套娃。")
     appendLine("连续性：硬状态、上一幕完整正文、结构化账本和按幕顺序的长期时间轴优先。已解决/放弃的线不重建；角色、地点、物资、关系、伤势、时间和已公开信息不能失忆或瞬移。")
+    appendLine(apocalypseCampaignRuntimePromptV5(save))
+    appendLine("【长期剧情图｜保留意义，不保固定桥段】")
+    defaultApocalypseStoryGraphV5().forEach { node ->
+        appendLine("- ${node.title}｜${node.triggerWindow}｜意义=${node.meaning}｜可替代入口=${node.alternateChannels.joinToString("、")}")
+    }
+    val arcObligations = buildApocalypseArcObligationsV5(save).take(8)
+    if (arcObligations.isNotEmpty()) {
+        appendLine("【重要人物未完成弧线｜不得长期静止】")
+        arcObligations.forEach { arc ->
+            appendLine("- ${arc.title}｜待处理=${arc.unresolvedNeed}｜允许换结果/换渠道，不允许无铺垫跳变")
+        }
+    }
     val continuitySpine = apocalypseDirectorContinuitySpineV5(save)
     if (continuitySpine.isNotEmpty()) {
         appendLine("【按幕顺序的长期时间轴｜绝不按相关性重排】")
