@@ -1,11 +1,14 @@
 package com.jiacimu.lulu
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Chair
+import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -21,6 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.CharacterSettings
+import com.jiacimu.lulu.data.DigitalWorldActivityCatalog
+import com.jiacimu.lulu.data.DigitalWorldPublicPlaces
 import com.jiacimu.lulu.data.DigitalWorldState
 import com.jiacimu.lulu.data.WorldFirstExplorationMemory
 import kotlinx.coroutines.delay
@@ -120,6 +125,9 @@ internal fun DigitalWorldScenePage(
  * Shared renderer for map exploration and meeting scenes. Exploration controls are explicitly
  * switchable so reading/dialogue mode can become a clean cinematic layer instead of showing a
  * joystick underneath the story UI.
+ *
+ * Public-place routine actions live here as a small contextual dock. They are deliberately quick
+ * world actions: walking around a café or browsing the game hall should not force a long AI scene.
  */
 @Composable
 internal fun DigitalWorldSceneCanvas(
@@ -134,16 +142,99 @@ internal fun DigitalWorldSceneCanvas(
     controlsEnabled: Boolean = true,
     showExplorationHud: Boolean = true,
 ) {
-    DigitalWorldGameScene(
-        modifier = modifier,
-        sceneCode = sceneCode,
-        homeCharacterId = homeCharacterId,
-        characters = characters,
-        world = world,
-        onCharacterClick = onCharacterClick,
-        onWorldAction = onWorldAction,
-        controlsBottomPadding = controlsBottomPadding,
-        controlsEnabled = controlsEnabled,
-        showExplorationHud = showExplorationHud,
-    )
+    val context = LocalContext.current
+    var publicActionNotice by remember(sceneCode) { mutableStateOf("") }
+    val publicPlace = remember(sceneCode) { DigitalWorldPublicPlaces.all.firstOrNull { it.code == sceneCode } }
+    val publicActions = remember(sceneCode) { DigitalWorldActivityCatalog.locationOptions(sceneCode) }
+
+    LaunchedEffect(publicActionNotice) {
+        if (publicActionNotice.isBlank()) return@LaunchedEffect
+        delay(1_900)
+        publicActionNotice = ""
+    }
+
+    Box(modifier) {
+        DigitalWorldGameScene(
+            modifier = Modifier.fillMaxSize(),
+            sceneCode = sceneCode,
+            homeCharacterId = homeCharacterId,
+            characters = characters,
+            world = world,
+            onCharacterClick = onCharacterClick,
+            onWorldAction = onWorldAction,
+            controlsBottomPadding = controlsBottomPadding,
+            controlsEnabled = controlsEnabled,
+            showExplorationHud = showExplorationHud,
+        )
+
+        if (controlsEnabled && publicPlace != null && publicActions.isNotEmpty()) {
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(start = 88.dp, end = 88.dp, bottom = controlsBottomPadding + 86.dp),
+                color = Color(0xDB0D1916),
+                shape = RoundedCornerShape(18.dp),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = .12f)),
+                shadowElevation = 10.dp,
+            ) {
+                Row(
+                    Modifier
+                        .horizontalScroll(rememberScrollState())
+                        .padding(horizontal = 8.dp, vertical = 7.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(Icons.Outlined.Explore, null, tint = Color(0xFFBFFFEA), modifier = Modifier.size(15.dp))
+                    publicActions.take(4).forEach { (activityId, label) ->
+                        Surface(
+                            onClick = {
+                                val summary = DigitalWorldActivityCatalog.locationActivitySummary(
+                                    characterName = "我",
+                                    locationCode = sceneCode,
+                                    activityId = activityId,
+                                    locationName = publicPlace.label,
+                                ) ?: "我在${publicPlace.label}里做了“$label”。"
+                                WorldFirstExplorationMemory.record(
+                                    context = context,
+                                    worldId = "digital-world",
+                                    locationId = sceneCode,
+                                    locationLabel = publicPlace.label,
+                                    action = summary,
+                                )
+                                publicActionNotice = label
+                            },
+                            color = Color.White.copy(alpha = .07f),
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.dp, Color.White.copy(alpha = .08f)),
+                        ) {
+                            Text(
+                                label,
+                                color = Color(0xFFE8F4EF),
+                                fontSize = 8.5.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        if (controlsEnabled && publicActionNotice.isNotBlank()) {
+            Surface(
+                modifier = Modifier.align(Alignment.Center).padding(horizontal = 40.dp),
+                color = Color(0xE8142520),
+                shape = RoundedCornerShape(15.dp),
+                border = BorderStroke(1.dp, Color(0xFFB7FFE8).copy(alpha = .22f)),
+            ) {
+                Text(
+                    publicActionNotice,
+                    color = Color.White,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
+                )
+            }
+        }
+    }
 }
