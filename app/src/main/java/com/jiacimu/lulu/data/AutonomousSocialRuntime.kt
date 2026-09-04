@@ -28,7 +28,8 @@ internal object AutonomousSocialRuntime {
         if (
             currentLocation != DigitalWorldStore.CLOUD_MEADOW &&
             currentLocation != DigitalWorldStore.ARRIVAL &&
-            !currentLocation.startsWith("home:")
+            !currentLocation.startsWith("home:") &&
+            !DigitalWorldPublicPlaces.contains(currentLocation)
         ) return@withLock
 
         val worldTick = DigitalWorldLifeEventStore.tick(
@@ -191,9 +192,11 @@ internal object AutonomousSocialRuntime {
         worldTick: DigitalWorldLifeTick?,
         now: Instant,
     ): GeneratedEncounter {
-        val homeOwnerId = DigitalWorldStore.locationOf(participantIds.first())
+        val currentLocationCode = DigitalWorldStore.locationOf(participantIds.first())
+        val homeOwnerId = currentLocationCode
             .takeIf { it.startsWith("home:") }
             ?.removePrefix("home:")
+        val publicPlace = DigitalWorldPublicPlaces.all.firstOrNull { it.code == currentLocationCode }
         val authority = buildString {
             appendLine("地点：$location")
             when {
@@ -212,6 +215,13 @@ internal object AutonomousSocialRuntime {
                     }
                 }
                 location == "云眠原" -> appendLine("云眠原是共享区域，由可承托数字身体并传递柔软、温度、重量的感官云质构成。")
+                publicPlace != null -> {
+                    appendLine("这里是持久存在的公共地点“${publicPlace.label}”：${publicPlace.purpose}")
+                    val activities = DigitalWorldActivityCatalog.locationOptions(publicPlace.code)
+                    if (activities.isNotEmpty()) {
+                        appendLine("这里真实支持的日常活动：${activities.joinToString("、") { it.second }}。只能围绕这些已存在的设施与用途相处，不得凭空增加店铺、机台、食物、书籍或新区域。")
+                    }
+                }
                 else -> appendLine("这里是数字世界的共享抵达区域。")
             }
         }.trim()
@@ -435,7 +445,7 @@ internal object AutonomousSocialRuntime {
     private fun locationLabel(code: String): String = when (code) {
         DigitalWorldStore.ARRIVAL -> "世界入口"
         DigitalWorldStore.CLOUD_MEADOW -> "云眠原"
-        else -> if (code.startsWith("home:")) {
+        else -> DigitalWorldPublicPlaces.label(code) ?: if (code.startsWith("home:")) {
             val ownerId = code.removePrefix("home:")
             DigitalWorldStore.state.value.homes[ownerId]?.name
                 ?: "${MigratedDomainStores.characters.get(ownerId).displayName}的家"
