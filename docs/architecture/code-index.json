@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T17:41:19.571053+00:00",
-  "commit": "29b891d9a0246e626e7b476359643afe01d1d0c0",
+  "generatedAt": "2026-09-04T17:43:37.485383+00:00",
+  "commit": "0d99be563ec67e3adf116b24cf11cb58a9030ab2",
   "branch": "main",
-  "sourceFingerprint": "6f7f59e74b15335a8497e2cec2281387d917a80e2c25e73a17c857d735e085c2",
+  "sourceFingerprint": "19684be169d47133a49aeae7d779097a45b3b591cf3016b92f7c1dae7dab3655",
   "summary": {
     "files": 238,
-    "lines": 72931,
+    "lines": 73239,
     "symbols": 925
   },
   "symbolIndex": {
@@ -379,19 +379,19 @@
     "Resident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 75
+        "line": 84
       }
     ],
     "Prop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 77
+        "line": 86
       }
     ],
     "loadPosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 585
+        "line": 893
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
@@ -401,13 +401,13 @@
     "loadQuest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 594
+        "line": 902
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 596
+        "line": 904
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
@@ -5411,28 +5411,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-      "lines": 605,
-      "sha256": "8d202d138466dabe52e0b3797990e178900190fa6d12866d7d1aaca51808450a",
+      "lines": 913,
+      "sha256": "2764a3487934dca918b7498e2b61808ee612e7be9b246e2aaf0648f71ff2ff62",
       "symbols": [
         {
           "name": "Resident",
-          "line": 75
+          "line": 84
         },
         {
           "name": "Prop",
-          "line": 77
+          "line": 86
         },
         {
           "name": "loadPosition",
-          "line": 585
+          "line": 893
         },
         {
           "name": "loadQuest",
-          "line": 594
+          "line": 902
         },
         {
           "name": "save",
-          "line": 596
+          "line": 904
         }
       ]
     },
