@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e5d76a66f4a945696636cf4a027be00510a1d748`
+- 基准提交：`6029c4c943b4d2e327bd7ac59c297212e39e8229`
 - 分支：`main`
 - 已索引文件：239
-- 已索引代码/文本行：73773
+- 已索引代码/文本行：73783
 - 已发现符号：925
 
 | 文件 | 行数 | 符号数 |
@@ -80,7 +80,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 185 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 134 | 28 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 467 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 477 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 97 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 158 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 42 | 1 |
