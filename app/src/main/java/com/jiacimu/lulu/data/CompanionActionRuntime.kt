@@ -54,7 +54,11 @@ internal object CompanionActionRuntime {
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             appendLine("- send_world_invite，args={\"location\":\"准确地点名\",\"text\":\"邀请语\"}：邀请用户到指定数字世界地点见面；私聊中会出现标明地点的可点击邀请卡片。")
             appendLine("  可选邀请地点：${DigitalWorldStore.invitationLocationOptions(characterId).joinToString("、")}；发起邀请的你必须主动选定其中一个。")
-            appendLine("- digital_world_action，args={\"worldAction\":\"go_home|visit_cloud_meadow|build_home_item|move_home_item|remove_home_item|use_home_item|use_location|handle_incident|visit_character_home\",\"itemId\":\"物品ID\",\"activityId\":\"家具或地点允许的活动ID\",\"incidentId\":\"持续事件ID\",\"approach\":\"事件允许的处理方式\",\"itemType\":\"类型\",\"name\":\"名称\",\"appearance\":\"外观\",\"position\":\"固定位置\",\"targetCharacterId\":\"对方角色ID\"}：在权威数字世界中执行真实活动。角色可以使用当前地点的真实家具、在地点休息活动、处理持续事件，也可以移动、装修或串门；每项必须使用权威状态列出的准确 ID。")
+            appendLine("- digital_world_action，args={\"worldAction\":\"go_home|visit_cloud_meadow|visit_public_place|build_home_item|move_home_item|remove_home_item|use_home_item|use_location|handle_incident|visit_character_home\",\"locationCode\":\"公共地点准确代码\",\"itemId\":\"物品ID\",\"activityId\":\"家具或地点允许的活动ID\",\"incidentId\":\"持续事件ID\",\"approach\":\"事件允许的处理方式\",\"itemType\":\"类型\",\"name\":\"名称\",\"appearance\":\"外观\",\"position\":\"固定位置\",\"targetCharacterId\":\"对方角色ID\"}：在权威数字世界中执行真实活动。角色可以使用当前地点的真实家具、在地点休息活动、处理持续事件，也可以回家、去云眠原、前往公共地点、装修或串门；每项必须使用权威状态列出的准确 ID。")
+            appendLine("【可自主前往的公共地点】")
+            DigitalWorldPublicPlaces.all.forEach { place ->
+                appendLine("- locationCode=${place.code}；${place.label}；${place.subtitle}；用途=${place.purpose}")
+            }
             appendLine(DigitalWorldStore.contextFor(characterId))
             val socialTargets = MigratedDomainStores.characters.settings.value.keys
                 .asSequence()
