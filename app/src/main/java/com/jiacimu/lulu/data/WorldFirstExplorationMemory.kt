@@ -7,11 +7,8 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * Small persistent journal for actions that happened because the player physically explored a world.
- *
- * This deliberately stores world facts separately from generated prose: the world exists first,
- * then narrative systems may read these facts and react to them. Entries are append-only here;
- * higher-level save rollback can clear a world/save scope when needed.
+ * Persistent journal for actions that happened because the player physically explored a world.
+ * The world fact is stored first; generated prose may react to it afterwards.
  */
 object WorldFirstExplorationMemory {
     data class Entry(
@@ -32,9 +29,7 @@ object WorldFirstExplorationMemory {
     fun initialize(context: Context) {
         if (prefs != null) return
         synchronized(lock) {
-            if (prefs == null) {
-                prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            }
+            if (prefs == null) prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         }
     }
 
@@ -57,10 +52,7 @@ object WorldFirstExplorationMemory {
             action = clean,
             occurredAt = now,
         )
-        synchronized(lock) {
-            val next = (decode() + entry).takeLast(MAX_ENTRIES)
-            persist(next)
-        }
+        synchronized(lock) { persist((decode() + entry).takeLast(MAX_ENTRIES)) }
         return entry
     }
 
@@ -71,6 +63,15 @@ object WorldFirstExplorationMemory {
         limit: Int = 12,
     ): List<Entry> {
         initialize(context)
+        return recentIfAvailable(worldId, locationId, limit)
+    }
+
+    fun recentIfAvailable(
+        worldId: String,
+        locationId: String? = null,
+        limit: Int = 12,
+    ): List<Entry> {
+        if (prefs == null) return emptyList()
         return synchronized(lock) {
             decode()
                 .asSequence()
@@ -87,21 +88,26 @@ object WorldFirstExplorationMemory {
         locationId: String? = null,
         limit: Int = 10,
     ): String {
-        val entries = recent(context, worldId, locationId, limit)
+        initialize(context)
+        return promptSectionIfAvailable(worldId, locationId, limit)
+    }
+
+    fun promptSectionIfAvailable(
+        worldId: String,
+        locationId: String? = null,
+        limit: Int = 10,
+    ): String {
+        val entries = recentIfAvailable(worldId, locationId, limit)
         if (entries.isEmpty()) return ""
         return buildString {
             appendLine("【这个世界中已经真实发生的探索事实｜剧情必须承认，不能刷新或改写】")
-            entries.forEach { entry ->
-                appendLine("- [${entry.locationLabel}] ${entry.action}")
-            }
+            entries.forEach { entry -> appendLine("- [${entry.locationLabel}] ${entry.action}") }
         }.trim()
     }
 
     fun clearWorld(context: Context, worldId: String) {
         initialize(context)
-        synchronized(lock) {
-            persist(decode().filterNot { it.worldId == worldId })
-        }
+        synchronized(lock) { persist(decode().filterNot { it.worldId == worldId }) }
     }
 
     private fun decode(): List<Entry> {
