@@ -159,30 +159,43 @@ internal object DigitalWorldActivityCatalog {
 
     fun locationOptions(locationCode: String): List<Pair<String, String>> = when (locationCode) {
         DigitalWorldStore.CLOUD_MEADOW -> listOf(
-            "cloud_walk" to "在云眠原散步",
-            "cloud_sit" to "坐在感官云质上",
-            "cloud_rest" to "躺在感官云质上休息",
-            "cloud_feel" to "感受云质的温度与重量",
+            "cloud_walk" to "沿云面慢慢散步",
+            "cloud_sit" to "坐到感官云质上",
+            "cloud_rest" to "躺下来休息",
+            "cloud_feel" to "感受云质的温度",
+            "cloud_edge" to "走到云缘看看远处",
         )
         DigitalWorldPublicPlaces.GAME_HALL -> listOf(
-            "browse_games" to "逛逛游戏馆",
-            "watch_game" to "看别人玩一会儿",
-            "sit_arcade" to "在休息区坐坐",
+            "browse_games" to "逛逛机台",
+            "choose_arcade" to "挑一台想玩的机器",
+            "watch_game" to "围观别人玩",
+            "check_scoreboard" to "看看成绩榜",
+            "sit_arcade" to "去休息区坐坐",
+            "arcade_linger" to "在灯光和音效里待一会儿",
         )
         DigitalWorldPublicPlaces.READING_LOUNGE -> listOf(
-            "browse_reading" to "翻翻阅读架",
-            "quiet_read" to "找个位置安静阅读",
+            "browse_reading" to "慢慢翻阅读架",
+            "quiet_read" to "找安静位置阅读",
             "window_read" to "坐到窗边阅读",
+            "reading_notes" to "整理一下读到的东西",
+            "reading_wander" to "在书架间随便逛逛",
+            "reading_rest" to "在软座上安静坐会儿",
         )
         DigitalWorldPublicPlaces.CAFE -> listOf(
             "order_drink" to "点一杯喝的",
             "cafe_sit" to "找个座位坐下",
-            "people_watch" to "看看周围的人",
+            "window_cafe" to "去靠窗的位置",
+            "people_watch" to "看看周围来往的人",
+            "slow_drink" to "慢慢喝一会儿",
+            "cafe_linger" to "在店里放空一会儿",
         )
         DigitalWorldPublicPlaces.COURTYARD -> listOf(
-            "courtyard_walk" to "在庭院里散步",
-            "courtyard_sit" to "找个地方坐坐",
+            "courtyard_walk" to "沿庭院慢慢散步",
+            "courtyard_sit" to "去长椅坐坐",
             "watch_sky" to "抬头看看天色",
+            "water_edge" to "走到水边停一会儿",
+            "garden_pause" to "在植物旁边待一会儿",
+            "courtyard_linger" to "随便走走，不赶时间",
         )
         DigitalWorldStore.ARRIVAL -> listOf(
             "arrival_wait" to "在入口等待一会儿",
@@ -204,22 +217,35 @@ internal object DigitalWorldActivityCatalog {
     ): String? {
         if (locationOptions(locationCode).none { it.first == activityId }) return null
         val action = when (activityId) {
-            "cloud_walk" -> "在云眠原的感官云质上散了一会儿步"
+            "cloud_walk" -> "沿着云眠原的感官云面慢慢散了一会儿步"
             "cloud_sit" -> "在云眠原的感官云质上坐了下来"
             "cloud_rest" -> "躺在云眠原的感官云质上开始休息"
             "cloud_feel" -> "停下来感受云眠原云质传来的柔软、温度与重量"
-            "browse_games" -> "在游戏馆里慢慢逛了一圈，看看今天有什么想玩的"
+            "cloud_edge" -> "走到云眠原边缘，停下来望了一会儿远处"
+            "browse_games" -> "在游戏馆的机台之间慢慢逛了一圈"
+            "choose_arcade" -> "在游戏馆几台机子前来回看了看，挑着自己现在最想玩的"
             "watch_game" -> "在游戏馆里停下来围观了一会儿别人的游戏"
+            "check_scoreboard" -> "走到游戏馆的成绩榜前看了一会儿今天的记录"
             "sit_arcade" -> "在游戏馆休息区坐了一会儿"
-            "browse_reading" -> "在阅读馆的书架和章节目录间翻看了一会儿"
+            "arcade_linger" -> "没急着开始游戏，只是在游戏馆的灯光和音效里待了一会儿"
+            "browse_reading" -> "在阅读馆的阅读架和章节目录间慢慢翻看"
             "quiet_read" -> "在阅读馆找了个安静的位置坐下阅读"
             "window_read" -> "在阅读馆靠窗的位置坐下读了一会儿"
-            "order_drink" -> "在咖啡休息区给自己点了一杯喝的"
-            "cafe_sit" -> "在咖啡休息区找了个舒服的位置坐下"
-            "people_watch" -> "在咖啡休息区安静看看周围来往的人"
-            "courtyard_walk" -> "在公共庭院里慢慢散了一会儿步"
-            "courtyard_sit" -> "在公共庭院找了个地方坐下休息"
-            "watch_sky" -> "在公共庭院停下来抬头看了一会儿天色"
+            "reading_notes" -> "在阅读馆停下来整理了一下刚才读到的内容和自己的想法"
+            "reading_wander" -> "沿着阅读馆的书架慢慢逛了一圈，随手看看有什么吸引注意"
+            "reading_rest" -> "在阅读馆的软座上坐了一会儿，让自己安静下来"
+            "order_drink" -> "在浮光咖啡角给自己点了一杯喝的"
+            "cafe_sit" -> "在浮光咖啡角找了个舒服的位置坐下"
+            "window_cafe" -> "换到浮光咖啡角靠窗的位置坐下，看着外面的光景"
+            "people_watch" -> "在浮光咖啡角安静看看周围来往的人"
+            "slow_drink" -> "坐在浮光咖啡角慢慢喝着东西，没有急着离开"
+            "cafe_linger" -> "在浮光咖啡角放空了一会儿，只听着周围细碎的声音"
+            "courtyard_walk" -> "沿着共生庭院的步道慢慢散了一会儿步"
+            "courtyard_sit" -> "在共生庭院的长椅上坐下来休息"
+            "watch_sky" -> "在共生庭院停下来抬头看了一会儿天色"
+            "water_edge" -> "走到共生庭院的水边停了一会儿"
+            "garden_pause" -> "在共生庭院的植物旁边慢慢停下脚步"
+            "courtyard_linger" -> "没有明确目的地在共生庭院随便走了一会儿"
             "arrival_wait" -> "在世界入口停下来等待了一会儿"
             "arrival_observe" -> "仔细观察了一会儿世界入口的实际状态"
             "home_pace" -> "在${locationName}里慢慢走动了一圈"
