@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T10:53:34.864979+00:00",
-  "commit": "bc2a0740f6a98845864e3b1639338d677c55d59f",
+  "generatedAt": "2026-09-04T10:54:51.198368+00:00",
+  "commit": "ffedf279b8314156c4c087bc83ab96a99e19d3ba",
   "branch": "main",
-  "sourceFingerprint": "17e0a2bd96c5301839b736c523f5c4e40047ae9a62c5f322fc835e562b1487da",
+  "sourceFingerprint": "5c2e68f96a35ea252749e2d8b1bfaa74a5d854dbcff0807fa049e6d3984e4b14",
   "summary": {
     "files": 233,
-    "lines": 70697,
+    "lines": 70794,
     "symbols": 911
   },
   "symbolIndex": {
@@ -453,25 +453,25 @@
     "sceneLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 85
+        "line": 87
       }
     ],
     "openScene": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 95
+        "line": 97
       }
     ],
     "talkTo": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 100
+        "line": 102
       }
     ],
     "toggleVoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 110
+        "line": 112
       }
     ],
     "DigitalWorldMeetingApp": [
@@ -5362,24 +5362,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-      "lines": 488,
-      "sha256": "8cfc445c323eac26df7fdede03334f97318be18d403339537db92eb167de8f9b",
+      "lines": 585,
+      "sha256": "a5e852ba6738a094e2eecf9e172e40db9d5895dac8d3e33dfad7416146ad3e7d",
       "symbols": [
         {
           "name": "sceneLabel",
-          "line": 85
+          "line": 87
         },
         {
           "name": "openScene",
-          "line": 95
+          "line": 97
         },
         {
           "name": "talkTo",
-          "line": 100
+          "line": 102
         },
         {
           "name": "toggleVoice",
-          "line": 110
+          "line": 112
         }
       ]
     },
