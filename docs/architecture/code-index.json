@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T10:27:14.735209+00:00",
-  "commit": "6d5ad670834074b7eb9e86fb5cb7291ef9d48940",
+  "generatedAt": "2026-09-04T10:30:13.306457+00:00",
+  "commit": "3a6fd448cf69e120dd263504e27469bdd5be039b",
   "branch": "main",
-  "sourceFingerprint": "49113130778ea3582f6b885cfc1511be0a6f175b8de825cd4beec06928605579",
+  "sourceFingerprint": "5496c6602b8332eb77e38417cd9ea1dc3c4026b042d984e807bc1ca13a162d96",
   "summary": {
     "files": 233,
-    "lines": 70763,
+    "lines": 70514,
     "symbols": 909
   },
   "symbolIndex": {
@@ -5321,8 +5321,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt",
-      "lines": 517,
-      "sha256": "7cffe040b4025c120bec66ac2be504844ada77703b7867c9f83ab5532f161314",
+      "lines": 268,
+      "sha256": "662e50528e3e44bde95a32ffd8606467f106e60d4b6b98d0ca8e3e3afd18aaa1",
       "symbols": []
     },
     {
