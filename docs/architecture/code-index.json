@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T17:29:54.863499+00:00",
-  "commit": "bbdc52de5c53c652488a736619f21ed9338682b0",
+  "generatedAt": "2026-09-04T17:40:25.211941+00:00",
+  "commit": "40ddb30e9989a5c7c26a36cd5fa87676967f9497",
   "branch": "main",
-  "sourceFingerprint": "e0ec9ba6a07ca566dd8bab252ca85c4e6e46fffa045f7b9de6dea1dc07604503",
+  "sourceFingerprint": "ea7117bdc1e141cddc5f24abfdbd5da998d3c8a074d7e9ebaef941585300a760",
   "summary": {
     "files": 237,
-    "lines": 72822,
+    "lines": 72881,
     "symbols": 923
   },
   "symbolIndex": {
@@ -1895,31 +1895,31 @@
     "optionsFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-        "line": 10
+        "line": 11
       }
     ],
     "promptFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-        "line": 85
+        "line": 99
       }
     ],
     "itemActivitySummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-        "line": 90
+        "line": 104
       }
     ],
     "locationOptions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-        "line": 132
+        "line": 159
       }
     ],
     "locationActivitySummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-        "line": 151
+        "line": 198
       }
     ],
     "tick": [
@@ -6874,28 +6874,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-      "lines": 173,
-      "sha256": "91bae4b5f20dfed307c64a779a49727b1164ccf8cc032ae670e49028b8a7bd3c",
+      "lines": 232,
+      "sha256": "c9478fa73c6b26065591faf105a2934b3c8e4601f13e5beac77c12e0ac960f19",
       "symbols": [
         {
           "name": "optionsFor",
-          "line": 10
+          "line": 11
         },
         {
           "name": "promptFor",
-          "line": 85
+          "line": 99
         },
         {
           "name": "itemActivitySummary",
-          "line": 90
+          "line": 104
         },
         {
           "name": "locationOptions",
-          "line": 132
+          "line": 159
         },
         {
           "name": "locationActivitySummary",
-          "line": 151
+          "line": 198
         }
       ]
     },
