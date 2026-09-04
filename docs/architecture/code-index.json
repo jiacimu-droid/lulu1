@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T13:17:08.669836+00:00",
-  "commit": "92452fc00c430f872097eee12c74320e13ab60f2",
+  "generatedAt": "2026-09-04T13:17:57.203578+00:00",
+  "commit": "6919b05fd2dc554e13c88e00f6c546e2599f5551",
   "branch": "main",
-  "sourceFingerprint": "93a95378fd0d7dfde923eb467360381efb0ae97cf31ad324f137b09fc4a5d222",
+  "sourceFingerprint": "5a6864b114088ca3c52724ab306c3e56f65123deacae495da7d83465016867ab",
   "summary": {
     "files": 237,
-    "lines": 72221,
+    "lines": 72223,
     "symbols": 923
   },
   "symbolIndex": {
@@ -3783,19 +3783,19 @@
     "applyRemaining": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseTradeSystemV5.kt",
-        "line": 74
+        "line": 75
       }
     ],
     "consume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseTradeSystemV5.kt",
-        "line": 81
+        "line": 82
       }
     ],
     "stock": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseTradeSystemV5.kt",
-        "line": 189
+        "line": 190
       }
     ],
     "flushPage": [
@@ -8817,20 +8817,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseTradeSystemV5.kt",
-      "lines": 365,
-      "sha256": "f01cc41e008b276850ba86260bdf4300bbbb6131c4d57650add826dcb22f3089",
+      "lines": 367,
+      "sha256": "0b9d0f6678d75c59475e0b4d63b1748a88e84269450ebdd4257566d9c421ac66",
       "symbols": [
         {
           "name": "applyRemaining",
-          "line": 74
+          "line": 75
         },
         {
           "name": "consume",
-          "line": 81
+          "line": 82
         },
         {
           "name": "stock",
-          "line": 189
+          "line": 190
         }
       ]
     },
