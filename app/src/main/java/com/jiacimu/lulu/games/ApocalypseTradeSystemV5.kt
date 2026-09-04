@@ -58,6 +58,7 @@ internal data class ApocalypseTradeResolutionV5(
     val save: ApocalypseV3Save,
     val receipt: String,
     val storyAction: String,
+    val lines: List<ApocalypseTradeLineV5>,
 )
 
 /**
@@ -360,5 +361,6 @@ internal fun resolveApocalypseTradeV5(
         save = next,
         receipt = receipt,
         storyAction = "我已经在${market.location}通过实际交易界面完成购买：$bought。交易金额、库存变化和时间已经由游戏系统结算，后续剧情只需要承认这笔既成事实，不要重新报价或重复扣除。",
+        lines = quote.lines,
     )
 }
