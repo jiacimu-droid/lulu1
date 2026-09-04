@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T13:19:39.493957+00:00",
-  "commit": "4f33c1e42af3b93b329e84017707ee3331ddf6a7",
+  "generatedAt": "2026-09-04T13:22:03.519227+00:00",
+  "commit": "9d450f3f62bb4661b5ea4bb5c81cf44183222a11",
   "branch": "main",
-  "sourceFingerprint": "502f726d645dd86ae0cb49edafd5e4f7f9b0cf51c3537e6fe8ccf237b2ac0c0a",
+  "sourceFingerprint": "3fdcc260f364730c6c4061817f1474d97720cbed6b6a983602d8c557c34faf39",
   "summary": {
     "files": 237,
-    "lines": 72226,
+    "lines": 72227,
     "symbols": 923
   },
   "symbolIndex": {
@@ -8493,8 +8493,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseNarrativeGameOverlay.kt",
-      "lines": 290,
-      "sha256": "fc429b9e25dd8ab76b97bf6db81b50cbb2703ed91e36b9e6149a87fc5bca6789",
+      "lines": 291,
+      "sha256": "c824a4962af01c110a78918edef392f3a5f129df0e930d0164bd2dfaa61da4d7",
       "symbols": []
     },
     {
