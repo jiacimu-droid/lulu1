@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import com.jiacimu.lulu.data.DigitalWorldPublicPlaces
+import com.jiacimu.lulu.games.WorldVector
 
 /**
  * Hand-authored 2.5D venue kits. Every public place has a distinct material language, focal point and
@@ -36,7 +37,6 @@ private fun DrawScope.drawGameHallWorld(lightPhase: Float) {
     drawCeilingRail(110f, 735f, 247f, lightPhase, Color(0xFF8BFFE1))
     drawCeilingRail(865f, 1_485f, 247f, lightPhase, Color(0xFFA8C7FF))
 
-    // Scoreboard and central social island.
     drawRoundRect(Color.Black.copy(alpha = .42f), Offset(690f, 85f), Size(220f, 126f), CornerRadius(18f))
     drawRoundRect(Brush.verticalGradient(listOf(Color(0xFF243C36), Color(0xFF101C19))), Offset(703f, 97f), Size(194f, 101f), CornerRadius(13f))
     repeat(5) { i ->
@@ -60,7 +60,6 @@ private fun DrawScope.drawGameHallWorld(lightPhase: Float) {
     drawRoundRect(Color.White.copy(alpha = .11f), Offset(630f, 577f), Size(340f, 207f), CornerRadius(87f), style = Stroke(3f))
     repeat(4) { i -> drawRoundSeat(690f + i * 75f, 708f, if (i % 2 == 0) Color(0xFF8AB6A9) else Color(0xFF918399)) }
 
-    // Floor light strips lead the eye toward real activity zones without adding UI clutter.
     drawGuideStrip(235f, 560f, 520f, 520f, Color(0xFF8BFFE1), lightPhase)
     drawGuideStrip(1_365f, 560f, 1_080f, 520f, Color(0xFFAABEFF), lightPhase)
     drawGuideStrip(800f, 905f, 800f, 790f, Color(0xFF8BFFE1), lightPhase)
@@ -76,15 +75,12 @@ private fun DrawScope.drawReadingLoungeWorld(lightPhase: Float) {
     drawWideWindow(885f, 82f, 520f, 158f, Color(0xFF91AAA4), lightPhase)
     drawBookshelf(105f, 168f, 315f, 500f)
     drawBookshelf(1_180f, 168f, 315f, 500f)
-
-    // Low wall shelving and a warmer reading island make the room feel furnished instead of staged.
     drawLowShelf(480f, 240f, 310f)
     drawReadingIsland(800f, 655f, 250f)
     drawReadingIsland(520f, 825f, 210f)
     drawReadingIsland(1_085f, 830f, 215f)
     drawWindowBench(1_020f, 405f, 285f)
     repeat(4) { i -> drawPendant(500f + i * 205f, 290f, lightPhase) }
-
     drawCircle(Brush.radialGradient(listOf(Color(0xFFFFE0A0).copy(alpha = .17f), Color.Transparent)), 400f, Offset(800f, 610f))
     drawVenueAnchorGlows(DigitalWorldPublicPlaces.READING_LOUNGE, lightPhase, Color(0xFFFFE0A5))
 }
@@ -99,7 +95,6 @@ private fun DrawScope.drawCafeWorld(lightPhase: Float) {
     drawVenueShell(Color(0xFF4D3A2E), Color(0xFF715945), warm = true)
     drawWideWindow(125f, 77f, 585f, 155f, Color(0xFF77958F), lightPhase)
 
-    // Real counter volume with backsplash, shelves and pendants.
     drawRoundRect(Color.Black.copy(alpha = .32f), Offset(900f, 180f), Size(545f, 320f), CornerRadius(28f))
     drawRoundRect(Brush.verticalGradient(listOf(Color(0xFF4A382D), Color(0xFF251B17))), Offset(925f, 180f), Size(495f, 126f), CornerRadius(20f))
     repeat(3) { row ->
@@ -130,8 +125,11 @@ private fun DrawScope.drawCourtyardWorld(lightPhase: Float) {
     }
 
     val lawn = Path().apply {
-        moveTo(45f, 275f); cubicTo(335f, 205f, 1_255f, 205f, 1_555f, 330f)
-        lineTo(1_555f, 1_020f); lineTo(45f, 1_020f); close()
+        moveTo(45f, 275f)
+        cubicTo(335f, 205f, 1_255f, 205f, 1_555f, 330f)
+        lineTo(1_555f, 1_020f)
+        lineTo(45f, 1_020f)
+        close()
     }
     drawPath(lawn, Brush.verticalGradient(listOf(Color(0xFF789476), Color(0xFF405C45))))
 
@@ -186,11 +184,11 @@ private fun DrawScope.drawGuideStrip(x1: Float, y1: Float, x2: Float, y2: Float,
 
 private fun DrawScope.drawCeilingRail(x1: Float, x2: Float, y: Float, lightPhase: Float, accent: Color) {
     drawLine(Color(0xFF232D2A), Offset(x1, y), Offset(x2, y), 8f, StrokeCap.Round)
-    repeat(6) { i -> {
+    repeat(6) { i ->
         val x = x1 + (x2 - x1) * (i + .5f) / 6f
         drawCircle(Brush.radialGradient(listOf(accent.copy(alpha = .23f + lightPhase * .09f), Color.Transparent)), 34f, Offset(x, y + 12f))
         drawCircle(accent.copy(alpha = .65f), 3.8f, Offset(x, y + 8f))
-    } }
+    }
 }
 
 private fun DrawScope.drawWideWindow(x: Float, y: Float, w: Float, h: Float, tint: Color, lightPhase: Float) {
@@ -209,7 +207,13 @@ private fun DrawScope.drawWideWindow(x: Float, y: Float, w: Float, h: Float, tin
 private fun DrawScope.drawArcadePod(x: Float, y: Float, body: Color, lightPhase: Float) {
     drawOval(Color.Black.copy(alpha = .28f), Offset(x - 88f, y + 94f), Size(182f, 50f))
     drawRoundRect(body.darken(.66f), Offset(x - 76f, y - 10f), Size(152f, 138f), CornerRadius(22f))
-    val side = Path().apply { moveTo(x + 68f, y - 44f); lineTo(x + 83f, y - 31f); lineTo(x + 83f, y + 96f); lineTo(x + 68f, y + 82f); close() }
+    val side = Path().apply {
+        moveTo(x + 68f, y - 44f)
+        lineTo(x + 83f, y - 31f)
+        lineTo(x + 83f, y + 96f)
+        lineTo(x + 68f, y + 82f)
+        close()
+    }
     drawPath(side, body.darken(.50f))
     drawRoundRect(Brush.verticalGradient(listOf(body.lighten(.16f), body)), Offset(x - 70f, y - 48f), Size(138f, 121f), CornerRadius(19f))
     drawRoundRect(Color(0xFF060D0B), Offset(x - 52f, y - 29f), Size(104f, 69f), CornerRadius(13f))
@@ -260,7 +264,13 @@ private fun DrawScope.drawWindowBench(x: Float, y: Float, w: Float) {
 private fun DrawScope.drawPendant(x: Float, y: Float, lightPhase: Float) {
     drawLine(Color(0xFF3F4742), Offset(x, 60f), Offset(x, y), 4f, StrokeCap.Round)
     drawCircle(Brush.radialGradient(listOf(Color(0xFFFFE3A0).copy(alpha = .31f + lightPhase * .12f), Color.Transparent)), 96f, Offset(x, y + 27f))
-    val shade = Path().apply { moveTo(x - 35f, y); lineTo(x + 35f, y); lineTo(x + 22f, y + 35f); lineTo(x - 22f, y + 35f); close() }
+    val shade = Path().apply {
+        moveTo(x - 35f, y)
+        lineTo(x + 35f, y)
+        lineTo(x + 22f, y + 35f)
+        lineTo(x - 22f, y + 35f)
+        close()
+    }
     drawPath(shade, Brush.verticalGradient(listOf(Color(0xFFFFE1A3), Color(0xFFB98953)), startY = y, endY = y + 35f))
 }
 
@@ -325,12 +335,12 @@ private fun DrawScope.drawBench(cx: Float, cy: Float) {
 private fun DrawScope.drawFlowerBed(cx: Float, cy: Float) {
     drawOval(Color.Black.copy(alpha = .12f), Offset(cx - 90f, cy + 35f), Size(185f, 48f))
     drawOval(Color(0xFF466143), Offset(cx - 86f, cy + 15f), Size(172f, 54f))
-    repeat(14) { i -> {
+    repeat(14) { i ->
         val x = cx - 70f + (i * 31 % 140)
         val y = cy + (i * 19 % 42)
         val flower = listOf(Color(0xFFFFE1A3), Color(0xFFD9B8C5), Color(0xFFC8D8B3))[i % 3]
         drawCircle(flower.copy(alpha = .72f), 4f, Offset(x, y))
-    } }
+    }
 }
 
 private fun WorldVector.toOffset() = Offset(x, y)
