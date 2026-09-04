@@ -29,8 +29,8 @@ import com.jiacimu.lulu.games.GameSoundscape
 import com.jiacimu.lulu.games.MeetingAtmosphereOverlay
 
 /**
- * Location-first digital world browser.
- * The legacy selection arguments remain only for source compatibility with older callers.
+ * Location-first digital world browser. Public venues stay deliberately few and dense: every place
+ * must offer a distinct shared activity instead of becoming another empty card on the map.
  */
 @Composable
 internal fun DigitalWorldMapLobby(
@@ -88,6 +88,7 @@ internal fun DigitalWorldMapLobby(
     fun sceneLabel(code: String): String {
         if (code == DigitalWorldStore.ARRIVAL) return "世界入口"
         if (code == DigitalWorldStore.CLOUD_MEADOW) return "云眠原"
+        DigitalWorldPublicPlaces.label(code)?.let { return it }
         if (code.startsWith("home:")) {
             val id = code.removePrefix("home:")
             return world.homes[id]?.name ?: "${MigratedDomainStores.characters.get(id).displayName}的家"
@@ -139,11 +140,13 @@ internal fun DigitalWorldMapLobby(
                 }
             },
             actions = {
-                MeetingToolButton(
-                    icon = Icons.Outlined.Chair,
-                    contentDescription = "家具城",
-                    onClick = { showCatalog = true },
-                )
+                if (activeHomeId != null || activeSceneCode == null) {
+                    MeetingToolButton(
+                        icon = Icons.Outlined.Chair,
+                        contentDescription = "家具城",
+                        onClick = { showCatalog = true },
+                    )
+                }
                 MeetingVoiceToggleButton(
                     enabled = voiceEnabled,
                     onToggle = ::toggleVoice,
@@ -235,6 +238,7 @@ private fun DigitalWorldRouteDock(
         buildList {
             add(DigitalWorldStore.ARRIVAL)
             add(DigitalWorldStore.CLOUD_MEADOW)
+            addAll(DigitalWorldPublicPlaces.all.map { it.code })
             characters
                 .filter { (profiles[it.characterId] ?: DigitalLifeProfileStore.get(it.characterId)).enabled }
                 .forEach { character -> add(DigitalWorldStore.homeLocation(character.characterId)) }
@@ -264,17 +268,23 @@ private fun DigitalWorldRouteDock(
             stops.forEach { code ->
                 DigitalWorldRouteButton(
                     label = sceneLabel(code),
-                    icon = when {
-                        code == DigitalWorldStore.ARRIVAL -> Icons.Outlined.AutoAwesome
-                        code == DigitalWorldStore.CLOUD_MEADOW -> Icons.Outlined.Cloud
-                        else -> Icons.Outlined.Home
-                    },
+                    icon = routeIcon(code),
                     selected = code == activeSceneCode,
                     onClick = { if (code != activeSceneCode) onOpenScene(code) },
                 )
             }
         }
     }
+}
+
+private fun routeIcon(code: String): androidx.compose.ui.graphics.vector.ImageVector = when (code) {
+    DigitalWorldStore.ARRIVAL -> Icons.Outlined.AutoAwesome
+    DigitalWorldStore.CLOUD_MEADOW -> Icons.Outlined.Cloud
+    DigitalWorldPublicPlaces.GAME_HALL -> Icons.Outlined.SportsEsports
+    DigitalWorldPublicPlaces.READING_LOUNGE -> Icons.Outlined.MenuBook
+    DigitalWorldPublicPlaces.CAFE -> Icons.Outlined.LocalCafe
+    DigitalWorldPublicPlaces.COURTYARD -> Icons.Outlined.Park
+    else -> Icons.Outlined.Home
 }
 
 @Composable
@@ -338,6 +348,7 @@ private fun DigitalWorldMapPage(
                 MapPlaceCard(
                     modifier = Modifier.weight(1f),
                     title = "世界入口",
+                    subtitle = "抵达 · 离开 · 等待",
                     icon = Icons.Outlined.AutoAwesome,
                     residents = residentsAt(world, DigitalWorldStore.ARRIVAL, characters),
                     onClick = { onOpenScene(DigitalWorldStore.ARRIVAL) },
@@ -345,10 +356,36 @@ private fun DigitalWorldMapPage(
                 MapPlaceCard(
                     modifier = Modifier.weight(1f),
                     title = "云眠原",
+                    subtitle = "散步 · 躺卧 · 约会",
                     icon = Icons.Outlined.Cloud,
                     residents = residentsAt(world, DigitalWorldStore.CLOUD_MEADOW, characters),
                     onClick = { onOpenScene(DigitalWorldStore.CLOUD_MEADOW) },
                 )
+            }
+        }
+        item {
+            Text("公共生活区", color = Color(0xFF575A57), fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp, start = 2.dp))
+        }
+        DigitalWorldPublicPlaces.all.chunked(2).forEach { rowPlaces ->
+            item(key = rowPlaces.joinToString("|") { it.code }) {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    rowPlaces.forEach { place ->
+                        MapPlaceCard(
+                            modifier = Modifier.weight(1f),
+                            title = place.label,
+                            subtitle = place.subtitle,
+                            icon = routeIcon(place.code),
+                            residents = residentsAt(world, place.code, characters),
+                            onClick = { onOpenScene(place.code) },
+                        )
+                    }
+                    if (rowPlaces.size == 1) Spacer(Modifier.weight(1f))
+                }
+            }
+        }
+        if (digitalCharacters.isNotEmpty()) {
+            item {
+                Text("他们的家", color = Color(0xFF575A57), fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp, start = 2.dp))
             }
         }
         digitalCharacters.chunked(2).forEach { rowCharacters ->
@@ -421,7 +458,7 @@ private fun DigitalWorldLiveHeader(
                 }
                 Text("去他们真正生活的地方", color = Color.White, fontSize = 21.sp, fontWeight = FontWeight.Black)
                 Text(
-                    "$homeCount 座家 · $residentCount 位角色在活动 · $itemCount 件真实陈设",
+                    "$homeCount 座家 · ${DigitalWorldPublicPlaces.all.size + 2} 个公共地点 · $residentCount 位角色在活动 · $itemCount 件真实陈设",
                     color = Color(0xFFB9C8C0),
                     fontSize = 10.5.sp,
                 )
@@ -434,12 +471,13 @@ private fun DigitalWorldLiveHeader(
 private fun MapPlaceCard(
     modifier: Modifier,
     title: String,
+    subtitle: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     residents: List<CharacterSettings>,
     onClick: () -> Unit,
 ) {
     Surface(
-        modifier = modifier.height(136.dp).clickable(onClick = onClick),
+        modifier = modifier.height(142.dp).clickable(onClick = onClick),
         color = Color(0xFFFCFCFB),
         shape = RoundedCornerShape(22.dp),
         border = BorderStroke(1.dp, Color(0xFF34322F)),
@@ -464,7 +502,8 @@ private fun MapPlaceCard(
                 ResidentAvatarStrip(residents)
             }
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF202020))
+                Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF202020), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(subtitle, color = Color(0xFF777570), fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (residents.isNotEmpty()) {
                     Text(
                         residents.joinToString("、") { it.displayName },
