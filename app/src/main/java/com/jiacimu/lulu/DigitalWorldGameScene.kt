@@ -329,10 +329,10 @@ internal fun DigitalWorldGameScene(
                         } else if (wantsFurniture) {
                             val seed = ((motion.character.characterId.hashCode().toLong() * 37L + now / 9_000L) and Long.MAX_VALUE)
                             val prop = usableProps[(seed % usableProps.size).toInt()]
-                            val safeOptions = DigitalWorldActivityCatalog.optionsFor(prop.item)
-                                .filterNot { it.first in setOf("sleep", "nap", "lie_down", "lie_on_rug") }
-                            val option = safeOptions.ifEmpty { DigitalWorldActivityCatalog.optionsFor(prop.item) }
-                                .getOrNull((seed / 7L % safeOptions.ifEmpty { DigitalWorldActivityCatalog.optionsFor(prop.item) }.size.coerceAtLeast(1)).toInt())
+                            val allOptions = DigitalWorldActivityCatalog.optionsFor(prop.item)
+                            val safeOptions = allOptions.filterNot { it.first in setOf("sleep", "nap", "lie_down", "lie_on_rug") }
+                            val candidateOptions = safeOptions.ifEmpty { allOptions }
+                            val option = candidateOptions.getOrNull((seed / 7L % candidateOptions.size.coerceAtLeast(1)).toInt())
                             target = prop.bounds.center
                             pendingId = prop.item.id
                             pendingActivity = option?.first
@@ -587,9 +587,10 @@ internal fun DigitalWorldGameScene(
             WorldVirtualJoystick(
                 value = joystick,
                 onValueChanged = { next ->
-                    if (selectedTarget != null) return@WorldVirtualJoystick
-                    if (joystick.length <= .05f && next.length > .05f) GameSoundEffects.play(GameSoundEffect.Move)
-                    joystick = next
+                    if (selectedTarget == null) {
+                        if (joystick.length <= .05f && next.length > .05f) GameSoundEffects.play(GameSoundEffect.Move)
+                        joystick = next
+                    }
                 },
                 modifier = Modifier.align(Alignment.BottomStart).padding(start = 14.dp, bottom = controlsBottomPadding),
                 tint = Color(0xFFC3FFE9),
@@ -626,7 +627,12 @@ internal fun DigitalWorldGameScene(
                         }
                         choice.quickSummary != null -> {
                             questStage = questStage.coerceAtLeast(2)
-                            queuedActions = (queuedActions + DigitalQueuedAction(choice.label, summary = choice.quickSummary)).takeLast(4)
+                            queuedActions = (
+                                queuedActions + DigitalQueuedAction(
+                                    label = choice.label,
+                                    summary = choice.quickSummary,
+                                )
+                            ).takeLast(4)
                         }
                         choice.storyPrompt != null -> {
                             val targetCharacterId = (selectedTarget as? DigitalNearbyTarget.Resident)?.motion?.character?.characterId
