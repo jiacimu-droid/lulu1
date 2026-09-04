@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T17:48:18.247452+00:00",
-  "commit": "29a657d0bfd7b7fe69c6e34ec51b50652a434991",
+  "generatedAt": "2026-09-04T17:54:00.890968+00:00",
+  "commit": "bc8836f703dd229f6dd5e6b88232634dcbf4ba7c",
   "branch": "main",
-  "sourceFingerprint": "90f25f1917f38145976cf974b81899f177319670ff78bb135385d31bed7e3d55",
+  "sourceFingerprint": "45547badf88db4a4972f42aa044d2f74a8453bfb64909d1d1d3ecb7337ae318a",
   "summary": {
     "files": 239,
-    "lines": 73580,
+    "lines": 73583,
     "symbols": 925
   },
   "symbolIndex": {
@@ -391,7 +391,7 @@
     "loadPosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 899
+        "line": 902
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
@@ -401,13 +401,13 @@
     "loadQuest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 908
+        "line": 911
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 910
+        "line": 913
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
@@ -5411,8 +5411,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-      "lines": 919,
-      "sha256": "15dff1dc55b994b791644a459470a6157294f24a9aeb00fb2cdd58f9a7010009",
+      "lines": 922,
+      "sha256": "329d097cdb8e843c95eda0d22f67df78445821f85e1f49e9c8ea6153c303be02",
       "symbols": [
         {
           "name": "Resident",
@@ -5424,15 +5424,15 @@
         },
         {
           "name": "loadPosition",
-          "line": 899
+          "line": 902
         },
         {
           "name": "loadQuest",
-          "line": 908
+          "line": 911
         },
         {
           "name": "save",
-          "line": 910
+          "line": 913
         }
       ]
     },
