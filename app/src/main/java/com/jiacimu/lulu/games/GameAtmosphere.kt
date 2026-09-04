@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import kotlin.math.PI
 import kotlin.math.sin
@@ -102,42 +103,122 @@ internal fun ArcadeAtmosphere(
     modifier: Modifier = Modifier,
 ) {
     val transition = rememberInfiniteTransition(label = "arcade-atmosphere")
-    val scan = transition.animateFloat(
-        initialValue = -.08f,
-        targetValue = 1.08f,
-        animationSpec = infiniteRepeatable(tween(5_200), RepeatMode.Restart),
-        label = "arcade-scan",
+    val drift = transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(8_800), RepeatMode.Restart),
+        label = "arcade-depth-drift",
     ).value
-    val shimmer = transition.animateFloat(
-        initialValue = .2f,
-        targetValue = .62f,
-        animationSpec = infiniteRepeatable(tween(2_800), RepeatMode.Reverse),
-        label = "arcade-shimmer",
+    val breathe = transition.animateFloat(
+        initialValue = .22f,
+        targetValue = .72f,
+        animationSpec = infiniteRepeatable(tween(3_400), RepeatMode.Reverse),
+        label = "arcade-volumetric-light",
     ).value
+
     Canvas(modifier) {
-        val grid = Color(0xFFCDD5E5).copy(alpha = .22f)
-        val step = size.width / 7f
-        var x = -size.height
-        while (x < size.width + size.height) {
-            drawLine(grid, Offset(x, 0f), Offset(x + size.height, size.height), strokeWidth = 1f)
-            x += step
-        }
-        var y = 0f
-        while (y < size.height) {
-            drawLine(grid, Offset(0f, y), Offset(size.width, y), strokeWidth = 1f)
-            y += step
-        }
-        drawLine(
-            Color(0xFF8294C4).copy(alpha = .08f + shimmer * .08f),
-            Offset(0f, size.height * scan),
-            Offset(size.width, size.height * scan),
-            strokeWidth = 8f,
+        val horizon = size.height * .29f
+        val vanishing = Offset(size.width * .58f, horizon)
+
+        drawRect(
+            Brush.verticalGradient(
+                listOf(
+                    Color(0xFF141B28).copy(alpha = .30f),
+                    Color.Transparent,
+                    Color(0xFF050911).copy(alpha = .30f),
+                ),
+            ),
         )
         drawCircle(
-            Color(0xFFAAB9DF).copy(alpha = .11f),
-            radius = size.minDimension * .27f,
-            center = Offset(size.width * .88f, size.height * .14f),
-            style = Stroke(width = 2f),
+            Brush.radialGradient(
+                listOf(
+                    Color(0xFFDDE8FF).copy(alpha = .10f + breathe * .06f),
+                    Color(0xFF7489B8).copy(alpha = .035f),
+                    Color.Transparent,
+                ),
+                center = Offset(size.width * .80f, size.height * .12f),
+                radius = size.maxDimension * .52f,
+            ),
+            radius = size.maxDimension * .52f,
+            center = Offset(size.width * .80f, size.height * .12f),
+        )
+
+        val lightCone = Path().apply {
+            moveTo(size.width * .74f, 0f)
+            lineTo(size.width * .96f, 0f)
+            lineTo(size.width * .72f, size.height * .88f)
+            lineTo(size.width * .37f, size.height * .88f)
+            close()
+        }
+        drawPath(
+            lightCone,
+            Brush.linearGradient(
+                listOf(
+                    Color(0xFFD8E5FF).copy(alpha = .055f + breathe * .045f),
+                    Color.Transparent,
+                ),
+                start = Offset(size.width * .82f, 0f),
+                end = Offset(size.width * .50f, size.height),
+            ),
+        )
+
+        val perspective = Color(0xFFC8D4EA).copy(alpha = .10f)
+        for (index in -7..7) {
+            val bottomX = size.width * .5f + index * size.width * .13f
+            val topX = vanishing.x + index * size.width * .004f
+            drawLine(
+                perspective.copy(alpha = .055f + (7 - kotlin.math.abs(index)) * .006f),
+                Offset(topX, horizon),
+                Offset(bottomX, size.height),
+                strokeWidth = if (index == 0) 1.35f else .8f,
+            )
+        }
+        repeat(9) { row ->
+            val t = row / 8f
+            val eased = t * t
+            val y = horizon + (size.height - horizon) * eased
+            drawLine(
+                perspective.copy(alpha = .035f + t * .08f),
+                Offset(0f, y),
+                Offset(size.width, y),
+                strokeWidth = .7f + t,
+            )
+        }
+        drawLine(
+            Color(0xFFB7C8EA).copy(alpha = .08f + breathe * .05f),
+            Offset(0f, horizon),
+            Offset(size.width, horizon),
+            strokeWidth = 2f,
+        )
+
+        repeat(24) { index ->
+            val depth = ((index * 37) % 97) / 97f
+            val xBase = ((index * 61) % 101) / 101f
+            val x = size.width * ((xBase + sin((drift * 2 * PI + index * .7f).toFloat()) * .025f).coerceIn(-.05f, 1.05f))
+            val y = size.height * ((index * .137f + drift * (.18f + depth * .34f)) % 1.05f)
+            val radius = 1.2f + depth * 3.8f
+            drawCircle(
+                Color(0xFFE4ECFF).copy(alpha = .035f + depth * .10f),
+                radius,
+                Offset(x, y),
+            )
+        }
+
+        drawCircle(
+            Color(0xFF05080F).copy(alpha = .18f),
+            radius = size.minDimension * .31f,
+            center = Offset(size.width * .05f, size.height * .98f),
+        )
+        drawCircle(
+            Color(0xFF05080F).copy(alpha = .14f),
+            radius = size.minDimension * .23f,
+            center = Offset(size.width * 1.02f, size.height * .83f),
+        )
+        drawCircle(
+            Color.White.copy(alpha = .10f + breathe * .04f),
+            radius = size.minDimension * .26f,
+            center = Offset(size.width * .86f, size.height * .14f),
+            style = Stroke(width = 1.4f),
         )
     }
 }
