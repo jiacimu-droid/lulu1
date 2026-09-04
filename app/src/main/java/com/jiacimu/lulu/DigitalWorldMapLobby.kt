@@ -3,8 +3,10 @@ package com.jiacimu.lulu
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
@@ -180,22 +182,27 @@ internal fun DigitalWorldMapLobby(
                 onOpenScene = ::openScene,
             )
         } else {
-            // A room is an illustrated scene, not a stretchable background. Keep exactly the
-            // same near-square composition used by the meeting experience and leave the
-            // remaining screen as calm paper space instead of distorting the room vertically.
             Box(
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                contentAlignment = Alignment.TopCenter,
+                modifier = Modifier.fillMaxWidth().weight(1f).background(Color(0xFF091311)),
             ) {
                 DigitalWorldSceneCanvas(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f),
+                    modifier = Modifier.fillMaxSize(),
                     sceneCode = activeSceneCode,
                     homeCharacterId = activeHomeId,
                     characters = characters,
                     world = world,
                     onCharacterClick = { talkTo(it, activeSceneLabel ?: "世界入口") },
+                    controlsBottomPadding = 92.dp,
+                )
+                DigitalWorldRouteDock(
+                    activeSceneCode = activeSceneCode,
+                    characters = characters,
+                    profiles = profiles,
+                    world = world,
+                    sceneLabel = ::sceneLabel,
+                    onOpenMap = { openSceneCode = null },
+                    onOpenScene = ::openScene,
+                    modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(horizontal = 10.dp, vertical = 8.dp),
                 )
             }
         }
@@ -211,6 +218,96 @@ internal fun DigitalWorldMapLobby(
     }
 
     if (showCatalog) StyledFurnitureCatalogDialog(onDismiss = { showCatalog = false })
+}
+
+@Composable
+private fun DigitalWorldRouteDock(
+    activeSceneCode: String,
+    characters: List<CharacterSettings>,
+    profiles: Map<String, DigitalLifeProfile>,
+    world: DigitalWorldState,
+    sceneLabel: (String) -> String,
+    onOpenMap: () -> Unit,
+    onOpenScene: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val stops = remember(characters, profiles, world.homes) {
+        buildList {
+            add(DigitalWorldStore.ARRIVAL)
+            add(DigitalWorldStore.CLOUD_MEADOW)
+            characters
+                .filter { (profiles[it.characterId] ?: DigitalLifeProfileStore.get(it.characterId)).enabled }
+                .forEach { character -> add(DigitalWorldStore.homeLocation(character.characterId)) }
+        }.distinct()
+    }
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = Color(0xE70B1512),
+        shape = RoundedCornerShape(20.dp),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = .15f)),
+        shadowElevation = 12.dp,
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(horizontal = 9.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(7.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            DigitalWorldRouteButton(
+                label = "总览",
+                icon = Icons.Outlined.Map,
+                selected = false,
+                onClick = onOpenMap,
+            )
+            stops.forEach { code ->
+                DigitalWorldRouteButton(
+                    label = sceneLabel(code),
+                    icon = when {
+                        code == DigitalWorldStore.ARRIVAL -> Icons.Outlined.AutoAwesome
+                        code == DigitalWorldStore.CLOUD_MEADOW -> Icons.Outlined.Cloud
+                        else -> Icons.Outlined.Home,
+                    },
+                    selected = code == activeSceneCode,
+                    onClick = { if (code != activeSceneCode) onOpenScene(code) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DigitalWorldRouteButton(
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        color = if (selected) Color(0xFFBEE6D7).copy(alpha = .18f) else Color.White.copy(alpha = .06f),
+        shape = RoundedCornerShape(13.dp),
+        border = BorderStroke(
+            1.dp,
+            if (selected) Color(0xFFBEE6D7).copy(alpha = .44f) else Color.White.copy(alpha = .10f),
+        ),
+    ) {
+        Row(
+            Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Icon(icon, null, tint = if (selected) Color(0xFFCFFFF0) else Color(0xFFB7C8C0), modifier = Modifier.size(15.dp))
+            Text(
+                label,
+                color = if (selected) Color.White else Color(0xFFD0DDD7),
+                fontSize = 9.5.sp,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                maxLines = 1,
+            )
+        }
+    }
 }
 
 @Composable
