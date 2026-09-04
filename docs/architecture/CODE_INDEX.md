@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b45171570b636d955ce3b511ac351169f610dea9`
+- 基准提交：`3d9697245969cac350e8194dbbed38b33cfab070`
 - 分支：`main`
 - 已索引文件：233
-- 已索引代码/文本行：70252
+- 已索引代码/文本行：70486
 - 已发现符号：909
 
 | 文件 | 行数 | 符号数 |
@@ -23,8 +23,8 @@
 | `app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalFurnitureDialogs.kt` | 193 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalFurnitureStickerUi.kt` | 881 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt` | 432 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 539 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt` | 517 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 580 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 488 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 529 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt` | 334 | 2 |
@@ -132,8 +132,8 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseCoreMysteryV5.kt` | 178 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseCurrentSceneInventoryRepairV5.kt` | 163 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseDramaticLedgerV5.kt` | 698 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationArt.kt` | 346 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt` | 464 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationArt.kt` | 396 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt` | 522 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseFlowRowCompat.kt` | 34 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt` | 470 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseHistoryRangeItemsV5.kt` | 205 | 0 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T08:54:15.125473+00:00",
-  "commit": "b45171570b636d955ce3b511ac351169f610dea9",
+  "generatedAt": "2026-09-04T09:40:06.990620+00:00",
+  "commit": "3d9697245969cac350e8194dbbed38b33cfab070",
   "branch": "main",
-  "sourceFingerprint": "03a82d38c1aea6b7518fd38cb89475e79181041f533b622de0815df546e1b41a",
+  "sourceFingerprint": "7acb6b65085cf0f51a0e0a8243d56b0daa2aaf78d4f121a0ee3173a112db1967",
   "summary": {
     "files": 233,
-    "lines": 70252,
+    "lines": 70486,
     "symbols": 909
   },
   "symbolIndex": {
@@ -387,23 +387,23 @@
     "loadPosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 519
+        "line": 560
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
-        "line": 448
+        "line": 506
       }
     ],
     "loadQuest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 528
+        "line": 569
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 530
+        "line": 571
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
@@ -411,7 +411,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
-        "line": 455
+        "line": 513
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
@@ -3441,7 +3441,7 @@
     "loadExplored": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
-        "line": 453
+        "line": 511
       }
     ],
     "hasAny": [
@@ -5321,14 +5321,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt",
-      "lines": 432,
-      "sha256": "4911f5d12fa35d24d23ef3effeba8c030a816865e502ac5ff40f5880cfe6ab0f",
+      "lines": 517,
+      "sha256": "7cffe040b4025c120bec66ac2be504844ada77703b7867c9f83ab5532f161314",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-      "lines": 539,
-      "sha256": "428360aa08990b2b017e2a9ee974b4287ac43af3ecdb09e2b128a3ce28cacfc2",
+      "lines": 580,
+      "sha256": "b9fc5e55bab3e621028c5a5ac4b27b57ddd9eb61b5ac891ebd5cb504a6e54049",
       "symbols": [
         {
           "name": "Resident",
@@ -5340,15 +5340,15 @@
         },
         {
           "name": "loadPosition",
-          "line": 519
+          "line": 560
         },
         {
           "name": "loadQuest",
-          "line": 528
+          "line": 569
         },
         {
           "name": "save",
-          "line": 530
+          "line": 571
         }
       ]
     },
@@ -8204,26 +8204,26 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationArt.kt",
-      "lines": 346,
-      "sha256": "3f76388a383857bb90f0f68dd3415232f35cbf896e073665a4befcfecdb6a52e",
+      "lines": 396,
+      "sha256": "5855ebf8619f859a79fb652a3d0c5e31e73c0185dc41b58b2e6991d85f154981",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
-      "lines": 464,
-      "sha256": "c39fd034f82db581b8a47dec88b65ef64cc1fb619982231987609e7c52d46442",
+      "lines": 522,
+      "sha256": "7fed9911d9245499cad95b2b300ebdadbc9889d169c6ae7dc737e84ae592f421",
       "symbols": [
         {
           "name": "loadPosition",
-          "line": 448
+          "line": 506
         },
         {
           "name": "loadExplored",
-          "line": 453
+          "line": 511
         },
         {
           "name": "save",
-          "line": 455
+          "line": 513
         }
       ]
     },
