@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Explore
-import androidx.compose.material.icons.outlined.NearMe
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -74,6 +73,7 @@ private data class DigitalNpcMotion(
     val nextDecisionAt: Long,
     val facingX: Float = 1f,
     val pendingItemId: String? = null,
+    val pendingVenueAnchorId: String? = null,
     val pendingActivityId: String? = null,
     val activityLabel: String = "",
     val busyUntil: Long = 0L,
@@ -84,6 +84,7 @@ private sealed interface DigitalNearbyTarget {
 
     data class Resident(val motion: DigitalNpcMotion, override val distance: Float) : DigitalNearbyTarget
     data class Prop(val prop: DigitalRoomProp, override val distance: Float) : DigitalNearbyTarget
+    data class Venue(val anchor: DigitalVenueAnchor, override val distance: Float) : DigitalNearbyTarget
 }
 
 private data class DigitalQueuedAction(
@@ -123,6 +124,7 @@ internal fun DigitalWorldGameScene(
         homeCharacterId?.let { owner -> world.items.filter { it.ownerCharacterId == owner } }.orEmpty()
     }
     val props = remember(roomItems) { buildDigitalRoomProps(roomItems) }
+    val venueAnchors = remember(sceneCode) { DigitalWorldVenueAnchors.forScene(sceneCode) }
     val obstacles = remember(props) { props.mapNotNull(DigitalRoomProp::obstacle) }
     val stateStore = remember(context, sceneKey) { DigitalWorldPlayState(context, sceneKey) }
     val restored = remember(stateStore) { stateStore.loadPosition() }
@@ -152,7 +154,7 @@ internal fun DigitalWorldGameScene(
     var npcMotions by remember(sceneKey, residents.map { it.characterId }) {
         mutableStateOf(
             residents.mapIndexed { index, character ->
-                val start = residentStart(index, character.characterId)
+                val start = residentStart(index, character.characterId, venueAnchors)
                 DigitalNpcMotion(character, start, start, System.currentTimeMillis() + 2_100L + index * 760L)
             },
         )
@@ -200,7 +202,7 @@ internal fun DigitalWorldGameScene(
     LaunchedEffect(queuedActions.firstOrNull()?.id, controlsEnabled, sceneKey) {
         val queued = queuedActions.firstOrNull() ?: return@LaunchedEffect
         if (!controlsEnabled) return@LaunchedEffect
-        delay(360)
+        delay(320)
         activeActionLabel = queued.label
         interactionMessage = queued.label
         WorldFirstExplorationMemory.record(
@@ -211,11 +213,11 @@ internal fun DigitalWorldGameScene(
             action = queued.summary,
         )
         queuedActions = queuedActions.drop(1)
-        delay(780)
+        delay(800)
         if (activeActionLabel == queued.label) activeActionLabel = ""
     }
 
-    LaunchedEffect(sceneKey, obstacles, viewportSize, residents.map { it.characterId }, controlsEnabled, props) {
+    LaunchedEffect(sceneKey, obstacles, viewportSize, residents.map { it.characterId }, controlsEnabled, props, venueAnchors) {
         var previousFrame = withFrameNanos { it }
         var lastCollisionSound = 0L
         while (isActive) {
@@ -229,9 +231,7 @@ internal fun DigitalWorldGameScene(
                     if (deltaVector.length < 22f) {
                         tapTarget = null
                         WorldVector.Zero
-                    } else {
-                        deltaVector.normalized()
-                    }
+                    } else deltaVector.normalized()
                 } ?: WorldVector.Zero
                 val direction = when {
                     !controlsEnabled -> WorldVector.Zero
@@ -272,78 +272,120 @@ internal fun DigitalWorldGameScene(
 
                 val now = System.currentTimeMillis()
                 npcMotions = npcMotions.mapIndexed { index, motion ->
-                    if (motion.busyUntil > now) {
-                        return@mapIndexed motion.copy(target = motion.position)
-                    }
+                    if (motion.busyUntil > now) return@mapIndexed motion.copy(target = motion.position)
                     if (motion.busyUntil > 0L && now >= motion.busyUntil) {
                         return@mapIndexed motion.copy(
                             activityLabel = "",
                             busyUntil = 0L,
-                            nextDecisionAt = now + 3_800L + index * 430L,
+                            nextDecisionAt = now + 3_500L + index * 420L,
                         )
                     }
 
                     val pendingItem = motion.pendingItemId?.let { id -> props.firstOrNull { it.item.id == id } }
                     if (pendingItem != null && motion.position.distanceTo(pendingItem.bounds.center) < 46f) {
                         val activityId = motion.pendingActivityId.orEmpty()
-                        val optionLabel = DigitalWorldActivityCatalog.optionsFor(pendingItem.item)
+                        val label = DigitalWorldActivityCatalog.optionsFor(pendingItem.item)
                             .firstOrNull { it.first == activityId }?.second.orEmpty()
                         val result = if (DigitalLifeProfileStore.isEnabled(motion.character.characterId)) {
                             DigitalWorldStore.performAction(
                                 characterId = motion.character.characterId,
                                 action = "use_home_item",
-                                args = JSONObject()
-                                    .put("itemId", pendingItem.item.id)
-                                    .put("activityId", activityId),
+                                args = JSONObject().put("itemId", pendingItem.item.id).put("activityId", activityId),
                             )
                         } else null
                         return@mapIndexed motion.copy(
                             target = motion.position,
                             pendingItemId = null,
+                            pendingVenueAnchorId = null,
                             pendingActivityId = null,
-                            activityLabel = if (result?.success == true) optionLabel else "",
-                            busyUntil = if (result?.success == true) now + 4_200L + index * 260L else 0L,
+                            activityLabel = if (result?.success == true) label else "",
+                            busyUntil = if (result?.success == true) now + 4_400L + index * 260L else 0L,
                             nextDecisionAt = now + 7_000L,
+                        )
+                    }
+
+                    val pendingVenue = motion.pendingVenueAnchorId?.let { id -> venueAnchors.firstOrNull { it.id == id } }
+                    if (pendingVenue != null && motion.position.distanceTo(pendingVenue.position) < 52f) {
+                        val activityId = motion.pendingActivityId.orEmpty()
+                        val label = DigitalWorldActivityCatalog.locationOptions(sceneCode)
+                            .firstOrNull { it.first == activityId }?.second.orEmpty()
+                        val result = if (DigitalLifeProfileStore.isEnabled(motion.character.characterId)) {
+                            DigitalWorldStore.performAction(
+                                characterId = motion.character.characterId,
+                                action = "use_location",
+                                args = JSONObject().put("activityId", activityId),
+                            )
+                        } else null
+                        return@mapIndexed motion.copy(
+                            target = motion.position,
+                            pendingItemId = null,
+                            pendingVenueAnchorId = null,
+                            pendingActivityId = null,
+                            activityLabel = if (result?.success == true) label else "",
+                            busyUntil = if (result?.success == true) now + 4_700L + index * 300L else 0L,
+                            nextDecisionAt = now + 7_500L,
                         )
                     }
 
                     var target = motion.target
                     var nextDecision = motion.nextDecisionAt
-                    var pendingId = motion.pendingItemId
-                    var pendingActivity = motion.pendingActivityId
+                    var pendingItemId = motion.pendingItemId
+                    var pendingVenueId = motion.pendingVenueAnchorId
+                    var pendingActivityId = motion.pendingActivityId
                     var activityLabel = motion.activityLabel
 
                     if (now >= motion.nextDecisionAt || motion.position.distanceTo(target) < 22f) {
-                        val phase = ((now / 13_000L + motion.character.characterId.hashCode().toLong()) and Long.MAX_VALUE) % 5L
+                        val phase = ((now / 12_000L + motion.character.characterId.hashCode().toLong()) and Long.MAX_VALUE) % 6L
                         val wantsCompany = controlsEnabled && phase == 0L && index == 0
                         val usableProps = if (DigitalLifeProfileStore.isEnabled(motion.character.characterId)) {
                             props.filter { DigitalWorldActivityCatalog.optionsFor(it.item).isNotEmpty() }
                         } else emptyList()
-                        val wantsFurniture = usableProps.isNotEmpty() && phase in 1L..3L
-                        if (wantsCompany) {
-                            target = playerPosition + WorldVector(if (index % 2 == 0) -96f else 96f, -34f)
-                            pendingId = null
-                            pendingActivity = null
-                            activityLabel = "想找你待一会儿"
-                            nextDecision = now + 6_000L
-                        } else if (wantsFurniture) {
-                            val seed = ((motion.character.characterId.hashCode().toLong() * 37L + now / 9_000L) and Long.MAX_VALUE)
-                            val prop = usableProps[(seed % usableProps.size).toInt()]
-                            val allOptions = DigitalWorldActivityCatalog.optionsFor(prop.item)
-                            val safeOptions = allOptions.filterNot { it.first in setOf("sleep", "nap", "lie_down", "lie_on_rug") }
-                            val candidateOptions = safeOptions.ifEmpty { allOptions }
-                            val option = candidateOptions.getOrNull((seed / 7L % candidateOptions.size.coerceAtLeast(1)).toInt())
-                            target = prop.bounds.center
-                            pendingId = prop.item.id
-                            pendingActivity = option?.first
-                            activityLabel = option?.second?.let { "准备$it" }.orEmpty()
-                            nextDecision = now + 12_000L
-                        } else {
-                            target = residentWanderTarget(motion.character.characterId, now, index)
-                            pendingId = null
-                            pendingActivity = null
-                            activityLabel = ""
-                            nextDecision = now + 5_000L + ((motion.character.characterId.hashCode() and Int.MAX_VALUE) % 3_400)
+                        val canUseVenue = venueAnchors.isNotEmpty() && DigitalLifeProfileStore.isEnabled(motion.character.characterId)
+
+                        when {
+                            wantsCompany -> {
+                                target = playerPosition + WorldVector(if (index % 2 == 0) -96f else 96f, -34f)
+                                pendingItemId = null
+                                pendingVenueId = null
+                                pendingActivityId = null
+                                activityLabel = "想找你待一会儿"
+                                nextDecision = now + 6_000L
+                            }
+                            usableProps.isNotEmpty() && phase in 1L..3L -> {
+                                val seed = ((motion.character.characterId.hashCode().toLong() * 37L + now / 9_000L) and Long.MAX_VALUE)
+                                val prop = usableProps[(seed % usableProps.size).toInt()]
+                                val allOptions = DigitalWorldActivityCatalog.optionsFor(prop.item)
+                                val safe = allOptions.filterNot { it.first in setOf("sleep", "nap", "lie_down", "lie_on_rug") }
+                                val options = safe.ifEmpty { allOptions }
+                                val option = options.getOrNull((seed / 7L % options.size.coerceAtLeast(1)).toInt())
+                                target = prop.bounds.center
+                                pendingItemId = prop.item.id
+                                pendingVenueId = null
+                                pendingActivityId = option?.first
+                                activityLabel = option?.second?.let { "准备$it" }.orEmpty()
+                                nextDecision = now + 12_000L
+                            }
+                            canUseVenue && phase in 1L..4L -> {
+                                val seed = ((motion.character.characterId.hashCode().toLong() * 41L + now / 8_500L) and Long.MAX_VALUE)
+                                val anchor = venueAnchors[(seed % venueAnchors.size).toInt()]
+                                val options = DigitalWorldActivityCatalog.locationOptions(sceneCode)
+                                    .filter { it.first in anchor.activityIds }
+                                val option = options.getOrNull((seed / 11L % options.size.coerceAtLeast(1)).toInt())
+                                target = anchor.position
+                                pendingItemId = null
+                                pendingVenueId = anchor.id
+                                pendingActivityId = option?.first
+                                activityLabel = option?.second?.let { "准备$it" }.orEmpty()
+                                nextDecision = now + 12_000L
+                            }
+                            else -> {
+                                target = residentWanderTarget(motion.character.characterId, now, index, venueAnchors)
+                                pendingItemId = null
+                                pendingVenueId = null
+                                pendingActivityId = null
+                                activityLabel = ""
+                                nextDecision = now + 5_000L + ((motion.character.characterId.hashCode() and Int.MAX_VALUE) % 3_400)
+                            }
                         }
                     }
 
@@ -352,7 +394,7 @@ internal fun DigitalWorldGameScene(
                         moveInWorld(
                             motion.position,
                             directionToTarget,
-                            speed = 76f,
+                            speed = 78f,
                             deltaSeconds = delta,
                             radius = 28f,
                             bounds = DIGITAL_WORLD_BOUNDS,
@@ -364,8 +406,9 @@ internal fun DigitalWorldGameScene(
                         target = target,
                         nextDecisionAt = nextDecision,
                         facingX = directionToTarget.x.takeIf { kotlin.math.abs(it) > 3f } ?: motion.facingX,
-                        pendingItemId = pendingId,
-                        pendingActivityId = pendingActivity,
+                        pendingItemId = pendingItemId,
+                        pendingVenueAnchorId = pendingVenueId,
+                        pendingActivityId = pendingActivityId,
                         activityLabel = activityLabel,
                     )
                 }
@@ -379,9 +422,22 @@ internal fun DigitalWorldGameScene(
     val nearestProp = props.minByOrNull { playerPosition.distanceTo(it.bounds.center) }?.let { prop ->
         DigitalNearbyTarget.Prop(prop, playerPosition.distanceTo(prop.bounds.center))
     }
-    val nearby = listOfNotNull(nearestNpc, nearestProp).minByOrNull(DigitalNearbyTarget::distance)
-        ?.takeIf { it.distance <= 142f }
-    val actionLabel = if (nearby != null) "互动" else "靠近"
+    val nearestVenue = venueAnchors.minByOrNull { playerPosition.distanceTo(it.position) }?.let { anchor ->
+        DigitalNearbyTarget.Venue(anchor, playerPosition.distanceTo(anchor.position))
+    }?.takeIf { it.distance <= it.anchor.radius }
+    val nearby = listOfNotNull(nearestNpc, nearestProp, nearestVenue)
+        .minByOrNull(DigitalNearbyTarget::distance)
+        ?.takeIf { target ->
+            when (target) {
+                is DigitalNearbyTarget.Venue -> target.distance <= target.anchor.radius
+                else -> target.distance <= 142f
+            }
+        }
+    val actionLabel = when (nearby) {
+        is DigitalNearbyTarget.Venue -> "使用"
+        null -> "靠近"
+        else -> "互动"
+    }
 
     val selectedTarget = when {
         menuTargetKey?.startsWith("npc:") == true -> {
@@ -396,22 +452,30 @@ internal fun DigitalWorldGameScene(
                 DigitalNearbyTarget.Prop(it, playerPosition.distanceTo(it.bounds.center))
             }
         }
+        menuTargetKey?.startsWith("venue:") == true -> {
+            val id = menuTargetKey!!.removePrefix("venue:")
+            venueAnchors.firstOrNull { it.id == id }?.let {
+                DigitalNearbyTarget.Venue(it, playerPosition.distanceTo(it.position))
+            }
+        }
         else -> null
-    }?.takeIf { it.distance <= 190f }
+    }?.takeIf { target ->
+        when (target) {
+            is DigitalNearbyTarget.Venue -> target.distance <= target.anchor.radius + 45f
+            else -> target.distance <= 190f
+        }
+    }
 
     LaunchedEffect(selectedTarget, controlsEnabled) {
         if (selectedTarget == null || !controlsEnabled) menuTargetKey = null
     }
 
-    val interactionChoices = remember(selectedTarget, residents, props) {
-        buildInteractionChoices(selectedTarget, residents, props)
+    val interactionChoices = remember(selectedTarget, residents, props, sceneCode, placeLabel) {
+        buildInteractionChoices(selectedTarget, residents, sceneCode, placeLabel)
     }
 
     Box(
-        modifier
-            .fillMaxSize()
-            .background(Color(0xFF091311))
-            .onSizeChanged { viewportSize = it },
+        modifier.fillMaxSize().background(Color(0xFF091311)).onSizeChanged { viewportSize = it },
     ) {
         val moveInputModifier = if (controlsEnabled && selectedTarget == null) {
             Modifier.pointerInput(sceneKey, viewportSize) {
@@ -438,50 +502,24 @@ internal fun DigitalWorldGameScene(
                 when (val target = selectedTarget ?: nearby) {
                     is DigitalNearbyTarget.Resident -> target.motion.position
                     is DigitalNearbyTarget.Prop -> target.prop.bounds.center
+                    is DigitalNearbyTarget.Venue -> target.anchor.position
                     null -> null
                 }
             } else null
             focus?.let { worldPoint ->
-                val focusPoint = Offset(
-                    (worldPoint.x - camera.x) * worldScale,
-                    (worldPoint.y - camera.y) * worldScale,
-                )
-                drawCircle(
-                    Color(0xFFC9FFE9).copy(alpha = .10f + lightPhase * .10f),
-                    31.dp.toPx() + lightPhase * 3.dp.toPx(),
-                    focusPoint,
-                )
-                drawCircle(
-                    Color(0xFFE7FFF5).copy(alpha = .56f),
-                    22.dp.toPx() + lightPhase * 2.dp.toPx(),
-                    focusPoint,
-                    style = androidx.compose.ui.graphics.drawscope.Stroke(1.2.dp.toPx()),
-                )
+                val focusPoint = Offset((worldPoint.x - camera.x) * worldScale, (worldPoint.y - camera.y) * worldScale)
+                drawCircle(Color(0xFFC9FFE9).copy(alpha = .10f + lightPhase * .10f), 31.dp.toPx() + lightPhase * 3.dp.toPx(), focusPoint)
+                drawCircle(Color(0xFFE7FFF5).copy(alpha = .56f), 22.dp.toPx() + lightPhase * 2.dp.toPx(), focusPoint, style = androidx.compose.ui.graphics.drawscope.Stroke(1.2.dp.toPx()))
             }
 
             repeat(12) { index ->
                 val seed = (sceneKey.hashCode() * 31L + index * 977L) and Long.MAX_VALUE
                 val x = ((seed % 1_000L) / 1_000f * size.width + lightPhase * 18.dp.toPx()) % size.width
                 val y = ((seed / 43L % 1_000L) / 1_000f * size.height)
-                drawCircle(
-                    Color(0xFFFFF8DE).copy(alpha = .05f + (index % 4) * .018f),
-                    (1f + index % 2).dp.toPx(),
-                    Offset(x, y),
-                )
+                drawCircle(Color(0xFFFFF8DE).copy(alpha = .05f + (index % 4) * .018f), (1f + index % 2).dp.toPx(), Offset(x, y))
             }
-
-            drawRect(
-                Brush.radialGradient(
-                    listOf(Color.Transparent, Color(0x9A081110)),
-                    center = Offset(size.width * .50f, size.height * .45f),
-                    radius = size.maxDimension * .76f,
-                ),
-            )
-            drawRect(
-                Brush.verticalGradient(
-                    listOf(Color.Black.copy(alpha = .16f), Color.Transparent, Color.Black.copy(alpha = .22f)),
-                ),
-            )
+            drawRect(Brush.radialGradient(listOf(Color.Transparent, Color(0x8A081110)), center = Offset(size.width * .50f, size.height * .45f), radius = size.maxDimension * .76f))
+            drawRect(Brush.verticalGradient(listOf(Color.Black.copy(alpha = .13f), Color.Transparent, Color.Black.copy(alpha = .20f))))
         }
 
         val halfPawnWidth = with(density) { 31.dp.toPx() }
@@ -505,20 +543,12 @@ internal fun DigitalWorldGameScene(
             )
             if (showExplorationHud && motion.activityLabel.isNotBlank()) {
                 Surface(
-                    modifier = Modifier
-                        .offset { IntOffset((screenX - with(density) { 54.dp.toPx() }).roundToInt(), (screenY - with(density) { 112.dp.toPx() }).roundToInt()) }
-                        .zIndex(motion.position.y + 4f),
+                    modifier = Modifier.offset { IntOffset((screenX - with(density) { 54.dp.toPx() }).roundToInt(), (screenY - with(density) { 112.dp.toPx() }).roundToInt()) }.zIndex(motion.position.y + 4f),
                     color = Color(0xD90E1916),
                     shape = RoundedCornerShape(99.dp),
                     border = BorderStroke(1.dp, Color.White.copy(alpha = .10f)),
                 ) {
-                    Text(
-                        motion.activityLabel,
-                        color = Color(0xFFDDEAE4),
-                        fontSize = 8.sp,
-                        maxLines = 1,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                    )
+                    Text(motion.activityLabel, color = Color(0xFFDDEAE4), fontSize = 8.sp, maxLines = 1, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
                 }
             }
         }
@@ -532,16 +562,14 @@ internal fun DigitalWorldGameScene(
             facingX = facingX,
             player = true,
             coat = Color(0xFF233D38),
-            modifier = Modifier
-                .offset { IntOffset((playerScreenX - halfPawnWidth).roundToInt(), (playerScreenY - pawnFoot).roundToInt()) }
-                .zIndex(playerPosition.y + .5f),
+            modifier = Modifier.offset { IntOffset((playerScreenX - halfPawnWidth).roundToInt(), (playerScreenY - pawnFoot).roundToInt()) }.zIndex(playerPosition.y + .5f),
         )
 
         if (showExplorationHud) {
             DigitalWorldAmbientHud(
                 place = placeLabel,
                 people = residents.size,
-                objects = props.size,
+                objects = props.size + venueAnchors.size,
                 modifier = Modifier.align(Alignment.TopStart).padding(12.dp),
             )
             if (homeCharacterId == null) {
@@ -549,6 +577,7 @@ internal fun DigitalWorldGameScene(
                     player = playerPosition,
                     residents = npcMotions.map(DigitalNpcMotion::position),
                     props = props,
+                    anchors = venueAnchors,
                     modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
                 )
             }
@@ -560,19 +589,8 @@ internal fun DigitalWorldGameScene(
             enter = fadeIn() + scaleIn(initialScale = .94f),
             exit = fadeOut() + scaleOut(targetScale = .96f),
         ) {
-            Surface(
-                color = Color(0xE3152420),
-                shape = RoundedCornerShape(16.dp),
-                border = BorderStroke(1.dp, Color(0xFFB7FFE8).copy(alpha = .26f)),
-                shadowElevation = 7.dp,
-            ) {
-                Text(
-                    interactionMessage,
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(horizontal = 15.dp, vertical = 10.dp),
-                )
+            Surface(color = Color(0xE3152420), shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, Color(0xFFB7FFE8).copy(alpha = .26f)), shadowElevation = 7.dp) {
+                Text(interactionMessage, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 15.dp, vertical = 10.dp))
             }
         }
 
@@ -580,9 +598,7 @@ internal fun DigitalWorldGameScene(
             DigitalActionQueueStrip(
                 active = activeActionLabel,
                 queued = queuedActions,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(start = 90.dp, end = 90.dp, bottom = controlsBottomPadding + 88.dp),
+                modifier = Modifier.align(Alignment.BottomCenter).padding(start = 90.dp, end = 90.dp, bottom = controlsBottomPadding + 88.dp),
             )
         }
 
@@ -609,6 +625,7 @@ internal fun DigitalWorldGameScene(
                     menuTargetKey = when (target) {
                         is DigitalNearbyTarget.Resident -> "npc:${target.motion.character.characterId}"
                         is DigitalNearbyTarget.Prop -> "prop:${target.prop.item.id}"
+                        is DigitalNearbyTarget.Venue -> "venue:${target.anchor.id}"
                     }
                 },
                 modifier = Modifier.align(Alignment.BottomEnd).padding(end = 22.dp, bottom = controlsBottomPadding + 12.dp),
@@ -630,12 +647,7 @@ internal fun DigitalWorldGameScene(
                         }
                         choice.quickSummary != null -> {
                             questStage = questStage.coerceAtLeast(2)
-                            queuedActions = (
-                                queuedActions + DigitalQueuedAction(
-                                    label = choice.label,
-                                    summary = choice.quickSummary,
-                                )
-                            ).takeLast(4)
+                            queuedActions = (queuedActions + DigitalQueuedAction(label = choice.label, summary = choice.quickSummary)).takeLast(4)
                         }
                         choice.storyPrompt != null -> {
                             val targetCharacterId = (selectedTarget as? DigitalNearbyTarget.Resident)?.motion?.character?.characterId
@@ -644,9 +656,7 @@ internal fun DigitalWorldGameScene(
                         }
                     }
                 },
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(start = 14.dp, end = 14.dp, bottom = controlsBottomPadding + 88.dp),
+                modifier = Modifier.align(Alignment.BottomCenter).padding(start = 14.dp, end = 14.dp, bottom = controlsBottomPadding + 88.dp),
             )
         }
     }
@@ -655,7 +665,8 @@ internal fun DigitalWorldGameScene(
 private fun buildInteractionChoices(
     target: DigitalNearbyTarget?,
     residents: List<CharacterSettings>,
-    props: List<DigitalRoomProp>,
+    sceneCode: String,
+    placeLabel: String,
 ): List<DigitalInteractionChoice> = when (target) {
     is DigitalNearbyTarget.Resident -> {
         val name = target.motion.character.displayName
@@ -674,9 +685,8 @@ private fun buildInteractionChoices(
         val quick = DigitalWorldActivityCatalog.optionsFor(item).take(6).map { (activityId, label) ->
             DigitalInteractionChoice(
                 label = label,
-                detail = "立即执行，不强制生成长剧情",
-                quickSummary = DigitalWorldActivityCatalog.itemActivitySummary("我", item, activityId)
-                    ?: "我在${item.name}旁做了“$label”。",
+                detail = "就在这里执行",
+                quickSummary = DigitalWorldActivityCatalog.itemActivitySummary("我", item, activityId) ?: "我在${item.name}旁做了“$label”。",
             )
         }
         val resident = residents.firstOrNull()
@@ -699,12 +709,23 @@ private fun buildInteractionChoices(
             listOf(
                 DigitalInteractionChoice(
                     label = "叫${resident.displayName}一起",
-                    detail = "共同活动会进入人物互动",
+                    detail = "共同活动进入人物互动",
                     storyPrompt = "我看向${resident.displayName}，邀请对方和我在“${item.name}”这里$sharedVerb。",
                 ),
             )
         } else emptyList()
         quick + shared
+    }
+    is DigitalNearbyTarget.Venue -> {
+        val allowed = DigitalWorldActivityCatalog.locationOptions(sceneCode).filter { it.first in target.anchor.activityIds }
+        allowed.map { (activityId, label) ->
+            DigitalInteractionChoice(
+                label = label,
+                detail = target.anchor.label,
+                quickSummary = DigitalWorldActivityCatalog.locationActivitySummary("我", sceneCode, activityId, placeLabel)
+                    ?: "我在${target.anchor.label}做了“$label”。",
+            )
+        }
     }
     null -> emptyList()
 }
@@ -720,10 +741,12 @@ private fun DigitalInteractionMenu(
     val title = when (target) {
         is DigitalNearbyTarget.Resident -> target.motion.character.displayName
         is DigitalNearbyTarget.Prop -> target.prop.item.name
+        is DigitalNearbyTarget.Venue -> target.anchor.label
     }
     val subtitle = when (target) {
         is DigitalNearbyTarget.Resident -> target.motion.activityLabel.ifBlank { "想怎么和对方相处？" }
-        is DigitalNearbyTarget.Prop -> "同一件东西可以有不同用法，不再只有一个“互动”"
+        is DigitalNearbyTarget.Prop -> "这件东西有真实的不同用法"
+        is DigitalNearbyTarget.Venue -> "你已经走到了这个活动区域"
     }
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -738,11 +761,7 @@ private fun DigitalInteractionMenu(
                     Text(title, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Black)
                     Text(subtitle, color = Color(0xFF93AAA2), fontSize = 8.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
-                Surface(
-                    onClick = onDismiss,
-                    color = Color.White.copy(alpha = .07f),
-                    shape = RoundedCornerShape(99.dp),
-                ) {
+                Surface(onClick = onDismiss, color = Color.White.copy(alpha = .07f), shape = RoundedCornerShape(99.dp)) {
                     Text("取消", color = Color(0xFFC5D4CE), fontSize = 8.5.sp, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
                 }
             }
@@ -750,13 +769,7 @@ private fun DigitalInteractionMenu(
             choices.chunked(2).forEach { rowChoices ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                     rowChoices.forEach { choice ->
-                        Surface(
-                            onClick = { onChoice(choice) },
-                            modifier = Modifier.weight(1f),
-                            color = Color.White.copy(alpha = .065f),
-                            shape = RoundedCornerShape(14.dp),
-                            border = BorderStroke(1.dp, Color.White.copy(alpha = .08f)),
-                        ) {
+                        Surface(onClick = { onChoice(choice) }, modifier = Modifier.weight(1f), color = Color.White.copy(alpha = .065f), shape = RoundedCornerShape(14.dp), border = BorderStroke(1.dp, Color.White.copy(alpha = .08f))) {
                             Column(Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
                                 Text(choice.label, color = Color(0xFFF0F7F3), fontSize = 10.sp, fontWeight = FontWeight.Bold, maxLines = 1)
                                 Text(choice.detail, color = Color(0xFF8FA49D), fontSize = 7.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -772,28 +785,12 @@ private fun DigitalInteractionMenu(
 }
 
 @Composable
-private fun DigitalActionQueueStrip(
-    active: String,
-    queued: List<DigitalQueuedAction>,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier,
-        color = Color(0xD90D1916),
-        shape = RoundedCornerShape(99.dp),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = .10f)),
-    ) {
-        Row(
-            Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+private fun DigitalActionQueueStrip(active: String, queued: List<DigitalQueuedAction>, modifier: Modifier = Modifier) {
+    Surface(modifier = modifier, color = Color(0xD90D1916), shape = RoundedCornerShape(99.dp), border = BorderStroke(1.dp, Color.White.copy(alpha = .10f))) {
+        Row(Modifier.padding(horizontal = 9.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
             Text("行动", color = Color(0xFF8FB2A7), fontSize = 7.5.sp, fontWeight = FontWeight.Bold)
             (listOfNotNull(active.takeIf(String::isNotBlank)) + queued.take(3).map { it.label }).take(4).forEachIndexed { index, label ->
-                Surface(
-                    color = if (index == 0 && active.isNotBlank()) Color(0xFF9EFFE0).copy(alpha = .13f) else Color.White.copy(alpha = .06f),
-                    shape = RoundedCornerShape(99.dp),
-                ) {
+                Surface(color = if (index == 0 && active.isNotBlank()) Color(0xFF9EFFE0).copy(alpha = .13f) else Color.White.copy(alpha = .06f), shape = RoundedCornerShape(99.dp)) {
                     Text(label, color = Color(0xFFDCEAE4), fontSize = 7.5.sp, maxLines = 1, modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp))
                 }
             }
@@ -802,28 +799,14 @@ private fun DigitalActionQueueStrip(
 }
 
 @Composable
-private fun DigitalWorldAmbientHud(
-    place: String,
-    people: Int,
-    objects: Int,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier.widthIn(max = 220.dp),
-        color = Color(0xC910201C),
-        shape = RoundedCornerShape(99.dp),
-        border = BorderStroke(1.dp, Color(0xFFCBFFEF).copy(alpha = .16f)),
-        shadowElevation = 5.dp,
-    ) {
-        Row(
-            Modifier.padding(horizontal = 11.dp, vertical = 7.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+private fun DigitalWorldAmbientHud(place: String, people: Int, objects: Int, modifier: Modifier = Modifier) {
+    Surface(modifier = modifier.widthIn(max = 220.dp), color = Color(0xC910201C), shape = RoundedCornerShape(99.dp), border = BorderStroke(1.dp, Color(0xFFCBFFEF).copy(alpha = .16f)), shadowElevation = 5.dp) {
+        Row(Modifier.padding(horizontal = 11.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Outlined.Explore, null, tint = Color(0xFFB8F8E3), modifier = Modifier.size(14.dp))
             Spacer(Modifier.width(6.dp))
             Text(place, color = Color.White, fontSize = 10.5.sp, fontWeight = FontWeight.Black, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Spacer(Modifier.width(8.dp))
-            Text("$people 人 · $objects 物", color = Color(0xFF9DC4B9), fontSize = 7.5.sp)
+            Text("$people 人 · $objects 处", color = Color(0xFF9DC4B9), fontSize = 7.5.sp)
         }
     }
 }
@@ -833,50 +816,49 @@ private fun DigitalWorldMiniMap(
     player: WorldVector,
     residents: List<WorldVector>,
     props: List<DigitalRoomProp>,
+    anchors: List<DigitalVenueAnchor>,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
-        modifier = modifier.size(62.dp),
-        color = Color(0xB90B1715),
-        shape = RoundedCornerShape(17.dp),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = .13f)),
-    ) {
+    Surface(modifier = modifier.size(62.dp), color = Color(0xB90B1715), shape = RoundedCornerShape(17.dp), border = BorderStroke(1.dp, Color.White.copy(alpha = .13f))) {
         Canvas(Modifier.fillMaxSize().padding(7.dp)) {
             drawRoundRect(Color(0xFF738B83).copy(alpha = .16f), size = size, cornerRadius = androidx.compose.ui.geometry.CornerRadius(10f))
             props.take(28).forEach { prop ->
-                val x = prop.bounds.center.x / DIGITAL_WORLD_WIDTH * size.width
-                val y = prop.bounds.center.y / DIGITAL_WORLD_HEIGHT * size.height
-                drawCircle(Color(0xFFD3C7AD).copy(alpha = .50f), 1.3.dp.toPx(), Offset(x, y))
+                drawCircle(Color(0xFFD3C7AD).copy(alpha = .50f), 1.3.dp.toPx(), Offset(prop.bounds.center.x / DIGITAL_WORLD_WIDTH * size.width, prop.bounds.center.y / DIGITAL_WORLD_HEIGHT * size.height))
+            }
+            anchors.forEach { anchor ->
+                val p = Offset(anchor.position.x / DIGITAL_WORLD_WIDTH * size.width, anchor.position.y / DIGITAL_WORLD_HEIGHT * size.height)
+                drawCircle(Color(0xFFB7FFE8).copy(alpha = .34f), 2.1.dp.toPx(), p, style = androidx.compose.ui.graphics.drawscope.Stroke(.7.dp.toPx()))
             }
             residents.forEach { resident ->
                 drawCircle(Color(0xFFFFD89C), 2.0.dp.toPx(), Offset(resident.x / DIGITAL_WORLD_WIDTH * size.width, resident.y / DIGITAL_WORLD_HEIGHT * size.height))
             }
-            drawCircle(Color(0xFF92FFDA), 2.9.dp.toPx(), Offset(player.x / DIGITAL_WORLD_WIDTH * size.width, player.y / DIGITAL_WORLD_HEIGHT * size.height))
-            drawCircle(Color.White.copy(alpha = .75f), 2.9.dp.toPx(), Offset(player.x / DIGITAL_WORLD_WIDTH * size.width, player.y / DIGITAL_WORLD_HEIGHT * size.height), style = androidx.compose.ui.graphics.drawscope.Stroke(.7.dp.toPx()))
+            val playerPoint = Offset(player.x / DIGITAL_WORLD_WIDTH * size.width, player.y / DIGITAL_WORLD_HEIGHT * size.height)
+            drawCircle(Color(0xFF92FFDA), 2.9.dp.toPx(), playerPoint)
+            drawCircle(Color.White.copy(alpha = .75f), 2.9.dp.toPx(), playerPoint, style = androidx.compose.ui.graphics.drawscope.Stroke(.7.dp.toPx()))
         }
     }
 }
 
-private fun residentStart(index: Int, id: String): WorldVector {
-    val starts = listOf(
-        WorldVector(690f, 520f),
-        WorldVector(980f, 590f),
-        WorldVector(520f, 735f),
-        WorldVector(1_180f, 770f),
-        WorldVector(780f, 860f),
-    )
+private fun residentStart(index: Int, id: String, anchors: List<DigitalVenueAnchor>): WorldVector {
+    if (anchors.isNotEmpty()) {
+        val anchor = anchors[index % anchors.size]
+        val hash = id.hashCode() and Int.MAX_VALUE
+        return anchor.position + WorldVector((hash % 75 - 37).toFloat(), ((hash / 67) % 63 - 31).toFloat())
+    }
+    val starts = listOf(WorldVector(690f, 520f), WorldVector(980f, 590f), WorldVector(520f, 735f), WorldVector(1_180f, 770f), WorldVector(780f, 860f))
     val base = starts[index % starts.size]
     val hash = id.hashCode() and Int.MAX_VALUE
     return base + WorldVector((hash % 51 - 25).toFloat(), ((hash / 61) % 41 - 20).toFloat())
 }
 
-private fun residentWanderTarget(id: String, now: Long, index: Int): WorldVector {
+private fun residentWanderTarget(id: String, now: Long, index: Int, anchors: List<DigitalVenueAnchor>): WorldVector {
     val epoch = now / 4_500L
     val seed = (id.hashCode().toLong() * 31L + epoch * 97L + index * 211L) and Long.MAX_VALUE
-    return WorldVector(
-        170f + (seed % 1_250L).toFloat(),
-        300f + ((seed / 37L) % 570L).toFloat(),
-    )
+    if (anchors.isNotEmpty() && seed % 3L != 0L) {
+        val anchor = anchors[(seed % anchors.size).toInt()]
+        return anchor.position + WorldVector(((seed / 11L) % 121L - 60L).toFloat(), ((seed / 23L) % 101L - 50L).toFloat())
+    }
+    return WorldVector(170f + (seed % 1_250L).toFloat(), 300f + ((seed / 37L) % 570L).toFloat())
 }
 
 private fun rememberUserAvatar(context: Context): Pair<String, String?> =
@@ -886,13 +868,8 @@ private fun rememberUserAvatar(context: Context): Pair<String, String?> =
 
 private fun digitalSafeStart(restored: WorldVector, obstacles: List<com.jiacimu.lulu.games.WorldObstacle>): WorldVector {
     if (obstacles.none { circleIntersects(restored, 34f, it.bounds) }) return restored
-    return listOf(
-        WorldVector(800f, 930f),
-        WorldVector(800f, 235f),
-        WorldVector(600f, 920f),
-        WorldVector(1_000f, 920f),
-        WorldVector(800f, 700f),
-    ).firstOrNull { candidate -> obstacles.none { circleIntersects(candidate, 34f, it.bounds) } }
+    return listOf(WorldVector(800f, 930f), WorldVector(800f, 260f), WorldVector(600f, 920f), WorldVector(1_000f, 920f), WorldVector(800f, 700f))
+        .firstOrNull { candidate -> obstacles.none { circleIntersects(candidate, 34f, it.bounds) } }
         ?: WorldVector(800f, 930f)
 }
 
@@ -912,10 +889,6 @@ private class DigitalWorldPlayState(context: Context, sceneKey: String) {
     fun loadQuest(): Int = prefs.getInt("quest_$suffix", 0).coerceIn(0, 2)
 
     fun save(position: WorldVector, quest: Int) {
-        prefs.edit()
-            .putFloat("x_$suffix", position.x)
-            .putFloat("y_$suffix", position.y)
-            .putInt("quest_$suffix", quest.coerceIn(0, 2))
-            .apply()
+        prefs.edit().putFloat("x_$suffix", position.x).putFloat("y_$suffix", position.y).putInt("quest_$suffix", quest.coerceIn(0, 2)).apply()
     }
 }
