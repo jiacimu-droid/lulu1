@@ -68,6 +68,7 @@ internal fun MeetingOverflowMenu(
     onOpenHistory: () -> Unit,
     onOpenModelPicker: () -> Unit,
     onOpenWritingPicker: () -> Unit,
+    onOpenVoiceSettings: (() -> Unit)? = null,
 ) {
     DropdownMenu(
         expanded = expanded,
@@ -137,6 +138,16 @@ internal fun MeetingOverflowMenu(
                 onOpenWritingPicker()
             },
         )
+        if (onOpenVoiceSettings != null) {
+            MeetingMenuRow(
+                icon = Icons.Outlined.RecordVoiceOver,
+                title = "角色声线",
+                onClick = {
+                    onDismiss()
+                    onOpenVoiceSettings()
+                },
+            )
+        }
         Spacer(Modifier.height(5.dp))
     }
 }

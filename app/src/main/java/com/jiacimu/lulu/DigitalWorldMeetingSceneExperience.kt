@@ -1,10 +1,11 @@
 package com.jiacimu.lulu
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,19 +15,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.*
-import com.jiacimu.lulu.design.LuluColors
 import com.jiacimu.lulu.games.GameAmbientAudioButton
 import com.jiacimu.lulu.games.GameAmbientSoundscape
 import com.jiacimu.lulu.games.GameSoundscape
@@ -40,7 +39,7 @@ private data class MeetingReadingPage(
     val voiceKey: String,
 )
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun DigitalWorldMeetingSceneExperience(
     modifier: Modifier,
@@ -64,7 +63,7 @@ internal fun DigitalWorldMeetingSceneExperience(
     onOpenWritingPicker: () -> Unit,
     onOpenVoiceSettings: () -> Unit,
 ) {
-    val context = LocalContext.current
+    val context = androidx.compose.ui.platform.LocalContext.current
     val voiceEnabled by MeetingVoicePlayback.enabled.collectAsState()
     val bgmEnabled = GameAmbientSoundscape(GameSoundscape.Meeting)
     val viewOnly = session.endedAt != null
@@ -73,20 +72,20 @@ internal fun DigitalWorldMeetingSceneExperience(
     var pageIndex by remember(session.id) { mutableIntStateOf(0) }
     var previousPageCount by remember(session.id) { mutableIntStateOf(pages.size) }
     var showMenu by remember { mutableStateOf(false) }
+    var narrativeExpanded by rememberSaveable(session.id) { mutableStateOf(true) }
 
-    val userProfilePrefs = remember(context) {
+    val userPrefs = remember(context) {
         context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE)
     }
-    val userAvatar = remember(userProfilePrefs) {
-        userProfilePrefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2)
+    val userAvatar = remember(userPrefs) {
+        userPrefs.getString("avatar_text", "我").orEmpty().ifBlank { "我" }.take(2)
     }
-    val userAvatarUri = remember(userProfilePrefs) { userProfilePrefs.getString("avatar_uri", null) }
+    val userAvatarUri = remember(userPrefs) { userPrefs.getString("avatar_uri", null) }
     val userName = remember {
         UserProfileContext.displayLabel().takeUnless { it == "用户" }.orEmpty().ifBlank { "我" }
     }
 
     LaunchedEffect(Unit) { MeetingVoicePlayback.initialize(context) }
-
     LaunchedEffect(pages.size) {
         val oldCount = previousPageCount
         if (pages.isEmpty()) {
@@ -94,23 +93,20 @@ internal fun DigitalWorldMeetingSceneExperience(
         } else if (pages.size > oldCount) {
             val wasAtEnd = oldCount == 0 || pageIndex >= oldCount - 1
             if (wasAtEnd) pageIndex = oldCount.coerceAtMost(pages.lastIndex)
+            narrativeExpanded = true
         } else if (pageIndex > pages.lastIndex) {
             pageIndex = pages.lastIndex
         }
         previousPageCount = pages.size
     }
-
     val currentPage = pages.getOrNull(pageIndex)
 
     LaunchedEffect(session.id, currentPage?.voiceKey, voiceEnabled) {
         val page = currentPage
         val speakerId = page?.speakerId
         if (
-            voiceEnabled &&
-            page != null &&
-            page.type == MeetingSegmentType.DIALOGUE &&
-            !speakerId.isNullOrBlank() &&
-            speakerId != "system"
+            voiceEnabled && page != null && page.type == MeetingSegmentType.DIALOGUE &&
+            !speakerId.isNullOrBlank() && speakerId != "system"
         ) {
             MeetingVoicePlayback.playVisibleDialogue(
                 context = context,
@@ -123,13 +119,8 @@ internal fun DigitalWorldMeetingSceneExperience(
             MeetingVoicePlayback.stopVisibleDialogue(session.id)
         }
     }
-
     DisposableEffect(session.id) {
         onDispose { MeetingVoicePlayback.stopVisibleDialogue(session.id) }
-    }
-
-    fun toggleVoice() {
-        MeetingVoicePlayback.setEnabled(context, !voiceEnabled)
     }
 
     val homeId = world.homes.values.firstOrNull { it.name == session.location }?.characterId
@@ -138,289 +129,272 @@ internal fun DigitalWorldMeetingSceneExperience(
         "云眠原" -> DigitalWorldStore.CLOUD_MEADOW
         else -> homeId?.let(DigitalWorldStore::homeLocation) ?: DigitalWorldStore.ARRIVAL
     }
+    val panelInset = when {
+        !narrativeExpanded && viewOnly -> 62.dp
+        !narrativeExpanded -> 124.dp
+        viewOnly -> 204.dp
+        else -> 286.dp
+    }
 
-    Column(modifier.fillMaxSize()) {
-        TopAppBar(
-            title = {
-                Text(
-                    session.location,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            },
-            navigationIcon = {
-                IconButton(onClick = onBackToMap) { Icon(Icons.Outlined.ArrowBack, "返回地图") }
-            },
-            actions = {
-                if (viewOnly) {
-                    MeetingToolButton(
-                        icon = Icons.Outlined.DeleteOutline,
-                        contentDescription = "删除",
-                        onClick = onDelete,
-                    )
-                } else {
-                    TextButton(onClick = onEnd, enabled = !generating) {
-                        Text("结束", color = Color(0xFF222222), fontWeight = FontWeight.SemiBold)
-                    }
-                }
-                MeetingVoiceToggleButton(
-                    enabled = voiceEnabled,
-                    onToggle = ::toggleVoice,
-                )
-                GameAmbientAudioButton(
-                    enabled = bgmEnabled,
-                    tint = Color(0xFF2E3230),
-                )
-                Box {
-                    MeetingToolButton(
-                        icon = Icons.Outlined.MoreVert,
-                        contentDescription = "更多",
-                        onClick = { showMenu = true },
-                    )
-                    MeetingOverflowMenu(
-                        expanded = showMenu,
-                        voiceEnabled = voiceEnabled,
-                        onDismiss = { showMenu = false },
-                        onToggleVoice = ::toggleVoice,
-                        onOpenHistory = onOpenHistory,
-                        onOpenModelPicker = onOpenModelPicker,
-                        onOpenWritingPicker = onOpenWritingPicker,
-                    )
-                }
-            },
-            windowInsets = WindowInsets(0, 0, 0, 0),
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
+    Box(
+        modifier
+            .fillMaxSize()
+            .background(Color(0xFF08110F))
+            .imePadding(),
+    ) {
+        if (session.reality == MeetingReality.DIGITAL_WORLD) {
+            DigitalWorldSceneCanvas(
+                modifier = Modifier.fillMaxSize().padding(top = 56.dp),
+                sceneCode = sceneCode,
+                homeCharacterId = homeId,
+                characters = characters,
+                world = world,
+                onCharacterClick = { characterId -> onCharacterClick(characterId, session.location) },
+                onWorldAction = { suggestedAction ->
+                    onInputChanged(suggestedAction)
+                    narrativeExpanded = true
+                },
+                controlsBottomPadding = panelInset,
+            )
+        } else {
+            RealisticMeetingStage(
+                modifier = Modifier.fillMaxSize().padding(top = 56.dp),
+                participantIds = session.participantIds,
+            )
+        }
+
+        MeetingImmersiveTopBar(
+            location = session.location,
+            viewOnly = viewOnly,
+            generating = generating,
+            voiceEnabled = voiceEnabled,
+            bgmEnabled = bgmEnabled,
+            menuExpanded = showMenu,
+            onBack = onBackToMap,
+            onEnd = onEnd,
+            onDelete = onDelete,
+            onToggleVoice = { MeetingVoicePlayback.setEnabled(context, !voiceEnabled) },
+            onToggleMenu = { showMenu = true },
+            onDismissMenu = { showMenu = false },
+            onOpenHistory = onOpenHistory,
+            onOpenModelPicker = onOpenModelPicker,
+            onOpenWritingPicker = onOpenWritingPicker,
+            onOpenVoiceSettings = onOpenVoiceSettings,
+            modifier = Modifier.align(Alignment.TopCenter),
         )
 
-        // Keep the scene square even while the keyboard is resizing the available height.
-        // It may become smaller, but it will never be vertically stretched or flattened.
-        BoxWithConstraints(
-            modifier = Modifier.fillMaxWidth().weight(.54f),
-            contentAlignment = Alignment.TopCenter,
-        ) {
-            val sceneSize = minOf(maxWidth, maxHeight)
-            if (session.reality == MeetingReality.DIGITAL_WORLD) {
-                DigitalWorldSceneCanvas(
-                    modifier = Modifier.size(sceneSize),
-                    sceneCode = sceneCode,
-                    homeCharacterId = homeId,
-                    characters = characters,
-                    world = world,
-                    onCharacterClick = { characterId -> onCharacterClick(characterId, session.location) },
-                )
-            } else {
-                RealisticMeetingIllustration(
-                    modifier = Modifier.size(sceneSize),
-                    participantIds = session.participantIds,
-                )
-            }
-        }
+        MeetingNarrativeOverlay(
+            page = currentPage,
+            pageIndex = pageIndex,
+            pageCount = pages.size,
+            expanded = narrativeExpanded,
+            viewOnly = viewOnly,
+            generating = generating,
+            characters = characters,
+            userName = userName,
+            userAvatar = userAvatar,
+            userAvatarUri = userAvatarUri,
+            input = input,
+            canSend = canSend,
+            errorText = errorText,
+            onExpandedChanged = { narrativeExpanded = it },
+            onPrevious = { pageIndex = (pageIndex - 1).coerceAtLeast(0) },
+            onNext = { pageIndex = (pageIndex + 1).coerceAtMost(pages.lastIndex) },
+            onInputChanged = onInputChanged,
+            onSend = onSend,
+            onRetry = onRetry,
+            onLongClick = { currentPage?.let { onSceneLongClick(it.group) } },
+            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding(),
+        )
+    }
+}
 
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(.35f)
-                .offset(y = (-3).dp)
-                .padding(horizontal = 10.dp, vertical = 3.dp)
-                .then(
-                    currentPage?.let { page ->
-                        Modifier.combinedClickable(
-                            onClick = {},
-                            onLongClick = { onSceneLongClick(page.group) },
-                        )
-                    } ?: Modifier,
+@Composable
+private fun MeetingImmersiveTopBar(
+    location: String,
+    viewOnly: Boolean,
+    generating: Boolean,
+    voiceEnabled: Boolean,
+    bgmEnabled: Boolean,
+    menuExpanded: Boolean,
+    onBack: () -> Unit,
+    onEnd: () -> Unit,
+    onDelete: () -> Unit,
+    onToggleVoice: () -> Unit,
+    onToggleMenu: () -> Unit,
+    onDismissMenu: () -> Unit,
+    onOpenHistory: () -> Unit,
+    onOpenModelPicker: () -> Unit,
+    onOpenWritingPicker: () -> Unit,
+    onOpenVoiceSettings: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .background(
+                Brush.verticalGradient(
+                    listOf(Color(0xF20A1512), Color(0xD90A1512), Color.Transparent),
                 ),
-            color = Color(0xFFFEFEFD),
-            shape = RoundedCornerShape(20.dp),
-            border = BorderStroke(1.dp, Color(0xFF302F2D)),
-            shadowElevation = 2.dp,
-        ) {
-            Column(
-                Modifier.fillMaxSize().padding(horizontal = 15.dp, vertical = 10.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
-            ) {
-                if (pages.isNotEmpty()) {
+            )
+            .padding(horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回地图", tint = Color.White) }
+        Column(Modifier.weight(1f)) {
+            Text(location, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Black, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("生活模拟 · 实时探索", color = Color(0xFF9CCABD), fontSize = 8.5.sp, letterSpacing = .4.sp)
+        }
+        if (viewOnly) {
+            IconButton(onClick = onDelete) { Icon(Icons.Outlined.DeleteOutline, "删除", tint = Color.White) }
+        } else {
+            TextButton(onClick = onEnd, enabled = !generating) {
+                Text("结束", color = Color.White, fontWeight = FontWeight.Bold)
+            }
+        }
+        MeetingVoiceToggleButton(enabled = voiceEnabled, onToggle = onToggleVoice)
+        GameAmbientAudioButton(enabled = bgmEnabled, tint = Color.White)
+        Box {
+            IconButton(onClick = onToggleMenu) { Icon(Icons.Outlined.MoreVert, "更多", tint = Color.White) }
+            MeetingOverflowMenu(
+                expanded = menuExpanded,
+                voiceEnabled = voiceEnabled,
+                onDismiss = onDismissMenu,
+                onToggleVoice = onToggleVoice,
+                onOpenHistory = onOpenHistory,
+                onOpenModelPicker = onOpenModelPicker,
+                onOpenWritingPicker = onOpenWritingPicker,
+                onOpenVoiceSettings = onOpenVoiceSettings,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun MeetingNarrativeOverlay(
+    page: MeetingReadingPage?,
+    pageIndex: Int,
+    pageCount: Int,
+    expanded: Boolean,
+    viewOnly: Boolean,
+    generating: Boolean,
+    characters: List<CharacterSettings>,
+    userName: String,
+    userAvatar: String,
+    userAvatarUri: String?,
+    input: String,
+    canSend: Boolean,
+    errorText: String,
+    onExpandedChanged: (Boolean) -> Unit,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit,
+    onInputChanged: (String) -> Unit,
+    onSend: () -> Unit,
+    onRetry: (() -> Unit)?,
+    onLongClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 6.dp)
+            .animateContentSize(tween(180))
+            .combinedClickable(onClick = {}, onLongClick = onLongClick),
+        color = Color(0xED101B18),
+        shape = RoundedCornerShape(22.dp),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = .18f)),
+        shadowElevation = 16.dp,
+    ) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MeetingSpeakerBadge(page, characters, userName, userAvatar, userAvatarUri)
+                Spacer(Modifier.weight(1f))
+                if (pageCount > 0) {
+                    Text("${pageIndex + 1} / $pageCount", color = Color(0xFF8FB2A8), fontSize = 9.sp)
+                    Spacer(Modifier.width(6.dp))
+                }
+                IconButton(onClick = { onExpandedChanged(!expanded) }, modifier = Modifier.size(34.dp)) {
+                    Icon(
+                        if (expanded) Icons.Outlined.ExpandMore else Icons.Outlined.ExpandLess,
+                        if (expanded) "收起剧情" else "展开剧情",
+                        tint = Color.White,
+                        modifier = Modifier.size(19.dp),
+                    )
+                }
+            }
+
+            Crossfade(page?.voiceKey to expanded, animationSpec = tween(130), label = "meeting-story-layer") { (_, showFull) ->
+                val visiblePage = page
+                if (showFull) {
                     Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(2.dp)
-                            .padding(horizontal = 1.dp),
+                        Modifier.fillMaxWidth().heightIn(min = 56.dp, max = 126.dp),
+                        contentAlignment = Alignment.TopStart,
                     ) {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .align(Alignment.Center),
-                        ) {
-                            Surface(
-                                modifier = Modifier.fillMaxSize(),
-                                color = Color(0xFFE6E3DD),
-                            ) {}
-                            Surface(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .fillMaxWidth(((pageIndex + 1f) / pages.size).coerceIn(0f, 1f)),
-                                color = Color(0xFF494642),
-                            ) {}
-                        }
-                    }
-                    Spacer(Modifier.height(7.dp))
-                }
-
-                Box(
-                    Modifier.fillMaxWidth().weight(1f),
-                    contentAlignment = Alignment.TopStart,
-                ) {
-                    Crossfade(
-                        targetState = pageIndex,
-                        animationSpec = tween(120),
-                        label = "meeting-reading-page",
-                    ) { targetIndex ->
-                        val page = pages.getOrNull(targetIndex)
                         when {
-                            page != null -> {
-                                key(page.voiceKey) {
-                                    val pageScroll = rememberScrollState()
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .verticalScroll(pageScroll),
-                                        verticalArrangement = Arrangement.spacedBy(9.dp),
-                                    ) {
-                                        if (page.type == MeetingSegmentType.DIALOGUE) {
-                                            val speakerId = page.speakerId
-                                            val speaker = speakerId
-                                                ?.takeUnless { it == "system" }
-                                                ?.let { id -> characters.firstOrNull { it.characterId == id } }
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                            ) {
-                                                if (speakerId == null) {
-                                                    LuluProfileAvatar(userAvatarUri, userAvatar, 38)
-                                                    Text(
-                                                        userName,
-                                                        color = Color(0xFF282828),
-                                                        fontSize = 17.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                    )
-                                                } else if (speaker != null) {
-                                                    LuluProfileAvatar(
-                                                        speaker.avatarUri,
-                                                        speaker.displayName.take(1).ifBlank { "角" },
-                                                        40,
-                                                    )
-                                                    Text(
-                                                        speaker.displayName,
-                                                        color = Color(0xFF222222),
-                                                        fontSize = 17.5.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                    )
-                                                } else {
-                                                    Text(
-                                                        page.speakerName,
-                                                        color = Color(0xFF222222),
-                                                        fontSize = 17.5.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                    )
-                                                }
-                                            }
-                                        }
-                                        Text(
-                                            page.text,
-                                            color = Color(0xFF252525),
-                                            style = TextStyle(
-                                                fontSize = 15.sp,
-                                                lineHeight = 23.sp,
-                                                textIndent = TextIndent(firstLine = 2.em),
-                                            ),
-                                        )
-                                    }
-                                }
+                            visiblePage != null -> {
+                                Text(
+                                    visiblePage.text,
+                                    color = Color(0xFFF2F6F3),
+                                    fontSize = 14.5.sp,
+                                    lineHeight = 21.5.sp,
+                                    modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
+                                )
                             }
-                            generating -> {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                ) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(16.dp),
-                                        strokeWidth = 1.8.dp,
-                                        color = Color(0xFF333333),
-                                    )
-                                    Text("正在继续……", color = Color(0xFF777570), fontSize = 11.sp)
-                                }
+                            generating -> Row(verticalAlignment = Alignment.CenterVertically) {
+                                CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp, color = Color(0xFF9EFFE0))
+                                Spacer(Modifier.width(8.dp))
+                                Text("场景正在继续……", color = Color(0xFFC6D8D1), fontSize = 11.sp)
                             }
-                            else -> Text("……", color = Color(0xFF999999), fontSize = 15.sp)
+                            else -> Text("房间里只剩下呼吸和环境声。", color = Color(0xFFB8C9C3), fontSize = 12.sp)
                         }
                     }
+                } else {
+                    Text(
+                        visiblePage?.text ?: if (generating) "场景正在继续……" else "自由探索中",
+                        color = Color(0xFFCFDDD8),
+                        fontSize = 11.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                    )
                 }
+            }
 
+            if (expanded && pageCount > 0) {
                 Row(
-                    Modifier.fillMaxWidth(),
+                    Modifier.fillMaxWidth().height(35.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    MeetingPageNavButton(
-                        label = "上一段",
-                        icon = Icons.Outlined.ChevronLeft,
-                        iconAfter = false,
-                        enabled = pageIndex > 0,
-                        onClick = { pageIndex = (pageIndex - 1).coerceAtLeast(0) },
-                    )
-                    Spacer(Modifier.weight(1f))
-                    if (pages.isNotEmpty()) {
-                        Surface(
-                            shape = RoundedCornerShape(99.dp),
-                            color = Color(0xFFF2F1EE),
-                            border = BorderStroke(.7.dp, Color(0xFFE0DED9)),
-                        ) {
-                            Text(
-                                "${pageIndex + 1} / ${pages.size}",
-                                color = Color(0xFF777570),
-                                fontSize = 9.5.sp,
-                                fontWeight = FontWeight.Medium,
-                                modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
-                            )
-                        }
+                    TextButton(onClick = onPrevious, enabled = pageIndex > 0) {
+                        Icon(Icons.Outlined.ChevronLeft, null, Modifier.size(17.dp))
+                        Text("上一段", fontSize = 10.sp)
                     }
-                    Spacer(Modifier.weight(1f))
-                    MeetingPageNavButton(
-                        label = "下一段",
-                        icon = Icons.Outlined.ChevronRight,
-                        iconAfter = true,
-                        enabled = pages.isNotEmpty() && pageIndex < pages.lastIndex,
-                        onClick = { pageIndex = (pageIndex + 1).coerceAtMost(pages.lastIndex) },
+                    LinearProgressIndicator(
+                        progress = { (pageIndex + 1f) / pageCount.coerceAtLeast(1) },
+                        modifier = Modifier.width(82.dp).height(2.dp).clip(RoundedCornerShape(99.dp)),
+                        color = Color(0xFF9EFFE0),
+                        trackColor = Color.White.copy(alpha = .12f),
                     )
+                    TextButton(onClick = onNext, enabled = pageIndex < pageCount - 1) {
+                        Text("下一段", fontSize = 10.sp)
+                        Icon(Icons.Outlined.ChevronRight, null, Modifier.size(17.dp))
+                    }
                 }
             }
-        }
 
-        if (errorText.isNotBlank()) {
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 2.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    errorText,
-                    color = MaterialTheme.colorScheme.error,
-                    fontSize = 10.5.sp,
-                    modifier = Modifier.weight(1f),
-                )
-                if (onRetry != null) TextButton(onClick = onRetry) { Text("重试") }
+            if (errorText.isNotBlank()) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(errorText, color = Color(0xFFFF9D9D), fontSize = 10.sp, modifier = Modifier.weight(1f), maxLines = 2)
+                    if (onRetry != null) TextButton(onClick = onRetry) { Text("重试") }
+                }
             }
-        }
 
-        if (!viewOnly) {
-            Surface(color = LuluColors.Paper, tonalElevation = 0.dp) {
+            if (!viewOnly) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .navigationBarsPadding()
-                        .imePadding()
-                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                    Modifier.fillMaxWidth().padding(top = if (expanded) 5.dp else 2.dp),
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.spacedBy(7.dp),
                 ) {
@@ -428,108 +402,115 @@ internal fun DigitalWorldMeetingSceneExperience(
                         value = input,
                         onValueChange = onInputChanged,
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("写一点……", fontSize = 13.sp) },
+                        placeholder = { Text("说话，或描述你的行动……", fontSize = 11.5.sp) },
                         minLines = 1,
-                        maxLines = 3,
-                        shape = RoundedCornerShape(16.dp),
+                        maxLines = if (expanded) 2 else 1,
+                        shape = RoundedCornerShape(15.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF34322F),
-                            unfocusedBorderColor = Color(0xFFD5D2CC),
-                            cursorColor = Color(0xFF2B2B2B),
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedBorderColor = Color(0xFF9EFFE0),
+                            unfocusedBorderColor = Color.White.copy(alpha = .22f),
+                            cursorColor = Color(0xFF9EFFE0),
+                            focusedContainerColor = Color.Black.copy(alpha = .16f),
+                            unfocusedContainerColor = Color.Black.copy(alpha = .12f),
+                            focusedPlaceholderColor = Color(0xFF91A8A0),
+                            unfocusedPlaceholderColor = Color(0xFF91A8A0),
                         ),
                     )
                     FilledIconButton(
                         onClick = onSend,
                         enabled = input.isNotBlank() && canSend,
-                        modifier = Modifier.size(47.dp),
+                        modifier = Modifier.size(48.dp),
                         shape = RoundedCornerShape(15.dp),
                         colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = Color(0xFF252525),
-                            contentColor = Color.White,
-                            disabledContainerColor = Color(0xFFE6E4DF),
-                            disabledContentColor = Color(0xFFAAA7A0),
+                            containerColor = Color(0xFF9EFFE0),
+                            contentColor = Color(0xFF10211C),
+                            disabledContainerColor = Color.White.copy(alpha = .10f),
+                            disabledContentColor = Color.White.copy(alpha = .34f),
                         ),
                     ) {
-                        Icon(Icons.Outlined.Send, "发送", modifier = Modifier.size(19.dp))
+                        if (generating) CircularProgressIndicator(Modifier.size(19.dp), strokeWidth = 2.dp)
+                        else Icon(Icons.Outlined.NorthEast, "发送", modifier = Modifier.size(20.dp))
                     }
                 }
             }
-        } else {
-            Spacer(Modifier.navigationBarsPadding().height(8.dp))
         }
     }
 }
 
 @Composable
-private fun MeetingPageNavButton(
-    label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    iconAfter: Boolean,
-    enabled: Boolean,
-    onClick: () -> Unit,
+private fun MeetingSpeakerBadge(
+    page: MeetingReadingPage?,
+    characters: List<CharacterSettings>,
+    userName: String,
+    userAvatar: String,
+    userAvatarUri: String?,
 ) {
-    Surface(
-        modifier = Modifier.clickable(enabled = enabled, onClick = onClick),
-        shape = RoundedCornerShape(99.dp),
-        color = if (enabled) Color(0xFFFEFEFD) else Color(0xFFF6F5F2),
-        border = BorderStroke(
-            .8.dp,
-            if (enabled) Color(0xFF373532) else Color(0xFFE2E0DB),
+    val character = page?.speakerId?.takeUnless { it == "system" }
+        ?.let { id -> characters.firstOrNull { it.characterId == id } }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        when {
+            page?.type != MeetingSegmentType.DIALOGUE -> {
+                Surface(shape = RoundedCornerShape(9.dp), color = Color(0xFF9EFFE0).copy(alpha = .14f), modifier = Modifier.size(29.dp)) {
+                    Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.AutoStories, null, tint = Color(0xFFB7FFE8), modifier = Modifier.size(16.dp)) }
+                }
+            }
+            page.speakerId == null -> LuluProfileAvatar(userAvatarUri, userAvatar, 30)
+            character != null -> LuluProfileAvatar(character.avatarUri, character.displayName.take(1), 30)
+            else -> {
+                Surface(shape = RoundedCornerShape(9.dp), color = Color.White.copy(alpha = .12f), modifier = Modifier.size(29.dp)) {
+                    Box(contentAlignment = Alignment.Center) { Text(page.speakerName.take(1), color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold) }
+                }
+            }
+        }
+        Spacer(Modifier.width(8.dp))
+        Column {
+            Text(
+                when {
+                    page == null -> "当下"
+                    page.type != MeetingSegmentType.DIALOGUE -> "场景"
+                    page.speakerId == null -> userName
+                    character != null -> character.displayName
+                    else -> page.speakerName
+                },
+                color = Color.White,
+                fontSize = 11.5.sp,
+                fontWeight = FontWeight.Black,
+                maxLines = 1,
+            )
+            Text(
+                if (page?.type == MeetingSegmentType.DIALOGUE) "正在说话" else "环境叙事",
+                color = Color(0xFF88A99F),
+                fontSize = 7.5.sp,
+            )
+        }
+    }
+}
+
+@Composable
+private fun RealisticMeetingStage(modifier: Modifier, participantIds: List<String>) {
+    Box(
+        modifier.background(
+            Brush.radialGradient(
+                listOf(Color(0xFF536763), Color(0xFF1B2A27), Color(0xFF08110F)),
+            ),
         ),
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            if (!iconAfter) {
-                Icon(
-                    icon,
-                    null,
-                    tint = if (enabled) Color(0xFF34322F) else Color(0xFFB7B4AE),
-                    modifier = Modifier.size(16.dp),
-                )
-            }
-            Text(
-                label,
-                color = if (enabled) Color(0xFF34322F) else Color(0xFFB7B4AE),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Medium,
-            )
-            if (iconAfter) {
-                Icon(
-                    icon,
-                    null,
-                    tint = if (enabled) Color(0xFF34322F) else Color(0xFFB7B4AE),
-                    modifier = Modifier.size(16.dp),
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun RealisticMeetingIllustration(
-    modifier: Modifier,
-    participantIds: List<String>,
-) {
-    Surface(
-        modifier = modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-        color = Color(0xFFF5F4F1),
-        shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(1.dp, Color(0xFF252525)),
-    ) {
-        Row(
-            Modifier.fillMaxSize().padding(24.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            participantIds.take(4).forEach { id ->
-                val character = MigratedDomainStores.characters.get(id)
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    LuluProfileAvatar(character.avatarUri, character.displayName.take(1).ifBlank { "角" }, 58)
-                    Spacer(Modifier.height(4.dp))
-                    Text(character.displayName, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+        participantIds.take(4).forEachIndexed { index, id ->
+            val character = MigratedDomainStores.characters.get(id)
+            val alignments = listOf(Alignment.CenterStart, Alignment.CenterEnd, Alignment.TopCenter, Alignment.BottomCenter)
+            Surface(
+                modifier = Modifier.align(alignments[index % alignments.size]).padding(28.dp),
+                color = Color.White.copy(alpha = .08f),
+                shape = RoundedCornerShape(30.dp),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = .15f)),
+                shadowElevation = 10.dp,
+            ) {
+                Column(Modifier.padding(13.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    LuluProfileAvatar(character.avatarUri, character.displayName.take(1), 92)
+                    Spacer(Modifier.height(7.dp))
+                    Text(character.displayName, color = Color.White, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -542,11 +523,8 @@ private fun meetingSceneGroups(turns: List<MeetingTurn>): List<MeetingUiDisplayG
         val key = turn.exchangeId?.takeIf(String::isNotBlank)?.let { "exchange:$it" }
             ?: if (turn.speakerId == "system") "system:${turn.id}" else "legacy:${turn.id}"
         val previous = groups.lastOrNull()
-        if (previous?.key == key) {
-            groups[groups.lastIndex] = previous.copy(turns = previous.turns + turn)
-        } else {
-            groups += MeetingUiDisplayGroup(key, listOf(turn))
-        }
+        if (previous?.key == key) groups[groups.lastIndex] = previous.copy(turns = previous.turns + turn)
+        else groups += MeetingUiDisplayGroup(key, listOf(turn))
     }
     return groups
 }
@@ -561,11 +539,7 @@ private fun readingPagesForGroup(group: MeetingUiDisplayGroup): List<MeetingRead
                         group = group,
                         speakerId = turn.speakerId,
                         speakerName = turn.speakerName,
-                        text = if (segment.type == MeetingSegmentType.DIALOGUE) {
-                            chunk.trim().trim('“', '”', '"')
-                        } else {
-                            chunk.trim()
-                        },
+                        text = if (segment.type == MeetingSegmentType.DIALOGUE) chunk.trim().trim('“', '”', '"') else chunk.trim(),
                         type = segment.type,
                         voiceKey = "${group.key}:${turn.id}:$segmentIndex:$chunkIndex",
                     ),
@@ -575,44 +549,22 @@ private fun readingPagesForGroup(group: MeetingUiDisplayGroup): List<MeetingRead
     }
 }
 
-/**
- * targetChars is a soft target, not a guillotine. Complete sentences stay intact.
- * A single unusually long sentence stays on one page and can be scrolled vertically.
- */
 private fun readingChunks(raw: String, targetChars: Int): List<String> {
-    val normalized = raw
-        .trim()
-        .replace(Regex("[\\t ]+"), " ")
-        .replace(Regex("\\n{3,}"), "\n\n")
+    val normalized = raw.trim().replace(Regex("[\\t ]+"), " ").replace(Regex("\\n{3,}"), "\n\n")
     if (normalized.isBlank()) return emptyList()
-
     val result = mutableListOf<String>()
-    normalized
-        .split(Regex("\\n+"))
-        .map(String::trim)
-        .filter(String::isNotBlank)
-        .forEach { paragraph ->
-            val sentences = sentenceSafePieces(paragraph)
-            val page = StringBuilder()
-
-            fun flushPage() {
-                val text = page.toString().trim()
-                if (text.isNotBlank()) result += text
-                page.clear()
-            }
-
-            sentences.forEach { sentence ->
-                if (page.isEmpty()) {
-                    page.append(sentence)
-                } else if (page.length + sentence.length <= targetChars) {
-                    page.append(sentence)
-                } else {
-                    flushPage()
-                    page.append(sentence)
-                }
-            }
-            flushPage()
+    normalized.split(Regex("\\n+")).map(String::trim).filter(String::isNotBlank).forEach { paragraph ->
+        val page = StringBuilder()
+        fun flush() {
+            page.toString().trim().takeIf(String::isNotBlank)?.let(result::add)
+            page.clear()
         }
+        sentenceSafePieces(paragraph).forEach { sentence ->
+            if (page.isNotEmpty() && page.length + sentence.length > targetChars) flush()
+            page.append(sentence)
+        }
+        flush()
+    }
     return result
 }
 
@@ -622,26 +574,18 @@ private fun sentenceSafePieces(paragraph: String): List<String> {
     val buffer = StringBuilder()
     val closingMarks = "”’」』）》】\""
     var sentenceEnded = false
-
     paragraph.forEachIndexed { index, char ->
         buffer.append(char)
-        if (char in "。！？!?" || char == '…') {
-            sentenceEnded = true
-        }
-
+        if (char in "。！？!?" || char == '…') sentenceEnded = true
         if (sentenceEnded) {
             val next = paragraph.getOrNull(index + 1)
-            val shouldWait = next != null && (next in closingMarks || next == '…')
-            if (!shouldWait) {
-                val sentence = buffer.toString().trim()
-                if (sentence.isNotBlank()) pieces += sentence
+            if (next == null || (next !in closingMarks && next != '…')) {
+                buffer.toString().trim().takeIf(String::isNotBlank)?.let(pieces::add)
                 buffer.clear()
                 sentenceEnded = false
             }
         }
     }
-
-    val tail = buffer.toString().trim()
-    if (tail.isNotBlank()) pieces += tail
+    buffer.toString().trim().takeIf(String::isNotBlank)?.let(pieces::add)
     return pieces.ifEmpty { listOf(paragraph) }
 }

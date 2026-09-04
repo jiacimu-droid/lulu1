@@ -30,7 +30,7 @@ import kotlin.math.sin
  * Music is synthesized on-device instead of shipping a large looping audio asset. Each screen owns
  * a playback token, so navigation can never stop a newer screen's soundtrack by accident.
  */
-internal enum class GameSoundscape { Meeting, Apocalypse, Arcade }
+internal enum class GameSoundscape { Meeting, Apocalypse, Arcade, Ocean }
 
 internal object GameAmbientAudio {
     private const val PREFS = "lulu_game_ambient_audio"
@@ -193,6 +193,18 @@ internal object GameAmbientAudio {
                 val bass = sin(2.0 * PI * (if ((step / 4) % 2 == 0) 65.41 else 73.42) * t) * .012
                 val sparkle = if (beat < .035) noise * .009 * (1.0 - beat / .035) else 0.0
                 (lead + bass + sparkle) to (lead * .82 + bass - sparkle)
+            }
+            GameSoundscape.Ocean -> {
+                val deepDrone = sin(2.0 * PI * 43.65 * t) * .018 +
+                    sin(2.0 * PI * 65.41 * t + .8) * .010
+                val current = sin(2.0 * PI * .071 * t) * .004 + noise * .0028
+                val step = (t / 2.4).toInt()
+                val notes = doubleArrayOf(174.61, 220.00, 261.63, 329.63, 293.66, 220.00)
+                val envelope = (1.0 - (t % 2.4) / 2.4).let { it * it * it }
+                val sonar = sin(2.0 * PI * notes[step % notes.size] * t) * .021 * envelope
+                val shimmer = sin(2.0 * PI * notes[(step + 2) % notes.size] * 2.0 * t + .5) * .006 * envelope
+                (deepDrone + current + sonar + shimmer) to
+                    (deepDrone * .92 - current + sonar * .76 + shimmer)
             }
         }
 }

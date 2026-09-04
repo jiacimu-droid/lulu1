@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ModelArchiveIconButton
@@ -37,7 +36,7 @@ import java.time.format.DateTimeFormatter
 
 private sealed interface GameRoute {
     data object Home : GameRoute
-    data object SignalHunt : GameRoute
+    data object DeepSea : GameRoute
     data object PerfectMan : GameRoute
     data object Roleplay : GameRoute
     data object TurtleSoup : GameRoute
@@ -65,8 +64,8 @@ private data class GameLauncher(
 fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null) {
     val store = remember { LuluGames.store }
     val state by store.state.collectAsState()
-    val bgmEnabled = GameAmbientSoundscape(GameSoundscape.Arcade)
     var route by remember(initialGameId) { mutableStateOf(initialGameId.toGameRouteOrHome()) }
+    val bgmEnabled = GameAmbientSoundscape(if (route == GameRoute.DeepSea) GameSoundscape.Ocean else GameSoundscape.Arcade)
     var pendingRoute by remember { mutableStateOf<GameRoute?>(null) }
 
     fun stepBack() {
@@ -97,8 +96,10 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null) {
         return
     }
 
+    val darkChrome = route in setOf(GameRoute.Home, GameRoute.DeepSea, GameRoute.MemoryMatch)
+
     Scaffold(
-        containerColor = GameDesign.paper,
+        containerColor = if (darkChrome) Color(0xFF0B111B) else GameDesign.paper,
         topBar = {
             TopAppBar(
                 title = { Text(route.title(), fontWeight = FontWeight.SemiBold) },
@@ -108,10 +109,13 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null) {
                     }
                 },
                 actions = {
-                    GameAmbientAudioButton(enabled = bgmEnabled, tint = GameDesign.ink)
+                    GameAmbientAudioButton(
+                        enabled = bgmEnabled,
+                        tint = if (darkChrome) Color.White else GameDesign.ink,
+                    )
                     if (route == GameRoute.Home) {
                         IconButton(onClick = { route = GameRoute.Records }) {
-                            Icon(Icons.Outlined.History, "游戏记录与回放")
+                            Icon(Icons.Outlined.History, "游戏记录与回放", tint = Color.White)
                         }
                     }
                     ModelArchiveIconButton(
@@ -120,15 +124,19 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null) {
                         subtitle = "只切换“游戏”应用使用的模型存档；末世求生有自己的独立模型，不会跟着改变。",
                         icon = Icons.Outlined.Memory,
                         contentDescription = "选择游戏模型",
-                        tint = GameDesign.ink,
-                        accent = GameDesign.ink,
-                        background = GameDesign.paper,
-                        ink = GameDesign.ink,
-                        muted = GameDesign.muted,
-                        border = GameDesign.border,
+                        tint = if (darkChrome) Color.White else GameDesign.ink,
+                        accent = if (darkChrome) Color.White else GameDesign.ink,
+                        background = if (darkChrome) Color(0xFF111620) else GameDesign.paper,
+                        ink = if (darkChrome) Color.White else GameDesign.ink,
+                        muted = if (darkChrome) Color(0xFFB8C2D3) else GameDesign.muted,
+                        border = if (darkChrome) Color.White.copy(alpha = .18f) else GameDesign.border,
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = GameDesign.paper),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = if (darkChrome) Color(0xFF0B111B) else GameDesign.paper,
+                    titleContentColor = if (darkChrome) Color.White else GameDesign.ink,
+                    navigationIconContentColor = if (darkChrome) Color.White else GameDesign.ink,
+                ),
             )
         },
     ) { padding ->
@@ -136,14 +144,14 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null) {
             ArcadeAtmosphere(Modifier.matchParentSize())
             when (val current = route) {
                 GameRoute.Home -> GameHome(onOpen = { pendingRoute = it })
-                GameRoute.SignalHunt -> SignalHuntScreen(store)
+                GameRoute.DeepSea -> DeepSeaJourneyScreen(store)
                 GameRoute.PerfectMan -> PerfectManScreen(store)
                 GameRoute.Roleplay -> Unit
                 GameRoute.TurtleSoup -> TurtleSoupScreen(store)
                 GameRoute.RapportQuiz -> RapportQuizScreen(store)
                 GameRoute.YachtDice -> YachtDiceScreen(store)
                 GameRoute.Gomoku -> GomokuScreen(store)
-                GameRoute.MemoryMatch -> MemoryMatchScreen(store)
+                GameRoute.MemoryMatch -> ImmersiveMemoryMatchScreen(store)
                 GameRoute.Records -> GameRecordsScreen(state, store, onReplay = { route = GameRoute.Replay(it) })
                 is GameRoute.Replay -> GameReplayScreen(
                     record = state.records.firstOrNull { it.id == current.recordId },
@@ -156,7 +164,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null) {
 
 private fun GameRoute.title(): String = when (this) {
     GameRoute.Home -> "游戏"
-    GameRoute.SignalHunt -> "信号追踪"
+    GameRoute.DeepSea -> "深海回声"
     GameRoute.PerfectMan -> "满分男"
     GameRoute.Roleplay -> "跑团"
     GameRoute.TurtleSoup -> "海龟汤"
@@ -169,7 +177,7 @@ private fun GameRoute.title(): String = when (this) {
 }
 
 private fun String?.toGameRouteOrHome(): GameRoute = when (this?.trim()?.lowercase()) {
-    "signal_hunt" -> GameRoute.SignalHunt
+    "deep_sea", "deep_sea_journey" -> GameRoute.DeepSea
     "perfect_man" -> GameRoute.PerfectMan
     "roleplay" -> GameRoute.Roleplay
     "turtle_soup" -> GameRoute.TurtleSoup
@@ -184,25 +192,62 @@ private fun String?.toGameRouteOrHome(): GameRoute = when (this?.trim()?.lowerca
 private fun GameHome(
     onOpen: (GameRoute) -> Unit,
 ) {
-    val games = listOf(
-        GameLauncher("signal_hunt", "信号追踪", "三枚真实信号、最多探测五格，完整路线会保存。", Icons.Outlined.Radar, GameRoute.SignalHunt, accent = Color(0xFF557876)),
-        GameLauncher("perfect_man", "满分男", "轮流描述与猜分，由角色真实判断。", Icons.Outlined.PersonSearch, GameRoute.PerfectMan, accent = Color(0xFF876B7A)),
+    val deepSea = GameLauncher(
+        "deep_sea_journey",
+        "深海回声",
+        "驾驶潜航器穿越海沟，躲避礁体、收集五段回声并开启归航门。",
+        Icons.Outlined.Waves,
+        GameRoute.DeepSea,
+        minCharacters = 0,
+        maxCharacters = 1,
+        accent = Color(0xFF66D7CC),
+    )
+    val featured = listOf(
         GameLauncher("roleplay", "跑团", "长期剧情存档、同行小队与沉浸式小说叙事。", Icons.Outlined.AutoStories, GameRoute.Roleplay, 1, 4, Color(0xFF655F84)),
+        GameLauncher("memory_match", "记忆配对", "保留完整翻牌与角色对局，用立体翻转和舞台光效重做。", Icons.Outlined.GridView, GameRoute.MemoryMatch, accent = Color(0xFF75658C)),
+    )
+    val classics = listOf(
+        GameLauncher("perfect_man", "满分男", "轮流描述与猜分，由角色真实判断。", Icons.Outlined.PersonSearch, GameRoute.PerfectMan, accent = Color(0xFF876B7A)),
         GameLauncher("turtle_soup", "海龟汤", "固定汤底、自由提问与共同推理。", Icons.Outlined.HelpOutline, GameRoute.TurtleSoup, 1, 3, Color(0xFF526E86)),
         GameLauncher("rapport_quiz", "默契问答", "角色秘密作答，再比较彼此答案。", Icons.Outlined.QuestionAnswer, GameRoute.RapportQuiz, 1, 3, Color(0xFF8A675E)),
         GameLauncher("yacht_dice", "快艇骰子", "五骰三掷，支持最多四人同局。", Icons.Outlined.Casino, GameRoute.YachtDice, 1, 3, Color(0xFF667653)),
         GameLauncher("gomoku", "五子棋", "双人对弈，角色会进攻、拦截与复盘。", Icons.Outlined.GridOn, GameRoute.Gomoku, accent = Color(0xFF6D6E72)),
-        GameLauncher("memory_match", "记忆配对", "轮流翻牌，在十二张卡里争夺配对。", Icons.Outlined.GridView, GameRoute.MemoryMatch, accent = Color(0xFF75658C)),
     )
+    var showClassics by remember { mutableStateOf(false) }
 
     LazyColumn(
-        contentPadding = PaddingValues(16.dp),
+        modifier = Modifier.fillMaxSize().background(Color(0xFF111620)),
+        contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 10.dp, bottom = 110.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
+        item { GameHallHero() }
+        item { DeepSeaFeaturedEntry(deepSea, onOpen) }
         item {
-            GameHallHero()
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text("主舞台", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Black)
+                Text("完整进度、角色参与和可回放结算", color = Color(0xFF8E99AA), fontSize = 10.sp)
+            }
         }
-        items(games, key = { it.id }) { launcher -> GameEntry(launcher, onOpen) }
+        items(featured, key = { it.id }) { launcher -> GameEntry(launcher, onOpen) }
+        item {
+            Surface(
+                onClick = { showClassics = !showClassics },
+                modifier = Modifier.fillMaxWidth(),
+                color = Color.White.copy(alpha = .055f),
+                shape = RoundedCornerShape(18.dp),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = .12f)),
+            ) {
+                Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Outlined.SportsEsports, null, tint = Color(0xFFB9C3D5), modifier = Modifier.size(20.dp))
+                    Spacer(Modifier.width(9.dp))
+                    Text("轻量经典 · ${classics.size}", color = Color(0xFFDCE2EE), fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    Icon(if (showClassics) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore, null, tint = Color(0xFF9CA7BA))
+                }
+            }
+        }
+        if (showClassics) {
+            items(classics, key = { it.id }) { launcher -> GameEntry(launcher, onOpen) }
+        }
     }
 }
 
@@ -210,18 +255,18 @@ private fun GameHome(
 private fun GameHallHero() {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color(0xFF20242D),
-        shape = RoundedCornerShape(26.dp),
-        border = BorderStroke(1.dp, Color(0xFF353B49)),
-        shadowElevation = 3.dp,
+        color = Color(0xFF202734),
+        shape = RoundedCornerShape(28.dp),
+        border = BorderStroke(1.dp, Color(0xFF3B4658)),
+        shadowElevation = 8.dp,
     ) {
         Box(
             Modifier
                 .fillMaxWidth()
-                .heightIn(min = 142.dp)
+                .heightIn(min = 154.dp)
                 .background(
                     Brush.linearGradient(
-                        listOf(Color(0xFF171A21), Color(0xFF2A3040), Color(0xFF1D222C)),
+                        listOf(Color(0xFF171C27), Color(0xFF293347), Color(0xFF121A26)),
                     ),
                 ),
         ) {
@@ -236,20 +281,92 @@ private fun GameHallHero() {
                     border = BorderStroke(.7.dp, Color.White.copy(alpha = .15f)),
                 ) {
                     Text(
-                        "8 款可共同游玩的游戏",
+                        "3 个主舞台 · 5 款轻量经典",
                         color = Color(0xFFD9DFED),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
                     )
                 }
-                Text("今晚玩点什么？", color = Color.White, fontSize = 25.sp, fontWeight = FontWeight.Black)
+                Text("从小游戏，进入游戏世界", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Black)
                 Text(
-                    "角色会真实参与、做决定、输赢和复盘；完成记录可以随时回放。",
+                    "主舞台拥有连续移动、碰撞、镜头、目标与空间音效；角色可加入，但不再强迫双人。",
                     color = Color(0xFFBBC4D8),
                     fontSize = 11.sp,
                     lineHeight = 17.sp,
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DeepSeaFeaturedEntry(launcher: GameLauncher, onOpen: (GameRoute) -> Unit) {
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val scale by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (pressed) .982f else 1f,
+        animationSpec = tween(120),
+        label = "deep-sea-featured-press",
+    )
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(232.dp)
+            .graphicsLayer { scaleX = scale; scaleY = scale }
+            .clickable(interactionSource = interaction, indication = null) { onOpen(launcher.route) },
+        color = Color(0xFF082936),
+        shape = RoundedCornerShape(30.dp),
+        border = BorderStroke(1.dp, Color(0xFF83E4D8).copy(alpha = .38f)),
+        shadowElevation = if (pressed) 3.dp else 12.dp,
+    ) {
+        Box(
+            Modifier.fillMaxSize().background(
+                Brush.linearGradient(
+                    listOf(Color(0xFF0C4655), Color(0xFF08283A), Color(0xFF071824)),
+                ),
+            ),
+        ) {
+            Box(
+                Modifier
+                    .size(210.dp)
+                    .align(Alignment.TopEnd)
+                    .offset(x = 50.dp, y = (-58).dp)
+                    .background(
+                        Brush.radialGradient(listOf(Color(0xFF8FFFF0).copy(alpha = .28f), Color.Transparent)),
+                        CircleShape,
+                    ),
+            )
+            Icon(
+                Icons.Outlined.Waves,
+                null,
+                tint = Color(0xFF9AFFF0).copy(alpha = .15f),
+                modifier = Modifier.align(Alignment.BottomEnd).offset(x = 20.dp, y = 22.dp).size(174.dp),
+            )
+            Column(
+                Modifier.fillMaxSize().padding(19.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(color = Color(0xFF9AFFF0).copy(alpha = .15f), shape = RoundedCornerShape(99.dp), border = BorderStroke(1.dp, Color(0xFF9AFFF0).copy(alpha = .28f))) {
+                        Text("NEW · 沉浸主舞台", color = Color(0xFFB9FFF2), fontSize = 9.sp, fontWeight = FontWeight.Black, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
+                    }
+                    Spacer(Modifier.weight(1f))
+                    Surface(shape = CircleShape, color = Color.White.copy(alpha = .10f), modifier = Modifier.size(38.dp)) {
+                        Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.NorthEast, null, tint = Color.White, modifier = Modifier.size(20.dp)) }
+                    }
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                    Text(launcher.title, color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Black)
+                    Text(launcher.subtitle, color = Color(0xFFB5D8D5), fontSize = 11.sp, lineHeight = 17.sp, modifier = Modifier.widthIn(max = 285.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                        listOf("自由移动", "真实碰撞", "单人可玩").forEach { label ->
+                            Surface(color = Color.Black.copy(alpha = .18f), shape = RoundedCornerShape(8.dp)) {
+                                Text(label, color = Color(0xFFAEE9E2), fontSize = 8.sp, modifier = Modifier.padding(horizontal = 7.dp, vertical = 4.dp))
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -265,44 +382,62 @@ private fun GameParticipantPickerScreen(
 ) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val limits = route.playerLimits()
+    val dark = route == GameRoute.DeepSea
     var selected by remember(route) {
-        mutableStateOf(initiallySelected.filter { it in characters }.take(limits.second).toSet())
+        mutableStateOf(
+            if (limits.first == 0) emptySet()
+            else initiallySelected.filter { it in characters }.take(limits.second).toSet(),
+        )
     }
     LaunchedEffect(characters.keys, route) {
-        if (selected.isEmpty() && characters.isNotEmpty()) selected = setOf(characters.keys.first())
+        if (limits.first > 0 && selected.isEmpty() && characters.isNotEmpty()) selected = setOf(characters.keys.first())
     }
     Scaffold(
-        containerColor = GameDesign.paper,
+        containerColor = if (dark) Color(0xFF071824) else GameDesign.paper,
         topBar = {
             TopAppBar(
                 title = { Text("选择同行角色", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = GameDesign.paper),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = if (dark) Color(0xFF071824) else GameDesign.paper,
+                    titleContentColor = if (dark) Color.White else GameDesign.ink,
+                    navigationIconContentColor = if (dark) Color.White else GameDesign.ink,
+                ),
             )
         },
         bottomBar = {
-            Surface(color = GameDesign.card, shadowElevation = 8.dp) {
+            Surface(color = if (dark) Color(0xFF09202C) else GameDesign.card, shadowElevation = 8.dp) {
                 Button(
                     onClick = { onConfirm(selected.toList()) },
                     enabled = selected.size in limits.first..limits.second,
                     modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp).height(52.dp),
+                    colors = if (dark) ButtonDefaults.buttonColors(containerColor = Color(0xFF9EFFE9), contentColor = Color(0xFF09242D)) else ButtonDefaults.buttonColors(),
                 ) { Text("确认并进入${route.title()}") }
             }
         },
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
+            modifier = Modifier.fillMaxSize().background(if (dark) Color(0xFF071824) else GameDesign.paper).padding(padding),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item {
-                GameCard {
-                    Text(route.title(), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Surface(
+                    color = if (dark) Color(0xFF0B2A37) else GameDesign.card,
+                    shape = RoundedCornerShape(22.dp),
+                    border = BorderStroke(1.dp, if (dark) Color(0xFF9EFFE9).copy(alpha = .24f) else GameDesign.border),
+                ) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(route.title(), color = if (dark) Color.White else GameDesign.ink, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                     Text(
-                        if (limits.first == limits.second) "请选择 ${limits.first} 位角色"
-                        else "请选择 ${limits.first}—${limits.second} 位角色；加上你共可 ${limits.first + 1}—${limits.second + 1} 人游玩",
-                        color = GameDesign.muted,
+                        when {
+                            limits.first == 0 -> "可以独自进入，也可以邀请 1 位角色同行"
+                            limits.first == limits.second -> "请选择 ${limits.first} 位角色"
+                            else -> "请选择 ${limits.first}—${limits.second} 位角色；加上你共可 ${limits.first + 1}—${limits.second + 1} 人游玩"
+                        },
+                        color = if (dark) Color(0xFF9FC6C1) else GameDesign.muted,
                     )
+                    }
                 }
             }
             items(characters.values.sortedBy { it.displayName }, key = { it.characterId }) { character ->
@@ -315,18 +450,27 @@ private fun GameParticipantPickerScreen(
                             else -> selected
                         }
                     },
-                    colors = CardDefaults.cardColors(containerColor = if (checked) GameDesign.wheatSoft else GameDesign.card),
-                    border = BorderStroke(if (checked) 2.dp else 1.dp, if (checked) GameDesign.ink else GameDesign.border),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (dark) {
+                            if (checked) Color(0xFF174A50) else Color(0xFF0A2430)
+                        } else if (checked) GameDesign.wheatSoft else GameDesign.card,
+                    ),
+                    border = BorderStroke(
+                        if (checked) 2.dp else 1.dp,
+                        if (dark) {
+                            if (checked) Color(0xFF9EFFE9) else Color.White.copy(alpha = .12f)
+                        } else if (checked) GameDesign.ink else GameDesign.border,
+                    ),
                     shape = RoundedCornerShape(22.dp),
                 ) {
                     Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                         com.jiacimu.lulu.LuluProfileAvatar(character.avatarUri, character.displayName.take(1).ifBlank { "角" }, 52)
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
-                            Text(character.displayName, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                            Text(character.persona.take(70).ifBlank { "按照角色人设参与游戏" }, color = GameDesign.muted, maxLines = 2)
+                            Text(character.displayName, color = if (dark) Color.White else GameDesign.ink, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                            Text(character.persona.take(70).ifBlank { "按照角色人设参与游戏" }, color = if (dark) Color(0xFF91B8B4) else GameDesign.muted, maxLines = 2)
                         }
-                        Icon(if (checked) Icons.Outlined.CheckCircle else Icons.Outlined.RadioButtonUnchecked, null)
+                        Icon(if (checked) Icons.Outlined.CheckCircle else Icons.Outlined.RadioButtonUnchecked, null, tint = if (dark) Color(0xFF9EFFE9) else GameDesign.ink)
                     }
                 }
             }
@@ -335,106 +479,11 @@ private fun GameParticipantPickerScreen(
 }
 
 private fun GameRoute.playerLimits(): Pair<Int, Int> = when (this) {
+    GameRoute.DeepSea -> 0 to 1
     GameRoute.Roleplay -> 1 to 4
     GameRoute.TurtleSoup, GameRoute.RapportQuiz, GameRoute.YachtDice -> 1 to 3
-    GameRoute.SignalHunt, GameRoute.PerfectMan, GameRoute.Gomoku, GameRoute.MemoryMatch -> 1 to 1
+    GameRoute.PerfectMan, GameRoute.Gomoku, GameRoute.MemoryMatch -> 1 to 1
     else -> 1 to 1
-}
-
-@Composable
-private fun SignalHuntScreen(store: LuluGameStore) {
-    val state by store.state.collectAsState()
-    val game = state.signalHunt
-    val character = MigratedDomainStores.characters.get(state.selectedCharacterId)
-    val scope = rememberCoroutineScope()
-    var roleResponse by remember { mutableStateOf(GameRoleResponse()) }
-    val moveByCell = game.moves.associateBy { it.cell }
-
-    fun tap(cell: Int) {
-        val wasFinished = store.state.value.signalHunt.finished
-        store.guessSignal(cell)
-        val after = store.state.value
-        if (!wasFinished && after.signalHunt.finished) {
-            val record = after.records.firstOrNull { it.type == LuluGameType.SignalHunt } ?: return
-            saveGameAsSharedMemory(scope, store, record.id)
-            requestGameRoleResponse(
-                scope = scope,
-                store = store,
-                recordId = record.id,
-                facts = record.summary,
-                instruction = "根据真实探测路线和得分，以角色自己的语气回应1-3句；不得修改找到的信号数量。",
-                title = "信号追踪结算",
-                onState = { roleResponse = it },
-                maxTokens = 240,
-            )
-        }
-    }
-
-    GamePageList {
-        item {
-            GameCard {
-                Text("三枚信号，最多探测五格", fontSize = 21.sp, fontWeight = FontWeight.Bold)
-                Text("连续找到信号会有额外得分。每一步都会进入可播放回放。", color = GameDesign.muted)
-                Text("已找到 ${game.moves.count { it.foundSignal }}/3 · 已探测 ${game.moves.size}/5", fontWeight = FontWeight.SemiBold)
-            }
-        }
-        item { GameRolePanel(character.displayName, roleResponse) }
-        item {
-            Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                repeat(3) { row ->
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-                        repeat(3) { column ->
-                            val cell = row * 3 + column
-                            val move = moveByCell[cell]
-                            Surface(
-                                onClick = { tap(cell) },
-                                enabled = game.started && !game.finished && move == null,
-                                modifier = Modifier.weight(1f).aspectRatio(1f),
-                                color = when {
-                                    move?.foundSignal == true -> Color(0xFFDDEEDF)
-                                    move != null -> Color(0xFFE9E9E6)
-                                    else -> GameDesign.card
-                                },
-                                border = BorderStroke(1.dp, GameDesign.border),
-                                shape = RoundedCornerShape(18.dp),
-                            ) {
-                                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    Text(
-                                        when {
-                                            move?.foundSignal == true -> "✦\n信号"
-                                            move != null -> "已探测"
-                                            game.started -> "?"
-                                            else -> "·"
-                                        },
-                                        textAlign = TextAlign.Center,
-                                        fontWeight = FontWeight.Bold,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        item {
-            Button(
-                onClick = { if (game.started) store.resetSignalHunt() else store.startSignalHunt() },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(if (!game.started) "开始这一局" else if (game.finished) "再来一局" else "重置本局")
-            }
-        }
-        if (game.finished) {
-            item {
-                val score = game.moves.sumOf { it.points }
-                GameCard {
-                    Text("本局结束", fontSize = 21.sp, fontWeight = FontWeight.Bold)
-                    Text("找到 ${game.moves.count { it.foundSignal }}/3 个信号 · 得分 $score")
-                    Text("完整路线已经保存到游戏记录。", color = GameDesign.muted)
-                }
-            }
-        }
-    }
 }
 
 @Composable
@@ -570,17 +619,18 @@ private fun GameRecordsScreen(
     store: LuluGameStore,
     onReplay: (String) -> Unit,
 ) {
+    val records = state.records
     GamePageList {
         item {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text("共 ${state.records.size} 条记录", fontWeight = FontWeight.Bold)
-                TextButton(onClick = store::clearRecords, enabled = state.records.isNotEmpty()) { Text("清空") }
+                Text("共 ${records.size} 条记录", fontWeight = FontWeight.Bold)
+                TextButton(onClick = store::clearRecords, enabled = records.isNotEmpty()) { Text("清空") }
             }
         }
-        if (state.records.isEmpty()) {
+        if (records.isEmpty()) {
             item { GameCard { Text("还没有游戏记录", fontSize = 20.sp, fontWeight = FontWeight.Bold); Text("完成任意游戏后，这里会保存事实、规则详情和角色回应。", color = GameDesign.muted) } }
         } else {
-            items(state.records, key = { it.id }) { record ->
+            items(records, key = { it.id }) { record ->
                 GameCard(Modifier.clickable { onReplay(record.id) }) {
                     Row(Modifier.fillMaxWidth()) {
                         Column(Modifier.weight(1f)) {
@@ -607,19 +657,6 @@ private fun GameReplayScreen(record: LuluGameRecord?, onDeleteAll: () -> Unit) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("这条记录不存在或已被清除") }
         return
     }
-    val signalMoves = remember(record.id, record.detailsJson) { parseSignalMoves(record) }
-    var visibleMoves by remember(record.id) { mutableIntStateOf(if (signalMoves.isEmpty()) 0 else signalMoves.size) }
-    var playing by remember(record.id) { mutableStateOf(false) }
-    LaunchedEffect(playing, record.id) {
-        if (!playing || signalMoves.isEmpty()) return@LaunchedEffect
-        visibleMoves = 0
-        while (visibleMoves < signalMoves.size) {
-            delay(650)
-            visibleMoves += 1
-        }
-        playing = false
-    }
-
     GamePageList {
         item {
             GameCard {
@@ -630,16 +667,6 @@ private fun GameReplayScreen(record: LuluGameRecord?, onDeleteAll: () -> Unit) {
                 }
                 Text(record.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), color = GameDesign.muted, fontSize = 12.sp)
             }
-        }
-        if (signalMoves.isNotEmpty()) {
-            item {
-                GameCard {
-                    Text("信号路线回放", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    Text("正在显示 $visibleMoves/${signalMoves.size} 步", color = GameDesign.muted)
-                    Button(onClick = { playing = true }, enabled = !playing, modifier = Modifier.fillMaxWidth()) { Text(if (playing) "播放中…" else "从头播放") }
-                }
-            }
-            item { SignalReplayBoard(signalMoves.take(visibleMoves)) }
         }
         item {
             GameCard {
@@ -659,45 +686,6 @@ private fun GameReplayScreen(record: LuluGameRecord?, onDeleteAll: () -> Unit) {
         item { TextButton(onClick = onDeleteAll, modifier = Modifier.fillMaxWidth()) { Text("清空全部游戏记录") } }
     }
 }
-
-@Composable
-private fun SignalReplayBoard(moves: List<SignalHuntMove>) {
-    val map = moves.associateBy { it.cell }
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        repeat(3) { row ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                repeat(3) { column ->
-                    val move = map[row * 3 + column]
-                    Surface(
-                        modifier = Modifier.weight(1f).aspectRatio(1f),
-                        color = when {
-                            move?.foundSignal == true -> Color(0xFFDDEEDF)
-                            move != null -> Color(0xFFE9E9E6)
-                            else -> GameDesign.card
-                        },
-                        border = BorderStroke(1.dp, GameDesign.border),
-                        shape = RoundedCornerShape(16.dp),
-                    ) {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(if (move?.foundSignal == true) "✦\n+${move.points}" else if (move != null) "×" else "·", textAlign = TextAlign.Center, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-private fun parseSignalMoves(record: LuluGameRecord): List<SignalHuntMove> = runCatching {
-    if (record.type != LuluGameType.SignalHunt) return@runCatching emptyList()
-    val array = JSONObject(record.detailsJson).optJSONArray("moves") ?: return@runCatching emptyList()
-    buildList {
-        for (index in 0 until array.length()) {
-            val item = array.optJSONObject(index) ?: continue
-            add(SignalHuntMove(item.optInt("cell"), item.optBoolean("found_signal"), item.optInt("points")))
-        }
-    }
-}.getOrDefault(emptyList())
 
 private fun prettyDetails(raw: String): String = runCatching {
     JSONObject(raw).toString(2)
@@ -761,7 +749,11 @@ private fun GameEntry(launcher: GameLauncher, onOpen: (GameRoute) -> Unit) {
                 }
                 Text(launcher.subtitle, color = GameDesign.muted, fontSize = 12.sp, lineHeight = 17.sp)
                 Text(
-                    if (launcher.maxCharacters > 1) "最多 " + (launcher.maxCharacters + 1) + " 人" else "双人游戏",
+                    when {
+                        launcher.minCharacters == 0 -> "可单人 · 可邀请 1 位角色"
+                        launcher.maxCharacters > 1 -> "最多 " + (launcher.maxCharacters + 1) + " 人"
+                        else -> "双人游戏"
+                    },
                     color = launcher.accent,
                     fontSize = 9.5.sp,
                     fontWeight = FontWeight.Bold,

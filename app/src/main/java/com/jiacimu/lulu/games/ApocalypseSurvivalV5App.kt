@@ -1280,20 +1280,19 @@ private fun ApocalypseV5PlayPage(
     }
 
     Box(Modifier.fillMaxSize().background(ApocalypseV5Colors.black).statusBarsPadding().imePadding()) {
-        ApocalypseV5SpeakerStage(
-            modifier = Modifier.fillMaxSize(),
-            page = displayPage,
+        ApocalypseExplorationScene(
+            modifier = Modifier.fillMaxSize().padding(top = 54.dp),
+            save = save,
             party = party,
-            storyDossiers = save.director.characterDossiers,
-            config = config,
-            location = save.director.location,
-            tension = save.director.tension,
-            stats = save.stats,
             userName = userName,
             userAvatarUri = userAvatarUri,
+            bottomInset = if (lastPage) 274.dp else 208.dp,
             onMap = { if (!busy) showMapPage = true },
             onInventory = { if (!busy) showInventory = true },
-            onAdvance = { if (!lastPage && !busy) nextPage() },
+            onSuggestedAction = { suggested ->
+                action = suggested
+                autoPlay = false
+            },
         )
 
         Row(
@@ -1319,91 +1318,27 @@ private fun ApocalypseV5PlayPage(
             }
         }
 
-        Surface(
-            modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter).navigationBarsPadding(),
-            color = ApocalypseV5Colors.background.copy(alpha = .98f),
-            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-            shadowElevation = 12.dp,
-        ) {
-            Column(Modifier.fillMaxWidth().padding(vertical = 10.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        if (busy) "第${save.scene + 1}幕 · 正在生成" else apocalypseV5SpeakerLabel(currentPage, party, save.director.characterDossiers, userName),
-                        color = ApocalypseV5Colors.blueStrong,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.weight(1f),
-                    )
-                    Text("${pageIndex + 1}/${pages.size}", color = ApocalypseV5Colors.muted, fontSize = 9.sp)
-                }
-                Spacer(Modifier.height(7.dp))
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 132.dp, max = 220.dp)
-                        .clickable(enabled = !lastPage && !busy) { nextPage() },
-                    color = ApocalypseV5Colors.white,
-                    shape = RoundedCornerShape(0.dp),
-                    border = BorderStroke(1.dp, ApocalypseV5Colors.border),
-                ) {
-                    Text(
-                        displayPage.text,
-                        color = ApocalypseV5Colors.ink,
-                        fontSize = 16.sp,
-                        lineHeight = 24.sp,
-                        modifier = Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
-                    )
-                }
-                Row(
-                    Modifier.fillMaxWidth().height(43.dp).padding(horizontal = 7.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    TextButton(onClick = ::previousPage, enabled = pageIndex > 0) { Icon(Icons.Outlined.ChevronLeft, null, Modifier.size(18.dp)); Text("上一段", fontSize = 10.sp) }
-                    TextButton(onClick = { autoPlay = !autoPlay }, enabled = !lastPage) { Icon(if (autoPlay) Icons.Outlined.Pause else Icons.Outlined.PlayArrow, null, Modifier.size(17.dp)); Spacer(Modifier.width(3.dp)); Text(if (autoPlay) "暂停" else "自动", fontSize = 10.sp) }
-                    TextButton(onClick = ::nextPage, enabled = !lastPage) { Text("下一段", fontSize = 10.sp); Icon(Icons.Outlined.ChevronRight, null, Modifier.size(18.dp)) }
-                }
-                if (lastPage) {
-                    Column(Modifier.fillMaxWidth().padding(horizontal = 15.dp)) {
-                        OutlinedTextField(
-                            value = action,
-                            onValueChange = { action = it.take(600) },
-                            modifier = Modifier.fillMaxWidth(),
-                            placeholder = { Text("你接下来想做什么？") },
-                            minLines = 1,
-                            maxLines = 2,
-                            shape = RoundedCornerShape(14.dp),
-                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = ApocalypseV5Colors.blueStrong, unfocusedBorderColor = ApocalypseV5Colors.border),
-                        )
-                        Spacer(Modifier.height(7.dp))
-                        Button(
-                            onClick = ::submit,
-                            enabled = action.isNotBlank() && !busy,
-                            modifier = Modifier.fillMaxWidth().height(43.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = ApocalypseV5Colors.blueStrong, contentColor = ApocalypseV5Colors.white),
-                            shape = RoundedCornerShape(14.dp),
-                        ) {
-                            if (busy) {
-                                CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = ApocalypseV5Colors.white)
-                                Spacer(Modifier.width(8.dp))
-                            }
-                            Text(if (busy) "${generationState.phase} · ${generationSeconds}s" else "行动", fontWeight = FontWeight.Black)
-                        }
-                        if (busy) {
-                            Spacer(Modifier.height(6.dp))
-                            Text("可以返回其他页面，剧情会继续生成。", color = ApocalypseV5Colors.muted, fontSize = 11.sp)
-                        }
-                        generationState.lastError?.let { message ->
-                            Spacer(Modifier.height(6.dp))
-                            Text(message, color = MaterialTheme.colorScheme.error, fontSize = 11.sp, lineHeight = 16.sp)
-                        }
-                    }
-                }
-            }
-        }
+        ApocalypseNarrativeGameOverlay(
+            page = displayPage,
+            pageIndex = pageIndex,
+            pageCount = pages.size,
+            party = party,
+            dossiers = save.director.characterDossiers,
+            userName = userName,
+            userAvatarUri = userAvatarUri,
+            lastPage = lastPage,
+            autoPlay = autoPlay,
+            busy = busy,
+            generationState = generationState,
+            generationSeconds = generationSeconds,
+            action = action,
+            onActionChanged = { action = it },
+            onPrevious = ::previousPage,
+            onNext = ::nextPage,
+            onToggleAuto = { autoPlay = !autoPlay },
+            onSubmit = ::submit,
+            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding(),
+        )
     }
 
     if (showInventory) {

@@ -176,10 +176,6 @@ private fun UniversalGameReplay(record: LuluGameRecord, onBack: () -> Unit) {
             Text("${record.score}分", fontWeight = FontWeight.Bold)
         }
 
-        if (record.type == LuluGameType.SignalHunt) {
-            SignalReplayBoard(record = record, visibleSteps = visibleSteps)
-        }
-
         LazyColumn(
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(vertical = 4.dp),
@@ -252,53 +248,6 @@ private fun ReplayStepCard(step: ReplayStep) {
     }
 }
 
-@Composable
-private fun SignalReplayBoard(record: LuluGameRecord, visibleSteps: Int) {
-    val moves = remember(record.detailsJson) {
-        runCatching {
-            val array = JSONObject(record.detailsJson).optJSONArray("moves") ?: JSONArray()
-            buildList {
-                for (index in 0 until array.length()) {
-                    val move = array.optJSONObject(index) ?: continue
-                    add(move.optInt("cell") to move.optBoolean("found_signal"))
-                }
-            }
-        }.getOrDefault(emptyList())
-    }
-    val shown = moves.take((visibleSteps - 1).coerceAtLeast(0))
-    Card(
-        colors = CardDefaults.cardColors(containerColor = LuluColors.CardStrong),
-        border = BorderStroke(1.dp, LuluColors.Border),
-        shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            repeat(3) { row ->
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    repeat(3) { column ->
-                        val cell = row * 3 + column
-                        val result = shown.lastOrNull { it.first == cell }
-                        Surface(
-                            modifier = Modifier.weight(1f).aspectRatio(1f),
-                            shape = RoundedCornerShape(12.dp),
-                            color = when (result?.second) {
-                                true -> Color(0xFFDCEBD8)
-                                false -> Color(0xFFF4DFDB)
-                                null -> LuluColors.Card
-                            },
-                            border = BorderStroke(1.dp, LuluColors.Border),
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text(when (result?.second) { true -> "✓"; false -> "×"; null -> (cell + 1).toString() })
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 private data class ReplayStep(
     val id: String,
     val order: Int,
@@ -364,7 +313,6 @@ private fun replayLabel(key: String, parent: String): String = when (key) {
 }
 
 private fun gameReplayIcon(type: LuluGameType) = when (type) {
-    LuluGameType.SignalHunt -> Icons.Outlined.Radar
     LuluGameType.PerfectMan -> Icons.Outlined.FavoriteBorder
     LuluGameType.RoleplayAdventure -> Icons.Outlined.AutoStories
     LuluGameType.TurtleSoup -> Icons.Outlined.QuestionMark
@@ -373,6 +321,7 @@ private fun gameReplayIcon(type: LuluGameType) = when (type) {
     LuluGameType.YachtDice -> Icons.Outlined.Casino
     LuluGameType.Gomoku -> Icons.Outlined.GridOn
     LuluGameType.MemoryMatch -> Icons.Outlined.Extension
+    LuluGameType.DeepSeaJourney -> Icons.Outlined.Waves
     LuluGameType.MoodGuess -> Icons.Outlined.Mood
 }
 

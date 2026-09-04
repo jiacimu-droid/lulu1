@@ -20,7 +20,6 @@ import kotlin.random.Random
 
 /** Product-parity game identifiers from lulu/master plus Lulu1 additions. */
 enum class LuluGameType {
-    SignalHunt,
     PerfectMan,
     RoleplayAdventure,
     TurtleSoup,
@@ -29,6 +28,7 @@ enum class LuluGameType {
     YachtDice,
     Gomoku,
     MemoryMatch,
+    DeepSeaJourney,
     MoodGuess,
 }
 
@@ -56,19 +56,6 @@ data class AutonomousGameResult(
     val detailsJson: String,
 )
 
-data class SignalHuntMove(
-    val cell: Int,
-    val foundSignal: Boolean,
-    val points: Int,
-)
-
-data class SignalHuntState(
-    val signalCells: Set<Int> = (0..8).shuffled().take(3).toSet(),
-    val moves: List<SignalHuntMove> = emptyList(),
-    val started: Boolean = false,
-    val finished: Boolean = false,
-)
-
 data class MemoryMatchState(
     val cards: List<String> = listOf("🌙", "🍰", "🎧", "🌸", "🧸", "☕", "🌙", "🍰", "🎧", "🌸", "🧸", "☕").shuffled(),
     val opened: Set<Int> = emptySet(),
@@ -94,7 +81,6 @@ data class LuluGameState(
     val selectedCharacterId: String = "lulu",
     val selectedCharacterIds: List<String> = listOf("lulu"),
     val playWithCharacter: Boolean = true,
-    val signalHunt: SignalHuntState = SignalHuntState(),
     val memoryMatch: MemoryMatchState = MemoryMatchState(),
     val moodRound: MoodGuessRound = defaultMoodRounds().first(),
     val moodAnswered: String? = null,
@@ -116,56 +102,14 @@ class LuluGameStore internal constructor(context: Context) {
 
     fun selectCharacters(characterIds: List<String>) {
         val clean = characterIds.map(String::trim).filter(String::isNotBlank).distinct()
-        if (clean.isEmpty()) return
-        mutate { it.copy(selectedCharacterId = clean.first(), selectedCharacterIds = clean, playWithCharacter = true) }
-    }
-
-    fun startSignalHunt() = mutate {
-        it.copy(signalHunt = SignalHuntState(started = true))
-    }
-
-    fun guessSignal(cell: Int) {
-        require(cell in 0..8)
-        val current = mutableState.value.signalHunt
-        if (!current.started || current.finished || current.moves.any { it.cell == cell }) return
-        val found = cell in current.signalCells
-        val streak = if (found && current.moves.lastOrNull()?.foundSignal == true) 2 else 1
-        val move = SignalHuntMove(cell, found, if (found) 20 + (streak - 1) * 5 else 0)
-        val moves = current.moves + move
-        val finished = moves.count { it.foundSignal } >= 3 || moves.size >= 5
-        mutate { it.copy(signalHunt = current.copy(moves = moves, finished = finished)) }
-        if (finished) {
-            val foundCount = moves.count { it.foundSignal }
-            val score = moves.sumOf { it.points }
-            recordExternalGame(
-                type = LuluGameType.SignalHunt,
-                title = "信号追踪",
-                score = score,
-                reward = foundCount * 5,
-                summary = "探测 ${moves.size} 格，找到 $foundCount/3 个信号，得分 $score",
-                detailsJson = JSONObject()
-                    .put("game", "signal_hunt")
-                    .put("score", score)
-                    .put("max_score", 75)
-                    .put(
-                        "moves",
-                        JSONArray().apply {
-                            moves.forEach { item ->
-                                put(
-                                    JSONObject()
-                                        .put("cell", item.cell)
-                                        .put("found_signal", item.foundSignal)
-                                        .put("points", item.points),
-                                )
-                            }
-                        },
-                    )
-                    .toString(),
-            )
+        mutate {
+            if (clean.isEmpty()) {
+                it.copy(selectedCharacterIds = emptyList(), playWithCharacter = false)
+            } else {
+                it.copy(selectedCharacterId = clean.first(), selectedCharacterIds = clean, playWithCharacter = true)
+            }
         }
     }
-
-    fun resetSignalHunt() = mutate { it.copy(signalHunt = SignalHuntState()) }
 
     fun openMemoryCard(index: Int) {
         if (mutableState.value.memoryMatch.turn != MemoryTurn.User) return
@@ -334,45 +278,6 @@ class LuluGameStore internal constructor(context: Context) {
         val normalized = gameId.trim().lowercase()
         val random = Random("$characterId:$normalized:${now.toEpochMilli()}".hashCode())
         val played = when (normalized) {
-            "signal_hunt" -> {
-                val signalCells = (0..8).shuffled(random).take(3).toSet()
-                val route = (0..8).shuffled(random).take(5)
-                val moves = buildList<SignalHuntMove> {
-                    route.forEach { cell ->
-                        if (count { it.foundSignal } >= 3) return@forEach
-                        val found = cell in signalCells
-                        val streak = if (found && lastOrNull()?.foundSignal == true) 2 else 1
-                        add(SignalHuntMove(cell, found, if (found) 20 + (streak - 1) * 5 else 0))
-                    }
-                }
-                val found = moves.count(SignalHuntMove::foundSignal)
-                val score = moves.sumOf(SignalHuntMove::points)
-                val details = JSONObject()
-                    .put("game", "signal_hunt")
-                    .put("signalCells", JSONArray(signalCells.toList()))
-                    .put(
-                        "moves",
-                        JSONArray().apply {
-                            moves.forEach { move ->
-                                put(
-                                    JSONObject()
-                                        .put("cell", move.cell)
-                                        .put("foundSignal", move.foundSignal)
-                                        .put("points", move.points),
-                                )
-                            }
-                        },
-                    )
-                    .toString()
-                AutonomousGameDraft(
-                    gameId = normalized,
-                    type = LuluGameType.SignalHunt,
-                    title = "信号追踪",
-                    score = score,
-                    summary = "独自完成一局信号追踪：探测 ${moves.size} 格，找到 $found/3 个信号，得分 $score。",
-                    detailsJson = details,
-                )
-            }
             "memory_match" -> {
                 val cards = listOf("🌙", "🍰", "🎧", "🌸", "🧸", "☕", "🌙", "🍰", "🎧", "🌸", "🧸", "☕")
                     .shuffled(random)
@@ -532,13 +437,20 @@ class LuluGameStore internal constructor(context: Context) {
                 )
             }
         }
+        val playWithCharacter = json.optBoolean("playWithCharacter", true)
+        val storedCharacterIds = json.optJSONArray("selectedCharacterIds")?.let { array ->
+            buildList { for (index in 0 until array.length()) add(array.optString(index)) }
+                .filter(String::isNotBlank)
+        }.orEmpty()
         LuluGameState(
             coins = json.optInt("coins"),
             selectedCharacterId = json.optString("selectedCharacterId", "lulu"),
-            selectedCharacterIds = json.optJSONArray("selectedCharacterIds")?.let { array ->
-                buildList { for (index in 0 until array.length()) add(array.optString(index)) }.filter(String::isNotBlank)
-            }.orEmpty().ifEmpty { listOf(json.optString("selectedCharacterId", "lulu")) },
-            playWithCharacter = json.optBoolean("playWithCharacter", true),
+            selectedCharacterIds = if (playWithCharacter) {
+                storedCharacterIds.ifEmpty { listOf(json.optString("selectedCharacterId", "lulu")) }
+            } else {
+                emptyList()
+            },
+            playWithCharacter = playWithCharacter,
             records = records,
         )
     }.getOrElse { LuluGameState() }

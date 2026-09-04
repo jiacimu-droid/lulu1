@@ -28,7 +28,7 @@ internal data class CompanionActionResult(
 /** One real execution layer shared by foreground chat decisions and background perception. */
 internal object CompanionActionRuntime {
     private val gameTitles = mapOf(
-        "signal_hunt" to "信号追踪",
+        "deep_sea_journey" to "深海回声",
         "roleplay" to "跑团",
         "turtle_soup" to "海龟汤",
         "yacht_dice" to "快艇骰子",
@@ -45,7 +45,7 @@ internal object CompanionActionRuntime {
         appendLine("角色可执行的露露机内动作（前台聊天与后台主动感知共用同一个真实执行层）：")
         appendLine("- send_private_message，args={\"text\":\"私聊内容\"}：一对一找用户说话。适合明确有一件事想对用户本人说、继续两人的话题或关系，不是公开生活播报。")
         appendLine("- send_game_invite，args={\"gameId\":\"游戏ID\",\"text\":\"邀请语\"}：在角色私聊中发送可点击的游戏邀请。")
-        appendLine("- play_solo_game，args={\"gameId\":\"signal_hunt|memory_match\"}：由游戏馆真实规则自动跑完一局并保存准确过程、分数和独自游戏记录；角色不能自己编输赢。")
+        appendLine("- play_solo_game，args={\"gameId\":\"memory_match\"}：由游戏馆真实规则自动跑完一局并保存准确过程、分数和独自游戏记录；角色不能自己编输赢。")
         appendLine("- publish_moment，args={\"text\":\"动态正文\"}：朋友圈是公开分享日常。角色有好笑、惊讶、烦人、得意、失败、沉迷、值得吐槽或想让熟人看见的小事时，可以像真人一样随手发；朋友圈不是稀有动作，也不是定期打卡。")
         appendLine("- write_journal，args={\"title\":\"标题\",\"content\":\"正文\"}：日记是角色私下整理自己、消化情绪、保存想法与经历的地方，不是绕路给用户传话。")
         appendLine("- start_call，args={\"text\":\"为什么此刻想打电话\"}：仅在角色已允许主动来电时发起真正的来电。会进入待接听状态并触发来电通知，不再伪装成一条聊天消息。")
@@ -202,7 +202,7 @@ internal object CompanionActionRuntime {
             "read_book" -> readBook(context, character, args.optString("readingBookId").trim(), now)
             "play_solo_game" -> {
                 val gameId = args.optString("gameId").trim().lowercase()
-                require(gameId in setOf("signal_hunt", "memory_match")) { "独自游戏只能选择游戏馆中已支持自动结算的真实游戏" }
+                require(gameId == "memory_match") { "独自游戏只能选择游戏馆中已支持自动结算的真实游戏" }
                 LuluGames.initialize(context)
                 val played = LuluGames.store.playAutonomousGame(characterId, gameId, now)
                     ?: error("游戏馆未能完成这局游戏")
