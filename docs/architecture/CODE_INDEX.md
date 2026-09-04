@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`40ddb30e9989a5c7c26a36cd5fa87676967f9497`
+- 基准提交：`41eb61f226cdba7ec708af6437c1b9f67e2098fd`
 - 分支：`main`
-- 已索引文件：237
-- 已索引代码/文本行：72881
-- 已发现符号：923
+- 已索引文件：238
+- 已索引代码/文本行：72931
+- 已发现符号：925
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -98,6 +98,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt` | 232 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 568 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt` | 45 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt` | 50 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 979 | 33 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 325 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt` | 164 | 6 |

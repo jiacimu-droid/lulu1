@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T17:40:25.211941+00:00",
-  "commit": "40ddb30e9989a5c7c26a36cd5fa87676967f9497",
+  "generatedAt": "2026-09-04T17:40:43.971769+00:00",
+  "commit": "41eb61f226cdba7ec708af6437c1b9f67e2098fd",
   "branch": "main",
-  "sourceFingerprint": "ea7117bdc1e141cddc5f24abfdbd5da998d3c8a074d7e9ebaef941585300a760",
+  "sourceFingerprint": "d359b027465ff580d93e92f9d9b457dc6740dc76ebf1d4e6ecdbc34d70919c5b",
   "summary": {
-    "files": 237,
-    "lines": 72881,
-    "symbols": 923
+    "files": 238,
+    "lines": 72931,
+    "symbols": 925
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -1984,6 +1984,22 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt",
         "line": 37
+      }
+    ],
+    "label": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt",
+        "line": 46
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
+        "line": 60
+      }
+    ],
+    "contains": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt",
+        "line": 48
       }
     ],
     "MeetingReality": [
@@ -5186,12 +5202,6 @@
         "line": 50
       }
     ],
-    "label": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
-        "line": 60
-      }
-    ],
     "LuluNotificationListenerService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt",
@@ -6958,6 +6968,21 @@
         {
           "name": "consumeMeeting",
           "line": 37
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt",
+      "lines": 50,
+      "sha256": "8be2b20dc011ee26088ca600c6c2d873e024916ce04112be86b85364e9d9db3a",
+      "symbols": [
+        {
+          "name": "label",
+          "line": 46
+        },
+        {
+          "name": "contains",
+          "line": 48
         }
       ]
     },
