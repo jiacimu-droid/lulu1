@@ -77,8 +77,8 @@ object WorldFirstExplorationMemory {
                 .asSequence()
                 .filter { it.worldId == worldId }
                 .filter { locationId.isNullOrBlank() || it.locationId == locationId }
-                .takeLast(limit.coerceIn(1, 40))
                 .toList()
+                .takeLast(limit.coerceIn(1, 40))
         }
     }
 
