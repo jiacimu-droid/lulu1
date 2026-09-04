@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`5209cafaed3229db500d271821446e746d10b9fb`
+- 基准提交：`75719e214b50c61bc6fe4cad6bf2a38cb2010c31`
 - 分支：`main`
-- 已索引文件：236
-- 已索引代码/文本行：71844
+- 已索引文件：237
+- 已索引代码/文本行：72025
 - 已发现符号：921
 
 | 文件 | 行数 | 符号数 |
@@ -163,6 +163,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Engine.kt` | 868 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Systems.kt` | 268 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseTradeSystemV5.kt` | 277 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseTradeUiV5.kt` | 181 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseVisualNovelPresentation.kt` | 247 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldEvolutionV5.kt` | 170 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt` | 723 | 2 |

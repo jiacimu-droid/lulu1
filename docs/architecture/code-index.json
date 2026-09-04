@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T13:02:31.291032+00:00",
-  "commit": "5209cafaed3229db500d271821446e746d10b9fb",
+  "generatedAt": "2026-09-04T13:02:55.443928+00:00",
+  "commit": "75719e214b50c61bc6fe4cad6bf2a38cb2010c31",
   "branch": "main",
-  "sourceFingerprint": "b877f72061ec2f1a09f02d86101bc84ce296b5d9ddb899a66781e94126741932",
+  "sourceFingerprint": "9202dd8433164e147142a4079dff879c852575426ca7bbb688df1401bac97821",
   "summary": {
-    "files": 236,
-    "lines": 71844,
+    "files": 237,
+    "lines": 72025,
     "symbols": 921
   },
   "symbolIndex": {
@@ -8813,6 +8813,12 @@
           "line": 140
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseTradeUiV5.kt",
+      "lines": 181,
+      "sha256": "29fd58c6c3dfa9684fa3760b072e8d5c977a1f212fd47c5f4f710d48bae6a0bf",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseVisualNovelPresentation.kt",
