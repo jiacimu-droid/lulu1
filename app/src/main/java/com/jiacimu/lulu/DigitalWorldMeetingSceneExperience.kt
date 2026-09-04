@@ -41,6 +41,8 @@ private data class MeetingReadingPage(
     val voiceKey: String,
 )
 
+private enum class MeetingSceneMode { Explore, Story }
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun DigitalWorldMeetingSceneExperience(
@@ -69,12 +71,19 @@ internal fun DigitalWorldMeetingSceneExperience(
     val voiceEnabled by MeetingVoicePlayback.enabled.collectAsState()
     val bgmEnabled = GameAmbientSoundscape(GameSoundscape.Meeting)
     val viewOnly = session.endedAt != null
+    val isDigitalWorld = session.reality == MeetingReality.DIGITAL_WORLD
     val groups = remember(session.turns) { meetingSceneGroups(session.turns) }
     val pages = remember(groups) { groups.flatMap(::readingPagesForGroup) }
     var pageIndex by remember(session.id) { mutableIntStateOf(0) }
     var previousPageCount by remember(session.id) { mutableIntStateOf(pages.size) }
     var showMenu by remember { mutableStateOf(false) }
     var narrativeExpanded by rememberSaveable(session.id) { mutableStateOf(true) }
+    var sceneModeName by rememberSaveable(session.id) { mutableStateOf(MeetingSceneMode.Story.name) }
+    val sceneMode = if (!isDigitalWorld || viewOnly) MeetingSceneMode.Story else {
+        runCatching { MeetingSceneMode.valueOf(sceneModeName) }.getOrDefault(MeetingSceneMode.Story)
+    }
+    val exploring = isDigitalWorld && !viewOnly && sceneMode == MeetingSceneMode.Explore
+    val storyVisible = !isDigitalWorld || !exploring
 
     val userPrefs = remember(context) {
         context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE)
@@ -96,6 +105,7 @@ internal fun DigitalWorldMeetingSceneExperience(
             val wasAtEnd = oldCount == 0 || pageIndex >= oldCount - 1
             if (wasAtEnd) pageIndex = oldCount.coerceAtMost(pages.lastIndex)
             narrativeExpanded = true
+            if (isDigitalWorld) sceneModeName = MeetingSceneMode.Story.name
         } else if (pageIndex > pages.lastIndex) {
             pageIndex = pages.lastIndex
         }
@@ -103,11 +113,11 @@ internal fun DigitalWorldMeetingSceneExperience(
     }
     val currentPage = pages.getOrNull(pageIndex)
 
-    LaunchedEffect(session.id, currentPage?.voiceKey, voiceEnabled) {
+    LaunchedEffect(session.id, currentPage?.voiceKey, voiceEnabled, storyVisible) {
         val page = currentPage
         val speakerId = page?.speakerId
         if (
-            voiceEnabled && page != null && page.type == MeetingSegmentType.DIALOGUE &&
+            storyVisible && voiceEnabled && page != null && page.type == MeetingSegmentType.DIALOGUE &&
             !speakerId.isNullOrBlank() && speakerId != "system"
         ) {
             MeetingVoicePlayback.playVisibleDialogue(
@@ -131,12 +141,6 @@ internal fun DigitalWorldMeetingSceneExperience(
         "云眠原" -> DigitalWorldStore.CLOUD_MEADOW
         else -> homeId?.let(DigitalWorldStore::homeLocation) ?: DigitalWorldStore.ARRIVAL
     }
-    val panelInset = when {
-        !narrativeExpanded && viewOnly -> 62.dp
-        !narrativeExpanded -> 124.dp
-        viewOnly -> 204.dp
-        else -> 298.dp
-    }
 
     Box(
         modifier
@@ -144,24 +148,48 @@ internal fun DigitalWorldMeetingSceneExperience(
             .background(Color(0xFF08110F))
             .imePadding(),
     ) {
-        if (session.reality == MeetingReality.DIGITAL_WORLD) {
+        if (isDigitalWorld) {
             DigitalWorldSceneCanvas(
                 modifier = Modifier.fillMaxSize().padding(top = 56.dp),
                 sceneCode = sceneCode,
                 homeCharacterId = homeId,
                 characters = characters,
                 world = world,
-                onCharacterClick = { characterId -> onCharacterClick(characterId, session.location) },
+                onCharacterClick = { characterId ->
+                    sceneModeName = MeetingSceneMode.Story.name
+                    narrativeExpanded = true
+                    onCharacterClick(characterId, session.location)
+                },
                 onWorldAction = { suggestedAction ->
                     onInputChanged(suggestedAction)
+                    sceneModeName = MeetingSceneMode.Story.name
                     narrativeExpanded = true
                 },
-                controlsBottomPadding = panelInset,
+                controlsBottomPadding = 94.dp,
+                controlsEnabled = exploring && !generating,
+                showExplorationHud = exploring,
             )
         } else {
             RealisticMeetingStage(
                 modifier = Modifier.fillMaxSize().padding(top = 56.dp),
                 participantIds = session.participantIds,
+            )
+        }
+
+        if (isDigitalWorld && !exploring) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .padding(top = 56.dp)
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                Color(0x12040A08),
+                                Color(0x36040A08),
+                                Color(0x76040A08),
+                            ),
+                        ),
+                    ),
             )
         }
 
@@ -172,6 +200,8 @@ internal fun DigitalWorldMeetingSceneExperience(
             voiceEnabled = voiceEnabled,
             bgmEnabled = bgmEnabled,
             menuExpanded = showMenu,
+            digitalWorld = isDigitalWorld,
+            exploring = exploring,
             onBack = onBackToMap,
             onEnd = onEnd,
             onDelete = onDelete,
@@ -185,29 +215,45 @@ internal fun DigitalWorldMeetingSceneExperience(
             modifier = Modifier.align(Alignment.TopCenter),
         )
 
-        MeetingNarrativeOverlay(
-            page = currentPage,
-            pageIndex = pageIndex,
-            pageCount = pages.size,
-            expanded = narrativeExpanded,
-            viewOnly = viewOnly,
-            generating = generating,
-            characters = characters,
-            userName = userName,
-            userAvatar = userAvatar,
-            userAvatarUri = userAvatarUri,
-            input = input,
-            canSend = canSend,
-            errorText = errorText,
-            onExpandedChanged = { narrativeExpanded = it },
-            onPrevious = { pageIndex = (pageIndex - 1).coerceAtLeast(0) },
-            onNext = { pageIndex = (pageIndex + 1).coerceAtMost(pages.lastIndex) },
-            onInputChanged = onInputChanged,
-            onSend = onSend,
-            onRetry = onRetry,
-            onLongClick = { currentPage?.let { onSceneLongClick(it.group) } },
-            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding(),
-        )
+        if (storyVisible) {
+            MeetingNarrativeOverlay(
+                page = currentPage,
+                pageIndex = pageIndex,
+                pageCount = pages.size,
+                expanded = if (isDigitalWorld) true else narrativeExpanded,
+                viewOnly = viewOnly,
+                generating = generating,
+                characters = characters,
+                userName = userName,
+                userAvatar = userAvatar,
+                userAvatarUri = userAvatarUri,
+                input = input,
+                canSend = canSend,
+                errorText = errorText,
+                onExpandedChanged = { narrativeExpanded = it },
+                onReturnToExplore = if (isDigitalWorld && !viewOnly && !generating) {
+                    {
+                        MeetingVoicePlayback.stopVisibleDialogue(session.id)
+                        sceneModeName = MeetingSceneMode.Explore.name
+                    }
+                } else null,
+                onPrevious = { pageIndex = (pageIndex - 1).coerceAtLeast(0) },
+                onNext = { pageIndex = (pageIndex + 1).coerceAtMost(pages.lastIndex) },
+                onInputChanged = onInputChanged,
+                onSend = onSend,
+                onRetry = onRetry,
+                onLongClick = { currentPage?.let { onSceneLongClick(it.group) } },
+                modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding(),
+            )
+        } else {
+            MeetingExploreDock(
+                pageIndex = pageIndex,
+                pageCount = pages.size,
+                generating = generating,
+                onOpenStory = { sceneModeName = MeetingSceneMode.Story.name },
+                modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding(),
+            )
+        }
     }
 }
 
@@ -219,6 +265,8 @@ private fun MeetingImmersiveTopBar(
     voiceEnabled: Boolean,
     bgmEnabled: Boolean,
     menuExpanded: Boolean,
+    digitalWorld: Boolean,
+    exploring: Boolean,
     onBack: () -> Unit,
     onEnd: () -> Unit,
     onDelete: () -> Unit,
@@ -231,6 +279,11 @@ private fun MeetingImmersiveTopBar(
     onOpenVoiceSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val subtitle = when {
+        !digitalWorld -> "沉浸见面 · 剧情互动"
+        exploring -> "自由活动 · 移动、靠近、点击互动"
+        else -> "剧情互动 · 移动操控已暂停"
+    }
     Row(
         modifier
             .fillMaxWidth()
@@ -246,7 +299,7 @@ private fun MeetingImmersiveTopBar(
         IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回地图", tint = Color.White) }
         Column(Modifier.weight(1f)) {
             Text(location, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Black, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text("生活模拟 · 实时探索", color = Color(0xFF9CCABD), fontSize = 8.5.sp, letterSpacing = .4.sp)
+            Text(subtitle, color = Color(0xFF9CCABD), fontSize = 8.5.sp, letterSpacing = .25.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         if (viewOnly) {
             IconButton(onClick = onDelete) { Icon(Icons.Outlined.DeleteOutline, "删除", tint = Color.White) }
@@ -273,6 +326,68 @@ private fun MeetingImmersiveTopBar(
     }
 }
 
+@Composable
+private fun MeetingExploreDock(
+    pageIndex: Int,
+    pageCount: Int,
+    generating: Boolean,
+    onOpenStory: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+        color = Color(0xE60D1916),
+        shape = RoundedCornerShape(20.dp),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = .14f)),
+        shadowElevation = 14.dp,
+    ) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Surface(
+                modifier = Modifier.size(38.dp),
+                color = Color(0xFF9EFFE0).copy(alpha = .13f),
+                shape = RoundedCornerShape(13.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(Icons.Outlined.Explore, null, tint = Color(0xFFBFFFEA), modifier = Modifier.size(20.dp))
+                }
+            }
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Text("自由活动", color = Color.White, fontSize = 12.5.sp, fontWeight = FontWeight.Black)
+                Text(
+                    if (generating) "剧情正在后台继续，移动暂时锁定" else "摇杆移动 · 靠近人物或家具后再互动",
+                    color = Color(0xFF91AAA2),
+                    fontSize = 8.5.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            if (pageCount > 0 || generating) {
+                FilledTonalButton(
+                    onClick = onOpenStory,
+                    shape = RoundedCornerShape(13.dp),
+                    colors = ButtonDefaults.filledTonalButtonColors(
+                        containerColor = Color(0xFF9EFFE0).copy(alpha = .14f),
+                        contentColor = Color(0xFFD5FFF1),
+                    ),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                ) {
+                    Icon(Icons.Outlined.AutoStories, null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(5.dp))
+                    Text(
+                        if (pageCount > 0) "剧情 ${pageIndex + 1}/$pageCount" else "看剧情",
+                        fontSize = 9.5.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MeetingNarrativeOverlay(
@@ -290,6 +405,7 @@ private fun MeetingNarrativeOverlay(
     canSend: Boolean,
     errorText: String,
     onExpandedChanged: (Boolean) -> Unit,
+    onReturnToExplore: (() -> Unit)?,
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     onInputChanged: (String) -> Unit,
@@ -307,10 +423,10 @@ private fun MeetingNarrativeOverlay(
             .padding(horizontal = 8.dp, vertical = 6.dp)
             .animateContentSize(tween(180))
             .combinedClickable(onClick = {}, onLongClick = onLongClick),
-        color = Color(0xED101B18),
+        color = Color(0xF2101B18),
         shape = RoundedCornerShape(22.dp),
         border = BorderStroke(1.dp, Color.White.copy(alpha = .18f)),
-        shadowElevation = 16.dp,
+        shadowElevation = 18.dp,
     ) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -330,15 +446,26 @@ private fun MeetingNarrativeOverlay(
                             modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
                         )
                     }
-                    Spacer(Modifier.width(6.dp))
+                    Spacer(Modifier.width(5.dp))
                 }
-                IconButton(onClick = { onExpandedChanged(!expanded) }, modifier = Modifier.size(34.dp)) {
-                    Icon(
-                        if (expanded) Icons.Outlined.ExpandMore else Icons.Outlined.ExpandLess,
-                        if (expanded) "收起剧情" else "展开剧情",
-                        tint = Color.White,
-                        modifier = Modifier.size(19.dp),
-                    )
+                if (onReturnToExplore != null) {
+                    TextButton(
+                        onClick = onReturnToExplore,
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 5.dp),
+                    ) {
+                        Icon(Icons.Outlined.Explore, null, modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("自由活动", fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                    }
+                } else {
+                    IconButton(onClick = { onExpandedChanged(!expanded) }, modifier = Modifier.size(34.dp)) {
+                        Icon(
+                            if (expanded) Icons.Outlined.ExpandMore else Icons.Outlined.ExpandLess,
+                            if (expanded) "收起剧情" else "展开剧情",
+                            tint = Color.White,
+                            modifier = Modifier.size(19.dp),
+                        )
+                    }
                 }
             }
 
@@ -348,7 +475,7 @@ private fun MeetingNarrativeOverlay(
                     Box(
                         Modifier
                             .fillMaxWidth()
-                            .heightIn(min = 62.dp, max = 138.dp)
+                            .heightIn(min = 68.dp, max = 154.dp)
                             .pointerInput(visiblePage?.voiceKey, pageIndex, pageCount) {
                                 detectHorizontalDragGestures(
                                     onDragEnd = {
@@ -370,7 +497,7 @@ private fun MeetingNarrativeOverlay(
                                     visiblePage.text,
                                     color = Color(0xFFF2F6F3),
                                     fontSize = 14.5.sp,
-                                    lineHeight = 21.5.sp,
+                                    lineHeight = 22.sp,
                                     modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
                                 )
                             }
@@ -379,12 +506,12 @@ private fun MeetingNarrativeOverlay(
                                 Spacer(Modifier.width(8.dp))
                                 Text("场景正在继续……", color = Color(0xFFC6D8D1), fontSize = 11.sp)
                             }
-                            else -> Text("房间里只剩下呼吸和环境声。", color = Color(0xFFB8C9C3), fontSize = 12.sp)
+                            else -> Text("现在没有正在播放的剧情，你可以直接说话或描述行动。", color = Color(0xFFB8C9C3), fontSize = 12.sp)
                         }
                     }
                 } else {
                     Text(
-                        visiblePage?.text ?: if (generating) "场景正在继续……" else "自由探索中",
+                        visiblePage?.text ?: if (generating) "场景正在继续……" else "剧情互动",
                         color = Color(0xFFCFDDD8),
                         fontSize = 11.sp,
                         maxLines = 1,
