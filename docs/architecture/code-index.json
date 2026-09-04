@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T18:22:41.070826+00:00",
-  "commit": "6029c4c943b4d2e327bd7ac59c297212e39e8229",
+  "generatedAt": "2026-09-04T18:44:39.523670+00:00",
+  "commit": "5eecc9a9107d52cace75b7924d4433386859d988",
   "branch": "main",
-  "sourceFingerprint": "1611f7fcf5aad44ed628b617022cbf16e54068b36c647ded1bf4772a706b601c",
+  "sourceFingerprint": "19561c9e6ac650c359fbc2baa56b31bc8da01157988c54be6a7172d510af307d",
   "summary": {
-    "files": 239,
-    "lines": 73783,
-    "symbols": 925
+    "files": 240,
+    "lines": 73927,
+    "symbols": 927
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -530,6 +530,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
         "line": 746
+      }
+    ],
+    "forScene": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt",
+        "line": 21
+      }
+    ],
+    "anchorForActivity": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt",
+        "line": 140
       }
     ],
     "LexiconFeatureScreenV2": [
@@ -5531,6 +5543,21 @@
       "lines": 286,
       "sha256": "b3ccbde0ef3a1c42c3458fcf52dc60ccf7fa7dfa03fe4b2d34bc2abfec87d31c",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt",
+      "lines": 144,
+      "sha256": "a735a401c9ebce6de7b85ef890dfba188e0d936bf5213ff52c1d094881624584",
+      "symbols": [
+        {
+          "name": "forScene",
+          "line": 21
+        },
+        {
+          "name": "anchorForActivity",
+          "line": 140
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
