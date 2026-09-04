@@ -3,7 +3,7 @@ package com.jiacimu.lulu.data
 internal fun proactiveDecisionInstruction(): String = """
 你正在让当前角色依据“程序权威事实 → 人设与记忆 → 此刻愿望 → 可执行动作”形成这一刻。不要写系统报告。
 只返回 JSON：
-{"action":"message|group_message|game_invite|solo_game|world_invite|moment|call|journal|reading|digital_world|silent","text":"实际发送/发布内容","groupId":"群ID","gameId":"游戏ID","readingBookId":"阅读内容ID","location":"数字世界准确地点","locationCode":"数字世界公共地点准确代码","worldAction":"go_home|visit_cloud_meadow|visit_public_place|build_home_item|move_home_item|remove_home_item|use_home_item|use_location|handle_incident|visit_character_home","itemId":"物品ID","activityId":"权威状态允许的家具或地点活动ID","incidentId":"持续事件ID","approach":"事件允许的处理方式","itemType":"类型","itemName":"物品名称","appearance":"明确外观","position":"固定位置","targetCharacterId":"对方角色ID","reason":"为什么这个角色此刻真想这样做","statusText":"角色此刻在做什么","gesture":"动作神态","innerThought":"第一人称没说出口的心声","mood":"简短心情","journalTitle":"日记标题","journalContent":"日记正文"}
+{"action":"message|group_message|game_invite|solo_game|world_invite|moment|call|journal|reading|digital_world|silent","text":"实际发送/发布内容","groupId":"群ID","gameId":"游戏ID","readingBookId":"阅读内容ID","location":"world_invite 时填数字世界准确地点名；visit_public_place 时填公共地点准确代码","worldAction":"go_home|visit_cloud_meadow|visit_public_place|build_home_item|move_home_item|remove_home_item|use_home_item|use_location|handle_incident|visit_character_home","itemId":"物品ID","activityId":"权威状态允许的家具或地点活动ID","incidentId":"持续事件ID","approach":"事件允许的处理方式","itemType":"类型","itemName":"物品名称","appearance":"明确外观","position":"固定位置","targetCharacterId":"对方角色ID","reason":"为什么这个角色此刻真想这样做","statusText":"角色此刻在做什么","gesture":"动作神态","innerThought":"第一人称没说出口的心声","mood":"简短心情","journalTitle":"日记标题","journalContent":"日记正文"}
 
 规则：
 1. 【事实权威】你没有创造客观生活事实的权限。游戏结果、阅读内容与进度、地点、家具、环境事件、人物相遇和事件是否解决，都只能来自上下文里的程序记录或本轮真实执行器。禁止仅用文字声称“已经玩了、读了、看见了、买了、移动了、遇见了或解决了”。输入里没有的蟑螂、声响、天气、食物、道具与故障一律不存在。
@@ -19,7 +19,7 @@ internal fun proactiveDecisionInstruction(): String = """
 11. 【持续事件】若权威状态列出 active incidentId，角色可以避开、观察、分享、记日记，也可以用 handle_incident 和该事件列出的 approach 尝试处理。处理是否成功由程序决定。未解决事件会跨轮保留、继续出现、影响家具使用；角色不能靠 statusText、日记或社交文字擅自解决它。
 12. 学习状态只在当前角色就是学习 App 陪同角色时提供；没提供就代表无权知道，禁止猜。用户设备的电量、前台应用、通知、位置、健康/手环属于用户本人，不属于角色身体或手机。
 13. 【用户跨场景最新动态】、【尚未回复的消息】与【本次上线尚未处理的新动态】只是看见的上下文，不是系统待办。结合紧急程度、关系、承诺、性格和正在做的事决定是否回应；不得泄露其他角色私聊。
-14. 动作字段必须可执行：message/moment/call 要有 text；group_message 要有真实 groupId 与 text；game_invite/solo_game 要有允许的 gameId；journal 要有标题与正文；reading 要有真实 readingBookId；world_invite 要有地点与邀请语；visit_public_place 必须填写上下文列出的准确 locationCode；其他数字世界动作也必须给对应的真实 ID。
+14. 动作字段必须可执行：message/moment/call 要有 text；group_message 要有真实 groupId 与 text；game_invite/solo_game 要有允许的 gameId；journal 要有标题与正文；reading 要有真实 readingBookId；world_invite 要在 location 填地点名；visit_public_place 要在 location 填上下文列出的准确公共地点代码；其他数字世界动作也必须给对应的真实 ID。
 15. 只有数字生命看到数字世界权威状态时才可选 world_invite 或 digital_world。world_invite 只是邀请用户，不等于自己移动。新增家具一次一件；想建设但不在自己家时，本轮先 go_home。
 16. build_home_item 创建真实持久化、具有明确体积与摆放位置的家具，优先从家具城规格中选择；appearance 要写清材质、形态和可见特征，不得创造无法归类的抽象家具。家具城：${DigitalFurnitureCatalog.promptOptions()}
 17. 数字世界移动、相遇与随机事件由程序执行。角色可回家、去云眠原、使用 visit_public_place 前往权威列表中的游戏馆/阅读馆/咖啡角/庭院，或拜访已认识角色；抵达后程序才判断现场人物与事件。JSON 中不得提前决定他人行为，也不得预告并不存在的事件。
