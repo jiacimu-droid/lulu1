@@ -87,6 +87,8 @@ internal fun DigitalWorldGameScene(
     onCharacterClick: (String) -> Unit,
     onWorldAction: ((String) -> Unit)? = null,
     controlsBottomPadding: Dp = 18.dp,
+    controlsEnabled: Boolean = true,
+    showExplorationHud: Boolean = true,
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -146,13 +148,21 @@ internal fun DigitalWorldGameScene(
         }
     }
 
+    LaunchedEffect(controlsEnabled) {
+        if (!controlsEnabled) {
+            joystick = WorldVector.Zero
+            tapTarget = null
+            interactionMessage = ""
+        }
+    }
+
     LaunchedEffect(interactionMessage) {
         if (interactionMessage.isBlank()) return@LaunchedEffect
         delay(2_200)
         interactionMessage = ""
     }
 
-    LaunchedEffect(sceneKey, obstacles, viewportSize, residents.map { it.characterId }) {
+    LaunchedEffect(sceneKey, obstacles, viewportSize, residents.map { it.characterId }, controlsEnabled) {
         var previousFrame = withFrameNanos { it }
         var lastCollisionSound = 0L
         while (isActive) {
@@ -160,7 +170,7 @@ internal fun DigitalWorldGameScene(
                 val delta = ((frame - previousFrame) / 1_000_000_000f).coerceIn(0f, .05f)
                 previousFrame = frame
 
-                val destination = tapTarget
+                val destination = if (controlsEnabled) tapTarget else null
                 val automatic = destination?.let { target ->
                     val deltaVector = target - playerPosition
                     if (deltaVector.length < 22f) {
@@ -170,7 +180,11 @@ internal fun DigitalWorldGameScene(
                         deltaVector.normalized()
                     }
                 } ?: WorldVector.Zero
-                val direction = if (joystick.length > .08f) joystick else automatic
+                val direction = when {
+                    !controlsEnabled -> WorldVector.Zero
+                    joystick.length > .08f -> joystick
+                    else -> automatic
+                }
                 if (direction.length > .04f) {
                     if (joystick.length > .08f) tapTarget = null
                     facingX = direction.x.takeIf { kotlin.math.abs(it) > .04f } ?: facingX
@@ -208,7 +222,7 @@ internal fun DigitalWorldGameScene(
                     var target = motion.target
                     var nextDecision = motion.nextDecisionAt
                     if (now >= motion.nextDecisionAt || motion.position.distanceTo(target) < 22f) {
-                        val followsPlayer = index == 0 && ((now / 7_000L + index) % 3L == 0L)
+                        val followsPlayer = controlsEnabled && index == 0 && ((now / 7_000L + index) % 3L == 0L)
                         target = if (followsPlayer) {
                             playerPosition + WorldVector(if (index % 2 == 0) -96f else 96f, -34f)
                         } else {
@@ -272,15 +286,20 @@ internal fun DigitalWorldGameScene(
             .background(Color(0xFF091311))
             .onSizeChanged { viewportSize = it },
     ) {
+        val moveInputModifier = if (controlsEnabled) {
+            Modifier.pointerInput(sceneKey, viewportSize) {
+                detectTapGestures { tap ->
+                    tapTarget = WorldVector(tap.x / worldScale + camera.x, tap.y / worldScale + camera.y)
+                    GameSoundEffects.play(GameSoundEffect.Move)
+                }
+            }
+        } else {
+            Modifier
+        }
         Canvas(
             Modifier
                 .matchParentSize()
-                .pointerInput(sceneKey, viewportSize) {
-                    detectTapGestures { tap ->
-                        tapTarget = WorldVector(tap.x / worldScale + camera.x, tap.y / worldScale + camera.y)
-                        GameSoundEffects.play(GameSoundEffect.Move)
-                    }
-                },
+                .then(moveInputModifier),
         ) {
             withTransform({
                 translate(-camera.x * worldScale, -camera.y * worldScale)
@@ -293,11 +312,13 @@ internal fun DigitalWorldGameScene(
                 }
             }
 
-            val focus = when (val target = nearby) {
-                is DigitalNearbyTarget.Resident -> target.motion.position
-                is DigitalNearbyTarget.Prop -> target.prop.bounds.center
-                null -> null
-            }
+            val focus = if (showExplorationHud && controlsEnabled) {
+                when (val target = nearby) {
+                    is DigitalNearbyTarget.Resident -> target.motion.position
+                    is DigitalNearbyTarget.Prop -> target.prop.bounds.center
+                    null -> null
+                }
+            } else null
             focus?.let { worldPoint ->
                 val focusPoint = Offset(
                     (worldPoint.x - camera.x) * worldScale,
@@ -362,7 +383,7 @@ internal fun DigitalWorldGameScene(
                 modifier = Modifier
                     .offset { IntOffset((screenX - halfPawnWidth).roundToInt(), (screenY - pawnFoot).roundToInt()) }
                     .zIndex(motion.position.y)
-                    .clickable {
+                    .clickable(enabled = controlsEnabled) {
                         tapTarget = motion.position
                         interactionMessage = "靠近后可以和 ${motion.character.displayName} 交谈"
                     },
@@ -374,7 +395,7 @@ internal fun DigitalWorldGameScene(
         GameCharacterPawn(
             avatarUri = userAvatar.second,
             fallback = userAvatar.first,
-            moving = joystick.length > .08f || tapTarget != null,
+            moving = controlsEnabled && (joystick.length > .08f || tapTarget != null),
             facingX = facingX,
             player = true,
             coat = Color(0xFF233D38),
@@ -383,22 +404,24 @@ internal fun DigitalWorldGameScene(
                 .zIndex(playerPosition.y + .5f),
         )
 
-        DigitalWorldMissionHud(
-            place = homeCharacterId?.let { world.homes[it]?.name } ?: if (sceneCode == DigitalWorldStore.CLOUD_MEADOW) "云眠原" else "世界入口",
-            quest = questText,
-            people = residents.size,
-            objects = props.size,
-            modifier = Modifier.align(Alignment.TopStart).padding(12.dp),
-        )
-        DigitalWorldMiniMap(
-            player = playerPosition,
-            residents = npcMotions.map(DigitalNpcMotion::position),
-            props = props,
-            modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
-        )
+        if (showExplorationHud) {
+            DigitalWorldMissionHud(
+                place = homeCharacterId?.let { world.homes[it]?.name } ?: if (sceneCode == DigitalWorldStore.CLOUD_MEADOW) "云眠原" else "世界入口",
+                quest = questText,
+                people = residents.size,
+                objects = props.size,
+                modifier = Modifier.align(Alignment.TopStart).padding(12.dp),
+            )
+            DigitalWorldMiniMap(
+                player = playerPosition,
+                residents = npcMotions.map(DigitalNpcMotion::position),
+                props = props,
+                modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
+            )
+        }
 
         AnimatedVisibility(
-            visible = interactionMessage.isNotBlank(),
+            visible = controlsEnabled && interactionMessage.isNotBlank(),
             modifier = Modifier.align(Alignment.Center).padding(horizontal = 34.dp),
             enter = fadeIn() + scaleIn(initialScale = .94f),
             exit = fadeOut() + scaleOut(targetScale = .96f),
@@ -419,38 +442,40 @@ internal fun DigitalWorldGameScene(
             }
         }
 
-        WorldVirtualJoystick(
-            value = joystick,
-            onValueChanged = { next ->
-                if (joystick.length <= .05f && next.length > .05f) GameSoundEffects.play(GameSoundEffect.Move)
-                joystick = next
-            },
-            modifier = Modifier.align(Alignment.BottomStart).padding(start = 14.dp, bottom = controlsBottomPadding),
-            tint = Color(0xFFC3FFE9),
-        )
-        WorldActionButton(
-            label = actionLabel,
-            enabled = nearby != null,
-            onClick = {
-                when (val target = nearby) {
-                    is DigitalNearbyTarget.Resident -> {
-                        GameSoundEffects.play(GameSoundEffect.Interact)
-                        interactionMessage = "${target.motion.character.displayName} 注意到了你"
-                        questStage = questStage.coerceAtLeast(1)
-                        onCharacterClick(target.motion.character.characterId)
+        if (controlsEnabled) {
+            WorldVirtualJoystick(
+                value = joystick,
+                onValueChanged = { next ->
+                    if (joystick.length <= .05f && next.length > .05f) GameSoundEffects.play(GameSoundEffect.Move)
+                    joystick = next
+                },
+                modifier = Modifier.align(Alignment.BottomStart).padding(start = 14.dp, bottom = controlsBottomPadding),
+                tint = Color(0xFFC3FFE9),
+            )
+            WorldActionButton(
+                label = actionLabel,
+                enabled = nearby != null,
+                onClick = {
+                    when (val target = nearby) {
+                        is DigitalNearbyTarget.Resident -> {
+                            GameSoundEffects.play(GameSoundEffect.Interact)
+                            interactionMessage = "${target.motion.character.displayName} 注意到了你"
+                            questStage = questStage.coerceAtLeast(1)
+                            onCharacterClick(target.motion.character.characterId)
+                        }
+                        is DigitalNearbyTarget.Prop -> {
+                            GameSoundEffects.play(GameSoundEffect.Interact)
+                            interactionMessage = target.prop.item.name
+                            questStage = questStage.coerceAtLeast(2)
+                            onWorldAction?.invoke(target.prop.obstacle?.action.orEmpty().ifBlank { "我走近${target.prop.item.name}，仔细看了看。" })
+                        }
+                        null -> Unit
                     }
-                    is DigitalNearbyTarget.Prop -> {
-                        GameSoundEffects.play(GameSoundEffect.Interact)
-                        interactionMessage = target.prop.item.name
-                        questStage = questStage.coerceAtLeast(2)
-                        onWorldAction?.invoke(target.prop.obstacle?.action.orEmpty().ifBlank { "我走近${target.prop.item.name}，仔细看了看。" })
-                    }
-                    null -> Unit
-                }
-            },
-            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 22.dp, bottom = controlsBottomPadding + 12.dp),
-            accent = Color(0xFF9EFFE0),
-        )
+                },
+                modifier = Modifier.align(Alignment.BottomEnd).padding(end = 22.dp, bottom = controlsBottomPadding + 12.dp),
+                accent = Color(0xFF9EFFE0),
+            )
+        }
     }
 }
 
