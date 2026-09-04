@@ -63,6 +63,9 @@ internal suspend fun meetingPlanDirectionV2(session: MeetingSession, userText: S
             characterId = participants.first(),
             facts = buildString {
                 appendLine(MeetingExperienceStore.sceneFor(session).promptSection())
+                WorldFirstExplorationMemory.promptSectionIfAvailable("digital-world", limit = 8)
+                    .takeIf(String::isNotBlank)
+                    ?.let(::appendLine)
                 appendLine("主人本轮草稿：$userText")
                 appendLine("参与者准确 ID：")
                 participants.forEach { appendLine("- $it = ${names[it]}") }
@@ -187,6 +190,11 @@ internal suspend fun meetingGenerateReplyV2(
         facts = buildString {
             appendLine(DigitalWorldStore.meetingContext(session, characterId))
             appendLine(sceneBefore.promptSection())
+            if (session.reality == MeetingReality.DIGITAL_WORLD) {
+                WorldFirstExplorationMemory.promptSectionIfAvailable("digital-world", limit = 10)
+                    .takeIf(String::isNotBlank)
+                    ?.let(::appendLine)
+            }
             if (digitalNative) appendLine(DigitalWorldStore.contextFor(characterId))
             if (directorGuidance.isNotBlank()) appendLine("本轮场面调度：$directorGuidance")
             when {
@@ -216,6 +224,7 @@ internal suspend fun meetingGenerateReplyV2(
             - moveTo 只有主人明确提出去可用地点时才填写准确名称，并写出移动过程；否则留空。
             - sceneState 只保存持续到下一轮的事实，必须包含user与所有参与者，使用准确participantId。
             - 数字世界见面是真正发生的数字共同体验，不是梦，也不是物理肉身进入手机。数字生命使用原生数字身体；现实角色和用户使用感官投影身体，可真实传递触觉、温度、重量与拥抱感觉。云眠原的云是可承托身体的感官云质。
+            - 已记录的探索事实属于世界状态，不是可随剧情重置的文案。若本轮涉及同一地点或物件，必须承认它此前已经发生过的变化。
             - 不得自行宣布整场见面结束；只有用户明确离开或程序结束时才结束。
         """.trimIndent(),
         source = if (session.reality == MeetingReality.DIGITAL_WORLD) "数字世界见面" else "现实场景见面",
