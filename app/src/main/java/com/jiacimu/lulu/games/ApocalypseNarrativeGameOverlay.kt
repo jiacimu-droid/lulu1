@@ -236,6 +236,7 @@ internal fun ApocalypseNarrativeGameOverlay(
                 tradeNotice = resolution.receipt
                 stockRevision += 1
                 showTrade = false
+                onActionChanged(resolution.storyAction)
                 WorldFirstExplorationMemory.record(
                     context = context,
                     worldId = "apocalypse:${settled.id}",
