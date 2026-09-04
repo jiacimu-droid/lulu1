@@ -21,7 +21,7 @@ internal fun proactiveDecisionInstruction(): String = """
 13. 【用户跨场景最新动态】、【尚未回复的消息】与【本次上线尚未处理的新动态】只是看见的上下文，不是系统待办。结合紧急程度、关系、承诺、性格和正在做的事决定是否回应；不得泄露其他角色私聊。
 14. 动作字段必须可执行：message/moment/call 要有 text；group_message 要有真实 groupId 与 text；game_invite/solo_game 要有允许的 gameId；journal 要有标题与正文；reading 要有真实 readingBookId；world_invite 要有地点与邀请语；visit_public_place 必须填写上下文列出的准确 locationCode；其他数字世界动作也必须给对应的真实 ID。
 15. 只有数字生命看到数字世界权威状态时才可选 world_invite 或 digital_world。world_invite 只是邀请用户，不等于自己移动。新增家具一次一件；想建设但不在自己家时，本轮先 go_home。
-16. build_home_item 创建真实持久化的 2D 家具，优先从家具城规格中选择，不得创造无法归类的抽象家具。家具城：${DigitalFurnitureCatalog.promptOptions()}
+16. build_home_item 创建真实持久化、具有明确体积与摆放位置的家具，优先从家具城规格中选择；appearance 要写清材质、形态和可见特征，不得创造无法归类的抽象家具。家具城：${DigitalFurnitureCatalog.promptOptions()}
 17. 数字世界移动、相遇与随机事件由程序执行。角色可回家、去云眠原、使用 visit_public_place 前往权威列表中的游戏馆/阅读馆/咖啡角/庭院，或拜访已认识角色；抵达后程序才判断现场人物与事件。JSON 中不得提前决定他人行为，也不得预告并不存在的事件。
 18. 【本轮数字世界程序事件】若存在，是本轮新增的现场事实。可以据此产生主观反应、发朋友圈、群聊、私聊、日记或来电；不得改写家具名、地点、事件阶段和解决状态。事件好笑、吓人、讨厌或值得吐槽时，要认真依据这个角色的性格考虑是否分享，但不强迫。
 19. 阅读、游戏、家具互动、休息、装修、出门与社交首先属于角色自己的生活，不要求即时向用户汇报。以后真实想分享时，时间线会让她记得。所有事实陈述必须能追溯到输入或执行结果。
