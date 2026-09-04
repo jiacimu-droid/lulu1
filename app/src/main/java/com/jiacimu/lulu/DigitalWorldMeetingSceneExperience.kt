@@ -7,6 +7,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -133,7 +135,7 @@ internal fun DigitalWorldMeetingSceneExperience(
         !narrativeExpanded && viewOnly -> 62.dp
         !narrativeExpanded -> 124.dp
         viewOnly -> 204.dp
-        else -> 286.dp
+        else -> 298.dp
     }
 
     Box(
@@ -296,6 +298,9 @@ private fun MeetingNarrativeOverlay(
     onLongClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val swipeThresholdPx = with(androidx.compose.ui.platform.LocalDensity.current) { 44.dp.toPx() }
+    var swipeDistance by remember(page?.voiceKey, pageCount) { mutableFloatStateOf(0f) }
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -311,8 +316,20 @@ private fun MeetingNarrativeOverlay(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 MeetingSpeakerBadge(page, characters, userName, userAvatar, userAvatarUri)
                 Spacer(Modifier.weight(1f))
-                if (pageCount > 0) {
-                    Text("${pageIndex + 1} / $pageCount", color = Color(0xFF8FB2A8), fontSize = 9.sp)
+                if (pageCount > 1) {
+                    Surface(
+                        color = Color(0xFF9EFFE0).copy(alpha = .12f),
+                        shape = RoundedCornerShape(999.dp),
+                        border = BorderStroke(1.dp, Color(0xFF9EFFE0).copy(alpha = .20f)),
+                    ) {
+                        Text(
+                            "${pageIndex + 1} / $pageCount",
+                            color = Color(0xFFC8FFEE),
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
+                        )
+                    }
                     Spacer(Modifier.width(6.dp))
                 }
                 IconButton(onClick = { onExpandedChanged(!expanded) }, modifier = Modifier.size(34.dp)) {
@@ -329,11 +346,26 @@ private fun MeetingNarrativeOverlay(
                 val visiblePage = page
                 if (showFull) {
                     Box(
-                        Modifier.fillMaxWidth().heightIn(min = 56.dp, max = 126.dp),
+                        Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 62.dp, max = 138.dp)
+                            .pointerInput(visiblePage?.voiceKey, pageIndex, pageCount) {
+                                detectHorizontalDragGestures(
+                                    onDragEnd = {
+                                        when {
+                                            swipeDistance <= -swipeThresholdPx && pageIndex < pageCount - 1 -> onNext()
+                                            swipeDistance >= swipeThresholdPx && pageIndex > 0 -> onPrevious()
+                                        }
+                                        swipeDistance = 0f
+                                    },
+                                    onDragCancel = { swipeDistance = 0f },
+                                    onHorizontalDrag = { _, dragAmount -> swipeDistance += dragAmount },
+                                )
+                            },
                         contentAlignment = Alignment.TopStart,
                     ) {
                         when {
-                            visiblePage != null -> {
+                            visiblePage != null -> key(visiblePage.voiceKey) {
                                 Text(
                                     visiblePage.text,
                                     color = Color(0xFFF2F6F3),
@@ -362,25 +394,54 @@ private fun MeetingNarrativeOverlay(
                 }
             }
 
-            if (expanded && pageCount > 0) {
+            if (expanded && pageCount > 1) {
                 Row(
-                    Modifier.fillMaxWidth().height(35.dp),
+                    Modifier.fillMaxWidth().height(48.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    TextButton(onClick = onPrevious, enabled = pageIndex > 0) {
-                        Icon(Icons.Outlined.ChevronLeft, null, Modifier.size(17.dp))
-                        Text("上一段", fontSize = 10.sp)
+                    FilledIconButton(
+                        onClick = onPrevious,
+                        enabled = pageIndex > 0,
+                        modifier = Modifier.size(40.dp),
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = Color.White.copy(alpha = .10f),
+                            contentColor = Color.White,
+                            disabledContainerColor = Color.White.copy(alpha = .035f),
+                            disabledContentColor = Color.White.copy(alpha = .18f),
+                        ),
+                    ) {
+                        Icon(Icons.Outlined.ChevronLeft, "上一段", Modifier.size(22.dp))
                     }
-                    LinearProgressIndicator(
-                        progress = { (pageIndex + 1f) / pageCount.coerceAtLeast(1) },
-                        modifier = Modifier.width(82.dp).height(2.dp).clip(RoundedCornerShape(99.dp)),
-                        color = Color(0xFF9EFFE0),
-                        trackColor = Color.White.copy(alpha = .12f),
-                    )
-                    TextButton(onClick = onNext, enabled = pageIndex < pageCount - 1) {
-                        Text("下一段", fontSize = 10.sp)
-                        Icon(Icons.Outlined.ChevronRight, null, Modifier.size(17.dp))
+                    Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            "第 ${pageIndex + 1} 段 · 共 $pageCount 段",
+                            color = Color(0xFFE8F5F0),
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Spacer(Modifier.height(5.dp))
+                        LinearProgressIndicator(
+                            progress = { (pageIndex + 1f) / pageCount.coerceAtLeast(1) },
+                            modifier = Modifier.fillMaxWidth(.68f).height(3.dp).clip(RoundedCornerShape(99.dp)),
+                            color = Color(0xFF9EFFE0),
+                            trackColor = Color.White.copy(alpha = .12f),
+                        )
+                        Spacer(Modifier.height(3.dp))
+                        Text("左右滑动文字也可以翻页", color = Color(0xFF7FA69A), fontSize = 7.5.sp)
+                    }
+                    FilledIconButton(
+                        onClick = onNext,
+                        enabled = pageIndex < pageCount - 1,
+                        modifier = Modifier.size(40.dp),
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = Color(0xFF9EFFE0).copy(alpha = .18f),
+                            contentColor = Color(0xFFC7FFED),
+                            disabledContainerColor = Color.White.copy(alpha = .035f),
+                            disabledContentColor = Color.White.copy(alpha = .18f),
+                        ),
+                    ) {
+                        Icon(Icons.Outlined.ChevronRight, "下一段", Modifier.size(22.dp))
                     }
                 }
             }
