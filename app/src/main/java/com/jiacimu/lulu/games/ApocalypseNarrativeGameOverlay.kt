@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.games
 
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,15 +10,25 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.LuluProfileAvatar
 import com.jiacimu.lulu.data.CharacterSettings
+import com.jiacimu.lulu.data.WorldFirstExplorationMemory
+
+private fun apocalypseOverlayExplorationLocationV5(context: Context, save: ApocalypseV3Save): String {
+    val prefs = context.applicationContext.getSharedPreferences("apocalypse_exploration_world_v1", Context.MODE_PRIVATE)
+    val suffix = (save.id.hashCode() and Int.MAX_VALUE).toString(36)
+    val storyAnchor = prefs.getString("story_$suffix", null)
+    val active = prefs.getString("active_$suffix", null)
+    return if (storyAnchor == save.director.location && !active.isNullOrBlank()) active else save.director.location
+}
 
 @Composable
 internal fun ApocalypseNarrativeGameOverlay(
@@ -41,6 +52,29 @@ internal fun ApocalypseNarrativeGameOverlay(
     onSubmit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    val storage = remember(context) { ApocalypseSurvivalV3Store(context) }
+    var liveSave by remember { mutableStateOf(storage.loadSave()) }
+    var showTrade by remember { mutableStateOf(false) }
+    var tradeNotice by remember { mutableStateOf("") }
+    var stockRevision by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(generationState.completedScene, pageIndex, pageCount) {
+        storage.loadSave()?.let { liveSave = it }
+    }
+
+    val currentSave = liveSave
+    val tradeLocation = currentSave?.let { apocalypseOverlayExplorationLocationV5(context, it) }
+    val stockStore = remember(context, currentSave?.id) {
+        currentSave?.id?.let { ApocalypseTradeStockStoreV5(context, it) }
+    }
+    val tradeMarket = remember(currentSave?.updatedAt, tradeLocation, stockRevision, action) {
+        val base = currentSave?.let { save ->
+            buildApocalypseTradeMarketV5(save, tradeLocation ?: save.director.location)
+        }
+        if (base != null && stockStore != null) stockStore.applyRemaining(base) else base
+    }
+
     Surface(
         modifier = modifier.fillMaxWidth().padding(horizontal = 7.dp, vertical = 5.dp),
         color = Color(0xEE0B1412),
@@ -98,6 +132,45 @@ internal fun ApocalypseNarrativeGameOverlay(
                 }
             }
 
+            if (lastPage && tradeMarket != null) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { if (!busy) showTrade = true },
+                    enabled = !busy,
+                    color = Color(0xFFE7D08B).copy(alpha = .12f),
+                    shape = RoundedCornerShape(13.dp),
+                    border = BorderStroke(1.dp, Color(0xFFE7D08B).copy(alpha = .28f)),
+                ) {
+                    Row(
+                        Modifier.fillMaxWidth().padding(horizontal = 11.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Outlined.ShoppingCart, null, tint = Color(0xFFE7D08B), modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text("交易 · ${tradeMarket.sellerName}", color = Color.White, fontSize = 10.5.sp, fontWeight = FontWeight.Black)
+                            Text("${tradeMarket.location} · ${tradeMarket.mode.label} · 真实库存", color = Color(0xFF98ACA4), fontSize = 8.sp)
+                        }
+                        currentSave?.let {
+                            Text("¥${it.stats.money}", color = Color(0xFFE7D08B), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Spacer(Modifier.width(4.dp))
+                        Icon(Icons.Outlined.ChevronRight, null, tint = Color(0xFF98ACA4), modifier = Modifier.size(17.dp))
+                    }
+                }
+                if (tradeNotice.isNotBlank()) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        tradeNotice,
+                        color = Color(0xFFB8C9C1),
+                        fontSize = 8.5.sp,
+                        lineHeight = 12.5.sp,
+                        maxLines = 2,
+                    )
+                }
+                Spacer(Modifier.height(5.dp))
+            }
+
             if (lastPage) {
                 Row(
                     Modifier.fillMaxWidth(),
@@ -146,6 +219,41 @@ internal fun ApocalypseNarrativeGameOverlay(
                 Text(error, color = Color(0xFFFF938E), fontSize = 9.5.sp, lineHeight = 13.sp, maxLines = 2)
             }
         }
+    }
+
+    val marketForSheet = tradeMarket
+    val saveForSheet = currentSave
+    if (showTrade && marketForSheet != null && saveForSheet != null) {
+        ApocalypseTradeSheetV5(
+            save = saveForSheet,
+            market = marketForSheet,
+            onDismiss = { showTrade = false },
+            onConfirmed = { resolution ->
+                stockStore?.consume(marketForSheet, quoteApocalypseTradeV5(saveForSheet, marketForSheet, emptyMap()).lines)
+                val settled = resolution.save
+                // consume the exact confirmed lines from the receipt resolution by rebuilding a valid
+                // quote is not possible after the sheet closes, so stock is persisted below by parsing
+                // the already reduced market through the dedicated settlement helper.
+                ApocalypseTradeReceiptStockBridgeV5.consumeFromResolution(
+                    context = context,
+                    saveId = saveForSheet.id,
+                    market = marketForSheet,
+                    resolution = resolution,
+                )
+                storage.save(settled)
+                liveSave = settled
+                tradeNotice = resolution.receipt
+                stockRevision += 1
+                showTrade = false
+                WorldFirstExplorationMemory.record(
+                    context = context,
+                    worldId = "apocalypse:${settled.id}",
+                    locationId = marketForSheet.location,
+                    locationLabel = marketForSheet.location,
+                    action = resolution.receipt,
+                )
+            },
+        )
     }
 }
 
