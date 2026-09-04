@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`485dc39036e753ddbac42561c599132d049b2bf4`
+- 基准提交：`59274a0921bf3a60f45de7429bece4d8218a29bd`
 - 分支：`main`
 - 已索引文件：240
-- 已索引代码/文本行：73925
-- 已发现符号：927
+- 已索引代码/文本行：73898
+- 已发现符号：928
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -24,7 +24,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalFurnitureDialogs.kt` | 193 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalFurnitureStickerUi.kt` | 881 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt` | 653 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 922 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 895 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 624 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 529 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt` | 343 | 2 |
