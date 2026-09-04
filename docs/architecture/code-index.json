@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T10:23:43.395818+00:00",
-  "commit": "11e6229145f8ef19fb797b24cd44f79d1fd32413",
+  "generatedAt": "2026-09-04T10:24:54.585361+00:00",
+  "commit": "eb0b2ce1f0995eb5299c51e5923347ba49a0fe39",
   "branch": "main",
-  "sourceFingerprint": "a0962ac81d8447ddf6e2ff381f11e68c3f35018210ac0dba6ecfd4d992912011",
+  "sourceFingerprint": "3ddd62d43f897f2a8c228457ace275501e666581e212d4a7a963b9eabdb08481",
   "summary": {
     "files": 233,
-    "lines": 70627,
+    "lines": 70688,
     "symbols": 909
   },
   "symbolIndex": {
@@ -521,7 +521,7 @@
     "flush": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-        "line": 558
+        "line": 619
       }
     ],
     "LexiconFeatureScreenV2": [
@@ -5421,12 +5421,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-      "lines": 592,
-      "sha256": "2a0592fd8a9a9fae9263c625285d38c14001c71b3d3a082215ebda00eb38eb4a",
+      "lines": 653,
+      "sha256": "704bd46c8b5f89f330254a64841a212dad45a42dddbdd7686816cc060bd01587",
       "symbols": [
         {
           "name": "flush",
-          "line": 558
+          "line": 619
         }
       ]
     },
