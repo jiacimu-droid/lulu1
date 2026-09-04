@@ -427,8 +427,11 @@ internal fun DigitalWorldGameScene(
                 translate(-camera.x * worldScale, -camera.y * worldScale)
                 scale(worldScale, worldScale, pivot = Offset.Zero)
             }) {
-                if (homeCharacterId != null) drawDigitalHomeWorld(props, lightPhase)
-                else drawDigitalSharedWorld(sceneCode, lightPhase)
+                if (homeCharacterId != null) {
+                    drawDigitalHomeWorld(props, lightPhase)
+                } else if (!drawDigitalPublicPlaceWorld(sceneCode, lightPhase)) {
+                    drawDigitalSharedWorld(sceneCode, lightPhase)
+                }
             }
 
             val focus = if (showExplorationHud && controlsEnabled) {
@@ -579,7 +582,7 @@ internal fun DigitalWorldGameScene(
                 queued = queuedActions,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = controlsBottomPadding + 88.dp, start = 90.dp, end = 90.dp),
+                    .padding(start = 90.dp, end = 90.dp, bottom = controlsBottomPadding + 88.dp),
             )
         }
 
@@ -643,7 +646,7 @@ internal fun DigitalWorldGameScene(
                 },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(horizontal = 14.dp, bottom = controlsBottomPadding + 88.dp),
+                    .padding(start = 14.dp, end = 14.dp, bottom = controlsBottomPadding + 88.dp),
             )
         }
     }
@@ -658,12 +661,12 @@ private fun buildInteractionChoices(
         val name = target.motion.character.displayName
         listOf(
             DigitalInteractionChoice("聊天", "进入沉浸对话", dialogueCharacterId = target.motion.character.characterId),
-            DigitalInteractionChoice("抱抱", "让这次接触进入剧情", storyPrompt = "我走到$name身边，轻轻抱了抱对方，看看对方会有什么反应。"),
-            DigitalInteractionChoice("牵手", "一起行动时保持接触", storyPrompt = "我伸手去牵$name的手，想和对方一起待一会儿。"),
-            DigitalInteractionChoice("一起坐", "找附近能坐的地方", storyPrompt = "我问$name要不要和我一起找个舒服的位置坐下来待一会儿。"),
-            DigitalInteractionChoice("跟我来", "邀请对方跟随你的移动", storyPrompt = "我回头招呼$name跟我来，想带对方一起在这里走走。"),
-            DigitalInteractionChoice("一起玩", "发起共同活动", storyPrompt = "我问$name想不想和我一起玩点什么，由我们现在所在的数字世界决定具体活动。"),
-            DigitalInteractionChoice("去别处", "一起商量下一个地点", storyPrompt = "我问$name想不想和我一起换个地方，并准备从真实存在的地点里选一个。"),
+            DigitalInteractionChoice("抱抱", "让这次接触进入剧情", storyPrompt = "我走到${name}身边，轻轻抱了抱对方，看看对方会有什么反应。"),
+            DigitalInteractionChoice("牵手", "一起行动时保持接触", storyPrompt = "我伸手去牵${name}的手，想和对方一起待一会儿。"),
+            DigitalInteractionChoice("一起坐", "找附近能坐的地方", storyPrompt = "我问${name}要不要和我一起找个舒服的位置坐下来待一会儿。"),
+            DigitalInteractionChoice("跟我来", "邀请对方跟随你的移动", storyPrompt = "我回头招呼${name}跟我来，想带对方一起在这里走走。"),
+            DigitalInteractionChoice("一起玩", "发起共同活动", storyPrompt = "我问${name}想不想和我一起玩点什么，由我们现在所在的数字世界决定具体活动。"),
+            DigitalInteractionChoice("去别处", "一起商量下一个地点", storyPrompt = "我问${name}想不想和我一起换个地方，并准备从真实存在的地点里选一个。"),
         )
     }
     is DigitalNearbyTarget.Prop -> {
