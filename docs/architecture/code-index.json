@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T12:35:21.181575+00:00",
-  "commit": "822aadfb52f8ddd2d07bd25bc02001d2f21b8c89",
+  "generatedAt": "2026-09-04T12:37:06.378059+00:00",
+  "commit": "e0ffe4f67bab3c6ece14524392a90c3af1b92a96",
   "branch": "main",
-  "sourceFingerprint": "243c7dd3b22a6294b3b7dfc86c116d920553667a2111e034f7421b621da3b3fb",
+  "sourceFingerprint": "f4c7ddc8ba2b880f8d1e30709fd9a0489b96b05afa5b4b9fb586baacc9257323",
   "summary": {
     "files": 234,
-    "lines": 71343,
+    "lines": 71357,
     "symbols": 920
   },
   "symbolIndex": {
@@ -295,7 +295,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-        "line": 99
+        "line": 100
       }
     ],
     "TaskContext": [
@@ -327,7 +327,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-        "line": 116
+        "line": 117
       }
     ],
     "launch": [
@@ -341,7 +341,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-        "line": 118
+        "line": 119
       }
     ],
     "stop": [
@@ -3503,7 +3503,7 @@
     "hasAny": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-        "line": 23
+        "line": 24
       }
     ],
     "concreteOwnsAggregate": [
@@ -8342,24 +8342,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-      "lines": 470,
-      "sha256": "9dcb8617b9aaf9c2c59d464aa2fba5a961a52372d173373fc25caf702a86d645",
+      "lines": 484,
+      "sha256": "3e678da4ebcb7f2a2e70ed7b7225e49e4002ce16e3cb32798e85abf047ec5f0a",
       "symbols": [
         {
           "name": "hasAny",
-          "line": 23
+          "line": 24
         },
         {
           "name": "TaskState",
-          "line": 99
+          "line": 100
         },
         {
           "name": "state",
-          "line": 116
+          "line": 117
         },
         {
           "name": "launch",
-          "line": 118
+          "line": 119
         }
       ]
     },

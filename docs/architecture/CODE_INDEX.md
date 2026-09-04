@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`822aadfb52f8ddd2d07bd25bc02001d2f21b8c89`
+- 基准提交：`e0ffe4f67bab3c6ece14524392a90c3af1b92a96`
 - 分支：`main`
 - 已索引文件：234
-- 已索引代码/文本行：71343
+- 已索引代码/文本行：71357
 - 已发现符号：920
 
 | 文件 | 行数 | 符号数 |
@@ -136,7 +136,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationArt.kt` | 753 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt` | 760 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseFlowRowCompat.kt` | 34 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt` | 470 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt` | 484 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseHistoryRangeItemsV5.kt` | 205 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryBrowserV5.kt` | 437 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryLedgerV5.kt` | 344 | 1 |
