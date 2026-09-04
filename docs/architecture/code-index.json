@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T12:30:05.951540+00:00",
-  "commit": "be7539493fb2b9e6385753801fbba0a0d45d1081",
+  "generatedAt": "2026-09-04T12:35:21.181575+00:00",
+  "commit": "822aadfb52f8ddd2d07bd25bc02001d2f21b8c89",
   "branch": "main",
-  "sourceFingerprint": "f3d0412c2acc3ba4391c3a0d3d5b3fca783e4bcd9ee29ceb9ddd76bff008fa75",
+  "sourceFingerprint": "243c7dd3b22a6294b3b7dfc86c116d920553667a2111e034f7421b621da3b3fb",
   "summary": {
     "files": 234,
-    "lines": 71288,
+    "lines": 71343,
     "symbols": 920
   },
   "symbolIndex": {
@@ -395,7 +395,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
-        "line": 663
+        "line": 718
       }
     ],
     "loadQuest": [
@@ -415,11 +415,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
-        "line": 670
+        "line": 725
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
-        "line": 697
+        "line": 752
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
@@ -3421,7 +3421,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
-        "line": 683
+        "line": 738
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
@@ -3497,7 +3497,7 @@
     "loadExplored": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
-        "line": 668
+        "line": 723
       }
     ],
     "hasAny": [
@@ -8309,28 +8309,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
-      "lines": 705,
-      "sha256": "84875f6b8a10c41951776480b90becbb328b20a116d70861f3e1b9077161670f",
+      "lines": 760,
+      "sha256": "f2ce971f650f1fa751411a2b6660c7da45a4f6895e7477e2f53d5d05d9d458db",
       "symbols": [
         {
           "name": "loadPosition",
-          "line": 663
+          "line": 718
         },
         {
           "name": "loadExplored",
-          "line": 668
+          "line": 723
         },
         {
           "name": "save",
-          "line": 670
+          "line": 725
         },
         {
           "name": "load",
-          "line": 683
+          "line": 738
         },
         {
           "name": "save",
-          "line": 697
+          "line": 752
         }
       ]
     },
