@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.jiacimu.lulu.data.CharacterSettings
+import com.jiacimu.lulu.data.WorldFirstExplorationMemory
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlin.math.abs
@@ -84,6 +85,14 @@ internal fun ApocalypseExplorationScene(
                         )
                     }
                 }
+            if (none { it.name == "白榆气象观测站" }) {
+                add(
+                    ApocalypseTravelTarget(
+                        name = "白榆气象观测站",
+                        detail = "白榆市北部高海拔科研设施。雷达、通信、独立供电、生活区与净水设备使这里具备长期据守价值。",
+                    ),
+                )
+            }
         }
     }
     val worldState = remember(context, save.id) { ApocalypseExplorationWorldState(context, save.id) }
@@ -107,6 +116,9 @@ internal fun ApocalypseExplorationScene(
     val map = remember(activeLocation, save.director.tension) {
         buildApocalypseExplorationMap(activeLocation, save.director.tension)
     }
+    val weatherStationSlice = remember(map.location) {
+        map.location.contains("白榆气象观测站") || (map.location.contains("气象") && map.location.contains("观测站"))
+    }
     val obstacles = remember(map) { map.objects.mapNotNull(ApocalypseRuinObject::obstacle) }
     val progress = remember(context, save.id, map.location) {
         ApocalypseExplorationProgress(context, save.id, map.location)
@@ -121,7 +133,9 @@ internal fun ApocalypseExplorationScene(
     var viewport by remember { mutableStateOf(IntSize.Zero) }
     var exploredIds by remember(save.id, map.location) { mutableStateOf(progress.loadExplored()) }
     var threat by remember(save.id, map.location) { mutableStateOf(map.threatStart) }
-    var threatTarget by remember(save.id, map.location) { mutableStateOf(WorldVector(480f, 520f)) }
+    var threatTarget by remember(save.id, map.location) {
+        mutableStateOf(if (weatherStationSlice) WorldVector(1_700f, 980f) else WorldVector(480f, 520f))
+    }
     var nextThreatDecision by remember(save.id, map.location) { mutableLongStateOf(System.currentTimeMillis() + 3_000L) }
     var notice by remember(save.id, map.location) { mutableStateOf("") }
     var partyPositions by remember(save.id, map.location, party.map { it.characterId }) {
@@ -166,7 +180,7 @@ internal fun ApocalypseExplorationScene(
         notice = ""
     }
 
-    LaunchedEffect(save.id, map.location, viewport, obstacles, party.map { it.characterId }) {
+    LaunchedEffect(save.id, map.location, weatherStationSlice, viewport, obstacles, party.map { it.characterId }) {
         var previousFrame = withFrameNanos { it }
         var lastDangerAt = 0L
         var lastBumpAt = 0L
@@ -221,16 +235,23 @@ internal fun ApocalypseExplorationScene(
                 if (now >= nextThreatDecision || threat.distanceTo(threatTarget) < 28f) {
                     val epoch = now / 4_000L
                     val seed = (map.location.hashCode().toLong() * 79L + epoch * 263L) and Long.MAX_VALUE
-                    threatTarget = WorldVector(
-                        300f + (seed % 1_300L).toFloat(),
-                        250f + ((seed / 47L) % 690L).toFloat(),
-                    )
-                    nextThreatDecision = now + 3_700L
+                    threatTarget = if (weatherStationSlice) {
+                        WorldVector(
+                            1_565f + (seed % 205L).toFloat(),
+                            875f + ((seed / 47L) % 185L).toFloat(),
+                        )
+                    } else {
+                        WorldVector(
+                            300f + (seed % 1_300L).toFloat(),
+                            250f + ((seed / 47L) % 690L).toFloat(),
+                        )
+                    }
+                    nextThreatDecision = now + if (weatherStationSlice) 5_600L else 3_700L
                 }
                 threat = moveInWorld(
                     threat,
                     threatTarget - threat,
-                    speed = 58f + save.director.tension * 4f,
+                    speed = if (weatherStationSlice) 34f else 58f + save.director.tension * 4f,
                     deltaSeconds = dt,
                     radius = 34f,
                     bounds = APOCALYPSE_WORLD_BOUNDS,
@@ -238,7 +259,7 @@ internal fun ApocalypseExplorationScene(
                 ).position
                 if (player.distanceTo(threat) < 145f && now - lastDangerAt > 2_300L) {
                     GameSoundEffects.play(GameSoundEffect.Bump)
-                    notice = "危险正在接近，利用障碍拉开距离"
+                    notice = if (weatherStationSlice) "外围有威胁贴近围栏，先回到站区内侧" else "危险正在接近，利用障碍拉开距离"
                     lastDangerAt = now
                 }
 
@@ -254,11 +275,26 @@ internal fun ApocalypseExplorationScene(
     val nearestObject = map.objects
         .minByOrNull { player.distanceTo(it.bounds.center) }
         ?.takeIf { player.distanceTo(it.bounds.center) <= 158f }
+    val objectiveKinds = if (weatherStationSlice) {
+        setOf(
+            ApocalypseRuinKind.StationRoom,
+            ApocalypseRuinKind.Equipment,
+            ApocalypseRuinKind.Radar,
+            ApocalypseRuinKind.Cache,
+            ApocalypseRuinKind.Wreck,
+            ApocalypseRuinKind.Barricade,
+            ApocalypseRuinKind.Exit,
+        )
+    } else {
+        setOf(ApocalypseRuinKind.Cache, ApocalypseRuinKind.Anomaly, ApocalypseRuinKind.Exit)
+    }
     val nextObjective = map.objects.firstOrNull {
-        it.id !in exploredIds && it.kind in setOf(ApocalypseRuinKind.Cache, ApocalypseRuinKind.Anomaly, ApocalypseRuinKind.Exit)
+        it.id !in exploredIds && it.kind in objectiveKinds
     }
     val objectiveText = when {
+        nextObjective != null && weatherStationSlice -> "恢复观测站：${nextObjective.label}"
         nextObjective != null -> "靠近并调查：${nextObjective.label}"
+        weatherStationSlice -> "观测站关键区域已巡查，可以安排修复、值守、外出补给或休息"
         activeLocation != save.director.location -> "自由探索 ${map.location}，调查环境并决定是否把发现带回剧情"
         else -> save.director.sceneGoal.ifBlank { "在当前区域自由侦察，决定下一步行动" }
     }
@@ -410,8 +446,8 @@ internal fun ApocalypseExplorationScene(
             location = map.location,
             goal = objectiveText,
             threatDistance = player.distanceTo(threat),
-            explored = exploredIds.size,
-            total = map.objects.count { it.kind in setOf(ApocalypseRuinKind.Cache, ApocalypseRuinKind.Anomaly, ApocalypseRuinKind.Exit) },
+            explored = exploredIds.count { exploredId -> map.objects.any { it.id == exploredId && it.kind in objectiveKinds } },
+            total = map.objects.count { it.kind in objectiveKinds },
             onMap = onMap,
             onTravel = { showTravelSheet = true },
             onInventory = onInventory,
@@ -452,6 +488,10 @@ internal fun ApocalypseExplorationScene(
                 ApocalypseRuinKind.Cache -> "搜索"
                 ApocalypseRuinKind.Anomaly -> "感知"
                 ApocalypseRuinKind.Exit -> "深入"
+                ApocalypseRuinKind.Radar -> "校验"
+                ApocalypseRuinKind.Equipment -> "检修"
+                ApocalypseRuinKind.StationRoom -> "进入"
+                ApocalypseRuinKind.Wreck, ApocalypseRuinKind.Barricade -> "检查"
                 null -> "靠近"
                 else -> "调查"
             },
@@ -462,6 +502,15 @@ internal fun ApocalypseExplorationScene(
                     exploredIds = exploredIds + target.id
                     GameSoundEffects.play(if (firstVisit) GameSoundEffect.Objective else GameSoundEffect.Interact)
                     notice = if (firstVisit) "已记录线索：${target.label}" else target.label
+                    if (firstVisit) {
+                        WorldFirstExplorationMemory.record(
+                            context = context,
+                            worldId = "apocalypse:${save.id}",
+                            locationId = map.location,
+                            locationLabel = map.location,
+                            action = target.action,
+                        )
+                    }
                     onSuggestedAction(target.action)
                 }
             },
@@ -488,12 +537,18 @@ internal fun ApocalypseExplorationScene(
             onDismiss = { showTravelSheet = false },
             onTravel = { target ->
                 val from = activeLocation
+                val travelAction = "我离开$from，沿已经确认的路线前往${target.name}。抵达后先观察周围环境、威胁和可利用的入口，再决定下一步。"
                 activeLocation = target.name
                 showTravelSheet = false
                 GameSoundEffects.play(GameSoundEffect.Objective)
-                onSuggestedAction(
-                    "我离开$from，沿已经确认的路线前往${target.name}。抵达后先观察周围环境、威胁和可利用的入口，再决定下一步。",
+                WorldFirstExplorationMemory.record(
+                    context = context,
+                    worldId = "apocalypse:${save.id}",
+                    locationId = target.name,
+                    locationLabel = target.name,
+                    action = travelAction,
                 )
+                onSuggestedAction(travelAction)
             },
         )
     }
