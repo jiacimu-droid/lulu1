@@ -2,6 +2,7 @@ package com.jiacimu.lulu.games
 
 import android.content.Context
 import com.jiacimu.lulu.data.CharacterSettings
+import com.jiacimu.lulu.data.WorldFirstExplorationMemory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -219,6 +220,16 @@ internal object ApocalypseGenerationTaskManagerV5 {
                     val livingWorldContext = runCatching {
                         livingWorldStore.promptForDirector(save)
                     }.getOrDefault("")
+                    val explorationWorldContext = runCatching {
+                        WorldFirstExplorationMemory.promptSection(
+                            context = appContext,
+                            worldId = "apocalypse:${save.id}",
+                            limit = 16,
+                        )
+                    }.getOrDefault("")
+                    val authoritativeWorldContext = listOf(livingWorldContext, explorationWorldContext)
+                        .filter(String::isNotBlank)
+                        .joinToString("\n\n")
 
                     // Relevance chooses which old scenes deserve a closer look; chronology decides how
                     // the director reads them. The director waits for this ordered supplement because
@@ -238,7 +249,7 @@ internal object ApocalypseGenerationTaskManagerV5 {
                             plotMemoryContext = apocalypseDirectorSupplementContextV5(
                                 chronologicalPlotRecall = directorPlotMemoryContext,
                                 chapterSummaryContext = chapterSummaryContext,
-                                livingWorldContext = livingWorldContext,
+                                livingWorldContext = authoritativeWorldContext,
                             ),
                         )
                     } else {
@@ -254,6 +265,9 @@ internal object ApocalypseGenerationTaskManagerV5 {
                     } else {
                         plotMemoryDeferred.await()
                     }
+                    val writerContinuityContext = listOf(plotMemoryContext, explorationWorldContext)
+                        .filter(String::isNotBlank)
+                        .joinToString("\n\n")
                     val usedDirector = planResult.directorApplied
                     val plannedBeat = enrichApocalypseAmbientEventBeatV5(
                         save = save,
@@ -274,7 +288,7 @@ internal object ApocalypseGenerationTaskManagerV5 {
                             beat = plannedBeat,
                             nextStats = projectedStats,
                             usedDirector = usedDirector,
-                            plotMemoryContext = plotMemoryContext,
+                            plotMemoryContext = writerContinuityContext,
                             onPartialText = { _ ->
                                 updateState(save.id) {
                                     it.copy(phase = "正文正在生成", partialText = "")
