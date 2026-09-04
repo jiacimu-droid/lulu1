@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`ffedf279b8314156c4c087bc83ab96a99e19d3ba`
+- 基准提交：`4b7eeaf9588104ec1ca267102b2d1900d4dd0247`
 - 分支：`main`
-- 已索引文件：233
-- 已索引代码/文本行：70794
-- 已发现符号：911
+- 已索引文件：234
+- 已索引代码/文本行：70942
+- 已发现符号：918
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -123,6 +123,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 169 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 48 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt` | 148 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 93 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseAbilityProgressionV5.kt` | 307 | 0 |

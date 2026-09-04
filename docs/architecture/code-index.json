@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T10:54:51.198368+00:00",
-  "commit": "ffedf279b8314156c4c087bc83ab96a99e19d3ba",
+  "generatedAt": "2026-09-04T11:41:39.528966+00:00",
+  "commit": "4b7eeaf9588104ec1ca267102b2d1900d4dd0247",
   "branch": "main",
-  "sourceFingerprint": "5c2e68f96a35ea252749e2d8b1bfaa74a5d854dbcff0807fa049e6d3984e4b14",
+  "sourceFingerprint": "b3200ce00f1348a07d70a853573dbb67a0196001baf384683682feb177ec9d5f",
   "summary": {
-    "files": 233,
-    "lines": 70794,
-    "symbols": 911
+    "files": 234,
+    "lines": 70942,
+    "symbols": 918
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -170,6 +170,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
         "line": 7
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
+        "line": 31
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
@@ -1882,6 +1886,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
         "line": 11
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
+        "line": 83
       }
     ],
     "optionsFor": [
@@ -3162,6 +3170,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
         "line": 103
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
+        "line": 40
       }
     ],
     "all": [
@@ -3298,6 +3310,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
         "line": 40
+      }
+    ],
+    "WorldFirstExplorationMemory": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
+        "line": 16
+      }
+    ],
+    "Entry": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
+        "line": 17
+      }
+    ],
+    "recent": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
+        "line": 66
+      }
+    ],
+    "clearWorld": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
+        "line": 99
       }
     ],
     "LuluPageScaffold": [
@@ -8069,6 +8105,41 @@
         {
           "name": "displayLabel",
           "line": 40
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
+      "lines": 148,
+      "sha256": "28b2667c384097369520a47cfaedc13442e335c8707e10afbf8782c4ab7e93f8",
+      "symbols": [
+        {
+          "name": "WorldFirstExplorationMemory",
+          "line": 16
+        },
+        {
+          "name": "Entry",
+          "line": 17
+        },
+        {
+          "name": "initialize",
+          "line": 31
+        },
+        {
+          "name": "record",
+          "line": 40
+        },
+        {
+          "name": "recent",
+          "line": 66
+        },
+        {
+          "name": "promptSection",
+          "line": 83
+        },
+        {
+          "name": "clearWorld",
+          "line": 99
         }
       ]
     },
