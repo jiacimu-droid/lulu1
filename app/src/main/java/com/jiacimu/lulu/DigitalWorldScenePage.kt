@@ -1,8 +1,5 @@
 package com.jiacimu.lulu
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -94,15 +91,11 @@ internal fun DigitalWorldScenePage(
                 controlsBottomPadding = 24.dp,
             )
 
-            AnimatedVisibility(
-                visible = rememberedAction.isNotBlank(),
-                enter = fadeIn(),
-                exit = fadeOut(),
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(horizontal = 18.dp, vertical = 12.dp),
-            ) {
+            if (rememberedAction.isNotBlank()) {
                 Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(horizontal = 18.dp, vertical = 12.dp),
                     color = Color(0xEB10201C),
                     shape = RoundedCornerShape(16.dp),
                     border = BorderStroke(1.dp, Color(0xFFB7FFE8).copy(alpha = .32f)),
