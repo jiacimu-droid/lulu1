@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T17:46:42.452056+00:00",
-  "commit": "6e5e8d1457b3958b6183c1c49c19b384748fb5ba",
+  "generatedAt": "2026-09-04T17:48:18.247452+00:00",
+  "commit": "29a657d0bfd7b7fe69c6e34ec51b50652a434991",
   "branch": "main",
-  "sourceFingerprint": "92eb45158d7989834f11e30dc36dc99aaabf9c3e0fa2b66239b4467f1ba64554",
+  "sourceFingerprint": "90f25f1917f38145976cf974b81899f177319670ff78bb135385d31bed7e3d55",
   "summary": {
-    "files": 238,
-    "lines": 73284,
+    "files": 239,
+    "lines": 73580,
     "symbols": 925
   },
   "symbolIndex": {
@@ -5518,6 +5518,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingUiV2.kt",
       "lines": 457,
       "sha256": "2634a4cc00fc41e72d8371ac1c1f6709d98fcc9eb03b7e2163d996c45a16afb3",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt",
+      "lines": 296,
+      "sha256": "880cb8436718d3faa8ead9590fe42a8622025c1991636867237ee6eabe575a95",
       "symbols": []
     },
     {
