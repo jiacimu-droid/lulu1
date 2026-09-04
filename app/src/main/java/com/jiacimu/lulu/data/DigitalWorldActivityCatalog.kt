@@ -164,22 +164,22 @@ internal object DigitalWorldActivityCatalog {
             "cloud_rest" to "躺在感官云质上休息",
             "cloud_feel" to "感受云质的温度与重量",
         )
-        DigitalWorldStore.GAME_HALL -> listOf(
+        DigitalWorldPublicPlaces.GAME_HALL -> listOf(
             "browse_games" to "逛逛游戏馆",
             "watch_game" to "看别人玩一会儿",
             "sit_arcade" to "在休息区坐坐",
         )
-        DigitalWorldStore.READING_LOUNGE -> listOf(
+        DigitalWorldPublicPlaces.READING_LOUNGE -> listOf(
             "browse_reading" to "翻翻阅读架",
             "quiet_read" to "找个位置安静阅读",
             "window_read" to "坐到窗边阅读",
         )
-        DigitalWorldStore.CAFE -> listOf(
+        DigitalWorldPublicPlaces.CAFE -> listOf(
             "order_drink" to "点一杯喝的",
             "cafe_sit" to "找个座位坐下",
             "people_watch" to "看看周围的人",
         )
-        DigitalWorldStore.COURTYARD -> listOf(
+        DigitalWorldPublicPlaces.COURTYARD -> listOf(
             "courtyard_walk" to "在庭院里散步",
             "courtyard_sit" to "找个地方坐坐",
             "watch_sky" to "抬头看看天色",
