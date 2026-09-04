@@ -267,7 +267,7 @@ private fun DigitalWorldRouteDock(
                     icon = when {
                         code == DigitalWorldStore.ARRIVAL -> Icons.Outlined.AutoAwesome
                         code == DigitalWorldStore.CLOUD_MEADOW -> Icons.Outlined.Cloud
-                        else -> Icons.Outlined.Home,
+                        else -> Icons.Outlined.Home
                     },
                     selected = code == activeSceneCode,
                     onClick = { if (code != activeSceneCode) onOpenScene(code) },
