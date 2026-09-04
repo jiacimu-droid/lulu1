@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T08:50:03.579621+00:00",
-  "commit": "4b2b8f5a4a0ea185abdf560562a9a3a3d9dd24a1",
+  "generatedAt": "2026-09-04T08:53:39.133911+00:00",
+  "commit": "afeb28c688ed6e2a078d4d240e3d4bf49a085e37",
   "branch": "main",
-  "sourceFingerprint": "62f4a34eaee673eee89b499550a213d4c1b70014d59c000c189349263b8eab92",
+  "sourceFingerprint": "0fcd31258343196d81e0d64b3515667cd2480d7fd7105fce1a07f70530ea330b",
   "summary": {
     "files": 233,
-    "lines": 70268,
+    "lines": 70460,
     "symbols": 909
   },
   "symbolIndex": {
@@ -4069,79 +4069,79 @@
     "Home": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 38
+        "line": 39
       }
     ],
     "DeepSea": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 39
+        "line": 40
       }
     ],
     "PerfectMan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 40
+        "line": 41
       }
     ],
     "Roleplay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 41
+        "line": 42
       }
     ],
     "TurtleSoup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 42
+        "line": 43
       }
     ],
     "RapportQuiz": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 43
+        "line": 44
       }
     ],
     "YachtDice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 44
+        "line": 45
       }
     ],
     "Gomoku": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 45
+        "line": 46
       }
     ],
     "MemoryMatch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 46
+        "line": 47
       }
     ],
     "Records": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 47
+        "line": 48
       }
     ],
     "Replay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 48
+        "line": 49
       }
     ],
     "LuluGamesApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 64
+        "line": 65
       }
     ],
     "stepBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 70
+        "line": 71
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
@@ -5134,20 +5134,20 @@
   "files": [
     {
       "path": "app/build.gradle.kts",
-      "lines": 103,
-      "sha256": "a00a2ba5e714dcfc591263c92caa370baf99bb17c0e73e549ace1924208ce622",
+      "lines": 104,
+      "sha256": "87d5b0608524d6819c18772b01037e456f76850358fb0e8be9dc7e1b2fc05949",
       "symbols": []
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "lines": 119,
-      "sha256": "af258eaaf1a4a8f68d2a71a7d21ce66012916fce0283e2733d49828a4cd66d1a",
+      "lines": 120,
+      "sha256": "b19f5c3a944cdeddde83df60f4b50a74603438dcf535c05ee06d484844843103",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-      "lines": 456,
-      "sha256": "c499aacd2fda90f1bace69ec64a93ee24098e0d8248b3ca95c5aab7a5f1d5d2f",
+      "lines": 457,
+      "sha256": "f32aabd323cf3bd8cdaae19c16c51830aef35fcf941b298746bc24077e339542",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
@@ -5161,8 +5161,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-      "lines": 238,
-      "sha256": "f0d77a23cc115ffac98399f78009ae3ffae96b376fe94d1b5c86f9dc77ae9a39",
+      "lines": 239,
+      "sha256": "ec60fca3afbf481225b201a029c99f028defd729fa369779c71b4284ac032478",
       "symbols": [
         {
           "name": "CharacterWorldBookScreenV2",
@@ -5172,8 +5172,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-      "lines": 182,
-      "sha256": "fe62e03a3b480403b60af4212da26da0653d8472f7609661ad76b9b43eed2282",
+      "lines": 183,
+      "sha256": "87130e5a008f0b3c9a1564104ac3fffdc54c33f493130ba2d4ad8e8a89a3e1c2",
       "symbols": [
         {
           "name": "ChatAutoVoicePlayback",
@@ -5211,8 +5211,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt",
-      "lines": 232,
-      "sha256": "9abfed8baf630ecab8c02953ec56fc3126ccbd1737b1bfecc7ee35f9cfa73697",
+      "lines": 233,
+      "sha256": "b9d3319217ae98f87af3e496a80879e41e04c0bfcb891fb6db7f7926d527854e",
       "symbols": [
         {
           "name": "CharacterHubScreen",
@@ -5230,8 +5230,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
-      "lines": 119,
-      "sha256": "1091c47a5c5c9aca441b756191efb993b0c8d4191f8976b1be39a5bc51675386",
+      "lines": 120,
+      "sha256": "72961cef8f6ae3c44f3f92526b163d577e4699ab62bb247b91c7251ae731640c",
       "symbols": [
         {
           "name": "ChatReplyTaskManager",
@@ -5273,50 +5273,50 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTurnActions.kt",
-      "lines": 45,
-      "sha256": "4739900a1240f64d7e109bcd554d09ca3f9c56f4ac1c1fd4f73f489491bc4890",
+      "lines": 46,
+      "sha256": "dd268c3852ec57620fe07336c22c946aa22c9038b0b4d8c38153502c3da172b7",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatUnreadVisibilityEffect.kt",
-      "lines": 84,
-      "sha256": "b38cacfed3b557fb91db3136b4cedc1de4722b8d9cfcae7a9bef2e9991e32a0d",
+      "lines": 85,
+      "sha256": "02be5acadb72a799406c5171f67bd3a66a26240607f3e3a0a1c5d4231804d95e",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatV2InterpolationCompat.kt",
-      "lines": 5,
-      "sha256": "69b79b686b2bfee14ba83ac9945c8717dab10858d782f2bdac68f8f51e1b7f49",
+      "lines": 6,
+      "sha256": "37fc2b5b70b0b42509b9f1d502dfadcf6220f5c7425664eb8f18d7dbb79f0c39",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 185,
-      "sha256": "54b304ded7c6bf0667ea0c3f33d2514675ccfd8efe962147015e76f3a5de9d34",
+      "lines": 186,
+      "sha256": "d7f26839d2d2d6f4b7b7d59ee9aa5008e44b1712c548dead1f513512fa322afb",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt",
-      "lines": 9,
-      "sha256": "46fc32384c6d1133bd417e7e928b961bc605b7d1ac600555f20b8a175e959d15",
+      "lines": 10,
+      "sha256": "995b7813951e96be41dda4ef52f8681d568cae2a022c0a7adfc801b4331ed2c1",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt",
-      "lines": 13,
-      "sha256": "5616ca751a2e2b94e4d77f1cc8d0bd795a97a7d67c12dfdde642f8eb3105124b",
+      "lines": 14,
+      "sha256": "5897c61012aa8f26b3f0a567478703538492df6f1279faf4b515daf81b35289f",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalFurnitureDialogs.kt",
-      "lines": 193,
-      "sha256": "7a4d93daf6a0e81006fea1dde5290a517d0a3929690ed167d219fd2c06655a8f",
+      "lines": 194,
+      "sha256": "e81be1851cc9f62b449ce7397e6a2f42ef4d9efd7f12a83ba422a0cc0a166878",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalFurnitureStickerUi.kt",
-      "lines": 881,
-      "sha256": "9a2f57331355a9df31c9b058edd818ce06bd94d5dbb50fa234002ae0af3142d1",
+      "lines": 882,
+      "sha256": "bc4b50d56c5023be7c617d1bf1e7164834015809680508d6ba5624c2dfbe050b",
       "symbols": []
     },
     {
@@ -5377,8 +5377,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-      "lines": 529,
-      "sha256": "66d60871a4e0c908c09746ce0ddd33b6e30de7bf05ad8166c197bbe9291d4aa6",
+      "lines": 530,
+      "sha256": "1673609387f8c15deb806e8eba7fa568f11794566e6920ee97d616f2b3ab0a9d",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
@@ -5400,8 +5400,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt",
-      "lines": 334,
-      "sha256": "ce169612b7b761251cb8951ab1f78b1c820c92cb0bff68a9f84b2940ee570706",
+      "lines": 335,
+      "sha256": "b8518b7c5b525deeb5e9e6fb9e0709c50dc061450f95c7a87616e096fa13cf37",
       "symbols": [
         {
           "name": "ledgerText",
@@ -5415,8 +5415,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingRuntimeV2.kt",
-      "lines": 258,
-      "sha256": "143c6a50125e83dda91276f7d5dac138ab077a8773c60bbb2bcd0e0f7cc6d031",
+      "lines": 259,
+      "sha256": "71e138ceb88e63ec42728c53a2746815df36f98ee98ec19ce1666568fde67b4e",
       "symbols": []
     },
     {
@@ -5432,20 +5432,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingUiV2.kt",
-      "lines": 457,
-      "sha256": "2634a4cc00fc41e72d8371ac1c1f6709d98fcc9eb03b7e2163d996c45a16afb3",
+      "lines": 458,
+      "sha256": "09134621f833d6d325fcda4900223390c64afe70d1ba130d49b2255a37afea97",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt",
-      "lines": 97,
-      "sha256": "ec59ef0c0ef7b755ef713f78de580dd3342ff6fe4da5beac3953b916e232a8d0",
+      "lines": 94,
+      "sha256": "ead12937c78a5c1b1f815b44d9b12584f91b6849cb31b91e3ea27ec88a3881c8",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-      "lines": 518,
-      "sha256": "e1b8870e79b6222600e65acdf219c9db2b26e10c301612247d6c323f8a1724ad",
+      "lines": 519,
+      "sha256": "4a326a6f0b05788d5c44754553e35c02833ce9c96e3595e73889689a2086b49d",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",
@@ -5455,8 +5455,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-      "lines": 517,
-      "sha256": "bd97228a50c02d7e7d86396ff8529c8db4aef452bb15bf0767af7867c1c4ecc0",
+      "lines": 518,
+      "sha256": "8df9fdf285e6c48aec2ee8ca59a10269f010baa2c85e8fb9d65d04531acce396",
       "symbols": [
         {
           "name": "LuluVoiceSettingsScreen",
@@ -5482,8 +5482,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-      "lines": 89,
-      "sha256": "0daa39ea8fbed0a292c19996ee5e5acc2aad88de35e3ef14ebecb1e1b28de0c4",
+      "lines": 90,
+      "sha256": "0dbd2d32b0ee174bbee99caf9834edd786f9b4878a0462cd85ec1b9d077553b3",
       "symbols": [
         {
           "name": "enqueue",
@@ -5501,8 +5501,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-      "lines": 412,
-      "sha256": "8e74001eaa7afb960ad368b7989d3034fccd86c8de3c76a78f5f249ede3787c0",
+      "lines": 413,
+      "sha256": "96a32565a458d6f3b389930153cf7e7ada8bb9ba17407f91c4f5ceb21b96f958",
       "symbols": [
         {
           "name": "LuluCapabilitiesScreen",
@@ -5524,8 +5524,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt",
-      "lines": 172,
-      "sha256": "668aabd697accf23b73f631b08f6caf2ac292fe107266ee746990128a099e954",
+      "lines": 173,
+      "sha256": "a42c2cb238a50585fd5d6db81ac3aff1a6a5562a4b2493ecce9c3333a7c53b07",
       "symbols": [
         {
           "name": "setEnabled",
@@ -5547,8 +5547,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt",
-      "lines": 480,
-      "sha256": "667df75b0c1028ec65ed1b8aeb5923271c1e4c4ef73e7ae6c9411d2d44eb87fe",
+      "lines": 481,
+      "sha256": "50051e39c2e35d7af33d07da46e6f4daf2545d3b050080f076a2f1906a9ee262",
       "symbols": [
         {
           "name": "saveGroupCall",
@@ -5562,8 +5562,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 360,
-      "sha256": "2a2dee19ec1f81a465a5e198b78cd744f83eea50800d99a5e0a843733c291b01",
+      "lines": 361,
+      "sha256": "adc8e5db0fc0c866691642f3930fabac5f748d2f02d7588accc64fbff2c767fd",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
@@ -5601,14 +5601,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt",
-      "lines": 373,
-      "sha256": "4cae9d399f53ffc0de35016c4a7e6f57b19ec589a83039972e70a995538cb0c9",
+      "lines": 374,
+      "sha256": "54c5f84e6c18a282356a4a9b0503e9ab23d2acf6d17451178db99410feade390",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt",
-      "lines": 174,
-      "sha256": "cb4ecaac88e1af1a835163aa30a9fa3d30ffe15b7f468b93f5cfea4b94d5bb33",
+      "lines": 175,
+      "sha256": "922eb0ba51a31af7e8ac03a2af94c990374141087f77ea734f3baf4714a600b0",
       "symbols": [
         {
           "name": "LuluSettingsHomeScreen",
@@ -5618,8 +5618,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
-      "lines": 336,
-      "sha256": "10121dec5e4ca3b2d3507eee7255382a3957cd14042dc661224eaf887f5268e8",
+      "lines": 337,
+      "sha256": "dbc5a45eab012e26db063dea9022681bdd3fdd6d59ad4bf2b02872104d960a10",
       "symbols": [
         {
           "name": "LuluSettingsScreen",
@@ -5641,8 +5641,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-      "lines": 397,
-      "sha256": "e902ec35664f47658882398d3e57f84d1f4888e993a7b58c3970d3421b8c54fd",
+      "lines": 398,
+      "sha256": "e7a0eee9d3101926de3fc8653b962775bb86aa7fa02d6e72b1f0e1349a39b911",
       "symbols": [
         {
           "name": "speak",
@@ -5672,14 +5672,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt",
-      "lines": 98,
-      "sha256": "afd6edeedca8aee2b7c4162a646d2cb7af44945c848b0621ca75fd7ab37e8bdd",
+      "lines": 99,
+      "sha256": "d4b4df99bcb459001f327a3427d1244ae547202c604704e18b598f0a3620c1ff",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt",
-      "lines": 125,
-      "sha256": "98bd4447ee97bc57b1493d7c36896ce2523ee727b93217ce333cda468f994772",
+      "lines": 126,
+      "sha256": "d313c15e3558eed70a4427964ca11117d07bdfed45924ab6d30adfcd69f86212",
       "symbols": [
         {
           "name": "LuluVisionSettingsScreen",
@@ -5689,8 +5689,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
-      "lines": 430,
-      "sha256": "3426c3cebfd8c9555f84460b1f73f2baf2daffd8ce6ad970ea31f8187dd32819",
+      "lines": 431,
+      "sha256": "5eb141677915d32273a0f6ae895fca55c334e3181c468178408dc19356888813",
       "symbols": [
         {
           "name": "LuluVoiceCallScreen",
@@ -5700,8 +5700,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 581,
-      "sha256": "b0ffdc388e2c23966be6f271b994f17fcbf0810fcd40ba14970ba12dee9b4170",
+      "lines": 582,
+      "sha256": "e8b3884cf988516233c1be23f8f6e85b4ebc8f944a060d179fe3fd51236de0c0",
       "symbols": [
         {
           "name": "prepare",
@@ -5739,8 +5739,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt",
-      "lines": 80,
-      "sha256": "0f6aa79610ba004f6ce427c79642cb71cb6ce328b5873694e1328b89c54772e9",
+      "lines": 81,
+      "sha256": "129062cc3656635ec56ea3b8875bfff73436c4aca67ea02515f87fa27b231c3e",
       "symbols": [
         {
           "name": "MeetingReplyTaskManager",
@@ -5772,8 +5772,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
-      "lines": 171,
-      "sha256": "1cebe5e2b34d411824deb7cf48655d7d35129fa53d754bd8b5c3a4d2b63c162a",
+      "lines": 172,
+      "sha256": "24bca2d2a12c1a3c1df96641660b113bb878edea09f35f8e61e1dd176aa71570",
       "symbols": [
         {
           "name": "MeetingVoicePace",
@@ -5815,14 +5815,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoiceSettingsUi.kt",
-      "lines": 59,
-      "sha256": "324ab564b68ed30e08b55076173b82827c9c17c836ce90da36f1048f78efdac7",
+      "lines": 60,
+      "sha256": "840463a07f8f11987d2e1acb214c72c12a070eaac42a876e10d7cf083b6374ce",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt",
-      "lines": 573,
-      "sha256": "975be9193841e64f45d8703d0e2b6c1b04e55a41e75904dea2ed5333cc2751fc",
+      "lines": 574,
+      "sha256": "3f334e9dd471140d3b550cfecefb336e9e7e96bf83c01308e042f35273e22ebc",
       "symbols": [
         {
           "name": "MigratedChatHubScreenV2",
@@ -5832,14 +5832,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt",
-      "lines": 39,
-      "sha256": "d036cadb9bac6f121cb976ad8bfea7b1146325851ef929f431dfa42a7bc23399",
+      "lines": 40,
+      "sha256": "af6d1207e4a1e762f5c450fc0e6645b850427abc73df580fea629f53e7507b36",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-      "lines": 776,
-      "sha256": "9a518bcf90985ef3270718bd6a62dd6110eb4cd7b3e936f070ba95fd46faaa36",
+      "lines": 777,
+      "sha256": "73a20e1de98320cfe157e9d6fa730025ca7a12c411184ca99d6dd6221bf76ed3",
       "symbols": [
         {
           "name": "LuluRepositories",
@@ -5861,8 +5861,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 118,
-      "sha256": "054a2c840e2647af4e7a6c9913ae11df8a30e60de73d7d8417e654e58deaf1b8",
+      "lines": 119,
+      "sha256": "5e46a10ce15e0e17f0f28f453f01fcfe794dfb3b33ce7514cd371b988640096b",
       "symbols": [
         {
           "name": "MigrationActivity",
@@ -5872,14 +5872,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 450,
-      "sha256": "5a81dff3d78adf1552b64dbdfc68d6f086b03959eb107c27f1ff89568e7a261f",
+      "lines": 451,
+      "sha256": "be5ff8e00bff8d984544272e5a73f1d3a8e6ae60b913205372330d4ca440763e",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
-      "lines": 91,
-      "sha256": "627076f147ab7831db87c52a16b6e81d88a96a026630d5f222ca23cf9afd4a1f",
+      "lines": 92,
+      "sha256": "6903f8d521d158788605478ef53c9229b3744cf5cf3082ca145d6f3751247c06",
       "symbols": [
         {
           "name": "MigrationRoute",
@@ -5893,14 +5893,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt",
-      "lines": 319,
-      "sha256": "7eaf072a54fb740bc819281d36a9b8ffadb9c474da648b7fe576a3b9bcf52042",
+      "lines": 320,
+      "sha256": "b2aa978aa8b165aa17828159383722c1dc3212034a3eac7064fa7942fe14da0b",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt",
-      "lines": 188,
-      "sha256": "0ff760f42bf005f97a615e2ce118f6d15c7e1c7d0b9a2a77e5e8534c45d33bb2",
+      "lines": 189,
+      "sha256": "716f795a11865e78d7e27023caa6324b76a1521d2e2e6296d089c05de7408b69",
       "symbols": [
         {
           "name": "publish",
@@ -5910,14 +5910,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt",
-      "lines": 300,
-      "sha256": "3c4a6de97032a7a523c9e83b7cbcb666110f41291afd74c3884ce288aa9f76d8",
+      "lines": 301,
+      "sha256": "eb255131d852f7a2b1cec850a0bb6e82132bef6d118f427e979c7780876b1285",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt",
-      "lines": 251,
-      "sha256": "1c59cc555cd8d8d0559d6275240f6430b188856bbcfbcc6487a6ba7978a0956f",
+      "lines": 252,
+      "sha256": "d30f7ff70b0fd51e8a48352c4052072805267e26bd4a9e235e2c60f12667ad4a",
       "symbols": [
         {
           "name": "MomentsScreen",
@@ -5927,8 +5927,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt",
-      "lines": 544,
-      "sha256": "a1e81dcb49fff8a2f66ccbbb256e614245667ec09eea5797bcd6fc911df57034",
+      "lines": 545,
+      "sha256": "a54b2db308a6662a89e1f521868ce6b04d293b00f2e8d193ebf3aeb7a4feeabe",
       "symbols": [
         {
           "name": "PerformanceFeatureScreen",
@@ -5938,8 +5938,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
-      "lines": 283,
-      "sha256": "1406e8e04266ab537afb16a97a7ae34c49d0136a82836bb2d8e92f5d24d1b801",
+      "lines": 284,
+      "sha256": "2e6cefdc01fb50b4d00671f587f591bd84b800b234f30a5ab6792cadf6c62969",
       "symbols": [
         {
           "name": "OptimizedPerformanceFeatureScreen",
@@ -5949,8 +5949,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt",
-      "lines": 198,
-      "sha256": "1a08f886bf34f4d7bbe50e35479c45d328022ae382538766f8397b03706d7a32",
+      "lines": 199,
+      "sha256": "a1c8368f595081b6383296a763d0ab65560752e1293cd36c7e9d206efc83d354",
       "symbols": [
         {
           "name": "connect",
@@ -5960,8 +5960,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-      "lines": 232,
-      "sha256": "6ae96678f913ef86fd07423393011a836db756364eb9e5176c0dfb9133f35720",
+      "lines": 233,
+      "sha256": "1f182c8053e08b53b7bb7e1a67bd56e670cd5d2756bbbe01bedf5a44174f39c7",
       "symbols": [
         {
           "name": "payload",
@@ -5975,50 +5975,50 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt",
-      "lines": 34,
-      "sha256": "4ca47cd866c78c97a6e81f403c02ac738054bf67c0f5c82e29641aa2672c9bca",
+      "lines": 35,
+      "sha256": "ee5acb99a6c457fa40242a707131753528d9e402c940abe7244e581258a35a13",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt",
-      "lines": 87,
-      "sha256": "9c6978a2c0eb6ed519fc96f759861ef7d601d9229049e6607ebdcba0796f8d23",
+      "lines": 88,
+      "sha256": "8f5886d28d26e1b076ac6c1570dbcbdbd79ed8c4788016b77fa2b6cf41f23fd9",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 768,
-      "sha256": "c6456d7430f8c3cd82bbfe382cea8af0436811b85d273eb9beabf4f16133939a",
+      "lines": 769,
+      "sha256": "d5a2924e07d2ea7f8aff8c04d34b0efdc139f8b7b66239a1fba924e8dfdc7741",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 247,
-      "sha256": "c8479b75ee43b7cbf296851bf66cced8386dd47b29d6637b0490278123fb451e",
+      "lines": 248,
+      "sha256": "bfa32f8d2ee1f9d6a9a7d1bf9f91dffaff22a7d39f448ab18e6d6fa88f0dd7db",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt",
-      "lines": 42,
-      "sha256": "58903ce78079012210862e534bd34ca4c0e7da522d1883f87840ee8e9cb24977",
+      "lines": 43,
+      "sha256": "b35663b46b9a437eabc2a4d8e2b4dd8ef36c9469985df092966150b8e7671e89",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt",
-      "lines": 83,
-      "sha256": "677b35d9584bd4cbd7e71486c18215c1979fc54a236dd2bbbba763c9f7b60081",
+      "lines": 84,
+      "sha256": "8617efbc6eee59962055c551e1e6708ff672882a20f0c4e2400daf9662053edf",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt",
-      "lines": 649,
-      "sha256": "640bf2a04aa2f5a4146e6aa369e4986c6cd3f787fdb6d6e31522362cab6012c2",
+      "lines": 650,
+      "sha256": "c1b00af0e22e5634034be1252a61c28fe678a9650e674d65bcc99654400f616b",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 697,
-      "sha256": "23918dab5c131470bdb13fa661bbc2b23806b0807bc1091efab130bc63f87dbf",
+      "lines": 698,
+      "sha256": "69994a09593f09688560f4849d2f87048c9acfc1de95e31b822ed0b922ac71ac",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -6068,14 +6068,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt",
-      "lines": 224,
-      "sha256": "9a099d6d285adbe3e0f0d7d72571cc2fd80750b380fd0fba8d4c4325d41f20f3",
+      "lines": 225,
+      "sha256": "f0a60ee0c07ff832614ebc9f854f46ea7df0e32ac573e70cf28a974da33cf8df",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt",
-      "lines": 155,
-      "sha256": "f2eac782e1004985913c7d82c00271430676672a40ea39c974d52e58ff7c7dde",
+      "lines": 156,
+      "sha256": "806c71512c3d2ea14d1a9aec822cdafbb0cb60cafa662b03b243aa3ccf7e42f7",
       "symbols": [
         {
           "name": "ScheduleFeatureScreen",
@@ -6085,8 +6085,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 907,
-      "sha256": "9ae0053bf066dc7948274ff38b8696412c6252c395f735ffee1aaadeeb3f2dd9",
+      "lines": 908,
+      "sha256": "d29289df5c8ec9809ea38fa21f703dbceb8c51d5889dd31f5e4d73cd027b7d80",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -6192,8 +6192,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-      "lines": 63,
-      "sha256": "a3f1e324aca691e7d46853d76360bbdf1620fd5622735f9a96c4116a3864e847",
+      "lines": 64,
+      "sha256": "7a787e52af145735fe168b84e7a736e4b90a3b0e74ff5afc86500dbad514fc4b",
       "symbols": [
         {
           "name": "ScopedModelSelections",
@@ -6219,8 +6219,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-      "lines": 185,
-      "sha256": "63d3eb7229a209e446bcc3fba2e54dc0343ab74931bce2af871da7891349c46f",
+      "lines": 186,
+      "sha256": "dbe63a51f1548b4731405f6fa0b8b4b22b9e3117bd18444a3d171973dff8b4bc",
       "symbols": [
         {
           "name": "VisionModelService",
@@ -6238,8 +6238,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-      "lines": 134,
-      "sha256": "491912b3733cdc46fd35636e77a024b0088511041015dfadd6ec93d52a5a6a24",
+      "lines": 135,
+      "sha256": "a3d6c6348c6a74cd2a2531f30b3b2ac6fcb504016e4e559c9f83af3c35894998",
       "symbols": [
         {
           "name": "CharacterSummary",
@@ -6357,14 +6357,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
-      "lines": 467,
-      "sha256": "bcb2777a8c7a2c8a9d02b7ae72fce52f3a262d77cc4fbe4ff25be97796411125",
+      "lines": 468,
+      "sha256": "497ea070f77e5b6de65d874fe0b55c853093c9830d0a8f48997a78fd39a0a7ee",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-      "lines": 97,
-      "sha256": "93a450453476ed6bcd2368fa5ed19476dab48f04321e8885c85860e9cf69c847",
+      "lines": 98,
+      "sha256": "517d2303b438bb0bf5af561bc7de5a0de4173891e07ca0621c33b066ca4f842c",
       "symbols": [
         {
           "name": "CharacterIdentityStore",
@@ -6390,8 +6390,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt",
-      "lines": 158,
-      "sha256": "bcef4302e7c03d16dc05a4913b51f4a3e8e34d546d802e6432656f4bd313faee",
+      "lines": 159,
+      "sha256": "565d39c1be1cb488586fe37497ca42aae6993e8b9387ca5a99ec15dc5160ec36",
       "symbols": [
         {
           "name": "CharacterMessageFavorites",
@@ -6405,8 +6405,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt",
-      "lines": 42,
-      "sha256": "2fa468b2682dbc3bc30f46fb4fdcd8bf2f29e1c90375ea64934445546335d87c",
+      "lines": 43,
+      "sha256": "c093c514f757acce7e433ed3ac420fd4d7255bd673299597a3f7d223820ceb3b",
       "symbols": [
         {
           "name": "CharacterRecordReset",
@@ -6416,8 +6416,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-      "lines": 109,
-      "sha256": "0db86b9772ce255b1d6da10eeb02f85256ac39513fe777b38fbcbe1dc2367fb2",
+      "lines": 110,
+      "sha256": "92ae32c7cf5f6ee4f257a26d80e6eddbaba99ed0654802cb6aa1e69dcefec300",
       "symbols": [
         {
           "name": "CharacterSocialRelationshipSnapshot",
@@ -6447,8 +6447,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
-      "lines": 75,
-      "sha256": "581e5d715d99f83f9e92bad6b56da61b1697dbc4ba3ad3a3d3d9546fecbdc526",
+      "lines": 76,
+      "sha256": "a8ad847523868442f7a196ef2f3592a4888d6a6e1715dccebafc96482d7a0d01",
       "symbols": [
         {
           "name": "CharacterVoicePreferenceStore",
@@ -6478,8 +6478,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt",
-      "lines": 258,
-      "sha256": "aa5474664682bc55993a1930f5171a06dec614a672ce420e8cded34068bc7448",
+      "lines": 259,
+      "sha256": "85ca9c85c96abd7f3c3a936d904137a12a7bc7b405c4e5fad12519126eff43d7",
       "symbols": [
         {
           "name": "ChatLexiconAutomation",
@@ -6493,8 +6493,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
-      "lines": 82,
-      "sha256": "86e7b0e74f39678493196287eb53ed36c31d70660617641fc3c33741d4fd0c39",
+      "lines": 83,
+      "sha256": "b0c0e1ed3b1e141fdbe726a2e99993baac14705e90bdd86fad963eaf053eee42",
       "symbols": [
         {
           "name": "ChatMemoryAutomation",
@@ -6508,8 +6508,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt",
-      "lines": 66,
-      "sha256": "184f68103b55e8ce75e5a4329264beb5e7e321ca979eac1094ae39bd791e0b74",
+      "lines": 67,
+      "sha256": "dee1ec1c2a7af29c038498323461b44775de2ac0f2c906fda30fd4067e643421",
       "symbols": [
         {
           "name": "ChatTurnConsistencyAutomation",
@@ -6523,8 +6523,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt",
-      "lines": 124,
-      "sha256": "fa6431460740663bc32274d35a5acd19b01d36472f5800427ad14b3f8c36d4b6",
+      "lines": 125,
+      "sha256": "35befe80ac24125926d0970bb156064ce37abef5a795f90bf1b9fb9e3166a083",
       "symbols": [
         {
           "name": "ChatUnreadStore",
@@ -6569,8 +6569,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 342,
-      "sha256": "f33d3b6dcbba930e964732c6561972dae85f16bc48f2aab8956bda53c822b3f6",
+      "lines": 343,
+      "sha256": "0210fba835d3ee875e764f87fbba9821fb7fa802bbc212897e485b767e6674d4",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -6628,8 +6628,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-      "lines": 280,
-      "sha256": "73516ff993ab3ef012695f3e87756c7a0509e61435777e6183c236c9b3b3e23e",
+      "lines": 281,
+      "sha256": "aaa3749f8f6b8e0e34209766cf780ba215a1cdef687870fb936191f436e039ee",
       "symbols": [
         {
           "name": "CompanionPresenceState",
@@ -6683,8 +6683,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt",
-      "lines": 20,
-      "sha256": "cf8e15b124c389e2a6ecdaf59c163ffda321cf41a70d85de1a3ddff0ef3e279d",
+      "lines": 21,
+      "sha256": "bc9379921ad5eb2a3d1b334b37e431713e2f4aabecda83d05461a0e7eff1aed0",
       "symbols": [
         {
           "name": "DeterministicMemoryAutomation",
@@ -6698,8 +6698,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt",
-      "lines": 225,
-      "sha256": "777ebc628dcd9a7ef1f937bf4dc2f9d3007659121b5b6694029bd0bfc7b1e0f4",
+      "lines": 226,
+      "sha256": "04e4e847fcf7ef0006d00d5a8469b97be9383f56a7a12b674a56cd0661b87495",
       "symbols": [
         {
           "name": "DigitalFurnitureKind",
@@ -6729,8 +6729,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-      "lines": 233,
-      "sha256": "b04adec131bc44631b8d2a8ee9d31563cf90c857f46042714147e09caff8f2d2",
+      "lines": 234,
+      "sha256": "00cec539cae11aa802159b78b8b5179112bd93946a465f294b0fb816605330c9",
       "symbols": [
         {
           "name": "CharacterLifeForm",
@@ -6800,8 +6800,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-      "lines": 173,
-      "sha256": "91bae4b5f20dfed307c64a779a49727b1164ccf8cc032ae670e49028b8a7bd3c",
+      "lines": 174,
+      "sha256": "f58515a9526482a2d446f60d07b9b02329fad91f5b17918e8e7623ebecae8c75",
       "symbols": [
         {
           "name": "optionsFor",
@@ -6827,8 +6827,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-      "lines": 568,
-      "sha256": "d019abe212f12238c0dbf27bca36d0d3fc40d3b99adb9d46edd4bdfa81fd8997",
+      "lines": 569,
+      "sha256": "011eb9e116fc0a0823cb238358d58f376033b04f0c3f24af57228b2246b4ad38",
       "symbols": [
         {
           "name": "initialize",
@@ -6862,8 +6862,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt",
-      "lines": 45,
-      "sha256": "5a73508f9c1772389f344d19d45c3216536fb8d66420fc5479e958c2fccd47d1",
+      "lines": 46,
+      "sha256": "d26691c2c9abc029e74ab96ded588b4b6d319c706770830335961a1aae0a89a1",
       "symbols": [
         {
           "name": "DigitalWorldNavigationStore",
@@ -6889,8 +6889,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 979,
-      "sha256": "37f9d2e7877019c92efdb1d520905ea60f9c27e0c35ce4afca8fa694564720a6",
+      "lines": 980,
+      "sha256": "fd5d87d2dd843dd9d4065cc3a5ab5e1b09786426cd39428dac2cd5c48fd3c029",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -7028,8 +7028,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-      "lines": 325,
-      "sha256": "fcd9381cbac9ebf08c733649bd37689d456b379ff5b03722807b5a6a02fd1800",
+      "lines": 326,
+      "sha256": "234afd68d9fec05554148cd257c04514c972092c3a490c9d09da46cb5750e38f",
       "symbols": [
         {
           "name": "InMemoryMemoryRepository",
@@ -7075,8 +7075,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
-      "lines": 164,
-      "sha256": "3bf9603a297bf8ee965d12f38d92a83b41b56e02098c46a442ceb6f620bf6091",
+      "lines": 165,
+      "sha256": "b3c447eb9cfbe3e96ec230f23a7b37c7199ebca48021b586525688a7e872a7a7",
       "symbols": [
         {
           "name": "LegacyConversationMigration",
@@ -7106,8 +7106,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt",
-      "lines": 548,
-      "sha256": "368c9c12682e7aa0bcf70499744982f81e28d6157c66e92900fdbbefc4b6c1f3",
+      "lines": 549,
+      "sha256": "f9d3d150506c64c858a8dd8913c3633bc8275b4cfd604324ede77f53ffc10434",
       "symbols": [
         {
           "name": "LegacyLuluBackupImporter",
@@ -7125,8 +7125,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 759,
-      "sha256": "0a31f5ce2d7efd6bea9073d6b4773f278e00e446643fb025f43603a5b1519504",
+      "lines": 760,
+      "sha256": "4048ffbc16753d5abc13d8625fea737d654d6aa47a534fab8fe2799fa22ce783",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -7168,8 +7168,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-      "lines": 476,
-      "sha256": "a9eff5fb0e8c145e8f0b39d89e60c703b68a5ea86451495780b41ca9658319c7",
+      "lines": 477,
+      "sha256": "3bff1a996ce379076ede5bd81e41018d6d5bfed4b0b4955053142481b2c05883",
       "symbols": [
         {
           "name": "ApiUsageSource",
@@ -7219,8 +7219,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
-      "lines": 103,
-      "sha256": "199c23b5fc266e88fb63d4f9f2d8b5576d20e6baa33ad7e244c3d0878ce86f52",
+      "lines": 104,
+      "sha256": "a5cae3c89fa82dd5d83b8c133a9522e4dcd1aa114bed3412fb3292d01d95813e",
       "symbols": [
         {
           "name": "LuluAppPreferences",
@@ -7246,8 +7246,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt",
-      "lines": 106,
-      "sha256": "40e614905f2ef2339549951d930624fd439770ed13f6e9557402892a0454c18d",
+      "lines": 107,
+      "sha256": "ee5e6c8ff149b2683be7758b0b3f938d2d16758a6e67a3fc7a8e8d4c6aa7997a",
       "symbols": [
         {
           "name": "LuluBackupManager",
@@ -7269,14 +7269,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt",
-      "lines": 10,
-      "sha256": "92ed2091ff91464f4d1a5efc217b91c0dc7f7ad3507957f3018e8ca3a97b190f",
+      "lines": 11,
+      "sha256": "da6f5ff6bfa5f523056430b4a6d39b1874e5e96ddb5bccd70a9df24388cd25cf",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-      "lines": 587,
-      "sha256": "e04910f17dd2f5f33048bededd3ca55ae6ebb5b7be4e98e4eba84a0ac85c6df5",
+      "lines": 588,
+      "sha256": "703c8d864f1b0b9408181cc366791f55a120e56cf86a92444a390159c6d8bc13",
       "symbols": [
         {
           "name": "MeetingProseLength",
@@ -7430,8 +7430,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
-      "lines": 26,
-      "sha256": "b5b51e6390a898299c4c680290f61c7125173e60089801f8dd8130aedad70ccf",
+      "lines": 27,
+      "sha256": "18334ee231765d0b8fdf853cec81124f08473cef97f6daba86ca83010fda1d02",
       "symbols": [
         {
           "name": "initialize",
@@ -7457,8 +7457,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-      "lines": 873,
-      "sha256": "056ea272e910f123c9963e385505c451913206097b3a329f4e277594c5aef616",
+      "lines": 874,
+      "sha256": "dfabc66c1d8278375af5a2ec563090ff666da49724f753fc2288f9ef163cf966",
       "symbols": [
         {
           "name": "LuluChatMessage",
@@ -7640,8 +7640,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-      "lines": 732,
-      "sha256": "b0e0ed631c3627604badbe84a595945db997baece0b4a199034880cddd43469a",
+      "lines": 733,
+      "sha256": "aa6833e16ec7a2e46a46d1ea00851a8e68590f4e143fa1622ca4aadb30d273d2",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -7709,8 +7709,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-      "lines": 96,
-      "sha256": "786095d71e9b48d2b220b35d2e5a83e148520205b68a8fc238989b5bdae205f9",
+      "lines": 97,
+      "sha256": "ef1bcca521fd7b0a30cae78c91dfa0feaeb18a035e203a2f1c477074fc573a0e",
       "symbols": [
         {
           "name": "ProactiveIncomingCall",
@@ -7744,8 +7744,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
-      "lines": 52,
-      "sha256": "b2e63acff770114ccc4fd17f6af1bb0a2ac362e5ff242d6d0f3c77c9b116e4b0",
+      "lines": 53,
+      "sha256": "31cd7e26047a5b668e934297847904f9994a7c4ee06b5f47701bd41e39b43ae1",
       "symbols": [
         {
           "name": "ProactiveMessageAutomation",
@@ -7763,8 +7763,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-      "lines": 131,
-      "sha256": "7b1d9b9209ce43a5ed4e89450ede3d3ef0fe4c268ef53ac303a6cbe1e4d58b24",
+      "lines": 132,
+      "sha256": "4fd2419f1487927f023143f7d739b9ebb8c5e502f2ceafa9975a69ee42708c9e",
       "symbols": [
         {
           "name": "PerceptionIntervalUnit",
@@ -7802,8 +7802,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 761,
-      "sha256": "6cac0b11b2c3356e06107940901bccbed0f4f84f46c4a2a54339f64686459c03",
+      "lines": 762,
+      "sha256": "9ee141a6d12334d65f2c836c62cca3d60595d6948c783ad13d006391b65b7cfd",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -7825,8 +7825,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 170,
-      "sha256": "bb503532e248689dc162b1fe25788e7b0f0e60866dd9b4c61ba0616ebe3bddac",
+      "lines": 171,
+      "sha256": "09398560a4c583f5935ef8b5886aaa27ba812dee1e052da5958f4be63bb36126",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -7872,8 +7872,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-      "lines": 436,
-      "sha256": "332e04c3983e583b0a0fd9e04db590e6cd6b8a9458bd612a20596a62962d2f3b",
+      "lines": 437,
+      "sha256": "38ef9ca93df680fd1aa5d2e6c448e1e64f47ccc72f53bff76b727c7a1783843e",
       "symbols": [
         {
           "name": "RelevantMemoryRecall",
@@ -7895,8 +7895,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
-      "lines": 89,
-      "sha256": "c2eb2e534c7877d66701119fa1a03b8c0537e62303a594a35e958ae0025167c0",
+      "lines": 90,
+      "sha256": "9346f32e252b09e185b3e29f3162e02047209c6b86d0d7214ee6730bd16545e3",
       "symbols": [
         {
           "name": "RoleReadablePerformanceBridge",
@@ -7914,8 +7914,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 360,
-      "sha256": "2d7f2087543d3f13dbe90c0359f7829f07ee45b1fe24114b7cd7c5f56f9b9b6e",
+      "lines": 361,
+      "sha256": "e2dfec7257c62cb1ac9a2a876427bd00eef5c8ca079bb2ab514e4ce306c1abcc",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -7985,8 +7985,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 169,
-      "sha256": "8a46c34d33eb865953b7de4004074b6c960e5ca0a1ba84c3c7ee74b034b3d7e8",
+      "lines": 170,
+      "sha256": "390912295265e76486b53c24b3a439771e01f82a4c2387cd49971d768a983d09",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
@@ -8020,8 +8020,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt",
-      "lines": 163,
-      "sha256": "0fba79a81e46976f919d1e2c46a7a7f009cf4ee5231ee942b644d58732602872",
+      "lines": 164,
+      "sha256": "6278d0b61ad8417b8ea4e36f4e40e06d0a3c87a1a075efaaf8e4fc8ca946e7a0",
       "symbols": [
         {
           "name": "UserDataUpgradeGuard",
@@ -8043,8 +8043,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
-      "lines": 48,
-      "sha256": "0730816b422d0d99d3311959bbdfea7ce4dfe97da8d7fc12fc85d2e5d027787c",
+      "lines": 49,
+      "sha256": "7064e9321e2a997fcf2d6cd2455e73a5febef303e410089ed3441dfcac4b49f7",
       "symbols": [
         {
           "name": "UserProfileContext",
@@ -8066,8 +8066,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt",
-      "lines": 156,
-      "sha256": "50d3670c738b15fcefc7cf37eb736284d397ce20f8d63ad637244d11936a74ca",
+      "lines": 157,
+      "sha256": "b7b7db548850b97dcf33ea2315ffca6737f5a09749267b8a138f822f3914e3bc",
       "symbols": [
         {
           "name": "LuluPageScaffold",
@@ -8097,8 +8097,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
-      "lines": 93,
-      "sha256": "150fe0f1719971acae8393a3adcc727b314d11b12b3873fd14571cc5cd7c3ff8",
+      "lines": 94,
+      "sha256": "fa8c8183a9298c23b65564baa8b9d891649065031dbbe1346fdd490878c598d4",
       "symbols": [
         {
           "name": "LuluColors",
@@ -8124,20 +8124,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseAbilityProgressionV5.kt",
-      "lines": 307,
-      "sha256": "e933a7fa6797581ccf0545b83a74627b60a68e658d2558ae321ac2a4d67d3fd1",
+      "lines": 308,
+      "sha256": "0dcf5acc2738e5e654e1ce21303eaf28c674db19cbda557a2a8b8a8e74c38b4d",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseCastIdentityV5.kt",
-      "lines": 374,
-      "sha256": "d8aac810009a2ac74f6015d6d68853fba33f8fffe62d1c8754d204c877b180e8",
+      "lines": 375,
+      "sha256": "edacb2e46d3563f993e3bfeb0ea7a3b7842d3dcc1a9b5419aecc221ca1aa3dd8",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
-      "lines": 459,
-      "sha256": "22e515a1c88c35f12ac0630a2db94a59fa87d2b311526499cfa9a7b7c43bbb0f",
+      "lines": 460,
+      "sha256": "79d3183f8a54fda244549407a65afe209ecd74355eeee9b19ffd4b34c58e8e38",
       "symbols": [
         {
           "name": "load",
@@ -8175,20 +8175,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChronologicalPlotRecallV5.kt",
-      "lines": 104,
-      "sha256": "e966b7f373469265d0682704ff61f7052c22709820b037c744cc6f31d970f321",
+      "lines": 105,
+      "sha256": "da7a0175b042ba883a43dbef5052c6a5f85741b22a96824da4510acef46c0ef1",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseCoreMysteryV5.kt",
-      "lines": 178,
-      "sha256": "09a22ab3596a5f7db579367b2e158ff7595a3bf777a64578065723e33fc7fe79",
+      "lines": 179,
+      "sha256": "3fe7a904ae69942b0295bb23bd591cd7b4635930191b254634563c7d69c228af",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseCurrentSceneInventoryRepairV5.kt",
-      "lines": 163,
-      "sha256": "a8c9625b73c063a713ba603cfcf9cb66386eb5f24deb9b12beb4029bd3f01ad8",
+      "lines": 164,
+      "sha256": "367aec64501352e71251f23e99416dcaac484a9a5ace485967b252f96053399a",
       "symbols": [
         {
           "name": "sumKind",
@@ -8198,14 +8198,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseDramaticLedgerV5.kt",
-      "lines": 698,
-      "sha256": "3a4b5a9380fdff39d266eae56d6bf7a301d9480ec59249030b6b0f3e8d516060",
+      "lines": 699,
+      "sha256": "1b36a986a7ff78a824b15a66f881224b756836669e03b4d05a18f63fa88e68bf",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationArt.kt",
       "lines": 346,
-      "sha256": "aabad99149e4a1b7862ab56f02f875eabc4e4ab1713210b667eddeb4d8c79af2",
+      "sha256": "3f76388a383857bb90f0f68dd3415232f35cbf896e073665a4befcfecdb6a52e",
       "symbols": []
     },
     {
@@ -8229,14 +8229,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseFlowRowCompat.kt",
-      "lines": 34,
-      "sha256": "bc2590661713cde9c8ea864f23884e80c4a2ee34b2dc79dc9ec26043fc36cdea",
+      "lines": 35,
+      "sha256": "e1fda7d1b890d84ad2350dbad7572fec7b749c37962e559e86ca0dc76256c279",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
-      "lines": 470,
-      "sha256": "9dcb8617b9aaf9c2c59d464aa2fba5a961a52372d173373fc25caf702a86d645",
+      "lines": 471,
+      "sha256": "ea86368adae0b7acf2e44672da3ed4b0fb5a8a05bfbf54a7235ea80fef9fdee3",
       "symbols": [
         {
           "name": "hasAny",
@@ -8258,20 +8258,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseHistoryRangeItemsV5.kt",
-      "lines": 205,
-      "sha256": "2d12bee6740673e878978c440f77bd80d49baa5fd7bff27acd0dc8de3c86ab1d",
+      "lines": 206,
+      "sha256": "cae70bcd042e4ea2075c9513a8e1834dbead0ba9b65aa068582887a960bcccf9",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryBrowserV5.kt",
-      "lines": 437,
-      "sha256": "ba25ca92afc71205cf1997677104c16f07a9ef6afee0546dc76b0b70be15cdaf",
+      "lines": 438,
+      "sha256": "1ddd70dce6f457ce9e04c4468dcc95d8a3d446ca81cd8218b5a156a6f008ce0b",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryLedgerV5.kt",
-      "lines": 344,
-      "sha256": "f89bbe5fd953b7a9eb60ee30afdb1ce8885823ec4d22d2dbcb137a1abe8c95b6",
+      "lines": 345,
+      "sha256": "423a544fdf8400cfecf2179bbbe1f9c941c26bdceb23006ada46fa81919890e5",
       "symbols": [
         {
           "name": "concreteOwnsAggregate",
@@ -8281,8 +8281,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
-      "lines": 352,
-      "sha256": "be4399ec3e21c84a3a39c8ca5483692a62df0d3b9efa6a800911205f679d44f4",
+      "lines": 353,
+      "sha256": "0b72ec5cc1eefc437f86215fe566850d618875dbcb7172e370eff7191368fdeb",
       "symbols": [
         {
           "name": "restoreOnto",
@@ -8308,8 +8308,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt",
-      "lines": 676,
-      "sha256": "993e14b9ff142e82961e376d862e5cf12cb7faa656f3080a30e7376707065eb7",
+      "lines": 677,
+      "sha256": "f3a2ee92e0c44f2a9454a65b9067fbf8c3bc639ce8e193ba93c3d7f3db986a97",
       "symbols": [
         {
           "name": "load",
@@ -8339,20 +8339,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseMapIntelV5.kt",
-      "lines": 541,
-      "sha256": "deeb98a9945d7d9aba40c33d5f5faed3270bafd872be60da595c941a5cf8dee6",
+      "lines": 542,
+      "sha256": "ac99cecac5383ae6792796a43d05d91def9764eeb1207f233375be6bc5a1cd99",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseModelPickerV5.kt",
-      "lines": 60,
-      "sha256": "56a80fb130ee9180161d8c730f19b866b0f49d634d7dc0b48bc6b486990243f6",
+      "lines": 61,
+      "sha256": "eb91af3151264a6fb8c1c4c870ba4d2637ac23992469a3cf88ebad2e795357c3",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseNarratedInventoryRecoveryV5.kt",
-      "lines": 161,
-      "sha256": "d40fd35962f734b9847c014f450bf18fbba4fc07e423a14e0fa05edb6a0c7b6a",
+      "lines": 162,
+      "sha256": "6965871c430be34e303aa46e369b1d5c1a9710bc04ef1a8bb79cfff24da2754e",
       "symbols": [
         {
           "name": "positiveDeltaWithoutConcrete",
@@ -8368,26 +8368,26 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseNarrativeQualityV5.kt",
-      "lines": 64,
-      "sha256": "adcc08fc571d4d39c3a8f37e4f2eeb8e7c5f9042f2d3cf4a47e19aead37b6356",
+      "lines": 65,
+      "sha256": "e4e47ac4402cece6801c83fd09501d9bbb5fdc4884c1df32204212bed0b61b1e",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseNpcEcologyV5.kt",
-      "lines": 118,
-      "sha256": "ced9adf0f455f6fda2679279c7b95cfffe16cc20b178001848c531779db68a03",
+      "lines": 119,
+      "sha256": "0fd724a00585e8f3bcf994d7db9ed604c105fa2f55843f25f8f18ebe2c977203",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryManagerV5.kt",
-      "lines": 310,
-      "sha256": "ee6416d3b6440e5bc334ccb18d080801aa2e6bcac44c6432b449af69c0969956",
+      "lines": 311,
+      "sha256": "29aaee15d77b5ba6206407cb2f72686d8f057cd0426c401f73221de11c5314a8",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-      "lines": 460,
-      "sha256": "dbd63798f89d62bb298748a032c2464ea6d54d5847bb5087702e13935a713b76",
+      "lines": 461,
+      "sha256": "ab44b2d8d223a0ca292794106d61ede6bd9e9c3619558bf5b82c536db5117768",
       "symbols": [
         {
           "name": "load",
@@ -8429,14 +8429,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseRangeCompatV5.kt",
-      "lines": 10,
-      "sha256": "052bbc45ad889ca516b80211959e852e884d1f64abd6455945b41e8031b5d432",
+      "lines": 11,
+      "sha256": "1510dc35b382114d66395d27def6e0885a948021e2f350dbaad4313f10ca3b74",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSceneOutcomeV5.kt",
-      "lines": 718,
-      "sha256": "8561d93fe078bebd984928cc1beddd99daab24a063c2959f9d57ab3238da54e6",
+      "lines": 719,
+      "sha256": "eaa600090ea47ac96a3157d8234a94b94fd516e593a60c597ac38233a99a1f1d",
       "symbols": [
         {
           "name": "decodeAssetArray",
@@ -8446,14 +8446,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseStoryDirectorV5.kt",
-      "lines": 101,
-      "sha256": "76a82413b652901478feb3570e20e33309b53697126f1e9a845fd71425b489b8",
+      "lines": 102,
+      "sha256": "cd2b3420e2dcd87966c0d4ab85c50aae3c4f5250d4375b1ef05f8c4c118e7c7a",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
-      "lines": 1382,
-      "sha256": "aa22570e0e6921defc2cd916defc0b4ddde543075893bffa7ea4d007a17170cc",
+      "lines": 1383,
+      "sha256": "32915b2b5d2e869c6a73cf5660bf69072405b9e4f609b57ab75832b17d7ec38a",
       "symbols": [
         {
           "name": "loadSave",
@@ -8499,8 +8499,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt",
-      "lines": 768,
-      "sha256": "2b8285da8505064b3c68cdbe0980bfd1883ed1bc596cd7ef623e37bcfd40e188",
+      "lines": 769,
+      "sha256": "ee171c073502b87ebef164cb62c9b7f28f48a26c8e98104bebcc7a27f73d7348",
       "symbols": [
         {
           "name": "loadSave",
@@ -8530,8 +8530,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Screen.kt",
-      "lines": 1208,
-      "sha256": "25f2e7d410364905dee39bdeff2930c7a13c5cc3cd13b69775e6a27a2220cacf",
+      "lines": 1209,
+      "sha256": "12a8a3fa39eda660681262ee4b56375ddfcda5abd38508ec8da77ed1be80ec53",
       "symbols": [
         {
           "name": "createSave",
@@ -8561,8 +8561,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-      "lines": 1053,
-      "sha256": "a60e0a8fb4ec3a4096ce0cb7ad250422347c4b793528b2114e76e9a146b911f9",
+      "lines": 1054,
+      "sha256": "1f400b86b1c07d09ed026b412749633c91ca277b132842724363e4eaedb55f01",
       "symbols": [
         {
           "name": "load",
@@ -8608,8 +8608,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4Engine.kt",
-      "lines": 237,
-      "sha256": "5f99f19ede8aa5980628581eaf3671dab4798fb13cb369d3aeb9cf49283d20f4",
+      "lines": 238,
+      "sha256": "e7e3f297f341234913d1ca73747e6a19f8334264ae30d9aaa4527f49a06773fc",
       "symbols": []
     },
     {
@@ -8669,8 +8669,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Engine.kt",
-      "lines": 868,
-      "sha256": "abe70ee3d4fccab55638565d59e44135c1c7068708332c13a72f6e3fde9d23e3",
+      "lines": 869,
+      "sha256": "9a56449f364092eede7b4ca116ec2ac00302fc9e313ed279502ebbb07a2f2b53",
       "symbols": [
         {
           "name": "mentions",
@@ -8680,14 +8680,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Systems.kt",
-      "lines": 268,
-      "sha256": "2db0b23c4394f2feabde54330cdcb4d2f0ff60e078459c57930de9d1392a6cde",
+      "lines": 269,
+      "sha256": "570c8ea2da1ef9e2ebca343a82d618af207ece8fffa573f1c28916e7bab4eb01",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseVisualNovelPresentation.kt",
-      "lines": 247,
-      "sha256": "ab88774930d2056ff9423f670f6b7943f86eec365ed5715a0eac8576ee30e31e",
+      "lines": 248,
+      "sha256": "1d0fb50e6510fbc92411b53dc80dfe94b7c40d64f540a0c001c46ad0e2b3d0dd",
       "symbols": [
         {
           "name": "flushPage",
@@ -8697,8 +8697,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldEvolutionV5.kt",
-      "lines": 170,
-      "sha256": "8df29015e5b36936e1f1c8f79f13803c0dbd2841c3412b2574b23398d18a9a03",
+      "lines": 171,
+      "sha256": "94d98f898ef04c52fbb62c7ffec523f8780822a8bb3965eb39f125ef3f825c79",
       "symbols": [
         {
           "name": "placeChange",
@@ -8716,8 +8716,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt",
-      "lines": 723,
-      "sha256": "707b499d77631f7f91f520496e3b83bb02bbf0709efd230c54b026cb59945471",
+      "lines": 724,
+      "sha256": "80f6429af8cd5f36677a9056cbca731b3eaa3a28801998dc5532fb1147b9224b",
       "symbols": [
         {
           "name": "openDetail",
@@ -8731,20 +8731,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt",
-      "lines": 377,
-      "sha256": "863ae5ab19d14eace3d71a4b0209b9f16cbc1d3914183c2aab7dc6c7d4c6fa70",
+      "lines": 378,
+      "sha256": "a5a4be583369108f94810ed74569541a9db0ce5b2922a8c174c5c3f007062af1",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt",
-      "lines": 94,
-      "sha256": "c04cff2dec37536e71acec2f0b7a3bf967a4b57764230c3dccab326cb7175857",
+      "lines": 95,
+      "sha256": "3bca860dc701b15acf8a94b705a1f42c6a9b8900450cdfcb1037b2a5b25a58eb",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-      "lines": 482,
-      "sha256": "e194df67622e84676520b724acdc2e4d70b108a4bdb811cf9c1f860c98406f38",
+      "lines": 483,
+      "sha256": "ae18d09f9fa09d7a717677a1cf407ae6f894219db3b9018a7f6166ca5c8b863e",
       "symbols": [
         {
           "name": "reset",
@@ -8774,8 +8774,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-      "lines": 680,
-      "sha256": "da7ede734cbba82ead7c52aec5c714e47cfda56467114074f5487028a9fb828d",
+      "lines": 681,
+      "sha256": "5837522bc42af0e1ce58d5ee2d016cb2ce0a81350fec8905e0a00084e28c5d5f",
       "symbols": [
         {
           "name": "nextRound",
@@ -8829,8 +8829,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
-      "lines": 811,
-      "sha256": "82bd145829e8e13c0a8b80f1562bc355514db81ac357ff329fced2d62518851c",
+      "lines": 812,
+      "sha256": "b2fee7a87c70c288026f566e53ec3a14c491039099fec03e54815e1fdda04dc0",
       "symbols": [
         {
           "name": "load",
@@ -8889,8 +8889,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-      "lines": 845,
-      "sha256": "3dc2c6debdfad5e407a40301bc67714586070f5f83f218025cada3ecfda0ed32",
+      "lines": 846,
+      "sha256": "56c24a43aafd6985e349ab7790d24cc9f7633cd6495224768a950b09323d8398",
       "symbols": [
         {
           "name": "load",
@@ -8937,14 +8937,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt",
-      "lines": 143,
-      "sha256": "1ce74b9aca9c3734cbbad1922b1b8bd184c3f2110e50594cf8a21900aa8ffb41",
+      "lines": 140,
+      "sha256": "d6b89686688b12974f43a2b45fdf381a2a5f24f0509c52fb6e6efc7bc3506a00",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
-      "lines": 157,
-      "sha256": "1af7f21ac87be09ae16a5a917a0403186fb6220bb3947dfeb83c998b54ff3e79",
+      "lines": 158,
+      "sha256": "6a36ca9acc0f092b2be0b75d05251bb0de9dcdd68994ef792e0ab173ba9456cf",
       "symbols": [
         {
           "name": "attach",
@@ -9009,14 +9009,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt",
-      "lines": 324,
-      "sha256": "658b0ab9faed573221478e3c100aba3a9bb965b4cb02a7af5a486b293fe885bd",
+      "lines": 313,
+      "sha256": "e7bababd194ae41a15570461b9eb24bd022d30a6935fe8a1b85b460a48c3e753",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt",
-      "lines": 52,
-      "sha256": "af9cc18e0df9b086cd1fdcb9b8d7e7db67fe32481fb5b77358746ca5e61137af",
+      "lines": 53,
+      "sha256": "83ba5301e86b9640ccad39cb60991e44de98c5490de90fa5b07db5ff7e0d1b36",
       "symbols": [
         {
           "name": "GameModelConnectionStatus",
@@ -9026,8 +9026,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt",
-      "lines": 8,
-      "sha256": "4fc4966c7168b5ebb7f0de12708716418ce26491dc8c9d6299bdf8cb77606972",
+      "lines": 9,
+      "sha256": "00d0bef93325e748bef452bd14bc0ce25f1668278d5c5cc6b517df889c2ab979",
       "symbols": []
     },
     {
@@ -9131,60 +9131,60 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 765,
-      "sha256": "a2122aad8394dd2315bd5725bae7998ee9e8599b110907dc3e990eb05f33f032",
+      "lines": 766,
+      "sha256": "6f66c211e92cdafb53b9d9947bccc2e203bd1a8bce116bd7d06d6416bce4b145",
       "symbols": [
         {
           "name": "Home",
-          "line": 38
-        },
-        {
-          "name": "DeepSea",
           "line": 39
         },
         {
-          "name": "PerfectMan",
+          "name": "DeepSea",
           "line": 40
         },
         {
-          "name": "Roleplay",
+          "name": "PerfectMan",
           "line": 41
         },
         {
-          "name": "TurtleSoup",
+          "name": "Roleplay",
           "line": 42
         },
         {
-          "name": "RapportQuiz",
+          "name": "TurtleSoup",
           "line": 43
         },
         {
-          "name": "YachtDice",
+          "name": "RapportQuiz",
           "line": 44
         },
         {
-          "name": "Gomoku",
+          "name": "YachtDice",
           "line": 45
         },
         {
-          "name": "MemoryMatch",
+          "name": "Gomoku",
           "line": 46
         },
         {
-          "name": "Records",
+          "name": "MemoryMatch",
           "line": 47
         },
         {
-          "name": "Replay",
+          "name": "Records",
           "line": 48
         },
         {
+          "name": "Replay",
+          "line": 49
+        },
+        {
           "name": "LuluGamesApp",
-          "line": 64
+          "line": 65
         },
         {
           "name": "stepBack",
-          "line": 70
+          "line": 71
         }
       ]
     },
@@ -9201,14 +9201,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt",
-      "lines": 659,
-      "sha256": "3d0813845d92e86c4c0124592c1eedb15074ff670b7fce3b9f2a38888322c3bf",
+      "lines": 660,
+      "sha256": "8b224e2dc36b16a092f6de3cc61bf580475f828a749a33e0432696a552844296",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-      "lines": 854,
-      "sha256": "f2970ad29d12ae1b822d8ad913862e45df7bedba478262e0feb98518f39f6f43",
+      "lines": 855,
+      "sha256": "34081a4cd25e44b99410b3be3b2961e1d0d8e66d35ad4cb60c0ba5a0cae46e82",
       "symbols": [
         {
           "name": "initialize",
@@ -9250,8 +9250,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
-      "lines": 284,
-      "sha256": "4aec247a762ff75ef8cea164bdab86db5ed1ecca8309591acfa7ac83e08dcdab",
+      "lines": 285,
+      "sha256": "e6ae9b01c06f6b1f8c23fc46ee1fb05e808fdd1ae5fa9deeb2b1f376e6609c34",
       "symbols": [
         {
           "name": "initialize",
@@ -9285,8 +9285,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-      "lines": 575,
-      "sha256": "73363edf0065871fcc362eae5c0304d8cf5cba1382ac9073cac8ba575ddcd8e0",
+      "lines": 576,
+      "sha256": "e40209890517a2ee92a7effc4310e0f78c4ed87c7fe4e8cb03c72f1ff8838027",
       "symbols": [
         {
           "name": "HealthFeatureScreen",
@@ -9300,8 +9300,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
-      "lines": 185,
-      "sha256": "0003b5aee0e41726c69a3cfa533071068a3161cbffd391faadc47f1de3a9b5df",
+      "lines": 186,
+      "sha256": "5b1a7e1df2432bcafa30a6866d4ae1a276a7ce4d31375fe5b24f21e0a4289972",
       "symbols": [
         {
           "name": "clock",
@@ -9343,14 +9343,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt",
-      "lines": 8,
-      "sha256": "9d09538acb49af55743f7471134a2496bc55af64c1582d5e0d7cb3ba04ea03ce",
+      "lines": 9,
+      "sha256": "2707e0454e3221044c7feb2aa3c6fa023c8dc056d37aab565309186693a70555",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
-      "lines": 282,
-      "sha256": "b7290746e06da2242bf5d4b4388cfcb771a3d443058aa4c557a1d61d90b30f01",
+      "lines": 283,
+      "sha256": "aee00faca64d6f580b372495605e4d30f7f3ac824da59575865c1e9783bf1b32",
       "symbols": [
         {
           "name": "LuluReadingScreen",
@@ -9360,8 +9360,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-      "lines": 407,
-      "sha256": "540f6118d9cc79cfe96a7809520e3ae6c9f0ef270a0d3d1040afc32f667fa3f0",
+      "lines": 408,
+      "sha256": "df72984fa071262b7d4abc5215e3a230e291a939d095e5a9f79fe71da3447bcb",
       "symbols": [
         {
           "name": "PomodoroTimerMode",
@@ -9483,14 +9483,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt",
-      "lines": 170,
-      "sha256": "9ea70101196aa8c668716b23cb9ac9a24f05910008d2c022bb04e3fe2c312931",
+      "lines": 171,
+      "sha256": "2ec1ba4eb78ba681961a97fd4c5ca0c1918a3aa6f33b0072b00a876c6031f0e3",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
-      "lines": 126,
-      "sha256": "0ecfd32f29803e75df12f2efa4e2fdb5217a3dea7815e35622ad14e18925f00b",
+      "lines": 127,
+      "sha256": "22b28d2f873b7e77915f82fc406e9a302994130069da4920e02162004efafacd",
       "symbols": [
         {
           "name": "PostgraduateExamApp",
@@ -9504,8 +9504,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-      "lines": 1168,
-      "sha256": "aadada15579d85b967edcb3d08ad0a2b64c53fd50acbe1380f23f04e07543713",
+      "lines": 1169,
+      "sha256": "c3a0877aa2f29fe4a7945ef8b088edbb99892738d9632fe155cbeee90912e591",
       "symbols": [
         {
           "name": "PostgraduateExamStore",
@@ -9659,8 +9659,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-      "lines": 125,
-      "sha256": "7651aeea1958ef7d54254a650f3b893644fb741fc0aa5ceb3bf798137af7782a",
+      "lines": 126,
+      "sha256": "97baef6088204f25b3383772785e742c5202ec35dce3deb19e7c3dacfb546d1b",
       "symbols": [
         {
           "name": "books",
@@ -9682,8 +9682,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt",
-      "lines": 249,
-      "sha256": "f421adf9ccc78a9c7088186545ebc92f01435fcc9dffee5a8c9851e77ee07e3d",
+      "lines": 250,
+      "sha256": "028a0df635fc57295dc6a24aa5bef7cca2e127f52fca2789751f0cc8f62b402d",
       "symbols": [
         {
           "name": "itemsFor",
@@ -9693,8 +9693,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt",
-      "lines": 72,
-      "sha256": "23956819aa86cdf3567a87bc8af39d10f44091ecf35b9042d618998c26925301",
+      "lines": 73,
+      "sha256": "a6ca4a59088939295e546a5762044f61f32a2e84080506cc5ac6fa8336695dc6",
       "symbols": [
         {
           "name": "SelfDirectedStudyPlanSeed",
@@ -9716,14 +9716,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt",
-      "lines": 352,
-      "sha256": "d98c087c9c0f40130fa44083e0bfbc71bb30c76f1875b2df0418fd09dbcc439f",
+      "lines": 353,
+      "sha256": "2e583dc45e252458caa6d8e5388b688e28e8cb872e0b060312f6f0328fccec22",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-      "lines": 404,
-      "sha256": "8e1f1c45a4b21f023c3d5c7ec3646b58131a755b4d990183bda79f7f7e92206a",
+      "lines": 405,
+      "sha256": "41719eed66bc8f1a1707a69a866d3a63517e8241ee212ab1b7a530b7e40b2a35",
       "symbols": [
         {
           "name": "defaultPrompts",
@@ -9781,14 +9781,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt",
-      "lines": 119,
-      "sha256": "0f6207f1a58e0c7e38227b79a1bec9d2ebf6e85f75025b55cd54d9120610114f",
+      "lines": 120,
+      "sha256": "21896a17571e7c8f59829417e2e31e8d60f29eea007ac21439d3a5c173b3b040",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-      "lines": 230,
-      "sha256": "8c94356074fee25dc60e917ba84ad54dac24ccce36211d093077fdee7dcb35c2",
+      "lines": 231,
+      "sha256": "05d89ff61ac1bea59631294330e6f9b8144731b76852dbbc3aca432f99efe428",
       "symbols": [
         {
           "name": "storyGuide",
@@ -9830,14 +9830,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishScrollPanel.kt",
-      "lines": 154,
-      "sha256": "c35b982e3643977deed875a105bb9a22768ea4e0c5a0b9d571b1eae2f6a70e41",
+      "lines": 155,
+      "sha256": "71531f3b88e2115bd74e81f03d69b2eeca4d782ef67a1b7034c3f7027c991f0d",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-      "lines": 815,
-      "sha256": "b6a9368f2783228f29af628b2e0568e866957a00b527007968d9b8fd69d9efa0",
+      "lines": 816,
+      "sha256": "9f45671e2566df32a020b2bbdecc5928cfe9c2a83479c46b003b4055ab3ba925",
       "symbols": [
         {
           "name": "generateNextChapter",
@@ -9851,8 +9851,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-      "lines": 320,
-      "sha256": "4e636bf3731367aa578ccf3ccde7f69227d505de447a083eb8d7eb81f5faca46",
+      "lines": 321,
+      "sha256": "2efcfc881533f5f2a3f58e6b3877419e5df10ab2bd4cd4f7287a51cdce2a7e01",
       "symbols": [
         {
           "name": "enqueue",
@@ -9870,38 +9870,38 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPanel.kt",
-      "lines": 414,
-      "sha256": "5bd22ad754fbfe840e162b690ae8913473bd0fa2c4a8da4357108d49c860db22",
+      "lines": 415,
+      "sha256": "70d1a26d2254fa92a98ed9e370d4be53bdd76daff7d45d4c531a577a2c41229c",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyAchievementsScreenV2.kt",
-      "lines": 93,
-      "sha256": "81316e224cfc0b44c13db5ae00999de4e98742c115b17c35e689e65e743cf7f9",
+      "lines": 94,
+      "sha256": "4806cf3c38de17a4819acaa82be7152baddb92ce10b2d766dd83b68ed88fb03e",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCollectionScreenV2.kt",
-      "lines": 211,
-      "sha256": "9786a603e930ecda01fccde26587ba49ff0cfb28131cc74f2613a77fd42f25bc",
+      "lines": 212,
+      "sha256": "bd3947bd977f7c0998d914a9046d8056dd123afb49e26d01707651df68bdeaa3",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCompanionScreen.kt",
-      "lines": 280,
-      "sha256": "c552eba3d523aae2729a457a7b96a18bd0b830f4dbbd4bdca78969e0378d3934",
+      "lines": 281,
+      "sha256": "b960d7a572b2d116d743fe392593378e8611a475cf02e1f00088df5bcd78df5f",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDailyContext.kt",
-      "lines": 82,
-      "sha256": "b1142279ca02719a39a4daaf706027a62776332c323d0dbd1189b6c5871c0b93",
+      "lines": 83,
+      "sha256": "17b64babc2c25a4e9477d4ddfb6b31b383ae73e67fbe90782b7c224c9e4edf39",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
-      "lines": 421,
-      "sha256": "c064cb356c8ac85f698cc90d6b807f0f5b8b3f8e87741d04457f7e211ce4d9ea",
+      "lines": 422,
+      "sha256": "c5bf6c9ab38061f6b7a4532fd2e55f3a41b30dba1cb21ad553ea888689da0a9f",
       "symbols": [
         {
           "name": "StudyTaskSource",
@@ -9995,8 +9995,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
-      "lines": 298,
-      "sha256": "4c23e3861e57f3926f8932d6efbcf751579f8fc92c76011b01824a1500a97318",
+      "lines": 299,
+      "sha256": "f1a2450254b5035274e984716e891746d0f9f986e6ae68ebb21aa4b42e96e7e5",
       "symbols": [
         {
           "name": "updateRow",
@@ -10014,8 +10014,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPlanRewards.kt",
-      "lines": 990,
-      "sha256": "5ee60a41b8d591c3af84c4eee6a0cbd7ea9c6d314cbae5b5e5f639b5a29f2dec",
+      "lines": 991,
+      "sha256": "591e132c94395dc8e84610985daa38bbf01d296bd693107489685f002e2ce815",
       "symbols": [
         {
           "name": "draw",
@@ -10025,8 +10025,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-      "lines": 470,
-      "sha256": "3993845933896b2caa3f2ae6b2493aa8be64861efb9c1d61cd7b9d7b32e796b0",
+      "lines": 471,
+      "sha256": "bcc193469353d1bc195d4379468a0ef42bc466b0cb9b1dbba5908478153dcfd3",
       "symbols": [
         {
           "name": "privateConversationId",
@@ -10044,8 +10044,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyRemovedFeatureMigration.kt",
-      "lines": 69,
-      "sha256": "3ad7c6d587cfec2499a637bc49925e9734aeb86b66f300a98471cea8b05bd293",
+      "lines": 70,
+      "sha256": "f0076f4ad74461c93605b1440d9535776e42318b5ea53ed631d6f69ff5a20b84",
       "symbols": [
         {
           "name": "StudyRemovedFeatureMigration",
@@ -10059,26 +10059,26 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudySaveableCompat.kt",
-      "lines": 8,
-      "sha256": "dce680e4a1eec27ef5c13105e8349560e2e90833bf97da242c24d0213a225616",
+      "lines": 9,
+      "sha256": "5f9527499973265966630adab2235bc940977c29ed3e124ba25d16961a01b2ce",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudySaveableInputsCompat.kt",
-      "lines": 13,
-      "sha256": "a647d6bb94e17b4fb82cf12df1d18349ab3ab3af2c4c0a9a9d9048cbd01649f0",
+      "lines": 14,
+      "sha256": "486d65f242e88b562b106745baf84d51653a43c98782a196e2b1a3322d10d66c",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyShopScreenV2.kt",
-      "lines": 147,
-      "sha256": "f94547432ff143c7e770e2b8c0cfcbd227fc1f099c4564e1c63114108a42474f",
+      "lines": 148,
+      "sha256": "090a0ec526457da5ad8d9f92c0d806e79e1abc09e7efe177ade1e7e8d2330abe",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
-      "lines": 253,
-      "sha256": "73915b236ad7011c885b18a9b844da1ced74feafcf905f2109b9d46d1df3e6ae",
+      "lines": 254,
+      "sha256": "a66d6d9fc5a5c8c57dad61e11081006ac91471c82fe60b7cc92675fa60f93170",
       "symbols": [
         {
           "name": "encode",
@@ -10092,26 +10092,26 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStyledDropdownCompat.kt",
-      "lines": 60,
-      "sha256": "50c0d1d7895c3f9058af2877377fe40851604fb852f925b08855d5b249c024ab",
+      "lines": 61,
+      "sha256": "a7ea103a7a091be21ab788c7d2e83a324be8976956ae8c4fa20cfa3932e41433",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt",
-      "lines": 156,
-      "sha256": "b1dda12dc677542f845a5c35042c21703697e257e542cd363079e5187d8ef732",
+      "lines": 157,
+      "sha256": "4e79067e2bb8c73b326229968c4c1989ce35b12e5b68e260b1f2d1018bd45016",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt",
-      "lines": 474,
-      "sha256": "631f9ef118242b9da62fa79d298641bdec6d6c0b8ad69c2f44c9f06c406023dd",
+      "lines": 475,
+      "sha256": "579dd7f33eb0560f39ad67821cc88676c1e3a7c9832fda93666db1e62b8c47e9",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-      "lines": 93,
-      "sha256": "cead205030fb58ce8504654e1b6f825ab3585f87eb1e2036647853223f20e483",
+      "lines": 94,
+      "sha256": "1a2ee7325d16ac0618f3db7c7d7170d0d4927501eca14e9eca51950166b12a33",
       "symbols": [
         {
           "name": "LuluAccessibilityService",
@@ -10141,8 +10141,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-      "lines": 267,
-      "sha256": "ede2dda5c68be3eba0ba8c3dccf290d9cb1b09e8ee19e981630683875dc9ba68",
+      "lines": 268,
+      "sha256": "3058b4fc5eb63f8537a4d2c2df6361bc23fe4223823371ae525bb82762406eca",
       "symbols": [
         {
           "name": "LuluAlarm",
@@ -10184,8 +10184,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 387,
-      "sha256": "ee51db4a57425d43bfedd2fbd97909b7051a77de2ae722e8576f9e60e4c4bd03",
+      "lines": 388,
+      "sha256": "37b7f65a4d07751801f91805a7ecc77cd77b1a1193a867f1f15d2812155e515d",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -10199,8 +10199,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
-      "lines": 69,
-      "sha256": "d6532b42ec48c9fa6ebea55ad8adc76a7221d4f8a27cc9f13263cea9eec44137",
+      "lines": 70,
+      "sha256": "0f867e16ca864d894d6ccdb48b4b94dde5689f714b51afa5494ab48bc354a323",
       "symbols": [
         {
           "name": "LuluLocationProvider",
@@ -10218,8 +10218,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt",
-      "lines": 53,
-      "sha256": "f4c273b753ca9a8bd9cafdc6535e9be2af2ac1c91b2c48596e078d03d62b6c6d",
+      "lines": 54,
+      "sha256": "b675d731c62fa7165a8c229965849b1fabeebdb44e21b99ab8f2710cd8f319f9",
       "symbols": [
         {
           "name": "LuluNotificationListenerService",
@@ -10233,80 +10233,80 @@
     },
     {
       "path": "app/src/main/res/drawable/ic_lulu.xml",
-      "lines": 12,
-      "sha256": "b9c135a37cb0f00500e8fcd5625fae8455f37a89ebeb2441993a8bcb5506815c",
+      "lines": 13,
+      "sha256": "2a38208e24dc7966b9b99e8f668ca47c482a05a9864844802a050c80fe17e548",
       "symbols": []
     },
     {
       "path": "app/src/main/res/drawable/lulu_app_icon.xml",
-      "lines": 87,
-      "sha256": "32b3b8d7561e41ab9a48413cc97228621bd2bf56fdf47d7a21402943f64e0fdd",
+      "lines": 88,
+      "sha256": "f79f28f5fc4c83347d54616fd0ee2460b084c3a9f353d5f3f233aa945768aaa5",
       "symbols": []
     },
     {
       "path": "app/src/main/res/drawable/lulu_app_icon_foreground.xml",
-      "lines": 21,
-      "sha256": "82ba325ca83818537c96a6d000d721e6e102130a9f502b5026af047771a49a71",
+      "lines": 22,
+      "sha256": "aae195ab309b2546333e96ff20b67baa51d8181b5f7504d66cb4a49f4979faa9",
       "symbols": []
     },
     {
       "path": "app/src/main/res/mipmap-anydpi/ic_lulu_app.xml",
-      "lines": 11,
-      "sha256": "209acd94de542bad72d5bb0b86881e515fa8342229539f12b02cfecf5fd8247f",
+      "lines": 12,
+      "sha256": "a3e0bc2ecff5864156c250421f38994661cf5c6fb22cddf99a0075c3e345b481",
       "symbols": []
     },
     {
       "path": "app/src/main/res/mipmap-anydpi-v26/ic_lulu_app.xml",
-      "lines": 6,
-      "sha256": "3d1601cbc4c4c712130c899c56491192da831aed20a65a0c134b36a342f53d4e",
+      "lines": 7,
+      "sha256": "73ebcb6c3d6ec3de55be5d979fdb5c20c537368920be565e9ad6534402cdb128",
       "symbols": []
     },
     {
       "path": "app/src/main/res/values/lulu_icon_colors.xml",
-      "lines": 5,
-      "sha256": "466f6e08d9adb5eb318d5e1eb822afa163fef5e5cbf452b2b0a6385b6fe555ed",
+      "lines": 6,
+      "sha256": "8f4159872a66c4eb547c1cc0a7324fff1e3fcca574d752762eba238d331e694e",
       "symbols": []
     },
     {
       "path": "app/src/main/res/values/strings.xml",
-      "lines": 6,
-      "sha256": "42a2be0367f224db29d11526115371485a333c6a10c4364e46bad489c3490447",
+      "lines": 7,
+      "sha256": "726fad2e2c833fe1f8be501ed5250e2894d7522438234b6b54bd661f32767b67",
       "symbols": []
     },
     {
       "path": "app/src/main/res/values/styles.xml",
-      "lines": 11,
-      "sha256": "b9998a762e4c0842fc6b71ae71ccacdce853dfceaf370964016fdf405c1b77a0",
+      "lines": 12,
+      "sha256": "d560f27e4bb73205192539d2165a545cdc32383b3d54f27c7ad1009f0009e42c",
       "symbols": []
     },
     {
       "path": "app/src/main/res/xml/lulu_accessibility_service.xml",
-      "lines": 11,
-      "sha256": "7a8604d40b3980d83deddf98189840299af8ec3e624d8a241ae8e2b4b3d2358a",
+      "lines": 12,
+      "sha256": "a7e9926e055ca44d4c59e8872ec03a5a0938c948c75a3d5aa2ae2569f8a30b32",
       "symbols": []
     },
     {
       "path": "scripts/generate_code_index.py",
-      "lines": 33,
-      "sha256": "db454feedfdf3568224a509dc2333719045f645726f1c02b7beb067b90a10062",
+      "lines": 34,
+      "sha256": "196de17101761beec4840d96215a4f80f5cd8ad9fe394bf97ef8a896152d4400",
       "symbols": []
     },
     {
       "path": "preview/app.js",
-      "lines": 54,
-      "sha256": "f1970a23411084fb2da03eef1f0f47a4bd105349f13f7444c66bd2f5c34e830d",
+      "lines": 55,
+      "sha256": "c5735192782438c7c18b77a2d9ff54a2fb9ca927049f2d452cbb1e49c49a54c9",
       "symbols": []
     },
     {
       "path": "preview/index.html",
-      "lines": 99,
-      "sha256": "28111929b2f93fedd5b6dff14ccb9c9e147ba8c8d811d5eea115d2c0cff55b88",
+      "lines": 100,
+      "sha256": "343c07151f66b679e5b9e2bc81dc191311023c3d27abe091ef965421cc1005d3",
       "symbols": []
     },
     {
       "path": "preview/styles.css",
-      "lines": 2,
-      "sha256": "a99241980f29c223ceea1fedef6d6a262fb90b72c274202e02ac4d5434ab8148",
+      "lines": 3,
+      "sha256": "3165234090b0005afd58ec0456d80dce988a0f31b1388cf4b8490806928872f3",
       "symbols": []
     }
   ]

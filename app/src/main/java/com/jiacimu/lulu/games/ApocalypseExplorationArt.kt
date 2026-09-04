@@ -227,7 +227,7 @@ internal fun DrawScope.drawApocalypseExplorationWorld(
     )
 }
 
-private data class ApocalypsePalette(
+private data class ApocalypseWorldPalette(
     val ground: Brush,
     val road: Color,
     val concrete: Color,
@@ -236,24 +236,24 @@ private data class ApocalypsePalette(
     val debris: Color,
 )
 
-private fun apocalypsePalette(terrain: ApocalypseTerrain): ApocalypsePalette = when (terrain) {
-    ApocalypseTerrain.Forest -> ApocalypsePalette(
+private fun apocalypsePalette(terrain: ApocalypseTerrain): ApocalypseWorldPalette = when (terrain) {
+    ApocalypseTerrain.Forest -> ApocalypseWorldPalette(
         Brush.linearGradient(listOf(Color(0xFF25332D), Color(0xFF101F1B), Color(0xFF17241F))),
         Color(0xFF343A34), Color(0xFF53605A), Color(0xFF45524E), Color(0xFF344B3B), Color(0xFF879187),
     )
-    ApocalypseTerrain.Waterside -> ApocalypsePalette(
+    ApocalypseTerrain.Waterside -> ApocalypseWorldPalette(
         Brush.linearGradient(listOf(Color(0xFF37413C), Color(0xFF1B2C2A), Color(0xFF102321))),
         Color(0xFF444B45), Color(0xFF5D6862), Color(0xFF455955), Color(0xFF375344), Color(0xFF91A49B),
     )
-    ApocalypseTerrain.City -> ApocalypsePalette(
+    ApocalypseTerrain.City -> ApocalypseWorldPalette(
         Brush.linearGradient(listOf(Color(0xFF42443F), Color(0xFF282E2B), Color(0xFF1B2522))),
         Color(0xFF353936), Color(0xFF676B65), Color(0xFF4D5855), Color(0xFF405247), Color(0xFF9A9B91),
     )
-    ApocalypseTerrain.Facility -> ApocalypsePalette(
+    ApocalypseTerrain.Facility -> ApocalypseWorldPalette(
         Brush.linearGradient(listOf(Color(0xFF3E4845), Color(0xFF1C2B28), Color(0xFF17221F))),
         Color(0xFF343D3A), Color(0xFF6A7470), Color(0xFF50645F), Color(0xFF42584D), Color(0xFF9AA9A4),
     )
-    ApocalypseTerrain.Road -> ApocalypsePalette(
+    ApocalypseTerrain.Road -> ApocalypseWorldPalette(
         Brush.linearGradient(listOf(Color(0xFF45483F), Color(0xFF2D362F), Color(0xFF18251F))),
         Color(0xFF373A36), Color(0xFF686B62), Color(0xFF515B55), Color(0xFF48594A), Color(0xFFA09F90),
     )
@@ -261,7 +261,7 @@ private fun apocalypsePalette(terrain: ApocalypseTerrain): ApocalypsePalette = w
 
 private fun DrawScope.drawApocalypseObject(
     item: ApocalypseRuinObject,
-    palette: ApocalypsePalette,
+    palette: ApocalypseWorldPalette,
     explored: Boolean,
     phase: Float,
 ) {
