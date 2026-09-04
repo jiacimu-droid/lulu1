@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T18:52:46.945347+00:00",
-  "commit": "e80664d34826323f235f6f7745ed10b4ea15630e",
+  "generatedAt": "2026-09-04T18:53:07.011286+00:00",
+  "commit": "620345f9483f25a97916ae0b0d268adc66ff624e",
   "branch": "main",
-  "sourceFingerprint": "5dfca882ffd531992e8d6d704746ec1312c2d341bcf541624db691a0370b63d5",
+  "sourceFingerprint": "76df03477ad2ce62cfc15c902fe782ce26c21595e82847ca3790fa0fd3e0537e",
   "summary": {
     "files": 240,
-    "lines": 73908,
+    "lines": 73773,
     "symbols": 928
   },
   "symbolIndex": {
@@ -5550,8 +5550,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt",
-      "lines": 286,
-      "sha256": "b3ccbde0ef3a1c42c3458fcf52dc60ccf7fa7dfa03fe4b2d34bc2abfec87d31c",
+      "lines": 151,
+      "sha256": "8734fe6c1c2d7672674dd4252728898f20e942d6b80943a6a72bdddc4408d3a2",
       "symbols": []
     },
     {
