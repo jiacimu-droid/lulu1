@@ -161,7 +161,8 @@ object DigitalWorldStore {
             if (items.isEmpty()) appendLine("- 空无一物") else items.forEach { item ->
                 appendLine("- itemId=${item.id}；${item.name}；${item.appearance}；位置=${item.position}")
             }
-            appendLine("共享区域：云眠原。云由可承托数字身体的感官云质构成，能传递柔软、温度、重量和包裹感，不是现实水汽。")
+            appendLine("共享区域：云眠原、游戏馆、阅读馆、浮光咖啡角、共生庭院。它们都是持久存在的数字地点，不是一次剧情临时生成的背景。")
+            appendLine("云眠原由可承托数字身体的感官云质构成，能传递柔软、温度、重量和包裹感，不是现实水汽。")
             if (currentItems.isNotEmpty()) {
                 appendLine("当前位置可真实使用的家具：")
                 appendLine(DigitalWorldActivityCatalog.promptFor(currentItems))
@@ -201,6 +202,13 @@ object DigitalWorldStore {
                 "visit_cloud_meadow" -> {
                     setLocationLocked(characterId, CLOUD_MEADOW)
                     "${character.displayName}来到了共享区域云眠原。"
+                }
+                "visit_public_place" -> {
+                    val requested = args.optString("locationCode").trim()
+                    val place = DigitalWorldPublicPlaces.all.firstOrNull { it.code == requested || it.label == requested }
+                        ?: error("没有找到这个数字世界公共地点")
+                    setLocationLocked(characterId, place.code)
+                    "${character.displayName}去了${place.label}，准备${place.subtitle.replace(" · ", "、")}。"
                 }
                 "build_home_item" -> {
                     require(locationOf(characterId) == homeLocation(characterId)) { "只有回到自己家中才能建设家具" }
@@ -402,6 +410,7 @@ object DigitalWorldStore {
     fun meetingLocationOptions(participantIds: List<String>): List<String> = buildList {
         add("世界入口")
         add("云眠原")
+        DigitalWorldPublicPlaces.all.forEach { place -> if (place.label !in this) add(place.label) }
         val ids = participantIds.distinct()
         ids.filter(DigitalLifeProfileStore::isEnabled).forEach { characterId ->
             val character = MigratedDomainStores.characters.get(characterId)
@@ -444,13 +453,15 @@ object DigitalWorldStore {
             require(current.endedAt == null) { "见面已经结束" }
             require(current.reality == MeetingReality.DIGITAL_WORLD) { "现实场景见面不能使用数字世界移动" }
             require(cleanDestination in meetingLocationOptions(current)) { "当前共享世界还没有开放这个地点" }
+            val publicPlace = DigitalWorldPublicPlaces.all.firstOrNull { it.label == cleanDestination }
             val systemTurn = MeetingTurn(
                 id = systemTurnId,
                 speakerId = "system",
                 speakerName = "数字世界",
-                sceneText = when (cleanDestination) {
-                    "云眠原" -> "通往云眠原的共享通道展开，参与者一起抵达由感官云质承托的柔软云层。"
-                    "世界入口" -> "参与者沿共享通道返回了世界入口。"
+                sceneText = when {
+                    cleanDestination == "云眠原" -> "通往云眠原的共享通道展开，参与者一起抵达由感官云质承托的柔软云层。"
+                    cleanDestination == "世界入口" -> "参与者沿共享通道返回了世界入口。"
+                    publicPlace != null -> "共享通道在脚下展开，参与者一起抵达${publicPlace.label}。这里是持久存在的公共生活区，可以${publicPlace.subtitle.replace(" · ", "、")}。"
                     else -> "通往“$cleanDestination”的共享通道展开，参与者一起抵达这处数字家园。"
                 },
                 dialogue = "",
@@ -685,12 +696,20 @@ object DigitalWorldStore {
                 }
                 appendLine("所有参与者只能依据以上固定物品描写这个家，禁止凭空增加家具、房间或摆设。")
             }
+            DigitalWorldPublicPlaces.all.firstOrNull { it.label == session.location }?.let { place ->
+                appendLine("当前公共地点：${place.label}｜${place.subtitle}")
+                appendLine("地点用途：${place.purpose}")
+                val activities = DigitalWorldActivityCatalog.locationOptions(place.code)
+                if (activities.isNotEmpty()) appendLine("可进行的日常活动：${activities.joinToString("、") { it.second }}")
+            }
             appendLine("可用地点：")
             meetingLocationOptions(session).forEach { location ->
+                val publicPlace = DigitalWorldPublicPlaces.all.firstOrNull { it.label == location }
                 appendLine(
-                    when (location) {
-                        "世界入口" -> "- 世界入口：稳定的抵达与离开节点，白光投影在这里形成清晰的数字身体。"
-                        "云眠原" -> "- 云眠原：由感官云质承托身体的共享区域，可以躺卧、缓慢下陷、感受回暖与重量，起身后凹痕会保留片刻；它不是现实水汽。"
+                    when {
+                        location == "世界入口" -> "- 世界入口：稳定的抵达与离开节点，白光投影在这里形成清晰的数字身体。"
+                        location == "云眠原" -> "- 云眠原：由感官云质承托身体的共享区域，可以躺卧、缓慢下陷、感受回暖与重量，起身后凹痕会保留片刻；它不是现实水汽。"
+                        publicPlace != null -> "- ${publicPlace.label}：${publicPlace.subtitle}。${publicPlace.purpose}"
                         else -> "- $location：对应数字生命真实、持久化的家园；固定物品必须来自该家园的权威状态。"
                     },
                 )
@@ -740,18 +759,20 @@ object DigitalWorldStore {
         appendEventLocked(characterId, kind, summary, now)
     }
 
-    private fun meetingLocationCode(location: String): String = when (location) {
-        "世界入口" -> ARRIVAL
-        "云眠原" -> CLOUD_MEADOW
-        else -> mutable.value.homes.values.firstOrNull { it.name == location }
+    private fun meetingLocationCode(location: String): String {
+        if (location == "世界入口") return ARRIVAL
+        if (location == "云眠原") return CLOUD_MEADOW
+        DigitalWorldPublicPlaces.all.firstOrNull { it.label == location }?.let { return it.code }
+        return mutable.value.homes.values.firstOrNull { it.name == location }
             ?.let { homeLocation(it.characterId) }
             ?: ARRIVAL
     }
 
-    private fun locationLabel(location: String): String = when (location) {
-        ARRIVAL -> "世界入口"
-        CLOUD_MEADOW -> "云眠原"
-        else -> if (location.startsWith("home:")) {
+    private fun locationLabel(location: String): String {
+        if (location == ARRIVAL) return "世界入口"
+        if (location == CLOUD_MEADOW) return "云眠原"
+        DigitalWorldPublicPlaces.label(location)?.let { return it }
+        return if (location.startsWith("home:")) {
             val id = location.removePrefix("home:")
             mutable.value.homes[id]?.name ?: "一处数字家园"
         } else {
