@@ -9,7 +9,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -48,48 +47,124 @@ internal data class ApocalypseExplorationMap(
     val threatStart: WorldVector,
 )
 
+private data class ApocalypseLocationSetDress(
+    val buildingA: String,
+    val buildingB: String,
+    val wreck: String,
+    val barricade: String,
+    val cover: String,
+    val cache: String,
+    val anomaly: String,
+    val exit: String,
+)
+
+private fun apocalypseLocationSetDress(location: String, terrain: ApocalypseTerrain): ApocalypseLocationSetDress {
+    val mountainRoad = location.contains("盘山") || (location.contains("山") && terrain == ApocalypseTerrain.Road)
+    return when (terrain) {
+        ApocalypseTerrain.Waterside -> ApocalypseLocationSetDress(
+            buildingA = if (location.contains("水库")) "水库检修值守房" else "岸边废弃值守房",
+            buildingB = if (location.contains("坝")) "大坝设备间" else "废弃泵站",
+            wreck = "搁浅的工程越野车",
+            barricade = "溃散的防汛警戒线",
+            cover = "折断的水位标杆",
+            cache = "防汛应急物资柜",
+            anomaly = "水面下的空间回响",
+            exit = if (location.contains("坝")) "通往坝体深处的检修道" else "沿岸检修通道",
+        )
+        ApocalypseTerrain.Forest -> ApocalypseLocationSetDress(
+            buildingA = "废弃护林站",
+            buildingB = "林区观测屋",
+            wreck = "陷在泥里的林区越野车",
+            barricade = "塌落的防火隔离栏",
+            cover = "枯死的高树",
+            cache = "护林应急补给箱",
+            anomaly = "林雾里的空间回响",
+            exit = if (location.contains("山")) "继续上山的林道" else "通往林区深处的小路",
+        )
+        ApocalypseTerrain.Facility -> ApocalypseLocationSetDress(
+            buildingA = if (location.contains("医院")) "急诊侧门值守区" else "园区门卫值守室",
+            buildingB = if (location.contains("研究")) "封闭研究楼侧翼" else "封锁的主楼侧翼",
+            wreck = "抛锚的后勤车",
+            barricade = "内部隔离路障",
+            cover = "倾倒的安检架",
+            cache = "应急器材柜",
+            anomaly = "设备区的空间回响",
+            exit = "通往设施核心区的通道",
+        )
+        ApocalypseTerrain.City -> ApocalypseLocationSetDress(
+            buildingA = if (location.contains("商场")) "商场沿街入口" else "临街店铺残骸",
+            buildingB = if (location.contains("小区")) "封闭的物业楼" else "坍塌街区入口",
+            wreck = "横停在路中的越野车",
+            barricade = "废弃交通封锁线",
+            cover = "倾倒的路灯",
+            cache = "街区应急物资柜",
+            anomaly = "楼群间的空间回响",
+            exit = "通往街区深处的道路",
+        )
+        ApocalypseTerrain.Road -> ApocalypseLocationSetDress(
+            buildingA = if (mountainRoad) "盘山公路山脚值守亭" else "路侧废弃岗亭",
+            buildingB = when {
+                location.contains("交界") -> "市界废弃检查站"
+                mountainRoad -> "山脚废弃服务站"
+                else -> "路旁封闭服务站"
+            },
+            wreck = if (mountainRoad) "熄火在弯道边的越野车" else "熄火的越野车",
+            barricade = if (location.contains("交界")) "市界临时封锁路障" else "道路临时封锁路障",
+            cover = if (mountainRoad) "撞弯的山路护栏" else "倾倒的路牌",
+            cache = if (mountainRoad) "山路应急物资柜" else "道路应急物资柜",
+            anomaly = if (location.contains("岚山")) "岚山方向的空间回响" else "道路尽头的空间回响",
+            exit = when {
+                location.contains("盘山") -> "继续深入的盘山公路"
+                location.contains("山") -> "继续上山的道路"
+                else -> "通往区域深处的路线"
+            },
+        )
+    }
+}
+
 internal fun buildApocalypseExplorationMap(location: String, tension: Int): ApocalypseExplorationMap {
     val terrain = when {
-        listOf("水库", "河", "湖", "码头", "岸").any(location::contains) -> ApocalypseTerrain.Waterside
-        listOf("林", "山", "野", "谷").any(location::contains) -> ApocalypseTerrain.Forest
+        listOf("水库", "河", "湖", "码头", "岸", "坝").any(location::contains) -> ApocalypseTerrain.Waterside
+        listOf("林", "山", "野", "谷").any(location::contains) && !location.contains("盘山公路") -> ApocalypseTerrain.Forest
         listOf("医院", "研究", "基地", "站", "厂", "库").any(location::contains) -> ApocalypseTerrain.Facility
-        listOf("城", "市", "街", "商场", "小区").any(location::contains) -> ApocalypseTerrain.City
+        listOf("城", "市", "街", "商场", "小区").any(location::contains) && !location.contains("交界") -> ApocalypseTerrain.City
         else -> ApocalypseTerrain.Road
     }
     val suffix = (location.hashCode() and Int.MAX_VALUE).toString(36)
     val sceneName = location.ifBlank { "未知区域" }
+    val dress = apocalypseLocationSetDress(sceneName, terrain)
     val objects = mutableListOf<ApocalypseRuinObject>()
 
     objects += ApocalypseRuinObject(
         "$suffix-building-a",
-        if (terrain == ApocalypseTerrain.Forest) "废弃护林站" else "封死的建筑",
+        dress.buildingA,
         ApocalypseRuinKind.Building,
         WorldRectangle(85f, 90f, 545f, 355f),
-        "我贴近建筑外墙，寻找能进入的缺口和仍可利用的房间。",
+        "我贴近${dress.buildingA}，对照${sceneName}现在的环境，检查入口、脚印、血迹和还能利用的空间。",
     )
     objects += ApocalypseRuinObject(
         "$suffix-building-b",
-        if (terrain == ApocalypseTerrain.Facility) "隔离实验楼" else "坍塌街区",
+        dress.buildingB,
         ApocalypseRuinKind.Building,
         WorldRectangle(1_360f, 120f, 1_820f, 395f),
-        "我观察${sceneName}里这片建筑的出入口，先确认里面有没有活动迹象。",
+        "我观察${dress.buildingB}的门窗、遮挡和新旧痕迹，判断${sceneName}这里最近是否有人活动。",
     )
     objects += ApocalypseRuinObject(
         "$suffix-wreck",
-        "熄火的越野车",
+        dress.wreck,
         ApocalypseRuinKind.Wreck,
         WorldRectangle(665f, 405f, 955f, 535f),
-        "我借掩体靠近熄火的越野车，检查车厢、油量和后备箱。",
+        "我借地形掩护靠近${dress.wreck}，检查车厢、油量、钥匙、后备箱以及车主离开的方向。",
     )
     objects += ApocalypseRuinObject(
         "$suffix-barricade",
-        "临时路障",
+        dress.barricade,
         ApocalypseRuinKind.Barricade,
         WorldRectangle(1_120f, 600f, 1_480f, 688f),
-        "我检查临时路障上的痕迹，判断它是谁留下的、多久前还有人经过。",
+        "我检查${dress.barricade}的朝向、破坏方式和轮胎印，判断它是谁在${sceneName}留下的、封的是哪一边。",
     )
-    val treeCount = if (terrain == ApocalypseTerrain.Forest) 9 else 4
-    repeat(treeCount) { index ->
+    val coverCount = if (terrain == ApocalypseTerrain.Forest) 9 else 4
+    repeat(coverCount) { index ->
         val seed = (location.hashCode().toLong() * 43L + index * 719L) and Long.MAX_VALUE
         val x = 130f + (seed % 1_610L).toFloat()
         val y = 380f + ((seed / 31L) % 680L).toFloat()
@@ -99,35 +174,35 @@ internal fun buildApocalypseExplorationMap(location: String, tension: Int): Apoc
             WorldVector(x, y).distanceTo(WorldVector(940f, 910f)) > 120f
         ) {
             objects += ApocalypseRuinObject(
-                "$suffix-tree-$index",
-                if (terrain == ApocalypseTerrain.City) "倾倒的路灯" else "枯死的树",
+                "$suffix-cover-$index",
+                dress.cover,
                 ApocalypseRuinKind.Tree,
                 bounds,
-                "我借着遮挡停下，倾听${sceneName}周围的动静。",
+                "我借${dress.cover}的遮挡停下，观察${sceneName}的视野死角并听周围的动静。",
             )
         }
     }
     objects += ApocalypseRuinObject(
         "$suffix-cache",
-        "未开启的物资箱",
+        dress.cache,
         ApocalypseRuinKind.Cache,
         WorldRectangle(315f, 820f, 435f, 915f),
-        "我保持警戒靠近物资箱，先排除陷阱，再检查里面有什么。",
+        "我保持警戒靠近${dress.cache}，先排除陷阱和近期开启痕迹，再确认里面有哪些能带走的物资。",
     )
     objects += ApocalypseRuinObject(
         "$suffix-anomaly",
-        "不稳定的空间回响",
+        dress.anomaly,
         ApocalypseRuinKind.Anomaly,
         WorldRectangle(1_500f, 820f, 1_630f, 945f),
-        "我放慢呼吸，释放空间感知去触碰那片异常回响，尝试判断它通向哪里。",
+        "我放慢呼吸，在${sceneName}释放空间感知触碰${dress.anomaly}，只确认我此刻真正能感知到的方向和异常。",
         blocksMovement = false,
     )
     objects += ApocalypseRuinObject(
         "$suffix-exit",
-        if (terrain == ApocalypseTerrain.Waterside) "通向大坝的检修道" else "通向区域深处的路线",
+        dress.exit,
         ApocalypseRuinKind.Exit,
         WorldRectangle(840f, 1_045f, 1_060f, 1_145f),
-        "我确认队伍状态和退路，准备沿着这条路线继续深入${sceneName}。",
+        "我在${sceneName}确认队伍状态、撤退路线和眼前道路，准备沿${dress.exit}继续推进。",
         blocksMovement = false,
     )
     return ApocalypseExplorationMap(
