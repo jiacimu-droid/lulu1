@@ -15,12 +15,12 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +48,12 @@ import kotlinx.coroutines.isActive
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
+private data class ApocalypseTravelTarget(
+    val name: String,
+    val detail: String,
+    val storyAnchor: Boolean = false,
+)
+
 @Composable
 internal fun ApocalypseExplorationScene(
     modifier: Modifier,
@@ -62,8 +68,44 @@ internal fun ApocalypseExplorationScene(
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
-    val map = remember(save.director.location, save.director.tension) {
-        buildApocalypseExplorationMap(save.director.location, save.director.tension)
+    val travelTargets = remember(save.director.location, save.director.locations) {
+        buildList {
+            val storyLocation = save.director.location.ifBlank { "未知区域" }
+            add(ApocalypseTravelTarget(storyLocation, "当前剧情所在区域", storyAnchor = true))
+            save.director.locations
+                .filter { it.unlocked && it.name.isNotBlank() }
+                .forEach { location ->
+                    if (none { it.name == location.name }) {
+                        add(
+                            ApocalypseTravelTarget(
+                                name = location.name,
+                                detail = location.detail.ifBlank { "已经在世界中确认过的位置" },
+                            ),
+                        )
+                    }
+                }
+        }
+    }
+    val worldState = remember(context, save.id) { ApocalypseExplorationWorldState(context, save.id) }
+    var activeLocation by remember(save.id, save.director.location, travelTargets.map { it.name }) {
+        mutableStateOf(
+            worldState.load(
+                storyLocation = save.director.location.ifBlank { "未知区域" },
+                knownLocations = travelTargets.map { it.name }.toSet(),
+            ),
+        )
+    }
+    var showTravelSheet by remember { mutableStateOf(false) }
+
+    LaunchedEffect(activeLocation, save.director.location) {
+        worldState.save(
+            activeLocation = activeLocation,
+            storyLocation = save.director.location.ifBlank { "未知区域" },
+        )
+    }
+
+    val map = remember(activeLocation, save.director.tension) {
+        buildApocalypseExplorationMap(activeLocation, save.director.tension)
     }
     val obstacles = remember(map) { map.objects.mapNotNull(ApocalypseRuinObject::obstacle) }
     val progress = remember(context, save.id, map.location) {
@@ -215,8 +257,11 @@ internal fun ApocalypseExplorationScene(
     val nextObjective = map.objects.firstOrNull {
         it.id !in exploredIds && it.kind in setOf(ApocalypseRuinKind.Cache, ApocalypseRuinKind.Anomaly, ApocalypseRuinKind.Exit)
     }
-    val objectiveText = nextObjective?.let { "靠近并调查：${it.label}" }
-        ?: save.director.sceneGoal.ifBlank { "在当前区域自由侦察，决定下一步行动" }
+    val objectiveText = when {
+        nextObjective != null -> "靠近并调查：${nextObjective.label}"
+        activeLocation != save.director.location -> "自由探索 ${map.location}，调查环境并决定是否把发现带回剧情"
+        else -> save.director.sceneGoal.ifBlank { "在当前区域自由侦察，决定下一步行动" }
+    }
 
     Box(
         modifier
@@ -326,7 +371,6 @@ internal fun ApocalypseExplorationScene(
                 )
             }
 
-            // Out-of-focus foreground silhouettes establish a near/middle/far composition.
             drawCircle(Color(0xFF020605).copy(alpha = .60f), 92.dp.toPx(), Offset(-18.dp.toPx(), size.height * .86f))
             drawCircle(Color(0xFF020605).copy(alpha = .55f), 68.dp.toPx(), Offset(size.width + 8.dp.toPx(), size.height * .78f))
         }
@@ -369,6 +413,7 @@ internal fun ApocalypseExplorationScene(
             explored = exploredIds.size,
             total = map.objects.count { it.kind in setOf(ApocalypseRuinKind.Cache, ApocalypseRuinKind.Anomaly, ApocalypseRuinKind.Exit) },
             onMap = onMap,
+            onTravel = { showTravelSheet = true },
             onInventory = onInventory,
             modifier = Modifier.align(Alignment.TopCenter).padding(horizontal = 12.dp, vertical = 7.dp),
         )
@@ -435,6 +480,23 @@ internal fun ApocalypseExplorationScene(
             }
         }
     }
+
+    if (showTravelSheet) {
+        ApocalypseTravelSheet(
+            targets = travelTargets,
+            activeLocation = activeLocation,
+            onDismiss = { showTravelSheet = false },
+            onTravel = { target ->
+                val from = activeLocation
+                activeLocation = target.name
+                showTravelSheet = false
+                GameSoundEffects.play(GameSoundEffect.Objective)
+                onSuggestedAction(
+                    "我离开$from，沿已经确认的路线前往${target.name}。抵达后先观察周围环境、威胁和可利用的入口，再决定下一步。",
+                )
+            },
+        )
+    }
 }
 
 @Composable
@@ -445,6 +507,7 @@ private fun ApocalypseExploreHud(
     explored: Int,
     total: Int,
     onMap: () -> Unit,
+    onTravel: () -> Unit,
     onInventory: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -466,9 +529,13 @@ private fun ApocalypseExploreHud(
                     }
                 }
                 Surface(onClick = onMap, color = Color.White.copy(alpha = .08f), shape = RoundedCornerShape(10.dp)) {
-                    Icon(Icons.Outlined.Map, "地图", tint = Color.White, modifier = Modifier.padding(9.dp).size(18.dp))
+                    Icon(Icons.Outlined.Map, "大地图", tint = Color.White, modifier = Modifier.padding(9.dp).size(18.dp))
                 }
-                Spacer(Modifier.width(6.dp))
+                Spacer(Modifier.width(5.dp))
+                Surface(onClick = onTravel, color = Color(0xFFE5CE89).copy(alpha = .13f), shape = RoundedCornerShape(10.dp)) {
+                    Icon(Icons.Outlined.Route, "前往已发现地点", tint = Color(0xFFF0D994), modifier = Modifier.padding(9.dp).size(18.dp))
+                }
+                Spacer(Modifier.width(5.dp))
                 Surface(onClick = onInventory, color = Color.White.copy(alpha = .08f), shape = RoundedCornerShape(10.dp)) {
                     Icon(Icons.Outlined.Inventory2, "物资", tint = Color.White, modifier = Modifier.padding(9.dp).size(18.dp))
                 }
@@ -484,6 +551,96 @@ private fun ApocalypseExploreHud(
                 Spacer(Modifier.weight(1f))
                 Text("探索 $explored/${total.coerceAtLeast(1)}", color = Color(0xFFE5CE89), fontSize = 8.sp, fontWeight = FontWeight.Bold)
             }
+        }
+    }
+}
+
+@Composable
+private fun ApocalypseTravelSheet(
+    targets: List<ApocalypseTravelTarget>,
+    activeLocation: String,
+    onDismiss: () -> Unit,
+    onTravel: (ApocalypseTravelTarget) -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = Color(0xFF101714),
+        contentColor = Color.White,
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 18.dp)
+                .navigationBarsPadding(),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Surface(color = Color(0xFFE5CE89).copy(alpha = .13f), shape = RoundedCornerShape(13.dp)) {
+                    Icon(Icons.Outlined.Explore, null, tint = Color(0xFFF0D994), modifier = Modifier.padding(10.dp).size(21.dp))
+                }
+                Spacer(Modifier.width(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text("已存在的世界", fontSize = 19.sp, fontWeight = FontWeight.Black)
+                    Text("去已经发现过的地点，不必等待下一幕替你传送", color = Color(0xFFAEBDB5), fontSize = 10.sp)
+                }
+            }
+
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 430.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                targets.forEach { target ->
+                    val active = target.name == activeLocation
+                    Surface(
+                        onClick = { if (!active) onTravel(target) },
+                        modifier = Modifier.fillMaxWidth(),
+                        color = if (active) Color(0xFF26372F) else Color(0xFF19231F),
+                        shape = RoundedCornerShape(17.dp),
+                        border = BorderStroke(
+                            1.dp,
+                            if (active) Color(0xFFE5CE89).copy(alpha = .46f) else Color.White.copy(alpha = .10f),
+                        ),
+                    ) {
+                        Row(
+                            Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                if (active) Icons.Outlined.MyLocation else Icons.Outlined.Place,
+                                null,
+                                tint = if (active) Color(0xFFF0D994) else Color(0xFF9FB4AA),
+                                modifier = Modifier.size(20.dp),
+                            )
+                            Spacer(Modifier.width(10.dp))
+                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(target.name, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                                    if (target.storyAnchor) {
+                                        Text("剧情位置", color = Color(0xFFB9CBBF), fontSize = 8.sp)
+                                    } else if (active) {
+                                        Text("你在这里", color = Color(0xFFF0D994), fontSize = 8.sp)
+                                    }
+                                }
+                                Text(target.detail, color = Color(0xFFA9B7B0), fontSize = 9.5.sp, lineHeight = 14.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                            }
+                            if (!active) {
+                                Spacer(Modifier.width(8.dp))
+                                Icon(Icons.Outlined.ChevronRight, null, tint = Color(0xFF81928A), modifier = Modifier.size(18.dp))
+                            }
+                        }
+                    }
+                }
+            }
+            Text(
+                "每个地点的站位和已调查目标会分别保存。你换地方探索后，下一次剧情输入会带上真实移动和调查行动。",
+                color = Color(0xFF8FA198),
+                fontSize = 9.5.sp,
+                lineHeight = 14.sp,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
         }
     }
 }
@@ -516,6 +673,32 @@ private class ApocalypseExplorationProgress(context: Context, saveId: String, lo
             .putFloat("x_$suffix", position.x)
             .putFloat("y_$suffix", position.y)
             .putStringSet("seen_$suffix", explored.toSet())
+            .apply()
+    }
+}
+
+private class ApocalypseExplorationWorldState(context: Context, saveId: String) {
+    private val prefs = context.applicationContext.getSharedPreferences("apocalypse_exploration_world_v1", Context.MODE_PRIVATE)
+    private val suffix = (saveId.hashCode() and Int.MAX_VALUE).toString(36)
+
+    fun load(storyLocation: String, knownLocations: Set<String>): String {
+        val previousStoryAnchor = prefs.getString("story_$suffix", null)
+        val previousActive = prefs.getString("active_$suffix", null)
+        return if (
+            previousStoryAnchor == storyLocation &&
+            !previousActive.isNullOrBlank() &&
+            previousActive in knownLocations
+        ) {
+            previousActive
+        } else {
+            storyLocation
+        }
+    }
+
+    fun save(activeLocation: String, storyLocation: String) {
+        prefs.edit()
+            .putString("active_$suffix", activeLocation)
+            .putString("story_$suffix", storyLocation)
             .apply()
     }
 }
