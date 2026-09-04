@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T09:40:06.990620+00:00",
-  "commit": "3d9697245969cac350e8194dbbed38b33cfab070",
+  "generatedAt": "2026-09-04T10:23:16.879992+00:00",
+  "commit": "260e6f94c83e6e5382c1fd2be399656c577570e2",
   "branch": "main",
-  "sourceFingerprint": "7acb6b65085cf0f51a0e0a8243d56b0daa2aaf78d4f121a0ee3173a112db1967",
+  "sourceFingerprint": "ba488ed9ded48d2cf8ddd1c97f880cc29a2d66c632a6f87302ec3317491f34f7",
   "summary": {
     "files": 233,
-    "lines": 70486,
+    "lines": 70546,
     "symbols": 909
   },
   "symbolIndex": {
@@ -8973,8 +8973,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameUi.kt",
-      "lines": 112,
-      "sha256": "396167e7e626894381afc592a47241eae195b328f03e5accbf1e1aa5c7fa56f3",
+      "lines": 172,
+      "sha256": "620a6a0b709a5ec4fc96782a8b972be6fbfccfa60b2c0ce7eb2d8e0e514c4c15",
       "symbols": []
     },
     {
