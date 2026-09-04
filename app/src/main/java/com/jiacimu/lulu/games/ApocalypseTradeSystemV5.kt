@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.games
 
+import android.content.Context
 import kotlin.math.roundToInt
 
 internal enum class ApocalypseTradeModeV5(val label: String) {
@@ -22,6 +23,7 @@ internal data class ApocalypseTradeOfferV5(
     val medicineGain: Int = 0,
     val materialsGain: Int = 0,
     val minutesPerUnit: Int = 2,
+    val assetKind: ApocalypseV3AssetKind? = null,
 )
 
 internal data class ApocalypseTradeMarketV5(
@@ -58,12 +60,57 @@ internal data class ApocalypseTradeResolutionV5(
     val storyAction: String,
 )
 
+/**
+ * Keeps a market's purchased stock outside AI narration. Market ids already include location and a
+ * day/time bucket, so a shop can naturally restock when the world advances without magically
+ * refilling during the same visit.
+ */
+internal class ApocalypseTradeStockStoreV5(context: Context, saveId: String) {
+    private val prefs = context.applicationContext.getSharedPreferences("apocalypse_trade_stock_v1", Context.MODE_PRIVATE)
+    private val saveSuffix = (saveId.hashCode() and Int.MAX_VALUE).toString(36)
+
+    private fun key(marketId: String, offerId: String): String =
+        "used_${saveSuffix}_${(marketId.hashCode() and Int.MAX_VALUE).toString(36)}_${(offerId.hashCode() and Int.MAX_VALUE).toString(36)}"
+
+    fun applyRemaining(market: ApocalypseTradeMarketV5): ApocalypseTradeMarketV5 = market.copy(
+        offers = market.offers.map { offer ->
+            val consumed = prefs.getInt(key(market.id, offer.id), 0).coerceAtLeast(0)
+            offer.copy(stock = (offer.stock - consumed).coerceAtLeast(0))
+        },
+    )
+
+    fun consume(market: ApocalypseTradeMarketV5, lines: List<ApocalypseTradeLineV5>) {
+        if (lines.isEmpty()) return
+        val editor = prefs.edit()
+        lines.forEach { line ->
+            val offer = market.offers.firstOrNull { it.id == line.offerId } ?: return@forEach
+            val field = key(market.id, offer.id)
+            val current = prefs.getInt(field, 0).coerceAtLeast(0)
+            editor.putInt(field, (current + line.quantity.coerceAtLeast(0)).coerceAtMost(Int.MAX_VALUE))
+        }
+        editor.apply()
+    }
+}
+
 private fun tradeScarcityMultiplierV5(save: ApocalypseV3Save): Float = when {
     save.director.dayIndex < -2 -> 1f
     save.director.dayIndex < 0 -> 1.12f
     save.director.dayIndex <= 2 -> 1.35f
     save.director.dayIndex <= 14 -> 1.65f
     else -> 2f
+}
+
+private fun inferTradeAssetKindV5(
+    food: Int,
+    water: Int,
+    medicine: Int,
+    materials: Int,
+): ApocalypseV3AssetKind? = when {
+    water > 0 -> ApocalypseV3AssetKind.Water
+    food > 0 -> ApocalypseV3AssetKind.Food
+    medicine > 0 -> ApocalypseV3AssetKind.Medicine
+    materials > 0 -> ApocalypseV3AssetKind.Material
+    else -> null
 }
 
 private fun retailOfferV5(
@@ -91,6 +138,7 @@ private fun retailOfferV5(
         waterGain = water,
         medicineGain = medicine,
         materialsGain = materials,
+        assetKind = inferTradeAssetKindV5(food, water, medicine, materials),
     )
 }
 
@@ -119,6 +167,7 @@ private fun barterOfferV5(
     medicineGain = medicine,
     materialsGain = materials,
     minutesPerUnit = 4,
+    assetKind = inferTradeAssetKindV5(food, water, medicine, materials),
 )
 
 /**
@@ -167,8 +216,8 @@ internal fun buildApocalypseTradeMarketV5(
             mode = if (earlyCollapse) ApocalypseTradeModeV5.Mixed else ApocalypseTradeModeV5.Barter,
             offers = buildList {
                 if (earlyCollapse) {
-                    add(ApocalypseTradeOfferV5("post_water_cash", "封装饮水", "来源可追溯的封装饮水。", "份", stock(4, 5), moneyCost = 45, waterGain = 3, minutesPerUnit = 3))
-                    add(ApocalypseTradeOfferV5("post_food_cash", "封装口粮", "未开封的耐储食物。", "份", stock(4, 5), moneyCost = 70, foodGain = 3, minutesPerUnit = 3))
+                    add(ApocalypseTradeOfferV5("post_water_cash", "封装饮水", "来源可追溯的封装饮水。", "份", stock(4, 5), moneyCost = 45, waterGain = 3, minutesPerUnit = 3, assetKind = ApocalypseV3AssetKind.Water))
+                    add(ApocalypseTradeOfferV5("post_food_cash", "封装口粮", "未开封的耐储食物。", "份", stock(4, 5), moneyCost = 70, foodGain = 3, minutesPerUnit = 3, assetKind = ApocalypseV3AssetKind.Food))
                 }
                 add(barterOfferV5("barter_water", "净化饮水", "经过基础过滤和煮沸处理的饮水。", "桶", stock(3, 4), materialsCost = 2, water = 5))
                 add(barterOfferV5("barter_food", "混合口粮", "能撑数餐的干粮与罐头组合。", "包", stock(3, 4), materialsCost = 2, food = 5))
@@ -234,6 +283,38 @@ internal fun quoteApocalypseTradeV5(
     )
 }
 
+private fun mergeTradeAssetsV5(
+    existing: List<ApocalypseV3Asset>,
+    market: ApocalypseTradeMarketV5,
+    quote: ApocalypseTradeQuoteV5,
+): List<ApocalypseV3Asset> {
+    val mutable = existing.toMutableList()
+    quote.lines.forEach { line ->
+        val offer = market.offers.firstOrNull { it.id == line.offerId } ?: return@forEach
+        val kind = offer.assetKind ?: return@forEach
+        val id = "trade_${offer.id}"
+        val index = mutable.indexOfFirst { it.id == id }
+        val detail = "从${market.location}的${market.sellerName}通过系统交易获得。${offer.detail}"
+        if (index >= 0) {
+            mutable[index] = mutable[index].copy(
+                quantity = (mutable[index].quantity + line.quantity).coerceAtMost(9_999),
+                detail = detail,
+                tag = "交易获取",
+            )
+        } else {
+            mutable += ApocalypseV3Asset(
+                id = id,
+                kind = kind,
+                title = offer.title,
+                detail = detail,
+                quantity = line.quantity,
+                tag = "交易获取",
+            )
+        }
+    }
+    return mutable.takeLast(180)
+}
+
 internal fun resolveApocalypseTradeV5(
     save: ApocalypseV3Save,
     market: ApocalypseTradeMarketV5,
@@ -263,9 +344,16 @@ internal fun resolveApocalypseTradeV5(
         if (quote.coresCost > 0) add("晶核${quote.coresCost}")
     }.joinToString(" + ").ifBlank { "无" }
     val receipt = "在${market.location}完成交易：$bought；支付$costs；耗时${quote.minutesPassed}分钟。"
+    val nextDirector = save.director.copy(
+        phase = apocalypsePhaseForDayV5(nextDay),
+        dayIndex = nextDay,
+        clockMinutes = nextClock,
+        assets = mergeTradeAssetsV5(save.director.assets, market, quote),
+        worldFacts = (save.director.worldFacts + receipt).takeLast(120),
+    )
     val next = save.copy(
         stats = nextStats,
-        director = save.director.copy(dayIndex = nextDay, clockMinutes = nextClock),
+        director = nextDirector,
         updatedAt = System.currentTimeMillis(),
     )
     return ApocalypseTradeResolutionV5(
