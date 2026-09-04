@@ -229,17 +229,8 @@ internal fun ApocalypseNarrativeGameOverlay(
             market = marketForSheet,
             onDismiss = { showTrade = false },
             onConfirmed = { resolution ->
-                stockStore?.consume(marketForSheet, quoteApocalypseTradeV5(saveForSheet, marketForSheet, emptyMap()).lines)
+                stockStore?.consume(marketForSheet, resolution.lines)
                 val settled = resolution.save
-                // consume the exact confirmed lines from the receipt resolution by rebuilding a valid
-                // quote is not possible after the sheet closes, so stock is persisted below by parsing
-                // the already reduced market through the dedicated settlement helper.
-                ApocalypseTradeReceiptStockBridgeV5.consumeFromResolution(
-                    context = context,
-                    saveId = saveForSheet.id,
-                    market = marketForSheet,
-                    resolution = resolution,
-                )
                 storage.save(settled)
                 liveSave = settled
                 tradeNotice = resolution.receipt
