@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T10:30:13.306457+00:00",
-  "commit": "3a6fd448cf69e120dd263504e27469bdd5be039b",
+  "generatedAt": "2026-09-04T10:53:34.864979+00:00",
+  "commit": "bc2a0740f6a98845864e3b1639338d677c55d59f",
   "branch": "main",
-  "sourceFingerprint": "5496c6602b8332eb77e38417cd9ea1dc3c4026b042d984e807bc1ca13a162d96",
+  "sourceFingerprint": "17e0a2bd96c5301839b736c523f5c4e40047ae9a62c5f322fc835e562b1487da",
   "summary": {
     "files": 233,
-    "lines": 70514,
-    "symbols": 909
+    "lines": 70697,
+    "symbols": 911
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -391,7 +391,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
-        "line": 506
+        "line": 663
       }
     ],
     "loadQuest": [
@@ -411,7 +411,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
-        "line": 513
+        "line": 670
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
+        "line": 697
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
@@ -3368,6 +3372,10 @@
         "line": 38
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
+        "line": 683
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
         "line": 79
       },
@@ -3441,7 +3449,7 @@
     "loadExplored": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
-        "line": 511
+        "line": 668
       }
     ],
     "hasAny": [
@@ -8210,20 +8218,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
-      "lines": 522,
-      "sha256": "7fed9911d9245499cad95b2b300ebdadbc9889d169c6ae7dc737e84ae592f421",
+      "lines": 705,
+      "sha256": "84875f6b8a10c41951776480b90becbb328b20a116d70861f3e1b9077161670f",
       "symbols": [
         {
           "name": "loadPosition",
-          "line": 506
+          "line": 663
         },
         {
           "name": "loadExplored",
-          "line": 511
+          "line": 668
         },
         {
           "name": "save",
-          "line": 513
+          "line": 670
+        },
+        {
+          "name": "load",
+          "line": 683
+        },
+        {
+          "name": "save",
+          "line": 697
         }
       ]
     },
