@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T17:40:43.971769+00:00",
-  "commit": "41eb61f226cdba7ec708af6437c1b9f67e2098fd",
+  "generatedAt": "2026-09-04T17:41:19.571053+00:00",
+  "commit": "29b891d9a0246e626e7b476359643afe01d1d0c0",
   "branch": "main",
-  "sourceFingerprint": "d359b027465ff580d93e92f9d9b457dc6740dc76ebf1d4e6ecdbc34d70919c5b",
+  "sourceFingerprint": "6f7f59e74b15335a8497e2cec2281387d917a80e2c25e73a17c857d735e085c2",
   "summary": {
     "files": 238,
     "lines": 72931,
@@ -6885,7 +6885,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
       "lines": 232,
-      "sha256": "c9478fa73c6b26065591faf105a2934b3c8e4601f13e5beac77c12e0ac960f19",
+      "sha256": "39f01af62051cb9d478cb2f3821fe6a62568f54ea350c75177a5625e0b1455dd",
       "symbols": [
         {
           "name": "optionsFor",
