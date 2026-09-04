@@ -89,6 +89,8 @@ internal fun DigitalWorldScenePage(
                     rememberedAction = action
                 },
                 controlsBottomPadding = 24.dp,
+                controlsEnabled = true,
+                showExplorationHud = true,
             )
 
             if (rememberedAction.isNotBlank()) {
@@ -115,8 +117,9 @@ internal fun DigitalWorldScenePage(
 }
 
 /**
- * The old square illustration was intentionally replaced with a world-space simulation. The
- * wrapper stays stable so map, meeting and future activities all use the same collision scene.
+ * Shared renderer for map exploration and meeting scenes. Exploration controls are explicitly
+ * switchable so reading/dialogue mode can become a clean cinematic layer instead of showing a
+ * joystick underneath the story UI.
  */
 @Composable
 internal fun DigitalWorldSceneCanvas(
@@ -128,6 +131,8 @@ internal fun DigitalWorldSceneCanvas(
     onCharacterClick: (String) -> Unit,
     onWorldAction: ((String) -> Unit)? = null,
     controlsBottomPadding: androidx.compose.ui.unit.Dp = 18.dp,
+    controlsEnabled: Boolean = true,
+    showExplorationHud: Boolean = true,
 ) {
     DigitalWorldGameScene(
         modifier = modifier,
@@ -138,5 +143,7 @@ internal fun DigitalWorldSceneCanvas(
         onCharacterClick = onCharacterClick,
         onWorldAction = onWorldAction,
         controlsBottomPadding = controlsBottomPadding,
+        controlsEnabled = controlsEnabled,
+        showExplorationHud = showExplorationHud,
     )
 }
