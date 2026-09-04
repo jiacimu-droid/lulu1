@@ -151,6 +151,14 @@ internal fun DrawScope.drawApocalypseExplorationWorld(
 ) {
     val palette = apocalypsePalette(map.terrain)
     drawRect(palette.ground, size = Size(APOCALYPSE_WORLD_WIDTH, APOCALYPSE_WORLD_HEIGHT))
+    drawRect(
+        Brush.radialGradient(
+            listOf(Color(0xFFD9E4CF).copy(alpha = .13f), Color.Transparent),
+            center = Offset(850f, 60f),
+            radius = 1_100f,
+        ),
+        size = Size(APOCALYPSE_WORLD_WIDTH, APOCALYPSE_WORLD_HEIGHT),
+    )
 
     when (map.terrain) {
         ApocalypseTerrain.Road, ApocalypseTerrain.City, ApocalypseTerrain.Facility -> {
@@ -172,6 +180,17 @@ internal fun DrawScope.drawApocalypseExplorationWorld(
                     cornerRadius = CornerRadius(5f),
                 )
             }
+            repeat(17) { index ->
+                val x = 710f + (index * 83 % 480)
+                val y = 80f + (index * 127 % 1_040)
+                val crack = Path().apply {
+                    moveTo(x, y)
+                    lineTo(x + 22f, y + 12f)
+                    lineTo(x + 8f, y + 31f)
+                    lineTo(x + 38f, y + 45f)
+                }
+                drawPath(crack, Color(0xFF111A18).copy(alpha = .33f), style = Stroke(3f, cap = StrokeCap.Round))
+            }
         }
         ApocalypseTerrain.Waterside -> {
             drawRect(
@@ -189,6 +208,25 @@ internal fun DrawScope.drawApocalypseExplorationWorld(
             }
         }
         ApocalypseTerrain.Forest -> Unit
+    }
+
+    if (map.terrain != ApocalypseTerrain.Forest) {
+        repeat(12) { index ->
+            val seed = (map.location.hashCode().toLong() * 113L + index * 811L) and Long.MAX_VALUE
+            val x = 100f + (seed % 1_680L)
+            val y = 240f + ((seed / 37L) % 820L)
+            val width = 54f + (seed % 120L)
+            drawOval(
+                Brush.radialGradient(
+                    listOf(Color(0xFF9BC3BC).copy(alpha = .13f), Color(0xFF081311).copy(alpha = .20f)),
+                    center = Offset(x + width * .35f, y + 7f),
+                    radius = width,
+                ),
+                topLeft = Offset(x, y),
+                size = Size(width, 22f + index % 4 * 5f),
+            )
+            drawLine(Color.White.copy(alpha = .07f), Offset(x + 8f, y + 5f), Offset(x + width * .64f, y + 5f), 2f, StrokeCap.Round)
+        }
     }
 
     repeat(if (map.terrain == ApocalypseTerrain.Forest) 90 else 48) { index ->
@@ -213,7 +251,12 @@ internal fun DrawScope.drawApocalypseExplorationWorld(
         Offset(threat.x, threat.y),
     )
     drawOval(Color.Black.copy(alpha = .48f), Offset(threat.x - 34f, threat.y + 31f), Size(68f, 26f))
+    drawLine(Color(0xFF120B0B), Offset(threat.x - 13f, threat.y + 20f), Offset(threat.x - 22f, threat.y + 59f), 13f, StrokeCap.Round)
+    drawLine(Color(0xFF120B0B), Offset(threat.x + 13f, threat.y + 20f), Offset(threat.x + 24f, threat.y + 59f), 13f, StrokeCap.Round)
+    drawLine(Color(0xFF160C0C), Offset(threat.x - 21f, threat.y - 2f), Offset(threat.x - 45f, threat.y + 30f), 10f, StrokeCap.Round)
+    drawLine(Color(0xFF160C0C), Offset(threat.x + 21f, threat.y - 2f), Offset(threat.x + 46f, threat.y + 27f), 10f, StrokeCap.Round)
     drawCircle(Color(0xFF170E0E), 31f, Offset(threat.x, threat.y))
+    drawCircle(Color(0xFF100808), 19f, Offset(threat.x, threat.y - 31f))
     drawCircle(Color(0xFFF65B55), 5f, Offset(threat.x - 10f, threat.y - 5f))
     drawCircle(Color(0xFFF65B55), 5f, Offset(threat.x + 10f, threat.y - 5f))
 
@@ -286,6 +329,13 @@ private fun DrawScope.drawApocalypseObject(
                 val y = b.top + 22f + (index * 37f) % (b.height - 44f)
                 drawLine(Color(0xFF1A2622).copy(alpha = .54f), Offset(x, y), Offset(x + 34f, y + 19f), 3f)
             }
+            drawRect(
+                Brush.verticalGradient(listOf(Color.White.copy(alpha = .14f), Color.Transparent, Color.Black.copy(alpha = .24f))),
+                Offset(b.left, b.top),
+                Size(b.width, b.height),
+            )
+            drawRoundRect(Color(0xFF201C18).copy(alpha = .88f), Offset(b.center.x - 72f, b.top + 132f), Size(144f, 46f), CornerRadius(5f))
+            drawLine(Color(0xFFD7C08B).copy(alpha = .42f), Offset(b.center.x - 50f, b.top + 155f), Offset(b.center.x + 50f, b.top + 155f), 5f, StrokeCap.Round)
         }
         ApocalypseRuinKind.Wreck -> {
             drawOval(Color.Black.copy(alpha = .42f), Offset(b.left + 8f, b.top + 30f), Size(b.width, b.height))

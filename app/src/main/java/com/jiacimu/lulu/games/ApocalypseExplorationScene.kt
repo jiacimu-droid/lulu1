@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
@@ -165,7 +166,7 @@ internal fun ApocalypseExplorationScene(
 
                 camera = camera.lerp(
                     worldCameraTarget(
-                        player,
+                        player + direction.normalized() * 88f,
                         viewportWorldWidth,
                         viewportWorldHeight,
                         APOCALYPSE_WORLD_WIDTH,
@@ -244,6 +245,21 @@ internal fun ApocalypseExplorationScene(
                 (player.x - camera.x) * scale,
                 (player.y - camera.y) * scale - 22.dp.toPx(),
             )
+            val beamLength = size.width * .56f
+            val beam = Path().apply {
+                moveTo(flashlightCenter.x, flashlightCenter.y - 8.dp.toPx())
+                lineTo(flashlightCenter.x + facingX * beamLength, flashlightCenter.y - size.height * .19f)
+                lineTo(flashlightCenter.x + facingX * beamLength, flashlightCenter.y + size.height * .23f)
+                close()
+            }
+            drawPath(
+                beam,
+                Brush.linearGradient(
+                    listOf(Color(0xFFDDE9D0).copy(alpha = .12f), Color(0xFFC9E0D2).copy(alpha = .035f), Color.Transparent),
+                    start = flashlightCenter,
+                    end = Offset(flashlightCenter.x + facingX * beamLength, flashlightCenter.y),
+                ),
+            )
             drawCircle(
                 Brush.radialGradient(
                     listOf(Color(0xFFCEE7D9).copy(alpha = .11f), Color.Transparent),
@@ -253,6 +269,21 @@ internal fun ApocalypseExplorationScene(
                 size.minDimension * .38f,
                 flashlightCenter,
             )
+
+            nearestObject?.let { target ->
+                val point = Offset((target.bounds.center.x - camera.x) * scale, (target.bounds.center.y - camera.y) * scale)
+                drawCircle(
+                    Color(0xFFF2D981).copy(alpha = .18f + pulse * .14f),
+                    37.dp.toPx() + pulse * 4.dp.toPx(),
+                    point,
+                )
+                drawCircle(
+                    Color(0xFFFFE9A0).copy(alpha = .75f),
+                    27.dp.toPx(),
+                    point,
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(1.5.dp.toPx()),
+                )
+            }
             drawRect(
                 Brush.radialGradient(
                     listOf(Color.Transparent, Color(0xC9050D0C)),
@@ -271,6 +302,33 @@ internal fun ApocalypseExplorationScene(
                     drawCircle(Color(0xFFC3D0C9).copy(alpha = .12f), (1 + index % 3).dp.toPx(), Offset(x, y))
                 }
             }
+
+            repeat(5) { index ->
+                val y = size.height * (.18f + index * .17f) + (phase * 42.dp.toPx() + index * 23.dp.toPx()) % 58.dp.toPx()
+                drawOval(
+                    Brush.horizontalGradient(
+                        listOf(Color.Transparent, Color(0xFFB5C6BD).copy(alpha = .045f + index * .008f), Color.Transparent),
+                    ),
+                    topLeft = Offset(-size.width * .15f, y),
+                    size = androidx.compose.ui.geometry.Size(size.width * 1.3f, 42.dp.toPx() + index * 5.dp.toPx()),
+                )
+            }
+
+            val threatDistance = player.distanceTo(threat)
+            val danger = ((310f - threatDistance) / 220f).coerceIn(0f, 1f)
+            if (danger > 0f) {
+                drawRect(
+                    Brush.radialGradient(
+                        listOf(Color.Transparent, Color(0xFFB7191D).copy(alpha = danger * (.22f + pulse * .12f))),
+                        center = Offset(size.width * .5f, size.height * .46f),
+                        radius = size.maxDimension * .68f,
+                    ),
+                )
+            }
+
+            // Out-of-focus foreground silhouettes establish a near/middle/far composition.
+            drawCircle(Color(0xFF020605).copy(alpha = .60f), 92.dp.toPx(), Offset(-18.dp.toPx(), size.height * .86f))
+            drawCircle(Color(0xFF020605).copy(alpha = .55f), 68.dp.toPx(), Offset(size.width + 8.dp.toPx(), size.height * .78f))
         }
 
         val halfPawn = with(density) { 31.dp.toPx() }

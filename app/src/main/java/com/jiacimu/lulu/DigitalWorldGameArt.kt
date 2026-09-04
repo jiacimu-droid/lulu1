@@ -158,7 +158,14 @@ internal fun DrawScope.drawDigitalHomeWorld(
     props: List<DigitalRoomProp>,
     lightPhase: Float,
 ) {
-    drawRect(Color(0xFF0C1515), size = Size(DIGITAL_WORLD_WIDTH, DIGITAL_WORLD_HEIGHT))
+    drawRect(
+        Brush.radialGradient(
+            listOf(Color(0xFF263B38), Color(0xFF0C1515)),
+            center = Offset(1_245f, 150f),
+            radius = 1_450f,
+        ),
+        size = Size(DIGITAL_WORLD_WIDTH, DIGITAL_WORLD_HEIGHT),
+    )
     drawRoundRect(
         Color.Black.copy(alpha = .34f),
         topLeft = Offset(40f, 52f),
@@ -167,7 +174,7 @@ internal fun DrawScope.drawDigitalHomeWorld(
     )
     drawRoundRect(
         Brush.linearGradient(
-            listOf(Color(0xFFDED8CC), Color(0xFFB9C8C1), Color(0xFFD9D0C4)),
+            listOf(Color(0xFFE7E1D5), Color(0xFFAEBFB8), Color(0xFFD7C9B8)),
             start = Offset(70f, 90f),
             end = Offset(1_530f, 970f),
         ),
@@ -183,6 +190,19 @@ internal fun DrawScope.drawDigitalHomeWorld(
         cornerRadius = CornerRadius(30f, 30f),
     )
     drawRect(Color(0xFF172A29), topLeft = Offset(54f, 142f), size = Size(1_492f, 44f))
+
+    // Layered wall paint and moulding create depth without relying on bitmap assets.
+    drawRect(
+        Brush.verticalGradient(
+            listOf(Color.White.copy(alpha = .10f), Color.Transparent, Color(0xFF273B37).copy(alpha = .12f)),
+            startY = 70f,
+            endY = 186f,
+        ),
+        topLeft = Offset(54f, 70f),
+        size = Size(1_492f, 116f),
+    )
+    drawLine(Color(0xFF0D1F1D).copy(alpha = .75f), Offset(58f, 185f), Offset(1_542f, 185f), 10f)
+    drawLine(Color.White.copy(alpha = .22f), Offset(58f, 179f), Offset(1_542f, 179f), 2f)
 
     val floorTop = 186f
     for (x in -900..1_700 step 105) {
@@ -201,16 +221,63 @@ internal fun DrawScope.drawDigitalHomeWorld(
             strokeWidth = 2f,
         )
     }
+    repeat(8) { row ->
+        val y = floorTop + 70f + row * 101f
+        drawLine(
+            Color(0xFF5B665F).copy(alpha = .11f),
+            Offset(66f, y),
+            Offset(1_534f, y + row * 4f),
+            strokeWidth = 3f,
+        )
+        drawLine(
+            Color.White.copy(alpha = .10f),
+            Offset(70f, y + 5f),
+            Offset(1_530f, y + 9f + row * 4f),
+            strokeWidth = 2f,
+        )
+    }
+    repeat(54) { index ->
+        val seed = index * 131 + 47
+        val x = 90f + (seed * 37 % 1_410)
+        val y = 215f + (seed * 71 % 745)
+        val width = 18f + (seed % 44)
+        drawLine(
+            Color(0xFF344B45).copy(alpha = .07f + (index % 3) * .025f),
+            Offset(x, y),
+            Offset(x + width, y + (index % 5 - 2) * 2f),
+            3f,
+            StrokeCap.Round,
+        )
+    }
 
     drawRoundRect(
-        Brush.verticalGradient(listOf(Color(0xFFBDE5E0), Color(0xFF678A87))),
+        Brush.verticalGradient(listOf(Color(0xFFBDE5E0), Color(0xFF5E7F80), Color(0xFF182E31))),
         topLeft = Offset(1_080f, 82f),
         size = Size(306f, 88f),
         cornerRadius = CornerRadius(13f),
     )
+    // A tiny living skyline gives the window a sense of distance and parallax.
+    repeat(13) { index ->
+        val buildingWidth = 14f + (index % 4) * 4f
+        val buildingHeight = 20f + (index * 17 % 48)
+        val left = 1_088f + index * 22f
+        drawRect(
+            Color(0xFF182927).copy(alpha = .72f),
+            topLeft = Offset(left, 169f - buildingHeight),
+            size = Size(buildingWidth, buildingHeight),
+        )
+        if (index % 2 == 0) {
+            drawCircle(
+                Color(0xFFFFDEA1).copy(alpha = .55f + lightPhase * .20f),
+                2.4f,
+                Offset(left + buildingWidth * .5f, 158f - buildingHeight * .48f),
+            )
+        }
+    }
     drawRect(Color(0xFF18302E), topLeft = Offset(1_227f, 82f), size = Size(10f, 88f))
     drawRect(Color(0xFF18302E), topLeft = Offset(1_080f, 122f), size = Size(306f, 9f))
     drawCircle(Color.White.copy(alpha = .62f), 20f, Offset(1_324f, 111f))
+    drawRoundRect(Color.White.copy(alpha = .28f), Offset(1_087f, 88f), Size(292f, 75f), CornerRadius(9f), style = Stroke(3f))
 
     val light = Path().apply {
         moveTo(1_075f, 170f)
@@ -222,11 +289,17 @@ internal fun DrawScope.drawDigitalHomeWorld(
     drawPath(
         light,
         Brush.linearGradient(
-            listOf(Color(0xFFE9FFF9).copy(alpha = .17f + lightPhase * .06f), Color.Transparent),
+            listOf(Color(0xFFF6FFF4).copy(alpha = .23f + lightPhase * .09f), Color(0xFFD2F1E7).copy(alpha = .07f), Color.Transparent),
             start = Offset(1_250f, 180f),
             end = Offset(1_350f, 720f),
         ),
     )
+    repeat(22) { index ->
+        val drift = (lightPhase * 34f + index * 41f) % 128f
+        val x = 1_040f + (index * 61 % 430) + drift
+        val y = 215f + (index * 83 % 500)
+        drawCircle(Color(0xFFFFF6D8).copy(alpha = .16f + (index % 4) * .035f), 2.5f + index % 3, Offset(x, y))
+    }
 
     drawRoundRect(Color(0xFF102220), topLeft = Offset(730f, 70f), size = Size(140f, 116f), cornerRadius = CornerRadius(7f))
     drawRoundRect(Color(0xFF748F87), topLeft = Offset(750f, 90f), size = Size(100f, 96f), cornerRadius = CornerRadius(5f))
@@ -234,6 +307,18 @@ internal fun DrawScope.drawDigitalHomeWorld(
 
     props.filter { it.style.kind == DigitalFurnitureKind.RUG }.forEach { drawDigitalProp(it, lightPhase) }
     props.filterNot { it.style.kind == DigitalFurnitureKind.RUG }.sortedBy { it.bounds.bottom }.forEach { drawDigitalProp(it, lightPhase) }
+
+    // Soft pools of bounced light make the room feel painted rather than diagrammatic.
+    drawCircle(
+        Brush.radialGradient(listOf(Color(0xFFFFE7B3).copy(alpha = .11f), Color.Transparent)),
+        310f,
+        Offset(360f, 785f),
+    )
+    drawCircle(
+        Brush.radialGradient(listOf(Color(0xFFB9F5E4).copy(alpha = .10f), Color.Transparent)),
+        360f,
+        Offset(1_280f, 690f),
+    )
 
     drawRoundRect(
         Color.White.copy(alpha = .18f),

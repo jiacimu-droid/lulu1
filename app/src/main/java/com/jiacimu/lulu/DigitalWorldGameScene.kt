@@ -195,7 +195,7 @@ internal fun DigitalWorldGameScene(
                 }
 
                 val targetCamera = worldCameraTarget(
-                    focus = playerPosition,
+                    focus = playerPosition + direction.normalized() * 62f,
                     viewportWidth = viewportWorldWidth,
                     viewportHeight = viewportWorldHeight,
                     worldWidth = DIGITAL_WORLD_WIDTH,
@@ -293,6 +293,40 @@ internal fun DigitalWorldGameScene(
                 }
             }
 
+            val focus = when (val target = nearby) {
+                is DigitalNearbyTarget.Resident -> target.motion.position
+                is DigitalNearbyTarget.Prop -> target.prop.bounds.center
+                null -> null
+            }
+            focus?.let { worldPoint ->
+                val focusPoint = Offset(
+                    (worldPoint.x - camera.x) * worldScale,
+                    (worldPoint.y - camera.y) * worldScale,
+                )
+                drawCircle(
+                    Color(0xFFC9FFE9).copy(alpha = .18f + lightPhase * .16f),
+                    34.dp.toPx() + lightPhase * 4.dp.toPx(),
+                    focusPoint,
+                )
+                drawCircle(
+                    Color(0xFFE7FFF5).copy(alpha = .70f),
+                    24.dp.toPx() + lightPhase * 3.dp.toPx(),
+                    focusPoint,
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(1.4.dp.toPx()),
+                )
+            }
+
+            repeat(18) { index ->
+                val seed = (sceneKey.hashCode() * 31L + index * 977L) and Long.MAX_VALUE
+                val x = ((seed % 1_000L) / 1_000f * size.width + lightPhase * 22.dp.toPx()) % size.width
+                val y = ((seed / 43L % 1_000L) / 1_000f * size.height)
+                drawCircle(
+                    Color(0xFFFFF8DE).copy(alpha = .08f + (index % 4) * .025f),
+                    (1f + index % 3).dp.toPx(),
+                    Offset(x, y),
+                )
+            }
+
             drawRect(
                 Brush.radialGradient(
                     listOf(Color.Transparent, Color(0xB6081110)),
@@ -302,7 +336,14 @@ internal fun DigitalWorldGameScene(
             )
             drawRect(
                 Brush.verticalGradient(
-                    listOf(Color.Black.copy(alpha = .19f), Color.Transparent, Color.Black.copy(alpha = .21f)),
+                    listOf(Color.Black.copy(alpha = .25f), Color.Transparent, Color.Black.copy(alpha = .30f)),
+                ),
+            )
+            drawRect(
+                Brush.linearGradient(
+                    listOf(Color(0xFF6FE0C0).copy(alpha = .055f), Color.Transparent, Color(0xFFFFD9A0).copy(alpha = .045f)),
+                    start = Offset.Zero,
+                    end = Offset(size.width, size.height),
                 ),
             )
         }
