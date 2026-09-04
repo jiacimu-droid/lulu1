@@ -1,6 +1,10 @@
 package com.jiacimu.lulu
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -34,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.jiacimu.lulu.data.*
 import com.jiacimu.lulu.design.LuluColors
+import com.jiacimu.lulu.games.MeetingAtmosphereOverlay
 import kotlinx.coroutines.delay
 
 private data class SceneUserProfile(
@@ -116,21 +121,27 @@ internal fun DigitalWorldSceneCanvas(
     val residents = characters.filter { character ->
         world.characterLocations[character.characterId] == sceneCode
     }
-    if (homeCharacterId != null) {
-        DigitalHomeRoom(
-            modifier = modifier,
-            characterId = homeCharacterId,
-            sceneCode = sceneCode,
-            residents = residents,
-            world = world,
-            onCharacterClick = onCharacterClick,
-        )
-    } else {
-        SharedWorldScene(
-            modifier = modifier,
-            sceneCode = sceneCode,
-            residents = residents,
-            onCharacterClick = onCharacterClick,
+    Box(modifier) {
+        if (homeCharacterId != null) {
+            DigitalHomeRoom(
+                modifier = Modifier.matchParentSize(),
+                characterId = homeCharacterId,
+                sceneCode = sceneCode,
+                residents = residents,
+                world = world,
+                onCharacterClick = onCharacterClick,
+            )
+        } else {
+            SharedWorldScene(
+                modifier = Modifier.matchParentSize(),
+                sceneCode = sceneCode,
+                residents = residents,
+                onCharacterClick = onCharacterClick,
+            )
+        }
+        MeetingAtmosphereOverlay(
+            modifier = Modifier.matchParentSize(),
+            dark = sceneCode == DigitalWorldStore.ARRIVAL,
         )
     }
 }
@@ -180,6 +191,11 @@ private fun DigitalHomeRoom(
                 },
         ) {
             Canvas(Modifier.matchParentSize()) { drawIllustratedRoom() }
+            DigitalSceneHud(
+                title = if (residents.isEmpty()) "房间里很安静" else residents.joinToString("、") { it.displayName } + " 在这里",
+                detail = "点击地面移动 · " + items.size + " 件陈设",
+                modifier = Modifier.align(Alignment.TopStart).zIndex(40f),
+            )
 
             items.forEachIndexed { index, item ->
                 val style = DigitalFurnitureCatalog.resolve(item)
@@ -587,6 +603,13 @@ private fun ScenePersonSprite(
     walking: Boolean = false,
     onClick: (() -> Unit)? = null,
 ) {
+    val idleTransition = rememberInfiniteTransition(label = "scene-person-idle")
+    val idleOffset = idleTransition.animateFloat(
+        initialValue = -1.2f,
+        targetValue = 1.2f,
+        animationSpec = infiniteRepeatable(tween(1_450), RepeatMode.Reverse),
+        label = "scene-person-breathe",
+    ).value
     val stepScaleY by animateFloatAsState(
         targetValue = if (walking) .95f else 1f,
         animationSpec = tween(if (walking) 120 else 180),
@@ -600,6 +623,7 @@ private fun ScenePersonSprite(
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale * stepScaleY
+                translationY = if (walking) 0f else idleOffset
                 transformOrigin = TransformOrigin(.5f, 1f)
             },
         contentAlignment = Alignment.TopCenter,
@@ -716,6 +740,11 @@ private fun SharedWorldScene(
             Canvas(Modifier.matchParentSize()) {
                 if (cloud) drawCloudMeadow() else drawArrivalScene()
             }
+            DigitalSceneHud(
+                title = if (residents.isEmpty()) "暂时没有人在这里" else residents.joinToString("、") { it.displayName } + " 在附近",
+                detail = "点击地面移动 · 点击角色靠近",
+                modifier = Modifier.align(Alignment.TopStart).zIndex(40f),
+            )
 
             residents.forEachIndexed { index, character ->
                 val anchor = residentAnchor(index, character.characterId, shared = true)
@@ -745,6 +774,29 @@ private fun SharedWorldScene(
                     .zIndex(personDepthZ(userY) + .05f),
                 limbColor = Color(0xFF77736D),
             )
+        }
+    }
+}
+
+@Composable
+private fun DigitalSceneHud(
+    title: String,
+    detail: String,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.padding(9.dp),
+        color = Color(0xFF161B18).copy(alpha = .78f),
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(.7.dp, Color.White.copy(alpha = .18f)),
+        shadowElevation = 2.dp,
+    ) {
+        Column(
+            Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+            verticalArrangement = Arrangement.spacedBy(1.dp),
+        ) {
+            Text(title, color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            Text(detail, color = Color(0xFFC6D1CB), fontSize = 8.sp)
         }
     }
 }

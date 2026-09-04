@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -20,6 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.*
 import com.jiacimu.lulu.design.LuluColors
+import com.jiacimu.lulu.games.GameAmbientAudioButton
+import com.jiacimu.lulu.games.GameAmbientSoundscape
+import com.jiacimu.lulu.games.GameSoundscape
+import com.jiacimu.lulu.games.MeetingAtmosphereOverlay
 
 /**
  * Location-first digital world browser.
@@ -46,6 +51,7 @@ internal fun DigitalWorldMapLobby(
     val context = LocalContext.current
     val world by DigitalWorldStore.state.collectAsState()
     val voiceEnabled by MeetingVoicePlayback.enabled.collectAsState()
+    val bgmEnabled = GameAmbientSoundscape(GameSoundscape.Meeting)
     var openSceneCode by remember { mutableStateOf<String?>(null) }
     var showCatalog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
@@ -140,6 +146,10 @@ internal fun DigitalWorldMapLobby(
                     enabled = voiceEnabled,
                     onToggle = ::toggleVoice,
                 )
+                GameAmbientAudioButton(
+                    enabled = bgmEnabled,
+                    tint = Color(0xFF2E3230),
+                )
                 Box {
                     MeetingToolButton(
                         icon = Icons.Outlined.MoreVert,
@@ -220,6 +230,13 @@ private fun DigitalWorldMapPage(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         item {
+            DigitalWorldLiveHeader(
+                homeCount = digitalCharacters.size,
+                residentCount = world.characterLocations.values.count { it.isNotBlank() },
+                itemCount = world.items.size,
+            )
+        }
+        item {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 MapPlaceCard(
                     modifier = Modifier.weight(1f),
@@ -256,6 +273,63 @@ private fun DigitalWorldMapPage(
             }
         }
         item { Spacer(Modifier.navigationBarsPadding().height(8.dp)) }
+    }
+}
+
+@Composable
+private fun DigitalWorldLiveHeader(
+    homeCount: Int,
+    residentCount: Int,
+    itemCount: Int,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = Color(0xFF202623),
+        shape = RoundedCornerShape(24.dp),
+        border = BorderStroke(1.dp, Color(0xFF3A4540)),
+        shadowElevation = 2.dp,
+    ) {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .heightIn(min = 116.dp)
+                .background(
+                    Brush.linearGradient(
+                        listOf(Color(0xFF171C1A), Color(0xFF2A3530), Color(0xFF1E2421)),
+                    ),
+                ),
+        ) {
+            MeetingAtmosphereOverlay(Modifier.matchParentSize(), dark = true)
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 17.dp, vertical = 15.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        color = Color(0xFFBFD6CA).copy(alpha = .14f),
+                        shape = RoundedCornerShape(10.dp),
+                        border = BorderStroke(.7.dp, Color(0xFFBFD6CA).copy(alpha = .28f)),
+                    ) {
+                        Row(
+                            Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            Surface(Modifier.size(6.dp), shape = RoundedCornerShape(9.dp), color = Color(0xFFAED7C1)) {}
+                            Text("世界正在生活", color = Color(0xFFDCE9E2), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                    Spacer(Modifier.weight(1f))
+                    Icon(Icons.Outlined.Explore, null, tint = Color(0xFFC7D8CF), modifier = Modifier.size(23.dp))
+                }
+                Text("去他们真正生活的地方", color = Color.White, fontSize = 21.sp, fontWeight = FontWeight.Black)
+                Text(
+                    "$homeCount 座家 · $residentCount 位角色在活动 · $itemCount 件真实陈设",
+                    color = Color(0xFFB9C8C0),
+                    fontSize = 10.5.sp,
+                )
+            }
+        }
     }
 }
 

@@ -41,8 +41,8 @@ fun LuluGamesAppV2(onBack: () -> Unit, initialGameId: String? = null) {
                 .align(Alignment.BottomEnd)
                 .navigationBarsPadding()
                 .padding(end = 18.dp, bottom = 78.dp),
-            containerColor = LuluColors.Wheat,
-            contentColor = LuluColors.OnWheat,
+            containerColor = GameDesign.ink,
+            contentColor = Color.White,
         ) {
             Icon(Icons.Outlined.Replay, "游戏回放")
         }

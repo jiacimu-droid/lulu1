@@ -2,6 +2,11 @@ package com.jiacimu.lulu.games
 
 import android.content.Context
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,6 +30,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -161,6 +167,7 @@ internal fun ApocalypseSurvivalAppV5(
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
+    val bgmEnabled = GameAmbientSoundscape(GameSoundscape.Apocalypse)
     val storage = remember(context) { ApocalypseSurvivalV3Store(context) }
     val progressStore = remember(context) { ApocalypseReadingProgressStoreV5(context) }
     val historyStore = remember(context) { ApocalypseV5HistoryStore(context) }
@@ -322,6 +329,7 @@ internal fun ApocalypseSurvivalAppV5(
             save = save,
             config = config,
             generationState = generationState,
+            bgmEnabled = bgmEnabled,
             onBack = onBack,
             onEnter = ::enterGame,
             onAbilities = { screen = ApocalypseV5Screen.AbilitySettings },
@@ -410,6 +418,7 @@ internal fun ApocalypseSurvivalAppV5(
                     characters = characters,
                     progressStore = progressStore,
                     historyStore = historyStore,
+                    bgmEnabled = bgmEnabled,
                     onBack = ::goBack,
                     onHistory = { screen = ApocalypseV5Screen.StoryHistory },
                     onDeleteCurrent = { entryId -> rollbackStory(entryId) },
@@ -424,6 +433,7 @@ private fun ApocalypseV5HomePage(
     save: ApocalypseV3Save?,
     config: ApocalypseV3Config,
     generationState: ApocalypseGenerationTaskManagerV5.TaskState?,
+    bgmEnabled: Boolean,
     onBack: () -> Unit,
     onEnter: () -> Unit,
     onAbilities: () -> Unit,
@@ -439,7 +449,10 @@ private fun ApocalypseV5HomePage(
             TopAppBar(
                 title = { Text("末世求生", fontWeight = FontWeight.Black, color = ApocalypseV5Colors.ink) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
-                actions = { ApocalypseModelArchiveButtonV5(tint = ApocalypseV5Colors.ink) },
+                actions = {
+                    GameAmbientAudioButton(enabled = bgmEnabled, tint = ApocalypseV5Colors.ink)
+                    ApocalypseModelArchiveButtonV5(tint = ApocalypseV5Colors.ink)
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = ApocalypseV5Colors.background),
             )
         },
@@ -1168,6 +1181,7 @@ private fun ApocalypseV5PlayPage(
     characters: Map<String, CharacterSettings>,
     progressStore: ApocalypseReadingProgressStoreV5,
     historyStore: ApocalypseV5HistoryStore,
+    bgmEnabled: Boolean,
     onBack: () -> Unit,
     onHistory: () -> Unit,
     onDeleteCurrent: (String) -> Unit,
@@ -1293,6 +1307,7 @@ private fun ApocalypseV5PlayPage(
                 Text("末世求生", color = ApocalypseV5Colors.textOnDark, fontSize = 17.sp, fontWeight = FontWeight.Black)
                 Text("${apocalypseDayLabelV5(save.director.dayIndex)} ${apocalypseClockLabelV5(save.director.clockMinutes)} · ${save.director.weather} ${save.director.temperatureC}℃ · 第${save.scene}幕", color = ApocalypseV5Colors.blueSoft, fontSize = 10.sp)
             }
+            GameAmbientAudioButton(enabled = bgmEnabled, tint = ApocalypseV5Colors.textOnDark)
             ApocalypseModelArchiveButtonV5(tint = ApocalypseV5Colors.textOnDark, enabled = !busy)
             IconButton(onClick = onHistory, enabled = !busy) {
                 Icon(Icons.Outlined.History, "剧情历史", tint = ApocalypseV5Colors.textOnDark)
@@ -1431,12 +1446,22 @@ private fun ApocalypseV5SpeakerStage(
     val character = page.characterId?.let { id -> party.firstOrNull { it.characterId == id } }
     val storyCharacter = page.characterId?.let { id -> storyDossiers.firstOrNull { it.id == id } }
     val secondary = apocalypseAbilityDefinitionV5(apocalypsePlayerSecondaryChoiceV5(config))
+    val ambience = rememberInfiniteTransition(label = "apocalypse-stage")
+    val sceneScale = ambience.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.035f,
+        animationSpec = infiniteRepeatable(tween(9_000), RepeatMode.Reverse),
+        label = "apocalypse-parallax",
+    ).value
     Box(modifier.background(ApocalypseV5Colors.black).clickable(onClick = onAdvance)) {
         Image(
             painter = painterResource(apocalypseV5SceneImage(location, page.text)),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.matchParentSize(),
+            modifier = Modifier.matchParentSize().graphicsLayer {
+                scaleX = sceneScale
+                scaleY = sceneScale
+            },
         )
         Box(
             Modifier.matchParentSize().background(
@@ -1447,6 +1472,10 @@ private fun ApocalypseV5SpeakerStage(
                     1f to Color(0x4D101B18),
                 ),
             ),
+        )
+        ApocalypseAtmosphereOverlay(
+            tension = tension,
+            modifier = Modifier.matchParentSize(),
         )
         Column(
             Modifier.fillMaxSize().padding(start = 14.dp, end = 14.dp, top = 62.dp, bottom = 236.dp),

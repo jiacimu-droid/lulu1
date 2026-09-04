@@ -4,6 +4,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,7 +19,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -53,6 +57,7 @@ private data class GameLauncher(
     val route: GameRoute,
     val minCharacters: Int = 1,
     val maxCharacters: Int = 1,
+    val accent: Color = Color(0xFF64708C),
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,6 +65,7 @@ private data class GameLauncher(
 fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null) {
     val store = remember { LuluGames.store }
     val state by store.state.collectAsState()
+    val bgmEnabled = GameAmbientSoundscape(GameSoundscape.Arcade)
     var route by remember(initialGameId) { mutableStateOf(initialGameId.toGameRouteOrHome()) }
     var pendingRoute by remember { mutableStateOf<GameRoute?>(null) }
 
@@ -102,6 +108,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null) {
                     }
                 },
                 actions = {
+                    GameAmbientAudioButton(enabled = bgmEnabled, tint = GameDesign.ink)
                     if (route == GameRoute.Home) {
                         IconButton(onClick = { route = GameRoute.Records }) {
                             Icon(Icons.Outlined.History, "游戏记录与回放")
@@ -126,6 +133,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null) {
         },
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
+            ArcadeAtmosphere(Modifier.matchParentSize())
             when (val current = route) {
                 GameRoute.Home -> GameHome(onOpen = { pendingRoute = it })
                 GameRoute.SignalHunt -> SignalHuntScreen(store)
@@ -177,21 +185,73 @@ private fun GameHome(
     onOpen: (GameRoute) -> Unit,
 ) {
     val games = listOf(
-        GameLauncher("signal_hunt", "信号追踪", "三枚真实信号、最多探测五格，完整路线会保存。", Icons.Outlined.Radar, GameRoute.SignalHunt),
-        GameLauncher("perfect_man", "满分男", "轮流描述与猜分，由角色真实判断。", Icons.Outlined.PersonSearch, GameRoute.PerfectMan),
-        GameLauncher("roleplay", "跑团", "长期剧情存档、同行小队与沉浸式小说叙事。", Icons.Outlined.AutoStories, GameRoute.Roleplay, 1, 4),
-        GameLauncher("turtle_soup", "海龟汤", "固定汤底、自由提问与共同推理。", Icons.Outlined.HelpOutline, GameRoute.TurtleSoup, 1, 3),
-        GameLauncher("rapport_quiz", "默契问答", "角色秘密作答，再比较彼此答案。", Icons.Outlined.QuestionAnswer, GameRoute.RapportQuiz, 1, 3),
-        GameLauncher("yacht_dice", "快艇骰子", "五骰三掷，支持最多四人同局。", Icons.Outlined.Casino, GameRoute.YachtDice, 1, 3),
-        GameLauncher("gomoku", "五子棋", "双人对弈，角色会进攻、拦截与复盘。", Icons.Outlined.GridOn, GameRoute.Gomoku),
-        GameLauncher("memory_match", "记忆配对", "轮流翻牌，在十二张卡里争夺配对。", Icons.Outlined.GridView, GameRoute.MemoryMatch),
+        GameLauncher("signal_hunt", "信号追踪", "三枚真实信号、最多探测五格，完整路线会保存。", Icons.Outlined.Radar, GameRoute.SignalHunt, accent = Color(0xFF557876)),
+        GameLauncher("perfect_man", "满分男", "轮流描述与猜分，由角色真实判断。", Icons.Outlined.PersonSearch, GameRoute.PerfectMan, accent = Color(0xFF876B7A)),
+        GameLauncher("roleplay", "跑团", "长期剧情存档、同行小队与沉浸式小说叙事。", Icons.Outlined.AutoStories, GameRoute.Roleplay, 1, 4, Color(0xFF655F84)),
+        GameLauncher("turtle_soup", "海龟汤", "固定汤底、自由提问与共同推理。", Icons.Outlined.HelpOutline, GameRoute.TurtleSoup, 1, 3, Color(0xFF526E86)),
+        GameLauncher("rapport_quiz", "默契问答", "角色秘密作答，再比较彼此答案。", Icons.Outlined.QuestionAnswer, GameRoute.RapportQuiz, 1, 3, Color(0xFF8A675E)),
+        GameLauncher("yacht_dice", "快艇骰子", "五骰三掷，支持最多四人同局。", Icons.Outlined.Casino, GameRoute.YachtDice, 1, 3, Color(0xFF667653)),
+        GameLauncher("gomoku", "五子棋", "双人对弈，角色会进攻、拦截与复盘。", Icons.Outlined.GridOn, GameRoute.Gomoku, accent = Color(0xFF6D6E72)),
+        GameLauncher("memory_match", "记忆配对", "轮流翻牌，在十二张卡里争夺配对。", Icons.Outlined.GridView, GameRoute.MemoryMatch, accent = Color(0xFF75658C)),
     )
 
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
+        item {
+            GameHallHero()
+        }
         items(games, key = { it.id }) { launcher -> GameEntry(launcher, onOpen) }
+    }
+}
+
+@Composable
+private fun GameHallHero() {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = Color(0xFF20242D),
+        shape = RoundedCornerShape(26.dp),
+        border = BorderStroke(1.dp, Color(0xFF353B49)),
+        shadowElevation = 3.dp,
+    ) {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .heightIn(min = 142.dp)
+                .background(
+                    Brush.linearGradient(
+                        listOf(Color(0xFF171A21), Color(0xFF2A3040), Color(0xFF1D222C)),
+                    ),
+                ),
+        ) {
+            ArcadeAtmosphere(Modifier.matchParentSize())
+            Column(
+                Modifier.fillMaxWidth().padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(9.dp),
+            ) {
+                Surface(
+                    color = Color.White.copy(alpha = .08f),
+                    shape = RoundedCornerShape(10.dp),
+                    border = BorderStroke(.7.dp, Color.White.copy(alpha = .15f)),
+                ) {
+                    Text(
+                        "8 款可共同游玩的游戏",
+                        color = Color(0xFFD9DFED),
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
+                    )
+                }
+                Text("今晚玩点什么？", color = Color.White, fontSize = 25.sp, fontWeight = FontWeight.Black)
+                Text(
+                    "角色会真实参与、做决定、输赢和复盘；完成记录可以随时回放。",
+                    color = Color(0xFFBBC4D8),
+                    fontSize = 11.sp,
+                    lineHeight = 17.sp,
+                )
+            }
+        }
     }
 }
 
@@ -418,10 +478,25 @@ private fun MemoryMatchScreen(store: LuluGameStore) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                         row.forEach { index ->
                             val visible = index in game.opened || index in game.matched
+                            val rotation by androidx.compose.animation.core.animateFloatAsState(
+                                targetValue = if (visible) 180f else 0f,
+                                animationSpec = androidx.compose.animation.core.spring(
+                                    dampingRatio = .72f,
+                                    stiffness = 430f,
+                                ),
+                                label = "memory-card-flip",
+                            )
                             Card(
-                                modifier = Modifier.weight(1f).aspectRatio(0.82f).clickable(
-                                    enabled = !visible && !game.finished && game.turn == MemoryTurn.User && game.opened.size < 2,
-                                ) { store.openMemoryCard(index) },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .aspectRatio(0.82f)
+                                    .graphicsLayer {
+                                        rotationY = rotation
+                                        cameraDistance = 12f * density
+                                    }
+                                    .clickable(
+                                        enabled = !visible && !game.finished && game.turn == MemoryTurn.User && game.opened.size < 2,
+                                    ) { store.openMemoryCard(index) },
                                 colors = CardDefaults.cardColors(
                                     containerColor = if (visible) GameDesign.wheat else GameDesign.card,
                                     contentColor = if (visible) GameDesign.onDark else GameDesign.ink,
@@ -429,7 +504,12 @@ private fun MemoryMatchScreen(store: LuluGameStore) {
                                 border = BorderStroke(1.dp, GameDesign.border),
                                 shape = RoundedCornerShape(17.dp),
                             ) {
-                                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Box(
+                                    Modifier.fillMaxSize().graphicsLayer {
+                                        rotationY = if (rotation > 90f) 180f else 0f
+                                    },
+                                    contentAlignment = Alignment.Center,
+                                ) {
                                     Text(
                                         if (visible) game.cards[index] else "✦",
                                         color = if (visible) GameDesign.onDark else GameDesign.ink,
@@ -625,17 +705,68 @@ private fun prettyDetails(raw: String): String = runCatching {
 
 @Composable
 private fun GameEntry(launcher: GameLauncher, onOpen: (GameRoute) -> Unit) {
-    GameCard(Modifier.clickable { onOpen(launcher.route) }) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Surface(color = GameDesign.wheatSoft, shape = CircleShape) {
-                Icon(launcher.icon, null, tint = GameDesign.muted, modifier = Modifier.padding(12.dp).size(25.dp))
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val scale by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (pressed) .975f else 1f,
+        animationSpec = androidx.compose.animation.core.tween(120),
+        label = "game-card-press",
+    )
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
             }
-            Spacer(Modifier.width(13.dp))
-            Column(Modifier.weight(1f)) {
-                Text(launcher.title, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Text(launcher.subtitle, color = GameDesign.muted, fontSize = 13.sp)
+            .clickable(interactionSource = interaction, indication = null) { onOpen(launcher.route) },
+        colors = CardDefaults.cardColors(containerColor = GameDesign.card),
+        border = BorderStroke(1.dp, launcher.accent.copy(alpha = .28f)),
+        shape = RoundedCornerShape(24.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (pressed) 1.dp else 3.dp),
+    ) {
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 92.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                Modifier
+                    .width(82.dp)
+                    .height(92.dp)
+                    .background(
+                        Brush.linearGradient(
+                            listOf(launcher.accent.copy(alpha = .20f), launcher.accent.copy(alpha = .07f)),
+                        ),
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Surface(
+                    color = launcher.accent,
+                    shape = RoundedCornerShape(18.dp),
+                    shadowElevation = 4.dp,
+                    modifier = Modifier.size(52.dp),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(launcher.icon, null, tint = Color.White, modifier = Modifier.size(27.dp))
+                    }
+                }
             }
-            Icon(Icons.Outlined.ChevronRight, null, tint = GameDesign.muted)
+            Column(
+                Modifier.weight(1f).padding(horizontal = 14.dp, vertical = 13.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(launcher.title, fontSize = 18.sp, fontWeight = FontWeight.Black, modifier = Modifier.weight(1f))
+                    Icon(Icons.Outlined.ChevronRight, null, tint = launcher.accent, modifier = Modifier.size(21.dp))
+                }
+                Text(launcher.subtitle, color = GameDesign.muted, fontSize = 12.sp, lineHeight = 17.sp)
+                Text(
+                    if (launcher.maxCharacters > 1) "最多 " + (launcher.maxCharacters + 1) + " 人" else "双人游戏",
+                    color = launcher.accent,
+                    fontSize = 9.5.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
         }
     }
 }

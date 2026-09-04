@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.games
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -16,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,11 +48,23 @@ internal fun GameCard(
         shape = RoundedCornerShape(22.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(9.dp),
-            content = content,
-        )
+        Column(Modifier.fillMaxWidth()) {
+            androidx.compose.foundation.layout.Box(
+                Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.horizontalGradient(
+                            listOf(Color(0xFF66758F).copy(alpha = .28f), Color.Transparent),
+                        ),
+                    )
+                    .padding(top = 2.dp),
+            )
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(9.dp),
+                content = content,
+            )
+        }
     }
 }
 
@@ -78,11 +92,20 @@ internal fun GameRolePanel(characterName: String, response: GameRoleResponse) {
 
 @Composable
 internal fun GameResultBanner(text: String, success: Boolean = true) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = if (success) Color(0xFFE7F2EA) else Color(0xFFF7E7E4),
-        shape = RoundedCornerShape(16.dp),
+    androidx.compose.animation.AnimatedVisibility(
+        visible = true,
+        enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.scaleIn(initialScale = .94f),
     ) {
-        Text(text, Modifier.padding(14.dp), fontWeight = FontWeight.SemiBold)
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = if (success) Color(0xFFE7F2EA) else Color(0xFFF7E7E4),
+            shape = RoundedCornerShape(16.dp),
+            border = BorderStroke(
+                1.dp,
+                if (success) GameDesign.success.copy(alpha = .24f) else GameDesign.error.copy(alpha = .24f),
+            ),
+        ) {
+            Text(text, Modifier.padding(14.dp), fontWeight = FontWeight.SemiBold)
+        }
     }
 }

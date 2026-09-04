@@ -27,6 +27,9 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.*
 import com.jiacimu.lulu.design.LuluColors
+import com.jiacimu.lulu.games.GameAmbientAudioButton
+import com.jiacimu.lulu.games.GameAmbientSoundscape
+import com.jiacimu.lulu.games.GameSoundscape
 
 private data class MeetingReadingPage(
     val group: MeetingUiDisplayGroup,
@@ -63,6 +66,7 @@ internal fun DigitalWorldMeetingSceneExperience(
 ) {
     val context = LocalContext.current
     val voiceEnabled by MeetingVoicePlayback.enabled.collectAsState()
+    val bgmEnabled = GameAmbientSoundscape(GameSoundscape.Meeting)
     val viewOnly = session.endedAt != null
     val groups = remember(session.turns) { meetingSceneGroups(session.turns) }
     val pages = remember(groups) { groups.flatMap(::readingPagesForGroup) }
@@ -164,6 +168,10 @@ internal fun DigitalWorldMeetingSceneExperience(
                 MeetingVoiceToggleButton(
                     enabled = voiceEnabled,
                     onToggle = ::toggleVoice,
+                )
+                GameAmbientAudioButton(
+                    enabled = bgmEnabled,
+                    tint = Color(0xFF2E3230),
                 )
                 Box {
                     MeetingToolButton(
