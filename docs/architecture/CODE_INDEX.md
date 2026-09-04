@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`84893422a3ccf1c45372415a643700eb20c1e96a`
+- 基准提交：`5209cafaed3229db500d271821446e746d10b9fb`
 - 分支：`main`
-- 已索引文件：235
-- 已索引代码/文本行：71634
+- 已索引文件：236
+- 已索引代码/文本行：71844
 - 已发现符号：921
 
 | 文件 | 行数 | 符号数 |
@@ -127,6 +127,7 @@
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 93 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseAbilityProgressionV5.kt` | 307 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseCampaignRuntimeV5.kt` | 210 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseCastIdentityV5.kt` | 374 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt` | 459 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseChronologicalPlotRecallV5.kt` | 104 | 0 |

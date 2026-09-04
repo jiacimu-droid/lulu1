@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T13:01:26.809490+00:00",
-  "commit": "84893422a3ccf1c45372415a643700eb20c1e96a",
+  "generatedAt": "2026-09-04T13:02:31.291032+00:00",
+  "commit": "5209cafaed3229db500d271821446e746d10b9fb",
   "branch": "main",
-  "sourceFingerprint": "80e39cbf85f8e654827598e09fb6296bb6717d1242187399924372de9f398773",
+  "sourceFingerprint": "b877f72061ec2f1a09f02d86101bc84ce296b5d9ddb899a66781e94126741932",
   "summary": {
-    "files": 235,
-    "lines": 71634,
+    "files": 236,
+    "lines": 71844,
     "symbols": 921
   },
   "symbolIndex": {
@@ -8231,6 +8231,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseAbilityProgressionV5.kt",
       "lines": 307,
       "sha256": "e933a7fa6797581ccf0545b83a74627b60a68e658d2558ae321ac2a4d67d3fd1",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseCampaignRuntimeV5.kt",
+      "lines": 210,
+      "sha256": "0593368d482062ea52b55ee3b20589f33088d104dfacd1377200073de6a2e9bb",
       "symbols": []
     },
     {
