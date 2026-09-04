@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T10:23:16.879992+00:00",
-  "commit": "260e6f94c83e6e5382c1fd2be399656c577570e2",
+  "generatedAt": "2026-09-04T10:23:43.395818+00:00",
+  "commit": "11e6229145f8ef19fb797b24cd44f79d1fd32413",
   "branch": "main",
-  "sourceFingerprint": "ba488ed9ded48d2cf8ddd1c97f880cc29a2d66c632a6f87302ec3317491f34f7",
+  "sourceFingerprint": "a0962ac81d8447ddf6e2ff381f11e68c3f35018210ac0dba6ecfd4d992912011",
   "summary": {
     "files": 233,
-    "lines": 70546,
+    "lines": 70627,
     "symbols": 909
   },
   "symbolIndex": {
@@ -8931,8 +8931,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameAtmosphere.kt",
-      "lines": 144,
-      "sha256": "5dea8f1371ffdf50237b1e47cc9f16c4d484ca726c84ff1c8789fbeaba71714a",
+      "lines": 225,
+      "sha256": "bc0455586c390a6905f286243e905494e48602768ce83bd48262534c94b7ccff",
       "symbols": []
     },
     {

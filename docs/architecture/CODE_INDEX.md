@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`260e6f94c83e6e5382c1fd2be399656c577570e2`
+- 基准提交：`11e6229145f8ef19fb797b24cd44f79d1fd32413`
 - 分支：`main`
 - 已索引文件：233
-- 已索引代码/文本行：70546
+- 已索引代码/文本行：70627
 - 已发现符号：909
 
 | 文件 | 行数 | 符号数 |
@@ -172,7 +172,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt` | 472 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt` | 845 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt` | 238 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameAtmosphere.kt` | 144 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameAtmosphere.kt` | 225 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 140 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 157 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt` | 98 | 1 |
