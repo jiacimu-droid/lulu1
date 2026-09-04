@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T17:45:15.934334+00:00",
-  "commit": "ece18647eafef13dee4a515a81666226f9f87c41",
+  "generatedAt": "2026-09-04T17:46:42.452056+00:00",
+  "commit": "6e5e8d1457b3958b6183c1c49c19b384748fb5ba",
   "branch": "main",
-  "sourceFingerprint": "bbe33c355197178919d9d945a07178521a0fe61777f904f287ba990f831491a1",
+  "sourceFingerprint": "92eb45158d7989834f11e30dc36dc99aaabf9c3e0fa2b66239b4467f1ba64554",
   "summary": {
     "files": 238,
-    "lines": 73245,
+    "lines": 73284,
     "symbols": 925
   },
   "symbolIndex": {
@@ -463,19 +463,19 @@
     "openScene": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 97
+        "line": 98
       }
     ],
     "talkTo": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 102
+        "line": 103
       }
     ],
     "toggleVoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 112
+        "line": 113
       }
     ],
     "DigitalWorldMeetingApp": [
@@ -5438,8 +5438,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-      "lines": 585,
-      "sha256": "b29c1e351304193ff2139830f20349a32d82eea51cfc5d4836209e330f43ed3c",
+      "lines": 624,
+      "sha256": "5698463947c3babf0b20f773b4f3f598cb17dbb369f0df466a9fe2aec937b963",
       "symbols": [
         {
           "name": "sceneLabel",
@@ -5447,15 +5447,15 @@
         },
         {
           "name": "openScene",
-          "line": 97
+          "line": 98
         },
         {
           "name": "talkTo",
-          "line": 102
+          "line": 103
         },
         {
           "name": "toggleVoice",
-          "line": 112
+          "line": 113
         }
       ]
     },
