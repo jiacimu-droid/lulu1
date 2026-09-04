@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-04T12:23:37.115713+00:00",
-  "commit": "22c12bb41b6e7f7e7786cc0b13daf3b57b717c77",
+  "generatedAt": "2026-09-04T12:25:03.609473+00:00",
+  "commit": "9c76759c2be9af06748f05088a15875aa5ea0a31",
   "branch": "main",
-  "sourceFingerprint": "b0f0c6e7af0d680749096a832fbe3fdb7d432a823e12d52a9a9beb4e41bf3cb4",
+  "sourceFingerprint": "88bdabf61e6090ade3b6591926e1e4fbddc614d9e13bc4e3fce3c3cbaa61b445",
   "summary": {
     "files": 234,
     "lines": 71006,
@@ -5411,7 +5411,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
       "lines": 585,
-      "sha256": "a5e852ba6738a094e2eecf9e172e40db9d5895dac8d3e33dfad7416146ad3e7d",
+      "sha256": "b29c1e351304193ff2139830f20349a32d82eea51cfc5d4836209e330f43ed3c",
       "symbols": [
         {
           "name": "sceneLabel",
