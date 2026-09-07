@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-07T10:17:44.339953+00:00",
-  "commit": "10c1068d2b29c4f43d01c4245e6f2a726c4b1182",
+  "generatedAt": "2026-09-07T11:03:04.647229+00:00",
+  "commit": "afa6e585ec6a2f322279a6b4af34117810a55ef5",
   "branch": "main",
-  "sourceFingerprint": "085d18aacde06d9f66af189068b4fb64506c9d0ebdbd3115daae15c329783407",
+  "sourceFingerprint": "4441d067994f6a8d8b16d8387a022b523d3469f707240a784c06a7b5d8435772",
   "summary": {
-    "files": 245,
-    "lines": 74125,
-    "symbols": 939
+    "files": 246,
+    "lines": 74926,
+    "symbols": 945
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -97,7 +97,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 13
+        "line": 14
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -162,6 +162,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
         "line": 85
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
+        "line": 109
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
@@ -1781,7 +1785,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 105
+        "line": 122
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -1865,19 +1869,19 @@
     "gapHours": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
-        "line": 43
+        "line": 44
       }
     ],
     "ageLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
-        "line": 45
+        "line": 46
       }
     ],
     "addIfOld": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
-        "line": 58
+        "line": 59
       }
     ],
     "CharacterLifeForm": [
@@ -1979,7 +1983,7 @@
     "contextFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 21
+        "line": 25
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -1988,24 +1992,28 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
         "line": 140
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
+        "line": 128
       }
     ],
     "apply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 37
+        "line": 52
       }
     ],
     "ongoingActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 91
+        "line": 108
       }
     ],
     "endActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 100
+        "line": 117
       }
     ],
     "tick": [
@@ -3196,6 +3204,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
         "line": 139
+      }
+    ],
+    "executeActivity": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
+        "line": 208
+      }
+    ],
+    "claimCriticalWake": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
+        "line": 338
+      }
+    ],
+    "addCurrent": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
+        "line": 575
+      }
+    ],
+    "RealityWindowWorker": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
+        "line": 750
       }
     ],
     "RelevantMemoryRecall": [
@@ -6914,8 +6946,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
-      "lines": 84,
-      "sha256": "f12c2efe6d52886375112129615d2af1bf8065436b2e8f746833f8d961616212",
+      "lines": 85,
+      "sha256": "6ceffe11460f95a9a09bc818f1cff58c0c073fbd28ec4a6736cdbc9236392c0e",
       "symbols": [
         {
           "name": "promptSection",
@@ -6927,15 +6959,15 @@
         },
         {
           "name": "gapHours",
-          "line": 43
+          "line": 44
         },
         {
           "name": "ageLabel",
-          "line": 45
+          "line": 46
         },
         {
           "name": "addIfOld",
-          "line": 58
+          "line": 59
         }
       ]
     },
@@ -7012,8 +7044,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-      "lines": 254,
-      "sha256": "4a4f34d7a0dff92479b5d1cd553f9b6b10894b4f2517cdcf8d0c66eb38cb55c8",
+      "lines": 262,
+      "sha256": "2f6877b05aedbb9d7bf892e8e3de5e34d9c147f8cf1a26c60f31bd0f540b8329",
       "symbols": [
         {
           "name": "optionsFor",
@@ -7039,32 +7071,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-      "lines": 109,
-      "sha256": "54d21a5ba73a920d1f4a1f80ea19f0c0726bd822ff8e6a15207b228a226cd8e1",
+      "lines": 126,
+      "sha256": "8beb8ea131f52cc420db96abbb70502759c2f7718f83a70267aed719e496018c",
       "symbols": [
         {
           "name": "initialize",
-          "line": 13
+          "line": 14
         },
         {
           "name": "contextFor",
-          "line": 21
+          "line": 25
         },
         {
           "name": "apply",
-          "line": 37
+          "line": 52
         },
         {
           "name": "ongoingActivity",
-          "line": 91
+          "line": 108
         },
         {
           "name": "endActivity",
-          "line": 100
+          "line": 117
         },
         {
           "name": "clearCharacter",
-          "line": 105
+          "line": 122
         }
       ]
     },
@@ -7968,7 +8000,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 31,
-      "sha256": "fa9554fbedba23b5636b8703bb66b049211749e1b2d2b4b341c17b06c6ded228",
+      "sha256": "eca6ce04b8550daa7be759ed8d4b19597b940d131bab46437d2c7b8ef0e02bc7",
       "symbols": []
     },
     {
@@ -8135,6 +8167,37 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
+      "lines": 774,
+      "sha256": "28605ed5c3dac5500ffd094324f7e603aafbcae2a67c8504b60ffbd489e6328f",
+      "symbols": [
+        {
+          "name": "initialize",
+          "line": 109
+        },
+        {
+          "name": "contextFor",
+          "line": 128
+        },
+        {
+          "name": "executeActivity",
+          "line": 208
+        },
+        {
+          "name": "claimCriticalWake",
+          "line": 338
+        },
+        {
+          "name": "addCurrent",
+          "line": 575
+        },
+        {
+          "name": "RealityWindowWorker",
+          "line": 750
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
       "lines": 436,
       "sha256": "91cf95240783585cb06b822a3a91b4a6bcc9ea509f1894dd6612da0147ca95de",
@@ -8249,8 +8312,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt",
-      "lines": 17,
-      "sha256": "aec313335f3c2dcf24bae4bc6516f8e54979dd75131b03814b065033d179254c",
+      "lines": 18,
+      "sha256": "2e1fb56559f0db9ca0c30502532a425cf941db1984373d2e3c029a2ebf7ca559",
       "symbols": []
     },
     {
