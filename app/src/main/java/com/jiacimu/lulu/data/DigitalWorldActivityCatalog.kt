@@ -210,6 +210,14 @@ internal object DigitalWorldActivityCatalog {
         activityId: String,
         locationName: String,
     ): String? {
+        if (activityId.startsWith("reality_")) {
+            val valid = activityId.startsWith("reality_explore:") ||
+                activityId.startsWith("reality_follow:") ||
+                activityId.startsWith("reality_unfollow:") ||
+                activityId.startsWith("reality_open:")
+            if (!valid || activityId.substringAfter(':', "").isBlank()) return null
+            return "$characterName打开了露露机通往现实世界的信息窗口。"
+        }
         if (locationOptions(locationCode).none { it.first == activityId }) return null
         val action = when (activityId) {
             "cloud_walk" -> "沿着云眠原的感官云面慢慢散了一会儿步"

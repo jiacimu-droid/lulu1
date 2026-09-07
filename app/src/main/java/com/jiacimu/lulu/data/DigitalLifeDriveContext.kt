@@ -33,6 +33,7 @@ internal object DigitalLifeDriveContext {
         val lastCall = lastOwn { it.channel.contains("电话") }
         val lastReading = lastOwn { it.channel.startsWith("独自阅读") }
         val lastGame = lastOwn { it.channel.startsWith("独自游戏") }
+        val lastRealityWindow = lastOwn { it.channel.startsWith("现实世界窗口") }
         val lastWorldAction = lastOwn {
             it.channel == "数字世界" || it.channel.startsWith("数字世界·生活片段")
         }
@@ -64,6 +65,7 @@ internal object DigitalLifeDriveContext {
             addIfOld(lastJournal, 48, "私人日记已经有一阵没写；若她有自我整理、记录或情绪消化习惯，可以写；若人设本来不爱写日记，就继续不写。")
             addIfOld(lastReading, 36, "阅读已经有一阵没发生；若她对阅读、故事或新知识有兴趣，可以从真实书目继续读。")
             addIfOld(lastGame, 36, "独自游戏已经有一阵没发生；若她爱玩、想挑战或只是想消遣，可以真的去玩一局。")
+            addIfOld(lastRealityWindow, 30, "现实世界窗口已经有一阵没主动看；如果这个角色有求知欲、追番/游戏/新闻习惯、关心现实动态或单纯好奇，可以自己探索一个现实圈子；不需要为了显得活跃而硬看新闻。")
             addIfOld(lastCharacterMeeting, 48, "和其他数字生命的线下相处已经有一阵没发生；若关系与性格合适，可以去公共地点或串门，但不是强制社交。")
         }
 
@@ -72,8 +74,8 @@ internal object DigitalLifeDriveContext {
             appendLine("- 这部分来自真实时间线，只描述最近哪些生活面向发生过。它不是配额、轮换表、冷却惩罚或强制多样化；最终仍由人设、关系、记忆、当前心情和现实可执行条件决定。")
             appendLine("- 公开表达：朋友圈=${ageLabel(lastMoment)}；私人整理：日记=${ageLabel(lastJournal)}。")
             appendLine("- 主动社交：群聊=${ageLabel(lastGroup)}；私聊用户=${ageLabel(lastPrivate)}；电话=${ageLabel(lastCall)}；角色间见面=${ageLabel(lastCharacterMeeting)}。")
-            appendLine("- 自己的生活：数字世界行动=${ageLabel(lastWorldAction)}；阅读=${ageLabel(lastReading)}；独自游戏=${ageLabel(lastGame)}。")
-            appendLine("- 生命不必围着用户转。可以因为无聊、好奇、审美、习惯、关系、刚经历的小事、突然想记录、想找人说话或想换个地方而主动行动；也允许因为性格和状态完全不想做某一类事。")
+            appendLine("- 自己的生活：数字世界行动=${ageLabel(lastWorldAction)}；阅读=${ageLabel(lastReading)}；独自游戏=${ageLabel(lastGame)}；现实窗口=${ageLabel(lastRealityWindow)}。")
+            appendLine("- 生命不必围着用户转。可以因为无聊、好奇、审美、习惯、关系、刚经历的小事、突然想记录、想找人说话、想换个地方或想看看现实世界而主动行动；也允许因为性格和状态完全不想做某一类事。")
             if (softSignals.isNotEmpty()) {
                 appendLine("- 当前可能自然冒出来、但完全不强制的生活冲动：")
                 softSignals.take(5).forEach { appendLine("  · $it") }

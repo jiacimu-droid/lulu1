@@ -8,19 +8,24 @@ import java.time.Instant
 /** Small persistent physical state; prose cannot create resources or complete activities. */
 internal object DigitalWorldActivityStateStore {
     private var prefs: android.content.SharedPreferences? = null
+    private var appContext: Context? = null
 
     @Synchronized
     fun initialize(context: Context) {
+        val application = context.applicationContext
+        appContext = application
         if (prefs == null) {
-            prefs = context.applicationContext.getSharedPreferences("digital_activity_state_v1", Context.MODE_PRIVATE)
-            LuluGames.initialize(context.applicationContext)
+            prefs = application.getSharedPreferences("digital_activity_state_v1", Context.MODE_PRIVATE)
+            LuluGames.initialize(application)
         }
+        RealityWorldWindowRuntime.initialize(application)
     }
 
     @Synchronized
     fun contextFor(characterId: String): String {
         val p = prefs ?: return ""
         val current = runCatching { JSONObject(p.getString("activity:$characterId", "{}").orEmpty()) }.getOrDefault(JSONObject())
+        val character = MigratedDomainStores.characters.get(characterId)
         return buildString {
             appendLine("随身物品：温水 ${p.getInt("drink:$characterId", 0)} 杯；原味饼干 ${p.getInt("snack:$characterId", 0)} 份。")
             if (current.has("summary")) appendLine("最近执行：${current.optString("summary")}；开始时间=${current.optString("startedAt")}；这是开始记录，不代表已经休息或睡了某个时长。")
@@ -30,6 +35,16 @@ internal object DigitalWorldActivityStateStore {
             if (DigitalWorldStore.locationOf(characterId) == DigitalWorldPublicPlaces.CAFE) {
                 appendLine("咖啡角自助供应台提供免费数字温水与原味饼干；order_drink/ order_snack 领取后才进入随身物品，消耗一份减少一份。")
             }
+            val driveContext = DigitalLifeDriveContext.promptSection(characterId, character.displayName)
+            if (driveContext.isNotBlank()) {
+                appendLine()
+                appendLine(driveContext)
+            }
+            val realityContext = RealityWorldWindowRuntime.contextFor(characterId)
+            if (realityContext.isNotBlank()) {
+                appendLine()
+                appendLine(realityContext)
+            }
         }.trim()
     }
 
@@ -38,7 +53,9 @@ internal object DigitalWorldActivityStateStore {
         val p = checkNotNull(prefs) { "活动状态尚未初始化" }
         val editor = p.edit()
         val name = MigratedDomainStores.characters.get(characterId).displayName
-        val result = when (activityId) {
+        val result = if (activityId.startsWith("reality_")) {
+            RealityWorldWindowRuntime.executeActivity(characterId, activityId, now)
+        } else when (activityId) {
             "watch_tv", "watch_tv_from_sofa", "change_channel" -> error("电视尚未接入节目源，不能记录观看了节目")
             "browse_games", "choose_arcade" -> "${name}查看了游戏馆中的记忆配对入口；尚未开始对局。"
             "check_scoreboard" -> {
