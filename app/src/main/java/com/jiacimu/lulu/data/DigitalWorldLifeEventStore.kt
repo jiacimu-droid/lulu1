@@ -70,10 +70,15 @@ internal object DigitalWorldLifeEventStore {
             val active = incidents
                 .filter { it.status == STATUS_ACTIVE && it.locationCode == locationCode }
                 .minByOrNull(Incident::createdAt)
-            val pair = if (active != null) {
-                if (!DigitalWorldEventRules.canEvolve(now.epochSecond, active.createdAt.epochSecond)) return@synchronized null
-                advance(active, characterId, now)
-            } else {
+
+            // An unresolved nuisance is part of the place, not a global pause button. It may resolve
+            // through time when its kind allows that, but if it persists the location can still have
+            // harmless weather/light/atmosphere moments in later real-time opportunity slots.
+            val evolved = active
+                ?.takeIf { DigitalWorldEventRules.canEvolve(now.epochSecond, it.createdAt.epochSecond) }
+                ?.let { advance(it, characterId, now) }
+
+            val pair = evolved ?: run {
                 val slot = DigitalWorldEventRules.opportunitySlot(now.epochSecond)
                 val key = "opportunity:$locationCode"
                 val consumed = maxOf(
@@ -86,8 +91,15 @@ internal object DigitalWorldLifeEventStore {
                 if (prefs?.edit()?.putLong(key, slot)?.commit() != true) return@synchronized null
                 val chance = if (arrivalBoost) 48 else 36
                 if (roll("$locationCode:$slot:world-life", 100) >= chance) return@synchronized null
-                spawn(locationCode, characterId, actorName, now)
+                spawn(
+                    locationCode = locationCode,
+                    characterId = characterId,
+                    actorName = actorName,
+                    now = now,
+                    ambientOnly = active != null,
+                )
             } ?: return@synchronized null
+
             val updated = pair.first
             incidents = (incidents.filterNot { it.id == updated.id } + updated)
                 .sortedBy(Incident::updatedAt)
@@ -226,6 +238,7 @@ internal object DigitalWorldLifeEventStore {
         characterId: String,
         actorName: String,
         now: Instant,
+        ambientOnly: Boolean = false,
     ): Pair<Incident, DigitalWorldLifeTick>? {
         val homeOwnerId = locationCode.takeIf { it.startsWith("home:") }?.removePrefix("home:")
         val realItems = homeOwnerId?.let(DigitalWorldStore::itemsAtHome).orEmpty()
@@ -263,7 +276,9 @@ internal object DigitalWorldLifeEventStore {
             )
             else -> listOf("floating_specks", "soft_breeze", "gentle_light")
         }
-        val kind = kindOptions[roll("$characterId:$locationCode:${now.toEpochMilli()}:kind", kindOptions.size)]
+        val availableKinds = if (ambientOnly) kindOptions.filter { it in ambientMoments } else kindOptions
+        if (availableKinds.isEmpty()) return null
+        val kind = availableKinds[roll("$characterId:$locationCode:${now.toEpochMilli()}:kind", availableKinds.size)]
         val incident = Incident(
             id = UUID.randomUUID().toString(),
             kind = kind,
