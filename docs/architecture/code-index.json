@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-07T08:24:01.704870+00:00",
-  "commit": "6568c4d08a4499e2b38ae1065bb85dd2aacaec8a",
+  "generatedAt": "2026-09-07T08:25:23.479090+00:00",
+  "commit": "de0cadd83a1a43bd7f128f0b3920a8d166d4da20",
   "branch": "main",
-  "sourceFingerprint": "affffaa7c95eb27f8fb04b562853524b48617db0b3db7709fa0cd7f11fcdac0b",
+  "sourceFingerprint": "1ca2cf8f0fde1cdd66dc2a50d264651f9f3aece15d3ea1471890db185f1ed41f",
   "summary": {
     "files": 244,
-    "lines": 73902,
+    "lines": 73901,
     "symbols": 934
   },
   "symbolIndex": {
@@ -9801,8 +9801,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-      "lines": 1169,
-      "sha256": "c3a0877aa2f29fe4a7945ef8b088edbb99892738d9632fe155cbeee90912e591",
+      "lines": 1168,
+      "sha256": "aadada15579d85b967edcb3d08ad0a2b64c53fd50acbe1380f23f04e07543713",
       "symbols": [
         {
           "name": "PostgraduateExamStore",
