@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-07T10:09:58.462698+00:00",
-  "commit": "258f99c1b886508f43b9a85c1474f590e24fb501",
+  "generatedAt": "2026-09-07T10:13:27.725646+00:00",
+  "commit": "7557337e173c871960004165dac84f8c4b9a2519",
   "branch": "main",
-  "sourceFingerprint": "6811ae3d3991f5071f5143958e04e06a57c8be0dbecc790488db38ca32f7ce35",
+  "sourceFingerprint": "a179d0d28072fcb58158bfd50908c406606121203938fec5f9208360217db603",
   "summary": {
     "files": 245,
-    "lines": 74072,
+    "lines": 74087,
     "symbols": 939
   },
   "symbolIndex": {
@@ -1785,7 +1785,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 142
+        "line": 154
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
@@ -1983,7 +1983,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 121
+        "line": 133
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
@@ -2017,19 +2017,19 @@
     "recordWitness": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 109
+        "line": 121
       }
     ],
     "blockingSummaryForItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 153
+        "line": 165
       }
     ],
     "handle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 168
+        "line": 180
       }
     ],
     "DigitalWorldNavigationStore": [
@@ -7076,8 +7076,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-      "lines": 595,
-      "sha256": "af5767960ba0301cefd1f2510dcb5df4fac766a720c1719f191e9a84813b49d9",
+      "lines": 610,
+      "sha256": "7642537c8ce1fa45cddabb52aab3745e934af088e99af35c5a808780994e1225",
       "symbols": [
         {
           "name": "initialize",
@@ -7089,23 +7089,23 @@
         },
         {
           "name": "recordWitness",
-          "line": 109
-        },
-        {
-          "name": "contextFor",
           "line": 121
         },
         {
+          "name": "contextFor",
+          "line": 133
+        },
+        {
           "name": "clearCharacter",
-          "line": 142
+          "line": 154
         },
         {
           "name": "blockingSummaryForItem",
-          "line": 153
+          "line": 165
         },
         {
           "name": "handle",
-          "line": 168
+          "line": 180
         }
       ]
     },
