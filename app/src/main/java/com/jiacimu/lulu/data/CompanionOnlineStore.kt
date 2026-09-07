@@ -45,14 +45,21 @@ data class CompanionUnreadSnapshot(
  * A wake-up means five minutes of guaranteed perception, never a guaranteed reply. While a
  * character is online, new relevant chat events schedule an independent perception for that role.
  * User Moments are perceived through MomentsStore by the same online-state predicate.
+ *
+ * A successful private life action may also schedule exactly one continuation perception in the
+ * same wake. This lets "go somewhere" naturally become "do something there" or lets a finished
+ * reading/game become a fresh decision about sharing, journaling or another activity without
+ * turning one wake into an unbounded model-call loop.
  */
 object CompanionOnlineStore {
     private const val PREFS_NAME = "lulu_companion_online_v1"
     private const val KEY_STATES = "states"
     private const val KEY_GROUP_FOCUS = "group_focus"
+    private const val MAX_LIFE_CONTINUATIONS_PER_WAKE = 1
     private val onlineDuration: Duration = Duration.ofMinutes(5)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val expiryJobs = mutableMapOf<String, Job>()
+    private val lifeContinuationCounts = mutableMapOf<String, Int>()
     private val lock = Any()
     private var appContext: Context? = null
     private var prefs: android.content.SharedPreferences? = null
@@ -104,6 +111,7 @@ object CompanionOnlineStore {
                 reason = reason,
             )
             mutableStates.value = mutableStates.value + (characterId to state)
+            lifeContinuationCounts[characterId] = 0
             persistLocked()
             scheduleExpiryLocked(characterId)
         }
@@ -128,6 +136,7 @@ object CompanionOnlineStore {
                     reason = CompanionOnlineReason.GroupWake,
                 )
                 mutableStates.value = mutableStates.value + (characterId to state)
+                lifeContinuationCounts[characterId] = 0
                 scheduleExpiryLocked(characterId)
             }
             persistLocked()
@@ -137,10 +146,37 @@ object CompanionOnlineStore {
         }
     }
 
-    /** Called after a chat event is durably appended. */
+    /** Called after a chat or private activity event is durably appended. */
     fun onConversationMessage(conversation: LuluConversation, message: LuluChatMessage) {
-        if (message.status != LuluChatMessage.Status.Sent || message.sender == LuluChatMessage.Sender.System) return
+        if (message.status != LuluChatMessage.Status.Sent) return
         val now = message.createdAt
+
+        // Private activity receipts are written only after a real executor succeeded. During the
+        // same five-minute wake, allow one fresh autonomous decision after such a life action.
+        // The counter is reset only by a new wake, so an action produced by the continuation cannot
+        // recursively create another continuation and run the model indefinitely.
+        if (message.sender == LuluChatMessage.Sender.System) {
+            if (conversation.groupChat != null || !message.content.startsWith("[共同活动]")) return
+            val characterId = conversation.characterId
+            val shouldContinue = synchronized(lock) {
+                if (!isOnline(characterId, now)) return@synchronized false
+                val used = lifeContinuationCounts[characterId] ?: 0
+                if (used >= MAX_LIFE_CONTINUATIONS_PER_WAKE) return@synchronized false
+                lifeContinuationCounts[characterId] = used + 1
+                true
+            }
+            if (shouldContinue) {
+                appContext?.let {
+                    ProactivePerceptionScheduler.scheduleOnline(
+                        it,
+                        characterId,
+                        "自主生活延续：刚完成一件真实活动，重新感知此刻再决定是否继续、分享或休息",
+                    )
+                }
+            }
+            return
+        }
+
         val members = conversation.groupChat?.members.orEmpty().map(LuluGroupMember::characterId).distinct()
         val recipients: List<String>
         synchronized(lock) {
@@ -241,6 +277,7 @@ object CompanionOnlineStore {
         if (characterId.isBlank()) return
         synchronized(lock) {
             expiryJobs.remove(characterId)?.cancel()
+            lifeContinuationCounts.remove(characterId)
             mutableStates.value = mutableStates.value + (
                 characterId to CompanionOnlineState(
                     characterId = characterId,
@@ -266,6 +303,7 @@ object CompanionOnlineStore {
                     mutableStates.value = mutableStates.value + (
                         characterId to current.copy(onlineUntil = Instant.now().minusMillis(1L))
                     )
+                    lifeContinuationCounts.remove(characterId)
                     persistLocked()
                     expiryJobs.remove(characterId)
                 }
