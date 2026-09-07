@@ -216,7 +216,7 @@ internal object DigitalWorldActivityCatalog {
                 activityId.startsWith("reality_unfollow:") ||
                 activityId.startsWith("reality_open:")
             if (!valid || activityId.substringAfter(':', "").isBlank()) return null
-            return "$characterName打开了露露机通往现实世界的信息窗口。"
+            return "${characterName}打开了露露机通往现实世界的信息窗口。"
         }
         if (locationOptions(locationCode).none { it.first == activityId }) return null
         val action = when (activityId) {
