@@ -1,8 +1,6 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
-import android.location.Location
-import android.util.Xml
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -17,16 +15,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
-import org.xmlpull.v1.XmlPullParser
-import java.io.StringReader
-import java.net.HttpURLConnection
-import java.net.URL
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import java.time.Duration
 import java.time.Instant
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -63,46 +53,51 @@ internal data class RealityRefreshResult(
 )
 
 /**
- * The digital residents' window into the user's real world.
+ * Program-owned real-world information window for digital residents.
  *
- * External data is program-owned. A role may choose what to explore/follow/open, but model prose
- * can never create a RealityWindowEvent. Headlines are only a glance at a source; opening an item
- * records the supplied source summary as "the role saw this report", never as the role or user
- * personally experiencing the reported event.
+ * Roles own their interests. They may explore, follow, unfollow and open source-backed items, but
+ * they cannot invent an external event. The source layer is deliberately multi-provider: general
+ * news is only one part of the window; culture, games, weather and safety data have dedicated
+ * adapters. A source failure therefore degrades coverage instead of collapsing the whole window.
  */
 internal object RealityWorldWindowRuntime {
     private const val PREFS_NAME = "lulu_reality_world_window_v1"
     private const val KEY_EVENTS = "events_v1"
-    private const val MAX_EVENTS = 320
+    private const val MAX_EVENTS = 520
     private const val PERIODIC_WORK = "lulu-reality-window-periodic"
     private const val IMMEDIATE_WORK = "lulu-reality-window-immediate"
+
     private const val TOPIC_WORLD = "system-world"
+    private const val TOPIC_WEATHER = "system-weather"
     private const val TOPIC_EARTHQUAKE = "system-earthquake"
-    private const val GOOGLE_TOP =
-        "https://news.google.com/rss?hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
-    private const val GOOGLE_SEARCH =
-        "https://news.google.com/rss/search?q=%s&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
-    private const val USGS_45_DAY =
-        "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson"
 
     private val lock = Any()
     private var prefs: android.content.SharedPreferences? = null
     private var appContext: Context? = null
     private var events: List<RealityWindowEvent> = emptyList()
 
-    private val worldTopic = RealityTopic(
-        id = TOPIC_WORLD,
-        label = "世界大事",
-        query = "",
-        state = RealityTopicState.DISCOVERED,
-        discoveredAt = Instant.EPOCH,
-    )
-    private val earthquakeTopic = RealityTopic(
-        id = TOPIC_EARTHQUAKE,
-        label = "地震与现实安全",
-        query = "",
-        state = RealityTopicState.DISCOVERED,
-        discoveredAt = Instant.EPOCH,
+    private val systemTopics = mapOf(
+        TOPIC_WORLD to RealityTopic(
+            id = TOPIC_WORLD,
+            label = "世界大事",
+            query = "",
+            state = RealityTopicState.DISCOVERED,
+            discoveredAt = Instant.EPOCH,
+        ),
+        TOPIC_WEATHER to RealityTopic(
+            id = TOPIC_WEATHER,
+            label = "用户现实所在地天气",
+            query = "",
+            state = RealityTopicState.DISCOVERED,
+            discoveredAt = Instant.EPOCH,
+        ),
+        TOPIC_EARTHQUAKE to RealityTopic(
+            id = TOPIC_EARTHQUAKE,
+            label = "地震与现实安全",
+            query = "",
+            state = RealityTopicState.DISCOVERED,
+            discoveredAt = Instant.EPOCH,
+        ),
     )
 
     @Synchronized
@@ -131,27 +126,38 @@ internal object RealityWorldWindowRuntime {
         val topics = topicsFor(characterId)
         val followed = topics.filter { it.state == RealityTopicState.FOLLOWING }
         val discovered = topics.filter { it.state == RealityTopicState.DISCOVERED }
-        val topicIds = topics.filter { it.state != RealityTopicState.DROPPED }.mapTo(mutableSetOf()) { it.id }
-        topicIds += TOPIC_WORLD
-        topicIds += TOPIC_EARTHQUAKE
+        val visibleTopicIds = topics
+            .filter { it.state != RealityTopicState.DROPPED }
+            .mapTo(mutableSetOf()) { it.id }
+            .apply {
+                add(TOPIC_WORLD)
+                add(TOPIC_WEATHER)
+                add(TOPIC_EARTHQUAKE)
+            }
         val exposure = exposureFor(characterId)
 
         val fresh = synchronized(lock) {
             events.asSequence()
-                .filter { it.topicId in topicIds }
+                .filter { it.topicId in visibleTopicIds }
                 .filter { Duration.between(it.publishedAt, now).abs() <= Duration.ofDays(7) }
                 .sortedWith(
                     compareByDescending<RealityWindowEvent> { event ->
                         when {
-                            event.criticalForUser -> 100
-                            followed.any { it.id == event.topicId } -> 70
-                            discovered.any { it.id == event.topicId } -> 55
-                            event.topicId == TOPIC_EARTHQUAKE -> 45
-                            else -> 30
-                        } + if (exposure[event.id]?.first == RealityExposureState.READ) -18 else 8
+                            event.criticalForUser -> 120
+                            followed.any { it.id == event.topicId } -> 80
+                            discovered.any { it.id == event.topicId } -> 62
+                            event.topicId == TOPIC_WEATHER -> 58
+                            event.topicId == TOPIC_EARTHQUAKE -> 54
+                            else -> 35
+                        } + when (exposure[event.id]?.first) {
+                            RealityExposureState.READ -> -24
+                            RealityExposureState.GLIMPSED -> -4
+                            null -> 10
+                        }
                     }.thenByDescending(RealityWindowEvent::publishedAt),
                 )
-                .take(8)
+                .distinctBy { normalizeTitle(it.title) }
+                .take(10)
                 .toList()
         }
         if (fresh.isNotEmpty()) markGlimpsed(characterId, fresh.map { it.id }, now)
@@ -161,48 +167,59 @@ internal object RealityWorldWindowRuntime {
             events.asSequence()
                 .filter { updatedExposure[it.id]?.first == RealityExposureState.READ }
                 .sortedByDescending { updatedExposure[it.id]?.second ?: Instant.EPOCH }
-                .take(4)
+                .take(5)
                 .toList()
         }
 
         return buildString {
-            appendLine("【现实世界窗口｜外部来源与角色自主关注】")
-            appendLine("- 这里是数字生命通往用户现实世界的信息窗口。外部资讯由程序抓取并保存；角色不能凭常识或想象创建新闻。")
-            appendLine("- 圈子归角色本人：用户没有替角色分配兴趣。角色可按自己的人设、记忆、好奇心和已经接触过的东西自主探索、关注、退订，也可以长期不看某类内容。")
-            appendLine("- 首页标题只代表角色扫到了来源标题；只有 reality_open 真正点开后，来源摘要才成为角色已读信息。即使已读，也应说“我看到某来源报道/提到……”；不能把报道写成自己或用户亲历。")
-            appendLine("- 公共入口：topicId=$TOPIC_WORLD=世界大事；topicId=$TOPIC_EARTHQUAKE=地震与现实安全。公共入口不等于强制关注。")
+            appendLine("【现实世界窗口｜多来源、角色自主关注】")
+            appendLine("- 这是数字生命通往用户现实世界的程序信息层，不是手机通知的替代品。资讯来自网络来源并保存为带来源的外部记录；角色不能凭常识或想象创造新闻。")
+            appendLine("- 当前来源可包括：Google News RSS / GDELT 新闻索引 / Bangumi / AniList / Steam News / Open-Meteo / USGS。不同圈子会走不同来源，Google News 只是兜底，不再承担全部现实认知。")
+            appendLine("- 圈子归角色本人：用户不替角色分配兴趣。角色可依据自己的人设、记忆、好奇心、朋友分享和既有兴趣，自主探索、关注、退订，也可以长期不看某类内容。")
+            appendLine("- 标题被看到不等于正文已读。只有 reality_open 成功执行后，来源摘要才成为该角色真正读过的信息。数据库条目也只代表知道这部作品存在，不代表已经看过/玩过。")
+            appendLine("- 外部报道证明的是‘某来源这样报道/记录’，不是角色或用户亲历。天气是模型数据；地震距离由设备本地计算。")
+            appendLine("公共入口：topicId=$TOPIC_WORLD=世界大事；topicId=$TOPIC_WEATHER=现实所在地天气；topicId=$TOPIC_EARTHQUAKE=地震与安全。公共入口不等于角色长期关注。")
+
             if (followed.isNotEmpty()) {
                 appendLine("角色自己正在关注的圈子：")
-                followed.forEach { appendLine("- topicId=${it.id}；${it.label}") }
+                followed.take(12).forEach { topic ->
+                    val hints = providerHints(topic.id)
+                    append("- topicId=${topic.id}；${topic.label}")
+                    if (hints.isNotEmpty()) append("；已发现对口来源=${hints.joinToString("/")}")
+                    appendLine()
+                }
             } else {
                 appendLine("角色自己正在关注的圈子：暂无。")
             }
             if (discovered.isNotEmpty()) {
-                appendLine("最近自己探索过、但还没决定长期关注的圈子：")
-                discovered.take(8).forEach { appendLine("- topicId=${it.id}；${it.label}") }
+                appendLine("角色最近自己探索过、还没决定长期关注的圈子：")
+                discovered.take(10).forEach { appendLine("- topicId=${it.id}；${it.label}") }
             }
+
             if (fresh.isNotEmpty()) {
-                appendLine("窗口首页现在可见的真实来源标题（角色本轮已扫到标题，未必点开）：")
+                appendLine("窗口当前可见的来源条目（本轮只证明扫到了这些标题；未必点开）：")
                 fresh.forEach { event ->
                     val state = updatedExposure[event.id]?.first
                     val marker = if (state == RealityExposureState.READ) "已读" else "仅标题"
                     val distance = event.distanceKm?.let { "；距用户设备最近位置约${it}km" }.orEmpty()
-                    appendLine("- eventId=${event.id}；topicId=${event.topicId}；$marker；来源=${event.sourceName}；发布时间=${event.publishedAt}；标题=${event.title}$distance")
+                    appendLine("- eventId=${event.id}；topicId=${event.topicId}；$marker；来源=${event.sourceName}；时间=${event.publishedAt}；标题=${event.title}$distance")
                 }
             } else {
-                appendLine("窗口首页暂时没有已抓取到的新标题；这不代表现实世界没有新闻，只代表当前信息源还没有可用结果。")
+                appendLine("窗口暂时没有成功抓取到的新条目；这只代表当前来源没有可用结果，不代表现实世界没有相关信息。")
             }
+
             if (recentlyRead.isNotEmpty()) {
-                appendLine("角色最近真正点开过的资讯摘要：")
+                appendLine("角色最近真正点开过的资讯/条目摘要：")
                 recentlyRead.forEach { event ->
-                    appendLine("- [${event.sourceName}] ${event.title}：${event.summary.take(420)}")
+                    appendLine("- [${event.sourceName}] ${event.title}：${event.summary.take(480)}")
                 }
             }
-            appendLine("可执行的现实窗口动作（都通过 digital_world + worldAction=use_location + activityId 执行；现实窗口是露露机系统能力，不受当前数字地点限制）：")
-            appendLine("- activityId=reality_explore:<角色自己想了解的关键词或圈子>：主动探索，例如“恋爱动画”“成都”“某个游戏”“某位明星”。这是角色自己的选择，不是用户分配。")
-            appendLine("- activityId=reality_follow:<topicId>：只关注上面真实存在的 topicId。")
-            appendLine("- activityId=reality_unfollow:<topicId>：只退订角色当前真实关注/探索过的 topicId。")
-            appendLine("- activityId=reality_open:<eventId>：只点开上面真实存在的 eventId，程序会返回并记录该来源已经抓取到的摘要。")
+
+            appendLine("可执行的现实窗口动作（通过 digital_world + worldAction=use_location + activityId 执行；现实窗口属于露露机系统能力，不受角色当前数字地点限制）：")
+            appendLine("- activityId=reality_explore:<角色自己想了解的关键词或圈子>：自主探索，例如‘恋爱动画’‘冰之城墙’‘成都’‘某个游戏’‘某位明星’。程序会同时尝试通用新闻与对口专业源。")
+            appendLine("- activityId=reality_follow:<topicId>：关注上面真实存在的 topicId。")
+            appendLine("- activityId=reality_unfollow:<topicId>：退订角色当前真实关注/探索过的 topicId。")
+            appendLine("- activityId=reality_open:<eventId>：点开真实存在的 eventId，程序才返回并记录来源摘要。")
         }.trim()
     }
 
@@ -220,11 +237,13 @@ internal object RealityWorldWindowRuntime {
                 require(query.isNotBlank()) { "探索现实圈子需要一个明确关键词" }
                 val topic = ensureDiscoveredTopic(characterId, query, now)
                 enqueueImmediateRefresh()
-                "${character.displayName}主动把“${topic.label}”放进自己的现实世界探索列表；这还不是长期关注，真实资讯正在等待来源刷新。"
+                "${character.displayName}自己决定探索现实圈子“${topic.label}”；程序会尝试新闻索引以及可能匹配的动漫/漫画/游戏专业来源。当前只是开始探索，不等于已经关注或读过任何结果。"
             }
+
             raw.startsWith("reality_follow:") -> {
                 val topicId = raw.substringAfter(':').trim()
                 val topic = resolveTopic(characterId, topicId) ?: error("没有找到这个现实圈子")
+                require(topicId !in systemTopics.keys) { "公共现实入口不需要关注；角色可直接浏览其中的真实条目" }
                 val saved = topic.copy(
                     state = RealityTopicState.FOLLOWING,
                     followedAt = topic.followedAt ?: now,
@@ -232,10 +251,12 @@ internal object RealityWorldWindowRuntime {
                 )
                 upsertTopic(characterId, saved)
                 enqueueImmediateRefresh()
-                "${character.displayName}自己决定关注现实圈子“${saved.label}”。"
+                "${character.displayName}自己决定长期关注现实圈子“${saved.label}”。"
             }
+
             raw.startsWith("reality_unfollow:") -> {
                 val topicId = raw.substringAfter(':').trim()
+                require(topicId !in systemTopics.keys) { "公共现实入口不能退订；它们只是可见入口，不代表角色兴趣" }
                 val topic = resolveTopic(characterId, topicId) ?: error("没有找到这个现实圈子")
                 require(topicsFor(characterId).any { it.id == topicId && it.state != RealityTopicState.DROPPED }) {
                     "角色目前没有关注或探索这个圈子"
@@ -243,6 +264,7 @@ internal object RealityWorldWindowRuntime {
                 upsertTopic(characterId, topic.copy(state = RealityTopicState.DROPPED))
                 "${character.displayName}自己决定不再关注现实圈子“${topic.label}”。"
             }
+
             raw.startsWith("reality_open:") -> {
                 val eventId = raw.substringAfter(':').trim()
                 val event = synchronized(lock) { events.firstOrNull { it.id == eventId } }
@@ -251,29 +273,31 @@ internal object RealityWorldWindowRuntime {
                 markRead(characterId, event.id, now)
                 val trust = when (event.trust) {
                     RealitySourceTrust.STRUCTURED_SOURCE -> "结构化来源记录"
-                    RealitySourceTrust.AGGREGATED_REPORT -> "外部媒体聚合报道"
+                    RealitySourceTrust.AGGREGATED_REPORT -> "新闻聚合/索引记录"
                 }
                 val distance = event.distanceKm?.let { "；距用户设备最近位置约${it}km" }.orEmpty()
                 val content = buildString {
-                    append("角色实际点开现实世界窗口中的一条资讯摘要。")
-                    append("来源=${event.sourceName}；类型=$trust；发布时间=${event.publishedAt}；标题=${event.title}")
+                    append("角色实际点开现实世界窗口中的一条来源记录。")
+                    append("来源=${event.sourceName}；类型=$trust；来源时间=${event.publishedAt}；标题=${event.title}")
                     append(distance)
-                    append("；来源摘要=${event.summary.take(1_200)}")
+                    append("；来源摘要=${event.summary.take(1_400)}")
                     if (event.sourceUrl.isNotBlank()) append("；来源链接=${event.sourceUrl}")
-                    append("。这证明角色看到了该来源信息，不证明角色或用户亲历了报道中的事件。")
+                    append("。这只证明角色阅读了该来源返回的信息；不能据此声称角色或用户亲历，也不能把数据库条目写成已经观看/游玩。")
                 }
                 SharedExperienceTimeline.record(
                     eventId = "reality-read-${event.id}-$characterId-${now.toEpochMilli()}",
                     characterId = characterId,
-                    channel = "现实世界窗口·资讯",
+                    channel = "现实世界窗口·已读",
                     speaker = character.displayName,
                     content = content,
                     occurredAt = now,
                 )
-                return "已查看现实资讯摘要｜${event.sourceName}｜${event.title}：${event.summary.take(520)}$distance"
+                return "已查看现实来源｜${event.sourceName}｜${event.title}：${event.summary.take(650)}$distance"
             }
+
             else -> error("未知现实世界窗口动作")
         }
+
         SharedExperienceTimeline.record(
             eventId = "reality-action-${stableId(characterId, "$raw:${now.toEpochMilli()}")}",
             characterId = characterId,
@@ -295,44 +319,84 @@ internal object RealityWorldWindowRuntime {
             val p = checkNotNull(prefs)
             val fetched = mutableListOf<RealityWindowEvent>()
 
-            val lastWorld = p.getLong("refresh:$TOPIC_WORLD", 0L)
-                .takeIf { it > 0L }?.let(Instant::ofEpochMilli)
-            if (lastWorld == null || Duration.between(lastWorld, now).abs() >= Duration.ofHours(2)) {
-                runCatching { fetchGoogleRss(TOPIC_WORLD, "世界大事", GOOGLE_TOP, now) }
-                    .getOrNull()?.let { fetched += it }
-                p.edit().putLong("refresh:$TOPIC_WORLD", now.toEpochMilli()).apply()
+            if (refreshDue("refresh:$TOPIC_WORLD", now, Duration.ofMinutes(90))) {
+                runCatching {
+                    RealityWorldSourceAdapters.fetchWorldNews(TOPIC_WORLD, "世界大事", now)
+                }.getOrNull()?.let(fetched::addAll)
+                markRefresh("refresh:$TOPIC_WORLD", now)
             }
 
             val queryTopics = allRoleTopics()
                 .filter { it.state != RealityTopicState.DROPPED && it.query.isNotBlank() }
                 .distinctBy { it.id }
-                .take(16)
+                .sortedWith(
+                    compareByDescending<RealityTopic> { it.state == RealityTopicState.FOLLOWING }
+                        .thenByDescending { it.discoveredAt },
+                )
+                .take(18)
+
             queryTopics.forEach { topic ->
-                val last = p.getLong("refresh:${topic.id}", 0L)
+                if (!refreshDue("refresh:${topic.id}", now, Duration.ofHours(2))) return@forEach
+                val hints = providerHints(topic.id)
+                val lastProbe = p.getLong("provider_probe:${topic.id}", 0L)
                     .takeIf { it > 0L }?.let(Instant::ofEpochMilli)
-                if (last == null || Duration.between(last, now).abs() >= Duration.ofHours(2)) {
-                    val url = GOOGLE_SEARCH.format(
-                        URLEncoder.encode(topic.query, StandardCharsets.UTF_8.toString()),
+                val probeSpecialized = lastProbe == null ||
+                    Duration.between(lastProbe, now).abs() >= Duration.ofHours(24)
+
+                val batch = runCatching {
+                    RealityWorldSourceAdapters.fetchTopic(
+                        topic = topic,
+                        providerHints = hints,
+                        probeSpecialized = probeSpecialized,
+                        now = now,
                     )
-                    runCatching { fetchGoogleRss(topic.id, topic.label, url, now) }
-                        .getOrNull()?.let { fetched += it }
-                    p.edit().putLong("refresh:${topic.id}", now.toEpochMilli()).apply()
+                }.getOrNull()
+
+                if (batch != null) {
+                    fetched += batch.events
+                    if (batch.providerHints != hints) saveProviderHints(topic.id, batch.providerHints)
                 }
+                if (probeSpecialized) {
+                    p.edit().putLong("provider_probe:${topic.id}", now.toEpochMilli()).apply()
+                }
+                markRefresh("refresh:${topic.id}", now)
             }
 
-            val lastQuake = p.getLong("refresh:$TOPIC_EARTHQUAKE", 0L)
-                .takeIf { it > 0L }?.let(Instant::ofEpochMilli)
-            if (lastQuake == null || Duration.between(lastQuake, now).abs() >= Duration.ofMinutes(25)) {
-                val deviceLocation = runCatching { LuluLocationProvider.freshLocation(context.applicationContext) }.getOrNull()
-                runCatching { fetchEarthquakes(now, deviceLocation) }
-                    .getOrNull()?.let { fetched += it }
-                p.edit().putLong("refresh:$TOPIC_EARTHQUAKE", now.toEpochMilli()).apply()
+            val weatherDue = refreshDue("refresh:$TOPIC_WEATHER", now, Duration.ofMinutes(55))
+            val quakeDue = refreshDue("refresh:$TOPIC_EARTHQUAKE", now, Duration.ofMinutes(25))
+            val deviceLocation = if (weatherDue || quakeDue) {
+                runCatching { LuluLocationProvider.freshLocation(context.applicationContext) }.getOrNull()
+            } else null
+
+            if (weatherDue) {
+                runCatching {
+                    RealityWorldSourceAdapters.fetchWeather(
+                        TOPIC_WEATHER,
+                        "用户现实所在地天气",
+                        now,
+                        deviceLocation,
+                    )
+                }.getOrNull()?.let(fetched::addAll)
+                markRefresh("refresh:$TOPIC_WEATHER", now)
+            }
+
+            if (quakeDue) {
+                runCatching {
+                    RealityWorldSourceAdapters.fetchEarthquakes(
+                        TOPIC_EARTHQUAKE,
+                        "地震与现实安全",
+                        now,
+                        deviceLocation,
+                    )
+                }.getOrNull()?.let(fetched::addAll)
+                markRefresh("refresh:$TOPIC_EARTHQUAKE", now)
             }
 
             if (fetched.isNotEmpty()) upsertEvents(fetched, now)
-            val critical = fetched.filter {
-                it.criticalForUser && Duration.between(it.publishedAt, now).abs() <= Duration.ofHours(3)
-            }
+            val critical = fetched
+                .filter { it.criticalForUser }
+                .filter { Duration.between(it.publishedAt, now).abs() <= Duration.ofHours(3) }
+                .distinctBy { it.id }
             RealityRefreshResult(criticalEvents = critical)
         }
 
@@ -343,6 +407,16 @@ internal object RealityWorldWindowRuntime {
             if (p.getBoolean(key, false)) return false
             return p.edit().putBoolean(key, true).commit()
         }
+    }
+
+    private fun refreshDue(key: String, now: Instant, interval: Duration): Boolean {
+        val last = prefs?.getLong(key, 0L)?.takeIf { it > 0L }?.let(Instant::ofEpochMilli)
+            ?: return true
+        return Duration.between(last, now).abs() >= interval
+    }
+
+    private fun markRefresh(key: String, now: Instant) {
+        prefs?.edit()?.putLong(key, now.toEpochMilli())?.apply()
     }
 
     private fun enqueueImmediateRefresh() {
@@ -360,11 +434,7 @@ internal object RealityWorldWindowRuntime {
     }
 
     private fun resolveTopic(characterId: String, topicId: String): RealityTopic? =
-        topicsFor(characterId).firstOrNull { it.id == topicId } ?: when (topicId) {
-            TOPIC_WORLD -> worldTopic
-            TOPIC_EARTHQUAKE -> earthquakeTopic
-            else -> null
-        }
+        topicsFor(characterId).firstOrNull { it.id == topicId } ?: systemTopics[topicId]
 
     private fun ensureDiscoveredTopic(characterId: String, query: String, now: Instant): RealityTopic {
         val id = "topic-${stableId("query", query.lowercase(Locale.ROOT))}"
@@ -378,6 +448,9 @@ internal object RealityWorldWindowRuntime {
             discoveredAt = now,
         )
         upsertTopic(characterId, topic)
+        // A newly explored topic should not wait for a stale global refresh timestamp that might
+        // have been left by another role with the same query before this role discovered it.
+        prefs?.edit()?.remove("refresh:$id")?.apply()
         return topic
     }
 
@@ -389,7 +462,7 @@ internal object RealityWorldWindowRuntime {
 
     private fun upsertTopic(characterId: String, topic: RealityTopic) {
         val topics = topicsFor(characterId).filterNot { it.id == topic.id } + topic
-        saveTopics(characterId, topics.sortedBy { it.discoveredAt }.takeLast(60))
+        saveTopics(characterId, topics.sortedBy { it.discoveredAt }.takeLast(70))
     }
 
     private fun allRoleTopics(): List<RealityTopic> =
@@ -439,6 +512,13 @@ internal object RealityWorldWindowRuntime {
         }
     }
 
+    private fun providerHints(topicId: String): Set<String> =
+        prefs?.getStringSet("provider_hints:$topicId", emptySet())?.toSet().orEmpty()
+
+    private fun saveProviderHints(topicId: String, hints: Set<String>) {
+        prefs?.edit()?.putStringSet("provider_hints:$topicId", hints.toSet())?.apply()
+    }
+
     private fun exposureFor(characterId: String): Map<String, Pair<RealityExposureState, Instant>> {
         val json = runCatching {
             JSONObject(prefs?.getString("exposure:$characterId", "{}").orEmpty())
@@ -468,6 +548,7 @@ internal object RealityWorldWindowRuntime {
                         .put("at", now.toString()),
                 )
             }
+            trimExposure(current)
             prefs?.edit()?.putString("exposure:$characterId", current.toString())?.apply()
         }
     }
@@ -481,15 +562,27 @@ internal object RealityWorldWindowRuntime {
                     .put("state", RealityExposureState.READ.name)
                     .put("at", now.toString()),
             )
+            trimExposure(current)
             check(prefs?.edit()?.putString("exposure:$characterId", current.toString())?.commit() == true) {
                 "资讯阅读状态保存失败"
             }
         }
     }
 
+    private fun trimExposure(json: JSONObject) {
+        if (json.length() <= 650) return
+        val ranked = json.keys().asSequence().mapNotNull { id ->
+            val item = json.optJSONObject(id) ?: return@mapNotNull null
+            id to (item.optString("at").toInstantOrNull() ?: Instant.EPOCH)
+        }.sortedByDescending { it.second }.take(520).map { it.first }.toSet()
+        json.keys().asSequence().toList().filterNot { it in ranked }.forEach(json::remove)
+    }
+
     private fun isVisibleTo(characterId: String, event: RealityWindowEvent): Boolean {
-        if (event.topicId == TOPIC_WORLD || event.topicId == TOPIC_EARTHQUAKE) return true
-        return topicsFor(characterId).any { it.id == event.topicId && it.state != RealityTopicState.DROPPED }
+        if (event.topicId in systemTopics.keys) return true
+        return topicsFor(characterId).any {
+            it.id == event.topicId && it.state != RealityTopicState.DROPPED
+        }
     }
 
     private fun upsertEvents(incoming: List<RealityWindowEvent>, now: Instant) {
@@ -555,185 +648,15 @@ internal object RealityWorldWindowRuntime {
         }
     }
 
-    private fun fetchGoogleRss(
-        topicId: String,
-        topicLabel: String,
-        url: String,
-        now: Instant,
-    ): List<RealityWindowEvent> {
-        val xml = httpGet(url)
-        val parser = Xml.newPullParser().apply { setInput(StringReader(xml)) }
-        val result = mutableListOf<RealityWindowEvent>()
-        var inItem = false
-        var currentTag = ""
-        var title = ""
-        var link = ""
-        var description = ""
-        var pubDate = ""
-        var guid = ""
-        var source = ""
+    private fun cleanQuery(value: String): String = value
+        .replace(Regex("[\\r\\n\\t]+"), " ")
+        .replace(Regex("\\s+"), " ")
+        .trim()
+        .take(80)
 
-        fun addCurrent() {
-            val cleanTitle = cleanExternalText(title).take(300)
-            if (cleanTitle.isBlank()) return
-            val published = parseRssDate(pubDate) ?: now
-            val stable = guid.ifBlank { link.ifBlank { "$cleanTitle:$published" } }
-            result += RealityWindowEvent(
-                id = "gnews-${stableId(topicId, stable)}",
-                topicId = topicId,
-                topicLabel = topicLabel,
-                title = cleanTitle,
-                summary = cleanExternalText(description).take(1_000).ifBlank { cleanTitle },
-                sourceName = cleanExternalText(source).ifBlank { "Google News 聚合" }.take(100),
-                sourceUrl = link.trim().take(1_000),
-                publishedAt = published,
-                fetchedAt = now,
-                trust = RealitySourceTrust.AGGREGATED_REPORT,
-            )
-        }
-
-        while (parser.eventType != XmlPullParser.END_DOCUMENT) {
-            when (parser.eventType) {
-                XmlPullParser.START_TAG -> {
-                    currentTag = parser.name.orEmpty()
-                    if (currentTag.equals("item", ignoreCase = true)) {
-                        inItem = true
-                        title = ""
-                        link = ""
-                        description = ""
-                        pubDate = ""
-                        guid = ""
-                        source = ""
-                    }
-                }
-                XmlPullParser.TEXT -> if (inItem) {
-                    when (currentTag.lowercase(Locale.ROOT)) {
-                        "title" -> title += parser.text
-                        "link" -> link += parser.text
-                        "description" -> description += parser.text
-                        "pubdate" -> pubDate += parser.text
-                        "guid" -> guid += parser.text
-                        "source" -> source += parser.text
-                    }
-                }
-                XmlPullParser.END_TAG -> {
-                    if (parser.name.equals("item", ignoreCase = true)) {
-                        addCurrent()
-                        inItem = false
-                    }
-                    currentTag = ""
-                }
-            }
-            parser.next()
-        }
-        return result
-            .distinctBy(RealityWindowEvent::id)
-            .sortedByDescending(RealityWindowEvent::publishedAt)
-            .take(24)
-    }
-
-    private fun fetchEarthquakes(now: Instant, deviceLocation: Location?): List<RealityWindowEvent> {
-        val root = JSONObject(httpGet(USGS_45_DAY))
-        val features = root.optJSONArray("features") ?: return emptyList()
-        return buildList {
-            for (i in 0 until features.length()) {
-                val feature = features.optJSONObject(i) ?: continue
-                val properties = feature.optJSONObject("properties") ?: continue
-                val geometry = feature.optJSONObject("geometry")
-                val coordinates = geometry?.optJSONArray("coordinates")
-                val latitude = coordinates?.optDouble(1, Double.NaN) ?: Double.NaN
-                val longitude = coordinates?.optDouble(0, Double.NaN) ?: Double.NaN
-                val magnitude = properties.optDouble("mag", Double.NaN)
-                if (magnitude.isNaN()) continue
-                val distanceKm = if (
-                    deviceLocation != null && !latitude.isNaN() && !longitude.isNaN()
-                ) {
-                    val out = FloatArray(1)
-                    Location.distanceBetween(
-                        deviceLocation.latitude,
-                        deviceLocation.longitude,
-                        latitude,
-                        longitude,
-                        out,
-                    )
-                    (out[0] / 1_000f).toInt().coerceAtLeast(0)
-                } else null
-                if (distanceKm == null && magnitude < 6.0) continue
-                if (distanceKm != null && distanceKm > 1_500 && magnitude < 6.0) continue
-
-                val eventTime = properties.optLong("time", 0L)
-                    .takeIf { it > 0L }?.let(Instant::ofEpochMilli) ?: now
-                val place = properties.optString("place").trim().ifBlank { "未命名地点" }
-                val critical = when {
-                    distanceKm == null -> false
-                    distanceKm <= 500 && magnitude >= 4.5 -> true
-                    distanceKm <= 1_000 && magnitude >= 5.5 -> true
-                    distanceKm <= 1_500 && magnitude >= 6.0 -> true
-                    else -> false
-                }
-                val id = feature.optString("id").trim().ifBlank {
-                    stableId("quake", "$place:$eventTime:$magnitude")
-                }
-                val distanceText = distanceKm?.let { "；距用户设备最近位置约${it}km" }.orEmpty()
-                val detail = buildString {
-                    append("USGS 结构化地震目录记录：M")
-                    append(String.format(Locale.US, "%.1f", magnitude))
-                    append("，地点=$place，时间=$eventTime")
-                    append(distanceText)
-                    val alert = properties.optString("alert").trim()
-                    if (alert.isNotBlank() && alert != "null") append("；alert=$alert")
-                    append("。")
-                }
-                add(
-                    RealityWindowEvent(
-                        id = "usgs-$id",
-                        topicId = TOPIC_EARTHQUAKE,
-                        topicLabel = "地震与现实安全",
-                        title = "M${String.format(Locale.US, "%.1f", magnitude)} $place",
-                        summary = detail,
-                        sourceName = "USGS Earthquake Catalog",
-                        sourceUrl = properties.optString("url").trim(),
-                        publishedAt = eventTime,
-                        fetchedAt = now,
-                        trust = RealitySourceTrust.STRUCTURED_SOURCE,
-                        criticalForUser = critical,
-                        distanceKm = distanceKm,
-                    ),
-                )
-            }
-        }.sortedByDescending(RealityWindowEvent::publishedAt).take(40)
-    }
-
-    private fun httpGet(url: String): String {
-        val connection = (URL(url).openConnection() as HttpURLConnection).apply {
-            connectTimeout = 12_000
-            readTimeout = 16_000
-            instanceFollowRedirects = true
-            requestMethod = "GET"
-            setRequestProperty("Accept", "application/json, application/rss+xml, application/xml, text/xml, */*")
-            setRequestProperty("User-Agent", "Lulu/1.0 RealityWindow Android")
-        }
-        return try {
-            val code = connection.responseCode
-            require(code in 200..299) { "现实资讯源请求失败 HTTP $code" }
-            connection.inputStream.bufferedReader(StandardCharsets.UTF_8).use { it.readText() }
-        } finally {
-            connection.disconnect()
-        }
-    }
-
-    private fun parseRssDate(value: String): Instant? = runCatching {
-        ZonedDateTime.parse(value.trim(), DateTimeFormatter.RFC_1123_DATE_TIME).toInstant()
-    }.getOrNull()
-
-    private fun cleanExternalText(value: String): String = value
-        .replace(Regex("<[^>]+>"), " ")
-        .replace("&nbsp;", " ")
-        .replace("&amp;", "&")
-        .replace("&lt;", "<")
-        .replace("&gt;", ">")
-        .replace("&quot;", "\"")
-        .replace("&#39;", "'")
+    private fun normalizeTitle(value: String): String = value
+        .lowercase(Locale.ROOT)
+        .replace(Regex("[^\\p{L}\\p{N}]+"), " ")
         .replace(Regex("\\s+"), " ")
         .trim()
 
