@@ -40,11 +40,11 @@ internal object DigitalWorldActivityStateStore {
         val name = MigratedDomainStores.characters.get(characterId).displayName
         val result = when (activityId) {
             "watch_tv", "watch_tv_from_sofa", "change_channel" -> error("电视尚未接入节目源，不能记录观看了节目")
-            "browse_games", "choose_arcade" -> "$name查看了游戏馆中的记忆配对入口；尚未开始对局。"
+            "browse_games", "choose_arcade" -> "${name}查看了游戏馆中的记忆配对入口；尚未开始对局。"
             "check_scoreboard" -> {
                 val records = LuluGames.store.state.value.records.filter { it.characterId == characterId }.takeLast(5)
-                if (records.isEmpty()) "$name查看了自己的游戏记录，目前还没有已完成的对局。"
-                else "$name查看了自己的游戏记录：" + records.joinToString("；") { "${it.title}，${it.score} 分，${it.createdAt}" }
+                if (records.isEmpty()) "${name}查看了自己的游戏记录，目前还没有已完成的对局。"
+                else "${name}查看了自己的游戏记录：" + records.joinToString("；") { "${it.title}，${it.score} 分，${it.createdAt}" }
             }
             "watch_game" -> error("没有可核验的现场游戏过程；可以自己玩游戏馆中的记忆配对")
             "play_table_game" -> error("请通过游戏馆的真实游戏开始对局")
@@ -55,7 +55,7 @@ internal object DigitalWorldActivityStateStore {
                 val key = "${if (drink) "drink" else "snack"}:$characterId"
                 require(p.getInt(key, 0) < 100) { "随身同类物品已满" }
                 editor.putInt(key, p.getInt(key, 0) + 1)
-                "$name从自助供应台领取了${if (drink) "一杯温水" else "一份原味饼干"}，放入随身物品。"
+                "${name}从自助供应台领取了${if (drink) "一杯温水" else "一份原味饼干"}，放入随身物品。"
             }
             "slow_drink", "have_snack" -> {
                 val drink = activityId == "slow_drink"
@@ -71,11 +71,11 @@ internal object DigitalWorldActivityStateStore {
                 editor.putBoolean("power:${target.id}", on)
                 "$name${if (on) "打开" else "关闭"}了“${target.name}”${if (activityId == "turn_on_tv") "，目前没有接入节目" else ""}。"
             }
-            "check_time" -> "$name查看了当前时间：$now。"
+            "check_time" -> "${name}查看了当前时间：$now。"
             "water_plant", "tend_plant" -> {
                 val target = requireNotNull(item)
                 editor.putString("tended:${target.id}", now.toString())
-                "$name照料了“${target.name}”；照料时间已记录。"
+                "${name}照料了“${target.name}”；照料时间已记录。"
             }
             else -> summary
         }

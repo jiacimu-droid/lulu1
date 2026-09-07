@@ -361,7 +361,7 @@ internal object DigitalWorldLifeEventStore {
         val label = incidentLabel(kind)
         val action = approachLabel(approach)
         if (approach in setOf("observe", "wait", "avoid")) {
-            return "$actorName$action；${place}$label仍然存在。"
+            return "$actorName$action；${place}${label}仍然存在。"
         }
         if (resolved) {
             val outcome = when (approach) {
@@ -375,9 +375,9 @@ internal object DigitalWorldLifeEventStore {
             return "$actorName$action，处理${place}$label；$outcome。"
         }
         if (kind == "roach" && nextAnchor.isNotBlank() && nextAnchor != previousAnchor) {
-            return "$actorName$action时，蟑螂从“$previousAnchor”附近躲到了“$nextAnchor”附近，还没有被驱离。"
+            return "$actorName${action}时，蟑螂从“$previousAnchor”附近躲到了“$nextAnchor”附近，还没有被驱离。"
         }
-        return "$actorName$action；${place}$label仍在，尚未解决。"
+        return "$actorName$action；${place}${label}仍在，尚未解决。"
     }
 
     private fun openingSummary(kind: String, actorName: String, anchorName: String): String = when (kind) {
