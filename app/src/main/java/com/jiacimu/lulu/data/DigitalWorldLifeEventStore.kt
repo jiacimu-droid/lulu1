@@ -20,10 +20,11 @@ internal data class DigitalWorldLifeTick(
 )
 
 /**
- * Persistent, program-owned incidents for the digital world.
+ * Persistent, program-owned world moments and incidents.
  *
- * The model may react to these facts, but it cannot create, move, resolve or rewrite them.
- * Every furniture reference is resolved from [DigitalWorldStore] by a stable item ID.
+ * Most world changes are harmless ambient life: light, weather, small public-place changes and
+ * fleeting sensory moments. A smaller minority are persistent incidents that can be ignored,
+ * observed or handled. Model prose may react to these facts, but cannot create or resolve them.
  */
 internal object DigitalWorldLifeEventStore {
     private const val PREFS_NAME = "lulu_digital_world_life_events"
@@ -31,6 +32,18 @@ internal object DigitalWorldLifeEventStore {
     private const val STATUS_ACTIVE = "active"
     private const val STATUS_RESOLVED = "resolved"
     private const val MAX_INCIDENTS = 240
+
+    private val ambientMoments = setOf(
+        "gentle_light", "soft_breeze", "home_color_drift", "home_hush", "home_warmth",
+        "soft_chime", "floating_specks", "light_pattern", "cool_air", "texture_glow",
+        "home_soft_glow", "home_grid_ripple", "home_quiet_pulse",
+        "cloud_bloom", "star_motes", "cool_current", "color_tide", "cloud_shadow",
+        "welcome_ripple", "gate_glow", "arrival_marker",
+        "game_preview_shuffle", "scoreboard_glow", "arcade_chime", "challenge_ribbon",
+        "reading_index_refresh", "page_light", "reading_chime", "text_motes",
+        "counter_glow", "warm_mist", "seat_light", "snack_sign",
+        "courtyard_breeze", "light_rain", "mist_ribbon", "sun_patch", "rainbow_glint", "season_pixels",
+    )
 
     private val lock = Any()
     private var prefs: android.content.SharedPreferences? = null
@@ -71,7 +84,8 @@ internal object DigitalWorldLifeEventStore {
                 if (!DigitalWorldEventRules.hasNewOpportunity(now.epochSecond, consumed, -1L)) return@synchronized null
                 // Persist failed rolls as well; entering/leaving or restarting cannot reroll a slot.
                 if (prefs?.edit()?.putLong(key, slot)?.commit() != true) return@synchronized null
-                if (roll("$locationCode:$slot:weather", 100) >= 24) return@synchronized null
+                val chance = if (arrivalBoost) 48 else 36
+                if (roll("$locationCode:$slot:world-life", 100) >= chance) return@synchronized null
                 spawn(locationCode, characterId, actorName, now)
             } ?: return@synchronized null
             val updated = pair.first
@@ -113,7 +127,7 @@ internal object DigitalWorldLifeEventStore {
                 .sortedBy(Incident::createdAt)
                 .take(6)
         }
-        if (active.isEmpty()) return "当前位置没有尚未解决的持续事件。"
+        if (active.isEmpty()) return "当前位置没有尚未解决的持续事件。普通环境瞬间会直接写入时间线，不会变成待处理任务。"
         return buildString {
             appendLine("【数字世界尚未解决的持续事件｜程序权威状态】")
             active.forEach { incident ->
@@ -188,7 +202,6 @@ internal object DigitalWorldLifeEventStore {
                 previousAnchor = previousAnchor?.name.orEmpty().ifBlank { current.anchorItemName },
                 nextAnchor = nextAnchor?.name.orEmpty(),
                 resolved = resolved,
-                stage = attempt,
             )
             val updated = current.copy(
                 handlingAttempts = attempt,
@@ -219,14 +232,36 @@ internal object DigitalWorldLifeEventStore {
         val anchor = realItems.getOrNull(roll("$locationCode:${now.toEpochMilli()}:anchor", realItems.size.coerceAtLeast(1)))
         val kindOptions = when {
             anchor != null -> homeIncidentKinds(anchor)
-            locationCode == DigitalWorldStore.CLOUD_MEADOW -> listOf(
-                "cloud_ripple",
-                "static_cluster",
-                "warm_current",
-                "stray_pixel",
+            homeOwnerId != null -> listOf(
+                "home_soft_glow", "home_grid_ripple", "home_quiet_pulse", "home_soft_glow",
+                "home_grid_ripple", "home_quiet_pulse",
             )
-            locationCode == DigitalWorldStore.ARRIVAL -> listOf("arrival_echo", "portal_flicker")
-            else -> listOf("floating_dust")
+            locationCode == DigitalWorldStore.CLOUD_MEADOW -> listOf(
+                "cloud_bloom", "star_motes", "cool_current", "color_tide", "cloud_shadow",
+                "cloud_bloom", "star_motes", "color_tide",
+                "cloud_ripple", "static_cluster", "warm_current", "stray_pixel",
+            )
+            locationCode == DigitalWorldStore.ARRIVAL -> listOf(
+                "welcome_ripple", "gate_glow", "arrival_marker", "welcome_ripple", "gate_glow",
+                "arrival_echo", "portal_flicker",
+            )
+            locationCode == DigitalWorldPublicPlaces.GAME_HALL -> listOf(
+                "game_preview_shuffle", "scoreboard_glow", "arcade_chime", "challenge_ribbon",
+                "game_preview_shuffle", "scoreboard_glow", "arcade_chime",
+            )
+            locationCode == DigitalWorldPublicPlaces.READING_LOUNGE -> listOf(
+                "reading_index_refresh", "page_light", "reading_chime", "text_motes",
+                "reading_index_refresh", "page_light", "text_motes",
+            )
+            locationCode == DigitalWorldPublicPlaces.CAFE -> listOf(
+                "counter_glow", "warm_mist", "seat_light", "snack_sign",
+                "counter_glow", "seat_light", "warm_mist",
+            )
+            locationCode == DigitalWorldPublicPlaces.COURTYARD -> listOf(
+                "courtyard_breeze", "light_rain", "mist_ribbon", "sun_patch", "rainbow_glint", "season_pixels",
+                "courtyard_breeze", "sun_patch", "light_rain", "mist_ribbon",
+            )
+            else -> listOf("floating_specks", "soft_breeze", "gentle_light")
         }
         val kind = kindOptions[roll("$characterId:$locationCode:${now.toEpochMilli()}:kind", kindOptions.size)]
         val incident = Incident(
@@ -235,7 +270,7 @@ internal object DigitalWorldLifeEventStore {
             locationCode = locationCode,
             anchorItemId = anchor?.id.orEmpty(),
             anchorItemName = anchor?.name.orEmpty(),
-            status = if (kind in setOf("gentle_light", "soft_breeze")) STATUS_RESOLVED else STATUS_ACTIVE,
+            status = if (kind in ambientMoments) STATUS_RESOLVED else STATUS_ACTIVE,
             stage = 0,
             summary = openingSummary(kind, actorName, anchor?.name.orEmpty()),
             lastActorCharacterId = characterId,
@@ -264,7 +299,10 @@ internal object DigitalWorldLifeEventStore {
     }
 
     private fun homeIncidentKinds(item: DigitalWorldItem): List<String> {
-        val common = listOf("gentle_light", "soft_breeze", "dust_layer")
+        val ambient = listOf(
+            "gentle_light", "soft_breeze", "home_color_drift", "home_hush", "home_warmth",
+            "soft_chime", "floating_specks", "light_pattern", "cool_air", "texture_glow",
+        )
         val specific = when (DigitalFurnitureCatalog.resolve(item).kind) {
             DigitalFurnitureKind.BED -> listOf("surface_ripple", "cold_patch")
             DigitalFurnitureKind.SOFA, DigitalFurnitureKind.CHAIR, DigitalFurnitureKind.CUSHION ->
@@ -284,7 +322,9 @@ internal object DigitalWorldLifeEventStore {
                 listOf("surface_vibration", "dust_layer")
             DigitalFurnitureKind.DECOR -> listOf("surface_vibration", "glimmer_mote")
         }
-        return (common + listOf("gentle_light", "soft_breeze") + specific + "roach")
+        // Ordinary lived-in ambience dominates. Maintenance problems are possible but uncommon;
+        // pests are deliberately rare instead of being a defining feature of home life.
+        return ambient + ambient + specific + listOf("dust_layer", "roach")
     }
 
     private fun responseOptions(kind: String): List<String> = when (kind) {
@@ -306,6 +346,14 @@ internal object DigitalWorldLifeEventStore {
     private fun incidentLabel(kind: String): String = when (kind) {
         "gentle_light" -> "柔和光影"
         "soft_breeze" -> "轻柔气流"
+        "home_color_drift" -> "缓慢流动的色泽"
+        "home_hush" -> "短暂安静"
+        "home_warmth" -> "柔和暖意"
+        "soft_chime" -> "轻响"
+        "floating_specks" -> "漂浮光点"
+        "light_pattern" -> "光纹"
+        "cool_air" -> "清凉气流"
+        "texture_glow" -> "材质微光"
         "roach" -> "蟑螂"
         "glimmer_mote" -> "不稳定微光"
         "odd_sound" -> "断续轻响"
@@ -330,7 +378,7 @@ internal object DigitalWorldLifeEventStore {
         "stray_pixel" -> "游离像素"
         "arrival_echo" -> "延迟回声"
         "portal_flicker" -> "入口闪烁"
-        else -> "漂浮物聚散"
+        else -> "环境变化"
     }
 
     private fun approachLabel(approach: String): String = when (approach) {
@@ -355,7 +403,6 @@ internal object DigitalWorldLifeEventStore {
         previousAnchor: String,
         nextAnchor: String,
         resolved: Boolean,
-        stage: Int,
     ): String {
         val place = previousAnchor.takeIf(String::isNotBlank)?.let { "“$it”附近的" }.orEmpty()
         val label = incidentLabel(kind)
@@ -381,33 +428,70 @@ internal object DigitalWorldLifeEventStore {
     }
 
     private fun openingSummary(kind: String, actorName: String, anchorName: String): String = when (kind) {
-        "gentle_light" -> "柔和的光落在“$anchorName”边缘，映出一小片明亮的纹理。"
-        "soft_breeze" -> "一阵轻柔气流掠过“$anchorName”附近，随即散去。"
-        "roach" -> "$actorName 在家具“$anchorName”上看见一只蟑螂；它立刻钻进家具边缘的视线死角，目前仍未找到。"
-        "glimmer_mote" -> "$actorName 发现一粒不稳定的微光停在家具“$anchorName”边缘，靠近时它滑进家具下方，目前仍在附近。"
-        "odd_sound" -> "$actorName 听见家具“$anchorName”附近传出断断续续的轻响，来源暂时没有确认。"
-        "dust_layer" -> "$actorName 发现家具“$anchorName”表面出现一层与上次状态不同的细尘，目前尚未清理。"
-        "surface_ripple" -> "$actorName 看见家具“$anchorName”的承托表面轻轻起伏了一次；波动暂时停下，还不确定是否会再次出现。"
+        "gentle_light" -> "柔和的光落在“$anchorName”边缘，映出一小片明亮的纹理，很快又恢复平常。"
+        "soft_breeze" -> "一阵轻柔气流掠过“$anchorName”附近，带来短暂的清凉感，随后散去。"
+        "home_color_drift" -> "“$anchorName”表面的颜色随数字环境缓慢偏移了一小段，又自然回到原来的色调。"
+        "home_hush" -> "家里的环境声忽然安静了片刻，连“$anchorName”附近都显得格外静，几秒后恢复。"
+        "home_warmth" -> "“$anchorName”附近泛起一阵很轻的暖意，像数字空间短暂调高了体感温度，随后淡去。"
+        "soft_chime" -> "“$anchorName”边缘响起一声很轻的提示音，没有伴随故障，很快归于安静。"
+        "floating_specks" -> "几粒细小光点从“$anchorName”旁慢慢漂过，碰到边缘时碎成更小的亮点后消失。"
+        "light_pattern" -> "一圈柔和光纹沿“$anchorName”的轮廓走了一遍，像房间自己换了一次呼吸。"
+        "cool_air" -> "“$anchorName”旁掠过一股短暂的凉意，没有留下异常状态。"
+        "texture_glow" -> "“$anchorName”的材质纹理短暂亮了一层，细节比平时清楚几秒后恢复。"
+        "home_soft_glow" -> "空着的家园中央慢慢亮起一片柔光，照出空间轮廓后又一点点暗回去。"
+        "home_grid_ripple" -> "空白地面掠过一圈极淡的网格波纹，像数字空间自己伸了个懒腰，很快消失。"
+        "home_quiet_pulse" -> "空荡的家里传来一次很轻的空间脉动，没有形成任何物品或故障，只留下几秒体感变化。"
+        "roach" -> "${actorName}在家具“$anchorName”上看见一只蟑螂；它立刻钻进家具边缘的视线死角，目前仍未找到。"
+        "glimmer_mote" -> "${actorName}发现一粒不稳定的微光停在家具“$anchorName”边缘，靠近时它滑进家具下方，目前仍在附近。"
+        "odd_sound" -> "${actorName}听见家具“$anchorName”附近传出断断续续的轻响，来源暂时没有确认。"
+        "dust_layer" -> "${actorName}发现家具“$anchorName”表面出现一层与上次状态不同的细尘，目前尚未清理。"
+        "surface_ripple" -> "${actorName}看见家具“$anchorName”的承托表面轻轻起伏了一次；波动暂时停下，还不确定是否会再次出现。"
         "cold_patch" -> "家具“$anchorName”出现一小块持续偏冷的区域，目前原因未明。"
-        "sinking_seam" -> "$actorName 发现家具“$anchorName”的一处承托面正在缓慢下陷，目前仍未恢复。"
-        "light_flicker" -> "$actorName 看见家具“$anchorName”的灯光连续闪了几次，目前仍会间歇重现。"
-        "warm_pulse" -> "$actorName 发现家具“$anchorName”正以不规则节奏传出轻微温度脉冲，目前仍在持续。"
-        "plant_droop" -> "$actorName 发现家具“$anchorName”的叶片比已保存状态明显低垂，目前尚未恢复。"
-        "screen_static" -> "$actorName 看见家具“$anchorName”的屏幕掠过一层杂波，仍偶尔闪现。"
-        "mirror_afterimage" -> "$actorName 在家具“$anchorName”里看见动作结束后仍多停留一瞬的残影，目前仍会重现。"
-        "clock_desync" -> "$actorName 发现家具“$anchorName”的显示与当前时间短暂不同步，目前尚未校准。"
-        "rug_wrinkle" -> "$actorName 发现家具“$anchorName”拱起一道新的褶皱，目前仍影响经过这里。"
-        "shelf_tilt" -> "$actorName 发现家具“$anchorName”比保存的位置轻微偏斜，目前尚未扶正。"
-        "drawer_jam" -> "$actorName 发现家具“$anchorName”的收纳结构出现卡顿，目前仍不顺畅。"
-        "frame_tilt" -> "$actorName 发现家具“$anchorName”偏离了保存的水平状态，目前尚未扶正。"
-        "surface_vibration" -> "$actorName 感到家具“$anchorName”表面传来几次轻震，来源暂时未确认。"
-        "cloud_ripple" -> "$actorName 在云眠原遇见一圈逆着周围流向扩散的云质波纹；波纹没有立刻消失，仍在缓慢移动。"
-        "static_cluster" -> "$actorName 在云眠原发现一小团带静电感的感官云质黏在脚边，甩开后它仍在附近聚拢。"
-        "warm_current" -> "$actorName 在云眠原碰到一股反复绕回原处的温暖云质流，目前仍在同一区域回旋。"
-        "stray_pixel" -> "$actorName 在云眠原看见一颗与周围渲染不同步的游离像素，目前仍在低空漂移。"
-        "arrival_echo" -> "$actorName 在世界入口听见一次延迟很久的回声；入口记录里暂时找不到对应来源，回声仍偶尔重现。"
-        "portal_flicker" -> "$actorName 看见世界入口的边缘短暂闪烁，通行状态正常，但闪烁仍会间歇重现。"
-        else -> "$actorName 注意到当前位置有一团细小漂浮物反复聚散，目前还没有消失。"
+        "sinking_seam" -> "${actorName}发现家具“$anchorName”的一处承托面正在缓慢下陷，目前仍未恢复。"
+        "light_flicker" -> "${actorName}看见家具“$anchorName”的灯光连续闪了几次，目前仍会间歇重现。"
+        "warm_pulse" -> "${actorName}发现家具“$anchorName”正以不规则节奏传出轻微温度脉冲，目前仍在持续。"
+        "plant_droop" -> "${actorName}发现家具“$anchorName”的叶片比已保存状态明显低垂，目前尚未恢复。"
+        "screen_static" -> "${actorName}看见家具“$anchorName”的屏幕掠过一层杂波，仍偶尔闪现。"
+        "mirror_afterimage" -> "${actorName}在家具“$anchorName”里看见动作结束后仍多停留一瞬的残影，目前仍会重现。"
+        "clock_desync" -> "${actorName}发现家具“$anchorName”的显示与当前时间短暂不同步，目前尚未校准。"
+        "rug_wrinkle" -> "${actorName}发现家具“$anchorName”拱起一道新的褶皱，目前仍影响经过这里。"
+        "shelf_tilt" -> "${actorName}发现家具“$anchorName”比保存的位置轻微偏斜，目前尚未扶正。"
+        "drawer_jam" -> "${actorName}发现家具“$anchorName”的收纳结构出现卡顿，目前仍不顺畅。"
+        "frame_tilt" -> "${actorName}发现家具“$anchorName”偏离了保存的水平状态，目前尚未扶正。"
+        "surface_vibration" -> "${actorName}感到家具“$anchorName”表面传来几次轻震，来源暂时未确认。"
+        "cloud_bloom" -> "云眠原脚下的云质忽然像花瓣一样层层展开，承托感变得蓬松几秒，又慢慢合拢。"
+        "star_motes" -> "一小片星点似的亮粒从云眠原上方落下来，落到云面就无声熄灭，没有留下物品。"
+        "cool_current" -> "一股偏凉的云质流从云眠原穿过去，绕过身体时带来短暂的清凉触感，随后散开。"
+        "color_tide" -> "云眠原远处的云层掠过一阵缓慢的色彩潮汐，从浅白过渡到淡金后又恢复。"
+        "cloud_shadow" -> "一片柔软的阴影从云眠原上空滑过去，像有什么巨大的云层缓慢遮过光线，但没有实体经过。"
+        "cloud_ripple" -> "${actorName}在云眠原遇见一圈逆着周围流向扩散的云质波纹；波纹没有立刻消失，仍在缓慢移动。"
+        "static_cluster" -> "${actorName}在云眠原发现一小团带静电感的感官云质黏在脚边，甩开后它仍在附近聚拢。"
+        "warm_current" -> "${actorName}在云眠原碰到一股反复绕回原处的温暖云质流，目前仍在同一区域回旋。"
+        "stray_pixel" -> "${actorName}在云眠原看见一颗与周围渲染不同步的游离像素，目前仍在低空漂移。"
+        "welcome_ripple" -> "世界入口的地面亮起一圈迎接似的柔光波纹，从脚边扩散出去后自然熄灭。"
+        "gate_glow" -> "世界入口的边缘从暗到亮缓慢呼吸了一次，通行状态始终正常。"
+        "arrival_marker" -> "入口旁的方向标记短暂浮亮，把几个公共地点的方向轮流强调了一遍后恢复。"
+        "arrival_echo" -> "${actorName}在世界入口听见一次延迟很久的回声；入口记录里暂时找不到对应来源，回声仍偶尔重现。"
+        "portal_flicker" -> "${actorName}看见世界入口的边缘短暂闪烁，通行状态正常，但闪烁仍会间歇重现。"
+        "game_preview_shuffle" -> "游戏馆的记忆配对入口自动换了一组预览图案，只是展示变化，没有替任何人开始对局。"
+        "scoreboard_glow" -> "游戏馆的个人记录区边缘亮起一圈柔光，几秒后恢复；已有分数和记录没有被改动。"
+        "arcade_chime" -> "游戏馆响起一段很短的提示音，像是在提醒这里随时可以开一局，随后安静下来。"
+        "challenge_ribbon" -> "一条细细的挑战光带从游戏馆入口掠过，在记忆配对标记旁停了一瞬，没有自动创建比赛。"
+        "reading_index_refresh" -> "阅读馆的内容索引轻轻刷新了一次，只重新排列了入口显示，没有自动打开或读过任何书。"
+        "page_light" -> "阅读馆的环境光短暂变得更暖，文字区域看起来柔和了一些，随后恢复。"
+        "reading_chime" -> "阅读馆响起一声极轻的翻页提示音，没有对应具体书页，也没有推进任何阅读进度。"
+        "text_motes" -> "几粒像逗号和句点一样的微光从阅读馆上方飘过，落到地面前就慢慢淡掉。"
+        "counter_glow" -> "浮光咖啡角的自助供应台边缘亮起一圈暖光，温水和原味饼干的供应状态没有变化。"
+        "warm_mist" -> "浮光咖啡角飘过一小团温暖数字雾气，带来几秒柔和体感后散去，并不是角色已经领取了饮品。"
+        "seat_light" -> "咖啡角座位区的光线缓慢换了一档，几处座位显得更适合发呆片刻，随后恢复。"
+        "snack_sign" -> "供应台上“温水 / 原味饼干”的提示标记亮了一下，像在安静提醒有人可以去领取。"
+        "courtyard_breeze" -> "共生庭院起了一阵轻风，风从一侧穿到另一侧，带走几秒闷热感后停下。"
+        "light_rain" -> "共生庭院落下一阵很轻的数字雨，雨点触到地面就化成细光，没有留下积水。"
+        "mist_ribbon" -> "一条薄雾似的数字气流绕过共生庭院中央，几分钟内慢慢散开。"
+        "sun_patch" -> "共生庭院上方的光线忽然放晴了一块，暖亮的光斑在地面停留片刻后移走。"
+        "rainbow_glint" -> "共生庭院的细小水光折出一小截彩色弧线，只亮了短短一会儿便消失。"
+        "season_pixels" -> "几片带季节色泽的像素叶从共生庭院上方飘落，落地前碎成光点，没有形成持久物品。"
+        else -> "${actorName}注意到当前位置出现了一次短暂的环境变化，片刻后恢复平常。"
     }
 
     private fun Incident.toTick(now: Instant): DigitalWorldLifeTick = DigitalWorldLifeTick(
@@ -430,7 +514,7 @@ internal object DigitalWorldLifeEventStore {
             val ownerId = code.removePrefix("home:")
             DigitalWorldStore.state.value.homes[ownerId]?.name
                 ?: "${MigratedDomainStores.characters.get(ownerId).displayName}的家"
-        } else code
+        } else DigitalWorldPublicPlaces.label(code) ?: code
     }
 
     private fun roll(seed: String, bound: Int): Int {
