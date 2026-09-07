@@ -52,21 +52,13 @@ internal data class RealityRefreshResult(
     val criticalEvents: List<RealityWindowEvent> = emptyList(),
 )
 
-/**
- * Program-owned real-world information window for digital residents.
- *
- * Roles own their interests. They may explore, follow, unfollow and open source-backed items, but
- * they cannot invent an external event. The source layer is deliberately multi-provider: general
- * news is only one part of the window; culture, games, weather and safety data have dedicated
- * adapters. A source failure therefore degrades coverage instead of collapsing the whole window.
- */
+/** Program-owned, multi-source real-world information window for digital residents. */
 internal object RealityWorldWindowRuntime {
     private const val PREFS_NAME = "lulu_reality_world_window_v1"
     private const val KEY_EVENTS = "events_v1"
     private const val MAX_EVENTS = 520
     private const val PERIODIC_WORK = "lulu-reality-window-periodic"
     private const val IMMEDIATE_WORK = "lulu-reality-window-immediate"
-
     private const val TOPIC_WORLD = "system-world"
     private const val TOPIC_WEATHER = "system-weather"
     private const val TOPIC_EARTHQUAKE = "system-earthquake"
@@ -77,27 +69,9 @@ internal object RealityWorldWindowRuntime {
     private var events: List<RealityWindowEvent> = emptyList()
 
     private val systemTopics = mapOf(
-        TOPIC_WORLD to RealityTopic(
-            id = TOPIC_WORLD,
-            label = "世界大事",
-            query = "",
-            state = RealityTopicState.DISCOVERED,
-            discoveredAt = Instant.EPOCH,
-        ),
-        TOPIC_WEATHER to RealityTopic(
-            id = TOPIC_WEATHER,
-            label = "用户现实所在地天气",
-            query = "",
-            state = RealityTopicState.DISCOVERED,
-            discoveredAt = Instant.EPOCH,
-        ),
-        TOPIC_EARTHQUAKE to RealityTopic(
-            id = TOPIC_EARTHQUAKE,
-            label = "地震与现实安全",
-            query = "",
-            state = RealityTopicState.DISCOVERED,
-            discoveredAt = Instant.EPOCH,
-        ),
+        TOPIC_WORLD to RealityTopic(TOPIC_WORLD, "世界大事", "", RealityTopicState.DISCOVERED, Instant.EPOCH),
+        TOPIC_WEATHER to RealityTopic(TOPIC_WEATHER, "用户现实所在地天气", "", RealityTopicState.DISCOVERED, Instant.EPOCH),
+        TOPIC_EARTHQUAKE to RealityTopic(TOPIC_EARTHQUAKE, "地震与现实安全", "", RealityTopicState.DISCOVERED, Instant.EPOCH),
     )
 
     @Synchronized
@@ -108,11 +82,8 @@ internal object RealityWorldWindowRuntime {
             prefs = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             events = decodeEvents(prefs?.getString(KEY_EVENTS, null))
         }
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
         val request = PeriodicWorkRequestBuilder<RealityWindowWorker>(30, TimeUnit.MINUTES)
-            .setConstraints(constraints)
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .build()
         WorkManager.getInstance(application).enqueueUniquePeriodicWork(
             PERIODIC_WORK,
@@ -126,14 +97,9 @@ internal object RealityWorldWindowRuntime {
         val topics = topicsFor(characterId)
         val followed = topics.filter { it.state == RealityTopicState.FOLLOWING }
         val discovered = topics.filter { it.state == RealityTopicState.DISCOVERED }
-        val visibleTopicIds = topics
-            .filter { it.state != RealityTopicState.DROPPED }
+        val visibleTopicIds = topics.filter { it.state != RealityTopicState.DROPPED }
             .mapTo(mutableSetOf()) { it.id }
-            .apply {
-                add(TOPIC_WORLD)
-                add(TOPIC_WEATHER)
-                add(TOPIC_EARTHQUAKE)
-            }
+            .apply { add(TOPIC_WORLD); add(TOPIC_WEATHER); add(TOPIC_EARTHQUAKE) }
         val exposure = exposureFor(characterId)
 
         val fresh = synchronized(lock) {
@@ -162,7 +128,6 @@ internal object RealityWorldWindowRuntime {
         }
         if (fresh.isNotEmpty()) markGlimpsed(characterId, fresh.map { it.id }, now)
         val updatedExposure = exposureFor(characterId)
-
         val recentlyRead = synchronized(lock) {
             events.asSequence()
                 .filter { updatedExposure[it.id]?.first == RealityExposureState.READ }
@@ -173,13 +138,12 @@ internal object RealityWorldWindowRuntime {
 
         return buildString {
             appendLine("【现实世界窗口｜多来源、角色自主关注】")
-            appendLine("- 这是数字生命通往用户现实世界的程序信息层，不是手机通知的替代品。资讯来自网络来源并保存为带来源的外部记录；角色不能凭常识或想象创造新闻。")
-            appendLine("- 当前来源可包括：Google News RSS / GDELT 新闻索引 / Bangumi / AniList / Steam News / Open-Meteo / USGS。不同圈子会走不同来源，Google News 只是兜底，不再承担全部现实认知。")
-            appendLine("- 圈子归角色本人：用户不替角色分配兴趣。角色可依据自己的人设、记忆、好奇心、朋友分享和既有兴趣，自主探索、关注、退订，也可以长期不看某类内容。")
-            appendLine("- 标题被看到不等于正文已读。只有 reality_open 成功执行后，来源摘要才成为该角色真正读过的信息。数据库条目也只代表知道这部作品存在，不代表已经看过/玩过。")
+            appendLine("- 这是数字生命通往用户现实世界的程序信息层，不是手机通知。资讯来自网络来源并保存为带来源的外部记录；角色不能凭常识或想象创造新闻。")
+            appendLine("- 当前来源可包括：Google News RSS / GDELT 新闻索引 / Bangumi / AniList / Steam News / Open-Meteo / USGS。不同圈子走不同来源，Google News 只是兜底。")
+            appendLine("- 圈子归角色本人：用户不替角色分配兴趣。角色可依据人设、记忆、好奇心、朋友分享和既有兴趣，自主探索、关注、退订，也可以长期不看某类内容。")
+            appendLine("- 标题被看到不等于正文已读。只有 reality_open 成功后，来源摘要才成为该角色真正读过的信息。数据库条目只代表知道作品存在，不代表已经看过/玩过。")
             appendLine("- 外部报道证明的是‘某来源这样报道/记录’，不是角色或用户亲历。天气是模型数据；地震距离由设备本地计算。")
             appendLine("公共入口：topicId=$TOPIC_WORLD=世界大事；topicId=$TOPIC_WEATHER=现实所在地天气；topicId=$TOPIC_EARTHQUAKE=地震与安全。公共入口不等于角色长期关注。")
-
             if (followed.isNotEmpty()) {
                 appendLine("角色自己正在关注的圈子：")
                 followed.take(12).forEach { topic ->
@@ -188,46 +152,32 @@ internal object RealityWorldWindowRuntime {
                     if (hints.isNotEmpty()) append("；已发现对口来源=${hints.joinToString("/")}")
                     appendLine()
                 }
-            } else {
-                appendLine("角色自己正在关注的圈子：暂无。")
-            }
+            } else appendLine("角色自己正在关注的圈子：暂无。")
             if (discovered.isNotEmpty()) {
                 appendLine("角色最近自己探索过、还没决定长期关注的圈子：")
                 discovered.take(10).forEach { appendLine("- topicId=${it.id}；${it.label}") }
             }
-
             if (fresh.isNotEmpty()) {
-                appendLine("窗口当前可见的来源条目（本轮只证明扫到了这些标题；未必点开）：")
+                appendLine("窗口当前可见的来源条目（本轮只证明扫到了标题；未必点开）：")
                 fresh.forEach { event ->
-                    val state = updatedExposure[event.id]?.first
-                    val marker = if (state == RealityExposureState.READ) "已读" else "仅标题"
+                    val marker = if (updatedExposure[event.id]?.first == RealityExposureState.READ) "已读" else "仅标题"
                     val distance = event.distanceKm?.let { "；距用户设备最近位置约${it}km" }.orEmpty()
                     appendLine("- eventId=${event.id}；topicId=${event.topicId}；$marker；来源=${event.sourceName}；时间=${event.publishedAt}；标题=${event.title}$distance")
                 }
-            } else {
-                appendLine("窗口暂时没有成功抓取到的新条目；这只代表当前来源没有可用结果，不代表现实世界没有相关信息。")
-            }
-
+            } else appendLine("窗口暂时没有成功抓取到的新条目；这只代表当前来源没有可用结果，不代表现实世界没有相关信息。")
             if (recentlyRead.isNotEmpty()) {
                 appendLine("角色最近真正点开过的资讯/条目摘要：")
-                recentlyRead.forEach { event ->
-                    appendLine("- [${event.sourceName}] ${event.title}：${event.summary.take(480)}")
-                }
+                recentlyRead.forEach { appendLine("- [${it.sourceName}] ${it.title}：${it.summary.take(480)}") }
             }
-
-            appendLine("可执行的现实窗口动作（通过 digital_world + worldAction=use_location + activityId 执行；现实窗口属于露露机系统能力，不受角色当前数字地点限制）：")
-            appendLine("- activityId=reality_explore:<角色自己想了解的关键词或圈子>：自主探索，例如‘恋爱动画’‘冰之城墙’‘成都’‘某个游戏’‘某位明星’。程序会同时尝试通用新闻与对口专业源。")
-            appendLine("- activityId=reality_follow:<topicId>：关注上面真实存在的 topicId。")
-            appendLine("- activityId=reality_unfollow:<topicId>：退订角色当前真实关注/探索过的 topicId。")
-            appendLine("- activityId=reality_open:<eventId>：点开真实存在的 eventId，程序才返回并记录来源摘要。")
+            appendLine("可执行现实窗口动作（通过 digital_world + worldAction=use_location + activityId；不受当前数字地点限制）：")
+            appendLine("- reality_explore:<关键词或圈子>：角色自主探索，例如‘恋爱动画’‘冰之城墙’‘成都’‘某个游戏’‘某位明星’，程序会尝试通用新闻与对口专业源。")
+            appendLine("- reality_follow:<topicId>：关注真实存在的 topicId。")
+            appendLine("- reality_unfollow:<topicId>：退订角色当前真实关注/探索过的 topicId。")
+            appendLine("- reality_open:<eventId>：点开真实存在的 eventId，程序才返回并记录来源摘要。")
         }.trim()
     }
 
-    fun executeActivity(
-        characterId: String,
-        activityId: String,
-        now: Instant = Instant.now(),
-    ): String {
+    fun executeActivity(characterId: String, activityId: String, now: Instant = Instant.now()): String {
         checkNotNull(prefs) { "现实世界窗口尚未初始化" }
         val character = MigratedDomainStores.characters.get(characterId)
         val raw = activityId.trim()
@@ -239,7 +189,6 @@ internal object RealityWorldWindowRuntime {
                 enqueueImmediateRefresh()
                 "${character.displayName}自己决定探索现实圈子“${topic.label}”；程序会尝试新闻索引以及可能匹配的动漫/漫画/游戏专业来源。当前只是开始探索，不等于已经关注或读过任何结果。"
             }
-
             raw.startsWith("reality_follow:") -> {
                 val topicId = raw.substringAfter(':').trim()
                 val topic = resolveTopic(characterId, topicId) ?: error("没有找到这个现实圈子")
@@ -253,18 +202,14 @@ internal object RealityWorldWindowRuntime {
                 enqueueImmediateRefresh()
                 "${character.displayName}自己决定长期关注现实圈子“${saved.label}”。"
             }
-
             raw.startsWith("reality_unfollow:") -> {
                 val topicId = raw.substringAfter(':').trim()
                 require(topicId !in systemTopics.keys) { "公共现实入口不能退订；它们只是可见入口，不代表角色兴趣" }
                 val topic = resolveTopic(characterId, topicId) ?: error("没有找到这个现实圈子")
-                require(topicsFor(characterId).any { it.id == topicId && it.state != RealityTopicState.DROPPED }) {
-                    "角色目前没有关注或探索这个圈子"
-                }
+                require(topicsFor(characterId).any { it.id == topicId && it.state != RealityTopicState.DROPPED }) { "角色目前没有关注或探索这个圈子" }
                 upsertTopic(characterId, topic.copy(state = RealityTopicState.DROPPED))
                 "${character.displayName}自己决定不再关注现实圈子“${topic.label}”。"
             }
-
             raw.startsWith("reality_open:") -> {
                 val eventId = raw.substringAfter(':').trim()
                 val event = synchronized(lock) { events.firstOrNull { it.id == eventId } }
@@ -277,8 +222,7 @@ internal object RealityWorldWindowRuntime {
                 }
                 val distance = event.distanceKm?.let { "；距用户设备最近位置约${it}km" }.orEmpty()
                 val content = buildString {
-                    append("角色实际点开现实世界窗口中的一条来源记录。")
-                    append("来源=${event.sourceName}；类型=$trust；来源时间=${event.publishedAt}；标题=${event.title}")
+                    append("角色实际点开现实世界窗口中的一条来源记录。来源=${event.sourceName}；类型=$trust；来源时间=${event.publishedAt}；标题=${event.title}")
                     append(distance)
                     append("；来源摘要=${event.summary.take(1_400)}")
                     if (event.sourceUrl.isNotBlank()) append("；来源链接=${event.sourceUrl}")
@@ -294,10 +238,8 @@ internal object RealityWorldWindowRuntime {
                 )
                 return "已查看现实来源｜${event.sourceName}｜${event.title}：${event.summary.take(650)}$distance"
             }
-
             else -> error("未知现实世界窗口动作")
         }
-
         SharedExperienceTimeline.record(
             eventId = "reality-action-${stableId(characterId, "$raw:${now.toEpochMilli()}")}",
             characterId = characterId,
@@ -313,92 +255,50 @@ internal object RealityWorldWindowRuntime {
         return summary
     }
 
-    suspend fun refresh(context: Context, now: Instant = Instant.now()): RealityRefreshResult =
-        withContext(Dispatchers.IO) {
-            initialize(context)
-            val p = checkNotNull(prefs)
-            val fetched = mutableListOf<RealityWindowEvent>()
-
-            if (refreshDue("refresh:$TOPIC_WORLD", now, Duration.ofMinutes(90))) {
-                runCatching {
-                    RealityWorldSourceAdapters.fetchWorldNews(TOPIC_WORLD, "世界大事", now)
-                }.getOrNull()?.let(fetched::addAll)
-                markRefresh("refresh:$TOPIC_WORLD", now)
-            }
-
-            val queryTopics = allRoleTopics()
-                .filter { it.state != RealityTopicState.DROPPED && it.query.isNotBlank() }
-                .distinctBy { it.id }
-                .sortedWith(
-                    compareByDescending<RealityTopic> { it.state == RealityTopicState.FOLLOWING }
-                        .thenByDescending { it.discoveredAt },
-                )
-                .take(18)
-
-            queryTopics.forEach { topic ->
-                if (!refreshDue("refresh:${topic.id}", now, Duration.ofHours(2))) return@forEach
-                val hints = providerHints(topic.id)
-                val lastProbe = p.getLong("provider_probe:${topic.id}", 0L)
-                    .takeIf { it > 0L }?.let(Instant::ofEpochMilli)
-                val probeSpecialized = lastProbe == null ||
-                    Duration.between(lastProbe, now).abs() >= Duration.ofHours(24)
-
-                val batch = runCatching {
-                    RealityWorldSourceAdapters.fetchTopic(
-                        topic = topic,
-                        providerHints = hints,
-                        probeSpecialized = probeSpecialized,
-                        now = now,
-                    )
-                }.getOrNull()
-
-                if (batch != null) {
-                    fetched += batch.events
-                    if (batch.providerHints != hints) saveProviderHints(topic.id, batch.providerHints)
-                }
-                if (probeSpecialized) {
-                    p.edit().putLong("provider_probe:${topic.id}", now.toEpochMilli()).apply()
-                }
-                markRefresh("refresh:${topic.id}", now)
-            }
-
-            val weatherDue = refreshDue("refresh:$TOPIC_WEATHER", now, Duration.ofMinutes(55))
-            val quakeDue = refreshDue("refresh:$TOPIC_EARTHQUAKE", now, Duration.ofMinutes(25))
-            val deviceLocation = if (weatherDue || quakeDue) {
-                runCatching { LuluLocationProvider.freshLocation(context.applicationContext) }.getOrNull()
-            } else null
-
-            if (weatherDue) {
-                runCatching {
-                    RealityWorldSourceAdapters.fetchWeather(
-                        TOPIC_WEATHER,
-                        "用户现实所在地天气",
-                        now,
-                        deviceLocation,
-                    )
-                }.getOrNull()?.let(fetched::addAll)
-                markRefresh("refresh:$TOPIC_WEATHER", now)
-            }
-
-            if (quakeDue) {
-                runCatching {
-                    RealityWorldSourceAdapters.fetchEarthquakes(
-                        TOPIC_EARTHQUAKE,
-                        "地震与现实安全",
-                        now,
-                        deviceLocation,
-                    )
-                }.getOrNull()?.let(fetched::addAll)
-                markRefresh("refresh:$TOPIC_EARTHQUAKE", now)
-            }
-
-            if (fetched.isNotEmpty()) upsertEvents(fetched, now)
-            val critical = fetched
-                .filter { it.criticalForUser }
-                .filter { Duration.between(it.publishedAt, now).abs() <= Duration.ofHours(3) }
-                .distinctBy { it.id }
-            RealityRefreshResult(criticalEvents = critical)
+    suspend fun refresh(context: Context, now: Instant = Instant.now()): RealityRefreshResult = withContext(Dispatchers.IO) {
+        initialize(context)
+        val p = checkNotNull(prefs)
+        val fetched = mutableListOf<RealityWindowEvent>()
+        if (refreshDue("refresh:$TOPIC_WORLD", now, Duration.ofMinutes(90))) {
+            runCatching { RealityWorldSourceAdapters.fetchWorldNews(TOPIC_WORLD, "世界大事", now) }.getOrNull()?.let(fetched::addAll)
+            markRefresh("refresh:$TOPIC_WORLD", now)
         }
+        val queryTopics = allRoleTopics()
+            .filter { it.state != RealityTopicState.DROPPED && it.query.isNotBlank() }
+            .distinctBy { it.id }
+            .sortedWith(compareByDescending<RealityTopic> { it.state == RealityTopicState.FOLLOWING }.thenByDescending { it.discoveredAt })
+            .take(18)
+        queryTopics.forEach { topic ->
+            if (!refreshDue("refresh:${topic.id}", now, Duration.ofHours(2))) return@forEach
+            val hints = providerHints(topic.id)
+            val lastProbe = p.getLong("provider_probe:${topic.id}", 0L).takeIf { it > 0L }?.let(Instant::ofEpochMilli)
+            val probeSpecialized = lastProbe == null || Duration.between(lastProbe, now).abs() >= Duration.ofHours(24)
+            val batch = runCatching {
+                RealityWorldSourceAdapters.fetchTopic(topic, hints, probeSpecialized, now)
+            }.getOrNull()
+            if (batch != null) {
+                fetched += batch.events
+                if (batch.providerHints != hints) saveProviderHints(topic.id, batch.providerHints)
+            }
+            if (probeSpecialized) p.edit().putLong("provider_probe:${topic.id}", now.toEpochMilli()).apply()
+            markRefresh("refresh:${topic.id}", now)
+        }
+        val weatherDue = refreshDue("refresh:$TOPIC_WEATHER", now, Duration.ofMinutes(55))
+        val quakeDue = refreshDue("refresh:$TOPIC_EARTHQUAKE", now, Duration.ofMinutes(25))
+        val deviceLocation = if (weatherDue || quakeDue) runCatching { LuluLocationProvider.freshLocation(context.applicationContext) }.getOrNull() else null
+        if (weatherDue) {
+            runCatching { RealityWorldSourceAdapters.fetchWeather(TOPIC_WEATHER, "用户现实所在地天气", now, deviceLocation) }.getOrNull()?.let(fetched::addAll)
+            markRefresh("refresh:$TOPIC_WEATHER", now)
+        }
+        if (quakeDue) {
+            runCatching { RealityWorldSourceAdapters.fetchEarthquakes(TOPIC_EARTHQUAKE, "地震与现实安全", now, deviceLocation) }.getOrNull()?.let(fetched::addAll)
+            markRefresh("refresh:$TOPIC_EARTHQUAKE", now)
+        }
+        if (fetched.isNotEmpty()) upsertEvents(fetched, now)
+        RealityRefreshResult(
+            criticalEvents = fetched.filter { it.criticalForUser && Duration.between(it.publishedAt, now).abs() <= Duration.ofHours(3) }.distinctBy { it.id },
+        )
+    }
 
     fun claimCriticalWake(eventId: String): Boolean {
         val p = prefs ?: return false
@@ -410,27 +310,18 @@ internal object RealityWorldWindowRuntime {
     }
 
     private fun refreshDue(key: String, now: Instant, interval: Duration): Boolean {
-        val last = prefs?.getLong(key, 0L)?.takeIf { it > 0L }?.let(Instant::ofEpochMilli)
-            ?: return true
+        val last = prefs?.getLong(key, 0L)?.takeIf { it > 0L }?.let(Instant::ofEpochMilli) ?: return true
         return Duration.between(last, now).abs() >= interval
     }
 
-    private fun markRefresh(key: String, now: Instant) {
-        prefs?.edit()?.putLong(key, now.toEpochMilli())?.apply()
-    }
+    private fun markRefresh(key: String, now: Instant) { prefs?.edit()?.putLong(key, now.toEpochMilli())?.apply() }
 
     private fun enqueueImmediateRefresh() {
         val context = appContext ?: return
         val request = OneTimeWorkRequestBuilder<RealityWindowWorker>()
-            .setConstraints(
-                Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build(),
-            )
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .build()
-        WorkManager.getInstance(context).enqueueUniqueWork(
-            IMMEDIATE_WORK,
-            ExistingWorkPolicy.REPLACE,
-            request,
-        )
+        WorkManager.getInstance(context).enqueueUniqueWork(IMMEDIATE_WORK, ExistingWorkPolicy.REPLACE, request)
     }
 
     private fun resolveTopic(characterId: String, topicId: String): RealityTopic? =
@@ -440,52 +331,33 @@ internal object RealityWorldWindowRuntime {
         val id = "topic-${stableId("query", query.lowercase(Locale.ROOT))}"
         val current = topicsFor(characterId).firstOrNull { it.id == id }
         if (current != null && current.state != RealityTopicState.DROPPED) return current
-        val topic = RealityTopic(
-            id = id,
-            label = query,
-            query = query,
-            state = RealityTopicState.DISCOVERED,
-            discoveredAt = now,
-        )
+        val topic = RealityTopic(id, query, query, RealityTopicState.DISCOVERED, now)
         upsertTopic(characterId, topic)
-        // A newly explored topic should not wait for a stale global refresh timestamp that might
-        // have been left by another role with the same query before this role discovered it.
         prefs?.edit()?.remove("refresh:$id")?.apply()
         return topic
     }
-
-    private fun cleanQuery(value: String): String = value
-        .replace(Regex("[\\r\\n\\t]+"), " ")
-        .replace(Regex("\\s+"), " ")
-        .trim()
-        .take(80)
 
     private fun upsertTopic(characterId: String, topic: RealityTopic) {
         val topics = topicsFor(characterId).filterNot { it.id == topic.id } + topic
         saveTopics(characterId, topics.sortedBy { it.discoveredAt }.takeLast(70))
     }
 
-    private fun allRoleTopics(): List<RealityTopic> =
-        MigratedDomainStores.characters.settings.value.keys.flatMap(::topicsFor)
+    private fun allRoleTopics(): List<RealityTopic> = MigratedDomainStores.characters.settings.value.keys.flatMap(::topicsFor)
 
     private fun topicsFor(characterId: String): List<RealityTopic> {
-        val array = runCatching {
-            JSONArray(prefs?.getString("topics:$characterId", "[]").orEmpty())
-        }.getOrDefault(JSONArray())
+        val array = runCatching { JSONArray(prefs?.getString("topics:$characterId", "[]").orEmpty()) }.getOrDefault(JSONArray())
         return buildList {
             for (i in 0 until array.length()) {
                 val json = array.optJSONObject(i) ?: continue
                 val id = json.optString("id").trim()
                 val label = json.optString("label").trim()
                 if (id.isBlank() || label.isBlank()) continue
-                val state = runCatching { RealityTopicState.valueOf(json.optString("state")) }
-                    .getOrDefault(RealityTopicState.DISCOVERED)
                 add(
                     RealityTopic(
                         id = id,
                         label = label,
                         query = json.optString("query").trim(),
-                        state = state,
+                        state = runCatching { RealityTopicState.valueOf(json.optString("state")) }.getOrDefault(RealityTopicState.DISCOVERED),
                         discoveredAt = json.optString("discoveredAt").toInstantOrNull() ?: Instant.EPOCH,
                         followedAt = json.optString("followedAt").toInstantOrNull(),
                     ),
@@ -497,39 +369,25 @@ internal object RealityWorldWindowRuntime {
     private fun saveTopics(characterId: String, topics: List<RealityTopic>) {
         val array = JSONArray()
         topics.forEach { topic ->
-            array.put(
-                JSONObject()
-                    .put("id", topic.id)
-                    .put("label", topic.label)
-                    .put("query", topic.query)
-                    .put("state", topic.state.name)
-                    .put("discoveredAt", topic.discoveredAt.toString())
-                    .put("followedAt", topic.followedAt?.toString().orEmpty()),
-            )
+            array.put(JSONObject().put("id", topic.id).put("label", topic.label).put("query", topic.query)
+                .put("state", topic.state.name).put("discoveredAt", topic.discoveredAt.toString()).put("followedAt", topic.followedAt?.toString().orEmpty()))
         }
-        check(prefs?.edit()?.putString("topics:$characterId", array.toString())?.commit() == true) {
-            "现实圈子状态保存失败"
-        }
+        check(prefs?.edit()?.putString("topics:$characterId", array.toString())?.commit() == true) { "现实圈子状态保存失败" }
     }
 
-    private fun providerHints(topicId: String): Set<String> =
-        prefs?.getStringSet("provider_hints:$topicId", emptySet())?.toSet().orEmpty()
-
-    private fun saveProviderHints(topicId: String, hints: Set<String>) {
-        prefs?.edit()?.putStringSet("provider_hints:$topicId", hints.toSet())?.apply()
-    }
+    private fun providerHints(topicId: String): Set<String> = prefs?.getStringSet("provider_hints:$topicId", emptySet())?.toSet().orEmpty()
+    private fun saveProviderHints(topicId: String, hints: Set<String>) { prefs?.edit()?.putStringSet("provider_hints:$topicId", hints.toSet())?.apply() }
 
     private fun exposureFor(characterId: String): Map<String, Pair<RealityExposureState, Instant>> {
-        val json = runCatching {
-            JSONObject(prefs?.getString("exposure:$characterId", "{}").orEmpty())
-        }.getOrDefault(JSONObject())
+        val json = runCatching { JSONObject(prefs?.getString("exposure:$characterId", "{}").orEmpty()) }.getOrDefault(JSONObject())
         return buildMap {
             json.keys().forEach { eventId ->
                 val item = json.optJSONObject(eventId) ?: return@forEach
-                val state = runCatching { RealityExposureState.valueOf(item.optString("state")) }
-                    .getOrDefault(RealityExposureState.GLIMPSED)
-                val at = item.optString("at").toInstantOrNull() ?: Instant.EPOCH
-                put(eventId, state to at)
+                put(
+                    eventId,
+                    runCatching { RealityExposureState.valueOf(item.optString("state")) }.getOrDefault(RealityExposureState.GLIMPSED) to
+                        (item.optString("at").toInstantOrNull() ?: Instant.EPOCH),
+                )
             }
         }
     }
@@ -539,14 +397,8 @@ internal object RealityWorldWindowRuntime {
         synchronized(lock) {
             val current = JSONObject(prefs?.getString("exposure:$characterId", "{}").orEmpty())
             eventIds.forEach { eventId ->
-                val previous = current.optJSONObject(eventId)
-                if (previous?.optString("state") == RealityExposureState.READ.name) return@forEach
-                current.put(
-                    eventId,
-                    JSONObject()
-                        .put("state", RealityExposureState.GLIMPSED.name)
-                        .put("at", now.toString()),
-                )
+                if (current.optJSONObject(eventId)?.optString("state") == RealityExposureState.READ.name) return@forEach
+                current.put(eventId, JSONObject().put("state", RealityExposureState.GLIMPSED.name).put("at", now.toString()))
             }
             trimExposure(current)
             prefs?.edit()?.putString("exposure:$characterId", current.toString())?.apply()
@@ -556,65 +408,38 @@ internal object RealityWorldWindowRuntime {
     private fun markRead(characterId: String, eventId: String, now: Instant) {
         synchronized(lock) {
             val current = JSONObject(prefs?.getString("exposure:$characterId", "{}").orEmpty())
-            current.put(
-                eventId,
-                JSONObject()
-                    .put("state", RealityExposureState.READ.name)
-                    .put("at", now.toString()),
-            )
+            current.put(eventId, JSONObject().put("state", RealityExposureState.READ.name).put("at", now.toString()))
             trimExposure(current)
-            check(prefs?.edit()?.putString("exposure:$characterId", current.toString())?.commit() == true) {
-                "资讯阅读状态保存失败"
-            }
+            check(prefs?.edit()?.putString("exposure:$characterId", current.toString())?.commit() == true) { "资讯阅读状态保存失败" }
         }
     }
 
     private fun trimExposure(json: JSONObject) {
         if (json.length() <= 650) return
-        val ranked = json.keys().asSequence().mapNotNull { id ->
+        val keep = json.keys().asSequence().mapNotNull { id ->
             val item = json.optJSONObject(id) ?: return@mapNotNull null
             id to (item.optString("at").toInstantOrNull() ?: Instant.EPOCH)
         }.sortedByDescending { it.second }.take(520).map { it.first }.toSet()
-        json.keys().asSequence().toList().filterNot { it in ranked }.forEach(json::remove)
+        json.keys().asSequence().toList().filterNot { it in keep }.forEach(json::remove)
     }
 
-    private fun isVisibleTo(characterId: String, event: RealityWindowEvent): Boolean {
-        if (event.topicId in systemTopics.keys) return true
-        return topicsFor(characterId).any {
-            it.id == event.topicId && it.state != RealityTopicState.DROPPED
-        }
-    }
+    private fun isVisibleTo(characterId: String, event: RealityWindowEvent): Boolean =
+        event.topicId in systemTopics.keys || topicsFor(characterId).any { it.id == event.topicId && it.state != RealityTopicState.DROPPED }
 
     private fun upsertEvents(incoming: List<RealityWindowEvent>, now: Instant) {
         synchronized(lock) {
-            val merged = (events + incoming)
-                .associateBy(RealityWindowEvent::id)
-                .values
+            val merged = (events + incoming).associateBy(RealityWindowEvent::id).values
                 .filter { Duration.between(it.publishedAt, now).abs() <= Duration.ofDays(10) }
-                .sortedBy(RealityWindowEvent::publishedAt)
-                .takeLast(MAX_EVENTS)
+                .sortedBy(RealityWindowEvent::publishedAt).takeLast(MAX_EVENTS)
             events = merged
             val encoded = JSONArray()
             merged.forEach { event ->
-                encoded.put(
-                    JSONObject()
-                        .put("id", event.id)
-                        .put("topicId", event.topicId)
-                        .put("topicLabel", event.topicLabel)
-                        .put("title", event.title)
-                        .put("summary", event.summary)
-                        .put("sourceName", event.sourceName)
-                        .put("sourceUrl", event.sourceUrl)
-                        .put("publishedAt", event.publishedAt.toString())
-                        .put("fetchedAt", event.fetchedAt.toString())
-                        .put("trust", event.trust.name)
-                        .put("criticalForUser", event.criticalForUser)
-                        .put("distanceKm", event.distanceKm ?: JSONObject.NULL),
-                )
+                encoded.put(JSONObject().put("id", event.id).put("topicId", event.topicId).put("topicLabel", event.topicLabel)
+                    .put("title", event.title).put("summary", event.summary).put("sourceName", event.sourceName)
+                    .put("sourceUrl", event.sourceUrl).put("publishedAt", event.publishedAt.toString()).put("fetchedAt", event.fetchedAt.toString())
+                    .put("trust", event.trust.name).put("criticalForUser", event.criticalForUser).put("distanceKm", event.distanceKm ?: JSONObject.NULL))
             }
-            check(prefs?.edit()?.putString(KEY_EVENTS, encoded.toString())?.commit() == true) {
-                "现实资讯保存失败"
-            }
+            check(prefs?.edit()?.putString(KEY_EVENTS, encoded.toString())?.commit() == true) { "现实资讯保存失败" }
         }
     }
 
@@ -638,8 +463,7 @@ internal object RealityWorldWindowRuntime {
                         sourceUrl = json.optString("sourceUrl"),
                         publishedAt = json.optString("publishedAt").toInstantOrNull() ?: Instant.EPOCH,
                         fetchedAt = json.optString("fetchedAt").toInstantOrNull() ?: Instant.EPOCH,
-                        trust = runCatching { RealitySourceTrust.valueOf(json.optString("trust")) }
-                            .getOrDefault(RealitySourceTrust.AGGREGATED_REPORT),
+                        trust = runCatching { RealitySourceTrust.valueOf(json.optString("trust")) }.getOrDefault(RealitySourceTrust.AGGREGATED_REPORT),
                         criticalForUser = json.optBoolean("criticalForUser", false),
                         distanceKm = if (json.isNull("distanceKm")) null else json.optInt("distanceKm"),
                     ),
@@ -654,32 +478,22 @@ internal object RealityWorldWindowRuntime {
         .trim()
         .take(80)
 
-    private fun normalizeTitle(value: String): String = value
-        .lowercase(Locale.ROOT)
-        .replace(Regex("[^\\p{L}\\p{N}]+"), " ")
-        .replace(Regex("\\s+"), " ")
-        .trim()
+    private fun normalizeTitle(value: String): String = value.lowercase(Locale.ROOT)
+        .replace(Regex("[^\\p{L}\\p{N}]+"), " ").replace(Regex("\\s+"), " ").trim()
 
     private fun stableId(namespace: String, value: String): String {
         val seed = "$namespace::$value"
-        val first = seed.hashCode().toUInt().toString(16)
-        val second = seed.reversed().hashCode().toUInt().toString(16)
-        return "$first$second"
+        return seed.hashCode().toUInt().toString(16) + seed.reversed().hashCode().toUInt().toString(16)
     }
 
-    private fun String.toInstantOrNull(): Instant? =
-        takeIf(String::isNotBlank)?.let { runCatching { Instant.parse(it) }.getOrNull() }
+    private fun String.toInstantOrNull(): Instant? = takeIf(String::isNotBlank)?.let { runCatching { Instant.parse(it) }.getOrNull() }
 }
 
-class RealityWindowWorker(
-    appContext: Context,
-    params: WorkerParameters,
-) : CoroutineWorker(appContext, params) {
+class RealityWindowWorker(appContext: Context, params: WorkerParameters) : CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result = runCatching {
         val now = Instant.now()
         val refresh = RealityWorldWindowRuntime.refresh(applicationContext, now)
-        val critical = refresh.criticalEvents
-            .sortedByDescending(RealityWindowEvent::publishedAt)
+        val critical = refresh.criticalEvents.sortedByDescending(RealityWindowEvent::publishedAt)
             .firstOrNull { RealityWorldWindowRuntime.claimCriticalWake(it.id) }
         if (critical != null) {
             ProactivePerceptionRuntime.runDueCycle(
@@ -690,7 +504,5 @@ class RealityWindowWorker(
             )
         }
         Result.success()
-    }.getOrElse {
-        Result.retry()
-    }
+    }.getOrElse { Result.retry() }
 }
