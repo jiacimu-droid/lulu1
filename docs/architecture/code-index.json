@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-07T08:38:24.528127+00:00",
-  "commit": "b5e315652a4e0b6cfd4459a554c33c250e604b24",
+  "generatedAt": "2026-09-07T10:06:38.023331+00:00",
+  "commit": "e92af66e55ff07fb669cc7a04eb5716b3eab8f65",
   "branch": "main",
-  "sourceFingerprint": "9cb15a034dd2ca7fad99e030e1a16bd304143c2bc3c7041ebdcc80d80ebb08c8",
+  "sourceFingerprint": "f2519981b3b9927b45d0bdd5c384d398090eb5b00f3fe73769e82a6741853ae3",
   "summary": {
-    "files": 244,
-    "lines": 73901,
-    "symbols": 934
+    "files": 245,
+    "lines": 73985,
+    "symbols": 939
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -1834,6 +1834,52 @@
         "line": 178
       }
     ],
+    "promptSection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
+        "line": 15
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
+        "line": 157
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 36
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
+        "line": 11
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
+        "line": 84
+      }
+    ],
+    "lastOwn": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
+        "line": 24
+      }
+    ],
+    "gapHours": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
+        "line": 43
+      }
+    ],
+    "ageLabel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
+        "line": 45
+      }
+    ],
+    "addIfOld": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
+        "line": 58
+      }
+    ],
     "CharacterLifeForm": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -1898,24 +1944,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
         "line": 151
-      }
-    ],
-    "promptSection": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 157
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 36
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
-        "line": 11
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
-        "line": 84
       }
     ],
     "optionsFor": [
@@ -6881,6 +6909,33 @@
         {
           "name": "kindLabel",
           "line": 178
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
+      "lines": 84,
+      "sha256": "f12c2efe6d52886375112129615d2af1bf8065436b2e8f746833f8d961616212",
+      "symbols": [
+        {
+          "name": "promptSection",
+          "line": 15
+        },
+        {
+          "name": "lastOwn",
+          "line": 24
+        },
+        {
+          "name": "gapHours",
+          "line": 43
+        },
+        {
+          "name": "ageLabel",
+          "line": 45
+        },
+        {
+          "name": "addIfOld",
+          "line": 58
         }
       ]
     },
