@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-07T11:07:41.616477+00:00",
-  "commit": "805017abd354c55bb69f930e49d36e2c44b8d40f",
+  "generatedAt": "2026-09-07T11:38:31.679159+00:00",
+  "commit": "478e7e6f0d5a3d4e2e721fef49878a012d1ca96f",
   "branch": "main",
-  "sourceFingerprint": "167890c9e7a1cd9f26982b4cb097ec2d817b39dcf57acc1e251508ad8d7e8d80",
+  "sourceFingerprint": "e504e8defe896df46d3cd48aa922750fd650c17db03b4b0aa82cae28b128eaa2",
   "summary": {
-    "files": 246,
-    "lines": 74926,
-    "symbols": 945
+    "files": 247,
+    "lines": 75581,
+    "symbols": 950
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -3206,6 +3206,40 @@
         "line": 139
       }
     ],
+    "fetchWorldNews": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt",
+        "line": 47
+      }
+    ],
+    "fetchTopic": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt",
+        "line": 63
+      }
+    ],
+    "fetchWeather": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt",
+        "line": 107
+      }
+    ],
+    "fetchEarthquakes": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt",
+        "line": 171
+      }
+    ],
+    "addCurrent": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt",
+        "line": 266
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
+        "line": 575
+      }
+    ],
     "executeActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
@@ -3216,12 +3250,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
         "line": 338
-      }
-    ],
-    "addCurrent": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
-        "line": 575
       }
     ],
     "RealityWindowWorker": [
@@ -8163,6 +8191,33 @@
         {
           "name": "ProactivePerceptionBootReceiver",
           "line": 139
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt",
+      "lines": 655,
+      "sha256": "50eb491122d2395ddf35f3c0572295c0a3e4bd07e92ce1b6774a1e32a60c524a",
+      "symbols": [
+        {
+          "name": "fetchWorldNews",
+          "line": 47
+        },
+        {
+          "name": "fetchTopic",
+          "line": 63
+        },
+        {
+          "name": "fetchWeather",
+          "line": 107
+        },
+        {
+          "name": "fetchEarthquakes",
+          "line": 171
+        },
+        {
+          "name": "addCurrent",
+          "line": 266
         }
       ]
     },

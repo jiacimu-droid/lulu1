@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`805017abd354c55bb69f930e49d36e2c44b8d40f`
+- 基准提交：`478e7e6f0d5a3d4e2e721fef49878a012d1ca96f`
 - 分支：`main`
-- 已索引文件：246
-- 已索引代码/文本行：74926
-- 已发现符号：945
+- 已索引文件：247
+- 已索引代码/文本行：75581
+- 已发现符号：950
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -123,6 +123,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 759 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 170 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt` | 655 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 774 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 436 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
