@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-07T11:38:31.679159+00:00",
-  "commit": "478e7e6f0d5a3d4e2e721fef49878a012d1ca96f",
+  "generatedAt": "2026-09-07T11:40:15.858947+00:00",
+  "commit": "6607b70fddaf65f02dd789dedae37bbc5355c4cf",
   "branch": "main",
-  "sourceFingerprint": "e504e8defe896df46d3cd48aa922750fd650c17db03b4b0aa82cae28b128eaa2",
+  "sourceFingerprint": "3e58f0841434d8488b7d1b0221f82de97f47bab9aa82b0ddf0389bfbba838287",
   "summary": {
     "files": 247,
-    "lines": 75581,
-    "symbols": 950
+    "lines": 75504,
+    "symbols": 949
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -165,7 +165,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
-        "line": 109
+        "line": 104
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
@@ -1995,7 +1995,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
-        "line": 128
+        "line": 123
       }
     ],
     "apply": [
@@ -3234,28 +3234,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt",
         "line": 266
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
-        "line": 575
       }
     ],
     "executeActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
-        "line": 208
+        "line": 225
       }
     ],
     "claimCriticalWake": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
-        "line": 338
+        "line": 402
       }
     ],
     "RealityWindowWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
-        "line": 750
+        "line": 673
       }
     ],
     "RelevantMemoryRecall": [
@@ -8223,32 +8219,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
-      "lines": 774,
-      "sha256": "28605ed5c3dac5500ffd094324f7e603aafbcae2a67c8504b60ffbd489e6328f",
+      "lines": 697,
+      "sha256": "65bc88fd0004d91152f20650bc3de33d589d67b5c72f8f9c156eecfddee217ef",
       "symbols": [
         {
           "name": "initialize",
-          "line": 109
+          "line": 104
         },
         {
           "name": "contextFor",
-          "line": 128
+          "line": 123
         },
         {
           "name": "executeActivity",
-          "line": 208
+          "line": 225
         },
         {
           "name": "claimCriticalWake",
-          "line": 338
-        },
-        {
-          "name": "addCurrent",
-          "line": 575
+          "line": 402
         },
         {
           "name": "RealityWindowWorker",
-          "line": 750
+          "line": 673
         }
       ]
     },
