@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-07T08:25:23.479090+00:00",
-  "commit": "de0cadd83a1a43bd7f128f0b3920a8d166d4da20",
+  "generatedAt": "2026-09-07T08:38:24.528127+00:00",
+  "commit": "b5e315652a4e0b6cfd4459a554c33c250e604b24",
   "branch": "main",
-  "sourceFingerprint": "1ca2cf8f0fde1cdd66dc2a50d264651f9f3aece15d3ea1471890db185f1ed41f",
+  "sourceFingerprint": "9cb15a034dd2ca7fad99e030e1a16bd304143c2bc3c7041ebdcc80d80ebb08c8",
   "summary": {
     "files": 244,
     "lines": 73901,
@@ -6985,7 +6985,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
       "lines": 109,
-      "sha256": "52f9659200b1c85aed899672ec354c9086b5553d2c7d216e51bb374039617b92",
+      "sha256": "54d21a5ba73a920d1f4a1f80ea19f0c0726bd822ff8e6a15207b228a226cd8e1",
       "symbols": [
         {
           "name": "initialize",
@@ -7022,7 +7022,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
       "lines": 511,
-      "sha256": "4544174c0cc9210d1556338aba5d8cfb0726f58b3bcdd56c7e1053ec8be90bfb",
+      "sha256": "8b49ec5d5d9e9652426a47182d2c058476f7555b36cf4e8266a928f6c1306a54",
       "symbols": [
         {
           "name": "initialize",
