@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-07T11:40:15.858947+00:00",
-  "commit": "6607b70fddaf65f02dd789dedae37bbc5355c4cf",
+  "generatedAt": "2026-09-07T11:46:30.482285+00:00",
+  "commit": "03f2d02914e9b760ef101e4ea5f217308ad73440",
   "branch": "main",
-  "sourceFingerprint": "3e58f0841434d8488b7d1b0221f82de97f47bab9aa82b0ddf0389bfbba838287",
+  "sourceFingerprint": "3c77bed1f0bd2566fd23ddcfed1214c4e7d986d7b007526c9581af9acb27d0e4",
   "summary": {
     "files": 247,
-    "lines": 75504,
+    "lines": 75316,
     "symbols": 949
   },
   "symbolIndex": {
@@ -165,7 +165,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
-        "line": 104
+        "line": 78
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
@@ -1995,7 +1995,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
-        "line": 123
+        "line": 94
       }
     ],
     "apply": [
@@ -3239,19 +3239,19 @@
     "executeActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
-        "line": 225
+        "line": 179
       }
     ],
     "claimCriticalWake": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
-        "line": 402
+        "line": 302
       }
     ],
     "RealityWindowWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
-        "line": 673
+        "line": 491
       }
     ],
     "RelevantMemoryRecall": [
@@ -8219,28 +8219,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
-      "lines": 697,
-      "sha256": "65bc88fd0004d91152f20650bc3de33d589d67b5c72f8f9c156eecfddee217ef",
+      "lines": 509,
+      "sha256": "caeda6afe9962885433c7a1651a47a7f27a59c29daf3ded5c223be455ae78863",
       "symbols": [
         {
           "name": "initialize",
-          "line": 104
+          "line": 78
         },
         {
           "name": "contextFor",
-          "line": 123
+          "line": 94
         },
         {
           "name": "executeActivity",
-          "line": 225
+          "line": 179
         },
         {
           "name": "claimCriticalWake",
-          "line": 402
+          "line": 302
         },
         {
           "name": "RealityWindowWorker",
-          "line": 673
+          "line": 491
         }
       ]
     },
