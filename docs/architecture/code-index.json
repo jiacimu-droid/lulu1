@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-07T10:06:38.023331+00:00",
-  "commit": "e92af66e55ff07fb669cc7a04eb5716b3eab8f65",
+  "generatedAt": "2026-09-07T10:07:33.426912+00:00",
+  "commit": "f09a84411a4ff214149d038f4594a23bb89e4e8a",
   "branch": "main",
-  "sourceFingerprint": "f2519981b3b9927b45d0bdd5c384d398090eb5b00f3fe73769e82a6741853ae3",
+  "sourceFingerprint": "ec008fc02e53d0e0a61127a3e75adaf1a14e83c82cefc1fe6771f765d9547581",
   "summary": {
     "files": 245,
-    "lines": 73985,
+    "lines": 73988,
     "symbols": 939
   },
   "symbolIndex": {
@@ -1449,13 +1449,13 @@
     "set": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 75
+        "line": 76
       }
     ],
     "delete": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 87
+        "line": 88
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -6548,8 +6548,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-      "lines": 97,
-      "sha256": "93a450453476ed6bcd2368fa5ed19476dab48f04321e8885c85860e9cf69c847",
+      "lines": 98,
+      "sha256": "13f722a11681e6940af55d0db373b7aa5e0b2b5991ea1ae15c406a58907dd374",
       "symbols": [
         {
           "name": "CharacterIdentityStore",
@@ -6565,11 +6565,11 @@
         },
         {
           "name": "set",
-          "line": 75
+          "line": 76
         },
         {
           "name": "delete",
-          "line": 87
+          "line": 88
         }
       ]
     },
@@ -7967,8 +7967,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 29,
-      "sha256": "1d35479c5450eae28d43379ab2cd8b6a004c549532e7cc9bf5389405fc81b6c8",
+      "lines": 31,
+      "sha256": "fa9554fbedba23b5636b8703bb66b049211749e1b2d2b4b341c17b06c6ded228",
       "symbols": []
     },
     {
