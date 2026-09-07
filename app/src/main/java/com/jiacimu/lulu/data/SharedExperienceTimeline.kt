@@ -252,7 +252,7 @@ object SharedExperienceTimeline {
         val events = recentEvents(characterId, limit)
         if (events.isEmpty()) return ""
         val lines = events.map { event ->
-            "[${event.occurredAt}] [${event.channel}] ${event.speaker}：${event.content.take(1_200)}"
+            "[${event.occurredAt}] [${event.channel}] ${event.speaker}：${event.evidenceContent.take(1_200)}"
         }
         val kept = mutableListOf<String>()
         var used = 0

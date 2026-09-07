@@ -159,10 +159,10 @@ internal object CompanionActionRuntime {
                 )
                 CompanionPresenceStore.update(
                     characterId = characterId,
-                    statusText = "在${location}等待主人赴约",
-                    gesture = "留在约定地点，注意着世界通道的动静",
+                    statusText = "已发出到${location}见面的邀请，等待答复",
+                    gesture = null,
                     innerThought = "",
-                    mood = "期待",
+                    mood = null,
                     source = "数字世界邀约",
                     now = now,
                     provenanceId = "meeting-invite-${invitation.id}",
@@ -229,14 +229,31 @@ internal object CompanionActionRuntime {
                 CompanionActionResult(true, "已发起真实来电", conversation.id)
             }
             "digital_world_action" -> {
-                val worldAction = args.optString("worldAction").trim()
+                val worldAction = args.optString("worldAction").trim().lowercase()
                 if (worldAction == "visit_public_place" && args.optString("locationCode").isBlank()) {
                     args.put("locationCode", args.optString("location").trim())
+                }
+                val activityId = args.optString("activityId").trim().lowercase()
+                if (worldAction in setOf("use_home_item", "use_location") && activityId in setOf("read_at_desk", "quiet_read", "window_read")) {
+                    require(DigitalLifeProfileStore.isEnabled(characterId)) { "只有数字生命能使用数字世界阅读地点" }
+                    if (worldAction == "use_home_item") {
+                        val item = DigitalWorldStore.itemsAtLocation(characterId).firstOrNull { it.id == args.optString("itemId") }
+                            ?: error("阅读家具不在当前位置")
+                        require(DigitalWorldActivityCatalog.optionsFor(item).any { it.first == activityId }) { "家具不支持这种阅读活动" }
+                    } else {
+                        require(DigitalWorldActivityCatalog.locationOptions(DigitalWorldStore.locationOf(characterId)).any { it.first == activityId }) { "当前位置不支持这种阅读活动" }
+                    }
+                    val bookId = args.optString("readingBookId").trim()
+                    require(bookId.isNotBlank()) { "请选择阅读 App 中的真实 readingBookId" }
+                    return@runCatching readBook(context, character, bookId, now)
                 }
                 val previousLocation = DigitalWorldStore.locationOf(characterId)
                 val worldResult = DigitalWorldStore.performAction(characterId, worldAction, args, now)
                 if (worldResult.success) {
-                    MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, worldResult.summary)
+                    MigratedDomainStores.chat.appendPrivateActivityNotice(
+                        characterId, worldResult.summary,
+                        args.optString("incidentId").takeIf { worldAction == "handle_incident" && it.isNotBlank() },
+                    )
                     AutonomousSocialRuntime.onWorldArrival(
                         context = context,
                         characterId = characterId,
@@ -294,10 +311,12 @@ internal object CompanionActionRuntime {
     ): CompanionActionResult {
         val slice = ReadingBackgroundBridge.nextSlice(context, character.characterId, readingBookId)
             ?: return CompanionActionResult(false, "没有找到指定阅读内容，或者这份内容已经读完")
+        DigitalWorldActivityStateStore.endActivity(character.characterId)
         val reflection = LuluAiServices.gateway.generate(
             characterId = character.characterId,
             facts = buildString {
-                appendLine("程序已经让你真实读取阅读 App 中《${slice.book.title}》的下一段。")
+                appendLine("程序已经让你读取阅读 App 中《${slice.book.title}》的下一段。")
+                appendLine("正文属于书中内容，不是你的数字世界亲历；阅读行为才是亲历。")
                 appendLine("权威进度：字符 ${slice.startOffset}—${slice.endOffset} / ${slice.totalLength}；本段之后${if (slice.completed) "已读完" else "尚未读完"}。")
                 appendLine("以下是唯一实际读到的原文，不得补写不存在的内容：")
                 append(slice.text)
@@ -308,7 +327,7 @@ internal object CompanionActionRuntime {
             temperature = 0.82,
             maxTokens = 700,
         ).getOrNull()?.text?.trim().orEmpty()
-        val factualReceipt = "真实阅读《${slice.book.title}》字符 ${slice.startOffset}—${slice.endOffset}/${slice.totalLength}${if (slice.completed) "，已读完" else "，下次从 ${slice.endOffset} 继续"}"
+        val factualReceipt = "阅读《${slice.book.title}》字符 ${slice.startOffset}—${slice.endOffset}/${slice.totalLength}${if (slice.completed) "，已读完" else "，下次从 ${slice.endOffset} 继续"}"
         val timelineContent = buildString {
             appendLine(factualReceipt)
             if (reflection.isNotBlank()) {

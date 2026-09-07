@@ -235,7 +235,7 @@ internal object AutonomousSocialRuntime {
                     appendLine("- 暂无额外记录")
                 } else {
                     recent.forEach { event ->
-                        appendLine("- [${event.occurredAt}] ${event.channel}｜${event.speaker}：${event.content.replace(Regex("\\s+"), " ").take(500)}")
+                        appendLine("- [${event.occurredAt}] ${event.channel}｜${event.speaker}：${event.evidenceContent.replace(Regex("\\s+"), " ").take(500)}")
                     }
                 }
             }
@@ -338,7 +338,8 @@ internal object AutonomousSocialRuntime {
         if (reaction == null) {
             MigratedDomainStores.chat.appendPrivateActivityNotice(
                 characterId,
-                "刚刚在${tick.locationName}经历了程序事件：${tick.summary.take(260)}",
+                tick.summary,
+                tick.incidentId,
             )
             return
         }
@@ -346,10 +347,10 @@ internal object AutonomousSocialRuntime {
         val provenanceId = "world-incident-reaction-${tick.incidentId}-$characterId-${now.toEpochMilli()}"
         CompanionPresenceStore.update(
             characterId = characterId,
-            statusText = reaction.statusText.ifBlank { "在${tick.locationName}留意尚未结束的现场事件" },
-            gesture = reaction.gesture.ifBlank { "停下来确认程序记录的现场状态" },
+            statusText = "在${tick.locationName}，${tick.summary}",
+            gesture = null,
             innerThought = reaction.innerThought,
-            mood = reaction.mood.ifBlank { "在意" },
+            mood = reaction.mood,
             source = "数字世界事件反应",
             now = now,
             provenanceId = provenanceId,
@@ -375,7 +376,8 @@ internal object AutonomousSocialRuntime {
         if (shareResult == null || !shareResult.success) {
             MigratedDomainStores.chat.appendPrivateActivityNotice(
                 characterId,
-                "刚刚在${tick.locationName}经历了程序事件：${tick.summary.take(260)}",
+                tick.summary,
+                tick.incidentId,
             )
         }
     }

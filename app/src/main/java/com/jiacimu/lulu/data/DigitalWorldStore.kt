@@ -98,6 +98,7 @@ object DigitalWorldStore {
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         mutable.value = decode(prefs?.getString(KEY_STATE, null))
         DigitalWorldLifeEventStore.initialize(context.applicationContext)
+        DigitalWorldActivityStateStore.initialize(context.applicationContext)
     }
 
     fun homeLocation(characterId: String): String = "home:$characterId"
@@ -156,6 +157,7 @@ object DigitalWorldStore {
         return buildString {
             appendLine("【数字世界权威状态｜只能据此描述，禁止凭空增加家具、房间或地点】")
             appendLine("当前位置：${locationLabel(locationOf(characterId))}")
+            appendLine(DigitalWorldActivityStateStore.contextFor(characterId))
             appendLine("家园：${home?.name.orEmpty().ifBlank { "尚未形成" }}")
             appendLine("家中固定物品：")
             if (items.isEmpty()) appendLine("- 空无一物") else items.forEach { item ->
@@ -268,21 +270,18 @@ object DigitalWorldStore {
                     require(blocked == null || activityId !in setOf("lie_down", "rest", "nap", "sleep", "sit", "curl_up")) {
                         "这件家具正受未解决事件影响，暂时不能安心休息：$blocked"
                     }
-                    DigitalWorldActivityCatalog.itemActivitySummary(
-                        character.displayName,
-                        item,
-                        activityId,
+                    val description = DigitalWorldActivityCatalog.itemActivitySummary(
+                        character.displayName, item, activityId,
                     ) ?: error("该家具不支持这个真实活动")
+                    DigitalWorldActivityStateStore.apply(characterId, item, activityId, description, now)
                 }
                 "use_location" -> {
                     val locationCode = locationOf(characterId)
                     val activityId = args.optString("activityId").trim().lowercase()
-                    DigitalWorldActivityCatalog.locationActivitySummary(
-                        character.displayName,
-                        locationCode,
-                        activityId,
-                        locationLabel(locationCode),
+                    val description = DigitalWorldActivityCatalog.locationActivitySummary(
+                        character.displayName, locationCode, activityId, locationLabel(locationCode),
                     ) ?: error("当前位置不支持这个真实活动")
+                    DigitalWorldActivityStateStore.apply(characterId, null, activityId, description, now)
                 }
                 "handle_incident" -> {
                     val incidentId = args.optString("incidentId").trim()
@@ -313,12 +312,13 @@ object DigitalWorldStore {
                 else -> error("未知数字世界动作：$action")
             }
         }
+        if (action !in setOf("use_home_item", "use_location")) DigitalWorldActivityStateStore.endActivity(characterId)
         synchronized(lock) {
             appendEventLocked(characterId, action, summary, now)
             persistLocked()
         }
         SharedExperienceTimeline.record(
-            eventId = "digital-world-${UUID.randomUUID()}",
+            eventId = if (action == "handle_incident") "world-fact-${args.optString("incidentId")}-${UUID.randomUUID()}" else "world-fact-${UUID.randomUUID()}",
             characterId = characterId,
             channel = "数字世界",
             speaker = character.displayName,
@@ -728,6 +728,7 @@ object DigitalWorldStore {
     }.trim()
 
     fun clearCharacter(characterId: String) {
+        DigitalWorldActivityStateStore.clearCharacter(characterId)
         DigitalWorldLifeEventStore.clearCharacter(characterId)
         synchronized(lock) {
             mutable.value = mutable.value.copy(

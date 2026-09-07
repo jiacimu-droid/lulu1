@@ -24,7 +24,7 @@ internal object DigitalWorldVenueAnchors {
                 id = "arcade-left",
                 label = "左侧机台区",
                 position = WorldVector(360f, 470f),
-                activityIds = listOf("browse_games", "choose_arcade", "watch_game"),
+                activityIds = listOf("browse_games", "choose_arcade"),
             ),
             DigitalVenueAnchor(
                 id = "arcade-score",
@@ -37,7 +37,7 @@ internal object DigitalWorldVenueAnchors {
                 id = "arcade-right",
                 label = "右侧机台区",
                 position = WorldVector(1_250f, 470f),
-                activityIds = listOf("browse_games", "choose_arcade", "watch_game"),
+                activityIds = listOf("browse_games", "choose_arcade"),
             ),
             DigitalVenueAnchor(
                 id = "arcade-lounge",
@@ -65,14 +65,14 @@ internal object DigitalWorldVenueAnchors {
                 id = "reading-center",
                 label = "中央阅读岛",
                 position = WorldVector(800f, 670f),
-                activityIds = listOf("quiet_read", "reading_notes"),
+                activityIds = listOf("quiet_read"),
                 radius = 145f,
             ),
             DigitalVenueAnchor(
                 id = "reading-soft-seat",
                 label = "软座区",
                 position = WorldVector(1_080f, 845f),
-                activityIds = listOf("reading_rest", "reading_notes"),
+                activityIds = listOf("reading_rest"),
             ),
         )
         DigitalWorldPublicPlaces.CAFE -> listOf(
@@ -80,7 +80,7 @@ internal object DigitalWorldVenueAnchors {
                 id = "cafe-counter",
                 label = "吧台",
                 position = WorldVector(1_170f, 420f),
-                activityIds = listOf("order_drink"),
+                activityIds = listOf("order_drink", "order_snack"),
                 radius = 120f,
             ),
             DigitalVenueAnchor(

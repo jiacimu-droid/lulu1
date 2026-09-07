@@ -281,112 +281,24 @@ internal fun DigitalWorldGameScene(
                         )
                     }
 
-                    val pendingItem = motion.pendingItemId?.let { id -> props.firstOrNull { it.item.id == id } }
-                    if (pendingItem != null && motion.position.distanceTo(pendingItem.bounds.center) < 46f) {
-                        val activityId = motion.pendingActivityId.orEmpty()
-                        val label = DigitalWorldActivityCatalog.optionsFor(pendingItem.item)
-                            .firstOrNull { it.first == activityId }?.second.orEmpty()
-                        val result = if (DigitalLifeProfileStore.isEnabled(motion.character.characterId)) {
-                            DigitalWorldStore.performAction(
-                                characterId = motion.character.characterId,
-                                action = "use_home_item",
-                                args = JSONObject().put("itemId", pendingItem.item.id).put("activityId", activityId),
-                            )
-                        } else null
-                        return@mapIndexed motion.copy(
-                            target = motion.position,
-                            pendingItemId = null,
-                            pendingVenueAnchorId = null,
-                            pendingActivityId = null,
-                            activityLabel = if (result?.success == true) label else "",
-                            busyUntil = if (result?.success == true) now + 4_400L + index * 260L else 0L,
-                            nextDecisionAt = now + 7_000L,
-                        )
-                    }
-
-                    val pendingVenue = motion.pendingVenueAnchorId?.let { id -> venueAnchors.firstOrNull { it.id == id } }
-                    if (pendingVenue != null && motion.position.distanceTo(pendingVenue.position) < 52f) {
-                        val activityId = motion.pendingActivityId.orEmpty()
-                        val label = DigitalWorldActivityCatalog.locationOptions(sceneCode)
-                            .firstOrNull { it.first == activityId }?.second.orEmpty()
-                        val result = if (DigitalLifeProfileStore.isEnabled(motion.character.characterId)) {
-                            DigitalWorldStore.performAction(
-                                characterId = motion.character.characterId,
-                                action = "use_location",
-                                args = JSONObject().put("activityId", activityId),
-                            )
-                        } else null
-                        return@mapIndexed motion.copy(
-                            target = motion.position,
-                            pendingItemId = null,
-                            pendingVenueAnchorId = null,
-                            pendingActivityId = null,
-                            activityLabel = if (result?.success == true) label else "",
-                            busyUntil = if (result?.success == true) now + 4_700L + index * 300L else 0L,
-                            nextDecisionAt = now + 7_500L,
-                        )
-                    }
-
+                    // Animation reflects confirmed activity; it never executes random world actions.
                     var target = motion.target
                     var nextDecision = motion.nextDecisionAt
-                    var pendingItemId = motion.pendingItemId
-                    var pendingVenueId = motion.pendingVenueAnchorId
-                    var pendingActivityId = motion.pendingActivityId
+                    val pendingItemId: String? = null
+                    val pendingVenueId: String? = null
+                    val pendingActivityId: String? = null
                     var activityLabel = motion.activityLabel
-
-                    if (now >= motion.nextDecisionAt || motion.position.distanceTo(target) < 22f) {
-                        val phase = ((now / 12_000L + motion.character.characterId.hashCode().toLong()) and Long.MAX_VALUE) % 6L
-                        val wantsCompany = controlsEnabled && phase == 0L && index == 0
-                        val usableProps = if (DigitalLifeProfileStore.isEnabled(motion.character.characterId)) {
-                            props.filter { DigitalWorldActivityCatalog.optionsFor(it.item).isNotEmpty() }
-                        } else emptyList()
-                        val canUseVenue = venueAnchors.isNotEmpty() && DigitalLifeProfileStore.isEnabled(motion.character.characterId)
-
-                        when {
-                            wantsCompany -> {
-                                target = playerPosition + WorldVector(if (index % 2 == 0) -96f else 96f, -34f)
-                                pendingItemId = null
-                                pendingVenueId = null
-                                pendingActivityId = null
-                                activityLabel = "想找你待一会儿"
-                                nextDecision = now + 6_000L
-                            }
-                            usableProps.isNotEmpty() && phase in 1L..3L -> {
-                                val seed = ((motion.character.characterId.hashCode().toLong() * 37L + now / 9_000L) and Long.MAX_VALUE)
-                                val prop = usableProps[(seed % usableProps.size).toInt()]
-                                val allOptions = DigitalWorldActivityCatalog.optionsFor(prop.item)
-                                val safe = allOptions.filterNot { it.first in setOf("sleep", "nap", "lie_down", "lie_on_rug") }
-                                val options = safe.ifEmpty { allOptions }
-                                val option = options.getOrNull((seed / 7L % options.size.coerceAtLeast(1)).toInt())
-                                target = prop.bounds.center
-                                pendingItemId = prop.item.id
-                                pendingVenueId = null
-                                pendingActivityId = option?.first
-                                activityLabel = option?.second?.let { "准备$it" }.orEmpty()
-                                nextDecision = now + 12_000L
-                            }
-                            canUseVenue && phase in 1L..4L -> {
-                                val seed = ((motion.character.characterId.hashCode().toLong() * 41L + now / 8_500L) and Long.MAX_VALUE)
-                                val anchor = venueAnchors[(seed % venueAnchors.size).toInt()]
-                                val options = DigitalWorldActivityCatalog.locationOptions(sceneCode)
-                                    .filter { it.first in anchor.activityIds }
-                                val option = options.getOrNull((seed / 11L % options.size.coerceAtLeast(1)).toInt())
-                                target = anchor.position
-                                pendingItemId = null
-                                pendingVenueId = anchor.id
-                                pendingActivityId = option?.first
-                                activityLabel = option?.second?.let { "准备$it" }.orEmpty()
-                                nextDecision = now + 12_000L
-                            }
-                            else -> {
-                                target = residentWanderTarget(motion.character.characterId, now, index, venueAnchors)
-                                pendingItemId = null
-                                pendingVenueId = null
-                                pendingActivityId = null
-                                activityLabel = ""
-                                nextDecision = now + 5_000L + ((motion.character.characterId.hashCode() and Int.MAX_VALUE) % 3_400)
-                            }
-                        }
+                    if (now >= nextDecision) {
+                        val activity = com.jiacimu.lulu.data.DigitalWorldActivityStateStore.ongoingActivity(motion.character.characterId)
+                        val item = props.firstOrNull { it.item.id == activity?.first }
+                        val venue = venueAnchors.firstOrNull { activity?.second in it.activityIds }
+                        target = item?.bounds?.center ?: venue?.position ?: motion.position
+                        activityLabel = activity?.second?.let { id ->
+                            (item?.let { DigitalWorldActivityCatalog.optionsFor(it.item) }
+                                ?: DigitalWorldActivityCatalog.locationOptions(sceneCode))
+                                .firstOrNull { it.first == id }?.second
+                        }.orEmpty()
+                        nextDecision = now + 1_000L
                     }
 
                     val directionToTarget = target - motion.position

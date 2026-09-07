@@ -160,7 +160,7 @@ private fun renderEventLines(events: List<SharedTimelineEvent>, characterBudget:
     val contentBudget = (effectiveBudget - prefixCost).coerceAtLeast(events.size)
     val perEvent = (contentBudget / events.size).coerceAtLeast(MIN_EVENT_CONTENT_CHARS)
     return events.mapIndexed { index, event ->
-        val content = event.content.trim().replace("\n", " ")
+        val content = event.evidenceContent.trim().replace("\n", " ")
         prefixes[index] + if (content.length <= perEvent) content else content.take(perEvent) + "…"
     }
 }

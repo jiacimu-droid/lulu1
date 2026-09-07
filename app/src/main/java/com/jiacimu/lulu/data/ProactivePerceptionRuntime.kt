@@ -232,6 +232,9 @@ object ProactivePerceptionRuntime {
         val worldTick = if (DigitalLifeProfileStore.isEnabled(characterId)) {
             DigitalWorldLifeEventStore.tick(appContext, characterId, now)
         } else null
+        worldTick?.let { tick ->
+            MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, tick.summary, tick.incidentId)
+        }
         val messages = MigratedDomainStores.chat.messages(conversation.id).value
         val zoneId = ZoneId.systemDefault()
         val localTimeText = now.atZone(zoneId).format(
@@ -256,7 +259,7 @@ object ProactivePerceptionRuntime {
             .joinToString("\n") { formatUserActivity(it, zoneId) }
         val recentUserActivityContext = userActivities.take(12)
             .joinToString("\n") { formatUserActivity(it, zoneId) }
-        val recent = messages.takeLast(20).joinToString("\n") { message ->
+        val recent = messages.filterNot { it.sender == LuluChatMessage.Sender.System && it.content.startsWith("[共同活动]") }.takeLast(20).joinToString("\n") { message ->
             val speaker = when (message.sender) {
                 LuluChatMessage.Sender.User -> "用户"
                 LuluChatMessage.Sender.Character -> character.displayName
@@ -273,7 +276,7 @@ object ProactivePerceptionRuntime {
             }
             .takeLast(12)
             .joinToString("\n") { event ->
-                "- [${event.occurredAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))}] ${event.channel}：${event.content.replace(Regex("\\s+"), " ").take(500)}"
+                "- [${event.occurredAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))}] ${event.channel}：${event.evidenceContent.replace(Regex("\\s+"), " ").take(500)}"
             }
         val lexicon = LuluRepositories.lexicon.snapshot(characterId)
         val concerns = lexicon.filter { it.section == LexiconSection.Concern }.take(8)
@@ -329,7 +332,7 @@ object ProactivePerceptionRuntime {
                     appendLine("上一刻：${it.statusText}；${it.gesture}；${it.mood}；心声=${it.innerThought}")
                 }
                 if (recentLifeContext.isNotBlank()) {
-                    appendLine("【角色最近自己的生活｜旧→新】")
+                    appendLine("【角色最近自己的生活记录｜旧→新】")
                     appendLine(recentLifeContext)
                 }
                 if (concerns.isNotBlank()) appendLine("【挂心】\n$concerns")
@@ -371,28 +374,23 @@ object ProactivePerceptionRuntime {
         }
         val parsed = parseDecision(result.text) ?: error("模型返回无法解析：${result.text.take(100)}")
         val decision = parsed.withPresenceFallback(character)
-        CompanionPresenceStore.update(
-            characterId,
-            decision.statusText,
-            decision.gesture,
-            decision.innerThought,
-            decision.mood,
-            "后台主动感知",
-            now,
-        )
+        // Execute first. Unvalidated model status/gesture must never become a world fact.
         val execution = performAction(appContext, character, decision, availableGroups, now)
-        val interactiveWake = trigger.contains("呼唤") || trigger.startsWith("在线期间")
-        if (decision.action == Action.SILENT && !interactiveWake) {
-            MigratedDomainStores.chat.appendPrivateActivityNotice(
-                characterId,
-                worldTick?.summary?.let { "刚刚经历了数字世界程序事件：${it.take(260)}" }
-                    ?: "刚刚更新了自己的此刻：${decision.statusText}${decision.mood.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()}",
+        if (execution.success || decision.action == Action.SILENT) {
+            val physicalAction = decision.action in setOf(Action.DIGITAL_WORLD, Action.READING, Action.SOLO_GAME)
+            CompanionPresenceStore.update(
+                characterId = characterId,
+                statusText = if (execution.success && physicalAction) execution.summary else null,
+                gesture = if (execution.success && physicalAction) execution.summary else null,
+                innerThought = decision.innerThought,
+                mood = decision.mood,
+                source = "后台主动感知",
+                now = now,
             )
-        } else if (decision.action != Action.SILENT && !execution.success) {
-            MigratedDomainStores.chat.appendPrivateActivityNotice(
-                characterId,
-                "【动作未完成】${execution.summary.take(180)}",
-            )
+        }
+        if (decision.action != Action.SILENT && !execution.success) {
+            // Keep the previous factual presence intact. Failure details belong to perception history.
+            CompanionPresenceStore.recordPerceptionAttempt(characterId, "动作未完成：${execution.summary}", now)
         }
         val effectiveAction = if (execution.success) decision.action else Action.SILENT
         CompanionPresenceStore.recordPerceptionAttempt(

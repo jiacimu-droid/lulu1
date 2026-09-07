@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
@@ -43,6 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluGroupChat
@@ -81,7 +83,29 @@ internal fun QqMessageRow(
     }
 
     if (message.sender == LuluChatMessage.Sender.System) {
+        val incidentId = remember(message.content) {
+            Regex("\\[世界事件\\|([A-Za-z0-9-]+)\\]").find(message.content)?.groupValues?.get(1)
+        }
+        var showEventHistory by remember(message.id) { mutableStateOf(false) }
         val notice = remember(message.content) { parseSystemActivityNotice(message.content) }
+        if (showEventHistory && incidentId != null) {
+            val history = SharedExperienceTimeline.all(message.authorCharacterId ?: MigratedDomainStores.chat.conversations.value.firstOrNull { it.id == message.conversationId }?.characterId.orEmpty())
+                .filter { it.id.startsWith("world-fact-$incidentId-") }
+            AlertDialog(
+                onDismissRequest = { showEventHistory = false },
+                title = { Text("生活记录") },
+                text = {
+                    Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        history.forEach { event ->
+                            Text(event.occurredAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("M/d HH:mm")) + "  " + event.content)
+                        }
+                        if (history.isEmpty()) Text(notice.visibleText)
+                    }
+                },
+                confirmButton = { TextButton(onClick = { showEventHistory = false }) { Text("收起") } },
+            )
+        }
         val receiptTime = remember(message.createdAt) {
             message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm"))
         }
@@ -90,9 +114,10 @@ internal fun QqMessageRow(
             contentAlignment = Alignment.Center,
         ) {
             Surface(
-                color = Color(0xFFFEFEFD),
+                modifier = if (incidentId != null) Modifier.clickable { showEventHistory = true } else Modifier,
+                color = Color(0xFFF5F5F5),
                 shape = RoundedCornerShape(10.dp),
-                border = BorderStroke(1.dp, Color(0xFF252525)),
+                border = BorderStroke(0.5.dp, Color(0xFFE2E2E2)),
                 shadowElevation = 0.dp,
             ) {
                 Row(
@@ -109,7 +134,9 @@ internal fun QqMessageRow(
                     Text("·", color = Color(0xFF9A9A9A), fontSize = 10.sp)
                     if (notice.link == null) {
                         Text(
-                            notice.visibleText,
+                            notice.visibleText + if (incidentId != null) "  · 查看经过" else "",
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                             color = Color(0xFF3F3F3F),
                             fontSize = 10.5.sp,
                             lineHeight = 15.sp,
@@ -425,6 +452,9 @@ private data class SystemActivityNotice(
 private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
     val rawVisible = stripRecallReceiptDirective(content)
         .removePrefix("[共同活动]")
+        .replace(Regex("\\[世界事件\\|[A-Za-z0-9-]+\\]"), "")
+        .replace("真实家具", "家具")
+        .replace("程序复核后将这条持续事件标记为已解决", "这处情况已结束")
         .removePrefix("[群成员变更]")
         .removePrefix("[戳一戳]")
         .removePrefix("[撤回]")

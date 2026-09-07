@@ -21,7 +21,6 @@ internal object DigitalWorldActivityCatalog {
             DigitalFurnitureKind.SOFA -> listOf(
                 "sit" to "坐下",
                 "curl_up" to "窝在沙发里",
-                "watch_tv_from_sofa" to "靠着看看电视",
                 "rest" to "靠着休息",
                 "nap" to "打个盹",
             )
@@ -37,7 +36,6 @@ internal object DigitalWorldActivityCatalog {
             DigitalFurnitureKind.TABLE, DigitalFurnitureKind.COFFEE_TABLE -> listOf(
                 "sit_by_table" to "在桌边坐一会儿",
                 "have_snack" to "吃点东西",
-                "play_table_game" to "摆一局桌面游戏",
                 "organize_surface" to "整理桌面",
             )
             DigitalFurnitureKind.SHELF -> listOf(
@@ -67,8 +65,6 @@ internal object DigitalWorldActivityCatalog {
             )
             DigitalFurnitureKind.TV -> listOf(
                 "turn_on_tv" to "打开电视",
-                "watch_tv" to "看一会儿",
-                "change_channel" to "换个节目",
                 "clean_screen" to "擦一擦屏幕",
             )
             DigitalFurnitureKind.MIRROR -> listOf(
@@ -125,7 +121,7 @@ internal object DigitalWorldActivityCatalog {
             "play_table_game" -> "在“${item.name}”上摆开了一局桌面游戏"
             "organize_surface" -> "整理了“${item.name}”的表面"
             "inspect_shelf" -> "查看了“${item.name}”上的现有陈设"
-            "browse_shelf" -> "随手翻了翻“${item.name}”上的东西"
+            "browse_shelf" -> "查看了“${item.name}”，没有凭空增加架上的物品"
             "dust_item" -> "清理了“${item.name}”的表面"
             "organize_storage" -> "整理了“${item.name}”"
             "toggle_lamp" -> "伸手调整了“${item.name}”的开关"
@@ -154,7 +150,7 @@ internal object DigitalWorldActivityCatalog {
             "play_with_decor" -> "随手摆弄了一会儿“${item.name}”"
             else -> "仔细查看了“${item.name}”"
         }
-        return "$characterName$action；这件物品真实位于${item.position}。"
+        return "$characterName$action。"
     }
 
     fun locationOptions(locationCode: String): List<Pair<String, String>> = when (locationCode) {
@@ -168,7 +164,6 @@ internal object DigitalWorldActivityCatalog {
         DigitalWorldPublicPlaces.GAME_HALL -> listOf(
             "browse_games" to "逛逛机台",
             "choose_arcade" to "挑一台想玩的机器",
-            "watch_game" to "围观别人玩",
             "check_scoreboard" to "看看成绩榜",
             "sit_arcade" to "去休息区坐坐",
             "arcade_linger" to "在灯光和音效里待一会儿",
@@ -177,15 +172,15 @@ internal object DigitalWorldActivityCatalog {
             "browse_reading" to "慢慢翻阅读架",
             "quiet_read" to "找安静位置阅读",
             "window_read" to "坐到窗边阅读",
-            "reading_notes" to "整理一下读到的东西",
             "reading_wander" to "在书架间随便逛逛",
             "reading_rest" to "在软座上安静坐会儿",
         )
         DigitalWorldPublicPlaces.CAFE -> listOf(
-            "order_drink" to "点一杯喝的",
+            "order_drink" to "领取一杯温水",
+            "order_snack" to "领取一份原味饼干",
             "cafe_sit" to "找个座位坐下",
             "window_cafe" to "去靠窗的位置",
-            "people_watch" to "看看周围来往的人",
+            "people_watch" to "看看周围",
             "slow_drink" to "慢慢喝一会儿",
             "cafe_linger" to "在店里放空一会儿",
         )
@@ -228,16 +223,17 @@ internal object DigitalWorldActivityCatalog {
             "check_scoreboard" -> "走到游戏馆的成绩榜前看了一会儿今天的记录"
             "sit_arcade" -> "在游戏馆休息区坐了一会儿"
             "arcade_linger" -> "没急着开始游戏，只是在游戏馆的灯光和音效里待了一会儿"
-            "browse_reading" -> "在阅读馆的阅读架和章节目录间慢慢翻看"
+            "browse_reading" -> "走到阅读馆的书架前，准备查看实际书目"
             "quiet_read" -> "在阅读馆找了个安静的位置坐下阅读"
             "window_read" -> "在阅读馆靠窗的位置坐下读了一会儿"
             "reading_notes" -> "在阅读馆停下来整理了一下刚才读到的内容和自己的想法"
-            "reading_wander" -> "沿着阅读馆的书架慢慢逛了一圈，随手看看有什么吸引注意"
+            "reading_wander" -> "沿着阅读馆的书架开始慢慢走动"
             "reading_rest" -> "在阅读馆的软座上坐了一会儿，让自己安静下来"
-            "order_drink" -> "在浮光咖啡角给自己点了一杯喝的"
+            "order_drink" -> "在浮光咖啡角领取了一杯温水"
+            "order_snack" -> "在浮光咖啡角领取了一份原味饼干"
             "cafe_sit" -> "在浮光咖啡角找了个舒服的位置坐下"
             "window_cafe" -> "换到浮光咖啡角靠窗的位置坐下，看着外面的光景"
-            "people_watch" -> "在浮光咖啡角安静看看周围来往的人"
+            "people_watch" -> "在浮光咖啡角看了看周围，没有据此假定有人在场"
             "slow_drink" -> "坐在浮光咖啡角慢慢喝着东西，没有急着离开"
             "cafe_linger" -> "在浮光咖啡角放空了一会儿，只听着周围细碎的声音"
             "courtyard_walk" -> "沿着共生庭院的步道慢慢散了一会儿步"

@@ -84,7 +84,7 @@ interface LuluChatStore {
         replyToMessageId: String? = null,
     ): LuluChatMessage
     fun appendSystemMessage(conversationId: String, content: String): LuluChatMessage
-    fun appendPrivateActivityNotice(characterId: String, content: String): LuluChatMessage
+    fun appendPrivateActivityNotice(characterId: String, content: String, incidentId: String? = null): LuluChatMessage
     fun markFailed(messageId: String)
     fun markConversationRead(conversationId: String)
     fun editMessage(messageId: String, content: String): Boolean
@@ -389,12 +389,24 @@ class InMemoryLuluChatStore : LuluChatStore {
         ).also { message -> append(effectiveConversationId, message, incrementUnread = false) }
     }
 
-    override fun appendPrivateActivityNotice(characterId: String, content: String): LuluChatMessage {
+    override fun appendPrivateActivityNotice(characterId: String, content: String, incidentId: String?): LuluChatMessage {
         val cleanCharacterId = characterId.trim().ifBlank { "lulu" }
         val character = MigratedDomainStores.characters.get(cleanCharacterId)
         val conversation = ensureConversation(cleanCharacterId, character.displayName)
-        val notice = content.trim().let { text ->
+        val marker = incidentId?.takeIf { it.matches(Regex("[A-Za-z0-9-]+")) }?.let { "[世界事件|$it] " }.orEmpty()
+        val notice = (marker + content.trim()).let { text ->
             if (text.startsWith("[共同活动]")) text else "[共同活动] $text"
+        }
+        if (marker.isNotBlank()) {
+            synchronized(lock) {
+                val existing = messageStates[conversation.id]?.value?.lastOrNull {
+                    it.sender == LuluChatMessage.Sender.System && it.content.startsWith("[共同活动] $marker")
+                }
+                if (existing != null) {
+                    editMessage(existing.id, notice)
+                    return existing.copy(content = notice)
+                }
+            }
         }
         return appendSystemMessage(conversation.id, notice)
     }

@@ -142,7 +142,7 @@ object RelevantMemoryRecall {
             if (ids.isEmpty()) return@forEachIndexed
             val memoryTerms = terms(memory.content)
             SharedExperienceTimeline.eventsByIds(characterId, ids).forEach { event ->
-                val eventTerms = terms("${event.channel} ${event.speaker} ${event.content}")
+                val eventTerms = terms("${event.channel} ${event.speaker} ${event.evidenceContent}")
                 val semanticTerms = queryTerms + memoryTerms
                 val overlap = if (semanticTerms.isEmpty() || eventTerms.isEmpty()) 0.0 else
                     semanticTerms.intersect(eventTerms).size.toDouble() / semanticTerms.size.coerceAtLeast(1)
@@ -168,7 +168,7 @@ object RelevantMemoryRecall {
         val selected = sourceEvidenceEvents(characterId, query, memories, limit)
         if (selected.isEmpty()) return ""
         val lines = selected.map { event ->
-            "[${event.occurredAt}] [${event.channel}] ${event.speaker}：${event.content.take(1_200)}"
+            "[${event.occurredAt}] [${event.channel}] ${event.speaker}：${event.evidenceContent.take(1_200)}"
         }
         val kept = mutableListOf<String>()
         var used = 0

@@ -129,6 +129,7 @@ class LocalMemoryRepository : MemoryRepository {
                     每项格式：
                     {"kind":"Fact|Emotion|Timeline","content":"包含人物、事件、原因、结果与必要语境的完整中文记忆","sourceEventIds":["直接支持该记忆的事件ID"],"occurredAt":"ISO-8601时间或空字符串","strength":1到10}
                     规则：
+                    0. 保留记录的证据类型。日记、心声、朋友圈和聊天仅证明表达过，不能把其中自述直接提取成客观亲历；虚构剧情不得合并为数字主世界经历。旧摘要与执行记录冲突时，以执行记录和当前世界状态为准。
                     1. 不编造未发生事实，必须结合这一整批上下文理解语义，不能因为某一句出现“不是、其实、应该、喜欢、不要”等词就机械判定为纠正、偏好或边界。
                     2. Fact 只保存上下文能够确认的长期稳定身份事实、持续计划、明确偏好与边界。口头反驳、临时观点、针对当下情境的一句话、语气性否定都不是长期事实。
                     3. 如果用户是在纠正角色，必须从前后文确认“先前具体误解是什么、用户实际澄清的稳定事实是什么”，只保存澄清后的事实；无法确认就不要保存。
@@ -447,7 +448,7 @@ class LocalMemoryRepository : MemoryRepository {
                 id = event.id,
                 conversationId = "shared-timeline",
                 sender = if (event.speaker in setOf("主人", "用户", UserProfileContext.displayLabel())) LuluChatMessage.Sender.User else LuluChatMessage.Sender.Character,
-                content = "[${event.channel}] ${event.speaker}：${event.content}",
+                content = "[${event.channel}] ${event.speaker}：${event.evidenceContent}",
                 createdAt = event.occurredAt,
             )
         }
@@ -482,11 +483,16 @@ class LocalMemoryRepository : MemoryRepository {
                             ?.let(::add)
                     }
                 }.distinct().take(6)
+                if (sourceIds.isEmpty()) continue
+                val evidence = SharedExperienceTimeline.eventsByIds(characterId, sourceIds)
+                val attributedContent = if (evidence.isNotEmpty() && evidence.all {
+                    it.evidenceLabel.startsWith("主观表达") || it.evidenceLabel.startsWith("对话记录")
+                }) "[表达记录的摘要，非独立执行事实] $content" else content
                 add(
                     MemoryEntry(
                         id = UUID.randomUUID().toString(),
                         characterId = characterId,
-                        content = content,
+                        content = attributedContent,
                         kind = kind,
                         source = if (sourceIds.isEmpty()) "聊天" else "timeline-events:${sourceIds.joinToString("|")}",
                         occurredAt = occurredAt,

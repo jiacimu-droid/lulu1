@@ -2,6 +2,9 @@ package com.jiacimu.lulu.ai
 
 import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
+import com.jiacimu.lulu.data.DigitalLifeProfileStore
+import com.jiacimu.lulu.data.DigitalWorldStore
+import com.jiacimu.lulu.data.DigitalWorldLifeEventStore
 import com.jiacimu.lulu.data.CharacterIdentityStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.CompanionPresenceStore
@@ -484,7 +487,7 @@ class CompanionModelGateway(
                 when (contextMode) {
                     CompanionContextMode.Full -> {
                         appendLine("你正在以‘${character.displayName.ifBlank { "角色" }}’参与露露机中的当前活动。")
-                        appendLine("这是角色原本所属的露露机世界：角色身份与角色设定都必须生效，身份、关系边界、世界观和语言习惯拥有最高优先级。")
+                        appendLine("这是角色原本所属的露露机世界：角色身份与角色设定都必须生效，性格、关系边界和语言习惯必须保持；背景设定与实际亲历分开，当前物品、位置和行动结果以执行状态为准。")
                     }
                     CompanionContextMode.PersonaAndScenario -> {
                         appendLine("你正在以‘${character.displayName.ifBlank { "角色" }}’参与露露机中的当前活动。")
@@ -497,6 +500,7 @@ class CompanionModelGateway(
                 }
                 if (contextMode != CompanionContextMode.Isolated) {
                     appendLine("角色与用户是什么关系、如何称呼用户，只能来自角色设定、当前场景或明确提供的事实；不得默认用户是‘主人’，也不得默认恋人、朋友或上下级关系。")
+                    appendLine("人设背景不是进入露露机后的亲历；主观想法、日记、自述不证明行动成功。无法找到依据时承认记不清，不补造事实。")
                     appendLine("程序给出的题目、抽卡、计时、骰子、棋局、得分和历史记录都是不可修改的事实。")
                     appendLine("不得默认温柔、亲密、活泼、顺从、吐槽或夸奖；只输出该角色按其设定真正会说的话。")
                 }
@@ -513,7 +517,7 @@ class CompanionModelGateway(
                 roleWorldBooks.forEach { entry -> appendLine("- ${entry.title}：${entry.content}") }
             }.trim()
             val memorySection = if (memories.isEmpty()) "" else buildString {
-                appendLine("可用连续记忆（只能按内容本身使用，不得扩写成未发生事实）：")
+                appendLine("可用连续记忆（摘要可能含旧误记；不能扩写，冲突时以执行证据与当前状态为准）：")
                 memories.forEach { memory ->
                     val memoryTime = memory.occurredAt ?: memory.createdAt
                     val timeKind = if (memory.occurredAt != null) "发生时间" else "记录时间"
@@ -522,7 +526,7 @@ class CompanionModelGateway(
             }.trim()
             val memoryEvidenceSection = recalledRawTimeline
             val timelineSection = recentSharedTimeline.takeIf(String::isNotBlank)?.let {
-                "最近共同时间线（真实原始记录，按时间连续发生）：\n$it"
+                "最近共同时间线（按证据类型理解，表达内容不自动等于客观经历）：\n$it"
             }.orEmpty()
             val presenceSection = presence?.let { state ->
                 buildString {
@@ -537,6 +541,9 @@ class CompanionModelGateway(
                 appendLine("辞海资料：")
                 lexicon.forEach { appendLine("- ${it.section.name}/${it.title}：${it.content}") }
             }.trim()
+            val currentWorld = if (fullContext && DigitalLifeProfileStore.isEnabled(characterId)) {
+                DigitalWorldStore.contextFor(characterId) + "\n" + DigitalWorldLifeEventStore.contextFor(characterId)
+            } else ""
             val systemPrompt = listOf(
                 baseRules,
                 identitySection,
@@ -545,6 +552,7 @@ class CompanionModelGateway(
                 globalWorldBookSection,
                 roleWorldBookSection,
                 presenceSection,
+                currentWorld,
                 timelineSection,
                 memorySection,
                 memoryEvidenceSection,
@@ -556,7 +564,7 @@ class CompanionModelGateway(
                 "真实事实：\n${facts.trim()}"
             }
             val breakdown = listOf(
-                tokenBreakdown("系统/角色身份与设定", baseRules.length + identitySection.length + personaSection.length),
+                tokenBreakdown("系统/角色身份与设定", baseRules.length + identitySection.length + personaSection.length + currentWorld.length),
                 tokenBreakdown(
                     "记忆/状态/感知",
                     globalWorldBookSection.length + roleWorldBookSection.length + userProfileSection.length + presenceSection.length + timelineSection.length + memorySection.length + memoryEvidenceSection.length + lexiconSection.length,
