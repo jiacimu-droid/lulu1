@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T08:01:20.400870+00:00",
-  "commit": "6ab331cfb375ee8ae2fbacdeb70aef83936c9870",
+  "generatedAt": "2026-09-13T08:02:07.535990+00:00",
+  "commit": "a5db2a4d3b28ae5b121c7c099b1372f2e387d188",
   "branch": "main",
-  "sourceFingerprint": "a2283aee69e761e44364c4ce7e10a2d214f6d2d9917da30239d05ff4cc133ae1",
+  "sourceFingerprint": "3f3c6853ff2eb956d410e8ba06c476d3f56b8be4fe6549de14cd4a2c203d35f5",
   "summary": {
     "files": 271,
-    "lines": 78276,
-    "symbols": 1018
+    "lines": 78290,
+    "symbols": 1019
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -1800,6 +1800,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
         "line": 94
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
+        "line": 69
       }
     ],
     "clearCharacter": [
@@ -1825,7 +1829,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-        "line": 69
+        "line": 83
       }
     ],
     "CommitmentTurnAutomation": [
@@ -8397,8 +8401,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-      "lines": 117,
-      "sha256": "92fb99eb1d1f1859c8df0169de406dd26acb14b82bdce1a3d9d5ea3073f51703",
+      "lines": 131,
+      "sha256": "79a17eb7d621e39ed72f3a58336b4f422a9cc8529afc047f6a71b55e36c806d6",
       "symbols": [
         {
           "name": "MemoryExtractionJob",
@@ -8425,8 +8429,12 @@
           "line": 63
         },
         {
-          "name": "clearCharacter",
+          "name": "removeBySourceEvent",
           "line": 69
+        },
+        {
+          "name": "clearCharacter",
+          "line": 83
         }
       ]
     },

@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`6ab331cfb375ee8ae2fbacdeb70aef83936c9870`
+- 基准提交：`a5db2a4d3b28ae5b121c7c099b1372f2e387d188`
 - 分支：`main`
 - 已索引文件：271
-- 已索引代码/文本行：78276
-- 已发现符号：1018
+- 已索引代码/文本行：78290
+- 已发现符号：1019
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -132,7 +132,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 587 | 37 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt` | 125 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingLifecycle.kt` | 94 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt` | 117 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt` | 131 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 33 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt` | 54 | 1 |
