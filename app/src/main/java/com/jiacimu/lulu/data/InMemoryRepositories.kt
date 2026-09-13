@@ -204,14 +204,21 @@ class InMemoryWorldBookRepository : WorldBookRepository {
         }
     }
 
-    override fun observeEntries(): Flow<List<WorldBookEntry>> = entries
+    override fun observeWorldBooks(): Flow<List<WorldBookEntry>> = entries
 
     override suspend fun save(entry: WorldBookEntry) {
         require(entry.title.isNotBlank()) { "世界书标题不能为空" }
         require(entry.content.isNotBlank()) { "世界书内容不能为空" }
         mutate { current ->
             val index = current.indexOfFirst { item -> item.id == entry.id }
-            if (index < 0) current + entry else current.toMutableList().apply { set(index, entry) }
+            if (index < 0) {
+                current + entry.copy(createdAt = entry.createdAt, updatedAt = Instant.now())
+            } else {
+                val existing = current[index]
+                current.toMutableList().apply {
+                    set(index, entry.copy(createdAt = existing.createdAt, updatedAt = Instant.now()))
+                }
+            }
         }
     }
 
@@ -219,7 +226,45 @@ class InMemoryWorldBookRepository : WorldBookRepository {
         mutate { current -> current.filterNot { entry -> entry.id == id } }
     }
 
-    fun snapshot(): List<WorldBookEntry> = entries.value.sortedByDescending { entry -> entry.updatedAt }
+    /** Prompt and UI both use this exact persisted order. */
+    fun snapshot(): List<WorldBookEntry> = entries.value
+
+    suspend fun setGlobalEnabled(id: String, enabled: Boolean) {
+        mutate { current ->
+            current.map { entry ->
+                if (entry.id == id) entry.copy(globalEnabled = enabled, updatedAt = Instant.now()) else entry
+            }
+        }
+    }
+
+    suspend fun setCharacterOverride(id: String, characterId: String, enabled: Boolean?) {
+        require(characterId.isNotBlank()) { "角色不能为空" }
+        mutate { current ->
+            current.map { entry ->
+                if (entry.id != id) return@map entry
+                val nextOverrides = if (enabled == null) {
+                    entry.characterOverrides - characterId
+                } else {
+                    entry.characterOverrides + (characterId to enabled)
+                }
+                entry.copy(characterOverrides = nextOverrides, updatedAt = Instant.now())
+            }
+        }
+    }
+
+    suspend fun move(id: String, offset: Int) {
+        if (offset == 0) return
+        mutate { current ->
+            val from = current.indexOfFirst { it.id == id }
+            if (from < 0) return@mutate current
+            val to = (from + offset).coerceIn(0, current.lastIndex)
+            if (to == from) return@mutate current
+            current.toMutableList().apply {
+                val moving = removeAt(from)
+                add(to, moving.copy(updatedAt = Instant.now()))
+            }
+        }
+    }
 
     suspend fun replaceAll(newEntries: List<WorldBookEntry>) {
         mutate { newEntries }
