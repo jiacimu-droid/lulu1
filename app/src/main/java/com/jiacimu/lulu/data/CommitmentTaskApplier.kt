@@ -108,9 +108,25 @@ private fun updateCommitmentTask(
 
 private fun findTargetTask(characterId: String, draft: CommitmentTaskDraft): CommitmentTask? {
     val active = CommitmentTaskStore.active(characterId)
-    draft.targetTaskId?.let { id -> active.firstOrNull { it.id == id }?.let { return it } }
-    val key = draft.goal.filterNot(Char::isWhitespace).take(10)
-    return active.firstOrNull { key.isNotBlank() && it.goal.contains(key, ignoreCase = true) } ?: active.firstOrNull()
+    if (active.isEmpty()) return null
+    draft.targetTaskId?.let { id ->
+        active.firstOrNull { it.id == id }?.let { return it }
+        // A model-provided target ID that no longer exists is stale evidence. Never fall through and
+        // silently mutate a different responsibility.
+        return null
+    }
+    val normalizedGoal = draft.goal.trim()
+    if (normalizedGoal.isNotBlank()) {
+        val semanticMatches = active.filter { task ->
+            task.goal.sameTaskText(normalizedGoal) ||
+                task.goal.contains(normalizedGoal, ignoreCase = true) ||
+                normalizedGoal.contains(task.goal, ignoreCase = true)
+        }
+        if (semanticMatches.size == 1) return semanticMatches.single()
+    }
+    // A short user phrase like “不用了” is safe only when there is exactly one possible active
+    // responsibility. With two or more tasks we leave state unchanged and let conversation clarify.
+    return active.singleOrNull()
 }
 
 private fun scheduleTaskAlarm(task: CommitmentTask) {
