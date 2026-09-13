@@ -24,7 +24,6 @@ data class UnifiedMemoryRequest(
     }
 }
 
-/** Structured events are kept until rendering, avoiding blind substring cuts through records. */
 data class UnifiedMemoryContext(
     val memories: List<MemoryEntry> = emptyList(),
     val sourceEvents: List<SharedTimelineEvent> = emptyList(),
@@ -78,7 +77,10 @@ object UnifiedMemoryOrchestrator {
         val recentIds = recentEvents.mapTo(mutableSetOf(), SharedTimelineEvent::id)
         val query = request.retrievalQuery()
         val memories = RelevantMemoryRecall.recall(characterId, query, recallLimit)
-            .filterNot { memory -> memory.sourceEventIds().any(recentIds::contains) }
+            .filter { memory ->
+                val sourceIds = memory.sourceEventIds()
+                sourceIds.isEmpty() || sourceIds.any { sourceId -> sourceId !in recentIds }
+            }
         val sourceEvents = RelevantMemoryRecall.sourceEvidenceEvents(
             characterId = characterId,
             query = query,
@@ -153,9 +155,6 @@ private fun renderEventLines(events: List<SharedTimelineEvent>, characterBudget:
     if (events.isEmpty() || characterBudget <= 0) return emptyList()
     val prefixes = events.map { event -> "[${event.occurredAt}] [${event.channel}] ${event.speaker}：" }
     val prefixCost = prefixes.sumOf(String::length) + events.size
-    // Budgets are soft here: omitting an older unresolved event is worse than a modest overflow.
-    // Share the available content space across every chronological record instead of filling from
-    // newest to oldest and silently dropping the beginning of the pending window.
     val effectiveBudget = maxOf(characterBudget, prefixCost + events.size * MIN_EVENT_CONTENT_CHARS)
     val contentBudget = (effectiveBudget - prefixCost).coerceAtLeast(events.size)
     val perEvent = (contentBudget / events.size).coerceAtLeast(MIN_EVENT_CONTENT_CHARS)
