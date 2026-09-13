@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`cecd2c1be2c943c2218415b14df8dde412703b2e`
+- 基准提交：`7d95f32da54bad5e3a2c11a6e58899006e271e1a`
 - 分支：`main`
-- 已索引文件：261
-- 已索引代码/文本行：76280
-- 已发现符号：976
+- 已索引文件：262
+- 已索引代码/文本行：76513
+- 已发现符号：988
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -112,9 +112,10 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt` | 262 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt` | 172 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEventRules.java` | 39 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt` | 222 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 610 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt` | 45 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt` | 50 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt` | 61 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1001 | 33 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 325 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/JsonNullStringCompat.kt` | 8 | 2 |
