@@ -55,6 +55,64 @@ object CommitmentTaskStore {
     }
 
     /**
+     * App/boot recovery only. Do not call this from the alarm receiver itself: a receiver may be the
+     * process entry point exactly when a due alarm fires, and must get a chance to claim that token.
+     *
+     * A missed scheduled step is historical failure, not permission to pretend a late rescue was on
+     * time. A process that died after atomically claiming a step is left Blocked instead of replaying
+     * the action, because duplicate calls/messages are worse than asking for explicit confirmation.
+     */
+    @Synchronized
+    fun reconcileAfterRestart(now: Instant = Instant.now()) {
+        var changed = false
+        val next = mutableTasks.value.map { task ->
+            when {
+                task.status == CommitmentTaskStatus.Running -> {
+                    changed = true
+                    task.copy(
+                        status = CommitmentTaskStatus.Blocked,
+                        nextCheckAt = null,
+                        linkedAlarmId = null,
+                        revision = task.revision + 1L,
+                        updatedAt = now,
+                        lastActionResult = "应用上次在任务动作已领取后中断；无法确认附加消息/来电是否完成，为避免重复执行已停止自动重放，等待用户反馈",
+                    )
+                }
+                task.status == CommitmentTaskStatus.Scheduled &&
+                    task.dueAt?.isAfter(now) == false -> {
+                    task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
+                    changed = true
+                    task.copy(
+                        status = CommitmentTaskStatus.Expired,
+                        nextCheckAt = null,
+                        linkedAlarmId = null,
+                        revision = task.revision + 1L,
+                        updatedAt = now,
+                        lastActionResult = "应用恢复时发现约定时点已经错过；不能把恢复后的补救冒充准时履约",
+                    )
+                }
+                task.status == CommitmentTaskStatus.WaitingForFeedback &&
+                    task.nextCheckAt != null &&
+                    !task.nextCheckAt.isAfter(now) &&
+                    task.linkedAlarmId != null -> {
+                    task.linkedAlarmId.let(LuluAlarmSystem::cancel)
+                    changed = true
+                    task.copy(
+                        status = CommitmentTaskStatus.Expired,
+                        nextCheckAt = null,
+                        linkedAlarmId = null,
+                        revision = task.revision + 1L,
+                        updatedAt = now,
+                        lastActionResult = "应用恢复时发现有限重试时点已经错过；原任务结果仍未确认，停止自动追加动作",
+                    )
+                }
+                else -> task
+            }
+        }
+        if (changed) persist(next)
+    }
+
+    /**
      * Atomically claims exactly one alarm-backed step. linkedAlarmId is a one-shot execution token:
      * the first receiver switches the task to Running and clears it; duplicate broadcasts therefore
      * cannot execute the same task revision again.
