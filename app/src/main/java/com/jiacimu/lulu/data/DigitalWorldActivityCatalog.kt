@@ -196,12 +196,18 @@ internal object DigitalWorldActivityCatalog {
             "arrival_wait" to "在入口等待一会儿",
             "arrival_observe" to "观察世界入口",
         )
-        else -> if (locationCode.startsWith("home:")) {
-            listOf(
+        else -> when {
+            locationCode.startsWith("home:") -> listOf(
                 "home_pace" to "在当前家园走动",
                 "home_quiet_rest" to "在当前家园安静休息",
             )
-        } else emptyList()
+            DigitalWorldExpansionStore.places().any { it.code == locationCode } -> listOf(
+                "discovered_walk" to "沿这个地点慢慢探索",
+                "discovered_pause" to "找个位置停留一会儿",
+                "discovered_observe" to "观察这里真实存在的环境与居民",
+            )
+            else -> emptyList()
+        }
     }
 
     fun locationActivitySummary(
@@ -254,6 +260,9 @@ internal object DigitalWorldActivityCatalog {
             "arrival_observe" -> "仔细观察了一会儿世界入口的实际状态"
             "home_pace" -> "在${locationName}里慢慢走动了一圈"
             "home_quiet_rest" -> "在${locationName}里停下来安静休息"
+            "discovered_walk" -> "沿着${locationName}真实存在的区域慢慢探索了一圈"
+            "discovered_pause" -> "在${locationName}找了个合适的位置停留了一会儿"
+            "discovered_observe" -> "在${locationName}观察了这里已经登记的环境和居民，没有凭空补造新事物"
             else -> return null
         }
         return "$characterName$action。"
