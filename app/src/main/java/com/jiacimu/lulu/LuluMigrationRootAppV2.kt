@@ -156,10 +156,11 @@ fun LuluMigrationRootAppV2(
         initialLexiconSection,
         initialReadingTitle,
     ) {
-        if (!initialConversationId.isNullOrBlank()) {
-            selectedConversationId = initialConversationId
+        val requestedConversationId = initialConversationId?.takeIf(String::isNotBlank)
+        if (requestedConversationId != null) {
+            selectedConversationId = requestedConversationId
             selectedCharacterId = initialTargetCharacterId?.takeIf(String::isNotBlank)
-                ?: characterIdForConversation(initialConversationId)
+                ?: characterIdForConversation(requestedConversationId)
             chatSessionStarted = true
             routeStack = if (deepLinkRoute != null) {
                 listOf(
