@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T03:19:00.027960+00:00",
-  "commit": "484eaa1b07da3893bbe650c1c5022ad7f5d15c6a",
+  "generatedAt": "2026-09-13T07:24:08.795298+00:00",
+  "commit": "4ee0ff576765c7a7c4a482f86fee275f8caec14e",
   "branch": "main",
-  "sourceFingerprint": "385a475f4d6fa3f3709bb80a90b67112e5d9a8e6795fac8c8ce3175bc3486de0",
+  "sourceFingerprint": "1a95924c789d3656a0de458963955d8282ab266c6a07809194c8165c81b0e8a7",
   "summary": {
     "files": 268,
-    "lines": 77670,
+    "lines": 77697,
     "symbols": 1009
   },
   "symbolIndex": {
@@ -113,7 +113,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt",
-        "line": 59
+        "line": 68
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt",
@@ -2193,7 +2193,7 @@
     "maybeEvolve": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt",
-        "line": 68
+        "line": 80
       }
     ],
     "DigitalWorldResident": [
@@ -7604,16 +7604,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt",
-      "lines": 206,
-      "sha256": "6b60d13bc559ea44b34c61613c037409cb81b2f6982eec6ae829db6c6c25db0e",
+      "lines": 233,
+      "sha256": "909a073ca2dc761ab69335836497fe0f30395659fa11ce79e8238e73399fc201",
       "symbols": [
         {
           "name": "initialize",
-          "line": 59
+          "line": 68
         },
         {
           "name": "maybeEvolve",
-          "line": 68
+          "line": 80
         }
       ]
     },
