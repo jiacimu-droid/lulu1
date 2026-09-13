@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T07:59:00.681974+00:00",
-  "commit": "16c5411a154d428451a4f8807a6a9d4593c69c66",
+  "generatedAt": "2026-09-13T07:59:33.127534+00:00",
+  "commit": "af6025a913e71c4a51ea870ce3361275d56de51b",
   "branch": "main",
-  "sourceFingerprint": "e26a863beb488980f18a6a49ec7781bf529fb1c619243affc7dfc779bd163612",
+  "sourceFingerprint": "8bad7f549cc2690b6b56d020fef594a220c2232e50c254bf5e4f5b353732ed87",
   "summary": {
-    "files": 269,
-    "lines": 78086,
-    "symbols": 1014
+    "files": 270,
+    "lines": 78158,
+    "symbols": 1017
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -174,6 +174,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
         "line": 20
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt",
+        "line": 23
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -3088,6 +3092,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
         "line": 66
+      }
+    ],
+    "recordPositiveSamples": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt",
+        "line": 29
+      }
+    ],
+    "calibratedFloor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt",
+        "line": 41
       }
     ],
     "LuluChatMessage": [
@@ -8515,6 +8531,25 @@
         {
           "name": "debugContext",
           "line": 66
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt",
+      "lines": 72,
+      "sha256": "a86e55de95583ce082d3d8565fb55846d457bce0158d5a42206b08a036d4d430",
+      "symbols": [
+        {
+          "name": "initialize",
+          "line": 23
+        },
+        {
+          "name": "recordPositiveSamples",
+          "line": 29
+        },
+        {
+          "name": "calibratedFloor",
+          "line": 41
         }
       ]
     },
