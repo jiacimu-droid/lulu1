@@ -22,9 +22,9 @@ internal suspend fun extractCommitmentTaskDrafts(
             appendLine("用户本轮：$userText")
             appendLine("角色本轮完整回复：$characterText")
             if (activeTasks.isNotEmpty()) {
-                appendLine("现有未完成任务：")
-                activeTasks.take(12).forEach { task ->
-                    appendLine("- id=${task.id}; goal=${task.goal}; dueAt=${task.dueAt}; status=${task.status}")
+                appendLine("现有未完成任务（完整列表，不能因数量多忽略旧任务）：")
+                activeTasks.forEach { task ->
+                    appendLine("- id=${task.id}; goal=${task.goal}; dueAt=${task.dueAt}; status=${task.status}; revision=${task.revision}")
                 }
             }
         },
@@ -37,14 +37,14 @@ internal suspend fun extractCommitmentTaskDrafts(
             2. 如果用户只说想睡一会儿，而角色答应叫醒但没有明确多久/几点，create 且 needsClarification=true，dueAt 留空；不要猜时间。
             3. 有明确相对时间时根据当前时间换算；有明确当地时刻时使用当前时区。无法可靠确定具体时间就不要编造。
             4. “创建闹钟”只是执行步骤，不等于目标完成。叫醒类任务应以用户明确反馈醒了/停止叫醒为完成或取消依据。
-            5. 用户说“改成九点”“不用叫了”“我醒了”时，优先匹配现有任务并返回 reschedule/cancel/complete。
+            5. 用户说“改成九点”“不用叫了”“我醒了”时，优先匹配现有任务并返回 reschedule/cancel/complete；必须填写准确 targetTaskId，不能随便改第一条旧任务。
             6. 没回复不能推断用户仍在睡或任务已完成。
             7. 只创建真正需要未来履行或继续跟进的事项，普通寒暄和随口建议不要建任务。
         """.trimIndent(),
         source = "承诺任务",
         title = "承诺任务提取",
         temperature = 0.05,
-        maxTokens = 1_200,
+        maxTokens = 1_500,
         usage = ModelUsage.Chat,
     )
     if (result.isFailure) return emptyList()
