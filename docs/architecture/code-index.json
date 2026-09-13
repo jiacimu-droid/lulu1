@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T02:43:28.406751+00:00",
-  "commit": "554f859ed464391d16dd20cf3678edcebd2260c6",
+  "generatedAt": "2026-09-13T02:44:34.387808+00:00",
+  "commit": "f9d9121c8386930e482146df658d192de1be3420",
   "branch": "main",
-  "sourceFingerprint": "d00e7892c5761e93e5c5c5903fae38799c1364c455a6745116154b74cd25072c",
+  "sourceFingerprint": "620b64bbd546aa2012f2fb34b5a32eb34470081850e107f97d674e55d01582a0",
   "summary": {
     "files": 262,
-    "lines": 76513,
+    "lines": 76522,
     "symbols": 988
   },
   "symbolIndex": {
@@ -2101,7 +2101,7 @@
     "locationActivitySummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-        "line": 206
+        "line": 212
       }
     ],
     "contextFor": [
@@ -7411,8 +7411,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-      "lines": 262,
-      "sha256": "03f0cb9644275c25dd7620de574fd7166deb2e05600b32cae2bde283ce385cf4",
+      "lines": 271,
+      "sha256": "abaea5a16e7273604e93c06a27ec2c3e781ea114a13b5f5c270063c59ccfaa2d",
       "symbols": [
         {
           "name": "optionsFor",
@@ -7432,7 +7432,7 @@
         },
         {
           "name": "locationActivitySummary",
-          "line": 206
+          "line": 212
         }
       ]
     },

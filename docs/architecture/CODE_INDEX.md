@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`554f859ed464391d16dd20cf3678edcebd2260c6`
+- 基准提交：`f9d9121c8386930e482146df658d192de1be3420`
 - 分支：`main`
 - 已索引文件：262
-- 已索引代码/文本行：76513
+- 已索引代码/文本行：76522
 - 已发现符号：988
 
 | 文件 | 行数 | 符号数 |
@@ -109,7 +109,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt` | 225 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt` | 85 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 233 | 16 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt` | 262 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt` | 271 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt` | 172 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEventRules.java` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt` | 222 | 11 |
