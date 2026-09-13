@@ -36,12 +36,51 @@ object CommitmentTurnAutomation {
                     if (conversation.id in jobs) return@forEach
                     jobs[conversation.id] = scope.launch {
                         MigratedDomainStores.chat.messages(conversation.id).collectLatest {
+                            // Cancellation/completion/reschedule of an existing responsibility is an
+                            // urgent state update. Apply it as soon as the user's message arrives so a
+                            // scheduled alarm/call cannot survive merely because the role has not yet
+                            // produced its next chat bubble.
+                            inspectImmediateUserUpdate(conversation)
                             delay(QUIET_WINDOW_MS)
                             inspectLatestTurn(conversation)
                         }
                     }
                 }
             }
+        }
+    }
+
+    private suspend fun inspectImmediateUserUpdate(conversation: LuluConversation) {
+        val messages = MigratedDomainStores.chat.messages(conversation.id).value
+        val latest = messages.lastOrNull()?.takeIf {
+            it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent
+        } ?: return
+        if (!looksLikeImmediateTaskUpdate(latest.content)) return
+
+        val candidateCharacterIds = conversation.groupChat
+            ?.members
+            ?.map(LuluGroupMember::characterId)
+            ?.distinct()
+            ?: listOf(conversation.characterId)
+        candidateCharacterIds.forEach { characterId ->
+            if (characterId.isBlank()) return@forEach
+            val active = CommitmentTaskStore.active(characterId)
+            if (active.isEmpty()) return@forEach
+            val signature = "immediate:${conversation.id}:${latest.id}:$characterId"
+            if (isProcessed(signature)) return@forEach
+            val drafts = extractCommitmentTaskDrafts(
+                characterId = characterId,
+                userText = latest.content,
+                characterText = "（角色尚未回复；这里只处理现有任务的改期、取消或完成，不得据此新建责任）",
+                activeTasks = active,
+            ).filter { draft -> draft.action in setOf("reschedule", "cancel", "complete") }
+            applyCommitmentTaskDrafts(
+                characterId = characterId,
+                sourceTurnId = "${conversation.id}:${latest.id}:$characterId:immediate",
+                sourceEventIds = listOf(latest.id),
+                drafts = drafts,
+            )
+            markProcessed(signature)
         }
     }
 
@@ -104,7 +143,7 @@ object CommitmentTurnAutomation {
     private fun markProcessed(signature: String) {
         val current = prefs?.getStringSet(KEY_SIGNATURES, emptySet()).orEmpty().toMutableList()
         current += signature
-        prefs?.edit()?.putStringSet(KEY_SIGNATURES, current.takeLast(300).toSet())?.apply()
+        prefs?.edit()?.putStringSet(KEY_SIGNATURES, current.takeLast(500).toSet())?.apply()
     }
 }
 
@@ -113,7 +152,17 @@ private fun looksLikeTaskTurn(userText: String, characterText: String): Boolean 
     return commitmentTurnSignals.any { signal -> text.contains(signal, ignoreCase = true) }
 }
 
+private fun looksLikeImmediateTaskUpdate(text: String): Boolean = immediateTaskUpdateSignals.any { signal ->
+    text.contains(signal, ignoreCase = true)
+}
+
 private fun String.taskKey(): String = lowercase().replace(Regex("[\\p{P}\\p{S}\\s]+"), "").take(48)
+
+private val immediateTaskUpdateSignals = listOf(
+    "不用叫", "不用提醒", "不用催", "取消", "不用了", "算了",
+    "我醒了", "醒了", "已经醒", "我起来了", "起床了", "完成了", "已经完成", "做完了",
+    "改成", "改到", "改为", "换成", "延期", "推迟", "提前到", "提前至",
+)
 
 private val commitmentTurnSignals = listOf(
     "提醒", "叫我", "喊我", "催我", "监督", "答应", "承诺", "约定", "说好", "负责",
