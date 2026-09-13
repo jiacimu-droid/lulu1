@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T02:32:59.129717+00:00",
-  "commit": "00e5ff6cdf799d6c012e64709e3b1532d9937f4d",
+  "generatedAt": "2026-09-13T02:34:39.703754+00:00",
+  "commit": "8c8f65d8ef946b1fe1f3df8d138d2cb9e2f10f3e",
   "branch": "main",
-  "sourceFingerprint": "d6b384b5eb151a8a2a3c03c4d886d84cf1b511c548cfa2a752dc74d239a66270",
+  "sourceFingerprint": "221abe6ba7990e1d6d5c8ae383502a9a1af7d09c15d8114df935075a19219f6f",
   "summary": {
     "files": 259,
-    "lines": 75959,
-    "symbols": 966
+    "lines": 75978,
+    "symbols": 967
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -81,7 +81,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 18
+        "line": 19
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
@@ -437,7 +437,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 31
+        "line": 32
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
@@ -1543,7 +1543,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 23
+        "line": 24
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
@@ -1675,13 +1675,13 @@
     "CommitmentTaskStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 8
+        "line": 9
       }
     ],
     "active": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 27
+        "line": 28
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
@@ -1691,7 +1691,7 @@
     "update": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 43
+        "line": 44
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -1710,16 +1710,30 @@
         "line": 77
       }
     ],
+    "cancel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 58
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
+        "line": 64
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
+        "line": 76
+      }
+    ],
     "removeBySourceEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 57
+        "line": 72
       }
     ],
     "clearCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 62
+        "line": 79
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -5144,16 +5158,6 @@
         "line": 569
       }
     ],
-    "cancel": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 64
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 76
-      }
-    ],
     "StudyTaskSource": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyDomain.kt",
@@ -6947,40 +6951,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-      "lines": 72,
-      "sha256": "658f0115ba0b05eb37302f3a89399f93b99b86b2355a4ee942bee09f15f2e449",
+      "lines": 91,
+      "sha256": "e3db4a5c3b535d1910ec204e60cdd5092a7900c0c43249f700c5478185b29df0",
       "symbols": [
         {
           "name": "CommitmentTaskStore",
-          "line": 8
+          "line": 9
         },
         {
           "name": "initialize",
-          "line": 18
+          "line": 19
         },
         {
           "name": "snapshot",
-          "line": 23
+          "line": 24
         },
         {
           "name": "active",
-          "line": 27
+          "line": 28
         },
         {
           "name": "save",
-          "line": 31
+          "line": 32
         },
         {
           "name": "update",
-          "line": 43
+          "line": 44
+        },
+        {
+          "name": "cancel",
+          "line": 58
         },
         {
           "name": "removeBySourceEvent",
-          "line": 57
+          "line": 72
         },
         {
           "name": "clearCharacter",
-          "line": 62
+          "line": 79
         }
       ]
     },
