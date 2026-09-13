@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`762050d54cc121c2e7b04bf5628bee50ccd3b995`
+- 基准提交：`e9a4f96e7994269f021772beeb17528da1f3d53f`
 - 分支：`main`
-- 已索引文件：259
-- 已索引代码/文本行：75993
-- 已发现符号：967
+- 已索引文件：260
+- 已索引代码/文本行：76110
+- 已发现符号：974
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -126,6 +126,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluStartupProvider.kt` | 27 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 587 | 37 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt` | 117 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 26 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 885 | 44 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 732 | 14 |

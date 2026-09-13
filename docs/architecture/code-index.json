@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T02:34:54.260369+00:00",
-  "commit": "762050d54cc121c2e7b04bf5628bee50ccd3b995",
+  "generatedAt": "2026-09-13T02:36:26.609402+00:00",
+  "commit": "e9a4f96e7994269f021772beeb17528da1f3d53f",
   "branch": "main",
-  "sourceFingerprint": "1ebb55ff932f06187081490d8acd2b22979093dc02d53a79194ab73c4ab99e62",
+  "sourceFingerprint": "91205244d98b52725604fb64062c56f11d0efef5b6c068b2876065a0a2be8d52",
   "summary": {
-    "files": 259,
-    "lines": 75993,
-    "symbols": 967
+    "files": 260,
+    "lines": 76110,
+    "symbols": 974
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -136,6 +136,10 @@
         "line": 107
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
+        "line": 26
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
         "line": 8
       },
@@ -248,6 +252,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
         "line": 32
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
+        "line": 36
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
@@ -1750,6 +1758,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
         "line": 729
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
+        "line": 69
       }
     ],
     "CommitmentTurnAutomation": [
@@ -2822,6 +2834,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
         "line": 317
+      }
+    ],
+    "MemoryExtractionJob": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
+        "line": 7
+      }
+    ],
+    "pending": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
+        "line": 33
+      }
+    ],
+    "failed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
+        "line": 51
+      }
+    ],
+    "complete": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
+        "line": 63
       }
     ],
     "vectorEnabled": [
@@ -7985,6 +8021,41 @@
         {
           "name": "expireInvitations",
           "line": 317
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
+      "lines": 117,
+      "sha256": "92fb99eb1d1f1859c8df0169de406dd26acb14b82bdce1a3d9d5ea3073f51703",
+      "symbols": [
+        {
+          "name": "MemoryExtractionJob",
+          "line": 7
+        },
+        {
+          "name": "initialize",
+          "line": 26
+        },
+        {
+          "name": "pending",
+          "line": 33
+        },
+        {
+          "name": "enqueue",
+          "line": 36
+        },
+        {
+          "name": "failed",
+          "line": 51
+        },
+        {
+          "name": "complete",
+          "line": 63
+        },
+        {
+          "name": "clearCharacter",
+          "line": 69
         }
       ]
     },
