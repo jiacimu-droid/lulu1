@@ -10,8 +10,10 @@ internal object MemoryModelRuntime {
         val application = context.applicationContext
         prefs = application.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
         MemoryEmbeddingIndex.initialize(application)
+        MemoryVectorCalibrationStore.initialize(application)
         MemoryValidityStore.initialize(application)
         MemorySupersessionAutomation.initialize(application)
+        MemoryEmbeddingLifecycle.initialize()
     }
 
     fun vectorEnabled(): Boolean = prefs?.getBoolean("memory_vector_enabled", false) == true
