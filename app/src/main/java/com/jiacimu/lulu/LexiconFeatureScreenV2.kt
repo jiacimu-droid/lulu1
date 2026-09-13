@@ -69,8 +69,9 @@ fun LexiconFeatureScreenV2(
         )
     }
     LaunchedEffect(characters.keys, selectedCharacterId, initialCharacterId) {
-        if (!initialCharacterId.isNullOrBlank() && initialCharacterId in characters && selectedCharacterId != initialCharacterId) {
-            selectedCharacterId = initialCharacterId
+        val requestedCharacterId = initialCharacterId?.takeIf { it.isNotBlank() && it in characters }
+        if (requestedCharacterId != null && selectedCharacterId != requestedCharacterId) {
+            selectedCharacterId = requestedCharacterId
         } else if (selectedCharacterId !in characters && characters.isNotEmpty()) {
             selectedCharacterId = characters.keys.first()
         }
