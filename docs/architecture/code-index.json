@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T02:25:10.733521+00:00",
-  "commit": "067aff1f23ad8c8ff6c317a443f947ef53def98c",
+  "generatedAt": "2026-09-13T02:25:28.924912+00:00",
+  "commit": "11103ca8ae2dd93a41692aaf48ee30c5e7ad0c5f",
   "branch": "main",
-  "sourceFingerprint": "486b7e89d41ea416c584d0d6445bd2846612e37e9c74f90eca415ed635211747",
+  "sourceFingerprint": "cee17f085c66b4aeae496adafbeceed8022d14cdd43000d404aaa6aea1856ebb",
   "summary": {
-    "files": 253,
-    "lines": 75542,
+    "files": 254,
+    "lines": 75626,
     "symbols": 960
   },
   "symbolIndex": {
@@ -6879,6 +6879,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt",
       "lines": 31,
       "sha256": "41882faee1d568e53aca56b1e923ec41a155c91c94ee6032b90cb184003821c4",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt",
+      "lines": 84,
+      "sha256": "2596ea467f7b112329359d692abe851ba8dbe903f34d86b1009504cb21a5dbf7",
       "symbols": []
     },
     {
