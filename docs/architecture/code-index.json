@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T03:10:05.559370+00:00",
-  "commit": "3cdc23b3c1cb746c5a4b4a1cc9bb5d590326bef6",
+  "generatedAt": "2026-09-13T03:11:41.777953+00:00",
+  "commit": "e7b17c1c7d72360fd5661985a227c99c220a9475",
   "branch": "main",
-  "sourceFingerprint": "371921a3edcc0095889c46232161c66f875c1c1b0602a37827d6b3533b15b95e",
+  "sourceFingerprint": "601190479b5b173fb47e16b744583b4ea570b933ebcaa17936a146a5606c536c",
   "summary": {
     "files": 266,
-    "lines": 77111,
-    "symbols": 1003
+    "lines": 77275,
+    "symbols": 1005
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -181,7 +181,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 58
+        "line": 71
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
@@ -1533,7 +1533,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 496
+        "line": 623
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -3253,73 +3253,85 @@
     "MomentAuthorType": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 18
+        "line": 22
+      }
+    ],
+    "MomentImageUnderstandingStatus": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
+        "line": 24
       }
     ],
     "MomentComment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 20
+        "line": 25
       }
     ],
     "MomentPost": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 29
+        "line": 34
       }
     ],
     "MomentsStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 41
+        "line": 49
       }
     ],
     "markCharacterPostsSeen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 65
+        "line": 81
       }
     ],
     "publishUser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 70
+        "line": 86
       }
     ],
     "publishCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 90
+        "line": 111
       }
     ],
     "requestCharactersReact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 116
+        "line": 142
+      }
+    ],
+    "retryImageUnderstanding": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
+        "line": 148
       }
     ],
     "toggleUserLike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 294
+        "line": 421
       }
     ],
     "addUserComment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 308
+        "line": 435
       }
     ],
     "addUserReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 330
+        "line": 457
       }
     ],
     "clearCharacterData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 512
+        "line": 640
       }
     ],
     "ProactiveIncomingCall": [
@@ -8583,64 +8595,72 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-      "lines": 732,
-      "sha256": "b0e0ed631c3627604badbe84a595945db997baece0b4a199034880cddd43469a",
+      "lines": 896,
+      "sha256": "0569a139f3f47f42c4ca0dfb1768384b4a60abff093fca63dffaa8c8334ca146",
       "symbols": [
         {
           "name": "MomentAuthorType",
-          "line": 18
+          "line": 22
+        },
+        {
+          "name": "MomentImageUnderstandingStatus",
+          "line": 24
         },
         {
           "name": "MomentComment",
-          "line": 20
+          "line": 25
         },
         {
           "name": "MomentPost",
-          "line": 29
+          "line": 34
         },
         {
           "name": "MomentsStore",
-          "line": 41
+          "line": 49
         },
         {
           "name": "initialize",
-          "line": 58
+          "line": 71
         },
         {
           "name": "markCharacterPostsSeen",
-          "line": 65
+          "line": 81
         },
         {
           "name": "publishUser",
-          "line": 70
+          "line": 86
         },
         {
           "name": "publishCharacter",
-          "line": 90
+          "line": 111
         },
         {
           "name": "requestCharactersReact",
-          "line": 116
+          "line": 142
+        },
+        {
+          "name": "retryImageUnderstanding",
+          "line": 148
         },
         {
           "name": "toggleUserLike",
-          "line": 294
+          "line": 421
         },
         {
           "name": "addUserComment",
-          "line": 308
+          "line": 435
         },
         {
           "name": "addUserReply",
-          "line": 330
+          "line": 457
         },
         {
           "name": "delete",
-          "line": 496
+          "line": 623
         },
         {
           "name": "clearCharacterData",
-          "line": 512
+          "line": 640
         }
       ]
     },
