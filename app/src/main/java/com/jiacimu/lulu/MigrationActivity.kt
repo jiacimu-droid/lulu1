@@ -84,12 +84,11 @@ class MigrationActivity : ComponentActivity() {
         RoleReadablePerformanceBridge.initialize()
         ChatTurnConsistencyAutomation.initialize()
         DeterministicMemoryAutomation.initialize(appContext)
-        ChatMemoryAutomation.initialize()
+        ChatMemoryAutomation.initialize(appContext)
         ChatLexiconAutomation.initialize(appContext)
         CommitmentTaskStore.initialize(appContext)
         CommitmentTurnAutomation.initialize(appContext)
 
-        // Scheduling only: there is no launch-time perception model call and no in-app 20-minute loop.
         ProactivePerceptionPolicyStore.initialize(appContext)
         ProactivePerceptionRuntime.initialize(appContext)
         ProactivePerceptionScheduler.schedule(appContext)
