@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T07:39:33.554665+00:00",
-  "commit": "082696c5d058756ef32fc27490e8ea85b9b21c15",
+  "generatedAt": "2026-09-13T07:40:55.154462+00:00",
+  "commit": "936208eb82fd2d46c53dfab5abad33331cac9a97",
   "branch": "main",
-  "sourceFingerprint": "b5f87b37bf7f2b65b17ed014e794684f90df8498530f0725f6976e4596f14c30",
+  "sourceFingerprint": "8ee457a0b4d15fc28aef8d73dd33016f00d3e83867e3f52d10c2dc23518537e0",
   "summary": {
     "files": 269,
-    "lines": 77763,
+    "lines": 77793,
     "symbols": 1009
   },
   "symbolIndex": {
@@ -7600,8 +7600,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEventRules.java",
-      "lines": 39,
-      "sha256": "0f32da9e45fe7b1395a7978625380b140bb4698f8fab76750502e2cc24430490",
+      "lines": 69,
+      "sha256": "dfe129aa005ebca77834b50c9eecf9599c15a9f4ef45fc3c91427d836f9cae1d",
       "symbols": []
     },
     {
