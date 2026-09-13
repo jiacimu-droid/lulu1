@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.data
 
+import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,14 +12,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-/**
- * Observes persisted conversations and starts memory extraction only after a newly appended
- * character reply. Existing messages loaded from disk are skipped, and each character has a
- * mutex so overlapping replies cannot create duplicate extraction batches.
- *
- * A reply is marked handled only after summarization succeeds. Re-emitted conversation state
- * therefore cannot summarize the same turn twice, while a failed extraction remains retryable.
- */
 object ChatMemoryAutomation {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val conversationJobs = mutableMapOf<String, Job>()
@@ -27,9 +20,11 @@ object ChatMemoryAutomation {
     private var started = false
 
     @Synchronized
-    fun initialize() {
+    fun initialize(context: Context) {
         if (started) return
         started = true
+        MemoryExtractionJobStore.initialize(context)
+        scope.launch { recoverPersistedAndTimelineBacklogs() }
         scope.launch {
             MigratedDomainStores.chat.conversations.collect { conversations ->
                 val liveIds = conversations.mapTo(mutableSetOf()) { conversation -> conversation.id }
@@ -51,31 +46,57 @@ object ChatMemoryAutomation {
                                     latest.sender != LuluChatMessage.Sender.Character ||
                                     latest.status != LuluChatMessage.Status.Sent ||
                                     processedReplyIds[conversation.id] == latest.id
-                                ) {
-                                    return@collect
-                                }
+                                ) return@collect
 
-                                val characterId = conversation.characterId
-                                val policy = LuluRepositories.memory
-                                    .observePolicy(characterId)
-                                    .first()
+                                val characterId = latest.authorCharacterId ?: conversation.characterId
+                                val policy = LuluRepositories.memory.observePolicy(characterId).first()
                                 if (!policy.autoSummarize) return@collect
 
-                                val lock = synchronized(characterLocks) {
-                                    characterLocks.getOrPut(characterId) { Mutex() }
-                                }
+                                val job = MemoryExtractionJobStore.enqueue(characterId, conversation.id, latest.id)
+                                val lock = lockFor(characterId)
                                 lock.withLock {
-                                    if (processedReplyIds[conversation.id] == latest.id) return@withLock
-                                    runCatching {
-                                        LuluRepositories.memory.summarizeNow(characterId)
-                                    }.onSuccess {
-                                        processedReplyIds[conversation.id] = latest.id
+                                    if (processedReplyIds[conversation.id] == latest.id) {
+                                        MemoryExtractionJobStore.complete(job.id)
+                                        return@withLock
                                     }
+                                    runCatching { LuluRepositories.memory.summarizeNow(characterId) }
+                                        .onSuccess {
+                                            processedReplyIds[conversation.id] = latest.id
+                                            MemoryExtractionJobStore.complete(job.id)
+                                        }
+                                        .onFailure { error -> MemoryExtractionJobStore.failed(job.id, error) }
                                 }
                             }
                     }
                 }
             }
         }
+    }
+
+    private suspend fun recoverPersistedAndTimelineBacklogs() {
+        MemoryExtractionJobStore.pending().groupBy(MemoryExtractionJob::characterId).forEach { (characterId, jobs) ->
+            val policy = LuluRepositories.memory.observePolicy(characterId).first()
+            if (!policy.autoSummarize) return@forEach
+            lockFor(characterId).withLock {
+                runCatching { LuluRepositories.memory.summarizeNow(characterId) }
+                    .onSuccess { jobs.forEach { job -> MemoryExtractionJobStore.complete(job.id) } }
+                    .onFailure { error -> jobs.forEach { job -> MemoryExtractionJobStore.failed(job.id, error) } }
+            }
+        }
+
+        // Shared timeline events (meetings, calls, world activity, moments, games) can fail extraction
+        // outside chat. summarizeNow is threshold-aware, so this startup sweep is cheap when there is
+        // no eligible backlog and gives failed non-chat events a durable recovery point.
+        MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
+            val policy = LuluRepositories.memory.observePolicy(characterId).first()
+            if (!policy.autoSummarize) return@forEach
+            lockFor(characterId).withLock {
+                runCatching { LuluRepositories.memory.summarizeNow(characterId) }
+            }
+        }
+    }
+
+    private fun lockFor(characterId: String): Mutex = synchronized(characterLocks) {
+        characterLocks.getOrPut(characterId) { Mutex() }
     }
 }
