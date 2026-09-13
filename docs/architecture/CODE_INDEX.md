@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d1308c5a8a33971a5b5e2a7c09e444e9a1c89178`
+- 基准提交：`067aff1f23ad8c8ff6c317a443f947ef53def98c`
 - 分支：`main`
-- 已索引文件：252
-- 已索引代码/文本行：75527
-- 已发现符号：959
+- 已索引文件：253
+- 已索引代码/文本行：75542
+- 已发现符号：960
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -93,6 +93,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt` | 124 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 35 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt` | 60 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDraft.kt` | 15 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt` | 31 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 72 | 8 |
