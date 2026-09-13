@@ -54,6 +54,28 @@ object CommitmentTaskStore {
         return next
     }
 
+    /**
+     * Atomically claims exactly one alarm-backed step. linkedAlarmId is a one-shot execution token:
+     * the first receiver switches the task to Running and clears it; duplicate broadcasts therefore
+     * cannot execute the same task revision again.
+     */
+    @Synchronized
+    fun claimAlarmExecution(alarmId: String): CommitmentTask? {
+        if (alarmId.isBlank()) return null
+        val current = mutableTasks.value.firstOrNull {
+            it.linkedAlarmId == alarmId && it.status.isActive()
+        } ?: return null
+        val claimed = current.copy(
+            status = CommitmentTaskStatus.Running,
+            linkedAlarmId = null,
+            revision = current.revision + 1L,
+            updatedAt = Instant.now(),
+            lastActionResult = "到期步骤已领取，正在执行",
+        )
+        persist(listOf(claimed) + mutableTasks.value.filterNot { it.id == current.id })
+        return claimed
+    }
+
     @Synchronized
     fun cancel(id: String, reason: String): CommitmentTask? {
         val current = mutableTasks.value.firstOrNull { it.id == id } ?: return null
