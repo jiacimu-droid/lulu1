@@ -71,9 +71,8 @@ internal object DigitalWorldLifeEventStore {
                 .filter { it.status == STATUS_ACTIVE && it.locationCode == locationCode }
                 .minByOrNull(Incident::createdAt)
 
-            // An unresolved nuisance is part of the place, not a global pause button. It may resolve
-            // through time when its kind allows that, but if it persists the location can still have
-            // harmless weather/light/atmosphere moments in later real-time opportunity slots.
+            // Unresolved persistent state has priority. When it cannot advance yet, only harmless
+            // ambient moments may coexist; no second persistent nuisance is stacked on top of it.
             val evolved = active
                 ?.takeIf { DigitalWorldEventRules.canEvolve(now.epochSecond, it.createdAt.epochSecond) }
                 ?.let { advance(it, characterId, now) }
@@ -156,9 +155,7 @@ internal object DigitalWorldLifeEventStore {
         if (characterId.isBlank()) return
         synchronized(lock) {
             val home = DigitalWorldStore.homeLocation(characterId)
-            incidents = incidents.filterNot { incident ->
-                incident.locationCode == home
-            }
+            incidents = incidents.filterNot { incident -> incident.locationCode == home }
             persistLocked()
         }
     }
@@ -168,12 +165,7 @@ internal object DigitalWorldLifeEventStore {
             it.status == STATUS_ACTIVE &&
                 it.anchorItemId == itemId &&
                 it.kind in setOf(
-                    "roach",
-                    "dust_layer",
-                    "surface_ripple",
-                    "sinking_seam",
-                    "rug_wrinkle",
-                    "static_cluster",
+                    "roach", "dust_layer", "surface_ripple", "sinking_seam", "rug_wrinkle", "static_cluster",
                 )
         }?.summary
     }
@@ -276,7 +268,30 @@ internal object DigitalWorldLifeEventStore {
             )
             else -> listOf("floating_specks", "soft_breeze", "gentle_light")
         }
-        val availableKinds = if (ambientOnly) kindOptions.filter { it in ambientMoments } else kindOptions
+        val baseKinds = if (ambientOnly) kindOptions.filter { it in ambientMoments } else kindOptions
+        val availableKinds = baseKinds.filter { kind ->
+            val exactKey = DigitalWorldEventRules.noveltyKey(kind, locationCode, anchor?.id.orEmpty())
+            val lastExactAt = incidents.asSequence()
+                .filter {
+                    DigitalWorldEventRules.noveltyKey(it.kind, it.locationCode, it.anchorItemId) == exactKey
+                }
+                .maxOfOrNull { it.createdAt.epochSecond }
+                ?: -1L
+            val lastKindAt = incidents.asSequence()
+                .filter { it.locationCode == locationCode && it.kind == kind }
+                .maxOfOrNull { it.createdAt.epochSecond }
+                ?: -1L
+            !DigitalWorldEventRules.coolingDown(
+                now.epochSecond,
+                lastExactAt,
+                DigitalWorldEventRules.noveltyCooldownSeconds(kind),
+            ) && !DigitalWorldEventRules.coolingDown(
+                now.epochSecond,
+                lastKindAt,
+                DigitalWorldEventRules.kindLocationCooldownSeconds(kind),
+            )
+        }
+        // Quiet is a valid outcome. Never bypass cooldown just to force an incident into this slot.
         if (availableKinds.isEmpty()) return null
         val kind = availableKinds[roll("$characterId:$locationCode:${now.toEpochMilli()}:kind", availableKinds.size)]
         val incident = Incident(
@@ -306,10 +321,18 @@ internal object DigitalWorldLifeEventStore {
         // Dust, bent furniture and pests do not clean/repair themselves during a perception poll.
         if (!missing && !DigitalWorldEventRules.naturallyEnds(current.kind, now.epochSecond, current.createdAt.epochSecond)) return null
         val place = current.anchorItemName.takeIf(String::isNotBlank)?.let { "“$it”附近的" }.orEmpty()
-        val summary = if (missing) "原先的“${current.anchorItemName}”已被移走，这处${incidentLabel(current.kind)}不再影响当前位置。"
-            else "${place}${incidentLabel(current.kind)}逐渐平息了。"
-        val updated = current.copy(status = STATUS_RESOLVED, stage = current.stage + 1,
-            summary = summary, lastActorCharacterId = characterId, updatedAt = now)
+        val summary = if (missing) {
+            "原先的“${current.anchorItemName}”已被移走，这处${incidentLabel(current.kind)}不再影响当前位置。"
+        } else {
+            "${place}${incidentLabel(current.kind)}逐渐平息了。"
+        }
+        val updated = current.copy(
+            status = STATUS_RESOLVED,
+            stage = current.stage + 1,
+            summary = summary,
+            lastActorCharacterId = characterId,
+            updatedAt = now,
+        )
         return updated to updated.toTick(now)
     }
 
