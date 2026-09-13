@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a5db2a4d3b28ae5b121c7c099b1372f2e387d188`
+- 基准提交：`6c83d0ca3fdbec3688534c11107babd406b9e957`
 - 分支：`main`
 - 已索引文件：271
-- 已索引代码/文本行：78290
+- 已索引代码/文本行：78307
 - 已发现符号：1019
 
 | 文件 | 行数 | 符号数 |
@@ -151,7 +151,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 487 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 360 | 16 |
+| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 377 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 18 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 202 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
