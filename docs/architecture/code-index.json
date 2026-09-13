@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T07:50:46.538242+00:00",
-  "commit": "37718c2b0788918ab4bd0a75fe50272ff3e08af1",
+  "generatedAt": "2026-09-13T07:52:39.603384+00:00",
+  "commit": "5d5c3b6409d3a7e4acb33f07609ffcb9b5c1ee35",
   "branch": "main",
-  "sourceFingerprint": "97c73f2def1d00b86e6df33f7f213fb92f9648b90acc79e31e50ab2e19af8144",
+  "sourceFingerprint": "1a1a39ff59532f74dc8e0dc2a994e9a6b1ed7ba913f3689dd5d663f5a0c74999",
   "summary": {
-    "files": 268,
-    "lines": 77990,
-    "symbols": 1012
+    "files": 269,
+    "lines": 78041,
+    "symbols": 1013
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -2324,6 +2324,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt",
         "line": 59
+      }
+    ],
+    "interact": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt",
+        "line": 9
       }
     ],
     "MeetingReality": [
@@ -7774,6 +7780,17 @@
         {
           "name": "isBuiltIn",
           "line": 59
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt",
+      "lines": 51,
+      "sha256": "69b9dd080f9e897cd6d6afee1e1f221b11ad440a6be89238eab122958f91ad8b",
+      "symbols": [
+        {
+          "name": "interact",
+          "line": 9
         }
       ]
     },
