@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T03:14:49.555288+00:00",
-  "commit": "f6c3255d8de00af93d7a20bc9f035b718c0ca880",
+  "generatedAt": "2026-09-13T03:19:00.027960+00:00",
+  "commit": "484eaa1b07da3893bbe650c1c5022ad7f5d15c6a",
   "branch": "main",
-  "sourceFingerprint": "0720e7f71fa8f3bad8496ce94748f0c6274870f41a6807d0067bc93aebbf3e5c",
+  "sourceFingerprint": "385a475f4d6fa3f3709bb80a90b67112e5d9a8e6795fac8c8ce3175bc3486de0",
   "summary": {
-    "files": 267,
-    "lines": 77460,
-    "symbols": 1008
+    "files": 268,
+    "lines": 77670,
+    "symbols": 1009
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -114,6 +114,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt",
         "line": 59
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt",
+        "line": 30
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
@@ -7610,6 +7614,17 @@
         {
           "name": "maybeEvolve",
           "line": 68
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt",
+      "lines": 210,
+      "sha256": "522bc4cf0293a7318034c2e6ecfa167ba67d2b0e35a5bab6db16a7556f89f927",
+      "symbols": [
+        {
+          "name": "initialize",
+          "line": 30
         }
       ]
     },
