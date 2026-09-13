@@ -21,9 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jiacimu.lulu.ai.VisionModelService
 import com.jiacimu.lulu.design.LuluColors
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,40 +30,24 @@ internal fun MomentsComposePage(
     onPublish: (String, String?, String) -> Unit,
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     var content by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<String?>(null) }
-    var publishing by remember { mutableStateOf(false) }
-    var notice by remember { mutableStateOf("") }
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
             runCatching {
                 context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             imageUri = uri.toString()
-            notice = ""
         }
     }
 
-    BackHandler(enabled = !publishing, onBack = onBack)
+    BackHandler(onBack = onBack)
 
     fun publish() {
-        if (publishing || (content.isBlank() && imageUri.isNullOrBlank())) return
-        val selectedImage = imageUri
-        if (selectedImage.isNullOrBlank()) {
-            onPublish(content, null, "")
-            return
-        }
-        publishing = true
-        notice = "正在让识图模型看这张图片…"
-        scope.launch {
-            VisionModelService.describeImage(context, selectedImage, content)
-                .onSuccess { description -> onPublish(content, selectedImage, description) }
-                .onFailure { error ->
-                    publishing = false
-                    notice = error.message ?: "识图失败，请检查识图模型设置"
-                }
-        }
+        if (content.isBlank() && imageUri.isNullOrBlank()) return
+        // The post is durable immediately. Image understanding belongs to MomentsStore and continues
+        // after this Compose page disappears, including retries/restart recovery.
+        onPublish(content, imageUri, "")
     }
 
     Scaffold(
@@ -74,14 +56,14 @@ internal fun MomentsComposePage(
             TopAppBar(
                 title = { Text("发动态", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
-                    IconButton(onClick = onBack, enabled = !publishing) {
+                    IconButton(onClick = onBack) {
                         Icon(Icons.Outlined.ArrowBack, "返回")
                     }
                 },
                 actions = {
                     Button(
                         onClick = ::publish,
-                        enabled = !publishing && (content.isNotBlank() || !imageUri.isNullOrBlank()),
+                        enabled = content.isNotBlank() || !imageUri.isNullOrBlank(),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = LuluColors.Wheat,
                             contentColor = LuluColors.OnWheat,
@@ -91,11 +73,7 @@ internal fun MomentsComposePage(
                         shape = RoundedCornerShape(14.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     ) {
-                        if (publishing) {
-                            CircularProgressIndicator(Modifier.size(15.dp), strokeWidth = 2.dp)
-                            Spacer(Modifier.width(6.dp))
-                        }
-                        Text(if (publishing) "识图中" else "发布", fontWeight = FontWeight.SemiBold)
+                        Text("发布", fontWeight = FontWeight.SemiBold)
                     }
                     Spacer(Modifier.width(12.dp))
                 },
@@ -139,19 +117,22 @@ internal fun MomentsComposePage(
                 ) {
                     Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         LuluSelectedPhoto(imageUri = imageUri, modifier = Modifier.fillMaxWidth().height(190.dp))
+                        Text(
+                            "发布后会在后台识别图片；识图失败不会阻止动态发布。",
+                            color = LuluColors.Muted,
+                            fontSize = 11.sp,
+                        )
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedButton(
                                 onClick = { imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
                                 modifier = Modifier.weight(1f),
-                                enabled = !publishing,
                             ) {
                                 Icon(Icons.Outlined.PhotoLibrary, null, Modifier.size(17.dp))
                                 Spacer(Modifier.width(5.dp)); Text("换一张")
                             }
                             OutlinedButton(
-                                onClick = { imageUri = null; notice = "" },
+                                onClick = { imageUri = null },
                                 modifier = Modifier.weight(1f),
-                                enabled = !publishing,
                             ) {
                                 Icon(Icons.Outlined.Close, null, Modifier.size(17.dp))
                                 Spacer(Modifier.width(5.dp)); Text("移除")
@@ -162,7 +143,6 @@ internal fun MomentsComposePage(
             } else {
                 OutlinedButton(
                     onClick = { imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
-                    enabled = !publishing,
                     contentPadding = PaddingValues(horizontal = 13.dp, vertical = 8.dp),
                 ) {
                     Icon(Icons.Outlined.AddPhotoAlternate, null, Modifier.size(18.dp))
@@ -171,15 +151,7 @@ internal fun MomentsComposePage(
             }
 
             Row(Modifier.fillMaxWidth()) {
-                if (notice.isNotBlank()) {
-                    Text(
-                        notice,
-                        Modifier.weight(1f),
-                        color = if (publishing) LuluColors.Muted else MaterialTheme.colorScheme.error,
-                        fontSize = 11.sp,
-                        lineHeight = 15.sp,
-                    )
-                } else Spacer(Modifier.weight(1f))
+                Spacer(Modifier.weight(1f))
                 Text("${content.length} / 2000", color = LuluColors.Muted, fontSize = 11.sp)
             }
         }
