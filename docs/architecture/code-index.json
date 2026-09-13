@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T07:42:28.624281+00:00",
-  "commit": "46e26d8c700d523dd74b5fb31c992113ac1fd3b0",
+  "generatedAt": "2026-09-13T07:43:39.218832+00:00",
+  "commit": "6952d6e64fbea7b9dcb847e48cf7d7a15e0f52a4",
   "branch": "main",
-  "sourceFingerprint": "2038de7f02b7962339c0feece18a774846ab42a492c66d48bf3d1ff213017da2",
+  "sourceFingerprint": "f954d77736c5465ccc0e4236d8fcf254d5d62401df9f9f98aa3ef2fa2e072c8b",
   "summary": {
-    "files": 269,
-    "lines": 77816,
-    "symbols": 1009
+    "files": 270,
+    "lines": 77879,
+    "symbols": 1014
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -1626,6 +1626,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
         "line": 231
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
+        "line": 42
       }
     ],
     "knowsEachOther": [
@@ -2992,6 +2996,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
         "line": 63
+      }
+    ],
+    "MemoryRecallInspection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
+        "line": 6
+      }
+    ],
+    "setChangeListener": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
+        "line": 19
+      }
+    ],
+    "recordRecall": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
+        "line": 23
+      }
+    ],
+    "render": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
+        "line": 44
       }
     ],
     "vectorEnabled": [
@@ -8376,6 +8404,33 @@
         {
           "name": "clearCharacter",
           "line": 69
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
+      "lines": 63,
+      "sha256": "6ca883b721e59a3c56cd43e1ea480475f1588794826e70d984cde25384cd1a4f",
+      "symbols": [
+        {
+          "name": "MemoryRecallInspection",
+          "line": 6
+        },
+        {
+          "name": "setChangeListener",
+          "line": 19
+        },
+        {
+          "name": "recordRecall",
+          "line": 23
+        },
+        {
+          "name": "snapshot",
+          "line": 42
+        },
+        {
+          "name": "render",
+          "line": 44
         }
       ]
     },
