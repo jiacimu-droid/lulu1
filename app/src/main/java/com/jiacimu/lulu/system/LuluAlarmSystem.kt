@@ -308,6 +308,7 @@ class LuluBootReceiver : BroadcastReceiver() {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
             LuluAlarmSystem.initialize(context.applicationContext)
             CommitmentTaskStore.initialize(context.applicationContext)
+            CommitmentTaskStore.reconcileAfterRestart()
         }
     }
 }
