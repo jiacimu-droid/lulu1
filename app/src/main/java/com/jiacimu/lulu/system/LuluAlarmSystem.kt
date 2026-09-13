@@ -258,10 +258,13 @@ class LuluAlarmReceiver : BroadcastReceiver() {
         LuluAlarmSystem.initialize(context.applicationContext)
         CommitmentTaskStore.initialize(context.applicationContext)
         LuluAlarmSystem.markTriggered(context, id)
-        LuluAlarmSystem.showAlarmNotification(context, id, characterId, characterName, label)
 
-        val task = CommitmentTaskStore.snapshot(characterId).firstOrNull { it.linkedAlarmId == id }
-        if (task != null && task.status in setOf(CommitmentTaskStatus.Scheduled, CommitmentTaskStatus.Running, CommitmentTaskStatus.WaitingForFeedback)) {
+        // For a task-backed alarm, this is the one atomic claim point. A duplicate broadcast with
+        // the same alarm ID cannot claim the already-cleared linkedAlarmId and therefore cannot
+        // schedule another retry or advance the task a second time.
+        val task = CommitmentTaskStore.claimAlarmExecution(id)
+        LuluAlarmSystem.showAlarmNotification(context, id, characterId, characterName, label)
+        if (task != null) {
             val nextAttempt = task.attemptCount + 1
             val wakeTask = task.goal.contains("叫醒") || task.goal.contains("起床") || task.goal.contains("醒")
             val retryAt = if (wakeTask && nextAttempt < 2) Instant.now().plusSeconds(10 * 60L) else null
@@ -274,7 +277,11 @@ class LuluAlarmReceiver : BroadcastReceiver() {
                     attemptCount = nextAttempt,
                     nextCheckAt = retryAt,
                     linkedAlarmId = retryAlarm?.id,
-                    lastActionResult = if (retryAlarm == null) "已提醒，等待用户确认结果" else "已提醒；未确认前安排一次有限重试",
+                    lastActionResult = if (retryAlarm == null) {
+                        "已提醒，等待用户确认结果；没有回复只表示尚未确认"
+                    } else {
+                        "已提醒；未确认前安排一次有限重试"
+                    },
                 )
             }
         }
