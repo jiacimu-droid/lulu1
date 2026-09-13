@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T03:13:09.476667+00:00",
-  "commit": "dc75e3eca69f1cc02ab664e2f20a8b4639b87644",
+  "generatedAt": "2026-09-13T03:14:49.555288+00:00",
+  "commit": "f6c3255d8de00af93d7a20bc9f035b718c0ca880",
   "branch": "main",
-  "sourceFingerprint": "068971986a180fd97f0104a415a89396cb749aafe6c53ad87d3471d4fa9992dd",
+  "sourceFingerprint": "0720e7f71fa8f3bad8496ce94748f0c6274870f41a6807d0067bc93aebbf3e5c",
   "summary": {
     "files": 267,
-    "lines": 77461,
+    "lines": 77460,
     "symbols": 1008
   },
   "symbolIndex": {
@@ -1003,19 +1003,19 @@
     "Loading": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt",
-        "line": 36
+        "line": 35
       }
     ],
     "Ready": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt",
-        "line": 37
+        "line": 36
       }
     ],
     "Failed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt",
-        "line": 38
+        "line": 37
       }
     ],
     "publish": [
@@ -6459,20 +6459,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt",
-      "lines": 161,
-      "sha256": "fc522bd3ac0fc2233650bf2ebdb25c8ba76ae5bd98d442ec272e6c098f612188",
+      "lines": 160,
+      "sha256": "d0ab2ad3717e6b7c77dcdc9d63846992cfa57ab36d893b8f563c82d7fbc9bc30",
       "symbols": [
         {
           "name": "Loading",
-          "line": 36
+          "line": 35
         },
         {
           "name": "Ready",
-          "line": 37
+          "line": 36
         },
         {
           "name": "Failed",
-          "line": 38
+          "line": 37
         }
       ]
     },
