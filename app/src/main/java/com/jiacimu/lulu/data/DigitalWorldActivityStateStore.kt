@@ -5,10 +5,15 @@ import org.json.JSONObject
 import com.jiacimu.lulu.games.LuluGames
 import java.time.Instant
 
-/** Small persistent physical state; prose cannot create resources or complete activities. */
 internal object DigitalWorldActivityStateStore {
     private var prefs: android.content.SharedPreferences? = null
     private var appContext: Context? = null
+
+    private val ongoingActivityIds = setOf(
+        "sit", "sit_on_bed", "lie_down", "rest", "nap", "sleep", "curl_up", "sit_at_desk",
+        "sit_by_table", "sit_on_rug", "lie_on_rug", "hug_cushion", "cloud_sit", "cloud_rest",
+        "reading_rest", "cafe_sit", "window_cafe", "courtyard_sit", "sit_arcade", "home_quiet_rest",
+    )
 
     @Synchronized
     fun initialize(context: Context) {
@@ -25,15 +30,26 @@ internal object DigitalWorldActivityStateStore {
     fun contextFor(characterId: String): String {
         val p = prefs ?: return ""
         val current = runCatching { JSONObject(p.getString("activity:$characterId", "{}").orEmpty()) }.getOrDefault(JSONObject())
+        val appearance = runCatching { JSONObject(p.getString("appearance:$characterId", "{}").orEmpty()) }.getOrDefault(JSONObject())
         val character = MigratedDomainStores.characters.get(characterId)
         return buildString {
             appendLine("随身物品：温水 ${p.getInt("drink:$characterId", 0)} 杯；原味饼干 ${p.getInt("snack:$characterId", 0)} 份。")
-            if (current.has("summary")) appendLine("最近执行：${current.optString("summary")}；开始时间=${current.optString("startedAt")}；这是开始记录，不代表已经休息或睡了某个时长。")
+            if (current.has("summary")) {
+                val status = current.optString("status").ifBlank { "active" }
+                if (status == "active") {
+                    appendLine("当前活动：${current.optString("summary")}；开始时间=${current.optString("startedAt")}；尚未记录结束，不能擅自声称已休息/睡了某个时长。")
+                } else {
+                    appendLine("最近完成：${current.optString("summary")}；开始=${current.optString("startedAt")}；结束=${current.optString("endedAt")}。")
+                }
+            }
+            if (appearance.has("updatedAt")) {
+                appendLine("当前仪容状态：${appearance.optString("summary").ifBlank { "刚整理过自己的仪容" }}；更新时间=${appearance.optString("updatedAt")}。")
+            }
             DigitalWorldStore.itemsAtLocation(characterId).filter {
                 DigitalFurnitureCatalog.resolve(it).kind in setOf(DigitalFurnitureKind.TV, DigitalFurnitureKind.TABLE_LAMP, DigitalFurnitureKind.FLOOR_LAMP)
             }.forEach { appendLine("${it.name}开关：${if (p.getBoolean("power:${it.id}", false)) "开" else "关"}；电视尚未接入节目源。") }
             if (DigitalWorldStore.locationOf(characterId) == DigitalWorldPublicPlaces.CAFE) {
-                appendLine("咖啡角自助供应台提供免费数字温水与原味饼干；order_drink/ order_snack 领取后才进入随身物品，消耗一份减少一份。")
+                appendLine("咖啡角自助供应台提供免费数字温水与原味饼干；order_drink/order_snack 领取后才进入随身物品，消耗一份减少一份。")
             }
             val driveContext = DigitalLifeDriveContext.promptSection(characterId, character.displayName)
             if (driveContext.isNotBlank()) {
@@ -94,12 +110,31 @@ internal object DigitalWorldActivityStateStore {
                 editor.putString("tended:${target.id}", now.toString())
                 "${name}照料了“${target.name}”；照料时间已记录。"
             }
+            "fix_appearance" -> {
+                val target = requireNotNull(item) { "整理仪容需要当前地点存在可用的镜子" }
+                require(DigitalFurnitureCatalog.resolve(target).kind == DigitalFurnitureKind.MIRROR) { "整理仪容需要站在真实存在的镜子前" }
+                val appearanceSummary = summary.trim().ifBlank { "$name 对着“${target.name}”整理了头发和衣着。" }
+                editor.putString(
+                    "appearance:$characterId",
+                    JSONObject().put("summary", appearanceSummary).put("mirrorItemId", target.id).put("updatedAt", now.toString()).toString(),
+                )
+                appearanceSummary
+            }
             else -> summary
         }
-        editor.putString("activity:$characterId", JSONObject()
-            .put("activityId", activityId).put("itemId", item?.id.orEmpty())
-            .put("location", DigitalWorldStore.locationOf(characterId))
-            .put("startedAt", now.toString()).put("summary", result).toString())
+        val ongoing = activityId in ongoingActivityIds
+        editor.putString(
+            "activity:$characterId",
+            JSONObject()
+                .put("activityId", activityId)
+                .put("itemId", item?.id.orEmpty())
+                .put("location", DigitalWorldStore.locationOf(characterId))
+                .put("status", if (ongoing) "active" else "completed")
+                .put("startedAt", now.toString())
+                .put("endedAt", if (ongoing) JSONObject.NULL else now.toString())
+                .put("summary", result)
+                .toString(),
+        )
         check(editor.commit()) { "活动状态保存失败" }
         return result
     }
@@ -108,18 +143,29 @@ internal object DigitalWorldActivityStateStore {
     fun ongoingActivity(characterId: String): Pair<String, String>? {
         val activity = runCatching { JSONObject(prefs?.getString("activity:$characterId", "{}").orEmpty()) }.getOrNull() ?: return null
         if (activity.optString("location") != DigitalWorldStore.locationOf(characterId)) return null
+        if (activity.optString("status").ifBlank { "active" } != "active") return null
         val id = activity.optString("activityId")
-        if (id !in setOf("sit", "sit_on_bed", "lie_down", "rest", "nap", "sleep", "curl_up", "sit_at_desk", "sit_by_table", "sit_on_rug", "lie_on_rug", "hug_cushion", "cloud_sit", "cloud_rest", "reading_rest", "cafe_sit", "window_cafe", "courtyard_sit", "sit_arcade", "home_quiet_rest")) return null
+        if (id !in ongoingActivityIds) return null
         return activity.optString("itemId") to id
     }
 
     @Synchronized
     fun endActivity(characterId: String) {
-        prefs?.edit()?.remove("activity:$characterId")?.apply()
+        val p = prefs ?: return
+        val activity = runCatching { JSONObject(p.getString("activity:$characterId", "{}").orEmpty()) }.getOrNull() ?: return
+        if (!activity.has("activityId")) return
+        activity.put("status", "completed")
+            .put("endedAt", Instant.now().toString())
+        p.edit().putString("activity:$characterId", activity.toString()).apply()
     }
 
     @Synchronized
     fun clearCharacter(characterId: String) {
-        prefs?.edit()?.remove("activity:$characterId")?.remove("drink:$characterId")?.remove("snack:$characterId")?.apply()
+        prefs?.edit()
+            ?.remove("activity:$characterId")
+            ?.remove("appearance:$characterId")
+            ?.remove("drink:$characterId")
+            ?.remove("snack:$characterId")
+            ?.apply()
     }
 }
