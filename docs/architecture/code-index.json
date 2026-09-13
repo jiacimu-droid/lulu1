@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T02:57:19.063074+00:00",
-  "commit": "5d09c6b62094c09edfd898d8169fac8baa8c5732",
+  "generatedAt": "2026-09-13T02:58:16.709612+00:00",
+  "commit": "5a1be651e3806de1b91be9a8ae9e42193be577c6",
   "branch": "main",
-  "sourceFingerprint": "d0ab6dbea5216daf66cd3b1951195c885129c358b848413d9edc136f18fa8091",
+  "sourceFingerprint": "bce3ee6ce6b16fd41ea1e1a2d55a78d4d6a1f44f45fe353dd388367aa26d3eb0",
   "summary": {
     "files": 262,
-    "lines": 76526,
+    "lines": 76529,
     "symbols": 988
   },
   "symbolIndex": {
@@ -6016,8 +6016,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 360,
-      "sha256": "2a2dee19ec1f81a465a5e198b78cd744f83eea50800d99a5e0a843733c291b01",
+      "lines": 361,
+      "sha256": "db3a6151e3461c233eb12e450d2e9ce6fc06c112d5965ab9b99edc1dc3ce0823",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
@@ -7808,8 +7808,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
-      "lines": 164,
-      "sha256": "3bf9603a297bf8ee965d12f38d92a83b41b56e02098c46a442ceb6f620bf6091",
+      "lines": 166,
+      "sha256": "69169bf3418681da72c774931b1c4b8ba68a8375ec99efd73e88fd626d969d3a",
       "symbols": [
         {
           "name": "LegacyConversationMigration",
