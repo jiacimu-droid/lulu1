@@ -90,6 +90,7 @@ class MigrationActivity : ComponentActivity() {
         MemorySourceIntegrityRuntime.initialize()
         ChatLexiconAutomation.initialize(appContext)
         CommitmentTaskStore.initialize(appContext)
+        CommitmentTaskStore.reconcileAfterRestart()
         CommitmentLexiconSync.initialize()
         CommitmentTurnAutomation.initialize(appContext)
 
