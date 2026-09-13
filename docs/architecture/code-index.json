@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T07:59:33.127534+00:00",
-  "commit": "af6025a913e71c4a51ea870ce3361275d56de51b",
+  "generatedAt": "2026-09-13T07:59:48.381067+00:00",
+  "commit": "c781bb794c3ade067a64c2fc8e086a627e96a049",
   "branch": "main",
-  "sourceFingerprint": "8bad7f549cc2690b6b56d020fef594a220c2232e50c254bf5e4f5b353732ed87",
+  "sourceFingerprint": "a918b5d7cc80dc960fa67b6582471607a6f96ceb9720193df403fbaf49a3c6d0",
   "summary": {
-    "files": 270,
-    "lines": 78158,
-    "symbols": 1017
+    "files": 271,
+    "lines": 78252,
+    "symbols": 1018
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -154,6 +154,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
         "line": 26
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingLifecycle.kt",
+        "line": 29
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -8377,6 +8381,17 @@
         {
           "name": "removeMemory",
           "line": 94
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingLifecycle.kt",
+      "lines": 94,
+      "sha256": "c579f900cb188a5044f0bf667107b851b362dece0c04347f122ea832fa542438",
+      "symbols": [
+        {
+          "name": "initialize",
+          "line": 29
         }
       ]
     },
