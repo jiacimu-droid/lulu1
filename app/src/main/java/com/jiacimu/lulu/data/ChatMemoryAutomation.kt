@@ -6,13 +6,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.time.Duration
+import java.time.Instant
 
 object ChatMemoryAutomation {
+    private const val RETRY_POLL_MS = 60_000L
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val conversationJobs = mutableMapOf<String, Job>()
     private val characterLocks = mutableMapOf<String, Mutex>()
@@ -25,6 +29,12 @@ object ChatMemoryAutomation {
         started = true
         MemoryExtractionJobStore.initialize(context)
         scope.launch { recoverPersistedAndTimelineBacklogs() }
+        scope.launch {
+            while (true) {
+                delay(RETRY_POLL_MS)
+                retryFailedPersistentJobs()
+            }
+        }
         scope.launch {
             MigratedDomainStores.chat.conversations.collect { conversations ->
                 val liveIds = conversations.mapTo(mutableSetOf()) { conversation -> conversation.id }
@@ -74,15 +84,7 @@ object ChatMemoryAutomation {
     }
 
     private suspend fun recoverPersistedAndTimelineBacklogs() {
-        MemoryExtractionJobStore.pending().groupBy(MemoryExtractionJob::characterId).forEach { (characterId, jobs) ->
-            val policy = LuluRepositories.memory.observePolicy(characterId).first()
-            if (!policy.autoSummarize) return@forEach
-            lockFor(characterId).withLock {
-                runCatching { LuluRepositories.memory.summarizeNow(characterId) }
-                    .onSuccess { jobs.forEach { job -> MemoryExtractionJobStore.complete(job.id) } }
-                    .onFailure { error -> jobs.forEach { job -> MemoryExtractionJobStore.failed(job.id, error) } }
-            }
-        }
+        recoverJobs(MemoryExtractionJobStore.pending(), respectBackoff = false)
 
         // Shared timeline events (meetings, calls, world activity, moments, games) can fail extraction
         // outside chat. summarizeNow is threshold-aware, so this startup sweep is cheap when there is
@@ -94,6 +96,36 @@ object ChatMemoryAutomation {
                 runCatching { LuluRepositories.memory.summarizeNow(characterId) }
             }
         }
+    }
+
+    private suspend fun retryFailedPersistentJobs() {
+        val failed = MemoryExtractionJobStore.pending().filter { job -> job.attempts > 0 }
+        if (failed.isNotEmpty()) recoverJobs(failed, respectBackoff = true)
+    }
+
+    private suspend fun recoverJobs(jobs: List<MemoryExtractionJob>, respectBackoff: Boolean) {
+        val now = Instant.now()
+        jobs.groupBy(MemoryExtractionJob::characterId).forEach { (characterId, characterJobs) ->
+            val dueJobs = characterJobs.filter { job -> !respectBackoff || retryDue(job, now) }
+            if (dueJobs.isEmpty()) return@forEach
+            val policy = LuluRepositories.memory.observePolicy(characterId).first()
+            if (!policy.autoSummarize) {
+                dueJobs.forEach { job -> MemoryExtractionJobStore.complete(job.id) }
+                return@forEach
+            }
+            lockFor(characterId).withLock {
+                runCatching { LuluRepositories.memory.summarizeNow(characterId) }
+                    .onSuccess { dueJobs.forEach { job -> MemoryExtractionJobStore.complete(job.id) } }
+                    .onFailure { error -> dueJobs.forEach { job -> MemoryExtractionJobStore.failed(job.id, error) } }
+            }
+        }
+    }
+
+    private fun retryDue(job: MemoryExtractionJob, now: Instant): Boolean {
+        val exponent = job.attempts.coerceIn(1, 6)
+        val backoffSeconds = (30L * (1L shl exponent)).coerceAtMost(30L * 60L)
+        return !job.updatedAt.isAfter(now) &&
+            Duration.between(job.updatedAt, now).seconds >= backoffSeconds
     }
 
     private fun lockFor(characterId: String): Mutex = synchronized(characterLocks) {
