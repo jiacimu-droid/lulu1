@@ -23,12 +23,16 @@ internal object DigitalWorldActivityStateStore {
             prefs = application.getSharedPreferences("digital_activity_state_v1", Context.MODE_PRIVATE)
             LuluGames.initialize(application)
         }
+        DigitalWorldExpansionStore.initialize(application)
+        DigitalWorldEvolutionRuntime.initialize(application)
         RealityWorldWindowRuntime.initialize(application)
     }
 
     @Synchronized
     fun contextFor(characterId: String): String {
         val p = prefs ?: return ""
+        // World growth is tied to persisted real-time slots, not to prompt/model call count.
+        DigitalWorldEvolutionRuntime.maybeEvolve(characterId)
         val current = runCatching { JSONObject(p.getString("activity:$characterId", "{}").orEmpty()) }.getOrDefault(JSONObject())
         val appearance = runCatching { JSONObject(p.getString("appearance:$characterId", "{}").orEmpty()) }.getOrDefault(JSONObject())
         val character = MigratedDomainStores.characters.get(characterId)
@@ -50,6 +54,11 @@ internal object DigitalWorldActivityStateStore {
             }.forEach { appendLine("${it.name}开关：${if (p.getBoolean("power:${it.id}", false)) "开" else "关"}；电视尚未接入节目源。") }
             if (DigitalWorldStore.locationOf(characterId) == DigitalWorldPublicPlaces.CAFE) {
                 appendLine("咖啡角自助供应台提供免费数字温水与原味饼干；order_drink/order_snack 领取后才进入随身物品，消耗一份减少一份。")
+            }
+            val expansionContext = DigitalWorldExpansionStore.contextFor()
+            if (expansionContext.isNotBlank()) {
+                appendLine()
+                appendLine(expansionContext)
             }
             val driveContext = DigitalLifeDriveContext.promptSection(characterId, character.displayName)
             if (driveContext.isNotBlank()) {
