@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`8780cadd6534e47d2f4aef50cb76d03885045789`
+- 基准提交：`6bb9d18a449b5ef46b925d31a824e4819276c7a0`
 - 分支：`main`
 - 已索引文件：270
-- 已索引代码/文本行：77915
-- 已发现符号：1015
+- 已索引代码/文本行：77945
+- 已发现符号：1016
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -124,7 +124,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/JsonNullStringCompat.kt` | 8 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 765 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 795 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 476 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 106 | 4 |
