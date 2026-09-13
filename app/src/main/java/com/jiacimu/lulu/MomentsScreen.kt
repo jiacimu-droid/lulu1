@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.jiacimu.lulu.data.MigratedDomainStores
-import com.jiacimu.lulu.data.MomentAuthorType
 import com.jiacimu.lulu.data.MomentsStore
 import com.jiacimu.lulu.design.LuluColors
 
@@ -120,6 +119,7 @@ fun MomentsScreen() {
                         onComment = { text -> MomentsStore.addUserComment(post.id, text) },
                         onCallCharacters = { MomentsStore.requestCharactersReact(post.id) },
                         onReply = { comment, text -> MomentsStore.addUserReply(post.id, comment.id, text) },
+                        onRetryImageUnderstanding = { MomentsStore.retryImageUnderstanding(post.id) },
                         onDelete = { MomentsStore.delete(post.id) },
                     )
                 }
