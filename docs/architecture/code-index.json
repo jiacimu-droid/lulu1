@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T08:00:24.188336+00:00",
-  "commit": "f456a951d06f51d4b46e5dae7dd8c2e39b382a43",
+  "generatedAt": "2026-09-13T08:01:20.400870+00:00",
+  "commit": "6ab331cfb375ee8ae2fbacdeb70aef83936c9870",
   "branch": "main",
-  "sourceFingerprint": "618f9d21a25bb323d5b36f8429be8a05489d925a31cb6dfa0680d7f733e142b1",
+  "sourceFingerprint": "a2283aee69e761e44364c4ce7e10a2d214f6d2d9917da30239d05ff4cc133ae1",
   "summary": {
     "files": 271,
-    "lines": 78257,
+    "lines": 78276,
     "symbols": 1018
   },
   "symbolIndex": {
@@ -3635,19 +3635,19 @@
     "sourceEvidenceEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 131
+        "line": 136
       }
     ],
     "sourceEvidenceForPrompt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 166
+        "line": 171
       }
     ],
     "formatForPrompt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 192
+        "line": 197
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -9047,8 +9047,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-      "lines": 468,
-      "sha256": "a63ab4611c63c30d2177e10d02bc69f36fc819cc53002d39d55265ecf000f1b0",
+      "lines": 487,
+      "sha256": "dd475531f1d77d1aa8478ccdebb816d5d1afe1efcb0e3711f341fb4a14a92577",
       "symbols": [
         {
           "name": "RelevantMemoryRecall",
@@ -9056,15 +9056,15 @@
         },
         {
           "name": "sourceEvidenceEvents",
-          "line": 131
+          "line": 136
         },
         {
           "name": "sourceEvidenceForPrompt",
-          "line": 166
+          "line": 171
         },
         {
           "name": "formatForPrompt",
-          "line": 192
+          "line": 197
         }
       ]
     },
