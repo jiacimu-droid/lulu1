@@ -32,8 +32,10 @@ object SharedExperienceTimeline {
     @Synchronized
     fun initialize(context: Context) {
         if (helper != null) return
-        helper = TimelineDatabase(context.applicationContext)
+        val application = context.applicationContext
+        helper = TimelineDatabase(application)
         helper?.writableDatabase
+        MemoryExtractionJobStore.initialize(application)
     }
 
     fun backfillChatHistory() {
@@ -136,9 +138,19 @@ object SharedExperienceTimeline {
         }
         database.insertWithOnConflict("timeline_events", null, values, SQLiteDatabase.CONFLICT_REPLACE)
         if (triggerExtraction) {
+            // Persist the recovery job before any asynchronous model work starts. A crash, process
+            // kill or network failure after this point therefore cannot make the event disappear
+            // from the automatic-memory queue.
+            val job = MemoryExtractionJobStore.enqueue(characterId, sourceReplyId = eventId)
             scope.launch {
                 val policy = LuluRepositories.memory.observePolicy(characterId).first()
-                if (policy.autoSummarize) LuluRepositories.memory.summarizeNow(characterId)
+                if (!policy.autoSummarize) {
+                    MemoryExtractionJobStore.complete(job.id)
+                    return@launch
+                }
+                runCatching { LuluRepositories.memory.summarizeNow(characterId) }
+                    .onSuccess { MemoryExtractionJobStore.complete(job.id) }
+                    .onFailure { error -> MemoryExtractionJobStore.failed(job.id, error) }
             }
         }
     }
@@ -196,6 +208,11 @@ object SharedExperienceTimeline {
         } finally {
             database.endTransaction()
         }
+        // Deletion invalidates every downstream owner immediately: retry job, executable promise
+        // and derived memory/vector lifecycle. Late model responses are additionally checked by the
+        // repository integrity guard before they can survive in recall.
+        MemoryExtractionJobStore.removeBySourceEvent(eventId)
+        CommitmentTaskStore.removeBySourceEvent(eventId)
         scope.launch { LuluRepositories.memory.deleteDerivedFromEvent(eventId) }
     }
 
