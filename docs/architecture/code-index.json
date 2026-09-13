@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T03:04:06.800785+00:00",
-  "commit": "71794ca1beaa0e13867829cdec604194eb278c59",
+  "generatedAt": "2026-09-13T03:05:06.923528+00:00",
+  "commit": "cc7dca0877d504eb343d62f27646c9c2a980f2ce",
   "branch": "main",
-  "sourceFingerprint": "e298d326da8b40a79a094b6dd279e2fb31f274b811713ed47efad7c694ed84b9",
+  "sourceFingerprint": "0e9111cbf840d735bf8980046e85892c37b72fc9b4ae54d09a05f72365ffa60f",
   "summary": {
-    "files": 264,
-    "lines": 76871,
-    "symbols": 994
+    "files": 265,
+    "lines": 76965,
+    "symbols": 1001
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -158,6 +158,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
         "line": 8
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
+        "line": 20
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -2988,6 +2992,40 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
         "line": 18
+      }
+    ],
+    "isActive": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
+        "line": 27
+      }
+    ],
+    "replacementId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
+        "line": 30
+      }
+    ],
+    "markSuperseded": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
+        "line": 33
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
+        "line": 40
+      }
+    ],
+    "removeMemory": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
+        "line": 50
+      }
+    ],
+    "debugContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
+        "line": 63
       }
     ],
     "LuluChatMessage": [
@@ -8297,6 +8335,41 @@
         {
           "name": "rerankConnection",
           "line": 18
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
+      "lines": 94,
+      "sha256": "341c7c505b50471f1466283b8a5ac980bd39421c92bd1d59ebcaf5b2e95178ae",
+      "symbols": [
+        {
+          "name": "initialize",
+          "line": 20
+        },
+        {
+          "name": "isActive",
+          "line": 27
+        },
+        {
+          "name": "replacementId",
+          "line": 30
+        },
+        {
+          "name": "markSuperseded",
+          "line": 33
+        },
+        {
+          "name": "markSuperseded",
+          "line": 40
+        },
+        {
+          "name": "removeMemory",
+          "line": 50
+        },
+        {
+          "name": "debugContext",
+          "line": 63
         }
       ]
     },
