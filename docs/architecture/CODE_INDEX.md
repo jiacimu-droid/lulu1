@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`6952d6e64fbea7b9dcb847e48cf7d7a15e0f52a4`
+- 基准提交：`2412734af1bcade840fa3b3e82aea0bfadc3a666`
 - 分支：`main`
 - 已索引文件：270
-- 已索引代码/文本行：77879
-- 已发现符号：1014
+- 已索引代码/文本行：77882
+- 已发现符号：1015
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -137,7 +137,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 31 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt` | 54 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt` | 170 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 94 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 97 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 885 | 44 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 896 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 31 | 0 |
