@@ -1,6 +1,13 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.ai.archiveIdFor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.time.Instant
 
 /**
@@ -17,6 +24,8 @@ internal object DigitalWorldEvolutionRuntime {
     private const val MOVEMENT_SECONDS = 21_600L
 
     private var prefs: android.content.SharedPreferences? = null
+    private var appContext: Context? = null
+    private val proposalScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private data class PlaceTemplate(
         val label: String,
@@ -57,10 +66,13 @@ internal object DigitalWorldEvolutionRuntime {
 
     @Synchronized
     fun initialize(context: Context) {
-        if (prefs != null) return
         val application = context.applicationContext
-        prefs = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        DigitalWorldExpansionStore.initialize(application)
+        if (prefs == null) {
+            prefs = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            DigitalWorldExpansionStore.initialize(application)
+        }
+        appContext = application
+        DigitalWorldExpansionProposalRuntime.initialize(application)
     }
 
     /** Returns summaries of world facts that were actually committed during this call. */
@@ -68,6 +80,7 @@ internal object DigitalWorldEvolutionRuntime {
     fun maybeEvolve(characterId: String, now: Instant = Instant.now()): List<String> {
         val p = prefs ?: return emptyList()
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return emptyList()
+        scheduleValidatedModelProposal(characterId, now)
         val results = mutableListOf<String>()
         val daySlot = Math.floorDiv(now.epochSecond, DAY_SECONDS)
 
@@ -170,6 +183,20 @@ internal object DigitalWorldEvolutionRuntime {
             }
         }
         return results
+    }
+
+    private fun scheduleValidatedModelProposal(characterId: String, now: Instant) {
+        val context = appContext ?: return
+        proposalScope.launch {
+            val archiveId = LuluAiServices.connectionStore.library.value.archiveIdFor(ModelUsage.Chat) ?: return@launch
+            val connection = LuluAiServices.connectionStore.resolveConnection(archiveId)
+            DigitalWorldExpansionProposalRuntime.maybePropose(
+                context = context,
+                characterId = characterId,
+                connection = connection,
+                now = now,
+            )
+        }
     }
 
     private fun residentDestinations(resident: DigitalWorldResident): List<String> {
