@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a23340cc580c2fa72b0211f402af28f2c9b1015d`
+- 基准提交：`cd946ac859a1f74650b1a50c0337228b3a155806`
 - 分支：`main`
 - 已索引文件：271
-- 已索引代码/文本行：78523
-- 已发现符号：1020
+- 已索引代码/文本行：78582
+- 已发现符号：1021
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -111,7 +111,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt` | 85 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 233 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt` | 271 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt` | 181 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt` | 240 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEventRules.java` | 69 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt` | 233 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt` | 210 | 1 |
