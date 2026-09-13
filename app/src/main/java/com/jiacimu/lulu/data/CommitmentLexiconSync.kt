@@ -8,6 +8,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -30,6 +31,7 @@ object CommitmentLexiconSync {
             while (true) {
                 delay(30_000L)
                 reconcileDeletedLexiconEntries()
+                refreshActiveEntries()
             }
         }
     }
@@ -48,8 +50,11 @@ object CommitmentLexiconSync {
             append(MARKER)
             append('\n').append("状态：").append(task.status.displayName())
             task.dueAt?.let { due ->
+                val zone = task.timezone
+                    ?.let { value -> runCatching { ZoneId.of(value) }.getOrNull() }
+                    ?: ZoneId.systemDefault()
                 append('\n').append("计划时间：")
-                append(due.atZone(runCatching { ZoneId.of(task.timezone) }.getOrDefault(ZoneId.systemDefault())).format(TASK_TIME_FORMATTER))
+                append(due.atZone(zone).format(TASK_TIME_FORMATTER))
             }
             task.nextCheckAt?.takeIf { it != task.dueAt }?.let { next ->
                 append('\n').append("下次检查：")
@@ -68,6 +73,15 @@ object CommitmentLexiconSync {
         CommitmentTaskStore.snapshot().filter { it.status.isActive() && it.lexiconEntryId != null }.forEach { task ->
             val exists = LuluRepositories.lexicon.snapshot(task.characterId).any { it.id == task.lexiconEntryId }
             if (!exists) CommitmentTaskStore.cancel(task.id, "对应辞海约定已删除")
+        }
+    }
+
+    private suspend fun refreshActiveEntries() {
+        val cutoff = Instant.now().minusSeconds(30 * 60L)
+        CommitmentTaskStore.snapshot().filter { it.status.isActive() }.forEach { task ->
+            val lexiconId = task.lexiconEntryId ?: return@forEach
+            val entry = LuluRepositories.lexicon.snapshot(task.characterId).firstOrNull { it.id == lexiconId } ?: return@forEach
+            if (entry.updatedAt.isBefore(cutoff)) LuluRepositories.lexicon.save(entry.copy(updatedAt = Instant.now()))
         }
     }
 }
