@@ -10,12 +10,15 @@ internal object MemoryModelRuntime {
         val application = context.applicationContext
         prefs = application.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
         MemoryEmbeddingIndex.initialize(application)
+        MemoryValidityStore.initialize(application)
+        MemorySupersessionAutomation.initialize(application)
     }
 
     fun vectorEnabled(): Boolean = prefs?.getBoolean("memory_vector_enabled", false) == true
     fun rerankEnabled(): Boolean = prefs?.getBoolean("memory_rerank_enabled", false) == true
     fun embeddingConnection(): ModelConnection? = connection("memory_embedding")
     fun rerankConnection(): ModelConnection? = connection("memory_rerank")
+    fun extractionConnection(): ModelConnection? = connection("memory_extract")
 
     private fun connection(prefix: String): ModelConnection? {
         val settings = prefs ?: return null
