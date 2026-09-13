@@ -8,8 +8,8 @@ internal data class DigitalWorldPublicPlace(
 )
 
 /**
- * Small, dense public places. Each place exists because it gives the player and autonomous
- * characters a distinct thing to do; this intentionally avoids filling the map with empty nodes.
+ * Shared places are program-owned. Built-ins always exist; discovered places only become visible
+ * after DigitalWorldExpansionStore has committed them to persistent world state.
  */
 internal object DigitalWorldPublicPlaces {
     const val GAME_HALL = "shared:game_hall"
@@ -17,7 +17,7 @@ internal object DigitalWorldPublicPlaces {
     const val CAFE = "shared:cafe"
     const val COURTYARD = "shared:courtyard"
 
-    val all: List<DigitalWorldPublicPlace> = listOf(
+    private val builtIns: List<DigitalWorldPublicPlace> = listOf(
         DigitalWorldPublicPlace(
             GAME_HALL,
             "游戏馆",
@@ -44,6 +44,17 @@ internal object DigitalWorldPublicPlaces {
         ),
     )
 
+    val all: List<DigitalWorldPublicPlace>
+        get() = builtIns + DigitalWorldExpansionStore.places().map { place ->
+            DigitalWorldPublicPlace(
+                code = place.code,
+                label = place.label,
+                subtitle = place.subtitle,
+                purpose = place.purpose,
+            )
+        }
+
     fun label(code: String): String? = all.firstOrNull { it.code == code }?.label
     fun contains(code: String): Boolean = all.any { it.code == code }
+    fun isBuiltIn(code: String): Boolean = builtIns.any { it.code == code }
 }
