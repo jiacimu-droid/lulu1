@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-07T11:46:30.482285+00:00",
-  "commit": "03f2d02914e9b760ef101e4ea5f217308ad73440",
+  "generatedAt": "2026-09-13T02:22:47.177417+00:00",
+  "commit": "4c34d368f05e868638fd5b11bc493c5e2e377c74",
   "branch": "main",
-  "sourceFingerprint": "3c77bed1f0bd2566fd23ddcfed1214c4e7d986d7b007526c9581af9acb27d0e4",
+  "sourceFingerprint": "839d1c17556e9af78278b2622aeb85844003dd5da8bb449421175d8fdb8c4649",
   "summary": {
-    "files": 247,
-    "lines": 75316,
-    "symbols": 949
+    "files": 248,
+    "lines": 75329,
+    "symbols": 950
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -1622,6 +1622,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt",
         "line": 106
+      }
+    ],
+    "CommitmentTaskStatus": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt",
+        "line": 2
       }
     ],
     "asJson": [
@@ -6790,6 +6796,17 @@
         {
           "name": "clearConversation",
           "line": 106
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt",
+      "lines": 13,
+      "sha256": "4d29fc9f35b1847ec64fc6ce61aa5eb558407a1413f78b23f4c8f64a69233a45",
+      "symbols": [
+        {
+          "name": "CommitmentTaskStatus",
+          "line": 2
         }
       ]
     },
