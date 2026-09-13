@@ -28,6 +28,7 @@ data class UnifiedMemoryContext(
     val memories: List<MemoryEntry> = emptyList(),
     val sourceEvents: List<SharedTimelineEvent> = emptyList(),
     val recentEvents: List<SharedTimelineEvent> = emptyList(),
+    val activeTaskContext: String = "",
     private val evidenceCharacterBudget: Int = 4_200,
     private val recentCharacterBudget: Int = 7_000,
 ) {
@@ -40,15 +41,19 @@ data class UnifiedMemoryContext(
         )
 
     val recentTimeline: String
-        get() = renderEventLines(recentEvents, recentCharacterBudget).joinToString("\n")
+        get() = listOf(
+            activeTaskContext,
+            renderEventLines(recentEvents, recentCharacterBudget).joinToString("\n"),
+        ).filter(String::isNotBlank).joinToString("\n")
 
     fun compactPromptSection(characterBudget: Int = 4_800): String {
-        if (memories.isEmpty() && sourceEvents.isEmpty() && recentEvents.isEmpty()) return ""
+        if (memories.isEmpty() && sourceEvents.isEmpty() && recentEvents.isEmpty() && activeTaskContext.isBlank()) return ""
         val safeBudget = characterBudget.coerceAtLeast(900)
-        val recentBudget = (safeBudget * 0.46).toInt()
-        val evidenceBudget = (safeBudget * 0.40).toInt()
+        val recentBudget = (safeBudget * 0.42).toInt()
+        val evidenceBudget = (safeBudget * 0.36).toInt()
         val summaryBudget = (safeBudget - recentBudget - evidenceBudget).coerceAtLeast(120)
         return listOf(
+            activeTaskContext,
             renderEventSection("这个角色最近亲历的原始时间线：", "", recentEvents, recentBudget),
             renderEventSection(
                 "与当前内容语义相关、从记忆指针回溯出的原始记录：",
@@ -76,22 +81,31 @@ object UnifiedMemoryOrchestrator {
         val recentEvents = LuluRepositories.memory.contextTimelineEvents(characterId)
         val recentIds = recentEvents.mapTo(mutableSetOf(), SharedTimelineEvent::id)
         val query = request.retrievalQuery()
-        val memories = RelevantMemoryRecall.recall(characterId, query, recallLimit)
+        val recalled = RelevantMemoryRecall.recall(characterId, query, recallLimit)
             .filter { memory -> MemoryValidityStore.isActive(memory.id) }
             .filter { memory ->
                 val sourceIds = memory.sourceEventIds()
-                sourceIds.isEmpty() || sourceIds.any { sourceId -> sourceId !in recentIds }
+                sourceIds.isEmpty() || sourceIds.all { sourceId ->
+                    SharedExperienceTimeline.eventsByIds(characterId, listOf(sourceId)).isNotEmpty()
+                }
             }
+        val memories = recalled.filter { memory ->
+            val sourceIds = memory.sourceEventIds()
+            sourceIds.isEmpty() || sourceIds.any { sourceId -> sourceId !in recentIds }
+        }
         val sourceEvents = RelevantMemoryRecall.sourceEvidenceEvents(
             characterId = characterId,
             query = query,
             memories = memories,
             limit = evidenceLimit,
         ).filterNot { event -> event.id in recentIds }
+        val activeTasks = renderActiveCommitmentTasks(characterId)
+        MemoryInspectionStore.recordRecall(characterId, query, memories, sourceEvents)
         return UnifiedMemoryContext(
             memories = memories,
             sourceEvents = sourceEvents,
             recentEvents = recentEvents,
+            activeTaskContext = activeTasks,
             evidenceCharacterBudget = evidenceCharacterBudget,
             recentCharacterBudget = recentCharacterBudget,
         )
@@ -112,6 +126,25 @@ object UnifiedMemoryOrchestrator {
         evidenceCharacterBudget,
         recentCharacterBudget,
     )
+}
+
+private fun renderActiveCommitmentTasks(characterId: String): String {
+    val tasks = CommitmentTaskStore.active(characterId)
+    if (tasks.isEmpty()) return ""
+    return buildString {
+        appendLine("【当前未完成责任｜持久化任务权威状态】")
+        appendLine("这些状态直接来自任务 Store，不依赖语义召回或辞海数量；不得因聊天变多而遗忘。")
+        tasks.forEach { task ->
+            append("- taskId=${task.id}；revision=${task.revision}；status=${task.status.name}；目标=${task.goal.take(300)}")
+            task.dueAt?.let { append("；dueAt=$it") }
+            task.timezone?.takeIf(String::isNotBlank)?.let { append("；timezone=$it") }
+            task.nextCheckAt?.let { append("；nextCheckAt=$it") }
+            if (task.steps.isNotEmpty()) append("；step=${task.currentStep}/${task.steps.size}")
+            if (task.attemptCount > 0) append("；attempts=${task.attemptCount}")
+            if (task.lastActionResult.isNotBlank()) append("；最近结果=${task.lastActionResult.take(260)}")
+            appendLine()
+        }
+    }.trim()
 }
 
 private fun MemoryEntry.sourceEventIds(): List<String> = when {
