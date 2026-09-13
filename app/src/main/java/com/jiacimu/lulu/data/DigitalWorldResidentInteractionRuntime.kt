@@ -26,10 +26,10 @@ internal object DigitalWorldResidentInteractionRuntime {
             else if (currentLocation == DigitalWorldStore.ARRIVAL) "世界入口"
             else currentLocation
         val summary = when (normalized) {
-            "greet" -> "${character.displayName}在$locationName向居民“${resident.name}”打了招呼；${resident.name}以${resident.identity}的身份回应了这次相遇。"
-            "chat" -> "${character.displayName}在$locationName和居民“${resident.name}”聊了一会儿；这次真实互动围绕${resident.identity}在数字世界里的日常，没有凭空增加新经历。"
-            "ask_place" -> "${character.displayName}在$locationName向居民“${resident.name}”询问了这里的情况；对方只基于自己作为${resident.identity}和已登记地点的事实进行交流。"
-            else -> "${character.displayName}和居民“${resident.name}”在$locationName一起短暂停留了一会儿，形成了一次真实可追溯的相处记录。"
+            "greet" -> "${character.displayName}在${locationName}向居民“${resident.name}”打了招呼；${resident.name}以${resident.identity}的身份回应了这次相遇。"
+            "chat" -> "${character.displayName}在${locationName}和居民“${resident.name}”聊了一会儿；这次真实互动围绕${resident.identity}在数字世界里的日常，没有凭空增加新经历。"
+            "ask_place" -> "${character.displayName}在${locationName}向居民“${resident.name}”询问了这里的情况；对方只基于自己作为${resident.identity}和已登记地点的事实进行交流。"
+            else -> "${character.displayName}和居民“${resident.name}”在${locationName}一起短暂停留了一会儿，形成了一次真实可追溯的相处记录。"
         }
         // Updating to the same real location is intentional: it persists lastInteractionAt without
         // pretending the resident moved anywhere.
