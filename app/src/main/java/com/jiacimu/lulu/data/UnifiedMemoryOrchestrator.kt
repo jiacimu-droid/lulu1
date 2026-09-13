@@ -77,6 +77,7 @@ object UnifiedMemoryOrchestrator {
         val recentIds = recentEvents.mapTo(mutableSetOf(), SharedTimelineEvent::id)
         val query = request.retrievalQuery()
         val memories = RelevantMemoryRecall.recall(characterId, query, recallLimit)
+            .filter { memory -> MemoryValidityStore.isActive(memory.id) }
             .filter { memory ->
                 val sourceIds = memory.sourceEventIds()
                 sourceIds.isEmpty() || sourceIds.any { sourceId -> sourceId !in recentIds }
