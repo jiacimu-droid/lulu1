@@ -109,17 +109,18 @@ object MeetingVoicePlayback {
         context: Context,
         sessionId: String,
         pageKey: String,
-        characterId: String,
+        characterId: String?,
         text: String,
     ) {
         initialize(context)
+        val resolvedCharacterId = characterId?.trim().orEmpty()
         val spoken = text.trim()
         if (
             !mutableEnabled.value ||
             sessionId.isBlank() ||
             pageKey.isBlank() ||
-            characterId.isBlank() ||
-            characterId == "system" ||
+            resolvedCharacterId.isBlank() ||
+            resolvedCharacterId == "system" ||
             spoken.isBlank()
         ) {
             stopVisibleDialogue(sessionId)
@@ -145,7 +146,7 @@ object MeetingVoicePlayback {
                 text = spoken,
                 cacheBaseFile = cacheBase,
                 scope = scope,
-                voiceIdOverride = CharacterVoicePreferenceStore.voiceId(characterId),
+                voiceIdOverride = CharacterVoicePreferenceStore.voiceId(resolvedCharacterId),
                 onFinished = {
                     synchronized(lock) {
                         if (activePageToken == token) activePageToken = null
