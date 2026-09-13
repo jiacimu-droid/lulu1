@@ -29,6 +29,9 @@ object CommitmentTurnAutomation {
             MigratedDomainStores.chat.conversations.collectLatest { conversations ->
                 val ids = conversations.mapTo(mutableSetOf()) { it.id }
                 jobs.keys.filterNot(ids::contains).forEach { jobs.remove(it)?.cancel() }
+                CommitmentTaskStore.snapshot()
+                    .filter { task -> task.status.isActive() && task.sourceTurnId?.substringBefore(':') !in ids }
+                    .forEach { task -> CommitmentTaskStore.cancel(task.id, "来源会话已被删除") }
                 conversations.forEach { conversation ->
                     if (conversation.id in jobs) return@forEach
                     jobs[conversation.id] = scope.launch {
@@ -44,6 +47,7 @@ object CommitmentTurnAutomation {
 
     private suspend fun inspectLatestTurn(conversation: LuluConversation) {
         val messages = MigratedDomainStores.chat.messages(conversation.id).value
+        reconcileDeletedSources(conversation.id, messages)
         val userIndex = messages.indexOfLast { it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent }
         if (userIndex < 0) return
         val userMessage = messages[userIndex]
@@ -81,6 +85,17 @@ object CommitmentTurnAutomation {
             )
             markProcessed(signature)
         }
+    }
+
+    private fun reconcileDeletedSources(conversationId: String, messages: List<LuluChatMessage>) {
+        val liveMessageIds = messages.mapTo(mutableSetOf(), LuluChatMessage::id)
+        CommitmentTaskStore.snapshot()
+            .filter { task ->
+                task.status.isActive() &&
+                    task.sourceTurnId?.startsWith("$conversationId:") == true &&
+                    task.sourceEventIds.any { sourceId -> sourceId !in liveMessageIds }
+            }
+            .forEach { task -> CommitmentTaskStore.cancel(task.id, "来源消息已删除，约定同步取消") }
     }
 
     private fun isProcessed(signature: String): Boolean =
