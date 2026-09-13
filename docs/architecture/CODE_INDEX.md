@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a26bd1254036fb9dd3adf0f23107a958cb879008`
+- 基准提交：`5d09c6b62094c09edfd898d8169fac8baa8c5732`
 - 分支：`main`
 - 已索引文件：262
-- 已索引代码/文本行：76523
+- 已索引代码/文本行：76526
 - 已发现符号：988
 
 | 文件 | 行数 | 符号数 |
@@ -80,7 +80,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 155 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 915 | 25 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 63 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 185 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 188 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 134 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 479 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 98 | 5 |
