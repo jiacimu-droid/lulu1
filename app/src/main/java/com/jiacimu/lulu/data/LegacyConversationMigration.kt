@@ -70,9 +70,11 @@ object LegacyConversationMigration {
         fun branchTarget(source: JSONObject): JSONObject? {
             var parentId = source.stringOrNull("parentConversationId")
             val visited = mutableSetOf<String>()
-            while (!parentId.isNullOrBlank() && visited.add(parentId)) {
-                val parent = byId[parentId] ?: break
-                if (parentId !in legacyIds && !parent.optString("id").endsWith("-study-focus")) return parent
+            while (true) {
+                val resolvedParentId = parentId?.takeIf(String::isNotBlank) ?: break
+                if (!visited.add(resolvedParentId)) break
+                val parent = byId[resolvedParentId] ?: break
+                if (resolvedParentId !in legacyIds && !parent.optString("id").endsWith("-study-focus")) return parent
                 parentId = parent.stringOrNull("parentConversationId")
             }
             return null
