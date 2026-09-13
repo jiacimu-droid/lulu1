@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T08:12:44.667418+00:00",
-  "commit": "b3e77aa88adff11d27cca2c5aca7fb3ddcb1d09b",
+  "generatedAt": "2026-09-13T08:14:23.906018+00:00",
+  "commit": "591e3720e7d917d33238286687c321809d3ce6a2",
   "branch": "main",
-  "sourceFingerprint": "fbb6971a6dcc88f6b001a4682252a40ab6c9c00ce7240b857a4bd78d22657034",
+  "sourceFingerprint": "a1daee2b66c12cdc48c93f578c5a8d117e793e1d19ab62ba874ac141cb45fa2f",
   "summary": {
     "files": 271,
-    "lines": 78463,
-    "symbols": 1019
+    "lines": 78521,
+    "symbols": 1020
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -1776,16 +1776,22 @@
         "line": 77
       }
     ],
+    "reconcileAfterRestart": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 66
+      }
+    ],
     "claimAlarmExecution": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 63
+        "line": 121
       }
     ],
     "cancel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 80
+        "line": 138
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
@@ -1799,7 +1805,7 @@
     "removeBySourceEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 94
+        "line": 152
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -1809,7 +1815,7 @@
     "clearCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 101
+        "line": 159
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -7258,8 +7264,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-      "lines": 113,
-      "sha256": "9b85fd40cdda792c6f39b8d0f08e81ac0913e0ab8c2c54b247b5a641b2001a11",
+      "lines": 171,
+      "sha256": "936f1bfab246133fe9bf79ef8e960ee0df970f7a58decf9f37a958746f434277",
       "symbols": [
         {
           "name": "CommitmentTaskStore",
@@ -7286,20 +7292,24 @@
           "line": 44
         },
         {
+          "name": "reconcileAfterRestart",
+          "line": 66
+        },
+        {
           "name": "claimAlarmExecution",
-          "line": 63
+          "line": 121
         },
         {
           "name": "cancel",
-          "line": 80
+          "line": 138
         },
         {
           "name": "removeBySourceEvent",
-          "line": 94
+          "line": 152
         },
         {
           "name": "clearCharacter",
-          "line": 101
+          "line": 159
         }
       ]
     },
