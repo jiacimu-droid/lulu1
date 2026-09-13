@@ -17,7 +17,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -47,7 +46,7 @@ internal fun MomentImageAttachment(
     val state by produceState<MomentAttachmentState>(MomentAttachmentState.Loading, imageUri) {
         value = MomentAttachmentState.Loading
         val bitmap = withContext(Dispatchers.IO) { loadMomentAttachmentBitmap(context, imageUri) }
-        value = bitmap?.let(MomentAttachmentState::Ready) ?: MomentAttachmentState.Failed
+        value = bitmap?.let { MomentAttachmentState.Ready(it) } ?: MomentAttachmentState.Failed
     }
     Surface(
         modifier = modifier,
