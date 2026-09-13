@@ -7,7 +7,9 @@ internal object MemoryModelRuntime {
     private var prefs: android.content.SharedPreferences? = null
 
     fun initialize(context: Context) {
-        prefs = context.applicationContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+        val application = context.applicationContext
+        prefs = application.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+        MemoryEmbeddingIndex.initialize(application)
     }
 
     fun vectorEnabled(): Boolean = prefs?.getBoolean("memory_vector_enabled", false) == true
