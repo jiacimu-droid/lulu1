@@ -66,6 +66,20 @@ internal object MemoryExtractionJobStore {
     }
 
     @Synchronized
+    fun removeBySourceEvent(eventId: String) {
+        if (eventId.isBlank()) return
+        val next = jobs.filterNot { job ->
+            job.sourceReplyId == eventId ||
+                job.sourceReplyId.startsWith("$eventId:group:") ||
+                eventId.startsWith("${job.sourceReplyId}:group:")
+        }
+        if (next.size != jobs.size) {
+            jobs = next
+            persist()
+        }
+    }
+
+    @Synchronized
     fun clearCharacter(characterId: String) {
         jobs = jobs.filterNot { it.characterId == characterId }
         persist()
