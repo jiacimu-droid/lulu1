@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T02:31:59.666443+00:00",
-  "commit": "09d705f1ea648acdb9eb3ea4140e10df4a094d2e",
+  "generatedAt": "2026-09-13T02:32:59.129717+00:00",
+  "commit": "00e5ff6cdf799d6c012e64709e3b1532d9937f4d",
   "branch": "main",
-  "sourceFingerprint": "2389120adaed84cc6ad1ae5c275bb8ec50517d57eee6e647ae00dc8a34bf458a",
+  "sourceFingerprint": "d6b384b5eb151a8a2a3c03c4d886d84cf1b511c548cfa2a752dc74d239a66270",
   "summary": {
     "files": 259,
-    "lines": 75913,
+    "lines": 75959,
     "symbols": 966
   },
   "symbolIndex": {
@@ -105,7 +105,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 14
+        "line": 19
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -1727,7 +1727,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 122
+        "line": 163
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -2067,7 +2067,7 @@
     "contextFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 25
+        "line": 30
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -2085,19 +2085,19 @@
     "apply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 52
+        "line": 68
       }
     ],
     "ongoingActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 108
+        "line": 143
       }
     ],
     "endActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 117
+        "line": 153
       }
     ],
     "tick": [
@@ -7301,32 +7301,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-      "lines": 126,
-      "sha256": "8beb8ea131f52cc420db96abbb70502759c2f7718f83a70267aed719e496018c",
+      "lines": 172,
+      "sha256": "5375d8139238cb46f549742866ffad62b8ac7a9eff248635747f01fe833348e4",
       "symbols": [
         {
           "name": "initialize",
-          "line": 14
+          "line": 19
         },
         {
           "name": "contextFor",
-          "line": 25
+          "line": 30
         },
         {
           "name": "apply",
-          "line": 52
+          "line": 68
         },
         {
           "name": "ongoingActivity",
-          "line": 108
+          "line": 143
         },
         {
           "name": "endActivity",
-          "line": 117
+          "line": 153
         },
         {
           "name": "clearCharacter",
-          "line": 122
+          "line": 163
         }
       ]
     },
