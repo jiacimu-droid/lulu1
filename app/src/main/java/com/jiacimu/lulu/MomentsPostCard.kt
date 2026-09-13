@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.MomentAuthorType
 import com.jiacimu.lulu.data.MomentComment
+import com.jiacimu.lulu.data.MomentImageUnderstandingStatus
 import com.jiacimu.lulu.data.MomentPost
 import com.jiacimu.lulu.design.LuluColors
 import java.time.Duration
@@ -37,6 +38,7 @@ internal fun MomentPostCard(
     onComment: (String) -> Unit,
     onCallCharacters: () -> Unit,
     onReply: (MomentComment, String) -> Unit,
+    onRetryImageUnderstanding: () -> Unit,
     onDelete: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -103,7 +105,6 @@ internal fun MomentPostCard(
 
             if (post.content.isNotBlank()) {
                 if (textOnly) {
-                    // Pure text is the post itself, not a caption waiting for a missing image.
                     Text(
                         text = post.content,
                         modifier = Modifier.fillMaxWidth().padding(end = 4.dp),
@@ -116,13 +117,37 @@ internal fun MomentPostCard(
                 }
             }
 
-            if (!post.imageUri.isNullOrBlank()) {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    color = LuluColors.CardStrong,
-                ) {
-                    LuluSelectedPhoto(imageUri = post.imageUri, modifier = Modifier.fillMaxWidth().height(220.dp))
+            post.imageUri?.takeIf(String::isNotBlank)?.let { imageUri ->
+                MomentImageAttachment(
+                    imageUri = imageUri,
+                    modifier = Modifier.fillMaxWidth().height(220.dp),
+                )
+                when (post.imageUnderstandingStatus) {
+                    MomentImageUnderstandingStatus.Pending -> Row(verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(Modifier.size(12.dp), strokeWidth = 1.5.dp)
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            "图片正在后台识别（第 ${post.imageUnderstandingAttempts.coerceAtLeast(1)} 次）",
+                            color = LuluColors.Muted,
+                            fontSize = 10.sp,
+                        )
+                    }
+                    MomentImageUnderstandingStatus.Failed -> Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            "图片识别失败${post.imageUnderstandingError.takeIf(String::isNotBlank)?.let { "：${it.take(90)}" }.orEmpty()}",
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 10.sp,
+                            modifier = Modifier.weight(1f),
+                        )
+                        TextButton(onClick = onRetryImageUnderstanding, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)) {
+                            Text("重试", fontSize = 10.sp)
+                        }
+                    }
+                    MomentImageUnderstandingStatus.None,
+                    MomentImageUnderstandingStatus.Ready -> Unit
                 }
             }
 
