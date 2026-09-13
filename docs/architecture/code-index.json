@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T03:00:54.637515+00:00",
-  "commit": "8e5d8b91c69f8193eb797105e03b81928d31ff8c",
+  "generatedAt": "2026-09-13T03:01:18.684091+00:00",
+  "commit": "f4eb33391ececdba71d9dc78a2d71e73b9f6f4eb",
   "branch": "main",
-  "sourceFingerprint": "5eee1b80aa0207e62ed54c4c58e54ad7b3da510958947086b40dde4810e3176a",
+  "sourceFingerprint": "119e67f61219abc823676a708f2d838ab0e5f978ab3408b653eaddce24e32aff",
   "summary": {
     "files": 263,
-    "lines": 76736,
+    "lines": 76745,
     "symbols": 990
   },
   "symbolIndex": {
@@ -1767,7 +1767,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 163
+        "line": 172
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -2111,7 +2111,7 @@
     "contextFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 30
+        "line": 32
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
@@ -2133,19 +2133,19 @@
     "apply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 68
+        "line": 77
       }
     ],
     "ongoingActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 143
+        "line": 152
       }
     ],
     "endActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 153
+        "line": 162
       }
     ],
     "maybeEvolve": [
@@ -7448,8 +7448,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-      "lines": 172,
-      "sha256": "5375d8139238cb46f549742866ffad62b8ac7a9eff248635747f01fe833348e4",
+      "lines": 181,
+      "sha256": "4b1d5b31007d2114df2bcd13c4baf9fdc971d4fd3a0772ecc5c9815fdb644991",
       "symbols": [
         {
           "name": "initialize",
@@ -7457,23 +7457,23 @@
         },
         {
           "name": "contextFor",
-          "line": 30
+          "line": 32
         },
         {
           "name": "apply",
-          "line": 68
+          "line": 77
         },
         {
           "name": "ongoingActivity",
-          "line": 143
+          "line": 152
         },
         {
           "name": "endActivity",
-          "line": 153
+          "line": 162
         },
         {
           "name": "clearCharacter",
-          "line": 163
+          "line": 172
         }
       ]
     },
