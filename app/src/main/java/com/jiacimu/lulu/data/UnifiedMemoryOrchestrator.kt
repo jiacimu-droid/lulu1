@@ -130,10 +130,15 @@ object UnifiedMemoryOrchestrator {
 
 private fun renderActiveCommitmentTasks(characterId: String): String {
     val tasks = CommitmentTaskStore.active(characterId)
-    if (tasks.isEmpty()) return ""
     return buildString {
-        appendLine("【当前未完成责任｜持久化任务权威状态】")
-        appendLine("这些状态直接来自任务 Store，不依赖语义召回或辞海数量；不得因聊天变多而遗忘。")
+        appendLine("【责任连续性规则｜持久化任务优先于随口生成】")
+        appendLine("- 如果你准备接受叫醒、提醒、监督或其他未来责任，但用户没有说清多久、几点、日期或必要完成条件，必须先自然追问缺失信息；不能替用户猜一个时间再答应。")
+        appendLine("- 已经接受的责任不能因为换页面、聊天变多或普通后台感知而失效；任务完成只能依据程序执行结果和用户明确反馈。没有回复只代表尚未确认。")
+        if (tasks.isEmpty()) {
+            append("当前没有未完成责任。")
+            return@buildString
+        }
+        appendLine("以下是当前全部未完成责任，直接来自任务 Store，不依赖语义召回或辞海数量：")
         tasks.forEach { task ->
             append("- taskId=${task.id}；revision=${task.revision}；status=${task.status.name}；目标=${task.goal.take(300)}")
             task.dueAt?.let { append("；dueAt=$it") }
@@ -141,7 +146,14 @@ private fun renderActiveCommitmentTasks(characterId: String): String {
             task.nextCheckAt?.let { append("；nextCheckAt=$it") }
             if (task.steps.isNotEmpty()) append("；step=${task.currentStep}/${task.steps.size}")
             if (task.attemptCount > 0) append("；attempts=${task.attemptCount}")
+            if (task.completionCondition.isNotBlank()) append("；完成条件=${task.completionCondition.take(220)}")
             if (task.lastActionResult.isNotBlank()) append("；最近结果=${task.lastActionResult.take(260)}")
+            when (task.status) {
+                CommitmentTaskStatus.NeedsClarification -> append("；下一步=自然向用户问清缺失时间/条件，禁止猜测")
+                CommitmentTaskStatus.WaitingForFeedback -> append("；下一步=等待明确反馈，不得自行宣称已完成")
+                CommitmentTaskStatus.Blocked -> append("；下一步=说明受阻事实或等待可执行条件，不得假装执行成功")
+                else -> Unit
+            }
             appendLine()
         }
     }.trim()
