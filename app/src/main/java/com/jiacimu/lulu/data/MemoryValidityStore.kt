@@ -36,6 +36,7 @@ internal object MemoryValidityStore {
     fun markSuperseded(oldMemoryId: String, replacementMemoryId: String) {
         if (oldMemoryId.isBlank() || replacementMemoryId.isBlank() || oldMemoryId == replacementMemoryId) return
         supersededBy = supersededBy + (oldMemoryId to replacementMemoryId)
+        MemoryEmbeddingIndex.removeMemory(oldMemoryId)
         persist()
     }
 
@@ -46,12 +47,14 @@ internal object MemoryValidityStore {
             .distinct()
         if (clean.isEmpty() || replacementMemoryId.isBlank()) return
         supersededBy = supersededBy + clean.associateWith { replacementMemoryId }
+        clean.forEach(MemoryEmbeddingIndex::removeMemory)
         persist()
     }
 
     @Synchronized
     fun removeMemory(memoryId: String) {
         if (memoryId.isBlank()) return
+        MemoryEmbeddingIndex.removeMemory(memoryId)
         val next = supersededBy
             .filterKeys { it != memoryId }
             // Do not reactivate older false facts merely because the newer correction was deleted.
