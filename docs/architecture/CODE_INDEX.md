@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`813d53a384102b60815eda686aaa998d2f0fa992`
+- 基准提交：`47e439c45495833e3154d799e7b5d4ced61698f9`
 - 分支：`main`
-- 已索引文件：268
-- 已索引代码/文本行：77707
-- 已发现符号：1008
+- 已索引文件：269
+- 已索引代码/文本行：77761
+- 已发现符号：1009
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -134,6 +134,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt` | 92 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt` | 117 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 31 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt` | 54 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt` | 170 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 94 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 885 | 44 |

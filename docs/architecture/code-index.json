@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T07:38:13.756423+00:00",
-  "commit": "813d53a384102b60815eda686aaa998d2f0fa992",
+  "generatedAt": "2026-09-13T07:39:06.862289+00:00",
+  "commit": "47e439c45495833e3154d799e7b5d4ced61698f9",
   "branch": "main",
-  "sourceFingerprint": "38c09e3654f47e1568cc64a09922563261574d75fdf7113960c1eafab3cc997e",
+  "sourceFingerprint": "2cadbc031440233e42bbcfa1b8b21bfb6025610f490b0f7705b53365ea859aea",
   "summary": {
-    "files": 268,
-    "lines": 77707,
-    "symbols": 1008
+    "files": 269,
+    "lines": 77761,
+    "symbols": 1009
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -162,6 +162,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
         "line": 8
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt",
+        "line": 23
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt",
@@ -8403,6 +8407,17 @@
         {
           "name": "extractionConnection",
           "line": 21
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt",
+      "lines": 54,
+      "sha256": "808bf3b1405d9e675acf347b8b6a088d6a912fe9f983c572a2c4199bbd5a9337",
+      "symbols": [
+        {
+          "name": "initialize",
+          "line": 23
         }
       ]
     },
