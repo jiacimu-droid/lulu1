@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T02:59:09.348281+00:00",
-  "commit": "5d14897629e62c89557682fd1ac34464292c0a92",
+  "generatedAt": "2026-09-13T03:00:54.637515+00:00",
+  "commit": "8e5d8b91c69f8193eb797105e03b81928d31ff8c",
   "branch": "main",
-  "sourceFingerprint": "59c01d3518811dbc467cfba6695b449ca433a2b60dbe5e3f95cc7b82d9eaddca",
+  "sourceFingerprint": "5eee1b80aa0207e62ed54c4c58e54ad7b3da510958947086b40dde4810e3176a",
   "summary": {
-    "files": 262,
-    "lines": 76530,
-    "symbols": 988
+    "files": 263,
+    "lines": 76736,
+    "symbols": 990
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -110,6 +110,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
         "line": 19
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt",
+        "line": 59
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
@@ -2142,6 +2146,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
         "line": 153
+      }
+    ],
+    "maybeEvolve": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt",
+        "line": 68
       }
     ],
     "DigitalWorldResident": [
@@ -7472,6 +7482,21 @@
       "lines": 39,
       "sha256": "0f32da9e45fe7b1395a7978625380b140bb4698f8fab76750502e2cc24430490",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt",
+      "lines": 206,
+      "sha256": "6b60d13bc559ea44b34c61613c037409cb81b2f6982eec6ae829db6c6c25db0e",
+      "symbols": [
+        {
+          "name": "initialize",
+          "line": 59
+        },
+        {
+          "name": "maybeEvolve",
+          "line": 68
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
