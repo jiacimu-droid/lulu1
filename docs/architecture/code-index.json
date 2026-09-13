@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T07:56:41.238663+00:00",
-  "commit": "466bf7c656838fd8dc2da72aa47f299b130b3605",
+  "generatedAt": "2026-09-13T07:59:00.681974+00:00",
+  "commit": "16c5411a154d428451a4f8807a6a9d4593c69c66",
   "branch": "main",
-  "sourceFingerprint": "1003fc5cd13261fa5c882227f6de1052ea441be9b310d776818cadc7e162c923",
+  "sourceFingerprint": "e26a863beb488980f18a6a49ec7781bf529fb1c619243affc7dfc779bd163612",
   "summary": {
     "files": 269,
-    "lines": 78053,
-    "symbols": 1013
+    "lines": 78086,
+    "symbols": 1014
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -153,7 +153,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
-        "line": 22
+        "line": 26
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -314,10 +314,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
         "line": 139
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
-        "line": 69
       }
     ],
     "CharacterHubScreen": [
@@ -1509,7 +1505,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
-        "line": 29
+        "line": 49
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -2960,10 +2956,26 @@
         "line": 317
       }
     ],
+    "key": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
+        "line": 37
+      }
+    ],
     "put": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
-        "line": 47
+        "line": 67
+      }
+    ],
+    "removeMemory": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
+        "line": 94
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
+        "line": 53
       }
     ],
     "MemoryExtractionJob": [
@@ -3070,12 +3082,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
         "line": 43
-      }
-    ],
-    "removeMemory": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
-        "line": 53
       }
     ],
     "debugContext": [
@@ -8333,24 +8339,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
-      "lines": 92,
-      "sha256": "5761a4d6e14461cdbb308028c8952e618a0cf1c2051c439f159a3c8eb6e4c17f",
+      "lines": 125,
+      "sha256": "7a121b9318456b538de1485f15ad613db69a7ca52a14c438808bb7493e44de05",
       "symbols": [
         {
           "name": "initialize",
-          "line": 22
+          "line": 26
+        },
+        {
+          "name": "key",
+          "line": 37
         },
         {
           "name": "get",
-          "line": 29
+          "line": 49
         },
         {
           "name": "put",
-          "line": 47
+          "line": 67
         },
         {
-          "name": "remove",
-          "line": 69
+          "name": "removeMemory",
+          "line": 94
         }
       ]
     },
