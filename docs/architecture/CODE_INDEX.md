@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0aa3215c331ff251da844421472941d4d9916246`
+- 基准提交：`b615d4717a1c6e873ea90553c8781bd4a2cf1bd6`
 - 分支：`main`
 - 已索引文件：267
-- 已索引代码/文本行：77436
+- 已索引代码/文本行：77461
 - 已发现符号：1008
 
 | 文件 | 行数 | 符号数 |
@@ -63,7 +63,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 319 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 161 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 160 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 300 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 325 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 251 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 283 | 1 |
