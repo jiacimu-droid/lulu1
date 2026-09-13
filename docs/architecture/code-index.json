@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T07:47:40.686474+00:00",
-  "commit": "1edc0826f5f9534a98cca7426f6b0933e1d732dc",
+  "generatedAt": "2026-09-13T07:48:49.805602+00:00",
+  "commit": "2b0a6d52f8d5e1fa2d845cac293dc284bd3825ce",
   "branch": "main",
-  "sourceFingerprint": "0775d8eda04c455c76565d81fada89db9cf926f10e696aa562e0f283cdb0916d",
+  "sourceFingerprint": "b992ffcb0ac19b55bae8621f92dcfd678b45d3cbe45b5e427423a1bb7c83c484",
   "summary": {
-    "files": 267,
-    "lines": 77904,
+    "files": 268,
+    "lines": 77975,
     "symbols": 1012
   },
   "symbolIndex": {
@@ -7141,6 +7141,12 @@
           "line": 106
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
+      "lines": 71,
+      "sha256": "f8fa038374b6cfd8870b98f1a7b9d0f0dabd30116d4d37593e6322ec7b5c0010",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt",
