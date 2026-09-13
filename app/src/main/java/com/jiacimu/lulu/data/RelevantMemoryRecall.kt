@@ -36,6 +36,7 @@ object RelevantMemoryRecall {
         val queryTerms = terms(cleanQuery)
         val memories = LuluRepositories.memory.snapshot(characterId)
             .asSequence()
+            .filter { memory -> MemoryValidityStore.isActive(memory.id) }
             .filter { memory ->
                 DigitalLifeProfileStore.allowsTimestamp(
                     characterId,
@@ -63,11 +64,17 @@ object RelevantMemoryRecall {
             )
             .take(LEXICAL_CANDIDATES)
             .toList()
+        val lexicalPositiveIds = lexicalRanked
+            .asSequence()
+            .filterNot(MemoryEntry::pinned)
+            .filter { memory -> hasLexicalSignal(memory, queryTerms, cleanQuery, now) }
+            .map(MemoryEntry::id)
+            .toSet()
 
         val embeddingResult = if (MemoryModelRuntime.vectorEnabled()) {
             val connection = MemoryModelRuntime.embeddingConnection()
             if (connection == null) EmbeddingRankResult() else {
-                rankByEmbedding(connection, cleanQuery, memories)
+                rankByEmbedding(connection, cleanQuery, memories, lexicalPositiveIds)
             }
         } else EmbeddingRankResult()
         val vectorRanked = embeddingResult.ranked
@@ -117,11 +124,9 @@ object RelevantMemoryRecall {
             }
         }
 
-        val requested = limit.coerceIn(1, 24)
-        val effectiveLimit = if (requested == 12) 18 else requested
         return candidates
             .distinctBy(MemoryEntry::id)
-            .take(effectiveLimit)
+            .take(limit.coerceIn(1, 24))
     }
 
     /**
@@ -215,6 +220,7 @@ object RelevantMemoryRecall {
         connection: ModelConnection,
         cleanQuery: String,
         memories: List<MemoryEntry>,
+        lexicalPositiveIds: Set<String>,
     ): EmbeddingRankResult {
         if (cleanQuery.isBlank() || memories.isEmpty()) return EmbeddingRankResult()
         val queryVector = com.jiacimu.lulu.ai.LuluAiServices.gateway
@@ -226,9 +232,9 @@ object RelevantMemoryRecall {
         val vectors = arrayOfNulls<FloatArray>(memories.size)
         val missingIndices = mutableListOf<Int>()
         memories.forEachIndexed { index, memory ->
-            val key = embeddingKey(connection, memory)
+            val key = MemoryEmbeddingIndex.key(connection, memory)
             val hot = synchronized(embeddingCache) { embeddingCache[key] }
-            val persisted = hot ?: MemoryEmbeddingIndex.get(key)
+            val persisted = hot ?: MemoryEmbeddingIndex.get(key, memory.id)
             if (persisted == null) {
                 missingIndices += index
             } else {
@@ -237,8 +243,8 @@ object RelevantMemoryRecall {
             }
         }
 
-        // Fill the complete valid-memory index in bounded requests. Failed batches remain missing
-        // and can be retried on a later recall; already-persisted vectors still participate now.
+        // Lifecycle indexing normally fills these ahead of time. This bounded fallback keeps recall
+        // functional after model-setting changes or a transient pre-index failure.
         missingIndices.chunked(EMBEDDING_BATCH_SIZE).forEach { batch ->
             val inputs = batch.map { memoryIndex -> memories[memoryIndex].content }
             val embedded = com.jiacimu.lulu.ai.LuluAiServices.gateway
@@ -249,20 +255,32 @@ object RelevantMemoryRecall {
             batch.forEachIndexed { position, memoryIndex ->
                 val vector = embedded[position]
                 val memory = memories[memoryIndex]
-                val key = embeddingKey(connection, memory)
+                val key = MemoryEmbeddingIndex.key(connection, memory)
                 vectors[memoryIndex] = vector
                 synchronized(embeddingCache) { embeddingCache[key] = vector }
-                MemoryEmbeddingIndex.put(key, vector)
+                MemoryEmbeddingIndex.put(key, memory.id, vector)
             }
         }
 
         val similarities = memories.mapIndexedNotNull { index, memory ->
             vectors[index]?.let { vector -> memory.id to cosine(queryVector, vector) }
         }.toMap()
+        MemoryVectorCalibrationStore.recordPositiveSamples(
+            connection,
+            lexicalPositiveIds.mapNotNull(similarities::get),
+        )
+        val calibratedFloor = MemoryVectorCalibrationStore.calibratedFloor(connection)
+        val queryFloor = calibratedFloor?.let {
+            querySeparationFloor(similarities.values)?.let { relativeFloor -> maxOf(it, relativeFloor) } ?: it
+        }
+
         val ranked = memories
             .asSequence()
             .filter { memory ->
-                memory.pinned || (similarities[memory.id] ?: -1.0) >= MIN_VECTOR_SIMILARITY
+                val similarity = similarities[memory.id] ?: -1.0
+                memory.pinned ||
+                    memory.id in lexicalPositiveIds ||
+                    (queryFloor != null && similarity >= queryFloor)
             }
             .sortedWith(
                 compareByDescending<MemoryEntry>(MemoryEntry::pinned)
@@ -274,16 +292,18 @@ object RelevantMemoryRecall {
         return EmbeddingRankResult(ranked, similarities)
     }
 
-    private fun embeddingKey(connection: ModelConnection, memory: MemoryEntry): String = buildString {
-        append(connection.baseUrl.trimEnd('/'))
-        append('|')
-        append(connection.model)
-        append('|')
-        append(memory.id)
-        append('|')
-        append(memory.content.length)
-        append('|')
-        append(memory.content.hashCode())
+    /**
+     * Per-query separation keeps a generally high-scoring model from flooding the candidate set.
+     * It is deliberately relative to this query's own score distribution rather than a global
+     * cosine constant. The learned model floor above remains mandatory for vector-only recall.
+     */
+    private fun querySeparationFloor(values: Collection<Double>): Double? {
+        val sorted = values.filter { it.isFinite() && it in -1.0..1.0 }.sorted()
+        if (sorted.size < 4) return null
+        val median = sorted[sorted.size / 2]
+        val upperQuartile = sorted[((sorted.size - 1) * 3) / 4]
+        val top = sorted.last()
+        return maxOf(upperQuartile, median + (top - median) * 0.45)
     }
 
     private fun fuseRankings(
@@ -463,5 +483,4 @@ object RelevantMemoryRecall {
     private const val MAX_EMBEDDING_CACHE = 600
     private const val RRF_K = 50.0
     private const val MIN_RELEVANCE_SCORE = 0.72
-    private const val MIN_VECTOR_SIMILARITY = 0.34
 }
