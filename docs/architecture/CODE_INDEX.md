@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e9a4f96e7994269f021772beeb17528da1f3d53f`
+- 基准提交：`a60046e6aabdd3b7d3906b8efceb32d5efdeb32c`
 - 分支：`main`
 - 已索引文件：260
-- 已索引代码/文本行：76110
+- 已索引代码/文本行：76131
 - 已发现符号：974
 
 | 文件 | 行数 | 符号数 |
@@ -89,7 +89,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 109 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 75 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 258 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 82 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 103 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 66 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt` | 124 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 35 | 1 |

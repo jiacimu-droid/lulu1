@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T02:36:26.609402+00:00",
-  "commit": "e9a4f96e7994269f021772beeb17528da1f3d53f",
+  "generatedAt": "2026-09-13T02:36:46.485403+00:00",
+  "commit": "a60046e6aabdd3b7d3906b8efceb32d5efdeb32c",
   "branch": "main",
-  "sourceFingerprint": "91205244d98b52725604fb64062c56f11d0efef5b6c068b2876065a0a2be8d52",
+  "sourceFingerprint": "6a8ff588c5ed26872550101fa1ac2c6f48683ff8b40656da0d73aa8a09655877",
   "summary": {
     "files": 260,
-    "lines": 76110,
+    "lines": 76131,
     "symbols": 974
   },
   "symbolIndex": {
@@ -69,7 +69,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
-        "line": 30
+        "line": 23
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt",
@@ -1623,7 +1623,7 @@
     "ChatMemoryAutomation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
-        "line": 22
+        "line": 14
       }
     ],
     "ChatTurnConsistencyAutomation": [
@@ -6869,16 +6869,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
-      "lines": 82,
-      "sha256": "86e7b0e74f39678493196287eb53ed36c31d70660617641fc3c33741d4fd0c39",
+      "lines": 103,
+      "sha256": "d89f9a4121dcdcd56dd53c0bc0e4e96f1394c1c10c96e1e56b7809c61cc204c4",
       "symbols": [
         {
           "name": "ChatMemoryAutomation",
-          "line": 22
+          "line": 14
         },
         {
           "name": "initialize",
-          "line": 30
+          "line": 23
         }
       ]
     },
