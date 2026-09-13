@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T03:11:41.777953+00:00",
-  "commit": "e7b17c1c7d72360fd5661985a227c99c220a9475",
+  "generatedAt": "2026-09-13T03:12:10.354425+00:00",
+  "commit": "0aa3215c331ff251da844421472941d4d9916246",
   "branch": "main",
-  "sourceFingerprint": "601190479b5b173fb47e16b744583b4ea570b933ebcaa17936a146a5606c536c",
+  "sourceFingerprint": "b9c36b2938ea458a4bfc8b0018d6573de66ee4dbcf5bc7af0644c8045d378cc1",
   "summary": {
-    "files": 266,
-    "lines": 77275,
-    "symbols": 1005
+    "files": 267,
+    "lines": 77436,
+    "symbols": 1008
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -998,6 +998,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
         "line": 40
+      }
+    ],
+    "Loading": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt",
+        "line": 36
+      }
+    ],
+    "Ready": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt",
+        "line": 37
+      }
+    ],
+    "Failed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt",
+        "line": 38
       }
     ],
     "publish": [
@@ -6438,6 +6456,25 @@
       "lines": 319,
       "sha256": "7eaf072a54fb740bc819281d36a9b8ffadb9c474da648b7fe576a3b9bcf52042",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt",
+      "lines": 161,
+      "sha256": "fc522bd3ac0fc2233650bf2ebdb25c8ba76ae5bd98d442ec272e6c098f612188",
+      "symbols": [
+        {
+          "name": "Loading",
+          "line": 36
+        },
+        {
+          "name": "Ready",
+          "line": 37
+        },
+        {
+          "name": "Failed",
+          "line": 38
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt",

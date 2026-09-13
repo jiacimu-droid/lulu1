@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`e7b17c1c7d72360fd5661985a227c99c220a9475`
+- 基准提交：`0aa3215c331ff251da844421472941d4d9916246`
 - 分支：`main`
-- 已索引文件：266
-- 已索引代码/文本行：77275
-- 已发现符号：1005
+- 已索引文件：267
+- 已索引代码/文本行：77436
+- 已发现符号：1008
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -61,6 +61,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 450 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 91 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 319 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 161 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 160 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 300 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 251 | 1 |
