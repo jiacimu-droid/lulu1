@@ -13,8 +13,12 @@ import android.media.RingtoneManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.jiacimu.lulu.MigrationActivity
-import com.jiacimu.lulu.data.CommitmentTaskStatus
+import com.jiacimu.lulu.data.CommitmentExecutor
 import com.jiacimu.lulu.data.CommitmentTaskStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
@@ -62,7 +66,14 @@ object LuluAlarmSystem {
             triggerAt = triggerAt,
             label = label.trim().ifBlank { "该起床啦" },
         )
-        if (canScheduleExact()) schedule(appContext, alarm) else setSystemClockAlarm(appContext, alarm)
+        if (canScheduleExact()) {
+            schedule(appContext, alarm)
+        } else {
+            // The system Clock is the exact/offline user-facing fallback. A best-effort app callback
+            // is also registered so task progress can still advance when Android later wakes us.
+            setSystemClockAlarm(appContext, alarm)
+            scheduleBestEffortCallback(appContext, alarm)
+        }
         save(appContext, list(appContext).filterNot { it.id == alarm.id } + alarm)
         alarm
     }
@@ -91,7 +102,11 @@ object LuluAlarmSystem {
     internal fun restoreFutureAlarms(context: Context) {
         val now = Instant.now()
         val future = list(context).filter { it.triggerAt.isAfter(now) }
-        if (canScheduleExact()) future.forEach { alarm -> runCatching { schedule(context, alarm) } }
+        future.forEach { alarm ->
+            runCatching {
+                if (canScheduleExact()) schedule(context, alarm) else scheduleBestEffortCallback(context, alarm)
+            }
+        }
         save(context, future)
     }
 
@@ -117,6 +132,15 @@ object LuluAlarmSystem {
         } catch (_: android.content.ActivityNotFoundException) {
             error("手机里没有支持创建系统闹钟的时钟应用")
         }
+    }
+
+    private fun scheduleBestEffortCallback(context: Context, alarm: LuluAlarm) {
+        val manager = context.getSystemService(AlarmManager::class.java)
+        manager.setAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            alarm.triggerAt.toEpochMilli(),
+            pendingIntent(context, alarm),
+        )
     }
 
     private fun dismissSystemClockAlarm(context: Context, alarm: LuluAlarm) {
@@ -249,6 +273,8 @@ object LuluAlarmSystem {
     }
 }
 
+private val alarmExecutionScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
 class LuluAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val id = intent.getStringExtra("alarm_id").orEmpty()
@@ -259,30 +285,19 @@ class LuluAlarmReceiver : BroadcastReceiver() {
         CommitmentTaskStore.initialize(context.applicationContext)
         LuluAlarmSystem.markTriggered(context, id)
 
-        // For a task-backed alarm, this is the one atomic claim point. A duplicate broadcast with
-        // the same alarm ID cannot claim the already-cleared linkedAlarmId and therefore cannot
-        // schedule another retry or advance the task a second time.
+        // Local notification is immediate/offline. The task-backed online follow-up is claimed once
+        // and finished asynchronously under BroadcastReceiver.goAsync().
         val task = CommitmentTaskStore.claimAlarmExecution(id)
         LuluAlarmSystem.showAlarmNotification(context, id, characterId, characterName, label)
         if (task != null) {
-            val nextAttempt = task.attemptCount + 1
-            val wakeTask = task.goal.contains("叫醒") || task.goal.contains("起床") || task.goal.contains("醒")
-            val retryAt = if (wakeTask && nextAttempt < 2) Instant.now().plusSeconds(10 * 60L) else null
-            val retryAlarm = retryAt?.let { at ->
-                LuluAlarmSystem.create(characterId, characterName, at, "${task.goal}（再次提醒）").getOrNull()
-            }
-            CommitmentTaskStore.update(task.id) { current ->
-                current.copy(
-                    status = CommitmentTaskStatus.WaitingForFeedback,
-                    attemptCount = nextAttempt,
-                    nextCheckAt = retryAt,
-                    linkedAlarmId = retryAlarm?.id,
-                    lastActionResult = if (retryAlarm == null) {
-                        "已提醒，等待用户确认结果；没有回复只表示尚未确认"
-                    } else {
-                        "已提醒；未确认前安排一次有限重试"
-                    },
-                )
+            val pendingResult = goAsync()
+            val appContext = context.applicationContext
+            alarmExecutionScope.launch {
+                try {
+                    CommitmentExecutor.onAlarm(appContext, task, characterName)
+                } finally {
+                    pendingResult.finish()
+                }
             }
         }
     }
