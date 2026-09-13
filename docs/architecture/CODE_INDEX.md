@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`1d24666f2cc01f62a79db3501d48cb5e32dcfc1d`
+- 基准提交：`96650ad0e0e521f19d4efc29c4fc5014293fac4f`
 - 分支：`main`
-- 已索引文件：250
-- 已索引代码/文本行：75395
-- 已发现符号：951
+- 已索引文件：252
+- 已索引代码/文本行：75527
+- 已发现符号：959
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -92,8 +92,10 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 66 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt` | 124 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 35 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt` | 60 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt` | 31 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 72 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 360 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 380 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 280 | 12 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T02:23:27.541902+00:00",
-  "commit": "1d24666f2cc01f62a79db3501d48cb5e32dcfc1d",
+  "generatedAt": "2026-09-13T02:23:41.174714+00:00",
+  "commit": "96650ad0e0e521f19d4efc29c4fc5014293fac4f",
   "branch": "main",
-  "sourceFingerprint": "9199647fe0a45cb3b762fe5522da79c543cbf243c93ff48d4fe7fab8c6f01b42",
+  "sourceFingerprint": "0270992b56d757f035b5b5b5c2c678b88166b49e0bedb30bbfee5a3277d21660",
   "summary": {
-    "files": 250,
-    "lines": 75395,
-    "symbols": 951
+    "files": 252,
+    "lines": 75527,
+    "symbols": 959
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -78,6 +78,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt",
         "line": 26
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 18
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
@@ -426,6 +430,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
         "line": 245
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 31
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
@@ -1516,6 +1524,10 @@
         "line": 37
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 23
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
         "line": 39
       },
@@ -1634,6 +1646,72 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt",
         "line": 2
+      }
+    ],
+    "CommitmentTaskStore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 8
+      }
+    ],
+    "active": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 27
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
+        "line": 18
+      }
+    ],
+    "update": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 43
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
+        "line": 99
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
+        "line": 36
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
+        "line": 727
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
+        "line": 77
+      }
+    ],
+    "removeBySourceEvent": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 57
+      }
+    ],
+    "clearCharacter": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 62
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
+        "line": 179
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
+        "line": 122
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
+        "line": 154
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
+        "line": 729
       }
     ],
     "asJson": [
@@ -1766,46 +1844,10 @@
         "line": 87
       }
     ],
-    "update": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 99
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
-        "line": 36
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 727
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 77
-      }
-    ],
     "rollbackMeetingProvenance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
         "line": 150
-      }
-    ],
-    "clearCharacter": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 179
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 122
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 154
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 729
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -3044,12 +3086,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
         "line": 10
-      }
-    ],
-    "active": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 18
       }
     ],
     "ProactiveIncomingCallStore": [
@@ -6817,6 +6853,12 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt",
+      "lines": 60,
+      "sha256": "fbc7523344395d0b41c20769b441e5b11761811efe1e9ef982cb5acaf9899c35",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt",
       "lines": 31,
       "sha256": "41882faee1d568e53aca56b1e923ec41a155c91c94ee6032b90cb184003821c4",
@@ -6830,6 +6872,45 @@
         {
           "name": "CommitmentTaskStatus",
           "line": 2
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+      "lines": 72,
+      "sha256": "658f0115ba0b05eb37302f3a89399f93b99b86b2355a4ee942bee09f15f2e449",
+      "symbols": [
+        {
+          "name": "CommitmentTaskStore",
+          "line": 8
+        },
+        {
+          "name": "initialize",
+          "line": 18
+        },
+        {
+          "name": "snapshot",
+          "line": 23
+        },
+        {
+          "name": "active",
+          "line": 27
+        },
+        {
+          "name": "save",
+          "line": 31
+        },
+        {
+          "name": "update",
+          "line": 43
+        },
+        {
+          "name": "removeBySourceEvent",
+          "line": 57
+        },
+        {
+          "name": "clearCharacter",
+          "line": 62
         }
       ]
     },
