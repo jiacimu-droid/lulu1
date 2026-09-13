@@ -8,6 +8,7 @@ import com.jiacimu.lulu.data.CharacterIdentityStore
 import com.jiacimu.lulu.data.ChatLexiconAutomation
 import com.jiacimu.lulu.data.ChatMemoryAutomation
 import com.jiacimu.lulu.data.ChatTurnConsistencyAutomation
+import com.jiacimu.lulu.data.CommitmentLexiconSync
 import com.jiacimu.lulu.data.CommitmentTaskStore
 import com.jiacimu.lulu.data.CommitmentTurnAutomation
 import com.jiacimu.lulu.data.CompanionPresenceStore
@@ -87,6 +88,7 @@ class MigrationActivity : ComponentActivity() {
         ChatMemoryAutomation.initialize(appContext)
         ChatLexiconAutomation.initialize(appContext)
         CommitmentTaskStore.initialize(appContext)
+        CommitmentLexiconSync.initialize()
         CommitmentTurnAutomation.initialize(appContext)
 
         ProactivePerceptionPolicyStore.initialize(appContext)
