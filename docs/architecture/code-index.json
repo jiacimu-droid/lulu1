@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T02:27:15.343661+00:00",
-  "commit": "75e4775d819474b7c2328b96f82f6f7bd6331fd5",
+  "generatedAt": "2026-09-13T02:28:20.690037+00:00",
+  "commit": "518a4d0df76a0dcbbfa2fdfd12cb175736e034e3",
   "branch": "main",
-  "sourceFingerprint": "68aad5d87f9c28d2b109be49615eb7535a6e1b169bfe86fb1cad989cca52c33c",
+  "sourceFingerprint": "ee375e14874fdfbc44bae738b0e4fcf24af46c9e958cd0fbbd945353d040315b",
   "summary": {
-    "files": 257,
-    "lines": 75875,
-    "symbols": 963
+    "files": 259,
+    "lines": 75889,
+    "symbols": 966
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -568,6 +568,20 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt",
         "line": 140
+      }
+    ],
+    "String": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/JsonNullUiCompat.kt",
+        "line": 4
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/JsonNullStringCompat.kt",
+        "line": 4
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/JsonNullStringCompat.kt",
+        "line": 6
       }
     ],
     "LexiconFeatureScreenV2": [
@@ -5754,6 +5768,17 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/JsonNullUiCompat.kt",
+      "lines": 6,
+      "sha256": "2642bdca55e418c70392c0521d77007783ad5e51adeb42d052785c952ce2c2c4",
+      "symbols": [
+        {
+          "name": "String",
+          "line": 4
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
       "lines": 518,
       "sha256": "e1b8870e79b6222600e65acdf219c9db2b26e10c301612247d6c323f8a1724ad",
@@ -7571,6 +7596,21 @@
         {
           "name": "observeForCharacter",
           "line": 253
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/JsonNullStringCompat.kt",
+      "lines": 8,
+      "sha256": "c11d34fca9e96299923d61021a5bdae043a795bff851e5d4a4a33b385de0d88a",
+      "symbols": [
+        {
+          "name": "String",
+          "line": 4
+        },
+        {
+          "name": "String",
+          "line": 6
         }
       ]
     },
