@@ -30,6 +30,9 @@ internal object MemoryValidityStore {
     fun replacementId(memoryId: String): String? = supersededBy[memoryId]
 
     @Synchronized
+    fun supersessionSnapshot(): Map<String, String> = supersededBy.toMap()
+
+    @Synchronized
     fun markSuperseded(oldMemoryId: String, replacementMemoryId: String) {
         if (oldMemoryId.isBlank() || replacementMemoryId.isBlank() || oldMemoryId == replacementMemoryId) return
         supersededBy = supersededBy + (oldMemoryId to replacementMemoryId)
