@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T07:43:56.953021+00:00",
-  "commit": "2412734af1bcade840fa3b3e82aea0bfadc3a666",
+  "generatedAt": "2026-09-13T07:44:27.431648+00:00",
+  "commit": "8780cadd6534e47d2f4aef50cb76d03885045789",
   "branch": "main",
-  "sourceFingerprint": "e9a08829fcfc33129770a064db9c1c51c4af56a076a01fd186daee53161d4380",
+  "sourceFingerprint": "c5e684b9362abe8d7d0f5014a780cf89af8c327bca7800e782d5961e60651c15",
   "summary": {
     "files": 270,
-    "lines": 77882,
+    "lines": 77915,
     "symbols": 1015
   },
   "symbolIndex": {
@@ -3763,19 +3763,19 @@
     "compactPromptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 44
+        "line": 48
       }
     ],
     "UnifiedMemoryOrchestrator": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 63
+        "line": 68
       }
     ],
     "empty": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 65
+        "line": 70
       }
     ],
     "UserDataUpgradeGuard": [
@@ -9130,8 +9130,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 169,
-      "sha256": "98ff74bf52924baaaf7c4f73e21122411d637c893dc9524c45b769f2bf270e27",
+      "lines": 202,
+      "sha256": "d90dd93d8899e3f22cffcdad1a9a7b61dbf94b05c55fa4306c62a046d5dd2a0e",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
@@ -9151,15 +9151,15 @@
         },
         {
           "name": "compactPromptSection",
-          "line": 44
+          "line": 48
         },
         {
           "name": "UnifiedMemoryOrchestrator",
-          "line": 63
+          "line": 68
         },
         {
           "name": "empty",
-          "line": 65
+          "line": 70
         }
       ]
     },
