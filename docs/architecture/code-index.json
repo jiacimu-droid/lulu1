@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T02:37:45.079362+00:00",
-  "commit": "4fd2cd768a65c136d7f8c53d4b7638236dba3f85",
+  "generatedAt": "2026-09-13T02:38:22.087958+00:00",
+  "commit": "13421e79370b53223e3036418caac4a81eef6ad8",
   "branch": "main",
-  "sourceFingerprint": "64e623f768fd152d69fa3fc94ff8dc46b8124f4f1a871c707fa4c072f3a03353",
+  "sourceFingerprint": "3404c0adf319d2f8d4ddce575f792c861e65e0f5c408b7af9f86adc45c5cfbb1",
   "summary": {
     "files": 261,
-    "lines": 76217,
+    "lines": 76233,
     "symbols": 976
   },
   "symbolIndex": {
@@ -81,7 +81,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt",
-        "line": 21
+        "line": 22
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -961,7 +961,7 @@
     "MigrationActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-        "line": 40
+        "line": 41
       }
     ],
     "MigrationRoute": [
@@ -1669,7 +1669,7 @@
     "CommitmentLexiconSync": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt",
-        "line": 15
+        "line": 16
       }
     ],
     "CommitmentTask": [
@@ -6247,12 +6247,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 121,
-      "sha256": "f956b511b7760f7be33a2e36a271acf1d4173c52206b80b799d0880b31bfd904",
+      "lines": 123,
+      "sha256": "25afe7fba928fff847e9bd51ef726425af6d5af056af7c75c179c775ab1832b6",
       "symbols": [
         {
           "name": "MigrationActivity",
-          "line": 40
+          "line": 41
         }
       ]
     },
@@ -6940,16 +6940,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt",
-      "lines": 87,
-      "sha256": "41b9638df5ca82b5107e8afa7a619be39f91d6eced7abe0311fb641c20468be6",
+      "lines": 101,
+      "sha256": "d8b66ff6cad2ddda28ddcf08e3c7e043fdfc8b1c1b2c366252d6b3d4c7f5ab56",
       "symbols": [
         {
           "name": "CommitmentLexiconSync",
-          "line": 15
+          "line": 16
         },
         {
           "name": "initialize",
-          "line": 21
+          "line": 22
         }
       ]
     },
