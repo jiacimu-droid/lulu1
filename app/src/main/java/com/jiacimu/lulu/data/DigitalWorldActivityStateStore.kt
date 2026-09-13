@@ -3,6 +3,7 @@ package com.jiacimu.lulu.data
 import android.content.Context
 import org.json.JSONObject
 import com.jiacimu.lulu.games.LuluGames
+import java.time.Duration
 import java.time.Instant
 
 internal object DigitalWorldActivityStateStore {
@@ -31,6 +32,7 @@ internal object DigitalWorldActivityStateStore {
     @Synchronized
     fun contextFor(characterId: String): String {
         val p = prefs ?: return ""
+        settleTimedActivity(characterId, Instant.now())
         // World growth is tied to persisted real-time slots, not to prompt/model call count.
         DigitalWorldEvolutionRuntime.maybeEvolve(characterId)
         val current = runCatching { JSONObject(p.getString("activity:$characterId", "{}").orEmpty()) }.getOrDefault(JSONObject())
@@ -40,10 +42,16 @@ internal object DigitalWorldActivityStateStore {
             appendLine("随身物品：温水 ${p.getInt("drink:$characterId", 0)} 杯；原味饼干 ${p.getInt("snack:$characterId", 0)} 份。")
             if (current.has("summary")) {
                 val status = current.optString("status").ifBlank { "active" }
-                if (status == "active") {
-                    appendLine("当前活动：${current.optString("summary")}；开始时间=${current.optString("startedAt")}；尚未记录结束，不能擅自声称已休息/睡了某个时长。")
-                } else {
-                    appendLine("最近完成：${current.optString("summary")}；开始=${current.optString("startedAt")}；结束=${current.optString("endedAt")}。")
+                when (status) {
+                    "active" -> appendLine(
+                        "当前活动：${current.optString("summary")}；开始时间=${current.optString("startedAt")}；计划自然结束=${current.optString("plannedEndAt")}。在程序结算前只能说活动正在进行，不能擅自增加已经休息/睡眠的时长。",
+                    )
+                    "paused" -> appendLine(
+                        "暂停中的活动：${current.optString("summary")}；开始=${current.optString("startedAt")}；暂停=${current.optString("pausedAt")}；原因=${current.optString("outcome")}。暂停不等于已经完成。",
+                    )
+                    else -> appendLine(
+                        "最近完成：${current.optString("summary")}；开始=${current.optString("startedAt")}；结束=${current.optString("endedAt")}；结果=${current.optString("outcome").ifBlank { "活动已结束" }}。",
+                    )
                 }
             }
             if (appearance.has("updatedAt")) {
@@ -76,6 +84,13 @@ internal object DigitalWorldActivityStateStore {
     @Synchronized
     fun apply(characterId: String, item: DigitalWorldItem?, activityId: String, summary: String, now: Instant): String {
         val p = checkNotNull(prefs) { "活动状态尚未初始化" }
+        settleTimedActivity(characterId, now)
+        // Starting a different activity closes the previous one at the real transition time.
+        val previous = runCatching { JSONObject(p.getString("activity:$characterId", "{}").orEmpty()) }.getOrNull()
+        if (previous?.optString("status") == "active" && previous.optString("activityId") != activityId) {
+            finishActivity(characterId, now, "角色转去做另一件事，上一项活动在此刻结束")
+        }
+
         val editor = p.edit()
         val name = MigratedDomainStores.characters.get(characterId).displayName
         val result = if (activityId.startsWith("reality_")) {
@@ -132,6 +147,7 @@ internal object DigitalWorldActivityStateStore {
             else -> summary
         }
         val ongoing = activityId in ongoingActivityIds
+        val plannedEndAt = if (ongoing) now.plus(activityDuration(activityId)) else null
         editor.putString(
             "activity:$characterId",
             JSONObject()
@@ -140,8 +156,11 @@ internal object DigitalWorldActivityStateStore {
                 .put("location", DigitalWorldStore.locationOf(characterId))
                 .put("status", if (ongoing) "active" else "completed")
                 .put("startedAt", now.toString())
+                .put("plannedEndAt", plannedEndAt?.toString() ?: JSONObject.NULL)
+                .put("pausedAt", JSONObject.NULL)
                 .put("endedAt", if (ongoing) JSONObject.NULL else now.toString())
                 .put("summary", result)
+                .put("outcome", if (ongoing) "" else "动作已执行并保存结果")
                 .toString(),
         )
         check(editor.commit()) { "活动状态保存失败" }
@@ -150,6 +169,7 @@ internal object DigitalWorldActivityStateStore {
 
     @Synchronized
     fun ongoingActivity(characterId: String): Pair<String, String>? {
+        settleTimedActivity(characterId, Instant.now())
         val activity = runCatching { JSONObject(prefs?.getString("activity:$characterId", "{}").orEmpty()) }.getOrNull() ?: return null
         if (activity.optString("location") != DigitalWorldStore.locationOf(characterId)) return null
         if (activity.optString("status").ifBlank { "active" } != "active") return null
@@ -159,13 +179,52 @@ internal object DigitalWorldActivityStateStore {
     }
 
     @Synchronized
+    fun pauseActivity(characterId: String, reason: String = "活动暂时停下", now: Instant = Instant.now()) {
+        val p = prefs ?: return
+        settleTimedActivity(characterId, now)
+        val activity = runCatching { JSONObject(p.getString("activity:$characterId", "{}").orEmpty()) }.getOrNull() ?: return
+        if (activity.optString("status") != "active") return
+        activity.put("status", "paused")
+            .put("pausedAt", now.toString())
+            .put("outcome", reason.take(300))
+        p.edit().putString("activity:$characterId", activity.toString()).commit()
+    }
+
+    @Synchronized
     fun endActivity(characterId: String) {
+        finishActivity(characterId, Instant.now(), "活动自然结束或角色转入下一项行动")
+    }
+
+    private fun finishActivity(characterId: String, now: Instant, outcome: String) {
         val p = prefs ?: return
         val activity = runCatching { JSONObject(p.getString("activity:$characterId", "{}").orEmpty()) }.getOrNull() ?: return
-        if (!activity.has("activityId")) return
+        if (!activity.has("activityId") || activity.optString("status") == "completed") return
         activity.put("status", "completed")
-            .put("endedAt", Instant.now().toString())
-        p.edit().putString("activity:$characterId", activity.toString()).apply()
+            .put("endedAt", now.toString())
+            .put("outcome", outcome.take(300))
+        p.edit().putString("activity:$characterId", activity.toString()).commit()
+    }
+
+    private fun settleTimedActivity(characterId: String, now: Instant) {
+        val p = prefs ?: return
+        val activity = runCatching { JSONObject(p.getString("activity:$characterId", "{}").orEmpty()) }.getOrNull() ?: return
+        if (activity.optString("status") != "active") return
+        val planned = activity.optString("plannedEndAt")
+            .takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
+            ?.let { runCatching { Instant.parse(it) }.getOrNull() }
+            ?: return
+        if (planned.isAfter(now)) return
+        activity.put("status", "completed")
+            .put("endedAt", planned.toString())
+            .put("outcome", "达到该活动的程序时长后自然结束；结束时间由世界状态结算，不由模型猜测")
+        p.edit().putString("activity:$characterId", activity.toString()).commit()
+    }
+
+    private fun activityDuration(activityId: String): Duration = when (activityId) {
+        "sleep" -> Duration.ofHours(2)
+        "nap" -> Duration.ofMinutes(45)
+        "rest", "cloud_rest", "reading_rest", "home_quiet_rest", "lie_down", "lie_on_rug", "curl_up" -> Duration.ofMinutes(30)
+        else -> Duration.ofMinutes(20)
     }
 
     @Synchronized
