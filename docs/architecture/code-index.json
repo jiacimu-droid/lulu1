@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T08:00:01.831283+00:00",
-  "commit": "b69a251fa88f71c58bd1c3fc2373763d653685f4",
+  "generatedAt": "2026-09-13T08:00:24.188336+00:00",
+  "commit": "f456a951d06f51d4b46e5dae7dd8c2e39b382a43",
   "branch": "main",
-  "sourceFingerprint": "dd80a48f7c1bc9a87696e115c615c19235f1d5a22312ccc19c9125854209110c",
+  "sourceFingerprint": "618f9d21a25bb323d5b36f8429be8a05489d925a31cb6dfa0680d7f733e142b1",
   "summary": {
     "files": 271,
-    "lines": 78254,
+    "lines": 78257,
     "symbols": 1018
   },
   "symbolIndex": {
@@ -2983,7 +2983,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
-        "line": 53
+        "line": 55
       }
     ],
     "MemoryExtractionJob": [
@@ -3089,13 +3089,13 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
-        "line": 43
+        "line": 44
       }
     ],
     "debugContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
-        "line": 66
+        "line": 69
       }
     ],
     "recordPositiveSamples": [
@@ -8512,8 +8512,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
-      "lines": 97,
-      "sha256": "381bb244061d5cf2b2e6b917b8f961034f8928c3b6f954cf51a015f6916e60c9",
+      "lines": 100,
+      "sha256": "efeda7b58c90c45a2c69eac925de25a1eb63275221e9de767df678639392d082",
       "symbols": [
         {
           "name": "initialize",
@@ -8537,15 +8537,15 @@
         },
         {
           "name": "markSuperseded",
-          "line": 43
+          "line": 44
         },
         {
           "name": "removeMemory",
-          "line": 53
+          "line": 55
         },
         {
           "name": "debugContext",
-          "line": 66
+          "line": 69
         }
       ]
     },
