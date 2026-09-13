@@ -40,10 +40,13 @@ object VisionModelService {
 
     suspend fun describeImage(
         context: Context,
-        imageUri: String,
+        imageUri: String?,
         caption: String = "",
     ): Result<String> = withContext(Dispatchers.IO) {
         runCatching {
+            val resolvedImageUri = imageUri?.trim().orEmpty()
+            check(resolvedImageUri.isNotBlank()) { "没有可读取的图片" }
+
             val dedicated = configuration(context).takeIf(Configuration::ready)
             val chat = chatConfiguration()
             val candidates = buildList {
@@ -54,7 +57,7 @@ object VisionModelService {
                 "没有可用的识图模型：可以在识图设置里单独选择一个支持图片的模型，或者直接把当前聊天模型换成支持视觉输入的模型。"
             }
 
-            val dataUrl = imageDataUrl(context, Uri.parse(imageUri))
+            val dataUrl = imageDataUrl(context, Uri.parse(resolvedImageUri))
             val prompt = buildString {
                 appendLine("请准确理解这张聊天或朋友圈图片，输出给角色作为看图上下文。")
                 appendLine("请描述：主要人物或物体、场景、动作、明显细节、画面里能读到的文字、整体氛围。")
