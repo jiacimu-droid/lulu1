@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T07:37:34.099260+00:00",
-  "commit": "0d94743613737ab7b6f9a14d4b875bdcfd108401",
+  "generatedAt": "2026-09-13T07:38:13.756423+00:00",
+  "commit": "813d53a384102b60815eda686aaa998d2f0fa992",
   "branch": "main",
-  "sourceFingerprint": "9232094c96d878f847fb8a971b54233ed2acf60439d58d6468a8595b10bca7da",
+  "sourceFingerprint": "38c09e3654f47e1568cc64a09922563261574d75fdf7113960c1eafab3cc997e",
   "summary": {
     "files": 268,
-    "lines": 77700,
+    "lines": 77707,
     "symbols": 1008
   },
   "symbolIndex": {
@@ -5619,7 +5619,7 @@
     "LuluBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 283
+        "line": 290
       }
     ],
     "LuluDeviceToolBridge": [
@@ -11288,8 +11288,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-      "lines": 292,
-      "sha256": "204c87b27b965eaa29da1a851bce13b7c13c8b36139c165a3595023d50945d6f",
+      "lines": 299,
+      "sha256": "890e7b9534b03032fee93c94fcd7caf1c369add9fea6e91ce7c6bd90b943d8e0",
       "symbols": [
         {
           "name": "LuluAlarm",
@@ -11325,7 +11325,7 @@
         },
         {
           "name": "LuluBootReceiver",
-          "line": 283
+          "line": 290
         }
       ]
     },
