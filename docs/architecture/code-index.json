@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T08:06:03.791462+00:00",
-  "commit": "b32d2e1fd49d8c3004c32f9e5c1568486413eb50",
+  "generatedAt": "2026-09-13T08:11:40.913306+00:00",
+  "commit": "8cd62a179dc18ba5d254b55527d280b3614e2f47",
   "branch": "main",
-  "sourceFingerprint": "91391b8305905e9e61ffa9dcc0ab92ba83282b5c9be40a7311c23a32ef3fef8a",
+  "sourceFingerprint": "9b7cbe37199d50876fd82253b3045bc9418a637ca8c87b6ffea07d694b28be03",
   "summary": {
     "files": 271,
-    "lines": 78416,
+    "lines": 78418,
     "symbols": 1019
   },
   "symbolIndex": {
@@ -1451,49 +1451,49 @@
     "WorldBookRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 107
+        "line": 109
       }
     ],
     "observeWorldBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 109
+        "line": 111
       }
     ],
     "TokenUsage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 113
+        "line": 115
       }
     ],
     "DurationSummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 120
+        "line": 122
       }
     ],
     "PerformanceRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 126
+        "line": 128
       }
     ],
     "observeErrors": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 128
+        "line": 130
       }
     ],
     "observeTokenUsage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 129
+        "line": 131
       }
     ],
     "observeDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-        "line": 130
+        "line": 132
       }
     ],
     "CharacterIdentityStore": [
@@ -6864,8 +6864,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt",
-      "lines": 134,
-      "sha256": "491912b3733cdc46fd35636e77a024b0088511041015dfadd6ec93d52a5a6a24",
+      "lines": 136,
+      "sha256": "7a14804346ddb6a24ff503ceba3bf15f2bd14707fb6b8ec11a9b6e875c53bf44",
       "symbols": [
         {
           "name": "CharacterSummary",
@@ -6949,35 +6949,35 @@
         },
         {
           "name": "WorldBookRepository",
-          "line": 107
-        },
-        {
-          "name": "observeWorldBooks",
           "line": 109
         },
         {
+          "name": "observeWorldBooks",
+          "line": 111
+        },
+        {
           "name": "TokenUsage",
-          "line": 113
+          "line": 115
         },
         {
           "name": "DurationSummary",
-          "line": 120
+          "line": 122
         },
         {
           "name": "PerformanceRepository",
-          "line": 126
-        },
-        {
-          "name": "observeErrors",
           "line": 128
         },
         {
+          "name": "observeErrors",
+          "line": 130
+        },
+        {
           "name": "observeTokenUsage",
-          "line": 129
+          "line": 131
         },
         {
           "name": "observeDurations",
-          "line": 130
+          "line": 132
         }
       ]
     },
