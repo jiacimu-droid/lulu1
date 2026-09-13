@@ -103,9 +103,22 @@ class InMemoryLexiconRepository : LexiconRepository {
         }
     }
 
-    fun snapshot(characterId: String): List<LexiconEntry> = entries.value
-        .filter { entry -> entry.characterId == characterId }
-        .sortedByDescending { entry -> entry.updatedAt }
+    /**
+     * Active commitment-backed promise entries are always placed before ordinary recent entries.
+     * Callers may still apply a display/token limit, but an old live responsibility can no longer
+     * be displaced merely because many newer diary/life/concern items were written afterwards.
+     */
+    fun snapshot(characterId: String): List<LexiconEntry> {
+        val activeLexiconIds = runCatching {
+            CommitmentTaskStore.active(characterId).mapNotNullTo(mutableSetOf(), CommitmentTask::lexiconEntryId)
+        }.getOrDefault(emptySet())
+        return entries.value
+            .filter { entry -> entry.characterId == characterId }
+            .sortedWith(
+                compareByDescending<LexiconEntry> { it.id in activeLexiconIds }
+                    .thenByDescending { it.updatedAt },
+            )
+    }
 
     suspend fun replaceAll(newEntries: List<LexiconEntry>) {
         mutate { newEntries }
@@ -178,10 +191,6 @@ class InMemoryLexiconRepository : LexiconRepository {
     }
 }
 
-/**
- * Retains the old class name while providing persistent local storage.
- * Array order is the canonical world-book injection order, matching the source project.
- */
 class InMemoryWorldBookRepository : WorldBookRepository {
     private val entries = MutableStateFlow<List<WorldBookEntry>>(emptyList())
     private var prefs: android.content.SharedPreferences? = null
@@ -195,11 +204,11 @@ class InMemoryWorldBookRepository : WorldBookRepository {
         }
     }
 
-    override fun observeWorldBooks(): Flow<List<WorldBookEntry>> = entries
+    override fun observeEntries(): Flow<List<WorldBookEntry>> = entries
 
     override suspend fun save(entry: WorldBookEntry) {
         require(entry.title.isNotBlank()) { "世界书标题不能为空" }
-        require(entry.content.isNotBlank()) { "世界设定不能为空" }
+        require(entry.content.isNotBlank()) { "世界书内容不能为空" }
         mutate { current ->
             val index = current.indexOfFirst { item -> item.id == entry.id }
             if (index < 0) current + entry else current.toMutableList().apply { set(index, entry) }
@@ -210,49 +219,10 @@ class InMemoryWorldBookRepository : WorldBookRepository {
         mutate { current -> current.filterNot { entry -> entry.id == id } }
     }
 
-    suspend fun setGlobalEnabled(id: String, enabled: Boolean) {
-        mutate { current ->
-            current.map { entry -> if (entry.id == id) entry.copy(globalEnabled = enabled) else entry }
-        }
-    }
-
-    suspend fun setCharacterOverride(id: String, characterId: String, enabled: Boolean?) {
-        require(characterId.isNotBlank()) { "角色不能为空" }
-        mutate { current ->
-            current.map { entry ->
-                if (entry.id != id) return@map entry
-                val overrides = entry.characterOverrides.toMutableMap()
-                if (enabled == null) overrides.remove(characterId) else overrides[characterId] = enabled
-                entry.copy(characterOverrides = overrides)
-            }
-        }
-    }
-
-    suspend fun move(id: String, direction: Int) {
-        if (direction == 0) return
-        mutate { current ->
-            val from = current.indexOfFirst { entry -> entry.id == id }
-            if (from < 0) return@mutate current
-            val to = (from + direction).coerceIn(current.indices)
-            if (to == from) return@mutate current
-            current.toMutableList().apply {
-                val item = removeAt(from)
-                add(to, item)
-            }
-        }
-    }
-
-    fun snapshot(): List<WorldBookEntry> = entries.value
+    fun snapshot(): List<WorldBookEntry> = entries.value.sortedByDescending { entry -> entry.updatedAt }
 
     suspend fun replaceAll(newEntries: List<WorldBookEntry>) {
         mutate { newEntries }
-    }
-
-    fun isEnabledForCharacter(entry: WorldBookEntry, characterId: String): Boolean =
-        entry.characterOverrides[characterId] ?: entry.globalEnabled
-
-    fun observeForCharacter(characterId: String): Flow<List<WorldBookEntry>> = entries.map { current ->
-        current.filter { entry -> isEnabledForCharacter(entry, characterId) }
     }
 
     private fun mutate(transform: (List<WorldBookEntry>) -> List<WorldBookEntry>) {
@@ -271,12 +241,9 @@ class InMemoryWorldBookRepository : WorldBookRepository {
                     .put("title", entry.title)
                     .put("content", entry.content)
                     .put("globalEnabled", entry.globalEnabled)
-                    .put(
-                        "characterOverrides",
-                        JSONObject().apply {
-                            entry.characterOverrides.forEach { (characterId, enabled) -> put(characterId, enabled) }
-                        },
-                    ),
+                    .put("characterOverrides", JSONObject(entry.characterOverrides))
+                    .put("createdAt", entry.createdAt.toString())
+                    .put("updatedAt", entry.updatedAt.toString()),
             )
         }
     }
@@ -288,25 +255,23 @@ class InMemoryWorldBookRepository : WorldBookRepository {
             buildList {
                 for (index in 0 until array.length()) {
                     val item = array.optJSONObject(index) ?: continue
-                    val id = item.optString("id")
                     val title = item.optString("title").trim()
                     val content = item.optString("content").trim()
-                    if (id.isBlank() || title.isBlank() || content.isBlank()) continue
-                    val overridesJson = item.optJSONObject("characterOverrides") ?: JSONObject()
-                    val overrides = buildMap {
-                        val keys = overridesJson.keys()
-                        while (keys.hasNext()) {
-                            val key = keys.next()
-                            put(key, overridesJson.optBoolean(key))
-                        }
+                    if (title.isBlank() || content.isBlank()) continue
+                    val createdAt = item.optString("createdAt").toInstantOrNow()
+                    val overrides = item.optJSONObject("characterOverrides")
+                    val overrideMap = buildMap {
+                        overrides?.keys()?.forEach { key -> put(key, overrides.optBoolean(key, false)) }
                     }
                     add(
                         WorldBookEntry(
-                            id = id,
+                            id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
                             title = title,
                             content = content,
                             globalEnabled = item.optBoolean("globalEnabled", false),
-                            characterOverrides = overrides,
+                            characterOverrides = overrideMap,
+                            createdAt = createdAt,
+                            updatedAt = item.optString("updatedAt").toInstantOrNow(createdAt),
                         ),
                     )
                 }
@@ -315,10 +280,12 @@ class InMemoryWorldBookRepository : WorldBookRepository {
     }
 
     private companion object {
-        const val PREFS_NAME = "lulu_world_books"
+        const val PREFS_NAME = "lulu_world_book"
         const val KEY_ENTRIES = "entries_v1"
     }
 }
 
 private fun String.toInstantOrNow(fallback: Instant = Instant.now()): Instant =
-    runCatching { Instant.parse(this) }.getOrDefault(fallback)
+    takeUnless { value -> value.isBlank() || value.equals("null", ignoreCase = true) }
+        ?.let { value -> runCatching { Instant.parse(value) }.getOrNull() }
+        ?: fallback
