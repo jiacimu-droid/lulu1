@@ -4,19 +4,24 @@ import android.content.Context
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.ai.VisionModelService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
 import java.util.UUID
 
 enum class MomentAuthorType { User, Character }
+enum class MomentImageUnderstandingStatus { None, Pending, Ready, Failed }
 
 data class MomentComment(
     val id: String = UUID.randomUUID().toString(),
@@ -37,6 +42,9 @@ data class MomentPost(
     val comments: List<MomentComment> = emptyList(),
     val imageUri: String? = null,
     val imageDescription: String = "",
+    val imageUnderstandingStatus: MomentImageUnderstandingStatus = MomentImageUnderstandingStatus.None,
+    val imageUnderstandingAttempts: Int = 0,
+    val imageUnderstandingError: String = "",
 )
 
 object MomentsStore {
@@ -44,23 +52,31 @@ object MomentsStore {
     private const val KEY_POSTS = "posts_v1"
     private const val KEY_UNREAD_CHARACTER_IDS = "unread_character_post_ids_v1"
     private const val USER_COMMENTER_ID = "__user__"
+    private const val MAX_IMAGE_UNDERSTANDING_ATTEMPTS = 3
+    private val IMAGE_RETRY_DELAYS_MS = longArrayOf(5_000L, 30_000L)
+
     private data class ReactionPlan(
         val wantsLike: Boolean,
         val comment: String,
     )
 
     private var prefs: android.content.SharedPreferences? = null
+    private var appContext: Context? = null
     private val mutablePosts = MutableStateFlow<List<MomentPost>>(emptyList())
     val posts: StateFlow<List<MomentPost>> = mutablePosts.asStateFlow()
     private val mutableUnreadCharacterPosts = MutableStateFlow(0)
     val unreadCharacterPosts: StateFlow<Int> = mutableUnreadCharacterPosts.asStateFlow()
     private val socialScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val imageLocks = mutableMapOf<String, Mutex>()
 
     fun initialize(context: Context) {
         if (prefs != null) return
-        prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val application = context.applicationContext
+        appContext = application
+        prefs = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         mutablePosts.value = decode(prefs?.getString(KEY_POSTS, null))
         refreshUnreadCount()
+        resumeImageUnderstanding()
     }
 
     fun markCharacterPostsSeen() {
@@ -74,17 +90,22 @@ object MomentsStore {
         imageDescription: String = "",
     ): MomentPost? {
         val clean = content.trim()
-        val cleanImage = imageUri?.trim()?.takeIf(String::isNotBlank)
+        val cleanImage = imageUri.normalizedMomentImageUri()
         if (clean.isBlank() && cleanImage == null) return null
+        val cleanDescription = imageDescription.trim().take(1_800)
         val post = MomentPost(
             authorType = MomentAuthorType.User,
             content = clean.take(2_000),
             imageUri = cleanImage,
-            imageDescription = imageDescription.trim().take(1_800),
+            imageDescription = cleanDescription,
+            imageUnderstandingStatus = initialImageStatus(cleanImage, cleanDescription),
         )
         savePost(post)
         recordForAllCharacters(post, UserProfileContext.displayLabel())
-        socialScope.launch { letOnlineCharactersReact(post.id) }
+        socialScope.launch {
+            processImageUnderstanding(post.id)
+            letOnlineCharactersReact(post.id)
+        }
         return post
     }
 
@@ -95,26 +116,132 @@ object MomentsStore {
         imageDescription: String = "",
     ): MomentPost? {
         val clean = content.trim()
-        val cleanImage = imageUri?.trim()?.takeIf(String::isNotBlank)
+        val cleanImage = imageUri.normalizedMomentImageUri()
         if (characterId.isBlank() || (clean.isBlank() && cleanImage == null)) return null
+        val cleanDescription = imageDescription.trim().take(1_800)
         val post = MomentPost(
             authorType = MomentAuthorType.Character,
             authorCharacterId = characterId,
             content = clean.take(2_000),
             imageUri = cleanImage,
-            imageDescription = imageDescription.trim().take(1_800),
+            imageDescription = cleanDescription,
+            imageUnderstandingStatus = initialImageStatus(cleanImage, cleanDescription),
         )
         savePost(post)
         addUnreadCharacterPost(post.id)
         val name = MigratedDomainStores.characters.get(characterId).displayName
         recordForAllCharacters(post, name)
-        socialScope.launch { letOtherCharactersReact(post.id) }
+        socialScope.launch {
+            processImageUnderstanding(post.id)
+            letOtherCharactersReact(post.id)
+        }
         return post
     }
 
     /** A user post is an @all-style wake-up; every role perceives it independently and may stay silent. */
     fun requestCharactersReact(postId: String) {
-        socialScope.launch { letCharactersReact(postId) }
+        socialScope.launch {
+            processImageUnderstanding(postId)
+            letCharactersReact(postId)
+        }
+    }
+
+    fun retryImageUnderstanding(postId: String) {
+        socialScope.launch { processImageUnderstanding(postId, force = true) }
+    }
+
+    private fun resumeImageUnderstanding() {
+        mutablePosts.value
+            .filter { post ->
+                !post.imageUri.isNullOrBlank() &&
+                    post.imageUnderstandingStatus != MomentImageUnderstandingStatus.Ready &&
+                    post.imageUnderstandingAttempts < MAX_IMAGE_UNDERSTANDING_ATTEMPTS
+            }
+            .forEach { post ->
+                socialScope.launch {
+                    processImageUnderstanding(post.id)
+                    if (post.authorType == MomentAuthorType.User) letOnlineCharactersReact(post.id)
+                    else letOtherCharactersReact(post.id)
+                }
+            }
+    }
+
+    private suspend fun processImageUnderstanding(postId: String, force: Boolean = false) {
+        val mutex = synchronized(imageLocks) { imageLocks.getOrPut(postId) { Mutex() } }
+        mutex.withLock {
+            if (force) {
+                mutate { current ->
+                    current.map { post ->
+                        if (post.id != postId || post.imageUri.isNullOrBlank()) post
+                        else post.copy(
+                            imageUnderstandingStatus = MomentImageUnderstandingStatus.Pending,
+                            imageUnderstandingAttempts = 0,
+                            imageUnderstandingError = "",
+                        )
+                    }
+                }
+            }
+            while (true) {
+                val current = mutablePosts.value.firstOrNull { it.id == postId } ?: return@withLock
+                val imageUri = current.imageUri.normalizedMomentImageUri() ?: return@withLock
+                if (current.imageUnderstandingStatus == MomentImageUnderstandingStatus.Ready && current.imageDescription.isNotBlank()) {
+                    return@withLock
+                }
+                if (current.imageUnderstandingAttempts >= MAX_IMAGE_UNDERSTANDING_ATTEMPTS) return@withLock
+                val context = appContext ?: return@withLock
+                val attempt = current.imageUnderstandingAttempts + 1
+                mutate { posts ->
+                    posts.map { post ->
+                        if (post.id == postId) post.copy(
+                            imageUnderstandingStatus = MomentImageUnderstandingStatus.Pending,
+                            imageUnderstandingAttempts = attempt,
+                            imageUnderstandingError = "",
+                        ) else post
+                    }
+                }
+                val result = VisionModelService.describeImage(context, imageUri, current.content)
+                if (result.isSuccess) {
+                    val description = result.getOrThrow().trim().take(1_800)
+                    mutate { posts ->
+                        posts.map { post ->
+                            if (post.id == postId) post.copy(
+                                imageDescription = description,
+                                imageUnderstandingStatus = MomentImageUnderstandingStatus.Ready,
+                                imageUnderstandingError = "",
+                            ) else post
+                        }
+                    }
+                    mutablePosts.value.firstOrNull { it.id == postId }?.let(::recordImageUnderstandingForAllCharacters)
+                    return@withLock
+                }
+                val error = result.exceptionOrNull()?.message.orEmpty().ifBlank { "识图失败" }.take(500)
+                mutate { posts ->
+                    posts.map { post ->
+                        if (post.id == postId) post.copy(
+                            imageUnderstandingStatus = MomentImageUnderstandingStatus.Failed,
+                            imageUnderstandingError = error,
+                        ) else post
+                    }
+                }
+                if (attempt >= MAX_IMAGE_UNDERSTANDING_ATTEMPTS) return@withLock
+                delay(IMAGE_RETRY_DELAYS_MS.getOrElse(attempt - 1) { IMAGE_RETRY_DELAYS_MS.last() })
+            }
+        }
+    }
+
+    private fun recordImageUnderstandingForAllCharacters(post: MomentPost) {
+        if (post.imageDescription.isBlank()) return
+        val authorName = postAuthorName(post)
+        MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
+            SharedExperienceTimeline.record(
+                eventId = "moment-image-understanding-${post.id}-$characterId",
+                characterId = characterId,
+                channel = "朋友圈",
+                speaker = "系统识图",
+                content = "【${authorName}朋友圈配图的识别补充】${post.imageDescription}",
+                occurredAt = Instant.now(),
+            )
+        }
     }
 
     suspend fun letCharactersReact(postId: String) {
@@ -208,7 +335,7 @@ object MomentsStore {
                 1. none、只点赞、只评论、点赞并评论都是真实有效的选择。关系不好、不想搭理或觉得没必要时可以 none。
                 2. 不要因为用户呼唤了你，就机械地表示“看到了”；行动必须符合这个角色本人。
                 3. 如果评论，应像真实社交软件里的自然短评论，可以接梗、关心、吐槽，也可以只写很短一句；不写角色名标签或规则说明。
-                4. 如果有配图描述，那是实际可见的信息，可以回应画面细节；不要编造描述之外的画面。
+                4. 如果有配图描述，那是实际可见的信息，可以回应画面细节；如果状态说明识图仍在处理或失败，禁止猜测画面。
                 5. 只根据原帖、本人资料和真实经历判断，不要虚构用户未提供的身体、环境或私密设备状态。
             """.trimIndent(),
             source = "朋友圈独立感知",
@@ -502,6 +629,7 @@ object MomentsStore {
         characterIds.forEach { characterId ->
             SharedExperienceTimeline.deleteEvent("moment-$postId-$characterId")
             SharedExperienceTimeline.deleteEvent("moment-like-$postId-$characterId")
+            SharedExperienceTimeline.deleteEvent("moment-image-understanding-$postId-$characterId")
         }
         post.comments.forEach { comment ->
             deleteTimelineEventsForComment(post, comment, characterIds)
@@ -564,7 +692,6 @@ object MomentsStore {
             }
         }
 
-        // Backward-compatible cleanup for comments created before public-comment fan-out existed.
         if (comment.characterId == USER_COMMENTER_ID) {
             userCommentTargetCharacterId(post, comment)?.let { characterId ->
                 SharedExperienceTimeline.deleteEvent("moment-user-comment-${comment.id}-$characterId")
@@ -612,12 +739,23 @@ object MomentsStore {
 
     private fun momentContext(post: MomentPost): String = buildString {
         if (post.content.isNotBlank()) append(post.content)
-        if (post.imageDescription.isNotBlank()) {
-            if (isNotEmpty()) append("\n")
-            append("[配图：${post.imageDescription}]")
-        } else if (!post.imageUri.isNullOrBlank()) {
-            if (isNotEmpty()) append("\n")
-            append("[这条朋友圈带有一张图片，但当前没有可用的识图描述]")
+        when {
+            post.imageDescription.isNotBlank() -> {
+                if (isNotEmpty()) append("\n")
+                append("[配图：${post.imageDescription}]")
+            }
+            !post.imageUri.isNullOrBlank() && post.imageUnderstandingStatus == MomentImageUnderstandingStatus.Pending -> {
+                if (isNotEmpty()) append("\n")
+                append("[这条朋友圈带有一张图片，图片正在后台识别；当前不要猜测画面内容]")
+            }
+            !post.imageUri.isNullOrBlank() && post.imageUnderstandingStatus == MomentImageUnderstandingStatus.Failed -> {
+                if (isNotEmpty()) append("\n")
+                append("[这条朋友圈带有一张图片，但识图暂时失败；当前不要猜测画面内容]")
+            }
+            !post.imageUri.isNullOrBlank() -> {
+                if (isNotEmpty()) append("\n")
+                append("[这条朋友圈带有一张图片，但当前没有可用的识图描述]")
+            }
         }
     }.ifBlank { "[朋友圈图片]" }
 
@@ -660,6 +798,9 @@ object MomentsStore {
                 put("createdAt", post.createdAt.toString())
                 put("imageUri", post.imageUri ?: JSONObject.NULL)
                 put("imageDescription", post.imageDescription)
+                put("imageUnderstandingStatus", post.imageUnderstandingStatus.name)
+                put("imageUnderstandingAttempts", post.imageUnderstandingAttempts)
+                put("imageUnderstandingError", post.imageUnderstandingError)
                 put("likedCharacterIds", JSONArray(post.likedCharacterIds.toList()))
                 put("comments", JSONArray().apply {
                     post.comments.forEach { comment ->
@@ -686,8 +827,14 @@ object MomentsStore {
                 for (index in 0 until array.length()) {
                     val item = array.optJSONObject(index) ?: continue
                     val content = item.optString("content").trim()
-                    val imageUri = item.optString("imageUri").takeIf(String::isNotBlank)
+                    val imageUri = item.optString("imageUri").normalizedMomentImageUri()
                     if (content.isBlank() && imageUri == null) continue
+                    val imageDescription = item.optString("imageDescription").trim()
+                    val status = runCatching {
+                        MomentImageUnderstandingStatus.valueOf(item.optString("imageUnderstandingStatus"))
+                    }.getOrElse {
+                        initialImageStatus(imageUri, imageDescription)
+                    }
                     val likes = item.optJSONArray("likedCharacterIds")?.let { values ->
                         buildSet { for (i in 0 until values.length()) add(values.optString(i)) }
                     }.orEmpty()
@@ -702,8 +849,8 @@ object MomentsStore {
                                         characterId = value.optString("characterId"),
                                         content = text,
                                         createdAt = value.optString("createdAt").toMomentInstantOrNow(),
-                                        replyToCommentId = value.optString("replyToCommentId").takeIf(String::isNotBlank),
-                                        replyToCharacterId = value.optString("replyToCharacterId").takeIf(String::isNotBlank),
+                                        replyToCommentId = value.optString("replyToCommentId").normalizedMomentNullableString(),
+                                        replyToCharacterId = value.optString("replyToCharacterId").normalizedMomentNullableString(),
                                     ),
                                 )
                             }
@@ -713,19 +860,36 @@ object MomentsStore {
                         MomentPost(
                             id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
                             authorType = runCatching { MomentAuthorType.valueOf(item.optString("authorType")) }.getOrDefault(MomentAuthorType.User),
-                            authorCharacterId = item.optString("authorCharacterId").takeIf(String::isNotBlank),
+                            authorCharacterId = item.optString("authorCharacterId").normalizedMomentNullableString(),
                             content = content,
                             createdAt = item.optString("createdAt").toMomentInstantOrNow(),
                             likedCharacterIds = likes,
                             comments = comments,
                             imageUri = imageUri,
-                            imageDescription = item.optString("imageDescription").trim(),
+                            imageDescription = imageDescription,
+                            imageUnderstandingStatus = status,
+                            imageUnderstandingAttempts = item.optInt("imageUnderstandingAttempts", 0).coerceIn(0, MAX_IMAGE_UNDERSTANDING_ATTEMPTS),
+                            imageUnderstandingError = item.optString("imageUnderstandingError").trim().take(500),
                         ),
                     )
                 }
             }
         }.getOrDefault(emptyList())
     }
+
+    private fun initialImageStatus(imageUri: String?, imageDescription: String): MomentImageUnderstandingStatus = when {
+        imageUri.isNullOrBlank() -> MomentImageUnderstandingStatus.None
+        imageDescription.isNotBlank() -> MomentImageUnderstandingStatus.Ready
+        else -> MomentImageUnderstandingStatus.Pending
+    }
 }
+
+private fun String?.normalizedMomentImageUri(): String? = this
+    ?.trim()
+    ?.takeUnless { value -> value.isBlank() || value.equals("null", ignoreCase = true) }
+
+private fun String?.normalizedMomentNullableString(): String? = this
+    ?.trim()
+    ?.takeUnless { value -> value.isBlank() || value.equals("null", ignoreCase = true) }
 
 private fun String.toMomentInstantOrNow(): Instant = runCatching { Instant.parse(this) }.getOrDefault(Instant.now())
