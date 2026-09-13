@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`38ce85cd40552b6eb082a4327ee75c798259ec00`
+- 基准提交：`373ea8a3e3dd80b21ab0ce9c7b7a8f9a172cdf67`
 - 分支：`main`
 - 已索引文件：268
-- 已索引代码/文本行：77711
-- 已发现符号：1009
+- 已索引代码/文本行：77678
+- 已发现符号：1007
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -120,7 +120,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt` | 45 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt` | 61 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1001 | 33 |
-| `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 325 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 292 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/JsonNullStringCompat.kt` | 8 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
