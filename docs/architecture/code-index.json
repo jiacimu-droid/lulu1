@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T02:37:23.187591+00:00",
-  "commit": "650ef9b66f534dbec5e3edd7c33c85e6e0ba44d5",
+  "generatedAt": "2026-09-13T02:37:45.079362+00:00",
+  "commit": "4fd2cd768a65c136d7f8c53d4b7638236dba3f85",
   "branch": "main",
-  "sourceFingerprint": "66e926082d6f37ad5def4ddfdafdd3c7a28141e85d142e408d7f82743472dfff",
+  "sourceFingerprint": "64e623f768fd152d69fa3fc94ff8dc46b8124f4f1a871c707fa4c072f3a03353",
   "summary": {
-    "files": 260,
-    "lines": 76130,
-    "symbols": 974
+    "files": 261,
+    "lines": 76217,
+    "symbols": 976
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -78,6 +78,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt",
         "line": 26
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt",
+        "line": 21
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -1660,6 +1664,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt",
         "line": 106
+      }
+    ],
+    "CommitmentLexiconSync": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt",
+        "line": 15
       }
     ],
     "CommitmentTask": [
@@ -6925,6 +6935,21 @@
         {
           "name": "clearConversation",
           "line": 106
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt",
+      "lines": 87,
+      "sha256": "41b9638df5ca82b5107e8afa7a619be39f91d6eced7abe0311fb641c20468be6",
+      "symbols": [
+        {
+          "name": "CommitmentLexiconSync",
+          "line": 15
+        },
+        {
+          "name": "initialize",
+          "line": 21
         }
       ]
     },
