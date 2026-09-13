@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`774a8ad2608d6da8808151ffa25ee887210e74bd`
+- 基准提交：`1ce8a8f555e5a2edb6f1ebe911a9355bfa875ab6`
 - 分支：`main`
-- 已索引文件：255
-- 已索引代码/文本行：75736
-- 已发现符号：960
+- 已索引文件：257
+- 已索引代码/文本行：75871
+- 已发现符号：963
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -99,6 +99,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 72 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 108 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 360 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 380 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 280 | 12 |
@@ -121,6 +122,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 106 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluStartupProvider.kt` | 27 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 587 | 37 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 26 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 885 | 44 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T02:25:53.937165+00:00",
-  "commit": "774a8ad2608d6da8808151ffa25ee887210e74bd",
+  "generatedAt": "2026-09-13T02:26:25.263673+00:00",
+  "commit": "1ce8a8f555e5a2edb6f1ebe911a9355bfa875ab6",
   "branch": "main",
-  "sourceFingerprint": "1154ec19aa04af577e95cf71a8c4199cc68a061933bedfef34c9239ec0dbd941",
+  "sourceFingerprint": "0abec4efeda08efddaaf076b6558ce948487ae3910047489b99a8f5df119931d",
   "summary": {
-    "files": 255,
-    "lines": 75736,
-    "symbols": 960
+    "files": 257,
+    "lines": 75871,
+    "symbols": 963
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -82,6 +82,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
         "line": 18
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
+        "line": 23
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
@@ -1720,6 +1724,12 @@
         "line": 729
       }
     ],
+    "CommitmentTurnAutomation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
+        "line": 11
+      }
+    ],
     "asJson": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
@@ -2568,6 +2578,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt",
         "line": 101
+      }
+    ],
+    "LuluStartupProvider": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluStartupProvider.kt",
+        "line": 9
       }
     ],
     "MeetingProseLength": [
@@ -6944,6 +6960,21 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
+      "lines": 108,
+      "sha256": "a088caabc3b2055043ac83174733874f04e374b970d2c761dcfd134dfcfef45f",
+      "symbols": [
+        {
+          "name": "CommitmentTurnAutomation",
+          "line": 11
+        },
+        {
+          "name": "initialize",
+          "line": 23
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 360,
       "sha256": "63f9979a47b50e15c64be4046fdfba9a1e76e6c92840793904d2c6f4e366c17c",
@@ -7742,6 +7773,17 @@
       "lines": 10,
       "sha256": "92ed2091ff91464f4d1a5efc217b91c0dc7f7ad3507957f3018e8ca3a97b190f",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/LuluStartupProvider.kt",
+      "lines": 27,
+      "sha256": "bbc56a60152cc5f4c989ebb5fa2f9ffac58af0e661362b5aa90b72a27f12e850",
+      "symbols": [
+        {
+          "name": "LuluStartupProvider",
+          "line": 9
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
