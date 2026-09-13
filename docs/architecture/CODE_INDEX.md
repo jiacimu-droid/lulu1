@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`6bb9d18a449b5ef46b925d31a824e4819276c7a0`
+- 基准提交：`b58a994b8c8122a01f8077f4e978a6b2ca37ee93`
 - 分支：`main`
-- 已索引文件：270
-- 已索引代码/文本行：77945
-- 已发现符号：1016
+- 已索引文件：267
+- 已索引代码/文本行：77904
+- 已发现符号：1012
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -34,7 +34,6 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt` | 355 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 151 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 144 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/JsonNullUiCompat.kt` | 6 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 519 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 517 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 89 | 3 |
@@ -121,7 +120,6 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt` | 61 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1001 | 33 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 292 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/JsonNullStringCompat.kt` | 8 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 795 | 10 |
@@ -129,7 +127,6 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 106 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/LuluStartupProvider.kt` | 27 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 587 | 37 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt` | 92 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt` | 117 | 7 |

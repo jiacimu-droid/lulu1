@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T07:46:00.394566+00:00",
-  "commit": "6bb9d18a449b5ef46b925d31a824e4819276c7a0",
+  "generatedAt": "2026-09-13T07:47:27.758624+00:00",
+  "commit": "b58a994b8c8122a01f8077f4e978a6b2ca37ee93",
   "branch": "main",
-  "sourceFingerprint": "ac8ccd3c0831792ea99d800173e4bc3cc72b4f68411093f5dffb323b12b1fee0",
+  "sourceFingerprint": "0775d8eda04c455c76565d81fada89db9cf926f10e696aa562e0f283cdb0916d",
   "summary": {
-    "files": 270,
-    "lines": 77945,
-    "symbols": 1016
+    "files": 267,
+    "lines": 77904,
+    "symbols": 1012
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -612,20 +612,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt",
         "line": 140
-      }
-    ],
-    "String": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/JsonNullUiCompat.kt",
-        "line": 4
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/JsonNullStringCompat.kt",
-        "line": 4
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/JsonNullStringCompat.kt",
-        "line": 6
       }
     ],
     "LexiconFeatureScreenV2": [
@@ -2756,12 +2742,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt",
         "line": 101
-      }
-    ],
-    "LuluStartupProvider": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluStartupProvider.kt",
-        "line": 9
       }
     ],
     "MeetingProseLength": [
@@ -6034,17 +6014,6 @@
       ]
     },
     {
-      "path": "app/src/main/java/com/jiacimu/lulu/JsonNullUiCompat.kt",
-      "lines": 6,
-      "sha256": "2642bdca55e418c70392c0521d77007783ad5e51adeb42d052785c952ce2c2c4",
-      "symbols": [
-        {
-          "name": "String",
-          "line": 4
-        }
-      ]
-    },
-    {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
       "lines": 519,
       "sha256": "afd8631f6eb2fa1197d1724d13e3ee406d483a5c9a15d2aaa4286a047bc9e54b",
@@ -7981,21 +7950,6 @@
       ]
     },
     {
-      "path": "app/src/main/java/com/jiacimu/lulu/data/JsonNullStringCompat.kt",
-      "lines": 8,
-      "sha256": "c11d34fca9e96299923d61021a5bdae043a795bff851e5d4a4a33b385de0d88a",
-      "symbols": [
-        {
-          "name": "String",
-          "line": 4
-        },
-        {
-          "name": "String",
-          "line": 6
-        }
-      ]
-    },
-    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
       "lines": 166,
       "sha256": "69169bf3418681da72c774931b1c4b8ba68a8375ec99efd73e88fd626d969d3a",
@@ -8198,17 +8152,6 @@
       "lines": 10,
       "sha256": "92ed2091ff91464f4d1a5efc217b91c0dc7f7ad3507957f3018e8ca3a97b190f",
       "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/data/LuluStartupProvider.kt",
-      "lines": 27,
-      "sha256": "bbc56a60152cc5f4c989ebb5fa2f9ffac58af0e661362b5aa90b72a27f12e850",
-      "symbols": [
-        {
-          "name": "LuluStartupProvider",
-          "line": 9
-        }
-      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
