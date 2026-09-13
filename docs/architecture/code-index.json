@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T07:32:25.778324+00:00",
-  "commit": "373ea8a3e3dd80b21ab0ce9c7b7a8f9a172cdf67",
+  "generatedAt": "2026-09-13T07:37:34.099260+00:00",
+  "commit": "0d94743613737ab7b6f9a14d4b875bdcfd108401",
   "branch": "main",
-  "sourceFingerprint": "b7265fa4496fd53836f1aecb492811a35e92cf6c0dfd121aa75f792844707de0",
+  "sourceFingerprint": "9232094c96d878f847fb8a971b54233ed2acf60439d58d6468a8595b10bca7da",
   "summary": {
     "files": 268,
-    "lines": 77678,
-    "symbols": 1007
+    "lines": 77700,
+    "symbols": 1008
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -1778,10 +1778,16 @@
         "line": 77
       }
     ],
+    "claimAlarmExecution": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 63
+      }
+    ],
     "cancel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 58
+        "line": 80
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
@@ -1795,13 +1801,13 @@
     "removeBySourceEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 72
+        "line": 94
       }
     ],
     "clearCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 79
+        "line": 101
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -7197,8 +7203,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-      "lines": 91,
-      "sha256": "e3db4a5c3b535d1910ec204e60cdd5092a7900c0c43249f700c5478185b29df0",
+      "lines": 113,
+      "sha256": "9b85fd40cdda792c6f39b8d0f08e81ac0913e0ab8c2c54b247b5a641b2001a11",
       "symbols": [
         {
           "name": "CommitmentTaskStore",
@@ -7225,16 +7231,20 @@
           "line": 44
         },
         {
+          "name": "claimAlarmExecution",
+          "line": 63
+        },
+        {
           "name": "cancel",
-          "line": 58
+          "line": 80
         },
         {
           "name": "removeBySourceEvent",
-          "line": 72
+          "line": 94
         },
         {
           "name": "clearCharacter",
-          "line": 79
+          "line": 101
         }
       ]
     },
