@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import com.jiacimu.lulu.system.LuluAlarmSystem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -54,12 +55,30 @@ object CommitmentTaskStore {
     }
 
     @Synchronized
+    fun cancel(id: String, reason: String): CommitmentTask? {
+        val current = mutableTasks.value.firstOrNull { it.id == id } ?: return null
+        current.linkedAlarmId?.let(LuluAlarmSystem::cancel)
+        return update(id) { task ->
+            task.copy(
+                status = CommitmentTaskStatus.Cancelled,
+                nextCheckAt = null,
+                linkedAlarmId = null,
+                lastActionResult = reason,
+            )
+        }
+    }
+
+    @Synchronized
     fun removeBySourceEvent(eventId: String) {
+        val affected = mutableTasks.value.filter { eventId in it.sourceEventIds }
+        affected.forEach { task -> task.linkedAlarmId?.let(LuluAlarmSystem::cancel) }
         persist(mutableTasks.value.filterNot { eventId in it.sourceEventIds })
     }
 
     @Synchronized
     fun clearCharacter(characterId: String) {
+        mutableTasks.value.filter { it.characterId == characterId }
+            .forEach { task -> task.linkedAlarmId?.let(LuluAlarmSystem::cancel) }
         persist(mutableTasks.value.filterNot { it.characterId == characterId })
     }
 
