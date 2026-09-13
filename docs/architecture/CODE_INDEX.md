@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2942a1b03c2dacf3478a2a14675d87fc33a2d680`
+- 基准提交：`55379ee34962220fc7a537a34f58e36b75c75959`
 - 分支：`main`
 - 已索引文件：266
-- 已索引代码/文本行：77138
+- 已索引代码/文本行：77139
 - 已发现符号：1003
 
 | 文件 | 行数 | 符号数 |
@@ -148,7 +148,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 360 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 18 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 168 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 169 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 48 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt` | 154 | 9 |
