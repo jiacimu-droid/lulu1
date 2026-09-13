@@ -8,13 +8,18 @@ import java.time.Instant
 import kotlin.math.ln
 
 /**
- * Associative memory recall.
+ * Associative memory recall over the character's complete valid memory set.
  *
- * Retrieval intentionally combines lexical, vector, recency and pinned signals instead of letting
- * one mechanism replace the others. This matters for natural follow-ups such as an older vague
- * memory ("肚子不舒服") being clarified by a newer utterance ("昨天拉肚子").
+ * Lexical relevance, persistent full-set vectors, temporal intent and pinned memories contribute
+ * candidates. Rerank only reorders already-relevant candidates; it never forces unrelated memory
+ * into context. Returning zero memories is an intentional valid result.
  */
 object RelevantMemoryRecall {
+    private data class EmbeddingRankResult(
+        val ranked: List<MemoryEntry> = emptyList(),
+        val similarities: Map<String, Double> = emptyMap(),
+    )
+
     private val embeddingCache = object : LinkedHashMap<String, FloatArray>(128, 0.75f, true) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, FloatArray>?): Boolean =
             size > MAX_EMBEDDING_CACHE
@@ -27,6 +32,7 @@ object RelevantMemoryRecall {
         now: Instant = Instant.now(),
     ): List<MemoryEntry> {
         val cleanQuery = focusQuery(query)
+        if (cleanQuery.isBlank()) return emptyList()
         val queryTerms = terms(cleanQuery)
         val memories = LuluRepositories.memory.snapshot(characterId)
             .asSequence()
@@ -39,58 +45,57 @@ object RelevantMemoryRecall {
             .toList()
         if (memories.isEmpty()) return emptyList()
 
+        val lexicalScores = memories.associate { memory ->
+            memory.id to score(memory, queryTerms, cleanQuery, now)
+        }
         val lexicalRanked = memories
             .asSequence()
-            .map { memory -> memory to score(memory, queryTerms, cleanQuery, now) }
-            .filter { (memory, score) -> memory.pinned || score > MIN_RELEVANCE_SCORE }
+            .filter { memory ->
+                memory.pinned || (
+                    hasLexicalSignal(memory, queryTerms, cleanQuery, now) &&
+                        (lexicalScores[memory.id] ?: 0.0) > MIN_RELEVANCE_SCORE
+                    )
+            }
             .sortedWith(
-                compareByDescending<Pair<MemoryEntry, Double>> { (memory, _) -> memory.pinned }
-                    .thenByDescending { (_, score) -> score }
-                    .thenByDescending { (memory, _) -> memory.occurredAt ?: memory.createdAt },
+                compareByDescending<MemoryEntry>(MemoryEntry::pinned)
+                    .thenByDescending { memory -> lexicalScores[memory.id] ?: 0.0 }
+                    .thenByDescending { memory -> memory.occurredAt ?: memory.createdAt },
             )
             .take(LEXICAL_CANDIDATES)
-            .map { it.first }
             .toList()
 
-        // Recent memories are a weak but important independent lane. A user saying "昨天/前天/刚才"
-        // should not lose the relevant event merely because its wording changed substantially.
-        val recentRanked = memories
-            .sortedByDescending { memory -> memory.occurredAt ?: memory.createdAt }
-            .take(RECENT_CANDIDATES)
-
-        val pinnedRanked = memories.filter(MemoryEntry::pinned)
-
-        val vectorPool = buildList {
-            addAll(lexicalRanked)
-            addAll(recentRanked)
-            addAll(pinnedRanked)
-            // Keep a broader high-strength/recency tail so vector search can discover genuinely
-            // semantic matches that share few or no literal words with the new message.
-            addAll(memories.take(VECTOR_POOL_LIMIT / 2))
-            addAll(evenlySample(memories, VECTOR_POOL_LIMIT / 2))
-        }.distinctBy(MemoryEntry::id).take(VECTOR_POOL_LIMIT)
-
-        val vectorRanked = if (MemoryModelRuntime.vectorEnabled()) {
+        val embeddingResult = if (MemoryModelRuntime.vectorEnabled()) {
             val connection = MemoryModelRuntime.embeddingConnection()
-            if (connection == null || cleanQuery.isBlank() || vectorPool.isEmpty()) emptyList() else {
-                rankByEmbedding(connection, cleanQuery, vectorPool)
+            if (connection == null) EmbeddingRankResult() else {
+                rankByEmbedding(connection, cleanQuery, memories)
             }
+        } else EmbeddingRankResult()
+        val vectorRanked = embeddingResult.ranked
+        val pinnedRanked = memories.filter(MemoryEntry::pinned)
+            .sortedByDescending { it.occurredAt ?: it.createdAt }
+
+        // Recency is not an independent excuse to inject unrelated memories. It participates only
+        // when the user is explicitly referring to recent time, in which case date proximity itself
+        // is semantic evidence.
+        val recentRanked = if (hasTemporalIntent(cleanQuery)) {
+            memories
+                .filter { memory -> recentTemporalMatch(memory, now) }
+                .sortedByDescending { memory -> memory.occurredAt ?: memory.createdAt }
+                .take(RECENT_CANDIDATES)
         } else emptyList()
 
-        // Reciprocal-rank fusion: vector retrieval supplements lexical retrieval rather than
-        // replacing it. Recency is deliberately weaker so it helps temporal continuity without
-        // flooding the prompt with unrelated recent details.
         var candidates = fuseRankings(
             memories = memories,
             rankings = listOf(
                 lexicalRanked to 3.2,
-                vectorRanked to 4.0,
+                vectorRanked to 4.2,
                 recentRanked to 1.15,
                 pinnedRanked to 5.0,
             ),
         ).take(RERANK_POOL)
+        if (candidates.isEmpty()) return emptyList()
 
-        if (MemoryModelRuntime.rerankEnabled() && cleanQuery.isNotBlank() && candidates.isNotEmpty()) {
+        if (MemoryModelRuntime.rerankEnabled() && candidates.size > 1) {
             val connection = MemoryModelRuntime.rerankConnection()
             if (connection != null) {
                 val order = com.jiacimu.lulu.ai.LuluAiServices.gateway
@@ -98,10 +103,13 @@ object RelevantMemoryRecall {
                     .getOrNull()
                 if (!order.isNullOrEmpty()) {
                     val reranked = order.mapNotNull { index -> candidates.getOrNull(index) }
+                        .distinctBy(MemoryEntry::id)
+                    // The reranker supplies ordering, not a calibrated relevance score. Therefore it
+                    // can reorder the candidate set but cannot revive memories rejected above.
                     candidates = fuseRankings(
                         memories = candidates,
                         rankings = listOf(
-                            candidates to 2.4,
+                            candidates to 2.1,
                             reranked to 5.0,
                         ),
                     ).take(RERANK_POOL)
@@ -110,8 +118,6 @@ object RelevantMemoryRecall {
         }
 
         val requested = limit.coerceIn(1, 24)
-        // Older callers explicitly passed 12. Keep compatibility while raising normal companion
-        // recall breadth so associative context has enough room to survive final ranking.
         val effectiveLimit = if (requested == 12) 18 else requested
         return candidates
             .distinctBy(MemoryEntry::id)
@@ -209,46 +215,63 @@ object RelevantMemoryRecall {
         connection: ModelConnection,
         cleanQuery: String,
         memories: List<MemoryEntry>,
-    ): List<MemoryEntry> {
-        val cachedVectors = arrayOfNulls<FloatArray>(memories.size)
-        val missingIndices = mutableListOf<Int>()
-        synchronized(embeddingCache) {
-            memories.forEachIndexed { index, memory ->
-                val cached = embeddingCache[embeddingKey(connection, memory)]
-                if (cached == null) missingIndices += index else cachedVectors[index] = cached
-            }
-        }
-
-        // Query vectors are intentionally not cached: the current utterance changes every turn.
-        // Existing memory vectors are cached, so a warm recall normally embeds only the query plus
-        // memories that were newly created or edited since the previous turn.
-        val inputs = buildList {
-            add(cleanQuery)
-            missingIndices.forEach { index -> add(memories[index].content) }
-        }
-        val vectors = com.jiacimu.lulu.ai.LuluAiServices.gateway
-            .embed(connection, inputs)
+    ): EmbeddingRankResult {
+        if (cleanQuery.isBlank() || memories.isEmpty()) return EmbeddingRankResult()
+        val queryVector = com.jiacimu.lulu.ai.LuluAiServices.gateway
+            .embed(connection, listOf(cleanQuery))
             .getOrNull()
-            ?.takeIf { result -> result.size == inputs.size }
-            ?: return emptyList()
-        val queryVector = vectors.first()
-        val newVectors = vectors.drop(1)
-        missingIndices.forEachIndexed { position, memoryIndex ->
-            val vector = newVectors.getOrNull(position) ?: return@forEachIndexed
-            cachedVectors[memoryIndex] = vector
-            synchronized(embeddingCache) {
-                embeddingCache[embeddingKey(connection, memories[memoryIndex])] = vector
+            ?.singleOrNull()
+            ?: return EmbeddingRankResult()
+
+        val vectors = arrayOfNulls<FloatArray>(memories.size)
+        val missingIndices = mutableListOf<Int>()
+        memories.forEachIndexed { index, memory ->
+            val key = embeddingKey(connection, memory)
+            val hot = synchronized(embeddingCache) { embeddingCache[key] }
+            val persisted = hot ?: MemoryEmbeddingIndex.get(key)
+            if (persisted == null) {
+                missingIndices += index
+            } else {
+                vectors[index] = persisted
+                synchronized(embeddingCache) { embeddingCache[key] = persisted }
             }
         }
 
-        return memories
-            .mapIndexedNotNull { index, memory -> cachedVectors[index]?.let { vector -> memory to vector } }
+        // Fill the complete valid-memory index in bounded requests. Failed batches remain missing
+        // and can be retried on a later recall; already-persisted vectors still participate now.
+        missingIndices.chunked(EMBEDDING_BATCH_SIZE).forEach { batch ->
+            val inputs = batch.map { memoryIndex -> memories[memoryIndex].content }
+            val embedded = com.jiacimu.lulu.ai.LuluAiServices.gateway
+                .embed(connection, inputs)
+                .getOrNull()
+                ?.takeIf { result -> result.size == inputs.size }
+                ?: return@forEach
+            batch.forEachIndexed { position, memoryIndex ->
+                val vector = embedded[position]
+                val memory = memories[memoryIndex]
+                val key = embeddingKey(connection, memory)
+                vectors[memoryIndex] = vector
+                synchronized(embeddingCache) { embeddingCache[key] = vector }
+                MemoryEmbeddingIndex.put(key, vector)
+            }
+        }
+
+        val similarities = memories.mapIndexedNotNull { index, memory ->
+            vectors[index]?.let { vector -> memory.id to cosine(queryVector, vector) }
+        }.toMap()
+        val ranked = memories
+            .asSequence()
+            .filter { memory ->
+                memory.pinned || (similarities[memory.id] ?: -1.0) >= MIN_VECTOR_SIMILARITY
+            }
             .sortedWith(
-                compareByDescending<Pair<MemoryEntry, FloatArray>> { pair -> pair.first.pinned }
-                    .thenByDescending { pair -> cosine(queryVector, pair.second) },
+                compareByDescending<MemoryEntry>(MemoryEntry::pinned)
+                    .thenByDescending { memory -> similarities[memory.id] ?: -1.0 }
+                    .thenByDescending { memory -> memory.occurredAt ?: memory.createdAt },
             )
             .take(VECTOR_CANDIDATES)
-            .map { pair -> pair.first }
+            .toList()
+        return EmbeddingRankResult(ranked, similarities)
     }
 
     private fun embeddingKey(connection: ModelConnection, memory: MemoryEntry): String = buildString {
@@ -267,7 +290,7 @@ object RelevantMemoryRecall {
         memories: List<MemoryEntry>,
         rankings: List<Pair<List<MemoryEntry>, Double>>,
     ): List<MemoryEntry> {
-        if (rankings.all { (items, _) -> items.isEmpty() }) return memories.take(RERANK_POOL)
+        if (rankings.all { (items, _) -> items.isEmpty() }) return emptyList()
         val scores = mutableMapOf<String, Double>()
         rankings.forEach { (items, weight) ->
             items.forEachIndexed { index, memory ->
@@ -285,13 +308,23 @@ object RelevantMemoryRecall {
             )
     }
 
-    private fun evenlySample(memories: List<MemoryEntry>, limit: Int): List<MemoryEntry> {
-        if (limit <= 0 || memories.isEmpty()) return emptyList()
-        if (memories.size <= limit) return memories
-        val lastIndex = memories.lastIndex.toDouble()
-        return (0 until limit)
-            .map { sampleIndex -> memories[((sampleIndex * lastIndex) / (limit - 1).coerceAtLeast(1)).toInt()] }
-            .distinctBy(MemoryEntry::id)
+    private fun hasLexicalSignal(
+        memory: MemoryEntry,
+        queryTerms: Set<String>,
+        cleanQuery: String,
+        now: Instant,
+    ): Boolean {
+        if (memory.pinned) return true
+        val memoryTerms = terms(memory.content)
+        if (queryTerms.intersect(memoryTerms).isNotEmpty()) return true
+        return hasTemporalIntent(cleanQuery) && recentTemporalMatch(memory, now)
+    }
+
+    private fun recentTemporalMatch(memory: MemoryEntry, now: Instant): Boolean {
+        val ageDays = Duration.between(memory.occurredAt ?: memory.createdAt, now)
+            .toDays()
+            .coerceAtLeast(0)
+        return ageDays <= 3L
     }
 
     private fun score(
@@ -329,10 +362,8 @@ object RelevantMemoryRecall {
     }
 
     /**
-     * The gateway historically passed `facts + instruction` as the retrieval query. Long generic
-     * response instructions can dominate embeddings/rerank and drown out the actual user topic.
-     * Prefer explicit user/current-event lines; otherwise remove obvious instruction boilerplate
-     * and keep a compact recent semantic window.
+     * Long generic response instructions can dominate embeddings/rerank and drown out the actual
+     * user topic. Prefer explicit current-user lines and a compact recent semantic window.
      */
     private fun focusQuery(raw: String): String {
         val lines = raw
@@ -422,14 +453,15 @@ object RelevantMemoryRecall {
         "今天", "昨天", "前天", "昨晚", "昨夜", "今早", "刚才", "刚刚", "之前", "最近", "那天", "上次",
     )
 
-    private const val VECTOR_POOL_LIMIT = 96
-    private const val LEXICAL_CANDIDATES = 56
-    private const val VECTOR_CANDIDATES = 56
-    private const val RECENT_CANDIDATES = 28
-    private const val RERANK_POOL = 48
+    private const val LEXICAL_CANDIDATES = 64
+    private const val VECTOR_CANDIDATES = 64
+    private const val RECENT_CANDIDATES = 24
+    private const val RERANK_POOL = 56
+    private const val EMBEDDING_BATCH_SIZE = 24
     private const val MAX_QUERY_CHARS = 1800
     private const val MAX_MEMORY_CHARS = 520
     private const val MAX_EMBEDDING_CACHE = 600
     private const val RRF_K = 50.0
     private const val MIN_RELEVANCE_SCORE = 0.72
+    private const val MIN_VECTOR_SIMILARITY = 0.34
 }
