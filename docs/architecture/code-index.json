@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T07:24:08.795298+00:00",
-  "commit": "4ee0ff576765c7a7c4a482f86fee275f8caec14e",
+  "generatedAt": "2026-09-13T07:30:50.009286+00:00",
+  "commit": "38ce85cd40552b6eb082a4327ee75c798259ec00",
   "branch": "main",
-  "sourceFingerprint": "1a95924c789d3656a0de458963955d8282ab266c6a07809194c8165c81b0e8a7",
+  "sourceFingerprint": "a63c0b523ddfa3fd4ac336e5c412cc0b312bac58a85c57ee3c39285ebe853e7d",
   "summary": {
     "files": 268,
-    "lines": 77697,
+    "lines": 77711,
     "symbols": 1009
   },
   "symbolIndex": {
@@ -65,7 +65,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt",
-        "line": 41
+        "line": 43
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
@@ -1671,7 +1671,7 @@
     "ChatLexiconAutomation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt",
-        "line": 29
+        "line": 30
       }
     ],
     "ChatMemoryAutomation": [
@@ -7061,16 +7061,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt",
-      "lines": 258,
-      "sha256": "aa5474664682bc55993a1930f5171a06dec614a672ce420e8cded34068bc7448",
+      "lines": 272,
+      "sha256": "63fd7df9a32d8096b88a801d410eb03cbba40b3bd9ca6d820d6608d41265babf",
       "symbols": [
         {
           "name": "ChatLexiconAutomation",
-          "line": 29
+          "line": 30
         },
         {
           "name": "initialize",
-          "line": 41
+          "line": 43
         }
       ]
     },
