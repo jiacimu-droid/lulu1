@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T07:59:48.381067+00:00",
-  "commit": "c781bb794c3ade067a64c2fc8e086a627e96a049",
+  "generatedAt": "2026-09-13T08:00:01.831283+00:00",
+  "commit": "b69a251fa88f71c58bd1c3fc2373763d653685f4",
   "branch": "main",
-  "sourceFingerprint": "a918b5d7cc80dc960fa67b6582471607a6f96ceb9720193df403fbaf49a3c6d0",
+  "sourceFingerprint": "dd80a48f7c1bc9a87696e115c615c19235f1d5a22312ccc19c9125854209110c",
   "summary": {
     "files": 271,
-    "lines": 78252,
+    "lines": 78254,
     "symbols": 1018
   },
   "symbolIndex": {
@@ -3037,31 +3037,31 @@
     "vectorEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
-        "line": 16
+        "line": 18
       }
     ],
     "rerankEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
-        "line": 18
+        "line": 20
       }
     ],
     "embeddingConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
-        "line": 19
+        "line": 21
       }
     ],
     "rerankConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
-        "line": 20
+        "line": 22
       }
     ],
     "extractionConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
-        "line": 21
+        "line": 23
       }
     ],
     "isActive": [
@@ -8459,8 +8459,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
-      "lines": 31,
-      "sha256": "c106f5fadb0b3c5a0065cbfbd935be1c55a0ea78e34a0a1b19204742d5efba2a",
+      "lines": 33,
+      "sha256": "694c6ceaea66ffda6fe0806ca9c095da2cc387b751bdc9a0d95484d878d98062",
       "symbols": [
         {
           "name": "initialize",
@@ -8468,23 +8468,23 @@
         },
         {
           "name": "vectorEnabled",
-          "line": 16
-        },
-        {
-          "name": "rerankEnabled",
           "line": 18
         },
         {
-          "name": "embeddingConnection",
-          "line": 19
-        },
-        {
-          "name": "rerankConnection",
+          "name": "rerankEnabled",
           "line": 20
         },
         {
-          "name": "extractionConnection",
+          "name": "embeddingConnection",
           "line": 21
+        },
+        {
+          "name": "rerankConnection",
+          "line": 22
+        },
+        {
+          "name": "extractionConnection",
+          "line": 23
         }
       ]
     },
