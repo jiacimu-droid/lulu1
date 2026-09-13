@@ -20,6 +20,7 @@ import com.jiacimu.lulu.data.LegacyConversationMigration
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.MemoryModelRuntime
+import com.jiacimu.lulu.data.MemorySourceIntegrityRuntime
 import com.jiacimu.lulu.data.MeetingExperienceStore
 import com.jiacimu.lulu.data.MomentsStore
 import com.jiacimu.lulu.data.ProactiveIncomingCallStore
@@ -86,6 +87,7 @@ class MigrationActivity : ComponentActivity() {
         ChatTurnConsistencyAutomation.initialize()
         DeterministicMemoryAutomation.initialize(appContext)
         ChatMemoryAutomation.initialize(appContext)
+        MemorySourceIntegrityRuntime.initialize()
         ChatLexiconAutomation.initialize(appContext)
         CommitmentTaskStore.initialize(appContext)
         CommitmentLexiconSync.initialize()
