@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T02:31:07.139066+00:00",
-  "commit": "0482d61651fba640dfeb125fc3268c914a81224f",
+  "generatedAt": "2026-09-13T02:31:59.666443+00:00",
+  "commit": "09d705f1ea648acdb9eb3ea4140e10df4a094d2e",
   "branch": "main",
-  "sourceFingerprint": "21edb2fa0173263584d25422918b1de3a8d24b10f0f9e06d240fbde4672897ea",
+  "sourceFingerprint": "2389120adaed84cc6ad1ae5c275bb8ec50517d57eee6e647ae00dc8a34bf458a",
   "summary": {
     "files": 259,
-    "lines": 75914,
+    "lines": 75913,
     "symbols": 966
   },
   "symbolIndex": {
@@ -3487,25 +3487,25 @@
     "UnifiedMemoryContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 28
+        "line": 26
       }
     ],
     "compactPromptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 45
+        "line": 44
       }
     ],
     "UnifiedMemoryOrchestrator": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 64
+        "line": 63
       }
     ],
     "empty": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 66
+        "line": 65
       }
     ],
     "UserDataUpgradeGuard": [
@@ -8597,8 +8597,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 169,
-      "sha256": "de3b1392947681eebf750d2db99c39b61ee7fc8e6f093bd648a81cd261d953ff",
+      "lines": 168,
+      "sha256": "4ead4971e997f4528354348994c9b2b87bb033971fb400a477b5e1bd3f2157b1",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
@@ -8614,19 +8614,19 @@
         },
         {
           "name": "UnifiedMemoryContext",
-          "line": 28
+          "line": 26
         },
         {
           "name": "compactPromptSection",
-          "line": 45
+          "line": 44
         },
         {
           "name": "UnifiedMemoryOrchestrator",
-          "line": 64
+          "line": 63
         },
         {
           "name": "empty",
-          "line": 66
+          "line": 65
         }
       ]
     },
