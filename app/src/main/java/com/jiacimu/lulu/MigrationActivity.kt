@@ -8,6 +8,8 @@ import com.jiacimu.lulu.data.CharacterIdentityStore
 import com.jiacimu.lulu.data.ChatLexiconAutomation
 import com.jiacimu.lulu.data.ChatMemoryAutomation
 import com.jiacimu.lulu.data.ChatTurnConsistencyAutomation
+import com.jiacimu.lulu.data.CommitmentTaskStore
+import com.jiacimu.lulu.data.CommitmentTurnAutomation
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.CompanionOnlineStore
 import com.jiacimu.lulu.data.DeterministicMemoryAutomation
@@ -84,6 +86,8 @@ class MigrationActivity : ComponentActivity() {
         DeterministicMemoryAutomation.initialize(appContext)
         ChatMemoryAutomation.initialize()
         ChatLexiconAutomation.initialize(appContext)
+        CommitmentTaskStore.initialize(appContext)
+        CommitmentTurnAutomation.initialize(appContext)
 
         // Scheduling only: there is no launch-time perception model call and no in-app 20-minute loop.
         ProactivePerceptionPolicyStore.initialize(appContext)
