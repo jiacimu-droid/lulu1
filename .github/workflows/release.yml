@@ -46,6 +46,7 @@ jobs:
           cp "$apk" apk-artifacts/Lulu.apk
 
       - name: Upload temporary APK
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: Lulu-APK-${{ github.sha }}
@@ -75,6 +76,7 @@ jobs:
 
       - name: Upload failure logs
         if: failure()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: APK-failure-${{ github.sha }}
