@@ -103,6 +103,8 @@ data class WorldBookEntry(
     val content: String,
     val globalEnabled: Boolean,
     val characterOverrides: Map<String, Boolean>,
+    val createdAt: Instant = Instant.now(),
+    val updatedAt: Instant = createdAt,
 )
 
 interface WorldBookRepository {
