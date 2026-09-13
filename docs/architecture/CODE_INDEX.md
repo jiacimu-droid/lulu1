@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f4eb33391ececdba71d9dc78a2d71e73b9f6f4eb`
+- 基准提交：`31fa47faa7e36e3cbb8629994765be40a76156b0`
 - 分支：`main`
-- 已索引文件：263
-- 已索引代码/文本行：76745
-- 已发现符号：990
+- 已索引文件：264
+- 已索引代码/文本行：76839
+- 已发现符号：994
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -129,8 +129,9 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluStartupProvider.kt` | 27 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 587 | 37 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt` | 92 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt` | 117 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 26 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 28 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 885 | 44 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 732 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 31 | 0 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T03:01:18.684091+00:00",
-  "commit": "f4eb33391ececdba71d9dc78a2d71e73b9f6f4eb",
+  "generatedAt": "2026-09-13T03:03:09.535239+00:00",
+  "commit": "31fa47faa7e36e3cbb8629994765be40a76156b0",
   "branch": "main",
-  "sourceFingerprint": "119e67f61219abc823676a708f2d838ab0e5f978ab3408b653eaddce24e32aff",
+  "sourceFingerprint": "5ec6d73a3256c81f2c4894695d51c045d851014cf363041bead02cf67ae92fab",
   "summary": {
-    "files": 263,
-    "lines": 76745,
-    "symbols": 990
+    "files": 264,
+    "lines": 76839,
+    "symbols": 994
   },
   "symbolIndex": {
     "CharacterSettingsScreenV2": [
@@ -146,6 +146,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
         "line": 107
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
+        "line": 22
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -294,6 +298,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
         "line": 139
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
+        "line": 69
       }
     ],
     "CharacterHubScreen": [
@@ -1478,6 +1486,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
         "line": 51
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
+        "line": 29
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -2924,6 +2936,12 @@
         "line": 317
       }
     ],
+    "put": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
+        "line": 47
+      }
+    ],
     "MemoryExtractionJob": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -2951,25 +2969,25 @@
     "vectorEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
-        "line": 12
+        "line": 14
       }
     ],
     "rerankEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
-        "line": 14
+        "line": 16
       }
     ],
     "embeddingConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
-        "line": 15
+        "line": 17
       }
     ],
     "rerankConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
-        "line": 16
+        "line": 18
       }
     ],
     "LuluChatMessage": [
@@ -8198,6 +8216,29 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
+      "lines": 92,
+      "sha256": "5761a4d6e14461cdbb308028c8952e618a0cf1c2051c439f159a3c8eb6e4c17f",
+      "symbols": [
+        {
+          "name": "initialize",
+          "line": 22
+        },
+        {
+          "name": "get",
+          "line": 29
+        },
+        {
+          "name": "put",
+          "line": 47
+        },
+        {
+          "name": "remove",
+          "line": 69
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
       "lines": 117,
       "sha256": "92fb99eb1d1f1859c8df0169de406dd26acb14b82bdce1a3d9d5ea3073f51703",
@@ -8234,8 +8275,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
-      "lines": 26,
-      "sha256": "b5b51e6390a898299c4c680290f61c7125173e60089801f8dd8130aedad70ccf",
+      "lines": 28,
+      "sha256": "3ca7c263d7f6eadf445fb11af838c1c8b474650d3686331065f39a635d9ef79f",
       "symbols": [
         {
           "name": "initialize",
@@ -8243,19 +8284,19 @@
         },
         {
           "name": "vectorEnabled",
-          "line": 12
-        },
-        {
-          "name": "rerankEnabled",
           "line": 14
         },
         {
+          "name": "rerankEnabled",
+          "line": 16
+        },
+        {
           "name": "embeddingConnection",
-          "line": 15
+          "line": 17
         },
         {
           "name": "rerankConnection",
-          "line": 16
+          "line": 18
         }
       ]
     },
