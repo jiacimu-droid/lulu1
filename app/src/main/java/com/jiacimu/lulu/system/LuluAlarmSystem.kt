@@ -13,6 +13,8 @@ import android.media.RingtoneManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.jiacimu.lulu.MigrationActivity
+import com.jiacimu.lulu.data.CommitmentTaskStatus
+import com.jiacimu.lulu.data.CommitmentTaskStore
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
@@ -60,7 +62,7 @@ object LuluAlarmSystem {
             triggerAt = triggerAt,
             label = label.trim().ifBlank { "该起床啦" },
         )
-        setSystemClockAlarm(appContext, alarm)
+        if (canScheduleExact()) schedule(appContext, alarm) else setSystemClockAlarm(appContext, alarm)
         save(appContext, list(appContext).filterNot { it.id == alarm.id } + alarm)
         alarm
     }
@@ -76,6 +78,7 @@ object LuluAlarmSystem {
         val appContext = context ?: return false
         val alarms = list(appContext)
         val target = alarms.firstOrNull { it.id == id } ?: return false
+        appContext.getSystemService(AlarmManager::class.java).cancel(pendingIntent(appContext, target))
         dismissSystemClockAlarm(appContext, target)
         save(appContext, alarms.filterNot { it.id == id })
         return true
@@ -87,9 +90,9 @@ object LuluAlarmSystem {
 
     internal fun restoreFutureAlarms(context: Context) {
         val now = Instant.now()
-        val alarms = list(context)
-        // 系统时钟应用会自行持久化闹钟；这里只清理露露保存的过期索引，避免重复创建。
-        save(context, alarms.filter { it.triggerAt.isAfter(now) })
+        val future = list(context).filter { it.triggerAt.isAfter(now) }
+        if (canScheduleExact()) future.forEach { alarm -> runCatching { schedule(context, alarm) } }
+        save(context, future)
     }
 
     private fun setSystemClockAlarm(context: Context, alarm: LuluAlarm) {
@@ -252,8 +255,29 @@ class LuluAlarmReceiver : BroadcastReceiver() {
         val characterId = intent.getStringExtra("character_id").orEmpty().ifBlank { "lulu" }
         val characterName = intent.getStringExtra("character_name").orEmpty().ifBlank { "露露" }
         val label = intent.getStringExtra("label").orEmpty().ifBlank { "该起床啦" }
+        LuluAlarmSystem.initialize(context.applicationContext)
+        CommitmentTaskStore.initialize(context.applicationContext)
         LuluAlarmSystem.markTriggered(context, id)
         LuluAlarmSystem.showAlarmNotification(context, id, characterId, characterName, label)
+
+        val task = CommitmentTaskStore.snapshot(characterId).firstOrNull { it.linkedAlarmId == id }
+        if (task != null && task.status in setOf(CommitmentTaskStatus.Scheduled, CommitmentTaskStatus.Running, CommitmentTaskStatus.WaitingForFeedback)) {
+            val nextAttempt = task.attemptCount + 1
+            val wakeTask = task.goal.contains("叫醒") || task.goal.contains("起床") || task.goal.contains("醒")
+            val retryAt = if (wakeTask && nextAttempt < 2) Instant.now().plusSeconds(10 * 60L) else null
+            val retryAlarm = retryAt?.let { at ->
+                LuluAlarmSystem.create(characterId, characterName, at, "${task.goal}（再次提醒）").getOrNull()
+            }
+            CommitmentTaskStore.update(task.id) { current ->
+                current.copy(
+                    status = CommitmentTaskStatus.WaitingForFeedback,
+                    attemptCount = nextAttempt,
+                    nextCheckAt = retryAt,
+                    linkedAlarmId = retryAlarm?.id,
+                    lastActionResult = if (retryAlarm == null) "已提醒，等待用户确认结果" else "已提醒；未确认前安排一次有限重试",
+                )
+            }
+        }
     }
 }
 
@@ -261,6 +285,7 @@ class LuluBootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
             LuluAlarmSystem.initialize(context.applicationContext)
+            CommitmentTaskStore.initialize(context.applicationContext)
         }
     }
 }
