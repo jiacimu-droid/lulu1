@@ -450,7 +450,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
     fun togglePomodoro(nowMillis: Long = System.currentTimeMillis()) = mutate { state ->
         val timer = state.pomodoro
         if (timer.running) {
-            val remaining = ((timer.endAtEpochMillis - nowMillis) / 1000L).toInt().coerceAtLeast(0)
+            val remaining = ((timer.endAtEpochMillis - nowMillis).coerceAtLeast(0L) + 999L).div(1000L).toInt()
             state.copy(pomodoro = timer.copy(running = false, remainingSeconds = remaining, endAtEpochMillis = 0L))
         } else {
             val seconds = timer.remainingSeconds.takeIf { it > 0 } ?: timer.selectedMinutes * 60
@@ -461,7 +461,7 @@ class PostgraduateExamStore internal constructor(context: Context) {
     fun syncPomodoroClock(nowMillis: Long = System.currentTimeMillis()): Boolean {
         val timer = mutableState.value.pomodoro
         if (!timer.running) return false
-        val remaining = ((timer.endAtEpochMillis - nowMillis) / 1000L).toInt()
+        val remaining = ((timer.endAtEpochMillis - nowMillis).coerceAtLeast(0L) + 999L).div(1000L).toInt()
         return if (remaining <= 0) {
             completePomodoro(timer.selectedMinutes)
             true
@@ -1029,9 +1029,9 @@ class PostgraduateExamStore internal constructor(context: Context) {
                 shopDate = todayKey,
                 manualShopRefreshDate = if (state.shopDate == todayKey) state.manualShopRefreshDate else "",
                 superMomentAvailable = if (dateChanged) false else state.superMomentAvailable,
-                pomodoro = if (state.pomodoro.running && state.pomodoro.endAtEpochMillis <= System.currentTimeMillis()) {
-                    state.pomodoro.copy(running = false, remainingSeconds = state.pomodoro.selectedMinutes * 60, endAtEpochMillis = 0L)
-                } else state.pomodoro,
+                // Preserve the deadline, including overdue timers. Startup/resume clock sync
+                // must settle them through completePomodoro instead of silently discarding them.
+                pomodoro = state.pomodoro,
             ),
         )
     }

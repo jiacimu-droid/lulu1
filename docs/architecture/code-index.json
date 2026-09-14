@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-13T08:16:48.023835+00:00",
-  "commit": "cd946ac859a1f74650b1a50c0337228b3a155806",
+  "generatedAt": "2026-09-14T06:38:25.125603+00:00",
+  "commit": "201f0e829c71ce72fd1247d3e13ae455ec39e54b",
   "branch": "main",
-  "sourceFingerprint": "2798429c394bc30a2c59230373bec0e8fed636571cabe8b5a71dc2884a7ddee4",
+  "sourceFingerprint": "fabcec95daeafd67b42b6507e72f026b56e5ddaaa993e77692785c5d0efde58f",
   "summary": {
     "files": 271,
-    "lines": 78582,
+    "lines": 78595,
     "symbols": 1021
   },
   "symbolIndex": {
@@ -6480,8 +6480,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 126,
-      "sha256": "0d0a2259961fe9ec1b16e94956796918c2073318058e01ae0be228f46f32fce3",
+      "lines": 138,
+      "sha256": "d372aee93612259461143b071875c74c9e1f5fddc9670de0396ac12b8de354ee",
       "symbols": [
         {
           "name": "MigrationActivity",
@@ -10795,8 +10795,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt",
-      "lines": 1168,
-      "sha256": "aadada15579d85b967edcb3d08ad0a2b64c53fd50acbe1380f23f04e07543713",
+      "lines": 1169,
+      "sha256": "71e98214ed0bd5ccf500ec002f33e4d751ec81173fbf3308917f08c9fd214d21",
       "symbols": [
         {
           "name": "PostgraduateExamStore",

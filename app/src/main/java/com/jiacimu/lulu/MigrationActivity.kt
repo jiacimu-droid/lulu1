@@ -41,6 +41,18 @@ import com.jiacimu.lulu.study.StudyRemovedFeatureMigration
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 
 class MigrationActivity : ComponentActivity() {
+    override fun onResume() {
+        super.onResume()
+        // Android may suspend the UI ticker in the background. The saved deadline, not
+        // the number of delivered ticks, determines the remaining time on return.
+        val studyStore = PostgraduateExamStores.main
+        val minutes = studyStore.state.value.pomodoro.selectedMinutes
+        if (studyStore.syncPomodoroClock()) {
+            PomodoroCompanionSessions.handleNaturalCompletion(studyStore, minutes)
+        }
+        PomodoroCompanionSessions.syncCountUpClock()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val appContext = applicationContext
