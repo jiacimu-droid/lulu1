@@ -278,14 +278,21 @@ internal class StarWishPlanGenerationWorker(
 
         return try {
             val store = StarWishStores.main
-            val guide = store.state.value.theaterGuides[theater].orEmpty().trim()
+            val planSnapshot = store.state.value
+            val guide = planSnapshot.theaterGuides[theater].orEmpty().trim()
             check(guide.isNotBlank()) { "总大纲不能为空" }
+            val writtenChapters = planSnapshot.theaterChapters[theater].orEmpty()
+            val existingPlans = planSnapshot.theaterPlans[theater].orEmpty().ifEmpty {
+                starWishPlansFromLegacyGuide(guide)
+            }
 
             val plans = StarWishTheaterPlanningEngine.generateChapterPlans(
                 characterId = characterId,
                 storyTitle = theater,
                 storyGuide = guide,
                 chapterCount = chapterCount,
+                writtenChapters = writtenChapters,
+                existingPlans = existingPlans,
             ).getOrThrow()
 
             store.setStoryPlan(theater, guide, plans)
@@ -318,8 +325,16 @@ internal class StarWishTheaterGenerationWorker(
         val chapterNumber = chapters.size + 1
         manager.running(theater, chapterNumber)
         return try {
-            val guide = snapshot.theaterGuides[theater].orEmpty()
-            val plans = snapshot.theaterPlans[theater].orEmpty().ifEmpty { starWishPlansFromLegacyGuide(guide) }
+            var guide = snapshot.theaterGuides[theater].orEmpty().trim()
+            var plans = snapshot.theaterPlans[theater].orEmpty().ifEmpty { starWishPlansFromLegacyGuide(guide) }
+
+            if (chapters.isNotEmpty() && plans.isEmpty() && !hasFullStoryMap(guide)) {
+                recoverStoryMap(theater, guide, chapters)?.takeIf(String::isNotBlank)?.let { recovered ->
+                    guide = recovered
+                    store.setStoryPlan(theater, guide, plans)
+                }
+            }
+
             var ledger = snapshot.theaterLedgers[theater] ?: StarWishStoryLedger()
             if (chapters.isNotEmpty() && ledger.updatedThroughChapter != chapters.size) {
                 rebuildLedger(theater, guide, plans, chapters)?.let { rebuilt ->
@@ -327,42 +342,74 @@ internal class StarWishTheaterGenerationWorker(
                     store.setLedger(theater, rebuilt)
                 }
             }
-            val currentPlan = plans.firstOrNull { it.number == chapterNumber }
+
+            var currentPlan = plans.firstOrNull { it.number == chapterNumber }
+            if (currentPlan == null && guide.isNotBlank()) {
+                val plannedThroughCurrent = StarWishTheaterPlanningEngine.generateChapterPlans(
+                    characterId = ISOLATED_CHARACTER_ID,
+                    storyTitle = theater,
+                    storyGuide = guide,
+                    chapterCount = chapterNumber,
+                    writtenChapters = chapters,
+                    existingPlans = plans,
+                ).getOrNull()
+                val generatedCurrent = plannedThroughCurrent?.firstOrNull { it.number == chapterNumber }
+                if (generatedCurrent != null) {
+                    plans = (plans.filterNot { it.number == chapterNumber } + generatedCurrent).sortedBy { it.number }
+                    currentPlan = generatedCurrent
+                    store.setStoryPlan(theater, guide, plans)
+                }
+            }
+
             val recentChapters = chapters.takeLast(3).joinToString("\n\n") { chapter ->
                 "${chapter.title}\n${chapter.content.takeLast(2_400)}"
             }
-            val reply = LuluAiServices.gateway.generate(
-                characterId = ISOLATED_CHARACTER_ID,
-                facts = buildString {
-                    appendLine("独立剧场故事：《$theater》")
-                    appendLine("故事总地图：\n${guide.ifBlank { "尚未填写总地图" }}")
-                    if (plans.isNotEmpty()) {
-                        appendLine("本章附近的逐章规划：")
-                        plans.filter { it.number in (chapterNumber - 2).coerceAtLeast(1)..(chapterNumber + 8) }
-                            .forEach { plan -> appendLine("- 第${plan.number}章 ${plan.title}：${plan.outline}") }
-                    }
-                    if (currentPlan != null) appendLine("本章必须重点执行：${currentPlan.title}｜${currentPlan.outline}")
-                    if (ledger.updatedThroughChapter > 0) appendLine("截至第${ledger.updatedThroughChapter}章的连续性档案：\n${ledger.promptText()}")
-                    if (recentChapters.isNotBlank()) appendLine("最近章节原文：\n$recentChapters")
-                    chapters.lastOrNull()?.content?.takeLast(1_500)?.let { appendLine("上一章结尾连续性锚点：\n$it") }
-                    if (influence.isNotBlank()) appendLine("用户对本章的最高优先级要求：$influence")
-                },
-                instruction = """
-                    续写第 $chapterNumber 章完整中文小说正文，约1800—3200字，只输出正文。
-                    这是完全独立的小剧场，不得引用任何真实角色设定、聊天、记忆、共同时间线、用户资料或世界书。
-                    用户要求优先级最高；故事地图和逐章规划是导航。新章必须发生在上一章最后一句之后，禁止重演已经完成的动作、对白、发现或决定。
-                    严格继承连续性档案中的人物位置、身体状态、情绪、关系、已知信息、物品、明暗线与伏笔。若用户改变剧情方向，应自然改道，并保留可回收的旧伏笔。
-                    使用环境、五感、空间距离、动作余韵、神态、心理变化、潜台词和留白；不能流水账，也不能用直白结论代替描写。
-                    每章至少推进明线、暗线、关系线中的两条，结尾留下自然钩子。不要输出提纲、解释、标题或系统提示。
-                """.trimIndent(),
-                source = "剧场",
-                title = "$theater · 第${chapterNumber}章",
-                maxTokens = 4_600,
-                connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
-                contextMode = CompanionContextMode.Isolated,
-                readTimeoutMillis = 240_000,
-            ).getOrThrow().text.trim()
-            check(reply.isNotBlank()) { "模型返回了空章节" }
+            val chapterFacts = buildString {
+                appendLine("独立剧场故事：《$theater》")
+                appendLine("故事总地图：\n${guide.ifBlank { "尚未填写总地图" }}")
+                if (plans.isNotEmpty()) {
+                    appendLine("本章附近的逐章规划：")
+                    plans.filter { it.number in (chapterNumber - 2).coerceAtLeast(1)..(chapterNumber + 8) }
+                        .forEach { plan -> appendLine("- 第${plan.number}章 ${plan.title}：${plan.outline}") }
+                }
+                if (currentPlan != null) appendLine("本章必须重点执行：${currentPlan.title}｜${currentPlan.outline}")
+                if (ledger.updatedThroughChapter > 0) appendLine("截至第${ledger.updatedThroughChapter}章的连续性档案：\n${ledger.promptText()}")
+                if (recentChapters.isNotBlank()) appendLine("最近章节原文：\n$recentChapters")
+                chapters.lastOrNull()?.content?.takeLast(1_500)?.let { appendLine("上一章结尾连续性锚点：\n$it") }
+                if (influence.isNotBlank()) appendLine("用户对本章的最高优先级要求：$influence")
+            }
+            val chapterInstruction = """
+                续写第 $chapterNumber 章完整中文小说正文，约1800—3200字，只输出正文。
+                这是完全独立的小剧场，不得引用任何真实角色设定、聊天、记忆、共同时间线、用户资料或世界书。
+                用户要求优先级最高；故事地图和逐章规划是导航。新章必须发生在上一章最后一句之后，禁止重演已经完成的动作、对白、发现或决定。
+                严格继承连续性档案中的人物位置、身体状态、情绪、关系、已知信息、物品、明暗线与伏笔。若用户改变剧情方向，应自然改道，并保留可回收的旧伏笔。
+                使用环境、五感、空间距离、动作余韵、神态、心理变化、潜台词和留白；不能流水账，也不能用直白结论代替描写。
+                每章至少推进明线、暗线、关系线中的两条，结尾留下自然钩子。不要输出提纲、解释、标题或系统提示。
+            """.trimIndent()
+
+            var reply = ""
+            var lastGenerationError: Throwable? = null
+            for (attempt in 1..2) {
+                val result = LuluAiServices.gateway.generate(
+                    characterId = ISOLATED_CHARACTER_ID,
+                    facts = chapterFacts,
+                    instruction = chapterInstruction,
+                    source = "剧场",
+                    title = "$theater · 第${chapterNumber}章",
+                    maxTokens = 4_600,
+                    connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
+                    contextMode = CompanionContextMode.Isolated,
+                    readTimeoutMillis = 240_000,
+                )
+                result.onSuccess { generated -> reply = generated.text.trim() }
+                result.onFailure { error -> lastGenerationError = error }
+                if (reply.isNotBlank()) break
+                val retryableEmpty = lastGenerationError?.message?.contains("没有返回可读取", ignoreCase = true) == true ||
+                    lastGenerationError?.message?.contains("空章节", ignoreCase = true) == true
+                if (!retryableEmpty) break
+            }
+            if (reply.isBlank()) throw lastGenerationError ?: IllegalStateException("模型连续两次没有返回章节正文")
+
             val chapter = StarWishTheaterChapter(
                 theater = theater,
                 chapter = chapterNumber,
@@ -382,6 +429,47 @@ internal class StarWishTheaterGenerationWorker(
             Result.failure()
         }
     }
+
+    private fun hasFullStoryMap(guide: String): Boolean {
+        if (guide.isBlank()) return false
+        val markers = listOf("【故事总纲】", "【关系主线】", "【明线】", "【暗线】", "【伏笔系统】")
+        return markers.count(guide::contains) >= 3
+    }
+
+    private suspend fun recoverStoryMap(
+        theater: String,
+        currentGuide: String,
+        chapters: List<StarWishTheaterChapter>,
+    ): String? = runCatching {
+        val seedPrompt = (
+            StarWishCustomTheaterLibrary.get(applicationContext).all() + StarWishRules.theaters
+        ).firstOrNull { it.title == theater }?.prompt.orEmpty()
+        val evidence = chapters.takeLast(4).joinToString("\n\n") { chapter ->
+            "第${chapter.chapter}章 ${chapter.title}\n${chapter.content.takeLast(2_800)}"
+        }
+        LuluAiServices.gateway.generate(
+            characterId = ISOLATED_CHARACTER_ID,
+            facts = buildString {
+                appendLine("独立剧场故事：《$theater》")
+                if (currentGuide.isNotBlank()) appendLine("旧总地图/残留设定：\n$currentGuide")
+                if (seedPrompt.isNotBlank() && seedPrompt != currentGuide) appendLine("故事最初设定：\n$seedPrompt")
+                if (evidence.isNotBlank()) appendLine("已经真实写出的章节证据：\n$evidence")
+            },
+            instruction = """
+                为这部已经开始写作的小说补回一份“故事总地图”。已写正文是最高事实，不得改写、否定或让人物倒退。
+                在已有设定和正文基础上整理并补齐未来可继续执行的总体剧情，必须包含：
+                【世界观】【故事总纲】【关系主线】【明线】【暗线】【伏笔系统】【情绪曲线】【文风执行】【核心钩子】。
+                对尚未揭晓的部分可以做最保守、最连贯的补全，但不要凭空换题材、换人物关系或推翻前文。
+                只输出这份总地图正文，不要解释。
+            """.trimIndent(),
+            source = "剧场",
+            title = "$theater · 补回故事总地图",
+            maxTokens = 3_400,
+            connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
+            contextMode = CompanionContextMode.Isolated,
+            readTimeoutMillis = 240_000,
+        ).getOrThrow().text.trim().takeIf(String::isNotBlank)
+    }.getOrNull()
 
     private suspend fun updateLedger(
         theater: String,

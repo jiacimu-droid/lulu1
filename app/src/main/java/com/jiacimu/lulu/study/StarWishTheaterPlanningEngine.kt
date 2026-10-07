@@ -62,12 +62,28 @@ internal object StarWishTheaterPlanningEngine {
         storyTitle: String,
         storyGuide: String,
         chapterCount: Int,
+        writtenChapters: List<StarWishTheaterChapter> = emptyList(),
+        existingPlans: List<StarWishChapterPlan> = emptyList(),
     ): Result<List<StarWishChapterPlan>> = runCatching {
         require(storyGuide.isNotBlank()) { "总大纲不能为空" }
         require(chapterCount in 1..StarWishRules.MAX_CHAPTERS_PER_THEATER) { "章节数量不正确" }
 
-        val collected = mutableListOf<StarWishChapterPlan>()
-        var start = 1
+        val lockedCount = minOf(writtenChapters.size, chapterCount)
+        val collected = (1..lockedCount).map { number ->
+            existingPlans.firstOrNull { it.number == number }
+                ?: writtenChapters.getOrNull(number - 1)?.let { chapter ->
+                    StarWishChapterPlan(
+                        number = number,
+                        title = chapter.title.ifBlank { "第 $number 章" },
+                        outline = "本章正文已经完成；以现有正文为准，不参与重新规划。",
+                    )
+                }
+                ?: StarWishChapterPlan(number = number, title = "第 $number 章", outline = "本章已完成")
+        }.toMutableList()
+        val lockedContext = writtenChapters.takeLast(3).joinToString("\n\n") { chapter ->
+            "第${chapter.chapter}章 ${chapter.title}\n${chapter.content.takeLast(2_200)}"
+        }
+        var start = lockedCount + 1
         while (start <= chapterCount) {
             val end = minOf(start + 8, chapterCount)
             val batchCount = end - start + 1
@@ -78,7 +94,9 @@ internal object StarWishTheaterPlanningEngine {
                 appendLine("独立剧场故事：《$storyTitle》")
                 appendLine("固定总大纲（不得重写、替换或改变故事基调）：\n$storyGuide")
                 appendLine("全书计划共 $chapterCount 章。")
+                appendLine("前 $lockedCount 章已经写成正文，绝对不能重新规划或改写；只规划尚未写出的章节。")
                 appendLine("本批只规划第 $start 至第 $end 章。")
+                if (lockedContext.isNotBlank()) appendLine("最近已写正文，只用于保证后续连续：\n$lockedContext")
                 if (previous.isNotBlank()) appendLine("前几章规划，仅用于连续性：\n$previous")
             }
             val instruction = """

@@ -723,6 +723,9 @@ class CompanionModelGateway(
             modelTextValue(json.opt("output_text")),
             modelTextValue(json.opt("output")),
             modelTextValue(message?.opt("reasoning_content")),
+            modelTextValue(message?.opt("reasoning")),
+            modelTextValue(message?.opt("analysis")),
+            modelTextValue(message?.opt("thinking")),
         ).firstOrNull(String::isNotBlank).orEmpty().trim()
     }
 
@@ -836,11 +839,17 @@ class CompanionModelGateway(
                 if (delta != null) {
                     content.append(modelTextValue(delta.opt("content")))
                     reasoning.append(modelTextValue(delta.opt("reasoning_content")))
+                    reasoning.append(modelTextValue(delta.opt("reasoning")))
+                    reasoning.append(modelTextValue(delta.opt("analysis")))
+                    reasoning.append(modelTextValue(delta.opt("thinking")))
                 } else if (content.isEmpty()) {
                     val message = choice?.optJSONObject("message")
                     content.append(modelTextValue(message?.opt("content")))
                     content.append(modelTextValue(choice?.opt("text")))
                     reasoning.append(modelTextValue(message?.opt("reasoning_content")))
+                    reasoning.append(modelTextValue(message?.opt("reasoning")))
+                    reasoning.append(modelTextValue(message?.opt("analysis")))
+                    reasoning.append(modelTextValue(message?.opt("thinking")))
                 }
                 chunk.optJSONObject("usage")?.let { usage ->
                     inputTokens = usage.optInt("prompt_tokens", inputTokens)
