@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T15:42:48.171350+00:00",
-  "commit": "9883494869867ffdd0f294bfda41b48a3652d1bd",
+  "generatedAt": "2026-10-07T15:52:05.099180+00:00",
+  "commit": "fab4da0440e49e59fa385d932ca87d12eff8ba54",
   "branch": "main",
-  "sourceFingerprint": "9d01f0d523a2743dc9f53126d900d9150e5996bf0cefb030e3237b9591f6728e",
+  "sourceFingerprint": "4216afbd732d297e2feafa2bcd30dc31c7e3982413570c1266b7ef50fe53cddc",
   "summary": {
     "files": 312,
-    "lines": 83243,
+    "lines": 83266,
     "symbols": 1150
   },
   "symbolIndex": {
@@ -12488,8 +12488,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-      "lines": 609,
-      "sha256": "0019a7793a10f5666dc5f192eb91998ea54f09d1ae109d6c4bf7fdd30d6aeac4",
+      "lines": 632,
+      "sha256": "ee9bea07b70bb8767686201ff1929dc62d8ee5e274a8036def26dd7be2eca188",
       "symbols": [
         {
           "name": "enqueue",
