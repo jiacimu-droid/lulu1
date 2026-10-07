@@ -94,7 +94,16 @@ internal fun StarWishTheaterContentV2(
                 initialGuide = starWishGuideWithoutLegacyPlans(state.theaterGuides[openedSeed.title].orEmpty().ifBlank { openedSeed.prompt }),
                 initialPlans = state.theaterPlans[openedSeed.title].orEmpty().ifEmpty {
                     starWishPlansFromLegacyGuide(state.theaterGuides[openedSeed.title].orEmpty())
+                }.ifEmpty {
+                    state.theaterChapters[openedSeed.title].orEmpty().map { chapter ->
+                        StarWishChapterPlan(
+                            number = chapter.chapter,
+                            title = chapter.title.ifBlank { "第 ${chapter.chapter} 章" },
+                            outline = "本章正文已经完成；以现有正文为准，不参与重新规划。",
+                        )
+                    }
                 },
+                writtenChapterCount = state.theaterChapters[openedSeed.title].orEmpty().size,
                 task = planGenerationTasks[openedSeed.title],
                 onBack = { mode = TheaterV2Mode.READER },
                 onSave = { guide, plans ->
@@ -570,6 +579,7 @@ private fun TheaterPlannerV2(
     title: String,
     initialGuide: String,
     initialPlans: List<StarWishChapterPlan>,
+    writtenChapterCount: Int,
     task: StarWishPlanTask?,
     onBack: () -> Unit,
     onSave: (String, List<StarWishChapterPlan>) -> Unit,
@@ -673,6 +683,7 @@ private fun TheaterPlannerV2(
             }
             items(plans, key = StarWishChapterPlan::id) { plan ->
                 val index = plans.indexOfFirst { it.id == plan.id }
+                val locked = index in 0 until writtenChapterCount
                 Surface(
                     shape = RoundedCornerShape(20.dp),
                     color = MaterialTheme.colorScheme.surface,
@@ -680,13 +691,18 @@ private fun TheaterPlannerV2(
                 ) {
                     Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("第 " + (index + 1) + " 章", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                            Text(
+                                "第 " + (index + 1) + " 章" + if (locked) " · 已写正文，锁定" else "",
+                                modifier = Modifier.weight(1f),
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
                             IconButton(
                                 onClick = {
                                     plans = plans.filterNot { it.id == plan.id }
                                         .mapIndexed { planIndex, item -> item.copy(number = planIndex + 1) }
                                 },
-                                enabled = !regenerating,
+                                enabled = !regenerating && !locked,
                             ) { Icon(Icons.Outlined.DeleteOutline, "删除章节规划", tint = MaterialTheme.colorScheme.error) }
                         }
                         OutlinedTextField(
@@ -695,7 +711,7 @@ private fun TheaterPlannerV2(
                             modifier = Modifier.fillMaxWidth(),
                             label = { Text("章节标题") },
                             singleLine = true,
-                            enabled = !regenerating,
+                            enabled = !regenerating && !locked,
                         )
                         OutlinedTextField(
                             value = plan.outline,
@@ -704,7 +720,7 @@ private fun TheaterPlannerV2(
                             label = { Text("本章事件、人物选择、关系、明暗线、伏笔、情绪与结尾钩子") },
                             minLines = 5,
                             maxLines = 14,
-                            enabled = !regenerating,
+                            enabled = !regenerating && !locked,
                         )
                     }
                 }
