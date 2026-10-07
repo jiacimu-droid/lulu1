@@ -148,6 +148,7 @@ internal object StarWishTheaterPlanningEngine {
         existingPlans: List<StarWishChapterPlan> = emptyList(),
         storyBible: StarWishStoryBible? = null,
         ledger: StarWishStoryLedger? = null,
+        onProgress: ((List<StarWishChapterPlan>) -> Unit)? = null,
     ): Result<List<StarWishChapterPlan>> = runCatching {
         require(storyGuide.isNotBlank()) { "总大纲不能为空" }
         require(chapterCount in 1..StarWishRules.MAX_CHAPTERS_PER_THEATER) { "章节数量不正确" }
@@ -169,7 +170,7 @@ internal object StarWishTheaterPlanningEngine {
         }
         var start = lockedCount + 1
         while (start <= chapterCount) {
-            val end = minOf(start + 8, chapterCount)
+            val end = minOf(start + 3, chapterCount)
             val batchCount = end - start + 1
             val previous = collected.takeLast(4).joinToString("\n") { plan ->
                 "第" + plan.number + "章 " + plan.title + "：" + plan.outline.take(500)
@@ -233,6 +234,12 @@ internal object StarWishTheaterPlanningEngine {
                 "第 $start-$end 章已经生成，但章节规划格式不完整。"
             }
             collected += batch
+            val progressPlans = (1..chapterCount).map { number ->
+                collected.firstOrNull { it.number == number }
+                    ?: existingPlans.firstOrNull { it.number == number }
+                    ?: StarWishChapterPlan(number = number, title = "第 $number 章", outline = "待规划")
+            }
+            onProgress?.invoke(progressPlans)
             start = end + 1
         }
 
