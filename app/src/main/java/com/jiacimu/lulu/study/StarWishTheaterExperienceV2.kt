@@ -90,21 +90,41 @@ internal fun StarWishTheaterContentV2(
             mode = TheaterV2Mode.BOOKSHELF
         }
         TheaterV2Mode.PLANNER -> if (openedSeed != null) {
+            val writtenChapters = state.theaterChapters[openedSeed.title].orEmpty()
+            val storedPlans = state.theaterPlans[openedSeed.title].orEmpty().ifEmpty {
+                starWishPlansFromLegacyGuide(state.theaterGuides[openedSeed.title].orEmpty())
+            }
+            val lockedPlans = writtenChapters.map { chapter ->
+                storedPlans.firstOrNull { it.number == chapter.chapter }
+                    ?: StarWishChapterPlan(
+                        number = chapter.chapter,
+                        title = chapter.title.ifBlank { "第 ${chapter.chapter} 章" },
+                        outline = "本章正文已经完成；以现有正文为准，不参与重新规划。",
+                    )
+            }
+            val basePlans = (lockedPlans + storedPlans.filter { it.number > writtenChapters.size })
+                .distinctBy { it.number }
+                .sortedBy { it.number }
+            val isBuiltInStory = StarWishRules.theaters.any { it.title == openedSeed.title }
+            val plannerTarget = if (isBuiltInStory) {
+                maxOf(basePlans.size, writtenChapters.size + 8, 12)
+                    .coerceAtMost(StarWishRules.MAX_CHAPTERS_PER_THEATER)
+            } else {
+                basePlans.size
+            }
+            val plannerPlans = if (isBuiltInStory && plannerTarget > basePlans.size) {
+                (1..plannerTarget).map { number ->
+                    basePlans.firstOrNull { it.number == number }
+                        ?: StarWishChapterPlan(number = number, title = "第 $number 章", outline = "待规划")
+                }
+            } else {
+                basePlans
+            }
             TheaterPlannerV2(
                 title = openedSeed.title,
                 initialGuide = starWishGuideWithoutLegacyPlans(state.theaterGuides[openedSeed.title].orEmpty().ifBlank { openedSeed.prompt }),
-                initialPlans = state.theaterPlans[openedSeed.title].orEmpty().ifEmpty {
-                    starWishPlansFromLegacyGuide(state.theaterGuides[openedSeed.title].orEmpty())
-                }.ifEmpty {
-                    state.theaterChapters[openedSeed.title].orEmpty().map { chapter ->
-                        StarWishChapterPlan(
-                            number = chapter.chapter,
-                            title = chapter.title.ifBlank { "第 ${chapter.chapter} 章" },
-                            outline = "本章正文已经完成；以现有正文为准，不参与重新规划。",
-                        )
-                    }
-                },
-                writtenChapterCount = state.theaterChapters[openedSeed.title].orEmpty().size,
+                initialPlans = plannerPlans,
+                writtenChapterCount = writtenChapters.size,
                 task = planGenerationTasks[openedSeed.title],
                 onBack = { mode = TheaterV2Mode.READER },
                 onBible = { mode = TheaterV2Mode.BIBLE },
