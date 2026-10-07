@@ -459,9 +459,12 @@ internal object StarWishTheaterPlanningEngine {
             item.romanceAesthetics,
             item.highlights,
         )
+        val filled = required.count { it.isNotBlank() }
+        val detailSize = required.sumOf { it.trim().length } + item.hook.trim().length
         return item.title.isNotBlank() &&
-            item.hook.trim().length >= 8 &&
-            required.all { it.trim().length >= 8 }
+            item.hook.isNotBlank() &&
+            filled >= 14 &&
+            detailSize >= 420
     }
 
     private fun chapterTexts(obj: JSONObject): List<String> {
