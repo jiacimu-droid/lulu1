@@ -354,8 +354,8 @@ internal class StarWishTheaterGenerationWorker(
                     existingPlans = plans,
                 ).getOrNull()
                 val generatedCurrent = plannedThroughCurrent?.firstOrNull { it.number == chapterNumber }
-                if (generatedCurrent != null) {
-                    plans = (plans.filterNot { it.number == chapterNumber } + generatedCurrent).sortedBy { it.number }
+                if (generatedCurrent != null && plannedThroughCurrent != null) {
+                    plans = plannedThroughCurrent.sortedBy { it.number }
                     currentPlan = generatedCurrent
                     store.setStoryPlan(theater, guide, plans)
                 }
