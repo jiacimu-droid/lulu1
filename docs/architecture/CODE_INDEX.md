@@ -3,7 +3,7 @@
 - 基准提交：`7e4c57c9b8ed3b6d5ff8ff0d55d05f6bd80f44b4`
 - 分支：`main`
 - 已索引文件：309
-- 已索引代码/文本行：81833
+- 已索引代码/文本行：81849
 - 已发现符号：1131
 
 | 文件 | 行数 | 符号数 |
@@ -308,7 +308,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 90 | 3 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 65 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 81 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 76 | 3 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T13:07:39.072685+00:00",
+  "generatedAt": "2026-10-07T13:16:31.673970+00:00",
   "commit": "7e4c57c9b8ed3b6d5ff8ff0d55d05f6bd80f44b4",
   "branch": "main",
-  "sourceFingerprint": "d403218d66502afe3714da11ddd09e76f5188f7c415d7d898ab975ba308a6b25",
+  "sourceFingerprint": "56fca47e604b19b66da497c6b35d95d203ae26bb8aba64e005aeffc1a2f1f157",
   "summary": {
     "files": 309,
-    "lines": 81833,
+    "lines": 81849,
     "symbols": 1131
   },
   "symbolIndex": {
@@ -6295,7 +6295,7 @@
     "CharacterOriginResetTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt",
-        "line": 17
+        "line": 19
       }
     ],
     "DevelopmentPolicyTest": [
@@ -12822,12 +12822,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt",
-      "lines": 65,
-      "sha256": "9a5654bac849eaca7a247dfcb79d14f05cf69d1a0e04277295af8ce3e3b28d1d",
+      "lines": 81,
+      "sha256": "98603bee43c272364178e27e594898daf9150b3318acfb1503574396b51d9af5",
       "symbols": [
         {
           "name": "CharacterOriginResetTest",
-          "line": 17
+          "line": 19
         }
       ]
     },

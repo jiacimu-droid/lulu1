@@ -4,6 +4,8 @@ import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
+import org.junit.After
+import org.junit.Before
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,6 +17,20 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterOriginResetTest {
+    // Robolectric reuses the SDK sandbox between classes, while each test has a fresh app DB.
+    // Release this test's singleton connection so the migration test opens its own seeded DB.
+    @Before fun before() { releaseTimelineDatabase() }
+    @After fun after() { releaseTimelineDatabase() }
+
+    private fun releaseTimelineDatabase() {
+        synchronized(SharedExperienceTimeline) {
+            val field = SharedExperienceTimeline::class.java.getDeclaredField("helper")
+            field.isAccessible = true
+            (field.get(SharedExperienceTimeline) as? android.database.sqlite.SQLiteOpenHelper)?.close()
+            field.set(SharedExperienceTimeline, null)
+        }
+    }
+
     @Test fun fullResetKeepsCurrentDesignAndOtherRoleButStartsNewLife() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
