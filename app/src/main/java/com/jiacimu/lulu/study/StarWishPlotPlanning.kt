@@ -21,6 +21,12 @@ internal data class StarWishPlotCandidate(
     val overview: String,
     val chapters: List<String>,
     val wordCount: String,
+    val cast: String = "",
+    val characterArcs: String = "",
+    val plotSpine: String = "",
+    val stagePlan: String = "",
+    val endingDirection: String = "",
+    val romanceAesthetics: String = "",
 ) {
     fun storyGuide(): String = buildString {
         appendLine("【故事核心】")
@@ -38,6 +44,20 @@ internal data class StarWishPlotCandidate(
         appendLine("\n【每章建议字数】")
         appendLine(wordCount.ifBlank { "1800-3000" })
     }.trim()
+
+    fun storyBible(): StarWishStoryBible = StarWishStoryBible(
+        cast = cast.trim(),
+        characterArcs = characterArcs.trim(),
+        relationshipArc = relationshipCore.trim(),
+        plotSpine = plotSpine.trim().ifBlank { overview.trim() },
+        mainLine = mainLine.trim(),
+        hiddenLine = hiddenLine.trim(),
+        foreshadows = foreshadowing.trim(),
+        stagePlan = stagePlan.trim(),
+        endingDirection = endingDirection.trim(),
+        romanceAesthetics = romanceAesthetics.trim(),
+        updatedThroughChapter = 0,
+    )
 
     fun chapterPlans(): List<StarWishChapterPlan> = chapters.mapIndexed { index, chapter ->
         val clean = chapter.trim()
