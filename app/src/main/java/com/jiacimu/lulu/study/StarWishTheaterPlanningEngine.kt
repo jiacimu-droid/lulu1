@@ -57,6 +57,65 @@ internal object StarWishTheaterPlanningEngine {
             ?: error("剧情已经生成，但格式仍无法识别。已自动尝试格式修复。")
     }
 
+    suspend fun generateStoryBible(
+        characterId: String,
+        storyTitle: String,
+        storyGuide: String,
+        chapterCount: Int,
+        writtenChapters: List<StarWishTheaterChapter>,
+        existingBible: StarWishStoryBible? = null,
+        ledger: StarWishStoryLedger? = null,
+    ): Result<StarWishStoryBible> = runCatching {
+        require(storyGuide.isNotBlank()) { "故事地图不能为空" }
+        val writtenEvidence = writtenChapters.takeLast(8).joinToString("\n\n") { chapter ->
+            "第${chapter.chapter}章 ${chapter.title}\n${chapter.content.takeLast(2_400)}"
+        }
+        val facts = buildString {
+            appendLine("独立剧场故事：《$storyTitle》")
+            appendLine("故事地图（核心方向与看点，不是逐章细纲）：\n$storyGuide")
+            appendLine("计划总章数：$chapterCount；已经写完：${writtenChapters.size}章。")
+            existingBible?.promptText()?.takeIf(String::isNotBlank)?.let {
+                appendLine("旧幕后规划，仅供继承仍然有效的长期结构：\n$it")
+            }
+            ledger?.promptText()?.takeIf(String::isNotBlank)?.let {
+                appendLine("正文确认的当前状态与硬事实，优先级最高：\n$it")
+            }
+            if (writtenEvidence.isNotBlank()) appendLine("最近已写正文证据：\n$writtenEvidence")
+        }
+        val raw = LuluAiServices.gateway.generate(
+            characterId = characterId,
+            facts = facts,
+            instruction = """
+                你是这部长篇小说的幕后总导演。请生成/刷新一份“幕后规划”，它不是逐章规划，而是长期稳定的故事圣经。
+                已经写出的正文和连续性档案中的硬事实是最高事实：人物死亡、生死状态、亲属关系、身份、性别、婚姻/恋爱关系、阵营、已知秘密、伤势、物品归属、地点与已经发生的关键事件绝对不能被未来规划改写。
+                可以为了更精彩而重新设计尚未发生的未来剧情，但必须自然承接已经写出的内容，不能让人物性格和关系无理由跳变。
+
+                幕后规划必须包含：
+                1. cast：主要人物卡。姓名/身份/年龄感/外貌气质/标志性细节/欲望/恐惧/底线/秘密/行为习惯；人物必须鲜明且会主动做决定。
+                2. characterArcs：主要人物从开篇到终局可能发生的成长、堕落、改变，以及每个变化需要什么事件推动，禁止突然性格翻转。
+                3. relationshipArc：男女主及关键关系的长期推进，写清吸引、试探、误会、靠近、冲突、确认关系等阶段，不要只靠直白告白。
+                4. plotSpine：整本书从当前进度到终局的长线脉络、阶段目标、关键转折和高潮。
+                5. mainLine：读者能直接看到的主线目标与阻力。
+                6. hiddenLine：暗线真相、幕后因果、何时逐步露出。
+                7. foreshadows：伏笔清单，写明已埋/待埋、表层含义、真实含义、预计回收阶段；已经回收的不要重复当新伏笔。
+                8. stagePlan：按阶段安排冲突、甜点、反转、低谷、高潮和喘息，避免长篇一直原地打转。
+                9. endingDirection：结局方向与必须兑现的核心承诺，可以保留少量可调整空间。
+                10. romanceAesthetics：感情戏的审美执行。男女主外貌与吸引力描写要自然、有画面，善用眼神、手指、腕骨、锁骨、肩颈线条、衣料、声音、呼吸、距离、光影、动作停顿和潜台词制造心动感；不能机械重复部位，也不能牺牲人物性格与剧情。
+
+                目标只有两个：精彩、连贯。未来规划要有主动人物、因果链、伏笔与回收、关系变化和真正推进的事件。
+                只输出合法JSON对象，不要Markdown：
+                {"cast":"","characterArcs":"","relationshipArc":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadows":"","stagePlan":"","endingDirection":"","romanceAesthetics":"","updatedThroughChapter":0}
+            """.trimIndent(),
+            source = "剧场",
+            title = "$storyTitle · 幕后规划",
+            maxTokens = 5_800,
+            connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
+            contextMode = CompanionContextMode.Isolated,
+            readTimeoutMillis = 240_000,
+        ).getOrThrow().text
+        parseStoryBible(raw, writtenChapters.size)
+    }
+
     suspend fun generateChapterPlans(
         characterId: String,
         storyTitle: String,
@@ -64,6 +123,8 @@ internal object StarWishTheaterPlanningEngine {
         chapterCount: Int,
         writtenChapters: List<StarWishTheaterChapter> = emptyList(),
         existingPlans: List<StarWishChapterPlan> = emptyList(),
+        storyBible: StarWishStoryBible? = null,
+        ledger: StarWishStoryLedger? = null,
     ): Result<List<StarWishChapterPlan>> = runCatching {
         require(storyGuide.isNotBlank()) { "总大纲不能为空" }
         require(chapterCount in 1..StarWishRules.MAX_CHAPTERS_PER_THEATER) { "章节数量不正确" }
@@ -92,7 +153,13 @@ internal object StarWishTheaterPlanningEngine {
             }
             val facts = buildString {
                 appendLine("独立剧场故事：《$storyTitle》")
-                appendLine("固定总大纲（不得重写、替换或改变故事基调）：\n$storyGuide")
+                appendLine("故事地图（核心方向与看点，不得推翻）：\n$storyGuide")
+                storyBible?.promptText()?.takeIf(String::isNotBlank)?.let {
+                    appendLine("幕后长期规划，逐章规划必须从这里落地：\n$it")
+                }
+                ledger?.promptText()?.takeIf(String::isNotBlank)?.let {
+                    appendLine("正文当前状态与硬事实，绝对不得违背：\n$it")
+                }
                 appendLine("全书计划共 $chapterCount 章。")
                 appendLine("前 $lockedCount 章已经写成正文，绝对不能重新规划或改写；只规划尚未写出的章节。")
                 appendLine("本批只规划第 $start 至第 $end 章。")
@@ -100,8 +167,9 @@ internal object StarWishTheaterPlanningEngine {
                 if (previous.isNotBlank()) appendLine("前几章规划，仅用于连续性：\n$previous")
             }
             val instruction = """
-                你是小说作者兼剧情导演。根据固定总大纲，为指定章节生成真正可执行的逐章写作框架。
-                不要重写总大纲，不要改世界观、故事基调、核心关系或最终方向；你只负责把全局大纲拆成具体章节。
+                你是小说作者兼剧情导演。根据故事地图、幕后长期规划和正文已确认事实，为指定章节生成真正可执行的逐章写作框架。
+                已写正文与硬事实优先级最高；不得让死人复活、亲属关系变动、身份/伤势/物品/已知信息回滚，除非正文明确给出合理反转依据。
+                不要重写故事核心；“重新生成”的目标是让尚未发生的后续更有吸引力、更有因果、更想让人继续读，而不是推翻前文。
 
                 每一章的 outline 必须明确写出：
                 1. 本章在全书中的阶段功能；
@@ -149,6 +217,23 @@ internal object StarWishTheaterPlanningEngine {
         }
 
         collected.mapIndexed { index, plan -> plan.copy(number = index + 1) }
+    }
+
+    private fun parseStoryBible(raw: String, writtenCount: Int): StarWishStoryBible {
+        val root = parseJsonValue(raw) as? JSONObject ?: error("幕后规划格式无法识别")
+        return StarWishStoryBible(
+            cast = text(root, "cast", "人物", "人物设定", "人物卡"),
+            characterArcs = text(root, "characterArcs", "人物成长", "成长弧"),
+            relationshipArc = text(root, "relationshipArc", "感情线", "关系线"),
+            plotSpine = text(root, "plotSpine", "故事脉络", "剧情脉络"),
+            mainLine = text(root, "mainLine", "明线", "主线"),
+            hiddenLine = text(root, "hiddenLine", "暗线"),
+            foreshadows = text(root, "foreshadows", "伏笔", "伏笔系统"),
+            stagePlan = text(root, "stagePlan", "阶段规划", "阶段高潮"),
+            endingDirection = text(root, "endingDirection", "结局方向", "结局"),
+            romanceAesthetics = text(root, "romanceAesthetics", "感情描写", "审美执行"),
+            updatedThroughChapter = root.optInt("updatedThroughChapter", writtenCount).coerceAtLeast(writtenCount),
+        )
     }
 
     private suspend fun repairStoryPayload(characterId: String, raw: String): Result<String> = runCatching {
