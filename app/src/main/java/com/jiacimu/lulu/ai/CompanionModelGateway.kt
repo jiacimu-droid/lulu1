@@ -391,14 +391,16 @@ class CompanionModelGateway(
     suspend fun fetchModels(baseUrl: String, apiKey: String): Result<List<String>> = withContext(Dispatchers.IO) {
         val cleanUrl = ModelConnectionStore.normalizeBaseUrl(baseUrl)
         val cleanKey = apiKey.trim()
-        val requestUrl = "$cleanUrl/models"
+        val nativeClaude = isNativeClaude(cleanUrl)
+        val requestUrl = if (nativeClaude) "${claudeBase(cleanUrl)}/models" else "$cleanUrl/models"
         val startedAt = System.nanoTime()
         runCatching {
             check(cleanUrl.isNotBlank()) { "请填写 API 地址" }
             check(cleanKey.isNotBlank()) { "请填写 API 密钥" }
             val json = requestGetJson(
                 url = requestUrl,
-                headers = mapOf("Authorization" to "Bearer $cleanKey"),
+                headers = if (nativeClaude) mapOf("x-api-key" to cleanKey, "anthropic-version" to "2023-06-01")
+                    else mapOf("Authorization" to "Bearer $cleanKey"),
             )
             val arrays = listOfNotNull(json.optJSONArray("data"), json.optJSONArray("models"))
             val models = buildList {
@@ -455,7 +457,7 @@ class CompanionModelGateway(
             }
             val connection = connectionOverride ?: connectionStore.resolveConnection(requestedArchiveId)
             attemptedModel = connection.model
-            requestUrl = "${connection.baseUrl}/chat/completions"
+            requestUrl = if (isNativeClaude(connection.baseUrl)) "${claudeBase(connection.baseUrl)}/messages" else "${connection.baseUrl}/chat/completions"
             val character = MigratedDomainStores.characters.get(characterId)
             val fullContext = contextMode == CompanionContextMode.Full
             val personaContext = contextMode == CompanionContextMode.PersonaAndScenario
@@ -618,6 +620,12 @@ class CompanionModelGateway(
         }
     }
 
+    private fun isNativeClaude(baseUrl: String): Boolean =
+        runCatching { URL(baseUrl).host == "api.anthropic.com" }.getOrDefault(false) || baseUrl.endsWith("/messages")
+
+    private fun claudeBase(baseUrl: String): String = baseUrl.trimEnd('/').removeSuffix("/messages")
+        .let { if (it.endsWith("/v1")) it else "$it/v1" }
+
     private fun openAiCompatible(
         connection: ModelConnection,
         system: String,
@@ -628,12 +636,12 @@ class CompanionModelGateway(
         readTimeoutMillis: Int,
         onStreamText: ((String) -> Unit)?,
     ): ModelReply {
-        val nativeClaude = runCatching { URL(connection.baseUrl).host == "api.anthropic.com" }.getOrDefault(false) || connection.baseUrl.endsWith("/messages")
+        val nativeClaude = isNativeClaude(connection.baseUrl)
         if (nativeClaude) {
             val body = JSONObject().put("model", connection.model).put("system", system)
                 .put("max_tokens", maxTokens ?: 1200).put("stream", streamResponse)
                 .put("messages", JSONArray().put(JSONObject().put("role", "user").put("content", user)))
-            val url = if (connection.baseUrl.endsWith("/messages")) connection.baseUrl else connection.baseUrl.trimEnd('/').let { if (it.endsWith("/v1")) "$it/messages" else "$it/v1/messages" }
+            val url = "${claudeBase(connection.baseUrl)}/messages"
             val headers = mapOf("x-api-key" to connection.apiKey, "anthropic-version" to "2023-06-01")
             if (streamResponse) return requestPostStreamingReply(url, headers, body, readTimeoutMillis, onStreamText)
             val json = requestPostJson(url, headers, body, readTimeoutMillis)
