@@ -52,6 +52,33 @@ internal data class StarWishStoryLedger(
     val updatedThroughChapter: Int = 0,
 )
 
+internal data class StarWishStoryBible(
+    val cast: String = "",
+    val characterArcs: String = "",
+    val relationshipArc: String = "",
+    val plotSpine: String = "",
+    val mainLine: String = "",
+    val hiddenLine: String = "",
+    val foreshadows: String = "",
+    val stagePlan: String = "",
+    val endingDirection: String = "",
+    val romanceAesthetics: String = "",
+    val updatedThroughChapter: Int = 0,
+) {
+    fun promptText(): String = buildString {
+        if (cast.isNotBlank()) appendLine("人物与人设：$cast")
+        if (characterArcs.isNotBlank()) appendLine("人物成长弧：$characterArcs")
+        if (relationshipArc.isNotBlank()) appendLine("长期感情线：$relationshipArc")
+        if (plotSpine.isNotBlank()) appendLine("故事脉络：$plotSpine")
+        if (mainLine.isNotBlank()) appendLine("明线：$mainLine")
+        if (hiddenLine.isNotBlank()) appendLine("暗线：$hiddenLine")
+        if (foreshadows.isNotBlank()) appendLine("伏笔系统：$foreshadows")
+        if (stagePlan.isNotBlank()) appendLine("阶段高潮与节奏：$stagePlan")
+        if (endingDirection.isNotBlank()) appendLine("结局方向：$endingDirection")
+        if (romanceAesthetics.isNotBlank()) appendLine("感情与审美描写：$romanceAesthetics")
+    }.trim()
+}
+
 internal data class StarWishState(
     val imageLaunches: List<StarWishImageLaunch> = emptyList(),
     val customPrompts: Map<String, StarWishOutfitPrompts> = emptyMap(),
@@ -59,6 +86,7 @@ internal data class StarWishState(
     val theaterGuides: Map<String, String> = emptyMap(),
     val theaterPlans: Map<String, List<StarWishChapterPlan>> = emptyMap(),
     val theaterLedgers: Map<String, StarWishStoryLedger> = emptyMap(),
+    val theaterBibles: Map<String, StarWishStoryBible> = emptyMap(),
 )
 
 internal data class StarWishOutfitPrompts(
@@ -139,6 +167,10 @@ internal class StarWishStore private constructor(context: Context) {
         current.copy(theaterLedgers = current.theaterLedgers + (theater to ledger))
     }
 
+    fun setBible(theater: String, bible: StarWishStoryBible) = update { current ->
+        current.copy(theaterBibles = current.theaterBibles + (theater to bible))
+    }
+
     fun addChapter(chapter: StarWishTheaterChapter) {
         update { current ->
             current.copy(theaterChapters = current.theaterChapters + (chapter.theater to (current.theaterChapters[chapter.theater].orEmpty() + chapter)))
@@ -168,6 +200,7 @@ internal class StarWishStore private constructor(context: Context) {
             theaterGuides = current.theaterGuides - theater,
             theaterPlans = current.theaterPlans - theater,
             theaterLedgers = current.theaterLedgers - theater,
+            theaterBibles = current.theaterBibles - theater,
         )
     }
 
@@ -203,6 +236,7 @@ internal class StarWishStore private constructor(context: Context) {
         .put("guides", JSONObject(value.theaterGuides))
         .put("plans", JSONObject().apply { value.theaterPlans.forEach { (name, plans) -> put(name, JSONArray().apply { plans.forEach { put(encodePlan(it)) } }) } })
         .put("ledgers", JSONObject().apply { value.theaterLedgers.forEach { (name, ledger) -> put(name, encodeLedger(ledger)) } })
+        .put("bibles", JSONObject().apply { value.theaterBibles.forEach { (name, bible) -> put(name, encodeBible(bible)) } })
 
     private fun decode(root: JSONObject): StarWishState {
         val prompts = root.optJSONObject("prompts").decodeMap { item -> StarWishOutfitPrompts(item.optString("solo"), item.optString("interaction")) }
@@ -229,6 +263,7 @@ internal class StarWishStore private constructor(context: Context) {
         }.orEmpty()
         val plans = root.optJSONObject("plans").decodeArrayMap(::decodePlan)
         val ledgers = root.optJSONObject("ledgers").decodeObjectMap(::decodeLedger)
+        val bibles = root.optJSONObject("bibles").decodeObjectMap(::decodeBible)
         return StarWishState(
             imageLaunches = root.optJSONArray("images").decodeObjects(::decodeImage),
             customPrompts = prompts,
@@ -236,6 +271,7 @@ internal class StarWishStore private constructor(context: Context) {
             theaterGuides = guides,
             theaterPlans = plans,
             theaterLedgers = ledgers,
+            theaterBibles = bibles,
         )
     }
 
@@ -280,6 +316,23 @@ internal class StarWishStore private constructor(context: Context) {
         worldState = item.optString("worldState"), relationships = item.optString("relationships"),
         openThreads = item.optString("openThreads"), foreshadows = item.optString("foreshadows"),
         keyItems = item.optString("keyItems"), updatedThroughChapter = item.optInt("updatedThroughChapter"),
+    )
+
+    private fun encodeBible(value: StarWishStoryBible) = JSONObject()
+        .put("cast", value.cast).put("characterArcs", value.characterArcs)
+        .put("relationshipArc", value.relationshipArc).put("plotSpine", value.plotSpine)
+        .put("mainLine", value.mainLine).put("hiddenLine", value.hiddenLine)
+        .put("foreshadows", value.foreshadows).put("stagePlan", value.stagePlan)
+        .put("endingDirection", value.endingDirection).put("romanceAesthetics", value.romanceAesthetics)
+        .put("updatedThroughChapter", value.updatedThroughChapter)
+
+    private fun decodeBible(item: JSONObject) = StarWishStoryBible(
+        cast = item.optString("cast"), characterArcs = item.optString("characterArcs"),
+        relationshipArc = item.optString("relationshipArc"), plotSpine = item.optString("plotSpine"),
+        mainLine = item.optString("mainLine"), hiddenLine = item.optString("hiddenLine"),
+        foreshadows = item.optString("foreshadows"), stagePlan = item.optString("stagePlan"),
+        endingDirection = item.optString("endingDirection"), romanceAesthetics = item.optString("romanceAesthetics"),
+        updatedThroughChapter = item.optInt("updatedThroughChapter"),
     )
 
     companion object {
