@@ -301,9 +301,12 @@ internal class StarWishPlanGenerationWorker(
             val store = StarWishStores.main
             val planSnapshot = store.state.value
             var expected = planSnapshot
+            val selectedIds = planSnapshot.theaterWorldBookIds[theater].orEmpty()
+            val worldBookContext = TheaterWorldBookContext.capture(selectedIds, LuluRepositories.worldBook.snapshot())
             fun saveProgress(action: () -> Unit) {
                 check(!isStopped) { "规划已停止" }
                 manager.commitIfCurrent(theater, requestId) {
+                    worldBookContext.requireUnchanged(selectedIds, LuluRepositories.worldBook.snapshot())
                     store.updateTheaterIfUnchanged(theater, expected, action)
                     expected = store.state.value
                 }
@@ -315,7 +318,7 @@ internal class StarWishPlanGenerationWorker(
                 starWishPlansFromLegacyGuide(guide)
             }
             val ledger = planSnapshot.theaterLedgers[theater]
-            val theaterWorldBook = selectedWorldBookPrompt(planSnapshot.theaterWorldBookIds[theater].orEmpty())
+            val theaterWorldBook = worldBookContext.promptText()
             val existingBible = planSnapshot.theaterBibles[theater]
             val bible = StarWishTheaterPlanningEngine.generateStoryBible(
                 characterId = characterId,
@@ -376,9 +379,12 @@ internal class StarWishTheaterGenerationWorker(
         val store = StarWishStores.main
         val snapshot = store.state.value
         var expected = snapshot
+        val selectedIds = snapshot.theaterWorldBookIds[theater].orEmpty()
+        val worldBookContext = TheaterWorldBookContext.capture(selectedIds, LuluRepositories.worldBook.snapshot())
         fun saveProgress(action: () -> Unit) {
             check(!isStopped) { "续写已停止" }
             manager.commitIfCurrent(theater, requestId) {
+                worldBookContext.requireUnchanged(selectedIds, LuluRepositories.worldBook.snapshot())
                 store.updateTheaterIfUnchanged(theater, expected, action)
                 expected = store.state.value
             }
@@ -389,7 +395,7 @@ internal class StarWishTheaterGenerationWorker(
             manager.mark(theater, requestId, StarWishTheaterTaskStatus.SUCCEEDED, "第 $requestedChapter 章已保存")
             return Result.success()
         }
-        val theaterWorldBook = selectedWorldBookPrompt(snapshot.theaterWorldBookIds[theater].orEmpty())
+        val theaterWorldBook = worldBookContext.promptText()
         val chapterNumber = chapters.size + 1
         manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, "正在生成第 $chapterNumber 章；退出页面也会继续")
         return try {
@@ -533,7 +539,10 @@ internal class StarWishTheaterGenerationWorker(
                 userInfluence = influence,
             )
             coroutineContext.ensureActive()
-            manager.commitIfCurrent(theater, requestId) { store.appendGeneratedChapter(chapter, expected) }
+            manager.commitIfCurrent(theater, requestId) {
+                worldBookContext.requireUnchanged(selectedIds, LuluRepositories.worldBook.snapshot())
+                store.appendGeneratedChapter(chapter, expected)
+            }
             // The chapter is already durable. A failed auxiliary request must not hide it or regenerate it.
             val updated = updateLedger(theater, guide, plans, ledger, chapter)
             coroutineContext.ensureActive()
@@ -683,13 +692,6 @@ internal class StarWishTheaterGenerationWorker(
     }
 }
 
-private fun selectedWorldBookPrompt(ids: Set<String>): String {
-    if (ids.isEmpty()) return ""
-    return LuluRepositories.worldBook.snapshot()
-        .filter { it.id in ids }
-        .joinToString("\n") { entry -> "- ${entry.title}：${entry.content}" }
-        .trim()
-}
 internal fun StarWishStoryLedger.promptText(): String = buildString {
     if (summary.isNotBlank()) appendLine("剧情摘要：$summary")
     if (characters.isNotBlank()) appendLine("人物状态：$characters")

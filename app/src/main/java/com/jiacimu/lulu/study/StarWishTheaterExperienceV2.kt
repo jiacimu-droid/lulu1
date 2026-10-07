@@ -46,6 +46,7 @@ internal fun StarWishTheaterContentV2(
     var mode by rememberSaveable { mutableStateOf(TheaterV2Mode.BOOKSHELF) }
     var openedTitle by rememberSaveable { mutableStateOf<String?>(null) }
     var deleteTheaterTitle by remember { mutableStateOf<String?>(null) }
+    var draftWorldBookIds by rememberSaveable { mutableStateOf(listOf<String>()) }
 
     val allTheaters = remember(customTheaters) {
         (customTheaters + StarWishRules.theaters).distinctBy { it.title }
@@ -73,7 +74,7 @@ internal fun StarWishTheaterContentV2(
                 openedTitle = it
                 mode = TheaterV2Mode.READER
             },
-            onGenerate = { openedTitle = null; mode = TheaterV2Mode.GENERATOR },
+            onGenerate = { openedTitle = null; draftWorldBookIds = emptyList(); mode = TheaterV2Mode.GENERATOR },
             onDelete = { title -> deleteTheaterTitle = title },
         )
         TheaterV2Mode.READER -> if (openedSeed != null) {
@@ -174,6 +175,12 @@ internal fun StarWishTheaterContentV2(
             characterId = studyState.profile.selectedCharacterId,
             existingTitle = openedSeed?.title,
             existingGuide = openedSeed?.let { state.theaterGuides[it.title].orEmpty().ifBlank { it.prompt } },
+            worldBooks = availableWorldBooks,
+            selectedWorldBookIds = openedSeed?.let { state.theaterWorldBookIds[it.title].orEmpty() } ?: draftWorldBookIds.toSet(),
+            onWorldBookChange = { ids ->
+                if (openedSeed == null) draftWorldBookIds = ids.toList()
+                else store.setTheaterWorldBookIds(openedSeed.title, ids)
+            },
             onBack = { mode = if (openedSeed == null) TheaterV2Mode.BOOKSHELF else TheaterV2Mode.READER },
             onApply = { candidate ->
                 if (openedSeed == null) {
@@ -189,6 +196,7 @@ internal fun StarWishTheaterContentV2(
                     // explicitly with +3章 before asking the planner to build per-chapter details.
                     store.setStoryPlan(seed.title, candidate.storyGuide(), emptyList())
                     store.setBible(seed.title, candidate.storyBible())
+                    store.setTheaterWorldBookIds(seed.title, draftWorldBookIds.toSet())
                     openedTitle = seed.title
                 } else {
                     store.setStoryPlan(openedSeed.title, candidate.storyGuide(), candidate.chapterPlans())
@@ -886,7 +894,7 @@ private fun TheaterWorldBookSelectorV2(
             item {
                 Text("使用已有世界书", fontSize = 21.sp, fontWeight = FontWeight.Bold)
                 Text(
-                    "这里只选择原“世界书”App里的条目。被选中的世界书会在每次生成幕后规划、章节规划和正文时读取最新内容；世界书本身仍回原App编辑。",
+                    "本书单独选择，独立于角色聊天的全局开关。每次生成读取最新内容；修改规则后可在剧情规划中重新生成未来规划。",
                     color = StudyDesign.muted,
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -1045,6 +1053,9 @@ private fun TheaterPlotGeneratorV2(
     characterId: String,
     existingTitle: String?,
     existingGuide: String?,
+    worldBooks: List<com.jiacimu.lulu.core.WorldBookEntry>,
+    selectedWorldBookIds: Set<String>,
+    onWorldBookChange: (Set<String>) -> Unit,
     onBack: () -> Unit,
     onApply: (StarWishPlotCandidate) -> Unit,
 ) {
@@ -1054,6 +1065,15 @@ private fun TheaterPlotGeneratorV2(
     var error by remember { mutableStateOf("") }
     var candidates by remember { mutableStateOf<List<StarWishPlotCandidate>>(emptyList()) }
     var collapsedIndices by remember { mutableStateOf<Set<Int>>(emptySet()) }
+    var candidateWorldBookContext by remember { mutableStateOf<TheaterWorldBookContext?>(null) }
+    val liveWorldBookContext = TheaterWorldBookContext.capture(selectedWorldBookIds, worldBooks)
+    val latestWorldBookContext by rememberUpdatedState(liveWorldBookContext)
+    LaunchedEffect(liveWorldBookContext) {
+        if (candidateWorldBookContext != null && candidateWorldBookContext != liveWorldBookContext) {
+            candidates = emptyList()
+            error = "世界书已更新，请重新生成方案。"
+        }
+    }
 
     Column(Modifier.fillMaxSize().imePadding()) {
         Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 1.dp) {
@@ -1090,13 +1110,32 @@ private fun TheaterPlotGeneratorV2(
                             maxLines = 7,
                             shape = RoundedCornerShape(16.dp),
                         )
+                        if (worldBooks.isNotEmpty()) {
+                            Text("本书世界书", fontWeight = FontWeight.Bold)
+                            worldBooks.forEach { book ->
+                                Row(Modifier.fillMaxWidth().clickable(enabled = !generating) {
+                                    onWorldBookChange(if (book.id in selectedWorldBookIds) selectedWorldBookIds - book.id else selectedWorldBookIds + book.id)
+                                }, verticalAlignment = Alignment.CenterVertically) {
+                                    Text(book.title, Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    Checkbox(checked = book.id in selectedWorldBookIds, enabled = !generating,
+                                        onCheckedChange = { checked -> onWorldBookChange(if (checked) selectedWorldBookIds + book.id else selectedWorldBookIds - book.id) })
+                                }
+                            }
+                        }
                         Button(
                             onClick = {
                                 generating = true
                                 error = ""
                                 scope.launch {
-                                    StarWishTheaterPlanningEngine.generateStoryCandidates(characterId, existingTitle, existingGuide, direction.trim())
-                                        .onSuccess { candidates = it; collapsedIndices = emptySet() }
+                                    val requestContext = liveWorldBookContext
+                                    StarWishTheaterPlanningEngine.generateStoryCandidates(characterId, existingTitle, existingGuide, direction.trim(), requestContext.promptText())
+                                        .onSuccess {
+                                            if (requestContext == latestWorldBookContext) {
+                                                candidateWorldBookContext = requestContext
+                                                candidates = it
+                                                collapsedIndices = emptySet()
+                                            } else error = "世界书已更新，请重新生成方案。"
+                                        }
                                         .onFailure { error = it.message ?: "剧情规划生成失败" }
                                     generating = false
                                 }
@@ -1160,7 +1199,11 @@ private fun TheaterPlotGeneratorV2(
                             PlotSection("感情戏与人物描写", item.romanceAesthetics)
                             item.chapters.forEachIndexed { chapterIndex, chapter -> PlotSection("第${chapterIndex + 1}章", chapter) }
                         }
-                        Button(onClick = { onApply(item) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) {
+                        Button(onClick = {
+                            if (candidateWorldBookContext == latestWorldBookContext) onApply(item)
+                            else error = "世界书已更新，请重新生成方案。"
+                        }, enabled = !generating && candidateWorldBookContext == liveWorldBookContext,
+                            modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) {
                             Text(if (existingTitle == null) "选择这套并加入书架" else "应用这套剧情规划")
                         }
                     }

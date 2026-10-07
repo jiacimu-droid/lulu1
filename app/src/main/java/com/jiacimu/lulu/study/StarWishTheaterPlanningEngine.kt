@@ -13,12 +13,14 @@ internal object StarWishTheaterPlanningEngine {
         existingTitle: String?,
         existingGuide: String?,
         direction: String,
+        theaterWorldBook: String = "",
     ): Result<List<StarWishPlotCandidate>> = runCatching {
         val accepted = mutableListOf<StarWishPlotCandidate>()
         for (variant in 1..3) {
             val previous = accepted.joinToString("\n") { "《${it.title}》：${it.hook.take(180)}" }
             val facts = buildString {
                 appendLine("这是剧场 App 的独立长篇小说策划任务。")
+                if (theaterWorldBook.isNotBlank()) appendLine("本书选用世界书（必须遵守）：\n$theaterWorldBook")
                 if (!existingTitle.isNullOrBlank()) appendLine("现有故事标题：$existingTitle")
                 if (!existingGuide.isNullOrBlank()) appendLine("现有故事地图：\n$existingGuide")
                 if (direction.isNotBlank()) appendLine("用户提供的题材/一句话主题（最高优先级）：\n$direction")
@@ -75,6 +77,7 @@ internal object StarWishTheaterPlanningEngine {
                     raw = raw,
                     direction = direction,
                     variant = variant,
+                    theaterWorldBook = theaterWorldBook,
                 ).getOrNull()
                 if (!fixed.isNullOrBlank()) candidate = parseCandidates(fixed).firstOrNull()
             }
@@ -373,10 +376,12 @@ internal object StarWishTheaterPlanningEngine {
         raw: String,
         direction: String,
         variant: Int,
+        theaterWorldBook: String = "",
     ): Result<String> = runCatching {
         LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
+                if (theaterWorldBook.isNotBlank()) appendLine("本书选用世界书（必须遵守）：\n$theaterWorldBook")
                 if (direction.isNotBlank()) appendLine("用户原始题材：$direction")
                 appendLine("第${variant}套第一次输出如下。它可能JSON格式有问题，也可能缺字段：")
                 appendLine(raw.take(26_000))

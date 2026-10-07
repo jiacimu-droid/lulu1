@@ -39,17 +39,18 @@ jobs:
           python -m pip install -r services/requirements.txt
           python -m unittest discover -s services -p 'test_*.py' -v
 
-      - name: Build debug APK
+      - name: Test and build optimized APK
         run: |
           set -o pipefail
           mkdir -p ci-logs
           python scripts/test_timeline_migration.py
-          gradle --no-daemon --stacktrace :app:testDebugUnitTest :app:assembleDebug 2>&1 | tee ci-logs/gradle-build.log
+          gradle --no-daemon --stacktrace :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease 2>&1 | tee ci-logs/gradle-build.log
 
       - name: Collect APK
         run: |
           mkdir -p apk-artifacts
-          apk="$(find app/build/outputs/apk/debug -name '*-debug.apk' -print -quit)"
+          python scripts/apk_size_report.py app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/release/app-release.apk | tee ci-logs/apk-size.log
+          apk="$(find app/build/outputs/apk/release -name '*-release.apk' -print -quit)"
           test -n "$apk"
           cp "$apk" apk-artifacts/Lulu.apk
 

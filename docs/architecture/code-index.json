@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T17:16:16.507883+00:00",
-  "commit": "20645ea071711e191881fcdce0febe794c28b0e7",
-  "branch": "main",
-  "sourceFingerprint": "0f47b800e2819bbad8570741f0a1f46d14539995bf51d6e541b93f3a8a945311",
+  "generatedAt": "2026-10-07T17:41:31.822574+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "970b037603736e4b2545fc0eef81cc658856f53b7121ab574e7ba21ca9fbf652",
   "summary": {
-    "files": 318,
-    "lines": 84071,
-    "symbols": 1161
+    "files": 321,
+    "lines": 84223,
+    "symbols": 1165
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5946,6 +5946,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
         "line": 75
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt",
+        "line": 8
       }
     ],
     "defaultPrompts": [
@@ -6071,35 +6075,35 @@
     "generateNextChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 383
+        "line": 391
       }
     ],
     "appendOneChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 674
+        "line": 682
       }
     ],
     "appendThreeChapters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 681
+        "line": 689
       }
     ],
     "attemptBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 688
+        "line": 696
       }
     ],
     "saveProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 304
+        "line": 306
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 379
+        "line": 384
       }
     ],
     "StudyTaskSource": [
@@ -6294,6 +6298,18 @@
         "line": 10
       }
     ],
+    "requireUnchanged": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt",
+        "line": 13
+      }
+    ],
+    "capture": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt",
+        "line": 19
+      }
+    ],
     "LuluAccessibilityService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -6484,6 +6500,12 @@
         "line": 12
       }
     ],
+    "TheaterWorldBookContextTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt",
+        "line": 6
+      }
+    ],
     "TimelineMigrationTest": [
       {
         "path": "scripts/test_timeline_migration.py",
@@ -6494,8 +6516,8 @@
   "files": [
     {
       "path": "app/build.gradle.kts",
-      "lines": 107,
-      "sha256": "0c20868bd319ad181063774a753080468c4083e3019692641ba40d0960901937",
+      "lines": 114,
+      "sha256": "7813bedee493d2e0fd253d4deb3e8130d12fedc748189e5e7c53aba6e59d37df",
       "symbols": []
     },
     {
@@ -12570,31 +12592,31 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-      "lines": 1181,
-      "sha256": "b67d8d8e7c153d621464116f6b80da9930a9db19bc26342202038d21a250fd28",
+      "lines": 1224,
+      "sha256": "28fa439d61e0fa234de316185062b82b48797d7e1525ebf7d8f9af57d0c43758",
       "symbols": [
         {
           "name": "generateNextChapter",
-          "line": 383
+          "line": 391
         },
         {
           "name": "appendOneChapter",
-          "line": 674
+          "line": 682
         },
         {
           "name": "appendThreeChapters",
-          "line": 681
+          "line": 689
         },
         {
           "name": "attemptBack",
-          "line": 688
+          "line": 696
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-      "lines": 703,
-      "sha256": "7971feea1d506b77b49b1967f8028c4b4f7d64dad8dcbd48cf4cd188f97c446f",
+      "lines": 705,
+      "sha256": "2b6c27190c6fe6bfe8dda16d43ec9e112047e94eee0348a3456444f4c212a58e",
       "symbols": [
         {
           "name": "get",
@@ -12606,11 +12628,11 @@
         },
         {
           "name": "saveProgress",
-          "line": 304
+          "line": 306
         },
         {
           "name": "saveProgress",
-          "line": 379
+          "line": 384
         }
       ]
     },
@@ -12622,8 +12644,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
-      "lines": 775,
-      "sha256": "91aa0675490d723c45680282930653ca8f9861cedc1c85edce4791bccdfd1df0",
+      "lines": 780,
+      "sha256": "fe30a7f8aef565c1b1a154f76b3bf5783c0b70687d076e48baa78967aba4456a",
       "symbols": []
     },
     {
@@ -12862,6 +12884,25 @@
         {
           "name": "parse",
           "line": 10
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt",
+      "lines": 25,
+      "sha256": "d323c4385f1efcedf25e28e412c3769e936ff2e75163e6c2b112f77ab4c6454d",
+      "symbols": [
+        {
+          "name": "promptText",
+          "line": 8
+        },
+        {
+          "name": "requireUnchanged",
+          "line": 13
+        },
+        {
+          "name": "capture",
+          "line": 19
         }
       ]
     },
@@ -13211,9 +13252,26 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt",
+      "lines": 32,
+      "sha256": "f9746458e765e460e080ff70e3c356deafb3154e5f8ccd6869c2102e0a408930",
+      "symbols": [
+        {
+          "name": "TheaterWorldBookContextTest",
+          "line": 6
+        }
+      ]
+    },
+    {
       "path": "scripts/DigitalWorldEventRulesTest.java",
       "lines": 36,
       "sha256": "9a8ddeac747cfaa420d84b2e8ed5b4ad8fbb263b6b2bdc438e42ab21a673973b",
+      "symbols": []
+    },
+    {
+      "path": "scripts/apk_size_report.py",
+      "lines": 38,
+      "sha256": "24f2203105c5dd7e3a17b5a00e96c0e6eaa5e57f79d771bb4e7b6a01dba9d766",
       "symbols": []
     },
     {

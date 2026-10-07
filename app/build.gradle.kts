@@ -59,6 +59,13 @@ android {
         getByName("debug") {
             signingConfig = signingConfigs.getByName("debug")
         }
+        getByName("release") {
+            // Use the existing certificate and application ID for cover installs.
+            signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
     }
 
     buildFeatures {
