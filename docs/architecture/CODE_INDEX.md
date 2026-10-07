@@ -3,8 +3,8 @@
 - 基准提交：`8b3c9e13136a7a78483558056d74906503938bc5`
 - 分支：`main`
 - 已索引文件：305
-- 已索引代码/文本行：81433
-- 已发现符号：1121
+- 已索引代码/文本行：81445
+- 已发现符号：1122
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -13,7 +13,7 @@
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 98 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 103 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 75 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 77 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 28 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 65 | 0 |
@@ -58,7 +58,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 125 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 452 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 707 | 13 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 710 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt` | 80 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt` | 220 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt` | 178 | 9 |
@@ -302,7 +302,7 @@
 | `app/src/main/res/values/strings.xml` | 6 | 0 |
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
-| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 76 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 83 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 90 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 24 | 1 |

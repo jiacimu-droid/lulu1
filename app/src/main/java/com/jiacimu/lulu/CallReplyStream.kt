@@ -5,6 +5,8 @@ internal class CallReplyStream {
     private var emitted = 0
     private var snapshot = ""
     private var finished = false
+    val isFinished: Boolean get() = finished
+    fun cancel() { finished = true }
 
     fun update(envelope: String): List<String> {
         if (finished) return emptyList()

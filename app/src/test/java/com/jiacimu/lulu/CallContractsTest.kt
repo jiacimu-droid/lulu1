@@ -66,6 +66,13 @@ class CallContractsTest {
         assertNull(CallReplyStream.replyTextPrefix("{\"innerThought\":\"secret\",\"text\":\"不要念\"}"))
     }
     @Test fun streamingDecoderHandlesIncompleteEscapesAndFinalMismatch() {
+        val cancelled = CallReplyStream()
+        cancelled.cancel()
+        assertTrue(cancelled.isFinished)
+        assertTrue(cancelled.update("{\"action\":\"reply\",\"text\":\"迟到的一句。\"}").isEmpty())
+        val whitespace = CallReplyStream()
+        whitespace.update("{\"action\":\"reply\",\"text\":\"  完整一句话。")
+        assertTrue(whitespace.finish("  完整一句话。").isEmpty())
         assertEquals("你好", CallReplyStream.replyTextPrefix("{\"action\":\"reply\",\"text\":\"你好\\u4"))
         val stream = CallReplyStream()
         stream.update("{\"action\":\"reply\",\"text\":\"已经播放的话。")

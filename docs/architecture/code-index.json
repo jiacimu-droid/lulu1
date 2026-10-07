@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T12:03:31.583928+00:00",
+  "generatedAt": "2026-10-07T12:05:29.818681+00:00",
   "commit": "8b3c9e13136a7a78483558056d74906503938bc5",
   "branch": "main",
-  "sourceFingerprint": "32ba6dae779b34543c081410a16335e4d15acb65f0fc28c7b52a652516b5b0e7",
+  "sourceFingerprint": "1448ce0584490de3fd5a3aee1a0cab1022b08d54ccb647dfd1d7328fdabe5208",
   "summary": {
     "files": 305,
-    "lines": 81433,
-    "symbols": 1121
+    "lines": 81445,
+    "symbols": 1122
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -108,10 +108,28 @@
         "line": 87
       }
     ],
+    "cancel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
+        "line": 9
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 138
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
+        "line": 64
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
+        "line": 93
+      }
+    ],
     "update": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
-        "line": 8
+        "line": 10
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -137,7 +155,7 @@
     "finish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
-        "line": 16
+        "line": 18
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
@@ -147,7 +165,7 @@
     "replyTextPrefix": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
-        "line": 41
+        "line": 43
       }
     ],
     "provider": [
@@ -1095,19 +1113,19 @@
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 520
+        "line": 523
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 549
+        "line": 552
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 621
+        "line": 624
       }
     ],
     "MeetingReplyTaskManager": [
@@ -2298,20 +2316,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
         "line": 121
-      }
-    ],
-    "cancel": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 138
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 64
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 93
       }
     ],
     "removeBySourceEvent": [
@@ -6337,20 +6341,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
-      "lines": 75,
-      "sha256": "afe3452fe5900420c2a2b41003b17ab7f057f6fa88fc40bb120160a71e53f193",
+      "lines": 77,
+      "sha256": "e716d406f1c5c814943b9d6885b43f7ad8746e91af0c3d4c93dac8ee55549f23",
       "symbols": [
         {
+          "name": "cancel",
+          "line": 9
+        },
+        {
           "name": "update",
-          "line": 8
+          "line": 10
         },
         {
           "name": "finish",
-          "line": 16
+          "line": 18
         },
         {
           "name": "replyTextPrefix",
-          "line": 41
+          "line": 43
         }
       ]
     },
@@ -6997,8 +7005,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 707,
-      "sha256": "f711ba4e0e3075fc939d5bb49ace0657f0bf51243683854e3fc7b8a9d33bab71",
+      "lines": 710,
+      "sha256": "4931f550884826adf2874a6c116fcd0a1bf95290964e2c7771d9f44a6ee4ad19",
       "symbols": [
         {
           "name": "prepare",
@@ -7042,15 +7050,15 @@
         },
         {
           "name": "sameSession",
-          "line": 520
+          "line": 523
         },
         {
           "name": "retryListening",
-          "line": 549
+          "line": 552
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 621
+          "line": 624
         }
       ]
     },
@@ -12667,8 +12675,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt",
-      "lines": 76,
-      "sha256": "7009b6bfe90cc4b37cf6c67ead4323f6b593a3dfce78d24a1681017adc91594c",
+      "lines": 83,
+      "sha256": "743f0a69b52e94f454f6d0add4c9d22d83bdf74c478fefa078c1244d7823ca9c",
       "symbols": [
         {
           "name": "CallContractsTest",

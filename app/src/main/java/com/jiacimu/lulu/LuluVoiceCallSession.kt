@@ -471,7 +471,7 @@ internal object LuluVoiceCallSession {
                 archiveId = archiveId,
                 sceneContext = "你正在和用户进行一对一实时电话。你能意识到电话已经接通，听见的是用户刚刚在电话里说的话；具体关系与称呼必须服从你的人设。回复要像真实通话，口语自然。普通接话优先一到两句有内容的话，不每次长篇解释；用户要求详细内容时再展开。不要朗读说明文字。",
                 onReplyStream = { envelope -> scope.launch {
-                    if (!sameReply()) return@launch
+                    if (!sameReply() || stream.isFinished) return@launch
                     val parts = stream.update(envelope)
                     CallReplyStream.replyTextPrefix(envelope)?.let { candidate ->
                         mutableState.update { it.copy(generatedTranscript = candidate) }
@@ -480,8 +480,9 @@ internal object LuluVoiceCallSession {
                 } },
             ).onSuccess { reply ->
                 if (generation != replyGeneration || !mutableState.value.connected || mutableState.value.callExperienceId != latest.callExperienceId) return@onSuccess
-                val text = reply.text.trim()
+                val text = reply.text
                 if (text.isBlank()) {
+                    stream.cancel()
                     speechQueue?.stop()
                     mutableState.update { it.copy(thinking = false, statusMessage = "刚才没有听清回复，再说一句吧") }
                     scheduleListening(300)
@@ -489,6 +490,7 @@ internal object LuluVoiceCallSession {
                 }
                 finalText = text
                 val remaining = runCatching { stream.finish(text) }.getOrElse { error ->
+                    stream.cancel()
                     speechQueue?.stop()
                     mutableState.update { it.copy(thinking = false, speaking = false, errorMessage = error.message.orEmpty()) }
                     return@onSuccess
@@ -499,6 +501,7 @@ internal object LuluVoiceCallSession {
                 clearWhenHeard()
             }.onFailure { error ->
                 if (generation != replyGeneration || !mutableState.value.connected) return@onFailure
+                stream.cancel()
                 speechQueue?.stop()
                 mutableState.update {
                     it.copy(
