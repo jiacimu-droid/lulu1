@@ -3,7 +3,7 @@
 - 基准提交：`85ade420b25a97b4d0172fee36daa7a7e1ea315b`
 - 分支：`main`
 - 已索引文件：310
-- 已索引代码/文本行：81903
+- 已索引代码/文本行：81912
 - 已发现符号：1135
 
 | 文件 | 行数 | 符号数 |
@@ -152,7 +152,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 337 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 814 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 823 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 476 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 108 | 4 |

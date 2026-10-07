@@ -28,6 +28,7 @@ class LocalMemoryRepository : MemoryRepository {
     private val state = MutableStateFlow(MemoryStoreState())
     private val debugFlow = MutableStateFlow(MemoryDebugState())
     private val extractionLocks = mutableMapOf<String, Mutex>()
+    private val historyGenerations = mutableMapOf<String, Long>()
     private var prefs: android.content.SharedPreferences? = null
     private var advancedPrefs: android.content.SharedPreferences? = null
     private val lock = Any()
@@ -70,11 +71,14 @@ class LocalMemoryRepository : MemoryRepository {
 
     /** Clear history bookkeeping too, allowing the new life to learn the same fact again. */
     fun clearCharacterHistory(characterId: String) {
-        mutate { current -> current.copy(
-            entries = current.entries.filterNot { it.characterId == characterId },
-            processedMessageIds = current.processedMessageIds - characterId,
-            deletedMemoryKeys = current.deletedMemoryKeys.filterNot { it.startsWith("$characterId:") }.toSet(),
-        ) }
+        mutate { current ->
+            historyGenerations[characterId] = (historyGenerations[characterId] ?: 0L) + 1L
+            current.copy(
+                entries = current.entries.filterNot { it.characterId == characterId },
+                processedMessageIds = current.processedMessageIds - characterId,
+                deletedMemoryKeys = current.deletedMemoryKeys.filterNot { it.startsWith("$characterId:") }.toSet(),
+            )
+        }
         MemoryInspectionStore.clearCharacter(characterId)
         refreshDebug("经历与记忆已清空，角色资料与记忆设置保留", characterId)
     }
@@ -90,12 +94,14 @@ class LocalMemoryRepository : MemoryRepository {
     }
 
     private suspend fun summarizeContinuously(characterId: String) {
+        val generation = synchronized(lock) { historyGenerations[characterId] ?: 0L }
         val policy = state.value.resolvedPolicy(characterId)
         val threshold = policy.readableThreshold.coerceAtLeast(1)
         var processedThisRun = 0
         var extractedThisRun = 0
 
         while (true) {
+            if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
             // Re-read every loop. A source event may be deleted while the model request is in flight;
             // a frozen readable list would otherwise keep retrying a no-longer-existing event.
             val readable = readableMessages(characterId, policy)
@@ -221,6 +227,8 @@ class LocalMemoryRepository : MemoryRepository {
                 }
 
             mutate { current ->
+                // A reset can race the gap between source revalidation and this atomic save.
+                if ((historyGenerations[characterId] ?: 0L) != generation) return@mutate current
                 val currentProcessed = current.processedMessageIds[characterId].orEmpty()
                 current.copy(
                     entries = current.entries + unique,
@@ -229,6 +237,7 @@ class LocalMemoryRepository : MemoryRepository {
                 )
             }
 
+            if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
             processedThisRun += liveBatchIds.size
             extractedThisRun += unique.size
             val freshReadable = readableMessages(characterId, policy)

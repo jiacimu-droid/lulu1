@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T13:46:04.302447+00:00",
+  "generatedAt": "2026-10-07T13:48:21.458681+00:00",
   "commit": "85ade420b25a97b4d0172fee36daa7a7e1ea315b",
   "branch": "main",
-  "sourceFingerprint": "4623541ddba910176ac69e6ce41ba9b744cc3d05b4b79edc0c0be201465869c3",
+  "sourceFingerprint": "7d0ace993203351c9041d8aa4d94400df9edcc72789c7d430bf1154b9fa9757a",
   "summary": {
     "files": 310,
-    "lines": 81903,
+    "lines": 81912,
     "symbols": 1135
   },
   "symbolIndex": {
@@ -355,7 +355,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 36
+        "line": 37
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
@@ -1885,7 +1885,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 784
+        "line": 793
       }
     ],
     "DevelopmentKind": [
@@ -2127,7 +2127,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 260
+        "line": 269
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
@@ -3177,7 +3177,7 @@
     "clearCharacterHistory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 72
+        "line": 73
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
@@ -3187,37 +3187,37 @@
     "pendingMessageCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 414
+        "line": 423
       }
     ],
     "pendingTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 416
+        "line": 425
       }
     ],
     "contextTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 427
+        "line": 436
       }
     ],
     "refreshInspection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 516
+        "line": 525
       }
     ],
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 705
+        "line": 714
       }
     ],
     "grams": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 758
+        "line": 767
       }
     ],
     "ApiUsageSource": [
@@ -9240,8 +9240,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 814,
-      "sha256": "416a6348bc753388b3cb931b470099519c149c6d18bfe613b6306d05a8ed2367",
+      "lines": 823,
+      "sha256": "3656bb59a4c5cc051de9f6a19a89595d0cf0503d0e69af7ca99477d3247a6bd9",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -9249,43 +9249,43 @@
         },
         {
           "name": "initialize",
-          "line": 36
+          "line": 37
         },
         {
           "name": "clearCharacterHistory",
-          "line": 72
+          "line": 73
         },
         {
           "name": "snapshot",
-          "line": 260
+          "line": 269
         },
         {
           "name": "pendingMessageCount",
-          "line": 414
+          "line": 423
         },
         {
           "name": "pendingTimelineEvents",
-          "line": 416
+          "line": 425
         },
         {
           "name": "contextTimelineEvents",
-          "line": 427
+          "line": 436
         },
         {
           "name": "refreshInspection",
-          "line": 516
+          "line": 525
         },
         {
           "name": "MemoryDebugState",
-          "line": 705
+          "line": 714
         },
         {
           "name": "grams",
-          "line": 758
+          "line": 767
         },
         {
           "name": "ids",
-          "line": 784
+          "line": 793
         }
       ]
     },
