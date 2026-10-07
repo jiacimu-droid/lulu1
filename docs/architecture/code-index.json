@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T14:10:53.059999+00:00",
-  "commit": "d45920c4c0e9a76ccba0637946fdfebd7347d261",
+  "generatedAt": "2026-10-07T14:48:20.900488+00:00",
+  "commit": "1a6f9c92356701504c050bfc9beb139a9e91cf4a",
   "branch": "main",
-  "sourceFingerprint": "522e441d490be6792eeccc69407a872d3805962fe174899bb4d201fd976c30a6",
+  "sourceFingerprint": "d5ad18c84361fdabfee662534b4191a588dc545c1c0e41237a8ca6b1803c4081",
   "summary": {
-    "files": 311,
-    "lines": 82044,
-    "symbols": 1143
+    "files": 312,
+    "lines": 82567,
+    "symbols": 1146
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -520,6 +520,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
         "line": 39
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
+        "line": 155
       }
     ],
     "replayCached": [
@@ -973,49 +977,49 @@
     "LuluMigrationRootAppV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 31
+        "line": 32
       }
     ],
     "characterIdForConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 107
+        "line": 108
       }
     ],
     "selectConversationCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 113
+        "line": 114
       }
     ],
     "pushRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 117
+        "line": 118
       }
     ],
     "openConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 121
+        "line": 122
       }
     ],
     "popRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 128
+        "line": 129
       }
     ],
     "replaceTop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 132
+        "line": 133
       }
     ],
     "openActivePomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 136
+        "line": 137
       }
     ],
     "LuluSettingsHomeScreen": [
@@ -1257,7 +1261,7 @@
     "MigrationEmptyScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
-        "line": 40
+        "line": 43
       }
     ],
     "Loading": [
@@ -2024,6 +2028,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
         "line": 131
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
+        "line": 255
       }
     ],
     "set": [
@@ -6019,13 +6027,19 @@
     "generateNextChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 299
+        "line": 309
+      }
+    ],
+    "appendThreeChapters": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
+        "line": 582
       }
     ],
     "attemptBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 569
+        "line": 589
       }
     ],
     "StudyTaskSource": [
@@ -7028,40 +7042,40 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 361,
-      "sha256": "db3a6151e3461c233eb12e450d2e9ce6fc06c112d5965ab9b99edc1dc3ce0823",
+      "lines": 364,
+      "sha256": "07e88b7d400b373ab42dcb493da6340a9b28e75d38c95356db63402ff0e7fcf7",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
-          "line": 31
+          "line": 32
         },
         {
           "name": "characterIdForConversation",
-          "line": 107
+          "line": 108
         },
         {
           "name": "selectConversationCharacter",
-          "line": 113
+          "line": 114
         },
         {
           "name": "pushRoute",
-          "line": 117
+          "line": 118
         },
         {
           "name": "openConversation",
-          "line": 121
+          "line": 122
         },
         {
           "name": "popRoute",
-          "line": 128
+          "line": 129
         },
         {
           "name": "replaceTop",
-          "line": 132
+          "line": 133
         },
         {
           "name": "openActivePomodoro",
-          "line": 136
+          "line": 137
         }
       ]
     },
@@ -7358,14 +7372,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 450,
-      "sha256": "5a81dff3d78adf1552b64dbdfc68d6f086b03959eb107c27f1ff89568e7a261f",
+      "lines": 451,
+      "sha256": "f76db8ac2bae81c56654730e20f108edd37d933e88f008a338074c5fb7799be5",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
-      "lines": 91,
-      "sha256": "627076f147ab7831db87c52a16b6e81d88a96a026630d5f222ca23cf9afd4a1f",
+      "lines": 94,
+      "sha256": "d49667790bdcbd50e1e54f6bcf6ee99fdc0c27064267d34125b15bfcf8b1ba05",
       "symbols": [
         {
           "name": "MigrationRoute",
@@ -7373,7 +7387,7 @@
         },
         {
           "name": "MigrationEmptyScreen",
-          "line": 40
+          "line": 43
         }
       ]
     },
@@ -12360,8 +12374,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt",
-      "lines": 119,
-      "sha256": "0f6207f1a58e0c7e38227b79a1bec9d2ebf6e85f75025b55cd54d9120610114f",
+      "lines": 70,
+      "sha256": "a66995a9d9dfc385832e9cc224dceda5c1f0724ff4f03ccd4813bc3363ef8a23",
       "symbols": []
     },
     {
@@ -12415,23 +12429,27 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-      "lines": 815,
-      "sha256": "b6a9368f2783228f29af628b2e0568e866957a00b527007968d9b8fd69d9efa0",
+      "lines": 860,
+      "sha256": "455858f521998248e44f68ec1b0ae73a860f255e03c08aaa20f43e51cf4a588a",
       "symbols": [
         {
           "name": "generateNextChapter",
-          "line": 299
+          "line": 309
+        },
+        {
+          "name": "appendThreeChapters",
+          "line": 582
         },
         {
           "name": "attemptBack",
-          "line": 569
+          "line": 589
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-      "lines": 317,
-      "sha256": "04ba183846a35dc4d6324d5e3abcd28392f3bcf49a3420fec1ce2d3998ba3d77",
+      "lines": 481,
+      "sha256": "fa1de00b46d865a0c7aab37872a4ebe6e0c9eeba672171cef11e953c684ff901",
       "symbols": [
         {
           "name": "enqueue",
@@ -12444,6 +12462,14 @@
         {
           "name": "get",
           "line": 131
+        },
+        {
+          "name": "enqueue",
+          "line": 155
+        },
+        {
+          "name": "get",
+          "line": 255
         }
       ]
     },
@@ -12451,6 +12477,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPanel.kt",
       "lines": 413,
       "sha256": "096908239e1d469f47a0db195629bd8c525befae5bfd063bc5ff9ac41ebe9185",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
+      "lines": 356,
+      "sha256": "91a0b9cac266e32c2603f038e0fd41a9b2df286f72ee1593fd06071ab755bf4d",
       "symbols": []
     },
     {
