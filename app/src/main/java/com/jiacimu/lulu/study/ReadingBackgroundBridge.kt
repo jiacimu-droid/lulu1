@@ -41,11 +41,10 @@ internal object ReadingBackgroundBridge {
             .map { (book, _) -> book }
         return interleave(theaterChapters, uploaded)
             .distinctBy(BackgroundReadingBook::id)
-            .take(80)
     }
 
     fun availableBooks(context: Context, characterId: String): List<BackgroundReadingBook> =
-        books(context).filter { progress(context, characterId, it) < it.content.length }
+        books(context).filter { progress(context, characterId, it) < it.content.length }.take(80)
 
     fun progressLabel(context: Context, characterId: String, book: BackgroundReadingBook): String {
         val offset = progress(context, characterId, book)

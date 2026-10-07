@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T16:47:41.330028+00:00",
-  "commit": "96bdc3e0ff24b0cc9c874e2749fb9623ea2261da",
-  "branch": "main",
-  "sourceFingerprint": "531da43a02ecd4b391ed5f451a5c4fbfb1f26cc90ffa98529a32f3a622083ab6",
+  "generatedAt": "2026-10-07T16:49:25.237668+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "62787b7eead759d563d18896eeb82128fe2a0662d95e16be79e03ce1a5d6fb59",
   "summary": {
     "files": 316,
-    "lines": 83923,
+    "lines": 83926,
     "symbols": 1159
   },
   "symbolIndex": {
@@ -1983,7 +1983,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 88
+        "line": 87
       }
     ],
     "CharacterIdentityStore": [
@@ -5869,25 +5869,25 @@
     "availableBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 46
+        "line": 45
       }
     ],
     "progressLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 49
+        "line": 48
       }
     ],
     "nextSlice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 60
+        "line": 59
       }
     ],
     "commitSlice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 81
+        "line": 80
       }
     ],
     "ReadingReflectionRecord": [
@@ -6071,25 +6071,25 @@
     "generateNextChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 380
+        "line": 383
       }
     ],
     "appendOneChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 671
+        "line": 674
       }
     ],
     "appendThreeChapters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 678
+        "line": 681
       }
     ],
     "attemptBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 685
+        "line": 688
       }
     ],
     "saveProgress": [
@@ -12025,7 +12025,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
       "lines": 145,
-      "sha256": "c946a5d63433ee0daa6eb3b0beae68c86cae0f9f64dd2491807b1adeee6f6888",
+      "sha256": "f57f654d313da67f17eec8a4b16858cfa7892106617ce91a3fcf0a83a960caac",
       "symbols": [
         {
           "name": "LuluReadingScreen",
@@ -12334,8 +12334,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-      "lines": 138,
-      "sha256": "a21a1b6291e25e87bfb2084cdefd49b86ae7c4d336c7a781ac867840a750ae65",
+      "lines": 137,
+      "sha256": "e77ebbf09a48ca1e67e72ed232ff1daeba1012a2e1fe659fec2971bd8ef51743",
       "symbols": [
         {
           "name": "books",
@@ -12343,23 +12343,23 @@
         },
         {
           "name": "availableBooks",
-          "line": 46
+          "line": 45
         },
         {
           "name": "progressLabel",
-          "line": 49
+          "line": 48
         },
         {
           "name": "nextSlice",
-          "line": 60
+          "line": 59
         },
         {
           "name": "commitSlice",
-          "line": 81
+          "line": 80
         },
         {
           "name": "clearCharacter",
-          "line": 88
+          "line": 87
         }
       ]
     },
@@ -12558,24 +12558,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-      "lines": 1177,
-      "sha256": "cd0f26c7d4bf5a2cbcdfb182bfdff84e2c60ee4f60c9504e62c3d67aeda9f6a1",
+      "lines": 1181,
+      "sha256": "b67d8d8e7c153d621464116f6b80da9930a9db19bc26342202038d21a250fd28",
       "symbols": [
         {
           "name": "generateNextChapter",
-          "line": 380
+          "line": 383
         },
         {
           "name": "appendOneChapter",
-          "line": 671
+          "line": 674
         },
         {
           "name": "appendThreeChapters",
-          "line": 678
+          "line": 681
         },
         {
           "name": "attemptBack",
-          "line": 685
+          "line": 688
         }
       ]
     },

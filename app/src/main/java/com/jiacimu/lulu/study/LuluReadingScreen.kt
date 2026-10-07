@@ -102,7 +102,7 @@ fun LuluReadingScreen(onBack: () -> Unit, initialBookTitle: String? = null) {
                             onClick = { characterId = character.characterId }, label = { Text(character.displayName) }) }
                     }
                     Text(ReadingBackgroundBridge.progressLabel(context, characterId, selected), style = MaterialTheme.typography.bodySmall)
-                    Button(enabled = !reading && characterId in characters && ReadingBackgroundBridge.availableBooks(context, characterId).any { it.id == selected.id },
+                    Button(enabled = !reading && characterId in characters && ReadingBackgroundBridge.nextSlice(context, characterId, selected.id) != null,
                         onClick = {
                             reading = true
                             scope.launch {

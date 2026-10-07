@@ -369,8 +369,11 @@ private fun TheaterReaderV2(
         if (chapters.isNotEmpty() && selectedIndex > chapters.lastIndex) selectedIndex = chapters.lastIndex
     }
 
+    var awaitingCompletion by remember(seed.title) { mutableStateOf(task?.active == true) }
     LaunchedEffect(task?.status, chapters.size) {
-        if (task?.status == StarWishTheaterTaskStatus.SUCCEEDED && chapters.isNotEmpty()) {
+        if (task?.active == true) awaitingCompletion = true
+        if (awaitingCompletion && task?.status == StarWishTheaterTaskStatus.SUCCEEDED && chapters.isNotEmpty()) {
+            awaitingCompletion = false
             if (influence == task.influence) influence = ""
             composerExpanded = false
             selectedIndex = chapters.lastIndex
@@ -684,6 +687,7 @@ private fun TheaterPlannerV2(
     }
 
     fun attemptBack() {
+        pendingBible = false
         if (dirty && !regenerating) confirmDiscard = true else onBack()
     }
     BackHandler(onBack = ::attemptBack)
@@ -846,7 +850,7 @@ private fun TheaterPlannerV2(
             onDismissRequest = { confirmDiscard = false },
             title = { Text(if (pendingBible) "保存后查看幕后规划？" else "放弃未保存的修改？") },
             text = { Text(if (pendingBible) "故事地图和逐章规划有未保存的修改。" else "返回阅读页后，这次编辑不会保留。") },
-            dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text("继续编辑") } },
+            dismissButton = { TextButton(onClick = { confirmDiscard = false; pendingBible = false }) { Text("继续编辑") } },
             confirmButton = { TextButton(onClick = { confirmDiscard = false; if (pendingBible) { onSave(guide.trim(), plans); onBible(); pendingBible = false } else onBack() }) { Text(if (pendingBible) "保存并查看" else "放弃修改") } },
         )
     }
