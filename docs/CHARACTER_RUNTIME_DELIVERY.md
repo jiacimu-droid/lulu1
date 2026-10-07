@@ -56,7 +56,8 @@
 - https://github.com/elevenlabs/elevenlabs-android/releases/tag/v0.12.2
 - https://elevenlabs.io/docs/eleven-agents/customization/llm/custom-llm
 - https://github.com/elevenlabs/skills/blob/main/agents/references/agent-configuration.md
-- https://docs.anthropic.com/en/api/messages
+- https://platform.claude.com/docs/en/api/messages
+- https://elevenlabs.io/docs/api-reference/text-to-speech/stream
 
 ## 文件任务与恢复
 
@@ -72,7 +73,7 @@
 
 ## 验证边界
 
-统一核心、实时SDK、成长、手机工具与文件任务提交 `cd72520` 已通过云端构建（运行37600497071），APK发布为lulu-v1177，12项服务测试及9项安卓测试通过。依赖仓库、JSON兼容及时间精度去重问题已修复，对应Issue188、189、190关闭。新增手机直接ElevenLabs TTS线路在后续提交中，最终安装包与构建结果以最终汇报为准。
+统一核心、实时SDK、成长、手机工具与文件任务提交 `cd72520` 已通过云端构建（运行37600497071），APK发布为lulu-v1177，12项服务测试及9项安卓测试通过。依赖仓库、JSON兼容及时间精度去重问题已修复，对应Issue188、189、190关闭。手机直接ElevenLabs TTS线路提交 `42e6d59` 也已通过服务测试、安卓测试与APK构建：运行37601944142，发布lulu-v1178。安装包：https://github.com/jiacimu-droid/lulu1/releases/download/lulu-v1178/Lulu.apk 。没有用个人账号在线试听或验证实时通话；通过构建不等于账号已验通。
 
 Python 服务测试12项在云端全部通过（本地11项通过、LibreOffice渲染1项因环境缺失跳过），覆盖身份隔离、幂等请求、租约恢复、重试上限、Claude协议转换、来源约束、Agent统一核心检查和渲染缺失不能报成功。SQLite迁移脚本通过。Kotlin/Robolectric 9项测试已在现有云端流程通过，包含原始数据迁移、重复事件、跨角色拒绝、版本纠正、删除不复活、成长依据与停用约束、语音打断及过期回复。
 
