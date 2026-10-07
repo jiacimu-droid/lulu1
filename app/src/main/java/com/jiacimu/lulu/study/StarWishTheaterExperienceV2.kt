@@ -842,10 +842,16 @@ private fun TheaterStoryBibleV2(
                     }
                 }
             } else {
+                item { PlotSection("世界观", bible.worldview) }
+                item { PlotSection("故事总纲", bible.overview) }
+                item { PlotSection("核心钩子", bible.hook) }
+                item { PlotSection("核心看点", bible.highlights) }
+                item { PlotSection("情绪曲线", bible.emotionalArc) }
+                item { PlotSection("文风执行", bible.proseStyle) }
                 item { PlotSection("人物与人设", bible.cast) }
                 item { PlotSection("人物成长弧", bible.characterArcs) }
                 item { PlotSection("长期感情线", bible.relationshipArc) }
-                item { PlotSection("故事脉络", bible.plotSpine) }
+                item { PlotSection("故事脉络 / 主线", bible.plotSpine) }
                 item { PlotSection("明线", bible.mainLine) }
                 item { PlotSection("暗线", bible.hiddenLine) }
                 item { PlotSection("伏笔明细", bible.foreshadows) }
