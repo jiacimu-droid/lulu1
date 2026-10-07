@@ -66,6 +66,7 @@ class CallContractsTest {
         assertNull(CallReplyStream.replyTextPrefix("{\"innerThought\":\"secret\",\"text\":\"不要念\"}"))
     }
     @Test fun streamingDecoderHandlesIncompleteEscapesAndFinalMismatch() {
+        try { CallReplyStream().finish("{\"action\":\"tool\",\"args\":{}}"); fail("must not read raw envelope") } catch (_: IllegalStateException) {}
         val cancelled = CallReplyStream()
         cancelled.cancel()
         assertTrue(cancelled.isFinished)

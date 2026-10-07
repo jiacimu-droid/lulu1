@@ -3,7 +3,7 @@
 - 基准提交：`f22456dd4703569b228746c0bd227af5a91cd01c`
 - 分支：`main`
 - 已索引文件：305
-- 已索引代码/文本行：81445
+- 已索引代码/文本行：81449
 - 已发现符号：1122
 
 | 文件 | 行数 | 符号数 |
@@ -13,7 +13,7 @@
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 98 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 103 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 77 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 80 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 28 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 65 | 0 |
@@ -302,7 +302,7 @@
 | `app/src/main/res/values/strings.xml` | 6 | 0 |
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
-| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 83 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 84 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 90 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 24 | 1 |

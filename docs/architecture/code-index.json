@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T12:05:47.861394+00:00",
+  "generatedAt": "2026-10-07T12:09:23.146271+00:00",
   "commit": "f22456dd4703569b228746c0bd227af5a91cd01c",
   "branch": "main",
-  "sourceFingerprint": "1448ce0584490de3fd5a3aee1a0cab1022b08d54ccb647dfd1d7328fdabe5208",
+  "sourceFingerprint": "d4c5c54b70b4471d64772b6fc8d46a50cb35127deb56b8a03fa4c5133b69dda9",
   "summary": {
     "files": 305,
-    "lines": 81445,
+    "lines": 81449,
     "symbols": 1122
   },
   "symbolIndex": {
@@ -165,7 +165,7 @@
     "replyTextPrefix": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
-        "line": 43
+        "line": 46
       }
     ],
     "provider": [
@@ -6341,8 +6341,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
-      "lines": 77,
-      "sha256": "e716d406f1c5c814943b9d6885b43f7ad8746e91af0c3d4c93dac8ee55549f23",
+      "lines": 80,
+      "sha256": "9ce22dbf801b88f0e24a5c330b59241fc2d2ae5c599fdf04ab0f1a0799fc99a6",
       "symbols": [
         {
           "name": "cancel",
@@ -6358,7 +6358,7 @@
         },
         {
           "name": "replyTextPrefix",
-          "line": 43
+          "line": 46
         }
       ]
     },
@@ -12675,8 +12675,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt",
-      "lines": 83,
-      "sha256": "743f0a69b52e94f454f6d0add4c9d22d83bdf74c478fefa078c1244d7823ca9c",
+      "lines": 84,
+      "sha256": "0cc313022a0bf520859462d78506b25e2f85dfd50b5d0db5494458fe18b9b3f5",
       "symbols": [
         {
           "name": "CallContractsTest",

@@ -17,6 +17,9 @@ internal class CallReplyStream {
     }
 
     fun finish(text: String): List<String> {
+        check(!text.trimStart().startsWith("{") && !text.trimStart().startsWith("```")) {
+            "模型未返回可朗读正文，内部内容未播放"
+        }
         check(text.startsWith(snapshot.take(emitted))) { "流式回复与最终内容不一致，请重试" }
         snapshot = text; finished = true
         return drain(final = true)
