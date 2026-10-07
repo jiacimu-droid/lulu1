@@ -230,8 +230,9 @@ internal object StarWishTheaterPlanningEngine {
                 8. 情绪目标与节奏；
                 9. 章节结尾钩子以及下一章必须承接的状态。
 
-                本批必须恰好输出 $batchCount 个对象，对应第 $start 至第 $end 章。只输出JSON数组，不要Markdown：
-                [{"number":1,"title":"","outline":""}]
+                本次只规划第 $start 章。优先输出一个JSON对象，不要Markdown：
+                {"number":$start,"title":"","outline":""}
+                如果你更习惯输出数组、中文字段或结构化小节也可以；只要把这一章的实质规划完整写出来即可，系统会兼容解析。
             """.trimIndent()
 
             val raw = generatePlanningText(
@@ -647,48 +648,132 @@ internal object StarWishTheaterPlanningEngine {
     }
 
     private fun parseChapterPlans(raw: String, start: Int, end: Int): List<StarWishChapterPlan> {
-        val root = parseJsonValue(raw) ?: return emptyList()
-        val array = when (root) {
-            is JSONArray -> root
-            is JSONObject -> firstArray(root, "chapters", "plans", "chapterPlans", "章节", "章节规划")
-                ?: JSONArray().put(root)
-            else -> null
-        } ?: return emptyList()
-
         val expectedCount = end - start + 1
-        val parsed = buildList {
-            for (index in 0 until array.length()) {
-                val number = start + index
-                when (val item = array.opt(index)) {
-                    is JSONObject -> {
-                        val title = text(item, "title", "标题", "name", "章节标题").ifBlank { "第 $number 章" }
-                        val withTitle = chapterObjectToText(item, number)
-                        val outline = withTitle.removePrefix(title).trim()
-                            .ifBlank { text(item, "outline", "规划", "剧情", "内容", "summary", "摘要") }
-                        if (outline.isNotBlank()) {
-                            add(StarWishChapterPlan(number = number, title = title, outline = outline))
-                        }
+        val root = parseJsonValue(raw)
+
+        val values: List<Any> = when (root) {
+            is JSONArray -> buildList {
+                for (index in 0 until root.length()) root.opt(index)?.let(::add)
+            }
+            is JSONObject -> {
+                val nestedArray = firstArray(root, "chapters", "plans", "chapterPlans", "章节", "章节规划", "data", "result")
+                when {
+                    nestedArray != null -> buildList {
+                        for (index in 0 until nestedArray.length()) nestedArray.opt(index)?.let(::add)
                     }
-                    is String -> {
-                        val clean = item.trim()
-                        if (clean.isNotBlank()) {
-                            val firstLine = clean.lineSequence().firstOrNull().orEmpty().take(40)
-                            add(
-                                StarWishChapterPlan(
-                                    number = number,
-                                    title = firstLine.takeIf { it.length in 2..40 } ?: "第 $number 章",
-                                    outline = clean,
-                                ),
-                            )
-                        }
+                    else -> {
+                        val nestedObject = listOf("chapter", "plan", "章节", "规划", "data", "result")
+                            .firstNotNullOfOrNull { key -> root.optJSONObject(key) }
+                        listOf(nestedObject ?: root)
                     }
                 }
             }
+            is String -> listOf(root)
+            else -> emptyList()
         }
 
-        return parsed.take(expectedCount).mapIndexed { index, plan ->
-            plan.copy(number = start + index)
+        val parsed = values.mapIndexedNotNull { index, item ->
+            val number = start + index
+            when (item) {
+                is JSONObject -> chapterPlanFromObject(item, number)
+                is String -> chapterPlanFromText(item, number)
+                else -> null
+            }
+        }.take(expectedCount)
+
+        if (parsed.size == expectedCount) {
+            return parsed.mapIndexed { index, plan -> plan.copy(number = start + index) }
         }
+
+        // Planning now runs one chapter at a time. Do not discard useful content just
+        // because a provider used a different schema or slightly malformed JSON.
+        if (expectedCount == 1) {
+            chapterPlanFromText(raw, start)?.let { return listOf(it.copy(number = start)) }
+        }
+        return parsed.mapIndexed { index, plan -> plan.copy(number = start + index) }
+    }
+
+    private fun chapterPlanFromObject(item: JSONObject, number: Int): StarWishChapterPlan? {
+        val title = text(item, "title", "标题", "name", "章节标题", "chapterTitle")
+            .ifBlank { "第 $number 章" }
+        val direct = text(
+            item,
+            "outline", "规划", "剧情", "内容", "summary", "摘要", "details", "细纲",
+            "plot", "chapterPlan", "story", "正文规划",
+        )
+        val structured = if (direct.isNotBlank()) direct else {
+            val preferred = listOf(
+                "stage" to "阶段功能",
+                "function" to "阶段功能",
+                "阶段功能" to "阶段功能",
+                "events" to "具体事件",
+                "keyEvents" to "具体事件",
+                "beats" to "具体事件",
+                "事件" to "具体事件",
+                "具体事件" to "具体事件",
+                "choices" to "人物选择",
+                "人物选择" to "人物选择",
+                "relationship" to "关系变化",
+                "关系变化" to "关系变化",
+                "mainLine" to "明线推进",
+                "明线" to "明线推进",
+                "hiddenLine" to "暗线推进",
+                "暗线" to "暗线推进",
+                "foreshadowing" to "伏笔",
+                "foreshadows" to "伏笔",
+                "伏笔" to "伏笔",
+                "emotion" to "情绪目标",
+                "情绪" to "情绪目标",
+                "hook" to "结尾钩子",
+                "endingHook" to "结尾钩子",
+                "结尾钩子" to "结尾钩子",
+                "nextState" to "下一章状态",
+            )
+            val seen = mutableSetOf<String>()
+            val lines = mutableListOf<String>()
+            preferred.forEach { (key, label) ->
+                if (label in seen || !item.has(key) || item.isNull(key)) return@forEach
+                val value = item.opt(key)?.toString()?.trim().orEmpty()
+                if (value.isNotBlank() && value != "[]" && value != "{}") {
+                    lines += "$label：$value"
+                    seen += label
+                }
+            }
+            if (lines.isNotEmpty()) {
+                lines.joinToString("\n")
+            } else {
+                buildList {
+                    val keys = item.keys()
+                    while (keys.hasNext()) {
+                        val key = keys.next()
+                        if (key in setOf("number", "chapter", "index", "title", "标题", "name", "章节标题")) continue
+                        val value = item.opt(key)?.toString()?.trim().orEmpty()
+                        if (value.isNotBlank() && value != "[]" && value != "{}") add("$key：$value")
+                    }
+                }.joinToString("\n")
+            }
+        }
+        if (structured.isBlank()) return null
+        return StarWishChapterPlan(number = number, title = title, outline = structured)
+    }
+
+    private fun chapterPlanFromText(raw: String, number: Int): StarWishChapterPlan? {
+        val fence = 96.toChar().toString().repeat(3)
+        val clean = raw.trim()
+            .removePrefix(fence + "json")
+            .removePrefix(fence + "JSON")
+            .removePrefix(fence)
+            .removeSuffix(fence)
+            .trim()
+        if (clean.length < 16) return null
+        val firstLine = clean.lineSequence().firstOrNull().orEmpty()
+            .replace(Regex("^#+\\s*"), "")
+            .take(40)
+            .trim()
+        val title = firstLine
+            .takeIf { it.length in 2..40 && !it.startsWith("{") && !it.startsWith("[") }
+            ?: "第 $number 章"
+        return StarWishChapterPlan(number = number, title = title, outline = clean)
     }
 
     private fun parseJsonValue(raw: String): Any? = runCatching {
