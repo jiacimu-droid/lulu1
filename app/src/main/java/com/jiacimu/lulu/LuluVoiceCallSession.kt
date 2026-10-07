@@ -49,6 +49,7 @@ internal data class LuluVoiceCallState(
     val thinking: Boolean = false,
     val speaking: Boolean = false,
     val speakerEnabled: Boolean = true,
+    val audioRouteLabel: String = "扬声器",
     val microphoneMuted: Boolean = false,
     val partialTranscript: String = "",
     val inputLevel: Float = 0f,
@@ -85,8 +86,7 @@ internal object LuluVoiceCallSession {
     private var restartListeningJob: Job? = null
     private var recognitionActive = false
     private var audioManager: AudioManager? = null
-    private var previousAudioMode: Int? = null
-    private var previousSpeakerphone: Boolean? = null
+    private var audioRoute: CallAudioRoute? = null
 
     fun prepare(context: Context, conversationId: String, characterId: String, characterName: String) {
         initialize(context)
@@ -123,7 +123,7 @@ internal object LuluVoiceCallSession {
                 mutableState.update { it.copy(statusMessage = "请先配置云端语音服务") }
                 return
             }
-            configureCallAudio(true)
+            configureCallAudio()
             startForegroundService()
             mutableState.update { it.copy(phase = CallPhase.Dialing, statusMessage = "正在连接实时语音…") }
             dialJob?.cancel()
@@ -133,6 +133,7 @@ internal object LuluVoiceCallSession {
                     onConnected = {
                         if (mutableState.value.callExperienceId == sessionId && mutableState.value.phase == CallPhase.Dialing) {
                             mutableState.update { it.copy(phase = CallPhase.Connected, callStartedAt = Instant.now(), everConnected = true, listening = true, statusMessage = "已接通，正在听你说话") }
+                            audioRoute?.refresh()
                             startTimer()
                         }
                     },
@@ -166,14 +167,13 @@ internal object LuluVoiceCallSession {
             mutableState.update { it.copy(statusMessage = "请先选择电话模型") }
             return
         }
-        configureCallAudio(true)
+        configureCallAudio()
         startForegroundService()
         mutableState.update {
             it.copy(
                 phase = CallPhase.Dialing,
                 statusMessage = "正在呼叫…",
                 microphoneMuted = false,
-                speakerEnabled = true,
             )
         }
         dialJob?.cancel()
@@ -219,15 +219,7 @@ internal object LuluVoiceCallSession {
     }
 
     fun toggleSpeaker() {
-        val enabled = !mutableState.value.speakerEnabled
-        mutableState.update { it.copy(speakerEnabled = enabled) }
-        audioManager?.isSpeakerphoneOn = enabled
-        realtime?.let { it.speaker(enabled); return }
-        if (!enabled) {
-            speechQueue?.stop()
-            mutableState.update { it.copy(speaking = false) }
-            scheduleListening(120)
-        }
+        audioRoute?.speaker(!mutableState.value.speakerEnabled)
     }
 
     fun reportPermissionDenied() {
@@ -451,7 +443,7 @@ internal object LuluVoiceCallSession {
                 userText = spoken,
                 title = activeLabel,
                 archiveId = archiveId,
-                sceneContext = "你正在和用户进行一对一实时电话。你能意识到电话已经接通，听见的是用户刚刚在电话里说的话；具体关系与称呼必须服从你的人设。回复要像真实通话，口语自然、长度适中，不要朗读说明文字。",
+                sceneContext = "你正在和用户进行一对一实时电话。你能意识到电话已经接通，听见的是用户刚刚在电话里说的话；具体关系与称呼必须服从你的人设。回复要像真实通话，口语自然。普通接话优先一到两句有内容的话，不每次长篇解释；用户要求详细内容时再展开。不要朗读说明文字。",
             ).onSuccess { reply ->
                 if (generation != replyGeneration || !mutableState.value.connected || mutableState.value.callExperienceId != latest.callExperienceId) return@onSuccess
                 val text = reply.text.trim()
@@ -466,7 +458,7 @@ internal object LuluVoiceCallSession {
                         characterMessage, channelOverride = "电话")
                     mutableState.update { it.copy(generatedTranscript = "") }
                 }
-                val shouldSpeak = mutableState.value.speakerEnabled
+                val shouldSpeak = true // Output device selection must never mute the character.
                 mutableState.update {
                     it.copy(
                         thinking = false,
@@ -589,21 +581,15 @@ internal object LuluVoiceCallSession {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun configureCallAudio(speaker: Boolean) {
+    private fun configureCallAudio() {
         val manager = audioManager ?: return
-        if (previousAudioMode == null) previousAudioMode = manager.mode
-        if (previousSpeakerphone == null) previousSpeakerphone = manager.isSpeakerphoneOn
-        manager.mode = AudioManager.MODE_IN_COMMUNICATION
-        manager.isSpeakerphoneOn = speaker
+        if (audioRoute == null) audioRoute = CallAudioRoute(manager,
+            onRoute = { speaker, label -> mutableState.update { it.copy(speakerEnabled = speaker, audioRouteLabel = label) } },
+            onError = { error -> mutableState.update { it.copy(errorMessage = error) } })
+        audioRoute?.start()
     }
 
-    private fun restoreCallAudio() {
-        val manager = audioManager ?: return
-        previousSpeakerphone?.let { manager.isSpeakerphoneOn = it }
-        previousAudioMode?.let { manager.mode = it }
-        previousSpeakerphone = null
-        previousAudioMode = null
-    }
+    private fun restoreCallAudio() { audioRoute?.stop() }
 
     private fun startForegroundService() {
         val context = appContext ?: return

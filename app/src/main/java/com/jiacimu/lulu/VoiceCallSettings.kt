@@ -14,6 +14,7 @@ internal fun VoiceCallSettings(provider: String) {
     val prefs = remember { context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE) }
     var mode by remember(provider) { mutableStateOf(prefs.getString("voice_call_mode", "direct").orEmpty()) }
     var threshold by remember { mutableFloatStateOf(prefs.getFloat("voice_vad_threshold", 350f)) }
+    var silence by remember { mutableFloatStateOf(prefs.getInt("voice_end_silence_ms", 500).toFloat()) }
     var advanced by remember { mutableStateOf(false) }
     var endpoint by remember { mutableStateOf(prefs.getString("minimax_asr_endpoint", "").orEmpty()) }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -31,6 +32,9 @@ internal fun VoiceCallSettings(provider: String) {
                 label = { Text("识别接口（留空跟随 MiniMax 区域）") }, modifier = Modifier.fillMaxWidth())
         } else Text("使用手机系统识别和发声；手机必须安装可用的系统语音识别服务。")
         if (provider == "minimax") {
+            Text("停顿多久开始回复：${silence.toInt()} 毫秒")
+            Slider(silence, { silence = it }, onValueChangeFinished = { prefs.edit().putInt("voice_end_silence_ms", silence.toInt()).apply() }, valueRange = 300f..1500f)
+            Text("较短响应更快，较长适合说话中经常停顿。", style = MaterialTheme.typography.bodySmall)
             Text("收音灵敏度（较低阈值更容易识别轻声）")
             Slider(threshold, { threshold = it }, onValueChangeFinished = { prefs.edit().putFloat("voice_vad_threshold", threshold).apply() }, valueRange = 150f..1500f)
         }

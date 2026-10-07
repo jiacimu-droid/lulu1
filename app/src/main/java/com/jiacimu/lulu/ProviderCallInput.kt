@@ -46,7 +46,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
                     }
                 }.onFailure { error -> if (error !is CancellationException && epoch == generation && segment == segmentGeneration) onError("MiniMax 识别失败：${error.message}") }
             }
-        }, onError = onError, threshold = p.getFloat("voice_vad_threshold", 350f))
+        }, onError = onError, threshold = p.getFloat("voice_vad_threshold", 350f), endSilenceMs = p.getInt("voice_end_silence_ms", 500))
         if (provider == "minimax") { listen(); return }
         onStatus("正在连接 ElevenLabs 语音识别…")
         val key = p.getString("eleven_api_key", "").orEmpty()

@@ -299,7 +299,7 @@ fun LuluVoiceCallScreen(
                         ) {
                             CallControl(
                                 icon = if (state.speakerEnabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
-                                label = if (state.speakerEnabled) "扬声器" else "听筒",
+                                label = state.audioRouteLabel,
                                 active = state.speakerEnabled,
                                 onClick = LuluVoiceCallSession::toggleSpeaker,
                             )

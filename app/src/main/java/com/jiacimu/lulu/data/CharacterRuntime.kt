@@ -17,6 +17,7 @@ object CharacterRuntime {
     fun developmentContext(characterId: String): String {
         val learned = CharacterDevelopmentStore.active(characterId)
         return buildString {
+            appendLine(CompanionContactClock.context(characterId))
             appendLine(CharacterLifeStore.context(characterId))
             appendLine("基于真实事件逐渐形成的可变习惯与判断（不修改用户锁定的人设；新反馈优先，不代表意识已实现）：")
             learned.takeLast(16).forEach { r ->

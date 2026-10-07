@@ -21,7 +21,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
     @SuppressLint("MissingPermission")
     fun start(accept: () -> Boolean, onReady: () -> Unit, onLevel: (Float) -> Unit,
         onSpeech: () -> Unit, onFrame: (ByteArray) -> Unit = {}, onSegment: (ByteArray) -> Unit,
-        onError: (String) -> Unit, threshold: Float = 350f) {
+        onError: (String) -> Unit, threshold: Float = 350f, endSilenceMs: Int = 500) {
         stop()
         val epoch = generation
         job = scope.launch(Dispatchers.IO) {
@@ -67,7 +67,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                         withContext(Dispatchers.Main) { if (epoch == generation) onSpeech() }
                     } else buffer.write(frame)
                     silentFrames = if (rms < threshold * 0.8) silentFrames + 1 else 0
-                    if (silentFrames >= 8 || buffer.size() >= 16000 * 2 * 25) {
+                    if (silentFrames >= (endSilenceMs.coerceIn(300, 1500) + 99) / 100 || buffer.size() >= 16000 * 2 * 25) {
                         val segment = buffer.toByteArray()
                         active = false; loudFrames = 0; silentFrames = 0; buffer = ByteArrayOutputStream()
                         withContext(Dispatchers.Main) { if (epoch == generation) onSegment(segment) }

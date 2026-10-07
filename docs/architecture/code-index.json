@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T11:43:51.361042+00:00",
+  "generatedAt": "2026-10-07T11:52:58.380329+00:00",
   "commit": "0b1bd3f6565407a2ae98d7532182c70e6aed0652",
   "branch": "main",
-  "sourceFingerprint": "09c5a86ae92435970e1e27714efa7bc53a2f6fabd487b95c7ae2504147e5c0d0",
+  "sourceFingerprint": "6031efde2808975938183d28c48facf4aac83e4a78cbef12ed64d45febc2d0d2",
   "summary": {
-    "files": 302,
-    "lines": 81161,
-    "symbols": 1107
+    "files": 304,
+    "lines": 81321,
+    "symbols": 1116
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -28,6 +28,10 @@
         "line": 22
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
+        "line": 26
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
         "line": 26
       },
@@ -40,6 +44,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
         "line": 87
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
+        "line": 76
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
@@ -76,6 +84,28 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
         "line": 129
+      }
+    ],
+    "speaker": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
+        "line": 36
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
+        "line": 113
+      }
+    ],
+    "refresh": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
+        "line": 43
+      }
+    ],
+    "headsetPriority": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
+        "line": 87
       }
     ],
     "provider": [
@@ -993,37 +1023,37 @@
     "reportPermissionDenied": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 232
+        "line": 224
       }
     ],
     "endCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 236
+        "line": 228
       }
     ],
     "persistDelivered": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 463
+        "line": 455
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 514
+        "line": 506
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 543
+        "line": 535
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 621
+        "line": 607
       }
     ],
     "MeetingReplyTaskManager": [
@@ -1258,12 +1288,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
         "line": 111
-      }
-    ],
-    "speaker": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-        "line": 113
       }
     ],
     "ScheduleFeatureScreen": [
@@ -1724,6 +1748,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
         "line": 137
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
+        "line": 10
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
@@ -2280,6 +2308,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
         "line": 38
+      }
+    ],
+    "describe": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
+        "line": 18
+      }
+    ],
+    "age": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
+        "line": 22
       }
     ],
     "CompanionOnlineReason": [
@@ -6168,6 +6208,12 @@
         "line": 18
       }
     ],
+    "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
+        "line": 60
+      }
+    ],
     "DevelopmentPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt",
@@ -6202,8 +6248,8 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "lines": 119,
-      "sha256": "af258eaaf1a4a8f68d2a71a7d21ce66012916fce0283e2733d49828a4cd66d1a",
+      "lines": 120,
+      "sha256": "a910883b89f5627f0ffa16a52b402f64b1cfda56d0c521ded5e7af8113ac7965",
       "symbols": []
     },
     {
@@ -6224,7 +6270,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
       "lines": 98,
-      "sha256": "1251232567e585300b50e35372a52400f746d3d790d1a9bc0f5df03e1827ef50",
+      "sha256": "d5814f34d5593c8492dd899c80acce8b1bb09c8567ce039e57d889f5c271c5d7",
       "symbols": [
         {
           "name": "start",
@@ -6232,6 +6278,33 @@
         },
         {
           "name": "stop",
+          "line": 87
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
+      "lines": 103,
+      "sha256": "1cceccf37d0c42a3d2992f1aae94fecbe8b43b2c040d162d914c0be0f60da7a9",
+      "symbols": [
+        {
+          "name": "start",
+          "line": 26
+        },
+        {
+          "name": "speaker",
+          "line": 36
+        },
+        {
+          "name": "refresh",
+          "line": 43
+        },
+        {
+          "name": "stop",
+          "line": 76
+        },
+        {
+          "name": "headsetPriority",
           "line": 87
         }
       ]
@@ -6869,7 +6942,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
       "lines": 452,
-      "sha256": "3963e3a0786165661d7583055953a42127846c7f8bc6d233e69f3c7e288ecfe4",
+      "sha256": "2d6a9aa44c7072674a90bb2b6c39a2514127fbd70e9777ee97165a2447c5844e",
       "symbols": [
         {
           "name": "LuluVoiceCallScreen",
@@ -6879,8 +6952,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 707,
-      "sha256": "0c712b1670443300bf27a7e3bb82179dca12c82505d8055537cd6fc97ef0ab4a",
+      "lines": 693,
+      "sha256": "5cc9587ddee73b7a367affec6a7e38f1f990ba798fb09dcabe3745c81107a612",
       "symbols": [
         {
           "name": "prepare",
@@ -6904,27 +6977,27 @@
         },
         {
           "name": "reportPermissionDenied",
-          "line": 232
+          "line": 224
         },
         {
           "name": "endCall",
-          "line": 236
+          "line": 228
         },
         {
           "name": "persistDelivered",
-          "line": 463
+          "line": 455
         },
         {
           "name": "sameSession",
-          "line": 514
+          "line": 506
         },
         {
           "name": "retryListening",
-          "line": 543
+          "line": 535
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 621
+          "line": 607
         }
       ]
     },
@@ -7182,7 +7255,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
       "lines": 130,
-      "sha256": "072440ed4f4412197410bd43c76e566ba440d332e622c729a6e2f9f779ee33cc",
+      "sha256": "0b29d14098de62367e2f60f49ad05215b93bf828dbd4c614c17778330ea13b5e",
       "symbols": [
         {
           "name": "start",
@@ -7354,8 +7427,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt",
-      "lines": 39,
-      "sha256": "05d06511abd3b3cf6f40bdeb0ac1786f82f889ca995958c93b182bf2fb78c3cc",
+      "lines": 43,
+      "sha256": "ea7b5d4670e7adb0d2a3f5af6ce0c2ef408b649c0fd69160179af6faa488182c",
       "symbols": []
     },
     {
@@ -7844,8 +7917,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 28,
-      "sha256": "b039c3a74008f2e2c555ae6295c014fd757c9822575fff67e393cde6aca83208",
+      "lines": 29,
+      "sha256": "3c105d5c4c15b8c7d9b1c6720370ed674d05a28d934925a370771aa5108eab48",
       "symbols": [
         {
           "name": "CharacterRuntime",
@@ -8214,6 +8287,25 @@
         {
           "name": "capabilityContext",
           "line": 38
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
+      "lines": 49,
+      "sha256": "70fae5bdcc0f1bb183210237b096fe252445daec64777c82e24988350d68ae16",
+      "symbols": [
+        {
+          "name": "context",
+          "line": 10
+        },
+        {
+          "name": "describe",
+          "line": 18
+        },
+        {
+          "name": "age",
+          "line": 22
         }
       ]
     },
@@ -12522,8 +12614,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt",
-      "lines": 45,
-      "sha256": "1c5ea7ab636c5bf41cff0cd7f05c62fb61b800dc286e93694c5189b9cd1dc190",
+      "lines": 59,
+      "sha256": "da6e895922fac9142cb631e4643549028e5dc6379ccbccddec5e5aa1b7b40835",
       "symbols": [
         {
           "name": "CallContractsTest",
@@ -12544,8 +12636,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 88,
-      "sha256": "c6a15cdd3d87ef22b4e589cda2e582ec44bb595e8a6fc8fba1a25beedfc248ae",
+      "lines": 90,
+      "sha256": "46f70bbff2d615904e15c1775b603b719cc7f93967e8781abcab0a1f2b46f4eb",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -12554,6 +12646,10 @@
         {
           "name": "proposal",
           "line": 18
+        },
+        {
+          "name": "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits",
+          "line": 60
         }
       ]
     },

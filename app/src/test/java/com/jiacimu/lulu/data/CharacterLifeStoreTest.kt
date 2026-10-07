@@ -55,7 +55,9 @@ class CharacterLifeStoreTest {
         assertTrue(CharacterLifeStore.state("life-c").isNull("previousIntention"))
         assertEquals("先表达自己的不同意见", CharacterLifeStore.state("life-c").getJSONObject("profile").getString("conflict"))
     }
-    @Test fun jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits() {
+    @Test
+    @Config(manifest = Config.NONE, sdk = [29])
+    fun jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits() {
         val context = RuntimeEnvironment.getApplication() as Context
         com.jiacimu.lulu.LuluRepositories.initialize(context)
         SharedExperienceTimeline.initialize(context)

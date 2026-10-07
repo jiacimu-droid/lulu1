@@ -41,4 +41,18 @@ class CallContractsTest {
         assertFalse(chatErrorNotice("Bearer secret-token sk-123456789abcdef").contains("secret-token"))
         assertFalse(chatErrorNotice("Bearer secret-token sk-123456789abcdef").contains("sk-123456789abcdef"))
     }
+    @Test fun outputSelectionPrefersHeadsetsOverBuiltInSpeaker() {
+        assertTrue(CallAudioRoute.headsetPriority(android.media.AudioDeviceInfo.TYPE_USB_HEADSET) < CallAudioRoute.headsetPriority(android.media.AudioDeviceInfo.TYPE_BUILTIN_SPEAKER))
+        assertTrue(CallAudioRoute.headsetPriority(android.media.AudioDeviceInfo.TYPE_BLUETOOTH_SCO) < CallAudioRoute.headsetPriority(android.media.AudioDeviceInfo.TYPE_BUILTIN_EARPIECE))
+    }
+    @Test fun newMessagePreservesLongContactGapAndFutureDatesAreIgnored() {
+        val now = java.time.Instant.parse("2026-10-07T12:00:00Z")
+        val old = now.minus(java.time.Duration.ofDays(30))
+        val text = com.jiacimu.lulu.data.CompanionContactClock.describe(listOf(old, now, now.plusSeconds(100)), now)
+        assertTrue(text.contains("未联系30天"))
+        assertTrue(text.contains("当前新消息不会抹掉"))
+        assertTrue(com.jiacimu.lulu.data.CompanionContactClock.describe(listOf(now.plusSeconds(10)), now).contains("没有可核实"))
+        assertFalse(com.jiacimu.lulu.data.CompanionContactClock.describe(listOf(now), now).contains("两轮之间未联系"))
+    }
+
 }
