@@ -9,6 +9,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ScopedModelSelections
@@ -274,6 +275,7 @@ internal class StarWishPlanGenerationWorker(
         val manager = StarWishPlanGenerationManager.get(applicationContext)
         StarWishStores.initialize(applicationContext)
         LuluAiServices.initialize(applicationContext)
+        LuluRepositories.worldBook.initialize(applicationContext)
         manager.running(theater, chapterCount)
 
         return try {
@@ -286,7 +288,7 @@ internal class StarWishPlanGenerationWorker(
                 starWishPlansFromLegacyGuide(guide)
             }
             val ledger = planSnapshot.theaterLedgers[theater]
-            val theaterWorldBook = planSnapshot.theaterWorldBooks[theater]?.promptText().orEmpty()
+            val theaterWorldBook = selectedWorldBookPrompt(planSnapshot.theaterWorldBookIds[theater].orEmpty())
             val existingBible = planSnapshot.theaterBibles[theater]
             val bible = StarWishTheaterPlanningEngine.generateStoryBible(
                 characterId = characterId,
@@ -339,10 +341,11 @@ internal class StarWishTheaterGenerationWorker(
         val manager = StarWishTheaterGenerationManager.get(applicationContext)
         StarWishStores.initialize(applicationContext)
         LuluAiServices.initialize(applicationContext)
+        LuluRepositories.worldBook.initialize(applicationContext)
         val store = StarWishStores.main
         val snapshot = store.state.value
         val chapters = snapshot.theaterChapters[theater].orEmpty()
-        val theaterWorldBook = snapshot.theaterWorldBooks[theater]?.promptText().orEmpty()
+        val theaterWorldBook = selectedWorldBookPrompt(snapshot.theaterWorldBookIds[theater].orEmpty())
         val chapterNumber = chapters.size + 1
         manager.running(theater, chapterNumber)
         return try {
@@ -628,6 +631,13 @@ internal class StarWishTheaterGenerationWorker(
     }
 }
 
+private fun selectedWorldBookPrompt(ids: Set<String>): String {
+    if (ids.isEmpty()) return ""
+    return LuluRepositories.worldBook.snapshot()
+        .filter { it.id in ids }
+        .joinToString("\n") { entry -> "- ${entry.title}：${entry.content}" }
+        .trim()
+}
 internal fun StarWishStoryLedger.promptText(): String = buildString {
     if (summary.isNotBlank()) appendLine("剧情摘要：$summary")
     if (characters.isNotBlank()) appendLine("人物状态：$characters")
