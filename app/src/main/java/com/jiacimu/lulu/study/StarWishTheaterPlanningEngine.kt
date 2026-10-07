@@ -28,11 +28,11 @@ internal object StarWishTheaterPlanningEngine {
             这是完全独立的剧场小说，不得引用真实角色人设、聊天、记忆、共同时间线、用户资料或世界书。
             若用户已经给出完整或半完整大纲，所有方案都必须忠实沿用该大纲的核心设定与主要剧情，只允许在章节节奏、叙事重心和表现方式上做小幅差异。
 
-            每套方案必须包含：世界规则与人物处境、开篇钩子、故事总纲、关系主线、明线、暗线、伏笔系统、情绪曲线、可执行文风、亮点，以及6章逐章规划。
-            每章规划必须写出具体事件、人物主动选择、关系变化、明线或暗线推进、伏笔埋设或回收、情绪目标与结尾钩子。
+            每套方案只负责“总大纲层”：必须包含世界规则与人物处境、开篇钩子、故事总纲、关系主线、明线、暗线、伏笔系统、情绪曲线、可执行文风和亮点。
+            不要预先规定固定6章或其他章节数量。章节总数由用户之后通过 +3章 自己决定，再单独生成逐章规划。
 
             只输出JSON，不要Markdown，不要解释。优先使用这个结构：
-            [{"title":"","worldview":"","hook":"","relationshipCore":"","mainLine":"","hiddenLine":"","foreshadowing":"","emotionalArc":"","proseStyle":"","highlights":"","overview":"","wordCount":"1800-3000","chapters":[{"title":"","outline":""}]}]
+            [{"title":"","worldview":"","hook":"","relationshipCore":"","mainLine":"","hiddenLine":"","foreshadowing":"","emotionalArc":"","proseStyle":"","highlights":"","overview":"","wordCount":"1800-3000"}]
         """.trimIndent()
 
         val reply = LuluAiServices.gateway.generate(
@@ -140,8 +140,8 @@ internal object StarWishTheaterPlanningEngine {
             instruction = """
                 把提供的内容整理成合法JSON。不要删剧情，不要改设定，不要重新创作。
                 允许1到3套方案。顶层必须是JSON数组。每套字段：
-                {"title":"","worldview":"","hook":"","relationshipCore":"","mainLine":"","hiddenLine":"","foreshadowing":"","emotionalArc":"","proseStyle":"","highlights":"","overview":"","wordCount":"1800-3000","chapters":[{"title":"","outline":""}]}
-                chapters 既可以保留原有章节标题，也必须把每章原有规划完整放进 outline。只输出JSON。
+                {"title":"","worldview":"","hook":"","relationshipCore":"","mainLine":"","hiddenLine":"","foreshadowing":"","emotionalArc":"","proseStyle":"","highlights":"","overview":"","wordCount":"1800-3000"}
+                如果原内容意外带了 chapters 可以保留，但章节字段不是必需。只输出JSON。
             """.trimIndent(),
             source = "剧场",
             title = "修复剧情规划格式",
@@ -203,7 +203,6 @@ internal object StarWishTheaterPlanningEngine {
         val title = text(obj, "title", "标题", "name", "书名")
         if (title.isBlank()) return null
         val chapters = chapterTexts(obj)
-        if (chapters.isEmpty()) return null
 
         val worldview = text(obj, "worldview", "世界观", "世界设定")
         val hook = text(obj, "hook", "钩子", "开篇钩子")

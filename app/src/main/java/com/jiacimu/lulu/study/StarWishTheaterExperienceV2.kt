@@ -128,7 +128,9 @@ internal fun StarWishTheaterContentV2(
                     val seed = StarWishTheaterSeed(uniqueTitle, candidate.worldview.ifBlank { candidate.overview })
                     customLibrary.add(seed)
                     customTheaters = customLibrary.all()
-                    store.setStoryPlan(seed.title, candidate.storyGuide(), candidate.chapterPlans())
+                    // New stories keep the global guide only. The reader chooses the chapter count
+                    // explicitly with +3章 before asking the planner to build per-chapter details.
+                    store.setStoryPlan(seed.title, candidate.storyGuide(), emptyList())
                     openedTitle = seed.title
                 } else {
                     store.setStoryPlan(openedSeed.title, candidate.storyGuide(), candidate.chapterPlans())
