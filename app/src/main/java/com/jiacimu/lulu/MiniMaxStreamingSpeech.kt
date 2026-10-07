@@ -61,6 +61,7 @@ internal class MiniMaxStreamingSpeech(context: Context) {
         var bytesWritten = 0L
         var complete = false
         try {
+            CallAudioRoute.preferredOutput?.let { check(audio.setPreferredDevice(it)) { "系统未接受电话声音输出设备" } }
             request.outputStream.use { it.write(payload.toString().toByteArray()) }
             check(request.responseCode in 200..299) { "MiniMax流式请求 HTTP ${request.responseCode}" }
             audio.play()
@@ -80,6 +81,9 @@ internal class MiniMaxStreamingSpeech(context: Context) {
                         val bytes = ByteArray(hex.length / 2) { index -> hex.substring(index * 2, index * 2 + 2).toInt(16).toByte() }
                         var offset = 0
                         while (offset < bytes.size && epoch == generation) {
+                            CallAudioRoute.preferredOutput?.let {
+                                if (audio.preferredDevice?.id != it.id) check(audio.setPreferredDevice(it)) { "系统未接受电话声音输出设备" }
+                            }
                             val count = audio.write(bytes, offset, bytes.size - offset, AudioTrack.WRITE_BLOCKING)
                             check(count > 0) { "流式音频播放失败" }
                             if (bytesWritten == 0L) onAudioStarted()

@@ -7,10 +7,9 @@ import android.media.AudioTrack
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
-import java.net.URLEncoder
+import java.io.InputStream
 
 /** Personal TTS credentials stay in the phone configuration, independent of the Agents service. */
 internal class ElevenLabsSpeech(context: Context) {
@@ -18,10 +17,12 @@ internal class ElevenLabsSpeech(context: Context) {
     @Volatile private var epoch = 0L
     @Volatile private var connection: HttpURLConnection? = null
     @Volatile private var track: AudioTrack? = null
+    @Volatile private var dialogueStream: ElevenLabsDialogueStream? = null
 
     fun stop() {
         epoch++
         connection?.disconnect(); connection = null
+        dialogueStream?.close(); dialogueStream = null
         val old = track; track = null
         runCatching { old?.pause(); old?.flush(); old?.release() }
     }
@@ -30,23 +31,19 @@ internal class ElevenLabsSpeech(context: Context) {
         val key = prefs.getString("eleven_api_key", "").orEmpty().trim()
         val voice = voiceOverride?.takeIf(String::isNotBlank) ?: prefs.getString("eleven_voice_id", "").orEmpty().trim()
         require(key.isNotBlank() && voice.isNotBlank()) { "请填写 ElevenLabs API Key 和 Voice ID" }
-        val model = prefs.getString("eleven_tts_model", "eleven_multilingual_v2").orEmpty().trim()
-        require(model.isNotBlank()) { "请填写账号可用的 ElevenLabs 语音模型" }
-        val url = "https://api.elevenlabs.io/v1/text-to-speech/${URLEncoder.encode(voice, "UTF-8")}/stream?output_format=$format"
+        val model = selectedModel()
+        val url = "https://api.elevenlabs.io${ElevenLabsModels.httpPath(model, voice)}?output_format=$format"
         val result = (URL(url).openConnection() as HttpURLConnection).apply {
             requestMethod = "POST"; connectTimeout = 15_000; readTimeout = 60_000; doOutput = true
             setRequestProperty("xi-api-key", key)
             setRequestProperty("Content-Type", "application/json")
         }
         connection = result
-        val body = JSONObject().put("text", text).put("model_id", model).put("voice_settings", JSONObject()
-            .put("stability", prefs.getFloat("eleven_stability", .5f).toDouble())
-            .put("similarity_boost", prefs.getFloat("eleven_similarity", .75f).toDouble()))
+        val body = ElevenLabsModels.body(model, text, voice, prefs.getFloat("eleven_stability", .5f), prefs.getFloat("eleven_similarity", .75f))
         try {
             result.outputStream.use { it.write(body.toString().toByteArray()) }
             if (result.responseCode !in 200..299) {
-                val message = result.errorStream?.bufferedReader()?.use { it.readText().take(400) }.orEmpty()
-                error("ElevenLabs HTTP ${result.responseCode}：$message")
+                error("ElevenLabs HTTP ${result.responseCode}：请检查模型权限、声线和余额")
             }
             return result
         } catch (error: Throwable) {
@@ -56,11 +53,30 @@ internal class ElevenLabsSpeech(context: Context) {
         }
     }
 
+    private fun selectedModel() = prefs.getString("eleven_tts_model", ElevenLabsModels.DEFAULT).orEmpty().trim().ifBlank { ElevenLabsModels.DEFAULT }
+
+    private class AudioSource(val input: InputStream, val cleanup: () -> Unit) {
+        fun close() { runCatching { input.close() }; cleanup() }
+    }
+    private fun openAudio(text: String, voiceOverride: String?, format: String): AudioSource {
+        if (ElevenLabsModels.websocket(selectedModel())) {
+            val key = prefs.getString("eleven_api_key", "").orEmpty().trim()
+            val voice = voiceOverride?.takeIf(String::isNotBlank) ?: prefs.getString("eleven_voice_id", "").orEmpty().trim()
+            require(key.isNotBlank() && voice.isNotBlank()) { "请填写 ElevenLabs API Key 和 Voice ID" }
+            val stream = ElevenLabsDialogueStream(key, selectedModel(), voice, text, format)
+            dialogueStream = stream
+            return AudioSource(stream) { stream.close(); if (dialogueStream === stream) dialogueStream = null }
+        }
+        val call = request(text, voiceOverride, format)
+        return try { AudioSource(call.inputStream) { call.disconnect(); if (connection === call) connection = null } }
+        catch (error: Throwable) { call.disconnect(); if (connection === call) connection = null; throw error }
+    }
+
     suspend fun synthesize(text: String, voiceId: String?): ByteArray = withContext(Dispatchers.IO) {
         val token = epoch
-        val call = request(text, voiceId, "mp3_44100_128")
+        val call = openAudio(text, voiceId, "mp3_44100_128")
         try {
-            val bytes = call.inputStream.use { input ->
+            val bytes = call.input.use { input ->
                 val output = java.io.ByteArrayOutputStream()
                 val buffer = ByteArray(8192)
                 while (token == epoch) {
@@ -74,12 +90,12 @@ internal class ElevenLabsSpeech(context: Context) {
             check(token == epoch) { "试听或合成已取消" }
             check(bytes.isNotEmpty() && bytes.size <= 20 * 1024 * 1024) { "语音为空或超过单段大小限制" }
             bytes
-        } finally { call.disconnect(); if (connection === call) connection = null }
+        } finally { call.close() }
     }
 
     suspend fun speak(text: String, voiceId: String?, onStarted: () -> Unit): Boolean = withContext(Dispatchers.IO) {
         val token = epoch
-        val call = request(text, voiceId, "pcm_24000")
+        val call = openAudio(text, voiceId, "pcm_24000")
         var audio: AudioTrack? = null
         try {
             val rate = 24_000
@@ -89,11 +105,13 @@ internal class ElevenLabsSpeech(context: Context) {
                     .setEncoding(AudioFormat.ENCODING_PCM_16BIT).build())
                 .setBufferSizeInBytes(maxOf(rate, AudioTrack.getMinBufferSize(rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)))
                 .setTransferMode(AudioTrack.MODE_STREAM).build()
-            audio = output; track = output; output.play()
+            audio = output; track = output
+            CallAudioRoute.preferredOutput?.let { check(output.setPreferredDevice(it)) { "系统未接受电话声音输出设备" } }
+            output.play()
             var written = 0L
             var carry = 0
             val buffer = ByteArray(8192)
-            call.inputStream.use { input ->
+            call.input.use { input ->
                 while (token == epoch) {
                     val count = input.read(buffer, carry, buffer.size - carry)
                     if (count < 0) break
@@ -101,6 +119,9 @@ internal class ElevenLabsSpeech(context: Context) {
                     val even = total - total % 2
                     var offset = 0
                     while (offset < even && token == epoch) {
+                        CallAudioRoute.preferredOutput?.let {
+                            if (output.preferredDevice?.id != it.id) check(output.setPreferredDevice(it)) { "系统未接受电话声音输出设备" }
+                        }
                         val sent = output.write(buffer, offset, even - offset, AudioTrack.WRITE_BLOCKING)
                         check(sent > 0) { "ElevenLabs 音频播放失败" }
                         if (written == 0L) onStarted()
@@ -119,7 +140,7 @@ internal class ElevenLabsSpeech(context: Context) {
             }
             token == epoch
         } finally {
-            call.disconnect(); if (connection === call) connection = null
+            call.close()
             if (track === audio) { track = null; runCatching { audio?.release() } }
         }
     }

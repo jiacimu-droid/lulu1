@@ -55,11 +55,11 @@ internal fun ProactiveIncomingCallOverlay() {
     }
 
     val microphonePermission = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) { granted ->
+        ActivityResultContracts.RequestMultiplePermissions(),
+    ) {
         val call = permissionTarget
         permissionTarget = null
-        if (granted && call != null) connect(call)
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED && call != null) connect(call)
         else notice = "需要麦克风权限才能接听电话"
     }
 
@@ -145,14 +145,15 @@ internal fun ProactiveIncomingCallOverlay() {
                             label = "接听",
                             background = Color(0xFF47B978),
                         ) {
-                            if (
-                                ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
-                                PackageManager.PERMISSION_GRANTED
-                            ) {
+                            val permissions = buildList {
+                                add(Manifest.permission.RECORD_AUDIO)
+                                if (android.os.Build.VERSION.SDK_INT >= 31) add(Manifest.permission.BLUETOOTH_CONNECT)
+                            }.filter { ContextCompat.checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED }
+                            if (permissions.isEmpty()) {
                                 connect(call)
                             } else {
                                 permissionTarget = call
-                                microphonePermission.launch(Manifest.permission.RECORD_AUDIO)
+                                microphonePermission.launch(permissions.toTypedArray())
                             }
                         }
                     }

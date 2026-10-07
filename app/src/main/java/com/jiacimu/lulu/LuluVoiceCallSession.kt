@@ -125,7 +125,7 @@ internal object LuluVoiceCallSession {
             }
             configureCallAudio()
             startForegroundService()
-            mutableState.update { it.copy(phase = CallPhase.Dialing, statusMessage = "正在连接实时语音…") }
+            mutableState.update { it.copy(phase = CallPhase.Dialing, microphoneMuted = false, statusMessage = "正在连接实时语音…") }
             dialJob?.cancel()
             dialJob = scope.launch {
                 val sessionId = current.callExperienceId
@@ -203,6 +203,7 @@ internal object LuluVoiceCallSession {
 
     fun toggleMicrophone() {
         val nextMuted = !mutableState.value.microphoneMuted
+        audioRoute?.microphone(nextMuted)
         mutableState.update {
             it.copy(
                 microphoneMuted = nextMuted,
@@ -270,6 +271,7 @@ internal object LuluVoiceCallSession {
             scope = scope,
             onBusyChanged = { busy ->
                 val current = mutableState.value
+                if (busy) audioRoute?.refresh()
                 mutableState.update {
                     it.copy(
                         speaking = busy,
@@ -525,6 +527,8 @@ internal object LuluVoiceCallSession {
             accept = { val s = mutableState.value; sameSession() && !s.microphoneMuted && !s.speaking },
             onReady = {
                 if (sameSession()) {
+                    audioRoute?.microphone(mutableState.value.microphoneMuted)
+                    audioRoute?.refresh()
                     val wasConnected = mutableState.value.connected
                     mutableState.update { it.copy(phase = CallPhase.Connected, callStartedAt = it.callStartedAt ?: Instant.now(), everConnected = true,
                         listening = true, inputMeterAvailable = true, errorMessage = "", statusMessage = "麦克风收音已启动，直接说话；停顿后识别并回复") }
@@ -554,6 +558,8 @@ internal object LuluVoiceCallSession {
         if (!mutableState.value.connected || realtime != null) return
         replyGeneration++; replyJob?.cancel(); speechQueue?.stop()
         mutableState.update { it.copy(speaking = false, thinking = false, microphoneMuted = false, errorMessage = "", generatedTranscript = "") }
+        audioRoute?.microphone(false)
+        audioRoute?.refresh()
         if (mutableState.value.provider in setOf("minimax", "elevenlabs")) startProviderInput()
         else { pauseRecognition(); scheduleListening(100) }
     }

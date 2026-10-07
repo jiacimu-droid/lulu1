@@ -220,6 +220,9 @@ internal class LuluSpeechEngine(context: Context) {
     }
 
     private fun configureSystemTts() {
+        systemTts.setAudioAttributes(android.media.AudioAttributes.Builder()
+            .setUsage(if (CallAudioRoute.preferredOutput != null) android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION else android.media.AudioAttributes.USAGE_MEDIA)
+            .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH).build())
         val locale = Locale.forLanguageTag(prefs.getString("tts_language", "zh-CN") ?: "zh-CN")
         systemTts.language = locale
         systemTts.setSpeechRate(prefs.getFloat("tts_rate", 1f))
@@ -380,6 +383,12 @@ internal class LuluSpeechEngine(context: Context) {
     private fun playAudioFile(file: File, generation: Long, deleteAfterPlayback: Boolean) {
         player?.release()
         player = MediaPlayer().apply {
+            setAudioAttributes(android.media.AudioAttributes.Builder()
+                .setUsage(if (CallAudioRoute.preferredOutput != null) android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION else android.media.AudioAttributes.USAGE_MEDIA)
+                .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH).build())
+            if (android.os.Build.VERSION.SDK_INT >= 28) CallAudioRoute.preferredOutput?.let {
+                check(setPreferredDevice(it)) { "系统未接受电话声音输出设备" }
+            }
             setDataSource(file.absolutePath)
             setOnCompletionListener {
                 it.release()

@@ -38,11 +38,7 @@ private val MiniMaxSpeechModels = listOf(
     "speech-2.8-hd", "speech-2.8-turbo", "speech-2.6-hd", "speech-2.6-turbo",
     "speech-02-hd", "speech-02-turbo", "speech-01-hd", "speech-01-turbo",
 )
-private val ElevenLabsSpeechModels = listOf(
-    "Flash v2.5 · 电话低延迟" to "eleven_flash_v2_5",
-    "Multilingual v2 · 自然稳定" to "eleven_multilingual_v2",
-    "Turbo v2.5 · 快速兼容" to "eleven_turbo_v2_5",
-)
+private val ElevenLabsSpeechModels = ElevenLabsModels.choices
 private val MiniMaxLanguages = listOf(
     "auto", "Chinese", "Chinese,Yue", "English", "Japanese", "Korean", "French", "German",
     "Spanish", "Portuguese", "Russian", "Arabic", "Italian", "Turkish", "Dutch", "Ukrainian",
@@ -76,7 +72,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     var minimaxPitch by remember { mutableFloatStateOf(prefs.getInt("minimax_pitch", 0).toFloat()) }
     var elevenKey by remember { mutableStateOf(prefs.getString("eleven_api_key", "").orEmpty()) }
     var elevenVoice by remember { mutableStateOf(prefs.getString("eleven_voice_id", "").orEmpty()) }
-    var elevenModel by remember { mutableStateOf(prefs.getString("eleven_tts_model", "eleven_multilingual_v2").orEmpty().trim().ifBlank { "eleven_multilingual_v2" }) }
+    var elevenModel by remember { mutableStateOf(prefs.getString("eleven_tts_model", ElevenLabsModels.DEFAULT).orEmpty().trim().ifBlank { ElevenLabsModels.DEFAULT }) }
     var elevenStability by remember { mutableFloatStateOf(prefs.getFloat("eleven_stability", .5f)) }
     var elevenSimilarity by remember { mutableFloatStateOf(prefs.getFloat("eleven_similarity", .75f)) }
     var testingVoice by remember { mutableStateOf(false) }
@@ -255,10 +251,12 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                         else listOf("已保存的模型" to elevenModel) + ElevenLabsSpeechModels,
                     onSelected = { elevenModel = it; prefs.edit().putString("eleven_tts_model", it).apply() },
                 )
-                Text("稳定性 ${"%.2f".format(elevenStability)}", color = AdvancedInk)
-                Slider(value = elevenStability, onValueChange = { elevenStability = it }, valueRange = 0f..1f, enabled = enabled)
-                Text("声线相似度 ${"%.2f".format(elevenSimilarity)}", color = AdvancedInk)
-                Slider(value = elevenSimilarity, onValueChange = { elevenSimilarity = it }, valueRange = 0f..1f, enabled = enabled)
+                if (!ElevenLabsModels.dialogue(elevenModel)) {
+                    Text("稳定性 ${"%.2f".format(elevenStability)}", color = AdvancedInk)
+                    Slider(value = elevenStability, onValueChange = { elevenStability = it }, valueRange = 0f..1f, enabled = enabled)
+                    Text("声线相似度 ${"%.2f".format(elevenSimilarity)}", color = AdvancedInk)
+                    Slider(value = elevenSimilarity, onValueChange = { elevenSimilarity = it }, valueRange = 0f..1f, enabled = enabled)
+                }
                 OutlinedButton(onClick = {
                     saveVoiceSettings(); testingVoice = true; voiceNotice = "正在连接 ElevenLabs 并试听…"
                     scope.launch {

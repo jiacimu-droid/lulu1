@@ -27,11 +27,13 @@ internal class RealtimeVoiceAdapter(
     private var playedAudio = false
     private var speaking = false
     private var volumeEnabled = true
+    private var microphoneMuted = false
     private var suppressDelivery = false
     private var deliveryJob: Job? = null
 
     suspend fun start(characterId: String, conversationId: String) {
         stop()
+        microphoneMuted = false
         this.characterId = characterId
         this.conversationId = conversationId
         val epoch = ++generation
@@ -106,10 +108,14 @@ internal class RealtimeVoiceAdapter(
             onDisconnect = { _ -> if (epoch == generation) { deliveryJob?.cancel(); delivery.reset(); onError("实时通话已断开") } },
         )
         val connected = ConversationClient.startSession(config, context)
-        if (epoch != generation) connected.endSession() else session = connected
+        if (epoch != generation) connected.endSession() else {
+            session = connected
+            connected.setMicMuted(microphoneMuted)
+            connected.setVolume(1f)
+        }
     }
 
-    fun mute(muted: Boolean) { scope.launch { session?.setMicMuted(muted) } }
+    fun mute(muted: Boolean) { microphoneMuted = muted; scope.launch { session?.setMicMuted(muted) } }
     fun speaker(enabled: Boolean) {
         volumeEnabled = enabled
         session?.setVolume(if (enabled) 1f else 0f)

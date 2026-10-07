@@ -1,18 +1,18 @@
 # Lulu1 代码索引
 
-- 基准提交：`5b742c91748a4f4f09e7082aa514bbc2cd0d07fd`
+- 基准提交：`eaca59363092dd51f088e0642f635d3bef12d7e8`
 - 分支：`main`
-- 已索引文件：305
-- 已索引代码/文本行：81459
-- 已发现符号：1122
+- 已索引文件：308
+- 已索引代码/文本行：81741
+- 已发现符号：1129
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 107 | 0 |
-| `app/src/main/AndroidManifest.xml` | 120 | 0 |
+| `app/src/main/AndroidManifest.xml` | 121 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 98 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 103 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 136 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 80 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 28 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 38 | 0 |
@@ -43,9 +43,11 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt` | 355 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 151 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 144 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 127 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 109 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 148 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 519 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 566 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 565 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 96 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 412 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
@@ -54,11 +56,11 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 373 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 174 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 336 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 431 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 440 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 125 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 452 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 710 | 13 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 461 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 716 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt` | 80 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt` | 220 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt` | 178 | 9 |
@@ -69,7 +71,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 450 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 91 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 106 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 110 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 319 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 160 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 160 | 1 |
@@ -77,7 +79,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 251 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 283 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 198 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 199 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 130 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 232 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 34 | 0 |
@@ -88,7 +90,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 83 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 649 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 703 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt` | 160 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt` | 166 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 155 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StatefulCharacterPortrait.kt` | 24 | 0 |
@@ -303,6 +305,7 @@
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
 | `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 84 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 51 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 90 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 24 | 1 |

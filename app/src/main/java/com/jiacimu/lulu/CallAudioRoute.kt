@@ -18,21 +18,43 @@ internal class CallAudioRoute(
     private var preferPrivate = false
     private var previousMode = AudioManager.MODE_NORMAL
     private var previousSpeaker = false
+    private var previousMicrophoneMuted = false
     private var startedSco = false
+    private val handler = Handler(Looper.getMainLooper())
+    private val retryRoute = Runnable { refresh() }
+    private val routeChanged = if (Build.VERSION.SDK_INT >= 31) AudioManager.OnCommunicationDeviceChangedListener { device ->
+        if (active) {
+            onRoute(device?.type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, device?.let { label(it.type) } ?: "系统输出")
+        }
+    } else null
     private val callback = object : AudioDeviceCallback() {
-        override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>) { refresh() }
-        override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo>) { refresh() }
+        override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>) { refresh(); retrySelection() }
+        override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo>) { refresh(); retrySelection() }
     }
 
     fun start() {
         if (active) return
         previousMode = manager.mode
         previousSpeaker = manager.isSpeakerphoneOn
+        previousMicrophoneMuted = manager.isMicrophoneMute
         forceSpeaker = false; preferPrivate = false; active = true
+        manager.isMicrophoneMute = false
         manager.mode = AudioManager.MODE_IN_COMMUNICATION
-        manager.registerAudioDeviceCallback(callback, Handler(Looper.getMainLooper()))
+        manager.registerAudioDeviceCallback(callback, handler)
+        if (Build.VERSION.SDK_INT >= 31) routeChanged?.let {
+            manager.addOnCommunicationDeviceChangedListener({ action -> handler.post(action) }, it)
+        }
         refresh()
+        retrySelection()
     }
+
+    private fun retrySelection() {
+        handler.removeCallbacks(retryRoute)
+        // Bluetooth communication profiles may appear after recording starts.
+        handler.postDelayed(retryRoute, 750)
+    }
+
+    fun microphone(muted: Boolean) { if (active) manager.isMicrophoneMute = muted }
 
     fun speaker(enabled: Boolean) {
         forceSpeaker = enabled; preferPrivate = !enabled
@@ -52,11 +74,14 @@ internal class CallAudioRoute(
                 preferPrivate -> devices.firstOrNull { it.type == AudioDeviceInfo.TYPE_BUILTIN_EARPIECE }
                 else -> devices.firstOrNull { it.type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER }
             }
+            preferredOutput = desired
             if (Build.VERSION.SDK_INT >= 31) {
                 if (desired == null) { manager.clearCommunicationDevice(); onRoute(false, "系统输出") }
                 else {
-                    check(manager.setCommunicationDevice(desired)) { "系统未接受音频设备切换，请检查耳机连接后重试" }
-                    onRoute(desired.type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, label(desired.type))
+                    if (manager.communicationDevice?.id != desired.id)
+                        check(manager.setCommunicationDevice(desired)) { "系统未接受音频设备切换，请检查耳机连接后重试" }
+                    val actual = manager.communicationDevice
+                    onRoute(actual?.type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, actual?.let { label(it.type) } ?: "正在切换")
                 }
             } else {
                 val speaker = desired?.type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER
@@ -76,14 +101,22 @@ internal class CallAudioRoute(
     fun stop() {
         if (!active) return
         active = false
+        preferredOutput = null
+        handler.removeCallbacks(retryRoute)
         manager.unregisterAudioDeviceCallback(callback)
-        if (Build.VERSION.SDK_INT >= 31) manager.clearCommunicationDevice()
+        if (Build.VERSION.SDK_INT >= 31) {
+            routeChanged?.let { manager.removeOnCommunicationDeviceChangedListener(it) }
+            manager.clearCommunicationDevice()
+        }
         if (startedSco) { manager.stopBluetoothSco(); manager.isBluetoothScoOn = false; startedSco = false }
-        manager.isSpeakerphoneOn = previousSpeaker
+        if (Build.VERSION.SDK_INT < 31) manager.isSpeakerphoneOn = previousSpeaker
+        manager.isMicrophoneMute = previousMicrophoneMuted
         manager.mode = previousMode
     }
 
     companion object {
+        @Volatile var preferredOutput: AudioDeviceInfo? = null
+            private set
         fun headsetPriority(type: Int): Int = when (type) {
             AudioDeviceInfo.TYPE_WIRED_HEADSET, AudioDeviceInfo.TYPE_WIRED_HEADPHONES, AudioDeviceInfo.TYPE_USB_HEADSET -> 0
             AudioDeviceInfo.TYPE_BLE_HEADSET -> 1

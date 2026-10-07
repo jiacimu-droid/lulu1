@@ -68,8 +68,9 @@ fun LuluVoiceCallScreen(
         LuluVoiceCallSession.prepare(context, conversationId, characterId, characterName)
     }
 
-    val microphonePermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) LuluVoiceCallSession.dial() else LuluVoiceCallSession.reportPermissionDenied()
+    val microphonePermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
+            LuluVoiceCallSession.dial() else LuluVoiceCallSession.reportPermissionDenied()
     }
 
     val voiceArchiveId = library.archiveIdFor(ModelUsage.VoiceCall)
@@ -264,10 +265,14 @@ fun LuluVoiceCallScreen(
                     CallPhase.Ready -> {
                         FilledIconButton(
                             onClick = {
-                                if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                                val permissions = buildList {
+                                    add(Manifest.permission.RECORD_AUDIO)
+                                    if (android.os.Build.VERSION.SDK_INT >= 31) add(Manifest.permission.BLUETOOTH_CONNECT)
+                                }.filter { ContextCompat.checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED }
+                                if (permissions.isEmpty()) {
                                     LuluVoiceCallSession.dial()
                                 } else {
-                                    microphonePermission.launch(Manifest.permission.RECORD_AUDIO)
+                                    microphonePermission.launch(permissions.toTypedArray())
                                 }
                             },
                             enabled = activeArchive != null,
@@ -298,15 +303,19 @@ fun LuluVoiceCallScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             CallControl(
-                                icon = if (state.speakerEnabled) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
+                                icon = when {
+                                    state.speakerEnabled -> Icons.Outlined.VolumeUp
+                                    state.audioRouteLabel.contains("耳机") -> Icons.Outlined.Headphones
+                                    else -> Icons.Outlined.PhoneInTalk
+                                },
                                 label = state.audioRouteLabel,
-                                active = state.speakerEnabled,
+                                active = true,
                                 onClick = LuluVoiceCallSession::toggleSpeaker,
                             )
                             CallControl(
                                 icon = if (state.microphoneMuted) Icons.Outlined.MicOff else Icons.Outlined.Mic,
-                                label = if (state.microphoneMuted) "取消静音" else "静音",
-                                active = state.microphoneMuted,
+                                label = if (state.microphoneMuted) "麦克风已关" else "麦克风已开",
+                                active = !state.microphoneMuted,
                                 onClick = LuluVoiceCallSession::toggleMicrophone,
                             )
                             CallControl(Icons.Outlined.KeyboardArrowDown, "缩小", false, onClick = onDismiss)
