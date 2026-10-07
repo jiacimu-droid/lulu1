@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T16:02:40.590198+00:00",
-  "commit": "89bc1fc07db7d1549a5dea09d603341e6e750d2a",
+  "generatedAt": "2026-10-07T16:03:18.251594+00:00",
+  "commit": "1e1f10c50ddbac84e0cfd284f1c3299582af12c1",
   "branch": "main",
-  "sourceFingerprint": "71c27cda695624a9603b76378854daf92edb55c52a97466afe7738f0d0017454",
+  "sourceFingerprint": "5b43193e0a3b47bae130ea6cfb50aabc19466feb8cb14e06d4bc007468b90f04",
   "summary": {
     "files": 312,
-    "lines": 83638,
-    "symbols": 1152
+    "lines": 83609,
+    "symbols": 1151
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -481,7 +481,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 425
+        "line": 396
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -1593,7 +1593,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 418
+        "line": 389
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -5926,88 +5926,84 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
         "line": 75
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 106
       }
     ],
     "defaultPrompts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 157
+        "line": 137
       }
     ],
     "savePrompts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 173
+        "line": 153
       }
     ],
     "addImage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 177
+        "line": 157
       }
     ],
     "deleteImage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 181
+        "line": 161
       }
     ],
     "setGuide": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 186
+        "line": 166
       }
     ],
     "setStoryPlan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 190
+        "line": 170
       }
     ],
     "setLedger": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 199
+        "line": 179
       }
     ],
     "setBible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 203
+        "line": 183
       }
     ],
-    "setTheaterWorldBook": [
+    "setTheaterWorldBookIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 207
+        "line": 187
       }
     ],
     "addChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 211
+        "line": 191
       }
     ],
     "updateChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 217
+        "line": 197
       }
     ],
     "deleteChaptersFrom": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 226
+        "line": 206
       }
     ],
     "deleteTheater": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 234
+        "line": 214
       }
     ],
     "storyGuide": [
@@ -12349,76 +12345,72 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-      "lines": 534,
-      "sha256": "5db321b09dbe19ab78cc53c45ccd47c9ec5d8c25f7e5766a3a9f8994f74c4404",
+      "lines": 505,
+      "sha256": "0a691ac9e02102fbd43c3357b71fd2c611e3f6c30d7947a4323f8f7424b28c1f",
       "symbols": [
         {
           "name": "promptText",
           "line": 75
         },
         {
-          "name": "promptText",
-          "line": 106
-        },
-        {
           "name": "defaultPrompts",
-          "line": 157
+          "line": 137
         },
         {
           "name": "savePrompts",
-          "line": 173
+          "line": 153
         },
         {
           "name": "addImage",
-          "line": 177
+          "line": 157
         },
         {
           "name": "deleteImage",
-          "line": 181
+          "line": 161
         },
         {
           "name": "setGuide",
-          "line": 186
+          "line": 166
         },
         {
           "name": "setStoryPlan",
-          "line": 190
+          "line": 170
         },
         {
           "name": "setLedger",
-          "line": 199
+          "line": 179
         },
         {
           "name": "setBible",
-          "line": 203
+          "line": 183
         },
         {
-          "name": "setTheaterWorldBook",
-          "line": 207
+          "name": "setTheaterWorldBookIds",
+          "line": 187
         },
         {
           "name": "addChapter",
-          "line": 211
+          "line": 191
         },
         {
           "name": "updateChapter",
-          "line": 217
+          "line": 197
         },
         {
           "name": "deleteChaptersFrom",
-          "line": 226
+          "line": 206
         },
         {
           "name": "deleteTheater",
-          "line": 234
+          "line": 214
         },
         {
           "name": "create",
-          "line": 418
+          "line": 389
         },
         {
           "name": "initialize",
-          "line": 425
+          "line": 396
         }
       ]
     },
