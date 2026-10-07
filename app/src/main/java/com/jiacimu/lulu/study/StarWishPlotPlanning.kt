@@ -46,6 +46,12 @@ internal data class StarWishPlotCandidate(
     }.trim()
 
     fun storyBible(): StarWishStoryBible = StarWishStoryBible(
+        worldview = worldview.trim(),
+        overview = overview.trim(),
+        hook = hook.trim(),
+        highlights = highlights.trim(),
+        emotionalArc = emotionalArc.trim(),
+        proseStyle = proseStyle.trim(),
         cast = cast.trim(),
         characterArcs = characterArcs.trim(),
         relationshipArc = relationshipCore.trim(),
