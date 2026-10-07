@@ -696,7 +696,7 @@ private fun RealisticMeetingStage(modifier: Modifier, participantIds: List<Strin
                 shadowElevation = 10.dp,
             ) {
                 Column(Modifier.padding(13.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    LuluProfileAvatar(character.avatarUri, character.displayName.take(1), 92)
+                    StatefulCharacterPortrait(id, character.avatarUri, character.displayName, 92)
                     Spacer(Modifier.height(7.dp))
                     Text(character.displayName, color = Color.White, fontWeight = FontWeight.Bold)
                 }

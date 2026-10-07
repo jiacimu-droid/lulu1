@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.time.Instant
 
-/** Notification history is a passive context source; new notifications never wake the AI runtime. */
+/** Only user-selected notification packages can schedule a coalesced perception event. */
 class LuluNotificationListenerService : NotificationListenerService() {
     override fun onListenerConnected() {
         connected.value = true
@@ -31,6 +31,7 @@ class LuluNotificationListenerService : NotificationListenerService() {
             text = text,
             postedAt = Instant.ofEpochMilli(item.postTime),
         )
+        com.jiacimu.lulu.data.ImportantEventBridge.notification(this, item.key, item.packageName, "$title\n$text", snapshot.postedAt)
         recent.value = (listOf(snapshot) + recent.value)
             .distinctBy { value -> "${value.packageName}|${value.title}|${value.text}|${value.postedAt}" }
             .take(80)

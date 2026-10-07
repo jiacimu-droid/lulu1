@@ -60,7 +60,7 @@ object LuluDeviceToolBridge {
         HealthRolePerception.initialize(appContext)
         HealthRolePerception.recordLatestSleep(characterId)
         val healthContext = HealthRolePerception.context(now)
-        val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId)
+        val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId) + "\n" + com.jiacimu.lulu.data.CapabilityRegistry.context(appContext, characterId)
         val onlineChatBubbleRule = if (sceneContext.contains("电话")) "" else """
             - 当前是即时通讯软件里的日常线上聊天，不是在写文章、小说段落或一次性长篇口述。
             - 你不是每收到一条消息就重新开始一次问答。最近对话、刚才的动作、情绪与关系变化都已经真实发生；从上一刻的状态继续生活，只处理此刻新增的信息和变化。
@@ -148,7 +148,10 @@ object LuluDeviceToolBridge {
         }
         if (plan.action != "tool" || plan.tool.isBlank()) return Result.success(plannedReply)
 
-        val toolResult = execute(appContext, characterId, character.displayName, plan.tool, plan.args)
+        val lastUserEvent = com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 20)
+            .lastOrNull { it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement }?.id
+        val toolResult = com.jiacimu.lulu.data.ToolRouter.execute(appContext, characterId, plan.tool, plan.args,
+            requestId = "reply-${lastUserEvent ?: java.util.UUID.randomUUID().toString()}", userRequested = true)
         val finalReply = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
@@ -189,7 +192,8 @@ object LuluDeviceToolBridge {
         }
     }
 
-    private suspend fun execute(context: Context, characterId: String, characterName: String, tool: String, args: JSONObject): String = runCatching {
+    suspend fun executeRegistered(context: Context, characterId: String, tool: String, args: JSONObject, requestId: String): String = runCatching {
+        val characterName = MigratedDomainStores.characters.get(characterId).displayName
         when (tool.trim().lowercase()) {
             "get_battery" -> battery(context)
             "get_location" -> location(context)
@@ -202,11 +206,12 @@ object LuluDeviceToolBridge {
                     characterName = characterName,
                     triggerAt = trigger,
                     label = args.optString("label").ifBlank { "${characterName}提醒你" },
+                    id = "tool-$characterId-$requestId",
                 ).getOrThrow()
-                JSONObject().put("success", true).put("systemClock", true).put("id", alarm.id).put("triggerAt", alarm.triggerAt.toString()).put("label", alarm.label).toString()
+                JSONObject().put("success", LuluAlarmSystem.canScheduleExact()).put("status", if (LuluAlarmSystem.canScheduleExact()) "succeeded" else "waiting_user").put("verification", if (LuluAlarmSystem.canScheduleExact()) "AlarmManager已接受本地精确调度，注册记录已持久化" else "已请求系统时钟创建，尚无法读取系统时钟结果，请核实").put("systemClock", !LuluAlarmSystem.canScheduleExact()).put("id", alarm.id).put("triggerAt", alarm.triggerAt.toString()).put("label", alarm.label).toString()
             }
             "list_alarms" -> {
-                val alarms = LuluAlarmSystem.list()
+                val alarms = LuluAlarmSystem.list().filter { it.characterId == characterId }
                 JSONObject().put("success", true).put("count", alarms.size).put(
                     "alarms",
                     alarms.joinToString("\n") { alarm -> "${alarm.id} | ${alarm.triggerAt.atZone(ZoneId.systemDefault())} | ${alarm.label}" },
@@ -214,6 +219,7 @@ object LuluDeviceToolBridge {
             }
             "cancel_alarm" -> {
                 val id = args.optString("id")
+                require(LuluAlarmSystem.list().any { it.id == id && it.characterId == characterId }) { "不能取消其他角色的闹钟或不存在的闹钟" }
                 JSONObject().put("success", LuluAlarmSystem.cancel(id)).put("id", id).toString()
             }
             "screen_action" -> {

@@ -628,6 +628,21 @@ class CompanionModelGateway(
         readTimeoutMillis: Int,
         onStreamText: ((String) -> Unit)?,
     ): ModelReply {
+        val nativeClaude = runCatching { URL(connection.baseUrl).host == "api.anthropic.com" }.getOrDefault(false) || connection.baseUrl.endsWith("/messages")
+        if (nativeClaude) {
+            val body = JSONObject().put("model", connection.model).put("system", system)
+                .put("max_tokens", maxTokens ?: 1200).put("stream", streamResponse)
+                .put("messages", JSONArray().put(JSONObject().put("role", "user").put("content", user)))
+            val url = if (connection.baseUrl.endsWith("/messages")) connection.baseUrl else connection.baseUrl.trimEnd('/').let { if (it.endsWith("/v1")) "$it/messages" else "$it/v1/messages" }
+            val headers = mapOf("x-api-key" to connection.apiKey, "anthropic-version" to "2023-06-01")
+            if (streamResponse) return requestPostStreamingReply(url, headers, body, readTimeoutMillis, onStreamText)
+            val json = requestPostJson(url, headers, body, readTimeoutMillis)
+            val blocks = json.optJSONArray("content") ?: JSONArray()
+            val text = (0 until blocks.length()).mapNotNull { blocks.optJSONObject(it)?.takeIf { block -> block.optString("type") == "text" }?.optString("text") }.joinToString("")
+            check(text.isNotBlank()) { "Claude没有返回正文" }
+            val usage = json.optJSONObject("usage")
+            return ModelReply(text, usage?.optInt("input_tokens") ?: 0, usage?.optInt("output_tokens") ?: 0, usage?.optInt("cache_read_input_tokens") ?: 0).also { onStreamText?.invoke(it.text) }
+        }
         val body = JSONObject()
             .put("model", connection.model)
             .put("temperature", temperature)
@@ -787,6 +802,16 @@ class CompanionModelGateway(
                 val payload = rawEvent.trim()
                 if (payload.isBlank() || payload == "[DONE]") return true
                 val chunk = runCatching { JSONObject(payload) }.getOrNull() ?: return false
+                when (chunk.optString("type")) {
+                    "error" -> error(chunk.optJSONObject("error")?.optString("message").orEmpty().ifBlank { "Claude流式请求失败" })
+                    "message_start" -> chunk.optJSONObject("message")?.optJSONObject("usage")?.let {
+                        inputTokens = it.optInt("input_tokens", inputTokens)
+                        cachedTokens = it.optInt("cache_read_input_tokens", cachedTokens)
+                    }
+                    "content_block_delta" -> chunk.optJSONObject("delta")?.takeIf { it.optString("type") == "text_delta" }?.let { content.append(it.optString("text")) }
+                    "message_delta" -> chunk.optJSONObject("usage")?.let { outputTokens = it.optInt("output_tokens", outputTokens) }
+                }
+                if (chunk.has("error")) error(chunk.optJSONObject("error")?.optString("message").orEmpty().ifBlank { "模型流式请求失败" })
                 val choice = chunk.optJSONArray("choices")?.optJSONObject(0)
                 val delta = choice?.optJSONObject("delta")
                 if (delta != null) {

@@ -57,10 +57,16 @@ object LuluAlarmSystem {
         characterName: String,
         triggerAt: Instant,
         label: String,
+        id: String = UUID.randomUUID().toString(),
     ): Result<LuluAlarm> = runCatching {
         val appContext = context ?: error("闹钟系统尚未初始化")
+        list(appContext).firstOrNull { it.id == id }?.let { existing ->
+            require(existing.characterId == characterId && existing.triggerAt == triggerAt && existing.label == label.trim()) { "闹钟执行ID冲突" }
+            return@runCatching existing
+        }
         require(triggerAt.isAfter(Instant.now().plusSeconds(5))) { "闹钟时间必须晚于当前时间" }
         val alarm = LuluAlarm(
+            id = id,
             characterId = characterId.ifBlank { "lulu" },
             characterName = characterName.ifBlank { "露露" },
             triggerAt = triggerAt,

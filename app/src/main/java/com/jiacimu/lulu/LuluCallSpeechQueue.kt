@@ -23,6 +23,7 @@ internal class LuluCallSpeechQueue(
         val speakerId: String?,
         val text: String,
         val voiceId: String?,
+        val onDelivered: (() -> Unit)?,
     )
 
     private val engine = LuluSpeechEngine(context.applicationContext)
@@ -34,10 +35,11 @@ internal class LuluCallSpeechQueue(
         text: String,
         speakerId: String? = null,
         voiceId: String? = null,
+        onDelivered: (() -> Unit)? = null,
     ) {
         val speech = text.trim()
         if (speech.isBlank()) return
-        pending.addLast(Request(speakerId, speech, voiceId))
+        pending.addLast(Request(speakerId, speech, voiceId, onDelivered))
         if (!active) playNext()
     }
 
@@ -79,6 +81,7 @@ internal class LuluCallSpeechQueue(
             onFinished = {
                 scope.launch {
                     if (localGeneration != generation) return@launch
+                    if (engine.lastPlaybackSucceeded) request.onDelivered?.invoke()
                     active = false
                     playNext()
                 }

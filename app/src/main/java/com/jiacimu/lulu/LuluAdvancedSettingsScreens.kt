@@ -100,6 +100,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     ) { saveVoiceSettings() }
 
     AdvancedSettingsScaffold(title = "语音设置", onBack = onBack) {
+        item { SettingsSectionCard("云端接入") { CloudConnectionSettings() } }
         item {
             SettingsSwitchCard(
                 title = "启用 TTS",

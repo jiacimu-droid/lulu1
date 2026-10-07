@@ -147,7 +147,7 @@ class ProactivePerceptionBootReceiver : BroadcastReceiver() {
 }
 
 @Synchronized
-private fun initializeBackgroundRuntime(context: Context) {
+internal fun initializeBackgroundRuntime(context: Context) {
     UserDataUpgradeGuard.protectBeforeStoresInitialize(context)
     LuluAppPreferencesStore.initialize(context)
     UserProfileContext.initialize(context)
@@ -159,6 +159,9 @@ private fun initializeBackgroundRuntime(context: Context) {
     CharacterIdentityStore.initialize(context)
     MomentsStore.initialize(context)
     CompanionPresenceStore.initialize(context)
+    CharacterDevelopmentStore.initialize(context)
+    CharacterDevelopmentRuntime.initialize(context)
+    com.jiacimu.lulu.system.LuluDeviceToolBridge.initialize(context)
     CompanionOnlineStore.initialize(context)
     LuluAiServices.initialize(context)
     MemoryModelRuntime.initialize(context)

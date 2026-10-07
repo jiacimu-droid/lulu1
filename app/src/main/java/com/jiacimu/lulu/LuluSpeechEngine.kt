@@ -28,6 +28,11 @@ internal class LuluSpeechEngine(context: Context) {
 
     private val appContext = context.applicationContext
     private val prefs = appContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+    var lastPlaybackSucceeded = false
+        private set
+    var lastError: String = ""
+        private set
+    private val minimaxStream = MiniMaxStreamingSpeech(appContext)
     private var player: MediaPlayer? = null
     @Volatile private var playbackGeneration = 0L
     @Volatile private var activeUtteranceId: String? = null
@@ -51,7 +56,7 @@ internal class LuluSpeechEngine(context: Context) {
                     }
                     return
                 }
-                if (utteranceId != null && utteranceId == activeUtteranceId) finishPlayback()
+                if (utteranceId != null && utteranceId == activeUtteranceId) finishPlayback(true)
             }
 
             @Deprecated("Deprecated in Java")
@@ -76,21 +81,15 @@ internal class LuluSpeechEngine(context: Context) {
             return
         }
         stop()
+        lastPlaybackSucceeded = false
+        lastError = ""
         completionCallback = onFinished
         val requestGeneration = ++playbackGeneration
         if (prefs.getString("tts_provider", "system") == "minimax") {
             scope.launch {
-                runCatching { requestMiniMaxAudio(text, voiceIdOverride) }
-                    .onSuccess { bytes ->
-                        if (requestGeneration == playbackGeneration) {
-                            val audioFile = File.createTempFile("minimax-", ".mp3", appContext.cacheDir)
-                            audioFile.writeBytes(bytes)
-                            playAudioFile(audioFile, requestGeneration, deleteAfterPlayback = true)
-                        }
-                    }
-                    .onFailure {
-                        if (requestGeneration == playbackGeneration) speakWithSystem(text, requestGeneration)
-                    }
+                runCatching { minimaxStream.speak(text, voiceIdOverride ?: resolveCharacterVoiceId(text)) }
+                    .onSuccess { completed -> if (requestGeneration == playbackGeneration) finishPlayback(completed) }
+                    .onFailure { error -> if (requestGeneration == playbackGeneration) reportVoiceFailure(error) }
             }
         } else {
             speakWithSystem(text, requestGeneration)
@@ -110,6 +109,8 @@ internal class LuluSpeechEngine(context: Context) {
             return
         }
         stop()
+        lastPlaybackSucceeded = false
+        lastError = ""
         completionCallback = onFinished
         val requestGeneration = ++playbackGeneration
         cacheBaseFile.parentFile?.mkdirs()
@@ -131,14 +132,8 @@ internal class LuluSpeechEngine(context: Context) {
                             playAudioFile(target, requestGeneration, deleteAfterPlayback = false)
                         }
                     }
-                    .onFailure {
-                        if (requestGeneration == playbackGeneration) {
-                            synthesizeSystemToCache(
-                                text = text,
-                                target = File(cacheBaseFile.parentFile, "${cacheBaseFile.name}.wav"),
-                                generation = requestGeneration,
-                            )
-                        }
+                    .onFailure { error ->
+                        if (requestGeneration == playbackGeneration) reportVoiceFailure(error)
                     }
             }
         } else {
@@ -153,6 +148,8 @@ internal class LuluSpeechEngine(context: Context) {
     fun playCached(file: File, onFinished: (() -> Unit)? = null): Boolean {
         if (!file.exists() || file.length() <= 0L) return false
         stop()
+        lastPlaybackSucceeded = false
+        lastError = ""
         completionCallback = onFinished
         val generation = ++playbackGeneration
         file.setLastModified(System.currentTimeMillis())
@@ -180,6 +177,7 @@ internal class LuluSpeechEngine(context: Context) {
 
     fun stop() {
         playbackGeneration++
+        minimaxStream.stop()
         activeUtteranceId = null
         pendingSynthesis?.file?.delete()
         pendingSynthesis = null
@@ -362,7 +360,7 @@ internal class LuluSpeechEngine(context: Context) {
                 it.release()
                 if (player === it) player = null
                 if (deleteAfterPlayback) file.delete()
-                if (generation == playbackGeneration) finishPlayback()
+                if (generation == playbackGeneration) finishPlayback(true)
             }
             setOnErrorListener { mediaPlayer, _, _ ->
                 mediaPlayer.release()
@@ -376,7 +374,16 @@ internal class LuluSpeechEngine(context: Context) {
         }
     }
 
-    private fun finishPlayback() {
+    private fun reportVoiceFailure(error: Throwable) {
+        lastError = error.message.orEmpty().ifBlank { "声线合成失败，请重试或使用字幕" }
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            android.widget.Toast.makeText(appContext, lastError, android.widget.Toast.LENGTH_LONG).show()
+        }
+        finishPlayback()
+    }
+
+    private fun finishPlayback(success: Boolean = false) {
+        lastPlaybackSucceeded = success
         activeUtteranceId = null
         val callback = completionCallback
         completionCallback = null

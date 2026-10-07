@@ -80,6 +80,7 @@ class MigrationActivity : ComponentActivity() {
         LuluAiServices.initialize(appContext)
         MemoryModelRuntime.initialize(appContext)
         UserDataUpgradeGuard.refreshBackup(appContext)
+        com.jiacimu.lulu.data.CloudTaskBridge.initialize(appContext)
         LuluDeviceToolBridge.initialize(appContext)
         ChatAutoVoicePlayback.initialize(appContext)
         LuluGames.initialize(appContext)

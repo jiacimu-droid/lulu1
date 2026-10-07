@@ -255,11 +255,15 @@ fun CharacterSettingsScreenV2(
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
+                    var realtimeVoiceId by remember(characterId) { mutableStateOf(CharacterVoicePreferenceStore.realtimeVoiceId(characterId).orEmpty()) }
+                    OutlinedTextField(value = realtimeVoiceId, onValueChange = { realtimeVoiceId = it; CharacterVoicePreferenceStore.setRealtimeVoiceId(characterId, it) },
+                        label = { Text("ElevenLabs Voice ID") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     CharacterV2Switch(title = "自动播放语音", checked = autoPlayVoice) { enabled -> CharacterVoicePreferenceStore.setEnabled(characterId, enabled) }
                 }
             }
             item {
                 CharacterV2Card {
+                    CharacterExecutionSettings(characterId)
                     Text("数据与记录", fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     OutlinedButton(
                         onClick = { confirmClearRecords = true },

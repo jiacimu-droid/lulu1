@@ -55,6 +55,11 @@ object CharacterVoicePreferenceStore {
         mutableAutoPlay.update { current -> current + (cleanId to enabled) }
     }
 
+    fun realtimeVoiceId(characterId: String): String? = prefs?.getString("eleven_voice:$characterId", null)?.takeIf(String::isNotBlank)
+    fun setRealtimeVoiceId(characterId: String, voiceId: String) {
+        check(prefs?.edit()?.putString("eleven_voice:$characterId", voiceId.trim())?.putInt("eleven_voice_version:$characterId", (prefs?.getInt("eleven_voice_version:$characterId", 0) ?: 0) + 1)?.commit() == true)
+    }
+
     fun voiceId(characterId: String): String? = mutableVoiceIds.value[characterId.trim()]
         ?.trim()
         ?.takeIf(String::isNotBlank)

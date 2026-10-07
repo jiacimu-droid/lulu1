@@ -228,6 +228,9 @@ fun LuluVoiceCallScreen(
                                             )
                                         }
                                     }
+                                    if (state.generatedTranscript.isNotBlank()) {
+                                        item { Text("待播放字幕：${state.generatedTranscript}", color = CallMuted, fontSize = 13.sp) }
+                                    }
                                     if (state.partialTranscript.isNotBlank()) {
                                         item { Text("你：${state.partialTranscript}", color = CallMuted, fontSize = 13.sp) }
                                     }

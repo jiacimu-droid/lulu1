@@ -76,6 +76,7 @@ interface LuluChatStore {
     fun setConversationPinned(conversationId: String, pinned: Boolean): Boolean
     fun deleteConversation(conversationId: String): Boolean
     fun clearConversationMessages(conversationId: String): Boolean
+    fun appendVoiceMessage(conversationId: String, eventId: String, text: String, character: Boolean): LuluChatMessage
     fun sendUserMessage(conversationId: String, content: String, replyToMessageId: String? = null): LuluChatMessage
     fun appendCharacterMessage(
         conversationId: String,
@@ -310,6 +311,21 @@ class InMemoryLuluChatStore : LuluChatStore {
         }
         SharedExperienceTimeline.deleteConversationData(cleared.first, cleared.second)
         return true
+    }
+
+    override fun appendVoiceMessage(conversationId: String, eventId: String, text: String, character: Boolean): LuluChatMessage {
+        val existing = messages(conversationId).value.firstOrNull { it.id == eventId }
+        if (existing != null) {
+            if (existing.content != text) editMessage(eventId, text)
+            return existing.copy(content = text)
+        }
+        val message = LuluChatMessage(id = eventId, conversationId = conversationId,
+            sender = if (character) LuluChatMessage.Sender.Character else LuluChatMessage.Sender.User,
+            content = text, createdAt = Instant.now())
+        append(conversationId, message, incrementUnread = false)
+        val current = conversations.value.first { it.id == conversationId }
+        SharedExperienceTimeline.recordChatMessage(current.characterId, conversationId, message, channelOverride = "电话")
+        return message
     }
 
     override fun sendUserMessage(
