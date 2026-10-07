@@ -67,3 +67,14 @@
 规则测试覆盖供应商互斥路由、MiniMax 接口区域、WAV 格式与实际 PCM、错误分类及密钥脱敏、重复错误事件与旧提示清理、行为设定改变后旧成长约束失效。编译与测试结果另行记录。
 
 真实 MiniMax/ElevenLabs Key 在用户手机中，开发环境没有在线测试账号；不以单元测试或构建成功冒充电话已在线验收。
+
+## 本次交付结果（2026-10-07）
+
+- 代码提交：`142eb198e09796e51c12accd04b9d357c3e42a9e`；直接修改 main，未新建分支。
+- 云端工作流：[v1183 构建](https://github.com/jiacimu-droid/lulu1/actions/runs/37614414214) 已成功。`:app:testDebugUnitTest` 与 `:app:assembleDebug` 通过；云端服务 12 项测试通过。
+- 本地静态检查 `git diff --check` 通过；现有时间线迁移测试 1 项通过。
+- 可安装文件：[Lulu v1183 APK](https://github.com/jiacimu-droid/lulu1/releases/download/lulu-v1183/Lulu.apk)，79,155,486 字节。
+- 上一次 v1182 的编译失败由缺少直接 OkHttp 依赖引起，已修复；对应 CI issue #191 关闭。
+- 未完成在线验收：MiniMax 识别权限／额度／区域、ElevenLabs Scribe 识别权限、实机收音及声线、双工回声和延迟。构建通过不等于这些项目已经实测。
+
+手机操作：安装 v1183 后，进入语音服务先选供应商，再检查该供应商 Key 与角色 Voice ID；普通电话无需填写本项目云端服务。MiniMax 请先说一句话，停顿后观察输入强度、字幕与阶段提示；有错误直接查看电话页。江渡设定在角色设置→人格→“填入江渡设定”，只填空白项，已有内容不覆盖。
