@@ -141,7 +141,7 @@ internal object StarWishTheaterPlanningEngine {
             maxTokens = 6_400,
         )
         var bible = runCatching { parseStoryBible(raw, writtenChapters.size) }.getOrNull()
-        if (bible == null || bible.promptText().isBlank()) {
+        if (bible == null || !storyBibleCompleteEnough(bible)) {
             val fixed = repairStoryBiblePayload(
                 characterId = characterId,
                 facts = facts,
@@ -151,7 +151,7 @@ internal object StarWishTheaterPlanningEngine {
             ).getOrThrow()
             bible = parseStoryBible(fixed, writtenChapters.size)
         }
-        check(bible.promptText().isNotBlank()) { "幕后规划生成失败：模型没有返回有效规划内容" }
+        check(storyBibleCompleteEnough(bible)) { "幕后规划生成不完整，已自动补全一次但仍缺少关键长线内容" }
         bible
     }
 
@@ -337,6 +337,30 @@ internal object StarWishTheaterPlanningEngine {
             romanceAesthetics = text(root, "romanceAesthetics", "感情描写", "审美执行"),
             updatedThroughChapter = root.optInt("updatedThroughChapter", writtenCount).coerceAtLeast(writtenCount),
         )
+    }
+
+    private fun storyBibleCompleteEnough(bible: StarWishStoryBible): Boolean {
+        val required = listOf(
+            bible.worldview,
+            bible.overview,
+            bible.hook,
+            bible.highlights,
+            bible.emotionalArc,
+            bible.proseStyle,
+            bible.cast,
+            bible.characterArcs,
+            bible.relationshipArc,
+            bible.plotSpine,
+            bible.mainLine,
+            bible.hiddenLine,
+            bible.foreshadows,
+            bible.stagePlan,
+            bible.endingDirection,
+            bible.romanceAesthetics,
+        )
+        val filled = required.count { it.isNotBlank() }
+        val detailSize = required.sumOf { it.trim().length }
+        return filled >= 15 && detailSize >= 420
     }
 
     private suspend fun completeSingleStoryPayload(
