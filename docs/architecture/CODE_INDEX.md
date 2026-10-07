@@ -1,14 +1,14 @@
 # Lulu1 代码索引
 
-- 基准提交：`9deb5d1a1e51befb5cff26f86ae3c3abc2bbc7f5`
+- 基准提交：`3ee250bbc15ee00a7057fca16ea8e2392861d1fa`
 - 分支：`main`
-- 已索引文件：271
-- 已索引代码/文本行：78595
-- 已发现符号：1021
+- 已索引文件：277
+- 已索引代码/文本行：79020
+- 已发现符号：1045
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
-| `app/build.gradle.kts` | 103 | 0 |
+| `app/build.gradle.kts` | 104 | 0 |
 | `app/src/main/AndroidManifest.xml` | 119 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 456 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 238 | 1 |
@@ -56,7 +56,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 573 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 776 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 138 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 140 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 450 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 91 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 319 | 0 |
@@ -78,14 +78,17 @@
 | `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 697 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 155 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 915 | 25 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 917 | 25 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 188 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 136 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 479 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 60 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 117 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 98 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 158 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 42 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 43 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 19 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 109 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 75 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 272 | 2 |
@@ -105,8 +108,9 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 172 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 372 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 380 | 13 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 280 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 282 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt` | 20 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt` | 13 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt` | 225 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt` | 85 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 233 | 16 |
@@ -127,7 +131,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 795 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 476 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 106 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 108 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 587 | 37 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt` | 125 | 5 |
@@ -145,14 +149,14 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 96 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 759 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 760 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 170 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt` | 655 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 487 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 377 | 16 |
-| `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 18 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 523 | 18 |
+| `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 214 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 48 | 4 |
@@ -274,8 +278,10 @@
 | `app/src/main/res/values/strings.xml` | 6 | 0 |
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
+| `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 24 | 1 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |
 | `scripts/generate_code_index.py` | 33 | 0 |
+| `scripts/test_timeline_migration.py` | 28 | 1 |
 | `preview/app.js` | 54 | 0 |
 | `preview/index.html` | 99 | 0 |
 | `preview/styles.css` | 2 | 0 |

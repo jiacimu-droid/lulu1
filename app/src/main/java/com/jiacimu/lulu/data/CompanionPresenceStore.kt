@@ -203,6 +203,8 @@ object CompanionPresenceStore {
             speaker = characterName,
             content = detail,
             occurredAt = state.updatedAt,
+            source = "presence",
+            evidenceKind = EventEvidenceKind.Inference,
         )
     }
 

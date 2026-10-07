@@ -30,6 +30,7 @@ object CharacterRecordReset {
             .map { it.id }
             .forEach { id -> LuluRepositories.memory.delete(id) }
 
+        CharacterDevelopmentStore.clearCharacter(cleanId)
         CompanionPresenceStore.clearCharacter(cleanId)
         CompanionOnlineStore.resetCharacter(cleanId)
 

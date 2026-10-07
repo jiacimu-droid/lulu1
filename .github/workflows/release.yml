@@ -36,7 +36,8 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p ci-logs
-          gradle --no-daemon --stacktrace :app:assembleDebug 2>&1 | tee ci-logs/gradle-build.log
+          python scripts/test_timeline_migration.py
+          gradle --no-daemon --stacktrace :app:testDebugUnitTest :app:assembleDebug 2>&1 | tee ci-logs/gradle-build.log
 
       - name: Collect APK
         run: |

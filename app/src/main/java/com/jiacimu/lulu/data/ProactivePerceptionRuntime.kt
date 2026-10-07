@@ -143,6 +143,7 @@ object ProactivePerceptionRuntime {
             val result = runCatching { evaluateCharacter(appContext, conversation, effectiveTrigger, now) }
             result.onSuccess { action ->
                 evaluated += 1
+                CharacterDevelopmentRuntime.request(characterId)
                 val actionKey = "action_history_$characterId"
                 val actionHistory = prefs.getString(actionKey, "").orEmpty().split(',').map(String::trim)
                     .filter(String::isNotBlank).plus(action.name).takeLast(ACTION_HISTORY_SIZE)

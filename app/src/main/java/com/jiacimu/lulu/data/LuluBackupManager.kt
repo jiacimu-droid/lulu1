@@ -14,7 +14,7 @@ import java.time.Instant
  * the file private.
  */
 object LuluBackupManager {
-    private const val SCHEMA_VERSION = 1
+    private const val SCHEMA_VERSION = 2
 
     fun exportJson(context: Context): String {
         val appContext = context.applicationContext
@@ -41,6 +41,7 @@ object LuluBackupManager {
             .put("applicationId", appContext.packageName)
             .put("exportedAt", Instant.now().toString())
             .put("preferences", stores)
+            .put("timeline", SharedExperienceTimeline.exportBackup())
             .toString(2)
     }
 
@@ -48,9 +49,10 @@ object LuluBackupManager {
         val appContext = context.applicationContext
         val root = JSONObject(raw)
         val schema = root.optInt("schemaVersion", -1)
-        require(schema == SCHEMA_VERSION) { "不支持的备份版本：$schema" }
+        require(schema in 1..SCHEMA_VERSION) { "不支持的备份版本：$schema" }
         val stores = root.optJSONObject("preferences") ?: error("备份中没有本地数据")
 
+        root.optJSONObject("timeline")?.let(SharedExperienceTimeline::importBackup)
         var storeCount = 0
         var valueCount = 0
         val names = stores.keys()

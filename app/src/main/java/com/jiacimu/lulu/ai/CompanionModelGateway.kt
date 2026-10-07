@@ -463,7 +463,7 @@ class CompanionModelGateway(
             val presence = CompanionPresenceStore.current(characterId).takeIf { fullContext }
             val recallQuery = "$facts\n$instruction"
             val unifiedMemory = if (fullContext) {
-                UnifiedMemoryOrchestrator.assemble(
+                com.jiacimu.lulu.data.CharacterRuntime.memory(
                     characterId = characterId,
                     request = memoryRequest ?: UnifiedMemoryRequest.legacy(facts, instruction),
                 )
@@ -544,6 +544,7 @@ class CompanionModelGateway(
             val currentWorld = if (fullContext && DigitalLifeProfileStore.isEnabled(characterId)) {
                 DigitalWorldStore.contextFor(characterId) + "\n" + DigitalWorldLifeEventStore.contextFor(characterId)
             } else ""
+            val developmentSection = if (fullContext) com.jiacimu.lulu.data.CharacterRuntime.developmentContext(characterId) else ""
             val systemPrompt = listOf(
                 baseRules,
                 identitySection,
@@ -552,6 +553,7 @@ class CompanionModelGateway(
                 globalWorldBookSection,
                 roleWorldBookSection,
                 presenceSection,
+                developmentSection,
                 currentWorld,
                 timelineSection,
                 memorySection,
