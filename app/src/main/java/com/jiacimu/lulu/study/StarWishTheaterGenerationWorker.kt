@@ -465,8 +465,10 @@ internal class StarWishTheaterGenerationWorker(
 
     private fun hasFullStoryMap(guide: String): Boolean {
         if (guide.isBlank()) return false
-        val markers = listOf("【故事总纲】", "【关系主线】", "【明线】", "【暗线】", "【伏笔系统】")
-        return markers.count(guide::contains) >= 3
+        val newMarkers = listOf("【故事核心】", "【核心看点】", "【世界前提】", "【关系底色】")
+        if (newMarkers.count(guide::contains) >= 2) return true
+        val legacyMarkers = listOf("【故事总纲】", "【关系主线】", "【明线】", "【暗线】", "【伏笔系统】")
+        return legacyMarkers.count(guide::contains) >= 3
     }
 
     private suspend fun recoverStoryMap(
@@ -489,11 +491,10 @@ internal class StarWishTheaterGenerationWorker(
                 if (evidence.isNotBlank()) appendLine("已经真实写出的章节证据：\n$evidence")
             },
             instruction = """
-                为这部已经开始写作的小说补回一份“故事总地图”。已写正文是最高事实，不得改写、否定或让人物倒退。
-                在已有设定和正文基础上整理并补齐未来可继续执行的总体剧情，必须包含：
-                【世界观】【故事总纲】【关系主线】【明线】【暗线】【伏笔系统】【情绪曲线】【文风执行】【核心钩子】。
-                对尚未揭晓的部分可以做最保守、最连贯的补全，但不要凭空换题材、换人物关系或推翻前文。
-                只输出这份总地图正文，不要解释。
+                为这部已经开始写作的小说补回一份简洁“故事地图”。已写正文是最高事实，不得改写、否定或让人物倒退。
+                故事地图只负责读者层面的核心方向，不承担人物卡、逐章细纲、明暗线细节或伏笔明细；这些由幕后规划负责。
+                只整理：【故事核心】【核心看点】【世界前提】【关系底色】【开篇/当前钩子】【基调与文风】。
+                对尚未揭晓的部分只做最保守的补全，不要凭空换题材、换人物关系或推翻前文。只输出故事地图正文，不要解释。
             """.trimIndent(),
             source = "剧场",
             title = "$theater · 补回故事总地图",
