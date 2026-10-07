@@ -201,7 +201,7 @@ internal object StarWishTheaterPlanningEngine {
             }
             val facts = buildString {
                 appendLine("独立剧场故事：《$storyTitle》")
-                appendLine("故事地图（核心方向与看点，不得推翻）：\n$storyGuide")
+                appendLine("故事地图（保留核心方向，未来设定冲突须按最新世界书调整）：\n$storyGuide")
                 if (theaterWorldBook.isNotBlank()) {
                     appendLine("本剧场专属世界书（已开启条目，必须遵守）：\n$theaterWorldBook")
                 }
@@ -255,6 +255,7 @@ internal object StarWishTheaterPlanningEngine {
                     storyTitle = storyTitle,
                     start = start,
                     end = end,
+                    originalFacts = facts,
                 ).getOrNull()
                 if (fixed != null) batch = parseChapterPlans(fixed, start, end)
             }
@@ -485,11 +486,12 @@ internal object StarWishTheaterPlanningEngine {
         storyTitle: String,
         start: Int,
         end: Int,
+        originalFacts: String,
     ): Result<String> = runCatching {
         val count = end - start + 1
         LuluAiServices.gateway.generate(
             characterId = characterId,
-            facts = "《" + storyTitle + "》已生成的第" + start + "-" + end + "章规划原文：\n" + raw.take(24_000),
+            facts = originalFacts + "\n《" + storyTitle + "》已生成的第" + start + "-" + end + "章规划原文：\n" + raw.take(24_000),
             instruction = """
                 只做格式修复。保留原剧情规划，整理成合法JSON数组。
                 必须恰好有 $count 个对象，依次对应第 $start 至第 $end 章；若原输出只因格式混乱漏掉对象边界，请恢复出来。
