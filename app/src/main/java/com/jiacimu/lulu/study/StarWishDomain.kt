@@ -92,6 +92,26 @@ internal data class StarWishStoryBible(
     }.trim()
 }
 
+internal data class StarWishTheaterWorldBookEntry(
+    val id: String = UUID.randomUUID().toString(),
+    val title: String = "",
+    val content: String = "",
+    val enabled: Boolean = true,
+)
+
+internal data class StarWishTheaterWorldBook(
+    val enabled: Boolean = true,
+    val entries: List<StarWishTheaterWorldBookEntry> = emptyList(),
+) {
+    fun promptText(): String = if (!enabled) "" else entries
+        .filter { it.enabled && it.content.isNotBlank() }
+        .joinToString("\n") { entry ->
+            val heading = entry.title.trim().ifBlank { "未命名设定" }
+            "- $heading：${entry.content.trim()}"
+        }
+        .trim()
+}
+
 internal data class StarWishState(
     val imageLaunches: List<StarWishImageLaunch> = emptyList(),
     val customPrompts: Map<String, StarWishOutfitPrompts> = emptyMap(),
@@ -100,6 +120,7 @@ internal data class StarWishState(
     val theaterPlans: Map<String, List<StarWishChapterPlan>> = emptyMap(),
     val theaterLedgers: Map<String, StarWishStoryLedger> = emptyMap(),
     val theaterBibles: Map<String, StarWishStoryBible> = emptyMap(),
+    val theaterWorldBooks: Map<String, StarWishTheaterWorldBook> = emptyMap(),
 )
 
 internal data class StarWishOutfitPrompts(
@@ -184,6 +205,10 @@ internal class StarWishStore private constructor(context: Context) {
         current.copy(theaterBibles = current.theaterBibles + (theater to bible))
     }
 
+    fun setTheaterWorldBook(theater: String, worldBook: StarWishTheaterWorldBook) = update { current ->
+        current.copy(theaterWorldBooks = current.theaterWorldBooks + (theater to worldBook))
+    }
+
     fun addChapter(chapter: StarWishTheaterChapter) {
         update { current ->
             current.copy(theaterChapters = current.theaterChapters + (chapter.theater to (current.theaterChapters[chapter.theater].orEmpty() + chapter)))
@@ -214,6 +239,7 @@ internal class StarWishStore private constructor(context: Context) {
             theaterPlans = current.theaterPlans - theater,
             theaterLedgers = current.theaterLedgers - theater,
             theaterBibles = current.theaterBibles - theater,
+            theaterWorldBooks = current.theaterWorldBooks - theater,
         )
     }
 
@@ -250,6 +276,7 @@ internal class StarWishStore private constructor(context: Context) {
         .put("plans", JSONObject().apply { value.theaterPlans.forEach { (name, plans) -> put(name, JSONArray().apply { plans.forEach { put(encodePlan(it)) } }) } })
         .put("ledgers", JSONObject().apply { value.theaterLedgers.forEach { (name, ledger) -> put(name, encodeLedger(ledger)) } })
         .put("bibles", JSONObject().apply { value.theaterBibles.forEach { (name, bible) -> put(name, encodeBible(bible)) } })
+        .put("theaterWorldBooks", JSONObject().apply { value.theaterWorldBooks.forEach { (name, book) -> put(name, encodeTheaterWorldBook(book)) } })
 
     private fun decode(root: JSONObject): StarWishState {
         val prompts = root.optJSONObject("prompts").decodeMap { item -> StarWishOutfitPrompts(item.optString("solo"), item.optString("interaction")) }
@@ -277,6 +304,7 @@ internal class StarWishStore private constructor(context: Context) {
         val plans = root.optJSONObject("plans").decodeArrayMap(::decodePlan)
         val ledgers = root.optJSONObject("ledgers").decodeObjectMap(::decodeLedger)
         val bibles = root.optJSONObject("bibles").decodeObjectMap(::decodeBible)
+        val theaterWorldBooks = root.optJSONObject("theaterWorldBooks").decodeObjectMap(::decodeTheaterWorldBook)
         return StarWishState(
             imageLaunches = root.optJSONArray("images").decodeObjects(::decodeImage),
             customPrompts = prompts,
@@ -285,6 +313,7 @@ internal class StarWishStore private constructor(context: Context) {
             theaterPlans = plans,
             theaterLedgers = ledgers,
             theaterBibles = bibles,
+            theaterWorldBooks = theaterWorldBooks,
         )
     }
 
@@ -355,6 +384,33 @@ internal class StarWishStore private constructor(context: Context) {
         endingDirection = item.optString("endingDirection"), romanceAesthetics = item.optString("romanceAesthetics"),
         updatedThroughChapter = item.optInt("updatedThroughChapter"),
     )
+
+    private fun encodeTheaterWorldBook(value: StarWishTheaterWorldBook) = JSONObject()
+        .put("enabled", value.enabled)
+        .put("entries", JSONArray().apply {
+            value.entries.forEach { entry ->
+                put(
+                    JSONObject()
+                        .put("id", entry.id)
+                        .put("title", entry.title)
+                        .put("content", entry.content)
+                        .put("enabled", entry.enabled),
+                )
+            }
+        })
+
+    private fun decodeTheaterWorldBook(item: JSONObject) = StarWishTheaterWorldBook(
+        enabled = item.optBoolean("enabled", true),
+        entries = item.optJSONArray("entries").decodeObjects { entry ->
+            StarWishTheaterWorldBookEntry(
+                id = entry.optString("id").ifBlank { UUID.randomUUID().toString() },
+                title = entry.optString("title"),
+                content = entry.optString("content"),
+                enabled = entry.optBoolean("enabled", true),
+            )
+        },
+    )
+
 
     companion object {
         private const val PREFS_NAME = "lulu_star_wish"
