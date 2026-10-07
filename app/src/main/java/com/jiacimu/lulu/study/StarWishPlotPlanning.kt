@@ -162,14 +162,13 @@ internal object StarWishPlotPlanner {
             connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
             contextMode = CompanionContextMode.Isolated,
         ).getOrThrow().text
-        parseJson(reply).ifEmpty { parseLoose(reply) }.take(3).takeIf { it.isNotEmpty() }
+        StarWishTheaterPlanningEngine.parseCandidates(reply).ifEmpty { parseLoose(reply) }.take(3).takeIf { it.isNotEmpty() }
             ?: error("剧情已经生成，但格式仍无法识别。")
     }
 
     private fun parseJson(raw: String): List<StarWishPlotCandidate> = runCatching {
         var clean = raw.trim()
             .removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
-            .replace('“', '"').replace('”', '"')
             .replace(Regex(",\\s*([}\\]])"), "$1")
         val start = clean.indexOf('[')
         val end = clean.lastIndexOf(']')

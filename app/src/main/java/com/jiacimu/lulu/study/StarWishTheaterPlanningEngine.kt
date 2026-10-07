@@ -149,7 +149,8 @@ internal object StarWishTheaterPlanningEngine {
                 storyTitle = storyTitle,
                 writtenCount = writtenChapters.size,
             ).getOrThrow()
-            bible = parseStoryBible(fixed, writtenChapters.size)
+            val repaired = parseStoryBible(fixed, writtenChapters.size)
+            bible = repaired.withMissingFieldsFrom(bible)
         }
         check(storyBibleCompleteEnough(bible)) { "幕后规划生成不完整，已自动补全一次但仍缺少关键长线内容" }
         bible
@@ -317,8 +318,11 @@ internal object StarWishTheaterPlanningEngine {
             message.contains("没有返回正文")
     }
 
-    private fun parseStoryBible(raw: String, writtenCount: Int): StarWishStoryBible {
-        val root = parseJsonValue(raw) as? JSONObject ?: error("幕后规划格式无法识别")
+    internal fun parseStoryBible(raw: String, writtenCount: Int): StarWishStoryBible {
+        val root = theaterPlanningObjects(parseJsonValue(raw)) { objectValue ->
+            theaterPlanningText(objectValue, "worldview").isNotBlank() || theaterPlanningText(objectValue, "cast").isNotBlank()
+        }.firstOrNull() ?: theaterPlanningSections(raw).takeIf { it.length() > 0 }
+            ?: error("幕后规划未返回可识别的内容")
         return StarWishStoryBible(
             worldview = text(root, "worldview", "世界观", "世界前提"),
             overview = text(root, "overview", "故事总纲", "总纲", "故事核心"),
@@ -496,37 +500,10 @@ internal object StarWishTheaterPlanningEngine {
         ).getOrThrow().text
     }
 
-    private fun parseCandidates(raw: String): List<StarWishPlotCandidate> {
-        val root = parseJsonValue(raw) ?: return emptyList()
-        val objects = when (root) {
-            is JSONArray -> buildList {
-                for (index in 0 until root.length()) {
-                    when (val item = root.opt(index)) {
-                        is JSONObject -> add(item)
-                        is String -> runCatching { JSONTokener(item).nextValue() as? JSONObject }.getOrNull()?.let(::add)
-                    }
-                }
-            }
-            is JSONObject -> {
-                val nested = firstArray(root, "candidates", "plans", "stories", "方案", "方案列表", "options")
-                when {
-                    nested != null -> buildList {
-                        for (index in 0 until nested.length()) nested.optJSONObject(index)?.let(::add)
-                    }
-                    looksLikeCandidate(root) -> listOf(root)
-                    else -> buildList {
-                        val keys = root.keys()
-                        while (keys.hasNext()) {
-                            val key = keys.next()
-                            root.optJSONObject(key)?.let(::add)
-                        }
-                    }
-                }
-            }
-            else -> emptyList()
-        }
-        return objects.mapIndexedNotNull { index, obj -> candidate(obj, index + 1) }
-    }
+    internal fun parseCandidates(raw: String): List<StarWishPlotCandidate> =
+        theaterPlanningObjects(parseJsonValue(raw), ::looksLikeCandidate)
+            .ifEmpty { listOfNotNull(theaterPlanningSections(raw).takeIf { looksLikeCandidate(it) }) }
+            .mapIndexedNotNull { index, obj -> candidate(obj, index + 1) }
 
     private fun looksLikeCandidate(obj: JSONObject): Boolean =
         listOf("overview", "故事总纲", "mainLine", "明线", "worldview", "世界观", "hook", "钩子", "cast", "人物")
@@ -647,11 +624,15 @@ internal object StarWishTheaterPlanningEngine {
         return if (detail.isBlank()) title else title + "\n" + detail
     }
 
-    private fun parseChapterPlans(raw: String, start: Int, end: Int): List<StarWishChapterPlan> {
+    internal fun parseChapterPlans(raw: String, start: Int, end: Int): List<StarWishChapterPlan> {
         val expectedCount = end - start + 1
         val root = parseJsonValue(raw)
 
-        val values: List<Any> = when (root) {
+        val nestedPlans = theaterPlanningObjects(root) { obj ->
+            listOf("outline", "规划", "剧情", "内容", "details", "细纲", "chapterPlan", "events", "keyEvents", "beats", "具体事件")
+                .any { obj.has(it) && !obj.isNull(it) }
+        }
+        val values: List<Any> = if (nestedPlans.isNotEmpty()) nestedPlans else when (root) {
             is JSONArray -> buildList {
                 for (index in 0 until root.length()) root.opt(index)?.let(::add)
             }
@@ -766,6 +747,7 @@ internal object StarWishTheaterPlanningEngine {
             .removeSuffix(fence)
             .trim()
         if (clean.length < 16) return null
+        if ((clean.startsWith('{') || clean.startsWith('[')) && theaterPlanningValue(clean) == null) return null
         val firstLine = clean.lineSequence().firstOrNull().orEmpty()
             .replace(Regex("^#+\\s*"), "")
             .take(40)
@@ -776,19 +758,7 @@ internal object StarWishTheaterPlanningEngine {
         return StarWishChapterPlan(number = number, title = title, outline = clean)
     }
 
-    private fun parseJsonValue(raw: String): Any? = runCatching {
-        var clean = raw.trim()
-            .replace('“', '"')
-            .replace('”', '"')
-
-        val arrayStart = clean.indexOf('[')
-        val objectStart = clean.indexOf('{')
-        val start = listOf(arrayStart, objectStart).filter { it >= 0 }.minOrNull()
-            ?: return@runCatching null
-        val end = maxOf(clean.lastIndexOf(']'), clean.lastIndexOf('}'))
-        if (end > start) clean = clean.substring(start, end + 1)
-        JSONTokener(clean).nextValue()
-    }.getOrNull()
+    private fun parseJsonValue(raw: String): Any? = theaterPlanningValue(raw)
 
     private fun firstArray(obj: JSONObject, vararg keys: String): JSONArray? =
         keys.firstNotNullOfOrNull { key -> obj.optJSONArray(key) }
@@ -800,8 +770,5 @@ internal object StarWishTheaterPlanningEngine {
         return null
     }
 
-    private fun text(obj: JSONObject, vararg keys: String): String =
-        keys.firstNotNullOfOrNull { key ->
-            obj.optString(key).trim().takeIf(String::isNotBlank)
-        }.orEmpty()
+    private fun text(obj: JSONObject, vararg keys: String): String = theaterPlanningText(obj, *keys)
 }
