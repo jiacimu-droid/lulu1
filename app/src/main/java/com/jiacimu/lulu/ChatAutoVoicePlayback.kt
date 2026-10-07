@@ -101,7 +101,7 @@ object ChatAutoVoicePlayback {
                 characterId = characterId,
                 messageId = messageId,
                 text = clean,
-                voiceId = CharacterVoicePreferenceStore.voiceId(characterId),
+                voiceId = CharacterVoicePreferenceStore.playbackVoiceId(characterId),
                 requireAutoPlay = true,
             ),
         )
@@ -126,7 +126,7 @@ object ChatAutoVoicePlayback {
                 characterId = characterId,
                 messageId = message.id,
                 text = speech,
-                voiceId = CharacterVoicePreferenceStore.voiceId(characterId),
+                voiceId = CharacterVoicePreferenceStore.playbackVoiceId(characterId),
                 requireAutoPlay = false,
             ),
         ).isSuccess

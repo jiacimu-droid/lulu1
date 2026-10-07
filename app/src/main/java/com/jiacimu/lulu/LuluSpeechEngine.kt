@@ -34,6 +34,7 @@ internal class LuluSpeechEngine(context: Context) {
         private set
     var onPlaybackState: ((Boolean) -> Unit)? = null
     private val minimaxStream = MiniMaxStreamingSpeech(appContext)
+    private val elevenSpeech = ElevenLabsSpeech(appContext)
     private var player: MediaPlayer? = null
     @Volatile private var playbackGeneration = 0L
     @Volatile private var activeUtteranceId: String? = null
@@ -96,6 +97,13 @@ internal class LuluSpeechEngine(context: Context) {
                     .onSuccess { completed -> if (requestGeneration == playbackGeneration) finishPlayback(completed) }
                     .onFailure { error -> if (requestGeneration == playbackGeneration) reportVoiceFailure(error) }
             }
+        } else if (prefs.getString("tts_provider", "system") == "elevenlabs") {
+            scope.launch {
+                runCatching { elevenSpeech.speak(text, voiceIdOverride ?: resolveCharacterVoiceId(text)) {
+                    if (requestGeneration == playbackGeneration) onPlaybackState?.invoke(true)
+                } }.onSuccess { complete -> if (requestGeneration == playbackGeneration) finishPlayback(complete) }
+                    .onFailure { error -> if (requestGeneration == playbackGeneration) reportVoiceFailure(error) }
+            }
         } else {
             speakWithSystem(text, requestGeneration)
         }
@@ -127,10 +135,11 @@ internal class LuluSpeechEngine(context: Context) {
             return
         }
 
-        if (prefs.getString("tts_provider", "system") == "minimax") {
+        if (prefs.getString("tts_provider", "system") in setOf("minimax", "elevenlabs")) {
             val target = File(cacheBaseFile.parentFile, "${cacheBaseFile.name}.mp3")
             scope.launch {
-                runCatching { requestMiniMaxAudio(text, voiceIdOverride) }
+                runCatching { if (prefs.getString("tts_provider", "system") == "elevenlabs") elevenSpeech.synthesize(text, voiceIdOverride)
+                    else requestMiniMaxAudio(text, voiceIdOverride) }
                     .onSuccess { bytes ->
                         if (requestGeneration == playbackGeneration) {
                             target.writeBytes(bytes)
@@ -170,6 +179,15 @@ internal class LuluSpeechEngine(context: Context) {
         return null
     }
 
+    suspend fun previewElevenLabs(text: String): Result<Unit> = runCatching {
+        stop()
+        lastPlaybackSucceeded = false
+        val generation = ++playbackGeneration
+        val complete = elevenSpeech.speak(text, null) { onPlaybackState?.invoke(true) }
+        check(generation == playbackGeneration && complete) { "试听已取消或播放未完成" }
+        finishPlayback(true)
+    }.onFailure { onPlaybackState?.invoke(false) }
+
     suspend fun previewMiniMax(text: String): Result<Unit> = runCatching {
         stop()
         val requestGeneration = ++playbackGeneration
@@ -183,6 +201,7 @@ internal class LuluSpeechEngine(context: Context) {
     fun stop() {
         playbackGeneration++
         minimaxStream.stop()
+        elevenSpeech.stop()
         activeUtteranceId = null
         pendingSynthesis?.file?.delete()
         pendingSynthesis = null
@@ -327,7 +346,7 @@ internal class LuluSpeechEngine(context: Context) {
                     val characterId = first.authorCharacterId
                         ?.takeIf(String::isNotBlank)
                         ?: conversation.characterId
-                    val voiceId = CharacterVoicePreferenceStore.voiceId(characterId) ?: continue
+                    val voiceId = CharacterVoicePreferenceStore.playbackVoiceId(characterId) ?: continue
                     val parts = mutableListOf<String>()
                     var latestAt = first.createdAt
                     var cursor = start

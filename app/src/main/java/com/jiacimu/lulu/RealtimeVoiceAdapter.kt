@@ -27,6 +27,7 @@ internal class RealtimeVoiceAdapter(
     private var playedAudio = false
     private var speaking = false
     private var volumeEnabled = true
+    private var suppressDelivery = false
     private var deliveryJob: Job? = null
 
     suspend fun start(characterId: String, conversationId: String) {
@@ -48,7 +49,7 @@ internal class RealtimeVoiceAdapter(
                 speaking = mode == ConversationMode.SPEAKING
                 AvatarController.listening(characterId, !speaking)
                 onState(!speaking, speaking, if (speaking) "正在说话，你可以插话" else "正在听你说话")
-                if (speaking) { playedAudio = false; deliveryJob?.cancel() }
+                if (speaking) { playedAudio = false; suppressDelivery = !volumeEnabled; deliveryJob?.cancel() }
                 else if (playedAudio && volumeEnabled) {
                     // Allow correction/interruption events to arrive before committing completed speech.
                     deliveryJob?.cancel()
@@ -72,7 +73,8 @@ internal class RealtimeVoiceAdapter(
             } },
             onTentativeUserTranscriptEvent = { text, _ -> if (epoch == generation) onState(true, speaking, "听到：$text") },
             onAgentResponseEvent = { text, eventId -> if (epoch == generation && eventId != null) {
-                delivery.generated(deliveryEpoch, eventId, text)
+                if (volumeEnabled && !suppressDelivery) delivery.generated(deliveryEpoch, eventId, text)
+                else delivery.interrupt(deliveryEpoch, eventId)
                 onCandidate(text)
                 // Generated text is a subtitle candidate; it is not yet a spoken experience.
             } },
@@ -85,7 +87,7 @@ internal class RealtimeVoiceAdapter(
             onAgentResponseCorrectionEvent = { text, eventId -> if (epoch == generation && eventId != null) {
                 delivery.corrected(deliveryEpoch, eventId, text)
                 // The provider's corrected transcript describes the actually delivered prefix.
-                if (volumeEnabled) {
+                if (volumeEnabled && !suppressDelivery) {
                     if (text.isNotBlank()) persistAgent(eventId, text)
                     else MigratedDomainStores.chat.deleteMessage("voice-$providerSessionId-agent-$eventId-$characterId")
                 }
@@ -111,7 +113,7 @@ internal class RealtimeVoiceAdapter(
     fun speaker(enabled: Boolean) {
         volumeEnabled = enabled
         session?.setVolume(if (enabled) 1f else 0f)
-        if (!enabled) { deliveryJob?.cancel(); deliveryEpoch = delivery.reset() }
+        if (!enabled) { suppressDelivery = true; deliveryJob?.cancel(); delivery.interrupt(deliveryEpoch, -1) }
     }
     fun stop() {
         generation++
@@ -119,6 +121,7 @@ internal class RealtimeVoiceAdapter(
         deliveryEpoch = delivery.reset()
         playedAudio = false
         speaking = false
+        suppressDelivery = false
         if (characterId.isNotBlank()) { AvatarController.audio(characterId, 0f); AvatarController.listening(characterId, false) }
         val old = session
         session = null

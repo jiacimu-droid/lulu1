@@ -69,6 +69,11 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     var minimaxSpeed by remember { mutableFloatStateOf(prefs.getFloat("minimax_speed", 1f)) }
     var minimaxVolume by remember { mutableFloatStateOf(prefs.getFloat("minimax_volume", 1f)) }
     var minimaxPitch by remember { mutableFloatStateOf(prefs.getInt("minimax_pitch", 0).toFloat()) }
+    var elevenKey by remember { mutableStateOf(prefs.getString("eleven_api_key", "").orEmpty()) }
+    var elevenVoice by remember { mutableStateOf(prefs.getString("eleven_voice_id", "").orEmpty()) }
+    var elevenModel by remember { mutableStateOf(prefs.getString("eleven_tts_model", "eleven_multilingual_v2").orEmpty()) }
+    var elevenStability by remember { mutableFloatStateOf(prefs.getFloat("eleven_stability", .5f)) }
+    var elevenSimilarity by remember { mutableFloatStateOf(prefs.getFloat("eleven_similarity", .75f)) }
     var testingVoice by remember { mutableStateOf(false) }
     var voiceNotice by remember { mutableStateOf("") }
 
@@ -91,12 +96,18 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
             .putFloat("minimax_speed", minimaxSpeed)
             .putFloat("minimax_volume", minimaxVolume)
             .putInt("minimax_pitch", minimaxPitch.toInt())
+            .putString("eleven_api_key", elevenKey.trim())
+            .putString("eleven_voice_id", elevenVoice.trim())
+            .putString("eleven_tts_model", elevenModel.trim())
+            .putFloat("eleven_stability", elevenStability)
+            .putFloat("eleven_similarity", elevenSimilarity)
             .apply()
     }
 
     LaunchedEffect(
         provider, language, rate, pitch, minimaxEndpoint, minimaxApiKey, minimaxGroupId,
         minimaxModel, minimaxVoiceId, minimaxLanguage, minimaxSpeed, minimaxVolume, minimaxPitch,
+        elevenKey, elevenVoice, elevenModel, elevenStability, elevenSimilarity,
     ) { saveVoiceSettings() }
 
     AdvancedSettingsScaffold(title = "语音设置", onBack = onBack) {
@@ -138,6 +149,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                         onClick = { provider = "minimax"; prefs.edit().putString("tts_provider", provider).apply() },
                         label = { Text("MiniMax") },
                     )
+                    FilterChip(selected = provider == "elevenlabs", onClick = { provider = "elevenlabs" }, label = { Text("ElevenLabs") })
                 }
             }
         }
@@ -172,7 +184,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                     onSelected = { minimaxEndpoint = it },
                 )
                 Spacer(Modifier.height(10.dp))
-                AdvancedTextField("API Key", minimaxApiKey, { minimaxApiKey = it }, "填写 MiniMax API Key")
+                AdvancedTextField("API Key", minimaxApiKey, { minimaxApiKey = it }, "填写 MiniMax API Key", password = true)
                 Spacer(Modifier.height(10.dp))
                 AdvancedTextField("Group ID", minimaxGroupId, { minimaxGroupId = it }, "国内账号请填写 Group ID")
                 Spacer(Modifier.height(10.dp))
@@ -223,6 +235,31 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                 if (voiceNotice.isNotBlank()) {
                     Text(voiceNotice, color = AdvancedMuted, fontSize = 12.sp)
                 }
+            }
+        }
+        if (provider == "elevenlabs") item {
+            SettingsSectionCard("ElevenLabs 接口") {
+                AdvancedTextField("API Key", elevenKey, { elevenKey = it }, "填写个人 ElevenLabs API Key", password = true)
+                Spacer(Modifier.height(10.dp))
+                AdvancedTextField("Voice ID", elevenVoice, { elevenVoice = it }, "填写选择的声线 ID")
+                Spacer(Modifier.height(10.dp))
+                AdvancedTextField("语音模型", elevenModel, { elevenModel = it }, "账号可用的 TTS 模型 ID")
+                Text("稳定性 ${"%.2f".format(elevenStability)}", color = AdvancedInk)
+                Slider(value = elevenStability, onValueChange = { elevenStability = it }, valueRange = 0f..1f, enabled = enabled)
+                Text("声线相似度 ${"%.2f".format(elevenSimilarity)}", color = AdvancedInk)
+                Slider(value = elevenSimilarity, onValueChange = { elevenSimilarity = it }, valueRange = 0f..1f, enabled = enabled)
+                OutlinedButton(onClick = {
+                    saveVoiceSettings(); testingVoice = true; voiceNotice = "正在连接 ElevenLabs 并试听…"
+                    scope.launch {
+                        speechEngine.previewElevenLabs("你好，我是露露。这个声音听起来还合适吗？")
+                            .onSuccess { voiceNotice = "ElevenLabs 已返回音频并播放完成" }
+                            .onFailure { voiceNotice = it.message.orEmpty() }
+                        testingVoice = false
+                    }
+                }, modifier = Modifier.fillMaxWidth(), enabled = enabled && !testingVoice && elevenKey.isNotBlank() && elevenVoice.isNotBlank()) {
+                    Text(if (testingVoice) "正在试听" else "试听当前声音")
+                }
+                if (voiceNotice.isNotBlank()) Text(voiceNotice, color = AdvancedMuted, fontSize = 12.sp)
             }
         }
     }

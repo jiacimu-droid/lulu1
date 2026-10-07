@@ -20,6 +20,7 @@ object CharacterVoicePreferenceStore {
 
     @Volatile
     private var prefs: android.content.SharedPreferences? = null
+    private var advanced: android.content.SharedPreferences? = null
 
     fun initialize(context: Context) {
         if (prefs != null) return
@@ -27,6 +28,7 @@ object CharacterVoicePreferenceStore {
             if (prefs != null) return
             val loadedPrefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             prefs = loadedPrefs
+            advanced = context.applicationContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
             mutableAutoPlay.value = buildMap {
                 loadedPrefs.all.forEach { (key, value) ->
                     if (key.startsWith(AUTO_PLAY_PREFIX) && value is Boolean) {
@@ -56,6 +58,8 @@ object CharacterVoicePreferenceStore {
     }
 
     fun realtimeVoiceId(characterId: String): String? = prefs?.getString("eleven_voice:$characterId", null)?.takeIf(String::isNotBlank)
+    fun playbackVoiceId(characterId: String): String? = if (advanced?.getString("tts_provider", "system") == "elevenlabs")
+        realtimeVoiceId(characterId) else voiceId(characterId)
     fun setRealtimeVoiceId(characterId: String, voiceId: String) {
         check(prefs?.edit()?.putString("eleven_voice:$characterId", voiceId.trim())?.putInt("eleven_voice_version:$characterId", (prefs?.getInt("eleven_voice_version:$characterId", 0) ?: 0) + 1)?.commit() == true)
     }

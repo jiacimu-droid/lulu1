@@ -187,7 +187,7 @@ internal fun LuluGroupVoiceCallScreen(
                                 speechQueue.enqueue(
                                     text = text,
                                     speakerId = characterId,
-                                    voiceId = CharacterVoicePreferenceStore.voiceId(characterId),
+                                    voiceId = CharacterVoicePreferenceStore.playbackVoiceId(characterId),
                                 )
                             }
                         },

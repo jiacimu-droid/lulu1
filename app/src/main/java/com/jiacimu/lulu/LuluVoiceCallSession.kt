@@ -462,7 +462,7 @@ internal object LuluVoiceCallSession {
                         queue.enqueue(
                             text = text,
                             speakerId = latest.characterId,
-                            voiceId = CharacterVoicePreferenceStore.voiceId(latest.characterId),
+                            voiceId = CharacterVoicePreferenceStore.playbackVoiceId(latest.characterId),
                             onDelivered = { persistDelivered() },
                         )
                     } else {

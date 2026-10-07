@@ -138,9 +138,9 @@ object MeetingVoicePlayback {
         val speech = engine ?: return
         speech.onPlaybackState = { playing -> AvatarController.playback(resolvedCharacterId, playing) }
         val voiceSettings = application.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE).all
-            .filterKeys { (it.startsWith("tts_") || it.startsWith("minimax_")) && !it.contains("key") && !it.contains("group_id") }
+            .filterKeys { (it.startsWith("tts_") || it.startsWith("minimax_") || it.startsWith("eleven_")) && !it.contains("key") && !it.contains("group_id") }
             .toSortedMap().entries.joinToString("|") { "${it.key}=${it.value}" }
-        val cacheIdentity = "$pageKey|$spoken|$resolvedCharacterId|${CharacterVoicePreferenceStore.voiceId(resolvedCharacterId)}|$voiceSettings"
+        val cacheIdentity = "$pageKey|$spoken|$resolvedCharacterId|${CharacterVoicePreferenceStore.playbackVoiceId(resolvedCharacterId)}|$voiceSettings"
         val safeKey = java.security.MessageDigest.getInstance("SHA-256").digest(cacheIdentity.toByteArray())
             .joinToString("") { "%02x".format(it) }
         val cacheBase = File(application.filesDir, "meeting_voice_cache/$sessionId/page-$safeKey")
@@ -152,7 +152,7 @@ object MeetingVoicePlayback {
                 text = spoken,
                 cacheBaseFile = cacheBase,
                 scope = scope,
-                voiceIdOverride = CharacterVoicePreferenceStore.voiceId(resolvedCharacterId),
+                voiceIdOverride = CharacterVoicePreferenceStore.playbackVoiceId(resolvedCharacterId),
                 onFinished = {
                     synchronized(lock) {
                         if (activePageToken == token) activePageToken = null
