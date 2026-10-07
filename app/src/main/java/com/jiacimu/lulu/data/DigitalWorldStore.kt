@@ -656,6 +656,8 @@ object DigitalWorldStore {
             eventId = "meeting-${session.id}-$suffix-viewer-$viewerCharacterId",
             sessionId = session.id,
             source = "meeting",
+            evidenceKind = if (speaker == MigratedDomainStores.characters.get(viewerCharacterId).displayName)
+                EventEvidenceKind.CharacterStatement else EventEvidenceKind.Legacy,
             characterId = viewerCharacterId,
             channel = channel,
             speaker = speaker,

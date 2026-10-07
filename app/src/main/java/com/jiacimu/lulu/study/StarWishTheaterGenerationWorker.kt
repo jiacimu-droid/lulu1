@@ -445,6 +445,7 @@ internal class StarWishTheaterGenerationWorker(
             var currentPlan = plans.firstOrNull { it.number == chapterNumber }
             if ((currentPlan == null || currentPlan.outline.isBlank() || currentPlan.outline == "待规划") && guide.isNotBlank()) {
                 val planTarget = chapterNumber
+                val futurePlans = plans.filter { it.number > planTarget }
                 val plannedThroughCurrent = StarWishTheaterPlanningEngine.generateChapterPlans(
                     characterId = ISOLATED_CHARACTER_ID,
                     storyTitle = theater,
@@ -456,12 +457,12 @@ internal class StarWishTheaterGenerationWorker(
                     ledger = ledger,
                     theaterWorldBook = theaterWorldBook,
                     onProgress = { partialPlans ->
-                        saveProgress { store.setStoryPlan(theater, guide, partialPlans) }
+                        saveProgress { store.setStoryPlan(theater, guide, (partialPlans + futurePlans).sortedBy { it.number }) }
                     },
                 ).getOrThrow()
                 val generatedCurrent = plannedThroughCurrent?.firstOrNull { it.number == chapterNumber }
                 if (generatedCurrent != null && plannedThroughCurrent != null) {
-                    plans = plannedThroughCurrent.sortedBy { it.number }
+                    plans = (plannedThroughCurrent + futurePlans).sortedBy { it.number }
                     currentPlan = generatedCurrent
                     saveProgress { store.setStoryPlan(theater, guide, plans) }
                 }

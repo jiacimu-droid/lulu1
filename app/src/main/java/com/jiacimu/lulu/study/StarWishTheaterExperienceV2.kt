@@ -534,8 +534,7 @@ private fun TheaterReaderV2(
                     generationManager.cancel(seed.title)
                     message = "已取消续写，剧情要求已保留"
                 }) { Text("取消续写") }
-                if (regenerating) item { TextButton(onClick = onCancel) { Text("取消规划，保留已完成部分") } }
-            val statusMessage = when {
+                val statusMessage = when {
                     task?.active == true || task?.status == StarWishTheaterTaskStatus.FAILED -> task.message
                     message.isNotBlank() -> message
                     else -> task?.message.orEmpty()
@@ -768,6 +767,7 @@ private fun TheaterPlannerV2(
                     }
                 }
             }
+            if (regenerating) item { TextButton(onClick = onCancel) { Text("取消规划，保留已完成部分") } }
             val statusMessage = when {
                 task?.active == true || task?.status == StarWishTheaterTaskStatus.FAILED -> task.message
                 localMessage.isNotBlank() -> localMessage
