@@ -296,6 +296,7 @@ internal class StarWishPlanGenerationWorker(
                 ledger = ledger,
             ).getOrThrow()
 
+            store.setBible(theater, bible)
             val plans = StarWishTheaterPlanningEngine.generateChapterPlans(
                 characterId = characterId,
                 storyTitle = theater,
@@ -305,9 +306,11 @@ internal class StarWishPlanGenerationWorker(
                 existingPlans = existingPlans,
                 storyBible = bible,
                 ledger = ledger,
+                onProgress = { partialPlans ->
+                    store.setStoryPlan(theater, guide, partialPlans)
+                },
             ).getOrThrow()
 
-            store.setBible(theater, bible)
             store.setStoryPlan(theater, guide, plans)
             manager.succeeded(theater, chapterCount)
             Result.success()
