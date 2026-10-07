@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T11:25:12.949512+00:00",
+  "generatedAt": "2026-10-07T11:28:58.234408+00:00",
   "commit": "c1a39f1bf0fa012b706d5b3ba9076207881313b9",
   "branch": "main",
-  "sourceFingerprint": "cf4beb5641246beaa33d95a9f0b186ebfa991f8213a0c9dd1feef785e689b869",
+  "sourceFingerprint": "f75c0782989eea0376a0c6ee3b44e983365c60035af29c861d8bf4c85d96e298",
   "summary": {
     "files": 302,
-    "lines": 81098,
+    "lines": 81099,
     "symbols": 1107
   },
   "symbolIndex": {
@@ -6196,8 +6196,8 @@
   "files": [
     {
       "path": "app/build.gradle.kts",
-      "lines": 106,
-      "sha256": "f54180e7d02845d5cd23f100a0c0a2df74d358d395f11aaf205b784442b93bec",
+      "lines": 107,
+      "sha256": "0c20868bd319ad181063774a753080468c4083e3019692641ba40d0960901937",
       "symbols": []
     },
     {
@@ -6880,7 +6880,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
       "lines": 707,
-      "sha256": "f1cc4c8aeb1ca2b6fd49c609883dbfcfe64900e71a72d802b88538a6abcca13e",
+      "sha256": "0c712b1670443300bf27a7e3bb82179dca12c82505d8055537cd6fc97ef0ab4a",
       "symbols": [
         {
           "name": "prepare",
@@ -7355,7 +7355,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt",
       "lines": 39,
-      "sha256": "16a98033f1d763b1b40e68612023c81980249574fa7a17a644bf58b4e15a4234",
+      "sha256": "05d06511abd3b3cf6f40bdeb0ac1786f82f889ca995958c93b182bf2fb78c3cc",
       "symbols": []
     },
     {

@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 internal fun VoiceCallSettings(provider: String) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE) }
-    var mode by remember { mutableStateOf(prefs.getString("voice_call_mode", "direct").orEmpty()) }
+    var mode by remember(provider) { mutableStateOf(prefs.getString("voice_call_mode", "direct").orEmpty()) }
     var threshold by remember { mutableFloatStateOf(prefs.getFloat("voice_vad_threshold", 350f)) }
     var advanced by remember { mutableStateOf(false) }
     var endpoint by remember { mutableStateOf(prefs.getString("minimax_asr_endpoint", "").orEmpty()) }

@@ -526,7 +526,7 @@ internal object LuluVoiceCallSession {
             onSpeech = {
                 if (sameSession()) {
                     if (mutableState.value.thinking) { replyGeneration++; replyJob?.cancel() }
-                    mutableState.update { it.copy(thinking = false, errorMessage = "", partialTranscript = "", statusMessage = "检测到语音，正在收音…") }
+                    mutableState.update { it.copy(thinking = false, listening = true, errorMessage = "", partialTranscript = "", statusMessage = "检测到语音，正在收音…") }
                 }
             },
             onPartial = { text -> if (sameSession()) mutableState.update { it.copy(partialTranscript = text) } },
@@ -534,7 +534,7 @@ internal object LuluVoiceCallSession {
             onStatus = { note -> if (sameSession()) mutableState.update { it.copy(statusMessage = note) } },
             onError = { error -> if (sameSession()) {
                 val dialing = mutableState.value.phase == CallPhase.Dialing
-                mutableState.update { it.copy(phase = if (dialing) CallPhase.Ready else it.phase, listening = false,
+                mutableState.update { it.copy(phase = if (dialing) CallPhase.Ready else it.phase, listening = false, inputLevel = 0f,
                     errorMessage = "收音／识别失败：$error", statusMessage = "语音识别未完成，可重新收音") }
                 if (dialing) { providerInput?.stop(); providerInput = null; restoreCallAudio(); stopForegroundService() }
             } },

@@ -86,6 +86,7 @@ android {
 
 dependencies {
     implementation("io.elevenlabs:elevenlabs-android:0.12.2")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.17")
     implementation(platform("androidx.compose:compose-bom:2024.12.01"))
