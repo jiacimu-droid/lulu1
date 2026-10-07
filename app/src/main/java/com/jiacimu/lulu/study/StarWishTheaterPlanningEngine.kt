@@ -80,7 +80,7 @@ internal object StarWishTheaterPlanningEngine {
             }
 
             if (candidate == null || !candidateCompleteEnough(candidate)) {
-                error("第$variant套方案生成不完整。已经自动补全过一次；直接重新生成即可，不需要补男女主名字。")
+                error("第${variant}套方案生成不完整。已经自动补全过一次；直接重新生成即可，不需要补男女主名字。")
             }
             accepted += candidate
         }
@@ -116,8 +116,6 @@ internal object StarWishTheaterPlanningEngine {
             你是这部长篇小说的幕后总导演。请生成/刷新一份“幕后规划”，它不是逐章规划，而是长期稳定的故事圣经。
             已经写出的正文和连续性档案中的硬事实是最高事实：人物死亡、生死状态、亲属关系、身份、性别、婚姻/恋爱关系、阵营、已知秘密、伤势、物品归属、地点与已经发生的关键事件绝对不能被未来规划改写。
             可以为了更精彩而重新设计尚未发生的未来剧情，但必须自然承接已经写出的内容，不能让人物性格和关系无理由跳变。
-
-            用户默认代入女主进行互动。长期规划可以规划女主的处境、欲望、矛盾、成长方向与可能分支，但不要把她未来每一步主观决定写成不可更改的既定事实；玩家在正文里的实际输入永远覆盖尚未发生的规划。
 
             幕后规划与新建故事方案必须使用同一套模板。完整保留并刷新：
             worldview 世界观、overview 故事总纲、hook 核心钩子、highlights 核心看点、
@@ -195,12 +193,12 @@ internal object StarWishTheaterPlanningEngine {
                 你是小说作者兼剧情导演。根据故事地图、幕后长期规划和正文已确认事实，为指定章节生成真正可执行的逐章写作框架。
                 已写正文与硬事实优先级最高；不得让死人复活、亲属关系变动、身份/伤势/物品/已知信息回滚，除非正文明确给出合理反转依据。
                 不要重写故事核心；“重新生成”的目标是让尚未发生的后续更有吸引力、更有因果、更想让人继续读，而不是推翻前文。
-                用户默认代入女主。章节规划必须给玩家留出可交互空间：规划“局面和后果”，不要替玩家锁死女主的最终态度、答应/拒绝、去/留、爱/恨等关键选择。玩家后续输入一旦改变女主选择，未来规划应顺着正文事实重新调整。
+                女主与其他主要人物一样可以正常写出明确的想法、选择和后果。用户若在“影响下一章”里改变女主行为，以用户最新输入和已生成正文为准，后续规划自然改道即可。
 
                 每一章的 outline 必须明确写出：
                 1. 本章在全书中的阶段功能；
                 2. 3—6个按因果顺序发生的具体事件；
-                3. 男主与NPC可以写明确的主动选择与后果；女主是玩家默认代入位，只写她面临的局面、诱因、情绪压力、可选方向及各方向可能后果，不把她尚未做出的主观决定写死；
+                3. 主要人物各自主动做出的选择与后果；
                 4. 关系变化；
                 5. 明线推进；
                 6. 暗线推进；
@@ -321,7 +319,7 @@ internal object StarWishTheaterPlanningEngine {
             characterId = characterId,
             facts = buildString {
                 if (direction.isNotBlank()) appendLine("用户原始题材：$direction")
-                appendLine("第$variant套第一次输出如下。它可能JSON格式有问题，也可能缺字段：")
+                appendLine("第${variant}套第一次输出如下。它可能JSON格式有问题，也可能缺字段：")
                 appendLine(raw.take(26_000))
             },
             instruction = """
@@ -332,7 +330,7 @@ internal object StarWishTheaterPlanningEngine {
                 {"title":"","worldview":"","hook":"","overview":"","highlights":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","wordCount":"1800-3000"}
             """.trimIndent(),
             source = "剧场",
-            title = "补全第$variant套剧情方案",
+            title = "补全第${variant}套剧情方案",
             maxTokens = 5_800,
             connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
             contextMode = CompanionContextMode.Isolated,
