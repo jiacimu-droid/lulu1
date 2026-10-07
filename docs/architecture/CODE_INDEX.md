@@ -3,7 +3,7 @@
 - 基准提交：`c739da94239a48fdeb0e9add5321b70e71df6708`
 - 分支：`main`
 - 已索引文件：308
-- 已索引代码/文本行：81741
+- 已索引代码/文本行：81749
 - 已发现符号：1129
 
 | 文件 | 行数 | 符号数 |
@@ -43,7 +43,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt` | 355 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 151 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 144 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 109 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 148 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 519 | 1 |
@@ -305,7 +305,7 @@
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
 | `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 84 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 51 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 90 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 24 | 1 |

@@ -12,6 +12,11 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28])
 class ElevenLabsAudioContractsTest {
+    @Test fun finalFrameWithoutAudioDoesNotProduceGarbagePcm() {
+        assertNull(ElevenLabsDialogueStream.decodeAudio(org.json.JSONObject("""{"audio":null,"is_final":true}""")))
+        assertNull(ElevenLabsDialogueStream.decodeAudio(org.json.JSONObject("""{"is_final":true}""")))
+        assertArrayEquals(byteArrayOf(1, 2, 3, 4), ElevenLabsDialogueStream.decodeAudio(org.json.JSONObject("""{"audio":"AQIDBA=="}""")))
+    }
     @Test fun currentModelsUseTheirSupportedTransportAndBody() {
         assertTrue(ElevenLabsModels.choices.any { it.second == "eleven_v4" })
         assertTrue(ElevenLabsModels.websocket("eleven_v4_turbo"))

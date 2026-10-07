@@ -43,9 +43,8 @@ internal class ElevenLabsDialogueStream(key: String, model: String, voice: Strin
                         finish("ElevenLabs 实时发声失败，请检查模型权限、声线和余额", webSocket)
                         return
                     }
-                    val audio = event.optString("audio")
-                    if (audio.isNotBlank()) {
-                        val bytes = Base64.decode(audio, Base64.DEFAULT)
+                    val bytes = decodeAudio(event)
+                    if (bytes != null) {
                         received += bytes.size
                         if (received > 20 * 1024 * 1024 || !frames.offer(Frame(bytes))) {
                             finish("ElevenLabs 音频超过缓冲限制", webSocket)
@@ -104,5 +103,9 @@ internal class ElevenLabsDialogueStream(key: String, model: String, voice: Strin
     }
     companion object {
         private val client = OkHttpClient.Builder().readTimeout(0, TimeUnit.MILLISECONDS).build()
+        internal fun decodeAudio(event: JSONObject): ByteArray? {
+            if (event.isNull("audio")) return null
+            return event.optString("audio").takeIf { it.isNotBlank() }?.let { Base64.decode(it, Base64.DEFAULT) }
+        }
     }
 }

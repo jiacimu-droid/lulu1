@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T13:02:00.381880+00:00",
+  "generatedAt": "2026-10-07T13:02:40.858530+00:00",
   "commit": "c739da94239a48fdeb0e9add5321b70e71df6708",
   "branch": "main",
-  "sourceFingerprint": "00268bdb3a2bd189c60de19e842f9f4ef6bc2db33e0545f0565b85077efeea69",
+  "sourceFingerprint": "d456e92ef9fc944244c0d4170f9011eb2757d935e5c2ab2ec2a67010bbb1a22b",
   "summary": {
     "files": 308,
-    "lines": 81741,
+    "lines": 81749,
     "symbols": 1129
   },
   "symbolIndex": {
@@ -6784,8 +6784,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt",
-      "lines": 109,
-      "sha256": "0bc6f489c2f5bee96486edd53bdc98f2619abf619d69e4397c88c410dc6907bd",
+      "lines": 112,
+      "sha256": "3aef0eed4fad0549e472cc6b975663271048d58f90168e86c2c46afb72faa873",
       "symbols": []
     },
     {
@@ -12765,8 +12765,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt",
-      "lines": 51,
-      "sha256": "a1912d7bb7620c63111ca2c554693f4d14f2a04f682b7cae066edc17cf25136f",
+      "lines": 56,
+      "sha256": "2e9b2a0bd8c84aa0b4b188e9eac1c150b1600b972e613aff0e013cdacfbf2d65",
       "symbols": [
         {
           "name": "ElevenLabsAudioContractsTest",
