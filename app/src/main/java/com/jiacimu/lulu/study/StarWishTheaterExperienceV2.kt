@@ -25,7 +25,7 @@ import com.jiacimu.lulu.ScopedModelArchiveIconButton
 import com.jiacimu.lulu.ai.ScopedModelSelections
 import kotlinx.coroutines.launch
 
-private enum class TheaterV2Mode { BOOKSHELF, READER, PLANNER, BIBLE, GENERATOR }
+private enum class TheaterV2Mode { BOOKSHELF, READER, PLANNER, BIBLE, WORLD_BOOK, GENERATOR }
 
 @Composable
 internal fun StarWishTheaterContentV2(
@@ -52,7 +52,7 @@ internal fun StarWishTheaterContentV2(
 
     BackHandler {
         mode = when (mode) {
-            TheaterV2Mode.PLANNER, TheaterV2Mode.BIBLE, TheaterV2Mode.GENERATOR -> if (openedSeed == null) TheaterV2Mode.BOOKSHELF else TheaterV2Mode.READER
+            TheaterV2Mode.PLANNER, TheaterV2Mode.BIBLE, TheaterV2Mode.WORLD_BOOK, TheaterV2Mode.GENERATOR -> if (openedSeed == null) TheaterV2Mode.BOOKSHELF else TheaterV2Mode.READER
             TheaterV2Mode.READER -> TheaterV2Mode.BOOKSHELF
             TheaterV2Mode.BOOKSHELF -> {
                 onExit()
@@ -84,6 +84,7 @@ internal fun StarWishTheaterContentV2(
                 onBack = { mode = TheaterV2Mode.BOOKSHELF },
                 onPlanner = { mode = TheaterV2Mode.PLANNER },
                 onBible = { mode = TheaterV2Mode.BIBLE },
+                onWorldBook = { mode = TheaterV2Mode.WORLD_BOOK },
                 onRegenerate = { mode = TheaterV2Mode.PLANNER },
             )
         } else {
@@ -150,6 +151,16 @@ internal fun StarWishTheaterContentV2(
                 bible = state.theaterBibles[openedSeed.title],
                 ledger = state.theaterLedgers[openedSeed.title],
                 onBack = { mode = TheaterV2Mode.READER },
+            )
+        } else {
+            mode = TheaterV2Mode.BOOKSHELF
+        }
+        TheaterV2Mode.WORLD_BOOK -> if (openedSeed != null) {
+            TheaterWorldBookV2(
+                title = openedSeed.title,
+                worldBook = state.theaterWorldBooks[openedSeed.title] ?: StarWishTheaterWorldBook(),
+                onBack = { mode = TheaterV2Mode.READER },
+                onChange = { updated -> store.setTheaterWorldBook(openedSeed.title, updated) },
             )
         } else {
             mode = TheaterV2Mode.BOOKSHELF
@@ -326,6 +337,7 @@ private fun TheaterReaderV2(
     onBack: () -> Unit,
     onPlanner: () -> Unit,
     onBible: () -> Unit,
+    onWorldBook: () -> Unit,
     onRegenerate: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -411,6 +423,11 @@ private fun TheaterReaderV2(
                             text = { Text("幕后规划") },
                             leadingIcon = { Icon(Icons.Outlined.AutoStories, null) },
                             onClick = { overflowMenu = false; onBible() },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("世界书") },
+                            leadingIcon = { Icon(Icons.Outlined.Public, null) },
+                            onClick = { overflowMenu = false; onWorldBook() },
                         )
                         DropdownMenuItem(
                             text = { Text("重新生成剧情规划") },
@@ -813,6 +830,218 @@ private fun TheaterPlannerV2(
             confirmButton = { TextButton(onClick = { confirmDiscard = false; onBack() }) { Text("放弃修改") } },
         )
     }
+}
+
+@Composable
+private fun TheaterWorldBookV2(
+    title: String,
+    worldBook: StarWishTheaterWorldBook,
+    onBack: () -> Unit,
+    onChange: (StarWishTheaterWorldBook) -> Unit,
+) {
+    var editing by remember { mutableStateOf<StarWishTheaterWorldBookEntry?>(null) }
+    var creating by remember { mutableStateOf(false) }
+
+    Column(Modifier.fillMaxSize()) {
+        Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 1.dp) {
+            Row(
+                modifier = Modifier.fillMaxWidth().heightIn(min = 60.dp).padding(horizontal = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回阅读") }
+                Column(Modifier.weight(1f)) {
+                    Text("剧场世界书", fontWeight = FontWeight.Bold)
+                    Text(title, color = StudyDesign.muted, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+                IconButton(onClick = { creating = true }) { Icon(Icons.Outlined.Add, "新增世界书条目") }
+            }
+        }
+
+        LazyColumn(
+            modifier = Modifier.weight(1f).fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item {
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text("启用本书世界书", fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                            Spacer(Modifier.height(3.dp))
+                            Text(
+                                if (worldBook.enabled) "已开启的条目会参与幕后规划、逐章规划和正文续写"
+                                else "已关闭 · 内容仍保留，但不会发送给模型",
+                                color = StudyDesign.muted,
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                        Switch(
+                            checked = worldBook.enabled,
+                            onCheckedChange = { onChange(worldBook.copy(enabled = it)) },
+                        )
+                    }
+                }
+            }
+
+            item {
+                Text("设定条目", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text("可以写世界规则、人物背景、组织结构、能力体系、禁忌、固定地点等。每条都可以单独开关。", color = StudyDesign.muted, style = MaterialTheme.typography.bodySmall)
+            }
+
+            if (worldBook.entries.isEmpty()) {
+                item {
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(20.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Icon(Icons.Outlined.Public, null, modifier = Modifier.size(30.dp), tint = StudyDesign.muted)
+                            Spacer(Modifier.height(8.dp))
+                            Text("还没有世界书条目", fontWeight = FontWeight.SemiBold)
+                            Spacer(Modifier.height(8.dp))
+                            FilledTonalButton(onClick = { creating = true }) {
+                                Icon(Icons.Outlined.Add, null, modifier = Modifier.size(17.dp))
+                                Spacer(Modifier.width(5.dp))
+                                Text("新增设定")
+                            }
+                        }
+                    }
+                }
+            } else {
+                items(worldBook.entries, key = { it.id }) { entry ->
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    ) {
+                        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Column(Modifier.weight(1f)) {
+                                    Text(entry.title.ifBlank { "未命名设定" }, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                    Text(if (entry.enabled) "已启用" else "已停用", color = StudyDesign.muted, style = MaterialTheme.typography.labelSmall)
+                                }
+                                Switch(
+                                    checked = entry.enabled,
+                                    enabled = worldBook.enabled,
+                                    onCheckedChange = { checked ->
+                                        onChange(
+                                            worldBook.copy(
+                                                entries = worldBook.entries.map {
+                                                    if (it.id == entry.id) it.copy(enabled = checked) else it
+                                                },
+                                            ),
+                                        )
+                                    },
+                                )
+                            }
+                            Text(
+                                entry.content.ifBlank { "暂无内容" },
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.88f),
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 8,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                TextButton(onClick = { editing = entry }) {
+                                    Icon(Icons.Outlined.Edit, null, modifier = Modifier.size(16.dp))
+                                    Spacer(Modifier.width(4.dp))
+                                    Text("编辑")
+                                }
+                                TextButton(
+                                    onClick = {
+                                        onChange(worldBook.copy(entries = worldBook.entries.filterNot { it.id == entry.id }))
+                                    },
+                                ) {
+                                    Icon(Icons.Outlined.DeleteOutline, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.error)
+                                    Spacer(Modifier.width(4.dp))
+                                    Text("删除", color = MaterialTheme.colorScheme.error)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (creating) {
+        TheaterWorldBookEditDialog(
+            entry = null,
+            onDismiss = { creating = false },
+            onSave = { entry ->
+                onChange(worldBook.copy(entries = worldBook.entries + entry))
+                creating = false
+            },
+        )
+    }
+
+    editing?.let { current ->
+        TheaterWorldBookEditDialog(
+            entry = current,
+            onDismiss = { editing = null },
+            onSave = { updated ->
+                onChange(worldBook.copy(entries = worldBook.entries.map { if (it.id == current.id) updated else it }))
+                editing = null
+            },
+        )
+    }
+}
+
+@Composable
+private fun TheaterWorldBookEditDialog(
+    entry: StarWishTheaterWorldBookEntry?,
+    onDismiss: () -> Unit,
+    onSave: (StarWishTheaterWorldBookEntry) -> Unit,
+) {
+    var entryTitle by remember(entry?.id) { mutableStateOf(entry?.title.orEmpty()) }
+    var content by remember(entry?.id) { mutableStateOf(entry?.content.orEmpty()) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(if (entry == null) "新增世界书设定" else "编辑世界书设定") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedTextField(
+                    value = entryTitle,
+                    onValueChange = { entryTitle = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("标题") },
+                    placeholder = { Text("例如：公司规则 / 魔法体系 / 男主家族") },
+                    singleLine = true,
+                )
+                OutlinedTextField(
+                    value = content,
+                    onValueChange = { content = it },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 220.dp, max = 420.dp),
+                    label = { Text("设定正文") },
+                    placeholder = { Text("写清模型必须遵守的世界规则、固定事实或背景设定……") },
+                )
+            }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onSave(
+                        (entry ?: StarWishTheaterWorldBookEntry()).copy(
+                            title = entryTitle.trim(),
+                            content = content.trim(),
+                        ),
+                    )
+                },
+                enabled = content.isNotBlank(),
+            ) { Text("保存") }
+        },
+    )
 }
 
 @Composable
