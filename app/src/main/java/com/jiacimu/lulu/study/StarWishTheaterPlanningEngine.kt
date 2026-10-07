@@ -140,7 +140,19 @@ internal object StarWishTheaterPlanningEngine {
             title = "$storyTitle · 幕后规划",
             maxTokens = 6_400,
         )
-        parseStoryBible(raw, writtenChapters.size)
+        var bible = runCatching { parseStoryBible(raw, writtenChapters.size) }.getOrNull()
+        if (bible == null || bible.promptText().isBlank()) {
+            val fixed = repairStoryBiblePayload(
+                characterId = characterId,
+                facts = facts,
+                raw = raw,
+                storyTitle = storyTitle,
+                writtenCount = writtenChapters.size,
+            ).getOrThrow()
+            bible = parseStoryBible(fixed, writtenChapters.size)
+        }
+        check(bible.promptText().isNotBlank()) { "幕后规划生成失败：模型没有返回有效规划内容" }
+        bible
     }
 
     suspend fun generateChapterPlans(
@@ -157,6 +169,9 @@ internal object StarWishTheaterPlanningEngine {
     ): Result<List<StarWishChapterPlan>> = runCatching {
         require(storyGuide.isNotBlank()) { "总大纲不能为空" }
         require(chapterCount in 1..StarWishRules.MAX_CHAPTERS_PER_THEATER) { "章节数量不正确" }
+        require(storyBible != null && storyBible.promptText().isNotBlank()) {
+            "必须先成功生成幕后规划，才能生成逐章规划"
+        }
 
         val lockedCount = minOf(writtenChapters.size, chapterCount)
         val collected = (1..lockedCount).map { number ->
@@ -175,7 +190,7 @@ internal object StarWishTheaterPlanningEngine {
         }
         var start = lockedCount + 1
         while (start <= chapterCount) {
-            val end = minOf(start + 3, chapterCount)
+            val end = start
             val batchCount = end - start + 1
             val previous = collected.takeLast(4).joinToString("\n") { plan ->
                 "第" + plan.number + "章 " + plan.title + "：" + plan.outline.take(500)
@@ -396,6 +411,40 @@ internal object StarWishTheaterPlanningEngine {
         ).getOrThrow().text
     }
 
+    private suspend fun repairStoryBiblePayload(
+        characterId: String,
+        facts: String,
+        raw: String,
+        storyTitle: String,
+        writtenCount: Int,
+    ): Result<String> = runCatching {
+        LuluAiServices.gateway.generate(
+            characterId = characterId,
+            facts = buildString {
+                appendLine(facts)
+                appendLine()
+                appendLine("第一次幕后规划输出如下；可能是JSON格式损坏、包了一层对象、字段名偏差，或部分字段为空：")
+                appendLine(raw.take(28_000))
+            },
+            instruction = """
+                重新整理并补全为一份完整的幕后规划。不是逐章规划。
+                保留第一次输出中可用的故事创意，不得改写已经发生的正文事实。
+                以下字段都要有实质内容：worldview, overview, hook, highlights, emotionalArc, proseStyle,
+                cast, characterArcs, relationshipArc, plotSpine, mainLine, hiddenLine, foreshadows,
+                stagePlan, endingDirection, romanceAesthetics。
+                updatedThroughChapter 必须是 $writtenCount。
+                只输出一个合法JSON对象，不要Markdown，不要解释：
+                {"worldview":"","overview":"","hook":"","highlights":"","emotionalArc":"","proseStyle":"","cast":"","characterArcs":"","relationshipArc":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadows":"","stagePlan":"","endingDirection":"","romanceAesthetics":"","updatedThroughChapter":$writtenCount}
+            """.trimIndent(),
+            source = "剧场",
+            title = "$storyTitle · 修复幕后规划",
+            maxTokens = 7_200,
+            connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
+            contextMode = CompanionContextMode.Isolated,
+            readTimeoutMillis = 240_000,
+        ).getOrThrow().text
+    }
+
     private suspend fun repairChapterPayload(
         characterId: String,
         raw: String,
@@ -578,6 +627,7 @@ internal object StarWishTheaterPlanningEngine {
         val array = when (root) {
             is JSONArray -> root
             is JSONObject -> firstArray(root, "chapters", "plans", "chapterPlans", "章节", "章节规划")
+                ?: JSONArray().put(root)
             else -> null
         } ?: return emptyList()
 
