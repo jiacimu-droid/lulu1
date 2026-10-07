@@ -154,7 +154,7 @@ object SharedExperienceTimeline {
         if (owner != null && owner != characterId) return
         if (expectedRevision != null && (previous?.revision ?: 0) != expectedRevision) return
         // Backfill and scene aliases must never rewrite a canonical event or queue extraction again.
-        if (previous != null && previous.content == clean && previous.occurredAt == occurredAt) {
+        if (previous != null && previous.content == clean && previous.occurredAt.toEpochMilli() == occurredAt.toEpochMilli()) {
             val metadata = ContentValues()
             if (previous.sessionId.isBlank() && sessionId.isNotBlank()) metadata.put("session_id", sessionId)
             if (previous.evidenceKind == EventEvidenceKind.Legacy && evidenceKind != EventEvidenceKind.Legacy) {
@@ -241,6 +241,7 @@ object SharedExperienceTimeline {
         }
     }
 
+    @Synchronized
     fun deleteEvent(eventId: String) {
         if (eventId.isBlank()) return
         val database = helper?.writableDatabase ?: return

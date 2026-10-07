@@ -69,9 +69,18 @@ object CharacterDevelopmentStore {
         val explicit = factual.any { it.evidenceKind == EventEvidenceKind.UserStatement &&
             Regex("以后|下次|记住|不要再|我喜欢|我不喜欢|我希望").containsMatchIn(it.content) }
         if (!DevelopmentPolicy.accepts(kind, factual.size, explicit, counters.size)) return false
+        if (kind == DevelopmentKind.VerifiedMethod && factual.count { event ->
+            event.evidenceKind == EventEvidenceKind.ToolResult && runCatching {
+                val outcome = JSONObject(event.content)
+                outcome.optString("status") == "succeeded" &&
+                    (outcome.optString("result").let { raw ->
+                        if (raw.startsWith("{")) JSONObject(raw).optBoolean("success") else true
+                    })
+            }.getOrDefault(false)
+        } < 3) return false
         synchronized(this) {
         val prior = history(characterId).filter { it.slot == slot }
-        if (prior.any { it.content == content && it.evidence.keys == evidenceIds.toSet() }) return false
+        if (prior.any { it.content == content && it.evidence == events.associate { event -> event.id to event.revision } }) return false
         val next = DevelopmentRecord(UUID.randomUUID().toString(), characterId, slot, kind, content.trim(),
             (0.35 + factual.size * 0.1).coerceAtMost(0.9), events.associate { it.id to it.revision },
             counters.associate { it.id to it.revision }, (prior.maxOfOrNull { it.version } ?: 0) + 1,

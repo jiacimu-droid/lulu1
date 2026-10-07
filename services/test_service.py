@@ -1,6 +1,7 @@
 import json
 import os
 import tempfile
+import shutil
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -73,6 +74,24 @@ class DurableServiceTest(unittest.TestCase):
     def test_unverified_reference_is_rejected(self):
         with self.assertRaisesRegex(ValueError, 'Unverified citation'):
             service.build_artifact({'kind':'docx'}, {'title':'test','sections':[{'title':'x','citations':[7]}]}, [], service.DATA)
+    @unittest.skipUnless(shutil.which('libreoffice'), 'LibreOffice unavailable in this runtime')
+    def test_real_office_files_and_rendered_previews(self):
+        from pypdf import PdfReader
+        from pptx import Presentation
+        from docx import Document
+        outline = {'title': 'Lulu artifact verification', 'sections': [{'title':'Evidence', 'paragraphs':['Persisted real content'], 'citations':[1]}]}
+        sources = [{'url':'https://example.org/provided-source', 'text':'user supplied test fixture'}]
+        for kind in ('docx', 'pptx'):
+            with self.subTest(kind=kind):
+                directory = service.DATA / kind
+                directory.mkdir()
+                result = service.build_artifact({'kind':kind}, outline, sources, directory)
+                self.assertEqual(result['sha256'], __import__('hashlib').sha256((directory/result['file']).read_bytes()).hexdigest())
+                preview = PdfReader(directory/result['preview'])
+                text = '\n'.join(page.extract_text() for page in preview.pages)
+                self.assertIn('Persisted real content', text)
+                if kind == 'pptx': self.assertEqual(len(Presentation(directory/result['file']).slides), 3)
+                else: self.assertTrue(Document(directory/result['file']).paragraphs)
     def test_missing_renderer_cannot_claim_office_success(self):
         with patch('lulu_service.subprocess.run', side_effect=FileNotFoundError('libreoffice')):
             with self.assertRaises(FileNotFoundError):

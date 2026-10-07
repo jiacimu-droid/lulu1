@@ -45,5 +45,26 @@ class TimelineLedgerTest {
         SharedExperienceTimeline.importBackup(backup)
         record("character-a", "不能复活已删除的经历")
         assertTrue(SharedExperienceTimeline.eventsByIds("character-a", listOf("canonical")).isEmpty())
+
+        MigratedDomainStores.characters.initialize(context)
+        val persona = MigratedDomainStores.characters.get("character-a").persona
+        val evidence = (0..2).map { "growth-$it" }
+        evidence.forEach { id -> SharedExperienceTimeline.record(id, "character-a", "私聊", "用户", "以后回答简短一些", time,
+            triggerExtraction = false, evidenceKind = EventEvidenceKind.UserStatement) }
+        fun propose(character: String = "character-a", snapshot: String = persona, kind: DevelopmentKind = DevelopmentKind.Habit) =
+            CharacterDevelopmentStore.applyProposal(character, "concise", kind, "回答更简短", evidence, emptyList(), snapshot)
+        assertFalse(propose("character-b"))
+        assertFalse(propose(snapshot = persona + "不允许替换人设"))
+        assertFalse(propose(kind = DevelopmentKind.VerifiedMethod)) // User wishes do not prove a verified tool method.
+        assertTrue(propose())
+        assertEquals(1, CharacterDevelopmentStore.active("character-a").size)
+        SharedExperienceTimeline.record(evidence[0], "character-a", "私聊", "用户", "更正后仍希望简短", time,
+            triggerExtraction = false, evidenceKind = EventEvidenceKind.UserStatement, expectedRevision = 1)
+        assertTrue(CharacterDevelopmentStore.active("character-a").isEmpty())
+        assertTrue(propose()) // New evidence revision permits a new, traceable version.
+        val updated = CharacterDevelopmentStore.active("character-a").single()
+        assertEquals(2, updated.version)
+        CharacterDevelopmentStore.retire("character-a", updated.id)
+        assertFalse(propose()) // The same evidence cannot resurrect a manually retired record.
     }
 }

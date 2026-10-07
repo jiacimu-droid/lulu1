@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T09:16:30.322185+00:00",
-  "commit": "db82b9aea784d74e7c179086b0a3f57ba926bd88",
-  "branch": "main",
-  "sourceFingerprint": "edf79a97c5b21cf73e43e88df6a0602c7e423891b04c1d689393a2cfd32a716e",
+  "generatedAt": "2026-10-07T09:21:22.409399+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "bdebfa68b7510fd1f3b76437bb2c8fd384d602549ad0e0476e5b714e9394d994",
   "summary": {
     "files": 291,
-    "lines": 80076,
-    "symbols": 1083
+    "lines": 80107,
+    "symbols": 1084
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1703,25 +1703,25 @@
     "retire": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 85
+        "line": 94
       }
     ],
     "invalidateEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 90
+        "line": 99
       }
     ],
     "invalidateEvidenceForAll": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 95
+        "line": 104
       }
     ],
     "clearCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 100
+        "line": 109
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -2939,7 +2939,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 425
+        "line": 426
       }
     ],
     "LegacyLuluImportResult": [
@@ -4053,49 +4053,49 @@
     "deleteEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 243
+        "line": 245
       }
     ],
     "deleteEventsByIdPrefix": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 271
+        "line": 272
       }
     ],
     "deleteConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 286
+        "line": 287
       }
     ],
     "deleteConversationData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 297
+        "line": 298
       }
     ],
     "recentEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 317
+        "line": 318
       }
     ],
     "recentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 320
+        "line": 321
       }
     ],
     "remember": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 336
+        "line": 337
       }
     ],
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 407
+        "line": 408
       }
     ],
     "EventEvidenceKind": [
@@ -6058,6 +6058,12 @@
         "line": 15
       }
     ],
+    "propose": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
+        "line": 54
+      }
+    ],
     "TimelineMigrationTest": [
       {
         "path": "scripts/test_timeline_migration.py",
@@ -7485,8 +7491,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-      "lines": 117,
-      "sha256": "3e9dec2fe0f7110dc81a944fd92798c4962b8e0f12c2af48f38ee66938adc5d6",
+      "lines": 126,
+      "sha256": "32a11e45df50aa868c1821364920742c2903ad843033bf7e82f2e842396bb367",
       "symbols": [
         {
           "name": "DevelopmentKind",
@@ -7518,19 +7524,19 @@
         },
         {
           "name": "retire",
-          "line": 85
+          "line": 94
         },
         {
           "name": "invalidateEvidence",
-          "line": 90
+          "line": 99
         },
         {
           "name": "invalidateEvidenceForAll",
-          "line": 95
+          "line": 104
         },
         {
           "name": "clearCharacter",
-          "line": 100
+          "line": 109
         }
       ]
     },
@@ -9760,8 +9766,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 523,
-      "sha256": "24061b6f46e07b3fa5b0d476198ff29428dc53f4ea27dcafe5158c6d7263cb61",
+      "lines": 524,
+      "sha256": "f59b3cf88106a057c2cc528c76cd7999236339baefcfd3490ce2c3de83a268ca",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -9801,39 +9807,39 @@
         },
         {
           "name": "deleteEvent",
-          "line": 243
+          "line": 245
         },
         {
           "name": "deleteEventsByIdPrefix",
-          "line": 271
+          "line": 272
         },
         {
           "name": "deleteConversationMessage",
-          "line": 286
+          "line": 287
         },
         {
           "name": "deleteConversationData",
-          "line": 297
+          "line": 298
         },
         {
           "name": "recentEvents",
-          "line": 317
+          "line": 318
         },
         {
           "name": "recentContext",
-          "line": 320
+          "line": 321
         },
         {
           "name": "remember",
-          "line": 336
+          "line": 337
         },
         {
           "name": "exportBackup",
-          "line": 407
+          "line": 408
         },
         {
           "name": "importBackup",
-          "line": 425
+          "line": 426
         }
       ]
     },
@@ -12277,8 +12283,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-      "lines": 50,
-      "sha256": "1a6ad5e749c20c9c18198e7bc9dddaa50a333dcfde5934173015f73f155b5e83",
+      "lines": 71,
+      "sha256": "e79ff4a568de138b8dc88bcd3692787cb792fa3448ea198661a42cf1af4ccc24",
       "symbols": [
         {
           "name": "TimelineLedgerTest",
@@ -12287,6 +12293,10 @@
         {
           "name": "record",
           "line": 29
+        },
+        {
+          "name": "propose",
+          "line": 54
         }
       ]
     },

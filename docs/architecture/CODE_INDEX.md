@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`db82b9aea784d74e7c179086b0a3f57ba926bd88`
-- 分支：`main`
+- 基准提交：`local`
+- 分支：`local`
 - 已索引文件：291
-- 已索引代码/文本行：80076
-- 已发现符号：1083
+- 已索引代码/文本行：80107
+- 已发现符号：1084
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -92,7 +92,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 479 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 41 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 60 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 117 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 126 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 98 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 158 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 43 | 1 |
@@ -165,7 +165,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 487 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 523 | 18 |
+| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 524 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 66 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 214 | 7 |
@@ -292,7 +292,7 @@
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 24 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 50 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 71 | 3 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |
 | `scripts/generate_code_index.py` | 33 | 0 |
 | `scripts/test_timeline_migration.py` | 28 | 1 |
