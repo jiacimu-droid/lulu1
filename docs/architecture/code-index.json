@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T14:51:19.153854+00:00",
-  "commit": "65e8a125a56b96300dbad86200eca9e1f36166b1",
+  "generatedAt": "2026-10-07T15:03:05.135960+00:00",
+  "commit": "c2a9f7c6a39aad24435f236238855945d259d4d1",
   "branch": "main",
-  "sourceFingerprint": "c0a87c9956f80d469e337104d8a153212a988bf53b5b249b967a141793dfe7b4",
+  "sourceFingerprint": "81dbfce1a92c1ea623276ccf92cd179dab0da8e536760a6916d5d27d65716a48",
   "summary": {
     "files": 312,
-    "lines": 82568,
+    "lines": 82683,
     "symbols": 1146
   },
   "symbolIndex": {
@@ -257,7 +257,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 953
+        "line": 962
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -1609,19 +1609,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 807
+        "line": 810
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 819
+        "line": 822
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 943
+        "line": 952
       }
     ],
     "ScopedModelSelections": [
@@ -7696,8 +7696,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 961,
-      "sha256": "4f2ead92f44265f914a7512f2fbca397fea6227859ebeca61ffc0e2e1403009d",
+      "lines": 970,
+      "sha256": "25f8bb5043983244569450c0332c0ae0427022ce769b49dc39f62281365b9696",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -7785,19 +7785,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 807
+          "line": 810
         },
         {
           "name": "consumeEvent",
-          "line": 819
+          "line": 822
         },
         {
           "name": "LuluAiServices",
-          "line": 943
+          "line": 952
         },
         {
           "name": "initialize",
-          "line": 953
+          "line": 962
         }
       ]
     },
@@ -12448,8 +12448,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-      "lines": 481,
-      "sha256": "fa1de00b46d865a0c7aab37872a4ebe6e0c9eeba672171cef11e953c684ff901",
+      "lines": 569,
+      "sha256": "2bfae82c958296be2d26b761ad0dbaab4004aec5f110fcc258c6f62bf0e5954d",
       "symbols": [
         {
           "name": "enqueue",
@@ -12481,8 +12481,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
-      "lines": 355,
-      "sha256": "445d93c056e20ffaf9dcd4649c9c1ca376c3198d99d0b06495fcc41e09a61115",
+      "lines": 373,
+      "sha256": "3c02c22a9f936dd99189c36ec5fdf5327fb75b45fe5d918c294b39d3e1e88dc7",
       "symbols": []
     },
     {

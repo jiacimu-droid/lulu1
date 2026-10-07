@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`65e8a125a56b96300dbad86200eca9e1f36166b1`
+- 基准提交：`c2a9f7c6a39aad24435f236238855945d259d4d1`
 - 分支：`main`
 - 已索引文件：312
-- 已索引代码/文本行：82568
+- 已索引代码/文本行：82683
 - 已发现符号：1146
 
 | 文件 | 行数 | 符号数 |
@@ -96,7 +96,7 @@
 | `app/src/main/java/com/jiacimu/lulu/StatefulCharacterPortrait.kt` | 24 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 43 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt` | 29 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 961 | 25 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 970 | 25 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 188 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 136 | 28 |
@@ -271,9 +271,9 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt` | 229 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishScrollPanel.kt` | 154 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt` | 862 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt` | 481 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt` | 569 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPanel.kt` | 413 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt` | 355 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt` | 373 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyAchievementsScreenV2.kt` | 93 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyCollectionScreenV2.kt` | 211 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyCompanionScreen.kt` | 280 | 0 |
