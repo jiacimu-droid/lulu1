@@ -49,6 +49,24 @@ class DurableServiceTest(unittest.TestCase):
         self.assertEqual(body['messages'][1]['content'][0]['type'], 'tool_use')
         self.assertEqual(body['messages'][2]['content'][0]['type'], 'tool_result')
         self.assertIn('input_schema', body['tools'][0])
+    def test_voice_agent_must_use_shared_core(self):
+        config = {'conversation_config': {'agent': {'first_message': '', 'prompt': {'llm': 'custom-llm', 'custom_llm': {'url': 'https://lulu.example/v1/llm/chat/completions'}}}}}
+        service.validate_voice_agent(config, 'https://lulu.example')
+        config['conversation_config']['agent']['prompt']['llm'] = 'other'
+        with self.assertRaises(ValueError): service.validate_voice_agent(config, 'https://lulu.example')
+    def test_research_cannot_claim_notes_are_retrieved_sources(self):
+        job = service.submit('a', 'research-request', 'research', {'notes': 'only notes'})
+        with patch('lulu_service.sources_for', return_value=[]):
+            with self.assertRaises(ValueError): service.execute_job(job)
+    def test_resumed_job_uses_saved_sources(self):
+        job = service.submit('a', 'sources-request', 'research', {'sources':['https://example.org']})
+        directory = service.DATA / 'artifacts' / job['id']
+        directory.mkdir(parents=True)
+        sources = [{'url':'https://example.org','text':'saved source'}]
+        (directory / 'sources.json').write_text(json.dumps(sources))
+        with patch('lulu_service.sources_for', side_effect=AssertionError('must not refetch')):
+            result = service.execute_job(job)
+        self.assertEqual(result['sources'], ['https://example.org'])
     def test_model_name_is_required_not_invented(self):
         with patch.dict(os.environ, {'CLAUDE_MODEL': ''}):
             with self.assertRaises(ValueError): service.claude_payload('core', [])

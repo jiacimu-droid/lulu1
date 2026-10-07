@@ -25,6 +25,15 @@ from pathlib import Path
 DATA = Path(os.environ.get("LULU_DATA", "/data"))
 
 
+def validate_voice_agent(agent_config, public_url):
+    agent = agent_config.get("conversation_config", {}).get("agent", {})
+    prompt = agent.get("prompt", {})
+    if prompt.get("llm") != "custom-llm" or prompt.get("custom_llm", {}).get("url", "").rstrip("/") != public_url + "/v1/llm/chat/completions":
+        raise ValueError("ElevenLabs Agent 必须使用本服务的统一角色 Custom LLM 接口")
+    if agent.get("first_message", "").strip():
+        raise ValueError("请清空Agent独立开场白，由统一角色核心回应")
+
+
 def connection():
     DATA.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(DATA / "lulu.sqlite", timeout=30)
@@ -241,10 +250,14 @@ def execute_job(job):
     directory = DATA / "artifacts" / job["id"]
     directory.mkdir(parents=True, exist_ok=True)
     payload = json.loads(job["payload"])
-    sources = sources_for(payload)
-    (directory / "sources.json").write_text(json.dumps(sources, ensure_ascii=False), encoding="utf-8")
-    if not sources and not payload.get("notes"):
+    sources_path = directory / "sources.json"
+    sources = json.loads(sources_path.read_text()) if sources_path.exists() else sources_for(payload)
+    if not sources and (job["kind"] == "research" or not payload.get("notes")):
         raise ValueError("请提供真实资料网址或原文，或由服务管理员配置 TAVILY_API_KEY")
+    if not sources_path.exists():
+        temporary = directory / "sources.tmp"
+        temporary.write_text(json.dumps(sources, ensure_ascii=False), encoding="utf-8")
+        temporary.replace(sources_path)
     if job["kind"] == "research":
         target = directory / "research.json"
         target.write_text(json.dumps(sources, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -313,6 +326,12 @@ class Handler(BaseHTTPRequestHandler):
                 if not key or not agent: raise ValueError("ELEVENLABS_API_KEY / ELEVENLABS_AGENT_ID 未配置")
                 if not os.environ.get("LULU_LLM_SECRET") or not os.environ.get("ANTHROPIC_API_KEY") or not os.environ.get("CLAUDE_MODEL"):
                     raise ValueError("统一角色自定义LLM服务尚未配置")
+                public_url = os.environ.get("LULU_PUBLIC_URL", "").rstrip("/")
+                if not public_url.startswith("https://"):
+                    raise ValueError("LULU_PUBLIC_URL 必须配置为服务的HTTPS地址")
+                agent_request = urllib.request.Request("https://api.elevenlabs.io/v1/convai/agents/" + urllib.parse.quote(agent), headers={"xi-api-key": key})
+                with urllib.request.urlopen(agent_request, timeout=30) as response: agent_config = json.load(response)
+                validate_voice_agent(agent_config, public_url)
                 self.save_context(body)
                 req = urllib.request.Request("https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=" + urllib.parse.quote(agent), headers={"xi-api-key": key})
                 with urllib.request.urlopen(req, timeout=30) as response: token = json.load(response)["token"]

@@ -19,7 +19,8 @@ object ImportantEventBridge {
             if (p.getLong(seen, 0) >= occurredAt.toEpochMilli()) return@forEach
             p.edit().putLong(seen, occurredAt.toEpochMilli()).commit()
             initializeBackgroundRuntime(context)
-            SharedExperienceTimeline.record("notification-$id-${key.hashCode()}-${occurredAt.toEpochMilli()}", id,
+            val keyDigest = java.security.MessageDigest.getInstance("SHA-256").digest(key.toByteArray()).joinToString("") { "%02x".format(it) }
+            SharedExperienceTimeline.record("notification-$id-$keyDigest-${occurredAt.toEpochMilli()}", id,
                 "重要通知", packageName, content.take(2_000), occurredAt,
                 source = "external-notification", evidenceKind = EventEvidenceKind.Observation)
             wake(context, id, "重要事件·用户选择的通知")
@@ -30,8 +31,10 @@ object ImportantEventBridge {
     fun wake(context: Context, characterId: String, reason: String) {
         val p = context.getSharedPreferences("lulu_event_rate_limit", Context.MODE_PRIVATE)
         val last = p.getLong(characterId, 0)
-        val delay = maxOf(30_000L, last + 600_000L - System.currentTimeMillis())
-        p.edit().putLong(characterId, System.currentTimeMillis() + delay).commit()
+        val now = System.currentTimeMillis()
+        if (last > now) return // A coalesced wake is already scheduled; do not extend its cooldown repeatedly.
+        val delay = maxOf(30_000L, last + 600_000L - now)
+        p.edit().putLong(characterId, now + delay).commit()
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())

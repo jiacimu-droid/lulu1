@@ -136,6 +136,7 @@ object MeetingVoicePlayback {
         engine?.stop()
         val application = appContext ?: return
         val speech = engine ?: return
+        speech.onPlaybackState = { playing -> AvatarController.playback(resolvedCharacterId, playing) }
         val safeKey = pageKey.hashCode().toUInt().toString(16)
         val cacheBase = File(application.filesDir, "meeting_voice_cache/$sessionId/page-$safeKey")
         cacheBase.parentFile?.mkdirs()

@@ -12,6 +12,12 @@ data class AvatarPresentation(val characterId: String, val mood: String, val loc
 object AvatarController {
     private val mutable = MutableStateFlow<Map<String, AvatarPresentation>>(emptyMap())
     val states = mutable.asStateFlow()
+    @Synchronized fun playback(characterId: String, speaking: Boolean) {
+        val old = mutable.value[characterId]
+        mutable.value = mutable.value + (characterId to AvatarPresentation(characterId,
+            CompanionPresenceStore.current(characterId)?.mood.orEmpty(), DigitalWorldStore.locationOf(characterId),
+            speaking, old?.listening ?: false, 0f))
+    }
     @Synchronized fun audio(characterId: String, level: Float) {
         val old = mutable.value[characterId]
         mutable.value = mutable.value + (characterId to AvatarPresentation(characterId,

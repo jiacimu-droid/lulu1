@@ -231,14 +231,23 @@ object LuluDeviceToolBridge {
                     "quick_settings" -> LuluScreenAction.QuickSettings
                     else -> error("未知屏幕动作")
                 }
-                JSONObject().put("success", LuluAccessibilityService.perform(action)).put("action", action.name).toString()
+                val accepted = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { LuluAccessibilityService.perform(action) }
+                kotlinx.coroutines.delay(500)
+                val observed = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { LuluAccessibilityService.observe() }
+                JSONObject().put("success", false).put("status", "waiting_user").put("accepted", accepted).put("action", action.name)
+                    .put("visibleText", observed.visibleText).put("verification", "系统动作请求已返回，需依据新屏幕核实目标；不等同任务成功").toString()
             }
             "click_text" -> {
                 val text = args.optString("text")
-                JSONObject().put("success", LuluAccessibilityService.clickFirstText(text)).put("text", text).toString()
+                val accepted = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { LuluAccessibilityService.clickFirstText(text) }
+                kotlinx.coroutines.delay(500)
+                val observed = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { LuluAccessibilityService.observe() }
+                JSONObject().put("success", false).put("status", "waiting_user").put("accepted", accepted).put("text", text)
+                    .put("visibleText", observed.visibleText).put("verification", "点击请求已返回；未指定验证条件，不能宣称目标完成").toString()
             }
+            "screen_sequence" -> VerifiedScreenSequence.execute(args)
             "read_screen" -> {
-                val value = LuluAccessibilityService.state.value
+                val value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { LuluAccessibilityService.observe() }
                 check(value.connected) { "尚未开启屏幕感知与控制权限" }
                 JSONObject().put("success", true).put("packageName", value.packageName).put("windowTitle", value.windowTitle)
                     .put("visibleText", value.visibleText.take(6_000)).put("capturedAt", value.capturedAt?.toString().orEmpty()).toString()

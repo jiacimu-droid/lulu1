@@ -17,6 +17,7 @@ object CapabilityRegistry {
         Capability("read_screen", "phone", "device_read", "fresh accessibility snapshot", true),
         Capability("click_text", "phone", "screen", "post-action screen observation", false),
         Capability("screen_action", "phone", "screen", "post-action screen observation", false),
+        Capability("screen_sequence", "phone", "screen", "bounded fresh observations and expected text per step", false),
         Capability("cloud_task", "cloud", "cloud", "persistent task id; file success comes later", false),
     )
     val application = listOf("send_private_message", "send_group_message", "send_game_invite", "play_solo_game",
@@ -33,6 +34,7 @@ object CapabilityRegistry {
 
     fun context(context: Context, characterId: String): String = device.joinToString("\n", "统一手机/云端能力（离线手机操作不能由云端宣称成功）：\n") { cap ->
         "- ${cap.name}；主动允许=${allows(context, characterId, cap, false)}；依据=${cap.successEvidence}" +
-            if (cap.name == "cloud_task") "；args={kind:research|pptx|docx,request:需求,sources:[真实HTTPS网址],notes:提供的原文}；服务已配置=${CloudTaskBridge.isConfigured()}" else ""
+            if (cap.name == "cloud_task") "；args={kind:research|pptx|docx,request:需求,sources:[真实HTTPS网址],notes:提供的原文}；服务已配置=${CloudTaskBridge.isConfigured()}"
+            else if (cap.name == "screen_sequence") "；args={allowedPackages:[用户授权的应用包名],steps:[{text:点击文字,expectedText:动作后验证文字}]}；最多5步" else ""
     }
 }

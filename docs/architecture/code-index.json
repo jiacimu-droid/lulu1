@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T09:11:14.158438+00:00",
-  "commit": "7ef1b7a1847441d01064eff21058204cecf5833e",
-  "branch": "main",
-  "sourceFingerprint": "be8aa9dc8f78ed76ee78d31bee6451758656bed3c0bfa2c285c3c1fd5c9ce879",
+  "generatedAt": "2026-10-07T09:16:13.665931+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "edf79a97c5b21cf73e43e88df6a0602c7e423891b04c1d689393a2cfd32a716e",
   "summary": {
-    "files": 290,
-    "lines": 79981,
-    "symbols": 1082
+    "files": 291,
+    "lines": 80076,
+    "symbols": 1083
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -443,7 +443,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 177
+        "line": 182
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt",
@@ -451,7 +451,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-        "line": 115
+        "line": 116
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -687,7 +687,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 191
+        "line": 197
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
@@ -851,7 +851,7 @@
     "speak": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 72
+        "line": 75
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
@@ -861,19 +861,19 @@
     "speakAndCache": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 100
+        "line": 105
       }
     ],
     "playCached": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 147
+        "line": 152
       }
     ],
     "cachedAudioFile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 159
+        "line": 164
       }
     ],
     "LuluVisionSettingsScreen": [
@@ -991,7 +991,7 @@
     "stopVisibleDialogue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
-        "line": 158
+        "line": 159
       }
     ],
     "MigratedChatHubScreenV2": [
@@ -1165,13 +1165,13 @@
     "mute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-        "line": 108
+        "line": 109
       }
     ],
     "speaker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-        "line": 110
+        "line": 111
       }
     ],
     "ScheduleFeatureScreen": [
@@ -1611,7 +1611,7 @@
     "find": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 25
+        "line": 26
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -1621,13 +1621,13 @@
     "allows": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 26
+        "line": 27
       }
     ],
     "context": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 33
+        "line": 34
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
@@ -2869,7 +2869,7 @@
     "wake": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt",
-        "line": 30
+        "line": 31
       }
     ],
     "InMemoryMemoryRepository": [
@@ -4817,7 +4817,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 46
+        "line": 53
       }
     ],
     "enabled": [
@@ -5950,28 +5950,34 @@
         "line": 15
       }
     ],
+    "observe": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 46
+      }
+    ],
     "clickFirstText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 58
+        "line": 65
       }
     ],
     "AccessibilitySnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 68
+        "line": 75
       }
     ],
     "LuluScreenAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 76
+        "line": 83
       }
     ],
     "walk": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 82
+        "line": 89
       }
     ],
     "LuluAlarm": [
@@ -6074,8 +6080,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/AvatarController.kt",
-      "lines": 28,
-      "sha256": "0fbf061c9497b8c2b7a4069624d8fc25709d5f241126701a08b7e2225dfac5bd",
+      "lines": 34,
+      "sha256": "65fa320bf80b71e067b00bdc6307cf707c21554367c7706e868b7f9d770117f0",
       "symbols": [
         {
           "name": "AvatarPresentation",
@@ -6621,32 +6627,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-      "lines": 404,
-      "sha256": "f2d952fa22d277616ae9a1ad10b0072b213179af16e2ac92c4f93f0eeb594fb0",
+      "lines": 412,
+      "sha256": "9bf82f531c067b4c379bc11135d066f30f0a1c7f4e2da472f6938363998bb328",
       "symbols": [
         {
           "name": "speak",
-          "line": 72
+          "line": 75
         },
         {
           "name": "speakAndCache",
-          "line": 100
+          "line": 105
         },
         {
           "name": "playCached",
-          "line": 147
+          "line": 152
         },
         {
           "name": "cachedAudioFile",
-          "line": 159
+          "line": 164
         },
         {
           "name": "stop",
-          "line": 177
+          "line": 182
         },
         {
           "name": "shutdown",
-          "line": 191
+          "line": 197
         }
       ]
     },
@@ -6756,8 +6762,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
-      "lines": 172,
-      "sha256": "9688b5003fa8af486ad724b34f3a40fc6344556e12432f68e69a58f5e7cc8383",
+      "lines": 173,
+      "sha256": "06005bc600d08091f19c956ba59f9d20ead10b905bb8a2ed435238b9c1fc1e73",
       "symbols": [
         {
           "name": "MeetingVoicePace",
@@ -6793,7 +6799,7 @@
         },
         {
           "name": "stopVisibleDialogue",
-          "line": 158
+          "line": 159
         }
       ]
     },
@@ -6877,8 +6883,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt",
-      "lines": 101,
-      "sha256": "a71e1a65f7d59788a678f0fb12e21837695c8fab812cb6a68ad0b8af7623e68a",
+      "lines": 106,
+      "sha256": "b2e54bfa1d90af82100a9f6643a3521e4e16b6b9aed42fac394f51800d4593e9",
       "symbols": [
         {
           "name": "stop",
@@ -7082,20 +7088,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-      "lines": 155,
-      "sha256": "7ab02519c0725d021de93c80f3f7641999c2d485237bd4c89d5d4976e5c290d3",
+      "lines": 157,
+      "sha256": "9c925516980edb740ecad227ab848a96b41de6759c96ea60ab8c9f7b498e1814",
       "symbols": [
         {
           "name": "mute",
-          "line": 108
+          "line": 109
         },
         {
           "name": "speaker",
-          "line": 110
+          "line": 111
         },
         {
           "name": "stop",
-          "line": 115
+          "line": 116
         }
       ]
     },
@@ -7429,8 +7435,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 39,
-      "sha256": "7114b2690e2bab8be3179b1044e2bece58b7cec64ec99c16c3ee56b08c8f4ac2",
+      "lines": 41,
+      "sha256": "888456beeffb952ac53937295c86d08a58009ff9a2e6f671e9e383bcc30937b9",
       "symbols": [
         {
           "name": "Capability",
@@ -7442,15 +7448,15 @@
         },
         {
           "name": "find",
-          "line": 25
-        },
-        {
-          "name": "allows",
           "line": 26
         },
         {
+          "name": "allows",
+          "line": 27
+        },
+        {
           "name": "context",
-          "line": 33
+          "line": 34
         }
       ]
     },
@@ -8599,8 +8605,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt",
-      "lines": 42,
-      "sha256": "970357fa05e2e80de0fe64c90af594ab7b094b1b301b08c7b7db128ee116846e",
+      "lines": 45,
+      "sha256": "14ffa756486661db348ed268d4145efe003e7f73e43948b8479702bbf6b7952d",
       "symbols": [
         {
           "name": "ImportantEventBridge",
@@ -8612,7 +8618,7 @@
         },
         {
           "name": "wake",
-          "line": 30
+          "line": 31
         }
       ]
     },
@@ -9844,8 +9850,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 63,
-      "sha256": "19d2677c6040984cb91410b587376b71cf2b686f0b1ae83be8f954e2b43a3be8",
+      "lines": 66,
+      "sha256": "c772ffe2f4b592dbde2ae7a73d4b4a8a4a0055716bb7c9e71e4d76aaef42464b",
       "symbols": [
         {
           "name": "ToolRouter",
@@ -12062,32 +12068,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-      "lines": 93,
-      "sha256": "cead205030fb58ce8504654e1b6f825ab3585f87eb1e2036647853223f20e483",
+      "lines": 100,
+      "sha256": "a89cf338d18484e2728409e82d308434b2ff075c397a815c2cc187a1e7ad7fe2",
       "symbols": [
         {
           "name": "LuluAccessibilityService",
           "line": 15
         },
         {
-          "name": "perform",
+          "name": "observe",
           "line": 46
         },
         {
+          "name": "perform",
+          "line": 53
+        },
+        {
           "name": "clickFirstText",
-          "line": 58
+          "line": 65
         },
         {
           "name": "AccessibilitySnapshot",
-          "line": 68
+          "line": 75
         },
         {
           "name": "LuluScreenAction",
-          "line": 76
+          "line": 83
         },
         {
           "name": "walk",
-          "line": 82
+          "line": 89
         }
       ]
     },
@@ -12136,8 +12146,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 393,
-      "sha256": "b0477c02b4846f114f454749d90a44545c5c0807c9116193082246dcedaf8111",
+      "lines": 402,
+      "sha256": "94e0696bf42973291eefcd2a0349cb913bf5662205ec10634c323da1380673d6",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -12182,6 +12192,12 @@
           "line": 47
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt",
+      "lines": 49,
+      "sha256": "f6eb173c073df2a5ba7588ed122ebe5c1610974c0acc076a18cab31db449dcc3",
+      "symbols": []
     },
     {
       "path": "app/src/main/res/drawable/ic_lulu.xml",

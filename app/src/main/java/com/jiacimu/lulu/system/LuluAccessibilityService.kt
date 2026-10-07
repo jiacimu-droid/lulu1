@@ -44,6 +44,13 @@ class LuluAccessibilityService : AccessibilityService() {
         private val mutableState = MutableStateFlow(AccessibilitySnapshot())
         val state: StateFlow<AccessibilitySnapshot> = mutableState.asStateFlow()
 
+        fun observe(): AccessibilitySnapshot {
+            val service = instance ?: return AccessibilitySnapshot()
+            val root = service.rootInActiveWindow
+            return AccessibilitySnapshot(connected = true, packageName = root?.packageName?.toString().orEmpty(),
+                visibleText = root.collectVisibleText().take(6_000), capturedAt = Instant.now()).also { mutableState.value = it }
+        }
+
         fun perform(action: LuluScreenAction): Boolean {
             val service = instance ?: return false
             val globalAction = when (action) {

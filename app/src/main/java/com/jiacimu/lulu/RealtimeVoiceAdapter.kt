@@ -46,6 +46,7 @@ internal class RealtimeVoiceAdapter(
             onConnect = { id -> if (epoch == generation) { providerSessionId = id; onConnected() } },
             onModeChange = { mode -> if (epoch == generation) {
                 speaking = mode == ConversationMode.SPEAKING
+                AvatarController.listening(characterId, !speaking)
                 onState(!speaking, speaking, if (speaking) "正在说话，你可以插话" else "正在听你说话")
                 if (speaking) { playedAudio = false; deliveryJob?.cancel() }
                 else if (playedAudio && volumeEnabled) {
@@ -118,6 +119,7 @@ internal class RealtimeVoiceAdapter(
         deliveryEpoch = delivery.reset()
         playedAudio = false
         speaking = false
+        if (characterId.isNotBlank()) { AvatarController.audio(characterId, 0f); AvatarController.listening(characterId, false) }
         val old = session
         session = null
         if (old != null) scope.launch { old.endSession() }

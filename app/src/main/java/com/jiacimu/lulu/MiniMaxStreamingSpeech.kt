@@ -28,7 +28,7 @@ internal class MiniMaxStreamingSpeech(context: Context) {
         runCatching { old?.pause(); old?.flush(); old?.release() }
     }
 
-    suspend fun speak(text: String, voiceId: String?): Boolean = withContext(Dispatchers.IO) {
+    suspend fun speak(text: String, voiceId: String?, onAudioStarted: () -> Unit = {}): Boolean = withContext(Dispatchers.IO) {
         val epoch = generation
         val key = prefs.getString("minimax_api_key", "").orEmpty()
         val voice = voiceId?.takeIf(String::isNotBlank) ?: prefs.getString("minimax_voice_id", "").orEmpty()
@@ -82,6 +82,7 @@ internal class MiniMaxStreamingSpeech(context: Context) {
                         while (offset < bytes.size && epoch == generation) {
                             val count = audio.write(bytes, offset, bytes.size - offset, AudioTrack.WRITE_BLOCKING)
                             check(count > 0) { "流式音频播放失败" }
+                            if (bytesWritten == 0L) onAudioStarted()
                             offset += count; bytesWritten += count
                         }
                     }
@@ -89,7 +90,11 @@ internal class MiniMaxStreamingSpeech(context: Context) {
                 }
             }
             check(epoch != generation || (complete && bytesWritten > 0)) { "MiniMax流式音频未完整返回" }
-            while (epoch == generation && (audio.playbackHeadPosition.toLong() and 0xffffffffL) < bytesWritten / 2) delay(20)
+            val drainDeadline = android.os.SystemClock.elapsedRealtime() + bytesWritten * 1000 / (rate * 2) + 5_000
+            while (epoch == generation && (audio.playbackHeadPosition.toLong() and 0xffffffffL) < bytesWritten / 2) {
+                check(android.os.SystemClock.elapsedRealtime() < drainDeadline) { "音频播放超时，请重试" }
+                delay(20)
+            }
             epoch == generation && complete
         } finally {
             request.disconnect()

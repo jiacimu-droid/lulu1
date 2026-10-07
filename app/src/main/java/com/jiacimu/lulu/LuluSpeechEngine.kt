@@ -32,6 +32,7 @@ internal class LuluSpeechEngine(context: Context) {
         private set
     var lastError: String = ""
         private set
+    var onPlaybackState: ((Boolean) -> Unit)? = null
     private val minimaxStream = MiniMaxStreamingSpeech(appContext)
     private var player: MediaPlayer? = null
     @Volatile private var playbackGeneration = 0L
@@ -43,7 +44,9 @@ internal class LuluSpeechEngine(context: Context) {
     init {
         CharacterVoicePreferenceStore.initialize(appContext)
         systemTts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-            override fun onStart(utteranceId: String?) = Unit
+            override fun onStart(utteranceId: String?) {
+                if (utteranceId == activeUtteranceId && pendingSynthesis == null) onPlaybackState?.invoke(true)
+            }
 
             override fun onDone(utteranceId: String?) {
                 val synthesis = pendingSynthesis
@@ -87,7 +90,9 @@ internal class LuluSpeechEngine(context: Context) {
         val requestGeneration = ++playbackGeneration
         if (prefs.getString("tts_provider", "system") == "minimax") {
             scope.launch {
-                runCatching { minimaxStream.speak(text, voiceIdOverride ?: resolveCharacterVoiceId(text)) }
+                runCatching { minimaxStream.speak(text, voiceIdOverride ?: resolveCharacterVoiceId(text)) {
+                    if (requestGeneration == playbackGeneration) onPlaybackState?.invoke(true)
+                } }
                     .onSuccess { completed -> if (requestGeneration == playbackGeneration) finishPlayback(completed) }
                     .onFailure { error -> if (requestGeneration == playbackGeneration) reportVoiceFailure(error) }
             }
@@ -184,6 +189,7 @@ internal class LuluSpeechEngine(context: Context) {
         systemTts.stop()
         player?.release()
         player = null
+        onPlaybackState?.invoke(false)
         val callback = completionCallback
         completionCallback = null
         callback?.invoke()
@@ -371,6 +377,7 @@ internal class LuluSpeechEngine(context: Context) {
             }
             prepare()
             start()
+            onPlaybackState?.invoke(true)
         }
     }
 
@@ -384,6 +391,7 @@ internal class LuluSpeechEngine(context: Context) {
 
     private fun finishPlayback(success: Boolean = false) {
         lastPlaybackSucceeded = success
+        onPlaybackState?.invoke(false)
         activeUtteranceId = null
         val callback = completionCallback
         completionCallback = null
