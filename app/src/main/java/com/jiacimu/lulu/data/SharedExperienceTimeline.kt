@@ -183,6 +183,9 @@ object SharedExperienceTimeline {
             CharacterDevelopmentStore.invalidateEvidence(characterId, eventId)
             if (!triggerExtraction) scope.launch { LuluRepositories.memory.deleteDerivedFromEvent(eventId) }
         }
+        if (triggerExtraction && evidenceKind == EventEvidenceKind.UserStatement) {
+            CharacterDevelopmentRuntime.request(characterId)
+        }
         if (triggerExtraction) {
             // Persist the recovery job before any asynchronous model work starts. A crash, process
             // kill or network failure after this point therefore cannot make the event disappear

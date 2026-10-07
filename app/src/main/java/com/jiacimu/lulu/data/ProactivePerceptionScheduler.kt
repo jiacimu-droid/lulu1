@@ -162,6 +162,7 @@ internal fun initializeBackgroundRuntime(context: Context) {
     MomentsStore.initialize(context)
     CompanionPresenceStore.initialize(context)
     CharacterDevelopmentStore.initialize(context)
+        com.jiacimu.lulu.data.CharacterLifeStore.initialize(context)
     CharacterDevelopmentRuntime.initialize(context)
     CloudTaskBridge.initialize(context)
     com.jiacimu.lulu.system.LuluDeviceToolBridge.initialize(context)

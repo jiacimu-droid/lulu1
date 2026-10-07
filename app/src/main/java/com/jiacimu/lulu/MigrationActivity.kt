@@ -72,6 +72,7 @@ class MigrationActivity : ComponentActivity() {
         SharedExperienceTimeline.backfillChatHistory()
         CompanionPresenceStore.initialize(appContext)
         com.jiacimu.lulu.data.CharacterDevelopmentStore.initialize(appContext)
+        com.jiacimu.lulu.data.CharacterLifeStore.initialize(appContext)
         com.jiacimu.lulu.data.CharacterDevelopmentRuntime.initialize(appContext)
         CompanionOnlineStore.initialize(appContext)
         ProactiveIncomingCallStore.initialize(appContext)

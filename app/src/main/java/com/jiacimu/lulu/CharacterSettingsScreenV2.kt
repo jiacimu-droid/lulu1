@@ -51,6 +51,7 @@ fun CharacterSettingsScreenV2(
         CharacterVoicePreferenceStore.initialize(context.applicationContext)
         CharacterIdentityStore.initialize(context.applicationContext)
         DigitalLifeProfileStore.initialize(context.applicationContext)
+        com.jiacimu.lulu.data.CharacterLifeStore.initialize(context.applicationContext)
         UserProfileContext.initialize(context.applicationContext)
         Unit
     }
@@ -134,6 +135,7 @@ fun CharacterSettingsScreenV2(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(13.dp),
         ) {
+            item { CharacterV2Card { CharacterLifeSettings(characterId) } }
             item {
                 CharacterV2Card {
                     Text("角色资料", fontWeight = FontWeight.Bold, fontSize = 19.sp)

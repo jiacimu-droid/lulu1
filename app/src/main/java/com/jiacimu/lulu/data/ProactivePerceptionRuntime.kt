@@ -75,6 +75,7 @@ object ProactivePerceptionRuntime {
         val approach: String,
         val tool: String = "",
         val toolArgs: JSONObject = JSONObject(),
+        val intention: JSONObject? = null,
     )
 
     private data class UserActivity(
@@ -377,8 +378,11 @@ object ProactivePerceptionRuntime {
         }
         val parsed = parseDecision(result.text) ?: error("模型返回无法解析：${result.text.take(100)}")
         val decision = parsed.withPresenceFallback(character)
+        CharacterLifeStore.consider(characterId, decision.intention, now)
         // Execute first. Unvalidated model status/gesture must never become a world fact.
         val execution = performAction(appContext, character, decision, availableGroups, now)
+        CharacterLifeStore.recordOutcome(characterId, "proactive-${now.toEpochMilli()}",
+            decision.action.name.lowercase(), execution.success, execution.summary, now)
         if (execution.success || decision.action == Action.SILENT) {
             val physicalAction = decision.action in setOf(Action.DIGITAL_WORLD, Action.READING, Action.SOLO_GAME)
             CompanionPresenceStore.update(
@@ -660,6 +664,7 @@ object ProactivePerceptionRuntime {
             approach = json.optString("approach").trim().lowercase(),
             tool = json.optString("tool").trim(),
             toolArgs = json.optJSONObject("args") ?: JSONObject(),
+            intention = json.optJSONObject("intention"),
         )
     }.getOrNull()
 
