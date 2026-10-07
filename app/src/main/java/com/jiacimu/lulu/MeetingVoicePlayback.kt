@@ -137,7 +137,12 @@ object MeetingVoicePlayback {
         val application = appContext ?: return
         val speech = engine ?: return
         speech.onPlaybackState = { playing -> AvatarController.playback(resolvedCharacterId, playing) }
-        val safeKey = pageKey.hashCode().toUInt().toString(16)
+        val voiceSettings = application.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE).all
+            .filterKeys { (it.startsWith("tts_") || it.startsWith("minimax_")) && !it.contains("key") && !it.contains("group_id") }
+            .toSortedMap().entries.joinToString("|") { "${it.key}=${it.value}" }
+        val cacheIdentity = "$pageKey|$spoken|$resolvedCharacterId|${CharacterVoicePreferenceStore.voiceId(resolvedCharacterId)}|$voiceSettings"
+        val safeKey = java.security.MessageDigest.getInstance("SHA-256").digest(cacheIdentity.toByteArray())
+            .joinToString("") { "%02x".format(it) }
         val cacheBase = File(application.filesDir, "meeting_voice_cache/$sessionId/page-$safeKey")
         cacheBase.parentFile?.mkdirs()
 

@@ -163,6 +163,7 @@ internal fun initializeBackgroundRuntime(context: Context) {
     CompanionPresenceStore.initialize(context)
     CharacterDevelopmentStore.initialize(context)
     CharacterDevelopmentRuntime.initialize(context)
+    CloudTaskBridge.initialize(context)
     com.jiacimu.lulu.system.LuluDeviceToolBridge.initialize(context)
     CompanionOnlineStore.initialize(context)
     LuluAiServices.initialize(context)

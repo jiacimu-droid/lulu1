@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`cef6aeb697029c9e66971565ff6e4717afd3a089`
-- 分支：`main`
+- 基准提交：`local`
+- 分支：`local`
 - 已索引文件：291
-- 已索引代码/文本行：80107
+- 已索引代码/文本行：80113
 - 已发现符号：1084
 
 | 文件 | 行数 | 符号数 |
@@ -54,7 +54,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 645 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt` | 80 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt` | 220 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt` | 173 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt` | 178 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoiceSettingsUi.kt` | 59 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 573 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
@@ -160,7 +160,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 768 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 175 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 176 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt` | 655 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 487 | 4 |
