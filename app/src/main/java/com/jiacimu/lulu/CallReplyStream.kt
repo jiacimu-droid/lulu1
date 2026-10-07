@@ -43,7 +43,15 @@ internal class CallReplyStream {
 
     companion object {
         private val opening = Regex("^\\s*\\{\\s*\"action\"\\s*:\\s*\"reply\"\\s*,\\s*\"text\"\\s*:\\s*\"")
-        fun replyTextPrefix(envelope: String): String? {
+        fun replyTextPrefix(envelope: String): String? = decodeReplyText(envelope, requireComplete = false)
+
+        /** A closed spoken field is usable even if later optional metadata is truncated. */
+        fun completeReplyText(envelope: String): String? {
+            val clean = envelope.trim().removePrefix("```json").removePrefix("```").trimStart()
+            return decodeReplyText(clean, requireComplete = true)
+        }
+
+        private fun decodeReplyText(envelope: String, requireComplete: Boolean): String? {
             val match = opening.find(envelope) ?: return null
             val out = StringBuilder()
             var i = match.range.last + 1
@@ -71,6 +79,7 @@ internal class CallReplyStream {
                     else -> out.append(c)
                 }
             }
+            if (requireComplete) return null
             // An incomplete Unicode surrogate must not be spoken by itself.
             if (out.isNotEmpty() && out.last().isHighSurrogate()) out.setLength(out.length - 1)
             return out.toString()

@@ -494,7 +494,9 @@ internal object LuluVoiceCallSession {
                 val remaining = runCatching { stream.finish(text) }.getOrElse { error ->
                     stream.cancel()
                     speechQueue?.stop()
-                    mutableState.update { it.copy(thinking = false, speaking = false, errorMessage = error.message.orEmpty()) }
+                    mutableState.update { it.copy(thinking = false, speaking = false, generatedTranscript = "",
+                        statusMessage = "回复未完整生成，可以继续说话", errorMessage = error.message.orEmpty()) }
+                    scheduleListening(300)
                     return@onSuccess
                 }
                 mutableState.update { it.copy(thinking = false, generatedTranscript = text,
@@ -511,6 +513,7 @@ internal object LuluVoiceCallSession {
                         speaking = false,
                         errorMessage = "模型回复失败：${error.message?.take(160).orEmpty()}",
                         statusMessage = "已识别你的话，但回复生成失败",
+                        generatedTranscript = "",
                     )
                 }
                 scheduleListening(500)

@@ -147,10 +147,13 @@ object LuluDeviceToolBridge {
         )
         if (planner.isFailure) return planner
         val plannedReply = planner.getOrThrow()
-        val plan = parsePlan(plannedReply.text) ?: return Result.success(plannedReply)
+        val plan = parsePlan(plannedReply.text) ?: return Result.success(plannedReply.copy(
+            text = com.jiacimu.lulu.CallReplyStream.completeReplyText(plannedReply.text) ?: plannedReply.text,
+        ))
         com.jiacimu.lulu.data.CharacterLifeStore.consider(characterId, plan.intention)
         if (plan.action == "reply") {
             savePresence(characterId, plan, "聊天")
+            if (plan.text.isBlank() && onReplyStream != null) return Result.failure(IllegalStateException("模型没有返回可朗读的回复正文"))
             return Result.success(plannedReply.copy(text = plan.text.ifBlank { plannedReply.text }))
         }
         if (plan.action != "tool" || plan.tool.isBlank()) return Result.success(plannedReply)
@@ -192,7 +195,8 @@ object LuluDeviceToolBridge {
             val finalPlan = parsePlan(result.text)
             if (finalPlan != null) savePresence(characterId, finalPlan, "聊天·工具")
             result.copy(
-                text = finalPlan?.text?.ifBlank { result.text } ?: result.text,
+                text = finalPlan?.text?.ifBlank { result.text }
+                    ?: com.jiacimu.lulu.CallReplyStream.completeReplyText(result.text) ?: result.text,
                 inputTokens = result.inputTokens + plannedReply.inputTokens,
                 outputTokens = result.outputTokens + plannedReply.outputTokens,
                 cachedTokens = result.cachedTokens + plannedReply.cachedTokens,

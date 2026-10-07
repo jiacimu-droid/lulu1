@@ -80,4 +80,18 @@ class CallContractsTest {
         try { stream.finish("完全不同"); fail("must reject changed delivered prefix") } catch (_: IllegalStateException) {}
     }
 
+    @Test fun closedReplyTextSurvivesDamagedOptionalMetadataWithoutReadingPrivateFields() {
+        val raw = "{\"action\":\"reply\",\"text\":\"你刚才那声‘爸爸’喊得字正腔圆的，我总得留两秒。\",\"innerThought\":\"还没写完"
+        val text = CallReplyStream.completeReplyText(raw)
+        assertEquals("你刚才那声‘爸爸’喊得字正腔圆的，我总得留两秒。", text)
+        val stream = CallReplyStream()
+        val chunks = stream.update(raw) + stream.finish(requireNotNull(text))
+        assertEquals(text, chunks.joinToString(""))
+        assertFalse(chunks.joinToString("").contains("innerThought"))
+        assertEquals(text, CallReplyStream.completeReplyText("```json\n$raw"))
+        assertNull(CallReplyStream.completeReplyText("{\"action\":\"reply\",\"text\":\"正文也没写完"))
+        assertNull(CallReplyStream.completeReplyText("{\"action\":\"tool\",\"text\":\"不得念工具参数\"}"))
+        assertNull(CallReplyStream.completeReplyText("{\"innerThought\":\"秘密\",\"text\":\"不得念心声\"}"))
+    }
+
 }
