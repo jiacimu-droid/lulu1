@@ -275,6 +275,7 @@ internal object LuluVoiceCallSession {
                         speaking = busy,
                         statusMessage = when {
                             busy -> "${it.characterName} 正在说话"
+                            it.connected && it.thinking -> "正在生成后续回复"
                             it.connected && !it.microphoneMuted -> "正在听你说话"
                             else -> it.statusMessage
                         },
@@ -437,6 +438,31 @@ internal object LuluVoiceCallSession {
                 MigratedDomainStores.chat.messages(latest.conversationId).value,
                 latest.characterName,
             )
+            val stream = CallReplyStream()
+            val heard = StringBuilder()
+            var finalText: String? = null
+            fun sameReply() = generation == replyGeneration && mutableState.value.connected &&
+                mutableState.value.callExperienceId == latest.callExperienceId
+            fun clearWhenHeard() {
+                val complete = finalText ?: return
+                if (heard.toString().filterNot(Char::isWhitespace) == complete.filterNot(Char::isWhitespace))
+                    mutableState.update { it.copy(generatedTranscript = "") }
+            }
+            fun enqueueSpoken(parts: List<String>) {
+                parts.forEach { part ->
+                    val speech = part.replace(Regex("⟪[^⟫]*⟫"), "").trim()
+                    if (speech.isBlank()) return@forEach
+                    speechQueue?.enqueue(speech, latest.characterId,
+                        CharacterVoicePreferenceStore.playbackVoiceId(latest.characterId), onDelivered = {
+                            if (!sameReply()) return@enqueue
+                            heard.append(part)
+                            val message = MigratedDomainStores.chat.appendCharacterMessage(latest.conversationId, speech)
+                            SharedExperienceTimeline.recordChatMessage(latest.characterId, latest.conversationId,
+                                message, channelOverride = "电话")
+                            clearWhenHeard()
+                        })
+                }
+            }
             LuluDeviceToolBridge.respond(
                 characterId = latest.characterId,
                 history = recentHistory,
@@ -444,48 +470,36 @@ internal object LuluVoiceCallSession {
                 title = activeLabel,
                 archiveId = archiveId,
                 sceneContext = "你正在和用户进行一对一实时电话。你能意识到电话已经接通，听见的是用户刚刚在电话里说的话；具体关系与称呼必须服从你的人设。回复要像真实通话，口语自然。普通接话优先一到两句有内容的话，不每次长篇解释；用户要求详细内容时再展开。不要朗读说明文字。",
+                onReplyStream = { envelope -> scope.launch {
+                    if (!sameReply()) return@launch
+                    val parts = stream.update(envelope)
+                    CallReplyStream.replyTextPrefix(envelope)?.let { candidate ->
+                        mutableState.update { it.copy(generatedTranscript = candidate) }
+                    }
+                    enqueueSpoken(parts)
+                } },
             ).onSuccess { reply ->
                 if (generation != replyGeneration || !mutableState.value.connected || mutableState.value.callExperienceId != latest.callExperienceId) return@onSuccess
                 val text = reply.text.trim()
                 if (text.isBlank()) {
+                    speechQueue?.stop()
                     mutableState.update { it.copy(thinking = false, statusMessage = "刚才没有听清回复，再说一句吧") }
                     scheduleListening(300)
                     return@onSuccess
                 }
-                fun persistDelivered() {
-                    val characterMessage = MigratedDomainStores.chat.appendCharacterMessage(latest.conversationId, text)
-                    SharedExperienceTimeline.recordChatMessage(latest.characterId, latest.conversationId,
-                        characterMessage, channelOverride = "电话")
-                    mutableState.update { it.copy(generatedTranscript = "") }
+                finalText = text
+                val remaining = runCatching { stream.finish(text) }.getOrElse { error ->
+                    speechQueue?.stop()
+                    mutableState.update { it.copy(thinking = false, speaking = false, errorMessage = error.message.orEmpty()) }
+                    return@onSuccess
                 }
-                val shouldSpeak = true // Output device selection must never mute the character.
-                mutableState.update {
-                    it.copy(
-                        thinking = false,
-                        generatedTranscript = text,
-                        speaking = shouldSpeak,
-                        statusMessage = if (shouldSpeak) "${latest.characterName} 正在说话" else "回复已显示在字幕里",
-                    )
-                }
-                if (shouldSpeak) {
-                    val queue = speechQueue
-                    if (queue != null) {
-                        queue.enqueue(
-                            text = text,
-                            speakerId = latest.characterId,
-                            voiceId = CharacterVoicePreferenceStore.playbackVoiceId(latest.characterId),
-                            onDelivered = { persistDelivered() },
-                        )
-                    } else {
-                        mutableState.update { it.copy(speaking = false) }
-                        scheduleListening(220)
-                    }
-                } else {
-                    persistDelivered()
-                    scheduleListening(220)
-                }
+                mutableState.update { it.copy(thinking = false, generatedTranscript = text,
+                    statusMessage = if (it.speaking) "${latest.characterName} 正在说话" else "回复正在准备发声") }
+                enqueueSpoken(remaining)
+                clearWhenHeard()
             }.onFailure { error ->
                 if (generation != replyGeneration || !mutableState.value.connected) return@onFailure
+                speechQueue?.stop()
                 mutableState.update {
                     it.copy(
                         thinking = false,

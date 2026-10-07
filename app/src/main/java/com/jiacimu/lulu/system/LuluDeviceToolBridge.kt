@@ -39,6 +39,7 @@ object LuluDeviceToolBridge {
         title: String,
         archiveId: String? = null,
         sceneContext: String = "正在和用户进行文字聊天。",
+        onReplyStream: ((String) -> Unit)? = null,
     ): Result<ModelReply> {
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
         GroupEnsembleReplyEngine.respondIfApplicable(
@@ -91,6 +92,7 @@ object LuluDeviceToolBridge {
             },
             instruction = """
                 你既可以直接回复，也可以调用露露机真实手机工具。只返回一个 JSON 对象，不要代码块。
+                字段按示例顺序输出：action 最先，直接回复紧接 text；不得重复字段。text 只包含说出口的话，不放内部指令、JSON、动作标记或心声。
                 直接回复：{"action":"reply","text":"角色自然回复","statusText":"简短状态","gesture":"此刻可见动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情"}
                 调用工具：{"action":"tool","tool":"工具名","args":{...},"statusText":"简短状态","gesture":"准备执行时的动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情"}
 
@@ -132,6 +134,8 @@ object LuluDeviceToolBridge {
             title = title,
             temperature = 0.45,
             maxTokens = 700,
+            streamResponse = onReplyStream != null,
+            onStreamText = onReplyStream,
             connectionOverride = connection,
             memoryRequest = UnifiedMemoryRequest(
                 currentInput = userText,
@@ -171,7 +175,7 @@ object LuluDeviceToolBridge {
                 根据工具真实结果，以角色本人符合人设的方式自然接下去。成功时可以确认，失败时必须如实说明；除此之外只说此刻真正会新增的话。
                 必须继续保持当前真实互动场景，电话里用自然口语，群聊里知道其他成员在场。
                 对位置结果只能使用 readableAddress；地址为空、定位过旧或精度差时，必须明确说是大概位置，不得根据经纬度猜具体店铺、学校或建筑。
-                只返回一个 JSON 对象，不要代码块：
+                只返回一个 JSON 对象，不要代码块；action 最先，紧接 text，不重复字段：
                 {"action":"reply","text":"角色在动作之后自然接着说的话","statusText":"动作后的简短状态","gesture":"动作后的可见动作神态","innerThought":"动作后没说出口的第一人称心声，可为空","mood":"动作后的简短心情"}
                 不要解释内部工具协议。innerThought 不是推理步骤，gesture 不得编造未发生的工具结果或现实场景。
                 $onlineChatBubbleRule
@@ -180,6 +184,8 @@ object LuluDeviceToolBridge {
             title = title,
             temperature = 0.75,
             maxTokens = 600,
+            streamResponse = onReplyStream != null,
+            onStreamText = onReplyStream,
             connectionOverride = connection,
         )
         return finalReply.map { result ->

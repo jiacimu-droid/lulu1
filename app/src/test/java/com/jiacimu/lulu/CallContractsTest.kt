@@ -55,4 +55,21 @@ class CallContractsTest {
         assertFalse(com.jiacimu.lulu.data.CompanionContactClock.describe(listOf(now), now).contains("两轮之间未联系"))
     }
 
+    @Test fun streamingSpeechNeverReadsToolArgsOrPrivateThoughtsAndDoesNotRepeat() {
+        val stream = CallReplyStream()
+        assertTrue(stream.update("{\"action\":\"tool\",\"tool\":\"create_alarm\",\"args\":{\"text\":\"已设置。\"}}").isEmpty())
+        assertEquals(listOf("第一句已经来了。"), stream.update("{\"action\":\"reply\",\"text\":\"第一句已经来了。第二"))
+        assertTrue(stream.update("{\"action\":\"reply\",\"text\":\"第一句已经来了。第二").isEmpty())
+        assertEquals(listOf("第二句也来了。"), stream.update("{\"action\":\"reply\",\"text\":\"第一句已经来了。第二句也来了。\",\"innerThought\":\"不能读出来\"}"))
+        assertTrue(stream.finish("第一句已经来了。第二句也来了。").isEmpty())
+        assertTrue(stream.update("{\"action\":\"reply\",\"text\":\"迟到内容。\"}").isEmpty())
+        assertNull(CallReplyStream.replyTextPrefix("{\"innerThought\":\"secret\",\"text\":\"不要念\"}"))
+    }
+    @Test fun streamingDecoderHandlesIncompleteEscapesAndFinalMismatch() {
+        assertEquals("你好", CallReplyStream.replyTextPrefix("{\"action\":\"reply\",\"text\":\"你好\\u4"))
+        val stream = CallReplyStream()
+        stream.update("{\"action\":\"reply\",\"text\":\"已经播放的话。")
+        try { stream.finish("完全不同"); fail("must reject changed delivered prefix") } catch (_: IllegalStateException) {}
+    }
+
 }

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T11:54:28.353045+00:00",
+  "generatedAt": "2026-10-07T12:03:12.639659+00:00",
   "commit": "5c862a305d4ed5cdcff1d8d0979998ee41cb2d1e",
   "branch": "main",
-  "sourceFingerprint": "6031efde2808975938183d28c48facf4aac83e4a78cbef12ed64d45febc2d0d2",
+  "sourceFingerprint": "32ba6dae779b34543c081410a16335e4d15acb65f0fc28c7b52a652516b5b0e7",
   "summary": {
-    "files": 304,
-    "lines": 81321,
-    "symbols": 1116
+    "files": 305,
+    "lines": 81433,
+    "symbols": 1121
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -106,6 +106,48 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
         "line": 87
+      }
+    ],
+    "update": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
+        "line": 8
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 44
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
+        "line": 99
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
+        "line": 36
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
+        "line": 743
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
+        "line": 77
+      }
+    ],
+    "finish": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
+        "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
+        "line": 336
+      }
+    ],
+    "replyTextPrefix": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
+        "line": 41
       }
     ],
     "provider": [
@@ -1032,28 +1074,40 @@
         "line": 228
       }
     ],
-    "persistDelivered": [
+    "sameReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 455
+        "line": 444
+      }
+    ],
+    "clearWhenHeard": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
+        "line": 446
+      }
+    ],
+    "enqueueSpoken": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
+        "line": 451
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 506
+        "line": 520
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 535
+        "line": 549
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 607
+        "line": 621
       }
     ],
     "MeetingReplyTaskManager": [
@@ -2232,28 +2286,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
         "line": 9
-      }
-    ],
-    "update": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 44
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 99
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
-        "line": 36
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 743
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 77
       }
     ],
     "reconcileAfterRestart": [
@@ -4854,12 +4886,6 @@
         "line": 135
       }
     ],
-    "finish": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 336
-      }
-    ],
     "place": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
@@ -6310,6 +6336,25 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
+      "lines": 75,
+      "sha256": "afe3452fe5900420c2a2b41003b17ab7f057f6fa88fc40bb120160a71e53f193",
+      "symbols": [
+        {
+          "name": "update",
+          "line": 8
+        },
+        {
+          "name": "finish",
+          "line": 16
+        },
+        {
+          "name": "replyTextPrefix",
+          "line": 41
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
       "lines": 28,
       "sha256": "d625b19ff6fe03cf0989342049472cc47bf0092d04e90b911f29d3c7ba12370d",
@@ -6952,8 +6997,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 693,
-      "sha256": "5cc9587ddee73b7a367affec6a7e38f1f990ba798fb09dcabe3745c81107a612",
+      "lines": 707,
+      "sha256": "f711ba4e0e3075fc939d5bb49ace0657f0bf51243683854e3fc7b8a9d33bab71",
       "symbols": [
         {
           "name": "prepare",
@@ -6984,20 +7029,28 @@
           "line": 228
         },
         {
-          "name": "persistDelivered",
-          "line": 455
+          "name": "sameReply",
+          "line": 444
+        },
+        {
+          "name": "clearWhenHeard",
+          "line": 446
+        },
+        {
+          "name": "enqueueSpoken",
+          "line": 451
         },
         {
           "name": "sameSession",
-          "line": 506
+          "line": 520
         },
         {
           "name": "retryListening",
-          "line": 535
+          "line": 549
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 607
+          "line": 621
         }
       ]
     },
@@ -12505,8 +12558,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 406,
-      "sha256": "3403999c51b9bf0745480d7583df0f707801f2653a4135a5923562e613f82c21",
+      "lines": 412,
+      "sha256": "abe3aaf98282dc33bc2e815fb27e8a3a26e2421fa4e4f707592884480cd8e334",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -12614,8 +12667,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt",
-      "lines": 59,
-      "sha256": "da6e895922fac9142cb631e4643549028e5dc6379ccbccddec5e5aa1b7b40835",
+      "lines": 76,
+      "sha256": "7009b6bfe90cc4b37cf6c67ead4323f6b593a3dfce78d24a1681017adc91594c",
       "symbols": [
         {
           "name": "CallContractsTest",
