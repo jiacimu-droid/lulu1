@@ -95,6 +95,7 @@ internal object StarWishTheaterPlanningEngine {
         writtenChapters: List<StarWishTheaterChapter>,
         existingBible: StarWishStoryBible? = null,
         ledger: StarWishStoryLedger? = null,
+        theaterWorldBook: String = "",
     ): Result<StarWishStoryBible> = runCatching {
         require(storyGuide.isNotBlank()) { "故事地图不能为空" }
         val writtenEvidence = writtenChapters.takeLast(8).joinToString("\n\n") { chapter ->
@@ -104,6 +105,9 @@ internal object StarWishTheaterPlanningEngine {
             appendLine("独立剧场故事：《$storyTitle》")
             appendLine("故事地图（核心方向与看点，不是逐章细纲）：\n$storyGuide")
             appendLine("计划总章数：$chapterCount；已经写完：${writtenChapters.size}章。")
+            if (theaterWorldBook.isNotBlank()) {
+                appendLine("本剧场专属世界书（已开启条目，必须遵守）：\n$theaterWorldBook")
+            }
             existingBible?.promptText()?.takeIf(String::isNotBlank)?.let {
                 appendLine("旧幕后规划，仅供继承仍然有效的长期结构：\n$it")
             }
@@ -148,6 +152,7 @@ internal object StarWishTheaterPlanningEngine {
         existingPlans: List<StarWishChapterPlan> = emptyList(),
         storyBible: StarWishStoryBible? = null,
         ledger: StarWishStoryLedger? = null,
+        theaterWorldBook: String = "",
         onProgress: ((List<StarWishChapterPlan>) -> Unit)? = null,
     ): Result<List<StarWishChapterPlan>> = runCatching {
         require(storyGuide.isNotBlank()) { "总大纲不能为空" }
@@ -178,6 +183,9 @@ internal object StarWishTheaterPlanningEngine {
             val facts = buildString {
                 appendLine("独立剧场故事：《$storyTitle》")
                 appendLine("故事地图（核心方向与看点，不得推翻）：\n$storyGuide")
+                if (theaterWorldBook.isNotBlank()) {
+                    appendLine("本剧场专属世界书（已开启条目，必须遵守）：\n$theaterWorldBook")
+                }
                 storyBible?.promptText()?.takeIf(String::isNotBlank)?.let {
                     appendLine("幕后长期规划，逐章规划必须从这里落地：\n$it")
                 }
