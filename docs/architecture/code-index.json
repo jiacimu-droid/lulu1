@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T17:51:50.722851+00:00",
-  "commit": "ef94edc9e632761283d7e57c8534c3334384d23e",
-  "branch": "main",
-  "sourceFingerprint": "ce7238c8a432ca6f98f38510012caeaa257745f2632fc16a78213a6bdef2ccf1",
+  "generatedAt": "2026-10-07T17:53:11.765672+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "485ec082527597c57208d01ce00495f43dd11930c57dd2429393d0eea128f9ce",
   "summary": {
     "files": 321,
-    "lines": 84255,
+    "lines": 84260,
     "symbols": 1166
   },
   "symbolIndex": {
@@ -6522,8 +6522,8 @@
   "files": [
     {
       "path": "app/build.gradle.kts",
-      "lines": 114,
-      "sha256": "7813bedee493d2e0fd253d4deb3e8130d12fedc748189e5e7c53aba6e59d37df",
+      "lines": 119,
+      "sha256": "5c138f40e1576009b6ac7cd0d78c3d312cf82836c604c530ad96f3db262031a7",
       "symbols": []
     },
     {

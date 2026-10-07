@@ -66,6 +66,11 @@ android {
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
+        create("phone") {
+            initWith(getByName("release"))
+            matchingFallbacks += listOf("release")
+            ndk { abiFilters += "arm64-v8a" }
+        }
     }
 
     buildFeatures {

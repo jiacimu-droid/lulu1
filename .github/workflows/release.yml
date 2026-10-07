@@ -44,7 +44,7 @@ jobs:
           set -o pipefail
           mkdir -p ci-logs
           python scripts/test_timeline_migration.py
-          gradle --no-daemon --stacktrace :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease 2>&1 | tee ci-logs/gradle-build.log
+          gradle --no-daemon --stacktrace :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease :app:assemblePhone 2>&1 | tee ci-logs/gradle-build.log
 
       - name: Collect APK
         run: |
@@ -53,13 +53,17 @@ jobs:
           apk="$(find app/build/outputs/apk/release -name '*-release.apk' -print -quit)"
           test -n "$apk"
           cp "$apk" apk-artifacts/Lulu.apk
+          phone_apk="$(find app/build/outputs/apk/phone -name '*.apk' -print -quit)"
+          test -n "$phone_apk"
+          cp "$phone_apk" apk-artifacts/Lulu-arm64.apk
+          python scripts/apk_size_report.py "$apk" "$phone_apk" | tee ci-logs/apk-arm64-size.log
 
       - name: Upload temporary APK
         continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: Lulu-APK-${{ github.sha }}
-          path: apk-artifacts/Lulu.apk
+          path: apk-artifacts/*.apk
           if-no-files-found: error
           retention-days: 7
 
@@ -74,10 +78,10 @@ jobs:
           notes="${title}，构建自 ${GITHUB_SHA}。"
 
           if gh release view "$tag" >/dev/null 2>&1; then
-            gh release upload "$tag" apk-artifacts/Lulu.apk --clobber
+            gh release upload "$tag" apk-artifacts/*.apk --clobber
             gh release edit "$tag" --title "$title" --notes "$notes"
           else
-            gh release create "$tag" apk-artifacts/Lulu.apk \
+            gh release create "$tag" apk-artifacts/*.apk \
               --target "$GITHUB_SHA" \
               --title "$title" \
               --notes "$notes"

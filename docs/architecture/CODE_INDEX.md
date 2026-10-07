@@ -1,14 +1,14 @@
 # Lulu1 代码索引
 
-- 基准提交：`ef94edc9e632761283d7e57c8534c3334384d23e`
-- 分支：`main`
+- 基准提交：`local`
+- 分支：`local`
 - 已索引文件：321
-- 已索引代码/文本行：84255
+- 已索引代码/文本行：84260
 - 已发现符号：1166
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
-| `app/build.gradle.kts` | 114 | 0 |
+| `app/build.gradle.kts` | 119 | 0 |
 | `app/src/main/AndroidManifest.xml` | 121 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 98 | 2 |
