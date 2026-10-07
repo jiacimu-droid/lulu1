@@ -38,6 +38,11 @@ private val MiniMaxSpeechModels = listOf(
     "speech-2.8-hd", "speech-2.8-turbo", "speech-2.6-hd", "speech-2.6-turbo",
     "speech-02-hd", "speech-02-turbo", "speech-01-hd", "speech-01-turbo",
 )
+private val ElevenLabsSpeechModels = listOf(
+    "Flash v2.5 · 电话低延迟" to "eleven_flash_v2_5",
+    "Multilingual v2 · 自然稳定" to "eleven_multilingual_v2",
+    "Turbo v2.5 · 快速兼容" to "eleven_turbo_v2_5",
+)
 private val MiniMaxLanguages = listOf(
     "auto", "Chinese", "Chinese,Yue", "English", "Japanese", "Korean", "French", "German",
     "Spanish", "Portuguese", "Russian", "Arabic", "Italian", "Turkish", "Dutch", "Ukrainian",
@@ -71,7 +76,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     var minimaxPitch by remember { mutableFloatStateOf(prefs.getInt("minimax_pitch", 0).toFloat()) }
     var elevenKey by remember { mutableStateOf(prefs.getString("eleven_api_key", "").orEmpty()) }
     var elevenVoice by remember { mutableStateOf(prefs.getString("eleven_voice_id", "").orEmpty()) }
-    var elevenModel by remember { mutableStateOf(prefs.getString("eleven_tts_model", "eleven_multilingual_v2").orEmpty()) }
+    var elevenModel by remember { mutableStateOf(prefs.getString("eleven_tts_model", "eleven_multilingual_v2").orEmpty().trim().ifBlank { "eleven_multilingual_v2" }) }
     var elevenStability by remember { mutableFloatStateOf(prefs.getFloat("eleven_stability", .5f)) }
     var elevenSimilarity by remember { mutableFloatStateOf(prefs.getFloat("eleven_similarity", .75f)) }
     var testingVoice by remember { mutableStateOf(false) }
@@ -243,7 +248,13 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                 Spacer(Modifier.height(10.dp))
                 AdvancedTextField("Voice ID", elevenVoice, { elevenVoice = it }, "填写选择的声线 ID")
                 Spacer(Modifier.height(10.dp))
-                AdvancedTextField("语音模型", elevenModel, { elevenModel = it }, "账号可用的 TTS 模型 ID")
+                AdvancedChoiceField(
+                    label = "语音模型",
+                    value = elevenModel,
+                    options = if (ElevenLabsSpeechModels.any { it.second == elevenModel }) ElevenLabsSpeechModels
+                        else listOf("已保存的模型" to elevenModel) + ElevenLabsSpeechModels,
+                    onSelected = { elevenModel = it; prefs.edit().putString("eleven_tts_model", it).apply() },
+                )
                 Text("稳定性 ${"%.2f".format(elevenStability)}", color = AdvancedInk)
                 Slider(value = elevenStability, onValueChange = { elevenStability = it }, valueRange = 0f..1f, enabled = enabled)
                 Text("声线相似度 ${"%.2f".format(elevenSimilarity)}", color = AdvancedInk)
