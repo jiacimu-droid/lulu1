@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T14:48:20.900488+00:00",
-  "commit": "1a6f9c92356701504c050bfc9beb139a9e91cf4a",
+  "generatedAt": "2026-10-07T14:51:19.153854+00:00",
+  "commit": "65e8a125a56b96300dbad86200eca9e1f36166b1",
   "branch": "main",
-  "sourceFingerprint": "d5ad18c84361fdabfee662534b4191a588dc545c1c0e41237a8ca6b1803c4081",
+  "sourceFingerprint": "c0a87c9956f80d469e337104d8a153212a988bf53b5b249b967a141793dfe7b4",
   "summary": {
     "files": 312,
-    "lines": 82567,
+    "lines": 82568,
     "symbols": 1146
   },
   "symbolIndex": {
@@ -6027,19 +6027,19 @@
     "generateNextChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 309
+        "line": 311
       }
     ],
     "appendThreeChapters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 582
+        "line": 584
       }
     ],
     "attemptBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 589
+        "line": 591
       }
     ],
     "StudyTaskSource": [
@@ -12429,20 +12429,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-      "lines": 860,
-      "sha256": "455858f521998248e44f68ec1b0ae73a860f255e03c08aaa20f43e51cf4a588a",
+      "lines": 862,
+      "sha256": "813886c07f264e47843db2f9e1053ef07c1918b568bd20c5b436c6e8be3379ab",
       "symbols": [
         {
           "name": "generateNextChapter",
-          "line": 309
+          "line": 311
         },
         {
           "name": "appendThreeChapters",
-          "line": 582
+          "line": 584
         },
         {
           "name": "attemptBack",
-          "line": 589
+          "line": 591
         }
       ]
     },
@@ -12481,8 +12481,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
-      "lines": 356,
-      "sha256": "91a0b9cac266e32c2603f038e0fd41a9b2df286f72ee1593fd06071ab755bf4d",
+      "lines": 355,
+      "sha256": "445d93c056e20ffaf9dcd4649c9c1ca376c3198d99d0b06495fcc41e09a61115",
       "symbols": []
     },
     {
