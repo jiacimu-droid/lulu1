@@ -1,7 +1,6 @@
 package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.LuluRepositories
-import kotlinx.coroutines.flow.first
 import java.time.Instant
 
 /**
@@ -19,6 +18,16 @@ object CharacterRecordReset {
                 MigratedDomainStores.chat.clearConversationMessages(conversation.id)
             }
 
+        // Remove sources before derived stores, so a late extraction cannot revive old history.
+        SharedExperienceTimeline.deleteCharacterEvents(cleanId)
+        MemoryExtractionJobStore.clearCharacter(cleanId)
+        CommitmentTaskStore.clearCharacter(cleanId)
+        ProactiveIncomingCallStore.pending.value?.takeIf { it.characterId == cleanId }?.let {
+            ProactiveIncomingCallStore.clear(it)
+        }
+        val meetingIds = DigitalWorldStore.state.value.meetings
+            .filter { cleanId in it.participantIds }.map { it.id }.toSet()
+        MeetingExperienceStore.clearCharacterHistory(cleanId, meetingIds)
         MomentsStore.clearCharacterData(cleanId)
         DigitalWorldStore.clearCharacter(cleanId)
 
@@ -26,17 +35,13 @@ object CharacterRecordReset {
             .map { it.id }
             .forEach { id -> LuluRepositories.lexicon.delete(id) }
 
-        LuluRepositories.memory.observeMemories(cleanId)
-            .first()
-            .map { it.id }
-            .forEach { id -> LuluRepositories.memory.delete(id) }
+        LuluRepositories.memory.clearCharacterHistory(cleanId)
 
         CharacterDevelopmentStore.clearCharacter(cleanId)
         CharacterLifeStore.clearHistory(cleanId)
         CompanionPresenceStore.clearCharacter(cleanId)
         CompanionOnlineStore.resetCharacter(cleanId, now)
 
-        SharedExperienceTimeline.deleteCharacterEvents(cleanId)
         DigitalLifeProfileStore.restartOrigin(cleanId, MigratedDomainStores.characters.get(cleanId).displayName, now)
     }
 }

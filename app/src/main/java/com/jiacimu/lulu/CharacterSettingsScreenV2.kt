@@ -74,7 +74,6 @@ fun CharacterSettingsScreenV2(
     var persona by remember(characterId) { mutableStateOf(original.persona) }
     var proactiveCalls by remember(characterId) { mutableStateOf(original.contactPolicy.proactiveCallsEnabled) }
     var section by remember(characterId) { mutableIntStateOf(0) }
-    var confirmDelete by remember { mutableStateOf(false) }
     var confirmClearRecords by remember { mutableStateOf(false) }
     var pendingLifeForm by remember { mutableStateOf<CharacterLifeForm?>(null) }
     var clearingRecords by remember { mutableStateOf(false) }
@@ -121,10 +120,8 @@ fun CharacterSettingsScreenV2(
                 title = { Text("${original.displayName}的设置", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 actions = {
-                    if (characterId != "lulu") {
-                        IconButton(onClick = { confirmDelete = true }) {
-                            Icon(Icons.Outlined.DeleteOutline, "删除角色", tint = MaterialTheme.colorScheme.error)
-                        }
+                    IconButton(enabled = !clearingRecords, onClick = { confirmClearRecords = true }) {
+                        Icon(Icons.Outlined.DeleteOutline, "清空经历与记忆", tint = MaterialTheme.colorScheme.error)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
@@ -343,11 +340,11 @@ fun CharacterSettingsScreenV2(
     if (confirmClearRecords) {
         AlertDialog(
             onDismissRequest = { if (!clearingRecords) confirmClearRecords = false },
-            title = { Text("清除${original.displayName}的所有记录？") },
+            title = { Text("清空${original.displayName}的经历与记忆？") },
             text = {
                 Text(
                     if (digitalLife.enabled) {
-                        "会永久清除这个角色的经历和记忆，并以清除当天作为新的出生与可追溯起点。人格、人设、角色设置和设计书保留，其他角色的记录不变。此操作无法撤销。"
+                        "会永久清除这个角色的原始时间线、记忆、辞海、私聊及过往经历痕迹，并以清除当天作为新的出生与可追溯起点。资料、身份、头像、人格、人设、角色设置和设计书全部保留，其他角色的记录不变。此操作无法撤销。"
                     } else {
                         "会永久清除这个角色的私聊消息、辞海、记忆、朋友圈内容与互动、此刻历史，以及原始时间线里的全部事件。角色头像、身份、设定、主动感知等设置会保留。此操作无法撤销。"
                     },
@@ -376,26 +373,7 @@ fun CharacterSettingsScreenV2(
         )
     }
 
-    if (confirmDelete) {
-        AlertDialog(
-            onDismissRequest = { confirmDelete = false },
-            title = { Text("删除${original.displayName}？") },
-            text = { Text("角色资料会删除；已有聊天、记忆和游戏记录不会被静默抹除，仍可在对应页面处理。") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (MigratedDomainStores.characters.delete(characterId)) {
-                            CharacterIdentityStore.delete(characterId)
-                            DigitalLifeProfileStore.remove(characterId)
-                            onDeleted()
-                        }
-                        confirmDelete = false
-                    },
-                ) { Text("删除", color = MaterialTheme.colorScheme.error) }
-            },
-            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("取消") } },
-        )
-    }
+
 }
 
 @Composable

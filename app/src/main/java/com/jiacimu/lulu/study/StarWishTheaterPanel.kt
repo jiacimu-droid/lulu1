@@ -289,7 +289,6 @@ private fun TheaterReader(
                                 instruction = "续写第 $chapterNumber 章完整中文故事，正文约 1800-3000 字。保持人物、时间线和因果连续；用户影响必须自然进入剧情；不要写提纲、解释或系统提示。",
                                 source = "星愿馆",
                                 title = "${seed.title} · 第${chapterNumber}章",
-                                temperature = 0.9,
                                 maxTokens = 4200,
                                 connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
                                 contextMode = CompanionContextMode.Isolated,

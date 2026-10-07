@@ -62,7 +62,7 @@ data class MemoryPolicy(
 ) {
     /**
      * The raw context must cover both the not-yet-eligible tail and one complete extraction batch.
-     * This is a minimum: runtime may temporarily expand it when failed extraction leaves a backlog.
+     * Failed extraction backlogs stay queued separately and never expand ordinary model context.
      */
     val rawContextMessageCount: Int
         get() = (excludedRecentMessages.toLong() + readableThreshold.toLong())

@@ -133,7 +133,6 @@ object ChatLexiconAutomation {
             """.trimIndent(),
             source = "辞海",
             title = "辞海自动整理",
-            temperature = 0.1,
             maxTokens = 1_000,
             usage = ModelUsage.Chat,
         )

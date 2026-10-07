@@ -61,9 +61,11 @@ object LuluDeviceToolBridge {
         HealthRolePerception.initialize(appContext)
         HealthRolePerception.recordLatestSleep(characterId)
         val healthContext = HealthRolePerception.context(now)
-        val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId) + "\n" + com.jiacimu.lulu.data.CapabilityRegistry.context(appContext, characterId)
+        val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId, includeWorldContext = false) + "\n" + com.jiacimu.lulu.data.CapabilityRegistry.context(appContext, characterId)
         val onlineChatBubbleRule = if (sceneContext.contains("电话")) "" else """
-            - 当前是即时通讯软件里的日常线上聊天，不是在写文章、小说段落或一次性长篇口述。
+            - 当前是即时通讯软件里的日常线上聊天。普通接话通常一至四个短气泡，每条常为十至四十个中文字，允许更短；只说此刻最想说的话，不凑字数。用户明确要讲清复杂问题、讲故事或长回复时才展开。
+            - text 只发给对方能看到的话；不写动作旁白、环境描写、心理分析、舞台括号、客服式总结或连续抒情独白。不要把每次聊天都升格成关系宣言，不替用户分析情绪，不连续追问。保留该角色自己的词汇、口头习惯、态度和关系边界。
+            - 不要先写一大篇再切碎充当聊天。先决定真正要说的少量内容，再按回应、补充、转折或追问的语义停顿分别发送。
             - 你不是每收到一条消息就重新开始一次问答。最近对话、刚才的动作、情绪与关系变化都已经真实发生；从上一刻的状态继续生活，只处理此刻新增的信息和变化。
             - 不要把“保持连续”理解成复述历史。历史的作用是告诉你已经走到哪里；真正的回复应从那个位置继续向前，而不是重新总结、重新解释或重新表达上一刻。
             - text 中的气泡边界由你根据角色本人想表达的语气和聊天节奏决定。先想清楚此刻真正想说什么，再根据停顿、情绪变化、犹豫、补充、转折、追问、吐槽、强调、改口以及该角色自己的说话习惯，决定什么时候按一次“发送”。
@@ -132,7 +134,6 @@ object LuluDeviceToolBridge {
             """.trimIndent(),
             source = "聊天工具规划",
             title = title,
-            temperature = 0.45,
             maxTokens = 700,
             streamResponse = onReplyStream != null,
             onStreamText = onReplyStream,
@@ -182,7 +183,6 @@ object LuluDeviceToolBridge {
             """.trimIndent(),
             source = "聊天工具结果",
             title = title,
-            temperature = 0.75,
             maxTokens = 600,
             streamResponse = onReplyStream != null,
             onStreamText = onReplyStream,

@@ -80,7 +80,6 @@ internal suspend fun meetingPlanDirectionV2(session: MeetingSession, userText: S
             """.trimIndent(),
             source = "见面场面调度",
             title = "多人见面导演",
-            temperature = 0.25,
             maxTokens = 420,
             connectionOverride = connection,
             memoryRequest = UnifiedMemoryRequest(
@@ -229,7 +228,6 @@ internal suspend fun meetingGenerateReplyV2(
         """.trimIndent(),
         source = if (session.reality == MeetingReality.DIGITAL_WORLD) "数字世界见面" else "现实场景见面",
         title = "${character.displayName}的见面回合",
-        temperature = 0.82,
         maxTokens = 3_600,
         connectionOverride = connection,
         memoryRequest = UnifiedMemoryRequest(

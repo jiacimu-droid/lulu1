@@ -307,7 +307,6 @@ internal object ApocalypseLivingWorldRuntimeV5 {
                 instruction = instruction,
                 source = "末世求生V5幕后活世界",
                 title = "末世求生 · 幕后世界第${saveAfter.scene}幕",
-                temperature = 0.68,
                 maxTokens = 1500,
                 usage = ModelUsage.Game,
                 contextMode = CompanionContextMode.PersonaAndScenario,

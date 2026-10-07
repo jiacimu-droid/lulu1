@@ -40,6 +40,7 @@ internal object CompanionActionRuntime {
         context: Context,
         characterId: String,
         allowSleepReward: Boolean = true,
+        includeWorldContext: Boolean = true,
     ): String = buildString {
         HealthRolePerception.initialize(context)
         appendLine("角色可执行的露露机内动作（前台聊天与后台主动感知共用同一个真实执行层）：")
@@ -59,7 +60,7 @@ internal object CompanionActionRuntime {
             DigitalWorldPublicPlaces.all.forEach { place ->
                 appendLine("- location=${place.code}；${place.label}；${place.subtitle}；用途=${place.purpose}")
             }
-            appendLine(DigitalWorldStore.contextFor(characterId))
+            if (includeWorldContext) appendLine(DigitalWorldStore.contextFor(characterId))
             val socialTargets = MigratedDomainStores.characters.settings.value.keys
                 .asSequence()
                 .filter { it != characterId && DigitalLifeProfileStore.isEnabled(it) }
@@ -112,7 +113,10 @@ internal object CompanionActionRuntime {
                 val text = args.optString("text").trim().take(2_000)
                 require(text.isNotBlank()) { "私聊内容不能为空" }
                 val conversation = privateConversation(characterId, character.displayName)
-                MigratedDomainStores.chat.appendCharacterMessage(conversation.id, text, characterId)
+                com.jiacimu.lulu.normalizeSemanticBubbles(text).split(Regex("\\n+"))
+                    .map(String::trim).filter(String::isNotBlank).forEach { bubble ->
+                        MigratedDomainStores.chat.appendCharacterMessage(conversation.id, bubble, characterId)
+                    }
                 CompanionActionResult(true, "已在私聊中发送消息", conversation.id)
             }
             "send_group_message" -> {
@@ -122,7 +126,10 @@ internal object CompanionActionRuntime {
                     candidate.id == groupId && candidate.groupChat?.members?.any { it.characterId == characterId } == true
                 } ?: error("角色不在指定群聊中")
                 require(text.isNotBlank()) { "群聊内容不能为空" }
-                MigratedDomainStores.chat.appendCharacterMessage(conversation.id, text, characterId)
+                com.jiacimu.lulu.normalizeSemanticBubbles(text).split(Regex("\\n+"))
+                    .map(String::trim).filter(String::isNotBlank).forEach { bubble ->
+                        MigratedDomainStores.chat.appendCharacterMessage(conversation.id, bubble, characterId)
+                    }
                 CompanionActionResult(true, "已在群聊《${conversation.groupChat?.name}》发言", conversation.id)
             }
             "send_game_invite" -> {
@@ -336,7 +343,6 @@ internal object CompanionActionRuntime {
             instruction = "只根据提供的真实原文，写下角色本人此刻的阅读感想。不是给用户做书评，不续写，不冒充作者，不声称读到未提供的部分。用角色第一人称，1—3段，只输出感想正文。",
             source = "角色行动·连续阅读",
             title = "${character.displayName}继续读《${slice.book.title}》",
-            temperature = 0.82,
             maxTokens = 700,
         ).getOrNull()?.text?.trim().orEmpty()
         val factualReceipt = "阅读《${slice.book.title}》字符 ${slice.startOffset}—${slice.endOffset}/${slice.totalLength}${if (slice.completed) "，已读完" else "，下次从 ${slice.endOffset} 继续"}"

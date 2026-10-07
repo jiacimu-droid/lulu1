@@ -197,17 +197,20 @@ private fun renderEventSection(
     }
 }
 
-private fun renderEventLines(events: List<SharedTimelineEvent>, characterBudget: Int): List<String> {
+internal fun renderEventLines(events: List<SharedTimelineEvent>, characterBudget: Int): List<String> {
     if (events.isEmpty() || characterBudget <= 0) return emptyList()
-    val prefixes = events.map { event -> "[${event.occurredAt}] [${event.channel}] ${event.speaker}：" }
-    val prefixCost = prefixes.sumOf(String::length) + events.size
-    val effectiveBudget = maxOf(characterBudget, prefixCost + events.size * MIN_EVENT_CONTENT_CHARS)
-    val contentBudget = (effectiveBudget - prefixCost).coerceAtLeast(events.size)
-    val perEvent = (contentBudget / events.size).coerceAtLeast(MIN_EVENT_CONTENT_CHARS)
-    return events.mapIndexed { index, event ->
+    val kept = mutableListOf<String>()
+    var remaining = characterBudget
+    // Keep newest useful events. A character budget is a hard ceiling, even with a large backlog.
+    for (event in events.asReversed()) {
+        val prefix = "[${event.occurredAt}] [${event.channel}] ${event.speaker}："
+        val room = remaining - prefix.length - if (kept.isEmpty()) 0 else 1
+        if (room < 48) break
         val content = event.evidenceContent.trim().replace("\n", " ")
-        prefixes[index] + if (content.length <= perEvent) content else content.take(perEvent) + "…"
+        val limit = minOf(room, 1_200)
+        val line = prefix + if (content.length <= limit) content else content.take(limit - 1) + "…"
+        kept += line
+        remaining -= line.length + if (kept.size == 1) 0 else 1
     }
+    return kept.asReversed()
 }
-
-private const val MIN_EVENT_CONTENT_CHARS = 48

@@ -60,7 +60,8 @@ object DigitalLifeProfileStore {
 
     fun allowsTimestamp(characterId: String, instant: Instant): Boolean {
         val birth = birthAt(characterId) ?: return true
-        return !instant.isBefore(birth)
+        // Timeline persistence uses milliseconds; the birth event must survive a nanosecond clock.
+        return instant.toEpochMilli() >= birth.toEpochMilli()
     }
 
     /** New-character operation. Life form is permanently DIGITAL from this point. */

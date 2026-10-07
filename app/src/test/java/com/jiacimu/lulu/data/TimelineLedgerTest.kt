@@ -71,5 +71,14 @@ class TimelineLedgerTest {
         CharacterLifeStore.setProfile("character-a", "care", "")
         CharacterDevelopmentStore.retire("character-a", updated.id)
         assertFalse(propose()) // The same evidence cannot resurrect a manually retired record.
+        val repository = LocalMemoryRepository().apply { initialize(context) }
+        repeat(150) { index ->
+            SharedExperienceTimeline.record("backlog-$index", "backlog-role", "私聊", "用户", "消息$index",
+                time.plusSeconds(index.toLong()), triggerExtraction = false, evidenceKind = EventEvidenceKind.UserStatement)
+        }
+        val recentContext = repository.contextTimelineEvents("backlog-role")
+        assertEquals(com.jiacimu.lulu.core.MemoryPolicy().rawContextMessageCount, recentContext.size)
+        assertEquals("backlog-149", recentContext.last().id)
+        assertTrue(repository.pendingTimelineEvents("backlog-role").size > recentContext.size)
     }
 }

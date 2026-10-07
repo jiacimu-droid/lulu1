@@ -104,7 +104,6 @@ internal object DigitalWorldExpansionProposalRuntime {
             """.trimIndent(),
             source = "数字世界扩展提案",
             title = "${character.displayName}的低频世界提案",
-            temperature = 0.78,
             maxTokens = 420,
             connectionOverride = connection,
             contextMode = CompanionContextMode.PersonaAndScenario,

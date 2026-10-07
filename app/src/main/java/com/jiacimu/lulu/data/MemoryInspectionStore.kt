@@ -40,6 +40,10 @@ internal object MemoryInspectionStore {
         changeListener?.invoke(characterId)
     }
 
+    fun clearCharacter(characterId: String) {
+        recalls.remove(characterId)
+    }
+
     fun snapshot(characterId: String): MemoryRecallInspection? = recalls[characterId]
 
     fun render(characterId: String): String {

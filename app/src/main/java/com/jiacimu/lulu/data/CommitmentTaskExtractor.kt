@@ -43,7 +43,6 @@ internal suspend fun extractCommitmentTaskDrafts(
         """.trimIndent(),
         source = "承诺任务",
         title = "承诺任务提取",
-        temperature = 0.05,
         maxTokens = 1_500,
         usage = ModelUsage.Chat,
     )

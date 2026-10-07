@@ -406,7 +406,6 @@ class PostgraduateExamStore internal constructor(context: Context) {
             instruction = "生成从当前时间开始的现实日程，只返回JSON数组，每项格式 {\"start\":\"HH:mm\",\"end\":\"HH:mm\",\"title\":\"任务\"}。",
             source = "考研",
             title = "生成今日计划",
-            temperature = 0.35,
             maxTokens = 1200,
         ).mapCatching { reply ->
             val clean = reply.text.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()

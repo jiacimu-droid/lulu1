@@ -295,7 +295,6 @@ object PomodoroCompanionSessions {
                 instruction = "以角色自己的身份，自然说一句或两句番茄钟开始时会说的话。保持人设、关系和连续状态；简短自然，不要写系统说明，不要虚构用户已经完成任务，只输出角色台词。",
                 source = "考研",
                 title = "番茄钟开场",
-                temperature = 0.98,
                 maxTokens = 120,
             ).onSuccess { reply ->
                 val text = compactPomodoroUtterance(reply.text, maxChars = 52)

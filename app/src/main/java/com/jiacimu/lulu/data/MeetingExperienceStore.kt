@@ -255,6 +255,18 @@ object MeetingExperienceStore {
         }
     }
 
+    fun clearCharacterHistory(characterId: String, sessionIds: Set<String>) {
+        synchronized(lock) {
+            mutable.value = mutable.value.copy(
+                exchanges = mutable.value.exchanges.filterNot { it.sessionId in sessionIds },
+                scenes = mutable.value.scenes - sessionIds,
+                sessionOrigins = mutable.value.sessionOrigins - sessionIds,
+                invitations = mutable.value.invitations.filterNot { it.characterId == characterId },
+            )
+            persistLocked()
+        }
+    }
+
     fun removeSession(sessionId: String) {
         synchronized(lock) {
             mutable.value = mutable.value.copy(

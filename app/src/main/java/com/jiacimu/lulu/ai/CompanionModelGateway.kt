@@ -435,7 +435,6 @@ class CompanionModelGateway(
         instruction: String,
         source: String,
         title: String,
-        temperature: Double = 0.8,
         maxTokens: Int? = 500,
         connectionOverride: ModelConnection? = null,
         usage: ModelUsage? = null,
@@ -567,17 +566,25 @@ class CompanionModelGateway(
             } else {
                 "真实事实：\n${facts.trim()}"
             }
-            val breakdown = listOf(
-                tokenBreakdown("系统/角色身份与设定", baseRules.length + identitySection.length + personaSection.length + currentWorld.length),
-                tokenBreakdown(
-                    "记忆/状态/感知",
-                    globalWorldBookSection.length + roleWorldBookSection.length + userProfileSection.length + presenceSection.length + timelineSection.length + memorySection.length + memoryEvidenceSection.length + lexiconSection.length,
-                ),
-                tokenBreakdown("工具/MCP说明", 0),
-                tokenBreakdown("用户上下文", userPrompt.length),
-                tokenBreakdown("助手上下文", 0),
-                tokenBreakdown("其他", 0),
+            val sections = listOf(
+                "任务规则/工具协议" to baseRules,
+                "角色身份" to identitySection,
+                "角色人设" to personaSection,
+                "用户资料" to userProfileSection,
+                "全局世界书" to globalWorldBookSection,
+                "角色世界书/设计书" to roleWorldBookSection,
+                "当前状态" to presenceSection,
+                "成长与持续动机" to developmentSection,
+                "数字世界权威状态" to currentWorld,
+                "近期时间线/未完成责任" to timelineSection,
+                "召回记忆摘要" to memorySection,
+                "召回原始证据" to memoryEvidenceSection,
+                "辞海" to lexiconSection,
+                "本次感知/聊天素材" to userPrompt,
             )
+            val breakdown = sections.filter { it.second.isNotBlank() }
+                .map { (label, content) -> tokenBreakdown(label, content.length) } +
+                tokenBreakdown("段落分隔", (systemPrompt.length + userPrompt.length - sections.sumOf { it.second.length }).coerceAtLeast(0))
             val estimatedInputTokens = breakdown.sumOf { item -> item.estimatedTokens }
             val promptMillis = elapsedMillis(promptStartedAt)
             val modelStartedAt = System.nanoTime()
@@ -585,7 +592,6 @@ class CompanionModelGateway(
                 connection = connection,
                 system = systemPrompt,
                 user = userPrompt,
-                temperature = temperature,
                 maxTokens = maxTokens,
                 streamResponse = streamResponse,
                 readTimeoutMillis = readTimeoutMillis,
@@ -630,7 +636,6 @@ class CompanionModelGateway(
         connection: ModelConnection,
         system: String,
         user: String,
-        temperature: Double,
         maxTokens: Int?,
         streamResponse: Boolean,
         readTimeoutMillis: Int,
@@ -653,7 +658,6 @@ class CompanionModelGateway(
         }
         val body = JSONObject()
             .put("model", connection.model)
-            .put("temperature", temperature)
             .put(
                 "messages",
                 JSONArray()

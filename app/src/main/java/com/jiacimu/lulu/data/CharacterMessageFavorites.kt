@@ -136,7 +136,6 @@ object CharacterMessageFavorites {
             """.trimIndent(),
             source = "角色收藏理由",
             title = "${character.displayName}的收藏理由",
-            temperature = 0.72,
             maxTokens = 120,
             usage = ModelUsage.Chat,
             contextMode = CompanionContextMode.PersonaAndScenario,

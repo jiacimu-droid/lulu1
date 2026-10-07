@@ -340,7 +340,6 @@ object MomentsStore {
             """.trimIndent(),
             source = "朋友圈独立感知",
             title = "${character.displayName}查看朋友圈",
-            temperature = 0.9,
             maxTokens = 600,
             usage = ModelUsage.Chat,
             contextMode = CompanionContextMode.PersonaAndScenario,
@@ -574,7 +573,6 @@ object MomentsStore {
             """.trimIndent(),
             source = "朋友圈单独回复",
             title = "${responder.displayName}回复朋友圈评论",
-            temperature = 0.86,
             maxTokens = 180,
             usage = ModelUsage.Chat,
         ).getOrNull()?.text.orEmpty().let { raw ->

@@ -282,7 +282,6 @@ internal object AutonomousSocialRuntime {
             """.trimIndent(),
             source = "角色自主相遇",
             title = "${participantIds.joinToString("与") { characters.getValue(it).displayName }}在$location",
-            temperature = 0.88,
             maxTokens = 1_600,
         ).getOrNull()?.text.orEmpty()
 
@@ -331,7 +330,6 @@ internal object AutonomousSocialRuntime {
             """.trimIndent(),
             source = "数字世界事件反应",
             title = "${character.displayName}在${tick.locationName}",
-            temperature = 0.84,
             maxTokens = 700,
         ).getOrNull()?.text.orEmpty()
         val reaction = parseSoloIncidentReaction(raw)

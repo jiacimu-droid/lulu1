@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelConnection
 import com.jiacimu.lulu.core.MemoryEntry
@@ -65,6 +66,17 @@ class LocalMemoryRepository : MemoryRepository {
         require(policy.readableThreshold > 0) { "总结阈值必须大于 0" }
         mutate { current -> current.copy(globalPolicy = policy) }
         refreshDebug("已保存全部角色共用的记忆规则", characterId)
+    }
+
+    /** Clear history bookkeeping too, allowing the new life to learn the same fact again. */
+    fun clearCharacterHistory(characterId: String) {
+        mutate { current -> current.copy(
+            entries = current.entries.filterNot { it.characterId == characterId },
+            processedMessageIds = current.processedMessageIds - characterId,
+            deletedMemoryKeys = current.deletedMemoryKeys.filterNot { it.startsWith("$characterId:") }.toSet(),
+        ) }
+        MemoryInspectionStore.clearCharacter(characterId)
+        refreshDebug("经历与记忆已清空，角色资料与记忆设置保留", characterId)
     }
 
     override suspend fun summarizeNow(characterId: String) {
@@ -144,12 +156,14 @@ class LocalMemoryRepository : MemoryRepository {
                     7. 输入中的 [私聊]、[电话]、[群聊]、[朋友圈]、[收藏]、[此刻] 等方括号内容只是原始事件来源标签，不是用户说的话，也不是需要记住的提示词。
                     8. 每条记忆必须给出1—6个直接支持它的 sourceEventIds，只能复制输入中真实存在的事件ID；不要把整批ID都塞进去。
                     9. 记忆必须保留将来理解同义改写所需的人物、对象、原因、结果和必要语境，避免只写模糊关键词；但不要复制无关寒暄。
-                    10. 日常寒暄、同义重复、已经存在的总结不要重复写入；没有值得保存的内容时返回 []。
+                    10. 日常寒暄、同义重复不要重复写入；没有值得保存的内容时返回 []。
+                    11. 每条记忆用一至两句写清必要语境，通常不超过160个中文字，避免复制原文或扩写。
                 """.trimIndent(),
                 source = "记忆",
                 title = "连续记忆提取",
-                temperature = 0.2,
-                maxTokens = 1800,
+                maxTokens = 3200,
+                contextMode = CompanionContextMode.Isolated,
+                readTimeoutMillis = 180_000,
                 connectionOverride = extractionConnection(),
             )
 
@@ -165,7 +179,7 @@ class LocalMemoryRepository : MemoryRepository {
                     lastError = error?.message,
                     lastExtractedCount = extractedThisRun,
                 )
-                return
+                throw error ?: IllegalStateException("记忆提取失败")
             }
 
             val reply = result.getOrThrow()
@@ -182,7 +196,7 @@ class LocalMemoryRepository : MemoryRepository {
                     lastError = error?.message,
                     lastExtractedCount = extractedThisRun,
                 )
-                return
+                throw IllegalStateException("模型记忆格式无效，批次保留等待重试", error)
             }
 
             // Revalidate after the model returns. Deleted source events are never accepted back into
@@ -409,21 +423,17 @@ class LocalMemoryRepository : MemoryRepository {
             .sortedBy(SharedTimelineEvent::occurredAt)
     }
 
-    /** Complete raw context, expanded automatically when extraction has a backlog. */
+    /** Bounded recent raw context; extraction backlogs stay in their persistent queue. */
     fun contextTimelineEvents(characterId: String): List<SharedTimelineEvent> {
         val snapshot = state.value
         val policy = snapshot.resolvedPolicy(characterId)
-        val processed = snapshot.processedMessageIds[characterId].orEmpty()
         val eligible = memoryEligibleTimelineEvents(characterId)
         val baselineIds = eligible
             .takeLast(policy.rawContextMessageCount.coerceAtLeast(0))
             .mapTo(linkedSetOf(), SharedTimelineEvent::id)
-        val unresolvedIds = eligible
-            .asSequence()
-            .filterNot { event -> event.id in processed }
-            .mapTo(linkedSetOf(), SharedTimelineEvent::id)
-        val requiredIds = baselineIds + unresolvedIds
-        return eligible.filter { event -> event.id in requiredIds }
+        // The durable extraction queue owns the backlog. Never copy every pending event into
+        // each chat/perception request: a failed extractor must not grow every model prompt.
+        return eligible.filter { event -> event.id in baselineIds }
     }
 
     private fun memoryEligibleTimelineEvents(characterId: String): List<SharedTimelineEvent> =
@@ -447,21 +457,20 @@ class LocalMemoryRepository : MemoryRepository {
             .dropLast(policy.excludedRecentMessages.coerceAtLeast(0))
 
     private fun parseMemoryArray(raw: String, characterId: String, allowedSourceIds: Set<String>): List<MemoryEntry> {
-        val clean = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
-        val array = JSONArray(clean)
+        val array = decodeMemoryResponseArray(raw)
         val liveAllowedIds = SharedExperienceTimeline.eventsByIds(characterId, allowedSourceIds)
             .mapTo(mutableSetOf(), SharedTimelineEvent::id)
         return buildList {
             for (index in 0 until array.length()) {
-                val item = array.optJSONObject(index) ?: continue
+                val item = requireNotNull(array.optJSONObject(index)) { "记忆数组包含非对象项" }
                 val kind = when (item.optString("kind").trim().lowercase()) {
                     "fact" -> MemoryKind.Fact
                     "emotion" -> MemoryKind.Emotion
                     "timeline" -> MemoryKind.Timeline
-                    else -> continue
+                    else -> error("记忆类型无效，批次保留")
                 }
                 val content = item.optString("content").trim()
-                if (content.isBlank()) continue
+                require(content.isNotBlank()) { "记忆内容为空，批次保留" }
                 val occurredAt = item.optString("occurredAt").trim()
                     .takeIf(String::isNotBlank)
                     ?.let { value -> runCatching { Instant.parse(value) }.getOrNull() }
@@ -473,6 +482,7 @@ class LocalMemoryRepository : MemoryRepository {
                             ?.let(::add)
                     }
                 }.distinct().take(6)
+                require(sourceIds.isNotEmpty() || liveAllowedIds.isEmpty()) { "记忆缺少有效来源事件，批次保留" }
                 if (sourceIds.isEmpty()) continue
                 val evidence = SharedExperienceTimeline.eventsByIds(characterId, sourceIds)
                 val attributedContent = if (evidence.isNotEmpty() && evidence.all {
@@ -792,3 +802,12 @@ private fun <T> JSONArray?.decodeObjects(transform: (JSONObject) -> T): List<T> 
 
 private fun JSONObject.nullableString(key: String): String? =
     takeUnless { json -> json.isNull(key) }?.optString(key)?.takeIf(String::isNotBlank)
+
+/** Tolerate prose/fences around a complete array, but never salvage truncated JSON. */
+internal fun decodeMemoryResponseArray(raw: String): JSONArray {
+    val clean = raw.trim()
+    val start = clean.indexOf('[')
+    val end = clean.lastIndexOf(']')
+    require(start >= 0 && end >= start) { "模型未返回完整记忆数组" }
+    return JSONArray(clean.substring(start, end + 1))
+}

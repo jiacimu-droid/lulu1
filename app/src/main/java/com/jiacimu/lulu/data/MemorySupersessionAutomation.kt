@@ -115,7 +115,6 @@ internal object MemorySupersessionAutomation {
             """.trimIndent(),
             source = "记忆有效性",
             title = "事实替代判断",
-            temperature = 0.0,
             maxTokens = 260,
             connectionOverride = MemoryModelRuntime.extractionConnection(),
             contextMode = CompanionContextMode.Isolated,
