@@ -25,6 +25,9 @@ enum class MigrationRoute {
     Performance,
     Health,
     Reading,
+    Scroll,
+    Theater,
+    // Legacy compatibility only; the desktop no longer exposes a combined wish-hall app.
     Wishes,
     Study,
     Schedule,

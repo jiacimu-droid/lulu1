@@ -38,6 +38,8 @@ internal fun StarWishTheaterContentV2(
     val customLibrary = remember { StarWishCustomTheaterLibrary.get(context) }
     val generationManager = remember { StarWishTheaterGenerationManager.get(context) }
     val generationTasks by generationManager.tasks.collectAsState()
+    val planGenerationManager = remember { StarWishPlanGenerationManager.get(context) }
+    val planGenerationTasks by planGenerationManager.tasks.collectAsState()
     var customTheaters by remember { mutableStateOf(customLibrary.all()) }
     var mode by rememberSaveable { mutableStateOf(TheaterV2Mode.BOOKSHELF) }
     var openedTitle by rememberSaveable { mutableStateOf<String?>(null) }
@@ -81,7 +83,7 @@ internal fun StarWishTheaterContentV2(
                 task = generationTasks[openedSeed.title],
                 onBack = { mode = TheaterV2Mode.BOOKSHELF },
                 onPlanner = { mode = TheaterV2Mode.PLANNER },
-                onRegenerate = { mode = TheaterV2Mode.GENERATOR },
+                onRegenerate = { mode = TheaterV2Mode.PLANNER },
             )
         } else {
             mode = TheaterV2Mode.BOOKSHELF
@@ -93,12 +95,20 @@ internal fun StarWishTheaterContentV2(
                 initialPlans = state.theaterPlans[openedSeed.title].orEmpty().ifEmpty {
                     starWishPlansFromLegacyGuide(state.theaterGuides[openedSeed.title].orEmpty())
                 },
+                task = planGenerationTasks[openedSeed.title],
                 onBack = { mode = TheaterV2Mode.READER },
                 onSave = { guide, plans ->
                     store.setStoryPlan(openedSeed.title, guide, plans)
                     mode = TheaterV2Mode.READER
                 },
-                onRegenerate = { mode = TheaterV2Mode.GENERATOR },
+                onRegenerate = { guide, plans ->
+                    store.setStoryPlan(openedSeed.title, guide, plans)
+                    planGenerationManager.enqueue(
+                        theater = openedSeed.title,
+                        characterId = studyState.profile.selectedCharacterId,
+                        chapterCount = plans.size,
+                    )
+                },
             )
         } else {
             mode = TheaterV2Mode.BOOKSHELF
@@ -160,13 +170,13 @@ private fun TheaterBookshelfV2(
     Column(Modifier.fillMaxSize()) {
         Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 1.dp) {
             Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回心愿馆") }
-                Text("小剧场", modifier = Modifier.weight(1f), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回桌面") }
+                Spacer(Modifier.weight(1f))
                 ScopedModelArchiveIconButton(
                     scope = ScopedModelSelections.THEATER,
-                    title = "小剧场模型",
-                    subtitle = "只用于小剧场规划与续写，不会改变聊天、跑团或末世求生的模型。",
-                    contentDescription = "选择小剧场模型",
+                    title = "剧场模型",
+                    subtitle = "只用于剧场故事规划与续写，不会改变聊天、跑团或末世求生的模型。",
+                    contentDescription = "选择剧场模型",
                     tint = MaterialTheme.colorScheme.onSurface,
                     showLabel = true,
                 )
@@ -558,16 +568,27 @@ private fun TheaterPlannerV2(
     title: String,
     initialGuide: String,
     initialPlans: List<StarWishChapterPlan>,
+    task: StarWishPlanTask?,
     onBack: () -> Unit,
     onSave: (String, List<StarWishChapterPlan>) -> Unit,
-    onRegenerate: () -> Unit,
+    onRegenerate: (String, List<StarWishChapterPlan>) -> Result<Unit>,
 ) {
     var guide by rememberSaveable(title) { mutableStateOf(initialGuide) }
     var plans by remember(title, initialPlans) { mutableStateOf(initialPlans) }
     var confirmDiscard by remember { mutableStateOf(false) }
+    var localMessage by remember { mutableStateOf("") }
+    val regenerating = task?.active == true
     val dirty = guide != initialGuide || plans != initialPlans
+
+    fun appendThreeChapters() {
+        val start = plans.size + 1
+        plans = plans + (start until start + 3).map { number ->
+            StarWishChapterPlan(number = number, title = "第 $number 章", outline = "待规划")
+        }
+    }
+
     fun attemptBack() {
-        if (dirty) confirmDiscard = true else onBack()
+        if (dirty && !regenerating) confirmDiscard = true else onBack()
     }
     BackHandler(onBack = ::attemptBack)
 
@@ -579,10 +600,22 @@ private fun TheaterPlannerV2(
                     Text("剧情规划", fontWeight = FontWeight.Bold)
                     Text(title, color = StudyDesign.muted, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
-                TextButton(onClick = onRegenerate) {
-                    Icon(Icons.Outlined.AutoAwesome, null, modifier = Modifier.size(17.dp))
+                TextButton(
+                    onClick = {
+                        localMessage = ""
+                        onRegenerate(guide.trim(), plans)
+                            .onSuccess { localMessage = "已交给后台重新规划；退出页面也会继续" }
+                            .onFailure { localMessage = it.message ?: "无法开始重新规划" }
+                    },
+                    enabled = !regenerating && guide.isNotBlank() && plans.isNotEmpty(),
+                ) {
+                    if (regenerating) {
+                        CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                    } else {
+                        Icon(Icons.Outlined.AutoAwesome, null, modifier = Modifier.size(17.dp))
+                    }
                     Spacer(Modifier.width(4.dp))
-                    Text("重新生成")
+                    Text(if (regenerating) "规划中" else "重新生成")
                 }
             }
         }
@@ -593,7 +626,7 @@ private fun TheaterPlannerV2(
         ) {
             item {
                 Text("故事地图", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                Text("总纲管全局，章节地图可以随时向后增加，不受最初六章限制", color = StudyDesign.muted, style = MaterialTheme.typography.bodySmall)
+                Text("总纲只管全局；右上角“重新生成”只重做逐章规划，不会改掉总大纲和故事基调。", color = StudyDesign.muted, style = MaterialTheme.typography.bodySmall)
             }
             item {
                 OutlinedTextField(
@@ -603,20 +636,37 @@ private fun TheaterPlannerV2(
                     label = { Text("世界观、总纲、明暗线、关系与伏笔") },
                     textStyle = MaterialTheme.typography.bodyMedium.copy(lineHeight = 23.sp),
                     shape = RoundedCornerShape(18.dp),
+                    enabled = !regenerating,
                 )
             }
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text("逐章规划", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                        Text("${plans.size} 章规划 · 已写完也可以继续新增", color = StudyDesign.muted, style = MaterialTheme.typography.bodySmall)
+                        Text(plans.size.toString() + " 章规划 · 连续点 +3章 可以先定全书章数", color = StudyDesign.muted, style = MaterialTheme.typography.bodySmall)
                     }
                     FilledTonalButton(
-                        onClick = {
-                            val number = plans.size + 1
-                            plans = plans + StarWishChapterPlan(number = number, title = "第 $number 章", outline = "")
-                        },
-                    ) { Icon(Icons.Outlined.Add, null); Text("加一章") }
+                        onClick = ::appendThreeChapters,
+                        enabled = !regenerating && plans.size <= StarWishRules.MAX_CHAPTERS_PER_THEATER - 3,
+                    ) {
+                        Icon(Icons.Outlined.PlaylistAdd, null)
+                        Spacer(Modifier.width(4.dp))
+                        Text("+3章")
+                    }
+                }
+            }
+            val statusMessage = when {
+                task?.active == true || task?.status == StarWishTheaterTaskStatus.FAILED -> task.message
+                localMessage.isNotBlank() -> localMessage
+                else -> task?.message.orEmpty()
+            }
+            if (statusMessage.isNotBlank()) {
+                item {
+                    Text(
+                        statusMessage,
+                        color = if (task?.status == StarWishTheaterTaskStatus.FAILED) MaterialTheme.colorScheme.error else StudyDesign.muted,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
                 }
             }
             items(plans, key = StarWishChapterPlan::id) { plan ->
@@ -628,10 +678,14 @@ private fun TheaterPlannerV2(
                 ) {
                     Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("第 ${index + 1} 章", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                            IconButton(onClick = {
-                                plans = plans.filterNot { it.id == plan.id }.mapIndexed { planIndex, item -> item.copy(number = planIndex + 1) }
-                            }) { Icon(Icons.Outlined.DeleteOutline, "删除章节规划", tint = MaterialTheme.colorScheme.error) }
+                            Text("第 " + (index + 1) + " 章", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                            IconButton(
+                                onClick = {
+                                    plans = plans.filterNot { it.id == plan.id }
+                                        .mapIndexed { planIndex, item -> item.copy(number = planIndex + 1) }
+                                },
+                                enabled = !regenerating,
+                            ) { Icon(Icons.Outlined.DeleteOutline, "删除章节规划", tint = MaterialTheme.colorScheme.error) }
                         }
                         OutlinedTextField(
                             value = plan.title,
@@ -639,35 +693,26 @@ private fun TheaterPlannerV2(
                             modifier = Modifier.fillMaxWidth(),
                             label = { Text("章节标题") },
                             singleLine = true,
+                            enabled = !regenerating,
                         )
                         OutlinedTextField(
                             value = plan.outline,
                             onValueChange = { value -> plans = plans.map { if (it.id == plan.id) it.copy(outline = value) else it } },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("本章事件、人物选择、关系变化、伏笔与结尾钩子") },
-                            minLines = 4,
-                            maxLines = 10,
+                            label = { Text("本章事件、人物选择、关系、明暗线、伏笔、情绪与结尾钩子") },
+                            minLines = 5,
+                            maxLines = 14,
+                            enabled = !regenerating,
                         )
                     }
                 }
-            }
-            item {
-                OutlinedButton(
-                    onClick = {
-                        val start = plans.size + 1
-                        plans = plans + (start until start + 3).map { number ->
-                            StarWishChapterPlan(number = number, title = "第 $number 章", outline = "待规划")
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                ) { Icon(Icons.Outlined.PlaylistAdd, null); Spacer(Modifier.width(6.dp)); Text("一次追加三章") }
             }
         }
         Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp) {
             Button(
                 onClick = { onSave(guide.trim(), plans) },
                 modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(14.dp),
-                enabled = guide.isNotBlank() && dirty,
+                enabled = !regenerating && guide.isNotBlank() && dirty,
                 shape = RoundedCornerShape(16.dp),
             ) {
                 Icon(Icons.Outlined.Save, null, modifier = Modifier.size(18.dp))
@@ -708,7 +753,7 @@ private fun TheaterPlotGeneratorV2(
             Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack, enabled = !generating) { Icon(Icons.Outlined.ArrowBack, "返回") }
                 Column(Modifier.weight(1f)) {
-                    Text(if (existingTitle == null) "创建小剧场" else "重新规划", fontWeight = FontWeight.Bold)
+                    Text(if (existingTitle == null) "创建故事" else "重新规划", fontWeight = FontWeight.Bold)
                     existingTitle?.let { Text(it, color = StudyDesign.muted, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis) }
                 }
             }
@@ -743,7 +788,7 @@ private fun TheaterPlotGeneratorV2(
                                 generating = true
                                 error = ""
                                 scope.launch {
-                                    StarWishPlotPlanner.generate(characterId, existingTitle, existingGuide, direction.trim())
+                                    StarWishTheaterPlanningEngine.generateStoryCandidates(characterId, existingTitle, existingGuide, direction.trim())
                                         .onSuccess { candidates = it; expandedIndex = 0 }
                                         .onFailure { error = it.message ?: "剧情规划生成失败" }
                                     generating = false

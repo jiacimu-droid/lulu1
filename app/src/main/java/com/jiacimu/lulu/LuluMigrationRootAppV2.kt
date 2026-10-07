@@ -24,7 +24,8 @@ import com.jiacimu.lulu.study.PomodoroMiniWindow
 import com.jiacimu.lulu.study.PomodoroTimerMode
 import com.jiacimu.lulu.study.PostgraduateExamApp
 import com.jiacimu.lulu.study.PostgraduateExamStores
-import com.jiacimu.lulu.study.StarWishMigratedScreen
+import com.jiacimu.lulu.study.StarWishScrollApp
+import com.jiacimu.lulu.study.StarWishTheaterApp
 import kotlinx.coroutines.delay
 
 @Composable
@@ -294,7 +295,9 @@ fun LuluMigrationRootAppV2(
                                     onBack = ::popRoute,
                                     initialBookTitle = readingInitialTitle,
                                 )
-                                MigrationRoute.Wishes -> StarWishMigratedScreen(onBack = ::popRoute)
+                                MigrationRoute.Scroll -> StarWishScrollApp(onBack = ::popRoute)
+                                MigrationRoute.Theater -> StarWishTheaterApp(onBack = ::popRoute)
+                                MigrationRoute.Wishes -> StarWishTheaterApp(onBack = ::popRoute)
                                 MigrationRoute.Study -> PostgraduateExamApp(
                                     onBack = ::popRoute,
                                     onOpenConversation = ::openConversation,
