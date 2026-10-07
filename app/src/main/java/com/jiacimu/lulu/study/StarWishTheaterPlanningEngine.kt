@@ -112,33 +112,32 @@ internal object StarWishTheaterPlanningEngine {
             }
             if (writtenEvidence.isNotBlank()) appendLine("最近已写正文证据：\n$writtenEvidence")
         }
-        val raw = LuluAiServices.gateway.generate(
+        val instruction = """
+            你是这部长篇小说的幕后总导演。请生成/刷新一份“幕后规划”，它不是逐章规划，而是长期稳定的故事圣经。
+            已经写出的正文和连续性档案中的硬事实是最高事实：人物死亡、生死状态、亲属关系、身份、性别、婚姻/恋爱关系、阵营、已知秘密、伤势、物品归属、地点与已经发生的关键事件绝对不能被未来规划改写。
+            可以为了更精彩而重新设计尚未发生的未来剧情，但必须自然承接已经写出的内容，不能让人物性格和关系无理由跳变。
+
+            用户默认代入女主进行互动。长期规划可以规划女主的处境、欲望、矛盾、成长方向与可能分支，但不要把她未来每一步主观决定写成不可更改的既定事实；玩家在正文里的实际输入永远覆盖尚未发生的规划。
+
+            幕后规划与新建故事方案必须使用同一套模板。完整保留并刷新：
+            worldview 世界观、overview 故事总纲、hook 核心钩子、highlights 核心看点、
+            emotionalArc 情绪曲线、proseStyle 文风执行、cast 人物与人设、characterArcs 人物成长弧、
+            relationshipArc 长期感情线、plotSpine 故事脉络/主线、mainLine 明线、hiddenLine 暗线、
+            foreshadows 伏笔系统、stagePlan 阶段高潮与节奏、endingDirection 结局方向、
+            romanceAesthetics 感情戏与人物吸引力的描写审美。
+            已经写出的正文优先级最高；可以调整尚未发生的未来，但不得为了新规划推翻已确认事实。
+
+            目标只有两个：精彩、连贯。未来规划要有主动人物、因果链、伏笔与回收、关系变化和真正推进的事件。
+            只输出合法JSON对象，不要Markdown：
+            {"worldview":"","overview":"","hook":"","highlights":"","emotionalArc":"","proseStyle":"","cast":"","characterArcs":"","relationshipArc":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadows":"","stagePlan":"","endingDirection":"","romanceAesthetics":"","updatedThroughChapter":0}
+        """.trimIndent()
+        val raw = generatePlanningText(
             characterId = characterId,
             facts = facts,
-            instruction = """
-                你是这部长篇小说的幕后总导演。请生成/刷新一份“幕后规划”，它不是逐章规划，而是长期稳定的故事圣经。
-                已经写出的正文和连续性档案中的硬事实是最高事实：人物死亡、生死状态、亲属关系、身份、性别、婚姻/恋爱关系、阵营、已知秘密、伤势、物品归属、地点与已经发生的关键事件绝对不能被未来规划改写。
-                可以为了更精彩而重新设计尚未发生的未来剧情，但必须自然承接已经写出的内容，不能让人物性格和关系无理由跳变。
-
-                幕后规划与新建故事方案必须使用同一套模板。完整保留并刷新：
-                worldview 世界观、overview 故事总纲、hook 核心钩子、highlights 核心看点、
-                emotionalArc 情绪曲线、proseStyle 文风执行、cast 人物与人设、characterArcs 人物成长弧、
-                relationshipArc 长期感情线、plotSpine 故事脉络/主线、mainLine 明线、hiddenLine 暗线、
-                foreshadows 伏笔系统、stagePlan 阶段高潮与节奏、endingDirection 结局方向、
-                romanceAesthetics 感情戏与人物吸引力的描写审美。
-                已经写出的正文优先级最高；可以调整尚未发生的未来，但不得为了新规划推翻已确认事实。
-
-                目标只有两个：精彩、连贯。未来规划要有主动人物、因果链、伏笔与回收、关系变化和真正推进的事件。
-                只输出合法JSON对象，不要Markdown：
-                {"worldview":"","overview":"","hook":"","highlights":"","emotionalArc":"","proseStyle":"","cast":"","characterArcs":"","relationshipArc":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadows":"","stagePlan":"","endingDirection":"","romanceAesthetics":"","updatedThroughChapter":0}
-            """.trimIndent(),
-            source = "剧场",
+            instruction = instruction,
             title = "$storyTitle · 幕后规划",
-            maxTokens = 5_800,
-            connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
-            contextMode = CompanionContextMode.Isolated,
-            readTimeoutMillis = 240_000,
-        ).getOrThrow().text
+            maxTokens = 6_400,
+        )
         parseStoryBible(raw, writtenChapters.size)
     }
 
@@ -196,11 +195,12 @@ internal object StarWishTheaterPlanningEngine {
                 你是小说作者兼剧情导演。根据故事地图、幕后长期规划和正文已确认事实，为指定章节生成真正可执行的逐章写作框架。
                 已写正文与硬事实优先级最高；不得让死人复活、亲属关系变动、身份/伤势/物品/已知信息回滚，除非正文明确给出合理反转依据。
                 不要重写故事核心；“重新生成”的目标是让尚未发生的后续更有吸引力、更有因果、更想让人继续读，而不是推翻前文。
+                用户默认代入女主。章节规划必须给玩家留出可交互空间：规划“局面和后果”，不要替玩家锁死女主的最终态度、答应/拒绝、去/留、爱/恨等关键选择。玩家后续输入一旦改变女主选择，未来规划应顺着正文事实重新调整。
 
                 每一章的 outline 必须明确写出：
                 1. 本章在全书中的阶段功能；
                 2. 3—6个按因果顺序发生的具体事件；
-                3. 主要人物各自主动做出的选择与后果；
+                3. 男主与NPC可以写明确的主动选择与后果；女主是玩家默认代入位，只写她面临的局面、诱因、情绪压力、可选方向及各方向可能后果，不把她尚未做出的主观决定写死；
                 4. 关系变化；
                 5. 明线推进；
                 6. 暗线推进；
@@ -212,17 +212,13 @@ internal object StarWishTheaterPlanningEngine {
                 [{"number":1,"title":"","outline":""}]
             """.trimIndent()
 
-            val raw = LuluAiServices.gateway.generate(
+            val raw = generatePlanningText(
                 characterId = characterId,
                 facts = facts,
                 instruction = instruction,
-                source = "剧场",
                 title = "《" + storyTitle + "》第" + start + "-" + end + "章规划",
-                maxTokens = (batchCount * 650 + 1_200).coerceIn(2_400, 7_600),
-                connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
-                contextMode = CompanionContextMode.Isolated,
-                readTimeoutMillis = 240_000,
-            ).getOrThrow().text
+                maxTokens = (batchCount * 720 + 1_500).coerceIn(2_800, 8_600),
+            )
 
             var batch = parseChapterPlans(raw, start, end)
             if (batch.size != batchCount) {
@@ -243,6 +239,53 @@ internal object StarWishTheaterPlanningEngine {
         }
 
         collected.mapIndexed { index, plan -> plan.copy(number = index + 1) }
+    }
+
+    private suspend fun generatePlanningText(
+        characterId: String,
+        facts: String,
+        instruction: String,
+        title: String,
+        maxTokens: Int,
+    ): String {
+        var lastError: Throwable? = null
+        repeat(3) { attempt ->
+            val retryInstruction = if (attempt == 0) instruction else buildString {
+                appendLine(instruction)
+                appendLine()
+                appendLine("这是第 ${attempt + 1} 次尝试。上一次接口成功返回但没有可读取正文。")
+                appendLine("不要只进行内部思考，不要停在 reasoning/analysis；必须在最终 answer/content 中实际输出要求的 JSON。")
+                appendLine("不要输出空字符串、工具调用、占位符或省略号。")
+            }
+            val result = LuluAiServices.gateway.generate(
+                characterId = characterId,
+                facts = facts,
+                instruction = retryInstruction,
+                source = "剧场",
+                title = if (attempt == 0) title else "$title · 空响应重试${attempt + 1}",
+                maxTokens = if (attempt == 0) maxTokens else (maxTokens + attempt * 1_200).coerceAtMost(10_000),
+                connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
+                contextMode = CompanionContextMode.Isolated,
+                readTimeoutMillis = 240_000,
+            )
+            val reply = result.getOrNull()
+            if (reply != null && reply.text.isNotBlank()) return reply.text
+            val error = result.exceptionOrNull()
+            lastError = error
+            if (error != null && !isUnreadablePlanningResponse(error)) throw error
+        }
+        throw IllegalStateException(
+            "剧情规划模型连续3次没有返回正文。不是章节内容的问题；请检查当前剧场模型/中转站是否把最终 answer/content 返回为空。",
+            lastError,
+        )
+    }
+
+    private fun isUnreadablePlanningResponse(error: Throwable): Boolean {
+        val message = error.message.orEmpty()
+        return message.contains("没有返回可读取") ||
+            message.contains("流式响应没有返回") ||
+            message.contains("接口返回了空内容") ||
+            message.contains("没有返回正文")
     }
 
     private fun parseStoryBible(raw: String, writtenCount: Int): StarWishStoryBible {
