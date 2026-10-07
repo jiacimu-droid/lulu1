@@ -49,7 +49,7 @@ object CharacterDevelopmentStore {
     fun history(characterId: String): List<DevelopmentRecord> = records.filter { it.characterId == characterId }
 
     fun active(characterId: String): List<DevelopmentRecord> {
-        val persona = MigratedDomainStores.characters.get(characterId).persona
+        val persona = CharacterRuntime.personaConstraintSnapshot(characterId)
         return history(characterId).filter { record ->
             record.active && record.personaSnapshot == persona &&
                 (record.evidence + record.counterEvidence).all { (id, revision) ->
@@ -61,7 +61,7 @@ object CharacterDevelopmentStore {
     fun applyProposal(characterId: String, slot: String, kind: DevelopmentKind, content: String,
         evidenceIds: List<String>, counterIds: List<String>, personaSnapshot: String): Boolean {
         if (prefs == null || slot.isBlank() || slot.length > 80 || content.isBlank() || content.length > 500) return false
-        if (MigratedDomainStores.characters.get(characterId).persona != personaSnapshot) return false
+        if (CharacterRuntime.personaConstraintSnapshot(characterId) != personaSnapshot) return false
         val events = SharedExperienceTimeline.eventsByIds(characterId, evidenceIds)
         val counters = SharedExperienceTimeline.eventsByIds(characterId, counterIds)
         if (events.size != evidenceIds.distinct().size || counters.size != counterIds.distinct().size) return false

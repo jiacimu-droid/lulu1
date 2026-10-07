@@ -309,10 +309,14 @@ fun QqStyleChatDetailScreen(
     }
 
     LaunchedEffect(conversationId) { MigratedDomainStores.chat.markConversationRead(conversationId) }
-    LaunchedEffect(replyTaskState.lastError) {
+    LaunchedEffect(replyTaskState.errorId) {
         replyTaskState.lastError?.let { error ->
-            snackbar.showSnackbar(error)
-            ChatReplyTaskManager.clearError(conversationId)
+            val id = replyTaskState.errorId
+            val notice = chatErrorNotice(error)
+            android.widget.Toast.makeText(context, notice, android.widget.Toast.LENGTH_LONG).show()
+            snackbar.currentSnackbarData?.dismiss()
+            snackbar.showSnackbar(notice, duration = SnackbarDuration.Short)
+            ChatReplyTaskManager.clearError(conversationId, id)
         }
     }
     LaunchedEffect(visibleMessages.size, preferences.autoScrollChat, imeBottom) {
@@ -352,7 +356,8 @@ fun QqStyleChatDetailScreen(
                                     color = QqInk,
                                 )
                                 Text(
-                                    if (groupChat == null) "${if (privateOnline) "在线" else "离线"} · $activeLabel"
+                                    if (receiving) "${typingCharacterId?.let { characters[it]?.displayName }.orEmpty().ifBlank { if (groupChat == null) character.displayName else "角色" }} 正在回复…"
+                                    else if (groupChat == null) "${if (privateOnline) "在线" else "离线"} · $activeLabel"
                                     else "$onlineMemberCount 人在线",
                                     fontSize = 10.sp,
                                     color = if ((groupChat == null && privateOnline) || (groupChat != null && onlineMemberCount > 0)) Color(0xFF2A9D63) else QqMuted,
@@ -413,6 +418,7 @@ fun QqStyleChatDetailScreen(
             } else {
                 Surface(color = QqHeader, shadowElevation = 4.dp) {
                     Column(Modifier.fillMaxWidth()) {
+                        if (receiving) Text("正在请求并生成回复…", modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp), color = QqMuted, fontSize = 12.sp)
                         replyingTo?.let { quoted ->
                             Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Surface(Modifier.weight(1f), color = QqIconSurface, shape = RoundedCornerShape(10.dp)) {

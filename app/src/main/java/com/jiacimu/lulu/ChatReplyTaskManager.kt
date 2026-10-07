@@ -26,6 +26,7 @@ object ChatReplyTaskManager {
         val running: Boolean = false,
         val typingCharacterId: String? = null,
         val lastError: String? = null,
+        val errorId: Long = 0L,
         val startedAt: Instant? = null,
     )
 
@@ -38,13 +39,14 @@ object ChatReplyTaskManager {
 
         fun reportError(message: String) {
             val clean = message.trim().ifBlank { "回复失败" }
-            ChatReplyTaskManager.updateState(conversationId) { current -> current.copy(lastError = clean) }
+            ChatReplyTaskManager.updateState(conversationId) { current -> current.copy(lastError = clean, errorId = errors.incrementAndGet()) }
         }
     }
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val lock = Any()
     private val jobs = mutableMapOf<String, Job>()
+    private val errors = java.util.concurrent.atomic.AtomicLong()
     private val mutableStates = MutableStateFlow<Map<String, TaskState>>(emptyMap())
 
     val states: StateFlow<Map<String, TaskState>> = mutableStates.asStateFlow()
@@ -106,8 +108,8 @@ object ChatReplyTaskManager {
         return true
     }
 
-    fun clearError(conversationId: String) {
-        updateState(conversationId) { current -> current.copy(lastError = null) }
+    fun clearError(conversationId: String, expectedId: Long? = null) {
+        updateState(conversationId) { current -> if (expectedId == null || current.errorId == expectedId) current.copy(lastError = null) else current }
     }
 
     private fun updateState(conversationId: String, transform: (TaskState) -> TaskState) {

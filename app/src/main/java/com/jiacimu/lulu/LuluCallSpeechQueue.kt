@@ -18,6 +18,7 @@ internal class LuluCallSpeechQueue(
     private val scope: CoroutineScope,
     private val onSpeakerChanged: (String?) -> Unit = {},
     private val onBusyChanged: (Boolean) -> Unit = {},
+    private val onError: (String) -> Unit = {},
 ) {
     private data class Request(
         val speakerId: String?,
@@ -81,8 +82,11 @@ internal class LuluCallSpeechQueue(
             onFinished = {
                 scope.launch {
                     if (localGeneration != generation) return@launch
-                    if (engine.lastPlaybackSucceeded) request.onDelivered?.invoke()
+                    val succeeded = engine.lastPlaybackSucceeded
+                    val failure = engine.lastError
+                    if (succeeded) request.onDelivered?.invoke()
                     active = false
+                    if (!succeeded) onError(failure.ifBlank { "发声失败，回复保留在字幕里" })
                     playNext()
                 }
             },

@@ -118,6 +118,18 @@ fun LuluVoiceCallScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 CallTopBar(activeLabel = activeLabel, onMinimize = onDismiss)
+                if (state.phase == CallPhase.Ready) {
+                    var selectedProvider by remember { mutableStateOf(CallVoiceConfiguration.provider(context)) }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf("minimax", "elevenlabs").forEach { provider ->
+                            FilterChip(selectedProvider == provider, onClick = {
+                                selectedProvider = provider
+                                context.getSharedPreferences("lulu_advanced_settings", 0).edit().putString("tts_provider", provider).putString("voice_call_mode", "direct").apply()
+                            }, label = { Text(CallVoiceConfiguration.label(provider)) })
+                        }
+                    }
+                    Text("使用已保存的 Key 和角色 Voice ID", color = CallMuted, fontSize = 11.sp)
+                } else Text(CallVoiceConfiguration.label(state.provider), color = CallMuted, fontSize = 12.sp)
 
                 Spacer(Modifier.height(18.dp))
                 Box(contentAlignment = Alignment.Center) {
@@ -159,6 +171,13 @@ fun LuluVoiceCallScreen(
                 )
                 Spacer(Modifier.height(11.dp))
                 CallActivityIndicator(state)
+                if (state.inputMeterAvailable) {
+                    LinearProgressIndicator(progress = { state.inputLevel }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp))
+                    Text("麦克风输入强度", color = CallMuted, fontSize = 10.sp)
+                }
+                if (state.statusMessage.isNotBlank()) Text(state.statusMessage, color = CallMuted, fontSize = 12.sp)
+                if (state.errorMessage.isNotBlank()) Text(state.errorMessage, color = CallDanger, fontSize = 12.sp)
+                if (state.connected) TextButton(onClick = { LuluVoiceCallSession.retryListening() }) { Text(if (state.speaking) "打断并重新收音" else "重新收音") }
                 Spacer(Modifier.height(16.dp))
 
                 Box(
@@ -184,16 +203,16 @@ fun LuluVoiceCallScreen(
                                 if (state.connected) Text(formatCallDuration(state.elapsedSeconds), color = CallMuted, fontSize = 12.sp)
                             }
                             HorizontalDivider(color = CallLine.copy(alpha = .7f))
-                            if (callMessages.isEmpty()) {
+                            if (callMessages.isEmpty() && state.partialTranscript.isBlank() && state.generatedTranscript.isBlank()) {
                                 Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
                                     Text(
                                         when (state.phase) {
                                             CallPhase.Ready -> "接通后麦克风会自动打开\n像普通电话一样，直接说话就好"
-                                            CallPhase.Dialing -> "正在等待对方接听"
+                                            CallPhase.Dialing -> "正在连接语音服务"
                                             CallPhase.Connected -> if (state.microphoneMuted) {
                                                 "麦克风已静音"
                                             } else {
-                                                "麦克风已经常开\n直接说话，我会自动听你说完"
+                                                state.statusMessage.ifBlank { "等你说话；识别结果会显示在这里" }
                                             }
                                             else -> "通话字幕会显示在这里"
                                         },

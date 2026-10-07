@@ -24,7 +24,7 @@ object CharacterLifeStore {
     }.getOrDefault(JSONObject())
 
     @Synchronized fun setProfile(characterId: String, key: String, value: String) {
-        require(key in setOf("values", "care", "conflict", "interests", "expression"))
+        require(CharacterProfileSchema.fields.any { it.key == key })
         val root = state(characterId)
         val profile = root.optJSONObject("profile") ?: JSONObject()
         profile.put(key, value.take(1000))
@@ -110,8 +110,7 @@ object CharacterLifeStore {
         return buildString {
             root.optJSONObject("profile")?.let { profile ->
                 appendLine("【用户设定的行为性格｜补充人设，不能替代原有锁定人设】")
-                val labels = mapOf("values" to "在意与底线", "care" to "表达关心的方式", "conflict" to "分歧与受挫反应", "interests" to "自己的兴趣", "expression" to "语言与情绪表达")
-                labels.forEach { (key, label) -> profile.optString(key).takeIf(String::isNotBlank)?.let { appendLine("$label：$it") } }
+                CharacterProfileSchema.fields.forEach { field -> profile.optString(field.key).takeIf(String::isNotBlank)?.let { appendLine("${field.label}：$it") } }
             }
             root.optJSONObject("previousIntention")?.let { appendLine("上一件已放下的事（不代表完成）：${it.optString("aim")}；原因：${it.optString("releaseReason")}。用户结束的事不要擅自重新开启。") }
             root.optJSONObject("intention")?.let { intention ->
@@ -120,6 +119,8 @@ object CharacterLifeStore {
                 appendLine("动机ID=${intention.optString("createdAt")}。近期实际动作回执（不自动认定每个动作都推进这个愿望）：${intention.optJSONArray("outcomes") ?: JSONArray()}")
                 appendLine("结合真实结果决定接着做、换办法、等待或保持安静。成功回执只证明该动作，不证明长期愿望已经实现；发送关心不等于用户接受，日记不等于现实经历。")
             }
+            appendLine("人格组织规则：原人设、核心价值与动机约束选择；结合当前真实情境和关系理解信息，再选择回应与可执行行为。外在表现可随情境变化，不能把不同侧面当成轮换人格。人格类型词只是描述参考，不自动推导完整性格、恐惧或经历。")
+            appendLine("未指定的兴趣、偏好和担忧允许基于真实经历逐渐形成，不为了填满设定编造过去。当前情绪不是永久性格，生成的自我叙述不能充当客观记忆。")
             appendLine("表达规则：用具体记忆、取舍与可执行小事体现性格和关心。无需每轮示爱或自述心理。允许复杂感受、犹豫、不同意见和自己的兴趣；不能凭空编造已做的事或承诺永久不变。涉及用户的长期承诺以承诺任务的真实状态为准。")
         }.trim()
     }

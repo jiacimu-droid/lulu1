@@ -64,6 +64,11 @@ class TimelineLedgerTest {
         assertTrue(propose()) // New evidence revision permits a new, traceable version.
         val updated = CharacterDevelopmentStore.active("character-a").single()
         assertEquals(2, updated.version)
+        CharacterLifeStore.initialize(context)
+        CharacterLifeStore.setProfile("character-a", "care", "通过具体行动表达")
+        assertTrue(CharacterDevelopmentStore.active("character-a").isEmpty())
+        assertFalse(propose()) // Old locked-profile snapshots cannot add or reactivate growth.
+        CharacterLifeStore.setProfile("character-a", "care", "")
         CharacterDevelopmentStore.retire("character-a", updated.id)
         assertFalse(propose()) // The same evidence cannot resurrect a manually retired record.
     }

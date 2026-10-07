@@ -5,6 +5,15 @@ object CharacterRuntime {
     suspend fun memory(characterId: String, request: UnifiedMemoryRequest): UnifiedMemoryContext =
         UnifiedMemoryOrchestrator.assemble(characterId, request)
 
+    fun personaConstraintSnapshot(characterId: String): String {
+        val persona = MigratedDomainStores.characters.get(characterId).persona
+        val profile = CharacterLifeStore.state(characterId).optJSONObject("profile") ?: return persona
+        val constraints = profile.keys().asSequence().toList().sorted().mapNotNull { key ->
+            profile.optString(key).trim().takeIf(String::isNotBlank)?.let { "$key=$it" }
+        }.joinToString("\n")
+        return if (constraints.isBlank()) persona else "$persona\n用户行为设定：\n$constraints"
+    }
+
     fun developmentContext(characterId: String): String {
         val learned = CharacterDevelopmentStore.active(characterId)
         return buildString {

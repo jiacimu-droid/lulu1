@@ -111,11 +111,29 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     ) { saveVoiceSettings() }
 
     AdvancedSettingsScaffold(title = "语音设置", onBack = onBack) {
-        item { SettingsSectionCard("云端接入") { CloudConnectionSettings() } }
+        item {
+            SettingsSectionCard("语音服务") {
+                Text("选择电话与语音回复的供应商", color = AdvancedMuted, fontSize = 13.sp)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(
+                        selected = provider == "system",
+                        onClick = { prefs.edit().putString("voice_call_mode", "direct").apply(); provider = "system"; prefs.edit().putString("tts_provider", provider).apply() },
+                        label = { Text("系统语音") },
+                    )
+                    FilterChip(
+                        selected = provider == "minimax",
+                        onClick = { prefs.edit().putString("voice_call_mode", "direct").apply(); provider = "minimax"; prefs.edit().putString("tts_provider", provider).apply() },
+                        label = { Text("MiniMax") },
+                    )
+                    FilterChip(selected = provider == "elevenlabs", onClick = { provider = "elevenlabs" }, label = { Text("ElevenLabs") })
+                }
+            }
+        }
+        item { SettingsSectionCard("电话线路") { VoiceCallSettings(provider) } }
         item {
             SettingsSwitchCard(
                 title = "启用 TTS",
-                subtitle = "角色回复时允许使用系统语音朗读",
+                subtitle = "允许所选供应商播放角色声音",
                 checked = enabled,
                 onCheckedChange = {
                     enabled = it
@@ -134,24 +152,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                     prefs.edit().putBoolean("tts_auto_speak", it).apply()
                 },
             )
-        }
-        item {
-            SettingsSectionCard("语音服务") {
-                Text("选择朗读角色回复的声音来源", color = AdvancedMuted, fontSize = 13.sp)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(
-                        selected = provider == "system",
-                        onClick = { provider = "system"; prefs.edit().putString("tts_provider", provider).apply() },
-                        label = { Text("系统语音") },
-                    )
-                    FilterChip(
-                        selected = provider == "minimax",
-                        onClick = { provider = "minimax"; prefs.edit().putString("tts_provider", provider).apply() },
-                        label = { Text("MiniMax") },
-                    )
-                    FilterChip(selected = provider == "elevenlabs", onClick = { provider = "elevenlabs" }, label = { Text("ElevenLabs") })
-                }
-            }
         }
         if (provider == "system") item {
             SettingsSectionCard("系统声音参数") {
@@ -262,6 +262,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                 if (voiceNotice.isNotBlank()) Text(voiceNotice, color = AdvancedMuted, fontSize = 12.sp)
             }
         }
+        item { SettingsSectionCard("云端任务（可选）") { CloudConnectionSettings() } }
     }
 }
 

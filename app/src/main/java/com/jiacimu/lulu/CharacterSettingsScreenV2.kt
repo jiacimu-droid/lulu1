@@ -73,6 +73,7 @@ fun CharacterSettingsScreenV2(
     var identity by remember(characterId) { mutableStateOf(identities[characterId].orEmpty()) }
     var persona by remember(characterId) { mutableStateOf(original.persona) }
     var proactiveCalls by remember(characterId) { mutableStateOf(original.contactPolicy.proactiveCallsEnabled) }
+    var section by remember(characterId) { mutableIntStateOf(0) }
     var confirmDelete by remember { mutableStateOf(false) }
     var confirmClearRecords by remember { mutableStateOf(false) }
     var pendingLifeForm by remember { mutableStateOf<CharacterLifeForm?>(null) }
@@ -133,9 +134,17 @@ fun CharacterSettingsScreenV2(
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(13.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            item { CharacterV2Card { CharacterLifeSettings(characterId) } }
+            item {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    listOf("资料", "人格", "陪伴", "管理").forEachIndexed { index, label ->
+                        FilterChip(section == index, onClick = { section = index }, label = { Text(label, fontSize = 12.sp) }, modifier = Modifier.weight(1f))
+                    }
+                }
+            }
+            if (section == 1) item { CharacterV2Card { CharacterLifeSettings(characterId) } }
+            if (section == 0) {
             item {
                 CharacterV2Card {
                     Text("角色资料", fontWeight = FontWeight.Bold, fontSize = 19.sp)
@@ -201,6 +210,8 @@ fun CharacterSettingsScreenV2(
                     }
                 }
             }
+            }
+            if (section == 2) {
             item {
                 CharacterV2Card {
                     Text("主动感知", fontWeight = FontWeight.Bold, fontSize = 19.sp)
@@ -263,6 +274,8 @@ fun CharacterSettingsScreenV2(
                     CharacterV2Switch(title = "自动播放语音", checked = autoPlayVoice) { enabled -> CharacterVoicePreferenceStore.setEnabled(characterId, enabled) }
                 }
             }
+            }
+            if (section == 3) {
             item {
                 CharacterV2Card {
                     CharacterExecutionSettings(characterId)
@@ -296,6 +309,7 @@ fun CharacterSettingsScreenV2(
                         }
                     }
                 }
+            }
             }
         }
     }
@@ -454,7 +468,7 @@ private fun CharacterV2Card(content: @Composable ColumnScope.() -> Unit) {
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = LuluColors.Card),
         border = BorderStroke(1.dp, LuluColors.Border),
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(16.dp),
     ) {
         Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
     }

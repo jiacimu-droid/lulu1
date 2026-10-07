@@ -1,0 +1,97 @@
+package com.jiacimu.lulu
+
+import android.annotation.SuppressLint
+import android.media.AudioFormat
+import android.media.AudioRecord
+import android.media.MediaRecorder
+import android.media.audiofx.AcousticEchoCanceler
+import android.media.audiofx.NoiseSuppressor
+import kotlinx.coroutines.*
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import kotlin.math.sqrt
+
+/** Captures real PCM. Meter is measured input, never a simulated listening animation. */
+internal class CallAudioInput(private val scope: CoroutineScope) {
+    private var job: Job? = null
+    @Volatile private var recorder: AudioRecord? = null
+    private var generation = 0L
+
+    @SuppressLint("MissingPermission")
+    fun start(accept: () -> Boolean, onReady: () -> Unit, onLevel: (Float) -> Unit,
+        onSpeech: () -> Unit, onFrame: (ByteArray) -> Unit = {}, onSegment: (ByteArray) -> Unit,
+        onError: (String) -> Unit, threshold: Float = 350f) {
+        stop()
+        val epoch = generation
+        job = scope.launch(Dispatchers.IO) {
+            var audio: AudioRecord? = null
+            var echo: AcousticEchoCanceler? = null
+            var noise: NoiseSuppressor? = null
+            try {
+                val minimum = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
+                check(minimum > 0) { "手机不支持 16kHz 单声道录音" }
+                audio = AudioRecord(MediaRecorder.AudioSource.VOICE_COMMUNICATION, 16000,
+                    AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, maxOf(minimum, 6400))
+                check(audio.state == AudioRecord.STATE_INITIALIZED) { "麦克风初始化失败，可能被其他应用占用" }
+                recorder = audio
+                if (AcousticEchoCanceler.isAvailable()) echo = AcousticEchoCanceler.create(audio.audioSessionId)?.apply { enabled = true }
+                if (NoiseSuppressor.isAvailable()) noise = NoiseSuppressor.create(audio.audioSessionId)?.apply { enabled = true }
+                audio.startRecording()
+                check(audio.recordingState == AudioRecord.RECORDSTATE_RECORDING) { "系统未允许录音" }
+                withContext(Dispatchers.Main) { if (epoch == generation) onReady() }
+                val samples = ShortArray(1600)
+                var buffer = ByteArrayOutputStream()
+                val preRoll = ArrayDeque<ByteArray>()
+                var active = false
+                var silentFrames = 0
+                var loudFrames = 0
+                while (isActive && epoch == generation) {
+                    val count = audio.read(samples, 0, samples.size)
+                    check(count > 0) { "麦克风读取失败（$count）" }
+                    val rms = sqrt((0 until count).sumOf { samples[it].toDouble() * samples[it] } / count)
+                    val allowed = accept()
+                    withContext(Dispatchers.Main) { if (epoch == generation) onLevel(if (allowed) (rms / 4000).toFloat().coerceIn(0f, 1f) else 0f) }
+                    val frame = ByteBuffer.allocate(count * 2).order(ByteOrder.LITTLE_ENDIAN).apply {
+                        for (i in 0 until count) putShort(if (allowed) samples[i] else 0)
+                    }.array()
+                    onFrame(frame)
+                    if (!allowed) { active = false; silentFrames = 0; loudFrames = 0; buffer.reset(); preRoll.clear(); continue }
+                    if (!active) {
+                        preRoll.addLast(frame)
+                        if (preRoll.size > 4) preRoll.removeFirst()
+                        loudFrames = if (rms >= threshold) loudFrames + 1 else 0
+                        if (loudFrames < 2) continue
+                        active = true
+                        preRoll.forEach { buffer.write(it) }; preRoll.clear()
+                        withContext(Dispatchers.Main) { if (epoch == generation) onSpeech() }
+                    } else buffer.write(frame)
+                    silentFrames = if (rms < threshold * 0.8) silentFrames + 1 else 0
+                    if (silentFrames >= 8 || buffer.size() >= 16000 * 2 * 25) {
+                        val segment = buffer.toByteArray()
+                        active = false; loudFrames = 0; silentFrames = 0; buffer = ByteArrayOutputStream()
+                        withContext(Dispatchers.Main) { if (epoch == generation) onSegment(segment) }
+                    }
+                }
+            } catch (error: Exception) {
+                if (error !is CancellationException) withContext(Dispatchers.Main) {
+                    if (epoch == generation) onError(error.message.orEmpty())
+                }
+            } finally {
+                echo?.release(); noise?.release()
+                runCatching { audio?.stop() }; audio?.release()
+                if (recorder === audio) recorder = null
+            }
+        }
+    }
+
+    fun stop() { generation++; job?.cancel(); job = null; runCatching { recorder?.stop() } }
+}
+
+internal fun pcmWav(pcm: ByteArray): ByteArray {
+    val b = ByteBuffer.allocate(44 + pcm.size).order(ByteOrder.LITTLE_ENDIAN)
+    b.put("RIFF".toByteArray()).putInt(36 + pcm.size).put("WAVEfmt ".toByteArray())
+        .putInt(16).putShort(1).putShort(1).putInt(16000).putInt(32000).putShort(2).putShort(16)
+        .put("data".toByteArray()).putInt(pcm.size).put(pcm)
+    return b.array()
+}

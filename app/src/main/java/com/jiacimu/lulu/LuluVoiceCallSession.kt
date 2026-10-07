@@ -51,6 +51,10 @@ internal data class LuluVoiceCallState(
     val speakerEnabled: Boolean = true,
     val microphoneMuted: Boolean = false,
     val partialTranscript: String = "",
+    val inputLevel: Float = 0f,
+    val inputMeterAvailable: Boolean = false,
+    val errorMessage: String = "",
+    val provider: String = "",
     val generatedTranscript: String = "",
     val statusMessage: String = "",
     val elapsedSeconds: Long = 0L,
@@ -71,6 +75,7 @@ internal object LuluVoiceCallSession {
 
     private var appContext: Context? = null
     private var recognizer: SpeechRecognizer? = null
+    private var providerInput: ProviderCallInput? = null
     private var speechQueue: LuluCallSpeechQueue? = null
     private var realtime: RealtimeVoiceAdapter? = null
     private var replyJob: Job? = null
@@ -105,7 +110,14 @@ internal object LuluVoiceCallSession {
             mutableState.update { it.copy(statusMessage = "需要麦克风权限才能开始通话") }
             return
         }
-        val useRealtime = appContext?.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)?.getBoolean("eleven_realtime_enabled", false) == true
+        val context = appContext ?: return
+        val prefs = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+        val provider = CallVoiceConfiguration.provider(context)
+        CallVoiceConfiguration.preflight(context, current.characterId)?.let { error ->
+            mutableState.update { it.copy(statusMessage = error, errorMessage = error) }; return
+        }
+        mutableState.update { it.copy(provider = provider, errorMessage = "") }
+        val useRealtime = CallVoiceConfiguration.usesAgent(provider, prefs.getString("voice_call_mode", "direct"))
         if (useRealtime) {
             if (!com.jiacimu.lulu.data.CloudTaskBridge.isConfigured()) {
                 mutableState.update { it.copy(statusMessage = "请先配置云端语音服务") }
@@ -165,8 +177,12 @@ internal object LuluVoiceCallSession {
             )
         }
         dialJob?.cancel()
+        if (provider in setOf("minimax", "elevenlabs")) {
+            startProviderInput()
+            return
+        }
         dialJob = scope.launch {
-            delay(1_650)
+            delay(350)
             if (mutableState.value.phase != CallPhase.Dialing) return@launch
             mutableState.update {
                 it.copy(
@@ -194,6 +210,7 @@ internal object LuluVoiceCallSession {
             )
         }
         realtime?.let { it.mute(nextMuted); return }
+        if (providerInput != null) return
         if (nextMuted) {
             pauseRecognition()
         } else {
@@ -225,6 +242,8 @@ internal object LuluVoiceCallSession {
         replyJob?.cancel()
         realtime?.stop()
         realtime = null
+        providerInput?.stop()
+        providerInput = null
         AvatarController.audio(current.characterId, 0f)
         AvatarController.listening(current.characterId, false)
         timerJob?.cancel()
@@ -273,9 +292,9 @@ internal object LuluVoiceCallSession {
                     scheduleListening(220)
                 }
             },
+            onError = { error -> mutableState.update { it.copy(speaking = false, errorMessage = "发声失败：$error", statusMessage = "回复已生成，但声音播放失败") } },
         )
         audioManager = context.applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        ensureRecognizer()
     }
 
     private fun ensureRecognizer() {
@@ -359,7 +378,7 @@ internal object LuluVoiceCallSession {
 
     private fun startListeningIfPossible() {
         val current = mutableState.value
-        if (!current.connected || current.microphoneMuted || current.speaking || recognitionActive || realtime != null) return
+        if (!current.connected || current.microphoneMuted || current.speaking || recognitionActive || realtime != null || providerInput != null) return
         if (!hasMicrophonePermission()) {
             mutableState.update { it.copy(statusMessage = "需要麦克风权限才能继续通话") }
             return
@@ -382,7 +401,7 @@ internal object LuluVoiceCallSession {
             recognitionActive = true
         }.onFailure {
             recognitionActive = false
-            mutableState.update { state -> state.copy(statusMessage = "麦克风正在重新连接…") }
+            mutableState.update { state -> state.copy(statusMessage = "语音识别无法启动", errorMessage = "系统识别启动失败：${it.message}") }
             scheduleListening(600)
         }
     }
@@ -396,7 +415,7 @@ internal object LuluVoiceCallSession {
 
     private fun handleUserSpeech(spoken: String) {
         val current = mutableState.value
-        if (!current.connected || realtime != null) return
+        if (!current.connected || current.microphoneMuted || realtime != null) return
         replyGeneration++
         speechQueue?.stop()
         val generation = replyGeneration
@@ -409,7 +428,7 @@ internal object LuluVoiceCallSession {
             userMessage,
             channelOverride = "电话",
         )
-        mutableState.update { it.copy(thinking = true, statusMessage = "${current.characterName} 正在想怎么回答") }
+        mutableState.update { it.copy(thinking = true, partialTranscript = "", errorMessage = "", statusMessage = "${current.characterName} 正在想怎么回答") }
         scheduleListening(200)
         replyJob = scope.launch {
             val latest = mutableState.value
@@ -479,12 +498,55 @@ internal object LuluVoiceCallSession {
                     it.copy(
                         thinking = false,
                         speaking = false,
-                        statusMessage = error.message?.take(80) ?: "回复失败，再说一次吧",
+                        errorMessage = "模型回复失败：${error.message?.take(160).orEmpty()}",
+                        statusMessage = "已识别你的话，但回复生成失败",
                     )
                 }
                 scheduleListening(500)
             }
         }
+    }
+
+    private fun startProviderInput() {
+        val context = appContext ?: return
+        providerInput?.stop()
+        val id = mutableState.value.callExperienceId
+        fun sameSession() = mutableState.value.callExperienceId == id && mutableState.value.phase in setOf(CallPhase.Dialing, CallPhase.Connected)
+        providerInput = ProviderCallInput(context, scope,
+            accept = { val s = mutableState.value; sameSession() && !s.microphoneMuted && !s.speaking },
+            onReady = {
+                if (sameSession()) {
+                    val wasConnected = mutableState.value.connected
+                    mutableState.update { it.copy(phase = CallPhase.Connected, callStartedAt = it.callStartedAt ?: Instant.now(), everConnected = true,
+                        listening = true, inputMeterAvailable = true, errorMessage = "", statusMessage = "麦克风收音已启动，直接说话；停顿后识别并回复") }
+                    if (!wasConnected) startTimer()
+                }
+            },
+            onLevel = { level -> if (sameSession()) mutableState.update { it.copy(inputLevel = level) } },
+            onSpeech = {
+                if (sameSession()) {
+                    if (mutableState.value.thinking) { replyGeneration++; replyJob?.cancel() }
+                    mutableState.update { it.copy(thinking = false, errorMessage = "", partialTranscript = "", statusMessage = "检测到语音，正在收音…") }
+                }
+            },
+            onPartial = { text -> if (sameSession()) mutableState.update { it.copy(partialTranscript = text) } },
+            onText = { text -> if (sameSession() && !mutableState.value.microphoneMuted) handleUserSpeech(text) },
+            onStatus = { note -> if (sameSession()) mutableState.update { it.copy(statusMessage = note) } },
+            onError = { error -> if (sameSession()) {
+                val dialing = mutableState.value.phase == CallPhase.Dialing
+                mutableState.update { it.copy(phase = if (dialing) CallPhase.Ready else it.phase, listening = false,
+                    errorMessage = "收音／识别失败：$error", statusMessage = "语音识别未完成，可重新收音") }
+                if (dialing) { providerInput?.stop(); providerInput = null; restoreCallAudio(); stopForegroundService() }
+            } },
+        ).also { it.start(mutableState.value.provider) }
+    }
+
+    fun retryListening() {
+        if (!mutableState.value.connected || realtime != null) return
+        replyGeneration++; replyJob?.cancel(); speechQueue?.stop()
+        mutableState.update { it.copy(speaking = false, thinking = false, microphoneMuted = false, errorMessage = "", generatedTranscript = "") }
+        if (mutableState.value.provider in setOf("minimax", "elevenlabs")) startProviderInput()
+        else { pauseRecognition(); scheduleListening(100) }
     }
 
     private fun startTimer() {

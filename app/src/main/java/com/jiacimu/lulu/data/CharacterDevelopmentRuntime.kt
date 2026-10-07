@@ -34,7 +34,7 @@ object CharacterDevelopmentRuntime {
         val fingerprint = events.joinToString("|") { "${it.id}:${it.revision}" }
         if (fingerprint == p.getString("batch:$characterId", "")) return
         p.edit().putLong("attempt:$characterId", now).commit()
-        val persona = MigratedDomainStores.characters.get(characterId).persona
+        val persona = CharacterRuntime.personaConstraintSnapshot(characterId)
         val reply = LuluAiServices.gateway.generate(characterId,
             facts = "锁定人设，不可改写：$persona\n当前已有成长：${CharacterRuntime.developmentContext(characterId)}\n" +
                 events.joinToString("\n") { "eventId=${it.id} revision=${it.revision} ${it.evidenceContent.take(600)}" },
