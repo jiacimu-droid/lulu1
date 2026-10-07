@@ -347,7 +347,7 @@ fun CharacterSettingsScreenV2(
             text = {
                 Text(
                     if (digitalLife.enabled) {
-                        "会永久清除这个数字生命的私聊消息、辞海、记忆、朋友圈内容与互动、此刻历史，以及原始时间线里的经历；数字生命设置和可追溯生命起点会保留。此操作无法撤销。"
+                        "会永久清除这个角色的经历和记忆，并以清除当天作为新的出生与可追溯起点。人格、人设、角色设置和设计书保留，其他角色的记录不变。此操作无法撤销。"
                     } else {
                         "会永久清除这个角色的私聊消息、辞海、记忆、朋友圈内容与互动、此刻历史，以及原始时间线里的全部事件。角色头像、身份、设定、主动感知等设置会保留。此操作无法撤销。"
                     },
@@ -359,13 +359,15 @@ fun CharacterSettingsScreenV2(
                     onClick = {
                         clearingRecords = true
                         scope.launch {
-                            CharacterRecordReset.clearAll(characterId)
-                            if (DigitalLifeProfileStore.isEnabled(characterId)) {
-                                DigitalLifeProfileStore.restoreOrigin(characterId, displayName.trim().ifBlank { original.displayName })
-                            }
-                            clearingRecords = false
-                            confirmClearRecords = false
-                            recordNotice = "${original.displayName}的历史记录已清除"
+                            try {
+                                CharacterRecordReset.clearAll(characterId)
+                                confirmClearRecords = false
+                                recordNotice = if (DigitalLifeProfileStore.isEnabled(characterId))
+                                    "${original.displayName}已从今天重新开始，人设与设置已保留"
+                                else "${original.displayName}的历史记录已清除，人设与设置已保留"
+                            } catch (error: Exception) {
+                                recordNotice = "清除未完成：${error.message.orEmpty()}"
+                            } finally { clearingRecords = false }
                         }
                     },
                 ) { Text("确认清除", color = MaterialTheme.colorScheme.error) }

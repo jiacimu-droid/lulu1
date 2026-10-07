@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T13:03:05.523027+00:00",
+  "generatedAt": "2026-10-07T13:07:12.544584+00:00",
   "commit": "a7cfd14a8e43add00a56ee139dfa8d7251b6929f",
   "branch": "main",
-  "sourceFingerprint": "d456e92ef9fc944244c0d4170f9011eb2757d935e5c2ab2ec2a67010bbb1a22b",
+  "sourceFingerprint": "d403218d66502afe3714da11ddd09e76f5188f7c415d7d898ab975ba308a6b25",
   "summary": {
-    "files": 308,
-    "lines": 81749,
-    "symbols": 1129
+    "files": 309,
+    "lines": 81833,
+    "symbols": 1131
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2061,7 +2061,7 @@
     "CharacterRecordReset": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt",
-        "line": 10
+        "line": 11
       }
     ],
     "CharacterRuntime": [
@@ -2579,7 +2579,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 157
+        "line": 164
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
@@ -2678,7 +2678,7 @@
         "line": 111
       }
     ],
-    "restoreOrigin": [
+    "restartOrigin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
         "line": 151
@@ -3155,7 +3155,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 431
+        "line": 440
       }
     ],
     "LegacyLuluImportResult": [
@@ -4272,46 +4272,52 @@
         "line": 249
       }
     ],
+    "deleteCharacterEvents": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
+        "line": 279
+      }
+    ],
     "deleteEventsByIdPrefix": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 277
+        "line": 286
       }
     ],
     "deleteConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 292
+        "line": 301
       }
     ],
     "deleteConversationData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 303
+        "line": 312
       }
     ],
     "recentEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 323
+        "line": 332
       }
     ],
     "recentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 326
+        "line": 335
       }
     ],
     "remember": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 342
+        "line": 351
       }
     ],
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 413
+        "line": 422
       }
     ],
     "EventEvidenceKind": [
@@ -6286,6 +6292,12 @@
         "line": 60
       }
     ],
+    "CharacterOriginResetTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt",
+        "line": 17
+      }
+    ],
     "DevelopmentPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt",
@@ -6449,8 +6461,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-      "lines": 476,
-      "sha256": "89f55458a444dd0d7052bd297d60e14c4117dca23cfaa491265270437a743663",
+      "lines": 478,
+      "sha256": "cd90a0a34b3466605276472b1b1746e615f6ff993a3df905b3d40ca4f3798018",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
@@ -8046,12 +8058,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt",
-      "lines": 44,
-      "sha256": "4d75b7ee267c02acca86819611b65afcecbcfc3d12ec1a0c989c7037f208052f",
+      "lines": 43,
+      "sha256": "735f64ac4742540a6089e16e0a43dcfb4a98a61d285826e848ad9be0831a8ace",
       "symbols": [
         {
           "name": "CharacterRecordReset",
-          "line": 10
+          "line": 11
         }
       ]
     },
@@ -8653,8 +8665,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-      "lines": 233,
-      "sha256": "a860ff5a502a8e4a07c7c247f52a1e63182cf9c045f926363aaf7427cb933e62",
+      "lines": 241,
+      "sha256": "1fda26c84889758f27e74f58b2466d90af610f9e9da5feaf6bc7978f8cb7d323",
       "symbols": [
         {
           "name": "CharacterLifeForm",
@@ -8713,12 +8725,12 @@
           "line": 139
         },
         {
-          "name": "restoreOrigin",
+          "name": "restartOrigin",
           "line": 151
         },
         {
           "name": "promptSection",
-          "line": 157
+          "line": 164
         }
       ]
     },
@@ -10255,8 +10267,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 530,
-      "sha256": "68c264918cec7ba8d014e46c3030f311231c644fd0d0388fc63f35eb9670123a",
+      "lines": 540,
+      "sha256": "39658f2815ba3e2ab21fe9a670d4dfa4835fb8a3d6fd11d75533d4c837e09ef0",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -10299,36 +10311,40 @@
           "line": 249
         },
         {
+          "name": "deleteCharacterEvents",
+          "line": 279
+        },
+        {
           "name": "deleteEventsByIdPrefix",
-          "line": 277
+          "line": 286
         },
         {
           "name": "deleteConversationMessage",
-          "line": 292
+          "line": 301
         },
         {
           "name": "deleteConversationData",
-          "line": 303
+          "line": 312
         },
         {
           "name": "recentEvents",
-          "line": 323
+          "line": 332
         },
         {
           "name": "recentContext",
-          "line": 326
+          "line": 335
         },
         {
           "name": "remember",
-          "line": 342
+          "line": 351
         },
         {
           "name": "exportBackup",
-          "line": 413
+          "line": 422
         },
         {
           "name": "importBackup",
-          "line": 431
+          "line": 440
         }
       ]
     },
@@ -12801,6 +12817,17 @@
         {
           "name": "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits",
           "line": 60
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt",
+      "lines": 65,
+      "sha256": "9a5654bac849eaca7a247dfcb79d14f05cf69d1a0e04277295af8ce3e3b28d1d",
+      "symbols": [
+        {
+          "name": "CharacterOriginResetTest",
+          "line": 17
         }
       ]
     },

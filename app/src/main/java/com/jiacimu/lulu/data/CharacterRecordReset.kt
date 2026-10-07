@@ -2,13 +2,14 @@ package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.LuluRepositories
 import kotlinx.coroutines.flow.first
+import java.time.Instant
 
 /**
  * Deletes one character's history without deleting the character profile or its settings.
  * Raw timeline deletion is the final source-of-truth cleanup so derived memory cannot survive it.
  */
 object CharacterRecordReset {
-    suspend fun clearAll(characterId: String) {
+    suspend fun clearAll(characterId: String, now: Instant = Instant.now()) {
         val cleanId = characterId.trim()
         if (cleanId.isBlank()) return
 
@@ -33,11 +34,9 @@ object CharacterRecordReset {
         CharacterDevelopmentStore.clearCharacter(cleanId)
         CharacterLifeStore.clearHistory(cleanId)
         CompanionPresenceStore.clearCharacter(cleanId)
-        CompanionOnlineStore.resetCharacter(cleanId)
+        CompanionOnlineStore.resetCharacter(cleanId, now)
 
-        SharedExperienceTimeline.all(cleanId)
-            .map { it.id }
-            .distinct()
-            .forEach(SharedExperienceTimeline::deleteEvent)
+        SharedExperienceTimeline.deleteCharacterEvents(cleanId)
+        DigitalLifeProfileStore.restartOrigin(cleanId, MigratedDomainStores.characters.get(cleanId).displayName, now)
     }
 }

@@ -275,6 +275,15 @@ object SharedExperienceTimeline {
         scope.launch { LuluRepositories.memory.deleteDerivedFromEvent(eventId) }
     }
 
+    /** Clear the raw ledger, including records hidden by an earlier birth boundary. */
+    fun deleteCharacterEvents(characterId: String) {
+        if (characterId.isBlank()) return
+        val database = helper?.readableDatabase ?: return
+        val ids = database.query("timeline_events", arrayOf("id"), "character_id = ?", arrayOf(characterId),
+            null, null, null).use { cursor -> buildList { while (cursor.moveToNext()) add(cursor.getString(0)) } }
+        ids.forEach(::deleteEvent)
+    }
+
     fun deleteEventsByIdPrefix(characterId: String, eventIdPrefix: String) {
         if (characterId.isBlank() || eventIdPrefix.isBlank()) return
         val database = helper?.readableDatabase ?: return
@@ -450,6 +459,7 @@ object SharedExperienceTimeline {
                 db.delete("timeline_events", "id = ?", arrayOf(id))
             }
             validated.forEach { item ->
+                if (!DigitalLifeProfileStore.allowsTimestamp(item.getString("character_id"), Instant.ofEpochMilli(item.getLong("occurred_at")))) return@forEach
                 val id = item.getString("id")
                 val tombstoned = db.query("deleted_timeline_events", arrayOf("event_id"), "event_id = ?", arrayOf(id), null, null, null).use { it.moveToFirst() }
                 if (tombstoned) return@forEach

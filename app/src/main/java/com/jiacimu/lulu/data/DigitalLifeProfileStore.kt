@@ -147,12 +147,19 @@ object DigitalLifeProfileStore {
         DigitalWorldStore.clearCharacter(cleanId)
     }
 
-    /** Re-seeds the birth line after an explicit clear-all-records operation. */
-    fun restoreOrigin(characterId: String, displayName: String) {
-        val profile = get(characterId)
-        if (!profile.enabled || profile.bornAt == null) return
-        recordOrigin(profile, displayName)
-        runCatching { DigitalWorldStore.ensureHome(characterId, displayName) }
+    /** Explicit history reset starts a new traceable life; persona and life form stay intact. */
+    fun restartOrigin(characterId: String, displayName: String, now: Instant = Instant.now()) {
+        val cleanId = characterId.trim()
+        if (cleanId.isBlank()) return
+        synchronized(lock) {
+            val previous = get(cleanId)
+            if (!previous.enabled) return
+            val profile = previous.copy(bornAt = now)
+            mutable.value = mutable.value + (cleanId to profile)
+            persistLocked()
+            recordOrigin(profile, displayName)
+            runCatching { DigitalWorldStore.ensureHome(cleanId, displayName, now) }
+        }
     }
 
     fun promptSection(
@@ -193,7 +200,8 @@ object DigitalLifeProfileStore {
         val bornAt = profile.bornAt ?: return
         val creator = profile.creatorName.ifBlank { "创造者" }
         SharedExperienceTimeline.record(
-            eventId = ORIGIN_PREFIX + profile.characterId,
+            // Each new origin has its own ID. Never revive a tombstoned previous birth event.
+            eventId = ORIGIN_PREFIX + profile.characterId + ":" + bornAt.toString(),
             characterId = profile.characterId,
             channel = "生命起点",
             speaker = "系统",
