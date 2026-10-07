@@ -22,8 +22,8 @@ internal class RealtimeVoiceAdapter(
     private var characterId = ""
     private var conversationId = ""
     private var providerSessionId = ""
-    private val pending = mutableMapOf<Int, String>()
-    private val interrupted = mutableSetOf<Int>()
+    private val delivery = VoiceDeliveryLedger()
+    private var deliveryEpoch = 0L
     private var playedAudio = false
     private var speaking = false
     private var volumeEnabled = true
@@ -34,6 +34,7 @@ internal class RealtimeVoiceAdapter(
         this.characterId = characterId
         this.conversationId = conversationId
         val epoch = ++generation
+        deliveryEpoch = delivery.reset()
         val core = coreSnapshot(characterId)
         val auth = CloudTaskBridge.request("/v1/voice/session", core)
         if (epoch != generation) return
@@ -53,8 +54,7 @@ internal class RealtimeVoiceAdapter(
                     deliveryJob = scope.launch {
                         delay(600)
                         if (epoch == generation && !speaking) {
-                            pending.toMap().forEach { (id, text) -> if (id !in interrupted) persistAgent(id, text) }
-                            pending.clear()
+                            delivery.played(deliveryEpoch).forEach { (id, text) -> persistAgent(id, text) }
                             onCandidate("")
                             refreshCore(epoch)
                         }
@@ -71,23 +71,23 @@ internal class RealtimeVoiceAdapter(
             } },
             onTentativeUserTranscriptEvent = { text, _ -> if (epoch == generation) onState(true, speaking, "听到：$text") },
             onAgentResponseEvent = { text, eventId -> if (epoch == generation && eventId != null) {
-                pending[eventId] = text
+                delivery.generated(deliveryEpoch, eventId, text)
                 onCandidate(text)
                 // Generated text is a subtitle candidate; it is not yet a spoken experience.
             } },
             onInterruption = { eventId -> if (epoch == generation) {
                 deliveryJob?.cancel()
-                interrupted.addAll(pending.keys)
-                interrupted += eventId
-                pending.clear()
+                delivery.interrupt(deliveryEpoch, eventId)
                 onCandidate("")
                 onState(true, false, "已停止旧回复，正在听你说话")
             } },
             onAgentResponseCorrectionEvent = { text, eventId -> if (epoch == generation && eventId != null) {
-                pending.remove(eventId)
-                interrupted += eventId
+                delivery.corrected(deliveryEpoch, eventId, text)
                 // The provider's corrected transcript describes the actually delivered prefix.
-                if (text.isNotBlank() && volumeEnabled) persistAgent(eventId, text)
+                if (volumeEnabled) {
+                    if (text.isNotBlank()) persistAgent(eventId, text)
+                    else MigratedDomainStores.chat.deleteMessage("voice-$providerSessionId-agent-$eventId-$characterId")
+                }
                 scope.launch { refreshCore(epoch) }
             } },
             onUnhandledClientToolCall = { call -> if (epoch == generation) scope.launch {
@@ -100,7 +100,7 @@ internal class RealtimeVoiceAdapter(
                 }
             } },
             onError = { _, message -> if (epoch == generation) onError(message ?: "实时语音服务失败，请重试") },
-            onDisconnect = { _ -> if (epoch == generation) { deliveryJob?.cancel(); pending.clear(); onError("实时通话已断开") } },
+            onDisconnect = { _ -> if (epoch == generation) { deliveryJob?.cancel(); delivery.reset(); onError("实时通话已断开") } },
         )
         val connected = ConversationClient.startSession(config, context)
         if (epoch != generation) connected.endSession() else session = connected
@@ -110,12 +110,12 @@ internal class RealtimeVoiceAdapter(
     fun speaker(enabled: Boolean) {
         volumeEnabled = enabled
         session?.setVolume(if (enabled) 1f else 0f)
-        if (!enabled) { deliveryJob?.cancel(); pending.clear() }
+        if (!enabled) { deliveryJob?.cancel(); deliveryEpoch = delivery.reset() }
     }
     fun stop() {
         generation++
         deliveryJob?.cancel()
-        pending.clear(); interrupted.clear()
+        deliveryEpoch = delivery.reset()
         playedAudio = false
         speaking = false
         val old = session

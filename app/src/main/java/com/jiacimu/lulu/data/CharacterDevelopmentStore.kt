@@ -71,7 +71,7 @@ object CharacterDevelopmentStore {
         if (!DevelopmentPolicy.accepts(kind, factual.size, explicit, counters.size)) return false
         synchronized(this) {
         val prior = history(characterId).filter { it.slot == slot }
-        if (prior.any { it.active && it.content == content && it.evidence.keys == evidenceIds.toSet() }) return false
+        if (prior.any { it.content == content && it.evidence.keys == evidenceIds.toSet() }) return false
         val next = DevelopmentRecord(UUID.randomUUID().toString(), characterId, slot, kind, content.trim(),
             (0.35 + factual.size * 0.1).coerceAtMost(0.9), events.associate { it.id to it.revision },
             counters.associate { it.id to it.revision }, (prior.maxOfOrNull { it.version } ?: 0) + 1,
