@@ -152,9 +152,11 @@ internal fun StarWishTheaterContentV2(
                     // New stories keep the global guide only. The reader chooses the chapter count
                     // explicitly with +3章 before asking the planner to build per-chapter details.
                     store.setStoryPlan(seed.title, candidate.storyGuide(), emptyList())
+                    store.setBible(seed.title, candidate.storyBible())
                     openedTitle = seed.title
                 } else {
                     store.setStoryPlan(openedSeed.title, candidate.storyGuide(), candidate.chapterPlans())
+                    store.setBible(openedSeed.title, candidate.storyBible())
                 }
                 mode = TheaterV2Mode.READER
             },
@@ -971,12 +973,19 @@ private fun TheaterPlotGeneratorV2(
                         if (expandedIndex == index) {
                             PlotSection("世界观", item.worldview)
                             PlotSection("故事总纲", item.overview)
+                            PlotSection("核心看点", item.highlights)
+                            PlotSection("人物与人设", item.cast)
+                            PlotSection("人物成长弧", item.characterArcs)
                             PlotSection("关系主线", item.relationshipCore)
+                            PlotSection("故事脉络", item.plotSpine)
                             PlotSection("明线", item.mainLine)
                             PlotSection("暗线", item.hiddenLine)
                             PlotSection("伏笔系统", item.foreshadowing)
+                            PlotSection("阶段高潮与节奏", item.stagePlan)
+                            PlotSection("结局方向", item.endingDirection)
                             PlotSection("情绪曲线", item.emotionalArc)
                             PlotSection("文风执行", item.proseStyle)
+                            PlotSection("感情戏与人物描写", item.romanceAesthetics)
                             item.chapters.forEachIndexed { chapterIndex, chapter -> PlotSection("第${chapterIndex + 1}章", chapter) }
                         }
                         Button(onClick = { onApply(item) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) {
