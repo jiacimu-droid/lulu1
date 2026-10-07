@@ -186,11 +186,11 @@ internal class StarWishPlanGenerationManager private constructor(context: Contex
     }
 
     internal fun running(theater: String, chapterCount: Int) = setTask(
-        StarWishPlanTask(theater, chapterCount, StarWishTheaterTaskStatus.RUNNING, "正在按总大纲规划 $chapterCount 章；退出页面也会继续"),
+        StarWishPlanTask(theater, chapterCount, StarWishTheaterTaskStatus.RUNNING, "正在先生成幕后规划，再逐章生成 $chapterCount 章剧情规划；退出页面也会继续"),
     )
 
     internal fun succeeded(theater: String, chapterCount: Int) = setTask(
-        StarWishPlanTask(theater, chapterCount, StarWishTheaterTaskStatus.SUCCEEDED, "$chapterCount 章章节规划已生成"),
+        StarWishPlanTask(theater, chapterCount, StarWishTheaterTaskStatus.SUCCEEDED, "幕后规划与 $chapterCount 章剧情规划已生成"),
     )
 
     internal fun failed(theater: String, chapterCount: Int, message: String) = setTask(
@@ -432,7 +432,7 @@ internal class StarWishTheaterGenerationWorker(
                 appendLine("独立剧场故事：《$theater》")
                 appendLine("故事地图：\n${guide.ifBlank { "尚未填写故事地图" }}")
                 if (theaterWorldBook.isNotBlank()) {
-                    appendLine("本剧场专属世界书（已开启条目，必须遵守）：\n$theaterWorldBook")
+                    appendLine("这本剧场选用的世界书（来自世界书 App，必须遵守）：\n$theaterWorldBook")
                 }
                 bible?.promptText()?.takeIf(String::isNotBlank)?.let {
                     appendLine("幕后长期规划（负责人物弧、明暗线、伏笔和长线节奏）：\n$it")
@@ -450,8 +450,8 @@ internal class StarWishTheaterGenerationWorker(
             }
             val chapterInstruction = """
                 续写第 $chapterNumber 章完整中文小说正文，约1800—3200字，只输出正文。
-                这是完全独立的小剧场，不得引用任何真实角色设定、聊天、记忆、共同时间线、用户资料或主世界世界书。若本次素材中提供了“本剧场专属世界书”，它属于这本小说自己的权威设定，必须遵守。
-                用户要求优先级最高；故事地图、剧场世界书、幕后规划和逐章规划负责“精彩且符合设定”，连续性档案与硬事实负责“不能写崩”。新章必须发生在上一章最后一句之后，禁止重演已经完成的动作、对白、发现或决定。
+                这是完全独立的小剧场，不得引用任何真实角色设定、聊天、记忆、共同时间线、用户资料或未被本书选中的世界书。若本次素材中提供了“这本剧场选用的世界书”，它来自原世界书 App，是这本小说明确启用的权威规则，必须遵守。
+                用户要求优先级最高；故事地图、已选世界书、幕后规划和逐章规划负责“精彩且符合设定”，连续性档案与硬事实负责“不能写崩”。新章必须发生在上一章最后一句之后，禁止重演已经完成的动作、对白、发现或决定。
                 连续性档案里的硬事实是绝对约束：已经死亡的人不能无解释复活，亲属/身份/性别/婚恋关系不能莫名改变，伤势、物品归属、人物已知信息、阵营和地点不能回滚。若规划与正文事实冲突，以正文事实为准。
                 人物必须有自己的欲望、判断和主动选择，事件要有因果，至少推进明线、暗线、关系线中的两条，并让伏笔有埋设、强化或回收。
                 感情戏要有让读者心动的画面感：自然描写眼神、手指、腕骨、锁骨、肩颈、衣料、声音、呼吸、距离、光影和动作停顿，用潜台词与身体距离制造张力；不要机械堆砌身体部位。
