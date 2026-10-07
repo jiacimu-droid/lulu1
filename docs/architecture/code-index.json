@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T16:03:18.251594+00:00",
-  "commit": "1e1f10c50ddbac84e0cfd284f1c3299582af12c1",
+  "generatedAt": "2026-10-07T16:03:52.896816+00:00",
+  "commit": "24f268fd94e9593d388cfb39c581705ddc43c637",
   "branch": "main",
-  "sourceFingerprint": "5b43193e0a3b47bae130ea6cfb50aabc19466feb8cb14e06d4bc007468b90f04",
+  "sourceFingerprint": "556e02d594f2592c65aafeb0f51d44b98a5bc0a12d145a1f88b7a59b6d5c004f",
   "summary": {
     "files": 312,
-    "lines": 83609,
+    "lines": 83619,
     "symbols": 1151
   },
   "symbolIndex": {
@@ -125,7 +125,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 64
+        "line": 65
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -519,11 +519,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 39
+        "line": 40
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 155
+        "line": 156
       }
     ],
     "replayCached": [
@@ -2027,11 +2027,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 131
+        "line": 132
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 255
+        "line": 256
       }
     ],
     "set": [
@@ -12498,28 +12498,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-      "lines": 641,
-      "sha256": "a43c111007553a47c5475fb5d8770d1f5e97b880ac7b8c492ac680b2d5aac158",
+      "lines": 651,
+      "sha256": "502e0e2c98306b9d4fa13317cd05fc124b954395f3e2a1f3665c625dda2e962b",
       "symbols": [
         {
           "name": "enqueue",
-          "line": 39
+          "line": 40
         },
         {
           "name": "cancel",
-          "line": 64
+          "line": 65
         },
         {
           "name": "get",
-          "line": 131
+          "line": 132
         },
         {
           "name": "enqueue",
-          "line": 155
+          "line": 156
         },
         {
           "name": "get",
-          "line": 255
+          "line": 256
         }
       ]
     },
