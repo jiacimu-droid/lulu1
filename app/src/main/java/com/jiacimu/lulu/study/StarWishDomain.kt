@@ -49,6 +49,7 @@ internal data class StarWishStoryLedger(
     val openThreads: String = "",
     val foreshadows: String = "",
     val keyItems: String = "",
+    val hardFacts: String = "",
     val updatedThroughChapter: Int = 0,
 )
 
@@ -309,13 +310,15 @@ internal class StarWishStore private constructor(context: Context) {
         .put("summary", value.summary).put("characters", value.characters).put("worldState", value.worldState)
         .put("relationships", value.relationships).put("openThreads", value.openThreads)
         .put("foreshadows", value.foreshadows).put("keyItems", value.keyItems)
+        .put("hardFacts", value.hardFacts)
         .put("updatedThroughChapter", value.updatedThroughChapter)
 
     private fun decodeLedger(item: JSONObject) = StarWishStoryLedger(
         summary = item.optString("summary"), characters = item.optString("characters"),
         worldState = item.optString("worldState"), relationships = item.optString("relationships"),
         openThreads = item.optString("openThreads"), foreshadows = item.optString("foreshadows"),
-        keyItems = item.optString("keyItems"), updatedThroughChapter = item.optInt("updatedThroughChapter"),
+        keyItems = item.optString("keyItems"), hardFacts = item.optString("hardFacts"),
+        updatedThroughChapter = item.optInt("updatedThroughChapter"),
     )
 
     private fun encodeBible(value: StarWishStoryBible) = JSONObject()
