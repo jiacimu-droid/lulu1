@@ -894,7 +894,7 @@ private fun TheaterPlotGeneratorV2(
     var generating by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf("") }
     var candidates by remember { mutableStateOf<List<StarWishPlotCandidate>>(emptyList()) }
-    var expandedIndex by remember { mutableIntStateOf(0) }
+    var collapsedIndices by remember { mutableStateOf<Set<Int>>(emptySet()) }
 
     Column(Modifier.fillMaxSize().imePadding()) {
         Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 1.dp) {
@@ -937,7 +937,7 @@ private fun TheaterPlotGeneratorV2(
                                 error = ""
                                 scope.launch {
                                     StarWishTheaterPlanningEngine.generateStoryCandidates(characterId, existingTitle, existingGuide, direction.trim())
-                                        .onSuccess { candidates = it; expandedIndex = 0 }
+                                        .onSuccess { candidates = it; collapsedIndices = emptySet() }
                                         .onFailure { error = it.message ?: "剧情规划生成失败" }
                                     generating = false
                                 }
@@ -959,11 +959,12 @@ private fun TheaterPlotGeneratorV2(
             if (candidates.isNotEmpty()) item { Text("选择一套剧情", fontSize = 20.sp, fontWeight = FontWeight.Bold) }
             items(candidates.size) { index ->
                 val item = candidates[index]
+                val expanded = index !in collapsedIndices
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(22.dp),
                     color = MaterialTheme.colorScheme.surface,
-                    border = BorderStroke(1.dp, if (expandedIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant),
+                    border = BorderStroke(1.dp, if (expanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant),
                 ) {
                     Column(Modifier.padding(16.dp).animateContentSize(), verticalArrangement = Arrangement.spacedBy(9.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -971,12 +972,18 @@ private fun TheaterPlotGeneratorV2(
                                 Text("方案 ${index + 1}", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium)
                                 Text(item.title, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                             }
-                            IconButton(onClick = { expandedIndex = if (expandedIndex == index) -1 else index }) {
-                                Icon(if (expandedIndex == index) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore, "展开")
+                            TextButton(
+                                onClick = {
+                                    collapsedIndices = if (expanded) collapsedIndices + index else collapsedIndices - index
+                                },
+                            ) {
+                                Icon(if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore, null)
+                                Spacer(Modifier.width(3.dp))
+                                Text(if (expanded) "收起" else "展开完整方案")
                             }
                         }
                         Text(item.hook, color = MaterialTheme.colorScheme.onSurfaceVariant, lineHeight = 22.sp)
-                        if (expandedIndex == index) {
+                        if (expanded) {
                             PlotSection("世界观", item.worldview)
                             PlotSection("故事总纲", item.overview)
                             PlotSection("核心看点", item.highlights)
