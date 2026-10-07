@@ -381,8 +381,6 @@ object ProactivePerceptionRuntime {
         CharacterLifeStore.consider(characterId, decision.intention, now)
         // Execute first. Unvalidated model status/gesture must never become a world fact.
         val execution = performAction(appContext, character, decision, availableGroups, now)
-        CharacterLifeStore.recordOutcome(characterId, "proactive-${now.toEpochMilli()}",
-            decision.action.name.lowercase(), execution.success, execution.summary, now)
         if (execution.success || decision.action == Action.SILENT) {
             val physicalAction = decision.action in setOf(Action.DIGITAL_WORLD, Action.READING, Action.SOLO_GAME)
             CompanionPresenceStore.update(

@@ -16,8 +16,12 @@ object ToolRouter {
 
     suspend fun execute(context: Context, characterId: String, name: String, args: JSONObject,
         requestId: String = UUID.randomUUID().toString(), userRequested: Boolean = false): String = mutex.withLock {
-        val cap = CapabilityRegistry.find(name) ?: return@withLock failure("未知能力：$name")
-        if (!CapabilityRegistry.allows(context, characterId, cap, userRequested)) return@withLock failure("此角色尚未获准主动使用 ${cap.permission}", "waiting_user")
+        fun rejected(message: String, status: String = "failed"): String {
+            CharacterLifeStore.recordOutcome(characterId, "tool-$characterId-$requestId", name, false, message)
+            return failure(message, status)
+        }
+        val cap = CapabilityRegistry.find(name) ?: return@withLock rejected("未知能力：$name")
+        if (!CapabilityRegistry.allows(context, characterId, cap, userRequested)) return@withLock rejected("此角色尚未获准主动使用 ${cap.permission}", "waiting_user")
         val prefs = context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE)
         val key = "$characterId:$requestId"
         val fingerprint = "$name:${canonical(args)}"
@@ -49,6 +53,9 @@ object ToolRouter {
             check(prefs.edit().putString(key, execution.toString()).commit())
             SharedExperienceTimeline.record("tool-$characterId-$requestId", characterId, "实际工具执行", "执行器",
                 execution.toString(), source = "tool-router", taskId = requestId, evidenceKind = EventEvidenceKind.ToolResult)
+            val outcome = runCatching { JSONObject(result) }.getOrDefault(JSONObject())
+            CharacterLifeStore.recordOutcome(characterId, "tool-$characterId-$requestId", name, outcome.optBoolean("success"),
+                outcome.optString("summary").ifBlank { outcome.optString("error").ifBlank { result } })
             result
         }
     }

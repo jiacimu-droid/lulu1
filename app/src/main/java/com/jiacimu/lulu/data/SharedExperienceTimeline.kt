@@ -181,6 +181,7 @@ object SharedExperienceTimeline {
         database.insertWithOnConflict("timeline_events", null, values, SQLiteDatabase.CONFLICT_REPLACE)
         if (previous != null) {
             CharacterDevelopmentStore.invalidateEvidence(characterId, eventId)
+            CharacterLifeStore.invalidateReceipt(eventId)
             if (!triggerExtraction) scope.launch { LuluRepositories.memory.deleteDerivedFromEvent(eventId) }
         }
         if (triggerExtraction && evidenceKind == EventEvidenceKind.UserStatement) {
@@ -268,6 +269,7 @@ object SharedExperienceTimeline {
         // and derived memory/vector lifecycle. Late model responses are additionally checked by the
         // repository integrity guard before they can survive in recall.
         CharacterDevelopmentStore.invalidateEvidenceForAll(eventId)
+        CharacterLifeStore.invalidateReceipt(eventId)
         MemoryExtractionJobStore.removeBySourceEvent(eventId)
         CommitmentTaskStore.removeBySourceEvent(eventId)
         scope.launch { LuluRepositories.memory.deleteDerivedFromEvent(eventId) }
@@ -473,6 +475,7 @@ object SharedExperienceTimeline {
         for (i in 0 until deleted.length()) {
             val id = deleted.getJSONObject(i).getString("event_id")
             CharacterDevelopmentStore.invalidateEvidenceForAll(id)
+            CharacterLifeStore.invalidateReceipt(id)
             MemoryExtractionJobStore.removeBySourceEvent(id)
             CommitmentTaskStore.removeBySourceEvent(id)
             scope.launch { LuluRepositories.memory.deleteDerivedFromEvent(id) }

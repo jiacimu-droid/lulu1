@@ -87,6 +87,24 @@ object CharacterLifeStore {
         save(characterId, root)
     }
 
+    @Synchronized fun invalidateReceipt(eventId: String) {
+        mutable.value.keys.toList().forEach { characterId ->
+            val root = state(characterId)
+            var changed = false
+            listOf("intention", "previousIntention").forEach { key ->
+                val intention = root.optJSONObject(key) ?: return@forEach
+                val receipts = intention.optJSONArray("outcomes") ?: return@forEach
+                val next = JSONArray()
+                for (i in 0 until receipts.length()) {
+                    val receipt = receipts.getJSONObject(i)
+                    if (receipt.optString("id") == eventId) changed = true else next.put(receipt)
+                }
+                intention.put("outcomes", next)
+            }
+            if (changed) save(characterId, root)
+        }
+    }
+
     fun context(characterId: String): String {
         val root = state(characterId)
         return buildString {
@@ -99,7 +117,7 @@ object CharacterLifeStore {
             root.optJSONObject("intention")?.let { intention ->
                 appendLine("【持续动机｜角色主观愿望，不是已完成事实或用户承诺】")
                 appendLine("从${intention.optString("createdAt")}开始在意：${intention.optString("aim")}；动机：${intention.optString("motive")}")
-                appendLine("实际执行回执：${intention.optJSONArray("outcomes") ?: JSONArray()}")
+                appendLine("动机ID=${intention.optString("createdAt")}。近期实际动作回执（不自动认定每个动作都推进这个愿望）：${intention.optJSONArray("outcomes") ?: JSONArray()}")
                 appendLine("结合真实结果决定接着做、换办法、等待或保持安静。成功回执只证明该动作，不证明长期愿望已经实现；发送关心不等于用户接受，日记不等于现实经历。")
             }
             appendLine("表达规则：用具体记忆、取舍与可执行小事体现性格和关心。无需每轮示爱或自述心理。允许复杂感受、犹豫、不同意见和自己的兴趣；不能凭空编造已做的事或承诺永久不变。涉及用户的长期承诺以承诺任务的真实状态为准。")

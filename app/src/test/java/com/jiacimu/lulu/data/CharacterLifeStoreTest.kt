@@ -26,6 +26,8 @@ class CharacterLifeStoreTest {
         val outcomes = CharacterLifeStore.state("life-a").getJSONObject("intention").getJSONArray("outcomes")
         assertEquals(1, outcomes.length())
         assertFalse(outcomes.getJSONObject(0).getBoolean("success"))
+        CharacterLifeStore.invalidateReceipt("r1")
+        assertEquals(0, CharacterLifeStore.state("life-a").getJSONObject("intention").getJSONArray("outcomes").length())
         assertTrue(CharacterLifeStore.state("life-b").isNull("intention"))
         val disk = JSONObject(context.getSharedPreferences("lulu_character_life", 0).getString("life-a", "{}"))
         assertEquals("持续读这本书", disk.getJSONObject("intention").getString("aim"))

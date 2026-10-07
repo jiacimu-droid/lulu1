@@ -122,6 +122,7 @@ object LuluDeviceToolBridge {
                 - publish_moment、write_journal、read_book、send_game_invite、start_call 都会产生真实持久化结果。只有角色此刻真的会这样做时才调用，不要为了展示能力滥用。
                 - 与工具无关的普通聊天直接回复。
                 - 必须意识到“当前真实互动场景”，并以身处该场景的角色身份自然反应；电话里可以意识到正在通话，群聊里可以意识到其他成员也在场。
+                - 可以额外返回 intention:{"aim":"一件具体的持续愿望","motive":"符合性格的动机"}，只在没有现有动机且这一刻确实在意时提出。愿望不是承诺或已做事实；不必每轮提出或说给用户。允许既想亲近又怕打扰、关心又不完全赞同，结合真实触发表达，不要统一宠溺。
                 - innerThought 是角色没说出口的一瞬，不是分析报告、推理步骤或对话总结；没有真实内在反应可以留空，也不必把它写进 text。
                 - gesture 只写角色此刻的微动作、姿态或神态，不要复述刚刚聊了什么，不要编造角色并不处于其中的现实场景。
                 - statusText、gesture、innerThought、mood 必须服从角色人设，不能把所有角色统一写成温柔、害羞或黏人。
@@ -142,6 +143,7 @@ object LuluDeviceToolBridge {
         if (planner.isFailure) return planner
         val plannedReply = planner.getOrThrow()
         val plan = parsePlan(plannedReply.text) ?: return Result.success(plannedReply)
+        com.jiacimu.lulu.data.CharacterLifeStore.consider(characterId, plan.intention)
         if (plan.action == "reply") {
             savePresence(characterId, plan, "聊天")
             return Result.success(plannedReply.copy(text = plan.text.ifBlank { plannedReply.text }))
@@ -373,6 +375,7 @@ object LuluDeviceToolBridge {
                 gesture = json.optString("gesture").ifBlank { json.optString("actionDescription") },
                 innerThought = json.optString("innerThought").ifBlank { json.optString("inner_voice") },
                 mood = json.optString("mood"),
+                intention = json.optJSONObject("intention"),
             )
         }.getOrNull()
     }
@@ -398,4 +401,5 @@ private data class ToolPlan(
     val gesture: String,
     val innerThought: String,
     val mood: String,
+    val intention: JSONObject? = null,
 )
