@@ -14,76 +14,85 @@ internal object StarWishTheaterPlanningEngine {
         existingGuide: String?,
         direction: String,
     ): Result<List<StarWishPlotCandidate>> = runCatching {
-        val accepted = mutableListOf<StarWishPlotCandidate>()
-        for (variant in 1..3) {
-            val prior = accepted.joinToString("\n") { "《${it.title}》：${it.hook.take(180)}" }
-            val facts = buildString {
-                appendLine("这是剧场 App 的独立长篇小说策划任务。")
-                if (!existingTitle.isNullOrBlank()) appendLine("现有故事标题：$existingTitle")
-                if (!existingGuide.isNullOrBlank()) appendLine("现有故事地图：\n$existingGuide")
-                if (direction.isNotBlank()) appendLine("用户提供的题材/一句话主题（最高优先级）：\n$direction")
-                appendLine("当前要写第 $variant 套方案，共3套。每套必须独立完整，不能只给摘要。")
-                if (prior.isNotBlank()) appendLine("前面已经有这些方案，本套必须明显不同：\n$prior")
-                appendLine("如果用户只给了题材、梗或一句话，没有提供男女主姓名、职业、身份、世界观等，请你主动补全并给人物起合适的名字。信息少不是缺字段或拒绝策划的理由。")
+        val facts = buildString {
+            appendLine("这是剧场 App 的独立小说策划任务。")
+            if (!existingTitle.isNullOrBlank()) appendLine("现有故事标题：$existingTitle")
+            if (!existingGuide.isNullOrBlank()) appendLine("现有故事地图：\n$existingGuide")
+            if (direction.isNotBlank()) {
+                appendLine("用户提供的题材或大纲（最高优先级）：\n$direction")
+            } else {
+                appendLine("用户没有指定题材，请主动构思三套差异明显、适合长篇发展的故事。")
             }
-            val instruction = """
-                你是成熟的长篇类型小说总策划。只策划“一套”完整方案，不要输出第二套或第三套，不要省略字段。
-                目标只有两个：精彩、连贯。人物要鲜明、有自己的欲望和选择；剧情要有因果、冲突、反转、伏笔与回收；恋爱线要能长期推进而不是几章就耗尽。
-
-                这套方案必须同时生成“读者可见的故事地图”与“后台长期导演规划”，两者从一开始就接轨：
-                - title：书名。
-                - worldview：世界前提、时代/社会规则、故事发生环境。
-                - hook：一眼想继续看的核心钩子。
-                - overview：故事总纲，写清开端、主要矛盾、发展方向和大致终局。
-                - highlights：核心看点、爽点、虐点、反转卖点。
-                - relationshipCore：男女主/核心关系的底色与长期关系推进。
-                - cast：主要人物卡，必须给出姓名、身份、外貌气质、欲望、恐惧、底线、秘密、行为习惯；若用户没给名字就由你命名。
-                - characterArcs：主要人物的成长/改变轨迹以及推动变化的关键事件。
-                - plotSpine：整本书的长期故事脉络与阶段转折。
-                - mainLine：明线目标、阻力、阶段推进。
-                - hiddenLine：暗线真相、幕后因果、揭露节奏。
-                - foreshadowing：伏笔系统，至少4项，写清表层含义、真实含义、埋设阶段与预计回收阶段。
-                - stagePlan：长线节奏，安排阶段高潮、甜点、低谷、反转、喘息与终局前高潮，避免故事很快写完。
-                - endingDirection：结局方向与必须兑现的核心承诺。
-                - emotionalArc：读者情绪曲线。
-                - proseStyle：可执行文风，包括镜头、五感、对白、心理、留白、意象。
-                - romanceAesthetics：感情戏与人物吸引力的描写原则，要自然运用眼神、手、腕骨、锁骨、肩颈、衣料、声音、呼吸、距离、光影、动作停顿和潜台词制造心动感，不要机械堆身体部位。
-                - wordCount：每章建议字数。
-
-                不要生成逐章规划；章节数量由用户之后建立空白章节再生成。
-                只输出一个合法JSON对象，不要Markdown，不要解释，不要外层数组：
-                {"title":"","worldview":"","hook":"","overview":"","highlights":"","relationshipCore":"","cast":"","characterArcs":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","wordCount":"1800-3000"}
-            """.trimIndent()
-
-            val raw = LuluAiServices.gateway.generate(
-                characterId = characterId,
-                facts = facts,
-                instruction = instruction,
-                source = "剧场",
-                title = "新故事方案 $variant/3",
-                maxTokens = 5_600,
-                connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
-                contextMode = CompanionContextMode.Isolated,
-                readTimeoutMillis = 240_000,
-            ).getOrThrow().text
-
-            var item = parseCandidates(raw).firstOrNull()
-            if (item == null || !candidateComplete(item)) {
-                val fixed = repairStoryPayload(
-                    characterId = characterId,
-                    raw = raw,
-                    direction = direction,
-                    variant = variant,
-                ).getOrNull()
-                if (fixed != null) item = parseCandidates(fixed).firstOrNull()
-            }
-
-            if (item == null || !candidateComplete(item)) {
-                error("第$variant套方案内容不完整，已自动补全仍失败。请直接重试，不需要补男女主名字。")
-            }
-            accepted += item
+            appendLine("注意：用户只给题材、梗或一句话也已经足够。缺少男女主姓名、职业、身份等不是缺信息，你必须主动补齐，不得要求用户先提供名字。")
         }
-        accepted
+        val instruction = """
+            你是成熟的长篇类型小说总策划。必须一次给出恰好3套完整、彼此差异明显、可以真正展开成长篇小说的方案。
+            这是完全独立的剧场小说，不得引用真实角色人设、聊天、记忆、共同时间线、用户资料或世界书。
+            用户即使只写“追妻火葬场”“留在公司”“先婚后爱”这种很短的题材，也必须直接自行创造男女主姓名、身份、职业、处境和冲突，不要反问，不要因为缺名字而省略字段。
+            若用户给的是完整或半完整大纲，三套方案都要尊重核心设定；差异放在人物动机、冲突设计、暗线真相、感情推进、阶段高潮和结局路径上。
+
+            三套方案必须使用完全相同的完整模板，而且每一套都要独立成立。禁止“方案1写完整，方案2/3只写与方案1的区别”。
+            每套都必须认真写满这些字段：
+            - title：故事名；若用户没给，自行起名。
+            - worldview：世界观、时代/行业/环境规则和人物所处现实。
+            - hook：开篇最想让人继续读的钩子。
+            - overview：从开篇到结局的故事总纲。
+            - cast：主要人物与人设，至少男女主；姓名、身份、外貌气质、欲望、恐惧、底线、秘密、行为方式。
+            - characterArcs：人物成长/变化弧，以及变化由什么事件推动。
+            - relationshipCore：男女主和关键关系的长期感情线。
+            - plotSpine：整本书的故事脉络、阶段目标、关键转折和高潮。
+            - mainLine：明线目标、阻力与推进方式。
+            - hiddenLine：暗线真相、幕后因果以及逐步揭露方式。
+            - foreshadowing：伏笔系统，写清埋设、表层含义、真实含义和预计回收阶段。
+            - stagePlan：阶段节奏，安排冲突、甜点、误会/低谷、反转、高潮与喘息。
+            - endingDirection：结局方向和必须兑现的承诺。
+            - emotionalArc：读者情绪曲线。
+            - proseStyle：可执行文风，包括镜头、五感、对白、心理、留白等。
+            - romanceAesthetics：感情戏与人物吸引力的描写方式，强调眼神、手、腕骨、锁骨、肩颈、衣料、声音、呼吸、距离、动作停顿与潜台词，但不要机械堆砌。
+            - highlights：核心看点/爽点/最想追下去的理由。
+            - wordCount：每章建议字数。
+
+            不要提前生成逐章规划，章数由用户之后自己建立空白章节。
+            只输出合法JSON数组，不要Markdown，不要解释。顶层必须恰好3个对象；三个对象必须字段齐全、信息量接近：
+            [
+              {"title":"","worldview":"","hook":"","overview":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","highlights":"","wordCount":"1800-3000"},
+              {"title":"","worldview":"","hook":"","overview":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","highlights":"","wordCount":"1800-3000"},
+              {"title":"","worldview":"","hook":"","overview":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","highlights":"","wordCount":"1800-3000"}
+            ]
+        """.trimIndent()
+
+        val reply = LuluAiServices.gateway.generate(
+            characterId = characterId,
+            facts = facts,
+            instruction = instruction,
+            source = "剧场",
+            title = if (existingTitle.isNullOrBlank()) "新故事剧情规划" else "故事剧情规划",
+            maxTokens = 7_600,
+            connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
+            contextMode = CompanionContextMode.Isolated,
+            readTimeoutMillis = 240_000,
+        ).getOrThrow().text
+
+        var candidates = parseCandidates(reply)
+        if (!threeCompleteCandidates(candidates)) {
+            val repairedRaw = completeStoryPayload(
+                characterId = characterId,
+                raw = reply,
+                existingTitle = existingTitle,
+                existingGuide = existingGuide,
+                direction = direction,
+            ).getOrNull()
+            if (!repairedRaw.isNullOrBlank()) {
+                val repaired = parseCandidates(repairedRaw)
+                if (repaired.isNotEmpty()) candidates = repaired
+            }
+        }
+
+        val finalCandidates = candidates.take(3)
+        if (!threeCompleteCandidates(finalCandidates)) {
+            error("这次模型没有完整返回三套剧情方案，已自动补全过一次；请重新生成。")
+        }
+        finalCandidates
     }
 
     suspend fun generateStoryBible(
@@ -251,13 +260,19 @@ internal object StarWishTheaterPlanningEngine {
     private fun parseStoryBible(raw: String, writtenCount: Int): StarWishStoryBible {
         val root = parseJsonValue(raw) as? JSONObject ?: error("幕后规划格式无法识别")
         return StarWishStoryBible(
+            worldview = text(root, "worldview", "世界观", "世界前提"),
+            overview = text(root, "overview", "故事总纲", "总纲", "故事核心"),
+            hook = text(root, "hook", "核心钩子", "开篇钩子"),
+            highlights = text(root, "highlights", "核心看点", "亮点"),
+            emotionalArc = text(root, "emotionalArc", "情绪曲线", "情感曲线"),
+            proseStyle = text(root, "proseStyle", "文风", "文风执行"),
             cast = text(root, "cast", "人物", "人物设定", "人物卡"),
             characterArcs = text(root, "characterArcs", "人物成长", "成长弧"),
-            relationshipArc = text(root, "relationshipArc", "感情线", "关系线"),
+            relationshipArc = text(root, "relationshipArc", "relationshipCore", "感情线", "关系线"),
             plotSpine = text(root, "plotSpine", "故事脉络", "剧情脉络"),
             mainLine = text(root, "mainLine", "明线", "主线"),
             hiddenLine = text(root, "hiddenLine", "暗线"),
-            foreshadows = text(root, "foreshadows", "伏笔", "伏笔系统"),
+            foreshadows = text(root, "foreshadows", "foreshadowing", "伏笔", "伏笔系统"),
             stagePlan = text(root, "stagePlan", "阶段规划", "阶段高潮"),
             endingDirection = text(root, "endingDirection", "结局方向", "结局"),
             romanceAesthetics = text(root, "romanceAesthetics", "感情描写", "审美执行"),
@@ -265,28 +280,43 @@ internal object StarWishTheaterPlanningEngine {
         )
     }
 
-    private suspend fun repairStoryPayload(
+    private suspend fun completeStoryPayload(
         characterId: String,
         raw: String,
+        existingTitle: String?,
+        existingGuide: String?,
         direction: String,
-        variant: Int,
     ): Result<String> = runCatching {
         LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
-                if (direction.isNotBlank()) appendLine("用户原始题材：$direction")
-                appendLine("下面是第$variant套已经构思出来但字段缺失或JSON格式不稳的内容：")
-                appendLine(raw.take(26_000))
+                if (!existingTitle.isNullOrBlank()) appendLine("已有标题：$existingTitle")
+                if (!existingGuide.isNullOrBlank()) appendLine("已有故事地图：\n$existingGuide")
+                if (direction.isNotBlank()) appendLine("用户题材/要求：\n$direction")
+                appendLine("第一次模型输出如下。它可能格式混乱，也可能只有第一套完整、后二套缩水；请保留可用创意并补齐：\n${raw.take(28_000)}")
             },
             instruction = """
-                保留原方案的核心创意，补齐缺失字段并整理为一个合法JSON对象。不要因为用户没给人名就留空；主动给主要人物命名。
-                每个字段都必须有实质内容，不允许用“同上”“略”“待定”或一句话敷衍。尤其 cast、characterArcs、plotSpine、mainLine、hiddenLine、foreshadowing、stagePlan、endingDirection 必须完整。
-                只输出一个JSON对象：
-                {"title":"","worldview":"","hook":"","overview":"","highlights":"","relationshipCore":"","cast":"","characterArcs":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","wordCount":"1800-3000"}
+                把第一次输出整理并补全成恰好3套完整、独立、同等详细的小说方案。
+                这不仅是格式修复：如果方案2或方案3缺字段、只有一小段、只写“与方案1不同之处”，必须把它扩写成与方案1同等完整的独立方案。
+                如果用户只提供题材而没有男女主姓名/职业/身份，直接自行创造，绝对不要把缺名字当成无法规划的理由。
+                不要改变用户明确指定的题材核心。
+
+                每套必须全部包含：
+                title, worldview, hook, overview, cast, characterArcs, relationshipCore, plotSpine,
+                mainLine, hiddenLine, foreshadowing, stagePlan, endingDirection, emotionalArc,
+                proseStyle, romanceAesthetics, highlights, wordCount。
+                三套的信息量必须接近，不能只有第一套详细。
+
+                只输出合法JSON数组，顶层恰好3个对象，不要Markdown，不要解释：
+                [
+                  {"title":"","worldview":"","hook":"","overview":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","highlights":"","wordCount":"1800-3000"},
+                  {"title":"","worldview":"","hook":"","overview":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","highlights":"","wordCount":"1800-3000"},
+                  {"title":"","worldview":"","hook":"","overview":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","highlights":"","wordCount":"1800-3000"}
+                ]
             """.trimIndent(),
             source = "剧场",
-            title = "补全第$variant套剧情方案",
-            maxTokens = 5_600,
+            title = "补全三套剧情方案",
+            maxTokens = 7_600,
             connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
             contextMode = CompanionContextMode.Isolated,
             readTimeoutMillis = 240_000,
@@ -323,35 +353,50 @@ internal object StarWishTheaterPlanningEngine {
         val root = parseJsonValue(raw) ?: return emptyList()
         val objects = when (root) {
             is JSONArray -> buildList {
-                for (index in 0 until root.length()) root.optJSONObject(index)?.let(::add)
+                for (index in 0 until root.length()) {
+                    when (val item = root.opt(index)) {
+                        is JSONObject -> add(item)
+                        is String -> runCatching { JSONTokener(item).nextValue() as? JSONObject }.getOrNull()?.let(::add)
+                    }
+                }
             }
             is JSONObject -> {
-                val nested = firstArray(root, "candidates", "plans", "stories", "方案", "方案列表")
-                if (nested != null) {
-                    buildList {
+                val nested = firstArray(root, "candidates", "plans", "stories", "方案", "方案列表", "options")
+                when {
+                    nested != null -> buildList {
                         for (index in 0 until nested.length()) nested.optJSONObject(index)?.let(::add)
                     }
-                } else {
-                    listOf(root)
+                    looksLikeCandidate(root) -> listOf(root)
+                    else -> buildList {
+                        val keys = root.keys()
+                        while (keys.hasNext()) {
+                            val key = keys.next()
+                            root.optJSONObject(key)?.let(::add)
+                        }
+                    }
                 }
             }
             else -> emptyList()
         }
-        return objects.mapNotNull(::candidate)
+        return objects.mapIndexedNotNull { index, obj -> candidate(obj, index + 1) }
     }
 
-    private fun candidate(obj: JSONObject): StarWishPlotCandidate? {
-        val title = text(obj, "title", "标题", "name", "书名")
-        if (title.isBlank()) return null
-        val chapters = chapterTexts(obj)
+    private fun looksLikeCandidate(obj: JSONObject): Boolean =
+        listOf("overview", "故事总纲", "mainLine", "明线", "worldview", "世界观", "hook", "钩子", "cast", "人物")
+            .any(obj::has)
 
-        val worldview = text(obj, "worldview", "世界观", "世界设定")
-        val hook = text(obj, "hook", "钩子", "开篇钩子")
-        val relationship = text(obj, "relationshipCore", "关系主线", "关系线")
-        val mainLine = text(obj, "mainLine", "明线", "主线")
-        val hiddenLine = text(obj, "hiddenLine", "暗线")
-        val overview = text(obj, "overview", "总纲", "故事总纲", "总览")
+    private fun candidate(obj: JSONObject, fallbackIndex: Int): StarWishPlotCandidate? {
+        val worldview = text(obj, "worldview", "世界观", "世界设定", "世界前提")
+        val hook = text(obj, "hook", "钩子", "开篇钩子", "核心钩子")
+        val relationship = text(obj, "relationshipCore", "relationshipArc", "关系主线", "关系线", "长期感情线", "感情线")
+        val mainLine = text(obj, "mainLine", "明线", "主线目标")
+        val hiddenLine = text(obj, "hiddenLine", "暗线", "暗线真相")
+        val overview = text(obj, "overview", "总纲", "故事总纲", "总览", "故事核心")
             .ifBlank { mainLine.ifBlank { hook.ifBlank { worldview } } }
+        val title = text(obj, "title", "标题", "name", "书名")
+            .ifBlank { "候选故事 $fallbackIndex" }
+
+        if (listOf(worldview, hook, relationship, mainLine, hiddenLine, overview).all(String::isBlank)) return null
 
         return StarWishPlotCandidate(
             title = title,
@@ -360,32 +405,32 @@ internal object StarWishTheaterPlanningEngine {
             relationshipCore = relationship,
             mainLine = mainLine,
             hiddenLine = hiddenLine,
-            foreshadowing = text(obj, "foreshadowing", "伏笔", "伏笔系统"),
+            foreshadowing = text(obj, "foreshadowing", "foreshadows", "伏笔", "伏笔系统", "伏笔明细"),
             emotionalArc = text(obj, "emotionalArc", "情绪曲线", "情感曲线"),
-            proseStyle = text(obj, "proseStyle", "文风", "叙事风格"),
-            highlights = text(obj, "highlights", "亮点", "爽点"),
+            proseStyle = text(obj, "proseStyle", "文风", "叙事风格", "文风执行"),
+            highlights = text(obj, "highlights", "亮点", "爽点", "核心看点"),
             overview = overview,
-            chapters = chapters,
+            chapters = chapterTexts(obj),
             wordCount = text(obj, "wordCount", "字数", "每章字数").ifBlank { "1800-3000" },
-            cast = text(obj, "cast", "人物", "人物卡", "人物设定"),
-            characterArcs = text(obj, "characterArcs", "人物成长", "成长弧"),
-            plotSpine = text(obj, "plotSpine", "故事脉络", "剧情脉络"),
-            stagePlan = text(obj, "stagePlan", "阶段规划", "长线节奏", "阶段高潮"),
+            cast = text(obj, "cast", "人物", "人物设定", "人物卡"),
+            characterArcs = text(obj, "characterArcs", "人物成长", "成长弧", "人物成长弧"),
+            plotSpine = text(obj, "plotSpine", "故事脉络", "剧情脉络", "长线脉络").ifBlank { overview },
+            stagePlan = text(obj, "stagePlan", "阶段规划", "阶段高潮", "阶段节奏"),
             endingDirection = text(obj, "endingDirection", "结局方向", "结局"),
-            romanceAesthetics = text(obj, "romanceAesthetics", "感情描写", "审美执行"),
+            romanceAesthetics = text(obj, "romanceAesthetics", "感情描写", "审美执行", "感情戏与人物描写"),
         )
     }
 
-    private fun candidateComplete(item: StarWishPlotCandidate): Boolean {
-        val required = listOf(
-            item.title,
+    private fun threeCompleteCandidates(items: List<StarWishPlotCandidate>): Boolean =
+        items.size == 3 && items.take(3).all(::candidateCompleteEnough)
+
+    private fun candidateCompleteEnough(item: StarWishPlotCandidate): Boolean {
+        val core = listOf(
             item.worldview,
-            item.hook,
             item.overview,
-            item.highlights,
-            item.relationshipCore,
             item.cast,
             item.characterArcs,
+            item.relationshipCore,
             item.plotSpine,
             item.mainLine,
             item.hiddenLine,
@@ -395,8 +440,10 @@ internal object StarWishTheaterPlanningEngine {
             item.emotionalArc,
             item.proseStyle,
             item.romanceAesthetics,
+            item.highlights,
         )
-        return required.all { value -> value.trim().length >= 12 }
+        val filled = core.count { it.trim().length >= 12 }
+        return item.title.isNotBlank() && item.hook.trim().length >= 8 && filled >= 13
     }
 
     private fun chapterTexts(obj: JSONObject): List<String> {
