@@ -416,13 +416,8 @@ internal object LuluVoiceCallSession {
         val generation = replyGeneration
         replyJob?.cancel()
         pauseRecognition()
-        val userMessage = MigratedDomainStores.chat.sendUserMessage(current.conversationId, spoken)
-        SharedExperienceTimeline.recordChatMessage(
-            current.characterId,
-            current.conversationId,
-            userMessage,
-            channelOverride = "电话",
-        )
+        MigratedDomainStores.chat.appendVoiceMessage(current.conversationId,
+            "voice-${current.callExperienceId}-user-$generation", spoken, false)
         mutableState.update { it.copy(thinking = true, partialTranscript = "", errorMessage = "", statusMessage = "${current.characterName} 正在想怎么回答") }
         scheduleListening(200)
         replyJob = scope.launch {
@@ -458,9 +453,8 @@ internal object LuluVoiceCallSession {
                         CharacterVoicePreferenceStore.playbackVoiceId(latest.characterId), onDelivered = {
                             if (!sameReply()) return@enqueue
                             heard.append(part)
-                            val message = MigratedDomainStores.chat.appendCharacterMessage(latest.conversationId, speech)
-                            SharedExperienceTimeline.recordChatMessage(latest.characterId, latest.conversationId,
-                                message, channelOverride = "电话")
+                            MigratedDomainStores.chat.appendVoiceMessage(latest.conversationId,
+                                "voice-${latest.callExperienceId}-agent-${UUID.randomUUID()}", speech, true)
                             clearWhenHeard()
                         })
                 }

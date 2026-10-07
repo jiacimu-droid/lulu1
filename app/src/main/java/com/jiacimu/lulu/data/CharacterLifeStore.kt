@@ -40,7 +40,29 @@ object CharacterLifeStore {
         val character = MigratedDomainStores.characters.get(characterId)
         if (character.displayName !in setOf("江渡", "江都")) return
         val root = state(characterId)
-        if (root.optInt("jiangDuPresetVersion") >= 2) return
+        val version = root.optInt("jiangDuPresetVersion")
+        if (version >= 3) return
+        if (version >= 2) {
+            if (!DigitalLifeProfileStore.isEnabled(characterId)) return
+            if (!root.has("jiangDuRespectBackup")) {
+                root.put("jiangDuRespectBackup", JSONObject().put("persona", character.persona)
+                    .put("profile", JSONObject((root.optJSONObject("profile") ?: JSONObject()).toString())))
+                save(characterId, root)
+            }
+            val profile = root.optJSONObject("profile") ?: JSONObject()
+            val oldRespect = profile.optString("respect")
+            if (!oldRespect.contains(CharacterProfileSchema.jiangDuRespect)) {
+                profile.put("respect", listOf(oldRespect, CharacterProfileSchema.jiangDuRespect)
+                    .filter(String::isNotBlank).joinToString("\n"))
+            }
+            if (!character.persona.contains(CharacterProfileSchema.jiangDuRespectMarker)) {
+                MigratedDomainStores.characters.update(character.copy(persona = character.persona +
+                    "\n\n" + CharacterProfileSchema.jiangDuRespectMarker + "\n" + CharacterProfileSchema.jiangDuRespect))
+            }
+            root.put("profile", profile).put("jiangDuPresetVersion", 3)
+            save(characterId, root)
+            return
+        }
         val rawIdentity = CharacterIdentityStore.identities.value[characterId].orEmpty()
         if (!root.has("jiangDuPresetBackup")) {
             root.put("jiangDuPresetBackup", JSONObject().put("persona", character.persona)
@@ -55,10 +77,11 @@ object CharacterLifeStore {
         // A resolved real-world character is not silently converted by a name match.
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return
         CharacterIdentityStore.set(characterId, CharacterProfileSchema.jiangDuIdentity)
-        MigratedDomainStores.characters.update(character.copy(persona = CharacterProfileSchema.jiangDuPersona))
+        MigratedDomainStores.characters.update(character.copy(persona = CharacterProfileSchema.jiangDuPersona + "\n\n" +
+            CharacterProfileSchema.jiangDuRespectMarker + "\n" + CharacterProfileSchema.jiangDuRespect))
         val profile = root.optJSONObject("profile") ?: JSONObject()
         CharacterProfileSchema.jiangDu.forEach { (key, value) -> profile.put(key, value) }
-        root.put("profile", profile).put("jiangDuPresetVersion", 2)
+        root.put("profile", profile).put("jiangDuPresetVersion", 3)
         save(characterId, root)
     }
 

@@ -3,6 +3,9 @@ package com.jiacimu.lulu.study
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ScopedModelSelections
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
@@ -14,9 +17,11 @@ internal object StarWishTheaterPlanningEngine {
         existingGuide: String?,
         direction: String,
         theaterWorldBook: String = "",
+        onCandidates: ((List<StarWishPlotCandidate>) -> Unit)? = null,
     ): Result<List<StarWishPlotCandidate>> = runCatching {
         val accepted = mutableListOf<StarWishPlotCandidate>()
         for (variant in 1..3) {
+            currentCoroutineContext().ensureActive()
             val previous = accepted.joinToString("\n") { "《${it.title}》：${it.hook.take(180)}" }
             val facts = buildString {
                 appendLine("这是剧场 App 的独立长篇小说策划任务。")
@@ -86,9 +91,10 @@ internal object StarWishTheaterPlanningEngine {
                 error("第${variant}套方案生成不完整。已经自动补全过一次；直接重新生成即可，不需要补男女主名字。")
             }
             accepted += candidate
+            onCandidates?.invoke(accepted.toList())
         }
         accepted
-    }
+    }.onFailure { if (it is CancellationException) throw it }
 
     suspend fun generateStoryBible(
         characterId: String,

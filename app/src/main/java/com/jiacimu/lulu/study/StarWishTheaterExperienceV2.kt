@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ScopedModelArchiveIconButton
 import com.jiacimu.lulu.ai.ScopedModelSelections
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 private enum class TheaterV2Mode { BOOKSHELF, READER, PLANNER, BIBLE, WORLD_BOOK, GENERATOR }
@@ -1062,6 +1064,7 @@ private fun TheaterPlotGeneratorV2(
     val scope = rememberCoroutineScope()
     var direction by rememberSaveable { mutableStateOf("") }
     var generating by remember { mutableStateOf(false) }
+    var generatingJob by remember { mutableStateOf<Job?>(null) }
     var error by remember { mutableStateOf("") }
     var candidates by remember { mutableStateOf<List<StarWishPlotCandidate>>(emptyList()) }
     var collapsedIndices by remember { mutableStateOf<Set<Int>>(emptySet()) }
@@ -1078,7 +1081,7 @@ private fun TheaterPlotGeneratorV2(
     Column(Modifier.fillMaxSize().imePadding()) {
         Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 1.dp) {
             Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onBack, enabled = !generating) { Icon(Icons.Outlined.ArrowBack, "返回") }
+                IconButton(onClick = { generatingJob?.cancel(); onBack() }) { Icon(Icons.Outlined.ArrowBack, "返回") }
                 Column(Modifier.weight(1f)) {
                     Text(if (existingTitle == null) "创建故事" else "重新规划", fontWeight = FontWeight.Bold)
                     existingTitle?.let { Text(it, color = StudyDesign.muted, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis) }
@@ -1126,18 +1129,20 @@ private fun TheaterPlotGeneratorV2(
                             onClick = {
                                 generating = true
                                 error = ""
-                                scope.launch {
+                                candidates = emptyList()
+                                generatingJob = scope.launch {
                                     val requestContext = liveWorldBookContext
-                                    StarWishTheaterPlanningEngine.generateStoryCandidates(characterId, existingTitle, existingGuide, direction.trim(), requestContext.promptText())
-                                        .onSuccess {
-                                            if (requestContext == latestWorldBookContext) {
+                                    try {
+                                        StarWishTheaterPlanningEngine.generateStoryCandidates(characterId, existingTitle, existingGuide,
+                                            direction.trim(), requestContext.promptText(), onCandidates = { partial ->
+                                                check(requestContext == latestWorldBookContext) { "世界书已更新，请重新生成方案。" }
                                                 candidateWorldBookContext = requestContext
-                                                candidates = it
+                                                candidates = partial
                                                 collapsedIndices = emptySet()
-                                            } else error = "世界书已更新，请重新生成方案。"
-                                        }
-                                        .onFailure { error = it.message ?: "剧情规划生成失败" }
-                                    generating = false
+                                            }).onFailure { error = it.message ?: "剧情规划生成失败；已完成的方案仍可选择" }
+                                    } catch (cancelled: CancellationException) {
+                                        throw cancelled
+                                    } finally { generating = false }
                                 }
                             },
                             enabled = !generating,
@@ -1148,10 +1153,13 @@ private fun TheaterPlotGeneratorV2(
                                 CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
                                 Spacer(Modifier.width(8.dp))
                             }
-                            Text(if (generating) "正在构思三套方案" else if (candidates.isEmpty()) "生成三套剧情方案" else "重新生成三套方案")
+                            Text(if (generating) "正在构思第 ${(candidates.size + 1).coerceAtMost(3)} 套方案" else if (candidates.isEmpty()) "生成三套剧情方案" else "重新生成三套方案")
                         }
                     }
                 }
+            }
+            if (generating) item {
+                TextButton(onClick = { generatingJob?.cancel() }) { Text("停止构思，保留已完成方案") }
             }
             if (error.isNotBlank()) item { Text(error, color = MaterialTheme.colorScheme.error) }
             if (candidates.isNotEmpty()) item { Text("选择一套剧情", fontSize = 20.sp, fontWeight = FontWeight.Bold) }
@@ -1200,9 +1208,9 @@ private fun TheaterPlotGeneratorV2(
                             item.chapters.forEachIndexed { chapterIndex, chapter -> PlotSection("第${chapterIndex + 1}章", chapter) }
                         }
                         Button(onClick = {
-                            if (candidateWorldBookContext == latestWorldBookContext) onApply(item)
+                            if (candidateWorldBookContext == latestWorldBookContext) { generatingJob?.cancel(); onApply(item) }
                             else error = "世界书已更新，请重新生成方案。"
-                        }, enabled = !generating && candidateWorldBookContext == liveWorldBookContext,
+                        }, enabled = candidateWorldBookContext == liveWorldBookContext,
                             modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) {
                             Text(if (existingTitle == null) "选择这套并加入书架" else "应用这套剧情规划")
                         }

@@ -28,6 +28,8 @@ import com.jiacimu.lulu.study.roleStudyContext
 import com.jiacimu.lulu.system.LuluAccessibilityService
 import com.jiacimu.lulu.system.LuluLocationProvider
 import com.jiacimu.lulu.system.LuluNotificationListenerService
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.json.JSONObject
@@ -117,7 +119,13 @@ object ProactivePerceptionRuntime {
         targetCharacterId: String? = null,
         force: Boolean = false,
         now: Instant = Instant.now(),
+        onlineRevision: Long? = null,
+        requiresUnread: Boolean = false,
     ): Int = cycleMutex.withLock {
+        currentCoroutineContext().ensureActive()
+        if (onlineRevision != null && targetCharacterId != null &&
+            !OnlineChatBatchStore.isCurrent(context, targetCharacterId, onlineRevision)) return@withLock 0
+        if (requiresUnread && targetCharacterId != null && CompanionOnlineStore.unreadChatSnapshot(targetCharacterId).text.isBlank()) return@withLock 0
         initialize(context)
         val appContext = context.applicationContext
         val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -156,6 +164,7 @@ object ProactivePerceptionRuntime {
                     .remove("silent_count_$characterId")
                     .apply()
             }.onFailure { error ->
+                if (error is kotlinx.coroutines.CancellationException) throw error
                 CompanionPresenceStore.recordPerceptionAttempt(
                     characterId,
                     "感知失败 · ${error.message.orEmpty().ifBlank { error::class.java.simpleName }.take(120)}",
@@ -225,7 +234,26 @@ object ProactivePerceptionRuntime {
             .groupBy(LuluConversation::characterId)
             .mapNotNull { (_, values) -> values.maxByOrNull(LuluConversation::updatedAt) }
 
-    private suspend fun evaluateCharacter(
+    private suspend fun evaluateCharacter(appContext: Context, conversation: LuluConversation, trigger: String, now: Instant): Action {
+        val characterId = conversation.characterId.ifBlank { "lulu" }
+        val unread = CompanionOnlineStore.unreadChatSnapshot(characterId)
+        return ChatGenerationActivity.during(characterId, unread.conversationIds + conversation.id) {
+            try {
+                evaluateCharacterWithActivity(appContext, conversation, trigger, now)
+            } catch (error: Throwable) {
+                currentCoroutineContext().ensureActive()
+                if (error is kotlinx.coroutines.CancellationException) throw error
+                if (unread.text.isNotBlank()) {
+                    (unread.conversationIds + conversation.id).forEach { id ->
+                        com.jiacimu.lulu.ChatReplyTaskManager.TaskContext(id).reportError(error.message ?: "回复失败")
+                    }
+                }
+                throw error
+            }
+        }
+    }
+
+    private suspend fun evaluateCharacterWithActivity(
         appContext: Context,
         conversation: LuluConversation,
         trigger: String,
@@ -369,11 +397,13 @@ object ProactivePerceptionRuntime {
             )
             throw error
         }
+        currentCoroutineContext().ensureActive()
         val parsed = parseDecision(result.text) ?: error("模型返回无法解析：${result.text.take(100)}")
         val decision = parsed.withPresenceFallback(character)
         CharacterLifeStore.consider(characterId, decision.intention, now)
         // Execute first. Unvalidated model status/gesture must never become a world fact.
         val execution = performAction(appContext, character, decision, availableGroups, now)
+        currentCoroutineContext().ensureActive()
         if (execution.success || decision.action == Action.SILENT) {
             val physicalAction = decision.action in setOf(Action.DIGITAL_WORLD, Action.READING, Action.SOLO_GAME)
             CompanionPresenceStore.update(

@@ -37,6 +37,7 @@ data class CompanionOnlineState(
 data class CompanionUnreadSnapshot(
     val text: String,
     val newestAt: Instant?,
+    val conversationIds: Set<String> = emptySet(),
 )
 
 /**
@@ -116,7 +117,7 @@ object CompanionOnlineStore {
             scheduleExpiryLocked(characterId)
         }
         if (perceiveNow) {
-            appContext?.let { ProactivePerceptionScheduler.scheduleOnline(it, characterId, trigger) }
+            appContext?.let { ProactivePerceptionScheduler.scheduleOnline(it, characterId, trigger, collectMessages = true) }
         }
     }
 
@@ -142,13 +143,13 @@ object CompanionOnlineStore {
             persistLocked()
         }
         memberIds.forEach { characterId ->
-            appContext?.let { ProactivePerceptionScheduler.scheduleOnline(it, characterId, trigger) }
+            appContext?.let { ProactivePerceptionScheduler.scheduleOnline(it, characterId, trigger, collectMessages = true) }
         }
     }
 
     /** Called after a chat or private activity event is durably appended. */
     fun onConversationMessage(conversation: LuluConversation, message: LuluChatMessage) {
-        if (message.status != LuluChatMessage.Status.Sent) return
+        if (message.status != LuluChatMessage.Status.Sent || message.id.startsWith("voice-")) return
         val now = message.createdAt
 
         // Private activity receipts are written only after a real executor succeeded. During the
@@ -223,6 +224,8 @@ object CompanionOnlineStore {
                     it,
                     characterId,
                     if (conversation.groupChat == null) "在线期间收到私聊新消息" else "在线期间群聊出现新消息",
+                    collectMessages = true,
+                    requiresUnread = true,
                 )
             }
         }
@@ -240,6 +243,7 @@ object CompanionOnlineStore {
                 MigratedDomainStores.chat.messages(conversation.id).value.asSequence()
                     .filter { message ->
                         message.status == LuluChatMessage.Status.Sent &&
+                            !message.id.startsWith("voice-") &&
                             message.sender != LuluChatMessage.Sender.System &&
                             message.authorCharacterId != characterId &&
                             (after == null || message.createdAt.isAfter(after))
@@ -260,7 +264,7 @@ object CompanionOnlineStore {
             }
             "- ${message.createdAt}｜$scene｜$speaker：${qqForwardContextText(message.content).take(600)}"
         }
-        return CompanionUnreadSnapshot(text, events.maxOfOrNull { (_, message) -> message.createdAt })
+        return CompanionUnreadSnapshot(text, events.maxOfOrNull { (_, message) -> message.createdAt }, events.mapTo(mutableSetOf()) { it.first.id })
     }
 
     fun markSeen(characterId: String, seenThrough: Instant?) {

@@ -83,8 +83,11 @@ object ProactivePerceptionScheduler {
         )
     }
 
-    fun scheduleOnline(context: Context, characterId: String, trigger: String) {
+    fun scheduleOnline(context: Context, characterId: String, trigger: String,
+        collectMessages: Boolean = false, requiresUnread: Boolean = false) {
+        val batch = OnlineChatBatchStore.next(context, characterId, collectMessages)
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setInitialDelay((batch.dueAtMillis - System.currentTimeMillis()).coerceAtLeast(0L), TimeUnit.MILLISECONDS)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInputData(
                 Data.Builder()
@@ -92,11 +95,19 @@ object ProactivePerceptionScheduler {
                     .putString("characterId", characterId)
                     .putBoolean("force", true)
                     .putBoolean("requireOnline", true)
+                    .putLong("onlineRevision", batch.revision)
+                    .putBoolean("requiresUnread", requiresUnread)
                     .build(),
             )
             .build()
         WorkManager.getInstance(context.applicationContext)
             .enqueueUniqueWork("$ONLINE_WORK-$characterId", ExistingWorkPolicy.APPEND_OR_REPLACE, request)
+    }
+
+    fun cancelOnline(context: Context, characterId: String) {
+        OnlineChatBatchStore.cancel(context, characterId)
+        WorkManager.getInstance(context.applicationContext).cancelUniqueWork("$ONLINE_WORK-$characterId")
+        ChatGenerationActivity.clearCharacter(characterId)
     }
 }
 
@@ -115,15 +126,22 @@ class ProactivePerceptionWorker(
             ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
             return@runCatching Result.success()
         }
+        val onlineRevision = inputData.getLong("onlineRevision", 0L).takeIf { requireOnline }
+        if (requireOnline && characterId != null && !OnlineChatBatchStore.isCurrent(applicationContext, characterId, onlineRevision ?: 0L)) {
+            return@runCatching Result.success()
+        }
         ProactivePerceptionRuntime.runDueCycle(
             context = applicationContext,
             trigger = trigger,
             targetCharacterId = characterId,
             force = force,
+            onlineRevision = onlineRevision,
+            requiresUnread = inputData.getBoolean("requiresUnread", false),
         )
         ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
         Result.success()
     }.getOrElse {
+        if (it is kotlinx.coroutines.CancellationException) throw it
         if (runAttemptCount < 2) Result.retry() else Result.failure()
     }
 }

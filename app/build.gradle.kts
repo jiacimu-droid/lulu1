@@ -73,6 +73,12 @@ android {
         }
     }
 
+    lint {
+        // AndroidX detector uses an incompatible Kotlin analysis ABI with AGP 8.7.3.
+        // Keep all other release checks; the crashing detector cannot inspect even valid code.
+        disable += "NullSafeMutableLiveData"
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true

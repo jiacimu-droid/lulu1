@@ -76,8 +76,10 @@ fun QqStyleChatDetailScreen(
     val library by LuluAiServices.connectionStore.library.collectAsState()
     val replyTaskStates by ChatReplyTaskManager.states.collectAsState()
     val replyTaskState = replyTaskStates[conversationId] ?: ChatReplyTaskManager.TaskState()
-    val receiving = replyTaskState.running
-    val typingCharacterId = replyTaskState.typingCharacterId
+    val actualActivities by ChatGenerationActivity.activities.collectAsState()
+    val activeTypists = actualActivities.values.filter { conversationId in it.conversationIds }.map { it.characterId }.distinct()
+    val receiving = replyTaskState.running || activeTypists.isNotEmpty()
+    val typingCharacterId = replyTaskState.typingCharacterId ?: activeTypists.firstOrNull()
     val conversation = conversations.firstOrNull { it.id == conversationId }
     val groupChat = conversation?.groupChat
     val characterId = conversation?.characterId ?: "lulu"
@@ -166,6 +168,10 @@ fun QqStyleChatDetailScreen(
 
     fun stopReceiving() {
         ChatReplyTaskManager.stop(conversationId)
+        (groupChat?.members?.map { it.characterId } ?: listOf(characterId)).forEach {
+            ProactivePerceptionScheduler.cancelOnline(context, it)
+        }
+        ChatGenerationActivity.clearConversation(conversationId)
     }
 
     fun wakeOnline(payload: QqComposerPayload? = null): Boolean {
@@ -188,7 +194,7 @@ fun QqStyleChatDetailScreen(
     }
 
     fun sendAndReceive(includeDraft: Boolean = true) {
-        if (ChatReplyTaskManager.state(conversationId).running) return
+        if (ChatReplyTaskManager.state(conversationId).running || ChatGenerationActivity.isRunning(conversationId)) return
         if (activeArchive == null) {
             scope.launch { snackbar.showSnackbar("请先选择聊天模型") }
             return
@@ -266,7 +272,7 @@ fun QqStyleChatDetailScreen(
     }
 
     fun regenerateLatestReply(message: LuluChatMessage) {
-        if (ChatReplyTaskManager.state(conversationId).running) {
+        if (ChatReplyTaskManager.state(conversationId).running || ChatGenerationActivity.isRunning(conversationId)) {
             selectedMessage = null
             scope.launch { snackbar.showSnackbar("这一轮还在回复中，先等它说完") }
             return
@@ -348,14 +354,14 @@ fun QqStyleChatDetailScreen(
                             if (groupChat == null) QqAvatar(character.displayName.take(1).ifBlank { "露" }, 42, character.avatarUri)
                             else QqGroupAvatar(groupChat, 42)
                             Spacer(Modifier.width(9.dp))
-                            Column {
-                                Text(
-                                    (groupChat?.let { "${it.name}（${it.members.size + 1}）" } ?: character.displayName) +
-                                        if (receiving) " · ${if (groupChat != null) typingCharacterId?.let { characters[it]?.displayName }.orEmpty() else ""}正在输入中" else "",
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 17.sp,
-                                    color = QqInk,
-                                )
+                            Column(Modifier.weight(1f)) {
+                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                    Text(groupChat?.let { "${it.name}（${it.members.size + 1}）" } ?: character.displayName,
+                                        modifier = Modifier.weight(1f), fontWeight = FontWeight.SemiBold, fontSize = 17.sp,
+                                        color = QqInk, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                                    if (receiving) Text("正在输入中", modifier = Modifier.padding(start = 5.dp),
+                                        color = Color(0xFF2A9D63), fontSize = 11.sp, maxLines = 1)
+                                }
                                 Text(
                                     if (groupChat == null) "${if (privateOnline) "在线" else "离线"} · $activeLabel"
                                     else "$onlineMemberCount 人在线",

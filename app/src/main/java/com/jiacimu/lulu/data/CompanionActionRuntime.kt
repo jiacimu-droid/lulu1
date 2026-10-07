@@ -116,10 +116,10 @@ internal object CompanionActionRuntime {
                 val text = args.optString("text").trim().take(2_000)
                 require(text.isNotBlank()) { "私聊内容不能为空" }
                 val conversation = privateConversation(characterId, character.displayName)
-                com.jiacimu.lulu.normalizeSemanticBubbles(text).split(Regex("\\n+"))
-                    .map(String::trim).filter(String::isNotBlank).forEach { bubble ->
-                        MigratedDomainStores.chat.appendCharacterMessage(conversation.id, bubble, characterId)
-                    }
+                ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
+                    com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
+                        com.jiacimu.lulu.parseCharacterReplyPresentation(text))
+                }
                 CompanionActionResult(true, "已在私聊中发送消息", conversation.id)
             }
             "send_group_message" -> {
@@ -129,10 +129,10 @@ internal object CompanionActionRuntime {
                     candidate.id == groupId && candidate.groupChat?.members?.any { it.characterId == characterId } == true
                 } ?: error("角色不在指定群聊中")
                 require(text.isNotBlank()) { "群聊内容不能为空" }
-                com.jiacimu.lulu.normalizeSemanticBubbles(text).split(Regex("\\n+"))
-                    .map(String::trim).filter(String::isNotBlank).forEach { bubble ->
-                        MigratedDomainStores.chat.appendCharacterMessage(conversation.id, bubble, characterId)
-                    }
+                ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
+                    com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
+                        com.jiacimu.lulu.parseCharacterReplyPresentation(text))
+                }
                 CompanionActionResult(true, "已在群聊《${conversation.groupChat?.name}》发言", conversation.id)
             }
             "send_game_invite" -> {
@@ -314,6 +314,7 @@ internal object CompanionActionRuntime {
         }
         result
     }.getOrElse { error ->
+        if (error is kotlinx.coroutines.CancellationException) throw error
         CompanionActionResult(false, error.message ?: error::class.java.simpleName)
     }
 
