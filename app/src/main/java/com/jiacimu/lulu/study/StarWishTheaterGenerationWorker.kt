@@ -286,17 +286,19 @@ internal class StarWishPlanGenerationWorker(
                 starWishPlansFromLegacyGuide(guide)
             }
             val ledger = planSnapshot.theaterLedgers[theater]
-            val bible = StarWishTheaterPlanningEngine.generateStoryBible(
+            val existingBible = planSnapshot.theaterBibles[theater]
+            val refreshedBible = StarWishTheaterPlanningEngine.generateStoryBible(
                 characterId = characterId,
                 storyTitle = theater,
                 storyGuide = guide,
                 chapterCount = chapterCount,
                 writtenChapters = writtenChapters,
-                existingBible = planSnapshot.theaterBibles[theater],
+                existingBible = existingBible,
                 ledger = ledger,
-            ).getOrThrow()
+            ).getOrNull()
+            val bible = refreshedBible ?: existingBible
+            if (refreshedBible != null) store.setBible(theater, refreshedBible)
 
-            store.setBible(theater, bible)
             val plans = StarWishTheaterPlanningEngine.generateChapterPlans(
                 characterId = characterId,
                 storyTitle = theater,
