@@ -25,7 +25,7 @@ import com.jiacimu.lulu.ScopedModelArchiveIconButton
 import com.jiacimu.lulu.ai.ScopedModelSelections
 import kotlinx.coroutines.launch
 
-private enum class TheaterV2Mode { BOOKSHELF, READER, PLANNER, GENERATOR }
+private enum class TheaterV2Mode { BOOKSHELF, READER, PLANNER, BIBLE, GENERATOR }
 
 @Composable
 internal fun StarWishTheaterContentV2(
@@ -52,7 +52,7 @@ internal fun StarWishTheaterContentV2(
 
     BackHandler {
         mode = when (mode) {
-            TheaterV2Mode.PLANNER, TheaterV2Mode.GENERATOR -> if (openedSeed == null) TheaterV2Mode.BOOKSHELF else TheaterV2Mode.READER
+            TheaterV2Mode.PLANNER, TheaterV2Mode.BIBLE, TheaterV2Mode.GENERATOR -> if (openedSeed == null) TheaterV2Mode.BOOKSHELF else TheaterV2Mode.READER
             TheaterV2Mode.READER -> TheaterV2Mode.BOOKSHELF
             TheaterV2Mode.BOOKSHELF -> {
                 onExit()
@@ -83,6 +83,7 @@ internal fun StarWishTheaterContentV2(
                 task = generationTasks[openedSeed.title],
                 onBack = { mode = TheaterV2Mode.BOOKSHELF },
                 onPlanner = { mode = TheaterV2Mode.PLANNER },
+                onBible = { mode = TheaterV2Mode.BIBLE },
                 onRegenerate = { mode = TheaterV2Mode.PLANNER },
             )
         } else {
@@ -106,6 +107,7 @@ internal fun StarWishTheaterContentV2(
                 writtenChapterCount = state.theaterChapters[openedSeed.title].orEmpty().size,
                 task = planGenerationTasks[openedSeed.title],
                 onBack = { mode = TheaterV2Mode.READER },
+                onBible = { mode = TheaterV2Mode.BIBLE },
                 onSave = { guide, plans ->
                     store.setStoryPlan(openedSeed.title, guide, plans)
                     mode = TheaterV2Mode.READER
@@ -118,6 +120,16 @@ internal fun StarWishTheaterContentV2(
                         chapterCount = plans.size,
                     )
                 },
+            )
+        } else {
+            mode = TheaterV2Mode.BOOKSHELF
+        }
+        TheaterV2Mode.BIBLE -> if (openedSeed != null) {
+            TheaterStoryBibleV2(
+                title = openedSeed.title,
+                bible = state.theaterBibles[openedSeed.title],
+                ledger = state.theaterLedgers[openedSeed.title],
+                onBack = { mode = TheaterV2Mode.READER },
             )
         } else {
             mode = TheaterV2Mode.BOOKSHELF
@@ -291,6 +303,7 @@ private fun TheaterReaderV2(
     task: StarWishTheaterTask?,
     onBack: () -> Unit,
     onPlanner: () -> Unit,
+    onBible: () -> Unit,
     onRegenerate: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -372,6 +385,11 @@ private fun TheaterReaderV2(
                             )
                             HorizontalDivider()
                         }
+                        DropdownMenuItem(
+                            text = { Text("幕后规划") },
+                            leadingIcon = { Icon(Icons.Outlined.AutoStories, null) },
+                            onClick = { overflowMenu = false; onBible() },
+                        )
                         DropdownMenuItem(
                             text = { Text("重新生成剧情规划") },
                             leadingIcon = { Icon(Icons.Outlined.AutoAwesome, null) },
@@ -582,6 +600,7 @@ private fun TheaterPlannerV2(
     writtenChapterCount: Int,
     task: StarWishPlanTask?,
     onBack: () -> Unit,
+    onBible: () -> Unit,
     onSave: (String, List<StarWishChapterPlan>) -> Unit,
     onRegenerate: (String, List<StarWishChapterPlan>) -> Result<Unit>,
 ) {
@@ -591,6 +610,13 @@ private fun TheaterPlannerV2(
     var localMessage by remember { mutableStateOf("") }
     val regenerating = task?.active == true
     val dirty = guide != initialGuide || plans != initialPlans
+
+    fun appendOneChapter() {
+        val number = plans.size + 1
+        if (number <= StarWishRules.MAX_CHAPTERS_PER_THEATER) {
+            plans = plans + StarWishChapterPlan(number = number, title = "第 $number 章", outline = "待规划")
+        }
+    }
 
     fun appendThreeChapters() {
         val start = plans.size + 1
@@ -638,14 +664,20 @@ private fun TheaterPlannerV2(
         ) {
             item {
                 Text("故事地图", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                Text("总纲只管全局；右上角“重新生成”只重做逐章规划，不会改掉总大纲和故事基调。", color = StudyDesign.muted, style = MaterialTheme.typography.bodySmall)
+                Text("这里只放这本书的核心、看点、世界前提、关系底色和基调。人物长线、明暗线、伏笔与结局放在单独的幕后规划。", color = StudyDesign.muted, style = MaterialTheme.typography.bodySmall)
+                Spacer(Modifier.height(8.dp))
+                FilledTonalButton(onClick = onBible) {
+                    Icon(Icons.Outlined.AutoStories, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(5.dp))
+                    Text("查看幕后规划")
+                }
             }
             item {
                 OutlinedTextField(
                     value = guide,
                     onValueChange = { guide = it },
                     modifier = Modifier.fillMaxWidth().heightIn(min = 220.dp),
-                    label = { Text("世界观、总纲、明暗线、关系与伏笔") },
+                    label = { Text("故事核心、看点、世界前提、关系底色与基调") },
                     textStyle = MaterialTheme.typography.bodyMedium.copy(lineHeight = 23.sp),
                     shape = RoundedCornerShape(18.dp),
                     enabled = !regenerating,
@@ -657,13 +689,23 @@ private fun TheaterPlannerV2(
                         Text("逐章规划", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                         Text(plans.size.toString() + " 章规划 · 连续点 +3章 可以先定全书章数", color = StudyDesign.muted, style = MaterialTheme.typography.bodySmall)
                     }
-                    FilledTonalButton(
-                        onClick = ::appendThreeChapters,
-                        enabled = !regenerating && plans.size <= StarWishRules.MAX_CHAPTERS_PER_THEATER - 3,
-                    ) {
-                        Icon(Icons.Outlined.PlaylistAdd, null)
-                        Spacer(Modifier.width(4.dp))
-                        Text("+3章")
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        FilledTonalButton(
+                            onClick = ::appendOneChapter,
+                            enabled = !regenerating && plans.size < StarWishRules.MAX_CHAPTERS_PER_THEATER,
+                            contentPadding = PaddingValues(horizontal = 11.dp, vertical = 8.dp),
+                        ) {
+                            Text("+1章")
+                        }
+                        FilledTonalButton(
+                            onClick = ::appendThreeChapters,
+                            enabled = !regenerating && plans.size <= StarWishRules.MAX_CHAPTERS_PER_THEATER - 3,
+                            contentPadding = PaddingValues(horizontal = 11.dp, vertical = 8.dp),
+                        ) {
+                            Icon(Icons.Outlined.PlaylistAdd, null, modifier = Modifier.size(17.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("+3章")
+                        }
                     }
                 }
             }
@@ -748,6 +790,86 @@ private fun TheaterPlannerV2(
             dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text("继续编辑") } },
             confirmButton = { TextButton(onClick = { confirmDiscard = false; onBack() }) { Text("放弃修改") } },
         )
+    }
+}
+
+@Composable
+private fun TheaterStoryBibleV2(
+    title: String,
+    bible: StarWishStoryBible?,
+    ledger: StarWishStoryLedger?,
+    onBack: () -> Unit,
+) {
+    Column(Modifier.fillMaxSize()) {
+        Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 1.dp) {
+            Row(
+                Modifier.fillMaxWidth().heightIn(min = 60.dp).padding(horizontal = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回阅读") }
+                Column(Modifier.weight(1f)) {
+                    Text("幕后规划", fontWeight = FontWeight.Bold)
+                    Text(title, color = StudyDesign.muted, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            }
+        }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            item {
+                Text("长期导演台", fontSize = 23.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    "这里负责长线精彩与连贯；已经写出的正文和硬事实优先级最高。点击剧情规划页的“重新生成”会刷新未来幕后规划和未写章节，不会改掉已经写完的正文。",
+                    color = StudyDesign.muted,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            if (bible == null || bible.promptText().isBlank()) {
+                item {
+                    Surface(
+                        shape = RoundedCornerShape(18.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                    ) {
+                        Text(
+                            "还没有幕后规划。先在剧情规划里建立目标章节数，再点右上角“重新生成”，这里会自动生成。",
+                            modifier = Modifier.padding(16.dp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            } else {
+                item { PlotSection("人物与人设", bible.cast) }
+                item { PlotSection("人物成长弧", bible.characterArcs) }
+                item { PlotSection("长期感情线", bible.relationshipArc) }
+                item { PlotSection("故事脉络", bible.plotSpine) }
+                item { PlotSection("明线", bible.mainLine) }
+                item { PlotSection("暗线", bible.hiddenLine) }
+                item { PlotSection("伏笔明细", bible.foreshadows) }
+                item { PlotSection("阶段高潮与节奏", bible.stagePlan) }
+                item { PlotSection("结局方向", bible.endingDirection) }
+                item { PlotSection("感情戏与人物描写", bible.romanceAesthetics) }
+            }
+            item {
+                HorizontalDivider()
+                Spacer(Modifier.height(6.dp))
+                Text("正文当前状态", fontSize = 21.sp, fontWeight = FontWeight.Bold)
+                Text("这一部分不是未来规划，会在每一章写完后自动更新。", color = StudyDesign.muted, style = MaterialTheme.typography.bodySmall)
+            }
+            if (ledger == null || ledger.updatedThroughChapter <= 0) {
+                item { Text("尚未生成连续性档案。", color = StudyDesign.muted) }
+            } else {
+                item { PlotSection("硬事实 · 不得无解释违背", ledger.hardFacts) }
+                item { PlotSection("人物当前状态", ledger.characters) }
+                item { PlotSection("当前关系", ledger.relationships) }
+                item { PlotSection("世界与地点状态", ledger.worldState) }
+                item { PlotSection("正在推进的线", ledger.openThreads) }
+                item { PlotSection("伏笔状态", ledger.foreshadows) }
+                item { PlotSection("关键物品", ledger.keyItems) }
+                item { PlotSection("截至第 ${ledger.updatedThroughChapter} 章摘要", ledger.summary) }
+            }
+        }
     }
 }
 
