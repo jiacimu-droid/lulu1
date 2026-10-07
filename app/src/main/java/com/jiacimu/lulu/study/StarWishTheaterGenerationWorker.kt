@@ -285,6 +285,16 @@ internal class StarWishPlanGenerationWorker(
             val existingPlans = planSnapshot.theaterPlans[theater].orEmpty().ifEmpty {
                 starWishPlansFromLegacyGuide(guide)
             }
+            val ledger = planSnapshot.theaterLedgers[theater]
+            val bible = StarWishTheaterPlanningEngine.generateStoryBible(
+                characterId = characterId,
+                storyTitle = theater,
+                storyGuide = guide,
+                chapterCount = chapterCount,
+                writtenChapters = writtenChapters,
+                existingBible = planSnapshot.theaterBibles[theater],
+                ledger = ledger,
+            ).getOrThrow()
 
             val plans = StarWishTheaterPlanningEngine.generateChapterPlans(
                 characterId = characterId,
@@ -293,8 +303,11 @@ internal class StarWishPlanGenerationWorker(
                 chapterCount = chapterCount,
                 writtenChapters = writtenChapters,
                 existingPlans = existingPlans,
+                storyBible = bible,
+                ledger = ledger,
             ).getOrThrow()
 
+            store.setBible(theater, bible)
             store.setStoryPlan(theater, guide, plans)
             manager.succeeded(theater, chapterCount)
             Result.success()
@@ -343,6 +356,20 @@ internal class StarWishTheaterGenerationWorker(
                 }
             }
 
+            var bible = snapshot.theaterBibles[theater]
+            if (bible == null && guide.isNotBlank()) {
+                bible = StarWishTheaterPlanningEngine.generateStoryBible(
+                    characterId = ISOLATED_CHARACTER_ID,
+                    storyTitle = theater,
+                    storyGuide = guide,
+                    chapterCount = maxOf(plans.size, chapterNumber),
+                    writtenChapters = chapters,
+                    existingBible = null,
+                    ledger = ledger,
+                ).getOrNull()
+                bible?.let { store.setBible(theater, it) }
+            }
+
             var currentPlan = plans.firstOrNull { it.number == chapterNumber }
             if (currentPlan == null && guide.isNotBlank()) {
                 val plannedThroughCurrent = StarWishTheaterPlanningEngine.generateChapterPlans(
@@ -352,6 +379,8 @@ internal class StarWishTheaterGenerationWorker(
                     chapterCount = chapterNumber,
                     writtenChapters = chapters,
                     existingPlans = plans,
+                    storyBible = bible,
+                    ledger = ledger,
                 ).getOrNull()
                 val generatedCurrent = plannedThroughCurrent?.firstOrNull { it.number == chapterNumber }
                 if (generatedCurrent != null && plannedThroughCurrent != null) {
@@ -366,7 +395,10 @@ internal class StarWishTheaterGenerationWorker(
             }
             val chapterFacts = buildString {
                 appendLine("独立剧场故事：《$theater》")
-                appendLine("故事总地图：\n${guide.ifBlank { "尚未填写总地图" }}")
+                appendLine("故事地图：\n${guide.ifBlank { "尚未填写故事地图" }}")
+                bible?.promptText()?.takeIf(String::isNotBlank)?.let {
+                    appendLine("幕后长期规划（负责人物弧、明暗线、伏笔和长线节奏）：\n$it")
+                }
                 if (plans.isNotEmpty()) {
                     appendLine("本章附近的逐章规划：")
                     plans.filter { it.number in (chapterNumber - 2).coerceAtLeast(1)..(chapterNumber + 8) }
@@ -381,10 +413,11 @@ internal class StarWishTheaterGenerationWorker(
             val chapterInstruction = """
                 续写第 $chapterNumber 章完整中文小说正文，约1800—3200字，只输出正文。
                 这是完全独立的小剧场，不得引用任何真实角色设定、聊天、记忆、共同时间线、用户资料或世界书。
-                用户要求优先级最高；故事地图和逐章规划是导航。新章必须发生在上一章最后一句之后，禁止重演已经完成的动作、对白、发现或决定。
-                严格继承连续性档案中的人物位置、身体状态、情绪、关系、已知信息、物品、明暗线与伏笔。若用户改变剧情方向，应自然改道，并保留可回收的旧伏笔。
-                使用环境、五感、空间距离、动作余韵、神态、心理变化、潜台词和留白；不能流水账，也不能用直白结论代替描写。
-                每章至少推进明线、暗线、关系线中的两条，结尾留下自然钩子。不要输出提纲、解释、标题或系统提示。
+                用户要求优先级最高；故事地图、幕后规划和逐章规划负责“精彩”，连续性档案与硬事实负责“不能写崩”。新章必须发生在上一章最后一句之后，禁止重演已经完成的动作、对白、发现或决定。
+                连续性档案里的硬事实是绝对约束：已经死亡的人不能无解释复活，亲属/身份/性别/婚恋关系不能莫名改变，伤势、物品归属、人物已知信息、阵营和地点不能回滚。若规划与正文事实冲突，以正文事实为准。
+                人物必须有自己的欲望、判断和主动选择，事件要有因果，至少推进明线、暗线、关系线中的两条，并让伏笔有埋设、强化或回收。
+                感情戏要有让读者心动的画面感：自然描写眼神、手指、腕骨、锁骨、肩颈、衣料、声音、呼吸、距离、光影和动作停顿，用潜台词与身体距离制造张力；不要机械堆砌身体部位。
+                使用环境、五感、空间距离、动作余韵、神态、心理变化、潜台词和留白；不能流水账，也不能用直白结论代替描写。结尾留下自然钩子。不要输出提纲、解释、标题或系统提示。
             """.trimIndent()
 
             var reply = ""
@@ -490,8 +523,8 @@ internal class StarWishTheaterGenerationWorker(
             instruction = """
                 更新这部独立小说的连续性档案。只记录正文已经确认的事实，不得猜测，不得引用任何聊天或角色资料。
                 只输出一个JSON对象，不要Markdown：
-                {"summary":"截至本章的紧凑剧情摘要","characters":"人物位置、身体、情绪、目标、已知信息","worldState":"时间、地点、环境和世界规则的当前状态","relationships":"人物关系与本章变化","openThreads":"正在推进但未完成的明线与暗线","foreshadows":"已埋、已回收和待回收伏笔","keyItems":"关键物品、归属和状态","updatedThroughChapter":${chapter.chapter}}
-                每个文本字段保留真正影响后续写作的具体事实，删除已经失效的状态，控制整份档案在1800字以内。
+                {"summary":"截至本章的紧凑剧情摘要","characters":"人物位置、身体、情绪、目标、已知信息","worldState":"时间、地点、环境和世界规则的当前状态","relationships":"人物关系与本章变化","openThreads":"正在推进但未完成的明线与暗线","foreshadows":"已埋、已回收和待回收伏笔","keyItems":"关键物品、归属和状态","hardFacts":"不可随意改变的已确认事实：生死、亲属、身份、性别、婚恋、阵营、重要伤势、关键秘密知情情况、物品归属、已发生关键事件","updatedThroughChapter":${chapter.chapter}}
+                hardFacts 必须继承旧档案中仍成立的硬事实，只能被新正文明确推翻/揭示反转时更新，不能自行猜测或回滚。其他字段保留真正影响后续写作的当前事实，删除已经失效的临时状态，整份控制在2200字以内。
             """.trimIndent(),
             source = "剧场",
             title = "$theater · 连续性档案",
@@ -524,8 +557,8 @@ internal class StarWishTheaterGenerationWorker(
             },
             instruction = """
                 重新建立这部小说截至当前章节的连续性档案。只能依据提供的故事内容，不得调用聊天、角色资料或其他世界信息。
-                只输出JSON：{"summary":"","characters":"","worldState":"","relationships":"","openThreads":"","foreshadows":"","keyItems":"","updatedThroughChapter":${chapters.size}}
-                重点保留人物位置与状态、关系变化、已知信息、关键物品、未完明暗线和待回收伏笔，整份控制在1800字以内。
+                只输出JSON：{"summary":"","characters":"","worldState":"","relationships":"","openThreads":"","foreshadows":"","keyItems":"","hardFacts":"","updatedThroughChapter":${chapters.size}}
+                重点保留人物位置与状态、关系变化、已知信息、关键物品、未完明暗线和待回收伏笔。hardFacts 专门整理生死、亲属、身份、性别、婚恋、阵营、重要伤势、关键秘密知情情况、物品归属和已经发生的关键事件，后续不得无解释违背。整份控制在2200字以内。
             """.trimIndent(),
             source = "剧场",
             title = "$theater · 重建连续性档案",
@@ -547,7 +580,7 @@ internal class StarWishTheaterGenerationWorker(
             summary = item.optString("summary"), characters = item.optString("characters"),
             worldState = item.optString("worldState"), relationships = item.optString("relationships"),
             openThreads = item.optString("openThreads"), foreshadows = item.optString("foreshadows"),
-            keyItems = item.optString("keyItems"),
+            keyItems = item.optString("keyItems"), hardFacts = item.optString("hardFacts"),
             updatedThroughChapter = item.optInt("updatedThroughChapter", chapterNumber).coerceAtLeast(chapterNumber),
         )
     }
@@ -565,4 +598,5 @@ internal fun StarWishStoryLedger.promptText(): String = buildString {
     if (openThreads.isNotBlank()) appendLine("未完线索：$openThreads")
     if (foreshadows.isNotBlank()) appendLine("伏笔：$foreshadows")
     if (keyItems.isNotBlank()) appendLine("关键物品：$keyItems")
+    if (hardFacts.isNotBlank()) appendLine("硬事实（绝对不能无解释违背）：$hardFacts")
 }.trim()
