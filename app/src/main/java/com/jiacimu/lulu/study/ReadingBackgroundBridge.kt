@@ -54,7 +54,7 @@ internal object ReadingBackgroundBridge {
     }
 
     /**
-     * Returns the exact next excerpt and advances the durable cursor. A completed book does not
+     * Returns the exact next excerpt; commitSlice advances the cursor only after a successful read. A completed book does not
      * silently restart; it disappears from [availableBooks] until the source text changes.
      */
     fun nextSlice(
@@ -67,9 +67,8 @@ internal object ReadingBackgroundBridge {
         if (book.content.isEmpty()) return null
         val start = progress(context, characterId, book)
         if (start >= book.content.length) return null
-        val end = (start + maxChars.coerceIn(800, 12_000)).coerceAtMost(book.content.length)
-        val prefs = context.applicationContext.getSharedPreferences(PROGRESS_PREFS, Context.MODE_PRIVATE)
-        prefs.edit().putInt(progressKey(characterId, book), end).apply()
+        val chapterEnd = readingSections(book).firstOrNull { start in it.start until it.end }?.end ?: book.content.length
+        val end = minOf(start + maxChars.coerceIn(800, 12_000), chapterEnd, book.content.length)
         return BackgroundReadingSlice(
             book = book,
             text = book.content.substring(start, end),
@@ -78,6 +77,20 @@ internal object ReadingBackgroundBridge {
             totalLength = book.content.length,
             completed = end >= book.content.length,
         )
+    }
+
+    fun commitSlice(context: Context, characterId: String, slice: BackgroundReadingSlice): Boolean {
+        val prefs = context.applicationContext.getSharedPreferences(PROGRESS_PREFS, Context.MODE_PRIVATE)
+        val key = progressKey(characterId, slice.book)
+        if (prefs.getInt(key, 0) != slice.startOffset) return false
+        return prefs.edit().putInt(key, slice.endOffset).commit()
+    }
+
+    fun clearCharacter(context: Context, characterId: String) {
+        val prefs = context.applicationContext.getSharedPreferences(PROGRESS_PREFS, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        prefs.all.keys.filter { it.startsWith("cursor:$characterId:") }.forEach(editor::remove)
+        editor.commit()
     }
 
     private fun progress(context: Context, characterId: String, book: BackgroundReadingBook): Int {

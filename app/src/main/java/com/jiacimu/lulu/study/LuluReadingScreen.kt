@@ -1,281 +1,144 @@
 package com.jiacimu.lulu.study
 
-import android.content.Context
 import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.jiacimu.lulu.ai.LuluAiServices
-import com.jiacimu.lulu.data.MigratedDomainStores
-import com.jiacimu.lulu.data.SharedExperienceTimeline
+import com.jiacimu.lulu.data.*
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
-import java.time.Instant
 import java.util.UUID
 
-private data class ReadingBook(val id: String, val title: String, val content: String, val source: String)
-private data class ReadingLine(val id: String = UUID.randomUUID().toString(), val mine: Boolean, val text: String)
-
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun LuluReadingScreen(
-    onBack: () -> Unit,
-    initialBookTitle: String? = null,
-) {
+fun LuluReadingScreen(onBack: () -> Unit, initialBookTitle: String? = null) {
     val context = LocalContext.current
-    val starStore = remember { StarWishStores.main }
-    val studyStore = remember { PostgraduateExamStores.main }
-    val starState by starStore.state.collectAsState()
-    val studyState by studyStore.state.collectAsState()
-    var uploads by remember { mutableStateOf(loadReadingBooks(context)) }
-    var selected by remember { mutableStateOf<ReadingBook?>(null) }
-    var notice by remember { mutableStateOf("") }
-
-    val theaterBooks = remember(starState.theaterChapters) {
-        starState.theaterChapters.mapNotNull { (title, chapters) ->
-            if (chapters.isEmpty()) null else ReadingBook(
-                id = "theater:$title",
-                title = title,
-                content = chapters.sortedBy { it.chapter }.joinToString("\n\n") { chapter ->
-                    "第${chapter.chapter}章 ${chapter.title}\n${chapter.content}"
-                },
-                source = "来自小剧场 · ${chapters.size}章",
-            )
-        }
-    }
-    val allBooks = uploads + theaterBooks
-
-    LaunchedEffect(initialBookTitle, allBooks.map(ReadingBook::id)) {
-        val title = initialBookTitle?.takeIf(String::isNotBlank) ?: return@LaunchedEffect
-        if (selected == null) {
-            selected = allBooks.firstOrNull { it.title == title }
-            if (selected == null) notice = "没有找到《$title》，它可能已经被删除或改名。"
-        }
-    }
-
-    val importer = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) {
-            runCatching {
-                val title = context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
-                    ?.use { cursor -> if (cursor.moveToFirst()) cursor.getString(0) else null }
-                    ?.substringBeforeLast('.')
-                    ?.ifBlank { "我的故事" }
-                    ?: "我的故事"
-                val content = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
-                    ?.trim()?.take(300_000).orEmpty()
-                require(content.isNotBlank()) { "没有读取到文字内容" }
-                val book = ReadingBook(UUID.randomUUID().toString(), title, content, "用户上传")
-                uploads = listOf(book) + uploads
-                saveReadingBooks(context, uploads)
-                selected = book
-            }.onFailure { notice = it.message ?: "故事导入失败，请选择 TXT 或 Markdown 文件" }
-        }
-    }
-
-    Scaffold(
-        containerColor = StudyDesign.paper,
-        topBar = {
-            TopAppBar(
-                title = { Text(if (selected == null) "一起阅读" else selected!!.title, fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = { if (selected != null) selected = null else onBack() }) {
-                        Icon(Icons.Outlined.ArrowBack, "返回")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = StudyDesign.paper),
-            )
-        },
-    ) { padding ->
-        if (selected == null) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(padding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(11.dp),
-            ) {
-                item {
-                    Surface(
-                        color = StudyDesign.card,
-                        shape = RoundedCornerShape(24.dp),
-                        border = BorderStroke(1.dp, StudyDesign.border),
-                    ) {
-                        Column(Modifier.padding(14.dp)) {
-                            Button(
-                                onClick = { importer.launch(arrayOf("text/plain", "text/markdown", "application/json")) },
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.wheat, contentColor = StudyDesign.ink),
-                            ) {
-                                Icon(Icons.Outlined.UploadFile, null)
-                                Spacer(Modifier.width(7.dp))
-                                Text("上传故事")
-                            }
-                        }
-                    }
-                }
-                if (allBooks.isEmpty()) {
-                    item { Text("书架还是空的。", color = StudyDesign.muted) }
-                }
-                items(allBooks, key = ReadingBook::id) { book ->
-                    Surface(
-                        onClick = { selected = book },
-                        color = StudyDesign.card,
-                        shape = RoundedCornerShape(19.dp),
-                        border = BorderStroke(1.dp, StudyDesign.border),
-                    ) {
-                        Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Outlined.AutoStories, null, tint = StudyDesign.ink, modifier = Modifier.size(30.dp))
-                            Spacer(Modifier.width(12.dp))
-                            Column(Modifier.weight(1f)) {
-                                Text(book.title, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                                Text(book.source, color = StudyDesign.muted, fontSize = 12.sp)
-                            }
-                            Icon(Icons.Outlined.ChevronRight, null, tint = StudyDesign.muted)
-                        }
-                    }
-                }
-                if (notice.isNotBlank()) item { Text(notice, color = StudyDesign.error) }
-            }
-        } else {
-            ReadingRoom(
-                modifier = Modifier.fillMaxSize().padding(padding),
-                book = selected!!,
-                characterId = studyState.profile.selectedCharacterId,
-            )
-        }
-    }
-}
-
-@Composable
-private fun ReadingRoom(modifier: Modifier, book: ReadingBook, characterId: String) {
-    val character = MigratedDomainStores.characters.get(characterId)
     val scope = rememberCoroutineScope()
-    var question by remember { mutableStateOf("") }
-    var discussing by remember(false) { mutableStateOf(false) }
-    var lines by remember(book.id) { mutableStateOf(listOf<ReadingLine>()) }
-    var sectionExpanded by remember { mutableStateOf(true) }
+    val star by StarWishStores.main.state.collectAsState()
+    val characters by MigratedDomainStores.characters.settings.collectAsState()
+    val reflections by ReadingReflectionStore.records.collectAsState()
+    var libraryVersion by remember { mutableIntStateOf(0) }
+    val books = remember(star.theaterChapters, libraryVersion) { ReadingBackgroundBridge.books(context) }
+    var selectedId by remember { mutableStateOf<String?>(null) }
+    var characterId by remember { mutableStateOf(PostgraduateExamStores.main.state.value.profile.selectedCharacterId) }
+    var notice by remember { mutableStateOf("") }
+    var reading by remember { mutableStateOf(false) }
+    val targetId = initialBookTitle?.takeIf { it.startsWith("reading-record:") }?.removePrefix("reading-record:")
+    val target = targetId?.let(ReadingReflectionStore::get)
+    val listState = rememberLazyListState()
+    val selected = books.firstOrNull { it.id == selectedId }
 
-    LazyColumn(
-        modifier = modifier,
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(11.dp),
-    ) {
-        item {
-            Surface(color = StudyDesign.card, shape = RoundedCornerShape(22.dp), border = BorderStroke(1.dp, StudyDesign.border)) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text(book.title, fontSize = 20.sp, fontWeight = FontWeight.Black)
-                            Text("正在和${character.displayName}共读 · ${book.source}", color = StudyDesign.muted, fontSize = 12.sp)
-                        }
-                        IconButton(onClick = { sectionExpanded = !sectionExpanded }) {
-                            Icon(if (sectionExpanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore, "展开正文")
+    LaunchedEffect(books, initialBookTitle) {
+        ReadingReflectionStore.migrateLegacyHistory(context)
+        val record = targetId?.let(ReadingReflectionStore::get)
+        if (selectedId == null && initialBookTitle != null) {
+            val book = if (record != null) books.firstOrNull { it.id == record.bookId }
+                else books.firstOrNull { it.title == initialBookTitle }
+            selectedId = book?.id
+            if (record != null) characterId = record.characterId
+            if (book == null) notice = "没有找到对应书籍，原文可能已被删除。"
+        }
+    }
+    LaunchedEffect(selectedId, target?.id) {
+        if (selected != null && target?.bookId == selected.id) {
+            val index = readingSections(selected).indexOfFirst { target.startOffset in it.start until it.end }
+            if (index >= 0) listState.scrollToItem(index + 1)
+        }
+    }
+    val importer = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) runCatching {
+            val title = context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+                ?.use { if (it.moveToFirst()) it.getString(0) else null }?.substringBeforeLast('.') ?: "未命名书籍"
+            val text = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }.orEmpty().trim()
+            require(text.isNotBlank()) { "书籍正文为空" }
+            require(text.length <= 300_000) { "单本书籍最多30万字，请分卷上传" }
+            val prefs = context.getSharedPreferences("lulu_reading_library", 0)
+            val old = JSONArray(prefs.getString("books_v1", "[]"))
+            val id = UUID.randomUUID().toString()
+            val next = JSONArray().put(JSONObject().put("id", id).put("title", title).put("content", text))
+            for (i in 0 until minOf(old.length(), 39)) next.put(old.getJSONObject(i))
+            check(prefs.edit().putString("books_v1", next.toString()).commit())
+            libraryVersion++
+            selectedId = id
+        }.onFailure { notice = it.message.orEmpty() }
+    }
+    Scaffold(containerColor = StudyDesign.paper, topBar = {
+        TopAppBar(title = { Text(selected?.title ?: "阅读", fontWeight = FontWeight.Bold) },
+            navigationIcon = { IconButton(onClick = { if (selectedId != null) selectedId = null else onBack() }) {
+                Icon(Icons.Outlined.ArrowBack, "返回")
+            } })
+    }) { padding ->
+        LazyColumn(Modifier.fillMaxSize().padding(padding), state = listState, contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            if (selected == null) {
+                item { Button(onClick = { importer.launch(arrayOf("text/plain", "text/markdown")) }) {
+                    Icon(Icons.Outlined.UploadFile, null); Text("上传书籍")
+                } }
+                if (books.isEmpty()) item { Text("书架还是空的。") }
+                items(books, key = { it.id }) { book ->
+                    Surface(onClick = { selectedId = book.id }, color = StudyDesign.card) {
+                        Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                            Text(book.title, fontWeight = FontWeight.Bold)
+                            Text(book.source, style = MaterialTheme.typography.bodySmall)
                         }
                     }
-                    if (sectionExpanded) {
-                        Text(book.content, fontSize = 15.sp, lineHeight = 24.sp)
+                }
+            } else {
+                item {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        characters.values.forEach { character -> FilterChip(selected = characterId == character.characterId,
+                            onClick = { characterId = character.characterId }, label = { Text(character.displayName) }) }
                     }
-                }
-            }
-        }
-        if (lines.isNotEmpty()) {
-            item { Text("共读讨论", fontSize = 18.sp, fontWeight = FontWeight.Bold) }
-            items(lines, key = ReadingLine::id) { line ->
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = if (line.mine) Arrangement.End else Arrangement.Start) {
-                    Surface(
-                        color = if (line.mine) StudyDesign.wheatSoft else StudyDesign.card,
-                        shape = RoundedCornerShape(16.dp),
-                        border = BorderStroke(1.dp, StudyDesign.border),
-                        modifier = Modifier.widthIn(max = 310.dp),
-                    ) { Text(line.text, Modifier.padding(12.dp), lineHeight = 21.sp) }
-                }
-            }
-        }
-        item {
-            Surface(color = StudyDesign.card, shape = RoundedCornerShape(20.dp), border = BorderStroke(1.dp, StudyDesign.border)) {
-                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
-                        value = question,
-                        onValueChange = { question = it },
-                        label = { Text("和${character.displayName}讨论这段故事") },
-                        modifier = Modifier.fillMaxWidth(),
-                        minLines = 2,
-                        maxLines = 5,
-                    )
-                    Button(
-                        enabled = question.isNotBlank() && !discussing,
+                    Text(ReadingBackgroundBridge.progressLabel(context, characterId, selected), style = MaterialTheme.typography.bodySmall)
+                    Button(enabled = !reading && characterId in characters && ReadingBackgroundBridge.availableBooks(context, characterId).any { it.id == selected.id },
                         onClick = {
-                            val clean = question.trim()
-                            question = ""
-                            lines = lines + ReadingLine(mine = true, text = clean)
-                            discussing = true
+                            reading = true
                             scope.launch {
-                                LuluAiServices.gateway.generate(
-                                    characterId = characterId,
-                                    facts = buildString {
-                                        appendLine("正在共同阅读：《${book.title}》")
-                                        appendLine("阅读正文：")
-                                        appendLine(book.content.take(12_000))
-                                        appendLine("最近讨论：")
-                                        lines.takeLast(8).forEach { appendLine("${if (it.mine) "用户" else character.displayName}：${it.text}") }
-                                        appendLine("用户刚说：$clean")
-                                    },
-                                    instruction = "和用户共同阅读并讨论当前故事。回应用户的问题、感受或推测，不续写剧情，不冒充原作者，不假装看过未提供的内容。1-4段。",
-                                    source = "阅读",
-                                    title = "共读讨论",
-                                    maxTokens = 700,
-                                ).onSuccess { reply ->
-                                    lines = lines + ReadingLine(mine = false, text = reply.text)
-                                    SharedExperienceTimeline.record(
-                                        eventId = "reading-talk-${UUID.randomUUID()}",
-                                        characterId = characterId,
-                                        channel = "共同阅读《${book.title}》",
-                                        speaker = "用户与${character.displayName}",
-                                        content = "用户：$clean\n${character.displayName}：${reply.text}",
-                                        occurredAt = Instant.now(),
-                                    )
-                                }.onFailure { lines = lines + ReadingLine(mine = false, text = it.message ?: "这次讨论没有成功") }
-                                discussing = false
+                                val result = CompanionActionRuntime.execute(context, characterId, "read_book", JSONObject().put("readingBookId", selected.id))
+                                notice = if (result.success) "已保存阅读感想" else result.summary
+                                reading = false
                             }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = StudyDesign.wheat, contentColor = StudyDesign.ink),
-                    ) { Text(if (discussing) "正在想" else "一起讨论") }
+                        }) { Text(if (reading) "正在阅读…" else "让角色继续阅读") }
+                }
+                val revision = readingRevision(selected)
+                if (target?.bookId == selected.id && target.revision != revision) item {
+                    Text("原文已更新 · 原版本阅读感想", fontWeight = FontWeight.Bold)
+                    Text(target.reflection)
+                }
+                val bookRecords = reflections.filter { it.bookId == selected.id && it.characterId == characterId && it.revision == revision }
+                items(readingSections(selected), key = { "${selected.id}:${it.start}" }) { section ->
+                    var expanded by remember(selected.id, section.start) { mutableStateOf(false) }
+                    val notes = bookRecords.filter { it.startOffset in section.start until section.end }
+                    Surface(color = StudyDesign.card) {
+                        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(section.title, fontWeight = FontWeight.Bold)
+                            TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) "收起正文" else "展开正文") }
+                            if (expanded) Text(selected.content.substring(section.start, section.end))
+                            notes.sortedBy { it.occurredAt }.forEach { note ->
+                                HorizontalDivider()
+                                Text("${characters[note.characterId]?.displayName ?: "角色"}的感想 · ${note.startOffset}—${note.endOffset}",
+                                    fontWeight = FontWeight.Medium)
+                                if (note.id == target?.id) Text("本次阅读", style = MaterialTheme.typography.labelSmall)
+                                Text(note.reflection)
+                            }
+                            if (notes.isEmpty()) Text("尚无阅读感想", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
                 }
             }
+            if (notice.isNotBlank()) item { Text(notice) }
         }
     }
-}
-
-private fun loadReadingBooks(context: Context): List<ReadingBook> = runCatching {
-    val raw = context.getSharedPreferences("lulu_reading_library", Context.MODE_PRIVATE).getString("books_v1", "[]")
-    val array = JSONArray(raw)
-    buildList {
-        for (index in 0 until array.length()) {
-            val item = array.optJSONObject(index) ?: continue
-            add(ReadingBook(item.optString("id"), item.optString("title"), item.optString("content"), "用户上传"))
-        }
-    }
-}.getOrDefault(emptyList())
-
-private fun saveReadingBooks(context: Context, books: List<ReadingBook>) {
-    val array = JSONArray().apply {
-        books.take(40).forEach { book ->
-            put(JSONObject().put("id", book.id).put("title", book.title).put("content", book.content))
-        }
-    }
-    context.getSharedPreferences("lulu_reading_library", Context.MODE_PRIVATE).edit().putString("books_v1", array.toString()).apply()
 }

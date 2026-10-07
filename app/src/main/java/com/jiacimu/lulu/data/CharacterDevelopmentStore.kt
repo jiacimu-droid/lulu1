@@ -6,7 +6,10 @@ import org.json.JSONObject
 import java.time.Instant
 import java.util.UUID
 
-enum class DevelopmentKind { Preference, Habit, Judgment, RelationshipRoutine, VerifiedMethod }
+enum class DevelopmentKind(val label: String) {
+    Interest("兴趣"), Preference("偏好"), Habit("习惯"), Judgment("判断"),
+    RelationshipRoutine("相处方式"), VerifiedMethod("验证过的方法")
+}
 
 data class DevelopmentRecord(
     val id: String,
@@ -27,6 +30,8 @@ data class DevelopmentRecord(
 object CharacterDevelopmentStore {
     private var prefs: android.content.SharedPreferences? = null
     private var records = emptyList<DevelopmentRecord>()
+    private val changes = kotlinx.coroutines.flow.MutableStateFlow(0L)
+    val revisions: kotlinx.coroutines.flow.StateFlow<Long> = changes
 
     @Synchronized
     fun initialize(context: Context) {
@@ -65,10 +70,16 @@ object CharacterDevelopmentStore {
         val events = SharedExperienceTimeline.eventsByIds(characterId, evidenceIds)
         val counters = SharedExperienceTimeline.eventsByIds(characterId, counterIds)
         if (events.size != evidenceIds.distinct().size || counters.size != counterIds.distinct().size) return false
-        val factual = events.filter { it.evidenceKind in setOf(EventEvidenceKind.UserStatement, EventEvidenceKind.Observation, EventEvidenceKind.ToolResult) }
+        val factual = events.filter { it.isDevelopmentExposure() }.distinctBy { it.sessionId.ifBlank { it.id } }
         val explicit = factual.any { it.evidenceKind == EventEvidenceKind.UserStatement &&
             Regex("以后|下次|记住|不要再|我喜欢|我不喜欢|我希望").containsMatchIn(it.content) }
         if (!DevelopmentPolicy.accepts(kind, factual.size, explicit, counters.size)) return false
+        if (kind == DevelopmentKind.Interest) {
+            if (CharacterLifeStore.state(characterId).optJSONObject("profile")?.optString("interests").orEmpty().isNotBlank()) return false
+            // Interest belongs to the character, not to whichever subject the user likes.
+            if (events.none { it.evidenceKind == EventEvidenceKind.CharacterStatement || it.channel.startsWith("独自阅读") }) return false
+            if (counters.any { it.occurredAt > factual.maxOf { event -> event.occurredAt } }) return false
+        }
         if (kind == DevelopmentKind.VerifiedMethod && factual.count { event ->
             event.evidenceKind == EventEvidenceKind.ToolResult && runCatching {
                 val outcome = JSONObject(event.content)
@@ -79,10 +90,13 @@ object CharacterDevelopmentStore {
             }.getOrDefault(false)
         } < 3) return false
         synchronized(this) {
+        if (CharacterRuntime.personaConstraintSnapshot(characterId) != personaSnapshot ||
+            (events + counters).any { event -> SharedExperienceTimeline.eventsByIds(characterId, listOf(event.id))
+                .firstOrNull()?.revision != event.revision }) return false
         val prior = history(characterId).filter { it.slot == slot }
-        if (prior.any { it.content == content && it.evidence == events.associate { event -> event.id to event.revision } }) return false
+        if (prior.any { it.personaSnapshot == personaSnapshot && it.content == content && it.evidence == events.associate { event -> event.id to event.revision } }) return false
         val next = DevelopmentRecord(UUID.randomUUID().toString(), characterId, slot, kind, content.trim(),
-            (0.35 + factual.size * 0.1).coerceAtMost(0.9), events.associate { it.id to it.revision },
+            (0.35 + factual.size * 0.1 - counters.size * 0.05).coerceIn(0.35, 0.9), events.associate { it.id to it.revision },
             counters.associate { it.id to it.revision }, (prior.maxOfOrNull { it.version } ?: 0) + 1,
             Instant.now(), personaSnapshot = personaSnapshot)
         save(records.map { if (it.characterId == characterId && it.slot == slot) it.copy(active = false) else it } + next)
@@ -119,6 +133,7 @@ object CharacterDevelopmentStore {
         }
         check(prefs!!.edit().putString("records", array.toString()).commit()) { "成长记录保存失败" }
         records = next
+        changes.value += 1
     }
 
     private fun readEvidence(root: JSONObject): Map<String, Long> = root.keys().asSequence().associateWith { root.getLong(it) }

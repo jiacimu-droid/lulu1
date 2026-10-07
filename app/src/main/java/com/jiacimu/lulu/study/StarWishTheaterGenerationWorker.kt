@@ -14,6 +14,9 @@ import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ScopedModelSelections
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ensureActive
+import java.util.UUID
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +30,8 @@ internal data class StarWishTheaterTask(
     val chapterNumber: Int,
     val status: StarWishTheaterTaskStatus,
     val message: String = "",
+    val requestId: String = "",
+    val influence: String = "",
     val updatedAtMillis: Long = System.currentTimeMillis(),
 ) {
     val active: Boolean get() = status == StarWishTheaterTaskStatus.QUEUED || status == StarWishTheaterTaskStatus.RUNNING
@@ -38,7 +43,7 @@ internal class StarWishTheaterGenerationManager private constructor(context: Con
     private val mutable = MutableStateFlow(load())
     val tasks: StateFlow<Map<String, StarWishTheaterTask>> = mutable.asStateFlow()
 
-    fun enqueue(theater: String, influence: String): Result<Unit> = runCatching {
+    @Synchronized fun enqueue(theater: String, influence: String): Result<Unit> = runCatching {
         val cleanTheater = theater.trim()
         require(cleanTheater.isNotBlank()) { "故事名称不能为空" }
         val existing = tasks.value[cleanTheater]
@@ -46,13 +51,17 @@ internal class StarWishTheaterGenerationManager private constructor(context: Con
         check(existing?.active != true || stale) { "这一章已经在生成中" }
         StarWishStores.initialize(appContext)
         LuluAiServices.initialize(appContext)
+        require(influence.trim().length <= 3_000) { "剧情要求最多3000字，请精简后重试" }
+        val requestId = UUID.randomUUID().toString()
         val chapterNumber = StarWishStores.main.state.value.theaterChapters[cleanTheater].orEmpty().size + 1
-        setTask(StarWishTheaterTask(cleanTheater, chapterNumber, StarWishTheaterTaskStatus.QUEUED, "等待模型开始续写"))
+        check(chapterNumber <= StarWishRules.MAX_CHAPTERS_PER_THEATER) { "已达到本书章节上限" }
+        setTask(StarWishTheaterTask(cleanTheater, chapterNumber, StarWishTheaterTaskStatus.QUEUED, "等待模型开始续写", requestId, influence.trim()))
         val request = OneTimeWorkRequestBuilder<StarWishTheaterGenerationWorker>()
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInputData(Data.Builder()
                 .putString(KEY_THEATER, cleanTheater)
-                .putString(KEY_INFLUENCE, influence.trim().take(3_000))
+                .putString(KEY_INFLUENCE, influence.trim())
+                .putString(KEY_REQUEST_ID, requestId)
                 .build())
             .build()
         WorkManager.getInstance(appContext).enqueueUniqueWork(
@@ -63,7 +72,7 @@ internal class StarWishTheaterGenerationManager private constructor(context: Con
         Unit
     }
 
-    fun cancel(theater: String) {
+    @Synchronized fun cancel(theater: String) {
         val cleanTheater = theater.trim()
         if (cleanTheater.isBlank()) return
         WorkManager.getInstance(appContext).cancelUniqueWork(workName(cleanTheater))
@@ -71,21 +80,20 @@ internal class StarWishTheaterGenerationManager private constructor(context: Con
         persist()
     }
 
-    internal fun running(theater: String, chapterNumber: Int) = setTask(
-        StarWishTheaterTask(theater, chapterNumber, StarWishTheaterTaskStatus.RUNNING, "正在生成第 $chapterNumber 章；退出页面也会继续"),
-    )
+    @Synchronized internal fun owns(theater: String, requestId: String) = tasks.value[theater]?.let {
+        it.requestId == requestId && it.active
+    } == true
 
-    internal fun succeeded(theater: String, chapterNumber: Int) = setTask(
-        StarWishTheaterTask(theater, chapterNumber, StarWishTheaterTaskStatus.SUCCEEDED, "第 $chapterNumber 章已生成"),
-    )
+    @Synchronized internal fun commitIfCurrent(theater: String, requestId: String, action: () -> Unit) {
+        check(owns(theater, requestId)) { "本次续写已取消或被替换" }
+        action()
+    }
 
-    internal fun failed(theater: String, chapterNumber: Int, message: String) = setTask(
-        StarWishTheaterTask(theater, chapterNumber, StarWishTheaterTaskStatus.FAILED, message.ifBlank { "章节生成失败" }),
-    )
-
-    internal fun queuedAgain(theater: String, chapterNumber: Int) = setTask(
-        StarWishTheaterTask(theater, chapterNumber, StarWishTheaterTaskStatus.QUEUED, "任务暂时中断，等待系统继续"),
-    )
+    @Synchronized internal fun mark(theater: String, requestId: String, status: StarWishTheaterTaskStatus, message: String) {
+        if (!owns(theater, requestId)) return
+        val old = tasks.value.getValue(theater)
+        setTask(old.copy(status = status, message = message, updatedAtMillis = System.currentTimeMillis()))
+    }
 
     private fun setTask(task: StarWishTheaterTask) {
         mutable.value = mutable.value + (task.theater to task)
@@ -97,7 +105,7 @@ internal class StarWishTheaterGenerationManager private constructor(context: Con
             mutable.value.values.forEach { task ->
                 put(JSONObject()
                     .put("theater", task.theater).put("chapter", task.chapterNumber)
-                    .put("status", task.status.name).put("message", task.message).put("updatedAt", task.updatedAtMillis))
+                    .put("requestId", task.requestId).put("influence", task.influence).put("status", task.status.name).put("message", task.message).put("updatedAt", task.updatedAtMillis))
             }
         }.toString()).apply()
     }
@@ -116,6 +124,8 @@ internal class StarWishTheaterGenerationManager private constructor(context: Con
                     chapterNumber = item.optInt("chapter", 1),
                     status = status,
                     message = item.optString("message"),
+                    requestId = item.optString("requestId"),
+                    influence = item.optString("influence"),
                     updatedAtMillis = item.optLong("updatedAt", System.currentTimeMillis()),
                 ))
             }
@@ -126,6 +136,7 @@ internal class StarWishTheaterGenerationManager private constructor(context: Con
         private const val PREFS_NAME = "lulu_star_wish_theater_tasks"
         private const val KEY_TASKS = "tasks_v1"
         private const val STALE_TASK_MILLIS = 20 * 60 * 1_000L
+        internal const val KEY_REQUEST_ID = "request_id"
         internal const val KEY_THEATER = "theater"
         internal const val KEY_INFLUENCE = "influence"
         @Volatile private var instance: StarWishTheaterGenerationManager? = null
@@ -143,6 +154,7 @@ internal data class StarWishPlanTask(
     val chapterCount: Int,
     val status: StarWishTheaterTaskStatus,
     val message: String = "",
+    val requestId: String = "",
     val updatedAtMillis: Long = System.currentTimeMillis(),
 ) {
     val active: Boolean get() = status == StarWishTheaterTaskStatus.QUEUED || status == StarWishTheaterTaskStatus.RUNNING
@@ -154,7 +166,7 @@ internal class StarWishPlanGenerationManager private constructor(context: Contex
     private val mutable = MutableStateFlow(load())
     val tasks: StateFlow<Map<String, StarWishPlanTask>> = mutable.asStateFlow()
 
-    fun enqueue(theater: String, characterId: String, chapterCount: Int): Result<Unit> = runCatching {
+    @Synchronized fun enqueue(theater: String, characterId: String, chapterCount: Int): Result<Unit> = runCatching {
         val cleanTheater = theater.trim()
         require(cleanTheater.isNotBlank()) { "故事名称不能为空" }
         require(chapterCount in 1..StarWishRules.MAX_CHAPTERS_PER_THEATER) { "请先用 +3章 确定章节数量" }
@@ -164,7 +176,8 @@ internal class StarWishPlanGenerationManager private constructor(context: Contex
 
         StarWishStores.initialize(appContext)
         LuluAiServices.initialize(appContext)
-        setTask(StarWishPlanTask(cleanTheater, chapterCount, StarWishTheaterTaskStatus.QUEUED, "等待模型开始规划"))
+        val requestId = UUID.randomUUID().toString()
+        setTask(StarWishPlanTask(cleanTheater, chapterCount, StarWishTheaterTaskStatus.QUEUED, "等待模型开始规划", requestId))
 
         val request = OneTimeWorkRequestBuilder<StarWishPlanGenerationWorker>()
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
@@ -173,6 +186,7 @@ internal class StarWishPlanGenerationManager private constructor(context: Contex
                     .putString(KEY_THEATER, cleanTheater)
                     .putString(KEY_CHARACTER_ID, characterId.trim())
                     .putInt(KEY_CHAPTER_COUNT, chapterCount)
+                    .putString(KEY_REQUEST_ID, requestId)
                     .build(),
             )
             .build()
@@ -185,21 +199,22 @@ internal class StarWishPlanGenerationManager private constructor(context: Contex
         Unit
     }
 
-    internal fun running(theater: String, chapterCount: Int) = setTask(
-        StarWishPlanTask(theater, chapterCount, StarWishTheaterTaskStatus.RUNNING, "正在先生成幕后规划，再逐章生成 $chapterCount 章剧情规划；退出页面也会继续"),
-    )
-
-    internal fun succeeded(theater: String, chapterCount: Int) = setTask(
-        StarWishPlanTask(theater, chapterCount, StarWishTheaterTaskStatus.SUCCEEDED, "幕后规划与 $chapterCount 章剧情规划已生成"),
-    )
-
-    internal fun failed(theater: String, chapterCount: Int, message: String) = setTask(
-        StarWishPlanTask(theater, chapterCount, StarWishTheaterTaskStatus.FAILED, message.ifBlank { "章节规划生成失败" }),
-    )
-
-    internal fun queuedAgain(theater: String, chapterCount: Int) = setTask(
-        StarWishPlanTask(theater, chapterCount, StarWishTheaterTaskStatus.QUEUED, "任务暂时中断，等待系统继续"),
-    )
+    @Synchronized fun cancel(theater: String) {
+        WorkManager.getInstance(appContext).cancelUniqueWork(workName(theater))
+        mutable.value = mutable.value - theater
+        persist()
+    }
+    @Synchronized internal fun owns(theater: String, requestId: String) = tasks.value[theater]?.let {
+        it.requestId == requestId && it.active
+    } == true
+    @Synchronized internal fun commitIfCurrent(theater: String, requestId: String, action: () -> Unit) {
+        check(owns(theater, requestId)) { "规划已取消或被替换" }
+        action()
+    }
+    @Synchronized internal fun mark(theater: String, requestId: String, status: StarWishTheaterTaskStatus, message: String) {
+        if (!owns(theater, requestId)) return
+        setTask(tasks.value.getValue(theater).copy(status = status, message = message, updatedAtMillis = System.currentTimeMillis()))
+    }
 
     private fun setTask(task: StarWishPlanTask) {
         mutable.value = mutable.value + (task.theater to task)
@@ -212,7 +227,7 @@ internal class StarWishPlanGenerationManager private constructor(context: Contex
                 put(
                     JSONObject()
                         .put("theater", task.theater)
-                        .put("chapterCount", task.chapterCount)
+                        .put("chapterCount", task.chapterCount).put("requestId", task.requestId)
                         .put("status", task.status.name)
                         .put("message", task.message)
                         .put("updatedAt", task.updatedAtMillis),
@@ -234,6 +249,7 @@ internal class StarWishPlanGenerationManager private constructor(context: Contex
                     theater,
                     StarWishPlanTask(
                         theater = theater,
+                        requestId = item.optString("requestId"),
                         chapterCount = item.optInt("chapterCount", 0),
                         status = status,
                         message = item.optString("message"),
@@ -248,6 +264,7 @@ internal class StarWishPlanGenerationManager private constructor(context: Contex
         private const val PREFS_NAME = "lulu_star_wish_plan_tasks"
         private const val KEY_TASKS = "tasks_v1"
         private const val STALE_TASK_MILLIS = 30 * 60 * 1_000L
+        internal const val KEY_REQUEST_ID = "request_id"
         internal const val KEY_THEATER = "theater"
         internal const val KEY_CHARACTER_ID = "characterId"
         internal const val KEY_CHAPTER_COUNT = "chapterCount"
@@ -272,15 +289,25 @@ internal class StarWishPlanGenerationWorker(
         val chapterCount = inputData.getInt(StarWishPlanGenerationManager.KEY_CHAPTER_COUNT, 0)
         if (theater.isBlank() || chapterCount <= 0) return Result.failure()
 
+        val requestId = inputData.getString(StarWishPlanGenerationManager.KEY_REQUEST_ID).orEmpty()
         val manager = StarWishPlanGenerationManager.get(applicationContext)
+        if (!manager.owns(theater, requestId)) return Result.success()
         StarWishStores.initialize(applicationContext)
         LuluAiServices.initialize(applicationContext)
         LuluRepositories.worldBook.initialize(applicationContext)
-        manager.running(theater, chapterCount)
+        manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, "正在生成幕后规划")
 
         return try {
             val store = StarWishStores.main
             val planSnapshot = store.state.value
+            var expected = planSnapshot
+            fun saveProgress(action: () -> Unit) {
+                check(!isStopped) { "规划已停止" }
+                manager.commitIfCurrent(theater, requestId) {
+                    store.updateTheaterIfUnchanged(theater, expected, action)
+                    expected = store.state.value
+                }
+            }
             val guide = planSnapshot.theaterGuides[theater].orEmpty().trim()
             check(guide.isNotBlank()) { "总大纲不能为空" }
             val writtenChapters = planSnapshot.theaterChapters[theater].orEmpty()
@@ -300,7 +327,7 @@ internal class StarWishPlanGenerationWorker(
                 ledger = ledger,
                 theaterWorldBook = theaterWorldBook,
             ).getOrThrow()
-            store.setBible(theater, bible)
+            saveProgress { store.setBible(theater, checkNotNull(bible)) }
 
             val plans = StarWishTheaterPlanningEngine.generateChapterPlans(
                 characterId = characterId,
@@ -313,18 +340,20 @@ internal class StarWishPlanGenerationWorker(
                 ledger = ledger,
                 theaterWorldBook = theaterWorldBook,
                 onProgress = { partialPlans ->
-                    store.setStoryPlan(theater, guide, partialPlans)
+                    saveProgress { store.setStoryPlan(theater, guide, partialPlans) }
+                    val done = partialPlans.count { it.outline.isNotBlank() && it.outline != "待规划" }
+                    manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, "逐章规划 $done/$chapterCount，已完成部分已保存")
                 },
             ).getOrThrow()
 
-            store.setStoryPlan(theater, guide, plans)
-            manager.succeeded(theater, chapterCount)
+            saveProgress { store.setStoryPlan(theater, guide, plans) }
+            manager.mark(theater, requestId, StarWishTheaterTaskStatus.SUCCEEDED, "幕后规划与 $chapterCount 章剧情规划已保存")
             Result.success()
         } catch (cancelled: CancellationException) {
-            manager.queuedAgain(theater, chapterCount)
+            manager.mark(theater, requestId, StarWishTheaterTaskStatus.QUEUED, "任务暂时中断，等待系统继续")
             throw cancelled
         } catch (error: Throwable) {
-            manager.failed(theater, chapterCount, error.message ?: "章节规划生成失败")
+            manager.mark(theater, requestId, StarWishTheaterTaskStatus.FAILED, error.message ?: "章节规划生成失败")
             Result.failure()
         }
     }
@@ -338,27 +367,41 @@ internal class StarWishTheaterGenerationWorker(
         val theater = inputData.getString(StarWishTheaterGenerationManager.KEY_THEATER).orEmpty().trim()
         val influence = inputData.getString(StarWishTheaterGenerationManager.KEY_INFLUENCE).orEmpty().trim()
         if (theater.isBlank()) return Result.failure()
+        val requestId = inputData.getString(StarWishTheaterGenerationManager.KEY_REQUEST_ID).orEmpty()
         val manager = StarWishTheaterGenerationManager.get(applicationContext)
+        if (!manager.owns(theater, requestId)) return Result.success()
         StarWishStores.initialize(applicationContext)
         LuluAiServices.initialize(applicationContext)
         LuluRepositories.worldBook.initialize(applicationContext)
         val store = StarWishStores.main
         val snapshot = store.state.value
+        var expected = snapshot
+        fun saveProgress(action: () -> Unit) {
+            check(!isStopped) { "续写已停止" }
+            manager.commitIfCurrent(theater, requestId) {
+                store.updateTheaterIfUnchanged(theater, expected, action)
+                expected = store.state.value
+            }
+        }
         val chapters = snapshot.theaterChapters[theater].orEmpty()
+        val requestedChapter = manager.tasks.value[theater]?.chapterNumber ?: return Result.success()
+        if (chapters.size >= requestedChapter) {
+            manager.mark(theater, requestId, StarWishTheaterTaskStatus.SUCCEEDED, "第 $requestedChapter 章已保存")
+            return Result.success()
+        }
         val theaterWorldBook = selectedWorldBookPrompt(snapshot.theaterWorldBookIds[theater].orEmpty())
         val chapterNumber = chapters.size + 1
-        manager.running(theater, chapterNumber)
+        manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, "正在生成第 $chapterNumber 章；退出页面也会继续")
         return try {
             val builtInSeed = StarWishRules.theaters.firstOrNull { it.title == theater }
             var guide = snapshot.theaterGuides[theater].orEmpty().trim()
                 .ifBlank { builtInSeed?.prompt.orEmpty().trim() }
             var plans = snapshot.theaterPlans[theater].orEmpty().ifEmpty { starWishPlansFromLegacyGuide(guide) }
             if (snapshot.theaterGuides[theater].isNullOrBlank() && guide.isNotBlank()) {
-                store.setStoryPlan(theater, guide, plans)
+                saveProgress { store.setStoryPlan(theater, guide, plans) }
             }
 
-            val needsBuiltInLongRangeBootstrap = builtInSeed != null &&
-                plans.size <= chapters.size + 1
+            val needsBuiltInLongRangeBootstrap = false // Full-book replanning is an explicit planner action.
             val planningHorizon = if (builtInSeed != null) {
                 maxOf(
                     plans.maxOfOrNull { it.number } ?: 0,
@@ -372,18 +415,17 @@ internal class StarWishTheaterGenerationWorker(
             if (chapters.isNotEmpty() && plans.isEmpty() && !hasFullStoryMap(guide)) {
                 recoverStoryMap(theater, guide, chapters)?.takeIf(String::isNotBlank)?.let { recovered ->
                     guide = recovered
-                    store.setStoryPlan(theater, guide, plans)
+                    saveProgress { store.setStoryPlan(theater, guide, plans) }
                 }
             }
 
             var ledger = snapshot.theaterLedgers[theater] ?: StarWishStoryLedger()
             if (chapters.isNotEmpty() && ledger.updatedThroughChapter != chapters.size) {
-                rebuildLedger(theater, guide, plans, chapters)?.let { rebuilt ->
-                    ledger = rebuilt
-                    store.setLedger(theater, rebuilt)
-                }
+                ledger = rebuildLedger(theater, guide, plans, chapters)
+                    ?: error("连续性档案重建失败，尚未续写。请重试。")
             }
 
+            manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, "正在准备本章规划与连续性")
             var bible = snapshot.theaterBibles[theater]
             if ((bible == null || needsBuiltInLongRangeBootstrap) && guide.isNotBlank()) {
                 val refreshed = StarWishTheaterPlanningEngine.generateStoryBible(
@@ -397,12 +439,12 @@ internal class StarWishTheaterGenerationWorker(
                     theaterWorldBook = theaterWorldBook,
                 )
                 bible = if (bible == null) refreshed.getOrThrow() else refreshed.getOrNull() ?: bible
-                store.setBible(theater, bible)
+                saveProgress { store.setBible(theater, checkNotNull(bible)) }
             }
 
             var currentPlan = plans.firstOrNull { it.number == chapterNumber }
-            if ((currentPlan == null || needsBuiltInLongRangeBootstrap) && guide.isNotBlank()) {
-                val planTarget = if (builtInSeed != null) planningHorizon else chapterNumber
+            if ((currentPlan == null || currentPlan.outline.isBlank() || currentPlan.outline == "待规划") && guide.isNotBlank()) {
+                val planTarget = chapterNumber
                 val plannedThroughCurrent = StarWishTheaterPlanningEngine.generateChapterPlans(
                     characterId = ISOLATED_CHARACTER_ID,
                     storyTitle = theater,
@@ -414,14 +456,14 @@ internal class StarWishTheaterGenerationWorker(
                     ledger = ledger,
                     theaterWorldBook = theaterWorldBook,
                     onProgress = { partialPlans ->
-                        store.setStoryPlan(theater, guide, partialPlans)
+                        saveProgress { store.setStoryPlan(theater, guide, partialPlans) }
                     },
-                ).getOrNull()
+                ).getOrThrow()
                 val generatedCurrent = plannedThroughCurrent?.firstOrNull { it.number == chapterNumber }
                 if (generatedCurrent != null && plannedThroughCurrent != null) {
                     plans = plannedThroughCurrent.sortedBy { it.number }
                     currentPlan = generatedCurrent
-                    store.setStoryPlan(theater, guide, plans)
+                    saveProgress { store.setStoryPlan(theater, guide, plans) }
                 }
             }
 
@@ -458,6 +500,7 @@ internal class StarWishTheaterGenerationWorker(
                 使用环境、五感、空间距离、动作余韵、神态、心理变化、潜台词和留白；不能流水账，也不能用直白结论代替描写。结尾留下自然钩子。不要输出提纲、解释、标题或系统提示。
             """.trimIndent()
 
+            manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, "正在写第 $chapterNumber 章正文")
             var reply = ""
             var lastGenerationError: Throwable? = null
             for (attempt in 1..2) {
@@ -488,15 +531,22 @@ internal class StarWishTheaterGenerationWorker(
                 content = reply,
                 userInfluence = influence,
             )
-            store.addChapter(chapter)
-            updateLedger(theater, guide, plans, ledger, chapter)?.let { store.setLedger(theater, it) }
-            manager.succeeded(theater, chapterNumber)
+            coroutineContext.ensureActive()
+            manager.commitIfCurrent(theater, requestId) { store.appendGeneratedChapter(chapter, expected) }
+            // The chapter is already durable. A failed auxiliary request must not hide it or regenerate it.
+            val updated = updateLedger(theater, guide, plans, ledger, chapter)
+            coroutineContext.ensureActive()
+            manager.commitIfCurrent(theater, requestId) {
+                if (updated != null) store.setGeneratedLedger(theater, updated, expected, chapter)
+            }
+            manager.mark(theater, requestId, StarWishTheaterTaskStatus.SUCCEEDED,
+                if (updated == null) "第 $chapterNumber 章已保存；连续性档案未更新，下次续写会先重建" else "第 $chapterNumber 章已生成")
             Result.success()
         } catch (cancelled: CancellationException) {
-            manager.queuedAgain(theater, chapterNumber)
+            manager.mark(theater, requestId, StarWishTheaterTaskStatus.QUEUED, "任务暂时中断，等待系统继续")
             throw cancelled
         } catch (error: Throwable) {
-            manager.failed(theater, chapterNumber, error.message ?: "章节生成失败")
+            manager.mark(theater, requestId, StarWishTheaterTaskStatus.FAILED, error.message ?: "章节生成失败")
             Result.failure()
         }
     }
@@ -573,7 +623,7 @@ internal class StarWishTheaterGenerationWorker(
             readTimeoutMillis = 180_000,
         ).getOrThrow().text
         parseLedger(raw, chapter.chapter)
-    }.getOrNull()
+    }.getOrElse { if (it is CancellationException) throw it else null }
 
     private suspend fun rebuildLedger(
         theater: String,
@@ -607,7 +657,7 @@ internal class StarWishTheaterGenerationWorker(
             readTimeoutMillis = 180_000,
         ).getOrThrow().text
         parseLedger(raw, chapters.size)
-    }.getOrNull()
+    }.getOrElse { if (it is CancellationException) throw it else null }
 
     private fun parseLedger(raw: String, chapterNumber: Int): StarWishStoryLedger {
         var clean = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
@@ -615,12 +665,13 @@ internal class StarWishTheaterGenerationWorker(
         val end = clean.lastIndexOf('}')
         if (start >= 0 && end > start) clean = clean.substring(start, end + 1)
         val item = JSONObject(clean)
+        check(listOf("summary", "characters", "worldState").any { item.optString(it).isNotBlank() }) { "连续性档案为空" }
         return StarWishStoryLedger(
             summary = item.optString("summary"), characters = item.optString("characters"),
             worldState = item.optString("worldState"), relationships = item.optString("relationships"),
             openThreads = item.optString("openThreads"), foreshadows = item.optString("foreshadows"),
             keyItems = item.optString("keyItems"), hardFacts = item.optString("hardFacts"),
-            updatedThroughChapter = item.optInt("updatedThroughChapter", chapterNumber).coerceAtLeast(chapterNumber),
+            updatedThroughChapter = chapterNumber,
         )
     }
 

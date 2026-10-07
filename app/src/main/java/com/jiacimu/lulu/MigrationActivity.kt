@@ -119,6 +119,7 @@ class MigrationActivity : ComponentActivity() {
         val initialCharacterId = intent?.getStringExtra("open_character_id")
         val initialDiaryTitle = intent?.getStringExtra("open_diary_title")
         val initialLexiconSection = intent?.getStringExtra("open_lexicon_section")
+        com.jiacimu.lulu.study.ReadingReflectionStore.initialize(appContext)
         val initialReadingTitle = intent?.getStringExtra("open_reading_title")
         val initialMeetingInvitationText = intent?.getStringExtra("open_meeting_invitation_text")
         val initialMeetingLocation = intent?.getStringExtra("open_meeting_location")

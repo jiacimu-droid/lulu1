@@ -654,6 +654,8 @@ object DigitalWorldStore {
         }
         SharedExperienceTimeline.record(
             eventId = "meeting-${session.id}-$suffix-viewer-$viewerCharacterId",
+            sessionId = session.id,
+            source = "meeting",
             characterId = viewerCharacterId,
             channel = channel,
             speaker = speaker,

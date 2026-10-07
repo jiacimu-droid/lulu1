@@ -10,6 +10,8 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.File
@@ -36,6 +38,8 @@ internal class LuluSpeechEngine(context: Context) {
     private val minimaxStream = MiniMaxStreamingSpeech(appContext)
     private val elevenSpeech = ElevenLabsSpeech(appContext)
     private var player: MediaPlayer? = null
+    private var synthesisJob: Job? = null
+    @Volatile private var audioConnection: HttpURLConnection? = null
     @Volatile private var playbackGeneration = 0L
     @Volatile private var activeUtteranceId: String? = null
     @Volatile private var pendingSynthesis: PendingSynthesis? = null
@@ -116,8 +120,9 @@ internal class LuluSpeechEngine(context: Context) {
         scope: CoroutineScope,
         voiceIdOverride: String? = null,
         onFinished: (() -> Unit)? = null,
+        allowGeneration: () -> Boolean = { true },
     ) {
-        if (!prefs.getBoolean("tts_enabled", true) || text.isBlank()) {
+        if (!allowGeneration() || !prefs.getBoolean("tts_enabled", true) || text.isBlank()) {
             onFinished?.invoke()
             return
         }
@@ -137,9 +142,13 @@ internal class LuluSpeechEngine(context: Context) {
 
         if (prefs.getString("tts_provider", "system") in setOf("minimax", "elevenlabs")) {
             val target = File(cacheBaseFile.parentFile, "${cacheBaseFile.name}.mp3")
-            scope.launch {
-                runCatching { if (prefs.getString("tts_provider", "system") == "elevenlabs") elevenSpeech.synthesize(text, voiceIdOverride)
-                    else requestMiniMaxAudio(text, voiceIdOverride) }
+            synthesisJob = scope.launch {
+                runCatching {
+                    ensureActive()
+                    check(allowGeneration() && requestGeneration == playbackGeneration) { "语音生成已关闭" }
+                    if (prefs.getString("tts_provider", "system") == "elevenlabs") elevenSpeech.synthesize(text, voiceIdOverride)
+                    else requestMiniMaxAudio(text, voiceIdOverride) { allowGeneration() && requestGeneration == playbackGeneration }
+                }
                     .onSuccess { bytes ->
                         if (requestGeneration == playbackGeneration) {
                             target.writeBytes(bytes)
@@ -200,6 +209,10 @@ internal class LuluSpeechEngine(context: Context) {
 
     fun stop() {
         playbackGeneration++
+        synthesisJob?.cancel()
+        synthesisJob = null
+        audioConnection?.disconnect()
+        audioConnection = null
         minimaxStream.stop()
         elevenSpeech.stop()
         activeUtteranceId = null
@@ -264,7 +277,9 @@ internal class LuluSpeechEngine(context: Context) {
         if (utteranceId != null && utteranceId == activeUtteranceId) finishPlayback()
     }
 
-    private suspend fun requestMiniMaxAudio(text: String, voiceIdOverride: String? = null): ByteArray = withContext(Dispatchers.IO) {
+    private suspend fun requestMiniMaxAudio(text: String, voiceIdOverride: String? = null, allowed: () -> Boolean = { true }): ByteArray = withContext(Dispatchers.IO) {
+        kotlin.coroutines.coroutineContext.ensureActive()
+        check(allowed()) { "语音生成已关闭" }
         val apiKey = prefs.getString("minimax_api_key", "").orEmpty().trim()
         val voiceId = voiceIdOverride
             ?.trim()
@@ -309,7 +324,10 @@ internal class LuluSpeechEngine(context: Context) {
                 put("channel", 1)
             })
         }
+        audioConnection = connection
         try {
+            kotlin.coroutines.coroutineContext.ensureActive()
+            check(allowed()) { "语音生成已关闭" }
             connection.outputStream.use { it.write(payload.toString().toByteArray()) }
             val body = (if (connection.responseCode in 200..299) connection.inputStream else connection.errorStream)
                 ?.bufferedReader()?.use { it.readText() }.orEmpty()
@@ -327,6 +345,7 @@ internal class LuluSpeechEngine(context: Context) {
             json.getJSONObject("data").getString("audio").hexToBytes()
         } finally {
             connection.disconnect()
+            if (audioConnection === connection) audioConnection = null
         }
     }
 

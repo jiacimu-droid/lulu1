@@ -15,6 +15,11 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 @Composable
 internal fun CharacterLifeSettings(characterId: String) {
     val states by CharacterLifeStore.states.collectAsState()
+    val growthRevision by com.jiacimu.lulu.data.CharacterDevelopmentStore.revisions.collectAsState()
+    val interests = remember(characterId, growthRevision, states) {
+        com.jiacimu.lulu.data.CharacterDevelopmentStore.active(characterId).filter {
+            it.kind == com.jiacimu.lulu.data.DevelopmentKind.Interest }
+    }
     val root = remember(states, characterId) { CharacterLifeStore.state(characterId) }
     var editing by remember { mutableStateOf<String?>(null) }
     var draft by remember { mutableStateOf("") }
@@ -30,7 +35,7 @@ internal fun CharacterLifeSettings(characterId: String) {
                 val value = root.optJSONObject("profile")?.optString(field.key).orEmpty()
                 Column(Modifier.fillMaxWidth().clickable { editing = field.key; draft = value }.padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     Text(field.label, fontWeight = FontWeight.Medium)
-                    Text(value.ifBlank { if (field.key == "interests") "从真实经历中自由形成" else "未限定 · 点击编辑" },
+                    Text(value.ifBlank { if (field.key == "interests") interests.joinToString("；") { it.content }.ifBlank { "尚未从反复经历中形成稳定兴趣" } else "未限定 · 点击编辑" },
                         maxLines = 2, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }

@@ -153,6 +153,7 @@ object MeetingVoicePlayback {
                 cacheBaseFile = cacheBase,
                 scope = scope,
                 voiceIdOverride = CharacterVoicePreferenceStore.playbackVoiceId(resolvedCharacterId),
+                allowGeneration = { mutableEnabled.value && synchronized(lock) { activePageToken == token } },
                 onFinished = {
                     synchronized(lock) {
                         if (activePageToken == token) activePageToken = null

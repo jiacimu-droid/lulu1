@@ -195,6 +195,38 @@ internal class StarWishStore private constructor(context: Context) {
         }
     }
 
+    @Synchronized fun updateTheaterIfUnchanged(theater: String, expected: StarWishState, action: () -> Unit) {
+        check(sameTheater(mutable.value, expected, theater)) { "故事设定或正文已变化，旧任务已停止，请重新生成" }
+        action()
+    }
+
+    private fun sameTheater(a: StarWishState, b: StarWishState, theater: String): Boolean =
+        a.theaterChapters[theater] == b.theaterChapters[theater] &&
+        a.theaterGuides[theater] == b.theaterGuides[theater] &&
+        a.theaterPlans[theater] == b.theaterPlans[theater] &&
+        a.theaterBibles[theater] == b.theaterBibles[theater] &&
+        a.theaterWorldBookIds[theater] == b.theaterWorldBookIds[theater]
+
+    @Synchronized fun appendGeneratedChapter(chapter: StarWishTheaterChapter, expected: StarWishState) {
+        val current = mutable.value
+        check(sameTheater(current, expected, chapter.theater)) {
+            "故事正文或规划已变化，本次旧结果已取消，请重新续写"
+        }
+        check(chapter.chapter == current.theaterChapters[chapter.theater].orEmpty().size + 1)
+        addChapter(chapter)
+    }
+
+    @Synchronized fun setGeneratedLedger(theater: String, ledger: StarWishStoryLedger,
+        expected: StarWishState, chapter: StarWishTheaterChapter) {
+        val current = mutable.value
+        if (current.theaterChapters[theater].orEmpty() != expected.theaterChapters[theater].orEmpty() + chapter ||
+            current.theaterGuides[theater] != expected.theaterGuides[theater] ||
+            current.theaterPlans[theater] != expected.theaterPlans[theater] ||
+            current.theaterBibles[theater] != expected.theaterBibles[theater] ||
+            current.theaterWorldBookIds[theater] != expected.theaterWorldBookIds[theater]) return
+        setLedger(theater, ledger)
+    }
+
     fun updateChapter(theater: String, chapterId: String, title: String, content: String) = update { current ->
         current.copy(
             theaterChapters = current.theaterChapters + (theater to current.theaterChapters[theater].orEmpty().map { chapter ->
@@ -226,8 +258,8 @@ internal class StarWishStore private constructor(context: Context) {
     @Synchronized
     private fun update(transform: (StarWishState) -> StarWishState) {
         val next = transform(mutable.value)
-        mutable.value = next
         persist(next)
+        mutable.value = next
     }
 
     private fun load(): StarWishState = runCatching { stateFile.takeIf(File::isFile)?.readText() }.getOrNull()

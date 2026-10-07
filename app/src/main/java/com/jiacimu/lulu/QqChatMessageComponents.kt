@@ -460,6 +460,12 @@ private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
         .removePrefix("[撤回]")
         .trim()
 
+    Regex("^\\[阅读记录\\|([^\\]]+)]\\s*(.*)$", RegexOption.DOT_MATCHES_ALL).find(rawVisible)?.let { match ->
+        val visible = match.groupValues[2].trim()
+        return SystemActivityNotice(visible, SystemActivityLink(SystemActivityType.Reading,
+            "reading-record:${match.groupValues[1]}"), 0, visible.length)
+    }
+
     Regex("^\\[角色见面\\|([^\\]]+)]\\s*(.*)$", RegexOption.DOT_MATCHES_ALL)
         .find(rawVisible)
         ?.let { match ->
@@ -537,11 +543,11 @@ private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
             start + 2,
         )
     }
-    Regex("刚刚读了《([^》]+)》").find(visible)?.let { match ->
+    Regex("刚刚(?:读了|阅读)《([^》]+)》").find(visible)?.let { match ->
         val start = visible.indexOf('《')
         val end = visible.indexOf('》', start).let { if (it >= 0) it + 1 else -1 }
         return SystemActivityNotice(
-            visible,
+            "刚刚读了《${match.groupValues[1].trim()}》",
             SystemActivityLink(SystemActivityType.Reading, match.groupValues[1].trim()),
             start,
             end,

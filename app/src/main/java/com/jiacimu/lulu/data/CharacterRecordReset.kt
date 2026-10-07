@@ -36,6 +36,7 @@ object CharacterRecordReset {
             .forEach { id -> LuluRepositories.lexicon.delete(id) }
 
         LuluRepositories.memory.clearCharacterHistory(cleanId)
+        com.jiacimu.lulu.study.ReadingReflectionStore.clearCharacter(cleanId)
 
         CharacterDevelopmentStore.clearCharacter(cleanId)
         CharacterLifeStore.clearHistory(cleanId)

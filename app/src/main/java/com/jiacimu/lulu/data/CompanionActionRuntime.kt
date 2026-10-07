@@ -10,6 +10,8 @@ import com.jiacimu.lulu.games.LuluGames
 import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.ReadingBackgroundBridge
 import org.json.JSONObject
+import kotlinx.coroutines.sync.withLock
+import com.jiacimu.lulu.study.*
 import java.time.Instant
 import java.util.UUID
 
@@ -27,6 +29,7 @@ internal data class CompanionActionResult(
 
 /** One real execution layer shared by foreground chat decisions and background perception. */
 internal object CompanionActionRuntime {
+    private val readingLocks = java.util.concurrent.ConcurrentHashMap<String, kotlinx.coroutines.sync.Mutex>()
     private val gameTitles = mapOf(
         "deep_sea_journey" to "深海回声",
         "roleplay" to "跑团",
@@ -327,7 +330,9 @@ internal object CompanionActionRuntime {
         character: CharacterSettings,
         readingBookId: String,
         now: Instant,
-    ): CompanionActionResult {
+    ): CompanionActionResult = readingLocks.getOrPut(character.characterId) { kotlinx.coroutines.sync.Mutex() }.withLock {
+        ReadingReflectionStore.initialize(context)
+        val readingGeneration = ReadingReflectionStore.generation(character.characterId)
         val slice = ReadingBackgroundBridge.nextSlice(context, character.characterId, readingBookId)
             ?: return CompanionActionResult(false, "没有找到指定阅读内容，或者这份内容已经读完")
         DigitalWorldActivityStateStore.endActivity(character.characterId)
@@ -344,7 +349,13 @@ internal object CompanionActionRuntime {
             source = "角色行动·连续阅读",
             title = "${character.displayName}继续读《${slice.book.title}》",
             maxTokens = 700,
-        ).getOrNull()?.text?.trim().orEmpty()
+        ).getOrThrow().text.trim()
+        require(reflection.isNotBlank()) { "阅读感想未生成，阅读进度保留" }
+        val record = ReadingReflectionRecord(characterId = character.characterId, bookId = slice.book.id,
+            bookTitle = slice.book.title, chapterTitle = readingSections(slice.book).firstOrNull {
+                slice.startOffset in it.start until it.end }?.title ?: slice.book.title,
+            revision = readingRevision(slice.book), startOffset = slice.startOffset, endOffset = slice.endOffset,
+            reflection = reflection, occurredAt = now)
         val factualReceipt = "阅读《${slice.book.title}》字符 ${slice.startOffset}—${slice.endOffset}/${slice.totalLength}${if (slice.completed) "，已读完" else "，下次从 ${slice.endOffset} 继续"}"
         val timelineContent = buildString {
             appendLine(factualReceipt)
@@ -353,25 +364,20 @@ internal object CompanionActionRuntime {
                 append(reflection.take(2_000))
             }
         }.trim()
+        ReadingReflectionStore.completeRead(record, slice, readingGeneration) {
         SharedExperienceTimeline.record(
-            eventId = "reading-alone-${UUID.randomUUID()}",
+            eventId = record.id,
             characterId = character.characterId,
             channel = "独自阅读《${slice.book.title}》",
             speaker = character.displayName,
             content = timelineContent,
             occurredAt = now,
+            source = "reading:${slice.book.id}",
+            sessionId = record.id,
         )
-        MigratedDomainStores.chat.appendPrivateActivityNotice(
-            character.characterId,
-            buildString {
-                append("刚刚")
-                append(factualReceipt)
-                if (reflection.isNotBlank()) {
-                    append("；留下感想：")
-                    append(reflection.replace(Regex("\\s+"), " ").take(180))
-                }
-            },
-        )
+        MigratedDomainStores.chat.appendPrivateActivityNotice(character.characterId,
+            "[阅读记录|${record.id}]刚刚读了《${slice.book.title}》 · ${record.chapterTitle}")
+        }
         return CompanionActionResult(true, factualReceipt)
     }
 }

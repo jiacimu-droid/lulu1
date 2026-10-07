@@ -73,7 +73,7 @@ internal fun StarWishTheaterContentV2(
                 openedTitle = it
                 mode = TheaterV2Mode.READER
             },
-            onGenerate = { mode = TheaterV2Mode.GENERATOR },
+            onGenerate = { openedTitle = null; mode = TheaterV2Mode.GENERATOR },
             onDelete = { title -> deleteTheaterTitle = title },
         )
         TheaterV2Mode.READER -> if (openedSeed != null) {
@@ -83,6 +83,7 @@ internal fun StarWishTheaterContentV2(
                 store = store,
                 generationManager = generationManager,
                 task = generationTasks[openedSeed.title],
+                planning = planGenerationTasks[openedSeed.title]?.active == true,
                 onBack = { mode = TheaterV2Mode.BOOKSHELF },
                 onPlanner = { mode = TheaterV2Mode.PLANNER },
                 onBible = { mode = TheaterV2Mode.BIBLE },
@@ -129,6 +130,7 @@ internal fun StarWishTheaterContentV2(
                 initialPlans = plannerPlans,
                 writtenChapterCount = writtenChapters.size,
                 task = planGenerationTasks[openedSeed.title],
+                onCancel = { planGenerationManager.cancel(openedSeed.title) },
                 onBack = { mode = TheaterV2Mode.READER },
                 onBible = { mode = TheaterV2Mode.BIBLE },
                 onSave = { guide, plans ->
@@ -206,6 +208,7 @@ internal fun StarWishTheaterContentV2(
             confirmButton = {
                 TextButton(onClick = {
                     generationManager.cancel(title)
+                    planGenerationManager.cancel(title)
                     customLibrary.delete(title)
                     customTheaters = customLibrary.all()
                     store.deleteTheater(title)
@@ -337,6 +340,7 @@ private fun TheaterReaderV2(
     store: StarWishStore,
     generationManager: StarWishTheaterGenerationManager,
     task: StarWishTheaterTask?,
+    planning: Boolean,
     onBack: () -> Unit,
     onPlanner: () -> Unit,
     onBible: () -> Unit,
@@ -344,8 +348,10 @@ private fun TheaterReaderV2(
     onRegenerate: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val readerPrefs = remember { context.getSharedPreferences("lulu_theater_reader", 0) }
     val chapters = state.theaterChapters[seed.title].orEmpty()
-    var selectedIndex by rememberSaveable(seed.title) { mutableIntStateOf((chapters.size - 1).coerceAtLeast(0)) }
+    var selectedIndex by rememberSaveable(seed.title) { mutableIntStateOf(readerPrefs.getInt("chapter:${seed.title}", 0).coerceIn(0, (chapters.size - 1).coerceAtLeast(0))) }
     var influence by rememberSaveable(seed.title) { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var chapterMenu by remember { mutableStateOf(false) }
@@ -357,26 +363,29 @@ private fun TheaterReaderV2(
     val generating = task?.active == true
     val selectedChapter = chapters.getOrNull(selectedIndex.coerceIn(0, (chapters.size - 1).coerceAtLeast(0)))
 
+    LaunchedEffect(selectedIndex) { readerPrefs.edit().putInt("chapter:${seed.title}", selectedIndex).apply() }
+
     LaunchedEffect(chapters.size) {
         if (chapters.isNotEmpty() && selectedIndex > chapters.lastIndex) selectedIndex = chapters.lastIndex
     }
 
     LaunchedEffect(task?.status, chapters.size) {
         if (task?.status == StarWishTheaterTaskStatus.SUCCEEDED && chapters.isNotEmpty()) {
+            if (influence == task.influence) influence = ""
+            composerExpanded = false
             selectedIndex = chapters.lastIndex
             listState.scrollToItem(0)
         }
     }
 
     fun generateNextChapter() {
-        if (generating || chapters.size >= StarWishRules.MAX_CHAPTERS_PER_THEATER) return
+        if (generating || planning || chapters.size >= StarWishRules.MAX_CHAPTERS_PER_THEATER) return
         message = ""
         if (state.theaterGuides[seed.title].isNullOrBlank()) {
             store.setStoryPlan(seed.title, seed.prompt, state.theaterPlans[seed.title].orEmpty())
         }
-        generationManager.enqueue(seed.title, influence)
+        generationManager.enqueue(seed.title, influence.ifBlank { if (task?.status == StarWishTheaterTaskStatus.FAILED) task.influence else "" })
             .onSuccess {
-                influence = ""
                 composerExpanded = false
                 message = "已加入后台生成；退出页面也会继续"
             }
@@ -401,7 +410,7 @@ private fun TheaterReaderV2(
                 IconButton(onClick = { chapterMenu = true }, enabled = chapters.isNotEmpty()) {
                     Icon(Icons.Outlined.FormatListNumbered, "章节")
                 }
-                IconButton(onClick = onPlanner) {
+                IconButton(onClick = onPlanner, enabled = !generating) {
                     Icon(Icons.Outlined.EditNote, "剧情规划")
                 }
                 IconButton(
@@ -436,6 +445,7 @@ private fun TheaterReaderV2(
                             text = { Text("重新生成剧情规划") },
                             leadingIcon = { Icon(Icons.Outlined.AutoAwesome, null) },
                             onClick = { overflowMenu = false; onRegenerate() },
+                            enabled = !generating,
                         )
                     }
                 }
@@ -502,13 +512,13 @@ private fun TheaterReaderV2(
                     )
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TextButton(onClick = { composerExpanded = !composerExpanded }, modifier = Modifier.weight(1f)) {
+                    TextButton(onClick = { composerExpanded = !composerExpanded }, enabled = !generating, modifier = Modifier.weight(1f)) {
                         Icon(if (composerExpanded) Icons.Outlined.ExpandMore else Icons.Outlined.Edit, null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(5.dp))
                         Text(if (composerExpanded) "收起" else if (influence.isBlank()) "影响下一章" else "已写剧情要求")
                     }
                     Button(
-                        enabled = !generating && chapters.size < StarWishRules.MAX_CHAPTERS_PER_THEATER,
+                        enabled = !generating && !planning && chapters.size < StarWishRules.MAX_CHAPTERS_PER_THEATER,
                         onClick = ::generateNextChapter,
                         modifier = Modifier.weight(1.25f),
                         shape = RoundedCornerShape(15.dp),
@@ -517,10 +527,15 @@ private fun TheaterReaderV2(
                             CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
                             Spacer(Modifier.width(8.dp))
                         }
-                        Text(if (generating) "正在续写" else if (chapters.isEmpty()) "生成第一章" else "续写第 ${chapters.size + 1} 章")
+                        Text(if (planning) "剧情规划中" else if (generating) "正在续写" else if (chapters.isEmpty()) "生成第一章" else if (task?.status == StarWishTheaterTaskStatus.FAILED) "重试第 ${chapters.size + 1} 章" else "续写第 ${chapters.size + 1} 章")
                     }
                 }
-                val statusMessage = when {
+                if (generating) TextButton(onClick = {
+                    generationManager.cancel(seed.title)
+                    message = "已取消续写，剧情要求已保留"
+                }) { Text("取消续写") }
+                if (regenerating) item { TextButton(onClick = onCancel) { Text("取消规划，保留已完成部分") } }
+            val statusMessage = when {
                     task?.active == true || task?.status == StarWishTheaterTaskStatus.FAILED -> task.message
                     message.isNotBlank() -> message
                     else -> task?.message.orEmpty()
@@ -641,6 +656,7 @@ private fun TheaterPlannerV2(
     initialPlans: List<StarWishChapterPlan>,
     writtenChapterCount: Int,
     task: StarWishPlanTask?,
+    onCancel: () -> Unit,
     onBack: () -> Unit,
     onBible: () -> Unit,
     onSave: (String, List<StarWishChapterPlan>) -> Unit,
@@ -649,6 +665,7 @@ private fun TheaterPlannerV2(
     var guide by rememberSaveable(title) { mutableStateOf(initialGuide) }
     var plans by remember(title, initialPlans) { mutableStateOf(initialPlans) }
     var confirmDiscard by remember { mutableStateOf(false) }
+    var pendingBible by remember { mutableStateOf(false) }
     var localMessage by remember { mutableStateOf("") }
     val regenerating = task?.active == true
     val dirty = guide != initialGuide || plans != initialPlans
@@ -708,7 +725,7 @@ private fun TheaterPlannerV2(
                 Text("故事地图", fontSize = 22.sp, fontWeight = FontWeight.Bold)
                 Text("这里只放这本书的核心、看点、世界前提、关系底色和基调。人物长线、明暗线、伏笔与结局放在单独的幕后规划。", color = StudyDesign.muted, style = MaterialTheme.typography.bodySmall)
                 Spacer(Modifier.height(8.dp))
-                FilledTonalButton(onClick = onBible) {
+                FilledTonalButton(onClick = { if (dirty) { pendingBible = true; confirmDiscard = true } else onBible() }) {
                     Icon(Icons.Outlined.AutoStories, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(5.dp))
                     Text("查看幕后规划")
@@ -827,10 +844,10 @@ private fun TheaterPlannerV2(
     if (confirmDiscard) {
         AlertDialog(
             onDismissRequest = { confirmDiscard = false },
-            title = { Text("放弃未保存的修改？") },
-            text = { Text("返回阅读页后，这次编辑不会保留。") },
+            title = { Text(if (pendingBible) "保存后查看幕后规划？" else "放弃未保存的修改？") },
+            text = { Text(if (pendingBible) "故事地图和逐章规划有未保存的修改。" else "返回阅读页后，这次编辑不会保留。") },
             dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text("继续编辑") } },
-            confirmButton = { TextButton(onClick = { confirmDiscard = false; onBack() }) { Text("放弃修改") } },
+            confirmButton = { TextButton(onClick = { confirmDiscard = false; if (pendingBible) { onSave(guide.trim(), plans); onBible(); pendingBible = false } else onBack() }) { Text(if (pendingBible) "保存并查看" else "放弃修改") } },
         )
     }
 }

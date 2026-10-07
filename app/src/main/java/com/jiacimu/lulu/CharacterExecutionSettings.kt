@@ -26,11 +26,14 @@ internal fun CharacterExecutionSettings(characterId: String) {
         OutlinedTextField(packages, { packages = it; prefs.edit().putString("$characterId:notification_packages", it).commit() },
             label = { Text("重要通知的 App 包名，逗号分隔") }, modifier = Modifier.fillMaxWidth())
         Text("可追溯成长", style = MaterialTheme.typography.titleMedium)
-        var records by remember(characterId) { mutableStateOf(CharacterDevelopmentStore.history(characterId)) }
-        records.filter { it.active }.takeLast(15).forEach { record ->
-            Text("${record.kind} · v${record.version}：${record.content}")
-            Text("依据：${record.evidence.keys.joinToString()}", style = MaterialTheme.typography.bodySmall)
-            TextButton(onClick = { CharacterDevelopmentStore.retire(characterId, record.id); records = CharacterDevelopmentStore.history(characterId) }) { Text("撤销这项变化") }
+        val revision by CharacterDevelopmentStore.revisions.collectAsState()
+        val records = remember(characterId, revision) { CharacterDevelopmentStore.active(characterId) }
+        records.takeLast(15).forEach { record ->
+            Text("${record.kind.label} · v${record.version}：${record.content}")
+            com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(characterId, record.evidence.keys).take(3).forEach { event ->
+                Text("依据：${event.channel} · ${event.content.take(100)}", style = MaterialTheme.typography.bodySmall)
+            }
+            TextButton(onClick = { CharacterDevelopmentStore.retire(characterId, record.id) }) { Text("撤销这项变化") }
         }
         if (records.none { it.active }) Text("尚无经验证的成长记录")
     }

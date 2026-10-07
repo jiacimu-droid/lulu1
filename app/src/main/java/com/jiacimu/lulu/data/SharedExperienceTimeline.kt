@@ -184,7 +184,8 @@ object SharedExperienceTimeline {
             CharacterLifeStore.invalidateReceipt(eventId)
             if (!triggerExtraction) scope.launch { LuluRepositories.memory.deleteDerivedFromEvent(eventId) }
         }
-        if (triggerExtraction && evidenceKind == EventEvidenceKind.UserStatement) {
+        if (triggerExtraction && SharedTimelineEvent(eventId, characterId, channel, speaker, clean, occurredAt,
+                sessionId, source, evidenceKind).supportsDevelopmentReflection()) {
             CharacterDevelopmentRuntime.request(characterId)
         }
         if (triggerExtraction) {

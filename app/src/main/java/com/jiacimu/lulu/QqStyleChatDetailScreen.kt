@@ -350,14 +350,14 @@ fun QqStyleChatDetailScreen(
                             Spacer(Modifier.width(9.dp))
                             Column {
                                 Text(
-                                    groupChat?.let { "${it.name}（${it.members.size + 1}）" } ?: character.displayName,
+                                    (groupChat?.let { "${it.name}（${it.members.size + 1}）" } ?: character.displayName) +
+                                        if (receiving) " · ${if (groupChat != null) typingCharacterId?.let { characters[it]?.displayName }.orEmpty() else ""}正在输入中" else "",
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 17.sp,
                                     color = QqInk,
                                 )
                                 Text(
-                                    if (receiving) "${typingCharacterId?.let { characters[it]?.displayName }.orEmpty().ifBlank { if (groupChat == null) character.displayName else "角色" }} 正在回复…"
-                                    else if (groupChat == null) "${if (privateOnline) "在线" else "离线"} · $activeLabel"
+                                    if (groupChat == null) "${if (privateOnline) "在线" else "离线"} · $activeLabel"
                                     else "$onlineMemberCount 人在线",
                                     fontSize = 10.sp,
                                     color = if ((groupChat == null && privateOnline) || (groupChat != null && onlineMemberCount > 0)) Color(0xFF2A9D63) else QqMuted,
