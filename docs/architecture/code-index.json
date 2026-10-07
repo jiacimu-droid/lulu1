@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T11:29:31.098737+00:00",
-  "commit": "142eb198e09796e51c12accd04b9d357c3e42a9e",
+  "generatedAt": "2026-10-07T11:42:57.632631+00:00",
+  "commit": "74512c39b49e1d0dff8155d267f3629f0af06939",
   "branch": "main",
-  "sourceFingerprint": "f75c0782989eea0376a0c6ee3b44e983365c60035af29c861d8bf4c85d96e298",
+  "sourceFingerprint": "09c5a86ae92435970e1e27714efa7bc53a2f6fabd487b95c7ae2504147e5c0d0",
   "summary": {
     "files": 302,
-    "lines": 81099,
+    "lines": 81161,
     "symbols": 1107
   },
   "symbolIndex": {
@@ -509,7 +509,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 21
+        "line": 24
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
@@ -1723,7 +1723,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 107
+        "line": 137
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
@@ -6272,7 +6272,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt",
       "lines": 65,
-      "sha256": "4b0f97e6badcfe5940496170f8abb282300c4a23c9c67ef87a7910d258bba571",
+      "sha256": "987f1a5e607dca2ffcf4adcfeef77db9b674a90258a2ab2d7b05513479934e3d",
       "symbols": []
     },
     {
@@ -7793,8 +7793,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 135,
-      "sha256": "55afb722e54c1d55b1b590b170aa9052936178009b161b94c432bd552a5c29a2",
+      "lines": 166,
+      "sha256": "70c25a5d4c7f595a67d8475f9bf498748992cfc6f238db29c53f83f9e8d9e9d8",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -7802,11 +7802,11 @@
         },
         {
           "name": "state",
-          "line": 21
+          "line": 24
         },
         {
           "name": "context",
-          "line": 107
+          "line": 137
         }
       ]
     },
@@ -7827,8 +7827,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
-      "lines": 28,
-      "sha256": "5e545a4ddae1780a64adb1b46da9277a9fa6e3ccf31dee54dc940196987bf2a1",
+      "lines": 30,
+      "sha256": "5552cf70495c94a96a826a970f39b00c03e09bc33defb2d25afbe5ffb951e1d5",
       "symbols": []
     },
     {
@@ -12544,8 +12544,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 59,
-      "sha256": "aa6c31b9efe3646a1029bd888baa0a16f897cce436a92fb49734c1186b885d07",
+      "lines": 88,
+      "sha256": "c6a15cdd3d87ef22b4e589cda2e582ec44bb595e8a6fc8fba1a25beedfc248ae",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",

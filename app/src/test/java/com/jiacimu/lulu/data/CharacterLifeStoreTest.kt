@@ -55,4 +55,33 @@ class CharacterLifeStoreTest {
         assertTrue(CharacterLifeStore.state("life-c").isNull("previousIntention"))
         assertEquals("先表达自己的不同意见", CharacterLifeStore.state("life-c").getJSONObject("profile").getString("conflict"))
     }
+    @Test fun jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        MigratedDomainStores.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val jiang = MigratedDomainStores.characters.create("江渡", "旧人设")
+        CharacterIdentityStore.set(jiang.characterId, "旧身份")
+        CharacterLifeStore.setProfile(jiang.characterId, "care", "旧关心方式")
+        CharacterLifeStore.applyJiangDuPreset(jiang.characterId)
+        val state = CharacterLifeStore.state(jiang.characterId)
+        val backup = state.getJSONObject("jiangDuPresetBackup")
+        assertEquals("旧人设", backup.getString("persona"))
+        assertEquals("旧身份", backup.getString("identity"))
+        assertEquals("旧关心方式", backup.getJSONObject("profile").getString("care"))
+        assertTrue(DigitalLifeProfileStore.isEnabled(jiang.characterId))
+        assertTrue(CharacterIdentityStore.identities.value[jiang.characterId]!!.contains("没有恋爱经历"))
+        assertTrue(state.getJSONObject("profile").getString("care").contains("出生时恋人身份"))
+        CharacterLifeStore.setProfile(jiang.characterId, "care", "后来自己改的")
+        CharacterLifeStore.applyJiangDuPreset(jiang.characterId)
+        assertEquals("后来自己改的", CharacterLifeStore.state(jiang.characterId).getJSONObject("profile").getString("care"))
+        val other = MigratedDomainStores.characters.create("其他角色", "不改")
+        CharacterLifeStore.applyJiangDuPreset(other.characterId)
+        assertEquals("不改", MigratedDomainStores.characters.get(other.characterId).persona)
+        assertFalse(CharacterLifeStore.state(other.characterId).has("jiangDuPresetVersion"))
+    }
+
 }

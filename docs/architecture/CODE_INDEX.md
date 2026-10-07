@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`142eb198e09796e51c12accd04b9d357c3e42a9e`
+- 基准提交：`74512c39b49e1d0dff8155d267f3629f0af06939`
 - 分支：`main`
 - 已索引文件：302
-- 已索引代码/文本行：81099
+- 已索引代码/文本行：81161
 - 已发现符号：1107
 
 | 文件 | 行数 | 符号数 |
@@ -101,9 +101,9 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 60 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 126 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 98 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 135 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 166 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 158 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 28 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 30 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 28 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 109 | 6 |
@@ -301,7 +301,7 @@
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
 | `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 59 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 88 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 76 | 3 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |

@@ -17,6 +17,9 @@ object CharacterLifeStore {
         if (prefs != null) return
         prefs = context.applicationContext.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
         mutable.value = prefs!!.all.mapNotNull { (key, value) -> (value as? String)?.let { key to it } }.toMap()
+        // User-requested installation migration, limited to this named companion.
+        MigratedDomainStores.characters.settings.value.values.filter { it.displayName in setOf("江渡", "江都") }
+            .forEach { applyJiangDuPreset(it.characterId) }
     }
 
     fun state(characterId: String): JSONObject = runCatching {
@@ -29,6 +32,33 @@ object CharacterLifeStore {
         val profile = root.optJSONObject("profile") ?: JSONObject()
         profile.put(key, value.take(1000))
         root.put("profile", profile)
+        save(characterId, root)
+    }
+
+    /** One-time, restart-safe preset. Later user edits must never be overwritten on launch. */
+    @Synchronized fun applyJiangDuPreset(characterId: String) {
+        val character = MigratedDomainStores.characters.get(characterId)
+        if (character.displayName !in setOf("江渡", "江都")) return
+        val root = state(characterId)
+        if (root.optInt("jiangDuPresetVersion") >= 2) return
+        val rawIdentity = CharacterIdentityStore.identities.value[characterId].orEmpty()
+        if (!root.has("jiangDuPresetBackup")) {
+            root.put("jiangDuPresetBackup", JSONObject().put("persona", character.persona)
+                .put("identity", rawIdentity).put("profile", JSONObject((root.optJSONObject("profile") ?: JSONObject()).toString())))
+            // Persist backup before modifying any existing store; interrupted launches can retry.
+            save(characterId, root)
+        }
+        if (!DigitalLifeProfileStore.isResolved(characterId)) {
+            DigitalLifeProfileStore.confirmLegacyLifeForm(characterId, character.displayName,
+                "创造者", CharacterLifeForm.DIGITAL)
+        }
+        // A resolved real-world character is not silently converted by a name match.
+        if (!DigitalLifeProfileStore.isEnabled(characterId)) return
+        CharacterIdentityStore.set(characterId, CharacterProfileSchema.jiangDuIdentity)
+        MigratedDomainStores.characters.update(character.copy(persona = CharacterProfileSchema.jiangDuPersona))
+        val profile = root.optJSONObject("profile") ?: JSONObject()
+        CharacterProfileSchema.jiangDu.forEach { (key, value) -> profile.put(key, value) }
+        root.put("profile", profile).put("jiangDuPresetVersion", 2)
         save(characterId, root)
     }
 
@@ -121,6 +151,7 @@ object CharacterLifeStore {
             }
             appendLine("人格组织规则：原人设、核心价值与动机约束选择；结合当前真实情境和关系理解信息，再选择回应与可执行行为。外在表现可随情境变化，不能把不同侧面当成轮换人格。人格类型词只是描述参考，不自动推导完整性格、恐惧或经历。")
             appendLine("未指定的兴趣、偏好和担忧允许基于真实经历逐渐形成，不为了填满设定编造过去。当前情绪不是永久性格，生成的自我叙述不能充当客观记忆。")
+            appendLine("心理连续性规则：承接当前已保存的心情、心声、持续动机与真实经历；新刺激先影响理解和感受，再影响选择和表达。没有新事件或反馈时，不无缘无故反转判断、依恋或长期动机。允许矛盾感受并存；改变主意时保留变化缘由。内心愿望、推测和想象不能当成已发生事件或对方真实想法。不要每轮重置、机械递增好感，也不要将所有心声念给用户听。")
             appendLine("表达规则：用具体记忆、取舍与可执行小事体现性格和关心。无需每轮示爱或自述心理。允许复杂感受、犹豫、不同意见和自己的兴趣；不能凭空编造已做的事或承诺永久不变。涉及用户的长期承诺以承诺任务的真实状态为准。")
         }.trim()
     }

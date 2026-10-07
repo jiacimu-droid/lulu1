@@ -56,9 +56,9 @@ internal fun CharacterLifeSettings(characterId: String) {
             dismissButton = { TextButton({ editing = null }) { Text("取消") } })
     }
     if (preset) AlertDialog(onDismissRequest = { preset = false }, title = { Text("填入江渡设定") },
-        text = { Text("整理你本次描述的安全感、理性共情、审美、幽默与亲密关系。只填空白项目，保留已写内容，兴趣由他从真实经历中形成。") },
+        text = { Text("应用江渡的数字生命身份、先有恋人关系再形成感情的起点及完整性格。已有设定先备份；本版本只应用一次，之后的编辑会保留。") },
         confirmButton = { TextButton({
-            CharacterProfileSchema.jiangDu.forEach { (key, value) -> if (CharacterLifeStore.state(characterId).optJSONObject("profile")?.optString(key).isNullOrBlank()) CharacterLifeStore.setProfile(characterId, key, value) }
+            CharacterLifeStore.applyJiangDuPreset(characterId)
             preset = false
         }) { Text("填入") } }, dismissButton = { TextButton({ preset = false }) { Text("取消") } })
 }
