@@ -343,8 +343,25 @@ internal class StarWishTheaterGenerationWorker(
         val chapterNumber = chapters.size + 1
         manager.running(theater, chapterNumber)
         return try {
+            val builtInSeed = StarWishRules.theaters.firstOrNull { it.title == theater }
             var guide = snapshot.theaterGuides[theater].orEmpty().trim()
+                .ifBlank { builtInSeed?.prompt.orEmpty().trim() }
             var plans = snapshot.theaterPlans[theater].orEmpty().ifEmpty { starWishPlansFromLegacyGuide(guide) }
+            if (snapshot.theaterGuides[theater].isNullOrBlank() && guide.isNotBlank()) {
+                store.setStoryPlan(theater, guide, plans)
+            }
+
+            val needsBuiltInLongRangeBootstrap = builtInSeed != null &&
+                plans.size <= chapters.size + 1
+            val planningHorizon = if (builtInSeed != null) {
+                maxOf(
+                    plans.maxOfOrNull { it.number } ?: 0,
+                    chapters.size + BUILTIN_PLAN_AHEAD_CHAPTERS,
+                    BUILTIN_MIN_PLANNING_HORIZON,
+                ).coerceAtMost(StarWishRules.MAX_CHAPTERS_PER_THEATER)
+            } else {
+                maxOf(plans.maxOfOrNull { it.number } ?: 0, chapterNumber)
+            }
 
             if (chapters.isNotEmpty() && plans.isEmpty() && !hasFullStoryMap(guide)) {
                 recoverStoryMap(theater, guide, chapters)?.takeIf(String::isNotBlank)?.let { recovered ->
@@ -362,30 +379,34 @@ internal class StarWishTheaterGenerationWorker(
             }
 
             var bible = snapshot.theaterBibles[theater]
-            if (bible == null && guide.isNotBlank()) {
+            if ((bible == null || needsBuiltInLongRangeBootstrap) && guide.isNotBlank()) {
                 bible = StarWishTheaterPlanningEngine.generateStoryBible(
                     characterId = ISOLATED_CHARACTER_ID,
                     storyTitle = theater,
                     storyGuide = guide,
-                    chapterCount = maxOf(plans.size, chapterNumber),
+                    chapterCount = planningHorizon,
                     writtenChapters = chapters,
-                    existingBible = null,
+                    existingBible = bible,
                     ledger = ledger,
-                ).getOrNull()
+                ).getOrNull() ?: bible
                 bible?.let { store.setBible(theater, it) }
             }
 
             var currentPlan = plans.firstOrNull { it.number == chapterNumber }
-            if (currentPlan == null && guide.isNotBlank()) {
+            if ((currentPlan == null || needsBuiltInLongRangeBootstrap) && guide.isNotBlank()) {
+                val planTarget = if (builtInSeed != null) planningHorizon else chapterNumber
                 val plannedThroughCurrent = StarWishTheaterPlanningEngine.generateChapterPlans(
                     characterId = ISOLATED_CHARACTER_ID,
                     storyTitle = theater,
                     storyGuide = guide,
-                    chapterCount = chapterNumber,
+                    chapterCount = planTarget,
                     writtenChapters = chapters,
                     existingPlans = plans,
                     storyBible = bible,
                     ledger = ledger,
+                    onProgress = { partialPlans ->
+                        store.setStoryPlan(theater, guide, partialPlans)
+                    },
                 ).getOrNull()
                 val generatedCurrent = plannedThroughCurrent?.firstOrNull { it.number == chapterNumber }
                 if (generatedCurrent != null && plannedThroughCurrent != null) {
@@ -593,6 +614,8 @@ internal class StarWishTheaterGenerationWorker(
 
     private companion object {
         const val ISOLATED_CHARACTER_ID = "__starwish_theater_isolated__"
+        const val BUILTIN_MIN_PLANNING_HORIZON = 12
+        const val BUILTIN_PLAN_AHEAD_CHAPTERS = 8
     }
 }
 
