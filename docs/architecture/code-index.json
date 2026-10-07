@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-07T10:20:33.941494+00:00",
+  "generatedAt": "2026-10-07T10:23:13.665569+00:00",
   "commit": "cb9b80f4de8a4d06894f181c14642925d0c5a486",
   "branch": "main",
-  "sourceFingerprint": "f31d50b6cfe5e8ffe6301e95928b299ab41626e7f936eeac3474a0b066395cc2",
+  "sourceFingerprint": "70984b2b5e212ce4afb862f8a7df712412c55e259cf7bbbebf198a953acf6478",
   "summary": {
     "files": 295,
-    "lines": 80573,
+    "lines": 80575,
     "symbols": 1092
   },
   "symbolIndex": {
@@ -7629,7 +7629,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
       "lines": 134,
-      "sha256": "a3420d6e7e8ef1fd42530644e021ca0416a518e2d7f9bc607284bdb6c221c968",
+      "sha256": "6af995e1f970c52e9eb891864f96032d36fe596d813b266f126a223972b7f250",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -9939,7 +9939,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
       "lines": 73,
-      "sha256": "37827bd0c31f586eb26f63d24ed412a73970407f13d440cb76d768c83f6453c3",
+      "sha256": "fc5612255b8e6d2ce33138fa1d64f755cdf58ca5182c2c72ac7b8bcc5ab0b1f2",
       "symbols": [
         {
           "name": "ToolRouter",
@@ -12358,8 +12358,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 57,
-      "sha256": "e9f2b8059e18519a96cbb3845437c787acc496ea6e2295fc1a4b32d0a1f1d7fc",
+      "lines": 59,
+      "sha256": "aa6c31b9efe3646a1029bd888baa0a16f897cce436a92fb49734c1186b885d07",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",

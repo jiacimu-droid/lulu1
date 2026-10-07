@@ -17,7 +17,7 @@ object ToolRouter {
     suspend fun execute(context: Context, characterId: String, name: String, args: JSONObject,
         requestId: String = UUID.randomUUID().toString(), userRequested: Boolean = false): String = mutex.withLock {
         fun rejected(message: String, status: String = "failed"): String {
-            CharacterLifeStore.recordOutcome(characterId, "tool-$characterId-$requestId", name, false, message)
+            CharacterLifeStore.recordOutcome(characterId, "denied-$characterId-$requestId", name, false, message)
             return failure(message, status)
         }
         val cap = CapabilityRegistry.find(name) ?: return@withLock rejected("未知能力：$name")

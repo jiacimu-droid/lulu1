@@ -27,7 +27,7 @@ object CharacterLifeStore {
         require(key in setOf("values", "care", "conflict", "interests", "expression"))
         val root = state(characterId)
         val profile = root.optJSONObject("profile") ?: JSONObject()
-        profile.put(key, value.trim().take(1000))
+        profile.put(key, value.take(1000))
         root.put("profile", profile)
         save(characterId, root)
     }

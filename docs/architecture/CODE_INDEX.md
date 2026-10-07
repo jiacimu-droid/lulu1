@@ -3,7 +3,7 @@
 - 基准提交：`cb9b80f4de8a4d06894f181c14642925d0c5a486`
 - 分支：`main`
 - 已索引文件：295
-- 已索引代码/文本行：80573
+- 已索引代码/文本行：80575
 - 已发现符号：1092
 
 | 文件 | 行数 | 符号数 |
@@ -294,7 +294,7 @@
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 57 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 59 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 71 | 3 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |

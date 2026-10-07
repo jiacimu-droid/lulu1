@@ -41,6 +41,8 @@ class CharacterLifeStoreTest {
     @Test fun staleReleaseCannotDropCurrentIntentionAndResetKeepsUserProfile() {
         val context = RuntimeEnvironment.getApplication() as Context
         CharacterLifeStore.initialize(context)
+        CharacterLifeStore.setProfile("life-c", "expression", "I care ")
+        assertEquals("I care ", CharacterLifeStore.state("life-c").getJSONObject("profile").getString("expression"))
         CharacterLifeStore.setProfile("life-c", "conflict", "先表达自己的不同意见")
         CharacterLifeStore.consider("life-c", JSONObject().put("aim", "了解这个世界").put("motive", "好奇"))
         CharacterLifeStore.consider("life-c", JSONObject().put("disposition", "release").put("id", "旧轮次").put("reason", "放下"))
