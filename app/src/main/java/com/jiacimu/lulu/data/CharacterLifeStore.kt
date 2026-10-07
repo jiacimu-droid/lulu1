@@ -30,7 +30,7 @@ object CharacterLifeStore {
         require(CharacterProfileSchema.fields.any { it.key == key })
         val root = state(characterId)
         val profile = root.optJSONObject("profile") ?: JSONObject()
-        profile.put(key, value.take(1000))
+        profile.put(key, value)
         root.put("profile", profile)
         save(characterId, root)
     }
@@ -135,13 +135,18 @@ object CharacterLifeStore {
         }
     }
 
-    fun context(characterId: String): String {
+    fun profileContext(characterId: String): String {
+        val profile = state(characterId).optJSONObject("profile") ?: return ""
+        val fields = CharacterProfileSchema.fields.mapNotNull { field ->
+            profile.optString(field.key).takeIf(String::isNotBlank)?.let { "${field.label}：$it" }
+        }
+        return if (fields.isEmpty()) "" else "【用户当前设定的人格与行为】\n" + fields.joinToString("\n")
+    }
+
+    fun context(characterId: String, includeProfile: Boolean = true): String {
         val root = state(characterId)
         return buildString {
-            root.optJSONObject("profile")?.let { profile ->
-                appendLine("【用户设定的行为性格｜补充人设，不能替代原有锁定人设】")
-                CharacterProfileSchema.fields.forEach { field -> profile.optString(field.key).takeIf(String::isNotBlank)?.let { appendLine("${field.label}：$it") } }
-            }
+            if (includeProfile) profileContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
             root.optJSONObject("previousIntention")?.let { appendLine("上一件已放下的事（不代表完成）：${it.optString("aim")}；原因：${it.optString("releaseReason")}。用户结束的事不要擅自重新开启。") }
             root.optJSONObject("intention")?.let { intention ->
                 appendLine("【持续动机｜角色主观愿望，不是已完成事实或用户承诺】")

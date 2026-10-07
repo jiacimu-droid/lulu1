@@ -123,7 +123,6 @@ object CharacterMessageFavorites {
             characterId = character.characterId,
             facts = buildString {
                 appendLine("当前角色：${character.displayName}")
-                character.persona.takeIf(String::isNotBlank)?.let { appendLine("人设：${it.take(900)}") }
                 appendLine("发生场景：$scene")
                 appendLine("主人原话：$messageText")
             },
@@ -138,7 +137,7 @@ object CharacterMessageFavorites {
             title = "${character.displayName}的收藏理由",
             maxTokens = 120,
             usage = ModelUsage.Chat,
-            contextMode = CompanionContextMode.PersonaAndScenario,
+            contextMode = CompanionContextMode.CharacterAndScenario,
             memoryRequest = request,
         ).getOrNull()?.text.orEmpty()
         return generated

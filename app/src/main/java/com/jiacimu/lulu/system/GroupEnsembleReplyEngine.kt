@@ -3,7 +3,8 @@ package com.jiacimu.lulu.system
 import android.content.Context
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelReply
-import com.jiacimu.lulu.data.CharacterIdentityStore
+import com.jiacimu.lulu.data.CharacterRuntime
+import com.jiacimu.lulu.data.CharacterDefinitionSnapshot
 import com.jiacimu.lulu.data.CompanionActionRuntime
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
@@ -50,6 +51,7 @@ internal object GroupEnsembleReplyEngine {
     private data class CachedPlan(
         val turns: MutableList<PlannedTurn>,
         val memberLabels: Map<String, String>,
+        val definitions: Map<String, CharacterDefinitionSnapshot>,
     )
 
     private val lock = Any()
@@ -138,6 +140,7 @@ internal object GroupEnsembleReplyEngine {
             }
         }
 
+        val definitions = validMembers.associate { it.characterId to CharacterRuntime.definition(it.characterId) }
         val generated = LuluAiServices.gateway.generate(
             characterId = currentSpeakerId,
             facts = buildString {
@@ -177,10 +180,8 @@ internal object GroupEnsembleReplyEngine {
                     appendLine("---")
                     appendLine("characterId=${member.characterId}")
                     appendLine("显示名=${character.displayName}；群内称呼=$label")
-                    CharacterIdentityStore.get(member.characterId)
-                        .takeIf(String::isNotBlank)
-                        ?.let { identity -> appendLine("角色身份=${identity.take(1_500)}") }
-                    appendLine("角色设定=${character.persona.ifBlank { "按该角色已有设定自然表达。" }.take(1_800)}")
+                    appendLine(definitions.getValue(member.characterId).promptSection())
+                    appendLine(CharacterRuntime.developmentContext(member.characterId))
                     memoryContext?.compactPromptSection(characterBudget = 4_200)
                         ?.takeIf(String::isNotBlank)
                         ?.let { appendLine(it) }
@@ -247,7 +248,7 @@ internal object GroupEnsembleReplyEngine {
         )
 
         synchronized(lock) {
-            cachedPlans[planKey] = CachedPlan(completed.toMutableList(), memberLabels)
+            cachedPlans[planKey] = CachedPlan(completed.toMutableList(), memberLabels, definitions)
             while (cachedPlans.size > 24) cachedPlans.remove(cachedPlans.keys.first())
         }
         return Result.success(
@@ -272,6 +273,10 @@ internal object GroupEnsembleReplyEngine {
     ): ModelReply? {
         val served = synchronized(lock) {
             val cached = cachedPlans[planKey] ?: return@synchronized null
+            if (cached.definitions.any { (id, definition) -> !CharacterRuntime.definition(id).hasSameConfiguration(definition) }) {
+                cachedPlans.remove(planKey)
+                return@synchronized null
+            }
             val requestedIndex = cached.turns.indexOfFirst { it.characterId == requestedCharacterId }
             val index = if (requestedIndex >= 0) requestedIndex else 0
             val turn = cached.turns.removeAt(index)

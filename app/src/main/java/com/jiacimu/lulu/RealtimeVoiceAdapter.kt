@@ -5,6 +5,7 @@ import com.jiacimu.lulu.data.*
 import io.elevenlabs.*
 import io.elevenlabs.models.ConversationMode
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collectLatest
 import org.json.JSONObject
 import java.time.Instant
 
@@ -18,6 +19,8 @@ internal class RealtimeVoiceAdapter(
     private val onError: (String) -> Unit,
 ) {
     private var session: ConversationSession? = null
+    private var definitionJob: Job? = null
+    private var contextVersion = 0L
     private var generation = 0L
     private var characterId = ""
     private var conversationId = ""
@@ -105,13 +108,16 @@ internal class RealtimeVoiceAdapter(
                 }
             } },
             onError = { _, message -> if (epoch == generation) onError(message ?: "实时语音服务失败，请重试") },
-            onDisconnect = { _ -> if (epoch == generation) { deliveryJob?.cancel(); delivery.reset(); onError("实时通话已断开") } },
+            onDisconnect = { _ -> if (epoch == generation) { definitionJob?.cancel(); deliveryJob?.cancel(); delivery.reset(); onError("实时通话已断开") } },
         )
         val connected = ConversationClient.startSession(config, context)
         if (epoch != generation) connected.endSession() else {
             session = connected
             connected.setMicMuted(microphoneMuted)
             connected.setVolume(1f)
+            definitionJob = scope.launch {
+                CharacterRuntime.definitionChanges(characterId).collectLatest { refreshCore(epoch) }
+            }
         }
     }
 
@@ -123,6 +129,8 @@ internal class RealtimeVoiceAdapter(
     }
     fun stop() {
         generation++
+        definitionJob?.cancel()
+        definitionJob = null
         deliveryJob?.cancel()
         deliveryEpoch = delivery.reset()
         playedAudio = false
@@ -148,18 +156,22 @@ internal class RealtimeVoiceAdapter(
     }
 
     private suspend fun coreSnapshot(id: String): JSONObject {
-        val character = MigratedDomainStores.characters.get(id)
+        val version = synchronized(this) {
+            contextVersion = maxOf(contextVersion + 1, Instant.now().toEpochMilli())
+            contextVersion
+        }
         val memory = CharacterRuntime.memory(id, UnifiedMemoryRequest(sceneContext = "实时电话", taskIntent = "自然接续同一个角色"))
         val worldBook = LuluRepositories.worldBook.snapshot().filter { (it.globalEnabled && it.characterOverrides[id] != false) || it.characterOverrides[id] == true }
         val lexicon = LuluRepositories.lexicon.snapshot(id)
         val presence = CompanionPresenceStore.current(id)
-        val context = listOf("你是${character.displayName}。人设（锁定）：${character.persona}", CharacterIdentityStore.get(id),
+        val definition = CharacterRuntime.definition(id)
+        val context = listOf(definition.promptSection(),
             UserProfileContext.promptSection(), "当前状态（主观）：$presence", DigitalWorldStore.contextFor(id),
             DigitalWorldLifeEventStore.contextFor(id), CharacterRuntime.developmentContext(id),
             memory.compactPromptSection(12_000), "世界书：" + worldBook.joinToString("\n") { "${it.title}：${it.content}" },
             "辞海：" + lexicon.take(24).joinToString("\n") { "${it.title}：${it.content}" }, CapabilityRegistry.context(context = this.context, characterId = id),
             "只按实际事件、工具结果和当前世界状态续接。用户陈述、观察事实和推测分开；生成或日记不能证明已经行动。")
             .filter(String::isNotBlank).joinToString("\n\n")
-        return JSONObject().put("characterId", id).put("context", context).put("version", Instant.now().toEpochMilli())
+        return JSONObject().put("characterId", id).put("context", context).put("version", version)
     }
 }

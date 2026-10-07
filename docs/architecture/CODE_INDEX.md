@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`4a8664334aa1816a566d70a756185e7f93fd60c7`
+- 基准提交：`abfd05355bd1ed8139df9dea39bfcd19ea19d083`
 - 分支：`main`
-- 已索引文件：310
-- 已索引代码/文本行：81912
-- 已发现符号：1135
+- 已索引文件：311
+- 已索引代码/文本行：82044
+- 已发现符号：1143
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -17,7 +17,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 28 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 65 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 456 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 462 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 238 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 182 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/ChatErrorNotice.kt` | 16 | 0 |
@@ -90,13 +90,13 @@
 | `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 83 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 649 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 703 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt` | 166 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt` | 178 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 155 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StatefulCharacterPortrait.kt` | 24 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 43 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt` | 29 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 954 | 25 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 961 | 25 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 188 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 136 | 28 |
@@ -105,11 +105,11 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 60 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 126 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 98 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 166 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 157 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 171 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 156 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 30 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 48 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 29 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 65 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 109 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 84 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 271 | 2 |
@@ -168,7 +168,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 100 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 901 | 45 |
-| `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 894 | 16 |
+| `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 891 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 34 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 96 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
@@ -288,7 +288,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt` | 253 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStyledDropdownCompat.kt` | 60 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 156 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt` | 473 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt` | 478 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 100 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 321 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 412 | 2 |
@@ -307,6 +307,7 @@
 | `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 84 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt` | 65 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 90 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 24 | 1 |

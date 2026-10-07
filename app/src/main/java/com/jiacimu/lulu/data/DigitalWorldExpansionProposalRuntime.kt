@@ -106,7 +106,7 @@ internal object DigitalWorldExpansionProposalRuntime {
             title = "${character.displayName}的低频世界提案",
             maxTokens = 420,
             connectionOverride = connection,
-            contextMode = CompanionContextMode.PersonaAndScenario,
+            contextMode = CompanionContextMode.CharacterAndScenario,
         ).getOrNull() ?: return null
         val proposal = parseObject(result.text) ?: return null
         return when (proposal.optString("action").trim().lowercase()) {

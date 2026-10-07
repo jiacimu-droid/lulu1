@@ -300,7 +300,6 @@ object MomentsStore {
             evidenceCharacterBudget = 2_200,
             recentCharacterBudget = 2_600,
         )
-        val identity = CharacterIdentityStore.get(character.characterId)
         val presence = CompanionPresenceStore.current(character.characterId)
 
         val raw = LuluAiServices.gateway.generate(
@@ -314,8 +313,6 @@ object MomentsStore {
                 appendLine("【当前独立判断的角色】")
                 appendLine("characterId=${character.characterId}")
                 appendLine("显示名=${character.displayName}")
-                if (identity.isNotBlank()) appendLine("身份与关系=${identity.take(760)}")
-                appendLine("人设=${character.persona.ifBlank { "按该角色现有人设自然行动。" }.take(980)}")
                 memoryContext.compactPromptSection(characterBudget = 3_600)
                     .takeIf(String::isNotBlank)
                     ?.let { appendLine(it) }
@@ -342,7 +339,7 @@ object MomentsStore {
             title = "${character.displayName}查看朋友圈",
             maxTokens = 600,
             usage = ModelUsage.Chat,
-            contextMode = CompanionContextMode.PersonaAndScenario,
+            contextMode = CompanionContextMode.CharacterAndScenario,
             memoryRequest = socialMemoryRequest,
         ).getOrNull()?.text.orEmpty()
 

@@ -259,7 +259,8 @@ internal object AutonomousSocialRuntime {
                 appendLine("参与角色与准确 ID：")
                 participantIds.forEach { id ->
                     val character = characters.getValue(id)
-                    appendLine("- id=$id；姓名=${character.displayName}；人设=${character.persona.ifBlank { "按现有关系与性格自然行动" }}")
+                    appendLine("- id=$id")
+                    appendLine(CharacterRuntime.definition(id).promptSection())
                 }
                 appendLine(socialHistory)
                 appendLine(recentLife)
@@ -308,7 +309,6 @@ internal object AutonomousSocialRuntime {
                 appendLine(tick.summary)
                 appendLine("incidentId=${tick.incidentId}；status=${tick.status}；stage=${tick.stage}；anchorItemId=${tick.anchorItemId}；anchorItemName=${tick.anchorItemName}")
                 appendLine("角色：${character.displayName}")
-                appendLine("人设：${character.persona.ifBlank { "按现有性格与经历自然行动" }}")
                 if (availableGroups.isNotEmpty()) {
                     appendLine("角色所在真实群聊：")
                     availableGroups.forEach { conversation ->

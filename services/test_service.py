@@ -50,6 +50,18 @@ class DurableServiceTest(unittest.TestCase):
         self.assertEqual(body['messages'][1]['content'][0]['type'], 'tool_use')
         self.assertEqual(body['messages'][2]['content'][0]['type'], 'tool_result')
         self.assertIn('input_schema', body['tools'][0])
+    def test_new_voice_definition_cannot_be_replaced_by_late_old_upload(self):
+        handler = service.Handler.__new__(service.Handler)
+        handler.save_context({'characterId': 'a', 'context': 'old definition', 'version': 100})
+        handler.save_context({'characterId': 'a', 'context': 'edited definition and behavior', 'version': 200})
+        handler.save_context({'characterId': 'a', 'context': 'late old snapshot', 'version': 150})
+        handler.save_context({'characterId': 'b', 'context': 'another role', 'version': 300})
+        with service.connection() as db:
+            self.assertEqual(db.execute('SELECT context FROM contexts WHERE character_id=?', ('a',)).fetchone()[0],
+                             'edited definition and behavior')
+            self.assertEqual(db.execute('SELECT context FROM contexts WHERE character_id=?', ('b',)).fetchone()[0],
+                             'another role')
+
     def test_voice_agent_must_use_shared_core(self):
         config = {'conversation_config': {'agent': {'first_message': '', 'prompt': {'llm': 'custom-llm', 'custom_llm': {'url': 'https://lulu.example/v1/llm/chat/completions'}}}}}
         service.validate_voice_agent(config, 'https://lulu.example')

@@ -30,7 +30,6 @@ import com.jiacimu.lulu.data.PerceptionIntervalUnit
 import com.jiacimu.lulu.data.ProactivePerceptionPolicyStore
 import com.jiacimu.lulu.data.UserProfileContext
 import com.jiacimu.lulu.design.LuluColors
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.Instant
@@ -79,18 +78,25 @@ fun CharacterSettingsScreenV2(
     var clearingRecords by remember { mutableStateOf(false) }
     var recordNotice by remember { mutableStateOf("") }
 
-    LaunchedEffect(displayName, avatarUri, identity, persona, proactiveCalls) {
-        if (displayName.isBlank()) return@LaunchedEffect
-        delay(350)
+    // Preset/import changes arrive through the stores too; do not later save stale editor fields.
+    LaunchedEffect(original, identities[characterId]) {
+        if (displayName.trim().isNotBlank() && displayName.trim() != original.displayName) displayName = original.displayName
+        if (avatarUri != original.avatarUri) avatarUri = original.avatarUri
+        val savedIdentity = identities[characterId].orEmpty()
+        if (identity.trim() != savedIdentity) identity = savedIdentity
+        if (persona.trim() != original.persona) persona = original.persona
+        proactiveCalls = original.contactPolicy.proactiveCallsEnabled
+    }
+
+    fun persistDefinition() {
+        val current = MigratedDomainStores.characters.get(characterId)
         CharacterIdentityStore.set(characterId, identity)
-        MigratedDomainStores.characters.update(
-            original.copy(
-                displayName = displayName.trim(),
-                avatarUri = avatarUri,
-                persona = persona.trim(),
-                contactPolicy = original.contactPolicy.copy(proactiveCallsEnabled = proactiveCalls),
-            ),
-        )
+        MigratedDomainStores.characters.update(current.copy(
+            displayName = displayName.trim().ifBlank { current.displayName },
+            avatarUri = avatarUri,
+            persona = persona.trim(),
+            contactPolicy = current.contactPolicy.copy(proactiveCallsEnabled = proactiveCalls),
+        ))
     }
 
     fun setPerceptionEnabled(enabled: Boolean) {
@@ -153,14 +159,14 @@ fun CharacterSettingsScreenV2(
                         LuluAvatarPicker(
                             imageUri = avatarUri,
                             fallback = displayName.take(1).ifBlank { "角" },
-                            onSelected = { avatarUri = it },
+                            onSelected = { avatarUri = it; persistDefinition() },
                         )
                         Column(Modifier.weight(1f)) { Text("角色头像", fontWeight = FontWeight.SemiBold) }
                     }
-                    OutlinedTextField(value = displayName, onValueChange = { displayName = it }, label = { Text("角色名称") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = displayName, onValueChange = { displayName = it; persistDefinition() }, label = { Text("角色名称") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     OutlinedTextField(
                         value = identity,
-                        onValueChange = { identity = it },
+                        onValueChange = { identity = it; persistDefinition() },
                         label = { Text("角色身份") },
                         placeholder = { Text("身份、职业、时代、阵营、背景等世界观信息") },
                         minLines = 3,
@@ -169,7 +175,7 @@ fun CharacterSettingsScreenV2(
                     )
                     OutlinedTextField(
                         value = persona,
-                        onValueChange = { persona = it },
+                        onValueChange = { persona = it; persistDefinition() },
                         label = { Text("角色设定") },
                         placeholder = { Text("性格、说话方式、价值观、关系边界、习惯与处事方式") },
                         minLines = 4,
@@ -251,7 +257,7 @@ fun CharacterSettingsScreenV2(
             item {
                 CharacterV2Card {
                     Text("主动来电", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    CharacterV2Switch(title = "允许主动来电", checked = proactiveCalls) { proactiveCalls = it }
+                    CharacterV2Switch(title = "允许主动来电", checked = proactiveCalls) { proactiveCalls = it; persistDefinition() }
                 }
             }
             item {

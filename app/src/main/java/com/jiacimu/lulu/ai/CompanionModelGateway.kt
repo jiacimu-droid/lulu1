@@ -46,10 +46,13 @@ enum class ModelUsage {
 
 /**
  * Full = normal Lulu world: identity + role settings + memories/worldbook/state.
+ * CharacterAndScenario = current identity/persona with explicitly supplied scene context.
  * PersonaAndScenario = cross-world scenario: role settings only; original-world identity is excluded.
  * Isolated = standalone content generation: no character, chat, memory, timeline, profile, or worldbook context.
  */
 enum class CompanionContextMode {
+    /** Current identity/persona with explicitly supplied scene and memory, without broad recall. */
+    CharacterAndScenario,
     Full,
     PersonaAndScenario,
     Isolated,
@@ -457,10 +460,8 @@ class CompanionModelGateway(
             val connection = connectionOverride ?: connectionStore.resolveConnection(requestedArchiveId)
             attemptedModel = connection.model
             requestUrl = if (isNativeClaude(connection.baseUrl)) "${claudeBase(connection.baseUrl)}/messages" else "${connection.baseUrl}/chat/completions"
-            val character = MigratedDomainStores.characters.get(characterId)
             val fullContext = contextMode == CompanionContextMode.Full
-            val personaContext = contextMode == CompanionContextMode.PersonaAndScenario
-            val identity = CharacterIdentityStore.get(characterId).takeIf { fullContext }.orEmpty()
+            val personaContext = contextMode == CompanionContextMode.PersonaAndScenario || contextMode == CompanionContextMode.CharacterAndScenario
             val presence = CompanionPresenceStore.current(characterId).takeIf { fullContext }
             val recallQuery = "$facts\n$instruction"
             val unifiedMemory = if (fullContext) {
@@ -484,14 +485,19 @@ class CompanionModelGateway(
                 !entry.globalEnabled && entry.characterOverrides[characterId] == true
             }
 
+            val definition = com.jiacimu.lulu.data.CharacterRuntime.definition(characterId)
             val baseRules = buildString {
                 when (contextMode) {
                     CompanionContextMode.Full -> {
-                        appendLine("你正在以‘${character.displayName.ifBlank { "角色" }}’参与露露机中的当前活动。")
+                        appendLine("你正在以‘${definition.displayName.ifBlank { "角色" }}’参与露露机中的当前活动。")
                         appendLine("这是角色原本所属的露露机世界：角色身份与角色设定都必须生效，性格、关系边界和语言习惯必须保持；背景设定与实际亲历分开，当前物品、位置和行动结果以执行状态为准。")
                     }
+                    CompanionContextMode.CharacterAndScenario -> {
+                        appendLine("你正在以‘${definition.displayName.ifBlank { "角色" }}’参与露露机原世界的当前场景。")
+                        appendLine("完整继承当前角色身份、人设与人格行为字段；场景、记忆和事实只使用本次明确提供的素材，不补造经历。")
+                    }
                     CompanionContextMode.PersonaAndScenario -> {
-                        appendLine("你正在以‘${character.displayName.ifBlank { "角色" }}’参与露露机中的当前活动。")
+                        appendLine("你正在以‘${definition.displayName.ifBlank { "角色" }}’参与露露机中的当前活动。")
                         appendLine("这是独立跨世界场景：只继承角色设定中的性格、语言习惯、价值观和关系边界；不得带入角色原世界的身份、职业、时代、阵营或背景。")
                     }
                     CompanionContextMode.Isolated -> {
@@ -500,6 +506,7 @@ class CompanionModelGateway(
                     }
                 }
                 if (contextMode != CompanionContextMode.Isolated) {
+                    appendLine("当前角色设定与人格行为字段是本次读取的最新用户设定；旧台词、记忆摘要和成长记录不能覆盖或补回旧设定。")
                     appendLine("角色与用户是什么关系、如何称呼用户，只能来自角色设定、当前场景或明确提供的事实；不得默认用户是‘主人’，也不得默认恋人、朋友或上下级关系。")
                     appendLine("人设背景不是进入露露机后的亲历；主观想法、日记、自述不证明行动成功。无法找到依据时承认记不清，不补造事实。")
                     appendLine("程序给出的题目、抽卡、计时、骰子、棋局、得分和历史记录都是不可修改的事实。")
@@ -507,8 +514,8 @@ class CompanionModelGateway(
                 }
                 appendLine("本次任务：$instruction")
             }.trim()
-            val identitySection = identity.takeIf(String::isNotBlank)?.let { "角色身份：\n$it" }.orEmpty()
-            val personaSection = character.persona.takeIf { fullContext || personaContext }?.takeIf(String::isNotBlank)?.let { "角色设定：\n$it" }.orEmpty()
+            val identitySection = definition.identity.takeIf { fullContext || contextMode == CompanionContextMode.CharacterAndScenario }?.takeIf(String::isNotBlank)?.let { "角色身份：\n$it" }.orEmpty()
+            val personaSection = definition.persona.takeIf { fullContext || personaContext }?.takeIf(String::isNotBlank)?.let { "角色设定：\n$it" }.orEmpty()
             val globalWorldBookSection = if (globalWorldBooks.isEmpty()) "" else buildString {
                 appendLine("全局世界书：")
                 globalWorldBooks.forEach { entry -> appendLine("- ${entry.title}：${entry.content}") }
