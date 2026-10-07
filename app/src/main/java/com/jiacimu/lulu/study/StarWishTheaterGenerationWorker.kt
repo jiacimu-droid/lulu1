@@ -288,7 +288,7 @@ internal class StarWishPlanGenerationWorker(
             val ledger = planSnapshot.theaterLedgers[theater]
             val theaterWorldBook = planSnapshot.theaterWorldBooks[theater]?.promptText().orEmpty()
             val existingBible = planSnapshot.theaterBibles[theater]
-            val refreshedBible = StarWishTheaterPlanningEngine.generateStoryBible(
+            val bible = StarWishTheaterPlanningEngine.generateStoryBible(
                 characterId = characterId,
                 storyTitle = theater,
                 storyGuide = guide,
@@ -297,9 +297,8 @@ internal class StarWishPlanGenerationWorker(
                 existingBible = existingBible,
                 ledger = ledger,
                 theaterWorldBook = theaterWorldBook,
-            ).getOrNull()
-            val bible = refreshedBible ?: existingBible
-            if (refreshedBible != null) store.setBible(theater, refreshedBible)
+            ).getOrThrow()
+            store.setBible(theater, bible)
 
             val plans = StarWishTheaterPlanningEngine.generateChapterPlans(
                 characterId = characterId,
@@ -384,7 +383,7 @@ internal class StarWishTheaterGenerationWorker(
 
             var bible = snapshot.theaterBibles[theater]
             if ((bible == null || needsBuiltInLongRangeBootstrap) && guide.isNotBlank()) {
-                bible = StarWishTheaterPlanningEngine.generateStoryBible(
+                val refreshed = StarWishTheaterPlanningEngine.generateStoryBible(
                     characterId = ISOLATED_CHARACTER_ID,
                     storyTitle = theater,
                     storyGuide = guide,
@@ -393,8 +392,9 @@ internal class StarWishTheaterGenerationWorker(
                     existingBible = bible,
                     ledger = ledger,
                     theaterWorldBook = theaterWorldBook,
-                ).getOrNull() ?: bible
-                bible?.let { store.setBible(theater, it) }
+                )
+                bible = if (bible == null) refreshed.getOrThrow() else refreshed.getOrNull() ?: bible
+                store.setBible(theater, bible)
             }
 
             var currentPlan = plans.firstOrNull { it.number == chapterNumber }
