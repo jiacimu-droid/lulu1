@@ -54,6 +54,12 @@ internal data class StarWishStoryLedger(
 )
 
 internal data class StarWishStoryBible(
+    val worldview: String = "",
+    val overview: String = "",
+    val hook: String = "",
+    val highlights: String = "",
+    val emotionalArc: String = "",
+    val proseStyle: String = "",
     val cast: String = "",
     val characterArcs: String = "",
     val relationshipArc: String = "",
@@ -67,10 +73,16 @@ internal data class StarWishStoryBible(
     val updatedThroughChapter: Int = 0,
 ) {
     fun promptText(): String = buildString {
+        if (worldview.isNotBlank()) appendLine("世界观：$worldview")
+        if (overview.isNotBlank()) appendLine("故事总纲：$overview")
+        if (hook.isNotBlank()) appendLine("核心钩子：$hook")
+        if (highlights.isNotBlank()) appendLine("核心看点：$highlights")
+        if (emotionalArc.isNotBlank()) appendLine("情绪曲线：$emotionalArc")
+        if (proseStyle.isNotBlank()) appendLine("文风执行：$proseStyle")
         if (cast.isNotBlank()) appendLine("人物与人设：$cast")
         if (characterArcs.isNotBlank()) appendLine("人物成长弧：$characterArcs")
         if (relationshipArc.isNotBlank()) appendLine("长期感情线：$relationshipArc")
-        if (plotSpine.isNotBlank()) appendLine("故事脉络：$plotSpine")
+        if (plotSpine.isNotBlank()) appendLine("故事脉络 / 主线：$plotSpine")
         if (mainLine.isNotBlank()) appendLine("明线：$mainLine")
         if (hiddenLine.isNotBlank()) appendLine("暗线：$hiddenLine")
         if (foreshadows.isNotBlank()) appendLine("伏笔系统：$foreshadows")
@@ -322,6 +334,9 @@ internal class StarWishStore private constructor(context: Context) {
     )
 
     private fun encodeBible(value: StarWishStoryBible) = JSONObject()
+        .put("worldview", value.worldview).put("overview", value.overview)
+        .put("hook", value.hook).put("highlights", value.highlights)
+        .put("emotionalArc", value.emotionalArc).put("proseStyle", value.proseStyle)
         .put("cast", value.cast).put("characterArcs", value.characterArcs)
         .put("relationshipArc", value.relationshipArc).put("plotSpine", value.plotSpine)
         .put("mainLine", value.mainLine).put("hiddenLine", value.hiddenLine)
@@ -330,6 +345,9 @@ internal class StarWishStore private constructor(context: Context) {
         .put("updatedThroughChapter", value.updatedThroughChapter)
 
     private fun decodeBible(item: JSONObject) = StarWishStoryBible(
+        worldview = item.optString("worldview"), overview = item.optString("overview"),
+        hook = item.optString("hook"), highlights = item.optString("highlights"),
+        emotionalArc = item.optString("emotionalArc"), proseStyle = item.optString("proseStyle"),
         cast = item.optString("cast"), characterArcs = item.optString("characterArcs"),
         relationshipArc = item.optString("relationshipArc"), plotSpine = item.optString("plotSpine"),
         mainLine = item.optString("mainLine"), hiddenLine = item.optString("hiddenLine"),
