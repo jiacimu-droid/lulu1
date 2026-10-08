@@ -51,6 +51,7 @@ internal class StarWishTheaterGenerationManager private constructor(context: Con
         check(existing?.active != true || stale) { "这一章已经在生成中" }
         StarWishStores.initialize(appContext)
         LuluAiServices.initialize(appContext)
+        check(StarWishPlanGenerationManager.get(appContext).tasks.value[cleanTheater]?.active != true) { "请等规划生成完成后再续写" }
         require(influence.trim().length <= 3_000) { "剧情要求最多3000字，请精简后重试" }
         val requestId = UUID.randomUUID().toString()
         val chapterNumber = StarWishStores.main.state.value.theaterChapters[cleanTheater].orEmpty().size + 1
@@ -156,6 +157,7 @@ internal data class StarWishPlanTask(
     val message: String = "",
     val requestId: String = "",
     val updatedAtMillis: Long = System.currentTimeMillis(),
+    val bibleOnly: Boolean = false,
 ) {
     val active: Boolean get() = status == StarWishTheaterTaskStatus.QUEUED || status == StarWishTheaterTaskStatus.RUNNING
 }
@@ -166,18 +168,23 @@ internal class StarWishPlanGenerationManager private constructor(context: Contex
     private val mutable = MutableStateFlow(load())
     val tasks: StateFlow<Map<String, StarWishPlanTask>> = mutable.asStateFlow()
 
-    @Synchronized fun enqueue(theater: String, characterId: String, chapterCount: Int): Result<Unit> = runCatching {
+    @Synchronized fun enqueue(theater: String, characterId: String, chapterCount: Int, bibleOnly: Boolean = false): Result<Unit> = runCatching {
         val cleanTheater = theater.trim()
         require(cleanTheater.isNotBlank()) { "故事名称不能为空" }
         require(chapterCount in 1..StarWishRules.MAX_CHAPTERS_PER_THEATER) { "请先用 +3章 确定章节数量" }
         val existing = tasks.value[cleanTheater]
         val stale = existing?.active == true && System.currentTimeMillis() - existing.updatedAtMillis > STALE_TASK_MILLIS
-        check(existing?.active != true || stale) { "章节规划已经在生成中" }
+        check(existing?.active != true || stale) { "本书的规划已经在生成中" }
 
         StarWishStores.initialize(appContext)
         LuluAiServices.initialize(appContext)
+        check(StarWishTheaterGenerationManager.get(appContext).tasks.value[cleanTheater]?.active != true) { "请等正文生成完成后再规划" }
+        if (!bibleOnly) {
+            val bible = StarWishStores.main.state.value.theaterBibles[cleanTheater]
+            check(bible != null && StarWishTheaterPlanningEngine.storyBibleCompleteEnough(bible)) { "请先到幕后规划页面生成幕后规划" }
+        }
         val requestId = UUID.randomUUID().toString()
-        setTask(StarWishPlanTask(cleanTheater, chapterCount, StarWishTheaterTaskStatus.QUEUED, "等待模型开始规划", requestId))
+        setTask(StarWishPlanTask(cleanTheater, chapterCount, StarWishTheaterTaskStatus.QUEUED, if (bibleOnly) "等待生成幕后规划" else "等待生成章节规划", requestId, bibleOnly = bibleOnly))
 
         val request = OneTimeWorkRequestBuilder<StarWishPlanGenerationWorker>()
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
@@ -186,6 +193,7 @@ internal class StarWishPlanGenerationManager private constructor(context: Contex
                     .putString(KEY_THEATER, cleanTheater)
                     .putString(KEY_CHARACTER_ID, characterId.trim())
                     .putInt(KEY_CHAPTER_COUNT, chapterCount)
+                    .putBoolean(KEY_BIBLE_ONLY, bibleOnly)
                     .putString(KEY_REQUEST_ID, requestId)
                     .build(),
             )
@@ -228,6 +236,7 @@ internal class StarWishPlanGenerationManager private constructor(context: Contex
                     JSONObject()
                         .put("theater", task.theater)
                         .put("chapterCount", task.chapterCount).put("requestId", task.requestId)
+                        .put("bibleOnly", task.bibleOnly)
                         .put("status", task.status.name)
                         .put("message", task.message)
                         .put("updatedAt", task.updatedAtMillis),
@@ -251,6 +260,7 @@ internal class StarWishPlanGenerationManager private constructor(context: Contex
                         theater = theater,
                         requestId = item.optString("requestId"),
                         chapterCount = item.optInt("chapterCount", 0),
+                        bibleOnly = item.optBoolean("bibleOnly", false),
                         status = status,
                         message = item.optString("message"),
                         updatedAtMillis = item.optLong("updatedAt", System.currentTimeMillis()),
@@ -268,6 +278,7 @@ internal class StarWishPlanGenerationManager private constructor(context: Contex
         internal const val KEY_THEATER = "theater"
         internal const val KEY_CHARACTER_ID = "characterId"
         internal const val KEY_CHAPTER_COUNT = "chapterCount"
+        internal const val KEY_BIBLE_ONLY = "bibleOnly"
 
         @Volatile private var instance: StarWishPlanGenerationManager? = null
 
@@ -286,6 +297,7 @@ internal class StarWishPlanGenerationWorker(
     override suspend fun doWork(): Result {
         val theater = inputData.getString(StarWishPlanGenerationManager.KEY_THEATER).orEmpty().trim()
         val characterId = inputData.getString(StarWishPlanGenerationManager.KEY_CHARACTER_ID).orEmpty().trim()
+        val bibleOnly = inputData.getBoolean(StarWishPlanGenerationManager.KEY_BIBLE_ONLY, false)
         val chapterCount = inputData.getInt(StarWishPlanGenerationManager.KEY_CHAPTER_COUNT, 0)
         if (theater.isBlank() || chapterCount <= 0) return Result.failure()
 
@@ -295,7 +307,7 @@ internal class StarWishPlanGenerationWorker(
         StarWishStores.initialize(applicationContext)
         LuluAiServices.initialize(applicationContext)
         LuluRepositories.worldBook.initialize(applicationContext)
-        manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, "正在生成幕后规划")
+        manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, if (bibleOnly) "正在生成幕后规划" else "正在生成章节规划")
 
         return try {
             val store = StarWishStores.main
@@ -312,6 +324,7 @@ internal class StarWishPlanGenerationWorker(
                 }
             }
             val guide = planSnapshot.theaterGuides[theater].orEmpty().trim()
+                .ifBlank { StarWishRules.theaters.firstOrNull { it.title == theater }?.prompt.orEmpty().trim() }
             check(guide.isNotBlank()) { "总大纲不能为空" }
             val writtenChapters = planSnapshot.theaterChapters[theater].orEmpty()
             val existingPlans = planSnapshot.theaterPlans[theater].orEmpty().ifEmpty {
@@ -320,22 +333,28 @@ internal class StarWishPlanGenerationWorker(
             val ledger = planSnapshot.theaterLedgers[theater]
             val theaterWorldBook = worldBookContext.promptText()
             val existingBible = planSnapshot.theaterBibles[theater]
-            val bible = StarWishTheaterPlanningEngine.generateStoryBible(
-                characterId = characterId,
-                storyTitle = theater,
-                storyGuide = guide,
-                chapterCount = chapterCount,
-                writtenChapters = writtenChapters,
-                existingBible = existingBible,
-                ledger = ledger,
-                theaterWorldBook = theaterWorldBook,
-                onProgress = { partial ->
-                    saveProgress { store.setBible(theater, partial) }
-                    manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING,
-                        "幕后规划 ${partial.fieldValues().values.count(String::isNotBlank)}/${theaterBibleFields.size} 栏，已填内容已保存")
-                },
-            ).getOrThrow()
-            saveProgress { store.setBible(theater, checkNotNull(bible)) }
+            if (bibleOnly) {
+                val bible = StarWishTheaterPlanningEngine.generateStoryBible(
+                    characterId = characterId,
+                    storyTitle = theater,
+                    storyGuide = guide,
+                    chapterCount = chapterCount,
+                    writtenChapters = writtenChapters,
+                    existingBible = existingBible,
+                    ledger = ledger,
+                    theaterWorldBook = theaterWorldBook,
+                    onProgress = { partial ->
+                        saveProgress { store.setBible(theater, partial) }
+                        manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING,
+                            "幕后规划 ${partial.fieldValues().values.count(String::isNotBlank)}/${theaterBibleFields.size} 栏，已填内容已保存")
+                    },
+                ).getOrThrow()
+                saveProgress { store.setBible(theater, bible) }
+                manager.mark(theater, requestId, StarWishTheaterTaskStatus.SUCCEEDED, "幕后规划已保存")
+                return Result.success()
+            }
+            val bible = existingBible
+            check(bible != null && StarWishTheaterPlanningEngine.storyBibleCompleteEnough(bible)) { "请先到幕后规划页面生成幕后规划" }
 
             val plans = StarWishTheaterPlanningEngine.generateChapterPlans(
                 characterId = characterId,
@@ -355,13 +374,13 @@ internal class StarWishPlanGenerationWorker(
             ).getOrThrow()
 
             saveProgress { store.setStoryPlan(theater, guide, plans) }
-            manager.mark(theater, requestId, StarWishTheaterTaskStatus.SUCCEEDED, "幕后规划与 $chapterCount 章剧情规划已保存")
+            manager.mark(theater, requestId, StarWishTheaterTaskStatus.SUCCEEDED, "$chapterCount 章章节规划已保存")
             Result.success()
         } catch (cancelled: CancellationException) {
             manager.mark(theater, requestId, StarWishTheaterTaskStatus.QUEUED, "任务暂时中断，等待系统继续")
             throw cancelled
         } catch (error: Throwable) {
-            manager.mark(theater, requestId, StarWishTheaterTaskStatus.FAILED, error.message ?: "章节规划生成失败")
+            manager.mark(theater, requestId, StarWishTheaterTaskStatus.FAILED, error.message ?: if (bibleOnly) "幕后规划生成失败" else "章节规划生成失败")
             Result.failure()
         }
     }
@@ -412,17 +431,6 @@ internal class StarWishTheaterGenerationWorker(
                 saveProgress { store.setStoryPlan(theater, guide, plans) }
             }
 
-            val needsBuiltInLongRangeBootstrap = false // Full-book replanning is an explicit planner action.
-            val planningHorizon = if (builtInSeed != null) {
-                maxOf(
-                    plans.maxOfOrNull { it.number } ?: 0,
-                    chapters.size + BUILTIN_PLAN_AHEAD_CHAPTERS,
-                    BUILTIN_MIN_PLANNING_HORIZON,
-                ).coerceAtMost(StarWishRules.MAX_CHAPTERS_PER_THEATER)
-            } else {
-                maxOf(plans.maxOfOrNull { it.number } ?: 0, chapterNumber)
-            }
-
             if (chapters.isNotEmpty() && plans.isEmpty() && !hasFullStoryMap(guide)) {
                 recoverStoryMap(theater, guide, chapters)?.takeIf(String::isNotBlank)?.let { recovered ->
                     guide = recovered
@@ -437,22 +445,8 @@ internal class StarWishTheaterGenerationWorker(
             }
 
             manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, "正在准备本章规划与连续性")
-            var bible = snapshot.theaterBibles[theater]
-            if ((bible == null || !StarWishTheaterPlanningEngine.storyBibleCompleteEnough(bible) || needsBuiltInLongRangeBootstrap) && guide.isNotBlank()) {
-                val refreshed = StarWishTheaterPlanningEngine.generateStoryBible(
-                    characterId = ISOLATED_CHARACTER_ID,
-                    storyTitle = theater,
-                    storyGuide = guide,
-                    chapterCount = planningHorizon,
-                    writtenChapters = chapters,
-                    existingBible = bible,
-                    ledger = ledger,
-                    theaterWorldBook = theaterWorldBook,
-                    onProgress = { partial -> saveProgress { store.setBible(theater, partial) } },
-                )
-                bible = if (bible == null) refreshed.getOrThrow() else refreshed.getOrNull() ?: bible
-                saveProgress { store.setBible(theater, checkNotNull(bible)) }
-            }
+            val bible = snapshot.theaterBibles[theater]
+            check(bible != null && StarWishTheaterPlanningEngine.storyBibleCompleteEnough(bible)) { "请先到幕后规划页面生成幕后规划" }
 
             var currentPlan = plans.firstOrNull { it.number == chapterNumber }
             if ((currentPlan == null || currentPlan.outline.isBlank() || currentPlan.outline == "待规划") && guide.isNotBlank()) {
@@ -693,8 +687,6 @@ internal class StarWishTheaterGenerationWorker(
 
     private companion object {
         const val ISOLATED_CHARACTER_ID = "__starwish_theater_isolated__"
-        const val BUILTIN_MIN_PLANNING_HORIZON = 12
-        const val BUILTIN_PLAN_AHEAD_CHAPTERS = 8
     }
 }
 

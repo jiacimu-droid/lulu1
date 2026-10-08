@@ -159,6 +159,19 @@ internal fun StarWishTheaterContentV2(
                 title = openedSeed.title,
                 bible = state.theaterBibles[openedSeed.title],
                 ledger = state.theaterLedgers[openedSeed.title],
+                task = planGenerationTasks[openedSeed.title],
+                writing = generationTasks[openedSeed.title]?.active == true,
+                onGenerate = {
+                    planGenerationManager.enqueue(
+                        theater = openedSeed.title,
+                        characterId = studyState.profile.selectedCharacterId,
+                        chapterCount = maxOf(state.theaterPlans[openedSeed.title].orEmpty().size,
+                            state.theaterChapters[openedSeed.title].orEmpty().size, 12)
+                            .coerceAtMost(StarWishRules.MAX_CHAPTERS_PER_THEATER),
+                        bibleOnly = true,
+                    )
+                },
+                onCancel = { planGenerationManager.cancel(openedSeed.title) },
                 onBack = { mode = TheaterV2Mode.READER },
             )
         } else {
@@ -458,7 +471,7 @@ private fun TheaterReaderV2(
                             onClick = { overflowMenu = false; onWorldBook() },
                         )
                         DropdownMenuItem(
-                            text = { Text("重新生成剧情规划") },
+                            text = { Text("生成章节规划") },
                             leadingIcon = { Icon(Icons.Outlined.AutoAwesome, null) },
                             onClick = { overflowMenu = false; onRegenerate() },
                             enabled = !generating,
@@ -728,7 +741,7 @@ private fun TheaterPlannerV2(
                         Icon(Icons.Outlined.AutoAwesome, null, modifier = Modifier.size(17.dp))
                     }
                     Spacer(Modifier.width(4.dp))
-                    Text(if (regenerating) "规划中" else "重新生成")
+                    Text(if (regenerating) "规划中" else "生成章节规划")
                 }
             }
         }
@@ -972,8 +985,14 @@ private fun TheaterStoryBibleV2(
     title: String,
     bible: StarWishStoryBible?,
     ledger: StarWishStoryLedger?,
+    task: StarWishPlanTask?,
+    writing: Boolean,
+    onGenerate: () -> Result<Unit>,
+    onCancel: () -> Unit,
     onBack: () -> Unit,
 ) {
+    var localMessage by remember(title) { mutableStateOf("") }
+    val generating = task?.active == true
     Column(Modifier.fillMaxSize()) {
         Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 1.dp) {
             Row(
@@ -995,10 +1014,35 @@ private fun TheaterStoryBibleV2(
             item {
                 Text("长期导演台", fontSize = 23.sp, fontWeight = FontWeight.Bold)
                 Text(
-                    "这里负责长线精彩与连贯；已经写出的正文和硬事实优先级最高。点击剧情规划页的“重新生成”会刷新未来幕后规划和未写章节，不会改掉已经写完的正文。",
+                    "新建故事的幕后条目会直接保留在这里。生成只更新幕后规划；章节规划在剧情规划页单独生成。",
                     color = StudyDesign.muted,
                     style = MaterialTheme.typography.bodySmall,
                 )
+                Spacer(Modifier.height(12.dp))
+                FilledTonalButton(
+                    onClick = {
+                        localMessage = ""
+                        onGenerate()
+                            .onSuccess { localMessage = "已开始生成幕后规划；退出页面也会继续" }
+                            .onFailure { localMessage = it.message ?: "无法开始生成幕后规划" }
+                    },
+                    enabled = !generating && !writing,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    if (generating && task?.bibleOnly == true) {
+                        CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(6.dp))
+                    }
+                    Text(if (generating && task?.bibleOnly == true) "幕后规划生成中" else "生成幕后规划")
+                }
+                if (generating && task?.bibleOnly == true) {
+                    TextButton(onClick = onCancel) { Text("取消生成，保留已完成条目") }
+                }
+                val message = if (task?.bibleOnly == true) task.message else localMessage
+                if (message.isNotBlank()) {
+                    Text(message, color = if (task?.bibleOnly == true && task.status == StarWishTheaterTaskStatus.FAILED)
+                        MaterialTheme.colorScheme.error else StudyDesign.muted, style = MaterialTheme.typography.bodySmall)
+                }
             }
             theaterBibleFields.forEach { (key, label) ->
                 item(key = key) { PlotSection(label, bible?.fieldValues()?.get(key).orEmpty().ifBlank { "待填写" }) }
