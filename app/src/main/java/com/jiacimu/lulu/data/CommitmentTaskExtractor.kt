@@ -31,7 +31,7 @@ internal suspend fun extractCommitmentTaskDrafts(
         instruction = """
             判断本轮双方说话是否产生、修改、取消或完成了角色需要真正负责的事项。
             只返回 JSON 数组，不要代码块。没有任务变化时返回 []。
-            每项：{"action":"create|reschedule|cancel|complete","goal":"任务目标","dueAt":"ISO-8601时间或空字符串","timezone":"IANA时区或空字符串","completionCondition":"怎样才算真的完成","steps":["步骤"],"needsClarification":true或false,"targetTaskId":"修改旧任务时填写，否则空"}
+            每项：{"action":"create|reschedule|cancel|complete","goal":"任务目标","dueAt":"ISO-8601时间或空字符串","timezone":"IANA时区或空字符串","completionCondition":"怎样才算真的完成","steps":["步骤"],"deliveryAction":"start_call|send_private_message","needsClarification":true或false,"targetTaskId":"修改旧任务时填写，否则空"}
             规则：
             1. 必须同时阅读用户和角色完整回复。角色主动说“我来叫你”“我会提醒你”也算承担责任，不能只看用户关键词。
             2. 如果用户只说想睡一会儿，而角色答应叫醒但没有明确多久/几点，create 且 needsClarification=true，dueAt 留空；不要猜时间。
@@ -40,14 +40,41 @@ internal suspend fun extractCommitmentTaskDrafts(
             5. 用户说“改成九点”“不用叫了”“我醒了”时，优先匹配现有任务并返回 reschedule/cancel/complete；必须填写准确 targetTaskId，不能随便改第一条旧任务。
             6. 没回复不能推断用户仍在睡或任务已完成。
             7. 只创建真正需要未来履行或继续跟进的事项，普通寒暄和随口建议不要建任务。
+            8. 角色主动承诺给用户打电话，特别是“等会儿给你打电话催睡”等，必须 create 且 deliveryAction=start_call；不能用一条私聊消息冒充拨号。仅询问要不要打、只是想打、明确拒绝时不能建任务。
+            9. 对角色自己承诺的“等会儿/待会儿/一会儿”来电而没有具体分钟数，可以由角色自行选择约10分钟后作为 dueAt；不许说成是用户定的时间。具体时刻优先用真实时刻。
         """.trimIndent(),
         source = "承诺任务",
         title = "承诺任务提取",
         maxTokens = 1_500,
         usage = ModelUsage.Chat,
     )
-    if (result.isFailure) return emptyList()
-    return parseCommitmentTaskDrafts(result.getOrThrow().text)
+    val drafts = if (result.isSuccess) parseCommitmentTaskDrafts(result.getOrThrow().text) else emptyList()
+    if (!detectSelfPromisedCall(characterText)) return drafts
+    val promisedCall = drafts.filter { it.action == "create" &&
+        (it.goal + " " + it.steps.joinToString(" ")).let { goal ->
+            listOf("电话", "来电", "拨号", "催睡").any(goal::contains)
+        }
+    }
+    if (promisedCall.isNotEmpty()) {
+        return drafts.map { task ->
+            if (task !in promisedCall) task else task.copy(
+                deliveryAction = "start_call",
+                dueAt = task.dueAt ?: now.plusSeconds(600),
+                needsClarification = false,
+            )
+        }
+    }
+    if (drafts.isNotEmpty() || !isVagueFutureCall(characterText)) return drafts
+    // A precise fallback: the character voluntarily promised an imminent real call.
+    return listOf(CommitmentTaskDraft(
+        action = "create",
+        goal = "履行自己答应用户的主动来电",
+        dueAt = now.plusSeconds(600),
+        timezone = zone.id,
+        completionCondition = "发起真实来电，未接听也保留结果",
+        steps = listOf("使用真实来电工具拨号"),
+        deliveryAction = "start_call",
+    ))
 }
 
 private fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> = runCatching {
@@ -80,3 +107,18 @@ private fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> = 
         }
     }
 }.getOrDefault(emptyList())
+
+/** Only an affirmative, character-owned future call can create a scheduled action. */
+internal fun detectSelfPromisedCall(text: String): Boolean {
+    val clean = text.replace(Regex("\\s+"), "").take(700)
+    if (clean.isBlank()) return false
+    if (listOf("不打电话", "不会打电话", "不想打电话", "不要打电话", "别打电话").any(clean::contains)) return false
+    if (listOf("要不要我打", "要我打电话吗", "想不想我打", "可以给你打电话吗").any(clean::contains)) return false
+    val future = listOf("我等会", "我待会", "我一会", "我过会", "我稍后",
+        "我晚点", "我会", "我来", "我给你", "等会我", "待会我", "一会我", "过会我").any(clean::contains)
+    val call = listOf("打电话", "打个电话", "来电话", "打给你", "给你打", "拨电话", "电话催", "电话叫").any(clean::contains)
+    return future && call
+}
+
+private fun isVagueFutureCall(text: String): Boolean =
+    listOf("等会", "待会", "一会", "过会", "稍后", "晚点").any(text::contains)
