@@ -74,6 +74,16 @@ object CharacterInnerLifeStore {
                     root.remove(key); changed = true
                 }
             }
+            // A deleted event must not survive as an earlier emotional influence.
+            root.optJSONArray("emotionHistory")?.let { history ->
+                val retained = JSONArray()
+                for (i in 0 until history.length()) {
+                    val entry = history.optJSONObject(i) ?: continue
+                    if (backedBy(entry.optString("evidenceId"))) changed = true
+                    else retained.put(entry)
+                }
+                root.put("emotionHistory", retained)
+            }
             listOf("motives", "corrections", "voice").forEach { key ->
                 val values = root.optJSONArray(key) ?: return@forEach
                 val next = JSONArray()
@@ -88,8 +98,23 @@ object CharacterInnerLifeStore {
             val bonds = root.optJSONObject("bonds")
             if (bonds != null) {
                 bonds.keys().asSequence().toList().forEach { target ->
-                    if (backedBy(bonds.optJSONObject(target)?.optString("evidenceId").orEmpty())) {
+                    val opinion = bonds.optJSONObject(target) ?: return@forEach
+                    val history = opinion.optJSONArray("encounters") ?: JSONArray()
+                    val retained = JSONArray()
+                    for (i in 0 until history.length()) {
+                        val encounter = history.optJSONObject(i) ?: continue
+                        if (backedBy(encounter.optString("source"))) changed = true
+                        else retained.put(encounter)
+                    }
+                    if (retained.length() == 0 && backedBy(opinion.optString("evidenceId"))) {
                         bonds.remove(target); changed = true
+                    } else if (retained.length() > 0 && retained.length() != history.length()) {
+                        val last = retained.optJSONObject(retained.length() - 1)
+                        opinion.put("encounters", retained)
+                            .put("interpretation", last?.optString("thought"))
+                            .put("reason", last?.optString("because"))
+                            .put("evidenceId", last?.optString("source"))
+                        changed = true
                     }
                 }
             }
@@ -123,13 +148,30 @@ object CharacterInnerLifeStore {
             val feeling = emotion.optString("feeling").trim().take(120)
             val cause = emotion.optString("cause").trim().take(180)
             if (feeling.isNotBlank() && cause.isNotBlank()) {
-                root.put("emotion", JSONObject().put("feeling", feeling)
+                val previous = root.optJSONObject("emotion")
+                val entry = JSONObject().put("feeling", feeling)
                     .put("cause", cause)
                     .put("otherFeeling", emotion.optString("otherFeeling").trim().take(100))
+                    .put("impulse", emotion.optString("impulse").trim().take(150))
+                    .put("restraint", emotion.optString("restraint").trim().take(150))
+                    .put("physicalCue", emotion.optString("physicalCue").trim().take(120))
+                    .put("outwardCue", emotion.optString("outwardCue").trim().take(120))
                     .put("strength", emotion.optInt("strength", 2).coerceIn(1, 4))
                     .put("startedAt", now.toString())
                     .put("halfLifeMinutes", emotion.optInt("halfLifeMinutes", 180).coerceIn(30, 1440))
-                    .put("evidenceId", evidenceId))
+                    .put("evidenceId", evidenceId)
+                // Keep the previous emotional course as witnessed history, rather than overwriting
+                // a complex reaction every time the model supplies a fresh feeling.
+                val history = root.optJSONArray("emotionHistory") ?: JSONArray()
+                val nextHistory = JSONArray()
+                for (i in maxOf(0, history.length() - 9) until history.length()) {
+                    nextHistory.put(history.opt(i))
+                }
+                if (previous != null && previous.optString("evidenceId") != evidenceId) {
+                    nextHistory.put(previous)
+                }
+                root.put("emotionHistory", nextHistory)
+                root.put("emotion", entry)
             }
         }
         val motives = root.optJSONArray("motives") ?: JSONArray()
@@ -177,10 +219,17 @@ object CharacterInnerLifeStore {
             if (target in allowedSocialIds && target != characterId && thought.isNotBlank()) {
                 val bonds = root.optJSONObject("bonds") ?: JSONObject()
                 val old = bonds.optJSONObject(target)
+                val events = old?.optJSONArray("encounters") ?: JSONArray()
+                val recent = JSONArray()
+                for (i in maxOf(0, events.length() - 4) until events.length()) recent.put(events.opt(i))
+                recent.put(JSONObject().put("thought", thought)
+                    .put("because", observation.optString("reason").trim().take(180))
+                    .put("source", evidenceId).put("at", now.toString()))
                 bonds.put(target, JSONObject().put("interpretation", thought)
                     .put("reason", observation.optString("reason").trim().take(180))
                     .put("priorThought", old?.optString("interpretation").orEmpty().take(120))
                     .put("observations", (old?.optInt("observations", 0) ?: 0).coerceAtMost(999) + 1)
+                    .put("encounters", recent)
                     .put("evidenceId", evidenceId).put("updatedAt", now.toString()))
                 root.put("bonds", bonds)
             }
@@ -212,6 +261,8 @@ object CharacterInnerLifeStore {
             .firstOrNull { it.optString("id") == motiveId } ?: return
         val previous = motive.optJSONArray("outcomes") ?: JSONArray()
         if ((0 until previous.length()).any { previous.optJSONObject(it)?.optString("id") == receiptId }) return
+        motive.put("lastAttemptOutcome", if (success) "success" else "needs_review")
+        motive.put("lastAttemptAt", now.toString())
         motive.put("outcomes", JSONArray().apply {
             for (i in maxOf(0, previous.length() - 7) until previous.length()) put(previous.opt(i))
             put(JSONObject().put("id", receiptId).put("action", action).put("success", success)
@@ -239,6 +290,7 @@ object CharacterInnerLifeStore {
         val root = snapshot(characterId)
         val motives = root.optJSONArray("motives") ?: JSONArray()
         val emotion = root.optJSONObject("emotion")
+        val emotionHistory = root.optJSONArray("emotionHistory") ?: JSONArray()
         val bonds = root.optJSONObject("bonds")
         val corrections = root.optJSONArray("corrections") ?: JSONArray()
         val voice = root.optJSONArray("voice") ?: JSONArray()
@@ -248,6 +300,8 @@ object CharacterInnerLifeStore {
             for (i in 0 until motives.length()) {
                 val m = motives.optJSONObject(i) ?: continue
                 appendLine("· 动机 id=${m.optString("id")}；${m.optString("status")}；优先级${m.optInt("priority")}；目标${m.optString("aim")}；缘由${m.optString("why")}")
+                if (m.optString("lastAttemptOutcome") == "needs_review")
+                    appendLine("  此愿望上次行动没做成：应按真实失败原因决定复试、暂停、求助或放弃，不得装成已经成功。")
                 val history = m.optJSONArray("outcomes") ?: JSONArray()
                 if (history.length() > 0) {
                     val last = history.optJSONObject(history.length() - 1)
@@ -258,11 +312,25 @@ object CharacterInnerLifeStore {
                 val from = runCatching { Instant.parse(emotion.optString("startedAt")) }.getOrNull()
                 val mins = from?.let { Duration.between(it, now).toMinutes().coerceAtLeast(0) } ?: Long.MAX_VALUE
                 if (mins <= emotion.optInt("halfLifeMinutes", 180).coerceAtLeast(30) * 3L) {
-                    appendLine("真实刺激之后的主观情绪余波：${emotion.optString("feeling")}；夹杂${emotion.optString("otherFeeling")}；当时原因${emotion.optString("cause")}；已过去${mins}分钟。强度会自然淡化，不要反复表演。")
+                    appendLine("当前情绪：${emotion.optString("feeling")}；另一层感受：${emotion.optString("otherFeeling")}；触发原因：${emotion.optString("cause")}；已经过去${mins}分钟。")
+                    emotion.optString("impulse").takeIf(String::isNotBlank)?.let { appendLine("本能想做：$it") }
+                    emotion.optString("restraint").takeIf(String::isNotBlank)?.let { appendLine("克制/犹豫：$it") }
+                    emotion.optString("physicalCue").takeIf(String::isNotBlank)?.let { appendLine("自身可感知的身体反应：$it") }
+                    emotion.optString("outwardCue").takeIf(String::isNotBlank)?.let { appendLine("可能被旁人察觉的变化：$it") }
+                    appendLine("这些不是固定剧本：根据时间让情绪逐渐消退、叠加或被新事实扭转，而非每次从零开始。")
+                }
+            }
+            if (emotionHistory.length() > 0) {
+                appendLine("最近情绪变化的前因（避免无理由性格跳变）：")
+                for (i in maxOf(0, emotionHistory.length() - 2) until emotionHistory.length()) {
+                    val prior = emotionHistory.optJSONObject(i) ?: continue
+                    appendLine("· ${prior.optString("feeling")}，源于${prior.optString("cause")}")
                 }
             }
             bonds?.keys()?.asSequence()?.take(8)?.forEach { id ->
-                appendLine("· 对${if (id == "user") "用户" else "角色$id"}的当前看法：${bonds?.optJSONObject(id)?.optString("interpretation")}（可被后续经历改变）")
+                val bond = bonds?.optJSONObject(id) ?: return@forEach
+                appendLine("· 对${if (id == "user") "用户" else "角色$id"}的当前私人看法：${bond.optString("interpretation")}；因为${bond.optString("reason")}；此前想法：${bond.optString("priorThought")}；累计${bond.optInt("observations")}次实际互动推断。")
+                appendLine("  不是绝对结论，观点可以纠结、相互矛盾，不能只凭一次聊天就彻底爱上/讨厌。")
             }
             if (corrections.length() > 0) {
                 val last = corrections.optJSONObject(corrections.length() - 1)
