@@ -65,6 +65,7 @@ private suspend fun createCommitmentTask(
         nextCheckAt = draft.dueAt,
         completionCondition = draft.completionCondition,
         steps = draft.steps,
+        deliveryAction = draft.deliveryAction.takeIf { it == "start_call" } ?: "send_private_message",
         lastActionResult = if (needsClarification) "缺少明确时间或条件；需要在后续对话中自然追问，禁止擅自猜测" else "",
     )
     task = CommitmentTaskStore.save(task)
@@ -92,6 +93,7 @@ private fun updateCommitmentTask(
                 nextCheckAt = draft.dueAt,
                 completionCondition = draft.completionCondition.ifBlank { current.completionCondition },
                 steps = draft.steps.ifEmpty { current.steps },
+                deliveryAction = if (draft.deliveryAction == "start_call") "start_call" else current.deliveryAction,
                 linkedAlarmId = null,
                 status = if (needsClarification) CommitmentTaskStatus.NeedsClarification else CommitmentTaskStatus.Scheduled,
                 lastActionResult = if (needsClarification) {
@@ -143,6 +145,17 @@ private fun scheduleTaskAlarm(task: CommitmentTask) {
         return
     }
     val character = MigratedDomainStores.characters.get(task.characterId)
+    if (task.deliveryAction == "start_call" && !character.contactPolicy.proactiveCallsEnabled) {
+        CommitmentTaskStore.update(task.id) { current ->
+            current.copy(
+                status = CommitmentTaskStatus.Blocked,
+                nextCheckAt = null,
+                linkedAlarmId = null,
+                lastActionResult = "角色未开启主动来电，无法兑现电话约定；没有伪装为聊天提醒",
+            )
+        }
+        return
+    }
     val result = LuluAlarmSystem.create(task.characterId, character.displayName, dueAt, task.goal)
     result.onSuccess { alarm ->
         CommitmentTaskStore.update(task.id) { current ->
