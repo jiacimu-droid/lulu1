@@ -624,8 +624,8 @@ internal class StarWishTheaterGenerationWorker(
             instruction = """
                 更新这部独立小说的连续性档案。只记录正文已经确认的事实，不得猜测，不得引用任何聊天或角色资料。
                 只输出一个JSON对象，不要Markdown：
-                {"summary":"截至本章的紧凑剧情摘要","characters":"人物位置、身体、情绪、目标、已知信息","worldState":"时间、地点、环境和世界规则的当前状态","relationships":"人物关系与本章变化","openThreads":"正在推进但未完成的明线与暗线","foreshadows":"已埋、已回收和待回收伏笔","keyItems":"关键物品、归属和状态","hardFacts":"不可随意改变的已确认事实：生死、亲属、身份、性别、婚恋、阵营、重要伤势、关键秘密知情情况、物品归属、已发生关键事件","updatedThroughChapter":${chapter.chapter}}
-                hardFacts 必须继承旧档案中仍成立的硬事实，只能被新正文明确推翻/揭示反转时更新，不能自行猜测或回滚。其他字段保留真正影响后续写作的当前事实，删除已经失效的临时状态，整份控制在2200字以内。
+                {"summary":"截至本章已经发生的内容","characters":"实际出现的人物状态","worldState":"当前时间地点和确立的规则","relationships":"正文确实发生的关系变化","openThreads":"仅正文确立且尚未解决的线索","foreshadows":"仅已出现的伏笔","keyItems":"正文真实出现的关键物品","hardFacts":"正文已确认且不可无解释违背的事实","updatedThroughChapter":${chapter.chapter}}
+                hardFacts 必须继承旧档案中仍成立的硬事实，只有新正文明确推翻时才能更新。若作品本来没有主线、感情变化、暗线或伏笔，对应字段留空，绝不可因模板而虚构；只保存正文证据和后续真正需要的状态，整份控制在2200字以内。
             """.trimIndent(),
             source = "剧场",
             title = "$theater · 连续性档案",
@@ -661,7 +661,7 @@ internal class StarWishTheaterGenerationWorker(
             instruction = """
                 重新建立这部小说截至当前章节的连续性档案。故事地图与逐章规划只是未来意图，不能把尚未发生的规划当作事实；已保存正文才是事实证据。只能依据提供的故事内容，不得调用聊天、角色资料或其他世界信息。
                 只输出JSON：{"summary":"","characters":"","worldState":"","relationships":"","openThreads":"","foreshadows":"","keyItems":"","hardFacts":"","updatedThroughChapter":${chapters.size}}
-                重点保留人物位置与状态、关系变化、已知信息、关键物品、未完明暗线和待回收伏笔。hardFacts 专门整理生死、亲属、身份、性别、婚恋、阵营、重要伤势、关键秘密知情情况、物品归属和已经发生的关键事件，后续不得无解释违背。整份控制在2200字以内。
+                重点保留正文确认的人物、地点、状态、关系和关键物品；未完明暗线与伏笔只在作品实际存在时记录，不允许凭空补全。hardFacts 专门整理生死、亲属、身份、关系、重要伤势、关键秘密、物品归属和已发生事件，后续不得无解释违背。整份控制在2200字以内。
             """.trimIndent(),
             source = "剧场",
             title = "$theater · 重建连续性档案",
