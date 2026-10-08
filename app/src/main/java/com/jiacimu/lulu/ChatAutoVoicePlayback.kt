@@ -117,6 +117,11 @@ object ChatAutoVoicePlayback {
     fun replayCached(messageId: String): Boolean {
         val audio = cachedFile(messageId)
         if (audio != null) return engine?.playCached(audio) == true
+        // An explicitly starred performance has its own immutable archive.
+        // It should remain replayable even if the conversation cache is gone.
+        val favorite = UserMessageFavorites.store.entries.value.firstOrNull { it.messageId == messageId }
+        val starredAudio = favorite?.let { UserMessageFavorites.store.audioFile(it) }
+        if (starredAudio != null) return engine?.playCached(starredAudio) == true
         // An old phone transcript has no original performance to replay.
         // Never silently synthesize a different voice and pretend it was the call.
         if (messageId.startsWith("voice-")) return false
