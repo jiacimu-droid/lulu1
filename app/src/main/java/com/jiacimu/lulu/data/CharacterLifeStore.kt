@@ -72,7 +72,7 @@ object CharacterLifeStore {
         val holdHours = proposal.optInt("holdHours", 4).coerceIn(1, 48)
         val root = state(characterId)
         val old = root.optJSONObject("afterglow")
-        if (old?.optString("anchor") == anchor && old.optString("feeling") == feeling) return
+        if (old?.optString("anchor") == anchor && old?.optString("feeling") == feeling) return
         root.put("afterglow", JSONObject()
             .put("anchor", anchor).put("feeling", feeling).put("impulse", impulse)
             .put("startedAt", now.toString())
