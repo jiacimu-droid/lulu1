@@ -123,8 +123,15 @@ internal object StarWishTheaterPlanningEngine {
         if (fullRaw.isNotBlank()) {
             val fullBible = runCatching { parseStoryBible(fullRaw, writtenChapters.size) }.getOrNull()
             if (fullBible != null && fullBible.overview.isNotBlank() && fullBible.highlights.isNotBlank()) {
-                onProgress?.invoke(fullBible)
-                return@runCatching fullBible
+                // Preserve intentionally established visual and relationship identities
+                // if a later model response omits those optional fields.
+                val preserved = fullBible.copy(
+                    experienceFocus = fullBible.experienceFocus.ifBlank { existingBible?.experienceFocus.orEmpty() },
+                    appearanceDesign = fullBible.appearanceDesign.ifBlank { existingBible?.appearanceDesign.orEmpty() },
+                    relationshipDynamics = fullBible.relationshipDynamics.ifBlank { existingBible?.relationshipDynamics.orEmpty() },
+                )
+                onProgress?.invoke(preserved)
+                return@runCatching preserved
             }
         }
 
