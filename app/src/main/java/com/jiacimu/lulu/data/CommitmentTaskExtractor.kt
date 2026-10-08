@@ -41,7 +41,7 @@ internal suspend fun extractCommitmentTaskDrafts(
             6. 没回复不能推断用户仍在睡或任务已完成。
             7. 只创建真正需要未来履行或继续跟进的事项，普通寒暄和随口建议不要建任务。
             8. 角色主动承诺给用户打电话，特别是“等会儿给你打电话催睡”等，必须 create 且 deliveryAction=start_call；不能用一条私聊消息冒充拨号。仅询问要不要打、只是想打、明确拒绝时不能建任务。
-            9. 对角色自己承诺的“等会儿/待会儿/一会儿”来电而没有具体分钟数，可以由角色自行选择约10分钟后作为 dueAt；不许说成是用户定的时间。具体时刻优先用真实时刻。
+            9. 对角色自己承诺的“等会儿/待会儿/一会儿”来电而没有具体分钟数，请角色按此刻的关系、事情紧急程度、用户是否困了和自己的行事习惯，自行选择合理的近期来电时间（通常在未来3至25分钟内），写成明确 dueAt；不要所有角色都固定10分钟，不许说成是用户定的时间。用户说了具体时刻时以用户的时刻优先。
         """.trimIndent(),
         source = "承诺任务",
         title = "承诺任务提取",
@@ -59,7 +59,7 @@ internal suspend fun extractCommitmentTaskDrafts(
         return drafts.map { task ->
             if (task !in promisedCall) task else task.copy(
                 deliveryAction = "start_call",
-                dueAt = task.dueAt ?: if (isVagueFutureCall(characterText)) now.plusSeconds(600) else null,
+                dueAt = task.dueAt ?: if (isVagueFutureCall(characterText)) now.plusSeconds(60L * fallbackCallMinutes(characterText)) else null,
                 needsClarification = task.dueAt == null && !isVagueFutureCall(characterText),
             )
         }
@@ -69,7 +69,7 @@ internal suspend fun extractCommitmentTaskDrafts(
     return listOf(CommitmentTaskDraft(
         action = "create",
         goal = "履行自己答应用户的主动来电",
-        dueAt = now.plusSeconds(600),
+        dueAt = now.plusSeconds(60L * fallbackCallMinutes(characterText)),
         timezone = zone.id,
         completionCondition = "发起真实来电，未接听也保留结果",
         steps = listOf("使用真实来电工具拨号"),
@@ -123,3 +123,12 @@ internal fun detectSelfPromisedCall(text: String): Boolean {
 
 private fun isVagueFutureCall(text: String): Boolean =
     listOf("等会", "待会", "一会", "过会", "稍后", "晚点").any(text::contains)
+
+/** Used only if the model fails to choose an actual time for its own vague promise. */
+internal fun fallbackCallMinutes(text: String): Long = when {
+    listOf("马上", "现在就", "立刻").any(text::contains) -> 2L
+    listOf("催睡", "早点睡", "去睡觉", "还没睡", "不睡觉").any(text::contains) -> 5L
+    listOf("晚点", "晚些", "过一阵").any(text::contains) -> 20L
+    text.contains("稍后") -> 15L
+    else -> 10L
+}
