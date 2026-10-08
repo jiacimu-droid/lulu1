@@ -78,6 +78,24 @@ class OnlineChatExperienceTest {
         OnlineChatBatchStore.cancel(context, role.characterId)
     }
 
+    @Test fun autonomousImmediateBatchCannotMakeFirstChatMessageReadImmediately() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val role = "batch-no-shortcut"
+        OnlineChatBatchStore.cancel(context, role)
+        val background = OnlineChatBatchStore.next(context, role, collectMessages = false, now = 1_000L)
+        assertEquals(1_000L, background.dueAtMillis)
+        val firstBubble = OnlineChatBatchStore.next(context, role, collectMessages = true, now = 1_100L)
+        val wake = OnlineChatBatchStore.next(context, role, collectMessages = true, now = 1_500L)
+        assertEquals(4_100L, firstBubble.dueAtMillis)
+        assertEquals(firstBubble.dueAtMillis, wake.dueAtMillis)
+        assertFalse(OnlineChatBatchStore.claim(context, role, background.revision, now = 1_100L))
+        assertFalse(OnlineChatBatchStore.claim(context, role, wake.revision, now = 4_099L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, wake.revision, now = 4_100L))
+        OnlineChatBatchStore.finish(context, role, wake.revision)
+        assertNull(OnlineChatBatchStore.dueAt(context, role, wake.revision))
+        OnlineChatBatchStore.cancel(context, role)
+    }
+
     @Test fun noUnreadDoesNotCallModelAndStillConsumesItsWakeWindow() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         val role = "empty-batch"
