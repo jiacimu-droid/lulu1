@@ -84,6 +84,26 @@ class CharacterLifeStoreTest {
         assertTrue(CharacterLifeStore.state("life-c").isNull("previousIntention"))
         assertEquals("先表达自己的不同意见", CharacterLifeStore.state("life-c").getJSONObject("profile").getString("conflict"))
     }
+    @Test fun roleOwnedNicknamesArePersistentIsolatedAndResettable() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CharacterLifeStore.initialize(context)
+        val role = "relationship-nickname-test"
+        CharacterLifeStore.clearHistory(role)
+        assertTrue(CharacterLifeStore.setSocialName(role, "userRemark", "我的小星星"))
+        assertFalse(CharacterLifeStore.setSocialName(role, "userRemark", "我的小星星"))
+        assertTrue(CharacterLifeStore.setSocialName(role, "selfNickname", "星星守护者"))
+        assertEquals("我的小星星", CharacterLifeStore.state(role).getJSONObject("socialNames").getString("userRemark"))
+        assertTrue(CharacterLifeStore.context(role).contains("角色给用户的私人备注：我的小星星"))
+        assertEquals("星星守护者", CharacterLifeStore.state(role).getJSONObject("socialNames").getString("selfNickname"))
+        assertNull(CharacterLifeStore.state("another-relationship-role").optJSONObject("socialNames"))
+        val stored = JSONObject(context.getSharedPreferences("lulu_character_life", 0).getString(role, "{}"))
+        assertEquals("我的小星星", stored.getJSONObject("socialNames").getString("userRemark"))
+        CharacterLifeStore.setProfile(role, "care", "记得对方的小事")
+        CharacterLifeStore.clearHistory(role)
+        assertNull(CharacterLifeStore.state(role).optJSONObject("socialNames"))
+        assertEquals("记得对方的小事", CharacterLifeStore.state(role).getJSONObject("profile").getString("care"))
+    }
+
     @Test
     @Config(manifest = Config.NONE, sdk = [29])
     fun jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits() {
