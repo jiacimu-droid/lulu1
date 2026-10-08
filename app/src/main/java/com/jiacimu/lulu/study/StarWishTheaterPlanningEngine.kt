@@ -198,7 +198,10 @@ internal object StarWishTheaterPlanningEngine {
         }
         var start = lockedCount + 1
         while (start <= chapterCount) {
-            val end = start
+            // Plan up to three adjacent chapters per model call. The chapter
+            // outlines are short JSON, so this reduces round trips without
+            // compressing the actual novel prose.
+            val end = minOf(start + 2, chapterCount)
             val batchCount = end - start + 1
             val previous = collected.takeLast(4).joinToString("\n") { plan ->
                 "第" + plan.number + "章 " + plan.title + "：" + plan.outline.take(500)
@@ -222,13 +225,14 @@ internal object StarWishTheaterPlanningEngine {
                 if (previous.isNotBlank()) appendLine("前几章规划，仅用于连续性：\n$previous")
             }
             val instruction = """
-                你是本作品的执行导演。根据用户原始创作要求、故事地图和幕后规划，设计第 $start 章真正能兑现读者期待的场景，而不是套长篇公式。
+                你是本作品的执行导演。根据用户原始创作要求、故事地图和幕后规划，为第 $start 至第 $end 章分别设计能兑现读者期待的场景，而不是套长篇公式。
                 已写正文与硬事实不可无解释改写，最新世界书约束世界设定。用户希望的爽感、张力、互动或氛围必须在章节主体发生，不能只是埋伏笔与铺垫。
                 outline 写出适量的具体场景、动作和人物反应、看点如何兑现、阅读情绪及与下章的必要承接。事件数不固定；关系变化、明暗线推进、伏笔和结尾悬念仅在作品真正需要时出现。
                 三四章短篇要在有限篇幅内实现核心场面与收束，不制造无意义的长线；长篇则可用多阶段结构。若用户只要无主线体验，可用连贯的场面与情绪组织本章。
-                本次仅规划第 $start 章，优先返回JSON：
+                本次规划第 $start 至第 $end 章，共 $batchCount 章。每章都有独立标题与具体情节，不允许只写「同上」或概括整段。
+                按章节顺序返回JSON数组，每项格式：
                 {"number":$start,"title":"","outline":""}
-                也允许数组、中文字段或实质性的分节；不要只输出格式模板。
+                不要混入已写完的章节、额外章节或解释。不要只输出格式模板。
             """.trimIndent()
 
             val raw = generatePlanningText(
@@ -587,8 +591,8 @@ internal object StarWishTheaterPlanningEngine {
             return parsed.mapIndexed { index, plan -> plan.copy(number = start + index) }
         }
 
-        // Planning now runs one chapter at a time. Do not discard useful content just
-        // because a provider used a different schema or slightly malformed JSON.
+        // A provider may use a different schema. Preserve the tolerant one-chapter
+        // fallback when a batch has been narrowed to a single chapter.
         if (expectedCount == 1) {
             chapterPlanFromText(raw, start)?.let { return listOf(it.copy(number = start)) }
         }
