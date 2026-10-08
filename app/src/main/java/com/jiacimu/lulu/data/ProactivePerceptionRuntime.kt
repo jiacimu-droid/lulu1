@@ -79,6 +79,7 @@ object ProactivePerceptionRuntime {
         val tool: String = "",
         val toolArgs: JSONObject = JSONObject(),
         val intention: JSONObject? = null,
+        val afterglow: JSONObject? = null,
     )
 
     private data class UserActivity(
@@ -419,6 +420,15 @@ object ProactivePerceptionRuntime {
         val parsed = parseDecision(result.text) ?: error("模型返回无法解析：${result.text.take(100)}")
         val decision = parsed.withPresenceFallback(character)
         CharacterLifeStore.consider(characterId, decision.intention, now)
+        // The executor, not the model, anchors subjective emotion to a real observed event.
+        // Old chat history alone must not create an apparently new emotional stimulus.
+        val emotionalAnchor = when {
+            onlineUnread.text.isNotBlank() -> "本次上线收到的新消息：${onlineUnread.text.takeLast(180)}"
+            pendingUserContext.isNotBlank() -> "本次仍待回应的真实消息：${pendingUserContext.takeLast(180)}"
+            worldTick != null -> "本轮数字世界程序事件：${worldTick.summary.take(180)}"
+            else -> ""
+        }
+        CharacterLifeStore.recordAfterglow(characterId, emotionalAnchor, decision.afterglow, now)
         // Execute first. Unvalidated model status/gesture must never become a world fact.
         val execution = performAction(appContext, character, decision, availableGroups, now)
         currentCoroutineContext().ensureActive()
@@ -713,6 +723,7 @@ object ProactivePerceptionRuntime {
             tool = json.optString("tool").trim(),
             toolArgs = json.optJSONObject("args") ?: JSONObject(),
             intention = json.optJSONObject("intention"),
+            afterglow = json.optJSONObject("afterglow"),
         )
     }.getOrNull()
 
