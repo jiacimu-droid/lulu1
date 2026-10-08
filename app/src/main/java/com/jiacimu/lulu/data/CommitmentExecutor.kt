@@ -33,6 +33,15 @@ internal object CommitmentExecutor {
             now = now,
         )
 
+        if (scheduledCall && actionResult.success && actionResult.conversationId != null) {
+            ProactivePerceptionRuntime.showPromisedCallNotification(
+                context.applicationContext,
+                claimedTask.characterId,
+                actionResult.conversationId,
+                wording,
+            )
+        }
+
         // Exactly one retry for wake-up responsibilities. A retry alarm is a new one-shot step token.
         val retryAt = if (!scheduledCall && wakeTask && attempt == 1) now.plusSeconds(10 * 60L) else null
         val retryAlarm = retryAt?.let { at ->
