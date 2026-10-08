@@ -2,8 +2,13 @@ package com.jiacimu.lulu.data
 
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.time.Instant
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class AutonomyCallAndReceiptTest {
     @Test fun promisedCallsAreRecognizedButQuestionsAndRefusalsAreNot() {
         assertTrue(detectSelfPromisedCall("我等会儿给你打电话催你睡觉。"))
