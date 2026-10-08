@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`453abfe22d7f11fe8ec1f333be800e622d79ace3`
+- 基准提交：`7c3c184a925aaebe61d574fdb7e6b021af74de49`
 - 分支：`main`
 - 已索引文件：350
-- 已索引代码/文本行：87230
+- 已索引代码/文本行：87232
 - 已发现符号：1230
 
 | 文件 | 行数 | 符号数 |
@@ -12,7 +12,7 @@
 | `app/src/main/AndroidManifest.xml` | 121 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 112 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 156 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 158 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 20 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 95 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 83 | 2 |

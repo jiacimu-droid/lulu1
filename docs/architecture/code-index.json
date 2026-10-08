@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T12:06:42.746744+00:00",
-  "commit": "453abfe22d7f11fe8ec1f333be800e622d79ace3",
+  "generatedAt": "2026-10-08T12:07:09.124238+00:00",
+  "commit": "7c3c184a925aaebe61d574fdb7e6b021af74de49",
   "branch": "main",
-  "sourceFingerprint": "39aeb0ee6bf0500dc3bcce492e04a4ef38fb69dbc307bf62e17f3d9e7026fb51",
+  "sourceFingerprint": "aabce0189677c5d8d3d3e34b337bf7146b8fb30d2a8d85d920a5bb1f7072413a",
   "summary": {
     "files": 350,
-    "lines": 87230,
+    "lines": 87232,
     "symbols": 1230
   },
   "symbolIndex": {
@@ -6926,8 +6926,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
-      "lines": 156,
-      "sha256": "42b909b847db872ed3febffe91d4668d53094f1da959cfdad8fd1112d8f69ede",
+      "lines": 158,
+      "sha256": "c85b30d39ea7ebe3e051ab1fd525ed3c98b8187da0d93231100b6b883aae2565",
       "symbols": [
         {
           "name": "start",
