@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T18:21:58.010549+00:00",
-  "commit": "d056b7793a86fda48ae92f26fbb36b1c770f48b1",
+  "generatedAt": "2026-10-08T18:22:20.208954+00:00",
+  "commit": "c1031be415cd31ce6302fcbeaa496a2c4c883852",
   "branch": "main",
-  "sourceFingerprint": "f40b3c06b0b2228a23258c45093b7949f8904cab8b7d76a1b8eddbaa7c2c26d9",
+  "sourceFingerprint": "543c820314786d5ffe28447416d8b5d02aaf6248dd16ab77d36e43bf80059be4",
   "summary": {
     "files": 367,
     "lines": 89397,
@@ -7280,7 +7280,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
       "lines": 265,
-      "sha256": "a650beea724e0899645730f6841c02fca2f7b2750ff42080cb7318c7016c4072",
+      "sha256": "6d1265deaf3960a10c8b0c4b40c9a08ea873cbcbd3bef8ec9b1d487847fcfc45",
       "symbols": [
         {
           "name": "ChatAutoVoicePlayback",
