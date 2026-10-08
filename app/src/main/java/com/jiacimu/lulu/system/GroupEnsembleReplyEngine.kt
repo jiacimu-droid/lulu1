@@ -23,9 +23,8 @@ import java.time.format.DateTimeFormatter
 /**
  * Plans one natural group-chat continuation with one model request.
  *
- * Every member participates at least once in each generated group turn, but nobody owns a fixed slot.
- * Order is driven by the live conversation and personalities, and a member may naturally return for
- * another turn before or after the remaining members have spoken.
+ * Members choose whether to speak during each generated round. A group is not a roll call:
+ * quiet personalities may listen while another member returns to the conversation.
  */
 internal object GroupEnsembleReplyEngine {
     private const val BubbleSeparator = "⟪BUBBLE⟫"
@@ -46,12 +45,14 @@ internal object GroupEnsembleReplyEngine {
         val mood: String,
         val tool: String,
         val args: JSONObject,
+        val afterglow: JSONObject? = null,
     )
 
     private data class CachedPlan(
         val turns: MutableList<PlannedTurn>,
         val memberLabels: Map<String, String>,
         val definitions: Map<String, CharacterDefinitionSnapshot>,
+        val emotionalAnchor: String,
     )
 
     private val lock = Any()
@@ -109,7 +110,6 @@ internal object GroupEnsembleReplyEngine {
 
         val memberCount = validMembers.size
         val replyLimit = group.maxAutoReplies.coerceAtLeast(memberCount).coerceIn(memberCount, 8)
-        val requiredSpeakerIds = validMembers.map(LuluGroupMember::characterId)
         val connection = runCatching { LuluAiServices.connectionStore.resolveConnection(archiveId) }
             .getOrElse { error ->
                 return Result.success(fallbackReply(currentSpeakerId, memberLabels, error.message))
@@ -153,9 +153,9 @@ internal object GroupEnsembleReplyEngine {
                     appendLine(userProfileContext)
                 }
                 appendLine("本轮界面当前先显示 characterId=$currentSpeakerId（${memberLabels[currentSpeakerId]}）正在输入，因此 turns 第一项必须是这个角色；这个首发角色本身已经由外层按当前群聊状态动态选出，并不是固定 A。")
-                appendLine("这一轮共有 $memberCount 个角色成员，每个人都必须至少真正发言一次；这是参与约束，不是发言顺序。")
-                appendLine("本轮最多允许 $replyLimit 个角色回合。全员各出现一次以后，仍然可以让任何已经发过言的人再次插话、回应别人或回来补一句，不要求每个人只说一次。")
-                appendLine("必须覆盖的成员集合：${requiredSpeakerIds.joinToString(",")}。这个列表只是集合，不代表 A→B→C 的次序，严禁照列表顺序机械输出。")
+                appendLine("群里共有 $memberCount 个角色，但不是点名报数；除了当前首发者，其他人只在按自身性格真正想说时才发言，也允许一直旁听。")
+                appendLine("本轮最多允许 $replyLimit 个角色回合，可以只说一两轮，也可以自然延展。一个人可以再插话，而别人此刻完全不必发言。")
+                appendLine("真实群成员集合：${validMembers.joinToString(",") { it.characterId }}。它只决定谁有资格说话，不要求每个人一定说。")
                 if (mentionedIds.isNotEmpty()) appendLine("用户明确点名了：${mentionedIds.joinToString(",")}。被点名角色应自然更早接话，但其他成员这一轮仍然都要至少参与一次。")
                 if (actionableUserMessages.isNotEmpty()) {
                     appendLine("\n【本轮用户尚未被回复的真实消息｜数量跟随用户实际发送，不按固定条数截取】")
@@ -194,23 +194,23 @@ internal object GroupEnsembleReplyEngine {
                         ),
                     )
                 }
-                appendLine("\n【调用来源】这是群聊界面的一次整轮生成。全员必须参与，但绝不允许把“全员参与”写成固定 ABC 轮班。合法形态包括 C→B→A、A→B→C→B→A、B→A→C→A 等，具体顺序由当前内容和角色设定决定。")
+                appendLine("\n【调用来源】这是群聊界面的一轮自然延续。成员是否发言取决于自己是否有话想说；可以一人独说、两人互怼或多人接龙，顺序由内容驱动。")
             },
             instruction = """
-                你是多人群聊的整体编排器。把这一轮写成真正会发生的群聊：所有成员都参与，但发言顺序不固定，而且有人完全可以在别人说过以后再次回来接话。不要把“全员都说话”误解成“一人一次、按名单轮班”。
+                你是多人群聊的整体编排器。把这一轮写成真正会发生的群聊：首发者说话后，其他成员可以接、插话、沉默；有人有话可以连续发言，没兴趣的人不必为了凑数出声。绝不按名单轮班。
 
                 只返回一个 JSON 对象，不要代码块、分析、旁白或额外说明：
                 {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"简短意图","bubbles":["群里真正说出的气泡"],"tool":"可选的露露机内动作名或空字符串","args":{},"quoteMessageId":"真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","recallBubbleNumber":0,"pokeUser":false,"statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"该角色没说出口的一瞬心声，可为空","mood":"简短心情"}]}
 
                 规则：
                 1. turns 第一项必须是指定的当前发言者，因为界面已经显示这个人正在输入；这个人不是固定成员，而是每轮动态选出的首发者。
-                2. 本轮所有群成员都必须至少出现一次，但“至少一次”绝不等于“只能一次”。只要符合当前话题和角色设定，同一个角色可以在本轮再次出现。
-                3. 发言顺序不能跟成员列表绑定，也不能默认 A→B→C。三个人时可以 C→B→A，也可以 A→B→C→B→A、B→A→C→A、C→A→B→C；顺序必须像真实群聊一样由谁最想接这一句话决定。
-                4. 在全员尚未全部出现之前，也允许已经说过的人再次插话，例如 A→B→A→C；只要最终安全上限内每个人至少出现一次即可。
-                5. turns 数量至少覆盖全部成员，最多是给定安全上限。不要为了填满上限强行续聊；但只要自然，也可以使用多余回合让某些角色再次发言。
+                2. 除首发者外，群成员可按人设和现实关系选择发言或旁听；沉默不是掉线或冷漠。同一个角色有真实动机时可以再次出现。
+                3. 发言顺序不绑定成员列表，不默认 A→B→C。可以 A 一人发几句、A→C→A，或 A→B→C→B；是否插话只由当前话题与人物动机决定。
+                4. 一个人可以在其他人还没发言时补发一句；不必等待其他人表态，也不必替缺席发言者补台词。
+                5. turns 最少一轮、最多安全上限；不为填满上限强行续聊，也不为凑齐人数生成无意义的“我也接一句”。
                 6. 后续角色应真正接住已经发生的内容：赞同、质疑、反驳、追问、补充、插话、玩笑、岔开或改口；不要每个人都从头回答用户同一个问题。
                 7. 每个角色必须严格保持自己的身份、语言习惯、关系边界、称呼和性格差异。不要把所有人统一写成温柔助手，也不要让一个角色替另一个角色发言。
-                8. 普通线上聊天每个角色本次只说最想说的少量内容，通常一至四个短气泡，每条常为十至四十个中文字；用户明确要求详谈时才展开。不要长篇独白、动作旁白、情绪分析、重复抒情、关系总结或客服腔。bubbles 是这个角色一次次按下“发送”后出现的气泡。一个气泡通常只承载一个当下表达动作；先回应、再补一句、再转折或追问时，可以自然拆成几个短气泡。不要按固定字数、句号或固定数量机械切，也不要把几个不同表达动作硬塞成长段。
+                8. 气泡多少、长短由这个角色的情绪与口语节奏决定：可能短促惊呼、停顿、突然补发、重复、欲言又止，也可能完整讲清一件事。bubbles 是一次次真正按下“发送”的内容。不要硬套一至四条或十至四十字的规格，也不要为显得热闹机械刷屏。真正心动、好笑或生气时允许有未经润饰的语气；但不得把内心独白、动作旁白、客服总结直接塞进聊天气泡。
                 9. quoteMessageId 只能从“本轮用户尚未被回复的真实消息”中选择。用户这轮只发一条，就只有这一条候选；连续发几条，就都可以按内容自然选择。不要回头引用更早轮次已经回答完的旧消息。
                 10. favoriteMessageId 同样只能从本轮尚未被回复的用户消息中选择，并且要在回应这一轮时当场决定。不要在后续新话题中突然回来补收藏已经回复完的旧消息。
                 11. recallBubbleNumber 默认 0。只有极少数角色刚说出口就后悔、说漏嘴或想装作没说过的时刻才填真实序号。
@@ -219,7 +219,7 @@ internal object GroupEnsembleReplyEngine {
                 14. 最后一轮不需要总结，不需要“把话题交给主人”，自然停住就可以。
                 ${if (isCall) com.jiacimu.lulu.VoicePerformance.phoneInstruction(context).replace("电话的 text", "电话的 bubbles 中每条字符串") else ""}
                 15. ${if (isCall) "这是实时群聊电话，quoteMessageId、favoriteMessageId 留空，recallBubbleNumber=0，pokeUser=false；语言必须更口语化、适合直接念出。" else "这是文字群聊，可以自然使用连续短气泡、引用、角色主观收藏，以及非常偶发的撤回或戳一戳。"}
-                16. statusText、gesture、innerThought、mood 分别属于当前角色本人，不能写成系统分析或推理过程。
+                16. statusText、gesture、innerThought、mood 属于当前角色本人。内心可以是冲动、慌乱、暗喜、无语、突然冒粗口，也可以平静；外在未必全说出来，不能变成系统分析。若本轮用户真实消息强烈触动了此角色，可选填 afterglow:{"feeling":"第一拍心声","impulse":"尚未实施的冲动","holdHours":1到48的整数}；无强烈刺激不填。
                 17. 每个角色还可以在自己这一回合自主执行一个真实露露机内动作。尤其用户在群里问“谁想玩”或某个角色想私下找用户时，可以填写 tool=send_game_invite 或 send_private_message；该动作会真实进入这个角色与用户的私聊，不能把私聊内容又写进群气泡。也可按角色意愿发布朋友圈、写日记、读真实正文、跨到另一个所在群聊、在允许时发起来电、邀请进入数字世界或创建家具。没有自然动机时 tool 留空，严禁为了展示功能每轮都调用。用户明确要求某角色立即执行可用动作时，该角色可以按人设拒绝；一旦答应就必须填写对应 tool，不能只在气泡里口头声称成功。
                 18. 群聊不是独立记忆空间。每个角色只有自己的那条原始时间线：私聊、群聊、电话、游戏和共同事件都按真实时间写在其中。群聊局部记录只负责“此刻怎么接话”，不能覆盖或替代个人时间线。
                 19. 如果这个群隔了很久才重新说话，而某个角色在间隔期间和用户发生过新的私聊/电话/游戏经历，那么这些更晚发生的个人经历才是这个角色更近的状态；不能因为重新打开群聊就把很久以前的群话题当作刚刚发生。
@@ -241,15 +241,15 @@ internal object GroupEnsembleReplyEngine {
             validUserMessageIds = if (isCall) emptySet() else validUserMessageIds,
             allowMessageActions = !isCall,
         )
-        val completed = ensureRequiredSpeakers(
+        val completed = selectNaturalTurns(
             parsed = parsed,
-            requiredSpeakerIds = requiredSpeakerIds,
             currentSpeakerId = currentSpeakerId,
             replyLimit = replyLimit,
         )
 
         synchronized(lock) {
-            cachedPlans[planKey] = CachedPlan(completed.toMutableList(), memberLabels, definitions)
+            cachedPlans[planKey] = CachedPlan(completed.toMutableList(), memberLabels, definitions,
+                "本轮群聊用户真实发言：${actionableUserMessages.joinToString("；") { it.content.take(150) }.ifBlank { latestUserMessage.content.take(180) }}")
             while (cachedPlans.size > 24) cachedPlans.remove(cachedPlans.keys.first())
         }
         return Result.success(
@@ -284,9 +284,11 @@ internal object GroupEnsembleReplyEngine {
             val next = cached.turns.firstOrNull()
             val nextLabel = next?.let { cached.memberLabels[it.characterId] }
             if (cached.turns.isEmpty()) cachedPlans.remove(planKey)
-            ServedTurn(turn, nextLabel)
+            ServedTurn(turn, nextLabel, cached.emotionalAnchor)
         } ?: return null
 
+        com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(
+            served.turn.characterId, served.emotionalAnchor, served.turn.afterglow)
         CompanionPresenceStore.update(
             characterId = served.turn.characterId,
             statusText = served.turn.statusText,
@@ -317,7 +319,7 @@ internal object GroupEnsembleReplyEngine {
         )
     }
 
-    private data class ServedTurn(val turn: PlannedTurn, val nextLabel: String?)
+    private data class ServedTurn(val turn: PlannedTurn, val nextLabel: String?, val emotionalAnchor: String)
 
     private fun parseTurns(
         raw: String,
@@ -374,6 +376,7 @@ internal object GroupEnsembleReplyEngine {
                                 )
                             }.orEmpty(),
                             args = item.optJSONObject("args") ?: JSONObject(),
+                            afterglow = item.optJSONObject("afterglow"),
                         ),
                     )
                 }
@@ -381,50 +384,19 @@ internal object GroupEnsembleReplyEngine {
         }.getOrDefault(emptyList())
     }
 
-    private fun ensureRequiredSpeakers(
+    private fun selectNaturalTurns(
         parsed: List<PlannedTurn>,
-        requiredSpeakerIds: List<String>,
         currentSpeakerId: String,
         replyLimit: Int,
     ): List<PlannedTurn> {
-        val required = requiredSpeakerIds.toSet()
         val result = parsed.take(replyLimit).toMutableList()
-        val missing = required
-            .filterNot { requiredId -> result.any { it.characterId == requiredId } }
-            .shuffled()
-
-        missing.forEach { missingId ->
-            if (result.size < replyLimit) {
-                val insertAt = if (result.size <= 1) result.size else (1..result.size).random()
-                result.add(insertAt, fallbackTurn(missingId))
-            } else {
-                val counts = result.groupingBy(PlannedTurn::characterId).eachCount()
-                val replaceable = result.indices.filter { index ->
-                    index != 0 && counts.getOrDefault(result[index].characterId, 0) > 1
-                }
-                val replaceIndex = replaceable.randomOrNull()
-                    ?: result.indices.lastOrNull { index -> index != 0 && result[index].characterId !in required }
-                if (replaceIndex != null) result[replaceIndex] = fallbackTurn(missingId)
-            }
+        if (result.none { it.characterId == currentSpeakerId }) {
+            // The UI has already marked this person as typing: never silently swap the opener.
+            if (result.size >= replyLimit) result.removeAt(result.lastIndex)
+            result.add(0, fallbackTurn(currentSpeakerId))
         }
-
-        if (result.isEmpty()) result += fallbackTurn(currentSpeakerId)
         val firstIndex = result.indexOfFirst { it.characterId == currentSpeakerId }
-        if (firstIndex < 0) {
-            if (result.size >= replyLimit) {
-                val counts = result.groupingBy(PlannedTurn::characterId).eachCount()
-                val replaceIndex = result.indices.lastOrNull { index -> counts.getOrDefault(result[index].characterId, 0) > 1 }
-                    ?: result.lastIndex
-                result[replaceIndex] = fallbackTurn(currentSpeakerId)
-            } else {
-                result.add(0, fallbackTurn(currentSpeakerId))
-            }
-        }
-        val updatedFirstIndex = result.indexOfFirst { it.characterId == currentSpeakerId }
-        if (updatedFirstIndex > 0) {
-            val first = result.removeAt(updatedFirstIndex)
-            result.add(0, first)
-        }
+        if (firstIndex > 0) result.add(0, result.removeAt(firstIndex))
         return result.take(replyLimit)
     }
 
