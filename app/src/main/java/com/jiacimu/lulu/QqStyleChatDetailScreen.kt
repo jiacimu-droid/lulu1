@@ -50,14 +50,16 @@ internal val QqIconSurface = Color(0xFFF4F4F4)
 @Composable
 fun QqStyleChatDetailScreen(
     conversationId: String,
+    routeVisible: Boolean = true,
     onBack: () -> Unit,
     onCharacterSettings: () -> Unit,
     onWorldBook: () -> Unit,
     onOpenGame: (String?) -> Unit,
 ) {
     val context = LocalContext.current
-    DisposableEffect(conversationId) {
-        ChatAutoVoicePlayback.setVisibleConversation(conversationId)
+    DisposableEffect(conversationId, routeVisible) {
+        if (routeVisible) ChatAutoVoicePlayback.setVisibleConversation(conversationId)
+        else ChatAutoVoicePlayback.clearVisibleConversation(conversationId)
         onDispose { ChatAutoVoicePlayback.clearVisibleConversation(conversationId) }
     }
     val focusManager = LocalFocusManager.current
