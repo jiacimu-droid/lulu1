@@ -59,8 +59,8 @@ internal suspend fun extractCommitmentTaskDrafts(
         return drafts.map { task ->
             if (task !in promisedCall) task else task.copy(
                 deliveryAction = "start_call",
-                dueAt = task.dueAt ?: now.plusSeconds(600),
-                needsClarification = false,
+                dueAt = task.dueAt ?: if (isVagueFutureCall(characterText)) now.plusSeconds(600) else null,
+                needsClarification = task.dueAt == null && !isVagueFutureCall(characterText),
             )
         }
     }
