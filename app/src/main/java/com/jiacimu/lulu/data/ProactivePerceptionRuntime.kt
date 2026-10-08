@@ -454,6 +454,14 @@ object ProactivePerceptionRuntime {
             if (onlineUnread.text.isNotBlank() || pendingUserContext.isNotBlank()) setOf("user") else emptySet(),
             now,
         )
+        // Keep genuine internal speech from a witnessed stimulus or a real autonomous choice.
+        // Silence-only ticks without a new stimulus should not accumulate invented feelings.
+        if (emotionalAnchor.isNotBlank() || decision.action != Action.SILENT) {
+            CharacterInnerLifeStore.recordInnerVoice(
+                characterId, "perception:${now.toEpochMilli()}:${trigger.take(35)}",
+                decision.innerThought, now,
+            )
+        }
         // Execute first. Unvalidated model status/gesture must never become a world fact.
         val execution = performAction(appContext, character, decision, availableGroups, now)
         currentCoroutineContext().ensureActive()
