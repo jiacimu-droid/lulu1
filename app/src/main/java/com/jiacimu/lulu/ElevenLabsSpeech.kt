@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
 import java.io.InputStream
+import java.io.File
 
 /** Personal TTS credentials stay in the phone configuration, independent of the Agents service. */
 internal class ElevenLabsSpeech(context: Context) {
@@ -93,10 +94,12 @@ internal class ElevenLabsSpeech(context: Context) {
         } finally { call.close() }
     }
 
-    suspend fun speak(text: String, voiceId: String?, onStarted: () -> Unit): Boolean = withContext(Dispatchers.IO) {
+    suspend fun speak(text: String, voiceId: String?, onStarted: () -> Unit, recordingTarget: File? = null): Boolean = withContext(Dispatchers.IO) {
         val token = epoch
         val call = openAudio(text, voiceId, "pcm_24000")
         var audio: AudioTrack? = null
+        val recording = recordingTarget?.let { runCatching { CallSpeechRecording(it) }.getOrNull() }
+        var playedToEnd = false
         try {
             val rate = 24_000
             val output = AudioTrack.Builder().setAudioAttributes(AudioAttributes.Builder()
@@ -125,6 +128,7 @@ internal class ElevenLabsSpeech(context: Context) {
                         val sent = output.write(buffer, offset, even - offset, AudioTrack.WRITE_BLOCKING)
                         check(sent > 0) { "ElevenLabs 音频播放失败" }
                         if (written == 0L) onStarted()
+                        recording?.write(buffer, offset, sent)
                         offset += sent; written += sent
                     }
                     carry = total % 2
@@ -138,8 +142,12 @@ internal class ElevenLabsSpeech(context: Context) {
                 check(android.os.SystemClock.elapsedRealtime() < deadline) { "语音播放超时" }
                 delay(20)
             }
-            token == epoch
+            playedToEnd = token == epoch
+            playedToEnd
         } finally {
+            // The recording contains exactly what was sent to AudioTrack, not a
+            // second TTS generation. Interrupted or failed speech is discarded.
+            recording?.finish(playedToEnd)
             call.close()
             if (track === audio) { track = null; runCatching { audio?.release() } }
         }
