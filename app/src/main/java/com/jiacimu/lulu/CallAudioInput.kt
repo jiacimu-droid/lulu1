@@ -35,6 +35,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                     AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, maxOf(minimum, 6400))
                 check(audio.state == AudioRecord.STATE_INITIALIZED) { "麦克风初始化失败，可能被其他应用占用" }
                 recorder = audio
+                val activeAudio = checkNotNull(audio)
                 // The call output may switch from speaker to headset mid-call.
                 // Route microphone capture independently; choosing an earpiece
                 // must never strand capture on an unavailable Bluetooth input.
@@ -42,7 +43,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                 fun bindInput() {
                     val preferred = CallAudioRoute.preferredInput
                     if (preferred?.id != boundInputId) {
-                        val selected = preferred?.let { audio.setPreferredDevice(it) } ?: audio.setPreferredDevice(null)
+                        val selected = activeAudio.setPreferredDevice(preferred)
                         if (selected) boundInputId = preferred?.id
                     }
                 }
