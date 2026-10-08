@@ -129,12 +129,21 @@ class ProactivePerceptionWorker(
         if (requireOnline && characterId != null && !OnlineChatBatchStore.isCurrent(applicationContext, characterId, onlineRevision ?: 0L)) {
             return@runCatching Result.success()
         }
-        // Compute remaining reading time now, after earlier replies finished, not when queued.
+        // Follow the latest deadline, not the first bubble's deadline. The
+        // same pending revision may be extended while this worker is asleep.
+        // A new bubble must get a full three seconds before perception starts.
         if (requireOnline && characterId != null) {
-            val due = OnlineChatBatchStore.dueAt(applicationContext, characterId, onlineRevision ?: 0L)
-                ?: return@runCatching Result.success()
-            kotlinx.coroutines.delay((due - System.currentTimeMillis()).coerceAtLeast(0L))
-            if (!CompanionOnlineStore.isOnline(characterId)) return@runCatching Result.success()
+            while (true) {
+                if (!CompanionOnlineStore.isOnline(characterId) ||
+                    !OnlineChatBatchStore.isCurrent(applicationContext, characterId, onlineRevision ?: 0L)) {
+                    return@runCatching Result.success()
+                }
+                val due = OnlineChatBatchStore.dueAt(applicationContext, characterId, onlineRevision ?: 0L)
+                    ?: return@runCatching Result.success()
+                val remaining = due - System.currentTimeMillis()
+                if (remaining <= 0L) break
+                kotlinx.coroutines.delay(remaining)
+            }
         }
         ProactivePerceptionRuntime.runDueCycle(
             context = applicationContext,
