@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`09a2775d5b09bd34a5c2e065770f6eeb614b7dbb`
+- 基准提交：`97a27c03b64dff214dc9ec92fb407c5b547376d2`
 - 分支：`main`
 - 已索引文件：345
-- 已索引代码/文本行：86666
+- 已索引代码/文本行：86724
 - 已发现符号：1222
 
 | 文件 | 行数 | 符号数 |
@@ -343,8 +343,8 @@
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 88 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/study/StarWishTheaterStoryExportTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterChapterCompletionTest.kt` | 43 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/study/TheaterContinuityPayloadTest.kt` | 45 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/study/TheaterPlanningPayloadTest.kt` | 120 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/study/TheaterContinuityPayloadTest.kt` | 66 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/study/TheaterPlanningPayloadTest.kt` | 157 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt` | 32 | 1 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |
 | `scripts/apk_size_report.py` | 38 | 0 |
