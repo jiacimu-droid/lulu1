@@ -363,7 +363,7 @@ internal class StarWishPlanGenerationWorker(
             var bible = existingBible
             if (bible == null || !StarWishTheaterPlanningEngine.storyBibleCompleteEnough(bible)) {
                 manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, "缺少幕后规划，先自动生成再规划章节")
-                bible = StarWishTheaterPlanningEngine.generateStoryBible(
+                val generatedBible = StarWishTheaterPlanningEngine.generateStoryBible(
                     characterId = characterId,
                     storyTitle = theater,
                     storyGuide = guide,
@@ -376,7 +376,8 @@ internal class StarWishPlanGenerationWorker(
                         saveProgress { store.setBible(theater, partial) }
                     },
                 ).getOrThrow()
-                saveProgress { store.setBible(theater, bible) }
+                saveProgress { store.setBible(theater, generatedBible) }
+                bible = generatedBible
                 manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, "幕后规划已保存，开始逐章规划")
             }
 
