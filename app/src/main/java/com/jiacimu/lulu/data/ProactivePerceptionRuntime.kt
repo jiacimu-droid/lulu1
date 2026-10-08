@@ -80,6 +80,8 @@ object ProactivePerceptionRuntime {
         val toolArgs: JSONObject = JSONObject(),
         val intention: JSONObject? = null,
         val afterglow: JSONObject? = null,
+        val innerLife: JSONObject? = null,
+        val motiveId: String = "",
     )
 
     private data class UserActivity(
@@ -446,9 +448,29 @@ object ProactivePerceptionRuntime {
             else -> ""
         }
         CharacterLifeStore.recordAfterglow(characterId, emotionalAnchor, decision.afterglow, now)
+        if (emotionalAnchor.isNotBlank()) CharacterInnerLifeStore.observe(
+            characterId, "perception-event:${now.toEpochMilli()}:${emotionalAnchor.hashCode()}",
+            emotionalAnchor, decision.innerLife,
+            if (onlineUnread.text.isNotBlank() || pendingUserContext.isNotBlank()) setOf("user") else emptySet(),
+            now,
+        )
         // Execute first. Unvalidated model status/gesture must never become a world fact.
         val execution = performAction(appContext, character, decision, availableGroups, now)
         currentCoroutineContext().ensureActive()
+        if (decision.action != Action.SILENT) {
+            // Report the decision's concrete action outcome to only the explicitly selected motive.
+            // No text or reasoning can mark an action complete without an executor result.
+            CharacterInnerLifeStore.recordActionResult(
+                characterId, decision.motiveId,
+                "proactive:${now.toEpochMilli()}:${decision.action.name}",
+                decision.action.name.lowercase(), execution.success, execution.summary, now,
+            )
+            if (emotionalAnchor.isBlank()) CharacterInnerLifeStore.observe(
+                characterId, "action-result:${now.toEpochMilli()}:${decision.action.name}",
+                execution.summary, decision.innerLife,
+                if (decision.action == Action.MESSAGE && execution.success) setOf("user") else emptySet(), now,
+            )
+        }
         val newReading = com.jiacimu.lulu.study.ReadingReflectionStore.records.value
             .filter { it.characterId == characterId }.maxByOrNull { it.occurredAt }
         val readingUpdatedPresence = execution.success && newReading != null && newReading.id != lastReading?.id
@@ -741,6 +763,8 @@ object ProactivePerceptionRuntime {
             toolArgs = json.optJSONObject("args") ?: JSONObject(),
             intention = json.optJSONObject("intention"),
             afterglow = json.optJSONObject("afterglow"),
+            innerLife = json.optJSONObject("innerLife"),
+            motiveId = json.optString("motiveId").trim(),
         )
     }.getOrNull()
 
