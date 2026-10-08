@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T18:18:01.677492+00:00",
-  "commit": "3098c4df13a05d40290ee89002bd25c5755f86a0",
+  "generatedAt": "2026-10-08T18:18:18.235383+00:00",
+  "commit": "9e3ad63dbe1cb547e2157f6b777336eb2cd91cce",
   "branch": "main",
-  "sourceFingerprint": "1d92c76d30b416ddecc2ff261b73dcdf41664e6fb0441b2bbb4040162ca6af38",
+  "sourceFingerprint": "7a9bac29656603e8fbdf1bcbbced576b54d4dcc2b85f343568c5988b0c3f15b3",
   "summary": {
     "files": 366,
-    "lines": 89299,
+    "lines": 89315,
     "symbols": 1263
   },
   "symbolIndex": {
@@ -289,7 +289,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
-        "line": 46
+        "line": 47
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
@@ -973,7 +973,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
-        "line": 64
+        "line": 72
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
@@ -1239,31 +1239,31 @@
     "setPace": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
-        "line": 76
+        "line": 84
       }
     ],
     "resetSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
-        "line": 84
+        "line": 92
       }
     ],
     "enqueueTurns": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
-        "line": 104
+        "line": 112
       }
     ],
     "playVisibleDialogue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
-        "line": 107
+        "line": 115
       }
     ],
     "stopVisibleDialogue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
-        "line": 166
+        "line": 182
       }
     ],
     "MigratedChatHubScreenV2": [
@@ -7982,8 +7982,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
-      "lines": 180,
-      "sha256": "c16fe8ab7c38aecd43d19838f9c8a4b00e56bbb879dc2e5ba0f239d3a1758eb4",
+      "lines": 196,
+      "sha256": "7e39d96f6f839d47cbed5b22dec802f3d8af821507bba6cad8971a31a914543d",
       "symbols": [
         {
           "name": "MeetingVoicePace",
@@ -7995,31 +7995,31 @@
         },
         {
           "name": "initialize",
-          "line": 46
+          "line": 47
         },
         {
           "name": "setEnabled",
-          "line": 64
+          "line": 72
         },
         {
           "name": "setPace",
-          "line": 76
-        },
-        {
-          "name": "resetSession",
           "line": 84
         },
         {
+          "name": "resetSession",
+          "line": 92
+        },
+        {
           "name": "enqueueTurns",
-          "line": 104
+          "line": 112
         },
         {
           "name": "playVisibleDialogue",
-          "line": 107
+          "line": 115
         },
         {
           "name": "stopVisibleDialogue",
-          "line": 166
+          "line": 182
         }
       ]
     },
