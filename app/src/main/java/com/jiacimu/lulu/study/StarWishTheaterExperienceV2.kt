@@ -536,11 +536,11 @@ private fun TheaterReaderV2(
                         onDragStart = { horizontalTravel = 0f },
                         onDragCancel = { horizontalTravel = 0f },
                         onDragEnd = {
-                            // Requested directions: left = previous, right = next.
+                            // Reading order: swipe left for next chapter, right for previous chapter.
                             // A horizontal drag is recognized separately from normal vertical reading.
                             val destination = when {
-                                horizontalTravel <= -minSwipe -> selectedIndex - 1
-                                horizontalTravel >= minSwipe -> selectedIndex + 1
+                                horizontalTravel <= -minSwipe -> selectedIndex + 1
+                                horizontalTravel >= minSwipe -> selectedIndex - 1
                                 else -> selectedIndex
                             }
                             if (destination in chapters.indices && destination != selectedIndex) {
@@ -598,7 +598,7 @@ private fun TheaterReaderV2(
                         ) { Icon(Icons.Outlined.ChevronLeft, null); Text("上一章") }
                         Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("${selectedIndex + 1} / ${chapters.size}", color = StudyDesign.muted, style = MaterialTheme.typography.labelMedium)
-                            Text("左滑上一章 · 右滑下一章", fontSize = 10.sp, color = StudyDesign.muted)
+                            Text("左滑下一章 · 右滑上一章", fontSize = 10.sp, color = StudyDesign.muted)
                         }
                         TextButton(
                             onClick = { selectedIndex += 1; scope.launch { listState.scrollToItem(0) } },
