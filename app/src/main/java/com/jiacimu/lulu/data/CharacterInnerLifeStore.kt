@@ -123,6 +123,26 @@ object CharacterInnerLifeStore {
     }
 
     /**
+     * Existing afterglow already records truthful subjective reactions.
+     * Feed it into continuous emotion as well, without paying for another LLM call or
+     * assuming something actually happened just because the role imagined it.
+     */
+    internal fun withAfterglow(
+        proposal: JSONObject?, afterglow: JSONObject?, witnessedInput: String,
+    ): JSONObject? {
+        if (proposal?.optJSONObject("emotion") != null) return proposal
+        val feeling = afterglow?.optString("feeling")?.trim().orEmpty()
+        if (feeling.isBlank() || witnessedInput.isBlank()) return proposal
+        val merged = proposal?.let { JSONObject(it.toString()) } ?: JSONObject()
+        val hours = afterglow?.optInt("holdHours", 2) ?: 2
+        merged.put("emotion", JSONObject().put("feeling", feeling.take(120))
+            .put("impulse", afterglow?.optString("impulse").orEmpty().take(150))
+            .put("cause", witnessedInput.take(180))
+            .put("halfLifeMinutes", (hours * 30).coerceIn(30, 1440)))
+        return merged
+    }
+
+    /**
      * An observation must have a real event ID and source text.
      * Duplicate evidence does not repeatedly elevate feelings or relationships.
      */
