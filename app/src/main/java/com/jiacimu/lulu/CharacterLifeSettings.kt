@@ -100,6 +100,15 @@ internal fun CharacterLifeSettings(characterId: String) {
                 }
             }
         }
+        val innerVoices = innerRoot.optJSONArray("innerVoices")
+        if (innerVoices != null && innerVoices.length() > 0) {
+            Text("内心的声音 · 没说出口的想法", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            for (i in maxOf(0, innerVoices.length() - 3) until innerVoices.length()) {
+                val thought = innerVoices.optJSONObject(i) ?: continue
+                Text(thought.optString("thought"), style = MaterialTheme.typography.bodySmall)
+            }
+            Text("只是角色当时的主观心声，不表示相关行动已经发生。", style = MaterialTheme.typography.bodySmall)
+        }
         val bonds = innerRoot.optJSONObject("bonds")
         if (bonds != null && bonds.length() > 0) {
             Text("逐渐形成的主观看法", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
