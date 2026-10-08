@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T11:42:34.751589+00:00",
-  "commit": "0264290982d4b2dcacfe5fd5b40cdaa13122cb55",
+  "generatedAt": "2026-10-08T11:42:49.313011+00:00",
+  "commit": "b4f16c3a90bf3b4d606ff12d1610a8913d50c63f",
   "branch": "main",
-  "sourceFingerprint": "e6285f26b4b9f7c8f1867e162482d4096cb651de1fc26cc4eb48a78377f90b11",
+  "sourceFingerprint": "565c33de442f4684b0e89ba7ff67e400082a49701cb8b7aa107b203f9f0823da",
   "summary": {
     "files": 349,
-    "lines": 86910,
+    "lines": 86911,
     "symbols": 1227
   },
   "symbolIndex": {
@@ -63,7 +63,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 209
+        "line": 210
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt",
@@ -919,7 +919,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 229
+        "line": 230
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
@@ -1093,19 +1093,19 @@
     "speakAndCache": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 117
+        "line": 118
       }
     ],
     "playCached": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 170
+        "line": 171
       }
     ],
     "cachedAudioFile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 182
+        "line": 183
       }
     ],
     "LuluVisionSettingsScreen": [
@@ -7617,8 +7617,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-      "lines": 459,
-      "sha256": "6ccb73da55593b7a86c39e2b80bb7871508bacb74a69770e567a5e658a7bfd9a",
+      "lines": 460,
+      "sha256": "26ab84ad6898ca567b5d74b12b5dd3a9fbfbb0f4327296361da394332874dd3e",
       "symbols": [
         {
           "name": "speak",
@@ -7626,23 +7626,23 @@
         },
         {
           "name": "speakAndCache",
-          "line": 117
+          "line": 118
         },
         {
           "name": "playCached",
-          "line": 170
+          "line": 171
         },
         {
           "name": "cachedAudioFile",
-          "line": 182
+          "line": 183
         },
         {
           "name": "stop",
-          "line": 209
+          "line": 210
         },
         {
           "name": "shutdown",
-          "line": 229
+          "line": 230
         }
       ]
     },
