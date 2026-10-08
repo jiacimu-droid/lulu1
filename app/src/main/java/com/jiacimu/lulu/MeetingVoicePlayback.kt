@@ -41,6 +41,7 @@ object MeetingVoicePlayback {
 
     private var appContext: Context? = null
     private var engine: LuluSpeechEngine? = null
+    private var settingsListener: android.content.SharedPreferences.OnSharedPreferenceChangeListener? = null
     private val lock = Any()
     private var activePageToken: String? = null
 
@@ -50,6 +51,13 @@ object MeetingVoicePlayback {
             if (appContext != null) return
             val application = context.applicationContext
             appContext = application
+            AutomaticVoiceForeground.install(application)
+            AutomaticVoiceForeground.onBackground { stopVisibleDialogue() }
+            val voicePrefs = application.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+            settingsListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                if (key in setOf("tts_enabled", "tts_auto_speak") &&
+                    !VoiceSynthesisPolicy.automaticAllowed(application)) stopVisibleDialogue()
+            }.also(voicePrefs::registerOnSharedPreferenceChangeListener)
             CharacterVoicePreferenceStore.initialize(application)
             engine = LuluSpeechEngine(application)
             val prefs = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -118,6 +126,8 @@ object MeetingVoicePlayback {
         val spoken = VoicePerformance.forPlayback(context, speechText)
         if (
             !mutableEnabled.value ||
+            !VoiceSynthesisPolicy.automaticAllowed(context) ||
+            !AutomaticVoiceForeground.visible() ||
             sessionId.isBlank() ||
             pageKey.isBlank() ||
             resolvedCharacterId.isBlank() ||
@@ -148,13 +158,19 @@ object MeetingVoicePlayback {
         cacheBase.parentFile?.mkdirs()
 
         scope.launch {
-            if (!mutableEnabled.value || synchronized(lock) { activePageToken != token }) return@launch
+            if (!mutableEnabled.value || !VoiceSynthesisPolicy.automaticAllowed(application) ||
+                !AutomaticVoiceForeground.visible() ||
+                synchronized(lock) { activePageToken != token }) return@launch
             speech.speakAndCache(
                 text = spoken,
                 cacheBaseFile = cacheBase,
                 scope = scope,
                 voiceIdOverride = CharacterVoicePreferenceStore.playbackVoiceId(resolvedCharacterId),
-                allowGeneration = { mutableEnabled.value && synchronized(lock) { activePageToken == token } },
+                allowGeneration = {
+                    mutableEnabled.value && VoiceSynthesisPolicy.automaticAllowed(application) &&
+                        AutomaticVoiceForeground.visible() &&
+                        synchronized(lock) { activePageToken == token }
+                },
                 onFinished = {
                     synchronized(lock) {
                         if (activePageToken == token) activePageToken = null
