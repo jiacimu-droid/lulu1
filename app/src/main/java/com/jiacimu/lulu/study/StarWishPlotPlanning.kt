@@ -25,6 +25,9 @@ internal data class StarWishPlotCandidate(
     val endingDirection: String = "",
     val romanceAesthetics: String = "",
     val creativeIntent: String = "",
+    val experienceFocus: String = "",
+    val appearanceDesign: String = "",
+    val relationshipDynamics: String = "",
 ) {
     fun storyGuide(): String = buildString {
         if (creativeIntent.isNotBlank()) {
@@ -36,6 +39,18 @@ internal data class StarWishPlotCandidate(
         appendLine(overview.trim())
         appendLine("\n【核心看点】")
         appendLine(highlights.trim())
+        if (experienceFocus.isNotBlank()) {
+            appendLine("\n【阅读体验重心】")
+            appendLine(experienceFocus.trim())
+        }
+        if (appearanceDesign.isNotBlank()) {
+            appendLine("\n【主要人物视觉档案】")
+            appendLine(appearanceDesign.trim())
+        }
+        if (relationshipDynamics.isNotBlank()) {
+            appendLine("\n【关系动力与张力】")
+            appendLine(relationshipDynamics.trim())
+        }
         appendLine("\n【世界前提】")
         appendLine(worldview.trim())
         appendLine("\n【关系底色】")
@@ -65,6 +80,9 @@ internal data class StarWishPlotCandidate(
         stagePlan = stagePlan.trim(),
         endingDirection = endingDirection.trim(),
         romanceAesthetics = romanceAesthetics.trim(),
+        experienceFocus = experienceFocus.trim(),
+        appearanceDesign = appearanceDesign.trim(),
+        relationshipDynamics = relationshipDynamics.trim(),
         updatedThroughChapter = 0,
     )
 
