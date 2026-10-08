@@ -11,6 +11,7 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
+import java.io.File
 
 /** HTTP SSE PCM audio is written to AudioTrack as it arrives, without whole-file buffering. */
 internal class MiniMaxStreamingSpeech(context: Context) {
@@ -28,7 +29,9 @@ internal class MiniMaxStreamingSpeech(context: Context) {
         runCatching { old?.pause(); old?.flush(); old?.release() }
     }
 
-    suspend fun speak(text: String, voiceId: String?, onAudioStarted: () -> Unit = {}): Boolean = withContext(Dispatchers.IO) {
+    suspend fun speak(text: String, voiceId: String?, onAudioStarted: () -> Unit = {}, recordingTarget: File? = null): Boolean = withContext(Dispatchers.IO) {
+        val recording = recordingTarget?.let { runCatching { CallSpeechRecording(it) }.getOrNull() }
+        var playedToEnd = false
         val epoch = generation
         val key = prefs.getString("minimax_api_key", "").orEmpty()
         val voice = voiceId?.takeIf(String::isNotBlank) ?: prefs.getString("minimax_voice_id", "").orEmpty()
@@ -87,6 +90,7 @@ internal class MiniMaxStreamingSpeech(context: Context) {
                             val count = audio.write(bytes, offset, bytes.size - offset, AudioTrack.WRITE_BLOCKING)
                             check(count > 0) { "流式音频播放失败" }
                             if (bytesWritten == 0L) onAudioStarted()
+                            recording?.write(bytes, offset, count)
                             offset += count; bytesWritten += count
                         }
                     }
@@ -99,8 +103,10 @@ internal class MiniMaxStreamingSpeech(context: Context) {
                 check(android.os.SystemClock.elapsedRealtime() < drainDeadline) { "音频播放超时，请重试" }
                 delay(20)
             }
-            epoch == generation && complete
+            playedToEnd = epoch == generation && complete
+            playedToEnd
         } finally {
+            recording?.finish(playedToEnd)
             request.disconnect()
             if (connection === request) connection = null
             if (track === audio) { track = null; runCatching { audio.release() } }
