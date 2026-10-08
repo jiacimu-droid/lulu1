@@ -803,6 +803,17 @@ object ProactivePerceptionRuntime {
             .notify((conversationId + text).hashCode(), notification)
     }
 
+    /** Reuse the same full-screen incoming-call notification for alarm-backed promises. */
+    fun showPromisedCallNotification(
+        context: Context,
+        characterId: String,
+        conversationId: String,
+        reason: String,
+    ) {
+        val title = MigratedDomainStores.characters.get(characterId).displayName
+        showCallNotification(context.applicationContext, conversationId, title, reason)
+    }
+
     private fun showCallNotification(
         context: Context,
         conversationId: String,
