@@ -99,6 +99,8 @@ object LuluDeviceToolBridge {
                 你既可以直接回复，也可以调用露露机真实手机工具。只返回一个 JSON 对象，不要代码块。
                 字段按示例顺序输出：action 最先，直接回复紧接 text；不得重复字段。text 只包含说出口的话，不放内部指令、JSON、动作标记或心声。
                 直接回复：{"action":"reply","text":"角色自然回复","statusText":"简短状态","gesture":"此刻可见动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情"}
+                【有新经历时才填写的内在生活更新】可选 innerLife:{"emotion":{"feeling":"这一刻主观情绪","cause":"本轮真实触发","otherFeeling":"矛盾的另一种感受","strength":1到4,"halfLifeMinutes":30到1440},"motives":[{"op":"start|revise|pause|resume|release","id":"已有动机ID（start不填）","aim":"具体想完成的事","why":"属于自己的原因","priority":1到3,"reason":"因何改变"}],"social":{"targetId":"user","interpretation":"根据本轮真实互动改变的个人看法","reason":"具体依据"},"selfCorrection":{"realization":"自己认错或修正的主观判断","nextTime":"下次改变什么做法"}}。所有项目可缺省，完全没有新变化就不写 innerLife。最多同时保存六个愿望；不要用重复的套话凑满，也不要因没立即成功就放弃。id 必须来自已存在的内在生活。social 只写本轮真实互动的用户，不得推断其他角色私聊。主观理解不等于客观事实。
+                如果本轮已有动机且做真实工具动作，可选 motiveId:"已有动机ID" 说明本动作打算推进哪件事；只有工具真实回执才会记录结果，模型自己说已完成没有效力。
                 可选短时情绪余波字段： "afterglow":{"feeling":"这一刻未经修饰的第一人称真实反应","impulse":"想做或克制的一点冲动","holdHours":1到48之间的整数}。只有被本轮真实话语明显触动时才填写；其他时候省略。由程序绑定本轮真实刺激并保存，余波不是事实、行动或承诺。
                 调用工具：{"action":"tool","tool":"工具名","args":{...},"statusText":"简短状态","gesture":"准备执行时的动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情"}
 
@@ -145,7 +147,7 @@ object LuluDeviceToolBridge {
             """.trimIndent(),
             source = "聊天工具规划",
             title = title,
-            maxTokens = if (sceneContext.contains("电话")) 1_600 else 700,
+            maxTokens = if (sceneContext.contains("电话")) 1_850 else 950,
             streamResponse = onReplyStream != null,
             onStreamText = onReplyStream,
             connectionOverride = connection,
@@ -162,6 +164,10 @@ object LuluDeviceToolBridge {
             text = com.jiacimu.lulu.CallReplyStream.completeReplyText(plannedReply.text) ?: plannedReply.text,
         ))
         com.jiacimu.lulu.data.CharacterLifeStore.consider(characterId, plan.intention)
+        com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
+            characterId, "chat:${now.toEpochMilli()}:${userText.hashCode()}",
+            userText, plan.innerLife, setOf("user"), now,
+        )
         if (plan.action == "reply") {
             savePresence(characterId, plan, "聊天")
             com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, "本轮用户消息：$userText", plan.afterglow)
@@ -177,6 +183,12 @@ object LuluDeviceToolBridge {
             .lastOrNull { it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement }?.id
         val toolResult = com.jiacimu.lulu.data.ToolRouter.execute(appContext, characterId, plan.tool, plan.args,
             requestId = "reply-${lastUserEvent ?: java.util.UUID.randomUUID().toString()}", userRequested = true)
+        val actual = runCatching { JSONObject(toolResult) }.getOrNull()
+        com.jiacimu.lulu.data.CharacterInnerLifeStore.recordActionResult(
+            characterId, plan.motiveId, "tool:${lastUserEvent ?: now.toEpochMilli()}:${plan.tool}",
+            plan.tool, actual?.optBoolean("success") == true,
+            actual?.optString("summary").orEmpty().ifBlank { toolResult.take(220) },
+        )
         val finalReply = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
@@ -196,6 +208,7 @@ object LuluDeviceToolBridge {
                 对位置结果只能使用 readableAddress；地址为空、定位过旧或精度差时，必须明确说是大概位置，不得根据经纬度猜具体店铺、学校或建筑。
                 只返回一个 JSON 对象，不要代码块；action 最先，紧接 text，不重复字段：
                 {"action":"reply","text":"角色在动作之后自然接着说的话","statusText":"动作后的简短状态","gesture":"动作后的可见动作神态","innerThought":"动作后没说出口的第一人称心声，可为空","mood":"动作后的简短心情"}
+                如果工具真实成功或失败使角色改变了一个想法、想继续尝试或意识到失误，可以选填 innerLife 的 emotion/motives/selfCorrection 字段；仅依据上面明确给出的工具结果，失败绝不能写成成功。
                 若工具成功或失败真的引发新的情绪，可额外填写 afterglow:{"feeling":"第一拍心声","impulse":"尚未执行的冲动","holdHours":1到48的整数}；不是必须填写。
                 不要解释内部工具协议。innerThought 不是推理步骤，gesture 不得编造未发生的工具结果或现实场景。
                 $onlineChatBubbleRule
@@ -214,6 +227,10 @@ object LuluDeviceToolBridge {
                 savePresence(characterId, finalPlan, "聊天·工具")
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId,
                     "本轮用户消息：${userText.take(120)}；工具真实结果：${toolResult.take(120)}", finalPlan.afterglow)
+                com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
+                    characterId, "tool-result:${now.toEpochMilli()}:${plan.tool}",
+                    toolResult, finalPlan.innerLife, emptySet(),
+                )
             }
             result.copy(
                 text = finalPlan?.text?.ifBlank { result.text }
@@ -408,6 +425,8 @@ object LuluDeviceToolBridge {
                 mood = json.optString("mood"),
                 afterglow = json.optJSONObject("afterglow"),
                 intention = json.optJSONObject("intention"),
+                innerLife = json.optJSONObject("innerLife"),
+                motiveId = json.optString("motiveId"),
             )
         }.getOrNull()
     }
@@ -435,4 +454,6 @@ private data class ToolPlan(
     val mood: String,
     val intention: JSONObject? = null,
     val afterglow: JSONObject? = null,
+    val innerLife: JSONObject? = null,
+    val motiveId: String = "",
 )
