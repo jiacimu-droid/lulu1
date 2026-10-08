@@ -71,6 +71,7 @@ fun QqStyleChatDetailScreen(
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val preferences by LuluAppPreferencesStore.state.collectAsState()
     val presenceStates by CompanionPresenceStore.states.collectAsState()
+    val lifeStates by CharacterLifeStore.states.collectAsState()
     val onlineStates by CompanionOnlineStore.states.collectAsState()
     val presenceHistories by CompanionPresenceStore.histories.collectAsState()
     val library by LuluAiServices.connectionStore.library.collectAsState()
@@ -102,6 +103,10 @@ fun QqStyleChatDetailScreen(
     val groupChat = conversation?.groupChat
     val characterId = conversation?.characterId ?: "lulu"
     val character = MigratedDomainStores.characters.get(characterId)
+    val chatNickname = remember(characterId, lifeStates) {
+        CharacterLifeStore.state(characterId).optJSONObject("socialNames")
+            ?.optString("selfNickname").orEmpty().ifBlank { character.displayName }
+    }
     val chatArchiveId = library.archiveIdFor(ModelUsage.Chat)
     val activeArchive = library.archives.firstOrNull { it.id == chatArchiveId }
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接模型"
@@ -374,7 +379,7 @@ fun QqStyleChatDetailScreen(
                             Spacer(Modifier.width(9.dp))
                             Column(Modifier.weight(1f)) {
                                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                    Text(groupChat?.let { "${it.name}（${it.members.size + 1}）" } ?: character.displayName,
+                                    Text(groupChat?.let { "${it.name}（${it.members.size + 1}）" } ?: chatNickname,
                                         modifier = Modifier.weight(1f, fill = false), fontWeight = FontWeight.SemiBold, fontSize = 17.sp,
                                         color = QqInk, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                                     if (showTypingIndicator) Text("正在输入中", modifier = Modifier.padding(start = 5.dp),
