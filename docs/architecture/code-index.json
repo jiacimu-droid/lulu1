@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T14:22:34.815803+00:00",
-  "commit": "5f01c2e6e43b84aa4d901fe295466471f0e8d95b",
-  "branch": "main",
-  "sourceFingerprint": "daebc048f84e55b1e23aa95dfab00e58963f2d39ed83bc33b643317794e2a77e",
+  "generatedAt": "2026-10-08T15:22:52.683616+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "81f735bf83fb809a529fea3a016717b7fcb08528d3dc19a383136eeac3fdc575",
   "summary": {
-    "files": 357,
-    "lines": 88037,
-    "symbols": 1243
+    "files": 358,
+    "lines": 88083,
+    "symbols": 1244
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6630,6 +6630,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
         "line": 10
+      }
+    ],
+    "han": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningTypography.kt",
+        "line": 8
       }
     ],
     "overusedIn": [
@@ -13330,7 +13336,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
       "lines": 1436,
-      "sha256": "1b835016b6881ec8c63635e53237e01b196784a8b65e58caf1d75d498990d71b",
+      "sha256": "65b127a27c98d78a1a8ac88a71c1013ce8861daf0417f96e518a1e326a9b913c",
       "symbols": [
         {
           "name": "generateNextChapter",
@@ -13385,8 +13391,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
-      "lines": 632,
-      "sha256": "49dd1bb8d622b8a6cdf9d5a3f0a432f5e4255795d7d6b757d9fd2ad0924a26a2",
+      "lines": 633,
+      "sha256": "b6ebbc7814c80376b523ffb355b4862227ca061a75c8e7fec41fb5ca5bbb65d3",
       "symbols": []
     },
     {
@@ -13684,11 +13690,22 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
       "lines": 142,
-      "sha256": "4617f7c42beffeeab1cc50f43a949ca861285fe99200a47aa0ea789f541d8197",
+      "sha256": "976e807051a3a919845b4a892ddc528b5a5867cbc17e8a43f961712f42c4c564",
       "symbols": [
         {
           "name": "parse",
           "line": 10
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningTypography.kt",
+      "lines": 27,
+      "sha256": "f965d69102f7fb3c728314ea3515d4f5e07ad059b3cc4c48107abfbff38a30ba",
+      "symbols": [
+        {
+          "name": "han",
+          "line": 8
         }
       ]
     },
@@ -14227,8 +14244,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterPlanningPayloadTest.kt",
-      "lines": 157,
-      "sha256": "01412b2ab0e9c1c6829b6c2f872e6c137565656c8f545c64c66297884c732fc2",
+      "lines": 175,
+      "sha256": "292c0b87f1ab42e6e415e1e6410216c8d79ec0ce1303e596ab24044c3ae9e62b",
       "symbols": [
         {
           "name": "TheaterPlanningPayloadTest",

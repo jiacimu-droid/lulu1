@@ -1430,6 +1430,6 @@ private fun PlotSection(title: String, content: String) {
     if (content.isBlank()) return
     Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
         Text(title, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.labelLarge)
-        Text(content, style = MaterialTheme.typography.bodyMedium, lineHeight = 22.sp)
+        Text(theaterPlanningTypography(content), style = MaterialTheme.typography.bodyMedium, lineHeight = 22.sp)
     }
 }

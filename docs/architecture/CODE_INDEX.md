@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5f01c2e6e43b84aa4d901fe295466471f0e8d95b`
-- 分支：`main`
-- 已索引文件：357
-- 已索引代码/文本行：88037
-- 已发现符号：1243
+- 基准提交：`local`
+- 分支：`local`
+- 已索引文件：358
+- 已索引代码/文本行：88083
+- 已发现符号：1244
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -290,7 +290,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt` | 1436 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt` | 838 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPanel.kt` | 415 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt` | 632 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt` | 633 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt` | 82 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyAchievementsScreenV2.kt` | 93 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyCollectionScreenV2.kt` | 211 | 0 |
@@ -311,6 +311,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt` | 57 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt` | 56 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt` | 142 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningTypography.kt` | 27 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterProseRhythm.kt` | 23 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt` | 25 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt` | 479 | 0 |
@@ -355,7 +356,7 @@
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterCanonEvidenceTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterChapterCompletionTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterContinuityPayloadTest.kt` | 66 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/study/TheaterPlanningPayloadTest.kt` | 157 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/study/TheaterPlanningPayloadTest.kt` | 175 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterProseRhythmTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt` | 32 | 1 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |

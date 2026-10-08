@@ -75,8 +75,8 @@ private val planningAliases = listOf(
 private fun planningDisplay(value: Any?): String = when (value) {
     null, JSONObject.NULL -> ""
     is JSONObject -> value.keys().asSequence().map { "$it：${planningDisplay(value.opt(it))}" }.joinToString("\n")
-    is JSONArray -> (0 until value.length()).map { planningDisplay(value.opt(it)) }.filter(String::isNotBlank).joinToString("\n")
-    else -> value.toString().trim()
+    is JSONArray -> (0 until value.length()).map { planningDisplay(value.opt(it)) }.filter(String::isNotBlank).joinToString("\n\n")
+    else -> theaterPlanningTypography(value.toString())
 }
 
 internal fun theaterPlanningText(root: JSONObject, vararg keys: String): String {

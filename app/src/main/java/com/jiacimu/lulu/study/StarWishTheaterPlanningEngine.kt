@@ -105,6 +105,7 @@ internal object StarWishTheaterPlanningEngine {
             如果已经有正文，严格以已确立的人物外貌、人物性别与身份、时间、伤势、物品状态为准；不要因生成新的视觉档案重设旧事实。
             写作语气应有层次变化，不要反复用同一比喻、同一神情、同一个人“野狗般”或另一个人“俊美”来顶替真正的描写。
             分批返回每次指定的栏目，优先可执行的场景、情绪、爽点和节奏，不以复杂程度作为质量指标。
+            栏目中的连续叙述不要按字数硬换行，不要拆开词语或让标点单独成行；需要分段时用空行，人物和阶段条目使用明确的名称或序号。
         """.trimIndent()
         // Most short-form / experience-led stories use only a few director fields.
         // Prefer one response so users do not wait for four serialized model calls.

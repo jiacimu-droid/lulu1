@@ -10,6 +10,24 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class TheaterPlanningPayloadTest {
+    @Test fun wrappedChinesePlanningReflowsWithoutSplittingWordsOrLeavingPunctuationAlone() {
+        val wrapped = "红雾感染肆虐的废土末世\n，秩序崩坏。幸存者在\n残垣断壁间苟延残\n喘。\n\n野犬般的少年把所有的温软与忠\n诚，毫无保留地献给他的庇护者\n。"
+        val expected = "红雾感染肆虐的废土末世，秩序崩坏。幸存者在残垣断壁间苟延残喘。\n\n野犬般的少年把所有的温软与忠诚，毫无保留地献给他的庇护者。"
+        assertEquals(expected, theaterPlanningTypography(wrapped))
+        assertEquals(expected, StarWishTheaterPlanningEngine.parseStoryBible(
+            JSONObject().put("worldview", wrapped).toString(), 0).worldview)
+        assertEquals(expected, theaterPlanningTypography(expected))
+    }
+
+    @Test fun planningReflowPreservesParagraphsListsCharacterLabelsAndEnglishText() {
+        val structured = "第一段完整。\n第二段完整。\n\n露洲：想留下\n女主：保持警惕\n1. 先建立信任\n2. 再共同选择\n- 身份未定\n- 关系未定\n【人物成长】\n主动选择\n\nA quiet night\nAn open door"
+        assertEquals(structured, theaterPlanningTypography(structured.replace("\n", "\r\n")))
+        val array = org.json.JSONArray().put("露洲想留下").put("女主保持警惕")
+        val parsed = StarWishTheaterPlanningEngine.parseStoryBible(JSONObject().put("cast", array).toString(), 0)
+        assertEquals("露洲想留下\n\n女主保持警惕", parsed.cast)
+        assertEquals(parsed.cast, theaterPlanningTypography(parsed.cast))
+    }
+
     @Test fun normalChineseDialogueQuotesNeverCorruptJson() {
         val body = "她说“别走”，却先关上了门。"
         val raw = "模型说明\n```json\n" + JSONObject().put("title", "夜色").put("worldview", "城市")
