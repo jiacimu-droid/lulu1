@@ -652,8 +652,19 @@ class CompanionModelGateway(
     ): ModelReply {
         val nativeClaude = isNativeClaude(connection.baseUrl)
         if (nativeClaude) {
+            // Anthropic Messages requires max_tokens. For a caller that
+            // explicitly requests no app-side cap, provide a generous budget
+            // rather than silently falling back to only 1,200 tokens.
+            val nativeClaudeOutputBudget = when {
+                connection.model.startsWith("claude-3-5", ignoreCase = true) ||
+                    connection.model.startsWith("claude-3.5", ignoreCase = true) -> 8_192
+                connection.model.startsWith("claude-3", ignoreCase = true) -> 4_096
+                connection.model.startsWith("claude-", ignoreCase = true) &&
+                    connection.model.contains("-5") -> 32_768
+                else -> 16_384
+            }
             val body = JSONObject().put("model", connection.model).put("system", system)
-                .put("max_tokens", maxTokens ?: 1200).put("stream", streamResponse)
+                .put("max_tokens", maxTokens ?: nativeClaudeOutputBudget).put("stream", streamResponse)
                 .put("messages", JSONArray().put(JSONObject().put("role", "user").put("content", user)))
             val url = "${claudeBase(connection.baseUrl)}/messages"
             val headers = mapOf("x-api-key" to connection.apiKey, "anthropic-version" to "2023-06-01")
