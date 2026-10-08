@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T11:44:23.207157+00:00",
-  "commit": "c7497870033816a05d375f97f9870b7a9fa7f39a",
+  "generatedAt": "2026-10-08T11:44:59.579495+00:00",
+  "commit": "4c53ad45f0bc418986a242487e01d854199c6fce",
   "branch": "main",
-  "sourceFingerprint": "1ecd7178a915bcd157d460fe1567ad5f59b0dbbba201343223106cb20b275ad4",
+  "sourceFingerprint": "14f6ea453d61d96017d82e350124d0939059007023a5cd3ca30469ab1338f04e",
   "summary": {
     "files": 349,
-    "lines": 86958,
+    "lines": 86963,
     "symbols": 1227
   },
   "symbolIndex": {
@@ -555,13 +555,13 @@
     "hasCached": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 169
+        "line": 174
       }
     ],
     "remove": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 171
+        "line": 176
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -7061,8 +7061,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-      "lines": 222,
-      "sha256": "57b0d8875f8b9fb69fa143f9ebd02cd6f1947026117eafe122708588597821f5",
+      "lines": 227,
+      "sha256": "fddbbbf1adbacb68590aa047f535fba8161b3614e7e5237d5d2a6cf8f0407dd4",
       "symbols": [
         {
           "name": "ChatAutoVoicePlayback",
@@ -7090,11 +7090,11 @@
         },
         {
           "name": "hasCached",
-          "line": 169
+          "line": 174
         },
         {
           "name": "remove",
-          "line": 171
+          "line": 176
         }
       ]
     },
