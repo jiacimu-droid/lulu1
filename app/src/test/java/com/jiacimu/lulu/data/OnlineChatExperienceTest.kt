@@ -14,49 +14,49 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class OnlineChatExperienceTest {
-    @Test fun eachNewBubbleResetsThreeSecondQuietWindowAndWakeDoesNotBypassIt() = runBlocking {
+    @Test fun firstBubbleStartsThreeSecondWindowAndLaterMessagesJoinWithoutReset() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
-        val role = "batch-trailing-edge"
-        OnlineChatBatchStore.cancel(context, role)
-        val first = OnlineChatBatchStore.next(context, role, true, now = 0L)
-        val second = OnlineChatBatchStore.next(context, role, true, now = 1_000L)
-        val third = OnlineChatBatchStore.next(context, role, true, now = 2_800L)
-        // The user has spoken again: do NOT start typing at the first bubble's 3s mark.
-        assertEquals(5_800L, third.dueAtMillis)
-        assertEquals(first.revision, second.revision)
-        assertEquals(first.revision, third.revision)
-        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision, now = 3_000L))
-        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision, now = 5_799L))
-        assertTrue(OnlineChatBatchStore.claim(context, role, first.revision, now = 5_800L))
-        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision, now = 5_801L))
-
-        // More messages while the old reply is generating are not swallowed.
-        val fourth = OnlineChatBatchStore.next(context, role, true, now = 6_000L)
-        val fifth = OnlineChatBatchStore.next(context, role, true, now = 7_000L)
-        val sixth = OnlineChatBatchStore.next(context, role, true, now = 8_000L)
-        assertEquals(11_000L, sixth.dueAtMillis)
-        assertEquals(fourth.revision, fifth.revision)
-        assertEquals(fourth.revision, sixth.revision)
-        OnlineChatBatchStore.finish(context, role, first.revision)
-        assertFalse(OnlineChatBatchStore.isCurrent(context, role, first.revision))
-        assertFalse(OnlineChatBatchStore.claim(context, role, sixth.revision, now = 10_999L))
-        assertTrue(OnlineChatBatchStore.claim(context, role, sixth.revision, now = 11_000L))
-        OnlineChatBatchStore.cancel(context, role)
-        assertFalse(OnlineChatBatchStore.isCurrent(context, role, sixth.revision))
-    }
-
-    @Test fun nonMessagePerceptionDoesNotMoveAnExistingQuietDeadlineEarlier() {
-        val context = RuntimeEnvironment.getApplication() as Context
-        val role = "batch-non-message"
+        val role = "batch-leading-window"
         OnlineChatBatchStore.cancel(context, role)
         val first = OnlineChatBatchStore.next(context, role, true, now = 1_000L)
-        val unrelated = OnlineChatBatchStore.next(context, role, false, now = 1_100L)
+        val second = OnlineChatBatchStore.next(context, role, true, now = 2_000L)
+        val third = OnlineChatBatchStore.next(context, role, true, now = 3_800L)
+        // Last bubble at 3.8 seconds must not restart the first bubble's deadline.
+        assertEquals(4_000L, first.dueAtMillis)
+        assertEquals(4_000L, second.dueAtMillis)
+        assertEquals(4_000L, third.dueAtMillis)
+        assertEquals(first.revision, second.revision)
+        assertEquals(first.revision, third.revision)
+        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision, now = 3_999L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, first.revision, now = 4_000L))
+        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision, now = 4_001L))
+
+        // Incoming bubbles while the model replies form the next 3-second window.
+        val fourth = OnlineChatBatchStore.next(context, role, true, now = 4_100L)
+        val fifth = OnlineChatBatchStore.next(context, role, true, now = 6_500L)
+        assertEquals(7_100L, fifth.dueAtMillis)
+        assertEquals(fourth.revision, fifth.revision)
+        OnlineChatBatchStore.finish(context, role, first.revision)
+        assertFalse(OnlineChatBatchStore.isCurrent(context, role, first.revision))
+        assertFalse(OnlineChatBatchStore.claim(context, role, fifth.revision, now = 7_099L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, fifth.revision, now = 7_100L))
+        OnlineChatBatchStore.cancel(context, role)
+    }
+
+    @Test fun wakingDuringFirstBubbleWindowNeverMovesOrBypassesDeadline() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val role = "batch-wake-first"
+        OnlineChatBatchStore.cancel(context, role)
+        val first = OnlineChatBatchStore.next(context, role, true, now = 1_000L)
+        val secondBubble = OnlineChatBatchStore.next(context, role, true, now = 1_500L)
+        val wake = OnlineChatBatchStore.next(context, role, true, now = 1_600L)
+        val unrelated = OnlineChatBatchStore.next(context, role, false, now = 1_900L)
+        assertEquals(4_000L, first.dueAtMillis)
+        assertEquals(first.dueAtMillis, secondBubble.dueAtMillis)
+        assertEquals(first.dueAtMillis, wake.dueAtMillis)
         assertEquals(first.dueAtMillis, unrelated.dueAtMillis)
-        val secondMessage = OnlineChatBatchStore.next(context, role, true, now = 2_200L)
-        assertEquals(5_200L, secondMessage.dueAtMillis)
-        // Pressing Reply/wake is also a request to give the user a quiet window.
-        val wake = OnlineChatBatchStore.next(context, role, true, now = 2_450L)
-        assertEquals(5_450L, wake.dueAtMillis)
+        assertFalse(OnlineChatBatchStore.claim(context, role, wake.revision, now = 1_900L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, wake.revision, now = 4_000L))
         OnlineChatBatchStore.cancel(context, role)
     }
 
