@@ -83,6 +83,7 @@ internal class LuluSpeechEngine(context: Context) {
         scope: CoroutineScope,
         voiceIdOverride: String? = null,
         onFinished: (() -> Unit)? = null,
+        recordingTarget: File? = null,
     ) {
         if (!prefs.getBoolean("tts_enabled", true) || text.isBlank()) {
             onFinished?.invoke()
@@ -95,17 +96,17 @@ internal class LuluSpeechEngine(context: Context) {
         val requestGeneration = ++playbackGeneration
         if (prefs.getString("tts_provider", "system") == "minimax") {
             scope.launch {
-                runCatching { minimaxStream.speak(text, voiceIdOverride ?: resolveCharacterVoiceId(text)) {
-                    if (requestGeneration == playbackGeneration) onPlaybackState?.invoke(true)
-                } }
+                runCatching { minimaxStream.speak(text, voiceIdOverride ?: resolveCharacterVoiceId(text),
+                    onAudioStarted = { if (requestGeneration == playbackGeneration) onPlaybackState?.invoke(true) },
+                    recordingTarget = recordingTarget) }
                     .onSuccess { completed -> if (requestGeneration == playbackGeneration) finishPlayback(completed) }
                     .onFailure { error -> if (requestGeneration == playbackGeneration) reportVoiceFailure(error) }
             }
         } else if (prefs.getString("tts_provider", "system") == "elevenlabs") {
             scope.launch {
-                runCatching { elevenSpeech.speak(text, voiceIdOverride ?: resolveCharacterVoiceId(text)) {
-                    if (requestGeneration == playbackGeneration) onPlaybackState?.invoke(true)
-                } }.onSuccess { complete -> if (requestGeneration == playbackGeneration) finishPlayback(complete) }
+                runCatching { elevenSpeech.speak(text, voiceIdOverride ?: resolveCharacterVoiceId(text),
+                    onStarted = { if (requestGeneration == playbackGeneration) onPlaybackState?.invoke(true) },
+                    recordingTarget = recordingTarget) }.onSuccess { complete -> if (requestGeneration == playbackGeneration) finishPlayback(complete) }
                     .onFailure { error -> if (requestGeneration == playbackGeneration) reportVoiceFailure(error) }
             }
         } else {
