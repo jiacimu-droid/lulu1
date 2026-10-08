@@ -55,6 +55,7 @@ object CharacterRuntime {
         return buildString {
             appendLine(CompanionContactClock.context(characterId))
             appendLine(CharacterLifeStore.context(characterId, includeProfile = false))
+            appendLine(CharacterInnerLifeStore.context(characterId))
             appendLine("基于真实事件逐渐形成的可变习惯与判断（不修改用户锁定的人设；新反馈优先，不代表意识已实现）：")
             learned.takeLast(16).forEach { r ->
                 appendLine("- ${r.kind} ${r.slot} v${r.version}：${r.content}；可信度=${r.confidence}；依据=${r.evidence.keys.joinToString()}")
