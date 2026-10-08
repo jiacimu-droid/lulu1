@@ -94,4 +94,15 @@ class CallContractsTest {
         assertNull(CallReplyStream.completeReplyText("{\"innerThought\":\"秘密\",\"text\":\"不得念心声\"}"))
     }
 
+    @Test fun callOpeningRunsOnceForBothCallDirectionsAndReconnectDoesNotRepeat() {
+        val opening = CallOpeningTurn()
+        assertFalse(opening.claim(""))
+        assertTrue(opening.claim("outgoing"))
+        assertFalse(opening.claim("outgoing"))
+        assertTrue(opening.claim("incoming"))
+        assertFalse(opening.claim("incoming"))
+        assertTrue(CallOpeningTurn.prompt().contains("用户还没有说话"))
+        assertTrue(CallOpeningTurn.prompt("想聊昨天那本书").contains("想聊昨天那本书"))
+    }
+
 }

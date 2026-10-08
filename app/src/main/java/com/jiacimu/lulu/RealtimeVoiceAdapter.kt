@@ -31,12 +31,15 @@ internal class RealtimeVoiceAdapter(
     private var speaking = false
     private var volumeEnabled = true
     private var microphoneMuted = false
+    private var openingWaiting = false
     private var suppressDelivery = false
     private var deliveryJob: Job? = null
+    private var openingJob: Job? = null
 
-    suspend fun start(characterId: String, conversationId: String) {
+    suspend fun start(characterId: String, conversationId: String, openingPrompt: String = CallOpeningTurn.prompt()) {
         stop()
         microphoneMuted = false
+        openingWaiting = true
         this.characterId = characterId
         this.conversationId = conversationId
         val epoch = ++generation
@@ -53,7 +56,13 @@ internal class RealtimeVoiceAdapter(
             onModeChange = { mode -> if (epoch == generation) {
                 speaking = mode == ConversationMode.SPEAKING
                 AvatarController.listening(characterId, !speaking)
-                onState(!speaking, speaking, if (speaking) "正在说话，你可以插话" else "正在听你说话")
+                if (!speaking && openingWaiting && playedAudio) {
+                    openingWaiting = false
+                    openingJob?.cancel()
+                    scope.launch { session?.setMicMuted(microphoneMuted) }
+                }
+                onState(!speaking && !openingWaiting, speaking,
+                    if (speaking) "正在说话，你可以插话" else if (openingWaiting) "正在准备开场" else "正在听你说话")
                 if (speaking) { playedAudio = false; suppressDelivery = !volumeEnabled; deliveryJob?.cancel() }
                 else if (playedAudio && volumeEnabled) {
                     // Allow correction/interruption events to arrive before committing completed speech.
@@ -113,15 +122,27 @@ internal class RealtimeVoiceAdapter(
         val connected = ConversationClient.startSession(config, context)
         if (epoch != generation) connected.endSession() else {
             session = connected
-            connected.setMicMuted(microphoneMuted)
+            connected.setMicMuted(microphoneMuted || openingWaiting)
             connected.setVolume(1f)
+            // The configured Agent has no independent first_message. Trigger the shared core once;
+            // this event is not persisted as something the user said.
+            connected.sendUserMessage(openingPrompt)
+            openingJob = scope.launch {
+                delay(30_000)
+                if (epoch == generation && openingWaiting) {
+                    openingWaiting = false
+                    connected.setMicMuted(microphoneMuted)
+                    onError("开场语音未能播放，可以重新接通电话")
+                    onState(!microphoneMuted, false, "开场语音未能播放，可以重新接通电话")
+                }
+            }
             definitionJob = scope.launch {
                 CharacterRuntime.definitionChanges(characterId).collectLatest { refreshCore(epoch) }
             }
         }
     }
 
-    fun mute(muted: Boolean) { microphoneMuted = muted; scope.launch { session?.setMicMuted(muted) } }
+    fun mute(muted: Boolean) { microphoneMuted = muted; scope.launch { session?.setMicMuted(muted || openingWaiting) } }
     fun speaker(enabled: Boolean) {
         volumeEnabled = enabled
         session?.setVolume(if (enabled) 1f else 0f)
@@ -131,11 +152,14 @@ internal class RealtimeVoiceAdapter(
         generation++
         definitionJob?.cancel()
         definitionJob = null
+        openingJob?.cancel()
+        openingJob = null
         deliveryJob?.cancel()
         deliveryEpoch = delivery.reset()
         playedAudio = false
         speaking = false
         suppressDelivery = false
+        openingWaiting = false
         if (characterId.isNotBlank()) { AvatarController.audio(characterId, 0f); AvatarController.listening(characterId, false) }
         val old = session
         session = null

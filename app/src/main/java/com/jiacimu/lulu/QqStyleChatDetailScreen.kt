@@ -357,10 +357,10 @@ fun QqStyleChatDetailScreen(
                             Column(Modifier.weight(1f)) {
                                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                     Text(groupChat?.let { "${it.name}（${it.members.size + 1}）" } ?: character.displayName,
-                                        modifier = Modifier.weight(1f), fontWeight = FontWeight.SemiBold, fontSize = 17.sp,
+                                        modifier = Modifier.weight(1f, fill = false), fontWeight = FontWeight.SemiBold, fontSize = 17.sp,
                                         color = QqInk, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                                     if (receiving) Text("正在输入中", modifier = Modifier.padding(start = 5.dp),
-                                        color = Color(0xFF2A9D63), fontSize = 11.sp, maxLines = 1)
+                                        color = Color.Black, fontSize = 14.sp, maxLines = 1)
                                 }
                                 Text(
                                     if (groupChat == null) "${if (privateOnline) "在线" else "离线"} · $activeLabel"
@@ -406,7 +406,9 @@ fun QqStyleChatDetailScreen(
                         TextButton(
                             enabled = selectedMessageIds.isNotEmpty(),
                             onClick = {
-                                visibleMessages.filter { it.id in selectedMessageIds && !it.favorite }.forEach { MigratedDomainStores.chat.toggleFavorite(it.id) }
+                                val selected = visibleMessages.filter { it.id in selectedMessageIds && !it.favorite }
+                                val failed = selected.count { !MigratedDomainStores.chat.toggleFavorite(it.id) }
+                                scope.launch { snackbar.showSnackbar(if (failed == 0) "已加入我的收藏" else "有 $failed 条消息未能保存收藏，请重试") }
                                 multiSelectMode = false
                                 selectedMessageIds = emptySet()
                             },
@@ -552,7 +554,9 @@ fun QqStyleChatDetailScreen(
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
                     QqMessageAction(Icons.Outlined.StarOutline, if (message.favorite) "取消收藏" else "收藏") {
-                        MigratedDomainStores.chat.toggleFavorite(message.id); selectedMessage = null
+                        val saved = MigratedDomainStores.chat.toggleFavorite(message.id)
+                        selectedMessage = null
+                        scope.launch { snackbar.showSnackbar(if (!saved) "收藏保存失败，请重试" else if (message.favorite) "已取消收藏" else "已加入我的收藏") }
                     }
                     QqMessageAction(Icons.Outlined.CheckBox, "多选") {
                         multiSelectMode = true; selectedMessageIds = setOf(message.id); selectedMessage = null
@@ -567,7 +571,7 @@ fun QqStyleChatDetailScreen(
                         QqMessageAction(Icons.Outlined.VolumeUp, "朗读") {
                             val replayed = ChatAutoVoicePlayback.replayCached(message.id)
                             selectedMessage = null
-                            if (!replayed) scope.launch { snackbar.showSnackbar("这条消息没有保存的语音缓存；朗读不会重新请求语音生成") }
+                            if (!replayed) scope.launch { snackbar.showSnackbar("这条消息暂时无法朗读，请检查角色语音设置") }
                         }
                     }
                 }

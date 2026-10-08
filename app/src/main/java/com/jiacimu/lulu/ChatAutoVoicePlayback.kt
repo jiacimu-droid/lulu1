@@ -4,6 +4,7 @@ import android.content.Context
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.UserMessageFavorites
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -41,6 +42,7 @@ object ChatAutoVoicePlayback {
         synchronized(this) {
             val applicationContext = context.applicationContext
             appContext = applicationContext
+            UserMessageFavorites.initialize(applicationContext)
             if (engine == null) {
                 CharacterVoicePreferenceStore.initialize(applicationContext)
                 engine = LuluSpeechEngine(applicationContext)
@@ -61,6 +63,7 @@ object ChatAutoVoicePlayback {
                                 cacheBaseFile = base,
                                 scope = scope,
                                 onFinished = {
+                                    cachedFile(request.messageId)?.let { audio -> runCatching { UserMessageFavorites.retainAudio(request.messageId, audio) } }
                                     if (continuation.isActive) continuation.resume(Unit)
                                 },
                                 voiceIdOverride = request.voiceId,
@@ -132,6 +135,18 @@ object ChatAutoVoicePlayback {
         ).isSuccess
     }
 
+    internal fun cachedFile(messageId: String): File? {
+        val base = cacheBase(messageId) ?: return null
+        return listOf(File(base.parentFile, "${base.name}.mp3"), File(base.parentFile, "${base.name}.wav"))
+            .firstOrNull { it.isFile && it.length() > 0L }
+    }
+
+    internal fun favoriteAudioBase(messageId: String): File? {
+        val context = appContext ?: return null
+        val directory = File(context.filesDir, "favorite_voice").apply { mkdirs() }
+        return File(directory, sha256(messageId))
+    }
+
     fun hasCached(messageId: String): Boolean {
         val base = cacheBase(messageId) ?: return false
         return engine?.cachedAudioFile(base) != null
@@ -166,6 +181,9 @@ object ChatAutoVoicePlayback {
     private fun pruneOldCache(context: Context) {
         val directory = File(context.filesDir, "chat_voice_cache")
         if (!directory.exists()) return
+        UserMessageFavorites.store.entries.value.forEach { entry ->
+            cachedFile(entry.messageId)?.let { audio -> runCatching { UserMessageFavorites.retainAudio(entry.messageId, audio) } }
+        }
         val files = directory.listFiles()?.filter(File::isFile).orEmpty()
         if (files.size <= MAX_CACHE_FILES) return
         files.sortedBy(File::lastModified)

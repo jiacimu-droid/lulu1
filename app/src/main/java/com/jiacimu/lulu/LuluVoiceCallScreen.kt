@@ -81,8 +81,14 @@ fun LuluVoiceCallScreen(
     }
     val visibleCallMessages = remember(callMessages) { callMessages.takeLast(12) }
 
-    LaunchedEffect(visibleCallMessages.size) {
-        if (visibleCallMessages.isNotEmpty()) listState.animateScrollToItem(visibleCallMessages.lastIndex)
+    LaunchedEffect(visibleCallMessages.lastOrNull()?.id, visibleCallMessages.lastOrNull()?.content,
+        state.generatedTranscript, state.partialTranscript) {
+        val rows = visibleCallMessages.size + (if (state.generatedTranscript.isNotBlank()) 1 else 0) +
+            (if (state.partialTranscript.isNotBlank()) 1 else 0)
+        if (rows > 0) {
+            withFrameNanos { it }
+            listState.scrollToItem(rows)
+        }
     }
     LaunchedEffect(state.phase) {
         if (state.phase == CallPhase.Ended) {
@@ -254,6 +260,7 @@ fun LuluVoiceCallScreen(
                                     if (state.partialTranscript.isNotBlank()) {
                                         item { Text("你：${state.partialTranscript}", color = CallMuted, fontSize = 13.sp) }
                                     }
+                                    item(key = "subtitle-bottom") { Spacer(Modifier.height(1.dp)) }
                                 }
                             }
                         }

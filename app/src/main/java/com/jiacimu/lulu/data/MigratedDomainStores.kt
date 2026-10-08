@@ -105,6 +105,7 @@ class InMemoryLuluChatStore : LuluChatStore {
     fun initialize(context: Context) {
         synchronized(lock) {
             if (prefs != null) return
+            UserMessageFavorites.initialize(context)
             prefs = context.applicationContext.getSharedPreferences(CHAT_PREFS, Context.MODE_PRIVATE)
             val loaded = decode(prefs?.getString(CHAT_STATE, null))
             conversationState.value = loaded.first.ifEmpty { defaultConversations() }
@@ -477,10 +478,48 @@ class InMemoryLuluChatStore : LuluChatStore {
         return changed
     }
 
-    override fun toggleFavorite(messageId: String): Boolean = mutateMessagesContaining(messageId) { messages ->
-        messages.map { message ->
-            if (message.id == messageId) message.copy(favorite = !message.favorite) else message
+    override fun toggleFavorite(messageId: String): Boolean = synchronized(lock) {
+        val conversation = conversationState.value.firstOrNull { conversation ->
+            messageStates[conversation.id]?.value?.any { it.id == messageId } == true
+        } ?: return false
+        val message = messages(conversation.id).value.firstOrNull { it.id == messageId } ?: return false
+        val saved = runCatching {
+            if (message.favorite) UserMessageFavorites.store.remove(messageId)
+            else saveUserFavorite(conversation, message)
+        }.getOrDefault(false)
+        if (!saved) return false
+        mutateMessagesContaining(messageId) { messages -> messages.map {
+            if (it.id == messageId) it.copy(favorite = !message.favorite) else it
+        } }
+    }
+
+    private fun saveUserFavorite(conversation: LuluConversation, message: LuluChatMessage): Boolean {
+        val id = message.authorCharacterId?.takeIf(String::isNotBlank) ?: conversation.characterId
+        val author = MigratedDomainStores.characters.get(id)
+        return UserMessageFavorites.store.save(message, id,
+            if (message.sender == LuluChatMessage.Sender.User) "我" else author.displayName,
+            if (message.sender == LuluChatMessage.Sender.User) null else author.avatarUri,
+            conversation.groupChat?.name ?: conversation.title,
+            com.jiacimu.lulu.ChatAutoVoicePlayback.cachedFile(message.id))
+    }
+
+    /** Upgrade existing starred messages without turning another character's lexicon into ours. */
+    fun migrateUserFavorites() {
+        synchronized(lock) {
+            conversationState.value.forEach { conversation ->
+                messages(conversation.id).value.filter { it.favorite }.forEach { message ->
+                    if (!UserMessageFavorites.store.contains(message.id)) runCatching { saveUserFavorite(conversation, message) }
+                }
+            }
         }
+    }
+
+    fun removeUserFavorite(messageId: String): Boolean = synchronized(lock) {
+        if (!UserMessageFavorites.store.remove(messageId)) return false
+        mutateMessagesContaining(messageId) { messages -> messages.map {
+            if (it.id == messageId) it.copy(favorite = false) else it
+        } }
+        true
     }
 
     private fun append(conversationId: String, message: LuluChatMessage, incrementUnread: Boolean) {
@@ -881,6 +920,7 @@ object MigratedDomainStores {
     fun initialize(context: Context) {
         chat.initialize(context)
         characters.initialize(context)
+        chat.migrateUserFavorites()
     }
 }
 

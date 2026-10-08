@@ -39,6 +39,8 @@ object CompanionPresenceStore {
     val histories: StateFlow<Map<String, List<CompanionPresenceState>>> = mutableHistories.asStateFlow()
     private var prefs: android.content.SharedPreferences? = null
 
+    private val activeCalls = mutableSetOf<String>()
+
     @Volatile
     private var selectedMessageAnchor: CompanionPresenceMessageAnchor? = null
 
@@ -48,9 +50,35 @@ object CompanionPresenceStore {
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         mutableStates.value = decode(prefs?.getString(KEY_STATES, null))
         mutableHistories.value = decodeHistory(prefs?.getString(KEY_HISTORY, null))
+        // Android cannot keep a call alive across a process restart. Repair old current state only;
+        // historical message snapshots remain exact records of their original moment.
+        mutableStates.value.keys.toList().forEach(::finishCall)
     }
 
     fun current(characterId: String): CompanionPresenceState? = states.value[characterId]
+
+    @Synchronized
+    fun beginCall(characterId: String) {
+        if (characterId.isBlank()) return
+        activeCalls += characterId
+        update(characterId, "通话中", "正在接听电话", null, null, source = "通话")
+    }
+
+    @Synchronized
+    fun finishCall(characterId: String) {
+        activeCalls -= characterId
+        val previous = mutableStates.value[characterId] ?: return
+        if (!describesOngoingCall(previous.statusText) && !describesOngoingCall(previous.gesture)) return
+        update(characterId,
+            if (describesOngoingCall(previous.statusText)) "通话已结束" else previous.statusText,
+            if (describesOngoingCall(previous.gesture)) "刚放下电话" else previous.gesture,
+            null, null, source = "通话结束")
+    }
+
+    internal fun describesOngoingCall(text: String): Boolean {
+        if (Regex("已结束|挂断|挂了|放下|结束了|想.*电话|准备.*电话").containsMatchIn(text)) return false
+        return Regex("通话中|电话中|正在.*(?:通话|电话)|(?:通话|电话).*正在|接听(?:着)?电话|打着电话|还在.*(?:电话|通话)|拿着.*(?:手机|电话).*(?:听|说)").containsMatchIn(text)
+    }
 
     /**
      * Anchors the next presence dialog to the state that existed when this concrete chat message
@@ -110,8 +138,12 @@ object CompanionPresenceStore {
         val previous = mutableStates.value[characterId]
         val next = CompanionPresenceState(
             characterId = characterId,
-            statusText = statusText.cleanPresence(120) ?: previous?.statusText.orEmpty(),
-            gesture = gesture.cleanPresence(500) ?: previous?.gesture.orEmpty(),
+            statusText = (statusText.cleanPresence(120) ?: previous?.statusText.orEmpty()).let {
+                if (characterId !in activeCalls && describesOngoingCall(it)) "通话已结束" else it
+            },
+            gesture = (gesture.cleanPresence(500) ?: previous?.gesture.orEmpty()).let {
+                if (characterId !in activeCalls && describesOngoingCall(it)) "刚放下电话" else it
+            },
             innerThought = if (innerThought == null) previous?.innerThought.orEmpty() else innerThought.cleanPresence(500).orEmpty(),
             mood = mood.cleanPresence(80) ?: previous?.mood.orEmpty(),
             updatedAt = now,

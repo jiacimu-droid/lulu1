@@ -47,6 +47,7 @@ internal fun ProactiveIncomingCallOverlay() {
             conversationId = call.conversationId,
             characterId = call.characterId,
             characterName = character.displayName,
+            incomingReason = call.reason,
         )
         LuluVoiceCallSession.dial()
         ProactiveIncomingCallStore.clear(call)

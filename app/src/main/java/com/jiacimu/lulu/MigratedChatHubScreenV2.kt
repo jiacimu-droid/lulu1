@@ -66,8 +66,14 @@ fun MigratedChatHubScreenV2(
             )
         }
     }
+    var showFavorites by rememberSaveable { mutableStateOf(false) }
     var showCreateGroup by remember { mutableStateOf(false) }
     var showCreateCharacter by remember { mutableStateOf(false) }
+
+    if (showFavorites) {
+        UserMessageFavoritesScreen(onBack = { showFavorites = false })
+        return
+    }
 
     Scaffold(
         containerColor = LuluColors.Paper,
@@ -128,7 +134,7 @@ fun MigratedChatHubScreenV2(
                 1 -> ChatHubV2Characters(onCharacterSettings, onWorldBook, onOpenConversation)
                 2 -> MomentsScreen()
                 3 -> LexiconFeatureScreenV2(onBack = {}, embedded = true)
-                else -> ChatHubV2Profile()
+                else -> ChatHubV2Profile(onFavorites = { showFavorites = true })
             }
         }
     }
@@ -429,7 +435,7 @@ private fun ChatHubV2CreateGroupDialog(
 }
 
 @Composable
-private fun ChatHubV2Profile() {
+private fun ChatHubV2Profile(onFavorites: () -> Unit) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE) }
     var avatarUri by remember { mutableStateOf(prefs.getString("avatar_uri", null)) }
@@ -445,6 +451,18 @@ private fun ChatHubV2Profile() {
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(13.dp),
     ) {
+        item(key = "favorites") {
+            Surface(onClick = onFavorites, modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
+                Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Outlined.StarOutline, null)
+                    Spacer(Modifier.width(12.dp))
+                    Text("我的收藏", modifier = Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
+                    Icon(Icons.Outlined.ChevronRight, null)
+                }
+            }
+        }
         item(key = "profile") {
             ChatHubV2Card {
                 Row(verticalAlignment = Alignment.CenterVertically) {

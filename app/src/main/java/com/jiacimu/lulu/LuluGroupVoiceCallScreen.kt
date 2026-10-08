@@ -117,9 +117,15 @@ internal fun LuluGroupVoiceCallScreen(
     // Ordinary QQ auto-read is a separate speech engine. During a group call the call queue owns
     // every spoken line, otherwise the same bubble can be read twice or overlap the phone audio.
     DisposableEffect(phase) {
-        if (phase == GroupCallPhase.Connected) ChatAutoVoicePlayback.suppressAutoPlay()
+        if (phase == GroupCallPhase.Connected) {
+            ChatAutoVoicePlayback.suppressAutoPlay()
+            group.members.forEach { com.jiacimu.lulu.data.CompanionPresenceStore.beginCall(it.characterId) }
+        }
         onDispose {
-            if (phase == GroupCallPhase.Connected) ChatAutoVoicePlayback.resumeAutoPlay()
+            if (phase == GroupCallPhase.Connected) {
+                ChatAutoVoicePlayback.resumeAutoPlay()
+                group.members.forEach { com.jiacimu.lulu.data.CompanionPresenceStore.finishCall(it.characterId) }
+            }
         }
     }
 
