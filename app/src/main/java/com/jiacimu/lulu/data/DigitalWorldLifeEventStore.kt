@@ -45,6 +45,9 @@ internal object DigitalWorldLifeEventStore {
         "courtyard_breeze", "light_rain", "mist_ribbon", "sun_patch", "rainbow_glint", "season_pixels",
     )
 
+    /** Ambient world flavor stays in the world timeline, not as an intrusive chat receipt. */
+    fun isAmbientMoment(tick: DigitalWorldLifeTick): Boolean = tick.kind in ambientMoments
+
     private val lock = Any()
     private var prefs: android.content.SharedPreferences? = null
     private var incidents: List<Incident> = emptyList()
