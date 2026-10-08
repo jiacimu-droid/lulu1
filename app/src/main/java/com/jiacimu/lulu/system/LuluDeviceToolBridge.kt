@@ -175,6 +175,10 @@ object LuluDeviceToolBridge {
             characterId, verifiedSourceId ?: "chat:${now.toEpochMilli()}:${userText.hashCode()}",
             userText, com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(plan.innerLife, plan.afterglow, userText), setOf("user"), now,
         )
+        com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
+            characterId, verifiedSourceId ?: "chat:${now.toEpochMilli()}:${userText.hashCode()}",
+            plan.innerThought, now,
+        )
         if (plan.action == "reply") {
             savePresence(characterId, plan, "聊天")
             com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, "本轮用户消息：$userText", plan.afterglow)
@@ -237,6 +241,10 @@ object LuluDeviceToolBridge {
                 com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
                     characterId, "tool-result:${now.toEpochMilli()}:${plan.tool}",
                     toolResult, com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(finalPlan.innerLife, finalPlan.afterglow, toolResult), emptySet(),
+                )
+                com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
+                    characterId, "tool-result:${now.toEpochMilli()}:${plan.tool}",
+                    finalPlan.innerThought,
                 )
             }
             result.copy(
