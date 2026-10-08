@@ -533,6 +533,7 @@ internal class StarWishTheaterGenerationWorker(
             val draftFingerprint = listOf(
                 chapterNumber.toString(),
                 chapters.lastOrNull()?.id.orEmpty(),
+                chapters.lastOrNull()?.content?.hashCode()?.toString().orEmpty(),
                 guide.hashCode().toString(),
                 theaterWorldBook.hashCode().toString(),
                 bible.promptText().hashCode().toString(),
