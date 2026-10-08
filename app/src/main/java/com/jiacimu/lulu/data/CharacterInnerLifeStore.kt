@@ -52,6 +52,51 @@ object CharacterInnerLifeStore {
         }
     }
 
+    /** Individual raw-source deletion also invalidates subjective conclusions derived from it. */
+    @Synchronized fun invalidateEvidence(eventId: String) {
+        if (eventId.isBlank()) return
+        val ids = prefs?.all?.keys.orEmpty()
+        fun backedBy(value: String): Boolean =
+            value == eventId || value.contains(":$eventId:")
+        ids.forEach { characterId ->
+            val root = snapshot(characterId)
+            var changed = false
+            val oldSeen = root.optJSONArray("seen") ?: JSONArray()
+            val seen = JSONArray()
+            for (i in 0 until oldSeen.length()) {
+                val key = oldSeen.optString(i)
+                if (backedBy(key.substringBeforeLast(":"))) changed = true else seen.put(key)
+            }
+            root.put("seen", seen)
+            listOf("emotion").forEach { key ->
+                val record = root.optJSONObject(key)
+                if (record != null && backedBy(record.optString("evidenceId"))) {
+                    root.remove(key); changed = true
+                }
+            }
+            listOf("motives", "corrections", "voice").forEach { key ->
+                val values = root.optJSONArray(key) ?: return@forEach
+                val next = JSONArray()
+                for (i in 0 until values.length()) {
+                    val entry = values.optJSONObject(i) ?: continue
+                    val linked = backedBy(entry.optString("evidenceId")) ||
+                        (key == "voice" && backedBy(entry.optString("id")))
+                    if (linked) changed = true else next.put(entry)
+                }
+                root.put(key, next)
+            }
+            val bonds = root.optJSONObject("bonds")
+            if (bonds != null) {
+                bonds.keys().asSequence().toList().forEach { target ->
+                    if (backedBy(bonds.optJSONObject(target)?.optString("evidenceId").orEmpty())) {
+                        bonds.remove(target); changed = true
+                    }
+                }
+            }
+            if (changed) save(characterId, root)
+        }
+    }
+
     /**
      * An observation must have a real event ID and source text.
      * Duplicate evidence does not repeatedly elevate feelings or relationships.
