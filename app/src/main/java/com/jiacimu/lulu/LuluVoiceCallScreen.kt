@@ -353,8 +353,7 @@ private fun CallActivityIndicator(state: LuluVoiceCallState) {
                 Modifier.width(3.dp).height(height.dp).clip(CircleShape).background(
                     when {
                         state.speaking -> Color(0xFF9A6BB5)
-                        state.thinking -> "${state.characterName} 正在回应"
-    state.listening -> CallBlue
+                        state.listening -> CallBlue
                         else -> CallMuted.copy(alpha = .55f)
                     },
                 ),
