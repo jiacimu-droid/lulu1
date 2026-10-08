@@ -18,6 +18,7 @@ internal fun encodeCommitmentTasks(values: List<CommitmentTask>): String = JSONA
             put("nextCheckAt", task.nextCheckAt?.toString() ?: JSONObject.NULL)
             put("completionCondition", task.completionCondition)
             put("steps", JSONArray(task.steps))
+            put("deliveryAction", task.deliveryAction)
             put("currentStep", task.currentStep)
             put("attemptCount", task.attemptCount)
             put("lastActionResult", task.lastActionResult)
