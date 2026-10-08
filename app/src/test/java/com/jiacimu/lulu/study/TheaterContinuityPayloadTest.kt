@@ -29,6 +29,27 @@ class TheaterContinuityPayloadTest {
         assertEquals(previous.hardFacts, next.hardFacts)
         assertFalse(next.evidenceOnly)
     }
+    @Test fun keepsTimeInjuryAndPropAnchorsWhenProviderReturnsPartialLedger() {
+        val old = StarWishStoryLedger(
+            chronology = "第0天祭坛出事，三年前发现古卷。",
+            physicalStates = "甲的舌头被拔，尚未恢复。",
+            itemTransitions = "黑玉在第1章化为飞灰。",
+            updatedThroughChapter = 2,
+        )
+        val next = parseTheaterLedger(
+            JSONObject().put("summary", "第3章有人追来。").toString(), 3, old
+        )
+        assertEquals(old.chronology, next.chronology)
+        assertEquals(old.physicalStates, next.physicalStates)
+        assertEquals(old.itemTransitions, next.itemTransitions)
+        val update = parseTheaterLedger(JSONObject()
+            .put("summary", "第4章主角入城。")
+            .put("chronology", "第0天出事，第1天来到黑市")
+            .put("physicalStates", "甲仍然失语")
+            .put("itemTransitions", "黑玉已经损毁，不可再次出现").toString(), 4, next)
+        assertEquals("甲仍然失语", update.physicalStates)
+        assertEquals("第0天出事，第1天来到黑市", update.chronology)
+    }
     @Test fun failedSummaryUsesExactSavedEvidenceAndRetainsEarlierFacts() {
         val previous = StarWishStoryLedger(summary = "旧摘要", hardFacts = "姐姐仍然在世", updatedThroughChapter = 1)
         val old = StarWishTheaterChapter(theater = "书", chapter = 1, title = "旧章", content = "不应重复追加", userInfluence = "")
