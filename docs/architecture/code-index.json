@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T08:16:08.307285+00:00",
-  "commit": "24ebbb3b65c1da295afb51853da6816d05de144b",
+  "generatedAt": "2026-10-08T08:16:37.337082+00:00",
+  "commit": "7b822d61d0d8bee129727f5c6e1fa7eb7d4b8a37",
   "branch": "main",
-  "sourceFingerprint": "02164dd366e2cbad09b4e82b4e2e421e22dead074dbf074556d1b5eb6c43793d",
+  "sourceFingerprint": "020ad7c149a900cffe45082f99958c10ff1d650de01c9f8b88224bacf9624382",
   "summary": {
-    "files": 343,
-    "lines": 86350,
-    "symbols": 1219
+    "files": 344,
+    "lines": 86400,
+    "symbols": 1220
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6780,6 +6780,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
         "line": 17
+      }
+    ],
+    "StarWishTheaterStoryExportTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/study/StarWishTheaterStoryExportTest.kt",
+        "line": 5
       }
     ],
     "TheaterChapterCompletionTest": [
@@ -13882,6 +13888,17 @@
         {
           "name": "propose",
           "line": 55
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/study/StarWishTheaterStoryExportTest.kt",
+      "lines": 50,
+      "sha256": "a6012f9449018ee1c2fab37d65d2d560d8fb1e3572e0224cb28118dbef3911b3",
+      "symbols": [
+        {
+          "name": "StarWishTheaterStoryExportTest",
+          "line": 5
         }
       ]
     },
