@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.CharacterSettings
+import com.jiacimu.lulu.data.CharacterLifeStore
 import com.jiacimu.lulu.data.ChatUnreadStore
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.CompanionOnlineStore
@@ -184,6 +185,7 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val unreadRevision by ChatUnreadStore.revision.collectAsState()
     val onlineStates by CompanionOnlineStore.states.collectAsState()
+    val lifeStates by CharacterLifeStore.states.collectAsState()
     val sorted = remember(conversations) {
         conversations.sortedWith(compareByDescending<LuluConversation> { it.pinned }.thenByDescending(LuluConversation::updatedAt))
     }
@@ -204,6 +206,10 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
         } else {
             items(sorted, key = LuluConversation::id, contentType = { "conversation" }) { conversation ->
                 val character = characters[conversation.characterId] ?: MigratedDomainStores.characters.get(conversation.characterId)
+                val nickname = remember(conversation.characterId, character.displayName, lifeStates) {
+                    CharacterLifeStore.state(conversation.characterId).optJSONObject("socialNames")
+                        ?.optString("selfNickname").orEmpty().ifBlank { character.displayName }
+                }
                 val group = conversation.groupChat
                 val onlineCount = group?.members.orEmpty().count { member ->
                     onlineStates[member.characterId]?.isOnline() == true
@@ -238,7 +244,7 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(
-                                            group?.name ?: character.displayName.ifBlank { conversation.title.ifBlank { "未命名角色" } },
+                                            group?.name ?: nickname.ifBlank { conversation.title.ifBlank { "未命名角色" } },
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 17.sp,
                                         )
