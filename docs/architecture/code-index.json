@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T18:21:34.557826+00:00",
-  "commit": "52bde29b5b476d18eb76a6a4d95c06054e07ef05",
+  "generatedAt": "2026-10-08T18:21:58.010549+00:00",
+  "commit": "d056b7793a86fda48ae92f26fbb36b1c770f48b1",
   "branch": "main",
-  "sourceFingerprint": "53617113fa5cbfdfd81bd10ba11cc1c05379317fc49e1e0910486d2c8fbf757c",
+  "sourceFingerprint": "f40b3c06b0b2228a23258c45093b7949f8904cab8b7d76a1b8eddbaa7c2c26d9",
   "summary": {
     "files": 367,
-    "lines": 89384,
+    "lines": 89397,
     "symbols": 1264
   },
   "symbolIndex": {
@@ -727,7 +727,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 298
+        "line": 311
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -913,19 +913,19 @@
     "saveVoiceSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 84
+        "line": 85
       }
     ],
     "LuluMemorySettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 285
+        "line": 298
       }
     ],
     "LuluImageSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 378
+        "line": 391
       }
     ],
     "shutdown": [
@@ -7649,8 +7649,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-      "lines": 570,
-      "sha256": "0db6d350467993c838f9583cbff18e69964dcd0dc924c008683eabc183ac485b",
+      "lines": 583,
+      "sha256": "4e164e4564b434dfed3d38db3aea5f7803027733ede2b55d69a50d9971ec97be",
       "symbols": [
         {
           "name": "LuluVoiceSettingsScreen",
@@ -7658,19 +7658,19 @@
         },
         {
           "name": "saveVoiceSettings",
-          "line": 84
+          "line": 85
         },
         {
           "name": "LuluMemorySettingsScreen",
-          "line": 285
-        },
-        {
-          "name": "save",
           "line": 298
         },
         {
+          "name": "save",
+          "line": 311
+        },
+        {
           "name": "LuluImageSettingsScreen",
-          "line": 378
+          "line": 391
         }
       ]
     },
