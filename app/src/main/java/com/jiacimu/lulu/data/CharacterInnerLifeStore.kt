@@ -170,7 +170,7 @@ object CharacterInnerLifeStore {
                 }
             }
         }
-        root.put("motives", JSONArray().apply { records.forEach(::put) })
+        root.put("motives", JSONArray().apply { records.forEach { put(it) } })
         proposal.optJSONObject("social")?.let { observation ->
             val target = observation.optString("targetId")
             val thought = observation.optString("interpretation").trim().take(180)
@@ -262,7 +262,7 @@ object CharacterInnerLifeStore {
                 }
             }
             bonds?.keys()?.asSequence()?.take(8)?.forEach { id ->
-                appendLine("· 对${if (id == "user") "用户" else "角色$id"}的当前看法：${bonds.optJSONObject(id)?.optString("interpretation")}（可被后续经历改变）")
+                appendLine("· 对${if (id == "user") "用户" else "角色$id"}的当前看法：${bonds?.optJSONObject(id)?.optString("interpretation")}（可被后续经历改变）")
             }
             if (corrections.length() > 0) {
                 val last = corrections.optJSONObject(corrections.length() - 1)
