@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T18:21:04.901301+00:00",
-  "commit": "0df26fb75b77a741973d07546964011ced8b5174",
+  "generatedAt": "2026-10-08T18:21:18.774145+00:00",
+  "commit": "9c9707af6c74e3da7817d20cbbf3e82e3861f37e",
   "branch": "main",
-  "sourceFingerprint": "cf17fd57e8320d1e768f9751070a0185f98817bb7dfe119c4c5f58920127e5c9",
+  "sourceFingerprint": "9d5979b5c4379265e9fce62583694d1871bbd751c68c6f4482ab52f38f341b1c",
   "summary": {
     "files": 367,
-    "lines": 89382,
+    "lines": 89383,
     "symbols": 1264
   },
   "symbolIndex": {
@@ -1263,7 +1263,7 @@
     "stopVisibleDialogue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
-        "line": 182
+        "line": 183
       }
     ],
     "MigratedChatHubScreenV2": [
@@ -7986,8 +7986,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
-      "lines": 196,
-      "sha256": "7e39d96f6f839d47cbed5b22dec802f3d8af821507bba6cad8971a31a914543d",
+      "lines": 197,
+      "sha256": "b62e04427fb947ecb7e9c7a3f4830c60f827e4c443e05cfcc504d3b81db135d0",
       "symbols": [
         {
           "name": "MeetingVoicePace",
@@ -8023,7 +8023,7 @@
         },
         {
           "name": "stopVisibleDialogue",
-          "line": 182
+          "line": 183
         }
       ]
     },
