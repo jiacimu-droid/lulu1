@@ -18,7 +18,7 @@ class StarWishTheaterStoryExportTest {
         val exported = StarWishTheaterStoryExport.render(
             title = "魔尊",
             chapters = chapters,
-            storyGuide = "【故事核心】旧简介",
+            storyGuide = "【世界前提】旧世界背景",
             bible = bible,
             seedIntro = "种子简介",
         )
@@ -40,6 +40,17 @@ class StarWishTheaterStoryExportTest {
         assertTrue(exported.contains("他跪在殿前。"))
         assertTrue(exported.contains("（尚未生成章节）"))
         assertFalse(exported.contains("私人的附加说明"))
+    }
+
+    @Test fun manuallyEditedStorySynopsisOverridesOlderBible() {
+        val exported = StarWishTheaterStoryExport.render(
+            title = "夜雪",
+            chapters = emptyList(),
+            storyGuide = "【故事核心】新版的故事简介。",
+            bible = StarWishStoryBible(overview = "旧的故事简介。"),
+        )
+        assertTrue(exported.contains("【故事简介】\n新版的故事简介。"))
+        assertFalse(exported.contains("旧的故事简介。"))
     }
 
     @Test fun fileNameCannotContainInvalidPathCharacters() {
