@@ -193,7 +193,7 @@ internal class LuluSpeechEngine(context: Context) {
         stop()
         lastPlaybackSucceeded = false
         val generation = ++playbackGeneration
-        val complete = elevenSpeech.speak(text, null) { onPlaybackState?.invoke(true) }
+        val complete = elevenSpeech.speak(text, null, onStarted = { onPlaybackState?.invoke(true) })
         check(generation == playbackGeneration && complete) { "试听已取消或播放未完成" }
         finishPlayback(true)
     }.onFailure { onPlaybackState?.invoke(false) }
