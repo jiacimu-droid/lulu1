@@ -508,6 +508,17 @@ private fun TheaterReaderV2(
                     Text(chapter.title, fontWeight = FontWeight.Bold, fontSize = 22.sp)
                     Spacer(Modifier.height(19.dp))
                     Text(chapter.content, fontSize = 17.sp, lineHeight = 31.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.92f))
+                    if (selectedIndex == chapters.lastIndex && !generating && !planning) {
+                        TextButton(onClick = {
+                            generationManager.enqueue(seed.title, "", repairChapterId = chapter.id)
+                                .onSuccess { message = "已开始沿着本章末尾补写；不会新建章节，退出阅读页仍会继续" }
+                                .onFailure { message = it.message ?: "无法补全这一章" }
+                        }) {
+                            Icon(Icons.Outlined.AutoStories, null, modifier = Modifier.size(17.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("这一章截断了？补全本章")
+                        }
+                    }
                     Spacer(Modifier.height(32.dp))
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     Spacer(Modifier.height(14.dp))
