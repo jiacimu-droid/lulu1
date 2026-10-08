@@ -26,6 +26,7 @@ object ChatAutoVoicePlayback {
     private data class Request(
         val characterId: String,
         val messageId: String,
+        val conversationId: String,
         val text: String,
         val voiceId: String?,
         val requireAutoPlay: Boolean,
@@ -38,6 +39,7 @@ object ChatAutoVoicePlayback {
     private var workerStarted = false
     private var autoPlaySuppressionDepth = 0
     @Volatile private var activeRequest: Request? = null
+    @Volatile private var visibleConversationId: String? = null
     private var settingsListener: android.content.SharedPreferences.OnSharedPreferenceChangeListener? = null
 
     fun initialize(context: Context) {
@@ -64,6 +66,7 @@ object ChatAutoVoicePlayback {
                 scope.launch {
                     for (request in queue) {
                         if (!AutomaticVoiceForeground.visible()) continue
+                        if (request.requireAutoPlay && visibleConversationId != request.conversationId) continue
                         if (request.requireAutoPlay && (autoPlaySuppressed() ||
                             !VoiceSynthesisPolicy.chatAutomaticAllowed(applicationContext, request.characterId))) continue
                         val speech = request.text.trim()
@@ -87,6 +90,7 @@ object ChatAutoVoicePlayback {
                                     allowGeneration = {
                                         AutomaticVoiceForeground.visible() &&
                                             (!request.requireAutoPlay ||
+                                                visibleConversationId == request.conversationId &&
                                                 (!autoPlaySuppressed() &&
                                                     VoiceSynthesisPolicy.chatAutomaticAllowed(applicationContext, request.characterId)))
                                     },
@@ -130,8 +134,20 @@ object ChatAutoVoicePlayback {
         if (activeRequest != null) engine?.stop()
     }
 
+    /** Auto-read follows the actually visible chat, not any autonomous background reply. */
+    @Synchronized fun setVisibleConversation(conversationId: String?) {
+        visibleConversationId = conversationId?.takeIf(String::isNotBlank)
+        val ongoing = activeRequest
+        if (ongoing?.requireAutoPlay == true && ongoing.conversationId != visibleConversationId) engine?.stop()
+    }
+
+    @Synchronized fun clearVisibleConversation(conversationId: String) {
+        if (visibleConversationId == conversationId) setVisibleConversation(null)
+    }
+
     /** Called after a generated character bubble is persisted. */
-    fun enqueue(characterId: String, messageId: String, text: String) {
+    fun enqueue(characterId: String, messageId: String, text: String, conversationId: String) {
+        if (conversationId.isBlank() || visibleConversationId != conversationId) return
         if (autoPlaySuppressed()) return
         if (!VoiceSynthesisPolicy.chatAutomaticAllowed(appContext ?: return, characterId)) return
         if (!AutomaticVoiceForeground.visible()) return
@@ -141,6 +157,7 @@ object ChatAutoVoicePlayback {
             Request(
                 characterId = characterId,
                 messageId = messageId,
+                conversationId = conversationId,
                 text = clean,
                 voiceId = CharacterVoicePreferenceStore.playbackVoiceId(characterId),
                 requireAutoPlay = true,
@@ -173,6 +190,7 @@ object ChatAutoVoicePlayback {
             Request(
                 characterId = characterId,
                 messageId = message.id,
+                conversationId = "", // Explicit tap works from a favorites page too.
                 text = speech,
                 voiceId = CharacterVoicePreferenceStore.playbackVoiceId(characterId),
                 requireAutoPlay = false,
