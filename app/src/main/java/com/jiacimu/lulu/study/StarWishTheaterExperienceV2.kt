@@ -869,7 +869,8 @@ private fun TheaterPlannerV2(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text("逐章规划", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                        Text(plans.size.toString() + " 章规划 · 连续点 +3章 可以先定全书章数", color = StudyDesign.muted, style = MaterialTheme.typography.bodySmall)
+                        val completedCount = plans.count { it.outline.isNotBlank() && it.outline != "待规划" }
+                        Text("已规划 $completedCount / ${plans.size} 章 · 连续点 +3章 可以先定全书章数", color = StudyDesign.muted, style = MaterialTheme.typography.bodySmall)
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         FilledTonalButton(
@@ -929,6 +930,9 @@ private fun TheaterPlannerV2(
                                 },
                                 enabled = !regenerating && !locked,
                             ) { Icon(Icons.Outlined.DeleteOutline, "删除章节规划", tint = MaterialTheme.colorScheme.error) }
+                        }
+                        if (!locked && (plan.outline.isBlank() || plan.outline == "待规划")) {
+                            Text("这一章尚缺完整规划；生成失败也不会丢掉已完成的其他章节，可以再次生成补齐。", color = StudyDesign.muted, style = MaterialTheme.typography.bodySmall)
                         }
                         OutlinedTextField(
                             value = plan.title,
