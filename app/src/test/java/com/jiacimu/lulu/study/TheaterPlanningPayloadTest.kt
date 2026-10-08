@@ -99,17 +99,16 @@ class TheaterPlanningPayloadTest {
         assertTrue(result.all { it.outline.contains("高光场面") })
     }
 
-    @Test fun threeCreativeOptionsCanBeDecodedFromOneRequest() {
-        val candidates = org.json.JSONArray().apply {
-            listOf("群雄俯首", "风雪重逢", "孤城一夜").forEach { title ->
-                put(JSONObject().put("title", title)
-                    .put("overview", "围绕这一场面的体验设计一部短篇。")
-                    .put("highlights", "场景、人物反应与情绪冲击都很具体。"))
-            }
-        }
-        val parsed = StarWishTheaterPlanningEngine.parseCandidates(candidates.toString())
-        assertEquals(3, parsed.size)
-        assertEquals(listOf("群雄俯首", "风雪重逢", "孤城一夜"), parsed.map { it.title })
+    @Test fun oneStoryProposalWorksWithoutRequiringThreeChoices() {
+        val response = JSONObject()
+            .put("title", "群雄俯首")
+            .put("overview", "三章内集中呈现主角绝对实力，不加虐恋。")
+            .put("highlights", "主角出手，众人彻底折服。")
+        val parsed = StarWishTheaterPlanningEngine.parseCandidates(response.toString())
+        assertEquals(1, parsed.size)
+        assertEquals("群雄俯首", parsed.single().title)
+        assertEquals("", parsed.single().mainLine)
+        assertEquals("", parsed.single().characterArcs)
     }
 
     @Test fun emptyAndTruncatedRepliesCannotBecomeCompletedPlanning() {
