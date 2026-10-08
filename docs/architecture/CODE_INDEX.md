@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`e2cbf65bc5ffafedf27a3b81100ecf6ea984b3ab`
+- 基准提交：`e22c28d730d65501bba88cf610cbd56073bff252`
 - 分支：`main`
 - 已索引文件：368
-- 已索引代码/文本行：89455
-- 已发现符号：1265
+- 已索引代码/文本行：89465
+- 已发现符号：1266
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -102,7 +102,7 @@
 | `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 43 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt` | 29 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt` | 103 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt` | 29 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt` | 39 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt` | 43 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 991 | 25 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt` | 73 | 2 |

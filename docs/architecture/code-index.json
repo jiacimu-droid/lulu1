@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T18:23:40.342192+00:00",
-  "commit": "e2cbf65bc5ffafedf27a3b81100ecf6ea984b3ab",
+  "generatedAt": "2026-10-08T18:25:13.728723+00:00",
+  "commit": "e22c28d730d65501bba88cf610cbd56073bff252",
   "branch": "main",
-  "sourceFingerprint": "18085820794fcc96528cc9958ef332fbcaef1eeb2ac9ec89a1d31a57cadf7f0c",
+  "sourceFingerprint": "784d2d422152affe001ba3f54f3e5e0c9be58d0b0b2a3ead3b164aef72a2d1c5",
   "summary": {
     "files": 368,
-    "lines": 89455,
-    "symbols": 1265
+    "lines": 89465,
+    "symbols": 1266
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1576,10 +1576,16 @@
         "line": 18
       }
     ],
-    "chatAutomaticAllowed": [
+    "automaticPlayable": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt",
         "line": 25
+      }
+    ],
+    "chatAutomaticAllowed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt",
+        "line": 35
       }
     ],
     "recent": [
@@ -7993,7 +7999,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
       "lines": 198,
-      "sha256": "fe3d42ba360a530747c24e9a76a720f42ae439e42e88ddb1ef7925642a64e1fd",
+      "sha256": "96c2a67b5f579bcad1dc04a0c872ab2c8d7dfcfd60e631ba0b7d24ba5b9ae5dd",
       "symbols": [
         {
           "name": "MeetingVoicePace",
@@ -8462,8 +8468,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt",
-      "lines": 29,
-      "sha256": "9163c03f90e44b5fdea2bd6702cd204e5e200fda855a1d4874c7686338b7daf2",
+      "lines": 39,
+      "sha256": "672e5d4073bb1cddc7c9ff18c069b8019e76a822381526926aa9d184d340dbe4",
       "symbols": [
         {
           "name": "enabled",
@@ -8474,8 +8480,12 @@
           "line": 18
         },
         {
-          "name": "chatAutomaticAllowed",
+          "name": "automaticPlayable",
           "line": 25
+        },
+        {
+          "name": "chatAutomaticAllowed",
+          "line": 35
         }
       ]
     },
