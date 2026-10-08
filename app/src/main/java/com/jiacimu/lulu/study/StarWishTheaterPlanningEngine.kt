@@ -234,13 +234,22 @@ internal object StarWishTheaterPlanningEngine {
                 不要混入已写完的章节、额外章节或解释。不要只输出格式模板。
             """.trimIndent()
 
-            val raw = generatePlanningText(
-                characterId = characterId,
-                facts = facts,
-                instruction = instruction,
-                title = "《" + storyTitle + "》第" + start + "-" + end + "章规划",
-                maxTokens = (batchCount * 1_100 + 1_500).coerceIn(3_200, 8_600),
-            )
+            val raw = try {
+                generatePlanningText(
+                    characterId = characterId,
+                    facts = facts,
+                    instruction = instruction,
+                    title = "《" + storyTitle + "》第" + start + "-" + end + "章规划",
+                    maxTokens = (batchCount * 1_100 + 1_500).coerceIn(3_200, 8_600),
+                )
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Throwable) {
+                // Empty provider final-content is common for some reasoning models.
+                // A shorter single-chapter request can work where the batch never does.
+                if (error.message?.contains("剧情规划模型连续3次没有返回正文") != true) throw error
+                ""
+            }
 
             val accepted = linkedMapOf<Int, StarWishChapterPlan>()
             fun usable(plan: StarWishChapterPlan): Boolean =
