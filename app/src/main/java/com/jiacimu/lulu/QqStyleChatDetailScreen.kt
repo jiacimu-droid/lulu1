@@ -79,7 +79,25 @@ fun QqStyleChatDetailScreen(
     val actualActivities by ChatGenerationActivity.activities.collectAsState()
     val activeTypists = actualActivities.values.filter { conversationId in it.conversationIds }.map { it.characterId }.distinct()
     val receiving = replyTaskState.running || activeTypists.isNotEmpty()
-    val typingCharacterId = replyTaskState.typingCharacterId ?: activeTypists.firstOrNull()
+    // A new message first gets its three seconds for the user to finish
+    // typing. Being online / a queued worker is NOT "正在输入中".
+    val lastCharacterTurn = messages.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
+    val firstPendingUserBubble = messages.drop(lastCharacterTurn + 1)
+        .firstOrNull { it.sender == LuluChatMessage.Sender.User }
+    val firstBubbleDeadline = firstPendingUserBubble?.createdAt?.toEpochMilli()
+        ?.plus(OnlineChatBatchStore.QUIET_MILLIS)
+    var firstBubbleWindowElapsed by remember(conversationId, firstPendingUserBubble?.id) {
+        mutableStateOf(firstBubbleDeadline == null || System.currentTimeMillis() >= firstBubbleDeadline)
+    }
+    LaunchedEffect(conversationId, firstPendingUserBubble?.id) {
+        firstBubbleDeadline?.let { deadline ->
+            val remaining = deadline - System.currentTimeMillis()
+            if (remaining > 0) kotlinx.coroutines.delay(remaining)
+        }
+        firstBubbleWindowElapsed = true
+    }
+    val showTypingIndicator = firstBubbleWindowElapsed &&
+        (replyTaskState.typingCharacterId != null || activeTypists.isNotEmpty())
     val conversation = conversations.firstOrNull { it.id == conversationId }
     val groupChat = conversation?.groupChat
     val characterId = conversation?.characterId ?: "lulu"
@@ -359,7 +377,7 @@ fun QqStyleChatDetailScreen(
                                     Text(groupChat?.let { "${it.name}（${it.members.size + 1}）" } ?: character.displayName,
                                         modifier = Modifier.weight(1f, fill = false), fontWeight = FontWeight.SemiBold, fontSize = 17.sp,
                                         color = QqInk, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                                    if (receiving) Text("正在输入中", modifier = Modifier.padding(start = 5.dp),
+                                    if (showTypingIndicator) Text("正在输入中", modifier = Modifier.padding(start = 5.dp),
                                         color = Color.Black, fontSize = 14.sp, maxLines = 1)
                                 }
                                 Text(
