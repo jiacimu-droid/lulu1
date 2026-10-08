@@ -73,7 +73,7 @@ internal fun LuluCallFloatingWindow(modifier: Modifier = Modifier) {
                     tint = Color(0xFF4E78AB),
                 )
                 Text(
-                    if (call.phase == CallPhase.Dialing) "正在连接" else formatCallDuration(call.elapsedSeconds),
+                    if (call.phase == CallPhase.Dialing) "正在连接" else "%02d:%02d".format(call.elapsedSeconds / 60, call.elapsedSeconds % 60),
                     fontSize = 10.sp, color = Color(0xFF6B7382),
                 )
             }
