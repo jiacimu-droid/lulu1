@@ -83,8 +83,8 @@ internal fun theaterPlanningText(root: JSONObject, vararg keys: String): String 
         .map { planningDisplay(root.opt(it)) }.firstOrNull(String::isNotBlank).orEmpty()
 }
 
-internal fun theaterPlanningSections(raw: String): JSONObject {
-    val known = planningAliases.flatten().map(::planningKey).toSet()
+internal fun theaterPlanningSections(raw: String, aliases: List<String> = planningAliases.flatten()): JSONObject {
+    val known = aliases.map(::planningKey).toSet()
     val headers = Regex("(?m)^\\s*(?:#{1,6}\\s*|【|\\*\\*)?([^\\n:：]{2,40}?)(?:】|\\*\\*)?\\s*(?:[:：]\\s*|$)")
         .findAll(raw).filter { planningKey(it.groupValues[1]) in known }.toList()
     return JSONObject().apply {

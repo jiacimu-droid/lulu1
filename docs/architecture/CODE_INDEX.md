@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f1f3dc9e6b77a44316876c63b99b2daffe4f9cbe`
+- 基准提交：`9c5006a36256f5ee6079cae1588dacd1d5068f47`
 - 分支：`main`
-- 已索引文件：327
-- 已索引代码/文本行：84944
-- 已发现符号：1187
+- 已索引文件：331
+- 已索引代码/文本行：85153
+- 已发现符号：1192
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -97,7 +97,8 @@
 | `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 43 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt` | 29 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt` | 103 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 970 | 25 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 966 | 25 |
+| `app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt` | 73 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 188 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 136 | 28 |
@@ -272,12 +273,12 @@
 | `app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt` | 249 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyPlanSeed.kt` | 72 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/SelfDirectedStudyScreens.kt` | 352 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt` | 537 | 16 |
+| `app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt` | 539 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt` | 70 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt` | 250 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishScrollPanel.kt` | 154 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt` | 1253 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt` | 703 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt` | 691 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPanel.kt` | 413 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt` | 747 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyAchievementsScreenV2.kt` | 93 | 0 |
@@ -295,6 +296,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt` | 253 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStyledDropdownCompat.kt` | 60 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 156 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt` | 50 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt` | 132 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt` | 25 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt` | 479 | 0 |
@@ -318,6 +320,7 @@
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt` | 84 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt` | 65 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 90 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 99 | 1 |
@@ -326,6 +329,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 85 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 88 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/study/TheaterContinuityPayloadTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterPlanningPayloadTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt` | 32 | 1 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |

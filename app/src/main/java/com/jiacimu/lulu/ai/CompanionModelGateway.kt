@@ -891,7 +891,7 @@ class CompanionModelGateway(
             }
 
             if (content.isEmpty() && reasoning.isEmpty() && plainResponse.isNotBlank()) {
-                return modelReplyFromJson(JSONObject(plainResponse.toString())).also { reply ->
+                return modelReplyFromJson(modelResponseObject(plainResponse.toString())).also { reply ->
                     onStreamText?.invoke(reply.text)
                 }
             }
@@ -919,11 +919,7 @@ class CompanionModelGateway(
             throw modelHttpException(status, raw)
         }
         check(raw.isNotBlank()) { "接口返回了空内容" }
-        return if (raw.trimStart().startsWith("[")) {
-            JSONObject().put("data", JSONArray(raw))
-        } else {
-            JSONObject(raw)
-        }
+        return modelResponseObject(raw)
     }
 
     private fun modelHttpException(status: Int, raw: String): ModelHttpException {

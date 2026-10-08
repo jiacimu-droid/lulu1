@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T04:23:21.147977+00:00",
-  "commit": "f1f3dc9e6b77a44316876c63b99b2daffe4f9cbe",
+  "generatedAt": "2026-10-08T04:39:02.845437+00:00",
+  "commit": "9c5006a36256f5ee6079cae1588dacd1d5068f47",
   "branch": "main",
-  "sourceFingerprint": "5ec3f8132979233b2af63c9263de192a162714dcc628df6687a8817554e253d2",
+  "sourceFingerprint": "db740905e75f633117b027334f8af5664272edd72855fcf31c764ef7f8e8d799",
   "summary": {
-    "files": 327,
-    "lines": 84944,
-    "symbols": 1187
+    "files": 331,
+    "lines": 85153,
+    "symbols": 1192
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -259,7 +259,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 962
+        "line": 958
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -483,7 +483,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 428
+        "line": 430
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -1623,7 +1623,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 421
+        "line": 423
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -1651,7 +1651,23 @@
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 952
+        "line": 948
+      }
+    ],
+    "consume": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt",
+        "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseTradeSystemV5.kt",
+        "line": 82
+      }
+    ],
+    "content": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt",
+        "line": 24
       }
     ],
     "ScopedModelSelections": [
@@ -5040,12 +5056,6 @@
         "line": 75
       }
     ],
-    "consume": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseTradeSystemV5.kt",
-        "line": 82
-      }
-    ],
     "stock": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseTradeSystemV5.kt",
@@ -6055,7 +6065,7 @@
     "promptText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 75
+        "line": 76
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt",
@@ -6065,79 +6075,79 @@
     "defaultPrompts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 137
+        "line": 138
       }
     ],
     "savePrompts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 153
+        "line": 154
       }
     ],
     "addImage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 157
+        "line": 158
       }
     ],
     "deleteImage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 161
+        "line": 162
       }
     ],
     "setGuide": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 166
+        "line": 167
       }
     ],
     "setStoryPlan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 170
+        "line": 171
       }
     ],
     "setLedger": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 179
+        "line": 180
       }
     ],
     "setBible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 183
+        "line": 184
       }
     ],
     "setTheaterWorldBookIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 187
+        "line": 188
       }
     ],
     "addChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 191
+        "line": 192
       }
     ],
     "updateChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 229
+        "line": 230
       }
     ],
     "deleteChaptersFrom": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 238
+        "line": 239
       }
     ],
     "deleteTheater": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 246
+        "line": 247
       }
     ],
     "storyGuide": [
@@ -6180,6 +6190,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
         "line": 188
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt",
+        "line": 19
       }
     ],
     "value": [
@@ -6552,6 +6566,12 @@
         "line": 16
       }
     ],
+    "ModelResponsePayloadTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt",
+        "line": 12
+      }
+    ],
     "CharacterDefinitionTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt",
@@ -6620,6 +6640,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
         "line": 17
+      }
+    ],
+    "TheaterContinuityPayloadTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterContinuityPayloadTest.kt",
+        "line": 12
       }
     ],
     "TheaterPlanningPayloadTest": [
@@ -7969,8 +7995,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 970,
-      "sha256": "25f8bb5043983244569450c0332c0ae0427022ce769b49dc39f62281365b9696",
+      "lines": 966,
+      "sha256": "4ec5999e6553aad89b72473ba7de9bcf27a1253c99fa99f237e9a3e8d2861b10",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -8066,11 +8092,26 @@
         },
         {
           "name": "LuluAiServices",
-          "line": 952
+          "line": 948
         },
         {
           "name": "initialize",
-          "line": 962
+          "line": 958
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt",
+      "lines": 73,
+      "sha256": "5328bea24de44dc70d21207b5d097a1466c4343c13b95394cbb6122f86c6cf8b",
+      "symbols": [
+        {
+          "name": "consume",
+          "line": 16
+        },
+        {
+          "name": "content",
+          "line": 24
         }
       ]
     },
@@ -12693,72 +12734,72 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-      "lines": 537,
-      "sha256": "ddaaba95925596ec05b77d198950483943c60da9d076884502aba774051f667c",
+      "lines": 539,
+      "sha256": "4cb10b858a3b856f6665a3d837f24913df3382f3a4f36332fbc512c77fba3e54",
       "symbols": [
         {
           "name": "promptText",
-          "line": 75
+          "line": 76
         },
         {
           "name": "defaultPrompts",
-          "line": 137
+          "line": 138
         },
         {
           "name": "savePrompts",
-          "line": 153
+          "line": 154
         },
         {
           "name": "addImage",
-          "line": 157
+          "line": 158
         },
         {
           "name": "deleteImage",
-          "line": 161
+          "line": 162
         },
         {
           "name": "setGuide",
-          "line": 166
+          "line": 167
         },
         {
           "name": "setStoryPlan",
-          "line": 170
+          "line": 171
         },
         {
           "name": "setLedger",
-          "line": 179
+          "line": 180
         },
         {
           "name": "setBible",
-          "line": 183
+          "line": 184
         },
         {
           "name": "setTheaterWorldBookIds",
-          "line": 187
+          "line": 188
         },
         {
           "name": "addChapter",
-          "line": 191
+          "line": 192
         },
         {
           "name": "updateChapter",
-          "line": 229
+          "line": 230
         },
         {
           "name": "deleteChaptersFrom",
-          "line": 238
+          "line": 239
         },
         {
           "name": "deleteTheater",
-          "line": 246
+          "line": 247
         },
         {
           "name": "create",
-          "line": 421
+          "line": 423
         },
         {
           "name": "initialize",
-          "line": 428
+          "line": 430
         }
       ]
     },
@@ -12850,8 +12891,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-      "lines": 703,
-      "sha256": "d5f43d62cfc275579dfdbf0778220e6180140a8660f0d52365d78f6dca154a58",
+      "lines": 691,
+      "sha256": "a776b4b06989ace3169399394d5992c8da65cc7a62511567c8bb712c2c2c28ff",
       "symbols": [
         {
           "name": "get",
@@ -13112,9 +13153,20 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt",
+      "lines": 50,
+      "sha256": "64e3710a7d1c9ab6386ff777d71f7f08df8a1616671a934b6ea0d819aef1536e",
+      "symbols": [
+        {
+          "name": "text",
+          "line": 19
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
       "lines": 132,
-      "sha256": "a1c5af78974d102ff7bf0f32f07bfc39320e23c4c65392341f8fa9dc68018d90",
+      "sha256": "d9881fd73eb69900ad4e7dcd9c1ecaa611c0ff3809b7415439e9b70d7bc51cb6",
       "symbols": [
         {
           "name": "parse",
@@ -13390,6 +13442,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt",
+      "lines": 55,
+      "sha256": "b4c3ff67ddc67f6cd9ec7c673857b27fb481e53969db678024e1412daf61d16c",
+      "symbols": [
+        {
+          "name": "ModelResponsePayloadTest",
+          "line": 12
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt",
       "lines": 65,
       "sha256": "f91ab34dd15f84151c257f8640105801a922d1118b26ed53f482abd19ef92e98",
@@ -13494,6 +13557,17 @@
         {
           "name": "propose",
           "line": 55
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterContinuityPayloadTest.kt",
+      "lines": 45,
+      "sha256": "5bc90b2ceb9961d20df512cb7bf44f5568cc6e1c5094d8aee58e216ab1b45733",
+      "symbols": [
+        {
+          "name": "TheaterContinuityPayloadTest",
+          "line": 12
         }
       ]
     },

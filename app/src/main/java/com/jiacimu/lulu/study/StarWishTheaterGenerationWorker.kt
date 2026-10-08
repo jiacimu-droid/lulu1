@@ -439,9 +439,10 @@ internal class StarWishTheaterGenerationWorker(
             }
 
             var ledger = snapshot.theaterLedgers[theater] ?: StarWishStoryLedger()
-            if (chapters.isNotEmpty() && ledger.updatedThroughChapter != chapters.size) {
-                ledger = rebuildLedger(theater, guide, plans, chapters)
-                    ?: error("连续性档案重建失败，尚未续写。请重试。")
+            if (chapters.isNotEmpty() && (ledger.updatedThroughChapter != chapters.size || ledger.evidenceOnly)) {
+                ledger = rebuildLedger(theater, guide, plans, chapters, ledger)
+                    ?: theaterLedgerFromEvidence(ledger, chapters)
+                saveProgress { store.setLedger(theater, ledger) }
             }
 
             manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, "正在准备本章规划与连续性")
@@ -545,12 +546,13 @@ internal class StarWishTheaterGenerationWorker(
             }
             // The chapter is already durable. A failed auxiliary request must not hide it or regenerate it.
             val updated = updateLedger(theater, guide, plans, ledger, chapter)
+                ?: theaterLedgerFromEvidence(ledger, listOf(chapter))
             coroutineContext.ensureActive()
             manager.commitIfCurrent(theater, requestId) {
-                if (updated != null) store.setGeneratedLedger(theater, updated, expected, chapter)
+                store.setGeneratedLedger(theater, updated, expected, chapter)
             }
             manager.mark(theater, requestId, StarWishTheaterTaskStatus.SUCCEEDED,
-                if (updated == null) "第 $chapterNumber 章已保存；连续性档案未更新，下次续写会先重建" else "第 $chapterNumber 章已生成")
+                if (updated.evidenceOnly) "第 $chapterNumber 章已保存；连续性暂用已保存正文证据" else "第 $chapterNumber 章已生成")
             Result.success()
         } catch (cancelled: CancellationException) {
             manager.mark(theater, requestId, StarWishTheaterTaskStatus.QUEUED, "任务暂时中断，等待系统继续")
@@ -627,12 +629,12 @@ internal class StarWishTheaterGenerationWorker(
             """.trimIndent(),
             source = "剧场",
             title = "$theater · 连续性档案",
-            maxTokens = 1_500,
+            maxTokens = 3_200,
             connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
             contextMode = CompanionContextMode.Isolated,
             readTimeoutMillis = 180_000,
         ).getOrThrow().text
-        parseLedger(raw, chapter.chapter)
+        parseTheaterLedger(raw, chapter.chapter, previous)
     }.getOrElse { if (it is CancellationException) throw it else null }
 
     private suspend fun rebuildLedger(
@@ -640,6 +642,7 @@ internal class StarWishTheaterGenerationWorker(
         guide: String,
         plans: List<StarWishChapterPlan>,
         chapters: List<StarWishTheaterChapter>,
+        previous: StarWishStoryLedger,
     ): StarWishStoryLedger? = runCatching {
         val selected = (chapters.take(3) + chapters.takeLast(12)).distinctBy { it.id }
         val raw = LuluAiServices.gateway.generate(
@@ -651,39 +654,24 @@ internal class StarWishTheaterGenerationWorker(
                     val relevantPlans = (plans.take(3) + plans.filter { it.number in (chapters.size - 2).coerceAtLeast(1)..(chapters.size + 8) }).distinctBy { it.id }
                     appendLine("相关逐章规划：\n${relevantPlans.joinToString("\n") { "第${it.number}章 ${it.title}：${it.outline}" }}")
                 }
+                if (previous.hardFacts.isNotBlank()) appendLine("此前已整理的硬事实（更晚正文可明确修正）：${previous.hardFacts}")
                 appendLine("保留章节摘录：")
-                selected.forEach { chapter -> appendLine("\n${chapter.title}\n${chapter.content.take(1_800)}") }
+                selected.forEach { chapter -> appendLine("\n${chapter.title}\n${chapter.content.take(1_800)}\n【本章结尾】\n${chapter.content.takeLast(1_800)}") }
             },
             instruction = """
-                重新建立这部小说截至当前章节的连续性档案。只能依据提供的故事内容，不得调用聊天、角色资料或其他世界信息。
+                重新建立这部小说截至当前章节的连续性档案。故事地图与逐章规划只是未来意图，不能把尚未发生的规划当作事实；已保存正文才是事实证据。只能依据提供的故事内容，不得调用聊天、角色资料或其他世界信息。
                 只输出JSON：{"summary":"","characters":"","worldState":"","relationships":"","openThreads":"","foreshadows":"","keyItems":"","hardFacts":"","updatedThroughChapter":${chapters.size}}
                 重点保留人物位置与状态、关系变化、已知信息、关键物品、未完明暗线和待回收伏笔。hardFacts 专门整理生死、亲属、身份、性别、婚恋、阵营、重要伤势、关键秘密知情情况、物品归属和已经发生的关键事件，后续不得无解释违背。整份控制在2200字以内。
             """.trimIndent(),
             source = "剧场",
             title = "$theater · 重建连续性档案",
-            maxTokens = 1_500,
+            maxTokens = 3_200,
             connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
             contextMode = CompanionContextMode.Isolated,
             readTimeoutMillis = 180_000,
         ).getOrThrow().text
-        parseLedger(raw, chapters.size)
+        parseTheaterLedger(raw, chapters.size, previous)
     }.getOrElse { if (it is CancellationException) throw it else null }
-
-    private fun parseLedger(raw: String, chapterNumber: Int): StarWishStoryLedger {
-        var clean = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
-        val start = clean.indexOf('{')
-        val end = clean.lastIndexOf('}')
-        if (start >= 0 && end > start) clean = clean.substring(start, end + 1)
-        val item = JSONObject(clean)
-        check(listOf("summary", "characters", "worldState").any { item.optString(it).isNotBlank() }) { "连续性档案为空" }
-        return StarWishStoryLedger(
-            summary = item.optString("summary"), characters = item.optString("characters"),
-            worldState = item.optString("worldState"), relationships = item.optString("relationships"),
-            openThreads = item.optString("openThreads"), foreshadows = item.optString("foreshadows"),
-            keyItems = item.optString("keyItems"), hardFacts = item.optString("hardFacts"),
-            updatedThroughChapter = chapterNumber,
-        )
-    }
 
     private companion object {
         const val ISOLATED_CHARACTER_ID = "__starwish_theater_isolated__"
