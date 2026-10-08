@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f0076bf6f5e957027356461949dbcc061af783dc`
+- 基准提交：`88bfbc50974ebd998e6534de35f6810adf3c6b1d`
 - 分支：`main`
 - 已索引文件：367
-- 已索引代码/文本行：89377
+- 已索引代码/文本行：89379
 - 已发现符号：1264
 
 | 文件 | 行数 | 符号数 |
@@ -49,7 +49,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 144 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 156 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 158 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 529 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 570 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 115 | 3 |

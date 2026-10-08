@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T18:20:31.527952+00:00",
-  "commit": "f0076bf6f5e957027356461949dbcc061af783dc",
+  "generatedAt": "2026-10-08T18:20:47.033306+00:00",
+  "commit": "88bfbc50974ebd998e6534de35f6810adf3c6b1d",
   "branch": "main",
-  "sourceFingerprint": "5a9dd1ccddfe7a648871560747b5c4e14ebc98dbfaa815fae435f6f92f171b47",
+  "sourceFingerprint": "bc3143bd737666f1e97ad0c2aee077193ee35e47f136415cb6d7696dc07f0da8",
   "summary": {
     "files": 367,
-    "lines": 89377,
+    "lines": 89379,
     "symbols": 1264
   },
   "symbolIndex": {
@@ -61,7 +61,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
-        "line": 22
+        "line": 23
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
@@ -895,7 +895,7 @@
     "close": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
-        "line": 60
+        "line": 61
       }
     ],
     "LexiconFeatureScreenV2": [
@@ -7623,16 +7623,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
-      "lines": 156,
-      "sha256": "f89ea823bebf6eedec87a1f27f3afa356a4d8aec95f015706d25a5ff2dbcfc27",
+      "lines": 158,
+      "sha256": "452e8c76490ef6c682256d25f1a2b69f624929e7d0e3b1938f575df858a18969",
       "symbols": [
         {
           "name": "stop",
-          "line": 22
+          "line": 23
         },
         {
           "name": "close",
-          "line": 60
+          "line": 61
         }
       ]
     },
