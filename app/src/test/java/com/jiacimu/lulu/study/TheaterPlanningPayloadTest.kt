@@ -117,6 +117,41 @@ class TheaterPlanningPayloadTest {
         assertTrue(result.all { it.outline.contains("高光场面") })
     }
 
+
+    @Test fun interruptedBatchSalvagesWholeObjectsWithoutInventingTheMissingChapter() {
+        val complete4 = JSONObject().put("number", 4).put("title", "靠近").put("outline", "他主动走近，她却先打断告白，气氛骤然变化。")
+        val complete6 = JSONObject().put("number", 6).put("title", "选择").put("outline", "终于坦诚相待，却留下新的未解问题。")
+        val interrupted = "[" + complete4.toString() + "," + complete6.toString() +
+            ",{\"number\":5,\"title\":\"还没写完\",\"outline\":\""
+        val plans = StarWishTheaterPlanningEngine.parseChapterPlans(interrupted, 4, 6)
+        assertEquals(listOf(4, 6), plans.map { it.number })
+        assertEquals("靠近", plans.first().title)
+        assertTrue(plans.last().outline.contains("坦诚"))
+    }
+
+    @Test fun markdownChaptersRecoverWithoutASecondFormattingRequest() {
+        val raw = """
+            ## 第7章：压抑的对峙
+            他不敢看她，却在她转身的瞬间伸手，眼底的情绪突然泄露。
+            ## 第8章：反过来的试探
+            她这次抢先贴近，故意轻声提起昨晚的争执，他没能维持平静。
+            ## 第9章：终于回应
+            两个人都放下各自的伪装，认真选择了下一步，而非空泛地说关系升温。
+        """.trimIndent()
+        val plans = StarWishTheaterPlanningEngine.parseChapterPlans(raw, 7, 9)
+        assertEquals(listOf(7, 8, 9), plans.map { it.number })
+        assertEquals("压抑的对峙", plans.first().title)
+        assertTrue(plans[1].outline.contains("昨晚"))
+    }
+
+    @Test fun incompletePlanShellDoesNotBecomeACompletedChapter() {
+        val raw = org.json.JSONArray().put(JSONObject().put("number", 1).put("title", "只有标题"))
+            .put(JSONObject().put("number", 2).put("title", "下一章").put("sceneBeats", "他发现了真实线索，并决定质问她。"))
+        val plans = StarWishTheaterPlanningEngine.parseChapterPlans(raw.toString(), 1, 2)
+        assertEquals(listOf(2), plans.map { it.number })
+        assertEquals("下一章", plans.single().title)
+    }
+
     @Test fun oneStoryProposalWorksWithoutRequiringThreeChoices() {
         val response = JSONObject()
             .put("title", "群雄俯首")
