@@ -232,6 +232,9 @@ class OnlineChatExperienceTest {
     }
 
     private fun initializeStores(context: Context) {
+        // Each Robolectric test owns fresh preferences; the singleton must use this app's context.
+        CompanionOnlineStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }.set(CompanionOnlineStore, null)
+        CompanionOnlineStore.javaClass.getDeclaredField("appContext").apply { isAccessible = true }.set(CompanionOnlineStore, null)
         LuluRepositories.initialize(context)
         SharedExperienceTimeline.initialize(context)
         MigratedDomainStores.initialize(context)

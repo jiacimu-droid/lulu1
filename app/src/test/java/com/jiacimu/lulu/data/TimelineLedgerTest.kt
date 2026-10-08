@@ -4,6 +4,8 @@ import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.Before
+import org.junit.After
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
@@ -13,6 +15,8 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class TimelineLedgerTest {
+    @Before fun before() { MemoryTestEnvironment.release() }
+    @After fun after() { MemoryTestEnvironment.release() }
     @Test fun migrationDedupIsolationCorrectionAndDeletionAreDurable() {
         val context = RuntimeEnvironment.getApplication() as Context
         context.openOrCreateDatabase("shared_experience_timeline.db", 0, null).use { db ->

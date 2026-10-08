@@ -82,6 +82,9 @@ android {
     testOptions {
         // WorkManager uses merged AndroidX resources even in manifest-free Robolectric tests.
         unitTests.isIncludeAndroidResources = true
+        unitTests.all {
+            it.testLogging.exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        }
     }
 
     buildFeatures {

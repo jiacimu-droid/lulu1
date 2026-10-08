@@ -11,6 +11,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.Before
+import org.junit.After
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
@@ -20,6 +22,8 @@ import java.util.concurrent.TimeUnit
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ImmediateMemoryExtractionTest {
+    @Before fun before() { MemoryTestEnvironment.release() }
+    @After fun after() { MemoryTestEnvironment.release() }
     @Test fun importantFirstMessageRetriesAndPersistsBeforeBatchThreshold() = runBlocking {
         val server = MockWebServer()
         val result = JSONArray().put(JSONObject().put("kind", "Fact").put("content", "用户要求以后不要用旧昵称称呼她")

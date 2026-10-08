@@ -6,6 +6,8 @@ import com.jiacimu.lulu.core.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.Before
+import org.junit.After
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
@@ -15,6 +17,8 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class MemoryContinuityTest {
+    @Before fun before() { MemoryTestEnvironment.release() }
+    @After fun after() { MemoryTestEnvironment.release() }
     private fun memory(id: String, content: String, source: String = "手动") = MemoryEntry(id, "role", content,
         MemoryKind.Fact, source, null, Instant.now(), 8, false, true)
 

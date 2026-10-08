@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T13:44:22.081032+00:00",
-  "commit": "4649edad37906c1c1d823651b05c9ba8b7684e0a",
-  "branch": "main",
-  "sourceFingerprint": "a1eee8270443eca289edb00e56df000ff1da1cbf8920b23c9f7fce02554073e4",
+  "generatedAt": "2026-10-08T13:58:25.515137+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "556e4acbd5c76fa5d639e3eed437b6b32a0fa19c5ab07a9aae3e7776ac0a4a1c",
   "summary": {
-    "files": 356,
-    "lines": 87903,
-    "symbols": 1240
+    "files": 357,
+    "lines": 87947,
+    "symbols": 1241
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4571,7 +4571,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-        "line": 29
+        "line": 33
       }
     ],
     "all": [
@@ -6823,7 +6823,7 @@
     "ImmediateMemoryExtractionTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt",
-        "line": 22
+        "line": 24
       }
     ],
     "MeetingLocationRenderingTest": [
@@ -6841,7 +6841,13 @@
     "MemoryContinuityTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryContinuityTest.kt",
-        "line": 17
+        "line": 19
+      }
+    ],
+    "release": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryTestEnvironment.kt",
+        "line": 9
       }
     ],
     "OnlineChatExperienceTest": [
@@ -6859,13 +6865,13 @@
     "TimelineLedgerTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-        "line": 15
+        "line": 17
       }
     ],
     "propose": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-        "line": 54
+        "line": 58
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
@@ -6936,8 +6942,8 @@
   "files": [
     {
       "path": "app/build.gradle.kts",
-      "lines": 131,
-      "sha256": "5867e38fab6c2b1b96bc4fcf48b94d97bcb16d79aeade24b04e64e7bf771d446",
+      "lines": 134,
+      "sha256": "4619e0c328fd80ec756c89300aed504ce883a549a24e7eed8b485071ee96795d",
       "symbols": []
     },
     {
@@ -14037,12 +14043,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt",
-      "lines": 55,
-      "sha256": "0ef8b5208e3d244e7c56ef5aa1ae6801d5a0d63a7922ac0e189a2fb30bc85ca8",
+      "lines": 59,
+      "sha256": "9ba88d20d9dc06627ffa33873245fe56bbe307a5f37248e3eed2b38c48abea3c",
       "symbols": [
         {
           "name": "ImmediateMemoryExtractionTest",
-          "line": 22
+          "line": 24
         }
       ]
     },
@@ -14070,19 +14076,30 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryContinuityTest.kt",
-      "lines": 82,
-      "sha256": "7870f0c868ef5f5f80f56eb3cdeda95ac6a158e981fa6851946c94a5157dcd9e",
+      "lines": 86,
+      "sha256": "408440a57fa8703976709b988249314c9c3afbb75e84accffc1c249c1b25d183",
       "symbols": [
         {
           "name": "MemoryContinuityTest",
-          "line": 17
+          "line": 19
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryTestEnvironment.kt",
+      "lines": 26,
+      "sha256": "34f16f46f7e32901e9cfcad3f47246fc80452abfb2faf575abfdf66c05611ba5",
+      "symbols": [
+        {
+          "name": "release",
+          "line": 9
         }
       ]
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-      "lines": 242,
-      "sha256": "c4a40b9594f97f530051fcd88565ae13f49a22614bad8c96fddd1524f0438854",
+      "lines": 245,
+      "sha256": "7d96818311efb01add1bbe40f949d9a34c8ea93b43700df2a1b200bf4eed56be",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
@@ -14103,20 +14120,20 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-      "lines": 85,
-      "sha256": "c73ad891fa66442a2d63b7bf4aa27910ccaf66098760e1fdba0d309014c6138a",
+      "lines": 89,
+      "sha256": "4b4c115d1d2b03ce421aed7e8f579979286be5e83522897c1862592c21062f7d",
       "symbols": [
         {
           "name": "TimelineLedgerTest",
-          "line": 15
+          "line": 17
         },
         {
           "name": "record",
-          "line": 29
+          "line": 33
         },
         {
           "name": "propose",
-          "line": 54
+          "line": 58
         }
       ]
     },
