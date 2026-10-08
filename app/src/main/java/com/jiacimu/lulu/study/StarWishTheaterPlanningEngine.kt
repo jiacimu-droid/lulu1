@@ -125,19 +125,14 @@ internal object StarWishTheaterPlanningEngine {
         val fullTemplate = JSONObject().apply {
             theaterBibleFields.keys.forEach { put(it, "") }
         }
-        val fullRaw = runCatching {
-            generatePlanningText(
-                characterId,
-                facts,
-                instruction + "\n尝试一次输出完整幕后规划，核心看点要具体；其余不适用字段直接空字符串。只返回JSON：" + fullTemplate,
-                "$storyTitle · 一次生成幕后规划",
-                5_200,
-            )
-        }.getOrElse { error ->
-            if (error is CancellationException) throw error
-            null
-        }
-        if (!fullRaw.isNullOrBlank()) {
+        val fullRaw = generatePlanningText(
+            characterId,
+            facts,
+            instruction + "\n尝试一次输出完整幕后规划，核心看点要具体；其余不适用字段直接空字符串。只返回JSON：" + fullTemplate,
+            "$storyTitle · 一次生成幕后规划",
+            5_200,
+        )
+        if (fullRaw.isNotBlank()) {
             val fullBible = runCatching { parseStoryBible(fullRaw, writtenChapters.size) }.getOrNull()
             if (fullBible != null && fullBible.overview.isNotBlank() && fullBible.highlights.isNotBlank()) {
                 onProgress?.invoke(fullBible)
