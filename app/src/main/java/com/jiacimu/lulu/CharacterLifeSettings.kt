@@ -74,9 +74,31 @@ internal fun CharacterLifeSettings(characterId: String) {
         }
         val subjectiveEmotion = innerRoot.optJSONObject("emotion")
         subjectiveEmotion?.let { feeling ->
-            Text("最近有余波的感受", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text("情绪 · 正在发生的感受", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             Text(feeling.optString("feeling"), style = MaterialTheme.typography.bodyMedium)
             Text("缘由：${feeling.optString("cause")}", style = MaterialTheme.typography.bodySmall)
+            feeling.optString("otherFeeling").takeIf(String::isNotBlank)?.let {
+                Text("同时也有：$it", style = MaterialTheme.typography.bodySmall)
+            }
+            feeling.optString("impulse").takeIf(String::isNotBlank)?.let {
+                Text("一瞬间想：$it", style = MaterialTheme.typography.bodySmall)
+            }
+            feeling.optString("restraint").takeIf(String::isNotBlank)?.let {
+                Text("克制 / 犹豫：$it", style = MaterialTheme.typography.bodySmall)
+            }
+            feeling.optString("outwardCue").takeIf(String::isNotBlank)?.let {
+                Text("表现：$it", style = MaterialTheme.typography.bodySmall)
+            }
+        }
+        innerRoot.optJSONArray("emotionHistory")?.let { history ->
+            if (history.length() > 0) {
+                Text("最近的情绪变化", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                for (i in maxOf(0, history.length() - 3) until history.length()) {
+                    val item = history.optJSONObject(i) ?: continue
+                    Text("${item.optString("feeling")} · ${item.optString("cause")}",
+                        style = MaterialTheme.typography.bodySmall)
+                }
+            }
         }
         val bonds = innerRoot.optJSONObject("bonds")
         if (bonds != null && bonds.length() > 0) {
@@ -85,6 +107,9 @@ internal fun CharacterLifeSettings(characterId: String) {
                 val opinion = bonds.optJSONObject(id) ?: return@forEach
                 val whom = if (id == "user") "对你" else "对其他角色"
                 Text("$whom：${opinion.optString("interpretation")}", style = MaterialTheme.typography.bodySmall)
+                opinion.optString("reason").takeIf(String::isNotBlank)?.let {
+                    Text("缘由：$it", style = MaterialTheme.typography.bodySmall)
+                }
             }
         }
         val corrections = innerRoot.optJSONArray("corrections")
