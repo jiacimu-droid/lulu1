@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.Duration
 import java.time.Instant
 
 /** Subjective motives are never evidence of an action or a fulfilled promise. */
@@ -50,6 +51,50 @@ object CharacterLifeStore {
         root.put("socialNames", names)
         save(characterId, root)
         return true
+    }
+
+    /**
+     * Keeps one short-lived, character-owned emotional afterglow tied to an actual observed input.
+     * The model supplies only a subjective reaction; the caller supplies the real trigger.
+     * This state is not a world event, a promise, or a completed action.
+     */
+    @Synchronized fun recordAfterglow(
+        characterId: String,
+        evidenceAnchor: String,
+        proposal: JSONObject?,
+        now: Instant = Instant.now(),
+    ) {
+        if (proposal == null) return
+        val anchor = evidenceAnchor.trim().replace(Regex("\\s+"), " ").take(180)
+        val feeling = proposal.optString("feeling").trim().take(220)
+        if (characterId.isBlank() || anchor.isBlank() || feeling.isBlank()) return
+        val impulse = proposal.optString("impulse").trim().take(180)
+        val holdHours = proposal.optInt("holdHours", 4).coerceIn(1, 48)
+        val root = state(characterId)
+        val old = root.optJSONObject("afterglow")
+        if (old?.optString("anchor") == anchor && old.optString("feeling") == feeling) return
+        root.put("afterglow", JSONObject()
+            .put("anchor", anchor).put("feeling", feeling).put("impulse", impulse)
+            .put("startedAt", now.toString())
+            .put("expiresAt", now.plusSeconds(holdHours.toLong() * 3_600).toString()))
+        save(characterId, root)
+    }
+
+    fun afterglowContext(characterId: String, now: Instant = Instant.now()): String {
+        val afterglow = state(characterId).optJSONObject("afterglow") ?: return ""
+        val started = runCatching { Instant.parse(afterglow.optString("startedAt")) }.getOrNull() ?: return ""
+        val expires = runCatching { Instant.parse(afterglow.optString("expiresAt")) }.getOrNull() ?: return ""
+        if (!now.isBefore(expires) || now.isBefore(started)) return ""
+        val elapsed = Duration.between(started, now).toMinutes().coerceAtLeast(0)
+        return buildString {
+            appendLine("【尚有余波的主观感受｜已过约${elapsed}分钟，不是新事实或行动指令】")
+            appendLine("真实触发片段：${afterglow.optString("anchor")}")
+            appendLine("当时第一反应：${afterglow.optString("feeling")}")
+            afterglow.optString("impulse").takeIf(String::isNotBlank)?.let {
+                appendLine("当时想做又未必做的事：$it")
+            }
+            appendLine("结合后来真实反馈和经过的时间决定是否仍在意；不必复述心声、重复行动或延续原来的强度。")
+        }.trim()
     }
 
     /** One-time, restart-safe preset. Later user edits must never be overwritten on launch. */
@@ -204,6 +249,7 @@ object CharacterLifeStore {
         root.remove("intention")
         root.remove("previousIntention")
         root.remove("socialNames")
+        root.remove("afterglow")
         save(characterId, root)
     }
 
@@ -246,6 +292,7 @@ object CharacterLifeStore {
                     if (nickname.isNotBlank()) appendLine("角色自己的聊天网名：$nickname（原角色身份仍不变）")
                 }
             }
+            afterglowContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
             root.optJSONObject("previousIntention")?.let { appendLine("上一件已放下的事（不代表完成）：${it.optString("aim")}；原因：${it.optString("releaseReason")}。用户结束的事不要擅自重新开启。") }
             root.optJSONObject("intention")?.let { intention ->
                 appendLine("【持续动机｜角色主观愿望，不是已完成事实或用户承诺】")
