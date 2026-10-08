@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a5d375783f6e2a0a3c54a7d9bf42ec296730cc6f`
+- 基准提交：`6b3d5219bde87aae43f4647169cf7d229d52f032`
 - 分支：`main`
 - 已索引文件：349
-- 已索引代码/文本行：86933
+- 已索引代码/文本行：86948
 - 已发现符号：1227
 
 | 文件 | 行数 | 符号数 |
@@ -51,7 +51,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 156 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 521 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 565 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 97 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 112 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 412 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 490 | 2 |
