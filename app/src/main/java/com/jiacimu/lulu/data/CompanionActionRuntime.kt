@@ -337,7 +337,7 @@ internal object CompanionActionRuntime {
         val slice = ReadingBackgroundBridge.nextSlice(context, character.characterId, readingBookId)
             ?: return CompanionActionResult(false, "没有找到指定阅读内容，或者这份内容已经读完")
         DigitalWorldActivityStateStore.endActivity(character.characterId)
-        val reflection = LuluAiServices.gateway.generate(
+        val readingResponse = LuluAiServices.gateway.generate(
             characterId = character.characterId,
             facts = buildString {
                 appendLine("程序已经让你读取阅读 App 中《${slice.book.title}》的下一段。")
@@ -346,11 +346,18 @@ internal object CompanionActionRuntime {
                 appendLine("以下是唯一实际读到的原文，不得补写不存在的内容：")
                 append(slice.text)
             },
-            instruction = "只根据提供的真实原文，写下角色本人此刻的阅读感想。不是给用户做书评，不续写，不冒充作者，不声称读到未提供的部分。用角色第一人称，1—3段，只输出感想正文。",
+            instruction = """只根据实际提供的原文，形成这个角色自己的阅读反应，不能续写或声称读过后文。
+                返回 JSON：{"reflection":"第一人称读后感，1—3段","innerThought":"此刻真实的主观想法","mood":"简短心情","intention":null}。
+                可以喜欢、失望、暂时没感觉、想继续或想停；承接原有性格和此前感受，不必每次意犹未尽。
+                如果因此产生或改变了持续愿望，intention 可使用当前角色上下文给出的动机格式；已有愿望的更新必须含 disposition=update、准确 id、aim、motive、reason，放下用 release。
+                不需要每次形成新愿望，不把书中故事当亲历。只返回 JSON，不要代码块。
+            """.trimIndent(),
             source = "角色行动·连续阅读",
             title = "${character.displayName}继续读《${slice.book.title}》",
-            maxTokens = 700,
+            maxTokens = 1_000,
         ).getOrThrow().text.trim()
+        val response = JSONObject(readingResponse.removePrefix("```json").removePrefix("```").removeSuffix("```").trim())
+        val reflection = response.optString("reflection").trim()
         require(reflection.isNotBlank()) { "阅读感想未生成，阅读进度保留" }
         val record = ReadingReflectionRecord(characterId = character.characterId, bookId = slice.book.id,
             bookTitle = slice.book.title, chapterTitle = readingSections(slice.book).firstOrNull {
@@ -366,6 +373,10 @@ internal object CompanionActionRuntime {
             }
         }.trim()
         ReadingReflectionStore.completeRead(record, slice, readingGeneration) {
+        CharacterLifeStore.consider(character.characterId, response.optJSONObject("intention"), now)
+        CompanionPresenceStore.update(character.characterId, factualReceipt, null,
+            response.optString("innerThought").takeIf(String::isNotBlank),
+            response.optString("mood").takeIf(String::isNotBlank), "阅读后的想法", now)
         SharedExperienceTimeline.record(
             eventId = record.id,
             characterId = character.characterId,

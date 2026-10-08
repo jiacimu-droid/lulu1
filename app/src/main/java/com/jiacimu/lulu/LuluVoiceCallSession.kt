@@ -57,6 +57,7 @@ internal data class LuluVoiceCallState(
     val errorMessage: String = "",
     val provider: String = "",
     val generatedTranscript: String = "",
+    val playingTranscript: String = "",
     val statusMessage: String = "",
     val elapsedSeconds: Long = 0L,
     val callStartMessageCount: Int = 0,
@@ -284,6 +285,7 @@ internal object LuluVoiceCallSession {
                 mutableState.update {
                     it.copy(
                         speaking = busy,
+                        playingTranscript = if (busy) it.playingTranscript else "",
                         opening = it.opening && (busy || it.thinking),
                         statusMessage = when {
                             busy -> "${it.characterName} 正在说话"
@@ -466,7 +468,7 @@ internal object LuluVoiceCallSession {
             fun clearWhenHeard() {
                 val complete = finalText ?: return
                 if (heard.toString().filterNot(Char::isWhitespace) == complete.filterNot(Char::isWhitespace))
-                    mutableState.update { it.copy(generatedTranscript = "") }
+                    mutableState.update { it.copy(generatedTranscript = "", playingTranscript = "") }
             }
             fun enqueueSpoken(parts: List<String>) {
                 parts.forEach { part ->
@@ -481,6 +483,9 @@ internal object LuluVoiceCallSession {
                         speakerId = latest.characterId,
                         voiceId = CharacterVoicePreferenceStore.playbackVoiceId(latest.characterId),
                         messageId = voiceMessageId,
+                        onStarted = {
+                            if (sameReply()) mutableState.update { it.copy(playingTranscript = plainSpeech) }
+                        },
                         onDelivered = {
                             if (!sameReply()) return@enqueue
                             heard.append(VoicePerformance.plain(part))
@@ -489,6 +494,7 @@ internal object LuluVoiceCallSession {
                                     voiceMessageId, plainSpeech, true)
                             }
                             clearWhenHeard()
+                            mutableState.update { it.copy(playingTranscript = "") }
                         },
                     )
                 }
@@ -523,7 +529,7 @@ internal object LuluVoiceCallSession {
                 val remaining = runCatching { stream.finish(text) }.getOrElse { error ->
                     stream.cancel()
                     speechQueue?.stop()
-                    mutableState.update { it.copy(thinking = false, opening = false, speaking = false, generatedTranscript = "",
+                    mutableState.update { it.copy(thinking = false, opening = false, speaking = false, generatedTranscript = "", playingTranscript = "",
                         statusMessage = "回复未完整生成，可以继续说话", errorMessage = error.message.orEmpty()) }
                     scheduleListening(300)
                     return@onSuccess
@@ -547,7 +553,7 @@ internal object LuluVoiceCallSession {
                         speaking = false,
                         errorMessage = "模型回复失败：${error.message?.take(160).orEmpty()}",
                         statusMessage = "已识别你的话，但回复生成失败",
-                        generatedTranscript = "",
+                        generatedTranscript = "", playingTranscript = "",
                     )
                 }
                 scheduleListening(500)
@@ -594,7 +600,7 @@ internal object LuluVoiceCallSession {
     fun retryListening() {
         if (!mutableState.value.connected || realtime != null) return
         replyGeneration++; replyJob?.cancel(); speechQueue?.stop()
-        mutableState.update { it.copy(speaking = false, thinking = false, opening = false, microphoneMuted = false, errorMessage = "", generatedTranscript = "") }
+        mutableState.update { it.copy(speaking = false, thinking = false, opening = false, microphoneMuted = false, errorMessage = "", generatedTranscript = "", playingTranscript = "") }
         audioRoute?.microphone(false)
         audioRoute?.refresh()
         if (mutableState.value.provider in setOf("minimax", "elevenlabs")) startProviderInput()

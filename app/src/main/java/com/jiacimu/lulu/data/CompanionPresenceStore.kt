@@ -58,6 +58,9 @@ object CompanionPresenceStore {
     fun current(characterId: String): CompanionPresenceState? = states.value[characterId]
 
     @Synchronized
+    fun isInCall(characterId: String): Boolean = characterId in activeCalls
+
+    @Synchronized
     fun beginCall(characterId: String) {
         if (characterId.isBlank()) return
         activeCalls += characterId

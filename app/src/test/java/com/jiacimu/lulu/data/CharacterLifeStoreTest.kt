@@ -12,6 +12,26 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterLifeStoreTest {
+    @Test fun newFeedbackCanAdjustAnIntentionWithoutLosingItsIdentityOrReceipts() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CharacterLifeStore.initialize(context)
+        val role = "evolving-intention"
+        CharacterLifeStore.consider(role, JSONObject().put("aim", "试读这本小说").put("motive", "对题材好奇"))
+        val id = CharacterLifeStore.state(role).getJSONObject("intention").getString("createdAt")
+        CharacterLifeStore.recordOutcome(role, "chapter-one", "reading", true, "真正读了第一章")
+        fun update(identity: String, reason: String) = JSONObject().put("disposition", "update").put("id", identity)
+            .put("aim", "想接着了解人物的选择").put("motive", "读完后对人物产生了兴趣").put("reason", reason)
+        CharacterLifeStore.consider(role, update("stale", "第一章带来的新理解"))
+        assertEquals("试读这本小说", CharacterLifeStore.state(role).getJSONObject("intention").getString("aim"))
+        CharacterLifeStore.consider(role, update(id, ""))
+        assertEquals("试读这本小说", CharacterLifeStore.state(role).getJSONObject("intention").getString("aim"))
+        CharacterLifeStore.consider(role, update(id, "第一章带来的新理解"))
+        val current = CharacterLifeStore.state(role).getJSONObject("intention")
+        assertEquals(id, current.getString("createdAt"))
+        assertEquals("想接着了解人物的选择", current.getString("aim"))
+        assertEquals(1, current.getJSONArray("outcomes").length())
+        assertTrue(CharacterLifeStore.context(role).contains("第一章带来的新理解"))
+    }
     @Test fun motivesPersistOutcomesDoNotFulfilPromisesAndUserCanStop() {
         val context = RuntimeEnvironment.getApplication() as Context
         CharacterLifeStore.initialize(context)

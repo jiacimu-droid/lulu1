@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,7 +19,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -42,9 +40,6 @@ private val CallInk = Color(0xFF243047)
 private val CallMuted = Color(0xFF6F7890)
 private val CallDanger = Color(0xFFEE5963)
 private val CallBlue = Color(0xFF6C91D8)
-private val CallBlueSoft = Color(0xFFDCE8FF)
-private val CallLavender = Color(0xFFE9E2FA)
-private val CallWarm = Color(0xFFFFEEE2)
 private val CallGlass = Color(0xEFFFFFFF)
 private val CallLine = Color(0xFFDDE3F0)
 
@@ -82,12 +77,11 @@ fun LuluVoiceCallScreen(
     val visibleCallMessages = remember(callMessages) { callMessages.takeLast(12) }
 
     LaunchedEffect(visibleCallMessages.lastOrNull()?.id, visibleCallMessages.lastOrNull()?.content,
-        state.generatedTranscript, state.partialTranscript) {
-        val rows = visibleCallMessages.size + (if (state.generatedTranscript.isNotBlank()) 1 else 0) +
-            (if (state.partialTranscript.isNotBlank()) 1 else 0)
+        state.partialTranscript, state.playingTranscript) {
+        val rows = visibleCallMessages.size + (if (state.partialTranscript.isNotBlank()) 1 else 0) + (if (state.playingTranscript.isNotBlank()) 1 else 0)
         if (rows > 0) {
             withFrameNanos { it }
-            listState.scrollToItem(rows)
+            listState.animateScrollToItem(rows)
         }
     }
     LaunchedEffect(state.phase) {
@@ -111,11 +105,10 @@ fun LuluVoiceCallScreen(
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        listOf(Color(0xFFF8F5FF), Color(0xFFEAF2FF), Color(0xFFFFF8F3)),
+                        listOf(Color(0xFFFAFBFC), Color(0xFFF2F4F7), Color(0xFFFAFBFC)),
                     ),
                 ),
         ) {
-            CallAmbientBackground(state)
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -138,17 +131,17 @@ fun LuluVoiceCallScreen(
                     Text("使用已保存的 Key 和角色 Voice ID", color = CallMuted, fontSize = 11.sp)
                 } else Text(CallVoiceConfiguration.label(state.provider), color = CallMuted, fontSize = 12.sp)
 
-                Spacer(Modifier.height(18.dp))
+                Spacer(Modifier.height(12.dp))
                 Box(contentAlignment = Alignment.Center) {
                     Surface(
-                        modifier = Modifier.size(138.dp),
+                        modifier = Modifier.size(106.dp),
                         shape = CircleShape,
                         color = Color.White.copy(alpha = .45f),
                         border = BorderStroke(1.dp, Color.White.copy(alpha = .86f)),
                         shadowElevation = 18.dp,
                     ) {}
                     Surface(
-                        modifier = Modifier.size(118.dp),
+                        modifier = Modifier.size(94.dp),
                         shape = RoundedCornerShape(34.dp),
                         color = Color.White,
                         border = BorderStroke(4.dp, Color.White),
@@ -157,7 +150,7 @@ fun LuluVoiceCallScreen(
                         LuluProfileAvatar(
                             imageUri = character.avatarUri,
                             fallback = state.characterName.ifBlank { characterName }.take(1).ifBlank { "露" },
-                            size = 118,
+                            size = 94,
                         )
                     }
                 }
@@ -166,7 +159,7 @@ fun LuluVoiceCallScreen(
                 Text(
                     state.characterName.ifBlank { characterName },
                     color = CallInk,
-                    fontSize = 27.sp,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Black,
                 )
                 Spacer(Modifier.height(5.dp))
@@ -180,9 +173,9 @@ fun LuluVoiceCallScreen(
                 CallActivityIndicator(state)
                 if (state.inputMeterAvailable) {
                     LinearProgressIndicator(progress = { state.inputLevel }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp))
-                    Text("麦克风输入强度", color = CallMuted, fontSize = 10.sp)
+                    
                 }
-                if (state.statusMessage.isNotBlank()) Text(state.statusMessage, color = CallMuted, fontSize = 12.sp)
+                
                 if (state.errorMessage.isNotBlank()) Text(state.errorMessage, color = CallDanger, fontSize = 12.sp)
                 if (state.connected) TextButton(onClick = { LuluVoiceCallSession.retryListening() }) { Text(if (state.speaking) "打断并重新收音" else "重新收音") }
                 Spacer(Modifier.height(16.dp))
@@ -192,7 +185,7 @@ fun LuluVoiceCallScreen(
                     contentAlignment = Alignment.Center,
                 ) {
                     Surface(
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 130.dp, max = 255.dp),
+                        modifier = Modifier.fillMaxSize(),
                         shape = RoundedCornerShape(28.dp),
                         color = CallGlass,
                         border = BorderStroke(1.dp, Color.White.copy(alpha = .9f)),
@@ -210,7 +203,7 @@ fun LuluVoiceCallScreen(
                                 if (state.connected) Text(formatCallDuration(state.elapsedSeconds), color = CallMuted, fontSize = 12.sp)
                             }
                             HorizontalDivider(color = CallLine.copy(alpha = .7f))
-                            if (callMessages.isEmpty() && state.partialTranscript.isBlank() && state.generatedTranscript.isBlank()) {
+                            if (callMessages.isEmpty() && state.partialTranscript.isBlank() && state.playingTranscript.isBlank()) {
                                 Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
                                     Text(
                                         when (state.phase) {
@@ -219,7 +212,7 @@ fun LuluVoiceCallScreen(
                                             CallPhase.Connected -> if (state.microphoneMuted) {
                                                 "麦克风已静音"
                                             } else {
-                                                state.statusMessage.ifBlank { "等你说话；识别结果会显示在这里" }
+                                                "等你说话"
                                             }
                                             else -> "通话字幕会显示在这里"
                                         },
@@ -238,7 +231,7 @@ fun LuluVoiceCallScreen(
                                 ) {
                                     items(visibleCallMessages, key = { it.id }) { message ->
                                         val mine = message.sender == LuluChatMessage.Sender.User
-                                        Column(Modifier.fillMaxWidth()) {
+                                        Column(Modifier.fillMaxWidth().animateItem()) {
                                             Text(
                                                 if (mine) "你" else state.characterName.ifBlank { characterName },
                                                 color = if (mine) CallBlue else Color(0xFF9A6BB5),
@@ -254,8 +247,13 @@ fun LuluVoiceCallScreen(
                                             )
                                         }
                                     }
-                                    if (state.generatedTranscript.isNotBlank()) {
-                                        item { Text("待播放字幕：${state.generatedTranscript}", color = CallMuted, fontSize = 13.sp) }
+                                    if (state.playingTranscript.isNotBlank()) {
+                                        item(key = "playing-line") {
+                                            Column(Modifier.fillMaxWidth().animateItem()) {
+                                                Text(state.characterName.ifBlank { characterName }, color = Color(0xFF9A6BB5), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                                Text(state.playingTranscript, color = CallInk, fontSize = 15.sp, lineHeight = 21.sp, modifier = Modifier.padding(top = 3.dp))
+                                            }
+                                        }
                                     }
                                     if (state.partialTranscript.isNotBlank()) {
                                         item { Text("你：${state.partialTranscript}", color = CallMuted, fontSize = 13.sp) }
@@ -338,20 +336,6 @@ fun LuluVoiceCallScreen(
 }
 
 @Composable
-private fun CallAmbientBackground(state: LuluVoiceCallState) {
-    val pulse by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (state.listening || state.speaking) 1f else .65f,
-        animationSpec = androidx.compose.animation.core.tween(700),
-        label = "通话氛围",
-    )
-    Canvas(Modifier.fillMaxSize()) {
-        drawCircle(CallLavender.copy(alpha = .48f), size.minDimension * .48f * pulse, Offset(size.width * .15f, size.height * .22f))
-        drawCircle(CallBlueSoft.copy(alpha = .58f), size.minDimension * .52f, Offset(size.width * .88f, size.height * .36f))
-        drawCircle(CallWarm.copy(alpha = .68f), size.minDimension * .4f, Offset(size.width * .44f, size.height * .94f))
-    }
-}
-
-@Composable
 private fun CallActivityIndicator(state: LuluVoiceCallState) {
     val active = state.listening || state.thinking || state.speaking
     Row(
@@ -369,7 +353,8 @@ private fun CallActivityIndicator(state: LuluVoiceCallState) {
                 Modifier.width(3.dp).height(height.dp).clip(CircleShape).background(
                     when {
                         state.speaking -> Color(0xFF9A6BB5)
-                        state.listening -> CallBlue
+                        state.thinking -> "${state.characterName} 正在回应"
+    state.listening -> CallBlue
                         else -> CallMuted.copy(alpha = .55f)
                     },
                 ),
@@ -452,11 +437,11 @@ private fun callStatusText(state: LuluVoiceCallState, modelConnected: Boolean): 
     state.phase == CallPhase.Ready -> state.statusMessage.ifBlank { "准备好以后拨打" }
     state.phase == CallPhase.Dialing -> "正在呼叫 ${state.characterName}…"
     state.phase == CallPhase.Ended -> "通话已结束"
-    state.microphoneMuted -> "麦克风已静音 · ${formatCallDuration(state.elapsedSeconds)}"
+    state.microphoneMuted -> "麦克风已静音"
+    state.speaking -> "${state.characterName} 正在说话"
     state.thinking -> "${state.characterName} 正在回应"
-    state.speaking -> "${state.characterName} 正在说话 · ${formatCallDuration(state.elapsedSeconds)}"
-    state.listening -> "正在听你说话 · ${formatCallDuration(state.elapsedSeconds)}"
-    state.connected -> "麦克风常开 · ${formatCallDuration(state.elapsedSeconds)}"
+    state.listening -> "正在听你说话"
+    state.connected -> "通话中"
     else -> state.statusMessage
 }
 

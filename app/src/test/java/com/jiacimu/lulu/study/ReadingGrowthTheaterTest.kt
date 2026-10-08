@@ -77,6 +77,15 @@ class ReadingGrowthTheaterTest {
         assertTrue(store.state.value.theaterChapters["回归故事"].isNullOrEmpty())
         val current = store.state.value
         store.appendGeneratedChapter(chapter, current)
+        val second = StarWishTheaterChapter(theater = "回归故事", chapter = 2, title = "后续", content = "第二章真实正文", userInfluence = "")
+        store.appendGeneratedChapter(second, store.state.value)
+        val firstBookId = "theater-chapter:${chapter.id}"
+        val secondBookId = "theater-chapter:${second.id}"
+        assertTrue(ReadingBackgroundBridge.availableBooks(context, "serial-reader").any { it.id == firstBookId })
+        assertFalse(ReadingBackgroundBridge.availableBooks(context, "serial-reader").any { it.id == secondBookId })
+        val firstChapter = ReadingBackgroundBridge.nextSlice(context, "serial-reader", firstBookId)!!
+        assertTrue(ReadingBackgroundBridge.commitSlice(context, "serial-reader", firstChapter))
+        assertTrue(ReadingBackgroundBridge.availableBooks(context, "serial-reader").any { it.id == secondBookId })
         assertTrue(runCatching { store.appendGeneratedChapter(chapter, current) }.isFailure)
         store.deleteTheater("回归故事")
         store.setGeneratedLedger("回归故事", StarWishStoryLedger(summary = "旧结果", updatedThroughChapter = 1), current, chapter)

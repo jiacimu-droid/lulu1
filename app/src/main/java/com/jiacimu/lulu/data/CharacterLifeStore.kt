@@ -137,6 +137,16 @@ object CharacterLifeStore {
                 root.remove("intention")
                 save(characterId, root)
             }
+            if (proposal.optString("disposition") == "update" &&
+                proposal.optString("id") == existing.optString("createdAt") && proposal.optString("reason").isNotBlank()) {
+                val aim = proposal.optString("aim").trim().take(300)
+                val motive = proposal.optString("motive").trim().take(300)
+                if (aim.isNotBlank() && motive.isNotBlank()) {
+                    existing.put("aim", aim).put("motive", motive)
+                        .put("updatedAt", now.toString()).put("changeReason", proposal.optString("reason").take(300))
+                    save(characterId, root)
+                }
+            }
             return
         }
         val aim = proposal.optString("aim").trim().take(300)
@@ -213,6 +223,7 @@ object CharacterLifeStore {
             root.optJSONObject("intention")?.let { intention ->
                 appendLine("【持续动机｜角色主观愿望，不是已完成事实或用户承诺】")
                 appendLine("从${intention.optString("createdAt")}开始在意：${intention.optString("aim")}；动机：${intention.optString("motive")}")
+                appendLine("最近调整：${intention.optString("updatedAt", intention.optString("createdAt"))}；依据：${intention.optString("changeReason")}。")
                 appendLine("动机ID=${intention.optString("createdAt")}。近期实际动作回执（不自动认定每个动作都推进这个愿望）：${intention.optJSONArray("outcomes") ?: JSONArray()}")
                 appendLine("结合真实结果决定接着做、换办法、等待或保持安静。成功回执只证明该动作，不证明长期愿望已经实现；发送关心不等于用户接受，日记不等于现实经历。")
             }

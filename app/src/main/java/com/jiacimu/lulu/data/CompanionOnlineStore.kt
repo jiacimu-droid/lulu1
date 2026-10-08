@@ -47,8 +47,7 @@ data class CompanionUnreadSnapshot(
  * character is online, new relevant chat events schedule an independent perception for that role.
  * User Moments are perceived through MomentsStore by the same online-state predicate.
  *
- * A successful private life action may also schedule exactly one continuation perception in the
- * same wake. This lets "go somewhere" naturally become "do something there" or lets a finished
+ * A fixed five-minute wake pulse offers further choices without recursively extending itself. This lets "go somewhere" naturally become "do something there" or lets a finished
  * reading/game become a fresh decision about sharing, journaling or another activity without
  * turning one wake into an unbounded model-call loop.
  */
@@ -56,11 +55,10 @@ object CompanionOnlineStore {
     private const val PREFS_NAME = "lulu_companion_online_v1"
     private const val KEY_STATES = "states"
     private const val KEY_GROUP_FOCUS = "group_focus"
-    private const val MAX_LIFE_CONTINUATIONS_PER_WAKE = 1
     private val onlineDuration: Duration = Duration.ofMinutes(5)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val expiryJobs = mutableMapOf<String, Job>()
-    private val lifeContinuationCounts = mutableMapOf<String, Int>()
+    private val lifePulseJobs = mutableMapOf<String, Job>()
     private val lock = Any()
     private var appContext: Context? = null
     private var prefs: android.content.SharedPreferences? = null
@@ -87,6 +85,7 @@ object CompanionOnlineStore {
                 )
             }
             mutableStates.value = loaded
+            loaded.values.filter { it.isOnline(now) }.forEach { scheduleLifePulseLocked(it.characterId, it.onlineUntil) }
             groupFocusUntil = decodeGroupFocus(prefs?.getString(KEY_GROUP_FOCUS, null))
                 .filterValues { it.isAfter(now) }
             persistLocked()
@@ -112,7 +111,7 @@ object CompanionOnlineStore {
                 reason = reason,
             )
             mutableStates.value = mutableStates.value + (characterId to state)
-            lifeContinuationCounts[characterId] = 0
+            scheduleLifePulseLocked(characterId, state.onlineUntil)
             persistLocked()
             scheduleExpiryLocked(characterId)
         }
@@ -151,7 +150,7 @@ object CompanionOnlineStore {
                     reason = CompanionOnlineReason.GroupWake,
                 )
                 mutableStates.value = mutableStates.value + (characterId to state)
-                lifeContinuationCounts[characterId] = 0
+                scheduleLifePulseLocked(characterId, state.onlineUntil)
                 scheduleExpiryLocked(characterId)
             }
             persistLocked()
@@ -184,32 +183,9 @@ object CompanionOnlineStore {
             }
         }
 
-        // Private activity receipts are written only after a real executor succeeded. During the
-        // same five-minute wake, allow one fresh autonomous decision after such a life action.
-        // The counter is reset only by a new wake, so an action produced by the continuation cannot
-        // recursively create another continuation and run the model indefinitely.
-        if (message.sender == LuluChatMessage.Sender.System) {
-            if (conversation.groupChat != null || !message.content.startsWith("[共同活动]")) return
-            val characterId = conversation.characterId
-            recordActivity(characterId, now)
-            val shouldContinue = synchronized(lock) {
-                if (!isOnline(characterId, now)) return@synchronized false
-                val used = lifeContinuationCounts[characterId] ?: 0
-                if (used >= MAX_LIFE_CONTINUATIONS_PER_WAKE) return@synchronized false
-                lifeContinuationCounts[characterId] = used + 1
-                true
-            }
-            if (shouldContinue) {
-                appContext?.let {
-                    ProactivePerceptionScheduler.scheduleOnline(
-                        it,
-                        characterId,
-                        "自主生活延续：刚完成一件真实活动，重新感知此刻再决定是否继续、分享或休息",
-                    )
-                }
-            }
-            return
-        }
+        // Life receipts do not renew the autonomous window or recursively enqueue another model.
+        // A bounded wake pulse lets the role reconsider after an activity, including choosing silence.
+        if (message.sender == LuluChatMessage.Sender.System) return
 
         if (message.sender == LuluChatMessage.Sender.Character) {
             recordActivity(message.authorCharacterId ?: conversation.characterId, now)
@@ -317,7 +293,7 @@ object CompanionOnlineStore {
         if (characterId.isBlank()) return
         synchronized(lock) {
             expiryJobs.remove(characterId)?.cancel()
-            lifeContinuationCounts.remove(characterId)
+            lifePulseJobs.remove(characterId)?.cancel()
             mutableStates.value = mutableStates.value + (
                 characterId to CompanionOnlineState(
                     characterId = characterId,
@@ -328,6 +304,25 @@ object CompanionOnlineStore {
                 )
             )
             persistLocked()
+        }
+    }
+
+    /** A fixed wake window: autonomous actions cannot keep their own pulse alive indefinitely. */
+    private fun scheduleLifePulseLocked(characterId: String, until: Instant) {
+        lifePulseJobs.remove(characterId)?.cancel()
+        val context = appContext ?: return
+        lifePulseJobs[characterId] = scope.launch {
+            while (true) {
+                delay(60_000L)
+                if (!until.isAfter(Instant.now()) || !isOnline(characterId)) break
+                if (CompanionPresenceStore.isInCall(characterId) ||
+                    MigratedDomainStores.chat.conversations.value.any {
+                        it.characterId == characterId && ChatGenerationActivity.isRunning(it.id)
+                    }) continue
+                // A user-message batch keeps its first-bubble deadline; the scheduler never bypasses it.
+                ProactivePerceptionScheduler.scheduleOnline(context, characterId,
+                    "在线生活继续：承接刚才的想法和真实结果，自主选择继续、换事做或安静待着")
+            }
         }
     }
 
@@ -343,7 +338,7 @@ object CompanionOnlineStore {
                     mutableStates.value = mutableStates.value + (
                         characterId to current.copy(onlineUntil = Instant.now().minusMillis(1L))
                     )
-                    lifeContinuationCounts.remove(characterId)
+                    lifePulseJobs.remove(characterId)?.cancel()
                     persistLocked()
                     expiryJobs.remove(characterId)
                 }

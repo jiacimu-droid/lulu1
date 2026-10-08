@@ -17,6 +17,8 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 @Composable
 internal fun CharacterLifeSettings(characterId: String) {
     val states by CharacterLifeStore.states.collectAsState()
+    val presenceStates by com.jiacimu.lulu.data.CompanionPresenceStore.states.collectAsState()
+    val presence = presenceStates[characterId]
     val growthRevision by com.jiacimu.lulu.data.CharacterDevelopmentStore.revisions.collectAsState()
     val interests = remember(characterId, growthRevision, states) {
         com.jiacimu.lulu.data.CharacterDevelopmentStore.active(characterId).filter {
@@ -30,6 +32,17 @@ internal fun CharacterLifeSettings(characterId: String) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("人格与行为", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
         Text("原有角色设定是基础。这里只补充你确定的部分；经历、当前心情与后来形成的习惯由角色运行记录。", style = MaterialTheme.typography.bodySmall)
+        Text("此刻", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        presence?.let { moment ->
+            if (moment.mood.isNotBlank()) Text(moment.mood, style = MaterialTheme.typography.bodyMedium)
+            Text(moment.innerThought.ifBlank { "这一刻没有留下心声" }, style = MaterialTheme.typography.bodyMedium)
+            if (moment.statusText.isNotBlank()) Text(moment.statusText, style = MaterialTheme.typography.bodySmall)
+        } ?: Text("还没有留下这一刻的想法", style = MaterialTheme.typography.bodySmall)
+        if (interests.isNotEmpty()) {
+            Text("经历中形成的兴趣", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            interests.forEach { Text(it.content, style = MaterialTheme.typography.bodyMedium) }
+        }
+        HorizontalDivider()
         if (name in setOf("江渡", "江都")) OutlinedButton(onClick = { preset = true }) { Text("填入江渡设定") }
         CharacterProfileSchema.fields.groupBy { it.group }.forEach { (group, fields) ->
             Text(group, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
@@ -47,6 +60,9 @@ internal fun CharacterLifeSettings(characterId: String) {
         root.optJSONObject("intention")?.let { intention ->
             Text("正在在意的事", fontWeight = FontWeight.Bold)
             Text(intention.optString("aim")); Text(intention.optString("motive"))
+            intention.optString("changeReason").takeIf(String::isNotBlank)?.let {
+                Text("最近的变化 · $it", style = MaterialTheme.typography.bodySmall)
+            }
             val outcomes = intention.optJSONArray("outcomes")
             if (outcomes != null) for (i in maxOf(0, outcomes.length() - 3) until outcomes.length()) {
                 val outcome = outcomes.getJSONObject(i)

@@ -246,6 +246,7 @@ object ProactivePerceptionRuntime {
     private suspend fun evaluateCharacter(appContext: Context, conversation: LuluConversation, trigger: String, now: Instant): Action {
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val unread = CompanionOnlineStore.unreadChatSnapshot(characterId)
+        if (unread.text.isBlank()) return evaluateCharacterWithActivity(appContext, conversation, trigger, now)
         return ChatGenerationActivity.during(characterId, unread.conversationIds + conversation.id) {
             try {
                 evaluateCharacterWithActivity(appContext, conversation, trigger, now)
@@ -326,7 +327,12 @@ object ProactivePerceptionRuntime {
             .joinToString("\n") { "- ${it.title}：${it.content.take(400)}" }
         val previousPresence = CompanionPresenceStore.current(characterId)
         val deviceContext = buildRealWorldContext(appContext, characterId, now)
-        val readingBooks = ReadingBackgroundBridge.availableBooks(appContext, characterId).take(24)
+        com.jiacimu.lulu.study.ReadingReflectionStore.initialize(appContext)
+        val lastReading = com.jiacimu.lulu.study.ReadingReflectionStore.records.value
+            .filter { it.characterId == characterId }.maxByOrNull { it.occurredAt }
+        val readingBooks = ReadingBackgroundBridge.availableBooks(appContext, characterId)
+            .sortedByDescending { book -> book.id == lastReading?.bookId ||
+                (book.seriesId.isNotBlank() && lastReading?.bookTitle?.startsWith("《${book.seriesId}》") == true) }
 
         val result = LuluAiServices.gateway.generate(
             characterId = characterId,
@@ -363,8 +369,10 @@ object ProactivePerceptionRuntime {
                     appendLine(onlineUnread.text.takeLast(5_000))
                 }
                 appendLine("\n【长期上下文层】")
+                lastReading?.let { appendLine("最近真正读过《${it.bookTitle}》${it.chapterTitle}，停在字符${it.endOffset}；当时感想：${it.reflection.take(1_200)}。是否继续由此刻愿望决定；尚未读到的情节未知。") }
                 previousPresence?.let {
                     appendLine("上一刻：${it.statusText}；${it.gesture}；${it.mood}；心声=${it.innerThought}")
+                    appendLine("上次实际感知结果：${it.lastPerceptionNote}")
                 }
                 if (recentLifeContext.isNotBlank()) {
                     appendLine("【角色最近自己的生活记录｜旧→新】")
@@ -413,7 +421,10 @@ object ProactivePerceptionRuntime {
         // Execute first. Unvalidated model status/gesture must never become a world fact.
         val execution = performAction(appContext, character, decision, availableGroups, now)
         currentCoroutineContext().ensureActive()
-        if (execution.success || decision.action == Action.SILENT) {
+        val newReading = com.jiacimu.lulu.study.ReadingReflectionStore.records.value
+            .filter { it.characterId == characterId }.maxByOrNull { it.occurredAt }
+        val readingUpdatedPresence = execution.success && newReading != null && newReading.id != lastReading?.id
+        if (!readingUpdatedPresence && (execution.success || decision.action == Action.SILENT)) {
             val physicalAction = decision.action in setOf(Action.DIGITAL_WORLD, Action.READING, Action.SOLO_GAME)
             CompanionPresenceStore.update(
                 characterId = characterId,

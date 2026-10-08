@@ -26,6 +26,7 @@ internal class LuluCallSpeechQueue(
         val voiceId: String?,
         val messageId: String?,
         val onDelivered: (() -> Unit)?,
+        val onStarted: (() -> Unit)?,
     )
 
     private val appContext = context.applicationContext
@@ -42,10 +43,11 @@ internal class LuluCallSpeechQueue(
         voiceId: String? = null,
         onDelivered: (() -> Unit)? = null,
         messageId: String? = null,
+        onStarted: (() -> Unit)? = null,
     ) {
         val speech = VoicePerformance.forPlayback(appContext, text)
         if (speech.isBlank()) return
-        pending.addLast(Request(speakerId, speech, voiceId, messageId, onDelivered))
+        pending.addLast(Request(speakerId, speech, voiceId, messageId, onDelivered, onStarted))
         if (!active) playNext()
     }
 
@@ -80,6 +82,7 @@ internal class LuluCallSpeechQueue(
         val localGeneration = generation
         onBusyChanged(true)
         onSpeakerChanged(request.speakerId)
+        request.onStarted?.invoke()
         val target = request.messageId?.let(ChatAutoVoicePlayback::callRecordingTarget)
         val onFinished: () -> Unit = {
             scope.launch {

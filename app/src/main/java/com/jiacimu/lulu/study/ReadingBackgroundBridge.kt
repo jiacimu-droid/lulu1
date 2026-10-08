@@ -9,6 +9,8 @@ internal data class BackgroundReadingBook(
     val title: String,
     val content: String,
     val source: String,
+    val seriesId: String = "",
+    val chapterNumber: Int = 0,
 )
 
 internal data class BackgroundReadingSlice(
@@ -34,17 +36,27 @@ internal object ReadingBackgroundBridge {
                         title = "《$theaterTitle》·第${chapter.chapter}章 ${chapter.title}",
                         content = chapter.content,
                         source = "小剧场章节",
+                        seriesId = theaterTitle,
+                        chapterNumber = chapter.chapter,
                     ) to chapter.createdAtMillis
                 }
             }
-            .sortedByDescending { (_, createdAtMillis) -> createdAtMillis }
+            .sortedWith(compareBy<Pair<BackgroundReadingBook, Long>> { it.first.seriesId }.thenBy { it.first.chapterNumber })
             .map { (book, _) -> book }
         return interleave(theaterChapters, uploaded)
             .distinctBy(BackgroundReadingBook::id)
     }
 
     fun availableBooks(context: Context, characterId: String): List<BackgroundReadingBook> =
-        books(context).filter { progress(context, characterId, it) < it.content.length }.take(80)
+        books(context).let { books ->
+            books.filter { book ->
+                progress(context, characterId, book) < book.content.length &&
+                    (book.seriesId.isBlank() || books.none { earlier ->
+                        earlier.seriesId == book.seriesId && earlier.chapterNumber < book.chapterNumber &&
+                            progress(context, characterId, earlier) < earlier.content.length
+                    })
+            }
+        }
 
     fun progressLabel(context: Context, characterId: String, book: BackgroundReadingBook): String {
         val offset = progress(context, characterId, book)
@@ -62,7 +74,7 @@ internal object ReadingBackgroundBridge {
         bookId: String,
         maxChars: Int = 6_000,
     ): BackgroundReadingSlice? {
-        val book = books(context).firstOrNull { it.id == bookId } ?: return null
+        val book = availableBooks(context, characterId).firstOrNull { it.id == bookId } ?: return null
         if (book.content.isEmpty()) return null
         val start = progress(context, characterId, book)
         if (start >= book.content.length) return null
