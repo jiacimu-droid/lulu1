@@ -242,28 +242,67 @@ internal object StarWishTheaterPlanningEngine {
                 maxTokens = (batchCount * 1_100 + 1_500).coerceIn(3_200, 8_600),
             )
 
-            var batch = parseChapterPlans(raw, start, end)
-            if (batch.size != batchCount) {
+            val accepted = linkedMapOf<Int, StarWishChapterPlan>()
+            fun usable(plan: StarWishChapterPlan): Boolean =
+                (plan.outline.isNotBlank() && plan.outline != "待规划") ||
+                    plan.spotlight.isNotBlank() || plan.sceneBeats.isNotBlank()
+            fun publishProgress() {
+                val progressPlans = (1..chapterCount).map { number ->
+                    accepted[number] ?: collected.firstOrNull { it.number == number }
+                        ?: existingPlans.firstOrNull { it.number == number }
+                        ?: StarWishChapterPlan(number = number, title = "第 $number 章", outline = "待规划")
+                }
+                onProgress?.invoke(progressPlans)
+            }
+            fun collectValid(plans: List<StarWishChapterPlan>) {
+                plans.filter(::usable).filter { it.number in start..end }.forEach { accepted[it.number] = it }
+                if (accepted.isNotEmpty()) publishProgress()
+            }
+            collectValid(parseChapterPlans(raw, start, end))
+
+            // Do not pay for a format-repair call when at least one valid chapter can be salvaged.
+            if (accepted.isEmpty() && raw.isNotBlank()) {
                 val fixed = repairChapterPayload(
-                    characterId = characterId,
-                    raw = raw,
-                    storyTitle = storyTitle,
-                    start = start,
-                    end = end,
-                    originalFacts = facts,
+                    characterId = characterId, raw = raw, storyTitle = storyTitle,
+                    start = start, end = end, originalFacts = facts,
                 ).getOrNull()
-                if (fixed != null) batch = parseChapterPlans(fixed, start, end)
+                if (!fixed.isNullOrBlank()) collectValid(parseChapterPlans(fixed, start, end))
             }
-            check(batch.size == batchCount) {
-                "第 $start-$end 章未取得可用的章节规划，请重试。"
+
+            // An incomplete batch should not invalidate the successful chapters.
+            for (number in start..end) {
+                if (number in accepted) continue
+                val oneInstruction = """
+                    只规划《$storyTitle》的第 $number 章，不要重新规划其他章节。
+                    根据故事地图、幕后规划和已确定的邻近章节，给出具体、可执行的故事场面。
+                    保留人物的视觉吸引力、动作与心理张力、双方的主动选择、情绪层次；
+                    不要为了凑提纲添加无关追杀、反派或俗套误会。
+                    只需一个章节规划，可以输出简短 JSON：
+                    {"number":$number,"title":"本章标题","outline":"本章的具体情节、转折与结尾状态","spotlight":"值得细写的核心场面","sceneBeats":"动作和情绪如何递进"}
+                    不擅长 JSON 时，也可直接输出「第${number}章：标题」和有内容的中文分段规划。
+                    不能只返回标题、空模板或“关系升温”之类的套话。
+                """.trimIndent()
+                val neighbors = accepted.values.sortedBy { it.number }.joinToString("\n") {
+                    "第${it.number}章 ${it.title}：${it.outline.take(350)}"
+                }
+                val oneRaw = generatePlanningText(
+                    characterId = characterId,
+                    facts = facts + "\n本批已保存的有效章节规划（仅供连续性参考）：\n" + neighbors,
+                    instruction = oneInstruction,
+                    title = "《$storyTitle》第 $number 章单独补规划",
+                    maxTokens = 2_400,
+                )
+                val single = parseChapterPlans(oneRaw, number, number).firstOrNull()
+                    ?.takeIf(::usable)
+                    ?: existingPlans.firstOrNull { it.number == number && usable(it) }
+                    ?: error("第 $number 章模型没有返回可用规划；其余已完成章节已保存，可以重试缺失部分。")
+                accepted[number] = single
+                publishProgress()
             }
-            collected += batch
-            val progressPlans = (1..chapterCount).map { number ->
-                collected.firstOrNull { it.number == number }
-                    ?: existingPlans.firstOrNull { it.number == number }
-                    ?: StarWishChapterPlan(number = number, title = "第 $number 章", outline = "待规划")
+            collected += (start..end).map { number ->
+                accepted[number] ?: error("第 $number 章缺少可用规划")
             }
-            onProgress?.invoke(progressPlans)
+            publishProgress()
             start = end + 1
         }
 
