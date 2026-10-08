@@ -115,9 +115,11 @@ object ChatAutoVoicePlayback {
      * now, persist the cache, then play it. Returns false only when the message cannot be resolved.
      */
     fun replayCached(messageId: String): Boolean {
-        val base = cacheBase(messageId) ?: return false
-        val audio = engine?.cachedAudioFile(base)
+        val audio = cachedFile(messageId)
         if (audio != null) return engine?.playCached(audio) == true
+        // An old phone transcript has no original performance to replay.
+        // Never silently synthesize a different voice and pretend it was the call.
+        if (messageId.startsWith("voice-")) return false
 
         val target = resolveCharacterMessage(messageId) ?: return false
         val characterId = target.first
@@ -136,9 +138,27 @@ object ChatAutoVoicePlayback {
     }
 
     internal fun cachedFile(messageId: String): File? {
-        val base = cacheBase(messageId) ?: return null
-        return listOf(File(base.parentFile, "${base.name}.mp3"), File(base.parentFile, "${base.name}.wav"))
-            .firstOrNull { it.isFile && it.length() > 0L }
+        val call = callRecordingBase(messageId)
+        val chat = cacheBase(messageId)
+        // Live phone WAV is never evicted by the normal chat TTS cache policy.
+        return listOfNotNull(
+            call?.let { File(it.parentFile, "${it.name}.wav") },
+            chat?.let { File(it.parentFile, "${it.name}.mp3") },
+            chat?.let { File(it.parentFile, "${it.name}.wav") },
+        ).firstOrNull { it.isFile && it.length() > 0L }
+    }
+
+    /** Call TTS writes the PCM actually heard, never another synthesis. */
+    internal fun callRecordingTarget(messageId: String): File? {
+        if (messageId.isBlank()) return null
+        val base = callRecordingBase(messageId) ?: return null
+        return File(base.parentFile, "${base.name}.wav")
+    }
+
+    private fun callRecordingBase(messageId: String): File? {
+        val context = appContext ?: return null
+        val directory = File(context.filesDir, "call_voice_recordings").apply { mkdirs() }
+        return File(directory, sha256(messageId))
     }
 
     internal fun favoriteAudioBase(messageId: String): File? {
@@ -147,15 +167,17 @@ object ChatAutoVoicePlayback {
         return File(directory, sha256(messageId))
     }
 
-    fun hasCached(messageId: String): Boolean {
-        val base = cacheBase(messageId) ?: return false
-        return engine?.cachedAudioFile(base) != null
-    }
+    fun hasCached(messageId: String): Boolean = cachedFile(messageId) != null
 
     fun remove(messageId: String) {
-        val base = cacheBase(messageId) ?: return
-        File(base.parentFile, "${base.name}.mp3").delete()
-        File(base.parentFile, "${base.name}.wav").delete()
+        cacheBase(messageId)?.let { base ->
+            File(base.parentFile, "${base.name}.mp3").delete()
+            File(base.parentFile, "${base.name}.wav").delete()
+        }
+        callRecordingTarget(messageId)?.let { file ->
+            file.delete()
+            File(file.parentFile, file.name + ".partial").delete()
+        }
     }
 
     private fun resolveCharacterMessage(messageId: String): Pair<String, LuluChatMessage>? {
