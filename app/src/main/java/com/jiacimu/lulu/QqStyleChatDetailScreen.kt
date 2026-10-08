@@ -571,7 +571,13 @@ fun QqStyleChatDetailScreen(
                         QqMessageAction(Icons.Outlined.VolumeUp, "朗读") {
                             val replayed = ChatAutoVoicePlayback.replayCached(message.id)
                             selectedMessage = null
-                            if (!replayed) scope.launch { snackbar.showSnackbar("这条消息暂时无法朗读，请检查角色语音设置") }
+                            if (!replayed) scope.launch {
+                                snackbar.showSnackbar(
+                                    if (message.id.startsWith("voice-"))
+                                        "这段旧通话没有保存原声音频，无法还原当时的语气；之后的新直连通话会自动保留原声"
+                                    else "这条消息暂时无法朗读，请检查角色语音设置"
+                                )
+                            }
                         }
                     }
                 }
