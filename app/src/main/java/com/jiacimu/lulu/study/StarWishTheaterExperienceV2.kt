@@ -7,6 +7,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -398,14 +400,15 @@ private fun TheaterReaderV2(
     }
 
     var awaitingCompletion by remember(seed.title) { mutableStateOf(task?.active == true) }
-    LaunchedEffect(task?.status, chapters.size) {
+    // A generation completing in the background must NEVER steal the reader's
+    // current chapter or scroll position. Only an explicit reader gesture can navigate.
+    LaunchedEffect(task?.status, task?.requestId, chapters.size) {
         if (task?.active == true) awaitingCompletion = true
         if (awaitingCompletion && task?.status == StarWishTheaterTaskStatus.SUCCEEDED && chapters.isNotEmpty()) {
             awaitingCompletion = false
-            if (influence == task.influence) influence = ""
-            composerExpanded = false
-            selectedIndex = chapters.lastIndex
-            listState.scrollToItem(0)
+            if (task.repairChapterId.isBlank() && influence == task.influence) influence = ""
+            message = if (task.repairChapterId.isNotBlank()) "本章已补全；当前阅读位置不变"
+                else "第 ${task.chapterNumber} 章已生成，随时可以手动翻阅"
         }
     }
 
@@ -485,7 +488,34 @@ private fun TheaterReaderV2(
 
         LazyColumn(
             state = listState,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .pointerInput(seed.title, selectedIndex, chapters.size) {
+                    var horizontalTravel = 0f
+                    val minSwipe = 72.dp.toPx()
+                    detectHorizontalDragGestures(
+                        onDragStart = { horizontalTravel = 0f },
+                        onDragCancel = { horizontalTravel = 0f },
+                        onDragEnd = {
+                            // Requested directions: left = previous, right = next.
+                            // A horizontal drag is recognized separately from normal vertical reading.
+                            val destination = when {
+                                horizontalTravel <= -minSwipe -> selectedIndex - 1
+                                horizontalTravel >= minSwipe -> selectedIndex + 1
+                                else -> selectedIndex
+                            }
+                            if (destination in chapters.indices && destination != selectedIndex) {
+                                selectedIndex = destination
+                                scope.launch { listState.scrollToItem(0) }
+                            }
+                            horizontalTravel = 0f
+                        },
+                        onHorizontalDrag = { change, dragAmount ->
+                            change.consume()
+                            horizontalTravel += dragAmount
+                        },
+                    )
+                },
             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 24.dp),
         ) {
             if (chapters.isEmpty()) {
@@ -527,7 +557,10 @@ private fun TheaterReaderV2(
                             onClick = { selectedIndex -= 1; scope.launch { listState.scrollToItem(0) } },
                             enabled = selectedIndex > 0,
                         ) { Icon(Icons.Outlined.ChevronLeft, null); Text("上一章") }
-                        Text("${selectedIndex + 1} / ${chapters.size}", modifier = Modifier.weight(1f), color = StudyDesign.muted, style = MaterialTheme.typography.labelMedium, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("${selectedIndex + 1} / ${chapters.size}", color = StudyDesign.muted, style = MaterialTheme.typography.labelMedium)
+                            Text("左滑上一章 · 右滑下一章", fontSize = 10.sp, color = StudyDesign.muted)
+                        }
                         TextButton(
                             onClick = { selectedIndex += 1; scope.launch { listState.scrollToItem(0) } },
                             enabled = selectedIndex < chapters.lastIndex,
