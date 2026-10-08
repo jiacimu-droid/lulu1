@@ -107,6 +107,19 @@ class CharacterInnerLifeStoreTest {
         assertNull(CharacterInnerLifeStore.withAfterglow(null, glow, ""))
     }
 
+    @Test fun unsaidInnerVoiceIsContinuousButDeletedWithSource() {
+        start()
+        CharacterInnerLifeStore.recordInnerVoice("inside-test-a", "event-true-1", "……好想多问一句")
+        CharacterInnerLifeStore.recordInnerVoice("inside-test-a", "event-true-1", "重复收到了旧回复")
+        CharacterInnerLifeStore.recordInnerVoice("inside-test-a", "event-true-2", "算了，先听她说完")
+        assertEquals(2, CharacterInnerLifeStore.snapshot("inside-test-a").getJSONArray("innerVoices").length())
+        assertTrue(CharacterInnerLifeStore.context("inside-test-a").contains("先听她说完"))
+        CharacterInnerLifeStore.invalidateEvidence("event-true-1")
+        val voices = CharacterInnerLifeStore.snapshot("inside-test-a").getJSONArray("innerVoices")
+        assertEquals(1, voices.length())
+        assertFalse(CharacterInnerLifeStore.context("inside-test-a").contains("好想多问一句"))
+    }
+
     @Test fun emotionsCorrectionsAndVoiceSamplesNeedAnchors() {
         start()
         val emotion = JSONObject().put("emotion", JSONObject().put("feeling", "突然很开心")
