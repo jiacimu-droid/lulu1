@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T07:49:23.640565+00:00",
-  "commit": "1a6b3ec3b0b9b4cb9638bcd7ac0276cd526be071",
+  "generatedAt": "2026-10-08T07:50:03.422892+00:00",
+  "commit": "d14cf8f2211b7ec8f0f4bf0e7e62f32c81ed236f",
   "branch": "main",
-  "sourceFingerprint": "eb37c2cd7edd396512852162705e3f4571e1d109d456890a45088b9e3e8d84af",
+  "sourceFingerprint": "25daa1e6de9d7f33f4e12b2e8aa22271d808035290740f19e38834f19d6e9468",
   "summary": {
     "files": 342,
-    "lines": 86321,
-    "symbols": 1219
+    "lines": 86232,
+    "symbols": 1217
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2125,7 +2125,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 130
+        "line": 127
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
@@ -2157,7 +2157,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 117
+        "line": 114
       }
     ],
     "CharacterLifeStore": [
@@ -4517,7 +4517,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 95
+        "line": 92
       }
     ],
     "eventsByIds": [
@@ -6251,53 +6251,37 @@
     "storyGuide": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 32
+        "line": 29
       }
     ],
     "storyBible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 53
+        "line": 50
       }
     ],
     "chapterPlans": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 73
+        "line": 70
       }
     ],
     "detailedGuide": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 83
+        "line": 80
       }
     ],
     "hiddenTitles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 106
+        "line": 103
       }
     ],
     "add": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 108
-      }
-    ],
-    "text": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 194
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt",
-        "line": 19
-      }
-    ],
-    "value": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 227
+        "line": 105
       }
     ],
     "generateNextChapter": [
@@ -6542,6 +6526,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
         "line": 22
+      }
+    ],
+    "text": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt",
+        "line": 19
       }
     ],
     "parse": [
@@ -13069,52 +13059,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-      "lines": 256,
-      "sha256": "649c045268bf8dbed1bdbe6d2b60b6f1e52ca99327987cb4b293218a809d657e",
+      "lines": 167,
+      "sha256": "a88d58e032cd633a937937f2422b13b68749e3d3ea39c4359948890412b5a2e7",
       "symbols": [
         {
           "name": "storyGuide",
-          "line": 32
+          "line": 29
         },
         {
           "name": "storyBible",
-          "line": 53
+          "line": 50
         },
         {
           "name": "chapterPlans",
-          "line": 73
+          "line": 70
         },
         {
           "name": "detailedGuide",
-          "line": 83
+          "line": 80
         },
         {
           "name": "all",
-          "line": 95
+          "line": 92
         },
         {
           "name": "hiddenTitles",
-          "line": 106
+          "line": 103
         },
         {
           "name": "add",
-          "line": 108
+          "line": 105
         },
         {
           "name": "delete",
-          "line": 117
+          "line": 114
         },
         {
           "name": "get",
-          "line": 130
-        },
-        {
-          "name": "text",
-          "line": 194
-        },
-        {
-          "name": "value",
-          "line": 227
+          "line": 127
         }
       ]
     },
