@@ -53,6 +53,8 @@ internal object CompanionActionRuntime {
         appendLine("- publish_moment，args={\"text\":\"动态正文\"}：朋友圈是公开分享日常。角色有好笑、惊讶、烦人、得意、失败、沉迷、值得吐槽或想让熟人看见的小事时，可以像真人一样随手发；朋友圈不是稀有动作，也不是定期打卡。")
         appendLine("- write_journal，args={\"title\":\"标题\",\"content\":\"正文\"}：日记是角色私下整理自己、消化情绪、保存想法与经历的地方，不是绕路给用户传话。")
         appendLine("- start_call，args={\"text\":\"为什么此刻想打电话\"}：仅在角色已允许主动来电时发起真正的来电。会进入待接听状态并触发来电通知，不再伪装成一条聊天消息。")
+        appendLine("- set_user_remark，args={\"nickname\":\"给用户的专属备注\"}：角色自行在联系人里保存给用户的备注，不更改用户资料；应有真实的关系动机。")
+        appendLine("- set_self_nickname，args={\"nickname\":\"新网名\"}：角色改变自己的聊天网名，不更改正式角色身份；不要为了表演深情频繁改名。")
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。既可以接正在发生的话题，也可以把自己的趣事、吐槽、发现或突发奇想带进合适的群，主动开启新话题；群里暂时安静不等于不能先开口。")
         appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：真正读取阅读 App 里的上传正文或小剧场章节，并留下角色自己的感想；这会成为角色之后可以自然想起、聊起的真实生活经历。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
@@ -112,6 +114,15 @@ internal object CompanionActionRuntime {
         val character = MigratedDomainStores.characters.get(characterId)
         val normalizedAction = action.trim().lowercase()
         val result = when (normalizedAction) {
+            "set_user_remark", "set_self_nickname" -> {
+                val key = if (normalizedAction == "set_user_remark") "userRemark" else "selfNickname"
+                val nickname = args.optString("nickname").trim().replace(Regex("[\r\n\t]+"), " ").take(24)
+                require(nickname.isNotBlank()) { "备注或昵称不能为空" }
+                val changed = CharacterLifeStore.setSocialName(characterId, key, nickname)
+                require(changed) { "名字没有变化，本轮不产生重复动作" }
+                CompanionActionResult(true, if (key == "userRemark") "已把给用户的私人备注改为「$nickname」"
+                    else "已将自己的聊天网名改为「$nickname」")
+            }
             "send_private_message" -> {
                 val text = args.optString("text").trim().take(2_000)
                 require(text.isNotBlank()) { "私聊内容不能为空" }
