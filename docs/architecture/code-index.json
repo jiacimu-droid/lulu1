@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T18:28:51.959319+00:00",
-  "commit": "a294072cec815a9bd8b4425bd1cf33066fb068a8",
+  "generatedAt": "2026-10-08T19:14:01.838328+00:00",
+  "commit": "5b3590c08f71f89149e018d843e64e7dc1ab35a6",
   "branch": "main",
-  "sourceFingerprint": "81e548b7a0cddb27598f8ca66ee2f5eb47bd088dc6cb4a72b957dccd508f415c",
+  "sourceFingerprint": "5b66bd5ce1bafb8dd4f20b7569aa6c42ecdef24f61d27d7523d2a540d20f8b3b",
   "summary": {
-    "files": 368,
-    "lines": 89487,
-    "symbols": 1266
+    "files": 369,
+    "lines": 89571,
+    "symbols": 1268
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -926,6 +926,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
         "line": 391
+      }
+    ],
+    "show": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
+        "line": 31
+      }
+    ],
+    "minimize": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
+        "line": 33
       }
     ],
     "shutdown": [
@@ -7683,6 +7695,21 @@
         {
           "name": "LuluImageSettingsScreen",
           "line": 391
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
+      "lines": 84,
+      "sha256": "5eccfbfe5a54a9f93f4cdc0d4a29e725faff1597528dda4daad0f1213aa53826",
+      "symbols": [
+        {
+          "name": "show",
+          "line": 31
+        },
+        {
+          "name": "minimize",
+          "line": 33
         }
       ]
     },
