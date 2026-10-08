@@ -45,8 +45,8 @@ object ChatAutoVoicePlayback {
             val applicationContext = context.applicationContext
             appContext = applicationContext
             AutomaticVoiceForeground.install(applicationContext)
-            AutomaticVoiceForeground.onBackground { cancelInFlight() }
             if (settingsListener == null) {
+                AutomaticVoiceForeground.onBackground { cancelInFlight() }
                 val preferences = applicationContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
                 settingsListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
                     if (key in setOf("tts_enabled", "tts_auto_speak") &&
