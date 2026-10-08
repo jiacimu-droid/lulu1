@@ -473,7 +473,10 @@ fun QqStyleChatDetailScreen(
                             onCall = {
                                 focusManager.clearFocus(force = true)
                                 keyboardController?.hide()
-                                callVisible = true
+                                if (groupChat == null) {
+                                    LuluVoiceCallSession.prepare(context, conversationId, characterId, character.displayName)
+                                    LuluCallWindowController.show()
+                                } else callVisible = true
                             },
                             onSendOnly = { payload -> appendDraft(payload) },
                             onWakeOrReply = { payload -> wakeOnline(payload) },
@@ -646,19 +649,11 @@ fun QqStyleChatDetailScreen(
         }
     }
 
-    if (callVisible) {
-        if (groupChat == null) {
-            LuluVoiceCallScreen(conversationId, characterId, character.displayName) {
-                callVisible = false
-                focusManager.clearFocus(force = true)
-                keyboardController?.hide()
-            }
-        } else {
-            LuluGroupVoiceCallScreen(conversationId, groupChat) {
-                callVisible = false
-                focusManager.clearFocus(force = true)
-                keyboardController?.hide()
-            }
+    if (callVisible && groupChat != null) {
+        LuluGroupVoiceCallScreen(conversationId, groupChat) {
+            callVisible = false
+            focusManager.clearFocus(force = true)
+            keyboardController?.hide()
         }
     }
 
