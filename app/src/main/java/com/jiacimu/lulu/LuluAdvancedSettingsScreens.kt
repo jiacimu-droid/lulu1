@@ -77,6 +77,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     var elevenSimilarity by remember { mutableFloatStateOf(prefs.getFloat("eleven_similarity", .75f)) }
     var testingVoice by remember { mutableStateOf(false) }
     var voiceNotice by remember { mutableStateOf("") }
+    var auditRefresh by remember { mutableIntStateOf(0) }
 
     DisposableEffect(speechEngine) {
         onDispose { speechEngine.shutdown() }
@@ -274,6 +275,18 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                     Text(if (testingVoice) "正在试听" else "试听当前声音")
                 }
                 if (voiceNotice.isNotBlank()) Text(voiceNotice, color = AdvancedMuted, fontSize = 12.sp)
+            }
+        }
+        if (provider == "elevenlabs") item {
+            SettingsSectionCard("ElevenLabs 请求记录（本机）") {
+                Text("从本版本起记录每次请求的时间、场景与字数，不记录语音内容或 API Key。这里只能证明 App 曾发起请求，不能代表供应商已经扣费。", color = AdvancedMuted, fontSize = 12.sp)
+                val attempts = remember(auditRefresh) { VoiceUsageAudit.recent(context, 15) }
+                    .filter { it.contains("ElevenLabs") }
+                if (attempts.isEmpty()) Text("尚未记录到本机发起的 ElevenLabs 语音请求", color = AdvancedMuted, fontSize = 12.sp)
+                attempts.forEach { entry ->
+                    Text(entry, color = AdvancedInk, fontSize = 12.sp)
+                }
+                TextButton(onClick = { auditRefresh += 1 }) { Text("刷新请求记录") }
             }
         }
         item { SettingsSectionCard("云端任务（可选）") { CloudConnectionSettings() } }
