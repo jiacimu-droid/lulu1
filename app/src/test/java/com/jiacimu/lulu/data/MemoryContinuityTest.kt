@@ -62,6 +62,7 @@ class MemoryContinuityTest {
     @Test fun oldMemoryDefaultsAndResolvedConcernsPersistWithoutDiaryEviction() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
+        LuluRepositories.lexicon.initialize(context)
         val old = memory("old", "普通偏好")
         LuluRepositories.memory.save(old)
         assertEquals(MemoryTier.Stable, LocalMemoryRepository().apply { initialize(context) }.snapshot("role").single().tier)

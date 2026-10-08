@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f9b7ae2032e218779c1bba0a4521d00acd8588f5`
-- 分支：`main`
+- 基准提交：`local`
+- 分支：`local`
 - 已索引文件：356
-- 已索引代码/文本行：87902
+- 已索引代码/文本行：87903
 - 已发现符号：1240
 
 | 文件 | 行数 | 符号数 |
@@ -344,7 +344,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt` | 47 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/MemoryContinuityTest.kt` | 81 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/MemoryContinuityTest.kt` | 82 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 242 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 85 | 3 |
