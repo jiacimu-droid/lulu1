@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`068cd77402117bb37d5ef2a860b443dc18a30815`
+- 基准提交：`e04d813bf3b318d2cc948d0648d45c08221bc58f`
 - 分支：`main`
 - 已索引文件：349
-- 已索引代码/文本行：86969
+- 已索引代码/文本行：86982
 - 已发现符号：1227
 
 | 文件 | 行数 | 符号数 |
@@ -15,7 +15,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 136 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 20 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 95 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 77 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 28 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 72 | 0 |
@@ -97,7 +97,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 155 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StatefulCharacterPortrait.kt` | 24 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt` | 136 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt` | 143 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 43 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt` | 29 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt` | 103 | 6 |
