@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`7ae2e600c0abba05c12df5c14500a8e9a2ddea17`
+- 基准提交：`a23347d8e029bc0e29c340fe074bce6a28ab768c`
 - 分支：`main`
 - 已索引文件：363
-- 已索引代码/文本行：88894
+- 已索引代码/文本行：88902
 - 已发现符号：1258
 
 | 文件 | 行数 | 符号数 |
@@ -116,14 +116,14 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 318 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 156 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 34 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 49 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 50 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 66 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 109 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 84 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 30 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 344 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 151 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 66 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 73 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt` | 124 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt` | 139 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 85 | 0 |

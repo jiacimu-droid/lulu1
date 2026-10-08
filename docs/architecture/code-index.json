@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T18:02:08.525071+00:00",
-  "commit": "7ae2e600c0abba05c12df5c14500a8e9a2ddea17",
+  "generatedAt": "2026-10-08T18:02:28.631511+00:00",
+  "commit": "a23347d8e029bc0e29c340fe074bce6a28ab768c",
   "branch": "main",
-  "sourceFingerprint": "e40bc89510bc52c54089d2821ff4713594940c56acd25e0d562dc52b3a4abdf0",
+  "sourceFingerprint": "66d4c9492127d7713d24597ef0e47ee467a0d480e5eefa159426c262ef1f8cf9",
   "summary": {
     "files": 363,
-    "lines": 88894,
+    "lines": 88902,
     "symbols": 1258
   },
   "symbolIndex": {
@@ -8921,8 +8921,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt",
-      "lines": 49,
-      "sha256": "5b94c65c5295fd63378735143e918726ee37362600e29f57d1822e30563746cb",
+      "lines": 50,
+      "sha256": "1538fc3aaf987db7edc1fa88b420520aea58df54f7c27f659b6cf1db9ced2fbc",
       "symbols": [
         {
           "name": "CharacterRecordReset",
@@ -9110,8 +9110,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt",
-      "lines": 66,
-      "sha256": "184f68103b55e8ce75e5a4329264beb5e7e321ca979eac1094ae39bd791e0b74",
+      "lines": 73,
+      "sha256": "99fd272adf2e0ff9d1e93709bc64e9839ae69ab212b25c45e56fb5a325fe265f",
       "symbols": [
         {
           "name": "ChatTurnConsistencyAutomation",
