@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T11:28:42.049545+00:00",
-  "commit": "68634cb8b90e4e36f8868bd3f228a4669f6bbc78",
+  "generatedAt": "2026-10-08T11:29:13.595858+00:00",
+  "commit": "0902865f8d8867e4c3971870d8522a23da673170",
   "branch": "main",
-  "sourceFingerprint": "fe0df212cdfc3165552e03cf1ec88ef049fb0fdb299a04f72610b11aee844d26",
+  "sourceFingerprint": "7d2bf8e2b0f165af9780b2503a69bdf3df25ff8c521cc315aff8aa1409395646",
   "summary": {
     "files": 345,
-    "lines": 86665,
+    "lines": 86666,
     "symbols": 1222
   },
   "symbolIndex": {
@@ -6291,25 +6291,25 @@
     "generateNextChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 437
+        "line": 438
       }
     ],
     "appendOneChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 784
+        "line": 785
       }
     ],
     "appendThreeChapters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 791
+        "line": 792
       }
     ],
     "attemptBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 798
+        "line": 799
       }
     ],
     "saveProgress": [
@@ -13136,24 +13136,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-      "lines": 1435,
-      "sha256": "4b7d3f43d4026ecae72673ec228babc2e33d941c89820cc6731239096e741ee5",
+      "lines": 1436,
+      "sha256": "1b835016b6881ec8c63635e53237e01b196784a8b65e58caf1d75d498990d71b",
       "symbols": [
         {
           "name": "generateNextChapter",
-          "line": 437
+          "line": 438
         },
         {
           "name": "appendOneChapter",
-          "line": 784
+          "line": 785
         },
         {
           "name": "appendThreeChapters",
-          "line": 791
+          "line": 792
         },
         {
           "name": "attemptBack",
-          "line": 798
+          "line": 799
         }
       ]
     },
@@ -13442,7 +13442,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterCanonEvidence.kt",
       "lines": 46,
-      "sha256": "a1dbf50b824e1e061cd4ea152344ddebd8726c0a100dc1f22579fa3bc005d7be",
+      "sha256": "48e06a16be33a1718eb11dd00cc3777723f238155e22990526052ca24b170cd4",
       "symbols": [
         {
           "name": "index",
