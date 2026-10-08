@@ -145,10 +145,13 @@ internal class RealtimeVoiceAdapter(
     }
 
     fun mute(muted: Boolean) { microphoneMuted = muted; scope.launch { session?.setMicMuted(muted || openingWaiting) } }
-    fun speaker(enabled: Boolean) {
-        volumeEnabled = enabled
-        session?.setVolume(if (enabled) 1f else 0f)
-        if (!enabled) { suppressDelivery = true; deliveryJob?.cancel(); delivery.interrupt(deliveryEpoch, -1) }
+    fun speaker(@Suppress("UNUSED_PARAMETER") enabled: Boolean) {
+        // Speaker toggle chooses the Android audio route (speaker vs receiver/headset),
+        // it is NOT a silence control. Previously "earpiece" used setVolume(0) while
+        // ElevenLabs kept generating chargeable speech and silently discarded transcripts.
+        volumeEnabled = true
+        suppressDelivery = false
+        session?.setVolume(1f)
     }
     fun stop() {
         generation++
