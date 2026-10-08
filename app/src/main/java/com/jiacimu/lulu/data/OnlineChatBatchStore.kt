@@ -6,12 +6,13 @@ import android.content.Context
 internal object OnlineChatBatchStore {
     const val QUIET_MILLIS = 3_000L
     data class Batch(val revision: Long, val dueAtMillis: Long)
+    private val reading = mutableSetOf<Pair<String, Long>>()
     private fun prefs(context: Context) = context.applicationContext.getSharedPreferences("lulu_online_chat_batches", Context.MODE_PRIVATE)
 
     @Synchronized fun next(context: Context, characterId: String, collectMessages: Boolean, now: Long = System.currentTimeMillis()): Batch {
         val p = prefs(context)
         // The first unread event owns the deadline. Later bubbles do not postpone reading.
-        if (p.contains("due:$characterId")) {
+        if (p.contains("due:$characterId") && (characterId to p.getLong("revision:$characterId", 0)) !in reading) {
             return Batch(p.getLong("revision:$characterId", 0), p.getLong("due:$characterId", now))
         }
         val revision = p.getLong("revision:$characterId", 0) + 1
@@ -24,8 +25,15 @@ internal object OnlineChatBatchStore {
     @Synchronized fun claim(context: Context, characterId: String, revision: Long): Boolean {
         val p = prefs(context)
         if (!isCurrent(context, characterId, revision) || !p.contains("due:$characterId")) return false
-        check(p.edit().remove("due:$characterId").commit()) { "在线消息读取状态保存失败" }
-        return true
+        return reading.add(characterId to revision)
+    }
+
+    /** A cancelled worker retains its durable deadline so WorkManager can resume the unread batch. */
+    @Synchronized fun finish(context: Context, characterId: String, revision: Long, completed: Boolean = true) {
+        reading.remove(characterId to revision)
+        if (completed && isCurrent(context, characterId, revision)) {
+            check(prefs(context).edit().remove("due:$characterId").commit()) { "在线消息读取状态保存失败" }
+        }
     }
 
     fun isCurrent(context: Context, characterId: String, revision: Long) =
@@ -37,6 +45,7 @@ internal object OnlineChatBatchStore {
 
     @Synchronized fun cancel(context: Context, characterId: String) {
         val p = prefs(context)
+        reading.removeAll { it.first == characterId }
         check(p.edit().putLong("revision:$characterId", p.getLong("revision:$characterId", 0) + 1)
             .remove("due:$characterId").commit()) { "取消在线消息失败" }
     }

@@ -127,54 +127,61 @@ object ProactivePerceptionRuntime {
             !OnlineChatBatchStore.isCurrent(context, targetCharacterId, onlineRevision)) return@withLock 0
         if (onlineRevision != null && targetCharacterId != null &&
             !OnlineChatBatchStore.claim(context, targetCharacterId, onlineRevision)) return@withLock 0
-        if (requiresUnread && targetCharacterId != null && CompanionOnlineStore.unreadChatSnapshot(targetCharacterId).text.isBlank()) return@withLock 0
-        initialize(context)
-        val appContext = context.applicationContext
-        val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val targets = latestPrivateConversations().filter { targetCharacterId == null || it.characterId == targetCharacterId }
-        var evaluated = 0
-        for (conversation in targets) {
-            val characterId = conversation.characterId.ifBlank { "lulu" }
-            val policy = ProactivePerceptionPolicyStore.get(characterId)
-            if (!policy.enabled && !force) continue
-            if (!force) {
-                val due = dueAtFor(appContext, conversation, policy, prefs, now)
-                if (!trigger.startsWith("重要事件") && due.isAfter(now.plusSeconds(15))) continue
-                if (isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
+        try {
+            if (requiresUnread && targetCharacterId != null && CompanionOnlineStore.unreadChatSnapshot(targetCharacterId).text.isBlank()) return@withLock 0
+            initialize(context)
+            val appContext = context.applicationContext
+            val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val targets = latestPrivateConversations().filter { targetCharacterId == null || it.characterId == targetCharacterId }
+            var evaluated = 0
+            for (conversation in targets) {
+                val characterId = conversation.characterId.ifBlank { "lulu" }
+                val policy = ProactivePerceptionPolicyStore.get(characterId)
+                if (!policy.enabled && !force) continue
+                if (!force) {
+                    val due = dueAtFor(appContext, conversation, policy, prefs, now)
+                    if (!trigger.startsWith("重要事件") && due.isAfter(now.plusSeconds(15))) continue
+                    if (isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
+                }
+                val pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false)
+                val effectiveTrigger = when {
+                    trigger.contains("挂心") || trigger.contains("承诺") -> trigger
+                    pendingConcern -> "挂心/承诺待回看"
+                    else -> trigger
+                }
+                prefs.edit().putLong("last_evaluation_$characterId", now.toEpochMilli()).apply()
+                if (!force || !CompanionOnlineStore.isOnline(characterId, now)) {
+                    CompanionOnlineStore.wakeCharacter(characterId, CompanionOnlineReason.BackgroundPerception, effectiveTrigger, false, now)
+                }
+                CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知启动 · $effectiveTrigger", now)
+                val result = runCatching { evaluateCharacter(appContext, conversation, effectiveTrigger, now) }
+                result.onSuccess { action ->
+                    evaluated += 1
+                    CharacterDevelopmentRuntime.request(characterId)
+                    val actionKey = "action_history_$characterId"
+                    val actionHistory = prefs.getString(actionKey, "").orEmpty().split(',').map(String::trim)
+                        .filter(String::isNotBlank).plus(action.name).takeLast(ACTION_HISTORY_SIZE)
+                    prefs.edit()
+                        .putString(actionKey, actionHistory.joinToString(","))
+                        .putBoolean("pending_concern_promise_$characterId", false)
+                        .remove("silent_count_$characterId")
+                        .apply()
+                }.onFailure { error ->
+                    if (error is kotlinx.coroutines.CancellationException) throw error
+                    CompanionPresenceStore.recordPerceptionAttempt(
+                        characterId,
+                        "感知失败 · ${error.message.orEmpty().ifBlank { error::class.java.simpleName }.take(120)}",
+                        now,
+                    )
+                }
             }
-            val pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false)
-            val effectiveTrigger = when {
-                trigger.contains("挂心") || trigger.contains("承诺") -> trigger
-                pendingConcern -> "挂心/承诺待回看"
-                else -> trigger
-            }
-            prefs.edit().putLong("last_evaluation_$characterId", now.toEpochMilli()).apply()
-            if (!force || !CompanionOnlineStore.isOnline(characterId, now)) {
-                CompanionOnlineStore.wakeCharacter(characterId, CompanionOnlineReason.BackgroundPerception, effectiveTrigger, false, now)
-            }
-            CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知启动 · $effectiveTrigger", now)
-            val result = runCatching { evaluateCharacter(appContext, conversation, effectiveTrigger, now) }
-            result.onSuccess { action ->
-                evaluated += 1
-                CharacterDevelopmentRuntime.request(characterId)
-                val actionKey = "action_history_$characterId"
-                val actionHistory = prefs.getString(actionKey, "").orEmpty().split(',').map(String::trim)
-                    .filter(String::isNotBlank).plus(action.name).takeLast(ACTION_HISTORY_SIZE)
-                prefs.edit()
-                    .putString(actionKey, actionHistory.joinToString(","))
-                    .putBoolean("pending_concern_promise_$characterId", false)
-                    .remove("silent_count_$characterId")
-                    .apply()
-            }.onFailure { error ->
-                if (error is kotlinx.coroutines.CancellationException) throw error
-                CompanionPresenceStore.recordPerceptionAttempt(
-                    characterId,
-                    "感知失败 · ${error.message.orEmpty().ifBlank { error::class.java.simpleName }.take(120)}",
-                    now,
-                )
+            evaluated
+        } finally {
+            if (onlineRevision != null && targetCharacterId != null) {
+                OnlineChatBatchStore.finish(context, targetCharacterId, onlineRevision,
+                    completed = currentCoroutineContext()[kotlinx.coroutines.Job]?.isCancelled != true)
             }
         }
-        evaluated
     }
 
     private fun dueAtFor(

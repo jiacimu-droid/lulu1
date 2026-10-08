@@ -199,6 +199,9 @@ object CompanionOnlineStore {
             return
         }
 
+        if (message.sender == LuluChatMessage.Sender.Character) {
+            recordActivity(message.authorCharacterId ?: conversation.characterId, now)
+        }
         val members = conversation.groupChat?.members.orEmpty().map(LuluGroupMember::characterId).distinct()
         val recipients: List<String>
         synchronized(lock) {

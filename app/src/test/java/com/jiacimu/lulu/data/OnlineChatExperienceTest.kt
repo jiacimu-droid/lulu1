@@ -48,6 +48,22 @@ class OnlineChatExperienceTest {
         assertFalse(OnlineChatBatchStore.claim(context, role, batch.revision))
     }
 
+    @Test fun interruptedReadingRetainsDeadlineAndCompletingOldReplyKeepsNewMessagesPending() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val role = "resume-reading"
+        val first = OnlineChatBatchStore.next(context, role, true, now = 100L)
+        assertTrue(OnlineChatBatchStore.claim(context, role, first.revision))
+        OnlineChatBatchStore.finish(context, role, first.revision, completed = false)
+        assertEquals(3_100L, OnlineChatBatchStore.dueAt(context, role, first.revision))
+        assertTrue(OnlineChatBatchStore.claim(context, role, first.revision))
+        val next = OnlineChatBatchStore.next(context, role, true, now = 4_000L)
+        OnlineChatBatchStore.finish(context, role, first.revision)
+        assertEquals(7_000L, OnlineChatBatchStore.dueAt(context, role, next.revision))
+        assertTrue(OnlineChatBatchStore.claim(context, role, next.revision))
+        OnlineChatBatchStore.finish(context, role, next.revision)
+        assertNull(OnlineChatBatchStore.dueAt(context, role, next.revision))
+    }
+
     @Test fun actualActivityRefreshesFiveMinutesWithoutStackingTime() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
@@ -148,6 +164,10 @@ class OnlineChatExperienceTest {
         assertTrue(CompanionOnlineStore.isOnline(role.characterId))
         assertTrue(MigratedDomainStores.chat.messages(conversation.id).value.any { it.id == "voice-test-user" })
         assertTrue(SharedExperienceTimeline.all(role.characterId).any { it.channel.contains("电话") })
+        // Config.NONE deliberately disables AndroidX Startup; initialize the real scheduler fixture.
+        if (runCatching { androidx.work.WorkManager.getInstance(context) }.isFailure) {
+            androidx.work.WorkManager.initialize(context, androidx.work.Configuration.Builder().build())
+        }
         MigratedDomainStores.chat.sendUserMessage(conversation.id, "另外发来的聊天消息")
         val unread = CompanionOnlineStore.unreadChatSnapshot(role.characterId)
         assertTrue(unread.text.contains("另外发来的聊天消息"))

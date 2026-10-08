@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T02:40:07.020233+00:00",
+  "generatedAt": "2026-10-08T02:51:12.618464+00:00",
   "commit": "61b7fdeb9c81c3e493adeb58c2082d05e4fdfe3e",
   "branch": "main",
-  "sourceFingerprint": "58bfa2f3b2a8525888c0a46055709323c6cba4597b8a63068cb48352d61c1d9d",
+  "sourceFingerprint": "0177013e53733b570f9ec18a42b7845e4ab93d943d8de19f126d42b0b35b2f82",
   "summary": {
     "files": 325,
-    "lines": 84644,
+    "lines": 84683,
     "symbols": 1180
   },
   "symbolIndex": {
@@ -2569,19 +2569,19 @@
     "unreadChatSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 254
+        "line": 257
       }
     ],
     "markSeen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 290
+        "line": 293
       }
     ],
     "resetCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 300
+        "line": 303
       }
     ],
     "CompanionPresenceState": [
@@ -4083,13 +4083,13 @@
     "isCurrent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-        "line": 30
+        "line": 38
       }
     ],
     "dueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-        "line": 33
+        "line": 41
       }
     ],
     "ProactiveIncomingCall": [
@@ -8806,8 +8806,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 405,
-      "sha256": "bbdd60a617c595b11d1a2a65c5c364f7f89a1e235735b42d3b0ab4a76848b5ab",
+      "lines": 408,
+      "sha256": "f6a2c037912e91364fca6a0ffa0b834be38fdd43d2678a2758989e9dc7cff197",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -8855,15 +8855,15 @@
         },
         {
           "name": "unreadChatSnapshot",
-          "line": 254
+          "line": 257
         },
         {
           "name": "markSeen",
-          "line": 290
+          "line": 293
         },
         {
           "name": "resetCharacter",
-          "line": 300
+          "line": 303
         }
       ]
     },
@@ -10373,8 +10373,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-      "lines": 44,
-      "sha256": "be3ea5c56e4b5909bf6e15f36ae0239f24051a0f499a9db4077bd5e81549906a",
+      "lines": 53,
+      "sha256": "745c15edb26b56312e8039d5f350b94694e6baf4b1d63dfbbf38651fb9ae28a6",
       "symbols": [
         {
           "name": "Batch",
@@ -10382,11 +10382,11 @@
         },
         {
           "name": "isCurrent",
-          "line": 30
+          "line": 38
         },
         {
           "name": "dueAt",
-          "line": 33
+          "line": 41
         }
       ]
     },
@@ -10491,8 +10491,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 796,
-      "sha256": "159fb471f5b1c11ac06524ff2dfe12690991fe2b7f18b48623b54acf1351ae34",
+      "lines": 803,
+      "sha256": "d6387c0efde0c0d1309960b65579a5ca4145eb5e3a7f9bc006b194d49f9d39a1",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -12807,7 +12807,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
       "lines": 747,
-      "sha256": "868b1856676ffeebe7828f2ea7fca1a053954aefe447171010c3e8187da7ecff",
+      "sha256": "c1a034e6e50fa8dee94bd9cb56254c13b6cb3a393cfa4fb676444c3cf8924150",
       "symbols": []
     },
     {
@@ -13359,8 +13359,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-      "lines": 165,
-      "sha256": "3e64c8d7deb74e0af6fb1e8782d5c9bf2110b176b68d9e1292ed77b8ff149412",
+      "lines": 185,
+      "sha256": "6f5bc74f27b72e6f31596710db23e0eccbebd815710e7afa19e9d3c718535c27",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",

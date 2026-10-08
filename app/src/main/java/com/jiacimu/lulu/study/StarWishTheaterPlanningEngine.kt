@@ -156,7 +156,7 @@ internal object StarWishTheaterPlanningEngine {
             val partial = runCatching { parseStoryBible(raw, writtenChapters.size) }.getOrNull()
             if (partial != null) {
                 bible = partial.withMissingFieldsFrom(bible)
-                onProgress?.invoke(bible)
+                onProgress?.invoke(bible.withMissingFieldsFrom(existingBible))
             }
             // Missing slots are repaired individually; all already-filled slots stay saved.
             for (field in group) {
@@ -171,7 +171,7 @@ internal object StarWishTheaterPlanningEngine {
                 check(content.isNotBlank()) { "${field.value}尚未生成，已填栏目已经保存" }
                 bible = parseStoryBible(JSONObject().put(field.key, content).toString(), writtenChapters.size)
                     .withMissingFieldsFrom(bible)
-                onProgress?.invoke(bible)
+                onProgress?.invoke(bible.withMissingFieldsFrom(existingBible))
             }
         }
         check(storyBibleCompleteEnough(bible)) { "幕后规划关键栏目尚未填写，已填内容已经保存" }
