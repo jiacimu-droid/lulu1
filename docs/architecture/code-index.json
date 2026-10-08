@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T11:31:41.349026+00:00",
-  "commit": "b894668c6302c04a05c80357d7614e21220e15d9",
+  "generatedAt": "2026-10-08T11:31:54.636940+00:00",
+  "commit": "43803975ccdf840b530095837b36587439c54fcf",
   "branch": "main",
-  "sourceFingerprint": "2b95c4155ce0bc0bafbc034d913ee4be6f965489be05bbe3c103be16c32b14a5",
+  "sourceFingerprint": "2defdd7e0c2c32b2aa704049dfd9fc6e5d120f342f5403c21dd36d045ef2e70b",
   "summary": {
-    "files": 347,
-    "lines": 86801,
-    "symbols": 1224
+    "files": 348,
+    "lines": 86819,
+    "symbols": 1225
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6828,6 +6828,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterPlanningPayloadTest.kt",
         "line": 12
+      }
+    ],
+    "TheaterProseRhythmTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterProseRhythmTest.kt",
+        "line": 5
       }
     ],
     "TheaterWorldBookContextTest": [
@@ -13993,6 +13999,17 @@
         {
           "name": "TheaterPlanningPayloadTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterProseRhythmTest.kt",
+      "lines": 18,
+      "sha256": "e362f4c106ed568d6ef19af397c7ea4c026ee2724724c39bf7da813a992f9961",
+      "symbols": [
+        {
+          "name": "TheaterProseRhythmTest",
+          "line": 5
         }
       ]
     },
