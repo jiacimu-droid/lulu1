@@ -55,6 +55,7 @@ object CharacterVoicePreferenceStore {
         if (cleanId.isBlank()) return
         prefs?.edit()?.putBoolean(AUTO_PLAY_PREFIX + cleanId, enabled)?.apply()
         mutableAutoPlay.update { current -> current + (cleanId to enabled) }
+        if (!enabled) com.jiacimu.lulu.ChatAutoVoicePlayback.onCharacterAutoReadChanged(cleanId, false)
     }
 
     fun realtimeVoiceId(characterId: String): String? = prefs?.getString("eleven_voice:$characterId", null)?.takeIf(String::isNotBlank)
