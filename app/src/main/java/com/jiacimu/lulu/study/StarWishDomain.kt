@@ -149,6 +149,7 @@ internal object StarWishRules {
 internal class StarWishStore private constructor(context: Context) {
     private val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val stateFile = File(context.applicationContext.filesDir, "starwish/state_v2.json")
+    private val chapterDraftPrefs = context.applicationContext.getSharedPreferences("lulu_theater_chapter_drafts_v1", Context.MODE_PRIVATE)
     private val mutable = MutableStateFlow(load())
     val state: StateFlow<StarWishState> = mutable.asStateFlow()
 
@@ -237,23 +238,29 @@ internal class StarWishStore private constructor(context: Context) {
         )
     }
 
-    fun deleteChaptersFrom(theater: String, chapterNumber: Int) = update { current ->
-        val kept = current.theaterChapters[theater].orEmpty().filter { it.chapter < chapterNumber }
-        current.copy(
-            theaterChapters = current.theaterChapters + (theater to kept),
-            theaterLedgers = current.theaterLedgers - theater,
-        )
+    fun deleteChaptersFrom(theater: String, chapterNumber: Int) {
+        update { current ->
+            val kept = current.theaterChapters[theater].orEmpty().filter { it.chapter < chapterNumber }
+            current.copy(
+                theaterChapters = current.theaterChapters + (theater to kept),
+                theaterLedgers = current.theaterLedgers - theater,
+            )
+        }
+        chapterDraftPrefs.edit().remove("chapter:$theater").apply()
     }
 
-    fun deleteTheater(theater: String) = update { current ->
-        current.copy(
-            theaterChapters = current.theaterChapters - theater,
-            theaterGuides = current.theaterGuides - theater,
-            theaterPlans = current.theaterPlans - theater,
-            theaterLedgers = current.theaterLedgers - theater,
-            theaterBibles = current.theaterBibles - theater,
-            theaterWorldBookIds = current.theaterWorldBookIds - theater,
-        )
+    fun deleteTheater(theater: String) {
+        update { current ->
+            current.copy(
+                theaterChapters = current.theaterChapters - theater,
+                theaterGuides = current.theaterGuides - theater,
+                theaterPlans = current.theaterPlans - theater,
+                theaterLedgers = current.theaterLedgers - theater,
+                theaterBibles = current.theaterBibles - theater,
+                theaterWorldBookIds = current.theaterWorldBookIds - theater,
+            )
+        }
+        chapterDraftPrefs.edit().remove("chapter:$theater").apply()
     }
 
     @Synchronized
