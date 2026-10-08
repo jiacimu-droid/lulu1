@@ -479,53 +479,68 @@ internal object StarWishTheaterPlanningEngine {
     }
 
     internal fun parseChapterPlans(raw: String, start: Int, end: Int): List<StarWishChapterPlan> {
-        val expectedCount = end - start + 1
+        if (start > end || raw.isBlank()) return emptyList()
         val root = parseJsonValue(raw)
-
         val nestedPlans = theaterPlanningObjects(root) { obj ->
-            listOf("outline", "规划", "剧情", "内容", "details", "细纲", "chapterPlan", "events", "keyEvents", "beats", "具体事件")
-                .any { obj.has(it) && !obj.isNull(it) }
+            listOf("outline", "规划", "剧情", "内容", "details", "细纲",
+                "chapterPlan", "events", "keyEvents", "beats", "具体事件",
+                "spotlight", "sceneBeats").any { obj.has(it) && !obj.isNull(it) }
         }
         val values: List<Any> = if (nestedPlans.isNotEmpty()) nestedPlans else when (root) {
-            is JSONArray -> buildList {
-                for (index in 0 until root.length()) root.opt(index)?.let(::add)
-            }
+            is JSONArray -> buildList { for (index in 0 until root.length()) root.opt(index)?.let(::add) }
             is JSONObject -> {
-                val nestedArray = firstArray(root, "chapters", "plans", "chapterPlans", "章节", "章节规划", "data", "result")
-                when {
-                    nestedArray != null -> buildList {
-                        for (index in 0 until nestedArray.length()) nestedArray.opt(index)?.let(::add)
-                    }
-                    else -> {
-                        val nestedObject = listOf("chapter", "plan", "章节", "规划", "data", "result")
-                            .firstNotNullOfOrNull { key -> root.optJSONObject(key) }
-                        listOf(nestedObject ?: root)
-                    }
+                val array = firstArray(root, "chapters", "plans", "chapterPlans", "章节", "章节规划", "data", "result")
+                if (array != null) buildList {
+                    for (index in 0 until array.length()) array.opt(index)?.let(::add)
+                } else {
+                    val nested = listOf("chapter", "plan", "章节", "规划", "data", "result")
+                        .firstNotNullOfOrNull(root::optJSONObject)
+                    listOf(nested ?: root)
                 }
             }
             is String -> listOf(root)
             else -> emptyList()
         }
 
-        val parsed = values.mapIndexedNotNull { index, item ->
-            val number = start + index
-            when (item) {
+        val plans = linkedMapOf<Int, StarWishChapterPlan>()
+        fun add(item: Any, position: Int) {
+            val explicitNumber = (item as? JSONObject)?.let {
+                it.optInt("number", it.optInt("chapter", it.optInt("index", -1)))
+            }
+            // Use actual numbers if they are in range, but accept models numbering a batch 1..3
+            // even when this batch is for chapters 7..9.
+            val number = explicitNumber?.takeIf { it in start..end } ?: position
+            if (number !in start..end || number in plans) return
+            val candidate = when (item) {
                 is JSONObject -> chapterPlanFromObject(item, number)
                 is String -> chapterPlanFromText(item, number)
                 else -> null
+            } ?: return
+            // A title-only shell is not a usable plan; never mark it complete.
+            val meaningful = listOf(candidate.outline, candidate.spotlight, candidate.sceneBeats)
+                .any { it.isNotBlank() && it != "待规划" }
+            if (meaningful) plans[number] = candidate.copy(number = number)
+        }
+        values.forEachIndexed { index, item -> add(item, start + index) }
+
+        // Valid individual objects may be present even if the enclosing array was truncated.
+        if (plans.size < end - start + 1) {
+            theaterChapterJsonFragments(raw).forEachIndexed { index, item ->
+                add(item, start + index)
             }
-        }.take(expectedCount)
-
-        if (parsed.size == expectedCount) {
-            return parsed.mapIndexed { index, plan -> plan.copy(number = start + index) }
         }
-
-        // A provider may use a different schema. Preserve the tolerant one-chapter
-        // fallback when a batch has been narrowed to a single chapter.
-        if (expectedCount == 1) {
-            chapterPlanFromText(raw, start)?.let { return listOf(it.copy(number = start)) }
+        // Human-readable numbered sections need no extra paid "JSON repair" call.
+        if (plans.size < end - start + 1) {
+            theaterChapterMarkdownSections(raw).forEach { (number, text) ->
+                if (number in start..end && number !in plans) {
+                    chapterPlanFromText(text, number)?.let { plans[number] = it.copy(number = number) }
+                }
+            }
         }
-        return parsed.mapIndexed { index, plan -> plan.copy(number = start + index) }
+        if (plans.isEmpty() && start == end) {
+            chapterPlanFromText(raw, start)?.let { plans[start] = it.copy(number = start) }
+        }
+        return plans.values.sortedBy(StarWishChapterPlan::number)
     }
 
     private fun chapterPlanFromObject(item: JSONObject, number: Int): StarWishChapterPlan? {
