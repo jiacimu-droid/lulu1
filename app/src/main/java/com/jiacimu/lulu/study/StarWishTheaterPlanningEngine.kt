@@ -133,10 +133,13 @@ internal object StarWishTheaterPlanningEngine {
                 "$storyTitle · 一次生成幕后规划",
                 5_200,
             )
-        }.getOrNull()
+        }.getOrElse { error ->
+            if (error is CancellationException) throw error
+            null
+        }
         if (!fullRaw.isNullOrBlank()) {
             val fullBible = runCatching { parseStoryBible(fullRaw, writtenChapters.size) }.getOrNull()
-            if (fullBible != null && storyBibleCompleteEnough(fullBible)) {
+            if (fullBible != null && fullBible.overview.isNotBlank() && fullBible.highlights.isNotBlank()) {
                 onProgress?.invoke(fullBible)
                 return@runCatching fullBible
             }
