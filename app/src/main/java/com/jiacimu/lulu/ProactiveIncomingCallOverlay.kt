@@ -36,7 +36,6 @@ internal fun ProactiveIncomingCallOverlay() {
     val context = LocalContext.current
     LaunchedEffect(Unit) { ProactiveIncomingCallStore.initialize(context) }
     val pending by ProactiveIncomingCallStore.pending.collectAsState()
-    var activeCall by remember { mutableStateOf<ProactiveIncomingCall?>(null) }
     var permissionTarget by remember { mutableStateOf<ProactiveIncomingCall?>(null) }
     var notice by remember { mutableStateOf("") }
 
@@ -51,7 +50,7 @@ internal fun ProactiveIncomingCallOverlay() {
         )
         LuluVoiceCallSession.dial()
         ProactiveIncomingCallStore.clear(call)
-        activeCall = call
+        LuluCallWindowController.show()
         notice = ""
     }
 
@@ -163,16 +162,7 @@ internal fun ProactiveIncomingCallOverlay() {
         }
     }
 
-    activeCall?.let { call ->
-        val character = MigratedDomainStores.characters.get(call.characterId)
-        LuluVoiceCallScreen(
-            conversationId = call.conversationId,
-            characterId = call.characterId,
-            characterName = character.displayName,
-        ) {
-            activeCall = null
-        }
-    }
+
 }
 
 @Composable
