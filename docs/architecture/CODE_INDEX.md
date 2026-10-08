@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e8b5ad9f05b39a0c96e90e3c163195961826a410`
+- 基准提交：`ffa5d63faca10f6cae89eb3693135631994e179d`
 - 分支：`main`
 - 已索引文件：341
-- 已索引代码/文本行：86159
+- 已索引代码/文本行：86160
 - 已发现符号：1217
 
 | 文件 | 行数 | 符号数 |
@@ -302,7 +302,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt` | 253 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStyledDropdownCompat.kt` | 61 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 156 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt` | 53 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt` | 54 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt` | 50 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt` | 132 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt` | 25 | 3 |
