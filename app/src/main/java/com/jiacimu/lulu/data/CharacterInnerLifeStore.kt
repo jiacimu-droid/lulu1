@@ -296,6 +296,19 @@ object CharacterInnerLifeStore {
         val voice = root.optJSONArray("voice") ?: JSONArray()
         return buildString {
             appendLine("【角色持续内在生活｜主观状态而非客观事实】")
+            val active = (0 until motives.length()).mapNotNull(motives::optJSONObject)
+                .filter { it.optString("status", "active") == "active" }
+            val paused = (0 until motives.length()).mapNotNull(motives::optJSONObject)
+                .filter { it.optString("status") == "paused" }
+            if (active.size > 1) {
+                appendLine("现在并行牵挂${active.size}件事。不要每回合只按固定优先级执行；考虑此刻状态、执行条件、上次行动后果及角色本人的冲突。")
+                val contrasting = active.sortedByDescending { it.optInt("priority", 2) }.take(3)
+                appendLine("当下可权衡的心愿：${contrasting.joinToString("／") { it.optString("aim") }}。")
+            }
+            if (paused.isNotEmpty()) appendLine("另外有${paused.size}件事被暂时搁置，若没有新的理由不要硬恢复。")
+            appendLine("连续人格链：真实记忆与现有信念 → 多种同时存在的感受 → 内在愿望和实际限制 → 本轮可以执行/克制的选择 → 言语和动作 → 真实后果 → 下轮反思。")
+            appendLine("不要把心理状态列表念给用户；它应暗中影响自然的停顿、措辞、话题偏爱、行动选择、相处边界和对失败的态度。")
+            appendLine("可以有私心、好奇、无聊、得意、嘴硬或反悔，必须对应个人设定与实际触发。不同性格的人反应方式不同，不要统一撒娇或每轮强烈心动。")
             if (motives.length() == 0) appendLine("尚无明确长期小目标，不能为了填满生活编造。")
             for (i in 0 until motives.length()) {
                 val m = motives.optJSONObject(i) ?: continue
@@ -337,7 +350,7 @@ object CharacterInnerLifeStore {
                 appendLine("自我修正：${last?.optString("realization")}；下次尝试：${last?.optString("nextTime")}。不要反复口头忏悔，以行动表现。")
             }
             if (voice.length() > 0) {
-                appendLine("角色近期实际说过的话（仅供个人口气参考，不能逐字复读）：")
+                appendLine("角色近期实际说过的话（延续自己的语言节奏、称呼、话题与情绪表达习惯；不复制原话）：")
                 for (i in maxOf(0, voice.length() - 3) until voice.length()) {
                     appendLine("· ${voice.optJSONObject(i)?.optString("text")}")
                 }
