@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T07:42:43.546940+00:00",
-  "commit": "5eb609d7a9ceb59f2fa739c6c8318cdba2892050",
+  "generatedAt": "2026-10-08T07:43:27.983222+00:00",
+  "commit": "7aa3dfa4c275bc56bfaf221be53920cd4ea5205b",
   "branch": "main",
-  "sourceFingerprint": "ea6e0647ddc67dda6b2d21eabcf64f5737104b550b106b2e8a691cf20ed191ca",
+  "sourceFingerprint": "5ce072658b599597dc5c0fd9e3a8650e77f5f2a4f134425da15a3c4f6ecd5f5f",
   "summary": {
     "files": 342,
-    "lines": 86421,
+    "lines": 86448,
     "symbols": 1219
   },
   "symbolIndex": {
@@ -13902,8 +13902,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterPlanningPayloadTest.kt",
-      "lines": 94,
-      "sha256": "18259ad15056c386bc54294049ccba7aa93256032a24dc848a9606c97c90b118",
+      "lines": 121,
+      "sha256": "06a361360981c719bac251e5c1607422e27d955775304dbdb4b0c639772a0834",
       "symbols": [
         {
           "name": "TheaterPlanningPayloadTest",
