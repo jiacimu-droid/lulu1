@@ -454,7 +454,10 @@ internal class StarWishTheaterGenerationWorker(
             }
 
             var ledger = snapshot.theaterLedgers[theater] ?: StarWishStoryLedger()
-            if (chapters.isNotEmpty() && (ledger.updatedThroughChapter != chapters.size || ledger.evidenceOnly)) {
+            // Evidence-only ledgers already contain the exact saved text; don't
+            // spend another model call rebuilding them on the very next chapter.
+            // Only truly out-of-date ledgers (e.g. after manual edits) need repair.
+            if (chapters.isNotEmpty() && ledger.updatedThroughChapter != chapters.size) {
                 ledger = rebuildLedger(theater, guide, plans, chapters, ledger)
                     ?: theaterLedgerFromEvidence(ledger, chapters)
                 saveProgress { store.setLedger(theater, ledger) }
@@ -656,7 +659,12 @@ internal class StarWishTheaterGenerationWorker(
             // Only clear the draft after its corresponding text has been saved.
             draftPrefs.edit().remove(draftKey).apply()
             // A failed auxiliary ledger request must never delete the saved prose.
-            val updated = updateLedger(theater, guide, plans, ledger, chapter)
+            // Save exact prose evidence after EVERY chapter. Consolidate the full
+            // model-written continuity ledger after every two chapters instead
+            // of charging another request after each one. When a saved chapter is
+            // repaired, consolidate immediately because its facts may have changed.
+            val updateContinuityNow = repairChapter != null || chapterNumber % 2 == 0
+            val updated = (if (updateContinuityNow) updateLedger(theater, guide, plans, ledger, chapter) else null)
                 ?: theaterLedgerFromEvidence(ledger, listOf(chapter))
             coroutineContext.ensureActive()
             if (repairChapter != null) {
@@ -668,7 +676,8 @@ internal class StarWishTheaterGenerationWorker(
             }
             manager.mark(theater, requestId, StarWishTheaterTaskStatus.SUCCEEDED,
                 if (repairChapter != null) "第 $chapterNumber 章已补全并保存"
-                else if (updated.evidenceOnly) "第 $chapterNumber 章已保存；连续性暂用已保存正文证据" else "第 $chapterNumber 章已生成")
+                else if (updated.evidenceOnly) "第 $chapterNumber 章已生成；正文证据已保存"
+                else "第 $chapterNumber 章已生成")
             Result.success()
         } catch (cancelled: CancellationException) {
             manager.mark(theater, requestId, StarWishTheaterTaskStatus.QUEUED, "任务暂时中断，等待系统继续")
