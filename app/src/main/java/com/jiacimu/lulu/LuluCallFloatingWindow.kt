@@ -33,14 +33,18 @@ internal object LuluCallWindowController {
     fun minimize() { mutableExpanded.value = false }
 }
 
+/** A mini-window represents a live or connecting call, never a dead or unanswered placeholder. */
+internal fun shouldShowFloatingCall(phase: CallPhase, expanded: Boolean, characterId: String): Boolean =
+    !expanded && characterId.isNotBlank() &&
+        (phase == CallPhase.Dialing || phase == CallPhase.Connected)
+
 /** Drawn above every Lulu app route, including the theater and study pages. */
 @Composable
 internal fun LuluCallFloatingWindow(modifier: Modifier = Modifier) {
     val call by LuluVoiceCallSession.state.collectAsState()
     val expanded by LuluCallWindowController.expanded.collectAsState()
     // No misleading floating avatar after hanging up or before an actual call begins.
-    val active = call.phase == CallPhase.Dialing || call.phase == CallPhase.Connected
-    if (!active || expanded || call.characterId.isBlank()) return
+    if (!shouldShowFloatingCall(call.phase, expanded, call.characterId)) return
     val character = remember(call.characterId) { MigratedDomainStores.characters.get(call.characterId) }
     val title = call.characterName.ifBlank { character.displayName }
     Surface(
