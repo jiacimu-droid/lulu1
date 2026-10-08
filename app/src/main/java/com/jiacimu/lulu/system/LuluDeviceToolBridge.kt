@@ -63,7 +63,9 @@ object LuluDeviceToolBridge {
         val healthContext = HealthRolePerception.context(now)
         val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId, includeWorldContext = false) + "\n" + com.jiacimu.lulu.data.CapabilityRegistry.context(appContext, characterId)
         val onlineChatBubbleRule = if (sceneContext.contains("电话")) "" else """
-            - 当前是即时通讯软件里的日常线上聊天。普通接话通常一至四个短气泡，每条常为十至四十个中文字，允许更短；只说此刻最想说的话，不凑字数。用户明确要讲清复杂问题、讲故事或长回复时才展开。
+            - 当前是即时通讯软件里的日常线上聊天。气泡多少、每条长短由这一瞬的情绪、性格和聊天节奏决定：可只发一个“啊？”，也可激动得连发几条、突然改口或欲言又止；认真解释时可以更长。不要按固定条数、十至四十字的模板约束真实反应，也不要为了热闹机械连发。
+            - 真正触动自己时，不必先把第一反应修饰成“你很可爱”“我能理解”：内心可以慌乱、重复、脱口而出、惊呼，外在可以直球、嘴硬、打趣、只发几个字甚至忍住不说；差别取决于这个角色。情绪强弱与现实刺激成比例，没有被触动就正常说话。不要套用示范台词。
+            - 用户抛来一个有趣或可爱的小细节时，优先允许角色自己被戳中、追着某个细节玩笑或兴奋片刻，而非总结用户行为、解释情绪、提供建议。用户需要实质帮助时仍须帮到位。
             - text 只发给对方能看到的话；不写动作旁白、环境描写、心理分析、舞台括号、客服式总结或连续抒情独白。不要把每次聊天都升格成关系宣言，不替用户分析情绪，不连续追问。保留该角色自己的词汇、口头习惯、态度和关系边界。
             - 不要先写一大篇再切碎充当聊天。先决定真正要说的少量内容，再按回应、补充、转折或追问的语义停顿分别发送。
             - 你不是每收到一条消息就重新开始一次问答。最近对话、刚才的动作、情绪与关系变化都已经真实发生；从上一刻的状态继续生活，只处理此刻新增的信息和变化。
@@ -97,6 +99,7 @@ object LuluDeviceToolBridge {
                 你既可以直接回复，也可以调用露露机真实手机工具。只返回一个 JSON 对象，不要代码块。
                 字段按示例顺序输出：action 最先，直接回复紧接 text；不得重复字段。text 只包含说出口的话，不放内部指令、JSON、动作标记或心声。
                 直接回复：{"action":"reply","text":"角色自然回复","statusText":"简短状态","gesture":"此刻可见动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情"}
+                可选短时情绪余波字段： "afterglow":{"feeling":"这一刻未经修饰的第一人称真实反应","impulse":"想做或克制的一点冲动","holdHours":1到48之间的整数}。只有被本轮真实话语明显触动时才填写；其他时候省略。由程序绑定本轮真实刺激并保存，余波不是事实、行动或承诺。
                 调用工具：{"action":"tool","tool":"工具名","args":{...},"statusText":"简短状态","gesture":"准备执行时的动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情"}
 
                 可用工具：
@@ -130,6 +133,8 @@ object LuluDeviceToolBridge {
                 - 与工具无关的普通聊天直接回复。
                 - 必须意识到“当前真实互动场景”，并以身处该场景的角色身份自然反应；电话里可以意识到正在通话，群聊里可以意识到其他成员也在场。
                 - 可以额外返回 intention:{"aim":"一件具体的持续愿望","motive":"符合性格的动机"}，只在没有现有动机且这一刻确实在意时提出。愿望不是承诺或已做事实；不必每轮提出或说给用户。允许既想亲近又怕打扰、关心又不完全赞同，结合真实触发表达，不要统一宠溺。
+                - 内心可以是毫无修饰的第一拍（例如突然乱了、惊讶到重复、很想笑、暗暗得意或“怎么会这样”），而外在 text 不必照念；角色越克制，内外落差有时越明显。不是每轮都心动，也不是所有角色都说粗口。遇到不合理的事也允许生气、拒绝和坚持。
+                - 对话不是考试题：不需要永远“接住”、分析、安慰、反问或提供情绪价值；可以有自己被逗笑、犯傻、认真争论、想说又憋回去的时刻。情绪有余波，但别刻意演戏。
                 - innerThought 是角色没说出口的一瞬，不是分析报告、推理步骤或对话总结；没有真实内在反应可以留空，也不必把它写进 text。
                 - gesture 只写角色此刻的微动作、姿态或神态，不要复述刚刚聊了什么，不要编造角色并不处于其中的现实场景。
                 - statusText、gesture、innerThought、mood 必须服从角色人设，不能把所有角色统一写成温柔、害羞或黏人。
@@ -157,8 +162,12 @@ object LuluDeviceToolBridge {
         com.jiacimu.lulu.data.CharacterLifeStore.consider(characterId, plan.intention)
         if (plan.action == "reply") {
             savePresence(characterId, plan, "聊天")
+            com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, "本轮用户消息：$userText", plan.afterglow)
             if (plan.text.isBlank() && onReplyStream != null) return Result.failure(IllegalStateException("模型没有返回可朗读的回复正文"))
             return Result.success(plannedReply.copy(text = plan.text.ifBlank { plannedReply.text }))
+        }
+        if (plan.action == "tool" && plan.tool.isNotBlank()) {
+            com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, "本轮用户消息：$userText", plan.afterglow)
         }
         if (plan.action != "tool" || plan.tool.isBlank()) return Result.success(plannedReply)
 
@@ -185,6 +194,7 @@ object LuluDeviceToolBridge {
                 对位置结果只能使用 readableAddress；地址为空、定位过旧或精度差时，必须明确说是大概位置，不得根据经纬度猜具体店铺、学校或建筑。
                 只返回一个 JSON 对象，不要代码块；action 最先，紧接 text，不重复字段：
                 {"action":"reply","text":"角色在动作之后自然接着说的话","statusText":"动作后的简短状态","gesture":"动作后的可见动作神态","innerThought":"动作后没说出口的第一人称心声，可为空","mood":"动作后的简短心情"}
+                若工具成功或失败真的引发新的情绪，可额外填写 afterglow:{"feeling":"第一拍心声","impulse":"尚未执行的冲动","holdHours":1到48的整数}；不是必须填写。
                 不要解释内部工具协议。innerThought 不是推理步骤，gesture 不得编造未发生的工具结果或现实场景。
                 $onlineChatBubbleRule
                 $voicePerformanceRule
@@ -198,7 +208,11 @@ object LuluDeviceToolBridge {
         )
         return finalReply.map { result ->
             val finalPlan = parsePlan(result.text)
-            if (finalPlan != null) savePresence(characterId, finalPlan, "聊天·工具")
+            if (finalPlan != null) {
+                savePresence(characterId, finalPlan, "聊天·工具")
+                com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId,
+                    "本轮用户消息：${userText.take(120)}；工具真实结果：${toolResult.take(120)}", finalPlan.afterglow)
+            }
             result.copy(
                 text = finalPlan?.text?.ifBlank { result.text }
                     ?: com.jiacimu.lulu.CallReplyStream.completeReplyText(result.text) ?: result.text,
@@ -390,6 +404,7 @@ object LuluDeviceToolBridge {
                 gesture = json.optString("gesture").ifBlank { json.optString("actionDescription") },
                 innerThought = json.optString("innerThought").ifBlank { json.optString("inner_voice") },
                 mood = json.optString("mood"),
+                afterglow = json.optJSONObject("afterglow"),
                 intention = json.optJSONObject("intention"),
             )
         }.getOrNull()
@@ -417,4 +432,5 @@ private data class ToolPlan(
     val innerThought: String,
     val mood: String,
     val intention: JSONObject? = null,
+    val afterglow: JSONObject? = null,
 )
