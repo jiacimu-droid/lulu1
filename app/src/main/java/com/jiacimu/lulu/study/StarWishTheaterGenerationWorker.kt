@@ -517,6 +517,10 @@ internal class StarWishTheaterGenerationWorker(
                 if (ledger.updatedThroughChapter > 0) appendLine("截至第${ledger.updatedThroughChapter}章的连续性档案：\n${ledger.promptText()}")
                 val canonicalEvidence = TheaterCanonEvidence.index(chapters)
                 if (canonicalEvidence.isNotBlank()) appendLine("较早正文仍有效的原文事实锚点（从已保存章节提取，禁止无解释推翻；后文如矛盾，不能把错句当新设定）：\n$canonicalEvidence")
+                val overusedPhrases = TheaterProseRhythm.overusedIn(chapters)
+                if (overusedPhrases.isNotEmpty()) {
+                    appendLine("最近三章重复使用的套话：${overusedPhrases.joinToString("、")}。这是文风提醒而非事实禁令：请优先以具体动作、容貌与人物主观感受替代反复套词。")
+                }
                 if (recentChapters.isNotBlank()) appendLine("最近章节原文：\n$recentChapters")
                 chapters.lastOrNull()?.content?.takeLast(1_500)?.let { appendLine("上一章结尾连续性锚点：\n$it") }
                 if (influence.isNotBlank()) appendLine("用户对本章的最高优先级要求：$influence")
