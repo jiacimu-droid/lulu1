@@ -18,9 +18,11 @@ internal object TheaterChapterCompletion {
             reason == "output_limit" || reason == "token_limit"
     }
 
-    fun isFinished(raw: String, finishReason: String?): Boolean =
-        // A fully emitted end marker is decisive even if the provider mislabels the stop.
-        raw.contains(END_MARKER)
+    fun isFinished(raw: String, finishReason: String?): Boolean {
+        // The marker is authoritative even if an intermediary misreports the stop.
+        // Keep finishReason in the signature to pair the check with provider metadata.
+        return raw.contains(END_MARKER)
+    }
 
     /**
      * A follow-up may repeat the last part of the existing answer rather than
@@ -35,7 +37,7 @@ internal object TheaterChapterCompletion {
 
         val limit = minOf(previous.length, incoming.length, 800)
         var overlap = 0
-        for (size in limit downTo 3) {
+        for (size in limit downTo 2) {
             if (previous.regionMatches(previous.length - size, incoming, 0, size)) {
                 overlap = size
                 break
