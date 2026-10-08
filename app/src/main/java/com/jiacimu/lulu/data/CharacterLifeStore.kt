@@ -203,6 +203,7 @@ object CharacterLifeStore {
         val root = state(characterId)
         root.remove("intention")
         root.remove("previousIntention")
+        root.remove("socialNames")
         save(characterId, root)
     }
 
