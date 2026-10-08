@@ -228,6 +228,7 @@ fun CharacterSettingsScreenV2(
                     ) { checked ->
                         ProactivePerceptionPolicyStore.update(characterId) { it.copy(adaptiveFrequency = checked, rememberedAdaptiveFrequency = checked) }
                     }
+                    Text("开启后会参考未读消息、挂心事项、近期联系来调整感知间隔，并保留少量自然浮动；不是按固定概率主动打电话。是否联系由角色另行决定。", color = LuluColors.Muted, fontSize = 12.sp, lineHeight = 18.sp)
                     CharacterV2Switch(
                         title = "夜间勿扰",
                         checked = perceptionPolicy.quietHoursEnabled,
@@ -260,6 +261,7 @@ fun CharacterSettingsScreenV2(
                 CharacterV2Card {
                     Text("主动来电", fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     CharacterV2Switch(title = "允许主动来电", checked = proactiveCalls) { proactiveCalls = it; persistDefinition() }
+                    Text("角色可以自主选择是否拨号；自己答应的定时来电会尝试通过真实来电执行。关闭主动来电时，未执行的拨号承诺会显示受阻，不能伪装为已拨出。", color = LuluColors.Muted, fontSize = 12.sp, lineHeight = 18.sp)
                 }
             }
             item {
