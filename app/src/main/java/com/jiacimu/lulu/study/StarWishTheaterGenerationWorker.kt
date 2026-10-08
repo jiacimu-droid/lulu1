@@ -505,32 +505,120 @@ internal class StarWishTheaterGenerationWorker(
                 幕后规划的栏目是可选手段：只执行真正存在且符合核心体验的内容，没写的明暗线、伏笔和关系线不需要临时补充。角色行动和事件必须自然、合乎已写事实，但不要求每章推进两条线。
                 新章紧接上章已发生内容，禁止重演既有动作、对白或发现。正文确认的生死、身份、关系、伤势、物品、地点和已知信息不可无解释推翻；最新选用世界书高于旧的未发生规划。
                 根据所需文风使用环境、五感、神态、动作、心理、对白停顿和潜台词营造体验，避免流水账和抽象总结。非收束章节可留下自然承接，短篇的收束章要尽情兑现看点并允许完整结束，不能强行设续集悬念。
-                不输出提纲、作者解释、标题或系统提示。
+                全章确实写完时，最后单独输出固定标记【本章正文结束】，程序会自动隐藏；在写完整个本章前绝不能输出这个标记。不要为了省 token 只写半章，不要省略关键场面。
+                不输出提纲、作者解释、标题或系统提示（上述结尾标记除外）。
             """.trimIndent()
 
             manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, "正在写第 $chapterNumber 章正文")
-            var reply = ""
-            var lastGenerationError: Throwable? = null
-            for (attempt in 1..2) {
-                val result = LuluAiServices.gateway.generate(
+            val connection = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER)
+            val draftPrefs = applicationContext.getSharedPreferences("lulu_theater_chapter_drafts_v1", Context.MODE_PRIVATE)
+            val draftKey = "chapter:$theater"
+            // A retry may resume exactly this chapter; changed story settings or a
+            // newly completed previous chapter invalidate the old unfinished draft.
+            val draftFingerprint = listOf(
+                chapterNumber.toString(),
+                chapters.lastOrNull()?.id.orEmpty(),
+                guide.hashCode().toString(),
+                theaterWorldBook.hashCode().toString(),
+                bible.promptText().hashCode().toString(),
+                influence.hashCode().toString(),
+            ).joinToString("|")
+            val savedDraft = runCatching {
+                JSONObject(draftPrefs.getString(draftKey, "{}").orEmpty()).takeIf {
+                    it.optString("fingerprint") == draftFingerprint
+                }?.optString("text").orEmpty()
+            }.getOrDefault("")
+
+            fun checkpointDraft(text: String) {
+                manager.commitIfCurrent(theater, requestId) {
+                    worldBookContext.requireUnchanged(selectedIds, LuluRepositories.worldBook.snapshot())
+                    check(draftPrefs.edit().putString(
+                        draftKey,
+                        JSONObject().put("fingerprint", draftFingerprint).put("text", text).toString(),
+                    ).commit()) { "章节草稿存盘失败" }
+                }
+            }
+
+            var rawChapter = savedDraft
+            var lastFinishReason: String? = null
+            if (rawChapter.isBlank()) {
+                var lastGenerationError: Throwable? = null
+                for (attempt in 1..2) {
+                    val result = LuluAiServices.gateway.generate(
+                        characterId = ISOLATED_CHARACTER_ID,
+                        facts = chapterFacts,
+                        instruction = chapterInstruction,
+                        source = "剧场",
+                        title = "$theater · 第${chapterNumber}章",
+                        maxTokens = 4_600,
+                        connectionOverride = connection,
+                        contextMode = CompanionContextMode.Isolated,
+                        readTimeoutMillis = 240_000,
+                    )
+                    result.onSuccess { generated ->
+                        rawChapter = generated.text.trim()
+                        lastFinishReason = generated.finishReason
+                    }
+                    result.onFailure { error -> lastGenerationError = error }
+                    if (rawChapter.isNotBlank()) break
+                    val retryableEmpty = lastGenerationError?.message?.contains("没有返回可读取", ignoreCase = true) == true ||
+                        lastGenerationError?.message?.contains("空章节", ignoreCase = true) == true
+                    if (!retryableEmpty) break
+                }
+                if (rawChapter.isBlank()) throw lastGenerationError ?: IllegalStateException("模型没有返回章节正文")
+                checkpointDraft(rawChapter)
+            } else {
+                manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, "找到未完成的第 $chapterNumber 章草稿，正在从断点接着写")
+            }
+
+            var continuationCount = 0
+            while (!TheaterChapterCompletion.isFinished(rawChapter, lastFinishReason)) {
+                coroutineContext.ensureActive()
+                check(!isStopped) { "续写已停止" }
+                if (continuationCount >= TheaterChapterCompletion.MAX_CONTINUATIONS) {
+                    error("第 $chapterNumber 章尚未完整结束，已保留草稿；重新点击生成会从断点继续，而不会覆盖成半章。")
+                }
+                continuationCount += 1
+                val cutOff = TheaterChapterCompletion.cutOffByTokens(lastFinishReason)
+                manager.mark(
+                    theater, requestId, StarWishTheaterTaskStatus.RUNNING,
+                    "第 $chapterNumber 章正在自动补全（第 $continuationCount 次）" +
+                        if (cutOff) " · 模型输出达到 token 上限" else " · 结尾尚未确认",
+                )
+                val continuationFacts = buildString {
+                    appendLine("作品：《$theater》，仍是第 $chapterNumber 章，不要开始下一章。")
+                    appendLine("本章故事核心及用户创作要求：\n$guide")
+                    if (theaterWorldBook.isNotBlank()) appendLine("本书已选世界书：\n$theaterWorldBook")
+                    if (currentPlan != null) appendLine("本章原定执行规划：\n${currentPlan.outline}")
+                    if (influence.isNotBlank()) appendLine("用户对本章的要求：$influence")
+                    appendLine("本章已经写出的最后一段（这是正文，不许重复，必须接着最后一个字写）：")
+                    appendLine(TheaterChapterCompletion.clean(rawChapter).takeLast(3_600))
+                }
+                val continuation = LuluAiServices.gateway.generate(
                     characterId = ISOLATED_CHARACTER_ID,
-                    facts = chapterFacts,
-                    instruction = chapterInstruction,
+                    facts = continuationFacts,
+                    instruction = """
+                        你在补完同一章因输出长度限制而中断的小说正文，不是写新章。
+                        从给出的【本章已经写出的最后一段】末尾准确继续，不能重复已写内容、重讲前情、重新开头、总结剧情、打印“续写”标题或另起全新情节。
+                        如果上一段断在逗号或半句话，优先补全这一句话，然后自然完成本章原本应该有的场景和情绪。不要为了赶快停止而草草收尾，也不能越界写到下一章。
+                        本章真正结束后，在末尾单独输出【本章正文结束】。该标记会自动隐藏。只输出续写正文及最终标记。
+                    """.trimIndent(),
                     source = "剧场",
-                    title = "$theater · 第${chapterNumber}章",
-                    maxTokens = 4_600,
-                    connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
+                    title = "$theater · 第${chapterNumber}章自动补全 $continuationCount",
+                    maxTokens = 3_600,
+                    connectionOverride = connection,
                     contextMode = CompanionContextMode.Isolated,
                     readTimeoutMillis = 240_000,
-                )
-                result.onSuccess { generated -> reply = generated.text.trim() }
-                result.onFailure { error -> lastGenerationError = error }
-                if (reply.isNotBlank()) break
-                val retryableEmpty = lastGenerationError?.message?.contains("没有返回可读取", ignoreCase = true) == true ||
-                    lastGenerationError?.message?.contains("空章节", ignoreCase = true) == true
-                if (!retryableEmpty) break
+                ).getOrThrow()
+                check(continuation.text.isNotBlank()) { "模型补全没有返回新正文，已保留原草稿" }
+                val combined = TheaterChapterCompletion.append(rawChapter, continuation.text)
+                check(combined != rawChapter) { "模型重复了已有正文，没有补全；草稿已保留" }
+                rawChapter = combined
+                lastFinishReason = continuation.finishReason
+                checkpointDraft(rawChapter)
             }
-            if (reply.isBlank()) throw lastGenerationError ?: IllegalStateException("模型连续两次没有返回章节正文")
+            val reply = TheaterChapterCompletion.clean(rawChapter)
+            check(reply.isNotBlank()) { "生成正文为空，草稿已保留" }
 
             val chapter = StarWishTheaterChapter(
                 theater = theater,
@@ -543,6 +631,7 @@ internal class StarWishTheaterGenerationWorker(
             manager.commitIfCurrent(theater, requestId) {
                 worldBookContext.requireUnchanged(selectedIds, LuluRepositories.worldBook.snapshot())
                 store.appendGeneratedChapter(chapter, expected)
+                draftPrefs.edit().remove(draftKey).apply()
             }
             // The chapter is already durable. A failed auxiliary request must not hide it or regenerate it.
             val updated = updateLedger(theater, guide, plans, ledger, chapter)
