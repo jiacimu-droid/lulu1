@@ -8,6 +8,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -29,6 +31,14 @@ internal object MemoryEmbeddingLifecycle {
     fun initialize() {
         if (started) return
         started = true
+        scope.launch {
+            while (true) {
+                delay(60_000)
+                MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
+                    runCatching { sync(characterId, LuluRepositories.memory.observeMemories(characterId).first()) }
+                }
+            }
+        }
         scope.launch {
             MigratedDomainStores.characters.settings.collectLatest { settings ->
                 val live = settings.keys
@@ -55,7 +65,9 @@ internal object MemoryEmbeddingLifecycle {
                 DigitalLifeProfileStore.allowsTimestamp(characterId, memory.occurredAt ?: memory.createdAt)
         }
         val previous = signatures[characterId].orEmpty()
-        val current = active.associate { memory -> memory.id to signature(memory) }
+        val model = MemoryModelRuntime.embeddingConnection()
+        val modelKey = "${model?.baseUrl}|${model?.model}"
+        val current = active.associate { memory -> memory.id to (31 * signature(memory) + modelKey.hashCode()) }
         (previous.keys - current.keys).forEach(MemoryEmbeddingIndex::removeMemory)
 
         if (!MemoryModelRuntime.vectorEnabled()) {
@@ -85,7 +97,11 @@ internal object MemoryEmbeddingLifecycle {
                 )
             }
         }
-        signatures[characterId] = current
+        signatures[characterId] = current.filterKeys { id ->
+            active.firstOrNull { it.id == id }?.let { memory ->
+                MemoryEmbeddingIndex.get(MemoryEmbeddingIndex.key(connection, memory), id) != null
+            } == true
+        }
     }
 
     private fun signature(memory: MemoryEntry): Int = 31 * memory.content.hashCode() +

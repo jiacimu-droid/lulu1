@@ -11,7 +11,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -31,12 +35,16 @@ internal object MemorySupersessionAutomation {
     private val jobs = mutableMapOf<String, Job>()
     private var prefs: android.content.SharedPreferences? = null
     private var started = false
+    private val inspectionLock = Mutex()
 
     @Synchronized
     fun initialize(context: Context) {
         if (started) return
         started = true
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        scope.launch {
+            while (true) { delay(60_000); runCatching { retryPending() } }
+        }
         scope.launch {
             MigratedDomainStores.characters.settings.collect { characters ->
                 val ids = characters.keys
@@ -45,11 +53,19 @@ internal object MemorySupersessionAutomation {
                     if (characterId in jobs) return@forEach
                     jobs[characterId] = scope.launch {
                         LuluRepositories.memory.observeMemories(characterId).collect { memories ->
-                            inspect(characterId, memories)
+                            inspectionLock.withLock { inspect(characterId, memories) }
                         }
                     }
                 }
             }
+        }
+    }
+
+    private suspend fun retryPending() {
+        MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
+            val memories = LuluRepositories.memory.observeMemories(characterId)
+            val snapshot = memories.first()
+            inspectionLock.withLock { inspect(characterId, snapshot) }
         }
     }
 
@@ -82,10 +98,9 @@ internal object MemorySupersessionAutomation {
                 .sortedByDescending(Pair<MemoryEntry, Double>::second)
                 .take(12)
                 .map(Pair<MemoryEntry, Double>::first)
-            if (candidates.isNotEmpty()) {
-                determineSuperseded(characterId, newFact, candidates)
+            if (candidates.isEmpty() || determineSuperseded(characterId, newFact, candidates)) {
+                rememberProcessed(listOf(newFact.id))
             }
-            rememberProcessed(listOf(newFact.id))
         }
     }
 
@@ -93,7 +108,7 @@ internal object MemorySupersessionAutomation {
         characterId: String,
         newFact: MemoryEntry,
         candidates: List<MemoryEntry>,
-    ) {
+    ): Boolean {
         val facts = buildString {
             appendLine("新事实：")
             appendLine("memoryId=${newFact.id}｜${newFact.content}")
@@ -118,25 +133,28 @@ internal object MemorySupersessionAutomation {
             maxTokens = 260,
             connectionOverride = MemoryModelRuntime.extractionConnection(),
             contextMode = CompanionContextMode.Isolated,
-        ).getOrNull() ?: return
+        ).getOrNull() ?: return false
         val allowed = candidates.mapTo(mutableSetOf(), MemoryEntry::id)
-        val ids = parseIds(result.text).filter(allowed::contains)
-        if (ids.isNotEmpty()) MemoryValidityStore.markSuperseded(ids, newFact.id)
+        val ids = parseIds(result.text)?.filter(allowed::contains) ?: return false
+        val current = LuluRepositories.memory.snapshot(characterId).mapTo(mutableSetOf(), MemoryEntry::id)
+        if (newFact.id !in current || !memoryHasLiveSources(newFact, characterId)) return false
+        if (ids.isNotEmpty()) MemoryValidityStore.markSuperseded(ids.filter(current::contains), newFact.id)
+        return true
     }
 
-    private fun parseIds(raw: String): List<String> = runCatching {
+    private fun parseIds(raw: String): List<String>? = runCatching {
         val clean = raw.trim()
             .removePrefix("```json")
             .removePrefix("```")
             .removeSuffix("```")
             .trim()
-        val array = JSONObject(clean).optJSONArray("supersedes") ?: JSONArray()
+        val array = JSONObject(clean).getJSONArray("supersedes")
         buildList {
             for (index in 0 until array.length()) {
                 array.optString(index).trim().takeIf(String::isNotBlank)?.let(::add)
             }
         }.distinct()
-    }.getOrDefault(emptyList())
+    }.getOrNull()
 
     private fun rememberProcessed(ids: Collection<String>) {
         if (ids.isEmpty()) return

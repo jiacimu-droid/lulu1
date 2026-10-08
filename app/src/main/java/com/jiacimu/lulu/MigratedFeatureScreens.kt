@@ -203,7 +203,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                         fontSize = 12.sp,
                     )
                     Text(
-                        "若总结失败或待整理内容超过一批，原始上下文会自动扩大到覆盖全部积压，不让消息落入空档。",
+                        "重要信息即时保存；静默十分钟后整理尾批。积压记录可按当前话题回查。",
                         color = FeatureBlueGray,
                         fontSize = 11.sp,
                         lineHeight = 16.sp,
@@ -307,7 +307,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                                 onClick = {
                                     organizing = true
                                     scope.launch {
-                                        repository.summarizeNow(selectedCharacterId)
+                                        repository.flushNow(selectedCharacterId)
                                         organizing = false
                                     }
                                 },
@@ -425,7 +425,7 @@ private fun MemoryEntryCard(
                         onClick = {},
                         label = { Text(memory.kind.memoryKindLabel(), fontSize = 11.sp) },
                     )
-                    if (memory.pinned) Icon(Icons.Outlined.PushPin, "已固定", tint = FeatureBlueGray, modifier = Modifier.size(16.dp))
+                    if (memory.pinned || memory.tier == com.jiacimu.lulu.core.MemoryTier.Core) Icon(Icons.Outlined.PushPin, "已固定", tint = FeatureBlueGray, modifier = Modifier.size(16.dp))
                     if (memory.canRecallProactively) Icon(Icons.Outlined.AutoAwesome, "可主动回忆", tint = FeatureBlueGray, modifier = Modifier.size(16.dp))
                 }
                 Text(memory.content, fontSize = 16.sp, lineHeight = 23.sp)
@@ -443,7 +443,7 @@ private fun MemoryEntryCard(
             TextButton(onClick = onTogglePinned) {
                 Icon(Icons.Outlined.PushPin, null)
                 Spacer(Modifier.width(4.dp))
-                Text(if (memory.pinned) "取消固定" else "固定")
+                Text(if (memory.pinned || memory.tier == com.jiacimu.lulu.core.MemoryTier.Core) "取消常驻" else "始终记住")
             }
             TextButton(onClick = onToggleRecall) {
                 Icon(if (memory.canRecallProactively) Icons.Outlined.VisibilityOff else Icons.Outlined.AutoAwesome, null)
@@ -471,7 +471,7 @@ private fun MemoryEditorDialog(
     var source by remember(memory.id) { mutableStateOf(memory.source) }
     var kind by remember(memory.id) { mutableStateOf(memory.kind) }
     var strength by remember(memory.id) { mutableFloatStateOf(memory.strength.toFloat()) }
-    var pinned by remember(memory.id) { mutableStateOf(memory.pinned) }
+    var pinned by remember(memory.id) { mutableStateOf(memory.pinned || memory.tier == com.jiacimu.lulu.core.MemoryTier.Core) }
     var recall by remember(memory.id) { mutableStateOf(memory.canRecallProactively) }
     var occurredAtText by remember(memory.id) {
         mutableStateOf(memory.occurredAt?.atZone(ZoneId.systemDefault())?.format(MemoryInputFormatter).orEmpty())
@@ -549,6 +549,7 @@ private fun MemoryEditorDialog(
                             occurredAt = occurredAt,
                             strength = strength.toInt().coerceIn(1, 10),
                             pinned = pinned,
+                            tier = if (pinned) com.jiacimu.lulu.core.MemoryTier.Core else if (kind == MemoryKind.Fact) com.jiacimu.lulu.core.MemoryTier.Stable else com.jiacimu.lulu.core.MemoryTier.Episode,
                             canRecallProactively = recall,
                         ),
                     )

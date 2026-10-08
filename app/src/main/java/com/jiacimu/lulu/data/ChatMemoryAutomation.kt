@@ -33,6 +33,7 @@ object ChatMemoryAutomation {
             while (true) {
                 delay(RETRY_POLL_MS)
                 retryFailedPersistentJobs()
+                flushIdleTails()
             }
         }
         scope.launch {
@@ -94,6 +95,21 @@ object ChatMemoryAutomation {
             if (!policy.autoSummarize) return@forEach
             lockFor(characterId).withLock {
                 runCatching { LuluRepositories.memory.summarizeNow(characterId) }
+            }
+        }
+    }
+
+    private suspend fun flushIdleTails() {
+        MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
+            val policy = LuluRepositories.memory.observePolicy(characterId).first()
+            if (!policy.autoSummarize) return@forEach
+            val last = SharedExperienceTimeline.all(characterId).lastOrNull()?.occurredAt
+            if (!shouldFlushMemoryTail(last)) return@forEach
+            val job = MemoryExtractionJobStore.enqueue(characterId, sourceReplyId = "idle-tail")
+            lockFor(characterId).withLock {
+                runCatching { LuluRepositories.memory.summarizeNow(characterId) }
+                    .onSuccess { MemoryExtractionJobStore.complete(job.id) }
+                    .onFailure { MemoryExtractionJobStore.failed(job.id, it) }
             }
         }
     }

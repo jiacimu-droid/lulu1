@@ -272,6 +272,7 @@ object SharedExperienceTimeline {
         CharacterDevelopmentStore.invalidateEvidenceForAll(eventId)
         CharacterLifeStore.invalidateReceipt(eventId)
         MemoryExtractionJobStore.removeBySourceEvent(eventId)
+        LuluRepositories.lexicon.invalidateSource(eventId)
         CommitmentTaskStore.removeBySourceEvent(eventId)
         scope.launch { LuluRepositories.memory.deleteDerivedFromEvent(eventId) }
     }

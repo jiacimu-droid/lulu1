@@ -478,7 +478,7 @@ class CompanionModelGateway(
             val recalledRawTimeline = unifiedMemory.sourceEvidence
             val recentSharedTimeline = unifiedMemory.recentTimeline
             val userProfileSection = if (fullContext) UserProfileContext.promptSection() else ""
-            val lexicon = if (fullContext) LuluRepositories.lexicon.snapshot(characterId).take(24) else emptyList()
+            val lexicon = if (fullContext) com.jiacimu.lulu.data.LexiconMemoryContext.select(characterId, memoryRequest?.retrievalQuery() ?: recallQuery) else emptyList()
             val allWorldBooks = if (fullContext) LuluRepositories.worldBook.snapshot() else emptyList()
             val globalWorldBooks = allWorldBooks.filter { entry ->
                 entry.globalEnabled && entry.characterOverrides[characterId] != false
@@ -548,8 +548,8 @@ class CompanionModelGateway(
                 }.trim()
             }.orEmpty()
             val lexiconSection = if (lexicon.isEmpty()) "" else buildString {
-                appendLine("辞海资料：")
-                lexicon.forEach { appendLine("- ${it.section.name}/${it.title}：${it.content}") }
+                appendLine("辞海资料：已解决项只作历史，不再当作当前挂心；提及时自然内化，避免无关翻旧事。")
+                lexicon.forEach { appendLine("- ${it.section.name}/${it.title} [${it.status}]：${it.content}") }
             }.trim()
             val currentWorld = if (fullContext && DigitalLifeProfileStore.isEnabled(characterId)) {
                 DigitalWorldStore.contextFor(characterId) + "\n" + DigitalWorldLifeEventStore.contextFor(characterId)
@@ -566,6 +566,7 @@ class CompanionModelGateway(
                 developmentSection,
                 currentWorld,
                 timelineSection,
+                unifiedMemory.coreMemorySection,
                 memorySection,
                 memoryEvidenceSection,
                 lexiconSection,
@@ -586,6 +587,7 @@ class CompanionModelGateway(
                 "成长与持续动机" to developmentSection,
                 "数字世界权威状态" to currentWorld,
                 "近期时间线/未完成责任" to timelineSection,
+                "核心记忆" to unifiedMemory.coreMemorySection,
                 "召回记忆摘要" to memorySection,
                 "召回原始证据" to memoryEvidenceSection,
                 "辞海" to lexiconSection,

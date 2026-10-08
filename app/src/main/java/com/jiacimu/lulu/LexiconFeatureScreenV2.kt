@@ -250,6 +250,14 @@ fun LexiconFeatureScreenV2(
                                             )
                                         }
                                         Text(entry.content, color = LuluColors.Muted)
+                                        if (entry.section in setOf(LexiconSection.Life, LexiconSection.Concern)) {
+                                            TextButton(onClick = { scope.launch {
+                                                LuluRepositories.lexicon.save(entry.copy(
+                                                    status = if (entry.status == com.jiacimu.lulu.core.LexiconStatus.Active) com.jiacimu.lulu.core.LexiconStatus.Resolved else com.jiacimu.lulu.core.LexiconStatus.Active,
+                                                    updatedAt = java.time.Instant.now(),
+                                                ))
+                                            } }) { Text(if (entry.status == com.jiacimu.lulu.core.LexiconStatus.Active) "标记已解决" else "已解决 · 重新挂心") }
+                                        }
                                     }
                                     IconButton(onClick = { editing = entry }) {
                                         Icon(Icons.Outlined.Edit, "编辑")

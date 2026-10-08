@@ -42,6 +42,8 @@ interface ConversationRepository {
 
 enum class MemoryKind { Fact, Emotion, Timeline }
 
+enum class MemoryTier { Core, Stable, Episode }
+
 data class MemoryEntry(
     val id: String,
     val characterId: String,
@@ -53,6 +55,9 @@ data class MemoryEntry(
     val strength: Int,
     val pinned: Boolean,
     val canRecallProactively: Boolean,
+    val tier: MemoryTier = if (kind == MemoryKind.Fact) MemoryTier.Stable else MemoryTier.Episode,
+    val subject: String = "",
+    val slot: String = "",
 )
 
 data class MemoryPolicy(
@@ -80,6 +85,8 @@ interface MemoryRepository {
 enum class LexiconSection { Life, Concern, Promise, Diary, Favorite }
 enum class PromiseKind { Promise, Responsibility, Reminder, LongTermSupervision }
 
+enum class LexiconStatus { Active, Resolved, Archived }
+
 data class LexiconEntry(
     val id: String,
     val characterId: String,
@@ -89,6 +96,9 @@ data class LexiconEntry(
     val promiseKind: PromiseKind? = null,
     val createdAt: Instant,
     val updatedAt: Instant,
+    val status: LexiconStatus = LexiconStatus.Active,
+    val sourceEventIds: List<String> = emptyList(),
+    val lastFollowUpAt: Instant? = null,
 )
 
 interface LexiconRepository {

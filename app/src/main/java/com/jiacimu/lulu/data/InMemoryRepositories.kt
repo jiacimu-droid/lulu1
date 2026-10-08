@@ -3,6 +3,7 @@ package com.jiacimu.lulu.data
 import android.content.Context
 import com.jiacimu.lulu.core.LexiconEntry
 import com.jiacimu.lulu.core.LexiconRepository
+import com.jiacimu.lulu.core.LexiconStatus
 import com.jiacimu.lulu.core.LexiconSection
 import com.jiacimu.lulu.core.MemoryEntry
 import com.jiacimu.lulu.core.MemoryPolicy
@@ -120,6 +121,10 @@ class InMemoryLexiconRepository : LexiconRepository {
             )
     }
 
+    fun invalidateSource(eventId: String) {
+        mutate { current -> current.filterNot { eventId in it.sourceEventIds } }
+    }
+
     suspend fun replaceAll(newEntries: List<LexiconEntry>) {
         mutate { newEntries }
     }
@@ -141,6 +146,9 @@ class InMemoryLexiconRepository : LexiconRepository {
                     .put("section", entry.section.name)
                     .put("title", entry.title)
                     .put("content", entry.content)
+                    .put("status", entry.status.name)
+                    .put("sourceEventIds", JSONArray(entry.sourceEventIds))
+                    .put("lastFollowUpAt", entry.lastFollowUpAt?.toString() ?: JSONObject.NULL)
                     .put("promiseKind", entry.promiseKind?.name ?: JSONObject.NULL)
                     .put("createdAt", entry.createdAt.toString())
                     .put("updatedAt", entry.updatedAt.toString()),
@@ -178,6 +186,9 @@ class InMemoryLexiconRepository : LexiconRepository {
                             },
                             createdAt = createdAt,
                             updatedAt = item.optString("updatedAt").toInstantOrNow(createdAt),
+                            status = runCatching { LexiconStatus.valueOf(item.optString("status")) }.getOrDefault(LexiconStatus.Active),
+                            sourceEventIds = item.optJSONArray("sourceEventIds")?.let { array -> (0 until array.length()).map { array.optString(it) }.filter(String::isNotBlank) }.orEmpty(),
+                            lastFollowUpAt = runCatching { Instant.parse(item.optString("lastFollowUpAt")) }.getOrNull(),
                         ),
                     )
                 }

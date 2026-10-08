@@ -6,6 +6,7 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelConnection
 import com.jiacimu.lulu.core.MemoryEntry
 import com.jiacimu.lulu.core.MemoryKind
+import com.jiacimu.lulu.core.MemoryTier
 import com.jiacimu.lulu.core.MemoryPolicy
 import com.jiacimu.lulu.core.MemoryRepository
 import kotlinx.coroutines.flow.Flow
@@ -76,6 +77,8 @@ class LocalMemoryRepository : MemoryRepository {
             current.copy(
                 entries = current.entries.filterNot { it.characterId == characterId },
                 processedMessageIds = current.processedMessageIds - characterId,
+                immediateProcessedIds = current.immediateProcessedIds - characterId,
+                forgottenSourceIds = current.forgottenSourceIds - characterId,
                 deletedMemoryKeys = current.deletedMemoryKeys.filterNot { it.startsWith("$characterId:") }.toSet(),
             )
         }
@@ -89,11 +92,68 @@ class LocalMemoryRepository : MemoryRepository {
             extractionLocks.getOrPut(characterId) { Mutex() }
         }
         extractionLock.withLock {
-            summarizeContinuously(characterId)
+            extractImmediateMemories(characterId)
+            summarizeContinuously(characterId, flushTail = shouldFlushMemoryTail(memoryEligibleTimelineEvents(characterId).lastOrNull()?.occurredAt))
         }
     }
 
-    private suspend fun summarizeContinuously(characterId: String) {
+    /** Explicit user action drains even a partial protected tail. */
+    suspend fun flushNow(characterId: String) {
+        require(characterId.isNotBlank())
+        val extractionLock = synchronized(extractionLocks) { extractionLocks.getOrPut(characterId) { Mutex() } }
+        extractionLock.withLock {
+            extractImmediateMemories(characterId)
+            summarizeContinuously(characterId, flushTail = true)
+        }
+    }
+
+    private suspend fun extractImmediateMemories(characterId: String) {
+        val generation = synchronized(lock) { historyGenerations[characterId] ?: 0L }
+        while (true) {
+            val events = memoryEligibleTimelineEvents(characterId)
+            val done = state.value.immediateProcessedIds[characterId].orEmpty() +
+                state.value.processedMessageIds[characterId].orEmpty()
+            val targets = events.filter { it.id !in done && it.isUserMemoryStatement() && requestsImmediateMemory(it.content) }.take(8)
+            if (targets.isEmpty()) return
+            val targetIds = targets.mapTo(mutableSetOf(), SharedTimelineEvent::id)
+            // Include neighbours of each target, not an unrelated newest conversation.
+            val contextIds = events.indices.filter { events[it].id in targetIds }.flatMap { index ->
+                ((index - 5).coerceAtLeast(0)..(index + 3).coerceAtMost(events.lastIndex)).toList()
+            }.toSet()
+            val context = events.filterIndexed { index, _ -> index in contextIds }
+            val allowed = context.mapTo(mutableSetOf(), SharedTimelineEvent::id)
+            val result = LuluAiServices.gateway.generate(
+                characterId = characterId,
+                facts = context.joinToString("\n") { "[事件ID=${it.id}] [${it.occurredAt}] ${it.speaker}：${it.evidenceContent}" },
+                instruction = """
+                    判断目标用户事件 ${targetIds.joinToString("|")} 是否包含应立即保存的稳定事实、明确偏好、边界或重要长期安排。
+                    信号词只用于筛选：必须结合上下文理解，反问、假设、引用、角色台词、虚构故事、临时状态都不能当成长期事实。
+                    只返回 JSON 数组；没有则返回 []。每项：
+                    {"kind":"Fact","content":"一至两句完整中文事实","sourceEventIds":["直接支持的事件ID"],"occurredAt":"ISO-8601或空","strength":1到10,"tier":"Core|Stable","subject":"事实对象","slot":"偏好/称呼边界/长期安排等具体槽位"}
+                    每条来源必须包含至少一个目标用户事件。Core 仅用于用户郑重要求持续遵守的长期边界、重要关系或重要长期安排；普通喜好用 Stable。
+                    ‘今天不吃辣’不是‘以后不喜欢辣’；‘记住’后面的临时提醒交给责任系统，不保存为长期核心事实。
+                    只保存真实明确内容，不猜测、不扩写，不把角色答应行动当作完成。
+                """.trimIndent(),
+                source = "记忆", title = "重要信息即时记忆", maxTokens = 1_600,
+                contextMode = CompanionContextMode.Isolated, connectionOverride = extractionConnection(),
+            ).getOrThrow()
+            val parsed = parseMemoryArray(result.text, characterId, allowed).filter { memory ->
+                memory.kind == MemoryKind.Fact && memory.sourceIds().any(targetIds::contains)
+            }
+            val liveIds = SharedExperienceTimeline.eventsByIds(characterId, allowed).mapTo(mutableSetOf(), SharedTimelineEvent::id)
+            mutate { current ->
+                if ((historyGenerations[characterId] ?: 0L) != generation) return@mutate current
+                val valid = parsed.filter { it.sourceIds().all(liveIds::contains) }
+                current.copy(entries = mergeExtractedEntries(current, valid),
+                    immediateProcessedIds = current.immediateProcessedIds +
+                        (characterId to (current.immediateProcessedIds[characterId].orEmpty() + targetIds.intersect(liveIds))))
+            }
+            if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
+            maintain(characterId, silent = true)
+        }
+    }
+
+    private suspend fun summarizeContinuously(characterId: String, flushTail: Boolean = false) {
         val generation = synchronized(lock) { historyGenerations[characterId] ?: 0L }
         val policy = state.value.resolvedPolicy(characterId)
         val threshold = policy.readableThreshold.coerceAtLeast(1)
@@ -104,12 +164,12 @@ class LocalMemoryRepository : MemoryRepository {
             if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
             // Re-read every loop. A source event may be deleted while the model request is in flight;
             // a frozen readable list would otherwise keep retrying a no-longer-existing event.
-            val readable = readableMessages(characterId, policy)
+            val readable = readableMessages(characterId, policy, flushTail)
             val processed = state.value.processedMessageIds[characterId].orEmpty()
             val pending = readable.filterNot { message -> message.id in processed }
             val batch = pending.take(threshold)
 
-            if (batch.size < threshold) {
+            if (batch.isEmpty() || (!flushTail && batch.size < threshold)) {
                 if (processedThisRun > 0) maintain(characterId, silent = true)
                 refreshDebug(
                     message = if (processedThisRun == 0) {
@@ -150,7 +210,7 @@ class LocalMemoryRepository : MemoryRepository {
                 instruction = """
                     从给定真实对话与原始事件中提取值得长期保留的记忆。只返回 JSON 数组，不要代码块。
                     每项格式：
-                    {"kind":"Fact|Emotion|Timeline","content":"包含人物、事件、原因、结果与必要语境的完整中文记忆","sourceEventIds":["直接支持该记忆的事件ID"],"occurredAt":"ISO-8601时间或空字符串","strength":1到10}
+                    {"kind":"Fact|Emotion|Timeline","content":"包含人物、事件、原因、结果与必要语境的完整中文记忆","sourceEventIds":["直接支持该记忆的事件ID"],"occurredAt":"ISO-8601时间或空字符串","strength":1到10,"tier":"Core|Stable|Episode","subject":"事实对象","slot":"具体事实槽位或空"}
                     规则：
                     0. 保留记录的证据类型。日记、心声、朋友圈和聊天仅证明表达过，不能把其中自述直接提取成客观亲历；虚构剧情不得合并为数字主世界经历。旧摘要与执行记录冲突时，以执行记录和当前世界状态为准。
                     1. 不编造未发生事实，必须结合这一整批上下文理解语义，不能因为某一句出现“不是、其实、应该、喜欢、不要”等词就机械判定为纠正、偏好或边界。
@@ -163,7 +223,8 @@ class LocalMemoryRepository : MemoryRepository {
                     8. 每条记忆必须给出1—6个直接支持它的 sourceEventIds，只能复制输入中真实存在的事件ID；不要把整批ID都塞进去。
                     9. 记忆必须保留将来理解同义改写所需的人物、对象、原因、结果和必要语境，避免只写模糊关键词；但不要复制无关寒暄。
                     10. 日常寒暄、同义重复不要重复写入；没有值得保存的内容时返回 []。
-                    11. 每条记忆用一至两句写清必要语境，通常不超过160个中文字，避免复制原文或扩写。
+                    11. Core 只用于用户明确要求持续遵守的长期重要边界、关系或重要安排；普通偏好用 Stable，经历与情绪用 Episode。临时情况不能覆盖长期偏好。
+                    12. 每条记忆用一至两句写清必要语境，通常不超过160个中文字，避免复制原文或扩写。
                 """.trimIndent(),
                 source = "记忆",
                 title = "连续记忆提取",
@@ -231,7 +292,7 @@ class LocalMemoryRepository : MemoryRepository {
                 if ((historyGenerations[characterId] ?: 0L) != generation) return@mutate current
                 val currentProcessed = current.processedMessageIds[characterId].orEmpty()
                 current.copy(
-                    entries = current.entries + unique,
+                    entries = mergeExtractedEntries(current, parsed.getOrThrow().filter { entry -> entry.sourceIds().all(liveBatchIds::contains) }),
                     processedMessageIds = current.processedMessageIds +
                         (characterId to (currentProcessed + liveBatchIds)),
                 )
@@ -240,7 +301,7 @@ class LocalMemoryRepository : MemoryRepository {
             if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
             processedThisRun += liveBatchIds.size
             extractedThisRun += unique.size
-            val freshReadable = readableMessages(characterId, policy)
+            val freshReadable = readableMessages(characterId, policy, flushTail)
             val freshProcessed = state.value.processedMessageIds[characterId].orEmpty()
             val remaining = freshReadable.count { it.id !in freshProcessed }
             refreshDebug(
@@ -257,6 +318,17 @@ class LocalMemoryRepository : MemoryRepository {
                 lastExtractedCount = extractedThisRun,
             )
         }
+    }
+
+    private fun mergeExtractedEntries(current: MemoryStoreState, incoming: List<MemoryEntry>): List<MemoryEntry> {
+        val entries = current.entries.toMutableList()
+        incoming.forEach { entry ->
+            if (entry.scopedMemoryKey() in current.deletedMemoryKeys ||
+                entry.sourceIds().any { it in current.forgottenSourceIds[entry.characterId].orEmpty() }) return@forEach
+            val index = entries.indexOfFirst { it.characterId == entry.characterId && it.dedupeKey() == entry.dedupeKey() }
+            if (index < 0) entries += entry else entries[index] = mergeMemory(entries[index], entry)
+        }
+        return entries
     }
 
     private fun extractionConnection(): ModelConnection? {
@@ -338,6 +410,9 @@ class LocalMemoryRepository : MemoryRepository {
             current.copy(
                 entries = current.entries.filterNot { entry -> entry.memoryIdentityKey() == targetKey },
                 deletedMemoryKeys = current.deletedMemoryKeys + victims.map(MemoryEntry::scopedMemoryKey),
+                forgottenSourceIds = current.forgottenSourceIds + victims.groupBy(MemoryEntry::characterId).mapValues { (characterId, memories) ->
+                    current.forgottenSourceIds[characterId].orEmpty() + memories.flatMap { it.sourceIds() }
+                },
             )
         }
         refreshDebug(if (removed > 1) "已删除 $removed 个角色中的同内容记忆" else "记忆已删除")
@@ -394,6 +469,7 @@ class LocalMemoryRepository : MemoryRepository {
             current.copy(
                 entries = current.entries.filterNot { entry -> eventId in entry.memorySourceEventIds() },
                 processedMessageIds = current.processedMessageIds.mapValues { (_, ids) -> ids - eventId },
+                immediateProcessedIds = current.immediateProcessedIds.mapValues { (_, ids) -> ids - eventId },
             )
         }
         refreshDebug("已撤销由删除内容产生的派生记忆")
@@ -402,7 +478,7 @@ class LocalMemoryRepository : MemoryRepository {
     suspend fun togglePinned(id: String) {
         mutate { current ->
             current.copy(
-                entries = current.entries.map { entry -> if (entry.id == id) entry.copy(pinned = !entry.pinned) else entry },
+                entries = current.entries.map { entry -> if (entry.id == id) entry.copy(pinned = !entry.isCoreMemory(), tier = if (entry.isCoreMemory()) { if (entry.kind == MemoryKind.Fact) MemoryTier.Stable else MemoryTier.Episode } else MemoryTier.Core) else entry },
             )
         }
     }
@@ -419,6 +495,15 @@ class LocalMemoryRepository : MemoryRepository {
 
     suspend fun replaceAll(entries: List<MemoryEntry>) {
         mutate { current -> current.copy(entries = entries) }
+    }
+
+    fun allowsRawRecall(event: SharedTimelineEvent): Boolean {
+        val current = state.value
+        if (event.id in current.forgottenSourceIds[event.characterId].orEmpty()) return false
+        return current.entries.none { memory ->
+            memory.characterId == event.characterId &&
+                (!memory.canRecallProactively || !MemoryValidityStore.isActive(memory.id)) && event.id in memory.sourceIds()
+        }
     }
 
     fun pendingMessageCount(characterId: String): Int = pendingTimelineEvents(characterId).size
@@ -450,20 +535,20 @@ class LocalMemoryRepository : MemoryRepository {
             event.channel == "私聊" && event.speaker == "系统"
         }
 
-    private fun readableMessages(characterId: String, policy: MemoryPolicy): List<LuluChatMessage> =
+    private fun readableMessages(characterId: String, policy: MemoryPolicy, flushTail: Boolean = false): List<LuluChatMessage> =
         memoryEligibleTimelineEvents(characterId)
             .map { event ->
                 LuluChatMessage(
                     id = event.id,
                     conversationId = "shared-timeline",
-                    sender = if (event.speaker in setOf("主人", "用户", UserProfileContext.displayLabel())) {
+                    sender = if (event.isUserMemoryStatement()) {
                         LuluChatMessage.Sender.User
                     } else LuluChatMessage.Sender.Character,
                     content = "[${event.channel}] ${event.speaker}：${event.evidenceContent}",
                     createdAt = event.occurredAt,
                 )
             }
-            .dropLast(policy.excludedRecentMessages.coerceAtLeast(0))
+            .dropLast(if (flushTail) 0 else policy.excludedRecentMessages.coerceAtLeast(0))
 
     private fun parseMemoryArray(raw: String, characterId: String, allowedSourceIds: Set<String>): List<MemoryEntry> {
         val array = decodeMemoryResponseArray(raw)
@@ -509,6 +594,9 @@ class LocalMemoryRepository : MemoryRepository {
                         strength = item.optInt("strength", 5).coerceIn(1, 10),
                         pinned = false,
                         canRecallProactively = true,
+                        tier = parseMemoryTier(item.optString("tier"), kind),
+                        subject = item.optString("subject").trim().take(100),
+                        slot = item.optString("slot").trim().take(100),
                     ),
                 )
             }
@@ -519,7 +607,7 @@ class LocalMemoryRepository : MemoryRepository {
         synchronized(lock) {
             val next = transform(state.value)
             state.value = next
-            prefs?.edit()?.putString(KEY_STATE, encode(next).toString())?.apply()
+            prefs?.edit()?.putString(KEY_STATE, encode(next).toString())?.commit()
         }
     }
 
@@ -616,6 +704,12 @@ class LocalMemoryRepository : MemoryRepository {
                 value.processedMessageIds.forEach { (characterId, ids) -> put(characterId, JSONArray(ids.toList())) }
             },
         )
+        .put("forgottenSourceIds", JSONObject().apply {
+            value.forgottenSourceIds.forEach { (characterId, ids) -> put(characterId, JSONArray(ids.toList())) }
+        })
+        .put("immediateProcessedIds", JSONObject().apply {
+            value.immediateProcessedIds.forEach { (characterId, ids) -> put(characterId, JSONArray(ids.toList())) }
+        })
         .put("deletedMemoryKeys", JSONArray(value.deletedMemoryKeys.toList()))
 
     private fun decode(raw: String?): MemoryStoreState {
@@ -655,6 +749,20 @@ class LocalMemoryRepository : MemoryRepository {
                     )
                 }
             }
+            val immediateObject = root.optJSONObject("immediateProcessedIds") ?: JSONObject()
+            val immediateProcessed = buildMap<String, Set<String>> {
+                immediateObject.keys().forEach { id ->
+                    val array = immediateObject.optJSONArray(id) ?: JSONArray()
+                    put(id, (0 until array.length()).map { array.optString(it) }.filter(String::isNotBlank).toSet())
+                }
+            }
+            val forgottenObject = root.optJSONObject("forgottenSourceIds") ?: JSONObject()
+            val forgotten = buildMap<String, Set<String>> {
+                forgottenObject.keys().forEach { id ->
+                    val array = forgottenObject.optJSONArray(id) ?: JSONArray()
+                    put(id, (0 until array.length()).map { array.optString(it) }.filter(String::isNotBlank).toSet())
+                }
+            }
             val deleted = buildSet {
                 val array = root.optJSONArray("deletedMemoryKeys") ?: JSONArray()
                 for (index in 0 until array.length()) array.optString(index).takeIf(String::isNotBlank)?.let(::add)
@@ -664,6 +772,8 @@ class LocalMemoryRepository : MemoryRepository {
                 policies = policies,
                 globalPolicy = globalPolicy,
                 processedMessageIds = processed,
+                immediateProcessedIds = immediateProcessed,
+                forgottenSourceIds = forgotten,
                 deletedMemoryKeys = deleted,
             )
         }.getOrDefault(MemoryStoreState())
@@ -691,6 +801,9 @@ class LocalMemoryRepository : MemoryRepository {
         .put("strength", entry.strength)
         .put("pinned", entry.pinned)
         .put("canRecallProactively", entry.canRecallProactively)
+        .put("tier", entry.tier.name)
+        .put("subject", entry.subject)
+        .put("slot", entry.slot)
 
     private fun decodeEntry(item: JSONObject): MemoryEntry = MemoryEntry(
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
@@ -703,6 +816,9 @@ class LocalMemoryRepository : MemoryRepository {
         strength = item.optInt("strength", 5).coerceIn(1, 10),
         pinned = item.optBoolean("pinned"),
         canRecallProactively = item.optBoolean("canRecallProactively", true),
+        tier = parseMemoryTier(item.optString("tier"), runCatching { MemoryKind.valueOf(item.optString("kind")) }.getOrDefault(MemoryKind.Fact)),
+        subject = item.optString("subject"),
+        slot = item.optString("slot"),
     )
 
     private companion object {
@@ -729,6 +845,8 @@ private data class MemoryStoreState(
     val policies: Map<String, MemoryPolicy> = emptyMap(),
     val globalPolicy: MemoryPolicy? = null,
     val processedMessageIds: Map<String, Set<String>> = emptyMap(),
+    val immediateProcessedIds: Map<String, Set<String>> = emptyMap(),
+    val forgottenSourceIds: Map<String, Set<String>> = emptyMap(),
     val deletedMemoryKeys: Set<String> = emptySet(),
 )
 
@@ -756,6 +874,8 @@ private fun memoriesEquivalentForMaintenance(left: MemoryEntry, right: MemoryEnt
     val a = left.memoryIdentityKey()
     val b = right.memoryIdentityKey()
     if (a == b) return true
+    // A one-word negation can reverse a preference. Text similarity is not semantic equality.
+    if (left.kind == MemoryKind.Fact) return false
     if (a.length < 12 || b.length < 12) return false
     val shorter = minOf(a.length, b.length).toDouble()
     val longer = maxOf(a.length, b.length).toDouble()
@@ -782,6 +902,9 @@ private fun mergeMemory(primary: MemoryEntry, duplicate: MemoryEntry): MemoryEnt
         content = preferredContent,
         strength = maxOf(primary.strength, duplicate.strength),
         pinned = primary.pinned || duplicate.pinned,
+        tier = if (primary.tier == MemoryTier.Core || duplicate.tier == MemoryTier.Core) MemoryTier.Core else primary.tier,
+        subject = primary.subject.ifBlank { duplicate.subject },
+        slot = primary.slot.ifBlank { duplicate.slot },
         canRecallProactively = primary.canRecallProactively || duplicate.canRecallProactively,
         source = mergeMemoryProvenance(primary.source, duplicate.source),
         occurredAt = listOfNotNull(primary.occurredAt, duplicate.occurredAt).minOrNull(),
@@ -820,3 +943,10 @@ internal fun decodeMemoryResponseArray(raw: String): JSONArray {
     require(start >= 0 && end >= start) { "模型未返回完整记忆数组" }
     return JSONArray(clean.substring(start, end + 1))
 }
+
+
+internal fun parseMemoryTier(raw: String, kind: MemoryKind): MemoryTier =
+    if (kind != MemoryKind.Fact) MemoryTier.Episode else when (raw.lowercase()) {
+        "core" -> MemoryTier.Core
+        else -> MemoryTier.Stable
+    }

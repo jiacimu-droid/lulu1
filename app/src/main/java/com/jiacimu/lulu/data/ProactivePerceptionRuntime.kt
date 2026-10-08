@@ -320,9 +320,9 @@ object ProactivePerceptionRuntime {
                 "- [${event.occurredAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))}] ${event.channel}：${event.evidenceContent.replace(Regex("\\s+"), " ").take(500)}"
             }
         val lexicon = LuluRepositories.lexicon.snapshot(characterId)
-        val concerns = lexicon.filter { it.section == LexiconSection.Concern }.take(8)
-            .joinToString("\n") { "- ${it.title}：${it.content.take(400)}" }
-        val commitments = lexicon.filter { it.section == LexiconSection.Promise }.take(10)
+        val concerns = lexicon.filter { it.section == LexiconSection.Concern && it.status == com.jiacimu.lulu.core.LexiconStatus.Active }
+            .joinToString("\n") { "- ${it.title}：${it.content.take(400)}；最近回访=${it.lastFollowUpAt}" }
+        val commitments = lexicon.filter { it.section == LexiconSection.Promise && it.status == com.jiacimu.lulu.core.LexiconStatus.Active }
             .joinToString("\n") { "- ${it.title}：${it.content.take(400)}" }
         val previousPresence = CompanionPresenceStore.current(characterId)
         val deviceContext = buildRealWorldContext(appContext, characterId, now)
