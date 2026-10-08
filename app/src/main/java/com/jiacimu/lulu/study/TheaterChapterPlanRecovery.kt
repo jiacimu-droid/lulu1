@@ -49,7 +49,7 @@ internal fun theaterChapterMarkdownSections(raw: String): List<Pair<Int, String>
             val units = token.getOrNull(ten + 1)?.let { digits.indexOf(it).takeIf { index -> index >= 0 }?.plus(1) } ?: 0
             return tens * 10 + units
         }
-        return digits.indexOf(token.singleOrNull()).takeIf { it >= 0 }?.plus(1)
+        return token.singleOrNull()?.let { digits.indexOf(it) }?.takeIf { it >= 0 }?.plus(1)
     }
     return matches.mapIndexedNotNull { index, match ->
         val number = chapterNumber(match.groupValues[1]) ?: return@mapIndexedNotNull null
