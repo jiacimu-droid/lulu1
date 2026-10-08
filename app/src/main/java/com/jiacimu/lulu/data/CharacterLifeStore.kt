@@ -35,6 +35,23 @@ object CharacterLifeStore {
         save(characterId, root)
     }
 
+    /**
+     * Role-owned social names: a private remark for the user and a changeable screen nickname.
+     * Neither alters the user's profile or the character's canonical identity.
+     * Returning false means there was no effective change.
+     */
+    @Synchronized fun setSocialName(characterId: String, key: String, value: String): Boolean {
+        require(key == "userRemark" || key == "selfNickname")
+        val name = value.trim().replace(Regex("[\\r\\n\\t]+"), " ").take(24)
+        val root = state(characterId)
+        val names = root.optJSONObject("socialNames") ?: JSONObject()
+        if (names.optString(key) == name) return false
+        if (name.isBlank()) names.remove(key) else names.put(key, name)
+        root.put("socialNames", names)
+        save(characterId, root)
+        return true
+    }
+
     /** One-time, restart-safe preset. Later user edits must never be overwritten on launch. */
     @Synchronized fun applyJiangDuPreset(characterId: String) {
         val character = MigratedDomainStores.characters.get(characterId)
@@ -219,6 +236,15 @@ object CharacterLifeStore {
         val root = state(characterId)
         return buildString {
             if (includeProfile) profileContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
+            root.optJSONObject("socialNames")?.let { names ->
+                val remark = names.optString("userRemark")
+                val nickname = names.optString("selfNickname")
+                if (remark.isNotBlank() || nickname.isNotBlank()) {
+                    appendLine("【角色亲自设置的社交称呼｜已存储的状态，不改变现实姓名与用户资料】")
+                    if (remark.isNotBlank()) appendLine("角色给用户的私人备注：$remark（不强迫每句都这样称呼）")
+                    if (nickname.isNotBlank()) appendLine("角色自己的聊天网名：$nickname（原角色身份仍不变）")
+                }
+            }
             root.optJSONObject("previousIntention")?.let { appendLine("上一件已放下的事（不代表完成）：${it.optString("aim")}；原因：${it.optString("releaseReason")}。用户结束的事不要擅自重新开启。") }
             root.optJSONObject("intention")?.let { intention ->
                 appendLine("【持续动机｜角色主观愿望，不是已完成事实或用户承诺】")
