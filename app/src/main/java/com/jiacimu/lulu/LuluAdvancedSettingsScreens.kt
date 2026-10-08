@@ -134,18 +134,23 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         item {
             SettingsSwitchCard(
                 title = "启用 TTS",
-                subtitle = "允许所选供应商播放角色声音",
+                subtitle = "总开关：关闭后停止正在发声的 TTS，结束正在通话的 Agent；手动朗读也不可使用。",
                 checked = enabled,
                 onCheckedChange = {
                     enabled = it
                     prefs.edit().putBoolean("tts_enabled", it).apply()
+                    if (!it) {
+                        // A connected Agent keeps generating/billing even if local playback is muted.
+                        // Full TTS OFF means terminate that session, not just silence the output.
+                        LuluVoiceCallSession.endCall()
+                    }
                 },
             )
         }
         item {
             SettingsSwitchCard(
                 title = "自动朗读",
-                subtitle = "电话和支持语音的场景自动播放角色回复",
+                subtitle = "仅控制聊天自动朗读及见面朗读；电话需接通后单独计费。关闭后不再自动请求云端语音。",
                 checked = autoSpeak,
                 enabled = enabled,
                 onCheckedChange = {
