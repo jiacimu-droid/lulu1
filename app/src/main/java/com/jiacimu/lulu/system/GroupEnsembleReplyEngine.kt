@@ -298,7 +298,7 @@ internal object GroupEnsembleReplyEngine {
             served.turn.characterId, served.emotionalAnchor, served.turn.afterglow)
         com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
             served.turn.characterId, "group:${planKey}",
-            served.emotionalAnchor, served.turn.innerLife,
+            served.emotionalAnchor, com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(served.turn.innerLife, served.turn.afterglow, served.emotionalAnchor),
             served.witnessedSpeakers.filterNot { it == served.turn.characterId }.toSet() + "user",
         )
         CompanionPresenceStore.update(
