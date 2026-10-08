@@ -14,6 +14,7 @@ import java.io.File
 
 /** Personal TTS credentials stay in the phone configuration, independent of the Agents service. */
 internal class ElevenLabsSpeech(context: Context) {
+    private val appContext = context.applicationContext
     private val prefs = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
     @Volatile private var epoch = 0L
     @Volatile private var connection: HttpURLConnection? = null
@@ -59,7 +60,8 @@ internal class ElevenLabsSpeech(context: Context) {
     private class AudioSource(val input: InputStream, val cleanup: () -> Unit) {
         fun close() { runCatching { input.close() }; cleanup() }
     }
-    private fun openAudio(text: String, voiceOverride: String?, format: String): AudioSource {
+    private fun openAudio(text: String, voiceOverride: String?, format: String, source: String): AudioSource {
+        VoiceUsageAudit.record(appContext, "ElevenLabs", source, text.length, selectedModel())
         if (ElevenLabsModels.websocket(selectedModel())) {
             val key = prefs.getString("eleven_api_key", "").orEmpty().trim()
             val voice = voiceOverride?.takeIf(String::isNotBlank) ?: prefs.getString("eleven_voice_id", "").orEmpty().trim()
@@ -73,9 +75,9 @@ internal class ElevenLabsSpeech(context: Context) {
         catch (error: Throwable) { call.disconnect(); if (connection === call) connection = null; throw error }
     }
 
-    suspend fun synthesize(text: String, voiceId: String?): ByteArray = withContext(Dispatchers.IO) {
+    suspend fun synthesize(text: String, voiceId: String?, source: String = "unknown"): ByteArray = withContext(Dispatchers.IO) {
         val token = epoch
-        val call = openAudio(text, voiceId, "mp3_44100_128")
+        val call = openAudio(text, voiceId, "mp3_44100_128", source)
         try {
             val bytes = call.input.use { input ->
                 val output = java.io.ByteArrayOutputStream()
@@ -94,9 +96,9 @@ internal class ElevenLabsSpeech(context: Context) {
         } finally { call.close() }
     }
 
-    suspend fun speak(text: String, voiceId: String?, onStarted: () -> Unit, recordingTarget: File? = null): Boolean = withContext(Dispatchers.IO) {
+    suspend fun speak(text: String, voiceId: String?, onStarted: () -> Unit, recordingTarget: File? = null, source: String = "phone_direct"): Boolean = withContext(Dispatchers.IO) {
         val token = epoch
-        val call = openAudio(text, voiceId, "pcm_24000")
+        val call = openAudio(text, voiceId, "pcm_24000", source)
         var audio: AudioTrack? = null
         val recording = recordingTarget?.let { runCatching { CallSpeechRecording(it) }.getOrNull() }
         var playedToEnd = false
