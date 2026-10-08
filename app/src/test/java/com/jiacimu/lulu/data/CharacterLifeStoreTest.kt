@@ -104,6 +104,35 @@ class CharacterLifeStoreTest {
         assertEquals("记得对方的小事", CharacterLifeStore.state(role).getJSONObject("profile").getString("care"))
     }
 
+    @Test fun emotionalAfterglowIsAnchoredPersistentTemporaryAndResettable() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CharacterLifeStore.initialize(context)
+        val role = "emotional-afterglow-test"
+        val now = java.time.Instant.parse("2026-10-09T08:00:00Z")
+        CharacterLifeStore.clearHistory(role)
+        val spontaneous = JSONObject()
+            .put("feeling", "救命，怎么这么可爱啊！")
+            .put("impulse", "想再问一句，又怕显得太急")
+            .put("holdHours", 2)
+        CharacterLifeStore.recordAfterglow(role, "", spontaneous, now)
+        assertNull(CharacterLifeStore.state(role).optJSONObject("afterglow"))
+        CharacterLifeStore.recordAfterglow(role, "用户说：今天遇见一只很亲人的小猫", spontaneous, now)
+        val saved = CharacterLifeStore.state(role).getJSONObject("afterglow")
+        assertEquals("救命，怎么这么可爱啊！", saved.getString("feeling"))
+        assertFalse(CharacterLifeStore.afterglowContext(role, now.plusSeconds(60)).isBlank())
+        assertTrue(CharacterLifeStore.afterglowContext(role, now.plusSeconds(60)).contains("想再问一句"))
+        assertEquals("", CharacterLifeStore.afterglowContext(role, now.plusSeconds(7_200)))
+        CharacterLifeStore.recordAfterglow(role, "用户说：今天遇见一只很亲人的小猫", spontaneous, now.plusSeconds(300))
+        assertEquals(now.toString(), CharacterLifeStore.state(role).getJSONObject("afterglow").getString("startedAt"))
+        val disk = JSONObject(context.getSharedPreferences("lulu_character_life", 0).getString(role, "{}"))
+        assertTrue(disk.getJSONObject("afterglow").getString("anchor").contains("小猫"))
+        assertNull(CharacterLifeStore.state("unrelated-emotional-character").optJSONObject("afterglow"))
+        CharacterLifeStore.setProfile(role, "expression", "话少但心里很容易起波澜")
+        CharacterLifeStore.clearHistory(role)
+        assertNull(CharacterLifeStore.state(role).optJSONObject("afterglow"))
+        assertEquals("话少但心里很容易起波澜", CharacterLifeStore.state(role).getJSONObject("profile").getString("expression"))
+    }
+
     @Test
     @Config(manifest = Config.NONE, sdk = [29])
     fun jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits() {
