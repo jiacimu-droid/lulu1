@@ -24,7 +24,7 @@ internal suspend fun extractCommitmentTaskDrafts(
             if (activeTasks.isNotEmpty()) {
                 appendLine("现有未完成任务（完整列表，不能因数量多忽略旧任务）：")
                 activeTasks.forEach { task ->
-                    appendLine("- id=${task.id}; goal=${task.goal}; dueAt=${task.dueAt}; status=${task.status}; revision=${task.revision}")
+                    appendLine("- id=${task.id}; goal=${task.goal}; deliveryAction=${task.deliveryAction}; dueAt=${task.dueAt}; status=${task.status}; revision=${task.revision}")
                 }
             }
         },
@@ -100,6 +100,7 @@ private fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> = 
                     timezone = item.optString("timezone").trim().takeIf(String::isNotBlank),
                     completionCondition = item.optString("completionCondition").trim(),
                     steps = steps,
+                    deliveryAction = item.optString("deliveryAction").takeIf { it == "start_call" } ?: "send_private_message",
                     needsClarification = item.optBoolean("needsClarification", dueAt == null && action == "create"),
                     targetTaskId = item.optString("targetTaskId").trim().takeIf(String::isNotBlank),
                 ),
