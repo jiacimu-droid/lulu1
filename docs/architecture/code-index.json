@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T07:22:12.258945+00:00",
-  "commit": "0bf59edc00eee09fe2c1f121aee60c1df535ea85",
+  "generatedAt": "2026-10-08T07:22:23.525459+00:00",
+  "commit": "b7e9cd290adc9fca162e08dc14725014398f1b8b",
   "branch": "main",
-  "sourceFingerprint": "96bd065723f13ef9499759373d9a014bcf4a5e078f05f13136caf16af12f3d8f",
+  "sourceFingerprint": "18f310904eb82d83652df926b810fa3815f3402e709b4a1e1b0ee8ebaf65a7f5",
   "summary": {
     "files": 342,
-    "lines": 86339,
+    "lines": 86340,
     "symbols": 1219
   },
   "symbolIndex": {
@@ -4911,7 +4911,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
-        "line": 32
+        "line": 33
       }
     ],
     "rollback": [
@@ -6541,7 +6541,7 @@
     "isFinished": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
-        "line": 20
+        "line": 22
       }
     ],
     "parse": [
@@ -13416,8 +13416,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
-      "lines": 56,
-      "sha256": "a4d3e763c4006fdfe06e960a388c857ff50efa8e47954f8557a5e6b1ab566fbe",
+      "lines": 57,
+      "sha256": "e4a93bc904a4cd9fda65a7f7358d6cf89b74899b562bda661b3191738384c7cc",
       "symbols": [
         {
           "name": "clean",
@@ -13429,11 +13429,11 @@
         },
         {
           "name": "isFinished",
-          "line": 20
+          "line": 22
         },
         {
           "name": "append",
-          "line": 32
+          "line": 33
         }
       ]
     },
