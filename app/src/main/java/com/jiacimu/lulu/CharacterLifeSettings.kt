@@ -11,12 +11,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.CharacterLifeStore
+import com.jiacimu.lulu.data.CharacterInnerLifeStore
 import com.jiacimu.lulu.data.CharacterProfileSchema
 import com.jiacimu.lulu.data.MigratedDomainStores
 
 @Composable
 internal fun CharacterLifeSettings(characterId: String) {
     val states by CharacterLifeStore.states.collectAsState()
+    val innerRevision by CharacterInnerLifeStore.revisions.collectAsState()
+    val innerRoot = remember(characterId, innerRevision) { CharacterInnerLifeStore.snapshot(characterId) }
     val presenceStates by com.jiacimu.lulu.data.CompanionPresenceStore.states.collectAsState()
     val presence = presenceStates[characterId]
     val growthRevision by com.jiacimu.lulu.data.CharacterDevelopmentStore.revisions.collectAsState()
@@ -41,6 +44,54 @@ internal fun CharacterLifeSettings(characterId: String) {
         if (interests.isNotEmpty()) {
             Text("经历中形成的兴趣", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             interests.forEach { Text(it.content, style = MaterialTheme.typography.bodyMedium) }
+        }
+        HorizontalDivider()
+        Text("内在生活 · 正在牵挂的几件事", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        Text("角色可以同时在意多件事、暂停或调整，行动结果来自实际工具回执；它们不是系统强制待办。", style = MaterialTheme.typography.bodySmall)
+        val motives = innerRoot.optJSONArray("motives")
+        if (motives == null || motives.length() == 0) {
+            Text("还没有从真实经历中形成多个具体愿望", style = MaterialTheme.typography.bodySmall)
+        } else {
+            for (i in 0 until motives.length()) {
+                val goal = motives.optJSONObject(i) ?: continue
+                val id = goal.optString("id")
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(goal.optString("aim"), fontWeight = FontWeight.Medium)
+                    Text(goal.optString("why"), style = MaterialTheme.typography.bodySmall)
+                    Text(if (goal.optString("status") == "paused") "暂时搁置" else "仍在意 · 优先级${goal.optInt("priority", 2)}", style = MaterialTheme.typography.bodySmall)
+                    goal.optString("changedBecause").takeIf(String::isNotBlank)?.let {
+                        Text("变化原因：$it", style = MaterialTheme.typography.bodySmall)
+                    }
+                    val outcomes = goal.optJSONArray("outcomes")
+                    outcomes?.optJSONObject(outcomes.length() - 1)?.let { outcome ->
+                        Text("最近实际行动：${if (outcome.optBoolean("success")) "成功" else "未完成"} · ${outcome.optString("summary")}", style = MaterialTheme.typography.bodySmall)
+                    }
+                    TextButton(onClick = { CharacterInnerLifeStore.stopMotive(characterId, id) }) {
+                        Text("结束这件事")
+                    }
+                }
+            }
+        }
+        val subjectiveEmotion = innerRoot.optJSONObject("emotion")
+        subjectiveEmotion?.let { feeling ->
+            Text("最近有余波的感受", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(feeling.optString("feeling"), style = MaterialTheme.typography.bodyMedium)
+            Text("缘由：${feeling.optString("cause")}", style = MaterialTheme.typography.bodySmall)
+        }
+        val bonds = innerRoot.optJSONObject("bonds")
+        if (bonds != null && bonds.length() > 0) {
+            Text("逐渐形成的主观看法", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            bonds.keys().asSequence().take(6).forEach { id ->
+                val opinion = bonds.optJSONObject(id) ?: return@forEach
+                val whom = if (id == "user") "对你" else "对其他角色"
+                Text("$whom：${opinion.optString("interpretation")}", style = MaterialTheme.typography.bodySmall)
+            }
+        }
+        val corrections = innerRoot.optJSONArray("corrections")
+        corrections?.optJSONObject(corrections.length() - 1)?.let { insight ->
+            Text("最近的一次自我修正", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(insight.optString("realization"), style = MaterialTheme.typography.bodyMedium)
+            Text("准备换种做法：${insight.optString("nextTime")}", style = MaterialTheme.typography.bodySmall)
         }
         HorizontalDivider()
         Text("角色自己的社交称呼", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
