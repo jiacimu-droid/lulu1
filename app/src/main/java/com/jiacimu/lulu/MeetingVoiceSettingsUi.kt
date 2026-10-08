@@ -1,7 +1,8 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
+
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton

@@ -38,7 +38,7 @@ internal fun DropdownMenu(
     shape: Shape = RoundedCornerShape(20.dp),
     containerColor: Color? = null,
     tonalElevation: Dp = 0.dp,
-    shadowElevation: Dp = 12.dp,
+    shadowElevation: Dp = 2.dp,
     border: BorderStroke? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {

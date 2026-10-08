@@ -137,12 +137,8 @@ internal fun DigitalWorldMeetingSceneExperience(
         onDispose { MeetingVoicePlayback.stopVisibleDialogue(session.id) }
     }
 
-    val homeId = world.homes.values.firstOrNull { it.name == session.location }?.characterId
-    val sceneCode = when (session.location) {
-        "世界入口" -> DigitalWorldStore.ARRIVAL
-        "云眠原" -> DigitalWorldStore.CLOUD_MEADOW
-        else -> homeId?.let(DigitalWorldStore::homeLocation) ?: DigitalWorldStore.ARRIVAL
-    }
+    val sceneCode = DigitalWorldStore.meetingLocationCode(session.location)
+    val homeId = sceneCode.takeIf { it.startsWith("home:") }?.removePrefix("home:")
 
     Box(
         modifier

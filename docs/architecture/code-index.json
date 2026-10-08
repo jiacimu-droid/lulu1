@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T04:39:39.434253+00:00",
-  "commit": "42917d419c04d2a70494b3bb0559b16357f8f990",
+  "generatedAt": "2026-10-08T05:03:06.198458+00:00",
+  "commit": "d091f1127ffb44ecaebcbb00b19b2a764248b454",
   "branch": "main",
-  "sourceFingerprint": "db740905e75f633117b027334f8af5664272edd72855fcf31c764ef7f8e8d799",
+  "sourceFingerprint": "24951528a0b7fa901a4132ec79f9aed9ad0350c695273da0b1a472f97ed1eaa9",
   "summary": {
-    "files": 331,
-    "lines": 85153,
-    "symbols": 1192
+    "files": 333,
+    "lines": 85289,
+    "symbols": 1193
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -217,25 +217,25 @@
     "CharacterSettingsScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-        "line": 42
+        "line": 44
       }
     ],
     "persistDefinition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-        "line": 90
+        "line": 92
       }
     ],
     "setPerceptionEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-        "line": 101
+        "line": 103
       }
     ],
     "CharacterWorldBookScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-        "line": 29
+        "line": 31
       }
     ],
     "ChatAutoVoicePlayback": [
@@ -255,7 +255,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 54
+        "line": 56
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
@@ -697,7 +697,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
-        "line": 133
+        "line": 135
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt",
@@ -705,11 +705,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-        "line": 57
+        "line": 59
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 140
+        "line": 142
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -721,7 +721,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 174
+        "line": 176
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyGachaProbabilityScreen.kt",
@@ -755,25 +755,25 @@
     "DigitalWorldMeetingApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 26
+        "line": 28
       }
     ],
     "launchExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 104
+        "line": 106
       }
     ],
     "openDirectMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 118
+        "line": 120
       }
     ],
     "rewindAndRegenerate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 136
+        "line": 138
       }
     ],
     "ledgerText": [
@@ -803,7 +803,7 @@
     "flush": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-        "line": 756
+        "line": 752
       }
     ],
     "forScene": [
@@ -851,7 +851,7 @@
     "LexiconFeatureScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-        "line": 55
+        "line": 57
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -1219,25 +1219,25 @@
     "MigratedChatHubScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt",
-        "line": 47
+        "line": 49
       }
     ],
     "LuluRepositories": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 45
+        "line": 47
       }
     ],
     "MemoryFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 72
+        "line": 74
       }
     ],
     "LexiconFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 601
+        "line": 603
       }
     ],
     "MigrationActivity": [
@@ -2437,19 +2437,19 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
-        "line": 634
+        "line": 636
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Screen.kt",
-        "line": 623
+        "line": 625
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-        "line": 626
+        "line": 628
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 1271
+        "line": 1273
       }
     ],
     "download": [
@@ -4187,11 +4187,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-        "line": 61
+        "line": 63
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 141
+        "line": 143
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -4725,11 +4725,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-        "line": 55
+        "line": 57
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 139
+        "line": 141
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -4741,7 +4741,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 147
+        "line": 149
       }
     ],
     "has": [
@@ -4891,7 +4891,7 @@
     "loadSave": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
-        "line": 129
+        "line": 131
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt",
@@ -4901,7 +4901,7 @@
     "clearSave": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
-        "line": 137
+        "line": 139
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt",
@@ -4911,7 +4911,7 @@
     "loadConfig": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
-        "line": 141
+        "line": 143
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt",
@@ -4921,7 +4921,7 @@
     "saveConfig": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
-        "line": 147
+        "line": 149
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt",
@@ -4931,61 +4931,61 @@
     "createSave": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
-        "line": 169
+        "line": 171
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Screen.kt",
-        "line": 66
+        "line": 68
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-        "line": 78
+        "line": 80
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 197
+        "line": 199
       }
     ],
     "enterGame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
-        "line": 183
+        "line": 185
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Screen.kt",
-        "line": 82
+        "line": 84
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-        "line": 93
+        "line": 95
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 223
+        "line": 225
       }
     ],
     "goBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
-        "line": 196
+        "line": 198
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Screen.kt",
-        "line": 95
+        "line": 97
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-        "line": 106
+        "line": 108
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 281
+        "line": 283
       }
     ],
     "advance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
-        "line": 623
+        "line": 625
       }
     ],
     "addPieces": [
@@ -4997,51 +4997,51 @@
     "nextPage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Screen.kt",
-        "line": 605
+        "line": 607
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-        "line": 608
+        "line": 610
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 1237
+        "line": 1239
       }
     ],
     "previousPage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Screen.kt",
-        "line": 609
+        "line": 611
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-        "line": 612
+        "line": 614
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 1238
+        "line": 1240
       }
     ],
     "setPage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-        "line": 603
+        "line": 605
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 1232
+        "line": 1234
       }
     ],
     "rollbackStory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 285
+        "line": 287
       }
     ],
     "clearStoryHistory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 295
+        "line": 297
       }
     ],
     "mentions": [
@@ -5213,7 +5213,7 @@
     "perform": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 398
+        "line": 400
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -5555,13 +5555,13 @@
     "HealthFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 55
+        "line": 57
       }
     ],
     "changeReminder": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 170
+        "line": 172
       }
     ],
     "clock": [
@@ -6205,25 +6205,25 @@
     "generateNextChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 409
+        "line": 411
       }
     ],
     "appendOneChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 700
+        "line": 702
       }
     ],
     "appendThreeChapters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 707
+        "line": 709
       }
     ],
     "attemptBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 714
+        "line": 716
       }
     ],
     "saveProgress": [
@@ -6608,6 +6608,12 @@
         "line": 5
       }
     ],
+    "MeetingLocationRenderingTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt",
+        "line": 12
+      }
+    ],
     "OnlineChatExperienceTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
@@ -6803,37 +6809,37 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt",
-      "lines": 70,
-      "sha256": "50ae72e6675bd9975ef0c964e2c20536efddf79ece9ea6d9ab36c6e5c387f0f6",
+      "lines": 72,
+      "sha256": "23dfd054ce91071bbf3bd9b8c3b64c026e9f27ada71afe73d126f44ff2a4ab75",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-      "lines": 462,
-      "sha256": "732bc6d4895a2be1393ca5b28b42705ae439f313def37f9dc3fd16620705a0d1",
+      "lines": 464,
+      "sha256": "28166aa823f0395ed4023f9507788559750fc2c8e8d908ef6f2566e05ced8b35",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
-          "line": 42
+          "line": 44
         },
         {
           "name": "persistDefinition",
-          "line": 90
+          "line": 92
         },
         {
           "name": "setPerceptionEnabled",
-          "line": 101
+          "line": 103
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-      "lines": 238,
-      "sha256": "f0d77a23cc115ffac98399f78009ae3ffae96b376fe94d1b5c86f9dc77ae9a39",
+      "lines": 240,
+      "sha256": "370623e93d6dd9e2e25baac3fe8cd78a30b3fb6e20b4e1406734b4752745b9a9",
       "symbols": [
         {
           "name": "CharacterWorldBookScreenV2",
-          "line": 29
+          "line": 31
         }
       ]
     },
@@ -7060,24 +7066,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-      "lines": 529,
-      "sha256": "66d60871a4e0c908c09746ce0ddd33b6e30de7bf05ad8166c197bbe9291d4aa6",
+      "lines": 531,
+      "sha256": "de5fea1d70901bd6a04317cef51bd1fe9931fd2681857040f228d06066b77ef1",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
-          "line": 26
+          "line": 28
         },
         {
           "name": "launchExchange",
-          "line": 104
+          "line": 106
         },
         {
           "name": "openDirectMeeting",
-          "line": 118
+          "line": 120
         },
         {
           "name": "rewindAndRegenerate",
-          "line": 136
+          "line": 138
         }
       ]
     },
@@ -7104,12 +7110,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-      "lines": 790,
-      "sha256": "3ca66417930df99b33893130c6304890d93a4fa1b2247e7db01759ecff8ad2ae",
+      "lines": 786,
+      "sha256": "ac58f85e0b5424b5cc5fa7463d7c4c46c515975995be6c139051bb73b35fbf89",
       "symbols": [
         {
           "name": "flush",
-          "line": 756
+          "line": 752
         }
       ]
     },
@@ -7192,12 +7198,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-      "lines": 519,
-      "sha256": "afd8631f6eb2fa1197d1724d13e3ee406d483a5c9a15d2aaa4286a047bc9e54b",
+      "lines": 521,
+      "sha256": "b4f81c9a4fcb0fa5cd57c15d9cc611a2598e0904a27d967bd4cd68b4a26a18a1",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",
-          "line": 55
+          "line": 57
         }
       ]
     },
@@ -7421,7 +7427,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt",
       "lines": 98,
-      "sha256": "afd6edeedca8aee2b7c4162a646d2cb7af44945c848b0621ca75fd7ab37e8bdd",
+      "sha256": "cf24bfe3f7aee8832381e09ec7d120923348ad4524c2055e982544f692d6fb8f",
       "symbols": []
     },
     {
@@ -7583,18 +7589,18 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoiceSettingsUi.kt",
-      "lines": 59,
-      "sha256": "e85dcd314b74abf1a4b1c99e5f41221583e5a6b82f94676bb00c31bc173fb472",
+      "lines": 60,
+      "sha256": "c4e0a5280012fd361331c5b07f2d8f35676e755771d5b71fcf6a3455df442982",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt",
-      "lines": 573,
-      "sha256": "975be9193841e64f45d8703d0e2b6c1b04e55a41e75904dea2ed5333cc2751fc",
+      "lines": 575,
+      "sha256": "a6ce779e93db32fdc133291df233f3a97debe8a86ddad90aa57d148a9b90dcba",
       "symbols": [
         {
           "name": "MigratedChatHubScreenV2",
-          "line": 47
+          "line": 49
         }
       ]
     },
@@ -7606,24 +7612,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-      "lines": 776,
-      "sha256": "9a518bcf90985ef3270718bd6a62dd6110eb4cd7b3e936f070ba95fd46faaa36",
+      "lines": 778,
+      "sha256": "afc1b6b55b7f72d6ebc02731023d7aaeee7c199982cb23332a21f46e37022c24",
       "symbols": [
         {
           "name": "LuluRepositories",
-          "line": 45
+          "line": 47
         },
         {
           "name": "initialize",
-          "line": 54
+          "line": 56
         },
         {
           "name": "MemoryFeatureScreen",
-          "line": 72
+          "line": 74
         },
         {
           "name": "LexiconFeatureScreen",
-          "line": 601
+          "line": 603
         }
       ]
     },
@@ -7708,8 +7714,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt",
-      "lines": 325,
-      "sha256": "e8c4e448edac03197394026cbdfc69ea16513035eb53e03611d130de2e02c6ad",
+      "lines": 327,
+      "sha256": "91bdd9d50b8407433357c4777c835f1b50156393e44d28d37cd2189650d1584a",
       "symbols": []
     },
     {
@@ -7808,8 +7814,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 804,
-      "sha256": "ee146a0f28495c05a23fe2ff8d9b98a8f0ecdf07efe19001fb051bcf0ef9968f",
+      "lines": 806,
+      "sha256": "2c63d9d154daf301d19b37385c82e15e0dbd07f989cad32e028a9747bc2249af",
       "symbols": []
     },
     {
@@ -7832,8 +7838,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt",
-      "lines": 649,
-      "sha256": "640bf2a04aa2f5a4146e6aa369e4986c6cd3f787fdb6d6e31522362cab6012c2",
+      "lines": 651,
+      "sha256": "63c011fd9c56068f498a960c4911e22c688f6fe9e5900f94f6c982b4d90d977b",
       "symbols": []
     },
     {
@@ -9441,7 +9447,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
       "lines": 1007,
-      "sha256": "857cf050d9ef7bb3354b38da01f816df3efb12acd68367025ec3b72828df84df",
+      "sha256": "233cf6d357550d6a35d80ae2fdae3b932db6b5b43ef66a4eb5be13884fe070af",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -11007,6 +11013,12 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/design/LuluAlertDialog.kt",
+      "lines": 50,
+      "sha256": "abf8e4f6c83c7a940d657618e2b586949b7823b5dacc551c94d07c96e27c0eab",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt",
       "lines": 156,
       "sha256": "50d3670c738b15fcefc7cf37eb736284d397ce20f8d63ad637244d11936a74ca",
@@ -11039,8 +11051,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
-      "lines": 93,
-      "sha256": "150fe0f1719971acae8393a3adcc727b314d11b12b3873fd14571cc5cd7c3ff8",
+      "lines": 113,
+      "sha256": "de60305428d10be7d1502d6ca68c0e49a8bbd5fdc495122c00244d693476b1f8",
       "symbols": [
         {
           "name": "LuluColors",
@@ -11220,8 +11232,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseInventoryBrowserV5.kt",
-      "lines": 437,
-      "sha256": "ba25ca92afc71205cf1997677104c16f07a9ef6afee0546dc76b0b70be15cdaf",
+      "lines": 438,
+      "sha256": "25153f6cf9a58856b734db5ac6251163b5cb05473b7c28198e2da9761914d314",
       "symbols": []
     },
     {
@@ -11336,8 +11348,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryManagerV5.kt",
-      "lines": 310,
-      "sha256": "ee6416d3b6440e5bc334ccb18d080801aa2e6bcac44c6432b449af69c0969956",
+      "lines": 311,
+      "sha256": "e5ee3fea2dc89ec96c4eb3dc67e23200002e50ce3a5149fa75b1f2e50946472e",
       "symbols": []
     },
     {
@@ -11408,48 +11420,48 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
-      "lines": 1380,
-      "sha256": "8be60054129e918f537a9fdf98eb79cc71c34a86e3215922040f5045d2f11b11",
+      "lines": 1382,
+      "sha256": "e2299aea9de5218e691e5f6dc54a08ae99901abecbc4280a183469dad92f7598",
       "symbols": [
         {
           "name": "loadSave",
-          "line": 129
+          "line": 131
         },
         {
           "name": "save",
-          "line": 133
+          "line": 135
         },
         {
           "name": "clearSave",
-          "line": 137
+          "line": 139
         },
         {
           "name": "loadConfig",
-          "line": 141
+          "line": 143
         },
         {
           "name": "saveConfig",
-          "line": 147
+          "line": 149
         },
         {
           "name": "createSave",
-          "line": 169
+          "line": 171
         },
         {
           "name": "enterGame",
-          "line": 183
+          "line": 185
         },
         {
           "name": "goBack",
-          "line": 196
+          "line": 198
         },
         {
           "name": "advance",
-          "line": 623
+          "line": 625
         },
         {
           "name": "submit",
-          "line": 634
+          "line": 636
         }
       ]
     },
@@ -11486,79 +11498,79 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Screen.kt",
-      "lines": 1206,
-      "sha256": "840f08a5cff09a0bf39207f29758d307239f4b27f59591907f53c598e615022b",
+      "lines": 1208,
+      "sha256": "f45d75c89eb8e0331493831f3a05580e78a495908acae17f91b09332a767f4ea",
       "symbols": [
         {
           "name": "createSave",
-          "line": 66
+          "line": 68
         },
         {
           "name": "enterGame",
-          "line": 82
+          "line": 84
         },
         {
           "name": "goBack",
-          "line": 95
+          "line": 97
         },
         {
           "name": "nextPage",
-          "line": 605
+          "line": 607
         },
         {
           "name": "previousPage",
-          "line": 609
+          "line": 611
         },
         {
           "name": "submit",
-          "line": 623
+          "line": 625
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-      "lines": 1053,
-      "sha256": "a60e0a8fb4ec3a4096ce0cb7ad250422347c4b793528b2114e76e9a146b911f9",
+      "lines": 1055,
+      "sha256": "8f73e4927cce1e8cf707ad7197d13c206189b9bae6c52197b18c9fa3fc571d90",
       "symbols": [
         {
           "name": "load",
-          "line": 55
-        },
-        {
-          "name": "save",
           "line": 57
         },
         {
+          "name": "save",
+          "line": 59
+        },
+        {
           "name": "clear",
-          "line": 61
+          "line": 63
         },
         {
           "name": "createSave",
-          "line": 78
+          "line": 80
         },
         {
           "name": "enterGame",
-          "line": 93
+          "line": 95
         },
         {
           "name": "goBack",
-          "line": 106
+          "line": 108
         },
         {
           "name": "setPage",
-          "line": 603
+          "line": 605
         },
         {
           "name": "nextPage",
-          "line": 608
+          "line": 610
         },
         {
           "name": "previousPage",
-          "line": 612
+          "line": 614
         },
         {
           "name": "submit",
-          "line": 626
+          "line": 628
         }
       ]
     },
@@ -11570,56 +11582,56 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-      "lines": 1673,
-      "sha256": "a428b4740a2e8d02d7d4dafe73eaf3581b4d29dc8313404ff1016a52bbc74164",
+      "lines": 1675,
+      "sha256": "426e6ff5d419eaf97c2066ef09f27fe1fdfe93386fe80dabd29786e173d1d227",
       "symbols": [
         {
           "name": "load",
-          "line": 139
-        },
-        {
-          "name": "save",
-          "line": 140
-        },
-        {
-          "name": "clear",
           "line": 141
         },
         {
+          "name": "save",
+          "line": 142
+        },
+        {
+          "name": "clear",
+          "line": 143
+        },
+        {
           "name": "createSave",
-          "line": 197
+          "line": 199
         },
         {
           "name": "enterGame",
-          "line": 223
+          "line": 225
         },
         {
           "name": "goBack",
-          "line": 281
+          "line": 283
         },
         {
           "name": "rollbackStory",
-          "line": 285
+          "line": 287
         },
         {
           "name": "clearStoryHistory",
-          "line": 295
+          "line": 297
         },
         {
           "name": "setPage",
-          "line": 1232
+          "line": 1234
         },
         {
           "name": "nextPage",
-          "line": 1237
+          "line": 1239
         },
         {
           "name": "previousPage",
-          "line": 1238
+          "line": 1240
         },
         {
           "name": "submit",
-          "line": 1271
+          "line": 1273
         }
       ]
     },
@@ -11870,20 +11882,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-      "lines": 841,
-      "sha256": "d6ea955a8545fd4dacb172ea93ac5759dbd9b277ff8671c0323741bcfa8c7ae1",
+      "lines": 843,
+      "sha256": "a35d8462fa15276a66aa272e5e6468afe1fac932e70c40802e4c2c78f1a27110",
       "symbols": [
         {
           "name": "load",
-          "line": 147
+          "line": 149
         },
         {
           "name": "save",
-          "line": 174
+          "line": 176
         },
         {
           "name": "perform",
-          "line": 398
+          "line": 400
         }
       ]
     },
@@ -12266,16 +12278,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-      "lines": 575,
-      "sha256": "73363edf0065871fcc362eae5c0304d8cf5cba1382ac9073cac8ba575ddcd8e0",
+      "lines": 577,
+      "sha256": "c642e4f3030292753617c61a5f5e7a9bd25c56cadb5a3c386887faffec42023b",
       "symbols": [
         {
           "name": "HealthFeatureScreen",
-          "line": 55
+          "line": 57
         },
         {
           "name": "changeReminder",
-          "line": 170
+          "line": 172
         }
       ]
     },
@@ -12868,24 +12880,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-      "lines": 1253,
-      "sha256": "53f6e6faca69d33f9414eb00f9458a0a8532067a5e9e41f763b26420593349bb",
+      "lines": 1255,
+      "sha256": "3282ed7d830302798c496fd069f354006f80a18f8293bf897fe968cf0926fec3",
       "symbols": [
         {
           "name": "generateNextChapter",
-          "line": 409
+          "line": 411
         },
         {
           "name": "appendOneChapter",
-          "line": 700
+          "line": 702
         },
         {
           "name": "appendThreeChapters",
-          "line": 707
+          "line": 709
         },
         {
           "name": "attemptBack",
-          "line": 714
+          "line": 716
         }
       ]
     },
@@ -12914,8 +12926,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPanel.kt",
-      "lines": 413,
-      "sha256": "096908239e1d469f47a0db195629bd8c525befae5bfd063bc5ff9ac41ebe9185",
+      "lines": 415,
+      "sha256": "ae694ae08c49491fd6e7121681c8e4fe8b8fa0b0a615ac8594de8bbd13a3575d",
       "symbols": []
     },
     {
@@ -13142,8 +13154,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStyledDropdownCompat.kt",
-      "lines": 60,
-      "sha256": "50c0d1d7895c3f9058af2877377fe40851604fb852f925b08855d5b249c024ab",
+      "lines": 61,
+      "sha256": "e57e1a7d2f6e17978d5b344e695d04ef0780568c4dbfad6ece971cc5edc0efdf",
       "symbols": []
     },
     {
@@ -13501,6 +13513,17 @@
         {
           "name": "DevelopmentPolicyTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt",
+      "lines": 30,
+      "sha256": "44059ae23e746ecda785bb1754d9a99eca47b3a1b078638246c0a64db78927a8",
+      "symbols": [
+        {
+          "name": "MeetingLocationRenderingTest",
+          "line": 12
         }
       ]
     },

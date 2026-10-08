@@ -765,11 +765,11 @@ object DigitalWorldStore {
         appendEventLocked(characterId, kind, summary, now)
     }
 
-    private fun meetingLocationCode(location: String): String {
+    internal fun meetingLocationCode(location: String, world: DigitalWorldState = mutable.value): String {
         if (location == "世界入口") return ARRIVAL
         if (location == "云眠原") return CLOUD_MEADOW
         DigitalWorldPublicPlaces.all.firstOrNull { it.label == location }?.let { return it.code }
-        return mutable.value.homes.values.firstOrNull { it.name == location }
+        return world.homes.values.firstOrNull { it.name == location }
             ?.let { homeLocation(it.characterId) }
             ?: ARRIVAL
     }

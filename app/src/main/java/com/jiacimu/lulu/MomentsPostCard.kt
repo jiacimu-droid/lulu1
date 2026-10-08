@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
+
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context

@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.health
 
+import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
+
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build

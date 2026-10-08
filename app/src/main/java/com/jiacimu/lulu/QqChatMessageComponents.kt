@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
+
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.BorderStroke

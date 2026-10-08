@@ -3,6 +3,7 @@ package com.jiacimu.lulu.study
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,7 +23,7 @@ internal fun DropdownMenu(
     properties: PopupProperties = PopupProperties(focusable = true),
     containerColor: Color? = null,
     tonalElevation: Dp = 0.dp,
-    shadowElevation: Dp = 12.dp,
+    shadowElevation: Dp = 2.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     com.jiacimu.lulu.DropdownMenu(
@@ -32,7 +33,7 @@ internal fun DropdownMenu(
         offset = offset,
         scrollState = scrollState,
         properties = properties,
-        containerColor = containerColor ?: StudyDesign.paper,
+        containerColor = containerColor ?: MaterialTheme.colorScheme.surface,
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation,
         content = content,

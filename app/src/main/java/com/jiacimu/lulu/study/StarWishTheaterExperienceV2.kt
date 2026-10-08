@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.study
 
+import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke

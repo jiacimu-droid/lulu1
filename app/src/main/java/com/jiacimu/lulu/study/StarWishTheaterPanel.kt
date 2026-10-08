@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.study
 
+import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
