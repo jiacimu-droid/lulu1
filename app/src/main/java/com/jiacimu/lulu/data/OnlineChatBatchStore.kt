@@ -17,11 +17,22 @@ internal object OnlineChatBatchStore {
         // this pending window or trigger the typing indicator itself.
         val pendingRevision = p.getLong("revision:$characterId", 0)
         if (p.contains("due:$characterId") && (characterId to pendingRevision) !in reading) {
+            val hasUserBubbles = p.getBoolean("messageWindow:$characterId", false)
+            if (collectMessages && !hasUserBubbles) {
+                // An autonomous background tick may have left an immediate
+                // non-message batch pending. The FIRST chat bubble MUST turn
+                // that into a real 3s waiting window; never reuse the 0ms due.
+                val due = now + QUIET_MILLIS
+                check(p.edit().putLong("due:$characterId", due)
+                    .putBoolean("messageWindow:$characterId", true).commit()) { "在线首条消息等待期保存失败" }
+                return Batch(pendingRevision, due)
+            }
             return Batch(pendingRevision, p.getLong("due:$characterId", now))
         }
         val revision = pendingRevision + 1
         val due = if (collectMessages) now + QUIET_MILLIS else now
-        check(p.edit().putLong("revision:$characterId", revision).putLong("due:$characterId", due).commit()) { "在线消息批次保存失败" }
+        check(p.edit().putLong("revision:$characterId", revision).putLong("due:$characterId", due)
+            .putBoolean("messageWindow:$characterId", collectMessages).commit()) { "在线消息批次保存失败" }
         return Batch(revision, due)
     }
 
@@ -44,7 +55,8 @@ internal object OnlineChatBatchStore {
     @Synchronized fun finish(context: Context, characterId: String, revision: Long, completed: Boolean = true) {
         reading.remove(characterId to revision)
         if (completed && isCurrent(context, characterId, revision)) {
-            check(prefs(context).edit().remove("due:$characterId").commit()) { "在线消息读取状态保存失败" }
+            check(prefs(context).edit().remove("due:$characterId")
+                .remove("messageWindow:$characterId").commit()) { "在线消息读取状态保存失败" }
         }
     }
 
@@ -59,6 +71,6 @@ internal object OnlineChatBatchStore {
         val p = prefs(context)
         reading.removeAll { it.first == characterId }
         check(p.edit().putLong("revision:$characterId", p.getLong("revision:$characterId", 0) + 1)
-            .remove("due:$characterId").commit()) { "取消在线消息失败" }
+            .remove("due:$characterId").remove("messageWindow:$characterId").commit()) { "取消在线消息失败" }
     }
 }
