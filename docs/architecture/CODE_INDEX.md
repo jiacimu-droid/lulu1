@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`0c562fff2fcf308ba83402104d3bb4783f50dcad`
+- 基准提交：`f360e602f120934f446ba7b2d808131f21c4c68d`
 - 分支：`main`
-- 已索引文件：369
-- 已索引代码/文本行：89686
-- 已发现符号：1268
+- 已索引文件：370
+- 已索引代码/文本行：89720
+- 已发现符号：1269
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -52,7 +52,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 158 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 529 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 583 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 84 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 88 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 116 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 412 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
@@ -340,6 +340,7 @@
 | `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 124 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechRecordingTest.kt` | 69 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 56 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt` | 84 | 1 |

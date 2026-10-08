@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T19:19:04.004311+00:00",
-  "commit": "0c562fff2fcf308ba83402104d3bb4783f50dcad",
+  "generatedAt": "2026-10-08T19:19:18.612024+00:00",
+  "commit": "f360e602f120934f446ba7b2d808131f21c4c68d",
   "branch": "main",
-  "sourceFingerprint": "280ecfbe382245ac1cbb5d5c5fa4349e5b2da8fa8666a2cc0c0446c757f47510",
+  "sourceFingerprint": "a07bea8d1c3b43e293a78abacdf141ee31f3c521ec3745bdd974a650c0cc839b",
   "summary": {
-    "files": 369,
-    "lines": 89686,
-    "symbols": 1268
+    "files": 370,
+    "lines": 89720,
+    "symbols": 1269
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6878,6 +6878,12 @@
         "line": 14
       }
     ],
+    "LuluCallFloatingWindowTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt",
+        "line": 5
+      }
+    ],
     "MeetingVoiceOffTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt",
@@ -7700,8 +7706,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
-      "lines": 84,
-      "sha256": "5eccfbfe5a54a9f93f4cdc0d4a29e725faff1597528dda4daad0f1213aa53826",
+      "lines": 88,
+      "sha256": "021f1af40e635c9261e9c63a5c25d4aed9c1856b37cfca79e0e8266f2f522f0d",
       "symbols": [
         {
           "name": "show",
@@ -14219,6 +14225,17 @@
         {
           "name": "ElevenLabsAudioContractsTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt",
+      "lines": 30,
+      "sha256": "9fad3511907fd4dd4b3f8d6a26198481835f503cd283b92cea42ec00c57d70a0",
+      "symbols": [
+        {
+          "name": "LuluCallFloatingWindowTest",
+          "line": 5
         }
       ]
     },
