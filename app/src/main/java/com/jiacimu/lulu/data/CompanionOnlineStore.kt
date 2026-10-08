@@ -171,6 +171,18 @@ object CompanionOnlineStore {
             return // Phone speech never enters the text reply queue.
         }
         val now = message.createdAt
+        if (message.sender == LuluChatMessage.Sender.User) {
+            // Open the quiet window at the FIRST bubble even if the character is
+            // still offline. Pressing the wake button later must reuse this
+            // timestamp rather than pretending a new message arrived at wake.
+            val readers = conversation.groupChat?.members.orEmpty().map(LuluGroupMember::characterId)
+                .takeIf { it.isNotEmpty() } ?: listOf(conversation.characterId)
+            appContext?.let { context ->
+                readers.distinct().filter(String::isNotBlank).forEach { reader ->
+                    OnlineChatBatchStore.next(context, reader, collectMessages = true, now = now.toEpochMilli())
+                }
+            }
+        }
 
         // Private activity receipts are written only after a real executor succeeded. During the
         // same five-minute wake, allow one fresh autonomous decision after such a life action.
