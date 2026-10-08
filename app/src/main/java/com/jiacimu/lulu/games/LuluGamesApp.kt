@@ -62,7 +62,7 @@ private data class GameLauncher(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null) {
+fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null, returnToCaller: Boolean = false) {
     val store = remember { LuluGames.store }
     val state by store.state.collectAsState()
     var route by remember(initialGameId) { mutableStateOf(initialGameId.toGameRouteOrHome()) }
@@ -70,7 +70,7 @@ fun LuluGamesApp(onBack: () -> Unit, initialGameId: String? = null) {
     var pendingRoute by remember { mutableStateOf<GameRoute?>(null) }
 
     fun stepBack() {
-        if (route == GameRoute.Home) onBack() else route = GameRoute.Home
+        if (route == GameRoute.Home || returnToCaller) onBack() else route = GameRoute.Home
     }
 
     BackHandler { stepBack() }

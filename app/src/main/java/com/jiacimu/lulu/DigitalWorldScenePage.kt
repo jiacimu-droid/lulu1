@@ -134,6 +134,7 @@ internal fun DigitalWorldSceneCanvas(
     controlsBottomPadding: androidx.compose.ui.unit.Dp = 18.dp,
     controlsEnabled: Boolean = true,
     showExplorationHud: Boolean = true,
+    followerIds: Set<String> = emptySet(),
 ) {
     DigitalWorldGameScene(
         modifier = modifier,
@@ -146,5 +147,6 @@ internal fun DigitalWorldSceneCanvas(
         controlsBottomPadding = controlsBottomPadding,
         controlsEnabled = controlsEnabled,
         showExplorationHud = showExplorationHud,
+        followerIds = followerIds,
     )
 }

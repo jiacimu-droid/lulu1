@@ -104,7 +104,7 @@ class LuluGameStore internal constructor(context: Context) {
         val clean = characterIds.map(String::trim).filter(String::isNotBlank).distinct()
         mutate {
             if (clean.isEmpty()) {
-                it.copy(selectedCharacterIds = emptyList(), playWithCharacter = false)
+                it.copy(selectedCharacterId = "", selectedCharacterIds = emptyList(), playWithCharacter = false)
             } else {
                 it.copy(selectedCharacterId = clean.first(), selectedCharacterIds = clean, playWithCharacter = true)
             }
@@ -124,6 +124,9 @@ class LuluGameStore internal constructor(context: Context) {
     private fun openMemoryCard(index: Int, player: MemoryTurn) {
         val current = mutableState.value.memoryMatch
         if (current.finished || index !in current.cards.indices || index in current.matched || index in current.opened) return
+        if (player == MemoryTurn.User && mutableState.value.playWithCharacter) {
+            com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(mutableState.value.selectedCharacterId)
+        }
         val opened = current.opened + index
         if (opened.size < 2) {
             mutate { it.copy(memoryMatch = current.copy(opened = opened)) }

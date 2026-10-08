@@ -25,6 +25,7 @@ data class MeetingParticipantSceneState(
     val facing: String = "",
     val contact: List<String> = emptyList(),
     val heldItems: List<String> = emptyList(),
+    val explorationMode: String = "",
 )
 
 data class MeetingSceneSnapshot(
@@ -43,6 +44,7 @@ data class MeetingSceneSnapshot(
             if (item.posture.isNotBlank()) append("；姿态=${item.posture}")
             if (item.facing.isNotBlank()) append("；朝向=${item.facing}")
             if (item.contact.isNotEmpty()) append("；接触=${item.contact.joinToString("、")}")
+            if (item.explorationMode.isNotBlank()) append("；探索行为=${item.explorationMode}")
             if (item.heldItems.isNotEmpty()) append("；持有=${item.heldItems.joinToString("、")}")
             appendLine()
         }
@@ -461,6 +463,7 @@ private fun MeetingParticipantSceneState.toJson() = JSONObject()
     .put("facing", facing)
     .put("contact", JSONArray(contact))
     .put("heldItems", JSONArray(heldItems))
+    .put("explorationMode", explorationMode)
 
 private fun JSONObject.toParticipantScene(): MeetingParticipantSceneState? {
     val id = optString("participantId").trim()
@@ -472,16 +475,17 @@ private fun JSONObject.toParticipantScene(): MeetingParticipantSceneState? {
         facing = optString("facing"),
         contact = optJSONArray("contact").toStringList(),
         heldItems = optJSONArray("heldItems").toStringList(),
+        explorationMode = optString("explorationMode").takeIf { it in setOf("FOLLOW_USER", "STAY") }.orEmpty(),
     )
 }
 
-private fun MeetingSceneSnapshot.toJson() = JSONObject()
+internal fun MeetingSceneSnapshot.toJson() = JSONObject()
     .put("location", location)
     .put("ambience", ambience)
     .put("updatedAt", updatedAt.toString())
     .put("participants", JSONArray().apply { participants.forEach { put(it.toJson()) } })
 
-private fun JSONObject.toScene(): MeetingSceneSnapshot? {
+internal fun JSONObject.toScene(): MeetingSceneSnapshot? {
     val location = optString("location").trim()
     if (location.isBlank()) return null
     return MeetingSceneSnapshot(

@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -77,6 +78,7 @@ private data class DigitalNpcMotion(
     val pendingActivityId: String? = null,
     val activityLabel: String = "",
     val busyUntil: Long = 0L,
+    val followPath: List<WorldVector> = emptyList(),
 )
 
 private sealed interface DigitalNearbyTarget {
@@ -99,6 +101,7 @@ private data class DigitalInteractionChoice(
     val quickSummary: String? = null,
     val storyPrompt: String? = null,
     val dialogueCharacterId: String? = null,
+    val gameId: String? = null,
 )
 
 @Composable
@@ -113,6 +116,7 @@ internal fun DigitalWorldGameScene(
     controlsBottomPadding: Dp = 18.dp,
     controlsEnabled: Boolean = true,
     showExplorationHud: Boolean = true,
+    followerIds: Set<String> = emptySet(),
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -146,6 +150,7 @@ internal fun DigitalWorldGameScene(
     var facingX by remember(sceneKey) { mutableFloatStateOf(1f) }
     var viewportSize by remember { mutableStateOf(IntSize.Zero) }
     var questStage by remember(sceneKey) { mutableIntStateOf(stateStore.loadQuest()) }
+    var arcadeGameId by rememberSaveable(sceneKey) { mutableStateOf<String?>(null) }
     var interactionMessage by remember(sceneKey) { mutableStateOf("") }
     var menuTargetKey by remember(sceneKey) { mutableStateOf<String?>(null) }
     var queuedActions by remember(sceneKey) { mutableStateOf<List<DigitalQueuedAction>>(emptyList()) }
@@ -154,7 +159,7 @@ internal fun DigitalWorldGameScene(
     var npcMotions by remember(sceneKey, residents.map { it.characterId }) {
         mutableStateOf(
             residents.mapIndexed { index, character ->
-                val start = residentStart(index, character.characterId, venueAnchors)
+                val start = digitalSafeStart(residentStart(index, character.characterId, venueAnchors), obstacles)
                 DigitalNpcMotion(character, start, start, System.currentTimeMillis() + 2_100L + index * 760L)
             },
         )
@@ -167,6 +172,12 @@ internal fun DigitalWorldGameScene(
         animationSpec = infiniteRepeatable(tween(4_800), RepeatMode.Reverse),
         label = "digital-world-light-phase",
     )
+
+    arcadeGameId?.let { gameId ->
+        DigitalWorldArcadeScreen(gameId, residents, onBack = { arcadeGameId = null }, modifier = modifier)
+        return
+    }
+    com.jiacimu.lulu.games.GameAmbientSoundscape(com.jiacimu.lulu.games.GameSoundscape.Meeting)
 
     val worldScale = (viewportSize.height.toFloat() / 650f).coerceAtLeast(.35f)
     val viewportWorldWidth = viewportSize.width.toFloat() / worldScale
@@ -217,7 +228,7 @@ internal fun DigitalWorldGameScene(
         if (activeActionLabel == queued.label) activeActionLabel = ""
     }
 
-    LaunchedEffect(sceneKey, obstacles, viewportSize, residents.map { it.characterId }, controlsEnabled, props, venueAnchors) {
+    LaunchedEffect(sceneKey, obstacles, viewportSize, residents.map { it.characterId }, controlsEnabled, props, venueAnchors, followerIds) {
         var previousFrame = withFrameNanos { it }
         var lastCollisionSound = 0L
         while (isActive) {
@@ -282,13 +293,31 @@ internal fun DigitalWorldGameScene(
                     }
 
                     // Animation reflects confirmed activity; it never executes random world actions.
+                    val following = motion.character.characterId in followerIds
+                    var followPath = if (following) motion.followPath else emptyList()
                     var target = motion.target
                     var nextDecision = motion.nextDecisionAt
                     val pendingItemId: String? = null
                     val pendingVenueId: String? = null
                     val pendingActivityId: String? = null
                     var activityLabel = motion.activityLabel
-                    if (now >= nextDecision) {
+                    if (following) {
+                        if (motion.position.distanceTo(playerPosition) < 90f) {
+                            followPath = emptyList()
+                            target = motion.position
+                        } else {
+                            if (now >= nextDecision || (followPath.isEmpty() && motion.activityLabel != "跟随你")) {
+                                followPath = com.jiacimu.lulu.games.worldFollowPath(motion.position, playerPosition,
+                                    DIGITAL_WORLD_BOUNDS, obstacles, 28f)
+                                nextDecision = now + 750L
+                            }
+                            while (followPath.isNotEmpty() && motion.position.distanceTo(followPath.first()) < 14f) {
+                                followPath = followPath.drop(1)
+                            }
+                            target = followPath.firstOrNull() ?: motion.position
+                        }
+                        activityLabel = "跟随你"
+                    } else if (now >= nextDecision) {
                         val activity = com.jiacimu.lulu.data.DigitalWorldActivityStateStore.ongoingActivity(motion.character.characterId)
                         val item = props.firstOrNull { it.item.id == activity?.first }
                         val venue = venueAnchors.firstOrNull { activity?.second in it.activityIds }
@@ -306,7 +335,7 @@ internal fun DigitalWorldGameScene(
                         moveInWorld(
                             motion.position,
                             directionToTarget,
-                            speed = 78f,
+                            speed = if (following) { if (motion.position.distanceTo(playerPosition) > 230f) 330f else 260f } else 78f,
                             deltaSeconds = delta,
                             radius = 28f,
                             bounds = DIGITAL_WORLD_BOUNDS,
@@ -322,6 +351,7 @@ internal fun DigitalWorldGameScene(
                         pendingVenueAnchorId = pendingVenueId,
                         pendingActivityId = pendingActivityId,
                         activityLabel = activityLabel,
+                        followPath = followPath,
                     )
                 }
             }
@@ -553,6 +583,7 @@ internal fun DigitalWorldGameScene(
                 onChoice = { choice ->
                     menuTargetKey = null
                     when {
+                        choice.gameId != null -> arcadeGameId = choice.gameId
                         choice.dialogueCharacterId != null -> {
                             questStage = questStage.coerceAtLeast(1)
                             onCharacterClick(choice.dialogueCharacterId)
@@ -630,7 +661,13 @@ private fun buildInteractionChoices(
     }
     is DigitalNearbyTarget.Venue -> {
         val allowed = DigitalWorldActivityCatalog.locationOptions(sceneCode).filter { it.first in target.anchor.activityIds }
-        allowed.map { (activityId, label) ->
+        val games = if (sceneCode == com.jiacimu.lulu.data.DigitalWorldPublicPlaces.GAME_HALL && "choose_arcade" in target.anchor.activityIds) {
+            listOf(
+                DigitalInteractionChoice("记忆配对", "开始真实对局", gameId = "memory_match"),
+                DigitalInteractionChoice("深海回声", "开始潜航探索", gameId = "deep_sea_journey"),
+            )
+        } else emptyList()
+        games + allowed.filterNot { it.first == "choose_arcade" }.map { (activityId, label) ->
             DigitalInteractionChoice(
                 label = label,
                 detail = target.anchor.label,

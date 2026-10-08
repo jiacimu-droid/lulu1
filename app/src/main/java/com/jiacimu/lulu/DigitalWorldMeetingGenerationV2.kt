@@ -106,7 +106,7 @@ internal suspend fun meetingPlanDirectionV2(session: MeetingSession, userText: S
     }.getOrDefault(fallback)
 }
 
-internal fun meetingParseSceneSnapshotV2(json: JSONObject?, session: MeetingSession): MeetingSceneSnapshot? {
+internal fun meetingParseSceneSnapshotV2(json: JSONObject?, session: MeetingSession, respondingCharacterId: String? = session.participantIds.singleOrNull()): MeetingSceneSnapshot? {
     json ?: return null
     val allowedIds = listOf("user") + session.participantIds.distinct()
     val before = MeetingExperienceStore.sceneFor(session)
@@ -132,6 +132,10 @@ internal fun meetingParseSceneSnapshotV2(json: JSONObject?, session: MeetingSess
                     facing = item.optString("facing").trim().take(180),
                     contact = list("contact"),
                     heldItems = list("heldItems"),
+                    explorationMode = if (id == respondingCharacterId && session.reality == MeetingReality.DIGITAL_WORLD) {
+                        item.optString("explorationMode").takeIf { it in setOf("FOLLOW_USER", "STAY") }
+                            ?: beforeById[id]?.explorationMode.orEmpty()
+                    } else beforeById[id]?.explorationMode.orEmpty(),
                 ),
             )
         }
@@ -205,7 +209,7 @@ internal suspend fun meetingGenerateReplyV2(
         instruction = """
             你正在以${character.displayName}的身份参与一场连续见面。每轮让现场真正向前发展，写成完整、可体验的小段剧情，不要只反应一句就停，也不要一次写完整故事。
             只返回一个 JSON 对象：
-            {"sequence":[{"speaker":"user","type":"dialogue","text":"主人说的话"},{"speaker":"character","type":"action","text":"${character.displayName}的反应","speechText":"[sighs]"},{"speaker":"character","type":"dialogue","text":"${character.displayName}说的话","speechText":"[warmly] ${character.displayName}说的话"}],"moveTo":"可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"持续环境事实","participants":[{"participantId":"user或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["持续接触"],"heldItems":["持有物品"]}]},"statusText":"简短当前状态","gesture":"延续姿态","innerThought":"未说出口的极短心声，可为空","mood":"简短心情"}
+            {"sequence":[{"speaker":"user","type":"dialogue","text":"主人说的话"},{"speaker":"character","type":"action","text":"${character.displayName}的反应","speechText":"[sighs]"},{"speaker":"character","type":"dialogue","text":"${character.displayName}说的话","speechText":"[warmly] ${character.displayName}说的话"}],"moveTo":"可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"持续环境事实","participants":[{"participantId":"user或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["持续接触"],"heldItems":["持有物品"],"explorationMode":"FOLLOW_USER或STAY"}]},"statusText":"简短当前状态","gesture":"延续姿态","innerThought":"未说出口的极短心声，可为空","mood":"简短心情"}
 
             规则：
             - 每个character片段另带speechText音频轨，与正文text分开。dialogue的speechText保留完全相同的原话，只插入音频标签；action的speechText只能放实际动作/环境发出的声音标签，不念叙事正文。没有声音的动作留空，user不添加音频轨。
@@ -224,6 +228,7 @@ internal suspend fun meetingGenerateReplyV2(
             - 沉浸感要自然融合环境与空间、动作链、细微神态和声音、角色自身含蓄心理、两种以上自然感官、关系氛围、动作因果与余韵，不能只堆动作或感官词。
             - 多人场景不要替其他角色新增言行；他们会有自己的回合。不得断言主人未表达的心理和感受。
             - moveTo 只有主人明确提出去可用地点时才填写准确名称，并写出移动过程；否则留空。
+            - explorationMode 只更新你自己的字段：FOLLOW_USER 表示你已经同意并开始跟随主人探索，地图上的身体会实际跟随；STAY 表示你停止跟随。邀请、犹豫、拒绝不能标成已跟随。是否答应由你的人设、关系和当时安排决定；不替其他角色决定，不改变主人的字段。没有变化时保留当前值。现实场景留空。
             - sceneState 只保存持续到下一轮的事实，必须包含user与所有参与者，使用准确participantId。
             - 数字世界见面是真正发生的数字共同体验，不是梦，也不是物理肉身进入手机。数字生命使用原生数字身体；现实角色和用户使用感官投影身体，可真实传递触觉、温度、重量与拥抱感觉。云眠原的云是可承托身体的感官云质。
             - 已记录的探索事实属于世界状态，不是可随剧情重置的文案。若本轮涉及同一地点或物件，必须承认它此前已经发生过的变化。
@@ -244,10 +249,10 @@ internal suspend fun meetingGenerateReplyV2(
             },
         ),
     ).getOrThrow()
-    meetingParseReplyV2(result.text, session)
+    meetingParseReplyV2(result.text, session, characterId)
 }
 
-internal fun meetingParseReplyV2(raw: String, session: MeetingSession): MeetingV2Reply {
+internal fun meetingParseReplyV2(raw: String, session: MeetingSession, respondingCharacterId: String? = session.participantIds.singleOrNull()): MeetingV2Reply {
     val clean = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim().let { value ->
         val start = value.indexOf('{')
         val end = value.lastIndexOf('}')
@@ -289,7 +294,7 @@ internal fun meetingParseReplyV2(raw: String, session: MeetingSession): MeetingV
         innerThought = json.optString("innerThought").trim().take(500),
         mood = json.optString("mood").trim().take(80),
         moveTo = json.optString("moveTo").trim().take(80),
-        sceneSnapshot = meetingParseSceneSnapshotV2(json.optJSONObject("sceneState"), session),
+        sceneSnapshot = meetingParseSceneSnapshotV2(json.optJSONObject("sceneState"), session, respondingCharacterId),
     )
 }
 

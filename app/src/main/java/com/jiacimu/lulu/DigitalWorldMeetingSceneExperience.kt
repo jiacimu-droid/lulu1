@@ -73,6 +73,10 @@ internal fun DigitalWorldMeetingSceneExperience(
     val bgmEnabled = GameAmbientSoundscape(GameSoundscape.Meeting)
     val viewOnly = session.endedAt != null
     val isDigitalWorld = session.reality == MeetingReality.DIGITAL_WORLD
+    val meetingExperience by MeetingExperienceStore.state.collectAsState()
+    val followers = if (viewOnly) emptySet() else meetingExperience.scenes[session.id]?.participants.orEmpty()
+        .filter { it.participantId in session.participantIds && it.explorationMode == "FOLLOW_USER" }
+        .mapTo(mutableSetOf()) { it.participantId }
     val groups = remember(session.turns) { meetingSceneGroups(session.turns) }
     val pages = remember(groups) { groups.flatMap(::readingPagesForGroup) }
     var pageIndex by remember(session.id) { mutableIntStateOf(0) }
@@ -166,6 +170,7 @@ internal fun DigitalWorldMeetingSceneExperience(
                 controlsBottomPadding = 94.dp,
                 controlsEnabled = exploring && !generating,
                 showExplorationHud = exploring,
+                followerIds = followers,
             )
         } else {
             RealisticMeetingStage(
