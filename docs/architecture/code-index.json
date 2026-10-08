@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T18:05:36.705293+00:00",
-  "commit": "e60cbfaed317098db85634fb1a5dc606a83ccfbe",
+  "generatedAt": "2026-10-08T18:06:11.666461+00:00",
+  "commit": "da5dfb7c28b17967df3bec4289a6e70df71c38bb",
   "branch": "main",
-  "sourceFingerprint": "3a39d5ede279ca34342c6dbf9bd147a7fc3303466f77ec720435d61c29212940",
+  "sourceFingerprint": "1cb3c3b14f65b95815eb07c98d4da6904e7c88f3750e6ff3b429b222949a9561",
   "summary": {
-    "files": 363,
-    "lines": 89043,
-    "symbols": 1258
+    "files": 364,
+    "lines": 89137,
+    "symbols": 1259
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6873,6 +6873,12 @@
     "CharacterDefinitionTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt",
+        "line": 16
+      }
+    ],
+    "CharacterInnerLifeStoreTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
         "line": 16
       }
     ],
@@ -14184,6 +14190,17 @@
       "symbols": [
         {
           "name": "CharacterDefinitionTest",
+          "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
+      "lines": 94,
+      "sha256": "dad3498107519f61c6915bf2bfd8d91ccec8df42982699a5b7e5e5c71c27e7ff",
+      "symbols": [
+        {
+          "name": "CharacterInnerLifeStoreTest",
           "line": 16
         }
       ]
