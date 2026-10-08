@@ -201,9 +201,25 @@ object ProactivePerceptionRuntime {
         val lastEvaluation = prefs.getLong("last_evaluation_$characterId", 0L)
             .takeIf { it > 0L }?.let(Instant::ofEpochMilli)
         val anchor = listOfNotNull(lastChat, lastEvaluation).maxOrNull() ?: now
-        // Adaptive timing may make the wake moment feel less clockwork, but it must never punish a
-        // character for choosing SILENT or reward/penalize any particular action.
-        val timingVariation = if (policy.adaptiveFrequency) stableTimingVariation(characterId, anchor) else 1.0
+        val timingVariation = if (policy.adaptiveFrequency) {
+            val latestUserAt = messages.asSequence()
+                .filter { it.status == LuluChatMessage.Status.Sent && it.sender == LuluChatMessage.Sender.User }
+                .maxByOrNull(LuluChatMessage::createdAt)?.createdAt
+            val minutesSinceUser = latestUserAt?.let {
+                Duration.between(it, now).toMinutes().coerceAtLeast(0L)
+            }
+            val hasConcern = LuluRepositories.lexicon.snapshot(characterId).any {
+                it.section == LexiconSection.Concern &&
+                    it.status == com.jiacimu.lulu.core.LexiconStatus.Active
+            }
+            adaptivePerceptionMultiplier(
+                jitter = stableTimingVariation(characterId, anchor),
+                unread = CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank(),
+                pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false),
+                hasConcern = hasConcern,
+                minutesSinceUserContact = minutesSinceUser,
+            )
+        } else 1.0
         return deferPastQuietHours(anchor.plus(Duration.ofMinutes(policy.intervalMinutes(timingVariation))), policy)
     }
 
@@ -840,4 +856,23 @@ object ProactivePerceptionRuntime {
     }
 
     private val nowMarker: Long get() = System.currentTimeMillis() / 10_000L
+}
+
+/** Soft adjustments respond to observed interaction, without quotas or reward for action spam. */
+internal fun adaptivePerceptionMultiplier(
+    jitter: Double,
+    unread: Boolean,
+    pendingConcern: Boolean,
+    hasConcern: Boolean,
+    minutesSinceUserContact: Long?,
+): Double {
+    val engagement = when {
+        unread -> 0.65
+        pendingConcern -> 0.7
+        hasConcern -> 0.85
+        minutesSinceUserContact != null && minutesSinceUserContact <= 240 -> 0.9
+        minutesSinceUserContact != null && minutesSinceUserContact > 72 * 60 -> 1.1
+        else -> 1.0
+    }
+    return (jitter.coerceIn(0.85, 1.15) * engagement).coerceIn(0.55, 1.4)
 }
