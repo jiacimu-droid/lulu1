@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T14:16:53.820812+00:00",
-  "commit": "6270bdde224d73bf23aa3dfe31238b54c9d29a7f",
-  "branch": "main",
-  "sourceFingerprint": "c85561ab41e42670f9ee4cc27b84b8a759f3df43c5acb4e3c3ec63f8c6f12e16",
+  "generatedAt": "2026-10-08T14:22:04.975696+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "daebc048f84e55b1e23aa95dfab00e58963f2d39ed83bc33b643317794e2a77e",
   "summary": {
     "files": 357,
-    "lines": 88028,
+    "lines": 88037,
     "symbols": 1243
   },
   "symbolIndex": {
@@ -179,7 +179,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 22
+        "line": 31
       }
     ],
     "finish": [
@@ -6803,19 +6803,19 @@
     "CharacterLifeStoreTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 14
+        "line": 16
       }
     ],
     "proposal": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 38
+        "line": 47
       }
     ],
     "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 80
+        "line": 89
       }
     ],
     "CharacterOriginResetTest": [
@@ -14016,24 +14016,24 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 110,
-      "sha256": "05ce7d5e125f1aa8cd6a773dfafd257fb784dde30c679b33dbd7ae44526ff903",
+      "lines": 119,
+      "sha256": "a6977283fde992753582b4e9617bb679e3b5bcbcf083ab9a62ec192c06548ffb",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
-          "line": 14
+          "line": 16
         },
         {
           "name": "update",
-          "line": 22
+          "line": 31
         },
         {
           "name": "proposal",
-          "line": 38
+          "line": 47
         },
         {
           "name": "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits",
-          "line": 80
+          "line": 89
         }
       ]
     },

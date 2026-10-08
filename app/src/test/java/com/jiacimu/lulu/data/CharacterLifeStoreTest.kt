@@ -4,6 +4,8 @@ import android.content.Context
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.Before
+import org.junit.After
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
@@ -12,6 +14,13 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterLifeStoreTest {
+    @Before fun before() { releasePreferences() }
+    @After fun after() { releasePreferences() }
+
+    private fun releasePreferences() {
+        CharacterLifeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(CharacterLifeStore, null)
+    }
     @Test fun newFeedbackCanAdjustAnIntentionWithoutLosingItsIdentityOrReceipts() {
         val context = RuntimeEnvironment.getApplication() as Context
         CharacterLifeStore.initialize(context)
