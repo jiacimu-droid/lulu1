@@ -106,7 +106,14 @@ internal fun UserMessageFavoritesScreen(onBack: () -> Unit) {
                                 Icon(if (playingId == entry.messageId) Icons.Outlined.Stop else Icons.Outlined.PlayArrow,
                                     null, Modifier.size(18.dp))
                                 Spacer(Modifier.width(6.dp))
-                                Text(if (playingId == entry.messageId) "停止" else if (hasAudio) "播放收藏语音" else "朗读并保存语音")
+                                Text(
+                                    when {
+                                        playingId == entry.messageId -> "停止"
+                                        hasAudio -> "播放收藏原声"
+                                        entry.messageId.startsWith("voice-") -> "重新合成朗读（非通话原声）"
+                                        else -> "朗读并保存语音"
+                                    }
+                                )
                             }
                         }
                     }
