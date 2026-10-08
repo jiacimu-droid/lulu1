@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T16:57:47.591717+00:00",
-  "commit": "882038f3711c47daef620553ea906319bfb95d6f",
+  "generatedAt": "2026-10-08T16:58:34.341017+00:00",
+  "commit": "272c9392a7af1a72f0617a866c46169711227eb7",
   "branch": "main",
-  "sourceFingerprint": "a734a9b7a984ebb571ef6b0f5f94d29590f5548635fce40e702f6b0433da3183",
+  "sourceFingerprint": "5f05b5cdccb1d16a88b1bfc2aba1c6a3264c9605526d1eb1c900905032f5daa9",
   "summary": {
     "files": 358,
-    "lines": 88145,
+    "lines": 88151,
     "symbols": 1244
   },
   "symbolIndex": {
@@ -1269,7 +1269,7 @@
     "MigratedChatHubScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt",
-        "line": 49
+        "line": 50
       }
     ],
     "LuluRepositories": [
@@ -7921,12 +7921,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt",
-      "lines": 593,
-      "sha256": "3925a2ede6ea345e3d855fadffef7095e0d8336f7da2946a2ee64e0ded44c25e",
+      "lines": 599,
+      "sha256": "c4448a2747aa5c397d49ca156157b2323396e6840c0533d4970047badeb4055f",
       "symbols": [
         {
           "name": "MigratedChatHubScreenV2",
-          "line": 49
+          "line": 50
         }
       ]
     },
