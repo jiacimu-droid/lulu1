@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`93b4ffe2aee5e2d3b6abbf7cbd32c5e65e3bb76c`
+- 基准提交：`fa7373521f0bb9dd58ecb5d43c5cad67c78a2181`
 - 分支：`main`
-- 已索引文件：359
-- 已索引代码/文本行：88206
-- 已发现符号：1245
+- 已索引文件：360
+- 已索引代码/文本行：88226
+- 已发现符号：1246
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -101,7 +101,7 @@
 | `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 43 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt` | 29 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt` | 103 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 990 | 25 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 991 | 25 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt` | 73 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 188 | 3 |
@@ -110,6 +110,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 41 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 75 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 141 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 19 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 98 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 271 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 156 | 2 |
