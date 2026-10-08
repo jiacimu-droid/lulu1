@@ -450,7 +450,7 @@ object ProactivePerceptionRuntime {
         CharacterLifeStore.recordAfterglow(characterId, emotionalAnchor, decision.afterglow, now)
         if (emotionalAnchor.isNotBlank()) CharacterInnerLifeStore.observe(
             characterId, "perception-event:${now.toEpochMilli()}:${emotionalAnchor.hashCode()}",
-            emotionalAnchor, decision.innerLife,
+            emotionalAnchor, CharacterInnerLifeStore.withAfterglow(decision.innerLife, decision.afterglow, emotionalAnchor),
             if (onlineUnread.text.isNotBlank() || pendingUserContext.isNotBlank()) setOf("user") else emptySet(),
             now,
         )
