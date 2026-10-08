@@ -205,9 +205,12 @@ internal suspend fun meetingGenerateReplyV2(
         instruction = """
             你正在以${character.displayName}的身份参与一场连续见面。每轮让现场真正向前发展，写成完整、可体验的小段剧情，不要只反应一句就停，也不要一次写完整故事。
             只返回一个 JSON 对象：
-            {"sequence":[{"speaker":"user","type":"dialogue","text":"主人说的话"},{"speaker":"character","type":"action","text":"${character.displayName}的反应"},{"speaker":"character","type":"dialogue","text":"${character.displayName}说的话"}],"moveTo":"可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"持续环境事实","participants":[{"participantId":"user或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["持续接触"],"heldItems":["持有物品"]}]},"statusText":"简短当前状态","gesture":"延续姿态","innerThought":"未说出口的极短心声，可为空","mood":"简短心情"}
+            {"sequence":[{"speaker":"user","type":"dialogue","text":"主人说的话"},{"speaker":"character","type":"action","text":"${character.displayName}的反应","speechText":"[sighs]"},{"speaker":"character","type":"dialogue","text":"${character.displayName}说的话","speechText":"[warmly] ${character.displayName}说的话"}],"moveTo":"可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"持续环境事实","participants":[{"participantId":"user或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["持续接触"],"heldItems":["持有物品"]}]},"statusText":"简短当前状态","gesture":"延续姿态","innerThought":"未说出口的极短心声，可为空","mood":"简短心情"}
 
             规则：
+            - 每个character片段另带speechText音频轨，与正文text分开。dialogue的speechText保留完全相同的原话，只插入音频标签；action的speechText只能放实际动作/环境发出的声音标签，不念叙事正文。没有声音的动作留空，user不添加音频轨。
+            ${VoicePerformance.direction}
+            - 同一个喷嚏、巴掌声、吸气等事件只在发生的片段标一次，不在相邻台词重复播放；动作页可以只有音效，台词页可以带持续情绪和发声变化。
             - sequence 是双方共享的唯一时间顺序；speaker=user 是主人，speaker=character 是${character.displayName}。界面严格按数组顺序展示。
             - expandUserDraft=$expandUserDraft。false 时 sequence 只能有 character；true 时按主人草稿真实顺序补全一来一回，可以 user→character→user→character，不能把主人所有内容堆完才写角色。
             - 主人草稿即使很短也要补成有现场感的叙事，但只能补自然衔接、说话方式、已暗示的小动作和可直接感知环境；不得替主人新增重大决定、强烈情绪、亲密行为、内心想法或后续台词。
@@ -244,7 +247,7 @@ internal suspend fun meetingGenerateReplyV2(
     meetingParseReplyV2(result.text, session)
 }
 
-private fun meetingParseReplyV2(raw: String, session: MeetingSession): MeetingV2Reply {
+internal fun meetingParseReplyV2(raw: String, session: MeetingSession): MeetingV2Reply {
     val clean = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim().let { value ->
         val start = value.indexOf('{')
         val end = value.lastIndexOf('}')
@@ -306,7 +309,7 @@ private fun meetingParseExchangeV2(json: JSONObject): List<MeetingV2ExchangeSegm
             else -> null
         }
         if (text.isNotBlank() && actor != null && type != null) {
-            add(MeetingV2ExchangeSegment(actor, MeetingSegment(type, text)))
+            add(MeetingV2ExchangeSegment(actor, VoicePerformance.meetingSegment(type, text, item.optString("speechText"), actor == MeetingV2Actor.USER)))
         }
     }
 }
@@ -328,7 +331,7 @@ private fun meetingParseSegmentsV2(
                     "dialogue", "speech" -> MeetingSegmentType.DIALOGUE
                     else -> null
                 }
-                if (text.isNotBlank() && type != null) add(MeetingSegment(type, text))
+                if (text.isNotBlank() && type != null) add(VoicePerformance.meetingSegment(type, text, item.optString("speechText"), key == "userSegments"))
             }
         }
     }

@@ -41,6 +41,7 @@ enum class MeetingSegmentType { ACTION, DIALOGUE }
 data class MeetingSegment(
     val type: MeetingSegmentType,
     val text: String,
+    val speechText: String = "",
 )
 
 data class MeetingTurn(
@@ -918,11 +919,11 @@ private fun JSONObject.meetingSegments(): List<MeetingSegment> = buildList {
             "dialogue", "speech" -> MeetingSegmentType.DIALOGUE
             else -> null
         }
-        if (text.isNotBlank() && type != null) add(MeetingSegment(type, text))
+        if (text.isNotBlank() && type != null) add(MeetingSegment(type, text, segment.optString("speechText")))
     }
 }
 
-private fun MeetingSession.toJson(): JSONObject = JSONObject().apply {
+internal fun MeetingSession.toJson(): JSONObject = JSONObject().apply {
     put("id", id)
     put("participantIds", JSONArray(participantIds))
     put("reality", reality.name)
@@ -951,7 +952,8 @@ private fun MeetingSession.toJson(): JSONObject = JSONObject().apply {
                                     put(
                                         JSONObject()
                                             .put("type", segment.type.name.lowercase())
-                                            .put("text", segment.text),
+                                            .put("text", segment.text)
+                                            .put("speechText", segment.speechText),
                                     )
                                 }
                             },
@@ -962,7 +964,7 @@ private fun MeetingSession.toJson(): JSONObject = JSONObject().apply {
     )
 }
 
-private fun JSONObject.toMeeting(): MeetingSession? {
+internal fun JSONObject.toMeeting(): MeetingSession? {
     val id = optString("id")
     if (id.isBlank()) return null
     val participants = buildList {

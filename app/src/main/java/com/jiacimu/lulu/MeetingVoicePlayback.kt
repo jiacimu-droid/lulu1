@@ -22,9 +22,9 @@ enum class MeetingVoicePace(val label: String, internal val factor: Double) {
 /**
  * Meeting voice follows the page the user is actually reading.
  *
- * The switch is global to Meeting. When enabled, only the currently visible CHARACTER dialogue
- * page is spoken. Moving to prose, user text, another page, another scene, or disabling the switch
- * immediately stops the previous voice. Nothing is queued ahead of the reader anymore.
+ * The switch is global to Meeting. When enabled, the visible character page plays its dialogue or annotated action sounds.
+ * Moving to a silent page, user text, another page, another scene, or disabling the switch
+ * immediately stops the previous performance. Nothing is queued ahead of the reader anymore.
  */
 object MeetingVoicePlayback {
     private const val PREFS_NAME = "lulu_meeting_voice"
@@ -111,10 +111,11 @@ object MeetingVoicePlayback {
         pageKey: String,
         characterId: String?,
         text: String,
+        speechText: String = text,
     ) {
         initialize(context)
         val resolvedCharacterId = characterId?.trim().orEmpty()
-        val spoken = text.trim()
+        val spoken = VoicePerformance.forPlayback(context, speechText)
         if (
             !mutableEnabled.value ||
             sessionId.isBlank() ||

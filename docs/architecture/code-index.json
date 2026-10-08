@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T04:00:12.025099+00:00",
-  "commit": "6c5869396ca294e13fb4a114f95fee597940cf64",
+  "generatedAt": "2026-10-08T04:22:32.968576+00:00",
+  "commit": "4e45c7a91bbeb66b72443a0a718ffd3d202dd0a2",
   "branch": "main",
-  "sourceFingerprint": "a8a3a12b7d85cd8d753df705c19d594a03c1d80506c5c4690b3dea187dfe0ff0",
+  "sourceFingerprint": "5ec3f8132979233b2af63c9263de192a162714dcc628df6687a8817554e253d2",
   "summary": {
-    "files": 325,
-    "lines": 84724,
-    "symbols": 1180
+    "files": 327,
+    "lines": 84944,
+    "symbols": 1187
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -59,7 +59,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 46
+        "line": 47
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
@@ -167,13 +167,13 @@
     "replyTextPrefix": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
-        "line": 46
+        "line": 52
       }
     ],
     "completeReplyText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
-        "line": 49
+        "line": 55
       }
     ],
     "provider": [
@@ -351,7 +351,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 96
+        "line": 97
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
@@ -513,7 +513,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 34
+        "line": 35
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -803,7 +803,7 @@
     "flush": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-        "line": 746
+        "line": 756
       }
     ],
     "forScene": [
@@ -881,7 +881,7 @@
     "shutdown": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 55
+        "line": 56
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
@@ -1153,19 +1153,19 @@
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 522
+        "line": 523
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 553
+        "line": 554
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 632
+        "line": 633
       }
     ],
     "MeetingReplyTaskManager": [
@@ -1213,7 +1213,7 @@
     "stopVisibleDialogue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
-        "line": 165
+        "line": 166
       }
     ],
     "MigratedChatHubScreenV2": [
@@ -1452,6 +1452,42 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt",
         "line": 23
+      }
+    ],
+    "plain": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
+        "line": 11
+      }
+    ],
+    "supportsTags": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
+        "line": 13
+      }
+    ],
+    "forPlayback": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
+        "line": 19
+      }
+    ],
+    "phoneInstruction": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
+        "line": 34
+      }
+    ],
+    "meetingSegment": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
+        "line": 40
+      }
+    ],
+    "slice": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
+        "line": 79
       }
     ],
     "ApiConfiguration": [
@@ -1981,7 +2017,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 733
+        "line": 734
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -2827,7 +2863,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 140
+        "line": 141
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
@@ -3029,143 +3065,143 @@
     "MeetingTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 45
+        "line": 46
       }
     ],
     "MeetingSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 56
+        "line": 57
       }
     ],
     "DigitalWorldState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 68
+        "line": 69
       }
     ],
     "DigitalWorldActionResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 76
+        "line": 77
       }
     ],
     "DigitalWorldStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 83
+        "line": 84
       }
     ],
     "homeLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 103
+        "line": 104
       }
     ],
     "ensureHome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 105
+        "line": 106
       }
     ],
     "itemsAtHome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 128
+        "line": 129
       }
     ],
     "itemsAtLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 131
+        "line": 132
       }
     ],
     "locationOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 137
+        "line": 138
       }
     ],
     "performAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 188
+        "line": 189
       }
     ],
     "startMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 330
+        "line": 331
       }
     ],
     "appendMeetingTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 391
+        "line": 392
       }
     ],
     "meetingLocationOptions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 410
+        "line": 411
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 438
+        "line": 439
       }
     ],
     "invitationLocationOptions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 431
+        "line": 432
       }
     ],
     "moveMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 441
+        "line": 442
       }
     ],
     "endMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 497
+        "line": 498
       }
     ],
     "deleteMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 522
+        "line": 523
       }
     ],
     "deleteMeetingExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 546
+        "line": 547
       }
     ],
     "rewindMeetingExchanges": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 579
+        "line": 580
       }
     ],
     "pruneEmptyMeetings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 633
+        "line": 634
       }
     ],
     "recordMeetingTimeline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 640
+        "line": 641
       }
     ],
     "meetingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 669
+        "line": 670
       }
     ],
     "ImportantEventBridge": [
@@ -6510,6 +6546,12 @@
         "line": 5
       }
     ],
+    "VoicePerformanceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt",
+        "line": 16
+      }
+    ],
     "CharacterDefinitionTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt",
@@ -6675,8 +6717,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
-      "lines": 89,
-      "sha256": "04828c0dc6d2c6d083d9600b0f53363be0362898f20bd20d25e7c10c30a29fb4",
+      "lines": 95,
+      "sha256": "4850e94a973343b62d411651855699f3c9e63fbde6e24fa946edfee0bef38a70",
       "symbols": [
         {
           "name": "cancel",
@@ -6692,11 +6734,11 @@
         },
         {
           "name": "replyTextPrefix",
-          "line": 46
+          "line": 52
         },
         {
           "name": "completeReplyText",
-          "line": 49
+          "line": 55
         }
       ]
     },
@@ -7015,8 +7057,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt",
-      "lines": 341,
-      "sha256": "89938cb32ebbd79563e0c4f62f20768314bf5bf79296fcb70085a6f89ebc0662",
+      "lines": 344,
+      "sha256": "886664e8a5fc6adefe311beda21b997b9f5cf65a38bd6eec2e37de7db34f86d4",
       "symbols": [
         {
           "name": "ledgerText",
@@ -7036,12 +7078,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-      "lines": 780,
-      "sha256": "271aba06f15a220aabd68921e9b21d99245c56e2ba67e5184e328083f6ef35cd",
+      "lines": 790,
+      "sha256": "3ca66417930df99b33893130c6304890d93a4fa1b2247e7db01759ecff8ad2ae",
       "symbols": [
         {
           "name": "flush",
-          "line": 746
+          "line": 756
         }
       ]
     },
@@ -7162,20 +7204,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-      "lines": 96,
-      "sha256": "bce4261ed72b10ac83b10e4330438688a0a74221d2c9df767be812a2b30f540e",
+      "lines": 97,
+      "sha256": "b584fc2a388ef064ef91ad8d4cca5b6574f2623ddfb563832664ce15086053c0",
       "symbols": [
         {
           "name": "enqueue",
-          "line": 34
+          "line": 35
         },
         {
           "name": "stop",
-          "line": 46
+          "line": 47
         },
         {
           "name": "shutdown",
-          "line": 55
+          "line": 56
         }
       ]
     },
@@ -7380,8 +7422,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 718,
-      "sha256": "191f0366474890c6c3179de5f325cb2ed3586466e0fba81750c3734f5f1c5aa0",
+      "lines": 719,
+      "sha256": "4439436faea978733b20ab64136cf1c3a57a4cdee935946dfeeefe6e837e6061",
       "symbols": [
         {
           "name": "prepare",
@@ -7425,15 +7467,15 @@
         },
         {
           "name": "sameSession",
-          "line": 522
+          "line": 523
         },
         {
           "name": "retryListening",
-          "line": 553
+          "line": 554
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 632
+          "line": 633
         }
       ]
     },
@@ -7472,8 +7514,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
-      "lines": 179,
-      "sha256": "1740f9efecd7bdb71e6902654d81fad5a6076cc2c376be88599ab1acd4f46513",
+      "lines": 180,
+      "sha256": "c16fe8ab7c38aecd43d19838f9c8a4b00e56bbb879dc2e5ba0f239d3a1758eb4",
       "symbols": [
         {
           "name": "MeetingVoicePace",
@@ -7509,14 +7551,14 @@
         },
         {
           "name": "stopVisibleDialogue",
-          "line": 165
+          "line": 166
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoiceSettingsUi.kt",
       "lines": 59,
-      "sha256": "324ab564b68ed30e08b55076173b82827c9c17c836ce90da36f1048f78efdac7",
+      "sha256": "e85dcd314b74abf1a4b1c99e5f41221583e5a6b82f94676bb00c31bc173fb472",
       "symbols": []
     },
     {
@@ -7746,8 +7788,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 247,
-      "sha256": "c8479b75ee43b7cbf296851bf66cced8386dd47b29d6637b0490278123fb451e",
+      "lines": 250,
+      "sha256": "103f4f5cd9ab6cc30f1dd83405e75319c9212a876b197f36aed14dd339f6486f",
       "symbols": []
     },
     {
@@ -7891,6 +7933,37 @@
         {
           "name": "corrected",
           "line": 23
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
+      "lines": 103,
+      "sha256": "58a84afb5fa3f2dc625a46555d4d928d906cad5c6208a466a9b634edfeb3af9d",
+      "symbols": [
+        {
+          "name": "plain",
+          "line": 11
+        },
+        {
+          "name": "supportsTags",
+          "line": 13
+        },
+        {
+          "name": "forPlayback",
+          "line": 19
+        },
+        {
+          "name": "phoneInstruction",
+          "line": 34
+        },
+        {
+          "name": "meetingSegment",
+          "line": 40
+        },
+        {
+          "name": "slice",
+          "line": 79
         }
       ]
     },
@@ -8168,8 +8241,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
-      "lines": 477,
-      "sha256": "ad8fa2c60b206278422cde63afdff57a5fa4d59a90ce3613781221a660dc1aa1",
+      "lines": 479,
+      "sha256": "9f56f402eafc03804f8702c48ff2b825ee684b7867a5f36259c6e692fcdbd245",
       "symbols": []
     },
     {
@@ -9326,8 +9399,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 1005,
-      "sha256": "c65e1f4c49636c528aadc3bab756024ca03bf62f05352f38c40b26f9e8cd4f11",
+      "lines": 1007,
+      "sha256": "857cf050d9ef7bb3354b38da01f816df3efb12acd68367025ec3b72828df84df",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -9355,111 +9428,111 @@
         },
         {
           "name": "MeetingTurn",
-          "line": 45
+          "line": 46
         },
         {
           "name": "MeetingSession",
-          "line": 56
+          "line": 57
         },
         {
           "name": "DigitalWorldState",
-          "line": 68
+          "line": 69
         },
         {
           "name": "DigitalWorldActionResult",
-          "line": 76
+          "line": 77
         },
         {
           "name": "DigitalWorldStore",
-          "line": 83
+          "line": 84
         },
         {
           "name": "initialize",
-          "line": 96
+          "line": 97
         },
         {
           "name": "homeLocation",
-          "line": 103
+          "line": 104
         },
         {
           "name": "ensureHome",
-          "line": 105
+          "line": 106
         },
         {
           "name": "itemsAtHome",
-          "line": 128
+          "line": 129
         },
         {
           "name": "itemsAtLocation",
-          "line": 131
+          "line": 132
         },
         {
           "name": "locationOf",
-          "line": 137
+          "line": 138
         },
         {
           "name": "contextFor",
-          "line": 140
+          "line": 141
         },
         {
           "name": "performAction",
-          "line": 188
+          "line": 189
         },
         {
           "name": "startMeeting",
-          "line": 330
+          "line": 331
         },
         {
           "name": "appendMeetingTurn",
-          "line": 391
+          "line": 392
         },
         {
           "name": "meetingLocationOptions",
-          "line": 410
+          "line": 411
         },
         {
           "name": "invitationLocationOptions",
-          "line": 431
+          "line": 432
         },
         {
           "name": "meetingLocationOptions",
-          "line": 438
+          "line": 439
         },
         {
           "name": "moveMeeting",
-          "line": 441
+          "line": 442
         },
         {
           "name": "endMeeting",
-          "line": 497
+          "line": 498
         },
         {
           "name": "deleteMeeting",
-          "line": 522
+          "line": 523
         },
         {
           "name": "deleteMeetingExchange",
-          "line": 546
+          "line": 547
         },
         {
           "name": "rewindMeetingExchanges",
-          "line": 579
+          "line": 580
         },
         {
           "name": "pruneEmptyMeetings",
-          "line": 633
+          "line": 634
         },
         {
           "name": "recordMeetingTimeline",
-          "line": 640
+          "line": 641
         },
         {
           "name": "meetingContext",
-          "line": 669
+          "line": 670
         },
         {
           "name": "clearCharacter",
-          "line": 733
+          "line": 734
         }
       ]
     },
@@ -13070,8 +13143,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt",
-      "lines": 478,
-      "sha256": "733dd3d0683c97fbdf2d61fd68d4a116291e86237b6d235010ff07f984e545be",
+      "lines": 479,
+      "sha256": "c866a56dc154ba7a7705ac31aa7150ee02d49be9321609c9768b949a24f5ca75",
       "symbols": []
     },
     {
@@ -13154,8 +13227,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 416,
-      "sha256": "4f2a7c5dab683cc4076b920c3e91ddc5ca1ab74a0aec5f9270f2530175c00bca",
+      "lines": 419,
+      "sha256": "4fbc2fbc7566987857598557540d3f64a93d83bc4991a1488b84dcb376738117",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -13302,6 +13375,17 @@
         {
           "name": "VoiceDeliveryLedgerTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt",
+      "lines": 84,
+      "sha256": "ea0fff99cf67fdc7b14b66f798507bfca4c8dc153d254203ebb727181baced1f",
+      "symbols": [
+        {
+          "name": "VoicePerformanceTest",
+          "line": 16
         }
       ]
     },

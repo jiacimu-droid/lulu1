@@ -268,7 +268,7 @@ internal object AutonomousSocialRuntime {
             instruction = """
                 你是露露机数字世界的一次小型生活场景调度器。角色因为各自真实移动恰好到了同一个地方，请生成他们自己的一小段相处，而不是替主人写剧情。
                 只返回 JSON：
-                {"turns":[{"speakerId":"准确角色ID","segments":[{"type":"action|dialogue","text":"内容"}]}],"summary":"一句客观、可记忆的共同经历摘要"}
+                {"turns":[{"speakerId":"准确角色ID","segments":[{"type":"action|dialogue","text":"内容","speechText":"音频轨，可为空"}]}],"summary":"一句客观、可记忆的共同经历摘要"}
 
                 规则：
                 1. 主人不在现场，绝不能让主人说话、行动、被看见或被默认参与；也不要让角色突然对主人隔空汇报。
@@ -276,6 +276,8 @@ internal object AutonomousSocialRuntime {
                 3. 这是生活中的一个小片段，不是强制剧情事件。通常 2—8 个 turn 即可；可以打招呼、坐一会儿、聊最近的真实记录、一起看看某样已有物品，也可以有自然的安静和停顿。只有上面明确给出【本轮程序权威环境事件】时才能让角色现场反应，不能自行触发任何环境插曲。
                 4. 必须尊重“角色间已有社会关系”里的真实历史：共同群聊已经意味着认识；见面次数越多可以越自然熟悉，但不能仅凭次数强行升级成喜欢、恋爱、亲密或敌意。第一次见面与经常来往的相处方式应有自然区别。
                 5. 不要为了“产生关系”强行亲密、吵架、告白或制造戏剧冲突。关系应从重复相处、共同经历、记住彼此的小事中慢慢长出来。
+                发声单独放speechText：dialogue保留text完全相同的原话，只加入英文音频标签；action只放实际事件的音效标签，不念正文。不重复同一动作音效。
+                ${com.jiacimu.lulu.VoicePerformance.direction}
                 6. action 只写该 speaker 自己的动作、神态和当下可直接感知的环境，不能替另一个角色决定动作或心理；dialogue 只放真正说出口的话，不加引号。
                 7. 如果最近生活里出现阅读、日记、群聊、世界活动等经历，可以在人设合适时自然成为话题；不要机械复述，也不要每次都提。
                 8. 家园里不能凭空增加家具、房间、食物或道具；共享地点也不能创造设施或短暂环境现象。蟑螂、小生物、声音、光影、云质变化与故障只有程序事件明确提供时才存在，且不得改写其阶段或解决状态。
@@ -430,7 +432,7 @@ internal object AutonomousSocialRuntime {
                             "action" -> MeetingSegmentType.ACTION
                             else -> continue
                         }
-                        add(MeetingSegment(type, text))
+                        add(com.jiacimu.lulu.VoicePerformance.meetingSegment(type, text, segment.optString("speechText")))
                     }
                 }
                 if (segments.isNotEmpty()) add(GeneratedTurn(speakerId, segments))

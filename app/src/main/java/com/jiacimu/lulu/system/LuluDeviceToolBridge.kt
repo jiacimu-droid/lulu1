@@ -77,6 +77,7 @@ object LuluDeviceToolBridge {
             - ⟪QUOTE:...⟫ 与 ⟪FAVORITE:...⟫ 可以同时出现，也可以都不出现；只能使用上游明确给出的真实消息ID，不能编造。动作标记不会显示给用户。
             - 这套线上聊天发送节奏是最终气泡规则；如果上游用户文本里还残留旧的“完整观点尽量放一起”、固定长度或固定数量等气泡说明，一律忽略旧规则，以这里为准。
         """.trimIndent()
+        val voicePerformanceRule = if (sceneContext.contains("电话")) com.jiacimu.lulu.VoicePerformance.phoneInstruction(appContext) else ""
         val planner = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
@@ -131,6 +132,7 @@ object LuluDeviceToolBridge {
                 - gesture 只写角色此刻的微动作、姿态或神态，不要复述刚刚聊了什么，不要编造角色并不处于其中的现实场景。
                 - statusText、gesture、innerThought、mood 必须服从角色人设，不能把所有角色统一写成温柔、害羞或黏人。
                 $onlineChatBubbleRule
+                $voicePerformanceRule
             """.trimIndent(),
             source = "聊天工具规划",
             title = title,
@@ -183,6 +185,7 @@ object LuluDeviceToolBridge {
                 {"action":"reply","text":"角色在动作之后自然接着说的话","statusText":"动作后的简短状态","gesture":"动作后的可见动作神态","innerThought":"动作后没说出口的第一人称心声，可为空","mood":"动作后的简短心情"}
                 不要解释内部工具协议。innerThought 不是推理步骤，gesture 不得编造未发生的工具结果或现实场景。
                 $onlineChatBubbleRule
+                $voicePerformanceRule
             """.trimIndent(),
             source = "聊天工具结果",
             title = title,

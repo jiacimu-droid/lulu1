@@ -449,12 +449,13 @@ internal object LuluVoiceCallSession {
                 parts.forEach { part ->
                     val speech = part.replace(Regex("⟪[^⟫]*⟫"), "").trim()
                     if (speech.isBlank()) return@forEach
+                    val plainSpeech = VoicePerformance.plain(speech)
                     speechQueue?.enqueue(speech, latest.characterId,
                         CharacterVoicePreferenceStore.playbackVoiceId(latest.characterId), onDelivered = {
                             if (!sameReply()) return@enqueue
-                            heard.append(part)
-                            MigratedDomainStores.chat.appendVoiceMessage(latest.conversationId,
-                                "voice-${latest.callExperienceId}-agent-${UUID.randomUUID()}", speech, true)
+                            heard.append(VoicePerformance.plain(part))
+                            if (plainSpeech.isNotBlank()) MigratedDomainStores.chat.appendVoiceMessage(latest.conversationId,
+                                "voice-${latest.callExperienceId}-agent-${UUID.randomUUID()}", plainSpeech, true)
                             clearWhenHeard()
                         })
                 }
@@ -470,7 +471,7 @@ internal object LuluVoiceCallSession {
                     if (!sameReply() || stream.isFinished) return@launch
                     val parts = stream.update(envelope)
                     CallReplyStream.replyTextPrefix(envelope)?.let { candidate ->
-                        mutableState.update { it.copy(generatedTranscript = candidate) }
+                        mutableState.update { it.copy(generatedTranscript = VoicePerformance.plain(candidate)) }
                     }
                     enqueueSpoken(parts)
                 } },
@@ -484,7 +485,7 @@ internal object LuluVoiceCallSession {
                     scheduleListening(300)
                     return@onSuccess
                 }
-                finalText = text
+                finalText = VoicePerformance.plain(text)
                 val remaining = runCatching { stream.finish(text) }.getOrElse { error ->
                     stream.cancel()
                     speechQueue?.stop()
@@ -493,7 +494,7 @@ internal object LuluVoiceCallSession {
                     scheduleListening(300)
                     return@onSuccess
                 }
-                mutableState.update { it.copy(thinking = false, generatedTranscript = text,
+                mutableState.update { it.copy(thinking = false, generatedTranscript = VoicePerformance.plain(text),
                     statusMessage = if (it.speaking) "${latest.characterName} 正在说话" else "回复正在准备发声") }
                 enqueueSpoken(remaining)
                 clearWhenHeard()

@@ -28,7 +28,13 @@ internal class CallReplyStream {
     private fun drain(final: Boolean): List<String> {
         val chunks = mutableListOf<String>()
         var start = emitted
+        var inTag = false
         for (i in start until snapshot.length) {
+            if (snapshot[i] == '[') inTag = true
+            if (inTag) {
+                if (snapshot[i] == ']') inTag = false
+                continue
+            }
             val count = i - start + 1
             val boundary = snapshot[i] in "。！？!?；;\n" ||
                 (snapshot[i] in "，, " && count >= 70)

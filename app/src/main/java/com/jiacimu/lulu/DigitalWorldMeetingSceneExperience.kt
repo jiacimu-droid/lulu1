@@ -39,6 +39,7 @@ private data class MeetingReadingPage(
     val text: String,
     val type: MeetingSegmentType,
     val voiceKey: String,
+    val speechText: String,
 )
 
 private enum class MeetingSceneMode { Explore, Story }
@@ -117,7 +118,7 @@ internal fun DigitalWorldMeetingSceneExperience(
         val page = currentPage
         val speakerId = page?.speakerId
         if (
-            storyVisible && voiceEnabled && page != null && page.type == MeetingSegmentType.DIALOGUE &&
+            storyVisible && voiceEnabled && page != null && page.speechText.isNotBlank() &&
             !speakerId.isNullOrBlank() && speakerId != "system"
         ) {
             MeetingVoicePlayback.playVisibleDialogue(
@@ -126,6 +127,7 @@ internal fun DigitalWorldMeetingSceneExperience(
                 pageKey = page.voiceKey,
                 characterId = speakerId,
                 text = page.text,
+                speechText = page.speechText,
             )
         } else {
             MeetingVoicePlayback.stopVisibleDialogue(session.id)
@@ -721,7 +723,14 @@ private fun readingPagesForGroup(group: MeetingUiDisplayGroup): List<MeetingRead
     group.turns.forEach { turn ->
         turn.meetingOrderedSegments().forEachIndexed { segmentIndex, segment ->
             val targetChars = if (segment.type == MeetingSegmentType.DIALOGUE) 92 else 132
+            var textOffset = 0
             readingChunks(segment.text, targetChars).forEachIndexed { chunkIndex, chunk ->
+                val start = segment.text.indexOf(chunk, textOffset).takeIf { it >= 0 } ?: textOffset
+                val end = start + chunk.length
+                val audio = if (segment.type == MeetingSegmentType.ACTION) {
+                    if (chunkIndex == 0) segment.speechText else ""
+                } else if (segment.speechText.isBlank()) chunk else VoicePerformance.slice(segment.speechText, start, end).takeIf { VoicePerformance.plain(it) == chunk.trim() } ?: chunk
+                textOffset = end
                 add(
                     MeetingReadingPage(
                         group = group,
@@ -730,6 +739,7 @@ private fun readingPagesForGroup(group: MeetingUiDisplayGroup): List<MeetingRead
                         text = if (segment.type == MeetingSegmentType.DIALOGUE) chunk.trim().trim('“', '”', '"') else chunk.trim(),
                         type = segment.type,
                         voiceKey = "${group.key}:${turn.id}:$segmentIndex:$chunkIndex",
+                        speechText = audio,
                     ),
                 )
             }

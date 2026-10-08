@@ -190,14 +190,17 @@ internal suspend fun runGroupReplies(
         if (reply == null) {
             onError("${character.displayName}回复失败：${result.exceptionOrNull()?.message ?: "未知错误"}")
         } else {
+            val phonePerformance = sceneContext.contains("电话")
             val flow = parseGroupReplyFlow(reply.text)
+            val visibleContent = if (phonePerformance) VoicePerformance.plain(flow.content) else flow.content
             if (flow.content.isNotBlank()) {
                 val shown = appendRoleReplyWithPacing(
                     conversationId, member.characterId, label,
-                    CharacterReplyPresentation(flow.content, flow.quoteMessageId?.takeIf { it in pendingUserIds }, flow.favoriteMessageId, flow.recallBubbleNumber, flow.pokeUser),
+                    CharacterReplyPresentation(visibleContent, flow.quoteMessageId?.takeIf { it in pendingUserIds }, flow.favoriteMessageId, flow.recallBubbleNumber, flow.pokeUser),
                     pendingUserIds,
                 )
-                if (shown.isNotBlank()) afterReply(member.characterId, shown)
+                if (shown.isNotBlank() || phonePerformance && flow.content.isNotBlank())
+                    afterReply(member.characterId, if (phonePerformance) flow.content.replace(SemanticBubbleSeparator, "\n") else shown)
             }
             if (group.allowCharacterConversation && !flow.shouldEnd && index + 1 < replyLimit) {
                 flow.nextSpeakerName?.let { requested ->

@@ -31,7 +31,7 @@ internal fun MeetingPageVoiceSettingsDialog(onDismiss: () -> Unit) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(Modifier.weight(1f)) {
-                        Text("角色台词语音", fontWeight = FontWeight.SemiBold)
+                        Text("角色语音与音效", fontWeight = FontWeight.SemiBold)
                         Text(
                             if (enabled) "已开启" else "已关闭",
                             color = LuluColors.Muted,
@@ -44,7 +44,7 @@ internal fun MeetingPageVoiceSettingsDialog(onDismiss: () -> Unit) {
                     )
                 }
                 Text(
-                    "开启后，只有你翻到角色真正说话的那一页时才会播放这一页台词。翻到动作、环境、你的文字或下一页时，会立即停止上一页；不再设置阅读节奏，也不会提前把后面的台词排队播放。",
+                    "开启后播放当前页的角色台词、情绪发声与动作音效。翻页立即停止上一页；动作描写不会被朗读。",
                     color = LuluColors.Muted,
                     fontSize = 12.sp,
                     lineHeight = 18.sp,
