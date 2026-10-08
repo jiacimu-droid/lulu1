@@ -86,6 +86,8 @@ data class ModelReply(
     val inputTokens: Int = 0,
     val outputTokens: Int = 0,
     val cachedTokens: Int = 0,
+    /** Provider stop reason: length/max_tokens means output was cut off. */
+    val finishReason: String? = null,
 )
 
 class ModelConnectionStore private constructor(context: Context) {
@@ -661,7 +663,8 @@ class CompanionModelGateway(
             val text = (0 until blocks.length()).mapNotNull { blocks.optJSONObject(it)?.takeIf { block -> block.optString("type") == "text" }?.optString("text") }.joinToString("")
             check(text.isNotBlank()) { "Claude没有返回正文" }
             val usage = json.optJSONObject("usage")
-            return ModelReply(text, usage?.optInt("input_tokens") ?: 0, usage?.optInt("output_tokens") ?: 0, usage?.optInt("cache_read_input_tokens") ?: 0).also { onStreamText?.invoke(it.text) }
+            return ModelReply(text, usage?.optInt("input_tokens") ?: 0, usage?.optInt("output_tokens") ?: 0, usage?.optInt("cache_read_input_tokens") ?: 0,
+                finishReason = json.optString("stop_reason").takeIf(String::isNotBlank)).also { onStreamText?.invoke(it.text) }
         }
         val body = JSONObject()
             .put("model", connection.model)
@@ -711,6 +714,8 @@ class CompanionModelGateway(
             inputTokens = usage?.optInt("prompt_tokens") ?: 0,
             outputTokens = usage?.optInt("completion_tokens") ?: 0,
             cachedTokens = promptDetails?.optInt("cached_tokens") ?: 0,
+            finishReason = json.optJSONArray("choices")?.optJSONObject(0)?.optString("finish_reason")?.takeIf(String::isNotBlank)
+                ?: json.optString("stop_reason").takeIf(String::isNotBlank),
         )
     }
 
@@ -805,6 +810,7 @@ class CompanionModelGateway(
             var inputTokens = 0
             var outputTokens = 0
             var cachedTokens = 0
+            var finishReason: String? = null
             var lastCallbackLength = 0
             var lastCallbackNanos = System.nanoTime()
 
@@ -831,10 +837,14 @@ class CompanionModelGateway(
                         cachedTokens = it.optInt("cache_read_input_tokens", cachedTokens)
                     }
                     "content_block_delta" -> chunk.optJSONObject("delta")?.takeIf { it.optString("type") == "text_delta" }?.let { content.append(it.optString("text")) }
-                    "message_delta" -> chunk.optJSONObject("usage")?.let { outputTokens = it.optInt("output_tokens", outputTokens) }
+                    "message_delta" -> {
+                        chunk.optJSONObject("usage")?.let { outputTokens = it.optInt("output_tokens", outputTokens) }
+                        chunk.optJSONObject("delta")?.optString("stop_reason")?.takeIf(String::isNotBlank)?.let { finishReason = it }
+                    }
                 }
                 if (chunk.has("error")) error(chunk.optJSONObject("error")?.optString("message").orEmpty().ifBlank { "模型流式请求失败" })
                 val choice = chunk.optJSONArray("choices")?.optJSONObject(0)
+                choice?.optString("finish_reason")?.takeIf(String::isNotBlank)?.let { finishReason = it }
                 val delta = choice?.optJSONObject("delta")
                 if (delta != null) {
                     content.append(modelTextValue(delta.opt("content")))
@@ -903,6 +913,7 @@ class CompanionModelGateway(
                 inputTokens = inputTokens,
                 outputTokens = outputTokens,
                 cachedTokens = cachedTokens,
+                finishReason = finishReason,
             )
         } finally {
             connection.disconnect()
