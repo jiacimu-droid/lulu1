@@ -43,6 +43,16 @@ internal fun CharacterLifeSettings(characterId: String) {
             interests.forEach { Text(it.content, style = MaterialTheme.typography.bodyMedium) }
         }
         HorizontalDivider()
+        Text("角色自己的社交称呼", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        val socialNames = root.optJSONObject("socialNames")
+        val userRemark = socialNames?.optString("userRemark").orEmpty()
+        val selfNickname = socialNames?.optString("selfNickname").orEmpty()
+        Text("给你的私人备注：" + userRemark.ifBlank { "还没有设置" }, style = MaterialTheme.typography.bodyMedium)
+        if (userRemark.isNotBlank()) TextButton(onClick = { CharacterLifeStore.setSocialName(characterId, "userRemark", "") }) { Text("清除这条备注") }
+        Text("自己的聊天网名：" + selfNickname.ifBlank { "沿用角色原名" }, style = MaterialTheme.typography.bodyMedium)
+        if (selfNickname.isNotBlank()) TextButton(onClick = { CharacterLifeStore.setSocialName(characterId, "selfNickname", "") }) { Text("恢复原网名") }
+        Text("这两项可由角色真实主动修改；聊天网名不会覆盖原始角色身份。", style = MaterialTheme.typography.bodySmall)
+        HorizontalDivider()
         if (name in setOf("江渡", "江都")) OutlinedButton(onClick = { preset = true }) { Text("填入江渡设定") }
         CharacterProfileSchema.fields.groupBy { it.group }.forEach { (group, fields) ->
             Text(group, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
