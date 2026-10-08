@@ -38,6 +38,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/** Horizontal reading gesture: left moves forward, right moves back. */
+internal fun theaterChapterIndexAfterSwipe(current: Int, count: Int, distance: Float, threshold: Float): Int {
+    if (count <= 0 || current !in 0 until count || threshold <= 0f) return current
+    val candidate = when {
+        distance <= -threshold -> current + 1
+        distance >= threshold -> current - 1
+        else -> current
+    }
+    return candidate.takeIf { it in 0 until count } ?: current
+}
+
 private enum class TheaterV2Mode { BOOKSHELF, READER, PLANNER, BIBLE, WORLD_BOOK, GENERATOR }
 
 @Composable
@@ -538,11 +549,9 @@ private fun TheaterReaderV2(
                         onDragEnd = {
                             // Reading order: swipe left for next chapter, right for previous chapter.
                             // A horizontal drag is recognized separately from normal vertical reading.
-                            val destination = when {
-                                horizontalTravel <= -minSwipe -> selectedIndex + 1
-                                horizontalTravel >= minSwipe -> selectedIndex - 1
-                                else -> selectedIndex
-                            }
+                            val destination = theaterChapterIndexAfterSwipe(
+                                 selectedIndex, chapters.size, horizontalTravel, minSwipe,
+                             )
                             if (destination in chapters.indices && destination != selectedIndex) {
                                 selectedIndex = destination
                                 scope.launch { listState.scrollToItem(0) }
