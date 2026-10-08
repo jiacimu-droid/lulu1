@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T11:58:41.278760+00:00",
-  "commit": "6d746cf4eed0d48eeaca1757629a5bae9e048170",
+  "generatedAt": "2026-10-08T12:01:28.539354+00:00",
+  "commit": "f92833a404162b9981777af04c5fd4a816386177",
   "branch": "main",
-  "sourceFingerprint": "945b2942228c5c0eeeab6e1942cd42223b8a5dd813c1a11e3824123ea5ac03a8",
+  "sourceFingerprint": "0091a7712d6974968ba929cbd87d5ba49dd254997ecb16783efd0b03cb9d36f1",
   "summary": {
     "files": 350,
-    "lines": 87107,
+    "lines": 87103,
     "symbols": 1228
   },
   "symbolIndex": {
@@ -4221,13 +4221,13 @@
     "isCurrent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-        "line": 54
+        "line": 50
       }
     ],
     "dueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-        "line": 57
+        "line": 53
       }
     ],
     "ProactiveIncomingCall": [
@@ -10752,8 +10752,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-      "lines": 69,
-      "sha256": "e5835e93a8a5e0cd1fc2293c5d59fb18247e5d851aadebbd8f2b6b4e18361a64",
+      "lines": 65,
+      "sha256": "85b26b2963972194d346d6b5ce82f3ac724aa7d5bcc32a65e1c8ef68274e08ef",
       "symbols": [
         {
           "name": "Batch",
@@ -10761,11 +10761,11 @@
         },
         {
           "name": "isCurrent",
-          "line": 54
+          "line": 50
         },
         {
           "name": "dueAt",
-          "line": 57
+          "line": 53
         }
       ]
     },
