@@ -517,7 +517,7 @@ internal class StarWishTheaterGenerationWorker(
                 if (influence.isNotBlank()) appendLine("用户对本章的最高优先级要求：$influence")
             }
             val chapterInstruction = """
-                写出第 $chapterNumber 章完整的中文小剧场正文，只输出正文。篇幅以故事地图中的每章建议字数为准，未指定时约1800—3200字；避免凑字数和无谓铺垫。
+                写出第 $chapterNumber 章完整的中文小剧场正文，只输出正文。故事地图里的每章建议字数仅供参考，优先写完本章应有的场景、动作、细腻描写和情绪，不要因为固定字数提前收尾，也不要无谓灌水。
                 这是独立的小剧场，不能引用未提供的真实聊天、用户资料、角色记忆或未被本书选用的世界书；明确选用的世界书规则必须遵守。
                 第一优先级是用户原始创作要求以及由此形成的核心看点。用户若想体验无敌爽感、打脸、臣服，就在具体场面里充分兑现；若想看三四章的暧昧张力、纯情绪或无主线体验，就围绕这一体验细致展开，不强制添加成长、虐恋、幕后阴谋、反派、感情线或长篇支线。
                 幕后规划的栏目是可选手段：只执行真正存在且符合核心体验的内容，没写的明暗线、伏笔和关系线不需要临时补充。角色行动和事件必须自然、合乎已写事实，但不要求每章推进两条线。
@@ -570,10 +570,12 @@ internal class StarWishTheaterGenerationWorker(
                         instruction = chapterInstruction,
                         source = "剧场",
                         title = "$theater · 第${chapterNumber}章",
-                        maxTokens = 4_600,
+                        // Let the selected provider/model decide its natural output size.
+                        // No app-imposed 4,600-token cap on long-form prose.
+                        maxTokens = null,
                         connectionOverride = connection,
                         contextMode = CompanionContextMode.Isolated,
-                        readTimeoutMillis = 240_000,
+                        readTimeoutMillis = 540_000,
                     )
                     result.onSuccess { generated ->
                         rawChapter = generated.text.trim()
@@ -603,7 +605,7 @@ internal class StarWishTheaterGenerationWorker(
                 manager.mark(
                     theater, requestId, StarWishTheaterTaskStatus.RUNNING,
                     "第 $chapterNumber 章正在自动补全（第 $continuationCount 次）" +
-                        if (cutOff) " · 模型输出达到 token 上限" else " · 结尾尚未确认",
+                        if (cutOff) " · 服务商单次输出已达上限" else " · 结尾尚未确认",
                 )
                 val continuationFacts = buildString {
                     appendLine("作品：《$theater》，仍是第 $chapterNumber 章，不要开始下一章。")
@@ -625,10 +627,11 @@ internal class StarWishTheaterGenerationWorker(
                     """.trimIndent(),
                     source = "剧场",
                     title = "$theater · 第${chapterNumber}章自动补全 $continuationCount",
-                    maxTokens = 3_600,
+                    // Continuations also must not inherit an arbitrary 3,600-token ceiling.
+                    maxTokens = null,
                     connectionOverride = connection,
                     contextMode = CompanionContextMode.Isolated,
-                    readTimeoutMillis = 240_000,
+                    readTimeoutMillis = 540_000,
                 ).getOrThrow()
                 check(continuation.text.isNotBlank()) { "模型补全没有返回新正文，已保留原草稿" }
                 val combined = TheaterChapterCompletion.append(rawChapter, continuation.text)
