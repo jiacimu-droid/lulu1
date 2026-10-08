@@ -301,6 +301,10 @@ internal object GroupEnsembleReplyEngine {
             served.emotionalAnchor, com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(served.turn.innerLife, served.turn.afterglow, served.emotionalAnchor),
             served.witnessedSpeakers.filterNot { it == served.turn.characterId }.toSet() + "user",
         )
+        com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
+            served.turn.characterId, "group:${planKey}",
+            served.turn.innerThought,
+        )
         CompanionPresenceStore.update(
             characterId = served.turn.characterId,
             statusText = served.turn.statusText,
