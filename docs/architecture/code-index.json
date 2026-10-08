@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T18:16:53.838584+00:00",
-  "commit": "ce597b45c5f27f391ca2da50ac5ccb21c1110b44",
+  "generatedAt": "2026-10-08T18:17:22.188899+00:00",
+  "commit": "d36b5f98b08d6b2455f724bd4ac7042eaaf87299",
   "branch": "main",
-  "sourceFingerprint": "9064ced54e03b569312e5edd9abad8e803ab3a30f59316ec5a2e485c3fd75a60",
+  "sourceFingerprint": "88ab54ce0dfc259fb246d92ec849251f99253ca5178d56eee2c581abf8602264",
   "summary": {
-    "files": 365,
-    "lines": 89216,
+    "files": 366,
+    "lines": 89261,
     "symbols": 1263
   },
   "symbolIndex": {
@@ -7070,6 +7070,12 @@
       "path": "app/src/main/AndroidManifest.xml",
       "lines": 121,
       "sha256": "e9383e0f16706979545d7b0c6721e626478e9cfe43579b617c2859ccaf1002be",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt",
+      "lines": 45,
+      "sha256": "4a43084756317e404b0151a366872d5acaa56b2b4b11802227e2853276328606",
       "symbols": []
     },
     {

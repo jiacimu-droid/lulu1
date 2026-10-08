@@ -1,15 +1,16 @@
 # Lulu1 代码索引
 
-- 基准提交：`ce597b45c5f27f391ca2da50ac5ccb21c1110b44`
+- 基准提交：`d36b5f98b08d6b2455f724bd4ac7042eaaf87299`
 - 分支：`main`
-- 已索引文件：365
-- 已索引代码/文本行：89216
+- 已索引文件：366
+- 已索引代码/文本行：89261
 - 已发现符号：1263
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 134 | 0 |
 | `app/src/main/AndroidManifest.xml` | 121 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt` | 45 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 112 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 158 | 7 |
