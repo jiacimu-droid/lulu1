@@ -14,29 +14,50 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class OnlineChatExperienceTest {
-    @Test fun firstBubbleStartsFixedWindowAndArrivalsDuringReplyStartTheNextWindow() = runBlocking {
+    @Test fun eachNewBubbleResetsThreeSecondQuietWindowAndWakeDoesNotBypassIt() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
-        val role = "batch-six"
+        val role = "batch-trailing-edge"
+        OnlineChatBatchStore.cancel(context, role)
         val first = OnlineChatBatchStore.next(context, role, true, now = 0L)
         val second = OnlineChatBatchStore.next(context, role, true, now = 1_000L)
         val third = OnlineChatBatchStore.next(context, role, true, now = 2_800L)
-        assertEquals(3_000L, third.dueAtMillis)
+        // The user has spoken again: do NOT start typing at the first bubble's 3s mark.
+        assertEquals(5_800L, third.dueAtMillis)
         assertEquals(first.revision, second.revision)
         assertEquals(first.revision, third.revision)
-        assertTrue(OnlineChatBatchStore.claim(context, role, first.revision))
-        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision))
-        val fourth = OnlineChatBatchStore.next(context, role, true, now = 3_100L)
-        val fifth = OnlineChatBatchStore.next(context, role, true, now = 4_000L)
-        val sixth = OnlineChatBatchStore.next(context, role, true, now = 5_000L)
-        assertEquals(6_100L, sixth.dueAtMillis)
+        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision, now = 3_000L))
+        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision, now = 5_799L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, first.revision, now = 5_800L))
+        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision, now = 5_801L))
+
+        // More messages while the old reply is generating are not swallowed.
+        val fourth = OnlineChatBatchStore.next(context, role, true, now = 6_000L)
+        val fifth = OnlineChatBatchStore.next(context, role, true, now = 7_000L)
+        val sixth = OnlineChatBatchStore.next(context, role, true, now = 8_000L)
+        assertEquals(11_000L, sixth.dueAtMillis)
         assertEquals(fourth.revision, fifth.revision)
         assertEquals(fourth.revision, sixth.revision)
-        // The first reply might take until 8 seconds; the next reading window is already over.
-        assertEquals(0L, (OnlineChatBatchStore.dueAt(context, role, sixth.revision)!! - 8_000L).coerceAtLeast(0L))
+        OnlineChatBatchStore.finish(context, role, first.revision)
         assertFalse(OnlineChatBatchStore.isCurrent(context, role, first.revision))
-        assertTrue(OnlineChatBatchStore.claim(context, role, sixth.revision))
+        assertFalse(OnlineChatBatchStore.claim(context, role, sixth.revision, now = 10_999L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, sixth.revision, now = 11_000L))
         OnlineChatBatchStore.cancel(context, role)
         assertFalse(OnlineChatBatchStore.isCurrent(context, role, sixth.revision))
+    }
+
+    @Test fun nonMessagePerceptionDoesNotMoveAnExistingQuietDeadlineEarlier() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val role = "batch-non-message"
+        OnlineChatBatchStore.cancel(context, role)
+        val first = OnlineChatBatchStore.next(context, role, true, now = 1_000L)
+        val unrelated = OnlineChatBatchStore.next(context, role, false, now = 1_100L)
+        assertEquals(first.dueAtMillis, unrelated.dueAtMillis)
+        val secondMessage = OnlineChatBatchStore.next(context, role, true, now = 2_200L)
+        assertEquals(5_200L, secondMessage.dueAtMillis)
+        // Pressing Reply/wake is also a request to give the user a quiet window.
+        val wake = OnlineChatBatchStore.next(context, role, true, now = 2_450L)
+        assertEquals(5_450L, wake.dueAtMillis)
+        OnlineChatBatchStore.cancel(context, role)
     }
 
     @Test fun noUnreadDoesNotCallModelAndStillConsumesItsWakeWindow() = runBlocking {
