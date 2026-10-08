@@ -299,7 +299,7 @@ object CharacterInnerLifeStore {
         characterId: String, evidenceId: String, thought: String, now: Instant = Instant.now(),
     ) {
         if (prefs == null || characterId.isBlank() || evidenceId.isBlank()) return
-        val clean = thought.replace(Regex("\\\\s+"), " ").trim().take(200)
+        val clean = thought.replace(Regex("\\s+"), " ").trim().take(200)
         if (clean.isBlank()) return
         val root = snapshot(characterId)
         val old = root.optJSONArray("innerVoices") ?: JSONArray()
