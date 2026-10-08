@@ -56,7 +56,7 @@ object MeetingVoicePlayback {
             val voicePrefs = application.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
             settingsListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
                 if (key in setOf("tts_enabled", "tts_auto_speak") &&
-                    !VoiceSynthesisPolicy.automaticAllowed(application)) stopVisibleDialogue()
+                    !VoiceSynthesisPolicy.automaticPlayable(application)) stopVisibleDialogue()
             }.also(voicePrefs::registerOnSharedPreferenceChangeListener)
             CharacterVoicePreferenceStore.initialize(application)
             engine = LuluSpeechEngine(application)
@@ -126,7 +126,7 @@ object MeetingVoicePlayback {
         val spoken = VoicePerformance.forPlayback(context, speechText)
         if (
             !mutableEnabled.value ||
-            !VoiceSynthesisPolicy.automaticAllowed(context) ||
+            !VoiceSynthesisPolicy.automaticPlayable(context) ||
             !AutomaticVoiceForeground.visible() ||
             sessionId.isBlank() ||
             pageKey.isBlank() ||
@@ -169,7 +169,7 @@ object MeetingVoicePlayback {
                 voiceIdOverride = CharacterVoicePreferenceStore.playbackVoiceId(resolvedCharacterId),
                 source = "meeting_page_auto",
                 allowGeneration = {
-                    mutableEnabled.value && VoiceSynthesisPolicy.automaticAllowed(application) &&
+                    mutableEnabled.value && VoiceSynthesisPolicy.automaticPlayable(application) &&
                         AutomaticVoiceForeground.visible() &&
                         synchronized(lock) { activePageToken == token }
                 },
