@@ -13,6 +13,8 @@ import java.util.UUID
  */
 object CharacterInnerLifeStore {
     private var prefs: android.content.SharedPreferences? = null
+    private val revisionState = kotlinx.coroutines.flow.MutableStateFlow(0L)
+    val revisions: kotlinx.coroutines.flow.StateFlow<Long> = revisionState
 
     @Synchronized fun initialize(context: Context) {
         if (prefs == null) prefs = context.applicationContext
@@ -22,11 +24,31 @@ object CharacterInnerLifeStore {
     @Synchronized fun snapshot(characterId: String): JSONObject =
         runCatching { JSONObject(prefs?.getString(characterId, "{}") ?: "{}") }.getOrDefault(JSONObject())
 
-    @Synchronized fun clear(characterId: String) { prefs?.edit()?.remove(characterId)?.commit() }
+    @Synchronized fun clear(characterId: String) {
+        if (prefs?.edit()?.remove(characterId)?.commit() == true) revisionState.value += 1L
+    }
 
     private fun save(id: String, state: JSONObject) {
         check(prefs?.edit()?.putString(id, state.toString())?.commit() == true) {
             "内在生活状态尚未初始化或保存失败"
+        }
+        revisionState.value += 1L
+    }
+
+    /** The user may stop a pending thought without erasing the role's other life threads. */
+    @Synchronized fun stopMotive(characterId: String, motiveId: String) {
+        if (prefs == null || motiveId.isBlank()) return
+        val root = snapshot(characterId)
+        val motives = root.optJSONArray("motives") ?: return
+        val remaining = JSONArray()
+        var removed = false
+        for (i in 0 until motives.length()) {
+            val item = motives.optJSONObject(i) ?: continue
+            if (item.optString("id") == motiveId) removed = true else remaining.put(item)
+        }
+        if (removed) {
+            root.put("motives", remaining)
+            save(characterId, root)
         }
     }
 
