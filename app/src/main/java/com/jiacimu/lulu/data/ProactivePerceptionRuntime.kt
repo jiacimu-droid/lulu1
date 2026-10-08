@@ -276,7 +276,8 @@ object ProactivePerceptionRuntime {
         val worldTick = if (DigitalLifeProfileStore.isEnabled(characterId)) {
             DigitalWorldLifeEventStore.tick(appContext, characterId, now)
         } else null
-        worldTick?.let { tick ->
+        worldTick?.takeUnless(DigitalWorldLifeEventStore::isAmbientMoment)?.let { tick ->
+            // Only consequential persistent events appear in chat; atmosphere remains world history.
             MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, tick.summary, tick.incidentId)
         }
         val messages = MigratedDomainStores.chat.messages(conversation.id).value
