@@ -16,6 +16,8 @@ data class CommitmentTask(
     val nextCheckAt: Instant? = null,
     val completionCondition: String = "",
     val steps: List<String> = emptyList(),
+    /** Concrete action promised by the role; a call must not silently become a chat message. */
+    val deliveryAction: String = "send_private_message",
     val currentStep: Int = 0,
     val attemptCount: Int = 0,
     val lastActionResult: String = "",
