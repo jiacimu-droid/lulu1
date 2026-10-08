@@ -180,6 +180,7 @@ internal fun StarWishTheaterContentV2(
                     )
                 },
                 onCancel = { planGenerationManager.cancel(openedSeed.title) },
+                onSaveDirector = { revised -> store.setBible(openedSeed.title, revised) },
                 onBack = { mode = TheaterV2Mode.READER },
             )
         } else {
@@ -931,9 +932,36 @@ private fun TheaterPlannerV2(
                             value = plan.outline,
                             onValueChange = { value -> plans = plans.map { if (it.id == plan.id) it.copy(outline = value) else it } },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("本章事件、人物选择、关系、明暗线、伏笔、情绪与结尾钩子") },
-                            minLines = 5,
-                            maxLines = 14,
+                            label = { Text("事件与因果（只安排确有必要的事情）") },
+                            minLines = 3,
+                            maxLines = 10,
+                            enabled = !regenerating && !locked,
+                        )
+                        OutlinedTextField(
+                            value = plan.spotlight,
+                            onValueChange = { value -> plans = plans.map { if (it.id == plan.id) it.copy(spotlight = value) else it } },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("本章最值得看的高光场面与情绪回报") },
+                            minLines = 2,
+                            maxLines = 6,
+                            enabled = !regenerating && !locked,
+                        )
+                        OutlinedTextField(
+                            value = plan.sceneBeats,
+                            onValueChange = { value -> plans = plans.map { if (it.id == plan.id) it.copy(sceneBeats = value) else it } },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("场景推进：谁先做什么，对方怎样回应，张力如何升级") },
+                            minLines = 2,
+                            maxLines = 8,
+                            enabled = !regenerating && !locked,
+                        )
+                        OutlinedTextField(
+                            value = plan.relationshipBeat,
+                            onValueChange = { value -> plans = plans.map { if (it.id == plan.id) it.copy(relationshipBeat = value) else it } },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("关系变化（不适用可留空，不强加恋爱）") },
+                            minLines = 1,
+                            maxLines = 5,
                             enabled = !regenerating && !locked,
                         )
                     }
@@ -1072,9 +1100,14 @@ private fun TheaterStoryBibleV2(
     writing: Boolean,
     onGenerate: () -> Result<Unit>,
     onCancel: () -> Unit,
+    onSaveDirector: (StarWishStoryBible) -> Unit,
     onBack: () -> Unit,
 ) {
     var localMessage by remember(title) { mutableStateOf("") }
+    var editingDirector by remember(title) { mutableStateOf(false) }
+    var editingFocus by remember(title) { mutableStateOf("") }
+    var editingAppearance by remember(title) { mutableStateOf("") }
+    var editingRelationships by remember(title) { mutableStateOf("") }
     val generating = task?.active == true
     Column(Modifier.fillMaxSize()) {
         Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 1.dp) {
@@ -1097,10 +1130,25 @@ private fun TheaterStoryBibleV2(
             item {
                 Text("长期导演台", fontSize = 23.sp, fontWeight = FontWeight.Bold)
                 Text(
-                    "幕后规划按故事需要选择栏目，空白表示不需要，不必凑满。生成只更新幕后规划；章节规划在剧情规划页单独生成。",
+                    "先抓住想看的场面与人物魅力，再安排剧情。体验、外貌和关系栏目可以手动修订；不会更改已经写成的章节。",
                     color = StudyDesign.muted,
                     style = MaterialTheme.typography.bodySmall,
                 )
+                Spacer(Modifier.height(10.dp))
+                OutlinedButton(
+                    onClick = {
+                        editingFocus = bible?.experienceFocus.orEmpty()
+                        editingAppearance = bible?.appearanceDesign.orEmpty()
+                        editingRelationships = bible?.relationshipDynamics.orEmpty()
+                        editingDirector = true
+                    },
+                    enabled = bible != null && !generating && !writing,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Icon(Icons.Outlined.EditNote, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("编辑阅读体验 / 人物外貌 / 关系动力")
+                }
                 Spacer(Modifier.height(12.dp))
                 FilledTonalButton(
                     onClick = {
@@ -1140,6 +1188,9 @@ private fun TheaterStoryBibleV2(
                 item { Text("尚未生成连续性档案。", color = StudyDesign.muted) }
             } else {
                 item { PlotSection("硬事实 · 不得无解释违背", ledger.hardFacts) }
+                item { PlotSection("已发生时间轴", ledger.chronology) }
+                item { PlotSection("身体伤势与恢复", ledger.physicalStates) }
+                item { PlotSection("物品取得、损毁与归属", ledger.itemTransitions) }
                 item { PlotSection("人物当前状态", ledger.characters) }
                 item { PlotSection("当前关系", ledger.relationships) }
                 item { PlotSection("世界与地点状态", ledger.worldState) }
@@ -1149,6 +1200,50 @@ private fun TheaterStoryBibleV2(
                 item { PlotSection("截至第 ${ledger.updatedThroughChapter} 章摘要", ledger.summary) }
             }
         }
+    }
+    if (editingDirector && bible != null) {
+        AlertDialog(
+            onDismissRequest = { editingDirector = false },
+            title = { Text("调整幕后导演重心") },
+            text = {
+                Column(
+                    modifier = Modifier.heightIn(max = 520.dp).verticalScroll(androidx.compose.foundation.rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Text("只影响未来章节。想看纯战斗或悬疑，就不需要填写感情部分。", style = MaterialTheme.typography.bodySmall, color = StudyDesign.muted)
+                    OutlinedTextField(
+                        value = editingFocus,
+                        onValueChange = { editingFocus = it },
+                        label = { Text("最想看的体验与高光场面") },
+                        minLines = 3,
+                    )
+                    OutlinedTextField(
+                        value = editingAppearance,
+                        onValueChange = { editingAppearance = it },
+                        label = { Text("人物稳定的外貌、身形、气质与动作") },
+                        minLines = 3,
+                    )
+                    OutlinedTextField(
+                        value = editingRelationships,
+                        onValueChange = { editingRelationships = it },
+                        label = { Text("两个人各自的欲望、关系与权力拉扯") },
+                        minLines = 3,
+                    )
+                }
+            },
+            dismissButton = { TextButton(onClick = { editingDirector = false }) { Text("取消") } },
+            confirmButton = {
+                TextButton(onClick = {
+                    onSaveDirector(bible.copy(
+                        experienceFocus = editingFocus.trim(),
+                        appearanceDesign = editingAppearance.trim(),
+                        relationshipDynamics = editingRelationships.trim(),
+                    ))
+                    editingDirector = false
+                    localMessage = "导演体验档案已保存；下章开始按新重心写"
+                }) { Text("保存") }
+            },
+        )
     }
 }
 
