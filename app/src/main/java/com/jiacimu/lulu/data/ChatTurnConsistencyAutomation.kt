@@ -44,6 +44,13 @@ object ChatTurnConsistencyAutomation {
                                     return@collect
                                 }
 
+                                // Only a delivered character message contributes a style example.
+                                val speakerId = latest.authorCharacterId?.takeIf(String::isNotBlank)
+                                    ?: conversation.characterId
+                                CharacterInnerLifeStore.recordSpokenText(
+                                    speakerId, latest.id, latest.content,
+                                )
+
                                 val matchingUser = messages
                                     .dropLast(1)
                                     .lastOrNull { message ->
