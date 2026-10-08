@@ -59,7 +59,7 @@ class TheaterPlanningPayloadTest {
             mainLine = "寻找", stagePlan = "发现线索，面对真相")
         assertTrue(StarWishTheaterPlanningEngine.storyBibleCompleteEnough(concise))
         assertFalse(StarWishTheaterPlanningEngine.storyBibleCompleteEnough(StarWishStoryBible(cast = "姐弟")))
-        assertEquals(16, theaterBibleFields.size)
+        assertEquals(19, theaterBibleFields.size)
         assertEquals(theaterBibleFields.keys, concise.fieldValues().keys)
     }
     @Test fun experienceLedBibleDoesNotRequireLongFormSlots() {
@@ -109,6 +109,43 @@ class TheaterPlanningPayloadTest {
         assertEquals("群雄俯首", parsed.single().title)
         assertEquals("", parsed.single().mainLine)
         assertEquals("", parsed.single().characterArcs)
+    }
+
+    @Test fun newStoryCarriesVisualAttractionAndTwoSidedRelationshipIntoBibleAndGuide() {
+        val response = JSONObject().put("title", "双月之下")
+            .put("overview", "一场对峙改变两个人的信任。")
+            .put("highlights", "近距离试探和有力回应。")
+            .put("experienceFocus", "把权力拉扯写成高光，不拿追杀填充。")
+            .put("appearanceDesign", "甲有清晰的眉骨、微卷黑发，乙身形挺拔、声线明亮。")
+            .put("relationshipDynamics", "甲试探边界，乙保持主动判断；关系不被预设为爱情。")
+        val candidate = StarWishTheaterPlanningEngine.parseCandidates(response.toString()).single()
+        assertTrue(candidate.storyGuide().contains("【主要人物视觉档案】"))
+        assertEquals(candidate.experienceFocus, candidate.storyBible().experienceFocus)
+        assertEquals(candidate.appearanceDesign, candidate.storyBible().appearanceDesign)
+        assertEquals(candidate.relationshipDynamics, candidate.storyBible().relationshipDynamics)
+        val parsed = StarWishTheaterPlanningEngine.parseStoryBible(JSONObject()
+            .put("experienceFocus", "悬疑推理和翻案。")
+            .put("appearanceDesign", "角色长相保持不变。")
+            .put("relationshipDynamics", "").toString(), 0)
+        assertEquals("悬疑推理和翻案。", parsed.experienceFocus)
+        assertEquals("角色长相保持不变。", parsed.appearanceDesign)
+    }
+
+    @Test fun batchChapterPlansRetainConcreteScenePayoffs() {
+        val plans = org.json.JSONArray().apply {
+            (1..3).forEach { num ->
+                put(JSONObject().put("number", num).put("title", "房间里的对峙")
+                    .put("outline", "主角进门并发出质问")
+                    .put("spotlight", "两人独处，权力关系瞬间倒转")
+                    .put("sceneBeats", "先靠近，再逼问，最后由沉默收束")
+                    .put("relationshipBeat", "由怀疑转为不得不正视对方"))
+            }
+        }
+        val result = StarWishTheaterPlanningEngine.parseChapterPlans(plans.toString(), 10, 12)
+        assertEquals(listOf(10, 11, 12), result.map { it.number })
+        assertTrue(result.all { it.spotlight.contains("权力") })
+        assertTrue(result.all { TheaterCanonEvidence.planningText(it).contains("场面节拍") })
+        assertEquals("由怀疑转为不得不正视对方", result.first().relationshipBeat)
     }
 
     @Test fun emptyAndTruncatedRepliesCannotBecomeCompletedPlanning() {
