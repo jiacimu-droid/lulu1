@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T12:40:34.298708+00:00",
-  "commit": "463913e8e35dd1f6d863643e1ef25fe9a2096a85",
+  "generatedAt": "2026-10-08T12:46:35.846086+00:00",
+  "commit": "6c9356a8e29258a33ec0e7a3254549d70f5b1c28",
   "branch": "main",
-  "sourceFingerprint": "373ec41d39d592d459b2eb8f4091bff01b62ed728bb71ac35b7a8b664611e00b",
+  "sourceFingerprint": "90e574595ace61755619289487e9d34bb4d583de23d2caa1859a0b14e82c83a1",
   "summary": {
     "files": 356,
-    "lines": 87894,
+    "lines": 87907,
     "symbols": 1240
   },
   "symbolIndex": {
@@ -11122,8 +11122,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-      "lines": 523,
-      "sha256": "ad39eb661eca39f418b54c1871f5d91198bc283a4ca72b5046c2f5b9a2e3a9aa",
+      "lines": 529,
+      "sha256": "84afb2eaa3f516c88681d89f12131cb8f1220148ae82d42d951b4160b637c705",
       "symbols": [
         {
           "name": "RelevantMemoryRecall",
@@ -14059,8 +14059,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt",
-      "lines": 40,
-      "sha256": "811e1c0105657757c6dc905852239a7b4c663c9520643c38863a015d8604ad56",
+      "lines": 47,
+      "sha256": "369c7072b5093554318d023767526a2bc03a9d3d8b96a34cddf83bb61031a9fc",
       "symbols": [
         {
           "name": "MemoryContextPolicyTest",

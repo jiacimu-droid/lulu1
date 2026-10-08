@@ -31,6 +31,13 @@ class MemoryContextPolicyTest {
         assertFalse(shouldFlushMemoryTail(now.plusSeconds(1), now))
     }
 
+    @Test fun currentQuestionSurvivesLongRecentContext() {
+        val query = RelevantMemoryRecall.focusQuery("当前输入：晚饭吃什么\n当前场景：准备晚餐\n近期上下文：" + "旧闲聊".repeat(2_000))
+        assertTrue(query.contains("晚饭吃什么"))
+        assertTrue(query.contains("准备晚餐"))
+        assertTrue(query.length <= 1_800)
+    }
+
     @Test fun lastMonthUsesCalendarRangeAcrossYearBoundary() {
         val range = memoryTimeRange("上个月我们聊过什么", Instant.parse("2027-01-08T12:00:00Z"), ZoneId.of("Asia/Shanghai"))!!
         assertEquals(Instant.parse("2026-11-30T16:00:00Z"), range.first)

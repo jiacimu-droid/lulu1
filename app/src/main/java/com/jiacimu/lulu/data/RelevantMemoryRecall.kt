@@ -430,8 +430,14 @@ object RelevantMemoryRecall {
         if (lines.isEmpty()) return raw.trim().takeLast(MAX_QUERY_CHARS)
 
         val userLines = lines.filter(::looksLikeUserLine)
+        val currentLines = userLines.filter {
+            it.startsWith("当前输入") || it.startsWith("用户本轮") || it.startsWith("本轮用户") || it.startsWith("这一刻用户") || it.startsWith("用户刚刚")
+        }
         val selected = if (userLines.isNotEmpty()) {
-            userLines.takeLast(8) + lines.filter { it.startsWith("当前场景") || it.startsWith("近期上下文") }.takeLast(2)
+            val context = lines.filter { it.startsWith("当前场景") || it.startsWith("近期上下文") }.takeLast(2).map { it.take(400) }
+            val previous = userLines.filterNot { it in currentLines }.takeLast(4).map { it.takeLast(200) }
+            // Keep the actual input last so the hard query budget trims context before the question.
+            context + previous + currentLines.takeLast(2).map { it.takeLast(800) }
         } else {
             lines.filterNot(::looksLikeInstructionLine).takeLast(12)
         }
@@ -458,7 +464,7 @@ object RelevantMemoryRecall {
 
     private fun looksLikeInstructionLine(line: String): Boolean {
         val normalized = line.removePrefix("-").trim()
-        return normalized.startsWith("请") ||
+        return normalized.startsWith("任务意图") || normalized.startsWith("请") ||
             normalized.startsWith("必须") ||
             normalized.startsWith("不要") ||
             normalized.startsWith("不得") ||

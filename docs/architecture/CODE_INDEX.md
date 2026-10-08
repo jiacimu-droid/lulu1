@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`463913e8e35dd1f6d863643e1ef25fe9a2096a85`
+- 基准提交：`6c9356a8e29258a33ec0e7a3254549d70f5b1c28`
 - 分支：`main`
 - 已索引文件：356
-- 已索引代码/文本行：87894
+- 已索引代码/文本行：87907
 - 已发现符号：1240
 
 | 文件 | 行数 | 符号数 |
@@ -190,7 +190,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 210 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt` | 655 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 523 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 529 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 542 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
@@ -343,7 +343,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 30 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt` | 40 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt` | 47 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContinuityTest.kt` | 81 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 242 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 38 | 1 |
