@@ -3,12 +3,12 @@
 - 基准提交：`d262eb163277f41d0a69a20c7b2bbafefcc66b41`
 - 分支：`main`
 - 已索引文件：325
-- 已索引代码/文本行：84683
+- 已索引代码/文本行：84688
 - 已发现符号：1180
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
-| `app/build.gradle.kts` | 125 | 0 |
+| `app/build.gradle.kts` | 130 | 0 |
 | `app/src/main/AndroidManifest.xml` | 121 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 98 | 2 |

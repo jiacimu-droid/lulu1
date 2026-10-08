@@ -79,6 +79,11 @@ android {
         disable += "NullSafeMutableLiveData"
     }
 
+    testOptions {
+        // WorkManager uses merged AndroidX resources even in manifest-free Robolectric tests.
+        unitTests.isIncludeAndroidResources = true
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true
