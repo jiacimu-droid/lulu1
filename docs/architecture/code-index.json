@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T18:15:10.995116+00:00",
-  "commit": "70c46ba839a4ceb5553bf7e2da977ccbf6189259",
+  "generatedAt": "2026-10-08T18:16:53.838584+00:00",
+  "commit": "ce597b45c5f27f391ca2da50ac5ccb21c1110b44",
   "branch": "main",
-  "sourceFingerprint": "fc36e43e650e763541a0743e88f30f3ffe03d6288a80bdf3cd54fe15f0873fa5",
+  "sourceFingerprint": "9064ced54e03b569312e5edd9abad8e803ab3a30f59316ec5a2e485c3fd75a60",
   "summary": {
-    "files": 364,
-    "lines": 89187,
-    "symbols": 1260
+    "files": 365,
+    "lines": 89216,
+    "symbols": 1263
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1558,6 +1558,28 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
         "line": 79
+      }
+    ],
+    "enabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt",
+        "line": 14
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
+        "line": 47
+      }
+    ],
+    "automaticAllowed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt",
+        "line": 18
+      }
+    ],
+    "chatAutomaticAllowed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt",
+        "line": 25
       }
     ],
     "ApiConfiguration": [
@@ -5428,12 +5450,6 @@
         "line": 53
       }
     ],
-    "enabled": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
-        "line": 47
-      }
-    ],
     "attach": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
@@ -8425,6 +8441,25 @@
         {
           "name": "slice",
           "line": 79
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt",
+      "lines": 29,
+      "sha256": "9163c03f90e44b5fdea2bd6702cd204e5e200fda855a1d4874c7686338b7daf2",
+      "symbols": [
+        {
+          "name": "enabled",
+          "line": 14
+        },
+        {
+          "name": "automaticAllowed",
+          "line": 18
+        },
+        {
+          "name": "chatAutomaticAllowed",
+          "line": 25
         }
       ]
     },
