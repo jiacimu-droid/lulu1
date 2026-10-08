@@ -1016,7 +1016,7 @@ private fun TheaterStoryBibleV2(
             item {
                 Text("长期导演台", fontSize = 23.sp, fontWeight = FontWeight.Bold)
                 Text(
-                    "新建故事的幕后条目会直接保留在这里。生成只更新幕后规划；章节规划在剧情规划页单独生成。",
+                    "幕后规划按故事需要选择栏目，空白表示不需要，不必凑满。生成只更新幕后规划；章节规划在剧情规划页单独生成。",
                     color = StudyDesign.muted,
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -1047,7 +1047,7 @@ private fun TheaterStoryBibleV2(
                 }
             }
             theaterBibleFields.forEach { (key, label) ->
-                item(key = key) { PlotSection(label, bible?.fieldValues()?.get(key).orEmpty().ifBlank { "待填写" }) }
+                item(key = key) { PlotSection(label, bible?.fieldValues()?.get(key).orEmpty().ifBlank { if (bible == null) "尚未生成" else "未使用（这部作品不需要这一项）" }) }
             }
             item {
                 HorizontalDivider()
@@ -1129,7 +1129,7 @@ private fun TheaterPlotGeneratorV2(
                             value = direction,
                             onValueChange = { direction = it },
                             modifier = Modifier.fillMaxWidth(),
-                            placeholder = { Text("例如：系统轻喜剧、悬疑、慢热关系……") },
+                            placeholder = { Text("例如：3章龙傲天打脸爽文，不虐不成长；或纯暧昧张力短片。爽点/张力要占主要篇幅……") },
                             minLines = 3,
                             maxLines = 7,
                             shape = RoundedCornerShape(16.dp),
