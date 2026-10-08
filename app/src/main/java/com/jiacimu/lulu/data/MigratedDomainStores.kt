@@ -295,6 +295,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             conversation to messages
         }
         SharedExperienceTimeline.deleteConversationData(deleted.first, deleted.second)
+        deleted.second.forEach { com.jiacimu.lulu.ChatAutoVoicePlayback.remove(it.id) }
         return true
     }
 
@@ -311,6 +312,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             conversation to messages
         }
         SharedExperienceTimeline.deleteConversationData(cleared.first, cleared.second)
+        cleared.second.forEach { com.jiacimu.lulu.ChatAutoVoicePlayback.remove(it.id) }
         return true
     }
 
@@ -474,7 +476,10 @@ class InMemoryLuluChatStore : LuluChatStore {
         val changed = mutateMessagesContaining(messageId) { messages ->
             messages.filterNot { message -> message.id == messageId }
         }
-        if (changed && conversation != null) SharedExperienceTimeline.deleteConversationMessage(conversation, messageId)
+        if (changed && conversation != null) {
+            SharedExperienceTimeline.deleteConversationMessage(conversation, messageId)
+            com.jiacimu.lulu.ChatAutoVoicePlayback.remove(messageId)
+        }
         return changed
     }
 
