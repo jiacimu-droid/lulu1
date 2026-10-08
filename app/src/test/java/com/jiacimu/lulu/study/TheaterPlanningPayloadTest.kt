@@ -62,6 +62,29 @@ class TheaterPlanningPayloadTest {
         assertEquals(16, theaterBibleFields.size)
         assertEquals(theaterBibleFields.keys, concise.fieldValues().keys)
     }
+    @Test fun experienceLedBibleDoesNotRequireLongFormSlots() {
+        val focus = StarWishStoryBible(
+            overview = "三章内只看主角在众人面前连续打脸，痛快收束。",
+            highlights = "每章都要有直接兑现的爽点。",
+        )
+        assertTrue(StarWishTheaterPlanningEngine.storyBibleCompleteEnough(focus))
+        assertTrue(focus.mainLine.isBlank())
+        assertTrue(focus.hiddenLine.isBlank())
+        assertTrue(focus.characterArcs.isBlank())
+        assertFalse(StarWishTheaterPlanningEngine.storyBibleCompleteEnough(StarWishStoryBible()))
+    }
+    @Test fun originalCreativeIntentSurvivesStorySelectionWithoutInventingPlotSpine() {
+        val chosen = StarWishTheaterPlanningEngine.parseCandidates(
+            JSONObject().put("title", "今日无敌")
+                .put("overview", "三章里只写痛快的无敌爽点，不加虐恋或人物成长。")
+                .put("highlights", "不被看好的主角一出手，全场噤声。").toString()
+        ).single().copy(creativeIntent = "我要纯爽文，三章结束，不要爱情主线")
+        assertTrue(chosen.storyGuide().contains("【用户原始创作要求（最高优先级）】"))
+        assertTrue(chosen.storyGuide().contains("我要纯爽文，三章结束，不要爱情主线"))
+        assertEquals("", chosen.storyBible().plotSpine)
+        assertEquals("", chosen.storyBible().relationshipArc)
+        assertTrue(StarWishTheaterPlanningEngine.storyBibleCompleteEnough(chosen.storyBible()))
+    }
     @Test fun emptyAndTruncatedRepliesCannotBecomeCompletedPlanning() {
         assertTrue(StarWishTheaterPlanningEngine.parseChapterPlans("", 1, 1).isEmpty())
         assertTrue(StarWishTheaterPlanningEngine.parseChapterPlans("{\"outline\":\"尚未完成的模型输出", 1, 1).isEmpty())
