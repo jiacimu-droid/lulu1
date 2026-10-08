@@ -473,14 +473,24 @@ internal object LuluVoiceCallSession {
                     val speech = part.replace(Regex("⟪[^⟫]*⟫"), "").trim()
                     if (speech.isBlank()) return@forEach
                     val plainSpeech = VoicePerformance.plain(speech)
-                    speechQueue?.enqueue(speech, latest.characterId,
-                        CharacterVoicePreferenceStore.playbackVoiceId(latest.characterId), onDelivered = {
+                    // Reserve a stable ID BEFORE playback. The exact streamed
+                    // performance and the chat transcript must share this ID.
+                    val voiceMessageId = "voice-${latest.callExperienceId}-agent-${UUID.randomUUID()}"
+                    speechQueue?.enqueue(
+                        text = speech,
+                        speakerId = latest.characterId,
+                        voiceId = CharacterVoicePreferenceStore.playbackVoiceId(latest.characterId),
+                        messageId = voiceMessageId,
+                        onDelivered = {
                             if (!sameReply()) return@enqueue
                             heard.append(VoicePerformance.plain(part))
-                            if (plainSpeech.isNotBlank()) MigratedDomainStores.chat.appendVoiceMessage(latest.conversationId,
-                                "voice-${latest.callExperienceId}-agent-${UUID.randomUUID()}", plainSpeech, true)
+                            if (plainSpeech.isNotBlank()) {
+                                MigratedDomainStores.chat.appendVoiceMessage(latest.conversationId,
+                                    voiceMessageId, plainSpeech, true)
+                            }
                             clearWhenHeard()
-                        })
+                        },
+                    )
                 }
             }
             LuluDeviceToolBridge.respond(
