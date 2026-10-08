@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T17:15:31.874177+00:00",
-  "commit": "fa7373521f0bb9dd58ecb5d43c5cad67c78a2181",
+  "generatedAt": "2026-10-08T17:15:49.121662+00:00",
+  "commit": "76c2e2f7109ff5d032609762d431d61e767ddf05",
   "branch": "main",
-  "sourceFingerprint": "2ecce0d190dd8ac7584d0cff066b08e7a76fad8be9e69e68c08cdd7735be77c1",
+  "sourceFingerprint": "d792d5b9a5a9925ef565cb4f0caa3ad588b35d7df6c24bcbd8dd31517136f240",
   "summary": {
     "files": 360,
-    "lines": 88226,
-    "symbols": 1246
+    "lines": 88273,
+    "symbols": 1247
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -655,7 +655,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 24
+        "line": 25
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
@@ -2001,7 +2001,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 235
+        "line": 281
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -2239,13 +2239,19 @@
     "CharacterLifeStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 11
+        "line": 12
+      }
+    ],
+    "afterglowContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
+        "line": 82
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 227
+        "line": 273
       }
     ],
     "CharacterMessageFavorites": [
@@ -8792,24 +8798,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 271,
-      "sha256": "df9db59d5ffe805f150e759703535a9c9fbe33167559b8b198ea0cbc9b6d4af3",
+      "lines": 318,
+      "sha256": "7760f4b38d631a2ff938ff947045b7ed32110e445788469e76bd4c51b837de1f",
       "symbols": [
         {
           "name": "CharacterLifeStore",
-          "line": 11
+          "line": 12
         },
         {
           "name": "state",
-          "line": 24
+          "line": 25
+        },
+        {
+          "name": "afterglowContext",
+          "line": 82
         },
         {
           "name": "profileContext",
-          "line": 227
+          "line": 273
         },
         {
           "name": "context",
-          "line": 235
+          "line": 281
         }
       ]
     },
