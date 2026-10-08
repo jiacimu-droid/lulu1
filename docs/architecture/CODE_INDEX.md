@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`c1d458f3d678e243003bdb125000bc2194d77b0e`
+- 基准提交：`0106924b4381634258d0ac19014f6cde3e97ad18`
 - 分支：`main`
-- 已索引文件：349
-- 已索引代码/文本行：86982
-- 已发现符号：1227
+- 已索引文件：350
+- 已索引代码/文本行：87051
+- 已发现符号：1228
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -327,6 +327,7 @@
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
 | `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 109 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallSpeechRecordingTest.kt` | 69 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |

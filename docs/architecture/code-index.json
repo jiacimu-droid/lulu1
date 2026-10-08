@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T11:45:58.975680+00:00",
-  "commit": "c1d458f3d678e243003bdb125000bc2194d77b0e",
+  "generatedAt": "2026-10-08T11:46:16.853016+00:00",
+  "commit": "0106924b4381634258d0ac19014f6cde3e97ad18",
   "branch": "main",
-  "sourceFingerprint": "74bd4bf8329316e73fe372ececa76031b316c6b4b38c382049cee3b447ab49b5",
+  "sourceFingerprint": "ef2d4cc84fa73109d7da171da590077c01073ee5c6ec66712afbc50e8bb96cba",
   "summary": {
-    "files": 349,
-    "lines": 86982,
-    "symbols": 1227
+    "files": 350,
+    "lines": 87051,
+    "symbols": 1228
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6690,6 +6690,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt",
         "line": 7
+      }
+    ],
+    "CallSpeechRecordingTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallSpeechRecordingTest.kt",
+        "line": 9
       }
     ],
     "ElevenLabsAudioContractsTest": [
@@ -13773,6 +13779,17 @@
         {
           "name": "CallContractsTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/CallSpeechRecordingTest.kt",
+      "lines": 69,
+      "sha256": "1614025de5947d86d72fec52e2782cb8f70d94be9d7d662d8dabbcd6d830c002",
+      "symbols": [
+        {
+          "name": "CallSpeechRecordingTest",
+          "line": 9
         }
       ]
     },
