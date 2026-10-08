@@ -83,6 +83,7 @@ object ChatAutoVoicePlayback {
                                         if (continuation.isActive) continuation.resume(Unit)
                                     },
                                     voiceIdOverride = request.voiceId,
+                                    source = if (request.requireAutoPlay) "chat_auto" else "chat_manual",
                                     allowGeneration = {
                                         AutomaticVoiceForeground.visible() &&
                                             (!request.requireAutoPlay ||
