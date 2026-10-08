@@ -224,6 +224,7 @@ fun LuluMigrationRootAppV2(
                             key(selectedConversationId) {
                                 QqStyleChatDetailScreen(
                                     conversationId = selectedConversationId,
+                                    routeVisible = route == MigrationRoute.ChatDetail,
                                     onBack = ::popRoute,
                                     onCharacterSettings = {
                                         selectConversationCharacter()
