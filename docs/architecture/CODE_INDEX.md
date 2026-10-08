@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`859412d7866532719c342cac5b803e2111dc2fee`
+- 基准提交：`46c9db78f964b48de79097c319b1b37d13599bcf`
 - 分支：`main`
 - 已索引文件：340
-- 已索引代码/文本行：86052
+- 已索引代码/文本行：86075
 - 已发现符号：1213
 
 | 文件 | 行数 | 符号数 |
@@ -339,7 +339,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 84 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 88 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterContinuityPayloadTest.kt` | 45 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/study/TheaterPlanningPayloadTest.kt` | 71 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/study/TheaterPlanningPayloadTest.kt` | 94 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt` | 32 | 1 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |
 | `scripts/apk_size_report.py` | 38 | 0 |
