@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T07:18:04.372113+00:00",
-  "commit": "79ad833809cff849ccc95f9886df19932f815b26",
+  "generatedAt": "2026-10-08T07:20:00.771903+00:00",
+  "commit": "e0e1a13da31408c899467fabff96b9b984fcc338",
   "branch": "main",
-  "sourceFingerprint": "46287b43377fda29517531724bddc542c0d12916c2ba152f0140757cc980a96f",
+  "sourceFingerprint": "b768a5d47f0ca263c10985d26da46e84ef5cf270db3664af52ec6e7f72687c05",
   "summary": {
     "files": 342,
-    "lines": 86294,
+    "lines": 86320,
     "symbols": 1219
   },
   "symbolIndex": {
@@ -2129,11 +2129,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 144
+        "line": 154
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 284
+        "line": 294
       }
     ],
     "set": [
@@ -6327,17 +6327,17 @@
     "saveProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 318
+        "line": 328
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 408
+        "line": 419
       }
     ],
     "checkpointDraft": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 531
+        "line": 547
       }
     ],
     "StudyTaskSource": [
@@ -13149,28 +13149,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-      "lines": 780,
-      "sha256": "87f359988648aa8739bd41ca64472ee91a8a8e02d9eeee015e037010469f17aa",
+      "lines": 806,
+      "sha256": "221d2cc1ad6864cfffb012239bc832b2893a0fbb2edaace349a2fd081f237089",
       "symbols": [
         {
           "name": "get",
-          "line": 144
+          "line": 154
         },
         {
           "name": "get",
-          "line": 284
+          "line": 294
         },
         {
           "name": "saveProgress",
-          "line": 318
+          "line": 328
         },
         {
           "name": "saveProgress",
-          "line": 408
+          "line": 419
         },
         {
           "name": "checkpointDraft",
-          "line": 531
+          "line": 547
         }
       ]
     },
