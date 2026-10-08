@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T12:04:15.798737+00:00",
-  "commit": "1ef161ee9de5a419bf8c05ba2e7d22bc7b0f555b",
+  "generatedAt": "2026-10-08T12:04:28.236279+00:00",
+  "commit": "7935c1aa21db3335281d5ffbf2fedc5127984c93",
   "branch": "main",
-  "sourceFingerprint": "302209203f55e051ed1b0f82ba1bd54dc15ed973fbc0ac889925f565d8c0740d",
+  "sourceFingerprint": "a5795949176b180839f5c156c7eb8a9c104d621cba1ae9292f11433bfa0b02f9",
   "summary": {
     "files": 350,
-    "lines": 87153,
-    "symbols": 1229
+    "lines": 87166,
+    "symbols": 1230
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -40,10 +40,16 @@
         "line": 69
       }
     ],
+    "bindInput": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
+        "line": 42
+      }
+    ],
     "stop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
-        "line": 87
+        "line": 100
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
@@ -6901,16 +6907,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
-      "lines": 98,
-      "sha256": "d5814f34d5593c8492dd899c80acce8b1bb09c8567ce039e57d889f5c271c5d7",
+      "lines": 111,
+      "sha256": "ead78ff989170fea5632f7608a63ccb14b6530ab5a3d6d5bfaa17b6638dcddfd",
       "symbols": [
         {
           "name": "start",
           "line": 22
         },
         {
+          "name": "bindInput",
+          "line": 42
+        },
+        {
           "name": "stop",
-          "line": 87
+          "line": 100
         }
       ]
     },
