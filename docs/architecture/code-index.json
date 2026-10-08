@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T17:16:54.736184+00:00",
-  "commit": "7d766464fe8583696ad27fa3fc56313889aa6b3d",
+  "generatedAt": "2026-10-08T17:17:08.221399+00:00",
+  "commit": "95f7b4f7163d664e2e67eb99f466ae635da89380",
   "branch": "main",
-  "sourceFingerprint": "f5d4600db4c34e79ce04e0e03e8c724f9ddc62a30eaf2d663266e909635f31d4",
+  "sourceFingerprint": "a63cbf2bed91fa15cdcc79f71ea8c647fa9c99f46e1effdd965e4199e5449900",
   "summary": {
     "files": 360,
-    "lines": 88292,
+    "lines": 88303,
     "symbols": 1247
   },
   "symbolIndex": {
@@ -473,7 +473,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 91
+        "line": 92
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
@@ -4403,13 +4403,13 @@
     "markConcernPromisePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 96
+        "line": 97
       }
     ],
     "nextDueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 103
+        "line": 104
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -11051,8 +11051,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 821,
-      "sha256": "e72ddc92f462345b57ff0417a697bf4379910a74e975c2959b830694544a3146",
+      "lines": 832,
+      "sha256": "090abc9136af5f6d3570f91ae26af630efdeb6c3cf30135c852e040874aac9d9",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -11060,15 +11060,15 @@
         },
         {
           "name": "initialize",
-          "line": 91
+          "line": 92
         },
         {
           "name": "markConcernPromisePending",
-          "line": 96
+          "line": 97
         },
         {
           "name": "nextDueAt",
-          "line": 103
+          "line": 104
         }
       ]
     },
