@@ -45,6 +45,21 @@ class CallContractsTest {
         assertTrue(CallAudioRoute.headsetPriority(android.media.AudioDeviceInfo.TYPE_USB_HEADSET) < CallAudioRoute.headsetPriority(android.media.AudioDeviceInfo.TYPE_BUILTIN_SPEAKER))
         assertTrue(CallAudioRoute.headsetPriority(android.media.AudioDeviceInfo.TYPE_BLUETOOTH_SCO) < CallAudioRoute.headsetPriority(android.media.AudioDeviceInfo.TYPE_BUILTIN_EARPIECE))
     }
+    @Test fun microphoneRouteMatchesHeadsetButKeepsPhoneMicForOutputOnlyHeadphones() {
+        assertEquals(android.media.AudioDeviceInfo.TYPE_BLUETOOTH_SCO,
+            CallAudioRoute.preferredMicrophoneType(android.media.AudioDeviceInfo.TYPE_BLUETOOTH_SCO))
+        assertEquals(android.media.AudioDeviceInfo.TYPE_BLE_HEADSET,
+            CallAudioRoute.preferredMicrophoneType(android.media.AudioDeviceInfo.TYPE_BLE_HEADSET))
+        assertEquals(android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET,
+            CallAudioRoute.preferredMicrophoneType(android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET))
+        assertEquals(android.media.AudioDeviceInfo.TYPE_USB_HEADSET,
+            CallAudioRoute.preferredMicrophoneType(android.media.AudioDeviceInfo.TYPE_USB_HEADSET))
+        assertEquals(android.media.AudioDeviceInfo.TYPE_BUILTIN_MIC,
+            CallAudioRoute.preferredMicrophoneType(android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES))
+        assertEquals(android.media.AudioDeviceInfo.TYPE_BUILTIN_MIC,
+            CallAudioRoute.preferredMicrophoneType(android.media.AudioDeviceInfo.TYPE_BUILTIN_SPEAKER))
+    }
+
     @Test fun newMessagePreservesLongContactGapAndFutureDatesAreIgnored() {
         val now = java.time.Instant.parse("2026-10-07T12:00:00Z")
         val old = now.minus(java.time.Duration.ofDays(30))
