@@ -32,6 +32,7 @@ internal class RealtimeVoiceAdapter(
     private var volumeEnabled = true
     private var microphoneMuted = false
     private var openingWaiting = false
+    private var openingEventText = ""
     private var suppressDelivery = false
     private var deliveryJob: Job? = null
     private var openingJob: Job? = null
@@ -40,6 +41,7 @@ internal class RealtimeVoiceAdapter(
         stop()
         microphoneMuted = false
         openingWaiting = true
+        openingEventText = openingPrompt
         this.characterId = characterId
         this.conversationId = conversationId
         val epoch = ++generation
@@ -81,7 +83,7 @@ internal class RealtimeVoiceAdapter(
                 if (level > 0.01f && volumeEnabled) playedAudio = true
                 AvatarController.audio(characterId, level)
             } },
-            onUserTranscriptEvent = { text, eventId -> if (epoch == generation && text.isNotBlank() && eventId != null) {
+            onUserTranscriptEvent = { text, eventId -> if (epoch == generation && text.isNotBlank() && eventId != null && text != openingEventText) {
                 MigratedDomainStores.chat.appendVoiceMessage(conversationId, "voice-$providerSessionId-user-$eventId-$characterId", text, false)
                 scope.launch { refreshCore(epoch) }
             } },

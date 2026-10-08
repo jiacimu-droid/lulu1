@@ -277,9 +277,9 @@ internal object LuluVoiceCallSession {
         speechQueue = LuluCallSpeechQueue(
             context = context.applicationContext,
             scope = scope,
-            onBusyChanged = { busy ->
+            onBusyChanged = busyChanged@ { busy ->
                 val current = mutableState.value
-                if (!current.connected) return@LuluCallSpeechQueue
+                if (!current.connected) return@busyChanged
                 if (busy) audioRoute?.refresh()
                 mutableState.update {
                     it.copy(

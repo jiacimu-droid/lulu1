@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T05:41:02.877298+00:00",
-  "commit": "fd391ed057f463eea4bd558dcc44ed8bf66eb088",
+  "generatedAt": "2026-10-08T05:42:26.916181+00:00",
+  "commit": "7a318de18bec338e228cef9c46dff73944992f29",
   "branch": "main",
-  "sourceFingerprint": "6149de26125d4f23c2a5c53a16702a0bbf57e7c024dac57f666b81b0aab94b9c",
+  "sourceFingerprint": "ebdcf63fe6f2fff13507fbe3944c565772069e600bd713e1074d848b0dc3c0dc",
   "summary": {
     "files": 340,
-    "lines": 86115,
+    "lines": 86117,
     "symbols": 1213
   },
   "symbolIndex": {
@@ -75,7 +75,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-        "line": 151
+        "line": 153
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -99,7 +99,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-        "line": 146
+        "line": 148
       }
     ],
     "refresh": [
@@ -1423,7 +1423,7 @@
     "mute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-        "line": 144
+        "line": 146
       }
     ],
     "ScheduleFeatureScreen": [
@@ -7582,7 +7582,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
       "lines": 749,
-      "sha256": "3224aae67f64482c631bc7eb269c0002f91c452142e808419afe04171cc3d7c1",
+      "sha256": "ecd53ceb009ad8c647f219d63eddb61d922cac6e7471420823a072d539f53c38",
       "symbols": [
         {
           "name": "prepare",
@@ -8022,20 +8022,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-      "lines": 202,
-      "sha256": "2aa00564d189d5855f178781c73f7890aa99182df0477546f751f93abd9828cd",
+      "lines": 204,
+      "sha256": "c0db860e1ea1dff471bfb66f964c9c296adf8a4cc2341bed4515262a70f08ca0",
       "symbols": [
         {
           "name": "mute",
-          "line": 144
-        },
-        {
-          "name": "speaker",
           "line": 146
         },
         {
+          "name": "speaker",
+          "line": 148
+        },
+        {
           "name": "stop",
-          "line": 151
+          "line": 153
         }
       ]
     },
