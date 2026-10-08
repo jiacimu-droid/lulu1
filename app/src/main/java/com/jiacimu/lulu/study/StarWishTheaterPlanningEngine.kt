@@ -11,108 +11,53 @@ import org.json.JSONObject
 import org.json.JSONTokener
 
 internal object StarWishTheaterPlanningEngine {
-    suspend fun generateStoryCandidates(
+    /**
+     * Creating a new theater story is deliberately ONE API call for ONE story.
+     * Invalid/partial output is reported for a manual retry rather than
+     * quietly making extra paid repair calls.
+     */
+    suspend fun generateStoryCandidate(
         characterId: String,
         existingTitle: String?,
         existingGuide: String?,
         direction: String,
         theaterWorldBook: String = "",
-        onCandidates: ((List<StarWishPlotCandidate>) -> Unit)? = null,
-    ): Result<List<StarWishPlotCandidate>> = runCatching {
-        val accepted = mutableListOf<StarWishPlotCandidate>()
-        // A single request is significantly cheaper for providers that bill
-        // per call and avoids three serialized request round trips.
-        // Preserve the older per-candidate fallback for models whose output
-        // cannot reliably fit three independent proposals into one JSON array.
-        val batchFacts = buildString {
-            appendLine("剧场新作品创作。三套方案都必须高度符合用户想看的体验，重点不同但不能跑题。")
-            if (theaterWorldBook.isNotBlank()) appendLine("本书选用世界书（必须遵守）：\n$theaterWorldBook")
-            if (!existingTitle.isNullOrBlank()) appendLine("现有标题：$existingTitle")
-            if (!existingGuide.isNullOrBlank()) appendLine("现有故事地图：\n$existingGuide")
-            appendLine("用户原始创作愿望和禁忌（最高优先级）：\n${direction.ifBlank { "自由题材，不默认长篇、虐恋或成长。" }}")
-        }
-        val batchInstruction = """
-            你是擅长不同篇幅的小说体验策划。输出恰好三套不同切入点的详细方案，三套都要兑现用户想看的爽点、张力、氛围、互动或其他核心体验。
-            三四章短篇无需长线成长，龙傲天无需挫败和升级，纯氛围体验无需主线或强加感情戏。不要为了凑满字段设计没有必要的伏笔、恋爱、暗线、人物弧；不适用字段直接写空字符串。
-            每套必须有具体且有区别的 title、overview、highlights。三套同等用心，不允许“同方案一”“略”或只有一句话。请直接输出恰好三个JSON对象组成的数组，每个字段的值为字符串，不输出说明文字：
-            [{"title":"","overview":"","highlights":"","worldview":"","hook":"","cast":"","proseStyle":"","wordCount":"1800-3000","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","romanceAesthetics":""}]
-        """.trimIndent()
+    ): Result<StarWishPlotCandidate> = runCatching {
         currentCoroutineContext().ensureActive()
-        val batchRaw = LuluAiServices.gateway.generate(
+        val facts = buildString {
+            appendLine("这是剧场 App 的独立故事策划：一次只创作一部新作品，不提供候选清单。可以是长篇、三四章短篇、纯爽文、氛围短片或纯粹体验，不默认主线与人物成长。")
+            if (theaterWorldBook.isNotBlank()) appendLine("本书选用世界书（必须遵守）：\n$theaterWorldBook")
+            if (!existingTitle.isNullOrBlank()) appendLine("现有故事标题：$existingTitle")
+            if (!existingGuide.isNullOrBlank()) appendLine("现有故事地图：\n$existingGuide")
+            if (direction.isNotBlank()) appendLine("用户最想看的体验、爽点、张力、篇幅和禁忌（最高创作优先级，必须成为作品中心）：\n$direction")
+            else appendLine("用户未指定题材，请自行创造一部有鲜明阅读体验的作品，不默认爱情、长篇或成长线。")
+            appendLine("只需要一套认真打磨的完整故事方案，不要输出多套备选。")
+        }
+        val instruction = """
+            你是擅长不同篇幅与题材的创作策划。只写一部真正贴合用户愿望的故事，不要多个备选方案。
+            用户想看的爽点、张力、氛围、关系互动、篇幅与禁忌决定创作方向，这些内容必须占据故事的主要场景。
+            想看龙傲天、无敌或打脸，就让爽点直接、精彩地兑现，不强制主角挫败或成长；想看三四章短片、暧昧张力或纯氛围体验，就聚焦高密度场景，不擅自扩成长篇虐恋。
+            只有用户明确需要长线发展，才规划人物成长、复杂关系、明暗线、伏笔和多个阶段。不要为了凑字段强加剧情。
+            title（书名）、overview（核心体验与具体安排）、highlights（核心看点及高光场面）必须具体、完整。其他字段按需填写，不适用的直接使用空字符串，不要用「不适用」凑数。
+            不要生成逐章详细规划。写清每章建议字数，但作品是否漫长、是否有主线由用户愿望决定。
+            只输出一个合法JSON对象，不要数组、Markdown或解释：
+            {"title":"","worldview":"","hook":"","overview":"","highlights":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","wordCount":"1800-3000"}
+        """.trimIndent()
+        val raw = LuluAiServices.gateway.generate(
             characterId = characterId,
-            facts = batchFacts,
-            instruction = batchInstruction,
+            facts = facts,
+            instruction = instruction,
             source = "剧场",
-            title = "新故事三套候选方案",
-            maxTokens = 7_200,
+            title = "新故事方案",
+            maxTokens = 5_800,
             connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
             contextMode = CompanionContextMode.Isolated,
             readTimeoutMillis = 240_000,
         ).getOrThrow().text
-        accepted += parseCandidates(batchRaw)
-            .filter(::candidateCompleteEnough)
-            .distinctBy { it.title.trim() }
-            .take(3)
-            .map { it.copy(creativeIntent = direction.trim()) }
-        if (accepted.isNotEmpty()) onCandidates?.invoke(accepted.toList())
-        for (variant in (accepted.size + 1)..3) {
-            currentCoroutineContext().ensureActive()
-            val previous = accepted.joinToString("\n") { "《${it.title}》：${it.hook.take(180)}" }
-            val facts = buildString {
-                appendLine("这是剧场 App 的独立创作策划任务，作品可以是长篇、三四章短篇、纯爽文、氛围短片或单一体验，不默认主线和人物成长。")
-                if (theaterWorldBook.isNotBlank()) appendLine("本书选用世界书（必须遵守）：\n$theaterWorldBook")
-                if (!existingTitle.isNullOrBlank()) appendLine("现有故事标题：$existingTitle")
-                if (!existingGuide.isNullOrBlank()) appendLine("现有故事地图：\n$existingGuide")
-                if (direction.isNotBlank()) appendLine("用户最想看的体验、爽点、张力、篇幅和禁忌（最高创作优先级；必须成为作品的中心）：\n$direction")
-                else appendLine("用户没有指定题材，请构思能兑现鲜明阅读体验的作品，不默认长篇或爱情线。")
-                appendLine("现在只生成第 $variant 套方案，共3套。认真完成核心内容；不需要的可选栏目可以留空。")
-                if (previous.isNotBlank()) appendLine("已经生成的方案如下，本套在场景、切入点或兑现核心看点的方式上要有差异，但不能偏离用户想看的体验：\n$previous")
-                appendLine("用户只给一句题材也完全足够。需要人物或世界背景时主动创造；不需要时不得强加男女主、恋爱、反派或宏大设定。")
-            }
-            val instruction = """
-                你是擅长各种篇幅、题材和体验的创作策划。只输出一套方案。
-                用户明确想看的爽点、张力、氛围、关系互动、篇幅以及不想看的套路，是作品唯一的创作方向；应占据主要场景与阅读体验，绝不能沦为长篇剧情的一点装饰。
-                想看龙傲天、打脸、无敌或强者臣服，就集中安排足够直接、精彩的爽感兑现，不强迫主角挫败、赎罪或成长；想看三四章的张力短片、无主线体验、氛围或纯互动，就聚焦高密度场景，不擅自写成漫长爱恨情仇。
-                只有用户明确需要长线发展时，才设计人物成长、关系弧、明暗线、伏笔与复杂阶段；复杂不等于好看。三套方案都要切合同一用户愿望，差异体现在场景和表现手法，不能为了差异而跑题。
-                必填核心字段：title（作品名）、overview（这部作品实际要呈现的体验与安排）、highlights（最重要的看点和具体高光场景）。
-                其余字段都是可选工具：worldview 世界前提、hook 开篇钩子、cast 出场人物、proseStyle 文风、wordCount 每章建议字数，以及 characterArcs 成长、relationshipCore 感情线、plotSpine 长线脉络、mainLine 明线、hiddenLine 暗线、foreshadowing 伏笔、stagePlan 阶段节奏、endingDirection 收束方向、emotionalArc 情绪曲线、romanceAesthetics 感情描写。
-                根据用户要求选择适用的字段，不需要的直接输出空字符串""；严禁为了填表凑出成长、暗线、伏笔或感情线。overview 可以是场景/体验规划，不一定是完整起承转合。
-                不生成逐章规划，三四章短篇应该能自然收束，不必延长。
-                只输出一个合法JSON对象，不要Markdown、解释或数组：
-                {"title":"","worldview":"","hook":"","overview":"","highlights":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","wordCount":"1800-3000"}
-            """.trimIndent()
 
-            val raw = LuluAiServices.gateway.generate(
-                characterId = characterId,
-                facts = facts,
-                instruction = instruction,
-                source = "剧场",
-                title = "新故事方案 $variant/3",
-                maxTokens = 5_800,
-                connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
-                contextMode = CompanionContextMode.Isolated,
-                readTimeoutMillis = 240_000,
-            ).getOrThrow().text
-
-            var candidate = parseCandidates(raw).firstOrNull()
-            if (candidate == null || !candidateCompleteEnough(candidate)) {
-                val fixed = completeSingleStoryPayload(
-                    characterId = characterId,
-                    raw = raw,
-                    direction = direction,
-                    variant = variant,
-                    theaterWorldBook = theaterWorldBook,
-                ).getOrNull()
-                if (!fixed.isNullOrBlank()) candidate = parseCandidates(fixed).firstOrNull()
-            }
-
-            if (candidate == null || !candidateCompleteEnough(candidate)) {
-                error("第${variant}套方案生成不完整。已经自动补全过一次；直接重新生成即可，不需要补男女主名字。")
-            }
-            accepted += candidate.copy(creativeIntent = direction.trim())
-            onCandidates?.invoke(accepted.toList())
-        }
-        accepted
+        val candidate = parseCandidates(raw).firstOrNull(::candidateCompleteEnough)
+            ?: error("这一套故事方案的核心内容不完整，未自动发起收费补全请求；请手动重新生成。")
+        candidate.copy(creativeIntent = direction.trim())
     }.onFailure { if (it is CancellationException) throw it }
 
     suspend fun generateStoryBible(
@@ -383,79 +328,6 @@ internal object StarWishTheaterPlanningEngine {
         // An experience-led short work need not have a main plot, romance or arcs.
         listOf(bible.overview, bible.highlights, bible.hook).any(String::isNotBlank)
 
-    private suspend fun completeSingleStoryPayload(
-        characterId: String,
-        raw: String,
-        direction: String,
-        variant: Int,
-        theaterWorldBook: String = "",
-    ): Result<String> = runCatching {
-        LuluAiServices.gateway.generate(
-            characterId = characterId,
-            facts = buildString {
-                if (theaterWorldBook.isNotBlank()) appendLine("本书选用世界书（必须遵守）：\n$theaterWorldBook")
-                if (direction.isNotBlank()) appendLine("用户原始题材：$direction")
-                appendLine("第${variant}套第一次输出如下。它可能JSON格式有问题，也可能缺字段：")
-                appendLine(raw.take(26_000))
-            },
-            instruction = """
-                只修复格式和必要核心内容，保持用户最想体验的爽点、张力、氛围或篇幅不变。
-                title、overview、highlights 要真实具体；其他字段仅在故事需要时填，不得为了凑齐栏目擅自加入人物成长、长篇感情或伏笔。需要人物时自行命名，不强制男女主。
-                只输出一个合法JSON对象：
-                {"title":"","worldview":"","hook":"","overview":"","highlights":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","wordCount":"1800-3000"}
-            """.trimIndent(),
-            source = "剧场",
-            title = "补全第${variant}套剧情方案",
-            maxTokens = 5_800,
-            connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
-            contextMode = CompanionContextMode.Isolated,
-            readTimeoutMillis = 240_000,
-        ).getOrThrow().text
-    }
-
-    private suspend fun completeStoryPayload(
-        characterId: String,
-        raw: String,
-        existingTitle: String?,
-        existingGuide: String?,
-        direction: String,
-    ): Result<String> = runCatching {
-        LuluAiServices.gateway.generate(
-            characterId = characterId,
-            facts = buildString {
-                if (!existingTitle.isNullOrBlank()) appendLine("已有标题：$existingTitle")
-                if (!existingGuide.isNullOrBlank()) appendLine("已有故事地图：\n$existingGuide")
-                if (direction.isNotBlank()) appendLine("用户题材/要求：\n$direction")
-                appendLine("第一次模型输出如下。它可能格式混乱，也可能只有第一套完整、后二套缩水；请保留可用创意并补齐：\n${raw.take(28_000)}")
-            },
-            instruction = """
-                把第一次输出整理并补全成恰好3套完整、独立、同等详细的小说方案。
-                这不仅是格式修复：如果方案2或方案3缺字段、只有一小段、只写“与方案1不同之处”，必须把它扩写成与方案1同等完整的独立方案。
-                如果用户只提供题材而没有男女主姓名/职业/身份，直接自行创造，绝对不要把缺名字当成无法规划的理由。
-                不要改变用户明确指定的题材核心。
-
-                每套必须全部包含：
-                title, worldview, hook, overview, cast, characterArcs, relationshipCore, plotSpine,
-                mainLine, hiddenLine, foreshadowing, stagePlan, endingDirection, emotionalArc,
-                proseStyle, romanceAesthetics, highlights, wordCount。
-                三套的信息量必须接近，不能只有第一套详细。
-
-                只输出合法JSON数组，顶层恰好3个对象，不要Markdown，不要解释：
-                [
-                  {"title":"","worldview":"","hook":"","overview":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","highlights":"","wordCount":"1800-3000"},
-                  {"title":"","worldview":"","hook":"","overview":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","highlights":"","wordCount":"1800-3000"},
-                  {"title":"","worldview":"","hook":"","overview":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","highlights":"","wordCount":"1800-3000"}
-                ]
-            """.trimIndent(),
-            source = "剧场",
-            title = "补全三套剧情方案",
-            maxTokens = 7_600,
-            connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
-            contextMode = CompanionContextMode.Isolated,
-            readTimeoutMillis = 240_000,
-        ).getOrThrow().text
-    }
-
     private suspend fun repairChapterPayload(
         characterId: String,
         raw: String,
@@ -527,9 +399,6 @@ internal object StarWishTheaterPlanningEngine {
             romanceAesthetics = text(obj, "romanceAesthetics", "感情描写", "审美执行", "感情戏与人物描写"),
         )
     }
-
-    private fun threeCompleteCandidates(items: List<StarWishPlotCandidate>): Boolean =
-        items.size == 3 && items.take(3).all(::candidateCompleteEnough)
 
     private fun candidateCompleteEnough(item: StarWishPlotCandidate): Boolean =
         item.title.isNotBlank() && item.overview.isNotBlank() && item.highlights.isNotBlank()
