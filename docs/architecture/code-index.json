@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T18:19:57.143608+00:00",
-  "commit": "9e9531a623be73868946c5ce1aac4e4c4252460e",
+  "generatedAt": "2026-10-08T18:20:31.527952+00:00",
+  "commit": "f0076bf6f5e957027356461949dbcc061af783dc",
   "branch": "main",
-  "sourceFingerprint": "d4aec87bfb5ad8da6061f9b8059e35af1756614d14ae183b37e3a3cc79a6d339",
+  "sourceFingerprint": "5a9dd1ccddfe7a648871560747b5c4e14ebc98dbfaa815fae435f6f92f171b47",
   "summary": {
-    "files": 366,
-    "lines": 89334,
-    "symbols": 1263
+    "files": 367,
+    "lines": 89377,
+    "symbols": 1264
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1580,6 +1580,16 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt",
         "line": 25
+      }
+    ],
+    "recent": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt",
+        "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
+        "line": 58
       }
     ],
     "ApiConfiguration": [
@@ -4846,12 +4856,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
         "line": 14
-      }
-    ],
-    "recent": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
-        "line": 58
       }
     ],
     "recentIfAvailable": [
@@ -8465,6 +8469,17 @@
         },
         {
           "name": "chatAutomaticAllowed",
+          "line": 25
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt",
+      "lines": 43,
+      "sha256": "6eb9ca97d10fe284f9d4d28b99c6e3b3a43a039d78c1944fb000059ab0566de2",
+      "symbols": [
+        {
+          "name": "recent",
           "line": 25
         }
       ]
