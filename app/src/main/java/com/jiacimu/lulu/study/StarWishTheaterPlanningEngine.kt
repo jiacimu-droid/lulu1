@@ -118,8 +118,32 @@ internal object StarWishTheaterPlanningEngine {
             核心看点与作品安排必须强调用户想体验的东西和对应的具体场景。其余栏目只在对这部作品有帮助时才填写；完全不适用的直接返回空字符串""，绝不能编造来填表，也不要填「不适用」冒充规划。
             分批返回每次指定的栏目，优先可执行的场景、情绪、爽点和节奏，不以复杂程度作为质量指标。
         """.trimIndent()
+        // Most short-form / experience-led stories use only a few director fields.
+        // Prefer one response so users do not wait for four serialized model calls.
+        // If a provider cannot return a usable full JSON, keep the proven smaller
+        // groups as a compatibility fallback (with partial results preserved).
+        val fullTemplate = JSONObject().apply {
+            theaterBibleFields.keys.forEach { put(it, "") }
+        }
+        val fullRaw = runCatching {
+            generatePlanningText(
+                characterId,
+                facts,
+                instruction + "\n尝试一次输出完整幕后规划，核心看点要具体；其余不适用字段直接空字符串。只返回JSON：" + fullTemplate,
+                "$storyTitle · 一次生成幕后规划",
+                5_200,
+            )
+        }.getOrNull()
+        if (!fullRaw.isNullOrBlank()) {
+            val fullBible = runCatching { parseStoryBible(fullRaw, writtenChapters.size) }.getOrNull()
+            if (fullBible != null && storyBibleCompleteEnough(fullBible)) {
+                onProgress?.invoke(fullBible)
+                return@runCatching fullBible
+            }
+        }
+
         var bible = StarWishStoryBible(updatedThroughChapter = writtenChapters.size)
-        // Smaller fixed groups avoid one giant JSON document failing or being truncated.
+        // Fallback: four small groups survive strict JSON / truncated responses.
         for (group in theaterBibleFields.entries.chunked(4)) {
             currentCoroutineContext().ensureActive()
             val template = JSONObject().apply { group.forEach { put(it.key, "") } }
