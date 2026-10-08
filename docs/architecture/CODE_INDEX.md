@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d7052747ab2f63e62b785c927c6f8613a5a0fe9d`
+- 基准提交：`6d746cf4eed0d48eeaca1757629a5bae9e048170`
 - 分支：`main`
 - 已索引文件：350
-- 已索引代码/文本行：87086
+- 已索引代码/文本行：87107
 - 已发现符号：1228
 
 | 文件 | 行数 | 符号数 |
@@ -339,7 +339,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 30 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 185 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 206 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 85 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 84 | 1 |
