@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T06:55:24.811729+00:00",
-  "commit": "8f8787b797cdd2065de4c6aee11f46489745f56b",
+  "generatedAt": "2026-10-08T07:14:12.742859+00:00",
+  "commit": "96f98a1d38937d0b2e443b460cd34df513f723cb",
   "branch": "main",
-  "sourceFingerprint": "23a07062ba40375167f0ae3d640da7fc0aae82fd57a964b2958e7fc48894b90b",
+  "sourceFingerprint": "2eb005eb7984ec4054333e76d015fe397340a5782a1771209e8465f95df470d3",
   "summary": {
     "files": 340,
-    "lines": 86095,
+    "lines": 86106,
     "symbols": 1213
   },
   "symbolIndex": {
@@ -271,7 +271,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 958
+        "line": 969
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -1583,47 +1583,47 @@
     "ModelConnectionStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 90
+        "line": 92
       }
     ],
     "saveConfiguration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 95
+        "line": 97
       }
     ],
     "deleteConfiguration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 126
+        "line": 128
       }
     ],
     "addArchive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 145
+        "line": 147
       }
     ],
     "removeArchive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 168
+        "line": 170
       }
     ],
     "selectArchive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 182
+        "line": 184
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 187
+        "line": 189
       }
     ],
     "selectedArchiveId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 199
+        "line": 201
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -1633,7 +1633,7 @@
     "resolveConnection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 201
+        "line": 203
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -1643,19 +1643,19 @@
     "archiveLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 215
+        "line": 217
       }
     ],
     "normalizeBaseUrl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 340
+        "line": 342
       }
     ],
     "create": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 342
+        "line": 344
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -1677,25 +1677,25 @@
     "CompanionModelGateway": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 346
+        "line": 348
       }
     ],
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 810
+        "line": 816
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 822
+        "line": 828
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 948
+        "line": 959
       }
     ],
     "consume": [
@@ -8143,8 +8143,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 966,
-      "sha256": "4ec5999e6553aad89b72473ba7de9bcf27a1253c99fa99f237e9a3e8d2861b10",
+      "lines": 977,
+      "sha256": "dfe3f3702e47c2286ec78ba3e12dfe38bdbb50e5fd51bca1efb24fbe7df6d8f5",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -8180,71 +8180,71 @@
         },
         {
           "name": "ModelConnectionStore",
-          "line": 90
+          "line": 92
         },
         {
           "name": "saveConfiguration",
-          "line": 95
+          "line": 97
         },
         {
           "name": "deleteConfiguration",
-          "line": 126
+          "line": 128
         },
         {
           "name": "addArchive",
-          "line": 145
+          "line": 147
         },
         {
           "name": "removeArchive",
-          "line": 168
+          "line": 170
         },
         {
           "name": "selectArchive",
-          "line": 182
+          "line": 184
         },
         {
           "name": "selectArchive",
-          "line": 187
+          "line": 189
         },
         {
           "name": "selectedArchiveId",
-          "line": 199
-        },
-        {
-          "name": "resolveConnection",
           "line": 201
         },
         {
+          "name": "resolveConnection",
+          "line": 203
+        },
+        {
           "name": "archiveLabel",
-          "line": 215
+          "line": 217
         },
         {
           "name": "normalizeBaseUrl",
-          "line": 340
-        },
-        {
-          "name": "create",
           "line": 342
         },
         {
+          "name": "create",
+          "line": 344
+        },
+        {
           "name": "CompanionModelGateway",
-          "line": 346
+          "line": 348
         },
         {
           "name": "publishVisibleProgress",
-          "line": 810
+          "line": 816
         },
         {
           "name": "consumeEvent",
-          "line": 822
+          "line": 828
         },
         {
           "name": "LuluAiServices",
-          "line": 948
+          "line": 959
         },
         {
           "name": "initialize",
-          "line": 958
+          "line": 969
         }
       ]
     },
