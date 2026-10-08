@@ -485,27 +485,27 @@ internal class StarWishTheaterGenerationWorker(
                     appendLine("这本剧场选用的世界书（来自世界书 App，必须遵守）：\n$theaterWorldBook")
                 }
                 bible?.promptText()?.takeIf(String::isNotBlank)?.let {
-                    appendLine("幕后长期规划（负责人物弧、明暗线、伏笔和长线节奏）：\n$it")
+                    appendLine("幕后创作规划（只采用适合本作品的栏目；空白项不必补充）：\n$it")
                 }
                 if (plans.isNotEmpty()) {
                     appendLine("本章附近的逐章规划：")
                     plans.filter { it.number in (chapterNumber - 2).coerceAtLeast(1)..(chapterNumber + 8) }
                         .forEach { plan -> appendLine("- 第${plan.number}章 ${plan.title}：${plan.outline}") }
                 }
-                if (currentPlan != null) appendLine("本章必须重点执行：${currentPlan.title}｜${currentPlan.outline}")
+                if (currentPlan != null) appendLine("本章优先兑现用户想看的核心体验与本章有效规划：${currentPlan.title}｜${currentPlan.outline}")
                 if (ledger.updatedThroughChapter > 0) appendLine("截至第${ledger.updatedThroughChapter}章的连续性档案：\n${ledger.promptText()}")
                 if (recentChapters.isNotBlank()) appendLine("最近章节原文：\n$recentChapters")
                 chapters.lastOrNull()?.content?.takeLast(1_500)?.let { appendLine("上一章结尾连续性锚点：\n$it") }
                 if (influence.isNotBlank()) appendLine("用户对本章的最高优先级要求：$influence")
             }
             val chapterInstruction = """
-                续写第 $chapterNumber 章完整中文小说正文，约1800—3200字，只输出正文。
-                这是完全独立的小剧场，不得引用任何真实角色设定、聊天、记忆、共同时间线、用户资料或未被本书选中的世界书。若本次素材中提供了“这本剧场选用的世界书”，它来自原世界书 App，是这本小说明确启用的权威规则，必须遵守。
-                用户要求优先级最高；故事地图、已选世界书、幕后规划和逐章规划负责“精彩且符合设定”，连续性档案与硬事实负责“不能写崩”。新章必须发生在上一章最后一句之后，禁止重演已经完成的动作、对白、发现或决定。
-                连续性档案里的硬事实是绝对约束：已经死亡的人不能无解释复活，亲属/身份/性别/婚恋关系不能莫名改变，伤势、物品归属、人物已知信息、阵营和地点不能回滚。若规划与正文事实冲突，以正文事实为准。尚未发生的剧情若旧总纲、幕后规划或章节规划与本次选用的最新世界书冲突，以最新世界书为准调整未来规划；不得为了执行旧规划忽略新规则。
-                人物必须有自己的欲望、判断和主动选择，事件要有因果，至少推进明线、暗线、关系线中的两条，并让伏笔有埋设、强化或回收。
-                感情戏要有让读者心动的画面感：自然描写眼神、手指、腕骨、锁骨、肩颈、衣料、声音、呼吸、距离、光影和动作停顿，用潜台词与身体距离制造张力；不要机械堆砌身体部位。
-                使用环境、五感、空间距离、动作余韵、神态、心理变化、潜台词和留白；不能流水账，也不能用直白结论代替描写。结尾留下自然钩子。不要输出提纲、解释、标题或系统提示。
+                写出第 $chapterNumber 章完整的中文小剧场正文，只输出正文。篇幅以故事地图中的每章建议字数为准，未指定时约1800—3200字；避免凑字数和无谓铺垫。
+                这是独立的小剧场，不能引用未提供的真实聊天、用户资料、角色记忆或未被本书选用的世界书；明确选用的世界书规则必须遵守。
+                第一优先级是用户原始创作要求以及由此形成的核心看点。用户若想体验无敌爽感、打脸、臣服，就在具体场面里充分兑现；若想看三四章的暧昧张力、纯情绪或无主线体验，就围绕这一体验细致展开，不强制添加成长、虐恋、幕后阴谋、反派、感情线或长篇支线。
+                幕后规划的栏目是可选手段：只执行真正存在且符合核心体验的内容，没写的明暗线、伏笔和关系线不需要临时补充。角色行动和事件必须自然、合乎已写事实，但不要求每章推进两条线。
+                新章紧接上章已发生内容，禁止重演既有动作、对白或发现。正文确认的生死、身份、关系、伤势、物品、地点和已知信息不可无解释推翻；最新选用世界书高于旧的未发生规划。
+                根据所需文风使用环境、五感、神态、动作、心理、对白停顿和潜台词营造体验，避免流水账和抽象总结。非收束章节可留下自然承接，短篇的收束章要尽情兑现看点并允许完整结束，不能强行设续集悬念。
+                不输出提纲、作者解释、标题或系统提示。
             """.trimIndent()
 
             manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, "正在写第 $chapterNumber 章正文")
@@ -592,8 +592,8 @@ internal class StarWishTheaterGenerationWorker(
             },
             instruction = """
                 为这部已经开始写作的小说补回一份简洁“故事地图”。已写正文是最高事实，不得改写、否定或让人物倒退。
-                故事地图只负责读者层面的核心方向，不承担人物卡、逐章细纲、明暗线细节或伏笔明细；这些由幕后规划负责。
-                只整理：【故事核心】【核心看点】【世界前提】【关系底色】【开篇/当前钩子】【基调与文风】。
+                故事地图只负责用户原始创作意图和核心体验；是否需要人物卡、主线、伏笔和细纲由故事类型决定，幕后规划不得强制添加。
+                优先整理：【故事核心】【核心看点】【世界前提】【基调与文风】；有必要时再写关系底色和钩子，不要编造。
                 对尚未揭晓的部分只做最保守的补全，不要凭空换题材、换人物关系或推翻前文。只输出故事地图正文，不要解释。
             """.trimIndent(),
             source = "剧场",
