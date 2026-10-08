@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`10bff12f167a22f8cc85fa097ec5b6003c7a935a`
+- 基准提交：`e2cbf65bc5ffafedf27a3b81100ecf6ea984b3ab`
 - 分支：`main`
-- 已索引文件：367
-- 已索引代码/文本行：89399
-- 已发现符号：1264
+- 已索引文件：368
+- 已索引代码/文本行：89455
+- 已发现符号：1265
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -342,6 +342,7 @@
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt` | 84 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/VoiceSynthesisPolicyTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 56 | 2 |

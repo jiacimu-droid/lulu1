@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T18:23:17.704831+00:00",
-  "commit": "10bff12f167a22f8cc85fa097ec5b6003c7a935a",
+  "generatedAt": "2026-10-08T18:23:40.342192+00:00",
+  "commit": "e2cbf65bc5ffafedf27a3b81100ecf6ea984b3ab",
   "branch": "main",
-  "sourceFingerprint": "84e3e4747276d8d1675b660e638dd59b7ef23162ad2d556b3372e2e1f35c4358",
+  "sourceFingerprint": "18085820794fcc96528cc9958ef332fbcaef1eeb2ac9ec89a1d31a57cadf7f0c",
   "summary": {
-    "files": 367,
-    "lines": 89399,
-    "symbols": 1264
+    "files": 368,
+    "lines": 89455,
+    "symbols": 1265
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6876,6 +6876,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt",
         "line": 16
+      }
+    ],
+    "VoiceSynthesisPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/VoiceSynthesisPolicyTest.kt",
+        "line": 14
       }
     ],
     "WorldExplorationContractsTest": [
@@ -14209,6 +14215,17 @@
         {
           "name": "VoicePerformanceTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/VoiceSynthesisPolicyTest.kt",
+      "lines": 56,
+      "sha256": "2082cd51462327ab170642530b921d8daa0c414f5cd481b051ab66cf949f5215",
+      "symbols": [
+        {
+          "name": "VoiceSynthesisPolicyTest",
+          "line": 14
         }
       ]
     },
