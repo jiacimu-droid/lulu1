@@ -4,8 +4,9 @@ import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.core.MemoryTier
-import com.sun.net.httpserver.HttpServer
 import kotlinx.coroutines.runBlocking
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
@@ -14,32 +15,24 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import java.net.InetSocketAddress
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ImmediateMemoryExtractionTest {
     @Test fun importantFirstMessageRetriesAndPersistsBeforeBatchThreshold() = runBlocking {
-        val calls = AtomicInteger()
-        val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
-        server.createContext("/chat/completions") { exchange ->
-            exchange.requestBody.use { it.readBytes() }
-            val count = calls.incrementAndGet()
-            val result = JSONArray().put(JSONObject().put("kind", "Fact").put("content", "用户要求以后不要用旧昵称称呼她")
-                .put("sourceEventIds", JSONArray().put("important-first")).put("tier", "Core").put("strength", 10))
-            val body = if (count == 1) "temporary failure" else JSONObject().put("choices", JSONArray().put(
-                JSONObject().put("message", JSONObject().put("content", result.toString())).put("finish_reason", "stop"))).toString()
-            val bytes = body.toByteArray(Charsets.UTF_8)
-            exchange.responseHeaders.add("Content-Type", "application/json")
-            exchange.sendResponseHeaders(if (count == 1) 503 else 200, bytes.size.toLong())
-            exchange.responseBody.use { it.write(bytes) }
-        }
+        val server = MockWebServer()
+        val result = JSONArray().put(JSONObject().put("kind", "Fact").put("content", "用户要求以后不要用旧昵称称呼她")
+            .put("sourceEventIds", JSONArray().put("important-first")).put("tier", "Core").put("strength", 10))
+        val body = JSONObject().put("choices", JSONArray().put(
+            JSONObject().put("message", JSONObject().put("content", result.toString())).put("finish_reason", "stop"))).toString()
+        server.enqueue(MockResponse().setResponseCode(503).setBody("temporary failure"))
+        server.enqueue(MockResponse().setHeader("Content-Type", "application/json").setBody(body))
         server.start()
         try {
             val context = RuntimeEnvironment.getApplication() as Context
             context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE).edit()
-                .putString("memory_extract_url", "http://127.0.0.1:${server.address.port}")
+                .putString("memory_extract_url", server.url("/").toString())
                 .putString("memory_extract_key", "test-only").putString("memory_extract_model", "test-memory").commit()
             LuluRepositories.initialize(context)
             SharedExperienceTimeline.initialize(context)
@@ -50,11 +43,12 @@ class ImmediateMemoryExtractionTest {
             assertTrue(LuluRepositories.memory.snapshot("role").isEmpty())
             LuluRepositories.memory.summarizeNow("role")
             assertEquals(MemoryTier.Core, LuluRepositories.memory.snapshot("role").single().tier)
-            assertEquals(2, calls.get())
+            assertEquals(2, server.requestCount)
+            repeat(2) { assertEquals("/chat/completions", server.takeRequest(5, TimeUnit.SECONDS)?.path) }
             val restored = LocalMemoryRepository().apply { initialize(context) }
             restored.summarizeNow("role")
-            assertEquals(2, calls.get()) // Successful immediate checkpoint survives restart.
+            assertEquals(2, server.requestCount) // Successful immediate checkpoint survives restart.
             assertEquals(MemoryTier.Core, restored.snapshot("role").single().tier)
-        } finally { server.stop(0) }
+        } finally { server.shutdown() }
     }
 }

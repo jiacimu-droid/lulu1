@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T12:46:55.555399+00:00",
-  "commit": "f09869f15842857bd8bd3b8dc363a9ed1ac8d708",
-  "branch": "main",
-  "sourceFingerprint": "90e574595ace61755619289487e9d34bb4d583de23d2caa1859a0b14e82c83a1",
+  "generatedAt": "2026-10-08T13:41:14.662862+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "fb3283054f53e30c5d116be9eecb45e2265309804eb6e2bda343303351ce20a2",
   "summary": {
     "files": 356,
-    "lines": 87907,
+    "lines": 87902,
     "symbols": 1240
   },
   "symbolIndex": {
@@ -6936,8 +6936,8 @@
   "files": [
     {
       "path": "app/build.gradle.kts",
-      "lines": 130,
-      "sha256": "cf632e3eb71b172dacf53b30fa2d2119615143cd32ec62006dc919eb3ea2b8cd",
+      "lines": 131,
+      "sha256": "5867e38fab6c2b1b96bc4fcf48b94d97bcb16d79aeade24b04e64e7bf771d446",
       "symbols": []
     },
     {
@@ -14037,8 +14037,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt",
-      "lines": 61,
-      "sha256": "bb62b4eef1ce7e625b0d8c8573f6f90c9aa39c46074874d1ed6857450a6393a5",
+      "lines": 55,
+      "sha256": "0ef8b5208e3d244e7c56ef5aa1ae6801d5a0d63a7922ac0e189a2fb30bc85ca8",
       "symbols": [
         {
           "name": "ImmediateMemoryExtractionTest",
