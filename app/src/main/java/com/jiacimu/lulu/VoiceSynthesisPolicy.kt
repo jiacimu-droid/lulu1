@@ -21,8 +21,18 @@ internal object VoiceSynthesisPolicy {
         return p.getBoolean("tts_enabled", true) && p.getBoolean("tts_auto_speak", true)
     }
 
-    /** The global switch must not silently charge for automatic audio when it is off. */
+    /** Audible automatic cloud speech only: sending TTS while media volume is zero wastes credits. */
+    fun automaticPlayable(context: Context): Boolean {
+        if (!automaticAllowed(context)) return false
+        val prefs = context.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
+        val provider = prefs.getString("tts_provider", "system").orEmpty()
+        if (provider !in setOf("elevenlabs", "minimax")) return true
+        val manager = context.getSystemService(Context.AUDIO_SERVICE) as? android.media.AudioManager
+        return manager == null || manager.getStreamVolume(android.media.AudioManager.STREAM_MUSIC) > 0
+    }
+
+    /** The global switch and individual role switch must both permit an audible automatic voice. */
     fun chatAutomaticAllowed(context: Context, characterId: String): Boolean =
-        automaticAllowed(context) &&
+        automaticPlayable(context) &&
             com.jiacimu.lulu.data.CharacterVoicePreferenceStore.isEnabled(characterId)
 }
