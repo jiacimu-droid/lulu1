@@ -33,6 +33,7 @@ internal data class StarWishTheaterTask(
     val requestId: String = "",
     val influence: String = "",
     val updatedAtMillis: Long = System.currentTimeMillis(),
+    val repairChapterId: String = "",
 ) {
     val active: Boolean get() = status == StarWishTheaterTaskStatus.QUEUED || status == StarWishTheaterTaskStatus.RUNNING
 }
@@ -43,7 +44,7 @@ internal class StarWishTheaterGenerationManager private constructor(context: Con
     private val mutable = MutableStateFlow(load())
     val tasks: StateFlow<Map<String, StarWishTheaterTask>> = mutable.asStateFlow()
 
-    @Synchronized fun enqueue(theater: String, influence: String): Result<Unit> = runCatching {
+    @Synchronized fun enqueue(theater: String, influence: String, repairChapterId: String = ""): Result<Unit> = runCatching {
         val cleanTheater = theater.trim()
         require(cleanTheater.isNotBlank()) { "故事名称不能为空" }
         val existing = tasks.value[cleanTheater]
@@ -54,14 +55,20 @@ internal class StarWishTheaterGenerationManager private constructor(context: Con
         check(StarWishPlanGenerationManager.get(appContext).tasks.value[cleanTheater]?.active != true) { "请等规划生成完成后再续写" }
         require(influence.trim().length <= 3_000) { "剧情要求最多3000字，请精简后重试" }
         val requestId = UUID.randomUUID().toString()
-        val chapterNumber = StarWishStores.main.state.value.theaterChapters[cleanTheater].orEmpty().size + 1
+        val savedChapters = StarWishStores.main.state.value.theaterChapters[cleanTheater].orEmpty()
+        val repairChapter = if (repairChapterId.isNotBlank()) savedChapters.lastOrNull()?.takeIf { it.id == repairChapterId }
+            ?: error("只能补全最后一章，章节已变化，请重新进入") else null
+        val chapterNumber = repairChapter?.chapter ?: savedChapters.size + 1
         check(chapterNumber <= StarWishRules.MAX_CHAPTERS_PER_THEATER) { "已达到本书章节上限" }
-        setTask(StarWishTheaterTask(cleanTheater, chapterNumber, StarWishTheaterTaskStatus.QUEUED, "等待模型开始续写", requestId, influence.trim()))
+        setTask(StarWishTheaterTask(cleanTheater, chapterNumber, StarWishTheaterTaskStatus.QUEUED,
+            if (repairChapter != null) "等待补全第 $chapterNumber 章" else "等待模型开始续写",
+            requestId, influence.trim(), repairChapterId = repairChapterId))
         val request = OneTimeWorkRequestBuilder<StarWishTheaterGenerationWorker>()
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInputData(Data.Builder()
                 .putString(KEY_THEATER, cleanTheater)
                 .putString(KEY_INFLUENCE, influence.trim())
+                .putString(KEY_REPAIR_CHAPTER_ID, repairChapterId)
                 .putString(KEY_REQUEST_ID, requestId)
                 .build())
             .build()
@@ -106,7 +113,8 @@ internal class StarWishTheaterGenerationManager private constructor(context: Con
             mutable.value.values.forEach { task ->
                 put(JSONObject()
                     .put("theater", task.theater).put("chapter", task.chapterNumber)
-                    .put("requestId", task.requestId).put("influence", task.influence).put("status", task.status.name).put("message", task.message).put("updatedAt", task.updatedAtMillis))
+                    .put("requestId", task.requestId).put("influence", task.influence).put("status", task.status.name).put("message", task.message).put("updatedAt", task.updatedAtMillis)
+                    .put("repairChapterId", task.repairChapterId))
             }
         }.toString()).apply()
     }
@@ -128,6 +136,7 @@ internal class StarWishTheaterGenerationManager private constructor(context: Con
                     requestId = item.optString("requestId"),
                     influence = item.optString("influence"),
                     updatedAtMillis = item.optLong("updatedAt", System.currentTimeMillis()),
+                    repairChapterId = item.optString("repairChapterId"),
                 ))
             }
         }
@@ -140,6 +149,7 @@ internal class StarWishTheaterGenerationManager private constructor(context: Con
         internal const val KEY_REQUEST_ID = "request_id"
         internal const val KEY_THEATER = "theater"
         internal const val KEY_INFLUENCE = "influence"
+        internal const val KEY_REPAIR_CHAPTER_ID = "repair_chapter_id"
         @Volatile private var instance: StarWishTheaterGenerationManager? = null
 
         fun get(context: Context): StarWishTheaterGenerationManager = instance ?: synchronized(this) {
@@ -393,6 +403,7 @@ internal class StarWishTheaterGenerationWorker(
     override suspend fun doWork(): Result {
         val theater = inputData.getString(StarWishTheaterGenerationManager.KEY_THEATER).orEmpty().trim()
         val influence = inputData.getString(StarWishTheaterGenerationManager.KEY_INFLUENCE).orEmpty().trim()
+        val repairChapterId = inputData.getString(StarWishTheaterGenerationManager.KEY_REPAIR_CHAPTER_ID).orEmpty()
         if (theater.isBlank()) return Result.failure()
         val requestId = inputData.getString(StarWishTheaterGenerationManager.KEY_REQUEST_ID).orEmpty()
         val manager = StarWishTheaterGenerationManager.get(applicationContext)
@@ -415,13 +426,17 @@ internal class StarWishTheaterGenerationWorker(
         }
         val chapters = snapshot.theaterChapters[theater].orEmpty()
         val requestedChapter = manager.tasks.value[theater]?.chapterNumber ?: return Result.success()
-        if (chapters.size >= requestedChapter) {
+        val repairChapter = if (repairChapterId.isNotBlank()) chapters.lastOrNull()?.takeIf {
+            it.id == repairChapterId && it.chapter == requestedChapter
+        } ?: return Result.failure() else null
+        if (repairChapter == null && chapters.size >= requestedChapter) {
             manager.mark(theater, requestId, StarWishTheaterTaskStatus.SUCCEEDED, "第 $requestedChapter 章已保存")
             return Result.success()
         }
         val theaterWorldBook = worldBookContext.promptText()
-        val chapterNumber = chapters.size + 1
-        manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, "正在生成第 $chapterNumber 章；退出页面也会继续")
+        val chapterNumber = repairChapter?.chapter ?: chapters.size + 1
+        manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING,
+            if (repairChapter != null) "正在补全第 $chapterNumber 章已有正文" else "正在生成第 $chapterNumber 章；退出页面也会继续")
         return try {
             val builtInSeed = StarWishRules.theaters.firstOrNull { it.title == theater }
             var guide = snapshot.theaterGuides[theater].orEmpty().trim()
@@ -522,6 +537,7 @@ internal class StarWishTheaterGenerationWorker(
                 theaterWorldBook.hashCode().toString(),
                 bible.promptText().hashCode().toString(),
                 influence.hashCode().toString(),
+                repairChapter?.content?.hashCode()?.toString().orEmpty(),
             ).joinToString("|")
             val savedDraft = runCatching {
                 JSONObject(draftPrefs.getString(draftKey, "{}").orEmpty()).takeIf {
@@ -539,7 +555,7 @@ internal class StarWishTheaterGenerationWorker(
                 }
             }
 
-            var rawChapter = savedDraft
+            var rawChapter = savedDraft.ifBlank { repairChapter?.content.orEmpty() }
             var lastFinishReason: String? = null
             if (rawChapter.isBlank()) {
                 var lastGenerationError: Throwable? = null
@@ -620,7 +636,7 @@ internal class StarWishTheaterGenerationWorker(
             val reply = TheaterChapterCompletion.clean(rawChapter)
             check(reply.isNotBlank()) { "生成正文为空，草稿已保留" }
 
-            val chapter = StarWishTheaterChapter(
+            val chapter = repairChapter?.copy(content = reply) ?: StarWishTheaterChapter(
                 theater = theater,
                 chapter = chapterNumber,
                 title = currentPlan?.title?.trim().orEmpty().ifBlank { "第 $chapterNumber 章" },
@@ -628,20 +644,30 @@ internal class StarWishTheaterGenerationWorker(
                 userInfluence = influence,
             )
             coroutineContext.ensureActive()
-            manager.commitIfCurrent(theater, requestId) {
-                worldBookContext.requireUnchanged(selectedIds, LuluRepositories.worldBook.snapshot())
-                store.appendGeneratedChapter(chapter, expected)
-                draftPrefs.edit().remove(draftKey).apply()
+            if (repairChapter != null) {
+                saveProgress { store.updateChapter(theater, repairChapter.id, chapter.title, reply) }
+            } else {
+                manager.commitIfCurrent(theater, requestId) {
+                    worldBookContext.requireUnchanged(selectedIds, LuluRepositories.worldBook.snapshot())
+                    store.appendGeneratedChapter(chapter, expected)
+                }
             }
-            // The chapter is already durable. A failed auxiliary request must not hide it or regenerate it.
+            // Only clear the draft after its corresponding text has been saved.
+            draftPrefs.edit().remove(draftKey).apply()
+            // A failed auxiliary ledger request must never delete the saved prose.
             val updated = updateLedger(theater, guide, plans, ledger, chapter)
                 ?: theaterLedgerFromEvidence(ledger, listOf(chapter))
             coroutineContext.ensureActive()
-            manager.commitIfCurrent(theater, requestId) {
-                store.setGeneratedLedger(theater, updated, expected, chapter)
+            if (repairChapter != null) {
+                saveProgress { store.setLedger(theater, updated) }
+            } else {
+                manager.commitIfCurrent(theater, requestId) {
+                    store.setGeneratedLedger(theater, updated, expected, chapter)
+                }
             }
             manager.mark(theater, requestId, StarWishTheaterTaskStatus.SUCCEEDED,
-                if (updated.evidenceOnly) "第 $chapterNumber 章已保存；连续性暂用已保存正文证据" else "第 $chapterNumber 章已生成")
+                if (repairChapter != null) "第 $chapterNumber 章已补全并保存"
+                else if (updated.evidenceOnly) "第 $chapterNumber 章已保存；连续性暂用已保存正文证据" else "第 $chapterNumber 章已生成")
             Result.success()
         } catch (cancelled: CancellationException) {
             manager.mark(theater, requestId, StarWishTheaterTaskStatus.QUEUED, "任务暂时中断，等待系统继续")
