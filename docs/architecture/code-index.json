@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T11:30:18.800917+00:00",
-  "commit": "20159cfd9515cabc95436dde869b403ca89b566b",
+  "generatedAt": "2026-10-08T11:31:18.013187+00:00",
+  "commit": "115ead7f98e2b2fe7aa78a001a950958b4aa11a6",
   "branch": "main",
-  "sourceFingerprint": "704ae99231a02962c904a80ad05425176ec44ab20daf4e3a0fbb3c648a3fc45c",
+  "sourceFingerprint": "387e2e21a1c13181bbb9e96e378fb04be2b42740256ea9fec29ae57ac25d5d8a",
   "summary": {
-    "files": 346,
-    "lines": 86767,
-    "symbols": 1223
+    "files": 347,
+    "lines": 86790,
+    "symbols": 1224
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6560,6 +6560,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
         "line": 10
+      }
+    ],
+    "overusedIn": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterProseRhythm.kt",
+        "line": 13
       }
     ],
     "requireUnchanged": [
@@ -13502,6 +13508,17 @@
         {
           "name": "parse",
           "line": 10
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterProseRhythm.kt",
+      "lines": 23,
+      "sha256": "b1ebc8f9bfeb78f08884c37d663bcc59d6290d7ca47c0c850b88b49fc202ae45",
+      "symbols": [
+        {
+          "name": "overusedIn",
+          "line": 13
         }
       ]
     },
