@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2c8f253a7da74726f964e6f10bf220a7211e9887`
+- 基准提交：`a5d375783f6e2a0a3c54a7d9bf42ec296730cc6f`
 - 分支：`main`
 - 已索引文件：349
-- 已索引代码/文本行：86911
+- 已索引代码/文本行：86933
 - 已发现符号：1227
 
 | 文件 | 行数 | 符号数 |
@@ -21,7 +21,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 72 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 464 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 240 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 200 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 222 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/ChatErrorNotice.kt` | 16 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt` | 121 | 9 |
