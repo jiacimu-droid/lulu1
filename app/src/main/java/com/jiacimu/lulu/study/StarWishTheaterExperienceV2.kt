@@ -1200,13 +1200,17 @@ private fun TheaterPlotGeneratorV2(
                                 generatingJob = scope.launch {
                                     val requestContext = liveWorldBookContext
                                     try {
-                                        StarWishTheaterPlanningEngine.generateStoryCandidates(characterId, existingTitle, existingGuide,
-                                            direction.trim(), requestContext.promptText(), onCandidates = { partial ->
-                                                check(requestContext == latestWorldBookContext) { "世界书已更新，请重新生成方案。" }
+                                        StarWishTheaterPlanningEngine.generateStoryCandidate(
+                                            characterId, existingTitle, existingGuide, direction.trim(), requestContext.promptText(),
+                                        ).onSuccess { proposal ->
+                                            if (requestContext == latestWorldBookContext) {
                                                 candidateWorldBookContext = requestContext
-                                                candidates = partial
+                                                candidates = listOf(proposal)
                                                 collapsedIndices = emptySet()
-                                            }).onFailure { error = it.message ?: "剧情规划生成失败；已完成的方案仍可选择" }
+                                            } else {
+                                                error = "世界书已更新，请重新生成故事。"
+                                            }
+                                        }.onFailure { error = it.message ?: "故事方案生成失败，请重新尝试" }
                                     } catch (cancelled: CancellationException) {
                                         throw cancelled
                                     } finally { generating = false }
@@ -1220,16 +1224,16 @@ private fun TheaterPlotGeneratorV2(
                                 CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
                                 Spacer(Modifier.width(8.dp))
                             }
-                            Text(if (generating) "正在构思第 ${(candidates.size + 1).coerceAtMost(3)} 套方案" else if (candidates.isEmpty()) "生成三套剧情方案" else "重新生成三套方案")
+                            Text(if (generating) "正在构思这部故事" else if (candidates.isEmpty()) "生成一套故事方案" else "重新生成故事方案")
                         }
                     }
                 }
             }
             if (generating) item {
-                TextButton(onClick = { generatingJob?.cancel() }) { Text("停止构思，保留已完成方案") }
+                TextButton(onClick = { generatingJob?.cancel() }) { Text("停止构思") }
             }
             if (error.isNotBlank()) item { Text(error, color = MaterialTheme.colorScheme.error) }
-            if (candidates.isNotEmpty()) item { Text("选择一套剧情", fontSize = 20.sp, fontWeight = FontWeight.Bold) }
+            if (candidates.isNotEmpty()) item { Text("生成的故事方案", fontSize = 20.sp, fontWeight = FontWeight.Bold) }
             items(candidates.size) { index ->
                 val item = candidates[index]
                 val expanded = index !in collapsedIndices
@@ -1242,7 +1246,7 @@ private fun TheaterPlotGeneratorV2(
                     Column(Modifier.padding(16.dp).animateContentSize(), verticalArrangement = Arrangement.spacedBy(9.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
-                                Text("方案 ${index + 1}", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium)
+                                Text("故事方案", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium)
                                 Text(item.title, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                             }
                             TextButton(
@@ -1279,7 +1283,7 @@ private fun TheaterPlotGeneratorV2(
                             else error = "世界书已更新，请重新生成方案。"
                         }, enabled = candidateWorldBookContext == liveWorldBookContext,
                             modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) {
-                            Text(if (existingTitle == null) "选择这套并加入书架" else "应用这套剧情规划")
+                            Text(if (existingTitle == null) "创建此故事并加入书架" else "应用这套剧情规划")
                         }
                     }
                 }
