@@ -11,17 +11,13 @@ internal object OnlineChatBatchStore {
 
     @Synchronized fun next(context: Context, characterId: String, collectMessages: Boolean, now: Long = System.currentTimeMillis()): Batch {
         val p = prefs(context)
-        // A pending batch uses a *trailing-edge* quiet window: every newly
-        // scheduled message moves the deadline three seconds after that message.
-        // Once a reply is actually being read, new messages open their own batch.
+        // First-bubble window, NOT a debounce: the first message starts the
+        // 3s reading buffer. Further bubbles join it without restarting it.
+        // A wake/reply button only brings the role online; it must not skip
+        // this pending window or trigger the typing indicator itself.
         val pendingRevision = p.getLong("revision:$characterId", 0)
         if (p.contains("due:$characterId") && (characterId to pendingRevision) !in reading) {
-            val existingDue = p.getLong("due:$characterId", now)
-            val due = if (collectMessages) now + QUIET_MILLIS else existingDue
-            if (due != existingDue) {
-                check(p.edit().putLong("due:$characterId", due).commit()) { "在线消息静默期保存失败" }
-            }
-            return Batch(pendingRevision, due)
+            return Batch(pendingRevision, p.getLong("due:$characterId", now))
         }
         val revision = pendingRevision + 1
         val due = if (collectMessages) now + QUIET_MILLIS else now
