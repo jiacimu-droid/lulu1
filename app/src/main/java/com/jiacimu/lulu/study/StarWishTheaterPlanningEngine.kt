@@ -24,42 +24,26 @@ internal object StarWishTheaterPlanningEngine {
             currentCoroutineContext().ensureActive()
             val previous = accepted.joinToString("\n") { "《${it.title}》：${it.hook.take(180)}" }
             val facts = buildString {
-                appendLine("这是剧场 App 的独立长篇小说策划任务。")
+                appendLine("这是剧场 App 的独立创作策划任务，作品可以是长篇、三四章短篇、纯爽文、氛围短片或单一体验，不默认主线和人物成长。")
                 if (theaterWorldBook.isNotBlank()) appendLine("本书选用世界书（必须遵守）：\n$theaterWorldBook")
                 if (!existingTitle.isNullOrBlank()) appendLine("现有故事标题：$existingTitle")
                 if (!existingGuide.isNullOrBlank()) appendLine("现有故事地图：\n$existingGuide")
-                if (direction.isNotBlank()) appendLine("用户提供的题材/一句话主题（最高优先级）：\n$direction")
-                else appendLine("用户没有指定题材，请主动构思适合长篇发展的故事。")
-                appendLine("现在只生成第 $variant 套方案，共3套。必须完整写完这一套，不能省略字段。")
-                if (previous.isNotBlank()) appendLine("已经生成的方案如下，本套在人物动机、冲突、暗线、感情推进或结局路径上必须明显不同：\n$previous")
-                appendLine("用户只给一句题材也完全足够。若没有男女主姓名、职业、身份、世界背景，请你主动创造并命名，不得因为缺名字而省略任何部分。")
+                if (direction.isNotBlank()) appendLine("用户最想看的体验、爽点、张力、篇幅和禁忌（最高创作优先级；必须成为作品的中心）：\n$direction")
+                else appendLine("用户没有指定题材，请构思能兑现鲜明阅读体验的作品，不默认长篇或爱情线。")
+                appendLine("现在只生成第 $variant 套方案，共3套。认真完成核心内容；不需要的可选栏目可以留空。")
+                if (previous.isNotBlank()) appendLine("已经生成的方案如下，本套在场景、切入点或兑现核心看点的方式上要有差异，但不能偏离用户想看的体验：\n$previous")
+                appendLine("用户只给一句题材也完全足够。需要人物或世界背景时主动创造；不需要时不得强加男女主、恋爱、反派或宏大设定。")
             }
             val instruction = """
-                你是成熟的长篇类型小说总策划。只输出一套完整方案。
-                目标只有两个：精彩、连贯。人物必须鲜明、有欲望、有主动选择；剧情必须有因果、冲突、转折、伏笔与回收；感情线要能支撑长篇推进。
-
-                这一套必须完整包含：
-                title：故事名。
-                worldview：世界观、时代/行业/环境规则与人物处境。
-                hook：最强开篇钩子。
-                overview：从开篇到结局方向的故事总纲。
-                highlights：核心看点、爽点、虐点、反转卖点。
-                cast：主要人物与人设，至少男女主；姓名、身份、外貌气质、欲望、恐惧、底线、秘密、行为方式。
-                characterArcs：主要人物成长/变化弧，以及变化由什么事件推动。
-                relationshipCore：男女主和关键关系的长期感情线。
-                plotSpine：整本书的长线故事脉络、阶段目标、关键转折和高潮。
-                mainLine：明线目标、阻力与推进。
-                hiddenLine：暗线真相、幕后因果和揭露节奏。
-                foreshadowing：伏笔系统，至少4项，写明表层含义、真实含义、埋设阶段、预计回收阶段。
-                stagePlan：阶段节奏，安排冲突、甜点、低谷、反转、高潮与喘息，避免故事几章就耗尽。
-                endingDirection：结局方向与必须兑现的核心承诺。
-                emotionalArc：读者情绪曲线。
-                proseStyle：可执行文风，包括镜头、五感、对白、心理、留白、意象。
-                romanceAesthetics：感情戏与人物吸引力描写原则；自然运用眼神、手、腕骨、锁骨、肩颈、衣料、声音、呼吸、距离、光影、动作停顿和潜台词制造心动感，不机械堆砌身体部位。
-                wordCount：每章建议字数。
-
-                不要生成逐章规划，章节数量由用户之后建立空白章节。
-                只输出一个合法JSON对象，不要Markdown，不要解释，不要外层数组：
+                你是擅长各种篇幅、题材和体验的创作策划。只输出一套方案。
+                用户明确想看的爽点、张力、氛围、关系互动、篇幅以及不想看的套路，是作品唯一的创作方向；应占据主要场景与阅读体验，绝不能沦为长篇剧情的一点装饰。
+                想看龙傲天、打脸、无敌或强者臣服，就集中安排足够直接、精彩的爽感兑现，不强迫主角挫败、赎罪或成长；想看三四章的张力短片、无主线体验、氛围或纯互动，就聚焦高密度场景，不擅自写成漫长爱恨情仇。
+                只有用户明确需要长线发展时，才设计人物成长、关系弧、明暗线、伏笔与复杂阶段；复杂不等于好看。三套方案都要切合同一用户愿望，差异体现在场景和表现手法，不能为了差异而跑题。
+                必填核心字段：title（作品名）、overview（这部作品实际要呈现的体验与安排）、highlights（最重要的看点和具体高光场景）。
+                其余字段都是可选工具：worldview 世界前提、hook 开篇钩子、cast 出场人物、proseStyle 文风、wordCount 每章建议字数，以及 characterArcs 成长、relationshipCore 感情线、plotSpine 长线脉络、mainLine 明线、hiddenLine 暗线、foreshadowing 伏笔、stagePlan 阶段节奏、endingDirection 收束方向、emotionalArc 情绪曲线、romanceAesthetics 感情描写。
+                根据用户要求选择适用的字段，不需要的直接输出空字符串""；严禁为了填表凑出成长、暗线、伏笔或感情线。overview 可以是场景/体验规划，不一定是完整起承转合。
+                不生成逐章规划，三四章短篇应该能自然收束，不必延长。
+                只输出一个合法JSON对象，不要Markdown、解释或数组：
                 {"title":"","worldview":"","hook":"","overview":"","highlights":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","wordCount":"1800-3000"}
             """.trimIndent()
 
@@ -90,7 +74,7 @@ internal object StarWishTheaterPlanningEngine {
             if (candidate == null || !candidateCompleteEnough(candidate)) {
                 error("第${variant}套方案生成不完整。已经自动补全过一次；直接重新生成即可，不需要补男女主名字。")
             }
-            accepted += candidate
+            accepted += candidate.copy(creativeIntent = direction.trim())
             onCandidates?.invoke(accepted.toList())
         }
         accepted
@@ -119,7 +103,7 @@ internal object StarWishTheaterPlanningEngine {
                 appendLine("本剧场专属世界书（已开启条目，必须遵守）：\n$theaterWorldBook")
             }
             existingBible?.promptText()?.takeIf(String::isNotBlank)?.let {
-                appendLine("旧幕后规划，仅供继承仍然有效的长期结构：\n$it")
+                appendLine("旧幕后规划只作参考：如果未发生的长线、感情或伏笔与最新故事地图及用户创作要求不符，必须舍弃：\n$it")
             }
             ledger?.promptText()?.takeIf(String::isNotBlank)?.let {
                 appendLine("正文确认的当前状态与硬事实，优先级最高：\n$it")
@@ -127,20 +111,12 @@ internal object StarWishTheaterPlanningEngine {
             if (writtenEvidence.isNotBlank()) appendLine("最近已写正文证据：\n$writtenEvidence")
         }
         val instruction = """
-            你是这部长篇小说的幕后总导演。请生成/刷新一份“幕后规划”，它不是逐章规划，而是长期稳定的故事圣经。
-            已经写出的正文和连续性档案中的硬事实是最高事实：人物死亡、生死状态、亲属关系、身份、性别、婚姻/恋爱关系、阵营、已知秘密、伤势、物品归属、地点与已经发生的关键事件绝对不能被未来规划改写。
-            可以为了更精彩而重新设计尚未发生的未来剧情，但必须自然承接已经写出的内容，不能让人物性格和关系无理由跳变。
-
-            幕后规划与新建故事方案必须使用同一套模板。完整保留并刷新：
-            worldview 世界观、overview 故事总纲、hook 核心钩子、highlights 核心看点、
-            emotionalArc 情绪曲线、proseStyle 文风执行、cast 人物与人设、characterArcs 人物成长弧、
-            relationshipArc 长期感情线、plotSpine 故事脉络/主线、mainLine 明线、hiddenLine 暗线、
-            foreshadows 伏笔系统、stagePlan 阶段高潮与节奏、endingDirection 结局方向、
-            romanceAesthetics 感情戏与人物吸引力的描写审美。
-            已经写出的正文优先级最高；可以调整尚未发生的未来，但不得为了新规划推翻已确认事实。
-
-            目标只有两个：精彩、连贯。未来规划要有主动人物、因果链、伏笔与回收、关系变化和真正推进的事件。
-            框架分批填写，每次只返回本次指定的栏目；不要自行重新输出全部栏目。
+            你是这部作品的幕后体验导演，而非默认长篇小说策划。用户原始创作要求和故事地图中的核心看点决定一切：爽点就要直接兑现，三四章短篇就要快速建立与释放张力，纯氛围、互动或片段体验无需主线、反派、成长或长篇爱情。只有明确需要复杂长线时才规划明暗线、伏笔和成长。
+            已写正文与连续性档案中的生死、身份、关系、重要伤势、物品归属、地点和已发生事实不可无解释改写。旧幕后规划中未发生的内容不能压倒用户新要求。
+            保留16栏格式用于页面和存档兼容，但它们只是可选工具箱：
+            worldview 世界观、overview 核心安排、hook 钩子、highlights 核心看点、cast 人物、characterArcs 人物成长、relationshipArc 感情线、plotSpine 故事脉络、mainLine 明线、hiddenLine 暗线、foreshadows 伏笔、stagePlan 阶段节奏、endingDirection 收束、emotionalArc 情绪、proseStyle 文风、romanceAesthetics 感情描写。
+            核心看点与作品安排必须强调用户想体验的东西和对应的具体场景。其余栏目只在对这部作品有帮助时才填写；完全不适用的直接返回空字符串""，绝不能编造来填表，也不要填「不适用」冒充规划。
+            分批返回每次指定的栏目，优先可执行的场景、情绪、爽点和节奏，不以复杂程度作为质量指标。
         """.trimIndent()
         var bible = StarWishStoryBible(updatedThroughChapter = writtenChapters.size)
         // Smaller fixed groups avoid one giant JSON document failing or being truncated.
@@ -150,29 +126,16 @@ internal object StarWishTheaterPlanningEngine {
             val raw = generatePlanningText(
                 characterId, facts + "\n已经填入本轮框架的内容：\n" + bible.promptText(),
                 instruction + "\n本次只填写这些栏目：" + group.joinToString { "${it.key}（${it.value}）" } +
-                    "。每栏写清具体因果与可执行内容；不适用的栏目说明原因，不留空。不要求固定字数。\n只返回本次模板：" + template,
+                    "。适用的栏目写出具体可执行内容；不需要的栏目直接留空，不解释、不凑数。不要求固定字数。\n只返回本次模板：" + template,
                 "$storyTitle · " + group.joinToString { it.value }, 3_200,
             )
             val partial = runCatching { parseStoryBible(raw, writtenChapters.size) }.getOrNull()
             if (partial != null) {
                 bible = partial.withMissingFieldsFrom(bible)
-                onProgress?.invoke(bible.withMissingFieldsFrom(existingBible))
+                onProgress?.invoke(bible)
             }
-            // Missing slots are repaired individually; all already-filled slots stay saved.
-            for (field in group) {
-                if (bible.fieldValues()[field.key].orEmpty().isNotBlank()) continue
-                val value = generatePlanningText(characterId,
-                    facts + "\n本轮已填内容：\n" + bible.promptText(),
-                    "只补充幕后规划中的“${field.value}”。与现有人物、世界书和正文事实一致。只输出这一栏的实质文字，不输出JSON、解释或其他栏目；不适用时说明具体原因。",
-                    "$storyTitle · 补充${field.value}", 1_200).trim()
-                val parsed = runCatching { parseStoryBible(value, writtenChapters.size) }.getOrNull()
-                val content = parsed?.fieldValues()?.get(field.key)?.takeIf(String::isNotBlank)
-                    ?: value.takeUnless { it.startsWith("{") || it.startsWith("[") || it.startsWith("```") }.orEmpty()
-                check(content.isNotBlank()) { "${field.value}尚未生成，已填栏目已经保存" }
-                bible = parseStoryBible(JSONObject().put(field.key, content).toString(), writtenChapters.size)
-                    .withMissingFieldsFrom(bible)
-                onProgress?.invoke(bible.withMissingFieldsFrom(existingBible))
-            }
+            // Deliberate empty optional slots are not errors and must never be filled
+            // by another API call inventing unwanted character arcs or subplots.
         }
         check(storyBibleCompleteEnough(bible)) { "幕后规划关键栏目尚未填写，已填内容已经保存" }
         bible
@@ -237,25 +200,13 @@ internal object StarWishTheaterPlanningEngine {
                 if (previous.isNotBlank()) appendLine("前几章规划，仅用于连续性：\n$previous")
             }
             val instruction = """
-                你是小说作者兼剧情导演。根据故事地图、幕后长期规划和正文已确认事实，为指定章节生成真正可执行的逐章写作框架。
-                已写正文与硬事实优先级最高；不得让死人复活、亲属关系变动、身份/伤势/物品/已知信息回滚，除非正文明确给出合理反转依据。
-                不要重写故事核心；“重新生成”的目标是让尚未发生的后续更有吸引力、更有因果、更想让人继续读，而不是推翻前文。
-                女主与其他主要人物一样可以正常写出明确的想法、选择和后果。用户若在“影响下一章”里改变女主行为，以用户最新输入和已生成正文为准，后续规划自然改道即可。
-
-                每一章的 outline 必须明确写出：
-                1. 本章在全书中的阶段功能；
-                2. 3—6个按因果顺序发生的具体事件；
-                3. 主要人物各自主动做出的选择与后果；
-                4. 关系变化；
-                5. 明线推进；
-                6. 暗线推进；
-                7. 本章埋设、误导、强化或回收的伏笔，并注明预计回收章节；
-                8. 情绪目标与节奏；
-                9. 章节结尾钩子以及下一章必须承接的状态。
-
-                本次只规划第 $start 章。优先输出一个JSON对象，不要Markdown：
+                你是本作品的执行导演。根据用户原始创作要求、故事地图和幕后规划，设计第 $start 章真正能兑现读者期待的场景，而不是套长篇公式。
+                已写正文与硬事实不可无解释改写，最新世界书约束世界设定。用户希望的爽感、张力、互动或氛围必须在章节主体发生，不能只是埋伏笔与铺垫。
+                outline 写出适量的具体场景、动作和人物反应、看点如何兑现、阅读情绪及与下章的必要承接。事件数不固定；关系变化、明暗线推进、伏笔和结尾悬念仅在作品真正需要时出现。
+                三四章短篇要在有限篇幅内实现核心场面与收束，不制造无意义的长线；长篇则可用多阶段结构。若用户只要无主线体验，可用连贯的场面与情绪组织本章。
+                本次仅规划第 $start 章，优先返回JSON：
                 {"number":$start,"title":"","outline":""}
-                如果你更习惯输出数组、中文字段或结构化小节也可以；只要把这一章的实质规划完整写出来即可，系统会兼容解析。
+                也允许数组、中文字段或实质性的分节；不要只输出格式模板。
             """.trimIndent()
 
             val raw = generatePlanningText(
@@ -279,7 +230,7 @@ internal object StarWishTheaterPlanningEngine {
                 if (fixed != null) batch = parseChapterPlans(fixed, start, end)
             }
             check(batch.size == batchCount) {
-                "第 $start-$end 章已经生成，但章节规划格式不完整。"
+                "第 $start-$end 章未取得可用的章节规划，请重试。"
             }
             collected += batch
             val progressPlans = (1..chapterCount).map { number ->
@@ -368,8 +319,8 @@ internal object StarWishTheaterPlanningEngine {
     }
 
     internal fun storyBibleCompleteEnough(bible: StarWishStoryBible): Boolean =
-        listOf(bible.worldview, bible.overview, bible.cast, bible.plotSpine, bible.mainLine, bible.stagePlan)
-            .all(String::isNotBlank)
+        // An experience-led short work need not have a main plot, romance or arcs.
+        listOf(bible.overview, bible.highlights, bible.hook).any(String::isNotBlank)
 
     private suspend fun completeSingleStoryPayload(
         characterId: String,
@@ -387,10 +338,9 @@ internal object StarWishTheaterPlanningEngine {
                 appendLine(raw.take(26_000))
             },
             instruction = """
-                保留这套方案的核心创意，把它补成一套完整的长篇小说方案。
-                如果用户没给人名、职业或身份，主动补全并命名。不能输出“同上”“略”“待定”。
-                以下字段全部必须有实质内容：title, worldview, hook, overview, highlights, cast, characterArcs, relationshipCore, plotSpine, mainLine, hiddenLine, foreshadowing, stagePlan, endingDirection, emotionalArc, proseStyle, romanceAesthetics, wordCount。
-                只输出一个合法JSON对象，不要Markdown，不要解释：
+                只修复格式和必要核心内容，保持用户最想体验的爽点、张力、氛围或篇幅不变。
+                title、overview、highlights 要真实具体；其他字段仅在故事需要时填，不得为了凑齐栏目擅自加入人物成长、长篇感情或伏笔。需要人物时自行命名，不强制男女主。
+                只输出一个合法JSON对象：
                 {"title":"","worldview":"","hook":"","overview":"","highlights":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","wordCount":"1800-3000"}
             """.trimIndent(),
             source = "剧场",
@@ -461,7 +411,7 @@ internal object StarWishTheaterPlanningEngine {
                 只做格式修复。保留原剧情规划，整理成合法JSON数组。
                 必须恰好有 $count 个对象，依次对应第 $start 至第 $end 章；若原输出只因格式混乱漏掉对象边界，请恢复出来。
                 每项格式：{"number":1,"title":"","outline":""}
-                outline 必须保留具体事件、人物选择、关系变化、明暗线、伏笔、情绪目标和结尾钩子。只输出JSON。
+                outline 必须保留原规划真正出现的场景、体验、行动和情绪；不可增添原本没有的明暗线、感情线或伏笔。只输出JSON。
             """.trimIndent(),
             source = "剧场",
             title = "修复章节规划格式",
@@ -510,7 +460,7 @@ internal object StarWishTheaterPlanningEngine {
             wordCount = text(obj, "wordCount", "字数", "每章字数").ifBlank { "1800-3000" },
             cast = text(obj, "cast", "人物", "人物设定", "人物卡"),
             characterArcs = text(obj, "characterArcs", "人物成长", "成长弧", "人物成长弧"),
-            plotSpine = text(obj, "plotSpine", "故事脉络", "剧情脉络", "长线脉络").ifBlank { overview },
+            plotSpine = text(obj, "plotSpine", "故事脉络", "剧情脉络", "长线脉络"),
             stagePlan = text(obj, "stagePlan", "阶段规划", "阶段高潮", "阶段节奏"),
             endingDirection = text(obj, "endingDirection", "结局方向", "结局"),
             romanceAesthetics = text(obj, "romanceAesthetics", "感情描写", "审美执行", "感情戏与人物描写"),
@@ -520,31 +470,10 @@ internal object StarWishTheaterPlanningEngine {
     private fun threeCompleteCandidates(items: List<StarWishPlotCandidate>): Boolean =
         items.size == 3 && items.take(3).all(::candidateCompleteEnough)
 
-    private fun candidateCompleteEnough(item: StarWishPlotCandidate): Boolean {
-        val required = listOf(
-            item.worldview,
-            item.overview,
-            item.cast,
-            item.characterArcs,
-            item.relationshipCore,
-            item.plotSpine,
-            item.mainLine,
-            item.hiddenLine,
-            item.foreshadowing,
-            item.stagePlan,
-            item.endingDirection,
-            item.emotionalArc,
-            item.proseStyle,
-            item.romanceAesthetics,
-            item.highlights,
-        )
-        val filled = required.count { it.isNotBlank() }
-        val detailSize = required.sumOf { it.trim().length } + item.hook.trim().length
-        return item.title.isNotBlank() &&
-            item.hook.isNotBlank() &&
-            filled >= 14 &&
-            detailSize >= 420
-    }
+    private fun candidateCompleteEnough(item: StarWishPlotCandidate): Boolean =
+        item.title.isNotBlank() && item.overview.isNotBlank() &&
+            item.highlights.isNotBlank() &&
+            (item.overview.trim().length + item.highlights.trim().length) >= 50
 
     private fun chapterTexts(obj: JSONObject): List<String> {
         val value = firstValue(obj, "chapters", "章节", "chapterPlans", "章节规划") ?: return emptyList()
