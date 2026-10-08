@@ -568,7 +568,11 @@ fun QqStyleChatDetailScreen(
                 if (message.sender == LuluChatMessage.Sender.Character && decodeQqChatImage(message.content) == null) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                         QqMessageAction(Icons.Outlined.Refresh, "重新回复") { regenerateLatestReply(message) }
-                        QqMessageAction(Icons.Outlined.VolumeUp, "朗读") {
+                        QqMessageAction(
+                            Icons.Outlined.VolumeUp,
+                            if (message.id.startsWith("voice-") && ChatAutoVoicePlayback.hasCached(message.id))
+                                "重听通话原声" else "朗读"
+                        ) {
                             val replayed = ChatAutoVoicePlayback.replayCached(message.id)
                             selectedMessage = null
                             if (!replayed) scope.launch {
