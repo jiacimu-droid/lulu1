@@ -182,6 +182,7 @@ object SharedExperienceTimeline {
         if (previous != null) {
             CharacterDevelopmentStore.invalidateEvidence(characterId, eventId)
             CharacterLifeStore.invalidateReceipt(eventId)
+        CharacterInnerLifeStore.invalidateEvidence(eventId)
             if (!triggerExtraction) scope.launch { LuluRepositories.memory.deleteDerivedFromEvent(eventId) }
         }
         if (triggerExtraction && SharedTimelineEvent(eventId, characterId, channel, speaker, clean, occurredAt,
@@ -271,6 +272,7 @@ object SharedExperienceTimeline {
         // repository integrity guard before they can survive in recall.
         CharacterDevelopmentStore.invalidateEvidenceForAll(eventId)
         CharacterLifeStore.invalidateReceipt(eventId)
+        CharacterInnerLifeStore.invalidateEvidence(eventId)
         MemoryExtractionJobStore.removeBySourceEvent(eventId)
         LuluRepositories.lexicon.invalidateSource(eventId)
         CommitmentTaskStore.removeBySourceEvent(eventId)
