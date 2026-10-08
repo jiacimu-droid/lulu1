@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c63592a419e42a874ce7c6aad3e0d94355614147`
+- 基准提交：`7fbac5d3c86396e8e953eac0541b680034d423d9`
 - 分支：`main`
 - 已索引文件：368
-- 已索引代码/文本行：89465
+- 已索引代码/文本行：89487
 - 已发现符号：1266
 
 | 文件 | 行数 | 符号数 |
@@ -22,7 +22,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 149 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 466 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 240 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 265 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 283 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/ChatErrorNotice.kt` | 16 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 232 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt` | 121 | 9 |
@@ -93,7 +93,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 83 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 651 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 722 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 726 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt` | 208 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 155 | 1 |
