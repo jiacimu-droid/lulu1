@@ -38,10 +38,13 @@ internal object StarWishTheaterPlanningEngine {
             用户想看的爽点、张力、氛围、关系互动、篇幅与禁忌决定创作方向，这些内容必须占据故事的主要场景。
             想看龙傲天、无敌或打脸，就让爽点直接、精彩地兑现，不强制主角挫败或成长；想看三四章短片、暧昧张力或纯氛围体验，就聚焦高密度场景，不擅自扩成长篇虐恋。
             只有用户明确需要长线发展，才规划人物成长、复杂关系、明暗线、伏笔和多个阶段。不要为了凑字段强加剧情。
+            experienceFocus 要写出这部小说给读者的主要快感、情绪回报、典型高光场景和哪些无关支线应被压缩，不能只写“爽”“甜”“张力”。
+            appearanceDesign 在人物相关的作品里为主要角色各定鲜明、稳定的视觉特征：容貌轮廓、身形/姿态、发肤、声音和习惯动作，并说明通过谁的目光逐步展示。不要只有“俊美、苍白、冷漠”等泛词；不需要固定身体形象的作品可以留空。
+            relationshipDynamics 若作品重人物互动，则分别写出双方的欲望、权力、克制、会主动采取的动作、误解和关系能够变化的具体触发场面；不要自行决定所有故事都恋爱，也不要仅写“关系升温”。
             title（书名）、overview（核心体验与具体安排）、highlights（核心看点及高光场面）必须具体、完整。其他字段按需填写，不适用的直接使用空字符串，不要用「不适用」凑数。
             不要生成逐章详细规划。写清每章建议字数，但作品是否漫长、是否有主线由用户愿望决定。
             只输出一个合法JSON对象，不要数组、Markdown或解释：
-            {"title":"","worldview":"","hook":"","overview":"","highlights":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","wordCount":"1800-3000"}
+            {"title":"","worldview":"","hook":"","overview":"","highlights":"","cast":"","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","proseStyle":"","romanceAesthetics":"","experienceFocus":"","appearanceDesign":"","relationshipDynamics":"","wordCount":"1800-3000"}
         """.trimIndent()
         val raw = LuluAiServices.gateway.generate(
             characterId = characterId,
@@ -93,9 +96,14 @@ internal object StarWishTheaterPlanningEngine {
         val instruction = """
             你是这部作品的幕后体验导演，而非默认长篇小说策划。用户原始创作要求和故事地图中的核心看点决定一切：爽点就要直接兑现，三四章短篇就要快速建立与释放张力，纯氛围、互动或片段体验无需主线、反派、成长或长篇爱情。只有明确需要复杂长线时才规划明暗线、伏笔和成长。
             已写正文与连续性档案中的生死、身份、关系、重要伤势、物品归属、地点和已发生事实不可无解释改写。旧幕后规划中未发生的内容不能压倒用户新要求。
-            保留16栏格式用于页面和存档兼容，但它们只是可选工具箱：
+            保留旧栏位兼容页面和存档，并增加三个真正指挥写作的体验栏目；全部是按题材选择的工具箱：
             worldview 世界观、overview 核心安排、hook 钩子、highlights 核心看点、cast 人物、characterArcs 人物成长、relationshipArc 感情线、plotSpine 故事脉络、mainLine 明线、hiddenLine 暗线、foreshadows 伏笔、stagePlan 阶段节奏、endingDirection 收束、emotionalArc 情绪、proseStyle 文风、romanceAesthetics 感情描写。
+            experienceFocus 阅读体验：确定读者最期待的具体回报、作品的高光场面优先级以及不值得反复写的追杀/受伤/阴谋套路。不得用笼统形容词代替场面。
+            appearanceDesign 人物视觉与气质：给重要人物制定稳定可辨的容貌、身形、肌肤、穿着/声音/姿态和不同视角中的吸引力；只选择合适的细节，并让其随着动作和互动自然进入正文，不做身体特征堆砌。
+            relationshipDynamics 双向关系动力：若读者重视 CP/主仆/宿敌等关系，分别写清双方想要什么、怕什么、权力不对称在哪里、怎样主动试探或拒绝，设计可落地的对话与近距离场面。关系可以暧昧未定，不预设必然爱情。
             核心看点与作品安排必须强调用户想体验的东西和对应的具体场景。其余栏目只在对这部作品有帮助时才填写；完全不适用的直接返回空字符串""，绝不能编造来填表，也不要填「不适用」冒充规划。
+            如果已经有正文，严格以已确立的人物外貌、人物性别与身份、时间、伤势、物品状态为准；不要因生成新的视觉档案重设旧事实。
+            写作语气应有层次变化，不要反复用同一比喻、同一神情、同一个人“野狗般”或另一个人“俊美”来顶替真正的描写。
             分批返回每次指定的栏目，优先可执行的场景、情绪、爽点和节奏，不以复杂程度作为质量指标。
         """.trimIndent()
         // Most short-form / experience-led stories use only a few director fields.
@@ -110,7 +118,7 @@ internal object StarWishTheaterPlanningEngine {
             facts,
             instruction + "\n尝试一次输出完整幕后规划，核心看点要具体；其余不适用字段直接空字符串。只返回JSON：" + fullTemplate,
             "$storyTitle · 一次生成幕后规划",
-            5_200,
+            7_000,
         )
         if (fullRaw.isNotBlank()) {
             val fullBible = runCatching { parseStoryBible(fullRaw, writtenChapters.size) }.getOrNull()
@@ -207,11 +215,14 @@ internal object StarWishTheaterPlanningEngine {
             val instruction = """
                 你是本作品的执行导演。根据用户原始创作要求、故事地图和幕后规划，为第 $start 至第 $end 章分别设计能兑现读者期待的场景，而不是套长篇公式。
                 已写正文与硬事实不可无解释改写，最新世界书约束世界设定。用户希望的爽感、张力、互动或氛围必须在章节主体发生，不能只是埋伏笔与铺垫。
-                outline 写出适量的具体场景、动作和人物反应、看点如何兑现、阅读情绪及与下章的必要承接。事件数不固定；关系变化、明暗线推进、伏笔和结尾悬念仅在作品真正需要时出现。
+                每章应有“可阅读的核心场面”而不是流水账，明确人物是谁先行动、谁回应、肢体距离、反转点和最终情绪回报。允许整章聚焦一场精心设计的双人戏，不必另加追兵或阴谋。
+                如果本书重人物/CP，spotlight 应围绕人物魅力、视线与权力拉扯；sceneBeats 应包含双方主动行为、环境与感官细节如何让紧张递进；relationshipBeat 应写明这场互动之后谁对谁的理解发生了什么改变，不能用“关系升温”混过去。
+                如果作品不需要恋爱，就把 relationshipBeat 留空或写符合题材的战友情、信任和对立，不允许强行恋爱。不要连续三章用同一个“被追杀、受伤、保护”替代高光。
+                outline 写出适量的具体事件与必要前因后果；spotlight 指定本章最值得细写的高光及其读者回报；sceneBeats 写出1至3个具体、有起伏的场景节拍（人物动作、回应、心理暗流和变化）；relationshipBeat 记录确实存在的互动推进。不要求每章都带恋爱、打斗或反转。
                 三四章短篇要在有限篇幅内实现核心场面与收束，不制造无意义的长线；长篇则可用多阶段结构。若用户只要无主线体验，可用连贯的场面与情绪组织本章。
                 本次规划第 $start 至第 $end 章，共 $batchCount 章。每章都有独立标题与具体情节，不允许只写「同上」或概括整段。
                 按章节顺序返回JSON数组，每项格式：
-                {"number":$start,"title":"","outline":""}
+                {"number":$start,"title":"","outline":"","spotlight":"","sceneBeats":"","relationshipBeat":""}
                 不要混入已写完的章节、额外章节或解释。不要只输出格式模板。
             """.trimIndent()
 
@@ -220,7 +231,7 @@ internal object StarWishTheaterPlanningEngine {
                 facts = facts,
                 instruction = instruction,
                 title = "《" + storyTitle + "》第" + start + "-" + end + "章规划",
-                maxTokens = (batchCount * 720 + 1_500).coerceIn(2_800, 8_600),
+                maxTokens = (batchCount * 1_100 + 1_500).coerceIn(3_200, 8_600),
             )
 
             var batch = parseChapterPlans(raw, start, end)
@@ -311,6 +322,9 @@ internal object StarWishTheaterPlanningEngine {
             emotionalArc = text(root, "emotionalArc", "情绪曲线", "情感曲线"),
             proseStyle = text(root, "proseStyle", "文风", "文风执行"),
             cast = text(root, "cast", "人物", "人物设定", "人物卡"),
+            experienceFocus = text(root, "experienceFocus", "阅读体验重心", "核心阅读体验", "爽点执行"),
+            appearanceDesign = text(root, "appearanceDesign", "人物视觉档案", "人物外貌", "视觉设计"),
+            relationshipDynamics = text(root, "relationshipDynamics", "双向关系动力", "人物关系张力", "关系动力"),
             characterArcs = text(root, "characterArcs", "人物成长", "成长弧"),
             relationshipArc = text(root, "relationshipArc", "relationshipCore", "感情线", "关系线"),
             plotSpine = text(root, "plotSpine", "故事脉络", "剧情脉络"),
@@ -343,7 +357,7 @@ internal object StarWishTheaterPlanningEngine {
             instruction = """
                 只做格式修复。保留原剧情规划，整理成合法JSON数组。
                 必须恰好有 $count 个对象，依次对应第 $start 至第 $end 章；若原输出只因格式混乱漏掉对象边界，请恢复出来。
-                每项格式：{"number":1,"title":"","outline":""}
+                每项格式：{"number":1,"title":"","outline":"","spotlight":"","sceneBeats":"","relationshipBeat":""}
                 outline 必须保留原规划真正出现的场景、体验、行动和情绪；不可增添原本没有的明暗线、感情线或伏笔。只输出JSON。
             """.trimIndent(),
             source = "剧场",
@@ -397,6 +411,9 @@ internal object StarWishTheaterPlanningEngine {
             stagePlan = text(obj, "stagePlan", "阶段规划", "阶段高潮", "阶段节奏"),
             endingDirection = text(obj, "endingDirection", "结局方向", "结局"),
             romanceAesthetics = text(obj, "romanceAesthetics", "感情描写", "审美执行", "感情戏与人物描写"),
+            experienceFocus = text(obj, "experienceFocus", "阅读体验重心", "核心阅读体验", "爽点执行"),
+            appearanceDesign = text(obj, "appearanceDesign", "人物视觉档案", "人物外貌", "视觉设计"),
+            relationshipDynamics = text(obj, "relationshipDynamics", "双向关系动力", "人物关系张力", "关系动力"),
         )
     }
 
@@ -563,8 +580,12 @@ internal object StarWishTheaterPlanningEngine {
                 }.joinToString("\n")
             }
         }
-        if (structured.isBlank()) return null
-        return StarWishChapterPlan(number = number, title = title, outline = structured)
+        val spotlight = text(item, "spotlight", "本章高光", "核心场面", "体验兑现")
+        val sceneBeats = text(item, "sceneBeats", "场面推进", "场景节拍", "具体场面")
+        val relationshipBeat = text(item, "relationshipBeat", "关系变化", "情感推进", "关系转折")
+        if (structured.isBlank() && spotlight.isBlank() && sceneBeats.isBlank()) return null
+        return StarWishChapterPlan(number = number, title = title, outline = structured,
+            spotlight = spotlight, sceneBeats = sceneBeats, relationshipBeat = relationshipBeat)
     }
 
     private fun chapterPlanFromText(raw: String, number: Int): StarWishChapterPlan? {
