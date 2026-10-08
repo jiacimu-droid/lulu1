@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`5d7c3ee986496783c0ec741ceabfe7fc50b33c02`
+- 基准提交：`d570478b9e44b8fb3bdece74596077e4bf154d9c`
 - 分支：`main`
 - 已索引文件：350
-- 已索引代码/文本行：87167
+- 已索引代码/文本行：87182
 - 已发现符号：1230
 
 | 文件 | 行数 | 符号数 |
@@ -326,7 +326,7 @@
 | `app/src/main/res/values/strings.xml` | 6 | 0 |
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
-| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 109 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 124 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechRecordingTest.kt` | 69 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
