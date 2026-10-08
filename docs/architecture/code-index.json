@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T11:44:07.891028+00:00",
-  "commit": "a67777e301448f4cfb2efc5ee8c9da33220b0bae",
+  "generatedAt": "2026-10-08T11:44:23.207157+00:00",
+  "commit": "c7497870033816a05d375f97f9870b7a9fa7f39a",
   "branch": "main",
-  "sourceFingerprint": "5b4cc5d413a352f31bcf46f186b334135b0f6d0ec51747ab26d009f05c7d77ad",
+  "sourceFingerprint": "1ecd7178a915bcd157d460fe1567ad5f59b0dbbba201343223106cb20b275ad4",
   "summary": {
     "files": 349,
     "lines": 86958,
@@ -7459,7 +7459,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
       "lines": 112,
-      "sha256": "91fb43c10cf9848cafa9a67022c750201bb20ef80362ad748472d312acc1bd40",
+      "sha256": "8aace1b375ec7c0ea5e437acc49d97de1e942d4246eb3d053c521f1ee817e593",
       "symbols": [
         {
           "name": "enqueue",
