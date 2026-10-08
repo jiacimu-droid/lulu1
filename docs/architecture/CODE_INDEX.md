@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f845d7fa64b1ed05fd5ae605c38e6d50abbd9750`
+- 基准提交：`7ae2e600c0abba05c12df5c14500a8e9a2ddea17`
 - 分支：`main`
 - 已索引文件：363
-- 已索引代码/文本行：88892
+- 已索引代码/文本行：88894
 - 已发现符号：1258
 
 | 文件 | 行数 | 符号数 |
@@ -71,7 +71,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 599 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 779 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 143 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 144 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 451 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 94 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 116 | 1 |
@@ -117,7 +117,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 156 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 34 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 49 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 65 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 66 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 109 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 84 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 30 | 7 |
