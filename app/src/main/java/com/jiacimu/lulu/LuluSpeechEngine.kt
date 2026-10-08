@@ -30,6 +30,9 @@ internal class LuluSpeechEngine(context: Context) {
 
     private val appContext = context.applicationContext
     private val prefs = appContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+    private val enableListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if (key == "tts_enabled" && !prefs.getBoolean("tts_enabled", true)) stop()
+    }
     var lastPlaybackSucceeded = false
         private set
     var lastError: String = ""
@@ -47,6 +50,7 @@ internal class LuluSpeechEngine(context: Context) {
     private val systemTts = TextToSpeech(appContext) {}
 
     init {
+        prefs.registerOnSharedPreferenceChangeListener(enableListener)
         CharacterVoicePreferenceStore.initialize(appContext)
         systemTts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) {
@@ -147,8 +151,14 @@ internal class LuluSpeechEngine(context: Context) {
                 runCatching {
                     ensureActive()
                     check(allowGeneration() && requestGeneration == playbackGeneration) { "语音生成已关闭" }
-                    if (prefs.getString("tts_provider", "system") == "elevenlabs") elevenSpeech.synthesize(text, voiceIdOverride)
-                    else requestMiniMaxAudio(text, voiceIdOverride) { allowGeneration() && requestGeneration == playbackGeneration }
+                    val result = if (prefs.getString("tts_provider", "system") == "elevenlabs") {
+                        elevenSpeech.synthesize(text, voiceIdOverride)
+                    } else requestMiniMaxAudio(text, voiceIdOverride) {
+                        allowGeneration() && requestGeneration == playbackGeneration
+                    }
+                    check(allowGeneration() && prefs.getBoolean("tts_enabled", true) &&
+                        requestGeneration == playbackGeneration) { "语音播放已关闭，丢弃未播放的合成结果" }
+                    result
                 }
                     .onSuccess { bytes ->
                         if (requestGeneration == playbackGeneration) {
@@ -229,6 +239,7 @@ internal class LuluSpeechEngine(context: Context) {
     }
 
     fun shutdown() {
+        prefs.unregisterOnSharedPreferenceChangeListener(enableListener)
         stop()
         systemTts.shutdown()
     }
