@@ -49,7 +49,7 @@ object ProactivePerceptionRuntime {
     private const val ACTION_HISTORY_SIZE = 10
     private val cycleMutex = Mutex()
 
-    private enum class Action { MESSAGE, GROUP_MESSAGE, GAME_INVITE, SOLO_GAME, WORLD_INVITE, MOMENT, CALL, JOURNAL, READING, DIGITAL_WORLD, TOOL, SILENT }
+    private enum class Action { MESSAGE, GROUP_MESSAGE, GAME_INVITE, SOLO_GAME, WORLD_INVITE, MOMENT, CALL, JOURNAL, READING, DIGITAL_WORLD, USER_REMARK, SELF_NICKNAME, TOOL, SILENT }
 
     private data class Decision(
         val action: Action,
@@ -75,6 +75,7 @@ object ProactivePerceptionRuntime {
         val activityId: String,
         val incidentId: String,
         val approach: String,
+        val nickname: String = "",
         val tool: String = "",
         val toolArgs: JSONObject = JSONObject(),
         val intention: JSONObject? = null,
@@ -473,11 +474,14 @@ object ProactivePerceptionRuntime {
             Action.JOURNAL -> "write_journal"
             Action.READING -> "read_book"
             Action.DIGITAL_WORLD -> "digital_world_action"
+            Action.USER_REMARK -> "set_user_remark"
+            Action.SELF_NICKNAME -> "set_self_nickname"
             Action.TOOL -> decision.tool
             Action.SILENT -> return ActionExecution(false, "角色选择保持安静")
         }
         val args = if (decision.action == Action.TOOL) decision.toolArgs else JSONObject().apply {
             put("text", decision.text)
+            put("nickname", decision.nickname)
             put("groupId", decision.groupId)
             put("gameId", decision.gameId)
             put("title", decision.journalTitle)
@@ -678,6 +682,8 @@ object ProactivePerceptionRuntime {
                 "journal", "diary", "日记" -> Action.JOURNAL
                 "reading", "read", "阅读", "一起阅读" -> Action.READING
                 "digital_world", "digitalworld", "数字世界", "数字家园" -> Action.DIGITAL_WORLD
+                "user_remark", "set_user_remark", "用户备注" -> Action.USER_REMARK
+                "self_nickname", "set_self_nickname", "我的网名" -> Action.SELF_NICKNAME
                 "tool" -> Action.TOOL
                 else -> Action.SILENT
             },
@@ -703,6 +709,7 @@ object ProactivePerceptionRuntime {
             activityId = json.optString("activityId").trim().lowercase(),
             incidentId = json.optString("incidentId").trim(),
             approach = json.optString("approach").trim().lowercase(),
+            nickname = json.optString("nickname").trim(),
             tool = json.optString("tool").trim(),
             toolArgs = json.optJSONObject("args") ?: JSONObject(),
             intention = json.optJSONObject("intention"),
