@@ -166,6 +166,7 @@ object MeetingVoicePlayback {
                 cacheBaseFile = cacheBase,
                 scope = scope,
                 voiceIdOverride = CharacterVoicePreferenceStore.playbackVoiceId(resolvedCharacterId),
+                source = "meeting_page_auto",
                 allowGeneration = {
                     mutableEnabled.value && VoiceSynthesisPolicy.automaticAllowed(application) &&
                         AutomaticVoiceForeground.visible() &&
