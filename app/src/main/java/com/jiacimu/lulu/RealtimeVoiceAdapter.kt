@@ -122,6 +122,7 @@ internal class RealtimeVoiceAdapter(
             onDisconnect = { _ -> if (epoch == generation) { definitionJob?.cancel(); deliveryJob?.cancel(); delivery.reset(); onError("实时通话已断开") } },
         )
         val connected = ConversationClient.startSession(config, context)
+        if (epoch == generation) VoiceUsageAudit.record(context, "ElevenLabs", "agent_call_connected", 0, "agent_realtime")
         if (epoch != generation) connected.endSession() else {
             session = connected
             connected.setMicMuted(microphoneMuted || openingWaiting)
