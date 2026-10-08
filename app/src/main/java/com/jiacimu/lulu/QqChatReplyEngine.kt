@@ -98,7 +98,7 @@ internal suspend fun appendRoleReplyWithPacing(
         delay(700L + rolePacingSeed(characterId) % 500L)
         MigratedDomainStores.chat.appendSystemMessage(conversationId, "[戳一戳] $characterLabel 戳了戳你。")
     }
-    spoken.forEach { ChatAutoVoicePlayback.enqueue(characterId, it.id, it.content) }
+    spoken.forEach { ChatAutoVoicePlayback.enqueue(characterId, it.id, it.content, conversationId) }
     return spoken.joinToString("\n", transform = LuluChatMessage::content)
 }
 
