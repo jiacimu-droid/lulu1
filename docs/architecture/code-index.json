@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T07:14:12.742859+00:00",
-  "commit": "96f98a1d38937d0b2e443b460cd34df513f723cb",
+  "generatedAt": "2026-10-08T07:15:15.588881+00:00",
+  "commit": "e8b5ad9f05b39a0c96e90e3c163195961826a410",
   "branch": "main",
-  "sourceFingerprint": "2eb005eb7984ec4054333e76d015fe397340a5782a1771209e8465f95df470d3",
+  "sourceFingerprint": "92aff788bb86be313fa2a0635e4bb14f6be76ba6697ec3797b5e8ba60c82c1d5",
   "summary": {
-    "files": 340,
-    "lines": 86106,
-    "symbols": 1213
+    "files": 341,
+    "lines": 86159,
+    "symbols": 1217
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4908,6 +4908,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
         "line": 93
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
+        "line": 29
       }
     ],
     "rollback": [
@@ -6514,6 +6518,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
         "line": 33
+      }
+    ],
+    "clean": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
+        "line": 11
+      }
+    ],
+    "cutOffByTokens": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
+        "line": 13
+      }
+    ],
+    "isFinished": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
+        "line": 20
       }
     ],
     "parse": [
@@ -13375,6 +13397,29 @@
       "lines": 156,
       "sha256": "b1dda12dc677542f845a5c35042c21703697e257e542cd363079e5187d8ef732",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
+      "lines": 53,
+      "sha256": "3bef7f4981b0ffa93f5aae6b3ef0773bdeaa8a54ce14729e6edba283f894a3a2",
+      "symbols": [
+        {
+          "name": "clean",
+          "line": 11
+        },
+        {
+          "name": "cutOffByTokens",
+          "line": 13
+        },
+        {
+          "name": "isFinished",
+          "line": 20
+        },
+        {
+          "name": "append",
+          "line": 29
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt",
