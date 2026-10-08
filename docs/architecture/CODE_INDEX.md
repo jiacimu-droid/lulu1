@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ae3263d236d5c567d63c57c6aa23becc768ee87f`
+- 基准提交：`1a6b3ec3b0b9b4cb9638bcd7ac0276cd526be071`
 - 分支：`main`
 - 已索引文件：342
-- 已索引代码/文本行：86317
+- 已索引代码/文本行：86321
 - 已发现符号：1219
 
 | 文件 | 行数 | 符号数 |
@@ -283,7 +283,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt` | 70 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt` | 256 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishScrollPanel.kt` | 154 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt` | 1299 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt` | 1303 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt` | 816 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPanel.kt` | 415 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt` | 604 | 0 |
