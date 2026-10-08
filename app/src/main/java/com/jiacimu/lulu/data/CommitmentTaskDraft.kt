@@ -9,6 +9,7 @@ data class CommitmentTaskDraft(
     val timezone: String? = null,
     val completionCondition: String = "",
     val steps: List<String> = emptyList(),
+    val deliveryAction: String = "send_private_message",
     val needsClarification: Boolean = false,
     val targetTaskId: String? = null,
 )
