@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T17:00:37.412191+00:00",
-  "commit": "a18ae203859f6d837069a9a4c055c0c889701fdf",
+  "generatedAt": "2026-10-08T17:01:18.311347+00:00",
+  "commit": "6a5f41434ee7692b16511568756b4e4081910e11",
   "branch": "main",
-  "sourceFingerprint": "a65482037541f76c515c201c08d5e0941d291cd367bc7f72f9871578715fa6cc",
+  "sourceFingerprint": "76162d0f4b19261a6a1915e93a3327a3c4bc68cffbd256aab52ea81f0f70ac15",
   "summary": {
-    "files": 358,
-    "lines": 88174,
-    "symbols": 1244
+    "files": 359,
+    "lines": 88206,
+    "symbols": 1245
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6361,25 +6361,25 @@
     "generateNextChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 438
+        "line": 449
       }
     ],
     "appendOneChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 785
+        "line": 794
       }
     ],
     "appendThreeChapters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 792
+        "line": 801
       }
     ],
     "attemptBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 799
+        "line": 808
       }
     ],
     "saveProgress": [
@@ -6939,6 +6939,12 @@
     "TheaterProseRhythmTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterProseRhythmTest.kt",
+        "line": 5
+      }
+    ],
+    "TheaterSwipeDirectionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterSwipeDirectionTest.kt",
         "line": 5
       }
     ],
@@ -13335,24 +13341,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-      "lines": 1436,
-      "sha256": "11983144249293a25fa2c79b9e0cd19abee7015f3a7a3cbc02c00ad8dd1e593c",
+      "lines": 1445,
+      "sha256": "1faa8f290e36eb0b9cf553f463db90554f1253b00ecc09cd412176309a9642aa",
       "symbols": [
         {
           "name": "generateNextChapter",
-          "line": 438
+          "line": 449
         },
         {
           "name": "appendOneChapter",
-          "line": 785
+          "line": 794
         },
         {
           "name": "appendThreeChapters",
-          "line": 792
+          "line": 801
         },
         {
           "name": "attemptBack",
-          "line": 799
+          "line": 808
         }
       ]
     },
@@ -14260,6 +14266,17 @@
       "symbols": [
         {
           "name": "TheaterProseRhythmTest",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterSwipeDirectionTest.kt",
+      "lines": 23,
+      "sha256": "2c42a47c36bf60b3f2c05d47acd1e1277be4458f1b543a5737e0c98cb7b08eca",
+      "symbols": [
+        {
+          "name": "TheaterSwipeDirectionTest",
           "line": 5
         }
       ]

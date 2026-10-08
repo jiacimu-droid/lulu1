@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a18ae203859f6d837069a9a4c055c0c889701fdf`
+- 基准提交：`6a5f41434ee7692b16511568756b4e4081910e11`
 - 分支：`main`
-- 已索引文件：358
-- 已索引代码/文本行：88174
-- 已发现符号：1244
+- 已索引文件：359
+- 已索引代码/文本行：88206
+- 已发现符号：1245
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -287,7 +287,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt` | 70 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt` | 185 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishScrollPanel.kt` | 154 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt` | 1436 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt` | 1445 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt` | 838 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPanel.kt` | 415 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt` | 633 | 0 |
@@ -358,6 +358,7 @@
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterContinuityPayloadTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterPlanningPayloadTest.kt` | 175 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterProseRhythmTest.kt` | 18 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/study/TheaterSwipeDirectionTest.kt` | 23 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt` | 32 | 1 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |
 | `scripts/apk_size_report.py` | 38 | 0 |
