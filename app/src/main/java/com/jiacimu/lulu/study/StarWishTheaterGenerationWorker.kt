@@ -329,6 +329,11 @@ internal class StarWishPlanGenerationWorker(
                 existingBible = existingBible,
                 ledger = ledger,
                 theaterWorldBook = theaterWorldBook,
+                onProgress = { partial ->
+                    saveProgress { store.setBible(theater, partial) }
+                    manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING,
+                        "幕后规划 ${partial.fieldValues().values.count(String::isNotBlank)}/${theaterBibleFields.size} 栏，已填内容已保存")
+                },
             ).getOrThrow()
             saveProgress { store.setBible(theater, checkNotNull(bible)) }
 
@@ -433,7 +438,7 @@ internal class StarWishTheaterGenerationWorker(
 
             manager.mark(theater, requestId, StarWishTheaterTaskStatus.RUNNING, "正在准备本章规划与连续性")
             var bible = snapshot.theaterBibles[theater]
-            if ((bible == null || needsBuiltInLongRangeBootstrap) && guide.isNotBlank()) {
+            if ((bible == null || !StarWishTheaterPlanningEngine.storyBibleCompleteEnough(bible) || needsBuiltInLongRangeBootstrap) && guide.isNotBlank()) {
                 val refreshed = StarWishTheaterPlanningEngine.generateStoryBible(
                     characterId = ISOLATED_CHARACTER_ID,
                     storyTitle = theater,
@@ -443,6 +448,7 @@ internal class StarWishTheaterGenerationWorker(
                     existingBible = bible,
                     ledger = ledger,
                     theaterWorldBook = theaterWorldBook,
+                    onProgress = { partial -> saveProgress { store.setBible(theater, partial) } },
                 )
                 bible = if (bible == null) refreshed.getOrThrow() else refreshed.getOrNull() ?: bible
                 saveProgress { store.setBible(theater, checkNotNull(bible)) }

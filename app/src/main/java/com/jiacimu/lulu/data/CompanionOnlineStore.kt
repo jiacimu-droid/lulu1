@@ -121,6 +121,20 @@ object CompanionOnlineStore {
         }
     }
 
+    fun recordActivity(characterId: String, now: Instant = Instant.now()) {
+        if (characterId.isBlank()) return
+        synchronized(lock) {
+            val previous = mutableStates.value[characterId]
+                ?: CompanionOnlineState(characterId, now, CompanionOnlineReason.NewActivity)
+            mutableStates.value = mutableStates.value + (characterId to previous.copy(
+                onlineUntil = maxOf(previous.onlineUntil, now.plus(onlineDuration)),
+                reason = CompanionOnlineReason.NewActivity,
+            ))
+            persistLocked()
+            scheduleExpiryLocked(characterId)
+        }
+    }
+
     fun wakeGroup(
         conversation: LuluConversation,
         trigger: String = "用户在群聊呼唤全员上线",
@@ -149,7 +163,13 @@ object CompanionOnlineStore {
 
     /** Called after a chat or private activity event is durably appended. */
     fun onConversationMessage(conversation: LuluConversation, message: LuluChatMessage) {
-        if (message.status != LuluChatMessage.Status.Sent || message.id.startsWith("voice-")) return
+        if (message.status != LuluChatMessage.Status.Sent) return
+        if (message.id.startsWith("voice-")) {
+            val participants = conversation.groupChat?.members?.map(LuluGroupMember::characterId)
+                ?: listOf(conversation.characterId)
+            participants.forEach { recordActivity(it, message.createdAt) }
+            return // Phone speech never enters the text reply queue.
+        }
         val now = message.createdAt
 
         // Private activity receipts are written only after a real executor succeeded. During the
@@ -159,6 +179,7 @@ object CompanionOnlineStore {
         if (message.sender == LuluChatMessage.Sender.System) {
             if (conversation.groupChat != null || !message.content.startsWith("[共同活动]")) return
             val characterId = conversation.characterId
+            recordActivity(characterId, now)
             val shouldContinue = synchronized(lock) {
                 if (!isOnline(characterId, now)) return@synchronized false
                 val used = lifeContinuationCounts[characterId] ?: 0

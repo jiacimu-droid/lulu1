@@ -14,24 +14,52 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class OnlineChatExperienceTest {
-    @Test fun fourMessageEventsProduceOneCurrentBatchAndEmptyQueueDoesNotCallModel() = runBlocking {
+    @Test fun firstBubbleStartsFixedWindowAndArrivalsDuringReplyStartTheNextWindow() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
-        val role = "batch-four"
-        val batches = listOf(0L, 3_000L, 7_000L, 10_000L).map { at ->
-            OnlineChatBatchStore.next(context, role, collectMessages = true, now = at)
-        }
-        assertEquals(16_000L, batches.last().dueAtMillis)
-        assertEquals(1, batches.count { OnlineChatBatchStore.isCurrent(context, role, it.revision) })
-        val disk = context.getSharedPreferences("lulu_online_chat_batches", 0)
-        assertEquals(batches.last().revision, disk.getLong("revision:$role", 0))
-        assertEquals(0, ProactivePerceptionRuntime.runDueCycle(context, "在线输入", role, force = true,
-            onlineRevision = batches.first().revision, requiresUnread = true))
-        assertEquals(0, ProactivePerceptionRuntime.runDueCycle(context, "在线输入", role, force = true,
-            onlineRevision = batches.last().revision, requiresUnread = true))
-        val other = OnlineChatBatchStore.next(context, "another-role", true, now = 0)
+        val role = "batch-six"
+        val first = OnlineChatBatchStore.next(context, role, true, now = 0L)
+        val second = OnlineChatBatchStore.next(context, role, true, now = 1_000L)
+        val third = OnlineChatBatchStore.next(context, role, true, now = 2_800L)
+        assertEquals(3_000L, third.dueAtMillis)
+        assertEquals(first.revision, second.revision)
+        assertEquals(first.revision, third.revision)
+        assertTrue(OnlineChatBatchStore.claim(context, role, first.revision))
+        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision))
+        val fourth = OnlineChatBatchStore.next(context, role, true, now = 3_100L)
+        val fifth = OnlineChatBatchStore.next(context, role, true, now = 4_000L)
+        val sixth = OnlineChatBatchStore.next(context, role, true, now = 5_000L)
+        assertEquals(6_100L, sixth.dueAtMillis)
+        assertEquals(fourth.revision, fifth.revision)
+        assertEquals(fourth.revision, sixth.revision)
+        // The first reply might take until 8 seconds; the next reading window is already over.
+        assertEquals(0L, (OnlineChatBatchStore.dueAt(context, role, sixth.revision)!! - 8_000L).coerceAtLeast(0L))
+        assertFalse(OnlineChatBatchStore.isCurrent(context, role, first.revision))
+        assertTrue(OnlineChatBatchStore.claim(context, role, sixth.revision))
         OnlineChatBatchStore.cancel(context, role)
-        assertFalse(OnlineChatBatchStore.isCurrent(context, role, batches.last().revision))
-        assertTrue(OnlineChatBatchStore.isCurrent(context, "another-role", other.revision))
+        assertFalse(OnlineChatBatchStore.isCurrent(context, role, sixth.revision))
+    }
+
+    @Test fun noUnreadDoesNotCallModelAndStillConsumesItsWakeWindow() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val role = "empty-batch"
+        val batch = OnlineChatBatchStore.next(context, role, true, now = 0L)
+        assertEquals(0, ProactivePerceptionRuntime.runDueCycle(context, "在线输入", role, force = true,
+            onlineRevision = batch.revision, requiresUnread = true))
+        assertFalse(OnlineChatBatchStore.claim(context, role, batch.revision))
+    }
+
+    @Test fun actualActivityRefreshesFiveMinutesWithoutStackingTime() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val start = java.time.Instant.now()
+        val role = "activity-refresh"
+        CompanionOnlineStore.recordActivity(role, start)
+        assertEquals(start.plusSeconds(300), CompanionOnlineStore.states.value.getValue(role).onlineUntil)
+        CompanionOnlineStore.recordActivity(role, start.plusSeconds(290))
+        assertEquals(start.plusSeconds(590), CompanionOnlineStore.states.value.getValue(role).onlineUntil)
+        CompanionOnlineStore.recordActivity(role, start.plusSeconds(600))
+        assertEquals(start.plusSeconds(900), CompanionOnlineStore.states.value.getValue(role).onlineUntil)
     }
 
     @Test fun realBackgroundAndDeliveryLeasesStayVisibleUntilBothFinishAndFailuresClearThem() = runBlocking {
@@ -70,7 +98,7 @@ class OnlineChatExperienceTest {
         CharacterLifeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }.set(CharacterLifeStore, null)
         CharacterLifeStore.initialize(context)
         val upgraded = CharacterLifeStore.state(role.characterId)
-        assertEquals(3, upgraded.getInt("jiangDuPresetVersion"))
+        assertEquals(4, upgraded.getInt("jiangDuPresetVersion"))
         assertEquals("用户自定义身份", CharacterIdentityStore.identities.value[role.characterId])
         assertTrue(MigratedDomainStores.characters.get(role.characterId).persona.startsWith("用户自定义的人设"))
         assertEquals("用户自己的关心方式", upgraded.getJSONObject("profile").getString("care"))
@@ -85,6 +113,30 @@ class OnlineChatExperienceTest {
         assertEquals("我后来自己调整的相处方式", CharacterLifeStore.state(role.characterId).getJSONObject("profile").getString("respect"))
     }
 
+    @Test fun longDefaultProfileIsReorganizedOnceWithoutChangingMemoriesOrEditedFields() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        val role = MigratedDomainStores.characters.create("江渡", LegacyJiangDuProfileSchema.jiangDuPersona +
+            "\n\n" + CharacterProfileSchema.jiangDuRespectMarker + "\n" + LegacyJiangDuProfileSchema.jiangDuRespect)
+        CharacterIdentityStore.set(role.characterId, LegacyJiangDuProfileSchema.jiangDuIdentity)
+        DigitalLifeProfileStore.confirmLegacyLifeForm(role.characterId, role.displayName, "创造者", CharacterLifeForm.DIGITAL)
+        val profile = JSONObject().apply { LegacyJiangDuProfileSchema.jiangDu.forEach { (key, value) -> put(key, value) } }
+            .put("interests", "天文").put("expression", "我自己改的口语节奏")
+        val old = JSONObject().put("jiangDuPresetVersion", 3).put("profile", profile)
+            .put("intention", JSONObject().put("aim", "继续看书"))
+        context.getSharedPreferences("lulu_character_life", 0).edit().putString(role.characterId, old.toString()).commit()
+        CharacterLifeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }.set(CharacterLifeStore, null)
+        CharacterLifeStore.initialize(context)
+        val upgraded = CharacterLifeStore.state(role.characterId)
+        assertEquals(CharacterProfileSchema.jiangDuPersona, MigratedDomainStores.characters.get(role.characterId).persona)
+        assertEquals(CharacterProfileSchema.jiangDuIdentity, CharacterIdentityStore.identities.value[role.characterId])
+        assertEquals(CharacterProfileSchema.jiangDu.getValue("values"), upgraded.getJSONObject("profile").getString("values"))
+        assertEquals("我自己改的口语节奏", upgraded.getJSONObject("profile").getString("expression"))
+        assertEquals("天文", upgraded.getJSONObject("profile").getString("interests"))
+        assertEquals("继续看书", upgraded.getJSONObject("intention").getString("aim"))
+        assertEquals(old.getJSONObject("profile").toString(), upgraded.getJSONObject("jiangDuOrganizationBackup").getJSONObject("profile").toString())
+    }
+
     @Test fun actualCallSpeechIsRememberedButNeverBecomesAnotherUnreadTextRequest() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
@@ -93,6 +145,7 @@ class OnlineChatExperienceTest {
         CompanionOnlineStore.initialize(context)
         MigratedDomainStores.chat.appendVoiceMessage(conversation.id, "voice-test-user", "电话里刚说的话", false)
         assertFalse(CompanionOnlineStore.unreadChatSnapshot(role.characterId).text.contains("电话里刚说的话"))
+        assertTrue(CompanionOnlineStore.isOnline(role.characterId))
         assertTrue(MigratedDomainStores.chat.messages(conversation.id).value.any { it.id == "voice-test-user" })
         assertTrue(SharedExperienceTimeline.all(role.characterId).any { it.channel.contains("电话") })
         MigratedDomainStores.chat.sendUserMessage(conversation.id, "另外发来的聊天消息")

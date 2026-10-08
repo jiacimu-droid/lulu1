@@ -125,6 +125,7 @@ internal fun LuluGroupVoiceCallScreen(
 
     fun saveGroupCall() {
         val occurredAt = callStartedAt ?: return
+        group.members.forEach { com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(it.characterId) }
         group.members.forEach { member ->
             SharedExperienceTimeline.record(
                 eventId = "group-call-$callId-${member.characterId}",
@@ -213,6 +214,9 @@ internal fun LuluGroupVoiceCallScreen(
         startedAt = SystemClock.elapsedRealtime()
         while (phase == GroupCallPhase.Connected) {
             elapsedSeconds = (SystemClock.elapsedRealtime() - startedAt) / 1_000L
+            if (elapsedSeconds % 60L == 0L) group.members.forEach {
+                com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(it.characterId)
+            }
             delay(1_000)
         }
     }

@@ -87,7 +87,6 @@ object ProactivePerceptionScheduler {
         collectMessages: Boolean = false, requiresUnread: Boolean = false) {
         val batch = OnlineChatBatchStore.next(context, characterId, collectMessages)
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
-            .setInitialDelay((batch.dueAtMillis - System.currentTimeMillis()).coerceAtLeast(0L), TimeUnit.MILLISECONDS)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInputData(
                 Data.Builder()
@@ -129,6 +128,13 @@ class ProactivePerceptionWorker(
         val onlineRevision = inputData.getLong("onlineRevision", 0L).takeIf { requireOnline }
         if (requireOnline && characterId != null && !OnlineChatBatchStore.isCurrent(applicationContext, characterId, onlineRevision ?: 0L)) {
             return@runCatching Result.success()
+        }
+        // Compute remaining reading time now, after earlier replies finished, not when queued.
+        if (requireOnline && characterId != null) {
+            val due = OnlineChatBatchStore.dueAt(applicationContext, characterId, onlineRevision ?: 0L)
+                ?: return@runCatching Result.success()
+            kotlinx.coroutines.delay((due - System.currentTimeMillis()).coerceAtLeast(0L))
+            if (!CompanionOnlineStore.isOnline(characterId)) return@runCatching Result.success()
         }
         ProactivePerceptionRuntime.runDueCycle(
             context = applicationContext,

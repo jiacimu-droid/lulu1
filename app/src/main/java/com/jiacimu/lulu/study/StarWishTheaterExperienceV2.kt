@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -45,13 +46,14 @@ internal fun StarWishTheaterContentV2(
     val planGenerationTasks by planGenerationManager.tasks.collectAsState()
     val availableWorldBooks by LuluRepositories.worldBook.observeWorldBooks().collectAsState(initial = emptyList())
     var customTheaters by remember { mutableStateOf(customLibrary.all()) }
+    var hiddenTitles by remember { mutableStateOf(customLibrary.hiddenTitles()) }
     var mode by rememberSaveable { mutableStateOf(TheaterV2Mode.BOOKSHELF) }
     var openedTitle by rememberSaveable { mutableStateOf<String?>(null) }
     var deleteTheaterTitle by remember { mutableStateOf<String?>(null) }
     var draftWorldBookIds by rememberSaveable { mutableStateOf(listOf<String>()) }
 
-    val allTheaters = remember(customTheaters) {
-        (customTheaters + StarWishRules.theaters).distinctBy { it.title }
+    val allTheaters = remember(customTheaters, hiddenTitles) {
+        (customTheaters + StarWishRules.theaters).distinctBy { it.title }.filterNot { it.title in hiddenTitles }
     }
     val openedSeed = allTheaters.firstOrNull { it.title == openedTitle }
 
@@ -220,6 +222,7 @@ internal fun StarWishTheaterContentV2(
                     generationManager.cancel(title)
                     planGenerationManager.cancel(title)
                     customLibrary.delete(title)
+                    hiddenTitles = customLibrary.hiddenTitles()
                     customTheaters = customLibrary.all()
                     store.deleteTheater(title)
                     deleteTheaterTitle = null
@@ -279,7 +282,7 @@ private fun TheaterBookshelfV2(
             val custom = seed !in StarWishRules.theaters
             var menu by remember { mutableStateOf(false) }
             Surface(
-                modifier = Modifier.fillMaxWidth().clickable { onOpen(seed.title) },
+                modifier = Modifier.fillMaxWidth().combinedClickable(onClick = { onOpen(seed.title) }, onLongClick = { onDelete(seed.title) }),
                 shape = RoundedCornerShape(22.dp),
                 color = MaterialTheme.colorScheme.surface,
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
@@ -997,36 +1000,8 @@ private fun TheaterStoryBibleV2(
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
-            if (bible == null || bible.promptText().isBlank()) {
-                item {
-                    Surface(
-                        shape = RoundedCornerShape(18.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                    ) {
-                        Text(
-                            "还没有幕后规划。先在剧情规划里建立目标章节数，再点右上角“重新生成”，这里会自动生成。",
-                            modifier = Modifier.padding(16.dp),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            } else {
-                item { PlotSection("世界观", bible.worldview) }
-                item { PlotSection("故事总纲", bible.overview) }
-                item { PlotSection("核心钩子", bible.hook) }
-                item { PlotSection("核心看点", bible.highlights) }
-                item { PlotSection("情绪曲线", bible.emotionalArc) }
-                item { PlotSection("文风执行", bible.proseStyle) }
-                item { PlotSection("人物与人设", bible.cast) }
-                item { PlotSection("人物成长弧", bible.characterArcs) }
-                item { PlotSection("长期感情线", bible.relationshipArc) }
-                item { PlotSection("故事脉络 / 主线", bible.plotSpine) }
-                item { PlotSection("明线", bible.mainLine) }
-                item { PlotSection("暗线", bible.hiddenLine) }
-                item { PlotSection("伏笔明细", bible.foreshadows) }
-                item { PlotSection("阶段高潮与节奏", bible.stagePlan) }
-                item { PlotSection("结局方向", bible.endingDirection) }
-                item { PlotSection("感情戏与人物描写", bible.romanceAesthetics) }
+            theaterBibleFields.forEach { (key, label) ->
+                item(key = key) { PlotSection(label, bible?.fieldValues()?.get(key).orEmpty().ifBlank { "待填写" }) }
             }
             item {
                 HorizontalDivider()
@@ -1113,8 +1088,10 @@ private fun TheaterPlotGeneratorV2(
                             maxLines = 7,
                             shape = RoundedCornerShape(16.dp),
                         )
+                        Text("本书世界书", fontWeight = FontWeight.Bold)
+                        if (worldBooks.isEmpty()) Text("暂无世界书，可先在世界书中添加条目", color = StudyDesign.muted,
+                            style = MaterialTheme.typography.bodySmall)
                         if (worldBooks.isNotEmpty()) {
-                            Text("本书世界书", fontWeight = FontWeight.Bold)
                             worldBooks.forEach { book ->
                                 Row(Modifier.fillMaxWidth().clickable(enabled = !generating) {
                                     onWorldBookChange(if (book.id in selectedWorldBookIds) selectedWorldBookIds - book.id else selectedWorldBookIds + book.id)

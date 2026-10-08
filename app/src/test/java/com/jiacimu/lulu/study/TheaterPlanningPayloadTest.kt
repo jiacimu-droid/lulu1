@@ -53,6 +53,15 @@ class TheaterPlanningPayloadTest {
         assertEquals(plan.getString("outline"), parsed.outline)
         assertEquals(7, parsed.number)
     }
+    @Test fun directorFrameworkAcceptsOneFilledSlotAndConciseCoreWithoutLengthThreshold() {
+        assertEquals("主动选择", StarWishTheaterPlanningEngine.parseStoryBible("{\"mainLine\":\"主动选择\"}", 2).mainLine)
+        val concise = StarWishStoryBible(worldview = "旧城", overview = "找回家人", cast = "姐弟", plotSpine = "寻找再相认",
+            mainLine = "寻找", stagePlan = "发现线索，面对真相")
+        assertTrue(StarWishTheaterPlanningEngine.storyBibleCompleteEnough(concise))
+        assertFalse(StarWishTheaterPlanningEngine.storyBibleCompleteEnough(StarWishStoryBible(cast = "姐弟")))
+        assertEquals(16, theaterBibleFields.size)
+        assertEquals(theaterBibleFields.keys, concise.fieldValues().keys)
+    }
     @Test fun emptyAndTruncatedRepliesCannotBecomeCompletedPlanning() {
         assertTrue(StarWishTheaterPlanningEngine.parseChapterPlans("", 1, 1).isEmpty())
         assertTrue(StarWishTheaterPlanningEngine.parseChapterPlans("{\"outline\":\"尚未完成的模型输出", 1, 1).isEmpty())

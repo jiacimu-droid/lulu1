@@ -563,10 +563,14 @@ internal object LuluVoiceCallSession {
 
     private fun startTimer() {
         timerJob?.cancel()
+        com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(mutableState.value.characterId)
         val startedAt = SystemClock.elapsedRealtime()
         timerJob = scope.launch {
             while (mutableState.value.connected) {
                 mutableState.update { it.copy(elapsedSeconds = (SystemClock.elapsedRealtime() - startedAt) / 1_000L) }
+                if (mutableState.value.elapsedSeconds % 60L == 0L) {
+                    com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(mutableState.value.characterId)
+                }
                 delay(1_000L)
             }
         }
@@ -574,6 +578,7 @@ internal object LuluVoiceCallSession {
 
     private fun saveCallExperience(current: LuluVoiceCallState) {
         if (!current.everConnected || current.experienceSaved) return
+        com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(current.characterId)
         val transcript = MigratedDomainStores.chat.messages(current.conversationId).value
             .drop(current.callStartMessageCount)
             .joinToString("\n") { message ->

@@ -114,3 +114,18 @@ internal fun StarWishStoryBible.withMissingFieldsFrom(previous: StarWishStoryBib
         endingDirection = endingDirection.ifBlank { previous.endingDirection },
         romanceAesthetics = romanceAesthetics.ifBlank { previous.romanceAesthetics },
     )
+
+/** One fixed framework shared by the director prompt and the visible planning page. */
+internal val theaterBibleFields = linkedMapOf(
+    "worldview" to "世界观", "overview" to "故事总纲", "hook" to "核心钩子", "highlights" to "核心看点",
+    "cast" to "人物与人设", "characterArcs" to "人物成长弧", "relationshipArc" to "长期感情线", "plotSpine" to "故事脉络",
+    "mainLine" to "明线", "hiddenLine" to "暗线", "foreshadows" to "伏笔明细", "stagePlan" to "阶段高潮与节奏",
+    "endingDirection" to "结局方向", "emotionalArc" to "情绪曲线", "proseStyle" to "文风执行", "romanceAesthetics" to "感情戏与人物描写",
+)
+
+internal fun StarWishStoryBible.fieldValues(): Map<String, String> = linkedMapOf(
+    "worldview" to worldview, "overview" to overview, "hook" to hook, "highlights" to highlights,
+    "cast" to cast, "characterArcs" to characterArcs, "relationshipArc" to relationshipArc, "plotSpine" to plotSpine,
+    "mainLine" to mainLine, "hiddenLine" to hiddenLine, "foreshadows" to foreshadows, "stagePlan" to stagePlan,
+    "endingDirection" to endingDirection, "emotionalArc" to emotionalArc, "proseStyle" to proseStyle, "romanceAesthetics" to romanceAesthetics,
+)

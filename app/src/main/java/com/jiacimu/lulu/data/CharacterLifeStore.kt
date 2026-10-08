@@ -41,7 +41,11 @@ object CharacterLifeStore {
         if (character.displayName !in setOf("江渡", "江都")) return
         val root = state(characterId)
         val version = root.optInt("jiangDuPresetVersion")
-        if (version >= 3) return
+        if (version >= 4) return
+        if (version >= 3) {
+            reorganizeJiangDuProfile(characterId, character, root)
+            return
+        }
         if (version >= 2) {
             if (!DigitalLifeProfileStore.isEnabled(characterId)) return
             if (!root.has("jiangDuRespectBackup")) {
@@ -61,6 +65,7 @@ object CharacterLifeStore {
             }
             root.put("profile", profile).put("jiangDuPresetVersion", 3)
             save(characterId, root)
+            applyJiangDuPreset(characterId)
             return
         }
         val rawIdentity = CharacterIdentityStore.identities.value[characterId].orEmpty()
@@ -82,6 +87,40 @@ object CharacterLifeStore {
         val profile = root.optJSONObject("profile") ?: JSONObject()
         CharacterProfileSchema.jiangDu.forEach { (key, value) -> profile.put(key, value) }
         root.put("profile", profile).put("jiangDuPresetVersion", 3)
+        save(characterId, root)
+        applyJiangDuPreset(characterId)
+    }
+
+    private fun reorganizeJiangDuProfile(characterId: String, character: CharacterSettings,
+        root: JSONObject) {
+        if (!DigitalLifeProfileStore.isEnabled(characterId)) return
+        val identity = CharacterIdentityStore.identities.value[characterId].orEmpty()
+        val profile = root.optJSONObject("profile") ?: JSONObject()
+        if (!root.has("jiangDuOrganizationBackup")) {
+            root.put("jiangDuOrganizationBackup", JSONObject().put("persona", character.persona)
+                .put("identity", identity).put("profile", JSONObject(profile.toString())))
+            save(characterId, root)
+        }
+        // Replace only program-owned defaults; preserve each user's edited field verbatim.
+        val cleanPersona = character.persona
+            .removeSuffix("\n\n" + CharacterProfileSchema.jiangDuRespectMarker + "\n" + LegacyJiangDuProfileSchema.jiangDuRespect)
+            .removeSuffix("\n\n" + CharacterProfileSchema.jiangDuRespectMarker + "\n" + CharacterProfileSchema.jiangDuRespect).trim()
+        val persona = if (cleanPersona == LegacyJiangDuProfileSchema.jiangDuPersona ||
+            cleanPersona == CharacterProfileSchema.jiangDuPersona) CharacterProfileSchema.jiangDuPersona else cleanPersona
+        MigratedDomainStores.characters.update(character.copy(persona = persona))
+        if (identity == LegacyJiangDuProfileSchema.jiangDuIdentity) {
+            CharacterIdentityStore.set(characterId, CharacterProfileSchema.jiangDuIdentity)
+        }
+        CharacterProfileSchema.jiangDu.forEach { (key, value) ->
+            val current = profile.optString(key)
+            val legacy = LegacyJiangDuProfileSchema.jiangDu[key].orEmpty()
+            if (!profile.has(key) || current == legacy || current == value) profile.put(key, value)
+            else if (key == "respect") {
+                val custom = current.replace(LegacyJiangDuProfileSchema.jiangDuRespect, "").trim()
+                profile.put(key, listOf(custom, value).filter(String::isNotBlank).distinct().joinToString("\n"))
+            }
+        }
+        root.put("profile", profile).put("jiangDuPresetVersion", 4)
         save(characterId, root)
     }
 

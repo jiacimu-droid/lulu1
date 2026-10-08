@@ -54,6 +54,7 @@ object ToolRouter {
             SharedExperienceTimeline.record("tool-$characterId-$requestId", characterId, "实际工具执行", "执行器",
                 execution.toString(), source = "tool-router", taskId = requestId, evidenceKind = EventEvidenceKind.ToolResult)
             val outcome = runCatching { JSONObject(result) }.getOrDefault(JSONObject())
+            if (outcome.optBoolean("success")) CompanionOnlineStore.recordActivity(characterId)
             CharacterLifeStore.recordOutcome(characterId, "tool-$characterId-$requestId", name, outcome.optBoolean("success"),
                 outcome.optString("summary").ifBlank { outcome.optString("error").ifBlank { result } })
             result

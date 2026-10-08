@@ -424,7 +424,6 @@ fun QqStyleChatDetailScreen(
             } else {
                 Surface(color = QqHeader, shadowElevation = 4.dp) {
                     Column(Modifier.fillMaxWidth()) {
-                        if (receiving) Text("正在请求并生成回复…", modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp), color = QqMuted, fontSize = 12.sp)
                         replyingTo?.let { quoted ->
                             Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Surface(Modifier.weight(1f), color = QqIconSurface, shape = RoundedCornerShape(10.dp)) {
@@ -534,30 +533,7 @@ fun QqStyleChatDetailScreen(
                     } else row()
                 }
             }
-            if (receiving && !multiSelectMode) {
-                item {
-                    val typingId = typingCharacterId
-                    val typingCharacter = typingId?.let { characters[it] ?: MigratedDomainStores.characters.get(it) }
-                    val typingLabel = typingId?.let { id ->
-                        groupChat?.members?.firstOrNull { it.characterId == id }?.groupNickname
-                            ?.ifBlank { typingCharacter?.displayName.orEmpty() }
-                            ?.ifBlank { typingCharacter?.displayName.orEmpty() }
-                    } ?: character.displayName
-                    Row(verticalAlignment = Alignment.Top) {
-                        if (groupChat == null) QqAvatar(character.displayName.take(1).ifBlank { "露" }, 44, character.avatarUri)
-                        else if (typingCharacter != null) QqAvatar(typingCharacter.displayName.take(1).ifBlank { "角" }, 44, typingCharacter.avatarUri)
-                        else QqGroupAvatar(groupChat, 44)
-                        Spacer(Modifier.width(9.dp))
-                        Surface(color = QqOther, shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, QqBorder)) {
-                            Row(Modifier.padding(horizontal = 14.dp, vertical = 11.dp), verticalAlignment = Alignment.CenterVertically) {
-                                CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp, color = QqInk)
-                                Spacer(Modifier.width(8.dp))
-                                Text(if (groupChat == null) "对方正在输入…" else "$typingLabel 正在输入…", color = QqMuted, fontSize = 13.sp)
-                            }
-                        }
-                    }
-                }
-            }
+
         }
     }
 

@@ -98,7 +98,10 @@ internal class StarWishCustomTheaterLibrary private constructor(context: Context
         }
     }
 
+    fun hiddenTitles(): Set<String> = prefs.getStringSet("hiddenTitles", emptySet()).orEmpty().toSet()
+
     fun add(seed: StarWishTheaterSeed) {
+        prefs.edit().putStringSet("hiddenTitles", hiddenTitles() - seed.title).apply()
         val items = (all().filterNot { it.title == seed.title } + seed).takeLast(60)
         val array = JSONArray().apply {
             items.forEach { put(JSONObject().put("title", it.title).put("prompt", it.prompt)) }
@@ -107,6 +110,7 @@ internal class StarWishCustomTheaterLibrary private constructor(context: Context
     }
 
     fun delete(title: String) {
+        prefs.edit().putStringSet("hiddenTitles", hiddenTitles() + title).apply()
         val array = JSONArray().apply {
             all().filterNot { it.title == title }.forEach {
                 put(JSONObject().put("title", it.title).put("prompt", it.prompt))

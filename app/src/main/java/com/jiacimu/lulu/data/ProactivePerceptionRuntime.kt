@@ -125,6 +125,8 @@ object ProactivePerceptionRuntime {
         currentCoroutineContext().ensureActive()
         if (onlineRevision != null && targetCharacterId != null &&
             !OnlineChatBatchStore.isCurrent(context, targetCharacterId, onlineRevision)) return@withLock 0
+        if (onlineRevision != null && targetCharacterId != null &&
+            !OnlineChatBatchStore.claim(context, targetCharacterId, onlineRevision)) return@withLock 0
         if (requiresUnread && targetCharacterId != null && CompanionOnlineStore.unreadChatSnapshot(targetCharacterId).text.isBlank()) return@withLock 0
         initialize(context)
         val appContext = context.applicationContext

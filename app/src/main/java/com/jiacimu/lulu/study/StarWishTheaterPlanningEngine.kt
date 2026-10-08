@@ -105,6 +105,7 @@ internal object StarWishTheaterPlanningEngine {
         existingBible: StarWishStoryBible? = null,
         ledger: StarWishStoryLedger? = null,
         theaterWorldBook: String = "",
+        onProgress: ((StarWishStoryBible) -> Unit)? = null,
     ): Result<StarWishStoryBible> = runCatching {
         require(storyGuide.isNotBlank()) { "故事地图不能为空" }
         val writtenEvidence = writtenChapters.takeLast(8).joinToString("\n\n") { chapter ->
@@ -139,31 +140,43 @@ internal object StarWishTheaterPlanningEngine {
             已经写出的正文优先级最高；可以调整尚未发生的未来，但不得为了新规划推翻已确认事实。
 
             目标只有两个：精彩、连贯。未来规划要有主动人物、因果链、伏笔与回收、关系变化和真正推进的事件。
-            只输出合法JSON对象，不要Markdown：
-            {"worldview":"","overview":"","hook":"","highlights":"","emotionalArc":"","proseStyle":"","cast":"","characterArcs":"","relationshipArc":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadows":"","stagePlan":"","endingDirection":"","romanceAesthetics":"","updatedThroughChapter":0}
+            框架分批填写，每次只返回本次指定的栏目；不要自行重新输出全部栏目。
         """.trimIndent()
-        val raw = generatePlanningText(
-            characterId = characterId,
-            facts = facts,
-            instruction = instruction,
-            title = "$storyTitle · 幕后规划",
-            maxTokens = 6_400,
-        )
-        var bible = runCatching { parseStoryBible(raw, writtenChapters.size) }.getOrNull()
-        if (bible == null || !storyBibleCompleteEnough(bible)) {
-            val fixed = repairStoryBiblePayload(
-                characterId = characterId,
-                facts = facts,
-                raw = raw,
-                storyTitle = storyTitle,
-                writtenCount = writtenChapters.size,
-            ).getOrThrow()
-            val repaired = parseStoryBible(fixed, writtenChapters.size)
-            bible = repaired.withMissingFieldsFrom(bible)
+        var bible = StarWishStoryBible(updatedThroughChapter = writtenChapters.size)
+        // Smaller fixed groups avoid one giant JSON document failing or being truncated.
+        for (group in theaterBibleFields.entries.chunked(4)) {
+            currentCoroutineContext().ensureActive()
+            val template = JSONObject().apply { group.forEach { put(it.key, "") } }
+            val raw = generatePlanningText(
+                characterId, facts + "\n已经填入本轮框架的内容：\n" + bible.promptText(),
+                instruction + "\n本次只填写这些栏目：" + group.joinToString { "${it.key}（${it.value}）" } +
+                    "。每栏写清具体因果与可执行内容；不适用的栏目说明原因，不留空。不要求固定字数。\n只返回本次模板：" + template,
+                "$storyTitle · " + group.joinToString { it.value }, 3_200,
+            )
+            val partial = runCatching { parseStoryBible(raw, writtenChapters.size) }.getOrNull()
+            if (partial != null) {
+                bible = partial.withMissingFieldsFrom(bible)
+                onProgress?.invoke(bible)
+            }
+            // Missing slots are repaired individually; all already-filled slots stay saved.
+            for (field in group) {
+                if (bible.fieldValues()[field.key].orEmpty().isNotBlank()) continue
+                val value = generatePlanningText(characterId,
+                    facts + "\n本轮已填内容：\n" + bible.promptText(),
+                    "只补充幕后规划中的“${field.value}”。与现有人物、世界书和正文事实一致。只输出这一栏的实质文字，不输出JSON、解释或其他栏目；不适用时说明具体原因。",
+                    "$storyTitle · 补充${field.value}", 1_200).trim()
+                val parsed = runCatching { parseStoryBible(value, writtenChapters.size) }.getOrNull()
+                val content = parsed?.fieldValues()?.get(field.key)?.takeIf(String::isNotBlank)
+                    ?: value.takeUnless { it.startsWith("{") || it.startsWith("[") || it.startsWith("```") }.orEmpty()
+                check(content.isNotBlank()) { "${field.value}尚未生成，已填栏目已经保存" }
+                bible = parseStoryBible(JSONObject().put(field.key, content).toString(), writtenChapters.size)
+                    .withMissingFieldsFrom(bible)
+                onProgress?.invoke(bible)
+            }
         }
-        check(storyBibleCompleteEnough(bible)) { "幕后规划生成不完整，已自动补全一次但仍缺少关键长线内容" }
+        check(storyBibleCompleteEnough(bible)) { "幕后规划关键栏目尚未填写，已填内容已经保存" }
         bible
-    }
+    }.onFailure { if (it is CancellationException) throw it }
 
     suspend fun generateChapterPlans(
         characterId: String,
@@ -179,7 +192,7 @@ internal object StarWishTheaterPlanningEngine {
     ): Result<List<StarWishChapterPlan>> = runCatching {
         require(storyGuide.isNotBlank()) { "总大纲不能为空" }
         require(chapterCount in 1..StarWishRules.MAX_CHAPTERS_PER_THEATER) { "章节数量不正确" }
-        require(storyBible != null && storyBible.promptText().isNotBlank()) {
+        require(storyBible != null && storyBibleCompleteEnough(storyBible)) {
             "必须先成功生成幕后规划，才能生成逐章规划"
         }
 
@@ -330,7 +343,7 @@ internal object StarWishTheaterPlanningEngine {
 
     internal fun parseStoryBible(raw: String, writtenCount: Int): StarWishStoryBible {
         val root = theaterPlanningObjects(parseJsonValue(raw)) { objectValue ->
-            theaterPlanningText(objectValue, "worldview").isNotBlank() || theaterPlanningText(objectValue, "cast").isNotBlank()
+            theaterBibleFields.keys.any { theaterPlanningText(objectValue, it).isNotBlank() }
         }.firstOrNull() ?: theaterPlanningSections(raw).takeIf { it.length() > 0 }
             ?: error("幕后规划未返回可识别的内容")
         return StarWishStoryBible(
@@ -354,29 +367,9 @@ internal object StarWishTheaterPlanningEngine {
         )
     }
 
-    private fun storyBibleCompleteEnough(bible: StarWishStoryBible): Boolean {
-        val required = listOf(
-            bible.worldview,
-            bible.overview,
-            bible.hook,
-            bible.highlights,
-            bible.emotionalArc,
-            bible.proseStyle,
-            bible.cast,
-            bible.characterArcs,
-            bible.relationshipArc,
-            bible.plotSpine,
-            bible.mainLine,
-            bible.hiddenLine,
-            bible.foreshadows,
-            bible.stagePlan,
-            bible.endingDirection,
-            bible.romanceAesthetics,
-        )
-        val filled = required.count { it.isNotBlank() }
-        val detailSize = required.sumOf { it.trim().length }
-        return filled >= 15 && detailSize >= 420
-    }
+    internal fun storyBibleCompleteEnough(bible: StarWishStoryBible): Boolean =
+        listOf(bible.worldview, bible.overview, bible.cast, bible.plotSpine, bible.mainLine, bible.stagePlan)
+            .all(String::isNotBlank)
 
     private suspend fun completeSingleStoryPayload(
         characterId: String,
@@ -446,40 +439,6 @@ internal object StarWishTheaterPlanningEngine {
             source = "剧场",
             title = "补全三套剧情方案",
             maxTokens = 7_600,
-            connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
-            contextMode = CompanionContextMode.Isolated,
-            readTimeoutMillis = 240_000,
-        ).getOrThrow().text
-    }
-
-    private suspend fun repairStoryBiblePayload(
-        characterId: String,
-        facts: String,
-        raw: String,
-        storyTitle: String,
-        writtenCount: Int,
-    ): Result<String> = runCatching {
-        LuluAiServices.gateway.generate(
-            characterId = characterId,
-            facts = buildString {
-                appendLine(facts)
-                appendLine()
-                appendLine("第一次幕后规划输出如下；可能是JSON格式损坏、包了一层对象、字段名偏差，或部分字段为空：")
-                appendLine(raw.take(28_000))
-            },
-            instruction = """
-                重新整理并补全为一份完整的幕后规划。不是逐章规划。
-                保留第一次输出中可用的故事创意，不得改写已经发生的正文事实。
-                以下字段都要有实质内容：worldview, overview, hook, highlights, emotionalArc, proseStyle,
-                cast, characterArcs, relationshipArc, plotSpine, mainLine, hiddenLine, foreshadows,
-                stagePlan, endingDirection, romanceAesthetics。
-                updatedThroughChapter 必须是 $writtenCount。
-                只输出一个合法JSON对象，不要Markdown，不要解释：
-                {"worldview":"","overview":"","hook":"","highlights":"","emotionalArc":"","proseStyle":"","cast":"","characterArcs":"","relationshipArc":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadows":"","stagePlan":"","endingDirection":"","romanceAesthetics":"","updatedThroughChapter":$writtenCount}
-            """.trimIndent(),
-            source = "剧场",
-            title = "$storyTitle · 修复幕后规划",
-            maxTokens = 7_200,
             connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
             contextMode = CompanionContextMode.Isolated,
             readTimeoutMillis = 240_000,
