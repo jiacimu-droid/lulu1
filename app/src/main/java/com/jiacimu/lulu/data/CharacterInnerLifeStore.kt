@@ -84,7 +84,7 @@ object CharacterInnerLifeStore {
                 }
                 root.put("emotionHistory", retained)
             }
-            listOf("motives", "corrections", "voice").forEach { key ->
+            listOf("motives", "corrections", "voice", "innerVoices").forEach { key ->
                 val values = root.optJSONArray(key) ?: return@forEach
                 val next = JSONArray()
                 for (i in 0 until values.length()) {
@@ -291,6 +291,27 @@ object CharacterInnerLifeStore {
         save(characterId, root)
     }
 
+    /**
+     * This is role-authored fictional inner speech, not objective evidence.
+     * A thought remains part of the personal mental timeline even if it is never spoken.
+     */
+    @Synchronized fun recordInnerVoice(
+        characterId: String, evidenceId: String, thought: String, now: Instant = Instant.now(),
+    ) {
+        if (prefs == null || characterId.isBlank() || evidenceId.isBlank()) return
+        val clean = thought.replace(Regex("\\\\s+"), " ").trim().take(200)
+        if (clean.isBlank()) return
+        val root = snapshot(characterId)
+        val old = root.optJSONArray("innerVoices") ?: JSONArray()
+        if ((0 until old.length()).any { old.optJSONObject(it)?.optString("evidenceId") == evidenceId }) return
+        root.put("innerVoices", JSONArray().apply {
+            for (i in maxOf(0, old.length() - 5) until old.length()) put(old.opt(i))
+            put(JSONObject().put("evidenceId", evidenceId).put("thought", clean)
+                .put("occurredAt", now.toString()))
+        })
+        save(characterId, root)
+    }
+
     /** Only call from an observed, persisted character message, never a speculative draft. */
     @Synchronized fun recordSpokenText(characterId: String, eventId: String, text: String) {
         if (prefs == null || eventId.isBlank()) return
@@ -314,6 +335,7 @@ object CharacterInnerLifeStore {
         val bonds = root.optJSONObject("bonds")
         val corrections = root.optJSONArray("corrections") ?: JSONArray()
         val voice = root.optJSONArray("voice") ?: JSONArray()
+        val innerVoices = root.optJSONArray("innerVoices") ?: JSONArray()
         return buildString {
             appendLine("【角色持续内在生活｜主观状态而非客观事实】")
             val active = (0 until motives.length()).mapNotNull(motives::optJSONObject)
@@ -368,6 +390,14 @@ object CharacterInnerLifeStore {
             if (corrections.length() > 0) {
                 val last = corrections.optJSONObject(corrections.length() - 1)
                 appendLine("自我修正：${last?.optString("realization")}；下次尝试：${last?.optString("nextTime")}。不要反复口头忏悔，以行动表现。")
+            }
+            if (innerVoices.length() > 0) {
+                appendLine("过往没说出口的真实主观心声（思绪可改变，不是已发生的事件）：")
+                for (i in maxOf(0, innerVoices.length() - 3) until innerVoices.length()) {
+                    val voiceMoment = innerVoices.optJSONObject(i) ?: continue
+                    appendLine("· ${voiceMoment.optString("thought")}")
+                }
+                appendLine("若情境有关，可让旧念头继续、碰撞或自然淡化；避免逐字复读、反复提起同一念头。")
             }
             if (voice.length() > 0) {
                 appendLine("角色近期实际说过的话（延续自己的语言节奏、称呼、话题与情绪表达习惯；不复制原话）：")
