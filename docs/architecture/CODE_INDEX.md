@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d488d6d0aee04de00fafffde17bd14f875340641`
+- 基准提交：`0264290982d4b2dcacfe5fd5b40cdaa13122cb55`
 - 分支：`main`
 - 已索引文件：349
-- 已索引代码/文本行：86896
+- 已索引代码/文本行：86910
 - 已发现符号：1227
 
 | 文件 | 行数 | 符号数 |
@@ -48,7 +48,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 144 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 148 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 156 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 521 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 565 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 97 | 3 |
@@ -74,7 +74,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 143 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 451 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 94 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 110 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 116 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 319 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 160 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 160 | 1 |

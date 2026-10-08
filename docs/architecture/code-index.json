@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T11:42:19.034027+00:00",
-  "commit": "d488d6d0aee04de00fafffde17bd14f875340641",
+  "generatedAt": "2026-10-08T11:42:34.751589+00:00",
+  "commit": "0264290982d4b2dcacfe5fd5b40cdaa13122cb55",
   "branch": "main",
-  "sourceFingerprint": "b2c9eacc29497398850abe1e299c6a03a6fe09affe625abfa8c6ce717f645a52",
+  "sourceFingerprint": "e6285f26b4b9f7c8f1867e162482d4096cb651de1fc26cc4eb48a78377f90b11",
   "summary": {
     "files": 349,
-    "lines": 86896,
+    "lines": 86910,
     "symbols": 1227
   },
   "symbolIndex": {
@@ -55,7 +55,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
-        "line": 21
+        "line": 22
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
@@ -67,7 +67,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt",
-        "line": 21
+        "line": 22
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
@@ -879,7 +879,7 @@
     "close": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
-        "line": 59
+        "line": 60
       }
     ],
     "LexiconFeatureScreenV2": [
@@ -7405,16 +7405,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
-      "lines": 148,
-      "sha256": "249e57909fe69cec143d84de61c5293d0c6eee9db6b517661ca30e084fc3e42a",
+      "lines": 156,
+      "sha256": "f89ea823bebf6eedec87a1f27f3afa356a4d8aec95f015706d25a5ff2dbcfc27",
       "symbols": [
         {
           "name": "stop",
-          "line": 21
+          "line": 22
         },
         {
           "name": "close",
-          "line": 59
+          "line": 60
         }
       ]
     },
@@ -7889,12 +7889,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt",
-      "lines": 110,
-      "sha256": "8b2992f32290211300dff0c1c89b11c7b2086478c7c5d57551778a50c7f19908",
+      "lines": 116,
+      "sha256": "0b7e154073d9f9ded36c4e3cc6daf004b5b116692137ef81a93a57be968ce19a",
       "symbols": [
         {
           "name": "stop",
-          "line": 21
+          "line": 22
         }
       ]
     },
