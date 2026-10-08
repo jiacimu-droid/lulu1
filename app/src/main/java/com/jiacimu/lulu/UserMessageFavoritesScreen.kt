@@ -109,7 +109,8 @@ internal fun UserMessageFavoritesScreen(onBack: () -> Unit) {
                                 Text(
                                     when {
                                         playingId == entry.messageId -> "停止"
-                                        hasAudio -> "播放收藏原声"
+                                        hasAudio && entry.messageId.startsWith("voice-") -> "播放收藏的通话原声"
+                                        hasAudio -> "播放收藏语音"
                                         entry.messageId.startsWith("voice-") -> "重新合成朗读（非通话原声）"
                                         else -> "朗读并保存语音"
                                     }
