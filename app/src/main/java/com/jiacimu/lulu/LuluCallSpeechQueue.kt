@@ -81,7 +81,7 @@ internal class LuluCallSpeechQueue(
         onBusyChanged(true)
         onSpeakerChanged(request.speakerId)
         val target = request.messageId?.let(ChatAutoVoicePlayback::callRecordingTarget)
-        val onFinished = {
+        val onFinished: () -> Unit = {
             scope.launch {
                 if (localGeneration != generation) return@launch
                 val succeeded = engine.lastPlaybackSucceeded
