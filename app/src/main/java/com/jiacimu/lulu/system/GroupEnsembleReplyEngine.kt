@@ -46,6 +46,8 @@ internal object GroupEnsembleReplyEngine {
         val tool: String,
         val args: JSONObject,
         val afterglow: JSONObject? = null,
+        val innerLife: JSONObject? = null,
+        val motiveId: String = "",
     )
 
     private data class CachedPlan(
@@ -53,6 +55,7 @@ internal object GroupEnsembleReplyEngine {
         val memberLabels: Map<String, String>,
         val definitions: Map<String, CharacterDefinitionSnapshot>,
         val emotionalAnchor: String,
+        val witnessedSpeakers: Set<String>,
     )
 
     private val lock = Any()
@@ -156,7 +159,7 @@ internal object GroupEnsembleReplyEngine {
                 appendLine("群里共有 $memberCount 个角色，但不是点名报数；除了当前首发者，其他人只在按自身性格真正想说时才发言，也允许一直旁听。")
                 appendLine("本轮最多允许 $replyLimit 个角色回合，可以只说一两轮，也可以自然延展。一个人可以再插话，而别人此刻完全不必发言。")
                 appendLine("真实群成员集合：${validMembers.joinToString(",") { it.characterId }}。它只决定谁有资格说话，不要求每个人一定说。")
-                if (mentionedIds.isNotEmpty()) appendLine("用户明确点名了：${mentionedIds.joinToString(",")}。被点名角色应自然更早接话，但其他成员这一轮仍然都要至少参与一次。")
+                if (mentionedIds.isNotEmpty()) appendLine("用户明确点名了：${mentionedIds.joinToString(",")}。被点名角色可以更积极地接话，但其他成员仍可以选择不发言。")
                 if (actionableUserMessages.isNotEmpty()) {
                     appendLine("\n【本轮用户尚未被回复的真实消息｜数量跟随用户实际发送，不按固定条数截取】")
                     actionableUserMessages.forEach { item -> appendLine("消息ID=${item.id}；内容=${item.content.take(320)}") }
@@ -220,6 +223,8 @@ internal object GroupEnsembleReplyEngine {
                 ${if (isCall) com.jiacimu.lulu.VoicePerformance.phoneInstruction(context).replace("电话的 text", "电话的 bubbles 中每条字符串") else ""}
                 15. ${if (isCall) "这是实时群聊电话，quoteMessageId、favoriteMessageId 留空，recallBubbleNumber=0，pokeUser=false；语言必须更口语化、适合直接念出。" else "这是文字群聊，可以自然使用连续短气泡、引用、角色主观收藏，以及非常偶发的撤回或戳一戳。"}
                 16. statusText、gesture、innerThought、mood 属于当前角色本人。内心可以是冲动、慌乱、暗喜、无语、突然冒粗口，也可以平静；外在未必全说出来，不能变成系统分析。若本轮用户真实消息强烈触动了此角色，可选填 afterglow:{"feeling":"第一拍心声","impulse":"尚未实施的冲动","holdHours":1到48的整数}；无强烈刺激不填。
+                16a. 如角色确实从本轮群话语或已发生的同伴发言中产生新情绪、想调整愿望、或改变对真正说过话的同伴的看法，可为该 turns 对象可选 innerLife:{"emotion":{"feeling":"私人感受","cause":"真实缘由","otherFeeling":"并存感受","strength":1到4},"motives":[{"op":"start|revise|pause|resume|release","id":"已有动机ID","aim":"具体愿望","why":"原因","reason":"改变依据"}],"social":{"targetId":"user或本群真实已发言的角色ID","interpretation":"本人的主观理解","reason":"实际对话依据"},"selfCorrection":{"realization":"反省","nextTime":"下次做法"}}，没有新依据可不填。仅根据自己真实见过的对话，不能把别人的私聊当证据。每个角色内在生活彼此隔离。
+                16b. 若执行 tool 真正用于自己既有的一个愿望，可选 motiveId:"已有动机ID"；真实执行结果将归入该愿望，而文字声称成功不算。
                 17. 每个角色还可以在自己这一回合自主执行一个真实露露机内动作。尤其用户在群里问“谁想玩”或某个角色想私下找用户时，可以填写 tool=send_game_invite 或 send_private_message；该动作会真实进入这个角色与用户的私聊，不能把私聊内容又写进群气泡。也可按角色意愿发布朋友圈、写日记、读真实正文、跨到另一个所在群聊、在允许时发起来电、邀请进入数字世界或创建家具。没有自然动机时 tool 留空，严禁为了展示功能每轮都调用。用户明确要求某角色立即执行可用动作时，该角色可以按人设拒绝；一旦答应就必须填写对应 tool，不能只在气泡里口头声称成功。
                 18. 群聊不是独立记忆空间。每个角色只有自己的那条原始时间线：私聊、群聊、电话、游戏和共同事件都按真实时间写在其中。群聊局部记录只负责“此刻怎么接话”，不能覆盖或替代个人时间线。
                 19. 如果这个群隔了很久才重新说话，而某个角色在间隔期间和用户发生过新的私聊/电话/游戏经历，那么这些更晚发生的个人经历才是这个角色更近的状态；不能因为重新打开群聊就把很久以前的群话题当作刚刚发生。
@@ -249,7 +254,9 @@ internal object GroupEnsembleReplyEngine {
 
         synchronized(lock) {
             cachedPlans[planKey] = CachedPlan(completed.toMutableList(), memberLabels, definitions,
-                "本轮群聊用户真实发言：${actionableUserMessages.joinToString("；") { it.content.take(150) }.ifBlank { latestUserMessage.content.take(180) }}")
+                "本轮群聊用户真实发言：${actionableUserMessages.joinToString("；") { it.content.take(150) }.ifBlank { latestUserMessage.content.take(180) }}",
+                messages.filter { it.sender == LuluChatMessage.Sender.Character && it.status == LuluChatMessage.Status.Sent }
+                    .takeLast(24).mapNotNull { it.authorCharacterId }.toSet())
             while (cachedPlans.size > 24) cachedPlans.remove(cachedPlans.keys.first())
         }
         return Result.success(
@@ -284,11 +291,16 @@ internal object GroupEnsembleReplyEngine {
             val next = cached.turns.firstOrNull()
             val nextLabel = next?.let { cached.memberLabels[it.characterId] }
             if (cached.turns.isEmpty()) cachedPlans.remove(planKey)
-            ServedTurn(turn, nextLabel, cached.emotionalAnchor)
+            ServedTurn(turn, nextLabel, cached.emotionalAnchor, cached.witnessedSpeakers)
         } ?: return null
 
         com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(
             served.turn.characterId, served.emotionalAnchor, served.turn.afterglow)
+        com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
+            served.turn.characterId, "group:${planKey}",
+            served.emotionalAnchor, served.turn.innerLife,
+            served.witnessedSpeakers.filterNot { it == served.turn.characterId }.toSet() + "user",
+        )
         CompanionPresenceStore.update(
             characterId = served.turn.characterId,
             statusText = served.turn.statusText,
@@ -298,11 +310,16 @@ internal object GroupEnsembleReplyEngine {
             source = "群聊·全员自然讨论",
         )
         if (served.turn.tool.isNotBlank()) {
-            CompanionActionRuntime.execute(
+            val toolResult = CompanionActionRuntime.execute(
                 context = context,
                 characterId = served.turn.characterId,
                 action = served.turn.tool,
                 args = served.turn.args,
+            )
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordActionResult(
+                served.turn.characterId, served.turn.motiveId,
+                "group-tool:${planKey}:${served.turn.tool}",
+                served.turn.tool, toolResult.success, toolResult.summary,
             )
         }
         val marker = served.nextLabel?.let { "⟪NEXT:$it⟫" } ?: EndMarker
@@ -319,7 +336,7 @@ internal object GroupEnsembleReplyEngine {
         )
     }
 
-    private data class ServedTurn(val turn: PlannedTurn, val nextLabel: String?, val emotionalAnchor: String)
+    private data class ServedTurn(val turn: PlannedTurn, val nextLabel: String?, val emotionalAnchor: String, val witnessedSpeakers: Set<String>)
 
     private fun parseTurns(
         raw: String,
@@ -377,6 +394,8 @@ internal object GroupEnsembleReplyEngine {
                             }.orEmpty(),
                             args = item.optJSONObject("args") ?: JSONObject(),
                             afterglow = item.optJSONObject("afterglow"),
+                            innerLife = item.optJSONObject("innerLife"),
+                            motiveId = item.optString("motiveId"),
                         ),
                     )
                 }
