@@ -164,8 +164,11 @@ object LuluDeviceToolBridge {
             text = com.jiacimu.lulu.CallReplyStream.completeReplyText(plannedReply.text) ?: plannedReply.text,
         ))
         com.jiacimu.lulu.data.CharacterLifeStore.consider(characterId, plan.intention)
+        val verifiedSourceId = com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
+            .lastOrNull { it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement &&
+                it.evidenceContent.contains(userText.trim().take(60)) }?.id
         com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
-            characterId, "chat:${now.toEpochMilli()}:${userText.hashCode()}",
+            characterId, verifiedSourceId ?: "chat:${now.toEpochMilli()}:${userText.hashCode()}",
             userText, plan.innerLife, setOf("user"), now,
         )
         if (plan.action == "reply") {
