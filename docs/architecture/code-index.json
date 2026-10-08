@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T07:16:23.926964+00:00",
-  "commit": "55d226ba7c803258c17ba275a2ad9c2957b1b7ac",
+  "generatedAt": "2026-10-08T07:17:46.956026+00:00",
+  "commit": "0e5bf89fcfa8c51cdf31fbbc10408947cafba73f",
   "branch": "main",
-  "sourceFingerprint": "75b87fdaee06d79e6be7fa4b95fd4d22d95c1d0e590b3add8e31ca601969c80c",
+  "sourceFingerprint": "8ced574d93286da36a56c5ca6f428270fde6e310b57fb71d519f962ca5b0a99e",
   "summary": {
-    "files": 341,
-    "lines": 86249,
-    "symbols": 1218
+    "files": 342,
+    "lines": 86292,
+    "symbols": 1219
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6780,6 +6780,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
         "line": 17
+      }
+    ],
+    "TheaterChapterCompletionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterChapterCompletionTest.kt",
+        "line": 5
       }
     ],
     "TheaterContinuityPayloadTest": [
@@ -13869,6 +13875,17 @@
         {
           "name": "propose",
           "line": 55
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterChapterCompletionTest.kt",
+      "lines": 43,
+      "sha256": "8dd9234b06a7b56f9cf62cd0bd6e2959fc34e7b69fb8065401f430bc17ab656f",
+      "symbols": [
+        {
+          "name": "TheaterChapterCompletionTest",
+          "line": 5
         }
       ]
     },
