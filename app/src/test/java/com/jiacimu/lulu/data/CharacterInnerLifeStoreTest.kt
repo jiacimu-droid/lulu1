@@ -74,6 +74,39 @@ class CharacterInnerLifeStoreTest {
         assertTrue(CharacterInnerLifeStore.context("inside-test-a").contains("书本打不开"))
     }
 
+    @Test fun layeredFeelingsRememberTheirCausesAndDoNotDuplicateReplays() {
+        start()
+        val now = Instant.parse("2026-10-09T08:00:00Z")
+        fun feeling(label: String, cause: String, impulse: String) = JSONObject().put(
+            "emotion", JSONObject().put("feeling", label).put("cause", cause)
+                .put("impulse", impulse).put("restraint", "不想马上表露")
+                .put("otherFeeling", "还有一点犹豫"),
+        )
+        CharacterInnerLifeStore.observe("inside-test-a", "msg-a", "她夸了他",
+            feeling("心里一热", "听到夸奖", "想多听一次"), setOf("user"), now)
+        CharacterInnerLifeStore.observe("inside-test-a", "msg-b", "她转移了话题",
+            feeling("略微失落", "话题突然变了", "想追问"), setOf("user"), now.plusSeconds(50))
+        val root = CharacterInnerLifeStore.snapshot("inside-test-a")
+        assertEquals("略微失落", root.getJSONObject("emotion").getString("feeling"))
+        assertEquals(1, root.getJSONArray("emotionHistory").length())
+        assertTrue(CharacterInnerLifeStore.context("inside-test-a", now.plusSeconds(60)).contains("心里一热"))
+        CharacterInnerLifeStore.observe("inside-test-a", "msg-b", "她转移了话题",
+            feeling("略微失落", "话题突然变了", "想追问"), setOf("user"), now.plusSeconds(50))
+        assertEquals(1, CharacterInnerLifeStore.snapshot("inside-test-a").getJSONArray("emotionHistory").length())
+        CharacterInnerLifeStore.invalidateEvidence("msg-a")
+        assertEquals(0, CharacterInnerLifeStore.snapshot("inside-test-a").getJSONArray("emotionHistory").length())
+    }
+
+    @Test fun factualAfterglowBecomesEmotionWithoutExtraModelCall() {
+        start()
+        val glow = JSONObject().put("feeling", "突然高兴起来")
+            .put("impulse", "想再说一句").put("holdHours", 2)
+        val proposed = CharacterInnerLifeStore.withAfterglow(null, glow, "用户真实发来的问候")
+        assertEquals("突然高兴起来", proposed!!.getJSONObject("emotion").getString("feeling"))
+        assertEquals("用户真实发来的问候", proposed.getJSONObject("emotion").getString("cause"))
+        assertNull(CharacterInnerLifeStore.withAfterglow(null, glow, ""))
+    }
+
     @Test fun emotionsCorrectionsAndVoiceSamplesNeedAnchors() {
         start()
         val emotion = JSONObject().put("emotion", JSONObject().put("feeling", "突然很开心")
