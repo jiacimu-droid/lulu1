@@ -88,6 +88,7 @@ internal class LuluSpeechEngine(context: Context) {
         voiceIdOverride: String? = null,
         onFinished: (() -> Unit)? = null,
         recordingTarget: File? = null,
+        source: String = "phone_direct",
     ) {
         if (!prefs.getBoolean("tts_enabled", true) || text.isBlank()) {
             onFinished?.invoke()
@@ -110,7 +111,7 @@ internal class LuluSpeechEngine(context: Context) {
             scope.launch {
                 runCatching { elevenSpeech.speak(text, voiceIdOverride ?: resolveCharacterVoiceId(text),
                     onStarted = { if (requestGeneration == playbackGeneration) onPlaybackState?.invoke(true) },
-                    recordingTarget = recordingTarget) }.onSuccess { complete -> if (requestGeneration == playbackGeneration) finishPlayback(complete) }
+                    recordingTarget = recordingTarget, source = source) }.onSuccess { complete -> if (requestGeneration == playbackGeneration) finishPlayback(complete) }
                     .onFailure { error -> if (requestGeneration == playbackGeneration) reportVoiceFailure(error) }
             }
         } else {
@@ -126,6 +127,7 @@ internal class LuluSpeechEngine(context: Context) {
         voiceIdOverride: String? = null,
         onFinished: (() -> Unit)? = null,
         allowGeneration: () -> Boolean = { true },
+        source: String = "manual_read",
     ) {
         if (!allowGeneration() || !prefs.getBoolean("tts_enabled", true) || text.isBlank()) {
             onFinished?.invoke()
@@ -152,7 +154,7 @@ internal class LuluSpeechEngine(context: Context) {
                     ensureActive()
                     check(allowGeneration() && requestGeneration == playbackGeneration) { "语音生成已关闭" }
                     val result = if (prefs.getString("tts_provider", "system") == "elevenlabs") {
-                        elevenSpeech.synthesize(text, voiceIdOverride)
+                        elevenSpeech.synthesize(text, voiceIdOverride, source)
                     } else requestMiniMaxAudio(text, voiceIdOverride) {
                         allowGeneration() && requestGeneration == playbackGeneration
                     }
@@ -203,7 +205,7 @@ internal class LuluSpeechEngine(context: Context) {
         stop()
         lastPlaybackSucceeded = false
         val generation = ++playbackGeneration
-        val complete = elevenSpeech.speak(text, null, onStarted = { onPlaybackState?.invoke(true) })
+        val complete = elevenSpeech.speak(text, null, onStarted = { onPlaybackState?.invoke(true) }, source = "voice_preview")
         check(generation == playbackGeneration && complete) { "试听已取消或播放未完成" }
         finishPlayback(true)
     }.onFailure { onPlaybackState?.invoke(false) }
