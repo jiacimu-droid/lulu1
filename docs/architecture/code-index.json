@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T12:03:03.072049+00:00",
-  "commit": "e4b016b56b7fa08bcbe6200ecd86c9d685436490",
+  "generatedAt": "2026-10-08T12:04:15.798737+00:00",
+  "commit": "1ef161ee9de5a419bf8c05ba2e7d22bc7b0f555b",
   "branch": "main",
-  "sourceFingerprint": "bac48e9c900ff7dfa4284a45424ec22b71c3848044b65870e5dadba20d5fed89",
+  "sourceFingerprint": "302209203f55e051ed1b0f82ba1bd54dc15ed973fbc0ac889925f565d8c0740d",
   "summary": {
     "files": 350,
-    "lines": 87133,
-    "symbols": 1228
+    "lines": 87153,
+    "symbols": 1229
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -47,7 +47,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
-        "line": 101
+        "line": 108
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
@@ -108,10 +108,16 @@
         "line": 65
       }
     ],
+    "preferredMicrophoneType": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
+        "line": 132
+      }
+    ],
     "headsetPriority": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
-        "line": 120
+        "line": 139
       }
     ],
     "claim": [
@@ -6910,8 +6916,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
-      "lines": 136,
-      "sha256": "9cba633b46fc654d9a3f2871821a681c25d5cd734dbc883e8c6a551db13ef358",
+      "lines": 156,
+      "sha256": "42b909b847db872ed3febffe91d4668d53094f1da959cfdad8fd1112d8f69ede",
       "symbols": [
         {
           "name": "start",
@@ -6931,11 +6937,15 @@
         },
         {
           "name": "stop",
-          "line": 101
+          "line": 108
+        },
+        {
+          "name": "preferredMicrophoneType",
+          "line": 132
         },
         {
           "name": "headsetPriority",
-          "line": 120
+          "line": 139
         }
       ]
     },
