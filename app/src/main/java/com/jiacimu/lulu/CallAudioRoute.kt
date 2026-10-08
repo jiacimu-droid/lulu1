@@ -147,7 +147,9 @@ internal class CallAudioRoute(
         private fun label(type: Int): String = when (type) {
             AudioDeviceInfo.TYPE_BUILTIN_SPEAKER -> "扬声器"
             AudioDeviceInfo.TYPE_BUILTIN_EARPIECE -> "听筒"
-            AudioDeviceInfo.TYPE_BLE_HEADSET, AudioDeviceInfo.TYPE_BLUETOOTH_SCO, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP -> "蓝牙耳机"
+            AudioDeviceInfo.TYPE_BLE_HEADSET -> "蓝牙耳机"
+            AudioDeviceInfo.TYPE_BLUETOOTH_SCO -> "蓝牙通话（音质受限）"
+            AudioDeviceInfo.TYPE_BLUETOOTH_A2DP -> "蓝牙耳机"
             AudioDeviceInfo.TYPE_HEARING_AID -> "助听设备"
             else -> "耳机"
         }
