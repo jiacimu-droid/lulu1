@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T16:58:34.341017+00:00",
-  "commit": "272c9392a7af1a72f0617a866c46169711227eb7",
+  "generatedAt": "2026-10-08T16:58:54.909832+00:00",
+  "commit": "c27c8cf40947c31d039b1f9aad42c9306435778d",
   "branch": "main",
-  "sourceFingerprint": "5f05b5cdccb1d16a88b1bfc2aba1c6a3264c9605526d1eb1c900905032f5daa9",
+  "sourceFingerprint": "de5edf444a89d8d97a93cca18442717fde1842eeb6ab0d116b3dad150e8e97a3",
   "summary": {
     "files": 358,
-    "lines": 88151,
+    "lines": 88172,
     "symbols": 1244
   },
   "symbolIndex": {
@@ -2001,7 +2001,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 234
+        "line": 235
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -2215,7 +2215,7 @@
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 226
+        "line": 227
       }
     ],
     "CharacterMessageFavorites": [
@@ -6821,7 +6821,7 @@
     "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 89
+        "line": 109
       }
     ],
     "CharacterOriginResetTest": [
@@ -8771,8 +8771,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 270,
-      "sha256": "af07b7f19e8604cbf0383f923429ba0ee56ff2be041b7c101a430b57b55ee4b8",
+      "lines": 271,
+      "sha256": "df9db59d5ffe805f150e759703535a9c9fbe33167559b8b198ea0cbc9b6d4af3",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -8784,11 +8784,11 @@
         },
         {
           "name": "profileContext",
-          "line": 226
+          "line": 227
         },
         {
           "name": "context",
-          "line": 234
+          "line": 235
         }
       ]
     },
@@ -14033,8 +14033,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 119,
-      "sha256": "a6977283fde992753582b4e9617bb679e3b5bcbcf083ab9a62ec192c06548ffb",
+      "lines": 139,
+      "sha256": "f7b046e35f43631470aa38c0dc36da9d76737b19b87a3542e8bcf2809655258e",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -14050,7 +14050,7 @@
         },
         {
           "name": "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits",
-          "line": 89
+          "line": 109
         }
       ]
     },
