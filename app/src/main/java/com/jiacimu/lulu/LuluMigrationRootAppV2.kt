@@ -2,6 +2,8 @@ package com.jiacimu.lulu
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
@@ -98,6 +100,8 @@ fun LuluMigrationRootAppV2(
     val preferences by LuluAppPreferencesStore.state.collectAsState()
     val studyState by PostgraduateExamStores.main.state.collectAsState()
     val pomodoroCompanion by PomodoroCompanionSessions.store.state.collectAsState()
+    val currentCall by LuluVoiceCallSession.state.collectAsState()
+    val callExpanded by LuluCallWindowController.expanded.collectAsState()
     val density = LocalDensity.current
     val preferredDensity = remember(density, preferences.largerText) {
         Density(
@@ -333,6 +337,22 @@ fun LuluMigrationRootAppV2(
                                 MigrationRoute.ChatDetail -> Unit
                             }
                         }
+                    }
+
+                    // Drawn above every route, including Theater, Games and Study.
+                    LuluCallFloatingWindow(
+                        modifier = Modifier.align(Alignment.TopEnd)
+                            .statusBarsPadding()
+                            .padding(top = 56.dp, end = 14.dp),
+                    )
+                    if (callExpanded && currentCall.hasSession &&
+                        currentCall.phase != CallPhase.Ended) {
+                        LuluVoiceCallScreen(
+                            conversationId = currentCall.conversationId,
+                            characterId = currentCall.characterId,
+                            characterName = currentCall.characterName,
+                            onDismiss = LuluCallWindowController::minimize,
+                        )
                     }
 
                     val pomodoroActive = pomodoroCompanion.activeSessionId.isNotBlank() && !pomodoroCompanion.completionHandled
