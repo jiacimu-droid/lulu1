@@ -75,6 +75,13 @@ internal class CallAudioRoute(
                 else -> devices.firstOrNull { it.type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER }
             }
             preferredOutput = desired
+            // Communication output selection alone does not guarantee Android
+            // will capture from the same headset microphone. Bind the input
+            // explicitly: headset mic for SCO/LE/USB/wired, otherwise phone mic.
+            val inputs = manager.getDevices(AudioManager.GET_DEVICES_INPUTS).toList()
+            val inputType = preferredMicrophoneType(desired?.type)
+            preferredInput = inputs.firstOrNull { it.type == inputType }
+                ?: inputs.firstOrNull { it.type == AudioDeviceInfo.TYPE_BUILTIN_MIC }
             if (Build.VERSION.SDK_INT >= 31) {
                 if (desired == null) { manager.clearCommunicationDevice(); onRoute(false, "系统输出") }
                 else {
@@ -102,6 +109,7 @@ internal class CallAudioRoute(
         if (!active) return
         active = false
         preferredOutput = null
+        preferredInput = null
         handler.removeCallbacks(retryRoute)
         manager.unregisterAudioDeviceCallback(callback)
         if (Build.VERSION.SDK_INT >= 31) {
@@ -117,6 +125,18 @@ internal class CallAudioRoute(
     companion object {
         @Volatile var preferredOutput: AudioDeviceInfo? = null
             private set
+        @Volatile var preferredInput: AudioDeviceInfo? = null
+            private set
+
+        /** Output-only earbuds use the handset mic; duplex headsets use their own mic. */
+        fun preferredMicrophoneType(outputType: Int?): Int = when (outputType) {
+            AudioDeviceInfo.TYPE_WIRED_HEADSET -> AudioDeviceInfo.TYPE_WIRED_HEADSET
+            AudioDeviceInfo.TYPE_USB_HEADSET -> AudioDeviceInfo.TYPE_USB_HEADSET
+            AudioDeviceInfo.TYPE_BLE_HEADSET -> AudioDeviceInfo.TYPE_BLE_HEADSET
+            AudioDeviceInfo.TYPE_BLUETOOTH_SCO -> AudioDeviceInfo.TYPE_BLUETOOTH_SCO
+            else -> AudioDeviceInfo.TYPE_BUILTIN_MIC
+        }
+
         fun headsetPriority(type: Int): Int = when (type) {
             AudioDeviceInfo.TYPE_WIRED_HEADSET, AudioDeviceInfo.TYPE_WIRED_HEADPHONES, AudioDeviceInfo.TYPE_USB_HEADSET -> 0
             AudioDeviceInfo.TYPE_BLE_HEADSET -> 1
