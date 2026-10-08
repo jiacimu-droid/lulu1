@@ -19,7 +19,8 @@ internal object TheaterChapterCompletion {
     }
 
     fun isFinished(raw: String, finishReason: String?): Boolean =
-        raw.contains(END_MARKER) && !cutOffByTokens(finishReason)
+        // A fully emitted end marker is decisive even if the provider mislabels the stop.
+        raw.contains(END_MARKER)
 
     /**
      * A follow-up may repeat the last part of the existing answer rather than
