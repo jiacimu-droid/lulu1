@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T17:52:38.185031+00:00",
-  "commit": "674dfa16e1e656c091bb705adbee41fd3d57c0f6",
+  "generatedAt": "2026-10-08T17:52:59.497138+00:00",
+  "commit": "02ff40bd3718aefe47606daa24c9428432ce9c96",
   "branch": "main",
-  "sourceFingerprint": "24fd50b7d2d2397cdf4fa5f2ebb4de68731763cdf71f8b1e109516d976701610",
+  "sourceFingerprint": "a8728b8385dcdedf1a86ebe36f6f9fd455c1f8eb07b0823f841474f4cac19784",
   "summary": {
     "files": 362,
-    "lines": 88659,
+    "lines": 88668,
     "symbols": 1256
   },
   "symbolIndex": {
@@ -6385,7 +6385,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
-        "line": 545
+        "line": 554
       }
     ],
     "generateNextChapter": [
@@ -6431,19 +6431,19 @@
     "usable": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
-        "line": 246
+        "line": 255
       }
     ],
     "publishProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
-        "line": 249
+        "line": 258
       }
     ],
     "collectValid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
-        "line": 257
+        "line": 266
       }
     ],
     "suggestedFileName": [
@@ -13480,24 +13480,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
-      "lines": 687,
-      "sha256": "6ab00426724e96cf4d704c6bedd4f0b8e0c152284ecacb7fe4f7bbab1b062b97",
+      "lines": 696,
+      "sha256": "4790315a5f3bab208ed0f9f75b0ee8e4302ea5b07b18c58a437fd1006480cde4",
       "symbols": [
         {
           "name": "usable",
-          "line": 246
+          "line": 255
         },
         {
           "name": "publishProgress",
-          "line": 249
+          "line": 258
         },
         {
           "name": "collectValid",
-          "line": 257
+          "line": 266
         },
         {
           "name": "add",
-          "line": 545
+          "line": 554
         }
       ]
     },
