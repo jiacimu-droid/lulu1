@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T06:54:25.034499+00:00",
-  "commit": "03c3c64a9e877de53c1f310b16c58ad7b1da58a1",
+  "generatedAt": "2026-10-08T06:54:53.688713+00:00",
+  "commit": "6e185ef4e960b9c728ec3f9da412cce8a10fe060",
   "branch": "main",
-  "sourceFingerprint": "0580cfa77c9df764602c0ba202666137b939c4cabc9b756c1c4874009aff5059",
+  "sourceFingerprint": "e1ff3b8d7d81eccb256bc4f9660a912b3d3553dbcff0414a2c45e13f09c8a590",
   "summary": {
     "files": 340,
-    "lines": 86097,
+    "lines": 86100,
     "symbols": 1213
   },
   "symbolIndex": {
@@ -13144,8 +13144,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
-      "lines": 698,
-      "sha256": "417b4a78a0ce166be5c147ee4d9ba255426bc3a17f061ea6a103971e8803062c",
+      "lines": 701,
+      "sha256": "bc7af385203fe36185de723265f2f626de862e011f967cc9434e42db067a8777",
       "symbols": []
     },
     {
