@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T19:14:13.400549+00:00",
-  "commit": "515ea865742c16aa6dfb3859cfe5581fe0333000",
+  "generatedAt": "2026-10-08T19:14:35.696343+00:00",
+  "commit": "d54dd54d96ac97529997096a69b6a2521e2012bd",
   "branch": "main",
-  "sourceFingerprint": "5b66bd5ce1bafb8dd4f20b7569aa6c42ecdef24f61d27d7523d2a540d20f8b3b",
+  "sourceFingerprint": "3c3f4c67a6434e34628e772763ad131dc145a651c691983e5e8badbdf53aad02",
   "summary": {
     "files": 369,
-    "lines": 89571,
+    "lines": 89556,
     "symbols": 1268
   },
   "symbolIndex": {
@@ -1365,7 +1365,7 @@
     "connect": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt",
-        "line": 42
+        "line": 41
       }
     ],
     "listen": [
@@ -8232,12 +8232,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt",
-      "lines": 200,
-      "sha256": "b8fd795c70d4ebae8a4f1776cd03ad0dfa6c6b2459202a8564ecd40108e48f6b",
+      "lines": 190,
+      "sha256": "d6e7714fe56610d2d4d8a782781704ec45470d221bfeae16fc201c52b22cd743",
       "symbols": [
         {
           "name": "connect",
-          "line": 42
+          "line": 41
         }
       ]
     },
@@ -8323,8 +8323,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 726,
-      "sha256": "c175d0b7af47837412bd4e1f0c49dbbd806f6ae6ee47e3527419c0c699057170",
+      "lines": 721,
+      "sha256": "da40f2e48cd9d59a8036c6251ec0997fa2169638f384c2293b6e8cf19df1aaf7",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
