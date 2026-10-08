@@ -102,7 +102,7 @@ internal object StarWishTheaterPlanningEngine {
             if (theaterWorldBook.isNotBlank()) {
                 appendLine("本剧场专属世界书（已开启条目，必须遵守）：\n$theaterWorldBook")
             }
-            existingBible?.promptText()?.takeIf(String::isNotBlank)?.let {
+            existingBible?.promptText()?.takeIf { it.isNotBlank() && writtenChapters.isNotEmpty() }?.let {
                 appendLine("旧幕后规划只作参考：如果未发生的长线、感情或伏笔与最新故事地图及用户创作要求不符，必须舍弃：\n$it")
             }
             ledger?.promptText()?.takeIf(String::isNotBlank)?.let {
@@ -471,9 +471,7 @@ internal object StarWishTheaterPlanningEngine {
         items.size == 3 && items.take(3).all(::candidateCompleteEnough)
 
     private fun candidateCompleteEnough(item: StarWishPlotCandidate): Boolean =
-        item.title.isNotBlank() && item.overview.isNotBlank() &&
-            item.highlights.isNotBlank() &&
-            (item.overview.trim().length + item.highlights.trim().length) >= 50
+        item.title.isNotBlank() && item.overview.isNotBlank() && item.highlights.isNotBlank()
 
     private fun chapterTexts(obj: JSONObject): List<String> {
         val value = firstValue(obj, "chapters", "章节", "chapterPlans", "章节规划") ?: return emptyList()
