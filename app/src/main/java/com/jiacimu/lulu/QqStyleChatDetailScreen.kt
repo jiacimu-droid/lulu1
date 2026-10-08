@@ -56,6 +56,10 @@ fun QqStyleChatDetailScreen(
     onOpenGame: (String?) -> Unit,
 ) {
     val context = LocalContext.current
+    DisposableEffect(conversationId) {
+        ChatAutoVoicePlayback.setVisibleConversation(conversationId)
+        onDispose { ChatAutoVoicePlayback.clearVisibleConversation(conversationId) }
+    }
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
