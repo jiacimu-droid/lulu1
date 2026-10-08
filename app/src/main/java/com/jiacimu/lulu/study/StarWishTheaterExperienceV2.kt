@@ -3,6 +3,8 @@ package com.jiacimu.lulu.study
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -31,7 +33,9 @@ import com.jiacimu.lulu.ScopedModelArchiveIconButton
 import com.jiacimu.lulu.ai.ScopedModelSelections
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private enum class TheaterV2Mode { BOOKSHELF, READER, PLANNER, BIBLE, WORLD_BOOK, GENERATOR }
 
@@ -384,6 +388,24 @@ private fun TheaterReaderV2(
     var selectedIndex by rememberSaveable(seed.title) { mutableIntStateOf(readerPrefs.getInt("chapter:${seed.title}", 0).coerceIn(0, (chapters.size - 1).coerceAtLeast(0))) }
     var influence by rememberSaveable(seed.title) { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
+    var pendingStoryExport by remember { mutableStateOf<String?>(null) }
+    val storyExportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { uri ->
+        val exportText = pendingStoryExport
+        pendingStoryExport = null
+        if (uri != null && exportText != null) {
+            scope.launch {
+                val outcome = withContext(Dispatchers.IO) {
+                    runCatching {
+                        val stream = context.contentResolver.openOutputStream(uri)
+                            ?: error("无法打开选择的保存位置")
+                        stream.bufferedWriter(Charsets.UTF_8).use { it.write(exportText) }
+                    }
+                }
+                outcome.onSuccess { message = "本书简介和全部已写章节已导出，可以把 TXT 文件发给我一起讨论剧情" }
+                    .onFailure { message = "导出失败：${it.message ?: "无法保存文件"}" }
+            }
+        }
+    }
     var chapterMenu by remember { mutableStateOf(false) }
     var overflowMenu by remember { mutableStateOf(false) }
     var composerExpanded by rememberSaveable(seed.title) { mutableStateOf(false) }
@@ -456,6 +478,21 @@ private fun TheaterReaderV2(
                 Box {
                     IconButton(onClick = { overflowMenu = true }) { Icon(Icons.Outlined.MoreVert, "更多") }
                     DropdownMenu(expanded = overflowMenu, onDismissRequest = { overflowMenu = false }) {
+                        DropdownMenuItem(
+                            text = { Text("导出本书（简介＋全部章节）") },
+                            leadingIcon = { Icon(Icons.Outlined.FileDownload, null) },
+                            onClick = {
+                                overflowMenu = false
+                                pendingStoryExport = StarWishTheaterStoryExport.render(
+                                    title = seed.title,
+                                    chapters = chapters,
+                                    storyGuide = state.theaterGuides[seed.title].orEmpty(),
+                                    bible = state.theaterBibles[seed.title],
+                                    seedIntro = seed.prompt,
+                                )
+                                storyExportLauncher.launch(StarWishTheaterStoryExport.suggestedFileName(seed.title))
+                            },
+                        )
                         if (selectedChapter != null) {
                             DropdownMenuItem(
                                 text = { Text("编辑本章") },
