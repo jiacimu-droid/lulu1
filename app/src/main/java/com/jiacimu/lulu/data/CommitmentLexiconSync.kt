@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.core.LexiconSection
+import com.jiacimu.lulu.core.LexiconStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -65,8 +66,13 @@ object CommitmentLexiconSync {
             }
             if (task.lastActionResult.isNotBlank()) append('\n').append("最近结果：${task.lastActionResult}")
         }
-        if (current.content == progress) return
-        LuluRepositories.lexicon.save(current.copy(content = progress, updatedAt = task.updatedAt))
+        val status = when {
+            task.status.isActive() -> LexiconStatus.Active
+            task.status == CommitmentTaskStatus.Completed -> LexiconStatus.Resolved
+            else -> LexiconStatus.Archived
+        }
+        if (current.content == progress && current.status == status) return
+        LuluRepositories.lexicon.save(current.copy(content = progress, status = status, updatedAt = task.updatedAt))
     }
 
     private fun reconcileDeletedLexiconEntries() {

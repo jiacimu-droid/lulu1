@@ -307,8 +307,8 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                                 onClick = {
                                     organizing = true
                                     scope.launch {
-                                        repository.flushNow(selectedCharacterId)
-                                        organizing = false
+                                        try { runCatching { repository.flushNow(selectedCharacterId) } }
+                                        finally { organizing = false }
                                     }
                                 },
                                 enabled = !organizing,

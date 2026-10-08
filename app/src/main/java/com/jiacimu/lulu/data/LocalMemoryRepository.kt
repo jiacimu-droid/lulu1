@@ -102,8 +102,13 @@ class LocalMemoryRepository : MemoryRepository {
         require(characterId.isNotBlank())
         val extractionLock = synchronized(extractionLocks) { extractionLocks.getOrPut(characterId) { Mutex() } }
         extractionLock.withLock {
-            extractImmediateMemories(characterId)
-            summarizeContinuously(characterId, flushTail = true)
+            try {
+                extractImmediateMemories(characterId)
+                summarizeContinuously(characterId, flushTail = true)
+            } catch (error: Exception) {
+                refreshDebug("记忆整理失败，记录保留等待重试", characterId, lastError = error.message)
+                throw error
+            }
         }
     }
 
@@ -130,17 +135,20 @@ class LocalMemoryRepository : MemoryRepository {
                     信号词只用于筛选：必须结合上下文理解，反问、假设、引用、角色台词、虚构故事、临时状态都不能当成长期事实。
                     只返回 JSON 数组；没有则返回 []。每项：
                     {"kind":"Fact","content":"一至两句完整中文事实","sourceEventIds":["直接支持的事件ID"],"occurredAt":"ISO-8601或空","strength":1到10,"tier":"Core|Stable","subject":"事实对象","slot":"偏好/称呼边界/长期安排等具体槽位"}
-                    每条来源必须包含至少一个目标用户事件。Core 仅用于用户郑重要求持续遵守的长期边界、重要关系或重要长期安排；普通喜好用 Stable。
+                    每条来源必须包含至少一个目标用户事件。Core 用于用户郑重要求持续遵守或长期牢记的稳定事实，包括重要边界、关系、安排及明确要求始终记住的偏好；普通喜好用 Stable。
                     ‘今天不吃辣’不是‘以后不喜欢辣’；‘记住’后面的临时提醒交给责任系统，不保存为长期核心事实。
                     只保存真实明确内容，不猜测、不扩写，不把角色答应行动当作完成。
                 """.trimIndent(),
-                source = "记忆", title = "重要信息即时记忆", maxTokens = 1_600,
+                source = "记忆", title = "重要信息即时记忆", maxTokens = 3_200,
                 contextMode = CompanionContextMode.Isolated, connectionOverride = extractionConnection(),
             ).getOrThrow()
             val parsed = parseMemoryArray(result.text, characterId, allowed).filter { memory ->
                 memory.kind == MemoryKind.Fact && memory.sourceIds().any(targetIds::contains)
             }
-            val liveIds = SharedExperienceTimeline.eventsByIds(characterId, allowed).mapTo(mutableSetOf(), SharedTimelineEvent::id)
+            val expectedRevisions = context.associate { it.id to it.revision }
+            val liveIds = SharedExperienceTimeline.eventsByIds(characterId, allowed)
+                .filter { expectedRevisions[it.id] == it.revision }
+                .mapTo(mutableSetOf(), SharedTimelineEvent::id)
             mutate { current ->
                 if ((historyGenerations[characterId] ?: 0L) != generation) return@mutate current
                 val valid = parsed.filter { it.sourceIds().all(liveIds::contains) }
@@ -200,6 +208,7 @@ class LocalMemoryRepository : MemoryRepository {
             )
 
             val batchIds = batch.mapTo(mutableSetOf()) { message -> message.id }
+            val expectedRevisions = SharedExperienceTimeline.eventsByIds(characterId, batchIds).associate { it.id to it.revision }
             val facts = batch.joinToString("\n") { message ->
                 val sender = if (message.sender == LuluChatMessage.Sender.User) "用户" else "角色"
                 "[事件ID=${message.id}] [${message.createdAt}] $sender：${message.content}"
@@ -223,12 +232,12 @@ class LocalMemoryRepository : MemoryRepository {
                     8. 每条记忆必须给出1—6个直接支持它的 sourceEventIds，只能复制输入中真实存在的事件ID；不要把整批ID都塞进去。
                     9. 记忆必须保留将来理解同义改写所需的人物、对象、原因、结果和必要语境，避免只写模糊关键词；但不要复制无关寒暄。
                     10. 日常寒暄、同义重复不要重复写入；没有值得保存的内容时返回 []。
-                    11. Core 只用于用户明确要求持续遵守的长期重要边界、关系或重要安排；普通偏好用 Stable，经历与情绪用 Episode。临时情况不能覆盖长期偏好。
+                    11. Core 用于用户明确要求持续遵守或长期牢记的重要稳定事实、边界、关系、安排及偏好；普通偏好用 Stable，经历与情绪用 Episode。临时情况不能覆盖长期偏好。
                     12. 每条记忆用一至两句写清必要语境，通常不超过160个中文字，避免复制原文或扩写。
                 """.trimIndent(),
                 source = "记忆",
                 title = "连续记忆提取",
-                maxTokens = 3200,
+                maxTokens = (800 + batch.size.coerceAtMost(40) * 180).coerceIn(3_200, 8_000),
                 contextMode = CompanionContextMode.Isolated,
                 readTimeoutMillis = 180_000,
                 connectionOverride = extractionConnection(),
@@ -269,6 +278,7 @@ class LocalMemoryRepository : MemoryRepository {
             // Revalidate after the model returns. Deleted source events are never accepted back into
             // memory even when an older extraction request finishes late.
             val liveBatchIds = SharedExperienceTimeline.eventsByIds(characterId, batchIds)
+                .filter { expectedRevisions[it.id] == it.revision }
                 .mapTo(mutableSetOf(), SharedTimelineEvent::id)
             val provenance = "timeline-batch:${liveBatchIds.joinToString("|")}"
             val snapshot = state.value
@@ -606,8 +616,10 @@ class LocalMemoryRepository : MemoryRepository {
     private fun mutate(transform: (MemoryStoreState) -> MemoryStoreState) {
         synchronized(lock) {
             val next = transform(state.value)
+            prefs?.let { storage ->
+                check(storage.edit().putString(KEY_STATE, encode(next).toString()).commit()) { "记忆保存失败，保留批次等待重试" }
+            }
             state.value = next
-            prefs?.edit()?.putString(KEY_STATE, encode(next).toString())?.commit()
         }
     }
 

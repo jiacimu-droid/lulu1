@@ -48,6 +48,14 @@ object ChatLexiconAutomation {
         appContext = context.applicationContext
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         scope.launch {
+            while (true) {
+                delay(60_000)
+                MigratedDomainStores.chat.conversations.value.forEach { conversation ->
+                    runCatching { inspectImmediateUpdate(conversation); inspectLatestTurn(conversation) }
+                }
+            }
+        }
+        scope.launch {
             MigratedDomainStores.chat.conversations.collectLatest { conversations ->
                 val liveIds = conversations.mapTo(mutableSetOf()) { it.id }
                 conversationJobs.keys

@@ -325,7 +325,7 @@ object RelevantMemoryRecall {
     /**
      * Per-query separation keeps a generally high-scoring model from flooding the candidate set.
      * It is deliberately relative to this query's own score distribution rather than a global
-     * cosine constant. The learned model floor above remains mandatory for vector-only recall.
+     * cosine constant. Cold-start nominations still require an independent contextual relevance check.
      */
     private fun querySeparationFloor(values: Collection<Double>): Double? {
         val sorted = values.filter { it.isFinite() && it in -1.0..1.0 }.sorted()
