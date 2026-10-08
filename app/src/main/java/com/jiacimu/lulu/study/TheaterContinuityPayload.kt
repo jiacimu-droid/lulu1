@@ -9,6 +9,9 @@ internal val theaterLedgerFields = linkedMapOf(
     "foreshadows" to listOf("伏笔状态", "伏笔", "foreshadows"),
     "keyItems" to listOf("关键物品", "物品状态", "keyItems"),
     "hardFacts" to listOf("硬事实", "已确认事实", "hardFacts"),
+    "chronology" to listOf("时间线", "已发生时间轴", "chronology"),
+    "physicalStates" to listOf("伤势与身体状态", "伤势状态", "physicalStates"),
+    "itemTransitions" to listOf("物品变化", "物品流转", "itemTransitions"),
 )
 
 internal fun parseTheaterLedger(raw: String, chapterNumber: Int, previous: StarWishStoryLedger? = null): StarWishStoryLedger {
@@ -26,6 +29,9 @@ internal fun parseTheaterLedger(raw: String, chapterNumber: Int, previous: StarW
         foreshadows = text("foreshadows").ifBlank { previous?.foreshadows.orEmpty() },
         keyItems = text("keyItems").ifBlank { previous?.keyItems.orEmpty() },
         hardFacts = text("hardFacts").ifBlank { previous?.hardFacts.orEmpty() },
+        chronology = text("chronology").ifBlank { previous?.chronology.orEmpty() },
+        physicalStates = text("physicalStates").ifBlank { previous?.physicalStates.orEmpty() },
+        itemTransitions = text("itemTransitions").ifBlank { previous?.itemTransitions.orEmpty() },
         updatedThroughChapter = chapterNumber)
 }
 
