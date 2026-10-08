@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T17:31:15.505814+00:00",
-  "commit": "faa20abbd0de2f0af1a2d65f4a1d563111202e95",
+  "generatedAt": "2026-10-08T17:32:04.965368+00:00",
+  "commit": "58f6dd880ff35e7e15857a0e00aa0056bb68b67b",
   "branch": "main",
-  "sourceFingerprint": "677134243ba3e90ec5cd944828e9604fda221b2aa10914b7a51f9d042460574e",
+  "sourceFingerprint": "e57a01d0e63d20b1691f886c2770beaf6a297ea923fa3716f3934472787531df",
   "summary": {
     "files": 360,
-    "lines": 88308,
+    "lines": 88314,
     "symbols": 1248
   },
   "symbolIndex": {
@@ -9155,8 +9155,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-      "lines": 35,
-      "sha256": "d09bbfdb740a7abbf675b91e762db3bf1750bfa04fab51471653670e3854b034",
+      "lines": 37,
+      "sha256": "ea79c43db780169b9125367422164a23b3f8a685639e04c5083a445b10d5ef28",
       "symbols": [
         {
           "name": "CommitmentTask",
@@ -9172,14 +9172,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt",
-      "lines": 60,
-      "sha256": "fbc7523344395d0b41c20769b441e5b11761811efe1e9ef982cb5acaf9899c35",
+      "lines": 62,
+      "sha256": "28f148c962c7f5bbb832b83caa74b280f8c7c53488cb7ba8eca4a8152af00812",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDraft.kt",
-      "lines": 15,
-      "sha256": "d216d45583f45e96cb4d90ac1f1e08684db9235d67e4d914f9f1a6c638862759",
+      "lines": 16,
+      "sha256": "e19e7e1a7b605fb79e040350665e02bae0b633e1a47377782d33f12a02e94f79",
       "symbols": [
         {
           "name": "CommitmentTaskDraft",
@@ -9189,8 +9189,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt",
-      "lines": 31,
-      "sha256": "41882faee1d568e53aca56b1e923ec41a155c91c94ee6032b90cb184003821c4",
+      "lines": 32,
+      "sha256": "5d89b91d143ac37e1aa21d1e5077b4566cf6263d1824c64b0cfd9cf6838bdd26",
       "symbols": []
     },
     {
