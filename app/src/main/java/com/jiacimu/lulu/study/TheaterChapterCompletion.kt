@@ -18,6 +18,7 @@ internal object TheaterChapterCompletion {
             reason == "output_limit" || reason == "token_limit"
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun isFinished(raw: String, finishReason: String?): Boolean {
         // The marker is authoritative even if an intermediary misreports the stop.
         // Keep finishReason in the signature to pair the check with provider metadata.
