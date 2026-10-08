@@ -39,6 +39,10 @@ internal data class StarWishChapterPlan(
     val number: Int,
     val title: String,
     val outline: String,
+    // Concrete scenes to execute rather than only a list of events.
+    val spotlight: String = "",
+    val sceneBeats: String = "",
+    val relationshipBeat: String = "",
 )
 
 internal data class StarWishStoryLedger(
@@ -52,6 +56,10 @@ internal data class StarWishStoryLedger(
     val hardFacts: String = "",
     val updatedThroughChapter: Int = 0,
     val evidenceOnly: Boolean = false,
+    // Independent continuity anchors, updated from actually published prose.
+    val chronology: String = "",
+    val physicalStates: String = "",
+    val itemTransitions: String = "",
 )
 
 internal data class StarWishStoryBible(
@@ -72,8 +80,15 @@ internal data class StarWishStoryBible(
     val endingDirection: String = "",
     val romanceAesthetics: String = "",
     val updatedThroughChapter: Int = 0,
+    // A creative compass, not a requirement to insert romance or conflict.
+    val experienceFocus: String = "",
+    val appearanceDesign: String = "",
+    val relationshipDynamics: String = "",
 ) {
     fun promptText(): String = buildString {
+        if (experienceFocus.isNotBlank()) appendLine("【阅读体验优先级 / 想兑现的场面】：$experienceFocus")
+        if (appearanceDesign.isNotBlank()) appendLine("【主要人物稳定视觉档案】：$appearanceDesign")
+        if (relationshipDynamics.isNotBlank()) appendLine("【双向关系动力】：$relationshipDynamics")
         if (worldview.isNotBlank()) appendLine("世界观：$worldview")
         if (overview.isNotBlank()) appendLine("故事总纲：$overview")
         if (hook.isNotBlank()) appendLine("核心钩子：$hook")
@@ -377,12 +392,17 @@ internal class StarWishStore private constructor(context: Context) {
 
     private fun encodePlan(value: StarWishChapterPlan) = JSONObject()
         .put("id", value.id).put("number", value.number).put("title", value.title).put("outline", value.outline)
+        .put("spotlight", value.spotlight).put("sceneBeats", value.sceneBeats)
+        .put("relationshipBeat", value.relationshipBeat)
 
     private fun decodePlan(item: JSONObject) = StarWishChapterPlan(
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
         number = item.optInt("number"),
         title = item.optString("title"),
         outline = item.optString("outline"),
+        spotlight = item.optString("spotlight"),
+        sceneBeats = item.optString("sceneBeats"),
+        relationshipBeat = item.optString("relationshipBeat"),
     )
 
     private fun encodeLedger(value: StarWishStoryLedger) = JSONObject()
@@ -390,6 +410,8 @@ internal class StarWishStore private constructor(context: Context) {
         .put("relationships", value.relationships).put("openThreads", value.openThreads)
         .put("foreshadows", value.foreshadows).put("keyItems", value.keyItems)
         .put("hardFacts", value.hardFacts)
+        .put("chronology", value.chronology).put("physicalStates", value.physicalStates)
+        .put("itemTransitions", value.itemTransitions)
         .put("updatedThroughChapter", value.updatedThroughChapter).put("evidenceOnly", value.evidenceOnly)
 
     private fun decodeLedger(item: JSONObject) = StarWishStoryLedger(
@@ -397,6 +419,8 @@ internal class StarWishStore private constructor(context: Context) {
         worldState = item.optString("worldState"), relationships = item.optString("relationships"),
         openThreads = item.optString("openThreads"), foreshadows = item.optString("foreshadows"),
         keyItems = item.optString("keyItems"), hardFacts = item.optString("hardFacts"),
+        chronology = item.optString("chronology"), physicalStates = item.optString("physicalStates"),
+        itemTransitions = item.optString("itemTransitions"),
         updatedThroughChapter = item.optInt("updatedThroughChapter"),
         evidenceOnly = item.optBoolean("evidenceOnly", false),
     )
@@ -410,6 +434,8 @@ internal class StarWishStore private constructor(context: Context) {
         .put("mainLine", value.mainLine).put("hiddenLine", value.hiddenLine)
         .put("foreshadows", value.foreshadows).put("stagePlan", value.stagePlan)
         .put("endingDirection", value.endingDirection).put("romanceAesthetics", value.romanceAesthetics)
+        .put("experienceFocus", value.experienceFocus).put("appearanceDesign", value.appearanceDesign)
+        .put("relationshipDynamics", value.relationshipDynamics)
         .put("updatedThroughChapter", value.updatedThroughChapter)
 
     private fun decodeBible(item: JSONObject) = StarWishStoryBible(
@@ -421,6 +447,9 @@ internal class StarWishStore private constructor(context: Context) {
         mainLine = item.optString("mainLine"), hiddenLine = item.optString("hiddenLine"),
         foreshadows = item.optString("foreshadows"), stagePlan = item.optString("stagePlan"),
         endingDirection = item.optString("endingDirection"), romanceAesthetics = item.optString("romanceAesthetics"),
+        experienceFocus = item.optString("experienceFocus"),
+        appearanceDesign = item.optString("appearanceDesign"),
+        relationshipDynamics = item.optString("relationshipDynamics"),
         updatedThroughChapter = item.optInt("updatedThroughChapter"),
     )
 
