@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T11:26:02.679976+00:00",
-  "commit": "1990606b175d65bb7b32066e0e704d0822eda7d8",
+  "generatedAt": "2026-10-08T11:26:49.991093+00:00",
+  "commit": "df63103a04eaa8ddb059c580dc0ff6cadb3d7069",
   "branch": "main",
-  "sourceFingerprint": "c6fc3c6d41408e0182b6bc111fdb1f93388496bacc31255aeed09df942a23441",
+  "sourceFingerprint": "642c11007a81321a689ef83a6f92e58d3c250ac36ef792e06899ba265f94cc41",
   "summary": {
     "files": 344,
-    "lines": 86503,
+    "lines": 86509,
     "symbols": 1220
   },
   "symbolIndex": {
@@ -6541,7 +6541,7 @@
     "text": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt",
-        "line": 19
+        "line": 22
       }
     ],
     "parse": [
@@ -13452,12 +13452,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt",
-      "lines": 50,
-      "sha256": "64e3710a7d1c9ab6386ff777d71f7f08df8a1616671a934b6ea0d819aef1536e",
+      "lines": 56,
+      "sha256": "ba0d79ba33a95a774162fd59fce9d196d0390a2a268ba7f6f7bfdb600cc5eb07",
       "symbols": [
         {
           "name": "text",
-          "line": 19
+          "line": 22
         }
       ]
     },
