@@ -13,16 +13,16 @@ internal object StarWishTheaterStoryExport {
         bible: StarWishStoryBible?,
         seedIntro: String = "",
     ): String {
-        val overview = bible?.overview.orEmpty().trim().ifBlank {
-            section(storyGuide, "故事核心", "故事总纲", "故事简介")
+        val overview = section(storyGuide, "故事核心", "故事总纲", "故事简介").ifBlank {
+            bible?.overview.orEmpty().trim()
         }.ifBlank {
             storyGuide.trim().takeIf { "【" !in it }.orEmpty().ifBlank { seedIntro.trim() }
         }
-        val highlights = bible?.highlights.orEmpty().trim().ifBlank {
-            section(storyGuide, "核心看点", "看点")
+        val highlights = section(storyGuide, "核心看点", "看点").ifBlank {
+            bible?.highlights.orEmpty().trim()
         }
-        val hook = bible?.hook.orEmpty().trim().ifBlank {
-            section(storyGuide, "开篇钩子", "核心钩子")
+        val hook = section(storyGuide, "开篇钩子", "核心钩子").ifBlank {
+            bible?.hook.orEmpty().trim()
         }
         return buildString {
             appendLine("《${title.trim()}》")
@@ -50,7 +50,7 @@ internal object StarWishTheaterStoryExport {
                     appendLine()
                     appendLine("第${chapter.chapter}章 · ${chapter.title.trim().ifBlank { "未命名" }}")
                     appendLine()
-                    appendLine(chapter.content.trim())
+                    appendLine(chapter.content)
                     appendLine()
                 }
             }
