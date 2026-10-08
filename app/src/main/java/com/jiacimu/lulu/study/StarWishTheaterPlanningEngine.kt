@@ -20,7 +20,42 @@ internal object StarWishTheaterPlanningEngine {
         onCandidates: ((List<StarWishPlotCandidate>) -> Unit)? = null,
     ): Result<List<StarWishPlotCandidate>> = runCatching {
         val accepted = mutableListOf<StarWishPlotCandidate>()
-        for (variant in 1..3) {
+        // A single request is significantly cheaper for providers that bill
+        // per call and avoids three serialized request round trips.
+        // Preserve the older per-candidate fallback for models whose output
+        // cannot reliably fit three independent proposals into one JSON array.
+        val batchFacts = buildString {
+            appendLine("剧场新作品创作。三套方案都必须高度符合用户想看的体验，重点不同但不能跑题。")
+            if (theaterWorldBook.isNotBlank()) appendLine("本书选用世界书（必须遵守）：\n$theaterWorldBook")
+            if (!existingTitle.isNullOrBlank()) appendLine("现有标题：$existingTitle")
+            if (!existingGuide.isNullOrBlank()) appendLine("现有故事地图：\n$existingGuide")
+            appendLine("用户原始创作愿望和禁忌（最高优先级）：\n${direction.ifBlank { "自由题材，不默认长篇、虐恋或成长。" }}")
+        }
+        val batchInstruction = """
+            你是擅长不同篇幅的小说体验策划。输出恰好三套不同切入点的详细方案，三套都要兑现用户想看的爽点、张力、氛围、互动或其他核心体验。
+            三四章短篇无需长线成长，龙傲天无需挫败和升级，纯氛围体验无需主线或强加感情戏。不要为了凑满字段设计没有必要的伏笔、恋爱、暗线、人物弧；不适用字段直接写空字符串。
+            每套必须有具体且有区别的 title、overview、highlights。三套同等用心，不允许“同方案一”“略”或只有一句话。请直接输出恰好三个JSON对象组成的数组，每个字段的值为字符串，不输出说明文字：
+            [{"title":"","overview":"","highlights":"","worldview":"","hook":"","cast":"","proseStyle":"","wordCount":"1800-3000","characterArcs":"","relationshipCore":"","plotSpine":"","mainLine":"","hiddenLine":"","foreshadowing":"","stagePlan":"","endingDirection":"","emotionalArc":"","romanceAesthetics":""}]
+        """.trimIndent()
+        currentCoroutineContext().ensureActive()
+        val batchRaw = LuluAiServices.gateway.generate(
+            characterId = characterId,
+            facts = batchFacts,
+            instruction = batchInstruction,
+            source = "剧场",
+            title = "新故事三套候选方案",
+            maxTokens = 7_200,
+            connectionOverride = ScopedModelSelections.resolveConnection(ScopedModelSelections.THEATER),
+            contextMode = CompanionContextMode.Isolated,
+            readTimeoutMillis = 240_000,
+        ).getOrThrow().text
+        accepted += parseCandidates(batchRaw)
+            .filter(::candidateCompleteEnough)
+            .distinctBy { it.title.trim() }
+            .take(3)
+            .map { it.copy(creativeIntent = direction.trim()) }
+        if (accepted.isNotEmpty()) onCandidates?.invoke(accepted.toList())
+        for (variant in (accepted.size + 1)..3) {
             currentCoroutineContext().ensureActive()
             val previous = accepted.joinToString("\n") { "《${it.title}》：${it.hook.take(180)}" }
             val facts = buildString {
