@@ -37,11 +37,22 @@ object ChatAutoVoicePlayback {
     private var engine: LuluSpeechEngine? = null
     private var workerStarted = false
     private var autoPlaySuppressionDepth = 0
+    @Volatile private var activeRequest: Request? = null
+    private var settingsListener: android.content.SharedPreferences.OnSharedPreferenceChangeListener? = null
 
     fun initialize(context: Context) {
         synchronized(this) {
             val applicationContext = context.applicationContext
             appContext = applicationContext
+            AutomaticVoiceForeground.install(applicationContext)
+            AutomaticVoiceForeground.onBackground { cancelInFlight() }
+            if (settingsListener == null) {
+                val preferences = applicationContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+                settingsListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                    if (key in setOf("tts_enabled", "tts_auto_speak") &&
+                        !VoiceSynthesisPolicy.automaticAllowed(applicationContext)) cancelInFlight()
+                }.also(preferences::registerOnSharedPreferenceChangeListener)
+            }
             UserMessageFavorites.initialize(applicationContext)
             if (engine == null) {
                 CharacterVoicePreferenceStore.initialize(applicationContext)
@@ -52,23 +63,37 @@ object ChatAutoVoicePlayback {
                 workerStarted = true
                 scope.launch {
                     for (request in queue) {
-                        if (request.requireAutoPlay && autoPlaySuppressed()) continue
-                        if (request.requireAutoPlay && !CharacterVoicePreferenceStore.isEnabled(request.characterId)) continue
+                        if (!AutomaticVoiceForeground.visible()) continue
+                        if (request.requireAutoPlay && (autoPlaySuppressed() ||
+                            !VoiceSynthesisPolicy.chatAutomaticAllowed(applicationContext, request.characterId))) continue
                         val speech = request.text.trim()
                         if (speech.isBlank()) continue
                         val base = cacheBase(request.messageId) ?: continue
-                        suspendCancellableCoroutine<Unit> { continuation ->
-                            engine?.speakAndCache(
-                                text = speech,
-                                cacheBaseFile = base,
-                                scope = scope,
-                                onFinished = {
-                                    cachedFile(request.messageId)?.let { audio -> runCatching { UserMessageFavorites.retainAudio(request.messageId, audio) } }
-                                    if (continuation.isActive) continuation.resume(Unit)
-                                },
-                                voiceIdOverride = request.voiceId,
-                            ) ?: continuation.resume(Unit)
-                            continuation.invokeOnCancellation { engine?.stop() }
+                        activeRequest = request
+                        try {
+                            suspendCancellableCoroutine<Unit> { continuation ->
+                                engine?.speakAndCache(
+                                    text = speech,
+                                    cacheBaseFile = base,
+                                    scope = scope,
+                                    onFinished = {
+                                        cachedFile(request.messageId)?.let { audio ->
+                                            runCatching { UserMessageFavorites.retainAudio(request.messageId, audio) }
+                                        }
+                                        if (continuation.isActive) continuation.resume(Unit)
+                                    },
+                                    voiceIdOverride = request.voiceId,
+                                    allowGeneration = {
+                                        AutomaticVoiceForeground.visible() &&
+                                            (!request.requireAutoPlay ||
+                                                (!autoPlaySuppressed() &&
+                                                    VoiceSynthesisPolicy.chatAutomaticAllowed(applicationContext, request.characterId)))
+                                    },
+                                ) ?: continuation.resume(Unit)
+                                continuation.invokeOnCancellation { engine?.stop() }
+                            }
+                        } finally {
+                            if (activeRequest === request) activeRequest = null
                         }
                     }
                 }
@@ -83,6 +108,7 @@ object ChatAutoVoicePlayback {
     @Synchronized
     fun suppressAutoPlay() {
         autoPlaySuppressionDepth += 1
+        if (activeRequest?.requireAutoPlay == true) engine?.stop()
     }
 
     @Synchronized
@@ -93,10 +119,21 @@ object ChatAutoVoicePlayback {
     @Synchronized
     private fun autoPlaySuppressed(): Boolean = autoPlaySuppressionDepth > 0
 
+    /** A per-role toggle must cancel already-sent but not-yet-heard requests. */
+    @Synchronized fun onCharacterAutoReadChanged(characterId: String, enabled: Boolean) {
+        if (!enabled && activeRequest?.characterId == characterId &&
+            activeRequest?.requireAutoPlay == true) engine?.stop()
+    }
+
+    @Synchronized private fun cancelInFlight() {
+        if (activeRequest != null) engine?.stop()
+    }
+
     /** Called after a generated character bubble is persisted. */
     fun enqueue(characterId: String, messageId: String, text: String) {
         if (autoPlaySuppressed()) return
-        if (!CharacterVoicePreferenceStore.isEnabled(characterId)) return
+        if (!VoiceSynthesisPolicy.chatAutomaticAllowed(appContext ?: return, characterId)) return
+        if (!AutomaticVoiceForeground.visible()) return
         val clean = text.trim()
         if (clean.isBlank() || messageId.isBlank()) return
         queue.trySend(
@@ -116,7 +153,7 @@ object ChatAutoVoicePlayback {
      */
     fun replayCached(messageId: String): Boolean {
         val audio = cachedFile(messageId)
-        if (audio != null) return engine?.playCached(audio) == true
+        if (audio != null) return if (AutomaticVoiceForeground.visible()) engine?.playCached(audio) == true else false
         // An explicitly starred performance has its own immutable archive.
         // It should remain replayable even if the conversation cache is gone.
         val favorite = UserMessageFavorites.store.entries.value.firstOrNull { it.messageId == messageId }
