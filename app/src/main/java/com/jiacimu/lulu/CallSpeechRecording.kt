@@ -57,9 +57,15 @@ internal class CallSpeechRecording(private val target: File) {
             }
             file.close()
             if (completed) {
-                check(!target.exists() || target.delete())
-                check(temporary.renameTo(target))
-                true
+                if (target.isFile && target.length() > 0L) {
+                    // The first completed performance is canonical; do not
+                    // overwrite it with a later retry of the same message ID.
+                    temporary.delete()
+                    true
+                } else {
+                    check(temporary.renameTo(target))
+                    true
+                }
             } else false
         }.getOrDefault(false)
         if (!saved) temporary.delete()
