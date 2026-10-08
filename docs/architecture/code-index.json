@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T17:38:04.221678+00:00",
-  "commit": "cd1b80f819747105aa3c1eea25d4ea1a3ce37955",
+  "generatedAt": "2026-10-08T17:38:34.795855+00:00",
+  "commit": "383fb2531ad4291000eeed261c42ea893c036a2c",
   "branch": "main",
-  "sourceFingerprint": "90e001b38cefb449b9327dcc985bc1b2bc45c79f2c6c72490a440effbfdb03ec",
+  "sourceFingerprint": "e86f802160b2c5d55e0c8a8a1b6d89e0f187f6a5eaaa0d19bc654ac451771e2f",
   "summary": {
     "files": 361,
-    "lines": 88486,
+    "lines": 88491,
     "symbols": 1251
   },
   "symbolIndex": {
@@ -3101,7 +3101,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
-        "line": 41
+        "line": 46
       }
     ],
     "recordWitness": [
@@ -6829,7 +6829,7 @@
     "AutonomyCallAndReceiptTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
-        "line": 6
+        "line": 12
       }
     ],
     "CharacterDefinitionTest": [
@@ -14083,16 +14083,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
-      "lines": 51,
-      "sha256": "52f390723dc0045ff021eaea08dc7c014fb45ec6ca97e16a32dd2927d19d7f87",
+      "lines": 56,
+      "sha256": "41ab468b8d254665a7b237b3f3981507c738cc3383d2a8a6c85c183619987614",
       "symbols": [
         {
           "name": "AutonomyCallAndReceiptTest",
-          "line": 6
+          "line": 12
         },
         {
           "name": "tick",
-          "line": 41
+          "line": 46
         }
       ]
     },
