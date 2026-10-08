@@ -27,8 +27,14 @@ internal data class StarWishPlotCandidate(
     val stagePlan: String = "",
     val endingDirection: String = "",
     val romanceAesthetics: String = "",
+    val creativeIntent: String = "",
 ) {
     fun storyGuide(): String = buildString {
+        if (creativeIntent.isNotBlank()) {
+            appendLine("【用户原始创作要求（最高优先级）】")
+            appendLine(creativeIntent.trim())
+            appendLine()
+        }
         appendLine("【故事核心】")
         appendLine(overview.trim())
         appendLine("\n【核心看点】")
@@ -55,7 +61,7 @@ internal data class StarWishPlotCandidate(
         cast = cast.trim(),
         characterArcs = characterArcs.trim(),
         relationshipArc = relationshipCore.trim(),
-        plotSpine = plotSpine.trim().ifBlank { overview.trim() },
+        plotSpine = plotSpine.trim(),
         mainLine = mainLine.trim(),
         hiddenLine = hiddenLine.trim(),
         foreshadows = foreshadowing.trim(),
