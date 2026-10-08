@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T17:54:00.261611+00:00",
-  "commit": "478d6dc7777f04b47d8a6212c29c3fc05f96a7d6",
+  "generatedAt": "2026-10-08T18:01:25.221115+00:00",
+  "commit": "f845d7fa64b1ed05fd5ae605c38e6d50abbd9750",
   "branch": "main",
-  "sourceFingerprint": "5273143f133736f5cba02665aba5905c77b5262dec8d85ff9745801323784459",
+  "sourceFingerprint": "2c65d8949d03989fccb5c0b974aec9d8855012b8ef82dde3e56934b93245ec33",
   "summary": {
-    "files": 362,
-    "lines": 88678,
-    "symbols": 1256
+    "files": 363,
+    "lines": 88892,
+    "symbols": 1258
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2000,6 +2000,10 @@
         "line": 34
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
+        "line": 170
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
         "line": 281
       },
@@ -2234,6 +2238,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
         "line": 132
+      }
+    ],
+    "CharacterInnerLifeStore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
+        "line": 14
       }
     ],
     "CharacterLifeStore": [
@@ -8843,6 +8853,21 @@
         {
           "name": "delete",
           "line": 88
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
+      "lines": 214,
+      "sha256": "1c41c2e10530e88bcbe32f2e76e62327acb3ab1dcaf5cd91b86683dfdd910566",
+      "symbols": [
+        {
+          "name": "CharacterInnerLifeStore",
+          "line": 14
+        },
+        {
+          "name": "context",
+          "line": 170
         }
       ]
     },
