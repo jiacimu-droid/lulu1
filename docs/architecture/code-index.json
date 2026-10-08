@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T16:53:58.643391+00:00",
-  "commit": "50593b16b8f2ca8501274845ba2a1539196e4d6a",
+  "generatedAt": "2026-10-08T16:56:03.412218+00:00",
+  "commit": "610541b940396019bfdba2f73919b9508434e893",
   "branch": "main",
-  "sourceFingerprint": "fd581734c2107fc08031cb1aece2e2d739e7c4f0b8e7491f39abb8a9fb3f9d07",
+  "sourceFingerprint": "d219683ab5cb514400b440a1c07f06cc2dfb100d0174fd54d0aeeb51f66737ce",
   "summary": {
     "files": 358,
-    "lines": 88083,
+    "lines": 88120,
     "symbols": 1244
   },
   "symbolIndex": {
@@ -2001,7 +2001,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 217
+        "line": 234
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -2215,7 +2215,7 @@
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 209
+        "line": 226
       }
     ],
     "CharacterMessageFavorites": [
@@ -8644,7 +8644,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 41,
-      "sha256": "888456beeffb952ac53937295c86d08a58009ff9a2e6f671e9e383bcc30937b9",
+      "sha256": "f88f6d633ed87c0f3172d0f6144cfcd041ecd186d5a00c07f7e463c6dc7611d5",
       "symbols": [
         {
           "name": "Capability",
@@ -8771,8 +8771,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 244,
-      "sha256": "a88b4e86904999b2534ee255cebc5f0977c82de524f55b1879f3e918fcfaf690",
+      "lines": 270,
+      "sha256": "af07b7f19e8604cbf0383f923429ba0ee56ff2be041b7c101a430b57b55ee4b8",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -8784,11 +8784,11 @@
         },
         {
           "name": "profileContext",
-          "line": 209
+          "line": 226
         },
         {
           "name": "context",
-          "line": 217
+          "line": 234
         }
       ]
     },
@@ -9241,8 +9241,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 396,
-      "sha256": "076b9cf12a1b2300df69db040996425d17ab6e1479b9f062774760c7bd33df83",
+      "lines": 407,
+      "sha256": "2c606ebe469242e1cd75b7db1e59d7924f8dda4d2c4630f3ecd25ba73c02722e",
       "symbols": [
         {
           "name": "asJson",
