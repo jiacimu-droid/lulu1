@@ -85,6 +85,33 @@ class TheaterPlanningPayloadTest {
         assertEquals("", chosen.storyBible().relationshipArc)
         assertTrue(StarWishTheaterPlanningEngine.storyBibleCompleteEnough(chosen.storyBible()))
     }
+    @Test fun threePlansCanBeDecodedFromOneBatchResponse() {
+        val chapters = org.json.JSONArray().apply {
+            (1..3).forEach { number ->
+                put(JSONObject().put("number", number)
+                    .put("title", "第${number}章")
+                    .put("outline", "第${number}章兑现不同的高光场面，并自然衔接下一幕。"))
+            }
+        }
+        val result = StarWishTheaterPlanningEngine.parseChapterPlans(chapters.toString(), 4, 6)
+        assertEquals(3, result.size)
+        assertEquals(listOf(4, 5, 6), result.map { it.number })
+        assertTrue(result.all { it.outline.contains("高光场面") })
+    }
+
+    @Test fun threeCreativeOptionsCanBeDecodedFromOneRequest() {
+        val candidates = org.json.JSONArray().apply {
+            listOf("群雄俯首", "风雪重逢", "孤城一夜").forEach { title ->
+                put(JSONObject().put("title", title)
+                    .put("overview", "围绕这一场面的体验设计一部短篇。")
+                    .put("highlights", "场景、人物反应与情绪冲击都很具体。"))
+            }
+        }
+        val parsed = StarWishTheaterPlanningEngine.parseCandidates(candidates.toString())
+        assertEquals(3, parsed.size)
+        assertEquals(listOf("群雄俯首", "风雪重逢", "孤城一夜"), parsed.map { it.title })
+    }
+
     @Test fun emptyAndTruncatedRepliesCannotBecomeCompletedPlanning() {
         assertTrue(StarWishTheaterPlanningEngine.parseChapterPlans("", 1, 1).isEmpty())
         assertTrue(StarWishTheaterPlanningEngine.parseChapterPlans("{\"outline\":\"尚未完成的模型输出", 1, 1).isEmpty())
