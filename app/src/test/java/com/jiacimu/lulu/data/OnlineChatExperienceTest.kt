@@ -60,6 +60,24 @@ class OnlineChatExperienceTest {
         OnlineChatBatchStore.cancel(context, role)
     }
 
+    @Test fun offlineFirstBubbleStartsDeadlineBeforeWakeButtonIsPressed() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("三秒等待", "耐心读完用户的话")
+        val conversation = MigratedDomainStores.chat.ensureConversation(role.characterId, role.displayName)
+        OnlineChatBatchStore.cancel(context, role.characterId)
+        val firstMessage = MigratedDomainStores.chat.sendUserMessage(conversation.id, "第一句话，等等我")
+        val firstDeadline = firstMessage.createdAt.toEpochMilli() + OnlineChatBatchStore.QUIET_MILLIS
+        val wake = OnlineChatBatchStore.next(context, role.characterId, true,
+            now = firstMessage.createdAt.toEpochMilli() + 500L)
+        assertEquals(firstDeadline, wake.dueAtMillis)
+        val more = MigratedDomainStores.chat.sendUserMessage(conversation.id, "第二句话")
+        val scheduled = OnlineChatBatchStore.next(context, role.characterId, true, now = more.createdAt.toEpochMilli())
+        assertEquals(firstDeadline, scheduled.dueAtMillis)
+        OnlineChatBatchStore.cancel(context, role.characterId)
+    }
+
     @Test fun noUnreadDoesNotCallModelAndStillConsumesItsWakeWindow() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         val role = "empty-batch"
