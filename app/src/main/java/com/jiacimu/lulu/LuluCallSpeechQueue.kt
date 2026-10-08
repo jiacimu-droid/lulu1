@@ -24,6 +24,7 @@ internal class LuluCallSpeechQueue(
         val speakerId: String?,
         val text: String,
         val voiceId: String?,
+        val messageId: String?,
         val onDelivered: (() -> Unit)?,
     )
 
@@ -33,15 +34,18 @@ internal class LuluCallSpeechQueue(
     private var active = false
     private var generation = 0L
 
+    init { ChatAutoVoicePlayback.initialize(appContext) }
+
     fun enqueue(
         text: String,
         speakerId: String? = null,
         voiceId: String? = null,
         onDelivered: (() -> Unit)? = null,
+        messageId: String? = null,
     ) {
         val speech = VoicePerformance.forPlayback(appContext, text)
         if (speech.isBlank()) return
-        pending.addLast(Request(speakerId, speech, voiceId, onDelivered))
+        pending.addLast(Request(speakerId, speech, voiceId, messageId, onDelivered))
         if (!active) playNext()
     }
 
@@ -76,21 +80,32 @@ internal class LuluCallSpeechQueue(
         val localGeneration = generation
         onBusyChanged(true)
         onSpeakerChanged(request.speakerId)
-        engine.speak(
-            text = request.text,
-            scope = scope,
-            voiceIdOverride = request.voiceId,
-            onFinished = {
-                scope.launch {
-                    if (localGeneration != generation) return@launch
-                    val succeeded = engine.lastPlaybackSucceeded
-                    val failure = engine.lastError
-                    if (succeeded) request.onDelivered?.invoke()
-                    active = false
-                    if (!succeeded) onError(failure.ifBlank { "发声失败，回复保留在字幕里" })
-                    playNext()
-                }
-            },
-        )
+        val target = request.messageId?.let(ChatAutoVoicePlayback::callRecordingTarget)
+        val onFinished = {
+            scope.launch {
+                if (localGeneration != generation) return@launch
+                val succeeded = engine.lastPlaybackSucceeded
+                val failure = engine.lastError
+                if (succeeded) request.onDelivered?.invoke()
+                active = false
+                if (!succeeded) onError(failure.ifBlank { "发声失败，回复保留在字幕里" })
+                playNext()
+            }
+        }
+        if (target != null && appContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+                .getString("tts_provider", "system") == "system") {
+            // Android's built-in TTS can synthesize to WAV once before playback.
+            // For streaming cloud providers we record AudioTrack itself below.
+            engine.speakAndCache(request.text, java.io.File(target.parentFile, target.name.removeSuffix(".wav")),
+                scope, voiceIdOverride = request.voiceId, onFinished = onFinished)
+        } else {
+            engine.speak(
+                text = request.text,
+                scope = scope,
+                voiceIdOverride = request.voiceId,
+                onFinished = onFinished,
+                recordingTarget = target,
+            )
+        }
     }
 }
