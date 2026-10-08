@@ -44,19 +44,15 @@ jobs:
           set -o pipefail
           mkdir -p ci-logs
           python scripts/test_timeline_migration.py
-          gradle --no-daemon --stacktrace :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease :app:assemblePhone 2>&1 | tee ci-logs/gradle-build.log
+          gradle --no-daemon --stacktrace :app:testDebugUnitTest :app:assemblePhone 2>&1 | tee ci-logs/gradle-build.log
 
       - name: Collect APK
         run: |
           mkdir -p apk-artifacts
-          python scripts/apk_size_report.py app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/release/app-release.apk | tee ci-logs/apk-size.log
-          apk="$(find app/build/outputs/apk/release -name '*-release.apk' -print -quit)"
-          test -n "$apk"
-          cp "$apk" apk-artifacts/Lulu.apk
           phone_apk="$(find app/build/outputs/apk/phone -name '*.apk' -print -quit)"
           test -n "$phone_apk"
           cp "$phone_apk" apk-artifacts/Lulu-arm64.apk
-          python scripts/apk_size_report.py "$apk" "$phone_apk" | tee ci-logs/apk-arm64-size.log
+          python scripts/apk_size_report.py "$phone_apk" | tee ci-logs/apk-size.log
 
       - name: Upload temporary APK
         continue-on-error: true
@@ -75,7 +71,7 @@ jobs:
           set -euo pipefail
           tag="lulu-v${RELEASE_NUMBER}"
           title="Lulu v${RELEASE_NUMBER}"
-          notes="${title}，构建自 ${GITHUB_SHA}。"
+          notes="${title}，仅提供 ARM64 手机包（功能完整），构建自 ${GITHUB_SHA}。"
 
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" apk-artifacts/*.apk --clobber
