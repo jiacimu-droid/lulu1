@@ -506,12 +506,17 @@ internal class StarWishTheaterGenerationWorker(
                     appendLine("幕后创作规划（只采用适合本作品的栏目；空白项不必补充）：\n$it")
                 }
                 if (plans.isNotEmpty()) {
-                    appendLine("本章附近的逐章规划：")
-                    plans.filter { it.number in (chapterNumber - 2).coerceAtLeast(1)..(chapterNumber + 8) }
-                        .forEach { plan -> appendLine("- 第${plan.number}章 ${plan.title}：${plan.outline}") }
+                    appendLine("本章附近的逐章规划（本章高光优先于其余支线）：")
+                    plans.filter { it.number in (chapterNumber - 2).coerceAtLeast(1)..(chapterNumber + 4) }
+                        .forEach { plan -> appendLine(TheaterCanonEvidence.planningText(plan)) }
                 }
-                if (currentPlan != null) appendLine("本章优先兑现用户想看的核心体验与本章有效规划：${currentPlan.title}｜${currentPlan.outline}")
+                if (currentPlan != null) {
+                    appendLine("本章必须兑现的具体场面，而不是再安排别的追杀来替代：")
+                    appendLine(TheaterCanonEvidence.planningText(currentPlan))
+                }
                 if (ledger.updatedThroughChapter > 0) appendLine("截至第${ledger.updatedThroughChapter}章的连续性档案：\n${ledger.promptText()}")
+                val canonicalEvidence = TheaterCanonEvidence.index(chapters)
+                if (canonicalEvidence.isNotBlank()) appendLine("较早正文仍有效的原文事实锚点（从已保存章节提取，禁止无解释推翻；后文如矛盾，不能把错句当新设定）：\n$canonicalEvidence")
                 if (recentChapters.isNotBlank()) appendLine("最近章节原文：\n$recentChapters")
                 chapters.lastOrNull()?.content?.takeLast(1_500)?.let { appendLine("上一章结尾连续性锚点：\n$it") }
                 if (influence.isNotBlank()) appendLine("用户对本章的最高优先级要求：$influence")
@@ -523,6 +528,10 @@ internal class StarWishTheaterGenerationWorker(
                 幕后规划的栏目是可选手段：只执行真正存在且符合核心体验的内容，没写的明暗线、伏笔和关系线不需要临时补充。角色行动和事件必须自然、合乎已写事实，但不要求每章推进两条线。
                 新章紧接上章已发生内容，禁止重演既有动作、对白或发现。正文确认的生死、身份、关系、伤势、物品、地点和已知信息不可无解释推翻；最新选用世界书高于旧的未发生规划。
                 根据所需文风使用环境、五感、神态、动作、心理、对白停顿和潜台词营造体验，避免流水账和抽象总结。非收束章节可留下自然承接，短篇的收束章要尽情兑现看点并允许完整结束，不能强行设续集悬念。
+                不要用“长得俊美”“眼底冷光”“野狗一般”“像一柄刀”之类反复套用的泛词替代人物魅力。把视觉档案里稳定的容貌、身形、发肤、声音与动作特征有选择地融进视角：让角色对彼此的具体细节产生观察和反应；不能无凭空改换容貌、性别或身体状态。
+                优先完成本章的 spotlight 与 sceneBeats：将人物的欲望、靠近/退开、对话、沉默、触碰或对抗写成有升级有回报的场面；场面应持续到情绪真正兑现，而非一句“二人关系升温”后立刻切回追杀/阴谋。关系驱动作品要展示双方各自的意志，不因为契约、身份或设定就省略自主选择。
+                但不能给纯冒险、悬疑或无关系线作品擅自添加恋爱。若本章只需要一场漂亮的近距离互动，那就集中篇幅写这一场；如果是战斗/调查，则把高潮写实、写透，不套固定剧情模板。
+                写作时自行核对较早正文事实锚点及时间前后：三年前与三日前、已经失语的人重新开口、已经化为灰烬的物品突然出现，都必须有明确的正文原因或修复过程。不能靠一句“修仙世界可能治好”替缺失情节补锅。
                 全章确实写完时，最后单独输出固定标记【本章正文结束】，程序会自动隐藏；在写完整个本章前绝不能输出这个标记。不要为了省 token 只写半章，不要省略关键场面。
                 不输出提纲、作者解释、标题或系统提示（上述结尾标记除外）。
             """.trimIndent()
@@ -752,8 +761,10 @@ internal class StarWishTheaterGenerationWorker(
             instruction = """
                 更新这部独立小说的连续性档案。只记录正文已经确认的事实，不得猜测，不得引用任何聊天或角色资料。
                 只输出一个JSON对象，不要Markdown：
-                {"summary":"截至本章已经发生的内容","characters":"实际出现的人物状态","worldState":"当前时间地点和确立的规则","relationships":"正文确实发生的关系变化","openThreads":"仅正文确立且尚未解决的线索","foreshadows":"仅已出现的伏笔","keyItems":"正文真实出现的关键物品","hardFacts":"正文已确认且不可无解释违背的事实","updatedThroughChapter":${chapter.chapter}}
-                hardFacts 必须继承旧档案中仍成立的硬事实，只有新正文明确推翻时才能更新。若作品本来没有主线、感情变化、暗线或伏笔，对应字段留空，绝不可因模板而虚构；只保存正文证据和后续真正需要的状态，整份控制在2200字以内。
+                {"summary":"截至本章已经发生的内容","characters":"实际出现的人物状态","worldState":"当前时间地点和确立的规则","relationships":"正文确实发生的关系变化","openThreads":"仅正文确立且尚未解决的线索","foreshadows":"仅已出现的伏笔","keyItems":"正文真实出现的关键物品","hardFacts":"正文已确认且不可无解释违背的事实","chronology":"以第1章为第0天，列出已发生事件的相对日序，严格区分三年前与三日前等旧事","physicalStates":"关键人物伤势、器官缺损、死亡或治愈，写状态及确认章节","itemTransitions":"道具获得、使用、损坏、销毁、易主及确认章节","updatedThroughChapter":${chapter.chapter}}
+                chronology 按事件在故事中真实发生的时间记录：古代旧案的“三年前”不能被误写成主线行动发生于三年前；记录相对日序与昼夜，不清楚时写“待定”而不是瞎算。physicalStates 与 itemTransitions 只允许经明确正文证据变更，已拔的舌头不可突然恢复说话，已燃尽的道具不可无因重现。
+                hardFacts 必须继承旧档案中仍成立的硬事实，只有新正文写明具体恢复或转变的经过才能更新；遇到新旧矛盾时保留早先的明确状态，并在摘要标记“疑似矛盾”，不允许偷偷把错误变成新设定。
+                若作品本来没有主线、感情变化、暗线或伏笔，对应字段留空，绝不可因模板而虚构；只保存正文证据和后续真正需要的状态，整份控制在3000字以内。
             """.trimIndent(),
             source = "剧场",
             title = "$theater · 连续性档案",
@@ -788,8 +799,8 @@ internal class StarWishTheaterGenerationWorker(
             },
             instruction = """
                 重新建立这部小说截至当前章节的连续性档案。故事地图与逐章规划只是未来意图，不能把尚未发生的规划当作事实；已保存正文才是事实证据。只能依据提供的故事内容，不得调用聊天、角色资料或其他世界信息。
-                只输出JSON：{"summary":"","characters":"","worldState":"","relationships":"","openThreads":"","foreshadows":"","keyItems":"","hardFacts":"","updatedThroughChapter":${chapters.size}}
-                重点保留正文确认的人物、地点、状态、关系和关键物品；未完明暗线与伏笔只在作品实际存在时记录，不允许凭空补全。hardFacts 专门整理生死、亲属、身份、关系、重要伤势、关键秘密、物品归属和已发生事件，后续不得无解释违背。整份控制在2200字以内。
+                只输出JSON：{"summary":"","characters":"","worldState":"","relationships":"","openThreads":"","foreshadows":"","keyItems":"","hardFacts":"","chronology":"","physicalStates":"","itemTransitions":"","updatedThroughChapter":${chapters.size}}
+                重点保留正文确认的人物、地点、状态、关系和关键物品；未完明暗线与伏笔只在作品实际存在时记录，不允许凭空补全。hardFacts 专门整理生死、身份、关系及不可逆事件。chronology 要以第一章为第0天建立内部时间轴，区分遥远往事与近几天；physicalStates 跟踪伤势/器官缺损/治愈；itemTransitions 跟踪物品取得/消耗/销毁，注明来源章节。后文不同说法不能无解释覆盖前面已确认的事实。整份控制在3000字以内。
             """.trimIndent(),
             source = "剧场",
             title = "$theater · 重建连续性档案",
@@ -807,6 +818,10 @@ internal class StarWishTheaterGenerationWorker(
 }
 
 internal fun StarWishStoryLedger.promptText(): String = buildString {
+    if (chronology.isNotBlank()) appendLine("【固定时间轴；后续不可随意挪动】$chronology")
+    if (physicalStates.isNotBlank()) appendLine("【身体/伤势状态；变化须有正文证据】$physicalStates")
+    if (itemTransitions.isNotBlank()) appendLine("【物品取得/销毁/归属；不可凭空重现】$itemTransitions")
+    if (hardFacts.isNotBlank()) appendLine("【不可无解释推翻的硬事实】$hardFacts")
     if (summary.isNotBlank()) appendLine("剧情摘要：$summary")
     if (characters.isNotBlank()) appendLine("人物状态：$characters")
     if (worldState.isNotBlank()) appendLine("世界状态：$worldState")
