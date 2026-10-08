@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T17:34:56.249970+00:00",
-  "commit": "5a8a1ea0c42bdf14f1ae6c7d91d0e5d1e59e0283",
+  "generatedAt": "2026-10-08T17:35:41.699953+00:00",
+  "commit": "6f2359041aec6881823ed4ba321474503f282d9b",
   "branch": "main",
-  "sourceFingerprint": "1bb7d894b1dedd469c222deae2356939047c2f5bd3e13f36838c682b87ffb6c4",
+  "sourceFingerprint": "24f81e8fe7bf7769b4e83fb80fc6630bdd46eb757596f18efb5552e37880b6e1",
   "summary": {
-    "files": 360,
-    "lines": 88430,
-    "symbols": 1249
+    "files": 361,
+    "lines": 88481,
+    "symbols": 1251
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3098,6 +3098,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
         "line": 61
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
+        "line": 41
       }
     ],
     "recordWitness": [
@@ -6822,6 +6826,12 @@
         "line": 12
       }
     ],
+    "AutonomyCallAndReceiptTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
+        "line": 6
+      }
+    ],
     "CharacterDefinitionTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt",
@@ -9202,7 +9212,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt",
       "lines": 125,
-      "sha256": "fbcf01a29eaa943f99cd0ce5463d69d35a7f975f5e35dfa1099a8d69d7bfedb7",
+      "sha256": "3ac000581d4748a79dbe304172fc75907ce6c8801a15e2d57f7ee12f069cb23c",
       "symbols": []
     },
     {
@@ -14068,6 +14078,21 @@
         {
           "name": "ModelResponsePayloadTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
+      "lines": 51,
+      "sha256": "52f390723dc0045ff021eaea08dc7c014fb45ec6ca97e16a32dd2927d19d7f87",
+      "symbols": [
+        {
+          "name": "AutonomyCallAndReceiptTest",
+          "line": 6
+        },
+        {
+          "name": "tick",
+          "line": 41
         }
       ]
     },
