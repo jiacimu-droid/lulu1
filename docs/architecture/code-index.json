@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T17:50:11.259141+00:00",
-  "commit": "66e3902e9dfb161ce725ff07709543ff5bc1ad38",
+  "generatedAt": "2026-10-08T17:51:08.710640+00:00",
+  "commit": "2c8fc743b211d9ee3040b99e4b45ac6a705f9bf5",
   "branch": "main",
-  "sourceFingerprint": "ff34e42cd8db1a4790cc7f5227080ba6a68a0345f7e63bf5c1670c49cea803cf",
+  "sourceFingerprint": "ce64ae1717c7d40cfed08e8e4457d6b931cb7d74399823d610e9f95f7d56b45f",
   "summary": {
     "files": 362,
     "lines": 88641,
@@ -13785,7 +13785,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterPlanRecovery.kt",
       "lines": 61,
-      "sha256": "839e0aa11efe130c256aad6e34fa00cb351b3d5b972192f84499dff95ad30e4c",
+      "sha256": "641735271fa7d2978d7fd4f70fc7f789641c21ba4bd1ad83865900d55998b66e",
       "symbols": [
         {
           "name": "chapterNumber",
