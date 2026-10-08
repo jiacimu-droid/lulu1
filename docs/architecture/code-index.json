@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T11:32:07.279807+00:00",
-  "commit": "e241f5715845dbac2c631462dfd773905c38a318",
+  "generatedAt": "2026-10-08T11:42:19.034027+00:00",
+  "commit": "d488d6d0aee04de00fafffde17bd14f875340641",
   "branch": "main",
-  "sourceFingerprint": "2defdd7e0c2c32b2aa704049dfd9fc6e5d120f342f5403c21dd36d045ef2e70b",
+  "sourceFingerprint": "b2c9eacc29497398850abe1e299c6a03a6fe09affe625abfa8c6ce717f645a52",
   "summary": {
-    "files": 348,
-    "lines": 86819,
-    "symbols": 1225
+    "files": 349,
+    "lines": 86896,
+    "symbols": 1227
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -172,6 +172,10 @@
         "line": 18
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt",
+        "line": 36
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
         "line": 336
       }
@@ -186,6 +190,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
         "line": 55
+      }
+    ],
+    "write": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt",
+        "line": 25
       }
     ],
     "provider": [
@@ -6962,6 +6972,21 @@
         {
           "name": "completeReplyText",
           "line": 55
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt",
+      "lines": 77,
+      "sha256": "2b683992c0d62c55decec23372fe05004311fca54c210b6bb4d0b085253e2468",
+      "symbols": [
+        {
+          "name": "write",
+          "line": 25
+        },
+        {
+          "name": "finish",
+          "line": 36
         }
       ]
     },
