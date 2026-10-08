@@ -11,20 +11,36 @@ internal object OnlineChatBatchStore {
 
     @Synchronized fun next(context: Context, characterId: String, collectMessages: Boolean, now: Long = System.currentTimeMillis()): Batch {
         val p = prefs(context)
-        // The first unread event owns the deadline. Later bubbles do not postpone reading.
-        if (p.contains("due:$characterId") && (characterId to p.getLong("revision:$characterId", 0)) !in reading) {
-            return Batch(p.getLong("revision:$characterId", 0), p.getLong("due:$characterId", now))
+        // A pending batch uses a *trailing-edge* quiet window: every newly
+        // scheduled message moves the deadline three seconds after that message.
+        // Once a reply is actually being read, new messages open their own batch.
+        val pendingRevision = p.getLong("revision:$characterId", 0)
+        if (p.contains("due:$characterId") && (characterId to pendingRevision) !in reading) {
+            val existingDue = p.getLong("due:$characterId", now)
+            val due = if (collectMessages) now + QUIET_MILLIS else existingDue
+            if (due != existingDue) {
+                check(p.edit().putLong("due:$characterId", due).commit()) { "在线消息静默期保存失败" }
+            }
+            return Batch(pendingRevision, due)
         }
-        val revision = p.getLong("revision:$characterId", 0) + 1
-        val due = now + if (collectMessages) QUIET_MILLIS else 0
+        val revision = pendingRevision + 1
+        val due = if (collectMessages) now + QUIET_MILLIS else now
         check(p.edit().putLong("revision:$characterId", revision).putLong("due:$characterId", due).commit()) { "在线消息批次保存失败" }
         return Batch(revision, due)
     }
 
     /** Claim under the perception mutex; pending messages during this reply open the next window. */
-    @Synchronized fun claim(context: Context, characterId: String, revision: Long): Boolean {
+    @Synchronized fun claim(
+        context: Context,
+        characterId: String,
+        revision: Long,
+        now: Long = System.currentTimeMillis(),
+    ): Boolean {
         val p = prefs(context)
         if (!isCurrent(context, characterId, revision) || !p.contains("due:$characterId")) return false
+        // Closing the race between a sleeping worker and another incoming
+        // bubble: even a worker with the correct revision cannot read early.
+        if (now < p.getLong("due:$characterId", Long.MAX_VALUE)) return false
         return reading.add(characterId to revision)
     }
 
