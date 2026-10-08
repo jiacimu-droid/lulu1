@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T11:26:49.991093+00:00",
-  "commit": "df63103a04eaa8ddb059c580dc0ff6cadb3d7069",
+  "generatedAt": "2026-10-08T11:27:15.032523+00:00",
+  "commit": "13a1360368f1b95ad5931c1c59ef5135f39836bb",
   "branch": "main",
-  "sourceFingerprint": "642c11007a81321a689ef83a6f92e58d3c250ac36ef792e06899ba265f94cc41",
+  "sourceFingerprint": "b34731c7c307e8f81a54f4a9d6d490145a1c6d3ca1be61c6ee6750420bbcfeca",
   "summary": {
-    "files": 344,
-    "lines": 86509,
-    "symbols": 1220
+    "files": 345,
+    "lines": 86555,
+    "symbols": 1222
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6518,6 +6518,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt",
         "line": 33
+      }
+    ],
+    "index": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterCanonEvidence.kt",
+        "line": 16
+      }
+    ],
+    "planningText": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterCanonEvidence.kt",
+        "line": 38
       }
     ],
     "clean": [
@@ -13426,6 +13438,21 @@
       "lines": 156,
       "sha256": "b1dda12dc677542f845a5c35042c21703697e257e542cd363079e5187d8ef732",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterCanonEvidence.kt",
+      "lines": 46,
+      "sha256": "a1dbf50b824e1e061cd4ea152344ddebd8726c0a100dc1f22579fa3bc005d7be",
+      "symbols": [
+        {
+          "name": "index",
+          "line": 16
+        },
+        {
+          "name": "planningText",
+          "line": 38
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
