@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T11:30:01.578359+00:00",
-  "commit": "d57bcd999e481c35cb20e0a0153ce273a32d43e4",
+  "generatedAt": "2026-10-08T11:30:18.800917+00:00",
+  "commit": "20159cfd9515cabc95436dde869b403ca89b566b",
   "branch": "main",
-  "sourceFingerprint": "4532fcc946bd06021c87dfca6d5e9101dca148c16ad2c4b6edf10ba6607e6ff1",
+  "sourceFingerprint": "704ae99231a02962c904a80ad05425176ec44ab20daf4e3a0fbb3c648a3fc45c",
   "summary": {
-    "files": 345,
-    "lines": 86724,
-    "symbols": 1222
+    "files": 346,
+    "lines": 86767,
+    "symbols": 1223
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6797,6 +6797,12 @@
     "StarWishTheaterStoryExportTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/StarWishTheaterStoryExportTest.kt",
+        "line": 5
+      }
+    ],
+    "TheaterCanonEvidenceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterCanonEvidenceTest.kt",
         "line": 5
       }
     ],
@@ -13925,6 +13931,17 @@
       "symbols": [
         {
           "name": "StarWishTheaterStoryExportTest",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterCanonEvidenceTest.kt",
+      "lines": 43,
+      "sha256": "8dfb97b5e3674cf8ac19872ae9ad1cf07814793c97878eb455ec1b5c605c6ddc",
+      "symbols": [
+        {
+          "name": "TheaterCanonEvidenceTest",
           "line": 5
         }
       ]
