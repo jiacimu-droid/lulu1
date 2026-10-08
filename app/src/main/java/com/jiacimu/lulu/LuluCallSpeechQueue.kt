@@ -100,12 +100,13 @@ internal class LuluCallSpeechQueue(
             // Android's built-in TTS can synthesize to WAV once before playback.
             // For streaming cloud providers we record AudioTrack itself below.
             engine.speakAndCache(request.text, java.io.File(target.parentFile, target.name.removeSuffix(".wav")),
-                scope, voiceIdOverride = request.voiceId, onFinished = onFinished)
+                scope, voiceIdOverride = request.voiceId, onFinished = onFinished, source = "phone_direct")
         } else {
             engine.speak(
                 text = request.text,
                 scope = scope,
                 voiceIdOverride = request.voiceId,
+                source = "phone_direct",
                 onFinished = onFinished,
                 recordingTarget = target,
             )
