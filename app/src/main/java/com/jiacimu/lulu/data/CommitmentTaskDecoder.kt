@@ -30,6 +30,8 @@ internal fun decodeCommitmentTasks(raw: String?): List<CommitmentTask> {
                         nextCheckAt = item.nullInstant("nextCheckAt"),
                         completionCondition = item.optString("completionCondition"),
                         steps = item.optJSONArray("steps").strings(),
+                        deliveryAction = item.optString("deliveryAction", "send_private_message")
+                            .takeIf { it == "start_call" } ?: "send_private_message",
                         currentStep = item.optInt("currentStep", 0),
                         attemptCount = item.optInt("attemptCount", 0),
                         lastActionResult = item.optString("lastActionResult"),
