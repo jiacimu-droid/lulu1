@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T17:38:34.795855+00:00",
-  "commit": "383fb2531ad4291000eeed261c42ea893c036a2c",
+  "generatedAt": "2026-10-08T17:48:14.337596+00:00",
+  "commit": "bc2a0a5ebc179d5d6e98f656ff7bd8ebbaeda35e",
   "branch": "main",
-  "sourceFingerprint": "e86f802160b2c5d55e0c8a8a1b6d89e0f187f6a5eaaa0d19bc654ac451771e2f",
+  "sourceFingerprint": "28c22afe2143d1ee7b718b98ff2cee0a2fdb53865dff5c156477f05d0333e13f",
   "summary": {
-    "files": 361,
-    "lines": 88491,
-    "symbols": 1251
+    "files": 362,
+    "lines": 88567,
+    "symbols": 1253
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6382,6 +6382,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
         "line": 123
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
+        "line": 506
       }
     ],
     "generateNextChapter": [
@@ -6644,6 +6648,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
         "line": 22
+      }
+    ],
+    "chapterNumber": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterPlanRecovery.kt",
+        "line": 42
       }
     ],
     "text": [
@@ -13452,9 +13462,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
-      "lines": 633,
-      "sha256": "b6ebbc7814c80376b523ffb355b4862227ca061a75c8e7fec41fb5ca5bbb65d3",
-      "symbols": []
+      "lines": 648,
+      "sha256": "d3a779b51104871b5f220f19ad56aacbd9245d42d9e06e7c4eff06b35beac5c4",
+      "symbols": [
+        {
+          "name": "add",
+          "line": 506
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt",
@@ -13734,6 +13749,17 @@
         {
           "name": "append",
           "line": 33
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterPlanRecovery.kt",
+      "lines": 61,
+      "sha256": "839e0aa11efe130c256aad6e34fa00cb351b3d5b972192f84499dff95ad30e4c",
+      "symbols": [
+        {
+          "name": "chapterNumber",
+          "line": 42
         }
       ]
     },
