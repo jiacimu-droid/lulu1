@@ -55,6 +55,9 @@ private val planningAliases = listOf(
     listOf("overview", "故事总纲", "总纲", "总览", "故事核心"),
     listOf("hook", "核心钩子", "开篇钩子", "钩子"),
     listOf("cast", "人物", "人物设定", "人物卡", "人物与人设", "主要人物"),
+    listOf("experienceFocus", "核心阅读体验", "爽点执行", "阅读快感", "体验重心"),
+    listOf("appearanceDesign", "人物视觉档案", "容貌和身体细节", "人物外貌", "视觉设计"),
+    listOf("relationshipDynamics", "双向关系动力", "人物关系张力", "关系动力"),
     listOf("characterArcs", "人物成长", "成长弧", "人物成长弧"),
     listOf("relationshipArc", "relationshipCore", "长期感情线", "感情线", "关系线", "关系主线"),
     listOf("plotSpine", "故事脉络", "剧情脉络", "长线脉络", "故事脉络 / 主线"),
@@ -113,11 +116,16 @@ internal fun StarWishStoryBible.withMissingFieldsFrom(previous: StarWishStoryBib
         stagePlan = stagePlan.ifBlank { previous.stagePlan },
         endingDirection = endingDirection.ifBlank { previous.endingDirection },
         romanceAesthetics = romanceAesthetics.ifBlank { previous.romanceAesthetics },
+        experienceFocus = experienceFocus.ifBlank { previous.experienceFocus },
+        appearanceDesign = appearanceDesign.ifBlank { previous.appearanceDesign },
+        relationshipDynamics = relationshipDynamics.ifBlank { previous.relationshipDynamics },
     )
 
 /** One fixed framework shared by the director prompt and the visible planning page. */
 internal val theaterBibleFields = linkedMapOf(
     "worldview" to "世界观", "overview" to "故事总纲", "hook" to "核心钩子", "highlights" to "核心看点",
+    "experienceFocus" to "本书阅读体验与爽点兑现", "appearanceDesign" to "人物视觉与气质档案",
+    "relationshipDynamics" to "双向关系动力与权力张力",
     "cast" to "人物与人设", "characterArcs" to "人物成长弧", "relationshipArc" to "长期感情线", "plotSpine" to "故事脉络",
     "mainLine" to "明线", "hiddenLine" to "暗线", "foreshadows" to "伏笔明细", "stagePlan" to "阶段高潮与节奏",
     "endingDirection" to "结局方向", "emotionalArc" to "情绪曲线", "proseStyle" to "文风执行", "romanceAesthetics" to "感情戏与人物描写",
@@ -125,6 +133,8 @@ internal val theaterBibleFields = linkedMapOf(
 
 internal fun StarWishStoryBible.fieldValues(): Map<String, String> = linkedMapOf(
     "worldview" to worldview, "overview" to overview, "hook" to hook, "highlights" to highlights,
+    "experienceFocus" to experienceFocus, "appearanceDesign" to appearanceDesign,
+    "relationshipDynamics" to relationshipDynamics,
     "cast" to cast, "characterArcs" to characterArcs, "relationshipArc" to relationshipArc, "plotSpine" to plotSpine,
     "mainLine" to mainLine, "hiddenLine" to hiddenLine, "foreshadows" to foreshadows, "stagePlan" to stagePlan,
     "endingDirection" to endingDirection, "emotionalArc" to emotionalArc, "proseStyle" to proseStyle, "romanceAesthetics" to romanceAesthetics,
