@@ -149,7 +149,8 @@ object MeetingVoicePlayback {
         val speech = engine ?: return
         speech.onPlaybackState = { playing -> AvatarController.playback(resolvedCharacterId, playing) }
         val voiceSettings = application.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE).all
-            .filterKeys { (it.startsWith("tts_") || it.startsWith("minimax_") || it.startsWith("eleven_")) && !it.contains("key") && !it.contains("group_id") }
+            .filterKeys { (it.startsWith("tts_") || it.startsWith("minimax_") || it.startsWith("eleven_")) &&
+                it !in setOf("tts_enabled", "tts_auto_speak") && !it.contains("key") && !it.contains("group_id") }
             .toSortedMap().entries.joinToString("|") { "${it.key}=${it.value}" }
         val cacheIdentity = "$pageKey|$spoken|$resolvedCharacterId|${CharacterVoicePreferenceStore.playbackVoiceId(resolvedCharacterId)}|$voiceSettings"
         val safeKey = java.security.MessageDigest.getInstance("SHA-256").digest(cacheIdentity.toByteArray())
