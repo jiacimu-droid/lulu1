@@ -5,13 +5,12 @@ package com.jiacimu.lulu.data
  * The model is shown what this character really wrote, not synthetic "memories".
  */
 internal object CharacterSpeechIdentity {
-    fun promptSection(characterId: String): String {
+    fun promptSection(characterId: String, includeObserved: Boolean = true): String {
         val initial = CharacterLifeStore.state(characterId).optJSONObject("profile")
             ?.optString("speechHabits").orEmpty().trim()
-        val acquired = CharacterDevelopmentStore.active(characterId)
-            .filter { it.kind == DevelopmentKind.ExpressionHabit }
-            .takeLast(5)
-        val ownMessages = MigratedDomainStores.chat.conversations.value.asSequence()
+        val acquired = if (includeObserved) CharacterDevelopmentStore.active(characterId)
+            .filter { it.kind == DevelopmentKind.ExpressionHabit }.takeLast(5) else emptyList()
+        val ownMessages = if (includeObserved) MigratedDomainStores.chat.conversations.value.asSequence()
             .filter { chat ->
                 chat.characterId == characterId ||
                     chat.groupChat?.members?.any { it.characterId == characterId } == true
@@ -24,7 +23,7 @@ internal object CharacterSpeechIdentity {
                             (message.authorCharacterId == characterId ||
                                 message.authorCharacterId == null && chat.groupChat == null && chat.characterId == characterId)
                     }
-            }.toList().sortedBy { it.createdAt }.takeLast(6).map { it.content.replace("\n", " ").take(135) }
+            }.toList().sortedBy { it.createdAt }.takeLast(6).map { it.content.replace("\n", " ").take(135) } else emptyList()
 
         return buildString {
             appendLine("【这个角色个人的说话指纹，不是所有人通用的口头禅】")
