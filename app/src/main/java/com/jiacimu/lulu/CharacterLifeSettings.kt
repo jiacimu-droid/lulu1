@@ -55,10 +55,6 @@ internal fun CharacterLifeSettings(characterId: String) {
     val presenceStates by com.jiacimu.lulu.data.CompanionPresenceStore.states.collectAsState()
     val presence = presenceStates[characterId]
     val growthRevision by com.jiacimu.lulu.data.CharacterDevelopmentStore.revisions.collectAsState()
-    val interests = remember(characterId, growthRevision, states) {
-        com.jiacimu.lulu.data.CharacterDevelopmentStore.active(characterId).filter {
-            it.kind == com.jiacimu.lulu.data.DevelopmentKind.Interest }
-    }
     val root = remember(states, characterId) { CharacterLifeStore.state(characterId) }
     var editing by remember { mutableStateOf<String?>(null) }
     var draft by remember { mutableStateOf("") }
@@ -93,6 +89,15 @@ internal fun CharacterLifeSettings(characterId: String) {
                     if (moment.mood.isBlank() && moment.innerThought.isBlank() && moment.statusText.isBlank())
                         Text("暂无近况", style = MaterialTheme.typography.bodySmall)
                 } ?: Text("暂无近况", style = MaterialTheme.typography.bodySmall)
+            }
+        }
+        val subjectiveEmotion = innerRoot.optJSONObject("emotion")
+        subjectiveEmotion?.takeIf { it.optString("feeling").isNotBlank() }?.let { feeling ->
+            Text("当前感受", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(feeling.optString("feeling"), style = MaterialTheme.typography.bodyMedium)
+            feeling.optString("cause").takeIf(String::isNotBlank)?.let { cause ->
+                Text(cause, style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         val learned = remember(characterId, growthRevision, states) {
@@ -234,24 +239,6 @@ internal fun CharacterLifeSettings(characterId: String) {
                         style = MaterialTheme.typography.bodySmall)
                 }
                 HorizontalDivider()
-            }
-        }
-        val subjectiveEmotion = innerRoot.optJSONObject("emotion")
-        subjectiveEmotion?.let { feeling ->
-            Text("情绪 · 正在发生的感受", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            Text(feeling.optString("feeling"), style = MaterialTheme.typography.bodyMedium)
-            Text("缘由：${feeling.optString("cause")}", style = MaterialTheme.typography.bodySmall)
-            feeling.optString("otherFeeling").takeIf(String::isNotBlank)?.let {
-                Text("同时也有：$it", style = MaterialTheme.typography.bodySmall)
-            }
-            feeling.optString("impulse").takeIf(String::isNotBlank)?.let {
-                Text("一瞬间想：$it", style = MaterialTheme.typography.bodySmall)
-            }
-            feeling.optString("restraint").takeIf(String::isNotBlank)?.let {
-                Text("克制 / 犹豫：$it", style = MaterialTheme.typography.bodySmall)
-            }
-            feeling.optString("outwardCue").takeIf(String::isNotBlank)?.let {
-                Text("表现：$it", style = MaterialTheme.typography.bodySmall)
             }
         }
         innerRoot.optJSONArray("emotionHistory")?.let { history ->
