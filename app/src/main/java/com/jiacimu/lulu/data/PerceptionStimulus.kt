@@ -22,9 +22,9 @@ internal object PerceptionStimulusResolver {
     ): PerceptionStimulus? {
         if (unreadText.isNotBlank()) {
             // The ID of the latest actual observed user message, not a clock tick.
-            val id = unreadIds.sorted().joinToString("|").ifBlank { "unknown:${unreadText.hashCode()}" }
+            val id = unreadIds.sorted().lastOrNull() ?: "unknown:${unreadText.hashCode()}"
             return PerceptionStimulus(
-                "user-message:${id.take(220)}",
+                id.take(220),
                 "本次上线收到的消息：${unreadText.takeLast(180)}",
                 setOf("user"),
             )
@@ -34,9 +34,9 @@ internal object PerceptionStimulusResolver {
             "本次世界真实事件：${worldEvent.take(180)}",
         )
         if (pendingText.isNotBlank()) {
-            val id = pendingIds.sorted().joinToString("|").ifBlank { "unknown:${pendingText.hashCode()}" }
+            val id = pendingIds.firstOrNull() ?: "unknown:${pendingText.hashCode()}"
             return PerceptionStimulus(
-                "awaiting-user-message:${id.take(220)}",
+                id.take(220),
                 "尚未回复的真实消息：${pendingText.takeLast(180)}",
                 setOf("user"),
             )
