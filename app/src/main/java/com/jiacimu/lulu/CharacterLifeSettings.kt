@@ -3,10 +3,12 @@ package com.jiacimu.lulu
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -62,42 +64,57 @@ internal fun CharacterLifeSettings(characterId: String) {
     var draft by remember { mutableStateOf("") }
     var showFixedDefinition by remember(characterId) { mutableStateOf(false) }
     var showPastChoices by remember(characterId) { mutableStateOf(false) }
+    var showInnerDetails by remember(characterId) { mutableStateOf(false) }
+    var showAllGrowth by remember(characterId) { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("人格与生活", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-        Text("此刻 · 实时变化", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-        Text(
-            if (online?.isOnline() == true) {
-                val until = DateTimeFormatter.ofPattern("HH:mm")
-                    .withZone(ZoneId.systemDefault()).format(online.onlineUntil)
-                "在线中 · 预计 $until 结束本次上线"
-            } else "当前离线",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        presence?.let { moment ->
-            if (moment.mood.isNotBlank()) Text(moment.mood, style = MaterialTheme.typography.bodyMedium)
-            Text(moment.innerThought.ifBlank { "这一刻没有留下心声" }, style = MaterialTheme.typography.bodyMedium)
-            if (moment.statusText.isNotBlank()) Text(moment.statusText, style = MaterialTheme.typography.bodySmall)
-        } ?: Text("还没有留下这一刻的想法", style = MaterialTheme.typography.bodySmall)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically) {
+            Text("角色近况", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+            Text(
+                if (online?.isOnline() == true) "在线 · " +
+                    DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.systemDefault()).format(online.onlineUntil)
+                else "离线",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Surface(
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                presence?.let { moment ->
+                    if (moment.mood.isNotBlank()) Text(moment.mood, fontWeight = FontWeight.Medium)
+                    if (moment.innerThought.isNotBlank()) Text(moment.innerThought)
+                    if (moment.statusText.isNotBlank()) Text(moment.statusText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (moment.mood.isBlank() && moment.innerThought.isBlank() && moment.statusText.isBlank())
+                        Text("暂无近况", style = MaterialTheme.typography.bodySmall)
+                } ?: Text("暂无近况", style = MaterialTheme.typography.bodySmall)
+            }
+        }
         val learned = remember(characterId, growthRevision, states) {
             com.jiacimu.lulu.data.CharacterDevelopmentStore.active(characterId)
         }
         if (learned.isNotEmpty()) {
-            Text("亲身经历形成的变化 · ${learned.size}项", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            learned.takeLast(10).forEach { learnedItem ->
+            Text("经历留下的变化 · ${learned.size}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            (if (showAllGrowth) learned.takeLast(10) else learned.takeLast(3)).forEach { learnedItem ->
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text("${learnedItem.kind.label} · ${learnedItem.content}",
                         style = MaterialTheme.typography.bodyMedium)
-                    Text("第${learnedItem.version}次变化 · ${learnedItem.evidence.size}条经历依据",
+                    Text("${learnedItem.evidence.size}条经历依据 · 版本${learnedItem.version}",
                         color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
                 }
             }
+            if (learned.size > 3) TextButton(onClick = { showAllGrowth = !showAllGrowth }) {
+                Text(if (showAllGrowth) "收起变化" else "查看更多变化")
+            }
         }
         HorizontalDivider()
-        Text("约定 · 实际执行", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-        if (activeCommitments.isEmpty()) {
-            Text("暂无待履行约定", style = MaterialTheme.typography.bodySmall)
-        }
+        if (activeCommitments.isNotEmpty()) {
+        Text("待履行的约定 · ${activeCommitments.size}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
         activeCommitments.take(8).forEach { task ->
             val timeLabel = task.dueAt?.let {
                 DateTimeFormatter.ofPattern("M月d日 HH:mm").withZone(ZoneId.systemDefault()).format(it)
@@ -144,8 +161,9 @@ internal fun CharacterLifeSettings(characterId: String) {
                     notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
             }) { Text("开启叫醒通知权限") }
         }
+        }
         HorizontalDivider()
-        Text("现在的心愿", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        Text("正在牵挂", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
         val motives = innerRoot.optJSONArray("motives")
         val legacyMotive = root.optJSONObject("intention")
         val legacyAim = legacyMotive?.optString("aim").orEmpty().trim()
@@ -185,6 +203,14 @@ internal fun CharacterLifeSettings(characterId: String) {
                 }
             }
         }
+        HorizontalDivider()
+        Row(Modifier.fillMaxWidth().clickable { showInnerDetails = !showInnerDetails }.padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Text("更多心绪与选择", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(if (showInnerDetails) "收起" else "展开", style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        if (showInnerDetails) {
         val choices = innerRoot.optJSONArray("decisions")
         if (choices != null && choices.length() > 0) {
             TextButton(onClick = { showPastChoices = !showPastChoices }) {
@@ -264,8 +290,9 @@ internal fun CharacterLifeSettings(characterId: String) {
             Text(insight.optString("realization"), style = MaterialTheme.typography.bodyMedium)
             Text("准备换种做法：${insight.optString("nextTime")}", style = MaterialTheme.typography.bodySmall)
         }
+        }
         HorizontalDivider()
-        Text("角色自己的社交称呼", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        Text("角色使用的称呼", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
         val socialNames = root.optJSONObject("socialNames")
         val userRemark = socialNames?.optString("userRemark").orEmpty()
         val selfNickname = socialNames?.optString("selfNickname").orEmpty()
@@ -279,23 +306,20 @@ internal fun CharacterLifeSettings(characterId: String) {
                 .padding(vertical = 6.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text("核心人设（手动）", style = MaterialTheme.typography.titleSmall,
+            Text("人格底色 · 手动设定", style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold)
-            Text(if (showFixedDefinition) "收起" else "查看与编辑",
+            Text(if (showFixedDefinition) "收起" else "展开编辑",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.primary)
         }
         if (showFixedDefinition) {
-            Text("以下是你手动设定的性格基础，不会被短期情绪覆盖。",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
         CharacterProfileSchema.fields.groupBy { it.group }.forEach { (group, fields) ->
             Text(group, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             fields.forEach { field ->
                 val value = root.optJSONObject("profile")?.optString(field.key).orEmpty()
                 Column(Modifier.fillMaxWidth().clickable { editing = field.key; draft = value }.padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     Text(field.label, fontWeight = FontWeight.Medium)
-                    Text(value.ifBlank { if (field.key == "interests") interests.joinToString("；") { it.content }.ifBlank { "尚未从反复经历中形成稳定兴趣" } else "未限定 · 点击编辑" },
+                    Text(value.ifBlank { "未设定" },
                         maxLines = 2, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
