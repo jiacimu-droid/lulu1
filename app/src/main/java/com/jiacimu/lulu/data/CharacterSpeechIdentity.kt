@@ -24,7 +24,7 @@ internal object CharacterSpeechIdentity {
                             (message.authorCharacterId == characterId ||
                                 message.authorCharacterId == null && chat.groupChat == null && chat.characterId == characterId)
                     }
-            }.sortedBy { it.createdAt }.takeLast(6).map { it.content.replace("\n", " ").take(135) }.toList()
+            }.toList().sortedBy { it.createdAt }.takeLast(6).map { it.content.replace("\n", " ").take(135) }
 
         return buildString {
             appendLine("【这个角色个人的说话指纹，不是所有人通用的口头禅】")
