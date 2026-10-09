@@ -90,6 +90,16 @@ object CommitmentTurnAutomation {
         val userIndex = messages.indexOfLast { it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent }
         if (userIndex < 0) return
         val userMessage = messages[userIndex]
+        // Respect the same conversational batching as the chat model. If the user types
+        // "明天早上" and then "10点叫我" in separate bubbles, both fragments define
+        // the promised time; using only the last bubble silently loses the date.
+        val lastCharacterIndex = messages.subList(0, userIndex).indexOfLast {
+            it.sender == LuluChatMessage.Sender.Character && it.status == LuluChatMessage.Status.Sent
+        }
+        val userBatch = messages.subList(lastCharacterIndex + 1, userIndex + 1)
+            .filter { it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent }
+            .takeLast(16)
+        val combinedUserText = userBatch.joinToString("\n", transform = LuluChatMessage::content)
         val replies = messages.drop(userIndex + 1).filter {
             it.sender == LuluChatMessage.Sender.Character && it.status == LuluChatMessage.Status.Sent
         }
@@ -99,7 +109,7 @@ object CommitmentTurnAutomation {
         grouped.forEach { (characterId, roleReplies) ->
             if (characterId.isBlank()) return@forEach
             val characterText = roleReplies.joinToString("\n", transform = LuluChatMessage::content).trim()
-            if (!looksLikeTaskTurn(userMessage.content, characterText)) return@forEach
+            if (!looksLikeTaskTurn(combinedUserText, characterText)) return@forEach
             val sourceTurnId = "${conversation.id}:${userMessage.id}:$characterId"
             val signature = "$sourceTurnId:${characterText.hashCode()}"
             if (isProcessed(signature)) return@forEach
@@ -107,7 +117,7 @@ object CommitmentTurnAutomation {
             val active = CommitmentTaskStore.active(characterId)
             val drafts = extractCommitmentTaskDrafts(
                 characterId = characterId,
-                userText = userMessage.content,
+                userText = combinedUserText,
                 characterText = characterText,
                 activeTasks = active,
             )
@@ -119,7 +129,7 @@ object CommitmentTurnAutomation {
             applyCommitmentTaskDrafts(
                 characterId = characterId,
                 sourceTurnId = sourceTurnId,
-                sourceEventIds = listOf(userMessage.id) + roleReplies.map(LuluChatMessage::id),
+                sourceEventIds = userBatch.map(LuluChatMessage::id) + roleReplies.map(LuluChatMessage::id),
                 drafts = filtered,
             )
             markProcessed(signature)
