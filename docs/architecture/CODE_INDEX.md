@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b57398e39d4dc74855a348a455df8e8b4054906f`
+- 基准提交：`54d1b98da83c39e3196326d0e5a7bd0b2c10d391`
 - 分支：`main`
 - 已索引文件：378
-- 已索引代码/文本行：91257
+- 已索引代码/文本行：91259
 - 已发现符号：1292
 
 | 文件 | 行数 | 符号数 |
@@ -365,7 +365,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContinuityTest.kt` | 86 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryTestEnvironment.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt` | 72 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 258 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 260 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 89 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 84 | 1 |
