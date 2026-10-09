@@ -189,7 +189,7 @@ class OnlineChatExperienceTest {
         MigratedDomainStores.chat.appendCharacterMessage(chatA.id, "我、我先说一个事情……", roleA.characterId)
         val fullA = CharacterSpeechIdentity.promptSection(roleA.characterId)
         assertTrue(fullA.contains("紧张时用……拖长停顿"))
-        assertTrue(fullA.contains("我、我先说一个事情"))
+        assertFalse(fullA.contains("我、我先说一个事情")) // 旧模型原话不再用作语言样本
         assertFalse(fullA.contains("爱说倒装句"))
         val fullB = CharacterSpeechIdentity.promptSection(roleB.characterId)
         assertFalse(fullB.contains("我、我先说一个事情"))
@@ -198,7 +198,7 @@ class OnlineChatExperienceTest {
         assertTrue(isolatedA.contains("紧张时用……拖长停顿"))
         assertFalse(isolatedA.contains("我、我先说一个事情"))
         val groupStyle = CharacterSpeechIdentity.promptSection(roleA.characterId,
-            includeObserved = true, includePersonalSamples = false)
+            includeObserved = true)
         assertTrue(groupStyle.contains("紧张时用……拖长停顿"))
         assertFalse(groupStyle.contains("我、我先说一个事情"))
     }

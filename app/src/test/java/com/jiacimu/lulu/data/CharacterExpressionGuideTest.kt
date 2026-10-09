@@ -11,6 +11,15 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [30])
 class CharacterExpressionGuideTest {
+    @Test fun innerVoiceIsOnlyWhatTheCharacterHasNotSaidOutLoud() {
+        val prompt = spontaneousInnerVoiceGuide
+        assertTrue(prompt.contains("心声是没有说出口、留在心里的想法"))
+        assertTrue(prompt.contains("已经写进 text"))
+        assertTrue(prompt.contains("不能将发言换种措辞复述一遍"))
+        assertTrue(prompt.contains("如果没有，就返回空字符串"))
+        assertTrue(prompt.contains("同一件事有不同的外在表达和内在想法"))
+    }
+
     @Test fun sharedPrinciplesLeaveRoomForBothBriefAndExpressiveChat() {
         val prompt = CharacterExpressionGuide.promptSection()
         assertTrue(prompt.contains("表达已经足够时可以直接停下来"))
