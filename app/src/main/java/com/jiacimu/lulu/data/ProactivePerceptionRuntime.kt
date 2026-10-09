@@ -736,17 +736,7 @@ object ProactivePerceptionRuntime {
     }
 
     private fun parseDecision(raw: String): Decision? = runCatching {
-        val clean = raw.trim()
-            .removePrefix("```json")
-            .removePrefix("```")
-            .removeSuffix("```")
-            .trim()
-            .let { value ->
-                val start = value.indexOf('{')
-                val end = value.lastIndexOf('}')
-                if (start >= 0 && end > start) value.substring(start, end + 1) else value
-            }
-        val json = JSONObject(clean)
+        val json = ModelStructuredOutput.objectOrNull(raw) ?: return null
         Decision(
             action = when (json.optString("action").trim().lowercase()) {
                 "message", "消息" -> Action.MESSAGE
