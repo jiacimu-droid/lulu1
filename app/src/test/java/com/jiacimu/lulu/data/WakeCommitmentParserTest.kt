@@ -19,6 +19,13 @@ class WakeCommitmentParserTest {
         assertTrue(draft.goal.contains("叫醒"))
     }
 
+    @Test fun dateAndTimeAcrossMultipleChatBubblesStillCreateSingleAction() {
+        val text = "明天早上\n10点钟叫我"
+        val draft = WakeCommitmentParser.parse(text, "嗯嗯，收到。", now, zone)
+        assertNotNull(draft)
+        assertEquals(Instant.parse("2026-10-10T02:00:00Z"), draft!!.dueAt)
+    }
+
     @Test fun afternoonAndMinutesAndExplicitPhone() {
         val draft = WakeCommitmentParser.parse("后天下午3点30分打电话叫我起床", "行，交给我。", now, zone)
         assertNotNull(draft)
