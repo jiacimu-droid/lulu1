@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:10:15.206529+00:00",
-  "commit": "3b070708698248dda1faa7bdb0ccb7988dc32b0d",
+  "generatedAt": "2026-10-09T13:10:52.130565+00:00",
+  "commit": "3f5d8c03f93f3ee28bd464a5eb1986781eda6c3c",
   "branch": "main",
-  "sourceFingerprint": "1d004b9b9ad33f4e2cf1f815cc0ac3bd8874163b411a8ac32fe82fe2b00aaaa8",
+  "sourceFingerprint": "1bf0bd1ab1521090a3c51a34387ed426c2d398988e1d0c444bb1a953d7c130ad",
   "summary": {
     "files": 388,
-    "lines": 92595,
+    "lines": 92598,
     "symbols": 1313
   },
   "symbolIndex": {
@@ -2171,7 +2171,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 421
+        "line": 422
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -2441,7 +2441,7 @@
     "backedBy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 82
+        "line": 83
       }
     ],
     "CharacterLifeStore": [
@@ -8431,8 +8431,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 147,
-      "sha256": "117413bca09f0f9fd119024f47a17d5b6b8b606e920217ef5194009a75e8dba8",
+      "lines": 148,
+      "sha256": "5ec35ae06c9c8fb83980de9eaa447793b84b210094227c0feb41fe03654721d5",
       "symbols": [
         {
           "name": "MigrationActivity",
@@ -9351,8 +9351,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 530,
-      "sha256": "bdef8b65669dd86c477bb18d154cc3a80cda54924c4c6f9b088e003e21eeffc5",
+      "lines": 531,
+      "sha256": "f70c88a3489b2c1324641fc3003a9e40cde1f1397b341a82268b38bbf966cb1f",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -9364,11 +9364,11 @@
         },
         {
           "name": "backedBy",
-          "line": 82
+          "line": 83
         },
         {
           "name": "context",
-          "line": 421
+          "line": 422
         }
       ]
     },
@@ -9422,8 +9422,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt",
-      "lines": 50,
-      "sha256": "1538fc3aaf987db7edc1fa88b420520aea58df54f7c27f659b6cf1db9ced2fbc",
+      "lines": 51,
+      "sha256": "a7b6ddcd39a6a156780b0c193fe25ea0bbb2915be2c40702631aacaaf0f42519",
       "symbols": [
         {
           "name": "CharacterRecordReset",
