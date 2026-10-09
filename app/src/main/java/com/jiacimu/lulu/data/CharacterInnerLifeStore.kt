@@ -52,6 +52,29 @@ object CharacterInnerLifeStore {
         }
     }
 
+    /**
+     * A one-time aftercare decision is appropriate only after a recent intense feeling.
+     * Silence is still a valid choice; this does not require a diary, post or apology.
+     */
+    fun needsPostOnlineReflection(characterId: String, now: Instant = Instant.now()): Boolean {
+        val root = snapshot(characterId)
+        val emotion = root.optJSONObject("emotion")
+        if (emotion != null) {
+            val at = runCatching { Instant.parse(emotion.optString("startedAt")) }.getOrNull()
+            val recent = at != null && !at.isAfter(now) &&
+                Duration.between(at, now).toMinutes() in 0..15
+            val intense = emotion.optInt("strength", 2) >= 3 ||
+                Regex("后悔|愧疚|自责|难过|委屈|心疼|吵架|伤心|生气|懊悔")
+                    .containsMatchIn(emotion.optString("feeling"))
+            if (recent && intense) return true
+        }
+        val afterglow = CharacterLifeStore.state(characterId).optJSONObject("afterglow") ?: return false
+        val started = runCatching { Instant.parse(afterglow.optString("startedAt")) }.getOrNull() ?: return false
+        return !started.isAfter(now) && Duration.between(started, now).toMinutes() in 0..15 &&
+            Regex("后悔|愧疚|自责|难过|委屈|心疼|吵架|伤心|生气|懊悔")
+                .containsMatchIn(afterglow.optString("feeling"))
+    }
+
     /** Individual raw-source deletion also invalidates subjective conclusions derived from it. */
     @Synchronized fun invalidateEvidence(eventId: String) {
         if (eventId.isBlank()) return
