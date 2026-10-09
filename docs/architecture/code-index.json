@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:16:25.481629+00:00",
-  "commit": "6f22df2211ad490fe9d4be918aec795ddb213ec2",
+  "generatedAt": "2026-10-09T13:16:43.562140+00:00",
+  "commit": "26131e71686a4b2d563333a318195b3fc813c075",
   "branch": "main",
-  "sourceFingerprint": "cadfd2100c7ced4fe083b5779e114c575654a814279899ad5d1386c2f3ad0a3f",
+  "sourceFingerprint": "92c2271d6d8d02c1b5840471108f8ff0e77e4812442177698eefe40930efc644",
   "summary": {
     "files": 389,
-    "lines": 92650,
+    "lines": 92651,
     "symbols": 1314
   },
   "symbolIndex": {
@@ -14728,8 +14728,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt",
-      "lines": 28,
-      "sha256": "f9c20c02da00b157202b1ddb23409e1a9ef13a5423aea6085cb7e2466c0e5209",
+      "lines": 29,
+      "sha256": "fcdda46520f8374b7b324d905f879a1ffa2909399bc92600ae1956a5c107d8e9",
       "symbols": [
         {
           "name": "MiniMaxAsrStreamAccumulatorTest",
