@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`1a63b62ca0e193ad992754f87fc5e69ff0e592c1`
+- 基准提交：`0eab9c11ac653b3d06e4721a497620386bed415e`
 - 分支：`main`
 - 已索引文件：378
-- 已索引代码/文本行：90808
+- 已索引代码/文本行：90827
 - 已发现符号：1286
 
 | 文件 | 行数 | 符号数 |
@@ -189,7 +189,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 100 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 946 | 47 |
-| `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 53 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 891 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 77 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 47 | 0 |
