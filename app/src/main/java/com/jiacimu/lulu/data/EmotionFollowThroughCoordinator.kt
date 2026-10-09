@@ -35,7 +35,9 @@ internal object EmotionFollowThroughCoordinator {
         val id = reply.authorCharacterId?.takeIf(String::isNotBlank) ?: conversation.characterId
         if (id.isBlank() || !ProactivePerceptionPolicyStore.get(id).enabled) return
         val recentUser = messages.asReversed().asSequence()
-            .filter { it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent }
+            .filter { it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent &&
+                !it.createdAt.isAfter(reply.createdAt) &&
+                Duration.between(it.createdAt, reply.createdAt).toMinutes() in 0..90 }
             .take(12).toList()
         val lastUser = recentUser.joinToString(" ") { it.content.take(150) }
         // Never manufacture a conflict from the model's text alone.
@@ -66,17 +68,20 @@ internal object EmotionFollowThroughCoordinator {
         }
         // One extra choice during the online window. Silence remains a valid
         // choice, but it must result from an actual model decision.
-        if (CompanionOnlineStore.isOnline(id, now)) {
+        val onlineQueued = CompanionOnlineStore.isOnline(id, now) && runCatching {
             ProactivePerceptionScheduler.scheduleOnline(
                 context.applicationContext, id,
                 "刚经历真实关系冲突并表达歉意：检视持续情绪与真实后果，自主选择修复、日记、动态、继续沟通或暂时独处；不强迫公开道歉。",
                 delayMillis = 45_000L,
             )
-        }
+        }.isSuccess
         // Independent durable work survives process death and can act after
         // logout. It does not falsely renew the five-minute online window.
-        ProactivePerceptionScheduler.scheduleEmotionalAftercare(
-            context.applicationContext, id, delayMillis = 420_000L,
-        )
+        val offlineQueued = runCatching {
+            ProactivePerceptionScheduler.scheduleEmotionalAftercare(
+                context.applicationContext, id, delayMillis = 420_000L,
+            )
+        }.isSuccess
+        if (!onlineQueued && !offlineQueued) prefs.edit().remove(key).apply()
     }
 }
