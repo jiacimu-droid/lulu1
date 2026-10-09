@@ -32,6 +32,7 @@ data class LuluAlarm(
     val triggerAt: Instant,
     val label: String,
     val createdAt: Instant = Instant.now(),
+    val silentCallback: Boolean = false,
 )
 
 object LuluAlarmSystem {
@@ -58,6 +59,7 @@ object LuluAlarmSystem {
         triggerAt: Instant,
         label: String,
         id: String = UUID.randomUUID().toString(),
+        silentCallback: Boolean = false,
     ): Result<LuluAlarm> = runCatching {
         val appContext = context ?: error("闹钟系统尚未初始化")
         list(appContext).firstOrNull { it.id == id }?.let { existing ->
@@ -71,8 +73,11 @@ object LuluAlarmSystem {
             characterName = characterName.ifBlank { "露露" },
             triggerAt = triggerAt,
             label = label.trim().ifBlank { "该起床啦" },
+            silentCallback = silentCallback,
         )
-        if (canScheduleExact()) {
+        if (silentCallback) {
+            scheduleBestEffortCallback(appContext, alarm)
+        } else if (canScheduleExact()) {
             schedule(appContext, alarm)
         } else {
             // The system Clock is the exact/offline user-facing fallback. A best-effort app callback
@@ -112,7 +117,8 @@ object LuluAlarmSystem {
         val future = list(context).filter { it.triggerAt.isAfter(now) }
         future.forEach { alarm ->
             runCatching {
-                if (canScheduleExact()) schedule(context, alarm) else scheduleBestEffortCallback(context, alarm)
+                if (!alarm.silentCallback && canScheduleExact()) schedule(context, alarm)
+                else scheduleBestEffortCallback(context, alarm)
             }
         }
         save(context, future)
@@ -189,6 +195,7 @@ object LuluAlarmSystem {
             putExtra("character_id", alarm.characterId)
             putExtra("character_name", alarm.characterName)
             putExtra("label", alarm.label)
+            putExtra("silent_callback", alarm.silentCallback)
         },
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
     )
@@ -210,6 +217,7 @@ object LuluAlarmSystem {
                             triggerAt = trigger,
                             label = item.optString("label").ifBlank { "该起床啦" },
                             createdAt = runCatching { Instant.parse(item.optString("createdAt")) }.getOrDefault(Instant.now()),
+                            silentCallback = item.optBoolean("silentCallback", false),
                         ),
                     )
                 }
@@ -227,7 +235,8 @@ object LuluAlarmSystem {
                         .put("characterName", alarm.characterName)
                         .put("triggerAt", alarm.triggerAt.toString())
                         .put("label", alarm.label)
-                        .put("createdAt", alarm.createdAt.toString()),
+                        .put("createdAt", alarm.createdAt.toString())
+                        .put("silentCallback", alarm.silentCallback),
                 )
             }
         }
@@ -289,6 +298,7 @@ class LuluAlarmReceiver : BroadcastReceiver() {
         val characterId = intent.getStringExtra("character_id").orEmpty().ifBlank { "lulu" }
         val characterName = intent.getStringExtra("character_name").orEmpty().ifBlank { "露露" }
         val label = intent.getStringExtra("label").orEmpty().ifBlank { "该起床啦" }
+        val silentCallback = intent.getBooleanExtra("silent_callback", false)
         LuluAlarmSystem.initialize(context.applicationContext)
         CommitmentTaskStore.initialize(context.applicationContext)
         LuluAlarmSystem.markTriggered(context, id)
@@ -297,9 +307,9 @@ class LuluAlarmReceiver : BroadcastReceiver() {
         // and finished asynchronously under BroadcastReceiver.goAsync().
         val task = CommitmentTaskStore.claimAlarmExecution(id)
         val notificationsAvailable = androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()
-        val shown = notificationsAvailable && runCatching {
+        val shown = notificationsAvailable && (silentCallback || runCatching {
             LuluAlarmSystem.showAlarmNotification(context, id, characterId, characterName, label)
-        }.isSuccess
+        }.isSuccess)
         if (task != null) {
             val pendingResult = goAsync()
             val appContext = context.applicationContext
