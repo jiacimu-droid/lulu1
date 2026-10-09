@@ -174,7 +174,7 @@ object LuluDeviceToolBridge {
                 ?: com.jiacimu.lulu.CallReplyStream.completeReplyText(plannedReply.text)
                 ?: plannedReply.text.takeIf { value ->
                     value.isNotBlank() && !value.trimStart().startsWith("{") &&
-                        !value.trimStart().startsWith("ִ``")
+                        !value.trimStart().startsWith("```")
                 }
             // Incomplete JSON commands cannot run. But actual natural-language text
             // should not disappear just because the model skipped the requested envelope.
