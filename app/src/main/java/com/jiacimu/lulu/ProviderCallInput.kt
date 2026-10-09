@@ -20,45 +20,52 @@ internal class ProviderCallInput(private val context: Context, private val scope
     @Volatile private var http: HttpURLConnection? = null
     @Volatile private var generation = 0L
     @Volatile private var capturingVoice = false
-    private var segments: Channel<ByteArray>? = null
+    private data class AudioChunk(val pcm: ByteArray, val isFinal: Boolean)
+    private var segments: Channel<AudioChunk>? = null
 
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun start() {
         stop()
         val epoch = generation
         val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
-        val queue = Channel<ByteArray>(capacity = 6)
+        // A running user monologue can outlast cloud upload latency; never
+        // silently drop earlier chunks because an arbitrary six-item queue filled.
+        val queue = Channel<AudioChunk>(Channel.UNLIMITED)
         segments = queue
         // A second utterance must not cancel or discard the first utterance
         // while cloud ASR is still working. Serialize responses in mic order.
         transcription = scope.launch {
-            val accumulated = StringBuilder()
-            for (pcm in queue) {
+            val phrase = StringBuilder()
+            var failed = false
+            for (chunk in queue) {
+                if (epoch != generation) break
                 val text = try {
-                    transcribe(pcm) { partial ->
-                        if (epoch == generation) onPartial(
-                            listOf(accumulated.toString(), partial).filter(String::isNotBlank).joinToString(" ")
+                    transcribe(chunk.pcm) { partial ->
+                        if (epoch == generation && !failed) onPartial(
+                            PhoneTranscriptAssembler.combine(phrase.toString(), partial)
                         )
                     }
                 } catch (error: CancellationException) {
                     throw error
                 } catch (error: Exception) {
-                    if (epoch == generation) onError("语音识别失败：${error.message}")
+                    failed = true
+                    if (epoch == generation) onError(
+                        "这一段语音转写失败，不能当作完整句子发送：${error.message}"
+                    )
                     ""
                 }
                 if (epoch != generation) break
-                if (text.isNotBlank()) {
-                    if (accumulated.isNotEmpty()) accumulated.append(' ')
-                    accumulated.append(text.trim())
+                if (text.isNotBlank() && !failed) {
+                    val combined = PhoneTranscriptAssembler.combine(phrase.toString(), text)
+                    phrase.clear()
+                    phrase.append(combined)
                 }
-                // If a new segment began while the previous one was
-                // transcribing, join its text instead of answering half a turn.
-                while (capturingVoice && epoch == generation) delay(80)
-                delay(320)
-                if (queue.isEmpty && !capturingVoice && accumulated.isNotEmpty()) {
-                    val completed = accumulated.toString().trim()
-                    accumulated.clear()
-                    if (epoch == generation) onText(completed)
+                // Only the actual silence endpoint marks the conversational
+                // turn done; 12-second upload chunks NEVER start the reply.
+                if (chunk.isFinal) {
+                    if (!failed && phrase.isNotBlank()) onText(phrase.toString().trim())
+                    else if (!failed) onError("没有识别出文字，请提高麦克风灵敏度或再说一次")
+                    phrase.clear()
+                    failed = false
                 }
             }
         }
@@ -72,12 +79,12 @@ internal class ProviderCallInput(private val context: Context, private val scope
                     onSpeech()
                 }
             },
-            onSegment = { bytes ->
-                capturingVoice = false
+            onSegment = { bytes, completed ->
+                capturingVoice = !completed
                 if (epoch == generation) {
-                    onStatus("已收音，${CallVoiceConfiguration.sttLabel(sttEngine)}正在识别…")
-                    if (!queue.trySend(bytes).isSuccess)
-                        onError("说话太快，语音识别队列已满；请稍候再说")
+                    onStatus(if (completed) "识别完整语句中…" else "持续收音并分段识别中…")
+                    if (!queue.trySend(AudioChunk(bytes, completed)).isSuccess)
+                        onError("录音队列已关闭，本段语音未提交识别")
                 }
             },
             onError = { message ->
