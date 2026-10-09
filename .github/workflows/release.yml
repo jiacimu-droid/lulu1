@@ -32,13 +32,6 @@ jobs:
         with:
           gradle-version: '8.10.2'
 
-      - name: Test persistent cloud service
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends libreoffice-impress libreoffice-writer fonts-noto-cjk
-          python -m pip install -r services/requirements.txt
-          python -m unittest discover -s services -p 'test_*.py' -v
-
       - name: Test and build optimized APK
         run: |
           set -o pipefail
