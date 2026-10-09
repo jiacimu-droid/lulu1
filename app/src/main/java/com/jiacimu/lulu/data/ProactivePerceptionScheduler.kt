@@ -84,10 +84,12 @@ object ProactivePerceptionScheduler {
     }
 
     fun scheduleOnline(context: Context, characterId: String, trigger: String,
-        collectMessages: Boolean = false, requiresUnread: Boolean = false) {
+        collectMessages: Boolean = false, requiresUnread: Boolean = false,
+        delayMillis: Long = 0L) {
         val batch = OnlineChatBatchStore.next(context, characterId, collectMessages)
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInitialDelay(delayMillis.coerceAtLeast(0L), TimeUnit.MILLISECONDS)
             .setInputData(
                 Data.Builder()
                     .putString("trigger", trigger)
