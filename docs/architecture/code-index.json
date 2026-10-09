@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T08:10:35.768580+00:00",
-  "commit": "eefe427c7f95978e85e62a4c5c6b5f9110147d0b",
+  "generatedAt": "2026-10-09T08:10:56.782646+00:00",
+  "commit": "57ebad26123c84d186c4eb30bf8e98ea9a0348cb",
   "branch": "main",
-  "sourceFingerprint": "5d55612bbca59a9ca08356b31be7a91d7bffff7406a845de4cc7958216eaa8d9",
+  "sourceFingerprint": "a0164834df9d14bce5c5a34ef128b516843b5eaebdd6ba1fd982c1b8e0fc60cb",
   "summary": {
     "files": 377,
-    "lines": 90608,
+    "lines": 90610,
     "symbols": 1283
   },
   "symbolIndex": {
@@ -2801,31 +2801,31 @@
     "wakeGroup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 136
+        "line": 138
       }
     ],
     "onConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 164
+        "line": 166
       }
     ],
     "unreadChatSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 245
+        "line": 247
       }
     ],
     "markSeen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 281
+        "line": 283
       }
     ],
     "resetCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 291
+        "line": 293
       }
     ],
     "CompanionPresenceState": [
@@ -9614,8 +9614,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 415,
-      "sha256": "79ba7fd979186808273e79e186fbf79a51ca85dd026c351f0935a4e5139c1ba1",
+      "lines": 417,
+      "sha256": "49823fca5262fa1e813e7b99cb62c2461bdad09444fb81bf983c142210158955",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -9655,23 +9655,23 @@
         },
         {
           "name": "wakeGroup",
-          "line": 136
+          "line": 138
         },
         {
           "name": "onConversationMessage",
-          "line": 164
+          "line": 166
         },
         {
           "name": "unreadChatSnapshot",
-          "line": 245
+          "line": 247
         },
         {
           "name": "markSeen",
-          "line": 281
+          "line": 283
         },
         {
           "name": "resetCharacter",
-          "line": 291
+          "line": 293
         }
       ]
     },
