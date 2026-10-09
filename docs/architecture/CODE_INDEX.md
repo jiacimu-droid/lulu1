@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`29fe833551a01d439fe4c14136e650d4a8940d82`
+- 基准提交：`263888c84aca6e530aa2164804714ba1c05e3fa0`
 - 分支：`main`
-- 已索引文件：395
-- 已索引代码/文本行：93055
-- 已发现符号：1327
+- 已索引文件：397
+- 已索引代码/文本行：93228
+- 已发现符号：1331
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -67,8 +67,8 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 473 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 125 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 467 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 862 | 13 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 483 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 975 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt` | 80 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt` | 220 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt` | 198 | 9 |
@@ -105,6 +105,7 @@
 | `app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt` | 208 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 155 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt` | 16 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StatefulCharacterPortrait.kt` | 24 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt` | 73 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt` | 144 | 2 |
@@ -361,6 +362,7 @@
 | `app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt` | 22 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleLayoutTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneTranscriptAssemblerTest.kt` | 21 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt` | 28 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/TrialRoomWalkControllerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt` | 87 | 1 |
