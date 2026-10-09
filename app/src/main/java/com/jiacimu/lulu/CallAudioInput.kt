@@ -16,7 +16,7 @@ import kotlin.math.sqrt
 internal class CallAudioInput(private val scope: CoroutineScope) {
     private var job: Job? = null
     @Volatile private var recorder: AudioRecord? = null
-    private var generation = 0L
+    @Volatile private var generation = 0L
 
     @SuppressLint("MissingPermission")
     fun start(accept: () -> Boolean, onReady: () -> Unit, onLevel: (Float) -> Unit,
@@ -133,7 +133,16 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
         }
     }
 
-    fun stop() { generation++; job?.cancel(); job = null; runCatching { recorder?.stop() } }
+    fun stop() {
+        generation++
+        job?.cancel()
+        job = null
+        // Relinquish the privacy-sensitive AudioRecord immediately on mute.
+        val old = recorder
+        recorder = null
+        runCatching { old?.stop() }
+        runCatching { old?.release() }
+    }
 }
 
 internal fun pcmWav(pcm: ByteArray): ByteArray {

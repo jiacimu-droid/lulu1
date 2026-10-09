@@ -18,7 +18,6 @@ internal class CallAudioRoute(
     private var preferPrivate = false
     private var previousMode = AudioManager.MODE_NORMAL
     private var previousSpeaker = false
-    private var previousMicrophoneMuted = false
     private var startedSco = false
     private val handler = Handler(Looper.getMainLooper())
     private val retryRoute = Runnable { refresh() }
@@ -36,9 +35,7 @@ internal class CallAudioRoute(
         if (active) return
         previousMode = manager.mode
         previousSpeaker = manager.isSpeakerphoneOn
-        previousMicrophoneMuted = manager.isMicrophoneMute
         forceSpeaker = false; preferPrivate = false; active = true
-        manager.isMicrophoneMute = false
         manager.mode = AudioManager.MODE_IN_COMMUNICATION
         manager.registerAudioDeviceCallback(callback, handler)
         if (Build.VERSION.SDK_INT >= 31) routeChanged?.let {
@@ -54,7 +51,9 @@ internal class CallAudioRoute(
         handler.postDelayed(retryRoute, 750)
     }
 
-    fun microphone(muted: Boolean) { if (active) manager.isMicrophoneMute = muted }
+    // Muting must be scoped to this app's capture, never AudioManager's
+    // global microphone switch (which may silence a different application).
+    fun microphone(@Suppress("UNUSED_PARAMETER") muted: Boolean) = Unit
 
     fun speaker(enabled: Boolean) {
         forceSpeaker = enabled; preferPrivate = !enabled
@@ -118,7 +117,6 @@ internal class CallAudioRoute(
         }
         if (startedSco) { manager.stopBluetoothSco(); manager.isBluetoothScoOn = false; startedSco = false }
         if (Build.VERSION.SDK_INT < 31) manager.isSpeakerphoneOn = previousSpeaker
-        manager.isMicrophoneMute = previousMicrophoneMuted
         manager.mode = previousMode
     }
 

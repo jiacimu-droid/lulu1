@@ -22,7 +22,9 @@ internal class ProviderCallInput(private val context: Context, private val scope
     @Volatile private var capturingVoice = false
     private data class AudioChunk(val pcm: ByteArray, val isFinal: Boolean)
     private var segments: Channel<AudioChunk>? = null
+    @Volatile private var capturePaused = false
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun start() {
         stop()
         val epoch = generation
@@ -62,6 +64,11 @@ internal class ProviderCallInput(private val context: Context, private val scope
                 // Only the actual silence endpoint marks the conversational
                 // turn done; 12-second upload chunks NEVER start the reply.
                 if (chunk.isFinal) {
+                    // The user may already have continued speaking while the
+                    // previous cloud request was in flight. Never answer midway.
+                    while (capturingVoice && epoch == generation) delay(80)
+                    delay(550)
+                    if (epoch != generation || capturingVoice || !queue.isEmpty) continue
                     if (!failed && phrase.isNotBlank()) onText(phrase.toString().trim())
                     else if (!failed) onError("没有识别出文字，请提高麦克风灵敏度或再说一次")
                     phrase.clear()
@@ -69,8 +76,17 @@ internal class ProviderCallInput(private val context: Context, private val scope
                 }
             }
         }
+        capturePaused = false
+        startMicrophone(epoch, queue, prefs)
+    }
+
+    private fun startMicrophone(
+        epoch: Long,
+        queue: Channel<AudioChunk>,
+        prefs: android.content.SharedPreferences,
+    ) {
         microphone.start(
-            accept = { epoch == generation && accept() },
+            accept = { epoch == generation && !capturePaused && accept() },
             onReady = { if (epoch == generation) onReady() },
             onLevel = { value -> if (epoch == generation) onLevel(value) },
             onSpeech = {
@@ -96,6 +112,22 @@ internal class ProviderCallInput(private val context: Context, private val scope
             threshold = prefs.getFloat("voice_vad_threshold", 350f),
             endSilenceMs = prefs.getInt("voice_end_silence_ms", 650),
         )
+    }
+
+    /** Stop hardware capture while allowing already-recorded ASR jobs to finish. */
+    fun pauseCapture() {
+        if (capturePaused) return
+        capturePaused = true
+        microphone.stop()
+        capturingVoice = false
+        onLevel(0f)
+    }
+
+    fun resumeCapture() {
+        if (!capturePaused) return
+        val queue = segments ?: return
+        capturePaused = false
+        startMicrophone(generation, queue, context.getSharedPreferences("lulu_advanced_settings", 0))
     }
 
     private suspend fun transcribe(pcm: ByteArray, onIncremental: (String) -> Unit): String =
@@ -214,6 +246,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
     fun stop() {
         generation++
         capturingVoice = false
+        capturePaused = false
         microphone.stop()
         segments?.close()
         segments = null

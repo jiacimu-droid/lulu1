@@ -226,8 +226,11 @@ internal object LuluVoiceCallSession {
                 listening = if (nextMuted) false else it.listening,
                 inputLevel = if (nextMuted) 0f else it.inputLevel,
                 partialTranscript = if (nextMuted) "" else it.partialTranscript,
-                statusMessage = if (nextMuted) "露露机已释放麦克风，可在其他应用使用语音输入"
-                    else "麦克风已打开，直接说话就好",
+                statusMessage = when {
+                    nextMuted && realtime != null -> "实时线路已静音；麦克风是否释放取决于 ElevenLabs SDK"
+                    nextMuted -> "麦克风已释放，可在其他应用语音输入"
+                    else -> "麦克风已打开，直接说话就好"
+                },
             )
         }
         if (realtime != null) {
@@ -241,8 +244,7 @@ internal object LuluVoiceCallSession {
             // "Muted" is a real capture shutdown, not zeroing input frames
             // while retaining AudioRecord and globally silencing other apps.
             restartListeningJob?.cancel()
-            providerInput?.stop()
-            providerInput = null
+            providerInput?.pauseCapture()
             pauseRecognition()
             recognizer?.destroy()
             recognizer = null
@@ -253,7 +255,7 @@ internal object LuluVoiceCallSession {
             if (appContext?.let(CallVoiceConfiguration::sttEngine) == "system") {
                 scheduleListening(160)
             } else {
-                startProviderInput()
+                providerInput?.resumeCapture() ?: startProviderInput()
             }
         }
     }
@@ -509,9 +511,9 @@ internal object LuluVoiceCallSession {
         handleUserSpeech(CallOpeningTurn.prompt(current.incomingReason), opening = true)
     }
 
-    private fun handleUserSpeech(spoken: String, opening: Boolean = false) {
+    private fun handleUserSpeech(spoken: String, opening: Boolean = false, allowWhileMuted: Boolean = false) {
         val current = mutableState.value
-        if (!current.connected || (!opening && (current.microphoneMuted || current.opening)) || realtime != null) return
+        if (!current.connected || (!opening && ((current.microphoneMuted && !allowWhileMuted) || current.opening)) || realtime != null) return
         replyGeneration++
         autonomousHangup.cancel()
         speechQueue?.stop()
@@ -676,7 +678,7 @@ internal object LuluVoiceCallSession {
                 }
             },
             onPartial = { text -> if (sameSession()) mutableState.update { it.copy(partialTranscript = text) } },
-            onText = { text -> if (sameSession() && !mutableState.value.microphoneMuted && !mutableState.value.opening) handleUserSpeech(text) },
+            onText = { text -> if (sameSession() && !mutableState.value.opening) handleUserSpeech(text, allowWhileMuted = true) },
             onStatus = { note -> if (sameSession()) mutableState.update { it.copy(statusMessage = note) } },
             onError = { error -> if (sameSession()) {
                 val dialing = mutableState.value.phase == CallPhase.Dialing
