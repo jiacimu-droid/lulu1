@@ -50,6 +50,10 @@ object ChatTurnConsistencyAutomation {
                                 CharacterInnerLifeStore.recordSpokenText(
                                     speakerId, latest.id, latest.content,
                                 )
+                                // Actual private/group conversations are lived experiences too.
+                                // The reflector is fingerprinted and hourly throttled, so no
+                                // learning is fabricated merely because one new bubble arrived.
+                                CharacterDevelopmentRuntime.request(speakerId)
                                 EmotionFollowThroughCoordinator.onActualReply(
                                     context.applicationContext, conversation, messages, latest,
                                 )
