@@ -36,6 +36,32 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear(id)
     }
 
+    @Test fun conflictingThoughtsAreRememberedWithoutPretendingTheyAreActions() {
+        start()
+        val id = "inside-test-conflicting-thoughts"
+        CharacterInnerLifeStore.clear(id)
+        val moment = Instant.parse("2026-10-09T11:00:00Z")
+        val proposal = JSONObject().put("thoughts", JSONArray()
+            .put(JSONObject().put("thought", "我很想主动弥补这次争执")
+                .put("impulse", "给她解释和道歉").put("hesitation", "不想逼她马上回应"))
+            .put(JSONObject().put("thought", "可是我自己也有点委屈")
+                .put("impulse", "暂时独处").put("hesitation", "担心她误会我不在乎")))
+        CharacterInnerLifeStore.observe(id, "real-argument", "双方确实发生了争执", proposal,
+            setOf("user"), moment)
+        val thoughts = CharacterInnerLifeStore.snapshot(id).getJSONArray("thoughts")
+        assertEquals(2, thoughts.length())
+        assertTrue(CharacterInnerLifeStore.context(id, moment.plusSeconds(20))
+            .contains("我很想主动弥补这次争执"))
+        assertTrue(CharacterInnerLifeStore.context(id, moment.plusSeconds(20))
+            .contains("可是我自己也有点委屈"))
+        assertFalse(CharacterInnerLifeStore.context(id, moment.plusSeconds(25 * 3600))
+            .contains("我很想主动弥补这次争执"))
+        assertNull(CharacterInnerLifeStore.snapshot(id).optJSONArray("decisions"))
+        CharacterInnerLifeStore.invalidateEvidence("real-argument")
+        assertEquals(0, CharacterInnerLifeStore.snapshot(id).getJSONArray("thoughts").length())
+        CharacterInnerLifeStore.clear(id)
+    }
+
     @Test fun distinctWishesPersistAndOneCanBePausedWithoutDeletingOthers() {
         start()
         val proposals = JSONObject().put("motives", JSONArray()
