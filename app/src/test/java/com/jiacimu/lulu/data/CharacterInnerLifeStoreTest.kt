@@ -20,6 +20,22 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear("inside-test-b")
     }
 
+    @Test fun strongRecordedRegretSurvivesFiveMinutePresenceWindowForAftercare() {
+        start()
+        val id = "inside-test-aftercare"
+        CharacterInnerLifeStore.clear(id)
+        val spokenAt = Instant.parse("2026-10-09T11:00:00Z")
+        val proposal = JSONObject().put("emotion", JSONObject()
+            .put("feeling", "对刚才的争执很歉疚")
+            .put("cause", "确实失约，刚刚向用户道歉")
+            .put("strength", 3)
+            .put("halfLifeMinutes", 360))
+        CharacterInnerLifeStore.observe(id, "sent-reply-1", "已发送的道歉", proposal, setOf("user"), spokenAt)
+        assertTrue(CharacterInnerLifeStore.needsPostOnlineReflection(id, spokenAt.plusSeconds(45 * 60)))
+        assertFalse(CharacterInnerLifeStore.needsPostOnlineReflection(id, spokenAt.plusSeconds(61 * 60)))
+        CharacterInnerLifeStore.clear(id)
+    }
+
     @Test fun distinctWishesPersistAndOneCanBePausedWithoutDeletingOthers() {
         start()
         val proposals = JSONObject().put("motives", JSONArray()
