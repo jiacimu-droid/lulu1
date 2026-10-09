@@ -48,6 +48,8 @@ internal fun CharacterLifeSettings(characterId: String) {
     }
 
     val innerRoot = remember(characterId, innerRevision) { CharacterInnerLifeStore.snapshot(characterId) }
+    val onlineStates by com.jiacimu.lulu.data.CompanionOnlineStore.states.collectAsState()
+    val online = onlineStates[characterId]
     val presenceStates by com.jiacimu.lulu.data.CompanionPresenceStore.states.collectAsState()
     val presence = presenceStates[characterId]
     val growthRevision by com.jiacimu.lulu.data.CharacterDevelopmentStore.revisions.collectAsState()
@@ -62,6 +64,15 @@ internal fun CharacterLifeSettings(characterId: String) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("人格与行为", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
         Text("此刻 · 实时变化", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        Text(
+            if (online?.isOnline() == true) {
+                val until = DateTimeFormatter.ofPattern("HH:mm")
+                    .withZone(ZoneId.systemDefault()).format(online.onlineUntil)
+                "在线中 · 预计 $until 结束本次上线"
+            } else "当前离线",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         presence?.let { moment ->
             if (moment.mood.isNotBlank()) Text(moment.mood, style = MaterialTheme.typography.bodyMedium)
             Text(moment.innerThought.ifBlank { "这一刻没有留下心声" }, style = MaterialTheme.typography.bodyMedium)
@@ -135,7 +146,13 @@ internal fun CharacterLifeSettings(characterId: String) {
         HorizontalDivider()
         Text("正在牵挂", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
         val motives = innerRoot.optJSONArray("motives")
-        if (motives == null || motives.length() == 0) {
+        val legacyMotive = root.optJSONObject("intention")
+        val legacyAim = legacyMotive?.optString("aim").orEmpty().trim()
+        val legacyUnique = legacyAim.isNotBlank() &&
+            (0 until (motives?.length() ?: 0)).none { i ->
+                motives?.optJSONObject(i)?.optString("aim")?.trim() == legacyAim
+            }
+        if ((motives == null || motives.length() == 0) && !legacyUnique) {
             Text("暂时没有明确的长期打算", style = MaterialTheme.typography.bodySmall)
         } else {
             for (i in 0 until motives.length()) {
@@ -155,6 +172,15 @@ internal fun CharacterLifeSettings(characterId: String) {
                     TextButton(onClick = { CharacterInnerLifeStore.stopMotive(characterId, id) }) {
                         Text("结束这件事")
                     }
+                }
+            }
+        }
+        if (legacyUnique && legacyMotive != null) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(legacyAim, fontWeight = FontWeight.Medium)
+                Text(legacyMotive.optString("motive"), style = MaterialTheme.typography.bodySmall)
+                TextButton(onClick = { CharacterLifeStore.stopIntention(characterId) }) {
+                    Text("结束这件事")
                 }
             }
         }
