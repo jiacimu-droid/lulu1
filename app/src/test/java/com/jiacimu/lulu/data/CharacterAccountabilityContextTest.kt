@@ -21,6 +21,18 @@ class CharacterAccountabilityContextTest {
         assertTrue(context.contains("不能") || context.contains("不能声称"))
     }
 
+    @Test fun privateThoughtCannotBlameUserForRoleResponsibilityWithoutEvidence() {
+        val incoming = "两点五十一分要给我打电话"
+        assertEquals("", CharacterAccountabilityContext.guardUnfoundedInnerBlame(
+            incoming, "准时打过去，不给她抓把柄挑刺的机会。"))
+        assertEquals("我得核对时间，别再弄错。",
+            CharacterAccountabilityContext.guardUnfoundedInnerBlame(incoming, "我得核对时间，别再弄错。"))
+        assertEquals("她不是在挑刺，是我自己没按约定做完。",
+            CharacterAccountabilityContext.guardUnfoundedInnerBlame(incoming, "她不是在挑刺，是我自己没按约定做完。"))
+        assertEquals("她说这道题不对，我真的不同意。",
+            CharacterAccountabilityContext.guardUnfoundedInnerBlame("今天的法律题很难", "她说这道题不对，我真的不同意。"))
+    }
+
     @Test fun obviousRoleBlameIsStoppedOnlyInMissedCommitmentContext() {
         val unfair = "憋了四个小时，就憋出这一句倒打一耙？"
         val repaired = CharacterAccountabilityContext.guardUnfairBlame("那你也没十点叫我啊", unfair)

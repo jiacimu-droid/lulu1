@@ -454,7 +454,12 @@ object ProactivePerceptionRuntime {
             )
             return Action.SILENT
         }
-        val decision = parsed.withPresenceFallback(character)
+        val fallbackDecision = parsed.withPresenceFallback(character)
+        val decision = fallbackDecision.copy(innerThought =
+            CharacterAccountabilityContext.guardUnfoundedInnerBlame(
+                listOf(onlineUnread.text, pendingUserContext, trigger).joinToString("\n"),
+                fallbackDecision.innerThought,
+            ))
         CharacterLifeStore.consider(characterId, decision.intention, now)
         // The executor, not the model, anchors subjective emotion to a real observed event.
         // Old chat history alone must not create an apparently new emotional stimulus.

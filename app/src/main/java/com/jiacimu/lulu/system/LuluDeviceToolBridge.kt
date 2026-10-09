@@ -174,7 +174,7 @@ object LuluDeviceToolBridge {
         )
         if (planner.isFailure) return planner
         val plannedReply = planner.getOrThrow()
-        val plan = parsePlan(plannedReply.text) ?: run {
+        val parsedPlan = parsePlan(plannedReply.text) ?: run {
             val fallback = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyText(plannedReply.text)
                 ?: com.jiacimu.lulu.CallReplyStream.completeReplyText(plannedReply.text)
                 ?: plannedReply.text.takeIf { value ->
@@ -190,6 +190,10 @@ object LuluDeviceToolBridge {
                 text = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(userText, fallback),
             ))
         }
+        val plan = parsedPlan.copy(innerThought =
+            com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
+                userText, parsedPlan.innerThought,
+            ))
         val checkedText = if (plan.action == "reply")
             com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(
                 userText, plan.text.ifBlank { plannedReply.text },
@@ -272,7 +276,12 @@ object LuluDeviceToolBridge {
             connectionOverride = connection,
         )
         return finalReply.map { result ->
-            val finalPlan = parsePlan(result.text)
+            val finalPlan = parsePlan(result.text)?.let { parsed ->
+                parsed.copy(innerThought =
+                    com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
+                        userText, parsed.innerThought,
+                    ))
+            }
             val naturalText = finalPlan?.text?.ifBlank { result.text }
                 ?: com.jiacimu.lulu.CallReplyStream.completeReplyText(result.text) ?: result.text
             val checkedResultText = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(

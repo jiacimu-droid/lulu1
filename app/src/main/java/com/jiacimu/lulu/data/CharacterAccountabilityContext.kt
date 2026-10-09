@@ -73,6 +73,28 @@ internal object CharacterAccountabilityContext {
             "对不起。我得先把自己答应的事做好，而不是拿玩笑把责任带过去。"
     }
 
+    /**
+     * Responsibility cannot be turned into a claim that the user is acting
+     * maliciously, not even in model-authored private thoughts.
+     * Other honest unpleasant thoughts and evidence-based disagreements remain.
+     */
+    fun guardUnfoundedInnerBlame(userText: String, innerThought: String): String {
+        val thought = innerThought.trim()
+        if (thought.isBlank()) return thought
+        val subject = userText + "\n" + thought
+        val hasOwnDuty = listOf("答应", "约定", "承诺", "准时", "打电话", "来电",
+            "提醒", "闹钟", "叫醒", "到点", "失约", "拨过去", "没做到").any(subject::contains)
+        if (!hasOwnDuty) return thought
+        val unearnedAccusation = Regex("抓.{0,6}把柄|挑.{0,3}刺|找.{0,4}茬|无理取闹|故意刁难|恶意找错|小题大做")
+            .containsMatchIn(thought)
+        if (!unearnedAccusation) return thought
+        val admittingMistake = listOf("我不该觉得她", "我不该说她", "不是她在挑刺",
+            "她不是在挑刺", "不能怪她", "不应把她", "我误会了她").any(thought::contains)
+        // Omitting an unsupported attribution is safer than forging a nicer
+        // "real thought". The model can simply return an empty innerThought.
+        return if (admittingMistake) thought else ""
+    }
+
     fun challengeGuidance(text: String): String = if (!isUnmetPromiseChallenge(text)) "" else """
         【本轮用户正在追问可能未履行的具体约定】
         用户指出了一个需要核实的失约，而不是自动成为“理亏的那个人”。
