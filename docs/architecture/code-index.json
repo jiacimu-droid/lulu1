@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T08:36:07.590972+00:00",
-  "commit": "f4b3c43704a73073ff342936da651006ff9cf8c7",
+  "generatedAt": "2026-10-09T08:38:09.862977+00:00",
+  "commit": "e1cc71afa3fb9d56943c75db9e8c8500a25e7a05",
   "branch": "main",
-  "sourceFingerprint": "263a1c94c2e4a17ab5daa22d6334ec2d1cae43bbd01ef300d0c4a3d9a530f085",
+  "sourceFingerprint": "14fee01405a9a9e24e0f56fe944ddaf99eb6f21ee3bf07f83e268c7d13a9f5c5",
   "summary": {
     "files": 378,
-    "lines": 90723,
-    "symbols": 1284
+    "lines": 90746,
+    "symbols": 1285
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2059,7 +2059,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 374
+        "line": 397
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -2322,10 +2322,16 @@
         "line": 14
       }
     ],
-    "backedBy": [
+    "needsPostOnlineReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
         "line": 59
+      }
+    ],
+    "backedBy": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
+        "line": 82
       }
     ],
     "CharacterLifeStore": [
@@ -9093,20 +9099,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 470,
-      "sha256": "63b01d67012954eb00cc45d4e00e41b92dbc601ba7e3a1423d7d94f834d69858",
+      "lines": 493,
+      "sha256": "90e10d5ce6d7e9de9cb6fecfbabc6d65554599a3c121ff4818077c2dd4a41a95",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
           "line": 14
         },
         {
-          "name": "backedBy",
+          "name": "needsPostOnlineReflection",
           "line": 59
         },
         {
+          "name": "backedBy",
+          "line": 82
+        },
+        {
           "name": "context",
-          "line": 374
+          "line": 397
         }
       ]
     },
