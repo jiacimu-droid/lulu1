@@ -728,6 +728,13 @@ object MomentsStore {
                 speaker = authorName,
                 content = context,
                 occurredAt = post.createdAt,
+                source = when {
+                    post.authorType == MomentAuthorType.User -> "moment:user"
+                    post.authorCharacterId == characterId -> "moment:self"
+                    else -> "moment:other_character"
+                },
+                evidenceKind = if (post.authorType == MomentAuthorType.User)
+                    EventEvidenceKind.UserStatement else EventEvidenceKind.CharacterStatement,
             )
         }
     }
