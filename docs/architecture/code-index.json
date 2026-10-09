@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T10:25:25.213772+00:00",
-  "commit": "8350948f2081bf08308ca63f629530f9161c22b3",
+  "generatedAt": "2026-10-09T10:25:50.141999+00:00",
+  "commit": "b57398e39d4dc74855a348a455df8e8b4054906f",
   "branch": "main",
-  "sourceFingerprint": "3b4d66606e01c6c0766a8b9dfb55649f32881c0ae40bd3b8d4f9f76f5013f01b",
+  "sourceFingerprint": "67f509171689bffd1a821bd67d1d115cbef3826f301028c133e3f7e3503d1e9f",
   "summary": {
     "files": 378,
-    "lines": 91258,
+    "lines": 91257,
     "symbols": 1292
   },
   "symbolIndex": {
@@ -1443,61 +1443,61 @@
     "messageLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 143
+        "line": 142
       }
     ],
     "repliedPreview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 155
+        "line": 154
       }
     ],
     "beginReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 161
+        "line": 160
       }
     ],
     "toggleSelected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 168
+        "line": 167
       }
     ],
     "buildForwardPayload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 172
+        "line": 171
       }
     ],
     "appendDraft": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 190
+        "line": 189
       }
     ],
     "stopReceiving": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 203
+        "line": 202
       }
     ],
     "wakeOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 211
+        "line": 210
       }
     ],
     "sendAndReceive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 230
+        "line": 229
       }
     ],
     "regenerateLatestReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 308
+        "line": 307
       }
     ],
     "mute": [
@@ -8488,8 +8488,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 752,
-      "sha256": "b61877d58afa27f11f75c008ec620b09b2375eccfbb16c6ac8a2a4a5a6931adf",
+      "lines": 751,
+      "sha256": "71bd7db580e8164aa87128d57e813a5822a621d79de71f27cbbccd8ae8facc74",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -8497,43 +8497,43 @@
         },
         {
           "name": "messageLabel",
-          "line": 143
+          "line": 142
         },
         {
           "name": "repliedPreview",
-          "line": 155
+          "line": 154
         },
         {
           "name": "beginReply",
-          "line": 161
+          "line": 160
         },
         {
           "name": "toggleSelected",
-          "line": 168
+          "line": 167
         },
         {
           "name": "buildForwardPayload",
-          "line": 172
+          "line": 171
         },
         {
           "name": "appendDraft",
-          "line": 190
+          "line": 189
         },
         {
           "name": "stopReceiving",
-          "line": 203
+          "line": 202
         },
         {
           "name": "wakeOnline",
-          "line": 211
+          "line": 210
         },
         {
           "name": "sendAndReceive",
-          "line": 230
+          "line": 229
         },
         {
           "name": "regenerateLatestReply",
-          "line": 308
+          "line": 307
         }
       ]
     },
@@ -9693,7 +9693,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
       "lines": 423,
-      "sha256": "ba9892a519baa80eab5e4960263b8ea84f5699db8c3b666d451c2b2977c60be2",
+      "sha256": "18f5a41d130505353407ee887d0bec86a9fdc013af6820a1214039680e05a8f2",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
