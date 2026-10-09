@@ -41,9 +41,18 @@ internal fun meetingRecentSceneContextV2(session: MeetingSession): String {
         val turns = session.turns.filter { it.exchangeId == record.id || it.id in ids }
         buildString {
             appendLine("【完整场景 ${record.id.take(8)}】")
-            record.rawDraft.removePrefix(MEETING_INVITED_OPENING_PREFIX_V2)
-                .takeIf(String::isNotBlank)
-                ?.let { appendLine("主人原始意图：$it") }
+            when {
+                record.rawDraft.startsWith(MEETING_LIVING_MOMENT_PREFIX_V2) -> {
+                    val systemFact = record.rawDraft.removePrefix(MEETING_LIVING_MOMENT_PREFIX_V2)
+                        .substringAfter("\n", "").trim()
+                    appendLine(if (systemFact.isBlank()) "角色自己的在场判断，没有收到用户的新发言"
+                        else "现场已证实的动作（非用户发言）：$systemFact")
+                }
+                record.rawDraft.startsWith(MEETING_INVITED_OPENING_PREFIX_V2) ->
+                    appendLine("角色邀请后的开场：${record.rawDraft.removePrefix(MEETING_INVITED_OPENING_PREFIX_V2)}")
+                else -> record.rawDraft.takeIf(String::isNotBlank)
+                    ?.let { appendLine("主人原始意图：$it") }
+            }
             turns.forEach { appendLine("${it.speakerName}：${it.meetingOrderedSegments().meetingTranscript()}") }
         }.trim()
     }
