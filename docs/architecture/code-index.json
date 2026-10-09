@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T14:41:46.488763+00:00",
-  "commit": "012dd2d5e1a306ee4fba7430ae8422ca3cf27b3b",
+  "generatedAt": "2026-10-09T14:58:52.051973+00:00",
+  "commit": "fb1ea0c8e62a0e04de01dac93c4d6e0a33642f6b",
   "branch": "main",
-  "sourceFingerprint": "d658337d6adcbf37576f418df45bd8464310ff42bf745c96d6a77eee653f0d2b",
+  "sourceFingerprint": "24d58c8bb536676eb05ca3e1df6b9e8cd7900ec435fb787bb6b74c978da09e4d",
   "summary": {
-    "files": 397,
-    "lines": 93234,
-    "symbols": 1331
+    "files": 399,
+    "lines": 93295,
+    "symbols": 1334
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -748,6 +748,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt",
         "line": 71
+      }
+    ],
+    "forActivity": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalResidentFurniturePose.kt",
+        "line": 11
+      }
+    ],
+    "anchor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalResidentFurniturePose.kt",
+        "line": 29
       }
     ],
     "setStick": [
@@ -7136,6 +7148,12 @@
         "line": 9
       }
     ],
+    "DigitalResidentFurniturePoseTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt",
+        "line": 7
+      }
+    ],
     "ElevenLabsAudioContractsTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt",
@@ -7858,6 +7876,21 @@
       "lines": 881,
       "sha256": "9a2f57331355a9df31c9b058edd818ce06bd94d5dbb50fa234002ae0af3142d1",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/DigitalResidentFurniturePose.kt",
+      "lines": 35,
+      "sha256": "546f6e0028615400c678ba309787145f4f7abd6f7157af83c34c9e775a6ad151",
+      "symbols": [
+        {
+          "name": "forActivity",
+          "line": 11
+        },
+        {
+          "name": "anchor",
+          "line": 29
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorld3DTrialRoom.kt",
@@ -14866,6 +14899,17 @@
         {
           "name": "CallSpeechRecordingTest",
           "line": 9
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt",
+      "lines": 26,
+      "sha256": "48ca06fdad2f818b4521ffa69bde63fbfe3538274442647edf41855dbbe2a76a",
+      "symbols": [
+        {
+          "name": "DigitalResidentFurniturePoseTest",
+          "line": 7
         }
       ]
     },
