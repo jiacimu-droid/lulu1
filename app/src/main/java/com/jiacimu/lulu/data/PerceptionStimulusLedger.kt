@@ -7,9 +7,18 @@ import android.content.Context
  * or actions completed. Worker rescheduling must not create a new emotion.
  */
 internal object PerceptionStimulusLedger {
+    private var prefs: android.content.SharedPreferences? = null
+
+    @Synchronized fun initialize(context: Context) {
+        prefs = context.applicationContext.getSharedPreferences("lulu_perception_stimuli", Context.MODE_PRIVATE)
+    }
+
     fun claim(context: Context, characterId: String, stimulus: PerceptionStimulus): Boolean {
         if (characterId.isBlank() || stimulus.evidenceId.isBlank()) return false
-        val pref = context.applicationContext.getSharedPreferences("lulu_perception_stimuli", Context.MODE_PRIVATE)
+        val pref = prefs ?: run {
+            initialize(context)
+            checkNotNull(prefs)
+        }
         val key = "seen:$characterId"
         val token = "${stimulus.evidenceId.hashCode()}:${stimulus.description.hashCode()}"
         synchronized(this) {
@@ -23,8 +32,19 @@ internal object PerceptionStimulusLedger {
         return true
     }
 
-    fun clear(context: Context, characterId: String) {
-        context.applicationContext.getSharedPreferences("lulu_perception_stimuli", Context.MODE_PRIVATE)
-            .edit().remove("seen:$characterId").apply()
+    @Synchronized fun invalidate(eventId: String) {
+        if (eventId.isBlank()) return
+        val prefix = "${eventId.hashCode()}:"
+        val store = prefs ?: return
+        store.all.keys.filter { it.startsWith("seen:") }.forEach { key ->
+            val old = store.getString(key, "").orEmpty()
+            val remaining = old.lineSequence().filter { !it.startsWith(prefix) }
+                .filter(String::isNotBlank).joinToString("\n")
+            if (remaining != old) store.edit().putString(key, remaining).apply()
+        }
+    }
+
+    @Synchronized fun clear(characterId: String) {
+        prefs?.edit()?.remove("seen:$characterId")?.apply()
     }
 }
