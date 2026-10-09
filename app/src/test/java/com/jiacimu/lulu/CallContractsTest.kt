@@ -123,7 +123,7 @@ class CallContractsTest {
         val envelope = "{\"action\":\"reply\",\"text\":\"" + first + "\"}"
         assertTrue(stream.updateForSpeech(envelope, wholeTurn = true).isEmpty())
         assertEquals(listOf(complete), stream.finishForSpeech(complete, wholeTurn = true))
-        assertEquals("是我不对。我当时应该先听你说完。", VoicePerformance.plain(complete))
+        assertEquals("是我不对。 我当时应该先听你说完。", VoicePerformance.plain(complete))
         val incremental = CallReplyStream()
         assertEquals(listOf(first), incremental.updateForSpeech(envelope, wholeTurn = false))
         assertEquals(listOf("[hesitant] 我当时应该先听你说完。"),
