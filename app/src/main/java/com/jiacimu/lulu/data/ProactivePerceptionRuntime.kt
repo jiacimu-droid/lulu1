@@ -126,6 +126,7 @@ object ProactivePerceptionRuntime {
         now: Instant = Instant.now(),
         onlineRevision: Long? = null,
         requiresUnread: Boolean = false,
+        preserveOffline: Boolean = false,
     ): Int = cycleMutex.withLock {
         currentCoroutineContext().ensureActive()
         if (onlineRevision != null && targetCharacterId != null &&
@@ -142,7 +143,7 @@ object ProactivePerceptionRuntime {
             for (conversation in targets) {
                 val characterId = conversation.characterId.ifBlank { "lulu" }
                 val policy = ProactivePerceptionPolicyStore.get(characterId)
-                if (!policy.enabled && !force) continue
+                if (!policy.enabled && (!force || preserveOffline)) continue
                 if (!force) {
                     val due = dueAtFor(appContext, conversation, policy, prefs, now)
                     if (!trigger.startsWith("重要事件") && due.isAfter(now.plusSeconds(15))) continue
@@ -155,7 +156,7 @@ object ProactivePerceptionRuntime {
                     else -> trigger
                 }
                 prefs.edit().putLong("last_evaluation_$characterId", now.toEpochMilli()).apply()
-                if (!force || !CompanionOnlineStore.isOnline(characterId, now)) {
+                if (!preserveOffline && (!force || !CompanionOnlineStore.isOnline(characterId, now))) {
                     CompanionOnlineStore.wakeCharacter(characterId, CompanionOnlineReason.BackgroundPerception, effectiveTrigger, false, now)
                 }
                 CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知启动 · $effectiveTrigger", now)
