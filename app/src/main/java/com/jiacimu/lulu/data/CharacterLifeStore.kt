@@ -294,7 +294,13 @@ object CharacterLifeStore {
             }
             afterglowContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
             root.optJSONObject("previousIntention")?.let { appendLine("上一件已放下的事（不代表完成）：${it.optString("aim")}；原因：${it.optString("releaseReason")}。用户结束的事不要擅自重新开启。") }
-            root.optJSONObject("intention")?.let { intention ->
+            val innerGoals = CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives")
+            val innerAims = (0 until (innerGoals?.length() ?: 0))
+                .mapNotNull { innerGoals?.optJSONObject(it)?.optString("aim")?.trim() }
+                .toSet()
+            root.optJSONObject("intention")
+                ?.takeUnless { it.optString("aim").trim() in innerAims }
+                ?.let { intention ->
                 appendLine("【持续动机｜角色主观愿望，不是已完成事实或用户承诺】")
                 appendLine("从${intention.optString("createdAt")}开始在意：${intention.optString("aim")}；动机：${intention.optString("motive")}")
                 appendLine("最近调整：${intention.optString("updatedAt", intention.optString("createdAt"))}；依据：${intention.optString("changeReason")}。")
