@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T19:43:27.302130+00:00",
-  "commit": "9c3b64fe536a210f42be5c177ba263c61301ea10",
+  "generatedAt": "2026-10-09T20:02:42.753682+00:00",
+  "commit": "436b84537682a4863bf9a7c0452b0eba90f75a53",
   "branch": "main",
-  "sourceFingerprint": "2a4eaae07f1791dcc4c446cec71581a0707483994e310c2b111f5616039642a0",
+  "sourceFingerprint": "a194c517d4e1546e8fb20451a11f0f6c3d74bf293b2dbc3fdfdc6e8d9959d4bf",
   "summary": {
     "files": 418,
-    "lines": 94913,
+    "lines": 94974,
     "symbols": 1373
   },
   "symbolIndex": {
@@ -1787,7 +1787,7 @@
     "instruction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt",
-        "line": 18
+        "line": 50
       }
     ],
     "move": [
@@ -8645,8 +8645,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
-      "lines": 460,
-      "sha256": "7bbaa01f4af28ac2909a3aa12b424998d7f37e11ce619c1dd8e2996e40b109d2",
+      "lines": 462,
+      "sha256": "97d8c469dc7c7325bd9b0a11c3149f7e94591d138682d2b92cdb1608ff9e4faf",
       "symbols": [
         {
           "name": "LuluVoiceCallScreen",
@@ -9305,12 +9305,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt",
-      "lines": 33,
-      "sha256": "7d1d573ff3c8d9475f915899f51ea30472acdd98be49e42c2e29d171b6348ad7",
+      "lines": 68,
+      "sha256": "283a1bf1d45eb889639862d2df2b7bd58308c449de27f1a0f6a80e0791b964f6",
       "symbols": [
         {
           "name": "instruction",
-          "line": 18
+          "line": 50
         }
       ]
     },
@@ -15473,8 +15473,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt",
-      "lines": 37,
-      "sha256": "e87f0e2e92a5d0ce18b5f6981d20c80e6c831bbbd26059dea32db584c0f8013e",
+      "lines": 61,
+      "sha256": "362a79e55b5e9f6fe7512fa643f9bb7919d14563546353053a6e9714280f6091",
       "symbols": [
         {
           "name": "SleepGuidanceGuideTest",
