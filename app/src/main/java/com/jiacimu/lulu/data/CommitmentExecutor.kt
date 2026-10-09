@@ -11,6 +11,7 @@ internal object CommitmentExecutor {
         claimedTask: CommitmentTask,
         characterName: String,
         now: Instant = Instant.now(),
+        notificationShown: Boolean = true,
     ) {
         val attempt = claimedTask.attemptCount + 1
         val wakeTask = claimedTask.isWakeResponsibility()
@@ -55,7 +56,8 @@ internal object CommitmentExecutor {
 
         CommitmentTaskStore.update(claimedTask.id) { current ->
             current.copy(
-                status = if (!actionResult.success) CommitmentTaskStatus.Blocked
+                status = if (!actionResult.success || (wakeTask && !notificationShown && !useCall))
+                    CommitmentTaskStatus.Blocked
                     else if (scheduledCall) CommitmentTaskStatus.Completed
                     else CommitmentTaskStatus.WaitingForFeedback,
                 attemptCount = attempt,
@@ -63,6 +65,7 @@ internal object CommitmentExecutor {
                 linkedAlarmId = retryAlarm?.id,
                 lastActionResult = buildString {
                     append("约定到期，执行器已尝试履行；")
+                    if (wakeTask && !notificationShown) append("手机通知没有成功显示：请检查通知权限与省电限制；不能声称已真正叫醒你；")
                     if (actionResult.success) {
                         append(if (useCall) "已实际发起主动来电（不等于用户已经接听）" else "已发送确认消息")
                     } else {
@@ -80,5 +83,5 @@ internal object CommitmentExecutor {
 
 private fun CommitmentTask.isWakeResponsibility(): Boolean {
     val text = "$goal $completionCondition".lowercase()
-    return listOf("叫醒", "起床", "醒来", "wake", "睡醒").any(text::contains)
+    return listOf("叫醒", "叫我", "喊我", "起床", "醒来", "wake", "睡醒").any(text::contains)
 }
