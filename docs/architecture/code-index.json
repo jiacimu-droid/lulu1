@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T15:29:43.366796+00:00",
-  "commit": "4a143d0f5ecd6f2af5f47527c393ed6cf1ad6c82",
+  "generatedAt": "2026-10-09T15:31:04.079370+00:00",
+  "commit": "be38ae8135f2bb3cfa9ba5b791da7b54ce38d7f8",
   "branch": "main",
-  "sourceFingerprint": "382b07911f0f18448fdb4c55c397a3ed6feb387464f004b6fb64b73e03f69f1f",
+  "sourceFingerprint": "a3e778eedba5a8d908e90dd2802bccf5b78eba03e1aa2c07ab8ee41f118b3e6a",
   "summary": {
     "files": 400,
-    "lines": 93725,
+    "lines": 93739,
     "symbols": 1344
   },
   "symbolIndex": {
@@ -795,13 +795,13 @@
     "furniturePoseFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 156
+        "line": 157
       }
     ],
     "loadPosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 969
+        "line": 977
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
@@ -811,37 +811,37 @@
     "loadQuest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 978
+        "line": 986
       }
     ],
     "loadHandHoldingId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 980
+        "line": 988
       }
     ],
     "loadFollowerIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 982
+        "line": 990
       }
     ],
     "loadSuspendedFollowers": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 985
+        "line": 993
       }
     ],
     "saveCompanionship": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 988
+        "line": 996
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 996
+        "line": 1004
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
@@ -977,7 +977,7 @@
     "flush": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-        "line": 759
+        "line": 765
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
@@ -7981,8 +7981,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-      "lines": 1001,
-      "sha256": "fe5d5fe869e02bcfbbfa3618adf6ae6f48640f1e11f6f503c17759c68fba44e5",
+      "lines": 1009,
+      "sha256": "77aeee268a43e91a0e3986988e1b32f46e1dbc948a1272e19536a6351958a074",
       "symbols": [
         {
           "name": "Resident",
@@ -7998,35 +7998,35 @@
         },
         {
           "name": "furniturePoseFor",
-          "line": 156
+          "line": 157
         },
         {
           "name": "loadPosition",
-          "line": 969
+          "line": 977
         },
         {
           "name": "loadQuest",
-          "line": 978
+          "line": 986
         },
         {
           "name": "loadHandHoldingId",
-          "line": 980
-        },
-        {
-          "name": "loadFollowerIds",
-          "line": 982
-        },
-        {
-          "name": "loadSuspendedFollowers",
-          "line": 985
-        },
-        {
-          "name": "saveCompanionship",
           "line": 988
         },
         {
-          "name": "save",
+          "name": "loadFollowerIds",
+          "line": 990
+        },
+        {
+          "name": "loadSuspendedFollowers",
+          "line": 993
+        },
+        {
+          "name": "saveCompanionship",
           "line": 996
+        },
+        {
+          "name": "save",
+          "line": 1004
         }
       ]
     },
@@ -8103,12 +8103,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-      "lines": 793,
-      "sha256": "051a9cb9cb71a3fcda04f68a56db5ce278b5b0d5e0f3b69393e0eed337f43b5d",
+      "lines": 799,
+      "sha256": "dbdc46191408d4c904d1e2130b3025925e9704f48a4e9ad51863ec4dcb91ea60",
       "symbols": [
         {
           "name": "flush",
-          "line": 759
+          "line": 765
         }
       ]
     },
