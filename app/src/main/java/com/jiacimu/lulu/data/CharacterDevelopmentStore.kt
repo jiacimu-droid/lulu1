@@ -75,7 +75,9 @@ object CharacterDevelopmentStore {
             Regex("以后|下次|记住|不要再|我喜欢|我不喜欢|我希望").containsMatchIn(it.content) }
         if (!DevelopmentPolicy.accepts(kind, factual.size, explicit, counters.size)) return false
         if (kind == DevelopmentKind.Interest) {
-            if (CharacterLifeStore.state(characterId).optJSONObject("profile")?.optString("interests").orEmpty().isNotBlank()) return false
+            // User-specified interests are stable anchors, not a prohibition on developing
+            // new nuances, routines or adjacent interests through witnessed experience.
+            // Generated growth remains a separate, reversible evidence-backed layer.
             // Interest belongs to the character, not to whichever subject the user likes.
             if (events.none { it.evidenceKind == EventEvidenceKind.CharacterStatement || it.channel.startsWith("独自阅读") }) return false
             if (counters.any { it.occurredAt > factual.maxOf { event -> event.occurredAt } }) return false
