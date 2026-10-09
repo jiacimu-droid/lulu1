@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T16:40:07.565537+00:00",
-  "commit": "e87fb8902f61f8d2202aef9f0cb6281c5667e7e8",
+  "generatedAt": "2026-10-09T16:42:40.046264+00:00",
+  "commit": "c675ca79acb6c111b025c4094d11274489aaaa4e",
   "branch": "main",
-  "sourceFingerprint": "93be7b1a1d584b6c86ff1534e27381303ba513160e802c04174dd38ff7ae8ffe",
+  "sourceFingerprint": "e492662ba3eed6088028a30a249a551638c2dcc5bca87af7c1fe5cc9ee618bb5",
   "summary": {
-    "files": 406,
-    "lines": 94099,
-    "symbols": 1353
+    "files": 407,
+    "lines": 94160,
+    "symbols": 1356
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -525,7 +525,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 31
+        "line": 32
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
@@ -2447,7 +2447,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 18
+        "line": 19
       }
     ],
     "applyProposal": [
@@ -2976,6 +2976,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt",
         "line": 131
+      }
+    ],
+    "onResponse": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
+        "line": 7
+      }
+    ],
+    "onMissed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
+        "line": 24
       }
     ],
     "CommitmentLexiconSync": [
@@ -4743,25 +4755,31 @@
     "ProactiveIncomingCallStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 22
+        "line": 23
       }
     ],
     "offer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 38
+        "line": 40
       }
     ],
     "activeFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 59
+        "line": 64
+      }
+    ],
+    "respond": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
+        "line": 73
       }
     ],
     "clear": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 68
+        "line": 86
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
@@ -8955,8 +8973,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt",
-      "lines": 190,
-      "sha256": "d6e7714fe56610d2d4d8a782781704ec45470d221bfeae16fc201c52b22cd743",
+      "lines": 194,
+      "sha256": "ea542606dd62afa8e07673322f3e21afe9a9e09e5f2aa2ec8ffceebed75e931c",
       "symbols": [
         {
           "name": "connect",
@@ -10134,6 +10152,21 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
+      "lines": 35,
+      "sha256": "3b2ed4e9019f106f571a487ef2e67f52a67f4194316824ad080d35d8aaf989e1",
+      "symbols": [
+        {
+          "name": "onResponse",
+          "line": 7
+        },
+        {
+          "name": "onMissed",
+          "line": 24
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
       "lines": 88,
       "sha256": "635f456acad22c380327bbcfc45d30580ab8cda7f61ca83ce113a98c4fbf6aed",
@@ -10279,8 +10312,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 429,
-      "sha256": "48ce31f732e972d56aea5d54ca17d711d1ee0806777d669d04b1b2e91c3617bd",
+      "lines": 430,
+      "sha256": "c4ddd178db02e0661a1c695416fa86fa7ddc99a1b31e2bd84b14fa63a5f5472d",
       "symbols": [
         {
           "name": "asJson",
@@ -12025,8 +12058,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-      "lines": 99,
-      "sha256": "61d8f453e7389f1e1e16c66c78aec27c8a7b68cf0df36e1a4e996db3dd0fa534",
+      "lines": 120,
+      "sha256": "bc17f23ede0b4661f748f899dc464b978cca589aaff692a175b99f5c4ca0f539",
       "symbols": [
         {
           "name": "ProactiveIncomingCall",
@@ -12034,27 +12067,31 @@
         },
         {
           "name": "active",
-          "line": 18
+          "line": 19
         },
         {
           "name": "ProactiveIncomingCallStore",
-          "line": 22
+          "line": 23
         },
         {
           "name": "initialize",
-          "line": 31
+          "line": 32
         },
         {
           "name": "offer",
-          "line": 38
+          "line": 40
         },
         {
           "name": "activeFor",
-          "line": 59
+          "line": 64
+        },
+        {
+          "name": "respond",
+          "line": 73
         },
         {
           "name": "clear",
-          "line": 68
+          "line": 86
         }
       ]
     },

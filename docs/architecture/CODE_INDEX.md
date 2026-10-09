@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`e87fb8902f61f8d2202aef9f0cb6281c5667e7e8`
+- 基准提交：`c675ca79acb6c111b025c4094d11274489aaaa4e`
 - 分支：`main`
-- 已索引文件：406
-- 已索引代码/文本行：94099
-- 已发现符号：1353
+- 已索引文件：407
+- 已索引代码/文本行：94160
+- 已发现符号：1356
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -95,7 +95,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt` | 22 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt` | 38 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 190 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 194 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 320 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 232 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 34 | 0 |
@@ -146,6 +146,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 80 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt` | 124 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt` | 139 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt` | 35 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 88 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 107 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 37 | 1 |
@@ -157,7 +158,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 171 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 183 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 429 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 430 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 50 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 450 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 317 | 15 |
@@ -209,7 +210,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt` | 54 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 43 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 99 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 120 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 951 | 5 |
