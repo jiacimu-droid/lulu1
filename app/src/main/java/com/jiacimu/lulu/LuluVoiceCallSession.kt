@@ -508,7 +508,7 @@ internal object LuluVoiceCallSession {
             val stream = CallReplyStream()
             // Expressive ElevenLabs voices interpret emotion over surrounding sentences.
             // Keep the live subtitle preview, but synthesize the completed turn once.
-            val wholeTurnSpeech = appContext?.let(VoicePerformance::phoneNeedsWholeTurn) == true
+            val wholeTurnSpeech = appContext?.let { VoicePerformance.phoneNeedsWholeTurn(it) } == true
             val heard = StringBuilder()
             var finalText: String? = null
             fun sameReply() = generation == replyGeneration && mutableState.value.connected &&
