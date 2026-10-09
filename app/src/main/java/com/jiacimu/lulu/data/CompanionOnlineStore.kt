@@ -125,10 +125,12 @@ object CompanionOnlineStore {
         synchronized(lock) {
             val previous = mutableStates.value[characterId]
                 ?: CompanionOnlineState(characterId, now, CompanionOnlineReason.NewActivity)
-            mutableStates.value = mutableStates.value + (characterId to previous.copy(
+            val updated = previous.copy(
                 onlineUntil = maxOf(previous.onlineUntil, now.plus(onlineDuration)),
                 reason = CompanionOnlineReason.NewActivity,
-            ))
+            )
+            mutableStates.value = mutableStates.value + (characterId to updated)
+            scheduleLifePulseLocked(characterId, updated.onlineUntil)
             persistLocked()
             scheduleExpiryLocked(characterId)
         }
@@ -210,12 +212,12 @@ object CompanionOnlineStore {
             if (conversation.groupChat == null && isOnline(conversation.characterId, now)) {
                 val current = mutableStates.value[conversation.characterId]
                 if (current != null) {
-                    mutableStates.value = mutableStates.value + (
-                        conversation.characterId to current.copy(
-                            onlineUntil = now.plus(onlineDuration),
-                            reason = CompanionOnlineReason.NewActivity,
-                        )
+                    val updated = current.copy(
+                        onlineUntil = maxOf(current.onlineUntil, now.plus(onlineDuration)),
+                        reason = CompanionOnlineReason.NewActivity,
                     )
+                    mutableStates.value = mutableStates.value + (conversation.characterId to updated)
+                    scheduleLifePulseLocked(conversation.characterId, updated.onlineUntil)
                     scheduleExpiryLocked(conversation.characterId)
                     persistLocked()
                 }
