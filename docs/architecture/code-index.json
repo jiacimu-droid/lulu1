@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T12:59:01.923892+00:00",
-  "commit": "fb6d6af14fbe72d8b25240bf26f9f9863f8bc272",
+  "generatedAt": "2026-10-09T12:59:23.006567+00:00",
+  "commit": "a46ffde37843581b9ab2ebb1576d989210c33e60",
   "branch": "main",
-  "sourceFingerprint": "54ec63a4390c1f1a88c2e7950ea64c00233de95059178ae0e9d05c7fd9d932c0",
+  "sourceFingerprint": "fd1f785f2657d01dcd7a9f9bb24e81c914feb305fd5326c15993810327b22e0c",
   "summary": {
     "files": 384,
-    "lines": 92382,
+    "lines": 92384,
     "symbols": 1308
   },
   "symbolIndex": {
@@ -2165,7 +2165,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 294
+        "line": 296
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -2443,13 +2443,13 @@
     "afterglowContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 91
+        "line": 93
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 286
+        "line": 288
       }
     ],
     "CharacterMessageFavorites": [
@@ -9335,8 +9335,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 337,
-      "sha256": "e32bc8e55f0635a0571c8609b21ff5f4a586aca7ba29e27dab40a7ad62d8090a",
+      "lines": 339,
+      "sha256": "d371de4455f45aa1dbb2d21012544e4235281a848f091b632b264192664ae1fb",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -9348,15 +9348,15 @@
         },
         {
           "name": "afterglowContext",
-          "line": 91
+          "line": 93
         },
         {
           "name": "profileContext",
-          "line": 286
+          "line": 288
         },
         {
           "name": "context",
-          "line": 294
+          "line": 296
         }
       ]
     },
