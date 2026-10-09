@@ -40,7 +40,7 @@ internal object PerceptionStimulusLedger {
         store.all.keys.filter { it.startsWith("seen:") }.forEach { key ->
             val old = store.getString(key, "").orEmpty()
             val remaining = old.lineSequence().filter { token ->
-                prefixes.none(token::startsWith)
+                prefixes.none { prefix -> token.startsWith(prefix) }
             }
                 .filter(String::isNotBlank).joinToString("\n")
             if (remaining != old) store.edit().putString(key, remaining).apply()
