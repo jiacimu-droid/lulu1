@@ -550,7 +550,7 @@ object ProactivePerceptionRuntime {
             },
             now,
         )
-        CompanionOnlineStore.markSeen(characterId, onlineUnread.newestAt)
+        CompanionOnlineStore.markSeen(characterId, onlineUnread)
         return effectiveAction
     }
 
