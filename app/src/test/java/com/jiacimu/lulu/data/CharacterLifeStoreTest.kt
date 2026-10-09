@@ -111,6 +111,26 @@ class CharacterLifeStoreTest {
         assertEquals("记得对方的小事", CharacterLifeStore.state(role).getJSONObject("profile").getString("care"))
     }
 
+    @Test fun repeatedPerceptionCannotReigniteSameAfterglowAndDeletedEventRetractsIt() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CharacterLifeStore.initialize(context)
+        val role = "stable-perception-emotional-test"
+        val now = java.time.Instant.parse("2026-10-09T11:00:00Z")
+        CharacterLifeStore.recordAfterglow(role, "同一条消息", JSONObject()
+            .put("feeling", "很高兴"), now, evidenceId = "real-msg-1")
+        CharacterLifeStore.recordAfterglow(role, "同一条消息", JSONObject()
+            .put("feeling", "又突然很生气"), now.plusSeconds(500), evidenceId = "real-msg-1")
+        val first = CharacterLifeStore.state(role).getJSONObject("afterglow")
+        assertEquals("很高兴", first.getString("feeling"))
+        assertEquals(now.toString(), first.getString("startedAt"))
+        CharacterLifeStore.recordAfterglow(role, "收到了另一条新消息", JSONObject()
+            .put("feeling", "重新有些惊讶"), now.plusSeconds(700), evidenceId = "real-msg-2")
+        assertEquals("real-msg-2",
+            CharacterLifeStore.state(role).getJSONObject("afterglow").getString("evidenceId"))
+        CharacterLifeStore.invalidateReceipt("real-msg-2")
+        assertNull(CharacterLifeStore.state(role).optJSONObject("afterglow"))
+    }
+
     @Test fun emotionalAfterglowIsAnchoredPersistentTemporaryAndResettable() {
         val context = RuntimeEnvironment.getApplication() as Context
         CharacterLifeStore.initialize(context)
