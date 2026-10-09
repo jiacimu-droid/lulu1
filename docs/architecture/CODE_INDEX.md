@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f0355532097805f18c1347675f415f0b6638d866`
+- 基准提交：`a19d24c49a04d1b387f087b0fc8f398aa017b88d`
 - 分支：`main`
-- 已索引文件：379
-- 已索引代码/文本行：91466
-- 已发现符号：1296
+- 已索引文件：380
+- 已索引代码/文本行：91749
+- 已发现符号：1297
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -36,6 +36,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalFurnitureDialogs.kt` | 193 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalFurnitureStickerUi.kt` | 881 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorld3DTrialRoom.kt` | 283 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldArcadeScreen.kt` | 86 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt` | 653 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 844 | 6 |

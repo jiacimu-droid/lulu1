@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T10:48:49.430955+00:00",
-  "commit": "f0355532097805f18c1347675f415f0b6638d866",
+  "generatedAt": "2026-10-09T11:01:37.871559+00:00",
+  "commit": "a19d24c49a04d1b387f087b0fc8f398aa017b88d",
   "branch": "main",
-  "sourceFingerprint": "4fe29590b73b668de613b98fbfd9aa4c05427e410dc08f5ad748b671051e48d0",
+  "sourceFingerprint": "31df37819bf4ac1408c873f5ad3b6544fd6e570cd6315f6acd6177e8945879b1",
   "summary": {
-    "files": 379,
-    "lines": 91466,
-    "symbols": 1296
+    "files": 380,
+    "lines": 91749,
+    "symbols": 1297
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -738,6 +738,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt",
         "line": 71
+      }
+    ],
+    "point": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorld3DTrialRoom.kt",
+        "line": 266
       }
     ],
     "Resident": [
@@ -7658,6 +7664,17 @@
       "lines": 881,
       "sha256": "9a2f57331355a9df31c9b058edd818ce06bd94d5dbb50fa234002ae0af3142d1",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorld3DTrialRoom.kt",
+      "lines": 283,
+      "sha256": "968bd8bafd69e2fd8050005aca28662faf6dca5f70df86df7e77507580cd6e8c",
+      "symbols": [
+        {
+          "name": "point",
+          "line": 266
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldArcadeScreen.kt",
