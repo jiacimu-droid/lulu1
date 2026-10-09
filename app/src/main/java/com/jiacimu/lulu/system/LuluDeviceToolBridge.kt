@@ -247,13 +247,18 @@ object LuluDeviceToolBridge {
             source = "聊天工具结果",
             title = title,
             maxTokens = if (sceneContext.contains("电话")) 1_200 else 600,
-            streamResponse = onReplyStream != null,
-            onStreamText = onReplyStream,
+            streamResponse = onReplyStream != null && !disputeNeedsReview,
+            onStreamText = if (disputeNeedsReview) null else onReplyStream,
             connectionOverride = connection,
         )
         return finalReply.map { result ->
             val finalPlan = parsePlan(result.text)
-            if (finalPlan != null) {
+            val naturalText = finalPlan?.text?.ifBlank { result.text }
+                ?: com.jiacimu.lulu.CallReplyStream.completeReplyText(result.text) ?: result.text
+            val checkedResultText = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(
+                userText, naturalText,
+            )
+            if (finalPlan != null && checkedResultText == naturalText) {
                 savePresence(characterId, finalPlan, "聊天·工具")
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId,
                     "本轮用户消息：${userText.take(120)}；工具真实结果：${toolResult.take(120)}", finalPlan.afterglow)
@@ -267,8 +272,7 @@ object LuluDeviceToolBridge {
                 )
             }
             result.copy(
-                text = finalPlan?.text?.ifBlank { result.text }
-                    ?: com.jiacimu.lulu.CallReplyStream.completeReplyText(result.text) ?: result.text,
+                text = checkedResultText,
                 inputTokens = result.inputTokens + plannedReply.inputTokens,
                 outputTokens = result.outputTokens + plannedReply.outputTokens,
                 cachedTokens = result.cachedTokens + plannedReply.cachedTokens,
