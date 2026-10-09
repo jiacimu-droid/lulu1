@@ -13,10 +13,10 @@ internal object DigitalWorldVisitorAwareness {
         if (characterId.isBlank()) return
         val actor = MigratedDomainStores.characters.get(characterId).displayName
         val fact = when (action) {
-            "HOLD_HANDS" -> "主人在$location牵住了${actor}的手，双方开始牵手移动。"
-            "RELEASE_HANDS" -> "主人在$location松开了${actor}的手，接触结束。"
-            "FOLLOW" -> "主人在$location邀请${actor}同行，双方开始一起走动。"
-            "STOP_FOLLOW" -> "主人在$location结束了与${actor}的跟随。"
+            "HOLD_HANDS" -> "主人在${location}牵住了${actor}的手，双方开始牵手移动。"
+            "RELEASE_HANDS" -> "主人在${location}松开了${actor}的手，接触结束。"
+            "FOLLOW" -> "主人在${location}邀请${actor}同行，双方开始一起走动。"
+            "STOP_FOLLOW" -> "主人在${location}结束了与${actor}的跟随。"
             else -> return
         }
         SharedExperienceTimeline.record(
