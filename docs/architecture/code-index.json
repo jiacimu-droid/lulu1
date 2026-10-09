@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T11:26:00.183126+00:00",
-  "commit": "83b9592b28d9be4f2b297c72af2ecc3721ff67a2",
+  "generatedAt": "2026-10-09T11:26:32.137624+00:00",
+  "commit": "371a8a7c035ecb3286096f92a8df881991eb2f63",
   "branch": "main",
-  "sourceFingerprint": "92101f870c5dbe3813c6ca8d230f40a4eedcf3c35809db44e4d0a49e0a5780b4",
+  "sourceFingerprint": "cfe74fe8153121d9c813d8e49751ccb5cbe0d44c227a152e66f9b0facb226ca8",
   "summary": {
     "files": 381,
-    "lines": 91981,
+    "lines": 91991,
     "symbols": 1298
   },
   "symbolIndex": {
@@ -2217,25 +2217,25 @@
     "retire": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 120
+        "line": 130
       }
     ],
     "invalidateEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 125
+        "line": 135
       }
     ],
     "invalidateEvidenceForAll": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 130
+        "line": 140
       }
     ],
     "clearCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 135
+        "line": 145
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
@@ -9136,8 +9136,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-      "lines": 153,
-      "sha256": "144ebffa17453f38f5b572f37244ef09cc82a2c56b478926af055167bb913295",
+      "lines": 163,
+      "sha256": "fcb55f67fe6b577b1e62bbeb82b961a0622b57eaf8a1605aa9be718bd2447a74",
       "symbols": [
         {
           "name": "DevelopmentKind",
@@ -9169,19 +9169,19 @@
         },
         {
           "name": "retire",
-          "line": 120
-        },
-        {
-          "name": "invalidateEvidence",
-          "line": 125
-        },
-        {
-          "name": "invalidateEvidenceForAll",
           "line": 130
         },
         {
-          "name": "clearCharacter",
+          "name": "invalidateEvidence",
           "line": 135
+        },
+        {
+          "name": "invalidateEvidenceForAll",
+          "line": 140
+        },
+        {
+          "name": "clearCharacter",
+          "line": 145
         }
       ]
     },
