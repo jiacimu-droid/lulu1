@@ -82,6 +82,7 @@ object ProactivePerceptionRuntime {
         val afterglow: JSONObject? = null,
         val innerLife: JSONObject? = null,
         val motiveId: String = "",
+        val alternatives: org.json.JSONArray? = null,
     )
 
     private data class UserActivity(
@@ -498,6 +499,17 @@ object ProactivePerceptionRuntime {
             // Keep the previous factual presence intact. Failure details belong to perception history.
             CompanionPresenceStore.recordPerceptionAttempt(characterId, "动作未完成：${execution.summary}", now)
         }
+        CharacterInnerLifeStore.recordDecision(
+            characterId = characterId,
+            decisionId = "perception:${now.toEpochMilli()}:${trigger.take(30)}",
+            selectedAction = decision.action.name.lowercase(),
+            reason = decision.reason,
+            chosenMotiveId = decision.motiveId,
+            alternatives = decision.alternatives,
+            outcome = execution.summary,
+            succeeded = execution.success,
+            now = now,
+        )
         val effectiveAction = if (execution.success) decision.action else Action.SILENT
         CompanionPresenceStore.recordPerceptionAttempt(
             characterId,
@@ -773,6 +785,7 @@ object ProactivePerceptionRuntime {
             afterglow = json.optJSONObject("afterglow"),
             innerLife = json.optJSONObject("innerLife"),
             motiveId = json.optString("motiveId").trim(),
+            alternatives = json.optJSONArray("alternatives"),
         )
     }.getOrNull()
 
