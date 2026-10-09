@@ -14,20 +14,46 @@ import java.util.UUID
  */
 internal object MeetingLivingWorldRuntime {
     private val visibleSessions = mutableSetOf<String>()
+    data class PendingTouch(val id: String, val characterId: String, val fact: String)
+    private val pendingTouches = mutableMapOf<String, List<PendingTouch>>()
+
+    @Synchronized
+    fun nextTouch(sessionId: String): PendingTouch? = pendingTouches[sessionId]?.firstOrNull()
+
+    @Synchronized
+    fun acknowledgeTouch(sessionId: String, eventId: String) {
+        val remaining = pendingTouches[sessionId].orEmpty().filterNot { it.id == eventId }
+        if (remaining.isEmpty()) pendingTouches.remove(sessionId)
+        else pendingTouches[sessionId] = remaining
+    }
 
     @Synchronized
     fun entered(session: MeetingSession): Boolean {
         if (session.endedAt != null || !visibleSessions.add(session.id)) return false
         recordObservation(session, "主人进入了见面场景“${session.location}”，现在实际在场。", "arrival")
+        session.participantIds.forEach { characterId ->
+            CompanionPresenceStore.update(characterId,
+                statusText = "主人已来到见面场景·${session.location}",
+                gesture = null, innerThought = null, mood = null,
+                source = "见面·实际到场")
+        }
         return true
     }
 
     @Synchronized
     fun departed(session: MeetingSession): Boolean {
         if (!visibleSessions.remove(session.id)) return false
-        if (session.endedAt == null) {
+        val current = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == session.id }
+        if (current?.endedAt == null) {
             recordObservation(session, "主人离开了见面场景“${session.location}”，目前不在场。离开不等于主动结束你们的关系或忘记见面。", "departure")
+            session.participantIds.forEach { characterId ->
+                CompanionPresenceStore.update(characterId,
+                    statusText = "主人刚离开见面场景·${session.location}",
+                    gesture = null, innerThought = null, mood = null,
+                    source = "见面·实际离场")
+            }
         }
+        pendingTouches.remove(session.id)
         return true
     }
 
@@ -79,6 +105,10 @@ internal object MeetingLivingWorldRuntime {
         )
         DigitalWorldStore.appendMeetingTurn(session.id, turn)
         recordObservation(session, fact, "physical-${turn.id}")
+        synchronized(this) {
+            pendingTouches[session.id] = (pendingTouches[session.id].orEmpty() +
+                PendingTouch(turn.id, characterId, fact)).takeLast(12)
+        }
         return fact
     }
 
