@@ -6,7 +6,7 @@ object DevelopmentPolicy {
         if (kind == DevelopmentKind.Interest) return evidenceCount >= 3
         if (evidenceCount <= 0 || counterCount > 0) return false
         return when (kind) {
-            DevelopmentKind.Habit, DevelopmentKind.VerifiedMethod -> evidenceCount >= 3
+            DevelopmentKind.Habit, DevelopmentKind.ExpressionHabit, DevelopmentKind.VerifiedMethod -> evidenceCount >= 3
             else -> evidenceCount >= 3 || explicitUserInstruction
         }
     }
