@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:11:12.755337+00:00",
-  "commit": "7310e243da775ba8594349e0eb7755dd17e9ee9f",
+  "generatedAt": "2026-10-09T13:11:30.092387+00:00",
+  "commit": "390d5e432f349a7b54b970a756fbce80606a8cf4",
   "branch": "main",
-  "sourceFingerprint": "815f8ed1156a4298eeda55d72efba86dbae339782fc03738b791e5ebb24231e4",
+  "sourceFingerprint": "d8e034e49d35e90b2ba2591d75269bb457ac8cd137a57bbd77fdca4a795c1fdf",
   "summary": {
-    "files": 388,
-    "lines": 92598,
-    "symbols": 1313
+    "files": 389,
+    "lines": 92641,
+    "symbols": 1314
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7226,6 +7226,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
         "line": 16
+      }
+    ],
+    "PerceptionStimulusLedgerTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt",
+        "line": 13
       }
     ],
     "PerceptionStimulusTest": [
@@ -14968,6 +14974,17 @@
         {
           "name": "OnlineChatExperienceTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt",
+      "lines": 43,
+      "sha256": "0b3e78bd496b9534941993694f4baee60fc7fa3165fba7b797038f2bf7dd6022",
+      "symbols": [
+        {
+          "name": "PerceptionStimulusLedgerTest",
+          "line": 13
         }
       ]
     },
