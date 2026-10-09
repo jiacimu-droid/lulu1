@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T15:25:58.211944+00:00",
-  "commit": "217515f74eb020d415bad83e91066b144ec4c240",
+  "generatedAt": "2026-10-09T15:26:25.047721+00:00",
+  "commit": "04aaf1646907cc5f54e247f03c380412656c337c",
   "branch": "main",
-  "sourceFingerprint": "983cf0880d482221d55f428ec658d583cdef00ed6cc457aa3ce2cf22c13dfc03",
+  "sourceFingerprint": "8ee33505aaa5d2889cbf88f1f3f8cf9cc2794ebd00941a4d8ab9fd73c7e6eb46",
   "summary": {
     "files": 400,
-    "lines": 93568,
+    "lines": 93579,
     "symbols": 1343
   },
   "symbolIndex": {
@@ -795,13 +795,13 @@
     "furniturePoseFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 154
+        "line": 156
       }
     ],
     "loadPosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 966
+        "line": 969
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
@@ -811,37 +811,37 @@
     "loadQuest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 975
+        "line": 978
       }
     ],
     "loadHandHoldingId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 977
+        "line": 980
       }
     ],
     "loadFollowerIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 979
+        "line": 982
       }
     ],
     "loadSuspendedFollowers": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 982
+        "line": 985
       }
     ],
     "saveCompanionship": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 985
+        "line": 988
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 993
+        "line": 996
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
@@ -971,7 +971,7 @@
     "flush": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-        "line": 757
+        "line": 759
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
@@ -7975,8 +7975,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-      "lines": 998,
-      "sha256": "068632f24572e0e29e86bfcde6a3de39d076d95932109732e4c36f653c20f5e0",
+      "lines": 1001,
+      "sha256": "fe5d5fe869e02bcfbbfa3618adf6ae6f48640f1e11f6f503c17759c68fba44e5",
       "symbols": [
         {
           "name": "Resident",
@@ -7992,35 +7992,35 @@
         },
         {
           "name": "furniturePoseFor",
-          "line": 154
+          "line": 156
         },
         {
           "name": "loadPosition",
-          "line": 966
+          "line": 969
         },
         {
           "name": "loadQuest",
-          "line": 975
+          "line": 978
         },
         {
           "name": "loadHandHoldingId",
-          "line": 977
+          "line": 980
         },
         {
           "name": "loadFollowerIds",
-          "line": 979
-        },
-        {
-          "name": "loadSuspendedFollowers",
           "line": 982
         },
         {
-          "name": "saveCompanionship",
+          "name": "loadSuspendedFollowers",
           "line": 985
         },
         {
+          "name": "saveCompanionship",
+          "line": 988
+        },
+        {
           "name": "save",
-          "line": 993
+          "line": 996
         }
       ]
     },
@@ -8049,8 +8049,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-      "lines": 531,
-      "sha256": "de5fea1d70901bd6a04317cef51bd1fe9931fd2681857040f228d06066b77ef1",
+      "lines": 537,
+      "sha256": "6a24c389682679dff2114ce01570e9b4cf71513af062eacde29f2e9e93b0facc",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
@@ -8093,12 +8093,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-      "lines": 791,
-      "sha256": "c06fc992e8b1ae32d1f210242e79d71661dbc9b1b8347b60a248293c65ab21d2",
+      "lines": 793,
+      "sha256": "051a9cb9cb71a3fcda04f68a56db5ce278b5b0d5e0f3b69393e0eed337f43b5d",
       "symbols": [
         {
           "name": "flush",
-          "line": 757
+          "line": 759
         }
       ]
     },
