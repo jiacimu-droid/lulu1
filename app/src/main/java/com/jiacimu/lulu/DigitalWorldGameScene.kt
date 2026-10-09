@@ -96,6 +96,8 @@ private data class DigitalQueuedAction(
     val summary: String,
 )
 
+private enum class ResidentMovementChoice { HOLD_HANDS, RELEASE_HANDS, FOLLOW, STOP_FOLLOW }
+
 private data class DigitalInteractionChoice(
     val label: String,
     val detail: String,
@@ -103,6 +105,7 @@ private data class DigitalInteractionChoice(
     val storyPrompt: String? = null,
     val dialogueCharacterId: String? = null,
     val gameId: String? = null,
+    val movement: ResidentMovementChoice? = null,
 )
 
 @Composable
@@ -180,7 +183,8 @@ internal fun DigitalWorldGameScene(
     // story modal. Keep their mode separate from the narrative conversation.
     var handHoldingId by remember(sceneKey) { mutableStateOf(stateStore.loadHandHoldingId()) }
     var requestedFollowers by remember(sceneKey) { mutableStateOf(stateStore.loadFollowerIds()) }
-    val activeFollowerIds = followerIds + requestedFollowers + listOfNotNull(handHoldingId)
+    var suspendedFollowers by remember(sceneKey) { mutableStateOf(stateStore.loadSuspendedFollowers()) }
+    val activeFollowerIds = (followerIds - suspendedFollowers) + requestedFollowers + listOfNotNull(handHoldingId)
 
     var npcMotions by remember(sceneKey, residents.map { it.characterId }) {
         mutableStateOf(
@@ -462,8 +466,8 @@ internal fun DigitalWorldGameScene(
         if (selectedTarget == null || !controlsEnabled) menuTargetKey = null
     }
 
-    val interactionChoices = remember(selectedTarget, residents, props, sceneCode, placeLabel) {
-        buildInteractionChoices(selectedTarget, residents, sceneCode, placeLabel)
+    val interactionChoices = remember(selectedTarget, residents, props, sceneCode, placeLabel, handHoldingId, activeFollowerIds) {
+        buildInteractionChoices(selectedTarget, residents, sceneCode, placeLabel, handHoldingId, activeFollowerIds)
     }
 
     Box(
@@ -640,6 +644,42 @@ internal fun DigitalWorldGameScene(
                 onChoice = { choice ->
                     menuTargetKey = null
                     when {
+                        choice.movement != null -> {
+                            val characterId = (selectedTarget as? DigitalNearbyTarget.Resident)
+                                ?.motion?.character?.characterId
+                            if (characterId != null) {
+                                when (choice.movement) {
+                                    ResidentMovementChoice.HOLD_HANDS -> {
+                                        handHoldingId = characterId
+                                        suspendedFollowers = suspendedFollowers - characterId
+                                        com.jiacimu.lulu.data.DigitalWorldActivityStateStore.pauseActivity(
+                                            characterId, "玩家邀请一起牵手走动，原本的家具活动暂时结束")
+                                        interactionMessage = "已牵手 · 继续移动，你们会一起走"
+                                    }
+                                    ResidentMovementChoice.RELEASE_HANDS -> {
+                                        if (handHoldingId == characterId) handHoldingId = null
+                                        interactionMessage = "已松开手，可以各自行动"
+                                    }
+                                    ResidentMovementChoice.FOLLOW -> {
+                                        requestedFollowers = requestedFollowers + characterId
+                                        suspendedFollowers = suspendedFollowers - characterId
+                                        com.jiacimu.lulu.data.DigitalWorldActivityStateStore.pauseActivity(
+                                            characterId, "玩家邀请一起探索，角色离开当前家具")
+                                        interactionMessage = "已开始同行 · 你可以自由探索"
+                                    }
+                                    ResidentMovementChoice.STOP_FOLLOW -> {
+                                        requestedFollowers = requestedFollowers - characterId
+                                        suspendedFollowers = suspendedFollowers + characterId
+                                        if (handHoldingId == characterId) handHoldingId = null
+                                        interactionMessage = "已结束跟随，恢复自由活动"
+                                    }
+                                }
+                                stateStore.saveCompanionship(handHoldingId, requestedFollowers, suspendedFollowers)
+                                WorldFirstExplorationMemory.record(
+                                    context = context, worldId = "digital-world", locationId = sceneCode,
+                                    locationLabel = placeLabel, action = interactionMessage)
+                            }
+                        }
                         choice.gameId != null -> arcadeGameId = choice.gameId
                         choice.dialogueCharacterId != null -> {
                             questStage = questStage.coerceAtLeast(1)
@@ -667,17 +707,28 @@ private fun buildInteractionChoices(
     residents: List<CharacterSettings>,
     sceneCode: String,
     placeLabel: String,
+    handHoldingId: String?,
+    activeFollowers: Set<String>,
 ): List<DigitalInteractionChoice> = when (target) {
     is DigitalNearbyTarget.Resident -> {
         val name = target.motion.character.displayName
+        val id = target.motion.character.characterId
+        val holding = handHoldingId == id
+        val following = id in activeFollowers
         listOf(
-            DigitalInteractionChoice("聊天", "进入沉浸对话", dialogueCharacterId = target.motion.character.characterId),
-            DigitalInteractionChoice("抱抱", "让这次接触进入剧情", storyPrompt = "我走到${name}身边，轻轻抱了抱对方，看看对方会有什么反应。"),
-            DigitalInteractionChoice("牵手", "一起行动时保持接触", storyPrompt = "我伸手去牵${name}的手，想和对方一起待一会儿。"),
-            DigitalInteractionChoice("一起坐", "找附近能坐的地方", storyPrompt = "我问${name}要不要和我一起找个舒服的位置坐下来待一会儿。"),
-            DigitalInteractionChoice("跟我来", "邀请对方跟随你的移动", storyPrompt = "我回头招呼${name}跟我来，想带对方一起在这里走走。"),
-            DigitalInteractionChoice("一起玩", "发起共同活动", storyPrompt = "我问${name}想不想和我一起玩点什么，由我们现在所在的数字世界决定具体活动。"),
-            DigitalInteractionChoice("去别处", "一起商量下一个地点", storyPrompt = "我问${name}想不想和我一起换个地方，并准备从真实存在的地点里选一个。"),
+            DigitalInteractionChoice("聊天", "想说话时再打开对话", dialogueCharacterId = id),
+            DigitalInteractionChoice(
+                if (holding) "松手" else "牵手",
+                if (holding) "松开手，继续自由探索" else "牵手后可以继续走动，不弹剧情",
+                movement = if (holding) ResidentMovementChoice.RELEASE_HANDS else ResidentMovementChoice.HOLD_HANDS),
+            DigitalInteractionChoice(
+                if (following && !holding) "停止跟随" else "跟我来",
+                if (following && !holding) "结束随行" else "让对方在场景里跟着你移动",
+                movement = if (following && !holding) ResidentMovementChoice.STOP_FOLLOW else ResidentMovementChoice.FOLLOW),
+            DigitalInteractionChoice("抱抱（剧情）", "进入角色互动剧情", storyPrompt = "我走到${name}身边，轻轻抱了抱对方，看看对方会有什么反应。"),
+            DigitalInteractionChoice("一起坐（剧情）", "讨论或展开共同活动", storyPrompt = "我问${name}要不要和我一起找个舒服的位置坐下来待一会儿。"),
+            DigitalInteractionChoice("一起玩（剧情）", "开始共同活动对话", storyPrompt = "我问${name}想不想和我一起玩点什么，由我们现在所在的数字世界决定具体活动。"),
+            DigitalInteractionChoice("去别处（剧情）", "协商新的目的地", storyPrompt = "我问${name}想不想和我一起换个地方，并准备从真实存在的地点里选一个。"),
         )
     }
     is DigitalNearbyTarget.Prop -> {
@@ -893,6 +944,22 @@ private class DigitalWorldPlayState(context: Context, sceneKey: String) {
     }
 
     fun loadQuest(): Int = prefs.getInt("quest_$suffix", 0).coerceIn(0, 2)
+
+    fun loadHandHoldingId(): String? = prefs.getString("hold_$suffix", null)?.takeIf(String::isNotBlank)
+
+    fun loadFollowerIds(): Set<String> =
+        prefs.getStringSet("followers_$suffix", emptySet()).orEmpty().toSet()
+
+    fun loadSuspendedFollowers(): Set<String> =
+        prefs.getStringSet("suspended_$suffix", emptySet()).orEmpty().toSet()
+
+    fun saveCompanionship(handHoldingId: String?, followers: Set<String>, suspended: Set<String>) {
+        prefs.edit()
+            .putString("hold_$suffix", handHoldingId)
+            .putStringSet("followers_$suffix", followers.toSet())
+            .putStringSet("suspended_$suffix", suspended.toSet())
+            .apply()
+    }
 
     fun save(position: WorldVector, quest: Int) {
         prefs.edit().putFloat("x_$suffix", position.x).putFloat("y_$suffix", position.y).putInt("quest_$suffix", quest.coerceIn(0, 2)).apply()
