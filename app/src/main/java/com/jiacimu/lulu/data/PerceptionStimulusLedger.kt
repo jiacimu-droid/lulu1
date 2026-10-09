@@ -20,7 +20,7 @@ internal object PerceptionStimulusLedger {
             checkNotNull(prefs)
         }
         val key = "seen:$characterId"
-        val token = "${stimulus.evidenceId.hashCode()}:${stimulus.description.hashCode()}"
+        val token = stimulus.evidenceId.hashCode().toString()
         synchronized(this) {
             val seen = pref.getString(key, "").orEmpty().lineSequence()
                 .filter(String::isNotBlank).toList()
@@ -35,13 +35,11 @@ internal object PerceptionStimulusLedger {
     @Synchronized fun invalidate(eventId: String) {
         if (eventId.isBlank()) return
         val sourceIds = setOf(eventId, eventId.substringBefore(":group:"))
-        val prefixes = sourceIds.map { "${it.hashCode()}:" }
+        val tokens = sourceIds.map { it.hashCode().toString() }.toSet()
         val store = prefs ?: return
         store.all.keys.filter { it.startsWith("seen:") }.forEach { key ->
             val old = store.getString(key, "").orEmpty()
-            val remaining = old.lineSequence().filter { token ->
-                prefixes.none { prefix -> token.startsWith(prefix) }
-            }
+            val remaining = old.lineSequence().filter { token -> token !in tokens }
                 .filter(String::isNotBlank).joinToString("\n")
             if (remaining != old) store.edit().putString(key, remaining).apply()
         }
