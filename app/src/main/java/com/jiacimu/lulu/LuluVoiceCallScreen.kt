@@ -345,7 +345,8 @@ fun LuluVoiceCallScreen(
 
 @Composable
 private fun CallCaptionLines(speaker: String, content: String, mine: Boolean, live: Boolean = false) {
-    Column(Modifier.fillMaxWidth().animateItem(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    // LazyItemScope.animateItem() cannot be called inside a standalone composable.
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         PhoneSubtitleLayout.lines(content).forEach { line ->
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
                 Text(
