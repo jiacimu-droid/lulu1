@@ -86,24 +86,23 @@ fun QqStyleChatDetailScreen(
     val actualActivities by ChatGenerationActivity.activities.collectAsState()
     val activeTypists = actualActivities.values.filter { conversationId in it.conversationIds }.map { it.characterId }.distinct()
     val receiving = replyTaskState.running || activeTypists.isNotEmpty()
-    // A new message first gets its three seconds for the user to finish
-    // typing. Being online / a queued worker is NOT "正在输入中".
-    val lastCharacterTurn = messages.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
-    val firstPendingUserBubble = messages.drop(lastCharacterTurn + 1)
-        .firstOrNull { it.sender == LuluChatMessage.Sender.User }
-    val firstBubbleDeadline = firstPendingUserBubble?.createdAt?.toEpochMilli()
+    // A user can send several bubbles in succession. No typing indicator
+    // until THREE SECONDS after the LAST real user bubble in this conversation.
+    // Simply pressing wake is presence, not evidence that the role is typing.
+    val lastPendingUserBubble = messages.lastOrNull { it.sender == LuluChatMessage.Sender.User }
+    val lastBubbleDeadline = lastPendingUserBubble?.createdAt?.toEpochMilli()
         ?.plus(OnlineChatBatchStore.QUIET_MILLIS)
-    var firstBubbleWindowElapsed by remember(conversationId, firstPendingUserBubble?.id) {
-        mutableStateOf(firstBubbleDeadline == null || System.currentTimeMillis() >= firstBubbleDeadline)
+    var quietWindowElapsed by remember(conversationId, lastPendingUserBubble?.id) {
+        mutableStateOf(lastBubbleDeadline == null || System.currentTimeMillis() >= lastBubbleDeadline)
     }
-    LaunchedEffect(conversationId, firstPendingUserBubble?.id) {
-        firstBubbleDeadline?.let { deadline ->
+    LaunchedEffect(conversationId, lastPendingUserBubble?.id) {
+        lastBubbleDeadline?.let { deadline ->
             val remaining = deadline - System.currentTimeMillis()
             if (remaining > 0) kotlinx.coroutines.delay(remaining)
         }
-        firstBubbleWindowElapsed = true
+        quietWindowElapsed = true
     }
-    val showTypingIndicator = firstBubbleWindowElapsed &&
+    val showTypingIndicator = quietWindowElapsed &&
         (replyTaskState.typingCharacterId != null || activeTypists.isNotEmpty())
     val conversation = conversations.firstOrNull { it.id == conversationId }
     val groupChat = conversation?.groupChat
