@@ -155,8 +155,8 @@ internal fun CharacterLifeSettings(characterId: String) {
         if ((motives == null || motives.length() == 0) && !legacyUnique) {
             Text("暂时没有明确的长期打算", style = MaterialTheme.typography.bodySmall)
         } else {
-            for (i in 0 until motives.length()) {
-                val goal = motives.optJSONObject(i) ?: continue
+            for (i in 0 until (motives?.length() ?: 0)) {
+                val goal = motives?.optJSONObject(i) ?: continue
                 val id = goal.optString("id")
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(goal.optString("aim"), fontWeight = FontWeight.Medium)
