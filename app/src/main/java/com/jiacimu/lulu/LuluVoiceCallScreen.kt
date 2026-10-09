@@ -171,8 +171,22 @@ fun LuluVoiceCallScreen(
                 }
                 
                 if (state.errorMessage.isNotBlank()) Text(state.errorMessage, color = CallDanger, fontSize = 12.sp)
-                if (state.connected) TextButton(onClick = { LuluVoiceCallSession.retryListening() }) { Text(if (state.speaking) "打断并重新收音" else "重新收音") }
-                Spacer(Modifier.height(16.dp))
+                if (state.connected) {
+                    TextButton(onClick = { LuluVoiceCallSession.retryListening() }) {
+                        Text(if (state.speaking) "打断并重新收音" else "重新收音")
+                    }
+                    TextButton(onClick = LuluVoiceCallSession::toggleSleepMode) {
+                        Icon(Icons.Outlined.NightsStay, contentDescription = null, tint = if (state.sleepMode) Color(0xFF9A6BB5) else CallMuted)
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            if (state.sleepMode) "哄睡中 · 安静听就好 · 点击关闭"
+                            else "开启哄睡陪伴 · 不说话也会继续",
+                            color = if (state.sleepMode) Color(0xFF9A6BB5) else CallInk,
+                            fontSize = 12.sp,
+                        )
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
 
                 Box(
                     modifier = Modifier.weight(1f).fillMaxWidth(),
@@ -206,7 +220,7 @@ fun LuluVoiceCallScreen(
                                             CallPhase.Connected -> if (state.microphoneMuted) {
                                                 "麦克风已静音"
                                             } else {
-                                                "等你说话"
+                                                if (state.sleepMode) "哄睡模式 · 正在准备下一段陪伴" else "等你说话"
                                             }
                                             else -> "通话字幕会显示在这里"
                                         },
@@ -282,7 +296,9 @@ fun LuluVoiceCallScreen(
                     CallPhase.Dialing -> CallPrimaryHangup(label = "取消呼叫", onClick = LuluVoiceCallSession::cancelDial)
                     CallPhase.Connected -> {
                         Text(
-                            if (state.microphoneMuted) "露露机已停止收音 · 可在其他应用语音输入" else "麦克风收音中 · 直接说话",
+                            if (state.sleepMode) "哄睡陪伴中 · 你可以只听，也可以随时说话"
+                            else if (state.microphoneMuted) "已关闭麦克风 · 仍可继续听角色说话"
+                            else "麦克风收音中 · 直接说话",
                             color = CallMuted,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
