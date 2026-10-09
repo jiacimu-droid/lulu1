@@ -754,21 +754,13 @@ object ProactivePerceptionRuntime {
 
     private fun Decision.withPresenceFallback(character: CharacterSettings): Decision {
         if (statusText.isNotBlank() && gesture.isNotBlank() && mood.isNotBlank()) return this
-        val persona = character.persona
-        val reserved = listOf("冷淡", "克制", "寡言", "内敛").any(persona::contains)
-        val lively = listOf("活泼", "开朗", "元气", "爱闹").any(persona::contains)
+        // Missing optional visual fields should not manufacture a new mood,
+        // movement or facial reaction from a coarse persona adjective.
+        val existing = CompanionPresenceStore.current(character.characterId)
         return copy(
-            statusText = statusText.ifBlank {
-                if (reserved) "安静地过着自己的这一刻"
-                else if (lively) "被一点念头勾走了注意力"
-                else "停下来想了想最近的事"
-            },
-            gesture = gesture.ifBlank {
-                if (reserved) "视线停了一会儿，没有急着开口"
-                else if (lively) "晃了晃神，又兴致勃勃地想起什么"
-                else "指尖停住，短暂出了会儿神"
-            },
-            mood = mood.ifBlank { if (reserved) "克制" else if (lively) "有点兴致" else "若有所思" },
+            statusText = statusText.ifBlank { existing?.statusText.orEmpty().ifBlank { "安静地待着" } },
+            gesture = gesture.ifBlank { existing?.gesture.orEmpty().ifBlank { "没有新的动作" } },
+            mood = mood.ifBlank { existing?.mood.orEmpty().ifBlank { "平静" } },
         )
     }
 
