@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T08:38:47.342922+00:00",
-  "commit": "23c01cc275f2d2ed93e4d609e5b9a3815bbba2af",
+  "generatedAt": "2026-10-09T08:39:04.412630+00:00",
+  "commit": "4acf74964e098d8e2cf081d2ed2b99428998f33b",
   "branch": "main",
-  "sourceFingerprint": "1246af6de83ebc64cd7fa1418df43d743073081cc7ce5d1f85bb89248e2c9fa6",
+  "sourceFingerprint": "a4b2c892b66070b3d6c02ca866c55b1d6cdb115a877375b5f09438d1d343bb4b",
   "summary": {
     "files": 378,
-    "lines": 90782,
+    "lines": 90788,
     "symbols": 1286
   },
   "symbolIndex": {
@@ -9636,8 +9636,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 417,
-      "sha256": "49823fca5262fa1e813e7b99cb62c2461bdad09444fb81bf983c142210158955",
+      "lines": 423,
+      "sha256": "ba9892a519baa80eab5e4960263b8ea84f5699db8c3b666d451c2b2977c60be2",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -14272,7 +14272,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 507,
-      "sha256": "c8e68b5d000a8734a752cf7244239fb3ffafa59494a8681455942d4a09890a50",
+      "sha256": "e43008bf8621a12ecabbba549303e81a8a2547a9566a0c37dcca329c0f9be383",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
