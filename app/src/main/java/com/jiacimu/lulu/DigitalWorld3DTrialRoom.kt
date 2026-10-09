@@ -91,7 +91,7 @@ internal fun DigitalWorld3DTrialRoom(modifier: Modifier = Modifier) {
                 .background(Color(0xD8243040), RoundedCornerShape(14.dp)).padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(3.dp),
         ) {
-            Text("3D 体验间 · 原型", color = Color.White, fontSize = 14.sp)
+            Text("3D 探索房间 · 原型", color = Color.White, fontSize = 14.sp)
             Text("左侧滑杆移动 · 右侧拖动转身", color = Color(0xFFE1E5EE), fontSize = 11.sp)
             Text("房间和人物均为演示资产，不改变角色的真实家园", color = Color(0xFFD7E1E8), fontSize = 10.sp)
         }
@@ -194,7 +194,7 @@ private class TrialRoomRenderer(private val walk: TrialRoomWalkController) : GLS
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
-        Matrix.perspectiveM(projection, 0, 50f, width.toFloat() / height.coerceAtLeast(1), .1f, 45f)
+        Matrix.perspectiveM(projection, 0, 66f, width.toFloat() / height.coerceAtLeast(1), .1f, 55f)
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -208,9 +208,9 @@ private class TrialRoomRenderer(private val walk: TrialRoomWalkController) : GLS
             walk.z - cos(yaw), 0f, 1f, 0f)
         Matrix.multiplyMM(vp, 0, projection, 0, view, 0)
         // Actual 3D solid room: floor, two back walls, a window and real furniture.
-        box(0f, -.11f, 0f, 7.6f, .2f, 6.8f, .76f, .71f, .64f)
-        box(0f, 2.1f, -3.42f, 7.6f, 4.4f, .14f, .83f, .87f, .87f)
-        box(-3.77f, 2.1f, 0f, .14f, 4.4f, 6.8f, .79f, .84f, .86f)
+        box(0f, -.11f, 0f, 15.2f, .2f, 13.6f, .76f, .71f, .64f)
+        box(0f, 2.1f, -3.42f, 15.2f, 4.4f, .14f, .83f, .87f, .87f)
+        box(-3.77f, 2.1f, 0f, .14f, 4.4f, 13.6f, .79f, .84f, .86f)
         // Window on the rear wall.
         box(1.95f, 2.3f, -3.30f, 2.10f, 1.65f, .07f, .36f, .54f, .68f)
         box(1.95f, 2.3f, -3.22f, .085f, 1.67f, .12f, .94f, .92f, .84f)
@@ -240,27 +240,33 @@ private class TrialRoomRenderer(private val walk: TrialRoomWalkController) : GLS
                 .13f, .40f, .21f, .35f + (i % 2) * .19f, .49f, .55f)
         }
         // Stylized placeholder actor, with depth-correct limbs, head and hair.
-        box(-.95f, .15f, .40f, .33f, .28f, .52f, .18f, .22f, .34f)
-        box(-.48f, .15f, .40f, .33f, .28f, .52f, .18f, .22f, .34f)
-        box(-.96f, .61f, .27f, .27f, .77f, .30f, .16f, .24f, .33f)
-        box(-.47f, .61f, .27f, .27f, .77f, .30f, .16f, .24f, .33f)
-        box(-.71f, 1.25f, .26f, .89f, .81f, .47f, .19f, .31f, .43f)
-        box(-1.25f, 1.18f, .35f, .23f, .66f, .26f, .19f, .30f, .42f)
-        box(-.18f, 1.18f, .50f, .23f, .66f, .26f, .19f, .30f, .42f)
-        ball(-.72f, 2.02f, .28f, .47f, .53f, .43f, .96f, .76f, .67f)
-        ball(-.72f, 2.39f, .18f, .51f, .28f, .47f, .14f, .17f, .24f)
-        box(-.72f, 2.36f, .59f, .73f, .11f, .16f, .14f, .17f, .24f)
-        ball(-.88f, 2.08f, .67f, .052f, .075f, .035f, .16f, .20f, .27f)
-        ball(-.54f, 2.08f, .67f, .052f, .075f, .035f, .16f, .20f, .27f)
+        actorBox(-.95f, .15f, .40f, .33f, .28f, .52f, .18f, .22f, .34f)
+        actorBox(-.48f, .15f, .40f, .33f, .28f, .52f, .18f, .22f, .34f)
+        actorBox(-.96f, .61f, .27f, .27f, .77f, .30f, .16f, .24f, .33f)
+        actorBox(-.47f, .61f, .27f, .27f, .77f, .30f, .16f, .24f, .33f)
+        actorBox(-.71f, 1.25f, .26f, .89f, .81f, .47f, .19f, .31f, .43f)
+        actorBox(-1.25f, 1.18f, .35f, .23f, .66f, .26f, .19f, .30f, .42f)
+        actorBox(-.18f, 1.18f, .50f, .23f, .66f, .26f, .19f, .30f, .42f)
+        actorBall(-.72f, 2.02f, .28f, .47f, .53f, .43f, .96f, .76f, .67f)
+        actorBall(-.72f, 2.39f, .18f, .51f, .28f, .47f, .14f, .17f, .24f)
+        actorBox(-.72f, 2.36f, .59f, .73f, .11f, .16f, .14f, .17f, .24f)
+        actorBall(-.88f, 2.08f, .67f, .052f, .075f, .035f, .16f, .20f, .27f)
+        actorBall(-.54f, 2.08f, .67f, .052f, .075f, .035f, .16f, .20f, .27f)
         // Phone has an actual transform in the scene (not a photo overlay).
-        box(-.13f, 1.38f, .75f, .21f, .36f, .07f, .10f, .13f, .20f)
-        box(-.13f, 1.38f, .81f, .15f, .28f, .02f, .41f, .68f, .78f)
+        actorBox(-.13f, 1.38f, .75f, .21f, .36f, .07f, .10f, .13f, .20f)
+        actorBox(-.13f, 1.38f, .81f, .15f, .28f, .02f, .41f, .68f, .78f)
     }
 
+    // Room floor area expanded; furniture remains human scale but spaced further
+    // apart. A dedicated actor transform keeps the former dummy near 1.9m high.
     private fun box(x: Float,y: Float,z: Float,sx: Float,sy: Float,sz: Float,r: Float,g: Float,b: Float) =
-        draw(cube, x,y,z, sx,sy,sz,r,g,b)
+        draw(cube, x * 2f,y,z * 2f, sx,sy,sz,r,g,b)
     private fun ball(x: Float,y: Float,z: Float,sx: Float,sy: Float,sz: Float,r: Float,g: Float,b: Float) =
-        draw(sphere, x,y,z, sx,sy,sz,r,g,b)
+        draw(sphere, x * 2f,y,z * 2f, sx,sy,sz,r,g,b)
+    private fun actorBox(x: Float,y: Float,z: Float,sx: Float,sy: Float,sz: Float,r: Float,g: Float,b: Float) =
+        draw(cube, x * 2f,y * .78f,z * 2f, sx * .78f,sy * .78f,sz * .78f,r,g,b)
+    private fun actorBall(x: Float,y: Float,z: Float,sx: Float,sy: Float,sz: Float,r: Float,g: Float,b: Float) =
+        draw(sphere, x * 2f,y * .78f,z * 2f, sx * .78f,sy * .78f,sz * .78f,r,g,b)
     private fun draw(mesh: Mesh, x:Float,y:Float,z:Float, sx:Float,sy:Float,sz:Float, r:Float,g:Float,b:Float) {
         Matrix.setIdentityM(model,0)
         Matrix.translateM(model,0,x,y,z)
