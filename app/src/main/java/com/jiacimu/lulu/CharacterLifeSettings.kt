@@ -14,11 +14,38 @@ import com.jiacimu.lulu.data.CharacterLifeStore
 import com.jiacimu.lulu.data.CharacterInnerLifeStore
 import com.jiacimu.lulu.data.CharacterProfileSchema
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.CommitmentTaskStore
+import com.jiacimu.lulu.data.CommitmentTaskStatus
+import com.jiacimu.lulu.system.LuluAlarmSystem
+import androidx.compose.ui.platform.LocalContext
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import android.os.Build
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+
 
 @Composable
 internal fun CharacterLifeSettings(characterId: String) {
     val states by CharacterLifeStore.states.collectAsState()
     val innerRevision by CharacterInnerLifeStore.revisions.collectAsState()
+    val context = LocalContext.current
+    val commitments by CommitmentTaskStore.tasks.collectAsState()
+    val activeCommitments = commitments.filter { it.characterId == characterId && it.status.isActive() }
+    var permissionsRefresh by remember { mutableIntStateOf(0) }
+    val notificationPermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { permissionsRefresh += 1 }
+    val exactClockAllowed = remember(permissionsRefresh) { LuluAlarmSystem.canScheduleExact() }
+    val notificationsAllowed = remember(permissionsRefresh) {
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+                PackageManager.PERMISSION_GRANTED
+    }
+
     val innerRoot = remember(characterId, innerRevision) { CharacterInnerLifeStore.snapshot(characterId) }
     val presenceStates by com.jiacimu.lulu.data.CompanionPresenceStore.states.collectAsState()
     val presence = presenceStates[characterId]
@@ -46,6 +73,61 @@ internal fun CharacterLifeSettings(characterId: String) {
             interests.forEach { Text(it.content, style = MaterialTheme.typography.bodyMedium) }
         }
         HorizontalDivider()
+        Text("约定与真实执行", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        Text("想起这件事、写进日记都不算完成。只有这里显示了已安排的闹钟，才说明程序真正保存了定时动作。", style = MaterialTheme.typography.bodySmall)
+        if (activeCommitments.isEmpty()) {
+            Text("目前没有已登记、待履行的承诺。若角色刚答应了定时叫醒而这里仍为空，说明还没有真正安排成功。", style = MaterialTheme.typography.bodySmall)
+        }
+        activeCommitments.take(8).forEach { task ->
+            val timeLabel = task.dueAt?.let {
+                DateTimeFormatter.ofPattern("M月d日 HH:mm").withZone(ZoneId.systemDefault()).format(it)
+            }.orEmpty()
+            val stateText = when (task.status) {
+                CommitmentTaskStatus.Scheduled -> if (task.linkedAlarmId != null) "已安排手机叫醒任务" else "尚未确认闹钟已安排"
+                CommitmentTaskStatus.NeedsClarification -> "缺少明确时间，尚未安排"
+                CommitmentTaskStatus.Running -> "正在执行"
+                CommitmentTaskStatus.WaitingForFeedback -> "到点已尝试叫醒，等待你反馈"
+                CommitmentTaskStatus.Blocked -> "执行受阻"
+                else -> task.status.name
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(task.goal, fontWeight = FontWeight.Medium)
+                Text("$stateText${if (timeLabel.isNotBlank()) " · $timeLabel" else ""}", style = MaterialTheme.typography.bodySmall)
+                if (task.lastActionResult.isNotBlank()) {
+                    Text("实际进展：${task.lastActionResult}", style = MaterialTheme.typography.bodySmall)
+                }
+                if (task.linkedAlarmId != null) {
+                    Text("闹钟记录：${task.linkedAlarmId.take(8)}（不代表用户已被叫醒）", style = MaterialTheme.typography.bodySmall)
+                }
+                TextButton(onClick = { CommitmentTaskStore.cancel(task.id, "用户在角色设置里取消了这次约定") }) {
+                    Text("取消此约定")
+                }
+            }
+        }
+        if (!exactClockAllowed) {
+            Text("尚未授予精确闹钟权限。系统可能延迟叫醒；不要把它当作保证准点的闹钟。", style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error)
+            TextButton(onClick = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    runCatching {
+                        context.startActivity(android.content.Intent(
+                            android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                            android.net.Uri.parse("package:${context.packageName}"),
+                        ))
+                    }
+                }
+                permissionsRefresh += 1
+            }) { Text("授予精确闹钟权限") }
+        }
+        if (!notificationsAllowed) {
+            Text("系统通知权限未开启，到点可能不会响铃或弹出叫醒通知。", style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error)
+            TextButton(onClick = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                    notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }) { Text("开启叫醒通知权限") }
+        }
+        HorizontalDivider()
         Text("内在生活 · 正在牵挂的几件事", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
         Text("角色可以同时在意多件事、暂停或调整，行动结果来自实际工具回执；它们不是系统强制待办。", style = MaterialTheme.typography.bodySmall)
         val motives = innerRoot.optJSONArray("motives")
@@ -70,6 +152,30 @@ internal fun CharacterLifeSettings(characterId: String) {
                         Text("结束这件事")
                     }
                 }
+            }
+        }
+        val choices = innerRoot.optJSONArray("decisions")
+        if (choices != null && choices.length() > 0) {
+            Text("最近的想法与抉择", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text("这里只记录角色真正选择过什么、为何暂时没选其他事，以及执行器反馈。未选不等于做过。", style = MaterialTheme.typography.bodySmall)
+            for (i in choices.length() - 1 downTo maxOf(0, choices.length() - 8)) {
+                val decision = choices.optJSONObject(i) ?: continue
+                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text("这次选择：${decision.optString("selected")}",
+                        style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                    decision.optString("reason").takeIf(String::isNotBlank)?.let {
+                        Text("为什么：$it", style = MaterialTheme.typography.bodySmall)
+                    }
+                    val alternatives = decision.optJSONArray("alternatives")
+                    if (alternatives != null) for (j in 0 until alternatives.length()) {
+                        val alternate = alternatives.optJSONObject(j) ?: continue
+                        Text("暂时没做：${alternate.optString("idea")} · ${alternate.optString("whyNot")}",
+                            style = MaterialTheme.typography.bodySmall)
+                    }
+                    Text("实际结果：${if (decision.optBoolean("succeeded")) "执行成功" else "未执行成功"} · ${decision.optString("outcome")}",
+                        style = MaterialTheme.typography.bodySmall)
+                }
+                HorizontalDivider()
             }
         }
         val subjectiveEmotion = innerRoot.optJSONObject("emotion")
