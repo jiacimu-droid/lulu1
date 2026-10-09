@@ -1,10 +1,14 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import com.jiacimu.lulu.system.LuluAlarmSystem
 import org.json.JSONObject
 import java.time.Instant
 
-/** Executes an already-accepted responsibility at its due time. The local alarm is the offline base. */
+/**
+ * The system wakes an executable commitment at its deadline. It never treats
+ * dialing as evidence the user woke up, and observes call outcome before retry.
+ */
 internal object CommitmentExecutor {
     suspend fun onAlarm(
         context: Context,
@@ -13,75 +17,85 @@ internal object CommitmentExecutor {
         now: Instant = Instant.now(),
         notificationShown: Boolean = true,
     ) {
+        val appContext = context.applicationContext
+        ProactiveIncomingCallStore.initialize(appContext)
+        ProactiveIncomingCallStore.reconcileExpired(now)
+        if (CommitmentTaskStore.snapshot().none {
+            it.id == claimedTask.id && it.status == CommitmentTaskStatus.Running
+        }) return
+
         val attempt = claimedTask.attemptCount + 1
-        val wakeTask = claimedTask.isWakeResponsibility()
+        val wake = claimedTask.isWakeResponsibility()
         val character = MigratedDomainStores.characters.get(claimedTask.characterId)
+        val callsEnabled = character.contactPolicy.proactiveCallsEnabled
         val scheduledCall = claimedTask.deliveryAction == "start_call"
-        val useCall = scheduledCall || (wakeTask && attempt >= 2 && character.contactPolicy.proactiveCallsEnabled)
+
+        if (CommitmentCallRetryPolicy.isFinalCheck(claimedTask, attempt, callsEnabled)) {
+            CommitmentTaskStore.update(claimedTask.id) { old ->
+                old.copy(
+                    status = CommitmentTaskStatus.Blocked,
+                    attemptCount = attempt,
+                    linkedAlarmId = null,
+                    nextCheckAt = null,
+                    lastActionResult = "最后一次拨号仍未接听；目标没有确认完成。重拨已自动停止",
+                )
+            }
+            return
+        }
+
+        val useCall = scheduledCall || (wake && attempt >= 2 && callsEnabled)
         val action = if (useCall) "start_call" else "send_private_message"
         val wording = when {
-            scheduledCall -> "之前说好要给你打电话：${claimedTask.goal}。我现在按照约定来电。"
-            useCall -> "之前答应了${claimedTask.goal}，第一次还没有确认结果，所以现在按约定再打一次电话确认。"
-            wakeTask && attempt == 1 -> "${claimedTask.goal}。我来叫你啦，醒了告诉我一声，我才会把这件事算完成。"
-            wakeTask -> "${claimedTask.goal}。这是最后一次有限重试；醒了告诉我一声。"
-            else -> "之前答应你的事到时间了：${claimedTask.goal}。完成或不需要了都可以直接告诉我。"
+            scheduledCall && attempt == 1 -> "之前说好给你打电话：${claimedTask.goal}。我按约定来啦。"
+            useCall && attempt > 1 -> "之前答应了${claimedTask.goal}。刚才电话没接通，我再打一次；你醒了告诉我一声。"
+            wake && attempt == 1 -> "${claimedTask.goal}。我来叫你啦，醒了跟我说一声。"
+            wake -> "${claimedTask.goal}。还没确认你醒来，我再提醒你一次。"
+            else -> "之前答应你的事到时间了：${claimedTask.goal}。完成或取消都可以告诉我。"
         }
-        val actionResult = CompanionActionRuntime.execute(
-            context = context.applicationContext,
+        val args = JSONObject().put("text", wording)
+        if (useCall) args.put("commitmentTaskId", claimedTask.id)
+        val result = CompanionActionRuntime.execute(
+            context = appContext,
             characterId = claimedTask.characterId,
             action = action,
-            args = JSONObject().put("text", wording),
+            args = args,
             now = now,
         )
-
-        if (scheduledCall && actionResult.success && actionResult.conversationId != null) {
+        if (useCall && result.success && result.conversationId != null) {
             ProactivePerceptionRuntime.showPromisedCallNotification(
-                context.applicationContext,
-                claimedTask.characterId,
-                actionResult.conversationId,
-                wording,
+                appContext, claimedTask.characterId, result.conversationId, wording,
             )
         }
 
-        // Exactly one retry for wake-up responsibilities. A retry alarm is a new one-shot step token.
-        val retryAt = if (!scheduledCall && wakeTask && attempt == 1) now.plusSeconds(10 * 60L) else null
-        val retryAlarm = retryAt?.let { at ->
-            com.jiacimu.lulu.system.LuluAlarmSystem.create(
-                claimedTask.characterId,
-                characterName,
-                at,
-                "${claimedTask.goal}（最后一次确认）",
+        val afterSeconds = if (result.success && (notificationShown || useCall))
+            CommitmentCallRetryPolicy.nextDelaySeconds(claimedTask, attempt, callsEnabled) else null
+        val retryAt = afterSeconds?.let(now::plusSeconds)
+        val followUp = retryAt?.let { at ->
+            LuluAlarmSystem.create(
+                claimedTask.characterId, characterName, at,
+                "${claimedTask.goal}（后续确认）",
+                silentCallback = true,
             ).getOrNull()
         }
-
-        CommitmentTaskStore.update(claimedTask.id) { current ->
-            current.copy(
-                status = if (!actionResult.success || (wakeTask && !notificationShown && !useCall))
-                    CommitmentTaskStatus.Blocked
-                    else if (scheduledCall) CommitmentTaskStatus.Completed
-                    else CommitmentTaskStatus.WaitingForFeedback,
+        CommitmentTaskStore.update(claimedTask.id) { old ->
+            old.copy(
+                status = if (!result.success || (wake && !notificationShown && !useCall))
+                    CommitmentTaskStatus.Blocked else CommitmentTaskStatus.WaitingForFeedback,
                 attemptCount = attempt,
-                nextCheckAt = retryAt,
-                linkedAlarmId = retryAlarm?.id,
+                nextCheckAt = followUp?.triggerAt,
+                linkedAlarmId = followUp?.id,
                 lastActionResult = buildString {
-                    append("约定到期，执行器已尝试履行；")
-                    if (wakeTask && !notificationShown) append("手机通知没有成功显示：请检查通知权限与省电限制；不能声称已真正叫醒你；")
-                    if (actionResult.success) {
-                        append(if (useCall) "已实际发起主动来电（不等于用户已经接听）" else "已发送确认消息")
-                    } else {
-                        append("附加${if (useCall) "来电" else "消息"}执行失败：${actionResult.summary.take(160)}")
-                    }
-                    if (retryAlarm != null) append("；未确认前仅安排一次最终重试")
-                    else if (retryAt != null) append("；最终重试安排失败，停止继续追")
-                    else if (scheduledCall) append(if (actionResult.success) "；电话邀约已发出，本次拨号责任已执行" else "；来电受阻，已留存失败原因")
-                    else append("；等待用户明确反馈，不再自动追加重试")
+                    append("第$attempt 次${if (useCall) "主动来电" else "叫醒提醒"}已尝试；")
+                    append(if (result.success)
+                        if (useCall) "拨号发出不代表用户接听或醒来"
+                        else "提醒发出不代表用户已经醒来"
+                        else "执行失败：${result.summary.take(150)}")
+                    if (!notificationShown) append("；提醒通知没有得到确认")
+                    if (followUp != null) append("；未收到反馈时，已安排有限后续尝试或结果检查")
+                    else if (retryAt != null) append("；后续调度失败，已停止继续呼叫")
+                    else append("；未安排更多自动呼叫")
                 },
             )
         }
     }
-}
-
-private fun CommitmentTask.isWakeResponsibility(): Boolean {
-    val text = "$goal $completionCondition".lowercase()
-    return listOf("叫醒", "叫我", "喊我", "起床", "醒来", "wake", "睡醒").any(text::contains)
 }
