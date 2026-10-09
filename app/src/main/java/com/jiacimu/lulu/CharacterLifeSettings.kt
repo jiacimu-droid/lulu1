@@ -3,6 +3,7 @@ package com.jiacimu.lulu
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -346,7 +347,38 @@ internal fun CharacterLifeSettings(characterId: String) {
     editing?.let { key ->
         val field = CharacterProfileSchema.fields.first { it.key == key }
         AlertDialog(onDismissRequest = { editing = null }, title = { Text(field.label) },
-            text = { OutlinedTextField(draft, { draft = it }, placeholder = { Text(field.hint) }, minLines = 5, maxLines = 10, modifier = Modifier.fillMaxWidth()) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (key == "speechHabits") {
+                        Text("按人物挑选，也可以全部留空，让他从真实交流里逐渐形成。",
+                            style = MaterialTheme.typography.bodySmall)
+                        val examples = listOf(
+                            "笑声" to "真的笑疯时会连发很长的哈哈；平时不会没事乱笑。",
+                            "标点" to "惊讶时爱用连续问号；认真解释时反而打字很规整。",
+                            "倒装" to "高兴或打趣时偶尔把重要的词留在句末。",
+                            "谐音" to "熟悉的梗会顺手改成谐音笑话；没听过的会直接问。",
+                            "跑题" to "有趣的小事会抢走注意力，先吐槽再想起来回答。",
+                            "嘴硬" to "被戳中心事时先装淡定，熟人面前才补一句真心话。",
+                        )
+                        Row(
+                            Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            examples.forEach { (title, example) ->
+                                SuggestionChip(
+                                    onClick = {
+                                        if (!draft.contains(example)) draft =
+                                            listOf(draft.trim(), example).filter(String::isNotBlank).joinToString("\n")
+                                    },
+                                    label = { Text(title) },
+                                )
+                            }
+                        }
+                    }
+                    OutlinedTextField(draft, { draft = it }, placeholder = { Text(field.hint) },
+                        minLines = 4, maxLines = 8, modifier = Modifier.fillMaxWidth())
+                }
+            },
             confirmButton = { TextButton({ CharacterLifeStore.setProfile(characterId, key, draft); editing = null }) { Text("保存") } },
             dismissButton = { TextButton({ editing = null }) { Text("取消") } })
     }
