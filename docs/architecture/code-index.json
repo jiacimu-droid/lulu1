@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T08:12:22.200290+00:00",
-  "commit": "c4049ffbf09d80acee9e416c033f1421837999b1",
+  "generatedAt": "2026-10-09T08:13:28.960837+00:00",
+  "commit": "3cdd1d181da73dfef26dadc821fe6becd158dc6b",
   "branch": "main",
-  "sourceFingerprint": "cc943b50bc8ce3bd5d4a86660dd693967c07eb9a1e399d60e3a98d7ba5ce4538",
+  "sourceFingerprint": "2bbecaa6ca10ad251ddc51cff68304f05dad15dd338f2ec70db246bb9879d421",
   "summary": {
     "files": 378,
-    "lines": 90675,
+    "lines": 90703,
     "symbols": 1284
   },
   "symbolIndex": {
@@ -2161,25 +2161,25 @@
     "retire": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 108
+        "line": 110
       }
     ],
     "invalidateEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 113
+        "line": 115
       }
     ],
     "invalidateEvidenceForAll": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 118
+        "line": 120
       }
     ],
     "clearCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 123
+        "line": 125
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
@@ -7357,8 +7357,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt",
-      "lines": 288,
-      "sha256": "1d2c45811a835e1c9ef56003a56211b116343cf7f4ae030443741c1db25053e4",
+      "lines": 314,
+      "sha256": "237f76e80472df3389db9587824aa897df2b5f74f4013dae1972c0d0470a738e",
       "symbols": []
     },
     {
@@ -9004,8 +9004,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-      "lines": 141,
-      "sha256": "a1514db37222511eab627be1df9ac6b31f60be9bfd0019b6c2fce1e76e82d4c5",
+      "lines": 143,
+      "sha256": "41cb14cd510cbacf9d0b2262d2c9086d8beaa97da121e399f7ede907982c9e7f",
       "symbols": [
         {
           "name": "DevelopmentKind",
@@ -9037,19 +9037,19 @@
         },
         {
           "name": "retire",
-          "line": 108
+          "line": 110
         },
         {
           "name": "invalidateEvidence",
-          "line": 113
+          "line": 115
         },
         {
           "name": "invalidateEvidenceForAll",
-          "line": 118
+          "line": 120
         },
         {
           "name": "clearCharacter",
-          "line": 123
+          "line": 125
         }
       ]
     },
