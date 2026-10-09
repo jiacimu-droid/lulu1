@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`465882f48a3ba0b28d2864bf157d183b93c3b815`
+- 基准提交：`794a3e3758afc27f17219f97559ee93cc21f10bb`
 - 分支：`main`
-- 已索引文件：383
-- 已索引代码/文本行：92326
-- 已发现符号：1307
+- 已索引文件：384
+- 已索引代码/文本行：92373
+- 已发现符号：1308
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -196,6 +196,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 898 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 100 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt` | 47 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 99 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |

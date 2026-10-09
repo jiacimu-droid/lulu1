@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T12:58:03.674240+00:00",
-  "commit": "465882f48a3ba0b28d2864bf157d183b93c3b815",
+  "generatedAt": "2026-10-09T12:58:39.611277+00:00",
+  "commit": "794a3e3758afc27f17219f97559ee93cc21f10bb",
   "branch": "main",
-  "sourceFingerprint": "c6a8215de44778b6cdb0050556f139885fc635c8a1d3cce86d98b1d0055660ce",
+  "sourceFingerprint": "5842ef0f002346d92117a7160b30cac9ea53b095509ee9df7d9bd2afbebcf32d",
   "summary": {
-    "files": 383,
-    "lines": 92326,
-    "symbols": 1307
+    "files": 384,
+    "lines": 92373,
+    "symbols": 1308
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1910,6 +1910,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt",
         "line": 9
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt",
+        "line": 15
       }
     ],
     "VisionModelService": [
@@ -11525,6 +11529,17 @@
         {
           "name": "dueAt",
           "line": 88
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt",
+      "lines": 47,
+      "sha256": "c7ec68a054cc091c4f68e0eb43a386358814d6178625d5fa60c66358e4a0a748",
+      "symbols": [
+        {
+          "name": "select",
+          "line": 15
         }
       ]
     },
