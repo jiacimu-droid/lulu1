@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:02:42.384261+00:00",
-  "commit": "0e04ae7a8990685afbbf03ebc10ecb0e8660119b",
+  "generatedAt": "2026-10-09T13:03:20.157985+00:00",
+  "commit": "0f307d088d096ac09a0cb6ad60afaec876244fb2",
   "branch": "main",
-  "sourceFingerprint": "ff27dec7332fc1df4bf6d32192c16319cc460f71c3bd9d705787cbe459ae8eaa",
+  "sourceFingerprint": "aef1a9220abd8e350a4b77a178e80447b70d2431ea93d2a07d6b57764ef637c1",
   "summary": {
     "files": 387,
-    "lines": 92498,
+    "lines": 92518,
     "symbols": 1311
   },
   "symbolIndex": {
@@ -7161,7 +7161,7 @@
     "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 145
+        "line": 165
       }
     ],
     "CharacterOriginResetTest": [
@@ -14826,8 +14826,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 175,
-      "sha256": "86ee7710277f5547c30ebd972f60eece1e653ef46f3d9c5f0ae2af8b05a99a18",
+      "lines": 195,
+      "sha256": "bc855958ac5f8c0db319229736d932d1df7c5cd39b09a44ad8f73f4cfd1e23e2",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -14843,7 +14843,7 @@
         },
         {
           "name": "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits",
-          "line": 145
+          "line": 165
         }
       ]
     },
