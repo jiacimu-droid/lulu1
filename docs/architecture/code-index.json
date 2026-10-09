@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T17:44:59.980013+00:00",
-  "commit": "19c67baea04eace360d97202fe156fbc4801cc59",
+  "generatedAt": "2026-10-09T18:00:34.874572+00:00",
+  "commit": "7e630c0601946822eb1edd017dbdcc2da63405d7",
   "branch": "main",
-  "sourceFingerprint": "4e7975925b2bc7d233d6e9d923dedd9ca5c49a241bfd94f79727bdb539dd2b1d",
+  "sourceFingerprint": "affe85c2fc63d6ebaaf031d035a2d60ee53989bb83738cbd6897cd7c29c6c340",
   "summary": {
     "files": 416,
-    "lines": 94440,
-    "symbols": 1364
+    "lines": 94540,
+    "symbols": 1365
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -361,7 +361,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 987
+        "line": 988
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -2073,19 +2073,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 834
+        "line": 835
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 846
+        "line": 847
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 977
+        "line": 978
       }
     ],
     "consume": [
@@ -2373,7 +2373,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 300
+        "line": 339
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -2657,7 +2657,7 @@
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 292
+        "line": 331
       }
     ],
     "CharacterMessageFavorites": [
@@ -7454,6 +7454,12 @@
         "line": 165
       }
     ],
+    "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
+        "line": 201
+      }
+    ],
     "CharacterOriginResetTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt",
@@ -9389,8 +9395,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 995,
-      "sha256": "be5cd5f9404bac32a6bd983e5db9aa5ee839de9f7f93d6202e6d94b7dd0ad4fa",
+      "lines": 996,
+      "sha256": "57dc81d2913650b169c80ff16d9ecf54707aaa41f123163c1c29178363f5b790",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -9478,19 +9484,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 834
+          "line": 835
         },
         {
           "name": "consumeEvent",
-          "line": 846
+          "line": 847
         },
         {
           "name": "LuluAiServices",
-          "line": 977
+          "line": 978
         },
         {
           "name": "initialize",
-          "line": 987
+          "line": 988
         }
       ]
     },
@@ -9875,8 +9881,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 343,
-      "sha256": "2bf83338108f33a21ecf9c0d0ba198a9b5b0ae55ebecc108145391cac5e0de8d",
+      "lines": 382,
+      "sha256": "cfc79ef2687b17708297cfee0bdf4f5d0986b2c5d5ee1ef20ffd079800a6be84",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -9892,11 +9898,11 @@
         },
         {
           "name": "profileContext",
-          "line": 292
+          "line": 331
         },
         {
           "name": "context",
-          "line": 300
+          "line": 339
         }
       ]
     },
@@ -9917,8 +9923,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
-      "lines": 35,
-      "sha256": "83df6cf1bcabe101fe2002211f56facaa0dd3a7cc36ea07bb5c29b4781fe0ed7",
+      "lines": 42,
+      "sha256": "9750d81f91c3c10cd2f98c1f7899e722e7a1d167bfa352fc08d23698c527dd47",
       "symbols": []
     },
     {
@@ -10004,8 +10010,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt",
-      "lines": 31,
-      "sha256": "e553fe10585efcc9924dcfee88efe47d939235ff38a3c08a0849c56f71a0022c",
+      "lines": 33,
+      "sha256": "37a797325e97752f820013a7766ee1c6df0056fbe2258db04583fec1dac04f68",
       "symbols": [
         {
           "name": "promptSection",
@@ -15465,8 +15471,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
-      "lines": 55,
-      "sha256": "d5cdba0be157a6ad646a5450e69ef73fec3b2aae0e162e978f397339906710e6",
+      "lines": 57,
+      "sha256": "4f97ffac6d616f24202195441b474a05884d2f482087a54c76173e028d074451",
       "symbols": [
         {
           "name": "CharacterAccountabilityContextTest",
@@ -15487,8 +15493,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 52,
-      "sha256": "c81d44e236ac3e9e325acc8a6eb6f11b7204194249275ce45872c658c432b8d3",
+      "lines": 55,
+      "sha256": "babcfc33bd3440debd2b3dc9ae70e9cb9e6e163d2084548ff92defc58dd0dba3",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
@@ -15513,8 +15519,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 195,
-      "sha256": "bc855958ac5f8c0db319229736d932d1df7c5cd39b09a44ad8f73f4cfd1e23e2",
+      "lines": 241,
+      "sha256": "859e0a168a15c8f333998f99f50a65772fb0dcdf1e00d916be1769ddf69c407f",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -15531,6 +15537,10 @@
         {
           "name": "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits",
           "line": 165
+        },
+        {
+          "name": "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits",
+          "line": 201
         }
       ]
     },
