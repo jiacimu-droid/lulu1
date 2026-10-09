@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T07:23:32.840922+00:00",
-  "commit": "9f4b337b22fe2142f2ee5e59cbdbad831e279557",
+  "generatedAt": "2026-10-09T07:24:52.054520+00:00",
+  "commit": "fddea0c694cb1529c4e71704374d1f1186131c84",
   "branch": "main",
-  "sourceFingerprint": "36750acdfc08b59917396ba66413523481e02c3991ccd2d9aa3c634e6af31ba4",
+  "sourceFingerprint": "814daaba091e688d30d62dc073f838db346d8477e3a0072a57a19d6b9baaed2c",
   "summary": {
     "files": 371,
-    "lines": 89935,
+    "lines": 90006,
     "symbols": 1272
   },
   "symbolIndex": {
@@ -473,7 +473,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 94
+        "line": 95
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
@@ -2051,7 +2051,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 329
+        "line": 374
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -4479,19 +4479,19 @@
     "markConcernPromisePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 99
+        "line": 100
       }
     ],
     "nextDueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 106
+        "line": 107
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 855
+        "line": 868
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -8991,8 +8991,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 412,
-      "sha256": "9bf4b1b2d20147c4004832f10b3359b6a6c20a6c202482adc01a79ce272a4f5b",
+      "lines": 470,
+      "sha256": "63b01d67012954eb00cc45d4e00e41b92dbc601ba7e3a1423d7d94f834d69858",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -9004,7 +9004,7 @@
         },
         {
           "name": "context",
-          "line": 329
+          "line": 374
         }
       ]
     },
@@ -11267,8 +11267,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 911,
-      "sha256": "7ade67e711787a5a0b19d4ffb7d296cce6746b3673d4fe741e3f0f6facc4ca61",
+      "lines": 924,
+      "sha256": "bfdadfbfcd5002437caa7d29ea86f9da46d419b559f9ff3ab8bffa2404db293e",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -11276,19 +11276,19 @@
         },
         {
           "name": "initialize",
-          "line": 94
+          "line": 95
         },
         {
           "name": "markConcernPromisePending",
-          "line": 99
+          "line": 100
         },
         {
           "name": "nextDueAt",
-          "line": 106
+          "line": 107
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 855
+          "line": 868
         }
       ]
     },
