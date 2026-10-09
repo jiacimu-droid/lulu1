@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T07:28:42.889567+00:00",
-  "commit": "76a8d71d6eda1d740abc63179ca5dfa8723e4f45",
+  "generatedAt": "2026-10-09T07:29:31.811407+00:00",
+  "commit": "f8235a5fe274375ed7a6d839343101920d237380",
   "branch": "main",
-  "sourceFingerprint": "101557d8b55515fe86f29128300ced723b6337ad055ebbe161ad9308b89a5a0c",
+  "sourceFingerprint": "4196f7e0961374a06f61023e85183dd2314de26a6e41771b08a65b39aa1a8ca1",
   "summary": {
     "files": 372,
-    "lines": 90176,
+    "lines": 90181,
     "symbols": 1273
   },
   "symbolIndex": {
@@ -149,7 +149,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 93
+        "line": 95
       }
     ],
     "update": [
@@ -847,7 +847,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 86
+        "line": 88
       }
     ],
     "flush": [
@@ -6831,13 +6831,13 @@
     "LuluAlarmReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 283
+        "line": 285
       }
     ],
     "LuluBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 311
+        "line": 316
       }
     ],
     "LuluDeviceToolBridge": [
@@ -14082,8 +14082,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-      "lines": 321,
-      "sha256": "18212ffaa3442de1ff374f3355858a78a0494362457a5fcf1627dedde62a7837",
+      "lines": 326,
+      "sha256": "5ad28b73b8afaba4b7fe4df52a39c31325e64751ecf13a4b7125ced67555a0dd",
       "symbols": [
         {
           "name": "LuluAlarm",
@@ -14107,19 +14107,19 @@
         },
         {
           "name": "list",
-          "line": 86
+          "line": 88
         },
         {
           "name": "cancel",
-          "line": 93
+          "line": 95
         },
         {
           "name": "LuluAlarmReceiver",
-          "line": 283
+          "line": 285
         },
         {
           "name": "LuluBootReceiver",
-          "line": 311
+          "line": 316
         }
       ]
     },
