@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T07:56:12.848768+00:00",
-  "commit": "a45bcc2992b4fc6d76062752fc24a10137311e3e",
+  "generatedAt": "2026-10-09T07:56:34.638102+00:00",
+  "commit": "fdbf9d44ac84b08c7fa4aaa3e5f3f8e67a42ff47",
   "branch": "main",
-  "sourceFingerprint": "19cb969ad460da987b0eb1622bf11fd8f58ff0d31e392c37ba49b49ee3b3a39c",
+  "sourceFingerprint": "00352ce23689f2a3a3e3f1eae2e583e851bb71261455c278987326788bee3709",
   "summary": {
     "files": 375,
-    "lines": 90481,
+    "lines": 90500,
     "symbols": 1279
   },
   "symbolIndex": {
@@ -14191,8 +14191,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 477,
-      "sha256": "0abe5a4ce0075482bfb20d9ab57254475f8296e67e814e8ec23d44f01bf2648e",
+      "lines": 485,
+      "sha256": "34180bfea0918e5a1b2f306039e9202217bf4112287754c804bc8b342240fac3",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -14425,8 +14425,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
-      "lines": 31,
-      "sha256": "8c44d78170558615eb2a7f14c2ea9a4ee8c0b682c31d1887a4d05c5db263b6cd",
+      "lines": 42,
+      "sha256": "fa4a31ed343b533f7c2d6b9d1ad79409138909fcf32f6ad204a729daef965b44",
       "symbols": [
         {
           "name": "CharacterAccountabilityContextTest",
