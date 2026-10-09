@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T09:29:46.268023+00:00",
-  "commit": "234db945adc124af264b51a674061ea7e6ca669f",
+  "generatedAt": "2026-10-09T09:38:12.375458+00:00",
+  "commit": "2bc19a0332bfc94bec7b02fe6b5ea85e0a547acd",
   "branch": "main",
-  "sourceFingerprint": "27a238d9af49c1746773d2014653540ad5192b8b6706f2d2c4b97449972da785",
+  "sourceFingerprint": "6aacab98bb9e24778885d3b9b699221046b192d4c01304886500366b85999989",
   "summary": {
     "files": 378,
-    "lines": 91127,
-    "symbols": 1287
+    "lines": 91138,
+    "symbols": 1289
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -221,19 +221,31 @@
     "provider": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 8
+        "line": 10
       }
     ],
     "usesAgent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 9
+        "line": 11
+      }
+    ],
+    "requiresOnDeviceStt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
+        "line": 13
+      }
+    ],
+    "onDeviceSttError": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
+        "line": 14
       }
     ],
     "label": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 10
+        "line": 19
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt",
@@ -247,13 +259,13 @@
     "miniAsrEndpoint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 11
+        "line": 20
       }
     ],
     "preflight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 16
+        "line": 25
       }
     ],
     "CharacterSettingsScreenV2": [
@@ -7342,28 +7354,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-      "lines": 28,
-      "sha256": "d625b19ff6fe03cf0989342049472cc47bf0092d04e90b911f29d3c7ba12370d",
+      "lines": 39,
+      "sha256": "312d457b5b67ace55361bb4b163f71534e0189f709affbd035c8b3eff38dbde4",
       "symbols": [
         {
           "name": "provider",
-          "line": 8
-        },
-        {
-          "name": "usesAgent",
-          "line": 9
-        },
-        {
-          "name": "label",
           "line": 10
         },
         {
-          "name": "miniAsrEndpoint",
+          "name": "usesAgent",
           "line": 11
         },
         {
+          "name": "requiresOnDeviceStt",
+          "line": 13
+        },
+        {
+          "name": "onDeviceSttError",
+          "line": 14
+        },
+        {
+          "name": "label",
+          "line": 19
+        },
+        {
+          "name": "miniAsrEndpoint",
+          "line": 20
+        },
+        {
           "name": "preflight",
-          "line": 16
+          "line": 25
         }
       ]
     },
