@@ -95,6 +95,27 @@ internal fun DigitalWorldMeetingSceneExperience(
     }
     val exploring = isDigitalWorld && !viewOnly && sceneMode == MeetingSceneMode.Explore
     val storyVisible = !isDigitalWorld || !exploring
+    val latestTurn = session.turns.lastOrNull()
+    val latestLivingTurn = latestTurn?.takeIf { turn ->
+        MeetingExperienceStore.exchangeForTurn(turn)?.rawDraft
+            ?.startsWith(MEETING_LIVING_MOMENT_PREFIX_V2) == true
+    }
+    val modelInitiating = MeetingReplyTaskManager.state(session.id).exchangeId?.let {
+        MeetingExperienceStore.exchange(it)?.rawDraft?.startsWith(MEETING_LIVING_MOMENT_PREFIX_V2)
+    } == true
+    var ambientNotice by remember(session.id) { mutableStateOf<String?>(null) }
+    LaunchedEffect(latestLivingTurn?.id, exploring) {
+        if (!exploring || latestLivingTurn == null) {
+            ambientNotice = null
+            return@LaunchedEffect
+        }
+        val latestLine = latestLivingTurn.dialogue.ifBlank { latestLivingTurn.sceneText }
+            .replace("\n", " ").trim().take(118)
+        if (latestLine.isBlank()) return@LaunchedEffect
+        ambientNotice = "${latestLivingTurn.speakerName}：$latestLine"
+        kotlinx.coroutines.delay(11_000)
+        ambientNotice = null
+    }
 
     val userPrefs = remember(context) {
         context.getSharedPreferences("lulu_user_profile", android.content.Context.MODE_PRIVATE)
@@ -116,7 +137,8 @@ internal fun DigitalWorldMeetingSceneExperience(
             val wasAtEnd = oldCount == 0 || pageIndex >= oldCount - 1
             if (wasAtEnd) pageIndex = oldCount.coerceAtMost(pages.lastIndex)
             narrativeExpanded = true
-            if (isDigitalWorld) sceneModeName = MeetingSceneMode.Story.name
+            // A character initiating talk may not steal focus from walking.
+            if (isDigitalWorld && latestLivingTurn == null) sceneModeName = MeetingSceneMode.Story.name
         } else if (pageIndex > pages.lastIndex) {
             pageIndex = pages.lastIndex
         }
@@ -175,7 +197,7 @@ internal fun DigitalWorldMeetingSceneExperience(
                 },
                 onPhysicalInteraction = onPhysicalInteraction,
                 controlsBottomPadding = 94.dp,
-                controlsEnabled = exploring && !generating,
+                controlsEnabled = exploring && (!generating || modelInitiating),
                 showExplorationHud = exploring,
                 followerIds = followers,
                 initiatedHandHoldingId = roleInitiatedHandHolding,
@@ -257,10 +279,25 @@ internal fun DigitalWorldMeetingSceneExperience(
                 modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding(),
             )
         } else {
+            if (!ambientNotice.isNullOrBlank()) {
+                Surface(
+                    onClick = { sceneModeName = MeetingSceneMode.Story.name },
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                        .padding(horizontal = 19.dp, vertical = 91.dp)
+                        .navigationBarsPadding(),
+                    color = Color(0xED1A2E28),
+                    shape = RoundedCornerShape(17.dp),
+                    border = BorderStroke(1.dp, Color(0xFF9EFFE0).copy(alpha = .35f)),
+                ) {
+                    Text(ambientNotice.orEmpty(), color = Color(0xFFE4FFF6),
+                        fontSize = 12.sp, maxLines = 3,
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp))
+                }
+            }
             MeetingExploreDock(
                 pageIndex = pageIndex,
                 pageCount = pages.size,
-                generating = generating,
+                generating = generating && !modelInitiating,
                 onOpenStory = { sceneModeName = MeetingSceneMode.Story.name },
                 modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding(),
             )
