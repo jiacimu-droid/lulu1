@@ -51,7 +51,11 @@ internal object EmotionFollowThroughCoordinator {
         // A richer emotion already recorded from the reply takes precedence.
         val current = CharacterInnerLifeStore.snapshot(id).optJSONObject("emotion")
         val started = current?.optString("startedAt")?.let { runCatching { Instant.parse(it) }.getOrNull() }
-        if (started == null || Duration.between(started, now).abs().toMinutes() > 10) {
+        val emotionallyRecognized = current != null &&
+            (current.optInt("strength", 2) >= 3 ||
+                listOf("后悔", "愧疚", "自责", "难过", "委屈", "心疼", "懊悔", "歉疚")
+                    .any(current.optString("feeling")::contains))
+        if (!emotionallyRecognized || started == null || Duration.between(started, now).abs().toMinutes() > 10) {
             val proposal = JSONObject().put("emotion", JSONObject()
                 .put("feeling", "对刚才的争执感到歉疚")
                 .put("cause", lastUser.takeLast(170).ifBlank { "刚才的争执" })
