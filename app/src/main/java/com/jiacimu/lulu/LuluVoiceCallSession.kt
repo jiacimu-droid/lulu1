@@ -254,6 +254,11 @@ internal object LuluVoiceCallSession {
         timerJob?.cancel()
         restartListeningJob?.cancel()
         pauseRecognition()
+        // A recognizer created for a previous SYSTEM call must never be reused for
+        // an ElevenLabs direct call, where only the device-bound service is allowed.
+        recognizer?.destroy()
+        recognizer = null
+        recognitionActive = false
         speechQueue?.stop()
         saveCallExperience(current)
         mutableState.update {
