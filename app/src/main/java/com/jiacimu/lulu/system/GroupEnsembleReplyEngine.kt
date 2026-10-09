@@ -56,6 +56,7 @@ internal object GroupEnsembleReplyEngine {
         val definitions: Map<String, CharacterDefinitionSnapshot>,
         val emotionalAnchor: String,
         val witnessedSpeakers: Set<String>,
+        val sourceUserMessageId: String,
     )
 
     private val lock = Any()
@@ -257,7 +258,8 @@ internal object GroupEnsembleReplyEngine {
             cachedPlans[planKey] = CachedPlan(completed.toMutableList(), memberLabels, definitions,
                 "本轮群聊用户真实发言：${actionableUserMessages.joinToString("；") { it.content.take(150) }.ifBlank { latestUserMessage.content.take(180) }}",
                 messages.filter { it.sender == LuluChatMessage.Sender.Character && it.status == LuluChatMessage.Status.Sent }
-                    .takeLast(24).mapNotNull { it.authorCharacterId }.toSet())
+                    .takeLast(24).mapNotNull { it.authorCharacterId }.toSet(),
+                latestUserMessage.id)
             while (cachedPlans.size > 24) cachedPlans.remove(cachedPlans.keys.first())
         }
         return Result.success(
@@ -292,18 +294,18 @@ internal object GroupEnsembleReplyEngine {
             val next = cached.turns.firstOrNull()
             val nextLabel = next?.let { cached.memberLabels[it.characterId] }
             if (cached.turns.isEmpty()) cachedPlans.remove(planKey)
-            ServedTurn(turn, nextLabel, cached.emotionalAnchor, cached.witnessedSpeakers)
+            ServedTurn(turn, nextLabel, cached.emotionalAnchor, cached.witnessedSpeakers, cached.sourceUserMessageId)
         } ?: return null
 
         com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(
             served.turn.characterId, served.emotionalAnchor, served.turn.afterglow)
         com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
-            served.turn.characterId, "group:${planKey}",
+            served.turn.characterId, "${served.sourceUserMessageId}:group:${served.turn.characterId}",
             served.emotionalAnchor, com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(served.turn.innerLife, served.turn.afterglow, served.emotionalAnchor),
             served.witnessedSpeakers.filterNot { it == served.turn.characterId }.toSet() + "user",
         )
         com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
-            served.turn.characterId, "group:${planKey}",
+            served.turn.characterId, "${served.sourceUserMessageId}:group:${served.turn.characterId}",
             served.turn.innerThought,
         )
         CompanionPresenceStore.update(
@@ -341,7 +343,7 @@ internal object GroupEnsembleReplyEngine {
         )
     }
 
-    private data class ServedTurn(val turn: PlannedTurn, val nextLabel: String?, val emotionalAnchor: String, val witnessedSpeakers: Set<String>)
+    private data class ServedTurn(val turn: PlannedTurn, val nextLabel: String?, val emotionalAnchor: String, val witnessedSpeakers: Set<String>, val sourceUserMessageId: String)
 
     private fun parseTurns(
         raw: String,
