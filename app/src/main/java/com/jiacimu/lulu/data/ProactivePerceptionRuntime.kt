@@ -469,11 +469,12 @@ object ProactivePerceptionRuntime {
             pendingIds = userActivities.filter(UserActivity::awaitingReply).take(12).map { it.message.id },
         )
         val emotionalAnchor = stimulus?.description.orEmpty()
-        CharacterLifeStore.recordAfterglow(
+        val freshStimulus = stimulus != null && PerceptionStimulusLedger.claim(appContext, characterId, stimulus)
+        if (freshStimulus) CharacterLifeStore.recordAfterglow(
             characterId, emotionalAnchor, decision.afterglow, now,
             evidenceId = stimulus?.evidenceId.orEmpty(),
         )
-        if (stimulus != null) CharacterInnerLifeStore.observe(
+        if (freshStimulus && stimulus != null) CharacterInnerLifeStore.observe(
             characterId, stimulus.evidenceId,
             stimulus.description,
             CharacterInnerLifeStore.withAfterglow(decision.innerLife, decision.afterglow, emotionalAnchor),
@@ -495,7 +496,7 @@ object ProactivePerceptionRuntime {
         }
         // Keep genuine internal speech from a witnessed stimulus or a real autonomous choice.
         // Silence-only ticks without a new stimulus should not accumulate invented feelings.
-        if (emotionalAnchor.isNotBlank() || previousEvidence.isNotBlank() || decision.action != Action.SILENT) {
+        if (freshStimulus || previousEvidence.isNotBlank() || decision.action != Action.SILENT) {
             CharacterInnerLifeStore.recordInnerVoice(
                 characterId, stimulus?.evidenceId?.let { "perception:$it" }
                     ?: "perception:${now.toEpochMilli()}:${trigger.take(35)}",
@@ -524,7 +525,7 @@ object ProactivePerceptionRuntime {
         val readingUpdatedPresence = execution.success && newReading != null && newReading.id != lastReading?.id
         val appearanceHasCause = PerceptionStimulusResolver.shouldUpdateVisibleState(
             actionSucceeded = execution.success,
-            freshStimulus = stimulus != null,
+            freshStimulus = freshStimulus,
             deliberateFollowThrough = previousEvidence.isNotBlank(),
         )
         if (!readingUpdatedPresence && appearanceHasCause) {
