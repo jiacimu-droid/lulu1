@@ -43,6 +43,19 @@ class OnlineChatExperienceTest {
         OnlineChatBatchStore.cancel(context, role)
     }
 
+    @Test fun independentReflectionCanObserveQuietWindowWithoutClaimingTheMessageBatch() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val role = "parallel-reflection"
+        OnlineChatBatchStore.cancel(context, role)
+        val batch = OnlineChatBatchStore.next(context, role, collectMessages = true, now = 10_000L)
+        assertEquals(13_000L, OnlineChatBatchStore.pendingDueAt(context, role))
+        assertFalse(OnlineChatBatchStore.claim(context, role, batch.revision, now = 12_999L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, batch.revision, now = 13_000L))
+        OnlineChatBatchStore.finish(context, role, batch.revision)
+        assertNull(OnlineChatBatchStore.pendingDueAt(context, role))
+        OnlineChatBatchStore.cancel(context, role)
+    }
+
     @Test fun wakingDuringFirstBubbleWindowNeverMovesOrBypassesDeadline() {
         val context = RuntimeEnvironment.getApplication() as Context
         val role = "batch-wake-first"
