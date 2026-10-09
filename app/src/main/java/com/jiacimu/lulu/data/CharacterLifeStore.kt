@@ -272,6 +272,10 @@ object CharacterLifeStore {
         mutable.value.keys.toList().forEach { characterId ->
             val root = state(characterId)
             var changed = false
+            if (root.optJSONObject("afterglow")?.optString("evidenceId") == eventId) {
+                root.remove("afterglow")
+                changed = true
+            }
             listOf("intention", "previousIntention").forEach { key ->
                 val intention = root.optJSONObject(key) ?: return@forEach
                 val receipts = intention.optJSONArray("outcomes") ?: return@forEach
