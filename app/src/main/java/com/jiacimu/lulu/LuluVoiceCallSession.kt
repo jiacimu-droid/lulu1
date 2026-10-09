@@ -194,7 +194,7 @@ internal object LuluVoiceCallSession {
             )
         }
         dialJob?.cancel()
-        if (provider == "minimax") {
+        if (CallVoiceConfiguration.sttEngine(context) != "system") {
             startProviderInput()
             return
         }
@@ -351,16 +351,8 @@ internal object LuluVoiceCallSession {
     private fun ensureRecognizer() {
         val context = appContext ?: return
         if (recognizer != null) return
-        val directElevenLabs = CallVoiceConfiguration.requiresOnDeviceStt(
-            mutableState.value.provider, "direct")
-        val speechRecognizer = if (directElevenLabs) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
-                !SpeechRecognizer.isOnDeviceRecognitionAvailable(context)) return
-            SpeechRecognizer.createOnDeviceSpeechRecognizer(context)
-        } else {
-            if (!SpeechRecognizer.isRecognitionAvailable(context)) return
-            SpeechRecognizer.createSpeechRecognizer(context)
-        }
+        if (!SpeechRecognizer.isRecognitionAvailable(context)) return
+        val speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
         recognizer = speechRecognizer.also { speechRecognizer ->
             speechRecognizer.setRecognitionListener(object : RecognitionListener {
                 override fun onReadyForSpeech(params: Bundle?) {
@@ -396,9 +388,7 @@ internal object LuluVoiceCallSession {
                             partialTranscript = "",
                             statusMessage = when (error) {
                                 SpeechRecognizer.ERROR_NETWORK, SpeechRecognizer.ERROR_NETWORK_TIMEOUT ->
-                                    if (CallVoiceConfiguration.requiresOnDeviceStt(current.provider, "direct"))
-                                        "本机语音识别服务暂时不可用，请检查离线语音包"
-                                    else "语音识别网络暂时不可用"
+                                    "语音识别网络暂时不可用"
                                 SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED, SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE ->
                                     "本地中文识别不可用，请安装或下载中文语音识别包"
                                 SpeechRecognizer.ERROR_SERVER, SpeechRecognizer.ERROR_CLIENT ->
@@ -462,9 +452,7 @@ internal object LuluVoiceCallSession {
         ensureRecognizer()
         val speechRecognizer = recognizer
         if (speechRecognizer == null) {
-            val error = if (CallVoiceConfiguration.requiresOnDeviceStt(current.provider, "direct"))
-                "手机无法启动离线语音识别。请安装系统本地中文语音识别服务，不会使用 ElevenLabs 付费转写。"
-                else "当前手机没有可用的语音识别服务"
+            val error = "手机没有可用的系统语音识别，请在语音设置选择 Groq Whisper"
             mutableState.update { it.copy(statusMessage = error, errorMessage = error) }
             return
         }
@@ -472,9 +460,7 @@ internal object LuluVoiceCallSession {
             speechRecognizer.startListening(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN")
-                if (CallVoiceConfiguration.requiresOnDeviceStt(current.provider, "direct"))
-                    putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
-                putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+                 putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
                 putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
                 putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 850L)
                 putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 650L)
@@ -649,6 +635,7 @@ internal object LuluVoiceCallSession {
         val id = mutableState.value.callExperienceId
         fun sameSession() = mutableState.value.callExperienceId == id && mutableState.value.phase in setOf(CallPhase.Dialing, CallPhase.Connected)
         providerInput = ProviderCallInput(context, scope,
+            sttEngine = CallVoiceConfiguration.sttEngine(context),
             accept = { val s = mutableState.value; sameSession() && !s.microphoneMuted && !s.speaking && !s.opening },
             onReady = {
                 if (sameSession()) {
@@ -685,7 +672,7 @@ internal object LuluVoiceCallSession {
         mutableState.update { it.copy(speaking = false, thinking = false, opening = false, microphoneMuted = false, errorMessage = "", generatedTranscript = "", playingTranscript = "") }
         audioRoute?.microphone(false)
         audioRoute?.refresh()
-        if (mutableState.value.provider == "minimax") startProviderInput()
+        if (appContext?.let(CallVoiceConfiguration::sttEngine) != "system") startProviderInput()
         else { pauseRecognition(); scheduleListening(100) }
     }
 
