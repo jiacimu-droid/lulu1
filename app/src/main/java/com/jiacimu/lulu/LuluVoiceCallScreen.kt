@@ -71,8 +71,15 @@ fun LuluVoiceCallScreen(
     val voiceArchiveId = library.archiveIdFor(ModelUsage.VoiceCall)
     val activeArchive = library.archives.firstOrNull { it.id == voiceArchiveId }
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接电话模型"
-    val callMessages = remember(messages, state.callStartMessageCount) {
-        messages.drop(state.callStartMessageCount).filter { it.sender != LuluChatMessage.Sender.System }
+    // Only messages belonging to this *connected* call may appear as call
+    // captions. List position alone leaked old chat after a cold screen restore.
+    val callMessages = remember(messages, state.callExperienceId, state.callStartedAt) {
+        state.callStartedAt?.let { since ->
+            messages.filter { message ->
+                message.createdAt >= since &&
+                    message.sender != LuluChatMessage.Sender.System
+            }
+        }.orEmpty()
     }
     val visibleCallMessages = remember(callMessages) { callMessages.takeLast(12) }
 
@@ -117,25 +124,18 @@ fun LuluVoiceCallScreen(
                     .padding(horizontal = 20.dp, vertical = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                CallTopBar(activeLabel = activeLabel, onMinimize = onDismiss)
-                Text("声音：${CallVoiceConfiguration.label(
-                    if (state.provider.isNotBlank()) state.provider else CallVoiceConfiguration.provider(context)
-                )}", color = CallMuted, fontSize = 12.sp)
-                if (state.phase == CallPhase.Ready) {
-                    Text("语音识别：${CallVoiceConfiguration.sttLabel(CallVoiceConfiguration.sttEngine(context))}",
-                        color = CallMuted, fontSize = 11.sp)
-                }
-                Spacer(Modifier.height(12.dp))
+                CallTopBar(onMinimize = onDismiss)
+                Spacer(Modifier.height(14.dp))
                 Box(contentAlignment = Alignment.Center) {
                     Surface(
-                        modifier = Modifier.size(106.dp),
+                        modifier = Modifier.size(132.dp),
                         shape = CircleShape,
                         color = Color.White.copy(alpha = .45f),
                         border = BorderStroke(1.dp, Color.White.copy(alpha = .86f)),
                         shadowElevation = 18.dp,
                     ) {}
                     Surface(
-                        modifier = Modifier.size(94.dp),
+                        modifier = Modifier.size(120.dp),
                         shape = RoundedCornerShape(34.dp),
                         color = Color.White,
                         border = BorderStroke(4.dp, Color.White),
@@ -144,7 +144,7 @@ fun LuluVoiceCallScreen(
                         LuluProfileAvatar(
                             imageUri = character.avatarUri,
                             fallback = state.characterName.ifBlank { characterName }.take(1).ifBlank { "露" },
-                            size = 94,
+                            size = 120,
                         )
                     }
                 }
@@ -158,32 +158,32 @@ fun LuluVoiceCallScreen(
                 )
                 Spacer(Modifier.height(5.dp))
                 Text(
-                    callStatusText(state, activeArchive != null),
+                    when (state.phase) {
+                        CallPhase.Ready -> if (activeArchive == null) "请选择电话模型" else "准备拨打"
+                        CallPhase.Dialing -> "正在呼叫…"
+                        CallPhase.Connected -> formatCallDuration(state.elapsedSeconds)
+                        CallPhase.Ended -> "通话已结束"
+                        CallPhase.Idle -> ""
+                    },
                     color = CallMuted,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center,
                 )
                 Spacer(Modifier.height(11.dp))
-                CallActivityIndicator(state)
-                if (state.inputMeterAvailable) {
-                    LinearProgressIndicator(progress = { state.inputLevel }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp))
-                    
-                }
                 
                 if (state.errorMessage.isNotBlank()) Text(state.errorMessage, color = CallDanger, fontSize = 12.sp)
                 if (state.connected) {
-                    TextButton(onClick = { LuluVoiceCallSession.retryListening() }) {
-                        Text(if (state.speaking) "打断并重新收音" else "重新收音")
-                    }
-                    TextButton(onClick = LuluVoiceCallSession::toggleSleepMode) {
-                        Icon(Icons.Outlined.NightsStay, contentDescription = null, tint = if (state.sleepMode) Color(0xFF9A6BB5) else CallMuted)
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            if (state.sleepMode) "哄睡中 · 安静听就好 · 点击关闭"
-                            else "开启哄睡陪伴 · 不说话也会继续",
-                            color = if (state.sleepMode) Color(0xFF9A6BB5) else CallInk,
-                            fontSize = 12.sp,
-                        )
+                    Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                        if (state.errorMessage.isNotBlank()) TextButton(onClick = LuluVoiceCallSession::retryListening) {
+                            Text("重新收音", fontSize = 12.sp)
+                        }
+                        TextButton(onClick = LuluVoiceCallSession::toggleSleepMode) {
+                            Icon(Icons.Outlined.NightsStay, contentDescription = null,
+                                tint = if (state.sleepMode) Color(0xFF9A6BB5) else CallMuted)
+                            Spacer(Modifier.width(6.dp))
+                            Text(if (state.sleepMode) "结束哄睡" else "哄睡", fontSize = 12.sp,
+                                color = if (state.sleepMode) Color(0xFF9A6BB5) else CallInk)
+                        }
                     }
                 }
                 Spacer(Modifier.height(12.dp))
@@ -217,11 +217,7 @@ fun LuluVoiceCallScreen(
                                         when (state.phase) {
                                             CallPhase.Ready -> "接通后麦克风会自动打开\n像普通电话一样，直接说话就好"
                                             CallPhase.Dialing -> "正在连接语音服务"
-                                            CallPhase.Connected -> if (state.microphoneMuted) {
-                                                "麦克风已静音"
-                                            } else {
-                                                if (state.sleepMode) "哄睡模式 · 正在准备下一段陪伴" else "等你说话"
-                                            }
+                                            CallPhase.Connected -> if (state.sleepMode) "正在陪伴" else ""
                                             else -> "通话字幕会显示在这里"
                                         },
                                         color = CallMuted,
@@ -268,6 +264,14 @@ fun LuluVoiceCallScreen(
                 Spacer(Modifier.height(12.dp))
                 when (state.phase) {
                     CallPhase.Ready -> {
+                        // Model choice stays available before dialing, without
+                        // cluttering the portrait of an active phone call.
+                        if (activeArchive == null) ModelArchiveTextButton(
+                            usage = ModelUsage.VoiceCall, title = "选择电话模型",
+                            subtitle = "用于这次语音通话", activeLabel = activeLabel,
+                            icon = Icons.Outlined.Tune, accent = CallBlue, textColor = CallInk,
+                            background = Color(0xFFF3F6FF), muted = CallMuted, border = CallLine,
+                        )
                         FilledIconButton(
                             onClick = {
                                 val permissions = buildList {
@@ -295,15 +299,7 @@ fun LuluVoiceCallScreen(
                     }
                     CallPhase.Dialing -> CallPrimaryHangup(label = "取消呼叫", onClick = LuluVoiceCallSession::cancelDial)
                     CallPhase.Connected -> {
-                        Text(
-                            if (state.sleepMode) "哄睡陪伴中 · 你可以只听，也可以随时说话"
-                            else if (state.microphoneMuted) "已关闭麦克风 · 仍可继续听角色说话"
-                            else "麦克风收音中 · 直接说话",
-                            color = CallMuted,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Medium,
-                        )
-                        Spacer(Modifier.height(9.dp))
+                        Spacer(Modifier.height(8.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -325,8 +321,7 @@ fun LuluVoiceCallScreen(
                                 active = !state.microphoneMuted,
                                 onClick = LuluVoiceCallSession::toggleMicrophone,
                             )
-                            CallControl(Icons.Outlined.KeyboardArrowDown, "缩小", false, onClick = onDismiss)
-                            CallControl(Icons.Outlined.CallEnd, "挂断", true, danger = true, onClick = LuluVoiceCallSession::endCall)
+                                                        CallControl(Icons.Outlined.CallEnd, "挂断", true, danger = true, onClick = LuluVoiceCallSession::endCall)
                         }
                     }
                     CallPhase.Ended -> {
@@ -395,7 +390,7 @@ private fun CallActivityIndicator(state: LuluVoiceCallState) {
 }
 
 @Composable
-private fun CallTopBar(activeLabel: String, onMinimize: () -> Unit) {
+private fun CallTopBar(onMinimize: () -> Unit) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         FilledTonalIconButton(
             onClick = onMinimize,
@@ -405,24 +400,7 @@ private fun CallTopBar(activeLabel: String, onMinimize: () -> Unit) {
                 contentColor = CallInk,
             ),
         ) { Icon(Icons.Outlined.KeyboardArrowDown, "缩小通话") }
-        Spacer(Modifier.width(10.dp))
-        Column {
-            Text("语音通话", color = CallInk, fontWeight = FontWeight.Black, fontSize = 16.sp)
-            Text("缩小后仍会继续", color = CallMuted, fontSize = 10.sp)
-        }
         Spacer(Modifier.weight(1f))
-        ModelArchiveTextButton(
-            usage = ModelUsage.VoiceCall,
-            title = "电话模型",
-            subtitle = "只切换语音通话使用的模型存档；聊天、游戏和末世求生不会跟着改变。",
-            activeLabel = activeLabel,
-            icon = Icons.Outlined.Tune,
-            accent = CallBlue,
-            textColor = CallInk,
-            background = Color(0xFFF3F6FF),
-            muted = CallMuted,
-            border = CallLine,
-        )
     }
 }
 
