@@ -12,6 +12,13 @@ class CallContractsTest {
         assertFalse(CallVoiceConfiguration.usesAgent("elevenlabs", null))
         assertTrue(CallVoiceConfiguration.usesAgent("elevenlabs", "agent"))
     }
+    @Test fun directElevenLabsCallsUseOnDeviceSttAndAgentIsExplicitlyExcluded() {
+        assertTrue(CallVoiceConfiguration.requiresOnDeviceStt("elevenlabs", "direct"))
+        assertTrue(CallVoiceConfiguration.requiresOnDeviceStt("elevenlabs", null))
+        assertFalse(CallVoiceConfiguration.requiresOnDeviceStt("elevenlabs", "agent"))
+        assertFalse(CallVoiceConfiguration.requiresOnDeviceStt("minimax", "direct"))
+        assertFalse(CallVoiceConfiguration.requiresOnDeviceStt("system", "direct"))
+    }
     @Test fun miniAsrKeepsRegionButDoesNotCarryTtsQueryOrPath() {
         assertEquals("https://api.minimaxi.com/v1/speech_to_text", CallVoiceConfiguration.miniAsrEndpoint("https://api.minimaxi.com/v1/t2a_v2?GroupId=123"))
         assertEquals("https://api.minimax.io/v1/speech_to_text", CallVoiceConfiguration.miniAsrEndpoint("https://api.minimax.io/v1/t2a_v2"))
