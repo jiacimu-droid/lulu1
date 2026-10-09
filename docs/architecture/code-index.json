@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:04:23.932330+00:00",
-  "commit": "cb985fdd63c18ec79f673d40d8e4f610c601e996",
+  "generatedAt": "2026-10-09T13:06:14.449108+00:00",
+  "commit": "5b19f5d029e29f7596f0b04cba47738c6974550b",
   "branch": "main",
-  "sourceFingerprint": "7240f43e605fd4ae5f36f70cb87572309345f10965a39945f9209e66e590cf1c",
+  "sourceFingerprint": "b7548b6132a5af5eab990a7edda0cecd71e61ec2a516f6f1e868042d28aed76f",
   "summary": {
     "files": 387,
-    "lines": 92524,
-    "symbols": 1311
+    "lines": 92531,
+    "symbols": 1312
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1919,7 +1919,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt",
-        "line": 15
+        "line": 21
       }
     ],
     "VisionModelService": [
@@ -4536,6 +4536,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
         "line": 88
+      }
+    ],
+    "shouldUpdateVisibleState": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt",
+        "line": 16
       }
     ],
     "ProactiveIncomingCall": [
@@ -11563,12 +11569,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt",
-      "lines": 47,
-      "sha256": "818a302700b2de5a8b9fbde16fb1971c99a709014a8cf6304ac197b2ffff63c8",
+      "lines": 54,
+      "sha256": "223cb7eda2db7ef3bce0b963078e685741115c74f8cabef1a2d779a4ceb9e2db",
       "symbols": [
         {
+          "name": "shouldUpdateVisibleState",
+          "line": 16
+        },
+        {
           "name": "select",
-          "line": 15
+          "line": 21
         }
       ]
     },
