@@ -55,6 +55,7 @@ internal data class LuluVoiceCallState(
     val microphoneMuted: Boolean = false,
     /** User may listen silently; the character owns the initiative until stopped. */
     val sleepMode: Boolean = false,
+    val sleepFocus: SleepGuidanceFocus = SleepGuidanceFocus.Natural,
     val partialTranscript: String = "",
     val inputLevel: Float = 0f,
     val inputMeterAvailable: Boolean = false,
@@ -294,11 +295,19 @@ internal object LuluVoiceCallSession {
         sleepFailures = 0
         lastSleepUserReplyAtMillis = if (enabled) SystemClock.elapsedRealtime() else null
         mutableState.update {
-            it.copy(sleepMode = enabled,
+            it.copy(sleepMode = enabled, sleepFocus = SleepGuidanceFocus.Natural,
                 statusMessage = if (enabled) "哄睡陪伴已开启 · 你可以只听，也可以随时说话"
                 else "哄睡模式已关闭 · 恢复普通通话")
         }
         if (enabled) scheduleSleepContinuation()
+    }
+
+    fun selectSleepFocus(focus: SleepGuidanceFocus) {
+        val call = mutableState.value
+        if (!call.connected || !call.sleepMode) return
+        mutableState.update { it.copy(sleepFocus = focus) }
+        // Current spoken audio is not interrupted; the next natural reply
+        // will adopt this focus, or an explicit user request can supersede it.
     }
 
     private fun scheduleSleepContinuation() {
@@ -702,6 +711,10 @@ internal object LuluVoiceCallSession {
                     )
                 }
             }
+            val bedtimeGuide = if (latest.sleepMode) SleepGuidanceGuide.instruction(
+                latest.sleepFocus, continuing = autonomousSleep,
+                silenceMillis = sleepSilenceMillis(),
+            ) else ""
             LuluDeviceToolBridge.respond(
                 characterId = latest.characterId,
                 history = recentHistory,
@@ -710,17 +723,13 @@ internal object LuluVoiceCallSession {
                 archiveId = archiveId,
                 sceneContext = when {
                     autonomousSleep -> """
-                        这是同一通电话的哄睡陪伴后续。用户没有新增任何发言，这是电话系统发出的续讲事件，不是用户说过的话，也不是用户催促你。
-                        用户特别喜欢三种哄睡内容：被你由衷欣赏和夸奖、真切感受到被爱与珍惜、听有情节和连贯性的睡前故事。你可以根据已有话题与她的反应自然选一种或交织，不必每轮三种都说，不要把哄睡写成不断重复的空泛情话。
-                        夸奖要具体且可信，来自你真实知道的她、一起经历过的事或她刚刚说的话；不能胡编她没做过的事。表达爱意可以亲密、含蓄、认真或略带小幽默，保留人物独立性，不是永远甜腻。讲故事时故事内的事件可以是虚构的，但应有自己的角色、因果、时间和连续情节；续讲从上次进度继续，不把虚构故事误当成你们真的经历过。
-                        声线持续轻声、舒缓、带一点气息感，不突然喊叫或制造惊吓；在自然停顿处给对方留下呼吸空间。
-                        本轮不需要用户回应，也不要假装听到了回应。用户可以一直安静听；别每说一段都索要回答或询问还在不在。
-                        让接续有真正的新内容而不是重复安慰套话，不循环开场白；不编造数字世界真实事件。
-                        自己再自然地说一段可听的内容；由电话程序在播放完后安排下一轮。除非用户真正结束通话，否则不要主动告别或停止。
+                        这是同一通电话的哄睡后续。用户没有新增发言，这只是系统续讲事件，不能当作用户说话或催促。
+                        $bedtimeGuide
+                        自然接着上次真正说过的内容继续，不断切换技巧或从头开场都没有必要。说完这一段让电话程序安排后续；不要反复索要回应或制造新的世界事件。
                     """.trimIndent()
-                    opening && latest.sleepMode -> "哄睡电话刚刚接通，用户尚未开口。你先以自己的人设轻声自然开场，不催促她说话。她喜欢被具体地夸奖、感受到被爱和听有连贯情节的睡前故事；可以从其一切入，你之后会主动继续讲，不要假装用户回答。"
+                    opening && latest.sleepMode -> "哄睡电话刚刚接通，用户尚未开口。你先轻声自然开场，不催促她说话，不假装她回答。\n$bedtimeGuide"
                     opening -> "你正在和用户进行一对一实时电话，刚刚接通，用户尚未开口。现在由你按自己的关系、人设和最近上下文先说一两句自然开场。不要把通话事件当作用户说过的话，不要朗读事件说明。"
-                    latest.sleepMode -> "这是哄睡陪伴电话。用户刚刚真的说了话，先认真回应她；后续可以轻声夸奖她真正值得欣赏的地方、自然表达你对她的爱，或延续温柔而有情节的睡前故事。用户可以只听不回；不要催促答话或每句反问。全程保持气息感的轻声语调，同时保留角色自己的幽默与个性。"
+                    latest.sleepMode -> "这是哄睡陪伴电话。用户刚刚说了话，要先认真回应她，再自然选择引导或陪伴方式。用户可以安静只听，别催促答话。\n$bedtimeGuide"
                     else -> "你正在和用户进行一对一实时电话。你能意识到电话已经接通，听见的是用户刚刚在电话里说的话；具体关系与称呼必须服从你的人设。回复要像真实通话，口语自然。先理解用户这段话的重点、情绪和说话是否已经结束，再依角色自己的个性、关系和兴趣自然回应。简单的事可以轻快接话，值得深谈的事可以认真讲清；不要固定每轮几句话，不要机械复述、每句都追问或习惯性附和。角色可以有自己的判断、幽默、沉默与不同意见，但不得编造已经发生的事情。不要朗读说明文字。"
                 },
                 onCharacterHangup = {

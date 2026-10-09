@@ -6,6 +6,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -178,6 +180,21 @@ fun LuluVoiceCallScreen(
                             Spacer(Modifier.width(6.dp))
                             Text(if (state.sleepMode) "结束哄睡" else "哄睡", fontSize = 12.sp,
                                 color = if (state.sleepMode) Color(0xFF9A6BB5) else CallInk)
+                        }
+                    }
+                }
+                if (state.connected && state.sleepMode) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        SleepGuidanceFocus.values().forEach { focus ->
+                            FilterChip(
+                                selected = state.sleepFocus == focus,
+                                onClick = { LuluVoiceCallSession.selectSleepFocus(focus) },
+                                label = { Text(focus.label, fontSize = 11.sp) },
+                            )
                         }
                     }
                 }
