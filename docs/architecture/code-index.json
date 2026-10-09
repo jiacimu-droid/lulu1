@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T15:38:58.408876+00:00",
-  "commit": "8a2341b6a1aab0f4074d7401c2d71c80b7a4f697",
+  "generatedAt": "2026-10-09T15:40:42.031700+00:00",
+  "commit": "60e5ae44e73c70472d7a6ae172dbedec6e4b43f7",
   "branch": "main",
-  "sourceFingerprint": "5cebad14b87936d826ced7ce6140d619d6d069308b9304846d8a50319fe4e07a",
+  "sourceFingerprint": "2391cbce31a47025e115e490fd846875f76db89a509bda889c449ec0a6e6d556",
   "summary": {
-    "files": 401,
-    "lines": 93944,
-    "symbols": 1349
+    "files": 403,
+    "lines": 94003,
+    "symbols": 1352
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1431,13 +1431,29 @@
     "isPresent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-        "line": 63
+        "line": 68
       }
     ],
     "physicalAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-        "line": 66
+        "line": 71
+      }
+    ],
+    "apply": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt",
+        "line": 9
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
+        "line": 85
+      }
+    ],
+    "userDeparted": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt",
+        "line": 26
       }
     ],
     "MeetingReplyTaskManager": [
@@ -3386,12 +3402,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
         "line": 94
-      }
-    ],
-    "apply": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 85
       }
     ],
     "ongoingActivity": [
@@ -7254,6 +7264,12 @@
         "line": 5
       }
     ],
+    "MeetingPhysicalStateReducerTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt",
+        "line": 8
+      }
+    ],
     "MeetingVoiceOffTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt",
@@ -8579,8 +8595,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-      "lines": 135,
-      "sha256": "8e908373ee65640e562ab68a8f7c517be41ed7c966980243257a8f2332240dc8",
+      "lines": 123,
+      "sha256": "7a7698acda996248c90d2942c7f4a5b367667d3c298fc59385bb98309c90d0a8",
       "symbols": [
         {
           "name": "PendingTouch",
@@ -8604,11 +8620,26 @@
         },
         {
           "name": "isPresent",
-          "line": 63
+          "line": 68
         },
         {
           "name": "physicalAction",
-          "line": 66
+          "line": 71
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt",
+      "lines": 36,
+      "sha256": "2f853fca8a8ffc333c15c247bbb13dd721e26df813bebe8d834f4dbc536bdddf",
+      "symbols": [
+        {
+          "name": "apply",
+          "line": 9
+        },
+        {
+          "name": "userDeparted",
+          "line": 26
         }
       ]
     },
@@ -15094,6 +15125,17 @@
         {
           "name": "LuluCallFloatingWindowTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt",
+      "lines": 35,
+      "sha256": "4ca3545dc1aeb6f7b5d74546a823dd5717c1ff1388393f494581f2dfb2ea9766",
+      "symbols": [
+        {
+          "name": "MeetingPhysicalStateReducerTest",
+          "line": 8
         }
       ]
     },
