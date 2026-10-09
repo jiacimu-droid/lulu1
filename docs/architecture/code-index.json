@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T18:00:34.874572+00:00",
-  "commit": "7e630c0601946822eb1edd017dbdcc2da63405d7",
+  "generatedAt": "2026-10-09T18:02:17.486678+00:00",
+  "commit": "42ad1e9d05e8ad68a1818d55ee1c6f56badfc38b",
   "branch": "main",
-  "sourceFingerprint": "affe85c2fc63d6ebaaf031d035a2d60ee53989bb83738cbd6897cd7c29c6c340",
+  "sourceFingerprint": "bced486501a0b81b871ffa3ed971278e8f3c7e9273818ae5a2a4924b10a37f22",
   "summary": {
     "files": 416,
-    "lines": 94540,
+    "lines": 94547,
     "symbols": 1365
   },
   "symbolIndex": {
@@ -2373,7 +2373,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 339
+        "line": 344
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -2657,7 +2657,7 @@
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 331
+        "line": 336
       }
     ],
     "CharacterMessageFavorites": [
@@ -7457,7 +7457,7 @@
     "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 201
+        "line": 202
       }
     ],
     "CharacterOriginResetTest": [
@@ -7862,14 +7862,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt",
-      "lines": 410,
-      "sha256": "efffb4092d3e33bec92f1132b115a0d010c0728c6f18ff2dc5e32349bab43def",
+      "lines": 411,
+      "sha256": "d23cc9eca051f13ab2d1e7104b48e233a48eb5676bc916b0ca4a2a3e941c9c16",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
       "lines": 466,
-      "sha256": "9067b7c95f2587b8b4381227b5f63f45312601ea36ae279b45ed40abf7218a9c",
+      "sha256": "551f414234560dfe28737bc2cbc567840200ee11b5b5cd87633a5b392c7f6692",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
@@ -9881,8 +9881,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 382,
-      "sha256": "cfc79ef2687b17708297cfee0bdf4f5d0986b2c5d5ee1ef20ffd079800a6be84",
+      "lines": 387,
+      "sha256": "904ac9cb83b34be5e9680b07fe182adaed23bca66565e50ee87305846ccb0f4a",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -9898,11 +9898,11 @@
         },
         {
           "name": "profileContext",
-          "line": 331
+          "line": 336
         },
         {
           "name": "context",
-          "line": 339
+          "line": 344
         }
       ]
     },
@@ -15519,8 +15519,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 241,
-      "sha256": "859e0a168a15c8f333998f99f50a65772fb0dcdf1e00d916be1769ddf69c407f",
+      "lines": 242,
+      "sha256": "fc39ce58bb2d461c44cac79013fcdb00aa2814e000cfa0728637bce94426498e",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -15540,7 +15540,7 @@
         },
         {
           "name": "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits",
-          "line": 201
+          "line": 202
         }
       ]
     },
