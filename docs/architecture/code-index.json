@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T09:39:06.724138+00:00",
-  "commit": "fa8e70892524f969bf46e1077eb951260220ccac",
+  "generatedAt": "2026-10-09T09:39:36.911635+00:00",
+  "commit": "426a6902c83585056c85f8efe86e8df5ffb48c72",
   "branch": "main",
-  "sourceFingerprint": "4a97f68bc5ee4965189afaeffa777efa31d790b7e907daef4eb21d4557ae49b0",
+  "sourceFingerprint": "c8b541fc5d8305d5d79c2cbd08616eb378ce27b42dbc17f166eeebb6c72d297f",
   "summary": {
     "files": 378,
-    "lines": 91127,
+    "lines": 91143,
     "symbols": 1289
   },
   "symbolIndex": {
@@ -7216,8 +7216,8 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "lines": 121,
-      "sha256": "e9383e0f16706979545d7b0c6721e626478e9cfe43579b617c2859ccaf1002be",
+      "lines": 128,
+      "sha256": "9d6dc07ec7d5b4b781c6e5fa93dc067ae860b06e72a9850361945e98e562c782",
       "symbols": []
     },
     {
@@ -8570,8 +8570,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt",
-      "lines": 59,
-      "sha256": "c7e5724b462d1f7c827456e3d22c51fe137301898e019f983a38f3dea16f3d86",
+      "lines": 68,
+      "sha256": "7d85b170d90288dc58c41798075e6f77640d9d094af836bc5cd8e980698a3d23",
       "symbols": []
     },
     {
