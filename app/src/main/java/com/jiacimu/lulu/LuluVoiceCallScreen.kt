@@ -118,19 +118,13 @@ fun LuluVoiceCallScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 CallTopBar(activeLabel = activeLabel, onMinimize = onDismiss)
+                Text("声音：${CallVoiceConfiguration.label(
+                    if (state.provider.isNotBlank()) state.provider else CallVoiceConfiguration.provider(context)
+                )}", color = CallMuted, fontSize = 12.sp)
                 if (state.phase == CallPhase.Ready) {
-                    var selectedProvider by remember { mutableStateOf(CallVoiceConfiguration.provider(context)) }
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf("minimax", "elevenlabs").forEach { provider ->
-                            FilterChip(selectedProvider == provider, onClick = {
-                                selectedProvider = provider
-                                context.getSharedPreferences("lulu_advanced_settings", 0).edit().putString("tts_provider", provider).putString("voice_call_mode", "direct").apply()
-                            }, label = { Text(CallVoiceConfiguration.label(provider)) })
-                        }
-                    }
-                    Text("使用已保存的 Key 和角色 Voice ID", color = CallMuted, fontSize = 11.sp)
-                } else Text(CallVoiceConfiguration.label(state.provider), color = CallMuted, fontSize = 12.sp)
-
+                    Text("语音识别：${CallVoiceConfiguration.sttLabel(CallVoiceConfiguration.sttEngine(context))}",
+                        color = CallMuted, fontSize = 11.sp)
+                }
                 Spacer(Modifier.height(12.dp))
                 Box(contentAlignment = Alignment.Center) {
                     Surface(
