@@ -140,6 +140,10 @@ class OnlineChatExperienceTest {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
         CompanionOnlineStore.initialize(context)
+        // Robolectric disables AndroidX Startup; online message sends schedule a real worker.
+        if (runCatching { androidx.work.WorkManager.getInstance(context) }.isFailure) {
+            androidx.work.WorkManager.initialize(context, androidx.work.Configuration.Builder().build())
+        }
         val character = MigratedDomainStores.characters.create("多气泡不漏读", "自然语速")
         val conversation = MigratedDomainStores.chat.ensureConversation(character.characterId, character.displayName)
         CompanionOnlineStore.wakeCharacter(character.characterId, CompanionOnlineReason.PrivateWake,
