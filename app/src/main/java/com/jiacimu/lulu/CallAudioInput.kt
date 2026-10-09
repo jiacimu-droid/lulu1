@@ -62,7 +62,6 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                 var utteranceFrames = 0
                 // Split uploads into continuous PCM chunks; a chunk boundary is NOT
                 // a silence or a conversational turn boundary.
-                val maxChunkBytes = 16000 * 2 * 12
                 while (isActive && epoch == generation) {
                     bindInput()
                     val count = audio.read(samples, 0, samples.size)
@@ -102,13 +101,10 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                     // Long natural speech includes pauses for breath. Give a
                     // running monologue more time without slowing every
                     // one-word reply by several seconds.
-                    val endpointMs = when {
-                        utteranceFrames >= 50 -> endSilenceMs.coerceIn(1700, 3500)
-                        utteranceFrames >= 20 -> endSilenceMs.coerceIn(1200, 3500)
-                        else -> endSilenceMs.coerceIn(850, 3500)
-                    }
-                    val finishedBySilence = silentFrames >= (endpointMs + 99) / 100
-                    val chunkFull = buffer.size() >= maxChunkBytes
+                    val finishedBySilence = PhoneMicSegmentPolicy.finishedBySilence(
+                        silentFrames, utteranceFrames, endSilenceMs
+                    )
+                    val chunkFull = PhoneMicSegmentPolicy.uploadChunkFull(buffer.size())
                     if (finishedBySilence || chunkFull) {
                         val segment = buffer.toByteArray()
                         buffer = ByteArrayOutputStream()
