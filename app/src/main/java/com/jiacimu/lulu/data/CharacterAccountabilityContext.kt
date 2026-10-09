@@ -54,6 +54,25 @@ internal object CharacterAccountabilityContext {
         return theme && challenge
     }
 
+    /**
+     * Last-resort integrity guard, only for a direct complaint about an unmet promise.
+     * This cannot substitute for good modeling; it blocks an especially harmful misfire when
+     * a model nevertheless accuses the user of wrongdoing without any action receipt.
+     */
+    fun guardUnfairBlame(userText: String, roleReply: String): String {
+        if (!isUnmetPromiseChallenge(userText)) return roleReply
+        val condensed = roleReply.replace(Regex("\\s+"), "")
+        val blatantlyUnfair = listOf("倒打一耙", "明知理亏", "故意转移话题", "失联了还",
+            "怎么跟我交代", "还敢质问", "还敢怪我").any(condensed::contains)
+        if (!blatantlyUnfair) return roleReply
+        // The model may itself explicitly reject that accusation; don't censor a correction.
+        if (listOf("不是你倒打一耙", "不能说你倒打一耙", "不该说你倒打一耙",
+            "你没有倒打一耙", "我不该怪你").any(condensed::contains)) return roleReply
+        return "等等，你说得对。是我答应按时叫醒你，不是让你醒来以后向我交代。" +
+            "我没有证据证明当时真的叫醒了你，却反过来怪你，这话说得不对。" +
+            "对不起。我得先把自己答应的事做好，而不是拿玩笑把责任带过去。"
+    }
+
     fun challengeGuidance(text: String): String = if (!isUnmetPromiseChallenge(text)) "" else """
         【本轮用户正在追问可能未履行的具体约定】
         用户指出了一个需要核实的失约，而不是自动成为“理亏的那个人”。
