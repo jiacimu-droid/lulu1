@@ -174,25 +174,34 @@ object LuluDeviceToolBridge {
                 userText, com.jiacimu.lulu.CallReplyStream.completeReplyText(plannedReply.text) ?: plannedReply.text,
             ),
         ))
-        com.jiacimu.lulu.data.CharacterLifeStore.consider(characterId, plan.intention)
-        val verifiedSourceId = com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
-            .lastOrNull { it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement &&
-                it.content.contains(userText.trim().take(60)) }?.id
-        com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
-            characterId, verifiedSourceId ?: "chat:${now.toEpochMilli()}:${userText.hashCode()}",
-            userText, com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(plan.innerLife, plan.afterglow, userText), setOf("user"), now,
-        )
-        com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
-            characterId, verifiedSourceId ?: "chat:${now.toEpochMilli()}:${userText.hashCode()}",
-            plan.innerThought, now,
-        )
-        if (plan.action == "reply") {
-            savePresence(characterId, plan, "聊天")
-            com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, "本轮用户消息：$userText", plan.afterglow)
-            if (plan.text.isBlank() && onReplyStream != null) return Result.failure(IllegalStateException("模型没有返回可朗读的回复正文"))
-            val checkedText = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(
+        val checkedText = if (plan.action == "reply")
+            com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(
                 userText, plan.text.ifBlank { plannedReply.text },
+            ) else ""
+        // Discard the hostile proposal's private thoughts, emotional state and ongoing goals too.
+        // A corrected visible sentence must not leave an abusive hidden personality memory behind.
+        val invalidBlame = plan.action == "reply" &&
+            checkedText != plan.text.ifBlank { plannedReply.text }
+        if (!invalidBlame) {
+            com.jiacimu.lulu.data.CharacterLifeStore.consider(characterId, plan.intention)
+            val verifiedSourceId = com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
+                .lastOrNull { it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement &&
+                    it.content.contains(userText.trim().take(60)) }?.id
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
+                characterId, verifiedSourceId ?: "chat:${now.toEpochMilli()}:${userText.hashCode()}",
+                userText, com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(plan.innerLife, plan.afterglow, userText), setOf("user"), now,
             )
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
+                characterId, verifiedSourceId ?: "chat:${now.toEpochMilli()}:${userText.hashCode()}",
+                plan.innerThought, now,
+            )
+        }
+        if (plan.action == "reply") {
+            if (!invalidBlame) {
+                savePresence(characterId, plan, "聊天")
+                com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, "本轮用户消息：$userText", plan.afterglow)
+            }
+            if (plan.text.isBlank() && onReplyStream != null) return Result.failure(IllegalStateException("模型没有返回可朗读的回复正文"))
             return Result.success(plannedReply.copy(text = checkedText))
         }
         if (plan.action == "tool" && plan.tool.isNotBlank()) {
