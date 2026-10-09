@@ -26,6 +26,7 @@ object ProactiveIncomingCallStore {
     private val lifetime = Duration.ofMinutes(2)
     private var prefs: android.content.SharedPreferences? = null
     private val mutablePending = MutableStateFlow<ProactiveIncomingCall?>(null)
+    private val resolvedTaskCalls = mutableMapOf<String, Boolean>()
     val pending: StateFlow<ProactiveIncomingCall?> = mutablePending.asStateFlow()
 
     @Synchronized
@@ -48,6 +49,7 @@ object ProactiveIncomingCallStore {
     ): ProactiveIncomingCall {
         initialize(context)
         reconcileExpired(now)
+        commitmentTaskId?.let(resolvedTaskCalls::remove)
         val call = ProactiveIncomingCall(
             characterId = characterId,
             conversationId = conversationId,
@@ -71,11 +73,14 @@ object ProactiveIncomingCallStore {
         return call.takeIf { it.conversationId == conversationId }
     }
 
-    fun respond(call: ProactiveIncomingCall, answered: Boolean) {
+    @Synchronized fun respond(call: ProactiveIncomingCall, answered: Boolean) {
         if (mutablePending.value != call) return
+        call.commitmentTaskId?.let { resolvedTaskCalls[it] = answered }
         clear(call)
         call.commitmentTaskId?.let { CommitmentCallFeedback.onResponse(it, answered) }
     }
+
+    @Synchronized fun responseForTask(taskId: String): Boolean? = resolvedTaskCalls[taskId]
 
     /** Reconciled both by the visible UI and when a background alarm fires. */
     @Synchronized fun reconcileExpired(now: Instant = Instant.now()) {

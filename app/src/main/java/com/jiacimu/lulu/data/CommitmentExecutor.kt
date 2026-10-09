@@ -24,6 +24,12 @@ internal object CommitmentExecutor {
             it.id == claimedTask.id && it.status == CommitmentTaskStatus.Running
         }) return
 
+        CompanionOnlineStore.initialize(appContext)
+        CompanionOnlineStore.wakeCharacter(
+            claimedTask.characterId, CompanionOnlineReason.ScheduledCommitment,
+            trigger = "到点履行已接受的约定", perceiveNow = false, now = now,
+        )
+
         val attempt = claimedTask.attemptCount + 1
         val wake = claimedTask.isWakeResponsibility()
         val character = MigratedDomainStores.characters.get(claimedTask.characterId)
@@ -96,6 +102,13 @@ internal object CommitmentExecutor {
                     else append("；未安排更多自动呼叫")
                 },
             )
+        }
+        // A fast answer/reject can happen while the alarm job is still
+        // persisting its result. Reconcile the actual user's action afterward.
+        if (useCall) {
+            ProactiveIncomingCallStore.responseForTask(claimedTask.id)?.let { answered ->
+                CommitmentCallFeedback.onResponse(claimedTask.id, answered)
+            }
         }
     }
 }

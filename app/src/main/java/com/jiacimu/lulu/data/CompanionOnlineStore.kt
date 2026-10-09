@@ -22,6 +22,7 @@ enum class CompanionOnlineReason {
     GroupWake,
     MomentsWake,
     NewActivity,
+    ScheduledCommitment,
 }
 
 data class CompanionOnlineState(
