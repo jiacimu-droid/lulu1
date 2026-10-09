@@ -82,7 +82,12 @@ internal fun LuluCallFloatingWindow(modifier: Modifier = Modifier) {
                         change.consume()
                         horizontalFraction = ((horizontalFraction * maxXPx + amount.x) /
                             maxXPx.coerceAtLeast(1)).coerceIn(0f, 1f)
-                        verticalFraction = ((currentY + amount.y) /
+                        // Use the latest fraction on every pointer event.
+                        // Capturing currentY here would reuse the first frame's
+                        // value and make dragging stall or jump after a few pixels.
+                        val previousY = if (verticalFraction < 0f) initialYPx
+                            else verticalFraction * maxYPx
+                        verticalFraction = ((previousY + amount.y) /
                             maxYPx.coerceAtLeast(1)).coerceIn(0f, 1f)
                     },
                 )
