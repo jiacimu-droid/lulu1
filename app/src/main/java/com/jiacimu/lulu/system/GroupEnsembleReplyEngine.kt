@@ -204,7 +204,7 @@ internal object GroupEnsembleReplyEngine {
                 你是多人群聊的整体编排器。把这一轮写成真正会发生的群聊：首发者说话后，其他成员可以接、插话、沉默；有人有话可以连续发言，没兴趣的人不必为了凑数出声。绝不按名单轮班。
 
                 只返回一个 JSON 对象，不要代码块、分析、旁白或额外说明：
-                {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"简短意图","bubbles":["群里真正说出的气泡"],"tool":"可选的露露机内动作名或空字符串","args":{},"quoteMessageId":"真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","recallBubbleNumber":0,"pokeUser":false,"statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"该角色没说出口的一瞬心声，可为空","mood":"简短心情"}]}
+                {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"简短意图","bubbles":["群里真正说出的气泡"],"tool":"可选的露露机内动作名或空字符串","args":{},"quoteMessageId":"真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","recallBubbleNumber":0,"pokeUser":false,"statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"这个角色自己的心声，不强制简短，可为空","mood":"简短心情"}]}
 
                 规则：
                 1. turns 第一项必须是指定的当前发言者，因为界面已经显示这个人正在输入；这个人不是固定成员，而是每轮动态选出的首发者。
@@ -214,6 +214,7 @@ internal object GroupEnsembleReplyEngine {
                 5. turns 最少一轮、最多安全上限；不为填满上限强行续聊，也不为凑齐人数生成无意义的“我也接一句”。
                 6. 后续角色应真正接住已经发生的内容：赞同、质疑、反驳、追问、补充、插话、玩笑、岔开或改口；不要每个人都从头回答用户同一个问题。
                 7. 每个角色必须严格保持自己的身份、语言习惯、关系边界、称呼和性格差异。不要把所有人统一写成温柔助手，也不要让一个角色替另一个角色发言。
+                ${com.jiacimu.lulu.data.spontaneousInnerVoiceGuide}
                 8. 气泡多少、长短由这个角色的情绪与口语节奏决定：可能短促惊呼、停顿、突然补发、重复、欲言又止，也可能完整讲清一件事。bubbles 是一次次真正按下“发送”的内容。不要硬套一至四条或十至四十字的规格，也不要为显得热闹机械刷屏。真正心动、好笑或生气时允许有未经润饰的语气；但不得把内心独白、动作旁白、客服总结直接塞进聊天气泡。
                 9. quoteMessageId 只能从“本轮用户尚未被回复的真实消息”中选择。用户这轮只发一条，就只有这一条候选；连续发几条，就都可以按内容自然选择。不要回头引用更早轮次已经回答完的旧消息。
                 10. favoriteMessageId 同样只能从本轮尚未被回复的用户消息中选择，并且要在回应这一轮时当场决定。不要在后续新话题中突然回来补收藏已经回复完的旧消息。

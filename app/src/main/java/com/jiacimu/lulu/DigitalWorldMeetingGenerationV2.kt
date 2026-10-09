@@ -223,7 +223,7 @@ internal suspend fun meetingGenerateReplyV2(
             ${if (autonomous) "这是你自己的在场意识和行动选择，不是用户向你发来了一条新消息。可以决定主动搭话、靠近、牵手邀请或继续做自己的事，也可以安静不动。主动时动作与说话由你的人设、记忆、心情和现实场景决定；不必每轮回应。若你决定暂时沉默，返回 sequence=[]，但可以写真实的 innerThought。不得虚构用户已经回应，也不要让剧情自动跳转。" else "每轮让现场真正向前发展，写成完整、可体验的小段剧情，不要只反应一句就停，也不要一次写完整故事。"}
 
             只返回一个 JSON 对象：
-            {"sequence":[{"speaker":"user","type":"dialogue","text":"主人说的话"},{"speaker":"character","type":"action","text":"${character.displayName}的反应","speechText":"[sighs]"},{"speaker":"character","type":"dialogue","text":"${character.displayName}说的话","speechText":"[warmly] ${character.displayName}说的话"}],"moveTo":"可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"持续环境事实","participants":[{"participantId":"user或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["持续接触"],"heldItems":["持有物品"],"explorationMode":"FOLLOW_USER或STAY"}]},"statusText":"简短当前状态","gesture":"延续姿态","innerThought":"未说出口的极短心声，可为空","mood":"简短心情"}
+            {"sequence":[{"speaker":"user","type":"dialogue","text":"主人说的话"},{"speaker":"character","type":"action","text":"${character.displayName}的反应","speechText":"[sighs]"},{"speaker":"character","type":"dialogue","text":"${character.displayName}说的话","speechText":"[warmly] ${character.displayName}说的话"}],"moveTo":"可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"持续环境事实","participants":[{"participantId":"user或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["持续接触"],"heldItems":["持有物品"],"explorationMode":"FOLLOW_USER或STAY"}]},"statusText":"简短当前状态","gesture":"延续姿态","innerThought":"角色本人没说出口的念头，自由按心境与个人语感展开，可为空","mood":"简短心情"}
 
             规则：
             ${spontaneousInnerVoiceGuide}
