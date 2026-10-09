@@ -169,11 +169,22 @@ object LuluDeviceToolBridge {
         )
         if (planner.isFailure) return planner
         val plannedReply = planner.getOrThrow()
-        val plan = parsePlan(plannedReply.text) ?: return Result.success(plannedReply.copy(
-            text = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(
-                userText, com.jiacimu.lulu.CallReplyStream.completeReplyText(plannedReply.text) ?: plannedReply.text,
-            ),
-        ))
+        val plan = parsePlan(plannedReply.text) ?: run {
+            val fallback = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyText(plannedReply.text)
+                ?: com.jiacimu.lulu.CallReplyStream.completeReplyText(plannedReply.text)
+                ?: plannedReply.text.takeIf { value ->
+                    value.isNotBlank() && !value.trimStart().startsWith("{") &&
+                        !value.trimStart().startsWith("ִ``")
+                }
+            // Incomplete JSON commands cannot run. But actual natural-language text
+            // should not disappear just because the model skipped the requested envelope.
+            if (fallback.isNullOrBlank()) return Result.failure(
+                IllegalStateException("模型返回了不完整的结构化内容，未执行任何动作；可重新回复")
+            )
+            return Result.success(plannedReply.copy(
+                text = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(userText, fallback),
+            ))
+        }
         val checkedText = if (plan.action == "reply")
             com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(
                 userText, plan.text.ifBlank { plannedReply.text },
@@ -449,7 +460,9 @@ object LuluDeviceToolBridge {
         return runCatching {
             val json = com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(raw) ?: return null
             ToolPlan(
-                action = json.optString("action").lowercase(),
+                action = json.optString("action").lowercase().let { action ->
+                    if (action == "reply" || action == "tool") action else if (json.optString("text").isNotBlank()) "reply" else return null
+                },
                 text = json.optString("text"),
                 tool = json.optString("tool"),
                 args = json.optJSONObject("args") ?: JSONObject(),
