@@ -14,32 +14,32 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class OnlineChatExperienceTest {
-    @Test fun eachNewBubbleRestartsThreeSecondQuietWindowButWakeDoesNot() = runBlocking {
+    @Test fun sixSecondsBeginWithFirstBubbleAndWakeDoesNotShortenOrRestartIt() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
-        val role = "batch-last-bubble-debounce"
+        val role = "six-second-first-bubble"
         OnlineChatBatchStore.cancel(context, role)
         val first = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 1_000L)
         val second = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 2_000L)
         val wake = OnlineChatBatchStore.next(context, role, collectMessages = true, now = 2_200L)
         val third = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 3_800L)
-        assertEquals(4_000L, first.dueAtMillis)
-        assertEquals(5_000L, second.dueAtMillis)
-        assertEquals(5_000L, wake.dueAtMillis) // wake cannot reset or skip quiet time
-        assertEquals(6_800L, third.dueAtMillis)
+        assertEquals(7_000L, first.dueAtMillis)
+        assertEquals(7_000L, second.dueAtMillis)
+        assertEquals(7_000L, wake.dueAtMillis)
+        assertEquals(7_000L, third.dueAtMillis)
         assertEquals(first.revision, third.revision)
-        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision, now = 4_000L))
-        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision, now = 6_799L))
-        assertTrue(OnlineChatBatchStore.claim(context, role, first.revision, now = 6_800L))
-        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision, now = 6_801L))
-
-        val fourth = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 6_900L)
+        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision, now = 6_999L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, first.revision, now = 7_000L))
+        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision, now = 7_001L))
+        // The user adds messages between two delayed reply bubbles.
+        val fourth = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 7_100L)
         val fifth = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 9_300L)
-        assertEquals(12_300L, fifth.dueAtMillis)
+        assertEquals(13_100L, fourth.dueAtMillis)
+        assertEquals(13_100L, fifth.dueAtMillis)
         assertEquals(fourth.revision, fifth.revision)
         OnlineChatBatchStore.finish(context, role, first.revision)
         assertFalse(OnlineChatBatchStore.isCurrent(context, role, first.revision))
-        assertFalse(OnlineChatBatchStore.claim(context, role, fifth.revision, now = 12_299L))
-        assertTrue(OnlineChatBatchStore.claim(context, role, fifth.revision, now = 12_300L))
+        assertFalse(OnlineChatBatchStore.claim(context, role, fifth.revision, now = 13_099L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, fifth.revision, now = 13_100L))
         OnlineChatBatchStore.cancel(context, role)
     }
 
@@ -48,15 +48,15 @@ class OnlineChatExperienceTest {
         val role = "parallel-reflection"
         OnlineChatBatchStore.cancel(context, role)
         val batch = OnlineChatBatchStore.next(context, role, collectMessages = true, now = 10_000L)
-        assertEquals(13_000L, OnlineChatBatchStore.pendingDueAt(context, role))
-        assertFalse(OnlineChatBatchStore.claim(context, role, batch.revision, now = 12_999L))
-        assertTrue(OnlineChatBatchStore.claim(context, role, batch.revision, now = 13_000L))
+        assertEquals(16_000L, OnlineChatBatchStore.pendingDueAt(context, role))
+        assertFalse(OnlineChatBatchStore.claim(context, role, batch.revision, now = 15_999L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, batch.revision, now = 16_000L))
         OnlineChatBatchStore.finish(context, role, batch.revision)
         assertNull(OnlineChatBatchStore.pendingDueAt(context, role))
         OnlineChatBatchStore.cancel(context, role)
     }
 
-    @Test fun wakingBetweenTwoBubblesNeverStartsTypingOrClaimsBeforeLastBubbleTimeout() {
+    @Test fun wakingBetweenTwoBubblesDoesNotChangeFirstBubbleSixSecondDeadline() {
         val context = RuntimeEnvironment.getApplication() as Context
         val role = "batch-wake-last"
         OnlineChatBatchStore.cancel(context, role)
@@ -64,12 +64,12 @@ class OnlineChatExperienceTest {
         val wake = OnlineChatBatchStore.next(context, role, true, now = 1_300L)
         val secondBubble = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 1_500L)
         val unrelated = OnlineChatBatchStore.next(context, role, false, now = 1_900L)
-        assertEquals(4_000L, first.dueAtMillis)
+        assertEquals(7_000L, first.dueAtMillis)
         assertEquals(first.dueAtMillis, wake.dueAtMillis)
-        assertEquals(4_500L, secondBubble.dueAtMillis)
-        assertEquals(4_500L, unrelated.dueAtMillis)
-        assertFalse(OnlineChatBatchStore.claim(context, role, wake.revision, now = 4_000L))
-        assertTrue(OnlineChatBatchStore.claim(context, role, wake.revision, now = 4_500L))
+        assertEquals(7_000L, secondBubble.dueAtMillis)
+        assertEquals(7_000L, unrelated.dueAtMillis)
+        assertFalse(OnlineChatBatchStore.claim(context, role, wake.revision, now = 6_999L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, wake.revision, now = 7_000L))
         OnlineChatBatchStore.cancel(context, role)
     }
 
@@ -77,7 +77,7 @@ class OnlineChatExperienceTest {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
         CompanionOnlineStore.initialize(context)
-        val role = MigratedDomainStores.characters.create("三秒等待", "耐心读完用户的话")
+        val role = MigratedDomainStores.characters.create("六秒等待", "耐心读完用户的话")
         val conversation = MigratedDomainStores.chat.ensureConversation(role.characterId, role.displayName)
         OnlineChatBatchStore.cancel(context, role.characterId)
         val firstMessage = MigratedDomainStores.chat.sendUserMessage(conversation.id, "第一句话，等等我")
@@ -87,7 +87,7 @@ class OnlineChatExperienceTest {
         assertEquals(firstDeadline, wake.dueAtMillis)
         val more = MigratedDomainStores.chat.sendUserMessage(conversation.id, "第二句话")
         val scheduled = OnlineChatBatchStore.next(context, role.characterId, true, now = more.createdAt.toEpochMilli())
-        assertEquals(more.createdAt.toEpochMilli() + OnlineChatBatchStore.QUIET_MILLIS, scheduled.dueAtMillis)
+        assertEquals(firstDeadline, scheduled.dueAtMillis)
         assertFalse(OnlineChatBatchStore.claim(context, role.characterId, scheduled.revision,
             now = scheduled.dueAtMillis - 1L))
         OnlineChatBatchStore.cancel(context, role.characterId)
@@ -101,11 +101,11 @@ class OnlineChatExperienceTest {
         assertEquals(1_000L, background.dueAtMillis)
         val firstBubble = OnlineChatBatchStore.next(context, role, collectMessages = true, now = 1_100L)
         val wake = OnlineChatBatchStore.next(context, role, collectMessages = true, now = 1_500L)
-        assertEquals(4_100L, firstBubble.dueAtMillis)
+        assertEquals(7_100L, firstBubble.dueAtMillis)
         assertEquals(firstBubble.dueAtMillis, wake.dueAtMillis)
         assertFalse(OnlineChatBatchStore.claim(context, role, background.revision, now = 1_100L))
-        assertFalse(OnlineChatBatchStore.claim(context, role, wake.revision, now = 4_099L))
-        assertTrue(OnlineChatBatchStore.claim(context, role, wake.revision, now = 4_100L))
+        assertFalse(OnlineChatBatchStore.claim(context, role, wake.revision, now = 7_099L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, wake.revision, now = 7_100L))
         OnlineChatBatchStore.finish(context, role, wake.revision)
         assertNull(OnlineChatBatchStore.dueAt(context, role, wake.revision))
         OnlineChatBatchStore.cancel(context, role)
@@ -126,11 +126,11 @@ class OnlineChatExperienceTest {
         val first = OnlineChatBatchStore.next(context, role, true, now = 100L)
         assertTrue(OnlineChatBatchStore.claim(context, role, first.revision))
         OnlineChatBatchStore.finish(context, role, first.revision, completed = false)
-        assertEquals(3_100L, OnlineChatBatchStore.dueAt(context, role, first.revision))
+        assertEquals(6_100L, OnlineChatBatchStore.dueAt(context, role, first.revision))
         assertTrue(OnlineChatBatchStore.claim(context, role, first.revision))
         val next = OnlineChatBatchStore.next(context, role, true, now = 4_000L)
         OnlineChatBatchStore.finish(context, role, first.revision)
-        assertEquals(7_000L, OnlineChatBatchStore.dueAt(context, role, next.revision))
+        assertEquals(10_000L, OnlineChatBatchStore.dueAt(context, role, next.revision))
         assertTrue(OnlineChatBatchStore.claim(context, role, next.revision))
         OnlineChatBatchStore.finish(context, role, next.revision)
         assertNull(OnlineChatBatchStore.dueAt(context, role, next.revision))
