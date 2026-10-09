@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T19:03:01.192759+00:00",
-  "commit": "2c64efd7f5b49bba99c27ceadcb8822f63ab5e03",
+  "generatedAt": "2026-10-09T19:07:54.608049+00:00",
+  "commit": "38cd5e7ea650f6bc40875481c5c6e7def745c89a",
   "branch": "main",
-  "sourceFingerprint": "5eb2de3975c940b864c55befa314f5b30bf86dede8eee8935840867348c8e9cc",
+  "sourceFingerprint": "3608c8a709634db1d9945ae315d8c91a1c04cb9fd3412938deea9e8a9a67dd13",
   "summary": {
     "files": 416,
-    "lines": 94802,
+    "lines": 94813,
     "symbols": 1370
   },
   "symbolIndex": {
@@ -1763,19 +1763,19 @@
     "nextPauseMillis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt",
-        "line": 12
+        "line": 14
       }
     ],
     "shouldQuietlyEnd": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt",
-        "line": 18
+        "line": 22
       }
     ],
     "canContinue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt",
-        "line": 28
+        "line": 32
       }
     ],
     "move": [
@@ -7385,13 +7385,13 @@
     "canEnd": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
-        "line": 22
+        "line": 27
       }
     ],
     "eligible": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
-        "line": 38
+        "line": 45
       }
     ],
     "TrialRoomWalkControllerTest": [
@@ -9264,20 +9264,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt",
-      "lines": 40,
-      "sha256": "661ebda80325d876e9767989411512505b688982c36c1c6b5c8df16507e79a6d",
+      "lines": 44,
+      "sha256": "a51dc16bb26323d23c2d847a98a09f9c5f9ce2fc51b5bbc4eab9f1a56577c260",
       "symbols": [
         {
           "name": "nextPauseMillis",
-          "line": 12
+          "line": 14
         },
         {
           "name": "shouldQuietlyEnd",
-          "line": 18
+          "line": 22
         },
         {
           "name": "canContinue",
-          "line": 28
+          "line": 32
         }
       ]
     },
@@ -15421,8 +15421,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
-      "lines": 52,
-      "sha256": "578f2c72a1a74ce46285f39ae10acd8466a7ea0b334329932197bee28d89e26e",
+      "lines": 59,
+      "sha256": "fe34de27d8c1649769252425b9cbc176e0f7e74a3218dc0c2048ac19e51c9da1",
       "symbols": [
         {
           "name": "SleepCallContinuationPolicyTest",
@@ -15430,11 +15430,11 @@
         },
         {
           "name": "canEnd",
-          "line": 22
+          "line": 27
         },
         {
           "name": "eligible",
-          "line": 38
+          "line": 45
         }
       ]
     },
