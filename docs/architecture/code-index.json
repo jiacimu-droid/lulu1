@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T16:44:10.778154+00:00",
-  "commit": "4a03771b4f04f324d39c4f91c21f9d9f82d993b2",
+  "generatedAt": "2026-10-09T16:45:30.937729+00:00",
+  "commit": "73cde12998140207a4e1d862d19bc13cd4100709",
   "branch": "main",
-  "sourceFingerprint": "2eadea225640d0ae34c7f28c05c27e7cf6c3d9fd3815d795c01ed6cff3c49383",
+  "sourceFingerprint": "b8cdb35ae9d1c63e8e79c35ce31568b68222f59dfda487f3bde4668f78affa1f",
   "summary": {
-    "files": 407,
-    "lines": 94170,
-    "symbols": 1356
+    "files": 408,
+    "lines": 94220,
+    "symbols": 1358
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2988,6 +2988,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
         "line": 24
+      }
+    ],
+    "isFinalCheck": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
+        "line": 6
+      }
+    ],
+    "nextDelaySeconds": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
+        "line": 16
       }
     ],
     "CommitmentLexiconSync": [
@@ -10167,9 +10179,24 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
+      "lines": 36,
+      "sha256": "73263e8e1d125a7b5bc31d2458823ace3ae65af71e7df185d2cde63d10973ca1",
+      "symbols": [
+        {
+          "name": "isFinalCheck",
+          "line": 6
+        },
+        {
+          "name": "nextDelaySeconds",
+          "line": 16
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-      "lines": 88,
-      "sha256": "635f456acad22c380327bbcfc45d30580ab8cda7f61ca83ce113a98c4fbf6aed",
+      "lines": 102,
+      "sha256": "20f21821cd348aa33e21d528e00fcb47127d765f3bbe5b2241858b72213480a7",
       "symbols": []
     },
     {

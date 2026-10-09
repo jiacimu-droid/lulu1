@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`4a03771b4f04f324d39c4f91c21f9d9f82d993b2`
+- 基准提交：`73cde12998140207a4e1d862d19bc13cd4100709`
 - 分支：`main`
-- 已索引文件：407
-- 已索引代码/文本行：94170
-- 已发现符号：1356
+- 已索引文件：408
+- 已索引代码/文本行：94220
+- 已发现符号：1358
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -147,7 +147,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt` | 124 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt` | 139 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt` | 35 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 88 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt` | 36 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 102 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 107 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 37 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 198 | 0 |
