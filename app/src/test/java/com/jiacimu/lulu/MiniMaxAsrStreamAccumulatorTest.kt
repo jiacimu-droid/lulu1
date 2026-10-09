@@ -5,11 +5,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MiniMaxAsrStreamAccumulatorTest {
-    @Test fun incrementalChunksCanIncludeOverlappingWordsWithoutRepeats() {
+    @Test fun incrementalChunksPreserveActualRepeatedLaughter() {
         val a = MiniMaxAsrStreamAccumulator()
-        assertEquals("哈基", a.accept(JSONObject().put("delta", "哈基")))
-        assertEquals("哈基米", a.accept(JSONObject().put("delta", "基米")))
-        assertEquals("哈基米", a.accept(JSONObject().put("delta", "基米")))
+        assertEquals("哈", a.accept(JSONObject().put("delta", "哈")))
+        assertEquals("哈哈", a.accept(JSONObject().put("delta", "哈")))
+        assertEquals("哈哈哈", a.accept(JSONObject().put("delta", "哈")))
+        assertEquals("哈哈哈基米", a.accept(JSONObject().put("delta", "基米")))
     }
 
     @Test fun fullHypothesisCanCorrectEarlierStreamingResult() {
