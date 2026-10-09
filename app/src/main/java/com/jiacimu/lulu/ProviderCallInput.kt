@@ -171,7 +171,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
                 // Never display vendor bodies that may reflect credentials or uploaded private speech.
                 throw IllegalStateException("HTTP $code（请检查语音识别权限、余额及接口区域）")
             }
-            if (connection.contentType.orEmpty().contains("text/event-stream")) {
+            if (connection.contentType.orEmpty().lowercase().contains("text/event-stream")) {
                 val transcript = MiniMaxAsrStreamAccumulator()
                 var finished = false
                 connection.inputStream.bufferedReader().use { reader ->
@@ -182,6 +182,8 @@ internal class ProviderCallInput(private val context: Context, private val scope
                         if (raw == "[DONE]") { finished = true; break }
                         if (raw.isBlank()) continue
                         val event = JSONObject(raw)
+                        val status = event.optJSONObject("base_resp")?.optInt("status_code", 0) ?: 0
+                        check(status == 0) { "MiniMax 识别服务返回错误码 $status" }
                         val latestText = transcript.accept(event)
                         if (latestText.isNotBlank()) withContext(Dispatchers.Main) {
                             onIncremental(latestText)
@@ -191,7 +193,14 @@ internal class ProviderCallInput(private val context: Context, private val scope
                 }
                 check(finished) { "识别流中断，请重新说一次" }
                 transcript.value.trim()
-            } else JSONObject(connection.inputStream.bufferedReader().use { it.readText() }).optString("text").trim()
+            } else {
+                val result = JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
+                val status = result.optJSONObject("base_resp")?.optInt("status_code", 0) ?: 0
+                check(status == 0) { "MiniMax 识别服务返回错误码 $status" }
+                result.optString("text").ifBlank {
+                    result.optJSONObject("data")?.optString("text").orEmpty()
+                }.trim()
+            }
         } finally { connection.disconnect(); if (http === connection) http = null }
     }
 
