@@ -93,11 +93,21 @@ internal object LuluVoiceCallSession {
     private var audioManager: AudioManager? = null
     private var audioRoute: CallAudioRoute? = null
     private val openingTurn = CallOpeningTurn()
+    private val autonomousHangup = CallAutonomousHangupGate()
+
+    private fun finishAutonomousHangupIfReady() {
+        val call = mutableState.value
+        if (autonomousHangup.consumeWhenReady(call.callExperienceId, replyGeneration,
+                call.connected, call.thinking, call.speaking)) {
+            endCallByCharacter()
+        }
+    }
 
     fun prepare(context: Context, conversationId: String, characterId: String, characterName: String, incomingReason: String = "") {
         initialize(context)
         val current = mutableState.value
         if (current.phase == CallPhase.Idle || current.phase == CallPhase.Ended) {
+            autonomousHangup.cancel()
             mutableState.value = LuluVoiceCallState(
                 conversationId = conversationId,
                 characterId = characterId,
@@ -234,13 +244,19 @@ internal object LuluVoiceCallSession {
         mutableState.update { it.copy(statusMessage = "没有麦克风权限，暂时无法开始通话") }
     }
 
-    fun endCall() {
+    fun endCall() = finishCall(endedByCharacter = false)
+
+    private fun endCallByCharacter() = finishCall(endedByCharacter = true)
+
+    private fun finishCall(endedByCharacter: Boolean) {
         val current = mutableState.value
         if (current.phase == CallPhase.Idle || current.phase == CallPhase.Ended) return
         LuluCallRingtone.stopAll()
+        autonomousHangup.cancel()
         // Mark ended before stopping audio: callbacks cannot reopen the microphone or revive state.
         mutableState.update { it.copy(phase = CallPhase.Ended, opening = false, listening = false,
-            thinking = false, speaking = false, statusMessage = "通话已结束") }
+            thinking = false, speaking = false,
+            statusMessage = if (endedByCharacter) "${current.characterName}结束了通话" else "通话已结束") }
         com.jiacimu.lulu.data.CompanionPresenceStore.finishCall(current.characterId)
         dialJob?.cancel()
         replyGeneration++
@@ -260,7 +276,7 @@ internal object LuluVoiceCallSession {
         recognizer = null
         recognitionActive = false
         speechQueue?.stop()
-        saveCallExperience(current)
+        saveCallExperience(current, endedByCharacter)
         mutableState.update {
             it.copy(
                 phase = CallPhase.Ended,
@@ -268,7 +284,7 @@ internal object LuluVoiceCallSession {
                 thinking = false,
                 speaking = false,
                 partialTranscript = "",
-                statusMessage = "通话已结束",
+                statusMessage = if (endedByCharacter) "${current.characterName}结束了通话" else "通话已结束",
             )
         }
         restoreCallAudio()
@@ -316,8 +332,11 @@ internal object LuluVoiceCallSession {
                         },
                     )
                 }
-                if (!busy && current.connected && !current.microphoneMuted) {
-                    scheduleListening(220)
+                if (!busy && current.connected) {
+                    finishAutonomousHangupIfReady()
+                    if (mutableState.value.connected && !mutableState.value.microphoneMuted) {
+                        scheduleListening(220)
+                    }
                 }
             },
             onError = { error -> if (mutableState.value.connected) mutableState.update { it.copy(speaking = false, errorMessage = "发声失败：$error", statusMessage = "回复已生成，但声音播放失败") } },
@@ -482,6 +501,7 @@ internal object LuluVoiceCallSession {
         val current = mutableState.value
         if (!current.connected || (!opening && (current.microphoneMuted || current.opening)) || realtime != null) return
         replyGeneration++
+        autonomousHangup.cancel()
         speechQueue?.stop()
         val generation = replyGeneration
         replyJob?.cancel()
@@ -555,6 +575,9 @@ internal object LuluVoiceCallSession {
                 archiveId = archiveId,
                 sceneContext = if (opening) "你正在和用户进行一对一实时电话，刚刚接通，用户尚未开口。现在由你按自己的关系、人设和最近上下文先说一两句自然开场。不要把通话事件当作用户说过的话，不要朗读事件说明。"
                     else "你正在和用户进行一对一实时电话。你能意识到电话已经接通，听见的是用户刚刚在电话里说的话；具体关系与称呼必须服从你的人设。回复要像真实通话，口语自然。普通接话优先一到两句有内容的话，不每次长篇解释；用户要求详细内容时再展开。不要朗读说明文字。",
+                onCharacterHangup = {
+                    if (sameReply()) autonomousHangup.request(latest.callExperienceId, generation)
+                },
                 onReplyStream = { envelope -> scope.launch {
                     if (!sameReply() || stream.isFinished) return@launch
                     val parts = stream.updateForSpeech(envelope, wholeTurnSpeech)
@@ -594,9 +617,11 @@ internal object LuluVoiceCallSession {
                     scheduleListening(220)
                 }
                 clearWhenHeard()
+                finishAutonomousHangupIfReady()
             }.onFailure { error ->
                 if (generation != replyGeneration || !mutableState.value.connected) return@onFailure
                 stream.cancel()
+                autonomousHangup.cancel()
                 speechQueue?.stop()
                 mutableState.update {
                     it.copy(
@@ -675,7 +700,7 @@ internal object LuluVoiceCallSession {
         }
     }
 
-    private fun saveCallExperience(current: LuluVoiceCallState) {
+    private fun saveCallExperience(current: LuluVoiceCallState, endedByCharacter: Boolean = false) {
         if (!current.everConnected || current.experienceSaved) return
         com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(current.characterId)
         val transcript = MigratedDomainStores.chat.messages(current.conversationId).value
@@ -690,13 +715,15 @@ internal object LuluVoiceCallSession {
             label = "共同通话",
             detail = buildString {
                 append("进行了一次持续约 ${current.elapsedSeconds.coerceAtLeast(1)} 秒的电话。")
+                append(if (endedByCharacter) "这次由${current.characterName}主动结束通话。" else "这次由用户结束通话。")
                 if (transcript.isNotBlank()) append("通话内容：\n$transcript")
             },
             occurredAt = current.callStartedAt ?: Instant.now(),
             strength = 7,
             source = "voice-call",
         )
-        MigratedDomainStores.chat.appendSystemMessage(current.conversationId, "[共同活动] 刚刚打了个电话")
+        MigratedDomainStores.chat.appendSystemMessage(current.conversationId,
+            if (endedByCharacter) "[共同活动] ${current.characterName}主动结束了电话" else "[共同活动] 刚刚打了个电话")
         mutableState.update { it.copy(experienceSaved = true) }
     }
 
