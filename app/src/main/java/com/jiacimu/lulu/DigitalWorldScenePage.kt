@@ -39,6 +39,20 @@ internal fun DigitalWorldScenePage(
     onOpenCatalog: () -> Unit,
 ) {
     val context = LocalContext.current
+    val visibleResidents = remember(sceneCode, characters, world.characterLocations) {
+        characters.filter { world.characterLocations[it.characterId] == sceneCode }
+            .map(CharacterSettings::characterId).distinct()
+    }
+    DisposableEffect(sceneCode, sceneLabel, visibleResidents) {
+        if (visibleResidents.isNotEmpty()) {
+            DigitalWorldVisitorAwareness.observe(sceneLabel, visibleResidents, entering = true)
+        }
+        onDispose {
+            if (visibleResidents.isNotEmpty()) {
+                DigitalWorldVisitorAwareness.observe(sceneLabel, visibleResidents, entering = false)
+            }
+        }
+    }
     var rememberedAction by remember(sceneCode) { mutableStateOf("") }
 
     LaunchedEffect(rememberedAction) {
@@ -78,6 +92,11 @@ internal fun DigitalWorldScenePage(
                 characters = characters,
                 world = world,
                 onCharacterClick = onCharacterClick,
+                onPhysicalInteraction = { characterId, action ->
+                    DigitalWorldVisitorAwareness.observePhysicalInteraction(
+                        sceneLabel, characterId, action,
+                    )
+                },
                 onWorldAction = { action ->
                     WorldFirstExplorationMemory.record(
                         context = context,
