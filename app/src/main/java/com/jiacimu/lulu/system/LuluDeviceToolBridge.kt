@@ -446,12 +446,8 @@ object LuluDeviceToolBridge {
     }
 
     private fun parsePlan(raw: String): ToolPlan? {
-        val clean = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
-        val start = clean.indexOf('{')
-        val end = clean.lastIndexOf('}')
-        if (start < 0 || end <= start) return null
         return runCatching {
-            val json = JSONObject(clean.substring(start, end + 1))
+            val json = com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(raw) ?: return null
             ToolPlan(
                 action = json.optString("action").lowercase(),
                 text = json.optString("text"),
