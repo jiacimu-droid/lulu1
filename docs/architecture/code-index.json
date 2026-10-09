@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T16:47:23.359782+00:00",
-  "commit": "64b562ccafc7a07baae13b4c045bea902887d6f6",
+  "generatedAt": "2026-10-09T16:48:29.737414+00:00",
+  "commit": "00472049c33ad56ab52be9eda0c3dce9300ae10b",
   "branch": "main",
-  "sourceFingerprint": "c926d436ebd774ae788e031d967c02cf4e91c268bd76962ccb8ec81d9863a256",
+  "sourceFingerprint": "029d23eff35c242edeacba4c3c07962c9b8807b424cb399dba53031953f103d8",
   "summary": {
-    "files": 409,
-    "lines": 94297,
-    "symbols": 1359
+    "files": 411,
+    "lines": 94366,
+    "symbols": 1361
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7442,6 +7442,12 @@
         "line": 20
       }
     ],
+    "CommitmentCallRetryPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt",
+        "line": 5
+      }
+    ],
     "DevelopmentPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt",
@@ -7506,6 +7512,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt",
         "line": 12
+      }
+    ],
+    "TimedContactCommitmentParserTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt",
+        "line": 7
       }
     ],
     "TimelineLedgerTest": [
@@ -10261,7 +10273,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt",
       "lines": 165,
-      "sha256": "198062ec66bb438836b3f9442eadbc73de13ebdb5c67954a492a43b099d8be48",
+      "sha256": "f2e3a2f5ea94836f26aaa66369c30e1bcdf4b67d8e8bc2708537a04e4a9457d7",
       "symbols": []
     },
     {
@@ -15470,6 +15482,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt",
+      "lines": 30,
+      "sha256": "1c49ae253ceb604771be0b1d3e3867893d2f6794951cd80507321f1c0aa852f1",
+      "symbols": [
+        {
+          "name": "CommitmentCallRetryPolicyTest",
+          "line": 5
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt",
       "lines": 31,
       "sha256": "7cd1468a477d02a4749d100a6356d826b465d31b40412d27ace7f2af5fd6b8df",
@@ -15587,6 +15610,17 @@
         {
           "name": "PromptContextRegressionTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt",
+      "lines": 39,
+      "sha256": "4d11264f1206b7abeb718c574b251ffb6c868fe5eba62ceb8222da9c16757a98",
+      "symbols": [
+        {
+          "name": "TimedContactCommitmentParserTest",
+          "line": 7
         }
       ]
     },
