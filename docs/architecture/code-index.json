@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T10:45:52.559731+00:00",
-  "commit": "fc8abe808117b8681164b8db901f2a93baa5cccd",
+  "generatedAt": "2026-10-09T10:47:16.810605+00:00",
+  "commit": "ad938a884952fc59685dfa5cb0833d574cad4ee5",
   "branch": "main",
-  "sourceFingerprint": "6ee1853e9aa1aa82bfdfdd5b1f4b67094152d6cbe71165241f48e63063c8a1d5",
+  "sourceFingerprint": "c3e5f567b26c9b2b298ab346ebdf248bb5f4b5f4bff807cf0b9a8e1fb8bea4a0",
   "summary": {
     "files": 379,
-    "lines": 91436,
-    "symbols": 1295
+    "lines": 91452,
+    "symbols": 1296
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -126,10 +126,16 @@
         "line": 139
       }
     ],
+    "markDelivered": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt",
+        "line": 13
+      }
+    ],
     "request": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt",
-        "line": 11
+        "line": 18
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
@@ -139,7 +145,7 @@
     "cancel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt",
-        "line": 17
+        "line": 24
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
@@ -157,7 +163,7 @@
     "consumeWhenReady": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt",
-        "line": 22
+        "line": 31
       }
     ],
     "claim": [
@@ -1277,19 +1283,19 @@
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 645
+        "line": 646
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 676
+        "line": 677
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 758
+        "line": 759
       }
     ],
     "MeetingReplyTaskManager": [
@@ -7329,20 +7335,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt",
-      "lines": 34,
-      "sha256": "92f2037911bd63a4b5ee41ce0b09847cf9499f4f1d217f509b7bd79e2761f64e",
+      "lines": 49,
+      "sha256": "6b3be4e35933c7b2a6dd1895f7cac5ff385d12139a9b4475f5252d26fa26de3c",
       "symbols": [
         {
+          "name": "markDelivered",
+          "line": 13
+        },
+        {
           "name": "request",
-          "line": 11
+          "line": 18
         },
         {
           "name": "cancel",
-          "line": 17
+          "line": 24
         },
         {
           "name": "consumeWhenReady",
-          "line": 22
+          "line": 31
         }
       ]
     },
@@ -8131,8 +8141,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 844,
-      "sha256": "e06daab7588a62ee4b72d59d2a8798606fe17d437058bcb07838db14898ec099",
+      "lines": 845,
+      "sha256": "f70f90d4d475ab444bb4e05f8e7f67ab4ac6dd198e1055ca24ffef84242b5334",
       "symbols": [
         {
           "name": "prepare",
@@ -8176,15 +8186,15 @@
         },
         {
           "name": "sameSession",
-          "line": 645
+          "line": 646
         },
         {
           "name": "retryListening",
-          "line": 676
+          "line": 677
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 758
+          "line": 759
         }
       ]
     },
