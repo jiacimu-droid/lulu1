@@ -7,6 +7,7 @@ import com.jiacimu.lulu.data.LuluGroupChat
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.UserProfileContext
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
+import java.util.UUID
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -83,10 +84,13 @@ internal suspend fun appendRoleReplyWithPacing(
     val quoteId = presentation.quoteMessageId?.takeIf { id -> id in allowed && before.any { it.id == id && it.sender == LuluChatMessage.Sender.User } }
     val favoriteTarget = presentation.favoriteMessageId?.takeIf { it in allowed }?.let { id -> before.firstOrNull { it.id == id && it.sender == LuluChatMessage.Sender.User } }
     val spoken = mutableListOf<LuluChatMessage>()
+    val replyBatchId = UUID.randomUUID().toString()
     delay(roleTypingLeadDelayMillis(characterId))
     bubbles.forEachIndexed { index, bubble ->
         if (!currentCoroutineContext().isActive) return@forEachIndexed
-        val created = MigratedDomainStores.chat.appendCharacterMessage(conversationId, bubble, characterId, quoteId.takeIf { index == 0 })
+        val created = MigratedDomainStores.chat.appendCharacterMessage(
+            conversationId, bubble, characterId, quoteId.takeIf { index == 0 }, replyBatchId,
+        )
         if (presentation.recallBubbleNumber == index + 1) {
             delay(roleRecallDelayMillis(characterId))
             if (currentCoroutineContext().isActive) MigratedDomainStores.chat.retractCharacterMessage(created.id, characterLabel)

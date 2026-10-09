@@ -20,6 +20,8 @@ data class LuluChatMessage(
     val favorite: Boolean = false,
     val authorCharacterId: String? = null,
     val replyToMessageId: String? = null,
+    /** Actual role-generation turn; consecutive bubbles in the same turn share one avatar. */
+    val replyBatchId: String? = null,
 ) {
     enum class Sender { User, Character, System }
     enum class Status { Sending, Sent, Failed }
@@ -83,6 +85,7 @@ interface LuluChatStore {
         content: String,
         authorCharacterId: String? = null,
         replyToMessageId: String? = null,
+        replyBatchId: String? = null,
     ): LuluChatMessage
     fun appendSystemMessage(conversationId: String, content: String): LuluChatMessage
     fun appendPrivateActivityNotice(characterId: String, content: String, incidentId: String? = null): LuluChatMessage
@@ -351,6 +354,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         content: String,
         authorCharacterId: String?,
         replyToMessageId: String?,
+        replyBatchId: String?,
     ): LuluChatMessage {
         val quoteRegex = Regex("⟪QUOTE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
         val favoriteRegex = Regex("⟪FAVORITE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
@@ -376,6 +380,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         val effectiveAuthorId = authorCharacterId
             ?: conversationState.value.firstOrNull { it.id == conversationId }?.characterId
             ?: "lulu"
+        val effectiveBatchId = replyBatchId?.takeIf(String::isNotBlank) ?: UUID.randomUUID().toString()
         val created = bubbleContents.mapIndexed { index, bubble ->
             LuluChatMessage(
                 conversationId = conversationId,
@@ -383,6 +388,7 @@ class InMemoryLuluChatStore : LuluChatStore {
                 content = bubble,
                 authorCharacterId = authorCharacterId,
                 replyToMessageId = effectiveReplyId.takeIf { index == 0 },
+                replyBatchId = effectiveBatchId,
             ).also { message -> append(conversationId, message, incrementUnread = false) }
         }
         favoriteTarget?.let { target ->
@@ -702,6 +708,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         .put("favorite", value.favorite)
         .put("authorCharacterId", value.authorCharacterId ?: JSONObject.NULL)
         .put("replyToMessageId", value.replyToMessageId ?: JSONObject.NULL)
+        .put("replyBatchId", value.replyBatchId ?: JSONObject.NULL)
 
     private fun decodeMessage(item: JSONObject): LuluChatMessage = LuluChatMessage(
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
@@ -713,6 +720,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         favorite = item.optBoolean("favorite"),
         authorCharacterId = item.nullableString("authorCharacterId"),
         replyToMessageId = item.nullableString("replyToMessageId"),
+        replyBatchId = item.nullableString("replyBatchId"),
     )
 
     private fun conversationOrdering(): Comparator<LuluConversation> =

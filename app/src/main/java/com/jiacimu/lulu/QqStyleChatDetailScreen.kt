@@ -542,10 +542,8 @@ fun QqStyleChatDetailScreen(
             itemsIndexed(visibleMessages, key = { _, item -> item.id }) { index, message ->
                 val previous = visibleMessages.getOrNull(index - 1)
                 val next = visibleMessages.getOrNull(index + 1)
-                val groupStart = previous == null || previous.sender != message.sender || previous.authorCharacterId != message.authorCharacterId ||
-                    Duration.between(previous.createdAt, message.createdAt).toMinutes() >= 2
-                val groupEnd = next == null || next.sender != message.sender || next.authorCharacterId != message.authorCharacterId ||
-                    Duration.between(message.createdAt, next.createdAt).toMinutes() >= 2
+                val groupStart = previous == null || !sameQqMessageGroup(previous, message)
+                val groupEnd = next == null || !sameQqMessageGroup(message, next)
                 val author = message.authorCharacterId?.let { characters[it] ?: MigratedDomainStores.characters.get(it) } ?: character
                 val imageMessage = decodeQqChatImage(message.content)
 
