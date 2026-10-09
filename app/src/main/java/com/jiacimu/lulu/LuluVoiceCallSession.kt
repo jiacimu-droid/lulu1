@@ -220,19 +220,41 @@ internal object LuluVoiceCallSession {
 
     fun toggleMicrophone() {
         val nextMuted = !mutableState.value.microphoneMuted
-        audioRoute?.microphone(nextMuted)
         mutableState.update {
             it.copy(
                 microphoneMuted = nextMuted,
-                statusMessage = if (nextMuted) "麦克风已静音" else "麦克风已打开，直接说话就好",
+                listening = if (nextMuted) false else it.listening,
+                inputLevel = if (nextMuted) 0f else it.inputLevel,
+                partialTranscript = if (nextMuted) "" else it.partialTranscript,
+                statusMessage = if (nextMuted) "露露机已释放麦克风，可在其他应用使用语音输入"
+                    else "麦克风已打开，直接说话就好",
             )
         }
-        realtime?.let { it.mute(nextMuted); return }
-        if (providerInput != null) return
+        if (realtime != null) {
+            // An Agent SDK owns its own microphone; keep explicit mute, but
+            // do not set system-wide AudioManager.isMicrophoneMute.
+            realtime?.mute(nextMuted)
+            if (nextMuted) audioRoute?.stop() else audioRoute?.start()
+            return
+        }
         if (nextMuted) {
+            // "Muted" is a real capture shutdown, not zeroing input frames
+            // while retaining AudioRecord and globally silencing other apps.
+            restartListeningJob?.cancel()
+            providerInput?.stop()
+            providerInput = null
             pauseRecognition()
+            recognizer?.destroy()
+            recognizer = null
+            audioRoute?.stop()
         } else {
-            scheduleListening(160)
+            audioRoute?.start()
+            audioRoute?.refresh()
+            if (appContext?.let(CallVoiceConfiguration::sttEngine) == "system") {
+                scheduleListening(160)
+            } else {
+                startProviderInput()
+            }
         }
     }
 
@@ -639,8 +661,7 @@ internal object LuluVoiceCallSession {
             accept = { val s = mutableState.value; sameSession() && !s.microphoneMuted && !s.speaking && !s.opening },
             onReady = {
                 if (sameSession()) {
-                    audioRoute?.microphone(mutableState.value.microphoneMuted)
-                    audioRoute?.refresh()
+                    if (!mutableState.value.microphoneMuted) audioRoute?.refresh()
                     val wasConnected = mutableState.value.connected
                     mutableState.update { it.copy(phase = CallPhase.Connected, callStartedAt = it.callStartedAt ?: Instant.now(), everConnected = true,
                         listening = true, inputMeterAvailable = true, errorMessage = "", statusMessage = "麦克风收音已启动，直接说话；停顿后识别并回复") }
