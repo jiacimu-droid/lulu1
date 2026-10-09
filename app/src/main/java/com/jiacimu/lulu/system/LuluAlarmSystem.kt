@@ -77,8 +77,10 @@ object LuluAlarmSystem {
         } else {
             // The system Clock is the exact/offline user-facing fallback. A best-effort app callback
             // is also registered so task progress can still advance when Android later wakes us.
-            setSystemClockAlarm(appContext, alarm)
+            // In the background Android may reject opening the system Clock UI.
+            // Never let that remove our own alarm callback: schedule it first.
             scheduleBestEffortCallback(appContext, alarm)
+            runCatching { setSystemClockAlarm(appContext, alarm) }
         }
         save(appContext, list(appContext).filterNot { it.id == alarm.id } + alarm)
         alarm
@@ -294,13 +296,16 @@ class LuluAlarmReceiver : BroadcastReceiver() {
         // Local notification is immediate/offline. The task-backed online follow-up is claimed once
         // and finished asynchronously under BroadcastReceiver.goAsync().
         val task = CommitmentTaskStore.claimAlarmExecution(id)
-        LuluAlarmSystem.showAlarmNotification(context, id, characterId, characterName, label)
+        val notificationsAvailable = androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()
+        val shown = notificationsAvailable && runCatching {
+            LuluAlarmSystem.showAlarmNotification(context, id, characterId, characterName, label)
+        }.isSuccess
         if (task != null) {
             val pendingResult = goAsync()
             val appContext = context.applicationContext
             alarmExecutionScope.launch {
                 try {
-                    CommitmentExecutor.onAlarm(appContext, task, characterName)
+                    CommitmentExecutor.onAlarm(appContext, task, characterName, notificationShown = shown)
                 } finally {
                     pendingResult.finish()
                 }
