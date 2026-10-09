@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:14:13.114222+00:00",
-  "commit": "f9ea20f5f11cbdcd6118acad40c520b7e2c19bf6",
+  "generatedAt": "2026-10-09T13:14:28.402337+00:00",
+  "commit": "c3dcab3c3ad9e2dc17a46b717f06801dc3de0f73",
   "branch": "main",
-  "sourceFingerprint": "5af96ee01355244c94f6d8e721dd38847ae294ac27c5056a99e5307639f38df5",
+  "sourceFingerprint": "21898a9919b084fbc42e337232b359dabdb84cd372f9d0f1f17b2eac0ea96300",
   "summary": {
     "files": 389,
-    "lines": 92636,
+    "lines": 92649,
     "symbols": 1314
   },
   "symbolIndex": {
@@ -14979,8 +14979,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt",
-      "lines": 43,
-      "sha256": "0b3e78bd496b9534941993694f4baee60fc7fa3165fba7b797038f2bf7dd6022",
+      "lines": 56,
+      "sha256": "96503824a5982ddda75c9ff87e7732bab1fcca5299b7125561adafba2952b2d3",
       "symbols": [
         {
           "name": "PerceptionStimulusLedgerTest",
