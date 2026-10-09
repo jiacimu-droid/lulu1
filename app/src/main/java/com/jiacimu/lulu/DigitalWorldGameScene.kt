@@ -359,7 +359,7 @@ internal fun DigitalWorldGameScene(
                             followPath = emptyList()
                             target = motion.position
                         } else {
-                            if (now >= nextDecision || (followPath.isEmpty() && motion.activityLabel != "跟随你")) {
+                            if (now >= nextDecision || (followPath.isEmpty() && motion.activityLabel != (if (handHolding) "牵着手同行" else "跟随你"))) {
                                 followPath = com.jiacimu.lulu.games.worldFollowPath(motion.position, followPosition,
                                     DIGITAL_WORLD_BOUNDS, obstacles, 28f)
                                 nextDecision = now + 750L
