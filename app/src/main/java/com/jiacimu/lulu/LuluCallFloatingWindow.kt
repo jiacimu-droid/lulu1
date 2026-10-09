@@ -61,15 +61,15 @@ internal fun LuluCallFloatingWindow(modifier: Modifier = Modifier) {
     var measuredHeightPx by remember { mutableIntStateOf(0) }
     val density = LocalDensity.current
     BoxWithConstraints(modifier = modifier.statusBarsPadding().navigationBarsPadding()) {
-        val maxXPx = (constraints.maxWidth - with(density) { 112.dp.roundToPx() }).coerceAtLeast(0)
-        val heightPx = measuredHeightPx.takeIf { it > 0 } ?: with(density) { 160.dp.roundToPx() }
+        val maxXPx = (constraints.maxWidth - with(density) { 116.dp.roundToPx() }).coerceAtLeast(0)
+        val heightPx = measuredHeightPx.takeIf { it > 0 } ?: with(density) { 116.dp.roundToPx() }
         val maxYPx = (constraints.maxHeight - heightPx).coerceAtLeast(0)
         val initialYPx = with(density) { 56.dp.toPx() }.coerceAtMost(maxYPx.toFloat())
         val currentY = if (verticalFraction < 0f) initialYPx else verticalFraction * maxYPx
     Surface(
         modifier = Modifier
             .offset { IntOffset((horizontalFraction * maxXPx).roundToInt(), currentY.roundToInt()) }
-            .width(112.dp)
+            .size(116.dp)
             .onSizeChanged { measuredHeightPx = it.height }
             .pointerInput(maxXPx, maxYPx) {
                 detectDragGestures(
@@ -100,30 +100,22 @@ internal fun LuluCallFloatingWindow(modifier: Modifier = Modifier) {
         tonalElevation = 2.dp,
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            modifier = Modifier.fillMaxSize().padding(7.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.Center,
         ) {
-            Surface(shape = RoundedCornerShape(15.dp), color = Color(0xFFF1F2F5)) {
-                LuluProfileAvatar(imageUri = character.avatarUri, fallback = title.take(1), size = 58)
+            // One portrait, one time. No instructional copy, name or
+            // duplicated microphone label: the mini window stays square.
+            Surface(shape = RoundedCornerShape(17.dp), color = Color(0xFFF1F2F5)) {
+                LuluProfileAvatar(imageUri = character.avatarUri, fallback = title.take(1), size = 80)
             }
-            Text(title, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF2B3040), maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Icon(
-                    when {
-                        call.microphoneMuted -> Icons.Outlined.MicOff
-                        call.speaking -> Icons.Outlined.GraphicEq
-                        else -> Icons.Outlined.Call
-                    }, contentDescription = null, modifier = Modifier.size(13.dp),
-                    tint = Color(0xFF4E78AB),
-                )
-                Text(
-                    if (call.phase == CallPhase.Dialing) "正在连接" else "%02d:%02d".format(call.elapsedSeconds / 60, call.elapsedSeconds % 60),
-                    fontSize = 10.sp, color = Color(0xFF6B7382),
-                )
-            }
-            Text("拖动移位 · 点按返回", fontSize = 9.sp, color = Color(0xFF8B909B), maxLines = 1)
+            Spacer(Modifier.height(5.dp))
+            Text(
+                if (call.phase == CallPhase.Dialing) "呼叫中"
+                else "%02d:%02d".format(call.elapsedSeconds / 60, call.elapsedSeconds % 60),
+                color = Color(0xFF525F72), fontSize = 11.sp,
+                maxLines = 1,
+            )
         }
     }
     }
