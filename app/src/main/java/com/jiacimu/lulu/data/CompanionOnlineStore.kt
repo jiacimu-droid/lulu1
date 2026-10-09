@@ -180,7 +180,7 @@ object CompanionOnlineStore {
                 .takeIf { it.isNotEmpty() } ?: listOf(conversation.characterId)
             appContext?.let { context ->
                 readers.distinct().filter(String::isNotBlank).forEach { reader ->
-                    OnlineChatBatchStore.next(context, reader, collectMessages = true, now = now.toEpochMilli())
+                    OnlineChatBatchStore.onUserBubble(context, reader, atMillis = now.toEpochMilli())
                 }
             }
         }
