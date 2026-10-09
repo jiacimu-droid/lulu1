@@ -17,6 +17,18 @@ internal suspend fun extractCommitmentTaskDrafts(
     // A clear, accepted wake-up request is an executable obligation, not prose.
     // Resolve its deadline deterministically before asking the model; a model returning
     // [] or malformed JSON must never drop "明天10点叫我" on the floor.
+    TimedContactCommitmentParser.parse(userText, characterText, now, zone)?.let { contact ->
+        val matching = activeTasks.filter { task ->
+            task.goal.contains("按约定联系用户") || task.goal.contains("按约定给用户打电话")
+        }
+        if (matching.size == 1) {
+            val previous = matching.single()
+            if (previous.dueAt == contact.dueAt && previous.deliveryAction == contact.deliveryAction)
+                return emptyList()
+            return listOf(contact.copy(action = "reschedule", targetTaskId = previous.id))
+        }
+        return listOf(contact)
+    }
     WakeCommitmentParser.parse(userText, characterText, now, zone)?.let { wake ->
         val matching = activeTasks.filter {
             (it.goal + it.completionCondition).let { content ->
