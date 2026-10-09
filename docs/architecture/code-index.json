@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T15:06:37.105192+00:00",
-  "commit": "7afb1ba2c33c13658a67b2af49dfe376eb1361a7",
+  "generatedAt": "2026-10-09T15:25:58.211944+00:00",
+  "commit": "217515f74eb020d415bad83e91066b144ec4c240",
   "branch": "main",
-  "sourceFingerprint": "1244b04666b0f0f038fb8ff3064ce3f9c0aec8c5c4864aa8b4f75c44ee856dd4",
+  "sourceFingerprint": "983cf0880d482221d55f428ec658d583cdef00ed6cc457aa3ce2cf22c13dfc03",
   "summary": {
-    "files": 399,
-    "lines": 93465,
-    "symbols": 1339
+    "files": 400,
+    "lines": 93568,
+    "symbols": 1343
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1374,6 +1374,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
         "line": 889
+      }
+    ],
+    "entered": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
+        "line": 19
+      }
+    ],
+    "departed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
+        "line": 26
+      }
+    ],
+    "isPresent": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
+        "line": 35
+      }
+    ],
+    "physicalAction": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
+        "line": 38
       }
     ],
     "MeetingReplyTaskManager": [
@@ -8497,6 +8521,29 @@
         {
           "name": "LuluVoiceCallService",
           "line": 889
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
+      "lines": 103,
+      "sha256": "f859c77770add4abb584659741b0c0a079c86b73348e04453adaf56d3f8d9635",
+      "symbols": [
+        {
+          "name": "entered",
+          "line": 19
+        },
+        {
+          "name": "departed",
+          "line": 26
+        },
+        {
+          "name": "isPresent",
+          "line": 35
+        },
+        {
+          "name": "physicalAction",
+          "line": 38
         }
       ]
     },
