@@ -29,5 +29,9 @@ internal object PhoneSubtitleLayout {
         return result
     }
 
+    /** Each visual speech beat is its own named subtitle; TTS remains whole-turn. */
+    fun captionRows(raw: String, speaker: String): List<String> =
+        lines(raw).map { "$speaker：$it" }
+
     fun format(raw: String): String = lines(raw).joinToString("\n")
 }

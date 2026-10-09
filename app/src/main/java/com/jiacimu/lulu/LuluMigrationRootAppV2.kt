@@ -341,11 +341,7 @@ fun LuluMigrationRootAppV2(
                     }
 
                     // Drawn above every route, including Theater, Games and Study.
-                    LuluCallFloatingWindow(
-                        modifier = Modifier.align(Alignment.TopEnd)
-                            .statusBarsPadding()
-                            .padding(top = 56.dp, end = 14.dp),
-                    )
+                    LuluCallFloatingWindow(modifier = Modifier.fillMaxSize())
                     if (callExpanded && currentCall.hasSession &&
                         currentCall.phase != CallPhase.Ended) {
                         LuluVoiceCallScreen(

@@ -25,4 +25,14 @@ class PhoneSubtitleLayoutTest {
         assertEquals(listOf("第一句。", "第二句。"),
             PhoneSubtitleLayout.lines("第一句。\n第二句。"))
     }
+    @Test fun everyCaptionBeatIncludesTheSpeakerWithoutChangingSpokenText() {
+        val raw = "你好。今天我陪你聊会儿，等你困了再睡。"
+        val rows = PhoneSubtitleLayout.captionRows(raw, "江渡")
+        assertTrue(rows.size >= 2)
+        assertTrue(rows.all { it.startsWith("江渡：") })
+        assertEquals(PhoneSubtitleLayout.lines(raw),
+            rows.map { it.removePrefix("江渡：") })
+        assertTrue(PhoneSubtitleLayout.captionRows(raw, "你").all { it.startsWith("你：") })
+    }
+
 }

@@ -225,32 +225,24 @@ fun LuluVoiceCallScreen(
                                 ) {
                                     items(visibleCallMessages, key = { it.id }) { message ->
                                         val mine = message.sender == LuluChatMessage.Sender.User
-                                        Column(Modifier.fillMaxWidth().animateItem()) {
-                                            Text(
-                                                if (mine) "你" else state.characterName.ifBlank { characterName },
-                                                color = if (mine) CallBlue else Color(0xFF9A6BB5),
-                                                fontSize = 11.sp,
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                            Text(
-                                                PhoneSubtitleLayout.format(message.content),
-                                                modifier = Modifier.padding(top = 3.dp),
-                                                color = CallInk,
-                                                fontSize = 15.sp,
-                                                lineHeight = 21.sp,
-                                            )
-                                        }
+                                        CallCaptionLines(
+                                            speaker = if (mine) "你" else state.characterName.ifBlank { characterName },
+                                            content = message.content, mine = mine,
+                                        )
                                     }
                                     if (state.playingTranscript.isNotBlank()) {
                                         item(key = "playing-line") {
-                                            Column(Modifier.fillMaxWidth().animateItem()) {
-                                                Text(state.characterName.ifBlank { characterName }, color = Color(0xFF9A6BB5), fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                                Text(PhoneSubtitleLayout.format(state.playingTranscript), color = CallInk, fontSize = 15.sp, lineHeight = 23.sp, modifier = Modifier.padding(top = 3.dp))
-                                            }
+                                            CallCaptionLines(
+                                                speaker = state.characterName.ifBlank { characterName },
+                                                content = state.playingTranscript,
+                                                mine = false, live = true,
+                                            )
                                         }
                                     }
                                     if (state.partialTranscript.isNotBlank()) {
-                                        item { Text("你：${PhoneSubtitleLayout.format(state.partialTranscript)}", color = CallMuted, fontSize = 13.sp, lineHeight = 20.sp) }
+                                        item(key = "partial-line") {
+                                            CallCaptionLines(speaker = "你", content = state.partialTranscript, mine = true, live = true)
+                                        }
                                     }
                                     item(key = "subtitle-bottom") { Spacer(Modifier.height(1.dp)) }
                                 }
@@ -330,6 +322,29 @@ fun LuluVoiceCallScreen(
                     CallPhase.Idle -> Spacer(Modifier.height(24.dp))
                 }
                 Spacer(Modifier.height(16.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun CallCaptionLines(speaker: String, content: String, mine: Boolean, live: Boolean = false) {
+    Column(Modifier.fillMaxWidth().animateItem(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        PhoneSubtitleLayout.lines(content).forEach { line ->
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                Text(
+                    "$speaker：",
+                    color = if (mine) CallBlue else Color(0xFF9A6BB5),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = if (live) 13.sp else 14.sp,
+                )
+                Text(
+                    line,
+                    modifier = Modifier.weight(1f),
+                    color = if (live) CallMuted else CallInk,
+                    fontSize = if (live) 14.sp else 15.sp,
+                    lineHeight = 23.sp,
+                )
             }
         }
     }
