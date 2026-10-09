@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T11:03:18.592258+00:00",
-  "commit": "c170ebcaedafc300acfdedd894bc78c387226dc3",
+  "generatedAt": "2026-10-09T11:03:48.518438+00:00",
+  "commit": "82a9f5c8799da7c08042b791751bc2a43bec8545",
   "branch": "main",
-  "sourceFingerprint": "2ebe5d075080eedad7fe1b98aad697b82e707b52ba381f6ba83e6527ac01711b",
+  "sourceFingerprint": "c2b1f2cb942dea67ee511e707d0b0901429bf3d907fb468591e436cc5b8a4889",
   "summary": {
-    "files": 380,
-    "lines": 91796,
-    "symbols": 1297
+    "files": 381,
+    "lines": 91843,
+    "symbols": 1298
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -351,7 +351,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 983
+        "line": 984
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -1829,19 +1829,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 830
+        "line": 831
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 842
+        "line": 843
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 973
+        "line": 974
       }
     ],
     "consume": [
@@ -2282,6 +2282,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
         "line": 14
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt",
+        "line": 8
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
@@ -8758,8 +8762,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 991,
-      "sha256": "f4d90447fd705bbbea034fa0bfd7d5f5f6cf2ff89e197809635055d6b11f958d",
+      "lines": 992,
+      "sha256": "33911edf7402bc22b1c749c770b593df11a4e1f76a339fdd02c26382e76c6c1d",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -8847,19 +8851,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 830
+          "line": 831
         },
         {
           "name": "consumeEvent",
-          "line": 842
+          "line": 843
         },
         {
           "name": "LuluAiServices",
-          "line": 973
+          "line": 974
         },
         {
           "name": "initialize",
-          "line": 983
+          "line": 984
         }
       ]
     },
@@ -9368,6 +9372,17 @@
         {
           "name": "contextForGroup",
           "line": 86
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt",
+      "lines": 46,
+      "sha256": "a93c76176e993ec5dd842c747c7d39ee5d026021f2cf284fde11b61758999ee7",
+      "symbols": [
+        {
+          "name": "promptSection",
+          "line": 8
         }
       ]
     },
