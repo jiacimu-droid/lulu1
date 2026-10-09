@@ -233,7 +233,7 @@ fun LuluVoiceCallScreen(
                                                 fontWeight = FontWeight.Bold,
                                             )
                                             Text(
-                                                message.content,
+                                                PhoneSubtitleLayout.format(message.content),
                                                 modifier = Modifier.padding(top = 3.dp),
                                                 color = CallInk,
                                                 fontSize = 15.sp,
@@ -245,12 +245,12 @@ fun LuluVoiceCallScreen(
                                         item(key = "playing-line") {
                                             Column(Modifier.fillMaxWidth().animateItem()) {
                                                 Text(state.characterName.ifBlank { characterName }, color = Color(0xFF9A6BB5), fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                                Text(state.playingTranscript, color = CallInk, fontSize = 15.sp, lineHeight = 21.sp, modifier = Modifier.padding(top = 3.dp))
+                                                Text(PhoneSubtitleLayout.format(state.playingTranscript), color = CallInk, fontSize = 15.sp, lineHeight = 23.sp, modifier = Modifier.padding(top = 3.dp))
                                             }
                                         }
                                     }
                                     if (state.partialTranscript.isNotBlank()) {
-                                        item { Text("你：${state.partialTranscript}", color = CallMuted, fontSize = 13.sp) }
+                                        item { Text("你：${PhoneSubtitleLayout.format(state.partialTranscript)}", color = CallMuted, fontSize = 13.sp, lineHeight = 20.sp) }
                                     }
                                     item(key = "subtitle-bottom") { Spacer(Modifier.height(1.dp)) }
                                 }
