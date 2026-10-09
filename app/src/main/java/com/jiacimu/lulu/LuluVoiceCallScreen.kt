@@ -327,7 +327,13 @@ fun LuluVoiceCallScreen(
                             CallControl(Icons.Outlined.CallEnd, "挂断", true, danger = true, onClick = LuluVoiceCallSession::endCall)
                         }
                     }
-                    CallPhase.Ended, CallPhase.Idle -> CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp, color = CallBlue)
+                    CallPhase.Ended -> {
+                        Icon(Icons.Outlined.CallEnd, contentDescription = null,
+                            tint = CallMuted, modifier = Modifier.size(32.dp))
+                        Spacer(Modifier.height(8.dp))
+                        Text(state.statusMessage.ifBlank { "通话已结束" }, color = CallInk, fontSize = 13.sp)
+                    }
+                    CallPhase.Idle -> Spacer(Modifier.height(24.dp))
                 }
                 Spacer(Modifier.height(16.dp))
             }
@@ -435,7 +441,7 @@ private fun callStatusText(state: LuluVoiceCallState, modelConnected: Boolean): 
     !modelConnected -> "请先在右上角选择电话模型"
     state.phase == CallPhase.Ready -> state.statusMessage.ifBlank { "准备好以后拨打" }
     state.phase == CallPhase.Dialing -> "正在呼叫 ${state.characterName}…"
-    state.phase == CallPhase.Ended -> "通话已结束"
+    state.phase == CallPhase.Ended -> state.statusMessage.ifBlank { "通话已结束" }
     state.microphoneMuted -> "麦克风已静音"
     state.speaking -> "${state.characterName} 正在说话"
     state.thinking -> "${state.characterName} 正在回应"
