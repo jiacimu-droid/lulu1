@@ -8,6 +8,13 @@ package com.jiacimu.lulu
 internal class CallAutonomousHangupGate {
     private var pendingCallId: String = ""
     private var pendingGeneration: Long = -1L
+    private var deliveredCallId: String = ""
+    private var deliveredGeneration: Long = -1L
+
+    fun markDelivered(callId: String, generation: Long) {
+        deliveredCallId = callId
+        deliveredGeneration = generation
+    }
 
     fun request(callId: String, generation: Long) {
         if (callId.isBlank()) return
@@ -18,6 +25,8 @@ internal class CallAutonomousHangupGate {
     fun cancel() {
         pendingCallId = ""
         pendingGeneration = -1L
+        deliveredCallId = ""
+        deliveredGeneration = -1L
     }
 
     fun consumeWhenReady(
@@ -27,6 +36,12 @@ internal class CallAutonomousHangupGate {
         if (callId != pendingCallId || generation != pendingGeneration) return false
         if (!connected) { cancel(); return false }
         if (generating || audioBusy) return false
+        // A TTS failure is not a real farewell. The role's unspoken end
+        // command must not silently tear down the connection.
+        if (deliveredCallId != callId || deliveredGeneration != generation) {
+            cancel()
+            return false
+        }
         cancel()
         return true
     }
