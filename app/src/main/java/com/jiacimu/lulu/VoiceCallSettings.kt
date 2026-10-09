@@ -112,7 +112,7 @@ internal fun VoiceCallSettings(provider: String) {
                     style = MaterialTheme.typography.bodySmall)
             }
         }
-        if (activeEngine != "system" && mode != "agent") {
+        if (activeEngine != "system" && !CallVoiceConfiguration.usesAgent(provider, mode)) {
             Text("停顿多久开始识别：${silence.toInt()} 毫秒")
             Slider(value = silence, onValueChange = { silence = it },
                 onValueChangeFinished = {
