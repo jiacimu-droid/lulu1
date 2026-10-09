@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T14:07:28.230910+00:00",
-  "commit": "6123e4c7f90616f5d70cac907efdd41a0c2059ce",
+  "generatedAt": "2026-10-09T14:08:46.663474+00:00",
+  "commit": "76e259987459bfff9444bb983abe1b2d41397dda",
   "branch": "main",
-  "sourceFingerprint": "79cbf5f8d36f1ec81c3c1c7e011e0b3a58709b31b776b5406187684b0cd2d602",
+  "sourceFingerprint": "0448c1e2b24782aeedb6d9019a71dd190e133c3f5ecc25dbf6f9d28cc1aec7e2",
   "summary": {
     "files": 395,
-    "lines": 92987,
+    "lines": 92992,
     "symbols": 1326
   },
   "symbolIndex": {
@@ -65,7 +65,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 55
+        "line": 57
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
@@ -619,7 +619,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 41
+        "line": 43
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -1037,7 +1037,7 @@
     "shutdown": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 66
+        "line": 68
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
@@ -1313,19 +1313,19 @@
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 660
+        "line": 663
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 691
+        "line": 694
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 773
+        "line": 776
       }
     ],
     "MeetingReplyTaskManager": [
@@ -8108,20 +8108,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-      "lines": 134,
-      "sha256": "76439ac8c1d38e694a448903996d0d5b6578e45cef3cc59d19d55148cf064c00",
+      "lines": 136,
+      "sha256": "5924328ca0340a1140229b79ef8dd3d1b372ec932988c79f14da7cfbc7bb2614",
       "symbols": [
         {
           "name": "enqueue",
-          "line": 41
+          "line": 43
         },
         {
           "name": "stop",
-          "line": 55
+          "line": 57
         },
         {
           "name": "shutdown",
-          "line": 66
+          "line": 68
         }
       ]
     },
@@ -8326,8 +8326,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 859,
-      "sha256": "27dd8a0d2c8ae525aa0a51d160c19c8ea139c38a3ac59cbdc71bd6bc9ace137b",
+      "lines": 862,
+      "sha256": "20772995aec069aef48b6878039834255f1f77f3e111e9e89236200d84fca03e",
       "symbols": [
         {
           "name": "prepare",
@@ -8371,15 +8371,15 @@
         },
         {
           "name": "sameSession",
-          "line": 660
+          "line": 663
         },
         {
           "name": "retryListening",
-          "line": 691
+          "line": 694
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 773
+          "line": 776
         }
       ]
     },
