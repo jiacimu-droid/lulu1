@@ -458,18 +458,26 @@ object ProactivePerceptionRuntime {
         CharacterLifeStore.consider(characterId, decision.intention, now)
         // The executor, not the model, anchors subjective emotion to a real observed event.
         // Old chat history alone must not create an apparently new emotional stimulus.
-        val emotionalAnchor = when {
-            onlineUnread.text.isNotBlank() -> "本次上线收到的新消息：${onlineUnread.text.takeLast(180)}"
-            pendingUserContext.isNotBlank() -> "本次仍待回应的真实消息：${pendingUserContext.takeLast(180)}"
-            worldTick != null -> "本轮数字世界程序事件：${worldTick.summary.take(180)}"
-            else -> ""
-        }
-        CharacterLifeStore.recordAfterglow(characterId, emotionalAnchor, decision.afterglow, now)
-        if (emotionalAnchor.isNotBlank()) CharacterInnerLifeStore.observe(
-            characterId, "perception-event:${now.toEpochMilli()}:${emotionalAnchor.hashCode()}",
-            emotionalAnchor, CharacterInnerLifeStore.withAfterglow(decision.innerLife, decision.afterglow, emotionalAnchor),
-            if (onlineUnread.text.isNotBlank() || pendingUserContext.isNotBlank()) setOf("user") else emptySet(),
-            now,
+        val stimulus = PerceptionStimulusResolver.select(
+            unreadText = onlineUnread.text,
+            unreadIds = onlineUnread.newestIds,
+            worldEvent = worldTick?.summary.orEmpty(),
+            worldEventId = worldTick?.let {
+                "${it.incidentId}:${it.stage}:${it.status}:${it.summary.hashCode()}"
+            }.orEmpty(),
+            pendingText = pendingUserContext,
+            pendingIds = userActivities.filter(UserActivity::awaitingReply).take(12).map { it.message.id },
+        )
+        val emotionalAnchor = stimulus?.description.orEmpty()
+        CharacterLifeStore.recordAfterglow(
+            characterId, emotionalAnchor, decision.afterglow, now,
+            evidenceId = stimulus?.evidenceId.orEmpty(),
+        )
+        if (stimulus != null) CharacterInnerLifeStore.observe(
+            characterId, stimulus.evidenceId,
+            stimulus.description,
+            CharacterInnerLifeStore.withAfterglow(decision.innerLife, decision.afterglow, emotionalAnchor),
+            stimulus.socialIds, now,
         )
         // Reconsidering a real, previously recorded conflict is not a new world
         // event. Anchor introspection to the original witnessed reply so deleting
@@ -481,7 +489,7 @@ object ProactivePerceptionRuntime {
         if (emotionalAnchor.isBlank() && previousEvidence.isNotBlank() && decision.innerLife != null) {
             CharacterInnerLifeStore.observe(
                 characterId, previousEvidence,
-                "针对已有情绪的后续反思：${previousFeeling?.optString("feeling").orEmpty()}；${now.toEpochMilli()}",
+                "针对已有情绪的后续反思：${previousFeeling?.optString("feeling").orEmpty()}",
                 decision.innerLife, setOf("user"), now,
             )
         }
@@ -489,7 +497,8 @@ object ProactivePerceptionRuntime {
         // Silence-only ticks without a new stimulus should not accumulate invented feelings.
         if (emotionalAnchor.isNotBlank() || previousEvidence.isNotBlank() || decision.action != Action.SILENT) {
             CharacterInnerLifeStore.recordInnerVoice(
-                characterId, "perception:${now.toEpochMilli()}:${trigger.take(35)}",
+                characterId, stimulus?.evidenceId?.let { "perception:$it" }
+                    ?: "perception:${now.toEpochMilli()}:${trigger.take(35)}",
                 decision.innerThought, now,
             )
         }
