@@ -39,15 +39,18 @@ class ElevenLabsAudioContractsTest {
         val route = CallAudioRoute(manager, { _, _ -> }, {})
         try {
             route.start()
-            assertFalse(manager.isMicrophoneMute)
+            // A phone call may not globally unmute another app or overwrite the
+            // operating system's microphone privacy state. Muting belongs to the
+            // recorder / WebRTC session, not AudioManager.isMicrophoneMute.
+            assertTrue(manager.isMicrophoneMute)
             route.speaker(false)
-            assertFalse(manager.isMicrophoneMute)
+            assertTrue(manager.isMicrophoneMute)
             route.speaker(true)
-            assertFalse(manager.isMicrophoneMute)
+            assertTrue(manager.isMicrophoneMute)
             route.microphone(true)
             assertTrue(manager.isMicrophoneMute)
             route.microphone(false)
-            assertFalse(manager.isMicrophoneMute)
+            assertTrue(manager.isMicrophoneMute)
         } finally { route.stop() }
         assertTrue(manager.isMicrophoneMute)
         assertNull(CallAudioRoute.preferredOutput)
