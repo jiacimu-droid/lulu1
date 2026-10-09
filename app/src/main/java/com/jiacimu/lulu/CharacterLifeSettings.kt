@@ -101,6 +101,32 @@ internal fun CharacterLifeSettings(characterId: String) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
+        val thoughtLedger = innerRoot.optJSONArray("thoughts")
+        val latestThoughts = (0 until (thoughtLedger?.length() ?: 0))
+            .mapNotNull { thoughtLedger?.optJSONObject(it) }
+            .filter { item ->
+                runCatching { java.time.Instant.parse(item.optString("at")) }.getOrNull()
+                    ?.let { at -> !at.isAfter(java.time.Instant.now()) &&
+                        java.time.Duration.between(at, java.time.Instant.now()) <= java.time.Duration.ofHours(24) } == true
+            }.takeLast(4)
+        if (latestThoughts.isNotEmpty()) {
+            Text("心里同时浮现的念头", style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold)
+            latestThoughts.forEach { item ->
+                Column(Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(item.optString("thought"), style = MaterialTheme.typography.bodyMedium)
+                    item.optString("impulse").takeIf(String::isNotBlank)?.let {
+                        Text("想做：$it", style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    item.optString("hesitation").takeIf(String::isNotBlank)?.let {
+                        Text("顾虑：$it", style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+        }
         val learned = remember(characterId, growthRevision, states) {
             com.jiacimu.lulu.data.CharacterDevelopmentStore.active(characterId)
         }
