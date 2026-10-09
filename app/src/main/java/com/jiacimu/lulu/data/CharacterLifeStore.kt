@@ -214,6 +214,7 @@ object CharacterLifeStore {
     private fun refreshJiangDuLanguageDefaults(characterId: String, character: CharacterSettings,
         root: JSONObject) {
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return
+        val beforeConstraints = CharacterRuntime.personaConstraintSnapshot(characterId)
         val profile = root.optJSONObject("profile") ?: JSONObject()
         if (!root.has("jiangDuLanguageBackup")) {
             root.put("jiangDuLanguageBackup", JSONObject()
@@ -239,6 +240,15 @@ object CharacterLifeStore {
             profile.put("speechHabits", CharacterProfileSchema.jiangDuSpeechHabits)
         root.put("profile", profile).put("jiangDuPresetVersion", 5)
         save(characterId, root)
+        // A program-owned preset refresh is not a user decision to discard
+        // evidence-backed character growth. The exact before/after fingerprints
+        // allow only this trusted migration to retain earlier active evidence.
+        val afterConstraints = CharacterRuntime.personaConstraintSnapshot(characterId)
+        if (beforeConstraints != afterConstraints) {
+            root.put("jiangDuLanguagePreviousConstraints", beforeConstraints)
+                .put("jiangDuLanguageCurrentConstraints", afterConstraints)
+            save(characterId, root)
+        }
     }
 
     /** A pending intention survives new rounds; a model cannot silently overwrite it. */

@@ -53,10 +53,18 @@ object CharacterDevelopmentStore {
     @Synchronized
     fun history(characterId: String): List<DevelopmentRecord> = records.filter { it.characterId == characterId }
 
+    internal fun authorizedPersonaSnapshots(characterId: String): Set<String> {
+        val current = CharacterRuntime.personaConstraintSnapshot(characterId)
+        val saved = CharacterLifeStore.state(characterId)
+        val from = saved.optString("jiangDuLanguagePreviousConstraints")
+        val into = saved.optString("jiangDuLanguageCurrentConstraints")
+        return if (from.isNotBlank() && into == current) setOf(current, from) else setOf(current)
+    }
+
     fun active(characterId: String): List<DevelopmentRecord> {
-        val persona = CharacterRuntime.personaConstraintSnapshot(characterId)
+        val authorized = authorizedPersonaSnapshots(characterId)
         return history(characterId).filter { record ->
-            record.active && record.personaSnapshot == persona &&
+            record.active && record.personaSnapshot in authorized &&
                 (record.evidence + record.counterEvidence).all { (id, revision) ->
                     SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).firstOrNull()?.revision == revision
                 }
