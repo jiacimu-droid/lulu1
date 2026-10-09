@@ -36,19 +36,33 @@ internal fun VoiceCallSettings(provider: String) {
             )
         }
         if (provider == "elevenlabs") {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(mode != "agent", { mode = "direct"; prefs.edit().putString("voice_call_mode", mode).apply() }, label = { Text("账号直连") })
-                FilterChip(mode == "agent", { mode = "agent"; prefs.edit().putString("voice_call_mode", mode).apply() }, label = { Text("Agent 高级通话") })
-            }
-            if (mode == "agent") {
-                Text("Agent 高级通话由 ElevenLabs 处理实时收音与识别，会继续产生该服务的语音用量。想省识别额度请切换「账号直连」。",
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
-            } else {
-                Text("你说的话由手机本地识别；ElevenLabs 仅为角色合成声音。不会调用 ElevenLabs Scribe 语音转文字接口。",
+            Text(if (mode == "agent") "当前：实时 Agent 通话（另按 Agent 用量计费）"
+                else "当前：普通 API 通话 · 你选的聊天模型 + ElevenLabs Voice",
+                style = MaterialTheme.typography.bodyMedium)
+            if (mode != "agent") {
+                Text("手机本地语音转文字 → 露露机电话聊天模型 → ElevenLabs 文字转声音。Voice ID 只是音色，不需要创建 Agent。",
                     style = MaterialTheme.typography.bodySmall)
                 CallVoiceConfiguration.onDeviceSttError(context)?.let { problem ->
                     Text(problem, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                 }
+            } else {
+                Text("Agent 另外负责实时收音、轮次与打断，适合追求低延迟双工；仍可能产生持续连接时长与识别用量，不等于只调用 Voice。",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+            }
+            TextButton(onClick = { advanced = !advanced }) {
+                Text(if (advanced) "收起通话技术模式" else "通话技术模式（高级）")
+            }
+            if (advanced) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(mode != "agent", {
+                        mode = "direct"; prefs.edit().putString("voice_call_mode", "direct").apply()
+                    }, label = { Text("普通 API") })
+                    FilterChip(mode == "agent", {
+                        mode = "agent"; prefs.edit().putString("voice_call_mode", "agent").apply()
+                    }, label = { Text("实时 Agent") })
+                }
+                Text("只有配置了独立 Agent 和相应云端服务，才能使用实时 Agent 模式；不影响普通的 API Key / Voice ID。",
+                    style = MaterialTheme.typography.bodySmall)
             }
         } else if (provider == "minimax") {
             Text("同一 MiniMax Key 用于语音识别和发声。停顿后转写，再由电话模型回复；无需部署服务。")
