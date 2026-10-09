@@ -7,7 +7,7 @@ import java.time.Instant
 import java.util.UUID
 
 enum class DevelopmentKind(val label: String) {
-    Interest("兴趣"), Preference("偏好"), Habit("习惯"), Judgment("判断"),
+    Interest("兴趣"), Preference("偏好"), Habit("习惯"), ExpressionHabit("表达习惯"), Judgment("判断"),
     RelationshipRoutine("相处方式"), VerifiedMethod("验证过的方法")
 }
 
