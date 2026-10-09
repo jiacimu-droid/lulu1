@@ -14,6 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -89,9 +92,32 @@ fun DigitalWorldMeetingApp(
     // Presence is tied to the scene being truly visible, NOT to a meeting's
     // persisted existence. Leaving the scene retains its memories and state.
     val observedSession = activeSession?.takeIf { !browsingMap && !showHistory && it.endedAt == null }
-    DisposableEffect(observedSession?.id) {
-        val entered = observedSession?.takeIf { MeetingLivingWorldRuntime.entered(it) }
-        onDispose { entered?.let(MeetingLivingWorldRuntime::departed) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var meetingForeground by remember { mutableStateOf(
+        lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) }
+    DisposableEffect(observedSession?.id, lifecycleOwner) {
+        val session = observedSession
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> {
+                    meetingForeground = true
+                    session?.let(MeetingLivingWorldRuntime::entered)
+                }
+                Lifecycle.Event.ON_STOP -> {
+                    meetingForeground = false
+                    session?.let(MeetingLivingWorldRuntime::departed)
+                }
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+            session?.let(MeetingLivingWorldRuntime::entered)
+        }
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            session?.let(MeetingLivingWorldRuntime::departed)
+        }
     }
 
     var seenVoiceTurnIds by remember(activeSession?.id) {
@@ -251,8 +277,9 @@ fun DigitalWorldMeetingApp(
     }
 
     // Physical touch must survive a concurrently running character reply.
-    LaunchedEffect(observedSession?.id, input.isNotBlank()) {
+    LaunchedEffect(observedSession?.id, input.isNotBlank(), meetingForeground) {
         val id = observedSession?.id ?: return@LaunchedEffect
+        if (!meetingForeground) return@LaunchedEffect
         while (MeetingLivingWorldRuntime.isPresent(id)) {
             val touch = MeetingLivingWorldRuntime.nextTouch(id)
             val current = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == id }
@@ -271,8 +298,9 @@ fun DigitalWorldMeetingApp(
     // Autonomous awareness is a *chance* to take initiative; the model can
     // elect silence. No forced replies, no invented user's lines, no endless
     // rapid callbacks. Pauses while the user is composing their own message.
-    LaunchedEffect(observedSession?.id, input.isNotBlank()) {
+    LaunchedEffect(observedSession?.id, input.isNotBlank(), meetingForeground) {
         val id = observedSession?.id ?: return@LaunchedEffect
+        if (!meetingForeground) return@LaunchedEffect
         if (input.isNotBlank()) return@LaunchedEffect
         kotlinx.coroutines.delay(9_000L)
         while (MeetingLivingWorldRuntime.isPresent(id)) {

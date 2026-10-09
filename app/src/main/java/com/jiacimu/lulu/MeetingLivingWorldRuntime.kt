@@ -35,7 +35,8 @@ internal object MeetingLivingWorldRuntime {
             CompanionPresenceStore.update(characterId,
                 statusText = "主人已来到见面场景·${session.location}",
                 gesture = null, innerThought = null, mood = null,
-                source = "见面·实际到场")
+                source = "见面·实际到场",
+                provenanceId = "meeting-${session.id}-presence-${UUID.randomUUID()}")
         }
         return true
     }
@@ -44,13 +45,14 @@ internal object MeetingLivingWorldRuntime {
     fun departed(session: MeetingSession): Boolean {
         if (!visibleSessions.remove(session.id)) return false
         val current = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == session.id }
-        if (current?.endedAt == null) {
+        if (current != null && current.endedAt == null) {
             recordObservation(session, "主人离开了见面场景“${session.location}”，目前不在场。离开不等于主动结束你们的关系或忘记见面。", "departure")
             session.participantIds.forEach { characterId ->
                 CompanionPresenceStore.update(characterId,
                     statusText = "主人刚离开见面场景·${session.location}",
                     gesture = null, innerThought = null, mood = null,
-                    source = "见面·实际离场")
+                    source = "见面·实际离场",
+                    provenanceId = "meeting-${session.id}-presence-${UUID.randomUUID()}")
             }
         }
         pendingTouches.remove(session.id)

@@ -525,7 +525,10 @@ object DigitalWorldStore {
         val exchangeRecords = MeetingExperienceStore.state.value.exchanges
             .filter { it.sessionId == sessionId }
             .sortedBy(MeetingExchangeRecord::createdAt)
-        val provenanceIds = exchangeRecords.map { "meeting-$sessionId-${it.id}" }.toSet()
+        val provenanceIds = exchangeRecords.map { "meeting-$sessionId-${it.id}" }.toSet() +
+            CompanionPresenceStore.histories.value.values.flatten()
+                .map(CompanionPresenceState::provenanceId)
+                .filter { it.startsWith("meeting-$sessionId-presence-") }
         val beforePresence = exchangeRecords.firstOrNull()?.beforePresence.orEmpty()
         val originLocations = MeetingExperienceStore.sessionOrigin(sessionId)
         val removed = synchronized(lock) {
