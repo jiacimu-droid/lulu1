@@ -47,7 +47,6 @@ internal object ModelStructuredOutput {
      */
     fun completedReplyText(raw: String): String? {
         val found = Regex(""""text"\s*:\s*"((?:[^"\\]|\\.)*)"""").find(raw) ?: return null
-        val quoted = JSONObject("{\"text\":\"" + found.groupValues[1] + "\"}")
-        return runCatching { quoted.optString("text").takeIf(String::isNotBlank) }.getOrNull()
+        return runCatching { JSONObject("{\"text\":\"" + found.groupValues[1] + "\"}").optString("text").takeIf(String::isNotBlank) }.getOrNull()
     }
 }
