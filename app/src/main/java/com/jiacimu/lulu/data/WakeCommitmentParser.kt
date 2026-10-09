@@ -22,7 +22,11 @@ internal object WakeCommitmentParser {
         if (rejected.any(condensed::contains)) return false
         if (listOf("要不要我", "要我叫", "需要我叫", "我能叫你吗", "我可以叫你吗",
                 "要我提醒", "要不要提醒", "我来叫你好吗").any(condensed::contains)) return false
-        return accepted.any(condensed::contains)
+        if (condensed in setOf("嗯", "嗯嗯", "收到", "好的", "好呀", "ok", "OK")) return true
+        if (condensed.endsWith("?") || condensed.endsWith("？")) return false
+        return accepted.any(condensed::contains) ||
+            (listOf("叫你", "喊你", "叫醒你").any(condensed::contains) &&
+                listOf("明天", "明早", "到时候", "十点", "10点", "我会").any(condensed::contains))
     }
 
     fun parse(
