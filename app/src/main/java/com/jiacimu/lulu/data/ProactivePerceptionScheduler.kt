@@ -105,6 +105,34 @@ object ProactivePerceptionScheduler {
             .enqueueUniqueWork("$ONLINE_WORK-$characterId", ExistingWorkPolicy.APPEND_OR_REPLACE, request)
     }
 
+    /**
+     * Five minutes means leaving live chat, not forgetting a strong emotion.
+     * Run at most one low-priority follow-up per 90 minutes; do not reopen the
+     * online window or dictate which specific action a character should choose.
+     */
+    fun scheduleEmotionalAftercare(context: Context, characterId: String) {
+        if (characterId.isBlank() || !ProactivePerceptionPolicyStore.get(characterId).enabled) return
+        if (!CharacterInnerLifeStore.needsPostOnlineReflection(characterId)) return
+        val app = context.applicationContext
+        val prefs = app.getSharedPreferences("lulu_post_online_aftercare_v1", Context.MODE_PRIVATE)
+        val now = System.currentTimeMillis()
+        if (now - prefs.getLong("scheduled:$characterId", 0L) < 90 * 60_000L) return
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setInitialDelay(90, TimeUnit.SECONDS)
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(Data.Builder()
+                .putString("trigger", "强烈情绪的后续整理：从真实经历与未完成心愿里，自主决定反思、沟通、实际行动或安静消化；不要机械写日记或发朋友圈")
+                .putString("characterId", characterId)
+                .putBoolean("force", true)
+                .putBoolean("preserveOffline", true)
+                .build())
+            .build()
+        prefs.edit().putLong("scheduled:$characterId", now).apply()
+        WorkManager.getInstance(app).enqueueUniqueWork(
+            "lulu-aftercare-$characterId", ExistingWorkPolicy.REPLACE, request,
+        )
+    }
+
     fun cancelOnline(context: Context, characterId: String) {
         OnlineChatBatchStore.cancel(context, characterId)
         WorkManager.getInstance(context.applicationContext).cancelUniqueWork("$ONLINE_WORK-$characterId")
@@ -123,6 +151,12 @@ class ProactivePerceptionWorker(
         val characterId = inputData.getString("characterId")?.takeIf(String::isNotBlank)
         val force = inputData.getBoolean("force", false)
         val requireOnline = inputData.getBoolean("requireOnline", false)
+        val preserveOffline = inputData.getBoolean("preserveOffline", false)
+        if (preserveOffline && (characterId == null || CompanionOnlineStore.isOnline(characterId) ||
+            !CharacterInnerLifeStore.needsPostOnlineReflection(characterId) ||
+            !ProactivePerceptionPolicyStore.get(characterId).enabled)) {
+            return@runCatching Result.success()
+        }
         if (requireOnline && (characterId == null || !CompanionOnlineStore.isOnline(characterId))) {
             ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
             return@runCatching Result.success()
@@ -154,6 +188,7 @@ class ProactivePerceptionWorker(
             force = force,
             onlineRevision = onlineRevision,
             requiresUnread = inputData.getBoolean("requiresUnread", false),
+            preserveOffline = preserveOffline,
         )
         ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
         Result.success()
