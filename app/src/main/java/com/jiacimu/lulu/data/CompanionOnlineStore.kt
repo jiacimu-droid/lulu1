@@ -30,6 +30,7 @@ data class CompanionOnlineState(
     val reason: CompanionOnlineReason,
     val lastSeenAt: Instant? = null,
     val historyFloorAt: Instant? = null,
+    val seenIdsAtLastSeenAt: Set<String> = emptySet(),
 ) {
     fun isOnline(now: Instant = Instant.now()): Boolean = onlineUntil.isAfter(now)
 }
@@ -38,6 +39,7 @@ data class CompanionUnreadSnapshot(
     val text: String,
     val newestAt: Instant?,
     val conversationIds: Set<String> = emptySet(),
+    val newestIds: Set<String> = emptySet(),
 )
 
 /**
@@ -245,6 +247,13 @@ object CompanionOnlineStore {
         }
     }
 
+    /** Same-millisecond messages sent during a multi-bubble reply cannot be lost. */
+    internal fun isUnreadAtCursor(
+        id: String, timestamp: Instant, after: Instant?,
+        cursorAt: Instant?, seenIds: Set<String>,
+    ): Boolean = after == null || timestamp.isAfter(after) ||
+        (timestamp == after && cursorAt == after && id !in seenIds)
+
     fun unreadChatSnapshot(characterId: String, limit: Int = 30): CompanionUnreadSnapshot {
         val state = mutableStates.value[characterId]
         val after = listOfNotNull(state?.lastSeenAt, state?.historyFloorAt).maxOrNull()
@@ -260,7 +269,8 @@ object CompanionOnlineStore {
                             !message.id.startsWith("voice-") &&
                             message.sender != LuluChatMessage.Sender.System &&
                             message.authorCharacterId != characterId &&
-                            (after == null || message.createdAt.isAfter(after))
+                            isUnreadAtCursor(message.id, message.createdAt, after,
+                                state?.lastSeenAt, state?.seenIdsAtLastSeenAt.orEmpty())
                     }
                     .map { message -> conversation to message }
             }
@@ -278,15 +288,25 @@ object CompanionOnlineStore {
             }
             "- ${message.createdAt}｜$scene｜$speaker：${qqForwardContextText(message.content).take(600)}"
         }
-        return CompanionUnreadSnapshot(text, events.maxOfOrNull { (_, message) -> message.createdAt }, events.mapTo(mutableSetOf()) { it.first.id })
+        val newest = events.maxOfOrNull { (_, message) -> message.createdAt }
+        return CompanionUnreadSnapshot(
+            text, newest, events.mapTo(mutableSetOf()) { it.first.id },
+            events.filter { it.second.createdAt == newest }.mapTo(mutableSetOf()) { it.second.id },
+        )
     }
 
-    fun markSeen(characterId: String, seenThrough: Instant?) {
-        if (characterId.isBlank() || seenThrough == null) return
+    /** A snapshot is frozen BEFORE executing/model output; only its actual IDs are marked read. */
+    fun markSeen(characterId: String, snapshot: CompanionUnreadSnapshot) {
+        val seenThrough = snapshot.newestAt ?: return
+        if (characterId.isBlank()) return
         synchronized(lock) {
             val current = mutableStates.value[characterId] ?: return
-            val nextSeen = listOfNotNull(current.lastSeenAt, seenThrough).maxOrNull()
-            mutableStates.value = mutableStates.value + (characterId to current.copy(lastSeenAt = nextSeen))
+            if (current.lastSeenAt != null && current.lastSeenAt.isAfter(seenThrough)) return
+            val seenIds = if (current.lastSeenAt == seenThrough)
+                current.seenIdsAtLastSeenAt + snapshot.newestIds else snapshot.newestIds
+            mutableStates.value = mutableStates.value + (characterId to current.copy(
+                lastSeenAt = seenThrough, seenIdsAtLastSeenAt = seenIds.take(100).toSet(),
+            ))
             persistLocked()
         }
     }
@@ -368,6 +388,8 @@ object CompanionOnlineStore {
                 put("onlineUntil", state.onlineUntil.toEpochMilli())
                 put("reason", state.reason.name)
                 state.lastSeenAt?.let { put("lastSeenAt", it.toEpochMilli()) }
+                if (state.seenIdsAtLastSeenAt.isNotEmpty())
+                    put("seenIdsAtLastSeenAt", JSONArray(state.seenIdsAtLastSeenAt.toList()))
                 state.historyFloorAt?.let { put("historyFloorAt", it.toEpochMilli()) }
             })
         }
@@ -399,6 +421,11 @@ object CompanionOnlineStore {
                             .getOrDefault(CompanionOnlineReason.BackgroundPerception),
                         lastSeenAt = item.optLong("lastSeenAt").takeIf { it > 0L }?.let(Instant::ofEpochMilli),
                         historyFloorAt = item.optLong("historyFloorAt").takeIf { it > 0L }?.let(Instant::ofEpochMilli),
+                        seenIdsAtLastSeenAt = item.optJSONArray("seenIdsAtLastSeenAt")?.let { ids ->
+                            (0 until ids.length()).mapNotNull { i ->
+                                ids.optString(i).takeIf(String::isNotBlank)
+                            }.toSet()
+                        }.orEmpty(),
                     ),
                 )
             }
