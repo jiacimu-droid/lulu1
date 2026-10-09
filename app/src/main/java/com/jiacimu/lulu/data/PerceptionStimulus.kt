@@ -12,6 +12,13 @@ internal data class PerceptionStimulus(
 )
 
 internal object PerceptionStimulusResolver {
+    /** A quiet background recheck should not randomly rewrite emotion or body language. */
+    fun shouldUpdateVisibleState(
+        actionSucceeded: Boolean,
+        freshStimulus: Boolean,
+        deliberateFollowThrough: Boolean,
+    ): Boolean = actionSucceeded || freshStimulus || deliberateFollowThrough
+
     fun select(
         unreadText: String,
         unreadIds: Set<String>,
