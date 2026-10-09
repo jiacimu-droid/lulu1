@@ -40,13 +40,22 @@ internal fun VoiceCallSettings(provider: String) {
                 FilterChip(mode != "agent", { mode = "direct"; prefs.edit().putString("voice_call_mode", mode).apply() }, label = { Text("账号直连") })
                 FilterChip(mode == "agent", { mode = "agent"; prefs.edit().putString("voice_call_mode", mode).apply() }, label = { Text("Agent 高级通话") })
             }
-            Text(if (mode == "agent") "需要部署角色服务并配置 ElevenLabs Agent；使用其通话会话。" else "使用同一 ElevenLabs Key 识别和发声，角色回复使用电话模型；无需部署服务。")
+            if (mode == "agent") {
+                Text("Agent 高级通话由 ElevenLabs 处理实时收音与识别，会继续产生该服务的语音用量。想省识别额度请切换「账号直连」。",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+            } else {
+                Text("你说的话由手机本地识别；ElevenLabs 仅为角色合成声音。不会调用 ElevenLabs Scribe 语音转文字接口。",
+                    style = MaterialTheme.typography.bodySmall)
+                CallVoiceConfiguration.onDeviceSttError(context)?.let { problem ->
+                    Text(problem, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                }
+            }
         } else if (provider == "minimax") {
             Text("同一 MiniMax Key 用于语音识别和发声。停顿后转写，再由电话模型回复；无需部署服务。")
             TextButton({ advanced = !advanced }) { Text("识别接口设置") }
             if (advanced) OutlinedTextField(endpoint, { endpoint = it; prefs.edit().putString("minimax_asr_endpoint", it).apply() },
                 label = { Text("识别接口（留空跟随 MiniMax 区域）") }, modifier = Modifier.fillMaxWidth())
-        } else Text("使用手机系统识别和发声；手机必须安装可用的系统语音识别服务。")
+        } else Text("使用手机系统识别与发声；普通系统识别可能由厂商联网提供，且不使用 ElevenLabs 额度。")
         if (provider == "minimax") {
             Text("停顿多久开始回复：${silence.toInt()} 毫秒")
             Slider(silence, { silence = it }, onValueChangeFinished = { prefs.edit().putInt("voice_end_silence_ms", silence.toInt()).apply() }, valueRange = 300f..1500f)
