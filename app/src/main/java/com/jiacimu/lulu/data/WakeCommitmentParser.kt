@@ -20,6 +20,8 @@ internal object WakeCommitmentParser {
         if (!wakeSignals.any(user::contains) || role.isBlank()) return false
         val condensed = role.replace(Regex("""\s+"""), "").take(850)
         if (rejected.any(condensed::contains)) return false
+        if (listOf("要不要我", "要我叫", "需要我叫", "我能叫你吗", "我可以叫你吗",
+                "要我提醒", "要不要提醒", "我来叫你好吗").any(condensed::contains)) return false
         return accepted.any(condensed::contains)
     }
 
