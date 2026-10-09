@@ -49,7 +49,7 @@ internal fun ProactiveIncomingCallOverlay() {
             incomingReason = call.reason,
         )
         LuluVoiceCallSession.dial()
-        ProactiveIncomingCallStore.clear(call)
+        ProactiveIncomingCallStore.respond(call, answered = true)
         LuluCallWindowController.show()
         notice = ""
     }
@@ -64,8 +64,12 @@ internal fun ProactiveIncomingCallOverlay() {
     }
 
     val visiblePending = pending?.takeIf { it.active() }
-    LaunchedEffect(pending?.expiresAt) {
-        pending?.takeIf { !it.active() }?.let(ProactiveIncomingCallStore::clear)
+    LaunchedEffect(pending?.createdAt, pending?.expiresAt) {
+        val active = pending ?: return@LaunchedEffect
+        val millis = java.time.Duration.between(java.time.Instant.now(), active.expiresAt)
+            .toMillis().coerceAtLeast(0L)
+        kotlinx.coroutines.delay(millis)
+        ProactiveIncomingCallStore.reconcileExpired()
     }
 
     visiblePending?.let { call ->
@@ -137,7 +141,7 @@ internal fun ProactiveIncomingCallOverlay() {
                             label = "拒绝",
                             background = Color(0xFFE35E68),
                         ) {
-                            ProactiveIncomingCallStore.clear(call)
+                            ProactiveIncomingCallStore.respond(call, answered = false)
                             notice = ""
                         }
                         IncomingCallButton(

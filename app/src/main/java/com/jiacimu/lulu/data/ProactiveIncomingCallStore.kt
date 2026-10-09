@@ -14,6 +14,7 @@ data class ProactiveIncomingCall(
     val reason: String,
     val createdAt: Instant,
     val expiresAt: Instant,
+    val commitmentTaskId: String? = null,
 ) {
     fun active(now: Instant = Instant.now()): Boolean = expiresAt.isAfter(now)
 }
@@ -31,7 +32,8 @@ object ProactiveIncomingCallStore {
     fun initialize(context: Context) {
         if (prefs != null) return
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        mutablePending.value = decode(prefs?.getString(KEY_PENDING, null))?.takeIf { it.active() }
+        mutablePending.value = decode(prefs?.getString(KEY_PENDING, null))
+        if (mutablePending.value?.active() == false) reconcileExpired()
         mutablePending.value?.let { call -> com.jiacimu.lulu.LuluCallRingtone.startIncoming(context, call.conversationId + ":" + call.createdAt.toEpochMilli(), java.time.Duration.between(java.time.Instant.now(), call.expiresAt).toMillis()) }
         if (mutablePending.value == null) prefs?.edit()?.remove(KEY_PENDING)?.apply()
     }
@@ -42,14 +44,17 @@ object ProactiveIncomingCallStore {
         conversationId: String,
         reason: String,
         now: Instant = Instant.now(),
+        commitmentTaskId: String? = null,
     ): ProactiveIncomingCall {
         initialize(context)
+        reconcileExpired(now)
         val call = ProactiveIncomingCall(
             characterId = characterId,
             conversationId = conversationId,
             reason = reason.trim().take(300),
             createdAt = now,
             expiresAt = now.plus(lifetime),
+            commitmentTaskId = commitmentTaskId,
         )
         mutablePending.value = call
         prefs?.edit()?.putString(KEY_PENDING, encode(call))?.apply()
@@ -60,10 +65,23 @@ object ProactiveIncomingCallStore {
     fun activeFor(conversationId: String, now: Instant = Instant.now()): ProactiveIncomingCall? {
         val call = mutablePending.value ?: return null
         if (!call.active(now)) {
-            clear()
+            reconcileExpired(now)
             return null
         }
         return call.takeIf { it.conversationId == conversationId }
+    }
+
+    fun respond(call: ProactiveIncomingCall, answered: Boolean) {
+        if (mutablePending.value != call) return
+        clear(call)
+        call.commitmentTaskId?.let { CommitmentCallFeedback.onResponse(it, answered) }
+    }
+
+    /** Reconciled both by the visible UI and when a background alarm fires. */
+    @Synchronized fun reconcileExpired(now: Instant = Instant.now()) {
+        val call = mutablePending.value?.takeIf { !it.active(now) } ?: return
+        clear(call)
+        call.commitmentTaskId?.let(CommitmentCallFeedback::onMissed)
     }
 
     fun clear(call: ProactiveIncomingCall? = null) {
@@ -80,6 +98,7 @@ object ProactiveIncomingCallStore {
         .put("reason", call.reason)
         .put("createdAt", call.createdAt.toEpochMilli())
         .put("expiresAt", call.expiresAt.toEpochMilli())
+        .put("commitmentTaskId", call.commitmentTaskId ?: JSONObject.NULL)
         .toString()
 
     private fun decode(raw: String?): ProactiveIncomingCall? = runCatching {
@@ -93,6 +112,8 @@ object ProactiveIncomingCallStore {
             reason = json.optString("reason").trim(),
             createdAt = Instant.ofEpochMilli(json.optLong("createdAt")),
             expiresAt = Instant.ofEpochMilli(json.optLong("expiresAt")),
+            commitmentTaskId = if (json.isNull("commitmentTaskId")) null
+                else json.optString("commitmentTaskId").takeIf(String::isNotBlank),
         )
     }.getOrNull()
 }

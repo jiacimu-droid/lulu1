@@ -248,6 +248,7 @@ internal object CompanionActionRuntime {
                     conversationId = conversation.id,
                     reason = reason,
                     now = now,
+                    commitmentTaskId = args.optString("commitmentTaskId").takeIf(String::isNotBlank),
                 )
                 CompanionActionResult(true, "已发起真实来电", conversation.id)
             }
