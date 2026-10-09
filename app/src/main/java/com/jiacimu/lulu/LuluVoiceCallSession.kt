@@ -634,7 +634,7 @@ internal object LuluVoiceCallSession {
                     errorMessage = "收音／识别失败：$error", statusMessage = "语音识别未完成，可重新收音") }
                 if (dialing) { providerInput?.stop(); providerInput = null; restoreCallAudio(); stopForegroundService() }
             } },
-        ).also { it.start(mutableState.value.provider) }
+        ).also { it.start() }
     }
 
     fun retryListening() {
