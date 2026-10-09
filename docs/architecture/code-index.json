@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T15:34:31.088779+00:00",
-  "commit": "c536bf80770070e0a642c27189d38206788015ab",
+  "generatedAt": "2026-10-09T15:36:46.432731+00:00",
+  "commit": "c45df0b4e1031a7eefbbf0b468ccd5fb3d736b68",
   "branch": "main",
-  "sourceFingerprint": "8e56048970d18711ac988029ac380e4c78461502220e990c80e664c8c9117d0b",
+  "sourceFingerprint": "f9bda593282a9eb85cec7b18f51be9c02f187993b9be2ec4ab2d3bf230185198",
   "summary": {
     "files": 400,
-    "lines": 93822,
+    "lines": 93856,
     "symbols": 1347
   },
   "symbolIndex": {
@@ -923,31 +923,31 @@
     "DigitalWorldMeetingApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 28
+        "line": 31
       }
     ],
     "launchExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 114
+        "line": 140
       }
     ],
     "launchLivingMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 131
+        "line": 157
       }
     ],
     "openDirectMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 145
+        "line": 171
       }
     ],
     "rewindAndRegenerate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 163
+        "line": 189
       }
     ],
     "ledgerText": [
@@ -1409,19 +1409,19 @@
     "departed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-        "line": 44
+        "line": 45
       }
     ],
     "isPresent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-        "line": 61
+        "line": 63
       }
     ],
     "physicalAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-        "line": 64
+        "line": 66
       }
     ],
     "MeetingReplyTaskManager": [
@@ -2469,7 +2469,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 734
+        "line": 737
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -3693,31 +3693,31 @@
     "deleteMeetingExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 547
+        "line": 550
       }
     ],
     "rewindMeetingExchanges": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 580
+        "line": 583
       }
     ],
     "pruneEmptyMeetings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 634
+        "line": 637
       }
     ],
     "recordMeetingTimeline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 641
+        "line": 644
       }
     ],
     "meetingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 670
+        "line": 673
       }
     ],
     "qualifies": [
@@ -7540,8 +7540,8 @@
   "files": [
     {
       "path": "app/build.gradle.kts",
-      "lines": 134,
-      "sha256": "4619e0c328fd80ec756c89300aed504ce883a549a24e7eed8b485071ee96795d",
+      "lines": 135,
+      "sha256": "855b5b792d703093870398eeaba320ed2c80e790ef1205c6d7a08e6b0aa718e0",
       "symbols": []
     },
     {
@@ -8073,28 +8073,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-      "lines": 609,
-      "sha256": "037d18befa831b028375cbc49a70c62d1a7d0ebff56f33c8fedb029e2d07ed98",
+      "lines": 637,
+      "sha256": "9d50882b6683cb2b6b7d443ddfbc4cdd6e8ccb7eef75ed4f44d7342f529d9adc",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
-          "line": 28
+          "line": 31
         },
         {
           "name": "launchExchange",
-          "line": 114
+          "line": 140
         },
         {
           "name": "launchLivingMoment",
-          "line": 131
+          "line": 157
         },
         {
           "name": "openDirectMeeting",
-          "line": 145
+          "line": 171
         },
         {
           "name": "rewindAndRegenerate",
-          "line": 163
+          "line": 189
         }
       ]
     },
@@ -8554,8 +8554,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-      "lines": 133,
-      "sha256": "d5157483dacbc378a643be822794da65e3cfb7c560cf4fb9460660699d5307e2",
+      "lines": 135,
+      "sha256": "8e908373ee65640e562ab68a8f7c517be41ed7c966980243257a8f2332240dc8",
       "symbols": [
         {
           "name": "PendingTouch",
@@ -8575,15 +8575,15 @@
         },
         {
           "name": "departed",
-          "line": 44
+          "line": 45
         },
         {
           "name": "isPresent",
-          "line": 61
+          "line": 63
         },
         {
           "name": "physicalAction",
-          "line": 64
+          "line": 66
         }
       ]
     },
@@ -10781,8 +10781,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 1007,
-      "sha256": "233cf6d357550d6a35d80ae2fdae3b932db6b5b43ef66a4eb5be13884fe070af",
+      "lines": 1010,
+      "sha256": "ae110e046e04e57aba83c6f03a9e345636516907904d45dd0c5aae7b8c6a2ca6",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -10894,27 +10894,27 @@
         },
         {
           "name": "deleteMeetingExchange",
-          "line": 547
+          "line": 550
         },
         {
           "name": "rewindMeetingExchanges",
-          "line": 580
+          "line": 583
         },
         {
           "name": "pruneEmptyMeetings",
-          "line": 634
+          "line": 637
         },
         {
           "name": "recordMeetingTimeline",
-          "line": 641
+          "line": 644
         },
         {
           "name": "meetingContext",
-          "line": 670
+          "line": 673
         },
         {
           "name": "clearCharacter",
-          "line": 734
+          "line": 737
         }
       ]
     },
