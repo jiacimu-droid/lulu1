@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:14:57.289416+00:00",
-  "commit": "d957583cbb0b4aee5ccd7e2fcb9ba190414ede09",
+  "generatedAt": "2026-10-09T13:15:35.975152+00:00",
+  "commit": "0928ba3b0d85edfb7dbb33dfd487f0901707e8e3",
   "branch": "main",
-  "sourceFingerprint": "5151252bab58fe24597939afb3cad9a13eb5ab8be1bb60c316b6780db4508d89",
+  "sourceFingerprint": "f64df04c6db8647ab38ff78ae12d58ac378a956785206dbf5b827dffb506788c",
   "summary": {
     "files": 389,
-    "lines": 92658,
+    "lines": 92656,
     "symbols": 1314
   },
   "symbolIndex": {
@@ -11594,8 +11594,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt",
-      "lines": 54,
-      "sha256": "ff1c1d0ab64ca967ba9ebe4d33e79023a38b1ec49690fd41c707a32b29fd6fa1",
+      "lines": 52,
+      "sha256": "426f75c317032c0a9e10fcd4ee594f41cdb2d1c57582340fb18eb0b9b6e54639",
       "symbols": [
         {
           "name": "claim",
