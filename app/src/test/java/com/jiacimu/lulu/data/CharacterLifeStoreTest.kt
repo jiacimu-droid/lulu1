@@ -21,6 +21,13 @@ class CharacterLifeStoreTest {
         CharacterLifeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
             .set(CharacterLifeStore, null)
     }
+    @Test fun distinctGoalsRemainDistinctWhileMinorRewordingIsDeduplicated() {
+        assertTrue(sameCharacterMotive("继续阅读这本小说。", "继续 阅读这本小说"))
+        assertTrue(sameCharacterMotive("认真完成今天的英语复习计划", "完成今天的英语复习计划"))
+        assertFalse(sameCharacterMotive("读一本小说", "给好友打电话"))
+        assertFalse(sameCharacterMotive("", "完成今天的英语复习计划"))
+    }
+
     @Test fun newFeedbackCanAdjustAnIntentionWithoutLosingItsIdentityOrReceipts() {
         val context = RuntimeEnvironment.getApplication() as Context
         CharacterLifeStore.initialize(context)
