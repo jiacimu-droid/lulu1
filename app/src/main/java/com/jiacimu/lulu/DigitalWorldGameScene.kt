@@ -123,6 +123,7 @@ internal fun DigitalWorldGameScene(
     controlsEnabled: Boolean = true,
     showExplorationHud: Boolean = true,
     followerIds: Set<String> = emptySet(),
+    initiatedHandHoldingId: String? = null,
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -186,7 +187,8 @@ internal fun DigitalWorldGameScene(
     var handHoldingId by remember(sceneKey) { mutableStateOf(stateStore.loadHandHoldingId()) }
     var requestedFollowers by remember(sceneKey) { mutableStateOf(stateStore.loadFollowerIds()) }
     var suspendedFollowers by remember(sceneKey) { mutableStateOf(stateStore.loadSuspendedFollowers()) }
-    val activeFollowerIds = (followerIds - suspendedFollowers) + requestedFollowers + listOfNotNull(handHoldingId)
+    val effectiveHoldingId = handHoldingId ?: initiatedHandHoldingId
+    val activeFollowerIds = (followerIds - suspendedFollowers) + requestedFollowers + listOfNotNull(effectiveHoldingId)
 
     var npcMotions by remember(sceneKey, residents.map { it.characterId }) {
         mutableStateOf(
@@ -222,7 +224,13 @@ internal fun DigitalWorldGameScene(
     val latestPosition by rememberUpdatedState(playerPosition)
     val latestQuest by rememberUpdatedState(questStage)
     DisposableEffect(sceneKey, stateStore) {
-        onDispose { stateStore.save(latestPosition, latestQuest) }
+        onDispose {
+            stateStore.save(latestPosition, latestQuest)
+            // A hand hold cannot remain physically attached after the player
+            // exits this scene. The persisted relationship is in the ledger,
+            // not a ghost finger connection when they next enter.
+            stateStore.saveCompanionship(null, emptySet(), emptySet())
+        }
     }
     LaunchedEffect(sceneKey, stateStore) {
         while (isActive) {
@@ -331,7 +339,7 @@ internal fun DigitalWorldGameScene(
                     // Animation reflects confirmed activity; it never executes random world actions.
                     val characterId = motion.character.characterId
                     val following = characterId in activeFollowerIds
-                    val handHolding = characterId == handHoldingId
+                    val handHolding = characterId == effectiveHoldingId
                     val occupiedFurniture = if (!following) furniturePoseFor(characterId) else null
                     if (occupiedFurniture != null) {
                         // A verified resting activity is an occupied furniture
@@ -468,8 +476,8 @@ internal fun DigitalWorldGameScene(
         if (selectedTarget == null || !controlsEnabled) menuTargetKey = null
     }
 
-    val interactionChoices = remember(selectedTarget, residents, props, sceneCode, placeLabel, handHoldingId, activeFollowerIds) {
-        buildInteractionChoices(selectedTarget, residents, sceneCode, placeLabel, handHoldingId, activeFollowerIds)
+    val interactionChoices = remember(selectedTarget, residents, props, sceneCode, placeLabel, effectiveHoldingId, activeFollowerIds) {
+        buildInteractionChoices(selectedTarget, residents, sceneCode, placeLabel, effectiveHoldingId, activeFollowerIds)
     }
 
     Box(
@@ -523,7 +531,7 @@ internal fun DigitalWorldGameScene(
         // Draw the actual continuing contact between the two moving pawns.
         // Never stretch an elastic line across the room while navigating
         // around furniture: hands appear linked only when physically close.
-        val heldResident = npcMotions.firstOrNull { it.character.characterId == handHoldingId }
+        val heldResident = npcMotions.firstOrNull { it.character.characterId == effectiveHoldingId }
         if (heldResident != null && heldResident.position.distanceTo(playerPosition) <= 135f) {
             Canvas(Modifier.matchParentSize()) {
                 val playerHand = Offset(
@@ -689,7 +697,7 @@ internal fun DigitalWorldGameScene(
                                         interactionMessage = "已牵手 · 继续移动，你们会一起走"
                                     }
                                     ResidentMovementChoice.RELEASE_HANDS -> {
-                                        if (handHoldingId == characterId) handHoldingId = null
+                                        if (effectiveHoldingId == characterId) handHoldingId = null
                                         interactionMessage = "已松开手，可以各自行动"
                                     }
                                     ResidentMovementChoice.FOLLOW -> {
@@ -702,7 +710,7 @@ internal fun DigitalWorldGameScene(
                                     ResidentMovementChoice.STOP_FOLLOW -> {
                                         requestedFollowers = requestedFollowers - characterId
                                         suspendedFollowers = suspendedFollowers + characterId
-                                        if (handHoldingId == characterId) handHoldingId = null
+                                        if (effectiveHoldingId == characterId) handHoldingId = null
                                         interactionMessage = "已结束跟随，恢复自由活动"
                                     }
                                 }

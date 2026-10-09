@@ -75,9 +75,14 @@ internal fun DigitalWorldMeetingSceneExperience(
     val viewOnly = session.endedAt != null
     val isDigitalWorld = session.reality == MeetingReality.DIGITAL_WORLD
     val meetingExperience by MeetingExperienceStore.state.collectAsState()
-    val followers = if (viewOnly) emptySet() else meetingExperience.scenes[session.id]?.participants.orEmpty()
+    val participantsInScene = meetingExperience.scenes[session.id]?.participants.orEmpty()
+    val followers = if (viewOnly) emptySet() else participantsInScene
         .filter { it.participantId in session.participantIds && it.explorationMode == "FOLLOW_USER" }
         .mapTo(mutableSetOf()) { it.participantId }
+    val roleInitiatedHandHolding = if (viewOnly) null else participantsInScene
+        .firstOrNull { it.participantId in session.participantIds &&
+            "handholding:user" in it.contact }
+        ?.participantId
     val groups = remember(session.turns) { meetingSceneGroups(session.turns) }
     val pages = remember(groups) { groups.flatMap(::readingPagesForGroup) }
     var pageIndex by remember(session.id) { mutableIntStateOf(0) }
@@ -173,6 +178,7 @@ internal fun DigitalWorldMeetingSceneExperience(
                 controlsEnabled = exploring && !generating,
                 showExplorationHud = exploring,
                 followerIds = followers,
+                initiatedHandHoldingId = roleInitiatedHandHolding,
             )
         } else {
             RealisticMeetingStage(
