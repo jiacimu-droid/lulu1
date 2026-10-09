@@ -320,6 +320,7 @@ internal object AutonomousSocialRuntime {
             },
             instruction = """
                 你只负责让角色对程序已经确认并保存的现场事实作出反应，不能创造、移动、解决或改写事件。
+                ${spontaneousInnerVoiceGuide}
                 只返回 JSON：
                 {"statusText":"事件后正在做什么","gesture":"动作神态","innerThought":"第一人称未说出口的念头","mood":"简短心情","shareChannel":"none|moment|group","shareText":"真正发布或发送的自然内容","groupId":"真实群ID或空字符串"}
 
@@ -397,7 +398,7 @@ internal object AutonomousSocialRuntime {
         SoloIncidentReaction(
             statusText = json.optString("statusText").trim().take(240),
             gesture = json.optString("gesture").trim().take(500),
-            innerThought = json.optString("innerThought").trim().take(500),
+            innerThought = json.optString("innerThought").trim().take(1_200),
             mood = json.optString("mood").trim().take(80),
             shareChannel = json.optString("shareChannel").trim().lowercase(),
             shareText = json.optString("shareText").trim().take(2_000),

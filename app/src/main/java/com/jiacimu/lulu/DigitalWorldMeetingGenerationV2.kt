@@ -226,6 +226,7 @@ internal suspend fun meetingGenerateReplyV2(
             {"sequence":[{"speaker":"user","type":"dialogue","text":"主人说的话"},{"speaker":"character","type":"action","text":"${character.displayName}的反应","speechText":"[sighs]"},{"speaker":"character","type":"dialogue","text":"${character.displayName}说的话","speechText":"[warmly] ${character.displayName}说的话"}],"moveTo":"可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"持续环境事实","participants":[{"participantId":"user或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["持续接触"],"heldItems":["持有物品"],"explorationMode":"FOLLOW_USER或STAY"}]},"statusText":"简短当前状态","gesture":"延续姿态","innerThought":"未说出口的极短心声，可为空","mood":"简短心情"}
 
             规则：
+            ${spontaneousInnerVoiceGuide}
             - 每个character片段另带speechText音频轨，与正文text分开。dialogue的speechText保留完全相同的原话，只插入音频标签；action的speechText只能放实际动作/环境发出的声音标签，不念叙事正文。没有声音的动作留空，user不添加音频轨。
             ${VoicePerformance.direction}
             - 同一个喷嚏、巴掌声、吸气等事件只在发生的片段标一次，不在相邻台词重复播放；动作页可以只有音效，台词页可以带持续情绪和发声变化。

@@ -147,7 +147,7 @@ object CompanionPresenceStore {
             gesture = (gesture.cleanPresence(500) ?: previous?.gesture.orEmpty()).let {
                 if (characterId !in activeCalls && describesOngoingCall(it)) "刚放下电话" else it
             },
-            innerThought = if (innerThought == null) previous?.innerThought.orEmpty() else innerThought.cleanPresence(500).orEmpty(),
+            innerThought = if (innerThought == null) previous?.innerThought.orEmpty() else innerThought.cleanPresence(1_200).orEmpty(),
             mood = mood.cleanPresence(80) ?: previous?.mood.orEmpty(),
             updatedAt = now,
             source = source.take(40),
