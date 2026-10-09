@@ -34,11 +34,14 @@ internal object PerceptionStimulusLedger {
 
     @Synchronized fun invalidate(eventId: String) {
         if (eventId.isBlank()) return
-        val prefix = "${eventId.hashCode()}:"
+        val sourceIds = setOf(eventId, eventId.substringBefore(":group:"))
+        val prefixes = sourceIds.map { "${it.hashCode()}:" }
         val store = prefs ?: return
         store.all.keys.filter { it.startsWith("seen:") }.forEach { key ->
             val old = store.getString(key, "").orEmpty()
-            val remaining = old.lineSequence().filter { !it.startsWith(prefix) }
+            val remaining = old.lineSequence().filter { token ->
+                prefixes.none(token::startsWith)
+            }
                 .filter(String::isNotBlank).joinToString("\n")
             if (remaining != old) store.edit().putString(key, remaining).apply()
         }
