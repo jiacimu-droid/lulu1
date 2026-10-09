@@ -312,6 +312,51 @@ object CharacterInnerLifeStore {
         save(characterId, root)
     }
 
+    /**
+     * Auditable choices. Deliberating is not an external event: outcome is supplied by the
+     * action executor only, and skipped choices are never recorded as actions.
+     */
+    @Synchronized fun recordDecision(
+        characterId: String,
+        decisionId: String,
+        selectedAction: String,
+        reason: String,
+        chosenMotiveId: String,
+        alternatives: JSONArray?,
+        outcome: String,
+        succeeded: Boolean,
+        now: Instant = Instant.now(),
+    ) {
+        if (prefs == null || characterId.isBlank() || decisionId.isBlank()) return
+        if (selectedAction == "silent" && reason.isBlank()) return
+        val root = snapshot(characterId)
+        val past = root.optJSONArray("decisions") ?: JSONArray()
+        if ((0 until past.length()).any { past.optJSONObject(it)?.optString("id") == decisionId }) return
+        val skipped = JSONArray()
+        if (alternatives != null) {
+            for (i in 0 until minOf(3, alternatives.length())) {
+                val item = alternatives.optJSONObject(i) ?: continue
+                val thought = item.optString("idea").trim().take(140)
+                val whyNot = item.optString("whyNot").trim().take(160)
+                if (thought.isNotBlank() && whyNot.isNotBlank()) {
+                    skipped.put(JSONObject().put("idea", thought).put("whyNot", whyNot))
+                }
+            }
+        }
+        val updated = JSONArray()
+        for (i in maxOf(0, past.length() - 11) until past.length()) updated.put(past.opt(i))
+        updated.put(JSONObject()
+            .put("id", decisionId).put("at", now.toString())
+            .put("selected", selectedAction.take(90))
+            .put("reason", reason.trim().take(240))
+            .put("motiveId", chosenMotiveId.take(80))
+            .put("alternatives", skipped)
+            .put("succeeded", succeeded)
+            .put("outcome", outcome.take(230)))
+        root.put("decisions", updated)
+        save(characterId, root)
+    }
+
     /** Only call from an observed, persisted character message, never a speculative draft. */
     @Synchronized fun recordSpokenText(characterId: String, eventId: String, text: String) {
         if (prefs == null || eventId.isBlank()) return
@@ -336,6 +381,7 @@ object CharacterInnerLifeStore {
         val corrections = root.optJSONArray("corrections") ?: JSONArray()
         val voice = root.optJSONArray("voice") ?: JSONArray()
         val innerVoices = root.optJSONArray("innerVoices") ?: JSONArray()
+        val decisions = root.optJSONArray("decisions") ?: JSONArray()
         return buildString {
             appendLine("【角色持续内在生活｜主观状态而非客观事实】")
             val active = (0 until motives.length()).mapNotNull(motives::optJSONObject)
@@ -398,6 +444,18 @@ object CharacterInnerLifeStore {
                     appendLine("· ${voiceMoment.optString("thought")}")
                 }
                 appendLine("若情境有关，可让旧念头继续、碰撞或自然淡化；避免逐字复读、反复提起同一念头。")
+            }
+            if (decisions.length() > 0) {
+                appendLine("最近有依据的取舍与真实结果（仅供以后规划参考）：")
+                for (i in maxOf(0, decisions.length() - 2) until decisions.length()) {
+                    val chosen = decisions.optJSONObject(i) ?: continue
+                    appendLine("· 做出选择：${chosen.optString("selected")}；原因：${chosen.optString("reason")}；执行成功：${chosen.optBoolean("succeeded")}；实际结果：${chosen.optString("outcome")}")
+                    val others = chosen.optJSONArray("alternatives") ?: JSONArray()
+                    for (j in 0 until minOf(others.length(), 2)) {
+                        val alternate = others.optJSONObject(j) ?: continue
+                        appendLine("  暂时没做：${alternate.optString("idea")}；因为：${alternate.optString("whyNot")}")
+                    }
+                }
             }
             if (voice.length() > 0) {
                 appendLine("角色近期实际说过的话（延续自己的语言节奏、称呼、话题与情绪表达习惯；不复制原话）：")
