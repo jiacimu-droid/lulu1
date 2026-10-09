@@ -61,8 +61,9 @@ internal fun CharacterLifeSettings(characterId: String) {
     var editing by remember { mutableStateOf<String?>(null) }
     var draft by remember { mutableStateOf("") }
     var showFixedDefinition by remember(characterId) { mutableStateOf(false) }
+    var showPastChoices by remember(characterId) { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("人格与行为", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+        Text("人格与生活", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
         Text("此刻 · 实时变化", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
         Text(
             if (online?.isOnline() == true) {
@@ -82,7 +83,7 @@ internal fun CharacterLifeSettings(characterId: String) {
             com.jiacimu.lulu.data.CharacterDevelopmentStore.active(characterId)
         }
         if (learned.isNotEmpty()) {
-            Text("经历中形成 · ${learned.size}项", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text("亲身经历形成的变化 · ${learned.size}项", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             learned.takeLast(10).forEach { learnedItem ->
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text("${learnedItem.kind.label} · ${learnedItem.content}",
@@ -144,7 +145,7 @@ internal fun CharacterLifeSettings(characterId: String) {
             }) { Text("开启叫醒通知权限") }
         }
         HorizontalDivider()
-        Text("正在牵挂", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        Text("现在的心愿", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
         val motives = innerRoot.optJSONArray("motives")
         val legacyMotive = root.optJSONObject("intention")
         val legacyAim = legacyMotive?.optString("aim").orEmpty().trim()
@@ -186,8 +187,10 @@ internal fun CharacterLifeSettings(characterId: String) {
         }
         val choices = innerRoot.optJSONArray("decisions")
         if (choices != null && choices.length() > 0) {
-            Text("最近的选择", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            for (i in choices.length() - 1 downTo maxOf(0, choices.length() - 8)) {
+            TextButton(onClick = { showPastChoices = !showPastChoices }) {
+                Text(if (showPastChoices) "收起最近的选择" else "查看最近的选择（${choices.length}）")
+            }
+            if (showPastChoices) for (i in choices.length() - 1 downTo maxOf(0, choices.length() - 8)) {
                 val decision = choices.optJSONObject(i) ?: continue
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text("这次选择：${decision.optString("selected")}",
@@ -276,14 +279,14 @@ internal fun CharacterLifeSettings(characterId: String) {
                 .padding(vertical = 6.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text("长期人格设定", style = MaterialTheme.typography.titleSmall,
+            Text("核心人设（手动）", style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold)
             Text(if (showFixedDefinition) "收起" else "查看与编辑",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.primary)
         }
         if (showFixedDefinition) {
-            Text("这里保存角色的长期价值观与性格边界，由你编辑；下面的经历不会自动改写它。",
+            Text("以下是你手动设定的性格基础，不会被短期情绪覆盖。",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         CharacterProfileSchema.fields.groupBy { it.group }.forEach { (group, fields) ->
