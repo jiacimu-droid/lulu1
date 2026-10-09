@@ -46,7 +46,26 @@ internal object ModelStructuredOutput {
      * Invalid command parameters are never executed or marked successful.
      */
     fun completedReplyText(raw: String): String? {
+        // A half-written tool instruction is never a completed user-visible reply.
+        val action = Regex(""""action"\s*:\s*"([^"]+)"""").find(raw)
+            ?.groupValues?.getOrNull(1)?.lowercase()
+        if (action != null && action != "reply") return null
+        val json = objectOrNull(raw)
+        if (json != null) {
+            if (json.optString("action", "reply").lowercase() != "reply") return null
+            val text = json.optString("text").takeIf(String::isNotBlank)
+            if (text != null) return text
+            val bubbles = json.optJSONArray("bubbles")
+            if (bubbles != null) return (0 until bubbles.length())
+                .map { bubbles.optString(it).trim() }.filter(String::isNotBlank)
+                .joinToString("\n").takeIf(String::isNotBlank)
+        }
+        // This only accepts a completely closed text string; the rest of the
+        // optional mood/innerLife JSON may be truncated by token limits.
         val found = Regex(""""text"\s*:\s*"((?:[^"\\]|\\.)*)"""").find(raw) ?: return null
-        return runCatching { JSONObject("{\"text\":\"" + found.groupValues[1] + "\"}").optString("text").takeIf(String::isNotBlank) }.getOrNull()
+        return runCatching {
+            JSONObject("{\"text\":\"" + found.groupValues[1] + "\"}")
+                .optString("text").takeIf(String::isNotBlank)
+        }.getOrNull()
     }
 }
