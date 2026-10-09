@@ -157,7 +157,22 @@ internal fun CharacterLifeSettings(characterId: String) {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text("${learnedItem.kind.label} · ${learnedItem.content}",
                         style = MaterialTheme.typography.bodyMedium)
-                    Text("${learnedItem.evidence.size}条经历依据 · 版本${learnedItem.version}",
+                    val sourceKinds = com.jiacimu.lulu.data.SharedExperienceTimeline
+                        .eventsByIds(characterId, learnedItem.evidence.keys).map { event ->
+                            when {
+                                event.channel.startsWith("独自阅读") -> "阅读"
+                                event.channel.startsWith("独自游戏") -> "游戏"
+                                event.channel.startsWith("数字世界") -> "数字世界"
+                                event.channel.startsWith("现实世界窗口") -> "现实文化"
+                                event.channel.startsWith("群聊") -> "伙伴交流"
+                                event.channel.contains("电话") -> "电话"
+                                event.channel == "私聊" -> "私聊"
+                                event.channel.contains("日记") -> "日记"
+                                event.channel.contains("朋友圈") -> "朋友圈"
+                                else -> "其他经历"
+                            }
+                        }.distinct().take(4)
+                    Text("${learnedItem.evidence.size}条依据 · ${sourceKinds.joinToString("、")} · 版本${learnedItem.version}",
                         color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
                 }
             }
