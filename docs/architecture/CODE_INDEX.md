@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3a3501e053eb30aaadaa5e904347201a73a49dc0`
+- 基准提交：`1caf80eb6fb61c2e44819f74255d88c1d6296ac0`
 - 分支：`main`
 - 已索引文件：378
-- 已索引代码/文本行：91206
+- 已索引代码/文本行：91215
 - 已发现符号：1292
 
 | 文件 | 行数 | 符号数 |
@@ -143,7 +143,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 171 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 183 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 407 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 409 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 50 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 423 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 317 | 15 |
@@ -190,7 +190,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 946 | 47 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 72 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 891 | 16 |
+| `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 898 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 81 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 59 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 99 | 7 |
