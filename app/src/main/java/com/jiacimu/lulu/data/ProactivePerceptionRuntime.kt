@@ -653,6 +653,8 @@ object ProactivePerceptionRuntime {
         HealthRolePerception.initialize(context)
         HealthRolePerception.recordLatestSleep(characterId)
         appendLine("用户现实时间：${now.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)}")
+        val isScreenInteractive = (context.getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager)?.isInteractive
+        appendLine("用户屏幕交互状态：${when (isScreenInteractive) { true -> "屏幕可交互（亮屏）"; false -> "屏幕未处于交互状态（可能锁屏或熄屏，绝非睡眠证明）"; null -> "未知" }}")
         appendLine("用户手机电量：${batteryContext(context)}")
         appendLine("用户设备最近前台应用：${foregroundAppContext(context, now)}")
         appendLine("用户设备位置：${locationContext(context)}")
