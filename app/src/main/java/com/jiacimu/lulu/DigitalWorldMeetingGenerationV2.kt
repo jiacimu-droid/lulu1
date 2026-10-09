@@ -172,13 +172,16 @@ internal suspend fun meetingGenerateReplyV2(
     systemMoment: Boolean = false,
     expandUserDraft: Boolean = false,
     directorGuidance: String = "",
+    autonomous: Boolean = false,
 ): Result<MeetingV2Reply> = runCatching {
     val character = MigratedDomainStores.characters.get(characterId)
     val connection = ScopedModelSelections.resolveConnection(ScopedModelSelections.MEETING)
     val writing = MeetingExperienceStore.writingPreferences()
     val sceneBefore = MeetingExperienceStore.sceneFor(session)
     val digitalNative = DigitalLifeProfileStore.isEnabled(characterId)
-    val lengthInstruction = when (writing.length) {
+    val lengthInstruction = if (autonomous) {
+        "自主在场：尊重安静，可一句话、一个小动作或一段内心想法。不要为凑篇幅制造事件；自然主动表达时通常不超过180字。"
+    } else when (writing.length) {
         MeetingProseLength.BRIEF -> "简略：推进一个清楚的小动作或一句回应，通常1—3句描写、1—3个片段；保留因果，不铺陈。"
         MeetingProseLength.BALANCED -> "适中：把当前小情节自然展开，通常3—6句描写、2—5个片段，兼顾动作与氛围。"
         MeetingProseLength.RICH -> "丰富：即使主人只输入几个字，也发展成真正有剧情的完整现场，通常约700—1200中文字符、12—20句、6—12片段；角色主动连续完成3—6个有因果的动作，推动1—2个小事件，形成承接→行动→变化→新回应点。"
@@ -207,7 +210,9 @@ internal suspend fun meetingGenerateReplyV2(
             }
         },
         instruction = """
-            你正在以${character.displayName}的身份参与一场连续见面。每轮让现场真正向前发展，写成完整、可体验的小段剧情，不要只反应一句就停，也不要一次写完整故事。
+            你正在以${character.displayName}的身份参与一场连续见面。
+            ${if (autonomous) "这是你自己的在场意识和行动选择，不是用户向你发来了一条新消息。可以决定主动搭话、靠近、牵手邀请或继续做自己的事，也可以安静不动。主动时动作与说话由你的人设、记忆、心情和现实场景决定；不必每轮回应。若你决定暂时沉默，返回 sequence=[]，但可以写真实的 innerThought。不得虚构用户已经回应，也不要让剧情自动跳转。" else "每轮让现场真正向前发展，写成完整、可体验的小段剧情，不要只反应一句就停，也不要一次写完整故事。"}
+
             只返回一个 JSON 对象：
             {"sequence":[{"speaker":"user","type":"dialogue","text":"主人说的话"},{"speaker":"character","type":"action","text":"${character.displayName}的反应","speechText":"[sighs]"},{"speaker":"character","type":"dialogue","text":"${character.displayName}说的话","speechText":"[warmly] ${character.displayName}说的话"}],"moveTo":"可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"持续环境事实","participants":[{"participantId":"user或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["持续接触"],"heldItems":["持有物品"],"explorationMode":"FOLLOW_USER或STAY"}]},"statusText":"简短当前状态","gesture":"延续姿态","innerThought":"未说出口的极短心声，可为空","mood":"简短心情"}
 
@@ -217,6 +222,8 @@ internal suspend fun meetingGenerateReplyV2(
             - 同一个喷嚏、巴掌声、吸气等事件只在发生的片段标一次，不在相邻台词重复播放；动作页可以只有音效，台词页可以带持续情绪和发声变化。
             - sequence 是双方共享的唯一时间顺序；speaker=user 是主人，speaker=character 是${character.displayName}。界面严格按数组顺序展示。
             - expandUserDraft=$expandUserDraft。false 时 sequence 只能有 character；true 时按主人草稿真实顺序补全一来一回，可以 user→character→user→character，不能把主人所有内容堆完才写角色。
+            - autonomous=$autonomous。true 时你只可描写自己真实执行的动作或自己说的话，也允许 sequence=[]（选择暂时不行动）；任何情况下都禁止伪造主人没说过的台词、动作和感受。
+            - 主动选择牵手时可以先靠近、伸手邀请；只有真的与主人处于可接触范围且动作在场景里落实，contact 才可使用 handholding:user，explorationMode 才可写 FOLLOW_USER；不能隔空牵手。
             - 主人草稿即使很短也要补成有现场感的叙事，但只能补自然衔接、说话方式、已暗示的小动作和可直接感知环境；不得替主人新增重大决定、强烈情绪、亲密行为、内心想法或后续台词。
             - 主人明确写出的言语和动作是不可移动的时间锚点。角色反应必须放在原因之后，绝不能提前回应后面才发生的动作。
             - type=action 是小说式叙事，可融合该speaker的连续动作链、神态、呼吸、声音变化、角色自己的限知心理、直接感受到的环境与触感；type=dialogue 只放真正说出口的话，不加引号。每次开口独立成项。
@@ -243,6 +250,7 @@ internal suspend fun meetingGenerateReplyV2(
             sceneContext = "连续见面；当前地点=${session.location}；模式=${if (session.reality == MeetingReality.DIGITAL_WORLD) "数字世界" else "现实场景"}；参与者=${session.participantIds.joinToString("、") { MigratedDomainStores.characters.get(it).displayName }}",
             recentContext = meetingRecentSceneContextV2(session),
             taskIntent = when {
+                systemMoment && autonomous -> "基于真实在场事件或自然空隙，按角色一贯人格、自主想法和共同记忆决定行动、交流或安静"
                 systemMoment -> "延续此前邀请与关系，完成抵达后的迎接"
                 expandUserDraft -> "理解主人本轮草稿，并与既往聊天、群聊和见面经历无缝衔接"
                 else -> "读取完整现场顺序，以当前角色身份连续回应"
