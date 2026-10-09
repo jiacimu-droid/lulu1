@@ -20,6 +20,10 @@ class CallContractsTest {
         assertEquals("minimax", CallVoiceConfiguration.resolveSttEngine("auto", false, false, "minimax"))
         assertEquals("unavailable", CallVoiceConfiguration.resolveSttEngine("auto", false, false, "elevenlabs"))
         assertEquals("system", CallVoiceConfiguration.resolveSttEngine("system", false, true, "elevenlabs"))
+        assertEquals("minimax", CallVoiceConfiguration.resolveSttEngine(
+            "auto", true, true, "elevenlabs", minimaxConfigured = true))
+        assertEquals("minimax", CallVoiceConfiguration.resolveSttEngine(
+            "minimax", false, false, "elevenlabs", minimaxConfigured = true))
     }
     @Test fun miniAsrKeepsRegionButDoesNotCarryTtsQueryOrPath() {
         assertEquals("https://api.minimaxi.com/v1/speech_to_text", CallVoiceConfiguration.miniAsrEndpoint("https://api.minimaxi.com/v1/t2a_v2?GroupId=123"))
