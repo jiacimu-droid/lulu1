@@ -8,6 +8,15 @@ import org.json.JSONObject
 import java.time.Duration
 import java.time.Instant
 
+/** Conservative cross-store deduplication; similar topics are not automatically the same goal. */
+internal fun sameCharacterMotive(first: String, second: String): Boolean {
+    val a = first.lowercase().filter(Char::isLetterOrDigit)
+    val b = second.lowercase().filter(Char::isLetterOrDigit)
+    return a.isNotBlank() && b.isNotBlank() &&
+        (a == b || (a.length >= 8 && b.length >= 8 &&
+            kotlin.math.abs(a.length - b.length) <= 12 && (a.contains(b) || b.contains(a))))
+}
+
 /** Subjective motives are never evidence of an action or a fulfilled promise. */
 object CharacterLifeStore {
     private var prefs: android.content.SharedPreferences? = null
@@ -214,6 +223,10 @@ object CharacterLifeStore {
         val aim = proposal.optString("aim").trim().take(300)
         val motive = proposal.optString("motive").trim().take(300)
         if (aim.isBlank() || motive.isBlank()) return
+        val innerMotives = CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives")
+        if ((0 until (innerMotives?.length() ?: 0)).any { index ->
+                sameCharacterMotive(innerMotives?.optJSONObject(index)?.optString("aim").orEmpty(), aim)
+            }) return
         if (root.optJSONObject("previousIntention")?.let { it.optString("aim") == aim && it.optString("releaseReason") == "用户结束这件事" } == true) return
         root.put("intention", JSONObject().put("aim", aim).put("motive", motive)
             .put("createdAt", now.toString()).put("outcomes", JSONArray()))
@@ -299,7 +312,7 @@ object CharacterLifeStore {
                 .mapNotNull { innerGoals?.optJSONObject(it)?.optString("aim")?.trim() }
                 .toSet()
             root.optJSONObject("intention")
-                ?.takeUnless { it.optString("aim").trim() in innerAims }
+                ?.takeUnless { intention -> innerAims.any { aim -> sameCharacterMotive(intention.optString("aim"), aim) } }
                 ?.let { intention ->
                 appendLine("【持续动机｜角色主观愿望，不是已完成事实或用户承诺】")
                 appendLine("从${intention.optString("createdAt")}开始在意：${intention.optString("aim")}；动机：${intention.optString("motive")}")
