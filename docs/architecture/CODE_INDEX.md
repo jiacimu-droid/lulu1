@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c77bae6a47f005c5dbc195c6e3da31e14f23773e`
+- 基准提交：`19c67baea04eace360d97202fe156fbc4801cc59`
 - 分支：`main`
 - 已索引文件：416
-- 已索引代码/文本行：94430
+- 已索引代码/文本行：94440
 - 已发现符号：1364
 
 | 文件 | 行数 | 符号数 |
@@ -223,7 +223,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 529 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 544 | 19 |
-| `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 16 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 65 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 74 | 2 |
@@ -388,7 +388,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 56 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt` | 65 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 43 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 211 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 195 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 99 | 1 |

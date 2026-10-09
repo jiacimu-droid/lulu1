@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T17:33:41.044235+00:00",
-  "commit": "c77bae6a47f005c5dbc195c6e3da31e14f23773e",
+  "generatedAt": "2026-10-09T17:44:59.980013+00:00",
+  "commit": "19c67baea04eace360d97202fe156fbc4801cc59",
   "branch": "main",
-  "sourceFingerprint": "9cac2e885d81bc3b4f51e1d00fb11cd22503aaa8cd47801befacf1f1110f8f1c",
+  "sourceFingerprint": "4e7975925b2bc7d233d6e9d923dedd9ca5c49a241bfd94f79727bdb539dd2b1d",
   "summary": {
     "files": 416,
-    "lines": 94430,
+    "lines": 94440,
     "symbols": 1364
   },
   "symbolIndex": {
@@ -12494,8 +12494,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt",
-      "lines": 16,
-      "sha256": "9ac89c8dcfe82b4d9200fd7206361f5af1033f62c65a1af5a40625c8e37295c7",
+      "lines": 17,
+      "sha256": "186cf6d7197960ec9d75657db1160a82ff2076999cf7f1c79039a30126de5d75",
       "symbols": []
     },
     {
@@ -15487,8 +15487,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 43,
-      "sha256": "6f1d14578713c893cdbcb3a0894716e93d86ba31e721021ba0f0ef37867d1a2a",
+      "lines": 52,
+      "sha256": "c81d44e236ac3e9e325acc8a6eb6f11b7204194249275ce45872c658c432b8d3",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
@@ -15636,7 +15636,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
       "lines": 327,
-      "sha256": "a30bd50e7624f2bc721604de0aa4f85af44f313d367f0dcbb5660500fae44d12",
+      "sha256": "dc27ef5796f0dd8b5ed8f607106287699628d6f2f86ccb666b66df926bdbbfd0",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
