@@ -32,6 +32,26 @@ class ModelStructuredOutputTest {
         assertNull(ModelStructuredOutput.completedReplyText("""{"action":"reply","text":"还没写完整"""))
     }
 
+    @Test fun completedSpeechSurvivesTruncatedOptionalState() {
+        val response = """{"action":"reply","text":"今天还想和你聊聊","innerLife":{"motives":[{"op":"revise"""
+        assertEquals("今天还想和你聊聊", ModelStructuredOutput.completedReplyText(response))
+    }
+
+    @Test fun doesNotTurnPartialToolCommandIntoVisibleSpeech() {
+        val response = """{"action":"tool","text":"已经帮你改好了","tool":"create_alarm","args":{"""
+        assertNull(ModelStructuredOutput.completedReplyText(response))
+    }
+
+    @Test fun supportsCompleteBubblesWithoutRawJsonVisible() {
+        val response = """{"action":"reply","bubbles":["今天好冷","记得穿外套"]}"""
+        assertEquals("今天好冷\n记得穿外套", ModelStructuredOutput.completedReplyText(response))
+    }
+
+    @Test fun incompleteTextIsNotRecovered() {
+        val response = """{"action":"reply","text":"第一句话还没"""
+        assertNull(ModelStructuredOutput.completedReplyText(response))
+    }
+
     @Test fun briefPrefixWithNoObjectFailsSafely() {
         assertNull(ModelStructuredOutput.objectOrNull("正在思考，随后回复。"))
     }
