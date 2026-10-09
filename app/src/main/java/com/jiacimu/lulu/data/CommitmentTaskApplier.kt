@@ -32,6 +32,14 @@ private suspend fun createCommitmentTask(
     draft: CommitmentTaskDraft,
 ) {
     val now = Instant.now()
+    // A role reply arrives as multiple bubbles. Extractor can see each growing batch and
+    // may re-run, but a promised wake-up must create exactly one alarm-backed task.
+    val previousFromTurn = CommitmentTaskStore.snapshot(characterId).firstOrNull { task ->
+        task.sourceTurnId == sourceTurnId && task.status.isActive() &&
+            (task.goal.sameTaskText(draft.goal) ||
+                (task.goal.contains("叫醒") && draft.goal.contains("叫醒")))
+    }
+    if (previousFromTurn != null) return
     val existingLexicon = LuluRepositories.lexicon.snapshot(characterId)
         .asSequence()
         .filter { it.section == LexiconSection.Promise }
@@ -163,7 +171,11 @@ private fun scheduleTaskAlarm(task: CommitmentTask) {
                 status = CommitmentTaskStatus.Scheduled,
                 linkedAlarmId = alarm.id,
                 nextCheckAt = dueAt,
-                lastActionResult = "已安排提醒；创建闹钟只是执行步骤，任务仍等待实际完成",
+                lastActionResult = if (LuluAlarmSystem.canScheduleExact()) {
+                    "已在手机上登记精确闹钟；到点将触发通知与角色叫醒动作，尚未履行"
+                } else {
+                    "已登记非精确系统叫醒任务：手机未授予精确闹钟权限，可能延迟。请到人格页授予权限，不能保证准点"
+                },
             )
         }
     }.onFailure { error ->
