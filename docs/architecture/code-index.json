@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:04:11.082193+00:00",
-  "commit": "a3a35d1688550ee3ba49498215a81fc26a638d4a",
+  "generatedAt": "2026-10-09T13:04:23.932330+00:00",
+  "commit": "cb985fdd63c18ec79f673d40d8e4f610c601e996",
   "branch": "main",
-  "sourceFingerprint": "aa8a9ad84ca8b5fffed2b30b514155df84b023370c2d083a0eb6a1746393dd00",
+  "sourceFingerprint": "7240f43e605fd4ae5f36f70cb87572309345f10965a39945f9209e66e590cf1c",
   "summary": {
     "files": 387,
-    "lines": 92520,
+    "lines": 92524,
     "symbols": 1311
   },
   "symbolIndex": {
@@ -14642,8 +14642,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt",
-      "lines": 175,
-      "sha256": "1a535e7a29938360b69b5dc14593eafbf8e404ac068207a437433224ea1c99d2",
+      "lines": 179,
+      "sha256": "ed808daa941c66474137d2308438ae50cf5dfc1bd9d098b9cba162d9f981899b",
       "symbols": [
         {
           "name": "CallContractsTest",
