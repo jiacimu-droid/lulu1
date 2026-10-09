@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f576e03893aa314accca57d6226f2a0cfffb055e`
+- 基准提交：`3924bc8f41fbbebfc294e8a7c19f29ab886ec1d5`
 - 分支：`main`
 - 已索引文件：378
-- 已索引代码/文本行：90886
+- 已索引代码/文本行：90913
 - 已发现符号：1286
 
 | 文件 | 行数 | 符号数 |
@@ -164,7 +164,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt` | 61 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 51 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1007 | 33 |
-| `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 52 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 79 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt` | 45 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 348 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt` | 166 | 6 |
