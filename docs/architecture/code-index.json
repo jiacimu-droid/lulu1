@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T07:25:06.477705+00:00",
-  "commit": "1c1f25c38a0ecf8f169cc2284d0254f0cc5cceee",
+  "generatedAt": "2026-10-09T07:26:20.780810+00:00",
+  "commit": "40290ab018f2f2f49401fdf45f1fdd39a7b8fa43",
   "branch": "main",
-  "sourceFingerprint": "07cea1e07e00cea5ebeb4cf4473f4d9272dc9c398242f03d4f0dda6247fe43b3",
+  "sourceFingerprint": "a953d4939a321e0ddb9785e196e26321b60c8090461fac58e93bf03e581be29c",
   "summary": {
-    "files": 371,
-    "lines": 90007,
-    "symbols": 1272
+    "files": 372,
+    "lines": 90055,
+    "symbols": 1273
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7046,6 +7046,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt",
         "line": 15
+      }
+    ],
+    "WakeCommitmentParserTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt",
+        "line": 7
       }
     ],
     "ReadingGrowthTheaterTest": [
@@ -14526,6 +14532,17 @@
         {
           "name": "UserMessageFavoritesTest",
           "line": 15
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt",
+      "lines": 48,
+      "sha256": "b52dd407a4442d6504798698f1f52e4e55e350e792de3ec84f2a65f2292d4702",
+      "symbols": [
+        {
+          "name": "WakeCommitmentParserTest",
+          "line": 7
         }
       ]
     },
