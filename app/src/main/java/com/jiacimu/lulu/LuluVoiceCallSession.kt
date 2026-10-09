@@ -94,6 +94,18 @@ internal object LuluVoiceCallSession {
     private var sleepContinuationJob: Job? = null
     private var userSpeechInProgress = false
     private var sleepFailures = 0
+    /** Monotonic time: the listener's silence is measured even if the call UI is minimized. */
+    private var lastSleepUserReplyAtMillis: Long? = null
+
+    private fun sleepSilenceMillis(): Long {
+        val latest = lastSleepUserReplyAtMillis ?: return 0L
+        return (SystemClock.elapsedRealtime() - latest).coerceAtLeast(0L)
+    }
+
+    private fun noteSleepUserReply() {
+        if (mutableState.value.sleepMode) lastSleepUserReplyAtMillis = SystemClock.elapsedRealtime()
+    }
+
     private var recognitionActive = false
     private var audioManager: AudioManager? = null
     private var audioRoute: CallAudioRoute? = null
@@ -280,6 +292,7 @@ internal object LuluVoiceCallSession {
         val enabled = !current.sleepMode
         sleepContinuationJob?.cancel()
         sleepFailures = 0
+        lastSleepUserReplyAtMillis = if (enabled) SystemClock.elapsedRealtime() else null
         mutableState.update {
             it.copy(sleepMode = enabled,
                 statusMessage = if (enabled) "哄睡陪伴已开启 · 你可以只听，也可以随时说话"
@@ -296,10 +309,22 @@ internal object LuluVoiceCallSession {
         sleepContinuationJob = scope.launch {
             // A small real pause avoids robotic back-to-back speech and gives
             // the user a chance to begin their own reply.
-            delay(1_900L)
+            delay(SleepCallContinuationPolicy.nextPauseMillis(sleepSilenceMillis()))
             val now = mutableState.value
-            if (now.callExperienceId != sessionId ||
-                !SleepCallContinuationPolicy.canContinue(
+            if (now.callExperienceId != sessionId) return@launch
+            // The call timer also enforces the end; do not generate another
+            // monologue after the unattended-call threshold.
+            if (SleepCallContinuationPolicy.shouldQuietlyEnd(
+                    sinceUserReplyMillis = sleepSilenceMillis(),
+                    connected = now.connected,
+                    sleepMode = now.sleepMode,
+                    userSpeaking = userSpeechInProgress,
+                    audioInProgress = now.speaking || speechQueue?.hasPendingAudio == true,
+                )) {
+                endSleepCallOnSilence()
+                return@launch
+            }
+            if (!SleepCallContinuationPolicy.canContinue(
                     connected = now.connected,
                     sleepMode = now.sleepMode,
                     thinking = now.thinking,
@@ -326,19 +351,25 @@ internal object LuluVoiceCallSession {
 
     private fun endCallByCharacter() = finishCall(endedByCharacter = true)
 
-    private fun finishCall(endedByCharacter: Boolean) {
+    /** Never claim the user has fallen asleep; simply stop after sustained silence. */
+    private fun endSleepCallOnSilence() = finishCall(endedByCharacter = true, sleepAutoEnded = true)
+
+    private fun finishCall(endedByCharacter: Boolean, sleepAutoEnded: Boolean = false) {
         val current = mutableState.value
         if (current.phase == CallPhase.Idle || current.phase == CallPhase.Ended) return
         LuluCallRingtone.stopAll()
         sleepContinuationJob?.cancel()
         sleepContinuationJob = null
         sleepFailures = 0
+        lastSleepUserReplyAtMillis = null
         userSpeechInProgress = false
         autonomousHangup.cancel()
+        val endStatus = if (sleepAutoEnded) "哄睡陪伴已安静结束" else
+            if (endedByCharacter) "${current.characterName}结束了通话" else "通话已结束"
         // Mark ended before stopping audio: callbacks cannot reopen the microphone or revive state.
         mutableState.update { it.copy(phase = CallPhase.Ended, opening = false, listening = false,
             thinking = false, speaking = false, sleepMode = false,
-            statusMessage = if (endedByCharacter) "${current.characterName}结束了通话" else "通话已结束") }
+            statusMessage = endStatus) }
         com.jiacimu.lulu.data.CompanionPresenceStore.finishCall(current.characterId)
         dialJob?.cancel()
         replyGeneration++
@@ -366,7 +397,7 @@ internal object LuluVoiceCallSession {
                 thinking = false,
                 speaking = false,
                 partialTranscript = "",
-                statusMessage = if (endedByCharacter) "${current.characterName}结束了通话" else "通话已结束",
+                statusMessage = endStatus,
             )
         }
         restoreCallAudio()
@@ -459,6 +490,7 @@ internal object LuluVoiceCallSession {
                 override fun onBeginningOfSpeech() {
                     if (!mutableState.value.connected || mutableState.value.opening) return
                     userSpeechInProgress = true
+                    noteSleepUserReply()
                     sleepContinuationJob?.cancel()
                     mutableState.update { it.copy(statusMessage = "听到了，你继续说") }
                 }
@@ -594,7 +626,10 @@ internal object LuluVoiceCallSession {
             (autonomousSleep && (!current.sleepMode || userSpeechInProgress || current.thinking ||
                 current.speaking || speechQueue?.hasPendingAudio == true || current.opening))) return
         sleepContinuationJob?.cancel()
-        if (!autonomousSleep) userSpeechInProgress = false
+        if (!autonomousSleep) {
+            userSpeechInProgress = false
+            if (spoken.isNotBlank() && !opening) noteSleepUserReply()
+        }
         replyGeneration++
         autonomousHangup.cancel()
         speechQueue?.stop()
@@ -784,6 +819,7 @@ internal object LuluVoiceCallSession {
             onSpeech = {
                 if (sameSession()) {
                     userSpeechInProgress = true
+                    noteSleepUserReply()
                     sleepContinuationJob?.cancel()
                     if (mutableState.value.thinking) { replyGeneration++; replyJob?.cancel() }
                     mutableState.update { it.copy(thinking = false, listening = true, errorMessage = "", partialTranscript = "", statusMessage = "检测到语音，正在收音…") }
@@ -830,6 +866,17 @@ internal object LuluVoiceCallSession {
                 mutableState.update { it.copy(elapsedSeconds = (SystemClock.elapsedRealtime() - startedAt) / 1_000L) }
                 if (mutableState.value.elapsedSeconds % 60L == 0L) {
                     com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(mutableState.value.characterId)
+                }
+                val current = mutableState.value
+                if (SleepCallContinuationPolicy.shouldQuietlyEnd(
+                        sinceUserReplyMillis = sleepSilenceMillis(),
+                        connected = current.connected,
+                        sleepMode = current.sleepMode,
+                        userSpeaking = userSpeechInProgress,
+                        audioInProgress = current.speaking || speechQueue?.hasPendingAudio == true,
+                    )) {
+                    endSleepCallOnSilence()
+                    break
                 }
                 delay(1_000L)
             }
