@@ -16,6 +16,7 @@ import com.jiacimu.lulu.data.CharacterProfileSchema
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.CommitmentTaskStore
 import com.jiacimu.lulu.data.CommitmentTaskStatus
+import com.jiacimu.lulu.data.isActive
 import com.jiacimu.lulu.system.LuluAlarmSystem
 import androidx.compose.ui.platform.LocalContext
 import java.time.ZoneId
