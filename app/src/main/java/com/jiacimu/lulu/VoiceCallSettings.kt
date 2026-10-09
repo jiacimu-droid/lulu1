@@ -1,11 +1,15 @@
 package com.jiacimu.lulu
 
 import android.content.Context
+import android.speech.SpeechRecognizer
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -18,64 +22,106 @@ internal fun VoiceCallSettings(provider: String) {
     var silence by remember { mutableFloatStateOf(prefs.getInt("voice_end_silence_ms", 500).toFloat()) }
     var advanced by remember { mutableStateOf(false) }
     var endpoint by remember { mutableStateOf(prefs.getString("minimax_asr_endpoint", "").orEmpty()) }
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("电话使用 ${CallVoiceConfiguration.label(provider)}", style = MaterialTheme.typography.titleMedium)
+    var sttMode by remember { mutableStateOf(prefs.getString("call_stt_mode", "auto").orEmpty()) }
+    var groqKey by remember { mutableStateOf(prefs.getString("groq_asr_key", "").orEmpty()) }
+    var groqModel by remember { mutableStateOf(prefs.getString("groq_asr_model", "whisper-large-v3-turbo").orEmpty()) }
+
+    Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
+        Text("通话声音：${CallVoiceConfiguration.label(provider)}", style = MaterialTheme.typography.titleMedium)
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Column(modifier = Modifier.weight(1f)) {
                 Text("来电 / 呼叫铃声", style = MaterialTheme.typography.bodyMedium)
-                Text("拨出等待接通或角色主动来电时播放手机本地铃声；接通、拒绝或挂断后停止。不消耗语音模型额度。",
-                    style = MaterialTheme.typography.bodySmall)
+                Text("接通、拒绝或挂断后停止铃声。", style = MaterialTheme.typography.bodySmall)
             }
-            Switch(
-                checked = ringing,
-                onCheckedChange = { value ->
-                    ringing = value
-                    prefs.edit().putBoolean("voice_call_ringtone_enabled", value).apply()
-                    if (!value) LuluCallRingtone.stopAll()
-                },
-            )
+            Switch(checked = ringing, onCheckedChange = { enabled ->
+                ringing = enabled
+                prefs.edit().putBoolean("voice_call_ringtone_enabled", enabled).apply()
+                if (!enabled) LuluCallRingtone.stopAll()
+            })
+        }
+        HorizontalDivider()
+        Text("你的声音如何转成文字", style = MaterialTheme.typography.titleSmall)
+        Text("单独选择识别渠道，不影响角色的 Voice ID 或语音供应商。",
+            style = MaterialTheme.typography.bodySmall)
+        Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf("auto" to "自动", "system" to "手机识别",
+                "groq" to "Groq Whisper", "minimax" to "MiniMax").forEach { (id, title) ->
+                FilterChip(selected = sttMode == id, onClick = {
+                    sttMode = id
+                    prefs.edit().putString("call_stt_mode", id).apply()
+                }, label = { Text(title) })
+            }
+        }
+        val activeEngine = CallVoiceConfiguration.resolveSttEngine(sttMode,
+            SpeechRecognizer.isRecognitionAvailable(context), groqKey.isNotBlank(), provider)
+        Text("当前识别：${CallVoiceConfiguration.sttLabel(activeEngine)}",
+            style = MaterialTheme.typography.bodySmall)
+        if (sttMode == "auto" || sttMode == "groq") {
+            OutlinedTextField(value = groqKey, onValueChange = {
+                groqKey = it
+                prefs.edit().putString("groq_asr_key", it.trim()).apply()
+            }, label = { Text("Groq API Key") },
+                visualTransformation = PasswordVisualTransformation(), singleLine = true,
+                modifier = Modifier.fillMaxWidth())
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                listOf("whisper-large-v3-turbo" to "Turbo · 更省",
+                    "whisper-large-v3" to "V3 · 更准").forEach { (id, label) ->
+                    FilterChip(groqModel == id, {
+                        groqModel = id
+                        prefs.edit().putString("groq_asr_model", id).apply()
+                    }, label = { Text(label) })
+                }
+            }
+            Text("Groq 提供有限免费层；用量超过免费限额后的扣费规则取决于你的账号。只有使用 Groq 时才向它上传录音片段。",
+                style = MaterialTheme.typography.bodySmall)
+        }
+        if (sttMode == "system" && !SpeechRecognizer.isRecognitionAvailable(context))
+            Text("系统识别不可用，请改选 Groq 并填写 Key。",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+        if (sttMode == "minimax") {
+            Text("沿用 MiniMax API Key，仅作为语音识别；角色声音可以来自 ElevenLabs。",
+                style = MaterialTheme.typography.bodySmall)
+            TextButton(onClick = { advanced = !advanced }) { Text("MiniMax 识别接口") }
+            if (advanced) OutlinedTextField(endpoint, {
+                endpoint = it
+                prefs.edit().putString("minimax_asr_endpoint", it).apply()
+            }, label = { Text("自定义接口（可留空）") }, modifier = Modifier.fillMaxWidth())
         }
         if (provider == "elevenlabs") {
-            Text(if (mode == "agent") "当前：实时 Agent 通话（另按 Agent 用量计费）"
-                else "当前：普通 API 通话 · 你选的聊天模型 + ElevenLabs Voice",
+            HorizontalDivider()
+            Text(if (mode == "agent") "当前使用 Agent 实时通话"
+                else "普通 API · 露露机电话模型 + ElevenLabs Voice",
                 style = MaterialTheme.typography.bodyMedium)
-            if (mode != "agent") {
-                Text("手机本地语音转文字 → 露露机电话聊天模型 → ElevenLabs 文字转声音。Voice ID 只是音色，不需要创建 Agent。",
-                    style = MaterialTheme.typography.bodySmall)
-                CallVoiceConfiguration.onDeviceSttError(context)?.let { problem ->
-                    Text(problem, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
-                }
-            } else {
-                Text("Agent 另外负责实时收音、轮次与打断，适合追求低延迟双工；仍可能产生持续连接时长与识别用量，不等于只调用 Voice。",
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
-            }
             TextButton(onClick = { advanced = !advanced }) {
-                Text(if (advanced) "收起通话技术模式" else "通话技术模式（高级）")
+                Text(if (advanced) "收起高级通话模式" else "Agent 模式（高级）")
             }
             if (advanced) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(mode != "agent", {
-                        mode = "direct"; prefs.edit().putString("voice_call_mode", "direct").apply()
+                        mode = "direct"
+                        prefs.edit().putString("voice_call_mode", mode).apply()
                     }, label = { Text("普通 API") })
                     FilterChip(mode == "agent", {
-                        mode = "agent"; prefs.edit().putString("voice_call_mode", "agent").apply()
+                        mode = "agent"
+                        prefs.edit().putString("voice_call_mode", mode).apply()
                     }, label = { Text("实时 Agent") })
                 }
-                Text("只有配置了独立 Agent 和相应云端服务，才能使用实时 Agent 模式；不影响普通的 API Key / Voice ID。",
+                Text("Agent 管理自己的实时收音和识别，独立计费。普通 API 才使用上面的语音识别渠道。",
                     style = MaterialTheme.typography.bodySmall)
             }
-        } else if (provider == "minimax") {
-            Text("同一 MiniMax Key 用于语音识别和发声。停顿后转写，再由电话模型回复；无需部署服务。")
-            TextButton({ advanced = !advanced }) { Text("识别接口设置") }
-            if (advanced) OutlinedTextField(endpoint, { endpoint = it; prefs.edit().putString("minimax_asr_endpoint", it).apply() },
-                label = { Text("识别接口（留空跟随 MiniMax 区域）") }, modifier = Modifier.fillMaxWidth())
-        } else Text("使用手机系统识别与发声；普通系统识别可能由厂商联网提供，且不使用 ElevenLabs 额度。")
-        if (provider == "minimax") {
-            Text("停顿多久开始回复：${silence.toInt()} 毫秒")
-            Slider(silence, { silence = it }, onValueChangeFinished = { prefs.edit().putInt("voice_end_silence_ms", silence.toInt()).apply() }, valueRange = 300f..1500f)
-            Text("较短响应更快，较长适合说话中经常停顿。", style = MaterialTheme.typography.bodySmall)
-            Text("收音灵敏度（较低阈值更容易识别轻声）")
-            Slider(threshold, { threshold = it }, onValueChangeFinished = { prefs.edit().putFloat("voice_vad_threshold", threshold).apply() }, valueRange = 150f..1500f)
+        }
+        if (activeEngine != "system" && mode != "agent") {
+            Text("停顿多久开始识别：${silence.toInt()} 毫秒")
+            Slider(value = silence, onValueChange = { silence = it },
+                onValueChangeFinished = {
+                    prefs.edit().putInt("voice_end_silence_ms", silence.toInt()).apply()
+                }, valueRange = 300f..1500f)
+            Text("收音灵敏度（低阈值更容易听到轻声）")
+            Slider(value = threshold, onValueChange = { threshold = it },
+                onValueChangeFinished = {
+                    prefs.edit().putFloat("voice_vad_threshold", threshold).apply()
+                }, valueRange = 150f..1500f)
         }
     }
 }
