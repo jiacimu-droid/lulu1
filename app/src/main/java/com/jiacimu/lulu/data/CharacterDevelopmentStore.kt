@@ -74,6 +74,16 @@ object CharacterDevelopmentStore {
         val explicit = factual.any { it.evidenceKind == EventEvidenceKind.UserStatement &&
             Regex("以后|下次|记住|不要再|我喜欢|我不喜欢|我希望").containsMatchIn(it.content) }
         if (!DevelopmentPolicy.accepts(kind, factual.size, explicit, counters.size)) return false
+        if (kind == DevelopmentKind.ExpressionHabit) {
+            // A growth in the character's *own* speech needs a witnessed expression.
+            // Other group members' speech, the user's memes, and diary claims about
+            // activities are insufficient, regardless of the number of exposures.
+            if (events.none { event ->
+                event.evidenceKind == EventEvidenceKind.CharacterStatement &&
+                    (event.source == "journal:own" || event.source == "moment:self" ||
+                        event.channel == "私聊" || event.channel.contains("电话"))
+            }) return false
+        }
         if (kind == DevelopmentKind.Interest) {
             // User-specified interests are stable anchors, not a prohibition on developing
             // new nuances, routines or adjacent interests through witnessed experience.
