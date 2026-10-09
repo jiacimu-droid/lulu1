@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T12:52:24.860266+00:00",
-  "commit": "3d0f61f5f50ce538036dbe5300334fcea4adeb4c",
+  "generatedAt": "2026-10-09T12:52:48.867062+00:00",
+  "commit": "be3e02a5319410b0d6cf903ded6cd4dc383f7101",
   "branch": "main",
-  "sourceFingerprint": "56a3c6d5450902cd1b1932e0770b3416f8c08bd21cfc1d5698fe6223a69abbd0",
+  "sourceFingerprint": "8740fc2f28ee912b192e8844167f8c61b63b0629fe252d45709b047157e4362b",
   "summary": {
     "files": 383,
-    "lines": 92260,
+    "lines": 92266,
     "symbols": 1308
   },
   "symbolIndex": {
@@ -755,7 +755,7 @@
     "point": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorld3DTrialRoom.kt",
-        "line": 315
+        "line": 321
       }
     ],
     "Resident": [
@@ -7729,8 +7729,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorld3DTrialRoom.kt",
-      "lines": 332,
-      "sha256": "ce98de99a74a3dff38902304e59a4ca190ce0fb59533110a593158b18aaacfa5",
+      "lines": 338,
+      "sha256": "585861830a8fe9029f15ecc26c2771de151635203b5d792ef1df7b98c26b02fe",
       "symbols": [
         {
           "name": "setStick",
@@ -7738,7 +7738,7 @@
         },
         {
           "name": "point",
-          "line": 315
+          "line": 321
         }
       ]
     },
