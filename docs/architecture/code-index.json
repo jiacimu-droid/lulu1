@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T12:59:23.006567+00:00",
-  "commit": "a46ffde37843581b9ab2ebb1576d989210c33e60",
+  "generatedAt": "2026-10-09T13:00:45.217671+00:00",
+  "commit": "15c99ceba5dc63b0ce757918649ed5a2dd8e3869",
   "branch": "main",
-  "sourceFingerprint": "fd1f785f2657d01dcd7a9f9bb24e81c914feb305fd5326c15993810327b22e0c",
+  "sourceFingerprint": "81adaf214bd0a4e578df3a9d36513cbab8d493bd3bc6c0fbb779186e96759b09",
   "summary": {
     "files": 384,
     "lines": 92384,
@@ -11535,7 +11535,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt",
       "lines": 47,
-      "sha256": "c7ec68a054cc091c4f68e0eb43a386358814d6178625d5fa60c66358e4a0a748",
+      "sha256": "818a302700b2de5a8b9fbde16fb1971c99a709014a8cf6304ac197b2ffff63c8",
       "symbols": [
         {
           "name": "select",
