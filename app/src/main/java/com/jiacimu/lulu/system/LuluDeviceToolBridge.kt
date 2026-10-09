@@ -74,7 +74,9 @@ object LuluDeviceToolBridge {
             - 若上下文有真实用户消息ID，确实想引用时在 text 开头用 ⟪QUOTE:消息ID⟫；只回应新消息且指代明确时不必引用。只允许引用明确给出的真实ID。
             - 只有本人真的很想长期留住某条用户消息时才在 text 开头用 ⟪FAVORITE:消息ID⟫。收藏不是点赞，不必为了展示能力频繁触发；ID同样必须真实。引用和收藏可以同时出现，也可以都不出现。
         """.trimIndent()
-        val voicePerformanceRule = if (sceneContext.contains("电话")) com.jiacimu.lulu.VoicePerformance.phoneInstruction(appContext) else ""
+        val voicePerformanceRule = if (sceneContext.contains("电话"))
+            com.jiacimu.lulu.VoicePerformance.phoneInstruction(appContext,
+                sleepMode = sceneContext.contains("哄睡")) else ""
         val characterHangupRule = if (sceneContext.contains("电话") && onCharacterHangup != null) """
             【角色可以真的主动挂断】
             只有当前角色发自内心想结束这通电话时，才在 action=reply 的 JSON 中额外返回 "endCall":true。

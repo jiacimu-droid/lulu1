@@ -32,6 +32,29 @@ class VoicePerformanceTest {
         assertEquals(VoicePerformance.plain(audio), VoicePerformance.forPlayback(context, audio))
     }
 
+    @Test fun bedtimeCallKeepsBreathyDirectionsAcrossClausesWithoutChangingSpokenWords() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
+        prefs.edit().putString("tts_provider", "elevenlabs")
+            .putString("eleven_tts_model", "eleven_v4").commit()
+        val words = "今天你已经很努力了。好好休息，明天再说别的。我慢慢给你讲个故事。"
+        val performance = VoicePerformance.sleepAudio(context, words, sleepMode = true)
+        assertEquals(words, VoicePerformance.plain(performance))
+        assertTrue(performance.startsWith("[whispers] [softly]"))
+        assertTrue(performance.split("[whispers]").size >= 3)
+        assertTrue(VoicePerformance.phoneInstruction(context, sleepMode = true).contains("[whispers]"))
+        assertTrue(VoicePerformance.phoneInstruction(context, sleepMode = true).contains("气声"))
+        assertEquals(words, VoicePerformance.sleepAudio(context, words, sleepMode = false))
+        val loud = VoicePerformance.sleepAudio(context, "[shouting] 我今晚陪你。[angry] 慢慢说。", true)
+        assertFalse(loud.contains("[shouting]"))
+        assertFalse(loud.contains("[angry]"))
+        assertEquals("我今晚陪你。 慢慢说。", VoicePerformance.plain(loud))
+        prefs.edit().putString("eleven_tts_model", "eleven_flash_v2_5").commit()
+        assertEquals(words, VoicePerformance.sleepAudio(context, words, true))
+        assertFalse(VoicePerformance.phoneInstruction(context, sleepMode = true).contains("使用 [whispers]"))
+        prefs.edit().putString("tts_provider", "system").commit()
+    }
+
     @Test fun streamingNeverSplitsPunctuationInsideAnAudioDirection() {
         val stream = CallReplyStream()
         val first = "[hesitant, quietly! "

@@ -37,12 +37,61 @@ internal object VoicePerformance {
         标签只是表演指示，不是新增情节；不要用音效凭空新增打人、亲密接触或环境事件。声音方向只写在音频轨，正文不念标签和旁白。
     """.trimIndent()
 
-    fun phoneInstruction(context: Context): String = if (supportsTags(context)) """
-        电话的 text 是这一整轮角色真实说出口的完整台词，随后会作为一段连贯文本送往语音服务；允许嵌入英文音频标签，这是 text 不放内部指令规则的唯一例外。
-        请先确定这一轮完整发言的情绪弧线。不要一句一句独立添加 [angry]、[sad] 等相互冲突的标签，也不要对每个句子重复一个相同标签；声音变化必须跟随角色真实心理转折。
-        $direction
-        电话只能表现当前通话实际可听见的声音，不编造与用户同处一室或隔着电话触碰用户。
-    """.trimIndent() else ""
+    fun phoneInstruction(context: Context, sleepMode: Boolean = false): String {
+        val regular = if (supportsTags(context)) """
+            电话的 text 是这一整轮角色真实说出口的完整台词，随后会作为一段连贯文本送往语音服务；允许嵌入英文音频标签，这是 text 不放内部指令规则的唯一例外。
+            请先确定这一轮完整发言的情绪弧线。不要一句一句独立添加 [angry]、[sad] 等相互冲突的标签，也不要对每个句子重复一个相同标签；声音变化必须跟随角色真实心理转折。
+            $direction
+            电话只能表现当前通话实际可听见的声音，不编造与用户同处一室或隔着电话触碰用户。
+        """.trimIndent() else ""
+        if (!sleepMode) return regular
+        val whisper = if (supportsTags(context)) """
+            当前是哄睡通话：以气声般的轻声低语为全程声线，而非一句低语后恢复正常说话。
+            在开头及自然的意群转换处使用 [whispers]、[softly]，允许少量真实需要的 [inhales] 或 [exhales]，但不要堆砌呼吸音效、让人难以入睡。
+            即使谈到激动的话题也不突然高声喊叫、做戏剧化音量跳变；轻柔是音色与说话方式，不意味着低俗、刻意性感或失去角色原有的个性。
+            接下来的语音播放层还会在自然停顿处强化低语标签，因此不必为了凑标签而把 text 切成碎句。
+        """.trimIndent() else """
+            当前是哄睡通话：用短而自然的口语、放缓叙述和温柔的停顿来营造贴近的轻声陪伴。
+            此语音引擎不支持英文表演标签，不要把 [whispers] 之类标记写进真实台词，也不宣称设备音色已经切换成功。
+        """.trimIndent()
+        return listOf(regular, whisper).filter(String::isNotBlank).joinToString("\n")
+    }
+
+    /**
+     * Voice models may omit or lose a performance label between clauses.
+     * During opt-in bedtime calls add consistent low-volume directions to the
+     * AUDIO track only. Spoken characters and subtitles remain unchanged.
+     */
+    fun sleepAudio(context: Context, text: String, sleepMode: Boolean): String {
+        if (!sleepMode || !supportsTags(context)) return text
+        val quietText = Regex("\\[(?:shouting|screaming|angry)(?:[^\\]]*)\\]", RegexOption.IGNORE_CASE)
+            .replace(unfinished.replace(text, ""), "").trim()
+        if (plain(quietText).isBlank()) return quietText
+        val result = StringBuilder("[whispers] [softly] ")
+        val stopMarks = setOf('。', '！', '？', '；', '!', '?', ';')
+        val pauseMarks = setOf('，', ',')
+        var spokenSinceCue = 0
+        var index = 0
+        while (index < quietText.length) {
+            val tag = tags.find(quietText, index)?.takeIf { it.range.first == index }
+            if (tag != null) {
+                result.append(tag.value)
+                index = tag.range.last + 1
+                continue
+            }
+            val character = quietText[index]
+            result.append(character)
+            if (!character.isWhitespace()) spokenSinceCue++
+            val enoughWords = (character in stopMarks && spokenSinceCue >= 10) ||
+                (character in pauseMarks && spokenSinceCue >= 30)
+            if (enoughWords && plain(quietText.substring(index + 1)).any { it.isLetterOrDigit() }) {
+                result.append(" [whispers] [softly] ")
+                spokenSinceCue = 0
+            }
+            index++
+        }
+        return result.toString().trim()
+    }
 
     fun meetingSegment(type: MeetingSegmentType, text: String, speechText: String, user: Boolean = false): MeetingSegment {
         val clean = plain(text)
