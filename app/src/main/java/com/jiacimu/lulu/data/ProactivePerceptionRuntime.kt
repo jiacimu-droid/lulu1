@@ -522,7 +522,12 @@ object ProactivePerceptionRuntime {
         val newReading = com.jiacimu.lulu.study.ReadingReflectionStore.records.value
             .filter { it.characterId == characterId }.maxByOrNull { it.occurredAt }
         val readingUpdatedPresence = execution.success && newReading != null && newReading.id != lastReading?.id
-        if (!readingUpdatedPresence && (execution.success || decision.action == Action.SILENT)) {
+        val appearanceHasCause = PerceptionStimulusResolver.shouldUpdateVisibleState(
+            actionSucceeded = execution.success,
+            freshStimulus = stimulus != null,
+            deliberateFollowThrough = previousEvidence.isNotBlank(),
+        )
+        if (!readingUpdatedPresence && appearanceHasCause) {
             val physicalAction = decision.action in setOf(Action.DIGITAL_WORLD, Action.READING, Action.SOLO_GAME)
             CompanionPresenceStore.update(
                 characterId = characterId,
