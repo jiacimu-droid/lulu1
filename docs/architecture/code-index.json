@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T16:45:30.937729+00:00",
-  "commit": "73cde12998140207a4e1d862d19bc13cd4100709",
+  "generatedAt": "2026-10-09T16:47:23.359782+00:00",
+  "commit": "64b562ccafc7a07baae13b4c045bea902887d6f6",
   "branch": "main",
-  "sourceFingerprint": "b8cdb35ae9d1c63e8e79c35ce31568b68222f59dfda487f3bde4668f78affa1f",
+  "sourceFingerprint": "c926d436ebd774ae788e031d967c02cf4e91c268bd76962ccb8ec81d9863a256",
   "summary": {
-    "files": 408,
-    "lines": 94220,
-    "symbols": 1358
+    "files": 409,
+    "lines": 94297,
+    "symbols": 1359
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5146,6 +5146,20 @@
         "line": 426
       }
     ],
+    "parse": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt",
+        "line": 17
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt",
+        "line": 31
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
+        "line": 10
+      }
+    ],
     "EventEvidenceKind": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt",
@@ -5268,16 +5282,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt",
         "line": 18
-      }
-    ],
-    "parse": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt",
-        "line": 31
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
-        "line": 10
       }
     ],
     "WorldFirstExplorationMemory": [
@@ -10256,8 +10260,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt",
-      "lines": 153,
-      "sha256": "636dafd86e9a8aea89ea4820bb4b56a2dc7e132a7a8e5580dde2469af44cbb8c",
+      "lines": 165,
+      "sha256": "198062ec66bb438836b3f9442eadbc73de13ebdb5c67954a492a43b099d8be48",
       "symbols": []
     },
     {
@@ -12450,6 +12454,17 @@
       "lines": 15,
       "sha256": "dc0c7a933f1ea48fb6c10db98a2a6fa177818b6926f8ff6e7121b79da23c6b79",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt",
+      "lines": 65,
+      "sha256": "5e0585a95d3c03a48dfe3399ded3d726094dbcda40e253f90e2aa7622323fd30",
+      "symbols": [
+        {
+          "name": "parse",
+          "line": 17
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt",
