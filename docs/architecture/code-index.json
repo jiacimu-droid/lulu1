@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T09:22:13.263074+00:00",
-  "commit": "cd6bce0a17f84cf91ffc934b435bbe20fbf8c6f2",
+  "generatedAt": "2026-10-09T09:23:01.934217+00:00",
+  "commit": "fe9505ad97713561a06342c328462e7814e91d8c",
   "branch": "main",
-  "sourceFingerprint": "c8d66a87966014fe1b49bc2f657a285464002aeafdd5c05ea5eb47bce62e8e8a",
+  "sourceFingerprint": "cae841bb4d87f904cb55529211c21c5b4dc244530635f52a8af98bdf49c912f7",
   "summary": {
     "files": 378,
-    "lines": 91002,
-    "symbols": 1286
+    "lines": 91068,
+    "symbols": 1287
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4586,34 +4586,40 @@
         "line": 85
       }
     ],
+    "scheduleOnlineReflection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
+        "line": 112
+      }
+    ],
     "scheduleEmotionalAftercare": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 113
+        "line": 136
       }
     ],
     "cancelOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 135
+        "line": 158
       }
     ],
     "ProactivePerceptionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 142
+        "line": 166
       }
     ],
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 202
+        "line": 242
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 209
+        "line": 249
       }
     ],
     "fetchWorldNews": [
@@ -7369,8 +7375,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt",
-      "lines": 329,
-      "sha256": "a1938cd4bf61f0b60667976bdb7682b65b3e863194fe72372b9482bab37645a0",
+      "lines": 355,
+      "sha256": "cc9eb5f89587aeda2ac88c4dafb2a30ede5fb7a7d3bcfc4e365fe42e2261dc9f",
       "symbols": []
     },
     {
@@ -9106,7 +9112,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
       "lines": 530,
-      "sha256": "6ed9e201699514add282cc9e2671e58d6e8ccf24bf1473e667d6ac7e834404eb",
+      "sha256": "bdef8b65669dd86c477bb18d154cc3a80cda54924c4c6f9b088e003e21eeffc5",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -10312,7 +10318,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt",
       "lines": 88,
-      "sha256": "4719c456d4d7f721e8986df4b1e6a0a50485b5fe12140509171dbbae4059d4fd",
+      "sha256": "87caca5e8a11461e780b5d5ed5bf1c2decfe5cea5de397126c23ca529e61d552",
       "symbols": [
         {
           "name": "qualifies",
@@ -11442,8 +11448,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 247,
-      "sha256": "668470a59bf6103409580f0034b53134f5fcf70e50e8e2f66124ced501011c9a",
+      "lines": 287,
+      "sha256": "36b3e9296cef1c8d903e5c12b49d6583a57968ab520921a4995ef10222ee98d9",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -11474,24 +11480,28 @@
           "line": 85
         },
         {
+          "name": "scheduleOnlineReflection",
+          "line": 112
+        },
+        {
           "name": "scheduleEmotionalAftercare",
-          "line": 113
+          "line": 136
         },
         {
           "name": "cancelOnline",
-          "line": 135
+          "line": 158
         },
         {
           "name": "ProactivePerceptionWorker",
-          "line": 142
+          "line": 166
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 202
+          "line": 242
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 209
+          "line": 249
         }
       ]
     },
