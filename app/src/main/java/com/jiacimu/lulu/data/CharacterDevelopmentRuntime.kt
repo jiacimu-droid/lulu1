@@ -30,18 +30,20 @@ object CharacterDevelopmentRuntime {
         val sameDefinition = p.getString("persona:$characterId", "") == persona
         if (sameDefinition && now - p.getLong("attempt:$characterId", 0) < 3_600_000) return
         val timeline = SharedExperienceTimeline.all(characterId)
-        // Chat volume must not push actual reading/game/other exposures out of reflection.
-        val selfExpression = timeline.filter { event ->
-            event.evidenceKind == EventEvidenceKind.CharacterStatement &&
-                (event.channel == "私人日记" && event.source == "journal:own" ||
-                    event.channel == "朋友圈" && event.source == "moment:self")
-        }.takeLast(12)
-        val events = (timeline.filter { it.channel.startsWith("独自阅读") }.takeLast(16) +
-            timeline.filter { it.isDevelopmentExposure() && it.evidenceKind != EventEvidenceKind.UserStatement &&
-                !it.channel.startsWith("独自阅读") }.takeLast(24) +
-            timeline.filter { it.evidenceKind == EventEvidenceKind.UserStatement }.takeLast(20) +
-            timeline.filter { it.evidenceKind == EventEvidenceKind.CharacterStatement }.takeLast(20) +
-            selfExpression)
+        // Balance exposure SOURCES. Chat volume must never erase actual books,
+        // games, world encounters and independently visited information sources.
+        // These are real records, not invented offline history or quotas.
+        val events = (timeline.filter { it.channel.startsWith("独自阅读") }.takeLast(10) +
+            timeline.filter { it.channel.startsWith("独自游戏") }.takeLast(8) +
+            timeline.filter { it.channel.startsWith("数字世界") }.takeLast(10) +
+            timeline.filter { it.channel.startsWith("现实世界窗口") }.takeLast(8) +
+            timeline.filter { it.isDevelopmentExposure() &&
+                it.evidenceKind != EventEvidenceKind.UserStatement }.takeLast(10) +
+            timeline.filter { it.evidenceKind == EventEvidenceKind.UserStatement }.takeLast(16) +
+            timeline.filter { it.evidenceKind == EventEvidenceKind.CharacterStatement &&
+                it.source !in setOf("journal:own", "moment:self") }.takeLast(16) +
+            timeline.filter { it.evidenceKind == EventEvidenceKind.CharacterStatement &&
+                it.source in setOf("journal:own", "moment:self") }.takeLast(8))
             .distinctBy { it.id }.sortedBy { it.occurredAt }
         if (events.count { it.isDevelopmentExposure() } < 3) return
         val fingerprint = persona + "\n" + events.joinToString("|") { "${it.id}:${it.revision}" }
@@ -49,10 +51,16 @@ object CharacterDevelopmentRuntime {
         p.edit().putLong("attempt:$characterId", now).putString("persona:$characterId", persona).commit()
         val reply = LuluAiServices.gateway.generate(characterId,
             facts = "锁定人设，不可改写：$persona\n当前已有成长：${CharacterRuntime.developmentContext(characterId)}\n" +
-                events.joinToString("\n") { "eventId=${it.id} revision=${it.revision} ${it.evidenceContent.take(600)}" },
+                events.joinToString("\n") {
+                    "eventId=${it.id} revision=${it.revision} source=${it.source} channel=${it.channel} " +
+                        "kind=${it.evidenceKind} ${it.evidenceContent.take(390)}"
+                },
             instruction = """
                 从角色真实经历中反思可改变的兴趣、偏好、习惯和判断，不改写用户明确限定的人设字段。
                 返回 JSON 数组，最多3项；没有可信变化就返回[]。每项含slot(稳定主题键)、kind(Interest/Preference/Habit/ExpressionHabit/Judgment/RelationshipRoutine/VerifiedMethod)、content、evidenceIds、counterIds。
+                【多来源的成长】可以分别从已实际阅读的小说和文本学习措辞与审美，从与真实群友的互动学习幽默、表达边界或相处方式，从独自游戏的成败中改变耐心和竞争心，从数字世界真正发生的偶遇、家具活动、事件结果形成处事习惯，从现实世界窗口实际看到并有来源的资料扩大知识与兴趣，也可以通过日记重新审视自己。每种来源只能影响它真实提供的方面。模型作者和书中人物的遭遇不是角色亲历，现实资讯也不代表角色到过那个地方。没有新可用经历时可以保持，不能因为几小时没上线就假装阅历增长。
+                【成熟与阅历分开】数字生命从创建起可以拥有已设定的成熟判断、价值取向、边界感与成人情感能力，同时没有相应的亲历和发展出的语言习惯；这不意味着是儿童，也不能虚构童年、工作资历、社会身份。成长优先发生在具体文化接触、兴趣、感受、表达习惯、关系和自主选择上，不因学习新梗就把底层人格推翻。
+                【模仿先于习惯】临时学对方拆气泡、语气词、打字方式是一种可能的社交试探，可表示亲近、玩笑甚至冒犯；一次模仿绝不是长期习惯。只有这个角色自己反复真实使用、得到真实反馈，且有多个不同来源/轮次的可信经历支持，才可以提出 ExpressionHabit。对方不喜欢某种模仿时不能继续把它当“可爱”强迫表演。
                 【个人表达与真实经历】标记为私人日记(journal:own)、自己朋友圈(moment:self)、CharacterStatement 的记录是角色确实写过或说过的话，可以证明当时有某种感受、判断或表达倾向，却绝不能单凭文字证明读了书、去了地点、玩了游戏或完成了补救。对成长的事实次数要求只能由 UserStatement/Observation/ToolResult/明确可核验的阅读及世界事件满足；日记和动态只是补充主观证据。即使作者写了十篇相同的心情，也不是十次实际经历。
                 ExpressionHabit 是角色逐渐形成的个人语言习惯，而不是要求所有人模仿网感、统一说话风格。至少需要三段不同、可核实的实际交流/接触或执行经历，并有该角色在聊天/私人日记/朋友圈中真实表达的具体体现，且内容符合其原始人设；可以学会适合自己的语气词、标点节奏、幽默手法或熟悉的真实社交梗，也可以随着环境改变。不能因为用户使用了某个梗就默认角色会用，不从无来源的互联网杜撰当下热词。已存在相同主题的成长应沿用同一 slot。
                 Interest 是角色自己的兴趣，不是用户的爱好：从真实阅读、游戏、探索、见面等实际接触，加上角色确实表达的感受，判断是否开始喜欢、加深、改变方向或逐渐失去兴趣。至少引用3次不同经历；不要因为角色说了一句喜欢就凭空创建兴趣，不假装体验过正文里的虚构情节。
