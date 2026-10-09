@@ -69,7 +69,7 @@ internal object EmotionFollowThroughCoordinator {
         // One extra choice during the online window. Silence remains a valid
         // choice, but it must result from an actual model decision.
         val onlineQueued = CompanionOnlineStore.isOnline(id, now) && runCatching {
-            ProactivePerceptionScheduler.scheduleOnline(
+            ProactivePerceptionScheduler.scheduleOnlineReflection(
                 context.applicationContext, id,
                 "刚经历真实关系冲突并表达歉意：检视持续情绪与真实后果，自主选择修复、日记、动态、继续沟通或暂时独处；不强迫公开道歉。",
                 delayMillis = 45_000L,
