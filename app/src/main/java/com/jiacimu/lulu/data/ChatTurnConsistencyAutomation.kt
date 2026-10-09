@@ -20,7 +20,7 @@ object ChatTurnConsistencyAutomation {
     private var started = false
 
     @Synchronized
-    fun initialize() {
+    fun initialize(context: android.content.Context) {
         if (started) return
         started = true
         scope.launch {
@@ -49,6 +49,9 @@ object ChatTurnConsistencyAutomation {
                                     ?: conversation.characterId
                                 CharacterInnerLifeStore.recordSpokenText(
                                     speakerId, latest.id, latest.content,
+                                )
+                                EmotionFollowThroughCoordinator.onActualReply(
+                                    context.applicationContext, conversation, messages, latest,
                                 )
 
                                 val matchingUser = messages
