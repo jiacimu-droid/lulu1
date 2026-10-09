@@ -86,6 +86,14 @@ fun DigitalWorldMeetingApp(
         ?.lastOrNull { it.status == MeetingExchangeStatus.FAILED }
     val selectedArchiveId = ScopedModelSelections.selectedArchiveId(ScopedModelSelections.MEETING, library)
 
+    // Presence is tied to the scene being truly visible, NOT to a meeting's
+    // persisted existence. Leaving the scene retains its memories and state.
+    val observedSession = activeSession?.takeIf { !browsingMap && !showHistory && it.endedAt == null }
+    DisposableEffect(observedSession?.id) {
+        val entered = observedSession?.takeIf { MeetingLivingWorldRuntime.entered(it) }
+        onDispose { entered?.let(MeetingLivingWorldRuntime::departed) }
+    }
+
     var seenVoiceTurnIds by remember(activeSession?.id) {
         mutableStateOf(activeSession?.turns.orEmpty().mapTo(mutableSetOf(), MeetingTurn::id))
     }
@@ -113,6 +121,23 @@ fun DigitalWorldMeetingApp(
             } else {
                 meetingRunTurnV2(session.id, rawDraft, record.id)
             }
+        }
+        if (!launched) MeetingExperienceStore.discardExchange(record.id)
+        return launched
+    }
+
+    /** Character response uses the same model, memories, presence and meeting
+     *  exchange manager as ordinary turns, but is never a fabricated user line. */
+    fun launchLivingMoment(session: MeetingSession, characterId: String, fact: String = ""): Boolean {
+        val current = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == session.id }
+            ?.takeIf { it.endedAt == null } ?: return false
+        if (characterId !in current.participantIds || MeetingReplyTaskManager.state(session.id).running) return false
+        val pending = MeetingExperienceStore.pendingForSession(session.id)
+        if (pending.isNotEmpty()) return false
+        val rawDraft = MEETING_LIVING_MOMENT_PREFIX_V2 + characterId + "\n" + fact
+        val record = MeetingExperienceStore.beginExchange(current, rawDraft)
+        val launched = MeetingReplyTaskManager.launch(session.id, record.id) {
+            meetingRunLivingMomentV2(session.id, characterId, fact, record.id)
         }
         if (!launched) MeetingExperienceStore.discardExchange(record.id)
         return launched
@@ -208,13 +233,44 @@ fun DigitalWorldMeetingApp(
             session
         }
         val opening = pending.rawDraft.startsWith(MEETING_INVITED_OPENING_PREFIX_V2)
+        val living = pending.rawDraft.startsWith(MEETING_LIVING_MOMENT_PREFIX_V2)
         val rawDraft = pending.rawDraft.removePrefix(MEETING_INVITED_OPENING_PREFIX_V2)
+        val livingPayload = pending.rawDraft.removePrefix(MEETING_LIVING_MOMENT_PREFIX_V2)
         val record = MeetingExperienceStore.beginExchange(resumedSession, pending.rawDraft, pending.id)
         val resumed = MeetingReplyTaskManager.launch(resumedSession.id, record.id) {
-            if (opening) meetingRunInvitedOpeningV2(resumedSession.id, rawDraft, record.id)
-            else meetingRunTurnV2(resumedSession.id, rawDraft, record.id)
+            when {
+                opening -> meetingRunInvitedOpeningV2(resumedSession.id, rawDraft, record.id)
+                living -> meetingRunLivingMomentV2(
+                    resumedSession.id, livingPayload.substringBefore("\n"),
+                    livingPayload.substringAfter("\n", ""), record.id,
+                )
+                else -> meetingRunTurnV2(resumedSession.id, rawDraft, record.id)
+            }
         }
         if (!resumed) MeetingExperienceStore.discardExchange(record.id)
+    }
+
+    // Autonomous awareness is a *chance* to take initiative; the model can
+    // elect silence. No forced replies, no invented user's lines, no endless
+    // rapid callbacks. Pauses while the user is composing their own message.
+    LaunchedEffect(observedSession?.id, input.isNotBlank()) {
+        val id = observedSession?.id ?: return@LaunchedEffect
+        if (input.isNotBlank()) return@LaunchedEffect
+        kotlinx.coroutines.delay(9_000L)
+        while (MeetingLivingWorldRuntime.isPresent(id)) {
+            val current = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == id }
+            if (current == null || current.endedAt != null) break
+            val pending = MeetingExperienceStore.pendingForSession(id)
+            if (!MeetingReplyTaskManager.state(id).running &&
+                pending.isEmpty() && input.isBlank()) {
+                // Real role model decides whether to start a conversation, make
+                // a move, or simply think. This is not a fixed simulated phrase.
+                current.participantIds.shuffled().firstOrNull()?.let { characterId ->
+                    launchLivingMoment(current, characterId)
+                }
+            }
+            kotlinx.coroutines.delay(84_000L)
+        }
     }
 
     Scaffold(

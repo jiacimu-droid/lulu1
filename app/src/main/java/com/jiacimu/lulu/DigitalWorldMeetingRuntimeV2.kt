@@ -5,6 +5,7 @@ import java.time.Instant
 import java.util.UUID
 
 internal const val MEETING_INVITED_OPENING_PREFIX_V2 = "__meeting_invited_opening__:"
+internal const val MEETING_LIVING_MOMENT_PREFIX_V2 = "__meeting_living_moment__:"
 
 internal suspend fun meetingRunInvitedOpeningV2(sessionId: String, inviterId: String, exchangeId: String) {
     var session = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == sessionId }
