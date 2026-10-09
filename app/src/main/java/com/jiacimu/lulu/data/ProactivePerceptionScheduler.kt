@@ -110,7 +110,7 @@ object ProactivePerceptionScheduler {
      * Run at most one low-priority follow-up per 90 minutes; do not reopen the
      * online window or dictate which specific action a character should choose.
      */
-    fun scheduleEmotionalAftercare(context: Context, characterId: String) {
+    fun scheduleEmotionalAftercare(context: Context, characterId: String, delayMillis: Long = 90_000L) {
         if (characterId.isBlank() || !ProactivePerceptionPolicyStore.get(characterId).enabled) return
         if (!CharacterInnerLifeStore.needsPostOnlineReflection(characterId)) return
         val app = context.applicationContext
@@ -118,7 +118,7 @@ object ProactivePerceptionScheduler {
         val now = System.currentTimeMillis()
         if (now - prefs.getLong("scheduled:$characterId", 0L) < 90 * 60_000L) return
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
-            .setInitialDelay(90, TimeUnit.SECONDS)
+            .setInitialDelay(delayMillis.coerceAtLeast(0L), TimeUnit.MILLISECONDS)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInputData(Data.Builder()
                 .putString("trigger", "强烈情绪的后续整理：从真实经历与未完成心愿里，自主决定反思、沟通、实际行动或安静消化；不要机械写日记或发朋友圈")
@@ -129,7 +129,7 @@ object ProactivePerceptionScheduler {
             .build()
         prefs.edit().putLong("scheduled:$characterId", now).apply()
         WorkManager.getInstance(app).enqueueUniqueWork(
-            "lulu-aftercare-$characterId", ExistingWorkPolicy.REPLACE, request,
+            "lulu-aftercare-$characterId", ExistingWorkPolicy.KEEP, request,
         )
     }
 
