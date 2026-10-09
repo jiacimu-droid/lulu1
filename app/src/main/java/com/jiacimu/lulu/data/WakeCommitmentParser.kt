@@ -14,7 +14,7 @@ internal object WakeCommitmentParser {
     private val clock = Regex("""(?:([01]?\d|2[0-3]))\s*[点时](?:钟)?(?:\s*([0-5]?\d)\s*分?)?""")
     private val wakeSignals = listOf("叫我", "喊我", "叫醒我", "喊醒我", "叫我起床", "叫醒", "喊醒", "叫起床", "提醒我起床")
     private val rejected = listOf("不行", "做不到", "不能帮", "没办法", "不会叫", "没法叫", "不负责", "不答应", "拒绝", "无法保证", "不能保证", "不敢保证", "我不叫", "别指望", "不想叫")
-    private val accepted = listOf("好", "行", "可以", "没问题", "知道了", "记住了", "交给我", "我来", "我会", "我叫", "我喊", "会叫", "提醒你", "叫醒你", "我负责", "到时候", "设置闹钟", "设个闹钟", "安排好了", "准时")
+    private val accepted = listOf("好", "收到", "嗯嗯", "行", "可以", "没问题", "知道了", "记住了", "交给我", "我来", "我会", "我叫", "我喊", "会叫", "提醒你", "叫醒你", "我负责", "到时候", "设置闹钟", "设个闹钟", "安排好了", "准时")
 
     fun acceptedRequest(user: String, role: String): Boolean {
         if (!wakeSignals.any(user::contains) || role.isBlank()) return false
