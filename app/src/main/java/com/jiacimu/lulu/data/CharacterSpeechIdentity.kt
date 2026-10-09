@@ -66,8 +66,8 @@ internal object CharacterSpeechIdentity {
         val conversation = MigratedDomainStores.chat.conversations.value
             .filter { it.characterId == characterId && it.groupChat == null && it.parentConversationId == null }
             .maxByOrNull { it.updatedAt } ?: return ""
-        val recent = MigratedDomainStores.chat.messages(conversation.id).value
-            .filter { it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent }
+        val recent = MigratedDomainStores.chat.messages(conversation.id).value.takeLast(18)
+            .takeLastWhile { it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent }
             .takeLast(12)
         val latest = recent.lastOrNull() ?: return ""
         if (java.time.Duration.between(latest.createdAt, java.time.Instant.now()).abs() >
