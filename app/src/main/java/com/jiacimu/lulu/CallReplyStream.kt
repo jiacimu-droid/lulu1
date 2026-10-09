@@ -16,6 +16,16 @@ internal class CallReplyStream {
         return drain(final = false)
     }
 
+    /** Keep subtitle streaming, but do not split the emotional context sent to expressive TTS. */
+    fun updateForSpeech(envelope: String, wholeTurn: Boolean): List<String> =
+        if (wholeTurn) emptyList() else update(envelope)
+
+    /** A whole-turn performance is one TTS request; legacy models retain incremental chunks. */
+    fun finishForSpeech(text: String, wholeTurn: Boolean): List<String> {
+        val chunks = finish(text)
+        return if (wholeTurn) listOf(text) else chunks
+    }
+
     fun finish(text: String): List<String> {
         check(!text.trimStart().startsWith("{") && !text.trimStart().startsWith("```")) {
             "模型未返回可朗读正文，内部内容未播放"
