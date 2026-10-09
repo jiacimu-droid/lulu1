@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:50:11.797834+00:00",
-  "commit": "77f2b3e384c75be5c8e90c947f7c8bab5d2faead",
+  "generatedAt": "2026-10-09T14:02:58.053297+00:00",
+  "commit": "ba0fc1add68d142f41a575da69e2286573efec9f",
   "branch": "main",
-  "sourceFingerprint": "f81851960e43af3c10f941744cecc141635084f2038fcb3c2f960c2b68547b91",
+  "sourceFingerprint": "28485bbab5c43e2096fcb9ea87556418c0fdf1a1f289f07568e66d1064b6ff82",
   "summary": {
     "files": 395,
-    "lines": 92925,
+    "lines": 92927,
     "symbols": 1326
   },
   "symbolIndex": {
@@ -7414,8 +7414,8 @@
   "files": [
     {
       "path": "app/build.gradle.kts",
-      "lines": 135,
-      "sha256": "79e7839952b48a62ec4c0e3c0d889ce5c9f7a2b4d08e45b996b86f9b505a2e27",
+      "lines": 134,
+      "sha256": "4619e0c328fd80ec756c89300aed504ce883a549a24e7eed8b485071ee96795d",
       "symbols": []
     },
     {
@@ -14822,8 +14822,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt",
-      "lines": 56,
-      "sha256": "2e9b2a0bd8c84aa0b4b188e9eac1c150b1600b972e613aff0e013cdacfbf2d65",
+      "lines": 59,
+      "sha256": "9175bc62fb5716ddd746d51079de0dbb42dfc147fa57d9edf769aa63fa38ec30",
       "symbols": [
         {
           "name": "ElevenLabsAudioContractsTest",

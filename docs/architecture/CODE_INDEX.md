@@ -1,14 +1,14 @@
 # Lulu1 代码索引
 
-- 基准提交：`77f2b3e384c75be5c8e90c947f7c8bab5d2faead`
+- 基准提交：`ba0fc1add68d142f41a575da69e2286573efec9f`
 - 分支：`main`
 - 已索引文件：395
-- 已索引代码/文本行：92925
+- 已索引代码/文本行：92927
 - 已发现符号：1326
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
-| `app/build.gradle.kts` | 135 | 0 |
+| `app/build.gradle.kts` | 134 | 0 |
 | `app/src/main/AndroidManifest.xml` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt` | 45 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
@@ -354,7 +354,7 @@
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
 | `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 179 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechRecordingTest.kt` | 69 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 56 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt` | 34 | 1 |
