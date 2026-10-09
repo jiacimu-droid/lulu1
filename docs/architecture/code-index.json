@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T14:58:52.051973+00:00",
-  "commit": "fb1ea0c8e62a0e04de01dac93c4d6e0a33642f6b",
+  "generatedAt": "2026-10-09T14:59:46.754958+00:00",
+  "commit": "da1a3e9f3e92efb12c04bf076c760e37ba94c0f9",
   "branch": "main",
-  "sourceFingerprint": "24d58c8bb536676eb05ca3e1df6b9e8cd7900ec435fb787bb6b74c978da09e4d",
+  "sourceFingerprint": "4e7a6d5561f8b95e799dcebfa603c9353291ec41113b077036d31a201aa7a9f5",
   "summary": {
     "files": 399,
-    "lines": 93295,
+    "lines": 93311,
     "symbols": 1334
   },
   "symbolIndex": {
@@ -13298,8 +13298,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt",
-      "lines": 140,
-      "sha256": "d6b89686688b12974f43a2b45fdf381a2a5f24f0509c52fb6e6efc7bc3506a00",
+      "lines": 156,
+      "sha256": "491da44221cc928c75e70820a6356af6ad85680c5c440673dd6ffddc5fe8abc9",
       "symbols": []
     },
     {
