@@ -46,7 +46,7 @@ internal object VoicePerformance {
         """.trimIndent() else ""
         if (!sleepMode) return regular
         val whisper = if (supportsTags(context)) """
-            当前是哄睡通话，低语优先于上述普通电话的情绪标签规则。整轮用 [whispers] 轻轻说话，不能突然切换成高声、兴奋、喊叫或者戏剧化表演；不需要插入 [laughs]、[gasps] 等响亮的声音。
+            当前是哄睡通话，低语优先于上述普通电话的情绪标签规则。整轮用 [whispers] 气声般地轻轻说话，不能突然切换成高声、兴奋、喊叫或者戏剧化表演；不需要插入 [laughs]、[gasps] 等响亮的声音。
             内容仍要真实、有情感和个性，不是单调机械地朗读指令。可以慢一点，给听者留出自然停顿。
             语音播放层会去掉本轮其他情绪标签，并在每个自然语段补入 [whispers]，确保持续低语；正文不朗读标签。
         """.trimIndent() else """
