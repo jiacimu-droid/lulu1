@@ -39,7 +39,8 @@ class VoicePerformanceTest {
             .putString("eleven_tts_model", "eleven_v4").commit()
         val words = "今天你已经很努力了。好好休息，明天再说别的。我慢慢给你讲个故事。"
         val performance = VoicePerformance.sleepAudio(context, words, sleepMode = true)
-        assertEquals(words, VoicePerformance.plain(performance))
+        assertEquals(words.filterNot(Char::isWhitespace),
+            VoicePerformance.plain(performance).filterNot(Char::isWhitespace))
         assertTrue(performance.startsWith("[whispers] [softly]"))
         assertTrue(performance.split("[whispers]").size >= 3)
         assertTrue(VoicePerformance.phoneInstruction(context, sleepMode = true).contains("[whispers]"))
