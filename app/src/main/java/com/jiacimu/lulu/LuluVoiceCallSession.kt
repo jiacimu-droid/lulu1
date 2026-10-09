@@ -560,6 +560,7 @@ internal object LuluVoiceCallSession {
                             if (plainSpeech.isNotBlank()) {
                                 MigratedDomainStores.chat.appendVoiceMessage(latest.conversationId,
                                     voiceMessageId, plainSpeech, true)
+                                autonomousHangup.markDelivered(latest.callExperienceId, generation)
                             }
                             clearWhenHeard()
                             mutableState.update { it.copy(playingTranscript = "") }
