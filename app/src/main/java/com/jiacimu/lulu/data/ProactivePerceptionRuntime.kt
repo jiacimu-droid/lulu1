@@ -402,6 +402,14 @@ object ProactivePerceptionRuntime {
                 }
                 if (concerns.isNotBlank()) appendLine("【挂心】\n$concerns")
                 if (commitments.isNotBlank()) appendLine("【承诺与监督】\n$commitments")
+                val clockResponsibilities = CommitmentTaskStore.active(characterId)
+                if (clockResponsibilities.isNotEmpty()) {
+                    appendLine("【已接下的约定 · 程序负责执行，绝不能以日记代替】")
+                    clockResponsibilities.take(10).forEach { task ->
+                        appendLine("- 目标=${task.goal}；到期=${task.dueAt}；状态=${task.status}；动作=${task.deliveryAction}；手机闹钟ID=${task.linkedAlarmId.orEmpty()}；执行回执=${task.lastActionResult.take(160)}")
+                    }
+                    appendLine("这些到期执行由系统闹钟驱动，而非等你上线时想起；写日记、想念、表达打算都不算兑现。到期前可以准备，也可以按自己的生活行动，但不能提前写成已叫醒用户。")
+                }
                 // The gateway supplies the authoritative digital-world state once.
                 worldTick?.let {
                     appendLine("【本轮数字世界程序事件｜不可改写】")
