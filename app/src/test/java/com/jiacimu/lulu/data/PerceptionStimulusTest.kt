@@ -4,6 +4,13 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class PerceptionStimulusTest {
+    @Test fun silentBackgroundHeartbeatCannotRandomlyRewriteCharacterMood() {
+        assertFalse(PerceptionStimulusResolver.shouldUpdateVisibleState(false, false, false))
+        assertTrue(PerceptionStimulusResolver.shouldUpdateVisibleState(false, true, false))
+        assertTrue(PerceptionStimulusResolver.shouldUpdateVisibleState(false, false, true))
+        assertTrue(PerceptionStimulusResolver.shouldUpdateVisibleState(true, false, false))
+    }
+
     @Test fun samePendingUserMessageIsNotInventedAgainEveryBackgroundWake() {
         val first = PerceptionStimulusResolver.select(
             unreadText = "", unreadIds = emptySet(), worldEvent = "", worldEventId = "",
