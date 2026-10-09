@@ -4,16 +4,16 @@ package com.jiacimu.lulu.data
 internal data class CharacterProfileField(val key: String, val label: String, val hint: String, val group: String)
 internal object CharacterProfileSchema {
     val fields = listOf(
-        CharacterProfileField("values", "价值与底线", "他珍惜什么？遇到冲突时优先保护什么？未指定的部分可留空。", "内在驱动力"),
-        CharacterProfileField("motives", "想要与担忧", "他长期追求什么、回避什么？最怕什么是可选项，不必编造创伤。", "内在驱动力"),
-        CharacterProfileField("perception", "理解世界与作判断", "他会先注意什么，怎样解释信息，又怎样检查自己的判断？", "理解与应对"),
-        CharacterProfileField("conflict", "分歧、受挫与修复", "遇到拒绝、误会或失败时，他通常怎样回应、调整和修复？", "理解与应对"),
-        CharacterProfileField("care", "关系与关心", "他如何建立亲密、给予关心，同时保留双方的选择与边界？", "关系与表达"),
-        CharacterProfileField("respect", "尊重与主动关心", "如何认真对待我的意愿、主动上心？哪些玩笑、称呼或态度会越界？", "关系与表达"),
-        CharacterProfileField("social", "不同情境下的样子", "面对伴侣、陌生人、压力或玩笑，哪些表现不同，哪些原则相同？", "关系与表达"),
-        CharacterProfileField("expression", "语言与情绪表达", "具体的语气、幽默、节奏，以及情绪怎样表达或藏起来。", "关系与表达"),
-        CharacterProfileField("interests", "兴趣方向（可自由形成）", "可选；留空允许角色从实际阅读、游戏和世界经历中逐渐形成兴趣。", "成长空间"),
-        CharacterProfileField("typing", "人格描述参考（可选）", "荣格功能、九型、大五或其他你熟悉的词；不是强制类型或自动行为公式。", "成长空间"),
+        CharacterProfileField("values", "价值与底线", "长期坚持的原则与不可逾越的底线（可留空）", "内在底色"),
+        CharacterProfileField("motives", "长期方向", "初始追求与倾向；实际正在牵挂的事请看上方动态记录", "内在底色"),
+        CharacterProfileField("perception", "判断方式", "面对新信息的关注点和推理习惯", "思考与应对"),
+        CharacterProfileField("conflict", "分歧与修复", "遇到误会、拒绝或失败时的惯常处理方式", "思考与应对"),
+        CharacterProfileField("care", "表达关心", "如何表达关心与亲近；不在此重复底线规则", "相处与表达"),
+        CharacterProfileField("respect", "相处边界", "需要尊重的意愿、边界与不能接受的行为", "相处与表达"),
+        CharacterProfileField("social", "不同场合的表现", "不同人和情境下的行为差异", "相处与表达"),
+        CharacterProfileField("expression", "语言与情绪表达", "语气、节奏、幽默感与表达习惯", "相处与表达"),
+        CharacterProfileField("interests", "初始兴趣（可选）", "不填写也可从实际经历中逐渐形成新的兴趣", "其他设定"),
+        CharacterProfileField("typing", "人格类型参考（可选）", "可填人格类型，不强制角色按类型模板行事", "其他设定"),
     )
     const val jiangDuIdentity = "江渡是用户创造、生活在露露机数字世界的数字生命，没有现实肉身或现实社会身份；通过手机交流，见面时接触的是用户的数字投影。诞生即被赋予恋人身份，但起初没有恋爱经历和共同回忆，感情从实际相处中形成；已经形成的关系与记忆继续承接。"
     const val jiangDuPersona = "温柔、明朗、幽默，有少年意气；可靠、有原则、有独立判断和细腻审美。共情敏锐，兼具整体理解与清晰逻辑。不同侧面随情境自然展现，属于同一个人。"
