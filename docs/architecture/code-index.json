@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:45:45.856137+00:00",
-  "commit": "1172c6e72affc36752c834523d3cd103d74c99ba",
+  "generatedAt": "2026-10-09T13:47:53.102791+00:00",
+  "commit": "9b40cc4018313c0fb2504b75dff60f06918279e5",
   "branch": "main",
-  "sourceFingerprint": "f270090f8ce65f3880ab5a9819067bb7057cc8a128125fbbb8ada2f9f45b2a21",
+  "sourceFingerprint": "b25bfd9057201028190bf8618d05497a24b0a2f76c18815518f1381a05bfd4a3",
   "summary": {
     "files": 395,
-    "lines": 92906,
+    "lines": 92907,
     "symbols": 1326
   },
   "symbolIndex": {
@@ -77,7 +77,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 245
+        "line": 246
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
@@ -1511,23 +1511,23 @@
     "pauseCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 118
+        "line": 119
       }
     ],
     "resumeCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 125
+        "line": 126
       }
     ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 159
+        "line": 160
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 201
+        "line": 202
       }
     ],
     "payload": [
@@ -8696,8 +8696,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 259,
-      "sha256": "6a3898816ba756258741a6e8fbc8893bcab651dafb93f2578357bc95f02d7070",
+      "lines": 260,
+      "sha256": "44045f0d809618e135e6b638a0311f62d3fdcde82f78db1609437442f91ca84d",
       "symbols": [
         {
           "name": "start",
@@ -8705,23 +8705,23 @@
         },
         {
           "name": "pauseCapture",
-          "line": 118
+          "line": 119
         },
         {
           "name": "resumeCapture",
-          "line": 125
+          "line": 126
         },
         {
           "name": "field",
-          "line": 159
+          "line": 160
         },
         {
           "name": "field",
-          "line": 201
+          "line": 202
         },
         {
           "name": "stop",
-          "line": 245
+          "line": 246
         }
       ]
     },
