@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:37:50.350052+00:00",
-  "commit": "19ca804da17380e76d05c8f3fb567f498f9f2033",
+  "generatedAt": "2026-10-09T13:38:10.044353+00:00",
+  "commit": "c064b9b62ca4574ac33cbf3f10e401aef28b2f85",
   "branch": "main",
-  "sourceFingerprint": "5dd12a6633caa979f617cdcfcd507a72de78be5dc2fecf8befd470252471470c",
+  "sourceFingerprint": "2a71cc7d220170a2630a270ffb0d2282ba3db3100798685811e281def2e75908",
   "summary": {
     "files": 391,
     "lines": 92756,
@@ -8268,7 +8268,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
       "lines": 452,
-      "sha256": "06a8ce365a53d1fe10e4cbd32ce38f87f05e8a52ea05365588fc5174e9811e06",
+      "sha256": "096075fab9e8abc5d61c33ac928e184480345b10312278bb7681679a93924b16",
       "symbols": [
         {
           "name": "LuluVoiceCallScreen",
