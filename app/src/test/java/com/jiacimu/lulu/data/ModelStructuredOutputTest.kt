@@ -56,6 +56,13 @@ class ModelStructuredOutputTest {
         assertNull(ModelStructuredOutput.objectOrNull("正在思考，随后回复。"))
     }
 
+    @Test fun remorseAfterRealConflictQualifiesButCasualApologyDoesNot() {
+        assertTrue(EmotionFollowThroughCoordinator.qualifies("我真的很后悔，想改正", "你这样真的伤害我了"))
+        assertTrue(EmotionFollowThroughCoordinator.qualifies("对不起，是我不对", "你让我失望了"))
+        assertFalse(EmotionFollowThroughCoordinator.qualifies("对不起，刚刚忘了问你", "今天天气很好"))
+        assertFalse(EmotionFollowThroughCoordinator.qualifies("我想一个人静静", "你这样真的伤害我了"))
+    }
+
     @Test fun emotionalFollowThroughNeedsBothRegretAndRealConflict() {
         assertTrue(EmotionFollowThroughCoordinator.qualifies("对不起，我没有履行约定", "你答应十点叫我却没叫"))
         assertFalse(EmotionFollowThroughCoordinator.qualifies("对不起，刚才手滑", "午饭吃了披萨"))
