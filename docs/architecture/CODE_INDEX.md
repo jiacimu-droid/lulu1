@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`54610a43d445168fd6c17bfa05fde905ceb31596`
+- 基准提交：`0ebb13e2058d07d833cd908b7006472f9e472a7b`
 - 分支：`main`
 - 已索引文件：378
-- 已索引代码/文本行：91169
-- 已发现符号：1290
+- 已索引代码/文本行：91179
+- 已发现符号：1292
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -15,7 +15,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 112 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 158 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 20 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 95 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 105 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 39 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 41 | 0 |

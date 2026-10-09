@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T10:03:03.735697+00:00",
-  "commit": "54610a43d445168fd6c17bfa05fde905ceb31596",
+  "generatedAt": "2026-10-09T10:03:39.838883+00:00",
+  "commit": "0ebb13e2058d07d833cd908b7006472f9e472a7b",
   "branch": "main",
-  "sourceFingerprint": "dc0e8bd6e5ee0977df150b02a43f0f43f5948b7544c10c1259b4d96ee0109445",
+  "sourceFingerprint": "6c7095b9e1d0178d22f0cb26d4ded4264e7952cafb6e735dcb8f1ceb14547dc4",
   "summary": {
     "files": 378,
-    "lines": 91169,
-    "symbols": 1290
+    "lines": 91179,
+    "symbols": 1292
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -186,10 +186,22 @@
         "line": 38
       }
     ],
+    "updateForSpeech": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
+        "line": 20
+      }
+    ],
+    "finishForSpeech": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
+        "line": 24
+      }
+    ],
     "finish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
-        "line": 18
+        "line": 28
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt",
@@ -203,13 +215,13 @@
     "replyTextPrefix": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
-        "line": 52
+        "line": 62
       }
     ],
     "completeReplyText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
-        "line": 55
+        "line": 65
       }
     ],
     "write": [
@@ -7318,8 +7330,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
-      "lines": 95,
-      "sha256": "4850e94a973343b62d411651855699f3c9e63fbde6e24fa946edfee0bef38a70",
+      "lines": 105,
+      "sha256": "580ce21c096f13dfd6b77b30aa6853515d2e6074238735c8e8f3fdeb6def7ac3",
       "symbols": [
         {
           "name": "cancel",
@@ -7330,16 +7342,24 @@
           "line": 10
         },
         {
+          "name": "updateForSpeech",
+          "line": 20
+        },
+        {
+          "name": "finishForSpeech",
+          "line": 24
+        },
+        {
           "name": "finish",
-          "line": 18
+          "line": 28
         },
         {
           "name": "replyTextPrefix",
-          "line": 52
+          "line": 62
         },
         {
           "name": "completeReplyText",
-          "line": 55
+          "line": 65
         }
       ]
     },
