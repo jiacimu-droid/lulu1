@@ -12,7 +12,7 @@ import kotlin.math.sqrt
 internal class TrialRoomWalkController {
     @Volatile var x: Float = 0f
         private set
-    @Volatile var z: Float = 2.7f
+    @Volatile var z: Float = 5.5f
         private set
     @Volatile var yaw: Float = 0f
     @Volatile var pitch: Float = 0f
@@ -23,11 +23,11 @@ internal class TrialRoomWalkController {
         val description: String,
     )
     private val fixtures = listOf(
-        Fixture("沙发", 2f, -.88f, 2.6f, 1.25f, "一张蓝灰色沙发，旁边留了个可以坐下的位置。"),
-        Fixture("茶几", 1.65f, 1.25f, 1.85f, 1.25f, "矮茶几上放着一本书。现在只能查看，尚不能拾取。"),
-        Fixture("书架", -3.14f, -2f, 1f, 1.5f, "书架上有几排演示书籍。"),
-        Fixture("盆栽", 2.83f, 1.9f, .75f, .75f, "一株摆在窗边的演示绿植。"),
-        Fixture("角色低模", -.72f, .3f, 1.05f, .85f, "眼前是尚未绑定骨骼、表情的二次元风格人物占位模型。"),
+        Fixture("沙发", 4f, -1.76f, 2.6f, 1.25f, "一张蓝灰色沙发，旁边留了个可以坐下的位置。"),
+        Fixture("茶几", 3.3f, 2.5f, 1.85f, 1.25f, "矮茶几上放着一本书。现在只能查看，尚不能拾取。"),
+        Fixture("书架", -6.28f, -4f, 1f, 1.5f, "书架上有几排演示书籍。"),
+        Fixture("盆栽", 5.66f, 3.8f, .75f, .75f, "一株摆在窗边的演示绿植。"),
+        Fixture("角色低模", -1.44f, .6f, .9f, .74f, "眼前是尚未绑定骨骼、表情的二次元风格人物占位模型。"),
     )
     fun move(strafe: Float, forward: Float, seconds: Float = .016f) {
         val speed = 2.2f * seconds.coerceIn(0f, .1f)
@@ -38,7 +38,7 @@ internal class TrialRoomWalkController {
         val dx = (cos(yaw.toDouble()) * side + sin(yaw.toDouble()) * ahead).toFloat() * speed
         val dz = (sin(yaw.toDouble()) * side - cos(yaw.toDouble()) * ahead).toFloat() * speed
         fun open(nx: Float, nz: Float): Boolean {
-            if (nx !in -3.38f..3.38f || nz !in -3.0f..3.0f) return false
+            if (nx !in -7.05f..7.05f || nz !in -6.30f..6.30f) return false
             return fixtures.none { fixture ->
                 kotlin.math.abs(nx - fixture.cx) <= fixture.width / 2f + .20f &&
                     kotlin.math.abs(nz - fixture.cz) <= fixture.depth / 2f + .20f
@@ -67,6 +67,6 @@ internal class TrialRoomWalkController {
     }
 
     fun reset() {
-        x = 0f; z = 2.7f; yaw = 0f; pitch = 0f
+        x = 0f; z = 5.5f; yaw = 0f; pitch = 0f
     }
 }
