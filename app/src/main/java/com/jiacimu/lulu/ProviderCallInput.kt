@@ -23,6 +23,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
     private data class AudioChunk(val pcm: ByteArray, val isFinal: Boolean)
     private var segments: Channel<AudioChunk>? = null
     @Volatile private var capturePaused = false
+    private var pauseReleaseJob: Job? = null
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun start() {
@@ -115,19 +116,34 @@ internal class ProviderCallInput(private val context: Context, private val scope
         )
     }
 
-    /** Stop hardware capture while allowing already-recorded ASR jobs to finish. */
+    /**
+     * End any already spoken fragment before releasing hardware. The capture
+     * loop sees accept=false on its next ~100ms frame and emits the final PCM
+     * buffer; cancellation a fraction of a second later frees AudioRecord.
+     */
     fun pauseCapture() {
         if (capturePaused) return
         capturePaused = true
-        microphone.stop()
-        capturingVoice = false
+        pauseReleaseJob?.cancel()
+        pauseReleaseJob = scope.launch {
+            delay(250)
+            if (capturePaused) {
+                microphone.stop()
+                capturingVoice = false
+            }
+        }
         onLevel(0f)
     }
 
     fun resumeCapture() {
         if (!capturePaused) return
         val queue = segments ?: return
+        pauseReleaseJob?.cancel()
+        pauseReleaseJob = null
         capturePaused = false
+        // The old recorder may still be alive during the short drain window;
+        // restart cleanly to avoid using a stopped AudioRecord instance.
+        microphone.stop()
         startMicrophone(generation, queue, context.getSharedPreferences("lulu_advanced_settings", 0))
     }
 
@@ -245,6 +261,8 @@ internal class ProviderCallInput(private val context: Context, private val scope
     }
 
     fun stop() {
+        pauseReleaseJob?.cancel()
+        pauseReleaseJob = null
         generation++
         capturingVoice = false
         capturePaused = false
