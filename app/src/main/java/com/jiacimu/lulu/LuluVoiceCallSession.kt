@@ -834,9 +834,10 @@ internal object LuluVoiceCallSession {
     private fun saveCallExperience(current: LuluVoiceCallState, endedByCharacter: Boolean = false) {
         if (!current.everConnected || current.experienceSaved) return
         com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(current.characterId)
-        val transcript = MigratedDomainStores.chat.messages(current.conversationId).value
-            .drop(current.callStartMessageCount)
-            .joinToString("\n") { message ->
+        val transcript = actualPhoneCaptions(
+            MigratedDomainStores.chat.messages(current.conversationId).value,
+            current.callStartedAt,
+        ).joinToString("\n") { message ->
                 val speaker = if (message.sender == LuluChatMessage.Sender.User) "你" else current.characterName
                 "$speaker：${message.content.trim()}"
             }

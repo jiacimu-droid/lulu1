@@ -74,12 +74,7 @@ fun LuluVoiceCallScreen(
     // Only messages belonging to this *connected* call may appear as call
     // captions. List position alone leaked old chat after a cold screen restore.
     val callMessages = remember(messages, state.callExperienceId, state.callStartedAt) {
-        state.callStartedAt?.let { since ->
-            messages.filter { message ->
-                message.createdAt >= since &&
-                    message.sender != LuluChatMessage.Sender.System
-            }
-        }.orEmpty()
+        actualPhoneCaptions(messages, state.callStartedAt)
     }
     val visibleCallMessages = remember(callMessages) { callMessages.takeLast(12) }
 
