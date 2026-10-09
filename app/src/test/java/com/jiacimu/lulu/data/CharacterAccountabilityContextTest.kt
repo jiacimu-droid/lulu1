@@ -21,6 +21,17 @@ class CharacterAccountabilityContextTest {
         assertTrue(context.contains("不能") || context.contains("不能声称"))
     }
 
+    @Test fun obviousRoleBlameIsStoppedOnlyInMissedCommitmentContext() {
+        val unfair = "憋了四个小时，就憋出这一句倒打一耙？"
+        val repaired = CharacterAccountabilityContext.guardUnfairBlame("那你也没十点叫我啊", unfair)
+        assertFalse(repaired.contains("倒打一耙"))
+        assertTrue(repaired.contains("是我答应"))
+        assertTrue(repaired.contains("对不起"))
+        assertEquals(unfair, CharacterAccountabilityContext.guardUnfairBlame("今天吃了一个披萨", unfair))
+        val fair = "是我没做到，我不该怪你。对不起。"
+        assertEquals(fair, CharacterAccountabilityContext.guardUnfairBlame("你没叫我起床", fair))
+    }
+
     @Test fun expressionGuidePreservesIndependenceWithoutUnjustifiedCondescension() {
         val guide = CharacterExpressionGuide.promptSection()
         assertTrue(guide.contains("独立人格不是居高临下"))
