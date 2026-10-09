@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:38:10.044353+00:00",
-  "commit": "c064b9b62ca4574ac33cbf3f10e401aef28b2f85",
+  "generatedAt": "2026-10-09T13:38:39.973322+00:00",
+  "commit": "13ca5cb22643c6c61d54adc39ea440e9e4a4dac1",
   "branch": "main",
-  "sourceFingerprint": "2a71cc7d220170a2630a270ffb0d2282ba3db3100798685811e281def2e75908",
+  "sourceFingerprint": "0e7993ee43feab53e508fe541e06c308bf0f525d41986c0caea672dd919e1ec5",
   "summary": {
     "files": 391,
-    "lines": 92756,
+    "lines": 92761,
     "symbols": 1318
   },
   "symbolIndex": {
@@ -7109,7 +7109,7 @@
     "MiniMaxAsrStreamAccumulatorTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt",
-        "line": 6
+        "line": 12
       }
     ],
     "TrialRoomWalkControllerTest": [
@@ -14780,12 +14780,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt",
-      "lines": 29,
-      "sha256": "fcdda46520f8374b7b324d905f879a1ffa2909399bc92600ae1956a5c107d8e9",
+      "lines": 34,
+      "sha256": "903df0d32521a22474d94d517c93073e7db25ea6dea6d853d890b7d0d6f4c92e",
       "symbols": [
         {
           "name": "MiniMaxAsrStreamAccumulatorTest",
-          "line": 6
+          "line": 12
         }
       ]
     },
