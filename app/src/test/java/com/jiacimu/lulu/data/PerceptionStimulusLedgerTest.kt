@@ -26,6 +26,19 @@ class PerceptionStimulusLedgerTest {
         PerceptionStimulusLedger.clear(role)
     }
 
+    @Test fun groupEventDeletionClearsTheOriginalObservedBubbleToo() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        PerceptionStimulusLedger.initialize(context)
+        val role = "perception-group-deleted-test"
+        PerceptionStimulusLedger.clear(role)
+        val seen = PerceptionStimulus("group-bubble-001", "用户群里说话")
+        assertTrue(PerceptionStimulusLedger.claim(context, role, seen))
+        assertFalse(PerceptionStimulusLedger.claim(context, role, seen))
+        PerceptionStimulusLedger.invalidate("group-bubble-001:group:$role")
+        assertTrue(PerceptionStimulusLedger.claim(context, role, seen))
+        PerceptionStimulusLedger.clear(role)
+    }
+
     @Test fun samePersonCanNoticeAnActuallyDifferentNewEvent() {
         val context = RuntimeEnvironment.getApplication() as Context
         PerceptionStimulusLedger.initialize(context)
