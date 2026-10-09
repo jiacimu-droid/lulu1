@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T10:05:43.634768+00:00",
-  "commit": "1e30a64b5d70618f212706edf95d1f3ccba82b9c",
+  "generatedAt": "2026-10-09T10:17:16.962679+00:00",
+  "commit": "64c346f4d41a8ec67b91add6fc63aea9dc0f617e",
   "branch": "main",
-  "sourceFingerprint": "b232ae09c63e7d8e37fb06cc8edae3216c86db08c55ad1526785b0e6ac3b9567",
+  "sourceFingerprint": "71438aa6fe96da48cf7b524c306cc4d68f154c7a38d2126dd2ecd74fd8b5fc34",
   "summary": {
     "files": 378,
-    "lines": 91195,
+    "lines": 91199,
     "symbols": 1292
   },
   "symbolIndex": {
@@ -9123,8 +9123,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-      "lines": 21,
-      "sha256": "60346ab4e781d6cdc38c43d845e591b4525a8f99e495b3d77fb63739a09f19e5",
+      "lines": 25,
+      "sha256": "575d2038f94818e5ed95810005690af8b8dfe094863644f8b608dccdf4e30acb",
       "symbols": [
         {
           "name": "promptSection",
