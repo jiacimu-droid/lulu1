@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`26131e71686a4b2d563333a318195b3fc813c075`
+- 基准提交：`8aa55e2fc04f95b44c17dc076f84e2348d593b89`
 - 分支：`main`
 - 已索引文件：389
-- 已索引代码/文本行：92651
+- 已索引代码/文本行：92677
 - 已发现符号：1314
 
 | 文件 | 行数 | 符号数 |
@@ -12,7 +12,7 @@
 | `app/src/main/AndroidManifest.xml` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt` | 45 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 112 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 138 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 158 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt` | 49 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 20 | 2 |
