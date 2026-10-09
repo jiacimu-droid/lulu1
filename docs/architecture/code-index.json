@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T15:57:39.501083+00:00",
-  "commit": "028e25912de93a181ee928648a6fd07b29cbf7cd",
+  "generatedAt": "2026-10-09T16:02:36.539956+00:00",
+  "commit": "6a81bd0ac81988b9a6a691ca01b0c72f119d915d",
   "branch": "main",
-  "sourceFingerprint": "17009998ad28566d1e9c1dd75479e8e0c5ce7351a4b1f1ec3076fd2dbb0d2b27",
+  "sourceFingerprint": "ea05f4e2af33f78244506f3222e6f5ba8b1c8ee86ffbc84c116a12ba614403d4",
   "summary": {
-    "files": 403,
-    "lines": 94015,
+    "files": 404,
+    "lines": 94037,
     "symbols": 1352
   },
   "symbolIndex": {
@@ -8126,8 +8126,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt",
-      "lines": 366,
-      "sha256": "a49ebde0ff5f370f918a98e4ad3f06214047a6658a53e244f7d79eb512cb3c28",
+      "lines": 367,
+      "sha256": "5dc6a0d151926b178d8a5f541d019ef7f4608fa40bd4f5cd228a4426237b0ba6",
       "symbols": [
         {
           "name": "ledgerText",
@@ -9591,8 +9591,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
-      "lines": 479,
-      "sha256": "9f56f402eafc03804f8702c48ff2b825ee684b7867a5f36259c6e692fcdbd245",
+      "lines": 480,
+      "sha256": "63628f1d97bcb8d07f65ac4b83e74fe832e054351e03227cac6aa3323ca52fcf",
       "symbols": []
     },
     {
@@ -9760,7 +9760,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
       "lines": 531,
-      "sha256": "f70c88a3489b2c1324641fc3003a9e40cde1f1397b341a82268b38bbf966cb1f",
+      "sha256": "145a1873568c591b9d42fe9c969e6e080b2ed6165f610f6f28c02c8fa4d974d8",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -9911,8 +9911,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt",
-      "lines": 48,
-      "sha256": "8a4b977c2177ca96e790d834c191fde3f90f4192852a2aa3af04345d37db3726",
+      "lines": 49,
+      "sha256": "9f330d2cb93133466ba42490bb8bb5b7aaf31b77cd54e2a599820a2812eb7551",
       "symbols": [
         {
           "name": "promptSection",
@@ -10365,7 +10365,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
       "lines": 317,
-      "sha256": "59c5687240b3c1a5746d8429a6ad38add9965ae32e00e50c75ca664d7be98d60",
+      "sha256": "7b79cc09976b1faa66dc867b41d1c660e29465d677f446ed65cc848038dd675f",
       "symbols": [
         {
           "name": "CompanionPresenceState",
@@ -12007,8 +12007,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 41,
-      "sha256": "8e6431454b4ff044407a2d08a9556f127bf9bb2999896c2ec29bd4ffd94af472",
+      "lines": 43,
+      "sha256": "8004800ce2d08e89efbc3ea8027254984653011c8222565c3e501029fdb875d0",
       "symbols": []
     },
     {
@@ -12368,6 +12368,12 @@
           "line": 444
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt",
+      "lines": 15,
+      "sha256": "dc0c7a933f1ea48fb6c10db98a2a6fa177818b6926f8ff6e7121b79da23c6b79",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt",
@@ -14966,8 +14972,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 528,
-      "sha256": "5ec52f177f48172670a05ba0b7aad4db159eb59e438f0f890687c14029ccf656",
+      "lines": 530,
+      "sha256": "2a4caf507e00a65ec201f2139e47017c3f3fdeb57c670ae40b1f003845a6f802",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
