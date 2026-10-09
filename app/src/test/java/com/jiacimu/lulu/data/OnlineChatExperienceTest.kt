@@ -177,6 +177,28 @@ class OnlineChatExperienceTest {
             "before", instant.minusMillis(1), instant, instant, emptySet()))
     }
 
+    @Test fun speechFingerprintsStayRoleSpecificAndCrossWorldScenesExcludeOriginalConversation() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CharacterLifeStore.initialize(context)
+        val roleA = MigratedDomainStores.characters.create("说话有个性甲", "正常人设")
+        val roleB = MigratedDomainStores.characters.create("说话有个性乙", "另一种人设")
+        CharacterLifeStore.setProfile(roleA.characterId, "speechHabits", "紧张时用……拖长停顿")
+        CharacterLifeStore.setProfile(roleB.characterId, "speechHabits", "爱说倒装句")
+        val chatA = MigratedDomainStores.chat.ensureConversation(roleA.characterId, roleA.displayName)
+        MigratedDomainStores.chat.appendCharacterMessage(chatA.id, "我、我先说一个事情……", roleA.characterId)
+        val fullA = CharacterSpeechIdentity.promptSection(roleA.characterId)
+        assertTrue(fullA.contains("紧张时用……拖长停顿"))
+        assertTrue(fullA.contains("我、我先说一个事情"))
+        assertFalse(fullA.contains("爱说倒装句"))
+        val fullB = CharacterSpeechIdentity.promptSection(roleB.characterId)
+        assertFalse(fullB.contains("我、我先说一个事情"))
+        assertTrue(fullB.contains("爱说倒装句"))
+        val isolatedA = CharacterSpeechIdentity.promptSection(roleA.characterId, includeObserved = false)
+        assertTrue(isolatedA.contains("紧张时用……拖长停顿"))
+        assertFalse(isolatedA.contains("我、我先说一个事情"))
+    }
+
     @Test fun actualActivityRefreshesFiveMinutesWithoutStackingTime() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
