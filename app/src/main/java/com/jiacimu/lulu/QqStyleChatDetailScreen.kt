@@ -108,6 +108,12 @@ fun QqStyleChatDetailScreen(
     val conversation = conversations.firstOrNull { it.id == conversationId }
     val groupChat = conversation?.groupChat
     val characterId = conversation?.characterId ?: "lulu"
+    val recordedResponsibilities by CommitmentTaskStore.tasks.collectAsState()
+    val visibleResponsibility = remember(recordedResponsibilities, characterId) {
+        recordedResponsibilities.asSequence()
+            .filter { it.characterId == characterId && it.status.isActive() }
+            .sortedBy { it.dueAt ?: java.time.Instant.MAX }.firstOrNull()
+    }
     val character = MigratedDomainStores.characters.get(characterId)
     val chatNickname = remember(characterId, lifeStates) {
         CharacterLifeStore.state(characterId).optJSONObject("socialNames")
@@ -398,6 +404,22 @@ fun QqStyleChatDetailScreen(
                                     color = if ((groupChat == null && privateOnline) || (groupChat != null && onlineMemberCount > 0)) Color(0xFF2A9D63) else QqMuted,
                                     maxLines = 1,
                                 )
+                                if (groupChat == null && visibleResponsibility != null) {
+                                    val task = visibleResponsibility
+                                    val whenText = task.dueAt?.let {
+                                        java.time.format.DateTimeFormatter.ofPattern("M/d HH:mm")
+                                            .withZone(java.time.ZoneId.systemDefault()).format(it)
+                                    }.orEmpty()
+                                    val confirmed = task.status == CommitmentTaskStatus.Scheduled &&
+                                        task.linkedAlarmId != null
+                                    Text(
+                                        if (confirmed) "⏰ $whenText 已登记真实提醒"
+                                        else "⚠ 约定${if (whenText.isNotBlank()) " $whenText" else ""} 尚未成功安排",
+                                        fontSize = 10.sp,
+                                        color = if (confirmed) Color(0xFF566977) else Color(0xFFC05E4A),
+                                        maxLines = 1,
+                                    )
+                                }
                             }
                         }
                     }
