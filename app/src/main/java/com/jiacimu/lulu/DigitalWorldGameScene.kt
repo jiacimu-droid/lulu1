@@ -978,10 +978,10 @@ private class DigitalWorldPlayState(context: Context, sceneKey: String) {
     fun loadHandHoldingId(): String? = prefs.getString("hold_$suffix", null)?.takeIf(String::isNotBlank)
 
     fun loadFollowerIds(): Set<String> =
-        prefs.getStringSet("followers_$suffix", emptySet()).orEmpty().toSet()
+        prefs.getStringSet("followers_$suffix", null).orEmpty().toSet()
 
     fun loadSuspendedFollowers(): Set<String> =
-        prefs.getStringSet("suspended_$suffix", emptySet()).orEmpty().toSet()
+        prefs.getStringSet("suspended_$suffix", null).orEmpty().toSet()
 
     fun saveCompanionship(handHoldingId: String?, followers: Set<String>, suspended: Set<String>) {
         prefs.edit()
