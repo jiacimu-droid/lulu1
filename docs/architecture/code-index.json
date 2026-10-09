@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:37:20.940834+00:00",
-  "commit": "bccc7e671fe24cf0d417073e7b422137ced4298c",
+  "generatedAt": "2026-10-09T13:37:50.350052+00:00",
+  "commit": "19ca804da17380e76d05c8f3fb567f498f9f2033",
   "branch": "main",
-  "sourceFingerprint": "b6983e0495deaf826320ed8a75f13184b2c0be80ef043da333e82944419f6bb0",
+  "sourceFingerprint": "5dd12a6633caa979f617cdcfcd507a72de78be5dc2fecf8befd470252471470c",
   "summary": {
-    "files": 390,
-    "lines": 92722,
-    "symbols": 1315
+    "files": 391,
+    "lines": 92756,
+    "symbols": 1318
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -930,6 +930,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
         "line": 757
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
+        "line": 12
       }
     ],
     "forScene": [
@@ -1460,6 +1464,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
         "line": 38
+      }
+    ],
+    "lines": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
+        "line": 8
+      }
+    ],
+    "format": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
+        "line": 31
       }
     ],
     "combine": [
@@ -8567,6 +8583,25 @@
         {
           "name": "OptimizedPerformanceFeatureScreen",
           "line": 38
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
+      "lines": 34,
+      "sha256": "8c0e06ef1519b014a8086021c6a783912e6ca74a8e633badebdab50cb27ed342",
+      "symbols": [
+        {
+          "name": "lines",
+          "line": 8
+        },
+        {
+          "name": "flush",
+          "line": 12
+        },
+        {
+          "name": "format",
+          "line": 31
         }
       ]
     },
