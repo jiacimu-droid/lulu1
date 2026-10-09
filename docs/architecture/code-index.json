@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:03:20.157985+00:00",
-  "commit": "0f307d088d096ac09a0cb6ad60afaec876244fb2",
+  "generatedAt": "2026-10-09T13:03:58.232231+00:00",
+  "commit": "8c5bf9f3e453401ad7fa1c09126ea160bc6dfa57",
   "branch": "main",
-  "sourceFingerprint": "aef1a9220abd8e350a4b77a178e80447b70d2431ea93d2a07d6b57764ef637c1",
+  "sourceFingerprint": "aa8a9ad84ca8b5fffed2b30b514155df84b023370c2d083a0eb6a1746393dd00",
   "summary": {
     "files": 387,
-    "lines": 92518,
+    "lines": 92520,
     "symbols": 1311
   },
   "symbolIndex": {
@@ -283,13 +283,13 @@
     "sttLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 30
+        "line": 31
       }
     ],
     "label": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 36
+        "line": 37
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt",
@@ -303,13 +303,13 @@
     "miniAsrEndpoint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 37
+        "line": 38
       }
     ],
     "preflight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 42
+        "line": 43
       }
     ],
     "CharacterSettingsScreenV2": [
@@ -7503,8 +7503,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-      "lines": 65,
-      "sha256": "dfaa347e06c19c69637502952405572a0c5ed6df834c31ff0bd24f212c685711",
+      "lines": 66,
+      "sha256": "edcb316933b4597b871cce483da6125658c34fa385f9cfc1872f87ae07c8a6e7",
       "symbols": [
         {
           "name": "provider",
@@ -7524,19 +7524,19 @@
         },
         {
           "name": "sttLabel",
-          "line": 30
+          "line": 31
         },
         {
           "name": "label",
-          "line": 36
-        },
-        {
-          "name": "miniAsrEndpoint",
           "line": 37
         },
         {
+          "name": "miniAsrEndpoint",
+          "line": 38
+        },
+        {
           "name": "preflight",
-          "line": 42
+          "line": 43
         }
       ]
     },
@@ -8776,8 +8776,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt",
-      "lines": 128,
-      "sha256": "f3aa433518024c0cd552eb82ddc5aa030345cafede477a8004a9bfebe43f211f",
+      "lines": 129,
+      "sha256": "2fc76ba58ec53c1ec126e7c93ac6221a53f080ff5fb7e1e9012868d0cbb4a903",
       "symbols": []
     },
     {
