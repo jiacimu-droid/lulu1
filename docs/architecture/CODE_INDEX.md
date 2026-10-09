@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`3e0439bc111ce2cbaec5c01a91fca605bc9e5fa4`
+- 基准提交：`1172c6e72affc36752c834523d3cd103d74c99ba`
 - 分支：`main`
 - 已索引文件：395
-- 已索引代码/文本行：92864
-- 已发现符号：1324
+- 已索引代码/文本行：92906
+- 已发现符号：1326
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -12,8 +12,8 @@
 | `app/src/main/AndroidManifest.xml` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt` | 45 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 146 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 158 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 155 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 156 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt` | 49 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 20 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 105 | 7 |
@@ -68,7 +68,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 125 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 452 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 857 | 13 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 859 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt` | 80 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt` | 220 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt` | 198 | 9 |
@@ -92,7 +92,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt` | 34 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 190 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 226 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 259 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 232 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 34 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 87 | 0 |

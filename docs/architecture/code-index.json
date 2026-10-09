@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:44:09.729824+00:00",
-  "commit": "3e0439bc111ce2cbaec5c01a91fca605bc9e5fa4",
+  "generatedAt": "2026-10-09T13:45:45.856137+00:00",
+  "commit": "1172c6e72affc36752c834523d3cd103d74c99ba",
   "branch": "main",
-  "sourceFingerprint": "649ca285ef4880804c2b30b1571d9ac9e902a5d89d3bbb398921efd294d2c01b",
+  "sourceFingerprint": "f270090f8ce65f3880ab5a9819067bb7057cc8a128125fbbb8ada2f9f45b2a21",
   "summary": {
     "files": 395,
-    "lines": 92864,
-    "symbols": 1324
+    "lines": 92906,
+    "symbols": 1326
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -29,11 +29,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
-        "line": 34
+        "line": 33
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 25
+        "line": 28
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -53,7 +53,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
-        "line": 108
+        "line": 107
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
@@ -77,7 +77,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 213
+        "line": 245
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
@@ -101,7 +101,7 @@
     "speaker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
-        "line": 58
+        "line": 57
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
@@ -111,19 +111,19 @@
     "refresh": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
-        "line": 65
+        "line": 64
       }
     ],
     "preferredMicrophoneType": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
-        "line": 132
+        "line": 130
       }
     ],
     "headsetPriority": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
-        "line": 139
+        "line": 137
       }
     ],
     "markDelivered": [
@@ -1277,55 +1277,55 @@
     "toggleSpeaker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 260
+        "line": 262
       }
     ],
     "reportPermissionDenied": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 264
+        "line": 266
       }
     ],
     "endCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 268
+        "line": 270
       }
     ],
     "sameReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 546
+        "line": 548
       }
     ],
     "clearWhenHeard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 548
+        "line": 550
       }
     ],
     "enqueueSpoken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 553
+        "line": 555
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 658
+        "line": 660
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 689
+        "line": 691
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 771
+        "line": 773
       }
     ],
     "MeetingReplyTaskManager": [
@@ -1508,14 +1508,26 @@
         "line": 41
       }
     ],
+    "pauseCapture": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
+        "line": 118
+      }
+    ],
+    "resumeCapture": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
+        "line": 125
+      }
+    ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 127
+        "line": 159
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 169
+        "line": 201
       }
     ],
     "payload": [
@@ -7435,8 +7447,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
-      "lines": 146,
-      "sha256": "bf379edac69e36fcbd24270d038ba1397b614c1a7156955ad148046b92da3dd2",
+      "lines": 155,
+      "sha256": "807e0554888655cfbba4a0e71030b043dddf9ce1cd6fe4b8692fc25289fdb0b7",
       "symbols": [
         {
           "name": "start",
@@ -7454,12 +7466,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
-      "lines": 158,
-      "sha256": "c85b30d39ea7ebe3e051ab1fd525ed3c98b8187da0d93231100b6b883aae2565",
+      "lines": 156,
+      "sha256": "2694ae758fff59afd299793c1eaa57481109a8c70acae0fc53037ea16809085f",
       "symbols": [
         {
           "name": "start",
-          "line": 34
+          "line": 33
         },
         {
           "name": "microphone",
@@ -7467,23 +7479,23 @@
         },
         {
           "name": "speaker",
-          "line": 58
+          "line": 57
         },
         {
           "name": "refresh",
-          "line": 65
+          "line": 64
         },
         {
           "name": "stop",
-          "line": 108
+          "line": 107
         },
         {
           "name": "preferredMicrophoneType",
-          "line": 132
+          "line": 130
         },
         {
           "name": "headsetPriority",
-          "line": 139
+          "line": 137
         }
       ]
     },
@@ -8314,8 +8326,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 857,
-      "sha256": "0c4b31ba3d6a31ae032b9177b1ca57740edcf67ea350c6c150b32ba5ad9bb31b",
+      "lines": 859,
+      "sha256": "93c556130d36d5fab95b0db62a70f762997e5feafcc0755f8fcfacf626d82419",
       "symbols": [
         {
           "name": "prepare",
@@ -8335,39 +8347,39 @@
         },
         {
           "name": "toggleSpeaker",
-          "line": 260
+          "line": 262
         },
         {
           "name": "reportPermissionDenied",
-          "line": 264
+          "line": 266
         },
         {
           "name": "endCall",
-          "line": 268
+          "line": 270
         },
         {
           "name": "sameReply",
-          "line": 546
-        },
-        {
-          "name": "clearWhenHeard",
           "line": 548
         },
         {
+          "name": "clearWhenHeard",
+          "line": 550
+        },
+        {
           "name": "enqueueSpoken",
-          "line": 553
+          "line": 555
         },
         {
           "name": "sameSession",
-          "line": 658
+          "line": 660
         },
         {
           "name": "retryListening",
-          "line": 689
+          "line": 691
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 771
+          "line": 773
         }
       ]
     },
@@ -8684,24 +8696,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 226,
-      "sha256": "2a76135f186da884a0968de5e373b5a92053206472d8eee91f33da09e51bf883",
+      "lines": 259,
+      "sha256": "6a3898816ba756258741a6e8fbc8893bcab651dafb93f2578357bc95f02d7070",
       "symbols": [
         {
           "name": "start",
-          "line": 25
+          "line": 28
+        },
+        {
+          "name": "pauseCapture",
+          "line": 118
+        },
+        {
+          "name": "resumeCapture",
+          "line": 125
         },
         {
           "name": "field",
-          "line": 127
+          "line": 159
         },
         {
           "name": "field",
-          "line": 169
+          "line": 201
         },
         {
           "name": "stop",
-          "line": 213
+          "line": 245
         }
       ]
     },
