@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`bb6e978b6da047fe286111e274a2cd782c6399d0`
+- 基准提交：`cc6ff6cf77352abef7c5f176b7c9ab1843d74548`
 - 分支：`main`
 - 已索引文件：374
-- 已索引代码/文本行：90414
+- 已索引代码/文本行：90430
 - 已发现符号：1277
 
 | 文件 | 行数 | 符号数 |
@@ -101,7 +101,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 155 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StatefulCharacterPortrait.kt` | 24 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt` | 144 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 43 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 59 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt` | 29 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt` | 103 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt` | 39 | 4 |
