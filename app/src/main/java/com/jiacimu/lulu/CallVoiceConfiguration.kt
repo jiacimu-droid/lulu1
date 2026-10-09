@@ -1,7 +1,6 @@
 package com.jiacimu.lulu
 
 import android.content.Context
-import android.os.Build
 import android.speech.SpeechRecognizer
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import java.net.URI
@@ -9,12 +8,30 @@ import java.net.URI
 internal object CallVoiceConfiguration {
     fun provider(context: Context): String = context.getSharedPreferences("lulu_advanced_settings", 0).getString("tts_provider", "system").orEmpty()
     fun usesAgent(provider: String, mode: String?): Boolean = provider == "elevenlabs" && mode == "agent"
-    /** Only the direct ElevenLabs call uses strictly on-device STT; Agent owns its own audio session. */
-    fun requiresOnDeviceStt(provider: String, mode: String?): Boolean = provider == "elevenlabs" && !usesAgent(provider, mode)
-    fun onDeviceSttError(context: Context): String? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return "本机识别需要 Android 12 或更新版本"
-        return if (SpeechRecognizer.isOnDeviceRecognitionAvailable(context)) null
-            else "手机未提供本地语音识别服务；请在系统设置安装并启用离线中文语音识别"
+    /** Speech-to-text is independent of the provider that speaks for the character. */
+    fun resolveSttEngine(mode: String, androidAvailable: Boolean, groqConfigured: Boolean,
+        ttsProvider: String): String = when (mode) {
+        "system" -> "system"
+        "groq" -> "groq"
+        "minimax" -> "minimax"
+        else -> when {
+            androidAvailable -> "system" // free or OS-managed service, not necessarily offline
+            groqConfigured -> "groq"
+            ttsProvider == "minimax" -> "minimax" // old user settings stay functional
+            else -> "unavailable"
+        }
+    }
+    fun sttEngine(context: Context): String {
+        val p = context.getSharedPreferences("lulu_advanced_settings", 0)
+        val available = SpeechRecognizer.isRecognitionAvailable(context)
+        return resolveSttEngine(p.getString("call_stt_mode", "auto").orEmpty(),
+            available, p.getString("groq_asr_key", "").orEmpty().isNotBlank(), provider(context))
+    }
+    fun sttLabel(engine: String): String = when (engine) {
+        "groq" -> "Groq Whisper"
+        "system" -> "手机系统识别"
+        "minimax" -> "MiniMax 识别"
+        else -> "尚未配置"
     }
     fun label(provider: String): String = when (provider) { "minimax" -> "MiniMax"; "elevenlabs" -> "ElevenLabs"; else -> "系统语音" }
     fun miniAsrEndpoint(ttsEndpoint: String): String {
@@ -28,7 +45,16 @@ internal object CallVoiceConfiguration {
         val provider = provider(context)
         val mode = p.getString("voice_call_mode", "direct")
         if (usesAgent(provider, mode)) return null
-        if (requiresOnDeviceStt(provider, mode)) onDeviceSttError(context)?.let { return it }
+        val stt = sttEngine(context)
+        when (stt) {
+            "system" -> if (!SpeechRecognizer.isRecognitionAvailable(context))
+                return "手机没有可用语音识别，请在语音设置中选择 Groq Whisper 并填写 API Key"
+            "groq" -> if (p.getString("groq_asr_key", "").orEmpty().isBlank())
+                return "请到语音设置填写 Groq API Key（识别语音，与 ElevenLabs 音色无关）"
+            "minimax" -> if (p.getString("minimax_api_key", "").orEmpty().isBlank())
+                return "请配置 MiniMax 识别 API Key，或选择 Groq Whisper"
+            else -> return "手机未提供系统语音识别；请在语音设置里选择并配置 Groq Whisper"
+        }
         val key = p.getString(if (provider == "minimax") "minimax_api_key" else "eleven_api_key", "").orEmpty()
         val voice = CharacterVoicePreferenceStore.playbackVoiceId(characterId) ?: p.getString(if (provider == "minimax") "minimax_voice_id" else "eleven_voice_id", "")
         if (provider != "system" && key.isBlank()) return "${label(provider)} API Key 未填写"
