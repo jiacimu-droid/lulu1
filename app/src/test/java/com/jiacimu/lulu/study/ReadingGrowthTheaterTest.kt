@@ -64,9 +64,16 @@ class ReadingGrowthTheaterTest {
             "现在并不喜欢诗歌", now.plusSeconds(30), false, evidenceKind = EventEvidenceKind.CharacterStatement)
         assertFalse(propose(ids, "突然更喜欢诗歌", listOf("later-counter")))
         CharacterLifeStore.setProfile(role.characterId, "interests", "只喜欢天文")
+        // Editing a locked persona invalidates earlier growth snapshots.
         assertTrue(CharacterDevelopmentStore.active(role.characterId).isEmpty())
-        assertFalse(CharacterDevelopmentStore.applyProposal(role.characterId, "poetry", DevelopmentKind.Interest,
-            "喜欢诗歌", ids, emptyList(), CharacterRuntime.personaConstraintSnapshot(role.characterId)))
+        // Witnessed later interests are kept separate from the user's fixed personality,
+        // not prohibited globally by one manually set 'interests' text field.
+        assertTrue(CharacterDevelopmentStore.applyProposal(role.characterId, "poetry", DevelopmentKind.Interest,
+            "开始关注诗歌的节奏", ids, emptyList(), CharacterRuntime.personaConstraintSnapshot(role.characterId)))
+        assertEquals("只喜欢天文", CharacterLifeStore.state(role.characterId)
+            .getJSONObject("profile").getString("interests"))
+        assertEquals("开始关注诗歌的节奏",
+            CharacterDevelopmentStore.active(role.characterId).single().content)
 
         val store = StarWishStores.main
         store.setStoryPlan("回归故事", "旧设定", emptyList())
