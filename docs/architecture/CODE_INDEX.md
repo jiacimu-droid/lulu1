@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c3ffacfad2130cda3c18b949303106a3e67728e3`
+- 基准提交：`f4b3c43704a73073ff342936da651006ff9cf8c7`
 - 分支：`main`
 - 已索引文件：378
-- 已索引代码/文本行：90716
+- 已索引代码/文本行：90723
 - 已发现符号：1284
 
 | 文件 | 行数 | 符号数 |
@@ -370,7 +370,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 89 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 84 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt` | 55 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 97 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 104 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/study/StarWishTheaterStoryExportTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterCanonEvidenceTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterChapterCompletionTest.kt` | 43 | 1 |
