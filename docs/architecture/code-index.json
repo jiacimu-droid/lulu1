@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T08:14:39.964926+00:00",
-  "commit": "a035fe2639901ddfc2dede1d0636704ebfbe62b9",
+  "generatedAt": "2026-10-09T08:15:15.792104+00:00",
+  "commit": "c3ffacfad2130cda3c18b949303106a3e67728e3",
   "branch": "main",
-  "sourceFingerprint": "58220715231c665610e76ab6484bc3f66e1d08a09fb92ffafe71657e6f22c1b7",
+  "sourceFingerprint": "07db105b54509ac0796d1100201d9638d21c530c56ce21de3c90c00f342f3a6a",
   "summary": {
     "files": 378,
-    "lines": 90710,
+    "lines": 90716,
     "symbols": 1284
   },
   "symbolIndex": {
@@ -9112,8 +9112,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 318,
-      "sha256": "9934322cea5db51acedb569564c2499a77caa0584227448c52cd93e088300e01",
+      "lines": 324,
+      "sha256": "53fd8728d6a77d0376dfc156cecd4e308b073134811330ff597c59bb65dae019",
       "symbols": [
         {
           "name": "CharacterLifeStore",
