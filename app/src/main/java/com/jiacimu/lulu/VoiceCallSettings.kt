@@ -19,7 +19,7 @@ internal fun VoiceCallSettings(provider: String) {
     var mode by remember(provider) { mutableStateOf(prefs.getString("voice_call_mode", "direct").orEmpty()) }
     var ringing by remember { mutableStateOf(prefs.getBoolean("voice_call_ringtone_enabled", true)) }
     var threshold by remember { mutableFloatStateOf(prefs.getFloat("voice_vad_threshold", 350f)) }
-    var silence by remember { mutableFloatStateOf(prefs.getInt("voice_end_silence_ms", 500).toFloat()) }
+    var silence by remember { mutableFloatStateOf(prefs.getInt("voice_end_silence_ms", 1700).toFloat().coerceIn(850f, 3200f)) }
     var advanced by remember { mutableStateOf(false) }
     var endpoint by remember { mutableStateOf(prefs.getString("minimax_asr_endpoint", "").orEmpty()) }
     var sttMode by remember { mutableStateOf(prefs.getString("call_stt_mode", "auto").orEmpty()) }
@@ -113,11 +113,11 @@ internal fun VoiceCallSettings(provider: String) {
             }
         }
         if (activeEngine != "system" && !CallVoiceConfiguration.usesAgent(provider, mode)) {
-            Text("停顿多久开始识别：${silence.toInt()} 毫秒")
+            Text("语句结束停顿：${silence.toInt()} 毫秒（长句会自动延长换气等待）")
             Slider(value = silence, onValueChange = { silence = it },
                 onValueChangeFinished = {
                     prefs.edit().putInt("voice_end_silence_ms", silence.toInt()).apply()
-                }, valueRange = 300f..1500f)
+                }, valueRange = 850f..3200f)
             Text("收音灵敏度（低阈值更容易听到轻声）")
             Slider(value = threshold, onValueChange = { threshold = it },
                 onValueChangeFinished = {
