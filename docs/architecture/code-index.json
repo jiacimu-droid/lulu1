@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T07:49:57.843112+00:00",
-  "commit": "5acf57723de9b03f5958cfd2c6e61fcfbe9b1eb5",
+  "generatedAt": "2026-10-09T07:50:21.125159+00:00",
+  "commit": "2e9807b2e35feb7bcee5d6682c9a17a62c0cc667",
   "branch": "main",
-  "sourceFingerprint": "e8b06fc2c1e44e4ec9535747c5631613015f89d35be77ce0247cbf81a62938e2",
+  "sourceFingerprint": "c367615d9762a9b2477912cbcdd7670f9f02ce80871950c3c1422bd2cd6120ae",
   "summary": {
     "files": 374,
-    "lines": 90397,
+    "lines": 90411,
     "symbols": 1277
   },
   "symbolIndex": {
@@ -1215,37 +1215,37 @@
     "sameReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 466
+        "line": 477
       }
     ],
     "clearWhenHeard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 468
+        "line": 479
       }
     ],
     "enqueueSpoken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 473
+        "line": 484
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 568
+        "line": 579
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 599
+        "line": 610
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 679
+        "line": 690
       }
     ],
     "MeetingReplyTaskManager": [
@@ -4411,19 +4411,19 @@
     "offer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 37
+        "line": 38
       }
     ],
     "activeFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 57
+        "line": 59
       }
     ],
     "clear": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 66
+        "line": 68
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
@@ -7992,8 +7992,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 765,
-      "sha256": "18e934a7272ccff34f0dcf2c52780579a9458a57a3fd2d600f79f0582d6d0671",
+      "lines": 776,
+      "sha256": "b8e8a0b509a2dfd67b891b0cd2c40e7ee586961e0b33ff23b8408d6a5582c587",
       "symbols": [
         {
           "name": "prepare",
@@ -8025,27 +8025,27 @@
         },
         {
           "name": "sameReply",
-          "line": 466
+          "line": 477
         },
         {
           "name": "clearWhenHeard",
-          "line": 468
+          "line": 479
         },
         {
           "name": "enqueueSpoken",
-          "line": 473
+          "line": 484
         },
         {
           "name": "sameSession",
-          "line": 568
+          "line": 579
         },
         {
           "name": "retryListening",
-          "line": 599
+          "line": 610
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 679
+          "line": 690
         }
       ]
     },
@@ -11230,8 +11230,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-      "lines": 96,
-      "sha256": "786095d71e9b48d2b220b35d2e5a83e148520205b68a8fc238989b5bdae205f9",
+      "lines": 99,
+      "sha256": "61d8f453e7389f1e1e16c66c78aec27c8a7b68cf0df36e1a4e996db3dd0fa534",
       "symbols": [
         {
           "name": "ProactiveIncomingCall",
@@ -11251,15 +11251,15 @@
         },
         {
           "name": "offer",
-          "line": 37
+          "line": 38
         },
         {
           "name": "activeFor",
-          "line": 57
+          "line": 59
         },
         {
           "name": "clear",
-          "line": 66
+          "line": 68
         }
       ]
     },

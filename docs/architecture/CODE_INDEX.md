@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`5acf57723de9b03f5958cfd2c6e61fcfbe9b1eb5`
+- 基准提交：`2e9807b2e35feb7bcee5d6682c9a17a62c0cc667`
 - 分支：`main`
 - 已索引文件：374
-- 已索引代码/文本行：90397
+- 已索引代码/文本行：90411
 - 已发现符号：1277
 
 | 文件 | 行数 | 符号数 |
@@ -66,7 +66,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 125 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 452 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 765 | 13 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 776 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt` | 80 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt` | 220 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt` | 198 | 9 |
@@ -191,7 +191,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 891 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 77 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 47 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 96 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 99 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 932 | 5 |
