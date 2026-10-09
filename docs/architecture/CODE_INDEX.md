@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`276040347d8a41b2aecc9e081a6b70d0c084d9bd`
+- 基准提交：`cd59a5d74840826eedffd223f9a8777fc617e4d4`
 - 分支：`main`
 - 已索引文件：382
-- 已索引代码/文本行：92158
+- 已索引代码/文本行：92198
 - 已发现符号：1302
 
 | 文件 | 行数 | 符号数 |
@@ -67,7 +67,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 473 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 125 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 458 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 452 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 836 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt` | 80 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt` | 220 | 0 |
@@ -103,7 +103,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 155 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StatefulCharacterPortrait.kt` | 24 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt` | 144 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 82 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt` | 29 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt` | 109 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt` | 39 | 4 |
