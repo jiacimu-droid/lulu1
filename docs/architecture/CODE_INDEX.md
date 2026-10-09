@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f0602860b6ff693b14f132df191d5ae660e98f6e`
+- 基准提交：`2fbbc2cc5e2c77f2285305d27f9bb6f46469cbd5`
 - 分支：`main`
-- 已索引文件：400
-- 已索引代码/文本行：93856
-- 已发现符号：1347
+- 已索引文件：401
+- 已索引代码/文本行：93935
+- 已发现符号：1349
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -48,8 +48,9 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt` | 836 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingUiV2.kt` | 457 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt` | 355 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 153 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 172 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 144 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt` | 60 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 158 | 2 |

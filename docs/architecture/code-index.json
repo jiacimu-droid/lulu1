@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T15:37:01.370183+00:00",
-  "commit": "f0602860b6ff693b14f132df191d5ae660e98f6e",
+  "generatedAt": "2026-10-09T15:38:14.572706+00:00",
+  "commit": "2fbbc2cc5e2c77f2285305d27f9bb6f46469cbd5",
   "branch": "main",
-  "sourceFingerprint": "f9bda593282a9eb85cec7b18f51be9c02f187993b9be2ec4ab2d3bf230185198",
+  "sourceFingerprint": "974af4b8bbb411d33266fc03983dc42d148ee4326fd073cd5e4ab2153281a6db",
   "summary": {
-    "files": 400,
-    "lines": 93856,
-    "symbols": 1347
+    "files": 401,
+    "lines": 93935,
+    "symbols": 1349
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -994,6 +994,22 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt",
         "line": 140
+      }
+    ],
+    "observePhysicalInteraction": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt",
+        "line": 12
+      }
+    ],
+    "observe": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt",
+        "line": 31
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 46
       }
     ],
     "websocket": [
@@ -7124,12 +7140,6 @@
         "line": 15
       }
     ],
-    "observe": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 46
-      }
-    ],
     "clickFirstText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -8144,8 +8154,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt",
-      "lines": 153,
-      "sha256": "44fd39a6874b6b6a54edf807cb52572db002eba90a247f2e7004339e1c1d413c",
+      "lines": 172,
+      "sha256": "7158687fa6a9adecb0962c970bed0e4c15bf4ab2e4fcefe48fb12a3f5da74768",
       "symbols": []
     },
     {
@@ -8160,6 +8170,21 @@
         {
           "name": "anchorForActivity",
           "line": 140
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt",
+      "lines": 60,
+      "sha256": "8a625f9c9d0c6ac39b28b15bbdc9ac84c192bc814da7ec3150b6efc1b1bc85db",
+      "symbols": [
+        {
+          "name": "observePhysicalInteraction",
+          "line": 12
+        },
+        {
+          "name": "observe",
+          "line": 31
         }
       ]
     },
