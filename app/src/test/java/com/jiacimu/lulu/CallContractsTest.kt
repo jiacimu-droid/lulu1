@@ -120,7 +120,7 @@ class CallContractsTest {
         val stream = CallReplyStream()
         val first = "[softly] 是我不对。"
         val complete = first + "[hesitant] 我当时应该先听你说完。"
-        val envelope = org.json.JSONObject().put("action", "reply").put("text", first).toString()
+        val envelope = "{\"action\":\"reply\",\"text\":\"" + first + "\"}"
         assertTrue(stream.updateForSpeech(envelope, wholeTurn = true).isEmpty())
         assertEquals(listOf(complete), stream.finishForSpeech(complete, wholeTurn = true))
         assertEquals("是我不对。我当时应该先听你说完。", VoicePerformance.plain(complete))
