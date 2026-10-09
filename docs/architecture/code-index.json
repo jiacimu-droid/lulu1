@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T09:38:33.419191+00:00",
-  "commit": "571a0cadec8bdd17f357d93557f988a7c483e02f",
+  "generatedAt": "2026-10-09T09:38:52.972380+00:00",
+  "commit": "0c09b16896110a12cf9421cdce0215d9caa2149d",
   "branch": "main",
-  "sourceFingerprint": "a2feaa8d0e7531d36db2a9f250e4dfb2c92ede2503576efd01752d7f945b9b89",
+  "sourceFingerprint": "4a97f68bc5ee4965189afaeffa777efa31d790b7e907daef4eb21d4557ae49b0",
   "summary": {
     "files": 378,
-    "lines": 91163,
+    "lines": 91127,
     "symbols": 1289
   },
   "symbolIndex": {
@@ -33,7 +33,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 26
+        "line": 21
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -77,7 +77,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 127
+        "line": 91
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
@@ -1401,13 +1401,13 @@
     "listen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 31
+        "line": 26
       }
     ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 95
+        "line": 59
       }
     ],
     "payload": [
@@ -8073,7 +8073,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
       "lines": 805,
-      "sha256": "73df2b24c22415f4fac132aeb93d80c4014b83714ed29b163a6c5ec9cfb4aad3",
+      "sha256": "74a71738c59532f011e586405b88bf07539ee0d919cee4ba78d475bdabcded6c",
       "symbols": [
         {
           "name": "prepare",
@@ -8382,24 +8382,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 130,
-      "sha256": "0b29d14098de62367e2f60f49ad05215b93bf828dbd4c614c17778330ea13b5e",
+      "lines": 94,
+      "sha256": "ec36a5f3ba28d71a8328650b42d38ebf80baccca5da39adda835a8cbf5da65bf",
       "symbols": [
         {
           "name": "start",
-          "line": 26
+          "line": 21
         },
         {
           "name": "listen",
-          "line": 31
+          "line": 26
         },
         {
           "name": "field",
-          "line": 95
+          "line": 59
         },
         {
           "name": "stop",
-          "line": 127
+          "line": 91
         }
       ]
     },
