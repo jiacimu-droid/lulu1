@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T19:07:54.608049+00:00",
-  "commit": "38cd5e7ea650f6bc40875481c5c6e7def745c89a",
+  "generatedAt": "2026-10-09T19:40:51.480615+00:00",
+  "commit": "e357a58380aea4613d3f71b1167a3945a36e47ed",
   "branch": "main",
-  "sourceFingerprint": "3608c8a709634db1d9945ae315d8c91a1c04cb9fd3412938deea9e8a9a67dd13",
+  "sourceFingerprint": "070d0a5941f4d293f8859b170fb4bc0094811cf65b4c1a2066ebeb91bcbe397a",
   "summary": {
     "files": 416,
-    "lines": 94813,
+    "lines": 94817,
     "symbols": 1370
   },
   "symbolIndex": {
@@ -1899,19 +1899,19 @@
     "sleepAudio": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-        "line": 65
+        "line": 64
       }
     ],
     "meetingSegment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-        "line": 95
+        "line": 88
       }
     ],
     "slice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-        "line": 134
+        "line": 127
       }
     ],
     "automaticAllowed": [
@@ -9364,8 +9364,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-      "lines": 158,
-      "sha256": "5f123dd0d47fa5ebfa86b8d3740ea90e36056f058a6c1604700aff65d84663fd",
+      "lines": 151,
+      "sha256": "19c0e418f7225111ee3dfa107ecbe1ac5b48931abdc745a0435e32359c1c4dd2",
       "symbols": [
         {
           "name": "plain",
@@ -9389,15 +9389,15 @@
         },
         {
           "name": "sleepAudio",
-          "line": 65
+          "line": 64
         },
         {
           "name": "meetingSegment",
-          "line": 95
+          "line": 88
         },
         {
           "name": "slice",
-          "line": 134
+          "line": 127
         }
       ]
     },
@@ -15462,8 +15462,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt",
-      "lines": 111,
-      "sha256": "21b98ea96a905d1781c2831bd16cb3c938fa22a73cd8912581c0eda5007e851a",
+      "lines": 122,
+      "sha256": "73b96879af15ba0cf86c30162d42748d2da9605558909d2fa36e3ab0f4af2bd6",
       "symbols": [
         {
           "name": "VoicePerformanceTest",

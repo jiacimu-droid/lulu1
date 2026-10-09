@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`38cd5e7ea650f6bc40875481c5c6e7def745c89a`
+- 基准提交：`e357a58380aea4613d3f71b1167a3945a36e47ed`
 - 分支：`main`
 - 已索引文件：416
-- 已索引代码/文本行：94813
+- 已索引代码/文本行：94817
 - 已发现符号：1370
 
 | 文件 | 行数 | 符号数 |
@@ -118,7 +118,7 @@
 | `app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt` | 144 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 129 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt` | 29 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt` | 158 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt` | 151 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt` | 39 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt` | 43 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 996 | 25 |
@@ -381,7 +381,7 @@
 | `app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt` | 59 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/TrialRoomWalkControllerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt` | 111 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt` | 122 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceSynthesisPolicyTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
