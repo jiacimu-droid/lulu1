@@ -278,7 +278,10 @@ internal object LuluVoiceCallSession {
         CharacterVoicePreferenceStore.initialize(context.applicationContext)
         // Observe the actual call phase, not just the call page (it may be minimized).
         scope.launch {
+            var previousPhase: CallPhase? = null
             mutableState.collect { call ->
+                if (call.phase == previousPhase) return@collect
+                previousPhase = call.phase
                 when (call.phase) {
                     CallPhase.Dialing -> LuluCallRingtone.startOutgoing(context.applicationContext)
                     CallPhase.Connected, CallPhase.Ready, CallPhase.Ended, CallPhase.Idle ->
