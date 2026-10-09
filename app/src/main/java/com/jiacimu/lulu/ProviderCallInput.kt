@@ -2,6 +2,7 @@ package com.jiacimu.lulu
 
 import android.content.Context
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -17,29 +18,67 @@ internal class ProviderCallInput(private val context: Context, private val scope
     private val microphone = CallAudioInput(scope)
     private var transcription: Job? = null
     @Volatile private var http: HttpURLConnection? = null
-    private var generation = 0L
-    private var segmentGeneration = 0L
+    @Volatile private var generation = 0L
+    @Volatile private var capturingVoice = false
+    private var segments: Channel<ByteArray>? = null
 
     fun start() {
         stop()
         val epoch = generation
-        val p = context.getSharedPreferences("lulu_advanced_settings", 0)
-        fun listen() = microphone.start(accept, onReady, onLevel, {
-            segmentGeneration++; transcription?.cancel(); http?.disconnect(); onSpeech()
-        }, onSegment = segment@{ bytes ->
-            val segment = segmentGeneration
-            onStatus("已收音，${CallVoiceConfiguration.sttLabel(sttEngine)}正在识别…")
-            transcription = scope.launch {
-                runCatching { transcribe(bytes) { partial ->
-                    if (epoch == generation && segment == segmentGeneration) onPartial(partial)
-                } }.onSuccess { text ->
-                    if (epoch == generation && segment == segmentGeneration) {
-                        if (text.isBlank()) onError("没有识别出文字，请重试或检查录音音量") else onText(text)
+        val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
+        val queue = Channel<ByteArray>(capacity = 6)
+        segments = queue
+        // A second utterance must not cancel or discard the first utterance
+        // while cloud ASR is still working. Serialize responses in mic order.
+        transcription = scope.launch {
+            val accumulated = StringBuilder()
+            for (pcm in queue) {
+                val text = try {
+                    transcribe(pcm) { partial ->
+                        if (epoch == generation) onPartial(
+                            listOf(accumulated.toString(), partial).filter(String::isNotBlank).joinToString(" ")
+                        )
                     }
-                }.onFailure { error -> if (error !is CancellationException && epoch == generation && segment == segmentGeneration) onError("语音识别失败：${error.message}") }
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (error: Exception) {
+                    if (epoch == generation) onError("语音识别失败：${error.message}")
+                    ""
+                }
+                if (epoch != generation) break
+                if (text.isNotBlank()) {
+                    if (accumulated.isNotEmpty()) accumulated.append(' ')
+                    accumulated.append(text.trim())
+                }
+                // If a new segment began while the previous one was
+                // transcribing, join its text instead of answering half a turn.
+                while (capturingVoice && epoch == generation) delay(80)
+                delay(320)
+                if (queue.isEmpty && !capturingVoice && accumulated.isNotEmpty()) {
+                    val completed = accumulated.toString().trim()
+                    accumulated.clear()
+                    if (epoch == generation) onText(completed)
+                }
             }
-        }, onError = onError, threshold = p.getFloat("voice_vad_threshold", 350f), endSilenceMs = p.getInt("voice_end_silence_ms", 500))
-        listen()
+        }
+        microphone.start(
+            accept, onReady, onLevel,
+            onSpeech = {
+                capturingVoice = true
+                onSpeech()
+            },
+            onSegment = { bytes ->
+                capturingVoice = false
+                if (epoch == generation) {
+                    onStatus("已收音，${CallVoiceConfiguration.sttLabel(sttEngine)}正在识别…")
+                    if (!queue.trySend(bytes).isSuccess)
+                        onError("说话太快，语音识别队列已满；请稍候再说")
+                }
+            },
+            onError = onError,
+            threshold = prefs.getFloat("voice_vad_threshold", 350f),
+            endSilenceMs = prefs.getInt("voice_end_silence_ms", 650),
+        )
     }
 
     private suspend fun transcribe(pcm: ByteArray, onIncremental: (String) -> Unit): String =
@@ -142,5 +181,15 @@ internal class ProviderCallInput(private val context: Context, private val scope
         } finally { connection.disconnect(); if (http === connection) http = null }
     }
 
-    fun stop() { generation++; segmentGeneration++; microphone.stop(); transcription?.cancel(); http?.disconnect() }
+    fun stop() {
+        generation++
+        capturingVoice = false
+        microphone.stop()
+        segments?.close()
+        segments = null
+        transcription?.cancel()
+        transcription = null
+        http?.disconnect()
+        http = null
+    }
 }
