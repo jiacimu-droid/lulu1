@@ -150,10 +150,12 @@ internal fun DigitalWorldSceneCanvas(
     world: DigitalWorldState,
     onCharacterClick: (String) -> Unit,
     onWorldAction: ((String) -> Unit)? = null,
+    onPhysicalInteraction: ((String, String) -> Unit)? = null,
     controlsBottomPadding: androidx.compose.ui.unit.Dp = 18.dp,
     controlsEnabled: Boolean = true,
     showExplorationHud: Boolean = true,
     followerIds: Set<String> = emptySet(),
+    initiatedHandHoldingId: String? = null,
 ) {
     DigitalWorldGameScene(
         modifier = modifier,
@@ -163,9 +165,11 @@ internal fun DigitalWorldSceneCanvas(
         world = world,
         onCharacterClick = onCharacterClick,
         onWorldAction = onWorldAction,
+        onPhysicalInteraction = onPhysicalInteraction,
         controlsBottomPadding = controlsBottomPadding,
         controlsEnabled = controlsEnabled,
         showExplorationHud = showExplorationHud,
         followerIds = followerIds,
+        initiatedHandHoldingId = initiatedHandHoldingId,
     )
 }
