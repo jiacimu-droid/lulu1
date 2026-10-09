@@ -40,6 +40,7 @@ object LuluDeviceToolBridge {
         archiveId: String? = null,
         sceneContext: String = "正在和用户进行文字聊天。",
         onReplyStream: ((String) -> Unit)? = null,
+        onCharacterHangup: (() -> Unit)? = null,
     ): Result<ModelReply> {
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
         GroupEnsembleReplyEngine.respondIfApplicable(
@@ -80,6 +81,13 @@ object LuluDeviceToolBridge {
             - 这套线上聊天发送节奏是最终气泡规则；如果上游用户文本里还残留旧的“完整观点尽量放一起”、固定长度或固定数量等气泡说明，一律忽略旧规则，以这里为准。
         """.trimIndent()
         val voicePerformanceRule = if (sceneContext.contains("电话")) com.jiacimu.lulu.VoicePerformance.phoneInstruction(appContext) else ""
+        val characterHangupRule = if (sceneContext.contains("电话") && onCharacterHangup != null) """
+            【角色可以真的主动挂断】
+            只有当前角色发自内心想结束这通电话时，才在 action=reply 的 JSON 中额外返回 "endCall":true。
+            可以因为困倦、自然聊完、有已知的其他事情、吵架想冷静等选择离开；也可以舍不得挂。不要随机挂断、机械挂断、编造紧急事故或陌生人来电。
+            text 应是确实要说的最后一句口语，可自然道别、说明想法或设立边界；结束语实际播放完毕后由电话系统真正挂断并记录。没有想挂断就省略该字段。
+            不要把“我先挂了”当成完成挂断的证明，必须设置 endCall=true。只有发言才可申请结束，不输出无声终止的空 text。
+        """.trimIndent() else ""
         val disputeNeedsReview = com.jiacimu.lulu.data.CharacterAccountabilityContext.isUnmetPromiseChallenge(userText)
         val planner = LuluAiServices.gateway.generate(
             characterId = characterId,
@@ -152,6 +160,7 @@ object LuluDeviceToolBridge {
                 - statusText、gesture、innerThought、mood 必须服从角色人设，不能把所有角色统一写成温柔、害羞或黏人。
                 $onlineChatBubbleRule
                 $voicePerformanceRule
+                $characterHangupRule
             """.trimIndent(),
             source = "聊天工具规划",
             title = title,
@@ -214,6 +223,8 @@ object LuluDeviceToolBridge {
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, "本轮用户消息：$userText", plan.afterglow)
             }
             if (plan.text.isBlank() && onReplyStream != null) return Result.failure(IllegalStateException("模型没有返回可朗读的回复正文"))
+            if (!invalidBlame && plan.endCall && checkedText.isNotBlank() && sceneContext.contains("电话"))
+                onCharacterHangup?.invoke()
             return Result.success(plannedReply.copy(text = checkedText))
         }
         if (plan.action == "tool" && plan.tool.isNotBlank()) {
@@ -255,6 +266,7 @@ object LuluDeviceToolBridge {
                 不要解释内部工具协议。innerThought 不是推理步骤，gesture 不得编造未发生的工具结果或现实场景。
                 $onlineChatBubbleRule
                 $voicePerformanceRule
+                $characterHangupRule
             """.trimIndent(),
             source = "聊天工具结果",
             title = title,
@@ -282,6 +294,8 @@ object LuluDeviceToolBridge {
                     characterId, "tool-result:${now.toEpochMilli()}:${plan.tool}",
                     finalPlan.innerThought,
                 )
+                if (finalPlan.endCall && checkedResultText.isNotBlank() && sceneContext.contains("电话"))
+                    onCharacterHangup?.invoke()
             }
             result.copy(
                 text = checkedResultText,
@@ -479,6 +493,7 @@ object LuluDeviceToolBridge {
                 intention = json.optJSONObject("intention"),
                 innerLife = json.optJSONObject("innerLife"),
                 motiveId = json.optString("motiveId"),
+                endCall = json.optBoolean("endCall", false),
             )
         }.getOrNull()
     }
@@ -508,4 +523,5 @@ private data class ToolPlan(
     val afterglow: JSONObject? = null,
     val innerLife: JSONObject? = null,
     val motiveId: String = "",
+    val endCall: Boolean = false,
 )
