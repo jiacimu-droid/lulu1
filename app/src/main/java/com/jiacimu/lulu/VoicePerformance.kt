@@ -17,23 +17,29 @@ internal object VoicePerformance {
             ElevenLabsModels.dialogue(prefs.getString("eleven_tts_model", ElevenLabsModels.DEFAULT).orEmpty())
     }
 
+    /**
+     * Emotionally expressive phone models need the full speaking turn as one input.
+     * Cutting after each period hides the preceding cause of an emotion from TTS,
+     * so [angry] on a later sentence may be heard as a new, unrelated outburst.
+     * Legacy voices still use the low-latency incremental queue.
+     */
+    fun phoneNeedsWholeTurn(context: Context): Boolean = supportsTags(context)
+
     fun forPlayback(context: Context, text: String): String =
         if (supportsTags(context)) unfinished.replace(text, "").trim() else plain(text)
 
     val direction = """
-        发声表现要结合上下文、人设、上一刻情绪和当前动作，不能把每句都读成同一种平直语气。
-        在实际发生的位置插入英文方括号音频标签，可以丰富、连续变化，不设固定数量或每句上限。
-        情绪与语气例如 [warmly]、[sarcastic]、[excited]、[whispering]、[shouting]、[hesitant]；
-        身体发声例如 [laughs]、[sighs]、[inhales]、[exhales]、[gasps]、[sneezes]、[coughs]、[swallows]；
-        现场音效可用清楚的英文声音描述，例如 [slap sound]、[gentle footsteps]、[door closes]。
-        可以按真实情境组合标签和改变力度、速度、停顿，不为了凑标签编造动作，也不把所有角色统一成轻笑或低语。
-        标签必须跟随已经描写/发生的行为；不借音效新增打人、亲密接触、环境事件或替用户决定行为。
-        台词每个完整句子的发声可以承接上一句的情绪；持续的语气可在后一句继续标注，独立音效不要重复。
-        声音方向只写在音频轨；正文中不写标签解释，不念“他说”“她叹了口气”等舞台说明。
+        【先理解整段，再安排声音】先判断这一次完整发言的核心情绪、对象、原因，以及从开头到结尾真实发生了哪些情绪变化，再在实际转折处插入英文方括号音频标签。
+        不要逐句重新猜一种情绪，也不要一句一句随机切换标签。相邻句子没有真实转折，就保持相同的情感底色；通常开头一个准确的标签足够，真正转折时才添加新的标签。不以标签数量作为表现丰富的标准。
+        尤其分清对象和语义：后悔、自责、羞愧、难过、想求原谅，不等于 [angry] 或 [shouting]。例如角色怪自己做错了事，多半可以轻声、迟疑、压抑地反省；只有确实愤怒、且情节支持情绪骤变，才允许突然提高音量。也不能把对自己的愧疚演成对对方发火。
+        可以有层次：欲言又止、吸气、声音发紧、轻声认错、勉强平静；不要永远哭、永远低语或固定模板。留意上文角色的说话方式、关系状态和本轮真实心情，保持同一个人的声音。
+        可用语气如 [warmly]、[regretful]、[softly]、[hesitant]、[excited]、[sarcastic]、[angry]（仅真愤怒时）；真实发声如 [sighs]、[inhales]、[exhales]、[laughs]、[gasps]、[coughs]。
+        标签只是表演指示，不是新增情节；不要用音效凭空新增打人、亲密接触或环境事件。声音方向只写在音频轨，正文不念标签和旁白。
     """.trimIndent()
 
     fun phoneInstruction(context: Context): String = if (supportsTags(context)) """
-        电话的 text 是直接送往语音服务的发声文本，允许在原话中插入音频标签；这是 text 不放内部指令规则的唯一例外。
+        电话的 text 是这一整轮角色真实说出口的完整台词，随后会作为一段连贯文本送往语音服务；允许嵌入英文音频标签，这是 text 不放内部指令规则的唯一例外。
+        请先确定这一轮完整发言的情绪弧线。不要一句一句独立添加 [angry]、[sad] 等相互冲突的标签，也不要对每个句子重复一个相同标签；声音变化必须跟随角色真实心理转折。
         $direction
         电话只能表现当前通话实际可听见的声音，不编造与用户同处一室或隔着电话触碰用户。
     """.trimIndent() else ""
