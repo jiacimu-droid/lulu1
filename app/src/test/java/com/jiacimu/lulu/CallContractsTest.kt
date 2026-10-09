@@ -130,6 +130,30 @@ class CallContractsTest {
             incremental.finishForSpeech(complete, wholeTurn = false))
     }
 
+    @Test fun characterHangupNeedsValidatedDecisionAndFinishedAudio() {
+        val gate = CallAutonomousHangupGate()
+        assertFalse(gate.consumeWhenReady("call-a", 4L, true, false, false))
+        gate.request("call-a", 4L)
+        assertFalse(gate.consumeWhenReady("call-a", 4L, true, true, false)) // model still generating
+        assertFalse(gate.consumeWhenReady("call-a", 4L, true, false, true)) // goodbye still playing
+        assertFalse(gate.consumeWhenReady("call-b", 4L, true, false, false)) // stale session
+        assertFalse(gate.consumeWhenReady("call-a", 5L, true, false, false)) // interrupted turn
+        assertTrue(gate.consumeWhenReady("call-a", 4L, true, false, false))
+        assertFalse(gate.consumeWhenReady("call-a", 4L, true, false, false)) // consumed once
+    }
+
+    @Test fun interruptedOrEndedCallCannotCarryPendingHangupIntoNextCall() {
+        val gate = CallAutonomousHangupGate()
+        gate.request("first", 1L)
+        gate.cancel()
+        assertFalse(gate.consumeWhenReady("first", 1L, true, false, false))
+        gate.request("first", 2L)
+        assertFalse(gate.consumeWhenReady("first", 2L, false, false, false))
+        assertFalse(gate.consumeWhenReady("first", 2L, true, false, false))
+        gate.request("second", 3L)
+        assertTrue(gate.consumeWhenReady("second", 3L, true, false, false))
+    }
+
     @Test fun callOpeningRunsOnceForBothCallDirectionsAndReconnectDoesNotRepeat() {
         val opening = CallOpeningTurn()
         assertFalse(opening.claim(""))
