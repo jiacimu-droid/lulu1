@@ -10,14 +10,14 @@ internal object CallVoiceConfiguration {
     fun usesAgent(provider: String, mode: String?): Boolean = provider == "elevenlabs" && mode == "agent"
     /** Speech-to-text is independent of the provider that speaks for the character. */
     fun resolveSttEngine(mode: String, androidAvailable: Boolean, groqConfigured: Boolean,
-        ttsProvider: String): String = when (mode) {
+        ttsProvider: String, minimaxConfigured: Boolean = ttsProvider == "minimax"): String = when (mode) {
         "system" -> "system"
         "groq" -> "groq"
         "minimax" -> "minimax"
         else -> when {
+            minimaxConfigured -> "minimax" // preserve an already working ASR account
             androidAvailable -> "system" // free or OS-managed service, not necessarily offline
             groqConfigured -> "groq"
-            ttsProvider == "minimax" -> "minimax" // old user settings stay functional
             else -> "unavailable"
         }
     }
@@ -25,7 +25,8 @@ internal object CallVoiceConfiguration {
         val p = context.getSharedPreferences("lulu_advanced_settings", 0)
         val available = SpeechRecognizer.isRecognitionAvailable(context)
         return resolveSttEngine(p.getString("call_stt_mode", "auto").orEmpty(),
-            available, p.getString("groq_asr_key", "").orEmpty().isNotBlank(), provider(context))
+            available, p.getString("groq_asr_key", "").orEmpty().isNotBlank(), provider(context),
+            minimaxConfigured = p.getString("minimax_api_key", "").orEmpty().isNotBlank())
     }
     fun sttLabel(engine: String): String = when (engine) {
         "groq" -> "Groq Whisper"
