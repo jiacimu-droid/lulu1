@@ -260,7 +260,7 @@ fun QqStyleChatDetailScreen(
                 val actionable = latestPending.filter { it.sender == LuluChatMessage.Sender.User }
                 val privateInput = buildString {
                     appendLine("[这是连续发生的一对一即时通讯私聊。你只代表自己，从上一刻的人物状态、关系和话题位置继续。]")
-                    appendLine("[按真人聊天习惯决定什么时候按一次发送；一个表达动作一个气泡，需要分开发送时用 $SemanticBubbleSeparator。]")
+                    appendLine("[按真人聊天习惯决定什么时候按一次发送；一个表达动作一个气泡，需要分开发送时用 $SemanticBubbleSeparator。某句话真的让你忍不住笑或无语时，这整轮只发笑声、一个问号、极短感叹或谐音接梗都可以，不要因为用户说了一大段话就强行逐条解答；反应强度取决于你的性格、真实情绪和关系，不要机械复制固定哈哈次数。]")
                     appendLine("[撤回 ⟪RECALL:n⟫、戳用户 ⟪POKE_USER⟫ 都只在真的自然时偶尔使用。]")
                     if (actionable.isNotEmpty()) {
                         appendLine("[本轮可引用/收藏的用户消息：]")
