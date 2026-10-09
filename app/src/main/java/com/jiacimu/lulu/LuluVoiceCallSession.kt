@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.os.Bundle
+import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
 import android.speech.RecognitionListener
@@ -183,7 +184,7 @@ internal object LuluVoiceCallSession {
             )
         }
         dialJob?.cancel()
-        if (provider in setOf("minimax", "elevenlabs")) {
+        if (provider == "minimax") {
             startProviderInput()
             return
         }
@@ -321,8 +322,18 @@ internal object LuluVoiceCallSession {
 
     private fun ensureRecognizer() {
         val context = appContext ?: return
-        if (recognizer != null || !SpeechRecognizer.isRecognitionAvailable(context)) return
-        recognizer = SpeechRecognizer.createSpeechRecognizer(context).also { speechRecognizer ->
+        if (recognizer != null) return
+        val directElevenLabs = CallVoiceConfiguration.requiresOnDeviceStt(
+            mutableState.value.provider, "direct")
+        val speechRecognizer = if (directElevenLabs) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+                !SpeechRecognizer.isOnDeviceRecognitionAvailable(context)) return
+            SpeechRecognizer.createOnDeviceSpeechRecognizer(context)
+        } else {
+            if (!SpeechRecognizer.isRecognitionAvailable(context)) return
+            SpeechRecognizer.createSpeechRecognizer(context)
+        }
+        recognizer = speechRecognizer.also { speechRecognizer ->
             speechRecognizer.setRecognitionListener(object : RecognitionListener {
                 override fun onReadyForSpeech(params: Bundle?) {
                     if (!mutableState.value.connected || mutableState.value.opening) return
@@ -356,14 +367,23 @@ internal object LuluVoiceCallSession {
                             listening = false,
                             partialTranscript = "",
                             statusMessage = when (error) {
-                                SpeechRecognizer.ERROR_NETWORK, SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "语音识别网络暂时不可用"
+                                SpeechRecognizer.ERROR_NETWORK, SpeechRecognizer.ERROR_NETWORK_TIMEOUT ->
+                                    if (CallVoiceConfiguration.requiresOnDeviceStt(current.provider, "direct"))
+                                        "本机语音识别服务暂时不可用，请检查离线语音包"
+                                    else "语音识别网络暂时不可用"
+                                SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED, SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE ->
+                                    "本地中文识别不可用，请安装或下载中文语音识别包"
+                                SpeechRecognizer.ERROR_SERVER, SpeechRecognizer.ERROR_CLIENT ->
+                                    "系统语音识别暂时不可用"
                                 SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "麦克风权限不可用"
                                 SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "正在重新连接麦克风…"
                                 else -> if (current.microphoneMuted) "麦克风已静音" else "我在听，直接说话就好"
                             },
                         )
                     }
-                    if (error != SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) scheduleListening(420)
+                    if (error !in setOf(SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS,
+                            SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED,
+                            SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE)) scheduleListening(420)
                 }
 
                 override fun onResults(results: Bundle?) {
@@ -414,13 +434,18 @@ internal object LuluVoiceCallSession {
         ensureRecognizer()
         val speechRecognizer = recognizer
         if (speechRecognizer == null) {
-            mutableState.update { it.copy(statusMessage = "当前手机没有可用的语音识别服务") }
+            val error = if (CallVoiceConfiguration.requiresOnDeviceStt(current.provider, "direct"))
+                "手机无法启动离线语音识别。请安装系统本地中文语音识别服务，不会使用 ElevenLabs 付费转写。"
+                else "当前手机没有可用的语音识别服务"
+            mutableState.update { it.copy(statusMessage = error, errorMessage = error) }
             return
         }
         runCatching {
             speechRecognizer.startListening(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN")
+                if (CallVoiceConfiguration.requiresOnDeviceStt(current.provider, "direct"))
+                    putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
                 putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
                 putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
                 putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 850L)
@@ -618,7 +643,7 @@ internal object LuluVoiceCallSession {
         mutableState.update { it.copy(speaking = false, thinking = false, opening = false, microphoneMuted = false, errorMessage = "", generatedTranscript = "", playingTranscript = "") }
         audioRoute?.microphone(false)
         audioRoute?.refresh()
-        if (mutableState.value.provider in setOf("minimax", "elevenlabs")) startProviderInput()
+        if (mutableState.value.provider == "minimax") startProviderInput()
         else { pauseRecognition(); scheduleListening(100) }
     }
 
