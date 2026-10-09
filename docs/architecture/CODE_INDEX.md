@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e8399e9c31119188ef2ff0966f2c06edfb5987dd`
+- 基准提交：`2ae188b806eb3284441dbbdbee0db3f1544f6018`
 - 分支：`main`
 - 已索引文件：372
-- 已索引代码/文本行：90217
+- 已索引代码/文本行：90221
 - 已发现符号：1273
 
 | 文件 | 行数 | 符号数 |
@@ -205,7 +205,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt` | 125 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 48 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt` | 69 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt` | 73 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt` | 154 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAlertDialog.kt` | 50 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |

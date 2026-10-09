@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T07:31:44.498002+00:00",
-  "commit": "e8399e9c31119188ef2ff0966f2c06edfb5987dd",
+  "generatedAt": "2026-10-09T07:32:18.016614+00:00",
+  "commit": "2ae188b806eb3284441dbbdbee0db3f1544f6018",
   "branch": "main",
-  "sourceFingerprint": "0fe2e44541d3210f05ee3c1ed11765ea937502b4036e0b1e3212c8412e55e501",
+  "sourceFingerprint": "25fd555dd74ca46cba95c00d873cd2062990ef83eb321b0693f1c309380b6cf8",
   "summary": {
     "files": 372,
-    "lines": 90217,
+    "lines": 90221,
     "symbols": 1273
   },
   "symbolIndex": {
@@ -4873,7 +4873,7 @@
     "parse": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt",
-        "line": 27
+        "line": 31
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
@@ -11676,8 +11676,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt",
-      "lines": 69,
-      "sha256": "dd300d6783e57d94c582bb6660c35a5354300126364228fed3c0e9eadc5d4733",
+      "lines": 73,
+      "sha256": "89b2f0ff523f6bbca721d85ee2c047504698d3b45848eb7d2e37ec73b92855de",
       "symbols": [
         {
           "name": "acceptedRequest",
@@ -11685,7 +11685,7 @@
         },
         {
           "name": "parse",
-          "line": 27
+          "line": 31
         }
       ]
     },
