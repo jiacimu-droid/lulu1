@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`8091ae6273c9677dfcaec1d2afed913ad3241fe1`
+- 基准提交：`012dd2d5e1a306ee4fba7430ae8422ca3cf27b3b`
 - 分支：`main`
 - 已索引文件：397
-- 已索引代码/文本行：93233
+- 已索引代码/文本行：93234
 - 已发现符号：1331
 
 | 文件 | 行数 | 符号数 |
@@ -67,7 +67,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 473 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 125 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 483 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 484 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 975 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt` | 80 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt` | 220 | 0 |
