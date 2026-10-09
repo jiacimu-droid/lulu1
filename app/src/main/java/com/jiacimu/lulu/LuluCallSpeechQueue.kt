@@ -2,6 +2,7 @@ package com.jiacimu.lulu
 
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.ArrayDeque
 
@@ -34,6 +35,7 @@ internal class LuluCallSpeechQueue(
     private val pending = ArrayDeque<Request>()
     private var active = false
     private var generation = 0L
+    private var activeRequest: Request? = null
 
     init { ChatAutoVoicePlayback.initialize(appContext) }
 
@@ -55,6 +57,8 @@ internal class LuluCallSpeechQueue(
         generation += 1
         if (clearQueue) pending.clear()
         active = false
+        activeRequest = null
+        engine.onPlaybackState = null
         onSpeakerChanged(null)
         onBusyChanged(false)
         engine.stop()
@@ -64,6 +68,8 @@ internal class LuluCallSpeechQueue(
         generation += 1
         pending.clear()
         active = false
+        activeRequest = null
+        engine.onPlaybackState = null
         onSpeakerChanged(null)
         onBusyChanged(false)
         engine.shutdown()
@@ -79,10 +85,20 @@ internal class LuluCallSpeechQueue(
         }
 
         active = true
+        activeRequest = request
         val localGeneration = generation
-        onBusyChanged(true)
-        onSpeakerChanged(request.speakerId)
-        request.onStarted?.invoke()
+        var audible = false
+        // Report real PCM playback, not the HTTP TTS preparation interval.
+        engine.onPlaybackState = { playing ->
+            if (playing) scope.launch(Dispatchers.Main.immediate) {
+                if (localGeneration == generation && active && activeRequest === request && !audible) {
+                    audible = true
+                    onBusyChanged(true)
+                    onSpeakerChanged(request.speakerId)
+                    request.onStarted?.invoke()
+                }
+            }
+        }
         val target = request.messageId?.let(ChatAutoVoicePlayback::callRecordingTarget)
         val onFinished: () -> Unit = {
             scope.launch {
@@ -91,6 +107,8 @@ internal class LuluCallSpeechQueue(
                 val failure = engine.lastError
                 if (succeeded) request.onDelivered?.invoke()
                 active = false
+                activeRequest = null
+                engine.onPlaybackState = null
                 if (!succeeded) onError(failure.ifBlank { "发声失败，回复保留在字幕里" })
                 playNext()
             }

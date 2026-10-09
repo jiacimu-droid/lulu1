@@ -7,6 +7,9 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.UUID
+import java.util.Collections
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 /** Real PCM + segmented cloud ASR, independent of ElevenLabs/MiniMax speech synthesis. */
 internal class ProviderCallInput(private val context: Context, private val scope: CoroutineScope,
@@ -17,18 +20,24 @@ internal class ProviderCallInput(private val context: Context, private val scope
     private val onStatus: (String) -> Unit, private val onError: (String) -> Unit) {
     private val microphone = CallAudioInput(scope)
     private var transcription: Job? = null
-    @Volatile private var http: HttpURLConnection? = null
+    private val activeConnections = Collections.synchronizedSet(mutableSetOf<HttpURLConnection>())
     @Volatile private var generation = 0L
     @Volatile private var capturingVoice = false
     private data class AudioChunk(val pcm: ByteArray, val isFinal: Boolean)
     private var segments: Channel<AudioChunk>? = null
     @Volatile private var capturePaused = false
+    private val queuedChunks = AtomicInteger()
+    private val presentingChunk = AtomicLong(-1L)
+    @Volatile private var currentPhrase = ""
     private var pauseReleaseJob: Job? = null
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun start() {
         stop()
         val epoch = generation
+        queuedChunks.set(0)
+        presentingChunk.set(-1)
+        currentPhrase = ""
         val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
         // A running user monologue can outlast cloud upload latency; never
         // silently drop earlier chunks because an arbitrary six-item queue filled.
@@ -37,45 +46,70 @@ internal class ProviderCallInput(private val context: Context, private val scope
         // A second utterance must not cancel or discard the first utterance
         // while cloud ASR is still working. Serialize responses in mic order.
         transcription = scope.launch {
+            // Start the next upload while earlier ASR is being decoded. Preserve
+            // the original PCM order when assembling the final transcript.
+            val completed = Channel<Triple<Long, AudioChunk, Deferred<Result<String>>>>(Channel.UNLIMITED)
+            val permits = kotlinx.coroutines.sync.Semaphore(2)
+            val producer = launch {
+                var nextId = 0L
+                try {
+                    for (chunk in queue) {
+                        permits.acquire()
+                        val id = nextId++
+                        val task = async(Dispatchers.IO) {
+                            try {
+                                Result.success(transcribe(chunk.pcm) { partial ->
+                                    if (epoch == generation && id == presentingChunk.get()) {
+                                        onPartial(PhoneTranscriptAssembler.combine(currentPhrase, partial))
+                                    }
+                                })
+                            } catch (cancel: CancellationException) {
+                                throw cancel
+                            } catch (failure: Exception) {
+                                Result.failure(failure)
+                            } finally {
+                                permits.release()
+                            }
+                        }
+                        completed.send(Triple(id, chunk, task))
+                    }
+                } finally {
+                    completed.close()
+                }
+            }
             val phrase = StringBuilder()
             var failed = false
-            for (chunk in queue) {
-                if (epoch != generation) break
-                val text = try {
-                    transcribe(chunk.pcm) { partial ->
-                        if (epoch == generation && !failed) onPartial(
-                            PhoneTranscriptAssembler.combine(phrase.toString(), partial)
-                        )
+            try {
+                for ((id, chunk, task) in completed) {
+                    presentingChunk.set(id)
+                    currentPhrase = phrase.toString()
+                    val result = task.await()
+                    if (epoch != generation) break
+                    result.onSuccess { spoken ->
+                        if (spoken.isNotBlank() && !failed) {
+                            phrase.clear()
+                            phrase.append(PhoneTranscriptAssembler.combine(currentPhrase, spoken))
+                            currentPhrase = phrase.toString()
+                            onPartial(currentPhrase)
+                        }
+                    }.onFailure { failure ->
+                        failed = true
+                        onError("这一段语音转写失败，不能当作完整句子发送：${failure.message}")
                     }
-                } catch (error: CancellationException) {
-                    throw error
-                } catch (error: Exception) {
-                    failed = true
-                    if (epoch == generation) onError(
-                        "这一段语音转写失败，不能当作完整句子发送：${error.message}"
-                    )
-                    ""
-                }
-                if (epoch != generation) break
-                if (text.isNotBlank() && !failed) {
-                    val combined = PhoneTranscriptAssembler.combine(phrase.toString(), text)
-                    phrase.clear()
-                    phrase.append(combined)
-                }
-                // Only the actual silence endpoint marks the conversational
-                // turn done; 12-second upload chunks NEVER start the reply.
-                if (chunk.isFinal) {
-                    // The user may already have continued speaking while the
-                    // previous cloud request was in flight. Never answer midway.
-                    delay(550)
-                    // Resume processing the next queued audio immediately if
-                    // the person took a breath and continued talking.
-                    if (epoch != generation || capturingVoice || !queue.isEmpty) continue
+                    queuedChunks.decrementAndGet()
+                    if (!chunk.isFinal) continue
+                    // A breath or a cloud response arriving late isn't a new
+                    // conversational turn. Wait for all recorded PCM chunks.
+                    delay(500)
+                    if (epoch != generation || capturingVoice || queuedChunks.get() > 0) continue
                     if (!failed && phrase.isNotBlank()) onText(phrase.toString().trim())
                     else if (!failed) onError("没有识别出文字，请提高麦克风灵敏度或再说一次")
                     phrase.clear()
+                    currentPhrase = ""
                     failed = false
                 }
+            } finally {
+                producer.cancel()
             }
         }
         capturePaused = false
@@ -101,8 +135,11 @@ internal class ProviderCallInput(private val context: Context, private val scope
                 capturingVoice = !completed
                 if (epoch == generation) {
                     onStatus(if (completed) "识别完整语句中…" else "持续收音并分段识别中…")
-                    if (!queue.trySend(AudioChunk(bytes, completed)).isSuccess)
+                    queuedChunks.incrementAndGet()
+                    if (!queue.trySend(AudioChunk(bytes, completed)).isSuccess) {
+                        queuedChunks.decrementAndGet()
                         onError("录音队列已关闭，本段语音未提交识别")
+                    }
                 }
             },
             onError = { message ->
@@ -170,7 +207,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
             setRequestProperty("Authorization", "Bearer $key")
             setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
         }
-        http = connection
+        activeConnections.add(connection)
         try {
             connection.outputStream.use { out ->
                 fun field(name: String, value: String) {
@@ -195,7 +232,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
             JSONObject(connection.inputStream.bufferedReader().use { it.readText() }).optString("text").trim()
         } finally {
             connection.disconnect()
-            if (http === connection) http = null
+            activeConnections.remove(connection)
         }
     }
 
@@ -212,7 +249,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
             // No fixed language header: MiniMax can then recognize mixed
             // Mandarin/English/Japanese utterances within one conversation.
         }
-        http = connection
+        activeConnections.add(connection)
         try {
             connection.outputStream.use { out ->
                 fun field(name: String, value: String) { out.write("--$boundary\r\nContent-Disposition: form-data; name=\"$name\"\r\n\r\n$value\r\n".toByteArray()) }
@@ -257,7 +294,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
                     result.optJSONObject("data")?.optString("text").orEmpty()
                 }.trim()
             }
-        } finally { connection.disconnect(); if (http === connection) http = null }
+        } finally { connection.disconnect(); activeConnections.remove(connection) }
     }
 
     fun stop() {
@@ -271,7 +308,12 @@ internal class ProviderCallInput(private val context: Context, private val scope
         segments = null
         transcription?.cancel()
         transcription = null
-        http?.disconnect()
-        http = null
+        synchronized(activeConnections) {
+            activeConnections.forEach { it.disconnect() }
+            activeConnections.clear()
+        }
+        queuedChunks.set(0)
+        presentingChunk.set(-1)
+        currentPhrase = ""
     }
 }
