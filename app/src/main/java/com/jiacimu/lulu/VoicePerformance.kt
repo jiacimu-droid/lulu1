@@ -74,7 +74,7 @@ internal object VoicePerformance {
             result.append(character)
             if (!character.isWhitespace()) sinceWhisper++
             val naturalBreak = character in "。，！？；,.!?;：:"
-            val isLongEnough = sinceWhisper >= 5
+            val isLongEnough = sinceWhisper >= 2
             val moreSpeech = words.substring(index + 1).any { it.isLetterOrDigit() }
             if (naturalBreak && isLongEnough && moreSpeech) {
                 // Each phrase independently has a whisper direction; a future
