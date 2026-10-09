@@ -114,9 +114,14 @@ object CharacterLifeStore {
         if (character.displayName !in setOf("江渡", "江都")) return
         val root = state(characterId)
         val version = root.optInt("jiangDuPresetVersion")
-        if (version >= 4) return
+        if (version >= 5) return
+        if (version >= 4) {
+            refreshJiangDuLanguageDefaults(characterId, character, root)
+            return
+        }
         if (version >= 3) {
             reorganizeJiangDuProfile(characterId, character, root)
+            applyJiangDuPreset(characterId)
             return
         }
         if (version >= 2) {
@@ -158,7 +163,9 @@ object CharacterLifeStore {
         MigratedDomainStores.characters.update(character.copy(persona = CharacterProfileSchema.jiangDuPersona + "\n\n" +
             CharacterProfileSchema.jiangDuRespectMarker + "\n" + CharacterProfileSchema.jiangDuRespect))
         val profile = root.optJSONObject("profile") ?: JSONObject()
-        CharacterProfileSchema.jiangDu.forEach { (key, value) -> profile.put(key, value) }
+        CharacterProfileSchema.jiangDu.forEach { (key, value) ->
+            if (!profile.has(key)) profile.put(key, value)
+        }
         root.put("profile", profile).put("jiangDuPresetVersion", 3)
         save(characterId, root)
         applyJiangDuPreset(characterId)
@@ -185,6 +192,7 @@ object CharacterLifeStore {
             CharacterIdentityStore.set(characterId, CharacterProfileSchema.jiangDuIdentity)
         }
         CharacterProfileSchema.jiangDu.forEach { (key, value) ->
+            if (key == "speechHabits" && profile.has(key)) return@forEach
             val current = profile.optString(key)
             val legacy = LegacyJiangDuProfileSchema.jiangDu[key].orEmpty()
             if (!profile.has(key) || current == legacy || current == value) profile.put(key, value)
@@ -194,6 +202,37 @@ object CharacterLifeStore {
             }
         }
         root.put("profile", profile).put("jiangDuPresetVersion", 4)
+        save(characterId, root)
+    }
+
+    /** Migrate only unchanged default descriptions; preserve every user-authored field. */
+    private fun refreshJiangDuLanguageDefaults(characterId: String, character: CharacterSettings,
+        root: JSONObject) {
+        if (!DigitalLifeProfileStore.isEnabled(characterId)) return
+        val profile = root.optJSONObject("profile") ?: JSONObject()
+        if (!root.has("jiangDuLanguageBackup")) {
+            root.put("jiangDuLanguageBackup", JSONObject()
+                .put("persona", character.persona).put("profile", JSONObject(profile.toString())))
+            save(characterId, root)
+        }
+        val previous = CharacterProfileSchema.previousJiangDuPersona
+        val decorated = previous + "\n\n" +
+            CharacterProfileSchema.jiangDuRespectMarker + "\n" + CharacterProfileSchema.jiangDuRespect
+        if (character.persona == previous || character.persona == decorated) {
+            val appendix = if (character.persona == decorated)
+                "\n\n" + CharacterProfileSchema.jiangDuRespectMarker +
+                    "\n" + CharacterProfileSchema.jiangDuRespect else ""
+            MigratedDomainStores.characters.update(character.copy(
+                persona = CharacterProfileSchema.jiangDuPersona + appendix))
+        }
+        if (profile.optString("expression") == CharacterProfileSchema.previousJiangDuExpression)
+            profile.put("expression", CharacterProfileSchema.jiangDu.getValue("expression"))
+        if (profile.optString("social") == CharacterProfileSchema.previousJiangDuSocial)
+            profile.put("social", CharacterProfileSchema.jiangDu.getValue("social"))
+        // Explicitly saved empty strings are user edits, not missing defaults.
+        if (!profile.has("speechHabits"))
+            profile.put("speechHabits", CharacterProfileSchema.jiangDuSpeechHabits)
+        root.put("profile", profile).put("jiangDuPresetVersion", 5)
         save(characterId, root)
     }
 

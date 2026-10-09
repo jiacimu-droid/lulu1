@@ -182,13 +182,59 @@ class CharacterLifeStoreTest {
         assertTrue(DigitalLifeProfileStore.isEnabled(jiang.characterId))
         assertTrue(CharacterIdentityStore.identities.value[jiang.characterId]!!.contains("没有恋爱经历"))
         assertTrue(state.getJSONObject("profile").getString("care").contains("出生时恋人身份"))
+        assertEquals(5, state.getInt("jiangDuPresetVersion"))
+        assertEquals(CharacterProfileSchema.jiangDuSpeechHabits, state.getJSONObject("profile").getString("speechHabits"))
         CharacterLifeStore.setProfile(jiang.characterId, "care", "后来自己改的")
         CharacterLifeStore.applyJiangDuPreset(jiang.characterId)
         assertEquals("后来自己改的", CharacterLifeStore.state(jiang.characterId).getJSONObject("profile").getString("care"))
+        CharacterLifeStore.setProfile(jiang.characterId, "speechHabits", "只保留我自己设定的语言习惯")
+        CharacterLifeStore.applyJiangDuPreset(jiang.characterId)
+        assertEquals("只保留我自己设定的语言习惯", CharacterLifeStore.state(jiang.characterId).getJSONObject("profile").getString("speechHabits"))
         val other = MigratedDomainStores.characters.create("其他角色", "不改")
         CharacterLifeStore.applyJiangDuPreset(other.characterId)
         assertEquals("不改", MigratedDomainStores.characters.get(other.characterId).persona)
         assertFalse(CharacterLifeStore.state(other.characterId).has("jiangDuPresetVersion"))
+    }
+
+    @Test
+    @Config(manifest = Config.NONE, sdk = [29])
+    fun olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        MigratedDomainStores.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val normal = MigratedDomainStores.characters.create("江渡", "旧设定")
+        val customized = MigratedDomainStores.characters.create("江渡", "用户写的人设")
+        CharacterLifeStore.applyJiangDuPreset(normal.characterId)
+        CharacterLifeStore.applyJiangDuPreset(customized.characterId)
+        CharacterLifeStore.setProfile(customized.characterId, "speechHabits", "")
+        CharacterLifeStore.setProfile(customized.characterId, "expression", "我自己编辑的表达")
+        val prefs = context.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
+        val legacyRoot = CharacterLifeStore.state(normal.characterId).apply {
+            put("jiangDuPresetVersion", 4)
+            getJSONObject("profile").remove("speechHabits")
+            getJSONObject("profile").put("expression", CharacterProfileSchema.previousJiangDuExpression)
+        }
+        val customRoot = CharacterLifeStore.state(customized.characterId).apply {
+            put("jiangDuPresetVersion", 4)
+        }
+        assertTrue(prefs.edit().putString(normal.characterId, legacyRoot.toString())
+            .putString(customized.characterId, customRoot.toString()).commit())
+        MigratedDomainStores.characters.update(
+            MigratedDomainStores.characters.get(customized.characterId).copy(persona = "用户写的人设"))
+        releasePreferences()
+        CharacterLifeStore.initialize(context)
+        val upgraded = CharacterLifeStore.state(normal.characterId)
+        val kept = CharacterLifeStore.state(customized.characterId)
+        assertEquals(5, upgraded.getInt("jiangDuPresetVersion"))
+        assertEquals(CharacterProfileSchema.jiangDuSpeechHabits, upgraded.getJSONObject("profile").getString("speechHabits"))
+        assertEquals(CharacterProfileSchema.jiangDu.getValue("expression"), upgraded.getJSONObject("profile").getString("expression"))
+        assertEquals("", kept.getJSONObject("profile").getString("speechHabits"))
+        assertEquals("我自己编辑的表达", kept.getJSONObject("profile").getString("expression"))
+        assertEquals("用户写的人设", MigratedDomainStores.characters.get(customized.characterId).persona)
+        assertEquals(5, kept.getInt("jiangDuPresetVersion"))
     }
 
 }

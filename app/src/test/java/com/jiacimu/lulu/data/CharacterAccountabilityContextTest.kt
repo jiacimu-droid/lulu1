@@ -38,17 +38,19 @@ class CharacterAccountabilityContextTest {
         assertEquals("相处与表达", field.group)
         assertTrue(field.hint.contains("倒装"))
         assertTrue(field.hint.contains("标点"))
-        assertFalse(CharacterProfileSchema.jiangDu.containsKey("speechHabits"))
+        assertEquals(CharacterProfileSchema.jiangDuSpeechHabits, CharacterProfileSchema.jiangDu["speechHabits"])
+        assertEquals(listOf("expression", "speechHabits"), CharacterProfileSchema.featuredFields.map { it.key })
+        assertEquals(CharacterProfileSchema.fields.size, CharacterProfileSchema.featuredFields.size + CharacterProfileSchema.otherFields.size)
     }
 
     @Test fun expressionGuidePreservesIndependenceWithoutUnjustifiedCondescension() {
         val guide = CharacterExpressionGuide.promptSection()
-        assertTrue(guide.contains("独立人格不是居高临下"))
-        assertTrue(guide.contains("如果自己承诺过却没做到"))
-        assertTrue(guide.contains("角色在意别人也不等于已发出通知"))
-        assertTrue(guide.contains("中文标点是节奏"))
-        assertTrue(guide.contains("朋友圈是公开给熟人的动态"))
-        assertTrue(guide.contains("私人日记面对自己"))
-        assertTrue(guide.contains("不能统一网感") || guide.contains("表达能力不是统一口头禅"))
+        assertTrue(guide.contains("独立人格"))
+        assertTrue(guide.contains("承诺和行为要承接真实记录"))
+        assertTrue(guide.contains("执行成功必须有真正回执"))
+        assertTrue(guide.contains("语气、停顿、标点和消息节奏"))
+        assertTrue(guide.contains("朋友圈面向熟人分享"))
+        assertTrue(guide.contains("日记是自我整理"))
+        assertTrue(guide.contains("个人语言会成长，但不自我复制"))
     }
 }

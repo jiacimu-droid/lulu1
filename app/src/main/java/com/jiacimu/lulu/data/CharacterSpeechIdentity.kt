@@ -10,6 +10,7 @@ internal object CharacterSpeechIdentity {
     fun promptSection(
         characterId: String,
         includeObserved: Boolean = true,
+        includeConfigured: Boolean = true,
     ): String {
         val initial = CharacterLifeStore.state(characterId).optJSONObject("profile")
             ?.optString("speechHabits").orEmpty().trim()
@@ -18,7 +19,8 @@ internal object CharacterSpeechIdentity {
 
         return buildString {
             appendLine("【这个角色自己的表达倾向，不是必须照着说的台词】")
-            if (initial.isNotBlank()) appendLine("用户明确设定的个人语言习惯（优先遵守）：$initial")
+            // Full-context calls already include this setting in the character profile.
+            if (includeConfigured && initial.isNotBlank()) appendLine("用户明确设定的个人语言习惯（优先遵守）：$initial")
             if (acquired.isNotEmpty()) {
                 appendLine("从多次可核验交流中形成的习惯（结合当前反馈判断是否适用）：")
                 acquired.forEach { appendLine("- ${it.content}") }

@@ -47,5 +47,8 @@ class CharacterExpressionGuideTest {
         val configured = CharacterSpeechIdentity.promptSection(role.characterId, includeObserved = false)
         assertTrue(configured.contains("熟悉时说话干脆，会接冷笑话"))
         assertFalse(configured.contains(accidentalStyle))
+        val noDuplicate = CharacterSpeechIdentity.promptSection(role.characterId, includeConfigured = false)
+        assertFalse(noDuplicate.contains("熟悉时说话干脆，会接冷笑话"))
+        assertTrue(noDuplicate.contains("最近消息用来理解上下文"))
     }
 }
