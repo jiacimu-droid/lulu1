@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5caf6097016a2fa2d26bca690e93589cda580074`
+- 基准提交：`fd30a5c59bdad77c3de8c61fcfaa0a9f7343d914`
 - 分支：`main`
-- 已索引文件：394
-- 已索引代码/文本行：92841
-- 已发现符号：1323
+- 已索引文件：395
+- 已索引代码/文本行：92863
+- 已发现符号：1324
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -358,6 +358,7 @@
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt` | 34 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt` | 22 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleLayoutTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneTranscriptAssemblerTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/TrialRoomWalkControllerTest.kt` | 39 | 1 |
