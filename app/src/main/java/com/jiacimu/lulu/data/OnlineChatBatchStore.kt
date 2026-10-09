@@ -63,6 +63,10 @@ internal object OnlineChatBatchStore {
     fun isCurrent(context: Context, characterId: String, revision: Long) =
         prefs(context).getLong("revision:$characterId", 0) == revision
 
+    /** Independent self-reflection must wait for an unfinished first-bubble chat batch. */
+    @Synchronized fun pendingDueAt(context: Context, characterId: String): Long? =
+        prefs(context).getLong("due:$characterId", 0L).takeIf { it > 0L }
+
     fun dueAt(context: Context, characterId: String, revision: Long): Long? =
         if (isCurrent(context, characterId, revision)) prefs(context).getLong("due:$characterId", 0L).takeIf { it > 0L }
         else null
