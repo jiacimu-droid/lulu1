@@ -75,14 +75,24 @@ object CharacterDevelopmentStore {
             Regex("以后|下次|记住|不要再|我喜欢|我不喜欢|我希望").containsMatchIn(it.content) }
         if (!DevelopmentPolicy.accepts(kind, factual.size, explicit, counters.size)) return false
         if (kind == DevelopmentKind.ExpressionHabit) {
-            // A growth in the character's *own* speech needs a witnessed expression.
-            // Other group members' speech, the user's memes, and diary claims about
-            // activities are insufficient, regardless of the number of exposures.
-            if (events.none { event ->
-                event.evidenceKind == EventEvidenceKind.CharacterStatement &&
-                    (event.source == "journal:own" || event.source == "moment:self" ||
-                        event.channel == "私聊" || event.channel.contains("电话"))
-            }) return false
+            // A single situational joke is not a durable personal idiom. Require
+            // at least two separately authored examples as well as three real
+            // exposures, all attached to this role rather than a group bystander.
+            val ownExpressions = events.filter { event ->
+                event.evidenceKind == EventEvidenceKind.CharacterStatement && when {
+                    event.source in setOf("journal:own", "moment:self") -> true
+                    event.channel == "私聊" -> true
+                    event.source == "message" && event.channel.startsWith("群聊") ->
+                        MigratedDomainStores.chat.conversations.value.any { chat ->
+                            chat.groupChat != null && chat.groupChat.members.any { it.characterId == characterId } &&
+                                MigratedDomainStores.chat.messages(chat.id).value.any { msg ->
+                                    msg.id == event.id && msg.authorCharacterId == characterId
+                                }
+                        }
+                    else -> false
+                }
+            }.distinctBy { it.id }
+            if (ownExpressions.size < 2) return false
         }
         if (kind == DevelopmentKind.Interest) {
             // User-specified interests are stable anchors, not a prohibition on developing
