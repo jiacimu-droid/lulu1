@@ -72,6 +72,7 @@ object CharacterLifeStore {
         evidenceAnchor: String,
         proposal: JSONObject?,
         now: Instant = Instant.now(),
+        evidenceId: String = "",
     ) {
         if (proposal == null) return
         val anchor = evidenceAnchor.trim().replace(Regex("\\s+"), " ").take(180)
@@ -81,9 +82,10 @@ object CharacterLifeStore {
         val holdHours = proposal.optInt("holdHours", 4).coerceIn(1, 48)
         val root = state(characterId)
         val old = root.optJSONObject("afterglow")
+        if (evidenceId.isNotBlank() && old?.optString("evidenceId") == evidenceId) return
         if (old?.optString("anchor") == anchor && old?.optString("feeling") == feeling) return
         root.put("afterglow", JSONObject()
-            .put("anchor", anchor).put("feeling", feeling).put("impulse", impulse)
+            .put("anchor", anchor).put("evidenceId", evidenceId).put("feeling", feeling).put("impulse", impulse)
             .put("startedAt", now.toString())
             .put("expiresAt", now.plusSeconds(holdHours.toLong() * 3_600).toString()))
         save(characterId, root)
