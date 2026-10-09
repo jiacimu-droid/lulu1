@@ -36,6 +36,20 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear(id)
     }
 
+    @Test fun groupThoughtsAreRemovedWhenTheirRealMessageIsDeleted() {
+        start()
+        val characterId = "inside-test-group-thoughts"
+        CharacterInnerLifeStore.clear(characterId)
+        CharacterInnerLifeStore.observe(characterId, "message-123:group:$characterId",
+            "群成员在真实群聊中发生分歧", JSONObject().put("thoughts", JSONArray()
+                .put(JSONObject().put("thought", "我不太赞同，但也想听完")
+                    .put("impulse", "回应分歧").put("hesitation", "先听其他人说"))))
+        assertEquals(1, CharacterInnerLifeStore.snapshot(characterId).getJSONArray("thoughts").length())
+        CharacterInnerLifeStore.invalidateEvidence("message-123:group:$characterId")
+        assertEquals(0, CharacterInnerLifeStore.snapshot(characterId).getJSONArray("thoughts").length())
+        CharacterInnerLifeStore.clear(characterId)
+    }
+
     @Test fun conflictingThoughtsAreRememberedWithoutPretendingTheyAreActions() {
         start()
         val id = "inside-test-conflicting-thoughts"
