@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T11:51:07.958975+00:00",
-  "commit": "fd1b257d5c469a41d0a2cb3ea2e3e401d07d4d27",
+  "generatedAt": "2026-10-09T11:51:22.459444+00:00",
+  "commit": "48b4986dea2681acfd7a38a8c08f7c03d2ffb074",
   "branch": "main",
-  "sourceFingerprint": "6c03ab81f9a5f7785991cbd86b78577af162f3e00b72bee945f95123c2369da9",
+  "sourceFingerprint": "1e796ca9c47b22f7e3a79de5fb2eefc573fe045bac180c534671a341999f00c6",
   "summary": {
-    "files": 384,
-    "lines": 92294,
-    "symbols": 1309
+    "files": 383,
+    "lines": 92263,
+    "symbols": 1308
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7158,12 +7158,6 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt",
         "line": 20
-      }
-    ],
-    "CharacterSpeechIdentityTest": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSpeechIdentityTest.kt",
-        "line": 7
       }
     ],
     "DevelopmentPolicyTest": [
@@ -14816,17 +14810,6 @@
         {
           "name": "CharacterOriginResetTest",
           "line": 20
-        }
-      ]
-    },
-    {
-      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSpeechIdentityTest.kt",
-      "lines": 31,
-      "sha256": "0fa6f80db1dfbde3351555b9b1f256db799defb2ffdfbeeef2e992e5eef526bd",
-      "symbols": [
-        {
-          "name": "CharacterSpeechIdentityTest",
-          "line": 7
         }
       ]
     },

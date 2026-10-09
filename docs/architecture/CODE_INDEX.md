@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`fd1b257d5c469a41d0a2cb3ea2e3e401d07d4d27`
+- 基准提交：`48b4986dea2681acfd7a38a8c08f7c03d2ffb074`
 - 分支：`main`
-- 已索引文件：384
-- 已索引代码/文本行：92294
-- 已发现符号：1309
+- 已索引文件：383
+- 已索引代码/文本行：92263
+- 已发现符号：1308
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -363,7 +363,6 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 211 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 175 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 99 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterSpeechIdentityTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 30 | 1 |
