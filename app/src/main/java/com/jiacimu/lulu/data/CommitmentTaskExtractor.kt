@@ -14,6 +14,24 @@ internal suspend fun extractCommitmentTaskDrafts(
 ): List<CommitmentTaskDraft> {
     val now = Instant.now()
     val zone = ZoneId.systemDefault()
+    // A clear, accepted wake-up request is an executable obligation, not prose.
+    // Resolve its deadline deterministically before asking the model; a model returning
+    // [] or malformed JSON must never drop "明天10点叫我" on the floor.
+    WakeCommitmentParser.parse(userText, characterText, now, zone)?.let { wake ->
+        val matching = activeTasks.filter {
+            (it.goal + it.completionCondition).let { content ->
+                listOf("叫醒", "起床", "wake").any(content::contains)
+            }
+        }
+        if (matching.size == 1) {
+            val previous = matching.single()
+            if (previous.dueAt == wake.dueAt && previous.deliveryAction == wake.deliveryAction) {
+                return emptyList()
+            }
+            return listOf(wake.copy(action = "reschedule", targetTaskId = previous.id))
+        }
+        return listOf(wake)
+    }
     val result = LuluAiServices.gateway.generate(
         characterId = characterId,
         facts = buildString {
