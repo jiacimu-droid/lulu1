@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`1203b0db0b9ac7bf863e6124e6d4bfdd208ef1cd`
+- 基准提交：`1a4c2a547719cc974aec08e36ee6f36c86e71639`
 - 分支：`main`
-- 已索引文件：383
-- 已索引代码/文本行：92295
-- 已发现符号：1308
+- 已索引文件：384
+- 已索引代码/文本行：92332
+- 已发现符号：1309
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -351,6 +351,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/TrialRoomWalkControllerTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt` | 87 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceSynthesisPolicyTest.kt` | 56 | 1 |

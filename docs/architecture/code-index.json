@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T11:49:19.326009+00:00",
-  "commit": "1203b0db0b9ac7bf863e6124e6d4bfdd208ef1cd",
+  "generatedAt": "2026-10-09T11:49:48.493984+00:00",
+  "commit": "1a4c2a547719cc974aec08e36ee6f36c86e71639",
   "branch": "main",
-  "sourceFingerprint": "4d88483e12fa7f8d1c7d4f84352f3d94f096238fef5f5d985f651a93e6bd9fc3",
+  "sourceFingerprint": "1f1b13478e8df7a02fd2a65d3140aab8027ca9d8628e27a917a7c2f2d0a512d5",
   "summary": {
-    "files": 383,
-    "lines": 92295,
-    "symbols": 1308
+    "files": 384,
+    "lines": 92332,
+    "symbols": 1309
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7068,6 +7068,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt",
         "line": 16
+      }
+    ],
+    "TrialRoomWalkControllerTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/TrialRoomWalkControllerTest.kt",
+        "line": 5
       }
     ],
     "VoiceDeliveryLedgerTest": [
@@ -14658,6 +14664,17 @@
         {
           "name": "MeetingVoiceOffTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/TrialRoomWalkControllerTest.kt",
+      "lines": 37,
+      "sha256": "c5ad9527ab0c3c4d50c3a25e3b69b66b49682d5c086677424870a6b7186c9cba",
+      "symbols": [
+        {
+          "name": "TrialRoomWalkControllerTest",
+          "line": 5
         }
       ]
     },
