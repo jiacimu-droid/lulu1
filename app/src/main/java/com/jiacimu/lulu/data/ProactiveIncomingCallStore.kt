@@ -32,6 +32,7 @@ object ProactiveIncomingCallStore {
         if (prefs != null) return
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         mutablePending.value = decode(prefs?.getString(KEY_PENDING, null))?.takeIf { it.active() }
+        mutablePending.value?.let { call -> com.jiacimu.lulu.LuluCallRingtone.startIncoming(context, call.conversationId + ":" + call.createdAt.toEpochMilli(), java.time.Duration.between(java.time.Instant.now(), call.expiresAt).toMillis()) }
         if (mutablePending.value == null) prefs?.edit()?.remove(KEY_PENDING)?.apply()
     }
 
@@ -52,6 +53,7 @@ object ProactiveIncomingCallStore {
         )
         mutablePending.value = call
         prefs?.edit()?.putString(KEY_PENDING, encode(call))?.apply()
+        com.jiacimu.lulu.LuluCallRingtone.startIncoming(context, call.conversationId + ":" + call.createdAt.toEpochMilli(), lifetime.toMillis())
         return call
     }
 
@@ -69,6 +71,7 @@ object ProactiveIncomingCallStore {
         if (call != null && current != null && current != call) return
         mutablePending.value = null
         prefs?.edit()?.remove(KEY_PENDING)?.apply()
+        com.jiacimu.lulu.LuluCallRingtone.stopIncoming()
     }
 
     private fun encode(call: ProactiveIncomingCall): String = JSONObject()
