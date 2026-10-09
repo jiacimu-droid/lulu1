@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T07:37:31.995184+00:00",
-  "commit": "20289d280c31220d243b30a42681b10b7766f656",
+  "generatedAt": "2026-10-09T07:48:39.182675+00:00",
+  "commit": "be4b75a097a85aafa87968ac1f6620dcd1abadcc",
   "branch": "main",
-  "sourceFingerprint": "e2800e4db1de82c794c41240915fcc165fc33e073df0f66efe2a071a1eb1c89d",
+  "sourceFingerprint": "01c26efd49e50f0346311b6b4a021da31c46d17fbe525c4cc31e2da267fba9f8",
   "summary": {
-    "files": 372,
-    "lines": 90238,
-    "symbols": 1273
+    "files": 373,
+    "lines": 90306,
+    "symbols": 1276
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -136,6 +136,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt",
         "line": 14
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
+        "line": 13
       }
     ],
     "cancel": [
@@ -2064,6 +2068,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
         "line": 111
+      }
+    ],
+    "isUnmetPromiseChallenge": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
+        "line": 46
+      }
+    ],
+    "challengeGuidance": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
+        "line": 56
       }
     ],
     "CharacterDevelopmentRuntime": [
@@ -8880,6 +8896,25 @@
         {
           "name": "context",
           "line": 34
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
+      "lines": 68,
+      "sha256": "fe6017e6db6e892bb9a57d3ae52163201fa447597765631ea56680de1f84f645",
+      "symbols": [
+        {
+          "name": "prompt",
+          "line": 13
+        },
+        {
+          "name": "isUnmetPromiseChallenge",
+          "line": 46
+        },
+        {
+          "name": "challengeGuidance",
+          "line": 56
         }
       ]
     },
