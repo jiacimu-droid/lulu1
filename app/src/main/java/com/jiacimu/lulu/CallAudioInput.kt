@@ -20,7 +20,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
 
     @SuppressLint("MissingPermission")
     fun start(accept: () -> Boolean, onReady: () -> Unit, onLevel: (Float) -> Unit,
-        onSpeech: () -> Unit, onFrame: (ByteArray) -> Unit = {}, onSegment: (ByteArray) -> Unit,
+        onSpeech: () -> Unit, onFrame: (ByteArray) -> Unit = {}, onSegment: (ByteArray, Boolean) -> Unit,
         onError: (String) -> Unit, threshold: Float = 350f, endSilenceMs: Int = 500) {
         stop()
         val epoch = generation
@@ -59,6 +59,9 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                 var active = false
                 var silentFrames = 0
                 var loudFrames = 0
+                // Split uploads into continuous PCM chunks; a chunk boundary is NOT
+                // a silence or a conversational turn boundary.
+                val maxChunkBytes = 16000 * 2 * 12
                 while (isActive && epoch == generation) {
                     bindInput()
                     val count = audio.read(samples, 0, samples.size)
@@ -70,7 +73,19 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                         for (i in 0 until count) putShort(if (allowed) samples[i] else 0)
                     }.array()
                     onFrame(frame)
-                    if (!allowed) { active = false; silentFrames = 0; loudFrames = 0; buffer.reset(); preRoll.clear(); continue }
+                    if (!allowed) {
+                        // Caller is temporarily playing audio. Do not lose an
+                        // already captured user's phrase without signalling its end.
+                        if (active && buffer.size() > 0) {
+                            val completed = buffer.toByteArray()
+                            withContext(Dispatchers.Main) {
+                                if (epoch == generation) onSegment(completed, true)
+                            }
+                        }
+                        active = false; silentFrames = 0; loudFrames = 0
+                        buffer.reset(); preRoll.clear()
+                        continue
+                    }
                     if (!active) {
                         preRoll.addLast(frame)
                         if (preRoll.size > 4) preRoll.removeFirst()
@@ -81,10 +96,21 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                         withContext(Dispatchers.Main) { if (epoch == generation) onSpeech() }
                     } else buffer.write(frame)
                     silentFrames = if (rms < threshold * 0.8) silentFrames + 1 else 0
-                    if (silentFrames >= (endSilenceMs.coerceIn(300, 1500) + 99) / 100 || buffer.size() >= 16000 * 2 * 25) {
+                    val finishedBySilence = silentFrames >= (endSilenceMs.coerceIn(500, 3200) + 99) / 100
+                    val chunkFull = buffer.size() >= maxChunkBytes
+                    if (finishedBySilence || chunkFull) {
                         val segment = buffer.toByteArray()
-                        active = false; loudFrames = 0; silentFrames = 0; buffer = ByteArrayOutputStream()
-                        withContext(Dispatchers.Main) { if (epoch == generation) onSegment(segment) }
+                        buffer = ByteArrayOutputStream()
+                        if (finishedBySilence) {
+                            active = false
+                            loudFrames = 0
+                            silentFrames = 0
+                        }
+                        // At max duration preserve VAD state; the next frame
+                        // belongs to the same utterance, without a lost pre-roll.
+                        withContext(Dispatchers.Main) {
+                            if (epoch == generation) onSegment(segment, finishedBySilence)
+                        }
                     }
                 }
             } catch (error: Exception) {
