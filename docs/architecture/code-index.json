@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T15:28:54.476404+00:00",
-  "commit": "2e07008fac1e8e21a2306573596c762386f724e2",
+  "generatedAt": "2026-10-09T15:29:43.366796+00:00",
+  "commit": "4a143d0f5ecd6f2af5f47527c393ed6cf1ad6c82",
   "branch": "main",
-  "sourceFingerprint": "a975cee2c7e2f2bd968131f5c57ba3534df2bbc226f3656f8f512e3bc5bb86d3",
+  "sourceFingerprint": "382b07911f0f18448fdb4c55c397a3ed6feb387464f004b6fb64b73e03f69f1f",
   "summary": {
     "files": 400,
-    "lines": 93668,
-    "symbols": 1343
+    "lines": 93725,
+    "symbols": 1344
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -929,19 +929,25 @@
     "launchExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 106
+        "line": 114
+      }
+    ],
+    "launchLivingMoment": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
+        "line": 131
       }
     ],
     "openDirectMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 120
+        "line": 145
       }
     ],
     "rewindAndRegenerate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 138
+        "line": 163
       }
     ],
     "ledgerText": [
@@ -8049,8 +8055,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-      "lines": 537,
-      "sha256": "6a24c389682679dff2114ce01570e9b4cf71513af062eacde29f2e9e93b0facc",
+      "lines": 593,
+      "sha256": "a79775acf5527caafb5bb960db8387569995444e7bbbb5c8873cf8f4c03a5dfa",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
@@ -8058,15 +8064,19 @@
         },
         {
           "name": "launchExchange",
-          "line": 106
+          "line": 114
+        },
+        {
+          "name": "launchLivingMoment",
+          "line": 131
         },
         {
           "name": "openDirectMeeting",
-          "line": 120
+          "line": 145
         },
         {
           "name": "rewindAndRegenerate",
-          "line": 138
+          "line": 163
         }
       ]
     },
@@ -8087,8 +8097,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingRuntimeV2.kt",
-      "lines": 339,
-      "sha256": "92cb221c9a2c6938d8cc82a8683fa67a34d1b17796c0c5d57adee71caad1862a",
+      "lines": 340,
+      "sha256": "fdeb496b1772d229cdef095850a393575346a9840bacb6877d89a1c96520e289",
       "symbols": []
     },
     {
