@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T14:08:46.663474+00:00",
-  "commit": "76e259987459bfff9444bb983abe1b2d41397dda",
+  "generatedAt": "2026-10-09T14:37:35.952437+00:00",
+  "commit": "29fe833551a01d439fe4c14136e650d4a8940d82",
   "branch": "main",
-  "sourceFingerprint": "0448c1e2b24782aeedb6d9019a71dd190e133c3f5ecc25dbf6f9d28cc1aec7e2",
+  "sourceFingerprint": "904d2fea884132c9d094d36f09dabd8139e6a1ff876b3983f6a557ccd4bd52ee",
   "summary": {
     "files": 395,
-    "lines": 92992,
-    "symbols": 1326
+    "lines": 93055,
+    "symbols": 1327
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1011,13 +1011,13 @@
     "show": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
-        "line": 31
+        "line": 38
       }
     ],
     "minimize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
-        "line": 33
+        "line": 40
       }
     ],
     "enabled": [
@@ -1490,10 +1490,16 @@
         "line": 8
       }
     ],
+    "captionRows": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
+        "line": 33
+      }
+    ],
     "format": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
-        "line": 31
+        "line": 35
       }
     ],
     "combine": [
@@ -8082,16 +8088,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
-      "lines": 88,
-      "sha256": "021f1af40e635c9261e9c63a5c25d4aed9c1856b37cfca79e0e8266f2f522f0d",
+      "lines": 126,
+      "sha256": "67f189241d30d5eff55cd936f4fdce16d152eb21bdcf5898363a07fb628b6fe3",
       "symbols": [
         {
           "name": "show",
-          "line": 31
+          "line": 38
         },
         {
           "name": "minimize",
-          "line": 33
+          "line": 40
         }
       ]
     },
@@ -8188,8 +8194,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 385,
-      "sha256": "90ff305f048cd07339c49392e1af59f64354f2cef087d8371ee22b72071de61e",
+      "lines": 381,
+      "sha256": "be85bf13d480761bc5b397eac097be6d08040a4eaffdaa9f4d3142af18d88a87",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
@@ -8315,8 +8321,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
-      "lines": 452,
-      "sha256": "c89be3abaf0a7545a94dc9d18a4da5503e5e8cf63b66ada8a2baa8e54e2e39d3",
+      "lines": 467,
+      "sha256": "f5ae13fb780d612a49c1a67a7f10583138a2370f6a2576ac3abd2e9d6da96809",
       "symbols": [
         {
           "name": "LuluVoiceCallScreen",
@@ -8655,8 +8661,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
-      "lines": 34,
-      "sha256": "8c0e06ef1519b014a8086021c6a783912e6ca74a8e633badebdab50cb27ed342",
+      "lines": 38,
+      "sha256": "9502089be98822996052ec0e7dd753ee172666aff67d651cca874e09e6e9900c",
       "symbols": [
         {
           "name": "lines",
@@ -8667,8 +8673,12 @@
           "line": 12
         },
         {
+          "name": "captionRows",
+          "line": 33
+        },
+        {
           "name": "format",
-          "line": 31
+          "line": 35
         }
       ]
     },
@@ -14877,8 +14887,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneSubtitleLayoutTest.kt",
-      "lines": 29,
-      "sha256": "1d5339aede35bdc52c03bc191c3007b1972d58f53f8d4f179f533b4198cfd97b",
+      "lines": 39,
+      "sha256": "f9ebe7d3fea57d7e9900677d79cee400c2051b366f009b36850ed75839b30719",
       "symbols": [
         {
           "name": "PhoneSubtitleLayoutTest",
