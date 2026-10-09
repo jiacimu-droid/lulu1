@@ -203,7 +203,6 @@ fun LuluVoiceCallScreen(
                                 Spacer(Modifier.width(7.dp))
                                 Text("实时字幕", color = CallInk, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                 Spacer(Modifier.weight(1f))
-                                if (state.connected) Text(formatCallDuration(state.elapsedSeconds), color = CallMuted, fontSize = 12.sp)
                             }
                             HorizontalDivider(color = CallLine.copy(alpha = .7f))
                             if (callMessages.isEmpty() && state.partialTranscript.isBlank() && state.playingTranscript.isBlank()) {
@@ -434,19 +433,6 @@ private fun CallPrimaryHangup(label: String, onClick: () -> Unit) {
     ) { Icon(Icons.Outlined.CallEnd, label, modifier = Modifier.size(30.dp)) }
     Spacer(Modifier.height(8.dp))
     Text(label, color = CallMuted, fontSize = 12.sp)
-}
-
-private fun callStatusText(state: LuluVoiceCallState, modelConnected: Boolean): String = when {
-    !modelConnected -> "请先在右上角选择电话模型"
-    state.phase == CallPhase.Ready -> state.statusMessage.ifBlank { "准备好以后拨打" }
-    state.phase == CallPhase.Dialing -> "正在呼叫 ${state.characterName}…"
-    state.phase == CallPhase.Ended -> state.statusMessage.ifBlank { "通话已结束" }
-    state.microphoneMuted -> "麦克风已静音"
-    state.speaking -> "${state.characterName} 正在说话"
-    state.thinking -> "${state.characterName} 正在回应"
-    state.listening -> "正在听你说话"
-    state.connected -> "通话中"
-    else -> state.statusMessage
 }
 
 private fun formatCallDuration(seconds: Long): String {
