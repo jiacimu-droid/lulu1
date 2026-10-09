@@ -5,15 +5,19 @@ package com.jiacimu.lulu.data
  * The model is shown what this character really wrote, not synthetic "memories".
  */
 internal object CharacterSpeechIdentity {
-    fun promptSection(characterId: String, includeObserved: Boolean = true): String {
+    fun promptSection(
+        characterId: String,
+        includeObserved: Boolean = true,
+        includePersonalSamples: Boolean = true,
+    ): String {
         val initial = CharacterLifeStore.state(characterId).optJSONObject("profile")
             ?.optString("speechHabits").orEmpty().trim()
         val acquired = if (includeObserved) CharacterDevelopmentStore.active(characterId)
             .filter { it.kind == DevelopmentKind.ExpressionHabit }.takeLast(5) else emptyList()
         // Recent user behaviour is an occasion for playful mirroring, never a
         // permanent speech habit. Only observe the character's own direct chat.
-        val liveMirroring = if (includeObserved) recentUserBubbleMirror(characterId) else ""
-        val ownMessages = if (includeObserved) MigratedDomainStores.chat.conversations.value.asSequence()
+        val liveMirroring = if (includeObserved && includePersonalSamples) recentUserBubbleMirror(characterId) else ""
+        val ownMessages = if (includeObserved && includePersonalSamples) MigratedDomainStores.chat.conversations.value.asSequence()
             .filter { chat ->
                 chat.characterId == characterId ||
                     chat.groupChat?.members?.any { it.characterId == characterId } == true
@@ -51,7 +55,7 @@ internal object CharacterSpeechIdentity {
     ): Int {
         if (bubbles.size < 4) return 0
         val last = bubbles.last()
-        if (last.first.trim().length > 4) return 0
+        if (last.first.trim().length !in 1..4) return 0
         var count = 1
         for (i in bubbles.size - 2 downTo 0) {
             val (text, at) = bubbles[i]
