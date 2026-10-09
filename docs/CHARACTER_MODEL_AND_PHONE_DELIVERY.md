@@ -48,7 +48,7 @@
 
 1. 语音设置顶端先选 MiniMax、ElevenLabs 或系统语音；拨号页也可明确选择 MiniMax/ElevenLabs。MiniMax 不能进入 ElevenLabs Agent 线路。
 2. MiniMax 直接录制真实单声道 16kHz PCM，形成合法 WAV，停顿后调用同区域 `/v1/speech_to_text`（`asr-1.0`）并显示 SSE 转写结果，再使用原电话模型及 MiniMax 发声。无需部署应用自己的服务。
-3. ElevenLabs 账号直连使用 Scribe Realtime WebSocket (`scribe_v2_realtime`) 识别、原电话模型回复、所选 ElevenLabs Voice ID 发声；个人 Key 由手机配置，不随 APK 发布。
+3. ElevenLabs 账号直连使用 Android 12+ `SpeechRecognizer.createOnDeviceSpeechRecognizer` 本地转写，原电话模型回复，再由 ElevenLabs 所选 Voice ID 发声。不连接 Scribe Realtime，不消耗 ElevenLabs STT 额度；如果本机无离线识别服务或中文模型，不自动转回付费接口，需明确提示并手动配置本地模型。
 4. 只有明确选择“Agent 高级通话”才需要现有云端角色服务与 ElevenLabs Agent 配置。云端长任务仍是可选设置，不再作为普通电话的前置条件。
 5. 普通电话显示实际麦克风输入强度、收音/识别/模型回复/发声的状态与失败信息，首句临时字幕也能显示。收音失败可重试，MiniMax 收音阈值可调。
 6. 发声时普通直连路线暂时屏蔽识别输入，避免自己听自己；提供“打断并重新收音”。该路线不宣称已实现完整自动双工；完整 Agent 路线仍需独立在线验证。
@@ -56,7 +56,7 @@
 
 官方协议依据：[MiniMax 语音识别](https://platform.minimax.cn/docs/api-reference/speech-to-text)、[MiniMax 官方调试台](https://solutions.minimaxi.com/debug/asr)、[ElevenLabs Realtime Speech-to-Text](https://elevenlabs.io/docs/api-reference/speech-to-text/v-1-speech-to-text-realtime)。MiniMax 的流式返回发生在上传音频之后，不能称作麦克风逐字实时输入。
 
-只开通合成不代表识别权限或识别额度也已可用。账号不支持、余额不足或接口区域不匹配时，页面会返回真实失败。供应商音频质量、网络延迟、麦克风收音与回声仍需手机在线测试。
+MiniMax 仍需要其独立语音识别权限/额度。ElevenLabs 直连电话的本机转写不要求 Scribe 识别额度，但依赖手机是否提供离线识别及中文语言包；系统普通识别也未必离线。供应商发声质量、网络延迟、麦克风收音与回声仍需手机在线测试。
 
 ## 聊天状态与错误
 
@@ -75,7 +75,7 @@
 - 本地静态检查 `git diff --check` 通过；现有时间线迁移测试 1 项通过。
 - 可安装文件：[Lulu v1183 APK](https://github.com/jiacimu-droid/lulu1/releases/download/lulu-v1183/Lulu.apk)，79,155,486 字节。
 - 上一次 v1182 的编译失败由缺少直接 OkHttp 依赖引起，已修复；对应 CI issue #191 关闭。
-- 未完成在线验收：MiniMax 识别权限／额度／区域、ElevenLabs Scribe 识别权限、实机收音及声线、双工回声和延迟。构建通过不等于这些项目已经实测。
+- 未完成在线验收：MiniMax 识别权限／额度／区域、手机离线中文识别支持度、ElevenLabs 直连发声、Agent 高级模式计费、实机收音及声线、双工回声和延迟。构建通过不等于这些项目已经实测。
 
 手机操作：安装 v1183 后，进入语音服务先选供应商，再检查该供应商 Key 与角色 Voice ID；普通电话无需填写本项目云端服务。MiniMax 请先说一句话，停顿后观察输入强度、字幕与阶段提示；有错误直接查看电话页。v1183 的江渡设定需手动填入；后续版本按上述一次性迁移自动写入。
 
