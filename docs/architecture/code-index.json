@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:01:01.608346+00:00",
-  "commit": "910567963d91868816df2330c49bca343a1f34cd",
+  "generatedAt": "2026-10-09T13:01:39.388875+00:00",
+  "commit": "1cb36d1737384049445b01cd4bd320c0c06a8525",
   "branch": "main",
-  "sourceFingerprint": "d70f73e5c44c10811a2c16017102f8a024b9928a2b1018912d7a4b3e5cab37e0",
+  "sourceFingerprint": "9f7fbe2a5faa4b09c632fdeb3c5189c263da4e642f776326c1fcd6d1e396f001",
   "summary": {
     "files": 384,
-    "lines": 92388,
+    "lines": 92391,
     "symbols": 1308
   },
   "symbolIndex": {
@@ -77,7 +77,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 194
+        "line": 197
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
@@ -8532,8 +8532,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 207,
-      "sha256": "50968e84c291512d2788e1a88101bc1f0d62b709e7542d83816426439023fa25",
+      "lines": 210,
+      "sha256": "001b134bb5a3a18300df1843e80f9b54fe319d376672882993a2947694a407e4",
       "symbols": [
         {
           "name": "start",
@@ -8549,7 +8549,7 @@
         },
         {
           "name": "stop",
-          "line": 194
+          "line": 197
         }
       ]
     },
