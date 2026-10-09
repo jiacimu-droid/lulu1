@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T10:44:15.120733+00:00",
-  "commit": "c13af4255579f00ca68e8c513d3ea53996619654",
+  "generatedAt": "2026-10-09T10:44:39.584654+00:00",
+  "commit": "915a444ce21737a60522cd148bbd9ef78568c8f5",
   "branch": "main",
-  "sourceFingerprint": "603146a590536ba81761e44c491c42d6c56b28564c8bd866a0464ac708250dd7",
+  "sourceFingerprint": "be302f50177a7fdc83cf73fc98d910fadd8c9c5aae0fcdda541a6b0cb85c5584",
   "summary": {
-    "files": 378,
-    "lines": 91351,
-    "symbols": 1292
+    "files": 379,
+    "lines": 91385,
+    "symbols": 1295
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -126,6 +126,40 @@
         "line": 139
       }
     ],
+    "request": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt",
+        "line": 11
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
+        "line": 23
+      }
+    ],
+    "cancel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt",
+        "line": 17
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
+        "line": 9
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 138
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
+        "line": 95
+      }
+    ],
+    "consumeWhenReady": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt",
+        "line": 22
+      }
+    ],
     "claim": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt",
@@ -140,20 +174,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
         "line": 13
-      }
-    ],
-    "cancel": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
-        "line": 9
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 138
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 95
       }
     ],
     "update": [
@@ -2126,12 +2146,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
         "line": 15
-      }
-    ],
-    "request": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 23
       }
     ],
     "ids": [
@@ -7310,6 +7324,25 @@
         {
           "name": "headsetPriority",
           "line": 139
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt",
+      "lines": 34,
+      "sha256": "92f2037911bd63a4b5ee41ce0b09847cf9499f4f1d217f509b7bd79e2761f64e",
+      "symbols": [
+        {
+          "name": "request",
+          "line": 11
+        },
+        {
+          "name": "cancel",
+          "line": 17
+        },
+        {
+          "name": "consumeWhenReady",
+          "line": 22
         }
       ]
     },
