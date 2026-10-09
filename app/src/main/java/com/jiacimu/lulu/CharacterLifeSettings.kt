@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.CharacterLifeStore
 import com.jiacimu.lulu.data.CharacterInnerLifeStore
+import com.jiacimu.lulu.data.sameCharacterMotive
 import com.jiacimu.lulu.data.CharacterProfileSchema
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.CommitmentTaskStore
@@ -174,7 +175,7 @@ internal fun CharacterLifeSettings(characterId: String) {
         val legacyAim = legacyMotive?.optString("aim").orEmpty().trim()
         val legacyUnique = legacyAim.isNotBlank() &&
             (0 until (motives?.length() ?: 0)).none { i ->
-                motives?.optJSONObject(i)?.optString("aim")?.trim() == legacyAim
+                sameCharacterMotive(motives?.optJSONObject(i)?.optString("aim").orEmpty(), legacyAim)
             }
         if ((motives == null || motives.length() == 0) && !legacyUnique) {
             Text("暂时没有明确的长期打算", style = MaterialTheme.typography.bodySmall)
