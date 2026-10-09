@@ -106,6 +106,29 @@ object ProactivePerceptionScheduler {
     }
 
     /**
+     * A separate, evidence-triggered reflection opportunity. It cannot be swallowed
+     * by the ordinary online batch revision being claimed by another worker.
+     */
+    fun scheduleOnlineReflection(
+        context: Context, characterId: String, trigger: String, delayMillis: Long = 45_000L,
+    ) {
+        if (characterId.isBlank()) return
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInitialDelay(delayMillis.coerceAtLeast(0L), TimeUnit.MILLISECONDS)
+            .setInputData(Data.Builder()
+                .putString("trigger", trigger)
+                .putString("characterId", characterId)
+                .putBoolean("force", true)
+                .putBoolean("requireOnline", true)
+                .putBoolean("respectMessageBuffer", true)
+                .build())
+            .build()
+        WorkManager.getInstance(context.applicationContext)
+            .enqueueUniqueWork("$ONLINE_WORK-reflection-$characterId", ExistingWorkPolicy.KEEP, request)
+    }
+
+    /**
      * Five minutes means leaving live chat, not forgetting a strong emotion.
      * Run at most one low-priority follow-up per 90 minutes; do not reopen the
      * online window or dictate which specific action a character should choose.
@@ -136,6 +159,7 @@ object ProactivePerceptionScheduler {
     fun cancelOnline(context: Context, characterId: String) {
         OnlineChatBatchStore.cancel(context, characterId)
         WorkManager.getInstance(context.applicationContext).cancelUniqueWork("$ONLINE_WORK-$characterId")
+        WorkManager.getInstance(context.applicationContext).cancelUniqueWork("$ONLINE_WORK-reflection-$characterId")
         ChatGenerationActivity.clearCharacter(characterId)
     }
 }
@@ -161,14 +185,15 @@ class ProactivePerceptionWorker(
             ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
             return@runCatching Result.success()
         }
-        val onlineRevision = inputData.getLong("onlineRevision", 0L).takeIf { requireOnline }
-        if (requireOnline && characterId != null && !OnlineChatBatchStore.isCurrent(applicationContext, characterId, onlineRevision ?: 0L)) {
+        val onlineRevision = inputData.getLong("onlineRevision", -1L).takeIf { requireOnline && it >= 0L }
+        if (requireOnline && characterId != null && onlineRevision != null &&
+            !OnlineChatBatchStore.isCurrent(applicationContext, characterId, onlineRevision)) {
             return@runCatching Result.success()
         }
         // Follow the latest deadline, not the first bubble's deadline. The
         // same pending revision may be extended while this worker is asleep.
         // A new bubble must get a full three seconds before perception starts.
-        if (requireOnline && characterId != null) {
+        if (requireOnline && characterId != null && onlineRevision != null) {
             while (true) {
                 if (!CompanionOnlineStore.isOnline(characterId) ||
                     !OnlineChatBatchStore.isCurrent(applicationContext, characterId, onlineRevision ?: 0L)) {
@@ -179,6 +204,21 @@ class ProactivePerceptionWorker(
                 val remaining = due - System.currentTimeMillis()
                 if (remaining <= 0L) break
                 kotlinx.coroutines.delay(remaining)
+            }
+        }
+        // A separate reflection should not race with the current chat batch:
+        // wait until the primary user-message perception has finished, without
+        // claiming or consuming that batch itself.
+        if (requireOnline && characterId != null &&
+            inputData.getBoolean("respectMessageBuffer", false)) {
+            while (true) {
+                if (!CompanionOnlineStore.isOnline(characterId)) return@runCatching Result.success()
+                val pending = OnlineChatBatchStore.pendingDueAt(applicationContext, characterId)
+                val busy = MigratedDomainStores.chat.conversations.value.any {
+                    it.characterId == characterId && ChatGenerationActivity.isRunning(it.id)
+                } || CompanionPresenceStore.isInCall(characterId)
+                if (pending == null && !busy) break
+                kotlinx.coroutines.delay(1_000L)
             }
         }
         ProactivePerceptionRuntime.runDueCycle(
