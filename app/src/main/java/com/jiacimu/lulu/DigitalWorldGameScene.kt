@@ -79,6 +79,7 @@ private data class DigitalNpcMotion(
     val activityLabel: String = "",
     val busyUntil: Long = 0L,
     val followPath: List<WorldVector> = emptyList(),
+    val pose: ResidentPose = ResidentPose.STAND,
 )
 
 private sealed interface DigitalNearbyTarget {
@@ -133,6 +134,26 @@ internal fun DigitalWorldGameScene(
     val stateStore = remember(context, sceneKey) { DigitalWorldPlayState(context, sceneKey) }
     val restored = remember(stateStore) { stateStore.loadPosition() }
     val safeStart = remember(restored, obstacles) { digitalSafeStart(restored, obstacles) }
+    // The actual activity ledger survives closing the scene. A portrait alone
+    // cannot determine whether somebody is sitting or lying on a real item.
+    var residentActivities by remember(sceneKey, residents.map { it.characterId }) {
+        mutableStateOf(residents.associate { it.characterId to
+            com.jiacimu.lulu.data.DigitalWorldActivityStateStore.ongoingActivity(it.characterId) })
+    }
+    LaunchedEffect(sceneKey, residents.map { it.characterId }, props) {
+        while (isActive) {
+            val fresh = residents.associate { it.characterId to
+                com.jiacimu.lulu.data.DigitalWorldActivityStateStore.ongoingActivity(it.characterId) }
+            if (fresh != residentActivities) residentActivities = fresh
+            delay(900L)
+        }
+    }
+    fun furniturePoseFor(id: String): Pair<ResidentPose, WorldVector>? {
+        val activity = residentActivities[id] ?: return null
+        val prop = props.firstOrNull { it.item.id == activity.first } ?: return null
+        val pose = DigitalResidentFurniturePose.forActivity(activity.second, prop.style.kind) ?: return null
+        return pose to DigitalResidentFurniturePose.anchor(prop.bounds, pose)
+    }
     val userAvatar = remember(context) { rememberUserAvatar(context) }
     val placeLabel = remember(sceneCode, homeCharacterId, world.homes) {
         homeCharacterId?.let { world.homes[it]?.name }
@@ -155,12 +176,21 @@ internal fun DigitalWorldGameScene(
     var menuTargetKey by remember(sceneKey) { mutableStateOf<String?>(null) }
     var queuedActions by remember(sceneKey) { mutableStateOf<List<DigitalQueuedAction>>(emptyList()) }
     var activeActionLabel by remember(sceneKey) { mutableStateOf("") }
+    // Physical player interactions are NOT prompts that force an immersive
+    // story modal. Keep their mode separate from the narrative conversation.
+    var handHoldingId by remember(sceneKey) { mutableStateOf(stateStore.loadHandHoldingId()) }
+    var requestedFollowers by remember(sceneKey) { mutableStateOf(stateStore.loadFollowerIds()) }
+    val activeFollowerIds = followerIds + requestedFollowers + listOfNotNull(handHoldingId)
 
     var npcMotions by remember(sceneKey, residents.map { it.characterId }) {
         mutableStateOf(
             residents.mapIndexed { index, character ->
-                val start = digitalSafeStart(residentStart(index, character.characterId, venueAnchors), obstacles)
-                DigitalNpcMotion(character, start, start, System.currentTimeMillis() + 2_100L + index * 760L)
+                val base = digitalSafeStart(residentStart(index, character.characterId, venueAnchors), obstacles)
+                val resting = furniturePoseFor(character.characterId)
+                val start = resting?.second ?: base
+                DigitalNpcMotion(character, start, start,
+                    System.currentTimeMillis() + 2_100L + index * 760L,
+                    pose = resting?.first ?: ResidentPose.STAND)
             },
         )
     }
@@ -228,7 +258,7 @@ internal fun DigitalWorldGameScene(
         if (activeActionLabel == queued.label) activeActionLabel = ""
     }
 
-    LaunchedEffect(sceneKey, obstacles, viewportSize, residents.map { it.characterId }, controlsEnabled, props, venueAnchors, followerIds) {
+    LaunchedEffect(sceneKey, obstacles, viewportSize, residents.map { it.characterId }, controlsEnabled, props, venueAnchors, activeFollowerIds, residentActivities) {
         var previousFrame = withFrameNanos { it }
         var lastCollisionSound = 0L
         while (isActive) {
@@ -293,7 +323,23 @@ internal fun DigitalWorldGameScene(
                     }
 
                     // Animation reflects confirmed activity; it never executes random world actions.
-                    val following = motion.character.characterId in followerIds
+                    val characterId = motion.character.characterId
+                    val following = characterId in activeFollowerIds
+                    val handHolding = characterId == handHoldingId
+                    val occupiedFurniture = if (!following) furniturePoseFor(characterId) else null
+                    if (occupiedFurniture != null) {
+                        // A verified resting activity is an occupied furniture
+                        // slot. Do not pathfind into the furniture's collision
+                        // box and leave the resident standing beside the bed.
+                        return@mapIndexed motion.copy(position = occupiedFurniture.second,
+                            target = occupiedFurniture.second, followPath = emptyList(),
+                            pose = occupiedFurniture.first,
+                            activityLabel = residentActivities[characterId]?.second?.let { id ->
+                                val prop = props.firstOrNull { it.item.id == residentActivities[characterId]?.first }
+                                prop?.let { item -> DigitalWorldActivityCatalog.optionsFor(item.item)
+                                    .firstOrNull { it.first == id }?.second }
+                            }.orEmpty())
+                    }
                     var followPath = if (following) motion.followPath else emptyList()
                     var target = motion.target
                     var nextDecision = motion.nextDecisionAt
@@ -302,12 +348,15 @@ internal fun DigitalWorldGameScene(
                     val pendingActivityId: String? = null
                     var activityLabel = motion.activityLabel
                     if (following) {
-                        if (motion.position.distanceTo(playerPosition) < 90f) {
+                        val followPosition = if (handHolding) {
+                            playerPosition + WorldVector(if (facingX >= 0f) 64f else -64f, 10f)
+                        } else playerPosition
+                        if (motion.position.distanceTo(followPosition) < if (handHolding) 18f else 90f) {
                             followPath = emptyList()
                             target = motion.position
                         } else {
                             if (now >= nextDecision || (followPath.isEmpty() && motion.activityLabel != "跟随你")) {
-                                followPath = com.jiacimu.lulu.games.worldFollowPath(motion.position, playerPosition,
+                                followPath = com.jiacimu.lulu.games.worldFollowPath(motion.position, followPosition,
                                     DIGITAL_WORLD_BOUNDS, obstacles, 28f)
                                 nextDecision = now + 750L
                             }
@@ -316,7 +365,7 @@ internal fun DigitalWorldGameScene(
                             }
                             target = followPath.firstOrNull() ?: motion.position
                         }
-                        activityLabel = "跟随你"
+                        activityLabel = if (handHolding) "牵着手同行" else "跟随你"
                     } else if (now >= nextDecision) {
                         val activity = com.jiacimu.lulu.data.DigitalWorldActivityStateStore.ongoingActivity(motion.character.characterId)
                         val item = props.firstOrNull { it.item.id == activity?.first }
@@ -352,6 +401,7 @@ internal fun DigitalWorldGameScene(
                         pendingActivityId = pendingActivityId,
                         activityLabel = activityLabel,
                         followPath = followPath,
+                        pose = ResidentPose.STAND,
                     )
                 }
             }
@@ -472,11 +522,18 @@ internal fun DigitalWorldGameScene(
             GameCharacterPawn(
                 avatarUri = motion.character.avatarUri,
                 fallback = motion.character.displayName.take(1),
-                moving = motion.busyUntil <= System.currentTimeMillis() && motion.position.distanceTo(motion.target) > 20f,
+                moving = motion.pose == ResidentPose.STAND &&
+                    motion.busyUntil <= System.currentTimeMillis() && motion.position.distanceTo(motion.target) > 20f,
+                pose = motion.pose,
                 facingX = motion.facingX,
                 coat = Color(0xFF526B67),
                 modifier = Modifier
-                    .offset { IntOffset((screenX - halfPawnWidth).roundToInt(), (screenY - pawnFoot).roundToInt()) }
+                    .offset {
+                        val halfWidth = if (motion.pose == ResidentPose.LIE) with(density) { 47.dp.toPx() } else halfPawnWidth
+                        val foot = if (motion.pose == ResidentPose.LIE) with(density) { 61.dp.toPx() }
+                            else if (motion.pose == ResidentPose.SIT) with(density) { 72.dp.toPx() } else pawnFoot
+                        IntOffset((screenX - halfWidth).roundToInt(), (screenY - foot).roundToInt())
+                    }
                     .zIndex(motion.position.y)
                     .clickable(enabled = controlsEnabled && selectedTarget == null) {
                         tapTarget = motion.position
