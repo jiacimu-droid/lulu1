@@ -41,7 +41,7 @@ internal fun VoiceCallSettings(provider: String) {
         }
         HorizontalDivider()
         Text("你的声音如何转成文字", style = MaterialTheme.typography.titleSmall)
-        Text("单独选择识别渠道，不影响角色的 Voice ID 或语音供应商。",
+        Text("单独选择识别渠道，不影响角色的 Voice ID 或语音供应商；自动模式优先沿用已配置的 MiniMax。",
             style = MaterialTheme.typography.bodySmall)
         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -54,7 +54,8 @@ internal fun VoiceCallSettings(provider: String) {
             }
         }
         val activeEngine = CallVoiceConfiguration.resolveSttEngine(sttMode,
-            SpeechRecognizer.isRecognitionAvailable(context), groqKey.isNotBlank(), provider)
+            SpeechRecognizer.isRecognitionAvailable(context), groqKey.isNotBlank(), provider,
+            minimaxConfigured = prefs.getString("minimax_api_key", "").orEmpty().isNotBlank())
         Text("当前识别：${CallVoiceConfiguration.sttLabel(activeEngine)}",
             style = MaterialTheme.typography.bodySmall)
         if (sttMode == "auto" || sttMode == "groq") {
