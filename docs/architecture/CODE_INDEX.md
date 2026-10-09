@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`60e5ae44e73c70472d7a6ae172dbedec6e4b43f7`
+- 基准提交：`d8b4a1d4321bfd824702fa1cb7457921ba77cba5`
 - 分支：`main`
 - 已索引文件：403
-- 已索引代码/文本行：94003
+- 已索引代码/文本行：94015
 - 已发现符号：1352
 
 | 文件 | 行数 | 符号数 |
@@ -44,7 +44,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 638 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 637 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt` | 366 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingRuntimeV2.kt` | 340 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingRuntimeV2.kt` | 352 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt` | 836 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingUiV2.kt` | 457 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt` | 355 | 0 |
