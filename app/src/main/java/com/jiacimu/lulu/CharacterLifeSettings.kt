@@ -220,7 +220,7 @@ internal fun CharacterLifeSettings(characterId: String) {
         val choices = innerRoot.optJSONArray("decisions")
         if (choices != null && choices.length() > 0) {
             TextButton(onClick = { showPastChoices = !showPastChoices }) {
-                Text(if (showPastChoices) "收起最近的选择" else "查看最近的选择（${choices.length}）")
+                Text(if (showPastChoices) "收起最近的选择" else "查看最近的选择（${choices.length()}）")
             }
             if (showPastChoices) for (i in choices.length() - 1 downTo maxOf(0, choices.length() - 8)) {
                 val decision = choices.optJSONObject(i) ?: continue
