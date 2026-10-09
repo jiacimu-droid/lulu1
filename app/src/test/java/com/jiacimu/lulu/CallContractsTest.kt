@@ -12,12 +12,14 @@ class CallContractsTest {
         assertFalse(CallVoiceConfiguration.usesAgent("elevenlabs", null))
         assertTrue(CallVoiceConfiguration.usesAgent("elevenlabs", "agent"))
     }
-    @Test fun directElevenLabsCallsUseOnDeviceSttAndAgentIsExplicitlyExcluded() {
-        assertTrue(CallVoiceConfiguration.requiresOnDeviceStt("elevenlabs", "direct"))
-        assertTrue(CallVoiceConfiguration.requiresOnDeviceStt("elevenlabs", null))
-        assertFalse(CallVoiceConfiguration.requiresOnDeviceStt("elevenlabs", "agent"))
-        assertFalse(CallVoiceConfiguration.requiresOnDeviceStt("minimax", "direct"))
-        assertFalse(CallVoiceConfiguration.requiresOnDeviceStt("system", "direct"))
+    @Test fun speechRecognitionCanBeDifferentFromCharacterVoiceProvider() {
+        assertEquals("groq", CallVoiceConfiguration.resolveSttEngine("groq", false, true, "elevenlabs"))
+        assertEquals("groq", CallVoiceConfiguration.resolveSttEngine("groq", false, true, "minimax"))
+        assertEquals("system", CallVoiceConfiguration.resolveSttEngine("auto", true, true, "elevenlabs"))
+        assertEquals("groq", CallVoiceConfiguration.resolveSttEngine("auto", false, true, "elevenlabs"))
+        assertEquals("minimax", CallVoiceConfiguration.resolveSttEngine("auto", false, false, "minimax"))
+        assertEquals("unavailable", CallVoiceConfiguration.resolveSttEngine("auto", false, false, "elevenlabs"))
+        assertEquals("system", CallVoiceConfiguration.resolveSttEngine("system", false, true, "elevenlabs"))
     }
     @Test fun miniAsrKeepsRegionButDoesNotCarryTtsQueryOrPath() {
         assertEquals("https://api.minimaxi.com/v1/speech_to_text", CallVoiceConfiguration.miniAsrEndpoint("https://api.minimaxi.com/v1/t2a_v2?GroupId=123"))
