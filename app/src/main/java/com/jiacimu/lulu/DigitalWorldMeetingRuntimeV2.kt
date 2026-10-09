@@ -255,3 +255,84 @@ private fun List<MeetingV2ExchangeSegment>.meetingExchangeTranscriptV2(
     } else item.segment.text.trim()
     "$speaker：$content"
 }
+
+/**
+ * A verified physical event or an opportunity to act on the role's own
+ * initiative. It is NOT a message from the user. Only character-authored
+ * segments are committed. Silent decisions may update inner life without
+ * fabricating conversation or physical actions.
+ */
+internal suspend fun meetingRunLivingMomentV2(
+    sessionId: String,
+    characterId: String,
+    actualMoment: String,
+    exchangeId: String,
+) {
+    var session = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == sessionId }
+        ?.takeIf { it.endedAt == null } ?: error("见面已结束")
+    require(characterId in session.participantIds) { "角色不在这次见面中" }
+    val spontaneous = actualMoment.isBlank()
+    val awareness = if (spontaneous) {
+        "主人目前在场，但这一刻没有新的发言或动作。你可以自主选择是否有话想说、想做什么，或只是安静地想自己的事；不要假装主人做了什么。"
+    } else actualMoment
+    val reply = meetingGenerateReplyV2(
+        session = session,
+        characterId = characterId,
+        latestMoment = awareness,
+        systemMoment = true,
+        autonomous = true,
+        directorGuidance = if (spontaneous) "角色自主决定是否行动或主动开口；允许 sequence=[]，不用制造事件来填补安静。"
+            else "这是已发生且已落库的场景事实。你知道它发生了，有权依自己的人格和当时的关系表达、回应或暂时不说话。",
+    ).getOrThrow()
+    // No model-created 'user' reply may enter the timeline.
+    val segments = reply.segments.filter { it.text.isNotBlank() }
+    val now = Instant.now()
+    if (segments.isNotEmpty()) {
+        val character = MigratedDomainStores.characters.get(characterId)
+        val turn = MeetingTurn(
+            id = UUID.randomUUID().toString(),
+            speakerId = characterId,
+            speakerName = character.displayName,
+            sceneText = segments.filter { it.type == MeetingSegmentType.ACTION }.joinToString("\n") { it.text },
+            dialogue = segments.filter { it.type == MeetingSegmentType.DIALOGUE }.joinToString("\n") { it.text },
+            occurredAt = now,
+            segments = segments,
+            exchangeId = exchangeId,
+        )
+        session = DigitalWorldStore.appendMeetingTurn(session.id, turn)
+        session.participantIds.forEach { viewerId ->
+            DigitalWorldStore.recordMeetingTimeline(
+                session, viewerId, "turn-${turn.id}-$characterId",
+                character.displayName, segments.meetingTranscript(), now,
+                viewerId == session.participantIds.last(),
+            )
+        }
+    }
+    // Existing presence/personality store is the sole owner of inner thoughts,
+    // mood, visible gesture and commitments, including spontaneous moments.
+    if (reply.innerThought.isNotBlank() || reply.mood.isNotBlank() ||
+        reply.gesture.isNotBlank() || reply.statusText.isNotBlank()) {
+        CompanionPresenceStore.update(
+            characterId = characterId,
+            statusText = reply.statusText.takeIf(String::isNotBlank),
+            gesture = reply.gesture.takeIf(String::isNotBlank),
+            innerThought = reply.innerThought.takeIf(String::isNotBlank),
+            mood = reply.mood.takeIf(String::isNotBlank),
+            source = if (spontaneous) "见面·自主感知" else "见面·身体互动",
+            now = now,
+            provenanceId = "meeting-$sessionId-$exchangeId",
+        )
+    }
+    // Do not update physical positions for a purely silent cognitive thought:
+    // thoughts do not prove a furniture change or a touch really happened.
+    val scene = meetingAuthoritativeSceneV2(
+        session, if (segments.isNotEmpty()) reply.sceneSnapshot else null, now,
+    )
+    MeetingExperienceStore.completeExchange(
+        exchangeId = exchangeId,
+        turnIds = session.turns.filter { it.exchangeId == exchangeId }.map(MeetingTurn::id),
+        afterScene = scene,
+        directorPlan = if (spontaneous) "角色自主在场判断（允许安静）" else "回应真实场景互动",
+        now = now,
+    )
+}
