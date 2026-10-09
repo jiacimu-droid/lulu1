@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:41:38.921553+00:00",
-  "commit": "b81f01a7fb5fc1c27b1f73729520a09ee8284495",
+  "generatedAt": "2026-10-09T13:42:37.509723+00:00",
+  "commit": "a5b1a713be828bfa4aa507aafe2e9f6a20116067",
   "branch": "main",
-  "sourceFingerprint": "e390315021b9cd3cb10160f16df5d314a3c511b067f210fc97e42755b85c65c5",
+  "sourceFingerprint": "326600cc647ca350259756742c436fbbb729494c0552dab161cec17239af6f31",
   "summary": {
-    "files": 393,
-    "lines": 92823,
-    "symbols": 1320
+    "files": 394,
+    "lines": 92845,
+    "symbols": 1323
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1464,6 +1464,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
         "line": 38
+      }
+    ],
+    "silenceMs": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
+        "line": 10
+      }
+    ],
+    "finishedBySilence": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
+        "line": 16
+      }
+    ],
+    "uploadChunkFull": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
+        "line": 19
       }
     ],
     "lines": [
@@ -8595,6 +8613,25 @@
         {
           "name": "OptimizedPerformanceFeatureScreen",
           "line": 38
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
+      "lines": 22,
+      "sha256": "4d8defa5adef4db616f9d19e98d2fedcdfaa35d92d2bb911bfac3f9d3acaa518",
+      "symbols": [
+        {
+          "name": "silenceMs",
+          "line": 10
+        },
+        {
+          "name": "finishedBySilence",
+          "line": 16
+        },
+        {
+          "name": "uploadChunkFull",
+          "line": 19
         }
       ]
     },
