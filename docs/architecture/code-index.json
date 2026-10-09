@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T11:30:50.678580+00:00",
-  "commit": "8cf36edd3891df56a9c1935aee1d7677f645f676",
+  "generatedAt": "2026-10-09T11:43:30.771937+00:00",
+  "commit": "7e0e3f5f6ca770b5ef65665aad8e6d9d860bdbcf",
   "branch": "main",
-  "sourceFingerprint": "dc5abcc5269f9a8e425389e93a7ac1253ebf85b5abc9be43e41780f87900c5ce",
+  "sourceFingerprint": "75e014b4674866822d6292931e1f5a809dfe9bc2ef3978aa5d440fb5a7e09d49",
   "summary": {
     "files": 382,
-    "lines": 92092,
-    "symbols": 1300
+    "lines": 92118,
+    "symbols": 1301
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -259,31 +259,37 @@
     "provider": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 10
+        "line": 9
       }
     ],
     "usesAgent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 11
+        "line": 10
       }
     ],
-    "requiresOnDeviceStt": [
+    "resolveSttEngine": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 13
+        "line": 12
       }
     ],
-    "onDeviceSttError": [
+    "sttEngine": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 14
+        "line": 24
+      }
+    ],
+    "sttLabel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
+        "line": 30
       }
     ],
     "label": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 19
+        "line": 36
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt",
@@ -297,13 +303,13 @@
     "miniAsrEndpoint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 20
+        "line": 37
       }
     ],
     "preflight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 25
+        "line": 42
       }
     ],
     "CharacterSettingsScreenV2": [
@@ -7445,36 +7451,40 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-      "lines": 39,
-      "sha256": "312d457b5b67ace55361bb4b163f71534e0189f709affbd035c8b3eff38dbde4",
+      "lines": 65,
+      "sha256": "dfaa347e06c19c69637502952405572a0c5ed6df834c31ff0bd24f212c685711",
       "symbols": [
         {
           "name": "provider",
-          "line": 10
+          "line": 9
         },
         {
           "name": "usesAgent",
-          "line": 11
+          "line": 10
         },
         {
-          "name": "requiresOnDeviceStt",
-          "line": 13
+          "name": "resolveSttEngine",
+          "line": 12
         },
         {
-          "name": "onDeviceSttError",
-          "line": 14
+          "name": "sttEngine",
+          "line": 24
+        },
+        {
+          "name": "sttLabel",
+          "line": 30
         },
         {
           "name": "label",
-          "line": 19
+          "line": 36
         },
         {
           "name": "miniAsrEndpoint",
-          "line": 20
+          "line": 37
         },
         {
           "name": "preflight",
-          "line": 25
+          "line": 42
         }
       ]
     },
