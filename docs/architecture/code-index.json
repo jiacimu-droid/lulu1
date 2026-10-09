@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T08:08:05.204313+00:00",
-  "commit": "809c22cc58880f4a5fa33ce6a4ce1c817edfffd5",
+  "generatedAt": "2026-10-09T08:10:06.966801+00:00",
+  "commit": "abf7cf096f639dc652e25802f57b8c58da9e7380",
   "branch": "main",
-  "sourceFingerprint": "d38011fec20132d2b6b1fbc147319f68f24f546f62204a987dd7cf2e39bbc627",
+  "sourceFingerprint": "e73e36fc606a03fed7a73428ae6b1361fbacd8765f840369c570f0839e7258fc",
   "summary": {
     "files": 376,
-    "lines": 90551,
+    "lines": 90556,
     "symbols": 1281
   },
   "symbolIndex": {
@@ -4571,25 +4571,25 @@
     "cancelOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 105
+        "line": 107
       }
     ],
     "ProactivePerceptionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 112
+        "line": 114
       }
     ],
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 165
+        "line": 167
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 172
+        "line": 174
       }
     ],
     "fetchWorldNews": [
@@ -8198,7 +8198,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
       "lines": 147,
-      "sha256": "0ea144226d96b5c8fb62f1147736899cfa4127f5625e65daf034e80548013290",
+      "sha256": "117413bca09f0f9fd119024f47a17d5b6b8b606e920217ef5194009a75e8dba8",
       "symbols": [
         {
           "name": "MigrationActivity",
@@ -9331,8 +9331,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt",
-      "lines": 73,
-      "sha256": "99fd272adf2e0ff9d1e93709bc64e9839ae69ab212b25c45e56fb5a325fe265f",
+      "lines": 76,
+      "sha256": "5167a9f88fd5f8a87193df74f4e1588117dd5d7fb75d28c6cb8edb1e03737986",
       "symbols": [
         {
           "name": "ChatTurnConsistencyAutomation",
@@ -11393,8 +11393,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 210,
-      "sha256": "f362dcc2bd0af424be9a924154df3c32e21f1bed59faf657c5558f64b52cca25",
+      "lines": 212,
+      "sha256": "240af459e51f1ea787f9f697e0c10b7d7a5ed6e33de158312f3d11220fbead60",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -11426,19 +11426,19 @@
         },
         {
           "name": "cancelOnline",
-          "line": 105
+          "line": 107
         },
         {
           "name": "ProactivePerceptionWorker",
-          "line": 112
+          "line": 114
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 165
+          "line": 167
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 172
+          "line": 174
         }
       ]
     },

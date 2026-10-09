@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`809c22cc58880f4a5fa33ce6a4ce1c817edfffd5`
+- 基准提交：`abf7cf096f639dc652e25802f57b8c58da9e7380`
 - 分支：`main`
 - 已索引文件：376
-- 已索引代码/文本行：90551
+- 已索引代码/文本行：90556
 - 已发现符号：1281
 
 | 文件 | 行数 | 符号数 |
@@ -129,7 +129,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 30 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 344 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 151 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 73 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 76 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt` | 124 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt` | 139 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 88 | 0 |
@@ -196,7 +196,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 922 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 210 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 212 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt` | 655 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 529 | 4 |
