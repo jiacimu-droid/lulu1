@@ -445,7 +445,14 @@ object ProactivePerceptionRuntime {
             throw error
         }
         currentCoroutineContext().ensureActive()
-        val parsed = parseDecision(result.text) ?: error("模型返回无法解析：${result.text.take(100)}")
+        val parsed = parseDecision(result.text) ?: run {
+            // The provider did return bytes, but not a safe executable decision.
+            // Never retry endlessly, charge for identical responses, or execute a guessed action.
+            CompanionPresenceStore.recordPerceptionAttempt(
+                characterId, "模型返回的行动格式不完整，本轮没有执行动作", now,
+            )
+            return Action.SILENT
+        }
         val decision = parsed.withPresenceFallback(character)
         CharacterLifeStore.consider(characterId, decision.intention, now)
         // The executor, not the model, anchors subjective emotion to a real observed event.
