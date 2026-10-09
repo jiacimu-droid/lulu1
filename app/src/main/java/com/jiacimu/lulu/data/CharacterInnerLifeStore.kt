@@ -230,8 +230,11 @@ object CharacterInnerLifeStore {
                     "start" -> {
                         val aim = change.optString("aim").trim().take(180)
                         val why = change.optString("why").trim().take(160)
+                        val legacyAim = CharacterLifeStore.state(characterId)
+                            .optJSONObject("intention")?.optString("aim").orEmpty()
                         if (aim.isBlank() || why.isBlank() || records.size >= 6 ||
-                            records.any { it.optString("aim") == aim }) continue
+                            sameCharacterMotive(legacyAim, aim) ||
+                            records.any { sameCharacterMotive(it.optString("aim"), aim) }) continue
                         records += JSONObject().put("id", UUID.randomUUID().toString())
                             .put("aim", aim).put("why", why)
                             .put("priority", change.optInt("priority", 2).coerceIn(1, 3))
