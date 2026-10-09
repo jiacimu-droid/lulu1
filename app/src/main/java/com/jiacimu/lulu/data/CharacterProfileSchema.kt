@@ -12,7 +12,7 @@ internal object CharacterProfileSchema {
         CharacterProfileField("respect", "相处边界", "需要尊重的意愿、边界与不能接受的行为", "相处与表达"),
         CharacterProfileField("social", "不同场合的表现", "不同人和情境下的行为差异", "相处与表达"),
         CharacterProfileField("expression", "表达风格底色", "整体语感与情绪表达的范围，不写具体口头禅或聊天记录；个人语言习惯在下一项设置", "相处与表达"),
-        CharacterProfileField("speechHabits", "语言小癖好", "角色自带的语言习惯和表达品味；可写幽默、语气、节奏、特殊偏好和哪些说法不合人物气质。不要填固定台词；自动学会的新习惯另记成长。", "相处与表达"),
+        CharacterProfileField("speechHabits", "语言小癖好", "角色自带的表达品味和习惯；例如语气、标点、偶尔倒装、冷笑话或谐音与何时适用。不要填固定台词；新学会的习惯另记成长。", "相处与表达"),
         CharacterProfileField("interests", "初始兴趣（可选）", "不填写也可从实际经历中逐渐形成新的兴趣", "其他设定"),
         CharacterProfileField("typing", "人格类型参考（可选）", "可填人格类型，不强制角色按类型模板行事", "其他设定"),
     )
