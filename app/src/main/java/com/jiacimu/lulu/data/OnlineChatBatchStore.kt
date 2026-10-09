@@ -11,10 +11,10 @@ internal object OnlineChatBatchStore {
 
     @Synchronized fun next(context: Context, characterId: String, collectMessages: Boolean, now: Long = System.currentTimeMillis()): Batch {
         val p = prefs(context)
-        // First-bubble window, NOT a debounce: the first message starts the
-        // 3s reading buffer. Further bubbles join it without restarting it.
-        // A wake/reply button only brings the role online; it must not skip
-        // this pending window or trigger the typing indicator itself.
+        // Scheduling/waking only reuses the pending deadline. Incoming *user*
+        // bubbles are registered separately; each new bubble extends the 3s
+        // quiet period. The model must see the completed cluster, not reply
+        // while the user is still sending it.
         val pendingRevision = p.getLong("revision:$characterId", 0)
         if (p.contains("due:$characterId") && (characterId to pendingRevision) !in reading) {
             val hasUserBubbles = p.getBoolean("messageWindow:$characterId", false)
@@ -34,6 +34,20 @@ internal object OnlineChatBatchStore {
         check(p.edit().putLong("revision:$characterId", revision).putLong("due:$characterId", due)
             .putBoolean("messageWindow:$characterId", collectMessages).commit()) { "在线消息批次保存失败" }
         return Batch(revision, due)
+    }
+
+    /** Call only after a REAL incoming user bubble was persisted, never on wake. */
+    @Synchronized fun onUserBubble(
+        context: Context, characterId: String, atMillis: Long = System.currentTimeMillis(),
+    ): Batch {
+        val batch = next(context, characterId, collectMessages = true, now = atMillis)
+        val p = prefs(context)
+        val due = maxOf(batch.dueAtMillis, atMillis + QUIET_MILLIS)
+        if (due != batch.dueAtMillis) {
+            check(p.edit().putLong("due:$characterId", due)
+                .putBoolean("messageWindow:$characterId", true).commit()) { "延长连续气泡静默期失败" }
+        }
+        return Batch(batch.revision, due)
     }
 
     /** Claim under the perception mutex; pending messages during this reply open the next window. */
