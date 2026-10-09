@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T19:25:21.621645+00:00",
-  "commit": "7a52c804ac9368f402c536422105783d7684c223",
+  "generatedAt": "2026-10-09T07:23:03.318646+00:00",
+  "commit": "8976b8b8347cc455e120c4115609cfbaf001630e",
   "branch": "main",
-  "sourceFingerprint": "4fc397a22ed5dbd494f3377a717b71a652351a27ef16fc1625a25b070e2b1faf",
+  "sourceFingerprint": "cfa8e48eddbbde859d44c59f5aee2f2addafa1f67f74fb17975a37db2f59ec35",
   "summary": {
-    "files": 370,
-    "lines": 89850,
-    "symbols": 1270
+    "files": 371,
+    "lines": 89917,
+    "symbols": 1272
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4864,6 +4864,22 @@
         "line": 40
       }
     ],
+    "acceptedRequest": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt",
+        "line": 18
+      }
+    ],
+    "parse": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt",
+        "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
+        "line": 10
+      }
+    ],
     "WorldFirstExplorationMemory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -6732,12 +6748,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt",
         "line": 22
-      }
-    ],
-    "parse": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
-        "line": 10
       }
     ],
     "han": [
@@ -11655,6 +11665,21 @@
         {
           "name": "displayLabel",
           "line": 40
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt",
+      "lines": 67,
+      "sha256": "ee6b2e5dd5e64dbdb78483a8637e8d8b0805b94d66f95b7106cd7aa5985a49ed",
+      "symbols": [
+        {
+          "name": "acceptedRequest",
+          "line": 18
+        },
+        {
+          "name": "parse",
+          "line": 25
         }
       ]
     },
