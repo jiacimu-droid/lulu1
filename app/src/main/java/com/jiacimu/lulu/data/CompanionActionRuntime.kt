@@ -220,6 +220,8 @@ internal object CompanionActionRuntime {
                     speaker = character.displayName,
                     content = "$title\n$content",
                     occurredAt = now,
+                    source = "journal:own",
+                    evidenceKind = EventEvidenceKind.CharacterStatement,
                 )
                 MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "刚刚写了一篇日记《$title》。")
                 CompanionActionResult(true, "已写入日记《$title》")
