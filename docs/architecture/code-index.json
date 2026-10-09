@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T07:56:45.997221+00:00",
-  "commit": "4b665aff1da672afcf2dbe6eae347b0553552ee5",
+  "generatedAt": "2026-10-09T07:57:25.260642+00:00",
+  "commit": "528420bb177ac861ef9b153f300630a4cf8c25d0",
   "branch": "main",
-  "sourceFingerprint": "00352ce23689f2a3a3e3f1eae2e583e851bb71261455c278987326788bee3709",
+  "sourceFingerprint": "5f685e8bb795c5d88ad453bca0c099c90088ee23c86a80d20a60a1298ef22df8",
   "summary": {
     "files": 375,
-    "lines": 90500,
+    "lines": 90509,
     "symbols": 1279
   },
   "symbolIndex": {
@@ -14191,8 +14191,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 485,
-      "sha256": "34180bfea0918e5a1b2f306039e9202217bf4112287754c804bc8b342240fac3",
+      "lines": 494,
+      "sha256": "1c1b0aaf09d91cd30a983cf8259c62ffc8e8887145438f1656500105d7586609",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
