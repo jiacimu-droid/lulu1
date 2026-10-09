@@ -86,6 +86,7 @@ internal fun DigitalWorldMapLobby(
     }
 
     fun sceneLabel(code: String): String {
+        if (code == "preview:3d-room") return "3D 体验间"
         if (code == DigitalWorldStore.ARRIVAL) return "世界入口"
         if (code == DigitalWorldStore.CLOUD_MEADOW) return "云眠原"
         DigitalWorldPublicPlaces.label(code)?.let { return it }
@@ -184,6 +185,9 @@ internal fun DigitalWorldMapLobby(
                 world = world,
                 onOpenScene = ::openScene,
             )
+        } else if (activeSceneCode == "preview:3d-room") {
+            // Completely isolated visual sandbox: does not impersonate persistent world props.
+            DigitalWorld3DTrialRoom(Modifier.fillMaxWidth().weight(1f))
         } else {
             Box(
                 modifier = Modifier.fillMaxWidth().weight(1f).background(Color(0xFF091311)),
@@ -362,6 +366,16 @@ private fun DigitalWorldMapPage(
                     onClick = { onOpenScene(DigitalWorldStore.CLOUD_MEADOW) },
                 )
             }
+        }
+        item {
+            MapPlaceCard(
+                modifier = Modifier.fillMaxWidth(),
+                title = "3D 体验间",
+                subtitle = "三维房间 · 拖动观察 · 角色低模技术预览",
+                icon = Icons.Outlined.ViewInAr,
+                residents = emptyList(),
+                onClick = { onOpenScene("preview:3d-room") },
+            )
         }
         item {
             Text("公共生活区", color = Color(0xFF575A57), fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp, start = 2.dp))
