@@ -20,9 +20,9 @@ class TrialRoomWalkControllerTest {
         c.look(300f, -100f)
         assertTrue(c.yaw > 0f)
         c.reset()
-        assertEquals(0f, c.yaw)
-        assertEquals(0f, c.x)
-        assertEquals(2.7f, c.z)
+        assertEquals(0f, c.yaw, 0.0001f)
+        assertEquals(0f, c.x, 0.0001f)
+        assertEquals(2.7f, c.z, 0.0001f)
     }
 
     @Test fun movementCannotEnterAvatarOrCoffeeTableSolidGeometry() {
