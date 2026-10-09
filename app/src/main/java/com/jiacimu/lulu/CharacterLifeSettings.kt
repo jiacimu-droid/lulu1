@@ -3,7 +3,6 @@ package com.jiacimu.lulu
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -65,9 +64,54 @@ internal fun CharacterLifeSettings(characterId: String) {
     var showInnerDetails by remember(characterId) { mutableStateOf(false) }
     var showAllGrowth by remember(characterId) { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text("基础人格 · 手动设定", style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold)
+        Text("长期的价值、判断和表达方式由你设定；当前心情、正在牵挂、后天习惯从真实经历发展，不会偷偷改写这些设定。",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        CharacterProfileSchema.featuredFields.forEach { field ->
+            val value = root.optJSONObject("profile")?.optString(field.key).orEmpty()
+            Column(Modifier.fillMaxWidth().clickable { editing = field.key; draft = value }
+                .padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Text(field.label, fontWeight = FontWeight.SemiBold)
+                    Text("编辑", color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodySmall)
+                }
+                Text(value.ifBlank { "尚未设定，点击填写" }, maxLines = 3,
+                    overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            HorizontalDivider()
+        }
+        Row(Modifier.fillMaxWidth().clickable { showFixedDefinition = !showFixedDefinition }
+            .padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("其他基础人格", style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold)
+            Text(if (showFixedDefinition) "收起" else "展开编辑",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+        }
+        if (showFixedDefinition) {
+            CharacterProfileSchema.otherFields.groupBy { it.group }.forEach { (group, fields) ->
+                Text(group, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                fields.forEach { field ->
+                    val value = root.optJSONObject("profile")?.optString(field.key).orEmpty()
+                    Column(Modifier.fillMaxWidth().clickable { editing = field.key; draft = value }
+                        .padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Text(field.label, fontWeight = FontWeight.Medium)
+                        Text(value.ifBlank { "未设定" }, maxLines = 2,
+                            overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    HorizontalDivider()
+                }
+            }
+        }
+        HorizontalDivider()
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically) {
-            Text("角色近况", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+            Text("此刻 · 自动变化", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
             Text(
                 if (online?.isOnline() == true) "在线 · " +
                     DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.systemDefault()).format(online.onlineUntil)
@@ -103,7 +147,7 @@ internal fun CharacterLifeSettings(characterId: String) {
             com.jiacimu.lulu.data.CharacterDevelopmentStore.active(characterId)
         }
         if (learned.isNotEmpty()) {
-            Text("相处中的成长 · ${learned.size}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text("后天成长 · ${learned.size}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             (if (showAllGrowth) learned.takeLast(10) else learned.takeLast(3)).forEach { learnedItem ->
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text("${learnedItem.kind.label} · ${learnedItem.content}",
@@ -182,7 +226,7 @@ internal fun CharacterLifeSettings(characterId: String) {
         }
         }
         HorizontalDivider()
-        Text("正在牵挂", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        Text("正在牵挂 · 随经历变化", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
         val motives = innerRoot.optJSONArray("motives")
         val legacyMotive = root.optJSONObject("intention")
         val legacyAim = legacyMotive?.optString("aim").orEmpty().trim()
@@ -338,33 +382,7 @@ internal fun CharacterLifeSettings(characterId: String) {
         if (userRemark.isNotBlank()) TextButton(onClick = { CharacterLifeStore.setSocialName(characterId, "userRemark", "") }) { Text("清除这条备注") }
         Text("自己的聊天网名：" + selfNickname.ifBlank { "沿用角色原名" }, style = MaterialTheme.typography.bodyMedium)
         if (selfNickname.isNotBlank()) TextButton(onClick = { CharacterLifeStore.setSocialName(characterId, "selfNickname", "") }) { Text("恢复原网名") }
-        HorizontalDivider()
-        Row(
-            modifier = Modifier.fillMaxWidth().clickable { showFixedDefinition = !showFixedDefinition }
-                .padding(vertical = 6.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Text("基础人格 · 手动设定", style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold)
-            Text(if (showFixedDefinition) "收起" else "展开编辑",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary)
-        }
-        if (showFixedDefinition) {
-        CharacterProfileSchema.fields.groupBy { it.group }.forEach { (group, fields) ->
-            Text(group, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            fields.forEach { field ->
-                val value = root.optJSONObject("profile")?.optString(field.key).orEmpty()
-                Column(Modifier.fillMaxWidth().clickable { editing = field.key; draft = value }.padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Text(field.label, fontWeight = FontWeight.Medium)
-                    Text(value.ifBlank { "未设定" },
-                        maxLines = 2, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                HorizontalDivider()
-            }
-        }
-        } // showFixedDefinition
+
 
     }
     editing?.let { key ->
@@ -373,28 +391,11 @@ internal fun CharacterLifeSettings(characterId: String) {
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (key == "speechHabits") {
-                        Text("按人物挑选，也可以全部留空，让他从真实交流里逐渐形成。",
+                        Text("描述这个角色自己的表达习惯，不用填固定台词。你主动编辑的内容不会被后天成长覆盖。",
                             style = MaterialTheme.typography.bodySmall)
-                        val examples = listOf(
-                            "笑声" to "真的笑疯时会连发很长的哈哈；平时不会没事乱笑。",
-                            "标点" to "惊讶时爱用连续问号；认真解释时反而打字很规整。",
-                            "倒装" to "高兴或打趣时偶尔把重要的词留在句末。",
-                            "谐音" to "熟悉的梗会顺手改成谐音笑话；没听过的会直接问。",
-                            "跑题" to "有趣的小事会抢走注意力，先吐槽再想起来回答。",
-                            "嘴硬" to "被戳中心事时先装淡定，熟人面前才补一句真心话。",
-                        )
-                        Row(
-                            Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState()),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            examples.forEach { (title, example) ->
-                                SuggestionChip(
-                                    onClick = {
-                                        if (!draft.contains(example)) draft =
-                                            listOf(draft.trim(), example).filter(String::isNotBlank).joinToString("\n")
-                                    },
-                                    label = { Text(title) },
-                                )
+                        if (MigratedDomainStores.characters.get(characterId).displayName in setOf("江渡", "江都")) {
+                            TextButton(onClick = { draft = CharacterProfileSchema.jiangDuSpeechHabits }) {
+                                Text("填入江渡推荐的语言习惯")
                             }
                         }
                     }

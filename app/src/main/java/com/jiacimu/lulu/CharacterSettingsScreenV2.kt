@@ -179,7 +179,7 @@ fun CharacterSettingsScreenV2(
                         value = persona,
                         onValueChange = { persona = it; persistDefinition() },
                         label = { Text("角色设定") },
-                        placeholder = { Text("性格、说话方式、价值观、关系边界、习惯与处事方式") },
+                        placeholder = { Text("人物的核心设定；具体表达习惯请到「人格」页面编辑") },
                         minLines = 4,
                         maxLines = 10,
                         modifier = Modifier.fillMaxWidth(),

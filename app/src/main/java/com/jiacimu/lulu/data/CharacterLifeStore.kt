@@ -159,9 +159,14 @@ object CharacterLifeStore {
         }
         // A resolved real-world character is not silently converted by a name match.
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return
-        CharacterIdentityStore.set(characterId, CharacterProfileSchema.jiangDuIdentity)
-        MigratedDomainStores.characters.update(character.copy(persona = CharacterProfileSchema.jiangDuPersona + "\n\n" +
-            CharacterProfileSchema.jiangDuRespectMarker + "\n" + CharacterProfileSchema.jiangDuRespect))
+        // A custom identity/persona must survive an initial name-based preset too.
+        if (rawIdentity.isBlank() || rawIdentity == LegacyJiangDuProfileSchema.jiangDuIdentity)
+            CharacterIdentityStore.set(characterId, CharacterProfileSchema.jiangDuIdentity)
+        if (character.persona.isBlank() || character.persona == LegacyJiangDuProfileSchema.jiangDuPersona ||
+            character.persona == CharacterProfileSchema.previousJiangDuPersona) {
+            MigratedDomainStores.characters.update(character.copy(persona = CharacterProfileSchema.jiangDuPersona + "\n\n" +
+                CharacterProfileSchema.jiangDuRespectMarker + "\n" + CharacterProfileSchema.jiangDuRespect))
+        }
         val profile = root.optJSONObject("profile") ?: JSONObject()
         CharacterProfileSchema.jiangDu.forEach { (key, value) ->
             if (!profile.has(key)) profile.put(key, value)
