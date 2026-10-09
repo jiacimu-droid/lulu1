@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T07:53:22.887748+00:00",
-  "commit": "71d6f0b18e6934e8fceca4bf2cd4405ee664e2e9",
+  "generatedAt": "2026-10-09T07:56:12.848768+00:00",
+  "commit": "a45bcc2992b4fc6d76062752fc24a10137311e3e",
   "branch": "main",
-  "sourceFingerprint": "e7c1a6dd826ae246f75ad34082d8b0f17bf56ac427e8c926da68510c8e37d7bb",
+  "sourceFingerprint": "19cb969ad460da987b0eb1622bf11fd8f58ff0d31e392c37ba49b49ee3b3a39c",
   "summary": {
     "files": 375,
-    "lines": 90462,
-    "symbols": 1278
+    "lines": 90481,
+    "symbols": 1279
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2080,10 +2080,16 @@
         "line": 46
       }
     ],
+    "guardUnfairBlame": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
+        "line": 62
+      }
+    ],
     "challengeGuidance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-        "line": 56
+        "line": 75
       }
     ],
     "CharacterDevelopmentRuntime": [
@@ -8922,8 +8928,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-      "lines": 68,
-      "sha256": "fe6017e6db6e892bb9a57d3ae52163201fa447597765631ea56680de1f84f645",
+      "lines": 87,
+      "sha256": "8bfb1ddf5a8dbc5a07e245585e1e8db8018f04adff4bab33e2fe2a4e64f3c954",
       "symbols": [
         {
           "name": "prompt",
@@ -8934,8 +8940,12 @@
           "line": 46
         },
         {
+          "name": "guardUnfairBlame",
+          "line": 62
+        },
+        {
           "name": "challengeGuidance",
-          "line": 56
+          "line": 75
         }
       ]
     },
