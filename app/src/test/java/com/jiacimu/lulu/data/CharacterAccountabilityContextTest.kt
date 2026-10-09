@@ -37,5 +37,9 @@ class CharacterAccountabilityContextTest {
         assertTrue(guide.contains("独立人格不是居高临下"))
         assertTrue(guide.contains("如果自己承诺过却没做到"))
         assertTrue(guide.contains("角色在意别人也不等于已发出通知"))
+        assertTrue(guide.contains("中文标点是节奏"))
+        assertTrue(guide.contains("朋友圈是公开给熟人的动态"))
+        assertTrue(guide.contains("私人日记面对自己"))
+        assertTrue(guide.contains("不能统一网感") || guide.contains("表达能力不是统一口头禅"))
     }
 }
