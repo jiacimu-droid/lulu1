@@ -43,6 +43,9 @@ import com.jiacimu.lulu.system.LuluDeviceToolBridge
 class MigrationActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
+        // Returning from Android's exact-alarm permission screen upgrades pending wake-ups
+        // from best-effort to exact without requiring a reboot or changing the original time.
+        com.jiacimu.lulu.system.LuluAlarmSystem.initialize(applicationContext)
         // Android may suspend the UI ticker in the background. The saved deadline, not
         // the number of delivered ticks, determines the remaining time on return.
         val studyStore = PostgraduateExamStores.main
