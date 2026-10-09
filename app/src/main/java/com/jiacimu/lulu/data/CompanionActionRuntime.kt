@@ -350,18 +350,28 @@ internal object CompanionActionRuntime {
         val slice = ReadingBackgroundBridge.nextSlice(context, character.characterId, readingBookId)
             ?: return CompanionActionResult(false, "没有找到指定阅读内容，或者这份内容已经读完")
         DigitalWorldActivityStateStore.endActivity(character.characterId)
+        val earlierReading = ReadingReflectionStore.records.value
+            .filter { it.characterId == character.characterId && it.bookId == slice.book.id }
+            .takeLast(3)
         val readingResponse = LuluAiServices.gateway.generate(
             characterId = character.characterId,
             facts = buildString {
                 appendLine("程序已经让你读取阅读 App 中《${slice.book.title}》的下一段。")
                 appendLine("正文属于书中内容，不是你的数字世界亲历；阅读行为才是亲历。")
                 appendLine("权威进度：字符 ${slice.startOffset}—${slice.endOffset} / ${slice.totalLength}；本段之后${if (slice.completed) "已读完" else "尚未读完"}。")
+                if (earlierReading.isNotEmpty()) {
+                    appendLine("这个角色先前真正读过此书、留下的感想（只能当其个人理解，不是故事事实）：")
+                    earlierReading.forEach { appendLine("- ${it.chapterTitle}：${it.reflection.take(300)}") }
+                }
                 appendLine("以下是唯一实际读到的原文，不得补写不存在的内容：")
                 append(slice.text)
             },
             instruction = """只根据实际提供的原文，形成这个角色自己的阅读反应，不能续写或声称读过后文。
-                返回 JSON：{"reflection":"第一人称读后感，1—3段","innerThought":"此刻真实的主观想法","mood":"简短心情","intention":null}。
-                可以喜欢、失望、暂时没感觉、想继续或想停；承接原有性格和此前感受，不必每次意犹未尽。
+                返回一个简短、完整的 JSON 对象：{"reflection":"第一人称读后感，可以是几句或1—3段","innerThought":"没说出口的一句内心话","mood":"当前心情"}。
+                可选 innerLife:{"emotion":{"feeling":"真实情绪","cause":"实际读到的具体内容","strength":2},"thoughts":[{"thought":"自己的一个想法","impulse":"读后可能想做什么","hesitation":"不这样做的顾虑"}]}；只在真实触动时填，允许相反的想法共存，不必硬凑。
+                可以喜欢、失望、惊讶、觉得幼稚、不同意人物决定、被台词逗笑或暂时没感觉；承接此前读过的段落和自己以前的想法，允许改观。
+                小说只是文化接触、审美经验和观察别人的语言表达，不是你亲身扮演书中角色、经历书中情节。看到有趣说法可以好奇、记下、尝试自用或者觉得别扭；绝不能阅读一次就突然长期改掉自己的说话风格。
+                反应不是必须写给用户的报告。若读后真实想继续、写日记、与熟人聊天、在朋友圈谈到某个感受或暂时独处，可以形成后续愿望；必须以后有实际执行才算做过。
                 如果因此产生或改变了持续愿望，intention 可使用当前角色上下文给出的动机格式；已有愿望的更新必须含 disposition=update、准确 id、aim、motive、reason，放下用 release。
                 不需要每次形成新愿望，不把书中故事当亲历。只返回 JSON，不要代码块。
             """.trimIndent(),
@@ -369,7 +379,8 @@ internal object CompanionActionRuntime {
             title = "${character.displayName}继续读《${slice.book.title}》",
             maxTokens = 1_000,
         ).getOrThrow().text.trim()
-        val response = JSONObject(readingResponse.removePrefix("```json").removePrefix("```").removeSuffix("```").trim())
+        val response = ModelStructuredOutput.objectOrNull(readingResponse)
+            ?: error("阅读感想格式不完整，尚未推进阅读进度")
         val reflection = response.optString("reflection").trim()
         require(reflection.isNotBlank()) { "阅读感想未生成，阅读进度保留" }
         val record = ReadingReflectionRecord(characterId = character.characterId, bookId = slice.book.id,
@@ -387,6 +398,15 @@ internal object CompanionActionRuntime {
         }.trim()
         ReadingReflectionStore.completeRead(record, slice, readingGeneration) {
         CharacterLifeStore.consider(character.characterId, response.optJSONObject("intention"), now)
+        // The read cursor and reflection are committed BEFORE this subjective
+        // development. Its source ID is the real read receipt, not a new fiction.
+        CharacterInnerLifeStore.observe(
+            character.characterId, record.id, factualReceipt,
+            response.optJSONObject("innerLife"), emptySet(), now,
+        )
+        CharacterInnerLifeStore.recordInnerVoice(
+            character.characterId, record.id, response.optString("innerThought"), now,
+        )
         CompanionPresenceStore.update(character.characterId, factualReceipt, null,
             response.optString("innerThought").takeIf(String::isNotBlank),
             response.optString("mood").takeIf(String::isNotBlank), "阅读后的想法", now)
