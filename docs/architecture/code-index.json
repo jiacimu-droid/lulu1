@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:02:14.991966+00:00",
-  "commit": "a50d2d5bfbfc0613fa6ec013871c3b6cbb16723f",
+  "generatedAt": "2026-10-09T13:02:42.384261+00:00",
+  "commit": "0e04ae7a8990685afbbf03ebc10ecb0e8660119b",
   "branch": "main",
-  "sourceFingerprint": "7ea2fc97d1c1f533fe2f43dbb4fcac818e7b87df699a7a609e1023b8678615c1",
+  "sourceFingerprint": "ff27dec7332fc1df4bf6d32192c16319cc460f71c3bd9d705787cbe459ae8eaa",
   "summary": {
-    "files": 385,
-    "lines": 92430,
-    "symbols": 1309
+    "files": 387,
+    "lines": 92498,
+    "symbols": 1311
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7074,6 +7074,12 @@
         "line": 16
       }
     ],
+    "MiniMaxAsrStreamAccumulatorTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt",
+        "line": 6
+      }
+    ],
     "TrialRoomWalkControllerTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/TrialRoomWalkControllerTest.kt",
@@ -7210,6 +7216,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
         "line": 16
+      }
+    ],
+    "PerceptionStimulusTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt",
+        "line": 5
       }
     ],
     "PromptContextRegressionTest": [
@@ -14684,6 +14696,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt",
+      "lines": 28,
+      "sha256": "f9c20c02da00b157202b1ddb23409e1a9ef13a5423aea6085cb7e2466c0e5209",
+      "symbols": [
+        {
+          "name": "MiniMaxAsrStreamAccumulatorTest",
+          "line": 6
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/TrialRoomWalkControllerTest.kt",
       "lines": 39,
       "sha256": "72d437fb0dcb1390edcf5f6e45452df5954ddcc1ede4fb681fbfd478de7f4504",
@@ -14920,6 +14943,17 @@
         {
           "name": "OnlineChatExperienceTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt",
+      "lines": 40,
+      "sha256": "1f265a4faf9d1f6b5802941b830d656b9f16667d0af38700f00b5263d0229889",
+      "symbols": [
+        {
+          "name": "PerceptionStimulusTest",
+          "line": 5
         }
       ]
     },

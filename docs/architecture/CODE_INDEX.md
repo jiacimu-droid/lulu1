@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a50d2d5bfbfc0613fa6ec013871c3b6cbb16723f`
+- 基准提交：`0e04ae7a8990685afbbf03ebc10ecb0e8660119b`
 - 分支：`main`
-- 已索引文件：385
-- 已索引代码/文本行：92430
-- 已发现符号：1309
+- 已索引文件：387
+- 已索引代码/文本行：92498
+- 已发现符号：1311
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -353,6 +353,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/TrialRoomWalkControllerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt` | 87 | 1 |
@@ -373,6 +374,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryTestEnvironment.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 327 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 89 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 84 | 1 |
