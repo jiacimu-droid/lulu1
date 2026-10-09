@@ -355,7 +355,7 @@ internal fun DigitalWorldGameScene(
                         val followPosition = if (handHolding) {
                             playerPosition + WorldVector(if (facingX >= 0f) 64f else -64f, 10f)
                         } else playerPosition
-                        if (motion.position.distanceTo(followPosition) < if (handHolding) 18f else 90f) {
+                        if (motion.position.distanceTo(followPosition) < (if (handHolding) 18f else 90f)) {
                             followPath = emptyList()
                             target = motion.position
                         } else {
@@ -516,6 +516,36 @@ internal fun DigitalWorldGameScene(
             }
             drawRect(Brush.radialGradient(listOf(Color.Transparent, Color(0x8A081110)), center = Offset(size.width * .50f, size.height * .45f), radius = size.maxDimension * .76f))
             drawRect(Brush.verticalGradient(listOf(Color.Black.copy(alpha = .13f), Color.Transparent, Color.Black.copy(alpha = .20f))))
+        }
+
+        // Draw the actual continuing contact between the two moving pawns.
+        // Never stretch an elastic line across the room while navigating
+        // around furniture: hands appear linked only when physically close.
+        val heldResident = npcMotions.firstOrNull { it.character.characterId == handHoldingId }
+        if (heldResident != null && heldResident.position.distanceTo(playerPosition) <= 135f) {
+            Canvas(Modifier.matchParentSize()) {
+                val playerHand = Offset(
+                    (playerPosition.x - camera.x) * worldScale,
+                    (playerPosition.y - camera.y) * worldScale - 42.dp.toPx(),
+                )
+                val companionHand = Offset(
+                    (heldResident.position.x - camera.x) * worldScale,
+                    (heldResident.position.y - camera.y) * worldScale - 42.dp.toPx(),
+                )
+                val handDirection = (companionHand - playerHand).let { vector ->
+                    val magnitude = vector.getDistance().coerceAtLeast(1f)
+                    vector / magnitude
+                }
+                val nearPlayer = playerHand + handDirection * 17.dp.toPx()
+                val nearCompanion = companionHand - handDirection * 17.dp.toPx()
+                drawLine(
+                    Color(0xFFFFD4BC), nearPlayer, nearCompanion,
+                    strokeWidth = 4.dp.toPx(),
+                    cap = androidx.compose.ui.graphics.StrokeCap.Round,
+                )
+                drawCircle(Color(0xFFFFE5D4), 3.dp.toPx(), nearPlayer)
+                drawCircle(Color(0xFFFFE5D4), 3.dp.toPx(), nearCompanion)
+            }
         }
 
         val halfPawnWidth = with(density) { 31.dp.toPx() }
