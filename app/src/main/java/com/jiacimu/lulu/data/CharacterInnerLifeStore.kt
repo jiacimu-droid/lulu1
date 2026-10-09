@@ -107,7 +107,7 @@ object CharacterInnerLifeStore {
                 }
                 root.put("emotionHistory", retained)
             }
-            listOf("motives", "corrections", "voice", "innerVoices").forEach { key ->
+            listOf("motives", "corrections", "voice", "innerVoices", "thoughts").forEach { key ->
                 val values = root.optJSONArray(key) ?: return@forEach
                 val next = JSONArray()
                 for (i in 0 until values.length()) {
@@ -216,6 +216,27 @@ object CharacterInnerLifeStore {
                 root.put("emotionHistory", nextHistory)
                 root.put("emotion", entry)
             }
+        }
+        // Parallel, sometimes contradictory impulses are transient subjective
+        // viewpoints, not tool requests or evidence that an action occurred.
+        proposal.optJSONArray("thoughts")?.let { proposed ->
+            val history = root.optJSONArray("thoughts") ?: JSONArray()
+            val updated = mutableListOf<JSONObject>()
+            for (index in maxOf(0, history.length() - 15) until history.length()) {
+                history.optJSONObject(index)?.let(updated::add)
+            }
+            val seenThoughts = updated.map { it.optString("thought") }.toMutableSet()
+            for (index in 0 until minOf(proposed.length(), 4)) {
+                val item = proposed.optJSONObject(index) ?: continue
+                val thought = item.optString("thought").replace(Regex("\\s+"), " ").trim().take(180)
+                if (thought.isBlank() || !seenThoughts.add(thought)) continue
+                updated += JSONObject()
+                    .put("thought", thought)
+                    .put("impulse", item.optString("impulse").trim().take(120))
+                    .put("hesitation", item.optString("hesitation").trim().take(120))
+                    .put("evidenceId", evidenceId).put("at", now.toString())
+            }
+            root.put("thoughts", JSONArray().apply { updated.takeLast(16).forEach(::put) })
         }
         val motives = root.optJSONArray("motives") ?: JSONArray()
         val records = (0 until motives.length()).mapNotNull(motives::optJSONObject).toMutableList()
@@ -407,6 +428,7 @@ object CharacterInnerLifeStore {
         val corrections = root.optJSONArray("corrections") ?: JSONArray()
         val voice = root.optJSONArray("voice") ?: JSONArray()
         val innerVoices = root.optJSONArray("innerVoices") ?: JSONArray()
+        val thoughts = root.optJSONArray("thoughts") ?: JSONArray()
         val decisions = root.optJSONArray("decisions") ?: JSONArray()
         return buildString {
             appendLine("【角色持续内在生活｜主观状态而非客观事实】")
@@ -462,6 +484,18 @@ object CharacterInnerLifeStore {
             if (corrections.length() > 0) {
                 val last = corrections.optJSONObject(corrections.length() - 1)
                 appendLine("自我修正：${last?.optString("realization")}；下次尝试：${last?.optString("nextTime")}。不要反复口头忏悔，以行动表现。")
+            }
+            val recentThoughts = (0 until thoughts.length()).mapNotNull(thoughts::optJSONObject)
+                .filter { item ->
+                    runCatching { Instant.parse(item.optString("at")) }.getOrNull()
+                        ?.let { at -> !at.isAfter(now) && Duration.between(at, now) <= Duration.ofHours(24) } == true
+                }.takeLast(6)
+            if (recentThoughts.isNotEmpty()) {
+                appendLine("【仍可能相互拉扯的多个念头｜主观设想，不是已执行的行动】")
+                recentThoughts.forEach { item ->
+                    appendLine("· ${item.optString("thought")}；冲动：${item.optString("impulse")}；犹豫：${item.optString("hesitation")}")
+                }
+                appendLine("这些念头可以冲突，也可以随着新事件消退。若要落实，先检查对方边界和实际工具；下一轮须依据真实结果修正，不得把想象写成执行成功。")
             }
             if (innerVoices.length() > 0) {
                 appendLine("过往没说出口的真实主观心声（思绪可改变，不是已发生的事件）：")
