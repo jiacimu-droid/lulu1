@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T10:27:00.401150+00:00",
-  "commit": "b18ae1619753ff1ad4be909be5d357b61c3ee80b",
+  "generatedAt": "2026-10-09T10:27:37.142665+00:00",
+  "commit": "70c0bb62439fbd2906aa4d407dfefcd78aec52fc",
   "branch": "main",
-  "sourceFingerprint": "4c0dc6ffa21679e40a06fcd5fa31e5a0af40dabdbdbf1cb5a91eadcc5c6d41f6",
+  "sourceFingerprint": "9d9c129898e9dbe3c2f2939ab9f6cb6ee1eebfbedac40af395ed0a926763c31b",
   "summary": {
     "files": 378,
-    "lines": 91263,
+    "lines": 91264,
     "symbols": 1292
   },
   "symbolIndex": {
@@ -8489,7 +8489,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
       "lines": 751,
-      "sha256": "71bd7db580e8164aa87128d57e813a5822a621d79de71f27cbbccd8ae8facc74",
+      "sha256": "760e1a862a5954f55fd4fddf15e28c539ed8521d69a8064d55c0fa119f236f64",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -11372,8 +11372,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 59,
-      "sha256": "5901712be82ef23548a6f1bf52fdcd76ecc6d8597953517e9c5dff53c666aa03",
+      "lines": 60,
+      "sha256": "3749f40355c2a0c661e7bad9849fd1538d1319493fb11fa94993f8d7cc89aee0",
       "symbols": []
     },
     {
