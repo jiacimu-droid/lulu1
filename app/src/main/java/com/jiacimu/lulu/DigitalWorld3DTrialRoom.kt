@@ -73,8 +73,9 @@ internal fun DigitalWorld3DTrialRoom(modifier: Modifier = Modifier) {
             }
         }
     }
+    // Rendering starts when AndroidView attaches the surface; do not resume a
+    // GLSurfaceView before its internal GL thread has been attached.
     DisposableEffect(surface) {
-        surface.onResume()
         onDispose { surface.onPause() }
     }
     Box(modifier.fillMaxSize().background(Color(0xFF101B26))) {
