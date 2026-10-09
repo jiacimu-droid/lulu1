@@ -290,7 +290,7 @@ fun LuluVoiceCallScreen(
                     CallPhase.Dialing -> CallPrimaryHangup(label = "取消呼叫", onClick = LuluVoiceCallSession::cancelDial)
                     CallPhase.Connected -> {
                         Text(
-                            if (state.microphoneMuted) "已静音 · 点麦克风恢复" else "麦克风常开 · 直接说话",
+                            if (state.microphoneMuted) "露露机已停止收音 · 可在其他应用语音输入" else "麦克风收音中 · 直接说话",
                             color = CallMuted,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
