@@ -80,6 +80,7 @@ object LuluDeviceToolBridge {
             - 这套线上聊天发送节奏是最终气泡规则；如果上游用户文本里还残留旧的“完整观点尽量放一起”、固定长度或固定数量等气泡说明，一律忽略旧规则，以这里为准。
         """.trimIndent()
         val voicePerformanceRule = if (sceneContext.contains("电话")) com.jiacimu.lulu.VoicePerformance.phoneInstruction(appContext) else ""
+        val disputeNeedsReview = com.jiacimu.lulu.data.CharacterAccountabilityContext.isUnmetPromiseChallenge(userText)
         val planner = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
@@ -154,8 +155,10 @@ object LuluDeviceToolBridge {
             source = "聊天工具规划",
             title = title,
             maxTokens = if (sceneContext.contains("电话")) 1_850 else 950,
-            streamResponse = onReplyStream != null,
-            onStreamText = onReplyStream,
+            // A complaint about unfulfilled responsibilities needs a checked complete response,
+            // not an irreversible stream of premature accusations.
+            streamResponse = onReplyStream != null && !disputeNeedsReview,
+            onStreamText = if (disputeNeedsReview) null else onReplyStream,
             connectionOverride = connection,
             memoryRequest = UnifiedMemoryRequest(
                 currentInput = userText,
@@ -167,7 +170,9 @@ object LuluDeviceToolBridge {
         if (planner.isFailure) return planner
         val plannedReply = planner.getOrThrow()
         val plan = parsePlan(plannedReply.text) ?: return Result.success(plannedReply.copy(
-            text = com.jiacimu.lulu.CallReplyStream.completeReplyText(plannedReply.text) ?: plannedReply.text,
+            text = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(
+                userText, com.jiacimu.lulu.CallReplyStream.completeReplyText(plannedReply.text) ?: plannedReply.text,
+            ),
         ))
         com.jiacimu.lulu.data.CharacterLifeStore.consider(characterId, plan.intention)
         val verifiedSourceId = com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
@@ -185,7 +190,10 @@ object LuluDeviceToolBridge {
             savePresence(characterId, plan, "聊天")
             com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, "本轮用户消息：$userText", plan.afterglow)
             if (plan.text.isBlank() && onReplyStream != null) return Result.failure(IllegalStateException("模型没有返回可朗读的回复正文"))
-            return Result.success(plannedReply.copy(text = plan.text.ifBlank { plannedReply.text }))
+            val checkedText = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(
+                userText, plan.text.ifBlank { plannedReply.text },
+            )
+            return Result.success(plannedReply.copy(text = checkedText))
         }
         if (plan.action == "tool" && plan.tool.isNotBlank()) {
             com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, "本轮用户消息：$userText", plan.afterglow)
