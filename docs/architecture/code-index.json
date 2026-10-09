@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T08:13:39.778270+00:00",
-  "commit": "62cf280116eca7310b792acede370d01d4b63cdd",
+  "generatedAt": "2026-10-09T08:14:39.964926+00:00",
+  "commit": "a035fe2639901ddfc2dede1d0636704ebfbe62b9",
   "branch": "main",
-  "sourceFingerprint": "2bbecaa6ca10ad251ddc51cff68304f05dad15dd338f2ec70db246bb9879d421",
+  "sourceFingerprint": "58220715231c665610e76ab6484bc3f66e1d08a09fb92ffafe71657e6f22c1b7",
   "summary": {
     "files": 378,
-    "lines": 90703,
+    "lines": 90710,
     "symbols": 1284
   },
   "symbolIndex": {
@@ -8424,8 +8424,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 745,
-      "sha256": "8a44a7e28665491adbd1dbcdcaf0c03e612e9ba13f8e72d12310056bfccd754a",
+      "lines": 752,
+      "sha256": "b61877d58afa27f11f75c008ec620b09b2375eccfbb16c6ac8a2a4a5a6931adf",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
