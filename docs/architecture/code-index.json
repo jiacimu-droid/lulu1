@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T14:59:46.754958+00:00",
-  "commit": "da1a3e9f3e92efb12c04bf076c760e37ba94c0f9",
+  "generatedAt": "2026-10-09T15:01:12.700198+00:00",
+  "commit": "e20a196c6312c9003cf26dd64bdc1ca802fc336d",
   "branch": "main",
-  "sourceFingerprint": "4e7a6d5561f8b95e799dcebfa603c9353291ec41113b077036d31a201aa7a9f5",
+  "sourceFingerprint": "4f3f923546998371a2ccd8aeb744c0fc33892562ecaa642868c7346dd1880774",
   "summary": {
     "files": 399,
-    "lines": 93311,
-    "symbols": 1334
+    "lines": 93368,
+    "symbols": 1335
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -777,25 +777,31 @@
     "Resident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 86
+        "line": 87
       }
     ],
     "Prop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 88
+        "line": 89
       }
     ],
     "Venue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 89
+        "line": 90
+      }
+    ],
+    "furniturePoseFor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
+        "line": 151
       }
     ],
     "loadPosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 828
+        "line": 885
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
@@ -805,13 +811,13 @@
     "loadQuest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 837
+        "line": 894
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 839
+        "line": 896
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
@@ -7921,32 +7927,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-      "lines": 844,
-      "sha256": "ee9380a0042d47173e4ff0d70cb542c0539d3cbc4ffece27c7e144a202250e88",
+      "lines": 901,
+      "sha256": "bec9e4a7ce57768c1ef19f4dd5d3a638f4899be98ea9100642b2f8513d1e3002",
       "symbols": [
         {
           "name": "Resident",
-          "line": 86
+          "line": 87
         },
         {
           "name": "Prop",
-          "line": 88
-        },
-        {
-          "name": "Venue",
           "line": 89
         },
         {
+          "name": "Venue",
+          "line": 90
+        },
+        {
+          "name": "furniturePoseFor",
+          "line": 151
+        },
+        {
           "name": "loadPosition",
-          "line": 828
+          "line": 885
         },
         {
           "name": "loadQuest",
-          "line": 837
+          "line": 894
         },
         {
           "name": "save",
-          "line": 839
+          "line": 896
         }
       ]
     },
