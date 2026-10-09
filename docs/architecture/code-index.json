@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T12:55:06.479100+00:00",
-  "commit": "079c183c5db8afd820ca5c4757df90b7ff610e0a",
+  "generatedAt": "2026-10-09T12:58:03.674240+00:00",
+  "commit": "465882f48a3ba0b28d2864bf157d183b93c3b815",
   "branch": "main",
-  "sourceFingerprint": "f9e4d5bdbefce7294667af93d481636897bbb6765f4d22c4ac42f5c854dfbda1",
+  "sourceFingerprint": "c6a8215de44778b6cdb0050556f139885fc635c8a1d3cce86d98b1d0055660ce",
   "summary": {
     "files": 383,
-    "lines": 92315,
+    "lines": 92326,
     "symbols": 1307
   },
   "symbolIndex": {
@@ -33,7 +33,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 24
+        "line": 26
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -77,7 +77,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 183
+        "line": 194
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
@@ -1461,11 +1461,11 @@
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 110
+        "line": 120
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 151
+        "line": 162
       }
     ],
     "payload": [
@@ -8528,24 +8528,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 196,
-      "sha256": "49c481f29d48aaad0f4adf02c0626bdc22e1a02baf62001eabf2ba1c84efd917",
+      "lines": 207,
+      "sha256": "50968e84c291512d2788e1a88101bc1f0d62b709e7542d83816426439023fa25",
       "symbols": [
         {
           "name": "start",
-          "line": 24
+          "line": 26
         },
         {
           "name": "field",
-          "line": 110
+          "line": 120
         },
         {
           "name": "field",
-          "line": 151
+          "line": 162
         },
         {
           "name": "stop",
-          "line": 183
+          "line": 194
         }
       ]
     },
