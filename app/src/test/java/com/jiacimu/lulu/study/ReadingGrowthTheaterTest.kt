@@ -15,6 +15,49 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [31])
 class ReadingGrowthTheaterTest {
+    @Test fun languageHabitsRequireTwoSelfExpressionsAndIndependentLifeSources() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.characters.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterDevelopmentStore.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        val person = MigratedDomainStores.characters.create("学会幽默的数字生命", "成人判断成熟，生活经验尚少")
+        val at = Instant.now()
+        val experiences = listOf(
+            Triple("learning-book", "独自阅读《诗集》", "实际读到了文字表达"),
+            Triple("learning-game", "独自游戏", "实际玩过一局游戏"),
+            Triple("world-fact-learning-walk", "数字世界活动", "实际去过世界地点"),
+        )
+        experiences.forEachIndexed { index, (id, channel, detail) ->
+            SharedExperienceTimeline.record(id, person.characterId, channel, person.displayName,
+                detail, at.plusSeconds(index.toLong()), false)
+        }
+        val firstExpression = "learning-owned-line-1"
+        val secondExpression = "learning-owned-line-2"
+        SharedExperienceTimeline.record(firstExpression, person.characterId, "私人日记",
+            person.displayName, "今天试着用一个奇怪的停顿自言自语", at.plusSeconds(4), false,
+            source = "journal:own", evidenceKind = EventEvidenceKind.CharacterStatement)
+        SharedExperienceTimeline.record(secondExpression, person.characterId, "私聊",
+            person.displayName, "嗯……算了，我确实挺喜欢这种停顿", at.plusSeconds(5), false,
+            source = "message", evidenceKind = EventEvidenceKind.CharacterStatement)
+        val persona = CharacterRuntime.personaConstraintSnapshot(person.characterId)
+        val exposureIds = experiences.map { it.first }
+        fun learn(ids: List<String>) = CharacterDevelopmentStore.applyProposal(
+            person.characterId, "person:speech:hesitant_pause", DevelopmentKind.ExpressionHabit,
+            "偶尔用长停顿来表现认真思考，亲近时也拿来开玩笑",
+            ids, emptyList(), persona)
+        assertFalse(learn(exposureIds))
+        assertFalse(learn(exposureIds + firstExpression))
+        assertTrue(learn(exposureIds + firstExpression + secondExpression))
+        assertTrue(CharacterDevelopmentStore.active(person.characterId)
+            .any { it.kind == DevelopmentKind.ExpressionHabit })
+        SharedExperienceTimeline.deleteEvent(firstExpression)
+        assertTrue(CharacterDevelopmentStore.active(person.characterId)
+            .none { it.kind == DevelopmentKind.ExpressionHabit })
+    }
+
     @Test fun readingCommitsOnlyOnSuccessGrowthUsesRepeatedEvidenceAndTheaterRejectsStaleResults() {
         val context = RuntimeEnvironment.getApplication() as Context
         StarWishStores.initialize(context)
