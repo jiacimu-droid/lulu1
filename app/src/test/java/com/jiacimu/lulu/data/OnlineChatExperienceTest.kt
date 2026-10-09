@@ -136,6 +136,43 @@ class OnlineChatExperienceTest {
         assertNull(OnlineChatBatchStore.dueAt(context, role, next.revision))
     }
 
+    @Test fun interleavedUserBubbleRemainsUnreadAfterEarlierReplyWasDelivered() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val character = MigratedDomainStores.characters.create("多气泡不漏读", "自然语速")
+        val conversation = MigratedDomainStores.chat.ensureConversation(character.characterId, character.displayName)
+        CompanionOnlineStore.wakeCharacter(character.characterId, CompanionOnlineReason.PrivateWake,
+            "查看多气泡", perceiveNow = false)
+        MigratedDomainStores.chat.sendUserMessage(conversation.id, "第一个气泡")
+        MigratedDomainStores.chat.sendUserMessage(conversation.id, "第二个气泡")
+        val readBeforeModel = CompanionOnlineStore.unreadChatSnapshot(character.characterId)
+        assertTrue(readBeforeModel.text.contains("第一个气泡"))
+        assertTrue(readBeforeModel.text.contains("第二个气泡"))
+        MigratedDomainStores.chat.appendCharacterMessage(conversation.id, "角色第一条回复", character.characterId)
+        // Exactly while the existing answer is being delivered, the user sends another bubble.
+        Thread.sleep(10)
+        val interleaved = MigratedDomainStores.chat.sendUserMessage(conversation.id, "第三个插队气泡")
+        MigratedDomainStores.chat.appendCharacterMessage(conversation.id, "角色第二条回复", character.characterId)
+        CompanionOnlineStore.markSeen(character.characterId, readBeforeModel)
+        val next = CompanionOnlineStore.unreadChatSnapshot(character.characterId)
+        assertTrue(next.text.contains("第三个插队气泡"))
+        assertTrue(next.newestIds.contains(interleaved.id))
+        assertFalse(next.text.contains("第一个气泡"))
+    }
+
+    @Test fun timestampCollisionDoesNotLoseMessageIdsNotInEarlierSnapshot() {
+        val instant = java.time.Instant.parse("2026-10-09T12:00:00Z")
+        assertFalse(CompanionOnlineStore.isUnreadAtCursor(
+            "old", instant, instant, instant, setOf("old")))
+        assertTrue(CompanionOnlineStore.isUnreadAtCursor(
+            "third", instant, instant, instant, setOf("old", "second")))
+        assertTrue(CompanionOnlineStore.isUnreadAtCursor(
+            "later", instant.plusMillis(1), instant, instant, setOf("old")))
+        assertFalse(CompanionOnlineStore.isUnreadAtCursor(
+            "before", instant.minusMillis(1), instant, instant, emptySet()))
+    }
+
     @Test fun actualActivityRefreshesFiveMinutesWithoutStackingTime() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
