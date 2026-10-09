@@ -235,6 +235,7 @@ internal object LuluVoiceCallSession {
     fun endCall() {
         val current = mutableState.value
         if (current.phase == CallPhase.Idle || current.phase == CallPhase.Ended) return
+        LuluCallRingtone.stopAll()
         // Mark ended before stopping audio: callbacks cannot reopen the microphone or revive state.
         mutableState.update { it.copy(phase = CallPhase.Ended, opening = false, listening = false,
             thinking = false, speaking = false, statusMessage = "通话已结束") }
@@ -275,6 +276,16 @@ internal object LuluVoiceCallSession {
         if (appContext != null) return
         appContext = context.applicationContext
         CharacterVoicePreferenceStore.initialize(context.applicationContext)
+        // Observe the actual call phase, not just the call page (it may be minimized).
+        scope.launch {
+            mutableState.collect { call ->
+                when (call.phase) {
+                    CallPhase.Dialing -> LuluCallRingtone.startOutgoing(context.applicationContext)
+                    CallPhase.Connected, CallPhase.Ready, CallPhase.Ended, CallPhase.Idle ->
+                        LuluCallRingtone.stopOutgoing()
+                }
+            }
+        }
         speechQueue = LuluCallSpeechQueue(
             context = context.applicationContext,
             scope = scope,
