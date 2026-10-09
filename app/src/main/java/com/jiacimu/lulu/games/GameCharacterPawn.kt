@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.LuluProfileAvatar
+import com.jiacimu.lulu.ResidentPose
 
 @Composable
 internal fun GameCharacterPawn(
@@ -30,6 +31,7 @@ internal fun GameCharacterPawn(
     modifier: Modifier = Modifier,
     coat: Color = Color(0xFF4A625A),
     player: Boolean = false,
+    pose: ResidentPose = ResidentPose.STAND,
 ) {
     val motion = rememberInfiniteTransition(label = "game-pawn-motion")
     val walkPhase = motion.animateFloat(
@@ -38,12 +40,12 @@ internal fun GameCharacterPawn(
         animationSpec = infiniteRepeatable(tween(if (moving) 230 else 1_450), RepeatMode.Reverse),
         label = "game-pawn-step",
     ).value
-    val bob = if (moving) kotlin.math.abs(walkPhase) * -2.4f else walkPhase * 1.15f
+    val bob = if (pose != ResidentPose.STAND) 0f else if (moving) kotlin.math.abs(walkPhase) * -2.4f else walkPhase * 1.15f
     val direction = if (facingX < -.08f) -1f else 1f
 
     Box(
         modifier
-            .size(width = 62.dp, height = 92.dp)
+            .size(width = if (pose == ResidentPose.LIE) 95.dp else 62.dp, height = 92.dp)
             .graphicsLayer {
                 translationY = bob
                 scaleX = direction
@@ -66,66 +68,80 @@ internal fun GameCharacterPawn(
                 )
             }
 
-            val bodyTop = size.height * .43f
-            val bodyHeight = size.height * .34f
-            drawRoundRect(
-                Brush.verticalGradient(
-                    listOf(coat.copy(alpha = .98f), coat.copy(alpha = .74f)),
-                    startY = bodyTop,
-                    endY = bodyTop + bodyHeight,
-                ),
-                topLeft = Offset(size.width * .25f, bodyTop),
-                size = Size(size.width * .50f, bodyHeight),
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(11.dp.toPx()),
-            )
-            drawRoundRect(
-                Color.White.copy(alpha = .14f),
-                topLeft = Offset(size.width * .31f, bodyTop + 3.dp.toPx()),
-                size = Size(size.width * .11f, bodyHeight * .70f),
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(4.dp.toPx()),
-            )
-
-            val armSwing = if (moving) walkPhase * size.width * .055f else 0f
-            drawLine(
-                coat.copy(alpha = .92f),
-                Offset(size.width * .27f, bodyTop + size.height * .07f),
-                Offset(size.width * .15f + armSwing, bodyTop + size.height * .27f),
-                strokeWidth = 5.dp.toPx(),
-                cap = androidx.compose.ui.graphics.StrokeCap.Round,
-            )
-            drawLine(
-                coat.copy(alpha = .92f),
-                Offset(size.width * .73f, bodyTop + size.height * .07f),
-                Offset(size.width * .85f - armSwing, bodyTop + size.height * .27f),
-                strokeWidth = 5.dp.toPx(),
-                cap = androidx.compose.ui.graphics.StrokeCap.Round,
-            )
-
-            val legSwing = if (moving) walkPhase * size.width * .055f else 0f
-            drawLine(
-                Color(0xFF26302D),
-                Offset(centerX - size.width * .10f, bodyTop + bodyHeight * .84f),
-                Offset(centerX - size.width * .13f - legSwing, size.height * .88f),
-                strokeWidth = 6.dp.toPx(),
-                cap = androidx.compose.ui.graphics.StrokeCap.Round,
-            )
-            drawLine(
-                Color(0xFF26302D),
-                Offset(centerX + size.width * .10f, bodyTop + bodyHeight * .84f),
-                Offset(centerX + size.width * .13f + legSwing, size.height * .88f),
-                strokeWidth = 6.dp.toPx(),
-                cap = androidx.compose.ui.graphics.StrokeCap.Round,
-            )
+            when (pose) {
+                ResidentPose.LIE -> {
+                    // Horizontal silhouette across the bed/rug. The avatar is
+                    // rotated independently below rather than standing above it.
+                    drawRoundRect(
+                        Brush.horizontalGradient(listOf(coat, coat.copy(alpha = .76f))),
+                        topLeft = Offset(size.width * .24f, size.height * .62f),
+                        size = Size(size.width * .54f, size.height * .16f),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(10.dp.toPx()),
+                    )
+                    drawLine(Color(0xFF28322F), Offset(size.width * .77f, size.height * .68f),
+                        Offset(size.width * .96f, size.height * .72f),
+                        strokeWidth = 7.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                    drawLine(coat.copy(alpha = .9f), Offset(size.width * .36f, size.height * .69f),
+                        Offset(size.width * .55f, size.height * .81f),
+                        strokeWidth = 5.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                }
+                ResidentPose.SIT, ResidentPose.STAND -> {
+                    val seated = pose == ResidentPose.SIT
+                    val bodyTop = size.height * if (seated) .49f else .43f
+                    val bodyHeight = size.height * if (seated) .26f else .34f
+                    drawRoundRect(
+                        Brush.verticalGradient(listOf(coat.copy(alpha = .98f), coat.copy(alpha = .74f)),
+                            startY = bodyTop, endY = bodyTop + bodyHeight),
+                        topLeft = Offset(size.width * .25f, bodyTop),
+                        size = Size(size.width * .50f, bodyHeight),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(11.dp.toPx()),
+                    )
+                    val armSwing = if (moving && !seated) walkPhase * size.width * .055f else 0f
+                    drawLine(coat, Offset(size.width * .27f, bodyTop + size.height * .07f),
+                        Offset(size.width * .15f + armSwing, bodyTop + size.height * .27f),
+                        strokeWidth = 5.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                    drawLine(coat, Offset(size.width * .73f, bodyTop + size.height * .07f),
+                        Offset(size.width * .85f - armSwing, bodyTop + size.height * .27f),
+                        strokeWidth = 5.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                    if (seated) {
+                        // Bent thighs cross the seat, with shins falling over
+                        // its near edge; standing and sitting no longer overlap.
+                        drawLine(Color(0xFF26302D),
+                            Offset(centerX - size.width * .12f, size.height * .73f),
+                            Offset(centerX + size.width * .23f, size.height * .79f),
+                            strokeWidth = 7.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                        drawLine(Color(0xFF26302D),
+                            Offset(centerX + size.width * .23f, size.height * .79f),
+                            Offset(centerX + size.width * .26f, size.height * .91f),
+                            strokeWidth = 6.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                    } else {
+                        val legSwing = if (moving) walkPhase * size.width * .055f else 0f
+                        drawLine(Color(0xFF26302D),
+                            Offset(centerX - size.width * .10f, bodyTop + bodyHeight * .84f),
+                            Offset(centerX - size.width * .13f - legSwing, size.height * .88f),
+                            strokeWidth = 6.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                        drawLine(Color(0xFF26302D),
+                            Offset(centerX + size.width * .10f, bodyTop + bodyHeight * .84f),
+                            Offset(centerX + size.width * .13f + legSwing, size.height * .88f),
+                            strokeWidth = 6.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                    }
+                }
+            }
         }
 
         Surface(
-            modifier = Modifier.size(46.dp),
+            modifier = when (pose) {
+                ResidentPose.LIE -> Modifier.align(Alignment.CenterStart).offset(x = 3.dp, y = 8.dp)
+                    .size(37.dp).graphicsLayer { rotationZ = -68f }
+                ResidentPose.SIT -> Modifier.align(Alignment.TopCenter).offset(y = 8.dp).size(46.dp)
+                ResidentPose.STAND -> Modifier.align(Alignment.TopCenter).size(46.dp)
+            },
             shape = RoundedCornerShape(17.dp),
             color = Color(0xFFF5F7F5),
             border = BorderStroke(1.dp, if (player) Color(0xFFB7FFE8) else Color.White.copy(alpha = .72f)),
             shadowElevation = 5.dp,
         ) {
-            LuluProfileAvatar(avatarUri, fallback.take(2).ifBlank { "人" }, 46)
+            LuluProfileAvatar(avatarUri, fallback.take(2).ifBlank { "人" }, if (pose == ResidentPose.LIE) 37 else 46)
         }
         if (player) {
             Surface(
