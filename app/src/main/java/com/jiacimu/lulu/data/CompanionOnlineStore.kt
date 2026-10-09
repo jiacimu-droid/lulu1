@@ -334,15 +334,21 @@ object CompanionOnlineStore {
         val waitMillis = Duration.between(Instant.now(), until).toMillis().coerceAtLeast(0L)
         expiryJobs[characterId] = scope.launch {
             delay(waitMillis + 50L)
-            synchronized(lock) {
-                val current = mutableStates.value[characterId] ?: return@synchronized
-                if (!current.isOnline()) {
+            val ended = synchronized(lock) {
+                val current = mutableStates.value[characterId]
+                if (current == null || current.isOnline()) false else {
                     mutableStates.value = mutableStates.value + (
                         characterId to current.copy(onlineUntil = Instant.now().minusMillis(1L))
                     )
                     lifePulseJobs.remove(characterId)?.cancel()
                     persistLocked()
                     expiryJobs.remove(characterId)
+                    true
+                }
+            }
+            if (ended) {
+                appContext?.let { context ->
+                    runCatching { ProactivePerceptionScheduler.scheduleEmotionalAftercare(context, characterId) }
                 }
             }
         }
