@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:38:39.973322+00:00",
-  "commit": "13ca5cb22643c6c61d54adc39ea440e9e4a4dac1",
+  "generatedAt": "2026-10-09T13:39:53.996965+00:00",
+  "commit": "9432fec74e90d85acb63f504b23ea6c3213cf1e6",
   "branch": "main",
-  "sourceFingerprint": "0e7993ee43feab53e508fe541e06c308bf0f525d41986c0caea672dd919e1ec5",
+  "sourceFingerprint": "05bfb1f3885e7269168115f50acac0e5066b69ec4727f54f6e3a49b2c5bc364b",
   "summary": {
-    "files": 391,
-    "lines": 92761,
-    "symbols": 1318
+    "files": 393,
+    "lines": 92811,
+    "symbols": 1320
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7110,6 +7110,18 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt",
         "line": 12
+      }
+    ],
+    "PhoneSubtitleLayoutTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/PhoneSubtitleLayoutTest.kt",
+        "line": 5
+      }
+    ],
+    "PhoneTranscriptAssemblerTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/PhoneTranscriptAssemblerTest.kt",
+        "line": 5
       }
     ],
     "TrialRoomWalkControllerTest": [
@@ -14786,6 +14798,28 @@
         {
           "name": "MiniMaxAsrStreamAccumulatorTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/PhoneSubtitleLayoutTest.kt",
+      "lines": 29,
+      "sha256": "1d5339aede35bdc52c03bc191c3007b1972d58f53f8d4f179f533b4198cfd97b",
+      "symbols": [
+        {
+          "name": "PhoneSubtitleLayoutTest",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/PhoneTranscriptAssemblerTest.kt",
+      "lines": 21,
+      "sha256": "74113c21cc261d7e80380c244b5e1519c96c656759c9be3052608c3ef5d8f021",
+      "symbols": [
+        {
+          "name": "PhoneTranscriptAssemblerTest",
+          "line": 5
         }
       ]
     },
