@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T11:24:05.478592+00:00",
-  "commit": "a4023bb4441f919d07425f20b93abdd352017706",
+  "generatedAt": "2026-10-09T11:24:37.660747+00:00",
+  "commit": "c836bd4e2b61b10b8805deb1560e6be9cf0f8280",
   "branch": "main",
-  "sourceFingerprint": "f309b81d77098a8a6b87a2657ff994b2e771fc33232c5648ad760a95008262b6",
+  "sourceFingerprint": "51c2471e826a31820aede6769dfaa60c92dc3fe4adf1ab6d9c9cbe7f5fe6953c",
   "summary": {
     "files": 381,
     "lines": 91970,
@@ -9378,7 +9378,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt",
       "lines": 82,
-      "sha256": "a6bcc149ef521ecae50b6052c8aefb2294139b3fe8d12c604c04701625c6c70f",
+      "sha256": "1e9c6fbd7f6824f473ab9aad35b189cf9146b8c1ac7cfe09836cf6f3e5920d5b",
       "symbols": [
         {
           "name": "promptSection",
