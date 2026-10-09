@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T15:31:04.079370+00:00",
-  "commit": "be38ae8135f2bb3cfa9ba5b791da7b54ce38d7f8",
+  "generatedAt": "2026-10-09T15:32:52.526200+00:00",
+  "commit": "a771c0b72b7cbf7a2067c754fabd463106e28f97",
   "branch": "main",
-  "sourceFingerprint": "a3e778eedba5a8d908e90dd2802bccf5b78eba03e1aa2c07ab8ee41f118b3e6a",
+  "sourceFingerprint": "2036e4e75718d25545072122ed1a17eb0f7f25c525d3446efe8ca213503127cc",
   "summary": {
     "files": 400,
-    "lines": 93739,
+    "lines": 93776,
     "symbols": 1344
   },
   "symbolIndex": {
@@ -977,7 +977,7 @@
     "flush": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-        "line": 765
+        "line": 802
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
@@ -8103,12 +8103,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
-      "lines": 799,
-      "sha256": "dbdc46191408d4c904d1e2130b3025925e9704f48a4e9ad51863ec4dcb91ea60",
+      "lines": 836,
+      "sha256": "71047cedef6522b771affb8dd0072152b3e675d7e13fc27063b5fc270d5b4eaa",
       "symbols": [
         {
           "name": "flush",
-          "line": 765
+          "line": 802
         }
       ]
     },
