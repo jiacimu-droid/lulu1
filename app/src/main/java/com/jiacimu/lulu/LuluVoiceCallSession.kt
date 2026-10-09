@@ -290,8 +290,12 @@ internal object LuluVoiceCallSession {
         restoreCallAudio()
         stopForegroundService()
         scope.launch {
-            delay(850)
-            if (mutableState.value.phase == CallPhase.Ended && mutableState.value.callExperienceId == current.callExperienceId) mutableState.value = LuluVoiceCallState()
+            delay(if (endedByCharacter) 2_500L else 850L)
+            if (mutableState.value.phase == CallPhase.Ended &&
+                mutableState.value.callExperienceId == current.callExperienceId) {
+                LuluCallWindowController.minimize()
+                mutableState.value = LuluVoiceCallState()
+            }
         }
     }
 
