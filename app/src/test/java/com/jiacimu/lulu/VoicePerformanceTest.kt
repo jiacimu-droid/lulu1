@@ -41,17 +41,28 @@ class VoicePerformanceTest {
         val performance = VoicePerformance.sleepAudio(context, words, sleepMode = true)
         assertEquals(words.filterNot(Char::isWhitespace),
             VoicePerformance.plain(performance).filterNot(Char::isWhitespace))
-        assertTrue(performance.startsWith("[whispers] [softly]"))
-        assertTrue(performance.split("[whispers]").size >= 3)
+        assertTrue(performance.startsWith("[whispers]"))
+        assertTrue(performance.split("[whispers]").size >= 4)
+        assertFalse(performance.contains("[softly]"))
         assertTrue(VoicePerformance.phoneInstruction(context, sleepMode = true).contains("[whispers]"))
         assertTrue(VoicePerformance.phoneInstruction(context, sleepMode = true).contains("气声"))
         assertEquals(words, VoicePerformance.sleepAudio(context, words, sleepMode = false))
         val loud = VoicePerformance.sleepAudio(context, "[shouting] 我今晚陪你。[angry] 慢慢说。", true)
         assertFalse(loud.contains("[shouting]"))
         assertFalse(loud.contains("[angry]"))
-        assertEquals("我今晚陪你。 慢慢说。", VoicePerformance.plain(loud))
+        assertEquals("我今晚陪你。慢慢说。",
+            VoicePerformance.plain(loud).filterNot(Char::isWhitespace))
+        val erratic = "[excited] 好呀！[laughs] 现在你可以休息了，[shouting] 我们慢慢睡。"
+        val gentle = VoicePerformance.sleepAudio(context, erratic, true)
+        assertEquals(VoicePerformance.plain(erratic).filterNot(Char::isWhitespace),
+            VoicePerformance.plain(gentle).filterNot(Char::isWhitespace))
+        assertFalse(gentle.contains("[excited]"))
+        assertFalse(gentle.contains("[laughs]"))
+        assertFalse(gentle.contains("[shouting]"))
+        assertTrue(gentle.split("[whispers]").size >= 4)
         prefs.edit().putString("eleven_tts_model", "eleven_flash_v2_5").commit()
         assertEquals(words, VoicePerformance.sleepAudio(context, words, true))
+        assertEquals(VoicePerformance.plain(erratic), VoicePerformance.sleepAudio(context, erratic, true))
         assertFalse(VoicePerformance.phoneInstruction(context, sleepMode = true).contains("使用 [whispers]"))
         prefs.edit().putString("tts_provider", "system").commit()
     }

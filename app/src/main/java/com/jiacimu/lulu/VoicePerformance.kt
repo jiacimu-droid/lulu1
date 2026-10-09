@@ -46,10 +46,9 @@ internal object VoicePerformance {
         """.trimIndent() else ""
         if (!sleepMode) return regular
         val whisper = if (supportsTags(context)) """
-            当前是哄睡通话：以气声般的轻声低语为全程声线，而非一句低语后恢复正常说话。
-            在开头及自然的意群转换处使用 [whispers]、[softly]，允许少量真实需要的 [inhales] 或 [exhales]，但不要堆砌呼吸音效、让人难以入睡。
-            即使谈到激动的话题也不突然高声喊叫、做戏剧化音量跳变；轻柔是音色与说话方式，不意味着低俗、刻意性感或失去角色原有的个性。
-            接下来的语音播放层还会在自然停顿处强化低语标签，因此不必为了凑标签而把 text 切成碎句。
+            当前是哄睡通话，低语优先于上述普通电话的情绪标签规则。整轮用 [whispers] 轻轻说话，不能突然切换成高声、兴奋、喊叫或者戏剧化表演；不需要插入 [laughs]、[gasps] 等响亮的声音。
+            内容仍要真实、有情感和个性，不是单调机械地朗读指令。可以慢一点，给听者留出自然停顿。
+            语音播放层会去掉本轮其他情绪标签，并在每个自然语段补入 [whispers]，确保持续低语；正文不朗读标签。
         """.trimIndent() else """
             当前是哄睡通话：用短而自然的口语、放缓叙述和温柔的停顿来营造贴近的轻声陪伴。
             此语音引擎不支持英文表演标签，不要把 [whispers] 之类标记写进真实台词，也不宣称设备音色已经切换成功。
@@ -63,32 +62,26 @@ internal object VoicePerformance {
      * AUDIO track only. Spoken characters and subtitles remain unchanged.
      */
     fun sleepAudio(context: Context, text: String, sleepMode: Boolean): String {
-        if (!sleepMode || !supportsTags(context)) return text
-        val quietText = Regex("\\[(?:shouting|screaming|angry)(?:[^\\]]*)\\]", RegexOption.IGNORE_CASE)
-            .replace(unfinished.replace(text, ""), "").trim()
-        if (plain(quietText).isBlank()) return quietText
-        val result = StringBuilder("[whispers] [softly] ")
-        val stopMarks = setOf('。', '！', '？', '；', '!', '?', ';')
-        val pauseMarks = setOf('，', ',')
-        var spokenSinceCue = 0
-        var index = 0
-        while (index < quietText.length) {
-            val tag = tags.find(quietText, index)?.takeIf { it.range.first == index }
-            if (tag != null) {
-                result.append(tag.value)
-                index = tag.range.last + 1
-                continue
-            }
-            val character = quietText[index]
+        if (!sleepMode) return text
+        // Bedtime has its own performance track. Generated excitement, gasps,
+        // laughs or shouting must not undo a continuous whisper instruction.
+        // Keep only spoken words; subtitles and stored transcripts stay as-is.
+        val words = plain(text)
+        if (!supportsTags(context) || words.isBlank()) return words
+        val result = StringBuilder("[whispers] ")
+        var sinceWhisper = 0
+        words.forEachIndexed { index, character ->
             result.append(character)
-            if (!character.isWhitespace()) spokenSinceCue++
-            val enoughWords = (character in stopMarks && spokenSinceCue >= 10) ||
-                (character in pauseMarks && spokenSinceCue >= 30)
-            if (enoughWords && plain(quietText.substring(index + 1)).any { it.isLetterOrDigit() }) {
-                result.append(" [whispers] [softly] ")
-                spokenSinceCue = 0
+            if (!character.isWhitespace()) sinceWhisper++
+            val naturalBreak = character in "。，！？；,.!?;：:"
+            val isLongEnough = sinceWhisper >= 5
+            val moreSpeech = words.substring(index + 1).any { it.isLetterOrDigit() }
+            if (naturalBreak && isLongEnough && moreSpeech) {
+                // Each phrase independently has a whisper direction; a future
+                // expressive tag cannot reintroduce raised-volume delivery.
+                result.append(" [whispers] ")
+                sinceWhisper = 0
             }
-            index++
         }
         return result.toString().trim()
     }
