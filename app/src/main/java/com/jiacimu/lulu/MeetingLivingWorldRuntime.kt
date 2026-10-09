@@ -46,6 +46,11 @@ internal object MeetingLivingWorldRuntime {
         if (!visibleSessions.remove(session.id)) return false
         val current = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == session.id }
         if (current != null && current.endedAt == null) {
+            // Arrival/departure is real spatial evidence. A hand may not
+            // remain in contact with someone who is no longer in the room.
+            val prior = MeetingExperienceStore.sceneFor(current)
+            MeetingExperienceStore.updateScene(current.id,
+                MeetingPhysicalStateReducer.userDeparted(prior, Instant.now()))
             recordObservation(session, "主人离开了见面场景“${session.location}”，目前不在场。离开不等于主动结束你们的关系或忘记见面。", "departure")
             session.participantIds.forEach { characterId ->
                 CompanionPresenceStore.update(characterId,
@@ -74,24 +79,7 @@ internal object MeetingLivingWorldRuntime {
             else -> return null
         }
         val old = MeetingExperienceStore.sceneFor(session)
-        val updated = old.copy(participants = old.participants.map { participant ->
-            if (participant.participantId != characterId) participant
-            else when (action) {
-                "HOLD_HANDS" -> participant.copy(
-                    contact = (participant.contact.filterNot { it == "handholding:user" } + "handholding:user"),
-                    explorationMode = "FOLLOW_USER",
-                )
-                "RELEASE_HANDS" -> participant.copy(
-                    contact = participant.contact.filterNot { it == "handholding:user" },
-                )
-                "FOLLOW" -> participant.copy(explorationMode = "FOLLOW_USER")
-                "STOP_FOLLOW" -> participant.copy(
-                    contact = participant.contact.filterNot { it == "handholding:user" },
-                    explorationMode = "STAY",
-                )
-                else -> participant
-            }
-        }, updatedAt = Instant.now())
+        val updated = MeetingPhysicalStateReducer.apply(old, characterId, action, Instant.now())
         MeetingExperienceStore.updateScene(session.id, updated)
         // A witnessed action is persisted immediately, even if model generation
         // fails. It is not a synthetic dialogue turn written on behalf of user.
