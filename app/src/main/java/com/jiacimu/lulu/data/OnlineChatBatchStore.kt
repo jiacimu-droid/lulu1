@@ -4,17 +4,17 @@ import android.content.Context
 
 /** Durable revisions coalesce queued message events; they never cancel an already-running reply. */
 internal object OnlineChatBatchStore {
-    const val QUIET_MILLIS = 3_000L
+    const val QUIET_MILLIS = 6_000L
     data class Batch(val revision: Long, val dueAtMillis: Long)
     private val reading = mutableSetOf<Pair<String, Long>>()
     private fun prefs(context: Context) = context.applicationContext.getSharedPreferences("lulu_online_chat_batches", Context.MODE_PRIVATE)
 
     @Synchronized fun next(context: Context, characterId: String, collectMessages: Boolean, now: Long = System.currentTimeMillis()): Batch {
         val p = prefs(context)
-        // Scheduling/waking only reuses the pending deadline. Incoming *user*
-        // bubbles are registered separately; each new bubble extends the 3s
-        // quiet period. The model must see the completed cluster, not reply
-        // while the user is still sending it.
+        // Six seconds from the FIRST bubble in a burst (not a last-bubble
+        // debounce). Waking must never reset/skip the pending quiet window.
+        // Incoming bubbles while the model replies get a NEW revision so
+        // their own reply is scheduled, even across assistant bubble pacing.
         val pendingRevision = p.getLong("revision:$characterId", 0)
         if (p.contains("due:$characterId") && (characterId to pendingRevision) !in reading) {
             val hasUserBubbles = p.getBoolean("messageWindow:$characterId", false)
@@ -36,18 +36,23 @@ internal object OnlineChatBatchStore {
         return Batch(revision, due)
     }
 
-    /** Call only after a REAL incoming user bubble was persisted, never on wake. */
+    /** Only a new persisted user bubble may create a new first-bubble window. */
     @Synchronized fun onUserBubble(
         context: Context, characterId: String, atMillis: Long = System.currentTimeMillis(),
     ): Batch {
-        val batch = next(context, characterId, collectMessages = true, now = atMillis)
         val p = prefs(context)
-        val due = maxOf(batch.dueAtMillis, atMillis + QUIET_MILLIS)
-        if (due != batch.dueAtMillis) {
-            check(p.edit().putLong("due:$characterId", due)
-                .putBoolean("messageWindow:$characterId", true).commit()) { "延长连续气泡静默期失败" }
+        val pendingRevision = p.getLong("revision:$characterId", 0L)
+        val deadline = p.getLong("due:$characterId", 0L)
+        if (deadline > 0L && deadline <= atMillis &&
+            (characterId to pendingRevision) !in reading) {
+            // The last six-second window has expired, but the worker may still
+            // be queued by Android. This bubble opens a new window; its pending
+            // reader will consume ALL not-yet-seen messages once eligible.
+            check(p.edit().remove("due:$characterId").remove("messageWindow:$characterId").commit()) {
+                "分离已到期消息批次失败"
+            }
         }
-        return Batch(batch.revision, due)
+        return next(context, characterId, collectMessages = true, now = atMillis)
     }
 
     /** Claim under the perception mutex; pending messages during this reply open the next window. */
