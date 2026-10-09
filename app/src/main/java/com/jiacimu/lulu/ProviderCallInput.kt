@@ -66,8 +66,9 @@ internal class ProviderCallInput(private val context: Context, private val scope
                 if (chunk.isFinal) {
                     // The user may already have continued speaking while the
                     // previous cloud request was in flight. Never answer midway.
-                    while (capturingVoice && epoch == generation) delay(80)
                     delay(550)
+                    // Resume processing the next queued audio immediately if
+                    // the person took a breath and continued talking.
                     if (epoch != generation || capturingVoice || !queue.isEmpty) continue
                     if (!failed && phrase.isNotBlank()) onText(phrase.toString().trim())
                     else if (!failed) onError("没有识别出文字，请提高麦克风灵敏度或再说一次")
