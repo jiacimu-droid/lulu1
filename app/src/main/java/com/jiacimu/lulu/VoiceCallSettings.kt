@@ -13,12 +13,28 @@ internal fun VoiceCallSettings(provider: String) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE) }
     var mode by remember(provider) { mutableStateOf(prefs.getString("voice_call_mode", "direct").orEmpty()) }
+    var ringing by remember { mutableStateOf(prefs.getBoolean("voice_call_ringtone_enabled", true)) }
     var threshold by remember { mutableFloatStateOf(prefs.getFloat("voice_vad_threshold", 350f)) }
     var silence by remember { mutableFloatStateOf(prefs.getInt("voice_end_silence_ms", 500).toFloat()) }
     var advanced by remember { mutableStateOf(false) }
     var endpoint by remember { mutableStateOf(prefs.getString("minimax_asr_endpoint", "").orEmpty()) }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("电话使用 ${CallVoiceConfiguration.label(provider)}", style = MaterialTheme.typography.titleMedium)
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("来电 / 呼叫铃声", style = MaterialTheme.typography.bodyMedium)
+                Text("拨出等待接通或角色主动来电时播放手机本地铃声；接通、拒绝或挂断后停止。不消耗语音模型额度。",
+                    style = MaterialTheme.typography.bodySmall)
+            }
+            Switch(
+                checked = ringing,
+                onCheckedChange = { value ->
+                    ringing = value
+                    prefs.edit().putBoolean("voice_call_ringtone_enabled", value).apply()
+                    if (!value) LuluCallRingtone.stopAll()
+                },
+            )
+        }
         if (provider == "elevenlabs") {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(mode != "agent", { mode = "direct"; prefs.edit().putString("voice_call_mode", mode).apply() }, label = { Text("账号直连") })
