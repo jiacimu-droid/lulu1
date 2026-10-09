@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T18:05:23.749129+00:00",
-  "commit": "3c57f60ff9bac57ee5cd8e0d499d6d986544ac15",
+  "generatedAt": "2026-10-09T18:14:34.255300+00:00",
+  "commit": "0674c1967ed83059e21f8dab3c1162e6a4ef0d8b",
   "branch": "main",
-  "sourceFingerprint": "2e34ec353f608a119b31b405822708ecfce68800191f94ba7df06b051beffe2a",
+  "sourceFingerprint": "8eaf95204ab505237f223e69e132ed99d0d15245f285a7109b45f7678ebbc9ed",
   "summary": {
     "files": 416,
-    "lines": 94572,
+    "lines": 94574,
     "symbols": 1365
   },
   "symbolIndex": {
@@ -15645,8 +15645,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-      "lines": 327,
-      "sha256": "dc27ef5796f0dd8b5ed8f607106287699628d6f2f86ccb666b66df926bdbbfd0",
+      "lines": 329,
+      "sha256": "62461b49718bef0e21d7a3adef6a05b23064ae6635cfcc8c415d8f21c14c994c",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
