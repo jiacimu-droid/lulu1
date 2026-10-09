@@ -107,6 +107,19 @@ class CharacterInnerLifeStoreTest {
         assertNull(CharacterInnerLifeStore.withAfterglow(null, glow, ""))
     }
 
+    @Test fun severeRecentEmotionQualifiesForAftercareButOldEmotionDoesNot() {
+        start()
+        val now = Instant.parse("2026-10-09T09:00:00Z")
+        val serious = JSONObject().put("emotion", JSONObject()
+            .put("feeling", "深深后悔").put("cause", "做过的事让对方伤心")
+            .put("strength", 4))
+        CharacterInnerLifeStore.observe("inside-test-a", "argument-1",
+            "双方真的发生过争执", serious, setOf("user"), now)
+        assertTrue(CharacterInnerLifeStore.needsPostOnlineReflection("inside-test-a", now.plusSeconds(300)))
+        assertFalse(CharacterInnerLifeStore.needsPostOnlineReflection("inside-test-a", now.plusSeconds(1300)))
+        assertFalse(CharacterInnerLifeStore.needsPostOnlineReflection("inside-test-b", now.plusSeconds(300)))
+    }
+
     @Test fun unsaidInnerVoiceIsContinuousButDeletedWithSource() {
         start()
         CharacterInnerLifeStore.recordInnerVoice("inside-test-a", "event-true-1", "……好想多问一句")
