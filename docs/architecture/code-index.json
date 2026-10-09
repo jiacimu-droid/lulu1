@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T15:32:52.526200+00:00",
-  "commit": "a771c0b72b7cbf7a2067c754fabd463106e28f97",
+  "generatedAt": "2026-10-09T15:33:45.426248+00:00",
+  "commit": "b08b50c9e23e2e96856183688ceddd69df9ce42e",
   "branch": "main",
-  "sourceFingerprint": "2036e4e75718d25545072122ed1a17eb0f7f25c525d3446efe8ca213503127cc",
+  "sourceFingerprint": "999ec14b971117e0b1fa43cf3870b0eaf4937b83b09e3684580182a2076b32c3",
   "summary": {
     "files": 400,
-    "lines": 93776,
-    "symbols": 1344
+    "lines": 93806,
+    "symbols": 1347
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1382,28 +1382,46 @@
         "line": 889
       }
     ],
+    "PendingTouch": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
+        "line": 17
+      }
+    ],
+    "nextTouch": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
+        "line": 21
+      }
+    ],
+    "acknowledgeTouch": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
+        "line": 24
+      }
+    ],
     "entered": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-        "line": 19
+        "line": 31
       }
     ],
     "departed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-        "line": 26
+        "line": 44
       }
     ],
     "isPresent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-        "line": 35
+        "line": 61
       }
     ],
     "physicalAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-        "line": 38
+        "line": 64
       }
     ],
     "MeetingReplyTaskManager": [
@@ -8536,24 +8554,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
-      "lines": 103,
-      "sha256": "f859c77770add4abb584659741b0c0a079c86b73348e04453adaf56d3f8d9635",
+      "lines": 133,
+      "sha256": "d5157483dacbc378a643be822794da65e3cfb7c560cf4fb9460660699d5307e2",
       "symbols": [
         {
+          "name": "PendingTouch",
+          "line": 17
+        },
+        {
+          "name": "nextTouch",
+          "line": 21
+        },
+        {
+          "name": "acknowledgeTouch",
+          "line": 24
+        },
+        {
           "name": "entered",
-          "line": 19
+          "line": 31
         },
         {
           "name": "departed",
-          "line": 26
+          "line": 44
         },
         {
           "name": "isPresent",
-          "line": 35
+          "line": 61
         },
         {
           "name": "physicalAction",
-          "line": 38
+          "line": 64
         }
       ]
     },
