@@ -117,6 +117,8 @@ internal fun DigitalWorldGameScene(
     world: DigitalWorldState,
     onCharacterClick: (String) -> Unit,
     onWorldAction: ((String) -> Unit)? = null,
+    /** Triggered only by a committed in-scene physical action, not by a narrative prompt. */
+    onPhysicalInteraction: ((String, String) -> Unit)? = null,
     controlsBottomPadding: Dp = 18.dp,
     controlsEnabled: Boolean = true,
     showExplorationHud: Boolean = true,
@@ -705,6 +707,7 @@ internal fun DigitalWorldGameScene(
                                     }
                                 }
                                 stateStore.saveCompanionship(handHoldingId, requestedFollowers, suspendedFollowers)
+                                onPhysicalInteraction?.invoke(characterId, choice.movement.name)
                                 WorldFirstExplorationMemory.record(
                                     context = context, worldId = "digital-world", locationId = sceneCode,
                                     locationLabel = placeLabel, action = interactionMessage)

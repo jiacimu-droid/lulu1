@@ -293,6 +293,12 @@ fun DigitalWorldMeetingApp(
                 },
                 onSceneLongClick = { selectedSceneGroup = it },
                 onCharacterClick = ::openDirectMeeting,
+                onPhysicalInteraction = { characterId, action ->
+                    val fact = MeetingLivingWorldRuntime.physicalAction(activeSession, characterId, action)
+                    if (fact != null && !generating && failedExchange == null) {
+                        launchLivingMoment(activeSession, characterId, fact)
+                    }
+                },
                 onOpenHistory = { showHistory = true },
                 onOpenModelPicker = { showModelPicker = true },
                 onOpenWritingPicker = { showWritingPicker = true },

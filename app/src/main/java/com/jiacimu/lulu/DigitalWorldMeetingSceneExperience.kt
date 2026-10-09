@@ -63,6 +63,7 @@ internal fun DigitalWorldMeetingSceneExperience(
     onRetry: (() -> Unit)?,
     onSceneLongClick: (MeetingUiDisplayGroup) -> Unit,
     onCharacterClick: (String, String) -> Unit,
+    onPhysicalInteraction: (String, String) -> Unit,
     onOpenHistory: () -> Unit,
     onOpenModelPicker: () -> Unit,
     onOpenWritingPicker: () -> Unit,
@@ -167,6 +168,7 @@ internal fun DigitalWorldMeetingSceneExperience(
                     sceneModeName = MeetingSceneMode.Story.name
                     narrativeExpanded = true
                 },
+                onPhysicalInteraction = onPhysicalInteraction,
                 controlsBottomPadding = 94.dp,
                 controlsEnabled = exploring && !generating,
                 showExplorationHud = exploring,
