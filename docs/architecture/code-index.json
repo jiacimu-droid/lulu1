@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T08:10:06.966801+00:00",
-  "commit": "abf7cf096f639dc652e25802f57b8c58da9e7380",
+  "generatedAt": "2026-10-09T08:10:35.768580+00:00",
+  "commit": "eefe427c7f95978e85e62a4c5c6b5f9110147d0b",
   "branch": "main",
-  "sourceFingerprint": "e73e36fc606a03fed7a73428ae6b1361fbacd8765f840369c570f0839e7258fc",
+  "sourceFingerprint": "5d55612bbca59a9ca08356b31be7a91d7bffff7406a845de4cc7958216eaa8d9",
   "summary": {
-    "files": 376,
-    "lines": 90556,
-    "symbols": 1281
+    "files": 377,
+    "lines": 90608,
+    "symbols": 1283
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3442,6 +3442,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
         "line": 670
+      }
+    ],
+    "qualifies": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt",
+        "line": 20
+      }
+    ],
+    "onActualReply": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt",
+        "line": 23
       }
     ],
     "ImportantEventBridge": [
@@ -10272,6 +10284,21 @@
         {
           "name": "clearCharacter",
           "line": 734
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt",
+      "lines": 52,
+      "sha256": "761be75c1fcc0f66e1c511d08cf1f931168e035c7e154be2ccaaf691c0781006",
+      "symbols": [
+        {
+          "name": "qualifies",
+          "line": 20
+        },
+        {
+          "name": "onActualReply",
+          "line": 23
         }
       ]
     },
