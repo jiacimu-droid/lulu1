@@ -5,6 +5,23 @@ import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import android.view.MotionEvent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.Button
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.geometry.Offset
+import kotlin.math.hypot
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -34,40 +51,32 @@ import kotlin.math.sqrt
 @Composable
 internal fun DigitalWorld3DTrialRoom(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val surface = remember(context) {
-        val renderer = TrialRoomRenderer()
+    val walk = remember { TrialRoomWalkController() }
+    val renderer = remember { TrialRoomRenderer(walk) }
+    var joystickX by remember { mutableFloatStateOf(0f) }
+    var joystickY by remember { mutableFloatStateOf(0f) }
+    var inspection by remember { mutableStateOf("") }
+    LaunchedEffect(walk) {
+        while (true) {
+            if (kotlin.math.abs(joystickX) + kotlin.math.abs(joystickY) > .03f)
+                walk.move(joystickX, -joystickY, .016f)
+            delay(16L)
+        }
+    }
+    val surface = remember(context, renderer) {
         var lastX = 0f
         var lastY = 0f
-        var lastSpan = 0f
         GLSurfaceView(context).apply {
             setEGLContextClientVersion(2)
             setRenderer(renderer)
             renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
             setOnTouchListener { _, event ->
                 when (event.actionMasked) {
-                    MotionEvent.ACTION_DOWN -> {
-                        lastX = event.x; lastY = event.y; lastSpan = 0f
-                    }
-                    MotionEvent.ACTION_POINTER_DOWN -> {
-                        if (event.pointerCount >= 2) lastSpan = sqrt(
-                            (event.getX(0) - event.getX(1)) * (event.getX(0) - event.getX(1)) +
-                                (event.getY(0) - event.getY(1)) * (event.getY(0) - event.getY(1)))
-                    }
+                    MotionEvent.ACTION_DOWN -> { lastX = event.x; lastY = event.y }
                     MotionEvent.ACTION_MOVE -> {
-                        if (event.pointerCount >= 2) {
-                            val dx = event.getX(0) - event.getX(1)
-                            val dy = event.getY(0) - event.getY(1)
-                            val span = sqrt(dx * dx + dy * dy)
-                            if (lastSpan > 0) renderer.distance =
-                                (renderer.distance * lastSpan / span.coerceAtLeast(1f)).coerceIn(3.4f, 14f)
-                            lastSpan = span
-                        } else {
-                            renderer.yaw += (event.x - lastX) * .005f
-                            renderer.pitch = (renderer.pitch - (event.y - lastY) * .003f).coerceIn(.1f, 1.05f)
-                        }
+                        walk.look(event.x - lastX, event.y - lastY)
                         lastX = event.x; lastY = event.y
                     }
-                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> lastSpan = 0f
                 }
                 true
             }
@@ -86,16 +95,57 @@ internal fun DigitalWorld3DTrialRoom(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(3.dp),
         ) {
             Text("3D 体验间 · 原型", color = Color.White, fontSize = 14.sp)
-            Text("拖动旋转视角 · 双指缩放", color = Color(0xFFE1E5EE), fontSize = 11.sp)
-            Text("当前人物与家具为演示资产，尚未同步真实家园", color = Color(0xFFD7E1E8), fontSize = 10.sp)
+            Text("左侧滑杆移动 · 右侧拖动转身", color = Color(0xFFE1E5EE), fontSize = 11.sp)
+            Text("房间和人物均为演示资产，不改变角色的真实家园", color = Color(0xFFD7E1E8), fontSize = 10.sp)
+        }
+        Box(
+            Modifier.align(Alignment.BottomStart).padding(start = 22.dp, bottom = 34.dp)
+                .size(140.dp).background(Color(0x80506176), CircleShape)
+                .border(1.dp, Color(0xAAFFFFFF), CircleShape)
+                .pointerInput(Unit) {
+                    val radius = size.width / 2f
+                    fun setStick(position: Offset) {
+                        val dx = (position.x - radius) / radius
+                        val dy = (position.y - radius) / radius
+                        val scale = maxOf(1f, hypot(dx, dy))
+                        joystickX = dx / scale
+                        joystickY = dy / scale
+                    }
+                    detectDragGestures(
+                        onDragStart = { setStick(it) },
+                        onDragEnd = { joystickX = 0f; joystickY = 0f },
+                        onDragCancel = { joystickX = 0f; joystickY = 0f },
+                    ) { change, _ ->
+                        setStick(change.position)
+                        change.consume()
+                    }
+                },
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(
+                Modifier.offset { IntOffset((joystickX * 42.dp.toPx()).toInt(),
+                    (joystickY * 42.dp.toPx()).toInt()) }
+                    .size(52.dp).background(Color(0xFFCAD9EA), CircleShape)
+                    .border(2.dp, Color.White, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) { Text("●", color = Color(0xFF45607A)) }
+        }
+        Column(Modifier.align(Alignment.BottomEnd).padding(end = 17.dp, bottom = 38.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp),
+            horizontalAlignment = Alignment.End) {
+            if (inspection.isNotBlank())
+                Text(inspection, color = Color.White, fontSize = 12.sp,
+                    modifier = Modifier.widthIn(max = 224.dp)
+                        .background(Color(0xD8243040), RoundedCornerShape(12.dp)).padding(10.dp))
+            Button(onClick = { inspection = walk.inspect() }) { Text("查看 / 互动") }
+            TextButton(onClick = { walk.reset(); inspection = "" }) {
+                Text("回到入口", color = Color.White)
+            }
         }
     }
 }
 
-private class TrialRoomRenderer : GLSurfaceView.Renderer {
-    @Volatile var yaw = .30f
-    @Volatile var pitch = .32f
-    @Volatile var distance = 8f
+private class TrialRoomRenderer(private val walk: TrialRoomWalkController) : GLSurfaceView.Renderer {
     private val projection = FloatArray(16)
     private val view = FloatArray(16)
     private val model = FloatArray(16)
@@ -153,11 +203,12 @@ private class TrialRoomRenderer : GLSurfaceView.Renderer {
     override fun onDrawFrame(gl: GL10?) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
         GLES20.glUseProgram(program)
-        val y = yaw; val p = pitch; val d = distance
+        val yaw = walk.yaw
+        val pitch = walk.pitch
         Matrix.setLookAtM(view, 0,
-            (sin(y) * cos(p) * d).toFloat(), (1.0 + sin(p) * d).toFloat(),
-            (cos(y) * cos(p) * d).toFloat(),
-            0f, 1.2f, 0f, 0f, 1f, 0f)
+            walk.x, 1.66f, walk.z,
+            walk.x + sin(yaw), 1.66f + kotlin.math.tan(pitch.toDouble()).toFloat(),
+            walk.z - cos(yaw), 0f, 1f, 0f)
         Matrix.multiplyMM(vp, 0, projection, 0, view, 0)
         // Actual 3D solid room: floor, two back walls, a window and real furniture.
         box(0f, -.11f, 0f, 7.6f, .2f, 6.8f, .76f, .71f, .64f)
