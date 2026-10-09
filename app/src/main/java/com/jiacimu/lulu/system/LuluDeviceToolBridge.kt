@@ -94,6 +94,8 @@ object LuluDeviceToolBridge {
                     appendLine("角色上一刻状态：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
                 }
                 appendLine("这一刻用户新增的消息：$userText")
+                appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.prompt(characterId, now))
+                appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.challengeGuidance(userText))
             },
             instruction = """
                 你既可以直接回复，也可以调用露露机真实手机工具。只返回一个 JSON 对象，不要代码块。
