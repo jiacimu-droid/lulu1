@@ -59,6 +59,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                 var active = false
                 var silentFrames = 0
                 var loudFrames = 0
+                var utteranceFrames = 0
                 // Split uploads into continuous PCM chunks; a chunk boundary is NOT
                 // a silence or a conversational turn boundary.
                 val maxChunkBytes = 16000 * 2 * 12
@@ -82,7 +83,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                                 if (epoch == generation) onSegment(completed, true)
                             }
                         }
-                        active = false; silentFrames = 0; loudFrames = 0
+                        active = false; silentFrames = 0; loudFrames = 0; utteranceFrames = 0
                         buffer.reset(); preRoll.clear()
                         continue
                     }
@@ -92,11 +93,21 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                         loudFrames = if (rms >= threshold) loudFrames + 1 else 0
                         if (loudFrames < 2) continue
                         active = true
+                        utteranceFrames = 0
                         preRoll.forEach { buffer.write(it) }; preRoll.clear()
                         withContext(Dispatchers.Main) { if (epoch == generation) onSpeech() }
                     } else buffer.write(frame)
+                    utteranceFrames++
                     silentFrames = if (rms < threshold * 0.8) silentFrames + 1 else 0
-                    val finishedBySilence = silentFrames >= (endSilenceMs.coerceIn(500, 3200) + 99) / 100
+                    // Long natural speech includes pauses for breath. Give a
+                    // running monologue more time without slowing every
+                    // one-word reply by several seconds.
+                    val endpointMs = when {
+                        utteranceFrames >= 50 -> endSilenceMs.coerceIn(1700, 3500)
+                        utteranceFrames >= 20 -> endSilenceMs.coerceIn(1200, 3500)
+                        else -> endSilenceMs.coerceIn(850, 3500)
+                    }
+                    val finishedBySilence = silentFrames >= (endpointMs + 99) / 100
                     val chunkFull = buffer.size() >= maxChunkBytes
                     if (finishedBySilence || chunkFull) {
                         val segment = buffer.toByteArray()
@@ -105,6 +116,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                             active = false
                             loudFrames = 0
                             silentFrames = 0
+                            utteranceFrames = 0
                         }
                         // At max duration preserve VAD state; the next frame
                         // belongs to the same utterance, without a lost pre-roll.
