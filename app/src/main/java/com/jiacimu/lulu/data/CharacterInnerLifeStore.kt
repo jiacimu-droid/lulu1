@@ -236,7 +236,7 @@ object CharacterInnerLifeStore {
                     .put("hesitation", item.optString("hesitation").trim().take(120))
                     .put("evidenceId", evidenceId).put("at", now.toString())
             }
-            root.put("thoughts", JSONArray().apply { updated.takeLast(16).forEach(::put) })
+            root.put("thoughts", JSONArray().apply { updated.takeLast(16).forEach { put(it) } })
         }
         val motives = root.optJSONArray("motives") ?: JSONArray()
         val records = (0 until motives.length()).mapNotNull(motives::optJSONObject).toMutableList()
