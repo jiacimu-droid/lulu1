@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T07:49:09.865506+00:00",
-  "commit": "90caa3ad0672c18ab1f45cc16203fc862cce6a7c",
+  "generatedAt": "2026-10-09T07:49:57.843112+00:00",
+  "commit": "5acf57723de9b03f5958cfd2c6e61fcfbe9b1eb5",
   "branch": "main",
-  "sourceFingerprint": "af7047a9e6250b15339898a0742d115dfb64867876b589d99c3fbd92f0295159",
+  "sourceFingerprint": "e8b06fc2c1e44e4ec9535747c5631613015f89d35be77ce0247cbf81a62938e2",
   "summary": {
-    "files": 373,
-    "lines": 90311,
-    "symbols": 1276
+    "files": 374,
+    "lines": 90397,
+    "symbols": 1277
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -944,6 +944,20 @@
         "line": 33
       }
     ],
+    "enabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt",
+        "line": 24
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt",
+        "line": 14
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
+        "line": 47
+      }
+    ],
     "shutdown": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
@@ -1574,16 +1588,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
         "line": 79
-      }
-    ],
-    "enabled": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt",
-        "line": 14
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
-        "line": 47
       }
     ],
     "automaticAllowed": [
@@ -7754,6 +7758,17 @@
         {
           "name": "minimize",
           "line": 33
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt",
+      "lines": 86,
+      "sha256": "167ee2873abcdae1b7f168cb035b831403d9a6fb6dd5d2f5ac9a1976b1b862f1",
+      "symbols": [
+        {
+          "name": "enabled",
+          "line": 24
         }
       ]
     },
