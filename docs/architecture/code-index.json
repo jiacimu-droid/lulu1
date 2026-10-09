@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:09:11.420115+00:00",
-  "commit": "b96382639466974d17994f0d645ea0a44f03c8a1",
+  "generatedAt": "2026-10-09T13:10:15.206529+00:00",
+  "commit": "3b070708698248dda1faa7bdb0ccb7988dc32b0d",
   "branch": "main",
-  "sourceFingerprint": "f9d6bdeec50640fe545bf0ff9f91bf5723f415bd200aad5e5e4ada37376754a3",
+  "sourceFingerprint": "1d004b9b9ad33f4e2cf1f815cc0ac3bd8874163b411a8ac32fe82fe2b00aaaa8",
   "summary": {
     "files": 388,
-    "lines": 92575,
-    "symbols": 1314
+    "lines": 92595,
+    "symbols": 1313
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -173,7 +173,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt",
-        "line": 10
+        "line": 15
       }
     ],
     "prompt": [
@@ -4548,11 +4548,31 @@
         "line": 16
       }
     ],
-    "clear": [
+    "ProactiveIncomingCall": [
       {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt",
-        "line": 25
-      },
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
+        "line": 10
+      }
+    ],
+    "ProactiveIncomingCallStore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
+        "line": 22
+      }
+    ],
+    "offer": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
+        "line": 38
+      }
+    ],
+    "activeFor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
+        "line": 59
+      }
+    ],
+    "clear": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
         "line": 68
@@ -4584,30 +4604,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt",
         "line": 16
-      }
-    ],
-    "ProactiveIncomingCall": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 10
-      }
-    ],
-    "ProactiveIncomingCallStore": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 22
-      }
-    ],
-    "offer": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 38
-      }
-    ],
-    "activeFor": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 59
       }
     ],
     "ProactiveMessageAutomation": [
@@ -11592,16 +11588,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt",
-      "lines": 31,
-      "sha256": "2a65f9773ffcea3ad11faa92ea98009750ace7b85518459654b6e414ef92ca1e",
+      "lines": 51,
+      "sha256": "dc185590cacbc3175547ad3a58a29ee557ec5027bf42b51bc52b62a5af43f569",
       "symbols": [
         {
           "name": "claim",
-          "line": 10
-        },
-        {
-          "name": "clear",
-          "line": 25
+          "line": 15
         }
       ]
     },
