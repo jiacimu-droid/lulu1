@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T11:52:34.557813+00:00",
-  "commit": "6d8598881d9e8b856e1620f2cc279bbe9733cd15",
+  "generatedAt": "2026-10-09T12:52:24.860266+00:00",
+  "commit": "3d0f61f5f50ce538036dbe5300334fcea4adeb4c",
   "branch": "main",
-  "sourceFingerprint": "ab1649fc9b5ea5b22ac9d01c90ef0e73fb7bd13bf27fbb30606c7d35ea7a06d4",
+  "sourceFingerprint": "56a3c6d5450902cd1b1932e0770b3416f8c08bd21cfc1d5698fe6223a69abbd0",
   "summary": {
     "files": 383,
     "lines": 92260,
@@ -8712,7 +8712,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
       "lines": 73,
-      "sha256": "764f4a9dd0a9ce8ce30c3dec2a490190fd3a4f943ff2637775ce067b45d275c5",
+      "sha256": "9c8f4c29ed0122ae2739e14f2957f801a5359b517dd51822dacf78ee03b5d2ef",
       "symbols": [
         {
           "name": "move",
