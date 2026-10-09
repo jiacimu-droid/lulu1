@@ -1,14 +1,14 @@
 # Lulu1 代码索引
 
-- 基准提交：`fd30a5c59bdad77c3de8c61fcfaa0a9f7343d914`
+- 基准提交：`3e0439bc111ce2cbaec5c01a91fca605bc9e5fa4`
 - 分支：`main`
 - 已索引文件：395
-- 已索引代码/文本行：92863
+- 已索引代码/文本行：92864
 - 已发现符号：1324
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
-| `app/build.gradle.kts` | 134 | 0 |
+| `app/build.gradle.kts` | 135 | 0 |
 | `app/src/main/AndroidManifest.xml` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt` | 45 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
