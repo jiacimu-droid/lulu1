@@ -132,7 +132,9 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.observe("inside-test-a", "argument-1",
             "双方真的发生过争执", serious, setOf("user"), now)
         assertTrue(CharacterInnerLifeStore.needsPostOnlineReflection("inside-test-a", now.plusSeconds(300)))
-        assertFalse(CharacterInnerLifeStore.needsPostOnlineReflection("inside-test-a", now.plusSeconds(1300)))
+        assertTrue(CharacterInnerLifeStore.needsPostOnlineReflection("inside-test-a", now.plusSeconds(1300)))
+        assertTrue(CharacterInnerLifeStore.needsPostOnlineReflection("inside-test-a", now.plusSeconds(3600)))
+        assertFalse(CharacterInnerLifeStore.needsPostOnlineReflection("inside-test-a", now.plusSeconds(3660)))
         assertFalse(CharacterInnerLifeStore.needsPostOnlineReflection("inside-test-b", now.plusSeconds(300)))
     }
 
