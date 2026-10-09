@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T07:51:42.682450+00:00",
-  "commit": "cc6ff6cf77352abef7c5f176b7c9ab1843d74548",
+  "generatedAt": "2026-10-09T07:52:12.352734+00:00",
+  "commit": "adc014ca02e3d4ce03aff87d1b1cc09479fb6070",
   "branch": "main",
-  "sourceFingerprint": "ccafbd3e6dca9c371c0ca3968833f5fafb9763601ea03b1d0b493c06816248e7",
+  "sourceFingerprint": "a796d7a95f918d30ea9d6a9a3b422c8df1894b35cb83823976de1d141f46259d",
   "summary": {
-    "files": 374,
-    "lines": 90430,
-    "symbols": 1277
+    "files": 375,
+    "lines": 90461,
+    "symbols": 1278
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6954,6 +6954,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
         "line": 12
+      }
+    ],
+    "CharacterAccountabilityContextTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
+        "line": 5
       }
     ],
     "CharacterDefinitionTest": [
@@ -14404,6 +14410,17 @@
         {
           "name": "tick",
           "line": 46
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
+      "lines": 31,
+      "sha256": "8c44d78170558615eb2a7f14c2ea9a4ee8c0b682c31d1887a4d05c5db263b6cd",
+      "symbols": [
+        {
+          "name": "CharacterAccountabilityContextTest",
+          "line": 5
         }
       ]
     },
