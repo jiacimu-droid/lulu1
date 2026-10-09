@@ -627,7 +627,10 @@ internal object LuluVoiceCallSession {
                 mutableState.update { it.copy(thinking = false, generatedTranscript = VoicePerformance.plain(text),
                     statusMessage = if (it.speaking) "${latest.characterName} 正在说话" else "回复正在准备发声") }
                 enqueueSpoken(remaining)
-                if (!mutableState.value.speaking) {
+                // During a new call's opening, do not reopen the microphone while
+                // the first sentence is still synthesizing. Speaking becomes true
+                // only when real PCM is audible, not when TTS request begins.
+                if (speechQueue?.hasPendingAudio != true) {
                     mutableState.update { it.copy(opening = false) }
                     scheduleListening(220)
                 }

@@ -36,6 +36,8 @@ internal class LuluCallSpeechQueue(
     private var active = false
     private var generation = 0L
     private var activeRequest: Request? = null
+    /** Includes synthesis waiting for first audio, not just audible playback. */
+    val hasPendingAudio: Boolean get() = active || pending.isNotEmpty()
 
     init { ChatAutoVoicePlayback.initialize(appContext) }
 
