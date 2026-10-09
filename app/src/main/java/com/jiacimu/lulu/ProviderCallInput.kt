@@ -22,6 +22,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
     @Volatile private var capturingVoice = false
     private var segments: Channel<ByteArray>? = null
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun start() {
         stop()
         val epoch = generation
@@ -62,10 +63,14 @@ internal class ProviderCallInput(private val context: Context, private val scope
             }
         }
         microphone.start(
-            accept, onReady, onLevel,
+            accept = { epoch == generation && accept() },
+            onReady = { if (epoch == generation) onReady() },
+            onLevel = { value -> if (epoch == generation) onLevel(value) },
             onSpeech = {
-                capturingVoice = true
-                onSpeech()
+                if (epoch == generation) {
+                    capturingVoice = true
+                    onSpeech()
+                }
             },
             onSegment = { bytes ->
                 capturingVoice = false
@@ -75,7 +80,12 @@ internal class ProviderCallInput(private val context: Context, private val scope
                         onError("说话太快，语音识别队列已满；请稍候再说")
                 }
             },
-            onError = onError,
+            onError = { message ->
+                if (epoch == generation) {
+                    capturingVoice = false
+                    onError(message)
+                }
+            },
             threshold = prefs.getFloat("voice_vad_threshold", 350f),
             endSilenceMs = prefs.getInt("voice_end_silence_ms", 650),
         )
@@ -143,7 +153,8 @@ internal class ProviderCallInput(private val context: Context, private val scope
             requestMethod = "POST"; doOutput = true; connectTimeout = 15000; readTimeout = 30000
             setRequestProperty("Authorization", "Bearer ${p.getString("minimax_api_key", "")}")
             setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
-            setRequestProperty("language", "zh")
+            // No fixed language header: MiniMax can then recognize mixed
+            // Mandarin/English/Japanese utterances within one conversation.
         }
         http = connection
         try {
