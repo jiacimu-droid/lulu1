@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T16:51:53.104813+00:00",
-  "commit": "796eff59f5fda54adbbf32c696b16700e74aad81",
+  "generatedAt": "2026-10-09T17:33:41.044235+00:00",
+  "commit": "c77bae6a47f005c5dbc195c6e3da31e14f23773e",
   "branch": "main",
-  "sourceFingerprint": "971843a92be98ff2beca48bda918a35a9e687905773778206a4e848da7e3951e",
+  "sourceFingerprint": "9cac2e885d81bc3b4f51e1d00fb11cd22503aaa8cd47801befacf1f1110f8f1c",
   "summary": {
-    "files": 411,
-    "lines": 94387,
-    "symbols": 1360
+    "files": 416,
+    "lines": 94430,
+    "symbols": 1364
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -361,7 +361,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 989
+        "line": 987
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -1395,7 +1395,7 @@
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 889
+        "line": 890
       }
     ],
     "PendingTouch": [
@@ -1634,6 +1634,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt",
         "line": 5
+      }
+    ],
+    "status": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
+        "line": 7
       }
     ],
     "connect": [
@@ -2067,19 +2073,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 836
+        "line": 834
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 848
+        "line": 846
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 979
+        "line": 977
       }
     ],
     "consume": [
@@ -2519,7 +2525,7 @@
     "promptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 10
+        "line": 9
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
@@ -2527,7 +2533,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt",
-        "line": 8
+        "line": 10
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
@@ -7310,6 +7316,12 @@
         "line": 12
       }
     ],
+    "PhoneCallTranscriptFilterTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/PhoneCallTranscriptFilterTest.kt",
+        "line": 7
+      }
+    ],
     "PhoneMicSegmentPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt",
@@ -7326,6 +7338,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/PhoneTranscriptAssemblerTest.kt",
         "line": 5
+      }
+    ],
+    "PresencePresentationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/PresencePresentationTest.kt",
+        "line": 6
       }
     ],
     "QqMessageGroupingTest": [
@@ -7398,6 +7416,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt",
         "line": 16
+      }
+    ],
+    "CharacterExpressionGuideTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
+        "line": 13
       }
     ],
     "CharacterInnerLifeStoreTest": [
@@ -7832,8 +7856,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt",
-      "lines": 422,
-      "sha256": "b86efe0e89133ef5bebae8426638089edf588646ed93a2156a6b6b50d242a055",
+      "lines": 410,
+      "sha256": "efffb4092d3e33bec92f1132b115a0d010c0728c6f18ff2dc5e32349bab43def",
       "symbols": []
     },
     {
@@ -7999,8 +8023,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 185,
-      "sha256": "54b304ded7c6bf0667ea0c3f33d2514675ccfd8efe962147015e76f3a5de9d34",
+      "lines": 179,
+      "sha256": "6af82a6f0a5c6a736fcbecb46d43bf6a02dbaf7188844a3779412499e0e001d3",
       "symbols": []
     },
     {
@@ -8334,8 +8358,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
-      "lines": 131,
-      "sha256": "3989ee70e0f91baf0ef5ca8cf47f251dbce423937fe9be91051346e64bf682bf",
+      "lines": 123,
+      "sha256": "4ffda1004876aebedf367a8e6ffbaafc7a21be514beeef581116f3ec58df1756",
       "symbols": [
         {
           "name": "show",
@@ -8567,8 +8591,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
-      "lines": 484,
-      "sha256": "ac241ef70f971c8f9cb80dd2629da73debf3998af903228afad49b221d172e5f",
+      "lines": 443,
+      "sha256": "d0450d7cdcac0a1db6a3a015233cb6258bff4813da7b920b1e6e04144796f3ec",
       "symbols": [
         {
           "name": "LuluVoiceCallScreen",
@@ -8578,8 +8602,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 975,
-      "sha256": "1e0010403b8601afc0e4149fd275c7a1af030c1bf59c45d674802375c03ba460",
+      "lines": 976,
+      "sha256": "81f737580e05877dc7e0e99766f0fafc80a87ec0916ff43a0ffc51be385b7730",
       "symbols": [
         {
           "name": "prepare",
@@ -8635,7 +8659,7 @@
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 889
+          "line": 890
         }
       ]
     },
@@ -8941,6 +8965,12 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt",
+      "lines": 19,
+      "sha256": "d52874b023fb40557b6620eaad3465366ad9257fb81a1469f2001a7d86ab0b9c",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
       "lines": 22,
       "sha256": "4d8defa5adef4db616f9d19e98d2fedcdfaa35d92d2bb911bfac3f9d3acaa518",
@@ -8990,6 +9020,17 @@
         {
           "name": "combine",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
+      "lines": 19,
+      "sha256": "f370c24145b5f6a171d86f90e952ce4f919d4808c3a51b4de6c74ef2c882c62b",
+      "symbols": [
+        {
+          "name": "status",
+          "line": 7
         }
       ]
     },
@@ -9348,8 +9389,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 997,
-      "sha256": "564ca0a580017ca0faadf1429b7ca209393aefa4365fdfaadcb72f7436e5fc42",
+      "lines": 995,
+      "sha256": "be5cd5f9404bac32a6bd983e5db9aa5ee839de9f7f93d6202e6d94b7dd0ad4fa",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -9437,19 +9478,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 836
+          "line": 834
         },
         {
           "name": "consumeEvent",
-          "line": 848
+          "line": 846
         },
         {
           "name": "LuluAiServices",
-          "line": 979
+          "line": 977
         },
         {
           "name": "initialize",
-          "line": 989
+          "line": 987
         }
       ]
     },
@@ -9773,12 +9814,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-      "lines": 22,
-      "sha256": "852467f5777c903633365e38e36729f7259d62428f8e837b5ed7e5d543d18713",
+      "lines": 20,
+      "sha256": "464dbaac77e8ef2268ae23eab6648335e00f3a9a8f1145df7eab78009f8f9278",
       "symbols": [
         {
           "name": "promptSection",
-          "line": 10
+          "line": 9
         }
       ]
     },
@@ -9877,7 +9918,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
       "lines": 35,
-      "sha256": "68fe5f9a3f24d4875ac5490b7ef9f3f9d1ba2e856213304917eab5fa0a1289f5",
+      "sha256": "83df6cf1bcabe101fe2002211f56facaa0dd3a7cc36ea07bb5c29b4781fe0ed7",
       "symbols": []
     },
     {
@@ -9963,12 +10004,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt",
-      "lines": 49,
-      "sha256": "9f330d2cb93133466ba42490bb8bb5b7aaf31b77cd54e2a599820a2812eb7551",
+      "lines": 31,
+      "sha256": "e553fe10585efcc9924dcfee88efe47d939235ff38a3c08a0849c56f71a0022c",
       "symbols": [
         {
           "name": "promptSection",
-          "line": 8
+          "line": 10
         }
       ]
     },
@@ -10334,8 +10375,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-      "lines": 183,
-      "sha256": "7fd8186d176195d24d513d450962f714b0e0eda2237451e518edc82808a471a6",
+      "lines": 184,
+      "sha256": "7d14a4bd93eae3f1936a65a53bd654cf9cc4e83dc0db248b0c4c71830f8eb33b",
       "symbols": [
         {
           "name": "CommitmentTurnAutomation",
@@ -10447,7 +10488,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
       "lines": 317,
-      "sha256": "7b79cc09976b1faa66dc867b41d1c660e29465d677f446ed65cc848038dd675f",
+      "sha256": "8b1fd8e4a27f134f12105c6b76349c990e5fe92433c75752b58506287da5d1a9",
       "symbols": [
         {
           "name": "CompanionPresenceState",
@@ -12090,7 +12131,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 43,
-      "sha256": "5fbd9582fa99d6f75514cc6f9ed428dd087a941df12eb2a34647bdf26d16b7eb",
+      "sha256": "5f82468c7e5f6315211073d58a27faed5a9220c6c9394c3c76b199a9cc81c102",
       "symbols": []
     },
     {
@@ -12453,8 +12494,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt",
-      "lines": 15,
-      "sha256": "dc0c7a933f1ea48fb6c10db98a2a6fa177818b6926f8ff6e7121b79da23c6b79",
+      "lines": 16,
+      "sha256": "9ac89c8dcfe82b4d9200fd7206361f5af1033f62c65a1af5a40625c8e37295c7",
       "symbols": []
     },
     {
@@ -15065,8 +15106,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 530,
-      "sha256": "2a4caf507e00a65ec201f2139e47017c3f3fdeb57c670ae40b1f003845a6f802",
+      "lines": 524,
+      "sha256": "fc6826af60dc5a8a9000b8fa1e34e90a4357022b26a1936f4b769b82e3466e5d",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -15261,6 +15302,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/PhoneCallTranscriptFilterTest.kt",
+      "lines": 30,
+      "sha256": "306e2383ef9245711d3483d039fdcbc69634a41fef1da859eebcaefd0790ffe6",
+      "symbols": [
+        {
+          "name": "PhoneCallTranscriptFilterTest",
+          "line": 7
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt",
       "lines": 22,
       "sha256": "af42e5a3fdd9d5080f2df557ff8bf2e09451a31ad29b37a9f2e201066fc97181",
@@ -15290,6 +15342,17 @@
         {
           "name": "PhoneTranscriptAssemblerTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/PresencePresentationTest.kt",
+      "lines": 24,
+      "sha256": "eec1f32383bf1be924cd814484b721d355ba09bc4ef60f5e47fc42893ddef0c8",
+      "symbols": [
+        {
+          "name": "PresencePresentationTest",
+          "line": 6
         }
       ]
     },
@@ -15419,6 +15482,17 @@
         {
           "name": "CharacterDefinitionTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
+      "lines": 43,
+      "sha256": "6f1d14578713c893cdbcb3a0894716e93d86ba31e721021ba0f0ef37867d1a2a",
+      "symbols": [
+        {
+          "name": "CharacterExpressionGuideTest",
+          "line": 13
         }
       ]
     },
