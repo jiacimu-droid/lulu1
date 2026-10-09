@@ -172,22 +172,25 @@ internal class ProviderCallInput(private val context: Context, private val scope
                 throw IllegalStateException("HTTP $code（请检查语音识别权限、余额及接口区域）")
             }
             if (connection.contentType.orEmpty().contains("text/event-stream")) {
-                val text = StringBuilder()
+                val transcript = MiniMaxAsrStreamAccumulator()
                 var finished = false
                 connection.inputStream.bufferedReader().use { reader ->
                     while (!finished) {
                         val line = reader.readLine() ?: break
                         if (!line.startsWith("data:")) continue
                         val raw = line.removePrefix("data:").trim()
-                        if (raw == "[DONE]") break
+                        if (raw == "[DONE]") { finished = true; break }
+                        if (raw.isBlank()) continue
                         val event = JSONObject(raw)
-                        text.append(event.optString("delta"))
-                        withContext(Dispatchers.Main) { onIncremental(text.toString()) }
-                        finished = event.optBoolean("finish")
+                        val latestText = transcript.accept(event)
+                        if (latestText.isNotBlank()) withContext(Dispatchers.Main) {
+                            onIncremental(latestText)
+                        }
+                        finished = event.optBoolean("finish") || event.optBoolean("is_final")
                     }
                 }
                 check(finished) { "识别流中断，请重新说一次" }
-                text.toString().trim()
+                transcript.value.trim()
             } else JSONObject(connection.inputStream.bufferedReader().use { it.readText() }).optString("text").trim()
         } finally { connection.disconnect(); if (http === connection) http = null }
     }
