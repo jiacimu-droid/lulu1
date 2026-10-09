@@ -19,6 +19,9 @@ class PerceptionStimulusLedgerTest {
         PerceptionStimulusLedger.clear(role)
         assertTrue(PerceptionStimulusLedger.claim(context, role, stimulus))
         assertFalse(PerceptionStimulusLedger.claim(context, role, stimulus))
+        // The same message moves from "unread" to "awaiting reply", not a new stimulus.
+        assertFalse(PerceptionStimulusLedger.claim(context, role,
+            PerceptionStimulus("original-msg-1", "还没答复这条消息", setOf("user"))))
         PerceptionStimulusLedger.invalidate("original-msg-1")
         assertTrue(PerceptionStimulusLedger.claim(context, role, stimulus))
         PerceptionStimulusLedger.clear(role)
