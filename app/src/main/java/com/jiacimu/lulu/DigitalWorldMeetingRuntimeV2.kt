@@ -285,6 +285,18 @@ internal suspend fun meetingRunLivingMomentV2(
         directorGuidance = if (spontaneous) "角色自主决定是否行动或主动开口；允许 sequence=[]，不用制造事件来填补安静。"
             else "这是已发生且已落库的场景事实。你知道它发生了，有权依自己的人格和当时的关系表达、回应或暂时不说话。",
     ).getOrThrow()
+    // The user may have left while the remote model was responding.
+    // Never narrate an in-person reply or mutate their ongoing posture after
+    // the room is no longer observed by the actual player.
+    if (!MeetingLivingWorldRuntime.isPresent(sessionId)) {
+        MeetingExperienceStore.completeExchange(
+            exchangeId = exchangeId,
+            turnIds = emptyList(),
+            afterScene = MeetingExperienceStore.sceneFor(session),
+            directorPlan = "主人已离场，本次候选主动交流未实际发生",
+        )
+        return
+    }
     // No model-created 'user' reply may enter the timeline.
     val segments = reply.segments.filter { it.text.isNotBlank() }
     val now = Instant.now()
