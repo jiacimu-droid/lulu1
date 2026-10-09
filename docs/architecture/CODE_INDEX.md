@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c3dcab3c3ad9e2dc17a46b717f06801dc3de0f73`
+- 基准提交：`d957583cbb0b4aee5ccd7e2fcb9ba190414ede09`
 - 分支：`main`
 - 已索引文件：389
-- 已索引代码/文本行：92649
+- 已索引代码/文本行：92658
 - 已发现符号：1314
 
 | 文件 | 行数 | 符号数 |
@@ -89,7 +89,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 283 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 190 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 210 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 219 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 232 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 34 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 87 | 0 |
