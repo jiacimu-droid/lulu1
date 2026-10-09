@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:47:53.102791+00:00",
-  "commit": "9b40cc4018313c0fb2504b75dff60f06918279e5",
+  "generatedAt": "2026-10-09T13:50:11.797834+00:00",
+  "commit": "77f2b3e384c75be5c8e90c947f7c8bab5d2faead",
   "branch": "main",
-  "sourceFingerprint": "b25bfd9057201028190bf8618d05497a24b0a2f76c18815518f1381a05bfd4a3",
+  "sourceFingerprint": "f81851960e43af3c10f941744cecc141635084f2038fcb3c2f960c2b68547b91",
   "summary": {
     "files": 395,
-    "lines": 92907,
+    "lines": 92925,
     "symbols": 1326
   },
   "symbolIndex": {
@@ -33,7 +33,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 28
+        "line": 29
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -77,7 +77,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 246
+        "line": 262
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
@@ -1511,23 +1511,23 @@
     "pauseCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 119
+        "line": 124
       }
     ],
     "resumeCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 126
+        "line": 137
       }
     ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 160
+        "line": 176
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 202
+        "line": 218
       }
     ],
     "payload": [
@@ -8696,32 +8696,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 260,
-      "sha256": "44045f0d809618e135e6b638a0311f62d3fdcde82f78db1609437442f91ca84d",
+      "lines": 278,
+      "sha256": "1c1c23c633472a6579972c9c48a76a8ab59493c9edcce6860c198b8bdf00c89b",
       "symbols": [
         {
           "name": "start",
-          "line": 28
+          "line": 29
         },
         {
           "name": "pauseCapture",
-          "line": 119
+          "line": 124
         },
         {
           "name": "resumeCapture",
-          "line": 126
+          "line": 137
         },
         {
           "name": "field",
-          "line": 160
+          "line": 176
         },
         {
           "name": "field",
-          "line": 202
+          "line": 218
         },
         {
           "name": "stop",
-          "line": 246
+          "line": 262
         }
       ]
     },
