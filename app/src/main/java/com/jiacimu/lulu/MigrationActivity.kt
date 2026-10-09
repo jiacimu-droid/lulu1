@@ -104,7 +104,7 @@ class MigrationActivity : ComponentActivity() {
         }
 
         RoleReadablePerformanceBridge.initialize()
-        ChatTurnConsistencyAutomation.initialize()
+        ChatTurnConsistencyAutomation.initialize(appContext)
         DeterministicMemoryAutomation.initialize(appContext)
         ChatMemoryAutomation.initialize(appContext)
         MemorySourceIntegrityRuntime.initialize()
