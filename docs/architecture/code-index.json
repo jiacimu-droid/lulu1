@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T14:40:04.125945+00:00",
-  "commit": "263888c84aca6e530aa2164804714ba1c05e3fa0",
+  "generatedAt": "2026-10-09T14:40:57.883095+00:00",
+  "commit": "8091ae6273c9677dfcaec1d2afed913ad3241fe1",
   "branch": "main",
-  "sourceFingerprint": "315cb70f68725c95f0eb8f95a2c20ae92b8180e806d50f2ff855004a62b26a58",
+  "sourceFingerprint": "a8a4a727fb36f49f6982493f30fcc06a5fa9cf70e1f45a70483b6f3b0c8c0d65",
   "summary": {
     "files": 397,
-    "lines": 93228,
+    "lines": 93233,
     "symbols": 1331
   },
   "symbolIndex": {
@@ -8112,8 +8112,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
-      "lines": 126,
-      "sha256": "67f189241d30d5eff55cd936f4fdce16d152eb21bdcf5898363a07fb628b6fe3",
+      "lines": 131,
+      "sha256": "3989ee70e0f91baf0ef5ca8cf47f251dbce423937fe9be91051346e64bf682bf",
       "symbols": [
         {
           "name": "show",
