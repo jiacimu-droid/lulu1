@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T11:02:39.533857+00:00",
-  "commit": "900390925933db3e74fc44e8f8fdfb65cf54d695",
+  "generatedAt": "2026-10-09T11:03:18.592258+00:00",
+  "commit": "c170ebcaedafc300acfdedd894bc78c387226dc3",
   "branch": "main",
-  "sourceFingerprint": "beb02282e934d708e810b1b95af650fe99f24c1fffdb8d6de38263d9e41e0980",
+  "sourceFingerprint": "2ebe5d075080eedad7fe1b98aad697b82e707b52ba381f6ba83e6527ac01711b",
   "summary": {
     "files": 380,
-    "lines": 91764,
+    "lines": 91796,
     "symbols": 1297
   },
   "symbolIndex": {
@@ -7470,8 +7470,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt",
-      "lines": 355,
-      "sha256": "cc9eb5f89587aeda2ac88c4dafb2a30ede5fb7a7d3bcfc4e365fe42e2261dc9f",
+      "lines": 387,
+      "sha256": "13bc1804c90036cad95c791239909c4b7721313c1d5cf010241ce0b847cce1a3",
       "symbols": []
     },
     {
