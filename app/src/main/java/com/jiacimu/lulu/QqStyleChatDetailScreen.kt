@@ -398,7 +398,14 @@ fun QqStyleChatDetailScreen(
                                         color = Color.Black, fontSize = 14.sp, maxLines = 1)
                                 }
                                 Text(
-                                    if (groupChat == null) "${if (privateOnline) "在线" else "离线"} · $activeLabel"
+                                    if (groupChat == null) {
+                                        val onlineUntil = onlineStates[characterId]?.onlineUntil
+                                        val untilText = if (privateOnline && onlineUntil != null) {
+                                            java.time.format.DateTimeFormatter.ofPattern("HH:mm")
+                                                .withZone(java.time.ZoneId.systemDefault()).format(onlineUntil)
+                                        } else ""
+                                        "${if (privateOnline) "在线至 $untilText" else "离线"} · $activeLabel"
+                                    }
                                     else "$onlineMemberCount 人在线",
                                     fontSize = 10.sp,
                                     color = if ((groupChat == null && privateOnline) || (groupChat != null && onlineMemberCount > 0)) Color(0xFF2A9D63) else QqMuted,
