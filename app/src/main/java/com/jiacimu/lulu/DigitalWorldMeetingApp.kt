@@ -250,6 +250,24 @@ fun DigitalWorldMeetingApp(
         if (!resumed) MeetingExperienceStore.discardExchange(record.id)
     }
 
+    // Physical touch must survive a concurrently running character reply.
+    LaunchedEffect(observedSession?.id, input.isNotBlank()) {
+        val id = observedSession?.id ?: return@LaunchedEffect
+        while (MeetingLivingWorldRuntime.isPresent(id)) {
+            val touch = MeetingLivingWorldRuntime.nextTouch(id)
+            val current = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == id }
+            if (current == null || current.endedAt != null) break
+            if (touch != null && input.isBlank() &&
+                !MeetingReplyTaskManager.state(id).running &&
+                MeetingExperienceStore.pendingForSession(id).isEmpty()) {
+                if (launchLivingMoment(current, touch.characterId, touch.fact)) {
+                    MeetingLivingWorldRuntime.acknowledgeTouch(id, touch.id)
+                }
+            }
+            kotlinx.coroutines.delay(if (touch == null) 1_700L else 850L)
+        }
+    }
+
     // Autonomous awareness is a *chance* to take initiative; the model can
     // elect silence. No forced replies, no invented user's lines, no endless
     // rapid callbacks. Pauses while the user is composing their own message.
@@ -350,10 +368,8 @@ fun DigitalWorldMeetingApp(
                 onSceneLongClick = { selectedSceneGroup = it },
                 onCharacterClick = ::openDirectMeeting,
                 onPhysicalInteraction = { characterId, action ->
-                    val fact = MeetingLivingWorldRuntime.physicalAction(activeSession, characterId, action)
-                    if (fact != null && !generating && failedExchange == null) {
-                        launchLivingMoment(activeSession, characterId, fact)
-                    }
+                    // The world commits the action before the next model call.
+                    MeetingLivingWorldRuntime.physicalAction(activeSession, characterId, action)
                 },
                 onOpenHistory = { showHistory = true },
                 onOpenModelPicker = { showModelPicker = true },
