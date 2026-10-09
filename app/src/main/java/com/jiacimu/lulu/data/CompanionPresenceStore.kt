@@ -152,7 +152,7 @@ object CompanionPresenceStore {
             updatedAt = now,
             source = source.take(40),
             lastPerceptionAt = if (source.contains("感知")) now else previous?.lastPerceptionAt,
-            lastPerceptionNote = if (source.contains("感知")) "感知成功，已形成新的此刻状态" else previous?.lastPerceptionNote.orEmpty(),
+            lastPerceptionNote = if (source.contains("感知")) "最近已更新" else previous?.lastPerceptionNote.orEmpty(),
             provenanceId = provenanceId,
         )
         if (next.statusText.isBlank() && next.gesture.isBlank() && next.innerThought.isBlank() && next.mood.isBlank()) {

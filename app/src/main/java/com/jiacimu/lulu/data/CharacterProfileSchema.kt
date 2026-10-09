@@ -5,13 +5,13 @@ internal data class CharacterProfileField(val key: String, val label: String, va
 internal object CharacterProfileSchema {
     val fields = listOf(
         CharacterProfileField("values", "价值与底线", "长期坚持的原则与不可逾越的底线（可留空）", "内在底色"),
-        CharacterProfileField("motives", "长期方向", "初始追求与倾向；实际正在牵挂的事请看上方动态记录", "内在底色"),
+        CharacterProfileField("motives", "长期价值取向", "角色初始的长期倾向，不填写当前打算与具体待办；实际目标在动态动机里随经历更新", "内在底色"),
         CharacterProfileField("perception", "判断方式", "面对新信息的关注点和推理习惯", "思考与应对"),
         CharacterProfileField("conflict", "分歧与修复", "遇到误会、拒绝或失败时的惯常处理方式", "思考与应对"),
-        CharacterProfileField("care", "表达关心", "如何表达关心与亲近；不在此重复底线规则", "相处与表达"),
+        CharacterProfileField("care", "亲近方式", "习惯怎样亲近与照顾关系；不要重复价值底线或当前感受", "相处与表达"),
         CharacterProfileField("respect", "相处边界", "需要尊重的意愿、边界与不能接受的行为", "相处与表达"),
         CharacterProfileField("social", "不同场合的表现", "不同人和情境下的行为差异", "相处与表达"),
-        CharacterProfileField("expression", "语言与情绪表达", "语气、节奏、幽默感与表达习惯", "相处与表达"),
+        CharacterProfileField("expression", "表达风格底色", "角色原本的语感、幽默与情绪表达范围；相处中学会的口头习惯另有成长记录", "相处与表达"),
         CharacterProfileField("speechHabits", "语言小癖好", "只写这个角色独有的惯用表达和变化条件；可写打字节奏、语气词、标点偏好、倒装、谐音与梗、注意力跑偏、开心或难过时的表达反差。初识时留空，允许以后从真实对话中学会，不要凑口头禅。", "相处与表达"),
         CharacterProfileField("interests", "初始兴趣（可选）", "不填写也可从实际经历中逐渐形成新的兴趣", "其他设定"),
         CharacterProfileField("typing", "人格类型参考（可选）", "可填人格类型，不强制角色按类型模板行事", "其他设定"),

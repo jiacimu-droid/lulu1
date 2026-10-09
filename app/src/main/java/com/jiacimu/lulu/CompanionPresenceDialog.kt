@@ -72,7 +72,7 @@ internal fun CompanionPresenceDialog(
                             modifier = Modifier.padding(end = 42.dp),
                             verticalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
-                            Text("INNER MOMENT", color = Color(0xFF7A7A7E), fontSize = 9.sp, letterSpacing = 1.5.sp)
+                            
                             Text("$characterName · 此刻", color = Color(0xFF1D1D1F), fontWeight = FontWeight.Bold, fontSize = 23.sp)
                             if (messageAnchor != null) {
                                 Text("这条消息发出时的此刻", color = Color(0xFF7A7A7E), fontSize = 11.sp)
@@ -111,7 +111,7 @@ internal fun CompanionPresenceDialog(
                                     Text(item.updatedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")), color = Color(0xFF7A7A7E), fontSize = 11.sp)
                                     if (item.innerThought.isNotBlank()) Text("心声 · ${item.innerThought}", color = Color(0xFF1D1D1F), fontSize = 14.sp)
                                     if (item.gesture.isNotBlank()) Text("动作 · ${item.gesture}", color = Color(0xFF5F5F63), fontSize = 13.sp)
-                                    val status = listOf(item.mood, item.statusText).filter(String::isNotBlank).distinct().joinToString(" · ")
+                                    val status = PresencePresentation.status(item)
                                     if (status.isNotBlank()) Text(status, color = Color(0xFF7A7A7E), fontSize = 12.sp)
                                 }
                             }
@@ -151,7 +151,7 @@ private fun PresenceStateContent(state: CompanionPresenceState) {
     if (state.statusText.isNotBlank() || state.gesture.isNotBlank() || state.innerThought.isNotBlank() || state.mood.isNotBlank()) {
         PresenceDialogSection("此刻动作", state.gesture.ifBlank { "此刻没有留下明确的动作或神态。" })
         if (state.innerThought.isNotBlank()) PresenceDialogSection("心声", state.innerThought)
-        val status = listOf(state.mood, state.statusText).filter(String::isNotBlank).distinct().joinToString(" · ")
+        val status = PresencePresentation.status(state)
         if (status.isNotBlank()) PresenceDialogSection("状态", status)
         Text(
             state.updatedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
@@ -159,13 +159,7 @@ private fun PresenceStateContent(state: CompanionPresenceState) {
             fontSize = 11.sp,
         )
     }
-    state.lastPerceptionAt?.let { perceivedAt ->
-        val line = buildString {
-            append(perceivedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")))
-            state.lastPerceptionNote.takeIf(String::isNotBlank)?.let { append(" · ").append(it) }
-        }
-        PresenceDialogSection("感知线路", line)
-    }
+    // Keep technical perception timestamps out of the character's inner voice.
 }
 
 @Composable
