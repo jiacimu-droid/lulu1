@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T09:40:38.723370+00:00",
-  "commit": "cfdf4795358acde1e1ec34968c578c29db218957",
+  "generatedAt": "2026-10-09T10:02:42.325665+00:00",
+  "commit": "60c36e6cb645aed061ee89ca7725708dde92b7f2",
   "branch": "main",
-  "sourceFingerprint": "f535076517dd48b7a57c1284efff68e49ae2bbdb50a129d27f2033321294abe0",
+  "sourceFingerprint": "6e1cc02689dde64c2458369242e7dbd30d1904c23aac08f4404c11f522ed69f3",
   "summary": {
     "files": 378,
-    "lines": 91155,
-    "symbols": 1289
+    "lines": 91161,
+    "symbols": 1290
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1578,28 +1578,34 @@
         "line": 13
       }
     ],
+    "phoneNeedsWholeTurn": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
+        "line": 26
+      }
+    ],
     "forPlayback": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-        "line": 19
+        "line": 27
       }
     ],
     "phoneInstruction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-        "line": 34
+        "line": 39
       }
     ],
     "meetingSegment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-        "line": 40
+        "line": 46
       }
     ],
     "slice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-        "line": 79
+        "line": 85
       }
     ],
     "automaticAllowed": [
@@ -8603,8 +8609,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-      "lines": 103,
-      "sha256": "58a84afb5fa3f2dc625a46555d4d928d906cad5c6208a466a9b634edfeb3af9d",
+      "lines": 109,
+      "sha256": "79bbc6f427e817e41d9b1dd5aba41ee602712c30a150eadbb6ae858662e85777",
       "symbols": [
         {
           "name": "plain",
@@ -8615,20 +8621,24 @@
           "line": 13
         },
         {
+          "name": "phoneNeedsWholeTurn",
+          "line": 26
+        },
+        {
           "name": "forPlayback",
-          "line": 19
+          "line": 27
         },
         {
           "name": "phoneInstruction",
-          "line": 34
+          "line": 39
         },
         {
           "name": "meetingSegment",
-          "line": 40
+          "line": 46
         },
         {
           "name": "slice",
-          "line": 79
+          "line": 85
         }
       ]
     },
