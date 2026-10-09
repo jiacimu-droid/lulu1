@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T11:27:18.412331+00:00",
-  "commit": "95fdb80924239c441eb29c0c4b4aa2d0a8065c93",
+  "generatedAt": "2026-10-09T11:28:26.913055+00:00",
+  "commit": "db83728ea1e0e1794d33f843af0f2a40ce384998",
   "branch": "main",
-  "sourceFingerprint": "89232ac08b8355628a991448cc4cf6c13e7d9a5d4b4eb19dac9350d02f731544",
+  "sourceFingerprint": "2d470d13efb44478418cda02f02b0b02d18da8e2d20aa692cb0ab2beb0dbe7dc",
   "summary": {
     "files": 382,
-    "lines": 92037,
-    "symbols": 1299
+    "lines": 92080,
+    "symbols": 1300
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7185,7 +7185,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
-        "line": 55
+        "line": 98
       }
     ],
     "UserMessageFavoritesTest": [
@@ -7204,6 +7204,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
         "line": 17
+      }
+    ],
+    "learn": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
+        "line": 47
       }
     ],
     "StarWishTheaterStoryExportTest": [
@@ -14868,16 +14874,20 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
-      "lines": 104,
-      "sha256": "51924da9a6491dd9e300f2b6255eca78a09486edad4e57d2d4cac6d8be262662",
+      "lines": 147,
+      "sha256": "711ac7c309a805a801447985ab015eb0dfbd23ad558ba42841dcfb62f1a82f33",
       "symbols": [
         {
           "name": "ReadingGrowthTheaterTest",
           "line": 17
         },
         {
+          "name": "learn",
+          "line": 47
+        },
+        {
           "name": "propose",
-          "line": 55
+          "line": 98
         }
       ]
     },
