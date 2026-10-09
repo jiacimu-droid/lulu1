@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T11:46:02.413508+00:00",
-  "commit": "347c71b434d499a2c690d1694bc3543148e88199",
+  "generatedAt": "2026-10-09T11:46:49.071490+00:00",
+  "commit": "4d87f06ce24724946bb0e4c2049b01f45761ca01",
   "branch": "main",
-  "sourceFingerprint": "6ab267456698b5c6d2fbf36efdea33109ad8887b2be1b07f3dd095a205514291",
+  "sourceFingerprint": "c9a4078bceaee5678ce2a886e44f863f905b27f53292a0a3178b8f09d2b91b25",
   "summary": {
-    "files": 382,
-    "lines": 92200,
-    "symbols": 1302
+    "files": 383,
+    "lines": 92273,
+    "symbols": 1307
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1044,6 +1044,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
         "line": 83
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
+        "line": 40
       }
     ],
     "refreshLocation": [
@@ -1554,27 +1558,29 @@
         "line": 31
       }
     ],
-    "play": [
+    "move": [
       {
-        "path": "app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt",
-        "line": 44
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 635
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt",
-        "line": 27
+        "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
+        "line": 32
       }
     ],
-    "finished": [
+    "look": [
       {
-        "path": "app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt",
-        "line": 49
+        "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
+        "line": 50
+      }
+    ],
+    "inspect": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
+        "line": 55
       }
     ],
     "reset": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
+        "line": 68
+      },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt",
         "line": 9
@@ -1594,6 +1600,26 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
         "line": 467
+      }
+    ],
+    "play": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt",
+        "line": 44
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
+        "line": 635
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt",
+        "line": 27
+      }
+    ],
+    "finished": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt",
+        "line": 49
       }
     ],
     "generated": [
@@ -8672,6 +8698,33 @@
       "lines": 24,
       "sha256": "8162acd077a55fd347b353df908d56f62e696e40857eebf5d7db3a2c867108a7",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
+      "lines": 73,
+      "sha256": "764f4a9dd0a9ce8ce30c3dec2a490190fd3a4f943ff2637775ce067b45d275c5",
+      "symbols": [
+        {
+          "name": "move",
+          "line": 32
+        },
+        {
+          "name": "open",
+          "line": 40
+        },
+        {
+          "name": "look",
+          "line": 50
+        },
+        {
+          "name": "inspect",
+          "line": 55
+        },
+        {
+          "name": "reset",
+          "line": 68
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt",

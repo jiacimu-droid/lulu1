@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`347c71b434d499a2c690d1694bc3543148e88199`
+- 基准提交：`4d87f06ce24724946bb0e4c2049b01f45761ca01`
 - 分支：`main`
-- 已索引文件：382
-- 已索引代码/文本行：92200
-- 已发现符号：1302
+- 已索引文件：383
+- 已索引代码/文本行：92273
+- 已发现符号：1307
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -102,6 +102,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 155 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StatefulCharacterPortrait.kt` | 24 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt` | 73 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt` | 144 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt` | 29 | 5 |
