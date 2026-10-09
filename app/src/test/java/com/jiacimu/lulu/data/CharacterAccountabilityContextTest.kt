@@ -32,6 +32,15 @@ class CharacterAccountabilityContextTest {
         assertEquals(fair, CharacterAccountabilityContext.guardUnfairBlame("你没叫我起床", fair))
     }
 
+    @Test fun languageQuirksHaveTheirOwnPerRolePersonaSlotNotGlobalWorldbook() {
+        val field = CharacterProfileSchema.fields.single { it.key == "speechHabits" }
+        assertEquals("语言小癖好", field.label)
+        assertEquals("相处与表达", field.group)
+        assertTrue(field.hint.contains("倒装"))
+        assertTrue(field.hint.contains("标点"))
+        assertFalse(CharacterProfileSchema.jiangDu.containsKey("speechHabits"))
+    }
+
     @Test fun expressionGuidePreservesIndependenceWithoutUnjustifiedCondescension() {
         val guide = CharacterExpressionGuide.promptSection()
         assertTrue(guide.contains("独立人格不是居高临下"))
