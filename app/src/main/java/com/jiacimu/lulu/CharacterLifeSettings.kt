@@ -58,26 +58,33 @@ internal fun CharacterLifeSettings(characterId: String) {
     val root = remember(states, characterId) { CharacterLifeStore.state(characterId) }
     var editing by remember { mutableStateOf<String?>(null) }
     var draft by remember { mutableStateOf("") }
-    var preset by remember { mutableStateOf(false) }
-    val name = MigratedDomainStores.characters.get(characterId).displayName
+    var showFixedDefinition by remember(characterId) { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("人格与行为", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-        Text("原有角色设定是基础。这里只补充你确定的部分；经历、当前心情与后来形成的习惯由角色运行记录。", style = MaterialTheme.typography.bodySmall)
-        Text("此刻", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        Text("此刻 · 实时变化", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
         presence?.let { moment ->
             if (moment.mood.isNotBlank()) Text(moment.mood, style = MaterialTheme.typography.bodyMedium)
             Text(moment.innerThought.ifBlank { "这一刻没有留下心声" }, style = MaterialTheme.typography.bodyMedium)
             if (moment.statusText.isNotBlank()) Text(moment.statusText, style = MaterialTheme.typography.bodySmall)
         } ?: Text("还没有留下这一刻的想法", style = MaterialTheme.typography.bodySmall)
-        if (interests.isNotEmpty()) {
-            Text("经历中形成的兴趣", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            interests.forEach { Text(it.content, style = MaterialTheme.typography.bodyMedium) }
+        val learned = remember(characterId, growthRevision, states) {
+            com.jiacimu.lulu.data.CharacterDevelopmentStore.active(characterId)
+        }
+        if (learned.isNotEmpty()) {
+            Text("经历中形成 · ${learned.size}项", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            learned.takeLast(10).forEach { learnedItem ->
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text("${learnedItem.kind.label} · ${learnedItem.content}",
+                        style = MaterialTheme.typography.bodyMedium)
+                    Text("第${learnedItem.version}次变化 · ${learnedItem.evidence.size}条经历依据",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                }
+            }
         }
         HorizontalDivider()
-        Text("约定与真实执行", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-        Text("想起这件事、写进日记都不算完成。只有这里显示了已安排的闹钟，才说明程序真正保存了定时动作。", style = MaterialTheme.typography.bodySmall)
+        Text("约定 · 实际执行", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
         if (activeCommitments.isEmpty()) {
-            Text("目前没有已登记、待履行的承诺。若角色刚答应了定时叫醒而这里仍为空，说明还没有真正安排成功。", style = MaterialTheme.typography.bodySmall)
+            Text("暂无待履行约定", style = MaterialTheme.typography.bodySmall)
         }
         activeCommitments.take(8).forEach { task ->
             val timeLabel = task.dueAt?.let {
@@ -96,9 +103,6 @@ internal fun CharacterLifeSettings(characterId: String) {
                 Text("$stateText${if (timeLabel.isNotBlank()) " · $timeLabel" else ""}", style = MaterialTheme.typography.bodySmall)
                 if (task.lastActionResult.isNotBlank()) {
                     Text("实际进展：${task.lastActionResult}", style = MaterialTheme.typography.bodySmall)
-                }
-                if (task.linkedAlarmId != null) {
-                    Text("闹钟记录：${task.linkedAlarmId.take(8)}（不代表用户已被叫醒）", style = MaterialTheme.typography.bodySmall)
                 }
                 TextButton(onClick = { CommitmentTaskStore.cancel(task.id, "用户在角色设置里取消了这次约定") }) {
                     Text("取消此约定")
@@ -129,11 +133,10 @@ internal fun CharacterLifeSettings(characterId: String) {
             }) { Text("开启叫醒通知权限") }
         }
         HorizontalDivider()
-        Text("内在生活 · 正在牵挂的几件事", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-        Text("角色可以同时在意多件事、暂停或调整，行动结果来自实际工具回执；它们不是系统强制待办。", style = MaterialTheme.typography.bodySmall)
+        Text("正在牵挂", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
         val motives = innerRoot.optJSONArray("motives")
         if (motives == null || motives.length() == 0) {
-            Text("还没有从真实经历中形成多个具体愿望", style = MaterialTheme.typography.bodySmall)
+            Text("暂时没有明确的长期打算", style = MaterialTheme.typography.bodySmall)
         } else {
             for (i in 0 until motives.length()) {
                 val goal = motives.optJSONObject(i) ?: continue
@@ -157,8 +160,7 @@ internal fun CharacterLifeSettings(characterId: String) {
         }
         val choices = innerRoot.optJSONArray("decisions")
         if (choices != null && choices.length() > 0) {
-            Text("最近的想法与抉择", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            Text("这里只记录角色真正选择过什么、为何暂时没选其他事，以及执行器反馈。未选不等于做过。", style = MaterialTheme.typography.bodySmall)
+            Text("最近的选择", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             for (i in choices.length() - 1 downTo maxOf(0, choices.length() - 8)) {
                 val decision = choices.optJSONObject(i) ?: continue
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -214,7 +216,6 @@ internal fun CharacterLifeSettings(characterId: String) {
                 val thought = innerVoices.optJSONObject(i) ?: continue
                 Text(thought.optString("thought"), style = MaterialTheme.typography.bodySmall)
             }
-            Text("只是角色当时的主观心声，不表示相关行动已经发生。", style = MaterialTheme.typography.bodySmall)
         }
         val bonds = innerRoot.optJSONObject("bonds")
         if (bonds != null && bonds.length() > 0) {
@@ -243,9 +244,22 @@ internal fun CharacterLifeSettings(characterId: String) {
         if (userRemark.isNotBlank()) TextButton(onClick = { CharacterLifeStore.setSocialName(characterId, "userRemark", "") }) { Text("清除这条备注") }
         Text("自己的聊天网名：" + selfNickname.ifBlank { "沿用角色原名" }, style = MaterialTheme.typography.bodyMedium)
         if (selfNickname.isNotBlank()) TextButton(onClick = { CharacterLifeStore.setSocialName(characterId, "selfNickname", "") }) { Text("恢复原网名") }
-        Text("这两项可由角色真实主动修改；聊天网名不会覆盖原始角色身份。", style = MaterialTheme.typography.bodySmall)
         HorizontalDivider()
-        if (name in setOf("江渡", "江都")) OutlinedButton(onClick = { preset = true }) { Text("填入江渡设定") }
+        Row(
+            modifier = Modifier.fillMaxWidth().clickable { showFixedDefinition = !showFixedDefinition }
+                .padding(vertical = 6.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text("长期人格设定", style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold)
+            Text(if (showFixedDefinition) "收起" else "查看与编辑",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary)
+        }
+        if (showFixedDefinition) {
+            Text("这里保存角色的长期价值观与性格边界，由你编辑；下面的经历不会自动改写它。",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
         CharacterProfileSchema.fields.groupBy { it.group }.forEach { (group, fields) ->
             Text(group, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             fields.forEach { field ->
@@ -259,19 +273,8 @@ internal fun CharacterLifeSettings(characterId: String) {
                 HorizontalDivider()
             }
         }
-        root.optJSONObject("intention")?.let { intention ->
-            Text("正在在意的事", fontWeight = FontWeight.Bold)
-            Text(intention.optString("aim")); Text(intention.optString("motive"))
-            intention.optString("changeReason").takeIf(String::isNotBlank)?.let {
-                Text("最近的变化 · $it", style = MaterialTheme.typography.bodySmall)
-            }
-            val outcomes = intention.optJSONArray("outcomes")
-            if (outcomes != null) for (i in maxOf(0, outcomes.length() - 3) until outcomes.length()) {
-                val outcome = outcomes.getJSONObject(i)
-                Text("${if (outcome.optBoolean("success")) "已执行" else "未完成"} · ${outcome.optString("summary")}")
-            }
-            TextButton(onClick = { CharacterLifeStore.stopIntention(characterId) }) { Text("结束这件事") }
-        }
+        } // showFixedDefinition
+
     }
     editing?.let { key ->
         val field = CharacterProfileSchema.fields.first { it.key == key }
@@ -280,10 +283,5 @@ internal fun CharacterLifeSettings(characterId: String) {
             confirmButton = { TextButton({ CharacterLifeStore.setProfile(characterId, key, draft); editing = null }) { Text("保存") } },
             dismissButton = { TextButton({ editing = null }) { Text("取消") } })
     }
-    if (preset) AlertDialog(onDismissRequest = { preset = false }, title = { Text("填入江渡设定") },
-        text = { Text("应用江渡的数字生命身份、先有恋人关系再形成感情的起点及完整性格。已有设定先备份；本版本只应用一次，之后的编辑会保留。") },
-        confirmButton = { TextButton({
-            CharacterLifeStore.applyJiangDuPreset(characterId)
-            preset = false
-        }) { Text("填入") } }, dismissButton = { TextButton({ preset = false }) { Text("取消") } })
+
 }
