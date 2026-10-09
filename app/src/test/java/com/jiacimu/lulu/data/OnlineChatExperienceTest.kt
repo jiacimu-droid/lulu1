@@ -197,6 +197,10 @@ class OnlineChatExperienceTest {
         val isolatedA = CharacterSpeechIdentity.promptSection(roleA.characterId, includeObserved = false)
         assertTrue(isolatedA.contains("紧张时用……拖长停顿"))
         assertFalse(isolatedA.contains("我、我先说一个事情"))
+        val groupStyle = CharacterSpeechIdentity.promptSection(roleA.characterId,
+            includeObserved = true, includePersonalSamples = false)
+        assertTrue(groupStyle.contains("紧张时用……拖长停顿"))
+        assertFalse(groupStyle.contains("我、我先说一个事情"))
     }
 
     @Test fun actualActivityRefreshesFiveMinutesWithoutStackingTime() {
