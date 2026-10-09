@@ -65,26 +65,6 @@ internal fun CharacterLifeSettings(characterId: String) {
     var showInnerDetails by remember(characterId) { mutableStateOf(false) }
     var showAllGrowth by remember(characterId) { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        val personalSpeech = root.optJSONObject("profile")?.optString("speechHabits").orEmpty()
-        Row(
-            Modifier.fillMaxWidth().clickable {
-                editing = "speechHabits"
-                draft = personalSpeech
-            }.padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text("语言小癖好", style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold)
-                Text(personalSpeech.ifBlank { "还没有设定 · 可以慢慢养成" },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2, overflow = TextOverflow.Ellipsis)
-            }
-            Text("编辑", style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary)
-        }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically) {
             Text("角色近况", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
@@ -103,56 +83,27 @@ internal fun CharacterLifeSettings(characterId: String) {
         ) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 presence?.let { moment ->
-                    if (moment.mood.isNotBlank()) Text(moment.mood, fontWeight = FontWeight.Medium)
-                    if (moment.innerThought.isNotBlank()) Text(moment.innerThought)
-                    if (moment.statusText.isNotBlank()) Text(moment.statusText,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    if (moment.mood.isBlank() && moment.innerThought.isBlank() && moment.statusText.isBlank())
+                    // One glance: thought is subjective; mood/status summarize
+                    // an ongoing condition; only gesture shows visible motion.
+                    if (moment.innerThought.isNotBlank()) Text(moment.innerThought,
+                        style = MaterialTheme.typography.bodyMedium)
+                    val status = PresencePresentation.status(moment)
+                    if (status.isNotBlank()) Text(status, fontWeight = FontWeight.Medium,
+                        style = MaterialTheme.typography.bodySmall)
+                    if (moment.gesture.isNotBlank() && status != moment.gesture.trim()) {
+                        Text(moment.gesture, style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    if (status.isBlank() && moment.innerThought.isBlank() && moment.gesture.isBlank())
                         Text("暂无近况", style = MaterialTheme.typography.bodySmall)
                 } ?: Text("暂无近况", style = MaterialTheme.typography.bodySmall)
-            }
-        }
-        val subjectiveEmotion = innerRoot.optJSONObject("emotion")
-        subjectiveEmotion?.takeIf { it.optString("feeling").isNotBlank() }?.let { feeling ->
-            Text("当前感受", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            Text(feeling.optString("feeling"), style = MaterialTheme.typography.bodyMedium)
-            feeling.optString("cause").takeIf(String::isNotBlank)?.let { cause ->
-                Text(cause, style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
-        val thoughtLedger = innerRoot.optJSONArray("thoughts")
-        val latestThoughts = (0 until (thoughtLedger?.length() ?: 0))
-            .mapNotNull { thoughtLedger?.optJSONObject(it) }
-            .filter { item ->
-                runCatching { java.time.Instant.parse(item.optString("at")) }.getOrNull()
-                    ?.let { at -> !at.isAfter(java.time.Instant.now()) &&
-                        java.time.Duration.between(at, java.time.Instant.now()) <= java.time.Duration.ofHours(24) } == true
-            }.takeLast(4)
-        if (latestThoughts.isNotEmpty()) {
-            Text("心里同时浮现的念头", style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold)
-            latestThoughts.forEach { item ->
-                Column(Modifier.fillMaxWidth().padding(vertical = 3.dp),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(item.optString("thought"), style = MaterialTheme.typography.bodyMedium)
-                    item.optString("impulse").takeIf(String::isNotBlank)?.let {
-                        Text("想做：$it", style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    item.optString("hesitation").takeIf(String::isNotBlank)?.let {
-                        Text("顾虑：$it", style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
             }
         }
         val learned = remember(characterId, growthRevision, states) {
             com.jiacimu.lulu.data.CharacterDevelopmentStore.active(characterId)
         }
         if (learned.isNotEmpty()) {
-            Text("经历留下的变化 · ${learned.size}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text("相处中的成长 · ${learned.size}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             (if (showAllGrowth) learned.takeLast(10) else learned.takeLast(3)).forEach { learnedItem ->
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text("${learnedItem.kind.label} · ${learnedItem.content}",
@@ -279,6 +230,43 @@ internal fun CharacterLifeSettings(characterId: String) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         if (showInnerDetails) {
+        // Emotional state and raw thought ledger are details of the SAME
+        // living personality, not a second competing "current status" panel.
+        val subjectiveEmotion = innerRoot.optJSONObject("emotion")
+        subjectiveEmotion?.takeIf { it.optString("feeling").isNotBlank() }?.let { feeling ->
+            Text("当前感受", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(feeling.optString("feeling"), style = MaterialTheme.typography.bodyMedium)
+            feeling.optString("cause").takeIf(String::isNotBlank)?.let { cause ->
+                Text(cause, style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        val thoughtLedger = innerRoot.optJSONArray("thoughts")
+        val latestThoughts = (0 until (thoughtLedger?.length() ?: 0))
+            .mapNotNull { thoughtLedger?.optJSONObject(it) }
+            .filter { item ->
+                runCatching { java.time.Instant.parse(item.optString("at")) }.getOrNull()
+                    ?.let { at -> !at.isAfter(java.time.Instant.now()) &&
+                        java.time.Duration.between(at, java.time.Instant.now()) <= java.time.Duration.ofHours(24) } == true
+            }.takeLast(4)
+        if (latestThoughts.isNotEmpty()) {
+            Text("心里同时浮现的念头", style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold)
+            latestThoughts.forEach { item ->
+                Column(Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(item.optString("thought"), style = MaterialTheme.typography.bodyMedium)
+                    item.optString("impulse").takeIf(String::isNotBlank)?.let {
+                        Text("想做：$it", style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    item.optString("hesitation").takeIf(String::isNotBlank)?.let {
+                        Text("顾虑：$it", style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+        }
         val choices = innerRoot.optJSONArray("decisions")
         if (choices != null && choices.length() > 0) {
             TextButton(onClick = { showPastChoices = !showPastChoices }) {
@@ -356,7 +344,7 @@ internal fun CharacterLifeSettings(characterId: String) {
                 .padding(vertical = 6.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text("人格底色 · 手动设定", style = MaterialTheme.typography.titleSmall,
+            Text("基础人格 · 手动设定", style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold)
             Text(if (showFixedDefinition) "收起" else "展开编辑",
                 style = MaterialTheme.typography.bodySmall,
@@ -365,7 +353,7 @@ internal fun CharacterLifeSettings(characterId: String) {
         if (showFixedDefinition) {
         CharacterProfileSchema.fields.groupBy { it.group }.forEach { (group, fields) ->
             Text(group, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            fields.filterNot { it.key == "speechHabits" }.forEach { field ->
+            fields.forEach { field ->
                 val value = root.optJSONObject("profile")?.optString(field.key).orEmpty()
                 Column(Modifier.fillMaxWidth().clickable { editing = field.key; draft = value }.padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     Text(field.label, fontWeight = FontWeight.Medium)
