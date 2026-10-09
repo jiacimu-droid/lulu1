@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T13:01:39.388875+00:00",
-  "commit": "1cb36d1737384049445b01cd4bd320c0c06a8525",
+  "generatedAt": "2026-10-09T13:01:55.244767+00:00",
+  "commit": "eb9badc704bb443bc6ec9555964592ac72dd3327",
   "branch": "main",
-  "sourceFingerprint": "9f7fbe2a5faa4b09c632fdeb3c5189c263da4e642f776326c1fcd6d1e396f001",
+  "sourceFingerprint": "54f2767c4502d1f142a39be7f4dbb2c14e0b06a178045bc8c7d3a9be4f858ba7",
   "summary": {
-    "files": 384,
-    "lines": 92391,
-    "symbols": 1308
+    "files": 385,
+    "lines": 92428,
+    "symbols": 1309
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1408,6 +1408,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
         "line": 43
+      }
+    ],
+    "accept": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt",
+        "line": 9
       }
     ],
     "Loading": [
@@ -8430,6 +8436,17 @@
         {
           "name": "MigrationEmptyScreen",
           "line": 43
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt",
+      "lines": 37,
+      "sha256": "2afe67b0e81e3b7d2c05958e9a863139c4af3f86337ee280ccc80eb4b84ee381",
+      "symbols": [
+        {
+          "name": "accept",
+          "line": 9
         }
       ]
     },
