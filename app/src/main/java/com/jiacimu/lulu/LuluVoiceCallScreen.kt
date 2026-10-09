@@ -184,6 +184,8 @@ fun LuluVoiceCallScreen(
                     }
                 }
                 if (state.connected && state.sleepMode) {
+                    Text("今晚更想听 · 可自然穿插其他引导",
+                        fontSize = 11.sp, color = CallMuted)
                     Row(
                         modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
