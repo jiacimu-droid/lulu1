@@ -537,6 +537,21 @@ fun QqStyleChatDetailScreen(
                             },
                             onSendOnly = { payload -> appendDraft(payload) },
                             onWakeOrReply = { payload -> wakeOnline(payload) },
+                            onSendSticker = { sticker ->
+                                val installed = StickerLibraryStore.byId(context, sticker.id)
+                                if (installed == null) false else {
+                                    MigratedDomainStores.chat.sendUserMessage(
+                                        conversationId,
+                                        encodeQqChatImage(
+                                            installed.uri,
+                                            imageDescription = installed.name,
+                                            sticker = true,
+                                        ),
+                                    )
+                                    if (activeArchive != null) wakeOnline()
+                                    true
+                                }
+                            },
                             onStop = ::stopReceiving,
                         )
                     }
