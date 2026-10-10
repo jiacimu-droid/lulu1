@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T14:49:32.007948+00:00",
-  "commit": "885a8cf4d7e7c14e50fb9100ef45e2933935e023",
+  "generatedAt": "2026-10-10T14:58:39.484914+00:00",
+  "commit": "dd7ca8eaf2284502acb874d6931ddfc93650b534",
   "branch": "main",
-  "sourceFingerprint": "92989285bff83cb910e2de2eeb348bd7e5943e946db989f875a79f4eb81f4f8f",
+  "sourceFingerprint": "0a0685d3c33fa149a8c1568863a562bd32b6623f060a559150520bbce28ad9d5",
   "summary": {
     "files": 455,
-    "lines": 100440,
+    "lines": 100445,
     "symbols": 1472
   },
   "symbolIndex": {
@@ -8039,7 +8039,7 @@
     "DialogueMoveEngineTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt",
-        "line": 6
+        "line": 12
       }
     ],
     "DigitalWorldEnvironmentTest": [
@@ -16293,7 +16293,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt",
       "lines": 179,
-      "sha256": "ed808daa941c66474137d2308438ae50cf5dfc1bd9d098b9cba162d9f981899b",
+      "sha256": "c1ef6cde88cbf3286a352e44eeb7a6d5a5bca4298fc67c0283026415e0f1b738",
       "symbols": [
         {
           "name": "CallContractsTest",
@@ -16802,12 +16802,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt",
-      "lines": 49,
-      "sha256": "c4a3b45c727d3dcc09730f6ec1d9598d27974fa71bd9dcda49ffb5d6ceafb26d",
+      "lines": 54,
+      "sha256": "782d2cb7a9b865b49c1ed3c6789d9ebb747f9816ef4417f35653d9d3405efb7f",
       "symbols": [
         {
           "name": "DialogueMoveEngineTest",
-          "line": 6
+          "line": 12
         }
       ]
     },
