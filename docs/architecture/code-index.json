@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T16:23:06.495785+00:00",
-  "commit": "91c7262efed2ff4047154118277a29b609cd99d4",
+  "generatedAt": "2026-10-10T16:24:35.422519+00:00",
+  "commit": "ada03ecbefaed06bc7e9f8e0ff199e874b5ab236",
   "branch": "main",
-  "sourceFingerprint": "278c6838126f39dd7810c217f4cee74008fb5219220742456937cb998b7796e3",
+  "sourceFingerprint": "5fc0bf752144818563c067c7437f0d8d91817b730667decc9d8795e10e52c6dc",
   "summary": {
     "files": 463,
-    "lines": 101242,
+    "lines": 101254,
     "symbols": 1483
   },
   "symbolIndex": {
@@ -2829,7 +2829,7 @@
     "get": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 45
+        "line": 47
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -2867,13 +2867,13 @@
     "set": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 76
+        "line": 78
       }
     ],
     "delete": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 88
+        "line": 90
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -7935,7 +7935,7 @@
     "AutonomousActionTraceTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
-        "line": 8
+        "line": 14
       }
     ],
     "AutonomousAffordanceContextTest": [
@@ -7947,7 +7947,7 @@
     "AutonomousDecisionRecoveryTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt",
-        "line": 6
+        "line": 12
       }
     ],
     "AutonomyCallAndReceiptTest": [
@@ -10696,8 +10696,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-      "lines": 98,
-      "sha256": "13f722a11681e6940af55d0db373b7aa5e0b2b5991ea1ae15c406a58907dd374",
+      "lines": 100,
+      "sha256": "06f9822cf6eec27755b99844343f65c9f919872b36b3675c621774f3a75a8645",
       "symbols": [
         {
           "name": "CharacterIdentityStore",
@@ -10709,15 +10709,15 @@
         },
         {
           "name": "get",
-          "line": 45
+          "line": 47
         },
         {
           "name": "set",
-          "line": 76
+          "line": 78
         },
         {
           "name": "delete",
-          "line": 88
+          "line": 90
         }
       ]
     },
@@ -16700,12 +16700,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
-      "lines": 39,
-      "sha256": "8f6bf7c61f360fc6c6fc8a782702552d41ab5b6159bb99ed185fe84a6379938f",
+      "lines": 44,
+      "sha256": "09b0cea86003238d014271babae15905f01b7cc8303ad037fed8b376552e1f85",
       "symbols": [
         {
           "name": "AutonomousActionTraceTest",
-          "line": 8
+          "line": 14
         }
       ]
     },
@@ -16722,12 +16722,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt",
-      "lines": 54,
-      "sha256": "502c31cea558be4d49309c9c2f33d96d354358e859608cb276d142ebec4393b3",
+      "lines": 59,
+      "sha256": "e7b47d2781b7adda1074275dffc70f469a5ee3fca4a5883104ace517822019fa",
       "symbols": [
         {
           "name": "AutonomousDecisionRecoveryTest",
-          "line": 6
+          "line": 12
         }
       ]
     },
