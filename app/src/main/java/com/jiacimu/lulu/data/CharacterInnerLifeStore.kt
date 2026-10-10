@@ -109,7 +109,7 @@ object CharacterInnerLifeStore {
                 }
                 root.put("emotionHistory", retained)
             }
-            listOf("motives", "corrections", "voice", "innerVoices", "thoughts", "causalTransitions", "groundingEvents").forEach { key ->
+            listOf("motives", "corrections", "voice", "innerVoices", "thoughts", "causalTransitions", "groundingEvents", "openConcerns").forEach { key ->
                 val values = root.optJSONArray(key) ?: return@forEach
                 val next = JSONArray()
                 for (i in 0 until values.length()) {
@@ -764,7 +764,8 @@ object CharacterInnerLifeStore {
         val uncertainty = appraisal?.optString("uncertainty").orEmpty().trim().take(180)
 
         if (!hasStateDelta && thought.isBlank() && focus.isBlank() && meaning.isBlank() &&
-            responseAim.isBlank() && reason.isBlank()) return
+            responseAim.isBlank() && reason.isBlank() &&
+            appraisal?.optJSONObject("pendingConcern") == null) return
 
         val root = snapshot(characterId)
         val past = root.optJSONArray("causalTransitions") ?: JSONArray()
@@ -845,6 +846,11 @@ object CharacterInnerLifeStore {
             for (i in maxOf(0, past.length() - 19) until past.length()) put(past.opt(i))
             put(entry)
         })
+        if (appraisal?.optJSONObject("pendingConcern") != null) {
+            root.put("openConcerns", CharacterOpenConcernRuntime.update(
+                root.optJSONArray("openConcerns"), appraisal, evidenceId, now,
+            ))
+        }
         save(characterId, root)
     }
 
@@ -1004,6 +1010,8 @@ object CharacterInnerLifeStore {
             // Read actual executor receipts even when no motiveId was supplied.
             CharacterActionFeedback.recent(decisions, now).takeIf(String::isNotBlank)
                 ?.let(::appendLine)
+            CharacterOpenConcernRuntime.context(root.optJSONArray("openConcerns"), now)
+                .takeIf(String::isNotBlank)?.let(::appendLine)
             CharacterDeliberationContext.summary(root.optJSONArray("causalTransitions"), now)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
         }.trim()
