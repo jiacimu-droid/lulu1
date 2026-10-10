@@ -43,7 +43,7 @@ internal object CharacterAddressPreference {
             if (sourceId.isNotBlank()) {
                 val original = SharedExperienceTimeline.eventsByIds(characterId, setOf(sourceId))
                 if (original.any { it.id == sourceId &&
-                        extractExplicitAddress(it.evidenceContent) == root.optString("preferredAddress") }) return
+                        extractExplicitAddress(it.evidenceContent) == root?.optString("preferredAddress").orEmpty() }) return
             }
             val history = SharedExperienceTimeline.all(characterId)
             // Do not lock an empty history as checked before the timeline is initialized.
