@@ -9,6 +9,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
@@ -61,6 +63,15 @@ fun LuluMigrationRootAppV2(
     }
     var routeStack by rememberSaveable(initialConversationId, initialRouteName) { mutableStateOf(initialStack) }
     val route = MigrationRoute.valueOf(routeStack.last())
+    val navigationFocusManager = LocalFocusManager.current
+    val navigationKeyboard = LocalSoftwareKeyboardController.current
+
+    // The previous chat stays composed underneath settings. Release its
+    // text focus when moving routes so the old IME cannot open on arrival.
+    LaunchedEffect(route) {
+        navigationFocusManager.clearFocus(force = true)
+        navigationKeyboard?.hide()
+    }
     var selectedConversationId by rememberSaveable(initialConversationId) {
         mutableStateOf(initialConversationId?.takeIf(String::isNotBlank) ?: "lulu-main")
     }

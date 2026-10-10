@@ -5,6 +5,7 @@ import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 import android.app.TimePickerDialog
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,6 +20,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,6 +52,9 @@ fun CharacterSettingsScreenV2(
     onDeleted: () -> Unit,
 ) {
     val context = LocalContext.current
+    val pageFocusRequester = remember { FocusRequester() }
+    val pageFocusManager = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
     remember(context) {
         ProactivePerceptionPolicyStore.initialize(context.applicationContext)
         CharacterVoicePreferenceStore.initialize(context.applicationContext)
@@ -75,6 +83,10 @@ fun CharacterSettingsScreenV2(
     var persona by remember(characterId) { mutableStateOf(original.persona) }
     var proactiveCalls by remember(characterId) { mutableStateOf(original.contactPolicy.proactiveCallsEnabled) }
     var section by remember(characterId) { mutableIntStateOf(0) }
+    LaunchedEffect(characterId, section) {
+        pageFocusRequester.requestFocus()
+        keyboard?.hide()
+    }
     var confirmClearRecords by remember { mutableStateOf(false) }
     var pendingLifeForm by remember { mutableStateOf<CharacterLifeForm?>(null) }
     var clearingRecords by remember { mutableStateOf(false) }
@@ -122,6 +134,7 @@ fun CharacterSettingsScreenV2(
     }
 
     Scaffold(
+        modifier = Modifier.focusRequester(pageFocusRequester).focusable(),
         containerColor = LuluColors.Paper,
         topBar = {
             TopAppBar(
@@ -137,14 +150,18 @@ fun CharacterSettingsScreenV2(
         },
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(16.dp),
+            modifier = Modifier.fillMaxSize().padding(padding).imePadding(),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     listOf("资料", "人格", "陪伴", "管理").forEachIndexed { index, label ->
-                        FilterChip(section == index, onClick = { section = index }, label = { Text(label, fontSize = 12.sp) }, modifier = Modifier.weight(1f))
+                        FilterChip(section == index, onClick = {
+                            pageFocusManager.clearFocus(force = true)
+                            keyboard?.hide()
+                            section = index
+                        }, label = { Text(label, fontSize = 12.sp) }, modifier = Modifier.weight(1f))
                     }
                 }
             }
@@ -165,7 +182,7 @@ fun CharacterSettingsScreenV2(
                         )
                         Column(Modifier.weight(1f)) { Text("角色头像", fontWeight = FontWeight.SemiBold) }
                     }
-                    OutlinedTextField(value = displayName, onValueChange = { displayName = it; persistDefinition() }, label = { Text("角色名称") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = displayName, onValueChange = { displayName = it; persistDefinition() }, label = { Text("角色名称") }, singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
                     OutlinedTextField(
                         value = identity,
                         onValueChange = { identity = it; persistDefinition() },
@@ -173,7 +190,7 @@ fun CharacterSettingsScreenV2(
                         placeholder = { Text("身份、职业、时代、阵营、背景等世界观信息") },
                         minLines = 3,
                         maxLines = 8,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                     )
                     OutlinedTextField(
                         value = persona,
@@ -182,7 +199,7 @@ fun CharacterSettingsScreenV2(
                         placeholder = { Text("人物的核心设定；具体表达习惯请到「人格」页面编辑") },
                         minLines = 4,
                         maxLines = 10,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                     )
                 }
             }
@@ -273,11 +290,11 @@ fun CharacterSettingsScreenV2(
                         label = { Text("MiniMax Voice ID") },
                         placeholder = { Text("填写这个角色自己的 Voice ID") },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                     )
                     var realtimeVoiceId by remember(characterId) { mutableStateOf(CharacterVoicePreferenceStore.realtimeVoiceId(characterId).orEmpty()) }
                     OutlinedTextField(value = realtimeVoiceId, onValueChange = { realtimeVoiceId = it; CharacterVoicePreferenceStore.setRealtimeVoiceId(characterId, it) },
-                        label = { Text("ElevenLabs Voice ID") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                        label = { Text("ElevenLabs Voice ID") }, singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
                     CharacterV2Switch(title = "自动播放语音", checked = autoPlayVoice) { enabled -> CharacterVoicePreferenceStore.setEnabled(characterId, enabled) }
                 }
             }
@@ -405,7 +422,7 @@ private fun CharacterV2IntervalRow(
                     if (clean.isNotBlank()) onValueChange(clean)
                 },
                 singleLine = true,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).keepFocusedFieldVisible(),
             )
             PerceptionIntervalUnit.entries.forEach { option ->
                 FilterChip(selected = unit == option, onClick = { onUnitChange(option) }, label = { Text(option.label) })
