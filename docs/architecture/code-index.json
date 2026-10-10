@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T14:47:27.372727+00:00",
-  "commit": "d09ac7031f0ac5fc76ec544de641aab9865927b8",
+  "generatedAt": "2026-10-10T14:49:10.598985+00:00",
+  "commit": "fa1f85393d3177b4a8afceb4e805d011ec9413b0",
   "branch": "main",
-  "sourceFingerprint": "7ae654e716d2b8a32d5be87dd686f3df4a6e985cbfbbbe1cdc7eda8b7247c486",
+  "sourceFingerprint": "e55da9292b13e1f519049e4a48e1b975bbda04a82aac0573250e1c3c52bc8fbb",
   "summary": {
     "files": 455,
     "lines": 100440,
@@ -9230,7 +9230,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
       "lines": 1232,
-      "sha256": "f3de811977260ce6731f29781f721f7f74c5a54f589a8e9883f639e554b5aadf",
+      "sha256": "bef40ff709741e3e45d0a85eab9c6271aa67e74888c15d8b2ba0aa7414f631a2",
       "symbols": [
         {
           "name": "prepare",
@@ -11426,7 +11426,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt",
       "lines": 144,
-      "sha256": "5bd5ea10264ce4cddd6b807c7ed57bcb82c8bc7498ce2452158b4303c47d763b",
+      "sha256": "c15fb856fea26e6e4950bac68f9359a2b01f7d8bf8d1a4ccf4858101f8e44ea4",
       "symbols": [
         {
           "name": "repairInstruction",
