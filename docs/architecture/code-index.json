@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T05:39:55.051294+00:00",
-  "commit": "2707218e19001167ae3c101ac7e40e639ed1c7bf",
+  "generatedAt": "2026-10-10T05:41:16.179617+00:00",
+  "commit": "a9b5008053bef681d171657bd3ca336feea34ff1",
   "branch": "main",
-  "sourceFingerprint": "b375d09248a98dfd5fe094a4e14e6e9c3e1bd14d0aeb47a198a9311024498fb9",
+  "sourceFingerprint": "c763da33d406e242009eb9e00ce2ac1b316c3374d3eb098f78c1c819dc9e6744",
   "summary": {
     "files": 426,
-    "lines": 95528,
+    "lines": 95515,
     "symbols": 1387
   },
   "symbolIndex": {
@@ -10067,8 +10067,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 531,
-      "sha256": "145a1873568c591b9d42fe9c969e6e080b2ed6165f610f6f28c02c8fa4d974d8",
+      "lines": 535,
+      "sha256": "325727e6491182fc8bccc9e42f0d8e1358ecc1bbb272d55d6f07f5d5d3115fca",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -15257,8 +15257,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt",
-      "lines": 500,
-      "sha256": "43d8a8a2876e810c70a31147391dbc642ff0aa7d9e2c7492273209a9c6d976e7",
+      "lines": 483,
+      "sha256": "a16a5ff164c5e41956704a9370f259757a6f385682d47da869ca3f222246f5b6",
       "symbols": []
     },
     {
@@ -15342,7 +15342,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 611,
-      "sha256": "1893fe1f89f5f9c33763e22cb70c04f52ab5e9547d59dd1ad31d225748c15f27",
+      "sha256": "cdffb6eaea88b0d592c65ee0aa0da1d6ceb0ab8de844d23962f68c4c32c7b846",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
