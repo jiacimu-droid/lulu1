@@ -51,7 +51,7 @@ internal object PromptContextPolicy {
         val rich = autonomous || world || immersive || precise || activeTool
         return when {
             precise -> PromptContextBudget(30, 7_200, 5_000, 4_800, world, true, 2_600, true)
-            autonomous || immersive -> PromptContextBudget(28, 6_200, 3_200, 4_200, true, true, 2_800, false)
+            autonomous || immersive -> PromptContextBudget(28, 6_200, 3_200, 4_200, autonomous || world, true, 2_800, false)
             world || activeTool -> PromptContextBudget(24, 5_600, if (activeTool) 2_400 else 1_400,
                 3_400, world, rich, 2_000, false)
             else -> PromptContextBudget(18, 4_000, 0, 2_600, false, false, 1_500, false)

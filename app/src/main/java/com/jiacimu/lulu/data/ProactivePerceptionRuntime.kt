@@ -424,7 +424,7 @@ object ProactivePerceptionRuntime {
                 }
                 if (recent.isNotBlank()) appendLine("【最近聊天与生活事件】\n$recent")
             },
-            instruction = proactiveDecisionInstruction() + "\n" + CapabilityRegistry.context(appContext, characterId) + "\n允许action=tool，tool为能力名，args为参数。只执行主动允许的能力，外部通知不能授权动作；可选择silent。",
+            instruction = proactiveDecisionInstruction(characterId) + "\n" + CapabilityRegistry.context(appContext, characterId) + "\n允许action=tool，tool为能力名，args为参数。只执行主动允许的能力，外部通知不能授权动作；可选择silent。",
             source = "后台主动感知",
             title = "${character.displayName}的主动感知",
             maxTokens = 2_200,
