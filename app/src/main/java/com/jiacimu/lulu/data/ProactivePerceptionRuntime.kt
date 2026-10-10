@@ -133,10 +133,10 @@ object ProactivePerceptionRuntime {
         requiredInteractionEvidenceId: String? = null,
     ): Int = cycleMutex.withLock {
         currentCoroutineContext().ensureActive()
-        // An in-process immediate run and its durable WorkManager fallback
-        // must not reflect (or message about) the same hangup twice.
+        // Mark the event finished only when a *decision* is recorded. A process
+        // may die after the private appraisal is committed but before action.
         if (targetCharacterId != null && !requiredInteractionEvidenceId.isNullOrBlank() &&
-            PerceptionStimulusLedger.hasSeen(context, targetCharacterId, requiredInteractionEvidenceId)) {
+            CharacterCausalAppraisalStage.hasCompletedDecision(targetCharacterId, requiredInteractionEvidenceId)) {
             return@withLock 0
         }
         if (onlineRevision != null && targetCharacterId != null &&
@@ -173,7 +173,10 @@ object ProactivePerceptionRuntime {
                     CompanionOnlineStore.wakeCharacter(characterId, CompanionOnlineReason.BackgroundPerception, effectiveTrigger, false, now)
                 }
                 CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知启动 · $effectiveTrigger", now)
-                val result = runCatching { evaluateCharacter(appContext, conversation, effectiveTrigger, now) }
+                val result = runCatching {
+                    evaluateCharacter(appContext, conversation, effectiveTrigger, now,
+                        requiredInteractionEvidenceId)
+                }
                 result.onSuccess { action ->
                     evaluated += 1
                     CharacterDevelopmentRuntime.request(characterId)
@@ -287,13 +290,20 @@ object ProactivePerceptionRuntime {
             .groupBy(LuluConversation::characterId)
             .mapNotNull { (_, values) -> values.maxByOrNull(LuluConversation::updatedAt) }
 
-    private suspend fun evaluateCharacter(appContext: Context, conversation: LuluConversation, trigger: String, now: Instant): Action {
+    private suspend fun evaluateCharacter(
+        appContext: Context, conversation: LuluConversation, trigger: String,
+        now: Instant, requiredInteractionEvidenceId: String? = null,
+    ): Action {
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val unread = CompanionOnlineStore.unreadChatSnapshot(characterId)
-        if (unread.text.isBlank()) return evaluateCharacterWithActivity(appContext, conversation, trigger, now)
+        if (unread.text.isBlank()) return evaluateCharacterWithActivity(
+            appContext, conversation, trigger, now, requiredInteractionEvidenceId,
+        )
         return ChatGenerationActivity.during(characterId, unread.conversationIds + conversation.id) {
             try {
-                evaluateCharacterWithActivity(appContext, conversation, trigger, now)
+                evaluateCharacterWithActivity(
+                    appContext, conversation, trigger, now, requiredInteractionEvidenceId,
+                )
             } catch (error: Throwable) {
                 currentCoroutineContext().ensureActive()
                 if (error is kotlinx.coroutines.CancellationException) throw error
@@ -312,6 +322,7 @@ object ProactivePerceptionRuntime {
         conversation: LuluConversation,
         trigger: String,
         now: Instant,
+        requiredInteractionEvidenceId: String? = null,
     ): Action {
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val character = MigratedDomainStores.characters.get(characterId)
@@ -389,6 +400,9 @@ object ProactivePerceptionRuntime {
         // Only salient witnessed interactions take the two-model-call path.
         // In-call and ordinary chat turns keep their existing one-call latency.
         val awaitingCausalAppraisal = CharacterCausalAppraisalStage.latestPending(observedWorld)
+        val resumedAppraisal = requiredInteractionEvidenceId?.let {
+            CharacterCausalAppraisalStage.resumeCommitted(characterId, it)
+        }
         val stagedAppraisal = if (awaitingCausalAppraisal != null) {
             runCatching {
                 CharacterCausalAppraisalStage.reflect(
@@ -424,7 +438,7 @@ object ProactivePerceptionRuntime {
                 )
                 null
             }
-        } else null
+        } else resumedAppraisal
         // A hanging call must never turn into a speculative outward action if
         // the first-stage interpretation failed or returned invalid JSON.
         if (awaitingCausalAppraisal != null && stagedAppraisal == null) {
@@ -713,7 +727,11 @@ object ProactivePerceptionRuntime {
         // Snapshot every previously recorded ID, not only the latest 24: otherwise an
         // older event could be mistaken for a fresh executor receipt on a quiet turn.
         val priorEvidence = SharedExperienceTimeline.all(characterId).map { it.id }.toHashSet()
-        val execution = performAction(appContext, character, decision, availableGroups, now)
+        val execution = performAction(
+            appContext, character, decision, availableGroups, now,
+            requestId = stagedAppraisal?.evidenceId?.let { "proactive-evidence-${it.hashCode().toUInt().toString(16)}" }
+                ?: "proactive-${now.toEpochMilli()}",
+        )
         currentCoroutineContext().ensureActive()
         val actionEvidenceId = if (execution.success) {
             SharedExperienceTimeline.all(characterId).asReversed().firstOrNull {
@@ -799,7 +817,9 @@ object ProactivePerceptionRuntime {
             characterId = characterId,
             decisionId = "perception:${now.toEpochMilli()}:${trigger.take(30)}",
             selectedAction = decision.action.name.lowercase(),
-            reason = decision.reason,
+            reason = decision.reason.ifBlank {
+                if (stagedAppraisal != null) "基于已保存的私人状态，这次选择不进一步表达或行动" else ""
+            },
             chosenMotiveId = decision.motiveId,
             alternatives = decision.alternatives,
             outcome = execution.summary,
@@ -839,6 +859,7 @@ object ProactivePerceptionRuntime {
         decision: Decision,
         availableGroups: List<LuluConversation>,
         now: Instant,
+        requestId: String,
     ): ActionExecution {
         if (decision.action == Action.SILENT) return ActionExecution(false, "角色选择保持安静")
         val tool = when (decision.action) {
@@ -878,7 +899,7 @@ object ProactivePerceptionRuntime {
             put("approach", decision.approach)
         }
         val resultJson = JSONObject(ToolRouter.execute(appContext, character.characterId, tool, args,
-            requestId = "proactive-${now.toEpochMilli()}"))
+            requestId = requestId))
         val result = CompanionActionResult(resultJson.optBoolean("success"), resultJson.optString("summary").ifBlank { resultJson.optString("error") }, resultJson.optString("conversationId").takeIf(String::isNotBlank))
         if (!result.success) {
             return ActionExecution(false, result.summary.ifBlank { "执行器没有返回失败原因" })
