@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T12:20:41.354033+00:00",
-  "commit": "c728882ab22027853992ae5f7dbae5e5fe343d60",
+  "generatedAt": "2026-10-10T12:22:02.144914+00:00",
+  "commit": "3b479603a3e6c0971bae61f7c23f18226e484a5b",
   "branch": "main",
-  "sourceFingerprint": "42b4c5f1c059a8ee8906db6518174e7687b69dea6967099a8f9cdaa4f0b6bab6",
+  "sourceFingerprint": "76116bd23b82aa954dcb14fe3467ec509c1d066a3c419c40ad782bf8cc50a0df",
   "summary": {
     "files": 447,
-    "lines": 99190,
+    "lines": 99220,
     "symbols": 1457
   },
   "symbolIndex": {
@@ -275,7 +275,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
-        "line": 50
+        "line": 74
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
@@ -2783,7 +2783,7 @@
     "isExplicitUserToolRequest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
-        "line": 84
+        "line": 114
       }
     ],
     "CharacterInnerLifeStore": [
@@ -10508,8 +10508,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
-      "lines": 116,
-      "sha256": "5c93384fbff4305b3c88651538707ae9904a0a0d2d70c9c026b34317a318404f",
+      "lines": 146,
+      "sha256": "73e4f7d4ebe0c0c648ba997a58f0a4a4733a1661173be9998fa1e7d1ca379d14",
       "symbols": [
         {
           "name": "detect",
@@ -10517,11 +10517,11 @@
         },
         {
           "name": "context",
-          "line": 50
+          "line": 74
         },
         {
           "name": "isExplicitUserToolRequest",
-          "line": 84
+          "line": 114
         }
       ]
     },
@@ -10655,7 +10655,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
       "lines": 58,
-      "sha256": "9d068725d243c9de065bd77cd42c4d8ce997a6a3c83cadcd7f624df488d14fbd",
+      "sha256": "7346ae4e6e170a0a26a8c79e01152f68cf333827cb6653c9d8280dbd28ffbe8a",
       "symbols": [
         {
           "name": "groupedFields",
@@ -12848,7 +12848,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
       "lines": 128,
-      "sha256": "e726046c62e7713546a614d2f8c1957230bdc66e79d713f3311d0f69566724c8",
+      "sha256": "35ea5c9ca6bdc261bff5b5624b7f4ad8e11f8842961f0c8e58aea9dbc92651f4",
       "symbols": [
         {
           "name": "objectOrNull",
