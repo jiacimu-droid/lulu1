@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T06:30:56.208087+00:00",
-  "commit": "122e6f1182e4b97001b7e63c78718b14a5718e69",
+  "generatedAt": "2026-10-10T06:31:42.909694+00:00",
+  "commit": "47bb66c972ec99700c6c9661c2eebb95fbc7373d",
   "branch": "main",
-  "sourceFingerprint": "75f4ad306e2a2ffdbb19c8faf52173c6ee5d9a174012f268779fdd592188f000",
+  "sourceFingerprint": "63894fcfa9828b60c21e23565669dcdc129dfe5c7f311d37aaf73e648ad478be",
   "summary": {
     "files": 430,
-    "lines": 96097,
+    "lines": 96122,
     "symbols": 1401
   },
   "symbolIndex": {
@@ -217,7 +217,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 38
+        "line": 63
       }
     ],
     "updateForSpeech": [
@@ -7639,19 +7639,19 @@
     "proposal": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 54
+        "line": 79
       }
     ],
     "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 165
+        "line": 190
       }
     ],
     "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 202
+        "line": 227
       }
     ],
     "CharacterOriginResetTest": [
@@ -15943,8 +15943,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 249,
-      "sha256": "fdd05cd149a75e72858da9ca60307f79d71b7ca733e5dbe8f5a7b09f66c30c5a",
+      "lines": 274,
+      "sha256": "15652e05e27472b6396bfeba8660c207497e22804b29e6fe09c10101d31934b9",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -15952,19 +15952,19 @@
         },
         {
           "name": "update",
-          "line": 38
+          "line": 63
         },
         {
           "name": "proposal",
-          "line": 54
+          "line": 79
         },
         {
           "name": "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits",
-          "line": 165
+          "line": 190
         },
         {
           "name": "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits",
-          "line": 202
+          "line": 227
         }
       ]
     },
