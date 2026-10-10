@@ -61,7 +61,11 @@ internal object ConversationNaturalnessGate {
         return true
     }
 
-    fun assess(userText: String, bubbles: List<String>): ConversationNaturalnessAssessment {
+    fun assess(
+        userText: String,
+        bubbles: List<String>,
+        recentHistory: String = "",
+    ): ConversationNaturalnessAssessment {
         val reply = bubbles.joinToString("\n").trim()
         if (reply.isBlank()) return ConversationNaturalnessAssessment(0, emptyList())
 
@@ -96,6 +100,26 @@ internal object ConversationNaturalnessGate {
             score += 1
             reasons += "短促聊天被无必要扩成长篇"
         }
+        val normalizedBubbles = bubbles.map(::surfaceNormalize).filter { it.length >= 8 }
+        val repeatedPair = normalizedBubbles.indices.any { i ->
+            (i + 1 until normalizedBubbles.size).any { j ->
+                surfaceOverlap(normalizedBubbles[i], normalizedBubbles[j]) >= 0.68
+            }
+        }
+        if (repeatedPair) {
+            score += 2
+            reasons += "同一轮多个气泡在换词重复同一个意思"
+        }
+        val firstSurface = normalizedBubbles.firstOrNull().orEmpty()
+        if (firstSurface.length >= 10 && recentHistory.isNotBlank()) {
+            val prefix = firstSurface.take(12)
+            val normalizedHistory = surfaceNormalize(recentHistory)
+            if (prefix.length >= 10 && normalizedHistory.contains(prefix)) {
+                score += 2
+                reasons += "近期重复了相同的长起手式"
+            }
+        }
+
         val questionCount = reply.count { it == '？' || it == '?' }
         val userQuestionCount = userText.count { it == '？' || it == '?' }
         if (questionCount >= 3 && userQuestionCount <= 1) {
@@ -104,5 +128,16 @@ internal object ConversationNaturalnessGate {
         }
 
         return ConversationNaturalnessAssessment(score, reasons.distinct())
+    }
+
+    private fun surfaceNormalize(value: String): String =
+        value.lowercase().replace(Regex("[\\s，。！？!?、；;：:“”‘’…~～—_\\"'（）()]+"), "")
+
+    private fun surfaceOverlap(a: String, b: String): Double {
+        if (a.length < 4 || b.length < 4) return 0.0
+        val aPairs = a.windowed(2).toSet()
+        val bPairs = b.windowed(2).toSet()
+        if (aPairs.isEmpty() || bPairs.isEmpty()) return 0.0
+        return aPairs.intersect(bPairs).size.toDouble() / minOf(aPairs.size, bPairs.size)
     }
 }
