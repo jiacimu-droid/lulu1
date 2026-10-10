@@ -109,7 +109,7 @@ object CharacterInnerLifeStore {
                 }
                 root.put("emotionHistory", retained)
             }
-            listOf("motives", "corrections", "voice", "innerVoices", "thoughts", "causalTransitions", "groundingEvents", "openConcerns").forEach { key ->
+            listOf("motives", "corrections", "voice", "innerVoices", "thoughts", "causalTransitions", "groundingEvents", "openConcerns", "expressiveDeliveries").forEach { key ->
                 val values = root.optJSONArray(key) ?: return@forEach
                 val next = JSONArray()
                 for (i in 0 until values.length()) {
@@ -903,6 +903,42 @@ object CharacterInnerLifeStore {
         save(characterId, root)
     }
 
+    /**
+     * A reaction becomes part of the role's expressive identity only after the
+     * actual message has been appended to the real conversation timeline.
+     * The expression metadata is character-private; it never leaks another
+     * group member's or another character's recent sticker habits.
+     */
+    @Synchronized fun recordExpressiveDelivery(
+        characterId: String, messageId: String, kind: String, label: String,
+        now: Instant = Instant.now(),
+    ) {
+        if (prefs == null || characterId.isBlank() || messageId.isBlank()) return
+        val root = snapshot(characterId)
+        val previous = root.optJSONArray("expressiveDeliveries")
+        val updated = CharacterExpressionContinuity.record(previous, messageId, kind, label, now)
+        if (updated.length() != (previous?.length() ?: 0)) {
+            root.put("expressiveDeliveries", updated)
+            save(characterId, root)
+        }
+    }
+
+    @Synchronized fun recordConcernOutcome(
+        characterId: String, concernId: String, receiptId: String,
+        action: String, success: Boolean, outcome: String, now: Instant = Instant.now(),
+    ) {
+        if (prefs == null || characterId.isBlank() || concernId.isBlank() || receiptId.isBlank()) return
+        val root = snapshot(characterId)
+        val before = root.optJSONArray("openConcerns") ?: return
+        val updated = CharacterOpenConcernRuntime.recordOutcome(
+            before, concernId, receiptId, action, success, outcome, now,
+        )
+        if (updated.toString() != before.toString()) {
+            root.put("openConcerns", updated)
+            save(characterId, root)
+        }
+    }
+
     /** Only call from an observed, persisted character message, never a speculative draft. */
     @Synchronized fun recordSpokenText(characterId: String, eventId: String, text: String) {
         if (prefs == null || eventId.isBlank()) return
@@ -1011,6 +1047,8 @@ object CharacterInnerLifeStore {
             CharacterActionFeedback.recent(decisions, now).takeIf(String::isNotBlank)
                 ?.let(::appendLine)
             CharacterOpenConcernRuntime.context(root.optJSONArray("openConcerns"), now)
+                .takeIf(String::isNotBlank)?.let(::appendLine)
+            CharacterExpressionContinuity.context(root.optJSONArray("expressiveDeliveries"), now)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
             CharacterDeliberationContext.summary(root.optJSONArray("causalTransitions"), now)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
