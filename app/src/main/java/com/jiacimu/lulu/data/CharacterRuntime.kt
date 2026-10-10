@@ -38,8 +38,22 @@ object CharacterRuntime {
         DigitalLifeProfileStore.profiles,
     ) { _, _, _, _ -> definition(characterId) }.distinctUntilChanged { old, new -> old.hasSameConfiguration(new) }
 
-    suspend fun memory(characterId: String, request: UnifiedMemoryRequest): UnifiedMemoryContext =
+    suspend fun memory(
+        characterId: String,
+        request: UnifiedMemoryRequest,
+        budget: PromptContextBudget? = null,
+    ): UnifiedMemoryContext = if (budget == null) {
         UnifiedMemoryOrchestrator.assemble(characterId, request)
+    } else {
+        UnifiedMemoryOrchestrator.assemble(
+            characterId, request,
+            recallLimit = budget.recallLimit,
+            evidenceLimit = if (budget.evidenceCharacters > 0) 22 else 8,
+            evidenceCharacterBudget = budget.evidenceCharacters,
+            recentCharacterBudget = budget.recentCharacters,
+            memoryCharacterBudget = budget.memoryCharacters,
+        )
+    }
 
     fun personaConstraintSnapshot(characterId: String): String {
         val persona = MigratedDomainStores.characters.get(characterId).persona
@@ -50,16 +64,21 @@ object CharacterRuntime {
         return if (constraints.isBlank()) persona else "$persona\n用户行为设定：\n$constraints"
     }
 
-    fun developmentContext(characterId: String): String {
+    fun developmentContext(characterId: String, compact: Boolean = false): String {
         val learned = CharacterDevelopmentStore.active(characterId)
         return buildString {
             appendLine(CompanionContactClock.context(characterId))
-            appendLine(CharacterLifeStore.context(characterId, includeProfile = false))
-            appendLine(CharacterInnerLifeStore.context(characterId))
+            appendLine(if (compact) CharacterLifeStore.compactContext(characterId) else
+                CharacterLifeStore.context(characterId, includeProfile = false))
+            appendLine(if (compact) CharacterInnerLifeStore.compactContext(characterId) else
+                CharacterInnerLifeStore.context(characterId))
             appendLine(CharacterAccountabilityContext.prompt(characterId))
-            appendLine("基于真实事件逐渐形成的可变习惯与判断（不修改用户锁定的人设；新反馈优先，不代表意识已实现）：")
-            learned.takeLast(16).forEach { r ->
-                appendLine("- ${r.kind} ${r.slot} v${r.version}：${r.content}；可信度=${r.confidence}；依据=${r.evidence.keys.joinToString()}")
+            if (learned.isNotEmpty()) {
+                appendLine("基于真实经历形成的可变判断（不覆盖人设）：")
+                learned.takeLast(if (compact) 5 else 16).forEach { record ->
+                    if (compact) appendLine("- ${record.kind}/${record.slot}：${record.content.take(230)}")
+                    else appendLine("- ${record.kind} ${record.slot} v${record.version}：${record.content}；可信度=${record.confidence}；依据=${record.evidence.keys.joinToString()}")
+                }
             }
         }.trim()
     }

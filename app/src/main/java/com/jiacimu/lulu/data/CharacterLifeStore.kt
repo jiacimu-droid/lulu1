@@ -352,6 +352,41 @@ object CharacterLifeStore {
         return if (fields.isEmpty()) "" else "【用户当前设定的人格与行为】\n" + fields.joinToString("\n")
     }
 
+
+    /** Lightweight living state for ordinary conversation; original history stays persisted. */
+    fun compactContext(characterId: String): String {
+        val root = state(characterId)
+        val innerGoals = CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives")
+        val innerAims = (0 until (innerGoals?.length() ?: 0))
+            .mapNotNull { innerGoals?.optJSONObject(it)?.optString("aim")?.trim() }.toSet()
+        return buildString {
+            root.optJSONObject("socialNames")?.let { names ->
+                names.optString("userRemark").takeIf(String::isNotBlank)?.let {
+                    appendLine("给用户的私人备注：$it（不强制每句使用）")
+                }
+                names.optString("selfNickname").takeIf(String::isNotBlank)?.let {
+                    appendLine("自己使用的网名：$it")
+                }
+            }
+            afterglowContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
+            root.optJSONObject("previousIntention")?.let { prior ->
+                if (prior.optString("releaseReason") == "用户结束这件事")
+                    appendLine("用户已结束的愿望：${prior.optString("aim")}，不可擅自重启")
+            }
+            root.optJSONObject("intention")
+                ?.takeUnless { goal -> innerAims.any { sameCharacterMotive(goal.optString("aim"), it) } }
+                ?.let { goal ->
+                    appendLine("仍在意：${goal.optString("aim")}；原因：${goal.optString("motive")}；id=${goal.optString("createdAt")}")
+                    val outcomes = goal.optJSONArray("outcomes")
+                    if (outcomes != null && outcomes.length() > 0) {
+                        val last = outcomes.optJSONObject(outcomes.length() - 1)
+                        appendLine("上次真正行动：${last?.optString("action")}；成功=${last?.optBoolean("success")}；结果=${last?.optString("summary")?.take(180)}")
+                    }
+                }
+            appendLine("愿望、主观猜测和心情不是已完成事实；只据实际结果延续或修正，不机械重复表达。")
+        }.trim()
+    }
+
     fun context(characterId: String, includeProfile: Boolean = true): String {
         val root = state(characterId)
         return buildString {

@@ -420,6 +420,67 @@ object CharacterInnerLifeStore {
         save(characterId, root)
     }
 
+
+    /** Durable but focused subjective state. Full introspection stays available to
+     * background deliberation, world scenes and exact continuity/reconciliation turns.
+     */
+    fun compactContext(characterId: String, now: Instant = Instant.now()): String {
+        val root = snapshot(characterId)
+        val motives = root.optJSONArray("motives") ?: JSONArray()
+        val active = (0 until motives.length()).mapNotNull(motives::optJSONObject)
+            .filter { it.optString("status", "active") == "active" }
+            .sortedByDescending { it.optInt("priority", 2) }
+        val paused = (0 until motives.length()).mapNotNull(motives::optJSONObject)
+            .filter { it.optString("status") == "paused" }
+        val emotion = root.optJSONObject("emotion")
+        val bonds = root.optJSONObject("bonds")
+        val thoughts = root.optJSONArray("thoughts") ?: JSONArray()
+        val decisions = root.optJSONArray("decisions") ?: JSONArray()
+        return buildString {
+            if (active.isNotEmpty()) {
+                appendLine("【仍在意的事｜可以权衡而非必须行动】")
+                active.take(6).forEach { m ->
+                    append("- id=${m.optString("id")}；目标=${m.optString("aim").take(170)}；缘由=${m.optString("why").take(120)}")
+                    val outcomes = m.optJSONArray("outcomes")
+                    if (outcomes != null && outcomes.length() > 0) {
+                        val last = outcomes.optJSONObject(outcomes.length() - 1)
+                        append("；最近行动=${last?.optString("summary")?.take(150)}")
+                    }
+                    appendLine()
+                }
+            }
+            if (paused.isNotEmpty()) appendLine("暂缓：${paused.takeLast(2).joinToString("、") { it.optString("aim").take(90) }}")
+            if (emotion != null) {
+                val started = runCatching { Instant.parse(emotion.optString("startedAt")) }.getOrNull()
+                val elapsed = started?.let { Duration.between(it, now).toMinutes().coerceAtLeast(0) } ?: Long.MAX_VALUE
+                if (elapsed <= emotion.optInt("halfLifeMinutes", 180).coerceAtLeast(30) * 3L) {
+                    appendLine("现在感受=${emotion.optString("feeling")}；并存=${emotion.optString("otherFeeling")}；由=${emotion.optString("cause").take(160)}；距今${elapsed}分钟")
+                    emotion.optString("restraint").takeIf(String::isNotBlank)?.let { appendLine("此刻克制：${it.take(130)}") }
+                }
+            }
+            bonds?.keys()?.asSequence()?.take(4)?.forEach { id ->
+                val bond = bonds.optJSONObject(id) ?: return@forEach
+                appendLine("对${if (id == "user") "用户" else id}的主观看法：${bond.optString("interpretation").take(140)}；依据=${bond.optString("reason").take(110)}")
+            }
+            val corrections = root.optJSONArray("corrections")
+            if (corrections != null && corrections.length() > 0) {
+                val last = corrections.optJSONObject(corrections.length() - 1)
+                appendLine("最近自我修正：${last?.optString("nextTime")?.take(140)}")
+            }
+            val recentThought = (0 until thoughts.length()).mapNotNull(thoughts::optJSONObject)
+                .lastOrNull { item ->
+                    runCatching { Instant.parse(item.optString("at")) }.getOrNull()
+                        ?.let { !it.isAfter(now) && Duration.between(it, now) <= Duration.ofHours(18) } == true
+                }
+            recentThought?.let { appendLine("还没说出的心事：${it.optString("thought").take(170)}；犹豫=${it.optString("hesitation").take(120)}") }
+            if (decisions.length() > 0) {
+                val last = decisions.optJSONObject(decisions.length() - 1)
+                if (last != null && last.optString("selected") == "silent")
+                    appendLine("上次主动保持安静：${last.optString("reason").take(130)}（不是失败）")
+            }
+        }.trim()
+    }
+
     fun context(characterId: String, now: Instant = Instant.now()): String {
         val root = snapshot(characterId)
         val motives = root.optJSONArray("motives") ?: JSONArray()

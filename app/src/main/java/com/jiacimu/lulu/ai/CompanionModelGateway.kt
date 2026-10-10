@@ -465,15 +465,22 @@ class CompanionModelGateway(
             val connection = connectionOverride ?: connectionStore.resolveConnection(requestedArchiveId)
             attemptedModel = connection.model
             requestUrl = if (isNativeClaude(connection.baseUrl)) "${claudeBase(connection.baseUrl)}/messages" else "${connection.baseUrl}/chat/completions"
-            val fullContext = contextMode == CompanionContextMode.Full
-            val personaContext = contextMode == CompanionContextMode.PersonaAndScenario || contextMode == CompanionContextMode.CharacterAndScenario
-            val presence = CompanionPresenceStore.current(characterId).takeIf { fullContext }
             val recallQuery = "$facts\n$instruction"
+            val request = memoryRequest ?: UnifiedMemoryRequest.legacy(facts, instruction)
+            val budget = com.jiacimu.lulu.data.PromptContextPolicy.forRequest(source, request)
+            // A simple conversational expression already has the planner's researched
+            // intent. Recalling all stores again adds cost but no new decision authority.
+            val leanExpression = source == "聊天表达渲染" &&
+                !budget.precise && !budget.worldDetails &&
+                request.currentInput.length < 420
+            val effectiveMode = if (leanExpression && contextMode == CompanionContextMode.Full)
+                CompanionContextMode.CharacterAndScenario else contextMode
+            val fullContext = effectiveMode == CompanionContextMode.Full
+            val personaContext = effectiveMode == CompanionContextMode.PersonaAndScenario ||
+                effectiveMode == CompanionContextMode.CharacterAndScenario
+            val presence = CompanionPresenceStore.current(characterId).takeIf { fullContext }
             val unifiedMemory = if (fullContext) {
-                com.jiacimu.lulu.data.CharacterRuntime.memory(
-                    characterId = characterId,
-                    request = memoryRequest ?: UnifiedMemoryRequest.legacy(facts, instruction),
-                )
+                com.jiacimu.lulu.data.CharacterRuntime.memory(characterId, request, budget)
             } else {
                 UnifiedMemoryOrchestrator.empty()
             }
@@ -481,7 +488,7 @@ class CompanionModelGateway(
             val recalledRawTimeline = unifiedMemory.sourceEvidence
             val recentSharedTimeline = unifiedMemory.recentTimeline
             val userProfileSection = if (fullContext) UserProfileContext.promptSection() else ""
-            val lexicon = if (fullContext) com.jiacimu.lulu.data.LexiconMemoryContext.select(characterId, memoryRequest?.retrievalQuery() ?: recallQuery) else emptyList()
+            val lexicon = if (fullContext) com.jiacimu.lulu.data.LexiconMemoryContext.select(characterId, request.retrievalQuery()) else emptyList()
             val allWorldBooks = if (fullContext) LuluRepositories.worldBook.snapshot() else emptyList()
             val globalWorldBooks = allWorldBooks.filter { entry ->
                 entry.globalEnabled && entry.characterOverrides[characterId] != false
@@ -492,7 +499,7 @@ class CompanionModelGateway(
 
             val definition = com.jiacimu.lulu.data.CharacterRuntime.definition(characterId)
             val baseRules = buildString {
-                when (contextMode) {
+                when (effectiveMode) {
                     CompanionContextMode.Full -> {
                         appendLine("你正在以‘${definition.displayName.ifBlank { "角色" }}’参与露露机中的当前活动。")
                         appendLine("这是角色原本所属的露露机世界：角色身份与角色设定都必须生效，性格、关系边界和语言习惯必须保持；背景设定与实际亲历分开，当前物品、位置和行动结果以执行状态为准。")
@@ -510,11 +517,11 @@ class CompanionModelGateway(
                         appendLine("不得读取、继承或猜测任何角色身份、人设、聊天记录、记忆、共同时间线、用户资料或世界书；只允许使用本次任务明确提供的素材。")
                     }
                 }
-                if (contextMode != CompanionContextMode.Isolated) {
+                if (effectiveMode != CompanionContextMode.Isolated) {
                     appendLine(com.jiacimu.lulu.data.CharacterExpressionGuide.promptSection())
                     appendLine(com.jiacimu.lulu.data.CharacterSpeechIdentity.promptSection(
                         characterId,
-                        includeObserved = contextMode == CompanionContextMode.Full,
+                        includeObserved = fullContext,
                         includeConfigured = false,
                     ))
                     appendLine("当前角色设定与人格行为字段是本次读取的最新用户设定；旧台词、记忆摘要和成长记录不能覆盖或补回旧设定。")
@@ -525,7 +532,7 @@ class CompanionModelGateway(
                 }
                 appendLine("本次任务：$instruction")
             }.trim()
-            val identitySection = definition.identity.takeIf { fullContext || contextMode == CompanionContextMode.CharacterAndScenario }?.takeIf(String::isNotBlank)?.let { "角色身份：\n$it" }.orEmpty()
+            val identitySection = definition.identity.takeIf { fullContext || effectiveMode == CompanionContextMode.CharacterAndScenario }?.takeIf(String::isNotBlank)?.let { "角色身份：\n$it" }.orEmpty()
             val personaSection = definition.persona.takeIf { fullContext || personaContext }?.takeIf(String::isNotBlank)?.let { "角色设定：\n$it" }.orEmpty()
             val globalWorldBookSection = if (globalWorldBooks.isEmpty()) "" else buildString {
                 appendLine("全局世界书：")
@@ -536,11 +543,10 @@ class CompanionModelGateway(
                 roleWorldBooks.forEach { entry -> appendLine("- ${entry.title}：${entry.content}") }
             }.trim()
             val memorySection = if (memories.isEmpty()) "" else buildString {
-                appendLine("可用连续记忆（摘要可能含旧误记；不能扩写，冲突时以执行证据与当前状态为准）：")
+                appendLine("相关经历摘要（不得当成新的亲历；有原始记录时以原始记录为准）：")
                 memories.forEach { memory ->
-                    val memoryTime = memory.occurredAt ?: memory.createdAt
-                    val timeKind = if (memory.occurredAt != null) "发生时间" else "记录时间"
-                    appendLine("- [$timeKind=$memoryTime] ${memory.content}")
+                    val at = memory.occurredAt ?: memory.createdAt
+                    appendLine("- [$at] ${memory.content.trim().replace("\\n", " ")}")
                 }
             }.trim()
             val memoryEvidenceSection = recalledRawTimeline
@@ -557,13 +563,27 @@ class CompanionModelGateway(
                 }.trim()
             }.orEmpty()
             val lexiconSection = if (lexicon.isEmpty()) "" else buildString {
-                appendLine("辞海资料：已解决项只作历史，不再当作当前挂心；提及时自然内化，避免无关翻旧事。")
-                lexicon.forEach { appendLine("- ${it.section.name}/${it.title} [${it.status}]：${it.content}") }
+                appendLine("辞海命中项（原始词条不改动；完成事项不当作现有责任）：")
+                var remaining = budget.lexiconCharacters
+                lexicon.forEach { entry ->
+                    val header = "- ${entry.section.name}/${entry.title} [${entry.status}]："
+                    if (remaining > header.length + 42) {
+                        val shown = entry.content.take((remaining - header.length - 2).coerceAtMost(
+                            if (budget.precise) 800 else 260
+                        ))
+                        appendLine(header + shown)
+                        remaining -= header.length + shown.length + 1
+                    }
+                }
             }.trim()
             val currentWorld = if (fullContext && DigitalLifeProfileStore.isEnabled(characterId)) {
-                DigitalWorldStore.contextFor(characterId) + "\n" + DigitalWorldLifeEventStore.contextFor(characterId)
+                if (budget.worldDetails) DigitalWorldStore.contextFor(characterId) + "\n" +
+                    DigitalWorldLifeEventStore.contextFor(characterId)
+                else com.jiacimu.lulu.data.PromptContextPolicy.compactWorld(characterId)
             } else ""
-            val developmentSection = if (fullContext) com.jiacimu.lulu.data.CharacterRuntime.developmentContext(characterId) else ""
+            val developmentSection = if (fullContext)
+                com.jiacimu.lulu.data.CharacterRuntime.developmentContext(characterId, compact = !budget.richInnerLife)
+                else ""
             val systemPrompt = listOf(
                 baseRules,
                 identitySection,
@@ -580,7 +600,7 @@ class CompanionModelGateway(
                 memoryEvidenceSection,
                 lexiconSection,
             ).filter(String::isNotBlank).joinToString("\n\n")
-            val userPrompt = if (contextMode == CompanionContextMode.Isolated) {
+            val userPrompt = if (effectiveMode == CompanionContextMode.Isolated) {
                 "本次独立任务素材：\n${facts.trim()}"
             } else {
                 "真实事实：\n${facts.trim()}"

@@ -85,6 +85,7 @@ object UnifiedMemoryOrchestrator {
         evidenceLimit: Int = 32,
         evidenceCharacterBudget: Int = 9_000,
         recentCharacterBudget: Int = 7_000,
+        memoryCharacterBudget: Int = 9_000,
     ): UnifiedMemoryContext {
         if (characterId.isBlank()) return empty()
         val recentEvents = LuluRepositories.memory.contextTimelineEvents(characterId)
@@ -105,7 +106,7 @@ object UnifiedMemoryOrchestrator {
         val memories = selectMemoryWithinBudget(recalled.filterNot { it.id in coreIds }.filter { memory ->
             val sourceIds = memory.sourceEventIds()
             sourceIds.isEmpty() || sourceIds.any { sourceId -> sourceId !in recentIds }
-        })
+        }, characterBudget = memoryCharacterBudget, safetyLimit = recallLimit)
         val sourceEvents = (RelevantMemoryRecall.sourceEvidenceEvents(
             characterId = characterId,
             query = query,
@@ -115,11 +116,18 @@ object UnifiedMemoryOrchestrator {
             .distinctBy(SharedTimelineEvent::id).filterNot { event -> event.id in recentIds }
         val activeTasks = renderActiveCommitmentTasks(characterId)
         MemoryInspectionStore.recordRecall(characterId, query, memories, sourceEvents)
+        // The chat window already contains these exact words. Preserve the originals
+        // in the authoritative timeline; only remove this duplicate prompt copy.
+        val seenInChat = request.recentContext
+        val promptRecentEvents = recentEvents.filterNot { event ->
+            val text = event.evidenceContent.trim().replace(Regex("\\s+"), " ")
+            text.length >= 36 && seenInChat.contains(text.take(65))
+        }
         return UnifiedMemoryContext(
             memories = memories,
             coreMemories = core,
             sourceEvents = sourceEvents,
-            recentEvents = recentEvents,
+            recentEvents = promptRecentEvents,
             activeTaskContext = activeTasks,
             evidenceCharacterBudget = evidenceCharacterBudget,
             recentCharacterBudget = recentCharacterBudget,
