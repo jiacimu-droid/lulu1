@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T12:52:25.361976+00:00",
-  "commit": "2e5dadb3df3024bd2fd497d6b6470f1d94ffd06a",
+  "generatedAt": "2026-10-10T12:53:29.743863+00:00",
+  "commit": "1fb73a78bce228f4413d305cc8cc0575951da0e8",
   "branch": "main",
-  "sourceFingerprint": "2145a99ba75a715c53d0a2773ceaa55c0887902fbdc52020cab590f1bc5bf62c",
+  "sourceFingerprint": "8b6f1db9668ccf7ca1b6302c306df1c8a75e1b7173c9fd08c03f5293e1b3fdf0",
   "summary": {
     "files": 450,
-    "lines": 99598,
-    "symbols": 1461
+    "lines": 99640,
+    "symbols": 1462
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7934,10 +7934,16 @@
         "line": 190
       }
     ],
-    "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits": [
+    "v5JiangDuDefaultsMoveCompletelyIntoV6FrameworkWithoutInventingInterests": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
         "line": 227
+      }
+    ],
+    "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
+        "line": 269
       }
     ],
     "CharacterOriginResetTest": [
@@ -16577,8 +16583,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 274,
-      "sha256": "15652e05e27472b6396bfeba8660c207497e22804b29e6fe09c10101d31934b9",
+      "lines": 316,
+      "sha256": "f0053bb1b5a43d32b7ce689df3412a6e642a2fd5f6f05a0ff7baf6e304f77f18",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -16597,8 +16603,12 @@
           "line": 190
         },
         {
-          "name": "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits",
+          "name": "v5JiangDuDefaultsMoveCompletelyIntoV6FrameworkWithoutInventingInterests",
           "line": 227
+        },
+        {
+          "name": "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits",
+          "line": 269
         }
       ]
     },
@@ -16752,7 +16762,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
       "lines": 350,
-      "sha256": "7fdb13c89b8473fce338498e4ec8f1176fd738b3d34309973a19e3c667fdbeed",
+      "sha256": "e1d1db807406be80735030f65f6f96c288247ff8a24cd169dc4ba7ef99824765",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
