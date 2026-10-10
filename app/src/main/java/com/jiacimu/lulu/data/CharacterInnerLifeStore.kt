@@ -917,7 +917,7 @@ object CharacterInnerLifeStore {
         val root = snapshot(characterId)
         val previous = root.optJSONArray("expressiveDeliveries")
         val updated = CharacterExpressionContinuity.record(previous, messageId, kind, label, now)
-        if (updated.length() != (previous?.length() ?: 0)) {
+        if (updated.toString() != (previous?.toString() ?: "[]")) {
             root.put("expressiveDeliveries", updated)
             save(characterId, root)
         }
