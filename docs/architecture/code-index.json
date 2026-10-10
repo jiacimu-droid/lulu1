@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T05:55:02.292540+00:00",
-  "commit": "99e32ae820769e481b8a2ded37d505b266b42401",
+  "generatedAt": "2026-10-10T05:57:17.736905+00:00",
+  "commit": "8c0bd64a5a89388e9493171c3d9dff23fbe00a5e",
   "branch": "main",
-  "sourceFingerprint": "4f06ac43e1347e643b751dbc52a14c0684db29efc669ebdcd1fa81d10b28eb7e",
+  "sourceFingerprint": "6f500a8cdabc94cdedd96a3d2de7a6cf6b53104c164499655a0486041e6502a4",
   "summary": {
     "files": 427,
-    "lines": 95601,
-    "symbols": 1389
+    "lines": 95744,
+    "symbols": 1391
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -361,7 +361,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 996
+        "line": 1016
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -2109,19 +2109,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 843
+        "line": 863
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 855
+        "line": 875
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 986
+        "line": 1006
       }
     ],
     "consume": [
@@ -2405,11 +2405,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 422
+        "line": 483
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 354
+        "line": 389
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -2708,6 +2708,16 @@
         "line": 83
       }
     ],
+    "compactContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
+        "line": 427
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
+        "line": 357
+      }
+    ],
     "CharacterLifeStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -2777,13 +2787,13 @@
     "personaConstraintSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 43
+        "line": 57
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 52
+        "line": 66
       }
     ],
     "CharacterSocialRelationshipSnapshot": [
@@ -9589,8 +9599,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1004,
-      "sha256": "c7501edef1f3faaf88eb46ba78492e6d49d67653420c2d8222779621590aec00",
+      "lines": 1024,
+      "sha256": "ef716d53de81d1486841597bd632eecec4d004e7518c3626996c6a150675064a",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -9678,19 +9688,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 843
+          "line": 863
         },
         {
           "name": "consumeEvent",
-          "line": 855
+          "line": 875
         },
         {
           "name": "LuluAiServices",
-          "line": 986
+          "line": 1006
         },
         {
           "name": "initialize",
-          "line": 996
+          "line": 1016
         }
       ]
     },
@@ -10079,8 +10089,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 535,
-      "sha256": "325727e6491182fc8bccc9e42f0d8e1358ecc1bbb272d55d6f07f5d5d3115fca",
+      "lines": 596,
+      "sha256": "0322c830dc60de0e59a98b1f74865c002064bbcf8821e895401786c4d0cb71d8",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -10095,15 +10105,19 @@
           "line": 83
         },
         {
+          "name": "compactContext",
+          "line": 427
+        },
+        {
           "name": "context",
-          "line": 422
+          "line": 483
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 397,
-      "sha256": "8aa2c4009440b57efddf86dedf2f6d261077ec198b63b49de5f38abc9ae66fde",
+      "lines": 432,
+      "sha256": "5041f40aab9b118f53bffbd50cf5d38b203eea8ece9c3125219c66248c5599bc",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -10122,8 +10136,12 @@
           "line": 346
         },
         {
+          "name": "compactContext",
+          "line": 357
+        },
+        {
           "name": "context",
-          "line": 354
+          "line": 389
         }
       ]
     },
@@ -10161,8 +10179,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 67,
-      "sha256": "c122200b632d6b55976e2540c0cf481dc4af370b89c182566d7109ec3f8b3370",
+      "lines": 86,
+      "sha256": "2960f613296014ab690840180d82ebb9aaa51d9bf53988e08bb1a62e6493c45a",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -10190,11 +10208,11 @@
         },
         {
           "name": "personaConstraintSnapshot",
-          "line": 43
+          "line": 57
         },
         {
           "name": "developmentContext",
-          "line": 52
+          "line": 66
         }
       ]
     },
@@ -12799,8 +12817,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 232,
-      "sha256": "c3a4d8db7aa08f758f13f2a35e2e4301325700a385201389a235756aead1fed5",
+      "lines": 240,
+      "sha256": "c34e02e703a5148504190a78c73e54715d842e42b03f7f65f10f1829fae398aa",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
