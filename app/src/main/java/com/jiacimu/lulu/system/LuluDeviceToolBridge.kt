@@ -428,7 +428,9 @@ object LuluDeviceToolBridge {
                     ?: generated.text.trim().takeIf { it.isNotBlank() &&
                         !it.startsWith("{") && !it.startsWith("```") }?.let(::listOf)
                     ?: return Result.failure(IllegalStateException("表达模型没有返回完整的可发送正文"))
-                val naturalness = com.jiacimu.lulu.data.ConversationNaturalnessGate.assess(userText, firstBubbles)
+                val naturalness = com.jiacimu.lulu.data.ConversationNaturalnessGate.assess(
+                    userText, firstBubbles, history,
+                )
                 val rerendered = if (naturalness.needsRerender) {
                     LuluAiServices.gateway.generate(
                         characterId = characterId,
@@ -464,7 +466,7 @@ object LuluDeviceToolBridge {
                     com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyBubbles(it.text)
                 }
                 val repairedNaturalness = rerenderedBubbles?.let {
-                    com.jiacimu.lulu.data.ConversationNaturalnessGate.assess(userText, it)
+                    com.jiacimu.lulu.data.ConversationNaturalnessGate.assess(userText, it, history)
                 }
                 val useRerender = rerendered != null && !rerenderedBubbles.isNullOrEmpty() &&
                     repairedNaturalness != null && repairedNaturalness.score < naturalness.score &&
