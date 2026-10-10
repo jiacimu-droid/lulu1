@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T18:30:26.732294+00:00",
-  "commit": "c7d1bbaa1068f645524eae87664eb0b48c3e46fb",
+  "generatedAt": "2026-10-10T18:47:51.951778+00:00",
+  "commit": "c35bc2b145597bcd9bdc86f7df27a987a20c6d6f",
   "branch": "main",
-  "sourceFingerprint": "d52ebc4c18be55a24b39a8fd7aed2c58a5280c868b0e84859fd93aa76685bad4",
+  "sourceFingerprint": "793b5aa4ec99a36684e39bc4f9d58ef98775b447732c36b526cb2bdec433e88f",
   "summary": {
     "files": 480,
-    "lines": 103428,
+    "lines": 103443,
     "symbols": 1522
   },
   "symbolIndex": {
@@ -8161,19 +8161,19 @@
     "CharacterActionFeedbackTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterActionFeedbackTest.kt",
-        "line": 8
+        "line": 14
       }
     ],
     "CharacterCausalActionPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalActionPolicyTest.kt",
-        "line": 6
+        "line": 12
       }
     ],
     "CharacterCausalAppraisalStageTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStageTest.kt",
-        "line": 8
+        "line": 14
       }
     ],
     "CharacterContinuityRuntimeTest": [
@@ -17209,34 +17209,34 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterActionFeedbackTest.kt",
-      "lines": 47,
-      "sha256": "ddd75a365781dbe3401b5cb413f83776fcb3e17689536456be5bfa5f488dc533",
+      "lines": 52,
+      "sha256": "e43b524c591aea31e465bcf7bdc50ea9c26e18f08f388f8cc25d6351a5d8ad52",
       "symbols": [
         {
           "name": "CharacterActionFeedbackTest",
-          "line": 8
+          "line": 14
         }
       ]
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalActionPolicyTest.kt",
-      "lines": 49,
-      "sha256": "5931f88b8d7a7c1f1e8086d6daccb6225ec8ea71578addfa945db1d9188100cb",
+      "lines": 54,
+      "sha256": "cf79a6e4341a522fefc45e2fdef46de05e43475268250ed237f8da06e253a8a7",
       "symbols": [
         {
           "name": "CharacterCausalActionPolicyTest",
-          "line": 6
+          "line": 12
         }
       ]
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStageTest.kt",
-      "lines": 74,
-      "sha256": "f40e45e98f55e497cda522c5997cc9fe6c767e732a7076eb5b4ce2c8bd602e55",
+      "lines": 79,
+      "sha256": "9feef1c9377094ddd40dafc3c32cbbc865021ec1b90095853d14453f3932a09f",
       "symbols": [
         {
           "name": "CharacterCausalAppraisalStageTest",
-          "line": 8
+          "line": 14
         }
       ]
     },
