@@ -73,6 +73,13 @@ class CharacterOpenConcernRuntimeTest {
         assertEquals(0, CharacterOpenConcernRuntime.update(null, first, "", now).length())
     }
 
+    @Test fun aRecentConcernCanCauseOneOptionalLaterReflectionButOldOnesCannot() {
+        val opened = CharacterOpenConcernRuntime.update(null, first, "genuine-call-event", now)
+        assertTrue(CharacterOpenConcernRuntime.meritsOneFollowThrough(opened, now.plusSeconds(1_500)))
+        assertFalse(CharacterOpenConcernRuntime.meritsOneFollowThrough(opened, now.plusSeconds(4_200)))
+        assertFalse(CharacterOpenConcernRuntime.meritsOneFollowThrough(JSONArray(), now))
+    }
+
     @Test fun oldPrivateWorriesFadeInsteadOfBecomingPermanentPersonalityTraits() {
         val opened = CharacterOpenConcernRuntime.update(null, first, "silence", now)
         assertEquals("", CharacterOpenConcernRuntime.context(opened, now.plusSeconds(49L * 3600)))
