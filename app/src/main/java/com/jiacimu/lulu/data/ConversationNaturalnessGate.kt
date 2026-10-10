@@ -131,7 +131,7 @@ internal object ConversationNaturalnessGate {
     }
 
     private fun surfaceNormalize(value: String): String =
-        value.lowercase().replace(Regex("[\\s，。！？!?、；;：:“”‘’…~～—_\\"'（）()]+"), "")
+        value.lowercase().replace(Regex("""[\\s，。！？!?、；;：:“”‘’…~～—_"'（）()]+"""), "")
 
     private fun surfaceOverlap(a: String, b: String): Double {
         if (a.length < 4 || b.length < 4) return 0.0
