@@ -154,9 +154,14 @@ object CharacterLifeStore {
         if (character.displayName !in setOf("江渡", "江都")) return
         val root = state(characterId)
         val version = root.optInt("jiangDuPresetVersion")
-        if (version >= 5) return
+        if (version >= 6) return
+        if (version >= 5) {
+            migrateJiangDuUnifiedFramework(characterId, character, root)
+            return
+        }
         if (version >= 4) {
             refreshJiangDuLanguageDefaults(characterId, character, root)
+            if (state(characterId).optInt("jiangDuPresetVersion") >= 5) applyJiangDuPreset(characterId)
             return
         }
         if (version >= 3) {
@@ -172,14 +177,15 @@ object CharacterLifeStore {
                 save(characterId, root)
             }
             val profile = root.optJSONObject("profile") ?: JSONObject()
+            val stagedRespect = CharacterProfileSchema.jiangDuV5.getValue("respect")
             val oldRespect = profile.optString("respect")
-            if (!oldRespect.contains(CharacterProfileSchema.jiangDuRespect)) {
-                profile.put("respect", listOf(oldRespect, CharacterProfileSchema.jiangDuRespect)
+            if (!oldRespect.contains(stagedRespect)) {
+                profile.put("respect", listOf(oldRespect, stagedRespect)
                     .filter(String::isNotBlank).joinToString("\n"))
             }
             if (!character.persona.contains(CharacterProfileSchema.jiangDuRespectMarker)) {
                 MigratedDomainStores.characters.update(character.copy(persona = character.persona +
-                    "\n\n" + CharacterProfileSchema.jiangDuRespectMarker + "\n" + CharacterProfileSchema.jiangDuRespect))
+                    "\n\n" + CharacterProfileSchema.jiangDuRespectMarker + "\n" + stagedRespect))
             }
             root.put("profile", profile).put("jiangDuPresetVersion", 3)
             save(characterId, root)
@@ -201,14 +207,14 @@ object CharacterLifeStore {
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return
         // A custom identity/persona must survive an initial name-based preset too.
         if (rawIdentity.isBlank() || rawIdentity == LegacyJiangDuProfileSchema.jiangDuIdentity)
-            CharacterIdentityStore.set(characterId, CharacterProfileSchema.jiangDuIdentity)
+            CharacterIdentityStore.set(characterId, CharacterProfileSchema.jiangDuV5Identity)
         if (character.persona.isBlank() || character.persona == LegacyJiangDuProfileSchema.jiangDuPersona ||
             character.persona == CharacterProfileSchema.previousJiangDuPersona) {
-            MigratedDomainStores.characters.update(character.copy(persona = CharacterProfileSchema.jiangDuPersona + "\n\n" +
-                CharacterProfileSchema.jiangDuRespectMarker + "\n" + CharacterProfileSchema.jiangDuRespect))
+            MigratedDomainStores.characters.update(character.copy(persona = CharacterProfileSchema.jiangDuV5Persona + "\n\n" +
+                CharacterProfileSchema.jiangDuRespectMarker + "\n" + CharacterProfileSchema.jiangDuV5.getValue("respect")))
         }
         val profile = root.optJSONObject("profile") ?: JSONObject()
-        CharacterProfileSchema.jiangDu.forEach { (key, value) ->
+        CharacterProfileSchema.jiangDuV5.forEach { (key, value) ->
             if (!profile.has(key)) profile.put(key, value)
         }
         root.put("profile", profile).put("jiangDuPresetVersion", 3)
@@ -227,16 +233,18 @@ object CharacterLifeStore {
             save(characterId, root)
         }
         // Replace only program-owned defaults; preserve each user's edited field verbatim.
+        val v5Respect = CharacterProfileSchema.jiangDuV5.getValue("respect")
         val cleanPersona = character.persona
             .removeSuffix("\n\n" + CharacterProfileSchema.jiangDuRespectMarker + "\n" + LegacyJiangDuProfileSchema.jiangDuRespect)
-            .removeSuffix("\n\n" + CharacterProfileSchema.jiangDuRespectMarker + "\n" + CharacterProfileSchema.jiangDuRespect).trim()
+            .removeSuffix("\n\n" + CharacterProfileSchema.jiangDuRespectMarker + "\n" + v5Respect).trim()
         val persona = if (cleanPersona == LegacyJiangDuProfileSchema.jiangDuPersona ||
-            cleanPersona == CharacterProfileSchema.jiangDuPersona) CharacterProfileSchema.jiangDuPersona else cleanPersona
+            cleanPersona == CharacterProfileSchema.previousJiangDuPersona ||
+            cleanPersona == CharacterProfileSchema.jiangDuV5Persona) CharacterProfileSchema.jiangDuV5Persona else cleanPersona
         MigratedDomainStores.characters.update(character.copy(persona = persona))
         if (identity == LegacyJiangDuProfileSchema.jiangDuIdentity) {
-            CharacterIdentityStore.set(characterId, CharacterProfileSchema.jiangDuIdentity)
+            CharacterIdentityStore.set(characterId, CharacterProfileSchema.jiangDuV5Identity)
         }
-        CharacterProfileSchema.jiangDu.forEach { (key, value) ->
+        CharacterProfileSchema.jiangDuV5.forEach { (key, value) ->
             if (key == "speechHabits" && profile.has(key)) return@forEach
             val current = profile.optString(key)
             val legacy = LegacyJiangDuProfileSchema.jiangDu[key].orEmpty()
@@ -262,19 +270,20 @@ object CharacterLifeStore {
             save(characterId, root)
         }
         val previous = CharacterProfileSchema.previousJiangDuPersona
-        val decorated = previous + "\n\n" +
-            CharacterProfileSchema.jiangDuRespectMarker + "\n" + CharacterProfileSchema.jiangDuRespect
-        if (character.persona == previous || character.persona == decorated) {
-            val appendix = if (character.persona == decorated)
-                "\n\n" + CharacterProfileSchema.jiangDuRespectMarker +
-                    "\n" + CharacterProfileSchema.jiangDuRespect else ""
+        val stagedRespect = CharacterProfileSchema.jiangDuV5.getValue("respect")
+        val decoratedLegacy = previous + "\n\n" +
+            CharacterProfileSchema.jiangDuRespectMarker + "\n" + LegacyJiangDuProfileSchema.jiangDuRespect
+        val decoratedV5 = previous + "\n\n" +
+            CharacterProfileSchema.jiangDuRespectMarker + "\n" + stagedRespect
+        if (character.persona == previous || character.persona == decoratedLegacy ||
+            character.persona == decoratedV5) {
             MigratedDomainStores.characters.update(character.copy(
-                persona = CharacterProfileSchema.jiangDuPersona + appendix))
+                persona = CharacterProfileSchema.jiangDuV5Persona))
         }
         if (profile.optString("expression") == CharacterProfileSchema.previousJiangDuExpression)
-            profile.put("expression", CharacterProfileSchema.jiangDu.getValue("expression"))
+            profile.put("expression", CharacterProfileSchema.jiangDuV5.getValue("expression"))
         if (profile.optString("social") == CharacterProfileSchema.previousJiangDuSocial)
-            profile.put("social", CharacterProfileSchema.jiangDu.getValue("social"))
+            profile.put("social", CharacterProfileSchema.jiangDuV5.getValue("social"))
         // Explicitly saved empty strings are user edits, not missing defaults.
         if (!profile.has("speechHabits"))
             profile.put("speechHabits", CharacterProfileSchema.jiangDuSpeechHabits)
@@ -287,6 +296,86 @@ object CharacterLifeStore {
         if (beforeConstraints != afterConstraints) {
             root.put("jiangDuLanguagePreviousConstraints", beforeConstraints)
                 .put("jiangDuLanguageCurrentConstraints", afterConstraints)
+            save(characterId, root)
+        }
+    }
+
+    /**
+     * v6 migration: move every program-owned JiangDu default into the unified framework without
+     * treating a user's later edits as defaults. Runtime state, memories, names, motives and
+     * relationship history are untouched.
+     */
+    private fun migrateJiangDuUnifiedFramework(
+        characterId: String,
+        character: CharacterSettings,
+        root: JSONObject,
+    ) {
+        if (!DigitalLifeProfileStore.isEnabled(characterId)) return
+        val beforeConstraints = CharacterRuntime.personaConstraintSnapshot(characterId)
+        val profile = root.optJSONObject("profile") ?: JSONObject()
+        val identity = CharacterIdentityStore.identities.value[characterId].orEmpty()
+        if (!root.has("jiangDuUnifiedFrameworkBackup")) {
+            root.put("jiangDuUnifiedFrameworkBackup", JSONObject()
+                .put("persona", character.persona)
+                .put("identity", identity)
+                .put("profile", JSONObject(profile.toString())))
+            save(characterId, root)
+        }
+
+        if (identity == LegacyJiangDuProfileSchema.jiangDuIdentity ||
+            identity == CharacterProfileSchema.jiangDuV5Identity ||
+            identity == CharacterProfileSchema.jiangDuIdentity) {
+            CharacterIdentityStore.set(characterId, CharacterProfileSchema.jiangDuIdentity)
+        }
+
+        val knownRespectAppendices = listOf(
+            LegacyJiangDuProfileSchema.jiangDuRespect,
+            CharacterProfileSchema.jiangDuV5["respect"].orEmpty(),
+            CharacterProfileSchema.jiangDuRespect,
+        ).filter(String::isNotBlank)
+        var cleanPersona = character.persona.trim()
+        knownRespectAppendices.forEach { respect ->
+            cleanPersona = cleanPersona.removeSuffix(
+                "\n\n" + CharacterProfileSchema.jiangDuRespectMarker + "\n" + respect,
+            ).trim()
+        }
+        val isProgramOwnedPersona = cleanPersona in setOf(
+            LegacyJiangDuProfileSchema.jiangDuPersona,
+            CharacterProfileSchema.previousJiangDuPersona,
+            CharacterProfileSchema.jiangDuV5Persona,
+            CharacterProfileSchema.jiangDuPersona,
+        )
+        if (isProgramOwnedPersona) {
+            MigratedDomainStores.characters.update(character.copy(persona = CharacterProfileSchema.jiangDuPersona))
+        }
+
+        CharacterProfileSchema.jiangDu.forEach { (key, value) ->
+            val current = profile.optString(key)
+            val legacy = LegacyJiangDuProfileSchema.jiangDu[key].orEmpty()
+            val v5 = CharacterProfileSchema.jiangDuV5[key].orEmpty()
+            when {
+                !profile.has(key) -> profile.put(key, value)
+                current == legacy || current == v5 || current == value -> profile.put(key, value)
+                key == "respect" -> {
+                    val custom = current
+                        .replace(LegacyJiangDuProfileSchema.jiangDuRespect, "")
+                        .replace(v5, "")
+                        .replace(CharacterProfileSchema.jiangDuRespect, "")
+                        .trim()
+                    profile.put(
+                        key,
+                        listOf(custom, value).filter(String::isNotBlank).distinct().joinToString("\n"),
+                    )
+                }
+            }
+        }
+
+        root.put("profile", profile).put("jiangDuPresetVersion", 6)
+        save(characterId, root)
+        val afterConstraints = CharacterRuntime.personaConstraintSnapshot(characterId)
+        if (beforeConstraints != afterConstraints) {
+            root.put("jiangDuUnifiedPreviousConstraints", beforeConstraints)
+                .put("jiangDuUnifiedCurrentConstraints", afterConstraints)
             save(characterId, root)
         }
     }
