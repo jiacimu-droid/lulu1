@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T06:29:07.218481+00:00",
-  "commit": "7e2631f796b4a3b2a229581ba4f0a78f6d9036c3",
+  "generatedAt": "2026-10-10T06:29:27.671549+00:00",
+  "commit": "3342e45b01483659b8caccd474581014a24cc38d",
   "branch": "main",
-  "sourceFingerprint": "94df912a2fd0ec6851d185d5b11653ed487a760ea891536029b8752dbb2f93ba",
+  "sourceFingerprint": "479b781cfe6af05bce6aefe10cb077824c91af358c599ac9e720ea47bf017c85",
   "summary": {
     "files": 430,
-    "lines": 96030,
+    "lines": 96046,
     "symbols": 1401
   },
   "symbolIndex": {
@@ -3277,19 +3277,19 @@
     "unreadChatSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 257
+        "line": 265
       }
     ],
     "markSeen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 300
+        "line": 308
       }
     ],
     "resetCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 314
+        "line": 322
       }
     ],
     "CompanionPresenceState": [
@@ -10764,8 +10764,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 451,
-      "sha256": "ebe549412e2a5edb6682e34b650fa0f2aedb303deaed662e2df745d31c64d4c2",
+      "lines": 467,
+      "sha256": "a32da224fb69af1e68bb203f4491cda402824c1b38aae8d75a4ebf640a6d5380",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -10813,15 +10813,15 @@
         },
         {
           "name": "unreadChatSnapshot",
-          "line": 257
+          "line": 265
         },
         {
           "name": "markSeen",
-          "line": 300
+          "line": 308
         },
         {
           "name": "resetCharacter",
-          "line": 314
+          "line": 322
         }
       ]
     },
