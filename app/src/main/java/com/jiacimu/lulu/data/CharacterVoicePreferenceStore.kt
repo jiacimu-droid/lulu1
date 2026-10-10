@@ -21,14 +21,21 @@ object CharacterVoicePreferenceStore {
     @Volatile
     private var prefs: android.content.SharedPreferences? = null
     private var advanced: android.content.SharedPreferences? = null
+    @Volatile
+    private var initializedApplication: Context? = null
 
     fun initialize(context: Context) {
-        if (prefs != null) return
+        val application = context.applicationContext
+        if (prefs != null && initializedApplication === application) return
         synchronized(this) {
-            if (prefs != null) return
-            val loadedPrefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            if (prefs != null && initializedApplication === application) return
+            // Contexts are different after an Android/Robolectric application
+            // restart. Never retain preferences from a previous application:
+            // voice IDs and provider selection must be read from the same one.
+            val loadedPrefs = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             prefs = loadedPrefs
-            advanced = context.applicationContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+            advanced = application.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+            initializedApplication = application
             mutableAutoPlay.value = buildMap {
                 loadedPrefs.all.forEach { (key, value) ->
                     if (key.startsWith(AUTO_PLAY_PREFIX) && value is Boolean) {

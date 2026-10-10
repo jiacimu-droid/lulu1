@@ -15,6 +15,7 @@ class CharacterVoicePreferenceStoreTest {
         val context = RuntimeEnvironment.getApplication() as Context
         CharacterVoicePreferenceStore.initialize(context)
         val advanced = context.getSharedPreferences("lulu_advanced_settings", 0)
+        val normalStore = context.getSharedPreferences("lulu_character_voice_preferences", 0)
         val oldProvider = advanced.getString("tts_provider", "system")
         val role = "test-sleep-voice-role"
         val another = "test-sleep-voice-other"
@@ -23,6 +24,9 @@ class CharacterVoicePreferenceStoreTest {
             CharacterVoicePreferenceStore.setRealtimeVoiceId(role, "normal-bright-voice")
             CharacterVoicePreferenceStore.setSleepVoiceId(role, "gentle-low-voice")
             CharacterVoicePreferenceStore.setSleepVoiceEnabled(role, true)
+            assertEquals("normal-bright-voice",
+                normalStore.getString("eleven_voice:$role", null))
+            assertEquals("elevenlabs", advanced.getString("tts_provider", null))
             assertEquals("normal-bright-voice", CharacterVoicePreferenceStore.callVoiceId(role, false))
             assertEquals("gentle-low-voice", CharacterVoicePreferenceStore.callVoiceId(role, true))
             assertNotEquals("gentle-low-voice", CharacterVoicePreferenceStore.callVoiceId(another, true))
@@ -35,6 +39,7 @@ class CharacterVoicePreferenceStoreTest {
             advanced.edit().putString("tts_provider", oldProvider).commit()
             CharacterVoicePreferenceStore.setSleepVoiceEnabled(role, false)
             CharacterVoicePreferenceStore.setSleepVoiceId(role, "")
+            CharacterVoicePreferenceStore.setRealtimeVoiceId(role, "")
         }
     }
 }
