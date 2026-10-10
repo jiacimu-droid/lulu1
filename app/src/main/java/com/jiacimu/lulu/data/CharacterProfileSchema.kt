@@ -28,7 +28,7 @@ internal object CharacterProfileSchema {
         "起始偏好" to "可留空；没有写死的部分允许角色在真实生活中慢慢长出来。",
     )
     fun groupedFields(): List<Pair<String, List<CharacterProfileField>>> = groupOrder.mapNotNull { group ->
-        fields.filter { it.group == group }.takeIf(List<CharacterProfileField>::isNotEmpty)?.let { group to it }
+        fields.filter { it.group == group }.takeIf { it.isNotEmpty() }?.let { group to it }
     }
 
     // Compatibility helpers for old UI/tests; new UI renders groupedFields() directly.
