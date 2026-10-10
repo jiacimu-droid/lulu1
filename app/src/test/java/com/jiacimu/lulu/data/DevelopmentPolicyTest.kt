@@ -27,4 +27,13 @@ class DevelopmentPolicyTest {
         assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.VerifiedMethod, 1, true, 0))
         assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.VerifiedMethod, 3, false, 0))
     }
+    @Test fun maturityNeedsMoreEvidenceThanInitialFormation() {
+        assertEquals(DevelopmentMaturity.Emerging,
+            DevelopmentPolicy.maturity(DevelopmentKind.SituationalPattern, 3))
+        assertEquals(DevelopmentMaturity.Established,
+            DevelopmentPolicy.maturity(DevelopmentKind.SituationalPattern, 5))
+        assertEquals(2, DevelopmentPolicy.counterExamplesToRetire(DevelopmentMaturity.Emerging))
+        assertEquals(3, DevelopmentPolicy.counterExamplesToRetire(DevelopmentMaturity.Established))
+    }
+
 }
