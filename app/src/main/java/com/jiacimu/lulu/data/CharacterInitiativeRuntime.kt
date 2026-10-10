@@ -24,16 +24,16 @@ internal object CharacterInitiativeRuntime {
     )
 
     private val fatigue = Regex(
-        "(学|学习|复习|背书|写题|工作|上班|做事)?.{0,8}(累死|好累|很累|累了|疲惫|撑不住|学不动|做不动|没力气|脑子转不动|困得不行)"
+        "(学|学习|复习|背书|写题|工作|上班|做事)?.{0,10}(累死|好累|很累|累了|疲惫|撑不住|顶不住|扛不住|学不动|学不进去|做不动|没力气|没精神|脑子转不动|脑子糊|心累|困得不行|好困|困了)"
     )
     private val distress = Regex(
-        "(难受|委屈|烦死|烦躁|崩溃|想哭|心里不舒服|不开心|受不了了|好挫败|失败了|被气到)"
+        "(难受|委屈|烦死|好烦|烦躁|焦虑|压力大|郁闷|难过|崩溃|想哭|心里不舒服|不开心|受不了了|好挫败|失败了|考砸了|被气到|被骂了|被拒绝了)"
     )
     private val celebration = Regex(
         "(终于|居然|竟然)?.{0,8}(做完了|搞定了|成功了|过了|上岸了|全对|考得很好|拿到了|赢了|太开心了)"
     )
-    private val boredom = Regex("(好无聊|无聊死了|没意思|不知道干嘛|想换换脑子|学烦了)")
-    private val connection = Regex("(想你了|想你|陪陪我|陪我一会|想和你说话|想找你|抱抱我|哄哄我)")
+    private val boredom = Regex("(好无聊|无聊死了|没意思|不知道干嘛|没事做|在发呆|想换换脑子|学烦了)")
+    private val connection = Regex("(想你了|想你|你在吗|在不在|陪陪我|陪我一会|想和你说话|想听你说话|想找你|抱抱我|哄哄我)")
 
     fun detect(userText: String): Cue? {
         val clean = userText.replace("\n", " ").trim()
@@ -122,6 +122,41 @@ internal object CharacterInitiativeRuntime {
             }
             appendLine("如果没有可靠历史方法，也可以只做一个低风险、可撤回、能力内的小回应/邀请；不要为了显得主动编造“以前这样一定能让她开心”。")
             appendLine("露露机内的聊天、邀请、日记、朋友圈、阅读、游戏和数字世界行为可由角色按已有产品权限自主选择；真正操作用户手机、闹钟、屏幕、定位/通知等仍按能力授权判断，不能因为‘关心’就越权。")
+        }.trim()
+    }
+
+    fun proactiveContext(
+        characterId: String,
+        recentActions: List<String>,
+        hasConcern: Boolean,
+        hasCommitment: Boolean,
+        now: java.time.Instant = java.time.Instant.now(),
+    ): String {
+        val continuity = CharacterContinuityRuntime.snapshot(characterId, now = now)
+        val recent = recentActions.takeLast(5)
+        val contactActions = setOf("MESSAGE", "GROUP_MESSAGE", "GAME_INVITE", "WORLD_INVITE", "CALL")
+        val recentContacts = recent.count { it in contactActions }
+        val repeatedSame = recent.takeLast(3).takeIf { it.size == 3 }?.distinct()?.size == 1
+        val motives = continuity.activeMotiveAims
+        return buildString {
+            appendLine("【自主行动机会评估｜程序只给机会，不替角色下命令】")
+            if (hasCommitment) appendLine("- 有未完成承诺：优先确认真实到期状态与可执行能力；履约比表达‘我记得’更重要。")
+            if (hasConcern) appendLine("- 有仍在挂心的事情：可以在合适时机回访，也可以因为时机不对暂时不打扰。")
+            if (motives.isNotEmpty()) appendLine("- 角色自己的未完动机：${motives.joinToString("；")}。它们可以驱动阅读、日记、游戏、数字世界或联系用户。")
+            continuity.minutesSinceInteraction?.let { minutes ->
+                when {
+                    minutes >= 7 * 24 * 60 ->
+                        appendLine("- 已明显久未互动：允许一次低压力联系或分享自己的近况，但不追问、不控诉、不连续催促。")
+                    minutes >= 24 * 60 ->
+                        appendLine("- 已跨日：若角色真的有内容可说，可以主动联系；没有内容就继续自己的生活，不做签到式问候。")
+                    else -> appendLine("- 最近仍有互动：主动性不等于继续刷存在感。")
+                }
+            }
+            if (recentContacts >= 3) appendLine("- 最近5次自主动作里联系用户较多（$recentContacts 次）：除非有新证据/承诺/强动机，降低再次联系优先级，考虑自己的生活动作或 silent。")
+            if (repeatedSame) appendLine("- 最近连续三次自主动作相同：若没有新的理由，不机械复刻；可换一种符合当前动机的行动或保持沉默。")
+            appendLine("候选动作先比较：此刻本人到底想不想做 → 是否有真实新理由 → 会不会打扰 → 能否真实执行 → 执行后是否值得记录学习。")
+            appendLine("主动性不仅是给用户发消息；阅读、写日记、独自游戏、数字世界活动、整理自己的状态同样是真实生活。")
+            appendLine("不要为了提高主动率硬做动作；但也不要把 silent 当安全默认。只要有明确动机且低风险可执行，就允许真正行动。")
         }.trim()
     }
 
