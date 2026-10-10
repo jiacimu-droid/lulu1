@@ -42,6 +42,36 @@ internal object ModelStructuredOutput {
     }
 
     /**
+     * Preferred text-chat protocol: bubbles are structural JSON, never magic strings inside text.
+     * Supports either ["text"] or [{"text":"..."}] during migration.
+     */
+    fun completedReplyBubbles(raw: String): List<String>? {
+        val action = Regex(""""action"\\s*:\\s*"([^"]+)"""").find(raw)
+            ?.groupValues?.getOrNull(1)?.lowercase()
+        if (action != null && action != "reply") return null
+        val json = objectOrNull(raw) ?: return null
+        if (json.optString("action", "reply").lowercase() != "reply") return null
+
+        val bubbles = json.optJSONArray("bubbles")
+        if (bubbles != null) {
+            val values = buildList {
+                for (i in 0 until bubbles.length()) {
+                    val item = bubbles.opt(i)
+                    val text = when (item) {
+                        is JSONObject -> item.optString("text")
+                        else -> bubbles.optString(i)
+                    }.replace("\\r\\n", "\\n").trim()
+                    if (text.isNotBlank()) add(text.take(2_000))
+                }
+            }.take(3)
+            if (values.isNotEmpty()) return values
+        }
+
+        return json.optString("text").replace("\\r\\n", "\\n").trim()
+            .takeIf(String::isNotBlank)?.let(::listOf)
+    }
+
+    /**
      * Recover only a *completed* speech text field from a truncated chat envelope.
      * Invalid command parameters are never executed or marked successful.
      */
@@ -50,15 +80,8 @@ internal object ModelStructuredOutput {
         val action = Regex(""""action"\s*:\s*"([^"]+)"""").find(raw)
             ?.groupValues?.getOrNull(1)?.lowercase()
         if (action != null && action != "reply") return null
-        val json = objectOrNull(raw)
-        if (json != null) {
-            if (json.optString("action", "reply").lowercase() != "reply") return null
-            val text = json.optString("text").takeIf(String::isNotBlank)
-            if (text != null) return text
-            val bubbles = json.optJSONArray("bubbles")
-            if (bubbles != null) return (0 until bubbles.length())
-                .map { bubbles.optString(it).trim() }.filter(String::isNotBlank)
-                .joinToString("\n").takeIf(String::isNotBlank)
+        completedReplyBubbles(raw)?.let { bubbles ->
+            return bubbles.joinToString("\n").takeIf(String::isNotBlank)
         }
         // This only accepts a completely closed text string; the rest of the
         // optional mood/innerLife JSON may be truncated by token limits.
