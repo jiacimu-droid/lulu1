@@ -41,6 +41,13 @@ class CallSilencePolicyTest {
         assertEquals("hour-1", CallSilencePolicy.observationMilestone(60 * 60_000))
     }
 
+    @Test fun stalledProviderCaptureCanFlushWithoutTreatingUnconfirmedAudioAsSpeech() {
+        assertFalse(CallSilencePolicy.shouldRecoverStuckCapture(false, true, 120_000L))
+        assertFalse(CallSilencePolicy.shouldRecoverStuckCapture(true, false, 120_000L))
+        assertFalse(CallSilencePolicy.shouldRecoverStuckCapture(true, true, 89_999L))
+        assertTrue(CallSilencePolicy.shouldRecoverStuckCapture(true, true, 90_000L))
+    }
+
     @Test fun mutedStudyCompanionshipIsObservationRatherThanFakeUserSpeech() {
         val scene = CallSilencePolicy.context(15 * 60_000L, true)
         assertTrue(scene.contains("用户没有新增发言"))
