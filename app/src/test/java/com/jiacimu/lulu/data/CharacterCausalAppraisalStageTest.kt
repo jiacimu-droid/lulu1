@@ -2,10 +2,15 @@ package com.jiacimu.lulu.data
 
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.json.JSONObject
 import org.json.JSONArray
 import java.time.Instant
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class CharacterCausalAppraisalStageTest {
     private val now = Instant.parse("2026-10-11T15:30:00Z")
 
