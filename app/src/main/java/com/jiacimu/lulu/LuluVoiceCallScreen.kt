@@ -182,8 +182,32 @@ fun LuluVoiceCallScreen(
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center,
                 )
-                Spacer(Modifier.height(11.dp))
-                
+                Spacer(Modifier.height(8.dp))
+                if (state.connected) {
+                    val liveStatus = when {
+                        state.speaking -> "${state.characterName.ifBlank { characterName }}正在说话"
+                        state.userSpeaking -> "正在听你说话…"
+                        state.thinking -> "${state.characterName.ifBlank { characterName }}正在回复…"
+                        state.opening -> "${state.characterName.ifBlank { characterName }}正在准备开场…"
+                        state.microphoneMuted -> "麦克风已关闭"
+                        state.statusMessage.contains("识别") -> "正在识别你刚才说的话…"
+                        state.statusMessage.contains("发声") ||
+                            state.generatedTranscript.isNotBlank() -> "回复已生成，正在准备语音…"
+                        state.errorMessage.isNotBlank() -> "语音处理出错，可以重新收音"
+                        else -> "正在听你说话"
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(9.dp, Alignment.CenterHorizontally),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        CallActivityIndicator(state)
+                        Text(liveStatus, color = CallInk, fontSize = 13.sp, fontWeight = FontWeight.Medium,
+                            maxLines = 1)
+                    }
+                }
+                Spacer(Modifier.height(7.dp))
+
                 if (state.errorMessage.isNotBlank()) Text(state.errorMessage, color = CallDanger, fontSize = 12.sp)
                 if (state.connected) {
                     Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
@@ -395,7 +419,7 @@ private fun CallCaptionLines(speaker: String, content: String, mine: Boolean, li
 
 @Composable
 private fun CallActivityIndicator(state: LuluVoiceCallState) {
-    val active = state.listening || state.thinking || state.speaking
+    val active = state.userSpeaking || state.thinking || state.speaking
     Row(
         modifier = Modifier.clip(RoundedCornerShape(99.dp)).background(Color.White.copy(alpha = .58f)).padding(horizontal = 14.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(5.dp),
@@ -411,7 +435,7 @@ private fun CallActivityIndicator(state: LuluVoiceCallState) {
                 Modifier.width(3.dp).height(height.dp).clip(CircleShape).background(
                     when {
                         state.speaking -> Color(0xFF9A6BB5)
-                        state.listening -> CallBlue
+                        state.userSpeaking -> CallBlue
                         else -> CallMuted.copy(alpha = .55f)
                     },
                 ),
