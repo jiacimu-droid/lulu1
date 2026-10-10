@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:41:20.892953+00:00",
-  "commit": "e6a1a20f29d2a8cd33048865409eafb50e9f3411",
+  "generatedAt": "2026-10-10T17:41:39.275752+00:00",
+  "commit": "11f096cb5bac5993c619599eb775d9901abb9a96",
   "branch": "main",
-  "sourceFingerprint": "5726bec64f910ebd4fd9705007b3f61d565447dcd327d3c8ea9168e1a5e47af6",
+  "sourceFingerprint": "e8e7192f361f5483140066f6227c5185f271ccf1981c2f50507da3c199e4bf0b",
   "summary": {
-    "files": 467,
-    "lines": 102057,
-    "symbols": 1501
+    "files": 468,
+    "lines": 102106,
+    "symbols": 1502
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8058,6 +8058,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
         "line": 5
+      }
+    ],
+    "CharacterCausalActionPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalActionPolicyTest.kt",
+        "line": 6
       }
     ],
     "CharacterCausalAppraisalStageTest": [
@@ -16951,6 +16957,17 @@
         {
           "name": "CharacterAccountabilityContextTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalActionPolicyTest.kt",
+      "lines": 49,
+      "sha256": "5931f88b8d7a7c1f1e8086d6daccb6225ec8ea71578addfa945db1d9188100cb",
+      "symbols": [
+        {
+          "name": "CharacterCausalActionPolicyTest",
+          "line": 6
         }
       ]
     },
