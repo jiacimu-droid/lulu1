@@ -21,6 +21,31 @@ class CharacterLifeStoreTest {
         CharacterLifeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
             .set(CharacterLifeStore, null)
     }
+    @Test fun explicitUserFavoriteAddressIsStableAndDistinctFromPrivateRemark() {
+        assertEquals("宝宝", CharacterAddressPreference.extractExplicitAddress("我更喜欢宝宝这个称呼"))
+        assertEquals("宝宝", CharacterAddressPreference.extractExplicitAddress("以后你叫我宝宝吧"))
+        assertNull(CharacterAddressPreference.extractExplicitAddress("我不喜欢宝宝这个称呼"))
+        assertNull(CharacterAddressPreference.extractExplicitAddress("比如我更喜欢宝宝这个称呼"))
+        val context = RuntimeEnvironment.getApplication() as Context
+        CharacterLifeStore.initialize(context)
+        val role = "preferred-address-test"
+        CharacterLifeStore.setSocialName(role, "userRemark", "亲爱的好友")
+        CharacterLifeStore.observePreferredAddress(role, "宝宝", "source-a")
+        var names = CharacterLifeStore.state(role).getJSONObject("socialNames")
+        assertEquals("宝宝", names.getString("preferredAddress"))
+        assertEquals("亲爱的好友", names.getString("userRemark"))
+        CharacterLifeStore.setSocialName(role, "preferredAddress", "宝贝")
+        CharacterLifeStore.observePreferredAddress(role, "坏蛋", "source-b")
+        names = CharacterLifeStore.state(role).getJSONObject("socialNames")
+        assertEquals("宝贝", names.getString("preferredAddress"))
+        assertTrue(names.getBoolean("preferredAddressManual"))
+        CharacterLifeStore.followObservedPreferredAddress(role)
+        CharacterLifeStore.observePreferredAddress(role, "宝宝", "source-a")
+        names = CharacterLifeStore.state(role).getJSONObject("socialNames")
+        assertEquals("宝宝", names.getString("preferredAddress"))
+        assertEquals("source-a", names.getString("preferredAddressSourceId"))
+    }
+
     @Test fun distinctGoalsRemainDistinctWhileMinorRewordingIsDeduplicated() {
         assertTrue(sameCharacterMotive("继续阅读这本小说。", "继续 阅读这本小说"))
         assertTrue(sameCharacterMotive("认真完成今天的英语复习计划", "完成今天的英语复习计划"))
