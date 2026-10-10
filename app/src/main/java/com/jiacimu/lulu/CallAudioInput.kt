@@ -131,14 +131,19 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                     val nearlyConstant = PhoneMicSegmentPolicy.stableBackgroundNoise(rollingVariation, rollingRms)
                     steadyFrames = if (nearlyConstant) steadyFrames + 1 else 0
                     rollingRms = rollingRms * 0.72 + rms * 0.28
+                    val endedByStableNoise = PhoneMicSegmentPolicy.stationaryNoiseEnded(steadyFrames, utteranceFrames)
                     val finishedBySilence = PhoneMicSegmentPolicy.finishedBySilence(
                         silentFrames, utteranceFrames, endSilenceMs
-                    ) || PhoneMicSegmentPolicy.stationaryNoiseEnded(steadyFrames, utteranceFrames)
+                    ) || endedByStableNoise
                     val chunkFull = PhoneMicSegmentPolicy.uploadChunkFull(buffer.size())
                     if (finishedBySilence || chunkFull) {
                         val segment = buffer.toByteArray()
                         buffer = ByteArrayOutputStream()
                         if (finishedBySilence) {
+                            // The room's persistent RMS must become the next
+                            // idle baseline, or the same fan noise will produce
+                            // another false speech turn every few seconds.
+                            if (endedByStableNoise) ambientRms = maxOf(ambientRms, rollingRms)
                             active = false
                             loudFrames = 0
                             silentFrames = 0
