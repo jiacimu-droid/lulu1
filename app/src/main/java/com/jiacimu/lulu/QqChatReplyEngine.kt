@@ -213,7 +213,7 @@ internal suspend fun runGroupReplies(
                 val prev = it.authorCharacterId?.let(characterNames::get).orEmpty().ifBlank { "上一位角色" }
                 appendLine("[$prev 刚说：${it.content.takeLast(900)}。从这一刻接，不要重启话题。]")
             }
-            appendLine("[像真人即时通讯：一个表达动作一个气泡；需要分开发送时用 $SemanticBubbleSeparator。撤回 ⟪RECALL:n⟫ 和戳用户 ⟪POKE_USER⟫ 都只能偶尔自然发生。]")
+            appendLine("[像真人即时通讯：一个表达动作一个气泡；气泡边界由系统结构化处理，不要输出 BUBBLE 或其他气泡控制串。撤回 ⟪RECALL:n⟫ 和戳用户 ⟪POKE_USER⟫ 都只能偶尔自然发生。]")
             if (group.allowCharacterConversation) appendLine("[说完后只有当某位具体成员真的会自然接话才输出 ⟪NEXT:成员名⟫；否则输出 ⟪END⟫。不要为了让更多人出现而NEXT。]")
             append(if (index == 0) "用户刚在群里说：$pendingText" else "这轮最初由用户说：$pendingText")
         }
