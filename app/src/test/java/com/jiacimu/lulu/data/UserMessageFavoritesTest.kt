@@ -60,6 +60,31 @@ class UserMessageFavoritesTest {
         assertEquals("好好睡。", MigratedDomainStores.chat.messages(conversation.id).value.single().content)
     }
 
+    @Test fun transientGestureEndsWhenLaterObservationOmitsItButSustainedActivityCanContinue() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "gesture-lifecycle-test"
+        CompanionPresenceStore.clearCharacter(role)
+        val start = Instant.parse("2026-10-10T08:00:00Z")
+        CompanionPresenceStore.update(
+            role, "正在聊天", "手指轻敲桌面，失笑摇头", "先听她说完", "放松", "聊天", start,
+        )
+        CompanionPresenceStore.update(
+            role, null, null, "", null, "在线持续感知", start.plusSeconds(60),
+        )
+        assertEquals("", CompanionPresenceStore.current(role)!!.gesture)
+        assertEquals("", CompanionPresenceStore.current(role)!!.innerThought)
+
+        CompanionPresenceStore.update(
+            role, "正在阅读", "靠着沙发看书", "", "平静", "独自阅读", start.plusSeconds(120),
+        )
+        CompanionPresenceStore.update(
+            role, null, null, "", null, "在线持续感知", start.plusSeconds(180),
+        )
+        assertEquals("靠着沙发看书", CompanionPresenceStore.current(role)!!.gesture)
+        CompanionPresenceStore.clearCharacter(role)
+    }
+
     @Test fun endingCallRepairsOnlyCurrentPresenceAndRejectsLateOngoingCallState() {
         val context = RuntimeEnvironment.getApplication() as Context
         CompanionPresenceStore.initialize(context)
