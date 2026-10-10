@@ -62,7 +62,7 @@ internal fun CompanionPresenceDialog(
         while (true) { delay(15_000L); now = Instant.now() }
     }
     val past = remember(displayHistory, displayState) {
-        displayHistory.filter { it.updatedAt != displayState?.updatedAt }
+        displayHistory.filter { it.updatedAt != displayState?.updatedAt && it.showInHistory }
     }
     val dismiss = {
         CompanionPresenceStore.clearMessageAnchor()
