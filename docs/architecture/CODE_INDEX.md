@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`c00ce7a12f7e2bacf964bb276eeaaef65516d1a1`
+- 基准提交：`fc63d7688296f6ae5c31f798b1afae8d6fb6ee2d`
 - 分支：`main`
 - 已索引文件：483
-- 已索引代码/文本行：103724
-- 已发现符号：1531
+- 已索引代码/文本行：103757
+- 已发现符号：1532
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -161,7 +161,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1175 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 578 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 156 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 95 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 128 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 65 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 135 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 87 | 1 |

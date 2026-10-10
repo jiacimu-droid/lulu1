@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T19:05:33.507442+00:00",
-  "commit": "c00ce7a12f7e2bacf964bb276eeaaef65516d1a1",
+  "generatedAt": "2026-10-10T19:05:48.753783+00:00",
+  "commit": "fc63d7688296f6ae5c31f798b1afae8d6fb6ee2d",
   "branch": "main",
-  "sourceFingerprint": "11792f4311701daaf8f10e6ec3cea9eb553f52a7b2683a53f636e253d1fb3c0f",
+  "sourceFingerprint": "1836a0597d8365430a33ac83ac6a4bcf673ce0dc4e261e8c56501b23c686ecc6",
   "summary": {
     "files": 483,
-    "lines": 103724,
-    "symbols": 1531
+    "lines": 103757,
+    "symbols": 1532
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -315,7 +315,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 74
+        "line": 102
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -2135,7 +2135,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 64
+        "line": 92
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
@@ -3172,6 +3172,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt",
         "line": 33
+      }
+    ],
+    "recordOutcome": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
+        "line": 70
       }
     ],
     "integrate": [
@@ -11285,20 +11291,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-      "lines": 95,
-      "sha256": "e554d129e1c9b56989ecd2271549ae37bb367b0329c4fe3fa561bca1446ed390",
+      "lines": 128,
+      "sha256": "4e777d3c841e3150130c1189674f46b45e3d9043723138426448de9c2ef35596",
       "symbols": [
         {
           "name": "update",
           "line": 20
         },
         {
+          "name": "recordOutcome",
+          "line": 70
+        },
+        {
           "name": "recent",
-          "line": 64
+          "line": 92
         },
         {
           "name": "context",
-          "line": 74
+          "line": 102
         }
       ]
     },
