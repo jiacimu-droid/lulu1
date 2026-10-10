@@ -85,6 +85,7 @@ internal object LuluVoiceCallSession {
     private var recognizer: SpeechRecognizer? = null
     private var providerInput: ProviderCallInput? = null
     private var speechQueue: LuluCallSpeechQueue? = null
+    private var subtitleRevealJob: Job? = null
     private var realtime: RealtimeVoiceAdapter? = null
     private var replyJob: Job? = null
     private var replyGeneration = 0L
@@ -369,6 +370,8 @@ internal object LuluVoiceCallSession {
         sleepContinuationJob?.cancel()
         sleepContinuationJob = null
         sleepFailures = 0
+        subtitleRevealJob?.cancel()
+        subtitleRevealJob = null
         lastSleepUserReplyAtMillis = null
         userSpeechInProgress = false
         autonomousHangup.cancel()
@@ -640,6 +643,7 @@ internal object LuluVoiceCallSession {
         }
         replyGeneration++
         autonomousHangup.cancel()
+        subtitleRevealJob?.cancel()
         speechQueue?.stop()
         val generation = replyGeneration
         replyJob?.cancel()
@@ -693,10 +697,25 @@ internal object LuluVoiceCallSession {
                         voiceId = CharacterVoicePreferenceStore.callVoiceId(latest.characterId, latest.sleepMode),
                         messageId = voiceMessageId,
                         onStarted = {
-                            if (sameReply()) mutableState.update { it.copy(playingTranscript = plainSpeech) }
+                            if (sameReply()) {
+                                subtitleRevealJob?.cancel()
+                                val lines = PhoneSubtitleLayout.lines(plainSpeech)
+                                if (lines.isNotEmpty()) {
+                                    mutableState.update { it.copy(playingTranscript = lines.first()) }
+                                    subtitleRevealJob = scope.launch {
+                                        for (index in 1 until lines.size) {
+                                            delay(PhoneSubtitleProgress.pauseBeforeNextLine(lines[index - 1]))
+                                            if (!sameReply() || !mutableState.value.speaking) break
+                                            val released = lines.take(index + 1).joinToString("\n")
+                                            mutableState.update { it.copy(playingTranscript = released) }
+                                        }
+                                    }
+                                }
+                            }
                         },
                         onDelivered = {
                             if (!sameReply()) return@enqueue
+                            subtitleRevealJob?.cancel()
                             heard.append(VoicePerformance.plain(part))
                             if (plainSpeech.isNotBlank()) {
                                 sleepFailures = 0
@@ -856,7 +875,8 @@ internal object LuluVoiceCallSession {
         if (!mutableState.value.connected || realtime != null) return
         sleepContinuationJob?.cancel()
         userSpeechInProgress = false
-        replyGeneration++; replyJob?.cancel(); speechQueue?.stop()
+        replyGeneration++; replyJob?.cancel()
+        subtitleRevealJob?.cancel(); speechQueue?.stop()
         mutableState.update { it.copy(speaking = false, thinking = false, opening = false, microphoneMuted = false, errorMessage = "", generatedTranscript = "", playingTranscript = "") }
         audioRoute?.microphone(false)
         audioRoute?.refresh()

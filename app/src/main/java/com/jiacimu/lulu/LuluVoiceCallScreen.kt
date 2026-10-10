@@ -78,6 +78,8 @@ fun LuluVoiceCallScreen(
     val callMessages = remember(messages, state.callExperienceId, state.callStartedAt) {
         actualPhoneCaptions(messages, state.callStartedAt)
     }
+    // Streaming spoken words are rendered a line at a time below; completed
+    // call messages keep their complete, permanent transcript.
     val visibleCallMessages = remember(callMessages) { callMessages.takeLast(12) }
 
     LaunchedEffect(visibleCallMessages.lastOrNull()?.id, visibleCallMessages.lastOrNull()?.content,
