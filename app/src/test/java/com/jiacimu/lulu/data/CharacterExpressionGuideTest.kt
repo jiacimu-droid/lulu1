@@ -86,6 +86,35 @@ class CharacterExpressionGuideTest {
         ))
     }
 
+    @Test fun freshMessageAloneDoesNotAuthorizeAHeartVoice() {
+        assertEquals("", CharacterHeartVoicePolicy.keepOrBlank(
+            thought = "她刚才那句话其实让我有点介意",
+            outward = "嗯，我知道了。",
+            innerLife = null,
+            basis = null,
+            hasFreshEvidence = true,
+        ))
+        assertEquals("", CharacterHeartVoicePolicy.keepOrBlank(
+            thought = "她刚才那句话其实让我有点介意",
+            outward = "嗯，我知道了。",
+            innerLife = null,
+            basis = JSONObject().put("change", "开始有点介意"),
+            hasFreshEvidence = true,
+        ))
+        val basis = JSONObject()
+            .put("focus", "用户刚刚说“算了”")
+            .put("change", "我第一次意识到她可能不想继续这个话题")
+            .put("conflict", "想问清楚，又不想立刻逼问")
+            .put("unsaidWhy", "这部分不适合直接说出口")
+        assertEquals("她刚才那句话其实让我有点介意", CharacterHeartVoicePolicy.keepOrBlank(
+            thought = "她刚才那句话其实让我有点介意",
+            outward = "嗯，我知道了。",
+            innerLife = null,
+            basis = basis,
+            hasFreshEvidence = true,
+        ))
+    }
+
     @Test fun situationalPatternNeedsRepeatedEvidence() {
         assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.SituationalPattern, 1, false, 0))
         assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.SituationalPattern, 2, false, 0))
