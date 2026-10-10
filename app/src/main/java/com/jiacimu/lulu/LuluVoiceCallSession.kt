@@ -723,7 +723,7 @@ internal object LuluVoiceCallSession {
     }
 
     private fun normalizeSpeechForComparison(value: String): String =
-        value.lowercase().replace(Regex("""[\\s，。！？!?、；;：:“”‘’…~～—_"'（）()]+"""), "")
+        value.lowercase().replace(Regex("""[\s，。！？!?、；;：:“”‘’…~～—_"'（）()]+"""), "")
 
     private fun scheduleSystemUtteranceCommit(delayMillis: Long = 700L) {
         systemCommitJob?.cancel()
