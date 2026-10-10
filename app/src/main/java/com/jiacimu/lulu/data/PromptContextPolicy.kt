@@ -3,7 +3,7 @@ package com.jiacimu.lulu.data
 /** Dynamic *prompt* budgets. Stores and original evidence are never deleted or rewritten.
  * Full fidelity is retained for responsibility checks, world interaction and autonomous action.
  */
-internal data class PromptContextBudget(
+data class PromptContextBudget(
     val recallLimit: Int,
     val memoryCharacters: Int,
     val evidenceCharacters: Int,
