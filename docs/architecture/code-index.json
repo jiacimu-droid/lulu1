@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T11:20:57.507148+00:00",
-  "commit": "1c6ffa4127767ec7719150d124c0a3dd5b9da14d",
+  "generatedAt": "2026-10-10T11:21:47.048168+00:00",
+  "commit": "95a2dc96b7e87b8b5f010f2db026cd1a8bd33e32",
   "branch": "main",
-  "sourceFingerprint": "ed54cdd8931620f64fa61c03799451d73d248ae1a7ae627ba8682bfca0513ea0",
+  "sourceFingerprint": "2ca14774de36ebd5c6c4336e152613cdff1e22b3c6e86e5546f22f25a3f51870",
   "summary": {
     "files": 445,
-    "lines": 98488,
-    "symbols": 1446
+    "lines": 98511,
+    "symbols": 1447
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4956,10 +4956,16 @@
         "line": 10
       }
     ],
-    "completedReplyText": [
+    "completedReplyBubbles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
         "line": 48
+      }
+    ],
+    "completedReplyText": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
+        "line": 78
       }
     ],
     "MomentAuthorType": [
@@ -12745,16 +12751,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-      "lines": 72,
-      "sha256": "4f24ab5d06c512fbba618e4f8e0f2f5a0b6a5660fea1058bf876b0605f5c3e65",
+      "lines": 95,
+      "sha256": "fc9fe0a98ed3013feed1533d47ac3ba7b1f08201bff65bd2cbe73fcdefce5094",
       "symbols": [
         {
           "name": "objectOrNull",
           "line": 10
         },
         {
-          "name": "completedReplyText",
+          "name": "completedReplyBubbles",
           "line": 48
+        },
+        {
+          "name": "completedReplyText",
+          "line": 78
         }
       ]
     },
