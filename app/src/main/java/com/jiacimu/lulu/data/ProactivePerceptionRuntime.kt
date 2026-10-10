@@ -379,6 +379,53 @@ object ProactivePerceptionRuntime {
             now = now,
         )
         val observedWorld = CharacterPerceptionContext.pending(appContext, characterId, now)
+        // Only salient witnessed interactions take the two-model-call path.
+        // In-call and ordinary chat turns keep their existing one-call latency.
+        val awaitingCausalAppraisal = CharacterCausalAppraisalStage.latestPending(observedWorld)
+        val stagedAppraisal = if (awaitingCausalAppraisal != null) {
+            runCatching {
+                CharacterCausalAppraisalStage.reflect(
+                    appContext, characterId, observedWorld, now,
+                ) { observed ->
+                    LuluAiServices.gateway.generate(
+                        characterId = characterId,
+                        facts = buildString {
+                            appendLine("当前日期时间：$now")
+                            appendLine("确定观察到的互动：evidenceId=${observed.id}；${observed.content}")
+                            appendLine("你上一刻的内在状态（可能没有变化）：")
+                            appendLine(CharacterInnerLifeStore.compactContext(characterId, now))
+                            appendLine("最近真实聊天片段，仅用于了解关系背景：")
+                            appendLine(recent.takeLast(2_400))
+                        },
+                        instruction = CharacterCausalAppraisalStage.instruction(),
+                        source = "角色互动感知",
+                        title = "${character.displayName}对真实互动的个人理解",
+                        maxTokens = 800,
+                        connectionOverride = connection,
+                        memoryRequest = UnifiedMemoryRequest(
+                            currentInput = observed.content,
+                            sceneContext = "互动事件的先行主观评估；证据ID=${observed.id}",
+                            recentContext = recent.takeLast(2_400),
+                            taskIntent = "只保存私人感受与动机，不决定和执行外部行为",
+                        ),
+                    ).getOrThrow().text
+                }
+            }.getOrElse { error ->
+                if (error is kotlinx.coroutines.CancellationException) throw error
+                CompanionPresenceStore.recordPerceptionAttempt(
+                    characterId, "互动解读暂未完成：${error.message.orEmpty().take(90)}", now,
+                )
+                null
+            }
+        } else null
+        // A hanging call must never turn into a speculative outward action if
+        // the first-stage interpretation failed or returned invalid JSON.
+        if (awaitingCausalAppraisal != null && stagedAppraisal == null) {
+            CompanionPresenceStore.recordPerceptionAttempt(
+                characterId, "互动尚未解读，本轮不贸然替角色行动", now,
+            )
+            return Action.SILENT
+        }
         val deviceContext = UserDevicePerception.context(appContext, characterId, now, refreshLocation = true)
         com.jiacimu.lulu.study.ReadingReflectionStore.initialize(appContext)
         val lastReading = com.jiacimu.lulu.study.ReadingReflectionStore.records.value
@@ -415,6 +462,12 @@ object ProactivePerceptionRuntime {
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
                 appendLine(CharacterPerceptionContext.render(observedWorld))
+                if (stagedAppraisal != null) {
+                    appendLine("【已经由上一阶段保存的个人真实反应｜先有情绪和想法，再选行动】")
+                    appendLine("事件ID=${stagedAppraisal.evidenceId}，不能把事件推测成用户确定的动机。")
+                    appendLine(CharacterInnerLifeStore.compactContext(characterId, now))
+                    appendLine("本轮只能依据已经保存的情绪、动机和现实条件决定是否联络、继续生活或保持沉默。若无明确理由，选择 silent；不要为将要执行的动作倒填一个假情绪。")
+                }
                 appendLine(affordances)
                 appendLine("允许主动来电：${if (character.contactPolicy.proactiveCallsEnabled) "是" else "否"}")
                 if (recentAutonomousActions.isNotEmpty()) {
@@ -487,7 +540,7 @@ object ProactivePerceptionRuntime {
             maxTokens = 2_200,
             connectionOverride = connection,
             memoryRequest = UnifiedMemoryRequest(
-                currentInput = listOf(pendingUserContext, onlineUnread.text)
+                currentInput = listOf(pendingUserContext, onlineUnread.text, stagedAppraisal?.evidenceDescription.orEmpty())
                     .filter(String::isNotBlank).joinToString("\n"),
                 sceneContext = "后台主动感知 · $trigger",
                 recentContext = listOf(recent, recentLifeContext, concerns, commitments)
@@ -601,6 +654,7 @@ object ProactivePerceptionRuntime {
                 decision.action != Action.SILENT,
         )
         val causalEvidenceId = when {
+            stagedAppraisal != null -> stagedAppraisal.evidenceId
             stimulus != null -> stimulus.evidenceId
             previousEvidence.isNotBlank() -> previousEvidence
             awakeReflection -> awakeObservationId
@@ -699,7 +753,12 @@ object ProactivePerceptionRuntime {
                 // Online awareness by itself is not a new heart voice. A model may still paraphrase
                 // "keep waiting" every minute; without a real stimulus/action/inner-state change we
                 // explicitly clear it instead of presenting that paraphrase as a new mental moment.
-                innerThought = if (hasMeaningfulInnerUpdate) groundedInnerThought else "",
+                innerThought = when {
+                    groundedInnerThought.isNotBlank() -> groundedInnerThought
+                    stagedAppraisal != null -> null // Preserve the earlier committed inner voice.
+                    hasMeaningfulInnerUpdate -> ""
+                    else -> null
+                },
                 mood = decision.mood.takeIf(String::isNotBlank),
                 source = if (awakeReflection) "在线持续感知" else "后台主动感知",
                 now = now,
@@ -720,6 +779,7 @@ object ProactivePerceptionRuntime {
             outcome = execution.summary,
             succeeded = execution.success,
             now = now,
+            causalEvidenceId = causalEvidenceId,
             actionSignature = AutonomousActionTrace.signature(
                 action = decision.action.name.lowercase(),
                 worldAction = decision.worldAction,
