@@ -48,13 +48,15 @@ internal fun QqChatImageRow(
         }
 
         Surface(
-            modifier = Modifier.widthIn(max = 265.dp).combinedClickable(onClick = {}, onLongClick = onLongClick),
-            color = if (mine) QqMine else Color.White,
+            modifier = Modifier.widthIn(max = if (image.sticker) 186.dp else 265.dp)
+                .combinedClickable(onClick = {}, onLongClick = onLongClick),
+            color = if (image.sticker) Color.Transparent else if (mine) QqMine else Color.White,
             contentColor = if (mine) Color.White else QqInk,
             shape = RoundedCornerShape(16.dp),
-            border = if (mine) null else BorderStroke(1.dp, QqBorder),
+            border = if (image.sticker || mine) null else BorderStroke(1.dp, QqBorder),
         ) {
-            Column(Modifier.padding(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Column(Modifier.padding(if (image.sticker) 0.dp else 6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 repliedMessageContent?.takeIf(String::isNotBlank)?.let { quoted ->
                     Surface(color = if (mine) Color.White.copy(alpha = 0.12f) else QqIconSurface, shape = RoundedCornerShape(8.dp)) {
                         Text(quoted, Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp), color = if (mine) Color.White.copy(alpha = 0.72f) else QqMuted, fontSize = 10.sp, maxLines = 2)
@@ -62,7 +64,9 @@ internal fun QqChatImageRow(
                 }
                 LuluSelectedPhoto(
                     imageUri = image.imageUri,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 150.dp, max = 260.dp),
+                    modifier = Modifier.size(if (image.sticker) 154.dp else 248.dp)
+                        .heightIn(min = if (image.sticker) 140.dp else 150.dp,
+                            max = if (image.sticker) 175.dp else 260.dp),
                 )
                 if (image.caption.isNotBlank()) {
                     Text(
