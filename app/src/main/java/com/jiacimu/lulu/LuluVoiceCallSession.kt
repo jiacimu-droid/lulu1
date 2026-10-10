@@ -47,6 +47,8 @@ internal data class LuluVoiceCallState(
     val characterName: String = "",
     val phase: CallPhase = CallPhase.Idle,
     val listening: Boolean = false,
+    /** VAD saw the user's voice, not merely an open microphone. */
+    val userSpeaking: Boolean = false,
     val thinking: Boolean = false,
     val speaking: Boolean = false,
     val speakerEnabled: Boolean = true,
@@ -275,6 +277,7 @@ internal object LuluVoiceCallSession {
         mutableState.update {
             it.copy(
                 microphoneMuted = nextMuted,
+                userSpeaking = if (nextMuted) false else it.userSpeaking,
                 listening = if (nextMuted) false else it.listening,
                 inputLevel = if (nextMuted) 0f else it.inputLevel,
                 partialTranscript = if (nextMuted) "" else it.partialTranscript,
@@ -293,6 +296,7 @@ internal object LuluVoiceCallSession {
             return
         }
         if (nextMuted) {
+            userSpeechInProgress = false
             // "Muted" is a real capture shutdown, not zeroing input frames
             // while retaining AudioRecord and globally silencing other apps.
             restartListeningJob?.cancel()
@@ -417,7 +421,7 @@ internal object LuluVoiceCallSession {
             if (endedByCharacter) "${current.characterName}结束了通话" else "通话已结束"
         // Mark ended before stopping audio: callbacks cannot reopen the microphone or revive state.
         mutableState.update { it.copy(phase = CallPhase.Ended, opening = false, listening = false,
-            thinking = false, speaking = false, sleepMode = false,
+            userSpeaking = false, thinking = false, speaking = false, sleepMode = false,
             statusMessage = endStatus) }
         com.jiacimu.lulu.data.CompanionPresenceStore.finishCall(current.characterId)
         dialJob?.cancel()
@@ -443,6 +447,7 @@ internal object LuluVoiceCallSession {
             it.copy(
                 phase = CallPhase.Ended,
                 listening = false,
+                userSpeaking = false,
                 thinking = false,
                 speaking = false,
                 partialTranscript = "",
@@ -497,6 +502,7 @@ internal object LuluVoiceCallSession {
                 mutableState.update {
                     it.copy(
                         speaking = busy,
+                        userSpeaking = if (busy) false else it.userSpeaking,
                         playingTranscript = if (busy) it.playingTranscript else "",
                         opening = it.opening && (busy || it.thinking),
                         statusMessage = when {
@@ -559,20 +565,22 @@ internal object LuluVoiceCallSession {
                     userSpeechInProgress = true
                     noteCallUserActivity()
                     sleepContinuationJob?.cancel()
-                    mutableState.update { it.copy(statusMessage = "听到了，你继续说") }
+                    mutableState.update { it.copy(userSpeaking = true, statusMessage = "听到了，你继续说") }
                 }
 
                 override fun onRmsChanged(rmsdB: Float) = Unit
                 override fun onBufferReceived(buffer: ByteArray?) = Unit
                 override fun onEndOfSpeech() {
                     if (!mutableState.value.connected || mutableState.value.opening) return
-                    mutableState.update { it.copy(listening = false, statusMessage = "正在识别…") }
+                    userSpeechInProgress = false
+                    mutableState.update { it.copy(userSpeaking = false, listening = false, statusMessage = "正在识别你的语音…") }
                 }
 
                 override fun onError(error: Int) {
                     if (!mutableState.value.connected || mutableState.value.opening) return
                     userSpeechInProgress = false
                     recognitionActive = false
+                    mutableState.update { it.copy(userSpeaking = false) }
                     val hasBufferedSpeech = systemUtteranceBuffer.isNotBlank()
                     if (hasBufferedSpeech &&
                         error in setOf(SpeechRecognizer.ERROR_NO_MATCH, SpeechRecognizer.ERROR_SPEECH_TIMEOUT)) {
@@ -621,6 +629,7 @@ internal object LuluVoiceCallSession {
                     }
                     userSpeechInProgress = false
                     recognitionActive = false
+                    mutableState.update { it.copy(userSpeaking = false) }
                     val finals = results
                         ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                         .orEmpty()
@@ -684,8 +693,12 @@ internal object LuluVoiceCallSession {
 
     private fun startListeningIfPossible() {
         val current = mutableState.value
+        // Never start a new recognition window while a finalized sentence is
+        // awaiting its turn. A noisy recognizer may immediately call onBeginning,
+        // canceling the commit and trapping a valid reply in the speech buffer.
         if (!current.connected || current.microphoneMuted || current.thinking || current.speaking ||
-            current.opening || recognitionActive || realtime != null || providerInput != null) return
+            current.opening || recognitionActive || systemUtteranceBuffer.isNotBlank() ||
+            realtime != null || providerInput != null) return
         if (!hasMicrophonePermission()) {
             mutableState.update { it.copy(statusMessage = "需要麦克风权限才能继续通话") }
             return
@@ -719,7 +732,8 @@ internal object LuluVoiceCallSession {
         restartListeningJob?.cancel()
         recognitionActive = false
         runCatching { recognizer?.cancel() }
-        mutableState.update { it.copy(listening = false, partialTranscript = "") }
+        userSpeechInProgress = false
+        mutableState.update { it.copy(listening = false, userSpeaking = false, partialTranscript = "") }
     }
 
     private fun normalizeSpeechForComparison(value: String): String =
@@ -789,7 +803,7 @@ internal object LuluVoiceCallSession {
             MigratedDomainStores.chat.appendVoiceMessage(current.conversationId,
                 "voice-${current.callExperienceId}-user-$generation", spoken, false)
         }
-        mutableState.update { it.copy(thinking = true, opening = opening, partialTranscript = "", errorMessage = "", statusMessage = if (autonomousSilence) "${current.characterName} 正陪着你" else "${current.characterName} 正在想怎么回答") }
+        mutableState.update { it.copy(thinking = true, userSpeaking = false, opening = opening, partialTranscript = "", errorMessage = "", statusMessage = if (autonomousSilence) "${current.characterName} 正陪着你" else "${current.characterName} 正在想怎么回答") }
         replyJob = scope.launch {
             val latest = mutableState.value
             val library = LuluAiServices.connectionStore.library.value
@@ -1016,7 +1030,8 @@ internal object LuluVoiceCallSession {
                     if (!mutableState.value.microphoneMuted) audioRoute?.refresh()
                     val wasConnected = mutableState.value.connected
                     mutableState.update { it.copy(phase = CallPhase.Connected, callStartedAt = it.callStartedAt ?: Instant.now(), everConnected = true,
-                        listening = true, inputMeterAvailable = true, errorMessage = "", statusMessage = "麦克风收音已启动，直接说话；停顿后识别并回复") }
+                        listening = !it.thinking && !it.speaking && !it.opening, inputMeterAvailable = true,
+                        errorMessage = "", statusMessage = if (it.thinking) it.statusMessage else "麦克风收音已启动，直接说话；停顿后识别并回复") }
                     if (!wasConnected) { startTimer(); startOpening() }
                 }
             },
@@ -1026,23 +1041,30 @@ internal object LuluVoiceCallSession {
                     userSpeechInProgress = true
                     noteCallUserActivity()
                     sleepContinuationJob?.cancel()
-                    if (mutableState.value.thinking) { replyGeneration++; replyJob?.cancel() }
-                    mutableState.update { it.copy(thinking = false, listening = true, errorMessage = "", partialTranscript = "", statusMessage = "检测到语音，正在收音…") }
+                    // Do not cancel a real in-flight model reply merely because
+                    // room noise tripped VAD. Confirm a new user utterance from
+                    // STT before replacing the previous reply.
+                    mutableState.update { it.copy(userSpeaking = true, listening = true, errorMessage = "", partialTranscript = "",
+                        statusMessage = "检测到语音，正在收音…") }
                 }
             },
             onPartial = { text -> if (sameSession()) mutableState.update { it.copy(partialTranscript = text) } },
             onText = { text ->
                 if (sameSession()) {
                     userSpeechInProgress = false
+                    mutableState.update { it.copy(userSpeaking = false) }
                     if (!mutableState.value.opening) handleUserSpeech(text, allowWhileMuted = true)
                 }
             },
-            onStatus = { note -> if (sameSession()) mutableState.update { it.copy(statusMessage = note) } },
+            onStatus = { note -> if (sameSession()) mutableState.update { it.copy(
+                userSpeaking = if (note.contains("识别完整语句")) false else it.userSpeaking,
+                statusMessage = if (it.thinking) it.statusMessage else note,
+            ) } },
             onError = { error -> if (sameSession()) {
                 userSpeechInProgress = false
                 scheduleSleepContinuation()
                 val dialing = mutableState.value.phase == CallPhase.Dialing
-                mutableState.update { it.copy(phase = if (dialing) CallPhase.Ready else it.phase, listening = false, inputLevel = 0f,
+                mutableState.update { it.copy(phase = if (dialing) CallPhase.Ready else it.phase, listening = false, userSpeaking = false, inputLevel = 0f,
                     errorMessage = "收音／识别失败：$error", statusMessage = "语音识别未完成，可重新收音") }
                 if (dialing) { providerInput?.stop(); providerInput = null; restoreCallAudio(); stopForegroundService() }
             } },
@@ -1055,7 +1077,7 @@ internal object LuluVoiceCallSession {
         userSpeechInProgress = false
         replyGeneration++; replyJob?.cancel()
         subtitleRevealJob?.cancel(); speechQueue?.stop()
-        mutableState.update { it.copy(speaking = false, thinking = false, opening = false, microphoneMuted = false, errorMessage = "", generatedTranscript = "", playingTranscript = "") }
+        mutableState.update { it.copy(speaking = false, thinking = false, userSpeaking = false, opening = false, microphoneMuted = false, errorMessage = "", generatedTranscript = "", playingTranscript = "") }
         audioRoute?.microphone(false)
         audioRoute?.refresh()
         if (appContext?.let(CallVoiceConfiguration::sttEngine) != "system") startProviderInput()
