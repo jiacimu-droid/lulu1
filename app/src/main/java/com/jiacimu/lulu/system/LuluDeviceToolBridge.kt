@@ -104,8 +104,9 @@ object LuluDeviceToolBridge {
             安静陪伴返回 {"action":"silent","reason":"此刻选择安静的个人原因","statusText":"持续处境","gesture":"自己的动作","innerThought":"未说出口的念头","mood":"当前感受"}。
             真想说话才返回 {"action":"reply","text":"自然可朗读的口语"}，不能把空回复、结构化状态或心声读出来。
         """.trimIndent() else if (separateExpression) """
-            只返回完整 JSON，先自主选择 action=reply、tool 或 silent。选择 reply 时只写 speechIntent（准备表达的意思与方向），不要提前写 text；表达模型负责写气泡。
-            回复例：{"action":"reply","speechIntent":"反问她为什么突然改了主意","reason":"我确实有点在意"}
+            只返回完整 JSON，先自主选择 action=reply、tool 或 silent。选择 reply 时只写 speechIntent：它是“具体想让对方知道/确认的内容与事实边界”，不是台词设计稿；不要提前写 text。
+            speechIntent 不要预先指定昵称、比喻、梗、玩笑方式、反问句式、撒娇方式或舞台动作，也不要把一句准备好的漂亮话塞进去；这些由表达层结合当前关系和个人语言习惯现场决定。
+            回复例：{"action":"reply","speechIntent":"我确实在意她为什么改了主意，想确认她现在真正的想法","reason":"这会影响我怎么继续聊"}
             沉默例：{"action":"silent","reason":"现在心情复杂不想回复","innerThought":"我得自己消化一下"}
             工具动作仍必须按下方的真实工具协议返回 tool 与 args；没有回执就不能假装成功。
             角色有自己的立场，可以反问、换话题或暂时不回复；被问到紧急、重要的事情时要考虑实际影响，不机械冷处理。
@@ -281,12 +282,14 @@ object LuluDeviceToolBridge {
                             com.jiacimu.lulu.data.CharacterInnerLifeStore.compactContext(characterId, now),
                             com.jiacimu.lulu.data.CharacterLifeStore.compactContext(characterId),
                         ))
-                        appendLine("角色已决定表达的核心意思（不能改作其他行动）：${plan.speechIntent}")
+                        appendLine("角色已决定的内容简报（不能改事实、立场或改作其他行动；不要照抄成台词）：${plan.speechIntent}")
                     },
                     instruction = """
-                        你是当前角色的语言表达层，不是新的决策者；只把已经决定的意思变成符合本人性格和关系边界的自然聊天。
+                        你是当前角色的语言表达层，不是新的决策者；只把已经决定的内容变成符合本人性格、关系边界和当前语境的自然聊天。
                         不要展示决策协议、状态标签、内心独白，也不要选择工具或宣称尚未完成的事情已经完成。
                         只返回完整 JSON：{"action":"reply","text":"真正发送的自然语言或气泡"}。
+                        你可以自主决定这一刻到底用陈述、追问、停顿、玩笑、嘴硬、简短回应还是认真展开，也可以自然选择稳定昵称；不要把内容简报里的抽象词逐字翻译成客服式句子。
+                        先接住用户真正新增的意思，再按这个角色平时会说话的方式说出来。不要为了“有个性”临时发明无关称呼、刑罚/职位/游戏化比喻或夸张设定；除非当前对话和角色既有习惯确实支持。
                         说法可以自然、个性化和口语化，但不能更改想表达的核心意思。
                         $onlineChatBubbleRule
                     """.trimIndent(),
