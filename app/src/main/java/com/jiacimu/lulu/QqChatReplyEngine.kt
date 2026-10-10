@@ -22,11 +22,11 @@ internal const val SemanticBubbleSeparator = "⟪BUBBLE⟫"
  * so internal protocol strings can never become a visible chat message.
  */
 private val LegacyBubbleTokenRegex = Regex(
-    """[⟪《〈<【\\[]\\s*B\\s*U\\s*B\\s*B\\s*L\\s*E\\s*[⟫》〉>】\\]]""",
+    """(?:⟪|《|〈|<|【|\[)\s*B\s*U\s*B\s*B\s*L\s*E\s*(?:⟫|》|〉|>|】|\])""",
     RegexOption.IGNORE_CASE,
 )
 private val MalformedInternalDirectiveRegex = Regex(
-    """[⟪《〈<【\\[]\\s*(?:NEXT|END|QUOTE|FAVORITE|RECALL|POKE_USER)(?:\\s*:[^⟫》〉>】\\]]*)?\\s*[⟫》〉>】\\]]""",
+    """(?:⟪|《|〈|<|【|\[)\s*(?:NEXT|END|QUOTE|FAVORITE|RECALL|POKE_USER)(?:\s*:[^⟫》〉>】\]]*)?\s*(?:⟫|》|〉|>|】|\])""",
     RegexOption.IGNORE_CASE,
 )
 private val QuoteDirectiveRegex = Regex("⟪QUOTE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
