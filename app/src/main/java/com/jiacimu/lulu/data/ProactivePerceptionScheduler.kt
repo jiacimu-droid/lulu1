@@ -229,6 +229,30 @@ object ProactivePerceptionScheduler {
         )
     }
 
+    /**
+     * One bounded recovery opportunity if the first appraisal model returned
+     * invalid data. Separate work identity prevents self-cancel of the
+     * currently running worker; its evidence is checked again at execution.
+     */
+    fun scheduleInteractionRetry(context: Context, characterId: String, evidenceId: String) {
+        if (characterId.isBlank() || evidenceId.isBlank() ||
+            !ProactivePerceptionPolicyStore.get(characterId).enabled) return
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInitialDelay(90_000L, TimeUnit.MILLISECONDS)
+            .setInputData(Data.Builder()
+                .putString("trigger", "互动事件二次重试：只处理未完成的真实感知，证据ID=$evidenceId")
+                .putString("characterId", characterId)
+                .putString("retryEvidenceId", evidenceId)
+                .putBoolean("force", true)
+                .build())
+            .build()
+        WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+            "lulu-interaction-retry-$characterId-${evidenceId.hashCode()}",
+            ExistingWorkPolicy.KEEP, request,
+        )
+    }
+
     fun cancelOnline(context: Context, characterId: String) {
         OnlineChatBatchStore.cancel(context, characterId)
         WorkManager.getInstance(context.applicationContext).cancelUniqueWork("$ONLINE_WORK-$characterId")
@@ -249,6 +273,11 @@ class ProactivePerceptionWorker(
         val force = inputData.getBoolean("force", false)
         val requireOnline = inputData.getBoolean("requireOnline", false)
         val preserveOffline = inputData.getBoolean("preserveOffline", false)
+        val retryEvidenceId = inputData.getString("retryEvidenceId").orEmpty()
+        if (characterId != null && retryEvidenceId.isNotBlank() &&
+            PerceptionStimulusLedger.hasSeen(applicationContext, characterId, retryEvidenceId)) {
+            return@runCatching Result.success()
+        }
         if (preserveOffline && (characterId == null || CompanionOnlineStore.isOnline(characterId) ||
             !CharacterInnerLifeStore.needsPostOnlineReflection(characterId) ||
             !ProactivePerceptionPolicyStore.get(characterId).enabled)) {
