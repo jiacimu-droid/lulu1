@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T10:39:13.071312+00:00",
-  "commit": "5044293cd975829cff0c895c5c3c9996fbc387e9",
+  "generatedAt": "2026-10-10T11:20:12.210226+00:00",
+  "commit": "ed6427baed49c1571d80e604e8bde207364aa8a3",
   "branch": "main",
-  "sourceFingerprint": "73a4f0a1b9e4a8dbb6df73495972b676cc717b19cd76e963e62ca7e929a6ad30",
+  "sourceFingerprint": "30ed6afe2967f941a23f04e032242e244b4b7b119fa91fe4bb8d0b949ee4dbdc",
   "summary": {
-    "files": 444,
-    "lines": 98182,
-    "symbols": 1440
+    "files": 445,
+    "lines": 98470,
+    "symbols": 1446
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3492,6 +3492,46 @@
         "line": 229
       }
     ],
+    "fromWire": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
+        "line": 25
+      }
+    ],
+    "userInitiatesRepair": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
+        "line": 60
+      }
+    ],
+    "plannerConstraint": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
+        "line": 63
+      }
+    ],
+    "resolve": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
+        "line": 75
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt",
+        "line": 159
+      }
+    ],
+    "expressionConstraint": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
+        "line": 128
+      }
+    ],
+    "evaluate": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
+        "line": 168
+      }
+    ],
     "DeterministicMemoryAutomation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt",
@@ -3544,12 +3584,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt",
         "line": 39
-      }
-    ],
-    "resolve": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt",
-        "line": 159
       }
     ],
     "promptOptions": [
@@ -11191,6 +11225,37 @@
         {
           "name": "clearCharacter",
           "line": 258
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
+      "lines": 288,
+      "sha256": "d1130e9ae6fb8edf7de7d0855988c0019bc786e86480afd15dc403a3b8138083",
+      "symbols": [
+        {
+          "name": "fromWire",
+          "line": 25
+        },
+        {
+          "name": "userInitiatesRepair",
+          "line": 60
+        },
+        {
+          "name": "plannerConstraint",
+          "line": 63
+        },
+        {
+          "name": "resolve",
+          "line": 75
+        },
+        {
+          "name": "expressionConstraint",
+          "line": 128
+        },
+        {
+          "name": "evaluate",
+          "line": 168
         }
       ]
     },
