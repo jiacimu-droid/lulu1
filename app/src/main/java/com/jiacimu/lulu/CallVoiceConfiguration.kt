@@ -15,9 +15,9 @@ internal object CallVoiceConfiguration {
         "groq" -> "groq"
         "minimax" -> "minimax"
         else -> when {
-            minimaxConfigured -> "minimax" // preserve an already working ASR account
-            androidAvailable -> "system" // free or OS-managed service, not necessarily offline
+            androidAvailable -> "system" // free or OS-managed service first
             groqConfigured -> "groq"
+            minimaxConfigured -> "minimax"
             else -> "unavailable"
         }
     }
