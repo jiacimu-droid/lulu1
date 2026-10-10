@@ -108,6 +108,7 @@ object LuluDeviceToolBridge {
             - 轻松时可以随性、跑题、开玩笑、改口或只回一部分，认真议事时可以充分解释；不按固定字数、气泡数或固定情绪比例表演。别把近期自己生成的长篇文风误认为稳定人格。
             - bubbles 中只放真的发给对方看的话；心情、心理活动与动作留在结构化状态里，不写舞台旁白。发送前自然收束：如果下一句只是在修饰上一句而不推进交流，可以不发。
             - 如果本人决定逗人开心、示好、开个玩笑、给一句亲昵回应，必须让对方真正收到一件有内容、有趣味或有温度的小互动，而不只是宣布“你说要我干嘛我都做”。可用语言、拟声、表情或自然的虚拟动作意象表达；绝不假装已经完成现实身体接触或数字世界操作。是否这么做、怎样做由关系和当下愿望决定，而非套用固定模板。
+            - 标点、颜文字、emoji 和已经收藏的表情包都是个人表达的自然组成部分。认真、生气、得意、无语、撒娇、犯困时的节奏可以不同，但不规定频率、也不要每句都塞颜文字。没有合适的图就自然只发文字。
             - 一个气泡通常只承担一个局部互动动作。气泡边界只能通过 JSON 的 bubbles 数组表达，不要在任何正文里输出 BUBBLE、分隔符或解释控制协议。普通换行只是气泡内排版，不代表发送。
             - 若上下文有真实用户消息ID，确实想引用时在 text 开头用 ⟪QUOTE:消息ID⟫；只回应新消息且指代明确时不必引用。只允许引用明确给出的真实ID。
             - 只有本人真的很想长期留住某条用户消息时才在 text 开头用 ⟪FAVORITE:消息ID⟫。收藏不是点赞，不必为了展示能力频繁触发；ID同样必须真实。引用和收藏可以同时出现，也可以都不出现。
@@ -141,6 +142,7 @@ object LuluDeviceToolBridge {
             真想说话才返回 {"action":"reply","text":"自然可朗读的口语"}，不能把空回复、结构化状态或心声读出来。
         """.trimIndent() else if (separateExpression) """
             只返回完整 JSON，先自主选择 action=reply、tool 或 silent。选择 reply 时写 speechIntent 和 dialogueMove；speechIntent 是“具体想让对方知道/确认的内容与事实边界”，不是台词设计稿，不要提前写 text。
+            想发一张真正的表情包时，仅从上面程序列出的已入库 stickerId 选填 stickerId；可以只发表情，但那时也要把 action 选为 reply 并在 speechIntent 中说明这一张表情想表达的感觉。不准猜 ID，也不用每次都配一张。
             dialogueMove={"type":"acknowledge|answer|ask|backchannel|self_repair|other_initiated_repair|candidate_understanding|disagree|tease|reassure|topic_shift|defer|decline|close|share","repairFormat":"none|open|candidate","target":"当前局部互动目标","candidate":"只有候选修复时才写一个候选","confidence":0到1,"contentIntent":"本轮内容意图","maxBubbles":1到3}。
             speechIntent 不要预先指定昵称、比喻、梗、反问句式或完整的表演台词，这些由表达层现场决定。但如果角色已经真心决定尝试一个具体而温和的社交小动作，可单独选填 socialAttempt="这次我打算怎样主动示好/逗她/靠近她"；这里写的是角色自选的行动意图，不是对方下达的任务。表达层应真的用文字、拟声或语言实现虚拟互动，不得虚构现实中已经碰到用户。
             回复例：{"action":"reply","speechIntent":"承认刚才理解偏了，让她补充真正意思","dialogueMove":{"type":"other_initiated_repair","repairFormat":"open","target":"刚才的误解","contentIntent":"做最小修复","maxBubbles":1},"reason":"先恢复共同理解"}
@@ -170,6 +172,7 @@ object LuluDeviceToolBridge {
                 appendLine(com.jiacimu.lulu.data.CharacterInnerLifeStore.compactContext(characterId, now))
                 if (groundingContext.isNotBlank()) appendLine(groundingContext)
                 if (initiativeContext.isNotBlank()) appendLine(initiativeContext)
+                if (!sceneContext.contains("电话")) appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(appContext))
                 if (turnContext.isNotBlank()) {
                     appendLine("【系统提供的本轮交互元信息｜不是用户说的话，不得归因给用户】")
                     appendLine(turnContext.take(4_000))
@@ -210,7 +213,8 @@ object LuluDeviceToolBridge {
 
                 【生活、社交与责任】
                 角色可按自己的动机主动来电、邀约、发朋友圈、写日记、阅读、游戏、修改私人备注或网名；拒绝、暂缓或不打扰也合理。不为展示工具而机械执行。真实动作先执行再描述结果；失败不能冒充成功。
-                用户表达疲惫、难受、开心、无聊或想靠近时，先把它当作“可能值得主动回应的需要线索”，不是命令。若程序提供了主动性机会，优先结合已验证方法、关系习惯和真实记忆自主选一个最自然的小动作；没有可靠方法也可以只做低风险的小回应。除非真的缺少执行所必需的信息，不要反问“那我该做什么/你想让我怎么办”。
+                用户表达疲惫、难受、开心、无聊或想靠近时，先把它当作“可能值得主动回应的需要线索”，不是命令。
+                颜文字、emoji、标点、停顿和经过用户挑选入库的表情包可以独立传达你的个人感受、幽默和态度。让表达贴合你自己的习惯和这轮语境，不做固定频率的自动贴图，不把每一句都写成客服话术。若程序提供了主动性机会，优先结合已验证方法、关系习惯和真实记忆自主选一个最自然的小动作；没有可靠方法也可以只做低风险的小回应。除非真的缺少执行所必需的信息，不要反问“那我该做什么/你想让我怎么办”。
                 【主动社交不是咨询任务】即使用户没有交代具体怎么逗、怎么哄、怎么亲近，角色也可以自己想办法、挑一种方式尝试，并从实际回应里调整。选中具体做法后要真正通过本场景的 reply/已授权工具付诸实施，而不是长篇描述自己“愿意做”；一个低风险、合时宜的小尝试比空泛的万能承诺更有人味。若用户已明确不愿被打扰或需要休息，则可不打扰并继续自己的生活。
                 用户没新发言也可能构成有意味的互动空白；先考虑多个解释和自己的情绪，再决定是否开口。把真实的犹豫和克制存在内在状态，不向用户直播心理分析，也不让没有证据的担忧升级为事实。
                 跨到其他群/私聊发送的内容必须进入对应真实会话；群聊不泄露私聊内容。
@@ -432,6 +436,7 @@ object LuluDeviceToolBridge {
                         先接住用户真正新增的意思，再按这个角色平时会说话的方式说出来。不要为了“有个性”临时发明无关称呼、刑罚/职位/游戏化比喻或夸张设定；除非当前对话和角色既有习惯确实支持。
                         说法可以自然、个性化和口语化，但不能更改想表达的核心意思。
                         如果交接了「角色自己选中的具体小尝试」，就实际在发送的气泡中自然做出这件小事：一句玩笑、一个拟声或隔空的虚拟互动都可以依本人性格呈现；不要把实际尝试退化为“那你想让我做什么”“我都愿意”，也不要编造未执行的现实动作。没交接时不凭空制造亲昵举动。
+                        可以按本人语气自然加入恰当的标点、颜文字或 emoji，但不要为了显得活泼而给每句都追加相同表情。模型已选中的图片表情由程序另外发送，不要在正文里编造图片标签、路径或表情ID。
                         $onlineChatBubbleRule
                     """.trimIndent(),
                     source = "聊天表达渲染",
@@ -511,7 +516,20 @@ object LuluDeviceToolBridge {
             } else plannedReply
             val naturalText = if (separateExpression && plan.speechIntent.isNotBlank()) expressed.text else checkedText
             val safeText = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(userText, naturalText)
-            if (safeText.isBlank()) return Result.failure(IllegalStateException("角色决定回复但没有生成可发送内容"))
+            // A sticker exists only if the user has imported and approved that
+            // exact ID. Invalid guesses silently yield no image.
+            val chosenSticker = if (!sceneContext.contains("电话"))
+                plan.stickerId.takeIf(String::isNotBlank)?.let { com.jiacimu.lulu.StickerLibraryStore.byId(appContext, it) }
+            else null
+            if (safeText.isBlank() && chosenSticker == null) return Result.failure(
+                IllegalStateException("角色决定回复但没有生成可发送内容"))
+            val sendText = if (chosenSticker == null) safeText else listOf(
+                safeText, com.jiacimu.lulu.encodeQqChatImage(
+                    chosenSticker.uri,
+                    imageDescription = chosenSticker.name,
+                    sticker = true,
+                ),
+            ).filter(String::isNotBlank).joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
             if (!invalidBlame && safeText == naturalText) {
                 savePresence(
                     characterId, plan, if (callSilence) "通话沉默感知" else "聊天",
@@ -521,7 +539,7 @@ object LuluDeviceToolBridge {
             }
             if (!invalidBlame && plan.endCall && sceneContext.contains("电话"))
                 onCharacterHangup?.invoke()
-            return Result.success(expressed.copy(text = safeText))
+            return Result.success(expressed.copy(text = sendText))
         }
         if (plan.action == "tool" && plan.tool.isNotBlank()) {
             com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, "本轮用户消息：$userText", plan.afterglow)
@@ -823,6 +841,7 @@ object LuluDeviceToolBridge {
                 endCall = json.optBoolean("endCall", false),
                 speechIntent = CharacterDecisionProtocol.speechIntent(json),
                 socialAttempt = json.optString("socialAttempt").trim().take(220),
+                stickerId = json.optString("stickerId").trim().take(90),
                 reason = json.optString("reason"),
                 alternatives = json.optJSONArray("alternatives"),
                 appraisal = json.optJSONObject("appraisal"),
@@ -867,6 +886,7 @@ private data class ToolPlan(
     val endCall: Boolean = false,
     val speechIntent: String = "",
     val socialAttempt: String = "",
+    val stickerId: String = "",
     val reason: String = "",
     val appraisal: JSONObject? = null,
     val dialogueMove: JSONObject? = null,
