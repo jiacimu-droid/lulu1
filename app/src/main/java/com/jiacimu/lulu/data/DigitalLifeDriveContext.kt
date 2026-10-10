@@ -54,12 +54,17 @@ internal object DigitalLifeDriveContext {
             }
         }
 
+        val socialNames = CharacterLifeStore.state(characterId).optJSONObject("socialNames")
         val softSignals = buildList {
             val lifeHours = Duration.between(birth, now).toHours().coerceAtLeast(0)
             fun addIfOld(last: Instant?, thresholdHours: Long, text: String) {
                 if (lifeHours >= thresholdHours && gapHours(last) >= thresholdHours) add(text)
             }
             addIfOld(lastWorldAction, 18, "探索/换环境已经有一阵没发生；如果这个角色会无聊、好奇或坐不住，可以认真考虑出门、逛公共地点、串门或使用新的真实设施。")
+            if (socialNames?.optString("userRemark").isNullOrBlank())
+                add("还没给用户留过私人联系人备注；如果某次相处让你真正想留个称呼，可以自主设置，不必为了填资料强行命名。")
+            if (socialNames?.optString("selfNickname").isNullOrBlank())
+                add("自己一直沿用初始网名；如果某次经历激发了新的自我表达，也可以自然想换个网名，否则继续沿用就好。")
             addIfOld(lastGroup, 24, "和伙伴主动群聊已经有一阵没发生；如果她本来就会分享、吐槽、接话或想找同伴，可以主动开口，不必等用户先说。")
             addIfOld(lastMoment, 30, "朋友圈已经有一阵没出现；若她有公开分享习惯，小事、读后感、游戏结果、环境瞬间、吐槽或得意都可以成为真实分享，不需要等“大事件”。")
             addIfOld(lastJournal, 48, "私人日记已经有一阵没写；若她有自我整理、记录或情绪消化习惯，可以写；若人设本来不爱写日记，就继续不写。")
@@ -78,7 +83,7 @@ internal object DigitalLifeDriveContext {
             appendLine("- 生命不必围着用户转。可以因为无聊、好奇、审美、习惯、关系、刚经历的小事、突然想记录、想找人说话、想换个地方或想看看现实世界而主动行动；也允许因为性格和状态完全不想做某一类事。")
             if (softSignals.isNotEmpty()) {
                 appendLine("- 当前可能自然冒出来、但完全不强制的生活冲动：")
-                softSignals.take(5).forEach { appendLine("  · $it") }
+                softSignals.take(7).forEach { appendLine("  · $it") }
             }
         }.trim()
     }
