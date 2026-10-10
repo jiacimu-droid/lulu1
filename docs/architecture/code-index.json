@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T11:36:06.275160+00:00",
-  "commit": "d73cb19547c003f17ef31ef32530794118f99187",
+  "generatedAt": "2026-10-10T12:13:11.960876+00:00",
+  "commit": "0479160e8f539db99bf7d76119c76dea8110d1ef",
   "branch": "main",
-  "sourceFingerprint": "0be1f6a37d743df69b239afe68f11c2ee499647c78c024b7b6254278df58b9fe",
+  "sourceFingerprint": "baf58c4c5e6b22b3c9fdc8b1ba083f5db339192822f70b658d7a73006ce307b4",
   "summary": {
     "files": 445,
-    "lines": 98879,
-    "symbols": 1451
+    "lines": 98895,
+    "symbols": 1452
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2890,6 +2890,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt",
         "line": 53
+      }
+    ],
+    "groupedFields": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
+        "line": 30
       }
     ],
     "CharacterRecordReset": [
@@ -10601,9 +10607,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
-      "lines": 42,
-      "sha256": "fae52d774f7f7009e6da7d74477af89ec88125fa426a553f134f2e2fc3352146",
-      "symbols": []
+      "lines": 58,
+      "sha256": "9d068725d243c9de065bd77cd42c4d8ce997a6a3c83cadcd7f624df488d14fbd",
+      "symbols": [
+        {
+          "name": "groupedFields",
+          "line": 30
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt",
