@@ -15,6 +15,7 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelReply
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.CompanionActionRuntime
+import com.jiacimu.lulu.data.CharacterDecisionProtocol
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.UnifiedMemoryRequest
 import com.jiacimu.lulu.health.HealthRolePerception
@@ -84,6 +85,17 @@ object LuluDeviceToolBridge {
             text 应是确实要说的最后一句口语，可自然道别、说明想法或设立边界；结束语实际播放完毕后由电话系统真正挂断并记录。没有想挂断就省略该字段。
             不要把“我先挂了”当成完成挂断的证明，必须设置 endCall=true。只有发言才可申请结束，不输出无声终止的空 text。
         """.trimIndent() else ""
+        val separateExpression = CharacterDecisionProtocol.usesSeparateExpression(sceneContext)
+        val decisionFormatRule = if (separateExpression) """
+            只返回完整 JSON，先自主选择 action=reply、tool 或 silent。选择 reply 时只写 speechIntent（准备表达的意思与方向），不要提前写 text；表达模型负责写气泡。
+            回复例：{"action":"reply","speechIntent":"反问她为什么突然改了主意","reason":"我确实有点在意"}
+            沉默例：{"action":"silent","reason":"现在心情复杂不想回复","innerThought":"我得自己消化一下"}
+            工具动作仍必须按下方的真实工具协议返回 tool 与 args；没有回执就不能假装成功。
+            角色有自己的立场，可以反问、换话题或暂时不回复；被问到紧急、重要的事情时要考虑实际影响，不机械冷处理。
+        """.trimIndent() else """
+            这是电话的低延迟通道，必须给可以直接念出的 text，不能返回 silent 或仅有 speechIntent 的空发言。
+            {"action":"reply","text":"自然的电话口语","statusText":"持续状态","gesture":"神态","innerThought":"未说出的念头","mood":"心情"}
+        """.trimIndent()
         val disputeNeedsReview = com.jiacimu.lulu.data.CharacterAccountabilityContext.isUnmetPromiseChallenge(userText)
         val planner = LuluAiServices.gateway.generate(
             characterId = characterId,
@@ -103,9 +115,9 @@ object LuluDeviceToolBridge {
                 appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.challengeGuidance(userText))
             },
             instruction = """
-                你既可以直接回复，也可以调用露露机真实手机工具。只返回一个 JSON 对象，不要代码块。
-                字段按示例顺序输出：action 最先，直接回复紧接 text；不得重复字段。text 只包含说出口的话，不放内部指令、JSON、动作标记或心声。
-                直接回复：{"action":"reply","text":"角色自然回复","statusText":"简短状态","gesture":"此刻可见动作神态","innerThought":"没说出口的第一人称心声，可为空","mood":"简短心情"}
+                你可以自主选择回应、保持安静或调用露露机真实工具。只返回一个 JSON 对象，不要代码块，不重复字段。
+                ${CharacterDecisionProtocol.principles}
+                $decisionFormatRule
                 【内在生活更新】真实感受、看法或愿望改变时才写 innerLife；无变化就省略，不要每轮重复同一状态。可选 innerLife:{"emotion":{"feeling":"这一刻主观情绪","cause":"本轮真实触发","otherFeeling":"矛盾的另一种感受","impulse":"那一瞬想做却未必执行的事","restraint":"为什么克制或改变主意","physicalCue":"角色自身切实可感知的反应","outwardCue":"可能表现出的神态和声音细节","strength":1到4,"halfLifeMinutes":30到1440},"motives":[{"op":"start|revise|pause|resume|release","id":"已有动机ID（start不填）","aim":"具体想完成的事","why":"属于自己的原因","priority":1到3,"reason":"因何改变"}],"social":{"targetId":"user","interpretation":"根据本轮真实互动改变的个人看法","reason":"具体依据"},"selfCorrection":{"realization":"自己认错或修正的主观判断","nextTime":"下次改变什么做法"}}。所有项目可缺省，完全没有新变化就不写 innerLife。最多同时保存六个愿望；不要用重复的套话凑满，也不要因没立即成功就放弃。id 必须来自已存在的内在生活。social 只写本轮真实互动的用户，不得推断其他角色私聊。主观理解不等于客观事实。
                 【多重念头】发生真实争执、强烈触动或困难取舍时，在 innerLife 中额外写 thoughts:[{"thought":"这一刻自身一个真实想法","impulse":"想做什么（尚未执行）","hesitation":"为什么犹豫或克制"},{"thought":"另一种可与前者冲突的想法","impulse":"不同冲动","hesitation":"顾虑"}]，通常2到4条，不必强迫日常小对话复杂化。它们是角色主观立场，不是已经做过的事情；允许自责与委屈、想靠近与想独处同时存在。每条都须由本轮实际经历引发，不制造新的客观事实。下一轮根据真实反馈决定哪种念头转成 motive、实际工具动作或暂时保留；不能只吐露心声却忘记接续。
                 如果本轮已有动机且做真实工具动作，可选 motiveId:"已有动机ID" 说明本动作打算推进哪件事；只有工具真实回执才会记录结果，模型自己说已完成没有效力。
@@ -155,17 +167,17 @@ object LuluDeviceToolBridge {
                 - innerThought 不能拿来解释行动原因，也不必把心声原样发给用户。
                 - gesture 只写角色此刻的微动作、姿态或神态，不要复述刚刚聊了什么，不要编造角色并不处于其中的现实场景。
                 - statusText、gesture、innerThought、mood 必须服从角色人设，不能把所有角色统一写成温柔、害羞或黏人。
-                $onlineChatBubbleRule
+                ${if (separateExpression) "" else onlineChatBubbleRule}
                 $voicePerformanceRule
                 $characterHangupRule
             """.trimIndent(),
             source = "聊天工具规划",
             title = title,
-            maxTokens = if (sceneContext.contains("电话")) 2_400 else 1_800,
+            maxTokens = if (separateExpression) 1_450 else 2_400,
             // A complaint about unfulfilled responsibilities needs a checked complete response,
             // not an irreversible stream of premature accusations.
-            streamResponse = onReplyStream != null && !disputeNeedsReview,
-            onStreamText = if (disputeNeedsReview) null else onReplyStream,
+            streamResponse = !separateExpression && onReplyStream != null && !disputeNeedsReview,
+            onStreamText = if (separateExpression || disputeNeedsReview) null else onReplyStream,
             connectionOverride = connection,
             memoryRequest = UnifiedMemoryRequest(
                 currentInput = userText,
@@ -218,20 +230,78 @@ object LuluDeviceToolBridge {
                 plan.innerThought, now,
             )
         }
+        if (plan.action == CharacterDecisionProtocol.SILENT && separateExpression) {
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordDecision(
+                characterId = characterId,
+                decisionId = "chat:silent:${now.toEpochMilli()}:${userText.hashCode()}",
+                selectedAction = CharacterDecisionProtocol.SILENT,
+                reason = plan.reason,
+                chosenMotiveId = plan.motiveId,
+                alternatives = plan.alternatives,
+                outcome = "暂时不发送消息，没有执行任何外部动作",
+                succeeded = false,
+                now = now,
+            )
+            return Result.success(plannedReply.copy(text = "", disposition = CharacterDecisionProtocol.SILENT))
+        }
         if (plan.action == "reply") {
-            if (!invalidBlame) {
+            // The phone remains single-pass. In text chat, only the expression model
+            // renders the planner's intent; it must not re-decide actions.
+            val expressed = if (separateExpression && plan.speechIntent.isNotBlank()) {
+                val generated = LuluAiServices.gateway.generate(
+                    characterId = characterId,
+                    facts = buildString {
+                        appendLine("真实聊天场景：$sceneContext")
+                        if (history.isNotBlank()) appendLine("已发生的对话：\n$history")
+                        appendLine("用户刚才说：$userText")
+                        appendLine("角色已决定表达的核心意思（不能改作其他行动）：${plan.speechIntent}")
+                    },
+                    instruction = """
+                        你是当前角色的语言表达层，不是新的决策者；只把已经决定的意思变成符合本人性格和关系边界的自然聊天。
+                        不要展示决策协议、状态标签、内心独白，也不要选择工具或宣称尚未完成的事情已经完成。
+                        只返回完整 JSON：{"action":"reply","text":"真正发送的自然语言或气泡"}。
+                        说法可以自然、个性化和口语化，但不能更改想表达的核心意思。
+                        $onlineChatBubbleRule
+                    """.trimIndent(),
+                    source = "聊天表达渲染",
+                    title = title,
+                    maxTokens = 1_400,
+                    connectionOverride = connection,
+                    memoryRequest = UnifiedMemoryRequest(
+                        currentInput = userText,
+                        sceneContext = sceneContext,
+                        recentContext = history,
+                        taskIntent = "按已确定的回复意图渲染语言，不再次决策",
+                    ),
+                ).getOrElse { return Result.failure(it) }
+                val spoken = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyText(generated.text)
+                    ?: generated.text.trim().takeIf { it.isNotBlank() &&
+                        !it.startsWith("{") && !it.startsWith("```") }
+                    ?: return Result.failure(IllegalStateException("表达模型没有返回完整的可发送正文"))
+                generated.copy(
+                    text = spoken,
+                    inputTokens = generated.inputTokens + plannedReply.inputTokens,
+                    outputTokens = generated.outputTokens + plannedReply.outputTokens,
+                    cachedTokens = generated.cachedTokens + plannedReply.cachedTokens,
+                )
+            } else plannedReply
+            val naturalText = if (separateExpression && plan.speechIntent.isNotBlank()) expressed.text else checkedText
+            val safeText = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(userText, naturalText)
+            if (safeText.isBlank()) return Result.failure(IllegalStateException("角色决定回复但没有生成可发送内容"))
+            if (!invalidBlame && safeText == naturalText) {
                 savePresence(characterId, plan, "聊天")
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, "本轮用户消息：$userText", plan.afterglow)
             }
-            if (plan.text.isBlank() && onReplyStream != null) return Result.failure(IllegalStateException("模型没有返回可朗读的回复正文"))
-            if (!invalidBlame && plan.endCall && checkedText.isNotBlank() && sceneContext.contains("电话"))
+            if (!invalidBlame && plan.endCall && sceneContext.contains("电话"))
                 onCharacterHangup?.invoke()
-            return Result.success(plannedReply.copy(text = checkedText))
+            return Result.success(expressed.copy(text = safeText))
         }
         if (plan.action == "tool" && plan.tool.isNotBlank()) {
             com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, "本轮用户消息：$userText", plan.afterglow)
         }
-        if (plan.action != "tool" || plan.tool.isBlank()) return Result.success(plannedReply)
+        if (plan.action != "tool" || plan.tool.isBlank()) return Result.failure(
+            IllegalStateException("决策没有有效的可执行动作，未发送消息也未调用工具")
+        )
 
         val lastUserEvent = com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 20)
             .lastOrNull { it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement }?.id
@@ -481,12 +551,8 @@ object LuluDeviceToolBridge {
     private fun parsePlan(raw: String): ToolPlan? {
         return runCatching {
             val json = com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(raw) ?: return null
-            val action = json.optString("action").lowercase().let { value ->
-                if (value == "reply" || value == "tool") value
-                else if (json.optString("text").isNotBlank()) "reply" else return null
-            }
+            val action = CharacterDecisionProtocol.chatAction(json) ?: return null
             val spoken = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyText(raw).orEmpty()
-            if (action == "reply" && spoken.isBlank()) return null
             ToolPlan(
                 action = action,
                 text = if (action == "reply") spoken else json.optString("text"),
@@ -501,6 +567,9 @@ object LuluDeviceToolBridge {
                 innerLife = json.optJSONObject("innerLife"),
                 motiveId = json.optString("motiveId"),
                 endCall = json.optBoolean("endCall", false),
+                speechIntent = CharacterDecisionProtocol.speechIntent(json),
+                reason = json.optString("reason"),
+                alternatives = json.optJSONArray("alternatives"),
             )
         }.getOrNull()
     }
@@ -531,4 +600,7 @@ private data class ToolPlan(
     val innerLife: JSONObject? = null,
     val motiveId: String = "",
     val endCall: Boolean = false,
+    val speechIntent: String = "",
+    val reason: String = "",
+    val alternatives: org.json.JSONArray? = null,
 )
