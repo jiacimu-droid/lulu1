@@ -523,6 +523,11 @@ object ProactivePerceptionRuntime {
                 }
                 appendLine("\n【长期上下文层】")
                 if (continuityContext.isNotBlank()) appendLine(continuityContext)
+                // The same persistent concerns that private chat and calls use:
+                // a chosen quiet interval must not wipe an unfinished thought.
+                appendLine(CharacterOpenConcernRuntime.context(
+                    CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
+                ))
                 if (proactiveInitiativeContext.isNotBlank()) appendLine(proactiveInitiativeContext)
                 appendLine(AutonomousActionTrace.render(
                     CharacterInnerLifeStore.snapshot(characterId).optJSONArray("decisions"), now,
