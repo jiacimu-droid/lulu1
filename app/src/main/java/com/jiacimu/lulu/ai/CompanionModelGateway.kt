@@ -521,8 +521,12 @@ class CompanionModelGateway(
                     appendLine(com.jiacimu.lulu.data.CharacterExpressionGuide.promptSection())
                     appendLine(com.jiacimu.lulu.data.CharacterSpeechIdentity.promptSection(
                         characterId,
-                        includeObserved = fullContext,
-                        includeConfigured = false,
+                        // Lean chat expression intentionally skips broad memory recall, but it must
+                        // still sound like the same person. Verified expression habits are bounded
+                        // identity evidence, not permission to re-decide the turn.
+                        includeObserved = fullContext || source == "聊天表达渲染",
+                        // Full mode already carries configured profile fields; reduced modes do not.
+                        includeConfigured = !fullContext,
                     ))
                     appendLine("当前角色设定与人格行为字段是本次读取的最新用户设定；旧台词、记忆摘要和成长记录不能覆盖或补回旧设定。")
                     appendLine("角色与用户是什么关系、如何称呼用户，只能来自角色设定、当前场景或明确提供的事实；不得默认用户是‘主人’，也不得默认恋人、朋友或上下级关系。")
