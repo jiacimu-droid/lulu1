@@ -26,6 +26,9 @@ internal object PhoneMicSegmentPolicy {
 
     /** If the mic keeps reporting flat background noise, submit the utterance
      * instead of leaving ASR waiting indefinitely for an end-of-turn marker. */
+    fun stableBackgroundNoise(variation: Double, averageRms: Double): Boolean =
+        averageRms > 0.0 && variation <= maxOf(30.0, averageRms * 0.14)
+
     fun stationaryNoiseEnded(steadyFrames: Int, utteranceFrames: Int): Boolean =
         steadyFrames >= 23 && utteranceFrames >= 25
 
