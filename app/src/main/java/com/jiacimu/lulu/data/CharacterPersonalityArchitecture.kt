@@ -59,7 +59,7 @@ internal object CharacterHeartVoicePolicy {
         delta: PrivateStateDelta? = null,
         hasFreshEvidence: Boolean,
     ): String {
-        val clean = thought.replace(Regex("[ \\t]+"), " ").trim().take(1_200)
+        val clean = compactThought(thought)
         if (clean.isBlank()) return ""
         val structuredDelta = delta?.meaningful ?: hasStructuredDelta(innerLife)
         val causalBasis = hasCausalBasis(basis)
@@ -111,7 +111,20 @@ internal object CharacterHeartVoicePolicy {
         val aPairs = a.windowed(2).toSet()
         val bPairs = b.windowed(2).toSet()
         val denominator = minOf(aPairs.size, bPairs.size).coerceAtLeast(1)
-        return aPairs.intersect(bPairs).size.toDouble() / denominator >= 0.72
+        return aPairs.intersect(bPairs).size.toDouble() / denominator >= 0.60
+    }
+
+    private fun compactThought(value: String): String {
+        val clean = value.replace("\r\n", "\n")
+            .replace(Regex("[ \\t]+"), " ")
+            .replace(Regex("\\n+"), " ")
+            .trim()
+        if (clean.length <= 140) return clean
+        val head = clean.take(140)
+        val boundary = listOf('。', '！', '？', '!', '?', '；', ';')
+            .map(head::lastIndexOf).maxOrNull() ?: -1
+        return if (boundary >= 48) head.substring(0, boundary + 1).trim()
+        else head.trimEnd('，', ',', '、', '：', ':') + "…"
     }
 
     private fun normalize(value: String): String = value.lowercase()
