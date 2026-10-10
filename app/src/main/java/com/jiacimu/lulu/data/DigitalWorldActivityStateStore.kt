@@ -29,6 +29,33 @@ internal object DigitalWorldActivityStateStore {
         RealityWorldWindowRuntime.initialize(application)
     }
 
+    /** Minimal truthful living state for non-world chat: no furniture/tool catalog
+     * or reality-news feed. Active rest/reading and elapsed time still carry over.
+     */
+    @Synchronized
+    fun briefContextFor(characterId: String): String {
+        val p = prefs ?: return ""
+        settleTimedActivity(characterId, Instant.now())
+        val current = runCatching {
+            JSONObject(p.getString("activity:$characterId", "{}").orEmpty())
+        }.getOrDefault(JSONObject())
+        val appearance = runCatching {
+            JSONObject(p.getString("appearance:$characterId", "{}").orEmpty())
+        }.getOrDefault(JSONObject())
+        return buildString {
+            if (current.has("summary")) {
+                val status = current.optString("status").ifBlank { "active" }
+                append("当前生活活动(${status})：${current.optString("summary").take(230)}")
+                if (status == "active") append("；计划结束=${current.optString("plannedEndAt")}")
+                else append("；结果=${current.optString("outcome").take(150)}")
+                appendLine()
+            }
+            if (appearance.has("updatedAt")) {
+                appendLine("目前仪容：${appearance.optString("summary").take(100)}")
+            }
+        }.trim()
+    }
+
     @Synchronized
     fun contextFor(characterId: String): String {
         val p = prefs ?: return ""
