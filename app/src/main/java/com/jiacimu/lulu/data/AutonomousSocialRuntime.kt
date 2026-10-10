@@ -294,7 +294,7 @@ internal object AutonomousSocialRuntime {
             """.trimIndent(),
             source = "角色自主相遇",
             title = "${participantIds.joinToString("与") { characters.getValue(it).displayName }}在$location",
-            maxTokens = 1_600,
+            maxTokens = 2_400,
         ).getOrNull()?.text.orEmpty()
 
         return parseEncounter(result, participantIds)
@@ -344,7 +344,7 @@ internal object AutonomousSocialRuntime {
             """.trimIndent(),
             source = "数字世界事件反应",
             title = "${character.displayName}在${tick.locationName}",
-            maxTokens = 700,
+            maxTokens = 1_100,
         ).getOrNull()?.text.orEmpty()
         val reaction = parseSoloIncidentReaction(raw)
         if (reaction == null) {

@@ -146,6 +146,10 @@ class CharacterInnerLifeStoreTest {
         assertEquals("略微失落", root.getJSONObject("emotion").getString("feeling"))
         assertEquals(1, root.getJSONArray("emotionHistory").length())
         assertTrue(CharacterInnerLifeStore.context("inside-test-a", now.plusSeconds(60)).contains("心里一热"))
+        val compact = CharacterInnerLifeStore.compactContext("inside-test-a", now.plusSeconds(60))
+        assertTrue(compact.contains("心里一热"))
+        assertTrue(compact.contains("略微失落"))
+        assertTrue(compact.indexOf("略微失落") < compact.indexOf("此前仍可能有余波"))
         CharacterInnerLifeStore.observe("inside-test-a", "msg-b", "她转移了话题",
             feeling("略微失落", "话题突然变了", "想追问"), setOf("user"), now.plusSeconds(50))
         assertEquals(1, CharacterInnerLifeStore.snapshot("inside-test-a").getJSONArray("emotionHistory").length())

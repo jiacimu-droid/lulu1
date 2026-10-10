@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T07:02:37.568886+00:00",
-  "commit": "921185ff0a1515874b9b467365202c1090a96b6e",
+  "generatedAt": "2026-10-10T07:07:45.216588+00:00",
+  "commit": "4ffdf80234ccc73466004e52cc3228a8cc3c0ffa",
   "branch": "main",
-  "sourceFingerprint": "4ea7acd707be42e8454dd22f5a5088abcc3af9a684258f87f948f1ce6aa66d97",
+  "sourceFingerprint": "27516caeeb5082b527fe9b0783900fac1303ef3c032669fce364e162ae3bd9b9",
   "summary": {
     "files": 435,
-    "lines": 96432,
+    "lines": 96444,
     "symbols": 1414
   },
   "symbolIndex": {
@@ -2421,7 +2421,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 484
+        "line": 492
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -10011,7 +10011,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
       "lines": 507,
-      "sha256": "434850b6c3f8b49e98d1963f9429c38f1b7d974d09bfdeccf4e0796745294960",
+      "sha256": "b85a9cf8ac8763cdbf7d74230d8cb736feb394b8662cfb41f496bd2cf0c5716b",
       "symbols": []
     },
     {
@@ -10232,8 +10232,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 599,
-      "sha256": "fb140d0bd02bcede789b90be7c18caf149a4e69009d14f535b9764a2e0089de8",
+      "lines": 607,
+      "sha256": "6c72e2b1a0877ac13a91dd1cdb3a10a5355759e4e6087403e9c440516a55b7a4",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -10253,7 +10253,7 @@
         },
         {
           "name": "context",
-          "line": 484
+          "line": 492
         }
       ]
     },
@@ -16052,8 +16052,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-      "lines": 225,
-      "sha256": "8d24285bf88cbdf87b729f77c35e4d08b1217b06a829be21b6cb74c271c72e4d",
+      "lines": 229,
+      "sha256": "68fea0a346ca815c3e4fadc12af67edaf29f5e89587072b366660486721c45a8",
       "symbols": [
         {
           "name": "CharacterInnerLifeStoreTest",

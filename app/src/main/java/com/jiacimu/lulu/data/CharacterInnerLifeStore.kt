@@ -438,6 +438,22 @@ object CharacterInnerLifeStore {
         val thoughts = root.optJSONArray("thoughts") ?: JSONArray()
         val decisions = root.optJSONArray("decisions") ?: JSONArray()
         return buildString {
+            if (emotion != null) {
+                val started = runCatching { Instant.parse(emotion.optString("startedAt")) }.getOrNull()
+                val elapsed = started?.let { Duration.between(it, now).toMinutes().coerceAtLeast(0) } ?: Long.MAX_VALUE
+                if (elapsed <= emotion.optInt("halfLifeMinutes", 180).coerceAtLeast(30) * 3L) {
+                    appendLine("现在感受=${emotion.optString("feeling")}；并存=${emotion.optString("otherFeeling")}；由=${emotion.optString("cause").take(160)}；距今${elapsed}分钟")
+                    emotion.optString("restraint").takeIf(String::isNotBlank)?.let { appendLine("此刻克制：${it.take(130)}") }
+                }
+            }
+            val priorEmotions = root.optJSONArray("emotionHistory") ?: JSONArray()
+            for (i in maxOf(0, priorEmotions.length() - 2) until priorEmotions.length()) {
+                val prior = priorEmotions.optJSONObject(i) ?: continue
+                val priorAt = runCatching { Instant.parse(prior.optString("startedAt")) }.getOrNull() ?: continue
+                val elapsed = Duration.between(priorAt, now).toMinutes()
+                if (elapsed !in 0..(prior.optInt("halfLifeMinutes", 180).coerceAtLeast(30) * 3L)) continue
+                appendLine("此前仍可能有余波：${prior.optString("feeling")}；由=${prior.optString("cause").take(120)}；已过${elapsed}分钟。新感受不必立刻清除旧感受，按时间、强度和新事实权衡。")
+            }
             if (active.isNotEmpty()) {
                 appendLine("【仍在意的事｜可以权衡而非必须行动】")
                 active.take(6).forEach { m ->
@@ -451,14 +467,6 @@ object CharacterInnerLifeStore {
                 }
             }
             if (paused.isNotEmpty()) appendLine("暂缓：${paused.takeLast(2).joinToString("、") { it.optString("aim").take(90) }}")
-            if (emotion != null) {
-                val started = runCatching { Instant.parse(emotion.optString("startedAt")) }.getOrNull()
-                val elapsed = started?.let { Duration.between(it, now).toMinutes().coerceAtLeast(0) } ?: Long.MAX_VALUE
-                if (elapsed <= emotion.optInt("halfLifeMinutes", 180).coerceAtLeast(30) * 3L) {
-                    appendLine("现在感受=${emotion.optString("feeling")}；并存=${emotion.optString("otherFeeling")}；由=${emotion.optString("cause").take(160)}；距今${elapsed}分钟")
-                    emotion.optString("restraint").takeIf(String::isNotBlank)?.let { appendLine("此刻克制：${it.take(130)}") }
-                }
-            }
             bonds?.keys()?.asSequence()?.take(4)?.forEach { id ->
                 val bond = bonds.optJSONObject(id) ?: return@forEach
                 appendLine("对${if (id == "user") "用户" else id}的主观看法：${bond.optString("interpretation").take(140)}；依据=${bond.optString("reason").take(110)}")
