@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 internal fun proactiveDecisionInstruction(): String = """
 ${spontaneousInnerVoiceGuide}
+${CharacterDecisionProtocol.principles}
 
 你正在让当前角色依据“程序权威事实 → 人设与记忆 → 生活节奏与此刻愿望 → 可执行动作”形成这一刻。不要写系统报告。
 只返回 JSON：
