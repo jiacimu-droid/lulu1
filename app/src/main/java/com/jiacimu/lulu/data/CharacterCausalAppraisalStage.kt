@@ -55,8 +55,21 @@ internal object CharacterCausalAppraisalStage {
         if (PerceptionStimulusLedger.hasSeen(context, characterId, event.id)) return null
         val parsed = ModelStructuredOutput.objectOrNull(produce(event)) ?: return null
         val appraisal = parsed.optJSONObject("appraisal")
-        val innerLife = parsed.optJSONObject("innerLife")
-        val mood = parsed.optString("mood").trim().take(80)
+        val innerLife = parsed.optJSONObject("innerLife")?.let { original ->
+            JSONObject(original.toString()).apply {
+                // If the model names a feeling but omits its cause, ground the
+                // cause in the actual event, never in a guessed user motive.
+                optJSONObject("emotion")?.let { emotion ->
+                    if (emotion.optString("feeling").isNotBlank() &&
+                        emotion.optString("cause").isBlank()) {
+                        emotion.put("cause", "刚刚实际发生的互动：${event.content.take(150)}")
+                    }
+                }
+            }
+        }
+        val mood = parsed.optString("mood").trim()
+            .ifBlank { innerLife?.optJSONObject("emotion")?.optString("feeling").orEmpty() }
+            .take(80)
         val rawThought = parsed.optString("innerThought").trim()
         val basis = parsed.optJSONObject("innerThoughtBasis")
         // Do not mark an invalid/empty provider response as a successful appraisal.
