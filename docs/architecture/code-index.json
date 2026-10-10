@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T18:26:44.603463+00:00",
-  "commit": "40e98fd9831aaf6f8754a042e4abb8b777e0beb2",
+  "generatedAt": "2026-10-10T18:27:20.281716+00:00",
+  "commit": "ff0ee365e5e5ec178080c9e272c0c45fe566b627",
   "branch": "main",
-  "sourceFingerprint": "39551d8638cd2dd8447c82bd0b284d2c28ab19705b12736475f760509c4ef1f0",
+  "sourceFingerprint": "fc5af3bedddc10fefcbab8ce9cb13a36a6872e240253908cb890bc7a12b3832a",
   "summary": {
     "files": 478,
-    "lines": 103250,
+    "lines": 103272,
     "symbols": 1519
   },
   "symbolIndex": {
@@ -187,7 +187,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 88
+        "line": 98
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
@@ -721,7 +721,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 117
+        "line": 134
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -1925,19 +1925,19 @@
     "byId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 83
+        "line": 93
       }
     ],
     "rename": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 102
+        "line": 113
       }
     ],
     "toggleFavorite": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 106
+        "line": 123
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -1947,7 +1947,7 @@
     "move": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 110
+        "line": 127
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -8496,8 +8496,8 @@
   "files": [
     {
       "path": "app/build.gradle.kts",
-      "lines": 135,
-      "sha256": "855b5b792d703093870398eeaba320ed2c80e790ef1205c6d7a08e6b0aa718e0",
+      "lines": 138,
+      "sha256": "d00c5835079919b89e23863bc1f4582631ef33318c6e9adcb95edc4e2a07ac11",
       "symbols": []
     },
     {
@@ -10235,32 +10235,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-      "lines": 239,
-      "sha256": "b8b448815c5bd6c6bffb221908208afcf70067ffa64f0673152733b0686df985",
+      "lines": 258,
+      "sha256": "43152bb4ce2007d4a8a6aaa74986b6619cafa9b06f7777baf20cc1f6fba16d1f",
       "symbols": [
         {
           "name": "byId",
-          "line": 83
+          "line": 93
         },
         {
           "name": "prompt",
-          "line": 88
+          "line": 98
         },
         {
           "name": "rename",
-          "line": 102
+          "line": 113
         },
         {
           "name": "toggleFavorite",
-          "line": 106
+          "line": 123
         },
         {
           "name": "move",
-          "line": 110
+          "line": 127
         },
         {
           "name": "remove",
-          "line": 117
+          "line": 134
         }
       ]
     },
