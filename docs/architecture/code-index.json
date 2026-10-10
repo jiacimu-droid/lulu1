@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T06:02:32.137222+00:00",
-  "commit": "9971467951e9f4d43c872a5a9173a442a0d88fdc",
+  "generatedAt": "2026-10-10T06:04:07.220494+00:00",
+  "commit": "880951282f7107793faad97b99d52f3f9bc9d3c2",
   "branch": "main",
-  "sourceFingerprint": "a80e1092bf15bcce16167b808137c147e48ae78b22df864374c710211e56c252",
+  "sourceFingerprint": "ca659acc3b2d8014fdc028a303ededebda040399a1fbac9a3300d5d32a16a6f4",
   "summary": {
-    "files": 428,
-    "lines": 95806,
-    "symbols": 1394
+    "files": 429,
+    "lines": 95835,
+    "symbols": 1395
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4444,6 +4444,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
         "line": 48
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt",
+        "line": 9
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt",
@@ -12616,6 +12620,17 @@
         {
           "name": "compactWorld",
           "line": 64
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt",
+      "lines": 29,
+      "sha256": "2500cbaaef2561781a04b1b45cdb664b5e5b2ecf3da47bc9dbcf120fc3e02d0a",
+      "symbols": [
+        {
+          "name": "render",
+          "line": 9
         }
       ]
     },
