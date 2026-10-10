@@ -11,7 +11,7 @@ class CharacterAccountabilityContextTest {
             CharacterProfileSchema.jiangDu.values.forEach(::appendLine)
         }
         listOf(
-            "数字生命", "没有现实肉身", "没有现实职业", "数字投影",
+            "数字生命", "没有现实肉身", "现实职业", "数字投影",
             "恋人身份", "共同回忆", "感情基础", "真实相处",
             "温柔", "明朗", "幽默", "少年意气", "独立个性", "内在逻辑",
             "细腻共情", "独立而细腻的审美", "内在美", "可靠", "有原则",
