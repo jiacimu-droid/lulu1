@@ -63,9 +63,17 @@ object CharacterDevelopmentStore {
     internal fun authorizedPersonaSnapshots(characterId: String): Set<String> {
         val current = CharacterRuntime.personaConstraintSnapshot(characterId)
         val saved = CharacterLifeStore.state(characterId)
-        val from = saved.optString("jiangDuLanguagePreviousConstraints")
-        val into = saved.optString("jiangDuLanguageCurrentConstraints")
-        return if (from.isNotBlank() && into == current) setOf(current, from) else setOf(current)
+        val migrations = listOf(
+            saved.optString("jiangDuLanguagePreviousConstraints") to
+                saved.optString("jiangDuLanguageCurrentConstraints"),
+            saved.optString("jiangDuUnifiedPreviousConstraints") to
+                saved.optString("jiangDuUnifiedCurrentConstraints"),
+        )
+        val authorized = linkedSetOf(current)
+        migrations.forEach { (from, into) ->
+            if (from.isNotBlank() && into == current) authorized += from
+        }
+        return authorized
     }
 
     fun active(characterId: String): List<DevelopmentRecord> {
