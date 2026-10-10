@@ -74,8 +74,9 @@ internal object CharacterContinuityRuntime {
         characterId: String,
         currentUserText: String = "",
         now: Instant = Instant.now(),
-    ): String {
-        val state = snapshot(characterId, currentUserText, now)
+    ): String = render(snapshot(characterId, currentUserText, now))
+
+    internal fun render(state: Snapshot): String {
         if (state.previousInteractionAt == null && state.preferredAddress.isBlank() &&
             state.activeMotiveAims.isEmpty()) return ""
         return buildString {
