@@ -99,6 +99,7 @@ object LuluDeviceToolBridge {
         val observedWorld = com.jiacimu.lulu.data.CharacterPerceptionContext.pending(appContext, characterId, now)
         val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId, includeWorldContext = false) + "\n" + com.jiacimu.lulu.data.CapabilityRegistry.context(appContext, characterId)
         val initiativeContext = com.jiacimu.lulu.data.CharacterInitiativeRuntime.context(characterId, userText)
+        val continuityContext = com.jiacimu.lulu.data.CharacterContinuityRuntime.context(characterId, userText, now)
         val onlineChatBubbleRule = if (sceneContext.contains("电话")) "" else """
             【即时通讯中的表达：先想说什么，再决定发多少】
             - 私聊或群聊是面对一个真实对象接话，不是写散文、做情绪分析或完成关系宣言。先接住这一轮真正新增的事情；对方只提出一个简单需求时，无须自行扩写一整段安慰、环境描写或联想。
@@ -163,6 +164,7 @@ object LuluDeviceToolBridge {
                 appendLine("【用户现实设备与状态｜属于用户，缺失数据不得猜测】\n$deviceContext")
                 appendLine(com.jiacimu.lulu.data.CharacterPerceptionContext.render(observedWorld))
                 if (history.isNotBlank()) appendLine("最近对话（这是已经发生完的连续过程，用来确定你此刻站在什么状态上）：\n$history")
+                if (continuityContext.isNotBlank()) appendLine(continuityContext)
                 if (interactionContext.isNotBlank()) appendLine(interactionContext)
                 if (groundingContext.isNotBlank()) appendLine(groundingContext)
                 if (initiativeContext.isNotBlank()) appendLine(initiativeContext)
