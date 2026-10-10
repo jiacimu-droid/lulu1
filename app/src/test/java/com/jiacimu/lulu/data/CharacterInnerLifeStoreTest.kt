@@ -169,6 +169,44 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear(id)
     }
 
+    @Test fun causalTransitionIsEvidenceBoundAndDeletedWithItsSource() {
+        start()
+        val id = "inside-test-causal-transition"
+        CharacterInnerLifeStore.clear(id)
+        val appraisal = JSONObject()
+            .put("meaning", "她是在纠正我的误解")
+            .put("responseAim", "先修复，不抢着解释自己")
+            .put("interactionMove", "repair")
+        val innerLife = JSONObject().put("emotion", JSONObject()
+            .put("feeling", "有点尴尬")
+            .put("cause", "意识到自己刚才理解错了"))
+        val basis = JSONObject()
+            .put("focus", "用户明确说“不是这个意思”")
+            .put("change", "从原来的判断改成承认自己理解错了")
+            .put("unsaidWhy", "尴尬没有必要直接说给她听")
+        CharacterInnerLifeStore.recordCausalTransition(
+            characterId = id,
+            evidenceId = "causal-msg-1",
+            appraisal = appraisal,
+            innerLife = innerLife,
+            innerThoughtBasis = basis,
+            selectedAction = "reply",
+            innerThought = "……刚才确实是我想岔了",
+            reason = "先把误解修回来",
+            now = Instant.parse("2026-10-10T10:30:00Z"),
+        )
+        val transitions = CharacterInnerLifeStore.snapshot(id).getJSONArray("causalTransitions")
+        assertEquals(1, transitions.length())
+        val entry = transitions.getJSONObject(0)
+        assertEquals("causal-msg-1", entry.getString("evidenceId"))
+        assertEquals("repair", entry.getJSONObject("appraisal").getString("interactionMove"))
+        assertEquals("有点尴尬", entry.getJSONObject("stateDelta").getJSONObject("emotion").getString("feeling"))
+        assertEquals("用户明确说“不是这个意思”", entry.getJSONObject("innerThoughtBasis").getString("focus"))
+        CharacterInnerLifeStore.invalidateEvidence("causal-msg-1")
+        assertEquals(0, CharacterInnerLifeStore.snapshot(id).getJSONArray("causalTransitions").length())
+        CharacterInnerLifeStore.clear(id)
+    }
+
     @Test fun actionProofNeedsMatchingMotiveIdAndReceiptIsIdempotent() {
         start()
         CharacterInnerLifeStore.observe("inside-test-a", "msg", "他很想继续看书",
