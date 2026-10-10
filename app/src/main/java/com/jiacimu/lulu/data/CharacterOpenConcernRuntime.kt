@@ -100,6 +100,14 @@ internal object CharacterOpenConcernRuntime {
                     item.optString("focus").isNotBlank()
             }.takeLast(4)
 
+    /** One quiet, optional rethink after a newly changed concern; never a repeating anxiety loop. */
+    fun meritsOneFollowThrough(previous: JSONArray?, now: Instant = Instant.now()): Boolean =
+        recent(previous, now).any { item ->
+            val updated = runCatching { Instant.parse(item.optString("updatedAt")) }.getOrNull()
+            updated != null && !updated.isAfter(now) &&
+                Duration.between(updated, now).toMinutes() in 0..60
+        }
+
     fun context(previous: JSONArray?, now: Instant = Instant.now()): String {
         val threads = recent(previous, now)
         if (threads.isEmpty()) return ""
