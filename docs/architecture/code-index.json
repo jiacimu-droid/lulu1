@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T18:29:15.813515+00:00",
-  "commit": "5372fe8bbb5b19995fd86b5a8565532124470ec9",
+  "generatedAt": "2026-10-10T18:29:36.447946+00:00",
+  "commit": "61d660445b3995bbcd19938957b0a44e24850487",
   "branch": "main",
-  "sourceFingerprint": "f80ed15cb78635b3c8f449129292389e625abd02aa335ab2ac831858e353b833",
+  "sourceFingerprint": "e7f4e1ce09fc4c6661b458ee202e8719a5024a381739305a5e159fecf7c5ee7f",
   "summary": {
-    "files": 478,
-    "lines": 103351,
-    "symbols": 1520
+    "files": 479,
+    "lines": 103391,
+    "symbols": 1521
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7952,6 +7952,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt",
         "line": 47
+      }
+    ],
+    "BundledCuteStickerCatalogTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt",
+        "line": 5
       }
     ],
     "CallContractsTest": [
@@ -16815,6 +16821,17 @@
       "lines": 11,
       "sha256": "7a8604d40b3980d83deddf98189840299af8ec3e624d8a241ae8e2b4b3d2358a",
       "symbols": []
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt",
+      "lines": 40,
+      "sha256": "94ec8667237dc20a0c99d0581a8a484ae6feb3619e9ac6748778a137a4541d11",
+      "symbols": [
+        {
+          "name": "BundledCuteStickerCatalogTest",
+          "line": 5
+        }
+      ]
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt",
