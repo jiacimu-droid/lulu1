@@ -134,6 +134,7 @@ internal object CharacterCausalAppraisalStage {
             innerThought = grounded,
             reason = appraisal?.optString("meaning").orEmpty().ifBlank { "留意刚发生的互动" },
             now = now,
+            alternatives = parsed.optJSONArray("alternatives"),
         )
         CharacterInnerLifeStore.recordInnerVoice(
             characterId, verified.evidenceId, grounded, now, delta.fingerprint,
@@ -161,7 +162,9 @@ internal object CharacterCausalAppraisalStage {
         只依据证据与既有关系、性格和持续状态，区分事实、猜测以及仍不了解的事。
         用户挂断或没有被成功转写的语音，不能断言用户生气、故意沉默或不在乎你。
         感受可以是疑惑、想念、坦然、委屈、关心，也可能没有新的感受；不要为了有反应而造感情。
-        只返回 JSON：{"appraisal":{"meaning":"你如何看待事实","uncertainty":"不能确定什么","responseAim":"如想行动，你希望达到什么"},"innerLife":{"emotion":{"feeling":"确实产生的感受","cause":"真实缘由","otherFeeling":"并存感受","impulse":"想做但尚未执行什么","restraint":"有什么顾虑","strength":1},"motives":[{"op":"start","aim":"如有实际持续愿望","why":"现实依据"}]},"innerThought":"确实还没有说出口的念头，可为空","innerThoughtBasis":{"focus":"触发点","change":"和上一刻的变化","unsaidWhy":"为何尚未说出口"},"mood":"可见于此刻的简短心情"}
+        允许同时存在两三种尚未证实、甚至互相矛盾的可能理解；它们仅是你自己的猜测，不是对用户意图的结论。
+        区分「我想联系她」「她此刻可能需要安静」「我也有自己的生活想继续」等不同愿望和顾虑，选出真正有分量的内在倾向。你不必马上采取行动，也不必为了显得犹豫强行写出心理戏；后续行动阶段会根据已保存的倾向再做选择。
+        只返回 JSON：{"appraisal":{"meaning":"你如何看待事实","uncertainty":"不能确定什么","responseAim":"如想行动，你希望达到什么","possibleReadings":["可能的私人解释（最多三条，不是事实）"],"tension":"确实存在的两难与顾虑"},"innerLife":{"emotion":{"feeling":"确实产生的感受","cause":"真实缘由","otherFeeling":"并存感受","impulse":"想做但尚未执行什么","restraint":"有什么顾虑","strength":1},"motives":[{"op":"start","aim":"如有实际持续愿望","why":"现实依据"}]},"innerThought":"确实还没有说出口的念头，可为空","innerThoughtBasis":{"focus":"触发点","change":"和上一刻的变化","unsaidWhy":"为何尚未说出口"},"mood":"可见于此刻的简短心情","alternatives":[{"idea":"想过的一种办法","whyNot":"暂时没选择的真实理由"}]}
         其中 emotion、motives、innerThought、innerThoughtBasis、mood 均可省略，不能为了填满字段制造变化。至少保留 appraisal.meaning 或 uncertainty。
         行动必须等待本阶段真实保存完成，下一阶段将用你已经形成的私人状态作出选择。
     """.trimIndent()
