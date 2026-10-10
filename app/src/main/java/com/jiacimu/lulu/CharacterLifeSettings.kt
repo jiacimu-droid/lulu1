@@ -5,6 +5,8 @@ import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -389,7 +391,8 @@ internal fun CharacterLifeSettings(characterId: String) {
         val field = CharacterProfileSchema.fields.first { it.key == key }
         AlertDialog(onDismissRequest = { editing = null }, title = { Text(field.label) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (key == "speechHabits") {
                         Text("描述这个角色自己的表达习惯，不用填固定台词。你主动编辑的内容不会被后天成长覆盖。",
                             style = MaterialTheme.typography.bodySmall)
@@ -400,7 +403,7 @@ internal fun CharacterLifeSettings(characterId: String) {
                         }
                     }
                     OutlinedTextField(draft, { draft = it }, placeholder = { Text(field.hint) },
-                        minLines = 4, maxLines = 8, modifier = Modifier.fillMaxWidth())
+                        minLines = 4, maxLines = 8, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
                 }
             },
             confirmButton = { TextButton({ CharacterLifeStore.setProfile(characterId, key, draft); editing = null }) { Text("保存") } },

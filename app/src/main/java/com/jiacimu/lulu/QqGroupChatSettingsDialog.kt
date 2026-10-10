@@ -113,7 +113,7 @@ internal fun QqGroupChatSettingsScreen(
         },
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
+            modifier = Modifier.fillMaxSize().padding(padding).imePadding(),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
@@ -138,7 +138,7 @@ internal fun QqGroupChatSettingsScreen(
                         onValueChange = { editing = editing.copy(name = it.take(30)) },
                         label = { Text("群名称") },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                     )
                     OutlinedTextField(
                         value = editing.announcement,
@@ -147,14 +147,14 @@ internal fun QqGroupChatSettingsScreen(
                         placeholder = { Text("所有成员进入群聊时都能看到") },
                         minLines = 3,
                         maxLines = 6,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                     )
                     OutlinedTextField(
                         value = editing.userGroupNickname,
                         onValueChange = { editing = editing.copy(userGroupNickname = it.take(20)) },
                         label = { Text("我的群昵称") },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                     )
                 }
             }
@@ -366,7 +366,7 @@ private fun GroupMemberPickerScreen(
         },
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
+            modifier = Modifier.fillMaxSize().padding(padding).imePadding(),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
@@ -377,7 +377,7 @@ private fun GroupMemberPickerScreen(
                     placeholder = { Text("搜索角色") },
                     leadingIcon = { Icon(Icons.Outlined.Search, null) },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                     shape = RoundedCornerShape(18.dp),
                 )
             }
@@ -453,7 +453,7 @@ private fun GroupMemberManagementScreen(
         },
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
+            modifier = Modifier.fillMaxSize().padding(padding).imePadding(),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
@@ -488,7 +488,7 @@ private fun GroupMemberManagementScreen(
                         label = { Text("群昵称") },
                         placeholder = { Text(character.displayName) },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                     )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -568,7 +568,7 @@ private fun GroupChatRecordSearchScreen(
         },
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
+            modifier = Modifier.fillMaxSize().padding(padding).imePadding(),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
@@ -579,7 +579,7 @@ private fun GroupChatRecordSearchScreen(
                     label = { Text("关键词") },
                     leadingIcon = { Icon(Icons.Outlined.Search, null) },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(if (query.isBlank()) "输入关键词开始查找" else "找到 ${results.size} 条", color = LuluColors.Muted, fontSize = 12.sp)

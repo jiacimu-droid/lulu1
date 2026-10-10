@@ -120,7 +120,7 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
         },
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
+            modifier = Modifier.fillMaxSize().padding(padding).imePadding(),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
@@ -137,9 +137,9 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                             Text("新建")
                         }
                     }
-                    OutlinedTextField(value = configurationName, onValueChange = { configurationName = it }, label = { Text("配置名称") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-                    OutlinedTextField(value = baseUrl, onValueChange = { baseUrl = it }, label = { Text("API 地址") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-                    OutlinedTextField(value = apiKey, onValueChange = { apiKey = it }, label = { Text("API 密钥") }, leadingIcon = { Icon(Icons.Outlined.Key, null) }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                    OutlinedTextField(value = configurationName, onValueChange = { configurationName = it }, label = { Text("配置名称") }, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(), singleLine = true)
+                    OutlinedTextField(value = baseUrl, onValueChange = { baseUrl = it }, label = { Text("API 地址") }, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(), singleLine = true)
+                    OutlinedTextField(value = apiKey, onValueChange = { apiKey = it }, label = { Text("API 密钥") }, leadingIcon = { Icon(Icons.Outlined.Key, null) }, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(), singleLine = true)
                     Button(onClick = { saveCurrent() }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = SettingsAccent, contentColor = SettingsInk)) {
                         Icon(Icons.Outlined.Save, null)
                         Spacer(Modifier.width(7.dp))
@@ -191,7 +191,7 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                         OutlinedTextField(
                             value = modelQuery,
                             onValueChange = { modelQuery = it },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                             singleLine = true,
                             leadingIcon = { Icon(Icons.Outlined.Search, null) },
                             trailingIcon = { if (modelQuery.isNotBlank()) IconButton(onClick = { modelQuery = "" }) { Icon(Icons.Outlined.Close, "清空搜索") } },

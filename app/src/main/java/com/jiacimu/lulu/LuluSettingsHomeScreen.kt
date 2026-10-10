@@ -30,6 +30,12 @@ private val SettingsHomeAccentStrong = Color(0xFF292929)
 @Composable
 fun LuluSettingsHomeScreen(onBack: () -> Unit) {
     var page by rememberSaveable { mutableStateOf(SettingsHomePage.Home) }
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
+    val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+    LaunchedEffect(page) {
+        focusManager.clearFocus(force = true)
+        keyboard?.hide()
+    }
     BackHandler(enabled = page != SettingsHomePage.Home) {
         page = SettingsHomePage.Home
     }

@@ -454,8 +454,8 @@ private fun AdvancedSettingsScaffold(
         },
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(16.dp),
+            modifier = Modifier.fillMaxSize().padding(padding).imePadding(),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             content = content,
         )
@@ -523,7 +523,7 @@ private fun AdvancedTextField(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
         label = { Text(label) },
         placeholder = { Text(placeholder, color = AdvancedMuted) },
         minLines = minLines,

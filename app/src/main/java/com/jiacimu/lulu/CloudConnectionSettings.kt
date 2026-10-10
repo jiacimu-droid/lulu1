@@ -21,8 +21,8 @@ internal fun CloudConnectionSettings() {
     var jobs by remember { mutableStateOf(CloudTaskBridge.tasks()) }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text("可选云端任务服务", style = MaterialTheme.typography.titleMedium)
-        OutlinedTextField(url, { url = it }, label = { Text("HTTPS 服务地址") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-        OutlinedTextField(token, { token = it }, label = { Text("应用访问凭证") }, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth(), singleLine = true)
+        OutlinedTextField(url, { url = it }, label = { Text("HTTPS 服务地址") }, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(), singleLine = true)
+        OutlinedTextField(token, { token = it }, label = { Text("应用访问凭证") }, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(), singleLine = true)
         Button(onClick = {
             runCatching { CloudTaskBridge.configure(url, token) }.onSuccess {
                 notice = "配置已保存"
