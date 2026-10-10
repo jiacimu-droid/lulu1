@@ -286,7 +286,7 @@ object CharacterLifeStore {
             profile.put("social", CharacterProfileSchema.jiangDuV5.getValue("social"))
         // Explicitly saved empty strings are user edits, not missing defaults.
         if (!profile.has("speechHabits"))
-            profile.put("speechHabits", CharacterProfileSchema.jiangDuSpeechHabits)
+            profile.put("speechHabits", CharacterProfileSchema.jiangDuV5SpeechHabits)
         root.put("profile", profile).put("jiangDuPresetVersion", 5)
         save(characterId, root)
         // A program-owned preset refresh is not a user decision to discard
