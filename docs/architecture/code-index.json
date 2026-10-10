@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T04:36:21.408751+00:00",
-  "commit": "ae74d99d68f98fe3fc4b4b6ff274c99a52178d0a",
+  "generatedAt": "2026-10-10T04:38:05.072737+00:00",
+  "commit": "c897d82c7886041117d211a06e21ada111d1fbdf",
   "branch": "main",
-  "sourceFingerprint": "c58568fd95d73de8c1a6a6ced7f9c1baf37c62a12ed8f88bdb5bdcc2b927a989",
+  "sourceFingerprint": "1722d97706a7016f10842b6477e6ffd00ede9d1b67a2ea94c533b6d8f6eaf1c3",
   "summary": {
     "files": 424,
-    "lines": 95332,
+    "lines": 95339,
     "symbols": 1382
   },
   "symbolIndex": {
@@ -3951,7 +3951,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 444
+        "line": 449
       }
     ],
     "LegacyLuluImportResult": [
@@ -5137,7 +5137,7 @@
     "record": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 120
+        "line": 125
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -5151,7 +5151,7 @@
     "all": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 210
+        "line": 215
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -5161,61 +5161,61 @@
     "eventsByIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 213
+        "line": 218
       }
     ],
     "deleteEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 251
+        "line": 256
       }
     ],
     "deleteCharacterEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 283
+        "line": 288
       }
     ],
     "deleteEventsByIdPrefix": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 290
+        "line": 295
       }
     ],
     "deleteConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 305
+        "line": 310
       }
     ],
     "deleteConversationData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 316
+        "line": 321
       }
     ],
     "recentEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 336
+        "line": 341
       }
     ],
     "recentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 339
+        "line": 344
       }
     ],
     "remember": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 355
+        "line": 360
       }
     ],
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 426
+        "line": 431
       }
     ],
     "parse": [
@@ -8723,7 +8723,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
       "lines": 1041,
-      "sha256": "fe22dd92afe048b983531b4b4647bdb907590025c87c9dedf874cb83d7b69317",
+      "sha256": "f19b25e1e091d8f73971f6f88951d74a26f36df7c5e025a3143dfb2ae1ff7def",
       "symbols": [
         {
           "name": "prepare",
@@ -12593,8 +12593,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 544,
-      "sha256": "729bf056cacc9b75e7074465e713f65012042db8d6fee603cf9cc1f08c9c3ad6",
+      "lines": 549,
+      "sha256": "c0e20e79d7b234d1e8f16545c603982f36072f73c3e0af917cd3e5d6e949853b",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -12622,55 +12622,55 @@
         },
         {
           "name": "record",
-          "line": 120
+          "line": 125
         },
         {
           "name": "all",
-          "line": 210
+          "line": 215
         },
         {
           "name": "eventsByIds",
-          "line": 213
+          "line": 218
         },
         {
           "name": "deleteEvent",
-          "line": 251
+          "line": 256
         },
         {
           "name": "deleteCharacterEvents",
-          "line": 283
+          "line": 288
         },
         {
           "name": "deleteEventsByIdPrefix",
-          "line": 290
+          "line": 295
         },
         {
           "name": "deleteConversationMessage",
-          "line": 305
+          "line": 310
         },
         {
           "name": "deleteConversationData",
-          "line": 316
+          "line": 321
         },
         {
           "name": "recentEvents",
-          "line": 336
+          "line": 341
         },
         {
           "name": "recentContext",
-          "line": 339
+          "line": 344
         },
         {
           "name": "remember",
-          "line": 355
+          "line": 360
         },
         {
           "name": "exportBackup",
-          "line": 426
+          "line": 431
         },
         {
           "name": "importBackup",
-          "line": 444
+          "line": 449
         }
       ]
     },
@@ -15408,8 +15408,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt",
-      "lines": 13,
-      "sha256": "e7b6d4602e6f5b583e2c9d290ab79667b158a3b5c6a23422df502f47d089afd3",
+      "lines": 15,
+      "sha256": "076ee5d64cae3d389a36aa1e2db47ad1a1a1a958a6688d22d3c398733c9f5550",
       "symbols": [
         {
           "name": "CallMemoryPolicyTest",
