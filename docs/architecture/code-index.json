@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T06:27:25.697367+00:00",
-  "commit": "87da8fc708292d0107658e2acf34a0773eed3294",
+  "generatedAt": "2026-10-10T06:27:45.513146+00:00",
+  "commit": "8622355989b22d0f6ca3826813c5c3effe186e10",
   "branch": "main",
-  "sourceFingerprint": "201d00743fa7b7fad97e313656c9ab532800d2203588ac4542b9932a69682690",
+  "sourceFingerprint": "053f20dfd58dfbac0f3c68cd8e0da5d7c7ad6c6aebc902c4c8492ab1d56a04a9",
   "summary": {
     "files": 430,
-    "lines": 95984,
+    "lines": 95982,
     "symbols": 1401
   },
   "symbolIndex": {
@@ -115,7 +115,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
-        "line": 39
+        "line": 37
       }
     ],
     "preferredMicrophoneType": [
@@ -2451,19 +2451,19 @@
     "extractExplicitAddress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
-        "line": 20
+        "line": 18
       }
     ],
     "observeUserMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
-        "line": 29
+        "line": 27
       }
     ],
     "promptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
-        "line": 58
+        "line": 56
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
@@ -10006,24 +10006,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
-      "lines": 72,
-      "sha256": "e8ab08ad5e9c1c0238d5fa949fd92f417c9d6aa5e6b3c7c84f73f8722b89cf45",
+      "lines": 70,
+      "sha256": "66866747d9655760414779dbe1791cccb6c3b1f1d379478c5d4c865d5dfc0a4d",
       "symbols": [
         {
           "name": "extractExplicitAddress",
-          "line": 20
+          "line": 18
         },
         {
           "name": "observeUserMessage",
-          "line": 29
+          "line": 27
         },
         {
           "name": "refresh",
-          "line": 39
+          "line": 37
         },
         {
           "name": "promptSection",
-          "line": 58
+          "line": 56
         }
       ]
     },
