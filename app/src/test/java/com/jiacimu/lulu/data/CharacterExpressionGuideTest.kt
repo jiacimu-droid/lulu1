@@ -86,6 +86,14 @@ class CharacterExpressionGuideTest {
         ))
     }
 
+    @Test fun situationalPatternNeedsRepeatedEvidence() {
+        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.SituationalPattern, 1, false, 0))
+        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.SituationalPattern, 2, false, 0))
+        assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.SituationalPattern, 3, false, 0))
+        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.SituationalPattern, 3, false, 1))
+        assertTrue(CharacterPersonalityArchitecture.promptSection().contains("情境—反应签名"))
+    }
+
     @Test fun narrativeMeaningNeedsMoreThanOneEvent() {
         assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.NarrativeMeaning, 1, false, 0))
         assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.NarrativeMeaning, 2, false, 0))
