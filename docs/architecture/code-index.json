@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:17:37.806998+00:00",
-  "commit": "3e38c16010fdccd35f152b2f326055c4c7a0c48f",
+  "generatedAt": "2026-10-10T17:18:04.322620+00:00",
+  "commit": "0a47f620a8cc057bca4ab4e3c82d4ee994aceef5",
   "branch": "main",
-  "sourceFingerprint": "efaeb60c95cc2d9db3236a9d4b85c1a70f2961916793cfc76845206b4a0edc71",
+  "sourceFingerprint": "4ca3a3b64b36908d9801f6c4c6e8c8a28c42c262478c91232a45ef0684c461f9",
   "summary": {
     "files": 464,
-    "lines": 101542,
-    "symbols": 1493
+    "lines": 101580,
+    "symbols": 1494
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2065,7 +2065,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 9
+        "line": 36
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -2505,7 +2505,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 30
+        "line": 58
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
@@ -3006,16 +3006,22 @@
         "line": 33
       }
     ],
+    "integrate": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
+        "line": 17
+      }
+    ],
     "selectRecent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 11
+        "line": 39
       }
     ],
     "pending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 20
+        "line": 48
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -3025,7 +3031,7 @@
     "stimulus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 23
+        "line": 51
       }
     ],
     "keepOrBlank": [
@@ -5399,7 +5405,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 968
+        "line": 972
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -10911,28 +10917,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-      "lines": 37,
-      "sha256": "21add2896602bcffdc9c5f1b9a91840766c057268711a58d9302a77baf7a5c99",
+      "lines": 65,
+      "sha256": "ed87c3218a769ca71006b0ef2c3ee8d2f821414d6f5fda29630a898886eee0cf",
       "symbols": [
         {
+          "name": "integrate",
+          "line": 17
+        },
+        {
           "name": "recent",
-          "line": 9
+          "line": 36
         },
         {
           "name": "selectRecent",
-          "line": 11
+          "line": 39
         },
         {
           "name": "pending",
-          "line": 20
+          "line": 48
         },
         {
           "name": "stimulus",
-          "line": 23
+          "line": 51
         },
         {
           "name": "render",
-          "line": 30
+          "line": 58
         }
       ]
     },
@@ -13449,8 +13459,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1024,
-      "sha256": "3390a2e9b34897c7386afb25c1dd10806bdedf4dc75fd7278199b584bca7857b",
+      "lines": 1028,
+      "sha256": "34a16e65e170e215be9faf4ebd1c625c346ca046fefb09e1640651c9dd4d1dcb",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -13474,7 +13484,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 968
+          "line": 972
         }
       ]
     },
@@ -16404,8 +16414,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 854,
-      "sha256": "326d5aa2b66ae8543ea3c2e7d15e9f5a28fd3417f97546edf3c2a6fab7c48a3c",
+      "lines": 860,
+      "sha256": "e2f8deb9329295bb6b7eb1ca36b4c0626ba01076d6b90acfeb506bc4c6d43fff",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
