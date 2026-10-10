@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T05:59:24.639232+00:00",
-  "commit": "328eacaae61021c88cfc2649435b72d05bcdae01",
+  "generatedAt": "2026-10-10T06:00:02.390506+00:00",
+  "commit": "6777035f4229206548e6ee0b2bbd70a1d9bd6b92",
   "branch": "main",
-  "sourceFingerprint": "96d8516891ad1365caf2cc72f4e297437257dbac504d4e85072f8b80add351cf",
+  "sourceFingerprint": "8189aac9276cc9b401fa719befdcac0ea86404ed80cddd463082ddc49c6c9057",
   "summary": {
     "files": 428,
     "lines": 95795,
-    "symbols": 1392
+    "symbols": 1393
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5058,6 +5058,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
         "line": 249
+      }
+    ],
+    "PromptContextBudget": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
+        "line": 6
       }
     ],
     "forRequest": [
@@ -12587,8 +12593,12 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
       "lines": 81,
-      "sha256": "1c9c9dc58ab736d59fe2087d46094cf5027c9814461d80ec1cefdc7dde770162",
+      "sha256": "cc562fa9c06786a1ebf509941d2ee68eeaa621616ff6b8d8d3d4882dacfb79a9",
       "symbols": [
+        {
+          "name": "PromptContextBudget",
+          "line": 6
+        },
         {
           "name": "forRequest",
           "line": 33
