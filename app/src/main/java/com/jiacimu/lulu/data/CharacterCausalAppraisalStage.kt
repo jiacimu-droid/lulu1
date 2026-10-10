@@ -21,11 +21,18 @@ internal object CharacterCausalAppraisalStage {
         val innerThought: String,
     )
 
-    /** Quiet call pulses are handled in-call. An ended call is a new social fact. */
+    /** Only consequential witnessed interactions merit a separate pre-action
+     * appraisal. Ambient world ticks and ordinary voice/chat replies stay fast.
+     */
     fun eligible(event: SharedTimelineEvent): Boolean =
-        event.evidenceKind == EventEvidenceKind.Observation &&
-            event.source == InteractionSignalBridge.SOURCE &&
-            event.id.startsWith("interaction-call-end-")
+        event.evidenceKind == EventEvidenceKind.Observation && when {
+            event.source == InteractionSignalBridge.SOURCE ->
+                event.id.startsWith("interaction-call-end-")
+            // Genuine touch and visits also change social context without a new text bubble.
+            event.id.startsWith("world-touch-") || event.id.startsWith("world-visit-") ->
+                event.source == "meeting" || event.source == "digital-world"
+            else -> false
+        }
 
     fun latestPending(events: List<SharedTimelineEvent>): SharedTimelineEvent? =
         events.filter(::eligible).maxByOrNull { it.occurredAt }
