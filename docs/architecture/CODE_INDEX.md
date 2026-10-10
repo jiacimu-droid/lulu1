@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f3c4255a1c4ef29d13e1af2dd1dcb00bc67ed126`
+- 基准提交：`c2790c1e83c37c710a26cc8fb3af03602e666589`
 - 分支：`main`
 - 已索引文件：444
-- 已索引代码/文本行：97902
-- 已发现符号：1436
+- 已索引代码/文本行：98074
+- 已发现符号：1440
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -137,18 +137,18 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 109 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt` | 74 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt` | 78 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 92 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 172 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 100 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 213 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 98 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 833 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 926 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 478 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 156 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 36 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 118 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 51 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 109 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 111 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 109 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt` | 34 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 121 | 14 |
@@ -177,7 +177,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 361 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt` | 20 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DevelopmentEvidence.kt` | 20 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt` | 16 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt` | 35 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt` | 225 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt` | 90 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 242 | 16 |
@@ -417,7 +417,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt` | 27 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 30 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 31 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldEnvironmentTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 30 | 1 |
