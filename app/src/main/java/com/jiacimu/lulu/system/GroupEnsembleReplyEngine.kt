@@ -199,6 +199,7 @@ internal object GroupEnsembleReplyEngine {
                         currentUserText = latestUserMessage.content,
                         now = now,
                     ).takeIf(String::isNotBlank)?.let { continuity -> appendLine(continuity) }
+                    appendLine(com.jiacimu.lulu.data.CharacterExpressionContinuity.guide())
                     memoryContext?.compactPromptSection(characterBudget = 4_200)
                         ?.takeIf(String::isNotBlank)
                         ?.let { appendLine(it) }
@@ -232,7 +233,7 @@ internal object GroupEnsembleReplyEngine {
                 文字群聊如果这一刻所有成员确实都不想说话，可只返回 {"action":"silent","reason":"各人此刻不发言的真实原因","turns":[]}；不要为了填满消息硬编气泡。电话仍需真实可念出的语音回应。
 
                 只返回一个 JSON 对象，不要代码块、分析、旁白或额外说明：
-                {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"简短意图","appraisal":{"meaning":"对这一轮的简短理解","responseAim":"想达到什么","commonGroundUpdate":"新增或修正的共同语境","uncertainty":"仍不确定的点","interactionMove":"acknowledge|answer|repair|ask|share|tease|decline|shift|silent"},"bubbles":["群里真正说出的气泡"],"tool":"可选的露露机内动作名或空字符串","args":{},"quoteMessageId":"真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","recallBubbleNumber":0,"pokeUser":false,"statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"这个角色自己的心声，不强制简短，可为空","innerThoughtBasis":{"focus":"若有心声，真实触发点","change":"相比上一刻新增或改变了什么","conflict":"可选内部冲突","unsaidWhy":"为何没说出口"},"mood":"简短心情"}]}
+                {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"简短意图","stickerId":"可选，准确已入库的表情ID，不需要图片时留空","appraisal":{"meaning":"对这一轮的简短理解","responseAim":"想达到什么","commonGroundUpdate":"新增或修正的共同语境","uncertainty":"仍不确定的点","interactionMove":"acknowledge|answer|repair|ask|share|tease|decline|shift|silent"},"bubbles":["群里真正说出的气泡"],"tool":"可选的露露机内动作名或空字符串","args":{},"quoteMessageId":"真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","recallBubbleNumber":0,"pokeUser":false,"statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"这个角色自己的心声，不强制简短，可为空","innerThoughtBasis":{"focus":"若有心声，真实触发点","change":"相比上一刻新增或改变了什么","conflict":"可选内部冲突","unsaidWhy":"为何没说出口"},"mood":"简短心情"}]}
 
                 规则：
                 1. turns 第一项是这一刻实际愿意发言的成员，可以不是界面最初等待的成员；程序负责转交发言权。所有人都不愿意发言时，文字群聊使用明确的 silent 决策，不得编造开场白。
@@ -244,6 +245,7 @@ internal object GroupEnsembleReplyEngine {
                 6a. 每个 turn 的 appraisal 只记录该角色自己的局部会话理解。用户纠正、否认或说“不是这个意思”时优先 interactionMove=repair，并在 commonGroundUpdate 写清修正了什么；不确定就留在 uncertainty，不得为了顺畅擅自补全。A 的共同语境不会自动成为 B 的私人理解。
                 7. 每个角色必须严格保持自己的身份、语言习惯、关系边界、称呼和性格差异。不要把所有人统一写成温柔助手，也不要让一个角色替另一个角色发言。
                 ${com.jiacimu.lulu.data.spontaneousInnerVoiceGuide}
+                7a. 群聊也可自主发送真实图片表情。模型没有识图能力，只能从程序提供的用户图库准确 stickerId 与详细画面描述选图；若这一轮确实想发送，则填 stickerId，程序会在该角色当前回合额外发一张图片气泡。允许 bubbles=[] 只发一张图。无合适图片就不填。颜文字、emoji、标点、玩梗和不完整口语均由各人自己的风格决定，不能强制每人发一样的表情，也不应统一成客服话术；电话不使用图片表情。
                 8. 气泡多少、长短由这个角色的情绪与口语节奏决定：可能短促惊呼、停顿、突然补发、重复、欲言又止，也可能完整讲清一件事。bubbles 是一次次真正按下“发送”的内容。不要硬套一至四条或十至四十字的规格，也不要为显得热闹机械刷屏。真正心动、好笑或生气时允许有未经润饰的语气；但不得把内心独白、动作旁白、客服总结直接塞进聊天气泡。
                 9. quoteMessageId 只能从“本轮用户尚未被回复的真实消息”中选择。用户这轮只发一条，就只有这一条候选；连续发几条，就都可以按内容自然选择。不要回头引用更早轮次已经回答完的旧消息。
                 10. favoriteMessageId 同样只能从本轮尚未被回复的用户消息中选择，并且要在回应这一轮时当场决定。不要在后续新话题中突然回来补收藏已经回复完的旧消息。
@@ -475,7 +477,17 @@ internal object GroupEnsembleReplyEngine {
                             for (bubbleIndex in 0 until bubblesArray.length()) add(bubblesArray.optString(bubbleIndex))
                         } else add(item.optString("text").ifBlank { item.optString("content") })
                     }
-                    val bubbles = normalizeBubbles(rawBubbles)
+                    val normalBubbles = normalizeBubbles(rawBubbles)
+                    val selectedSticker = if (allowMessageActions) {
+                        val chosen = item.optString("stickerId").trim()
+                        com.jiacimu.lulu.StickerLibraryStore.items.value.firstOrNull { it.id == chosen }
+                    } else null
+                    val bubbles = if (selectedSticker == null) normalBubbles else normalBubbles +
+                        com.jiacimu.lulu.encodeQqChatImage(
+                            selectedSticker.uri,
+                            imageDescription = com.jiacimu.lulu.StickerLibraryStore.imageDescription(selectedSticker),
+                            sticker = true,
+                        )
                     if (bubbles.isEmpty()) continue
                     val requestedQuoteId = item.optString("quoteMessageId").trim()
                     val requestedFavoriteId = item.optString("favoriteMessageId").trim()
