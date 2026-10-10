@@ -2,7 +2,10 @@ package com.jiacimu.lulu
 
 import android.content.Context
 import android.net.Uri
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import com.caverock.androidsvg.SVG
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -25,6 +28,8 @@ internal data class LuluSticker(
     val name: String,
     val favorite: Boolean = false,
     val pack: String = "我的添加",
+    val visualDescription: String = "",
+    val usageHint: String = "",
 )
 
 /**
@@ -57,10 +62,13 @@ internal object StickerLibraryStore {
                 val json = values.optJSONObject(i) ?: return@mapNotNull null
                 val id = json.optString("id")
                 val uri = json.optString("uri")
+                val catalog = BundledCuteStickerCatalog.items.firstOrNull { it.id == id }
                 if (id.isBlank() || uri.isBlank()) null else LuluSticker(
                     id, uri, json.optString("name").take(90),
                     json.optBoolean("favorite"),
                     json.optString("pack").ifBlank { "我的添加" }.take(40),
+                    json.optString("visualDescription").ifBlank { catalog?.description.orEmpty() }.take(400),
+                    json.optString("usageHint").ifBlank { catalog?.usage.orEmpty() }.take(160),
                 )
             }.distinctBy(LuluSticker::id).take(MAX_ITEMS)
         }.getOrDefault(emptyList())
@@ -74,7 +82,9 @@ internal object StickerLibraryStore {
         for (sticker in next) json.put(JSONObject()
             .put("id", sticker.id).put("uri", sticker.uri)
             .put("name", sticker.name).put("favorite", sticker.favorite)
-            .put("pack", sticker.pack))
+            .put("pack", sticker.pack)
+            .put("visualDescription", sticker.visualDescription)
+            .put("usageHint", sticker.usageHint))
         if (context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit()
                 .putString(PREF_KEY, json.toString()).commit()) {
             mutableItems.value = next
@@ -92,16 +102,23 @@ internal object StickerLibraryStore {
         if (available.isEmpty()) return "当前表情图库为空；不得声称能发送图片表情包。可以自然使用标点、颜文字、幽默和文字。"
         return buildString {
             appendLine("【真实可发送的分组表情包｜开源素材已按类别自动标注】")
-            appendLine("仅从下列准确 stickerId 中挑选；可不选，不要按比例凑表情。图片表达应该像真人聊天一样按本人心情、相处关系和语境自然出现。")
+            appendLine("模型没有看到图片。每条的「实际画面」是已存好的视觉说明，「可能用法」只是社交语气建议。不能把用法误认为画面上真的发生了相应动作。")
+            appendLine("仅从下列准确 stickerId 中挑选；可不选，不要按比例凑表情。依据语境与角色本人兴趣选择，不要捏造图中文字。")
             available.forEach { sticker ->
-                appendLine("- stickerId=${sticker.id}；分类=${sticker.pack}；含义=${sticker.name}；${if (sticker.favorite) "用户收藏" else "普通"}")
+                appendLine("- stickerId=${sticker.id}；分组=${sticker.pack}；表情名=${sticker.name}；实际画面=${sticker.visualDescription.ifBlank { "未经识图，画面内容尚不确定" }}；可能用法=${sticker.usageHint.ifBlank { sticker.name }}；${if (sticker.favorite) "用户收藏" else "普通"}")
             }
             appendLine("不知道合适哪张就不发；不自行编造图片链接、库外ID或把所有表情都塞进同一轮。")
         }
     }
 
-    fun rename(id: String, name: String) = update { list ->
-        list.map { if (it.id == id) it.copy(name = name.trim().take(90).ifBlank { "自选表情" }) else it }
+    fun rename(id: String, name: String, description: String? = null, usage: String? = null) = update { list ->
+        list.map { sticker ->
+            if (sticker.id != id) sticker else sticker.copy(
+                name = name.trim().take(90).ifBlank { "自选表情" },
+                visualDescription = description?.trim()?.take(400) ?: sticker.visualDescription,
+                usageHint = usage?.trim()?.take(160) ?: sticker.usageHint,
+            )
+        }
     }
 
     fun toggleFavorite(id: String) = update { list ->
@@ -179,7 +196,9 @@ internal object StickerLibraryStore {
                         connection.disconnect()
                     }
                     val sticker = LuluSticker(source.id, Uri.fromFile(file).toString(),
-                        source.name, pack = source.pack)
+                        source.name, pack = source.pack,
+                        visualDescription = source.description,
+                        usageHint = source.usage)
                     update { old -> if (old.any { it.id == source.id }) old else old + sticker }
                     check(items.value.any { it.id == source.id })
                 }.isSuccess
