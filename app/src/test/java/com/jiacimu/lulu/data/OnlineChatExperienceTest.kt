@@ -209,6 +209,21 @@ class OnlineChatExperienceTest {
         assertFalse(groupStyle.contains("我、我先说一个事情"))
     }
 
+    @Test fun connectedCallRemainsAwakeBeyondTheWakeButtonDeadline() {
+        val role = "online-call-hold"
+        val now = java.time.Instant.now()
+        val state = CompanionOnlineState(role, now.plusSeconds(300), CompanionOnlineReason.PrivateWake)
+        assertTrue(state.isOnline(now.plusSeconds(299)))
+        assertFalse(state.isOnline(now.plusSeconds(300)))
+        CompanionPresenceStore.beginCall(role)
+        try {
+            assertTrue(state.isOnline(now.plusSeconds(3600)))
+        } finally {
+            CompanionPresenceStore.finishCall(role)
+        }
+        assertFalse(state.isOnline(now.plusSeconds(3600)))
+    }
+
     @Test fun actualActivityRefreshesFiveMinutesWithoutStackingTime() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)

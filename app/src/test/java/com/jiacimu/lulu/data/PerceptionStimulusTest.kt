@@ -11,6 +11,12 @@ class PerceptionStimulusTest {
         assertTrue(PerceptionStimulusResolver.shouldUpdateVisibleState(true, false, false))
     }
 
+    @Test fun awakeSilenceCanKeepInnerStateWithoutPretendingAnExternalEventOccurred() {
+        assertTrue(PerceptionStimulusResolver.shouldUpdateVisibleState(false, false, false,
+            awakeReflection = true))
+        assertNull(PerceptionStimulusResolver.select("", emptySet(), "", "", "", emptyList()))
+    }
+
     @Test fun samePendingUserMessageIsNotInventedAgainEveryBackgroundWake() {
         val first = PerceptionStimulusResolver.select(
             unreadText = "", unreadIds = emptySet(), worldEvent = "", worldEventId = "",

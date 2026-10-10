@@ -284,6 +284,8 @@ object ProactivePerceptionRuntime {
     ): Action {
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val character = MigratedDomainStores.characters.get(characterId)
+        val awakeReflection = CompanionOnlineStore.isOnline(characterId, now)
+        val awakeObservationId = "online-awareness-$characterId-${now.toEpochMilli()}"
         val worldTick = if (DigitalLifeProfileStore.isEnabled(characterId)) {
             DigitalWorldLifeEventStore.tick(appContext, characterId, now)
         } else null
@@ -360,6 +362,7 @@ object ProactivePerceptionRuntime {
                 appendLine("\n【用户现实设备与用户状态感知层】")
                 appendLine("重要归属：下面的电量、前台应用、通知、位置、健康/手环和学习信息都属于用户本人或用户正在使用的现实设备，不属于角色自己的手机或身体。")
                 appendLine("触发来源：$trigger")
+                if (awakeReflection) appendLine("在线意味着你持续醒着：即使这次选择 silent，也可以思考已知经历、保留或修正自己的感受与愿望，并保存未说出口的心声。无外部新事件不是内在停止的理由；没有变化可省略字段，不填充虚假情绪。回想旧事不是它再次发生，不因为时间检查重新放大情绪；不虚构动作或把用户沉默当作离开。")
                 appendLine("本次判断：如果没有待处理的新消息，这仍是角色真实生活的一段时间，不是只能更新状态的空轮询；在线期间也不会因为没有未读消息就被系统强制 SILENT。")
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
@@ -443,6 +446,15 @@ object ProactivePerceptionRuntime {
             throw error
         }
         currentCoroutineContext().ensureActive()
+        // A call takes ownership immediately; a finished awake window cannot execute stale decisions.
+        if (CompanionPresenceStore.isInCall(characterId) ||
+            (awakeReflection && !CompanionOnlineStore.isOnline(characterId))) return Action.SILENT
+        if (awakeReflection) SharedExperienceTimeline.record(
+            eventId = awakeObservationId, characterId = characterId,
+            channel = "在线感知", speaker = "在线观察",
+            content = "角色处于在线窗口，本次感知实际读取了当前时间与获准读取的设备状态；新增聊天=${onlineUnread.text.isNotBlank()}；新增场景观察=${observedWorld.size}",
+            occurredAt = now, triggerExtraction = false, source = "online-awareness",
+            evidenceKind = EventEvidenceKind.Observation)
         val parsed = parseDecision(result.text) ?: run {
             // The provider did return bytes, but not a safe executable decision.
             // Never retry endlessly, charge for identical responses, or execute a guessed action.
@@ -491,19 +503,24 @@ object ProactivePerceptionRuntime {
         val revisitingConflict = listOf("争执", "冲突", "歉意", "强烈情绪", "后续整理", "悔恨")
             .any(trigger::contains)
         val previousFeeling = CharacterInnerLifeStore.snapshot(characterId).optJSONObject("emotion")
-        val previousEvidence = if (revisitingConflict) previousFeeling?.optString("evidenceId").orEmpty() else ""
+        val previousEvidence = if (revisitingConflict || awakeReflection)
+            previousFeeling?.optString("evidenceId").orEmpty() else ""
         if (emotionalAnchor.isBlank() && previousEvidence.isNotBlank() && decision.innerLife != null) {
             CharacterInnerLifeStore.observe(
                 characterId, previousEvidence,
-                "针对已有情绪的后续反思：${previousFeeling?.optString("feeling").orEmpty()}",
-                decision.innerLife, setOf("user"), now,
+                "针对已有情绪的后续反思：${previousFeeling?.optString("feeling").orEmpty()}；本次实际感知时间=$now",
+                decision.innerLife, if (revisitingConflict) setOf("user") else emptySet(), now,
             )
         }
-        // Keep genuine internal speech from a witnessed stimulus or a real autonomous choice.
-        // Silence-only ticks without a new stimulus should not accumulate invented feelings.
-        if (freshStimulus || previousEvidence.isNotBlank() || decision.action != Action.SILENT) {
+        if (awakeReflection && emotionalAnchor.isBlank() && previousEvidence.isBlank() && decision.innerLife != null) {
+            CharacterInnerLifeStore.observe(characterId, awakeObservationId,
+                "在线期间基于已知状态的内在变化，没有新增用户发言或虚构外部事件",
+                decision.innerLife, emptySet(), now)
+        }
+        // The role may have private thoughts while awake even when it elects not to speak.
+        if (awakeReflection || freshStimulus || previousEvidence.isNotBlank() || decision.action != Action.SILENT) {
             CharacterInnerLifeStore.recordInnerVoice(
-                characterId, stimulus?.evidenceId?.let { "perception:$it" }
+                characterId, if (awakeReflection) awakeObservationId else stimulus?.evidenceId?.let { "perception:$it" }
                     ?: "perception:${now.toEpochMilli()}:${trigger.take(35)}",
                 decision.innerThought, now,
             )
@@ -532,6 +549,7 @@ object ProactivePerceptionRuntime {
             actionSucceeded = execution.success,
             freshStimulus = freshStimulus,
             deliberateFollowThrough = previousEvidence.isNotBlank(),
+            awakeReflection = awakeReflection,
         )
         if (!readingUpdatedPresence && appearanceHasCause) {
             val physicalAction = decision.action in setOf(Action.DIGITAL_WORLD, Action.READING, Action.SOLO_GAME)
@@ -539,9 +557,9 @@ object ProactivePerceptionRuntime {
                 characterId = characterId,
                 statusText = if (execution.success && physicalAction) execution.summary else null,
                 gesture = if (execution.success && physicalAction) execution.summary else null,
-                innerThought = decision.innerThought,
-                mood = decision.mood,
-                source = "后台主动感知",
+                innerThought = decision.innerThought.takeIf(String::isNotBlank),
+                mood = decision.mood.takeIf(String::isNotBlank),
+                source = if (awakeReflection) "在线持续感知" else "后台主动感知",
                 now = now,
             )
         }

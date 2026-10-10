@@ -33,7 +33,8 @@ data class CompanionOnlineState(
     val historyFloorAt: Instant? = null,
     val seenIdsAtLastSeenAt: Set<String> = emptySet(),
 ) {
-    fun isOnline(now: Instant = Instant.now()): Boolean = onlineUntil.isAfter(now)
+    fun isOnline(now: Instant = Instant.now()): Boolean =
+        CompanionPresenceStore.isInCall(characterId) || onlineUntil.isAfter(now)
 }
 
 data class CompanionUnreadSnapshot(
@@ -88,7 +89,7 @@ object CompanionOnlineStore {
                 )
             }
             mutableStates.value = loaded
-            loaded.values.filter { it.isOnline(now) }.forEach { scheduleLifePulseLocked(it.characterId, it.onlineUntil) }
+            loaded.values.filter { it.isOnline(now) }.forEach { scheduleLifePulseLocked(it.characterId) }
             groupFocusUntil = decodeGroupFocus(prefs?.getString(KEY_GROUP_FOCUS, null))
                 .filterValues { it.isAfter(now) }
             persistLocked()
@@ -114,7 +115,7 @@ object CompanionOnlineStore {
                 reason = reason,
             )
             mutableStates.value = mutableStates.value + (characterId to state)
-            scheduleLifePulseLocked(characterId, state.onlineUntil)
+            scheduleLifePulseLocked(characterId)
             persistLocked()
             scheduleExpiryLocked(characterId)
         }
@@ -133,7 +134,7 @@ object CompanionOnlineStore {
                 reason = CompanionOnlineReason.NewActivity,
             )
             mutableStates.value = mutableStates.value + (characterId to updated)
-            scheduleLifePulseLocked(characterId, updated.onlineUntil)
+            scheduleLifePulseLocked(characterId)
             persistLocked()
             scheduleExpiryLocked(characterId)
         }
@@ -155,7 +156,7 @@ object CompanionOnlineStore {
                     reason = CompanionOnlineReason.GroupWake,
                 )
                 mutableStates.value = mutableStates.value + (characterId to state)
-                scheduleLifePulseLocked(characterId, state.onlineUntil)
+                scheduleLifePulseLocked(characterId)
                 scheduleExpiryLocked(characterId)
             }
             persistLocked()
@@ -228,7 +229,7 @@ object CompanionOnlineStore {
                         reason = CompanionOnlineReason.NewActivity,
                     )
                     mutableStates.value = mutableStates.value + (conversation.characterId to updated)
-                    scheduleLifePulseLocked(conversation.characterId, updated.onlineUntil)
+                    scheduleLifePulseLocked(conversation.characterId)
                     scheduleExpiryLocked(conversation.characterId)
                     persistLocked()
                 }
@@ -338,15 +339,16 @@ object CompanionOnlineStore {
         }
     }
 
-    /** A fixed wake window: autonomous actions cannot keep their own pulse alive indefinitely. */
-    private fun scheduleLifePulseLocked(characterId: String, until: Instant) {
-        lifePulseJobs.remove(characterId)?.cancel()
+    /** Continue across genuine online extensions without resetting the perception cadence. */
+    private fun scheduleLifePulseLocked(characterId: String) {
+        // Extending an online window must not reset its thinking clock indefinitely.
+        if (lifePulseJobs[characterId]?.isActive == true) return
         val context = appContext ?: return
         lifePulseJobs[characterId] = scope.launch {
             // Allow a newly online character to start living after the user's
             // initial quiet window. Subsequent pulses are gentle, not an action quota.
             delay(25_000L)
-            while (until.isAfter(Instant.now()) && isOnline(characterId)) {
+            while (isOnline(characterId)) {
                 if (CompanionPresenceStore.isInCall(characterId) ||
                     MigratedDomainStores.chat.conversations.value.any {
                         it.characterId == characterId && ChatGenerationActivity.isRunning(it.id)
@@ -358,7 +360,7 @@ object CompanionOnlineStore {
                 // A separate KEEP work item prevents a backlog of stale online
                 // chat revisions. Waits for unfinished user-message batches.
                 ProactivePerceptionScheduler.scheduleOnlineReflection(context, characterId,
-                    "在线生活继续：没有用户在说话时，也可以依自己的兴趣读书、散步、找朋友、布置房间、改备注或网名，亦可安静待着",
+                    "在线持续感知：先理解这段时间真实输入与状态，延续自己的感受、情绪与想法，再自主决定表达、行动或安静；没有用户说话也保持醒着，不为展示存在感强迫发言或编造变化",
                     delayMillis = 0L)
                 delay(55_000L)
             }

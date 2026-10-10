@@ -12,12 +12,13 @@ internal data class PerceptionStimulus(
 )
 
 internal object PerceptionStimulusResolver {
-    /** A quiet background recheck should not randomly rewrite emotion or body language. */
+    /** Awake reflection may update subjective inner state; it proves no physical action. */
     fun shouldUpdateVisibleState(
         actionSucceeded: Boolean,
         freshStimulus: Boolean,
         deliberateFollowThrough: Boolean,
-    ): Boolean = actionSucceeded || freshStimulus || deliberateFollowThrough
+        awakeReflection: Boolean = false,
+    ): Boolean = actionSucceeded || freshStimulus || deliberateFollowThrough || awakeReflection
 
     /** Every concurrent new input contributes provenance; a chat bubble cannot mask a touch. */
     fun combine(stimuli: List<PerceptionStimulus>): PerceptionStimulus? {
