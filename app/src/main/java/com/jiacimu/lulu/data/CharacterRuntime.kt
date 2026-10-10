@@ -15,8 +15,8 @@ data class CharacterDefinitionSnapshot(
     fun promptSection(): String = listOf(
         "【当前角色设定｜以本次读取的用户设定为准，旧台词、记忆摘要与成长记录不得覆盖或补回旧设定】",
         "角色名称：$displayName",
-        identity.takeIf(String::isNotBlank)?.let { "角色身份：\n$it" }.orEmpty(),
-        persona.takeIf(String::isNotBlank)?.let { "角色设定：\n$it" }.orEmpty(),
+        identity.takeIf(String::isNotBlank)?.let { "身份与背景事实：\n$it" }.orEmpty(),
+        persona.takeIf(String::isNotBlank)?.let { "人物核心简介与稳定人格：\n$it" }.orEmpty(),
     ).filter(String::isNotBlank).joinToString("\n\n")
 }
 
@@ -58,10 +58,11 @@ object CharacterRuntime {
     fun personaConstraintSnapshot(characterId: String): String {
         val persona = MigratedDomainStores.characters.get(characterId).persona
         val profile = CharacterLifeStore.state(characterId).optJSONObject("profile") ?: return persona
-        val constraints = profile.keys().asSequence().toList().sorted().mapNotNull { key ->
-            profile.optString(key).trim().takeIf(String::isNotBlank)?.let { "$key=$it" }
+        val constraints = CharacterProfileSchema.fields.mapNotNull { field ->
+            profile.optString(field.key).trim().takeIf(String::isNotBlank)
+                ?.let { "${field.group}/${field.label}=$it" }
         }.joinToString("\n")
-        return if (constraints.isBlank()) persona else "$persona\n用户行为设定：\n$constraints"
+        return if (constraints.isBlank()) persona else "$persona\n稳定人格设定：\n$constraints"
     }
 
     fun personalityRuntimeContext(
