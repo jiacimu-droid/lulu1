@@ -3,6 +3,7 @@ package com.jiacimu.lulu.data
 import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 
@@ -116,15 +117,35 @@ object CharacterDevelopmentStore {
             if (events.none { it.evidenceKind == EventEvidenceKind.CharacterStatement || it.channel.startsWith("独自阅读") }) return false
             if (counters.any { it.occurredAt > factual.maxOf { event -> event.occurredAt } }) return false
         }
-        if (kind == DevelopmentKind.VerifiedMethod && factual.count { event ->
-            event.evidenceKind == EventEvidenceKind.ToolResult && runCatching {
-                val outcome = JSONObject(event.content)
-                outcome.optString("status") == "succeeded" &&
-                    (outcome.optString("result").let { raw ->
-                        if (raw.startsWith("{")) JSONObject(raw).optBoolean("success") else true
-                    })
-            }.getOrDefault(false)
-        } < 3) return false
+        if (kind == DevelopmentKind.VerifiedMethod) {
+            val successfulActions = factual.filter { event ->
+                event.evidenceKind == EventEvidenceKind.ToolResult && runCatching {
+                    val outcome = JSONObject(event.content)
+                    outcome.optString("status") == "succeeded" &&
+                        (outcome.optString("result").let { raw ->
+                            if (raw.startsWith("{")) JSONObject(raw).optBoolean("success") else true
+                        })
+                }.getOrDefault(false)
+            }
+            if (successfulActions.size < 3) return false
+            // "The tool ran" does not prove "this helps the user". A verified interpersonal
+            // method also needs the user's own later feedback in the proposed evidence set.
+            val positiveFeedback = factual.filter { event ->
+                event.evidenceKind == EventEvidenceKind.UserStatement &&
+                    Regex("喜欢|好喜欢|开心|好多了|舒服多了|有用|有效|这招可以|下次还|就这样|谢谢|太好了|被哄好|缓过来了|笑死|笑出来了")
+                        .containsMatchIn(event.content) &&
+                    !Regex("不喜欢|没用|没有用|没效果|更烦|别这样|不要这样").containsMatchIn(event.content)
+            }
+            val feedbackFollowsAction = positiveFeedback.any { feedback ->
+                successfulActions.any { action ->
+                    val minutes = runCatching {
+                        Duration.between(action.occurredAt, feedback.occurredAt).toMinutes()
+                    }.getOrNull()
+                    minutes != null && minutes in 0..240
+                }
+            }
+            if (!feedbackFollowsAction) return false
+        }
         synchronized(this) {
         if (CharacterRuntime.personaConstraintSnapshot(characterId) != personaSnapshot ||
             (events + counters).any { event -> SharedExperienceTimeline.eventsByIds(characterId, listOf(event.id))
