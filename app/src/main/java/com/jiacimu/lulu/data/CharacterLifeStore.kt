@@ -51,15 +51,55 @@ object CharacterLifeStore {
      * Returning false means there was no effective change.
      */
     @Synchronized fun setSocialName(characterId: String, key: String, value: String): Boolean {
-        require(key == "userRemark" || key == "selfNickname")
+        require(key == "userRemark" || key == "selfNickname" || key == "preferredAddress")
         val name = value.trim().replace(Regex("[\\r\\n\\t]+"), " ").take(24)
         val root = state(characterId)
         val names = root.optJSONObject("socialNames") ?: JSONObject()
-        if (names.optString(key) == name) return false
+        if (names.optString(key) == name && (key != "preferredAddress" ||
+            names.optBoolean("preferredAddressManual", false))) return false
         if (name.isBlank()) names.remove(key) else names.put(key, name)
+        if (key == "preferredAddress") {
+            names.put("preferredAddressManual", true)
+            names.remove("preferredAddressSourceId")
+        }
         root.put("socialNames", names)
         save(characterId, root)
         return true
+    }
+
+    /** User's explicitly stated preferred spoken address, sourced to their original message. */
+    @Synchronized fun observePreferredAddress(characterId: String, name: String, eventId: String) {
+        if (name.isBlank() || eventId.isBlank() || characterId.isBlank()) return
+        val root = state(characterId)
+        val names = root.optJSONObject("socialNames") ?: JSONObject()
+        if (names.optBoolean("preferredAddressManual", false)) return
+        if (names.optString("preferredAddress") == name &&
+            names.optString("preferredAddressSourceId") == eventId) return
+        names.put("preferredAddress", name.take(24))
+            .put("preferredAddressSourceId", eventId)
+        root.put("socialNames", names)
+        save(characterId, root)
+    }
+
+    @Synchronized fun clearObservedPreferredAddress(characterId: String) {
+        val root = state(characterId)
+        val names = root.optJSONObject("socialNames") ?: return
+        if (names.optBoolean("preferredAddressManual", false) ||
+            !names.has("preferredAddressSourceId")) return
+        names.remove("preferredAddress")
+        names.remove("preferredAddressSourceId")
+        root.put("socialNames", names)
+        save(characterId, root)
+    }
+
+    @Synchronized fun followObservedPreferredAddress(characterId: String) {
+        val root = state(characterId)
+        val names = root.optJSONObject("socialNames") ?: JSONObject()
+        names.remove("preferredAddressManual")
+        names.remove("preferredAddress")
+        names.remove("preferredAddressSourceId")
+        root.put("socialNames", names)
+        save(characterId, root)
     }
 
     /**
@@ -367,6 +407,9 @@ object CharacterLifeStore {
                 names.optString("selfNickname").takeIf(String::isNotBlank)?.let {
                     appendLine("自己使用的网名：$it")
                 }
+                names.optString("preferredAddress").takeIf(String::isNotBlank)?.let {
+                    appendLine("用户明确喜欢的日常称呼：$it（自然使用，可偶尔变换）")
+                }
             }
             afterglowContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
             root.optJSONObject("previousIntention")?.let { prior ->
@@ -394,10 +437,12 @@ object CharacterLifeStore {
             root.optJSONObject("socialNames")?.let { names ->
                 val remark = names.optString("userRemark")
                 val nickname = names.optString("selfNickname")
-                if (remark.isNotBlank() || nickname.isNotBlank()) {
+                val address = names.optString("preferredAddress")
+                if (remark.isNotBlank() || nickname.isNotBlank() || address.isNotBlank()) {
                     appendLine("【角色亲自设置的社交称呼｜已存储的状态，不改变现实姓名与用户资料】")
                     if (remark.isNotBlank()) appendLine("角色给用户的私人备注：$remark（不强迫每句都这样称呼）")
                     if (nickname.isNotBlank()) appendLine("角色自己的聊天网名：$nickname（原角色身份仍不变）")
+                    if (address.isNotBlank()) appendLine("用户喜爱的日常称呼：$address（并非每句都必须使用）")
                 }
             }
             afterglowContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
