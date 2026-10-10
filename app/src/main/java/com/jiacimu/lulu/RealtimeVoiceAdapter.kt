@@ -219,7 +219,10 @@ internal class RealtimeVoiceAdapter(
         val lexicon = LuluRepositories.lexicon.snapshot(id)
         val presence = CompanionPresenceStore.current(id)
         val definition = CharacterRuntime.definition(id)
-        val context = listOf(definition.promptSection(),
+        val context = listOf(
+            definition.promptSection(),
+            CharacterExpressionGuide.promptSection(),
+            CharacterSpeechIdentity.promptSection(id),
             UserProfileContext.promptSection(), UserDevicePerception.context(this.context, id),
             CharacterInnerLifeStore.compactContext(id), "当前状态（主观）：$presence", DigitalWorldStore.contextFor(id),
             DigitalWorldLifeEventStore.contextFor(id), CharacterRuntime.developmentContext(id),
