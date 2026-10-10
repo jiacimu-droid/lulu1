@@ -58,6 +58,25 @@ class ConversationNaturalnessGateTest {
         ))
     }
 
+    @Test fun repeatedMeaningAcrossBubblesTriggersRerender() {
+        val result = ConversationNaturalnessGate.assess(
+            "我有点累",
+            listOf("先歇会儿，别硬撑。", "别再硬撑了，先休息一会儿。"),
+        )
+        assertTrue(result.needsRerender)
+        assertTrue(result.reasons.any { it.contains("换词重复") })
+    }
+
+    @Test fun repeatedLongOpeningFromRecentHistoryTriggersRerender() {
+        val result = ConversationNaturalnessGate.assess(
+            "今天也有点烦",
+            listOf("我知道你现在心里不太舒服。"),
+            "江渡：我知道你现在心里不太舒服。\n你：昨天就是有点烦",
+        )
+        assertTrue(result.needsRerender)
+        assertTrue(result.reasons.any { it.contains("长起手式") })
+    }
+
     @Test fun oneOrdinaryOfferDoesNotTriggerByItself() {
         val result = ConversationNaturalnessGate.assess(
             "今天还行",
