@@ -181,6 +181,14 @@ object CompanionOnlineStore {
             // timestamp rather than pretending a new message arrived at wake.
             val readers = conversation.groupChat?.members.orEmpty().map(LuluGroupMember::characterId)
                 .takeIf { it.isNotEmpty() } ?: listOf(conversation.characterId)
+            // A stable spoken-name preference is a relationship fact, distinct from
+            // a character's private contact remark. Only the addressee's genuine
+            // one-to-one user message can update it.
+            if (conversation.groupChat == null) {
+                CharacterAddressPreference.observeUserMessage(
+                    conversation.characterId, message.content, message.id
+                )
+            }
             appContext?.let { context ->
                 readers.distinct().filter(String::isNotBlank).forEach { reader ->
                     OnlineChatBatchStore.onUserBubble(context, reader, atMillis = now.toEpochMilli())
@@ -335,16 +343,24 @@ object CompanionOnlineStore {
         lifePulseJobs.remove(characterId)?.cancel()
         val context = appContext ?: return
         lifePulseJobs[characterId] = scope.launch {
-            while (true) {
-                delay(60_000L)
-                if (!until.isAfter(Instant.now()) || !isOnline(characterId)) break
+            // Allow a newly online character to start living after the user's
+            // initial quiet window. Subsequent pulses are gentle, not an action quota.
+            delay(25_000L)
+            while (until.isAfter(Instant.now()) && isOnline(characterId)) {
                 if (CompanionPresenceStore.isInCall(characterId) ||
                     MigratedDomainStores.chat.conversations.value.any {
                         it.characterId == characterId && ChatGenerationActivity.isRunning(it.id)
-                    }) continue
+                    }) {
+                    delay(55_000L)
+                    continue
+                }
                 // A user-message batch keeps its first-bubble deadline; the scheduler never bypasses it.
-                ProactivePerceptionScheduler.scheduleOnline(context, characterId,
-                    "在线生活继续：承接刚才的想法和真实结果，自主选择继续、换事做或安静待着")
+                // A separate KEEP work item prevents a backlog of stale online
+                // chat revisions. Waits for unfinished user-message batches.
+                ProactivePerceptionScheduler.scheduleOnlineReflection(context, characterId,
+                    "在线生活继续：没有用户在说话时，也可以依自己的兴趣读书、散步、找朋友、布置房间、改备注或网名，亦可安静待着",
+                    delayMillis = 0L)
+                delay(55_000L)
             }
         }
     }
