@@ -690,7 +690,7 @@ internal object LuluVoiceCallSession {
                     } ?: speech
                     // Reserve a stable ID BEFORE playback. The exact streamed
                     // performance and the chat transcript must share this ID.
-                    val voiceMessageId = "voice-${latest.callExperienceId}-agent-${UUID.randomUUID()}"
+                    val voiceMessageId = "voice-${if (latest.sleepMode) "sleep-" else ""}${latest.callExperienceId}-agent-${UUID.randomUUID()}"
                     speechQueue?.enqueue(
                         text = renderedSpeech,
                         speakerId = latest.characterId,
