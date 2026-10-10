@@ -61,15 +61,15 @@ internal fun LuluCallFloatingWindow(modifier: Modifier = Modifier) {
     var measuredHeightPx by remember { mutableIntStateOf(0) }
     val density = LocalDensity.current
     BoxWithConstraints(modifier = modifier.statusBarsPadding().navigationBarsPadding()) {
-        val maxXPx = (constraints.maxWidth - with(density) { 116.dp.roundToPx() }).coerceAtLeast(0)
-        val heightPx = measuredHeightPx.takeIf { it > 0 } ?: with(density) { 116.dp.roundToPx() }
+        val maxXPx = (constraints.maxWidth - with(density) { 98.dp.roundToPx() }).coerceAtLeast(0)
+        val heightPx = measuredHeightPx.takeIf { it > 0 } ?: with(density) { 98.dp.roundToPx() }
         val maxYPx = (constraints.maxHeight - heightPx).coerceAtLeast(0)
         val initialYPx = with(density) { 56.dp.toPx() }.coerceAtMost(maxYPx.toFloat())
         val currentY = if (verticalFraction < 0f) initialYPx else verticalFraction * maxYPx
     Surface(
         modifier = Modifier
             .offset { IntOffset((horizontalFraction * maxXPx).roundToInt(), currentY.roundToInt()) }
-            .size(116.dp)
+            .size(98.dp)
             .onSizeChanged { measuredHeightPx = it.height }
             .pointerInput(maxXPx, maxYPx) {
                 detectDragGestures(
@@ -93,21 +93,21 @@ internal fun LuluCallFloatingWindow(modifier: Modifier = Modifier) {
                 )
             }
             .clickable(onClick = LuluCallWindowController::show),
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(19.dp),
         color = Color(0xF9FFFFFF),
         border = BorderStroke(1.dp, Color(0xFFE4E7ED)),
         shadowElevation = 12.dp,
         tonalElevation = 2.dp,
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(7.dp),
+            modifier = Modifier.fillMaxSize().padding(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
             // One portrait, one time. No instructional copy, name or
             // duplicated microphone label: the mini window stays square.
-            Surface(shape = RoundedCornerShape(17.dp), color = Color(0xFFF1F2F5)) {
-                LuluProfileAvatar(imageUri = character.avatarUri, fallback = title.take(1), size = 80)
+            Surface(shape = RoundedCornerShape(14.dp), color = Color(0xFFF1F2F5)) {
+                LuluProfileAvatar(imageUri = character.avatarUri, fallback = title.take(1), size = 66)
             }
             Spacer(Modifier.height(5.dp))
             Text(

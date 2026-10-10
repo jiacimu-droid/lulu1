@@ -393,7 +393,17 @@ fun QqStyleChatDetailScreen(
                         Text("已选择 ${selectedMessageIds.size} 条", fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = QqInk)
                     } else {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            if (groupChat == null) QqAvatar(character.displayName.take(1).ifBlank { "露" }, 42, character.avatarUri)
+                            if (groupChat == null) {
+                                LuluProfileAvatar(
+                                    imageUri = character.avatarUri,
+                                    fallback = character.displayName.take(1).ifBlank { "露" },
+                                    size = 42,
+                                    modifier = Modifier.clickable {
+                                        CompanionPresenceStore.clearMessageAnchor()
+                                        presenceCharacterId = characterId
+                                    },
+                                )
+                            }
                             else QqGroupAvatar(groupChat, 42)
                             Spacer(Modifier.width(9.dp))
                             Column(Modifier.weight(1f)) {
