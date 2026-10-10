@@ -840,6 +840,7 @@ object CharacterInnerLifeStore {
         outcome: String,
         succeeded: Boolean,
         now: Instant = Instant.now(),
+        actionSignature: String = "",
     ) {
         if (prefs == null || characterId.isBlank() || decisionId.isBlank()) return
         if (selectedAction == "silent" && reason.isBlank()) return
@@ -862,6 +863,7 @@ object CharacterInnerLifeStore {
         updated.put(JSONObject()
             .put("id", decisionId).put("at", now.toString())
             .put("selected", selectedAction.take(90))
+            .put("signature", actionSignature.take(180))
             .put("reason", reason.trim().take(240))
             .put("motiveId", chosenMotiveId.take(80))
             .put("alternatives", skipped)

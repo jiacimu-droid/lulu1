@@ -23,6 +23,17 @@ class CharacterCuriosityRuntimeTest {
         JSONObject().put("topic", "想看的故事").put("question", question)
             .put("why", "刚读过正文").put("nextStep", "从真实进度继续读")
 
+    @Test fun onlyActiveExplorationsAppearInCrossSurfaceContext() {
+        begin()
+        CharacterCuriosityRuntime.recordInquiry(id, proposal(), "source-1", "看过书的简介", at)
+        assertTrue(CharacterCuriosityRuntime.briefContext(id).contains("尚未实践"))
+        CharacterCuriosityRuntime.recordOutcome(id, proposal(), "reading", true, "实际读了第一章", "real-source", at)
+        assertTrue(CharacterCuriosityRuntime.briefContext(id).contains("实际读了第一章"))
+        CharacterCuriosityRuntime.releaseInterest(id, proposal().put("status", "dropped"))
+        assertEquals("", CharacterCuriosityRuntime.briefContext(id))
+        CharacterCuriosityRuntime.clear(id)
+    }
+
     @Test fun aWishOrFailedToolDoesNotCountAsExploration() {
         begin()
         CharacterCuriosityRuntime.recordOutcome(id, proposal(), "reading", false, "失败", "failed", at)

@@ -443,6 +443,9 @@ object ProactivePerceptionRuntime {
                 appendLine("\n【长期上下文层】")
                 if (continuityContext.isNotBlank()) appendLine(continuityContext)
                 if (proactiveInitiativeContext.isNotBlank()) appendLine(proactiveInitiativeContext)
+                appendLine(AutonomousActionTrace.render(
+                    CharacterInnerLifeStore.snapshot(characterId).optJSONArray("decisions"), now,
+                ))
                 appendLine(CharacterCuriosityRuntime.promptSection(
                     characterId, character.displayName, recentAutonomousActions, now,
                 ))
@@ -644,17 +647,19 @@ object ProactivePerceptionRuntime {
                 characterId, decision.curiosity, decision.action.name.lowercase(),
                 execution.summary, now,
             )
-        } else if (decision.action == Action.SILENT && decision.curiosity != null) {
-            if (decision.curiosity.optString("status") == "dropped") {
-                CharacterCuriosityRuntime.releaseInterest(
-                    characterId, decision.curiosity, now,
-                )
-            } else {
-                val observed = newlyObserved.firstOrNull()
-                if (observed != null) CharacterCuriosityRuntime.recordInquiry(
-                    characterId, decision.curiosity, observed.evidenceId, observed.description, now,
-                )
-            }
+        }
+        if (decision.curiosity?.optString("status") == "dropped" &&
+            decision.action == Action.SILENT) {
+            CharacterCuriosityRuntime.releaseInterest(characterId, decision.curiosity, now)
+        } else if (decision.curiosity != null &&
+            (decision.action == Action.SILENT || !execution.success ||
+                actionEvidenceId.isBlank())) {
+            // A failed/unverified attempt leaves an unanswered question rather than falsely
+            // completing exploration. Only real new stimuli can anchor that question.
+            val observed = newlyObserved.firstOrNull()
+            if (observed != null) CharacterCuriosityRuntime.recordInquiry(
+                characterId, decision.curiosity, observed.evidenceId, observed.description, now,
+            )
         }
         if (decision.action != Action.SILENT) {
             // Report the decision's concrete action outcome to only the explicitly selected motive.
@@ -711,6 +716,18 @@ object ProactivePerceptionRuntime {
             outcome = execution.summary,
             succeeded = execution.success,
             now = now,
+            actionSignature = AutonomousActionTrace.signature(
+                action = decision.action.name.lowercase(),
+                worldAction = decision.worldAction,
+                destination = decision.location,
+                itemId = decision.itemId,
+                activityId = decision.activityId,
+                readingBookId = decision.readingBookId,
+                gameId = decision.gameId,
+                groupId = decision.groupId,
+                tool = decision.tool,
+                text = decision.text,
+            ),
         )
         val effectiveAction = if (execution.success) decision.action else Action.SILENT
         CompanionPresenceStore.recordPerceptionAttempt(

@@ -217,6 +217,37 @@ internal object CharacterCuriosityRuntime {
         }
     }
 
+    /**
+     * Cross-surface handoff for chat, phone and meetings. Transient questions are not
+     * rewritten as facts or promoted to permanent traits merely by being discussed.
+     */
+    fun briefContext(characterId: String): String {
+        val root = snapshot(characterId)
+        val threads = root.optJSONArray("threads") ?: JSONArray()
+        val questions = root.optJSONArray("questions") ?: JSONArray()
+        val active = (0 until threads.length()).mapNotNull(threads::optJSONObject)
+            .filter { it.optString("status") == "exploring" }.takeLast(2)
+        val pending = (0 until questions.length()).mapNotNull(questions::optJSONObject).takeLast(2)
+        if (active.isEmpty() && pending.isEmpty()) return ""
+        return buildString {
+            appendLine("【本人尚未结束的兴趣线索｜内部连续性，不要像报告一样念出来】")
+            active.forEach { t ->
+                val steps = t.optJSONArray("steps") ?: JSONArray()
+                val receipt = steps.optJSONObject(steps.length() - 1)?.optString("receipt").orEmpty()
+                appendLine("- 真正尝试过「" + t.optString("topic").take(70) + "」，最近结果=" +
+                    receipt.take(120) + "；还想知道=" + t.optString("question").take(110) +
+                    "；可选下一步=" + t.optString("nextStep").take(120))
+            }
+            pending.forEach { q ->
+                appendLine("- 之前看到「" + q.optString("observed").take(110) +
+                    "」后对「" + q.optString("topic").take(70) +
+                    "」感到好奇：" + q.optString("question").take(105) +
+                    "（尚未实践，不是客观结论）")
+            }
+            appendLine("兴趣影响注意、观点和话题选择，不要因此自动改变当前聊天主题；过去接触到的信息范围以真实记录为限。")
+        }.trim()
+    }
+
     fun promptSection(
         characterId: String, displayName: String, recentActions: List<String>,
         now: Instant = Instant.now(),
@@ -228,7 +259,7 @@ internal object CharacterCuriosityRuntime {
         val root = snapshot(characterId)
         val threads = root.optJSONArray("threads") ?: JSONArray()
         val active = (0 until threads.length()).mapNotNull(threads::optJSONObject)
-            .filter { it.optString("status") != "satisfied" }.takeLast(4)
+            .filter { it.optString("status") == "exploring" }.takeLast(4)
         val questions = root.optJSONArray("questions") ?: JSONArray()
         val unanswered = (0 until questions.length()).mapNotNull(questions::optJSONObject).takeLast(3)
         val failures = root.optJSONArray("failures") ?: JSONArray()
