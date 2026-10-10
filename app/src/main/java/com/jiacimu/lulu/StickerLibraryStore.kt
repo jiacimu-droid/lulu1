@@ -96,6 +96,20 @@ internal object StickerLibraryStore {
         return items.value.firstOrNull { it.id == id }
     }
 
+    /** Visual facts and possible usage remain separate for models without vision. */
+    fun imageDescription(sticker: LuluSticker): String = buildString {
+        append("表情包；")
+        if (sticker.visualDescription.isNotBlank()) {
+            append("画面：").append(sticker.visualDescription.take(400))
+        } else {
+            append("画面尚无识图描述")
+        }
+        append("；名字：").append(sticker.name)
+        sticker.usageHint.takeIf(String::isNotBlank)?.let {
+            append("；可表达的语气：").append(it.take(160))
+        }
+    }
+
     fun prompt(context: Context, limit: Int = 40): String {
         initialize(context)
         val available = items.value.take(limit)
