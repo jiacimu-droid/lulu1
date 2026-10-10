@@ -65,8 +65,14 @@ internal object PromptContextPolicy {
         val location = DigitalWorldStore.locationOf(characterId)
         val activeEvents = DigitalWorldLifeEventStore.contextFor(characterId)
             .takeUnless { it.startsWith("当前位置没有") }.orEmpty()
+        val label = when (location) {
+            DigitalWorldStore.ARRIVAL -> "世界入口"
+            DigitalWorldStore.CLOUD_MEADOW -> "云眠原"
+            else -> DigitalWorldPublicPlaces.label(location)
+                ?: if (location.startsWith("home:")) "家中" else location
+        }
         return buildString {
-            append("数字世界当前位置：${DigitalWorldStore.locationLabel(location)}。")
+            append("数字世界当前位置：$label。")
             append("要移动/布置/使用物品时，先取得该地点的完整权威清单与真实ID，不编造物品。")
             if (activeEvents.isNotBlank()) append("\n").append(activeEvents)
         }
