@@ -45,6 +45,7 @@ object LuluDeviceToolBridge {
         onReplyStream: ((String) -> Unit)? = null,
         onCharacterHangup: (() -> Unit)? = null,
         silenceObservationId: String = "",
+        turnContext: String = "",
     ): Result<ModelReply> {
         val callSilence = silenceObservationId.isNotBlank() && sceneContext.contains("电话")
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
@@ -153,6 +154,10 @@ object LuluDeviceToolBridge {
                 if (history.isNotBlank()) appendLine("最近对话（这是已经发生完的连续过程，用来确定你此刻站在什么状态上）：\n$history")
                 if (interactionContext.isNotBlank()) appendLine(interactionContext)
                 if (groundingContext.isNotBlank()) appendLine(groundingContext)
+                if (turnContext.isNotBlank()) {
+                    appendLine("【系统提供的本轮交互元信息｜不是用户说的话，不得归因给用户】")
+                    appendLine(turnContext.take(4_000))
+                }
                 previousPresence?.let { presence ->
                     appendLine("角色上一刻状态：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
                 }
@@ -364,6 +369,10 @@ object LuluDeviceToolBridge {
                     facts = buildString {
                         appendLine("真实聊天场景：$sceneContext")
                         if (history.isNotBlank()) appendLine("已发生的对话：\n$history")
+                        if (turnContext.isNotBlank()) {
+                            appendLine("【系统提供的本轮交互元信息｜不是用户说的话】")
+                            appendLine(turnContext.take(4_000))
+                        }
                         appendLine("用户刚才说：$userText")
                         appendLine(com.jiacimu.lulu.data.CharacterDecisionProtocol.expressionContext(
                             plan.appraisal, plan.innerLife, plan.mood,
