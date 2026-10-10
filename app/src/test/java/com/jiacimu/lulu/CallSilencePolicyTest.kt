@@ -32,6 +32,15 @@ class CallSilencePolicyTest {
         assertTrue(due(reflection = 10 * 60_000L, failures = 3))
     }
 
+    @Test fun continuousSilenceUsesStableMilestonesUntilSomethingChanges() {
+        assertEquals("one-minute", CallSilencePolicy.observationMilestone(60_000))
+        assertEquals("one-minute", CallSilencePolicy.observationMilestone(4 * 60_000))
+        assertEquals("five-minutes", CallSilencePolicy.observationMilestone(5 * 60_000))
+        assertEquals("fifteen-minutes", CallSilencePolicy.observationMilestone(15 * 60_000))
+        assertEquals("half-hour", CallSilencePolicy.observationMilestone(30 * 60_000))
+        assertEquals("hour-1", CallSilencePolicy.observationMilestone(60 * 60_000))
+    }
+
     @Test fun mutedStudyCompanionshipIsObservationRatherThanFakeUserSpeech() {
         val scene = CallSilencePolicy.context(15 * 60_000L, true)
         assertTrue(scene.contains("用户没有新增发言"))
