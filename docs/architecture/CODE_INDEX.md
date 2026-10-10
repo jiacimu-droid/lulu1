@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f016708fb097122179a8634e2fc9d72c9c712281`
+- 基准提交：`152984a93747087fba23551ed31923ce99920fd1`
 - 分支：`main`
 - 已索引文件：429
-- 已索引代码/文本行：95851
-- 已发现符号：1395
+- 已索引代码/文本行：95893
+- 已发现符号：1397
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -130,7 +130,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 188 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 146 | 30 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 480 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 481 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 41 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 109 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt` | 42 | 4 |
@@ -182,11 +182,11 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt` | 233 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt` | 209 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt` | 222 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 636 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 656 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt` | 45 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt` | 61 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 51 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1010 | 33 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1011 | 33 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 88 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt` | 45 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 348 | 9 |
@@ -221,9 +221,9 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 125 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 958 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 962 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 287 | 13 |
-| `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 83 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 85 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt` | 655 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
@@ -395,7 +395,7 @@
 | `app/src/test/java/com/jiacimu/lulu/VoiceSynthesisPolicyTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 56 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 70 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt` | 69 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt` | 65 | 1 |
