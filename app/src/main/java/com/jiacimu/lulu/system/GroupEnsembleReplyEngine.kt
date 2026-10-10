@@ -334,11 +334,20 @@ internal object GroupEnsembleReplyEngine {
         } ?: return null
 
         val evidenceId = "${served.sourceUserMessageId}:group:${served.turn.characterId}"
+        val privateStateBefore = com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(served.turn.characterId)
+        val privateDelta = com.jiacimu.lulu.data.PrivateStateDeltaEngine.evaluate(
+            previous = privateStateBefore,
+            proposal = served.turn.innerLife,
+            appraisal = served.turn.appraisal,
+            basis = served.turn.innerThoughtBasis,
+            thought = served.turn.innerThought,
+        )
         val groundedInnerThought = com.jiacimu.lulu.data.CharacterHeartVoicePolicy.keepOrBlank(
             thought = served.turn.innerThought,
             outward = served.turn.bubbles.joinToString(" "),
             innerLife = served.turn.innerLife,
             basis = served.turn.innerThoughtBasis,
+            delta = privateDelta,
             hasFreshEvidence = true,
         )
         com.jiacimu.lulu.data.CharacterInnerLifeStore.recordCausalTransition(
@@ -366,6 +375,7 @@ internal object GroupEnsembleReplyEngine {
         )
         com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
             served.turn.characterId, evidenceId, groundedInnerThought,
+            causeFingerprint = privateDelta.fingerprint,
         )
         CompanionPresenceStore.update(
             characterId = served.turn.characterId,
@@ -374,6 +384,7 @@ internal object GroupEnsembleReplyEngine {
             innerThought = groundedInnerThought,
             mood = served.turn.mood,
             source = "群聊·全员自然讨论",
+            innerThoughtFingerprint = privateDelta.fingerprint,
         )
         if (served.turn.tool.isNotBlank()) {
             val toolResult = CompanionActionRuntime.execute(
