@@ -243,7 +243,7 @@ object ProactivePerceptionScheduler {
             .setInputData(Data.Builder()
                 .putString("trigger", "互动事件二次重试：只处理未完成的真实感知，证据ID=$evidenceId")
                 .putString("characterId", characterId)
-                .putString("retryEvidenceId", evidenceId)
+                .putString("interactionEvidenceId", evidenceId)
                 .putBoolean("force", true)
                 .build())
             .build()
