@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:38:15.359310+00:00",
-  "commit": "283e66ef1b65c7b4ea493869fff7e6d2b24c5d03",
+  "generatedAt": "2026-10-10T17:38:55.691534+00:00",
+  "commit": "9fd86b6ad489302df2bb21d348932da97abaa814",
   "branch": "main",
-  "sourceFingerprint": "092d88c5faa527f47f80c68cdc6282f9ef9bd438b868324e5ea8b64fcccc570b",
+  "sourceFingerprint": "5a44809cc0eda99142d7f781faf877a5a4bc03fd4d60f35ec14eabb4f5708c67",
   "summary": {
     "files": 466,
-    "lines": 101960,
+    "lines": 101967,
     "symbols": 1499
   },
   "symbolIndex": {
@@ -1911,7 +1911,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 99
+        "line": 106
       }
     ],
     "move": [
@@ -2653,7 +2653,7 @@
     "eligible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 25
+        "line": 27
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
@@ -2663,7 +2663,7 @@
     "latestPending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 29
+        "line": 36
       }
     ],
     "snapshot": [
@@ -10662,20 +10662,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-      "lines": 111,
-      "sha256": "c8e3db3551dba1136351c2533fcc39a84e0bed382e5eeabfc8755f8e80855b92",
+      "lines": 118,
+      "sha256": "7e637513b8887fe0923815a6f6f3fda754bd21b29c7e673049c751472a0e9ba5",
       "symbols": [
         {
           "name": "eligible",
-          "line": 25
+          "line": 27
         },
         {
           "name": "latestPending",
-          "line": 29
+          "line": 36
         },
         {
           "name": "instruction",
-          "line": 99
+          "line": 106
         }
       ]
     },
