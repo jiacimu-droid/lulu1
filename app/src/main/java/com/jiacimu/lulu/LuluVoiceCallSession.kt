@@ -25,6 +25,8 @@ import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.InteractionSignalBridge
 import com.jiacimu.lulu.data.ProactivePerceptionScheduler
+import com.jiacimu.lulu.data.ProactivePerceptionRuntime
+import com.jiacimu.lulu.data.initializeBackgroundRuntime
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.CoroutineScope
@@ -467,6 +469,26 @@ internal object LuluVoiceCallSession {
             )
             if (!endedByCharacter) appContext?.let { context ->
                 ProactivePerceptionScheduler.scheduleInteractionReflection(context, current.characterId, cueId)
+                // The app is still alive immediately after the user hangs up.
+                // Run the same authoritative pipeline now so that opening the
+                // avatar can reveal a real reaction. The queued WorkManager
+                // item is only a durable fallback if Android kills this process.
+                val id = current.characterId
+                scope.launch(Dispatchers.IO) {
+                    runCatching {
+                        initializeBackgroundRuntime(context)
+                        ProactivePerceptionRuntime.runDueCycle(
+                            context = context, trigger = "刚结束的电话互动；证据ID=$cueId",
+                            targetCharacterId = id, force = true,
+                            requiredInteractionEvidenceId = cueId,
+                        )
+                    }.onFailure { error ->
+                        if (error is kotlinx.coroutines.CancellationException) throw error
+                        com.jiacimu.lulu.data.CompanionPresenceStore.recordPerceptionAttempt(
+                            id, "通话结束后的感知尚未完成：${error.message.orEmpty().take(80)}",
+                        )
+                    }
+                }
             }
         }
         mutableState.update {
