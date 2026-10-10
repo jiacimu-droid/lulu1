@@ -382,7 +382,7 @@ object ProactivePerceptionRuntime {
                 appendLine("\n【用户现实设备与用户状态感知层】")
                 appendLine("重要归属：下面的电量、前台应用、通知、位置、健康/手环和学习信息都属于用户本人或用户正在使用的现实设备，不属于角色自己的手机或身体。")
                 appendLine("触发来源：$trigger")
-                if (awakeReflection) appendLine("在线意味着你持续醒着：即使这次选择 silent，也可以思考已知经历、保留或修正自己的感受与愿望，并保存未说出口的心声。无外部新事件不是内在停止的理由；没有变化可省略字段，不填充虚假情绪。回想旧事不是它再次发生，不因为时间检查重新放大情绪；不虚构动作或把用户沉默当作离开。")
+                if (awakeReflection) appendLine("在线意味着你持续醒着：即使这次选择 silent，也可以思考已知经历、保留或修正自己的感受与愿望。只有出现真正新增的念头才写 innerThought/innerLife；若只是‘还在等、还是不催、继续看看’的同义改写就省略，让旧心声停留在历史里。无外部新事件不是内在停止的理由，但也不是制造新内心独白的理由。回想旧事不是它再次发生，不因为时间检查重新放大情绪；不虚构动作或把用户沉默当作离开。")
                 appendLine("本次判断：如果没有待处理的新消息，这仍是角色真实生活的一段时间，不是只能更新状态的空轮询；在线期间也不会因为没有未读消息就被系统强制 SILENT。")
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
@@ -537,8 +537,12 @@ object ProactivePerceptionRuntime {
                 "在线期间基于已知状态的内在变化，没有新增用户发言或虚构外部事件",
                 decision.innerLife, emptySet(), now)
         }
-        // The role may have private thoughts while awake even when it elects not to speak.
-        if (awakeReflection || freshStimulus || previousEvidence.isNotBlank() || decision.action != Action.SILENT) {
+        // Being online alone is not evidence of a new thought. Persist a new private voice only when
+        // there is a real stimulus, deliberate follow-through, an actual action, or the model declares
+        // a substantive inner-life change. This keeps awareness continuous without minute-by-minute
+        // paraphrases of the same waiting state.
+        if (freshStimulus || previousEvidence.isNotBlank() ||
+            decision.action != Action.SILENT || decision.innerLife != null) {
             CharacterInnerLifeStore.recordInnerVoice(
                 characterId, if (awakeReflection) awakeObservationId else stimulus?.evidenceId?.let { "perception:$it" }
                     ?: "perception:${now.toEpochMilli()}:${trigger.take(35)}",
@@ -577,7 +581,9 @@ object ProactivePerceptionRuntime {
                 characterId = characterId,
                 statusText = if (execution.success && physicalAction) execution.summary else null,
                 gesture = if (execution.success && physicalAction) execution.summary else null,
-                innerThought = decision.innerThought.takeIf(String::isNotBlank),
+                // Empty is an explicit "no new heart voice" and clears the visible current thought.
+                // Do not turn omission into inheritance of an old sentence forever.
+                innerThought = decision.innerThought,
                 mood = decision.mood.takeIf(String::isNotBlank),
                 source = if (awakeReflection) "在线持续感知" else "后台主动感知",
                 now = now,
@@ -695,7 +701,9 @@ object ProactivePerceptionRuntime {
         val existing = CompanionPresenceStore.current(character.characterId)
         return copy(
             statusText = statusText.ifBlank { existing?.statusText.orEmpty().ifBlank { "安静地待着" } },
-            gesture = gesture.ifBlank { existing?.gesture.orEmpty().ifBlank { "没有新的动作" } },
+            // Gesture is deliberately not synthesized from the previous moment. PresenceStore alone
+            // decides whether an omitted action is a genuinely sustained activity.
+            gesture = gesture,
             mood = mood.ifBlank { existing?.mood.orEmpty().ifBlank { "平静" } },
         )
     }
