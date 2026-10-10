@@ -4,8 +4,13 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class CharacterVoicePreferenceStoreTest {
     @Test fun bedtimeVoiceIsPerCharacterAndNeverOverridesOrdinaryCall() {
         val context = RuntimeEnvironment.getApplication() as Context
