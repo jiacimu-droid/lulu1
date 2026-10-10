@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T05:38:49.454631+00:00",
-  "commit": "0cc99e81d5c85933e03edd51975e4340cd9adca9",
+  "generatedAt": "2026-10-10T05:39:04.845271+00:00",
+  "commit": "f9d9c78df36a11eab0389eecd2d996d0aad4c962",
   "branch": "main",
-  "sourceFingerprint": "5801c0ccc5bb9039863c3ebca5c6691596f190b3247012a8e3d76d9bc27dba95",
+  "sourceFingerprint": "b18150657b18da87fe1ae7bcffbeb956e017df4a44191be601e3a818b8c210b6",
   "summary": {
     "files": 426,
-    "lines": 95506,
+    "lines": 95522,
     "symbols": 1387
   },
   "symbolIndex": {
@@ -15257,8 +15257,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt",
-      "lines": 478,
-      "sha256": "4cd1ff6dc3a5afe810f49675c716e8e5611a542c62d1406ffcd7bd1845de4453",
+      "lines": 494,
+      "sha256": "93a719d3dd9be1481c980a9162e30d01ccf9139611726578847b0ccc2de82398",
       "symbols": []
     },
     {
