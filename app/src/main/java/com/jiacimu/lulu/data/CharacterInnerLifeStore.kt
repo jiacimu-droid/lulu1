@@ -534,7 +534,11 @@ object CharacterInnerLifeStore {
      * A thought remains part of the personal mental timeline even if it is never spoken.
      */
     @Synchronized fun recordInnerVoice(
-        characterId: String, evidenceId: String, thought: String, now: Instant = Instant.now(),
+        characterId: String,
+        evidenceId: String,
+        thought: String,
+        now: Instant = Instant.now(),
+        causeFingerprint: String = "",
     ) {
         if (prefs == null || characterId.isBlank() || evidenceId.isBlank()) return
         val clean = thought.replace(Regex("[ \\t]+"), " ").trim().take(1_200)
@@ -546,11 +550,22 @@ object CharacterInnerLifeStore {
         val latestAt = latest?.optString("occurredAt")?.takeIf(String::isNotBlank)
             ?.let { runCatching { Instant.parse(it) }.getOrNull() }
         val recentMinutes = latestAt?.let { runCatching { Duration.between(it, now).toMinutes() }.getOrNull() }
+        val cleanFingerprint = causeFingerprint.trim().take(120)
+        if (cleanFingerprint.isNotBlank()) {
+            for (i in maxOf(0, old.length() - 5) until old.length()) {
+                val prior = old.optJSONObject(i) ?: continue
+                val at = prior.optString("occurredAt").takeIf(String::isNotBlank)
+                    ?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: continue
+                val minutes = runCatching { Duration.between(at, now).toMinutes() }.getOrNull() ?: continue
+                if (minutes in 0..30 && prior.optString("causeFingerprint") == cleanFingerprint) return
+            }
+        }
         if (recentMinutes != null && recentMinutes in 0..10 &&
             sameInnerVoiceMeaning(latest?.optString("thought").orEmpty(), clean)) return
         root.put("innerVoices", JSONArray().apply {
             for (i in maxOf(0, old.length() - 5) until old.length()) put(old.opt(i))
             put(JSONObject().put("evidenceId", evidenceId).put("thought", clean)
+                .put("causeFingerprint", cleanFingerprint)
                 .put("occurredAt", now.toString()))
         })
         save(characterId, root)
