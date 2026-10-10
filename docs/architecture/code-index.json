@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T06:33:45.536824+00:00",
-  "commit": "b57f2a6b07ff6ecaee36fab59373be84e21787b0",
+  "generatedAt": "2026-10-10T06:34:44.950165+00:00",
+  "commit": "e3ecc1071da87f6a4fd3188262530b90e249948e",
   "branch": "main",
-  "sourceFingerprint": "765ea05966951140ed993f03a27679225500af210afea2556771c4ddc89812fe",
+  "sourceFingerprint": "169462a2ceafb2192e5ab103cf6f11c252326225a498adc318fa9c7bb6540241",
   "summary": {
     "files": 430,
-    "lines": 96123,
+    "lines": 96127,
     "symbols": 1401
   },
   "symbolIndex": {
@@ -2463,7 +2463,7 @@
     "promptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
-        "line": 56
+        "line": 60
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
@@ -10006,8 +10006,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
-      "lines": 70,
-      "sha256": "66866747d9655760414779dbe1791cccb6c3b1f1d379478c5d4c865d5dfc0a4d",
+      "lines": 74,
+      "sha256": "feb9ac3430b70b0bba73e5b280b39a3aef637f67fbba1516345ee8e4e4e01a07",
       "symbols": [
         {
           "name": "extractExplicitAddress",
@@ -10023,7 +10023,7 @@
         },
         {
           "name": "promptSection",
-          "line": 56
+          "line": 60
         }
       ]
     },
