@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T16:12:09.048201+00:00",
-  "commit": "0f4ecdb3eedfd239e11b6a4dd48cffa1d0411662",
+  "generatedAt": "2026-10-10T16:23:06.495785+00:00",
+  "commit": "91c7262efed2ff4047154118277a29b609cd99d4",
   "branch": "main",
-  "sourceFingerprint": "6f30d77dc94c7f9d0d09f84ab9f365ffbfa2cf8466b5ac757e292b62200d72ea",
+  "sourceFingerprint": "278c6838126f39dd7810c217f4cee74008fb5219220742456937cb998b7796e3",
   "summary": {
-    "files": 461,
-    "lines": 101068,
-    "symbols": 1478
+    "files": 463,
+    "lines": 101242,
+    "symbols": 1483
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -283,7 +283,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 985
+        "line": 987
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -2448,7 +2448,27 @@
         "line": 142
       }
     ],
+    "signature": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
+        "line": 12
+      }
+    ],
+    "clean": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
+        "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
+        "line": 11
+      }
+    ],
     "render": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
+        "line": 38
+      },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
         "line": 9
@@ -2551,7 +2571,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 219
+        "line": 250
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
@@ -2636,6 +2656,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
         "line": 127
+      }
+    ],
+    "briefContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
+        "line": 224
       }
     ],
     "expressionContext": [
@@ -2907,13 +2933,13 @@
     "normalize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 891
+        "line": 893
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 908
+        "line": 910
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -3035,7 +3061,7 @@
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 108
+        "line": 110
       }
     ],
     "CharacterSocialRelationshipSnapshot": [
@@ -5319,7 +5345,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 951
+        "line": 968
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -7600,12 +7626,6 @@
         "line": 38
       }
     ],
-    "clean": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
-        "line": 11
-      }
-    ],
     "cutOffByTokens": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
@@ -7910,6 +7930,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt",
         "line": 12
+      }
+    ],
+    "AutonomousActionTraceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
+        "line": 8
       }
     ],
     "AutonomousAffordanceContextTest": [
@@ -10395,6 +10421,25 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
+      "lines": 72,
+      "sha256": "c247a15fe1cd879012e4262c3dbc1d2d8dbfdb3570c0af1b970be943ef81620a",
+      "symbols": [
+        {
+          "name": "signature",
+          "line": 12
+        },
+        {
+          "name": "clean",
+          "line": 25
+        },
+        {
+          "name": "render",
+          "line": 38
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
       "lines": 60,
       "sha256": "bcfb11d078aa3c404bc5c921f1bc859d56365c505381581b83a327ee0461743f",
@@ -10520,12 +10565,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-      "lines": 287,
-      "sha256": "0616a24d4439a1a34c7d9543815248c06585b54f7b96a8d68a60ad4e908d86cf",
+      "lines": 318,
+      "sha256": "7761e6b6c7df6bbdc46373687a4ad4cca5a8fe53e6924c96d5ea9b79e48a6b92",
       "symbols": [
         {
+          "name": "briefContext",
+          "line": 224
+        },
+        {
           "name": "promptSection",
-          "line": 219
+          "line": 250
         }
       ]
     },
@@ -10697,8 +10746,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1103,
-      "sha256": "dc336dccfd17b6e9fa84939b53bf4bd53eb762a7bfd150464fdbefb0d731c785",
+      "lines": 1105,
+      "sha256": "bcf03780dfa18308f1ab72c59e135856431709afbcbdb7f3d910982f50422733",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -10722,15 +10771,15 @@
         },
         {
           "name": "normalize",
-          "line": 891
+          "line": 893
         },
         {
           "name": "compactContext",
-          "line": 908
+          "line": 910
         },
         {
           "name": "context",
-          "line": 985
+          "line": 987
         }
       ]
     },
@@ -10846,8 +10895,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 112,
-      "sha256": "e4e44d7f759a4a8300f10dcace0165a71136eb976027100d7d78268d5cccb89b",
+      "lines": 114,
+      "sha256": "f0ba1ffcc47ade407dfcc8b7e6ec33e964b42b8cf796f287ab93ac9d05e55ff7",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -10883,7 +10932,7 @@
         },
         {
           "name": "developmentContext",
-          "line": 108
+          "line": 110
         }
       ]
     },
@@ -13199,7 +13248,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 55,
-      "sha256": "8c16609a1b5811b943b80f6db183a789007af778088bc7c9d63ad0a562e5be80",
+      "sha256": "f954d798f9b9686cf73bc19b3119e89d0e14f300992167a43bb4c97c5f41c8c1",
       "symbols": []
     },
     {
@@ -13297,8 +13346,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1007,
-      "sha256": "d83787d5588dfa8ed8433b8057fee42ee63e710f2ad47accdc36534ade9cb05b",
+      "lines": 1024,
+      "sha256": "3390a2e9b34897c7386afb25c1dd10806bdedf4dc75fd7278199b584bca7857b",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -13322,7 +13371,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 951
+          "line": 968
         }
       ]
     },
@@ -16650,6 +16699,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
+      "lines": 39,
+      "sha256": "8f6bf7c61f360fc6c6fc8a782702552d41ab5b6159bb99ed185fe84a6379938f",
+      "symbols": [
+        {
+          "name": "AutonomousActionTraceTest",
+          "line": 8
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
       "lines": 31,
       "sha256": "59fed9a729ae4e341e319705f2f960e83052df2e39c4f02062e7e7cf0f17837a",
@@ -16714,8 +16774,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityRuntimeTest.kt",
-      "lines": 88,
-      "sha256": "7eaadf4211858c334d631339cc8d745b5d3e9813f442ce2668358eb8944f1056",
+      "lines": 99,
+      "sha256": "7e2e5f7c6069672e5817968a321db47c2e32dec71650a20c60739272da219c90",
       "symbols": [
         {
           "name": "CharacterCuriosityRuntimeTest",
