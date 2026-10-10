@@ -357,7 +357,10 @@ object LuluDeviceToolBridge {
                 succeeded = false,
                 now = now,
             )
-            savePresence(characterId, plan, if (callSilence) "通话沉默感知" else "聊天沉默", preserveQuietThought = true)
+            savePresence(
+                characterId, plan, if (callSilence) "通话沉默感知" else "聊天沉默",
+                preserveQuietThought = true, heartVoiceFingerprint = privateDelta.fingerprint,
+            )
             return Result.success(plannedReply.copy(text = "", disposition = CharacterDecisionProtocol.SILENT))
         }
         if (plan.action == "reply") {
@@ -423,7 +426,10 @@ object LuluDeviceToolBridge {
             val safeText = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(userText, naturalText)
             if (safeText.isBlank()) return Result.failure(IllegalStateException("角色决定回复但没有生成可发送内容"))
             if (!invalidBlame && safeText == naturalText) {
-                savePresence(characterId, plan, if (callSilence) "通话沉默感知" else "聊天")
+                savePresence(
+                    characterId, plan, if (callSilence) "通话沉默感知" else "聊天",
+                    heartVoiceFingerprint = privateDelta.fingerprint,
+                )
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, if (callSilence) "电话中的安静陪伴观察" else "本轮用户消息：$userText", plan.afterglow)
             }
             if (!invalidBlame && plan.endCall && sceneContext.contains("电话"))
@@ -723,7 +729,13 @@ object LuluDeviceToolBridge {
         }.getOrNull()
     }
 
-    private fun savePresence(characterId: String, plan: ToolPlan, source: String, preserveQuietThought: Boolean = false) {
+    private fun savePresence(
+        characterId: String,
+        plan: ToolPlan,
+        source: String,
+        preserveQuietThought: Boolean = false,
+        heartVoiceFingerprint: String = "",
+    ) {
         CompanionPresenceStore.update(
             characterId = characterId,
             statusText = plan.statusText,
@@ -731,6 +743,7 @@ object LuluDeviceToolBridge {
             innerThought = if (preserveQuietThought) plan.innerThought.takeIf(String::isNotBlank) else plan.innerThought,
             mood = plan.mood,
             source = source,
+            innerThoughtFingerprint = heartVoiceFingerprint,
         )
     }
 }
