@@ -65,53 +65,38 @@ internal fun CharacterLifeSettings(characterId: String) {
     var addressDraft by remember { mutableStateOf("") }
     LaunchedEffect(characterId) { CharacterAddressPreference.refresh(characterId) }
     var draft by remember { mutableStateOf("") }
-    var showFixedDefinition by remember(characterId) { mutableStateOf(false) }
     var showPastChoices by remember(characterId) { mutableStateOf(false) }
     var showInnerDetails by remember(characterId) { mutableStateOf(false) }
     var showAllGrowth by remember(characterId) { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("基础人格 · 手动设定", style = MaterialTheme.typography.titleLarge,
+        Text("人物人格 · 手动设定", style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold)
-        Text("长期的价值、判断和表达方式由你设定；当前心情、正在牵挂、后天习惯从真实经历发展，不会偷偷改写这些设定。",
+        Text("这里写“这个人通常怎样理解、选择、相处和表达”。身份与背景事实放在「资料」；当前心情、正在牵挂和后天成长由真实经历自动变化，不要混进长期人格。",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
-        CharacterProfileSchema.featuredFields.forEach { field ->
-            val value = root.optJSONObject("profile")?.optString(field.key).orEmpty()
-            Column(Modifier.fillMaxWidth().clickable { editing = field.key; draft = value }
-                .padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically) {
-                    Text(field.label, fontWeight = FontWeight.SemiBold)
-                    Text("编辑", color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.bodySmall)
-                }
-                Text(value.ifBlank { "尚未设定，点击填写" }, maxLines = 3,
-                    overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            HorizontalDivider()
-        }
-        Row(Modifier.fillMaxWidth().clickable { showFixedDefinition = !showFixedDefinition }
-            .padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("其他基础人格", style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold)
-            Text(if (showFixedDefinition) "收起" else "展开编辑",
-                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
-        }
-        if (showFixedDefinition) {
-            CharacterProfileSchema.otherFields.groupBy { it.group }.forEach { (group, fields) ->
+        CharacterProfileSchema.groupedFields().forEach { (group, fields) ->
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(group, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                fields.forEach { field ->
-                    val value = root.optJSONObject("profile")?.optString(field.key).orEmpty()
-                    Column(Modifier.fillMaxWidth().clickable { editing = field.key; draft = value }
-                        .padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                        Text(field.label, fontWeight = FontWeight.Medium)
-                        Text(value.ifBlank { "未设定" }, maxLines = 2,
-                            overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    HorizontalDivider()
+                CharacterProfileSchema.groupHints[group]?.let { hint ->
+                    Text(hint, style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
+            }
+            fields.forEach { field ->
+                val value = root.optJSONObject("profile")?.optString(field.key).orEmpty()
+                Column(Modifier.fillMaxWidth().clickable { editing = field.key; draft = value }
+                    .padding(vertical = 7.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Text(field.label, fontWeight = FontWeight.Medium)
+                        Text("编辑", color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.bodySmall)
+                    }
+                    Text(value.ifBlank { "未设定 · 点击填写" }, maxLines = 3,
+                        overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                HorizontalDivider()
             }
         }
         HorizontalDivider()
