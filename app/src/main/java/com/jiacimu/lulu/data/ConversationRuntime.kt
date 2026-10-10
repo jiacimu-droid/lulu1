@@ -23,7 +23,7 @@ internal enum class DialogueMoveType(val wire: String) {
 
     companion object {
         fun fromWire(value: String): DialogueMoveType? =
-            entries.firstOrNull { it.wire == value.trim().lowercase() }
+            values().firstOrNull { it.wire == value.trim().lowercase() }
     }
 }
 
@@ -164,6 +164,45 @@ internal data class PrivateStateDelta(
  * Repeating the same emotion/social/thought JSON no longer counts as a fresh delta simply because
  * those fields are present again.
  */
+internal object ConversationGroundingEngine {
+    fun beforeTurn(
+        characterId: String,
+        conversationKey: String,
+        evidenceId: String,
+        userText: String,
+    ) {
+        if (DialogueMoveEngine.userInitiatesRepair(userText)) {
+            CharacterInnerLifeStore.rejectGroundingCandidates(
+                characterId = characterId,
+                conversationKey = conversationKey,
+                evidenceId = evidenceId,
+                reason = "用户明确否定了上一轮理解",
+            )
+        }
+    }
+
+    fun afterDecision(
+        characterId: String,
+        conversationKey: String,
+        evidenceId: String,
+        plan: DialogueMovePlan,
+    ) {
+        if (plan.type == DialogueMoveType.CANDIDATE_UNDERSTANDING &&
+            plan.candidate.isNotBlank()) {
+            CharacterInnerLifeStore.recordGroundingCandidate(
+                characterId = characterId,
+                conversationKey = conversationKey,
+                evidenceId = evidenceId,
+                content = plan.candidate,
+                confidence = plan.confidence,
+            )
+        }
+    }
+
+    fun context(characterId: String, conversationKey: String): String =
+        CharacterInnerLifeStore.groundingContext(characterId, conversationKey)
+}
+
 internal object PrivateStateDeltaEngine {
     fun evaluate(
         previous: JSONObject,
