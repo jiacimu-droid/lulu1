@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T06:05:00.543197+00:00",
-  "commit": "61a0f4ef10a64039cb71184168a89ba79d88de5a",
+  "generatedAt": "2026-10-10T06:09:42.620889+00:00",
+  "commit": "f016708fb097122179a8634e2fc9d72c9c712281",
   "branch": "main",
-  "sourceFingerprint": "f895180dd4420707b5a15f1448f6dcaebe163e433adc478c2d671ef7af3aca9a",
+  "sourceFingerprint": "d30b3d306b89e9b4413f60565d968bf6c7e5431c6b037d72514b99d9a142f87e",
   "summary": {
     "files": 429,
-    "lines": 95847,
+    "lines": 95851,
     "symbols": 1395
   },
   "symbolIndex": {
@@ -1633,7 +1633,7 @@
     "format": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
-        "line": 35
+        "line": 36
       }
     ],
     "pauseBeforeNextLine": [
@@ -8785,8 +8785,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
-      "lines": 464,
-      "sha256": "d86fb31ebdc1eea9ec3b1c974723f1db7b899a484131992d2b4d89fd27824dd1",
+      "lines": 466,
+      "sha256": "2f48a77791ac4e1cdbc021adf50d7d670ec37fd5643d47244516ee0d694fa965",
       "symbols": [
         {
           "name": "LuluVoiceCallScreen",
@@ -9189,8 +9189,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
-      "lines": 38,
-      "sha256": "9502089be98822996052ec0e7dd753ee172666aff67d651cca874e09e6e9900c",
+      "lines": 39,
+      "sha256": "cca616afa2dcb3f05a9ec5bf26c011e72dae8fb01c61cbf227bb5e4e51347fd5",
       "symbols": [
         {
           "name": "lines",
@@ -9206,7 +9206,7 @@
         },
         {
           "name": "format",
-          "line": 35
+          "line": 36
         }
       ]
     },
@@ -15657,8 +15657,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneSubtitleLayoutTest.kt",
-      "lines": 39,
-      "sha256": "f9ebe7d3fea57d7e9900677d79cee400c2051b366f009b36850ed75839b30719",
+      "lines": 40,
+      "sha256": "9ef8c408f8d1a4661bf9af1fa9eb7d08296cf05549c5c4ed397d78abde4793be",
       "symbols": [
         {
           "name": "PhoneSubtitleLayoutTest",
