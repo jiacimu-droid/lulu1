@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:59:56.708988+00:00",
-  "commit": "bdea139be3d9b36bf49a999c4301ac5614b494cb",
+  "generatedAt": "2026-10-10T18:00:12.884507+00:00",
+  "commit": "0e32a854300eddf87ca81c550f8ef28b22802a86",
   "branch": "main",
-  "sourceFingerprint": "5868968116429964f32b02dd473ebb0bea11a15a4e14fb789129d2492241d0c9",
+  "sourceFingerprint": "bc0dfb31e44f03965d4cb644ee22563783ea00ba6117311d8e9f5ef527fa9f0c",
   "summary": {
-    "files": 471,
-    "lines": 102470,
-    "symbols": 1511
+    "files": 472,
+    "lines": 102536,
+    "symbols": 1512
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8146,6 +8146,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt",
         "line": 16
+      }
+    ],
+    "CharacterDeliberationContextTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDeliberationContextTest.kt",
+        "line": 8
       }
     ],
     "CharacterExpressionGuideTest": [
@@ -17132,6 +17138,17 @@
         {
           "name": "CharacterDefinitionTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDeliberationContextTest.kt",
+      "lines": 66,
+      "sha256": "c792c645f61141655818c2e77bd76f8c4a039d4b6c86d4674a385cbaca7a1927",
+      "symbols": [
+        {
+          "name": "CharacterDeliberationContextTest",
+          "line": 8
         }
       ]
     },
