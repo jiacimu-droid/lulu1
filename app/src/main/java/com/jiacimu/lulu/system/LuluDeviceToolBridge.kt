@@ -142,7 +142,7 @@ object LuluDeviceToolBridge {
         """.trimIndent() else if (separateExpression) """
             只返回完整 JSON，先自主选择 action=reply、tool 或 silent。选择 reply 时写 speechIntent 和 dialogueMove；speechIntent 是“具体想让对方知道/确认的内容与事实边界”，不是台词设计稿，不要提前写 text。
             dialogueMove={"type":"acknowledge|answer|ask|backchannel|self_repair|other_initiated_repair|candidate_understanding|disagree|tease|reassure|topic_shift|defer|decline|close|share","repairFormat":"none|open|candidate","target":"当前局部互动目标","candidate":"只有候选修复时才写一个候选","confidence":0到1,"contentIntent":"本轮内容意图","maxBubbles":1到3}。
-            speechIntent 不要预先指定昵称、比喻、梗、玩笑方式、反问句式、撒娇方式或舞台动作，也不要把一句准备好的漂亮话塞进去；这些由表达层结合当前关系和个人语言习惯现场决定。
+            speechIntent 不要预先指定昵称、比喻、梗、反问句式或完整的表演台词，这些由表达层现场决定。但如果角色已经真心决定尝试一个具体而温和的社交小动作，可单独选填 socialAttempt="这次我打算怎样主动示好/逗她/靠近她"；这里写的是角色自选的行动意图，不是对方下达的任务。表达层应真的用文字、拟声或语言实现虚拟互动，不得虚构现实中已经碰到用户。
             回复例：{"action":"reply","speechIntent":"承认刚才理解偏了，让她补充真正意思","dialogueMove":{"type":"other_initiated_repair","repairFormat":"open","target":"刚才的误解","contentIntent":"做最小修复","maxBubbles":1},"reason":"先恢复共同理解"}
             沉默例：{"action":"silent","reason":"现在心情复杂不想回复","innerThought":"我得自己消化一下","innerThoughtBasis":{"focus":"用户刚才明确拒绝了邀约","change":"从期待转为需要自己消化失落","unsaidWhy":"现在不想把情绪压给用户"}}
             工具动作仍必须按下方的真实工具协议返回 tool 与 args；没有回执就不能假装成功。
@@ -419,6 +419,9 @@ object LuluDeviceToolBridge {
                         appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
                         appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history))
                         appendLine("角色已决定的内容简报（不能改事实、立场或改作其他行动；不要照抄成台词）：${plan.speechIntent}")
+                        if (plan.socialAttempt.isNotBlank()) {
+                            appendLine("角色自己选中的具体小尝试：${plan.socialAttempt.take(200)}。这是虚拟聊天表达的意图，不是已发生的现实接触。")
+                        }
                     },
                     instruction = """
                         你是当前角色的语言表达层，不是新的决策者；只把已经决定的内容变成符合本人性格、关系边界和当前语境的自然聊天。
@@ -427,6 +430,7 @@ object LuluDeviceToolBridge {
                         你可以在程序已经确定的 dialogueMove 范围内决定自然措辞、停顿、嘴硬或认真程度，也可以自然选择稳定昵称；不能把一个 repair 扩写成道歉+猜测+撒娇+追问的组合任务，不要把内容简报里的抽象词逐字翻译成客服式句子。
                         先接住用户真正新增的意思，再按这个角色平时会说话的方式说出来。不要为了“有个性”临时发明无关称呼、刑罚/职位/游戏化比喻或夸张设定；除非当前对话和角色既有习惯确实支持。
                         说法可以自然、个性化和口语化，但不能更改想表达的核心意思。
+                        如果交接了「角色自己选中的具体小尝试」，就实际在发送的气泡中自然做出这件小事：一句玩笑、一个拟声或隔空的虚拟互动都可以依本人性格呈现；不要把实际尝试退化为“那你想让我做什么”“我都愿意”，也不要编造未执行的现实动作。没交接时不凭空制造亲昵举动。
                         $onlineChatBubbleRule
                     """.trimIndent(),
                     source = "聊天表达渲染",
@@ -457,6 +461,9 @@ object LuluDeviceToolBridge {
                             appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
                             appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history))
                             appendLine("已经确定的内容意图：${plan.speechIntent}")
+                            if (plan.socialAttempt.isNotBlank()) {
+                                appendLine("不能丢失角色自选的小尝试：${plan.socialAttempt.take(180)}；必须实际表达，不能空口承诺。")
+                            }
                             appendLine("第一版表达草稿（只用于改措辞，不把它当新事实）：")
                             firstBubbles.forEach { appendLine("- $it") }
                         },
@@ -814,6 +821,7 @@ object LuluDeviceToolBridge {
                 motiveId = json.optString("motiveId"),
                 endCall = json.optBoolean("endCall", false),
                 speechIntent = CharacterDecisionProtocol.speechIntent(json),
+                socialAttempt = json.optString("socialAttempt").trim().take(220),
                 reason = json.optString("reason"),
                 alternatives = json.optJSONArray("alternatives"),
                 appraisal = json.optJSONObject("appraisal"),
@@ -857,6 +865,7 @@ private data class ToolPlan(
     val motiveId: String = "",
     val endCall: Boolean = false,
     val speechIntent: String = "",
+    val socialAttempt: String = "",
     val reason: String = "",
     val appraisal: JSONObject? = null,
     val dialogueMove: JSONObject? = null,
