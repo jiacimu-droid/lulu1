@@ -24,6 +24,7 @@ import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.ProactivePerceptionScheduler
 import java.time.Instant
+import java.time.Duration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.delay
@@ -43,6 +44,16 @@ internal fun CompanionPresenceDialog(
         .firstOrNull { it.displayName == characterName }?.characterId ?: "lulu"
     val messageAnchor = CompanionPresenceStore.selectedMessageAnchor(characterId)
     val displayState = if (messageAnchor != null) messageAnchor.state else state
+    // Timeline facts are shown separately from subjective feelings. Seeing that
+    // a call ended is not the same thing as knowing *why* the user hung up.
+    val recentInteraction = remember(characterId, state?.updatedAt, messageAnchor) {
+        if (messageAnchor != null) null else CharacterPerceptionContext.recent(characterId)
+            .lastOrNull { event ->
+                event.source == InteractionSignalBridge.SOURCE &&
+                    !event.occurredAt.isAfter(Instant.now()) &&
+                    Duration.between(event.occurredAt, Instant.now()) <= Duration.ofHours(3)
+            }
+    }
     val displayHistory = remember(history, messageAnchor?.messageAt) {
         if (messageAnchor == null) history else history.filter { it.updatedAt <= messageAnchor.messageAt }
     }
@@ -112,6 +123,9 @@ internal fun CompanionPresenceDialog(
                             } else {
                                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                     PresenceStateContent(displayState)
+                                    recentInteraction?.let { observed ->
+                                        PresenceDialogSection("最近发生的互动", observed.content.take(240))
+                                    }
                                 }
                             }
                         }
