@@ -58,6 +58,10 @@ object CharacterInnerLifeStore {
      */
     fun needsPostOnlineReflection(characterId: String, now: Instant = Instant.now()): Boolean {
         val root = snapshot(characterId)
+        // A just-changed inner concern can warrant one optional follow-through
+        // after going offline, without equating it with a proven user crisis.
+        if (CharacterOpenConcernRuntime.meritsOneFollowThrough(
+                root.optJSONArray("openConcerns"), now)) return true
         val emotion = root.optJSONObject("emotion")
         if (emotion != null) {
             val at = runCatching { Instant.parse(emotion.optString("startedAt")) }.getOrNull()
