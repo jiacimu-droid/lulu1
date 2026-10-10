@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T12:53:29.743863+00:00",
-  "commit": "1fb73a78bce228f4413d305cc8cc0575951da0e8",
+  "generatedAt": "2026-10-10T12:54:12.212107+00:00",
+  "commit": "76658481ecc4f48e2954d4becc3855f7883035ed",
   "branch": "main",
-  "sourceFingerprint": "8b6f1db9668ccf7ca1b6302c306df1c8a75e1b7173c9fd08c03f5293e1b3fdf0",
+  "sourceFingerprint": "042b066a1db3ac58d84580c34551b7c60ea00c8d09bc34b72a6fa3865b5f1b86",
   "summary": {
-    "files": 450,
-    "lines": 99640,
-    "symbols": 1462
+    "files": 451,
+    "lines": 99724,
+    "symbols": 1464
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3526,6 +3526,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
         "line": 260
+      }
+    ],
+    "repairInstruction": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt",
+        "line": 14
+      }
+    ],
+    "assess": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt",
+        "line": 38
       }
     ],
     "fromWire": [
@@ -11343,6 +11355,21 @@
         {
           "name": "clearCharacter",
           "line": 289
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt",
+      "lines": 84,
+      "sha256": "fcceb650934fe0a7e4c9f1f40a1ad67185228c940ab05eeac95702b47e473237",
+      "symbols": [
+        {
+          "name": "repairInstruction",
+          "line": 14
+        },
+        {
+          "name": "assess",
+          "line": 38
         }
       ]
     },
