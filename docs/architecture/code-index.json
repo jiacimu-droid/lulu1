@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T11:25:42.540412+00:00",
-  "commit": "1bfde662729f0f45a2f3bbbb3f3e44a148c4dc78",
+  "generatedAt": "2026-10-10T11:26:12.917099+00:00",
+  "commit": "0249b3e3bd6d1e467c8b4b542b31299eacd88987",
   "branch": "main",
-  "sourceFingerprint": "a14c8b141ee9276ed8c34be959380400af5e53bc6021aa039dc7f9f2ac356156",
+  "sourceFingerprint": "5d4a82a831652112d08e18d994cc5c3d73fdf43cd1f190b529905debdccc24fa",
   "summary": {
     "files": 445,
-    "lines": 98613,
-    "symbols": 1450
+    "lines": 98712,
+    "symbols": 1451
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -275,7 +275,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 823
+        "line": 922
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -2794,16 +2794,22 @@
         "line": 422
       }
     ],
+    "groundingContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
+        "line": 530
+      }
+    ],
     "normalize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 729
+        "line": 828
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 746
+        "line": 845
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -10468,8 +10474,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 941,
-      "sha256": "046d092bfa790d874e801de012a3871620e226989e691992e2126705c2b1fe4f",
+      "lines": 1040,
+      "sha256": "e25d3659a6dea522cfb01ecee1d89037421d804d905495f4f6ad753c390961d6",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -10488,16 +10494,20 @@
           "line": 422
         },
         {
+          "name": "groundingContext",
+          "line": 530
+        },
+        {
           "name": "normalize",
-          "line": 729
+          "line": 828
         },
         {
           "name": "compactContext",
-          "line": 746
+          "line": 845
         },
         {
           "name": "context",
-          "line": 823
+          "line": 922
         }
       ]
     },
