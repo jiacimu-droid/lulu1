@@ -979,11 +979,9 @@ object CharacterInnerLifeStore {
                         ?.let { !it.isAfter(now) && Duration.between(it, now) <= Duration.ofHours(18) } == true
                 }
             recentThought?.let { appendLine("还没说出的心事：${it.optString("thought").take(170)}；犹豫=${it.optString("hesitation").take(120)}") }
-            if (decisions.length() > 0) {
-                val last = decisions.optJSONObject(decisions.length() - 1)
-                if (last != null && last.optString("selected") == "silent")
-                    appendLine("上次主动保持安静：${last.optString("reason").take(130)}（不是失败）")
-            }
+            // Read actual executor receipts even when no motiveId was supplied.
+            CharacterActionFeedback.recent(decisions, now).takeIf(String::isNotBlank)
+                ?.let(::appendLine)
         }.trim()
     }
 
