@@ -510,7 +510,11 @@ object CharacterInnerLifeStore {
                 appendLine("最近有依据的取舍与真实结果（仅供以后规划参考）：")
                 for (i in maxOf(0, decisions.length() - 2) until decisions.length()) {
                     val chosen = decisions.optJSONObject(i) ?: continue
-                    appendLine("· 做出选择：${chosen.optString("selected")}；原因：${chosen.optString("reason")}；执行成功：${chosen.optBoolean("succeeded")}；实际结果：${chosen.optString("outcome")}")
+                    if (chosen.optString("selected") == "silent") {
+                        appendLine("· 选择暂时沉默：${chosen.optString("reason")}；无外部动作，不属于执行失败")
+                    } else {
+                        appendLine("· 做出选择：${chosen.optString("selected")}；原因：${chosen.optString("reason")}；执行成功：${chosen.optBoolean("succeeded")}；实际结果：${chosen.optString("outcome")}")
+                    }
                     val others = chosen.optJSONArray("alternatives") ?: JSONArray()
                     for (j in 0 until minOf(others.length(), 2)) {
                         val alternate = others.optJSONObject(j) ?: continue
