@@ -87,15 +87,17 @@ object CharacterRuntime {
             if (narrative.isNotEmpty()) {
                 appendLine("【叙事身份｜多次真实经历形成的主观意义，不是新增事实】")
                 narrative.takeLast(if (compact) 3 else 8).forEach { record ->
-                    if (compact) appendLine("- ${record.slot}：${record.content.take(260)}")
-                    else appendLine("- ${record.slot} v${record.version}：${record.content}；依据=${record.evidence.keys.joinToString()}")
+                    val maturity = if (record.maturity == DevelopmentMaturity.Established) "较稳定" else "形成中"
+                    if (compact) appendLine("- [$maturity] ${record.slot}：${record.content.take(260)}")
+                    else appendLine("- [$maturity] ${record.slot} v${record.version}：${record.content}；依据=${record.evidence.keys.joinToString()}")
                 }
             }
             if (adaptive.isNotEmpty()) {
                 appendLine("基于真实经历形成的可变适应（不覆盖稳定人设）：")
                 adaptive.takeLast(if (compact) 5 else 16).forEach { record ->
-                    if (compact) appendLine("- ${record.kind}/${record.slot}：${record.content.take(230)}")
-                    else appendLine("- ${record.kind} ${record.slot} v${record.version}：${record.content}；可信度=${record.confidence}；依据=${record.evidence.keys.joinToString()}")
+                    val maturity = if (record.maturity == DevelopmentMaturity.Established) "较稳定" else "形成中"
+                    if (compact) appendLine("- [$maturity] ${record.kind}/${record.slot}：${record.content.take(230)}")
+                    else appendLine("- [$maturity] ${record.kind} ${record.slot} v${record.version}：${record.content}；可信度=${record.confidence}；依据=${record.evidence.keys.joinToString()}")
                 }
             }
         }.trim()
