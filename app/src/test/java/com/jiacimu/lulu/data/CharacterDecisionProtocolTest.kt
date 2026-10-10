@@ -24,6 +24,61 @@ class CharacterDecisionProtocolTest {
         assertFalse(CharacterDecisionProtocol.usesSeparateExpression("正在电话中"))
     }
 
+    @Test fun userCorrectionForcesLowCostRepairMove() {
+        val playfulProposal = JSONObject()
+            .put("type", "tease")
+            .put("candidate", "你是想让我直接打电话过去？")
+            .put("confidence", 0.41)
+        val move = DialogueMoveEngine.resolve(
+            playfulProposal,
+            "继续逗她并猜她真正想表达什么",
+            "你没有get到我什么意思",
+        )
+        assertEquals(DialogueMoveType.OTHER_INITIATED_REPAIR, move.type)
+        assertEquals(RepairFormat.OPEN, move.repairFormat)
+        assertEquals(1, move.maxBubbles)
+        assertEquals("", move.candidate)
+        assertTrue(DialogueMoveEngine.expressionConstraint(move).contains("不要枚举第二个候选"))
+    }
+
+    @Test fun onlyStrongSingleCandidateMayBecomeCandidateRepair() {
+        val proposal = JSONObject()
+            .put("type", "candidate_understanding")
+            .put("candidate", "你是说我应该直接打过去？")
+            .put("confidence", 0.82)
+        val move = DialogueMoveEngine.resolve(proposal, "", "不是，你没get到我意思")
+        assertEquals(DialogueMoveType.CANDIDATE_UNDERSTANDING, move.type)
+        assertEquals(RepairFormat.CANDIDATE, move.repairFormat)
+        assertEquals("你是说我应该直接打过去？", move.candidate)
+    }
+
+    @Test fun repeatingSamePrivateStateIsNotANewDelta() {
+        val basis = JSONObject().put("focus", "用户刚才否定了我的理解")
+            .put("unsaidWhy", "先不把尴尬说出口")
+        val appraisal = JSONObject().put("meaning", "她在纠正我的误解")
+            .put("responseAim", "先修复")
+            .put("interactionMove", "repair")
+        val emotion = JSONObject().put("feeling", "有点尴尬")
+            .put("cause", "意识到自己理解错了").put("strength", 2)
+        val previous = JSONObject()
+            .put("emotion", JSONObject(emotion.toString()))
+            .put("causalTransitions", org.json.JSONArray().put(JSONObject()
+                .put("innerThoughtBasis", JSONObject(basis.toString()))
+                .put("appraisal", JSONObject(appraisal.toString()))))
+        val same = PrivateStateDeltaEngine.evaluate(
+            previous, JSONObject().put("emotion", JSONObject(emotion.toString())),
+            appraisal, basis, "刚才确实是我会错意了",
+        )
+        assertFalse(same.meaningful)
+        val changedEmotion = JSONObject(emotion.toString()).put("feeling", "松了口气")
+        val changed = PrivateStateDeltaEngine.evaluate(
+            previous, JSONObject().put("emotion", changedEmotion),
+            appraisal, basis, "好，原来是这样",
+        )
+        assertTrue(changed.meaningful)
+        assertTrue(changed.emotionChanged)
+    }
+
     @Test fun aGroupIsQuietOnlyWhenSilenceIsExplicitlyChosen() {
         assertTrue(CharacterDecisionProtocol.groupIsExplicitlySilent("""{"action":"silent","reason":"大家都在忙","turns":[]}"""))
         assertFalse(CharacterDecisionProtocol.groupIsExplicitlySilent("""{"turns":[]}"""))
