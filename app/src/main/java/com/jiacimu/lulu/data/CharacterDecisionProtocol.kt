@@ -29,6 +29,13 @@ internal object CharacterDecisionProtocol {
         }
     }
 
+    /** Explicit group silence must not be inferred from a malformed/empty turns array. */
+    fun groupIsExplicitlySilent(raw: String): Boolean {
+        val json = ModelStructuredOutput.objectOrNull(raw) ?: return false
+        return json.optString("action").equals(SILENT, ignoreCase = true) &&
+            (json.optJSONArray("turns")?.length() ?: 0) == 0
+    }
+
     fun speechIntent(json: JSONObject): String = json.optString("speechIntent")
         .ifBlank { json.optString("replyIntent") }.trim().take(800)
 }
