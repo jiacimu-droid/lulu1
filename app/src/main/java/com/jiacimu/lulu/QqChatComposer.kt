@@ -49,6 +49,7 @@ internal fun QqChatComposer(
     var imageBusy by remember { mutableStateOf(false) }
     var imageNotice by remember { mutableStateOf("") }
     var showStickerShelf by remember { mutableStateOf(false) }
+    var stickerNotice by remember { mutableStateOf("") }
 
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
@@ -109,8 +110,17 @@ internal fun QqChatComposer(
             QqStickerShelf(
                 onSendSticker = onSendSticker,
                 onInsertText = { kaomoji -> onInputChange(input + kaomoji) },
-                onNotice = { imageNotice = it },
+                onNotice = { stickerNotice = it },
             )
+            if (stickerNotice.isNotBlank()) {
+                Text(
+                    stickerNotice,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 3.dp),
+                    fontSize = 11.sp,
+                    color = QqMuted,
+                    maxLines = 2,
+                )
+            }
         }
         if (imageUri != null) {
             Surface(
