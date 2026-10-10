@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T10:14:29.858971+00:00",
-  "commit": "4ac8743f944731ff30afb54b4d65f2de71383d01",
+  "generatedAt": "2026-10-10T10:15:23.236727+00:00",
+  "commit": "4ef77bdc061d17e60aed2e6beeaa139720fc94ea",
   "branch": "main",
-  "sourceFingerprint": "b480c0fae8215fd3808817e55d158372136aaf12c11a0f18cbd2a43ac36f2836",
+  "sourceFingerprint": "2b6d52cee9fbbcb668b37438c2fbf672c129d82c93e99ec6fa231960575c7d47",
   "summary": {
     "files": 444,
-    "lines": 97859,
+    "lines": 97871,
     "symbols": 1436
   },
   "symbolIndex": {
@@ -417,7 +417,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 37
+        "line": 38
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
@@ -2581,7 +2581,7 @@
     "ids": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 79
+        "line": 80
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -2597,25 +2597,25 @@
     "DevelopmentRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 13
+        "line": 14
       }
     ],
     "CharacterDevelopmentStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 30
+        "line": 31
       }
     ],
     "history": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 54
+        "line": 55
       }
     ],
     "active": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 63
+        "line": 64
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -2629,31 +2629,31 @@
     "applyProposal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 73
+        "line": 74
       }
     ],
     "retire": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 138
+        "line": 139
       }
     ],
     "invalidateEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 143
+        "line": 144
       }
     ],
     "invalidateEvidenceForAll": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 148
+        "line": 149
       }
     ],
     "clearCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 153
+        "line": 154
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
@@ -2873,7 +2873,7 @@
     "keepOrBlank": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt",
-        "line": 51
+        "line": 52
       }
     ],
     "CharacterRecordReset": [
@@ -10272,8 +10272,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-      "lines": 91,
-      "sha256": "857f584b305d8bb8ca46912cefcab86361de4f32d5585d3a36ad10a13f2fa45b",
+      "lines": 92,
+      "sha256": "3236fa99468074c7c8dcb63035561c1493eb597ab7660cb39a9aad7916d001a2",
       "symbols": [
         {
           "name": "CharacterDevelopmentRuntime",
@@ -10289,14 +10289,14 @@
         },
         {
           "name": "ids",
-          "line": 79
+          "line": 80
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-      "lines": 171,
-      "sha256": "9b49161f387ed502480890b75e5e7dd3571017c1f0d7510c3e2c259dc473cf07",
+      "lines": 172,
+      "sha256": "5f84f5466a50b547cddd886475c3b989d06f53a291607f9d4f96d244a16cf4bc",
       "symbols": [
         {
           "name": "DevelopmentKind",
@@ -10304,43 +10304,43 @@
         },
         {
           "name": "DevelopmentRecord",
-          "line": 13
+          "line": 14
         },
         {
           "name": "CharacterDevelopmentStore",
-          "line": 30
+          "line": 31
         },
         {
           "name": "initialize",
-          "line": 37
+          "line": 38
         },
         {
           "name": "history",
-          "line": 54
+          "line": 55
         },
         {
           "name": "active",
-          "line": 63
+          "line": 64
         },
         {
           "name": "applyProposal",
-          "line": 73
+          "line": 74
         },
         {
           "name": "retire",
-          "line": 138
+          "line": 139
         },
         {
           "name": "invalidateEvidence",
-          "line": 143
+          "line": 144
         },
         {
           "name": "invalidateEvidenceForAll",
-          "line": 148
+          "line": 149
         },
         {
           "name": "clearCharacter",
-          "line": 153
+          "line": 154
         }
       ]
     },
@@ -10492,8 +10492,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt",
-      "lines": 101,
-      "sha256": "9a01c15d76c7df50229b028fbe87acea195bbf29fb221efef3929ca07fa04109",
+      "lines": 102,
+      "sha256": "4ca6e81c1b410bc63915bfaf805279951ebd7964fc8fb58abeffc41bfd8aec39",
       "symbols": [
         {
           "name": "promptSection",
@@ -10501,7 +10501,7 @@
         },
         {
           "name": "keepOrBlank",
-          "line": 51
+          "line": 52
         }
       ]
     },
@@ -11189,8 +11189,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt",
-      "lines": 15,
-      "sha256": "fad82d999ee5ffc40781908dc1be0b4d17b10e5ce624801a09ef4b91d0ef4ce9",
+      "lines": 16,
+      "sha256": "865e26e1f2ca290e3b0015fc971bfbdc839793f90f10dd9ad208b19afcce4820",
       "symbols": [
         {
           "name": "DevelopmentPolicy",
@@ -16284,8 +16284,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 118,
-      "sha256": "c3a5beeb4858bb34c3b87fc2b1cf93e95eb15760ccab957474b1e4189f75e605",
+      "lines": 126,
+      "sha256": "d3fb9f9c37095fc9c38ece9ede953d0d3ae3af83caf425b5b8a91d3a6102884c",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
