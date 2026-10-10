@@ -540,11 +540,15 @@ object ProactivePerceptionRuntime {
             pendingText = pendingUserContext,
             pendingIds = userActivities.filter(UserActivity::awaitingReply).take(12).map { it.message.id },
         )
-        val candidates = listOfNotNull(messageStimulus) + observedWorld.map(CharacterPerceptionContext::stimulus)
-        val newlyObserved = candidates.distinctBy { it.evidenceId }.filter {
-            PerceptionStimulusLedger.claim(appContext, characterId, it)
-        }
-        val stimulus = PerceptionStimulusResolver.combine(newlyObserved)
+        val perceptionInput = CharacterPerceptionContext.integrate(
+            context = appContext,
+            characterId = characterId,
+            observed = observedWorld,
+            direct = listOfNotNull(messageStimulus),
+            claimDirect = true,
+        )
+        val newlyObserved = perceptionInput.freshStimuli
+        val stimulus = perceptionInput.combined
         val emotionalAnchor = stimulus?.description.orEmpty()
         val freshStimulus = stimulus != null
         if (freshStimulus) CharacterLifeStore.recordAfterglow(
