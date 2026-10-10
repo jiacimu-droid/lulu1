@@ -56,7 +56,7 @@ internal object ConversationNaturalnessGate {
         val afterRelation = relationshipEscalation.findAll(after).map { it.value }.toSet()
         if (!beforeRelation.containsAll(afterRelation)) return false
 
-        val controlProtocol = Regex("""(?:\\{"action":"tool"|⟪(?:QUOTE|FAVORITE|RECALL|POKE_USER))""")
+        val controlProtocol = Regex("""(?:\{"action":"tool"|⟪(?:QUOTE|FAVORITE|RECALL|POKE_USER))""")
         if (controlProtocol.containsMatchIn(after) && !controlProtocol.containsMatchIn(before)) return false
         return true
     }
