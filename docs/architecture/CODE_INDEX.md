@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e7a5dab39b95c88e5fd6628a1b8cec754173279c`
+- 基准提交：`61772817e6aaaefd0dc25a2f7be1d0fead2e99b9`
 - 分支：`main`
 - 已索引文件：450
-- 已索引代码/文本行：99465
+- 已索引代码/文本行：99473
 - 已发现符号：1461
 
 | 文件 | 行数 | 符号数 |
@@ -220,7 +220,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 100 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 954 | 47 |
-| `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 128 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 132 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 898 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 101 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt` | 67 | 3 |
@@ -243,7 +243,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 65 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 74 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 81 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 85 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 240 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt` | 143 | 0 |

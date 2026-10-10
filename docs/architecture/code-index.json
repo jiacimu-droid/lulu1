@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T12:36:35.305656+00:00",
-  "commit": "e7a5dab39b95c88e5fd6628a1b8cec754173279c",
+  "generatedAt": "2026-10-10T12:50:33.436178+00:00",
+  "commit": "61772817e6aaaefd0dc25a2f7be1d0fead2e99b9",
   "branch": "main",
-  "sourceFingerprint": "41c4e6f96899299bfd0b2eb54dd7b31deb81d455cc8a8c4828ce7a15b162a6b3",
+  "sourceFingerprint": "169c328d4e9169709c6f2a1f8ac21b9bdf3f267f93a7fbd616a6dc7ce86defe8",
   "summary": {
     "files": 450,
-    "lines": 99465,
+    "lines": 99473,
     "symbols": 1461
   },
   "symbolIndex": {
@@ -299,7 +299,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
-        "line": 54
+        "line": 58
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt",
@@ -5013,13 +5013,13 @@
     "completedReplyBubbles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 81
+        "line": 85
       }
     ],
     "completedReplyText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 111
+        "line": 115
       }
     ],
     "MomentAuthorType": [
@@ -12869,8 +12869,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-      "lines": 128,
-      "sha256": "35ea5c9ca6bdc261bff5b5624b7f4ad8e11f8842961f0c8e58aea9dbc92651f4",
+      "lines": 132,
+      "sha256": "46643cb6e8077c0309fb8656bd12145f561aa58f88e1d95474b4ccc37455ee75",
       "symbols": [
         {
           "name": "objectOrNull",
@@ -12882,11 +12882,11 @@
         },
         {
           "name": "completedReplyBubbles",
-          "line": 81
+          "line": 85
         },
         {
           "name": "completedReplyText",
-          "line": 111
+          "line": 115
         }
       ]
     },
@@ -13472,8 +13472,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
-      "lines": 81,
-      "sha256": "5f9b63b8d0fbe5d86ad39361f2420e0df18fc62a6669e03c132d640e22bae899",
+      "lines": 85,
+      "sha256": "fd606be057f56ff0bdd167b479a08a3b814e524dd6d70fe5eeaa771dd1489fd3",
       "symbols": [
         {
           "name": "analyze",
@@ -13481,7 +13481,7 @@
         },
         {
           "name": "context",
-          "line": 54
+          "line": 58
         }
       ]
     },
