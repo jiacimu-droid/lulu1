@@ -203,6 +203,13 @@ internal object GroupEnsembleReplyEngine {
                         ?.takeIf(String::isNotBlank)
                         ?.let { appendLine(it) }
                     presence?.let { appendLine("上一刻状态=${it.statusText}；动作=${it.gesture}；心情=${it.mood}；没说出口=${it.innerThought}") }
+                    val observedInteractions = com.jiacimu.lulu.data.CharacterPerceptionContext.pending(
+                        context, member.characterId, now,
+                    )
+                    if (observedInteractions.isNotEmpty()) {
+                        appendLine("【此成员独立感知的真实互动事件】")
+                        appendLine(com.jiacimu.lulu.data.CharacterPerceptionContext.render(observedInteractions))
+                    }
                     appendLine(
                         CompanionActionRuntime.capabilityContext(
                             context = context,
@@ -215,6 +222,7 @@ internal object GroupEnsembleReplyEngine {
             },
             instruction = """
                 你是多人群聊的整体编排器。每个成员有独立立场和意愿，可以接话、插话或保持沉默；绝不按名单轮班。
+                ${com.jiacimu.lulu.data.CharacterDecisionProtocol.principles}
                 文字群聊如果这一刻所有成员确实都不想说话，可只返回 {"action":"silent","reason":"各人此刻不发言的真实原因","turns":[]}；不要为了填满消息硬编气泡。电话仍需真实可念出的语音回应。
 
                 只返回一个 JSON 对象，不要代码块、分析、旁白或额外说明：
@@ -339,6 +347,18 @@ internal object GroupEnsembleReplyEngine {
         } ?: return null
 
         val evidenceId = "${served.sourceUserMessageId}:group:${served.turn.characterId}"
+        val perceived = com.jiacimu.lulu.data.CharacterPerceptionContext.integrate(
+            context = context,
+            characterId = served.turn.characterId,
+            observed = com.jiacimu.lulu.data.CharacterPerceptionContext.pending(
+                context, served.turn.characterId, Instant.now(),
+            ),
+            direct = listOf(com.jiacimu.lulu.data.PerceptionStimulus(
+                evidenceId, served.emotionalAnchor, served.witnessedSpeakers.toSet() + "user",
+            )),
+        )
+        val causalEvidenceId = perceived.combined?.evidenceId ?: evidenceId
+        val causalDescription = perceived.combined?.description ?: served.emotionalAnchor
         val privateStateBefore = com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(served.turn.characterId)
         val privateDelta = com.jiacimu.lulu.data.PrivateStateDeltaEngine.evaluate(
             previous = privateStateBefore,
@@ -357,7 +377,7 @@ internal object GroupEnsembleReplyEngine {
         )
         com.jiacimu.lulu.data.CharacterInnerLifeStore.recordCausalTransition(
             characterId = served.turn.characterId,
-            evidenceId = evidenceId,
+            evidenceId = causalEvidenceId,
             appraisal = served.turn.appraisal,
             innerLife = served.turn.innerLife,
             innerThoughtBasis = served.turn.innerThoughtBasis,
@@ -374,9 +394,10 @@ internal object GroupEnsembleReplyEngine {
             appraisal = served.turn.appraisal,
         )
         com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
-            served.turn.characterId, evidenceId,
-            served.emotionalAnchor, com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(served.turn.innerLife, served.turn.afterglow, served.emotionalAnchor),
-            served.witnessedSpeakers.filterNot { it == served.turn.characterId }.toSet() + "user",
+            served.turn.characterId, causalEvidenceId,
+            causalDescription, com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(served.turn.innerLife, served.turn.afterglow, causalDescription),
+            perceived.combined?.socialIds.orEmpty() +
+                served.witnessedSpeakers.filterNot { it == served.turn.characterId }.toSet() + "user",
         )
         com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
             served.turn.characterId, evidenceId, groundedInnerThought,
