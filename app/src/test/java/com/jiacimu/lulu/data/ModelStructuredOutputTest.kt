@@ -56,10 +56,10 @@ class ModelStructuredOutputTest {
         assertEquals("啊？我会错意了？\n那你说的超时是指什么？", ModelStructuredOutput.completedReplyText(response))
     }
 
-    @Test fun accidentalShortGrammaticalTailIsNotSentAsItsOwnBubble() {
+    @Test fun structuredBubbleBoundariesAreOwnedByTheModel() {
         val response = """{"action":"reply","bubbles":[{"text":"原来一直在用功，是我"},{"text":"猜错了"}]}"""
         assertEquals(
-            listOf("原来一直在用功，是我猜错了"),
+            listOf("原来一直在用功，是我", "猜错了"),
             ModelStructuredOutput.completedReplyBubbles(response),
         )
     }
