@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:35:25.485956+00:00",
-  "commit": "3889977b19ab918ab47ead12f6ca9379bbd5b52d",
+  "generatedAt": "2026-10-10T17:36:08.412051+00:00",
+  "commit": "325ea79a06cb606377784e279bd5bb1d0617a4d1",
   "branch": "main",
-  "sourceFingerprint": "541e637872e78b829c336e8d1bbfc7fd64df4b59ff9cd4b79e3c21e0ad90f6fc",
+  "sourceFingerprint": "83ccd03145805f62d9e61bf7a19092400f2e069c6a9c3d6d77750d1c2c5316da",
   "summary": {
     "files": 465,
-    "lines": 101827,
-    "symbols": 1497
+    "lines": 101837,
+    "symbols": 1498
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -258,22 +258,28 @@
         "line": 65
       }
     ],
+    "shouldRecoverStuckCapture": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt",
+        "line": 9
+      }
+    ],
     "observationMilestone": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt",
-        "line": 6
+        "line": 16
       }
     ],
     "shouldReflect": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt",
-        "line": 13
+        "line": 23
       }
     ],
     "context": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt",
-        "line": 28
+        "line": 38
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
@@ -8540,20 +8546,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt",
-      "lines": 42,
-      "sha256": "f2d844b6eb551bca785b6f303f920cbb4d1aab8ca302427ec3f7330250e6e68e",
+      "lines": 52,
+      "sha256": "9589403dac0c2c1b44a0011fbc1dcaff4b83a2de0f8be1757ccafc3d5d9d63c0",
       "symbols": [
         {
+          "name": "shouldRecoverStuckCapture",
+          "line": 9
+        },
+        {
           "name": "observationMilestone",
-          "line": 6
+          "line": 16
         },
         {
           "name": "shouldReflect",
-          "line": 13
+          "line": 23
         },
         {
           "name": "context",
-          "line": 28
+          "line": 38
         }
       ]
     },
