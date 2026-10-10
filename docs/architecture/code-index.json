@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:42:23.069646+00:00",
-  "commit": "1f56b8a69b14fcab5729db8578a6cc50484be78c",
+  "generatedAt": "2026-10-10T17:42:42.924942+00:00",
+  "commit": "e3b500d334da028dea0a326463d4d646de502b80",
   "branch": "main",
-  "sourceFingerprint": "b2d32c6a4b2750f2ca113c5280e7e025b9118148e3ea744c51ff7b7a228661b9",
+  "sourceFingerprint": "4d91fcd6a513fc13887830d9b72fe2c6a55fd629087e0cb3c368a732a2db7812",
   "summary": {
     "files": 469,
-    "lines": 102152,
+    "lines": 102163,
     "symbols": 1503
   },
   "symbolIndex": {
@@ -295,7 +295,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 989
+        "line": 987
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -1911,7 +1911,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 106
+        "line": 119
       }
     ],
     "move": [
@@ -10710,8 +10710,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-      "lines": 118,
-      "sha256": "7e637513b8887fe0923815a6f6f3fda754bd21b29c7e673049c751472a0e9ba5",
+      "lines": 131,
+      "sha256": "a108ddea49dffd4f0c528759c4998cb83c2bb2515c3300adc7d54616cbeab499",
       "symbols": [
         {
           "name": "eligible",
@@ -10723,7 +10723,7 @@
         },
         {
           "name": "instruction",
-          "line": 106
+          "line": 119
         }
       ]
     },
@@ -10929,8 +10929,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1107,
-      "sha256": "9741979018d0cffb4a04b784ccb66cddbd828a1fc33332e3cbcf430b4c54411f",
+      "lines": 1105,
+      "sha256": "f23bb2a4b6c29b0d599059223b7cdc4a8bec4eff1ad7d7acda853f682ac025a6",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -10962,7 +10962,7 @@
         },
         {
           "name": "context",
-          "line": 989
+          "line": 987
         }
       ]
     },
