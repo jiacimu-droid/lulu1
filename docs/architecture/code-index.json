@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T11:27:39.215613+00:00",
-  "commit": "d8ac083c3e1d2bc266f1c204bae5ca3bbd2794d6",
+  "generatedAt": "2026-10-10T11:28:53.612099+00:00",
+  "commit": "ecb37258008e4d41a4c5fbc4b85c10e97b1ee329",
   "branch": "main",
-  "sourceFingerprint": "e873c82789f28ab3f04458e0576ef696c20cfebdafa43f71f5680786fe91f82e",
+  "sourceFingerprint": "990248513b98edac1ab7282b2d5cdc4444dc00d407ad9603a2985b636bd7840f",
   "summary": {
     "files": 445,
-    "lines": 98754,
+    "lines": 98772,
     "symbols": 1451
   },
   "symbolIndex": {
@@ -16278,8 +16278,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt",
-      "lines": 54,
-      "sha256": "5508298777383868b804bfd937b1f64e0c9bd3b1e3991e91acca00cdcb0b7bf9",
+      "lines": 63,
+      "sha256": "410de327f9d07f37bc9bc66a5e87fb8fd81d877a8f61c0cfcb37fe51e48c6100",
       "symbols": [
         {
           "name": "QqMessageGroupingTest",
@@ -16619,8 +16619,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt",
-      "lines": 72,
-      "sha256": "33290bcea9cce90d21c49ecb2179dba49b2cea74f781d3aab0102c46558a3859",
+      "lines": 81,
+      "sha256": "ee7f6a2d649b492f93403ac844cb7ed4256bc43635b4d31d5190abef771e7e24",
       "symbols": [
         {
           "name": "ModelStructuredOutputTest",
