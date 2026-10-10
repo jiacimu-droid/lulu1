@@ -36,7 +36,7 @@ class CharacterContinuityRuntimeTest {
         assertTrue(text.contains("角色自己上一次真实说过"))
         assertTrue(text.contains("不能下一轮当成用户说的"))
         assertTrue(text.contains("把答应她的事记住"))
-        assertFalse(text.contains("用户故意冷落"))
+        assertTrue(text.contains("不能擅自断言用户故意冷落"))
     }
 
     @Test fun recentContactDoesNotPretendToBeAReunion() {
