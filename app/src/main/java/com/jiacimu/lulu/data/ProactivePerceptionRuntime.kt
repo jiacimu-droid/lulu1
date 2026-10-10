@@ -428,8 +428,15 @@ object ProactivePerceptionRuntime {
         // A hanging call must never turn into a speculative outward action if
         // the first-stage interpretation failed or returned invalid JSON.
         if (awaitingCausalAppraisal != null && stagedAppraisal == null) {
+            // A malformed appraisal or network error must not silently erase
+            // an event-triggered opportunity. One delayed retry, no endless loop.
+            if (!trigger.contains("互动事件二次重试")) {
+                ProactivePerceptionScheduler.scheduleInteractionRetry(
+                    appContext, characterId, awaitingCausalAppraisal.id,
+                )
+            }
             CompanionPresenceStore.recordPerceptionAttempt(
-                characterId, "互动尚未解读，本轮不贸然替角色行动", now,
+                characterId, "互动尚未解读，保留事件并等待一次重试", now,
             )
             return Action.SILENT
         }
