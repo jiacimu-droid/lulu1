@@ -315,11 +315,17 @@ object LuluDeviceToolBridge {
                 com.jiacimu.lulu.data.PerceptionStimulus(it.id, it.content.take(260), setOf("user"))
             }.ifEmpty { listOf(com.jiacimu.lulu.data.PerceptionStimulus(
                 "chat:${now.toEpochMilli()}:${userText.hashCode()}", userText, setOf("user"))) }
-            val observedSources = observedWorld.map(com.jiacimu.lulu.data.CharacterPerceptionContext::stimulus)
-                .filter { com.jiacimu.lulu.data.PerceptionStimulusLedger.claim(appContext, characterId, it) }
-            val combined = com.jiacimu.lulu.data.PerceptionStimulusResolver.combine(
-                userSources + observedSources,
+            val perceptionInput = com.jiacimu.lulu.data.CharacterPerceptionContext.integrate(
+                context = appContext,
+                characterId = characterId,
+                observed = observedWorld,
+                direct = userSources,
+                claimDirect = false,
             )
+            val observedSources = perceptionInput.freshStimuli.filterNot {
+                fresh -> userSources.any { it.evidenceId == fresh.evidenceId }
+            }
+            val combined = perceptionInput.combined
             val interactionEvidenceId = when {
                 callSilence -> silenceObservationId
                 verifiedSources.isNotEmpty() -> verifiedSources.last().id
