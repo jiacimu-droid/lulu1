@@ -60,6 +60,14 @@ object LuluDeviceToolBridge {
         val previousPresence = CompanionPresenceStore.current(characterId)
         val now = Instant.now()
         val zone = ZoneId.systemDefault()
+        // Chat does not suspend the digital world. Its persisted hourly slot prevents
+        // event rerolls from rapid messages or retries.
+        val inWorldMoment = if (!sceneContext.contains("电话") &&
+            com.jiacimu.lulu.data.DigitalLifeProfileStore.isEnabled(characterId)) {
+            com.jiacimu.lulu.data.DigitalWorldLifeEventStore.tick(
+                appContext, characterId, now
+            )
+        } else null
         HealthRolePerception.initialize(appContext)
         HealthRolePerception.recordLatestSleep(characterId)
         val healthContext = HealthRolePerception.context(now)
@@ -103,6 +111,10 @@ object LuluDeviceToolBridge {
                 appendLine("当前时间：${DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(now.atZone(zone))}")
                 appendLine("当前时区：${zone.id}")
                 appendLine("当前真实互动场景：$sceneContext")
+                inWorldMoment?.let { event ->
+                    appendLine("【程序刚记录的本轮数字世界小事】${event.summary}")
+                    appendLine("角色可按自身意愿回应、主动分享或不提；不能伪造后续结果。")
+                }
                 if (healthContext.isNotBlank()) {
                     appendLine("用户健康 App 自动感知（属于用户本人，不属于角色身体）：$healthContext")
                 }
