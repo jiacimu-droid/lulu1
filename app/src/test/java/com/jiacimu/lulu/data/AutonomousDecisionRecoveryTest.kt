@@ -34,6 +34,18 @@ class AutonomousDecisionRecoveryTest {
         assertSame(original, AutonomousDecisionRecovery.choose(original))
     }
 
+    @Test fun preservedCuriosityConnectsRecoveredActionToTheSamePersonalQuestion() {
+        val question = JSONObject().put("topic", "小说").put("question", "故事怎么发展")
+        val original = JSONObject().put("action", "silent").put("reason", "没有用户新消息")
+            .put("curiosity", question)
+            .put("selfInitiatedAlternative", JSONObject().put("action", "reading")
+                .put("readingBookId", "book-7").put("personallyWanted", true)
+                .put("whyNow", "想去看看我还没读完的小说"))
+        val chosen = AutonomousDecisionRecovery.choose(original)
+        assertEquals("reading", chosen.getString("action"))
+        assertEquals("小说", chosen.getJSONObject("curiosity").getString("topic"))
+    }
+
     @Test fun aNormalChosenActionIsNeverReplaced() {
         val original = JSONObject().put("action", "moment").put("text", "今日小事")
         assertSame(original, AutonomousDecisionRecovery.choose(original))

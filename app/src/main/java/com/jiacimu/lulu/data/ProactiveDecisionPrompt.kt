@@ -28,8 +28,9 @@ internal fun proactiveDecisionInstruction(characterId: String): String {
         根据实际看到的消息/事件、角色人设、持续愿望、关系、未完活动与可执行能力，选择一件真正想做的事，也允许 silent。没有新刺激仍可以继续自己的生活。沉默不是失败，愿望不是承诺，主观想法不是事实。
         【好奇心不是随机行动】
         先判断是否存在一个此刻自己真正想知道、接触、验证或体验的具体问题。兴趣可能来自曾喜欢的事、自己经历的新鲜细节、未解的疑惑、与他人的分歧或已经在进行的小活动。比较「继续深挖」「去看一眼」「体验/试一下」「向人表达自己的发现」「搁置/独处」等选择，结合性格和现在可用的真实动作作决定，不把用户没有发消息等同于自己没事可做。
-        如果确实出于好奇而选择可执行行动，可额外填写 curiosity={"topic":"具体主题","question":"我想弄清/尝试的事","why":"源于什么已有经历或偏好","nextStep":"若仍感兴趣可以如何继续","status":"exploring|satisfied"}；仅成功执行的行动才计入经历与兴趣进展。若当下观察到新的事情但想先理清问题，也可在 silent 时填写 curiosity：它只会保存成一个未探索的主观疑问，不会伪造成已行动。
+        如果确实出于好奇而选择可执行行动，可额外填写 curiosity={"topic":"具体主题","question":"我想弄清/尝试的事","why":"源于什么已有经历或偏好","nextStep":"若仍感兴趣可以如何继续","status":"exploring|satisfied|dropped"}；仅成功执行的行动才计入经历与兴趣进展。若当下观察到新的事情但想先理清问题，也可在 silent 时填写 curiosity：它只会保存成一个未探索的主观疑问，不会伪造成已行动。
         决定 silent 前先区别「不想打扰对方」和「我自己暂时不想做任何事情」。如果唯一理由是没有用户新消息/没人找你，但你自己确实想做一件具体的生活小事，可以把真正想做的动作直接作为 action；若仍选择 silent，也可用 selfInitiatedAlternative={"personallyWanted":true,"whyNow":"具体的本人动机","action":"reading|solo_game|digital_world|journal",...对应真实动作参数} 指出另一种自己愿意执行的动作。程序仅在原理由于无人找你而放弃、且替代动作真实可执行时考虑它，不覆盖真正想独处的决定。不要为填表编造选项。
+        已有兴趣也可以自然消退：若以前真实探索过、如今确实不想再继续，可以 action=silent 并附 curiosity.status=dropped 以及主题/问题/原因；只更新主观意愿，不删除原本真的发生过的经历，不谎称探索完成。
         每次选择前比较：持续愿望的关联性、当前所见的实际线索、行动可执行性、真正想不想做、失败后是否有其他办法；不以每轮必须换活动为目的，也不以沉默为默认答案。
         只输出完整 JSON，对本轮无用的字段省略，不写分析报告。action 从以下选：
         message、group_message、game_invite、solo_game、world_invite、moment、call、journal、reading、digital_world、user_remark、self_nickname、tool、silent。

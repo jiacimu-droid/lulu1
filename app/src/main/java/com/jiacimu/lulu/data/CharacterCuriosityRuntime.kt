@@ -123,6 +123,37 @@ internal object CharacterCuriosityRuntime {
         save(characterId, root)
     }
 
+    /** The character may lose interest without inventing a completed exploration. */
+    @Synchronized fun releaseInterest(
+        characterId: String, proposal: JSONObject?, now: Instant = Instant.now(),
+    ) {
+        if (prefs == null || characterId.isBlank() || proposal?.optString("status") != "dropped") return
+        val fields = proposalFields(proposal) ?: return
+        val root = snapshot(characterId)
+        val threads = root.optJSONArray("threads") ?: JSONArray()
+        val index = (0 until threads.length()).firstOrNull {
+            normalized(threads.optJSONObject(it)?.optString("topic").orEmpty()) == normalized(fields[0])
+        }
+        val questions = root.optJSONArray("questions") ?: JSONArray()
+        val hasQuestions = (0 until questions.length()).any {
+            normalized(questions.optJSONObject(it)?.optString("topic").orEmpty()) == normalized(fields[0])
+        }
+        if (index == null && !hasQuestions) return
+        if (index != null) {
+            threads.optJSONObject(index)?.put("status", "dropped")
+                ?.put("releaseReason", fields[2])
+                ?.put("releasedAt", now.toString())
+            root.put("threads", threads)
+        }
+        root.put("questions", JSONArray().apply {
+            for (i in 0 until questions.length()) {
+                val q = questions.optJSONObject(i) ?: continue
+                if (normalized(q.optString("topic")) != normalized(fields[0])) put(q)
+            }
+        })
+        save(characterId, root)
+    }
+
     /** Failure is useful feedback for action selection, never evidence of exploration. */
     @Synchronized fun recordFailure(
         characterId: String, proposal: JSONObject?, action: String,

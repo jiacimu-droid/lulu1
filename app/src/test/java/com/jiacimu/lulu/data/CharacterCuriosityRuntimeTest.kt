@@ -55,6 +55,19 @@ class CharacterCuriosityRuntimeTest {
         CharacterCuriosityRuntime.clear(id)
     }
 
+    @Test fun characterCanDropAnInterestWithoutErasingItsRealPast() {
+        begin()
+        CharacterCuriosityRuntime.recordOutcome(id, proposal(), "reading", true,
+            "实际读过第一章", "past-chapter", at)
+        CharacterCuriosityRuntime.releaseInterest(id,
+            proposal().put("status", "dropped"), at.plusSeconds(180))
+        val thread = CharacterCuriosityRuntime.snapshot(id)
+            .getJSONArray("threads").getJSONObject(0)
+        assertEquals("dropped", thread.getString("status"))
+        assertEquals(1, thread.getJSONArray("steps").length())
+        CharacterCuriosityRuntime.clear(id)
+    }
+
     @Test fun successfulActionPersistsOnceAndDeletionRetractsOnlyItsSource() {
         begin()
         CharacterCuriosityRuntime.recordOutcome(id, proposal(), "reading", true, "真的读了第一章", "s1", at)

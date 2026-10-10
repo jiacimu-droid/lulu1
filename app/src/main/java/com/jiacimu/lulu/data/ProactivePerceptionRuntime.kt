@@ -623,7 +623,9 @@ object ProactivePerceptionRuntime {
             )
         }
         // Exploration counts only after an executor receipt, never from model prose.
-        val priorEvidence = SharedExperienceTimeline.all(characterId).takeLast(24).map { it.id }.toSet()
+        // Snapshot every previously recorded ID, not only the latest 24: otherwise an
+        // older event could be mistaken for a fresh executor receipt on a quiet turn.
+        val priorEvidence = SharedExperienceTimeline.all(characterId).map { it.id }.toHashSet()
         val execution = performAction(appContext, character, decision, availableGroups, now)
         currentCoroutineContext().ensureActive()
         val actionEvidenceId = if (execution.success) {
@@ -643,10 +645,16 @@ object ProactivePerceptionRuntime {
                 execution.summary, now,
             )
         } else if (decision.action == Action.SILENT && decision.curiosity != null) {
-            val observed = newlyObserved.firstOrNull()
-            if (observed != null) CharacterCuriosityRuntime.recordInquiry(
-                characterId, decision.curiosity, observed.evidenceId, observed.description, now,
-            )
+            if (decision.curiosity.optString("status") == "dropped") {
+                CharacterCuriosityRuntime.releaseInterest(
+                    characterId, decision.curiosity, now,
+                )
+            } else {
+                val observed = newlyObserved.firstOrNull()
+                if (observed != null) CharacterCuriosityRuntime.recordInquiry(
+                    characterId, decision.curiosity, observed.evidenceId, observed.description, now,
+                )
+            }
         }
         if (decision.action != Action.SILENT) {
             // Report the decision's concrete action outcome to only the explicitly selected motive.
