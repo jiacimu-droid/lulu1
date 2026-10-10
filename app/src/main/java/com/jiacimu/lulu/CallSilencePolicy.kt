@@ -2,6 +2,16 @@ package com.jiacimu.lulu
 
 /** A quiet call still has a living participant; a pulse is not a demand to speak. */
 internal object CallSilencePolicy {
+    /** Finalize a provider capture that never returned a VAD end event.
+     * Do not assume it was deliberate silence; flush the PCM for transcription.
+     * 90 seconds preserves ordinary long-form speaking without hard truncation.
+     */
+    fun shouldRecoverStuckCapture(
+        providerActive: Boolean,
+        userSpeechInProgress: Boolean,
+        sinceSpeechStartedMillis: Long,
+    ): Boolean = providerActive && userSpeechInProgress && sinceSpeechStartedMillis >= 90_000L
+
     /** Distinct observations only when the silence meaningfully extends. */
     fun observationMilestone(silenceMillis: Long): String = when {
         silenceMillis < 5 * 60_000L -> "one-minute"
