@@ -64,7 +64,11 @@ object CharacterRuntime {
         return if (constraints.isBlank()) persona else "$persona\n用户行为设定：\n$constraints"
     }
 
-    fun developmentContext(characterId: String, compact: Boolean = false): String {
+    fun personalityRuntimeContext(
+        characterId: String,
+        compact: Boolean = false,
+        interactionKey: String? = null,
+    ): String {
         val learned = CharacterDevelopmentStore.active(characterId)
         val narrative = learned.filter { it.kind == DevelopmentKind.NarrativeMeaning }
         val adaptive = learned.filterNot { it.kind == DevelopmentKind.NarrativeMeaning }
@@ -75,6 +79,10 @@ object CharacterRuntime {
                 CharacterLifeStore.context(characterId, includeProfile = false))
             appendLine(if (compact) CharacterInnerLifeStore.compactContext(characterId) else
                 CharacterInnerLifeStore.context(characterId))
+            interactionKey?.takeIf(String::isNotBlank)?.let { key ->
+                CharacterInnerLifeStore.interactionContext(characterId, key)
+                    .takeIf(String::isNotBlank)?.let(::appendLine)
+            }
             appendLine(CharacterAccountabilityContext.prompt(characterId))
             if (narrative.isNotEmpty()) {
                 appendLine("【叙事身份｜多次真实经历形成的主观意义，不是新增事实】")
@@ -92,4 +100,9 @@ object CharacterRuntime {
             }
         }.trim()
     }
+
+    /** Backward-compatible entry for callers that do not have a live conversation key. */
+    fun developmentContext(characterId: String, compact: Boolean = false): String =
+        personalityRuntimeContext(characterId, compact = compact)
+
 }
