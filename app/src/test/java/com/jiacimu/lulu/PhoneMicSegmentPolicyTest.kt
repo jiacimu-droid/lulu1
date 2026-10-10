@@ -15,6 +15,8 @@ class PhoneMicSegmentPolicyTest {
     @Test fun elevatedRoomNoiseCanStillEndAnUtterance() {
         assertTrue(PhoneMicSegmentPolicy.startThreshold(350f, 300.0) > 350)
         assertTrue(PhoneMicSegmentPolicy.quietThreshold(350f, 440.0, 1800.0) > 440)
+        assertTrue(PhoneMicSegmentPolicy.stableBackgroundNoise(65.0, 700.0))
+        assertFalse(PhoneMicSegmentPolicy.stableBackgroundNoise(250.0, 700.0))
         assertFalse(PhoneMicSegmentPolicy.stationaryNoiseEnded(22, 90))
         assertFalse(PhoneMicSegmentPolicy.stationaryNoiseEnded(23, 18))
         assertTrue(PhoneMicSegmentPolicy.stationaryNoiseEnded(23, 90))
