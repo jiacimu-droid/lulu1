@@ -41,7 +41,7 @@ internal fun VoiceCallSettings(provider: String) {
         }
         HorizontalDivider()
         Text("你的声音如何转成文字", style = MaterialTheme.typography.titleSmall)
-        Text("单独选择识别渠道，不影响角色的 Voice ID 或语音供应商；自动模式优先沿用已配置的 MiniMax。",
+        Text("单独选择识别渠道，不影响角色的 Voice ID 或语音供应商；自动模式优先使用手机系统识别，不可用时才尝试云端识别。",
             style = MaterialTheme.typography.bodySmall)
         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(6.dp)) {
