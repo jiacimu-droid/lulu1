@@ -86,6 +86,12 @@ class CharacterExpressionGuideTest {
         ))
     }
 
+    @Test fun narrativeMeaningNeedsMoreThanOneEvent() {
+        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.NarrativeMeaning, 1, false, 0))
+        assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.NarrativeMeaning, 2, false, 0))
+        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.NarrativeMeaning, 2, false, 1))
+    }
+
     @Test fun modelWrittenChatDoesNotBecomeAnUnreviewedStyleExample() {
         val context = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.initialize(context)
