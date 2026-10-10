@@ -1,35 +1,36 @@
 package com.jiacimu.lulu
 
-/**
- * Visual-only punctuation-aware line breaking. The voice keeps its single
- * expressive TTS request; transcript storage keeps the original exact text.
+/** Subtitles split at natural pauses, never at arbitrary character boundaries.
+ * TTS and transcript persistence continue to use the original input.
  */
 internal object PhoneSubtitleLayout {
+    @Suppress("UNUSED_PARAMETER")
     fun lines(raw: String, maxCharacters: Int = 31): List<String> {
         if (raw.isBlank()) return emptyList()
         val result = mutableListOf<String>()
-        val line = StringBuilder()
+        val current = StringBuilder()
         fun flush() {
-            val text = line.toString().trim()
-            if (text.isNotEmpty()) result.add(text)
-            line.clear()
+            current.toString().trim().takeIf(String::isNotBlank)?.let(result::add)
+            current.clear()
         }
-        raw.forEach { c ->
-            if (c == '\n') { flush(); return@forEach }
-            line.append(c)
-            val terminal = c in "。！？!?；;"
-            val pause = c in "，,、"
-            when {
-                terminal && line.length >= 3 -> flush()
-                pause && line.length >= 18 -> flush()
-                line.length >= maxCharacters.coerceIn(16, 60) -> flush()
+        raw.forEachIndexed { index, c ->
+            if (c == '\n') {
+                flush()
+                return@forEachIndexed
+            }
+            current.append(c)
+            val punctuation = c in "。！？!?；;，,"
+            val closingQuote = c in "”’\"'）)】]"
+            if (punctuation && raw.getOrNull(index + 1) !in listOf('”', '’', '"', '\'', '）', ')', '】', ']')) {
+                flush()
+            } else if (closingQuote && index > 0 && raw[index - 1] in "。！？!?；;，,") {
+                flush()
             }
         }
         flush()
         return result
     }
 
-    /** Each visual speech beat is its own named subtitle; TTS remains whole-turn. */
     fun captionRows(raw: String, speaker: String): List<String> =
         lines(raw).map { "$speaker：$it" }
 

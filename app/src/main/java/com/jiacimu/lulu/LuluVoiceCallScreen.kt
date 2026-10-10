@@ -120,7 +120,7 @@ fun LuluVoiceCallScreen(
                     .fillMaxSize()
                     .statusBarsPadding()
                     .navigationBarsPadding()
-                    .padding(horizontal = 20.dp, vertical = 10.dp),
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 CallTopBar(onMinimize = onDismiss)
@@ -217,7 +217,7 @@ fun LuluVoiceCallScreen(
                     ) {
                         Column(Modifier.fillMaxSize()) {
                             Row(
-                                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 13.dp),
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Icon(Icons.Outlined.Subtitles, null, tint = CallBlue, modifier = Modifier.size(18.dp))
@@ -245,7 +245,7 @@ fun LuluVoiceCallScreen(
                                 LazyColumn(
                                     state = listState,
                                     modifier = Modifier.fillMaxSize(),
-                                    contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp),
+                                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
                                     verticalArrangement = Arrangement.spacedBy(10.dp),
                                 ) {
                                     items(visibleCallMessages, key = { it.id }) { message ->
@@ -347,7 +347,9 @@ fun LuluVoiceCallScreen(
                     }
                     CallPhase.Idle -> Spacer(Modifier.height(24.dp))
                 }
-                Spacer(Modifier.height(16.dp))
+                // Lift the three call controls clear of the navigation bar by giving
+                // them extra breathing room below (the caption panel yields this space).
+                Spacer(Modifier.height(if (state.phase == CallPhase.Connected) 42.dp else 16.dp))
             }
         }
     }
@@ -430,7 +432,7 @@ private fun CallControl(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         FilledTonalIconButton(
             onClick = onClick,
-            modifier = Modifier.size(58.dp),
+            modifier = Modifier.size(68.dp),
             colors = IconButtonDefaults.filledTonalIconButtonColors(
                 containerColor = when {
                     danger -> CallDanger
@@ -439,9 +441,9 @@ private fun CallControl(
                 },
                 contentColor = if (danger) Color.White else CallInk,
             ),
-        ) { Icon(icon, label, modifier = Modifier.size(24.dp)) }
+        ) { Icon(icon, label, modifier = Modifier.size(28.dp)) }
         Spacer(Modifier.height(6.dp))
-        Text(label, color = CallMuted, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+        Text(label, color = CallMuted, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
