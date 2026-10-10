@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T12:17:59.123950+00:00",
-  "commit": "a8717ce3f4e78b308ea998554753c78fce4ba98d",
+  "generatedAt": "2026-10-10T12:19:17.315542+00:00",
+  "commit": "42c996237fb1baed05f801a9a8f5aed4c7d808d4",
   "branch": "main",
-  "sourceFingerprint": "6a7cec815a0cf06afe8a2e72eda4e495737965a8bb80d372d1bf5ed846c0dfe7",
+  "sourceFingerprint": "289948ad6de38434c6aa9b99612a523d9f93dbd30e5351c1c129eb1a73a1202b",
   "summary": {
     "files": 446,
-    "lines": 99117,
+    "lines": 99138,
     "symbols": 1456
   },
   "symbolIndex": {
@@ -425,7 +425,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 39
+        "line": 40
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
@@ -2599,31 +2599,31 @@
     "DevelopmentKind": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 8
+        "line": 9
       }
     ],
     "DevelopmentRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 14
+        "line": 15
       }
     ],
     "CharacterDevelopmentStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 32
+        "line": 33
       }
     ],
     "history": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 60
+        "line": 61
       }
     ],
     "active": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 69
+        "line": 70
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -2637,37 +2637,37 @@
     "applyProposal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 79
+        "line": 80
       }
     ],
     "retire": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 145
+        "line": 166
       }
     ],
     "retireSlotWithCounterEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 154
+        "line": 175
       }
     ],
     "invalidateEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 185
+        "line": 206
       }
     ],
     "invalidateEvidenceForAll": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 190
+        "line": 211
       }
     ],
     "clearCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 195
+        "line": 216
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
@@ -10387,7 +10387,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
       "lines": 100,
-      "sha256": "0a23c6f9ff2990efe5dca1977a2a1dd36acfd329e48c2d6cc96334e51279f029",
+      "sha256": "0d36944b369b1370d1e8d449dc328cd9c488dada7ecc9c0b7dee7efd4088e02a",
       "symbols": [
         {
           "name": "CharacterDevelopmentRuntime",
@@ -10409,56 +10409,56 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-      "lines": 213,
-      "sha256": "f7a67b0eb98373b9ff01956969538aa5739084c153f54fa9a720a9562e28f80f",
+      "lines": 234,
+      "sha256": "d1da4d232d6a16ace8f0faea95db61cc69c92e7c91646030a416e7d9521d8017",
       "symbols": [
         {
           "name": "DevelopmentKind",
-          "line": 8
+          "line": 9
         },
         {
           "name": "DevelopmentRecord",
-          "line": 14
+          "line": 15
         },
         {
           "name": "CharacterDevelopmentStore",
-          "line": 32
+          "line": 33
         },
         {
           "name": "initialize",
-          "line": 39
+          "line": 40
         },
         {
           "name": "history",
-          "line": 60
+          "line": 61
         },
         {
           "name": "active",
-          "line": 69
+          "line": 70
         },
         {
           "name": "applyProposal",
-          "line": 79
+          "line": 80
         },
         {
           "name": "retire",
-          "line": 145
+          "line": 166
         },
         {
           "name": "retireSlotWithCounterEvidence",
-          "line": 154
+          "line": 175
         },
         {
           "name": "invalidateEvidence",
-          "line": 185
+          "line": 206
         },
         {
           "name": "invalidateEvidenceForAll",
-          "line": 190
+          "line": 211
         },
         {
           "name": "clearCharacter",
-          "line": 195
+          "line": 216
         }
       ]
     },
