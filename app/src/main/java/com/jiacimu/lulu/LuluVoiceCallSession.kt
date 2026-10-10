@@ -1108,6 +1108,15 @@ internal object LuluVoiceCallSession {
                         statusMessage = "检测到语音，正在收音…") }
                 }
             },
+            onCaptureFinished = {
+                if (sameSession()) {
+                    // VAD's final PCM chunk is a finished user turn even if cloud
+                    // recognition fails to return usable words afterward.
+                    userSpeechInProgress = false
+                    providerSpeechStartedMillis = 0L
+                    mutableState.update { it.copy(userSpeaking = false) }
+                }
+            },
             onPartial = { text -> if (sameSession()) mutableState.update { it.copy(partialTranscript = text) } },
             onText = { text ->
                 if (sameSession()) {
