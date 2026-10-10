@@ -42,7 +42,7 @@ internal object CharacterDeliberationContext {
             .takeLast(4)
         if (recent.isEmpty()) return ""
         return buildString {
-            appendLine("【此前自己尚未消化完的考虑｜属于主观判断，不是对方真实意图】")
+            appendLine("【近期曾经的主观考虑｜只是心理历史，不代表现在还在纠结】")
             recent.forEach { entry ->
                 val appraisal = entry.optJSONObject("appraisal")
                 val possibilities = appraisal?.optJSONArray("possibleReadings")
