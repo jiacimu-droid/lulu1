@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T14:39:36.942887+00:00",
-  "commit": "c559c4590b8aa68a9bac0176b7d6b91abcf94f75",
+  "generatedAt": "2026-10-10T14:41:46.190476+00:00",
+  "commit": "4de938184d2eecf7411c415a95bcf24ef1b3852a",
   "branch": "main",
-  "sourceFingerprint": "10127544fd7d766c8e4dc5a23203f14f1e1c33aa593c7545f0b116bf3a963944",
+  "sourceFingerprint": "a62168d4f020ac08d29f42db4b3f8550a7548f520518b7933eb6c19abf4c1aaf",
   "summary": {
     "files": 455,
     "lines": 100383,
@@ -16617,7 +16617,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityRuntimeTest.kt",
       "lines": 57,
-      "sha256": "3237d73710d2ceede73a525e24ab20a0b6a58701578351eb13208f83d7269f7f",
+      "sha256": "55f24ccfc51721e8138a3abf1a05e93d558aa7fb8df7a4a7aba506eaff0da9f7",
       "symbols": [
         {
           "name": "CharacterContinuityRuntimeTest",
