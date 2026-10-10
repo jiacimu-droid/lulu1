@@ -86,6 +86,26 @@ class CharacterExpressionGuideTest {
         ))
     }
 
+    @Test fun surfacedHeartVoiceStaysCompactAndDoesNotEchoOutwardSpeech() {
+        val changed = JSONObject().put("emotion", JSONObject()
+            .put("feeling", "委屈")
+            .put("cause", "刚刚被误解"))
+        assertEquals("", CharacterHeartVoicePolicy.keepOrBlank(
+            thought = "我有点委屈，但还是想先把这件事说明白",
+            outward = "我有点委屈，但还是想先把这件事说明白。",
+            innerLife = changed,
+            hasFreshEvidence = true,
+        ))
+        val longThought = "其实我还在犹豫。" + "这件事让我有点放不下，".repeat(20)
+        val kept = CharacterHeartVoicePolicy.keepOrBlank(
+            thought = longThought,
+            outward = "嗯。",
+            innerLife = changed,
+            hasFreshEvidence = true,
+        )
+        assertTrue(kept.length <= 141)
+    }
+
     @Test fun freshMessageAloneDoesNotAuthorizeAHeartVoice() {
         assertEquals("", CharacterHeartVoicePolicy.keepOrBlank(
             thought = "她刚才那句话其实让我有点介意",
