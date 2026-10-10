@@ -45,6 +45,27 @@ class CharacterOpenConcernRuntimeTest {
         assertEquals("", CharacterOpenConcernRuntime.context(settled, now.plusSeconds(240)))
     }
 
+    @Test fun failedAttemptIsRememberedWithoutPretendingThatTheConcernWasSettled() {
+        val opened = CharacterOpenConcernRuntime.update(null, first, "call-silence-1", now)
+        val threadId = opened.getJSONObject(0).getString("id")
+        val attempted = CharacterOpenConcernRuntime.recordOutcome(
+            opened, threadId, "real-tool-1", "send_private_sticker", false,
+            "图像未入库，不能发送", now.plusSeconds(80),
+        )
+        assertEquals(1, attempted.length())
+        assertFalse(attempted.getJSONObject(0).getJSONObject("lastOutcome").getBoolean("success"))
+        assertTrue(CharacterOpenConcernRuntime.context(attempted, now.plusSeconds(90)).contains("执行失败"))
+        val again = CharacterOpenConcernRuntime.recordOutcome(
+            attempted, threadId, "real-tool-1", "send_private_sticker", true,
+            "编造执行成功", now.plusSeconds(90),
+        )
+        assertFalse(again.getJSONObject(0).getJSONObject("lastOutcome").getBoolean("success"))
+        val revised = CharacterOpenConcernRuntime.update(attempted, JSONObject().put("pendingConcern",
+            JSONObject().put("status", "revise").put("threadId", threadId)
+                .put("hesitation", "先检查图片能不能加载")), "real-new-evidence", now.plusSeconds(95))
+        assertFalse(revised.getJSONObject(0).getJSONObject("lastOutcome").getBoolean("success"))
+    }
+
     @Test fun casualEmotionCannotManufactureAContinuingConcern() {
         val incomplete = JSONObject().put("pendingConcern", JSONObject()
             .put("status", "open").put("focus", "有点高兴"))
