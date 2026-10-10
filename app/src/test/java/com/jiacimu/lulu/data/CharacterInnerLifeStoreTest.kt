@@ -144,6 +144,29 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear(id)
     }
 
+    @Test fun groundingCandidateCanBeRejectedAndRestoredWithEvidenceLifecycle() {
+        start()
+        val id = "inside-test-grounding-events"
+        CharacterInnerLifeStore.clear(id)
+        CharacterInnerLifeStore.recordGroundingCandidate(
+            id, "direct:user", "msg-candidate", "超时=她想罚我", 0.74,
+        )
+        var context = CharacterInnerLifeStore.groundingContext(id, "direct:user")
+        assertTrue(context.contains("候选理解"))
+        assertTrue(context.contains("她想罚我"))
+        CharacterInnerLifeStore.rejectGroundingCandidates(
+            id, "direct:user", "msg-repair", "用户明确说我没理解对",
+        )
+        context = CharacterInnerLifeStore.groundingContext(id, "direct:user")
+        assertTrue(context.contains("已被用户否定"))
+        assertFalse(context.contains("候选理解（尚未确认"))
+        CharacterInnerLifeStore.invalidateEvidence("msg-repair")
+        context = CharacterInnerLifeStore.groundingContext(id, "direct:user")
+        assertTrue(context.contains("候选理解"))
+        assertFalse(context.contains("已被用户否定"))
+        CharacterInnerLifeStore.clear(id)
+    }
+
     @Test fun relationshipUsesMultiTurnTrendsInsteadOfSingleGoodwillScore() {
         start()
         val id = "inside-test-relation-trend"
