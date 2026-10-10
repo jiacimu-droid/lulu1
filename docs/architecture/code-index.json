@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T18:50:40.048592+00:00",
-  "commit": "582c2596162498dd5dc81f643a99ff6485753028",
+  "generatedAt": "2026-10-10T18:50:55.817714+00:00",
+  "commit": "183f86ef8dd3735ac7f3f6c6fbd1aa04c644c385",
   "branch": "main",
-  "sourceFingerprint": "1aca3899232e5314cda7cb1d1b292ba112fe6d570e0a0d94273ad240f6e3fb21",
+  "sourceFingerprint": "593932bf2aada49ba405120931babf42afa0b4f78175ba47be3298c9e62c6ff1",
   "summary": {
-    "files": 481,
-    "lines": 103559,
-    "symbols": 1525
+    "files": 482,
+    "lines": 103620,
+    "symbols": 1526
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8276,6 +8276,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
         "line": 269
+      }
+    ],
+    "CharacterOpenConcernRuntimeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt",
+        "line": 14
       }
     ],
     "CharacterOriginResetTest": [
@@ -17395,6 +17401,17 @@
         {
           "name": "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits",
           "line": 269
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt",
+      "lines": 61,
+      "sha256": "d6b4f8fed2739b90d82d54d76e2d806d9a75aeb6d2ca960ec84620d49a6d8d9b",
+      "symbols": [
+        {
+          "name": "CharacterOpenConcernRuntimeTest",
+          "line": 14
         }
       ]
     },
