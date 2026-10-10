@@ -32,13 +32,19 @@ internal fun stripCharacterReplyDirective(text: String): String = stripQqForward
         .replace(PokeUserDirectiveRegex, ""),
 ).trim()
 
+internal fun semanticReplyBubbles(text: String): List<String> =
+    text.replace("\r\n", "\n").split(SemanticBubbleSeparator)
+        .map { it.trim().trim('"') }.filter(String::isNotBlank)
+
 internal fun normalizeSemanticBubbles(text: String): String {
     val raw = text.replace("\r\n", "\n").trim()
     if (raw.isBlank()) return ""
     val directives = listOf(QuoteDirectiveRegex, FavoriteDirectiveRegex, RecallDirectiveRegex, PokeUserDirectiveRegex)
         .joinToString("") { it.find(raw)?.value.orEmpty() }
-    val body = stripCharacterReplyDirective(raw).split(SemanticBubbleSeparator)
-        .map { it.trim().trim('"') }.filter(String::isNotBlank).joinToString("\n")
+    // Preserve the explicit boundary marker until the sender creates each
+    // persisted bubble. A newline is layout within a bubble, NOT a send event.
+    val body = semanticReplyBubbles(stripCharacterReplyDirective(raw))
+        .joinToString(SemanticBubbleSeparator)
     return if (body.isBlank()) "" else directives + body
 }
 
@@ -76,8 +82,7 @@ internal suspend fun appendRoleReplyWithPacing(
     presentation: CharacterReplyPresentation,
     actionableUserMessageIds: Set<String>? = null,
 ): String {
-    val bubbles = presentation.content.replace("\r\n", "\n").split(Regex("\n+"))
-        .map(String::trim).filter(String::isNotBlank)
+    val bubbles = semanticReplyBubbles(presentation.content)
     if (bubbles.isEmpty()) return ""
     val before = MigratedDomainStores.chat.messages(conversationId).value
     val allowed = actionableUserMessageIds ?: currentReplyTargetUserMessages(before).mapTo(mutableSetOf(), LuluChatMessage::id)
