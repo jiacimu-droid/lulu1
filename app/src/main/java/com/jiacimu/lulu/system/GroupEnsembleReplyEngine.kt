@@ -156,7 +156,7 @@ internal object GroupEnsembleReplyEngine {
                     appendLine("【用户自己设定的资料上下文｜所有成员只能按这里真实存在的内容理解用户】")
                     appendLine(userProfileContext)
                 }
-                appendLine("本轮界面当前先显示 characterId=$currentSpeakerId（${memberLabels[currentSpeakerId]}）正在输入，因此 turns 第一项必须是这个角色；这个首发角色本身已经由外层按当前群聊状态动态选出，并不是固定 A。")
+                appendLine("本轮界面最初显示 characterId=$currentSpeakerId（${memberLabels[currentSpeakerId]}）正在考虑是否接话。她可以保持沉默；如果她不说而另一位想说，turns 从真正想说的那位开始，程序会移交发言权。")
                 appendLine("群里共有 $memberCount 个角色，但不是点名报数；除了当前首发者，其他人只在按自身性格真正想说时才发言，也允许一直旁听。")
                 appendLine("本轮最多允许 $replyLimit 个角色回合，可以只说一两轮，也可以自然延展。一个人可以再插话，而别人此刻完全不必发言。")
                 appendLine("真实群成员集合：${validMembers.joinToString(",") { it.characterId }}。它只决定谁有资格说话，不要求每个人一定说。")
@@ -208,7 +208,7 @@ internal object GroupEnsembleReplyEngine {
                 {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"简短意图","bubbles":["群里真正说出的气泡"],"tool":"可选的露露机内动作名或空字符串","args":{},"quoteMessageId":"真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","recallBubbleNumber":0,"pokeUser":false,"statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"这个角色自己的心声，不强制简短，可为空","mood":"简短心情"}]}
 
                 规则：
-                1. 当返回有发言的 turns 时，第一项必须是指定的当前发言者，因为界面已经显示这个人在输入；如果她和其他人都不想说话，文字群聊使用明确的 silent 决策，不得补一句虚假的开场白。
+                1. turns 第一项是这一刻实际愿意发言的成员，可以不是界面最初等待的成员；程序负责转交发言权。所有人都不愿意发言时，文字群聊使用明确的 silent 决策，不得编造开场白。
                 2. 除首发者外，群成员可按人设和现实关系选择发言或旁听；沉默不是掉线或冷漠。同一个角色有真实动机时可以再次出现。
                 3. 发言顺序不绑定成员列表，不默认 A→B→C。可以 A 一人发几句、A→C→A，或 A→B→C→B；是否插话只由当前话题与人物动机决定。
                 4. 一个人可以在其他人还没发言时补发一句；不必等待其他人表态，也不必替缺席发言者补台词。
@@ -278,6 +278,15 @@ internal object GroupEnsembleReplyEngine {
                     .takeLast(24).mapNotNull { it.authorCharacterId }.toSet(),
                 latestUserMessage.id)
             while (cachedPlans.size > 24) cachedPlans.remove(cachedPlans.keys.first())
+        }
+        // The UI picked a potential first speaker, not someone obliged to speak.
+        // If she abstained, hand over to the first person who actually chose to talk
+        // without attributing another character's message to her.
+        if (completed.isNotEmpty() && completed.none { it.characterId == currentSpeakerId }) {
+            val nextLabel = memberLabels[completed.first().characterId].orEmpty()
+            if (nextLabel.isNotBlank()) return Result.success(
+                baseReply.copy(text = "⟪NEXT:$nextLabel⟫", disposition = "silent")
+            )
         }
         return Result.success(
             takeCachedTurn(context, planKey, currentSpeakerId, baseReply)
@@ -433,11 +442,8 @@ internal object GroupEnsembleReplyEngine {
         replyLimit: Int,
     ): List<PlannedTurn> {
         val result = parsed.take(replyLimit).toMutableList()
-        if (result.none { it.characterId == currentSpeakerId }) {
-            // The UI has already marked this person as typing: never silently swap the opener.
-            if (result.size >= replyLimit) result.removeAt(result.lastIndex)
-            result.add(0, fallbackTurn(currentSpeakerId))
-        }
+        // Never force the suggested first speaker to say something she never chose.
+        // The caller will hand off the turn to the first willing speaker.
         val firstIndex = result.indexOfFirst { it.characterId == currentSpeakerId }
         if (firstIndex > 0) result.add(0, result.removeAt(firstIndex))
         return result.take(replyLimit)
