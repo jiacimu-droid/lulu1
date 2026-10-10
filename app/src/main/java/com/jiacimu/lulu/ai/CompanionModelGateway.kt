@@ -536,8 +536,11 @@ class CompanionModelGateway(
                 }
                 appendLine("本次任务：$instruction")
             }.trim()
-            val identitySection = definition.identity.takeIf { fullContext || effectiveMode == CompanionContextMode.CharacterAndScenario }?.takeIf(String::isNotBlank)?.let { "角色身份：\n$it" }.orEmpty()
-            val personaSection = definition.persona.takeIf { fullContext || personaContext }?.takeIf(String::isNotBlank)?.let { "角色设定：\n$it" }.orEmpty()
+            val identitySection = definition.identity.takeIf { fullContext || effectiveMode == CompanionContextMode.CharacterAndScenario }?.takeIf(String::isNotBlank)?.let { "身份与背景事实（客观层）：\n$it" }.orEmpty()
+            val personaSection = definition.persona.takeIf { fullContext || personaContext }?.takeIf(String::isNotBlank)?.let {
+                "人物核心简介与分层稳定人格（行为先验层）：\n$it\n" +
+                    "解释优先级：明确身份/背景事实约束客观事实；分层人格字段约束长期行为倾向；核心简介只作概览。当前情绪、当轮互动和成长记录只能调节表现，不能反向改写前两层。"
+            }.orEmpty()
             val globalWorldBookSection = if (globalWorldBooks.isEmpty()) "" else buildString {
                 appendLine("全局世界书：")
                 globalWorldBooks.forEach { entry -> appendLine("- ${entry.title}：${entry.content}") }
