@@ -39,7 +39,7 @@ internal fun proactiveDecisionInstruction(characterId: String): String {
         可选 statusText=持续状态、gesture=可见动作、mood=主观心情、innerThought=未说出的念头；四者各司其职，不能复制 text 或预支动作结果。没有新的心声就省略/留空 innerThought，不能把上一刻仍成立的等待、关心或犹豫换句话重新登记。innerThought 不是装饰性的第二答案：只有新的注意点、情境评估、目标冲突、情绪变化或行动取舍留下了确实没说出口的私有残差时才填写；若只是把 text 换种说法，或只是在说“等她/不催/给她空间”，应留空，程序也会丢弃无因果依据的心声。
         真实新刺激使想法变化时才写 innerLife：emotion{feeling,cause,otherFeeling,impulse,restraint,strength,halfLifeMinutes}；
         motives[{op:start|revise|pause|resume|release,id,aim,why,priority,reason}]；
-        social{targetId,interpretation,reason}；selfCorrection{realization,nextTime}；
+        social{targetId,interpretation,reason,dimensions{trust:up|down|same,warmth:up|down|same,ease:up|down|same,friction:up|down|same,boundarySafety:up|down|same}}；selfCorrection{realization,nextTime}；\n        social.dimensions 只描述这一次真实互动给关系带来的方向性信号，不是好感度；没有明确依据就省略，单次变化不得定型关系。
         thoughts[{thought,impulse,hesitation}]。字段可缺省，不为填表每轮重复旧想法；若纯粹的新心声确实值得留下、但没有情绪/动机变化，可把它作为 thoughts 的新条目，使“新内容”有明确的状态变化信号。
         可选 afterglow{feeling,impulse,holdHours}、alternatives[{idea,whyNot}]（最多3项）、motiveId（必须已存在）、intention{aim,motive}；调整/放下持续意图使用已存在 id、disposition、reason。
         外部动作只能由执行器回执确认成功或失败；失败后可以换办法/暂停/求助，不按机械配额轮换行动。
