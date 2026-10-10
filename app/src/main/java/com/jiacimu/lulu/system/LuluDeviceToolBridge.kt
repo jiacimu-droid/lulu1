@@ -123,6 +123,16 @@ object LuluDeviceToolBridge {
         val separateExpression = CharacterDecisionProtocol.usesSeparateExpression(sceneContext)
         val programDialogueConstraint = if (separateExpression)
             com.jiacimu.lulu.data.DialogueMoveEngine.plannerConstraint(userText) else ""
+        val phoneConversationConstraint = if (!separateExpression && userText.isNotBlank()) buildString {
+            appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history))
+            if (com.jiacimu.lulu.data.DialogueMoveEngine.userInitiatesRepair(userText)) {
+                appendLine("【电话中的理解修复】对方正在指出你刚才没听懂。先局部修正理解，不要把这一拍变成长篇道歉、多个猜测、撒娇或连续追问；没有高把握时只做最小澄清。")
+            }
+            val naturalnessCue = com.jiacimu.lulu.data.CharacterInitiativeRuntime.detect(userText)
+            if (naturalnessCue != null) {
+                appendLine("对方已经显露出可能值得回应的需要，不要用“那我该做什么/你想让我做什么”把自己的判断责任原样退回去；按本人性格先作一个自然的小判断或回应。")
+            }
+        }.trim() else ""
         val decisionFormatRule = if (callSilence) """
             这是电话中没有新增用户发言的自主观察，可选择 silent 或 reply；不允许工具动作。
             安静陪伴返回 {"action":"silent","reason":"此刻选择安静的个人原因","statusText":"持续处境","gesture":"自己的动作","innerThought":"未说出口的念头","mood":"当前感受"}。
@@ -172,6 +182,7 @@ object LuluDeviceToolBridge {
                 ${CharacterDecisionProtocol.principles}
                 $decisionFormatRule
                 $programDialogueConstraint
+                $phoneConversationConstraint
 
                 【主观生活与取舍】
                 以已有性格、真实经历、关系和未完成愿望判断本轮刺激；可以快乐、好奇、不满、矛盾、犹豫、提出反问，也可以保持安静。不要统一成温柔安慰或每轮自我剖析。
