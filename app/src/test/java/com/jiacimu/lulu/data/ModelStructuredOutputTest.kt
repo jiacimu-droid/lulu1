@@ -47,6 +47,15 @@ class ModelStructuredOutputTest {
         assertEquals("今天好冷\n记得穿外套", ModelStructuredOutput.completedReplyText(response))
     }
 
+    @Test fun structuredObjectBubblesPreserveInteractionBoundaries() {
+        val response = """{"action":"reply","bubbles":[{"text":"啊？我会错意了？"},{"text":"那你说的超时是指什么？"}]}"""
+        assertEquals(
+            listOf("啊？我会错意了？", "那你说的超时是指什么？"),
+            ModelStructuredOutput.completedReplyBubbles(response),
+        )
+        assertEquals("啊？我会错意了？\n那你说的超时是指什么？", ModelStructuredOutput.completedReplyText(response))
+    }
+
     @Test fun incompleteTextIsNotRecovered() {
         val response = """{"action":"reply","text":"第一句话还没"""
         assertNull(ModelStructuredOutput.completedReplyText(response))
