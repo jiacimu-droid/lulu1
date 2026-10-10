@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T18:13:35.499321+00:00",
-  "commit": "1937819c3d996a2ec7a0f9d9e59ef29ea692aa40",
+  "generatedAt": "2026-10-10T18:13:51.764496+00:00",
+  "commit": "6852cc8fbe4804681a612606ca7d5a289f8859bd",
   "branch": "main",
-  "sourceFingerprint": "f6474a8376d82689dfad349beded330e4ffbb208ece5cd31fa013a1cc855ecd9",
+  "sourceFingerprint": "73ff2dfc35ea98365520f3cb30d395da951a63a3f5ce144195e7cef11e1a665b",
   "summary": {
     "files": 474,
-    "lines": 102970,
+    "lines": 102987,
     "symbols": 1519
   },
   "symbolIndex": {
@@ -1807,13 +1807,13 @@
     "payload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-        "line": 91
+        "line": 93
       }
     ],
     "clearAttachment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-        "line": 97
+        "line": 99
       }
     ],
     "QqStyleChatDetailScreen": [
@@ -10019,16 +10019,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-      "lines": 232,
-      "sha256": "6ae96678f913ef86fd07423393011a836db756364eb9e5176c0dfb9133f35720",
+      "lines": 249,
+      "sha256": "a4111567d9144cdf8a543cfa5ac9803543bbf22a412b652f0e6ed236d6865265",
       "symbols": [
         {
           "name": "payload",
-          "line": 91
+          "line": 93
         },
         {
           "name": "clearAttachment",
-          "line": 97
+          "line": 99
         }
       ]
     },
