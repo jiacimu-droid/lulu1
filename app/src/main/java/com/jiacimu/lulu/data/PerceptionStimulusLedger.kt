@@ -13,6 +13,12 @@ internal object PerceptionStimulusLedger {
         prefs = context.applicationContext.getSharedPreferences("lulu_perception_stimuli", Context.MODE_PRIVATE)
     }
 
+    @Synchronized fun hasSeen(context: Context, characterId: String, evidenceId: String): Boolean {
+        if (prefs == null) initialize(context)
+        val token = evidenceId.hashCode().toString()
+        return prefs?.getString("seen:$characterId", "").orEmpty().lineSequence().any { it == token }
+    }
+
     fun claim(context: Context, characterId: String, stimulus: PerceptionStimulus): Boolean {
         if (characterId.isBlank() || stimulus.evidenceId.isBlank()) return false
         val pref = prefs ?: run {

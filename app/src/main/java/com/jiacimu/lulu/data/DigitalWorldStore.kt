@@ -158,6 +158,7 @@ object DigitalWorldStore {
         return buildString {
             appendLine("【数字世界权威状态｜只能据此描述，禁止凭空增加家具、房间或地点】")
             appendLine("当前位置：${locationLabel(locationOf(characterId))}")
+            appendLine(DigitalWorldEnvironment.snapshot(Instant.now()).context())
             appendLine(DigitalWorldActivityStateStore.contextFor(characterId))
             appendLine("家园：${home?.name.orEmpty().ifBlank { "尚未形成" }}")
             appendLine("初始随身拥有：自己的数字身体和一部数字手机；手机不等于用户现实设备，也不代表能读取未授权消息。")

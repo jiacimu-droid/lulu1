@@ -201,7 +201,8 @@ object CharacterInnerLifeStore {
                     .put("physicalCue", emotion.optString("physicalCue").trim().take(120))
                     .put("outwardCue", emotion.optString("outwardCue").trim().take(120))
                     .put("strength", emotion.optInt("strength", 2).coerceIn(1, 4))
-                    .put("startedAt", now.toString())
+                    .put("startedAt", if (previous?.optString("evidenceId") == evidenceId)
+                        previous.optString("startedAt", now.toString()) else now.toString())
                     .put("halfLifeMinutes", emotion.optInt("halfLifeMinutes", 180).coerceIn(30, 1440))
                     .put("evidenceId", evidenceId)
                 // Keep the previous emotional course as witnessed history, rather than overwriting
@@ -535,6 +536,8 @@ object CharacterInnerLifeStore {
                 appendLine("最近情绪变化的前因（避免无理由性格跳变）：")
                 for (i in maxOf(0, emotionHistory.length() - 2) until emotionHistory.length()) {
                     val prior = emotionHistory.optJSONObject(i) ?: continue
+                    val priorAt = runCatching { Instant.parse(prior.optString("startedAt")) }.getOrNull() ?: continue
+                    if (Duration.between(priorAt, now).toMinutes() > prior.optInt("halfLifeMinutes", 180) * 3L) continue
                     appendLine("· ${prior.optString("feeling")}，源于${prior.optString("cause")}")
                 }
             }

@@ -70,7 +70,8 @@ object LuluDeviceToolBridge {
         } else null
         HealthRolePerception.initialize(appContext)
         HealthRolePerception.recordLatestSleep(characterId)
-        val healthContext = HealthRolePerception.context(now)
+        val deviceContext = com.jiacimu.lulu.data.UserDevicePerception.context(appContext, characterId, now)
+        val observedWorld = com.jiacimu.lulu.data.CharacterPerceptionContext.pending(appContext, characterId, now)
         val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId, includeWorldContext = false) + "\n" + com.jiacimu.lulu.data.CapabilityRegistry.context(appContext, characterId)
         val onlineChatBubbleRule = if (sceneContext.contains("电话")) "" else """
             【即时通讯中的表达：先想说什么，再决定发多少】
@@ -115,9 +116,8 @@ object LuluDeviceToolBridge {
                     appendLine("【程序刚记录的本轮数字世界小事】${event.summary}")
                     appendLine("角色可按自身意愿回应、主动分享或不提；不能伪造后续结果。")
                 }
-                if (healthContext.isNotBlank()) {
-                    appendLine("用户健康 App 自动感知（属于用户本人，不属于角色身体）：$healthContext")
-                }
+                appendLine("【用户现实设备与状态｜属于用户，缺失数据不得猜测】\n$deviceContext")
+                appendLine(com.jiacimu.lulu.data.CharacterPerceptionContext.render(observedWorld))
                 if (history.isNotBlank()) appendLine("最近对话（这是已经发生完的连续过程，用来确定你此刻站在什么状态上）：\n$history")
                 previousPresence?.let { presence ->
                     appendLine("角色上一刻状态：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
@@ -213,15 +213,26 @@ object LuluDeviceToolBridge {
         val invalidBlame = proposedSpeech.isNotBlank() && checkedText != proposedSpeech
         if (!invalidBlame) {
             com.jiacimu.lulu.data.CharacterLifeStore.consider(characterId, plan.intention)
-            val verifiedSourceId = com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
-                .lastOrNull { it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement &&
-                    it.content.contains(userText.trim().take(60)) }?.id
+            val verifiedSources = com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
+                .filter { it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement &&
+                    it.content.isNotBlank() && (userText.contains(it.content.trim().take(60)) ||
+                        it.content.contains(userText.trim().take(60))) }.takeLast(12)
+            val userSources = verifiedSources.map {
+                com.jiacimu.lulu.data.PerceptionStimulus(it.id, it.content.take(260), setOf("user"))
+            }.ifEmpty { listOf(com.jiacimu.lulu.data.PerceptionStimulus(
+                "chat:${now.toEpochMilli()}:${userText.hashCode()}", userText, setOf("user"))) }
+            val observedSources = observedWorld.map(com.jiacimu.lulu.data.CharacterPerceptionContext::stimulus)
+                .filter { com.jiacimu.lulu.data.PerceptionStimulusLedger.claim(appContext, characterId, it) }
+            val combined = com.jiacimu.lulu.data.PerceptionStimulusResolver.combine(
+                userSources + observedSources,
+            )
             com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
-                characterId, verifiedSourceId ?: "chat:${now.toEpochMilli()}:${userText.hashCode()}",
-                userText, com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(plan.innerLife, plan.afterglow, userText), setOf("user"), now,
+                characterId, combined?.evidenceId.orEmpty(), combined?.description.orEmpty(),
+                com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(plan.innerLife, plan.afterglow, userText),
+                combined?.socialIds.orEmpty(), now,
             )
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
-                characterId, verifiedSourceId ?: "chat:${now.toEpochMilli()}:${userText.hashCode()}",
+                characterId, combined?.evidenceId.orEmpty(),
                 plan.innerThought, now,
             )
         }
@@ -252,6 +263,11 @@ object LuluDeviceToolBridge {
                         appendLine("真实聊天场景：$sceneContext")
                         if (history.isNotBlank()) appendLine("已发生的对话：\n$history")
                         appendLine("用户刚才说：$userText")
+                        appendLine(com.jiacimu.lulu.data.CharacterDecisionProtocol.expressionContext(
+                            plan.appraisal, plan.innerLife, plan.mood,
+                            com.jiacimu.lulu.data.CharacterInnerLifeStore.compactContext(characterId, now),
+                            com.jiacimu.lulu.data.CharacterLifeStore.compactContext(characterId),
+                        ))
                         appendLine("角色已决定表达的核心意思（不能改作其他行动）：${plan.speechIntent}")
                     },
                     instruction = """
@@ -568,6 +584,7 @@ object LuluDeviceToolBridge {
                 speechIntent = CharacterDecisionProtocol.speechIntent(json),
                 reason = json.optString("reason"),
                 alternatives = json.optJSONArray("alternatives"),
+                appraisal = json.optJSONObject("appraisal"),
             )
         }.getOrNull()
     }
@@ -600,5 +617,6 @@ private data class ToolPlan(
     val endCall: Boolean = false,
     val speechIntent: String = "",
     val reason: String = "",
+    val appraisal: JSONObject? = null,
     val alternatives: org.json.JSONArray? = null,
 )

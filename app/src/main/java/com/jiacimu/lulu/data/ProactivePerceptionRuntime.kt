@@ -4,14 +4,9 @@ import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.usage.UsageEvents
-import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.location.Geocoder
-import android.os.BatteryManager
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.LuluRepositories
@@ -20,14 +15,8 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.core.LexiconSection
-import com.jiacimu.lulu.health.HealthRolePerception
 import com.jiacimu.lulu.qqForwardContextText
-import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.ReadingBackgroundBridge
-import com.jiacimu.lulu.study.roleStudyContext
-import com.jiacimu.lulu.system.LuluAccessibilityService
-import com.jiacimu.lulu.system.LuluLocationProvider
-import com.jiacimu.lulu.system.LuluNotificationListenerService
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
@@ -39,7 +28,6 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import kotlin.math.max
 
 /** Per-character autonomous perception used by background life and short online sessions. */
 object ProactivePerceptionRuntime {
@@ -353,7 +341,8 @@ object ProactivePerceptionRuntime {
         val commitments = lexicon.filter { it.section == LexiconSection.Promise && it.status == com.jiacimu.lulu.core.LexiconStatus.Active }
             .joinToString("\n") { "- ${it.title}：${it.content.take(400)}" }
         val previousPresence = CompanionPresenceStore.current(characterId)
-        val deviceContext = buildRealWorldContext(appContext, characterId, now)
+        val observedWorld = CharacterPerceptionContext.pending(appContext, characterId, now)
+        val deviceContext = UserDevicePerception.context(appContext, characterId, now, refreshLocation = true)
         com.jiacimu.lulu.study.ReadingReflectionStore.initialize(appContext)
         val lastReading = com.jiacimu.lulu.study.ReadingReflectionStore.records.value
             .filter { it.characterId == characterId }.maxByOrNull { it.occurredAt }
@@ -371,6 +360,7 @@ object ProactivePerceptionRuntime {
                 appendLine("本次判断：如果没有待处理的新消息，这仍是角色真实生活的一段时间，不是只能更新状态的空轮询；在线期间也不会因为没有未读消息就被系统强制 SILENT。")
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
+                appendLine(CharacterPerceptionContext.render(observedWorld))
                 appendLine("允许主动来电：${if (character.contactPolicy.proactiveCallsEnabled) "是" else "否"}")
                 if (recentAutonomousActions.isNotEmpty()) {
                     appendLine("最近自主选择（旧→新，仅作为生活历史，不用于惩罚重复）：${recentAutonomousActions.joinToString(" → ")}")
@@ -467,18 +457,21 @@ object ProactivePerceptionRuntime {
         CharacterLifeStore.consider(characterId, decision.intention, now)
         // The executor, not the model, anchors subjective emotion to a real observed event.
         // Old chat history alone must not create an apparently new emotional stimulus.
-        val stimulus = PerceptionStimulusResolver.select(
+        val messageStimulus = PerceptionStimulusResolver.select(
             unreadText = onlineUnread.text,
             unreadIds = onlineUnread.newestIds,
-            worldEvent = worldTick?.summary.orEmpty(),
-            worldEventId = worldTick?.let {
-                "${it.incidentId}:${it.stage}:${it.status}:${it.summary.hashCode()}"
-            }.orEmpty(),
+            worldEvent = "",
+            worldEventId = "",
             pendingText = pendingUserContext,
             pendingIds = userActivities.filter(UserActivity::awaitingReply).take(12).map { it.message.id },
         )
+        val candidates = listOfNotNull(messageStimulus) + observedWorld.map(CharacterPerceptionContext::stimulus)
+        val newlyObserved = candidates.distinctBy { it.evidenceId }.filter {
+            PerceptionStimulusLedger.claim(appContext, characterId, it)
+        }
+        val stimulus = PerceptionStimulusResolver.combine(newlyObserved)
         val emotionalAnchor = stimulus?.description.orEmpty()
-        val freshStimulus = stimulus != null && PerceptionStimulusLedger.claim(appContext, characterId, stimulus)
+        val freshStimulus = stimulus != null
         if (freshStimulus) CharacterLifeStore.recordAfterglow(
             characterId, emotionalAnchor, decision.afterglow, now,
             evidenceId = stimulus?.evidenceId.orEmpty(),
@@ -652,115 +645,6 @@ object ProactivePerceptionRuntime {
             else -> Unit
         }
         return ActionExecution(true, result.summary)
-    }
-
-    private suspend fun buildRealWorldContext(
-        context: Context,
-        characterId: String,
-        now: Instant,
-    ): String = buildString {
-        HealthRolePerception.initialize(context)
-        HealthRolePerception.recordLatestSleep(characterId)
-        appendLine("用户现实时间：${now.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)}")
-        val isScreenInteractive = (context.getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager)?.isInteractive
-        appendLine("用户屏幕交互状态：${when (isScreenInteractive) { true -> "屏幕可交互（亮屏）"; false -> "屏幕未处于交互状态（可能锁屏或熄屏，绝非睡眠证明）"; null -> "未知" }}")
-        appendLine("用户手机电量：${batteryContext(context)}")
-        appendLine("用户设备最近前台应用：${foregroundAppContext(context, now)}")
-        appendLine("用户设备位置：${locationContext(context)}")
-        appendLine("用户设备最近通知（总摘录最多500字）：${notificationContext(now)}")
-        appendLine("用户健康/手环数据：${HealthRolePerception.context(now).ifBlank { "未连接健康 App" }}")
-        appendLine("用户学习状态：${studyContext(characterId)}")
-    }.trim()
-
-    private fun batteryContext(context: Context): String {
-        val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-        val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
-        val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, 100) ?: 100
-        if (level < 0 || scale <= 0) return "暂时不可用"
-        val percent = level * 100 / scale
-        val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
-        val charging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-            status == BatteryManager.BATTERY_STATUS_FULL
-        return "$percent%${if (charging) "，正在充电" else ""}"
-    }
-
-    private fun foregroundAppContext(context: Context, now: Instant): String {
-        val accessibility = LuluAccessibilityService.state.value
-        val freshAccessibility = accessibility.capturedAt?.let {
-            Duration.between(it, now).abs().toMinutes() <= 15
-        } == true
-        val packageName = if (
-            accessibility.connected && freshAccessibility && accessibility.packageName.isNotBlank()
-        ) {
-            accessibility.packageName
-        } else runCatching {
-            val usage = context.getSystemService(UsageStatsManager::class.java)
-            val end = System.currentTimeMillis()
-            val events = usage.queryEvents(end - 15 * 60_000L, end)
-            val event = UsageEvents.Event()
-            var latestPackage = ""
-            var latestTime = 0L
-            while (events.hasNextEvent()) {
-                events.getNextEvent(event)
-                if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED && event.timeStamp >= latestTime) {
-                    latestPackage = event.packageName.orEmpty()
-                    latestTime = event.timeStamp
-                }
-            }
-            latestPackage
-        }.getOrDefault("")
-        if (packageName.isBlank()) return "未授权或近期没有记录"
-        val appLabel = runCatching {
-            val info = context.packageManager.getApplicationInfo(packageName, 0)
-            context.packageManager.getApplicationLabel(info).toString()
-        }.getOrNull()
-        return if (appLabel.isNullOrBlank() || appLabel == packageName) packageName
-        else "$appLabel（$packageName）"
-    }
-
-    private suspend fun locationContext(context: Context): String {
-        if (
-            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) !=
-            PackageManager.PERMISSION_GRANTED
-        ) return "未授权"
-        val location = runCatching { LuluLocationProvider.freshLocation(context) }.getOrNull()
-            ?: return "暂时没有新位置"
-        val ageMinutes = (System.currentTimeMillis() - location.time).coerceAtLeast(0L) / 60_000L
-        val readable = runCatching {
-            if (!Geocoder.isPresent()) return@runCatching ""
-            Geocoder(context, Locale.getDefault())
-                .getFromLocation(location.latitude, location.longitude, 1)
-                ?.firstOrNull()
-                ?.let { address ->
-                    listOfNotNull(address.subLocality, address.locality, address.adminArea, address.countryName)
-                        .map(String::trim).filter(String::isNotBlank).distinct().joinToString("，")
-                }.orEmpty()
-        }.getOrDefault("")
-        return "${readable.ifBlank { "仅获得坐标，未获得可靠行政区地址" }}；精度约${location.accuracy.toInt()}米；数据约${ageMinutes}分钟前"
-    }
-
-    private fun notificationContext(now: Instant): String {
-        if (!LuluNotificationListenerService.isConnected.value) return "未授权"
-        return LuluNotificationListenerService.notifications.value.asSequence()
-            .filter { Duration.between(it.postedAt, now).abs().toMinutes() <= 180 }
-            .filter { it.packageName != "app.lulu" }
-            .take(8)
-            .joinToString("；") { "${it.packageName}｜${it.title.take(60)}｜${it.text.take(120)}" }
-            .replace(Regex("\\s+"), " ")
-            .take(500)
-            .ifBlank { "近3小时没有可读通知" }
-    }
-
-    private fun studyContext(characterId: String): String {
-        val state = PostgraduateExamStores.main.state.value
-        if (state.profile.selectedCharacterId != characterId) {
-            return "当前角色不是学习 App 的陪同角色，无权读取学习状态"
-        }
-        val pomodoro = state.pomodoro
-        val current = if (pomodoro.running) {
-            "番茄钟进行中，剩余约${max(0, pomodoro.remainingSeconds) / 60}分钟"
-        } else "当前没有进行中的番茄钟"
-        return "$current；${state.roleStudyContext().replace("\n", "；")}"
     }
 
     private fun Decision.withPresenceFallback(character: CharacterSettings): Decision {

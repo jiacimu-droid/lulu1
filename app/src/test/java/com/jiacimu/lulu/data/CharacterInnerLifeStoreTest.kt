@@ -207,4 +207,18 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear("inside-test-a")
         assertEquals(0, CharacterInnerLifeStore.snapshot("inside-test-a").length())
     }
+    @Test fun reflectionOnSameSourceDoesNotRestartEmotionClockAndCombinedDeletionClearsEmotion() {
+        start()
+        val now = Instant.parse("2026-10-10T06:00:00Z")
+        val proposal = JSONObject().put("emotion", JSONObject().put("feeling", "还是很在意")
+            .put("cause", "这次共同经历").put("halfLifeMinutes", 30))
+        val source = "perception-sources:chat-source:world-touch-source:"
+        CharacterInnerLifeStore.observe("inside-test-a", source, "最初理解", proposal, setOf("user"), now)
+        CharacterInnerLifeStore.observe("inside-test-a", source, "再次理解同一事实", proposal, setOf("user"), now.plusSeconds(1800))
+        assertEquals(now.toString(), CharacterInnerLifeStore.snapshot("inside-test-a")
+            .getJSONObject("emotion").getString("startedAt"))
+        assertFalse(CharacterInnerLifeStore.compactContext("inside-test-a", now.plusSeconds(6000)).contains("还是很在意"))
+        CharacterInnerLifeStore.invalidateEvidence("world-touch-source")
+        assertNull(CharacterInnerLifeStore.snapshot("inside-test-a").optJSONObject("emotion"))
+    }
 }

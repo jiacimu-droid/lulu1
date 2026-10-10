@@ -43,14 +43,17 @@ internal fun DigitalWorldScenePage(
         characters.filter { world.characterLocations[it.characterId] == sceneCode }
             .map(CharacterSettings::characterId).distinct()
     }
-    DisposableEffect(sceneCode, sceneLabel, visibleResidents) {
-        if (visibleResidents.isNotEmpty()) {
-            DigitalWorldVisitorAwareness.observe(sceneLabel, visibleResidents, entering = true)
-        }
+    val observedResidents = remember(sceneCode) { mutableSetOf<String>() }
+    LaunchedEffect(sceneCode, sceneLabel, visibleResidents) {
+        val current = visibleResidents.toSet()
+        DigitalWorldVisitorAwareness.observe(context, sceneLabel,
+            (current - observedResidents).toList(), entering = true)
+        observedResidents.clear()
+        observedResidents.addAll(current)
+    }
+    DisposableEffect(sceneCode, sceneLabel) {
         onDispose {
-            if (visibleResidents.isNotEmpty()) {
-                DigitalWorldVisitorAwareness.observe(sceneLabel, visibleResidents, entering = false)
-            }
+            DigitalWorldVisitorAwareness.observe(context, sceneLabel, observedResidents.toList(), entering = false)
         }
     }
     var rememberedAction by remember(sceneCode) { mutableStateOf("") }
@@ -94,7 +97,7 @@ internal fun DigitalWorldScenePage(
                 onCharacterClick = onCharacterClick,
                 onPhysicalInteraction = { characterId, action ->
                     DigitalWorldVisitorAwareness.observePhysicalInteraction(
-                        sceneLabel, characterId, action,
+                        context, sceneLabel, characterId, action,
                     )
                 },
                 onWorldAction = { action ->

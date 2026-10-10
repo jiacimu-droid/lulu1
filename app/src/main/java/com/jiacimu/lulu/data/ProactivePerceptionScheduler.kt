@@ -268,6 +268,8 @@ internal fun initializeBackgroundRuntime(context: Context) {
     SharedExperienceTimeline.initialize(context)
     MigratedDomainStores.initialize(context)
     CharacterIdentityStore.initialize(context)
+    CharacterInnerLifeStore.initialize(context)
+    PerceptionStimulusLedger.initialize(context)
     DigitalWorldStore.initialize(context)
     MomentsStore.initialize(context)
     CompanionPresenceStore.initialize(context)

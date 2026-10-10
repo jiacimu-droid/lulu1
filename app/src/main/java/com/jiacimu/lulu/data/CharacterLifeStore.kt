@@ -366,7 +366,8 @@ object CharacterLifeStore {
         mutable.value.keys.toList().forEach { characterId ->
             val root = state(characterId)
             var changed = false
-            if (root.optJSONObject("afterglow")?.optString("evidenceId") == eventId) {
+            val glowEvidence = root.optJSONObject("afterglow")?.optString("evidenceId").orEmpty()
+            if (glowEvidence == eventId || glowEvidence.contains(":$eventId:")) {
                 root.remove("afterglow")
                 changed = true
             }

@@ -76,6 +76,7 @@ internal object DigitalWorldLifeEventStore {
     ): DigitalWorldLifeTick? {
         initialize(context)
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return null
+        DigitalWorldEnvironment.observe(characterId, now)
         val locationCode = DigitalWorldStore.locationOf(characterId)
         val actorName = MigratedDomainStores.characters.get(characterId).displayName
         val result = synchronized(lock) {
@@ -126,6 +127,8 @@ internal object DigitalWorldLifeEventStore {
             speaker = "数字世界",
             content = result.summary,
             occurredAt = now,
+            source = "digital-world",
+            evidenceKind = EventEvidenceKind.Observation,
         )
         return result
     }
@@ -139,6 +142,8 @@ internal object DigitalWorldLifeEventStore {
             speaker = "数字世界",
             content = tick.summary,
             occurredAt = now,
+            source = "digital-world",
+            evidenceKind = EventEvidenceKind.Observation,
         )
     }
 

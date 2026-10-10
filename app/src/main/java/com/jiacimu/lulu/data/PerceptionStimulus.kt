@@ -19,6 +19,18 @@ internal object PerceptionStimulusResolver {
         deliberateFollowThrough: Boolean,
     ): Boolean = actionSucceeded || freshStimulus || deliberateFollowThrough
 
+    /** Every concurrent new input contributes provenance; a chat bubble cannot mask a touch. */
+    fun combine(stimuli: List<PerceptionStimulus>): PerceptionStimulus? {
+        val distinct = stimuli.filter { it.evidenceId.isNotBlank() }.distinctBy { it.evidenceId }
+        if (distinct.isEmpty()) return null
+        if (distinct.size == 1) return distinct.single()
+        return PerceptionStimulus(
+            distinct.joinToString(":", "perception-sources:", ":") { it.evidenceId },
+            distinct.joinToString("\n") { it.description }.takeLast(2_400),
+            distinct.flatMap { it.socialIds }.toSet(),
+        )
+    }
+
     fun select(
         unreadText: String,
         unreadIds: Set<String>,

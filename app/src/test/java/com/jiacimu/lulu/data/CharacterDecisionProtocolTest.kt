@@ -35,4 +35,15 @@ class CharacterDecisionProtocolTest {
         assertNull(CharacterDecisionProtocol.chatAction(JSONObject("""{"action":"delete_everything","text":"完成"}""")))
         assertEquals("tool", CharacterDecisionProtocol.chatAction(JSONObject("""{"action":"tool","tool":"get_battery","args":{}}""")))
     }
+    @Test fun leanExpressionKeepsMeaningEmotionAndRelationshipInsteadOfOnlySpeechIntent() {
+        val handoff = CharacterDecisionProtocol.expressionContext(
+            JSONObject().put("meaning", "她希望我也主动联系").put("responseAim", "回应她的失望"),
+            JSONObject().put("emotion", JSONObject().put("feeling", "有些歉疚")
+                .put("cause", "确实没主动打电话").put("restraint", "不乱许诺")),
+            "", "之前还惦记着她", "日常称呼=宝宝")
+        assertTrue(handoff.contains("她希望我也主动联系"))
+        assertTrue(handoff.contains("有些歉疚"))
+        assertTrue(handoff.contains("不乱许诺"))
+        assertTrue(handoff.contains("日常称呼=宝宝"))
+    }
 }

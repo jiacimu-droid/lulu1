@@ -73,6 +73,7 @@ internal object PromptContextPolicy {
         }
         return buildString {
             append("数字世界当前位置：$label。角色持续拥有自己的数字身体与随身数字手机。")
+            append("\n").append(DigitalWorldEnvironment.snapshot(java.time.Instant.now()).context())
             if (DigitalWorldStore.itemsAtHome(characterId).isEmpty() &&
                 location.startsWith("home:")) append("家里暂时没有家具；不得凭空使用椅子或床。")
             append("要移动/布置/使用物品时，先取得该地点完整权威清单与真实ID，不编造物品。")
