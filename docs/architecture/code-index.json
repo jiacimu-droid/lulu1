@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T05:57:17.736905+00:00",
-  "commit": "8c0bd64a5a89388e9493171c3d9dff23fbe00a5e",
+  "generatedAt": "2026-10-10T05:59:24.639232+00:00",
+  "commit": "328eacaae61021c88cfc2649435b72d05bcdae01",
   "branch": "main",
-  "sourceFingerprint": "6f500a8cdabc94cdedd96a3d2de7a6cf6b53104c164499655a0486041e6502a4",
+  "sourceFingerprint": "96d8516891ad1365caf2cc72f4e297437257dbac504d4e85072f8b80add351cf",
   "summary": {
-    "files": 427,
-    "lines": 95744,
-    "symbols": 1391
+    "files": 428,
+    "lines": 95795,
+    "symbols": 1392
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7686,6 +7686,12 @@
         "line": 5
       }
     ],
+    "PromptContextPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt",
+        "line": 11
+      }
+    ],
     "PromptContextRegressionTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt",
@@ -12395,8 +12401,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 44,
-      "sha256": "9070a0e20cb70ea6be9dd6587175ad1abd1ad8b3d6c53ef43c1d8e0ee16f9a93",
+      "lines": 48,
+      "sha256": "423bee7a6223da3fd66d0fd1101cdbb2fe6de95367d32375ed79fcccb5b7b426",
       "symbols": []
     },
     {
@@ -12495,7 +12501,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 958,
-      "sha256": "fda64e7397cdf52f7ef2053d8907de9027075ad594012130f83c30d78c7381bc",
+      "sha256": "1bbf6b4c19a4f8bd5370602b23d5fd3a6f69baa0f62959fcb255150dad352d99",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -12581,7 +12587,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
       "lines": 81,
-      "sha256": "1bba6f6ee0d04b786c3246504e90fb7a9af7573513c61c03af08f705b651f1d1",
+      "sha256": "1c9c9dc58ab736d59fe2087d46094cf5027c9814461d80ec1cefdc7dde770162",
       "symbols": [
         {
           "name": "forRequest",
@@ -16006,6 +16012,17 @@
         {
           "name": "PerceptionStimulusTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt",
+      "lines": 47,
+      "sha256": "3398a6f85041a9a041119845ef9a29b46825a5e59cd167f10b07af3fadb37edc",
+      "symbols": [
+        {
+          "name": "PromptContextPolicyTest",
+          "line": 11
         }
       ]
     },

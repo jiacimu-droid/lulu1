@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`8c0bd64a5a89388e9493171c3d9dff23fbe00a5e`
+- 基准提交：`328eacaae61021c88cfc2649435b72d05bcdae01`
 - 分支：`main`
-- 已索引文件：427
-- 已索引代码/文本行：95744
-- 已发现符号：1391
+- 已索引文件：428
+- 已索引代码/文本行：95795
+- 已发现符号：1392
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -217,7 +217,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 101 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt` | 54 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt` | 52 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 44 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 48 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 125 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
@@ -414,6 +414,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 335 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt` | 47 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt` | 47 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 89 | 3 |
