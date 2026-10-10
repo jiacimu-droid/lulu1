@@ -219,6 +219,7 @@ object ProactivePerceptionScheduler {
             .setInputData(Data.Builder()
                 .putString("trigger", "新发生的互动体验：电话已结束。请根据已记录的事实与个人经历自行形成感受，并决定是否沟通、继续生活或安静等待；不预设用户动机。证据ID=$evidenceId")
                 .putString("characterId", characterId)
+                .putString("interactionEvidenceId", evidenceId)
                 .putBoolean("force", true)
                 .build())
             .build()
@@ -301,6 +302,7 @@ class ProactivePerceptionWorker(
             onlineRevision = onlineRevision,
             requiresUnread = inputData.getBoolean("requiresUnread", false),
             preserveOffline = preserveOffline,
+            requiredInteractionEvidenceId = inputData.getString("interactionEvidenceId"),
         )
         ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
         Result.success()
