@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`cb7650bb6fcdb5fd351d9576670f88725838005b`
+- 基准提交：`9e271352cc01d9a57d5f3e346248279db807f1c2`
 - 分支：`main`
 - 已索引文件：471
-- 已索引代码/文本行：102456
+- 已索引代码/文本行：102458
 - 已发现符号：1511
 
 | 文件 | 行数 | 符号数 |
@@ -18,7 +18,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallMemoryPolicy.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 20 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 105 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt` | 52 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt` | 54 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 66 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 41 | 0 |
