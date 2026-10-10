@@ -224,9 +224,9 @@ internal class RealtimeVoiceAdapter(
             CharacterExpressionGuide.promptSection(),
             CharacterSpeechIdentity.promptSection(id),
             UserProfileContext.promptSection(), UserDevicePerception.context(this.context, id),
-            CharacterInnerLifeStore.compactContext(id), CharacterInnerLifeStore.interactionContext(id, "direct:user"),
+            CharacterRuntime.personalityRuntimeContext(id, compact = true, interactionKey = "direct:user"),
             "当前状态（主观）：$presence", DigitalWorldStore.contextFor(id),
-            DigitalWorldLifeEventStore.contextFor(id), CharacterRuntime.developmentContext(id),
+            DigitalWorldLifeEventStore.contextFor(id),
             memory.compactPromptSection(12_000), "世界书：" + worldBook.joinToString("\n") { "${it.title}：${it.content}" },
             "辞海：" + lexicon.take(24).joinToString("\n") { "${it.title}：${it.content}" }, CapabilityRegistry.context(context = this.context, characterId = id),
             "只按实际事件、工具结果和当前世界状态续接。用户陈述、观察事实和推测分开；生成或日记不能证明已经行动。")
