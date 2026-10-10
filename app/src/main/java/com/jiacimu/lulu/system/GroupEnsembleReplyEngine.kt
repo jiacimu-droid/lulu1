@@ -43,6 +43,7 @@ internal object GroupEnsembleReplyEngine {
         val statusText: String,
         val gesture: String,
         val innerThought: String,
+        val innerThoughtBasis: JSONObject? = null,
         val mood: String,
         val tool: String,
         val args: JSONObject,
@@ -212,7 +213,7 @@ internal object GroupEnsembleReplyEngine {
                 文字群聊如果这一刻所有成员确实都不想说话，可只返回 {"action":"silent","reason":"各人此刻不发言的真实原因","turns":[]}；不要为了填满消息硬编气泡。电话仍需真实可念出的语音回应。
 
                 只返回一个 JSON 对象，不要代码块、分析、旁白或额外说明：
-                {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"简短意图","appraisal":{"meaning":"对这一轮的简短理解","responseAim":"想达到什么","commonGroundUpdate":"新增或修正的共同语境","uncertainty":"仍不确定的点","interactionMove":"acknowledge|answer|repair|ask|share|tease|decline|shift|silent"},"bubbles":["群里真正说出的气泡"],"tool":"可选的露露机内动作名或空字符串","args":{},"quoteMessageId":"真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","recallBubbleNumber":0,"pokeUser":false,"statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"这个角色自己的心声，不强制简短，可为空","mood":"简短心情"}]}
+                {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"简短意图","appraisal":{"meaning":"对这一轮的简短理解","responseAim":"想达到什么","commonGroundUpdate":"新增或修正的共同语境","uncertainty":"仍不确定的点","interactionMove":"acknowledge|answer|repair|ask|share|tease|decline|shift|silent"},"bubbles":["群里真正说出的气泡"],"tool":"可选的露露机内动作名或空字符串","args":{},"quoteMessageId":"真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","recallBubbleNumber":0,"pokeUser":false,"statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"这个角色自己的心声，不强制简短，可为空","innerThoughtBasis":{"focus":"若有心声，真实触发点","change":"相比上一刻新增或改变了什么","conflict":"可选内部冲突","unsaidWhy":"为何没说出口"},"mood":"简短心情"}]}
 
                 规则：
                 1. turns 第一项是这一刻实际愿意发言的成员，可以不是界面最初等待的成员；程序负责转交发言权。所有人都不愿意发言时，文字群聊使用明确的 silent 决策，不得编造开场白。
@@ -233,7 +234,7 @@ internal object GroupEnsembleReplyEngine {
                 14. 最后一轮不需要总结，不需要“把话题交给主人”，自然停住就可以。
                 ${if (isCall) com.jiacimu.lulu.VoicePerformance.phoneInstruction(context).replace("电话的 text", "电话的 bubbles 中每条字符串") else ""}
                 15. ${if (isCall) "这是实时群聊电话，quoteMessageId、favoriteMessageId 留空，recallBubbleNumber=0，pokeUser=false；语言必须更口语化、适合直接念出。" else "这是文字群聊，可以自然使用连续短气泡、引用、角色主观收藏，以及非常偶发的撤回或戳一戳。"}
-                16. statusText、gesture、innerThought、mood 属于当前角色本人。内心可以是冲动、慌乱、暗喜、无语、突然冒粗口，也可以平静；外在未必全说出来，不能变成系统分析。若本轮用户真实消息强烈触动了此角色，可选填 afterglow:{"feeling":"第一拍心声","impulse":"尚未实施的冲动","holdHours":1到48的整数}；无强烈刺激不填。
+                16. statusText、gesture、innerThought、mood 属于当前角色本人。内心可以是冲动、慌乱、暗喜、无语、突然冒粗口，也可以平静；外在未必全说出来，不能变成系统分析。若填写 innerThought，必须同步提供 innerThoughtBasis，明确真正触发点以及相比上一刻新增/改变了什么；没有结构化因果依据时程序会丢弃这条心声。若本轮用户真实消息强烈触动了此角色，可选填 afterglow:{"feeling":"第一拍心声","impulse":"尚未实施的冲动","holdHours":1到48的整数}；无强烈刺激不填。
                 16a. 如角色确实从本轮群话语或已发生的同伴发言中产生新情绪、想调整愿望、或改变对真正说过话的同伴的看法，可为该 turns 对象可选 innerLife:{"emotion":{"feeling":"私人感受","cause":"真实缘由","otherFeeling":"并存感受","strength":1到4},"motives":[{"op":"start|revise|pause|resume|release","id":"已有动机ID","aim":"具体愿望","why":"原因","reason":"改变依据"}],"social":{"targetId":"user或本群真实已发言的角色ID","interpretation":"本人的主观理解","reason":"实际对话依据","dimensions":{"trust":"up|down|same","warmth":"up|down|same","ease":"up|down|same","friction":"up|down|same","boundarySafety":"up|down|same"}},"selfCorrection":{"realization":"反省","nextTime":"下次做法"}}，没有新依据可不填。dimensions 只表示这次真实互动带来的方向性信号，不是好感分，单次变化不能定型关系。仅根据自己真实见过的对话，不能把别人的私聊当证据。每个角色内在生活彼此隔离。
                 16a-补充. 遇到真正触动角色的群聊争执、友情变化或困难取舍，可在自己的 innerLife 写 thoughts:[{"thought":"一个未说出口的念头","impulse":"想做什么","hesitation":"顾虑"},{"thought":"可以和前一个矛盾的念头","impulse":"另一种冲动","hesitation":"为什么犹豫"}]，通常2—4条，内容必须依据本人真实目睹的群消息；它们不是已执行的行动，也不能强制所有角色都产生同一种想法。日常简单对话不必硬填。
                 16b. 若执行 tool 真正用于自己既有的一个愿望，可选 motiveId:"已有动机ID"；真实执行结果将归入该愿望，而文字声称成功不算。
@@ -337,6 +338,7 @@ internal object GroupEnsembleReplyEngine {
             thought = served.turn.innerThought,
             outward = served.turn.bubbles.joinToString(" "),
             innerLife = served.turn.innerLife,
+            basis = served.turn.innerThoughtBasis,
             hasFreshEvidence = true,
         )
         com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(
@@ -438,6 +440,7 @@ internal object GroupEnsembleReplyEngine {
                             statusText = item.optString("statusText").ifBlank { item.optString("status") }.take(80),
                             gesture = item.optString("gesture").ifBlank { item.optString("actionDescription") }.take(160),
                             innerThought = item.optString("innerThought").ifBlank { item.optString("inner_voice") }.take(220),
+                            innerThoughtBasis = item.optJSONObject("innerThoughtBasis"),
                             mood = item.optString("mood").take(60),
                             tool = item.optString("tool").trim().takeIf { requested ->
                                 requested in setOf(
