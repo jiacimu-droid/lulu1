@@ -66,7 +66,7 @@ internal object ModelStructuredOutput {
                 val needsSpace = previous.lastOrNull()?.isLetterOrDigit() == true &&
                     current.firstOrNull()?.isLetterOrDigit() == true &&
                     previous.last().code < 128 && current.first().code < 128
-                result[result.lastIndex] = previous + if (needsSpace) " " else "" + current
+                result[result.lastIndex] = previous + (if (needsSpace) " " else "") + current
             } else {
                 result += current
             }
