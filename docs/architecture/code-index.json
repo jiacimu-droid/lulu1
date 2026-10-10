@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T10:10:05.666339+00:00",
-  "commit": "aa76a6f90e9a560991d846b78f77776aac329474",
+  "generatedAt": "2026-10-10T10:10:45.153015+00:00",
+  "commit": "55db0e91360886c93554d22eb7050e4f4f49d873",
   "branch": "main",
-  "sourceFingerprint": "dcafe0790b477dcb0de2f76e960898eb1f67027a3724899b95e59090d9b7b5ce",
+  "sourceFingerprint": "3a0e97e1edf7350f18dfd05661520addea24efc9e380cf27b2027784b31d1ac7",
   "summary": {
     "files": 444,
-    "lines": 97782,
-    "symbols": 1434
+    "lines": 97844,
+    "symbols": 1435
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7768,10 +7768,16 @@
         "line": 16
       }
     ],
+    "social": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
+        "line": 151
+      }
+    ],
     "feeling": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 136
+        "line": 191
       }
     ],
     "CharacterLifeStoreTest": [
@@ -9635,8 +9641,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-      "lines": 236,
-      "sha256": "b71755efbd1f1aa2d0d3c3a2384336efafd7d021f099c016b534b7ef7aa3f752",
+      "lines": 237,
+      "sha256": "ab84bd2e76ec02bb79fdf98983409320d4302618ffb6e873eac6b779aacd17d3",
       "symbols": [
         {
           "name": "mute",
@@ -16268,8 +16274,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 112,
-      "sha256": "c47550875263859712dd02819d6c52ebb1ede5ca8235022e2022f0b2635dfde1",
+      "lines": 118,
+      "sha256": "c3a5beeb4858bb34c3b87fc2b1cf93e95eb15760ccab957474b1e4189f75e605",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
@@ -16279,16 +16285,20 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-      "lines": 259,
-      "sha256": "d6acd4b2cf5dd09324dff0783cceb5725c14a9e7d29fd0fef4b84b0237e8ca41",
+      "lines": 314,
+      "sha256": "95d44a9fb571d99d0cddc7ad05afb98310781cfa2302a07ae4c278f16ab7979a",
       "symbols": [
         {
           "name": "CharacterInnerLifeStoreTest",
           "line": 16
         },
         {
+          "name": "social",
+          "line": 151
+        },
+        {
           "name": "feeling",
-          "line": 136
+          "line": 191
         }
       ]
     },
