@@ -191,7 +191,8 @@ internal suspend fun runGroupReplies(
             append(if (index == 0) "用户刚在群里说：$pendingText" else "这轮最初由用户说：$pendingText")
         }
         var result = LuluDeviceToolBridge.respond(member.characterId, history, prompt, activeLabel, archiveId, sceneContext)
-        if (result.getOrNull()?.text.isNullOrBlank() && currentCoroutineContext().isActive) {
+        if (result.getOrNull()?.text.isNullOrBlank() &&
+            result.getOrNull()?.disposition != "silent" && currentCoroutineContext().isActive) {
             result = LuluDeviceToolBridge.respond(member.characterId, history, "$prompt\n[如果你确实该接话，直接自然发言；不要替别人说话。]", activeLabel, archiveId, sceneContext)
         }
         if (!currentCoroutineContext().isActive) return
