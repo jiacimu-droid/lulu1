@@ -19,7 +19,7 @@ internal object PhoneMicSegmentPolicy {
 
     /** Room-noise-adaptive start and stop levels; no remote VAD model/API. */
     fun startThreshold(configured: Float, ambientRms: Double): Double =
-        maxOf(configured.toDouble(), ambientRms * 1.65)
+        maxOf(configured.toDouble(), ambientRms * 1.22)
 
     fun quietThreshold(configured: Float, ambientRms: Double, peakRms: Double): Double =
         maxOf(configured * 0.80, ambientRms * 1.35, peakRms * 0.22)
