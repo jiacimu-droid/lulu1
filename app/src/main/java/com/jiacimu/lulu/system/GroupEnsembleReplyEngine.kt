@@ -499,11 +499,14 @@ internal object GroupEnsembleReplyEngine {
         }?.characterId
     }
 
-    private fun normalizeBubbles(values: List<String>): List<String> = values.flatMap { value ->
-        value.replace("\r\n", "\n")
-            .split(BubbleSeparator)
-            .map { part -> part.lines().joinToString(" ") { line -> line.trim() }.trim().trim('"', '“', '”') }
-    }.filter(String::isNotBlank)
+    private fun normalizeBubbles(values: List<String>): List<String> =
+        com.jiacimu.lulu.data.ModelStructuredOutput.stabilizeReplyBubbles(
+            values.flatMap { value ->
+                value.replace("\r\n", "\n")
+                    .split(BubbleSeparator)
+                    .map { part -> part.lines().joinToString(" ") { line -> line.trim() }.trim().trim('"', '“', '”') }
+            }.filter(String::isNotBlank)
+        )
 
     private fun fallbackReply(characterId: String, labels: Map<String, String>, reason: String?): ModelReply {
         val label = labels[characterId].orEmpty()
