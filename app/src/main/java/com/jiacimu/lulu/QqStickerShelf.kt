@@ -5,6 +5,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -56,9 +58,17 @@ internal fun QqStickerShelf(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    LaunchedEffect(context) { StickerLibraryStore.initialize(context) }
+    LaunchedEffect(context) {
+        StickerLibraryStore.initialize(context)
+        StickerLibraryStore.ensureBuiltIns(context)
+    }
     val stickers by StickerLibraryStore.items.collectAsState()
     var selectedTab by remember { mutableIntStateOf(0) }
+    var selectedPack by remember { mutableStateOf("猫猫表情") }
+    val packs = remember(stickers) { stickers.map(LuluSticker::pack).distinct() }
+    LaunchedEffect(packs) {
+        if (packs.isNotEmpty() && selectedPack !in packs) selectedPack = packs.first()
+    }
     var selectedSticker by remember { mutableStateOf<LuluSticker?>(null) }
     var editName by remember { mutableStateOf("") }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
@@ -123,7 +133,22 @@ internal fun QqStickerShelf(
                     }
                 }
             } else {
-                val visible = if (selectedTab == 2) stickers.filter(LuluSticker::favorite) else stickers
+                if (selectedTab == 0 && packs.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        packs.forEach { category ->
+                            FilterChip(
+                                selected = selectedPack == category,
+                                onClick = { selectedPack = category },
+                                label = { Text(category, fontSize = 11.sp) },
+                            )
+                        }
+                    }
+                }
+                val visible = if (selectedTab == 2) stickers.filter(LuluSticker::favorite)
+                else stickers.filter { it.pack == selectedPack }
                 if (visible.isEmpty()) {
                     Box(Modifier.fillMaxWidth().height(166.dp), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -173,6 +198,12 @@ internal fun QqStickerShelf(
                         fontSize = 10.sp, modifier = Modifier.padding(top = 3.dp))
                 }
             }
+            Text(
+                "开源表情来源：OpenMoji · CC BY-SA 4.0；由你自行添加的表情仍归各自作者所有。",
+                modifier = Modifier.padding(top = 3.dp, bottom = 2.dp),
+                color = QqMuted,
+                fontSize = 9.sp,
+            )
         }
     }
 
