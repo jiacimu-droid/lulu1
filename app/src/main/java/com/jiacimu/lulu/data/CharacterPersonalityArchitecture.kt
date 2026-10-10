@@ -35,6 +35,7 @@ internal object CharacterPersonalityArchitecture {
         - 关系不是全局好感度。不同对象分别保留信任、边界、未完成事项和互动习惯；一句好话或一次争执都不应瞬间重写整段关系。
         - 新经历先改变即时状态和局部判断；只有反复、跨场景且有证据的变化才沉淀为习惯/偏好，真正长期稳定后才可能影响更高层。
         - 最近一句漂亮话、一次撒娇、一次冷淡或一次模型失误都不能自动成为人格。先看它是否与长期核心、情境和后续行为一致。
+        - “心声”不是第二份台词。只有当注意焦点、情境评估、冲突或未说出口的理由相对上一刻真的发生变化时才存在；若只是有新消息但内部状态没变化，心声应为空。
     """.trimIndent()
 }
 
@@ -54,17 +55,32 @@ internal object CharacterHeartVoicePolicy {
         thought: String,
         outward: String = "",
         innerLife: JSONObject? = null,
+        basis: JSONObject? = null,
         hasFreshEvidence: Boolean,
     ): String {
         val clean = thought.replace(Regex("[ \\t]+"), " ").trim().take(1_200)
         if (clean.isBlank()) return ""
         val structuredDelta = hasStructuredDelta(innerLife)
+        val causalBasis = hasCausalBasis(basis)
+        // A heart voice must correspond to an actual private-state delta. Fresh input alone is not
+        // enough: without a structured change or a concrete causal basis, prose is discarded.
+        if (!structuredDelta && !causalBasis) return ""
         if (!hasFreshEvidence && !structuredDelta) return ""
         if (outward.isNotBlank() && sameMeaning(clean, outward)) return ""
         val normalized = normalize(clean)
         if (!structuredDelta && (genericWaiting.containsMatchIn(normalized) ||
                 genericRelationshipAnalysis.containsMatchIn(normalized))) return ""
         return clean
+    }
+
+    internal fun hasCausalBasis(basis: JSONObject?): Boolean {
+        val value = basis ?: return false
+        val focus = value.optString("focus").trim()
+        val change = value.optString("change").trim()
+        val conflict = value.optString("conflict").trim()
+        val unsaidWhy = value.optString("unsaidWhy").trim()
+        if (focus.isBlank()) return false
+        return listOf(change, conflict, unsaidWhy).count(String::isNotBlank) >= 1
     }
 
     internal fun hasStructuredDelta(innerLife: JSONObject?): Boolean {
