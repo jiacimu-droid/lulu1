@@ -82,7 +82,7 @@ internal fun MomentsComposePage(
         },
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 18.dp, vertical = 12.dp),
+            modifier = Modifier.fillMaxSize().padding(padding).imePadding().padding(horizontal = 18.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Surface(
@@ -97,7 +97,7 @@ internal fun MomentsComposePage(
                     placeholder = {
                         Text(if (imageUri == null) "分享此刻发生的事情…" else "给这张图片配一句话…")
                     },
-                    modifier = Modifier.fillMaxSize().padding(4.dp),
+                    modifier = Modifier.fillMaxSize().padding(4.dp).keepFocusedFieldVisible(),
                     minLines = 8,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color.Transparent,

@@ -9,6 +9,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -148,7 +150,7 @@ fun MomentsScreen() {
                 shadowElevation = 8.dp,
             ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(20.dp),
+                    modifier = Modifier.fillMaxWidth().heightIn(max = 360.dp).verticalScroll(rememberScrollState()).padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
                     Text("修改签名", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
@@ -158,7 +160,7 @@ fun MomentsScreen() {
                         placeholder = { Text("写一句此刻的签名") },
                         minLines = 2,
                         maxLines = 4,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                         shape = RoundedCornerShape(16.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = LuluColors.Ink,

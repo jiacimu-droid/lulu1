@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
@@ -169,7 +171,7 @@ fun LexiconFeatureScreenV2(
             )
         },
     ) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding)) {
+        Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
             Box(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp),
                 contentAlignment = Alignment.Center,
@@ -447,13 +449,14 @@ private fun LexiconEditorDialogV2(
         onDismissRequest = onDismiss,
         title = { Text(if (isNew) "新增条目" else "编辑条目") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
                     label = { Text("标题") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                 )
                 OutlinedTextField(
                     value = content,
@@ -461,7 +464,7 @@ private fun LexiconEditorDialogV2(
                     label = { Text("内容") },
                     minLines = 4,
                     maxLines = 10,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                 )
                 if (entry.section == LexiconSection.Promise) {
                     LexiconV2PromiseKinds.chunked(2).forEach { row ->

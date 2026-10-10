@@ -482,7 +482,7 @@ private fun MemoryEditorDialog(
         title = { Text(if (isNew) "添加记忆" else "编辑记忆") },
         text = {
             Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()),
+                modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 OutlinedTextField(
@@ -712,7 +712,8 @@ private fun LexiconEditorDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (isNew) "新增条目" else "编辑条目") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("标题") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(value = content, onValueChange = { content = it }, label = { Text("内容") }, minLines = 4, maxLines = 10, modifier = Modifier.fillMaxWidth())
                 if (entry.section == LexiconSection.Promise) {

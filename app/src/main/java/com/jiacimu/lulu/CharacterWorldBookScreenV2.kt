@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -55,7 +56,7 @@ fun CharacterWorldBookScreenV2(
         },
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
+            modifier = Modifier.fillMaxSize().padding(padding).imePadding(),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
@@ -197,9 +198,10 @@ private fun WorldBookEditorV2(
         onDismissRequest = onDismiss,
         title = { Text(if (isNew) "添加世界书" else "编辑世界书") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("标题") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = content, onValueChange = { content = it }, label = { Text("世界设定") }, minLines = 6, maxLines = 12, modifier = Modifier.fillMaxWidth())
+            Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("标题") }, singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
+                OutlinedTextField(value = content, onValueChange = { content = it }, label = { Text("世界设定") }, minLines = 6, maxLines = 12, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Text("全局应用")
                     Switch(checked = globalEnabled, onCheckedChange = { globalEnabled = it })

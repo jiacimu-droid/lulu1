@@ -7,6 +7,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -129,7 +131,7 @@ fun MigratedChatHubScreenV2(
             }
         },
     ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
+        Box(Modifier.fillMaxSize().padding(padding).imePadding()) {
             when (selectedTab) {
                 0 -> ChatHubV2Messages(onOpenConversation)
                 1 -> ChatHubV2Characters(onCharacterSettings, onWorldBook, onOpenConversation)
@@ -402,14 +404,15 @@ private fun ChatHubV2CreateGroupDialog(
         onDismissRequest = onDismiss,
         title = { Text("新建群聊") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
+            Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(9.dp)) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it.take(30) },
                     label = { Text("群名称") },
                     placeholder = { Text("例如：露露的小客厅") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                 )
                 Text("选择至少两个角色，你会自动作为群主加入。", color = LuluColors.Muted, fontSize = 12.sp)
                 LazyColumn(Modifier.heightIn(max = 330.dp)) {
@@ -453,8 +456,8 @@ private fun ChatHubV2Profile(onFavorites: () -> Unit) {
     var notice by remember { mutableStateOf("") }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        modifier = Modifier.fillMaxSize().imePadding(),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(13.dp),
     ) {
         item(key = "favorites") {
@@ -479,12 +482,12 @@ private fun ChatHubV2Profile(onFavorites: () -> Unit) {
                         Text("点击头像选择手机图片", color = LuluColors.Muted, fontSize = 12.sp)
                     }
                 }
-                OutlinedTextField(name, { name = it.take(20) }, label = { Text("名字") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(name, { name = it.take(20) }, label = { Text("名字") }, singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
                 Text("个人资料", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                OutlinedTextField(preferredName, { preferredName = it.take(30) }, label = { Text("希望角色怎么称呼你") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(birthday, { birthday = it.take(30) }, label = { Text("生日") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(location, { location = it.take(40) }, label = { Text("所在地") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(bio, { bio = it.take(500) }, label = { Text("个人信息与自我介绍") }, minLines = 3, maxLines = 7, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(preferredName, { preferredName = it.take(30) }, label = { Text("希望角色怎么称呼你") }, singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
+                OutlinedTextField(birthday, { birthday = it.take(30) }, label = { Text("生日") }, singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
+                OutlinedTextField(location, { location = it.take(40) }, label = { Text("所在地") }, singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
+                OutlinedTextField(bio, { bio = it.take(500) }, label = { Text("个人信息与自我介绍") }, minLines = 3, maxLines = 7, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
                 Button(
                     onClick = {
                         name = name.trim().ifBlank { "我" }
@@ -519,9 +522,10 @@ private fun ChatHubV2CreateCharacterDialog(
         onDismissRequest = onDismiss,
         title = { Text("新建角色") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedTextField(name, { name = it }, label = { Text("角色名称") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(persona, { persona = it }, label = { Text("角色核心设定") }, minLines = 4, modifier = Modifier.fillMaxWidth())
+            Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedTextField(name, { name = it }, label = { Text("角色名称") }, singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
+                OutlinedTextField(persona, { persona = it }, label = { Text("角色核心设定") }, minLines = 4, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
                 Text("选择生命形态", fontWeight = FontWeight.SemiBold)
                 Text("生命形态从创建起固定，之后不能在数字生命与现实角色之间切换。", color = LuluColors.Muted, fontSize = 11.sp)
                 Surface(
