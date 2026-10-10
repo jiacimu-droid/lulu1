@@ -130,8 +130,15 @@ object ProactivePerceptionRuntime {
         onlineRevision: Long? = null,
         requiresUnread: Boolean = false,
         preserveOffline: Boolean = false,
+        requiredInteractionEvidenceId: String? = null,
     ): Int = cycleMutex.withLock {
         currentCoroutineContext().ensureActive()
+        // An in-process immediate run and its durable WorkManager fallback
+        // must not reflect (or message about) the same hangup twice.
+        if (targetCharacterId != null && !requiredInteractionEvidenceId.isNullOrBlank() &&
+            PerceptionStimulusLedger.hasSeen(context, targetCharacterId, requiredInteractionEvidenceId)) {
+            return@withLock 0
+        }
         if (onlineRevision != null && targetCharacterId != null &&
             !OnlineChatBatchStore.isCurrent(context, targetCharacterId, onlineRevision)) return@withLock 0
         if (onlineRevision != null && targetCharacterId != null &&
