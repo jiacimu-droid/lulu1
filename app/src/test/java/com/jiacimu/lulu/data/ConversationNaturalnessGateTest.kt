@@ -13,6 +13,15 @@ class ConversationNaturalnessGateTest {
         assertTrue(result.reasons.any { it.contains("甩回") })
     }
 
+    @Test fun characterAskingWhatShouldIDoAlsoGetsRerendered() {
+        val result = ConversationNaturalnessGate.assess(
+            "我学习累了",
+            listOf("那我该做些什么？"),
+        )
+        assertTrue(result.needsRerender)
+        assertTrue(result.reasons.any { it.contains("甩回") })
+    }
+
     @Test fun naturalRoleOwnedResponsePasses() {
         val result = ConversationNaturalnessGate.assess(
             "我学习累了",
