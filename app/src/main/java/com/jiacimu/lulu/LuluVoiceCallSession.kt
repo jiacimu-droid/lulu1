@@ -101,6 +101,8 @@ internal object LuluVoiceCallSession {
     private var systemUtteranceBuffer = ""
     private var systemPartialCandidate = ""
     private var userSpeechInProgress = false
+    private var providerSpeechStartedMillis = 0L
+    private var providerRecognitionPendingUntilMillis = 0L
     private var sleepFailures = 0
     private var lastUserActivityMillis = 0L
     private var lastConfirmedUserSpeechMillis = 0L
@@ -420,6 +422,8 @@ internal object LuluVoiceCallSession {
         subtitleRevealJob = null
         lastSleepUserReplyAtMillis = null
         userSpeechInProgress = false
+        providerSpeechStartedMillis = 0L
+        providerRecognitionPendingUntilMillis = 0L
         autonomousHangup.cancel()
         val endStatus = if (sleepAutoEnded) "哄睡陪伴已安静结束" else
             if (endedByCharacter) "${current.characterName}结束了通话" else "通话已结束"
@@ -1072,6 +1076,7 @@ internal object LuluVoiceCallSession {
             onSpeech = {
                 if (sameSession()) {
                     userSpeechInProgress = true
+                    providerSpeechStartedMillis = SystemClock.elapsedRealtime()
                     noteCallUserActivity()
                     sleepContinuationJob?.cancel()
                     // Do not cancel a real in-flight model reply merely because
@@ -1085,16 +1090,31 @@ internal object LuluVoiceCallSession {
             onText = { text ->
                 if (sameSession()) {
                     userSpeechInProgress = false
+                    providerSpeechStartedMillis = 0L
+                    providerRecognitionPendingUntilMillis = 0L
                     mutableState.update { it.copy(userSpeaking = false) }
                     if (!mutableState.value.opening) handleUserSpeech(text, allowWhileMuted = true)
                 }
             },
-            onStatus = { note -> if (sameSession()) mutableState.update { it.copy(
-                userSpeaking = if (note.contains("识别完整语句")) false else it.userSpeaking,
-                statusMessage = if (it.thinking) it.statusMessage else note,
-            ) } },
+            onStatus = { note -> if (sameSession()) {
+                val captureFinished = note.contains("识别完整语句")
+                if (captureFinished) {
+                    // Capture has stopped, but cloud recognition is still in flight.
+                    // These are separate states; never leave the mic shown as
+                    // "still speaking" while waiting for an STT network response.
+                    userSpeechInProgress = false
+                    providerSpeechStartedMillis = 0L
+                    providerRecognitionPendingUntilMillis = SystemClock.elapsedRealtime() + 90_000L
+                }
+                mutableState.update { it.copy(
+                    userSpeaking = if (captureFinished) false else it.userSpeaking,
+                    statusMessage = if (it.thinking) it.statusMessage else note,
+                ) }
+            } },
             onError = { error -> if (sameSession()) {
                 userSpeechInProgress = false
+                providerSpeechStartedMillis = 0L
+                providerRecognitionPendingUntilMillis = 0L
                 scheduleSleepContinuation()
                 val dialing = mutableState.value.phase == CallPhase.Dialing
                 mutableState.update { it.copy(phase = if (dialing) CallPhase.Ready else it.phase, listening = false, userSpeaking = false, inputLevel = 0f,
@@ -1125,6 +1145,8 @@ internal object LuluVoiceCallSession {
         lastUserActivityMillis = startedAt
         lastConfirmedUserSpeechMillis = startedAt
         confirmedUserSpeechCount = 0
+        providerSpeechStartedMillis = 0L
+        providerRecognitionPendingUntilMillis = 0L
         lastCallAudioMillis = startedAt
         // First ordinary-call reflection after one quiet minute, then bounded pulses.
         lastSilenceReflectionMillis = startedAt - 60_000L
@@ -1147,8 +1169,38 @@ internal object LuluVoiceCallSession {
                     break
                 }
                 val clock = SystemClock.elapsedRealtime()
+                if (CallSilencePolicy.shouldRecoverStuckCapture(
+                        providerActive = providerInput != null && !current.microphoneMuted,
+                        userSpeechInProgress = userSpeechInProgress,
+                        sinceSpeechStartedMillis = clock - providerSpeechStartedMillis,
+                    )) {
+                    // If noise prevents the mic from ever reporting "speech end",
+                    // submit the already captured PCM and reopen a clean microphone.
+                    // This also gives a long uninterrupted monologue a recoverable
+                    // chunk boundary rather than losing every word.
+                    providerSpeechStartedMillis = clock
+                    providerInput?.pauseCapture()
+                    scope.launch {
+                        delay(500L)
+                        if (mutableState.value.connected && !mutableState.value.microphoneMuted &&
+                            !mutableState.value.thinking && !mutableState.value.speaking) {
+                            providerInput?.resumeCapture()
+                        }
+                    }
+                    mutableState.update { it.copy(statusMessage = "连续收音较长，正在提交语音识别…") }
+                }
+                if (providerRecognitionPendingUntilMillis != 0L &&
+                    clock >= providerRecognitionPendingUntilMillis) {
+                    // A cloud STT timeout must not suppress every later life pulse.
+                    providerRecognitionPendingUntilMillis = 0L
+                    userSpeechInProgress = false
+                    mutableState.update { it.copy(userSpeaking = false,
+                        statusMessage = "语音识别尚未返回，可继续讲话或重试收音") }
+                }
                 if (CallSilencePolicy.shouldReflect(current.connected, current.sleepMode,
-                        current.thinking || current.speaking || current.opening || speechQueue?.hasPendingAudio == true,
+                        current.thinking || current.speaking || current.opening ||
+                            speechQueue?.hasPendingAudio == true ||
+                            providerRecognitionPendingUntilMillis > clock,
                         userSpeechInProgress, clock - lastConfirmedUserSpeechMillis,
                         clock - lastCallAudioMillis, clock - lastSilenceReflectionMillis, silenceFailures)) {
                     lastSilenceReflectionMillis = clock
