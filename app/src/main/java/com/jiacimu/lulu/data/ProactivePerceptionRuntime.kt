@@ -578,7 +578,17 @@ object ProactivePerceptionRuntime {
             CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 listOf(onlineUnread.text, pendingUserContext, trigger).joinToString("\n"),
                 fallbackDecision.innerThought,
-            ))
+            )).let { proposed ->
+                if (stagedAppraisal == null) proposed else proposed.copy(
+                    // The separate action model cannot rewrite the same event's
+                    // already-committed private feelings to justify its own choice.
+                    // A later genuinely new event may of course change them.
+                    innerLife = null, afterglow = null,
+                    innerThought = "", innerThoughtBasis = null,
+                    mood = stagedAppraisal.mood.ifBlank { proposed.mood },
+                    intention = null,
+                )
+            }
         CharacterLifeStore.consider(characterId, decision.intention, now)
         // Capture the private state before this proposal is applied. Delta must compare two moments,
         // not compare the model proposal against a store we already mutated with that proposal.
