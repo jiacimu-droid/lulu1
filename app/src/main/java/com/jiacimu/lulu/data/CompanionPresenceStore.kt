@@ -21,6 +21,8 @@ data class CompanionPresenceState(
     val lastPerceptionNote: String = "",
     val provenanceId: String = "",
     val showInHistory: Boolean = true,
+    /** Causal identity of the surfaced heart-voice event; prose may change while cause stays same. */
+    val innerThoughtFingerprint: String = "",
 )
 
 data class CompanionPresenceMessageAnchor(
@@ -182,6 +184,7 @@ object CompanionPresenceStore {
         source: String,
         now: Instant = Instant.now(),
         provenanceId: String = "",
+        innerThoughtFingerprint: String? = null,
     ) {
         if (characterId.isBlank()) return
         val previous = mutableStates.value[characterId]
@@ -200,6 +203,12 @@ object CompanionPresenceStore {
             lastPerceptionAt = if (source.contains("感知")) now else previous?.lastPerceptionAt,
             lastPerceptionNote = if (source.contains("感知")) "最近已更新" else previous?.lastPerceptionNote.orEmpty(),
             provenanceId = provenanceId,
+            innerThoughtFingerprint = when {
+                innerThought == null -> previous?.innerThoughtFingerprint.orEmpty()
+                innerThought.isBlank() -> ""
+                !innerThoughtFingerprint.isNullOrBlank() -> innerThoughtFingerprint.trim().take(120)
+                else -> ""
+            },
         )
         if (next.statusText.isBlank() && next.gesture.isBlank() && next.innerThought.isBlank() && next.mood.isBlank()) {
             recordPerceptionAttempt(characterId, "模型返回了空状态", now)
@@ -212,12 +221,18 @@ object CompanionPresenceStore {
             previous.mood != next.mood
         val thoughtChanged = previous == null ||
             meaningfullyDifferentThought(previous.innerThought, next.innerThought)
+        val hasCausalFingerprint = next.innerThoughtFingerprint.isNotBlank()
+        val causalFingerprintChanged = hasCausalFingerprint &&
+            (previous?.innerThoughtFingerprint.isNullOrBlank() ||
+                previous?.innerThoughtFingerprint != next.innerThoughtFingerprint)
         val newHeartVoice = when {
             innerThought == null -> ""
             next.innerThought.isBlank() -> ""
+            hasCausalFingerprint -> if (causalFingerprintChanged) next.innerThought else ""
             previous == null || thoughtChanged -> next.innerThought
             else -> ""
         }
+        val heartVoiceEventChanged = newHeartVoice.isNotBlank()
         val isChatTurn = source.contains("聊天") || source.contains("群聊")
         val lastRecordedAt = mutableHistories.value[characterId]?.firstOrNull()?.updatedAt
         val thoughtHistoryDue = lastRecordedAt == null ||
@@ -227,7 +242,7 @@ object CompanionPresenceStore {
         // stay aware without manufacturing a new historical "heart voice" every minute. Visible state
         // changes are recorded immediately; thought-only background changes are rate-limited and must
         // contain materially new wording. Exact/near repeats remain current state only.
-        if (isChatTurn || visibleChanged || (thoughtChanged && thoughtHistoryDue)) {
+        if (isChatTurn || visibleChanged || (heartVoiceEventChanged && thoughtHistoryDue)) {
             val historySnapshot = next.copy(
                 innerThought = newHeartVoice,
                 showInHistory = visibleChanged || newHeartVoice.isNotBlank() || !isChatTurn,
@@ -351,6 +366,7 @@ private fun CompanionPresenceState.toJson(): JSONObject = JSONObject().apply {
     put("lastPerceptionNote", lastPerceptionNote)
     put("provenanceId", provenanceId)
     put("showInHistory", showInHistory)
+    put("innerThoughtFingerprint", innerThoughtFingerprint)
 }
 
 private fun JSONObject.toPresenceState(fallbackCharacterId: String): CompanionPresenceState? {
@@ -368,6 +384,7 @@ private fun JSONObject.toPresenceState(fallbackCharacterId: String): CompanionPr
         lastPerceptionNote = optString("lastPerceptionNote"),
         provenanceId = optString("provenanceId"),
         showInHistory = optBoolean("showInHistory", true),
+        innerThoughtFingerprint = optString("innerThoughtFingerprint"),
     )
 }
 
