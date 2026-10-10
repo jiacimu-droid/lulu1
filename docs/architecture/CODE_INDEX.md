@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`8d9737e15cc44c0cffbe4a8b710b15426a5de2b0`
+- 基准提交：`67c8c2d7d4de972abf00fd3254ad26a4f143b644`
 - 分支：`main`
 - 已索引文件：463
-- 已索引代码/文本行：101352
-- 已发现符号：1486
+- 已索引代码/文本行：101365
+- 已发现符号：1487
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -12,7 +12,7 @@
 | `app/src/main/AndroidManifest.xml` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt` | 45 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 181 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 189 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 156 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt` | 49 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallMemoryPolicy.kt` | 10 | 0 |
@@ -97,7 +97,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 283 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt` | 19 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt` | 34 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt` | 37 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt` | 39 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleProgress.kt` | 15 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
@@ -401,7 +401,7 @@
 | `app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PerceptionStatusPresentationTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneCallTranscriptFilterTest.kt` | 30 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt` | 30 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt` | 32 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleLayoutTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleProgressTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneTranscriptAssemblerTest.kt` | 21 | 1 |
