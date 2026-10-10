@@ -54,11 +54,6 @@ internal fun sanitizePersistedChatText(text: String): String =
     normalizeLegacyBubbleTokens(text)
         .replace(SemanticBubbleSeparator, "")
         .replace(MalformedInternalDirectiveRegex, "")
-        .replace(Regex("""(?i)\\b(?:BUBBLE|NEXT|END|QUOTE|FAVORITE|RECALL|POKE_USER)\\b""")) { match ->
-            // Do not delete ordinary natural language that merely contains e.g. "end"; only erase
-            // isolated protocol words left by a malformed wrapper.
-            if (match.value.all { it.isLetter() || it == '_' }) "" else match.value
-        }
         .replace(Regex("[ \\t]+"), " ")
         .trim()
 
