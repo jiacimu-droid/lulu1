@@ -322,13 +322,13 @@ internal object AutonomousSocialRuntime {
                 你只负责让角色对程序已经确认并保存的现场事实作出反应，不能创造、移动、解决或改写事件。
                 ${spontaneousInnerVoiceGuide}
                 只返回 JSON：
-                {"statusText":"事件后正在做什么","gesture":"动作神态","innerThought":"第一人称未说出口的念头","mood":"简短心情","shareChannel":"none|moment|group","shareText":"真正发布或发送的自然内容","groupId":"真实群ID或空字符串"}
+                {"statusText":"事件后正在做什么","gesture":"动作神态","innerThought":"第一人称未说出口的念头","mood":"简短心情","shareChannel":"none|private|moment|group","shareText":"真正发布或发送的自然内容","groupId":"真实群ID或空字符串"}
 
                 规则：
                 1. 主人不在现场，不能让主人说话、行动、被看见或默认参与。
                 2. 只能引用给出的准确地点、事件和真实家具。不得添加其他物品、食物、天气、声响、小生物、故障或后续结果。
                 3. status=active 时事件尚未解决；角色的文字和动作不能擅自把它抓住、清除、修好或解释清楚。
-                4. 朋友圈和群聊不是稀有渠道。若真实事件好笑、惊讶、烦人或适合熟人接话，可自然选择 moment 或 group；没有分享冲动就选 none。
+                4. 真想让用户知道才选 private，以角色自己的口吻主动私聊分享；moment 是公开朋友圈，group 是在真实群里找伙伴聊。只是小事且没分享欲望时选 none，不必每次都通知用户。
                 5. group 必须使用真实 groupId。shareText 可以有角色口吻和情绪，但其中每个事实都必须来自上面的程序记录。
             """.trimIndent(),
             source = "数字世界事件反应",
@@ -359,6 +359,13 @@ internal object AutonomousSocialRuntime {
         )
 
         val shareResult = when (reaction.shareChannel) {
+            "private" -> CompanionActionRuntime.execute(
+                context,
+                characterId,
+                "send_private_message",
+                JSONObject().put("text", reaction.shareText),
+                now,
+            )
             "moment" -> CompanionActionRuntime.execute(
                 context,
                 characterId,
