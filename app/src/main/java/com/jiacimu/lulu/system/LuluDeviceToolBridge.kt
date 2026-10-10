@@ -210,7 +210,7 @@ object LuluDeviceToolBridge {
         }
         if (callSilence && parsedPlan.action !in setOf("reply", CharacterDecisionProtocol.SILENT))
             return Result.failure(IllegalStateException("通话沉默观察不执行外部工具动作"))
-        val plan = parsedPlan.copy(innerThought =
+        var plan = parsedPlan.copy(innerThought =
             com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 userText, parsedPlan.innerThought,
             ))
@@ -239,6 +239,14 @@ object LuluDeviceToolBridge {
             val combined = com.jiacimu.lulu.data.PerceptionStimulusResolver.combine(
                 userSources + observedSources,
             )
+            // Heart voice is a sparse private residue, not a mandatory second answer.
+            // A normal user message is fresh evidence; phone silence alone is not.
+            plan = plan.copy(innerThought = com.jiacimu.lulu.data.CharacterHeartVoicePolicy.keepOrBlank(
+                thought = plan.innerThought,
+                outward = plan.speechIntent.ifBlank { plan.text },
+                innerLife = plan.innerLife,
+                hasFreshEvidence = (!callSilence && userText.isNotBlank()) || observedSources.isNotEmpty(),
+            ))
             com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
                 characterId, combined?.evidenceId.orEmpty(), combined?.description.orEmpty(),
                 com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(plan.innerLife, plan.afterglow, if (callSilence) sceneContext else userText),
