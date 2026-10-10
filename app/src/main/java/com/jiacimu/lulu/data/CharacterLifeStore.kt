@@ -351,15 +351,17 @@ object CharacterLifeStore {
 
         CharacterProfileSchema.jiangDu.forEach { (key, value) ->
             val current = profile.optString(key)
-            val legacy = LegacyJiangDuProfileSchema.jiangDu[key].orEmpty()
-            val v5 = CharacterProfileSchema.jiangDuV5[key].orEmpty()
+            val legacy = LegacyJiangDuProfileSchema.jiangDu[key]
+            val v5 = CharacterProfileSchema.jiangDuV5[key]
+            val isLegacyDefault = legacy != null && current == legacy
+            val isV5Default = v5 != null && current == v5
             when {
                 !profile.has(key) -> profile.put(key, value)
-                current == legacy || current == v5 || current == value -> profile.put(key, value)
+                isLegacyDefault || isV5Default || current == value -> profile.put(key, value)
                 key == "respect" -> {
                     val custom = current
                         .replace(LegacyJiangDuProfileSchema.jiangDuRespect, "")
-                        .replace(v5, "")
+                        .let { raw -> v5?.let { raw.replace(it, "") } ?: raw }
                         .replace(CharacterProfileSchema.jiangDuRespect, "")
                         .trim()
                     profile.put(
