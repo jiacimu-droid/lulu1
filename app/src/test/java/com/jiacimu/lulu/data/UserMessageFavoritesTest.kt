@@ -104,6 +104,28 @@ class UserMessageFavoritesTest {
         CompanionPresenceStore.clearCharacter(role)
     }
 
+    @Test fun sameCausalHeartVoiceDoesNotResurfaceWhenModelParaphrasesIt() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "presence-heart-fingerprint-test"
+        CompanionPresenceStore.clearCharacter(role)
+        val start = Instant.parse("2026-10-10T11:00:00Z")
+        CompanionPresenceStore.update(
+            role, "正在聊天", "", "刚才是我理解偏了，心里有点发紧", "自责", "聊天", start,
+            innerThoughtFingerprint = "repair-same-cause",
+        )
+        CompanionPresenceStore.update(
+            role, "正在聊天", null, "还是怪我没领会她的意思", "自责", "聊天", start.plusSeconds(60),
+            innerThoughtFingerprint = "repair-same-cause",
+        )
+        val history = CompanionPresenceStore.histories.value[role].orEmpty()
+        assertEquals(2, history.size)
+        assertEquals("", history.first().innerThought)
+        assertFalse(history.first().showInHistory)
+        assertEquals("刚才是我理解偏了，心里有点发紧", history.last().innerThought)
+        CompanionPresenceStore.clearCharacter(role)
+    }
+
     @Test fun endingCallRepairsOnlyCurrentPresenceAndRejectsLateOngoingCallState() {
         val context = RuntimeEnvironment.getApplication() as Context
         CompanionPresenceStore.initialize(context)
