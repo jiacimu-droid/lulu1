@@ -263,6 +263,18 @@ object LuluDeviceToolBridge {
                 basis = plan.innerThoughtBasis,
                 hasFreshEvidence = (!callSilence && userText.isNotBlank()) || observedSources.isNotEmpty(),
             ))
+            val causalEvidenceId = combined?.evidenceId.orEmpty().ifBlank { interactionEvidenceId }
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordCausalTransition(
+                characterId = characterId,
+                evidenceId = causalEvidenceId,
+                appraisal = plan.appraisal,
+                innerLife = plan.innerLife,
+                innerThoughtBasis = plan.innerThoughtBasis,
+                selectedAction = plan.action,
+                innerThought = plan.innerThought,
+                reason = plan.reason,
+                now = now,
+            )
             com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
                 characterId, combined?.evidenceId.orEmpty(), combined?.description.orEmpty(),
                 com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(plan.innerLife, plan.afterglow, if (callSilence) sceneContext else userText),
