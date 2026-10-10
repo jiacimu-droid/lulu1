@@ -85,6 +85,25 @@ class UserMessageFavoritesTest {
         CompanionPresenceStore.clearCharacter(role)
     }
 
+    @Test fun repeatedChatSnapshotDoesNotCreateASecondHeartVoiceEvent() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "presence-heart-event-test"
+        CompanionPresenceStore.clearCharacter(role)
+        val start = Instant.parse("2026-10-10T10:39:00Z")
+        val thought = "看到那句话心里一紧，刚才确实是我会错意了"
+        CompanionPresenceStore.update(role, "正在聊天", "", thought, "自责", "聊天", start)
+        CompanionPresenceStore.update(role, "正在聊天", null, thought, "自责", "聊天", start.plusSeconds(60))
+        assertEquals(thought, CompanionPresenceStore.current(role)!!.innerThought)
+        val history = CompanionPresenceStore.histories.value[role].orEmpty()
+        assertEquals(2, history.size)
+        assertEquals("", history.first().innerThought)
+        assertFalse(history.first().showInHistory)
+        assertEquals(thought, history.last().innerThought)
+        assertTrue(history.last().showInHistory)
+        CompanionPresenceStore.clearCharacter(role)
+    }
+
     @Test fun endingCallRepairsOnlyCurrentPresenceAndRejectsLateOngoingCallState() {
         val context = RuntimeEnvironment.getApplication() as Context
         CompanionPresenceStore.initialize(context)
@@ -99,7 +118,7 @@ class UserMessageFavoritesTest {
         assertEquals("开心", CompanionPresenceStore.current(role)!!.mood)
         assertEquals("还想陪她聊会儿", CompanionPresenceStore.current(role)!!.innerThought)
         assertEquals("通话中", old!!.statusText)
-        CompanionPresenceStore.update(role, "正在通话", "正在和她打电话", null, null, "迟到的回复")
+        CompanionPresenceStore.update(role, "正在通话", "一手拿着手机贴在耳边，神情温软而专注", null, null, "迟到的回复")
         assertEquals("通话已结束", CompanionPresenceStore.current(role)!!.statusText)
         assertEquals("刚放下电话", CompanionPresenceStore.current(role)!!.gesture)
         CompanionPresenceStore.update(role, "想给她打电话", "准备打电话", null, null, "感知")
