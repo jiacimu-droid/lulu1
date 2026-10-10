@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T18:50:55.817714+00:00",
-  "commit": "183f86ef8dd3735ac7f3f6c6fbd1aa04c644c385",
+  "generatedAt": "2026-10-10T19:05:05.549288+00:00",
+  "commit": "6e8d5d81d0a5c1fe15d1d62f6634417b3950285c",
   "branch": "main",
-  "sourceFingerprint": "593932bf2aada49ba405120931babf42afa0b4f78175ba47be3298c9e62c6ff1",
+  "sourceFingerprint": "a63978683f7a62d3d8551ace5350788e40b3dfcfd37cf8f25006c908f7e961a9",
   "summary": {
-    "files": 482,
-    "lines": 103620,
-    "symbols": 1526
+    "files": 483,
+    "lines": 103686,
+    "symbols": 1531
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -296,6 +296,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
         "line": 72
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
+        "line": 53
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
@@ -2126,6 +2130,10 @@
         "line": 12
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
+        "line": 46
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
         "line": 64
       },
@@ -2978,6 +2986,36 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
         "line": 99
+      }
+    ],
+    "guide": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
+        "line": 23
+      }
+    ],
+    "classifyText": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
+        "line": 31
+      }
+    ],
+    "record": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
+        "line": 35
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
+        "line": 125
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
+        "line": 35
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
+        "line": 33
       }
     ],
     "CharacterIdentityStore": [
@@ -5746,20 +5784,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
         "line": 94
-      }
-    ],
-    "record": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 125
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
-        "line": 35
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-        "line": 33
       }
     ],
     "all": [
@@ -11083,6 +11107,33 @@
         {
           "name": "clearCharacter",
           "line": 228
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
+      "lines": 66,
+      "sha256": "cdd26e93024dcd86f2e13f1b703f8fcc5a6b558243ef3d9a123740b1513775b7",
+      "symbols": [
+        {
+          "name": "guide",
+          "line": 23
+        },
+        {
+          "name": "classifyText",
+          "line": 31
+        },
+        {
+          "name": "record",
+          "line": 35
+        },
+        {
+          "name": "recent",
+          "line": 46
+        },
+        {
+          "name": "context",
+          "line": 53
         }
       ]
     },
