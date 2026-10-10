@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:15:30.404580+00:00",
-  "commit": "da4a31863519cc52fc295a03acdec61b1f76509f",
+  "generatedAt": "2026-10-10T17:17:37.806998+00:00",
+  "commit": "3e38c16010fdccd35f152b2f326055c4c7a0c48f",
   "branch": "main",
-  "sourceFingerprint": "74626c2e7d5382f911c9cd9f5b6850d87a819caa1e36100c4d877cfc16e52685",
+  "sourceFingerprint": "efaeb60c95cc2d9db3236a9d4b85c1a70f2961916793cfc76845206b4a0edc71",
   "summary": {
     "files": 464,
-    "lines": 101525,
-    "symbols": 1492
+    "lines": 101542,
+    "symbols": 1493
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -258,16 +258,22 @@
         "line": 65
       }
     ],
+    "observationMilestone": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt",
+        "line": 6
+      }
+    ],
     "shouldReflect": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt",
-        "line": 5
+        "line": 13
       }
     ],
     "context": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt",
-        "line": 19
+        "line": 28
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
@@ -1453,19 +1459,19 @@
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1052
+        "line": 1057
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1101
+        "line": 1106
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1198
+        "line": 1203
       }
     ],
     "PendingTouch": [
@@ -4321,7 +4327,7 @@
     "recordCallEnd": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 65
+        "line": 68
       }
     ],
     "LegacyConversationMigration": [
@@ -8514,16 +8520,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt",
-      "lines": 33,
-      "sha256": "0649f8547a61a0d755d495ec50b22eb979fd37bd7f5cd5e3169b43da194be006",
+      "lines": 42,
+      "sha256": "f2d844b6eb551bca785b6f303f920cbb4d1aab8ca302427ec3f7330250e6e68e",
       "symbols": [
         {
+          "name": "observationMilestone",
+          "line": 6
+        },
+        {
           "name": "shouldReflect",
-          "line": 5
+          "line": 13
         },
         {
           "name": "context",
-          "line": 19
+          "line": 28
         }
       ]
     },
@@ -9341,8 +9351,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 1284,
-      "sha256": "0da7326712158796a2f47d5584e8c3a27483ff1bcf5199398689d0539bf2ad9c",
+      "lines": 1289,
+      "sha256": "358dea1d97dcad1b8adbada67ae552af22aef503f54bb14ca77cff004b3c5a3d",
       "symbols": [
         {
           "name": "prepare",
@@ -9394,15 +9404,15 @@
         },
         {
           "name": "sameSession",
-          "line": 1052
+          "line": 1057
         },
         {
           "name": "retryListening",
-          "line": 1101
+          "line": 1106
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 1198
+          "line": 1203
         }
       ]
     },
@@ -12332,8 +12342,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-      "lines": 93,
-      "sha256": "19d27751f047b51c56a8612c8083c6bba6fdf657ac5a7a73410a68fb2684877d",
+      "lines": 96,
+      "sha256": "eaec4d411059a17e45834d7b3517f929ef4b6108e34e82e76fcbe52a5fcf0952",
       "symbols": [
         {
           "name": "callEndDescription",
@@ -12349,7 +12359,7 @@
         },
         {
           "name": "recordCallEnd",
-          "line": 65
+          "line": 68
         }
       ]
     },
