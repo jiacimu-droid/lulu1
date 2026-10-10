@@ -72,6 +72,20 @@ internal object CharacterInitiativeRuntime {
         return if (ranked.isNotEmpty() || !allowFallback) ranked else records.takeLast(minOf(2, limit))
     }
 
+    private fun userSupportMemories(characterId: String, cue: Cue): List<SharedTimelineEvent> {
+        val query = when (cue.kind) {
+            NeedKind.FATIGUE -> "累 疲惫 学习 休息 放松 开心 喜欢 陪 游戏 缓一缓"
+            NeedKind.DISTRESS -> "难受 委屈 不开心 安慰 哄 陪 喜欢 有用 舒服 开心"
+            NeedKind.CELEBRATION -> "开心 庆祝 奖励 喜欢 分享 夸 纪念 一起"
+            NeedKind.BOREDOM -> "无聊 没意思 喜欢 游戏 玩 聊天 阅读 出门 换换脑子"
+            NeedKind.CONNECTION -> "想你 陪我 抱抱 哄哄 电话 见面 聊天 喜欢 一起"
+        }
+        return RawTimelineMemoryRecall.find(characterId, query, limit = 12)
+            .filter { it.evidenceKind == EventEvidenceKind.UserStatement }
+            .filterNot { it.content.trim() == cue.evidence.trim() }
+            .takeLast(4)
+    }
+
     fun context(characterId: String, userText: String): String {
         val cue = detect(userText) ?: return ""
         val learned = CharacterDevelopmentStore.active(characterId)
@@ -81,9 +95,10 @@ internal object CharacterInitiativeRuntime {
         val routines = relevant(
             learned.filter { it.kind == DevelopmentKind.RelationshipRoutine }, cue, limit = 4, allowFallback = true,
         )
-        val preferences = relevant(
-            learned.filter { it.kind == DevelopmentKind.Preference }, cue, limit = 4, allowFallback = true,
+        val ownPreferences = relevant(
+            learned.filter { it.kind == DevelopmentKind.Preference }, cue, limit = 3, allowFallback = true,
         )
+        val userMemories = userSupportMemories(characterId, cue)
         return buildString {
             appendLine("【程序识别到的主动性机会｜不是用户命令】")
             appendLine("可能需要：${cue.kind.label}；置信度=${"%.2f".format(cue.confidence)}；依据仅是本轮原话：${cue.evidence}")
@@ -97,9 +112,13 @@ internal object CharacterInitiativeRuntime {
                 appendLine("这段关系里逐渐形成的相处方式：")
                 routines.forEach { appendLine("- ${it.content}") }
             }
-            if (preferences.isNotEmpty()) {
-                appendLine("已有偏好线索：")
-                preferences.forEach { appendLine("- ${it.content}") }
+            if (userMemories.isNotEmpty()) {
+                appendLine("用户本人历史发言里的相关线索（保留原意理解；可能是喜欢、不喜欢、抱怨或一次性情况，不能只凭关键词当成正反馈）：")
+                userMemories.forEach { appendLine("- [${it.occurredAt}] ${it.content.take(220)}") }
+            }
+            if (ownPreferences.isNotEmpty()) {
+                appendLine("角色自己逐渐形成的偏好（只用于判断“我自己想不想这么做”，绝不代表用户也喜欢）：")
+                ownPreferences.forEach { appendLine("- ${it.content}") }
             }
             appendLine("如果没有可靠历史方法，也可以只做一个低风险、可撤回、能力内的小回应/邀请；不要为了显得主动编造“以前这样一定能让她开心”。")
             appendLine("露露机内的聊天、邀请、日记、朋友圈、阅读、游戏和数字世界行为可由角色按已有产品权限自主选择；真正操作用户手机、闹钟、屏幕、定位/通知等仍按能力授权判断，不能因为‘关心’就越权。")
