@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T12:16:13.002029+00:00",
-  "commit": "7433761866c1dc176c8e75dbafc9d0d35706eb55",
+  "generatedAt": "2026-10-10T12:16:35.376099+00:00",
+  "commit": "c7660160fad003fb9ffdd9d4f1ade5d16fafa9f8",
   "branch": "main",
-  "sourceFingerprint": "402d075c8633492bb25b373c63f446bb308cb574e7294cfdba42d125ac8e4a00",
+  "sourceFingerprint": "b7fe49c4cec88b3d26bdda6b0bb96afbfe1547669a3d2827ffa02b528d5acf8b",
   "summary": {
     "files": 446,
-    "lines": 99048,
+    "lines": 99064,
     "symbols": 1456
   },
   "symbolIndex": {
@@ -16461,7 +16461,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
       "lines": 69,
-      "sha256": "2e1f149b207ef90838cdb8f442c5107753eb9385f4c97c7348c37adbbbc4be98",
+      "sha256": "24da0c4f41a9b191df184ebeda63d7e9fea428a8ef5f97ac198d9644662950db",
       "symbols": [
         {
           "name": "CharacterAccountabilityContextTest",
@@ -16675,8 +16675,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt",
-      "lines": 81,
-      "sha256": "ee7f6a2d649b492f93403ac844cb7ed4256bc43635b4d31d5190abef771e7e24",
+      "lines": 97,
+      "sha256": "519cdfc4b333ba0369cd804e78d6cd11e841d91f6b3f066c59f01d11459acc6b",
       "symbols": [
         {
           "name": "ModelStructuredOutputTest",
