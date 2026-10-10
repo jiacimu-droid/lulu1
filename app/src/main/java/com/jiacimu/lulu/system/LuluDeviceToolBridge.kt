@@ -148,6 +148,7 @@ object LuluDeviceToolBridge {
             回复例：{"action":"reply","speechIntent":"承认刚才理解偏了，让她补充真正意思","dialogueMove":{"type":"other_initiated_repair","repairFormat":"open","target":"刚才的误解","contentIntent":"做最小修复","maxBubbles":1},"reason":"先恢复共同理解"}
             沉默例：{"action":"silent","reason":"现在心情复杂不想回复","innerThought":"我得自己消化一下","innerThoughtBasis":{"focus":"用户刚才明确拒绝了邀约","change":"从期待转为需要自己消化失落","unsaidWhy":"现在不想把情绪压给用户"}}
             工具动作仍必须按下方的真实工具协议返回 tool 与 args；没有回执就不能假装成功。
+            如果本轮行动是为了推进之前一件仍未解决的私人心事，可带 concernId=上下文里真实存在的 threadId；必须依据执行回执确认行动结果。没有对应心事就留空，不要随意创造。
             角色有自己的立场，可以反问、换话题或暂时不回复；被问到紧急、重要的事情时要考虑实际影响，不机械冷处理。
         """.trimIndent() else """
             这是电话的低延迟通道，必须给可以直接念出的 text，不能返回 silent 或仅有 speechIntent 的空发言。
@@ -172,6 +173,7 @@ object LuluDeviceToolBridge {
                 appendLine(com.jiacimu.lulu.data.CharacterInnerLifeStore.compactContext(characterId, now))
                 if (groundingContext.isNotBlank()) appendLine(groundingContext)
                 if (initiativeContext.isNotBlank()) appendLine(initiativeContext)
+                appendLine(com.jiacimu.lulu.data.CharacterExpressionContinuity.guide())
                 if (!sceneContext.contains("电话")) appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(appContext))
                 if (turnContext.isNotBlank()) {
                     appendLine("【系统提供的本轮交互元信息｜不是用户说的话，不得归因给用户】")
@@ -423,6 +425,7 @@ object LuluDeviceToolBridge {
                         appendLine(com.jiacimu.lulu.data.CharacterInnerLifeStore.interactionContext(characterId, interactionKey, now))
                         appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
                         appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history))
+                        appendLine(com.jiacimu.lulu.data.CharacterExpressionContinuity.guide())
                         appendLine("角色已决定的内容简报（不能改事实、立场或改作其他行动；不要照抄成台词）：${plan.speechIntent}")
                         if (plan.socialAttempt.isNotBlank()) {
                             appendLine("角色自己选中的具体小尝试：${plan.socialAttempt.take(200)}。这是虚拟聊天表达的意图，不是已发生的现实接触。")
@@ -466,6 +469,7 @@ object LuluDeviceToolBridge {
                             appendLine("用户刚才说：${userText}")
                             appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
                             appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history))
+                        appendLine(com.jiacimu.lulu.data.CharacterExpressionContinuity.guide())
                             appendLine("已经确定的内容意图：${plan.speechIntent}")
                             if (plan.socialAttempt.isNotBlank()) {
                                 appendLine("不能丢失角色自选的小尝试：${plan.socialAttempt.take(180)}；必须实际表达，不能空口承诺。")
@@ -556,10 +560,14 @@ object LuluDeviceToolBridge {
             requestId = "reply-${lastUserEvent ?: java.util.UUID.randomUUID().toString()}",
             userRequested = explicitUserToolRequest)
         val actual = runCatching { JSONObject(toolResult) }.getOrNull()
+        val actionReceipt = "tool:${lastUserEvent ?: now.toEpochMilli()}:${plan.tool}"
+        val executedSuccess = actual?.optBoolean("success") == true
+        val executedSummary = actual?.optString("summary").orEmpty().ifBlank { toolResult.take(220) }
         com.jiacimu.lulu.data.CharacterInnerLifeStore.recordActionResult(
-            characterId, plan.motiveId, "tool:${lastUserEvent ?: now.toEpochMilli()}:${plan.tool}",
-            plan.tool, actual?.optBoolean("success") == true,
-            actual?.optString("summary").orEmpty().ifBlank { toolResult.take(220) },
+            characterId, plan.motiveId, actionReceipt, plan.tool, executedSuccess, executedSummary,
+        )
+        com.jiacimu.lulu.data.CharacterInnerLifeStore.recordConcernOutcome(
+            characterId, plan.concernId, actionReceipt, plan.tool, executedSuccess, executedSummary,
         )
         val finalReply = LuluAiServices.gateway.generate(
             characterId = characterId,
@@ -842,6 +850,7 @@ object LuluDeviceToolBridge {
                 speechIntent = CharacterDecisionProtocol.speechIntent(json),
                 socialAttempt = json.optString("socialAttempt").trim().take(220),
                 stickerId = json.optString("stickerId").trim().take(90),
+                concernId = json.optString("concernId").trim().take(100),
                 reason = json.optString("reason"),
                 alternatives = json.optJSONArray("alternatives"),
                 appraisal = json.optJSONObject("appraisal"),
@@ -887,6 +896,7 @@ private data class ToolPlan(
     val speechIntent: String = "",
     val socialAttempt: String = "",
     val stickerId: String = "",
+    val concernId: String = "",
     val reason: String = "",
     val appraisal: JSONObject? = null,
     val dialogueMove: JSONObject? = null,
