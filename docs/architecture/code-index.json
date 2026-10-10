@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T10:01:19.557926+00:00",
-  "commit": "cf2fbc42a672ed13cd452f9fcce9a5bf46a0f3ae",
+  "generatedAt": "2026-10-10T10:02:51.191743+00:00",
+  "commit": "a17a3767cad0340173beedaaf53b6d8f4a310f53",
   "branch": "main",
-  "sourceFingerprint": "0aec64519f1dc07ed8235c59b492f67ff8cf6bd875bb56747592ce3b21595971",
+  "sourceFingerprint": "beb35e95ec7dbf6e41f66d44464c14fb99c67c11dbfe822f7663cae939b29dd6",
   "summary": {
     "files": 444,
-    "lines": 97499,
+    "lines": 97543,
     "symbols": 1433
   },
   "symbolIndex": {
@@ -7753,7 +7753,7 @@
     "CharacterExpressionGuideTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-        "line": 13
+        "line": 14
       }
     ],
     "CharacterInnerLifeStoreTest": [
@@ -12769,7 +12769,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 49,
-      "sha256": "fe1197cf09d50764d0456cd15017e0def57e98115ae7aecc5559b0b8ae790d01",
+      "sha256": "a90a7f1f465e5d655131d386ad66d55a13f61de371121be158bbc1f4fb4d8aca",
       "symbols": []
     },
     {
@@ -16258,12 +16258,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 68,
-      "sha256": "4a12875190a38a02188b3e23247fffd394fe7befc8c40af3be4862e070d44bff",
+      "lines": 112,
+      "sha256": "c47550875263859712dd02819d6c52ebb1ede5ca8235022e2022f0b2635dfde1",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
-          "line": 13
+          "line": 14
         }
       ]
     },
