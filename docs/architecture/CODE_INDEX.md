@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a9b5008053bef681d171657bd3ca336feea34ff1`
+- 基准提交：`22d1a848e53fac90c4b6407f7ad0dba1da771e0c`
 - 分支：`main`
 - 已索引文件：426
-- 已索引代码/文本行：95515
+- 已索引代码/文本行：95520
 - 已发现符号：1387
 
 | 文件 | 行数 | 符号数 |
@@ -395,7 +395,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 56 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt` | 69 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt` | 34 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt` | 65 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 211 | 2 |
