@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T06:34:44.950165+00:00",
-  "commit": "e3ecc1071da87f6a4fd3188262530b90e249948e",
+  "generatedAt": "2026-10-10T06:36:24.060690+00:00",
+  "commit": "6e7d3db2ff4d9f7d64295b4799f3351aabf1dd41",
   "branch": "main",
-  "sourceFingerprint": "169462a2ceafb2192e5ab103cf6f11c252326225a498adc318fa9c7bb6540241",
+  "sourceFingerprint": "74561a54a157df5b848dcf988e997f94efa84b253a7f04585197a9d3bb51b19c",
   "summary": {
     "files": 430,
     "lines": 96127,
@@ -10007,7 +10007,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
       "lines": 74,
-      "sha256": "feb9ac3430b70b0bba73e5b280b39a3aef637f67fbba1516345ee8e4e4e01a07",
+      "sha256": "405c879c0e649f7c144a83de79be56a36d21b6c8aac3df0c2ec54a591ed3141d",
       "symbols": [
         {
           "name": "extractExplicitAddress",
