@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:59:12.300709+00:00",
-  "commit": "9e271352cc01d9a57d5f3e346248279db807f1c2",
+  "generatedAt": "2026-10-10T17:59:56.708988+00:00",
+  "commit": "bdea139be3d9b36bf49a999c4301ac5614b494cb",
   "branch": "main",
-  "sourceFingerprint": "f1479eceeb71f4858e5e196979b47cf7c0b12e90f0bd8204360bd0b43e03d078",
+  "sourceFingerprint": "5868968116429964f32b02dd473ebb0bea11a15a4e14fb789129d2492241d0c9",
   "summary": {
     "files": 471,
-    "lines": 102458,
+    "lines": 102470,
     "symbols": 1511
   },
   "symbolIndex": {
@@ -11824,8 +11824,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-      "lines": 389,
-      "sha256": "6856841f349409afddbf4437ff1861a89d7a68cf840c46887b4fd5584548a7f5",
+      "lines": 401,
+      "sha256": "5c49b9aff58c29844edb793c63c42fc46f49c5bdab274da633aabde7c16ad1ed",
       "symbols": [
         {
           "name": "fromWire",
