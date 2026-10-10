@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T18:50:09.106449+00:00",
-  "commit": "31f14efdfe783d480aaa7fa21fabad602004c7ba",
+  "generatedAt": "2026-10-10T18:50:40.048592+00:00",
+  "commit": "582c2596162498dd5dc81f643a99ff6485753028",
   "branch": "main",
-  "sourceFingerprint": "f6661d30f135c5949e1d399118256340c49ce5df09c7f53b747e03835a46f7bb",
+  "sourceFingerprint": "1aca3899232e5314cda7cb1d1b292ba112fe6d570e0a0d94273ad240f6e3fb21",
   "summary": {
     "files": 481,
-    "lines": 103547,
+    "lines": 103559,
     "symbols": 1525
   },
   "symbolIndex": {
@@ -5535,7 +5535,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1093
+        "line": 1098
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -10893,8 +10893,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-      "lines": 172,
-      "sha256": "42100b4734ac843aa9cbb78d875aabb8e681754c8444fdfa4c919adc1cc183bb",
+      "lines": 173,
+      "sha256": "b4e0cde22d383e0da363edcb97a8630f439749d01181a097547afa580c6826e8",
       "symbols": [
         {
           "name": "eligible",
@@ -10990,7 +10990,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt",
       "lines": 73,
-      "sha256": "714527badaa9e728a9f026ab0057d1a3f6aa38e5df694879bb603a8e45685a2e",
+      "sha256": "20340cb895e58cb50fe31f1845bd0d6bb3b8d83f17421900597712611aafd94d",
       "symbols": [
         {
           "name": "conciseAppraisal",
@@ -13793,8 +13793,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1149,
-      "sha256": "775747ea3e53bede720ab7c6f1320e424acc70e67348f08c67aebe41b00ef9d4",
+      "lines": 1154,
+      "sha256": "f57d9032a6be08ce157f449ee2e5bd5a229b7b21c630fd14bf7236ed3a7169e1",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -13818,7 +13818,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1093
+          "line": 1098
         }
       ]
     },
@@ -16668,8 +16668,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt",
-      "lines": 556,
-      "sha256": "a670223531932eaa0d9659ade42c4dac41dc40704af64e2529c47d35cdb45a34",
+      "lines": 562,
+      "sha256": "f5aa97d21270044839d71be0d58487a73cceef13dc366e799a4768184e740c5d",
       "symbols": []
     },
     {
