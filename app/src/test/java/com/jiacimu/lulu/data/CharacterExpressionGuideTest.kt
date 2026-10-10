@@ -20,6 +20,19 @@ class CharacterExpressionGuideTest {
         assertTrue(prompt.contains("同一件事有不同的外在表达和内在想法"))
     }
 
+    @Test fun decisionHandoffDoesNotPreWriteTheCharactersStyle() {
+        assertTrue(CharacterDecisionProtocol.principles.contains("不要预先规定昵称"))
+        val handoff = CharacterDecisionProtocol.expressionContext(
+            appraisal = null,
+            innerLife = null,
+            mood = "有点在意",
+            continuousState = "",
+            relationshipState = "",
+        )
+        assertTrue(handoff.contains("称呼、句式、停顿、玩笑与修辞由表达层"))
+        assertTrue(spontaneousInnerVoiceGuide.contains("持续感知不等于持续写独白"))
+    }
+
     @Test fun sharedPrinciplesLeaveRoomForBothBriefAndExpressiveChat() {
         val prompt = CharacterExpressionGuide.promptSection()
         assertTrue(prompt.contains("表达已经足够时可以直接停下来"))
