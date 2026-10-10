@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T05:54:44.003724+00:00",
-  "commit": "927874fd23090de44fc960fd9826bd572a065ea9",
+  "generatedAt": "2026-10-10T05:55:02.292540+00:00",
+  "commit": "99e32ae820769e481b8a2ded37d505b266b42401",
   "branch": "main",
-  "sourceFingerprint": "a88eadcfb49f47d63928df1ac670462cd86677f3614f5833e06ba4f7446c8be7",
+  "sourceFingerprint": "4f06ac43e1347e643b751dbc52a14c0684db29efc669ebdcd1fa81d10b28eb7e",
   "summary": {
     "files": 427,
-    "lines": 95595,
+    "lines": 95601,
     "symbols": 1389
   },
   "symbolIndex": {
@@ -12562,8 +12562,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
-      "lines": 75,
-      "sha256": "d1793de27e1ed65651ccd228d38c88292bf1ef40f89b3a33aef111fba33c1717",
+      "lines": 81,
+      "sha256": "1bba6f6ee0d04b786c3246504e90fb7a9af7573513c61c03af08f705b651f1d1",
       "symbols": [
         {
           "name": "forRequest",
