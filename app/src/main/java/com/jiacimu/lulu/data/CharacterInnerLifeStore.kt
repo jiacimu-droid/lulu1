@@ -138,6 +138,45 @@ object CharacterInnerLifeStore {
                             .put("interpretation", last?.optString("thought"))
                             .put("reason", last?.optString("because"))
                             .put("evidenceId", last?.optString("source"))
+                            .put("trends", relationTrends(retained))
+                        changed = true
+                    }
+                }
+            }
+            val interactions = root.optJSONObject("interactions")
+            if (interactions != null) {
+                interactions.keys().asSequence().toList().forEach { key ->
+                    val state = interactions.optJSONObject(key) ?: return@forEach
+                    val history = state.optJSONArray("history") ?: JSONArray()
+                    val retained = JSONArray()
+                    for (i in 0 until history.length()) {
+                        val item = history.optJSONObject(i) ?: continue
+                        if (backedBy(item.optString("source"))) changed = true
+                        else retained.put(item)
+                    }
+                    if (retained.length() == 0 && history.length() > 0) {
+                        interactions.remove(key)
+                        changed = true
+                    } else if (retained.length() != history.length()) {
+                        val last = retained.optJSONObject(retained.length() - 1)
+                        val rebuilt = JSONObject()
+                            .put("history", retained)
+                            .put("lastMeaning", last?.optString("meaning").orEmpty())
+                            .put("lastAim", last?.optString("responseAim").orEmpty())
+                            .put("lastCommonGroundUpdate", last?.optString("commonGroundUpdate").orEmpty())
+                            .put("lastMove", last?.optString("interactionMove").orEmpty())
+                            .put("evidenceId", last?.optString("source").orEmpty())
+                            .put("updatedAt", last?.optString("at").orEmpty())
+                        var restoredUncertainty = ""
+                        for (i in retained.length() - 1 downTo 0) {
+                            val item = retained.optJSONObject(i) ?: continue
+                            if (item.has("uncertainty")) {
+                                restoredUncertainty = item.optString("uncertainty")
+                                break
+                            }
+                        }
+                        rebuilt.put("uncertainty", restoredUncertainty)
+                        interactions.put(key, rebuilt)
                         changed = true
                     }
                 }
@@ -290,15 +329,19 @@ object CharacterInnerLifeStore {
                 val old = bonds.optJSONObject(target)
                 val events = old?.optJSONArray("encounters") ?: JSONArray()
                 val recent = JSONArray()
-                for (i in maxOf(0, events.length() - 4) until events.length()) recent.put(events.opt(i))
-                recent.put(JSONObject().put("thought", thought)
+                for (i in maxOf(0, events.length() - 7) until events.length()) recent.put(events.opt(i))
+                val signals = normalizedRelationSignals(observation.optJSONObject("dimensions"))
+                val encounter = JSONObject().put("thought", thought)
                     .put("because", observation.optString("reason").trim().take(180))
-                    .put("source", evidenceId).put("at", now.toString()))
+                    .put("source", evidenceId).put("at", now.toString())
+                if (signals.length() > 0) encounter.put("signals", signals)
+                recent.put(encounter)
                 bonds.put(target, JSONObject().put("interpretation", thought)
                     .put("reason", observation.optString("reason").trim().take(180))
                     .put("priorThought", old?.optString("interpretation").orEmpty().take(120))
                     .put("observations", (old?.optInt("observations", 0) ?: 0).coerceAtMost(999) + 1)
                     .put("encounters", recent)
+                    .put("trends", relationTrends(recent))
                     .put("evidenceId", evidenceId).put("updatedAt", now.toString()))
                 root.put("bonds", bonds)
             }
@@ -316,6 +359,152 @@ object CharacterInnerLifeStore {
             }
         }
         save(characterId, root)
+    }
+
+    /**
+     * Conversation common ground is a short-lived, evidence-bound working state.
+     * It is not a new memory system and never outranks the actual chat transcript.
+     */
+    @Synchronized fun recordInteractionAppraisal(
+        characterId: String,
+        conversationKey: String,
+        evidenceId: String,
+        appraisal: JSONObject?,
+        now: Instant = Instant.now(),
+    ) {
+        if (prefs == null || characterId.isBlank() || conversationKey.isBlank() ||
+            evidenceId.isBlank() || appraisal == null) return
+        val meaning = appraisal.optString("meaning").trim().take(240)
+        val responseAim = appraisal.optString("responseAim").trim().take(180)
+        val commonGround = appraisal.optString("commonGroundUpdate").trim().take(240)
+        val uncertainty = appraisal.optString("uncertainty").trim().take(180)
+        val requestedMove = appraisal.optString("interactionMove").trim().lowercase()
+        val move = requestedMove.takeIf {
+            it in setOf("acknowledge", "answer", "repair", "ask", "share", "tease", "decline", "shift", "silent")
+        }.orEmpty()
+        val uncertaintySpecified = appraisal.has("uncertainty")
+        if (meaning.isBlank() && responseAim.isBlank() && commonGround.isBlank() &&
+            !uncertaintySpecified && move.isBlank()) return
+
+        val key = conversationKey.trim().take(120)
+        val root = snapshot(characterId)
+        val interactions = root.optJSONObject("interactions") ?: JSONObject()
+        val old = interactions.optJSONObject(key)
+        val history = old?.optJSONArray("history") ?: JSONArray()
+        if ((0 until history.length()).any { history.optJSONObject(it)?.optString("source") == evidenceId }) return
+
+        val entry = JSONObject()
+            .put("meaning", meaning)
+            .put("responseAim", responseAim)
+            .put("commonGroundUpdate", commonGround)
+            .put("interactionMove", move)
+            .put("source", evidenceId)
+            .put("at", now.toString())
+        if (uncertaintySpecified) entry.put("uncertainty", uncertainty)
+
+        val updated = JSONArray().apply {
+            for (i in maxOf(0, history.length() - 10) until history.length()) put(history.opt(i))
+            put(entry)
+        }
+        val next = JSONObject()
+            .put("history", updated)
+            .put("lastMeaning", meaning.ifBlank { old?.optString("lastMeaning").orEmpty() })
+            .put("lastAim", responseAim.ifBlank { old?.optString("lastAim").orEmpty() })
+            .put("lastCommonGroundUpdate", commonGround.ifBlank { old?.optString("lastCommonGroundUpdate").orEmpty() })
+            .put("lastMove", move.ifBlank { old?.optString("lastMove").orEmpty() })
+            .put("uncertainty", if (uncertaintySpecified) uncertainty else old?.optString("uncertainty").orEmpty())
+            .put("evidenceId", evidenceId)
+            .put("updatedAt", now.toString())
+        interactions.put(key, next)
+        root.put("interactions", interactions)
+        save(characterId, root)
+    }
+
+    fun interactionContext(
+        characterId: String,
+        conversationKey: String,
+        now: Instant = Instant.now(),
+    ): String {
+        val key = conversationKey.trim().take(120)
+        if (key.isBlank()) return ""
+        val state = snapshot(characterId).optJSONObject("interactions")?.optJSONObject(key) ?: return ""
+        val history = state.optJSONArray("history") ?: JSONArray()
+        if (history.length() == 0) return ""
+        val updatedAt = runCatching { Instant.parse(state.optString("updatedAt")) }.getOrNull()
+        val ageHours = updatedAt?.let { Duration.between(it, now).toHours().coerceAtLeast(0) }
+        return buildString {
+            appendLine("【当前互动共同语境｜主观会话工作记忆，不是长期人格或客观事实】")
+            val start = maxOf(0, history.length() - 4)
+            for (i in start until history.length()) {
+                val item = history.optJSONObject(i) ?: continue
+                val pieces = buildList {
+                    item.optString("commonGroundUpdate").takeIf(String::isNotBlank)
+                        ?.let { add("共同语境更新=${it.take(180)}") }
+                    item.optString("interactionMove").takeIf(String::isNotBlank)
+                        ?.let { add("互动动作=$it") }
+                    item.optString("meaning").takeIf(String::isNotBlank)
+                        ?.let { add("当时理解=${it.take(150)}") }
+                }
+                if (pieces.isNotEmpty()) appendLine("· ${pieces.joinToString("；")}")
+            }
+            state.optString("uncertainty").takeIf(String::isNotBlank)?.let {
+                appendLine("仍未确认的点：${it.take(180)}。没有新证据时保持不确定，不自行补全。")
+            }
+            if (ageHours != null && ageHours >= 72) {
+                appendLine("这段共同语境距今约${ageHours}小时；只有当前话题确实延续时才沿用，新的明确说法优先。")
+            }
+            appendLine("若对方刚刚纠正、否认或澄清，以最新修复覆盖旧推断；不要为了维持旧理解而和新消息对抗。")
+        }.trim()
+    }
+
+    private val relationAxes = listOf("trust", "warmth", "ease", "friction", "boundarySafety")
+
+    private fun normalizedRelationSignals(raw: JSONObject?): JSONObject {
+        val result = JSONObject()
+        relationAxes.forEach { axis ->
+            val value = raw?.optString(axis)?.trim()?.lowercase().orEmpty()
+            if (value in setOf("up", "down", "same")) result.put(axis, value)
+        }
+        return result
+    }
+
+    private fun relationTrends(encounters: JSONArray): JSONObject {
+        val trends = JSONObject()
+        relationAxes.forEach { axis ->
+            var score = 0
+            var count = 0
+            for (i in maxOf(0, encounters.length() - 8) until encounters.length()) {
+                val signal = encounters.optJSONObject(i)?.optJSONObject("signals")
+                    ?.optString(axis).orEmpty()
+                when (signal) {
+                    "up" -> { score += 1; count += 1 }
+                    "down" -> { score -= 1; count += 1 }
+                    "same" -> count += 1
+                }
+            }
+            val label = when {
+                count < 2 -> "证据不足"
+                score >= 2 -> "上升"
+                score <= -2 -> "下降"
+                else -> "大致稳定"
+            }
+            trends.put(axis, label)
+        }
+        return trends
+    }
+
+    private fun relationshipTrendText(bond: JSONObject): String {
+        val trends = bond.optJSONObject("trends") ?: return ""
+        val labels = listOf(
+            "trust" to "信任",
+            "warmth" to "亲近/温度",
+            "ease" to "相处自在度",
+            "friction" to "未解摩擦",
+            "boundarySafety" to "边界安全感",
+        )
+        return labels.joinToString("；") { (key, label) ->
+            "$label=${trends.optString(key, "证据不足")}"
+        }
     }
 
     /** Never acknowledge an attempted action as completed without an executor receipt. */
@@ -501,6 +690,9 @@ object CharacterInnerLifeStore {
             bonds?.keys()?.asSequence()?.take(4)?.forEach { id ->
                 val bond = bonds.optJSONObject(id) ?: return@forEach
                 appendLine("对${if (id == "user") "用户" else id}的主观看法：${bond.optString("interpretation").take(140)}；依据=${bond.optString("reason").take(110)}")
+                relationshipTrendText(bond).takeIf(String::isNotBlank)?.let {
+                    appendLine("关系近期趋势：$it（趋势不是好感分，也不能由单次互动定型）")
+                }
             }
             val corrections = root.optJSONArray("corrections")
             if (corrections != null && corrections.length() > 0) {
@@ -583,6 +775,9 @@ object CharacterInnerLifeStore {
             bonds?.keys()?.asSequence()?.take(8)?.forEach { id ->
                 val bond = bonds?.optJSONObject(id) ?: return@forEach
                 appendLine("· 对${if (id == "user") "用户" else "角色$id"}的当前私人看法：${bond.optString("interpretation")}；因为${bond.optString("reason")}；此前想法：${bond.optString("priorThought")}；累计${bond.optInt("observations")}次实际互动推断。")
+                relationshipTrendText(bond).takeIf(String::isNotBlank)?.let {
+                    appendLine("  关系近期趋势：$it。这里只描述多个真实互动累积的方向，不是绝对好感度。")
+                }
                 appendLine("  不是绝对结论，观点可以纠结、相互矛盾，不能只凭一次聊天就彻底爱上/讨厌。")
             }
             if (corrections.length() > 0) {
