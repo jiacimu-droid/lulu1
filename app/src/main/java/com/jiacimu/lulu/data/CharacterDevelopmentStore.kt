@@ -70,9 +70,13 @@ object CharacterDevelopmentStore {
                 saved.optString("jiangDuUnifiedCurrentConstraints"),
         )
         val authorized = linkedSetOf(current)
-        migrations.forEach { (from, into) ->
-            if (from.isNotBlank() && into == current) authorized += from
-        }
+        var changed: Boolean
+        do {
+            changed = false
+            migrations.forEach { (from, into) ->
+                if (from.isNotBlank() && into in authorized && authorized.add(from)) changed = true
+            }
+        } while (changed)
         return authorized
     }
 
