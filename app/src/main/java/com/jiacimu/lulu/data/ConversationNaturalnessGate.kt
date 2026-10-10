@@ -36,6 +36,31 @@ internal object ConversationNaturalnessGate {
         """(?:作为(?:一个)?(?:ai|AI|助手|模型)|根据你的需求|下面我(?:来|会)|我将为你)"""
     )
 
+    fun preservesSurfaceIntent(original: List<String>, rewritten: List<String>): Boolean {
+        if (rewritten.isEmpty()) return false
+        val before = original.joinToString("\n")
+        val after = rewritten.joinToString("\n")
+        val beforeQuestions = before.count { it == '？' || it == '?' }
+        val afterQuestions = after.count { it == '？' || it == '?' }
+        if (afterQuestions > beforeQuestions) return false
+
+        val actionOrPromise = Regex(
+            """(?:我(?:会|要|去|来|帮你|给你|替你|陪你去)|待会(?:儿)?我|等会(?:儿)?我|马上(?:去|给|帮)|一定(?:会|要)|保证|答应你|说到做到)"""
+        )
+        val beforeActions = actionOrPromise.findAll(before).map { it.value }.toSet()
+        val afterActions = actionOrPromise.findAll(after).map { it.value }.toSet()
+        if (!beforeActions.containsAll(afterActions)) return false
+
+        val relationshipEscalation = Regex("""(?:永远|一辈子|这辈子|只属于|最爱你|离不开你)""")
+        val beforeRelation = relationshipEscalation.findAll(before).map { it.value }.toSet()
+        val afterRelation = relationshipEscalation.findAll(after).map { it.value }.toSet()
+        if (!beforeRelation.containsAll(afterRelation)) return false
+
+        val controlProtocol = Regex("""(?:\\{"action":"tool"|⟪(?:QUOTE|FAVORITE|RECALL|POKE_USER))""")
+        if (controlProtocol.containsMatchIn(after) && !controlProtocol.containsMatchIn(before)) return false
+        return true
+    }
+
     fun assess(userText: String, bubbles: List<String>): ConversationNaturalnessAssessment {
         val reply = bubbles.joinToString("\n").trim()
         if (reply.isBlank()) return ConversationNaturalnessAssessment(0, emptyList())
