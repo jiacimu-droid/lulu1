@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T06:01:18.106302+00:00",
-  "commit": "f053ef178ed51b7717348632a670176e8e57b4bb",
+  "generatedAt": "2026-10-10T06:02:32.137222+00:00",
+  "commit": "9971467951e9f4d43c872a5a9173a442a0d88fdc",
   "branch": "main",
-  "sourceFingerprint": "4815629aade327411e5a2ee3ee6f7adfaf5b392d8d3620484b0c5cf74186045e",
+  "sourceFingerprint": "a80e1092bf15bcce16167b808137c147e48ae78b22df864374c710211e56c252",
   "summary": {
     "files": 428,
-    "lines": 95777,
-    "symbols": 1393
+    "lines": 95806,
+    "symbols": 1394
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1453,7 +1453,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 85
+        "line": 112
       }
     ],
     "userDeparted": [
@@ -2565,7 +2565,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 231
+        "line": 258
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -3518,10 +3518,16 @@
         "line": 212
       }
     ],
+    "briefContextFor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
+        "line": 36
+      }
+    ],
     "contextFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 33
+        "line": 60
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
@@ -3543,19 +3549,19 @@
     "ongoingActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 171
+        "line": 198
       }
     ],
     "pauseActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 182
+        "line": 209
       }
     ],
     "endActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 194
+        "line": 221
       }
     ],
     "maybeEvolve": [
@@ -11023,36 +11029,40 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-      "lines": 240,
-      "sha256": "cf80986754911c6e1740565fe98693eca5ff1f313bd200a507451adf5018142b",
+      "lines": 267,
+      "sha256": "4a9c4a48a4331a11de7da39ee9e6f5f0a14a9bc1b8523c24fbc15bbefbdbddf0",
       "symbols": [
         {
           "name": "initialize",
           "line": 20
         },
         {
+          "name": "briefContextFor",
+          "line": 36
+        },
+        {
           "name": "contextFor",
-          "line": 33
+          "line": 60
         },
         {
           "name": "apply",
-          "line": 85
+          "line": 112
         },
         {
           "name": "ongoingActivity",
-          "line": 171
+          "line": 198
         },
         {
           "name": "pauseActivity",
-          "line": 182
+          "line": 209
         },
         {
           "name": "endActivity",
-          "line": 194
+          "line": 221
         },
         {
           "name": "clearCharacter",
-          "line": 231
+          "line": 258
         }
       ]
     },
@@ -12592,8 +12602,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
-      "lines": 81,
-      "sha256": "cc562fa9c06786a1ebf509941d2ee68eeaa621616ff6b8d8d3d4882dacfb79a9",
+      "lines": 83,
+      "sha256": "8bb6e6ea9064e0a760e2b056ff2cf68ab14444a29dc6c5a6602acf6ca50ce0a6",
       "symbols": [
         {
           "name": "PromptContextBudget",
