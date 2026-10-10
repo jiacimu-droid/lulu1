@@ -19,6 +19,7 @@ internal object CharacterSpeechIdentity {
 
         return buildString {
             appendLine("【这个角色自己的表达倾向，不是必须照着说的台词】")
+            appendLine(CharacterAddressPreference.promptSection(characterId))
             // Full-context calls already include this setting in the character profile.
             if (includeConfigured && initial.isNotBlank()) appendLine("用户明确设定的个人语言习惯（优先遵守）：$initial")
             if (acquired.isNotEmpty()) {
