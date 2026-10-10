@@ -42,6 +42,20 @@ class AutonomyCallAndReceiptTest {
         assertTrue(stale > neutral)
     }
 
+    @Test fun livedBodyMomentsAreDistinguishedFromDecorativeEnvironmentEffects() {
+        fun tick(kind: String) = DigitalWorldLifeTick(
+            incidentId = "moment", locationCode = "home:a", locationName = "家",
+            kind = kind, anchorItemId = "", anchorItemName = "",
+            status = "resolved", stage = 0, summary = "角色实际做了一个动作",
+            occurredAt = Instant.EPOCH,
+        )
+        assertTrue(DigitalWorldLifeEventStore.isAmbientMoment(tick("home_wander")))
+        assertFalse(DigitalWorldLifeEventStore.isNoticeableLifeMoment(tick("home_wander")))
+        assertTrue(DigitalWorldLifeEventStore.isNoticeableLifeMoment(tick("chair_stumble")))
+        assertTrue(DigitalWorldLifeEventStore.isNoticeableLifeMoment(tick("digital_sneeze")))
+        assertFalse(DigitalWorldLifeEventStore.isNoticeableLifeMoment(tick("cool_air")))
+    }
+
     @Test fun ambientWorldMomentIsNotAnIntrusiveChatReceipt() {
         fun tick(kind: String) = DigitalWorldLifeTick(
             incidentId = "event", locationCode = "home:test", locationName = "家",

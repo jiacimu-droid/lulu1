@@ -296,8 +296,12 @@ object ProactivePerceptionRuntime {
         val worldTick = if (DigitalLifeProfileStore.isEnabled(characterId)) {
             DigitalWorldLifeEventStore.tick(appContext, characterId, now)
         } else null
-        worldTick?.takeUnless(DigitalWorldLifeEventStore::isAmbientMoment)?.let { tick ->
-            // Only consequential persistent events appear in chat; atmosphere remains world history.
+        worldTick?.takeIf { tick ->
+            !DigitalWorldLifeEventStore.isAmbientMoment(tick) ||
+                DigitalWorldLifeEventStore.isNoticeableLifeMoment(tick)
+        }?.let { tick ->
+            // Material incidents and rare personal mishaps may be visible in chat.
+            // Smaller ambient gestures stay in the lived timeline and can be shared naturally.
             MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, tick.summary, tick.incidentId)
         }
         val messages = MigratedDomainStores.chat.messages(conversation.id).value

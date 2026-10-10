@@ -43,10 +43,19 @@ internal object DigitalWorldLifeEventStore {
         "reading_index_refresh", "page_light", "reading_chime", "text_motes",
         "counter_glow", "warm_mist", "seat_light", "snack_sign",
         "courtyard_breeze", "light_rain", "mist_ribbon", "sun_patch", "rainbow_glint", "season_pixels",
+        // Real little moments of the character's life, not more furniture malfunctions.
+        "home_wander", "idle_stretch", "check_own_phone", "digital_sneeze", "chair_stumble",
+        "footstep_pause",
     )
 
     /** Ambient world flavor stays in the world timeline, not as an intrusive chat receipt. */
     fun isAmbientMoment(tick: DigitalWorldLifeTick): Boolean = tick.kind in ambientMoments
+
+    /** Only sufficiently personal, noteworthy mishaps create an optional chat receipt.
+     * The rest can still change a person's thoughts, memories and spontaneous sharing.
+     */
+    fun isNoticeableLifeMoment(tick: DigitalWorldLifeTick): Boolean =
+        tick.kind in setOf("chair_stumble", "digital_sneeze")
 
     private val lock = Any()
     private var prefs: android.content.SharedPreferences? = null
@@ -238,11 +247,13 @@ internal object DigitalWorldLifeEventStore {
         val homeOwnerId = locationCode.takeIf { it.startsWith("home:") }?.removePrefix("home:")
         val realItems = homeOwnerId?.let(DigitalWorldStore::itemsAtHome).orEmpty()
         val anchor = realItems.getOrNull(roll("$locationCode:${now.toEpochMilli()}:anchor", realItems.size.coerceAtLeast(1)))
+        val busy = DigitalWorldActivityStateStore.ongoingActivity(characterId) != null
         val kindOptions = when {
             anchor != null -> homeIncidentKinds(anchor)
             homeOwnerId != null -> listOf(
-                "home_soft_glow", "home_grid_ripple", "home_quiet_pulse", "home_soft_glow",
-                "home_grid_ripple", "home_quiet_pulse",
+                // A digital life begins with a body and a phone; no invisible furniture.
+                "home_wander", "home_wander", "idle_stretch", "check_own_phone",
+                "digital_sneeze", "footstep_pause", "home_soft_glow",
             )
             locationCode == DigitalWorldStore.CLOUD_MEADOW -> listOf(
                 "cloud_bloom", "star_motes", "cool_current", "color_tide", "cloud_shadow",
@@ -271,7 +282,8 @@ internal object DigitalWorldLifeEventStore {
             )
             else -> listOf("floating_specks", "soft_breeze", "gentle_light")
         }
-        val baseKinds = if (ambientOnly) kindOptions.filter { it in ambientMoments } else kindOptions
+        val baseKinds = (if (ambientOnly) kindOptions.filter { it in ambientMoments } else kindOptions)
+            .filterNot { busy && it in setOf("home_wander", "chair_stumble", "footstep_pause", "idle_stretch", "check_own_phone") }
         val availableKinds = baseKinds.filter { kind ->
             val exactKey = DigitalWorldEventRules.noveltyKey(kind, locationCode, anchor?.id.orEmpty())
             val lastExactAt = incidents.asSequence()
@@ -340,32 +352,28 @@ internal object DigitalWorldLifeEventStore {
     }
 
     private fun homeIncidentKinds(item: DigitalWorldItem): List<String> {
-        val ambient = listOf(
-            "gentle_light", "soft_breeze", "home_color_drift", "home_hush", "home_warmth",
-            "soft_chime", "floating_specks", "light_pattern", "cool_air", "texture_glow",
+        // Most eligible scenes are ordinary lived moments. Physical interactions
+        // require a real persisted object of the appropriate furniture kind.
+        val physical = listOf(
+            "home_wander", "home_wander", "idle_stretch", "digital_sneeze",
+            "check_own_phone", "footstep_pause",
         )
-        val specific = when (DigitalFurnitureCatalog.resolve(item).kind) {
-            DigitalFurnitureKind.BED -> listOf("surface_ripple", "cold_patch")
-            DigitalFurnitureKind.SOFA, DigitalFurnitureKind.CHAIR, DigitalFurnitureKind.CUSHION ->
-                listOf("sinking_seam", "cold_patch")
-            DigitalFurnitureKind.FLOOR_LAMP, DigitalFurnitureKind.TABLE_LAMP ->
-                listOf("light_flicker", "warm_pulse")
-            DigitalFurnitureKind.PLANT -> listOf("plant_droop", "glimmer_mote")
-            DigitalFurnitureKind.TV -> listOf("screen_static", "odd_sound")
-            DigitalFurnitureKind.MIRROR -> listOf("mirror_afterimage", "cold_patch")
-            DigitalFurnitureKind.CLOCK -> listOf("clock_desync", "odd_sound")
-            DigitalFurnitureKind.RUG -> listOf("rug_wrinkle", "glimmer_mote")
-            DigitalFurnitureKind.SHELF -> listOf("shelf_tilt", "dust_layer")
-            DigitalFurnitureKind.CABINET, DigitalFurnitureKind.NIGHTSTAND, DigitalFurnitureKind.BASKET ->
-                listOf("drawer_jam", "odd_sound")
-            DigitalFurnitureKind.WALL_ART -> listOf("frame_tilt", "glimmer_mote")
-            DigitalFurnitureKind.DESK, DigitalFurnitureKind.TABLE, DigitalFurnitureKind.COFFEE_TABLE ->
-                listOf("surface_vibration", "dust_layer")
-            DigitalFurnitureKind.DECOR -> listOf("surface_vibration", "glimmer_mote")
+        val kind = DigitalFurnitureCatalog.resolve(item).kind
+        val stumbling = if (kind in setOf(DigitalFurnitureKind.CHAIR, DigitalFurnitureKind.RUG,
+                DigitalFurnitureKind.COFFEE_TABLE, DigitalFurnitureKind.TABLE)) {
+            listOf("chair_stumble", "chair_stumble")
+        } else emptyList()
+        val ambience = listOf("home_hush", "soft_breeze", "home_warmth")
+        val actualIssue = when (kind) {
+            DigitalFurnitureKind.PLANT -> listOf("plant_droop")
+            DigitalFurnitureKind.FLOOR_LAMP, DigitalFurnitureKind.TABLE_LAMP -> listOf("light_flicker")
+            DigitalFurnitureKind.RUG -> listOf("rug_wrinkle")
+            DigitalFurnitureKind.SHELF -> listOf("shelf_tilt")
+            DigitalFurnitureKind.BED -> listOf("surface_ripple")
+            DigitalFurnitureKind.TV -> listOf("screen_static")
+            else -> listOf("dust_layer")
         }
-        // Ordinary lived-in ambience dominates. Maintenance problems are possible but uncommon;
-        // pests are deliberately rare instead of being a defining feature of home life.
-        return ambient + ambient + specific + listOf("dust_layer", "roach")
+        return physical + stumbling + ambience + actualIssue + listOf("roach")
     }
 
     private fun responseOptions(kind: String): List<String> = when (kind) {
@@ -385,6 +393,12 @@ internal object DigitalWorldLifeEventStore {
     }
 
     private fun incidentLabel(kind: String): String = when (kind) {
+        "home_wander" -> "家中走动"
+        "idle_stretch" -> "伸懒腰"
+        "check_own_phone" -> "查看自己的手机"
+        "digital_sneeze" -> "打喷嚏"
+        "chair_stumble" -> "碰到家具"
+        "footstep_pause" -> "停下来发呆"
         "gentle_light" -> "柔和光影"
         "soft_breeze" -> "轻柔气流"
         "home_color_drift" -> "缓慢流动的色泽"
@@ -469,6 +483,12 @@ internal object DigitalWorldLifeEventStore {
     }
 
     private fun openingSummary(kind: String, actorName: String, anchorName: String): String = when (kind) {
+        "home_wander" -> "${actorName}一个人在家里踱了几步，从房间一侧走到另一侧，边走边想着自己的事；没有移动家具。"
+        "idle_stretch" -> "${actorName}在家里伸了个大大的懒腰，活动了肩膀，又放松下来。"
+        "check_own_phone" -> "${actorName}拿起随身的数字手机看了一眼，又放下；没有凭空收到消息或发送任何内容。"
+        "digital_sneeze" -> "${actorName}忽然打了个喷嚏，揉揉鼻尖，有点意外；这只是数字身体的体感反应，并不代表生病。"
+        "chair_stumble" -> "${actorName}在家中走动时不小心被“$anchorName”绊了一下，身体踉跄了一步后站稳；“$anchorName”没有被移动或损坏。"
+        "footstep_pause" -> "${actorName}在房间里走了一小段路，忽然停下来想了想下一步做什么，又慢悠悠地转了个方向。"
         "gentle_light" -> "柔和的光落在“$anchorName”边缘，映出一小片明亮的纹理，很快又恢复平常。"
         "soft_breeze" -> "一阵轻柔气流掠过“$anchorName”附近，带来短暂的清凉感，随后散去。"
         "home_color_drift" -> "“$anchorName”表面的颜色随数字环境缓慢偏移了一小段，又自然回到原来的色调。"

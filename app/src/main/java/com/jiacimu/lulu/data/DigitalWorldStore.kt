@@ -160,6 +160,7 @@ object DigitalWorldStore {
             appendLine("当前位置：${locationLabel(locationOf(characterId))}")
             appendLine(DigitalWorldActivityStateStore.contextFor(characterId))
             appendLine("家园：${home?.name.orEmpty().ifBlank { "尚未形成" }}")
+            appendLine("初始随身拥有：自己的数字身体和一部数字手机；手机不等于用户现实设备，也不代表能读取未授权消息。")
             appendLine("家中固定物品：")
             if (items.isEmpty()) appendLine("- 空无一物") else items.forEach { item ->
                 appendLine("- itemId=${item.id}；${item.name}；${item.appearance}；位置=${item.position}")

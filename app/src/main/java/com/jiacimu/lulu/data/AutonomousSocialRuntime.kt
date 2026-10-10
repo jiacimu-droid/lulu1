@@ -337,11 +337,12 @@ internal object AutonomousSocialRuntime {
         ).getOrNull()?.text.orEmpty()
         val reaction = parseSoloIncidentReaction(raw)
         if (reaction == null) {
-            MigratedDomainStores.chat.appendPrivateActivityNotice(
-                characterId,
-                tick.summary,
-                tick.incidentId,
-            )
+            if (!DigitalWorldLifeEventStore.isAmbientMoment(tick) ||
+                DigitalWorldLifeEventStore.isNoticeableLifeMoment(tick)) {
+                MigratedDomainStores.chat.appendPrivateActivityNotice(
+                    characterId, tick.summary, tick.incidentId,
+                )
+            }
             return
         }
 
@@ -374,11 +375,11 @@ internal object AutonomousSocialRuntime {
             )
             else -> null
         }
-        if (shareResult == null || !shareResult.success) {
+        if ((shareResult == null || !shareResult.success) &&
+            (!DigitalWorldLifeEventStore.isAmbientMoment(tick) ||
+                DigitalWorldLifeEventStore.isNoticeableLifeMoment(tick))) {
             MigratedDomainStores.chat.appendPrivateActivityNotice(
-                characterId,
-                tick.summary,
-                tick.incidentId,
+                characterId, tick.summary, tick.incidentId,
             )
         }
     }
