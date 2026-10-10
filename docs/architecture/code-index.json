@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T14:09:32.716105+00:00",
-  "commit": "a1b4b53eaf1632a19f534c42c8fd9689212204f9",
+  "generatedAt": "2026-10-10T14:32:44.579560+00:00",
+  "commit": "ebe2c4778d46473a709ab8ccff3b157a3ca66be8",
   "branch": "main",
-  "sourceFingerprint": "656f74491acea0d5c7950d586015fcea5fd37de8144c24720727448ce40389e5",
+  "sourceFingerprint": "a2feca6a2219f3aced54909d58ce0529c15dc48ed72530220becf9b144a22bc3",
   "summary": {
-    "files": 452,
-    "lines": 99991,
-    "symbols": 1465
+    "files": 453,
+    "lines": 100124,
+    "symbols": 1468
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -272,6 +272,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
         "line": 34
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
+        "line": 72
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
@@ -2554,6 +2558,50 @@
         "line": 84
       }
     ],
+    "snapshot": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
+        "line": 33
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
+        "line": 37
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 24
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt",
+        "line": 21
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 40
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 112
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 241
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
+        "line": 351
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
+        "line": 46
+      }
+    ],
+    "proactiveContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
+        "line": 114
+      }
+    ],
     "expressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
@@ -2988,40 +3036,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
         "line": 36
-      }
-    ],
-    "snapshot": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 37
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 24
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt",
-        "line": 21
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 40
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 112
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 241
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 351
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
-        "line": 46
       }
     ],
     "knowsEachOther": [
@@ -10406,6 +10420,25 @@
         {
           "name": "promptSection",
           "line": 60
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
+      "lines": 133,
+      "sha256": "44d87b64269b5673c085ddaf60a6a07367fa9a285666519d576d5d4a75c8a0f2",
+      "symbols": [
+        {
+          "name": "snapshot",
+          "line": 33
+        },
+        {
+          "name": "context",
+          "line": 72
+        },
+        {
+          "name": "proactiveContext",
+          "line": 114
         }
       ]
     },
