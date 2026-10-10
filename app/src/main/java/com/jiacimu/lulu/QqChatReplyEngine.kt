@@ -15,6 +15,20 @@ import kotlin.math.abs
 import kotlin.random.Random
 
 internal const val SemanticBubbleSeparator = "⟪BUBBLE⟫"
+
+/**
+ * Legacy transport tokens are tolerated only at the parser boundary. New model prompts no longer
+ * expose them. Any malformed spelling that still appears is normalized/removed before persistence,
+ * so internal protocol strings can never become a visible chat message.
+ */
+private val LegacyBubbleTokenRegex = Regex(
+    """[⟪《〈<【\\[]\\s*B\\s*U\\s*B\\s*B\\s*L\\s*E\\s*[⟫》〉>】\\]]""",
+    RegexOption.IGNORE_CASE,
+)
+private val MalformedInternalDirectiveRegex = Regex(
+    """[⟪《〈<【\\[]\\s*(?:NEXT|END|QUOTE|FAVORITE|RECALL|POKE_USER)(?:\\s*:[^⟫》〉>】\\]]*)?\\s*[⟫》〉>】\\]]""",
+    RegexOption.IGNORE_CASE,
+)
 private val QuoteDirectiveRegex = Regex("⟪QUOTE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
 private val FavoriteDirectiveRegex = Regex("⟪FAVORITE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
 private val RecallDirectiveRegex = Regex("⟪RECALL\\s*:\\s*(\\d+)⟫", RegexOption.IGNORE_CASE)
@@ -32,12 +46,28 @@ internal fun stripCharacterReplyDirective(text: String): String = stripQqForward
         .replace(PokeUserDirectiveRegex, ""),
 ).trim()
 
+private fun normalizeLegacyBubbleTokens(text: String): String =
+    text.replace("\r\n", "\n")
+        .replace(LegacyBubbleTokenRegex, SemanticBubbleSeparator)
+
+internal fun sanitizePersistedChatText(text: String): String =
+    normalizeLegacyBubbleTokens(text)
+        .replace(SemanticBubbleSeparator, "")
+        .replace(MalformedInternalDirectiveRegex, "")
+        .replace(Regex("""(?i)\\b(?:BUBBLE|NEXT|END|QUOTE|FAVORITE|RECALL|POKE_USER)\\b""")) { match ->
+            // Do not delete ordinary natural language that merely contains e.g. "end"; only erase
+            // isolated protocol words left by a malformed wrapper.
+            if (match.value.all { it.isLetter() || it == '_' }) "" else match.value
+        }
+        .replace(Regex("[ \\t]+"), " ")
+        .trim()
+
 internal fun semanticReplyBubbles(text: String): List<String> =
-    text.replace("\r\n", "\n").split(SemanticBubbleSeparator)
-        .map { it.trim().trim('"') }.filter(String::isNotBlank)
+    normalizeLegacyBubbleTokens(text).split(SemanticBubbleSeparator)
+        .map { sanitizePersistedChatText(it).trim('"') }.filter(String::isNotBlank)
 
 internal fun normalizeSemanticBubbles(text: String): String {
-    val raw = text.replace("\r\n", "\n").trim()
+    val raw = normalizeLegacyBubbleTokens(text).trim()
     if (raw.isBlank()) return ""
     val directives = listOf(QuoteDirectiveRegex, FavoriteDirectiveRegex, RecallDirectiveRegex, PokeUserDirectiveRegex)
         .joinToString("") { it.find(raw)?.value.orEmpty() }
@@ -93,14 +123,16 @@ internal suspend fun appendRoleReplyWithPacing(
     delay(roleTypingLeadDelayMillis(characterId))
     bubbles.forEachIndexed { index, bubble ->
         if (!currentCoroutineContext().isActive) return@forEachIndexed
+        val visibleBubble = sanitizePersistedChatText(bubble)
+        if (visibleBubble.isBlank()) return@forEachIndexed
         val created = MigratedDomainStores.chat.appendCharacterMessage(
-            conversationId, bubble, characterId, quoteId.takeIf { index == 0 }, replyBatchId,
+            conversationId, visibleBubble, characterId, quoteId.takeIf { index == 0 }, replyBatchId,
         )
         if (presentation.recallBubbleNumber == index + 1) {
             delay(roleRecallDelayMillis(characterId))
             if (currentCoroutineContext().isActive) MigratedDomainStores.chat.retractCharacterMessage(created.id, characterLabel)
         } else spoken += created
-        if (index < bubbles.lastIndex) delay(roleBubbleDelayMillis(characterId, bubble, index))
+        if (index < bubbles.lastIndex) delay(roleBubbleDelayMillis(characterId, visibleBubble, index))
     }
     favoriteTarget?.let { CharacterMessageFavorites.favorite(characterId, conversationId, it) }
     if (presentation.pokeUser && currentCoroutineContext().isActive) {
