@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:21:57.901800+00:00",
-  "commit": "dd0fa1eebde74a1e00616d9240f40ba4aa1ea2a6",
+  "generatedAt": "2026-10-10T17:34:25.164796+00:00",
+  "commit": "d3e1f6a602ea30b7b81dc0053adbd60ae0d7e84e",
   "branch": "main",
-  "sourceFingerprint": "a6c4fff307c9304195b98487faaed5ad7e391c29b3fda587d7aa93d6702ff25d",
+  "sourceFingerprint": "0528b91aae7f2afaf81139589ec2a99d0041237e97363774e3f036b66da4cc1a",
   "summary": {
-    "files": 464,
-    "lines": 101654,
-    "symbols": 1494
+    "files": 465,
+    "lines": 101765,
+    "symbols": 1497
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1902,6 +1902,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt",
         "line": 50
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
+        "line": 99
       }
     ],
     "move": [
@@ -2638,6 +2642,22 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
         "line": 84
+      }
+    ],
+    "eligible": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
+        "line": 25
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
+        "line": 45
+      }
+    ],
+    "latestPending": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
+        "line": 29
       }
     ],
     "snapshot": [
@@ -7950,12 +7970,6 @@
         "line": 27
       }
     ],
-    "eligible": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
-        "line": 45
-      }
-    ],
     "SleepGuidanceGuideTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt",
@@ -10627,6 +10641,25 @@
         {
           "name": "promptSection",
           "line": 60
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
+      "lines": 111,
+      "sha256": "c8e3db3551dba1136351c2533fcc39a84e0bed382e5eeabfc8755f8e80855b92",
+      "symbols": [
+        {
+          "name": "eligible",
+          "line": 25
+        },
+        {
+          "name": "latestPending",
+          "line": 29
+        },
+        {
+          "name": "instruction",
+          "line": 99
         }
       ]
     },
