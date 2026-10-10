@@ -225,6 +225,7 @@ internal class RealtimeVoiceAdapter(
             CharacterSpeechIdentity.promptSection(id),
             UserProfileContext.promptSection(), UserDevicePerception.context(this.context, id),
             CharacterRuntime.personalityRuntimeContext(id, compact = true, interactionKey = "direct:user"),
+            com.jiacimu.lulu.data.CharacterContinuityRuntime.context(id),
             "当前状态（主观）：$presence", DigitalWorldStore.contextFor(id),
             DigitalWorldLifeEventStore.contextFor(id),
             memory.compactPromptSection(12_000), "世界书：" + worldBook.joinToString("\n") { "${it.title}：${it.content}" },
