@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T18:29:36.447946+00:00",
-  "commit": "61d660445b3995bbcd19938957b0a44e24850487",
+  "generatedAt": "2026-10-10T18:30:26.732294+00:00",
+  "commit": "c7d1bbaa1068f645524eae87664eb0b48c3e46fb",
   "branch": "main",
-  "sourceFingerprint": "e7f4e1ce09fc4c6661b458ee202e8719a5024a381739305a5e159fecf7c5ee7f",
+  "sourceFingerprint": "d52ebc4c18be55a24b39a8fd7aed2c58a5280c868b0e84859fd93aa76685bad4",
   "summary": {
-    "files": 479,
-    "lines": 103391,
-    "symbols": 1521
+    "files": 480,
+    "lines": 103428,
+    "symbols": 1522
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8018,6 +8018,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt",
         "line": 12
+      }
+    ],
+    "OfflineStickerAssetsTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/OfflineStickerAssetsTest.kt",
+        "line": 14
       }
     ],
     "PerceptionStatusPresentationTest": [
@@ -16940,6 +16946,17 @@
         {
           "name": "MiniMaxAsrStreamAccumulatorTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/OfflineStickerAssetsTest.kt",
+      "lines": 37,
+      "sha256": "706e372a73467ffc6cf62b18d35ef290c283548e23ee241dcfaac45ae70cfd65",
+      "symbols": [
+        {
+          "name": "OfflineStickerAssetsTest",
+          "line": 14
         }
       ]
     },
