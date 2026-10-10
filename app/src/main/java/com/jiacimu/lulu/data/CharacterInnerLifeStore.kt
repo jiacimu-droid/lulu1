@@ -748,6 +748,7 @@ object CharacterInnerLifeStore {
         innerThought: String,
         reason: String,
         now: Instant = Instant.now(),
+        alternatives: JSONArray? = null,
     ) {
         if (prefs == null || characterId.isBlank() || evidenceId.isBlank()) return
         val action = selectedAction.trim().lowercase().take(80)
@@ -783,7 +784,28 @@ object CharacterInnerLifeStore {
         if (responseAim.isNotBlank()) appraisalTrace.put("responseAim", responseAim)
         if (move.isNotBlank()) appraisalTrace.put("interactionMove", move)
         if (uncertainty.isNotBlank()) appraisalTrace.put("uncertainty", uncertainty)
+        // Short, explicit subjective hypotheses: not hidden model reasoning,
+        // not a factual assertion about the user.
+        val interpreted = CharacterDeliberationContext.conciseAppraisal(appraisal)
+        interpreted?.optString("tension")?.takeIf(String::isNotBlank)?.let {
+            appraisalTrace.put("tension", it)
+        }
+        interpreted?.optJSONArray("possibleReadings")?.let {
+            appraisalTrace.put("possibleReadings", it)
+        }
         if (appraisalTrace.length() > 0) entry.put("appraisal", appraisalTrace)
+        val options = JSONArray()
+        alternatives?.let { proposed ->
+            for (i in 0 until minOf(proposed.length(), 3)) {
+                val item = proposed.optJSONObject(i) ?: continue
+                val idea = item.optString("idea").trim().take(140)
+                val whyNot = item.optString("whyNot").trim().take(160)
+                if (idea.isNotBlank() && whyNot.isNotBlank()) {
+                    options.put(JSONObject().put("idea", idea).put("whyNot", whyNot))
+                }
+            }
+        }
+        if (options.length() > 0) entry.put("consideredAlternatives", options)
 
         val basis = JSONObject()
         if (focus.isNotBlank()) basis.put("focus", focus)
@@ -982,6 +1004,8 @@ object CharacterInnerLifeStore {
             // Read actual executor receipts even when no motiveId was supplied.
             CharacterActionFeedback.recent(decisions, now).takeIf(String::isNotBlank)
                 ?.let(::appendLine)
+            CharacterDeliberationContext.summary(root.optJSONArray("causalTransitions"), now)
+                .takeIf(String::isNotBlank)?.let(::appendLine)
         }.trim()
     }
 
