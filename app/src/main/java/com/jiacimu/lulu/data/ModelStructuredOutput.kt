@@ -101,7 +101,9 @@ internal object ModelStructuredOutput {
                     if (text.isNotBlank()) add(text.take(2_000))
                 }
             }.take(8)
-            if (values.isNotEmpty()) return stabilizeReplyBubbles(values).take(3)
+            // Structured model output owns the send boundaries. Once bubbles are valid JSON,
+            // do not second-guess them with punctuation/length heuristics.
+            if (values.isNotEmpty()) return values.take(3)
         }
 
         return json.optString("text").replace("\r\n", "\n").trim()
