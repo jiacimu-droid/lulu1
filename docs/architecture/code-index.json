@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T04:08:51.588479+00:00",
-  "commit": "71684c8a597847cbc6bbf079c53ea943e5bbc01d",
+  "generatedAt": "2026-10-10T04:11:15.376526+00:00",
+  "commit": "b132c9986a325898e3d91a60e51bc96ef70f2cdf",
   "branch": "main",
-  "sourceFingerprint": "dc9b2bcdab7dab4f6a8333e0bfec34adcf57c7bcad9d1831fbeae9f4eee58276",
+  "sourceFingerprint": "a12894d0b9c1489673d6d544ec2ce2aea4b3117c995da2171db561da1597ab50",
   "summary": {
     "files": 419,
-    "lines": 95130,
+    "lines": 95142,
     "symbols": 1373
   },
   "symbolIndex": {
@@ -337,7 +337,7 @@
     "CharacterWorldBookScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-        "line": 31
+        "line": 32
       }
     ],
     "ChatAutoVoicePlayback": [
@@ -1045,7 +1045,7 @@
     "LexiconFeatureScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-        "line": 57
+        "line": 59
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -1513,7 +1513,7 @@
     "MigratedChatHubScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt",
-        "line": 50
+        "line": 52
       }
     ],
     "LuluRepositories": [
@@ -1585,7 +1585,7 @@
     "MomentsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt",
-        "line": 35
+        "line": 37
       }
     ],
     "PerformanceFeatureScreen": [
@@ -7935,12 +7935,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt",
-      "lines": 240,
-      "sha256": "370623e93d6dd9e2e25baac3fe8cd78a30b3fb6e20b4e1406734b4752745b9a9",
+      "lines": 242,
+      "sha256": "76cc06e5a93ccccbc087229fd4cd91bc4ccfe53742724c3eb9cc9140a7fd9390",
       "symbols": [
         {
           "name": "CharacterWorldBookScreenV2",
-          "line": 31
+          "line": 32
         }
       ]
     },
@@ -8380,12 +8380,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-      "lines": 529,
-      "sha256": "133ad630172da619ff4831cb7f10d9bda2673cd6ab70ae60044718733541410c",
+      "lines": 532,
+      "sha256": "0ad96e4f1dd0a44a5e404dd11970421ff4da1c544208a769d00bf03fa5ed9a82",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",
-          "line": 57
+          "line": 59
         }
       ]
     },
@@ -8861,12 +8861,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt",
-      "lines": 599,
-      "sha256": "c4448a2747aa5c397d49ca156157b2323396e6840c0533d4970047badeb4055f",
+      "lines": 603,
+      "sha256": "8f3ed1baf17eaba5747104fa07e5a2607d3d5ab0466e1f0f79f26c78b07f18a2",
       "symbols": [
         {
           "name": "MigratedChatHubScreenV2",
-          "line": 50
+          "line": 52
         }
       ]
     },
@@ -8878,8 +8878,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-      "lines": 779,
-      "sha256": "94c1ba31eb212059fa82bd287b5bcae43883f1949931194ee3e6aebc34bffc11",
+      "lines": 780,
+      "sha256": "1b8c6b73cb07b2c3b4a208b1cade7272eb56239c5815bc2399afddcca5038718",
       "symbols": [
         {
           "name": "LuluRepositories",
@@ -8981,7 +8981,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt",
       "lines": 160,
-      "sha256": "039c8c4475f0b39b3f4aacb65d220c51f6745938c8f3dfbf4f28dce385612f52",
+      "sha256": "2c52a7b98776c10329abc24c46f017fd012a0929b29252a4370e1041d4334bad",
       "symbols": [
         {
           "name": "publish",
@@ -8997,12 +8997,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt",
-      "lines": 251,
-      "sha256": "a978d88eb2bca89e78c851ee3d5b0a333da8116c0acc6d392df5b03b218bc8a2",
+      "lines": 253,
+      "sha256": "b531525d26eeaa5b2f9181834a3576b64ec88f688d6482a791a12ef54644d81f",
       "symbols": [
         {
           "name": "MomentsScreen",
-          "line": 35
+          "line": 37
         }
       ]
     },
