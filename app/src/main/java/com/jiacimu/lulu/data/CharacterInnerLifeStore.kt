@@ -841,6 +841,7 @@ object CharacterInnerLifeStore {
         succeeded: Boolean,
         now: Instant = Instant.now(),
         actionSignature: String = "",
+        causalEvidenceId: String = "",
     ) {
         if (prefs == null || characterId.isBlank() || decisionId.isBlank()) return
         if (selectedAction == "silent" && reason.isBlank()) return
@@ -866,6 +867,7 @@ object CharacterInnerLifeStore {
             .put("signature", actionSignature.take(180))
             .put("reason", reason.trim().take(240))
             .put("motiveId", chosenMotiveId.take(80))
+            .put("causalEvidenceId", causalEvidenceId.trim().take(220))
             .put("alternatives", skipped)
             .put("succeeded", succeeded)
             .put("outcome", outcome.take(230)))
