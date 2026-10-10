@@ -39,6 +39,7 @@ internal fun QqChatComposer(
     onCall: () -> Unit,
     onSendOnly: (QqComposerPayload) -> Boolean,
     onWakeOrReply: (QqComposerPayload) -> Boolean,
+    onSendSticker: (LuluSticker) -> Boolean,
     onStop: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -47,6 +48,7 @@ internal fun QqChatComposer(
     var imageDescription by remember { mutableStateOf("") }
     var imageBusy by remember { mutableStateOf(false) }
     var imageNotice by remember { mutableStateOf("") }
+    var showStickerShelf by remember { mutableStateOf(false) }
 
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
@@ -103,6 +105,13 @@ internal fun QqChatComposer(
     }
 
     Column(Modifier.fillMaxWidth().navigationBarsPadding()) {
+        if (showStickerShelf) {
+            QqStickerShelf(
+                onSendSticker = onSendSticker,
+                onInsertText = { kaomoji -> onInputChange(input + kaomoji) },
+                onNotice = { imageNotice = it },
+            )
+        }
         if (imageUri != null) {
             Surface(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 5.dp),
@@ -139,6 +148,14 @@ internal fun QqChatComposer(
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 5.dp),
             ) {
                 Icon(Icons.Outlined.AddPhotoAlternate, null, Modifier.size(18.dp)); Spacer(Modifier.width(4.dp)); Text("图片", fontSize = 11.sp)
+            }
+            TextButton(
+                onClick = { showStickerShelf = !showStickerShelf },
+                contentPadding = PaddingValues(horizontal = 5.dp, vertical = 5.dp),
+            ) {
+                Text("☺", fontSize = 19.sp, color = QqInk)
+                Spacer(Modifier.width(3.dp))
+                Text("表情", fontSize = 11.sp)
             }
             ModelArchiveIconButton(
                 usage = ModelUsage.Chat,
