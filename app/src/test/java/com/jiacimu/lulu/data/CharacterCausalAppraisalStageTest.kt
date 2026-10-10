@@ -28,6 +28,15 @@ class CharacterCausalAppraisalStageTest {
         assertFalse(CharacterCausalAppraisalStage.eligible(pulse))
         assertFalse(CharacterCausalAppraisalStage.eligible(invented))
         assertFalse(CharacterCausalAppraisalStage.eligible(unrelated))
+        val touch = event("world-touch-1", "用户碰了一下角色的手",
+            source = "meeting")
+        val visit = event("world-visit-1", "用户到访角色的家",
+            source = "digital-world")
+        val fictionalTouch = event("world-touch-imagined", "虚构接触",
+            source = "novel")
+        assertTrue(CharacterCausalAppraisalStage.eligible(touch))
+        assertTrue(CharacterCausalAppraisalStage.eligible(visit))
+        assertFalse(CharacterCausalAppraisalStage.eligible(fictionalTouch))
     }
 
     @Test fun newestRealInteractionGetsItsOwnStageBeforeAction() {
