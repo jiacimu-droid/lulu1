@@ -10,6 +10,7 @@ import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 /** Captures real PCM. Meter is measured input, never a simulated listening animation. */
@@ -60,6 +61,13 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                 var silentFrames = 0
                 var loudFrames = 0
                 var utteranceFrames = 0
+                // The mic's real noise floor can be higher than the user-configured
+                // threshold (headset hiss, fan, Android VOICE_COMMUNICATION AGC).
+                // Do not treat that steady level as somebody speaking forever.
+                var ambientRms = threshold.toDouble() * 0.40
+                var peakRms = 0.0
+                var rollingRms = 0.0
+                var steadyFrames = 0
                 // Split uploads into continuous PCM chunks; a chunk boundary is NOT
                 // a silence or a conversational turn boundary.
                 while (isActive && epoch == generation) {
@@ -83,27 +91,42 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                             }
                         }
                         active = false; silentFrames = 0; loudFrames = 0; utteranceFrames = 0
+                        peakRms = 0.0; rollingRms = 0.0; steadyFrames = 0
                         buffer.reset(); preRoll.clear()
                         continue
                     }
                     if (!active) {
                         preRoll.addLast(frame)
                         if (preRoll.size > 4) preRoll.removeFirst()
-                        loudFrames = if (rms >= threshold) loudFrames + 1 else 0
+                        // While idle, learn the room's quiet background without
+                        // letting an abrupt real voice raise the start threshold.
+                        val startGate = PhoneMicSegmentPolicy.startThreshold(threshold, ambientRms)
+                        if (rms < startGate) ambientRms = ambientRms * 0.86 + rms * 0.14
+                        loudFrames = if (rms >= startGate) loudFrames + 1 else 0
                         if (loudFrames < 2) continue
                         active = true
                         utteranceFrames = 0
+                        peakRms = rms
+                        rollingRms = rms
+                        steadyFrames = 0
                         preRoll.forEach { buffer.write(it) }; preRoll.clear()
                         withContext(Dispatchers.Main) { if (epoch == generation) onSpeech() }
                     } else buffer.write(frame)
                     utteranceFrames++
-                    silentFrames = if (rms < threshold * 0.8) silentFrames + 1 else 0
-                    // Long natural speech includes pauses for breath. Give a
-                    // running monologue more time without slowing every
-                    // one-word reply by several seconds.
+                    peakRms = maxOf(rms, peakRms * 0.997)
+                    // Comparing only against the static settings threshold makes
+                    // elevated background noise look like unending speech.
+                    val quietGate = PhoneMicSegmentPolicy.quietThreshold(threshold, ambientRms, peakRms)
+                    silentFrames = if (rms < quietGate) silentFrames + 1 else 0
+                    // A constant noise plateau (including gain-controlled mic
+                    // noise) is also silence, even if its RMS sits above the
+                    // fixed threshold. Natural voiced speech is variable.
+                    val nearlyConstant = abs(rms - rollingRms) <= maxOf(24.0, rollingRms * 0.075)
+                    steadyFrames = if (nearlyConstant) steadyFrames + 1 else 0
+                    rollingRms = rollingRms * 0.72 + rms * 0.28
                     val finishedBySilence = PhoneMicSegmentPolicy.finishedBySilence(
                         silentFrames, utteranceFrames, endSilenceMs
-                    )
+                    ) || PhoneMicSegmentPolicy.stationaryNoiseEnded(steadyFrames, utteranceFrames)
                     val chunkFull = PhoneMicSegmentPolicy.uploadChunkFull(buffer.size())
                     if (finishedBySilence || chunkFull) {
                         val segment = buffer.toByteArray()
@@ -113,6 +136,9 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                             loudFrames = 0
                             silentFrames = 0
                             utteranceFrames = 0
+                            peakRms = 0.0
+                            rollingRms = 0.0
+                            steadyFrames = 0
                         }
                         // At max duration preserve VAD state; the next frame
                         // belongs to the same utterance, without a lost pre-roll.
