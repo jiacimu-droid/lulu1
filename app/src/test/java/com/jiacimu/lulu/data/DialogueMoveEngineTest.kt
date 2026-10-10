@@ -10,6 +10,29 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class DialogueMoveEngineTest {
+    @Test fun aClearCorrectionShouldNotForceAnotherQuestion() {
+        val feedback = "不是这个意思，我希望你能主动想个办法逗我开心，而不是又问我要做什么"
+        assertTrue(DialogueMoveEngine.userInitiatesRepair(feedback))
+        assertTrue(DialogueMoveEngine.correctionSuppliesDirection(feedback))
+        val guidance = DialogueMoveEngine.plannerConstraint(feedback)
+        assertTrue(guidance.contains("不要求等用户再次发出指令"))
+        val action = DialogueMoveEngine.resolve(
+            JSONObject().put("type", "tease").put("contentIntent", "自己想办法做一个温柔的逗乐尝试"),
+            "尝试让她笑一下",
+            feedback,
+        )
+        assertEquals(DialogueMoveType.TEASE, action.type)
+    }
+
+    @Test fun vagueCorrectionStillRequestsLocalRepair() {
+        val correction = "你根本没理解我意思"
+        assertTrue(DialogueMoveEngine.userInitiatesRepair(correction))
+        assertFalse(DialogueMoveEngine.correctionSuppliesDirection(correction))
+        val move = DialogueMoveEngine.resolve(
+            JSONObject().put("type", "tease"), "", correction)
+        assertEquals(DialogueMoveType.OTHER_INITIATED_REPAIR, move.type)
+    }
+
     @Test fun localMovesCannotExpandIntoThreeBubbleMiniEssays() {
         val backchannel = DialogueMoveEngine.resolve(
             JSONObject().put("type", "backchannel").put("maxBubbles", 3),
