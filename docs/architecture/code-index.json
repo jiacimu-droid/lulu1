@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:41:39.275752+00:00",
-  "commit": "11f096cb5bac5993c619599eb775d9901abb9a96",
+  "generatedAt": "2026-10-10T17:42:23.069646+00:00",
+  "commit": "1f56b8a69b14fcab5729db8578a6cc50484be78c",
   "branch": "main",
-  "sourceFingerprint": "e8e7192f361f5483140066f6227c5185f271ccf1981c2f50507da3c199e4bf0b",
+  "sourceFingerprint": "b2d32c6a4b2750f2ca113c5280e7e025b9118148e3ea744c51ff7b7a228661b9",
   "summary": {
-    "files": 468,
-    "lines": 102106,
-    "symbols": 1502
+    "files": 469,
+    "lines": 102152,
+    "symbols": 1503
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2072,6 +2072,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt",
         "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt",
+        "line": 12
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
@@ -10652,6 +10656,17 @@
         {
           "name": "challengeGuidance",
           "line": 97
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt",
+      "lines": 46,
+      "sha256": "33f56215fb4a4d2868806225cf2ce9e0e46834c93fd29595813e906878db93f0",
+      "symbols": [
+        {
+          "name": "recent",
+          "line": 12
         }
       ]
     },
