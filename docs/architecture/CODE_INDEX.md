@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`457da3487f8f52dc868806e8ec637e71447cc625`
+- 基准提交：`c06d140df2595fffcc2fc0b4f90fbeb54e2aaa2d`
 - 分支：`main`
 - 已索引文件：424
-- 已索引代码/文本行：95338
+- 已索引代码/文本行：95350
 - 已发现符号：1382
 
 | 文件 | 行数 | 符号数 |
@@ -145,7 +145,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 67 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 109 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt` | 33 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 114 | 14 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 121 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 30 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 344 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 151 | 2 |
@@ -399,7 +399,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 211 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 249 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 99 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt` | 41 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt` | 59 | 1 |
