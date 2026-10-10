@@ -64,6 +64,8 @@ object LuluDeviceToolBridge {
         val previousPresence = CompanionPresenceStore.current(characterId)
         val now = Instant.now()
         val zone = ZoneId.systemDefault()
+        val interactionKey = "direct:user"
+        val interactionContext = com.jiacimu.lulu.data.CharacterInnerLifeStore.interactionContext(characterId, interactionKey, now)
         // Chat does not suspend the digital world. Its persisted hourly slot prevents
         // event rerolls from rapid messages or retries.
         val inWorldMoment = if ((!sceneContext.contains("电话") || callSilence) &&
@@ -128,6 +130,7 @@ object LuluDeviceToolBridge {
                 appendLine("【用户现实设备与状态｜属于用户，缺失数据不得猜测】\n$deviceContext")
                 appendLine(com.jiacimu.lulu.data.CharacterPerceptionContext.render(observedWorld))
                 if (history.isNotBlank()) appendLine("最近对话（这是已经发生完的连续过程，用来确定你此刻站在什么状态上）：\n$history")
+                if (interactionContext.isNotBlank()) appendLine(interactionContext)
                 previousPresence?.let { presence ->
                     appendLine("角色上一刻状态：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
                 }
@@ -145,10 +148,10 @@ object LuluDeviceToolBridge {
                 发生真实变化才填写 innerLife；不变时完全省略：
                 innerLife={"emotion":{"feeling":"感受","cause":"真实触发","otherFeeling":"并存感受","impulse":"冲动","restraint":"克制","strength":1到4,"halfLifeMinutes":30到1440},
                 "motives":[{"op":"start|revise|pause|resume|release","id":"已有ID","aim":"愿望","why":"原因","priority":1到3,"reason":"变化依据"}],
-                "social":{"targetId":"user","interpretation":"对用户的主观看法","reason":"实际依据"},
+                "social":{"targetId":"user","interpretation":"对用户的主观看法","reason":"实际依据","dimensions":{"trust":"up|down|same","warmth":"up|down|same","ease":"up|down|same","friction":"up|down|same","boundarySafety":"up|down|same"}},
                 "selfCorrection":{"realization":"新认识","nextTime":"打算修正的做法"},
                 "thoughts":[{"thought":"未说出的想法","impulse":"冲动","hesitation":"顾虑"}]}。
-                心声与动作不是事实或承诺；冲突想法可以并存，后续需依据实际反馈改变。可选 afterglow={"feeling":"余波","impulse":"克制或行动冲动","holdHours":1到48}；
+                social.dimensions 只表示“这次真实互动让某个关系维度往哪边动了一点”，不是绝对好感分；没有明确证据就省略，单次变化不能定型整段关系。\n                心声与动作不是事实或承诺；冲突想法可以并存，后续需依据实际反馈改变。可选 afterglow={"feeling":"余波","impulse":"克制或行动冲动","holdHours":1到48}；
                 可选 intention={"aim":"持续目标","motive":"个人原因"}；调整/放下时用现存 id、disposition=update|release、reason，不要无凭据重建。若真实动作推进了旧愿望可写 motiveId，结果只由执行回执确认。
 
                 【已有真实手机能力】
@@ -239,6 +242,18 @@ object LuluDeviceToolBridge {
             val combined = com.jiacimu.lulu.data.PerceptionStimulusResolver.combine(
                 userSources + observedSources,
             )
+            val interactionEvidenceId = when {
+                callSilence -> silenceObservationId
+                verifiedSources.isNotEmpty() -> verifiedSources.last().id
+                else -> ""
+            }
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInteractionAppraisal(
+                characterId = characterId,
+                conversationKey = interactionKey,
+                evidenceId = interactionEvidenceId,
+                appraisal = plan.appraisal,
+                now = now,
+            )
             // Heart voice is a sparse private residue, not a mandatory second answer.
             // A normal user message is fresh evidence; phone silence alone is not.
             plan = plan.copy(innerThought = com.jiacimu.lulu.data.CharacterHeartVoicePolicy.keepOrBlank(
@@ -290,6 +305,7 @@ object LuluDeviceToolBridge {
                             com.jiacimu.lulu.data.CharacterInnerLifeStore.compactContext(characterId, now),
                             com.jiacimu.lulu.data.CharacterLifeStore.compactContext(characterId),
                         ))
+                        appendLine(com.jiacimu.lulu.data.CharacterInnerLifeStore.interactionContext(characterId, interactionKey, now))
                         appendLine("角色已决定的内容简报（不能改事实、立场或改作其他行动；不要照抄成台词）：${plan.speechIntent}")
                     },
                     instruction = """
