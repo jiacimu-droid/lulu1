@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`c22e572b4e582f4ee1eadbf1a4c74a612d040d16`
+- 基准提交：`0cc99e81d5c85933e03edd51975e4340cd9adca9`
 - 分支：`main`
 - 已索引文件：426
-- 已索引代码/文本行：95493
-- 已发现符号：1386
+- 已索引代码/文本行：95506
+- 已发现符号：1387
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -133,7 +133,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 480 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 41 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 109 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt` | 35 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt` | 42 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 91 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 171 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 20 | 1 |
@@ -395,7 +395,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 56 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt` | 69 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt` | 28 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt` | 65 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 211 | 2 |

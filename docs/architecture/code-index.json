@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T05:38:22.625955+00:00",
-  "commit": "c22e572b4e582f4ee1eadbf1a4c74a612d040d16",
+  "generatedAt": "2026-10-10T05:38:49.454631+00:00",
+  "commit": "0cc99e81d5c85933e03edd51975e4340cd9adca9",
   "branch": "main",
-  "sourceFingerprint": "64eec85b4e0589500718548d399a839abcad29fc96a0c2f43a1d51a31b4b65db",
+  "sourceFingerprint": "5801c0ccc5bb9039863c3ebca5c6691596f190b3247012a8e3d76d9bc27dba95",
   "summary": {
     "files": 426,
-    "lines": 95493,
-    "symbols": 1386
+    "lines": 95506,
+    "symbols": 1387
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2456,10 +2456,16 @@
         "line": 19
       }
     ],
+    "groupIsExplicitlySilent": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
+        "line": 33
+      }
+    ],
     "speechIntent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 31
+        "line": 38
       }
     ],
     "CharacterDevelopmentRuntime": [
@@ -9926,8 +9932,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-      "lines": 35,
-      "sha256": "8de713a1a3717597bda1456f2f00f12b6fd7b674572a992cbd856ec8ba2afd3f",
+      "lines": 42,
+      "sha256": "589b935bcc096277afc410c342a184ae710bf5c7f81f7a29f6226ce229c50ce4",
       "symbols": [
         {
           "name": "usesSeparateExpression",
@@ -9938,8 +9944,12 @@
           "line": 19
         },
         {
+          "name": "groupIsExplicitlySilent",
+          "line": 33
+        },
+        {
           "name": "speechIntent",
-          "line": 31
+          "line": 38
         }
       ]
     },
@@ -15738,8 +15748,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt",
-      "lines": 28,
-      "sha256": "2b51a12a0e6eb993f1051695026e7f594264c5471cb85f32b22290ced044c4ce",
+      "lines": 34,
+      "sha256": "4a5c1cdc5b2a837cbc1938c3902e1367937f905ee1e1f9c5a108f4f00ad15d94",
       "symbols": [
         {
           "name": "CharacterDecisionProtocolTest",
