@@ -53,7 +53,7 @@ internal data class DialogueMovePlan(
  */
 internal object DialogueMoveEngine {
     private val repairSignal = Regex(
-        "(不是(这个|那|我说的)?意思|我不是(这个|那)意思|你.{0,6}(没|没有)(懂|明白|get到|get)|" +
+        "(不是(这个|那|我说的)?意思|我不是(这个|那)意思|你.{0,6}(没|没有|不)(懂|明白|理解|get到|get)|" +
             "你.{0,8}(理解错|会错意|想错|猜错|听错)|不是让你|我说的是|我指的是|你理解偏了|你没get到)",
         setOf(RegexOption.IGNORE_CASE),
     )
