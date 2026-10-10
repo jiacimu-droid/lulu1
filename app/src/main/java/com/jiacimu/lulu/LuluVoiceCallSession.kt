@@ -691,7 +691,7 @@ internal object LuluVoiceCallSession {
                     speechQueue?.enqueue(
                         text = renderedSpeech,
                         speakerId = latest.characterId,
-                        voiceId = CharacterVoicePreferenceStore.playbackVoiceId(latest.characterId),
+                        voiceId = CharacterVoicePreferenceStore.callVoiceId(latest.characterId, latest.sleepMode),
                         messageId = voiceMessageId,
                         onStarted = {
                             if (sameReply()) mutableState.update { it.copy(playingTranscript = plainSpeech) }

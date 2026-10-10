@@ -65,6 +65,35 @@ object CharacterVoicePreferenceStore {
         check(prefs?.edit()?.putString("eleven_voice:$characterId", voiceId.trim())?.putInt("eleven_voice_version:$characterId", (prefs?.getInt("eleven_voice_version:$characterId", 0) ?: 0) + 1)?.commit() == true)
     }
 
+    private const val SLEEP_VOICE_PREFIX = "sleep_eleven_voice:"
+    private const val SLEEP_VOICE_ENABLED_PREFIX = "sleep_eleven_enabled:"
+
+    fun sleepVoiceId(characterId: String): String = prefs
+        ?.getString(SLEEP_VOICE_PREFIX + characterId.trim(), "").orEmpty().trim()
+
+    fun isSleepVoiceEnabled(characterId: String): Boolean = prefs
+        ?.getBoolean(SLEEP_VOICE_ENABLED_PREFIX + characterId.trim(), false) == true
+
+    fun setSleepVoiceId(characterId: String, voiceId: String) {
+        val id = characterId.trim()
+        if (id.isBlank()) return
+        check(prefs?.edit()?.putString(SLEEP_VOICE_PREFIX + id, voiceId.trim())?.commit() == true)
+    }
+
+    fun setSleepVoiceEnabled(characterId: String, enabled: Boolean) {
+        val id = characterId.trim()
+        if (id.isBlank()) return
+        check(prefs?.edit()?.putBoolean(SLEEP_VOICE_ENABLED_PREFIX + id, enabled)?.commit() == true)
+    }
+
+    /** The alternate voice applies only to opt-in bedtime calls on ElevenLabs. */
+    fun callVoiceId(characterId: String, sleepMode: Boolean): String? {
+        val regular = playbackVoiceId(characterId)
+        if (advanced?.getString("tts_provider", "system") != "elevenlabs" || !sleepMode ||
+            !isSleepVoiceEnabled(characterId)) return regular
+        return sleepVoiceId(characterId).ifBlank { regular.orEmpty() }.ifBlank { null }
+    }
+
     fun voiceId(characterId: String): String? = mutableVoiceIds.value[characterId.trim()]
         ?.trim()
         ?.takeIf(String::isNotBlank)

@@ -296,6 +296,34 @@ fun CharacterSettingsScreenV2(
                     OutlinedTextField(value = realtimeVoiceId, onValueChange = { realtimeVoiceId = it; CharacterVoicePreferenceStore.setRealtimeVoiceId(characterId, it) },
                         label = { Text("ElevenLabs Voice ID") }, singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
                     CharacterV2Switch(title = "自动播放语音", checked = autoPlayVoice) { enabled -> CharacterVoicePreferenceStore.setEnabled(characterId, enabled) }
+                    HorizontalDivider()
+                    Text("哄睡专用声线", fontWeight = FontWeight.SemiBold)
+                    Text("仅 ElevenLabs 哄睡通话使用；关闭或留空时沿用角色平时的声线。",
+                        color = LuluColors.Muted, fontSize = 12.sp)
+                    var bedtimeVoiceId by remember(characterId) {
+                        mutableStateOf(CharacterVoicePreferenceStore.sleepVoiceId(characterId))
+                    }
+                    var bedtimeVoiceEnabled by remember(characterId) {
+                        mutableStateOf(CharacterVoicePreferenceStore.isSleepVoiceEnabled(characterId))
+                    }
+                    OutlinedTextField(
+                        value = bedtimeVoiceId,
+                        onValueChange = {
+                            bedtimeVoiceId = it
+                            CharacterVoicePreferenceStore.setSleepVoiceId(characterId, it)
+                        },
+                        label = { Text("哄睡 ElevenLabs Voice ID") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                    )
+                    CharacterV2Switch(
+                        title = "哄睡时切换专属声线",
+                        checked = bedtimeVoiceEnabled,
+                        enabled = bedtimeVoiceId.isNotBlank(),
+                    ) {
+                        bedtimeVoiceEnabled = it
+                        CharacterVoicePreferenceStore.setSleepVoiceEnabled(characterId, it)
+                    }
                 }
             }
             }
