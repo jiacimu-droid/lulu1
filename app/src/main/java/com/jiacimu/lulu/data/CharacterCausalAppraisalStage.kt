@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 import org.json.JSONObject
+import org.json.JSONArray
 import java.time.Instant
 
 /**
@@ -38,13 +39,20 @@ internal object CharacterCausalAppraisalStage {
         events.filter(::eligible).maxByOrNull { it.occurredAt }
 
     /** A stage-one receipt does not mean a real action decision has completed. */
-    fun hasCompletedDecision(characterId: String, evidenceId: String): Boolean {
-        if (evidenceId.isBlank()) return false
-        val entries = CharacterInnerLifeStore.snapshot(characterId).optJSONArray("decisions") ?: return false
-        return (0 until entries.length()).any { index ->
-            entries.optJSONObject(index)?.optString("causalEvidenceId") == evidenceId
+    fun hasCompletedDecision(characterId: String, evidenceId: String): Boolean =
+        hasDecisionReceipt(CharacterInnerLifeStore.snapshot(characterId).optJSONArray("decisions"), evidenceId)
+
+    fun hasDecisionReceipt(decisions: JSONArray?, evidenceId: String): Boolean =
+        evidenceId.isNotBlank() && decisions != null && (0 until decisions.length()).any { index ->
+            decisions.optJSONObject(index)?.optString("causalEvidenceId") == evidenceId
         }
-    }
+
+    fun hasAppraisalReceipt(transitions: JSONArray?, evidenceId: String): Boolean =
+        evidenceId.isNotBlank() && transitions != null && (0 until transitions.length()).any { index ->
+            val entry = transitions.optJSONObject(index)
+            entry?.optString("evidenceId") == evidenceId &&
+                entry.optString("selectedAction") == "appraise"
+        }
 
     /** Resume the saved inner state if the process died between appraisal and action.
      * The event does not need to be reinterpreted or charged for a second time.
@@ -53,12 +61,7 @@ internal object CharacterCausalAppraisalStage {
         if (evidenceId.isBlank() || hasCompletedDecision(characterId, evidenceId)) return null
         val transitions = CharacterInnerLifeStore.snapshot(characterId)
             .optJSONArray("causalTransitions") ?: return null
-        val committed = (0 until transitions.length()).any { index ->
-            val entry = transitions.optJSONObject(index)
-            entry?.optString("evidenceId") == evidenceId &&
-                entry.optString("selectedAction") == "appraise"
-        }
-        if (!committed) return null
+        if (!hasAppraisalReceipt(transitions, evidenceId)) return null
         val event = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
             .firstOrNull() ?: return null
         val presence = CompanionPresenceStore.current(characterId)
