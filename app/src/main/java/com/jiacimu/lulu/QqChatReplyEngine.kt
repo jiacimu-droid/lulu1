@@ -134,7 +134,9 @@ internal suspend fun appendRoleReplyWithPacing(
         delay(700L + rolePacingSeed(characterId) % 500L)
         MigratedDomainStores.chat.appendSystemMessage(conversationId, "[戳一戳] $characterLabel 戳了戳你。")
     }
-    spoken.forEach { ChatAutoVoicePlayback.enqueue(characterId, it.id, it.content, conversationId) }
+    // A sticker is a real visual message, never raw base64 read aloud by TTS.
+    spoken.filter { decodeQqChatImage(it.content) == null }
+        .forEach { ChatAutoVoicePlayback.enqueue(characterId, it.id, it.content, conversationId) }
     return spoken.joinToString("\n", transform = LuluChatMessage::content)
 }
 
