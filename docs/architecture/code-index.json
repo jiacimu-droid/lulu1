@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T04:30:55.408075+00:00",
-  "commit": "ff91af24c4d0d8313d92c7da03e1928239382597",
+  "generatedAt": "2026-10-10T04:31:44.465569+00:00",
+  "commit": "b53ca5a0a737402e7256033375bf455fe9170f88",
   "branch": "main",
-  "sourceFingerprint": "177c14f543965a0bc1be765e619c943927cd3fbbd2bb22736e37a487ff1c6892",
+  "sourceFingerprint": "90d9b6c42b76f3ace79306e1b8a681bef2fbac51029733de9333a024719766ae",
   "summary": {
-    "files": 419,
-    "lines": 95152,
-    "symbols": 1373
+    "files": 420,
+    "lines": 95246,
+    "symbols": 1379
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2854,16 +2854,46 @@
         "line": 64
       }
     ],
+    "sleepVoiceId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
+        "line": 70
+      }
+    ],
+    "isSleepVoiceEnabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
+        "line": 73
+      }
+    ],
+    "setSleepVoiceId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
+        "line": 76
+      }
+    ],
+    "setSleepVoiceEnabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
+        "line": 82
+      }
+    ],
+    "callVoiceId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
+        "line": 90
+      }
+    ],
     "voiceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
-        "line": 67
+        "line": 96
       }
     ],
     "setVoiceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
-        "line": 71
+        "line": 100
       }
     ],
     "ChatGenerationActivity": [
@@ -7514,6 +7544,12 @@
         "line": 20
       }
     ],
+    "CharacterVoicePreferenceStoreTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt",
+        "line": 8
+      }
+    ],
     "CommitmentCallRetryPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt",
@@ -7916,8 +7952,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-      "lines": 483,
-      "sha256": "02a9079f6b5ddb5d612390cd4a055f0ed907a062c32239bf7200bdb8859782d9",
+      "lines": 511,
+      "sha256": "507e30aeff4416faa6a45ff4692b0211d07603097d3bf880dd3805bbfd24f34c",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
@@ -8663,7 +8699,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
       "lines": 1037,
-      "sha256": "643b0362d465d3ab1f667453f2fe28892831daf989fa2476e7d13ba34286b717",
+      "sha256": "1dee9708370698bdcb05ad1a380c1a7c150545b8e142f69433689f1961f2a4c4",
       "symbols": [
         {
           "name": "prepare",
@@ -10106,8 +10142,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
-      "lines": 85,
-      "sha256": "a94a8240ed6176fec5a03bf4d4fd0386615c87ee28951194a2864e3fa7e8c554",
+      "lines": 114,
+      "sha256": "759235ceb0b01781c64b06e656f7873e2903e86e15e6e4f0b9b18518b2a3c049",
       "symbols": [
         {
           "name": "CharacterVoicePreferenceStore",
@@ -10138,12 +10174,32 @@
           "line": 64
         },
         {
+          "name": "sleepVoiceId",
+          "line": 70
+        },
+        {
+          "name": "isSleepVoiceEnabled",
+          "line": 73
+        },
+        {
+          "name": "setSleepVoiceId",
+          "line": 76
+        },
+        {
+          "name": "setSleepVoiceEnabled",
+          "line": 82
+        },
+        {
+          "name": "callVoiceId",
+          "line": 90
+        },
+        {
           "name": "voiceId",
-          "line": 67
+          "line": 96
         },
         {
           "name": "setVoiceId",
-          "line": 71
+          "line": 100
         }
       ]
     },
@@ -15652,6 +15708,17 @@
         {
           "name": "CharacterOriginResetTest",
           "line": 20
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt",
+      "lines": 37,
+      "sha256": "cdb33eb023acc952a814cee178471efc1ac78592cc2a8d0cdbdc2a6353a35732",
+      "symbols": [
+        {
+          "name": "CharacterVoicePreferenceStoreTest",
+          "line": 8
         }
       ]
     },
