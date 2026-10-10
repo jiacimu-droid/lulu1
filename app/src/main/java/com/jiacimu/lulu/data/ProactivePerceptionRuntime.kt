@@ -70,6 +70,7 @@ object ProactivePerceptionRuntime {
         val intention: JSONObject? = null,
         val afterglow: JSONObject? = null,
         val innerLife: JSONObject? = null,
+        val appraisal: JSONObject? = null,
         val motiveId: String = "",
         val alternatives: org.json.JSONArray? = null,
     )
@@ -549,6 +550,23 @@ object ProactivePerceptionRuntime {
             hasFreshEvidence = freshStimulus || previousEvidence.isNotBlank() ||
                 decision.action != Action.SILENT,
         )
+        val causalEvidenceId = when {
+            stimulus != null -> stimulus.evidenceId
+            previousEvidence.isNotBlank() -> previousEvidence
+            awakeReflection -> awakeObservationId
+            else -> "perception:${now.toEpochMilli()}:${trigger.take(35)}"
+        }
+        CharacterInnerLifeStore.recordCausalTransition(
+            characterId = characterId,
+            evidenceId = causalEvidenceId,
+            appraisal = decision.appraisal,
+            innerLife = decision.innerLife,
+            innerThoughtBasis = decision.innerThoughtBasis,
+            selectedAction = decision.action.name.lowercase(),
+            innerThought = groundedInnerThought,
+            reason = decision.reason,
+            now = now,
+        )
         // Being online alone is not evidence of a new thought. Persist a new private voice only when
         // there is a real stimulus, deliberate follow-through, an actual action, or the model declares
         // a substantive inner-life change. This keeps awareness continuous without minute-by-minute
@@ -771,6 +789,7 @@ object ProactivePerceptionRuntime {
             intention = json.optJSONObject("intention"),
             afterglow = json.optJSONObject("afterglow"),
             innerLife = json.optJSONObject("innerLife"),
+            appraisal = json.optJSONObject("appraisal"),
             motiveId = json.optString("motiveId").trim(),
             alternatives = json.optJSONArray("alternatives"),
         )
