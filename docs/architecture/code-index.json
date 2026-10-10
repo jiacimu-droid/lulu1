@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T19:10:19.959680+00:00",
-  "commit": "7d49b89ccc46e1c378daa02355f3506f21c9c85b",
+  "generatedAt": "2026-10-10T19:12:35.567545+00:00",
+  "commit": "54d2069115cd24ae3a05447a81a0aba09ee70cec",
   "branch": "main",
-  "sourceFingerprint": "5d61855c1dd1ff58f84ef130ea9271ee53e8a7d996927d8d4d3cb5e1c3e81c30",
+  "sourceFingerprint": "875717819aaabe339906a60e380a45e85036d5b64410c78f61c2770d3752ef1f",
   "summary": {
     "files": 484,
-    "lines": 103903,
-    "symbols": 1533
+    "lines": 103915,
+    "symbols": 1534
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -307,7 +307,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1057
+        "line": 1061
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -315,7 +315,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 102
+        "line": 110
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -3113,31 +3113,31 @@
     "backedBy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 84
+        "line": 88
       }
     ],
     "interactionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 423
+        "line": 427
       }
     ],
     "groundingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 586
+        "line": 590
       }
     ],
     "normalize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 959
+        "line": 963
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 976
+        "line": 980
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -3178,6 +3178,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
         "line": 70
+      }
+    ],
+    "meritsOneFollowThrough": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
+        "line": 104
       }
     ],
     "integrate": [
@@ -11212,8 +11218,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1175,
-      "sha256": "727306a3498e793f3f643988911188beef837cd9c0f3c94a247a3748e65cf44a",
+      "lines": 1179,
+      "sha256": "8b2fe72de29a2b347ae75691bdef5d11f93f8c00947db15734e549d675d533a5",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -11225,27 +11231,27 @@
         },
         {
           "name": "backedBy",
-          "line": 84
+          "line": 88
         },
         {
           "name": "interactionContext",
-          "line": 423
+          "line": 427
         },
         {
           "name": "groundingContext",
-          "line": 586
+          "line": 590
         },
         {
           "name": "normalize",
-          "line": 959
+          "line": 963
         },
         {
           "name": "compactContext",
-          "line": 976
+          "line": 980
         },
         {
           "name": "context",
-          "line": 1057
+          "line": 1061
         }
       ]
     },
@@ -11297,8 +11303,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-      "lines": 128,
-      "sha256": "4e777d3c841e3150130c1189674f46b45e3d9043723138426448de9c2ef35596",
+      "lines": 136,
+      "sha256": "5f5211b8000616e7e58b28efd2df7fd0dd6d1005ac313fa9816b53159c7cb576",
       "symbols": [
         {
           "name": "update",
@@ -11313,8 +11319,12 @@
           "line": 92
         },
         {
+          "name": "meritsOneFollowThrough",
+          "line": 104
+        },
+        {
           "name": "context",
-          "line": 102
+          "line": 110
         }
       ]
     },
